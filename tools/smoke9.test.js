@@ -233,7 +233,7 @@ step("refreshAiring(force) bypasses the TTL; cache is memory-only (vault untouch
 
 /* ============ 4 · Seasonal Watching ============ */
 console.log("== seasonal ==");
-step("seasonal view: current-season entries of every status, watching first, palette class, season art, no-season entries absent", async () => {
+step("seasonal view: in progress by default, then every status watching first, palette class, season art, no-season entries absent", async () => {
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Old Classic", status: "inProgress",
     externalIds: { anilistId: 4181 }, extra: { season: "FALL", seasonYear: 2008 } }, cb));
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Hand Tracked No Season", status: "inProgress" }, cb));
@@ -247,6 +247,11 @@ step("seasonal view: current-season entries of every status, watching first, pal
   const meta = KOS.anime.SEASON_META[cur.season];
   if (!meta || wrap.getAttribute("data-season") !== cur.season) throw new Error("season palette missing: " + wrap.getAttribute("data-season"));
   if (!new RegExp(meta.label + " " + cur.year).test(wrap.textContent)) throw new Error("season header wrong");
+  /* review B: the current season opens on in progress; Everything shows the rest */
+  const inProg = [...main.querySelectorAll("[data-ui~='vault.card'] [data-ui~='vault.title']")].map(x => x.textContent);
+  if (inProg.some(t => /Planned This Season/.test(t))) throw new Error("the current season should open on in progress only");
+  [...main.querySelectorAll("[data-ui~='anime.season-show-item']")].find(b => b.textContent === "Everything").click();
+  await waitFor(() => [...main.querySelectorAll("[data-ui~='vault.title']")].some(x => /Planned This Season/.test(x.textContent)), 3000);
   const titles = [...main.querySelectorAll("[data-ui~='vault.card'] [data-ui~='vault.title']")].map(x => x.textContent);
   if (!titles.some(t => /Frieren/.test(t))) throw new Error("current-season entry missing");
   if (titles.some(t => /Old Classic|Hand Tracked/.test(t))) throw new Error("non-current/no-season entries leaked in: " + titles.join(", "));

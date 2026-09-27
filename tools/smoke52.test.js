@@ -309,15 +309,24 @@ step("Find new refuses a local-only add for anime/books when AniList declines; V
   netScript = null;
   await p(cb => KOS.mediadb.delKV("anilist.token", cb));
 });
-step("Seasonal: every status of the season (watching first), with the season's art and credit", async () => {
+step("Seasonal: in progress by default this season, everything in status order on the toggle, with the season's art and credit", async () => {
   await clearVault();
   const cur = KOS.anime.currentSeason();
   await add(pulled("anime", 1, "Watching", "inProgress", { extra: { season: cur.season, seasonYear: cur.year } }));
   await add(pulled("anime", 2, "Planned", "planned", { extra: { season: cur.season, seasonYear: cur.year } }));
+  await add(pulled("anime", 3, "Held", "onHold", { extra: { season: cur.season, seasonYear: cur.year } }));
+  await add(pulled("anime", 4, "Done", "completed", { extra: { season: cur.season, seasonYear: cur.year } }));
   KOS.show("seasonal");
   await waitFor(() => main().querySelector("[data-ui~='vault.card']"), 4000);
-  const titles = [...main().querySelectorAll("[data-ui~='vault.title']")].map(t => t.textContent);
-  assert(titles.join("|") === "Watching|Planned", "seasonal lists the whole season, watching first: " + titles.join(", "));
+  /* review B: the current season opens on what is being watched */
+  let titles = [...main().querySelectorAll("[data-ui~='vault.title']")].map(t => t.textContent);
+  assert(titles.join("|") === "Watching", "the current season does not open on in progress: " + titles.join(", "));
+  const all = [...main().querySelectorAll("[data-ui~='anime.season-show-item']")].find(b => b.textContent === "Everything");
+  assert(all, "no Everything toggle");
+  all.click();
+  await waitFor(() => main().querySelectorAll("[data-ui~='vault.card']").length === 4, 3000);
+  titles = [...main().querySelectorAll("[data-ui~='vault.title']")].map(t => t.textContent);
+  assert(titles.join("|") === "Watching|Held|Done|Planned", "everything is not in progress → on hold → completed → dropped → planned: " + titles.join(", "));
   const meta = KOS.anime.SEASON_META[cur.season];
   const art = main().querySelector("[data-ui~='anime.season-hero'] [data-ui~='anime.season-art']");
   assert(art && art.srcset.indexOf(meta.art) !== -1 && art.getAttribute("src") === meta.artSmall, "season art missing");

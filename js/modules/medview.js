@@ -223,13 +223,17 @@
 
   /* the two-way grid ⇄ list layout switch (books cycles three layouts per
      tab and keeps its own) */
-  function layoutToggle(p, onChange) {
+  /* extras: a medium's own layouts after grid and list — [{ id, glyph,
+     label }] (the VN vault's Chapter select, review B) */
+  function layoutToggle(p, onChange, extras) {
     var seg = el("span", { class: "k-seg k-seg--quiet k-mlayout", role: "group", "aria-label": "Layout" });
+    var ids = ["grid", "list"].concat((extras || []).map(function (x) { return x.id; }));
+    function current() { return ids.indexOf(p.layout) !== -1 ? p.layout : "grid"; }
     function btn(id, glyph, label) {
       return el("button", { type: "button", class: "k-seg-item", "data-layout": id, "aria-label": label, title: label,
-        "aria-pressed": String((p.layout === "list" ? "list" : "grid") === id), text: glyph,
+        "aria-pressed": String(current() === id), text: glyph,
         onclick: function () {
-          if ((p.layout === "list" ? "list" : "grid") === id) return;
+          if (current() === id) return;
           p.layout = id;
           KOS.store.save();
           seg.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-layout") === id)); });
@@ -238,6 +242,7 @@
     }
     seg.appendChild(btn("grid", "▦", "Grid"));
     seg.appendChild(btn("list", "≡", "List"));
+    (extras || []).forEach(function (x) { seg.appendChild(btn(x.id, x.glyph, x.label)); });
     return seg;
   }
 
@@ -579,6 +584,167 @@
   }
   var editorSectionSeq = 0;
 
+  /* ================= small shared editor pieces (review B) =================
+     xOfY — "12 of [40]": a count and the total it is out of, as one field,
+     the way the shelf reads "2 of 12". Either side may be read-only text.
+     Returns { node, cur, tot } (the two inputs, null when read-only). */
+  function xOfY(label, cur, tot, opts) {
+    opts = opts || {};
+    function num(v, aria, cls) {
+      var n = el("input", { type: "number", class: "k-input k-xofy-in" + (cls ? " " + cls : ""), "data-ui": "ui.quick-add vault.num",
+        min: "0", step: opts.step || "1", placeholder: "?", "aria-label": aria });
+      if (v != null && v !== "") n.value = String(v);
+      return n;
+    }
+    var c = opts.curReadOnly ? null : num(cur, label + (opts.curAria ? " " + opts.curAria : ""));
+    var t = opts.totReadOnly ? null : num(tot, label + " — out of", "k-xofy-tot");
+    var node = el("label", { class: "k-field", "data-ui": "ui.field" + (opts.hook ? " " + opts.hook : "") }, [
+      el("span", { class: "k-field-label", "data-ui": "part.label", text: label }),
+      el("span", { class: "k-xofy" }, [
+        c || el("span", { class: "k-xofy-ro", text: cur != null ? String(cur) : "—" }),
+        el("span", { class: "k-xofy-of", text: "of" }),
+        t || el("span", { class: "k-xofy-ro", text: tot != null ? String(tot) : "?" })
+      ])
+    ]);
+    return { node: node, cur: c, tot: t };
+  }
+  function readNum(input) {
+    if (!input || input.value === "") return null;
+    var n = parseFloat(input.value);
+    return isNaN(n) ? null : Math.max(0, n);
+  }
+  /* the x.x/10 score, as AniList's decimal ten-point scale reads it */
+  function scoreInput(value, aria) {
+    var n = el("input", { type: "number", class: "k-input k-medit-score-in", "data-ui": "ui.quick-add vault.num vault.editor-score",
+      min: "0", max: "10", step: "0.1", placeholder: "–", "aria-label": aria || "Score out of 10" });
+    if (value) n.value = String(value);
+    return el("label", { class: "k-medit-score" }, [n, el("span", { class: "k-medit-score-of", text: "/ 10" })]);
+  }
+
+  /* search one source and pick a result — the lookup behind "Find on
+     AniList" and "Fill from the book databases". opts: { title, sub,
+     initial, search(term, cb(err, list, note)), meta(r) -> text,
+     action (button text), onPick(r, close) }. Nothing is written here;
+     onPick decides. */
+  function pickDialog(opts) {
+    var overlay = modalOverlay();
+    var input = el("input", { type: "search", class: "k-input", "data-ui": "ui.quick-add msearch.input",
+      placeholder: "Search by title…", "aria-label": "Search" });
+    input.value = opts.initial || "";
+    var note = el("p", { class: "k-muted", "data-ui": "part.sub", role: "status" });
+    var results = el("div", { class: "k-mpick", "data-ui": "msearch.results" });
+    var seq = 0;
+    function run() {
+      var term = input.value.trim();
+      results.innerHTML = "";
+      if (term.length < 2) { note.textContent = ""; return; }
+      var mine = ++seq;
+      note.textContent = "Searching…";
+      opts.search(term, function (err, list, msg) {
+        if (mine !== seq) return;
+        note.textContent = err ? err.message : (msg || (list && list.length ? "" : "No matches."));
+        (list || []).forEach(function (r) {
+          results.appendChild(el("div", { class: "k-mpick-row", "data-ui": "msearch.row" }, [
+            r.coverUrl
+              ? el("span", { class: "k-mrow-cover" }, [el("img", { src: r.coverUrl, alt: "", loading: "lazy" })])
+              : el("span", { class: "k-mrow-cover", "aria-hidden": "true", text: "本" }),
+            el("span", { class: "k-mrow-main" }, [
+              el("b", { class: "k-mrow-title", text: r.title }),
+              el("span", { class: "k-mrow-sub", text: opts.meta ? opts.meta(r) : "" })
+            ]),
+            el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", "data-ui": "msearch.add",
+              text: opts.action || "Use", onclick: function () { opts.onPick(r, overlay.close); } })
+          ]));
+        });
+      });
+    }
+    input.addEventListener("input", KOS.ui.debounce(run, 260));
+    dialogBox(overlay, "msearch.dialog", opts.title, opts.sub || "",
+      el("div", { class: "k-dialog-body k-fs" }, [input, note, results]), null, "k-fs-dialog");
+    KOS.ui.openDialog(overlay);
+    input.focus();
+    if (input.value.trim()) run();
+    return overlay;
+  }
+
+  /* ================= the quote log (every medium, review B) =================
+     Lines worth keeping: the text, an optional context, the date. Any one
+     can become a card in the PERSONAL deck (sid "personal") — a line from a
+     show or a book has no place in a subject's deck; the user edits both
+     sides first. The draft's `quotes` change only when the editor saves. */
+  function quoteToCardForm(e, quote, onDone) {
+    var q = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 2, "aria-label": "Front of the card" });
+    q.value = "Complete the quote — " + e.title + (quote.context ? " (" + quote.context + ")" : "") +
+      ": “" + quote.text.slice(0, Math.min(30, Math.ceil(quote.text.length / 3))) + "…”";
+    var a = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 2, "aria-label": "Back of the card" });
+    a.value = quote.text;
+    return el("div", { class: "k-vn-qform", "data-ui": "vn.quote-form" }, [
+      el("p", { class: "k-field-hint", text: "Send to flashcards — lands in the Personal deck, not a subject" }),
+      q, a,
+      el("div", { class: "k-cluster" }, [
+        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", text: "+ Add to Personal deck", onclick: function (ev) {
+          ev.preventDefault();
+          if (!q.value.trim() || !a.value.trim()) { KOS.ui.toast("Both sides are needed.", true); return; }
+          KOS.srs.addCustom(KOS.srs.PERSONAL_SID, e.module, q.value.trim(), a.value.trim(),
+            { src: { module: e.module, entryId: e.id != null ? e.id : null, title: e.title } });
+          KOS.ui.toast("Card added to the Personal deck — study it from Due Today → Personal deck.");
+          onDone();
+        } }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Cancel", onclick: function (ev) { ev.preventDefault(); onDone(); } })
+      ])
+    ]);
+  }
+  function quoteLog(e) {
+    var wrap = el("div", { class: "k-vn-list k-vn-quotes", "data-ui": "vault.quotes vn.quotes" });
+    function render() {
+      wrap.innerHTML = "";
+      wrap.appendChild(el("div", { class: "k-vn-head" }, [
+        el("b", { text: "Quote log" }),
+        el("p", { class: "k-field-hint", "data-ui": "part.sub", text: e.quotes.length
+          ? e.quotes.length + (e.quotes.length === 1 ? " line kept" : " lines kept") + " — any of them can become a flashcard"
+          : "lines worth keeping — text, optional context, and a route to the flashcard system" })
+      ]));
+      e.quotes.slice().reverse().forEach(function (q) {
+        /* a quote card: the line in the reading face on the editor's own
+           field surface with a rule in the vault's colour (review B: it
+           blends in rather than a colour of its own) */
+        var row = el("div", { class: "k-vn-quote", "data-ui": "vn.quote" });
+        var formHolder = el("div", {});
+        row.appendChild(el("blockquote", { class: "k-vn-quote-text", text: "“" + q.text + "”" }));
+        row.appendChild(el("div", { class: "k-vn-quote-meta" }, [
+          el("span", { class: "k-vn-quote-ctx", text: (q.context ? q.context + " · " : "") + new Date(q.loggedAt).toLocaleDateString() }),
+          el("button", { type: "button", class: "k-btn k-btn--sm k-vn-quote-act", text: "⇢ flashcard", title: "Send to the Personal deck (editable first)", "aria-label": "Make a flashcard from this quote", onclick: function (ev) {
+            ev.preventDefault();
+            formHolder.innerHTML = "";
+            formHolder.appendChild(quoteToCardForm(e, q, function () { formHolder.innerHTML = ""; }));
+          } }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-vn-quote-act", "aria-label": "Delete quote", text: "✕", onclick: function (ev) {
+            ev.preventDefault();
+            e.quotes = e.quotes.filter(function (x) { return x !== q; });
+            render();
+          } })
+        ]));
+        row.appendChild(formHolder);
+        wrap.appendChild(row);
+      });
+      /* the line takes the whole row; context (three quarters) and the
+         button share the row under it (review B) */
+      var qText = el("textarea", { class: "k-input", "data-ui": "ui.note-area vn.quote-in", rows: 3, "aria-label": "Quote text", placeholder: "“The universe has a beginning, but no end.” — the line itself" });
+      var qCtx = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Quote context or route (optional)", placeholder: "context / route (optional)" });
+      wrap.appendChild(el("div", { class: "k-vn-qadd", "data-ui": "vn.quote-add" }, [
+        qText, qCtx,
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "❝ Log quote", onclick: function (ev) {
+          ev.preventDefault();
+          if (!qText.value.trim()) { KOS.ui.toast("The quote text is needed.", true); return; }
+          e.quotes.push(KOS.mediadb.normQuote({ text: qText.value.trim(), context: qCtx.value.trim() }));
+          render();
+        } })
+      ]));
+    }
+    render();
+    return wrap;
+  }
+
   function calField(label, input) {
     return el("label", { class: "k-field", "data-ui": "cal.field ui.field" }, [el("span", { class: "k-field-label", text: label }), input]);
   }
@@ -682,7 +848,16 @@
     panels.forEach(function (p) { wrap.appendChild(p); });
     loose.forEach(function (n) { wrap.appendChild(n); });
     show(0);
-    return { bar: tabItems.length > 1 ? bar : null, body: wrap, show: show, panels: panels };
+    /* the tab holding a section, for callers that open on it or rename it */
+    function indexOf(sectionId) {
+      for (var i = 0; i < panels.length; i++) if (panels[i].querySelector("[data-edit-section='" + sectionId + "']")) return i;
+      return -1;
+    }
+    function rename(sectionId, text) {
+      var i = indexOf(sectionId), t = bar.querySelectorAll("[role='tab']")[i];
+      if (t) { t.textContent = text; panels[i].setAttribute("aria-label", text); }
+    }
+    return { bar: tabItems.length > 1 ? bar : null, body: wrap, show: show, panels: panels, indexOf: indexOf, rename: rename };
   }
   function editorBanner(opts, overlay) {
     var e = opts.entry;
@@ -741,6 +916,8 @@
         } });
       out.push(favBtn);
     }
+    /* a medium may put its score beside Favourite (Books, review B) */
+    if (opts.score) out.push(opts.score);
     return el("div", { class: "k-medit-actions" }, [
       el("div", { class: "k-cluster" }, out),
       el("span", { class: "k-medit-sync", "data-ui": "vault.editor-sync", "data-state": /^Synced|^Linked/.test(syncLine(opts.entry)) ? "linked" : null, text: syncLine(opts.entry) })
@@ -781,6 +958,8 @@
     if (opts.entry) box.style.setProperty("--vh-accent", "var(--" + ({ game: "games" }[opts.entry.module] || opts.entry.module) + ")");
     overlay.appendChild(box);
     overlay.showTab = tabs.show;
+    overlay.showSection = function (id) { var i = tabs.indexOf(id); if (i !== -1) tabs.show(i); };
+    overlay.renameTab = tabs.rename;
     KOS.ui.openDialog(overlay);
     /* focus lands in the tab that holds it */
     if (opts.focus) {
@@ -1272,63 +1451,69 @@
         if (e.favourite) favs++;
         units += modId === "game" ? (e.playtimeHours || 0) : ((e.progress && e.progress.current) || 0);
       });
+      /* review B, second pass: the figures are the Overview's one band,
+         not a row of loose boxes; the charts sit in rows that fill —
+         status across the whole row with its key beside the ring, scores
+         beside genres, then the year of finishes and the year of logs */
       function cell(v, k) {
-        return el("div", { class: "k-mstat" }, [el("dd", { class: "k-mono", text: String(v) }), el("dt", { text: k })]);
+        return el("div", { class: "k-mx-fig" }, [el("dt", { text: k }), el("dd", { text: typeof v === "number" ? KOS.ui.num(v) : String(v) })]);
       }
-      /* review B: the figures are tiles in the vault's colour, and a
-         medium's own counts join them instead of trailing as a sentence */
       var extras = [];
       if (modId === "books") {
         var ownedVols = 0, ownedSeries = 0;
         rows.forEach(function (e) { var n = e.physical && e.physical.volumes ? e.physical.volumes.length : 0; ownedVols += n; if (n) ownedSeries++; });
-        if (ownedVols) extras.push(cell(ownedVols, "volumes on the shelf"), cell(ownedSeries, "series owned"));
+        if (ownedVols) extras.push(cell(ownedVols, "Volumes on the shelf"), cell(ownedSeries, "Series owned"));
       }
       if (modId === "vn") {
-        var rc = 0, qk = 0;
-        rows.forEach(function (e) { rc += (e.routes || []).filter(function (r) { return r.cleared; }).length; qk += (e.quotes || []).length; });
-        if (rc) extras.push(cell(rc, "routes cleared"));
-        if (qk) extras.push(cell(qk, "quotes kept"));
+        var rc = 0;
+        rows.forEach(function (e) { rc += (e.routes || []).filter(function (r) { return r.cleared; }).length; });
+        if (rc) extras.push(cell(rc, "Routes cleared"));
       }
-      var band = el("dl", { class: "k-mstat-band" }, [
-        cell(rows.length, "in the vault"),
-        cell(inProg, modId === "books" ? "reading" : modId === "anime" ? "watching" : "playing"),
-        cell(completed, "finished"),
-        cell(modId === "game" ? Math.round(units) + " hr" : units, modId === "game" ? "logged" : mod.unitName + " logged"),
-        cell(scored ? (scoreSum / scored).toFixed(1) : "—", "mean score"),
-        cell(favs, "in the Shrine")
+      var qk = 0;
+      rows.forEach(function (e) { qk += (e.quotes || []).length; });
+      if (qk) extras.push(cell(qk, "Quotes kept"));
+      var band = el("dl", { class: "k-mx-band k-mstat-band", "data-ui": "vault.stats-band" }, [
+        cell(rows.length, "In the vault"),
+        cell(inProg, modId === "books" ? "Reading" : modId === "anime" ? "Watching" : "Playing"),
+        cell(completed, "Finished"),
+        cell(modId === "game" ? Math.round(units) + " hr" : units, modId === "game" ? "Hours logged" : mod.unitName.charAt(0).toUpperCase() + mod.unitName.slice(1) + " logged"),
+        cell(scored ? (scoreSum / scored).toFixed(1) : "—", "Mean score"),
+        cell(favs, "In the Shrine")
       ].concat(extras));
       band.style.setProperty("--vh-accent", mod.accent);
       body.appendChild(band);
 
-      var grid = el("div", { class: "k-mstats-grid" });
+      var grid = el("div", { class: "k-mstats-grid k-mstats-grid--numbers" });
       body.appendChild(grid);
+      function wide(card) { card.setAttribute("data-span", "wide"); return card; }
 
-      /* 1 — composition donut */
+      /* 1 — composition: the ring and its key side by side, the whole row */
       var statusData = STATUSES.map(function (s) {
         return { label: KOS.media.STATUS_LABEL[s], value: rows.filter(function (e) { return e.status === s; }).length,
           color: "var(--st-" + s + ")" };
       });
-      grid.appendChild(KOS.charts.chartCard("By status", "the shape of the vault",
-        KOS.charts.donutWithLegend(statusData, { centre: rows.length, centreSub: "titles" })));
+      grid.appendChild(wide(KOS.charts.chartCard("By status", "the shape of the vault",
+        KOS.charts.donutWithLegend(statusData, { centre: rows.length, centreSub: "titles" }))));
 
-      /* 2 — score distribution */
+      /* 2 — score distribution beside the top genres, one row */
       var scores = [];
       for (var i = 1; i <= 10; i++) {
         scores.push({ label: String(i), value: rows.filter(function (e) { return Math.round(e.score) === i && e.score; }).length,
           color: i >= 8 ? "var(--gold)" : i >= 5 ? "var(--green)" : "var(--red)" });
       }
-      if (scored) grid.appendChild(KOS.charts.chartCard("Scores", "everything you have rated, out of 10",
-        KOS.charts.barChart(scores, { width: 320, height: 210 }), { half: true }));
-
-      /* 3 — top genres, ranked */
       var gCount = {};
       rows.forEach(function (e) { (e.genres || []).forEach(function (g) { gCount[g] = (gCount[g] || 0) + 1; }); });
       var gTop = Object.keys(gCount).map(function (g) { return { label: g, value: gCount[g] }; })
         .sort(function (a, b) { return b.value - a.value; }).slice(0, 8);
-      if (gTop.length) grid.appendChild(KOS.charts.chartCard("Genres", "where your taste actually lives",
-        KOS.charts.hbarChart(gTop, { color: mod.accent })));
+      var pair = [];
+      if (scored) pair.push(KOS.charts.chartCard("Scores", "everything you have rated, out of 10",
+        KOS.charts.barChart(scores, { width: 460, height: 268 }), { half: true }));
+      if (gTop.length) pair.push(KOS.charts.chartCard("Genres", "where your taste actually lives",
+        KOS.charts.hbarChart(gTop, { color: mod.accent }), { half: true }));
+      if (pair.length === 1) wide(pair[0]);
+      pair.forEach(function (c) { grid.appendChild(c); });
 
-      /* 4 — finishes over the last 12 months */
+      /* 3 — finishes over the last 12 months, the whole row */
       var months = [], now = new Date();
       for (var j = 11; j >= 0; j--) {
         var d = new Date(now.getFullYear(), now.getMonth() - j, 1);
@@ -1341,25 +1526,25 @@
         if (hit) hit.value++;
       });
       if (months.some(function (x) { return x.value; })) {
-        grid.appendChild(KOS.charts.chartCard("Finished, by month", "the last twelve months",
-          KOS.charts.lineChart(months, { color: mod.accent })));
+        grid.appendChild(wide(KOS.charts.chartCard("Finished, by month", "the last twelve months",
+          KOS.charts.lineChart(months, { color: mod.accent, width: 960, height: 220 }))));
       }
 
-      /* the activity heatmap — sessions logged against this module */
+      /* 4 — the activity heatmap: a year of logs, the whole row */
       var byDay = {}, total = 0;
       KOS.sessions.all().forEach(function (s) {
         if (s.type === "media" && s.metrics && s.metrics.module === modId) byDay[s.date] = (byDay[s.date] || 0) + 1;
       });
       var days = [];
-      for (var h = 16 * 7 - 1; h >= 0; h--) {
+      for (var h = 52 * 7 - 1; h >= 0; h--) {
         var dd = KOS.srs.addDays(KOS.srs.todayISO(), -h);
         var n = byDay[dd] || 0; total += n;
         days.push({ date: dd, value: n, hint: dd + ": " + n });
       }
       if (total) {
         var verb = modId === "books" ? "reading" : modId === "anime" ? "watch" : modId === "vn" ? "reading" : "play";
-        grid.appendChild(KOS.charts.chartCard("Activity", total + " " + verb + " logs · 16 weeks",
-          KOS.charts.heatmap(days, { color: mod.accent })));
+        grid.appendChild(wide(KOS.charts.chartCard("Activity", total + " " + verb + " logs · the last year",
+          KOS.charts.heatmap(days, { color: mod.accent, cell: 14, gap: 4, fill: true }))));
       }
 
       /* 5 — module-specific extras */
@@ -1369,8 +1554,8 @@
         var pData = Object.keys(pCount).map(function (p) {
           return { label: KOS.media.PLATFORM_LABEL && KOS.media.PLATFORM_LABEL[p] || p, value: pCount[p] };
         }).sort(function (a, b) { return b.value - a.value; });
-        if (pData.length) grid.appendChild(KOS.charts.chartCard("Platforms", "where the hours went",
-          KOS.charts.hbarChart(pData, { color: mod.accent })));
+        if (pData.length) grid.appendChild(wide(KOS.charts.chartCard("Platforms", "where the hours went",
+          KOS.charts.hbarChart(pData, { color: mod.accent }))));
       }
 
       dialogBox(overlay, "vault.stats", mod.label + " — the numbers", rows.length + (rows.length === 1 ? " entry" : " entries"), body, null, "k-mstats-dialog");
@@ -1670,6 +1855,11 @@
     bumpUnit: bumpUnit,
     field: field,
     editorSection: editorSection,
+    quoteLog: quoteLog,
+    xOfY: xOfY,
+    readNum: readNum,
+    scoreInput: scoreInput,
+    pickDialog: pickDialog,
     calField: calField,
     splitList: splitList,
     modalOverlay: modalOverlay,

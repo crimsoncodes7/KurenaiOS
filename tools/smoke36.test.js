@@ -120,10 +120,10 @@ try {
     "Anime must refuse a manual add — the vault mirrors AniList");
   inspectMirrorEditor("Books (AniList row)", KOS.booksEditor, { id: 905, module: "books", title: "Example", author: "Abe", format: "manga",
       genres: ["Drama"], progress: { current: 1, total: 60, totalVolumes: 7 }, syncSource: "anilist", externalIds: { anilistId: 1 } },
-    ["Title", "Author / mangaka", "Status", "Chapters read / 60", "Volumes read / 7", "Rating", "Did not finish", "Custom lists", "Mood", "Shelves", "Tags", "Notes"],
+    ["Title", "Author / mangaka", "Status", "Chapters read", "Volumes read", "Custom lists", "Mood", "Shelves", "Tags", "Notes"],
     ["Title", "Author / mangaka", "Format", "Chapters", "Volumes", "Genres"]);
   inspectEditor("Books", KOS.booksEditor, { id: 902, module: "books", title: "Example" },
-    ["Title", "Author / mangaka", "Cover URL", "Status", "Chapters read", "Chapters total", "Volumes read", "Volumes total", "Rating", "Did not finish", "Started", "Finished", "Custom lists", "Notes"]);
+    ["Title", "Author / mangaka", "Cover URL", "Status", "Chapters read", "Volumes read", "Started", "Finished", "Custom lists", "Notes"]);
   inspectEditor("Visual Novels", KOS.vnEditor, { id: 903, module: "vn", title: "Example" },
     ["Title", "Developer", "VNDB id", "Cover URL", "Status", "Score /10", "Hours played", "Ownership", "Started", "Finished", "Genres", "Tags", "Content warnings", "Custom lists", "CG unlocked", "Notes"]);
   inspectEditor("Games", KOS.gamesEditor, { id: 904, module: "game", title: "Example" },
@@ -138,6 +138,27 @@ try {
     assert(labels(bookModal).includes(label), "Physical Vault range is missing label: " + label));
   assert(bookModal.querySelector("[data-ui~='books.range-submit'] button"), "Physical Vault has no explicit Add range action");
   close(bookModal);
+
+  /* review B, third pass: the score sits beside Favourite as x.x / 10, the
+     counts read "x of y", DNF is gone, and from the Physical lens a book
+     with volumes gets a tab for one volume — a later volume opens on it */
+  KOS.booksEditor({ id: 906, module: "books", title: "Shelved", score: 8.5, progress: { current: 3, total: 20, volumes: 1, totalVolumes: 4 },
+    physical: { owned: true, volumes: [{ number: 1 }, { number: 2 }] } }, noop, { physical: true, volume: 2 });
+  const vm = document.querySelector("[data-ui~='books.dialog']");
+  const scoreIn = vm.querySelector("[data-ui~='vault.editor-score']");
+  assert(scoreIn && scoreIn.closest(".k-medit-actions") && scoreIn.value === "8.5", "the score is not beside Favourite as x.x");
+  assert(vm.querySelector("[data-ui~='books.chapters'] .k-xofy"), "chapters read is not an x-of-y field");
+  assert(!/did not finish/i.test(vm.textContent), "DNF is still in the editor");
+  const vtabs = [...vm.querySelectorAll("[role='tablist'] [role='tab']")];
+  const vt = vtabs.find(t => /^Vol \d/.test(t.textContent));
+  assert(vt && vt.textContent === "Vol 2" && vt.getAttribute("aria-selected") === "true", "volume 2 did not open on its own tab: " + vtabs.map(t => t.textContent).join(", "));
+  assert(vm.querySelector("[data-ui~='books.vol-tab'] [data-ui~='books.vol-pages']"), "the volume tab has no pages field");
+  close(vm);
+  KOS.booksEditor({ id: 907, module: "books", title: "Shelved", physical: { owned: true, volumes: [{ number: 1 }] } }, noop, {});
+  const plain = document.querySelector("[data-ui~='books.dialog']");
+  assert(![...plain.querySelectorAll("[role='tab']")].some(t => /^Vol/.test(t.textContent)), "the volume tab shows outside the Physical lens");
+  assert(plain.querySelector("[data-ui~='books.link-anilist']") && plain.querySelector("[data-ui~='books.fill-books']"), "a hand-made book cannot find itself");
+  close(plain);
 
   /* UI rebuild M2: the four .med-record-modal/.med-edit-* layout pins went
      with the legacy stylesheet; the editor is rebuilt from V-18 in M9 */

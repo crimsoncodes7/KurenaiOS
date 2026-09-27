@@ -397,7 +397,9 @@ source comments and audit notes refer to it.
     none (`KOS.anilist.pickTitle`); both spellings ride in `extra` and
     `mediadb.query({search})` matches either plus the author. The
     overview's schedule reads `inProgress` titles only; the Seasonal view
-    lists EVERY status of the season, watching first. Its hero carries one
+    opens on what is in progress for the current season and on every
+    status for any other (a toggle switches), ordered in progress, on
+    hold, completed, dropped, planned (review B). Its hero carries one
     credited piece of scenery per season (`KOS.anime.SEASON_META[].art`,
     hot-linked, small sample as the background while the full frame loads)
     or the user's own picture from media kv `hero.season.<SEASON>` (source

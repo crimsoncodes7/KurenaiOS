@@ -1253,11 +1253,12 @@
           : weekStart.getDate() + " " + MONTHS[weekStart.getMonth()].slice(0, 3) + " – " +
             weekEnd.getDate() + " " + MONTHS[weekEnd.getMonth()].slice(0, 3) + " " + weekEnd.getFullYear());
 
-      head.appendChild(el("h1", { class: "k-cal-title", text: titleText }));
+      /* ‹ Month › — the arrows either side of what they step (review B) */
       head.appendChild(el("div", { class: "k-cluster k-cal-step" }, [
         el("button", { type: "button", class: "k-iconbtn", text: "‹", "aria-label": "Previous " + mode, onclick: function () {
           setFocus(mode === "month" ? new Date(y, mo - 1, 1) : new Date(y, mo, focus.getDate() - 7));
         } }),
+        el("h1", { class: "k-cal-title", text: titleText }),
         el("button", { type: "button", class: "k-iconbtn", text: "›", "aria-label": "Next " + mode, onclick: function () {
           setFocus(mode === "month" ? new Date(y, mo + 1, 1) : new Date(y, mo, focus.getDate() + 7));
         } })

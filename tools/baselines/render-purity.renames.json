@@ -634,9 +634,9 @@
   },
   {
    "surface": "^governor$",
-   "from": "^Edit banner$",
-   "expect": { "dialog": ["Position your profile banner"] },
-   "why": "Graphite step 9 (the image cropper): the cropper is one named dialog; the old overlay and its box both carried the name, so it was counted twice."
+   "retire": true,
+   "from": "^(Edit banner|Remove profile banner)$",
+   "why": "Graphite review B (third pass): the Status hero no longer carries the banner's Edit and ×; the Avatar page owns the banner (Add banner / Reposition / Remove), which opens the same cropper."
   },
   {
    "navTo": "^#/worked$",

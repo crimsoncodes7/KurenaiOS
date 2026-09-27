@@ -308,12 +308,8 @@
           dataModeButton("", "Mine"),
           dataModeButton("empty", "Empty"),
           dataModeButton("sample", "Sample")
-        ]),
-        el("div", { class: "k-gv-banner-ctl" }, [
-          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit banner", title: "Upload or reposition your profile banner", onclick: editBanner }),
-          hasBanner ? el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "×", "aria-label": "Remove profile banner",
-            title: "Remove the banner", onclick: function () { KOS.governor.setBanner(null); render(); } }) : null
-        ].filter(Boolean))
+        ])
+        /* the banner's Edit and × went (review B): Avatar owns the banner */
       ].filter(Boolean));
       txt.appendChild(access);
 

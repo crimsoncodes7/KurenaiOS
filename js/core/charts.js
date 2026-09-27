@@ -257,7 +257,7 @@
   /* line chart — a trend over time. points = [{label, value, hint?}] */
   function lineChart(points, opts) {
     opts = opts || {};
-    var W = 560, H = 168, padB = 26, padT = 12, padL = 32, padR = 10;
+    var W = opts.width || 560, H = opts.height || 168, padB = 26, padT = 12, padL = 32, padR = 10;
     var s = svgEl(W, H);
     if (!points.length) return s;
     var max = Math.max(1, points.reduce(function (a, p) { return Math.max(a, p.value); }, 0));

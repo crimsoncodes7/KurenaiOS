@@ -212,10 +212,11 @@
       e.notes = notes.value;
       mv.saveEntry(e, {
         isNew: false, pushBefore: pushBefore,
-        activity: function (rec) { return oldStatus !== rec.status ? "status" : null; },
+        activity: function (rec) { return oldStatus !== rec.status ? "status" : rec.quotes.length > quotesAtOpen ? "quote" : null; },
         close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
+    var quotesAtOpen = e.quotes.length;
 
     var x = e.extra || {};
     var season = x.season ? x.season.charAt(0) + x.season.slice(1).toLowerCase() + (x.seasonYear ? " " + x.seasonYear : "") : null;
@@ -229,6 +230,7 @@
       tabs: [
         { label: "List state", ids: ["progress"] },
         { label: "Your layer", ids: ["personal"] },
+        { label: "Quote log", ids: ["highlights"] },
         { label: "Record", ids: ["identity"] }
       ],
       form: [
@@ -256,7 +258,8 @@
           field("Tags", tags),
           field("Cover position", coverPosition.node),
           field("Notes", notes, "med-span-2")
-        ], { cols: 2 })
+        ], { cols: 2 }),
+        mv.editorSection("highlights", "Quote log", "", [mv.quoteLog(e)], { raw: true })
       ],
       onSave: save,
       onDelete: null,
@@ -507,8 +510,7 @@
         el("span", { class: "k-kicker k-season-kicker", text: "Seasonal watching" }),
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-season-arrow", text: "›", "aria-label": "Next season", onclick: function () { stepSeason(1); } })
       ]),
-      heroTitle,
-      el("div", { class: "k-cluster" }, [todayBtn])
+      heroTitle
     ]));
     /* the picture's own controls sit with the picture, bottom right
        (review A: no watermark, no count line; the left side is the season) */
@@ -594,6 +596,8 @@
       paintArt();
       var isNow = sel.season === currentSeason().season && sel.year === currentSeason().year;
       todayBtn.hidden = isNow;
+      showAll = !isNow;
+      paintShow();
       render();
     }
     seasonSel.addEventListener("change", function () { sel.season = seasonSel.value; applySelection(); });
@@ -614,8 +618,22 @@
         render();
       });
     } });
+    /* what the season shows (review B): the current season opens on what
+       is being watched, any other on everything; the choice resets with
+       the season */
+    var showAll = false;
+    var showSeg = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": "Which titles", "data-ui": "anime.season-show" },
+      [["prog", "In progress"], ["all", "Everything"]].map(function (o) {
+        return el("button", { type: "button", class: "k-seg-item", "data-ui": "anime.season-show-item", "data-v": o[0], text: o[1],
+          onclick: function () { showAll = o[0] === "all"; paintShow(); render(); } });
+      }));
+    function paintShow() {
+      Array.prototype.forEach.call(showSeg.children, function (b) {
+        b.setAttribute("aria-pressed", String((b.getAttribute("data-v") === "all") === showAll));
+      });
+    }
     wrap.appendChild(el("div", { class: "k-mcontrols k-season-picker", "data-ui": "anime.season-picker" }, [
-      seasonSel, yearIn,
+      seasonSel, yearIn, todayBtn, showSeg,
       el("span", { class: "k-spacer" }),
       refreshedLine,
       refreshBtn,
@@ -633,18 +651,33 @@
         var seasonal = rows.filter(function (e) {
           return e.extra && e.extra.season === sel.season && e.extra.seasonYear === sel.year;
         });
-        /* airing entries first, soonest episode first; then the rest of
-           what is being watched, then everything else A–Z */
+        /* airing entries first, soonest episode first; then the rest by
+           status — in progress, on hold, completed, dropped, planned
+           (review B) — each A–Z. "In progress" shows the first group only. */
         var known = airingList(seasonal).map(function (x) { return x.entry; });
-        var knownIds = {};
-        known.forEach(function (e) { knownIds[e.id] = true; });
-        var byTitle = function (a, b) { return a.titleLower < b.titleLower ? -1 : 1; };
-        var watching = seasonal.filter(function (e) { return !knownIds[e.id] && e.status === "inProgress"; }).sort(byTitle);
-        var rest = seasonal.filter(function (e) { return !knownIds[e.id] && e.status !== "inProgress"; }).sort(byTitle);
-        var list = known.concat(watching, rest);
+        var airRank = {};
+        known.forEach(function (e, i) { airRank[e.id] = i; });
+        var byAiringThenTitle = function (a, b) {
+          var ra = airRank[a.id], rb = airRank[b.id];
+          if (ra != null || rb != null) return ra == null ? 1 : rb == null ? -1 : ra - rb;
+          return a.titleLower < b.titleLower ? -1 : 1;
+        };
+        var ORDER = ["inProgress", "onHold", "completed", "dropped", "planned"];
+        var rank = function (e) { var i = ORDER.indexOf(e.status); return i === -1 ? ORDER.length : i; };
+        var list = seasonal.filter(function (e) { return showAll || e.status === "inProgress"; })
+          .sort(function (a, b) { return rank(a) - rank(b) || byAiringThenTitle(a, b); });
         refreshedLine.textContent = airing.at && known.length
           ? "Airing data as of " + new Date(airing.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
           : "";
+        if (!list.length && seasonal.length) {
+          var none = KOS.ui.emptyState({ compact: true, mark: "季",
+            title: "Nothing in progress from " + meta.label + " " + sel.year,
+            body: seasonal.length + (seasonal.length === 1 ? " title is" : " titles are") + " listed from this season.",
+            action: el("button", { type: "button", class: "k-btn", text: "Show everything", onclick: function () { showAll = true; paintShow(); render(); } }) });
+          KOS.medview.addHook(none, "anime.season-empty");
+          holder.appendChild(none);
+          return;
+        }
         if (!list.length) {
           var empty = KOS.ui.emptyState({
             compact: true,

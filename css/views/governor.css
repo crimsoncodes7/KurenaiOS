@@ -46,8 +46,6 @@
 .k-gv-preview .k-seg-item { padding: var(--sp-4) var(--sp-10); }
 .k-gv-preview-k { align-self: center; padding-inline: var(--sp-8) var(--sp-2); font-size: var(--fs-11-5); color: var(--muted); }
 .k-gv-preview-note { font-size: var(--fs-11-5); color: var(--amber); }
-.k-gv-banner-ctl { position: absolute; inset-block-start: var(--sp-14); inset-inline-end: var(--sp-14); display: flex; align-items: center; gap: var(--sp-6); }
-.k-gv-banner-ctl .k-iconbtn { background: var(--gv-glass); }
 
 /* the portrait in its HP ring, the worn seal as a badge */
 .k-gv-ring { --ring: var(--green); position: relative; flex: 0 0 auto; align-self: flex-start; display: grid; place-items: center; padding: var(--sp-6); border-radius: 50%; background: conic-gradient(var(--ring) 0 var(--hp, 100%), var(--line) var(--hp, 100%) 100%); }
@@ -345,7 +343,6 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 .k-gv-row { grid-template-columns: var(--gv-row-time) minmax(0, 1fr) auto; }
 .k-gv-row .k-chip { display: none; }
 .k-gv-log-week { margin-inline-start: 0; }
-.k-gv-banner-ctl { position: static; }
 }
 
 @media (max-width: 560px) {

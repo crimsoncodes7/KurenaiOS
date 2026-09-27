@@ -163,35 +163,10 @@
     return bits.join(" · ");
   }
 
-  /* ================= send-a-quote-to-flashcards ================= */
-  /* The quote lands in the PERSONAL deck (sid "personal") — a VN line has
-     no A-level subject and is not forced into one. Pre-filled but fully
-     editable before saving, so the user shapes the recall prompt. */
-  function quoteToCardForm(e, quote, onDone) {
-    var q = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 2, "aria-label": "Front of the card" });
-    q.value = "Complete the quote — " + e.title + (quote.context ? " (" + quote.context + ")" : "") +
-      ": “" + quote.text.slice(0, Math.min(30, Math.ceil(quote.text.length / 3))) + "…”";
-    var a = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 2, "aria-label": "Back of the card" });
-    a.value = quote.text;
-    return el("div", { class: "k-vn-qform", "data-ui": "vn.quote-form" }, [
-      el("p", { class: "k-field-hint", text: "Send to flashcards — lands in the Personal deck, not a subject" }),
-      q, a,
-      el("div", { class: "k-cluster" }, [
-        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", text: "+ Add to Personal deck", onclick: function (ev) {
-          ev.preventDefault();
-          if (!q.value.trim() || !a.value.trim()) { KOS.ui.toast("Both sides are needed.", true); return; }
-          KOS.srs.addCustom(KOS.srs.PERSONAL_SID, "vn", q.value.trim(), a.value.trim(),
-            { src: { module: "vn", entryId: e.id != null ? e.id : null, title: e.title } });
-          KOS.ui.toast("Card added to the Personal deck — study it from Due Today → Personal deck.");
-          onDone();
-        } }),
-        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Cancel", onclick: function (ev) { ev.preventDefault(); onDone(); } })
-      ])
-    ]);
-  }
-
   /* ================= the editor modal (shared medview shell) ================= */
-  function vnEditor(entry, onSaved) {
+  /* opts.chapter: open on that chapter's own tab (Chapter select) */
+  function vnEditor(entry, onSaved, opts) {
+    opts = opts || {};
     var mv = KOS.medview;
     var isNew = !entry || entry.id == null;
     var e = mv.editDraft(entry, "vn");
@@ -355,58 +330,213 @@
     hoursIn.addEventListener("input", syncProgressUI);
     renderRoutes();
 
-    /* --- chapters/parts (Build 3j — manual, parallel to routes) ---
-       For VNs with internal structure the routes list doesn't capture:
-       the user names their own chapters/arcs/parts, each with the shared
-       status enum and a note. Independent of routes (not nested), never
+    /* --- chapters/parts (Build 3j; review B: the Books shelf's grammar) ---
+       For VNs with internal structure the routes list doesn't capture —
+       Higurashi's question arcs, a kinetic novel's parts. Like a series'
+       volumes, a chapter is something you OWN (its art, where you have it,
+       what it cost) and something you PLAY (its own status, hours, score,
+       dates). The tab is the shelf: owned vs played on one scale, the
+       figures, a tile per chapter, the selected chapter's purchase row; a
+       second tab holds the selected chapter's play record. Never
        auto-filled from VNDB. A kinetic novel counts its progress here. */
-    var chaptersWrap = el("div", { class: "k-vn-list k-medit-wide", "data-ui": "vn.routes vn.chapters" });
+    var chaptersWrap = el("div", { class: "k-bk-phys", "data-ui": "vn.chapters" });
+    var selectedCh = opts.chapter != null && e.chapters[opts.chapter] ? e.chapters[opts.chapter] : null, chRangeOpen = false;
+    var chTotalIn = el("input", { type: "number", class: "k-input k-bk-of-in", "data-ui": "ui.quick-add vault.num", min: "1", placeholder: "?",
+      "aria-label": "Chapters in the work" });
+    if (e.chaptersTotal) chTotalIn.value = String(e.chaptersTotal);
+    chTotalIn.addEventListener("change", function () {
+      var n = parseInt(chTotalIn.value, 10);
+      e.chaptersTotal = n > 0 ? Math.min(n, 999) : null;
+      renderChapters();
+    });
+    function platformSelect(value, aria) {
+      var sel = el("select", { class: "k-input", "data-ui": "ui.status-select", "aria-label": aria },
+        [el("option", { value: "", text: "—" })].concat(KOS.mediadb.PLATFORMS.map(function (pl) {
+          return el("option", { value: pl, text: KOS.media.PLATFORM_LABEL[pl] || pl });
+        })));
+      sel.value = value || "";
+      return sel;
+    }
+    function nextChapterName() { return "Chapter " + (e.chapters.length + 1); }
     function renderChapters() {
       chaptersWrap.innerHTML = "";
-      var cp = chapterProgress(e);
-      chaptersWrap.appendChild(el("div", { class: "k-vn-head" }, [
-        el("b", { text: "Chapters / parts" }),
-        el("span", { class: "k-mono k-muted", text: cp.total ? "Completed: " + cp.done + " / " + cp.total : "" }),
-        el("p", { class: "k-field-hint", "data-ui": "part.sub", text: cp.total
-          ? cp.done + " of " + cp.total + " completed — your own division, independent of the routes above"
-          : "for VNs with chapters/arcs the route list doesn't capture — a kinetic novel counts progress by these" })
-      ]));
-      e.chapters.forEach(function (c) {
-        var st = el("select", { class: "k-pill-select", "data-ui": "ui.status-select vn.chapter-status", "aria-label": "Status: " + c.name }, STATUSES.map(function (s) {
-          return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
-        }));
-        st.value = c.status;
-        st.addEventListener("change", function () { c.status = st.value; renderChapters(); });
-        var name = el("input", { type: "text", class: "k-vn-name", "data-ui": "ui.quick-add vn.route-name", value: c.name,
-          "aria-label": "Chapter name" });
-        name.addEventListener("change", function () { c.name = name.value.trim() || c.name; });
-        var note = el("input", { type: "text", class: "k-vn-name k-vn-note", "data-ui": "ui.quick-add vn.chapter-note", value: c.notes, placeholder: "notes…",
-          "aria-label": "Notes on " + c.name });
-        note.addEventListener("change", function () { c.notes = note.value; });
-        var rowC = el("div", { class: "k-vn-row k-vn-row--ch", "data-ui": "vn.route-row vn.ch-row" }, [
-          name, st, note,
-          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove chapter " + c.name, text: "✕", onclick: function (ev) {
-            ev.preventDefault();
-            e.chapters = e.chapters.filter(function (x) { return x !== c; });
-            renderChapters();
-          } })
+      var chs = e.chapters;
+      var owned = chs.filter(function (c) { return c.owned; });
+      var played = chs.filter(function (c) { return c.status === "completed"; });
+      var total = e.chaptersTotal || chs.length;
+      var spent = owned.reduce(function (a, c) { return a + (c.price || 0); }, 0);
+      if (selectedCh && chs.indexOf(selectedCh) === -1) selectedCh = null;
+      if (!selectedCh) selectedCh = chs[0] || null;
+
+      /* owned vs played, ONE scale */
+      var cmp = el("div", { class: "k-bk-compare k-bk-box", "data-ui": "vn.ch-compare" }, [el("h4", { class: "k-bk-box-h", text: "Owned vs played" })]);
+      function row(label, n, tone) {
+        var pct = total ? Math.round(100 * n / total) : 0;
+        var bar = el("div", { class: "k-bar k-bar--6", role: "img", "aria-label": label + ": " + n + " of " + total }, [el("i", { "data-ui": "media.bar-fill" })]);
+        bar.style.setProperty("--p", pct + "%");
+        bar.style.setProperty("--bar-c", tone);
+        return el("div", { class: "k-bk-compare-row", "data-ui": "books.compare-row" }, [
+          el("span", { class: "k-muted", text: label }), bar,
+          el("span", { class: "k-mono", text: total ? n + " of " + total + " · " + pct + "%" : "none yet" })
         ]);
-        if (c.status === "completed") KOS.ui.state(rowC, "cleared", true);
-        chaptersWrap.appendChild(rowC);
-      });
-      var newName = el("input", { type: "text", class: "k-vn-name", "data-ui": "ui.quick-add vn.route-name", "aria-label": "New chapter name", placeholder: "Chapter name — “Chapter 1”, “Answer arc”…" });
-      function addChapter(ev) {
-        ev.preventDefault();
-        if (!newName.value.trim()) { KOS.ui.toast("Name the chapter first.", true); return; }
-        e.chapters.push(KOS.mediadb.normChapter({ name: newName.value.trim() }));
-        renderChapters();
       }
-      newName.addEventListener("keydown", function (ev) { if (ev.key === "Enter") addChapter(ev); });
-      chaptersWrap.appendChild(el("div", { class: "k-vn-add", "data-ui": "vn.route-add" }, [
-        newName,
-        el("button", { type: "button", class: "k-btn k-btn--sm", text: "+ Add chapter", onclick: addChapter })
-      ]));
+      cmp.appendChild(row("Owned", owned.length, "var(--vn)"));
+      cmp.appendChild(row("Played", played.length, "var(--green)"));
+      chaptersWrap.appendChild(cmp);
+
+      /* the figures — the shelf's own band */
+      chaptersWrap.appendChild(el("dl", { class: "k-bk-band k-bk-box" }, [
+        el("div", { class: "k-bk-fig" }, [el("dt", { text: "On the shelf" }),
+          el("dd", { class: "k-bk-of" }, [el("span", { text: String(owned.length) }), el("span", { class: "k-bk-of-w", text: "of" }), chTotalIn])])
+      ].concat([
+        ["Played", String(played.length)],
+        ["Owned, unplayed", String(owned.filter(function (c) { return c.status !== "completed"; }).length)],
+        ["Shelf value", spent ? "£" + spent.toFixed(2) : "—"]
+      ].map(function (c) {
+        return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), el("dd", { "data-tone": c[0] === "Owned, unplayed" && c[1] !== "0" ? "amber" : null, text: c[1] })]);
+      }))));
+      if (!chTotalIn.value) chTotalIn.placeholder = String(chs.length || "?");
+
+      /* the chapters card: add the next one, or a run of them */
+      var card = el("section", { class: "k-bk-box k-bk-volcard", "aria-label": "Chapters" }, [
+        el("div", { class: "k-bk-box-head" }, [
+          el("h4", { class: "k-bk-box-h", text: "Chapters" }),
+          el("span", { class: "k-bk-box-sub", text: "Owned vs played are tracked separately" }),
+          el("div", { class: "k-cluster k-spacer" }, [
+            el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "vn.ch-range-toggle", "aria-expanded": String(chRangeOpen), text: "Add range",
+              onclick: function (ev) { ev.preventDefault(); chRangeOpen = !chRangeOpen; renderChapters(); } }),
+            el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", "data-ui": "vn.route-add vn.ch-add",
+              text: "+ Add next · Ch " + (chs.length + 1), onclick: function (ev) {
+                ev.preventDefault();
+                e.chapters.push(KOS.mediadb.normChapter({ name: nextChapterName(), owned: true, purchaseDate: KOS.srs.todayISO() }));
+                selectedCh = e.chapters[e.chapters.length - 1];
+                renderChapters();
+              } })
+          ])
+        ])
+      ]);
+      if (chRangeOpen) {
+        var rFrom = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "1", value: String(chs.length + 1), "aria-label": "From chapter" });
+        var rTo = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "1", placeholder: "to", "aria-label": "To chapter" });
+        var rPl = platformSelect("", "Platform for the range");
+        var rDate = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add" });
+        var rPrice = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add", min: "0", step: "0.01", placeholder: "£ each" });
+        card.appendChild(el("div", { class: "k-bk-range-grid", "data-ui": "vn.ch-range" }, [
+          field("From", rFrom), field("To", rTo), field("Platform", rPl), field("Purchase date", rDate), field("Price each", rPrice),
+          el("div", { class: "k-bk-range-go" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Add", onclick: function (ev) {
+            ev.preventDefault();
+            var a = parseInt(rFrom.value, 10), b = parseInt(rTo.value, 10);
+            if (isNaN(a) || isNaN(b) || b < a || b - a > 199) { KOS.ui.toast("Give the range as from ≤ to, e.g. 1 to 4.", true); return; }
+            var p = parseFloat(rPrice.value);
+            for (var n = a; n <= b; n++) {
+              var nm = "Chapter " + n;
+              if (e.chapters.some(function (c) { return c.name === nm; })) continue;
+              e.chapters.push(KOS.mediadb.normChapter({ name: nm, owned: true, platform: rPl.value || null,
+                purchaseDate: rDate.value || null, price: isNaN(p) ? null : p }));
+            }
+            chRangeOpen = false;
+            renderChapters();
+          } })])
+        ]));
+      }
+      if (!chs.length) card.appendChild(el("p", { class: "k-bk-none", text: "No chapters yet — add the first, or a run of them. A kinetic novel counts its progress here." }));
+      else {
+        var grid = el("div", { class: "k-bk-vols", role: "list", "aria-label": "Chapters" });
+        chs.forEach(function (c, i) {
+          var done = c.status === "completed";
+          var tile = el("button", { type: "button", class: "k-bk-vol", "data-ui": "books.vol vn.ch-tile", role: "listitem",
+            "aria-label": c.name + " — " + (c.owned ? "owned" : "not owned") + ", " + KOS.media.STATUS_LABEL[c.status],
+            "aria-pressed": c === selectedCh ? "true" : "false",
+            onclick: function (ev) { ev.preventDefault(); selectedCh = c; renderChapters(); } }, [
+            el("span", { class: "k-bk-vol-art", "aria-hidden": "true" }, [
+              c.coverUrl ? KOS.imageCrop.image(c.coverUrl, { alt: "", loading: "lazy" }, c.coverCrop) : null,
+              el("span", { class: "k-bk-vol-n k-mono", text: String(i + 1) }),
+              done ? el("span", { class: "k-bk-vol-read", text: "✓" }) : null
+            ].filter(Boolean)),
+            el("span", { class: "k-bk-vol-l k-ellipsis", title: c.name, text: c.name })
+          ]);
+          tile.style.setProperty("--spine", KOS.books && KOS.books.spineColor ? KOS.books.spineColor((title.value || e.title) + i) : "var(--s3)");
+          if (!c.owned) KOS.ui.state(tile, "missing", true);
+          grid.appendChild(tile);
+        });
+        card.appendChild(grid);
+      }
+      chaptersWrap.appendChild(card);
+
+      /* the selected chapter's purchase row: platform stands where a
+         volume's condition does */
+      if (selectedCh) {
+        var c = selectedCh;
+        var own = el("input", { type: "checkbox", class: "k-box", "aria-label": "Own " + c.name });
+        own.checked = c.owned;
+        own.addEventListener("change", function () { c.owned = own.checked; renderChapters(); });
+        var pl = platformSelect(c.platform, "Platform of " + c.name);
+        pl.addEventListener("change", function () { c.platform = pl.value || null; });
+        var date = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Purchase date of " + c.name });
+        date.value = c.purchaseDate || "";
+        date.addEventListener("change", function () { c.purchaseDate = date.value || null; });
+        var price = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add", min: "0", step: "0.01", placeholder: "£", "aria-label": "Price of " + c.name });
+        if (c.price != null) price.value = String(c.price);
+        price.addEventListener("change", function () { var p = parseFloat(price.value); c.price = isNaN(p) ? null : p; });
+        var cov = el("button", { type: "button", class: "k-input k-bk-cov", text: c.coverUrl ? "Custom ⌖" : "Add art", onclick: function (ev) {
+          ev.preventDefault();
+          KOS.imageCrop.open({
+            title: "Art for " + c.name, description: "Nothing is saved until you save the VN.",
+            source: c.coverUrl || "", crop: c.coverCrop, aspect: 2 / 3, allowUpload: true, allowUrl: true,
+            fileOptions: { maxWidth: 900, maxHeight: 1350, maxBytes: 420 * 1024, quality: 0.84 },
+            onSave: function (result) { c.coverUrl = result.source; c.coverCrop = result.crop; renderChapters(); }
+          });
+        } });
+        chaptersWrap.appendChild(el("div", { class: "k-bk-volrec k-bk-box k-vn-chrec", "data-ui": "vn.ch-record" }, [
+          el("span", { class: "k-mono k-bk-volrec-n", text: "Ch " + (e.chapters.indexOf(c) + 1) }),
+          field("Owned", el("span", { class: "k-check" }, [own])),
+          field("Platform", pl), field("Purchase date", date), field("Price", price), field("Art", cov),
+          el("button", { type: "button", class: "k-btn k-btn--sm k-bk-remove", "data-intent": "danger", "aria-label": "Remove chapter " + c.name, text: "✕ Remove",
+            onclick: function (ev) {
+              ev.preventDefault();
+              e.chapters = e.chapters.filter(function (x) { return x !== c; });
+              selectedCh = null;
+              renderChapters();
+            } })
+        ]));
+      }
+      renderChapterTab();
       syncProgressUI();
+    }
+
+    /* the selected chapter's own play record — its tab (review B) */
+    var chTab = e.chapters.length > 0;
+    var chHost = el("div", { class: "k-medit-grid", "data-ui": "vn.ch-tab" });
+    var overlayRef = null;
+    function renderChapterTab() {
+      if (!chTab) return;
+      chHost.innerHTML = "";
+      var c = selectedCh;
+      if (overlayRef) overlayRef.renameTab("chapter", c ? "Ch " + (e.chapters.indexOf(c) + 1) : "Chapter");
+      if (!c) { chHost.appendChild(el("p", { class: "k-muted k-medit-wide", text: "Pick a chapter on the Chapters tab." })); return; }
+      function bind(input, key, parse) {
+        input.addEventListener("change", function () { c[key] = parse ? parse(input) : (input.value || null); if (key === "status" || key === "name") renderChapters(); });
+        return input;
+      }
+      var nm = bind(el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add vn.route-name", "aria-label": "Chapter name", value: c.name }),
+        "name", function (i) { return i.value.trim() || c.name; });
+      var st = bind(el("select", { class: "k-input", "data-ui": "ui.status-select vn.chapter-status", "aria-label": "Status: " + c.name }, STATUSES.map(function (x) {
+        return el("option", { value: x, text: KOS.media.STATUS_LABEL[x] });
+      })), "status");
+      st.value = c.status;
+      var hrs = bind(el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", step: "0.5", placeholder: "0",
+        "aria-label": "Hours played on " + c.name, value: c.playtimeHours != null ? String(c.playtimeHours) : "" }), "playtimeHours", mv.readNum);
+      var sc = mv.scoreInput(c.score, "Score for " + c.name);
+      bind(sc.querySelector("input"), "score", function (i) { var n = mv.readNum(i); return n == null ? null : Math.min(10, n); });
+      var cs = bind(el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Started " + c.name, value: c.started || "" }), "started");
+      var cf = bind(el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Finished " + c.name, value: c.finished || "" }), "finished");
+      var cn = bind(el("textarea", { class: "k-input", "data-ui": "ui.note-area vn.chapter-note", rows: 3, placeholder: "Notes on this chapter…", "aria-label": "Notes on " + c.name }),
+        "notes", function (i) { return i.value; });
+      cn.value = c.notes || "";
+      [field("Name", nm), field("Status", st), field("Hours played", hrs),
+        field("Score", sc), field("Started", cs), field("Finished", cf),
+        field("Notes", cn, "med-span-2")
+      ].forEach(function (n) { chHost.appendChild(n); });
     }
     renderChapters();
 
@@ -414,52 +544,8 @@
     var cgUn = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", value: String(e.cgGallery.unlockedCount || 0) });
     var cgTot = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", placeholder: "?", value: e.cgGallery.totalKnown != null ? String(e.cgGallery.totalKnown) : "" });
 
-    /* --- quote log --- */
-    var quotesWrap = el("div", { class: "k-vn-list k-vn-quotes", "data-ui": "vn.quotes" });
-    function renderQuotes() {
-      quotesWrap.innerHTML = "";
-      quotesWrap.appendChild(el("div", { class: "k-vn-head" }, [
-        el("b", { text: "Quote log" }),
-        el("p", { class: "k-field-hint", "data-ui": "part.sub", text: e.quotes.length
-          ? e.quotes.length + (e.quotes.length === 1 ? " line kept" : " lines kept") + " — any of them can become a flashcard"
-          : "lines worth keeping — text, optional context, and a route to the flashcard system" })
-      ]));
-      e.quotes.slice().reverse().forEach(function (q) {
-        /* a quote card (review B): the line in the reading face over a
-           tinted panel with its rule, the context and date beneath, the
-           two actions as pills at the right of that line */
-        var row = el("div", { class: "k-vn-quote", "data-ui": "vn.quote" });
-        var formHolder = el("div", {});
-        row.appendChild(el("blockquote", { class: "k-vn-quote-text", text: "“" + q.text + "”" }));
-        row.appendChild(el("div", { class: "k-vn-quote-meta" }, [
-          el("span", { class: "k-vn-quote-ctx", text: (q.context ? q.context + " · " : "") + new Date(q.loggedAt).toLocaleDateString() }),
-          el("button", { type: "button", class: "k-btn k-btn--sm k-vn-quote-act", text: "⇢ flashcard", title: "Send to the Personal deck (editable first)", "aria-label": "Make a flashcard from this quote", onclick: function (ev) {
-            ev.preventDefault();
-            formHolder.innerHTML = "";
-            formHolder.appendChild(quoteToCardForm(e, q, function () { formHolder.innerHTML = ""; }));
-          } }),
-          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-vn-quote-act", "aria-label": "Delete quote", text: "✕", onclick: function (ev) {
-            ev.preventDefault();
-            e.quotes = e.quotes.filter(function (x) { return x !== q; });
-            renderQuotes();
-          } })
-        ]));
-        row.appendChild(formHolder);
-        quotesWrap.appendChild(row);
-      });
-      var qText = el("textarea", { class: "k-input", "data-ui": "ui.note-area vn.quote-in", rows: 2, "aria-label": "Quote text", placeholder: "“The universe has a beginning, but no end.” — the line itself" });
-      var qCtx = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Quote context or route (optional)", placeholder: "context / route (optional)" });
-      quotesWrap.appendChild(el("div", { class: "k-vn-qadd", "data-ui": "vn.quote-add" }, [
-        qText, qCtx,
-        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", text: "❝ Log quote", onclick: function (ev) {
-          ev.preventDefault();
-          if (!qText.value.trim()) { KOS.ui.toast("The quote text is needed.", true); return; }
-          e.quotes.push(KOS.mediadb.normQuote({ text: qText.value.trim(), context: qCtx.value.trim() }));
-          renderQuotes();
-        } })
-      ]));
-    }
-    renderQuotes();
+    /* --- quote log: the shared one every medium now has (review B) --- */
+    var quotesWrap = mv.quoteLog(e);
 
     function save() {
       if (!title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
@@ -528,10 +614,12 @@
     var tabs = [
       { label: "Progress", ids: ["progress", "dates"] },
       { label: "Routes", ids: ["routes"] },
+      { label: "Chapters", ids: ["chapters"] },
+      chTab ? { label: "Chapter", ids: ["chapter"] } : null,
       { label: "Quote log", ids: ["highlights"] },
       { label: "Your layer", ids: ["taxonomy", "lists", "structure", "notes"] },
       { label: "Record", ids: ["identity", "ownership"] }
-    ];
+    ].filter(Boolean);
     var bump = isNew ? null : quickBumpIn();
     var overlay = mv.editorModal({
       isNew: isNew, label: "Visual Novels", hook: "vn.editor",
@@ -539,7 +627,7 @@
       entry: e, altTitle: [e.developer, e.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · "),
       chips: [KOS.media.STATUS_LABEL[e.status], { steam: "Steam", physical: "Physical", digital: "Digital" }[e.ownership], e.syncSource === "vndb" ? "VNDB-synced" : null],
       bump: bump, fav: isNew ? null : fav,
-      tabs: isNew ? [tabs[4], tabs[0], tabs[1], tabs[2], tabs[3]] : tabs,
+      tabs: isNew ? [tabs[tabs.length - 1]].concat(tabs.slice(0, -1)) : tabs,
       form: [
         mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
           field("Title", title, "med-span-2"),
@@ -563,10 +651,9 @@
           countBox,
           lengthNoteEl
         ]),
-        mv.editorSection("routes", "Routes & chapters", "Your own lists — VNDB doesn't know a VN's routes. Either can be what counts.", [
-          routesWrap,
-          chaptersWrap
-        ]),
+        mv.editorSection("routes", "Routes", "", [routesWrap]),
+        mv.editorSection("chapters", "Chapters", "", [chaptersWrap], { raw: true }),
+        chTab ? mv.editorSection("chapter", "One chapter", "", [chHost], { raw: true }) : null,
         isNew ? mv.editorSection("ownership", "Shrine", "", [
           field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
         ]) : null,
@@ -591,6 +678,9 @@
       },
       focus: isNew ? title : status
     });
+    overlayRef = overlay;
+    renderChapterTab();
+    if (opts.chapter != null && chTab) overlay.showSection("chapter");
     return overlay;
   }
   KOS.vnEditor = vnEditor;
@@ -623,6 +713,44 @@
       open: function () { vnEditor(e, rerender); }
     });
   }
+  /* Chapter select (review B): the vault as a visual novel's own chapter
+     menu — each VN tracked by chapter is a panel with its chapters laid out
+     as art cards in play order, played ones marked, the next unplayed one
+     flagged "Next", unowned ones dimmed. A card opens that chapter's tab. */
+  function chapterSelect(e, rerender) {
+    var chs = e.chapters || [];
+    var next = chs.findIndex(function (c) { return c.status !== "completed"; });
+    var done = chs.filter(function (c) { return c.status === "completed"; }).length;
+    var strip = el("div", { class: "k-vn-chs-strip", role: "list", "aria-label": e.title + " chapters" }, chs.map(function (c, i) {
+      var card = el("button", { type: "button", class: "k-vn-chs-card", "data-ui": "vn.chs-card", role: "listitem",
+        "aria-label": c.name + " — " + KOS.media.STATUS_LABEL[c.status] + (c.owned ? "" : ", not owned") + (i === next ? ", next to play" : ""),
+        onclick: function () { vnEditor(e, rerender, { chapter: i }); } }, [
+        el("span", { class: "k-vn-chs-art", "aria-hidden": "true" }, [
+          c.coverUrl ? KOS.imageCrop.image(c.coverUrl, { alt: "", loading: "lazy" }, c.coverCrop) : el("span", { class: "k-vn-chs-no", text: String(i + 1) }),
+          c.status === "completed" ? el("span", { class: "k-bk-vol-read", text: "✓" }) : null,
+          i === next ? el("span", { class: "k-vn-chs-next", text: "▶ Next" }) : null
+        ].filter(Boolean)),
+        el("span", { class: "k-vn-chs-n k-mono", text: "Chapter " + (i + 1) }),
+        el("span", { class: "k-vn-chs-t k-ellipsis", title: c.name, text: c.name })
+      ]);
+      card.style.setProperty("--spine", KOS.books && KOS.books.spineColor ? KOS.books.spineColor(e.title + i) : "var(--s3)");
+      if (!c.owned) KOS.ui.state(card, "missing", true);
+      if (c.status === "completed") KOS.ui.state(card, "done", true);
+      return card;
+    }));
+    return el("section", { class: "k-vn-chs", "data-ui": "vault.card vn.chs", "aria-label": e.title }, [
+      el("header", { class: "k-vn-chs-head" }, [
+        el("span", { class: "k-vn-chs-cover" }, [KOS.medview.cover(e, mod().kanji)]),
+        el("div", { class: "k-vn-chs-id" }, [
+          el("button", { type: "button", class: "k-vn-chs-title", "data-ui": "vault.title", text: e.title, onclick: function () { vnEditor(e, rerender); } }),
+          el("span", { class: "k-vn-chs-sub", text: [e.developer, done + " of " + (e.chaptersTotal || chs.length) + " played"].filter(Boolean).join(" · ") })
+        ])
+      ]),
+      /* horizontal overflow is declared through the shared scroller (invariant 50) */
+      KOS.ui.scroller(strip, { className: "k-vn-chs-scroll", label: e.title + " chapters", prevLabel: "Earlier chapters", nextLabel: "Later chapters" })
+    ]);
+  }
+
   var LIST_COLS = ["Progress", "Played", "Length"];
   function listRow(e, rerender) {
     var bump = quickBump(e);
@@ -653,7 +781,8 @@
     var genreSel = mv.facetSelect("Filter by genre");
     var devSel = mv.facetSelect("Filter by developer");
     var sortSel = mv.sortSelect(p.sort, { progress: "Progress" });
-    var layoutBtn = mv.layoutToggle(p, function () { persist(p); refresh(); });
+    var layoutBtn = mv.layoutToggle(p, function () { persist(p); refresh(); },
+      [{ id: "chapters", glyph: "章", label: "Chapter select" }]);
     var rail = mv.filterRail("vn", function () { refresh(); });
 
     /* the shared toolbar (Category 7 Phase D) — the same controls the
@@ -687,7 +816,7 @@
     function refreshAll() { rail.reload(); refresh(); }
 
     var area = mv.resultsArea(page.mainCol, function (e) {
-      return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
+      return p.layout === "list" ? listRow(e, refreshAll) : p.layout === "chapters" ? chapterSelect(e, refreshAll) : gridCard(e, refreshAll);
     }, { countHost: page.controls });
 
     /* Facet fills. VNDB content tags are written into `genres` by the sync
@@ -715,6 +844,8 @@
       }, function (err, rows) {
         if (!area.current(token)) return;
         area.layout(p.layout, LIST_COLS);
+        /* Chapter select lists the VNs you track by chapter */
+        if (!err && p.layout === "chapters") rows = rows.filter(function (e) { return e.chapters && e.chapters.length; });
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
@@ -725,7 +856,9 @@
         if (!rows.length) {
           area.clear();
           area.holder.appendChild(mv.emptyState(
-            filtered
+            p.layout === "chapters"
+              ? "No visual novel is tracked by chapter yet — open one and add its chapters on the Chapters tab."
+              : filtered
               ? "Nothing matches this filter."
               : "The VN vault is empty. Connect your VNDB (a personal token — one paste, no OAuth dance) or add a title by hand, then build its route list as you play.",
             [

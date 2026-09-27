@@ -51,7 +51,10 @@
        cgGallery: { totalKnown: n|null, unlockedCount: n },  counter only,
                   never actual CG artwork (copyright; VNDB doesn't expose it)
        quotes:  [{ text, context, loggedAt: ms }],
-       chapters: [{ name, status, notes }],   user-defined parts (Build 3j)
+       chapters: [{ name, status, notes, owned, coverUrl, coverCrop,
+                   platform, purchaseDate, price, playtimeHours, score,
+                   started, finished }],   user-defined parts (Build 3j; review B)
+       chaptersTotal: n|null,  the work's chapter count as the user gave it
        progressMode: null|"routes"|"chapters"|"time"|"percent",
        progressPercent: 0–100|null,
        playtimeHours: n|null   (shared with Games; a VN's hours played)
@@ -217,6 +220,8 @@
   var TIERS = ["notStarted", "storyComplete", "fullCompletion", "platinum", "abandoned"];
   var PLATFORMS = ["pc", "playstation", "xbox", "switch", "other"];
   var PRIORITIES = ["low", "medium", "high"];
+  /* the form a single owned volume takes (review B — the per-volume tab) */
+  var BOOK_TYPES = ["paperback", "hardcover", "ebook", "audiobook", "special"];
 
   function normCrop(crop) {
     return KOS.imageCrop ? KOS.imageCrop.normalise(crop) : null;
@@ -240,7 +245,14 @@
     });
   }
 
-  /* one physical volume record (Build 3b) */
+  function numOrNull(n, max) {
+    n = typeof n === "number" ? n : n === "" || n == null ? NaN : Number(n);
+    return isFinite(n) && n >= 0 ? Math.min(max || 1e6, n) : null;
+  }
+  /* one physical volume record (Build 3b). Review B gave a volume its own
+     reading layer (the per-volume tab): status, chapters and pages as
+     "x of y", a score, dates, the kind of book and its ISBN — all
+     optional, none of it a query axis. */
   function normVolume(v) {
     v = v || {};
     return {
@@ -249,7 +261,15 @@
       purchaseDate: v.purchaseDate || null,     // "YYYY-MM-DD"
       price: typeof v.price === "number" && !isNaN(v.price) ? v.price : null,
       coverUrl: v.coverUrl || null,             // per-volume override
-      coverCrop: normCrop(v.coverCrop)
+      coverCrop: normCrop(v.coverCrop),
+      status: STATUSES.indexOf(v.status) !== -1 ? v.status : null,
+      chaptersRead: numOrNull(v.chaptersRead), chaptersTotal: numOrNull(v.chaptersTotal),
+      pagesRead: numOrNull(v.pagesRead), pagesTotal: numOrNull(v.pagesTotal),
+      score: numOrNull(v.score, 10),
+      started: v.started || null, finished: v.finished || null,
+      bookType: BOOK_TYPES.indexOf(v.bookType) !== -1 ? v.bookType : null,
+      isbn13: v.isbn13 ? String(v.isbn13) : null,
+      notes: String(v.notes || "")
     };
   }
 
@@ -263,7 +283,18 @@
     return {
       name: String(c.name || "Chapter"),
       status: STATUSES.indexOf(c.status) !== -1 ? c.status : "planned",
-      notes: String(c.notes || "")
+      notes: String(c.notes || ""),
+      /* review B: a chapter is also a thing you own, like a volume — its
+         art, where you have it, what it cost, and its own play record */
+      owned: c.owned !== false,
+      coverUrl: c.coverUrl || null,
+      coverCrop: normCrop(c.coverCrop),
+      platform: PLATFORMS.indexOf(c.platform) !== -1 ? c.platform : null,
+      purchaseDate: c.purchaseDate || null,
+      price: typeof c.price === "number" && !isNaN(c.price) ? c.price : null,
+      playtimeHours: numOrNull(c.playtimeHours),
+      score: numOrNull(c.score, 10),
+      started: c.started || null, finished: c.finished || null
     };
   }
 
@@ -496,6 +527,8 @@
       /* Build 3j — user-defined VN chapters/parts, parallel to routes
          (benign [] elsewhere; never drives progress) */
       chapters: (Array.isArray(e.chapters) ? e.chapters : []).map(normChapter),
+      /* how many chapters the work has, as the user gave it — the "of 4" */
+      chaptersTotal: e.chaptersTotal > 0 ? Math.min(999, Math.floor(e.chaptersTotal)) : null,
       /* which of routes / chapters / a set percentage counts as the VN's
          progress (null = whichever it carries, routes first) */
       progressMode: VN_MODES.indexOf(e.progressMode) !== -1 ? e.progressMode : null,
@@ -955,6 +988,7 @@
            surviving routes so a sync can't zero a route count. */
         inc.routes = old.routes && old.routes.length ? old.routes : inc.routes;
         inc.chapters = old.chapters && old.chapters.length ? old.chapters : inc.chapters;
+        if (inc.chaptersTotal == null) inc.chaptersTotal = old.chaptersTotal != null ? old.chaptersTotal : null;
         if (inc.progressMode == null) inc.progressMode = old.progressMode || null;
         if (inc.progressPercent == null) inc.progressPercent = old.progressPercent != null ? old.progressPercent : null;
         if (inc.module === "vn" && inc.playtimeHours == null) inc.playtimeHours = old.playtimeHours != null ? old.playtimeHours : null;
@@ -1012,7 +1046,9 @@
         /* a merge that changed nothing keeps the stored timestamp, so the
            row stays clean for cloud sync (and stops a no-op pull
            reshuffling the "recently updated" sort) — see sameMaterial */
-        if (sameMaterial(old, inc)) inc.updatedAt = old.updatedAt;
+        /* against the stored row as TODAY's schema reads it: a field the
+           schema gained since it was written is not an edit */
+        if (sameMaterial(normalise(old), inc)) inc.updatedAt = old.updatedAt;
         inc.reward = rewardSnapshot(inc);
         var rq = os.put(inc);
         rq.onsuccess = function () { updated++; next(); };
@@ -1258,6 +1294,7 @@
     TIERS: TIERS,
     PLATFORMS: PLATFORMS,
     PRIORITIES: PRIORITIES,
+    BOOK_TYPES: BOOK_TYPES,
     normVolume: normVolume,
     normRoute: normRoute,
     normQuote: normQuote,

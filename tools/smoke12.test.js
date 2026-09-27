@@ -326,19 +326,26 @@ step("editor CRUD: add a chapter in the modal, save → persisted + a 'chapter' 
   if (!modal) throw new Error("editor did not open");
   const chWrap = modal.querySelector("[data-ui~='vn.chapters']");
   if (!chWrap) throw new Error("chapters section missing");
-  /* chapter names live in input values, not text nodes */
-  const rows = [...chWrap.querySelectorAll("[data-ui~='vn.ch-row']")];
-  if (!rows.some(r => r.querySelector("[data-ui~='vn.route-name']").value === "Legend")) throw new Error("existing chapters not rendered");
+  /* review B: the chapters are the shelf's tiles; the selected one's play
+     record is its own tab */
+  const tiles = [...chWrap.querySelectorAll("[data-ui~='vn.ch-tile']")];
+  if (!tiles.some(t => /Legend/.test(t.getAttribute("aria-label")))) throw new Error("existing chapters not rendered");
+  tiles.find(t => /Turn/.test(t.getAttribute("aria-label"))).click();
+  await tick(10);
+  const chTab = modal.querySelector("[data-ui~='vn.ch-tab']");
+  if (!chTab) throw new Error("no per-chapter tab");
+  if (chTab.querySelector("[data-ui~='vn.route-name']").value !== "Turn") throw new Error("the chapter tab does not follow the selected tile");
   /* complete "Turn" via its status select */
-  const turnRow = rows.find(r => r.querySelector("[data-ui~='vn.route-name']").value === "Turn");
-  const st = turnRow.querySelector("[data-ui~='vn.chapter-status']");
+  const st = chTab.querySelector("[data-ui~='vn.chapter-status']");
   st.value = "completed";
   st.dispatchEvent(new window.Event("change", { bubbles: true }));
   await tick(10);
-  /* add a new chapter */
-  const nameIn = [...modal.querySelectorAll("[data-ui~='vn.chapters'] [data-ui~='vn.route-add'] [data-ui~='vn.route-name']")].pop();
+  /* add the next chapter, then rename it */
+  modal.querySelector("[data-ui~='vn.ch-add']").click();
+  await tick(10);
+  const nameIn = modal.querySelector("[data-ui~='vn.ch-tab'] [data-ui~='vn.route-name']");
   nameIn.value = "Banquet";
-  [...modal.querySelectorAll("[data-ui~='vn.chapters'] button")].find(b => /Add chapter/.test(b.textContent)).click();
+  nameIn.dispatchEvent(new window.Event("change", { bubbles: true }));
   await tick(10);
   const s0 = sessionCount();
   [...modal.querySelectorAll("button")].find(b => b.textContent === "Save").click();

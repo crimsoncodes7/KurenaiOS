@@ -4,7 +4,7 @@
    (manga/ln → books), the manga XML path with MAL-id semantics, MANGA-type
    AniList sync mapping (staff → author, progressVolumes, NOVEL/ONE_SHOT
    formats), merge preservation of local-only books fields, volume range
-   CRUD, the owned-vs-read maths, deterministic spines, half-star ratings,
+   CRUD, the owned-vs-read maths, deterministic spines, the score out of ten,
    the governor boundary, and the Books/Mangaka/shelf/heatmap views. Run:
      npm install jsdom fake-indexeddb   (one-time)
      node tools/smoke5.test.js
@@ -150,13 +150,13 @@ step("owned% vs read%: real volume counts, and the chapter-derived estimate", as
     progress: { current: 45, total: 90 }, physical: { volumes: [{ number: 1 }, { number: 2 }] } }));
   if (!est.est || est.totalVols !== 10 || est.ownedPct !== 20 || est.readPct !== 50) throw new Error(JSON.stringify(est));
 });
-step("deterministic spines + half-star text", async () => {
+step("deterministic spines + the score out of ten", async () => {
   const c1 = KOS.books.spineColor("Berserk"), c2 = KOS.books.spineColor("Berserk");
   /* Graphite: the palette lives in tokens (--spine-0…9) */
   if (c1 !== c2 || !/^var\(--spine-\d\)$/.test(c1)) throw new Error(c1 + " / " + c2);
   if (KOS.books.spineColor("Vinland Saga") === undefined) throw new Error("no colour");
-  if (KOS.books.starText(9) !== "★★★★½" || KOS.books.starText(10) !== "★★★★★" ||
-      KOS.books.starText(1) !== "½" || KOS.books.starText(0) !== "") throw new Error("star text");
+  /* review B: the score reads x.x / 10, AniList's decimal scale */
+  if (KOS.books.scoreText(9) !== "9/10" || KOS.books.scoreText(8.5) !== "8.5/10" || KOS.books.scoreText(0) !== "") throw new Error("score text");
 });
 
 /* ============ 3 · manga XML path (expected shape — see header caveat) ============ */
@@ -336,7 +336,8 @@ step("books vault renders without obsolete bottom stats; dedicated Stats remains
   if (!filtersBtn) throw new Error("no Filters group");
   filtersBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   const panel = document.querySelector("[data-ui~='ui.menu-panel']");
-  if (!panel || !/did not finish/i.test(panel.textContent)) throw new Error("no DNF toggle");
+  /* review B removed DNF from the vault: status says it */
+  if (!panel || /did not finish/i.test(panel.textContent)) throw new Error("the DNF toggle is back");
   KOS.ui.closeMenu();
   if (!main.querySelector("[data-ui~='books.card'] [data-ui~='media.bar-track']")) throw new Error("no progress bar on the card");
   if (!main.querySelector("[data-ui~='books.author']")) throw new Error("no author line");
@@ -359,12 +360,12 @@ step("shelf layout: one spine per owned volume, deterministic colour, condition 
   if (!main.querySelector("[data-ui~='books.spine-cond'][data-state~='worn']")) throw new Error("worn vol 3 not marked");
   KOS.store.state.media.books = Object.assign(KOS.store.state.media.books || {}, { layout: "grid" });
 });
-step("editor modal: shared sections, stars, compact range tool save end-to-end", async () => {
+step("editor modal: shared sections, the score, compact range tool save end-to-end", async () => {
   const saved = await new Promise((res) => {
     KOS.booksEditor(null, res);
     const modal = document.querySelector("[data-ui~='books.dialog']");
     if (!modal) { res(null); return; }
-    if (!modal.querySelector("[data-ui~='books.stars']")) { res(null); return; }
+    if (!modal.querySelector("[data-ui~='vault.editor-score']")) { res(null); return; }
     modal.querySelector("input[placeholder='Series title']").value = "Frieren";
     if (!modal.matches('[data-ui~="vault.editor"]')) { res(null); return; }
     if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='ownership']")) { res(null); return; }

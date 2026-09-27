@@ -75,6 +75,28 @@
 /* ================= the overlay card (frame 11b) ================= */
 .k-mgrid[data-layout="grid"], .k-mgrid:not([data-layout]) { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--mcard-min), 1fr)); gap: var(--sp-16); }
 .k-mgrid[data-layout="list"] { display: flex; flex-direction: column; gap: var(--sp-2); }
+/* the VN vault's Chapter select (review B): a chapter menu per VN */
+.k-mgrid[data-layout="chapters"] { display: flex; flex-direction: column; gap: var(--sp-16); }
+.k-vn-chs { display: flex; flex-direction: column; gap: var(--sp-14); padding: var(--sp-18) var(--sp-20); border-radius: var(--r-24); background: var(--s1); }
+.k-vn-chs-head { display: flex; align-items: center; gap: var(--sp-14); }
+.k-vn-chs-cover { position: relative; isolation: isolate; display: block; inline-size: var(--vn-chs-cover-w); flex: 0 0 auto; aspect-ratio: 2 / 3; border-radius: var(--r-8); overflow: hidden; }
+.k-vn-chs-cover > .k-mcover { position: absolute; inset: 0; }
+.k-vn-chs-id { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
+.k-vn-chs-title { padding: 0; border: 0; background: none; box-shadow: none; font: inherit; font-size: var(--fs-17); font-weight: var(--weight-semibold); color: var(--text); text-align: start; cursor: pointer; }
+.k-vn-chs-title:hover { background: none; color: var(--crimson-soft); }
+.k-vn-chs-sub { font-size: var(--fs-12-5); color: var(--muted); }
+.k-vn-chs-strip { display: grid; grid-auto-flow: column; grid-auto-columns: var(--vn-chs-w); gap: var(--sp-14); overflow-x: auto; scrollbar-width: none; padding-block-end: var(--sp-2); }
+.k-vn-chs-card { display: flex; flex-direction: column; gap: var(--sp-4); padding: 0; border: 0; background: none; box-shadow: none; font: inherit; color: inherit; text-align: start; cursor: pointer; min-inline-size: 0; }
+.k-vn-chs-card:hover { background: none; }
+.k-vn-chs-art { position: relative; display: grid; place-items: center; aspect-ratio: 3 / 4; border-radius: var(--r-14); overflow: hidden; background: repeating-linear-gradient(135deg, color-mix(in oklch, var(--spine) 85%, var(--text) 6%) 0 var(--sp-10), var(--spine) var(--sp-10) var(--sp-20)); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-vn-chs-art > img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.k-vn-chs-no { font: var(--weight-bold) var(--fs-34) / 1 var(--font-mono); color: color-mix(in oklch, var(--text) 70%, transparent); }
+.k-vn-chs-next { position: absolute; inset-inline-start: var(--sp-8); inset-block-end: var(--sp-8); padding: var(--sp-2) var(--sp-8); border-radius: var(--r-pill); background: var(--vn); font-size: var(--fs-11-5); font-weight: var(--weight-bold); color: var(--bg); }
+.k-vn-chs-card:hover .k-vn-chs-art { box-shadow: 0 0 0 var(--ring-1-5) var(--vn); }
+.k-vn-chs-card[data-state~="missing"] .k-vn-chs-art { opacity: 0.4; }
+.k-vn-chs-card[data-state~="done"] .k-vn-chs-t { color: var(--muted); }
+.k-vn-chs-n { font-size: var(--fs-11); color: var(--muted); letter-spacing: var(--track-label); text-transform: uppercase; }
+.k-vn-chs-t { font-size: var(--fs-13-5); font-weight: var(--weight-medium); }
 .k-mcard { position: relative; min-inline-size: 0; aspect-ratio: var(--mcard-ratio); border-radius: var(--r-22); overflow: hidden; background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--mcard-edge); cursor: pointer; isolation: isolate; transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease); }
 .k-mcard:hover, .k-mcard:focus-within { box-shadow: inset 0 0 0 var(--hairline) var(--mcard-edge), 0 0 0 var(--focus-width) color-mix(in oklch, var(--st, var(--crimson)) 70%, transparent), var(--elev-3); }
 .k-mcard::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(transparent 38%, var(--mcard-scrim) 70%, var(--mcard-scrim-deep)); }
@@ -171,6 +193,18 @@
 .k-medit-wide { grid-column: 1 / -1; }
 .k-medit-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-medit-span2 { grid-column: span 2; }
+/* "12 of 40" as one field (review B), the shelf's own grammar */
+.k-xofy { display: flex; align-items: center; gap: var(--sp-8); min-inline-size: 0; }
+.k-xofy > .k-xofy-in { flex: 1 1 0; min-inline-size: 0; }
+.k-xofy-of { flex: 0 0 auto; font-size: var(--fs-13); color: var(--muted); }
+.k-xofy-ro { flex: 1 1 0; min-inline-size: 0; font-size: var(--fs-14); color: var(--text-2); }
+/* the x.x / 10 score beside Favourite */
+.k-medit-score { display: inline-flex; align-items: center; gap: var(--sp-6); }
+.k-medit .k-medit-score-in { inline-size: var(--medit-score-w); min-block-size: var(--hit); padding-block: var(--sp-6); border-radius: var(--r-pill); text-align: center; font-weight: var(--weight-semibold); }
+.k-medit-score-of { font-size: var(--fs-13); color: var(--muted); }
+.k-field > .k-medit-score { display: flex; }
+.k-medit .k-field > .k-medit-score > .k-medit-score-in { flex: 1 1 0; inline-size: auto; min-block-size: var(--hit); padding-block: var(--sp-10); border-radius: var(--r-14); text-align: start; font-weight: var(--weight-regular); }
+.k-bk-find { --cluster-gap: var(--sp-10); }
 /* a cover URL and its Position button on one line (review B) */
 .k-medit-coverrow { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8) var(--sp-12); }
 .k-medit-coverrow > .k-input { flex: 1 1 var(--medit-url-min); min-inline-size: 0; }
@@ -200,19 +234,23 @@
 .k-mpick { display: flex; flex-direction: column; max-block-size: var(--menu-max-h); overflow-y: auto; margin-block-start: var(--sp-10); }
 .k-mpick-row { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-6) var(--sp-4); border: 0; border-block-start: var(--hairline) solid var(--line); background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
 .k-mpick-row:hover { background: var(--s2); }
-.k-mstats-dialog { inline-size: min(var(--dialog-w-lg), 100%); }
+.k-mstats-dialog { inline-size: min(var(--mstats-w), 100%); }
 .k-mstats { display: flex; flex-direction: column; gap: var(--sp-16); }
-.k-mstat-band { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--mstat-min), 1fr)); gap: var(--sp-10); margin: 0; }
-.k-mstat { display: flex; flex-direction: column-reverse; gap: var(--sp-6); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-14); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
-.k-mstat-band .k-mstat dd { margin: 0; font-family: var(--font-mono); font-size: var(--fs-26); font-weight: var(--weight-semibold); line-height: 1; color: var(--text); }
-.k-mstat-band .k-mstat:first-child dd { color: var(--vh-accent, var(--text)); }
-.k-mstat dt { font-size: var(--fs-11-5); color: var(--muted); }
 .k-mstats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-14); }
 /* the Analytics donut fills its card (review B): a bigger ring, the share
    legend beside it centred on the ring rather than hung from the top */
 .k-mstats-grid .k-chart-donut { justify-content: center; }
 .k-mstats-grid .k-chart-donut > svg { inline-size: var(--donut-w-lg); }
 .k-mstats-grid .k-chart-donut .k-legend { gap: var(--sp-14); }
+/* the numbers (review B, second pass): the band's first figure in the
+   vault's colour; rows of equal-height cards whose charts fill them; the
+   status ring with its key beside it across the row */
+.k-mstat-band .k-mx-fig:first-child dd { color: var(--vh-accent, var(--text)); }
+.k-mstats-grid--numbers .k-chart-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+.k-mstats-grid--numbers .k-chart-body > svg { inline-size: 100%; }
+.k-mstats-grid--numbers .k-chart-donut { justify-content: flex-start; gap: var(--sp-16) var(--sp-48); }
+.k-mstats-grid--numbers .k-chart-donut > svg { inline-size: var(--donut-w); }
+.k-mstats-grid--numbers .k-hbar { flex: 1 1 auto; justify-content: space-between; }
 
 /* ================= This season (frame 11j) ================= */
 .k-season { display: flex; flex-direction: column; gap: var(--sp-16); --season-c: var(--amber); }
@@ -223,7 +261,7 @@
 .k-season-hero { position: relative; block-size: var(--season-hero-h); border-radius: var(--r-26); overflow: hidden; background: var(--s1); isolation: isolate; }
 .k-season-art { position: absolute; inset: 0; z-index: -3; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: var(--art-pos, 50% 50%); }
 .k-season-scrim { position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, var(--vhero-scrim-1) 30%, var(--vhero-scrim-3) 80%); }
-.k-season-body { position: relative; block-size: 100%; padding: var(--sp-28) var(--sp-32); display: flex; flex-direction: column; justify-content: flex-end; gap: var(--sp-6); }
+.k-season-body { position: relative; block-size: 100%; padding: var(--sp-28) var(--sp-32); display: flex; flex-direction: column; justify-content: center; gap: var(--sp-6); }
 .k-season-tools { position: absolute; inset-inline-end: var(--sp-20); inset-block-end: var(--sp-18); display: flex; align-items: center; gap: var(--sp-10); }
 .k-season-step { display: flex; align-items: center; gap: var(--sp-10); }
 .k-season-arrow { background: var(--mcard-glass); }
@@ -235,6 +273,7 @@
 .k-season-credit { font-size: var(--fs-11-5); color: var(--muted); }
 .k-season-yr { inline-size: 6rem; }
 .k-season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: var(--sp-16); }
+.k-season-grid > .k-empty { grid-column: 1 / -1; }
 .k-scard { display: flex; gap: var(--sp-14); padding: var(--sp-14); border-radius: var(--r-24); background: var(--s1); cursor: pointer; }
 .k-scard:hover { background: var(--s2); }
 .k-scard > .k-mcover { position: relative; inset: auto; z-index: auto; inline-size: var(--scard-cover-w); block-size: var(--scard-cover-h); flex: 0 0 auto; border-radius: var(--r-12); overflow: hidden; }
@@ -275,14 +314,14 @@
 .k-vn-note { flex: 1.4 1 auto; font-size: var(--fs-12-5); color: var(--text-2); }
 .k-vn-date { font-size: var(--fs-11-5); }
 .k-vn-add { display: flex; align-items: center; gap: var(--sp-8); padding-block-start: var(--sp-8); border-block-start: var(--hairline) solid var(--line); }
-.k-vn-qadd { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-8); margin-block-end: var(--sp-12); }
-.k-vn-qadd > textarea { grid-row: span 2; }
+.k-vn-qadd { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: var(--sp-10); }
+.k-vn-qadd > textarea { grid-column: 1 / -1; }
 .k-vn-quotes { display: flex; flex-direction: column; gap: var(--sp-10); }
-.k-vn-quote { padding: var(--sp-14) var(--sp-18); border-radius: var(--r-16); background: color-mix(in oklch, var(--anime) 9%, var(--s2)); box-shadow: inset var(--sp-4) 0 0 color-mix(in oklch, var(--anime) 45%, var(--s2)); }
+.k-vn-quote { padding: var(--sp-14) var(--sp-18); border-radius: var(--r-16); background: var(--s3); box-shadow: inset var(--sp-3) 0 0 color-mix(in oklch, var(--vh-accent, var(--crimson)) 60%, var(--s3)); }
 .k-vn-quote-text { margin: 0; font: italic var(--fs-16) / var(--lh-read) var(--font-read); color: var(--text); }
 .k-vn-quote-meta { display: flex; align-items: center; gap: var(--sp-8); margin-block-start: var(--sp-10); font-size: var(--fs-12-5); color: var(--muted); }
 .k-vn-quote-ctx { flex: 1 1 auto; min-inline-size: 0; }
-.k-vn-quote-act { flex: 0 0 auto; background: none; box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--anime) 30%, var(--line)); color: var(--muted); }
+.k-vn-quote-act { flex: 0 0 auto; background: none; box-shadow: inset 0 0 0 var(--hairline) var(--line); color: var(--muted); }
 .k-vn-quote-act:hover { color: var(--text); }
 .k-vn-qform { display: flex; flex-direction: column; gap: var(--sp-8); margin-block-start: var(--sp-10); padding: var(--sp-12); border-radius: var(--r-14); background: var(--s3); }
 
@@ -346,6 +385,10 @@
    the labels above them sit on one line (review B) */
 .k-bk-volrec .k-input, .k-bk-range-grid .k-input, .k-bk-remove, .k-bk-range-go > .k-btn { inline-size: 100%; block-size: var(--bk-ctl-h); min-block-size: 0; padding-block: 0; }
 .k-bk-volrec .k-field, .k-bk-range-grid .k-field { gap: var(--sp-6); }
+/* a VN chapter's row adds the Owned tick before platform (review B) */
+.k-bk-volrec .k-field-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-vn-chrec { grid-template-columns: var(--bk-volrec-n-w) auto repeat(4, minmax(0, 1fr)) auto; }
+.k-vn-chrec .k-check { display: grid; place-items: center; block-size: var(--bk-ctl-h); }
 .k-bk-volrec-n { align-self: center; font-size: var(--fs-15); font-weight: var(--weight-semibold); }
 .k-bk-cov { text-align: start; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-bk-remove { align-self: end; inline-size: auto; padding-inline: var(--sp-14); color: var(--red); }
@@ -923,7 +966,7 @@
 .k-shr-podium { grid-template-columns: minmax(0, 1fr); }
 .k-dialog.k-shr-share { padding: var(--sp-20); }
 .k-bk-band { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.k-bk-volrec { grid-template-columns: minmax(0, 1fr); }
+.k-bk-volrec, .k-vn-chrec { grid-template-columns: minmax(0, 1fr); }
 .k-bk-vols { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .k-bk-range-grid { grid-template-columns: minmax(0, 1fr); }
 .k-vhero { flex-direction: column; align-items: flex-start; padding: var(--sp-18); }

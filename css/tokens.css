@@ -231,6 +231,9 @@ color-scheme: dark;
 --bk-volrec-n-w: 64px;
 --medit-url-min: 150px;
 --bk-ctl-h: 40px;
+--medit-score-w: 76px;
+--vn-chs-w: 150px;
+--vn-chs-cover-w: 44px;
 --hbar-label-w: 140px;
 --chart-wide-h: 240px;
 /* the image cropper */
@@ -349,6 +352,7 @@ color-scheme: dark;
 --asg-due-w: 120px;
 --asg-status-w: 96px;
 --dialog-w-lg: 720px;
+--mstats-w: 1040px;
 --trk-date-w: 64px;
 --trk-score-w: 150px;
 --trk-marks-w: 70px;

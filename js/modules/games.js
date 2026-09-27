@@ -375,16 +375,19 @@
           if (rec.completionTier !== tierAtOpen && rec.completionTier !== "notStarted") return "tier";
           if (oldStatus !== rec.status) return "status";
           if ((rec.playtimeHours || 0) > hoursAtOpen) return "progress";
+          if (rec.quotes.length > quotesAtOpen) return "quote";
           return null;
         },
         close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
 
+    var quotesAtOpen = e.quotes.length;
     function span2(node) { node.classList.add("k-medit-span2"); return node; }
     var tabs = [
       { label: "Play state", ids: ["progress", "dates"] },
       { label: "Your layer", ids: ["taxonomy", "lists", "notes"] },
+      { label: "Quote log", ids: ["highlights"] },
       { label: "Record", ids: ["identity", "ownership"] }
     ];
     var overlay = mv.editorModal({
@@ -397,7 +400,7 @@
       bump: isNew ? null : { input: hours, label: function () { return "+1 hour played"; } },
       fav: isNew ? null : fav,
       /* a new record starts where a record starts: its title */
-      tabs: isNew ? [tabs[2], tabs[0], tabs[1]] : tabs,
+      tabs: isNew ? [tabs[3], tabs[0], tabs[1], tabs[2]] : tabs,
       form: [
         /* every tab fills its rows (review B): Record is the title and
            studio, where it lives, the Steam id beside the cover */
@@ -427,7 +430,8 @@
           field("Backlog priority", prio),
           field("Custom lists", mv.customListChips(e)),
           field("Notes", notes, "med-span-2")
-        ], { cols: 2 })
+        ], { cols: 2 }),
+        mv.editorSection("highlights", "Quote log", "", [mv.quoteLog(e)], { raw: true })
       ],
       onSave: save,
       onDelete: function () {
