@@ -288,14 +288,24 @@
        ("automatic") takes whatever the entry carries, routes first. The
        percentage field shows only while it is the thing counting, so a
        routed VN never carries an idle slider. */
-    var modeSel = el("select", { class: "k-input", "data-ui": "ui.status-select", "aria-label": "What counts as progress" }, [
-      ["", "Automatic — routes, chapters, hours, then a percentage"],
+    /* 11e: the choice as a radio list, one line per source */
+    var modeName = "vn-mode-" + Math.random().toString(36).slice(2, 8);
+    var modeSel = el("div", { class: "k-vn-modes", role: "radiogroup", "data-ui": "vn.mode", "aria-label": "What counts as progress" }, [
+      ["", "Automatic", "routes, chapters, hours, then %"],
       ["routes", "Routes cleared"],
       ["chapters", "Chapters / parts completed"],
       ["time", "Hours played vs VNDB's length"],
       ["percent", "A percentage I set"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    modeSel.value = e.progressMode || "";
+    ].map(function (o) {
+      var r = el("input", { type: "radio", class: "k-vn-mode-in", name: modeName, value: o[0] });
+      r.checked = (e.progressMode || "") === o[0];
+      return el("label", { class: "k-vn-mode", "data-ui": "vn.mode-opt" }, [r, el("span", { text: o[1] }),
+        o[2] ? el("small", { class: "k-muted", text: o[2] }) : null].filter(Boolean));
+    }));
+    Object.defineProperty(modeSel, "value", {
+      get: function () { var on = modeSel.querySelector("input:checked"); return on ? on.value : ""; },
+      set: function (v) { Array.prototype.forEach.call(modeSel.querySelectorAll("input"), function (r) { r.checked = r.value === (v || ""); }); }
+    });
     var pctIn = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", max: "100", step: "1",
       value: e.progressPercent != null ? String(e.progressPercent) : "", placeholder: "0–100",
       "aria-label": "How far through, as a percentage" });
@@ -305,7 +315,22 @@
       "aria-label": "Hours played" });
     var hoursField = field("Hours played", hoursIn);
     var lengthNoteEl = el("p", { class: "k-field-hint k-medit-wide", "data-ui": "part.sub vn.progress-note vn.length-note vault.span-2" });
-    var progressNoteEl = el("p", { class: "k-vn-counting k-medit-wide", "data-ui": "part.sub vn.progress-note vault.span-2" });
+    var progressNoteEl = el("span", { class: "k-vn-counting", "data-ui": "part.sub vn.progress-note" });
+    var countPct = el("span", { class: "k-mono k-medit-pct" });
+    var countFill = el("span", { class: "k-medit-bar-fill" });
+    var countBox = el("div", { class: "k-field k-medit-wide k-medit-prog", "data-ui": "vn.counting vault.span-2" }, [
+      el("span", { class: "k-medit-prog-h" }, [progressNoteEl, countPct]),
+      el("span", { class: "k-medit-bar", "aria-hidden": "true" }, [countFill])
+    ]);
+    /* how far, by whatever counts — the bar under the counting line */
+    function sourcePct() {
+      var src = progressSource(e), n = null;
+      if (src === "routes") { var rp = routeProgress(e); n = rp.total ? rp.cleared / rp.total : null; }
+      else if (src === "chapters") { var cp = chapterProgress(e); n = cp.total ? cp.done / cp.total : null; }
+      else if (src === "time") { var len = KOS.mediadb.vnLengthHours(e); n = len && len.hours ? (e.playtimeHours || 0) / len.hours : null; }
+      else if (src === "percent") n = (e.progressPercent || 0) / 100;
+      return n == null ? null : Math.max(0, Math.min(100, Math.round(100 * n)));
+    }
     function readProgressFields() {
       e.progressMode = modeSel.value || null;
       e.progressPercent = pctIn.value === "" ? null : Math.max(0, Math.min(100, parseInt(pctIn.value, 10) || 0));
@@ -321,6 +346,9 @@
       lengthNoteEl.hidden = !timing;
       lengthNoteEl.textContent = lengthNote(e);
       progressNoteEl.textContent = progressNote(e);
+      var pc = sourcePct();
+      countPct.textContent = pc == null ? "" : pc + "%";
+      countFill.style.setProperty("--pct", (pc || 0) + "%");
     }
     modeSel.addEventListener("change", syncProgressUI);
     pctIn.addEventListener("input", syncProgressUI);
@@ -470,9 +498,46 @@
       });
     }
 
+    /* the banner's +1, by what counts (11e): the next route cleared, the
+       next chapter completed, or an hour played — all in the draft, kept
+       only when the editor saves */
+    function quickBumpIn() {
+      var src = progressSource(e);
+      if (src === "routes") return {
+        label: function () { return e.routes.some(function (r) { return !r.cleared; }) ? "+1 route" : null; },
+        run: function () {
+          var r = e.routes.find(function (x) { return !x.cleared; });
+          if (!r) return;
+          r.cleared = true; r.completedAt = KOS.srs.todayISO();
+          renderRoutes();
+        } };
+      if (src === "chapters") return {
+        label: function () { return e.chapters.some(function (c) { return c.status !== "completed"; }) ? "+1 chapter" : null; },
+        run: function () {
+          var c = e.chapters.find(function (x) { return x.status !== "completed"; });
+          if (!c) return;
+          c.status = "completed";
+          renderChapters();
+        } };
+      if (src === "percent") return null;
+      return { input: hoursIn, label: function () { return "+1 hour played"; } };
+    }
+    var tabs = [
+      { label: "Progress", ids: ["progress", "dates"] },
+      { label: "Routes", ids: ["routes"] },
+      { label: "Quote log", ids: ["highlights"] },
+      { label: "Your layer", ids: ["taxonomy", "lists", "structure", "notes"] },
+      { label: "Record", ids: ["identity", "ownership"] },
+      { label: "Source & sync", ids: ["source"] }
+    ];
+    var bump = isNew ? null : quickBumpIn();
     var overlay = mv.editorModal({
       isNew: isNew, label: "Visual Novels", hook: "vn.editor",
       subtitle: e.syncSource === "vndb" ? "synced from VNDB — a Sync overwrites list state, keeps your routes/quotes/CG/warnings" : "manual entry",
+      entry: e, altTitle: [e.developer, e.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · "),
+      chips: [KOS.media.STATUS_LABEL[e.status], { steam: "Steam", physical: "Physical", digital: "Digital" }[e.ownership], e.syncSource === "vndb" ? "VNDB-synced" : null],
+      bump: bump, fav: isNew ? null : fav,
+      tabs: isNew ? [tabs[4], tabs[0], tabs[1], tabs[2], tabs[3], tabs[5]] : tabs,
       form: [
         mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
           field("Title", title, "med-span-2"),
@@ -482,17 +547,19 @@
         mv.editorSection("progress", "Progress", "Status, and whichever of routes, chapters, hours played or a set percentage counts as this VN's progress.", [
           field("Status", status),
           field("Score /10", score),
-          field("What counts", modeSel),
           hoursField,
           pctField,
+          countBox,
           lengthNoteEl,
-          progressNoteEl,
+          el("div", { class: "k-field k-medit-wide", "data-ui": "vault.span-2" }, [el("span", { class: "k-field-label", text: "What counts as progress" }), modeSel])
+        ]),
+        mv.editorSection("routes", "Routes & chapters", "Your own lists — VNDB doesn't know a VN's routes. Either can be what counts.", [
           routesWrap,
           chaptersWrap
         ]),
         mv.editorSection("ownership", "Ownership", "How you own it and whether it belongs in the Shrine.", [
           field("Ownership", own),
-          field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
+          isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
         ]),
         mv.editorSection("dates", "Dates", "When play started and finished.", [
           field("Started", started),
@@ -527,7 +594,7 @@
         mv.deleteEntry(e, "Delete “" + e.title + "” — including its routes, chapters and quote log?",
           function () { overlay.close(); }, onSaved);
       },
-      focus: title
+      focus: isNew ? title : status
     });
     return overlay;
   }

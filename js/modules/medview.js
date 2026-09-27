@@ -639,35 +639,170 @@
     return e;
   }
 
-  /* the record drawer (frame 11c): header (kicker, title, subtitle, ✕),
-     the section form, and Delete kept apart from Cancel/Save. opts:
-     { isNew, label, subtitle, className, hook, form: node[], onSave, onDelete
-     (null hides the button), focus }. Returns the overlay. */
+  /* the record drawer (frame 11c, the template for every medium — review
+     B). A record opens on a banner (its cover over a wash of itself, the
+     facts as chips, the title and the other spelling), an action row (the
+     everyday +1, the Favourite toggle, where the record syncs from), then
+     TABS: the editor's sections grouped by subject, one group showing at
+     a time, and Delete kept apart from Cancel/Save. opts:
+       { isNew, label, subtitle, className, hook, form: node[], onSave,
+         onDelete (null hides it), focus,
+         entry (the draft — the banner reads it), chips: [text], altTitle,
+         bump: { input, unit, max } (+1 steps that field), fav (the
+         favourite checkbox — the toggle drives it), tabs: [{ label, ids }] }
+     The dialog keeps its accessible name ("Edit — Anime"), the banner
+     shows the record's own title. Returns the overlay. */
+  var TAB_OF = { progress: 0, dates: 0, structure: 0, ownership: 1, highlights: 1, personal: 2, taxonomy: 2, lists: 2, notes: 2, identity: 3, artwork: 3, source: 4 };
+  var TAB_NAME = ["State", "Shelf", "Your layer", "Record", "Source & sync"];
+  function syncLine(e) {
+    var who = e.syncSource === "anilist" ? "AniList" : e.syncSource === "vndb" ? "VNDB" : null;
+    if (!who) return e.syncSource === "import" ? "Imported" : "Local record";
+    if (!e.lastSyncedAt) return "Linked to " + who;
+    var m = Math.max(0, Math.round((Date.now() - e.lastSyncedAt) / 60000));
+    return "Synced with " + who + " " + (m < 1 ? "just now" : m < 60 ? m + "m ago" : m < 1440 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago");
+  }
+  function editorTabs(form, groups) {
+    var secs = form.filter(function (n) { return n && n.getAttribute && n.getAttribute("data-edit-section"); });
+    var loose = form.filter(function (n) { return n && secs.indexOf(n) === -1; });
+    if (!groups) {
+      var by = {};
+      secs.forEach(function (sec) {
+        var t = TAB_OF[sec.getAttribute("data-edit-section")];
+        if (t == null) t = 2;
+        (by[t] = by[t] || []).push(sec.getAttribute("data-edit-section"));
+      });
+      groups = Object.keys(by).sort().map(function (t) { return { label: TAB_NAME[t], ids: by[t] }; });
+    }
+    var panels = [], tabItems = [];
+    var wrap = el("div", { class: "k-medit-tabbed" });
+    groups.forEach(function (g, gi) {
+      var mine = secs.filter(function (sec) { return g.ids.indexOf(sec.getAttribute("data-edit-section")) !== -1; });
+      if (!mine.length) return;
+      var panel = el("div", { class: "k-medit-panel", role: "tabpanel", "data-ui": "vault.editor-panel", "aria-label": g.label }, mine);
+      if (mine.length === 1) KOS.ui.state(panel, "single", true);
+      panels.push(panel);
+      tabItems.push({ label: g.label, hook: "vault.editor-tab", onSelect: function () { show(panels.indexOf(panel)); } });
+    });
+    /* a section no group claimed still has a home: the last tab */
+    secs.forEach(function (sec) {
+      if (!panels.some(function (p) { return p.contains(sec); }) && panels.length) panels[panels.length - 1].appendChild(sec);
+    });
+    var bar = KOS.ui.tabs(tabItems.map(function (t, i) { t.active = i === 0; return t; }), { label: "Record sections", className: "k-medit-tabs" });
+    function show(i) {
+      panels.forEach(function (p, j) { p.hidden = j !== i; });
+      Array.prototype.forEach.call(bar.querySelectorAll("[role='tab']"), function (t, j) {
+        t.setAttribute("aria-selected", String(j === i));
+        KOS.ui.state(t, "active", j === i);
+      });
+    }
+    panels.forEach(function (p) { wrap.appendChild(p); });
+    loose.forEach(function (n) { wrap.appendChild(n); });
+    show(0);
+    return { bar: tabItems.length > 1 ? bar : null, body: wrap, show: show, panels: panels };
+  }
+  function editorBanner(opts, overlay) {
+    var e = opts.entry;
+    var bg = (e.extra && e.extra.bannerImage) || e.coverUrl;
+    var cover = e.coverUrl
+      ? el("span", { class: "k-medit-art" }, [KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)])
+      : el("span", { class: "k-medit-art", "aria-hidden": "true", text: (KOS.media.module(e.module) || {}).kanji || "" });
+    var wash = el("div", { class: "k-medit-wash", "aria-hidden": "true" });
+    if (bg) wash.appendChild(KOS.imageCrop.image(bg, { alt: "" }, null));
+    return el("div", { class: "k-medit-banner", "data-ui": "vault.editor-banner" }, [
+      wash,
+      el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-medit-close", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } }),
+      cover,
+      el("div", { class: "k-medit-id" }, [
+        (opts.chips || []).filter(Boolean).length ? el("div", { class: "k-cluster k-medit-chips" }, opts.chips.filter(Boolean).map(function (c) {
+          return el("span", { class: "k-chip", text: c });
+        })) : null,
+        el("h2", { class: "k-medit-title", "data-ui": "ui.dialog-title", text: e.title || opts.label }),
+        opts.altTitle && opts.altTitle !== e.title ? el("p", { class: "k-medit-alt", text: opts.altTitle }) : null
+      ].filter(Boolean))
+    ]);
+  }
+  function editorActions(opts) {
+    var out = [];
+    /* bump: { input, unit, max } steps a number field; { run, label }
+       does its own step (a VN's next route) — label() null means done */
+    var b = opts.bump;
+    if (b && (b.input || b.run)) {
+      var bumpBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "vault.editor-bump" });
+      var paint = function () {
+        var n = b.input ? (parseInt(b.input.value, 10) || 0) + 1 : null;
+        var capped = b.max != null && n > b.max;
+        var text = capped ? "All " + b.max + " logged" : b.label ? b.label(n) : "+1 · Log " + b.unit + " " + n;
+        bumpBtn.textContent = text || "All done";
+        bumpBtn.disabled = capped || !text;
+      };
+      bumpBtn.addEventListener("click", function () {
+        if (b.run) b.run();
+        else {
+          b.input.value = String((parseInt(b.input.value, 10) || 0) + 1);
+          b.input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        paint();
+      });
+      if (b.input) b.input.addEventListener("input", paint);
+      paint();
+      out.push(bumpBtn);
+    }
+    if (opts.fav) {
+      var fav = opts.fav;
+      var favBtn = el("button", { type: "button", class: "k-btn k-medit-fav", "data-ui": "vault.editor-fav", "aria-pressed": String(!!fav.checked), text: "♥ Favourite",
+        onclick: function () {
+          fav.checked = !fav.checked;
+          fav.dispatchEvent(new Event("change", { bubbles: true }));
+          favBtn.setAttribute("aria-pressed", String(fav.checked));
+        } });
+      out.push(favBtn);
+    }
+    return el("div", { class: "k-medit-actions" }, [
+      el("div", { class: "k-cluster" }, out),
+      el("span", { class: "k-medit-sync", "data-ui": "vault.editor-sync", "data-state": /^Synced|^Linked/.test(syncLine(opts.entry)) ? "linked" : null, text: syncLine(opts.entry) })
+    ]);
+  }
   function editorModal(opts) {
     var overlay = modalOverlay();
     KOS.ui.state(overlay, "drawer", true);
-    overlay.appendChild(el("div", { class: "k-dialog k-medit" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.dialog vault.dialog vault.editor" + (opts.hook ? " " + opts.hook : "") }, [
-      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
-        el("div", { class: "k-medit-heading" }, [
-          el("span", { class: "k-kicker", text: opts.isNew ? "New collection record" : "Collection record" }),
-          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: (opts.isNew ? "Add to " : "Edit — ") + opts.label }),
-          opts.subtitle ? el("span", { class: "k-muted", text: opts.subtitle }) : null
-        ].filter(Boolean)),
-        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
-      ]),
-      el("div", { class: "k-dialog-body k-medit-form", "data-ui": "ui.form" }, opts.form.filter(Boolean)),
+    var tabs = editorTabs(opts.form, opts.tabs);
+    var name = (opts.isNew ? "Add to " : "Edit — ") + opts.label;
+    var head = opts.entry && !opts.isNew
+      ? el("div", { class: "k-medit-top" }, [editorBanner(opts, overlay), editorActions(opts), tabs.bar].filter(Boolean))
+      : el("div", { class: "k-medit-top" }, [
+          el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+            el("div", { class: "k-medit-heading" }, [
+              el("span", { class: "k-kicker", text: opts.isNew ? "New collection record" : "Collection record" }),
+              el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: name }),
+              opts.subtitle ? el("span", { class: "k-muted", text: opts.subtitle }) : null
+            ].filter(Boolean)),
+            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
+          ]),
+          tabs.bar
+        ].filter(Boolean));
+    var box = el("div", { class: "k-dialog k-medit" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.dialog vault.dialog vault.editor" + (opts.hook ? " " + opts.hook : ""),
+      "aria-label": name }, [
+      head,
+      el("div", { class: "k-dialog-body k-medit-form", "data-ui": "ui.form" }, [tabs.body]),
       el("div", { class: "k-dialog-foot k-medit-foot" }, [
         el("div", { class: "k-cluster", "data-ui": "vault.delete-actions" }, [
           !opts.isNew && opts.onDelete ? el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", text: "Delete record", onclick: opts.onDelete }) : null
         ].filter(Boolean)),
         el("div", { class: "k-cluster", "data-ui": "vault.save-actions" }, [
           el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }),
-          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: opts.isNew ? "Add to collection" : "Save changes", onclick: opts.onSave })
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: opts.isNew ? "Add to collection" : "Save", onclick: opts.onSave })
         ])
       ])
-    ]));
+    ]);
+    if (opts.entry) box.style.setProperty("--vh-accent", "var(--" + ({ game: "games" }[opts.entry.module] || opts.entry.module) + ")");
+    overlay.appendChild(box);
+    overlay.showTab = tabs.show;
     KOS.ui.openDialog(overlay);
-    if (opts.focus) opts.focus.focus();
+    /* focus lands in the tab that holds it */
+    if (opts.focus) {
+      tabs.panels.forEach(function (p, i) { if (p.contains(opts.focus)) tabs.show(i); });
+      opts.focus.focus();
+    }
     return overlay;
   }
 
@@ -1420,37 +1555,72 @@
   /* the per-entry custom-list assignment control for editors (all modules).
      Known lists as toggle pills + a free-text add. Mutates
      entry.customLists in place; the editor's normal save persists it. */
+  /* Custom lists, as 11c draws them (review B): one field reading the
+     lists this record is on ("Comfort · Seasonal"), which opens into a
+     checklist of every list plus a new-list line. Membership is a toggle
+     per list; nothing is written until the editor saves. */
   function customListChips(entry) {
     entry.customLists = Array.isArray(entry.customLists) ? entry.customLists : [];
-    var wrap = el("div", { class: "k-cluster k-mlist-chips", "data-ui": "cl.chips" });
+    var summary = el("summary", { class: "k-input k-mlists-sum", "data-ui": "cl.summary" });
+    var menu = el("div", { class: "k-mlists-menu", "data-ui": "cl.chips", role: "group", "aria-label": "Custom lists" });
+    var box = el("details", { class: "k-mlists-pick", "data-ui": "cl.pick" }, [summary, menu]);
+    function paintSummary() {
+      summary.textContent = entry.customLists.length ? entry.customLists.slice().sort().join(" · ") : "None";
+      KOS.ui.state(summary, "empty", !entry.customLists.length);
+    }
     function render() {
-      wrap.innerHTML = "";
+      menu.innerHTML = "";
       KOS.media.customLists(entry.module, function (e0, names) {
         var known = {};
         names.forEach(function (n) { known[n] = true; });
         entry.customLists.forEach(function (n) { known[n] = true; });
         Object.keys(known).sort().forEach(function (n) {
           var on = entry.customLists.indexOf(n) !== -1;
-          wrap.appendChild(el("button", { type: "button", class: "k-qz-pill", "data-ui": "cl.chip", "aria-pressed": String(on), text: (on ? "✓ " : "") + n, onclick: function () {
-            if (on) entry.customLists = entry.customLists.filter(function (x) { return x !== n; });
-            else entry.customLists.push(n);
-            render();
-          } }));
+          var cb = el("input", { type: "checkbox", class: "k-box", "data-ui": "cl.chip", "aria-label": n });
+          cb.checked = on;
+          cb.addEventListener("change", function () {
+            if (cb.checked) { if (entry.customLists.indexOf(n) === -1) entry.customLists.push(n); }
+            else entry.customLists = entry.customLists.filter(function (x) { return x !== n; });
+            paintSummary();
+          });
+          menu.appendChild(el("label", { class: "k-mlists-opt" }, [cb, el("span", { text: n })]));
         });
-        var addIn = el("input", { type: "text", class: "k-pill-select", "data-ui": "ui.quick-add", placeholder: "＋ new list…", "aria-label": "Add to a new list" });
+        var addIn = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", placeholder: "+ New list…", "aria-label": "Add to a new list" });
         addIn.addEventListener("keydown", function (ev) {
           if (ev.key !== "Enter") return;
           ev.preventDefault();
           var n = addIn.value.trim();
           if (!n) return;
           if (entry.customLists.indexOf(n) === -1) entry.customLists.push(n);
-          KOS.media.registerList(entry.module, n, function () { render(); });
+          KOS.media.registerList(entry.module, n, function () { render(); paintSummary(); });
         });
-        wrap.appendChild(addIn);
+        menu.appendChild(addIn);
       });
     }
+    paintSummary();
     render();
-    return wrap;
+    return box;
+  }
+
+  /* the record's progress as a bar under its fields (11c): reads the
+     progress input live, so +1 or typing moves it before the save */
+  function progressField(input, total) {
+    if (!total) return null;
+    var pct = el("span", { class: "k-mono k-medit-pct" });
+    var fill = el("span", { class: "k-medit-bar-fill" });
+    var track = el("span", { class: "k-medit-bar", role: "img" }, [fill]);
+    function paint() {
+      var n = Math.max(0, Math.min(total, parseInt(input.value, 10) || 0));
+      var p = Math.round(100 * n / total);
+      pct.textContent = p + "%";
+      fill.style.setProperty("--pct", p + "%");
+      track.setAttribute("aria-label", n + " of " + total + " (" + p + "%)");
+    }
+    input.addEventListener("input", paint);
+    paint();
+    return el("div", { class: "k-field k-medit-wide k-medit-prog", "data-ui": "vault.editor-progress vault.span-2" }, [
+      el("span", { class: "k-medit-prog-h" }, [el("span", { class: "k-field-label", text: "Progress" }), pct]), track
+    ]);
   }
 
   /* ================= the vault page (frame 11b) =================
@@ -1479,6 +1649,7 @@
     heroCard: heroCard,
     filterRail: filterRail,
     customListChips: customListChips,
+    progressField: progressField,
     statsModal: statsModal,
     listRow: listRow,
     listHead: listHead,

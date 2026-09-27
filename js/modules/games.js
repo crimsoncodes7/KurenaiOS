@@ -381,9 +381,23 @@
       });
     }
 
+    var tabs = [
+      { label: "Play state", ids: ["progress", "dates"] },
+      { label: "Your layer", ids: ["taxonomy", "lists", "notes"] },
+      { label: "Record", ids: ["identity", "ownership"] },
+      { label: "Store link", ids: ["source"] }
+    ];
     var overlay = mv.editorModal({
       isNew: isNew, label: "Games", hook: "games.editor",
       subtitle: "manual entry — games have no live sync (Steam blocks browsers); everything here is yours to keep",
+      entry: e, altTitle: [e.developer, e.publisher].filter(Boolean).join(" · "),
+      chips: [e.platform ? KOS.media.PLATFORM_LABEL[e.platform] : null,
+        e.completionTier && e.completionTier !== "notStarted" ? KOS.media.TIER_LABEL[e.completionTier] : null,
+        e.backlogPriority ? KOS.media.PRIORITY_LABEL[e.backlogPriority] + " priority" : null],
+      bump: isNew ? null : { input: hours, label: function () { return "+1 hour played"; } },
+      fav: isNew ? null : fav,
+      /* a new record starts where a record starts: its title */
+      tabs: isNew ? [tabs[2], tabs[0], tabs[1], tabs[3]] : tabs,
       form: [
         mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
           field("Title", title, "med-span-2"),
@@ -391,7 +405,7 @@
           field("Publisher", publisher),
           field("Cover URL", el("div", { class: "k-stack k-medit-cover" }, [coverU, coverPosition.node]), true)
         ]),
-        mv.editorSection("progress", "Progress", "Play state, completion depth and time invested.", [
+        mv.editorSection("progress", "Progress", "Play state, completion depth and time invested. Saved locally — games have no live sync.", [
           field("Status", status),
           field("Completion tier", tier),
           field("Playtime (hours)", hours),
@@ -401,7 +415,7 @@
         mv.editorSection("ownership", "Platform & ownership", "Where the game lives and whether it belongs in the Shrine.", [
           field("Platform", platform),
           field("Ownership", own),
-          field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
+          isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
         ]),
         mv.editorSection("dates", "Dates", "When play started and finished.", [
           field("Started", started),
@@ -428,7 +442,7 @@
         mv.deleteEntry(e, "Delete “" + e.title + "” from the collection?",
           function () { overlay.close(); }, onSaved);
       },
-      focus: title
+      focus: isNew ? title : status
     });
     return overlay;
   }

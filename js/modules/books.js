@@ -545,10 +545,23 @@
     }
 
     var x = e.extra || {};
+    /* 11c's template, with 11d's shelf as its own tab (review B) */
+    var tabs = [
+      { label: "Reading state", ids: ["progress", "dates"] },
+      { label: "Physical vault", ids: ["ownership"] },
+      { label: "Shelves & tags", ids: ["taxonomy", "lists", "notes"] },
+      { label: "Identity", ids: ["identity", "artwork"] },
+      { label: "Source & sync", ids: ["source"] }
+    ];
     var overlay = mv.editorModal({
       isNew: isNew, label: "Books", hook: "books.dialog" + (mirror ? " anime.mirror-dialog" : ""),
       subtitle: mirror ? "mirrored from AniList — reading state pushes back; the shelf and your notes are yours"
         : e.syncSource === "import" ? "from XML import" : "physical vault entry",
+      entry: e, altTitle: [e.author, x.titleRomaji && x.titleRomaji !== e.title ? x.titleRomaji : null].filter(Boolean).join(" · "),
+      chips: [KOS.media.FORMAT_LABEL[e.format] || null, KOS.media.STATUS_LABEL[e.status], e.dnf && e.dnf.isDnf ? "DNF" : null],
+      bump: isNew ? null : { input: chCur, unit: "chapter", max: e.progress.total || null },
+      fav: isNew ? null : fav,
+      tabs: isNew ? [tabs[3], tabs[0], tabs[1], tabs[2], tabs[4]] : tabs,
       form: [
         mirror
           ? mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
@@ -585,13 +598,13 @@
           reasonField
         ]),
         mirror
-          ? mv.editorSection("dates", "Favourite", "Shrine placement — not on AniList.", [
+          ? (isNew ? mv.editorSection("dates", "Favourite", "Shrine placement — not on AniList.", [
               field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
-            ])
-          : mv.editorSection("dates", "Dates & favourite", "Reading dates and Shrine placement.", [
+            ]) : null)
+          : mv.editorSection("dates", isNew ? "Dates & favourite" : "Dates", isNew ? "Reading dates and Shrine placement." : "When reading started and finished.", [
               field("Started", started),
               field("Finished", finished),
-              field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
+              isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
             ]),
         mv.editorSection("ownership", "Physical vault", "Volumes on your shelf are tracked independently from reading progress.", [
           comparePanel(),
@@ -622,7 +635,7 @@
         mv.deleteEntry(e, "Delete “" + e.title + "” — including its physical vault records?",
           function () { overlay.close(); }, onSaved);
       },
-      focus: mirror ? status : title
+      focus: mirror || !isNew ? status : title
     });
     return overlay;
   }

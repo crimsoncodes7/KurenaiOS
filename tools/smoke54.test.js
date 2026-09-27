@@ -238,30 +238,31 @@ step("hours played count against VNDB's length: crowd-sourced minutes, else the 
 
 /* ============ 2 · the editor and the card ============ */
 console.log("== editor + card ==");
-step("the editor's What-counts select and percentage field save; the field hides while something else counts", async () => {
+step("the editor's What-counts radio list and percentage field save; the field hides while something else counts", async () => {
   const e = await p(cb => KOS.mediadb.get(idKinetic, cb));
   KOS.vnEditor(e, null);
   const modal = document.querySelector("[data-ui~='vn.editor']");
   assert(modal, "editor did not open");
-  const sel = modal.querySelector("select[aria-label='What counts as progress']");
+  /* 11e: the choice is a radio list, one line per source */
+  const sel = modal.querySelector("[role='radiogroup'][aria-label='What counts as progress']");
+  const pick = v => { const r = sel.querySelector("input[type=radio][value='" + v + "']"); r.click(); };
   const pctIn = modal.querySelector("input[aria-label='How far through, as a percentage']");
   assert(sel && pctIn, "controls missing");
-  assert(sel.value === "", "automatic by default");
+  assert(sel.querySelectorAll("input[type=radio]").length === 5, "five sources to choose from");
+  assert(sel.querySelector("input:checked").value === "", "automatic by default");
   assert(pctIn.closest("[data-ui~='ui.field']").hidden === true, "percentage hidden while chapters count");
   assert(/Counting chapters — 2 of 4/.test(modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent), "note names the source: " + modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent);
   const hoursIn = modal.querySelector("input[aria-label='Hours played']");
   assert(hoursIn && hoursIn.closest("[data-ui~='ui.field']").hidden === true, "hours hidden while chapters count");
-  sel.value = "time";
-  sel.dispatchEvent(new window.Event("change", { bubbles: true }));
+  pick("time");
   assert(hoursIn.closest("[data-ui~='ui.field']").hidden === false, "hours show once chosen");
   assert(/VNDB has no length/.test(modal.querySelector("[data-ui~='vn.length-note']").textContent), "the length note says VNDB has none for this title");
-  sel.value = "percent";
-  sel.dispatchEvent(new window.Event("change", { bubbles: true }));
+  pick("percent");
   assert(pctIn.closest("[data-ui~='ui.field']").hidden === false, "percentage shows once chosen");
   pctIn.value = "65";
   pctIn.dispatchEvent(new window.Event("input", { bubbles: true }));
   assert(/65%/.test(modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent), "note follows the field");
-  /* chapters live in the Progress section now, beside routes */
+  /* chapters live beside routes, on their own tab */
   assert(modal.querySelector("[data-ui~='vault.editor-body'] [data-ui~='vn.chapters']"), "chapters section present");
   [...modal.querySelectorAll("button")].find(b => /^Save/.test(b.textContent.trim())).click();
   await waitFor(() => !document.querySelector("[data-ui~='vn.editor']"), 3000);

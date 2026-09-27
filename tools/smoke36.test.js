@@ -42,16 +42,30 @@ function close(modal) {
   const button = modal.querySelector("button[aria-label='Close']");
   if (button) button.click();
 }
+/* the tabs: a real tablist, one panel showing, and a tab press swaps it */
+function checkTabs(name, modal) {
+  const tabs = [...modal.querySelectorAll("[role='tablist'] [role='tab']")];
+  const panels = [...modal.querySelectorAll("[data-ui~='vault.editor-panel']")];
+  assert(tabs.length > 1 && tabs.length === panels.length, name + " tabs " + tabs.length + " ≠ panels " + panels.length);
+  assert(panels.filter(p => !p.hidden).length === 1, name + " shows more than one tab at once");
+  tabs[1].click();
+  assert(!panels[1].hidden && panels[0].hidden && tabs[1].getAttribute("aria-selected") === "true", name + " a tab press did not swap the panel");
+  tabs[0].click();
+}
 function inspectEditor(name, open, entry, expected) {
   open(entry, noop);
   const modal = document.querySelector("[data-ui~='vault.editor']");
   assert(modal, name + " did not open the shared record modal");
-  const sections = [...modal.querySelectorAll(":scope > [data-ui~='ui.form'] > [data-edit-section]")];
+  const sections = [...modal.querySelectorAll(":scope > [data-ui~='ui.form'] [data-edit-section]")];
   const ids = sections.map(n => n.dataset.editSection);
   ["identity", "progress", "ownership", "dates", "taxonomy", "lists", "source", "notes"].forEach(id =>
     assert(ids.includes(id), name + " is missing the " + id + " section"));
-  assert(ids[ids.length - 1] === "notes", name + " Notes is not the final full-width section");
-  assert(sections[sections.length - 1].querySelector("[data-ui~='vault.span-2'] textarea"), name + " Notes is not full width");
+  /* 11c (review B): the sections live in tabs, one panel showing */
+  const notes = sections.find(n => n.dataset.editSection === "notes");
+  assert(notes.parentNode.lastElementChild === notes, name + " Notes is not the last section of its tab");
+  assert(notes.querySelector("[data-ui~='vault.span-2'] textarea"), name + " Notes is not full width");
+  checkTabs(name, modal);
+  assert(modal.querySelector("button[data-ui~='vault.editor-fav'][aria-pressed]"), name + " has no Favourite toggle in its action row");
   assert(modal.querySelector("[data-ui~='vault.source']"), name + " has no human-readable source/sync summary");
   const actualLabels = labels(modal);
   expected.forEach(label => assert(actualLabels.includes(label), name + " is missing field: " + label));
@@ -69,8 +83,10 @@ function inspectMirrorEditor(name, open, entry, expected, readOnly) {
   const modal = document.querySelector("[data-ui~='vault.editor']");
   assert(modal, name + " did not open the shared record modal");
   assert(modal.matches('[data-ui~="anime.mirror-dialog"]'), name + " is not marked as a mirror record");
-  const ids = [...modal.querySelectorAll(":scope > [data-ui~='ui.form'] > [data-edit-section]")].map(n => n.dataset.editSection);
+  const ids = [...modal.querySelectorAll(":scope > [data-ui~='ui.form'] [data-edit-section]")].map(n => n.dataset.editSection);
   ["identity", "progress", "source"].forEach(id => assert(ids.includes(id), name + " is missing the " + id + " section"));
+  checkTabs(name, modal);
+  assert(modal.querySelector("button[data-ui~='vault.editor-fav'][aria-pressed]"), name + " has no Favourite toggle in its action row");
   const actualLabels = labels(modal);
   expected.forEach(label => assert(actualLabels.includes(label), name + " is missing field: " + label));
   readOnly.forEach(label => {
@@ -86,7 +102,7 @@ function inspectMirrorEditor(name, open, entry, expected, readOnly) {
 try {
   assert(KOS.medview && KOS.medview.editorSection && KOS.medview.sourceInfo, "shared editor helpers are not exported");
   inspectMirrorEditor("Anime", KOS.mediaEditors.anime, { id: 901, module: "anime", title: "Example", genres: ["Drama"], dates: { started: "2026-01-01", finished: null } },
-    ["Title", "Genres", "Status", "Episodes seen", "Score /10", "Favourite ♥", "Tags", "Cover position", "Custom lists", "Notes"],
+    ["Title", "Genres", "Status", "Episodes seen", "Score /10", "Tags", "Cover position", "Custom lists", "Notes"],
     ["Title", "Genres", "Started"]);
   /* an empty AniList fact is omitted, not printed as a dash (invariant 77) */
   assert(!labels(document.querySelector("[data-ui~='vault.editor']") || document.body).includes("Finished"), "an empty read-only fact was printed");
@@ -94,10 +110,10 @@ try {
     "Anime must refuse a manual add — the vault mirrors AniList");
   inspectMirrorEditor("Books (AniList row)", KOS.booksEditor, { id: 905, module: "books", title: "Example", author: "Abe", format: "manga",
       genres: ["Drama"], progress: { current: 1, total: 60, totalVolumes: 7 }, syncSource: "anilist", externalIds: { anilistId: 1 } },
-    ["Title", "Author / mangaka", "Status", "Chapters read / 60", "Volumes read / 7", "Rating", "DNF — did not finish", "Favourite ♥", "Mood", "Shelves", "Tags", "Notes"],
+    ["Title", "Author / mangaka", "Status", "Chapters read / 60", "Volumes read / 7", "Rating", "DNF — did not finish", "Mood", "Shelves", "Tags", "Notes"],
     ["Title", "Author / mangaka", "Format", "Chapters", "Volumes", "Genres"]);
   inspectEditor("Books", KOS.booksEditor, { id: 902, module: "books", title: "Example" },
-    ["Title", "Author / mangaka", "Cover URL", "Status", "Chapters read", "Chapters total", "Volumes read", "Volumes total", "Rating", "DNF — did not finish", "Started", "Finished", "Favourite ♥", "Notes"]);
+    ["Title", "Author / mangaka", "Cover URL", "Status", "Chapters read", "Chapters total", "Volumes read", "Volumes total", "Rating", "DNF — did not finish", "Started", "Finished", "Notes"]);
   inspectEditor("Visual Novels", KOS.vnEditor, { id: 903, module: "vn", title: "Example" },
     ["Title", "Developer", "Cover URL", "Status", "Score /10", "Ownership", "Started", "Finished", "Genres", "Tags", "Content warnings", "Custom lists", "Notes"]);
   inspectEditor("Games", KOS.gamesEditor, { id: 904, module: "game", title: "Example" },

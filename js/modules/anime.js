@@ -218,30 +218,42 @@
     }
 
     var x = e.extra || {};
+    var season = x.season ? x.season.charAt(0) + x.season.slice(1).toLowerCase() + (x.seasonYear ? " " + x.seasonYear : "") : null;
     var overlay = mv.editorModal({
       isNew: false, label: mod.label, hook: "anime.mirror-dialog",
       subtitle: "mirrored from AniList — status, episodes and score push back; everything else is AniList's",
+      entry: e, chips: [x.format ? x.format.replace(/_/g, " ") : null, season, x.studio],
+      altTitle: x.titleRomaji,
+      bump: { input: cur, unit: "episode", max: e.progress.total || null },
+      fav: fav,
+      tabs: [
+        { label: "List state", ids: ["progress"] },
+        { label: "Your layer", ids: ["personal"] },
+        { label: "Record", ids: ["identity"] },
+        { label: "Source & sync", ids: ["source"] }
+      ],
       form: [
         mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
           ro("Title", e.title, "med-span-2"),
           x.titleRomaji && x.titleRomaji !== e.title ? ro("Romaji", x.titleRomaji, "med-span-2") : null,
           ro("Format", x.format),
-          ro("Season", x.season ? x.season.charAt(0) + x.season.slice(1).toLowerCase() + (x.seasonYear ? " " + x.seasonYear : "") : null),
+          ro("Season", season),
           ro("Studio", x.studio),
-          ro("Genres", e.genres.join(", "), "med-span-2"),
-          ro("Started", e.dates.started),
-          ro("Finished", e.dates.finished)
+          ro("Genres", e.genres.join(", "), "med-span-2")
         ]),
-        mv.editorSection("progress", "List state", "Yours to change — pushed to AniList when you save.", [
+        mv.editorSection("progress", "List state", "Yours to change. Pushed to AniList when you save.", [
           field("Status", status),
           field("Episodes seen" + (e.progress.total ? " / " + e.progress.total : ""), cur),
-          field("Score /10", score)
+          field("Score /10", score),
+          ro("Started", e.dates.started),
+          ro("Finished", e.dates.finished),
+          mv.progressField(cur, e.progress.total),
+          field("Genres", el("div", { class: "k-mro", "data-ui": "vault.ro", text: e.genres.join(", ") || "—" })),
+          field("Custom lists", mv.customListChips(e))
         ]),
         mv.editorSection("personal", "Your layer", "Not on AniList — kept here, on every device.", [
-          field("Favourite ♥", el("span", { class: "k-check" }, [fav])),
           field("Tags", tags),
           field("Cover position", coverPosition.node, "med-span-2"),
-          field("Custom lists", mv.customListChips(e), "med-span-2"),
           field("Notes", notes, "med-span-2")
         ]),
         mv.editorSection("source", "Source & sync", "Where this record comes from.", [

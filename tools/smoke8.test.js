@@ -225,7 +225,7 @@ step("editor: fleshing out a draft saves every axis; steam link is a working sto
   KOS.gamesEditor(e, null);
   const modal = document.querySelector("[data-ui~='games.editor']");
   if (!modal) throw new Error("editor did not open");
-  if (!/manual entry — games have no live sync/.test(modal.textContent)) throw new Error("honesty line missing");
+  if (!/games have no live sync/.test(modal.textContent)) throw new Error("honesty line missing");
   modal.querySelector("input[placeholder='Developer']").value = "Supergiant Games";
   modal.querySelector("input[placeholder='Publisher']").value = "Supergiant Games";
   const hours = modal.querySelector("input[title*='no API exists']");
@@ -238,7 +238,7 @@ step("editor: fleshing out a draft saves every axis; steam link is a working sto
   const statusSel = modal.querySelectorAll("select")[0];
   statusSel.value = "inProgress";
   const sessionsBefore = KOS.store.state.sessions.length;
-  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
+  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save").click();
   await waitFor(() => !document.querySelector("[data-ui~='games.editor']"), 3000);
   const back = await p(cb => KOS.mediadb.get(hadesId, cb));
   if (back.developer !== "Supergiant Games" || back.playtimeHours !== 35 ||
@@ -259,7 +259,7 @@ step("tier change logs a 'tier' session and nudges status to completed", async (
   const statusSel = modal.querySelectorAll("select")[0];
   if (statusSel.value !== "completed") throw new Error("tier→status nudge missing");
   const sessionsBefore = KOS.store.state.sessions.length;
-  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
+  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save").click();
   await waitFor(() => !document.querySelector("[data-ui~='games.editor']"), 3000);
   const back = await p(cb => KOS.mediadb.get(hadesId, cb));
   if (back.completionTier !== "storyComplete" || back.status !== "completed") throw new Error("tier not saved");
