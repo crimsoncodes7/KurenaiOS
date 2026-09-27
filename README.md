@@ -14,18 +14,22 @@ or at the production site:
 
 ## Current release
 
-Category 7 (the complete UI/UX overhaul, Phases A–G) is integrated, deployed and
-production-verified as of **9 August 2026**. The release includes the Atelier Dawn
-and Dusk themes, shared UI primitives, redesigned Study and Collection surfaces,
-mobile compositions, browser-native routing, accessibility refinements and a final
-visual-consistency pass.
+The **Graphite UI rebuild** is live as of **27 September 2026**: the whole
+presentation layer redrawn from the Graphite design handoff (a dark,
+desktop-first interface), with every surface reviewed twice and the
+behaviour, data and invariants of the earlier releases unchanged.
 
-- Source checkpoint: `f81f2962dacfa07431355234737c8fbaa4070b7f`
-- Runtime release commit: `06893d22ddef02fe04b8514e8f9bc177866878d1`
-- Release tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker cache: `kos-cat7-phase-g-1`
-- Verification: all **47 smoke suites** plus the responsive, device and visual
-  audit gates passed before deployment and again against production.
+- Runtime release commit: `8ea878d` — immutable deployment
+  https://406887be.kurenai-os.pages.dev
+- Milestone tag: `milestone/graphite-ui-rebuild`
+- Service-worker cache: `kos-graphite-3`
+- Verification: all **56 smoke suites**, including the rebuild guards
+  (smoke55: presentation vocabulary; smoke56: render purity and control
+  parity).
+
+Graphite is currently the only theme; phone layouts keep working on the new
+shell but have not been designed yet. What comes next is in
+[docs/ROADMAP.md](docs/ROADMAP.md).
 
 The concise delivery record is in [PROGRESS.md](PROGRESS.md). Engineering contracts
 live in [CLAUDE.md](CLAUDE.md), with the shorter execution rules in
@@ -44,9 +48,12 @@ Use a local HTTP server when testing the service worker, cloud integrations or
 browser automation:
 
 ```sh
-python3 -m http.server 8765
+python3 tools/dev_server.py 8765
 # then open http://127.0.0.1:8765/index.html
 ```
+
+`tools/dev_server.py` is `http.server` with `Cache-Control: no-store`, so an
+edited script is never served stale to the service worker.
 
 Core study and organisation features remain usable offline. Network-backed sync,
 provider search and AI providers naturally require a connection. KaTeX and the
@@ -70,6 +77,9 @@ fonts.
 
 - Calendar, recurring events, reminders, assignments, countdowns, habits and
   daily recommendations share canonical records instead of copying data.
+- Pacing is the integrated weekly plan: the school scheme of work beside the
+  personal curriculum, per-lesson ticks, carry-over of unfinished rows, and a
+  per-subject branch graph ("braid") of where the two plans meet.
 - Focus Timer supports Pomodoro/custom sessions, reload recovery, distraction and
   pause accounting, assignment links and a post-session review.
 - The Behavioural Governor derives streaks, HP, gold, XP and rewards from the
@@ -85,6 +95,11 @@ fonts.
   server-backed IGDB search and reviewed Steam import.
 - Budget Planner, Collection Goals and the Shrine Hall of Fame remain local-first
   and cannot duplicate Governor rewards.
+
+### Archive
+
+- A notification centre (bell and full feed, per-device filters, quiet hours
+  and opt-in device alerts), Backup & Restore, and a searchable Help & Guide.
 
 ### Assistant, cloud and PWA
 
@@ -122,7 +137,7 @@ KurenaiOS uses classic script tags and one global `KOS` namespace. Load order in
 | Simulations, worked examples and sandboxes | `js/labs/` |
 | Hand-authored revision content | `js/data/content/` |
 | Generated specification trees | `js/data/compsci.js`, `maths.js`, `it.js` |
-| Visual system and responsive layout | `css/main.css` |
+| Visual system: Graphite tokens, base, layout, components, per-domain views, themes | `css/tokens.css`, `css/*.css`, `css/views/*.css` |
 | Data pipeline, audits, deployment and tests | `tools/` |
 | Supabase schema and Edge Functions | `supabase/` |
 
@@ -141,7 +156,7 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..47}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Responsive or shared-component changes also require a dense responsive audit and

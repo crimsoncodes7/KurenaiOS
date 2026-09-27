@@ -9,6 +9,13 @@ reads wrong, looks wrong or feels slow.
 Desktop only for this pass. Phone layouts, Dawn and the other themes come
 after the base release.
 
+**Status (27 September 2026):** this script was walked in full; reviews A and
+B acted on every flagged item and the rebuild is released
+(`docs/ui-rebuild/PLAN.md`, "Review A, review B and the release"). The notes
+themselves live in the review checklist artifact. The lines below were
+brought up to date with the released screens so the script can be reused
+for the next pass; open work is in [../ROADMAP.md](../ROADMAP.md).
+
 ## 0 · Before you start: the three accounts
 
 Governor → Status → the **Data** switch beside Preview: **Mine · Empty · Sample**.
@@ -124,8 +131,9 @@ and walk it again for the empty states, then finish on **Mine**.
 
 ## 5 · Collection
 
-- [ ] **Overview.** Stat strip, Currently consuming, Airing soon, Where each
-      medium stands.
+- [ ] **Overview.** Stat strip, Currently consuming (one scrolling row of the
+      20 most recent), Airing soon (the next two, countdowns in one column),
+      Where each medium stands.
 - [ ] **Overview → Analytics.** Stat strip, the four-panel status comparison
       with one legend, Where the collection lives (donut + key), Top genres
       (readable labels), Score distribution (full width), Rest logged.
@@ -150,14 +158,14 @@ and walk it again for the empty states, then finish on **Mine**.
 ## 6 · Governor
 
 - [ ] **Status.** Hero (a lighter overlay over a banner), Edit status, the HP
-      Preview (Live / Full / Off), the Data switch, Edit banner (the cropper),
-      the four instruments. **Study cadence** and **Milestone ledger** are the
+      Preview (Live / Full / Off), the Data switch, the four instruments (the
+      banner is set on Avatar). **Study cadence** and **Milestone ledger** are the
       same height, the heatmap spans its card and its footer sits on the
       card's floor. The three rules.
 - [ ] **Gold Shop.** Balance band, departments, previews, buy something
       (Sample has 640 gold).
-- [ ] **Avatar.** Live identity preview, profile picture (cropper), banner,
-      frames and seals.
+- [ ] **Avatar.** Live identity preview, profile picture (cropper), banner
+      and frames (the seal library is gone; no picture draws the default).
 - [ ] **Session Log.** Categories, the entry panel.
 
 ## 7 · Assistant
@@ -166,16 +174,17 @@ and walk it again for the empty states, then finish on **Mine**.
 - [ ] Chat, a tool confirmation card, Stop.
 - [ ] Settings (provider, routing), Memory, Permissions, Activity.
 
-## 8 · Archive
+## 8 · Archive (tabs: Backup, Help, Notifications)
 
 - [ ] **Notifications.** Filters (all/unread/study/productivity/collection),
-      day groups, mark read, the device-alert switch, "What lands here",
-      "Clear the feed…".
+      day groups, mark read, the device-alert switch with quiet hours, the
+      per-type notification filter, "Clear the feed…".
 - [ ] **Backup & Restore.** Keep it safe (last backup), Export, Import, the
       storage estimate, what a backup covers, and "Reset everything…" (type
       RESET; do this only in Empty or Sample).
-- [ ] **Help & Guide.** Sections one at a time, search across all of them, the
-      pager, On this page, shortcuts.
+- [ ] **Help & Guide.** Major sections in the rail, one topic at a time chosen
+      from On this page, drawings in the topics that need them, search across
+      all of them, shortcuts.
 
 ## 9 · Labs
 
@@ -208,3 +217,4 @@ and walk it again for the empty states, then finish on **Mine**.
 - Phone layouts (700px and below) are not reviewed yet.
 - Dawn and the other themes are not built yet.
 - Sample covers are placeholder tiles.
+- Each of these is a roadmap item ([../ROADMAP.md](../ROADMAP.md)).

@@ -1,5 +1,10 @@
 # Category 7 — Phase G pre-implementation findings
 
+> **Historical record.** This describes a release that has since been
+> superseded by the Graphite UI rebuild (27 September 2026). The class names,
+> stylesheet (`css/main.css`) and themes it mentions no longer exist. Current
+> guidance: `CLAUDE.md`, `AGENTS.md`; open work: `docs/ROADMAP.md`.
+
 Baseline: `main@c65be20` (integrated Categories 7A–F). This inventory was recorded before any Phase G production-code change.
 
 Evidence: the dense responsive audit completed 192 core cells (24 views × 4 widths × 2 themes) and 16 additional cells (four omitted views × 2 widths × 2 themes), with zero reported edge overflow, amputated text, or tab-bar overlap. The specialised visual audit also passed. Manual screenshot and live-browser review remains necessary because clipped descendants inside an `overflow:hidden` app shell are outside the geometry probe's document-width signal.

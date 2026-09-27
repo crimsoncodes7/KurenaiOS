@@ -1,5 +1,10 @@
 # Category 6.1 — Kurenai Assistant UI/UX Overhaul
 
+> **Historical record.** This describes a release that has since been
+> superseded by the Graphite UI rebuild (27 September 2026). The class names,
+> stylesheet (`css/main.css`) and themes it mentions no longer exist. Current
+> guidance: `CLAUDE.md`, `AGENTS.md`; open work: `docs/ROADMAP.md`.
+
 Status: implemented, verified, staged, and deployed on 2026-08-06.
 
 ## 1. Scope and product intent

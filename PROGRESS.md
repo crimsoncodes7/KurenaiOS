@@ -10,7 +10,8 @@ architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
 production-verified. The cloud three-way merge and the editable curriculum /
 study editor are deployed on top of it (17 September 2026); the Collection
 AniList mirror and the notification centre followed on 19 September 2026
-(`b482f68`, `8dfe2d1`).**
+(`b482f68`, `8dfe2d1`). The Graphite UI rebuild replaced the whole
+presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 
 | Item | Current value |
 |---|---|
@@ -18,10 +19,11 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
 | Runtime release commit | `8ea878d` (the Graphite UI rebuild and its first fixes), immutable https://406887be.kurenai-os.pages.dev — deployed 27 September 2026 |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
-| Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-graphite-2` |
+| Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
+| Service-worker cache | `kos-graphite-3` |
 | Smoke gate | 56 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
-| Release date | 9 August 2026 |
+| Latest release date | 27 September 2026 (Category 7: 9 August 2026) |
+| Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
@@ -37,10 +39,23 @@ followed on every surface — Pacing's per-lesson ticks and commit-graph
 braid, the record editors as 11c drawers (a tab per book volume and per VN
 chapter, quote logs for every medium), the Shrine podium and share card,
 the Collection numbers, Seasonal's in-progress default and more; the
-invariants each change touched (82, 85, 94, 98) are rewritten in
-`CLAUDE.md`. Tier C (topic picker, IT unit marks, drag-and-drop blocks,
-Shrine tie ordering, Focus stopwatch and mini-player, the OOP IDE, newer
-Assistant tools) is next.
+invariants each change touched (26, 26a, 37, 50a, 82, 85, 89, 92, 94, 98)
+are rewritten in `CLAUDE.md`.
+
+- Release `28ef508` (service worker `kos-graphite-1`), then `8ea878d`
+  (`kos-graphite-2`, immutable https://406887be.kurenai-os.pages.dev):
+  a navigation now serves the page shell cached with the worker's own
+  version, so a deploy can no longer pair a new shell with the previous
+  version's scripts (the half-styled "Update ready" page); the Home
+  study-hours goal line is drawn on the bars' own scale with its label in
+  its own column; Airing soon shows the next two episodes with their
+  covers and one column of countdowns.
+- The app icon (browser tab, installed app, phone home screen) is the
+  header's bloom on the Graphite ground (`tools/gen_icons.mjs`), with the
+  manifest's splash and theme colours on Graphite (`kos-graphite-3`).
+- Graphite is the only theme; the phone composition runs on the new shell
+  unrestyled. Tier C and the deferred extras are in
+  [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Earlier on `main`
 
@@ -243,8 +258,10 @@ Deployed 19 September 2026 (`b482f68`).
   regression test, expecting a merge with nothing lost); `smoke17`/`smoke48`
   fakes model the compare-and-set. Service-worker version `kos-cloud-merge-1`.
 
-**Pacing — the integrated weekly timeline (Productivity → Pacing).** Staged
-locally; NOT deployed.
+**Pacing — the integrated weekly timeline (Productivity → Pacing).**
+Deployed 14 September 2026 (`6bd8e30`); the week page and braid were
+redrawn in the Graphite rebuild (invariants 82 and 85 record the current
+shape).
 
 - The school scheme of work, both personal curriculums and IT F201 were imported
   once from Notion into `state.pacing` (191 rows across 16 weeks, plus the week
@@ -304,9 +321,7 @@ locally; NOT deployed.
   open at any HP (gold unlocks unchanged). HP keeps its state label, drains,
   recovery checklist and the halved restore trickle while Critical.
 - Gate: **50 / 50 smoke suites** (smoke50 covers the banks and labs).
-
-Before this ships: bump `VERSION` in `sw.js`, update the service-worker version
-recorded in `CLAUDE.md` to match, then stage and deploy.
+  Deployed 14 September 2026 (`9f4ca59`).
 
 ## Delivered product
 
@@ -431,6 +446,11 @@ The numbered suites form one release gate:
   bell and the page, device alerts, the favicon and the seasonal user art.
 - `smoke54.test.js`: VN progress sources, the VNDB write relay and the
   open-ended progress bar.
+- `smoke55.test.js`: the Graphite rebuild's presentation guard — no legacy
+  class, `k-` classes only, no `[data-ui]` selector, colour literals only in
+  tokens/themes, raw px only in `tokens.css`, the five tiers, the layer order.
+- `smoke56.test.js`: render purity (a view never writes state while it
+  draws) and control parity against `tools/baselines/render-purity.json`.
 
 Run all suites with:
 
@@ -440,7 +460,11 @@ for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 
 ## Remaining work and external gates
 
-These are not Category 7 release blockers:
+Everything still to build or deliberately deferred — Tier C, the design
+work waiting on Claude Design (phone, Dawn and the shop themes, the labs),
+the Statistics/Mechanics notes, the IT unit grades and the M14 clean-up —
+is ordered in [docs/ROADMAP.md](docs/ROADMAP.md). External gates that no
+code change resolves:
 
 - Live2D remains development-only. No Cubism runtime/model is deployable until
   the licensing question in `LICENSE_REQUEST.md` is resolved in writing and the
@@ -450,8 +474,6 @@ These are not Category 7 release blockers:
   secret stores.
 - Any future custom domain, provider-policy change or commercial use requires a
   fresh operational/licensing review.
-- The broader content and feature backlog should be scoped as new work rather than
-  appended to this completed release record.
 
 ## Milestone summary
 
@@ -463,6 +485,8 @@ These are not Category 7 release blockers:
 | Category 6 | Kurenai Assistant, provider/tool/orchestrator layers and polished surfaces. |
 | Builds 6.2–6.6 | Reminders, files, assignments, Focus and Calendar end-to-end workflows. |
 | Category 7 | Complete responsive, accessible, visually consistent UI/UX release. |
+| Sept 2026 | Pacing, past-paper banks, the editable curriculum, three-way cloud merge, the AniList mirror, notifications, Pure maths at full depth. |
+| Graphite | The presentation layer rebuilt from the Graphite design handoff, guarded by smoke55/56. |
 
 Historical implementation detail remains recoverable from Git history and the
 Category 7 audit (`KURENAIOS_FULL_UI_UX_AUDIT.md`); it is intentionally not

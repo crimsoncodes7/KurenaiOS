@@ -1,4 +1,9 @@
 # KurenaiOS — Full UI/UX & Product-Quality Audit
+> **Historical record.** This describes a release that has since been
+> superseded by the Graphite UI rebuild (27 September 2026). The class names,
+> stylesheet (`css/main.css`) and themes it mentions no longer exist. Current
+> guidance: `CLAUDE.md`, `AGENTS.md`; open work: `docs/ROADMAP.md`.
+
 **Category 7 · audit and remediation plan**
 Audited 7–8 August 2026 · build at `codex/assistant-phase-2-live-character` (123c1d3)
 

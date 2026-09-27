@@ -892,6 +892,35 @@ the invariants and the hook contract still govern behaviour.
   and the header names a review account.
 - **Test plan.** docs/ui-rebuild/REVIEW-PLAN.md.
 
+### Review A, review B and the release (2026-09-26 → 27)
+
+- **Review A** (`892d6f2`): the quick fixes the owner's checklist raised on
+  every section — alignment, trimmed explanation text (rules belong in Help &
+  Guide), red for critical states, the Critical-HP Home hero (7a·crit), the
+  Archive tab order, the inspector's size and stickiness, and more.
+- **Review B** (`924e486` … `3cf4596`, three passes): the rebuilds that follow
+  the frames more closely — Pacing's week (per-lesson ticks) and a
+  commit-graph braid (a two-line arc picture was tried and reverted); every
+  vault list as frame 11f's table; every record editor as frame 11c's
+  drawer, with a tab per Books volume and per VN chapter and a quote log for
+  every medium; the topic page layout, flashcards with a real flip, quiz and
+  exam checklists; the Shrine podium, ledger and full-art share card; the
+  Planner queue in columns; the VNDB profile; notification filters and quiet
+  hours; Help one topic at a time with drawings; Seasonal's in-progress
+  default. Invariants 26, 26a, 50a, 82, 85, 89, 92, 94 and 98 were rewritten.
+- **Release** (`28ef508`, tag `milestone/graphite-ui-rebuild`, service worker
+  `kos-graphite-1`), fast-forwarded to `main` and deployed; then `8ea878d`
+  (`kos-graphite-2`): the service worker serves a version-consistent shell
+  (invariant 37), the Home study-hours goal line and Airing soon fixed.
+- **M13 and the rest of M14 are not done.** Only Graphite exists (Dawn and
+  the 23 shop themes still render it), the phone composition is unrestyled,
+  the legacy token bridge in `tokens.css` is still read by the labs and
+  charts, `mobile-shell.js`, `figures.js`, `worked-extra.js` and
+  `ui-hooks.js` are not yet in `tools/ui-migration.json`, the full
+  breakpoint/device matrix and the visual audit have not been re-run against
+  Graphite, and `tools/mobile_audit.mjs` still toggles `.tree-closed`. All of
+  it is ordered in [../ROADMAP.md](../ROADMAP.md).
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

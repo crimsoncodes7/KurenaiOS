@@ -3,6 +3,14 @@
 This is the Phase 1 / M0 deliverable for the presentation rebuild. The plan is in [PLAN.md](PLAN.md).
 Measured on 2026-09-24 at `749f062`, branch `refactor/ui-ux-overhaul`.
 
+> **Status (27 September 2026):** every view below has been rebuilt and
+> released (`milestone/graphite-ui-rebuild`). Where review B changed a
+> contract (Pacing's lesson ticks and braid, the 11c record editors, the
+> notification filters, Seasonal's default), the rewritten invariants in
+> `CLAUDE.md` and the delivered notes in [PLAN.md](PLAN.md) win over the
+> text here. Hook names are as shipped in the code; this file is not
+> re-synced line by line.
+
 This document is the **only** input for writing new markup. It says what each
 surface *shows*, what it *does* and which *hooks* it must expose. It does not
 say how anything looks, how it is nested or what it used to be called

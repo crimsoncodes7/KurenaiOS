@@ -1,17 +1,19 @@
-/* KurenaiOS — tools/gen_icons.mjs (Build 4b)
-   Renders the PWA icon set from the app's own brand language (the 紅 seal
-   on Atelier Dawn parchment) via headless Chrome canvas — no image
-   dependencies. Start Chrome first:
+/* KurenaiOS — tools/gen_icons.mjs
+   Renders the icon set from the header's own mark: the bloom
+   (assets/brand/kurenai-bloom.png) on the Graphite ground (--bg), via
+   headless Chrome canvas — no image dependencies. Start Chrome first:
 
      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
        --headless=new --remote-debugging-port=9223 \
        --user-data-dir=/tmp/kos-icon-gen about:blank
 
-   Then: node tools/gen_icons.mjs
-   Writes icons/icon-192.png, icon-512.png, icon-maskable-512.png,
-   apple-touch-icon.png (180). Kanji renders with the local Mincho serif —
-   the same family the app's --jp token falls back to. */
-import { writeFile, mkdir } from "node:fs/promises";
+   Then: node tools/gen_icons.mjs   (KOS_CDP=<json endpoint> for another port)
+   Writes icons/icon-192.png and icon-512.png (a rounded Graphite tile),
+   icon-maskable-512.png (full bleed, the bloom inside the 80% safe zone),
+   apple-touch-icon.png (180, full bleed: iOS rounds it) and favicon.svg
+   (the bloom alone, as the header draws it). The source is 265px, so the
+   bloom is never drawn much above its own size. */
+import { writeFile, readFile, mkdir } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,49 +41,49 @@ const send = (method, params = {}) => new Promise((res, rej) => {
   ws.send(JSON.stringify({ id, method, params }));
 });
 
-async function draw(size, maskable) {
-  const expr = `(() => {
-    const S = ${size}, mask = ${maskable};
+const BLOOM = (await readFile(resolve(ROOT, "assets/brand/kurenai-bloom.png"))).toString("base64");
+
+/* kind: "tile" (rounded, transparent corners), "bleed" (square ground, the
+   platform masks it), "mark" (no ground). fill: the bloom's share of the edge. */
+async function draw(size, kind, fill) {
+  const expr = `(async () => {
+    const S = ${size}, kind = ${JSON.stringify(kind)}, fill = ${fill};
+    const img = new Image();
+    img.src = "data:image/png;base64,${BLOOM}";
+    await img.decode();
     const c = document.createElement("canvas");
     c.width = S; c.height = S;
     const g = c.getContext("2d");
-    /* Atelier Dawn */
-    const parchment = "#EFE7D6", panel = "#F8F3E6", irisHi = "#7A87BE", irisLo = "#48548C";
-    if (mask) {
-      /* maskable: full-bleed iris, glyph well inside the 80% safe zone */
-      const grad = g.createLinearGradient(0, 0, S, S);
-      grad.addColorStop(0, irisHi); grad.addColorStop(1, irisLo);
-      g.fillStyle = grad; g.fillRect(0, 0, S, S);
-    } else {
-      /* standard: parchment ground + the brand's off-round seal */
-      g.fillStyle = parchment; g.fillRect(0, 0, S, S);
-      const r = S * 0.335, cx = S / 2, cy = S / 2;
-      const grad = g.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-      grad.addColorStop(0, irisHi); grad.addColorStop(1, irisLo);
+    g.imageSmoothingQuality = "high";
+    /* Graphite --bg, lifted toward --s1 at the centre */
+    const ground = () => {
+      const grad = g.createRadialGradient(S / 2, S * 0.45, 0, S / 2, S / 2, S * 0.72);
+      grad.addColorStop(0, "#23262d"); grad.addColorStop(1, "#16181d");
       g.fillStyle = grad;
-      g.beginPath();
-      /* the seal's 50%/46%/50%/48% irregularity, as radii per quadrant */
-      g.ellipse(cx, cy, r * 1.0, r * 0.97, 0.06, 0, Math.PI * 2);
-      g.fill();
-      g.lineWidth = Math.max(1, S * 0.008);
-      g.strokeStyle = "rgba(255,255,255,.28)";
-      g.stroke();
+    };
+    if (kind === "bleed") { ground(); g.fillRect(0, 0, S, S); }
+    if (kind === "tile") {
+      const m = S * 0.04, r = S * 0.22, w = S - 2 * m;
+      ground(); g.beginPath(); g.roundRect(m, m, w, w, r); g.fill();
     }
-    g.fillStyle = panel;
-    g.textAlign = "center"; g.textBaseline = "middle";
-    g.font = "600 " + Math.round(S * (mask ? 0.42 : 0.40)) + "px 'Shippori Mincho','Hiragino Mincho ProN',serif";
-    g.fillText("\\u7d05", S / 2, S / 2 + S * 0.015);
+    const k = (S * fill) / Math.max(img.width, img.height);
+    const w = img.width * k, h = img.height * k;
+    g.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
     return c.toDataURL("image/png").split(",")[1];
   })()`;
-  const out = await send("Runtime.evaluate", { expression: expr, returnByValue: true });
+  const out = await send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true });
   if (out.exceptionDetails) throw new Error(out.exceptionDetails.text || "draw failed");
   return Buffer.from(out.result.value, "base64");
 }
 
 await mkdir(resolve(ROOT, "icons"), { recursive: true });
-await writeFile(resolve(ROOT, "icons/icon-192.png"), await draw(192, false));
-await writeFile(resolve(ROOT, "icons/icon-512.png"), await draw(512, false));
-await writeFile(resolve(ROOT, "icons/icon-maskable-512.png"), await draw(512, true));
-await writeFile(resolve(ROOT, "icons/apple-touch-icon.png"), await draw(180, false));
-console.log("icons written: icon-192, icon-512, icon-maskable-512, apple-touch-icon");
+await writeFile(resolve(ROOT, "icons/icon-192.png"), await draw(192, "tile", 0.66));
+await writeFile(resolve(ROOT, "icons/icon-512.png"), await draw(512, "tile", 0.66));
+await writeFile(resolve(ROOT, "icons/icon-maskable-512.png"), await draw(512, "bleed", 0.54));
+await writeFile(resolve(ROOT, "icons/apple-touch-icon.png"), await draw(180, "bleed", 0.7));
+const mark = (await draw(128, "mark", 1)).toString("base64");
+await writeFile(resolve(ROOT, "icons/favicon.svg"),
+  '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64">' +
+  '<image width="64" height="64" href="data:image/png;base64,' + mark + '"/></svg>\n');
+console.log("icons written: icon-192, icon-512, icon-maskable-512, apple-touch-icon, favicon.svg");
 ws.close();

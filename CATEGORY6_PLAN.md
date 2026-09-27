@@ -1,5 +1,10 @@
-
 # CATEGORY 6 — Kurenai Assistant: Implementation Plan
+
+> **Partly historical.** The provider, tool, permission and orchestration
+> design here is still how the Assistant works. Its UI sections were
+> superseded by the Graphite UI rebuild (27 September 2026), and the tool
+> registry has grown since (`js/core/aitools.js` is authoritative). Open
+> work, including tools for the newer features: `docs/ROADMAP.md`.
 
 This is the design record and resume point for the Category 6 workstream: a
 system-wide, context-aware, tool-calling AI layer over KurenaiOS. Updated at

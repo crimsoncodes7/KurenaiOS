@@ -55,8 +55,13 @@ classification in writing. Do not touch unrelated `art-source/`/Krita work.
 - Use `KOS.ui.openDialog()` for every modal. Reuse `KOS.ui.tabs`, `emptyState`,
   `statTile`, `scroller`, `pageHeader`, `sectionHeader` and `num` before creating a
   variant.
-- Use the established class names and root design tokens. Dawn and Dusk must retain
-  equivalent hierarchy.
+- Classes are presentation only and start with `k-`; logic and tests read
+  `data-ui` hooks and ARIA/native/`data-state` state, never a class. Style from
+  the Graphite tokens in `css/tokens.css`; one `@layer` per stylesheet, in the
+  order `tokens.css` declares. smoke55 guards the vocabulary and smoke56 the
+  render purity and control parity.
+- Graphite is the only designed theme; until Dawn and the shop themes are
+  designed every theme id renders it. A new theme is token overrides only.
 - Five breakpoints only: 1240, 1080, 860, 700 and 560 pixels. Write a component's
   media tiers widest-first and solve other collapse needs intrinsically.
 - `KOS.a11y.announce()` is the only live-region route. Prefer native elements,
@@ -136,7 +141,7 @@ Install test-only dependencies once:
 npm install jsdom fake-indexeddb
 ```
 
-All 54 smoke suites are the release gate:
+All 56 smoke suites are the release gate:
 
 ```sh
 for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
@@ -145,6 +150,8 @@ for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 Also run:
 
 - `node --check <edited.js>` for every changed JavaScript file;
+- `python3 tools/dev_server.py 8765` for local HTTP work (plain `http.server`
+  lets Chrome cache stale scripts under the service worker);
 - `node tools/responsive_audit.mjs --seed` plus screenshots after responsive or
   shared-component changes;
 - `node tools/visual_audit.mjs` after image, hero, chart or broad visual changes;
@@ -159,7 +166,12 @@ both themes and inspect interaction states that geometry probes cannot see.
 - `PROGRESS.md`: concise current delivery/release snapshot.
 - `CLAUDE.md`: canonical engineering architecture and numbered invariants.
 - `AGENTS.md`: short execution contract (this file).
-- `KURENAIOS_FULL_UI_UX_AUDIT.md`: Category 7 finding/remediation evidence.
+- `docs/ROADMAP.md`: everything deferred or still to build, in order, with
+  what goes through Claude Design first.
+- `docs/ui-rebuild/`: the Graphite rebuild — plan and delivery record
+  (`PLAN.md`), view contracts, the review script (`REVIEW-PLAN.md`).
+- `KURENAIOS_FULL_UI_UX_AUDIT.md`, `CATEGORY6_*.md`, `CATEGORY7_PHASE_G_FINDINGS.md`:
+  historical evidence for earlier releases; not current guidance.
 
 Update facts in the document that owns them. Do not append another chronological
 turn log or copy the same status paragraph into all four files.

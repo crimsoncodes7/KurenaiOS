@@ -9,13 +9,14 @@ chronological diary here.
 ## Current baseline
 
 - Category 7 A–G and the Graphite UI rebuild (review A and B) are integrated
-  and deployed.
+  and deployed. What is still to do is kept in one place:
+  [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `3cf4596` (Graphite rebuild, review B third pass)
 - Runtime release: `8ea878d` — immutable deployment
   https://406887be.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-graphite-2`
+- Service-worker version: `kos-graphite-3`
 - Required smoke gate: 56 / 56 suites.
 
 ## Run, test and deploy
@@ -24,7 +25,7 @@ There is no build step or bundler. Classic script tags allow `index.html` to run
 from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 
 ```sh
-python3 -m http.server 8765
+python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 ```
@@ -201,11 +202,17 @@ source comments and audit notes refer to it.
     regenerate; use `--format-existing` only for a payload-preserving format pass.
 25. Authored content keys target visible leaf refs only. Callout objects need two
     closing braces; validate every edited JS file.
-26. Preserve established class names and the three subject hues. Extend shared
-    tokens/components rather than hard-coding a page patch.
-26a. Atelier Dawn is the default; Dawn/Dusk and shop themes derive from root tokens.
-26b. Theme variants target `:root[data-theme="..."]`; unknown legacy ids map to
-    the default.
+26. Classes are presentation only and carry the `k-` prefix; logic and tests
+    read `data-ui` hooks, ARIA/native state and `data-state` (smoke55 refuses a
+    legacy name, a `[data-ui]` selector, a colour literal outside tokens/themes
+    and a raw px outside `tokens.css`). Keep the three subject hues. Extend
+    shared tokens/components rather than hard-coding a page patch.
+26a. Graphite (dark, `css/tokens.css`) is the only designed theme and the
+    default. Until Dawn and the shop themes are designed (`css/themes.css`,
+    roadmap), every theme id renders Graphite; ownership records and ids are
+    kept.
+26b. Theme variants target `:root[data-theme="..."]` as semantic-token
+    overrides only; unknown legacy ids map to the default.
 26c. `KOS.imageCrop` is the only crop/focal workflow. Persist source and
     `{x,y,zoom}` separately; cancel/reset do not write.
 26d. Study statistics and formatting are derived once in `hub.js`; every surface
@@ -279,7 +286,8 @@ source comments and audit notes refer to it.
     is an enhancement, not the correctness path.
 40. Phone composition begins at 700px: bottom tabs, canonical tree drawer, bottom
     sheets, 16px inputs and safe-area support. Generate icons with
-    `tools/gen_icons.mjs`.
+    `tools/gen_icons.mjs` (the header's bloom on
+    the Graphite ground; never hand-edit the PNGs).
 41. `KOS.calendar.normalise()` is the event schema gate; `state.calendar.v` is not
     placed in store defaults. `time` remains the start-time field.
 42. Event alerts are per-record. New exam/deadline defaults are applied only in
@@ -300,7 +308,8 @@ source comments and audit notes refer to it.
     `pageHeader`, `sectionHeader` and `num`. Horizontal overflow must be declared.
     The compact section `<nav>` is the sole scroller exception: preserve its nav
     landmark inside one external scroller shell.
-50a. A page description is `.dh-sub > span.board` — 14px on `--muted` — and
+50a. A page description is the page header's sub-line
+    (`data-ui="ui.page-sub"` > `part.board`, 14px on `--muted`), and
     `KOS.ui.pageHeader({sub})` emits exactly that. It is one line, not a
     paragraph: rules a reader needs once belong in Help & Guide, not in prose
     the page re-teaches on every open.
@@ -365,7 +374,8 @@ source comments and audit notes refer to it.
     topic's material; the page beside it is the preview, re-rendered through
     `openTab({keep, reveal})`. `state.ui.editing` remembers an open editor per
     device so a redraw reopens it. Content blocks may carry an `id`, which the
-    renderer wraps in `.n-blk[data-bid]` (display:contents) and otherwise
+    renderer wraps in `.k-blk[data-ui="topic.note-block"][data-bid]`
+    (display:contents) and otherwise
     ignores; `{p}` and `{md}` are renderer block types. Notes/Quiz/Exam tabs are
     always present on a topic — an empty tab is where material is added —
     and a zero count is never printed (invariant 77).
@@ -386,7 +396,7 @@ source comments and audit notes refer to it.
     volumes whatever the source.
 92. Anime and mirrored Books rows have no manual create, no metadata edit
     and no Delete in the app: the editor shows AniList's facts read-only
-    (`.med-ro`, empty facts omitted) and edits only list state (pushed back)
+    (`data-ui="vault.ro"`, empty facts omitted) and edits only list state (pushed back)
     plus the personal layer (favourite, notes, tags, mood, shelves, lists,
     cover position). "Find new" creates on AniList FIRST and refuses a
     local-only row when AniList declines; a hand-made book must carry a
@@ -480,8 +490,9 @@ source comments and audit notes refer to it.
 77. Suppress zero-only supporting facts. Preserve zero when it is the primary,
     decision-relevant value.
 78. A spendable balance is formatted context, not a progress bar.
-79. Elevation is theme-derived through `--shadow-ink`/shared shadow tokens; Dawn
-    and Dusk keep equivalent hierarchy without hard-coded black shadows.
+79. Elevation is theme-derived through `--shadow-ink`/`--elev-*` and is for
+    floating layers only; a future light theme must keep equivalent hierarchy
+    without hard-coded black shadows.
 
 ### The integrated weekly plan (80–83)
 
@@ -576,9 +587,9 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 - Additional generators register through `KOS.worked.register(gen, refs)` from
   `js/labs/worked-extra.js`; additional sims live in `js/labs/sims-maths.js` and
   `js/labs/sims-cs.js` and use the shared `KOS.sims.canvas` / `KOS.sims.COL`.
-- Lab canvases take every colour from `KOS.labPalette()` (theme tokens resolved
-  once per `data-theme`), never from a fixed hex palette — the old dark ink was
-  invisible on Atelier Dawn.
+- Lab canvases take every colour from `KOS.labPalette()` (theme tokens, oklch
+  included, resolved once per `data-theme` through a 1px canvas), never from a
+  fixed hex palette — a fixed ink disappears on the other theme.
 
 ### Navigation hierarchy
 
@@ -612,8 +623,13 @@ AI/chatbot classification in writing.
   for an existing install (the store is already seeded); change `state.pacing`, or
   reset the `seeded` flag deliberately.
 - Authored content: `js/data/content/*.js`; examiner guidance: `js/data/intel.js`.
-- Shared visual behaviour: tokens/primitives in `css/main.css` and `js/core/ui.js`
-  before adding view-local variants.
+- Shared visual behaviour: tokens in `css/tokens.css`, primitives in
+  `css/components.css` and `js/core/ui.js`, before adding a rule to
+  `css/views/*.css`. `css/main.css` is gone and must not come back (smoke55,
+  `tools/deploy_pages.sh`).
+- `tools/ui-migration.json` lists the rebuilt files; `tools/baselines/render-purity.json`
+  and its `.renames.json` record the control parity smoke56 checks. A moved or
+  removed control is recorded there, not silenced in the test.
 - New views: register under `KOS.views`, add the script in dependency order and
   navigate through `KOS.show()`.
 - State/schema changes: update the one normaliser/migration gate and add regression
