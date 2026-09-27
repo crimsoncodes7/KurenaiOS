@@ -195,6 +195,9 @@
 
     var govTabs = addHook(KOS.workspaceTabs(TABS.map(function (t) { return [t[1], "governor", t[0], t[0]]; }),
       cur, "Governor pages"), "gov.tabs");
+    /* 15k: on a phone these are never a strip — they are the title's
+       section switch ("Status ▾") */
+    govTabs.setAttribute("data-phone-tabs", "");
     /* keep the data-tab hook every consumer of this switcher has used */
     govTabs.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b, i) { b.dataset.tab = TABS[i][0]; });
     main.appendChild(addHook(KOS.ui.pageHeader({ kicker: pageMeta.kicker, title: pageMeta.title,
@@ -295,7 +298,7 @@
         hpCls === "critical" ? null : el("span", { class: "k-chip", "data-tone": hpCls === "healthy" ? "green" : "amber",
           text: hpCls === "healthy" ? "● All systems open" : "● Strained · nothing locks" }),
         el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit status", onclick: openProfileEditor }),
-        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.hp-preview", role: "group", "aria-label": "Preview HP state" }, [
+        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.hp-preview", role: "group", "aria-label": "Preview HP state", "data-phone-more": "" }, [
           el("span", { class: "k-gv-preview-k", text: "Preview" }),
           hpPreviewButton("live", "Live"),
           hpPreviewButton("full", "Full"),
@@ -304,7 +307,7 @@
         hpPreview !== "live" ? el("small", { class: "k-gv-preview-note", text: "Preview only · actual HP " + p.hp + "/100" }) : null,
         /* review aid: the whole app on an empty or a sample account, each a
            separate namespace (store.js KOS.dataMode) — never this data */
-        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.data-mode", role: "group", "aria-label": "Which account the app shows" }, [
+        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.data-mode", role: "group", "aria-label": "Which account the app shows", "data-phone-more": "" }, [
           el("span", { class: "k-gv-preview-k", text: "Data" }),
           dataModeButton("", "Mine"),
           dataModeButton("empty", "Empty"),

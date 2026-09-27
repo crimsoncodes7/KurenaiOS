@@ -1175,7 +1175,7 @@
           onSelect: function () {
             tab = t; pref.tab = t; persistPrefs({ tab: t }); renderTabs(); renderList();
           } };
-      }), { variant: "card", label: "Purchase queue" }), "plan.tabs"));
+      }), { variant: "card", label: "Purchase queue", edge: true }), "plan.tabs"));
     }
     function renderPlanner() {
       var moved = advanceReleasedItems();

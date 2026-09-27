@@ -797,7 +797,7 @@
     ].map(function (f) {
       return { label: f[2] || f[0], short: f[0], hook: "shrine.filter", active: current.module === f[1],
         onSelect: function () { persist({ module: f[1] }); redraw(); } };
-    }), { variant: "card", label: "Filter Shrine by media type" }), "shrine.filters");
+    }), { variant: "card", label: "Filter Shrine by media type", edge: true }), "shrine.filters");
     var sortSelect = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Sort Shrine" }, [
       ["score", "Sort: personal score"], ["updated", "Sort: recently updated"], ["title", "Sort: title"]
     ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));

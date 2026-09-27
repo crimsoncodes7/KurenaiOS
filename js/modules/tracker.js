@@ -187,7 +187,7 @@
         });
         render();
       } };
-    }), { variant: "workspace", label: "Record type" });
+    }), { variant: "workspace", label: "Record type", edge: true });
     [].forEach.call(kinds.querySelectorAll("[data-ui~='ui.tab']"), function (b, i) { b.dataset.tab = Object.keys(KINDS)[i]; });
     kinds.setAttribute("data-ui", kinds.getAttribute("data-ui") + " tracker.kinds");
     var subjSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Filter by subject",

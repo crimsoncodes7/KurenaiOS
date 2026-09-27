@@ -286,6 +286,15 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-scroller::before { inset-inline-start: 0; background: linear-gradient(90deg, var(--bg), transparent); }
 .k-scroller::after { inset-inline-end: 0; background: linear-gradient(270deg, var(--bg), transparent); }
 .k-scroller[data-state~="at-start"]::before, .k-scroller[data-state~="at-end"]::after { opacity: 0; }
+/* the edge-marked tab track (15n): the pill track is the scroller, its
+   fades are the track's own colour and its arrows sit inside it */
+.k-scroller--track { border-radius: var(--r-pill); background: var(--s1); overflow: hidden; }
+.k-scroller--track > .k-seg { flex: 1 1 0; max-inline-size: none; background: none; scroll-snap-type: x proximity; scroll-padding-inline: var(--sp-4); }
+.k-scroller--track .k-seg-item { flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap; }
+.k-scroller--track::before { background: linear-gradient(90deg, var(--s1) 45%, transparent); inline-size: var(--sp-48); }
+.k-scroller--track::after { background: linear-gradient(270deg, var(--s1) 45%, transparent); inline-size: var(--sp-48); }
+.k-scroller--track > .k-scroller-arrow { inline-size: var(--icon-btn); block-size: var(--icon-btn); margin-inline: var(--sp-3); box-shadow: none; background: var(--s2); }
+.k-scroller--track[data-state~="at-start"] > .k-scroller-arrow[data-edge="start"], .k-scroller--track[data-state~="at-end"] > .k-scroller-arrow[data-edge="end"] { display: none; }
 
 /* ---------- menus: a floating panel of commands or controls ---------- */
 .k-menu-panel {
@@ -407,8 +416,28 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 @media (max-width: 700px) {
 .k-pagehead { flex-wrap: wrap; }
 .k-pagehead-txt { flex-basis: 100%; }
-.k-dialog-overlay { place-items: end stretch; padding: 0; }
-.k-dialog { inline-size: 100%; border-end-start-radius: 0; border-end-end-radius: 0; padding-block-end: calc(var(--sp-24) + env(safe-area-inset-bottom)); }
+.k-sr-scope[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+/* 15a: under the phone title bar (mobile-shell.js) the page's own heading
+   gives way; its actions row stays, full width. A page's section tabs
+   ([data-phone-tabs]) are the bar's switch, and its ⋯ tools
+   ([data-phone-more]) wait in the bar's sheet, not on the page. */
+#main[data-phone-title] > .k-pagehead > .k-pagehead-txt { display: none; }
+#main[data-phone-title] > .k-pagehead:not(:has(> .k-pagehead-actions > :not([data-phone-tabs], [data-phone-more], [data-phone-action]))) { display: none; }
+#main[data-phone-title] > .k-pagehead > .k-pagehead-actions { inline-size: 100%; justify-content: flex-start; }
+#main[data-phone-title] [data-phone-tabs], #main[data-phone-title] [data-phone-more] { display: none; }
+/* 15a: the Assistant emblem leaves the phone header (it lives in More) */
+:root[data-shell="ready"] #assistant-trigger { display: none; }
+/* every dialog is a bottom sheet (15a): --s1, 28px at the top, a grabber,
+   a 52px header with its ✕, and the footer pinned above the home indicator */
+.k-dialog-overlay { place-items: end stretch; padding: 0; background: var(--sheet-scrim); }
+.k-dialog { inline-size: 100%; max-block-size: calc(100dvh - var(--sp-24)); gap: var(--sp-12); padding: var(--sp-10) var(--sp-20) calc(var(--sp-20) + env(safe-area-inset-bottom)); border-radius: var(--r-28) var(--r-28) 0 0; background: var(--s1); }
+.k-dialog::before { content: ""; flex: 0 0 auto; align-self: center; inline-size: var(--sheet-grabber-w); block-size: var(--sheet-grabber-h); border-radius: var(--r-pill); background: var(--line); }
+.k-dialog-head { min-block-size: var(--sp-40); }
+.k-dialog-title { font-size: var(--fs-18); }
+.k-dialog-foot { flex-wrap: wrap; position: sticky; inset-block-end: calc(-1 * (var(--sp-20) + env(safe-area-inset-bottom))); margin-inline: calc(-1 * var(--sp-20)); margin-block-end: calc(-1 * (var(--sp-20) + env(safe-area-inset-bottom))); padding: var(--sp-12) var(--sp-20) calc(var(--sp-12) + env(safe-area-inset-bottom)); border-block-start: var(--hairline) solid var(--line); background: var(--s1); }
+.k-dialog-foot > .k-btn { flex: 1 1 0; justify-content: center; min-block-size: var(--hit-coarse); }
+.k-msheet--full { block-size: 100dvh; max-block-size: none; border-radius: 0; padding-block-start: calc(var(--sp-12) + env(safe-area-inset-top)); }
+.k-msheet--full::before { display: none; }
 #toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
 }
 

@@ -2756,12 +2756,42 @@
     }
   }
 
+  /* the phone sheet's domain chips (frame 15a): All, then the app section
+     each result group belongs to. They filter the painted groups; ranking
+     and routing stay core/search.js's. CSS shows them on a phone only. */
+  var SEARCH_SECTION = { spec: "Study", notes: "Study", cards: "Study", assignments: "Study",
+    reminders: "Productivity", calendar: "Productivity", planner: "Collection", goals: "Collection", media: "Collection" };
+  var searchScope = null, lastPaint = null;
+  function scopeChips(groups) {
+    var counts = { All: 0 };
+    groups.forEach(function (g) {
+      var sec = SEARCH_SECTION[g.id] || "Pages";
+      counts[sec] = (counts[sec] || 0) + g.items.length;
+      counts.All += g.items.length;
+    });
+    if (searchScope && !counts[searchScope]) searchScope = null;
+    return el("div", { class: "k-sr-scopes", "data-ui": "search.scopes", role: "group", "aria-label": "Search in" },
+      Object.keys(counts).map(function (sec) {
+        var on = sec === "All" ? !searchScope : searchScope === sec;
+        return el("button", { type: "button", class: "k-chip k-sr-scope", "data-ui": "search.scope", "aria-pressed": String(on),
+          onclick: function (e) {
+            e.stopPropagation();
+            searchScope = sec === "All" ? null : sec;
+            if (lastPaint) paint(lastPaint.groups, lastPaint.q, lastPaint.done);
+            input.focus();
+          } }, [sec + " ", el("span", { class: "k-sr-scope-n", text: String(counts[sec]) })]);
+      }));
+  }
+
   function paint(groups, q, done) {
     resultsEl.innerHTML = "";
     options = [];
     selIdx = -1;
     input.removeAttribute("aria-activedescendant");
+    lastPaint = { groups: groups, q: q, done: done };
     var total = 0;
+    if (groups.length) resultsEl.appendChild(scopeChips(groups));
+    groups = groups.filter(function (g) { return !searchScope || (SEARCH_SECTION[g.id] || "Pages") === searchScope; });
     groups.forEach(function (g) {
       var wrap = el("div", { class: "k-sr-group", role: "group", "aria-label": g.label });
       wrap.appendChild(el("div", { class: "k-sr-group-h", "aria-hidden": "true" }, [
@@ -2839,6 +2869,7 @@
   function dismissSearch(opts) {
     opts = opts || {};
     seq++;                                  /* any pending answer is now stale */
+    lastPaint = null;
     options = [];
     resultsEl.innerHTML = "";
     setExpanded(false);                     /* clears aria-expanded + activedescendant + selIdx */

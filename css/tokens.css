@@ -175,6 +175,7 @@ color-scheme: dark;
 --r-22: 22px;
 --r-24: 24px;
 --r-26: 26px;
+--r-28: 28px;
 --r-30: 30px;
 --r-pill: 999px;
 --hairline: 1px;
@@ -267,7 +268,12 @@ color-scheme: dark;
 --oop-card-w: 232px;
 --oop-type-w: 56px;
 --box: 18px;
---tabbar-h: 64px;
+--tabbar-h: 56px;
+--tab-tile: 28px;
+--sheet-row-h: 56px;
+--sheet-glyph: 36px;
+--sheet-grabber-w: 36px;
+--sheet-grabber-h: 5px;
 
 /* ---------- Home (frame 7a) ---------- */
 --home-hero-h: 196px;
@@ -696,6 +702,8 @@ color-scheme: dark;
 --gv-glass: oklch(from var(--bg) calc(l - 0.025) calc(c + 0.002) h / 0.72);
 --asst-note-bg: oklch(from var(--bg) calc(l - 0.025) calc(c + 0.002) h / 0.82);
 --asst-scrim: oklch(from var(--bg) calc(l - 0.065) calc(c + 0.002) h / 0.45);
+/* a phone sheet's scrim (15a) */
+--sheet-scrim: oklch(from var(--bg) calc(l - 0.065) calc(c + 0.002) h / 0.64);
 --vhero-scrim-0: oklch(from var(--bg) l c h / 0.92);
 --vhero-scrim-1: oklch(from var(--bg) l c h / 0.78);
 --vhero-scrim-2: oklch(from var(--bg) l c h / 0.3);
@@ -751,7 +759,7 @@ color-scheme: dark;
 }
 
 @media (max-width: 700px) {
-:root { --topbar-h: 56px; }
+:root { --topbar-h: 52px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

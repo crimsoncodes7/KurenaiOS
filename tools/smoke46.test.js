@@ -114,8 +114,10 @@ step("phone navigation is four primary destinations plus More, with no cloned ro
   const more = $("#mobile-more");
   assert(more, "the More destination was not mounted");
   assert(!more.matches('[data-ui~="shell.rail-item"]'), "main.js will incorrectly bind More as a canonical rail route");
-  assert($("[data-section=productivity] [data-ui~='shell.rail-label']").textContent === "Focus",
-    "the phone bar still tries to squeeze the word Productivity");
+  /* 15a: at 360 each tab cell is 72px, so the full word fits at 11px —
+     the old "Focus" abbreviation named one page, not the section */
+  assert($("[data-section=productivity] [data-ui~='shell.rail-label']").textContent === "Productivity",
+    "the phone bar abbreviates Productivity");
   ["governor", "assistant", "system"].forEach(section => {
     assert(new RegExp('data-section="' + section + '"').test(html), section + " was hidden by deletion");
   });
@@ -169,14 +171,49 @@ step("compact subnav is one declared scroller without changing the nav landmark"
 
 console.log("== E4: one global search, reachable on phones ==");
 
-step("the user panel rides the topbar on phones and returns to the rail above 700px", () => {
+step("the profile leads the More sheet; the rail's user panel never leaves the rail", async () => {
+  /* 15a: the header is logo, search, bell and sync dot — the profile chip
+     from the rail foot is the first row of More */
   const foot = $("#hud").closest("[data-ui~='shell.rail-foot']");
-  assert(foot && foot.parentNode === $("[data-ui~='shell.header-actions']"), "on a phone the ONE #hud node must sit in .topbar-right (not float fixed over the page)");
-  const phone = window.matchMedia("(max-width: 700px)");
-  phone.setMatches(false);
-  assert(foot.parentNode === $("#rail"), "above 700px the panel must return to the rail");
-  phone.setMatches(true);
-  assert(foot.parentNode === $("[data-ui~='shell.header-actions']"), "crossing back must move it again");
+  assert(foot && foot.parentNode === $("#rail"), "the ONE #hud node left the rail");
+  click($("#mobile-more"));
+  const profile = $("[data-ui~='shell.mobile-nav-sheet'] [data-ui~='shell.more-profile']");
+  assert(profile && /Level \d+/.test(profile.textContent), "More does not lead with the profile");
+  click(profile);
+  await tick();
+  assert(KOS.currentNav().viewId === "governor" && !$("[data-ui~='shell.mobile-nav-sheet']"), "the profile row did not open the Governor");
+});
+
+step("a sectioned page gets the phone title bar and its section switch", async () => {
+  KOS.show("calendar");
+  await tick(30);
+  const bar = $("#main > [data-ui~='shell.phone-title']");
+  assert(bar && $("#main").firstElementChild === bar, "no title bar at the top of the page");
+  assert(/Productivity/i.test(bar.querySelector(".k-kicker").textContent) && bar.querySelector("h1").textContent === "Calendar",
+    "the bar names the section and the destination: " + bar.textContent);
+  click(bar.querySelector("[data-ui~='shell.section-switch']"));
+  const sheet = $("[data-ui~='shell.section-sheet']");
+  assert(sheet && sheet.getAttribute("role") === "dialog", "the section switch did not open a sheet");
+  const rows = $$("[data-ui~='shell.section-destination']");
+  assert(rows.map(r => r.textContent).join("|").includes("Focus Timer") && rows.some(r => r.getAttribute("aria-current") === "page"),
+    "the switch does not list the section with the current page marked");
+  click(rows.find(r => /Reminders/.test(r.textContent)));
+  await tick(30);
+  assert(KOS.currentNav().viewId === "reminders" && !$("[data-ui~='shell.section-sheet']"), "the switch bypassed the canonical strip");
+  /* the Governor's own tabs are its switch (15k), never a strip */
+  KOS.show("governor");
+  await tick(30);
+  assert($("#main [data-ui~='shell.phone-title'] h1").textContent === "Status", "the Governor's title is not its current tab");
+  assert($("[data-ui~='gov.tabs']").hasAttribute("data-phone-tabs"), "the Governor's tabs are not the phone switch");
+  /* its hero tools wait in ⋯ and come back when the sheet closes */
+  const tools = $$("#main [data-phone-more]");
+  assert(tools.length === 2, "the Governor's ⋯ tools are not marked");
+  const home = tools[0].parentNode;
+  click($("[data-ui~='shell.page-tools']"));
+  assert(tools.every(t => t.closest("[data-ui~='shell.tools-sheet']")), "⋯ did not move the tools into its sheet");
+  key("Escape", document.activeElement);
+  await tick();
+  assert(tools[0].parentNode === home, "the tools did not go back after ⋯ closed");
 });
 
 step("mobile search moves and restores the exact existing searchbox", async () => {
@@ -265,7 +302,7 @@ console.log("== E5/E6: safe shell and compact disclosure ==");
 step("the viewport and bottom clearance have one safe-area-aware contract", () => {
   if (!pending("layout", "#app's vh/dvh pair and #main's tab-bar clearance")) {
     assert(/#app \{[^}]*height: 100vh; height: 100dvh/.test(cssRules), "#app lost its vh/dvh fallback pair");
-    assert(/--tabbar-h: 64px/.test(css) && /padding-block-end: calc\(var\(--tabbar-h\)[^;]*safe-area-inset-bottom/.test(css),
+    assert(/--tabbar-h: 56px/.test(css) && /padding-block-end: calc\(var\(--tabbar-h\)[^;]*safe-area-inset-bottom/.test(css),
       "#main does not reserve the bar and home indicator");
   }
   /* M2: the toast is rebuilt in M4/M5; whatever selects it, the components

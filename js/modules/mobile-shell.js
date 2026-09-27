@@ -5,9 +5,17 @@
 
    UI rebuild M14: the sheets are the shared Graphite dialog (k-dialog-
    overlay / k-dialog, a bottom sheet at the phone tier) and the section
-   strip is the shared k-scroller; every node carries its own data-ui hook,
-   so nothing here leans on the legacy-class table any more. The phone
-   design (roadmap 3.1) restyles these surfaces; it keeps these hooks. */
+   strip is the shared k-scroller; every node carries its own data-ui hook.
+
+   Design part 2, frame 15a: the phone shell. A compact header (logo,
+   search, bell, sync dot); five tabs, the fifth opening More (the profile
+   row, then Governor, Assistant, Archive); a full-screen search sheet; and
+   on every sectioned page a TITLE BAR — the section as its kicker, the
+   current destination as the title, and ▾ opening a section-switch sheet
+   that stands in for the section strip. A view lends the bar its tools by
+   marking canonical nodes: [data-phone-action] rides the bar's right edge,
+   [data-phone-more] goes into the bar's ⋯ sheet. Both are MOVED, never
+   cloned, and go back when the phone tier ends (invariants 58, 72). */
 (function () {
   "use strict";
 
@@ -41,6 +49,11 @@
       if (event.target === overlay) overlay.close();
     });
     return overlay;
+  }
+  /* a sheet's ✕ (15a: a 52px header with the close at its end) */
+  function sheetClose(label) {
+    return el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "shell.sheet-close",
+      "aria-label": label || "Close", text: "✕" });
   }
 
   /* ------------------------------------------------------------------
@@ -131,14 +144,14 @@
      the bar. Governor, Assistant and Archive stay as their original rail
      buttons and are activated through a bottom-sheet More surface. */
   var hiddenRail = [
-    { section: "governor", label: "Governor", glyph: "守", hint: "Status, rewards and your avatar" },
-    { section: "assistant", label: "Assistant", glyph: "助", hint: "Open the Kurenai Assistant workspace" },
-    { section: "system", label: "Archive", glyph: "蔵", hint: "Backup, restore and help" }
+    { section: "governor", label: "Governor", glyph: "守", hint: "Status, Gold Shop, Avatar, Session Log" },
+    { section: "assistant", label: "Assistant", glyph: "助", hint: "Chat, History, Settings, Memory" },
+    { section: "system", label: "Archive", glyph: "蔵", hint: "Notifications, Backup & Restore, Help & Guide",
+      badge: function () { return KOS.notify && KOS.notify.unread ? KOS.notify.unread() : 0; } }
   ].map(function (item) {
     item.button = rail.querySelector('[data-section="' + item.section + '"]');
     return item;
   });
-  var productivityLabel = rail.querySelector('[data-section="productivity"] [data-ui~="shell.rail-label"]');
   var activeMoreOverlay = null;
 
   var moreButton = el("button", {
@@ -168,6 +181,23 @@
     if (!phone.matches || activeMoreOverlay) return;
     var first = null;
     var list = el("div", { class: "k-msheet-list" });
+    /* the profile chip from the rail's foot leads the sheet (15a) */
+    if (KOS.governor && KOS.governor.profile) {
+      var p = KOS.governor.profile();
+      list.appendChild(el("button", { type: "button", class: "k-msheet-profile", "data-ui": "shell.more-profile",
+        "aria-label": "Your profile — Level " + p.level + ", " + (p.hpLabel || p.hpState || "") + ", " + KOS.ui.num(p.gold) + " gold",
+        onclick: function () { activeMoreOverlay.close(); KOS.show("governor"); } }, [
+        KOS.governor.avatarNode ? KOS.governor.avatarNode(40) : null,
+        el("span", { class: "k-msheet-copy" }, [
+          el("b", { text: "Level " + p.level }),
+          el("span", { class: "k-msheet-profile-meta" }, [
+            el("span", { class: "k-msheet-hp", "data-hp": p.hpState || null, text: p.hpLabel || "" }),
+            el("span", { class: "k-msheet-gold", text: "◆ " + KOS.ui.num(p.gold) })
+          ])
+        ]),
+        el("span", { class: "k-msheet-chev", "aria-hidden": "true", text: "›" })
+      ].filter(Boolean)));
+    }
     hiddenRail.forEach(function (item) {
       if (!item.button) return;
       var current = item.button.matches('[data-state~="active"]');
@@ -182,21 +212,23 @@
         }
       };
       if (current) destinationAttrs["aria-current"] = "page";
+      var n = item.badge ? item.badge() : 0;
       var destination = el("button", destinationAttrs, [
-        el("span", { class: "k-msheet-glyph", "aria-hidden": "true", text: item.glyph }),
+        el("span", { class: "k-msheet-glyph", lang: "ja", "aria-hidden": "true", text: item.glyph }),
         el("span", { class: "k-msheet-copy" }, [
           el("b", { text: item.label }),
           el("span", { text: item.hint })
         ]),
-        current ? el("span", { class: "k-msheet-current", text: "Current" }) : null
+        n ? el("span", { class: "k-msheet-badge", "aria-label": n + " unread", text: String(n) }) : null,
+        el("span", { class: "k-msheet-chev", "aria-hidden": "true", text: "›" })
       ].filter(Boolean));
       if (!first || current) first = destination;
       list.appendChild(destination);
     });
-    var close = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.sheet-close", text: "Close" });
+    var close = sheetClose();
     var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.mobile-nav-sheet", "data-dialog-box": "true" }, [
       el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
-        el("div", {}, [el("span", { class: "k-kicker", text: "Navigate" }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "More destinations" })]),
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "More" }),
         close
       ]),
       list
@@ -256,19 +288,15 @@
   function openSearch() {
     if (!phone.matches) return false;
     if (activeSearchOverlay) { searchInput.focus(); return true; }
-    var close = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.sheet-close", text: "Close" });
+    /* 15a: full screen — the canonical field with Cancel beside it, the
+       domain chips and the grouped results under it (the same controller,
+       the same eight domains) */
+    var close = el("button", { type: "button", class: "k-link k-msearch-cancel", "data-ui": "shell.sheet-close", text: "Cancel" });
     var slot = el("div", { class: "k-msheet-slot" });
     slot.appendChild(searchbox);
-    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.search-sheet", "data-dialog-box": "true" }, [
-      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
-        /* "Find a topic" described the box as it was before Phase F, when
-           it searched the specification and nothing else. The sheet is the
-           same controller, so it reaches the same eight domains. */
-        el("div", {}, [el("span", { class: "k-kicker", text: "Everything you've studied and collected" }),
-          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Search" })]),
-        close
-      ]),
-      slot
+    var box = el("section", { class: "k-dialog k-msheet k-msheet--full", "data-ui": "ui.dialog shell.search-sheet", "data-dialog-box": "true",
+      "aria-label": "Search" }, [
+      el("div", { class: "k-msearch-head" }, [slot, close])
     ]);
     var overlay = overlayFor(box, "search");
     activeSearchOverlay = overlay;
@@ -418,23 +446,137 @@
     main.querySelectorAll("[data-ui~='rem.layout']").forEach(enhanceReminderDisclosure);
     main.querySelectorAll("[data-ui~='vault.layout']").forEach(enhanceVaultDisclosure);
   }
-  var mainObserver = new MutationObserver(enhanceCompactSurfaces);
+  var mainObserver = new MutationObserver(function () { enhanceCompactSurfaces(); syncTitleBar(); });
   mainObserver.observe(main, { childList: true, subtree: true });
 
-  /* the user panel (#rail .rail-foot, the ONE #hud node) rides the topbar
-     on phones, because the rail is a bottom tab bar there; the same node
-     returns to the rail above 700px */
-  var railFoot = rail.querySelector("[data-ui~='shell.rail-foot']");
-  function placeUserPanel() {
-    if (!railFoot) return;
-    if (phone.matches) { if (railFoot.parentNode !== topbarRight) topbarRight.appendChild(railFoot); }
-    else if (railFoot.parentNode !== rail) rail.appendChild(railFoot);
+  /* ------------------------------------------------------------------
+     The phone title bar and its section switch (15a). The destinations
+     are the canonical ones — the section strip's buttons, or a page's own
+     workspace tabs where it has no strip (the Governor) — and choosing one
+     clicks that button, so routing stays where it was. */
+  var NO_TITLE = { home: 1, ref: 1, assistant: 1 };
+  var titleBar = null, activeSectionOverlay = null, activeToolsOverlay = null;
+  var moved = [];                            /* {node, parent, next} to put back */
+  function sectionLabel() {
+    var cur = rail.querySelector("[data-ui~='shell.rail-item'][aria-current='page'] [data-ui~='shell.rail-label']");
+    return cur ? cur.textContent.trim() : "";
   }
+  function destinations() {
+    var items = Array.prototype.slice.call(subnav.querySelectorAll("[data-ui~='shell.subnav-item']"));
+    var source = "subnav";
+    if (!items.length) {
+      var tabs = main.querySelector("[data-phone-tabs] [role='tab']") && main.querySelector("[data-phone-tabs]");
+      if (tabs) { items = Array.prototype.slice.call(tabs.querySelectorAll("[role='tab']")); source = "tabs"; }
+    }
+    return items.map(function (b) {
+      var count = b.querySelector(".k-seg-count");
+      var label = b.getAttribute("aria-label") || (b.querySelector("[data-ui~='part.text']") || b).textContent.trim();
+      return { button: b, label: label, count: count && !count.hidden ? count.textContent.trim() : "",
+        current: source === "subnav" ? b.getAttribute("aria-current") === "page" : b.getAttribute("aria-selected") === "true" };
+    });
+  }
+  function restoreMoved() {
+    moved.forEach(function (m) {
+      if (m.parent.isConnected) m.parent.insertBefore(m.node, m.next && m.next.parentNode === m.parent ? m.next : null);
+      else m.node.remove();
+    });
+    moved = [];
+  }
+  function openSection() {
+    if (activeSectionOverlay) return;
+    var list = destinations();
+    var close = sheetClose();
+    var first = null;
+    var rows = el("div", { class: "k-msheet-list k-msheet-list--plain" }, list.map(function (d) {
+      var row = el("button", { type: "button", class: "k-msheet-row", "data-ui": "shell.section-destination",
+        "aria-current": d.current ? "page" : null,
+        onclick: function () { activeSectionOverlay.close(); d.button.click(); } }, [
+        el("span", { class: "k-msheet-row-l", text: d.label }),
+        d.count ? el("span", { class: "k-msheet-count", text: d.count }) : null,
+        d.current ? el("span", { class: "k-msheet-check", "aria-hidden": "true", text: "✓" }) : null
+      ].filter(Boolean));
+      if (!first || d.current) first = row;
+      return row;
+    }));
+    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.section-sheet", "data-dialog-box": "true" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: sectionLabel() || "Go to" }), close]),
+      rows
+    ]);
+    var overlay = overlayFor(box, "section");
+    activeSectionOverlay = overlay;
+    close.addEventListener("click", function () { overlay.close(); });
+    KOS.ui.openDialog(overlay, { initialFocus: first || close, onClose: function () { if (activeSectionOverlay === overlay) activeSectionOverlay = null; } });
+  }
+  /* the page's ⋯ sheet: its [data-phone-more] nodes, moved in and back */
+  function openTools(nodes, title) {
+    if (activeToolsOverlay) return;
+    var close = sheetClose();
+    var slot = el("div", { class: "k-msheet-slot k-msheet-tools", "data-slot": "tools" });
+    var homes = nodes.map(function (n) { var h = { node: n, parent: n.parentNode, next: n.nextSibling }; slot.appendChild(n); return h; });
+    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.tools-sheet", "data-dialog-box": "true" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: title }), close]),
+      slot
+    ]);
+    var overlay = overlayFor(box, "tools");
+    activeToolsOverlay = overlay;
+    close.addEventListener("click", function () { overlay.close(); });
+    KOS.ui.openDialog(overlay, { initialFocus: slot.querySelector("button, input, select, textarea") || close, onClose: function () {
+      homes.forEach(function (h) {
+        if (h.parent.isConnected) h.parent.insertBefore(h.node, h.next && h.next.parentNode === h.parent ? h.next : null);
+      });
+      if (activeToolsOverlay === overlay) activeToolsOverlay = null;
+    } });
+  }
+  var titleBusy = false;
+  function syncTitleBar() {
+    if (titleBusy) return;
+    titleBusy = true;
+    try {
+      var nav = KOS.currentNav && KOS.currentNav();
+      var want = phone.matches && nav && !NO_TITLE[nav.viewId] && !main.querySelector("[data-phone-notitle]");
+      if (!want) {
+        if (titleBar) { restoreMoved(); titleBar.remove(); titleBar = null; }
+        main.removeAttribute("data-phone-title");
+        return;
+      }
+      var list = destinations();
+      var cur = list.filter(function (d) { return d.current; })[0];
+      var h1 = main.querySelector("h1");
+      var title = (main.querySelector("[data-phone-title-text]") || {}).textContent || (cur ? cur.label : (h1 ? h1.textContent.trim() : ""));
+      var key = [nav.viewId, sectionLabel(), title, list.length].join("|");
+      if (titleBar && titleBar.parentNode === main && main.firstChild === titleBar && titleBar.dataset.key === key) return;
+      restoreMoved();
+      if (titleBar) titleBar.remove();
+      var tools = el("div", { class: "k-ptitle-tools" });
+      Array.prototype.slice.call(main.querySelectorAll("[data-phone-action]")).forEach(function (n) {
+        moved.push({ node: n, parent: n.parentNode, next: n.nextSibling });
+        tools.appendChild(n);
+      });
+      var more = Array.prototype.slice.call(main.querySelectorAll("[data-phone-more]"));
+      if (more.length) tools.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "shell.page-tools",
+        "aria-label": title + " tools", "aria-haspopup": "dialog", text: "⋯",
+        onclick: function () { openTools(Array.prototype.slice.call(main.querySelectorAll("[data-phone-more]")), title); } }));
+      titleBar = el("div", { class: "k-ptitle", "data-ui": "shell.phone-title", "data-key": key }, [
+        el("div", { class: "k-ptitle-txt" }, [
+          el("span", { class: "k-kicker", text: sectionLabel() }),
+          el("div", { class: "k-ptitle-row" }, [
+            el("h1", { class: "k-ptitle-h", text: title }),
+            list.length > 1 ? el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-ptitle-switch", "data-ui": "shell.section-switch",
+              "aria-label": "Switch within " + sectionLabel(), "aria-haspopup": "dialog", text: "▾", onclick: openSection }) : null
+          ].filter(Boolean))
+        ]),
+        tools
+      ]);
+      main.insertBefore(titleBar, main.firstChild);
+      main.setAttribute("data-phone-title", "");
+    } finally { titleBusy = false; }
+  }
+
   function syncShell() {
     var phoneChanged = lastPhoneMatch !== phone.matches;
     lastPhoneMatch = phone.matches;
-    placeUserPanel();
-    if (productivityLabel) productivityLabel.textContent = phone.matches ? "Focus" : "Productivity";
     if (!phone.matches) {
       if (activeMoreOverlay) activeMoreOverlay.close();
       if (activeSearchOverlay) activeSearchOverlay.close();
@@ -443,6 +585,7 @@
     if (!compact.matches && activeCompactSheet) activeCompactSheet.overlay.close();
     enhanceSubnav();
     enhanceCompactSurfaces();
+    syncTitleBar();
     updateMoreState();
     if (phoneChanged) refreshCalendarComposition();
   }

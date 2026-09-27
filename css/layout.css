@@ -88,6 +88,7 @@ display: none;
 .k-sr-sub { font-size: var(--fs-11-5); color: var(--muted); }
 .k-sr-snip { flex: 0 1 45%; min-inline-size: 0; font-size: var(--fs-11-5); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-sr-empty { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-12); font-size: var(--fs-13); color: var(--text-2); }
+.k-sr-scopes { display: none; }
 .k-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; margin-inline-end: var(--sp-4); }
 .k-clock-time { font: var(--weight-medium) var(--fs-14) var(--font-mono); }
 .k-clock-date { font-size: var(--fs-11); color: var(--muted); white-space: nowrap; }
@@ -102,15 +103,40 @@ display: none;
 /* the compact shell's sheets (mobile-shell.js): the shared dialog, a bottom
    sheet at the phone tier. Provisional until the phone design (roadmap 3.1)
    restyles them; it keeps the hooks. */
-.k-msheet { display: flex; flex-direction: column; gap: var(--sp-16); }
-.k-msheet-list { display: flex; flex-direction: column; gap: var(--sp-6); }
-.k-msheet-dest { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-12); min-block-size: var(--hit-coarse); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s2); color: var(--text); text-align: start; }
-.k-msheet-dest:hover, .k-msheet-dest[data-state~="current"] { background: var(--s3); }
-.k-msheet-glyph { font-family: var(--font-kanji); font-size: var(--fs-18); color: var(--crimson); }
-.k-msheet-copy { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
-.k-msheet-copy > span { font-size: var(--fs-12); color: var(--muted); }
-.k-msheet-current { font-size: var(--fs-11); color: var(--muted); }
+.k-msheet { display: flex; flex-direction: column; gap: var(--sp-12); }
+.k-msheet-list { display: flex; flex-direction: column; }
+/* More (15a): the profile row, then one row per destination */
+.k-msheet-profile { display: flex; align-items: center; gap: var(--sp-12); min-block-size: var(--hit-coarse); margin-block-end: var(--sp-6); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-16); background: var(--s2); color: var(--text); text-align: start; }
+.k-msheet-profile-meta { display: flex; gap: var(--sp-8); }
+.k-msheet-hp { color: var(--teal); }
+.k-msheet-hp[data-hp="strained"] { color: var(--amber); }
+.k-msheet-hp[data-hp="critical"] { color: var(--crimson); }
+.k-msheet-gold { font-family: var(--font-mono); color: var(--gold); }
+.k-msheet-dest { display: flex; align-items: center; gap: var(--sp-12); min-block-size: var(--sheet-row-h); padding: var(--sp-8) var(--sp-4); color: var(--text); text-align: start; }
+.k-msheet-dest + .k-msheet-dest { border-block-start: var(--hairline) solid var(--line); }
+.k-msheet-dest[data-state~="current"] .k-msheet-glyph { background: linear-gradient(150deg, var(--crimson-hi), var(--crimson-lo)); color: var(--crimson-ink); }
+.k-msheet-glyph { inline-size: var(--sheet-glyph); block-size: var(--sheet-glyph); flex: 0 0 auto; display: grid; place-items: center; border-radius: var(--r-10); background: var(--s2); font: var(--weight-semibold) var(--fs-17) / 1 var(--font-kanji); color: var(--text-2); }
+.k-msheet-copy { flex: 1 1 0; display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
+.k-msheet-copy > b { font-size: var(--fs-15); font-weight: var(--weight-medium); }
+.k-msheet-copy > span { font-size: var(--fs-12); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-msheet-badge, .k-msheet-count { padding: 0 var(--sp-7); border-radius: var(--r-pill); font: var(--weight-semibold) var(--fs-11) var(--font-mono); }
+.k-msheet-badge { background: var(--crimson); color: var(--crimson-ink); }
+.k-msheet-count { background: var(--s2); color: var(--text-2); }
+.k-msheet-chev { font-size: var(--fs-18); color: var(--muted); }
+/* the section switch: a plain list, the current row checked */
+.k-msheet-row { display: flex; align-items: center; gap: var(--sp-10); min-block-size: var(--sheet-row-h); padding-inline: var(--sp-4); color: var(--text-2); font-size: var(--fs-15); text-align: start; }
+.k-msheet-row + .k-msheet-row { border-block-start: var(--hairline) solid var(--line); }
+.k-msheet-row[aria-current="page"] { color: var(--text); font-weight: var(--weight-semibold); }
+.k-msheet-row-l { flex: 1 1 0; min-inline-size: 0; }
+.k-msheet-check { color: var(--crimson); }
 .k-msheet-slot { min-inline-size: 0; }
+.k-msheet-tools { display: flex; flex-direction: column; gap: var(--sp-12); }
+/* the full-screen search sheet: the canonical field with Cancel beside it */
+.k-msearch-head { display: flex; align-items: flex-start; gap: var(--sp-10); }
+.k-msearch-head > .k-msheet-slot { flex: 1 1 0; }
+.k-msearch-cancel { min-block-size: var(--hit-coarse); font-size: var(--fs-15); color: var(--text-2); }
+/* the phone title bar (15a): hidden above the phone tier */
+.k-ptitle { display: none; }
 /* a review account (store.js KOS.dataMode) names itself in the header */
 .k-datamode { white-space: nowrap; cursor: pointer; }
 .k-bell-badge { font-size: 0; }
@@ -340,8 +366,14 @@ inline-size: auto;
 flex-direction: row;
 padding-inline: 0;
 }
-.k-rail-item { flex: 1 1 0; flex-direction: column; justify-content: center; gap: var(--sp-2); padding: var(--sp-6) 0; font-size: var(--fs-11); }
-.k-rail-item::before { inset-inline: 22%; inset-block: 0 auto; inline-size: auto; block-size: var(--rail-mark); border-radius: 0 0 var(--rail-mark) var(--rail-mark); }
+.k-rail-item { flex: 1 1 0; min-inline-size: 0; flex-direction: column; justify-content: center; gap: var(--sp-2); padding: var(--sp-6) 0; font-size: var(--fs-11); color: var(--muted); }
+.k-rail-item:hover { background: none; }
+/* 15a: no top mark; the lit tab is its crimson tile and a bright label */
+.k-rail-item[aria-current="page"]::before, .k-rail-more[data-state~="active"]::before { display: none; }
+.k-rail-item[aria-current="page"], .k-rail-more[data-state~="active"] { font-weight: var(--weight-semibold); }
+.k-rail-more[data-state~="active"] .k-rail-tile { background: linear-gradient(150deg, var(--crimson-hi), var(--crimson-lo)); color: var(--crimson-ink); box-shadow: var(--tile-lift); }
+.k-rail-tile { inline-size: var(--tab-tile); block-size: var(--tab-tile); font-size: var(--fs-15); }
+.k-rail-label { white-space: nowrap; }
 .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }
 .k-rail-foot { display: none; }
 :root[data-shell="ready"] .k-rail-more { display: flex; }
@@ -349,9 +381,36 @@ padding-inline: 0;
 .k-topbar-brand { inline-size: auto; }
 .k-topbar-end { inline-size: auto; }
 #main { padding-block-end: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
+/* 15a: the compact header — the logo, search, the bell, the sync dot; the
+   wordmark, the clock and the Assistant emblem (in More) are dropped */
+.k-brand-name, .k-clock { display: none; }
+/* the section strip becomes the title bar's section switch */
+:root[data-shell="ready"] .k-stage-head { display: none; }
+.k-ptitle { display: flex; align-items: flex-end; gap: var(--sp-8); }
+.k-ptitle-txt { flex: 1 1 0; min-inline-size: 0; }
+.k-ptitle-row { display: flex; align-items: center; gap: var(--sp-8); margin-block-start: var(--sp-4); }
+.k-ptitle-h { margin: 0; font-size: var(--fs-27); letter-spacing: var(--track-h1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-ptitle-switch { flex: 0 0 auto; background: var(--s1); font-size: var(--fs-11); color: var(--text-2); }
+.k-ptitle-tools { display: flex; align-items: center; gap: var(--sp-8); }
+.k-ptitle-tools > .k-btn { inline-size: var(--icon-btn); block-size: var(--icon-btn); padding: 0; justify-content: center; border-radius: 50%; }
 /* invariant 72: canonical search and the three low-frequency destinations
    hide only once mobile-shell.js has mounted their replacements */
 :root[data-shell="ready"] #searchbox { display: none; }
+/* …except inside the full-screen search sheet, where it is the field, and
+   the result list runs full width under it: the domain chips as a
+   scroller, the groups as plain rows, no "/" hint and no snippet column */
+:root[data-shell="ready"] .k-msheet #searchbox { display: flex; flex-wrap: wrap; inline-size: 100%; min-block-size: var(--hit-coarse); }
+.k-msheet .k-search-key, .k-msheet .k-sr-snip { display: none; }
+.k-msheet .k-search-input { font-size: var(--fs-16); }
+.k-msheet .k-search-results { position: fixed; inset: calc(env(safe-area-inset-top) + var(--sp-12) + var(--hit-coarse) + var(--sp-12)) 0 0; max-block-size: none; margin: 0; padding: 0 var(--sp-12) var(--sp-24); border-radius: 0; background: var(--s1); box-shadow: none; overflow-y: auto; }
+.k-msheet .k-sr-scopes { display: flex; gap: var(--sp-6); padding: var(--sp-4) var(--sp-4) var(--sp-8); overflow-x: auto; scrollbar-width: none; }
+.k-msheet .k-sr-scope { flex: 0 0 auto; min-block-size: var(--hit-dense); gap: var(--sp-4); }
+.k-sr-scope-n { font: var(--fs-11) var(--font-mono); opacity: 0.7; }
+.k-msheet .k-sr-group + .k-sr-group { margin-block-start: 0; }
+.k-msheet .k-sr-item { min-block-size: var(--hit-coarse); align-items: center; border-radius: 0; border-block-end: var(--hairline) solid var(--line); }
+.k-msheet .k-sr-title { font-size: var(--fs-15); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-msheet .k-sr-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-msheet .k-sr-sub { font-size: var(--fs-12-5); }
 :root[data-shell="ready"] #mobile-search-trigger { inline-size: var(--icon-btn); block-size: var(--icon-btn); display: grid; place-items: center; border-radius: 50%; background: var(--s1); font-size: var(--fs-18); }
 :root[data-shell="ready"] #rail [data-section="governor"], :root[data-shell="ready"] #rail [data-section="assistant"], :root[data-shell="ready"] #rail [data-section="system"] { display: none; }
 }

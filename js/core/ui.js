@@ -487,8 +487,26 @@
       }
       (loose ? list : track).appendChild(tabItem(shape, it));
     });
-    return list;
+    return opts.edge ? edgeTrack(list, opts.label) : list;
   };
+  /* the shared edge-marked tab scroller (design 15n): a strip that does not
+     fit never wraps; the side with hidden tabs shows a fade in the track's
+     colour and a ‹ / › that scrolls one track width, both gone at that end,
+     and the active tab is scrolled into view when it mounts */
+  function edgeTrack(list, label) {
+    var wrap = scroller(list, { keepRole: true, className: "k-scroller--track",
+      prevLabel: "Earlier " + (label || "tabs").toLowerCase(), nextLabel: "Later " + (label || "tabs").toLowerCase() });
+    var later = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
+    later(function () {
+      var on = list.querySelector("[aria-selected='true'], [aria-current='page']");
+      if (on && list.scrollWidth > list.clientWidth) {
+        var left = on.offsetLeft - list.offsetLeft;
+        if (left + on.offsetWidth > list.scrollLeft + list.clientWidth || left < list.scrollLeft) list.scrollLeft = Math.max(0, left - 8);
+      }
+      if (wrap.sync) wrap.sync();
+    });
+    return wrap;
+  }
 
   /* Shared compact workspace switcher. Planner, Sync and Study Review use the
      same semantics and visual rhythm without forcing their page content alike.
@@ -609,15 +627,19 @@
     var next = el("button", { type: "button", class: "k-scroller-arrow", "data-ui": "ui.scroller-arrow", "data-edge": "end",
       text: "›", "aria-label": opts.nextLabel || "Scroll right", tabindex: "-1" });
     node.classList.add("k-scroller-track");
-    node.setAttribute("tabindex", "0");
-    node.setAttribute("role", "group");
+    /* a tablist keeps its own role and keys (keepRole); anything else
+       becomes one focusable, labelled group that arrow keys page */
+    if (!opts.keepRole) {
+      node.setAttribute("tabindex", "0");
+      node.setAttribute("role", "group");
+    }
     if (opts.label) node.setAttribute("aria-label", opts.label);
     wrap.appendChild(prev); wrap.appendChild(node); wrap.appendChild(next);
 
     function page(dir) { node.scrollBy({ left: dir * Math.max(160, node.clientWidth * 0.8), behavior: "smooth" }); }
     prev.addEventListener("click", function () { page(-1); });
     next.addEventListener("click", function () { page(1); });
-    node.addEventListener("keydown", function (e) {
+    if (!opts.keepRole) node.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight") { e.preventDefault(); page(1); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); page(-1); }
     });
