@@ -67,6 +67,7 @@
       status: "", about: "",
       shelfSkin: null,                 // Build 3j — Books Physical-tab shelf cosmetic
       shrineStyle: null,               // Build 3j — Shrine card border cosmetic
+      themeFollow: false,              // design 21h — Atelier Dawn by day, the chosen dark theme by night
       lastTick: null,                  // "YYYY-MM-DD" of the last HP day-tick
       lastBacklogDrain: null           // "YYYY-MM-DD" the backlog penalty last applied
     },

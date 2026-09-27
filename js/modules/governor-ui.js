@@ -622,7 +622,7 @@
 
     function shopCard(it, grp) {
       var owned = KOS.governor.owns(it.id);
-      var active = (it.kind === "theme" && g.theme === it.theme) ||
+      var active = (it.kind === "theme" && chosenTheme() === it.theme) ||
                    (it.kind === "seal" && g.seal === it.id) ||
                    (it.kind === "frame" && g.avatar.frame === it.id) ||
                    (it.kind === "shelfskin" && g.shelfSkin === it.id) ||
@@ -674,8 +674,38 @@
           text: active ? APPLY[1] : APPLY[0], title: active ? "Take it off" : null,
           onclick: function () { APPLY[2](); render(); } }));
       }
+      /* frame 21h: "Try on" previews a theme across the whole app, without
+         buying or choosing it, until the shop is left */
+      if (it.kind === "theme" && !active) {
+        var trying = KOS.governor.triedTheme() === it.theme;
+        KOS.ui.state(foot, "split", true);
+        foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet k-gv-try", "data-ui": "shop.try-on",
+          "aria-pressed": trying ? "true" : "false", text: trying ? "Trying on" : "Try on",
+          "aria-label": (trying ? "Stop trying on " : "Try on ") + it.name,
+          onclick: function () { KOS.governor.tryTheme(trying ? null : it.theme); render(); } }));
+      }
       card.appendChild(foot);
       return card;
+    }
+    /* the chosen theme (the default id is Atelier Dusk, which is Graphite) */
+    function chosenTheme() {
+      var known = KOS.governor.catalog().some(function (c) { return c.kind === "theme" && c.theme === g.theme; });
+      return known ? g.theme : "atelier-dusk";
+    }
+    /* a live miniature of a theme, drawn by its own tokens (21h): ground,
+       hero tint, the three subject dots and the accent button, with the
+       four-colour swatch — ground, tint, accent, second */
+    function themeMini(themeId, withSwatch) {
+      return el("span", { class: "k-gv-pv-theme", "data-theme": themeId, "data-ui": "shop.theme-mini" }, [
+        el("span", { class: "k-gv-pv-hero" }),
+        el("span", { class: "k-gv-pv-row" }, [
+          el("span", { class: "k-gv-pv-dots" }, [el("i", { "data-subj": "cs" }), el("i", { "data-subj": "maths" }), el("i", { "data-subj": "it" })]),
+          el("span", { class: "k-gv-pv-go", text: "Start" })
+        ]),
+        withSwatch ? el("span", { class: "k-gv-pv-strip", "data-ui": "shop.swatch" }, ["bg", "tint", "accent", "second"].map(function (n) {
+          return el("i", { "data-ui": "shop.sw-dot", "data-n": n });
+        })) : null
+      ].filter(Boolean));
     }
 
     /* each lab's miniature: what the learner does there, in words and a mark */
@@ -752,16 +782,13 @@
     }
     function shopPreview(it) {
       var pv = el("div", { class: "k-gv-pv", "data-kind": it.kind, "aria-hidden": "true" });
-      if (it.sw) it.sw.forEach(function (c, i) { pv.style.setProperty("--sw" + (i + 1), c); });
+      if (it.sw && it.kind !== "theme") it.sw.forEach(function (c, i) { pv.style.setProperty("--sw" + (i + 1), c); });
       if (it.kind === "banner") {
         var img = bannerImage(it.banner);
         if (img) pv.style.setProperty("--pv-banner", img);
         pv.appendChild(el("span", { class: "k-gv-pv-band" }));
       } else if (it.kind === "theme") {
-        pv.appendChild(el("span", { class: "k-gv-pv-theme" }, [
-          el("span", { class: "k-gv-pv-side" }),
-          el("span", { class: "k-gv-pv-page" }, [el("i"), el("i"), el("i")])
-        ]));
+        pv.appendChild(themeMini(it.theme, true));
       } else if (it.kind === "seal") {
         pv.appendChild(el("span", { class: "k-gv-pv-brand", "data-ui": "shop.preview-seal" }, [
           el("b", { text: "Kurenai" }),
@@ -784,8 +811,9 @@
           el("span", { class: "k-gv-pv-label", text: lab.label })
         ]));
       }
-      /* the palette an item carries, as three dots */
-      if (it.sw) pv.appendChild(el("span", { class: "k-gv-pv-sw", "data-ui": "shop.swatch" }, it.sw.slice(0, 3).map(function (c, i) {
+      /* the palette an item carries, as three dots (a theme shows its own
+         tokens instead, above) */
+      if (it.sw && it.kind !== "theme") pv.appendChild(el("span", { class: "k-gv-pv-sw", "data-ui": "shop.swatch" }, it.sw.slice(0, 3).map(function (c, i) {
         return el("i", { "data-ui": "shop.sw-dot", "data-n": String(i + 1) });
       })));
       return pv;
@@ -861,6 +889,34 @@
       ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.avatar-section", "aria-label": "Frames" }, [
         cardHead("Frames", "owned frames are ready to wear, the rest are Gold Shop unlocks"),
         fgrid
+      ]));
+
+      /* the theme (21h): owned themes only, the chosen one ringed, and the
+         device-following pair — Atelier Dawn by day, the dark choice by night */
+      var ownedThemes = KOS.governor.catalog().filter(function (c) { return c.kind === "theme" && KOS.governor.owns(c.id); });
+      var tgrid = el("div", { class: "k-gv-themes", "data-ui": "gov.theme-grid" }, ownedThemes.map(function (t) {
+        var on = chosenTheme() === t.theme;
+        return el("button", { type: "button", class: "k-gv-theme", "data-ui": "gov.theme-chip", "aria-pressed": on ? "true" : "false",
+          "aria-label": t.name + (on ? " — current theme" : ""),
+          onclick: function () { KOS.governor.setTheme(t.theme); render(); } }, [
+          themeMini(t.theme, false),
+          el("span", { class: "k-gv-theme-n" }, [t.name, on ? el("span", { class: "k-gv-theme-on", "aria-hidden": "true", text: "✓" }) : null].filter(Boolean))
+        ]);
+      }));
+      var follow = el("input", { type: "checkbox", class: "k-switch", "data-ui": "gov.theme-follow", "aria-label": "Follow the system" });
+      follow.checked = KOS.governor.themeFollow();
+      follow.addEventListener("change", function () { KOS.governor.setThemeFollow(follow.checked); });
+      /* a full-width row under the studio, so the identity stage and the
+         workshop keep their matched heights */
+      panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.theme-section", "aria-label": "Theme" }, [
+        cardHead("Theme", ownedThemes.length + " owned",
+          el("button", { type: "button", class: "k-link", text: "Get more in the Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })),
+        tgrid,
+        el("label", { class: "k-gv-theme-follow" }, [
+          follow,
+          el("span", { class: "k-gv-theme-follow-t", text: "Follow the system: Atelier Dawn by day, your dark theme by night" }),
+          el("span", { class: "k-gv-theme-sync", text: "Synced to every device" })
+        ])
       ]));
       function frameChip(fr, label, owned) {
         var id = fr ? fr.id : null, on = (g.avatar.frame || null) === id;

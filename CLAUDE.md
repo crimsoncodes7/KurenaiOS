@@ -238,10 +238,21 @@ source comments and audit notes refer to it.
     legacy name, a `[data-ui]` selector, a colour literal outside tokens/themes
     and a raw px outside `tokens.css`). Keep the three subject hues. Extend
     shared tokens/components rather than hard-coding a page patch.
-26a. Graphite (dark, `css/tokens.css`) is the only designed theme and the
-    default. Until Dawn and the shop themes are designed (`css/themes.css`,
-    roadmap), every theme id renders Graphite; ownership records and ids are
-    kept.
+26a. Graphite (= Atelier Dusk, `css/tokens.css`) is the default;
+    `css/themes.css` holds Atelier Dawn (its light twin) and the 23 shop
+    themes as colour-ROLE overrides only (design part 2, frames 21a–21h).
+    Every derived token in `tokens.css` is written relative to a role
+    (`oklch(from var(--crimson) …)`, chroma scaled), with offsets that
+    reproduce Graphite exactly, so a theme re-tints it without restating
+    it; only Dawn restates the few tokens bound to a dark ground. A theme
+    block applies to `:root` and to any element carrying `data-theme` (a
+    shop card's live miniature). The theme on screen is
+    `KOS.governor.effectiveTheme()`: a shop "Try on" (transient — it ends
+    when the shop is left and is never saved), else "Follow the system"
+    (`g.themeFollow`: Dawn while the device is light, the chosen theme —
+    Graphite if Dawn is the choice — while it is dark), else the choice
+    (`g.theme`). The choice and the follow flag sync; amber, green, red,
+    gold and the medium hues are the same in every theme.
 26b. Theme variants target `:root[data-theme="..."]` as semantic-token
     overrides only; unknown legacy ids map to the default.
 26c. `KOS.imageCrop` is the only crop/focal workflow. Persist source and
@@ -585,8 +596,9 @@ source comments and audit notes refer to it.
     decision-relevant value.
 78. A spendable balance is formatted context, not a progress bar.
 79. Elevation is theme-derived through `--shadow-ink`/`--elev-*` and is for
-    floating layers only; a future light theme must keep equivalent hierarchy
-    without hard-coded black shadows.
+    floating layers only. Dawn keeps the hierarchy with a warm, soft shadow
+    of its own (on a light ground elevation reads from the shadow), never a
+    hard-coded black one.
 
 ### The integrated weekly plan (80–83)
 

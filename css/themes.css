@@ -1,12 +1,619 @@
 /* KurenaiOS — css/themes.css · @layer themes
-   The 23 shop themes as semantic-token overrides only, on
-   :root[data-theme="<id>"] (M13). Until then every theme id renders as the
-   default.
+   The theme system (design part 2, frames 21a–21h; the handoff's
+   themes.css is the source of every value). Each theme is token overrides
+   ONLY, on :root[data-theme="<id>"] — no layout, no component rule — and
+   the same block applies to any element that carries the attribute, so a
+   shop card's live preview renders in its own theme.
 
-   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
+   Atelier Dusk IS Graphite (css/tokens.css :root), so its block is empty.
+   Atelier Dawn is the light twin: it mirrors the surfaces, darkens every
+   accent to 4.5 : 1 on its darkest surface, and restates the derived
+   tokens that are bound to a dark ground. The 23 shop themes set the
+   surfaces, the text roles, one accent in the --crimson role (with its
+   ink), a second colour in --teal, a third in --bloom, the three subject
+   hues and a hero tint; amber, green, red, gold and the four medium hues
+   are fixed, so status colours read the same in every theme.
 
    Convention for every layer file: its rules sit inside ONE @layer block,
    and the block's contents are not indented, so line-anchored tooling
    (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
 @layer themes {
+
+/* Atelier Dusk · Graphite, the default. Its roles are restated (they are
+   css/tokens.css :root's own) so a Dusk preview inside another theme —
+   a shop card on Dawn — still renders as Graphite. */
+:root[data-theme="atelier-dusk"], [data-theme="atelier-dusk"] {
+color-scheme: dark;
+--bg: oklch(0.165 0.008 265);
+--s1: oklch(0.2 0.009 265);
+--s2: oklch(0.235 0.01 265);
+--s3: oklch(0.14 0.008 265);
+--line: oklch(0.27 0.01 265);
+--text: oklch(0.95 0.005 265);
+--text-2: oklch(0.78 0.01 265);
+--muted: oklch(0.62 0.012 265);
+--crimson: oklch(0.68 0.16 18);
+--crimson-ink: oklch(0.16 0.02 18);
+--teal: oklch(0.74 0.11 190);
+--amber: oklch(0.8 0.12 80);
+--green: oklch(0.72 0.13 150);
+--red: oklch(0.66 0.17 22);
+--gold: oklch(0.84 0.11 85);
+--bloom: oklch(0.8 0.08 350);
+--cs: oklch(0.74 0.11 190);
+--maths: oklch(0.72 0.12 270);
+--it: oklch(0.72 0.12 325);
+--anime: oklch(0.72 0.13 250);
+--books: oklch(0.78 0.11 70);
+--vn: oklch(0.72 0.14 330);
+--games: oklch(0.74 0.12 155);
+--hero-tint: oklch(0.2 0.03 235);
+}
+
+/* Atelier Dawn · warm paper, near-white cards, the accents darkened to 4.5 : 1 */
+:root[data-theme="atelier-dawn"], [data-theme="atelier-dawn"] {
+color-scheme: light;
+--bg: oklch(0.955 0.008 80);
+--s1: oklch(0.992 0.003 80);
+--s2: oklch(0.93 0.01 80);
+--s3: oklch(0.912 0.012 80);
+--line: oklch(0.87 0.012 80);
+--text: oklch(0.235 0.014 55);
+--text-2: oklch(0.4 0.014 60);
+--muted: oklch(0.505 0.014 65);
+--crimson: oklch(0.525 0.17 20);
+--crimson-ink: oklch(0.992 0.003 80);
+--teal: oklch(0.485 0.1 195);
+--amber: oklch(0.51 0.13 70);
+--green: oklch(0.49 0.13 150);
+--red: oklch(0.525 0.18 25);
+--gold: oklch(0.505 0.11 85);
+--bloom: oklch(0.52 0.13 350);
+--cs: oklch(0.485 0.1 195);
+--maths: oklch(0.515 0.15 275);
+--it: oklch(0.525 0.15 330);
+--anime: oklch(0.505 0.14 250);
+--books: oklch(0.51 0.12 65);
+--vn: oklch(0.525 0.16 335);
+--games: oklch(0.49 0.12 155);
+--hero-tint: oklch(0.95 0.02 235);
+
+/* derived tokens bound to a dark ground, restated for paper */
+--hero-tint: oklch(0.95 0.02 235);
+--crimson-hi: oklch(from var(--crimson) calc(l - 0.05) c h);
+--crimson-lo: oklch(from var(--crimson) calc(l - 0.1) c h);
+--crimson-glow: oklch(from var(--crimson) l c h / 0.18);
+--crimson-soft: oklch(from var(--crimson) calc(l - 0.02) calc(c * 0.8) h);
+--red-soft: oklch(from var(--red) l calc(c * 0.7) h);
+--bloom-hi: oklch(from var(--bloom) calc(l + 0.06) c h);
+--bloom-lo: oklch(from var(--bloom) calc(l - 0.06) c h);
+--asst-tile-ink: var(--s1);
+--collection-hue: var(--crimson);
+--rag-r: oklch(0.52 0.2 25);
+--rag-a: oklch(0.56 0.14 68);
+--rag-g: oklch(0.5 0.15 150);
+--crit-wash: linear-gradient(120deg, color-mix(in oklab, var(--crimson) 12%, var(--s1)), var(--s1) 60%);
+--home-crit-bg: color-mix(in oklab, var(--crimson) 14%, var(--bg));
+--home-crit-scrim: linear-gradient(90deg, oklch(from var(--home-crit-bg) l c h / 0.85) 0%, oklch(from var(--home-crit-bg) l c h / 0.6) 30%, oklch(from var(--home-crit-bg) l c h / 0.18) 54%, transparent 64%, oklch(from var(--home-crit-bg) l c h / 0.55) 78%, oklch(from var(--home-crit-bg) l c h / 0.75) 100%);
+--home-crit-ink: var(--crimson);
+--home-crit-track: color-mix(in oklab, var(--crimson) 25%, var(--s2));
+--fx-wash: color-mix(in oklab, var(--crimson) 10%, var(--bg));
+--fx-stage-glow: color-mix(in oklab, var(--crimson) 14%, var(--bg));
+--fx-stage-track: color-mix(in oklab, var(--crimson) 12%, var(--s2));
+--fx-stage-well: color-mix(in oklab, var(--crimson) 6%, var(--s1));
+--fx-stage-seg: color-mix(in oklab, var(--crimson) 14%, var(--s2));
+--mx-wash: color-mix(in oklab, var(--crimson) 12%, var(--s1));
+--gv-rec-bg: linear-gradient(120deg, color-mix(in oklab, var(--crimson) 12%, var(--s1)), var(--s1) 60%);
+--bk-hero-bg: linear-gradient(130deg, color-mix(in oklab, var(--crimson) 10%, var(--s1)), var(--s1) 55%);
+--pace-wash: color-mix(in oklab, var(--amber) 16%, transparent);
+--gv-rec-bg-strained: linear-gradient(120deg, color-mix(in oklab, var(--amber) 14%, var(--s1)), var(--s1) 60%);
+--gv-bal-bg: linear-gradient(120deg, color-mix(in oklab, var(--amber) 12%, var(--s1)), var(--s1) 60%);
+--asst-confirm-bg: linear-gradient(150deg, color-mix(in oklab, var(--amber) 12%, var(--s1)), var(--s1) 60%);
+--home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l c h / 0.85) 0%, oklch(from var(--hero-tint) l c h / 0.6) 30%, oklch(from var(--hero-tint) l c h / 0.15) 54%, transparent 64%, oklch(from var(--hero-tint) l c h / 0.5) 78%, oklch(from var(--hero-tint) l c h / 0.7) 100%);
+--home-hero-ink: oklch(from var(--hero-tint) 0.42 0.08 h);
+--home-goal-ink: oklch(0.42 0.06 200);
+--home-ring-track: oklch(from var(--hero-tint) calc(l - 0.1) c h);
+--home-xp-track: oklch(from var(--hero-tint) calc(l - 0.08) c h);
+--gv-hero-bg: oklch(from var(--hero-tint) l c calc(h + 25));
+--gv-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l c calc(h + 25) / 0.8) 18%, oklch(from var(--hero-tint) l c calc(h + 25) / 0.3) 60%, transparent);
+--gv-rank-ink: oklch(from var(--hero-tint) 0.42 0.08 calc(h + 15));
+--shr-scrim: oklch(0.96 0.015 70);
+--syn-kw: oklch(0.5 0.16 320);
+--syn-fn: oklch(0.48 0.12 240);
+--syn-op: oklch(0.48 0.09 200);
+--syn-num: oklch(0.52 0.13 60);
+--syn-str: oklch(0.48 0.13 140);
+--syn-self: oklch(0.52 0.15 20);
+--cal-l: 0.52;
+--cal-c: 0.13;
+--ph-l: 0.88;
+--ph-c: 0.06;
+/* on a light ground elevation reads from the shadow: warm and soft */
+--shadow-base: oklch(0.35 0.03 60);
+--shadow-ink: oklch(0.35 0.03 60 / 0.14);
+}
+
+/* Spectral Rose · blue-black lacquer, wine red, cyan rim-light, ember orange */
+:root[data-theme="spectral-rose"], [data-theme="spectral-rose"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.022 255);
+--s1: oklch(0.19 0.024 255);
+--s2: oklch(0.228 0.025 255);
+--s3: oklch(0.125 0.022 255);
+--line: oklch(0.27 0.024 255);
+--text: oklch(0.955 0.01 255);
+--text-2: oklch(0.8 0.02 255);
+--muted: oklch(0.62 0.02 255);
+--crimson: oklch(0.66 0.17 10);
+--crimson-ink: oklch(0.15 0.03 10);
+--teal: oklch(0.8 0.11 205);
+--bloom: oklch(0.74 0.15 50);
+--cs: oklch(0.74 0.12 205);
+--maths: oklch(0.72 0.12 290);
+--it: oklch(0.72 0.12 50);
+--hero-tint: oklch(0.3 0.1 10);
+}
+
+/* Verdigris Duel · charcoal, oxidised teal, fog white, restrained rust */
+:root[data-theme="verdigris-duel"], [data-theme="verdigris-duel"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.008 200);
+--s1: oklch(0.19 0.009 200);
+--s2: oklch(0.228 0.009 200);
+--s3: oklch(0.125 0.008 200);
+--line: oklch(0.27 0.009 200);
+--text: oklch(0.955 0.01 200);
+--text-2: oklch(0.8 0.013 200);
+--muted: oklch(0.62 0.014 200);
+--crimson: oklch(0.72 0.1 185);
+--crimson-ink: oklch(0.15 0.03 185);
+--teal: oklch(0.88 0.012 220);
+--bloom: oklch(0.68 0.11 40);
+--cs: oklch(0.74 0.12 185);
+--maths: oklch(0.72 0.12 265);
+--it: oklch(0.72 0.12 40);
+--hero-tint: oklch(0.3 0.05 185);
+}
+
+/* Sakura Skyline · deep indigo city-night, periwinkle, electric blue, sakura pink */
+:root[data-theme="sakura-skyline"], [data-theme="sakura-skyline"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.045 275);
+--s1: oklch(0.19 0.05 275);
+--s2: oklch(0.228 0.052 275);
+--s3: oklch(0.125 0.045 275);
+--line: oklch(0.27 0.05 275);
+--text: oklch(0.955 0.01 275);
+--text-2: oklch(0.8 0.02 275);
+--muted: oklch(0.62 0.02 275);
+--crimson: oklch(0.8 0.1 355);
+--crimson-ink: oklch(0.15 0.03 355);
+--teal: oklch(0.74 0.15 255);
+--bloom: oklch(0.8 0.09 285);
+--cs: oklch(0.74 0.12 230);
+--maths: oklch(0.72 0.12 295);
+--it: oklch(0.72 0.12 355);
+--hero-tint: oklch(0.32 0.08 275);
+}
+
+/* Starfall Serenade · midnight plum, smoky violet, coral horizon, cold starlight */
+:root[data-theme="starfall-serenade"], [data-theme="starfall-serenade"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.035 320);
+--s1: oklch(0.19 0.039 320);
+--s2: oklch(0.228 0.04 320);
+--s3: oklch(0.125 0.035 320);
+--line: oklch(0.27 0.039 320);
+--text: oklch(0.955 0.01 320);
+--text-2: oklch(0.8 0.02 320);
+--muted: oklch(0.62 0.02 320);
+--crimson: oklch(0.74 0.14 32);
+--crimson-ink: oklch(0.15 0.03 32);
+--teal: oklch(0.86 0.04 240);
+--bloom: oklch(0.72 0.09 300);
+--cs: oklch(0.74 0.12 235);
+--maths: oklch(0.72 0.12 300);
+--it: oklch(0.72 0.12 32);
+--hero-tint: oklch(0.3 0.07 320);
+}
+
+/* Feathered Dusk · ink mauve, dusty rose, blue-grey, pale blush */
+:root[data-theme="feathered-dusk"], [data-theme="feathered-dusk"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.025 330);
+--s1: oklch(0.19 0.028 330);
+--s2: oklch(0.228 0.029 330);
+--s3: oklch(0.125 0.025 330);
+--line: oklch(0.27 0.028 330);
+--text: oklch(0.955 0.01 330);
+--text-2: oklch(0.8 0.02 330);
+--muted: oklch(0.62 0.02 330);
+--crimson: oklch(0.74 0.09 10);
+--crimson-ink: oklch(0.15 0.03 10);
+--teal: oklch(0.76 0.05 240);
+--bloom: oklch(0.86 0.05 20);
+--cs: oklch(0.74 0.12 235);
+--maths: oklch(0.72 0.12 300);
+--it: oklch(0.72 0.12 15);
+--hero-tint: oklch(0.32 0.05 330);
+}
+
+/* Rosewater Abyss · near-black marine blue, pearl aqua, coral petals, pale gold */
+:root[data-theme="rosewater-abyss"], [data-theme="rosewater-abyss"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.03 235);
+--s1: oklch(0.19 0.033 235);
+--s2: oklch(0.228 0.034 235);
+--s3: oklch(0.125 0.03 235);
+--line: oklch(0.27 0.033 235);
+--text: oklch(0.955 0.01 235);
+--text-2: oklch(0.8 0.02 235);
+--muted: oklch(0.62 0.02 235);
+--crimson: oklch(0.74 0.14 25);
+--crimson-ink: oklch(0.15 0.03 25);
+--teal: oklch(0.84 0.07 190);
+--bloom: oklch(0.86 0.08 90);
+--cs: oklch(0.74 0.12 190);
+--maths: oklch(0.72 0.12 275);
+--it: oklch(0.72 0.12 25);
+--hero-tint: oklch(0.28 0.06 225);
+}
+
+/* Clinic Noir · sterile slate, charcoal, pearl, faint blush reflections */
+:root[data-theme="clinic-noir"], [data-theme="clinic-noir"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.012 240);
+--s1: oklch(0.19 0.013 240);
+--s2: oklch(0.228 0.014 240);
+--s3: oklch(0.125 0.012 240);
+--line: oklch(0.27 0.013 240);
+--text: oklch(0.955 0.01 240);
+--text-2: oklch(0.8 0.017 240);
+--muted: oklch(0.62 0.018 240);
+--crimson: oklch(0.9 0.012 240);
+--crimson-ink: oklch(0.15 0.03 240);
+--teal: oklch(0.8 0.05 15);
+--bloom: oklch(0.8 0.03 220);
+--cs: oklch(0.74 0.12 200);
+--maths: oklch(0.72 0.12 280);
+--it: oklch(0.72 0.12 15);
+--hero-tint: oklch(0.3 0.02 240);
+}
+
+/* Azure Corset Noir · midnight blue, icy porcelain, graphite lace, cardinal ribbon */
+:root[data-theme="azure-corset-noir"], [data-theme="azure-corset-noir"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.04 258);
+--s1: oklch(0.19 0.044 258);
+--s2: oklch(0.228 0.046 258);
+--s3: oklch(0.125 0.04 258);
+--line: oklch(0.27 0.044 258);
+--text: oklch(0.955 0.01 258);
+--text-2: oklch(0.8 0.02 258);
+--muted: oklch(0.62 0.02 258);
+--crimson: oklch(0.66 0.19 22);
+--crimson-ink: oklch(0.15 0.03 22);
+--teal: oklch(0.9 0.03 230);
+--bloom: oklch(0.74 0.012 260);
+--cs: oklch(0.74 0.12 220);
+--maths: oklch(0.72 0.12 290);
+--it: oklch(0.72 0.12 60);
+--hero-tint: oklch(0.3 0.07 258);
+}
+
+/* Shattered Bloom · blue-black, electric cyan, hot pink, ultraviolet */
+:root[data-theme="shattered-bloom"], [data-theme="shattered-bloom"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.03 265);
+--s1: oklch(0.19 0.033 265);
+--s2: oklch(0.228 0.034 265);
+--s3: oklch(0.125 0.03 265);
+--line: oklch(0.27 0.033 265);
+--text: oklch(0.955 0.01 265);
+--text-2: oklch(0.8 0.02 265);
+--muted: oklch(0.62 0.02 265);
+--crimson: oklch(0.72 0.2 355);
+--crimson-ink: oklch(0.15 0.03 355);
+--teal: oklch(0.82 0.13 205);
+--bloom: oklch(0.7 0.2 295);
+--cs: oklch(0.74 0.12 205);
+--maths: oklch(0.72 0.12 290);
+--it: oklch(0.72 0.12 355);
+--hero-tint: oklch(0.3 0.1 295);
+}
+
+/* Scarlet Garden Night · dark sage, blackened porcelain, scarlet silk, muted stone */
+:root[data-theme="scarlet-garden-night"], [data-theme="scarlet-garden-night"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.02 150);
+--s1: oklch(0.19 0.022 150);
+--s2: oklch(0.228 0.023 150);
+--s3: oklch(0.125 0.02 150);
+--line: oklch(0.27 0.022 150);
+--text: oklch(0.955 0.01 150);
+--text-2: oklch(0.8 0.02 150);
+--muted: oklch(0.62 0.02 150);
+--crimson: oklch(0.66 0.19 25);
+--crimson-ink: oklch(0.15 0.03 25);
+--teal: oklch(0.8 0.02 90);
+--bloom: oklch(0.9 0.01 150);
+--cs: oklch(0.74 0.12 160);
+--maths: oklch(0.72 0.12 255);
+--it: oklch(0.72 0.12 25);
+--hero-tint: oklch(0.3 0.06 150);
+}
+
+/* Midnight Lilies · ink-black water, moon-white petals, slate, muted sage */
+:root[data-theme="midnight-lilies"], [data-theme="midnight-lilies"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.015 250);
+--s1: oklch(0.19 0.017 250);
+--s2: oklch(0.228 0.017 250);
+--s3: oklch(0.125 0.015 250);
+--line: oklch(0.27 0.017 250);
+--text: oklch(0.955 0.01 250);
+--text-2: oklch(0.8 0.02 250);
+--muted: oklch(0.62 0.02 250);
+--crimson: oklch(0.92 0.015 250);
+--crimson-ink: oklch(0.15 0.03 250);
+--teal: oklch(0.76 0.06 150);
+--bloom: oklch(0.74 0.03 240);
+--cs: oklch(0.74 0.12 150);
+--maths: oklch(0.72 0.12 250);
+--it: oklch(0.72 0.12 320);
+--hero-tint: oklch(0.26 0.03 250);
+}
+
+/* Gothic Camellia · deep navy, magenta velvet, antique brass, smoky violet */
+:root[data-theme="gothic-camellia"], [data-theme="gothic-camellia"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.045 262);
+--s1: oklch(0.19 0.05 262);
+--s2: oklch(0.228 0.052 262);
+--s3: oklch(0.125 0.045 262);
+--line: oklch(0.27 0.05 262);
+--text: oklch(0.955 0.01 262);
+--text-2: oklch(0.8 0.02 262);
+--muted: oklch(0.62 0.02 262);
+--crimson: oklch(0.7 0.19 345);
+--crimson-ink: oklch(0.15 0.03 345);
+--teal: oklch(0.78 0.1 85);
+--bloom: oklch(0.72 0.08 300);
+--cs: oklch(0.74 0.12 205);
+--maths: oklch(0.72 0.12 300);
+--it: oklch(0.72 0.12 85);
+--hero-tint: oklch(0.3 0.1 345);
+}
+
+/* Rain Café · deep teal glass, rain-blue neon, warm peach, coffee cream */
+:root[data-theme="rain-cafe"], [data-theme="rain-cafe"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.035 205);
+--s1: oklch(0.19 0.039 205);
+--s2: oklch(0.228 0.04 205);
+--s3: oklch(0.125 0.035 205);
+--line: oklch(0.27 0.039 205);
+--text: oklch(0.955 0.01 205);
+--text-2: oklch(0.8 0.02 205);
+--muted: oklch(0.62 0.02 205);
+--crimson: oklch(0.82 0.09 55);
+--crimson-ink: oklch(0.15 0.03 55);
+--teal: oklch(0.76 0.12 230);
+--bloom: oklch(0.84 0.04 70);
+--cs: oklch(0.74 0.12 230);
+--maths: oklch(0.72 0.12 295);
+--it: oklch(0.72 0.12 55);
+--hero-tint: oklch(0.3 0.06 205);
+}
+
+/* Porcelain Sky Night · navy-black, powder blue, porcelain highlights, a clean red bow */
+:root[data-theme="porcelain-sky-night"], [data-theme="porcelain-sky-night"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.03 255);
+--s1: oklch(0.19 0.033 255);
+--s2: oklch(0.228 0.034 255);
+--s3: oklch(0.125 0.03 255);
+--line: oklch(0.27 0.033 255);
+--text: oklch(0.955 0.01 255);
+--text-2: oklch(0.8 0.02 255);
+--muted: oklch(0.62 0.02 255);
+--crimson: oklch(0.66 0.2 25);
+--crimson-ink: oklch(0.15 0.03 25);
+--teal: oklch(0.82 0.07 240);
+--bloom: oklch(0.93 0.01 240);
+--cs: oklch(0.74 0.12 200);
+--maths: oklch(0.72 0.12 275);
+--it: oklch(0.72 0.12 330);
+--hero-tint: oklch(0.28 0.05 255);
+}
+
+/* Crimson Moth · absolute black, blood-red wings, bone white, smoke brown */
+:root[data-theme="crimson-moth"], [data-theme="crimson-moth"] {
+color-scheme: dark;
+--bg: oklch(0.12 0.006 30);
+--s1: oklch(0.16 0.007 30);
+--s2: oklch(0.198 0.007 30);
+--s3: oklch(0.095 0.006 30);
+--line: oklch(0.24 0.007 30);
+--text: oklch(0.955 0.01 30);
+--text-2: oklch(0.8 0.011 30);
+--muted: oklch(0.62 0.012 30);
+--crimson: oklch(0.64 0.19 25);
+--crimson-ink: oklch(0.15 0.03 25);
+--teal: oklch(0.9 0.02 85);
+--bloom: oklch(0.66 0.04 50);
+--cs: oklch(0.74 0.12 190);
+--maths: oklch(0.72 0.12 280);
+--it: oklch(0.72 0.12 25);
+--hero-tint: oklch(0.26 0.1 25);
+}
+
+/* Celestial Duality · black void, ultramarine, ice-white, cyan and silver */
+:root[data-theme="celestial-duality"], [data-theme="celestial-duality"] {
+color-scheme: dark;
+--bg: oklch(0.12 0.012 265);
+--s1: oklch(0.16 0.013 265);
+--s2: oklch(0.198 0.014 265);
+--s3: oklch(0.095 0.012 265);
+--line: oklch(0.24 0.013 265);
+--text: oklch(0.955 0.01 265);
+--text-2: oklch(0.8 0.017 265);
+--muted: oklch(0.62 0.018 265);
+--crimson: oklch(0.68 0.18 265);
+--crimson-ink: oklch(0.15 0.03 265);
+--teal: oklch(0.82 0.12 210);
+--bloom: oklch(0.84 0.01 260);
+--cs: oklch(0.74 0.12 210);
+--maths: oklch(0.72 0.12 265);
+--it: oklch(0.72 0.12 320);
+--hero-tint: oklch(0.28 0.12 265);
+}
+
+/* Jade Camellia · forest black, jade leaf, olive gold, coral flower, parchment */
+:root[data-theme="jade-camellia"], [data-theme="jade-camellia"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.025 155);
+--s1: oklch(0.19 0.028 155);
+--s2: oklch(0.228 0.029 155);
+--s3: oklch(0.125 0.025 155);
+--line: oklch(0.27 0.028 155);
+--text: oklch(0.955 0.01 155);
+--text-2: oklch(0.8 0.02 155);
+--muted: oklch(0.62 0.02 155);
+--crimson: oklch(0.74 0.15 30);
+--crimson-ink: oklch(0.15 0.03 30);
+--teal: oklch(0.74 0.12 165);
+--bloom: oklch(0.78 0.11 100);
+--cs: oklch(0.74 0.12 165);
+--maths: oklch(0.72 0.12 260);
+--it: oklch(0.72 0.12 30);
+--hero-tint: oklch(0.3 0.07 165);
+}
+
+/* Ember Wraith · midnight navy, dark crimson, rose flame, ice-blue eyes */
+:root[data-theme="ember-wraith"], [data-theme="ember-wraith"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.04 260);
+--s1: oklch(0.19 0.044 260);
+--s2: oklch(0.228 0.046 260);
+--s3: oklch(0.125 0.04 260);
+--line: oklch(0.27 0.044 260);
+--text: oklch(0.955 0.01 260);
+--text-2: oklch(0.8 0.02 260);
+--muted: oklch(0.62 0.02 260);
+--crimson: oklch(0.72 0.16 15);
+--crimson-ink: oklch(0.15 0.03 15);
+--teal: oklch(0.84 0.08 225);
+--bloom: oklch(0.7 0.15 20);
+--cs: oklch(0.74 0.12 225);
+--maths: oklch(0.72 0.12 290);
+--it: oklch(0.72 0.12 15);
+--hero-tint: oklch(0.28 0.1 20);
+}
+
+/* Solar Manuscript · charcoal ink, saffron, engraved gold, lavender-grey, ivory */
+:root[data-theme="solar-manuscript"], [data-theme="solar-manuscript"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.01 70);
+--s1: oklch(0.19 0.011 70);
+--s2: oklch(0.228 0.011 70);
+--s3: oklch(0.125 0.01 70);
+--line: oklch(0.27 0.011 70);
+--text: oklch(0.955 0.01 70);
+--text-2: oklch(0.8 0.015 70);
+--muted: oklch(0.62 0.016 70);
+--crimson: oklch(0.8 0.15 75);
+--crimson-ink: oklch(0.15 0.03 75);
+--teal: oklch(0.76 0.04 290);
+--bloom: oklch(0.78 0.1 90);
+--cs: oklch(0.74 0.12 200);
+--maths: oklch(0.72 0.12 290);
+--it: oklch(0.72 0.12 75);
+--hero-tint: oklch(0.3 0.06 75);
+}
+
+/* Violet Requiem · midnight indigo, hydrangea violet, pale lilac, rose, white cloth */
+:root[data-theme="violet-requiem"], [data-theme="violet-requiem"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.045 280);
+--s1: oklch(0.19 0.05 280);
+--s2: oklch(0.228 0.052 280);
+--s3: oklch(0.125 0.045 280);
+--line: oklch(0.27 0.05 280);
+--text: oklch(0.955 0.01 280);
+--text-2: oklch(0.8 0.02 280);
+--muted: oklch(0.62 0.02 280);
+--crimson: oklch(0.72 0.15 295);
+--crimson-ink: oklch(0.15 0.03 295);
+--teal: oklch(0.86 0.05 300);
+--bloom: oklch(0.74 0.12 5);
+--cs: oklch(0.74 0.12 220);
+--maths: oklch(0.72 0.12 295);
+--it: oklch(0.72 0.12 5);
+--hero-tint: oklch(0.3 0.09 290);
+}
+
+/* Rosarium · black rose garden, oxblood, petal pink, ivory, antique brass */
+:root[data-theme="rosarium"], [data-theme="rosarium"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.02 10);
+--s1: oklch(0.19 0.022 10);
+--s2: oklch(0.228 0.023 10);
+--s3: oklch(0.125 0.02 10);
+--line: oklch(0.27 0.022 10);
+--text: oklch(0.955 0.01 10);
+--text-2: oklch(0.8 0.02 10);
+--muted: oklch(0.62 0.02 10);
+--crimson: oklch(0.66 0.15 20);
+--crimson-ink: oklch(0.15 0.03 20);
+--teal: oklch(0.82 0.07 5);
+--bloom: oklch(0.74 0.09 80);
+--cs: oklch(0.74 0.12 190);
+--maths: oklch(0.72 0.12 280);
+--it: oklch(0.72 0.12 20);
+--hero-tint: oklch(0.28 0.1 20);
+}
+
+/* Lycoris Radiata · sumi black, scarlet filaments, ember orange, pale bone */
+:root[data-theme="lycoris-radiata"], [data-theme="lycoris-radiata"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.01 40);
+--s1: oklch(0.19 0.011 40);
+--s2: oklch(0.228 0.011 40);
+--s3: oklch(0.125 0.01 40);
+--line: oklch(0.27 0.011 40);
+--text: oklch(0.955 0.01 40);
+--text-2: oklch(0.8 0.015 40);
+--muted: oklch(0.62 0.016 40);
+--crimson: oklch(0.66 0.2 28);
+--crimson-ink: oklch(0.15 0.03 28);
+--teal: oklch(0.9 0.02 80);
+--bloom: oklch(0.74 0.16 50);
+--cs: oklch(0.74 0.12 200);
+--maths: oklch(0.72 0.12 290);
+--it: oklch(0.72 0.12 50);
+--hero-tint: oklch(0.28 0.1 28);
+}
+
+/* Azure Butterfly · night-sky blue, luminous aqua, pearl, silver, soft lilac */
+:root[data-theme="azure-butterfly"], [data-theme="azure-butterfly"] {
+color-scheme: dark;
+--bg: oklch(0.15 0.05 250);
+--s1: oklch(0.19 0.055 250);
+--s2: oklch(0.228 0.057 250);
+--s3: oklch(0.125 0.05 250);
+--line: oklch(0.27 0.055 250);
+--text: oklch(0.955 0.01 250);
+--text-2: oklch(0.8 0.02 250);
+--muted: oklch(0.62 0.02 250);
+--crimson: oklch(0.84 0.12 195);
+--crimson-ink: oklch(0.15 0.03 195);
+--teal: oklch(0.8 0.07 300);
+--bloom: oklch(0.86 0.01 250);
+--cs: oklch(0.74 0.12 195);
+--maths: oklch(0.72 0.12 300);
+--it: oklch(0.72 0.12 45);
+--hero-tint: oklch(0.3 0.08 250);
+}
+
 }

@@ -113,10 +113,9 @@ step("canonical tokens exist and the legacy names are gone", async () => {
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
   if (themes.length !== 25) throw new Error("25 themes expected (23 paid + 2 free), got " + themes.length);
-  /* Graphite is the default and, until the light Dawn theme is designed,
-     the only theme: it paints :root with a dark colour scheme before any
-     script runs, so nothing flashes light. (The device-following Dawn/Dusk
-     pair of the rejected M3 spec is retired with it.) */
+  /* Graphite is the default: it paints :root with a dark colour scheme
+     before any script runs, so nothing flashes light. Dawn (frame 21a) is
+     chosen, or followed from the device, by the Governor at boot. */
   if (!pending("tokens", "Graphite paints :root before scripts run")) {
     const tokens = layerCss("tokens").replace(/\/\*[\s\S]*?\*\//g, "");
     const root = /:root \{([^}]*)\}/.exec(tokens);
@@ -332,13 +331,52 @@ step("prescriptive recovery dispatch appears full-width when HP is strained", as
   g.hp = hp0;
   KOS.store.save();
 });
-step("shop cards carry swatch previews for every theme", async () => {
+step("every theme card is a live miniature in its own tokens, with the four-colour swatch", async () => {
   KOS.show("governor", "shop", { _nav: true });
   await tick(60);
   const main = document.getElementById("main");
-  const sw = main.querySelectorAll("[data-ui~='shop.swatch']");
-  if (sw.length < 23) throw new Error(">=23 swatch rows expected (themes + banners), got " + sw.length);
-  if (sw[0].querySelectorAll("[data-ui~='shop.sw-dot']").length !== 3) throw new Error("3 dots per theme");
+  /* frame 21h: the preview carries data-theme, so css/themes.css draws it
+     with that theme's tokens; the swatch is ground, tint, accent, second */
+  const cards = [...main.querySelectorAll("[data-ui~='shop.card'][data-kind='theme']")];
+  if (cards.length !== 25) throw new Error("25 theme cards expected, got " + cards.length);
+  for (const c of cards) {
+    const mini = c.querySelector("[data-ui~='shop.theme-mini']");
+    if (!mini || !mini.getAttribute("data-theme")) throw new Error("a theme card without its live miniature");
+    const dots = [...c.querySelectorAll("[data-ui~='shop.swatch'] [data-ui~='shop.sw-dot']")].map(d => d.dataset.n);
+    if (dots.join() !== "bg,tint,accent,second") throw new Error("swatch: " + dots.join());
+  }
+});
+step("Try on previews a theme without saving it, and ends when the shop is left", async () => {
+  const g = KOS.store.state.governor;
+  g.theme = "kurenai"; g.themeFollow = false;
+  KOS.show("governor", "shop", { _nav: true });
+  await tick(60);
+  const card = [...document.querySelectorAll("[data-ui~='shop.card'][data-kind='theme']")].find(c => /Rain Café/.test(c.getAttribute("aria-label")));
+  card.querySelector("[data-ui~='shop.try-on']").click();
+  await tick(30);
+  if (document.documentElement.dataset.theme !== "rain-cafe") throw new Error("try-on not applied: " + document.documentElement.dataset.theme);
+  if (g.theme !== "kurenai") throw new Error("try-on must not choose the theme");
+  if (KOS.governor.owns("theme-rain-cafe")) throw new Error("try-on must not buy");
+  KOS.show("home", undefined, { _nav: true });
+  await tick(30);
+  if (document.documentElement.dataset.theme !== "") throw new Error("try-on outlived the shop: " + document.documentElement.dataset.theme);
+});
+step("Follow the system: Dawn while the device is light, the dark choice while it is dark", async () => {
+  const g = KOS.store.state.governor;
+  const mm = window.matchMedia;
+  let light = true;
+  window.matchMedia = q => ({ matches: /light/.test(q) ? light : !light, addEventListener() {}, addListener() {} });
+  try {
+    g.theme = "sakura-skyline";
+    KOS.governor.setThemeFollow(true);
+    if (document.documentElement.dataset.theme !== "atelier-dawn") throw new Error("light device: " + document.documentElement.dataset.theme);
+    light = false; KOS.governor.applyCosmetics();
+    if (document.documentElement.dataset.theme !== "sakura-skyline") throw new Error("dark device: " + document.documentElement.dataset.theme);
+    g.theme = "atelier-dawn"; KOS.governor.applyCosmetics();
+    if (document.documentElement.dataset.theme !== "") throw new Error("Dawn chosen, dark device renders Graphite: " + document.documentElement.dataset.theme);
+    KOS.governor.setThemeFollow(false);
+    if (document.documentElement.dataset.theme !== "atelier-dawn") throw new Error("follow off: the choice again");
+  } finally { window.matchMedia = mm; g.theme = "kurenai"; g.themeFollow = false; KOS.governor.applyCosmetics(); }
 });
 
 /* ============ 6 · Governor v5 — the Seat rebuilt ============

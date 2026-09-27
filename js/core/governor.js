@@ -290,8 +290,8 @@
        left a user whose device is in dark mode with a bright parchment app
        and no way out but grinding. price 0 => owns() is true without buying,
        and an unset theme follows prefers-color-scheme in CSS. */
-    { id: "theme-atelier-dawn", kind: "theme", name: "Atelier Dawn", price: 0, desc: "The house light: warm parchment, sepia ink, dusk iris and brass.", theme: "atelier-dawn", sw: ["#5D6BA8", "#A97F2F", "#7D9B76"] },
-    { id: "theme-atelier-dusk", kind: "theme", name: "Atelier Dusk", price: 0, desc: "The same room after dark: warm ink ground, the same three accents lifted.", theme: "atelier-dusk", sw: ["#8E9BD8", "#D8AC5A", "#9DBE95"] },
+    { id: "theme-atelier-dawn", kind: "theme", name: "Atelier Dawn", price: 0, desc: "Graphite's light twin: warm paper, near-white cards, the same accents darkened for daylight.", theme: "atelier-dawn", sw: ["#5D6BA8", "#A97F2F", "#7D9B76"] },
+    { id: "theme-atelier-dusk", kind: "theme", name: "Atelier Dusk", price: 0, desc: "Graphite, the default: a graphite ground, flat cards and one crimson accent.", theme: "atelier-dusk", sw: ["#8E9BD8", "#D8AC5A", "#9DBE95"] },
     { id: "theme-spectral-rose", kind: "theme", name: "Spectral Rose", price: 140, desc: "Blue-black lacquer, wine red, cyan rim-light and ember orange.", theme: "spectral-rose", sw: ["#D82D57", "#22D7E8", "#FF8A3D"] },
     { id: "theme-verdigris-duel", kind: "theme", name: "Verdigris Duel", price: 140, desc: "Charcoal, oxidised teal, fog white and restrained rust.", theme: "verdigris-duel", sw: ["#6F9E98", "#DDEBE7", "#A65E58"] },
     { id: "theme-sakura-skyline", kind: "theme", name: "Sakura Skyline", price: 140, desc: "Deep indigo city-night with periwinkle, electric blue and sakura pink.", theme: "sakura-skyline", sw: ["#9B8DFF", "#55C7FF", "#F052B7"] },
@@ -544,21 +544,52 @@
   }
 
   /* ================= cosmetics application ================= */
+  /* the theme on screen (frame 21h). Three sources, in order: a shop
+     "Try on" (transient: it ends when the shop is left, never saved), then
+     "Follow the system" (Atelier Dawn while the device is light, the chosen
+     theme — or Graphite, if Dawn is the choice — while it is dark), then
+     the chosen theme. The choice and the follow flag live in the Governor
+     record, so they sync to every device; the try-on is this page only. */
+  var tryOn = null, schemeWatch = null;
+  function knownTheme(id) { return CATALOG.some(function (c) { return c.kind === "theme" && c.theme === id; }); }
+  function systemLight() {
+    try { return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches); } catch (e) { return false; }
+  }
+  function effectiveTheme() {
+    var g = G();
+    if (tryOn && knownTheme(tryOn)) return tryOn;
+    var chosen = (g.theme === "kurenai" || !knownTheme(g.theme)) ? "" : g.theme;
+    if (g.themeFollow) {
+      if (systemLight()) return "atelier-dawn";
+      return chosen === "atelier-dawn" ? "" : chosen;
+    }
+    return chosen;
+  }
   function applyCosmetics() {
     var g = G();
     /* unknown/retired theme ids (the old kin/shinku/aoi/sumi) render as the
-       Linear Void default rather than a half-themed page */
-    var known = CATALOG.some(function (c) { return c.kind === "theme" && c.theme === g.theme; });
-    /* the attribute must live on <html>: derived tokens (--wash-*,
-       --selection, …) are computed at :root, so canonical overrides must
-       land there too */
-    var tid = (g.theme === "kurenai" || !known) ? "" : g.theme;
+       default rather than a half-themed page; the attribute must live on
+       <html>: derived tokens are computed at :root, so the theme's role
+       overrides must land there too */
+    var tid = effectiveTheme();
+    if (g.themeFollow && !schemeWatch && window.matchMedia) {
+      try {
+        schemeWatch = window.matchMedia("(prefers-color-scheme: light)");
+        (schemeWatch.addEventListener ? schemeWatch.addEventListener.bind(schemeWatch, "change") : schemeWatch.addListener.bind(schemeWatch))(applyCosmetics);
+      } catch (e) { schemeWatch = null; }
+    }
     document.documentElement.dataset.theme = tid;
     document.body.dataset.theme = tid;   /* legacy hook, harmless */
     var mark = document.querySelector("#topbar [data-ui~='shell.brand'] [data-ui~='shell.brand-mark']");
     if (mark) mark.textContent = SEAL_GLYPHS[g.seal] || "紅";
   }
-  function setTheme(themeId) { G().theme = themeId; store.save(); applyCosmetics(); }
+  function setTheme(themeId) { tryOn = null; G().theme = themeId; store.save(); applyCosmetics(); }
+  function setThemeFollow(on) { G().themeFollow = !!on; store.save(); applyCosmetics(); }
+  function themeFollow() { return !!G().themeFollow; }
+  /* "Try on" (21h): preview a theme across the whole app without buying or
+     choosing it; null ends it. KOS.show ends it when the shop is left. */
+  function tryTheme(id) { tryOn = id && knownTheme(id) ? id : null; applyCosmetics(); }
+  function triedTheme() { return tryOn; }
   function setSeal(sealId) { G().seal = sealId; store.save(); applyCosmetics(); }
   /* Collection Matrix cosmetics (3j): the id is read at render time by
      books.js (Physical-tab shelf) and shrine.js — null = the default look */
@@ -940,6 +971,11 @@
     editAvatar: editAvatar,
     applyCosmetics: applyCosmetics,
     setTheme: setTheme,
+    setThemeFollow: setThemeFollow,
+    themeFollow: themeFollow,
+    tryTheme: tryTheme,
+    triedTheme: triedTheme,
+    effectiveTheme: effectiveTheme,
     setSeal: setSeal,
     setShelfSkin: setShelfSkin,
     setShrineStyle: setShrineStyle,

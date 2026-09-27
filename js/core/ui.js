@@ -900,6 +900,10 @@
     if (KOS.edits && KOS.edits.fileQuickNotes) {
       KOS.edits.fileQuickNotes(viewId === "ref" && arg && arg.subject ? arg.subject + ":" + arg.ref : null);
     }
+    /* a shop "Try on" lasts only while the shop is on screen (frame 21h) */
+    if (KOS.governor && KOS.governor.triedTheme && KOS.governor.triedTheme() && !(viewId === "governor" && arg === "shop")) {
+      KOS.governor.tryTheme(null);
+    }
     /* a fresh navigation (not Back/Forward) records history and abandons any
        forward trail — exactly like a browser address bar */
     if (navCur && !opts._nav) {

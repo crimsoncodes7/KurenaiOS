@@ -9,11 +9,14 @@
    the current place. Colours are oklch, as the design specifies; a script
    that needs a plain rgb() resolves them through a canvas (KOS.labPalette).
 
-   THEMES. Graphite is the default and the only designed theme. A light
-   "Dawn" theme is planned; until it is designed, every theme id —
-   atelier-dawn, atelier-dusk and the shop themes — renders Graphite
-   (unknown ids fall back to the default, invariant 26b). css/themes.css
-   will override the colour roles below, and nothing else.
+   THEMES (design part 2, frames 21a–21h). Graphite (= Atelier Dusk) is
+   the default; Atelier Dawn is its light twin and the 23 shop themes are
+   dark variants. css/themes.css overrides the colour ROLES below and
+   nothing else: every derived token in the second block is written
+   relative to a role (oklch(from var(--crimson) …)), so a theme re-tints
+   it without restating it, and the offsets reproduce Graphite's values
+   exactly. Only Dawn, whose lightness runs the other way, restates the
+   few derived tokens that are bound to a dark ground.
 
    THE FIVE BREAKPOINTS (invariant 47) — the only widths a media query may
    use, written widest-first (invariant 48):
@@ -48,25 +51,18 @@ color-scheme: dark;
 
 --crimson: oklch(0.68 0.16 18);
 --crimson-ink: oklch(0.16 0.02 18);
---crimson-hi: oklch(0.74 0.15 18);
---crimson-lo: oklch(0.56 0.16 18);
---crimson-glow: oklch(0.5 0.16 18 / 0.25);
---crimson-soft: oklch(0.82 0.06 18);
---red-soft: oklch(0.8 0.08 22);
 --teal: oklch(0.74 0.11 190);
 --amber: oklch(0.8 0.12 80);
 --green: oklch(0.72 0.13 150);
 --red: oklch(0.66 0.17 22);
 /* R/A/G read as a verdict, so they run deeper than the tones (review A) */
 --rag-r: oklch(0.62 0.21 25);
-/* the one critical wash (9a's overdue queue): overdue, Critical, late */
---crit-wash: linear-gradient(120deg, oklch(0.26 0.05 18), var(--s1) 60%);
 --rag-a: oklch(0.76 0.16 68);
 --rag-g: oklch(0.68 0.17 150);
 --gold: oklch(0.84 0.11 85);
 --bloom: oklch(0.8 0.08 350);
---bloom-hi: oklch(0.84 0.08 350);
---bloom-lo: oklch(0.66 0.1 350);
+/* the heroes' ground (Home, the Governor): each theme sets its own */
+--hero-tint: oklch(0.2 0.03 235);
 
 /* the three subject hues (invariant 26) and the four media */
 --cs: oklch(0.74 0.11 190);
@@ -279,16 +275,6 @@ color-scheme: dark;
 --perm-count-w: 64px;
 --perm-tier-w: 34px;
 --fx-dock-h: 52px;
---home-hero-bg: oklch(0.2 0.03 235);
---home-hero-scrim: linear-gradient(90deg, oklch(0.2 0.035 235 / 0.8) 0%, oklch(0.2 0.035 235 / 0.55) 30%, oklch(0.2 0.035 235 / 0.12) 54%, transparent 64%, oklch(0.17 0.02 235 / 0.5) 78%, oklch(0.17 0.02 235 / 0.7) 100%);
---home-hero-ink: oklch(0.8 0.05 235);
---home-crit-bg: oklch(0.21 0.045 18);
---home-crit-scrim: linear-gradient(90deg, oklch(0.21 0.06 18 / 0.85) 0%, oklch(0.21 0.06 18 / 0.6) 30%, oklch(0.21 0.06 18 / 0.18) 54%, transparent 64%, oklch(0.17 0.04 18 / 0.55) 78%, oklch(0.17 0.04 18 / 0.75) 100%);
---home-crit-ink: oklch(0.8 0.08 18);
---home-crit-track: oklch(0.32 0.05 18);
---home-goal-ink: oklch(0.82 0.04 200);
---home-ring-track: oklch(0.32 0.03 235);
---home-xp-track: oklch(0.3 0.02 235);
 --home-avatar-ring: 104px;
 --home-avatar: 94px;
 --home-goal-w: 250px;
@@ -306,7 +292,6 @@ color-scheme: dark;
 --ring-1-5: 1.5px;
 --kv-k-w: 62px;
 --desk-k-w: 58px;
---collection-hue: oklch(0.7 0.14 18);
 
 /* ---------- Study (frames 8a–9e) ---------- */
 --subj-side-w: 290px;
@@ -332,13 +317,11 @@ color-scheme: dark;
 --spec-cols: 150px;
 --dot-wide: 22px;
 --dot-narrow: 8px;
---code-bg: oklch(0.14 0.008 265);
 --syn-kw: oklch(0.76 0.13 320);
 --syn-fn: oklch(0.8 0.1 240);
 --syn-op: oklch(0.82 0.08 200);
 --syn-num: oklch(0.82 0.12 60);
 --syn-str: oklch(0.8 0.12 140);
---syn-com: oklch(0.55 0.02 265);
 --syn-self: oklch(0.78 0.1 20);
 --kv-key-w: 150px;
 --wk-label-w: 84px;
@@ -394,12 +377,6 @@ color-scheme: dark;
 --fs-58: 58px;
 --fs-96: 96px;
 --track-clock: -0.05em;
---fx-wash: oklch(0.25 0.04 18);
---fx-stage-glow: oklch(0.23 0.05 18);
---fx-stage-track: oklch(0.26 0.02 18);
---fx-stage-well: oklch(0.18 0.015 18);
---fx-stage-seg: oklch(0.28 0.02 18);
---fx-note-fill: oklch(1 0 0 / 0.06);
 --rem-side-w: 200px;
 --rem-insp-w: 320px;
 --rem-check: 20px;
@@ -431,7 +408,6 @@ color-scheme: dark;
 --pace-braid-title-w: 180px;
 --pace-merge-ref-w: 90px;
 --pace-merge-tone-w: 170px;
---pace-wash: oklch(0.27 0.05 80 / 0.55);
 
 /* ---------- Collection (frames 11a–11k) ---------- */
 --st-inProgress: var(--anime);
@@ -467,15 +443,6 @@ color-scheme: dark;
 --medit-cover-w: 120px;
 --medit-cover-w-sm: 84px;
 --medit-wash-cut: 40%;
---mcard-scrim: oklch(0.12 0.01 265 / 0.78);
---mcard-scrim-deep: oklch(0.1 0.01 265 / 0.95);
---mcard-glass: oklch(0.14 0.01 265 / 0.7);
---mcard-edge: oklch(1 0 0 / 0.08);
---mcard-track: oklch(1 0 0 / 0.1);
---vhero-scrim-0: oklch(0.165 0.008 265 / 0.92);
---vhero-scrim-1: oklch(0.165 0.008 265 / 0.78);
---vhero-scrim-2: oklch(0.165 0.008 265 / 0.3);
---vhero-scrim-3: oklch(0.165 0.008 265 / 0.1);
 --airing-bg: oklch(0.35 0.07 155 / 0.85);
 --airing-edge: oklch(0.72 0.13 155 / 0.6);
 --airing-ink: oklch(0.9 0.08 155);
@@ -504,12 +471,10 @@ color-scheme: dark;
 --mx-stand-name-w: 110px;
 --mx-stand-h: 8px;
 --mx-door-mark: 64px;
---mx-wash: oklch(0.26 0.05 18);
 /* the Shrine (frame 11g) */
 --shr-gold: var(--gold);
 --shr-gold-ink: oklch(0.2 0.03 70);
 --shr-scrim: oklch(0.13 0.02 60);
---shr-silver: oklch(0.8 0.02 265);
 --shr-bronze: oklch(0.78 0.08 60);
 --shr-pod-h: 232px;
 --shr-pod-medal: 86px;
@@ -561,18 +526,10 @@ color-scheme: dark;
 --fs-34: 34px;
 --gv-side-w: 300px;
 --gv-hero-h: 300px;
---gv-hero-bg: oklch(0.22 0.03 260);
---gv-hero-scrim: linear-gradient(90deg, oklch(0.16 0.02 260 / 0.72) 18%, oklch(0.16 0.02 260 / 0.22) 60%, transparent);
---gv-rank-ink: oklch(0.82 0.05 250);
---gv-glass: oklch(0.14 0.01 265 / 0.72);
---gv-xp-track: oklch(1 0 0 / 0.12);
 --gv-xp-w: 240px;
 --gv-about-w: 440px;
 --gv-seal-badge: 34px;
 --gv-rec-w: 400px;
---gv-rec-bg: linear-gradient(120deg, oklch(0.27 0.06 18), var(--s1) 60%);
---gv-rec-bg-strained: linear-gradient(120deg, oklch(0.28 0.06 80 / 0.7), var(--s1) 60%);
---gv-bal-bg: linear-gradient(120deg, oklch(0.28 0.06 80 / 0.55), var(--s1) 60%);
 --gv-buy: linear-gradient(oklch(0.84 0.12 85), oklch(0.74 0.12 75));
 --gv-buy-ink: oklch(0.22 0.04 70);
 --gv-rail-w: 200px;
@@ -583,6 +540,8 @@ color-scheme: dark;
 --gv-entry-w: 330px;
 --gv-row-time: 50px;
 --gv-row-chip: 92px;
+--gv-theme-min: 170px;
+--gv-theme-pv-h: 84px;
 /* ---------- Assistant (frames 13a–13f) ---------- */
 --asst-nav-w: 236px;
 --asst-presence-w: 300px;
@@ -597,11 +556,7 @@ color-scheme: dark;
 --asst-drawer-w: 440px;
 --asst-drawer-h: 760px;
 --asst-drawer-stage: 360px;
---asst-confirm-bg: linear-gradient(150deg, oklch(0.27 0.05 80 / 0.45), var(--s1) 60%);
 --asst-go-ink: oklch(0.22 0.04 70);
---asst-note-bg: oklch(0.14 0.01 265 / 0.82);
---asst-id-ink: oklch(0.5 0.012 265);
---asst-scrim: oklch(0.1 0.01 265 / 0.45);
 --asst-route-k-w: 200px;
 --asst-perm-tier-w: 130px;
 --asst-perm-sel-w: 190px;
@@ -614,8 +569,6 @@ color-scheme: dark;
 
 /* ---------- Archive (frames 14a–14c) and the Compare dialog ---------- */
 --bk-side-w: 400px;
---bk-hero-bg: linear-gradient(130deg, oklch(0.25 0.035 18), var(--s1) 55%);
---bk-kicker-ink: oklch(0.82 0.06 18);
 --bk-tile: 30px;
 --bk-reset-mark: 44px;
 --nt-side-w: 300px;
@@ -661,20 +614,7 @@ color-scheme: dark;
 --card-faint: oklch(0.62 0.01 265);
 --card-shadow: oklch(0.05 0.01 265 / 0.6);
 
-/* ---------- elevation (invariant 79) ----------
-   Surfaces are flat; only floating layers (menus, dialogs, the share card)
-   cast a shadow. Its ink is derived from the theme's own deepest tone. */
---shadow-base: oklch(0.1 0.01 265);
---shadow-ink: color-mix(in oklch, var(--shadow-base) 72%, transparent);
---elev-0: none;
---elev-1: 0 1px 2px var(--shadow-ink);
---elev-2: 0 8px 24px -6px var(--shadow-ink);
---elev-3: 0 20px 50px var(--shadow-ink);
---elev-4: 0 30px 70px var(--shadow-ink);
-/* text over a lightly scrimmed hero picture */
---hero-text-shadow: 0 1px 3px var(--shadow-ink);
-/* the lit rail tile's glow */
---tile-lift: 0 1px 2px var(--shadow-ink), 0 4px 14px var(--crimson-glow);
+/* ---------- elevation (invariant 79): in the derived block below ---------- */
 
 /* ---------- stacking (invariant 70) ---------- */
 --z-base: 0;
@@ -703,10 +643,88 @@ color-scheme: dark;
 }
 
 /* ---------- derived tokens ----------
-   (The legacy bridge — the pre-rebuild names aliased for the JavaScript —
-   was retired at M14: every reader now uses the Graphite names.)
-   Re-declared on every [data-theme] too, so a scoped theme re-resolves. */
+   Every value here is written relative to a colour role, so a theme that
+   overrides the roles re-tints it; the offsets reproduce Graphite's values
+   exactly. Chroma scales (c * k) rather than subtracts, so a theme with a
+   quiet accent keeps a quiet tint instead of going grey. Re-declared on
+   every [data-theme] too, so a scoped theme (a shop card's live preview)
+   re-resolves. (The legacy bridge was retired at M14.) */
 :root, [data-theme] {
+/* the accent's steps */
+--crimson-hi: oklch(from var(--crimson) calc(l + 0.06) calc(c * 0.9375) h);
+--crimson-lo: oklch(from var(--crimson) calc(l - 0.12) c h);
+--crimson-glow: oklch(from var(--crimson) calc(l - 0.18) c h / 0.25);
+--crimson-soft: oklch(from var(--crimson) calc(l + 0.14) calc(c * 0.375) h);
+--red-soft: oklch(from var(--red) calc(l + 0.14) calc(c * 0.47) h);
+--bloom-hi: oklch(from var(--bloom) calc(l + 0.04) c h);
+--bloom-lo: oklch(from var(--bloom) calc(l - 0.14) calc(c * 1.25) h);
+--collection-hue: oklch(from var(--crimson) calc(l + 0.02) calc(c * 0.875) h);
+/* the accent's dark washes: overdue, Critical, late, the Focus stage */
+--crit-wash: linear-gradient(120deg, oklch(from var(--crimson) 0.26 calc(c * 0.3125) h), var(--s1) 60%);
+--home-crit-bg: oklch(from var(--crimson) 0.21 calc(c * 0.28) h);
+--home-crit-scrim: linear-gradient(90deg, oklch(from var(--crimson) 0.21 calc(c * 0.375) h / 0.85) 0%, oklch(from var(--crimson) 0.21 calc(c * 0.375) h / 0.6) 30%, oklch(from var(--crimson) 0.21 calc(c * 0.375) h / 0.18) 54%, transparent 64%, oklch(from var(--crimson) 0.17 calc(c * 0.25) h / 0.55) 78%, oklch(from var(--crimson) 0.17 calc(c * 0.25) h / 0.75) 100%);
+--home-crit-ink: oklch(from var(--crimson) 0.8 calc(c * 0.5) h);
+--home-crit-track: oklch(from var(--crimson) 0.32 calc(c * 0.3125) h);
+--fx-wash: oklch(from var(--crimson) 0.25 calc(c * 0.25) h);
+--fx-stage-glow: oklch(from var(--crimson) 0.23 calc(c * 0.3125) h);
+--fx-stage-track: oklch(from var(--crimson) 0.26 calc(c * 0.125) h);
+--fx-stage-well: oklch(from var(--crimson) 0.18 calc(c * 0.094) h);
+--fx-stage-seg: oklch(from var(--crimson) 0.28 calc(c * 0.125) h);
+--mx-wash: oklch(from var(--crimson) 0.26 calc(c * 0.3125) h);
+--gv-rec-bg: linear-gradient(120deg, oklch(from var(--crimson) 0.27 calc(c * 0.375) h), var(--s1) 60%);
+--bk-hero-bg: linear-gradient(130deg, oklch(from var(--crimson) 0.25 calc(c * 0.219) h), var(--s1) 55%);
+--bk-kicker-ink: var(--crimson-soft);
+/* the amber washes: behind on the plan, Strained, the balance, a proposal */
+--pace-wash: oklch(from var(--amber) 0.27 calc(c * 0.417) h / 0.55);
+--gv-rec-bg-strained: linear-gradient(120deg, oklch(from var(--amber) 0.28 calc(c * 0.5) h / 0.7), var(--s1) 60%);
+--gv-bal-bg: linear-gradient(120deg, oklch(from var(--amber) 0.28 calc(c * 0.5) h / 0.55), var(--s1) 60%);
+--asst-confirm-bg: linear-gradient(150deg, oklch(from var(--amber) 0.27 calc(c * 0.417) h / 0.45), var(--s1) 60%);
+/* the heroes (Home frame 7a, the Governor 12a) on the theme's hero tint */
+--home-hero-bg: var(--hero-tint);
+--home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.8) 0%, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.55) 30%, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.12) 54%, transparent 64%, oklch(from var(--hero-tint) calc(l - 0.03) calc(c - 0.01) h / 0.5) 78%, oklch(from var(--hero-tint) calc(l - 0.03) calc(c - 0.01) h / 0.7) 100%);
+--home-hero-ink: oklch(from var(--hero-tint) 0.8 calc(c + 0.02) h);
+--home-goal-ink: oklch(from var(--hero-tint) 0.82 calc(c + 0.01) calc(h - 35));
+--home-ring-track: oklch(from var(--hero-tint) calc(l + 0.12) c h);
+--home-xp-track: oklch(from var(--hero-tint) calc(l + 0.1) calc(c - 0.01) h);
+--gv-hero-bg: oklch(from var(--hero-tint) calc(l + 0.02) c calc(h + 25));
+--gv-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) calc(l - 0.04) calc(c - 0.01) calc(h + 25) / 0.72) 18%, oklch(from var(--hero-tint) calc(l - 0.04) calc(c - 0.01) calc(h + 25) / 0.22) 60%, transparent);
+--gv-rank-ink: oklch(from var(--hero-tint) 0.82 calc(c + 0.02) calc(h + 15));
+/* glass, scrims and overlays over the ground (covers, heroes, the stage) */
+--mcard-scrim: oklch(from var(--bg) calc(l - 0.045) calc(c + 0.002) h / 0.78);
+--mcard-scrim-deep: oklch(from var(--bg) calc(l - 0.065) calc(c + 0.002) h / 0.95);
+--mcard-glass: oklch(from var(--bg) calc(l - 0.025) calc(c + 0.002) h / 0.7);
+--gv-glass: oklch(from var(--bg) calc(l - 0.025) calc(c + 0.002) h / 0.72);
+--asst-note-bg: oklch(from var(--bg) calc(l - 0.025) calc(c + 0.002) h / 0.82);
+--asst-scrim: oklch(from var(--bg) calc(l - 0.065) calc(c + 0.002) h / 0.45);
+--vhero-scrim-0: oklch(from var(--bg) l c h / 0.92);
+--vhero-scrim-1: oklch(from var(--bg) l c h / 0.78);
+--vhero-scrim-2: oklch(from var(--bg) l c h / 0.3);
+--vhero-scrim-3: oklch(from var(--bg) l c h / 0.1);
+/* the text colour, faintly: tracks, edges and watermarks on any ground */
+--fx-note-fill: oklch(from var(--text) l c h / 0.06);
+--mcard-edge: oklch(from var(--text) l c h / 0.08);
+--mcard-track: oklch(from var(--text) l c h / 0.1);
+--gv-xp-track: oklch(from var(--text) l c h / 0.12);
+--kanji-watermark: oklch(from var(--text) l c h / 0.05);
+/* quieter inks */
+--asst-id-ink: oklch(from var(--muted) calc(l - 0.12) c h);
+--syn-com: oklch(from var(--muted) calc(l - 0.07) calc(c + 0.008) h);
+--shr-silver: oklch(from var(--text-2) calc(l + 0.02) calc(c + 0.01) h);
+--code-bg: var(--s3);
+/* elevation (invariant 79): surfaces are flat; only floating layers (menus,
+   dialogs, the share card) cast a shadow, inked from the theme's own
+   deepest tone */
+--shadow-base: oklch(from var(--bg) calc(l - 0.065) calc(c + 0.002) h);
+--shadow-ink: color-mix(in oklch, var(--shadow-base) 72%, transparent);
+--elev-0: none;
+--elev-1: 0 1px 2px var(--shadow-ink);
+--elev-2: 0 8px 24px -6px var(--shadow-ink);
+--elev-3: 0 20px 50px var(--shadow-ink);
+--elev-4: 0 30px 70px var(--shadow-ink);
+/* text over a lightly scrimmed hero picture */
+--hero-text-shadow: 0 1px 3px var(--shadow-ink);
+/* the lit rail tile's glow */
+--tile-lift: 0 1px 2px var(--shadow-ink), 0 4px 14px var(--crimson-glow);
 /* a chip's wash: an accent at ~18% over whatever sits behind it */
 --wash-crimson: color-mix(in oklch, var(--crimson) 18%, transparent);
 --wash-teal: color-mix(in oklch, var(--teal) 16%, transparent);
@@ -716,7 +734,6 @@ color-scheme: dark;
 --wash-bloom: color-mix(in oklch, var(--bloom) 18%, transparent);
 --hover: var(--s2);
 --selection: color-mix(in oklch, var(--crimson) 32%, transparent);
---kanji-watermark: oklch(1 0 0 / 0.05);
 
 }
 
