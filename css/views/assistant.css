@@ -375,9 +375,11 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 .k-asst-drawer .k-asst-row { max-inline-size: 100%; }
 .k-asst-drawer .k-asst-you { max-inline-size: 85%; }
 /* empty, she stands in the drawer at full height */
-.k-asst-drawer[data-state~="is-empty"] .k-asst-drawer-stage { flex: 1 1 auto; flex-direction: column; justify-content: flex-end; padding: var(--sp-10) 0 0; border: 0; }
-.k-asst-drawer[data-state~="is-empty"] .k-asst-mascot { flex-direction: column; }
-.k-asst-drawer[data-state~="is-empty"] .k-asst-mascot-frame { inline-size: auto; block-size: min(var(--asst-drawer-stage), 45dvh); aspect-ratio: 2 / 3; border-radius: 0; }
+/* …as tall as the drawer has room for: the stage gives way first, so the
+   composer is never pushed out of a short drawer (a phone) */
+.k-asst-drawer[data-state~="is-empty"] .k-asst-drawer-stage { flex: 1 1 0; min-block-size: 0; overflow: hidden; flex-direction: column; justify-content: flex-end; padding: var(--sp-10) 0 0; border: 0; }
+.k-asst-drawer[data-state~="is-empty"] .k-asst-mascot { flex-direction: column; justify-content: flex-end; block-size: 100%; min-block-size: 0; }
+.k-asst-drawer[data-state~="is-empty"] .k-asst-mascot-frame { inline-size: auto; block-size: min(var(--asst-drawer-stage), 45dvh); max-block-size: 100%; aspect-ratio: 2 / 3; border-radius: 0; }
 .k-asst-drawer[data-state~="is-empty"] .k-asst-status { display: none; }
 .k-asst-drawer[data-state~="is-empty"] .k-asst-chat, .k-asst-drawer[data-state~="is-empty"] .k-asst-thread { flex: none; }
 

@@ -25,7 +25,7 @@
 .k-home-streak { color: var(--teal); }
 .k-home-quote { display: block; padding: 0; background: none; box-shadow: none; font-size: var(--fs-13-5); font-style: italic; color: var(--text-2); text-align: start; border-radius: var(--r-6); }
 .k-home-quote:hover { color: var(--text); background: none; }
-.k-home-level { display: flex; align-items: center; gap: var(--sp-10); margin-block-start: var(--sp-16); font-size: var(--fs-12); color: var(--text-2); min-inline-size: 0; }
+.k-home-level { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6) var(--sp-10); margin-block-start: var(--sp-16); font-size: var(--fs-12); color: var(--text-2); min-inline-size: 0; }
 .k-home-level > * { flex: 0 0 auto; }
 .k-home-level b { color: var(--text); white-space: nowrap; }
 .k-home-level .k-bar { flex: 0 1 var(--home-xp-w); inline-size: auto; min-inline-size: var(--sp-40); --bar-h: var(--bar-6); background: var(--home-xp-track); --bar-c: var(--text); }
@@ -135,7 +135,7 @@ button.k-hours-fact:hover .k-hours-fact-v { color: var(--crimson); }
 
 /* the week's plan (KOS.pacingHomeCard) */
 .k-plan { padding: var(--sp-22) var(--sp-24); }
-.k-plan-head { display: flex; align-items: center; gap: var(--sp-12); margin-block-end: var(--sp-6); }
+.k-plan-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6) var(--sp-12); margin-block-end: var(--sp-6); }
 .k-plan-head .k-card-title { white-space: nowrap; }
 .k-plan-status { font-size: var(--fs-12); color: var(--teal); white-space: nowrap; }
 .k-plan-status[data-state~="behind"] { color: var(--amber); }
@@ -171,8 +171,9 @@ button.k-hours-fact:hover .k-hours-fact-v { color: var(--crimson); }
 .k-desk-open { display: block; max-inline-size: 100%; padding: 0; background: none; box-shadow: none; font-size: var(--fs-17); font-weight: var(--weight-semibold); letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: start; border-radius: var(--r-6); }
 .k-desk-open:hover { background: none; color: var(--desk-c); }
 .k-desk-open .k-kanji { color: var(--desk-c); margin-inline-end: var(--sp-6); }
-.k-desk-board { display: flex; align-items: center; gap: var(--sp-8); margin-block-start: var(--sp-4); font: var(--fs-11) var(--font-mono); color: var(--muted); white-space: nowrap; }
-.k-desk-board .k-chip { --chip-c: var(--desk-c); padding: var(--hairline) var(--sp-7); font-family: var(--font-mono); font-size: var(--fs-11); }
+.k-desk-board { display: flex; min-inline-size: 0; align-items: center; gap: var(--sp-8); margin-block-start: var(--sp-4); font: var(--fs-11) var(--font-mono); color: var(--muted); white-space: nowrap; }
+.k-desk-meta { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
+.k-desk-board .k-chip { flex: none; --chip-c: var(--desk-c); padding: var(--hairline) var(--sp-7); font-family: var(--font-mono); font-size: var(--fs-11); }
 .k-desk-ring { inline-size: var(--desk-ring); block-size: var(--desk-ring); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--desk-c) 0 var(--p, 0%), var(--s2) var(--p, 0%) 100%); }
 .k-desk-ring > span { inline-size: var(--desk-ring-hole); block-size: var(--desk-ring-hole); border-radius: 50%; background: var(--s1); display: grid; place-items: center; font: var(--weight-semibold) var(--fs-11-5) var(--font-mono); }
 .k-desk .k-bar { margin-block: var(--sp-14) var(--sp-6); --bar-c: var(--desk-c); }

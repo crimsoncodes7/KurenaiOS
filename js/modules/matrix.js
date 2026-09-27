@@ -142,7 +142,7 @@
             var prog = KOS.media.progressText(e);
             var bumpMode = mod.id === "anime" || mod.id === "books" ? "progress" : mod.id === "game" ? "hours" : null;
             var air = KOS.anime.airingInfo(e);
-            var art = el("span", { class: "k-mx-now-art" }, [
+            var art = el("span", { class: "k-mx-now-art", "data-ui": "coll.now-cover" }, [
               KOS.medview.cover(e, mod.kanji),
               el("span", { class: "k-mchip k-mx-now-kind", text: mod.id === "books" && e.format ? (KOS.media.FORMAT_LABEL[e.format] || mod.label) : mod.label }),
               bumpMode ? el("button", { type: "button", class: "k-mx-now-plus", "data-ui": "coll.now-plus", text: "+1 " + mod.unit,

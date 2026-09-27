@@ -29,7 +29,7 @@
 .k-pagehead-txt { flex: 1 1 0; min-inline-size: 0; }
 .k-pagehead h1 { margin-block: var(--sp-6) var(--sp-4); }
 .k-pagehead-sub { font-size: var(--fs-13-5); color: var(--text-2); }
-.k-pagehead-actions { display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap; justify-content: flex-end; }
+.k-pagehead-actions { display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap; justify-content: flex-end; min-inline-size: 0; max-inline-size: 100%; }
 
 /* ---------- section header (inside a page, above a group of cards) ---------- */
 .k-sectionhead { display: flex; align-items: baseline; gap: var(--sp-10); }
@@ -406,6 +406,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 /* ---------- the phone tier ---------- */
 @media (max-width: 700px) {
 .k-pagehead { flex-wrap: wrap; }
+.k-pagehead-txt { flex-basis: 100%; }
 .k-dialog-overlay { place-items: end stretch; padding: 0; }
 .k-dialog { inline-size: 100%; border-end-start-radius: 0; border-end-end-radius: 0; padding-block-end: calc(var(--sp-24) + env(safe-area-inset-bottom)); }
 #toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }

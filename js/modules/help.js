@@ -302,7 +302,7 @@
       hits.forEach(function (h) {
         results.appendChild(el("section", { class: "k-help-entry" }, [
           el("div", { class: "k-help-crumb", text: SECTIONS[h[0]][0] }),
-          el("h3", { class: "k-help-entry-h" }, [el("button", { type: "button", class: "k-help-hit", text: h[1][0], onclick: function () { go(h[0], h[1][0]); } })]),
+          el("h3", { class: "k-help-entry-h" }, [el("button", { type: "button", class: "k-help-hit", "data-ui": "help.hit", text: h[1][0], onclick: function () { go(h[0], h[1][0]); } })]),
           el("p", { text: h[1][1] })
         ]));
       });

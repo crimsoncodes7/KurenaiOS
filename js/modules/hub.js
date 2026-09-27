@@ -440,7 +440,7 @@
         sst.total ? el("span", { class: "k-bar k-spine-bar", "data-ui": "ui.section-bar", "aria-hidden": "true", style: "--p: " + sst.pct + "%" },
           [el("i", { "data-ui": "study.bar-fill" })]) : null,
         sst.total ? el("span", { class: "k-spine-pc", "data-ui": "part.percent", text: ratioText(sst.done, sst.total) }) : null,
-        el("span", { class: "k-spine-arr", "aria-hidden": "true" })
+        el("span", { class: "k-spine-arr", "data-ui": "part.arrow", "aria-hidden": "true" })
       ].filter(Boolean));
       KOS.ui.state(secEl, "open", !!open[sec.ref]);
       KOS.ui.state(secEl, "here", sec.ref === activeSection);
@@ -1081,7 +1081,7 @@
             el("h3", {}, [el("button", { type: "button", class: "k-desk-open", "data-ui": "home.desk-open", text: d.name,
               onclick: function () { KOS.show("subject", sid); } })]),
             el("div", { class: "k-desk-board" }, [
-              el("span", { text: d.board }),
+              el("span", { class: "k-desk-meta", text: d.board }),
               stks[sid] ? el("span", { class: "k-chip", "data-ui": "home.streak", title: stks[sid] + "-day study streak in this subject", text: "炎 " + stks[sid] }) : null
             ].filter(Boolean))
           ]),
@@ -1109,7 +1109,7 @@
     /* the Collection desk: the same component. Its figures come from a
        FULL-TABLE scan (mediadb.stats), so it fills in once the card is on
        screen rather than on Home's render pass (invariant 8) */
-    var medMeta = el("span", { "data-ui": "part.meta", text: "Anime · books · visual novels · games" });
+    var medMeta = el("span", { class: "k-desk-meta", "data-ui": "part.meta", text: "Anime · books · visual novels · games" });
     var medRing = el("span", { class: "k-desk-ring", "data-ui": "home.ring", role: "img", "aria-label": "Library completion", style: "--p: 0%" }, [el("span", { text: "—" })]);
     var medBar = el("div", { class: "k-bar", "data-ui": "media.bar", style: "--p: 0%" }, [el("i", { "data-ui": "media.bar-fill" })]);
     var medRows = el("div", {});
@@ -1245,7 +1245,7 @@
     var selA = picker(first < 0 ? 0 : first), selB = picker((first < 0 ? 0 : first) + 1);
     if (selB.selectedIndex < 0) selB.selectedIndex = 1;
     selA.setAttribute("aria-label", "Topic A"); selB.setAttribute("aria-label", "Topic B");
-    var mode = "overview", head = el("div", { class: "k-cmp-head" }), body = el("div", { class: "k-cmp-body" });
+    var mode = "overview", head = el("div", { class: "k-cmp-head", "data-ui": "study.compare-sticky-head" }), body = el("div", { class: "k-cmp-body", "data-ui": "study.compare-body" });
 
     function topic(value) {
       var cut = value.indexOf(":"), tsid = value.slice(0, cut), ref = value.slice(cut + 1);
@@ -1318,8 +1318,8 @@
     }
     function summaryCard(t, side) {
       var d = info(t);
-      return el("div", { class: "k-cmp-topic", "data-side": side }, [
-        el("span", { class: "k-cmp-code", text: (side === "a" ? "A · " : "B · ") + d.code }), el("b", { class: "k-cmp-title", text: d.title }), el("span", { class: "k-cmp-sub", text: d.subject + " · " + d.section }),
+      return el("div", { class: "k-cmp-topic", "data-ui": "study.compare-topic", "data-side": side }, [
+        el("span", { class: "k-cmp-code", text: (side === "a" ? "A · " : "B · ") + d.code }), el("b", { class: "k-cmp-title", text: d.title }), el("span", { class: "k-cmp-sub", "data-ui": "part.sub", text: d.subject + " · " + d.section }),
         el("div", { class: "k-cmp-metrics" }, [
           el("span", { text: d.status + " · " + d.pct + "% complete" }), el("span", { text: d.confidence + " confidence" }),
           el("span", { text: d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })
@@ -1330,10 +1330,10 @@
       return el("div", { class: "k-cmp-cell" }, [el("span", { class: "k-kicker", text: title })].concat(items && items.length ? items : [el("p", { class: "k-cmp-empty", text: empty || "No matching content." })]));
     }
     function details(title, a, b, render, open) {
-      var attrs = { class: "k-cmp-row" };
+      var attrs = { class: "k-cmp-row", "data-ui": "study.compare-row" };
       if (open !== false) attrs.open = true;
       var d = el("details", attrs, [el("summary", { text: title })]);
-      var cells = el("div", { class: "k-cmp-cells" }, [render(a, "Topic A"), render(b, "Topic B")]);
+      var cells = el("div", { class: "k-cmp-cells", "data-ui": "study.compare-row-cells" }, [render(a, "Topic A"), render(b, "Topic B")]);
       d.appendChild(cells); return d;
     }
     function renderRows(a, b) {
@@ -1359,7 +1359,7 @@
           var title = "Notes · " + (pa ? pa.title : "No matching section") + " / " + (pb ? pb.title : "No matching section");
           body.appendChild(details(title, pa, pb, function (p, label) {
             if (!p) return column(label, [], "This topic has no matching note section.");
-            var art = el("article", { class: "k-prose k-notes k-cmp-notes", html: KOS.content.renderBlocks(p.blocks) });
+            var art = el("article", { class: "k-prose k-notes k-cmp-notes", "data-ui": "study.compare-notes", html: KOS.content.renderBlocks(p.blocks) });
             KOS.content.typeset(art); return column(label + " · " + p.title, [art], "No notes.");
           }, index === 0));
         })(pagesA[page], pagesB[page], page);
@@ -1386,9 +1386,9 @@
       var study = store.state.study = store.state.study || {};
       var notes = study.compareNotes = study.compareNotes || {};
       var noteOverlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === noteOverlay) noteOverlay.remove(); } });
-      var ta = el("textarea", { class: "k-input k-cmp-note-in", rows: "6", "aria-label": "Comparison note", placeholder: "Capture the distinction, shared rule, or question to revisit…" });
+      var ta = el("textarea", { class: "k-input k-cmp-note-in", "data-ui": "ui.note-area", rows: "6", "aria-label": "Comparison note", placeholder: "Capture the distinction, shared rule, or question to revisit…" });
       ta.value = notes[key] || "";
-      noteOverlay.appendChild(el("div", { class: "k-dialog k-cmp-note", "data-ui": "ui.dialog" }, [
+      noteOverlay.appendChild(el("div", { class: "k-dialog k-cmp-note", "data-ui": "ui.dialog study.compare-note-dialog" }, [
         el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("b", { class: "k-dialog-title", text: "Comparison note" }),
           el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { noteOverlay.remove(); } })]),
         el("div", { class: "k-dialog-body" }, [el("p", { class: "k-cmp-empty", text: "Saved with this pair of topics and included in the normal backup." }), ta]),
@@ -1411,20 +1411,23 @@
         update();
       } };
     }), { variant: "workspace", label: "Compare by", className: "k-cmp-tabs" });
+    modeBar.setAttribute("data-ui", modeBar.getAttribute("data-ui") + " study.compare-tabs");
 
     overlay.appendChild(el("div", { class: "k-dialog k-cmp", "data-ui": "ui.dialog study.compare-dialog" }, [
       el("div", { class: "k-dialog-head k-cmp-top", "data-ui": "ui.dialog-head" }, [
         el("div", { class: "k-cmp-intro" }, [el("b", { class: "k-dialog-title", text: "Compare topics" }), el("span", { class: "k-cmp-sub", text: "Line up the syllabus, evidence and exam focus." })]),
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: close })
       ]),
-      el("div", { class: "k-cmp-picks" }, [selA, swap, selB]),
+      el("div", { class: "k-cmp-picks", "data-ui": "study.compare-selectors" }, [selA, swap, selB]),
       head, modeBar, body,
-      el("div", { class: "k-dialog-foot k-cmp-foot" }, [
+      el("div", { class: "k-dialog-foot k-cmp-foot", "data-ui": "study.compare-actions" }, [
+        /* the note is the pair's own action, so it stands apart on the left
+           (the shared footer rule); the four topic actions group on the right */
+        el("button", { type: "button", class: "k-btn", text: "✎ Comparison note", onclick: comparisonNote }),
         el("button", { type: "button", class: "k-btn", text: "Open Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
         el("button", { type: "button", class: "k-btn", text: "Open Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
         el("button", { type: "button", class: "k-btn", text: "◉ Focus Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
-        el("button", { type: "button", class: "k-btn", text: "◉ Focus Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
-        el("button", { type: "button", class: "k-btn", text: "✎ Comparison note", onclick: comparisonNote })
+        el("button", { type: "button", class: "k-btn", text: "◉ Focus Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } })
       ])
     ]));
     KOS.ui.openDialog(overlay);

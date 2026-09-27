@@ -272,7 +272,7 @@
 .k-season-btn[hidden] { display: none; }
 .k-season-credit { font-size: var(--fs-11-5); color: var(--muted); }
 .k-season-yr { inline-size: 6rem; }
-.k-season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: var(--sp-16); }
+.k-season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr)); gap: var(--sp-16); }
 .k-season-grid > .k-empty { grid-column: 1 / -1; }
 .k-scard { display: flex; gap: var(--sp-14); padding: var(--sp-14); border-radius: var(--r-24); background: var(--s1); cursor: pointer; }
 .k-scard:hover { background: var(--s2); }
@@ -475,7 +475,7 @@
 .k-mx-ep-cover > .k-mcover { position: absolute; inset: 0; }
 .k-mx-ep-cover .k-mcover-ph { font-size: var(--fs-14); }
 .k-mx-ep-count { flex: 0 0 var(--mx-ep-count-w); font-size: var(--fs-12-5); font-weight: var(--weight-semibold); color: var(--anime); white-space: nowrap; text-align: end; }
-.k-mx-key { display: flex; gap: var(--sp-12); margin-inline-start: auto; font-size: var(--fs-11); color: var(--muted); }
+.k-mx-key { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-4) var(--sp-12); margin-inline-start: auto; font-size: var(--fs-11); color: var(--muted); }
 .k-mx-key > span { display: inline-flex; align-items: center; gap: var(--sp-4); }
 .k-mx-key i { inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: var(--r-2); background: var(--st); }
 .k-mx-stand-row { display: grid; grid-template-columns: var(--mx-stand-name-w) minmax(0, 1fr) 3.5rem; gap: var(--sp-14); align-items: center; padding-block: var(--sp-9); border-block-start: var(--hairline) solid var(--line); }
@@ -724,7 +724,7 @@
 .k-gl-figs .k-mx-fig dd { font-size: var(--fs-26); }
 .k-gl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); }
 .k-gl-integrity { flex: 1 1 auto; font-size: var(--fs-12); text-align: end; }
-.k-gl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr)); gap: var(--sp-14); }
+.k-gl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr)); gap: var(--sp-14); }
 .k-gl-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-6) var(--sp-14); padding: var(--sp-18) var(--sp-20); border-radius: var(--r-24); background: var(--s1); --bar-c: var(--crimson); }
 .k-gl-card[data-status="completed"] { --bar-c: var(--green); }
 .k-gl-card[data-status="failed"] { --bar-c: var(--muted); }
@@ -940,7 +940,9 @@
 :root[data-shell="ready"] .k-mlayout-grid > .k-mrail { display: none; }
 .k-vhero { block-size: auto; min-block-size: var(--vhero-h); }
 .k-vhero-cover { inline-size: calc(var(--vhero-cover-w) * 0.7); block-size: calc(var(--vhero-cover-h) * 0.7); }
-.k-mtoolbar { justify-content: flex-start; flex-wrap: wrap; }
+/* the toolbar takes its own line under the count, so its controls are never
+   squeezed into the column beside it */
+.k-mtoolbar { flex-basis: 100%; justify-content: flex-start; flex-wrap: wrap; }
 .k-mcontrols { flex-wrap: wrap; }
 .k-msearch { max-inline-size: none; }
 }

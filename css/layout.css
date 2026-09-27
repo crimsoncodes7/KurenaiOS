@@ -303,6 +303,10 @@ overflow-y: auto;
 .k-rail-item { padding: var(--sp-4) 0; }
 .k-rail-item::before { inset-inline-start: calc(var(--sp-20) * -1); }
 .k-rail-label, .k-rail-count { position: absolute; inline-size: var(--hairline); block-size: var(--hairline); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* the profile chip compacts with the rail: its ring alone, as in the compact rail */
+.k-profile { inline-size: auto; padding: 0; background: none; }
+.k-profile-txt { display: none; }
+.k-rail-foot { border-block-start: 0; }
 .k-rail-toggle { display: none; }
 .k-split { grid-template-columns: repeat(min(var(--split, 2), 2), minmax(0, 1fr)); }
 }
