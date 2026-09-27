@@ -8,11 +8,11 @@
    reminder read in the popover is read on the page and on every synced
    device. Presentation only — nothing here decides what is due.
 
-   Graphite step 8 (frames 14b, 14b2). The frame's per-type toggles and
-   quiet hours have no counterpart in notify.js — every kind that lands
-   here is one the user already asked for on its own record (invariant 95)
-   — so the side column says what lands here instead of offering switches
-   that would switch nothing. Governor events are not notifications. */
+   Graphite step 8 (frames 14b, 14b2); review B brought the frame's side
+   column back: Notification filters (a filtered kind leaves the feed, the
+   bell and device alerts but stays in the ledger) and Quiet hours on the
+   device-alert card (they hold device alerts only). Governor events are
+   not notifications. */
 (function () {
   "use strict";
   var el = KOS.ui.el;
@@ -218,18 +218,36 @@
         });
       });
       device.appendChild(el("label", { class: "k-nt-switch-row" }, [el("span", { text: "This " + what }), sw]));
+      /* quiet hours: a switch, then the window it keeps */
+      var q = KOS.notify.quiet();
+      var qsw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.quiet-toggle", "aria-label": "Quiet hours" });
+      qsw.checked = q.on;
+      qsw.addEventListener("change", function () { KOS.notify.setQuiet({ on: qsw.checked }); });
+      function time(key, label) {
+        var t = el("input", { type: "time", class: "k-input k-nt-time", "data-ui": "notify.quiet-" + key, "aria-label": label });
+        t.value = q[key];
+        t.disabled = !q.on;
+        t.addEventListener("change", function () { if (t.value) { var p = {}; p[key] = t.value; KOS.notify.setQuiet(p); } });
+        return t;
+      }
+      device.appendChild(el("label", { class: "k-nt-switch-row" }, [el("span", { text: "Quiet hours" }), qsw]));
+      device.appendChild(el("div", { class: "k-nt-quiet", "data-state": q.on ? null : "off" }, [
+        time("from", "Quiet hours start"), el("span", { class: "k-muted", text: "to" }), time("to", "Quiet hours end")
+      ]));
     }
-    var lands = el("section", { class: "k-card k-nt-card", "aria-label": "What lands here" });
+    /* the frame's filters: one switch per kind */
+    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan" };
+    var lands = el("section", { class: "k-card k-nt-card", "aria-label": "Notification filters", "data-ui": "notify.filters" });
     function paintLands() {
       lands.innerHTML = "";
-      var items = KOS.notify.all(), K = KOS.notify.KINDS;
-      lands.appendChild(el("div", { class: "k-card-title", text: "What lands here" }));
+      var K = KOS.notify.KINDS;
+      lands.appendChild(el("div", { class: "k-card-title", text: "Notification filters" }));
       Object.keys(K).forEach(function (kind) {
-        var n = items.filter(function (it) { return it.kind === kind; }).length;
-        lands.appendChild(el("div", { class: "k-card-row" }, [
-          el("span", { class: "k-card-row-k", text: K[kind].label }),
-          el("span", { class: "k-card-row-v k-mono", text: n ? String(n) : "" })
-        ]));
+        var sw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.filter", "data-kind": kind,
+          "aria-label": (FILTER_LABEL[kind] || K[kind].label) + " notifications" });
+        sw.checked = !KOS.notify.isMuted(kind);
+        sw.addEventListener("change", function () { KOS.notify.setMuted(kind, !sw.checked); });
+        lands.appendChild(el("label", { class: "k-nt-switch-row" }, [el("span", { text: FILTER_LABEL[kind] || K[kind].label }), sw]));
       });
     }
     side.appendChild(device);

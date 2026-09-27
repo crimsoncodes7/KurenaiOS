@@ -1,7 +1,7 @@
 /* Kurenai OS — modules/help.js
    The in-app guide: what every tab and feature does, in a paragraph or less.
-   Graphite step 8 (frame 14c) is the view at the foot of this file; the
-   guide's text is unchanged. */
+   Graphite step 8 (frame 14c) is the view at the foot of this file;
+   review B gave it one entry per page and figures. */
 (function () {
   "use strict";
   var el = KOS.ui.el;
@@ -122,16 +122,87 @@
   /* each section marked like the main rail */
   var SECTION_MARK = ["灯", "学", "習", "整", "守", "蒐", "蔵"];
 
-  /* Graphite step 8 (frame 14c): a documentation desk — the sections and
-     their entries on the left, one section read as an article in the
-     middle (every entry a heading and its paragraph), and on the right
-     what is on this page, the shortcuts and a way to ask Kurenai. The
-     open section is the route's argument (#/help/<section>), so a link to
-     a part of the guide survives being sent. */
+  /* ---------------- figures (review B, frame 14c) ----------------
+     The guide was all text. An entry that is about something you look at
+     carries a small drawing of it, built from the same palette, with
+     numbered marks and a legend underneath. The drawing is decoration
+     (aria-hidden) — the legend and the paragraph carry the meaning. A
+     part: { t, s (sub-line), tone, n (mark), kind: "kbd"|"chip"|"dot"|
+     "bar"|"ring" , p (bar %) }. */
+  var FIG = {
+    "Search (topbar)": { rows: [[{ t: "⌕  Search everything", kind: "field", n: 1 }, { t: "/", kind: "kbd", n: 2 }]],
+      notes: ["Every spec point, flashcard, note, event and title in one box.", "Press / from anywhere to jump into it; ↑ ↓ and Enter pick a result."] },
+    "Back / Forward": { rows: [[{ t: "‹", kind: "key" }, { t: "›", kind: "key" }, { t: "Alt ←", kind: "kbd", n: 1 }, { t: "Alt →", kind: "kbd" }, { t: "Backspace", kind: "kbd", n: 2 }]],
+      notes: ["The arrows step through your page history like a browser.", "Backspace goes back too, unless you are typing."] },
+    "Flashcards": { rows: [[{ t: "Again", s: "< 1 min", tone: "red", n: 1 }, { t: "Hard", s: "1 day", tone: "amber", n: 2 }, { t: "Good", s: "3 days", tone: "green", n: 3 }, { t: "Easy", s: "7 days", tone: "teal", n: 4 }]],
+      notes: ["Again — you did not know it: it comes back this session and the interval resets.", "Hard — you got there slowly: the interval grows a little.", "Good — the normal step.", "Easy — it jumps well ahead."] },
+    "Topic status": { rows: [[{ t: "◐ Started", kind: "chip", n: 1 }, { t: "R", kind: "dot", tone: "red", n: 2 }, { t: "A", kind: "dot", tone: "amber" }, { t: "G", kind: "dot", tone: "green" }, { t: "75%", kind: "big", n: 3 }]],
+      notes: ["Where the topic stands: not started, started, completed.", "How solid it feels — your call; the app shows when its own read disagrees.", "Mastery: the four progress checks, averaged."] },
+    "Quiz / Exam questions": { rows: [[{ t: "A  Integer", kind: "opt" }], [{ t: "C  Real", kind: "opt", tone: "green", s: "Correct", n: 1 }], [{ t: "☑ 1 mark · names the type", kind: "chip", n: 2 }, { t: "−  2  +", kind: "chip" }]],
+      notes: ["A quiz answers instantly and says why.", "An exam question reveals its mark scheme as a checklist; tick what you earned."] },
+    "Due Today": { rows: [[{ t: "Review 57 due cards", s: "About 29 minutes · oldest 2 days overdue", kind: "wide", tone: "crimson", n: 1 }], [{ t: "Start reviewing →", kind: "cta", n: 2 }]],
+      notes: ["Every card whose day has come, across all three subjects, most overdue first.", "One run through it is the day's most valuable habit."] },
+    "Exams & Papers": { rows: [[{ t: "A*", kind: "grade", tone: "gold" }, { t: "A", kind: "grade", tone: "green" }, { t: "B", kind: "grade", tone: "teal", n: 1 }, { t: "C", kind: "grade", tone: "amber" }, { t: "U", kind: "grade", tone: "red" }], [{ t: "72%", kind: "bar", p: 72, tone: "amber", n: 2 }]],
+      notes: ["The grade takes its colour from its tier (IT reads Distinction/Merit/Pass).", "The score bar is the marks you logged over the marks available."] },
+    "Focus Timer": { rows: [[{ t: "25:00", kind: "ring", n: 1 }, { t: "Focus", s: "25 min", kind: "chip", n: 2 }, { t: "Break", s: "5 min", kind: "chip" }]],
+      notes: ["The stage: the clock, the phase, pause and finish.", "Pick the length; the award is previewed before you start."] },
+    "Pacing": { rows: [[{ t: "0 of 10 plan rows ticked", kind: "wide", n: 1 }, { t: "10 behind", kind: "chip", tone: "amber", n: 2 }], [{ t: "In class", kind: "kick" }, { t: "○ SQL DDL · 4.10.4", kind: "opt" }], [{ t: "My plan", kind: "kick" }, { t: "○ Programming constructs", kind: "opt" }, { t: "carried", kind: "chip", tone: "amber", n: 3 }]],
+      notes: ["The week's one figure.", "How many of your rows are behind.", "An unticked row from an ended week carries into this one until you tick or move it."] },
+    "Ticking off the plan": { rows: [[{ t: "✓", kind: "dot", tone: "teal", n: 1 }, { t: "Data types", kind: "opt" }], [{ t: "○", kind: "dot" }, { t: "Recursion", kind: "opt" }, { t: "carried", kind: "chip", tone: "amber" }, { t: "→ here", kind: "link", n: 2 }]],
+      notes: ["A tick is the plan's own bookkeeping — not a mastery claim.", "Move a carried row into the week you are looking at."] },
+    "The braid": { svg: true, notes: ["The top line is class, the lower line your plan; a dashed curve means one side got there first.", "A solid rung: the same week.", "Pick the subject with the CS / Maths / IT toggle."] },
+    "HP": { rows: [[{ t: "Healthy", kind: "bar", p: 86, tone: "green", n: 1 }], [{ t: "Critical < 40", kind: "bar", p: 30, tone: "red", n: 2 }]],
+      notes: ["A wellbeing signal fed by what you log — it never locks study.", "Below 40 the day turns into three recovery wins."] },
+    "Gold": { rows: [[{ t: "◈ 640", kind: "chip", tone: "amber", n: 1 }, { t: "Unlock · 120 ◈", kind: "cta", n: 2 }]],
+      notes: ["What sessions have earned you.", "Spent once, on labs, simulations and cosmetics — never on core revision."] },
+    "Streaks": { rows: [[{ t: "12", s: "study streak", kind: "big", n: 1 }, { t: "best 21", kind: "chip", n: 2 }]],
+      notes: ["Days in a row with a completed study session.", "Your longest run, kept."] },
+    "Notifications": { rows: [[{ t: "Reminder · Email Mr Hart", s: "Today 20:30", kind: "wide", n: 1 }], [{ t: "Airing episodes", kind: "chip", n: 2 }, { t: "on", kind: "switch" }, { t: "Quiet hours 23:00–07:00", kind: "chip", n: 3 }]],
+      notes: ["One feed of what happened to you, read everywhere once read here.", "Filters hide a kind without deleting it.", "Quiet hours hold device alerts only."] },
+    "The Shrine": { rows: [[{ t: "01", s: "Your top title", kind: "big", tone: "gold", n: 1 }, { t: "02", kind: "chip", n: 2 }, { t: "03", kind: "chip" }]],
+      notes: ["Your favourites ranked by score — rank 01 takes the hero.", "Ties are yours to order."] }
+  };
+  var BRAID_SVG = '<svg viewBox="0 0 320 90" width="320" height="90" class="k-hfig-svg">'
+    + '<line x1="20" y1="22" x2="300" y2="22" class="k-hfig-line" data-line="class"/>'
+    + '<line x1="20" y1="68" x2="300" y2="68" class="k-hfig-line" data-line="mine"/>'
+    + '<path d="M60,68 C60,45 130,45 130,22" class="k-hfig-arc" data-tone="ahead"/>'
+    + '<path d="M200,22 L200,68" class="k-hfig-arc" data-tone="same"/>'
+    + '<path d="M240,22 C240,45 290,45 290,68" class="k-hfig-arc" data-tone="behind"/>'
+    + [60, 130, 200, 240, 290].map(function (x) { return '<circle cx="' + x + '" cy="22" r="5" class="k-hfig-node" data-line="class"/><circle cx="' + x + '" cy="68" r="5" class="k-hfig-node" data-line="mine"/>'; }).join("")
+    + "</svg>";
+  function figure(spec) {
+    var vis = el("div", { class: "k-hfig-vis", "aria-hidden": "true" });
+    if (spec.svg) vis.appendChild(el("div", { class: "k-hfig-row", html: BRAID_SVG }));
+    (spec.rows || []).forEach(function (row) {
+      vis.appendChild(el("div", { class: "k-hfig-row" }, row.map(function (part) {
+        var n = el("span", { class: "k-hfig-part", "data-kind": part.kind || "tile", "data-tone": part.tone || null }, [
+          part.kind === "bar" ? el("span", { class: "k-hfig-bar" }, [el("i", { style: "--p: " + (part.p || 0) + "%" })]) : null,
+          el("b", { text: part.t }),
+          part.s ? el("small", { text: part.s }) : null,
+          part.n ? el("span", { class: "k-hfig-n", text: String(part.n) }) : null
+        ].filter(Boolean));
+        return n;
+      })));
+    });
+    return el("figure", { class: "k-hfig", "data-ui": "help.figure" }, [
+      vis,
+      spec.notes && spec.notes.length ? el("ol", { class: "k-hfig-notes" }, spec.notes.map(function (t) { return el("li", { text: t }); })) : null
+    ].filter(Boolean));
+  }
+
+  /* Graphite step 8 (frame 14c): a documentation desk — the sections on
+     the left, ONE entry read as an article in the middle (review B: a
+     section's entries are picked from "On this page", not stacked), and
+     on the right what is on this page, the shortcuts and a way to ask
+     Kurenai. The route carries both (#/help/<section>/<entry>), so a link
+     to one part of the guide survives being sent. */
   KOS.views.help = function (main, arg) {
     KOS.shell.tree("none");
-    var si = Math.max(0, SECTIONS.findIndex(function (s) { return slug(s[0]) === arg; }));
+    var want = typeof arg === "string" ? { section: arg } : (arg || {});
+    var si = Math.max(0, SECTIONS.findIndex(function (s) { return slug(s[0]) === want.section; }));
     var sec = SECTIONS[si];
+    var ei = Math.max(0, sec[1].findIndex(function (item) { return slug(item[0]) === want.entry; }));
+    var entry = sec[1][ei];
     main.appendChild(KOS.ui.pageHeader({ kicker: "The archive · 導", title: "Help & Guide",
       sub: "What everything is and how to use it. Search, or open a section to read." }));
 
@@ -140,22 +211,15 @@
     var aside = el("aside", { class: "k-help-aside", "data-ui": "help.aside", "aria-label": "On this page" });
     main.appendChild(el("div", { class: "k-help", "data-ui": "help.wrap" }, [nav, article, aside]));
 
-    /* the search, then every section with its entries */
+    /* the search, then every section */
     var search = el("input", { type: "search", class: "k-input k-help-search", "data-ui": "help.search",
       placeholder: "Search the guide…", "aria-label": "Search the guide" });
     nav.appendChild(search);
     var navList = el("div", { class: "k-help-nav-list" });
     nav.appendChild(navList);
-    function go(target, entry) {
-      if (entry && target === si) { reveal(entry, si); return; }
-      KOS.show("help", slug(SECTIONS[target][0]));
-      if (entry) setTimeout(function () { reveal(entry, target); }, 0);
+    function go(s, name) {
+      KOS.show("help", name ? { section: slug(SECTIONS[s][0]), entry: slug(name) } : slug(SECTIONS[s][0]));
     }
-    function reveal(entry, s) {
-      var node = entry && document.getElementById(entryId(s == null ? si : s, entry));
-      if (node && node.scrollIntoView) node.scrollIntoView({ block: "start", behavior: "smooth" });
-    }
-    function entryId(s, name) { return "help-" + slug(SECTIONS[s][0]) + "-" + slug(name); }
     SECTIONS.forEach(function (s, i) {
       var open = i === si;
       var group = el("div", { class: "k-help-group" });
@@ -171,38 +235,41 @@
       navList.appendChild(group);
     });
 
-    /* the article: this section's entries, each a heading and its text */
-    article.appendChild(el("div", { class: "k-help-crumb", text: "Help & Guide · " + sec[0] }));
-    article.appendChild(el("h2", { id: "help-title", class: "k-help-title", text: sec[0] }));
-    var body = el("div", { class: "k-help-body", "data-ui": "help.block" });
-    article.appendChild(body);
-    sec[1].forEach(function (item) {
-      var rel = RELATED[item[0]];
-      body.appendChild(el("section", { class: "k-help-entry", "data-ui": "help.row", id: entryId(si, item[0]),
-        "data-q": (item[0] + " " + item[1]).toLowerCase() }, [
-        el("h3", { class: "k-help-entry-h", text: item[0] }),
-        el("p", { text: item[1] }),
+    /* the article: the one entry, its drawing, its paragraph */
+    var rel = RELATED[entry[0]];
+    article.appendChild(el("div", { class: "k-help-crumb", text: sec[0] + " · " + entry[0] }));
+    article.appendChild(el("h2", { id: "help-title", class: "k-help-title", text: entry[0] }));
+    var body = el("div", { class: "k-help-body", "data-ui": "help.block" }, [
+      el("section", { class: "k-help-entry", "data-ui": "help.row", "data-q": (entry[0] + " " + entry[1]).toLowerCase() }, [
+        el("p", { text: entry[1] }),
+        FIG[entry[0]] ? figure(FIG[entry[0]]) : null,
         rel ? el("button", { type: "button", class: "k-link k-help-related", text: rel[0] + " →",
           onclick: function () { KOS.show(rel[1], rel[2]); } }) : null
-      ].filter(Boolean)));
-    });
+      ].filter(Boolean))
+    ]);
+    article.appendChild(body);
     /* search results replace the article body while there is a query */
     var results = el("div", { class: "k-help-body", "data-ui": "help.results", hidden: "" });
     article.appendChild(results);
+    /* previous / next walk every entry of the guide, in order */
+    var flat = [];
+    SECTIONS.forEach(function (s, i) { s[1].forEach(function (item) { flat.push([i, item[0]]); }); });
+    var at = flat.findIndex(function (f) { return f[0] === si && f[1] === entry[0]; });
     var pager = el("div", { class: "k-help-pager" }, [
-      si > 0 ? pageLink(si - 1, "← Previous") : el("span"),
-      si < SECTIONS.length - 1 ? pageLink(si + 1, "Next →") : el("span")
+      at > 0 ? pageLink(flat[at - 1], "← Previous") : el("span"),
+      at < flat.length - 1 ? pageLink(flat[at + 1], "Next →") : el("span")
     ]);
     article.appendChild(pager);
-    function pageLink(i, dir) {
+    function pageLink(f, dir) {
       return el("button", { type: "button", class: "k-help-page", "data-dir": dir.charAt(0) === "←" ? "prev" : "next",
-        onclick: function () { go(i); } }, [el("span", { class: "k-help-page-k", text: dir }), el("b", { text: SECTIONS[i][0] })]);
+        onclick: function () { go(f[0], f[1]); } }, [el("span", { class: "k-help-page-k", text: dir }), el("b", { text: f[1] })]);
     }
 
-    /* on this page, the shortcuts, and Kurenai */
+    /* on this page: the section's entries — the switch between them */
     var onPage = el("section", { class: "k-card k-help-card", "aria-label": "On this page" }, [el("div", { class: "k-kicker", text: "On this page" })]);
-    sec[1].forEach(function (item) {
-      onPage.appendChild(el("button", { type: "button", class: "k-help-toc", text: item[0], onclick: function () { reveal(item[0]); } }));
+    sec[1].forEach(function (item, i) {
+      onPage.appendChild(el("button", { type: "button", class: "k-help-toc", "data-ui": "help.toc", "aria-current": i === ei ? "page" : null,
+        text: item[0], onclick: function () { go(si, item[0]); } }));
     });
     aside.appendChild(onPage);
     var keys = el("section", { class: "k-card k-help-card", "aria-label": "Useful shortcuts" }, [el("div", { class: "k-kicker", text: "Useful shortcuts" })]);
@@ -211,7 +278,7 @@
     });
     aside.appendChild(keys);
     if (KOS.assistant && KOS.assistant.ask) aside.appendChild(el("button", { type: "button", class: "k-help-ask", onclick: function () {
-      KOS.assistant.ask("I'm reading the KurenaiOS guide on “" + sec[0] + "”. Explain how it works in practice, briefly.", "tutor");
+      KOS.assistant.ask("I'm reading the KurenaiOS guide on “" + entry[0] + "”. Explain how it works in practice, briefly.", "tutor");
     } }, [
       el("img", { src: "assets/assistant/logo/whispering-bloom-emblem-production.png", alt: "" }),
       el("span", {}, ["Still stuck? ", el("b", { text: "Ask Kurenai" }), " about this page."])

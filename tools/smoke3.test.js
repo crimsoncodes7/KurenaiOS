@@ -387,6 +387,10 @@ step("tracker view renders rows, reviewed toggle + update persist", () => {
   const e = KOS.store.state.tracker.entries[0];
   KOS.tracker.update(e.id, { reviewed: true, grade: "C" });
   if (!KOS.store.state.tracker.entries[0].reviewed || KOS.store.state.tracker.entries[0].grade !== "C") throw new Error("update lost");
+  /* review B: the grade carries its tier as colour, not a grey pill */
+  KOS.show("tracker");
+  const gr = $("[data-ui~='tracker.row'] [data-ui~='tracker.grade']");
+  if (!gr || gr.textContent !== "C" || gr.getAttribute("data-tier") !== "mid") throw new Error("the grade is not coloured by tier: " + (gr && gr.getAttribute("data-tier")));
   // paper tab is empty for now
   click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "paper"));
   if ($$("[data-ui~='tracker.row']").length) throw new Error("paper tab should be empty");
@@ -505,6 +509,20 @@ step("help & guide renders every section", () => {
   if ($$("[data-ui~='help.section']").length < 6) throw new Error("help sections in the nav: " + $$("[data-ui~='help.section']").length);
   if (!$$("[data-ui~='help.row']").length) throw new Error("the open section shows no entries");
   if (!$("[data-ui~='help.nav-item']")) throw new Error("help nav missing");
+});
+step("the guide reads one entry at a time, switched from On this page, with figures", () => {
+  /* review B: one entry per page; the route carries section and entry */
+  KOS.show("help", "the-topic-page");
+  if ($$("[data-ui~='help.row']").length !== 1) throw new Error("more than one entry on the page: " + $$("[data-ui~='help.row']").length);
+  const toc = $$("[data-ui~='help.toc']");
+  if (toc.length < 4 || toc[0].getAttribute("aria-current") !== "page") throw new Error("On this page does not mark the open entry");
+  click(toc.find(b => b.textContent === "Flashcards"));
+  if (!/#\/help\/the-topic-page\/flashcards$/.test(window.location.hash)) throw new Error("the entry is not in the route: " + window.location.hash);
+  if ($("#help-title").textContent !== "Flashcards") throw new Error("the entry did not open");
+  const fig = $("[data-ui~='help.figure']");
+  if (!fig || fig.querySelectorAll("li").length !== 4) throw new Error("the Flashcards entry has no annotated figure");
+  const back = KOS.router.parse("#/help/the-topic-page/flashcards");
+  if (!back || back.arg.section !== "the-topic-page" || back.arg.entry !== "flashcards") throw new Error("the entry route did not parse back");
 });
 
 setTimeout(() => {

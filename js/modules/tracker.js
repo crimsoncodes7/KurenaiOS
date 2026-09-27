@@ -69,6 +69,22 @@
   var HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
   var SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
   function tone(p) { return p == null ? null : p >= 75 ? "var(--green)" : p >= 60 ? "var(--amber)" : "var(--red-soft)"; }
+  /* the grade's own colour (review B): the letter, the 9–1 number or the
+     IT Distinction/Merit/Pass scale read to a tier; anything else follows
+     the score beside it */
+  function gradeTier(g, p, subject) {
+    var t = String(g || "").trim().toUpperCase().replace(/\s+/g, "");
+    /* a bare D is Distinction on the IT scale and a D grade anywhere else */
+    if (subject === "it" && t === "D") t = "DISTINCTION";
+    if (subject === "it" && t === "D*") t = "DISTINCTION*";
+    if (/^(A\*|DISTINCTION\*|DIST\*|9|8)$/.test(t)) return "top";
+    if (/^(A|DIST|DISTINCTION|7)$/.test(t)) return "high";
+    if (/^(B|M|MERIT|6|5)$/.test(t)) return "good";
+    if (/^(C|P|PASS|4)$/.test(t)) return "mid";
+    if (/^(D|3|2)$/.test(t)) return "low";
+    if (/^(E|U|F|FAIL|NP|1)$/.test(t)) return "fail";
+    return p == null ? "none" : p >= 80 ? "high" : p >= 70 ? "good" : p >= 60 ? "mid" : p >= 45 ? "low" : "fail";
+  }
   function shortDate(iso) {
     if (!iso) return "—";
     var p = iso.split("-");
@@ -312,7 +328,7 @@
               el("b", { class: "k-mono", text: p + "%" })
             ]),
             el("span", { class: "k-mono", role: "cell", text: e.marks != null && e.max ? e.marks + " / " + e.max : "—" }),
-            el("span", { role: "cell" }, [e.grade ? el("span", { class: "k-chip", "data-tone": "muted", text: e.grade }) : null].filter(Boolean)),
+            el("span", { role: "cell" }, [e.grade ? el("span", { class: "k-trk-grade", "data-ui": "tracker.grade", "data-tier": gradeTier(e.grade, p, e.subject), title: "Grade " + e.grade, text: e.grade }) : null].filter(Boolean)),
             el("span", { role: "cell" }, [revCb]),
             el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Edit this entry", text: "✎",
               onclick: function () { editorModal(kind, e, render); } })

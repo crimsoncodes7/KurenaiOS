@@ -240,6 +240,37 @@ step("device alerts: off until permission AND the switch; a fresh item then show
   const pwa = fs.readFileSync(path.join(ROOT, "js/core/pwa.js"), "utf8");
   assert(/kos-open/.test(pwa) && /KOS\.show\(e\.data\.view/.test(pwa), "the page does not honour the worker's open message");
 });
+step("filters hide a kind without deleting it; quiet hours hold device alerts only (frame 14b)", async () => {
+  const nat = N().native;
+  await new Promise(res => nat.request(() => res()));
+  nat.setEnabled(true);
+  document.hasFocus = () => false;
+  shown.length = 0;
+  N().push({ id: "f:1", kind: "airing", title: "Filtered episode" });
+  assert(N().all().some(it => it.id === "f:1"), "setup");
+  const before = shown.length;
+  /* the page's switch is the route */
+  KOS.show("notifications");
+  const sw = document.querySelector("#main [data-ui~='notify.filters'] input[data-kind='airing']");
+  assert(sw && sw.getAttribute("role") === "switch" && sw.checked, "no Airing filter switch on the page");
+  sw.checked = false; sw.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert(N().isMuted("airing") && KOS.store.state.ui.notifyMuted.airing === true, "the filter is not a per-device ui flag");
+  assert(!N().all().some(it => it.id === "f:1") && N()._state().items.some(it => it.id === "f:1"), "a filtered kind must leave the feed but stay in the ledger");
+  N().push({ id: "f:2", kind: "airing", title: "Also filtered" });
+  assert(shown.length === before, "a filtered kind must not raise a device alert");
+  N().setMuted("airing", false);
+  assert(N().all().some(it => it.id === "f:1"), "turning the filter back on lost the item");
+  /* quiet hours: a window across midnight */
+  N().setQuiet({ on: true, from: "23:00", to: "07:00" });
+  assert(N().inQuiet(new Date(2026, 0, 1, 23, 30)) && N().inQuiet(new Date(2026, 0, 1, 6, 59)) && !N().inQuiet(new Date(2026, 0, 1, 12, 0)), "the window is wrong");
+  N().setQuiet({ from: "00:00", to: "23:59" });
+  const n0 = shown.length;
+  N().push({ id: "f:3", kind: "reminder", title: "In quiet hours" });
+  assert(shown.length === n0 && N().all().some(it => it.id === "f:3"), "quiet hours must hold the alert but keep the feed");
+  N().setQuiet({ on: false });
+  assert(document.querySelector("#main [data-ui~='notify.quiet-toggle']"), "no quiet-hours switch on the device card");
+  nat.setEnabled(false);
+});
 step("the favicon is wired and the seasonal hero honours a user picture from kv", async () => {
   assert(document.querySelector('link[rel="icon"][href="icons/favicon.svg"]') && fs.existsSync(path.join(ROOT, "icons/favicon.svg")), "no favicon");
   await p(cb => KOS.mediadb.setKV("hero.season.WINTER", { source: "https://x/mine.jpg", crop: { x: 40, y: 60, zoom: 1.2 } }, cb));

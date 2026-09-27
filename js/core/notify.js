@@ -65,11 +65,47 @@
     return function off() { var i = listeners.indexOf(fn); if (i !== -1) listeners.splice(i, 1); };
   }
 
+  /* ---------------- filters and quiet hours (frame 14b) ----------------
+     Per device, in state.ui: a filtered kind is kept in the ledger but
+     leaves the feed, the bell, the unread count and device alerts, so
+     turning it back on loses nothing. Quiet hours hold device alerts only;
+     the feed still records what happened. */
+  function ui() { return store.state.ui = store.state.ui || {}; }
+  function isMuted(kind) { var m = ui().notifyMuted; return !!(m && m[kind]); }
+  function setMuted(kind, on) {
+    if (!KINDS[kind]) return;
+    var u = ui();
+    u.notifyMuted = u.notifyMuted && typeof u.notifyMuted === "object" ? u.notifyMuted : {};
+    if (on) u.notifyMuted[kind] = true; else delete u.notifyMuted[kind];
+    store.save(); emit();
+  }
+  var QUIET_DEFAULT = { on: false, from: "23:00", to: "07:00" };
+  function quiet() {
+    var q = ui().notifyQuiet || {};
+    var hm = /^([01]\d|2[0-3]):[0-5]\d$/;
+    return { on: !!q.on, from: hm.test(q.from) ? q.from : QUIET_DEFAULT.from, to: hm.test(q.to) ? q.to : QUIET_DEFAULT.to };
+  }
+  function setQuiet(patch) {
+    var u = ui();
+    u.notifyQuiet = Object.assign(quiet(), patch || {});
+    store.save(); emit();
+  }
+  /* inside the window, which may run past midnight (23:00–07:00) */
+  function inQuiet(d) {
+    var q = quiet();
+    if (!q.on) return false;
+    d = d || new Date();
+    var now = d.getHours() * 60 + d.getMinutes();
+    var f = q.from.split(":"), t = q.to.split(":");
+    var a = +f[0] * 60 + +f[1], b = +t[0] * 60 + +t[1];
+    return a === b ? false : a < b ? now >= a && now < b : now >= a || now < b;
+  }
+
   /* ---------------- the ledger ---------------- */
   function all() {
     var n = N();
     if (n.items.some(function (it) { return !it || !KINDS[it.kind]; })) { prune(n); store.save(); }
-    return n.items.slice().sort(function (a, b) { return b.ts - a.ts; });
+    return n.items.filter(function (it) { return !isMuted(it.kind); }).sort(function (a, b) { return b.ts - a.ts; });
   }
   function isRead(item) { return !!N().read[item.id]; }
   function unread() {
@@ -215,7 +251,7 @@
     }
   };
   function deviceAlert(rec) {
-    if (!native.enabled()) return;
+    if (!native.enabled() || isMuted(rec.kind) || inQuiet()) return;
     if (typeof document !== "undefined" && document.visibilityState === "visible" && document.hasFocus && document.hasFocus()) {
       /* the page is in front — the bell and the toast already say it */
       return;
@@ -253,6 +289,7 @@
     push: push, markRead: markRead, markAllRead: markAllRead, clear: clear, open: open,
     recordAiring: recordAiring, tick: tick, onChange: onChange,
     native: native, ago: ago,
+    isMuted: isMuted, setMuted: setMuted, quiet: quiet, setQuiet: setQuiet, inQuiet: inQuiet,
     _state: N
   };
 })();

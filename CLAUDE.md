@@ -431,6 +431,10 @@ source comments and audit notes refer to it.
     the constructor otherwise; `sw.js` `notificationclick` focuses a client
     and posts `kos-open`, which `pwa.js` routes through `KOS.show()`. There
     is no push server and the page says so; a closed app stays quiet.
+    Filters (`state.ui.notifyMuted`, per device, frame 14b) hide a kind
+    from the feed, the bell, the unread count and device alerts while the
+    ledger keeps it; quiet hours (`state.ui.notifyQuiet`, a window that may
+    run past midnight) hold device alerts only.
 
 ### Accessibility, routing and search (64–71)
 
