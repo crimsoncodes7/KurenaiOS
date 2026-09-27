@@ -226,7 +226,8 @@ new themes and the phone layout build on a clean base.
     "Visual Novels" chip wrapping;
   - the Compare dialog's footer gap (the note now stands apart on the left).
 - **Left for the phone design (3.1):** at 360–390px, the tab strips on
-  Exams & Papers and the Budget Planner, and the Governor's four tabs, are
+  Exams & Papers, the Budget Planner and the Shrine, and the Governor's
+  four tabs, are
   bare sideways scrollers, which the responsive audit counts as findings. A
   wide code block in notes scrolls sideways too, which is normal for code.
   Whether these wrap or become `KOS.ui.scroller`s is a design call.
