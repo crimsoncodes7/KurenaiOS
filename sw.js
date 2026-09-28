@@ -29,7 +29,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-graphite-3";
+var VERSION = "kos-graphite-4";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 

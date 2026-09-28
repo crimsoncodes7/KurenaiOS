@@ -22,7 +22,7 @@ behaviour, data and invariants of the earlier releases unchanged.
 - Runtime release commit: `e2a5931` — immutable deployment
   https://12e5c6df.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-graphite-3`
+- Service-worker cache: `kos-graphite-4`
 - Verification: all **62 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).

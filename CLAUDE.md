@@ -16,7 +16,7 @@ chronological diary here.
 - Runtime release: `e2a5931` — immutable deployment
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-graphite-3`
+- Service-worker version: `kos-graphite-4` (design part 2; `kos-graphite-3` is the live release until it is uploaded)
 - Required smoke gate: 62 / 62 suites.
 
 ## Run, test and deploy

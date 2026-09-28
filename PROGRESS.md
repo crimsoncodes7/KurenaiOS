@@ -20,10 +20,10 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Runtime release commit | `e2a5931` (the Graphite rebuild, its fixes and the bloom app icon), immutable https://12e5c6df.kurenai-os.pages.dev — deployed 27 September 2026 |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-graphite-3` |
+| Service-worker cache | `kos-graphite-4` (design part 2, merged; `kos-graphite-3` is live until uploaded) |
 | Smoke gate | 62 suites, all passing on `feat/graphite-part-2` (28 September 2026); 56 at the `e2a5931` release (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Latest release date | 27 September 2026 (Category 7: 9 August 2026) |
-| In progress | `feat/graphite-part-2` — design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Not merged or deployed ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
+| In progress | `feat/graphite-part-2` — design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` on 28 September 2026 (service worker `kos-graphite-4`); the production upload is pending ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through

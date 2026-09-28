@@ -33,7 +33,7 @@ cp -R css icons assets "$DIST/"
 mkdir -p "$DIST/js"
 # everything under js/ is runtime (data, content, core, engines, modules,
 # labs, vendor, env.local.js) — copy wholesale
-cp -R js/ "$DIST/js/"
+cp -R js/. "$DIST/js/"   # js/. copies the contents on GNU and BSD cp alike
 # env.local.js is the one intentional deployment configuration. The checked-in
 # example is setup documentation, not a runtime asset.
 rm -f "$DIST/js/env.example.js"
