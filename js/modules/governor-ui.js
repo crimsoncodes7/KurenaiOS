@@ -643,7 +643,7 @@
           el("div", { class: "k-gv-ware-kind", text: KIND_LABEL[grp.domain] }),
           el("div", { class: "k-gv-ware-name", text: it.name })
         ]),
-        owned ? el("span", { class: "k-chip", "data-tone": active ? "green" : "muted", text: active ? "Active" : "Owned" })
+        owned ? el("span", { class: "k-chip", "data-tone": active ? "green" : "muted", text: active ? (it.kind === "frame" ? "Worn" : "Active") : "Owned" })
               : el("span", { class: "k-gv-price", "data-state": afford ? null : "short", text: "◈ " + KOS.ui.num(it.price) })
       ]));
       card.appendChild(el("div", { class: "k-gv-ware-desc" }, [
@@ -798,15 +798,28 @@
           el("span", { class: "k-gv-pv-glyph", lang: "ja", text: it.glyph || "紅" })
         ]));
       } else if (it.kind === "frame") {
-        var framed = KOS.governor.avatarNode(66);
+        /* the real component: the avatar at 64 in its HP ring, framed */
+        var framed = KOS.governor.avatarNode(64);
         framed.setAttribute("data-frame", it.id);
-        pv.appendChild(framed);
+        var hpRing = el("span", { class: "k-pc-ring", "data-ui": "shop.preview-frame" }, [framed]);
+        hpRing.style.setProperty("--hp", Math.max(0, Math.min(100, g.hp)) + "%");
+        hpRing.style.setProperty("--ring", "var(--teal)");
+        pv.appendChild(hpRing);
       } else if (it.kind === "shelfskin") {
-        pv.appendChild(el("span", { class: "k-gv-pv-shelf", "data-ui": "shop.preview-shelf", "data-skin": it.id }, [
-          el("i"), el("i"), el("i"), el("i"), el("i"), el("i")
-        ]));
+        /* the real shelf (frame 22e), scaled: the same spines and the skin's
+           own back panel, board and sides */
+        var spines = ["var(--cs)", "var(--cs)", "var(--crimson)", "var(--it)", "var(--amber)", "var(--maths)", "var(--teal)"];
+        var shelfRow = el("span", { class: "k-bk-shelf" }, spines.map(function (c, i) {
+          var sp = el("span", { class: "k-bk-spine" }, [el("span", { class: "k-bk-spine-n", text: String(i + 1) })]);
+          sp.style.setProperty("--spine", c);
+          return sp;
+        }));
+        pv.appendChild(el("span", { class: "k-mgrid k-gv-pv-shelf", "data-layout": "shelf", "data-ui": "shop.preview-shelf", "data-skin": it.id }, [shelfRow]));
       } else if (it.kind === "shrinestyle") {
-        pv.appendChild(el("span", { class: "k-gv-pv-shrine", "data-ui": "shop.preview-shrine", "data-skin": it.id }, [el("i")]));
+        /* a small podium (02 · 01 · 03) in the style (frame 22e) */
+        pv.appendChild(el("span", { class: "k-gv-pv-shrine", "data-ui": "shop.preview-shrine", "data-skin": it.id }, ["弐", "壱", "参"].map(function (g0, i) {
+          return el("i", { "data-rank": String(i === 1 ? 1 : i === 0 ? 2 : 3) }, [el("b", { text: g0 })]);
+        })));
       } else {
         var lab = LAB_MARK[it.id] || { mark: "◎", label: "explore" };
         pv.appendChild(el("span", { class: "k-gv-pv-lab", "data-ui": "shop.lab-scene", "data-scene": LAB_SCENE[it.id] ? it.id : "generic" }, [
@@ -892,6 +905,33 @@
       ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.avatar-section", "aria-label": "Frames" }, [
         cardHead("Frames", "owned frames are ready to wear, the rest are Gold Shop unlocks"),
         fgrid
+      ]));
+
+      /* frame 22e: the Collection cosmetics — one choice row for the Books
+         shelf skin and one for the Shrine style (the share card follows the
+         Shrine style unless a card picks its own). Owned ones apply at once;
+         the rest say ◈ and open the shop. */
+      function cosmeticRow(label, kind, current, set) {
+        var row = el("div", { class: "k-seg k-seg--quiet k-gv-cos-row", role: "group", "aria-label": label, "data-ui": "gov.cosmetic-row", "data-kind": kind });
+        function opt(id, name, owned, price) {
+          var on = (current || null) === id;
+          var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(on), "data-value": id || "",
+            "aria-label": owned ? name : name + " — in the Gold Shop for ◈ " + price,
+            text: owned ? name : name + " · ◈",
+            onclick: function () { if (!owned) { KOS.show("governor", "shop"); return; } set(id); render(); } });
+          KOS.ui.state(b, "active", on);
+          return b;
+        }
+        row.appendChild(opt(null, "Default", true));
+        KOS.governor.catalog().filter(function (c) { return c.kind === kind; }).forEach(function (c) {
+          row.appendChild(opt(c.id, c.name, KOS.governor.owns(c.id), c.price));
+        });
+        return el("div", { class: "k-gv-cos" }, [el("span", { class: "k-gv-cos-k", text: label }), row]);
+      }
+      ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.collection-cosmetics", "aria-label": "Collection cosmetics" }, [
+        cardHead("Collection cosmetics", "apply to the Books shelf and the Shrine"),
+        cosmeticRow("Shelf skin", "shelfskin", KOS.governor.shelfSkin(), function (id) { KOS.governor.setShelfSkin(id); }),
+        cosmeticRow("Shrine style", "shrinestyle", KOS.governor.shrineStyle(), function (id) { KOS.governor.setShrineStyle(id); })
       ]));
 
       /* the theme (21h): owned themes only, the chosen one ringed, and the

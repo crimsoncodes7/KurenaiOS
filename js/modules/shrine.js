@@ -128,8 +128,21 @@
   var STYLES = [
     { id: "gold", label: "Gold" },
     { id: "crimson", label: "Crimson" },
-    { id: "ink", label: "Ink" }
+    { id: "ink", label: "Ink" },
+    /* frame 22d: a Shrine style you own joins the picker, and the card
+       follows the hall's style by default */
+    { id: "gilded", label: "Gilded torii", owns: "shrine-gilded" },
+    { id: "inkbrush", label: "Ink brush", owns: "shrine-ink" },
+    { id: "neon", label: "Neon shrine", owns: "shrine-neon" }
   ];
+  function stylesOwned() {
+    return STYLES.filter(function (s) { return !s.owns || (KOS.governor.owns && KOS.governor.owns(s.owns)); });
+  }
+  function defaultLook() {
+    var worn = KOS.governor.shrineStyle && KOS.governor.shrineStyle();
+    var m = STYLES.filter(function (s) { return s.owns && s.owns === worn; })[0];
+    return m && stylesOwned().indexOf(m) !== -1 ? m.id : "gold";
+  }
   var SHOW = [
     ["score", "Score"], ["rank", "Rank"], ["cover", "Cover"],
     ["message", "Message"], ["date", "Date added"], ["progress", "Progress"]
@@ -149,15 +162,18 @@
   }
   function palette(look) {
     var id = STYLES.some(function (s) { return s.id === look; }) ? look : "gold";
+    /* a style may restate the text inks (Ink brush prints sumi on washi) */
+    function own(k) { return token("--card-" + id + "-" + k) || token("--card-" + k); }
     return {
       id: id,
       accent: token("--card-" + id + "-accent"),
+      accent2: token("--card-" + id + "-accent2") || token("--card-" + id + "-accent"),
       bg: token("--card-" + id + "-bg"),
       foil: [1, 2, 3, 4, 5, 1].map(function (n) { return token("--card-foil-" + n); }),
-      ivory: token("--card-ivory"),
-      meta: token("--card-meta"),
-      quote: token("--card-quote"),
-      faint: token("--card-faint"),
+      ivory: own("ivory"),
+      meta: own("meta"),
+      quote: own("quote"),
+      faint: own("faint"),
       shadow: token("--card-shadow")
     };
   }
@@ -247,6 +263,12 @@
     /* the foil edge: Gold is the iridescent sweep, the others one ink */
     var foil = pal.id === "gold" && ctx.createConicGradient ? ctx.createConicGradient(200 * Math.PI / 180, W / 2, H / 2) : null;
     if (foil) pal.foil.forEach(function (c, i, all) { foil.addColorStop(i / (all.length - 1), c); });
+    /* Neon: a cyan-to-pink edge */
+    if (pal.id === "neon") {
+      foil = ctx.createLinearGradient(0, 0, W, H);
+      foil.addColorStop(0, pal.accent);
+      foil.addColorStop(1, pal.accent2);
+    }
     roundRect(ctx, 0, 0, W, H, 22 * S);
     ctx.fillStyle = foil || pal.accent;
     ctx.fill();
@@ -261,7 +283,12 @@
        sharp, with a dark band across the top for the name and the score
        and a translucent text box at the foot. No cover: the palette and
        the medium's kanji fill the frame. */
-    if (show.cover && coverImage) drawCrop(ctx, entry, coverImage, inner.x, inner.y, inner.w, inner.h);
+    if (show.cover && coverImage) {
+      /* Ink brush: the art in monochrome */
+      if (pal.id === "inkbrush" && "filter" in ctx) ctx.filter = "grayscale(1) contrast(1.05)";
+      drawCrop(ctx, entry, coverImage, inner.x, inner.y, inner.w, inner.h);
+      if ("filter" in ctx) ctx.filter = "none";
+    }
     else {
       var wash = ctx.createLinearGradient(0, inner.y, 0, inner.y + inner.h);
       wash.addColorStop(0, alpha(pal.accent, 0.18));
@@ -398,12 +425,27 @@
     if (show.rank) {
       ctx.font = "800 " + (96 * S) + "px " + MINCHO;
       spacing(ctx, -0.04, 96 * S);
-      ctx.strokeStyle = pal.accent;
-      ctx.lineWidth = 1.5 * S;
       ctx.textBaseline = "bottom";
-      ctx.strokeText(pad2(opts.rank || 1), left - 2 * S, boxY - 2 * S);
+      if (pal.id === "inkbrush") {
+        /* a solid ink numeral in place of the outline */
+        ctx.fillStyle = pal.accent;
+        ctx.fillText(pad2(opts.rank || 1), left - 2 * S, boxY - 2 * S);
+      } else {
+        ctx.strokeStyle = pal.id === "neon" ? pal.accent2 : pal.accent;
+        ctx.lineWidth = 1.5 * S;
+        if (pal.id === "neon") { ctx.shadowColor = pal.accent2; ctx.shadowBlur = 18 * S; }
+        ctx.strokeText(pad2(opts.rank || 1), left - 2 * S, boxY - 2 * S);
+        ctx.shadowBlur = 0;
+      }
       ctx.textBaseline = "top";
       spacing(ctx, 0, 0);
+    }
+    /* Gilded torii: the inner second gold line, so the border is double */
+    if (pal.id === "gilded") {
+      roundRect(ctx, inner.x + 8 * S, inner.y + 8 * S, inner.w - 16 * S, inner.h - 16 * S, 14 * S);
+      ctx.strokeStyle = pal.accent;
+      ctx.lineWidth = 1.5 * S;
+      ctx.stroke();
     }
     ctx.restore();
     cb(canvas);
@@ -462,7 +504,7 @@
   function shrineCardModal(entry, rank, total) {
     var closed = false, release = null, coverImage = null, coverInfo = null;
     var currentCanvas = null, currentDataUrl = null, renderTimer = null;
-    var choice = { look: "gold", show: {} };
+    var choice = { look: defaultLook(), show: {} };
     SHOW.forEach(function (s) { choice.show[s[0]] = true; });
     var mod = KOS.media.module(entry.module);
     var overlay = KOS.medview.modalOverlay(function () {
@@ -486,7 +528,7 @@
     var saveButton = actionButton("⤓ Save PNG", "k-shr-gold", function () { saveCard(currentDataUrl, entry); });
 
     var styleGroup = el("div", { class: "k-shr-styles", role: "group", "aria-label": "Card style" },
-      STYLES.map(function (s) {
+      stylesOwned().map(function (s) {
         return el("button", { type: "button", class: "k-shr-style", "data-ui": "shrine.style", "data-style": s.id,
           "aria-pressed": String(s.id === choice.look), onclick: function () {
             choice.look = s.id;

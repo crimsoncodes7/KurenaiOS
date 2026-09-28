@@ -419,6 +419,15 @@
 .k-bk-spine-cond { position: absolute; inset-block-start: 0; inset-inline: 0; block-size: var(--sp-4); background: var(--amber); }
 .k-bk-spine-cond[data-state~="damaged"] { background: var(--red); }
 
+/* frame 22b: shelf skins paint only what is behind and around the spines —
+   the back panel, the board they stand on and the sides. Spines, sizes,
+   labels and hit targets are the same in every skin. */
+.k-mgrid[data-skin="shelf-walnut"] .k-bk-shelf { padding-inline: var(--sp-14); border-block-end: var(--sp-8) solid var(--shelf-walnut-lt); border-radius: var(--r-12) var(--r-12) 0 0; background: repeating-linear-gradient(90deg, var(--shelf-walnut-dk) 0 var(--sp-2), var(--shelf-walnut) var(--sp-2) var(--sp-9), var(--shelf-walnut-md) var(--sp-9) var(--sp-12)); box-shadow: inset var(--sp-6) 0 0 var(--shelf-walnut-dk), inset calc(-1 * var(--sp-6)) 0 0 var(--shelf-walnut-dk), inset 0 var(--sp-6) 0 var(--shelf-walnut-dk), 0 var(--sp-2) 0 var(--shelf-walnut-dk); }
+.k-mgrid[data-skin="shelf-lacquer"] .k-bk-shelf { padding-inline: var(--sp-14); border-block-end: var(--sp-6) solid var(--shelf-lacquer); border-radius: var(--r-12) var(--r-12) 0 0; background: linear-gradient(115deg, var(--shelf-lacquer) 0 38%, var(--shelf-lacquer-sheen) 50%, var(--shelf-lacquer) 62%); box-shadow: inset 0 0 0 var(--hairline) var(--gold), 0 var(--hairline) 0 var(--gold); }
+.k-mgrid[data-skin="shelf-vermilion"] .k-bk-shelf { position: relative; padding: var(--sp-28) var(--sp-18) 0; border-block-end: var(--sp-8) solid var(--shelf-vermilion); border-radius: 0; background: linear-gradient(var(--shelf-kasagi) 0 var(--sp-6), var(--shelf-vermilion) var(--sp-6) var(--sp-14), var(--shelf-shrine-bg) var(--sp-14)); box-shadow: inset var(--sp-10) 0 0 var(--shelf-vermilion), inset calc(-1 * var(--sp-10)) 0 0 var(--shelf-vermilion); }
+/* the shide: three folded paper strips hanging from the beam */
+.k-mgrid[data-skin="shelf-vermilion"] .k-bk-shelf::before { content: ""; position: absolute; inset-block-start: var(--sp-14); inset-inline: 30%; block-size: var(--sp-10); background: repeating-linear-gradient(90deg, transparent 0 calc(16.6% - var(--sp-4)), var(--shelf-shide) calc(16.6% - var(--sp-4)) 16.6%, transparent 16.6% 33.3%); -webkit-mask: linear-gradient(var(--text) 0 40%, transparent 40% 55%, var(--text) 55%); mask: linear-gradient(var(--text) 0 40%, transparent 40% 55%, var(--text) 55%); pointer-events: none; }
+
 /* Mangaka */
 .k-mgrid[data-layout="wall"] { display: flex; flex-direction: column; gap: var(--sp-14); }
 .k-mk-jump { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
@@ -593,7 +602,20 @@
 .k-shr[data-skin="shrine-gilded"] .k-shr-pod, .k-shr[data-skin="shrine-gilded"] .k-shr-tile-cover { outline: var(--sp-4) double var(--shr-gold); outline-offset: var(--sp-2); }
 .k-shr[data-skin="shrine-ink"] { --shr-gold: var(--text-2); }
 .k-shr[data-skin="shrine-ink"] img { filter: grayscale(1) contrast(1.05); }
-.k-shr[data-skin="shrine-neon"] .k-shr-hero, .k-shr[data-skin="shrine-neon"] .k-shr-pod, .k-shr[data-skin="shrine-neon"] .k-shr-tile-cover { box-shadow: 0 0 var(--sp-18) color-mix(in oklch, var(--crimson) 45%, transparent), inset 0 0 0 var(--hairline) var(--crimson); }
+/* frame 22c: each style carried through the hall. Gilded torii: the
+   double border on every card and gold rank marks and scores. Ink brush:
+   an offset ink shadow, a brush stroke under each rank mark, bone type on
+   an ink wash. Neon shrine: glowing cyan edges (pink for rank 01), neon
+   rank marks and a faint grid behind the hall. */
+.k-shr[data-skin="shrine-gilded"] .k-shr-hero-cover, .k-shr[data-skin="shrine-gilded"] .k-shr-pod-cover { outline: var(--sp-4) double var(--shr-gold); outline-offset: var(--sp-2); }
+.k-shr[data-skin="shrine-gilded"] .k-shr-pod-rank, .k-shr[data-skin="shrine-gilded"] .k-shr-pod-score, .k-shr[data-skin="shrine-gilded"] .k-shr-hero-rank, .k-shr[data-skin="shrine-gilded"] .k-shr-hero-score, .k-shr[data-skin="shrine-gilded"] .k-shr-tile-score { color: var(--shr-gold); }
+.k-shr[data-skin="shrine-ink"] .k-shr-pod, .k-shr[data-skin="shrine-ink"] .k-shr-tile-cover { box-shadow: var(--sp-6) var(--sp-6) 0 var(--shr-ink-shadow); }
+.k-shr[data-skin="shrine-ink"] .k-shr-pod-rank, .k-shr[data-skin="shrine-ink"] .k-shr-tile-rank { background-image: linear-gradient(transparent 70%, var(--shr-ink-stroke) 70% 88%, transparent 88%); }
+.k-shr[data-skin="shrine-ink"] .k-shr-ledger { background: var(--shr-ink-wash); color: var(--shr-bone); }
+.k-shr[data-skin="shrine-neon"] { background-image: linear-gradient(var(--shr-neon-grid) var(--hairline), transparent var(--hairline)), linear-gradient(90deg, var(--shr-neon-grid) var(--hairline), transparent var(--hairline)); background-size: var(--sp-24) var(--sp-24); }
+.k-shr[data-skin="shrine-neon"] .k-shr-hero, .k-shr[data-skin="shrine-neon"] .k-shr-pod, .k-shr[data-skin="shrine-neon"] .k-shr-tile-cover { box-shadow: 0 0 var(--sp-16) var(--shr-neon-glow), inset 0 0 0 var(--hairline) var(--shr-neon); }
+.k-shr[data-skin="shrine-neon"] .k-shr-hero { box-shadow: 0 0 var(--sp-18) var(--shr-neon-glow2), inset 0 0 0 var(--hairline) var(--shr-neon2); }
+.k-shr[data-skin="shrine-neon"] .k-shr-pod-rank, .k-shr[data-skin="shrine-neon"] .k-shr-tile-rank, .k-shr[data-skin="shrine-neon"] .k-shr-hero-rank { color: var(--shr-neon); text-shadow: 0 0 var(--sp-8) var(--shr-neon-glow); }
 
 /* the share card dialog (frame 11k) */
 .k-dialog.k-shr-share { inline-size: min(var(--shr-dialog-w), 100%); display: grid; grid-template-columns: var(--shr-preview-col) minmax(0, 1fr); gap: var(--sp-32); padding: var(--sp-28) var(--sp-32); background: var(--bg); }
@@ -607,6 +629,9 @@
 .k-shr-style[data-style="gold"] { --card-accent: var(--card-gold-accent); --card-bg: var(--card-gold-bg); --card-edge: conic-gradient(from 200deg, var(--card-foil-1), var(--card-foil-2), var(--card-foil-3), var(--card-foil-4), var(--card-foil-5), var(--card-foil-1)); }
 .k-shr-style[data-style="crimson"] { --card-accent: var(--card-crimson-accent); --card-bg: var(--card-crimson-bg); --card-edge: var(--card-crimson-accent); }
 .k-shr-style[data-style="ink"] { --card-accent: var(--card-ink-accent); --card-bg: var(--card-ink-bg); --card-edge: var(--card-ink-accent); }
+.k-shr-style[data-style="gilded"] { --card-accent: var(--card-gilded-accent); --card-bg: var(--card-gilded-bg); --card-edge: var(--card-gilded-accent); }
+.k-shr-style[data-style="inkbrush"] { --card-accent: var(--card-inkbrush-accent); --card-bg: var(--card-inkbrush-bg); --card-edge: var(--card-inkbrush-accent); }
+.k-shr-style[data-style="neon"] { --card-accent: var(--card-neon-accent); --card-bg: var(--card-neon-bg); --card-edge: linear-gradient(135deg, var(--card-neon-accent), var(--card-neon-accent2)); }
 .k-shr-swatch { position: relative; display: block; inline-size: var(--shr-swatch-w); block-size: var(--shr-swatch-h); border-radius: var(--r-6); overflow: hidden; background: var(--card-edge); box-shadow: var(--elev-2); outline: var(--sp-2) solid transparent; outline-offset: var(--sp-4); }
 .k-shr-style[aria-pressed="true"] .k-shr-swatch { outline-color: var(--card-accent); }
 .k-shr-swatch::before { content: ""; position: absolute; inset: var(--hairline); border-radius: var(--r-6); background: radial-gradient(60% 45% at 70% 30%, color-mix(in oklch, var(--card-accent) 22%, transparent), transparent 70%), var(--card-bg); }

@@ -233,12 +233,35 @@ font-size: var(--fs-12);
 .k-profile-gold { margin-inline-start: auto; font-family: var(--font-mono); color: var(--amber); }
 .k-avatar { inline-size: var(--avatar, var(--sp-32)); block-size: var(--avatar, var(--sp-32)); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; overflow: hidden; background: var(--s2); }
 .k-avatar > img, .k-avatar > svg { inline-size: 100%; block-size: 100%; object-fit: cover; }
-/* a worn frame (Gold Shop cosmetic): a ring off the portrait's rim */
-.k-avatar[data-frame] { box-shadow: 0 0 0 var(--bar-3) var(--bg), 0 0 0 calc(var(--bar-3) * 2) var(--frame-c, var(--line)); }
-.k-avatar[data-frame="frame-gold"] { --frame-c: var(--frame-gold); }
-.k-avatar[data-frame="frame-crimson"] { --frame-c: var(--frame-crimson); box-shadow: 0 0 0 var(--bar-3) var(--bg), 0 0 0 calc(var(--bar-3) * 2) var(--frame-c), 0 0 var(--sp-14) var(--crimson-glow); }
-.k-avatar[data-frame="frame-jade"] { --frame-c: var(--frame-jade); }
-.k-avatar[data-frame="frame-amethyst"] { --frame-c: var(--frame-amethyst); }
+/* a worn frame (frame 22a): drawn by the host outside the portrait AND
+   outside the HP ring around it (--frame-out, set by each ring), clear of
+   the ring by a gap, so it never covers the arc. Two layers: ::before the
+   band or orbit, ::after the ornament (studs, petals, bead, moon). */
+.k-avatar-host { position: relative; display: inline-grid; place-items: center; flex: 0 0 auto; border-radius: 50%;
+  --fb: var(--frame-b-s); --fgap: var(--frame-gap-s);
+  --fo: calc(var(--frame-out, 0px) + var(--fgap)); }
+.k-avatar-host[data-fsize="m"] { --fb: var(--frame-b-m); --fgap: var(--frame-gap-m); }
+.k-avatar-host[data-fsize="l"] { --fb: var(--frame-b-l); --fgap: var(--frame-gap-l); }
+.k-avatar-host[data-frame]::before, .k-avatar-host[data-frame]::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+.k-avatar-host[data-frame]::before { inset: calc(-1 * (var(--fo) + var(--fb))); border: var(--fb) solid var(--frame-c, var(--line)); }
+/* Gilt ring: gold; at hero size a fine outer line and engraved studs */
+.k-avatar-host[data-frame="frame-gold"] { --frame-c: var(--frame-gold); }
+.k-avatar-host[data-frame="frame-gold"][data-fsize="l"]::before { box-shadow: 0 0 0 var(--fgap) var(--frame-ground, var(--bg)), 0 0 0 calc(var(--fgap) + var(--hairline)) var(--frame-gold); }
+.k-avatar-host[data-frame="frame-gold"][data-fsize="l"]::after { inset: calc(-1 * (var(--fo) + var(--fb))); background: repeating-conic-gradient(var(--frame-ground, var(--bg)) 0 3deg, transparent 3deg 30deg); -webkit-mask: radial-gradient(closest-side, transparent calc(100% - var(--fb) * 0.7), var(--text) calc(100% - var(--fb) * 0.7), var(--text) calc(100% - var(--fb) * 0.3), transparent calc(100% - var(--fb) * 0.3)); mask: radial-gradient(closest-side, transparent calc(100% - var(--fb) * 0.7), var(--text) calc(100% - var(--fb) * 0.7), var(--text) calc(100% - var(--fb) * 0.3), transparent calc(100% - var(--fb) * 0.3)); }
+/* Kurenai bloom: crimson petals, no band — six small, eight at hero size */
+.k-avatar-host[data-frame="frame-crimson"] { --frame-c: transparent; --petal-len: calc(var(--fb) * 2.4); }
+.k-avatar-host[data-frame="frame-crimson"]::after { inset: calc(-1 * (var(--fo) + var(--petal-len))); background: repeating-conic-gradient(from -8deg, var(--frame-crimson) 0 16deg, transparent 16deg 60deg); -webkit-mask: radial-gradient(closest-side, transparent calc(100% - var(--petal-len)), var(--text) calc(100% - var(--petal-len) + var(--hairline))); mask: radial-gradient(closest-side, transparent calc(100% - var(--petal-len)), var(--text) calc(100% - var(--petal-len) + var(--hairline))); }
+.k-avatar-host[data-frame="frame-crimson"][data-fsize="l"]::after { background: repeating-conic-gradient(from -7deg, var(--frame-crimson) 0 14deg, transparent 14deg 45deg); }
+/* Jade band: a band and one bead at the top */
+.k-avatar-host[data-frame="frame-jade"] { --frame-c: var(--frame-jade); }
+.k-avatar-host[data-frame="frame-jade"]::after { inline-size: calc(var(--fb) * 2.4); block-size: calc(var(--fb) * 2.4); inset-block-start: calc(-1 * (var(--fo) + var(--fb) * 1.7)); inset-inline-start: 50%; transform: translateX(-50%); background: var(--frame-jade); box-shadow: 0 0 0 var(--hairline) var(--frame-ground, var(--bg)); }
+/* Amethyst orbit: a thin orbit with a moon; a second, dotted orbit at hero size */
+.k-avatar-host[data-frame="frame-amethyst"] { --frame-c: var(--frame-amethyst); --fb: var(--ring-1-5); }
+.k-avatar-host[data-frame="frame-amethyst"][data-fsize="l"]::before { outline: var(--hairline) dotted var(--frame-amethyst); outline-offset: var(--fgap); }
+.k-avatar-host[data-frame="frame-amethyst"]::after { inset: calc(-1 * (var(--fo) + var(--fb) + var(--moon) / 2)); background: radial-gradient(circle at 50% calc(var(--moon) / 2), var(--frame-amethyst) calc(var(--moon) / 2), transparent calc(var(--moon) / 2 + var(--hairline))); transform: rotate(42deg); --moon: var(--frame-moon-s); }
+.k-avatar-host[data-frame="frame-amethyst"][data-fsize="l"]::after { --moon: var(--frame-moon-l); }
+/* each HP ring says how far outside the portrait it reaches */
+.k-profile-ring { --frame-out: var(--bar-3); }
 #cols[data-rail="compact"] .k-profile, #cols[data-tree="open"]:not([data-rail="full"]) .k-profile, #cols[data-tree="closed"]:not([data-rail="full"]) .k-profile { inline-size: auto; padding: 0; background: none; }
 #cols[data-rail="compact"] .k-profile-txt, #cols[data-tree="open"]:not([data-rail="full"]) .k-profile-txt, #cols[data-tree="closed"]:not([data-rail="full"]) .k-profile-txt { display: none; }
 .k-rail-more { display: none; }

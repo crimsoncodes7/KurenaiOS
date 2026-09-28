@@ -30,7 +30,8 @@ const { document } = window;
 const errors = [];
 window.addEventListener("error", e => errors.push("window error: " + e.message));
 const noop = () => {};
-const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 10 }) : (typeof k === "string" ? noop : undefined), set: () => true });
+const gradStub = { addColorStop: noop };
+const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 10 }) : /^create\w*Gradient$/.test(k) ? () => gradStub : (typeof k === "string" ? noop : undefined), set: () => true });
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
@@ -481,6 +482,24 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
   const main = document.getElementById("main");
   await waitFor(() => main.querySelector("[data-ui~='shrine.hall']"), 4000);
   if (main.querySelector("[data-ui~='shrine.hall']").getAttribute("data-skin") !== "shrine-neon") throw new Error("shrine style class not applied");
+});
+step("frame 22: a frame is drawn by the avatar's host; the share card follows the worn Shrine style", async () => {
+  const g = KOS.store.state.governor;
+  g.avatar.frame = "frame-gold";
+  const hero = KOS.governor.avatarNode(94), chip = KOS.governor.avatarNode(32);
+  if (!hero.matches("[data-ui~='gov.avatar-host'][data-frame='frame-gold'][data-fsize='l']")) throw new Error("the hero-size host does not carry the frame");
+  if (chip.getAttribute("data-fsize") !== "s") throw new Error("a rail-size frame is not thinned");
+  if (!hero.querySelector("[data-ui~='gov.avatar']") || hero.querySelector("[data-ui~='gov.avatar']").hasAttribute("data-frame")) throw new Error("the portrait keeps its own box; the frame lives on the host");
+  g.avatar.frame = null;
+  /* shrine-neon was bought and worn above: the share dialog offers it and opens on it */
+  const fav = await p(cb => KOS.mediadb.get(idA, cb));
+  KOS.shrineCard(fav, 1, 1);
+  await waitFor(() => document.querySelector("[data-ui~='shrine.style'][data-style='neon']"), 3000);
+  const neon = document.querySelector("[data-ui~='shrine.style'][data-style='neon']");
+  if (!neon) throw new Error("the owned Shrine style is not in the share card's Style picker");
+  if (neon.getAttribute("aria-pressed") !== "true") throw new Error("the share card does not follow the worn Shrine style");
+  if (document.querySelector("[data-ui~='shrine.style'][data-style='gilded']")) throw new Error("an unowned style is offered");
+  document.querySelectorAll(".k-dialog-overlay").forEach(o => o.close ? o.close() : o.remove());
 });
 step("boundaries hold: cosmetics AND labs buyable while strained, HP untouched", async () => {
   const g = KOS.store.state.governor;

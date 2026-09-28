@@ -323,18 +323,18 @@
     { id: "seal-rai",    kind: "seal", name: "雷 Rai seal",    price: 70, desc: "Thunder variant of the OS mark.", glyph: "雷" },
     { id: "seal-hoshi",  kind: "seal", name: "星 Hoshi seal",  price: 70, desc: "Star variant of the OS mark.", glyph: "星" },
     /* cosmetic: avatar frames */
-    { id: "frame-gold",     kind: "frame", name: "Gilt ring",      price: 90, desc: "A solid gold ring around your avatar." },
-    { id: "frame-crimson",  kind: "frame", name: "Kurenai bloom",  price: 90, desc: "A crimson glow bleeding off the rim." },
-    { id: "frame-jade",     kind: "frame", name: "Jade band",      price: 90, desc: "A cool jade ring — the CS hue." },
-    { id: "frame-amethyst", kind: "frame", name: "Amethyst orbit", price: 90, desc: "A violet ring — the IT hue." },
+    { id: "frame-gold",     kind: "frame", name: "Gilt ring",      price: 90, desc: "Gold, with a fine outer line and engraved studs at full size." },
+    { id: "frame-crimson",  kind: "frame", name: "Kurenai bloom",  price: 90, desc: "Crimson petals from the brand bloom, around the HP ring." },
+    { id: "frame-jade",     kind: "frame", name: "Jade band",      price: 90, desc: "A jade band with a single bead at the top." },
+    { id: "frame-amethyst", kind: "frame", name: "Amethyst orbit", price: 90, desc: "A violet orbit in the IT hue, with a small moon." },
     /* cosmetic: Collection Matrix — bookshelf skins (Books' Physical tab) */
-    { id: "shelf-walnut",    kind: "shelfskin", name: "Walnut grain",     price: 80, desc: "Warm wood tones under the spines — a reading-lamp shelf." },
-    { id: "shelf-lacquer",   kind: "shelfskin", name: "Black lacquer",    price: 80, desc: "Gloss-dark boards with a gold hairline." },
-    { id: "shelf-vermilion", kind: "shelfskin", name: "Vermilion shrine", price: 80, desc: "Torii-red boards — the shelf as a small shrine." },
+    { id: "shelf-walnut",    kind: "shelfskin", name: "Walnut grain",     price: 80, desc: "Vertical walnut grain, a framed edge and a lit board lip." },
+    { id: "shelf-lacquer",   kind: "shelfskin", name: "Black lacquer",    price: 80, desc: "Dark gloss with a diagonal sheen and a gold maki-e line." },
+    { id: "shelf-vermilion", kind: "shelfskin", name: "Vermilion shrine", price: 80, desc: "Torii posts, a black lintel and shide paper — the shelf as a small shrine." },
     /* cosmetic: Collection Matrix — Shrine card border styles */
     { id: "shrine-gilded", kind: "shrinestyle", name: "Gilded torii", price: 80, desc: "Double gold borders on every enshrined card." },
-    { id: "shrine-ink",    kind: "shrinestyle", name: "Ink brush",    price: 80, desc: "Soft brushed monochrome edges — the quiet hall." },
-    { id: "shrine-neon",   kind: "shrinestyle", name: "Neon shrine",  price: 80, desc: "Crimson glow bleeding off every card rim." },
+    { id: "shrine-ink",    kind: "shrinestyle", name: "Ink brush",    price: 80, desc: "Washi cards with an offset ink shadow, monochrome covers and brushed rank marks." },
+    { id: "shrine-neon",   kind: "shrinestyle", name: "Neon shrine",  price: 80, desc: "Glowing cyan edges, pink for rank 01, and a faint grid behind the hall." },
     /* cosmetic: painted profile banners — the backdrop of the identity card
        on the Governor's Seat and the home profile band. A custom image
        upload is always free (it's your own picture); these are the painted
@@ -499,17 +499,22 @@
   function sealUnlocked(s) { return level() >= s.minLevel; }
 
   /* Returns a DOM node for the current avatar at a given px size. */
+  /* frame 22a: the returned node is the FRAME HOST — the portrait inside
+     it keeps its box (and its clip), and a worn frame is drawn outside
+     that box by the host's own layers, past whatever HP ring surrounds it
+     (the ring says how far via --frame-out), so a frame never covers the
+     arc and never changes layout. data-fsize thins it out at small sizes. */
   function avatarNode(size) {
     var el = KOS.ui.el, g = G();
-    var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", "data-frame": g.avatar.frame || null,
-      style: "--avatar: " + size + "px" });
+    var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", style: "--avatar: " + size + "px" });
     if (g.avatar.kind === "custom" && g.avatar.img) {
       node.appendChild(KOS.imageCrop.image(g.avatar.img, { alt: "Your avatar" }, g.avatar.crop));
     } else {
       var s = sealById(g.avatar.id) || SEALS[0];
       node.innerHTML += sealSvg(s);
     }
-    return node;
+    return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": g.avatar.frame || null,
+      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node]);
   }
 
   function saveCustomAvatar(source, crop) {

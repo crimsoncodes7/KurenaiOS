@@ -19,6 +19,7 @@
 .k-home-ring[data-hp="strained"] { --ring: var(--amber); }
 .k-home-ring[data-hp="critical"] { --ring: var(--crimson); }
 .k-home-ring .k-avatar { box-shadow: 0 0 0 var(--rail-mark) var(--home-hero-bg); }
+.k-home-ring { --frame-out: calc((var(--home-avatar-ring) - var(--home-avatar)) / 2); --frame-ground: var(--home-hero-bg); }
 .k-home-hero-txt { flex: 1 1 0; min-inline-size: 0; }
 .k-home-hero-txt .k-kicker { color: var(--home-hero-ink); }
 .k-home-greet { font-size: var(--fs-26); letter-spacing: var(--track-head); margin-block: var(--sp-4) var(--sp-2); line-height: var(--lh-snug); }
@@ -216,7 +217,8 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 .k-home-hero-txt { display: contents; }
 .k-home-hero-txt > :not(.k-kicker) { grid-column: 1 / -1; }
 .k-home-ring { inline-size: var(--home-ring-sm); block-size: var(--home-ring-sm); }
-.k-home-ring .k-avatar { inline-size: calc(100% - var(--sp-8)); block-size: calc(100% - var(--sp-8)); }
+.k-home-ring .k-avatar { inline-size: calc(var(--home-ring-sm) - var(--sp-8)); block-size: calc(var(--home-ring-sm) - var(--sp-8)); }
+.k-home-ring { --frame-out: var(--sp-4); }
 .k-home-greet { font-size: var(--fs-22); }
 .k-home-dot { display: none; }
 .k-home-goal { display: flex; grid-column: 1 / -1; inline-size: auto; margin-block-start: var(--sp-6); }

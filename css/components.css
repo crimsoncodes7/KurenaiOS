@@ -212,7 +212,7 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-pc-band { block-size: var(--pc-band-h); background: var(--gv-hero-bg); }
 .k-pc-ident { display: flex; flex-direction: column; gap: var(--sp-12); }
 .k-pc-id { display: flex; align-items: flex-end; gap: var(--sp-12); margin-block-start: calc(var(--pc-band-h) * -0.5); padding-inline: var(--sp-16); }
-.k-pc-ring { inline-size: var(--pc-ring); block-size: var(--pc-ring); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--ring) 0 var(--hp, 100%), var(--line) var(--hp, 100%) 100%); box-shadow: 0 0 0 var(--rail-mark) var(--s2); }
+.k-pc-ring { --frame-out: var(--sp-6); --frame-ground: var(--s2); inline-size: var(--pc-ring); block-size: var(--pc-ring); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--ring) 0 var(--hp, 100%), var(--line) var(--hp, 100%) 100%); box-shadow: 0 0 0 var(--rail-mark) var(--s2); }
 .k-pc-who { display: flex; flex-direction: column; min-inline-size: 0; padding-block-end: var(--sp-4); line-height: var(--lh-snug); }
 .k-pc-name { font-size: var(--fs-16); font-weight: var(--weight-semibold); }
 .k-pc-rank { font-size: var(--fs-12); color: var(--muted); }
