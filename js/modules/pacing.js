@@ -923,7 +923,8 @@
         el("label", { class: "k-pace-tick", "data-ui": "pace.tick", title: e.done ? "Ticked off" : kind === "class" ? "Tick when you have sat it" : "Tick off when done" }, [tick]),
         btn,
         carry ? el("span", { class: "k-pace-carry" }, [
-          el("span", { class: "k-chip k-pace-carried-chip", "data-tone": "amber", title: "From " + from + " · " + carry.weeksLate + (carry.weeksLate === 1 ? " week" : " weeks") + " behind", text: "carried" }),
+          el("span", { class: "k-chip k-pace-carried-chip", "data-tone": "amber", title: "From " + from + " · " + carry.weeksLate + (carry.weeksLate === 1 ? " week" : " weeks") + " behind" },
+            ["carried", el("span", { class: "k-pace-carried-from", text: " · from " + from })]),
           el("button", { type: "button", class: "k-link k-pace-move", "data-ui": "pace.move", title: "Move this row into " + selected.label,
             "aria-label": "Move " + e.title + " into " + selected.label, text: "→ here",
             onclick: function () {
@@ -995,9 +996,9 @@
       /* the week's actions sit on the right under the ticks and the
          behind chip (review B, second pass), not beside the title */
       var weekActs = el("div", { class: "k-pace-hero-acts", "data-ui": "pace.week-actions" }, [
-          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.add", "aria-label": "Add a row to " + selected.label, text: "+ Add row",
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.add", "data-phone-more": "", "aria-label": "Add a row to " + selected.label, text: "+ Add row",
             onclick: function () { entryDialog(null, { wb: selected.wb, subject: "compsci", source: "personal" }, redraw); } }),
-          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit week",
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.edit-week", "data-phone-more": "", text: "Edit week",
             onclick: function () {
               weekDialog(selected, function (w) {
                 if (!w) { KOS.show("pacing", { wb: (KOS.pacing.currentWeek() || {}).wb }); return; }

@@ -59,6 +59,11 @@
        still in the list it is about to be selected in. */
     var selectedId = arg && arg.id != null ? arg.id : null;
     var alertsOpen = false;       /* the Alerts dropdown survives the redraw a tick causes */
+    /* frame 15h: on a phone the detail is a tall sheet, and lists/tags and
+       sort/priority each open in one — the same nodes, moved (invariant 58) */
+    var phone = window.matchMedia ? window.matchMedia("(max-width: 700px)") : { matches: false };
+    var inspSheet = null;
+    function toSheet(opts) { return KOS.mobileShell && KOS.mobileShell.moveToSheet ? KOS.mobileShell.moveToSheet(opts) : null; }
 
     /* No in-page copy of the section nav. Reminders, Habits and Calendar
        are already the Productivity strip directly above this header. */
@@ -89,7 +94,7 @@
       side.innerHTML = "";
       var c = R().counts();
 
-      var secWrap = el("div", { class: "k-rem-group", "data-ui": "rem.side-group" }, [el("h3", { class: "k-kicker", text: "Smart sections" })]);
+      var secWrap = el("div", { class: "k-rem-group k-rem-group--sections", "data-ui": "rem.side-group" }, [el("h3", { class: "k-kicker", text: "Smart sections" })]);
       R().SECTIONS.forEach(function (s) {
         var n = c.sections[s.id] || 0;
         secWrap.appendChild(sideItem({ section: s.id, glyph: s.glyph, label: s.label, count: n,
@@ -192,6 +197,21 @@
     prioSel.value = p.priority || "";
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; KOS.store.save(); renderList(); });
     prioSel.addEventListener("change", function () { p.priority = prioSel.value; KOS.store.save(); renderList(); });
+    var sortBox = el("div", { class: "k-rem-sortbox", "data-ui": "rem.sort-box" }, [sortSel, prioSel]);
+    var sortBtn = el("button", { type: "button", class: "k-btn k-rem-sortbtn", "data-ui": "rem.sort-open",
+      "aria-haspopup": "dialog", "aria-expanded": "false",
+      onclick: function () { toSheet({ node: sortBox, trigger: sortBtn, eyebrow: "Reminders", title: "Sort & priority", slot: "rem-sort" }); } });
+    /* the tall taxonomy's disclosure (compact tiers): the page's own button,
+       naming what is filtered on a phone, where the sections are the switch */
+    var filterBtn = el("button", { type: "button", class: "k-btn k-disclosure k-rem-filter", "data-ui": "rem.disclosure-trigger",
+      "aria-haspopup": "dialog", "aria-expanded": "false",
+      onclick: function () {
+        toSheet({ node: side, trigger: filterBtn, eyebrow: "Reminders", title: phone.matches ? "Lists & tags" : "Browse reminders", slot: "reminders" });
+      } });
+    function filterText() {
+      return (p.section === "completed" ? "Completed · " : "") +
+        (p.listId != null ? R().listName(p.listId) || "List" : "All lists") + " · " + (p.tag ? "#" + p.tag : "any tag");
+    }
 
     var quickIn = el("input", { type: "text", class: "k-rem-quick-in",
       placeholder: "Add a reminder…",
@@ -240,7 +260,24 @@
         el("button", { type: "button", class: "k-rem-quick-add", "data-ui": "rem.quick-add", "aria-label": "Add the reminder", text: "+", onclick: quickAdd }),
         quickIn, quickList
       ]));
-      mid.appendChild(el("div", { class: "k-cluster k-rem-tools", "data-ui": "rem.tools" }, [sortSel, prioSel, countLine]));
+      var c = R().counts();
+      mid.appendChild(el("div", { class: "k-seg k-seg--grid k-rem-secs", "data-ui": "rem.sections", role: "group", "aria-label": "Smart sections" },
+        ["today", "scheduled", "all", "overdue"].map(function (id) {
+          var n = c.sections[id] || 0;
+          return el("button", { type: "button", class: "k-seg-item", "data-ui": "rem.section", "data-section": id,
+            "aria-pressed": String(p.section === id && p.listId == null && !p.tag),
+            onclick: function () { p.section = id; p.listId = null; p.tag = null; KOS.store.save(); draw(); } },
+            [R().section(id).label, n ? el("span", { class: "k-rem-n k-mono", "data-tone": id === "overdue" ? "crimson" : null, text: String(n) }) : null].filter(Boolean));
+        })));
+      filterBtn.innerHTML = "";
+      filterBtn.appendChild(el("span", { class: "k-rem-filter-wide", text: "☷ Browse sections, lists & tags" }));
+      filterBtn.appendChild(el("span", { class: "k-rem-filter-phone", text: filterText() + " ▾" }));
+      mid.appendChild(el("div", { class: "k-cluster k-rem-tools", "data-ui": "rem.tools" }, [filterBtn, sortBox, sortBtn, countLine]));
+      var done = c.sections.completed || 0;
+      mid.appendChild(el("button", { type: "button", class: "k-btn k-rem-completed", "data-ui": "rem.completed", "data-phone-more": "",
+        "aria-pressed": String(p.section === "completed" && p.listId == null && !p.tag),
+        text: "Completed" + (done ? " · " + done : ""),
+        onclick: function () { p.section = "completed"; p.listId = null; p.tag = null; KOS.store.save(); var o = KOS.ui.topDialog && KOS.ui.topDialog(); if (o && o.close) o.close(); draw(); } }));
       mid.appendChild(listHolder);
       renderList();
     }
@@ -262,6 +299,8 @@
       });
       var filtered = !!p.priority;
       countLine.textContent = filtered ? rows.length + (rows.length === 1 ? " match" : " matches") : "";
+      var sortLabel = (R().SORTS.find(function (x) { return x.v === (p.sort || "due"); }) || R().SORTS[0]).label.toLowerCase();
+      sortBtn.textContent = "Sort: " + sortLabel + (p.priority ? " · " + R().PRIORITIES[+p.priority].label : "") + " ▾";
 
       if (!rows.length) {
         listHolder.appendChild(KOS.ui.emptyState({ mark: "祝", compact: true,
@@ -345,7 +384,13 @@
         } }));
       return node;
     }
-    function select(id) { selectedId = id; renderList(); renderInsp(); }
+    function select(id) {
+      selectedId = id; renderList(); renderInsp();
+      if (id != null && phone.matches && !inspSheet) {
+        inspSheet = toSheet({ node: insp, eyebrow: "Reminders", title: "Reminder", slot: "rem-detail", tall: true,
+          onClose: function () { inspSheet = null; if (selectedId != null) { selectedId = null; renderList(); renderInsp(); } } });
+      }
+    }
 
     /* ---------------- the detail panel ---------------- */
     function field(label, control, wide) {
@@ -355,6 +400,7 @@
       insp.innerHTML = "";
       var item = selectedId != null ? R().get(selectedId) : null;
       KOS.ui.state(insp, "empty", !item);
+      if (!item && inspSheet) { var sh = inspSheet; inspSheet = null; sh.close(); }
       if (!item) {
         insp.appendChild(KOS.ui.emptyState({ mark: "祝", compact: true,
           body: "Select a reminder to edit its date, priority, list, tags, notes, sub-tasks, repeat and alerts." }));

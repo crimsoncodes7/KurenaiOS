@@ -712,6 +712,12 @@
    "from": ".",
    "retire": true,
    "why": "Graphite review B (Pacing braid, frame 10g): the merges table is one subject at a time and one row per plan row, naming its title and one reference; a row opens the plan row's dialog (which links every spec point), and a week opens from its column in the diagram."
+  },
+  {
+   "hooks": "rem.disclosure-trigger",
+   "from": "^☷ Browse sections, lists & tags$",
+   "to": "☷ Browse sections, lists & tagsAll lists · any tag ▾",
+   "why": "Design part 2, frame 15h: Reminders owns its lists/tags disclosure (moved out of mobile-shell) and the button also carries the phone label naming what is filtered; the tablet label is unchanged."
   }
  ]
 }

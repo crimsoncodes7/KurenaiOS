@@ -1275,6 +1275,9 @@
       body.innerHTML = "";
       var y = focus.getFullYear(), mo = focus.getMonth();
       var t = today();
+      var phoneLayout = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
+      body.setAttribute("class", phoneLayout ? "k-cal-phone" : "k-cal");
+      if (phoneLayout) { renderPhone(t); return; }
 
       var weekStart = new Date(focus.getFullYear(), focus.getMonth(), focus.getDate() - ((focus.getDay() + 6) % 7));
       var weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
@@ -1307,20 +1310,164 @@
       } }));
 
       var board = el("section", { class: "k-card k-cal-board", "aria-label": titleText });
-      var phoneLayout = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
-      if (mode === "month") renderMonth(board, y, mo, t, render, phoneLayout);
-      else if (phoneLayout) renderPhoneWeek(board, weekStart, t, render);
+      if (mode === "month") renderMonth(board, y, mo, t, render);
       else renderWeek(board, weekStart, t, render);
       board.appendChild(legend());
 
       body.appendChild(board);
       body.appendChild(el("div", { class: "k-cal-side" }, [todayCard(render), countdownWidget(null)]));
     }
+
+    /* Frame 15g: the phone composition. Agenda (the stored "week" mode) is
+       a week strip over the lists of the chosen day and the rest of its
+       week; Month is a grid of dots, and the tapped day lists underneath.
+       The day in focus IS the selection, and "+" (lent to the title bar)
+       adds on it. Countdowns stay on the page under the lists. */
+    function renderPhone(t) {
+      var y = focus.getFullYear(), mo = focus.getMonth(), sel = isoOf(focus);
+      var agenda = mode === "week";
+      var weekStart = new Date(y, mo, focus.getDate() - ((focus.getDay() + 6) % 7));
+      var weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
+      head.appendChild(el("button", { type: "button", class: "k-iconbtn", "data-ui": "cal.new", "data-phone-action": "", text: "+",
+        "aria-label": "New event on " + prettyDate(sel), onclick: function () { eventModal(null, isoOf(focus), render); } }));
+      head.appendChild(el("div", { class: "k-seg k-seg--grid k-cal-modes", role: "group", "aria-label": "Calendar view" }, [["Agenda", "week"], ["Month", "month"]].map(function (m) {
+        return el("button", { type: "button", class: "k-seg-item", "data-ui": "cal.mode", text: m[0],
+          "aria-pressed": mode === m[1] ? "true" : "false", onclick: function () { setMode(m[1]); } });
+      })));
+
+      function step(n) {
+        if (agenda) return new Date(y, mo, focus.getDate() + 7 * n);
+        return new Date(y, mo + n, Math.min(focus.getDate(), daysInMonth(y, mo + n)));
+      }
+      var inView = agenda ? (t >= isoOf(weekStart) && t <= isoOf(weekEnd)) : t.slice(0, 7) === sel.slice(0, 7);
+      var unit = agenda ? "week" : "month";
+      body.appendChild(el("div", { class: "k-cal-period", "data-ui": "cal.period" }, [
+        el("h2", { class: "k-cal-period-t", text: agenda
+          ? (weekStart.getMonth() === weekEnd.getMonth()
+            ? weekStart.getDate() + "–" + weekEnd.getDate() + " " + MONTHS[weekEnd.getMonth()]
+            : weekStart.getDate() + " " + MONTHS[weekStart.getMonth()].slice(0, 3) + " – " + weekEnd.getDate() + " " + MONTHS[weekEnd.getMonth()].slice(0, 3))
+          : MONTHS[mo] + " " + y }),
+        inView ? null : el("button", { type: "button", class: "k-btn k-btn--sm", text: "Today", onclick: function () { setFocus(new Date()); } }),
+        el("button", { type: "button", class: "k-iconbtn", text: "‹", "aria-label": "Previous " + unit, onclick: function () { setFocus(step(-1)); } }),
+        el("button", { type: "button", class: "k-iconbtn", text: "›", "aria-label": "Next " + unit, onclick: function () { setFocus(step(1)); } })
+      ].filter(Boolean)));
+
+      function pick(dt, dISO, n, kids, cls) {
+        var b = el("button", { type: "button", class: cls, "data-ui": "cal.day-pick",
+          "aria-pressed": dISO === sel ? "true" : "false",
+          "aria-label": prettyDate(dISO) + (dISO === t ? ", today" : "") + (n ? ", " + n + (n === 1 ? " item" : " items") : ""),
+          onclick: function () { setFocus(dt); } }, kids);
+        if (dISO === t) KOS.ui.state(b, "today", true);
+        return b;
+      }
+      if (agenda) {
+        var strip = el("div", { class: "k-cal-strip", "data-ui": "cal.strip", role: "group", "aria-label": "Days of the week" });
+        for (var i = 0; i < 7; i++) {
+          var dt = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i), dISO = isoOf(dt);
+          var hues = dayHues(dISO);
+          strip.appendChild(pick(dt, dISO, hues.length, [
+            el("span", { class: "k-cal-sday-dow", text: DOW[i] }),
+            el("b", { class: "k-cal-sday-num k-mono", text: String(dt.getDate()) }),
+            el("span", { class: "k-cal-dots", "aria-hidden": "true" }, hues.slice(0, 1).map(dotOf))
+          ], "k-cal-sday"));
+        }
+        body.appendChild(strip);
+      } else {
+        var first = new Date(y, mo, 1);
+        var startD = new Date(y, mo, 1 - ((first.getDay() + 6) % 7));
+        var n = new Date(y, mo + 1, 0).getDate() + ((first.getDay() + 6) % 7) > 35 ? 42 : 35;
+        var grid = el("div", { class: "k-cal-mgrid", "data-ui": "cal.phone-month" },
+          DOW.map(function (d) { return el("span", { class: "k-cal-mgrid-dow", "aria-hidden": "true", text: d.charAt(0) }); }));
+        for (var j = 0; j < n; j++) {
+          var md = new Date(startD.getFullYear(), startD.getMonth(), startD.getDate() + j), mISO = isoOf(md);
+          var mh = dayHues(mISO);
+          var cell = pick(md, mISO, mh.length, [
+            el("span", { class: "k-cal-mday-num k-mono", text: String(md.getDate()) }),
+            el("span", { class: "k-cal-dots", "aria-hidden": "true" }, mh.slice(0, 3).map(dotOf))
+          ], "k-cal-mday");
+          if (md.getMonth() !== mo) KOS.ui.state(cell, "other", true);
+          grid.appendChild(cell);
+        }
+        body.appendChild(grid);
+        body.appendChild(legend());
+      }
+
+      var days = [];
+      for (var k = 0; k < (agenda ? 7 : 1); k++) {
+        var dk = new Date(y, mo, focus.getDate() + k);
+        if (agenda && dk > weekEnd) break;
+        days.push(isoOf(dk));
+      }
+      var list = el("div", { class: "k-cal-days", "data-ui": "cal.agenda" });
+      days.forEach(function (dISO) {
+        var rows = agendaRows(dISO, render);
+        if (!rows.length && dISO !== sel) return;
+        var dd = parseISO(dISO);
+        var card = el("section", { class: "k-card k-cal-dcard", "data-ui": "cal.phone-day", "aria-label": prettyDate(dISO) }, [
+          el("h3", { class: "k-cal-dcard-h" }, [
+            DOW_LONG[(dd.getDay() + 6) % 7] + " " + dd.getDate() + " " + MONTHS[dd.getMonth()],
+            dISO === t ? el("span", { class: "k-chip", "data-ui": "cal.today-chip", text: "Today" }) : null
+          ].filter(Boolean))
+        ]);
+        if (rows.length) rows.forEach(function (r) { card.appendChild(r); });
+        else card.appendChild(el("p", { class: "k-muted k-cal-cd-empty", text: "Nothing scheduled." }));
+        list.appendChild(card);
+      });
+      body.appendChild(list);
+      body.appendChild(countdownWidget(null));
+    }
     render();
   };
 
+  /* the hues of a day's items, in the order its lists print them */
+  function dayHues(dISO) {
+    var items = dayItems(dISO);
+    return items.events.map(function (ev) { return { type: ev.type, colour: ev.colour }; })
+      .concat(items.assignments.map(function () { return { type: "assignment" }; }))
+      .concat(items.reminders.map(function () { return { type: "reminder" }; }));
+  }
+  function dotOf(h) { return hueAttrs(el("i", { class: "k-cal-dot" }), h); }
+
+  /* A phone agenda row: the time in a mono column, the hue bar, then the
+     title over its facts. Same destinations as the chips. */
+  function agendaRows(dISO, onChanged) {
+    var items = dayItems(dISO);
+    function row(hook, hue, when, title, meta, label, go) {
+      return hueAttrs(el("button", { type: "button", class: "k-cal-arow", "data-ui": hook, "aria-label": label, onclick: go }, [
+        el("span", { class: "k-cal-arow-when k-mono", text: when }),
+        el("span", { class: "k-cal-row-bar", "aria-hidden": "true" }),
+        el("span", { class: "k-cal-row-body" }, [
+          el("span", { class: "k-cal-row-t", text: title }),
+          meta ? el("span", { class: "k-cal-row-m", text: meta }) : null
+        ].filter(Boolean))
+      ]), hue);
+    }
+    var out = items.events.map(function (ev) {
+      var span = ev.time && ev.endTime ? mins(ev.endTime) - mins(ev.time) : 0;
+      var recurring = (ev.recur || "none") !== "none";
+      var meta = [ev.location, span > 0 ? durationLabel(span) : (ev.durationMins ? durationLabel(ev.durationMins) : ""),
+        ev.ref || "", recurring ? "↻" : ""].filter(Boolean).join(" · ");
+      var label = (ev.allDay || !ev.time ? "All day" : ev.time) + " " + (ev.title || "Untitled") + " — " + TYPE_LABEL[ev.type] +
+        (recurring ? ", " + describeRecur(ev).toLowerCase() : "");
+      return row("cal.event", ev, ev.allDay || !ev.time ? "All day" : ev.time, ev.title || "Untitled", meta, label,
+        function () { eventDetail(ev, dISO, onChanged); });
+    });
+    items.assignments.forEach(function (a) {
+      var r = row("cal.event cal.asg", { type: "assignment" }, a.dueTime || "Due", a.title,
+        "Assignment · " + KOS.assignments.statusLabel(a.status), "Assignment due: " + a.title, function () { openAssignment(a, onChanged); });
+      if (KOS.assignments.isOverdue(a)) KOS.ui.state(r, "overdue", true);
+      out.push(r);
+    });
+    items.reminders.forEach(function (r) {
+      var ln = KOS.reminders.listName && r.listId != null ? KOS.reminders.listName(r.listId) : "";
+      out.push(row("cal.event cal.rem", { type: "reminder" }, r.dueTime || "Any time", r.title, ln || "Reminder",
+        "Reminder: " + r.title, function () { KOS.show("reminders"); }));
+    });
+    return out;
+  }
+
   /* ---------------- month grid ---------------- */
-  function renderMonth(host, y, mo, t, onChanged, phoneLayout) {
+  function renderMonth(host, y, mo, t, onChanged) {
     var first = new Date(y, mo, 1);
     var startD = new Date(y, mo, 1 - ((first.getDay() + 6) % 7));
     var days = [];
@@ -1360,73 +1507,20 @@
 
       /* a "+1 more" costs exactly as much room as the chip it hides, so the
          cap only bites from the second hidden item onwards */
-      if (phoneLayout && chips.length) {
-        /* Seven readable titles do not fit into 390px. The phone month is an
-           overview: density stays visible, and one clear button discloses
-           every full title in the existing day sheet. */
+      var show = chips.length <= MONTH_CHIPS + 1 ? chips.length : MONTH_CHIPS;
+      chips.slice(0, show).forEach(function (c) { stack.appendChild(c); });
+      if (chips.length > show) {
+        var extra = chips.length - show;
         stack.appendChild(el("button", {
-          class: "k-cal-count", "data-ui": "cal.day-summary", type: "button", text: String(chips.length),
-          "aria-label": chips.length + (chips.length === 1 ? " item" : " items") + " on " + prettyDate(dISO),
+          class: "k-cal-more", "data-ui": "cal.more", type: "button", text: "+" + extra + " more",
+          "aria-label": extra + " more on " + prettyDate(dISO),
           onclick: function (e) { e.stopPropagation(); daySheet(dISO, onChanged); }
         }));
-      } else {
-        var show = chips.length <= MONTH_CHIPS + 1 ? chips.length : MONTH_CHIPS;
-        chips.slice(0, show).forEach(function (c) { stack.appendChild(c); });
-        if (chips.length > show) {
-          var extra = chips.length - show;
-          stack.appendChild(el("button", {
-            class: "k-cal-more", "data-ui": "cal.more", type: "button", text: "+" + extra + " more",
-            "aria-label": extra + " more on " + prettyDate(dISO),
-            onclick: function (e) { e.stopPropagation(); daySheet(dISO, onChanged); }
-          }));
-        }
       }
       cell.appendChild(stack);
       g.appendChild(cell);
     });
     host.appendChild(g);
-  }
-
-  /* The phone's Week choice is an agenda, not seven 44px time columns.
-     It uses the same event/assignment/reminder buttons and the same day
-     sheet/editor paths as the desktop grid; only the composition changes. */
-  function renderPhoneWeek(host, weekStart, t, onChanged) {
-    var agenda = el("div", { class: "k-cal-agenda", "data-ui": "cal.phone-week" });
-    for (var i = 0; i < 7; i++) {
-      (function () {
-        var dt = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i);
-        var dISO = isoOf(dt);
-        var items = dayItems(dISO);
-        var rows = [];
-        items.events.forEach(function (ev) { rows.push(eventChip(ev, dISO, onChanged)); });
-        items.assignments.forEach(function (a) { rows.push(assignmentChip(a, onChanged)); });
-        items.reminders.forEach(function (r) { rows.push(reminderChip(r)); });
-        var list = el("div", { class: "k-cal-agenda-items" });
-        if (rows.length) rows.forEach(function (row) { list.appendChild(row); });
-        else list.appendChild(el("p", { class: "k-muted", text: "Nothing scheduled." }));
-        var day = el("section", { class: "k-cal-agenda-day", "data-ui": "cal.phone-day" }, [
-          el("div", { class: "k-cal-agenda-head" }, [
-            el("button", {
-              type: "button", class: "k-cal-agenda-date", "data-ui": "cal.phone-date",
-              "aria-label": "Open " + prettyDate(dISO),
-              onclick: function () { daySheet(dISO, onChanged); }
-            }, [
-              el("span", { text: DOW[(dt.getDay() + 6) % 7] }),
-              el("b", { text: dt.getDate() + " " + MONTHS[dt.getMonth()].slice(0, 3) })
-            ]),
-            el("button", {
-              type: "button", class: "k-iconbtn k-iconbtn--sm", text: "+",
-              "aria-label": "New event on " + prettyDate(dISO),
-              onclick: function () { eventModal(null, dISO, onChanged); }
-            })
-          ]),
-          list
-        ]);
-        if (dISO === t) KOS.ui.state(day, "today", true);
-        agenda.appendChild(day);
-      })();
-    }
-    host.appendChild(agenda);
   }
 
   /* ---------------- week grid ----------------

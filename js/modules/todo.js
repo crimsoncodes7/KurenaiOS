@@ -292,16 +292,31 @@
     }
 
     /* today's directives — the generated list, sealed here as on Home */
-    var dirCard = el("section", { class: "k-card", "data-ui": "habit.directives", "aria-label": "Today's directives" });
+    /* frame 15h: on a phone the card is ONE row that opens the list in a
+       sheet — the list node itself moves there and back */
+    var dirCard = el("section", { class: "k-card k-hb-dircard", "data-ui": "habit.directives", "aria-label": "Today's directives" });
+    var dirList = el("div", { class: "k-hb-dir-list", "data-ui": "habit.directive-list" });
+    var dirLeft = el("span", { class: "k-hb-dir-sum-m" });
+    var dirSum = el("button", { type: "button", class: "k-hb-dir-sum", "data-ui": "habit.directives-open", "aria-haspopup": "dialog", "aria-expanded": "false",
+      onclick: function () {
+        if (KOS.mobileShell && KOS.mobileShell.moveToSheet) KOS.mobileShell.moveToSheet({ node: dirList, trigger: dirSum, eyebrow: "Habits", title: "Today's directives", slot: "habit-directives" });
+      } }, [
+      el("span", { class: "k-hb-dir-sum-t" }, [el("b", { text: "Today's directives" }), dirLeft]),
+      el("span", { class: "k-hb-dir-sum-go", "aria-hidden": "true", text: "›" })
+    ]);
+    dirCard.appendChild(dirSum);
+    dirCard.appendChild(el("div", { class: "k-card-head" }, [
+      el("h2", { class: "k-card-title", text: "Today's directives" }),
+      el("span", { class: "k-card-meta", text: "from exams & deadlines" })
+    ]));
+    dirCard.appendChild(dirList);
     function renderDirectives() {
-      dirCard.innerHTML = "";
+      dirList.innerHTML = "";
       var autos = autoItems();
-      dirCard.appendChild(el("div", { class: "k-card-head" }, [
-        el("h2", { class: "k-card-title", text: "Today's directives" }),
-        el("span", { class: "k-card-meta", text: "from exams & deadlines" })
-      ]));
+      var left = autos.filter(function (a) { return !isChecked(a.key); }).length;
+      dirLeft.textContent = autos.length ? (left ? left + " left" : "All sealed") + " · from exams & deadlines" : "Nothing generated for today";
       if (!autos.length) {
-        dirCard.appendChild(el("p", { class: "k-hb-hint", text: "Nothing generated for today — no due cards, no near deadlines." }));
+        dirList.appendChild(el("p", { class: "k-hb-hint", text: "Nothing generated for today — no due cards, no near deadlines." }));
         return;
       }
       autos.forEach(function (a) {
@@ -314,7 +329,7 @@
           el("span", { class: "k-mono k-hb-reward", text: a.reward })
         ]);
         if (done) KOS.ui.state(row, "done", true);
-        dirCard.appendChild(row);
+        dirList.appendChild(row);
       });
     }
 
@@ -340,8 +355,23 @@
         }
         cells.push(c);
       }
-      heatCard.appendChild(el("div", { class: "k-hb-heat", role: "img",
-        "aria-label": "Habits kept on " + keptDays + " of the last 84 days" }, cells));
+      /* the day and month labels (15h) are the phone's; the desktop card
+         is too short to carry them */
+      var months = [];
+      for (var w = 0; w < 12; w++) {
+        var mon = KOS.srs.addDays(first, 7 * w);
+        if (w && mon.slice(5, 7) === KOS.srs.addDays(first, 7 * (w - 1)).slice(5, 7)) continue;
+        if (!w && KOS.srs.addDays(first, 14).slice(5, 7) !== mon.slice(5, 7)) continue;
+        var m = el("span", { text: dayLabel(mon, { month: "short" }) });
+        m.style.setProperty("--col", String(w + 1));
+        months.push(m);
+      }
+      heatCard.appendChild(el("div", { class: "k-hb-heatwrap" }, [
+        el("span", { class: "k-hb-heat-dows", "aria-hidden": "true" }, ["M", "T", "W", "T", "F", "S", "S"].map(function (d) { return el("span", { text: d }); })),
+        el("div", { class: "k-hb-heat", role: "img",
+          "aria-label": "Habits kept on " + keptDays + " of the last 84 days" }, cells),
+        el("span", { class: "k-hb-heat-months", "aria-hidden": "true" }, months)
+      ]));
     }
 
     side.appendChild(dirCard);

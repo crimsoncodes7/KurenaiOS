@@ -426,6 +426,7 @@ color-scheme: dark;
 --hb-act-w: 36px;
 --hb-cell-h: 26px;
 --hb-heat-h: 130px;
+--hb-sq: 14px;              /* a phone habit row's day square (15h) */
 --dir-tick: 18px;
 --cal-side-w: 300px;
 --cal-cell-h: 104px;
@@ -436,6 +437,10 @@ color-scheme: dark;
 --cal-cd-days-w: 44px;
 --cal-row-bar-w: 4px;
 --cal-kv-w: 110px;
+--cal-when-w: 48px;         /* the phone agenda's time column (15g) */
+--cal-sday-h: 60px;         /* a week-strip day */
+--cal-mday-h: 48px;         /* a phone month cell: the number over its dots */
+--cal-mday-num: 30px;       /* the circle that marks today / the pick */
 --pace-wk-w: 104px;
 --pace-seg-h: 4px;
 --pace-hero-seg-h: 8px;
@@ -443,6 +448,7 @@ color-scheme: dark;
 --pace-dot: 9px;
 --pace-tick: 18px;
 --pace-keycol-w: 116px;
+--pace-keycol-w-sm: 86px;   /* the phone braid's pinned key (15i) */
 --pace-braid-title-w: 180px;
 --pace-merge-ref-w: 90px;
 --pace-merge-tone-w: 170px;

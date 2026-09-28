@@ -519,6 +519,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-dialog-foot > .k-btn { flex: 1 1 0; justify-content: center; min-block-size: var(--hit-coarse); }
 .k-msheet--full { block-size: 100dvh; max-block-size: none; border-radius: 0; padding-block-start: calc(var(--sp-12) + env(safe-area-inset-top)); }
 .k-msheet--full::before { display: none; }
+.k-msheet--tall { block-size: calc(100dvh - var(--sp-24)); }
 #toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
 }
 

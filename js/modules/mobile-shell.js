@@ -377,10 +377,10 @@
     var node = opts.node;
     var origin = node.parentNode;
     var next = node.nextSibling;
-    var close = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.sheet-close", text: "Close" });
+    var close = sheetClose();
     var slot = el("div", { class: "k-msheet-slot", "data-slot": opts.slot });
     slot.appendChild(node);
-    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.compact-sheet", "data-dialog-box": "true" }, [
+    var box = el("section", { class: "k-dialog k-msheet" + (opts.tall ? " k-msheet--tall" : ""), "data-ui": "ui.dialog shell.compact-sheet", "data-dialog-box": "true" }, [
       el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
         el("div", {}, [el("span", { class: "k-kicker", text: opts.eyebrow }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: opts.title })]),
         close
@@ -398,28 +398,14 @@
         else node.remove();
         if (opts.trigger) opts.trigger.setAttribute("aria-expanded", "false");
         if (activeCompactSheet && activeCompactSheet.overlay === overlay) activeCompactSheet = null;
+        if (opts.onClose) opts.onClose();
       }
     });
+    return overlay;
   }
-
-  function enhanceReminderDisclosure(grid) {
-    if (grid.dataset.compactDisclosure) return;
-    var side = grid.querySelector(":scope > [data-ui~='rem.side']");
-    if (!side) return;
-    grid.dataset.compactDisclosure = "true";
-    var trigger = el("button", {
-      type: "button",
-      class: "k-btn k-disclosure",
-      "data-ui": "rem.disclosure-trigger",
-      text: "☷ Browse sections, lists & tags",
-      "aria-haspopup": "dialog",
-      "aria-expanded": "false",
-      onclick: function () {
-        openMovedSheet({ node: side, trigger: trigger, eyebrow: "Reminders", title: "Browse reminders", slot: "reminders" });
-      }
-    });
-    grid.parentNode.insertBefore(trigger, grid);
-  }
+  /* a view lends a canonical node to a sheet (15h: Reminders' lists, sort
+     and detail, Habits' directives); it goes back when the sheet closes */
+  KOS.mobileShell.moveToSheet = openMovedSheet;
 
   function enhanceVaultDisclosure(layout) {
     if (layout.dataset.compactDisclosure) return;
@@ -443,7 +429,7 @@
 
   function enhanceCompactSurfaces() {
     if (activeCompactSheet && !activeCompactSheet.origin.isConnected) activeCompactSheet.overlay.close();
-    main.querySelectorAll("[data-ui~='rem.layout']").forEach(enhanceReminderDisclosure);
+    if (activeToolsOverlay && activeToolsOverlay.stale()) activeToolsOverlay.close();
     main.querySelectorAll("[data-ui~='vault.layout']").forEach(enhanceVaultDisclosure);
   }
   var mainObserver = new MutationObserver(function () { enhanceCompactSurfaces(); syncTitleBar(); });
@@ -529,6 +515,8 @@
       slot
     ]);
     var overlay = overlayFor(box, "tools");
+    /* the tools belong to one page: once it is gone, so is the sheet */
+    overlay.stale = function () { return homes.some(function (h) { return !h.parent.isConnected; }); };
     activeToolsOverlay = overlay;
     close.addEventListener("click", function () { overlay.close(); });
     KOS.ui.openDialog(overlay, { initialFocus: slot.querySelector("button, input, select, textarea") || close, onClose: function () {
@@ -555,7 +543,9 @@
       var h1 = main.querySelector("h1");
       var title = (main.querySelector("[data-phone-title-text]") || {}).textContent || (cur ? cur.label : (h1 ? h1.textContent.trim() : ""));
       var key = [nav.viewId, sectionLabel(), title, list.length].join("|");
-      if (titleBar && titleBar.parentNode === main && main.firstChild === titleBar && titleBar.dataset.key === key) return;
+      /* a redraw can leave a fresh action behind the bar: move it too */
+      var stray = Array.prototype.some.call(main.querySelectorAll("[data-phone-action]"), function (n) { return !titleBar || !titleBar.contains(n); });
+      if (titleBar && titleBar.parentNode === main && main.firstChild === titleBar && titleBar.dataset.key === key && !stray) return;
       restoreMoved();
       if (titleBar) titleBar.remove();
       var tools = el("div", { class: "k-ptitle-tools" });

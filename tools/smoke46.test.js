@@ -343,26 +343,35 @@ step("all four vaults share the same compact status/list disclosure seam", () =>
 
 console.log("== E7: the phone Calendar discloses instead of miniaturising ==");
 
-step("phone Month is a density overview with every day available in the day sheet", async () => {
-  KOS.calendar.addEvent({ title: "A deliberately long mobile calendar title", date: KOS.srs.todayISO(), type: "study" });
+step("phone Month is a dot overview; the tapped day lists underneath (15g)", async () => {
+  const tISO = KOS.srs.todayISO();
+  KOS.calendar.addEvent({ title: "A deliberately long mobile calendar title", date: tISO, type: "study" });
   KOS.store.state.ui.calMode = "month";
   KOS.show("calendar");
   await tick();
-  const summary = $("[data-ui~='cal.day-summary']");
-  assert(summary, "phone Month still paints unreadable event-title chips");
-  assert(/daySheet\(dISO, onChanged\)/.test(calendarSrc), "the phone density control has no full-detail path");
-  click(summary);
-  assert($("[data-ui~='cal.day-modal']"), "a month's density control did not open the existing day sheet");
-  $("[data-ui~='cal.day-modal']").closest("[data-ui~='ui.dialog-overlay']").remove();
+  assert($("[data-ui~='cal.phone-month']") && !$("[data-ui~='cal.month']"), "phone Month still paints the desktop grid");
+  assert(!$("[data-ui~='cal.phone-month'] [data-ui~='cal.event']"), "phone Month paints unreadable event-title chips");
+  const cells = $$("[data-ui~='cal.day-pick']");
+  assert(cells.length === 35 || cells.length === 42, "the month grid lost a day");
+  const other = cells.find(c => c.getAttribute("aria-pressed") !== "true" && !(c.getAttribute("data-state") || "").includes("other"));
+  click(other);
+  await tick();
+  const picked = $$("[data-ui~='cal.day-pick']").find(c => c.getAttribute("aria-pressed") === "true");
+  assert(picked && picked.getAttribute("aria-label") === other.getAttribute("aria-label"), "tapping a day did not select it");
+  assert($$("[data-ui~='cal.phone-day']").length === 1, "Month lists more than the tapped day");
+  click($$("[data-ui~='cal.day-pick']").find(c => (c.getAttribute("data-state") || "").includes("today")));
+  await tick();
+  assert(/deliberately long/.test($("[data-ui~='cal.phone-day']").textContent), "today's list does not carry the full title");
 });
 
-step("phone Week is a seven-day agenda, not seven squeezed time columns", async () => {
+step("phone Agenda is a week strip over the chosen day and the rest of its week", async () => {
   KOS.store.state.ui.calMode = "week";
   KOS.show("calendar");
   await tick();
-  assert($("[data-ui~='cal.phone-week']"), "the phone still renders the desktop time grid");
-  assert($$("[data-ui~='cal.phone-day']").length === 7, "the phone agenda lost a day");
+  assert($("[data-ui~='cal.agenda']") && $("[data-ui~='cal.strip']"), "the phone Agenda is missing its strip or list");
+  assert($$("[data-ui~='cal.strip'] [data-ui~='cal.day-pick']").length === 7, "the week strip lost a day");
   assert(!$("[data-ui~='cal.week']"), "desktop Week columns survived in the phone composition");
+  assert($("[data-ui~='cal.new'][data-phone-action]"), "New event is not lent to the title bar");
 });
 
 step("a mounted Calendar recomposes across the phone breakpoint in both directions", async () => {
@@ -370,30 +379,30 @@ step("a mounted Calendar recomposes across the phone breakpoint in both directio
   assert(phoneMql, "mobile-shell did not subscribe to the sanctioned phone tier");
   phoneMql.setMatches(false);
   await tick(20);
-  assert($("[data-ui~='cal.week']") && !$("[data-ui~='cal.phone-week']"),
+  assert($("[data-ui~='cal.week']") && !$("[data-ui~='cal.agenda']"),
     "orientation to tablet left the phone agenda frozen in place");
   phoneMql.setMatches(true);
   await tick(20);
-  assert($("[data-ui~='cal.phone-week']") && !$("[data-ui~='cal.week']"),
+  assert($("[data-ui~='cal.agenda']") && !$("[data-ui~='cal.week']"),
     "orientation to phone left the desktop time columns frozen in place");
 });
 
 step("Calendar defers orientation redraw until its dialog closes and restores useful focus", async () => {
   const phoneMql = mediaQueries.get("(max-width: 700px)");
-  const opener = $("[data-ui~='cal.phone-date']");
+  const opener = $("[data-ui~='cal.agenda'] [data-ui~='cal.event']");
   opener.focus();
   click(opener);
-  assert($("[data-ui~='cal.day-modal']"), "the phone Calendar day dialog did not open");
+  assert($("[data-ui~='cal.detail-modal']"), "the phone Calendar event dialog did not open");
   phoneMql.setMatches(false);
   await tick(20);
-  assert($("[data-ui~='cal.day-modal']") && $("[data-ui~='cal.phone-week']") && !$("[data-ui~='cal.week']"),
+  assert($("[data-ui~='cal.detail-modal']") && $("[data-ui~='cal.agenda']") && !$("[data-ui~='cal.week']"),
     "orientation destroyed an open editor or recomposed behind its stale callback");
   key("Escape", document.activeElement);
   await tick(30);
-  assert(!$("[data-ui~='cal.day-modal']") && $("[data-ui~='cal.week']") && !$("[data-ui~='cal.phone-week']"),
+  assert(!$("[data-ui~='cal.detail-modal']") && $("[data-ui~='cal.week']") && !$("[data-ui~='cal.agenda']"),
     "the deferred Calendar composition did not apply after dialog close");
   assert(document.activeElement && document.activeElement.isConnected && document.activeElement !== document.body &&
-    (document.activeElement.matches('[data-ui~="cal.day"]') || document.activeElement === $("#main")),
+    (document.activeElement.matches('[data-ui~="cal.event"]') || document.activeElement === $("#main")),
     "deferred Calendar recomposition discarded the dialog's restored focus");
   phoneMql.setMatches(true);
 });
@@ -401,18 +410,18 @@ step("Calendar defers orientation redraw until its dialog closes and restores us
 step("Calendar Save keeps a connected focus target after a deferred breakpoint crossing", async () => {
   const phoneMql = mediaQueries.get("(max-width: 700px)");
   await tick(20);
-  const add = byName($("[data-ui~='cal.phone-day']"), /^New event on /);
+  const add = $("[data-ui~='cal.new']");
   click(add);
   const editor = $("[data-ui~='cal.ev-modal']");
   assert(editor, "the phone Calendar event editor did not open");
   editor.querySelector('input[type="text"]').value = "Orientation focus contract";
   phoneMql.setMatches(false);
   await tick(20);
-  assert($("[data-ui~='cal.ev-modal']") && $("[data-ui~='cal.phone-week']") && !$("[data-ui~='cal.week']"),
+  assert($("[data-ui~='cal.ev-modal']") && $("[data-ui~='cal.agenda']") && !$("[data-ui~='cal.week']"),
     "orientation recomposed behind the live event editor");
   click($$("[data-ui~='cal.ev-modal'] button").find(button => button.textContent.trim() === "Add event"));
   await tick(30);
-  assert(!$("[data-ui~='cal.ev-modal']") && $("[data-ui~='cal.week']") && !$("[data-ui~='cal.phone-week']"),
+  assert(!$("[data-ui~='cal.ev-modal']") && $("[data-ui~='cal.week']") && !$("[data-ui~='cal.agenda']"),
     "saving did not apply the deferred Calendar composition");
   assert(document.activeElement && document.activeElement.isConnected && document.activeElement !== document.body,
     "saving after a deferred breakpoint crossing left focus on the document body");
