@@ -241,6 +241,7 @@ color-scheme: dark;
 /* labs (frame 8h) */
 --lab-search-w: 240px;
 --lab-card-min: 180px;
+--wk-step-n: 28px;          /* a worked step's number (20g) */
 --lab-areas-w: 210px;       /* the index's area rail (20h) */
 --lab-thumb-ratio: 200 / 110;
 --lab-lock-side-w: 300px;   /* a locked lab (20i) */

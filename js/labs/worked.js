@@ -943,12 +943,12 @@
       var table = el("ol", { class: "k-wk-steps", "aria-label": "Working" });
       var stepEls = result.steps.map(function (st, i) {
         var d = el("li", { class: "k-wk-step", "data-ui": "part.step", hidden: i === 0 ? null : "" }, [
-          el("span", { class: "k-wk-step-n k-mono", text: "Step " + (i + 1) }),
+          el("span", { class: "k-wk-step-n k-mono", "aria-label": "Step " + (i + 1), text: String(i + 1) }),
           el("span", { class: "k-wk-step-h", text: st.h }),
           el("span", { class: "k-wk-step-m", text: st.m }),
           st.n ? el("span", { class: "k-wk-step-note", text: st.n }) : null
         ].filter(Boolean));
-        if (i === 0) KOS.ui.state(d, "revealed", true);
+        if (i === 0) { KOS.ui.state(d, "revealed", true); KOS.ui.state(d, "latest", true); }
         table.appendChild(d);
         return d;
       });
@@ -959,9 +959,11 @@
       var allBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Reveal all", onclick: function () { reveal(99); } });
       function reveal(n) {
         while (n-- > 0 && revealed < stepEls.length - 1) {
+          KOS.ui.state(stepEls[revealed], "latest", false);
           revealed++;
           stepEls[revealed].hidden = false;
           KOS.ui.state(stepEls[revealed], "revealed", true);
+          KOS.ui.state(stepEls[revealed], "latest", true);
         }
         if (revealed >= stepEls.length - 1) {
           ansEl.hidden = false;
@@ -1036,8 +1038,11 @@
     var savedGen = GENS.find(function (g) { return g.id === saved; }) || GENS[0];
     var curCat = savedGen.cat;
 
-    var catRow = el("div", { class: "k-lab-cats", role: "group", "aria-label": "Paper" });
-    var tabs = el("div", { class: "k-lab-tabs", role: "group", "aria-label": "Generators" });
+    /* frame 20g: the papers are a segmented switch and the generators one
+       edge-marked strip that scrolls (it was a wall of wrapping pills) */
+    var catRow = el("div", { class: "k-seg k-lab-cats", role: "group", "aria-label": "Paper" });
+    var tabs = el("div", { class: "k-wk-tabs", role: "group", "aria-label": "Generators" });
+    var tabStrip = KOS.ui.scroller(tabs, { keepRole: true, label: "Generators", className: "k-wk-tabs-scroll" });
     var panel = el("section", { class: "k-lab k-card", "aria-label": "Worked example" });
     var query = "";
     var search = el("input", { type: "search", class: "k-input k-lab-search", placeholder: "Search generators\u2026", "aria-label": "Search worked example generators" });
@@ -1045,7 +1050,7 @@
 
     CATS.forEach(function (c) {
       catRow.appendChild(el("button", {
-        type: "button", class: "k-lab-cat", "data-ui": "lab.category",
+        type: "button", class: "k-seg-item", "data-ui": "lab.category",
         "data-state": c[0] === curCat ? "active" : null, "aria-pressed": String(c[0] === curCat),
         onclick: function () {
           remember = c[0] !== curCat;
@@ -1059,7 +1064,7 @@
       }, [c[1]]));
     });
     main.appendChild(el("div", { class: "k-lab-toolbar", "data-ui": "lab.toolbar" }, [catRow, search]));
-    main.appendChild(tabs);
+    main.appendChild(tabStrip);
     main.appendChild(panel);
 
     function buildTabs() {
@@ -1073,7 +1078,7 @@
       var cur = gens.find(function (g) { return g.id === store.state.worked.last; }) || gens[0];
       gens.forEach(function (g) {
         tabs.appendChild(el("button", {
-          type: "button", class: "k-lab-tab", "data-ui": "lab.tab",
+          type: "button", class: "k-wk-tab", "data-ui": "lab.tab",
           "data-state": g === cur ? "active" : null, "aria-pressed": String(g === cur),
           onclick: function () {
             remember = true;
@@ -1086,6 +1091,10 @@
         }, [g.title]));
       });
       openGen(cur);
+      /* the open generator is in view, and the strip's edges say which way more lies */
+      var on = tabs.querySelector("[aria-pressed='true']");
+      if (on && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = Math.max(0, on.offsetLeft - tabs.offsetLeft - 24);
+      if (tabStrip.sync) tabStrip.sync();
     }
     /* opening is a read: only the reader's own choice (a paper or a
        generator) remembers what is open */
