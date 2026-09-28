@@ -21,9 +21,8 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-graphite-3` |
-| Smoke gate | 62 suites on `feat/tier-c-backend`, 56 at the `e2a5931` release (smoke39 needs a working `git`/`node` toolchain on the host) |
-| Latest release date | 27 September 2026 (Category 7: 9 August 2026) |
-| In progress | `feat/tier-c-backend` — the Phase 1 (Tier C) backend, all eight items, not merged or deployed; its views come from Claude Design ([ROADMAP](docs/ROADMAP.md) Phase 1 status). `feat/m14-cleanup`, stacked on it — the Phase 2 (M14) clean-up: token bridge and `ui-hooks.js` retired, audits re-run against Graphite, not merged or deployed ([ROADMAP](docs/ROADMAP.md) Phase 2 status) |
+| Smoke gate | 62 suites, all passing on `feat/graphite-part-2` (28 September 2026); 56 at the `e2a5931` release (smoke39 needs a working `git`/`node` toolchain on the host) |
+| In progress | `feat/graphite-part-2` — design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Not merged or deployed ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through
