@@ -64,7 +64,7 @@
     return '<figure class="k-n-code" data-ui="content.code"><div class="k-n-code-head">' +
       (lang ? '<span class="k-n-lang" data-ui="part.label">' + esc(LANG_NAME[lang] || lang) + "</span>" : "") +
       (cap ? '<span class="k-n-code-cap">' + inline(cap) + "</span>" : "") + CODE_COPY + "</div>" +
-      "<pre><code>" + highlightCode(src, lang) + "</code></pre></figure>";
+      "<pre data-scroller=\"true\"><code>" + highlightCode(src, lang) + "</code></pre></figure>";
   }
 
   var esc = KOS.ui.esc;   // the canonical escaper (core/ui.js)

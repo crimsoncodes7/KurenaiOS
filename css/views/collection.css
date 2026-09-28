@@ -703,6 +703,9 @@
 .k-pl-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
 .k-pl-tools { margin-inline-start: auto; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
 .k-pl-tools > .k-msearch { inline-size: var(--pl-search-w); }
+/* the status tabs are the shared edge scroller (15n): their host may
+   shrink below its content, so the strip scrolls instead of spilling */
+.k-pl-tabs { min-inline-size: 0; max-inline-size: 100%; }
 .k-pl-list { padding: var(--sp-6) var(--sp-12); border-radius: var(--r-24); background: var(--s1); }
 /* the queue as columns (review B): lead · priority · item · type ·
    release · price · collection · actions, one header row */

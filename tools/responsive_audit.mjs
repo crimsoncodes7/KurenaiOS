@@ -392,6 +392,10 @@ const PROBE = String.raw`(() => {
     const text = (n.textContent || "").trim();
     if (text && n.children.length === 0 && /hidden|clip/.test(s.overflowX)
         && !n.classList.contains("sr-only")
+        /* visually hidden text (clipped to nothing, for a screen reader) and
+           a deliberate line clamp (it ends in its own ellipsis) are not lost */
+        && !/rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(s.clip) && r.width > 1
+        && !(s.webkitLineClamp && s.webkitLineClamp !== "none")
         && n.scrollWidth > n.clientWidth + 1 && s.textOverflow !== "ellipsis") {
       cut.push({ sel: label(n), lost: n.scrollWidth - n.clientWidth, text: text.slice(0, 40) });
     }
@@ -403,11 +407,15 @@ const PROBE = String.raw`(() => {
   const rr = rail ? rail.getBoundingClientRect() : null;
   let overlap = null;
   if (main && rr && rr.top > window.innerHeight / 2) {
-    main.scrollTop = main.scrollHeight;
+    /* the phone shell (15a) scrolls #stage, not #main: scroll whichever
+       actually scrolls, or the "last row" is only measured below the fold */
+    const scrolls = n => n && n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(n).overflowY);
+    const box = [main, document.getElementById("stage")].find(scrolls) || main;
+    box.scrollTop = box.scrollHeight;
     const kids = [...main.children];
     const last = kids[kids.length - 1];
     if (last) overlap = Math.round(Math.max(0, last.getBoundingClientRect().bottom - rr.top));
-    main.scrollTop = 0;
+    box.scrollTop = 0;
   }
   return { vw, docScrollWidth: document.documentElement.scrollWidth,
            mainScrollHeight: main ? main.scrollHeight : 0,

@@ -369,6 +369,10 @@ overflow-y: auto;
 }
 
 @media (max-width: 700px) {
+/* the phone stage scrolls a full-bleed topic page itself: #main grows with
+   the page, so its clearance under the tab bar is in the scroll (the
+   Assistant keeps its fixed height for the composer) */
+#stage[data-bleed] #main:has(> .k-topic) { flex: 1 0 auto; }
 /* the rail becomes the bottom tab bar (invariant 40) */
 #rail {
 position: fixed;
