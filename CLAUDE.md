@@ -117,7 +117,8 @@ non-navigation redraw path.
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Shared image placement | `js/core/imagecrop.js` |
-| OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure) |
+| OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
+| Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`); stage overflow rule `js/labs/trace.js` `begin()` |
 | Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | written by each view itself; `KOS.ui.state/hasState/hook` in `js/core/ui.js` (the M1 legacy-class bridge `ui-hooks.js` was retired at M14) |
 | Spec-spine presence (`#cols[data-tree]`) | `KOS.shell.tree()` in `js/core/ui.js` |
 | Presentation layer (UI rebuild; one `@layer` per file, order declared in `tokens.css`) | `css/tokens.css`, `base.css`, `layout.css`, `components.css`, `css/views/*.css`, `themes.css`; `tools/lib/css.js` `pending()` gates each layer's design contracts |
@@ -715,9 +716,18 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   modelling error), a class's `id` is its identity and its file name is
   derived from its name (`Name.cs`), and `validate` reports every C# rule the
   generated code would break (names, duplicates, single inheritance, cycles,
-  abstract/virtual/override). The canvas pan/zoom and the Code/Diagram
-  toggle are per device in `state.ui.oopView`, never in the synced model. The
-  first visit's example stays a draft until the first edit (smoke56).
+  abstract/virtual/override). The canvas pan/zoom, the Code/Diagram
+  toggle, the tree's visibility (`side`), where C# shows (`cs`: side panel
+  or tab) and whether the user has framed the canvas (`framed`; until then
+  it fits itself) are per device in `state.ui.oopView`, never in the synced
+  model. The IDE's drag-to-set-base refuses a cycle, and the base picker
+  never offers a descendant. The first visit's example stays a draft until
+  the first edit (smoke56).
+- The lab index groups sims by area (`KOS.sims.areaOf`) with a subject
+  switch; both picks are per device (`state.ui.simSubj`, `state.ui.simArea`).
+  A topic's Simulate tab mounts the same lab through `KOS.sims.embed()`. A
+  stage whose content outgrows it scales down to a 70% floor, then pans with
+  a zoom chip (`KOS.trace` `begin(cw, ch, count)`); never let a sim spill.
 - Lab canvases take every colour from `KOS.labPalette()` (theme tokens, oklch
   included, resolved once per `data-theme` through a 1px canvas), never from a
   fixed hex palette — a fixed ink disappears on the other theme.

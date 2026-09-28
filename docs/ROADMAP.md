@@ -48,6 +48,20 @@ remains is the views, built on those APIs from the Claude Design handoffs:
 | 1.7 | `KOS.oop` gate, identity, validation, transpile, canvas view | the IDE (frames 19a–19f) |
 | 1.8 | tools for all of the above plus pacing, reminders, assignments, notifications | — |
 
+**Status (28 September 2026, branch `feat/graphite-part-2`):** every view in
+the table is built from design part 2 (frames 15–23): the phone views, the
+Focus modes and mini-player, the topic picker in its five placements, the IT
+units panel, the drag pattern, the quick note, the Shrine's "Set order", the
+OOP IDE (19a–19f), the lab system (20a, 20f overflow rule, 20g–20i), Dawn and
+the 23 shop themes, and the cosmetics. Not merged or deployed. Left over:
+
+- the per-simulation rebuilds on the archetypes (20b–20e) and Trace Lab's
+  three-column layout (20f) — the shared stage, header, locked state and
+  overflow rule are in place, so these are batches of sim code;
+- the locked lab offers the Governor's gold unlock only (the design's "or
+  finish two Focus sessions" route would be a new economy rule, invariant 2);
+- the OOP IDE on a phone is a basic stacked layout (tree, editor, C# tab).
+
 ### 1.1 One topic picker, used everywhere ◇
 
 - **What:** a dropdown instead of a free-text "related topic" box.
@@ -159,10 +173,11 @@ remains is the views, built on those APIs from the Claude Design handoffs:
   - The diagram is an infinite canvas: pan, zoom and fit, with the class cards
     and inheritance arrows.
   - Copy C# and Clear keep working.
-- **How:** `js/labs/sandboxes.js`; draft-until-first-edit stays (render purity,
-  smoke56).
-- **Design first:** no frame exists for either mode. The prompt is in
-  [design-prompts.md](design-prompts.md).
+- **How:** the view lives beside the model in `js/labs/oop.js`;
+  draft-until-first-edit stays (render purity, smoke56).
+- **Built** from frames 19a–19f: file tree (drag a file onto another to set
+  its base; a cycle is refused), class editor, C# as a side panel or a tab,
+  the diagram canvas with minimap, and a status bar.
 
 ### 1.8 Assistant: tools for everything added since Category 6
 
@@ -281,6 +296,8 @@ Claude Design and comes back as a handoff, the way Graphite did.
   - **Governor status.**
 - **Contracts that must survive:** invariants 40, 58 and 72–75. Mobile moves
   canonical controls, never clones them. There are five breakpoints only.
+- **Status (28 September):** built from frames 15a–15n. The responsive audit
+  at 390 and 360px, both Graphite and Dawn, reports no spill and no cut text.
 
 ### 3.2 Dawn, the shop themes and the cosmetics ◆
 
@@ -299,6 +316,9 @@ Claude Design and comes back as a handoff, the way Graphite did.
   - A second board for frames and skins.
 - **Invariants:** rewrite 26a when Dawn ships (the default may stay Graphite;
   your call).
+- **Status (28 September):** Dawn, the 23 themes (frames 21a–21h) and the
+  cosmetics (frame 22) are built; 26a is rewritten. The share card keeps the
+  version built in review B and takes the new finish on top of it.
 
 ### 3.3 The labs ◆ — deferred at your request during review
 
@@ -316,6 +336,11 @@ Claude Design and comes back as a handoff, the way Graphite did.
   - the worked-example step list.
   - Three or four archetype frames cover every sim.
 - **Then:** rebuild the sims per archetype, in batches.
+- **Status (28 September):** the lab system from design part 2 is built —
+  area rail and grouped index, the shared sim header, the locked state, the
+  embedded lab in a topic's Simulate tab, the stage overflow rule (fit to a
+  70% floor, then pan with a zoom chip) and the worked-example steps. The
+  per-sim archetype rebuilds are still to do.
 
 ---
 
