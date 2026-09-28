@@ -123,7 +123,7 @@ step("the precache derivation matches every local script/stylesheet in index.htm
   }
 });
 step("production staging keeps the live env and excludes its setup template", () => {
-  assert(/cp -R js\/ "\$DIST\/js\/"/.test(deploy), "runtime js staging missing");
+  assert(/cp -R js\/\. "\$DIST\/js\/"/.test(deploy), "runtime js staging missing");
   assert(deploy.includes('rm -f "$DIST/js/env.example.js"'),
     "env.example.js can leak into production staging");
 });
