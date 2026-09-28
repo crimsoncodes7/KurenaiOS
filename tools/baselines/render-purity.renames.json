@@ -718,6 +718,43 @@
    "from": "^☷ Browse sections, lists & tags$",
    "to": "☷ Browse sections, lists & tagsAll lists · any tag ▾",
    "why": "Design part 2, frame 15h: Reminders owns its lists/tags disclosure (moved out of mobile-shell) and the button also carries the phone label naming what is filtered; the tablet label is unchanged."
+  },
+  {
+   "surface": "subject:.*",
+   "from": "^Simulations(Turing machine|Trapezium rule)",
+   "expect": {
+    "nav": "#/sims",
+    "ui": [
+     "simArea",
+     "simSubj"
+    ]
+   },
+   "why": "Design part 2, frame 20h: the index filters by subject and by area, so the desk's Simulations link opens it on its subject with every area shown."
+  },
+  {
+   "surface": "sims",
+   "hooks": "lab.category",
+   "from": "^All$",
+   "expect": {
+    "ui": [
+     "simSubj"
+    ]
+   },
+   "why": "Design part 2, frame 20h: All is the subject switch's first choice (All · CS · Maths); the areas are the rail beside the grid."
+  },
+  {
+   "surface": "sims",
+   "hooks": "lab.category",
+   "from": "^(Computer Science|Pure Maths|Stats & Mechanics)$",
+   "retire": true,
+   "why": "Design part 2, frame 20h: the four category pills became a subject switch (All · CS · Maths) and an area rail (Programming … Databases; Pure, Statistics, Mechanics)."
+  },
+  {
+   "surface": "sims",
+   "hooks": "lab.sim-card",
+   "from": ".",
+   "retire": true,
+   "why": "Design part 2, frame 20h: a lab card draws its archetype and is named by its title (the description is its tooltip), and an area of more than four shows its first row with Show all N — every lab still opens #/sims/<id> from its card."
   }
  ]
 }

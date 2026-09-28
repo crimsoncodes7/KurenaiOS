@@ -23,22 +23,68 @@
 .k-lab-tab { padding: var(--sp-6) var(--sp-14); font-size: var(--fs-12-5); }
 .k-lab-tab[data-state~="active"] { background: var(--text); color: var(--bg); }
 
-/* the Simulations grid */
+/* ---------- the Simulations index (20h): areas beside grouped cards ---------- */
+.k-lab-toolbar > .k-lab-search { margin-inline-start: 0; }
+.k-lab-index { display: grid; grid-template-columns: var(--lab-areas-w) minmax(0, 1fr); gap: var(--sp-22); align-items: start; }
+.k-lab-areas-scroll { display: contents; }
+.k-lab-areas-scroll > .k-scroller-arrow { display: none; }
+.k-lab-areas { position: sticky; inset-block-start: var(--sp-12); display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-lab-area { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-8) var(--sp-12); border-radius: var(--r-12); font-size: var(--fs-13-5); color: var(--text-2); text-align: start; }
+.k-lab-area:hover { background: var(--s1); color: var(--text); }
+.k-lab-area[aria-current="true"] { background: var(--s2); color: var(--text); font-weight: var(--weight-semibold); }
+.k-lab-area-n { font-size: var(--fs-11); color: var(--muted); }
+.k-lab-area-h { padding: var(--sp-14) var(--sp-12) var(--sp-6); font-size: var(--fs-11); font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
+.k-lab-main, .k-lab-sections { display: flex; flex-direction: column; gap: var(--sp-22); min-inline-size: 0; }
+.k-lab-sec-h { display: flex; align-items: baseline; gap: var(--sp-8); margin-block-end: var(--sp-10); }
+.k-lab-sec-h > h2 { margin: 0; font-size: var(--fs-17); font-weight: var(--weight-semibold); }
+.k-lab-sec-n { font-size: var(--fs-12); color: var(--muted); }
+.k-lab-sec-all { margin-inline-start: auto; font-size: var(--fs-12-5); }
 .k-lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--lab-card-min), 1fr)); gap: var(--sp-12); margin: 0; padding: 0; list-style: none; }
 .k-lab-grid > li { display: flex; }
-.k-lab-card { flex: 1 1 auto; display: flex; flex-direction: column; gap: var(--sp-6); min-block-size: var(--lab-card-h); padding: var(--sp-16) var(--sp-18); border-radius: var(--r-20); background: var(--s1); box-shadow: none; text-align: start; }
+.k-lab-card { flex: 1 1 auto; display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-8) var(--sp-8) var(--sp-12); border-radius: var(--r-20); background: var(--s1); box-shadow: none; text-align: start; }
 .k-lab-card:hover { background: var(--s2); }
-.k-lab-card[data-subject="compsci"] .k-lab-card-ref { color: var(--cs); }
-.k-lab-card[data-subject="maths"] .k-lab-card-ref { color: var(--maths); }
-.k-lab-card[data-state~="locked"] { opacity: 0.7; }
-.k-lab-card-ref { margin-block-start: auto; font-size: var(--fs-11); color: var(--muted); }
-.k-lab-card-title { font-size: var(--fs-15); font-weight: var(--weight-semibold); line-height: var(--lh-snug); }
-.k-lab-card-desc { font-size: var(--fs-12-5); line-height: 1.45; color: var(--text-2); }
+.k-lab-card > .k-lab-card-title, .k-lab-card > .k-lab-card-ref { padding-inline: var(--sp-6); }
+.k-lab-card-title { margin-block-start: var(--sp-6); font-size: var(--fs-14-5); font-weight: var(--weight-semibold); line-height: var(--lh-snug); }
+.k-lab-card-ref { font-size: var(--fs-11-5); color: var(--muted); }
+/* the archetype drawing, in the subject's hue */
+.k-lab-thumb { --sim-hue: var(--cs); position: relative; display: block; aspect-ratio: var(--lab-thumb-ratio); border-radius: var(--r-14); background: var(--bg); }
+[data-subject="maths"] > .k-lab-thumb, .k-lab-thumb[data-subject="maths"] { --sim-hue: var(--maths); }
+.k-lab-thumb > svg { display: block; inline-size: 100%; block-size: 100%; }
+.k-th-n { fill: none; stroke: var(--sim-hue); stroke-width: 3; }
+.k-th-on { fill: var(--sim-hue); }
+.k-th-hot { fill: var(--crimson); stroke: var(--crimson); }
+.k-th-e, .k-th-line { fill: none; stroke: color-mix(in oklch, var(--sim-hue) 70%, var(--muted)); stroke-width: 3; stroke-linecap: round; }
+.k-th-line { stroke: var(--sim-hue); }
+.k-th-fill { fill: color-mix(in oklch, var(--sim-hue) 26%, transparent); }
+.k-th-head { fill: var(--crimson); }
+.k-lab-card[data-state~="locked"] .k-lab-thumb > svg { opacity: 0.35; }
+.k-lab-price { position: absolute; inset-block-start: var(--sp-8); inset-inline-end: var(--sp-8); padding: var(--sp-2) var(--sp-8); border-radius: var(--r-pill); background: color-mix(in oklch, var(--amber) 18%, var(--s2)); font-size: var(--fs-11-5); color: var(--amber); }
 
-/* an opened simulation */
-.k-lab-open-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-12) var(--sp-16); }
-.k-lab-open-txt { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
-.k-lab-open-title { margin: 0; font-size: var(--fs-26); letter-spacing: var(--track-head); line-height: var(--lh-tight); }
+/* ---------- the shared lab header (20a) and an opened lab's way back ---------- */
+.k-lab-crumbs { display: flex; align-items: center; gap: var(--sp-6); font-size: var(--fs-13); color: var(--muted); }
+.k-lab-crumbs > .k-link { color: var(--text-2); }
+.k-lab-head { display: flex; align-items: flex-start; gap: var(--sp-12); padding-block-end: var(--sp-12); border-block-end: var(--hairline) solid var(--line); }
+.k-lab-head-t { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.k-lab-title { margin: 0; font-size: var(--fs-20); font-weight: var(--weight-semibold); line-height: var(--lh-tight); }
+h2.k-lab-title { font-size: var(--fs-17); }
+.k-lab-refpill { display: inline-block; margin-inline-start: var(--sp-4); padding: var(--sp-2) var(--sp-8); border-radius: var(--r-pill); vertical-align: middle; background: color-mix(in oklch, var(--cs) 18%, transparent); font-size: var(--fs-11-5); font-weight: var(--weight-medium); color: var(--cs); }
+.k-lab-refpill[data-subject="maths"] { background: color-mix(in oklch, var(--maths) 18%, transparent); color: var(--maths); }
+
+/* ---------- a locked lab (20i): its shape, one panel on its stage ---------- */
+.k-lab-lockwrap { display: grid; grid-template-columns: minmax(0, 1fr) var(--lab-lock-side-w); gap: var(--sp-22); align-items: start; }
+.k-lab-lockwrap[data-state~="embedded"] { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
+.k-lab-lockstage { position: relative; display: grid; place-items: center; min-block-size: var(--lab-lock-h); padding: var(--sp-24); border-radius: var(--r-16); background: var(--bg); overflow: hidden; }
+.k-lab-lock-ghost { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0.14; }
+.k-lab-lock-ghost > .k-lab-thumb { inline-size: 86%; background: none; }
+.k-lab-lock-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--sp-6); inline-size: min(var(--lab-lock-card-w), 100%); padding: var(--sp-24); border-radius: var(--r-24); background: var(--s1); text-align: center; box-shadow: var(--elev-3); }
+.k-lab-lock-mark { inline-size: var(--sp-48); block-size: var(--sp-48); display: grid; place-items: center; margin-block-end: var(--sp-4); border-radius: 50%; background: color-mix(in oklch, var(--amber) 22%, var(--s2)); font-size: var(--fs-18); color: var(--amber); }
+.k-lab-lock-name { font-size: var(--fs-17); font-weight: var(--weight-semibold); }
+.k-lab-lock-by, .k-lab-lock-bal { font-size: var(--fs-12-5); color: var(--muted); }
+.k-lab-lock-price { margin-block: var(--sp-4); font-size: var(--fs-26); font-weight: var(--weight-semibold); color: var(--amber); }
+.k-lab-lock-card > .k-btn { inline-size: 100%; justify-content: center; min-block-size: var(--hit-coarse); margin-block-start: var(--sp-6); }
+.k-lab-lock-side { display: flex; flex-direction: column; gap: var(--sp-6); }
+.k-lab-lock-side > h3 { margin: 0; }
+.k-lab-lock-side > p { margin: 0 0 var(--sp-10); font-size: var(--fs-13-5); line-height: var(--lh-body); color: var(--text-2); }
 
 /* ---------- the lab card and its common parts ---------- */
 .k-lab { display: flex; flex-direction: column; gap: var(--sp-12); min-inline-size: 0; }
@@ -55,7 +101,7 @@
 .k-lab-split-side { flex: 1 1 var(--lab-side-min); min-inline-size: 0; }
 
 /* the control row (frame 8h): labelled fields, then mono pill buttons */
-.k-lab-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-10); }
+.k-lab-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-10); padding-block-end: var(--sp-12); border-block-end: var(--hairline) solid var(--line); }
 .k-lab-controls > label:not(.k-check) { display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-11-5); color: var(--muted); }
 .k-lab-controls .k-btn { padding: var(--sp-5) var(--sp-12); font: var(--weight-medium) var(--fs-12) var(--font-mono); }
 .k-lab-controls .k-lab-msg { align-self: center; }
@@ -174,6 +220,16 @@
 /* ---------- Trace Lab: the canvas beside its code ---------- */
 .k-lab-trace-flex { display: flex; gap: var(--sp-16); align-items: stretch; }
 .k-lab-trace-canvas { flex: 1 1 0; min-inline-size: 0; }
+/* the stage chrome of the overflow rule (20a): zoom at the top right, the
+   fit state at the bottom left, a grab hand while the drawing pans */
+.k-lab-trace-canvas[data-state~="staged"] { position: relative; }
+.k-lab-zoom { position: absolute; inset-block-start: var(--sp-10); inset-inline-end: var(--sp-10); display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2); border-radius: var(--r-pill); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-lab-zoom-b { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); padding: 0 var(--sp-8); border-radius: var(--r-pill); font-size: var(--fs-12); color: var(--text-2); }
+.k-lab-zoom-b:hover { background: var(--s2); color: var(--text); }
+.k-lab-zoom-v { min-inline-size: var(--sp-40); text-align: center; font-size: var(--fs-11-5); color: var(--text); }
+.k-lab-stage-note { position: absolute; inset-block-end: var(--sp-10); inset-inline-start: var(--sp-12); font-size: var(--fs-11); color: var(--muted); pointer-events: none; }
+.k-lab-trace-canvas[data-state~="pannable"] > .k-lab-canvas { cursor: grab; }
+.k-lab-trace-canvas[data-state~="pannable"] > .k-lab-canvas:active { cursor: grabbing; }
 .k-lab-code-panel { flex: 0 0 var(--lab-code-w); margin: 0; padding: var(--sp-14) 0; overflow-x: auto; align-self: flex-start; border-radius: var(--r-16); background: var(--code-bg); font: var(--fs-11-5) / 1.85 var(--font-mono); color: var(--text); }
 .k-lab-code-line { display: block; padding-inline: var(--sp-14); white-space: pre; box-shadow: inset var(--rail-mark) 0 0 transparent; transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
 .k-lab-code-line[data-state~="hl"] { background: color-mix(in oklch, var(--text) 7%, transparent); box-shadow: inset var(--rail-mark) 0 0 var(--amber); }
@@ -211,6 +267,14 @@
 }
 
 @media (max-width: 860px) {
+/* the areas become one declared chip scroller over the groups */
+.k-lab-index { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
+.k-lab-areas-scroll { display: flex; }
+.k-lab-areas-scroll > .k-scroller-arrow { display: grid; }
+.k-lab-areas { position: static; flex-direction: row; flex-wrap: nowrap; gap: var(--sp-6); }
+.k-lab-area-h { display: none; }
+.k-lab-area { flex: 0 0 auto; border-radius: var(--r-pill); background: var(--s1); white-space: nowrap; }
+.k-lab-lockwrap { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
 .k-lab-trace-flex { flex-direction: column; }
 .k-lab-code-panel { flex-basis: auto; inline-size: 100%; }
 .k-lab-rec-wrap { grid-template-columns: minmax(0, 1fr); }
@@ -218,6 +282,10 @@
 
 @media (max-width: 560px) {
 .k-lab-search { inline-size: 100%; margin-inline-start: 0; }
+.k-lab-toolbar { inline-size: 100%; }
+.k-lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
+.k-lab-card-title { font-size: var(--fs-13-5); }
+.k-lab-lockstage { min-block-size: 0; padding: var(--sp-16); }
 .k-lab-bit, .k-lab-bw { inline-size: var(--lab-bit-sm); }
 .k-lab-bit { block-size: var(--lab-bit-sm); font-size: var(--fs-15); }
 }

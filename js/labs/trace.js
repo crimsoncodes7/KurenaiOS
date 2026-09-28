@@ -57,19 +57,77 @@
   }
 
   var currentDraw = null;
-  var canvas, ctx, W, H;
+  var canvas, ctx, W, H, dpr = 1;
 
-  function setupCanvas(holder, h) {
+  function setupCanvas(holder, h, opts) {
     canvas = el("canvas", { class: "k-lab-canvas", "aria-label": "Data structure visualisation" });
     holder.appendChild(canvas);
-    var dpr = window.devicePixelRatio || 1;
+    dpr = window.devicePixelRatio || 1;
     W = holder.clientWidth - 2 || 920; H = h;
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.setProperty("--h", H + "px");
     ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
+    if (ctx && ctx.scale) ctx.scale(dpr, dpr);
+    view = opts && opts.noun ? stageView(holder, opts.noun) : null;
   }
-  function clear() { ctx.clearRect(0, 0, W, H); }
+  function clear() {
+    if (ctx.setTransform) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+  }
+
+  /* The overflow rule (frame 20a), shared by every diagram here: the
+     drawing is laid out at its own size (cw × ch). If it fits it shows at
+     100%; if not it scales down to a 70% floor, and past that floor it
+     pans — drag the stage. Fit always shows the whole drawing; − and +
+     step by 10%. The note under the stage says which state it is in. */
+  var view = null;
+  function stageView(holder, noun) {
+    var v = { zoom: null, fit: false, px: 0, py: 0, s: 1, canPan: false, noun: noun, count: 0 };
+    function redraw() { if (currentDraw) currentDraw(); }
+    var pct = el("span", { class: "k-lab-zoom-v k-mono", "data-ui": "lab.zoom-value", text: "100%" });
+    holder.appendChild(el("div", { class: "k-lab-zoom", "data-ui": "lab.zoom", role: "group", "aria-label": "Zoom" }, [
+      el("button", { type: "button", class: "k-lab-zoom-b", "aria-label": "Zoom out", text: "\u2212",
+        onclick: function () { v.fit = false; v.zoom = Math.max(0.3, Math.round((v.s - 0.1) * 10) / 10); redraw(); } }),
+      pct,
+      el("button", { type: "button", class: "k-lab-zoom-b", "aria-label": "Zoom in", text: "+",
+        onclick: function () { v.fit = false; v.zoom = Math.min(2, Math.round((v.s + 0.1) * 10) / 10); redraw(); } }),
+      el("button", { type: "button", class: "k-lab-zoom-b k-lab-zoom-fit", "data-ui": "lab.zoom-fit", text: "Fit",
+        onclick: function () { v.zoom = null; v.fit = true; v.px = v.py = 0; redraw(); } })
+    ]));
+    var note = el("span", { class: "k-lab-stage-note k-mono", "data-ui": "lab.stage-note" });
+    holder.appendChild(note);
+    KOS.ui.state(holder, "staged", true);
+    v.paint = function () {
+      pct.textContent = Math.round(v.s * 100) + "%";
+      var p = Math.round(v.s * 100);
+      note.textContent = v.count + " " + v.noun + (v.count === 1 ? "" : "s") + " \u00B7 " +
+        (v.canPan ? p + "%, drag to pan" : "fits at " + p + "%");
+      KOS.ui.state(holder, "pannable", v.canPan);
+    };
+    canvas.addEventListener("pointerdown", function (e) {
+      if (!v.canPan) return;
+      var sx = e.clientX, sy = e.clientY, px0 = v.px, py0 = v.py;
+      if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId);
+      function move(ev) { v.px = px0 - (ev.clientX - sx); v.py = py0 - (ev.clientY - sy); redraw(); }
+      function up() { canvas.removeEventListener("pointermove", move); canvas.removeEventListener("pointerup", up); canvas.removeEventListener("pointercancel", up); }
+      canvas.addEventListener("pointermove", move);
+      canvas.addEventListener("pointerup", up);
+      canvas.addEventListener("pointercancel", up);
+    });
+    return v;
+  }
+  /* draw what follows in the drawing's own coordinates */
+  function begin(cw, ch, count) {
+    if (!view) return;
+    var fitS = Math.min(1, W / cw, H / ch);
+    var sc = view.fit ? fitS : view.zoom != null ? view.zoom : Math.max(0.7, fitS);
+    var maxX = Math.max(0, cw * sc - W), maxY = Math.max(0, ch * sc - H);
+    view.px = Math.min(Math.max(0, view.px), maxX);
+    view.py = Math.min(Math.max(0, view.py), maxY);
+    view.s = sc; view.canPan = maxX > 0.5 || maxY > 0.5; view.count = count;
+    if (ctx.setTransform) ctx.setTransform(dpr * sc, 0, 0, dpr * sc, -view.px * dpr, -view.py * dpr);
+    view.paint();
+  }
   function cellText(v, x, y, w, h, color) {
     ctx.fillStyle = color || TEXT;
     ctx.font = "600 15px 'SF Mono',Consolas,monospace";
@@ -369,7 +427,7 @@
       "if (cur != null) list.Remove(cur);"
     ]);
     var holder = cc.holder;
-    setupCanvas(holder, 230);
+    setupCanvas(holder, 230, { noun: "node" });
     traceHead(panel, ["operation", "value", "list after (head → tail)"]);
 
     var NW = 74, NH = 46, GAP = 44, Y = 100;
@@ -377,7 +435,7 @@
     function listStr() { return nodes.length ? nodes.map(function (n) { return n.v; }).join(" → ") + " → null" : "empty"; }
 
     function add(atHead) {
-      if (nodes.length >= 9) { KOS.ui.toast("Canvas is full — remove something first.", true); return; }
+      if (nodes.length >= 14) { KOS.ui.toast("That is plenty to trace — remove something first.", true); return; }
       cc.hl(atHead ? 2 : 1);
       var v = controlValue(valIn, Math.floor(Math.random() * 90) + 10);
       var node = { v: v, x: atHead ? -NW : W + 10, y: Y };
@@ -420,6 +478,9 @@
     }
     function draw() {
       clear();
+      /* the list's own width: every node, then the null after the tail */
+      var cw = Math.max(W, targetX(nodes.length) + 40);
+      begin(cw, H, nodes.length);
       label("LINKED LIST — dynamic, traversed from the head pointer", W / 2, 20, MUTE);
       if (!nodes.length) { label("empty — head = null", W / 2, Y + NH / 2, FAINT); drawFlashes(ctx); return; }
       // head pointer
@@ -469,10 +530,10 @@
       "void PostOrder(n) { PostOrder(n.L); PostOrder(n.R); Visit(n); }"
     ]);
     var holder = cc.holder;
-    setupCanvas(holder, 380);
+    setupCanvas(holder, 380, { noun: "node" });
     traceHead(panel, ["operation", "value / order", "detail"]);
 
-    var R = 19;
+    var R = 19, extent = { w: 0, h: 0 };
 
     function insert() {
       if (count >= 15) { KOS.ui.toast("Tree's getting crowded — reset to start over.", true); return; }
@@ -513,17 +574,20 @@
       });
     }
     function layout() {
-      // in-order index → x position; depth → y
-      var idx = 0, n = count;
+      // in-order index → x position; depth → y. Nodes keep a readable gap
+      // however many there are; the stage fits or pans the result (20a).
+      var idx = 0, n = count, step = Math.max(W / (n + 1), 2 * R + 14), deepest = 0;
       (function walk(node, depth) {
         if (!node) return;
         walk(node.l, depth + 1);
-        var tx = (idx + 1) * (W / (n + 1));
+        var tx = (idx + 1) * step;
         idx++;
+        deepest = Math.max(deepest, depth);
         tween(node, "x", tx);
         tween(node, "y", 56 + depth * 64);
         walk(node.r, depth + 1);
       })(root, 0);
+      extent = { w: Math.max(W, (n + 1) * step), h: Math.max(H, 56 + deepest * 64 + R + 20) };
     }
     function traverse(kind) {
       if (!root) { KOS.ui.toast("Insert some numbers first.", true); return; }
@@ -548,6 +612,7 @@
     }
     function draw() {
       clear();
+      begin(extent.w || W, extent.h || H, count);
       label("BINARY SEARCH TREE — left < node < right", W / 2, 18, MUTE);
       if (!root) { label("empty — insert a number", W / 2, H / 2, FAINT); drawFlashes(ctx); return; }
       (function edges(n) {

@@ -1235,7 +1235,7 @@
   /* labs reachable per subject now the rail entries are gone */
   var PRACTICE = {
     compsci: [
-      ["Simulations", "Turing machine, BNF, subnets, floating point, compression, ciphers and more", function () { KOS.store.state.ui.simCat = "cs"; KOS.show("sims"); }, null],
+      ["Simulations", "Turing machine, BNF, subnets, floating point, compression, ciphers and more", function () { KOS.store.state.ui.simSubj = "compsci"; KOS.store.state.ui.simArea = "all"; KOS.show("sims"); }, null],
       ["Worked Examples", "RPN conversion, file sizes, parity, subnetting and Big-O, your numbers", function () { KOS.store.state.worked.last = "rpn"; KOS.show("worked"); }, null],
       ["Trace Lab", "Stacks, queues, lists & trees animated with trace tables", function () { KOS.show("trace"); }, { view: "trace" }],
       ["OOP Sandbox", "Drag class blocks, draw inheritance, read the C#", function () { KOS.show("oop"); }, { view: "oop" }],
@@ -1245,7 +1245,7 @@
     ],
     maths: [
       ["Worked Examples", "Mark-scheme walkthroughs by paper, your numbers", function () { KOS.show("worked"); }, null],
-      ["Simulations", "Trapezium rule, cobweb diagrams, normal curves, projectiles, moments and more", function () { KOS.store.state.ui.simCat = "pure"; KOS.show("sims"); }, null],
+      ["Simulations", "Trapezium rule, cobweb diagrams, normal curves, projectiles, moments and more", function () { KOS.store.state.ui.simSubj = "maths"; KOS.store.state.ui.simArea = "all"; KOS.show("sims"); }, null],
       ["Function Transformer", "y = a·f(bx + c) + d with exam wording written for you", function () { KOS.sims.open("fn-transform"); }, { sim: "fn-transform" }]
     ],
     it: []
@@ -2462,16 +2462,10 @@
       }
       else if (curTab === "sim") {
         sims.forEach(function (sm) {
-          /* the enrichment layer gates here; the core tabs never do */
-          var acc = KOS.governor.simAccess(sm.id);
-          if (!acc.ok) { KOS.governor.lockPanel(panel, acc, null, { compact: true, title: sm.title }); return; }
+          /* the enrichment layer gates here; the core tabs never do. A lab
+             carries the shared header and, locked, keeps its shape (20a, 20i) */
           if (sm.mount) {
-            var box = el("section", { class: "k-card k-topic-lab k-lab", "aria-label": sm.title }, [
-              el("h2", { class: "k-card-title", text: sm.title }),
-              el("p", { class: "k-card-meta", text: sm.desc })
-            ]);
-            panel.appendChild(box);
-            sm.mount(box);
+            KOS.sims.embed(panel, sm);
           } else {
             panel.appendChild(el("button", { type: "button", class: "k-card k-topic-simlink", onclick: function () { KOS.sims.open(sm.id); } }, [
               el("span", { class: "k-card-title", text: sm.title + " →" }),

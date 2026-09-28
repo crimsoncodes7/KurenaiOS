@@ -442,13 +442,13 @@
     ]));
   }
   function installGates() {
-    ["trace", "oop", "sims"].forEach(function (v) {
+    /* the sims view gates each lab itself: a locked lab keeps its shape
+       with the price on its stage (frame 20i, labs/sims.js) */
+    ["trace", "oop"].forEach(function (v) {
       var orig = KOS.views[v];
       if (!orig) return;
       KOS.views[v] = function (main, arg) {
-        var acc = v === "sims" && arg ? simAccess(arg) : viewAccess(v);
-        /* the plain sims view with no target is HP-gated only */
-        if (v === "sims" && !arg) acc = viewAccess("sims");
+        var acc = viewAccess(v);
         if (!acc.ok) {
           KOS.shell.tree("none");
           lockPanel(main, acc);

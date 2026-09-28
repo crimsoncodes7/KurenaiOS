@@ -240,8 +240,12 @@ color-scheme: dark;
 --crop-preview-max-h: 360px;
 /* labs (frame 8h) */
 --lab-search-w: 240px;
---lab-card-min: 250px;
---lab-card-h: 128px;
+--lab-card-min: 180px;
+--lab-areas-w: 210px;       /* the index's area rail (20h) */
+--lab-thumb-ratio: 200 / 110;
+--lab-lock-side-w: 300px;   /* a locked lab (20i) */
+--lab-lock-h: 420px;
+--lab-lock-card-w: 400px;
 --lab-side-min: 220px;
 --lab-field-w: 120px;
 --lab-field-h: 34px;

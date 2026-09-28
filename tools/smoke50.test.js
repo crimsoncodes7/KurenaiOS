@@ -242,20 +242,29 @@ step("new generators are wired to their topic pages and mount there", () => {
   assert($$("[data-ui~='part.step']").length >= 1, "the trapezium generator did not mount on its topic page");
 });
 
-step("the Simulations view is a categorised, searchable grid with a deep-linkable open state", () => {
+step("the Simulations view groups labs by area, searches across them and deep-links an open lab (20h)", () => {
+  KOS.store.state.ui.simSubj = "all"; KOS.store.state.ui.simArea = "all";
   KOS.show("sims");
-  assert($$("[data-ui~='lab.sim-card']").length >= 45, "the grid does not list the sims");
-  const pill = $$("[data-ui~='lab.category']").find(b => /Stats & Mechanics/.test(b.textContent));
-  assert(pill, "no category pills"); click(pill);
+  const all = $$("[data-ui~='lab.sim-card']").length;
+  assert(all >= 30, "the grouped grid does not list the labs: " + all);
+  assert($$("[data-ui~='lab.area-all']").length >= 1, "a large area does not offer Show all");
+  const area = $$("[data-ui~='lab.area']").find(b => /Mechanics/.test(b.textContent));
+  assert(area, "no area rail"); click(area);
   const n = $$("[data-ui~='lab.sim-card']").length;
-  assert(n >= 8 && n < 20, "the Stats & Mechanics filter did not narrow the grid: " + n);
+  assert(n >= 3 && n < 10, "the Mechanics area did not narrow the grid: " + n);
+  click($$("[data-ui~='lab.area']").find(b => b.getAttribute("data-area") === "all"));
+  const maths = $$("[data-ui~='lab.category']").find(b => b.getAttribute("data-subject") === "maths");
+  click(maths);
+  assert(!$$("[data-ui~='lab.sim-card']").some(c => c.getAttribute("data-subject") === "compsci"), "the Maths switch left CS labs in the grid");
+  click($$("[data-ui~='lab.category']").find(b => b.getAttribute("data-subject") === "all"));
   const search = $("[data-ui~='lab.toolbar'] input[type=search]");
   search.value = "turing"; search.dispatchEvent(new window.Event("input", { bubbles: true }));
   const hits = $$("[data-ui~='lab.sim-card']");
   assert(hits.length >= 1 && hits.length <= 4 && hits.some(c => /Turing Machine/.test(c.textContent)), "search did not surface the Turing machine (" + hits.length + " cards)");
   KOS.show("sims", "turing-machine");
   assert($("[data-ui~='lab.sim-head']") && /Turing/.test($("[data-ui~='lab.sim-head'] h1").textContent), "the open state has no header");
-  assert($$("[data-ui~='lab.sim-head'] button").some(b => /All simulations/.test(b.textContent)), "no way back to the grid");
+  assert(/Theory of computation/.test($("[data-ui~='lab.sim-head']").textContent), "the header does not name the lab's area");
+  assert($("[data-ui~='lab.back']"), "no way back to the grid");
   assert($$("[data-ui~='lab.sim-head'] button").some(b => /Open topic page/.test(b.textContent)), "no link to the topic page");
 });
 
