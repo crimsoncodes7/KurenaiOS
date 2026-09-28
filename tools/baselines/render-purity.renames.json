@@ -755,6 +755,25 @@
    "from": ".",
    "retire": true,
    "why": "Design part 2, frame 20h: a lab card draws its archetype and is named by its title (the description is its tooltip), and an area of more than four shows its first row with Show all N — every lab still opens #/sims/<id> from its card."
-  }
+  },
+ {
+  "surface": "oop",
+  "from": "^\\+ Add class$",
+  "expect": {
+   "state": [
+    "oop.classes[]"
+   ],
+   "ui": [
+    "oopView"
+   ]
+  },
+  "why": "Design part 2, frame 19a: a new class opens in the IDE as the selected file with its tab, which is per-device view state (state.ui.oopView)."
+ },
+ {
+  "surface": "oop",
+  "from": "^(✕|\\+ field|\\+ method|↻ virt|⇡ set base)$",
+  "retire": true,
+  "why": "Design part 2, frames 19a–19c: the class cards became an IDE. A class is deleted from its file row in the tree (oop.file-delete), members are added with + Field / + Method and their modifier is a select in the editor, and a base is set from the editor's base picker or by dragging a file onto another in the tree."
+ }
  ]
 }

@@ -214,24 +214,22 @@ step("seeded example transpiles with inheritance", () => {
   if (!code.includes("public override void TakeDamage()")) throw new Error("no override");
   if (!code.includes("abstract class GameEntity")) throw new Error("no abstract");
 });
-step("add class + edit name re-transpiles", () => {
-  click($$("button[data-intent~='primary']").find(b => b.textContent === "+ Add class"));
-  const cards = $$("[data-ui~='lab.oop-class']");
-  const nameIn = cards[cards.length - 1].querySelector("[data-ui~='lab.oop-class-head'] input");
+step("add class + edit name re-transpiles (the IDE, frame 19a)", () => {
+  click($("[data-ui~='oop.add']"));
+  const nameIn = $("[data-ui~='oop.class-name']");
+  if (!nameIn) throw new Error("the new class did not open in the editor");
   nameIn.value = "Interrogator";
   nameIn.dispatchEvent(new window.Event("input", { bubbles: true }));
   if (!$("#oop-code pre").textContent.includes("class Interrogator")) throw new Error("rename not reflected");
+  if (!$$("[data-ui~='oop.file']").some(f => /Interrogator\.cs/.test(f.textContent))) throw new Error("the file tree did not follow the rename");
 });
-step("inheritance cycle is refused", () => {
-  // GameEntity tries to inherit from Suspect (its own child) -> cycle
+step("an inheritance cycle cannot be picked", () => {
+  // GameEntity may not take Suspect (its own child) as its base
   const m = KOS.store.state.oop;
   const ge = m.classes.find(c => c.name === "GameEntity");
-  const su = m.classes.find(c => c.name === "Suspect");
-  const geCard = $(`[data-ui~="lab.oop-class"][data-cid="${ge.id}"]`);
-  const setBase = [...geCard.querySelectorAll("button")].find(b => b.textContent.includes("set base"));
-  click(setBase);
-  click($(`[data-ui~="lab.oop-class"][data-cid="${su.id}"]`));
-  if (!$("#toast").textContent.includes("cycle")) throw new Error("cycle allowed! " + $("#toast").textContent);
+  click($(`[data-ui~="oop.file"][data-cid="${ge.id}"] button`));
+  const base = $("[data-ui~='oop.base']");
+  if ([...base.options].some(o => o.textContent === "Suspect")) throw new Error("the base picker offers the class's own subclass");
   if (m.links.some(l => l.child === ge.id)) throw new Error("cycle link stored");
 });
 

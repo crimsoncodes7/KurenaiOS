@@ -268,10 +268,14 @@ color-scheme: dark;
 --lab-reg-w: 84px;
 --lab-mem-w: 680px;
 --lab-code-w: 340px;
---oop-stage-h: 560px;
---oop-code-h: 640px;
---oop-card-w: 232px;
---oop-type-w: 56px;
+--oop-card-w: 232px;         /* a class card on the diagram (KOS.oop.CARD) */
+--ide-h: 640px;              /* the IDE's working height (19a) */
+--ide-tree-w: 210px;
+--ide-cs-w: 360px;
+--ide-ln-w: 44px;            /* the editor's line-number gutter */
+--ide-mini-w: 160px;
+--ide-mini-h: 100px;
+--ide-dot-grid: 22px;
 --box: 18px;
 --tabbar-h: 56px;
 --tab-tile: 28px;

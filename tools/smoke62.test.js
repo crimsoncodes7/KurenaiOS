@@ -106,7 +106,9 @@ step("C · the abstract, virtual and override rules", () => {
 
 /* ============ D · the canvas ============ */
 step("D · view state: clamped, zoomed about a point, fitted to the model", () => {
-  eq(O().normaliseView({ zoom: 99, x: "a" }), { x: 0, y: 0, zoom: 3, mode: "code", selected: null }, "clamped");
+  /* side/cs/framed: where the generated C# sits and whether this device
+     has framed the diagram yet (the IDE, frames 19a/19b/19d) */
+  eq(O().normaliseView({ zoom: 99, x: "a" }), { x: 0, y: 0, zoom: 3, mode: "code", selected: null, side: true, cs: "side", framed: false }, "clamped");
   const z = O().zoomAt({ x: 0, y: 0, zoom: 1 }, 2, 100, 100);
   eq([z.x, z.y, z.zoom], [-100, -100, 2], "the point under the cursor stays put");
   eq(O().zoomAt({ zoom: 0.3 }, 0.1, 0, 0).zoom, 0.25, "zoom floor");
@@ -131,6 +133,7 @@ step("E · rendering the sandbox writes nothing; its code is KOS.oop.transpile",
   /* the lab is a Gold Shop unlock (invariant 2); own it for the test */
   if (KOS.store.state.governor.owned.indexOf("oop") === -1) KOS.store.state.governor.owned.push("oop");
   const before = JSON.stringify(KOS.store.state.oop);
+  O().setView({ mode: "code", cs: "side", side: true });   // the generated C# beside the editor
   KOS.show("oop");
   await app.settle();
   eq(JSON.stringify(KOS.store.state.oop), before, "the example is a draft until the first edit");
