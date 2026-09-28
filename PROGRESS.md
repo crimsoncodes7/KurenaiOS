@@ -22,6 +22,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-graphite-3` |
 | Smoke gate | 62 suites, all passing on `feat/graphite-part-2` (28 September 2026); 56 at the `e2a5931` release (smoke39 needs a working `git`/`node` toolchain on the host) |
+| Latest release date | 27 September 2026 (Category 7: 9 August 2026) |
 | In progress | `feat/graphite-part-2` — design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Not merged or deployed ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
