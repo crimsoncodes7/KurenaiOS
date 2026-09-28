@@ -373,29 +373,36 @@
   var activeCompactSheet = null;
 
   function openMovedSheet(opts) {
-    if (!compact.matches || activeCompactSheet) return;
-    var node = opts.node;
-    var origin = node.parentNode;
-    var next = node.nextSibling;
+    if (!compact.matches || activeCompactSheet) return null;
+    /* one node, or several (15j: the rail, the sort and the facets make one
+       Filters sheet); a node that had no home (a closed menu's content)
+       is simply let go again */
+    var homes = (opts.nodes || [opts.node]).filter(Boolean).map(function (n) {
+      return { node: n, origin: n.parentNode, next: n.nextSibling };
+    });
     var close = sheetClose();
     var slot = el("div", { class: "k-msheet-slot", "data-slot": opts.slot });
-    slot.appendChild(node);
+    homes.forEach(function (h) { slot.appendChild(h.node); });
     var box = el("section", { class: "k-dialog k-msheet" + (opts.tall ? " k-msheet--tall" : ""), "data-ui": "ui.dialog shell.compact-sheet", "data-dialog-box": "true" }, [
       el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
         el("div", {}, [el("span", { class: "k-kicker", text: opts.eyebrow }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: opts.title })]),
         close
       ]),
-      slot
-    ]);
+      slot,
+      opts.foot ? el("div", { class: "k-dialog-foot", "data-ui": "ui.dialog-foot" }, opts.foot) : null
+    ].filter(Boolean));
     var overlay = overlayFor(box, "compact");
-    activeCompactSheet = { overlay: overlay, origin: origin };
+    var anchor = homes.filter(function (h) { return h.origin; })[0];
+    activeCompactSheet = { overlay: overlay, origin: anchor ? anchor.origin : document.body };
     close.addEventListener("click", function () { overlay.close(); });
     if (opts.trigger) opts.trigger.setAttribute("aria-expanded", "true");
     KOS.ui.openDialog(overlay, {
-      initialFocus: node.querySelector("button, input, select, textarea") || close,
+      initialFocus: slot.querySelector("button, input, select, textarea") || close,
       onClose: function () {
-        if (origin.isConnected) origin.insertBefore(node, next && next.parentNode === origin ? next : null);
-        else node.remove();
+        homes.forEach(function (h) {
+          if (h.origin && h.origin.isConnected) h.origin.insertBefore(h.node, h.next && h.next.parentNode === h.origin ? h.next : null);
+          else h.node.remove();
+        });
         if (opts.trigger) opts.trigger.setAttribute("aria-expanded", "false");
         if (activeCompactSheet && activeCompactSheet.overlay === overlay) activeCompactSheet = null;
         if (opts.onClose) opts.onClose();

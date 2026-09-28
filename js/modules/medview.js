@@ -292,6 +292,54 @@
           hint: "Everything else this vault can do", items: opts.actions }), "vault.toolbar-actions-btn")
       : null;
 
+    /* frame 15j: on a phone the rail (status + lists), the sort and the
+       facets are ONE Filters sheet — the same nodes, moved — with Reset
+       and a live "Show N titles" at its foot; the actions and the primary
+       ride in the title bar's ⋯ */
+    var sheetCount = el("span", { class: "k-menu-count", "data-ui": "ui.menu-count" });
+    var sheetBtn = el("button", { type: "button", class: "k-btn k-mtool k-mfilter-sheet", "data-ui": "vault.filter-sheet",
+      "aria-haspopup": "dialog", "aria-expanded": "false", onclick: openFilterSheet }, [el("span", { text: "Filters" }), sheetCount]);
+    function railOf() {
+      var layout = root.closest("[data-ui~='vault.layout']");
+      return layout ? layout.querySelector("[data-ui~='vault.filter-rail']") : null;
+    }
+    function openFilterSheet() {
+      if (!KOS.mobileShell || !KOS.mobileShell.moveToSheet) return;
+      var layout = root.closest("[data-ui~='vault.layout']");
+      var countNode = layout && layout.querySelector("[data-ui~='vault.count']");
+      var show = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "vault.filter-show" });
+      function paintShow() { var t = countNode ? countNode.textContent.split("·")[0].trim() : ""; show.textContent = t ? "Show " + t : "Done"; }
+      paintShow();
+      var watch = countNode && window.MutationObserver ? new window.MutationObserver(paintShow) : null;
+      if (watch) watch.observe(countNode, { childList: true, characterData: true, subtree: true });
+      var reset = el("button", { type: "button", class: "k-btn", "data-ui": "vault.filter-reset", text: "Reset", onclick: function () {
+        var all = railOf() && railOf().querySelector(".k-mrail-row");
+        if (all && !KOS.ui.hasState(all, "active")) all.click();
+        clearBtn.click();
+      } });
+      var h1 = document.querySelector("#main h1");
+      var sheet = KOS.mobileShell.moveToSheet({ nodes: [railOf(), opts.sort || null, facets.length ? panel : null], trigger: sheetBtn,
+        eyebrow: h1 ? h1.textContent.trim() : "", title: "Filters", slot: "vault-filters", foot: [reset, show],
+        onClose: function () { if (watch) watch.disconnect(); } });
+      show.addEventListener("click", function () { if (sheet) sheet.close(); });
+    }
+    var more = [];
+    /* an action that repeats the primary ("Find new titles…" beside "⊕ Find new") is listed once */
+    var primaryText = opts.primary ? opts.primary.textContent.replace(/^[^A-Za-z]+/, "") : null;
+    (opts.actions || []).filter(Boolean).forEach(function (it) {
+      if (it.sep) return;
+      if (primaryText && typeof it.label === "string" && it.label.indexOf(primaryText) === 0) return;
+      if (it.heading) { more.push(el("p", { class: "k-kicker k-mtool-more-h", text: it.heading })); return; }
+      more.push(el("button", { type: "button", class: "k-btn", onclick: function (ev) {
+        var top = KOS.ui.topDialog && KOS.ui.topDialog();
+        if (top && top.close) top.close();
+        if (it.onSelect) it.onSelect(ev);
+      } }, [it.glyph ? el("span", { class: "k-menu-item-mark", lang: "ja", "aria-hidden": "true", text: it.glyph }) : null, el("span", { text: it.label })].filter(Boolean)));
+    });
+    if (opts.primary) more.unshift(el("button", { type: "button", class: "k-btn k-btn--primary", text: opts.primary.textContent,
+      onclick: function () { var top = KOS.ui.topDialog && KOS.ui.topDialog(); if (top && top.close) top.close(); opts.primary.click(); } }));
+    var moreBox = more.length ? el("div", { class: "k-mtool-more", "data-ui": "vault.more", "data-phone-more": "" }, more) : null;
+
     var root = el("div", { class: "k-mtoolbar" + (opts.className ? " " + opts.className : ""), "data-ui": "vault.toolbar vault.tools",
       role: "group", "aria-label": opts.label || "Vault controls" }, [
       opts.search || null,
@@ -315,9 +363,14 @@
           : "Narrow this vault");
       }
       clearBtn.disabled = !n;
+      var rail = root.isConnected ? railOf() : null;
+      var railOn = rail && rail.querySelector(".k-mrail-row[aria-current='true']") !== rail.querySelector(".k-mrail-row") ? 1 : 0;
+      sheetCount.textContent = n + railOn ? String(n + railOn) : "";
     }
     sync();
-    return { root: root, sync: sync, filtersBtn: filtersBtn, actionsBtn: actionsBtn };
+    /* the phone's Filters button and ⋯ box stand beside the toolbar, not in
+       it: the row keeps its six controls and one primary (smoke44) */
+    return { root: root, sync: sync, filtersBtn: filtersBtn, actionsBtn: actionsBtn, phone: [sheetBtn, moreBox].filter(Boolean) };
   }
   /* the primary action every vault toolbar carries (one per view) */
   function primaryButton(text, title, onclick) {
@@ -1811,7 +1864,10 @@
     return {
       heroHolder: heroHolder, mainCol: mainCol, controls: controls, layout: layout,
       setRail: function (node) { layout.insertBefore(node, mainCol); },
-      setBar: function (bar) { controls.appendChild(bar.root || bar); }
+      setBar: function (bar) {
+        controls.appendChild(bar.root || bar);
+        (bar.phone || []).forEach(function (n) { controls.appendChild(n); });
+      }
     };
   }
 

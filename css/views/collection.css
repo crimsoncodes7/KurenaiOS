@@ -71,6 +71,14 @@
 .k-mfilters { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-8); }
 .k-mfilters-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
 .k-mfilters-foot { display: flex; justify-content: flex-end; }
+/* 15j: the phone's Filters sheet and ⋯ box exist only there */
+.k-mfilter-sheet, .k-mtool-more { display: none; }
+.k-msheet-slot > .k-mrail { display: flex; flex-direction: column; gap: var(--sp-14); }
+.k-msheet-slot .k-mfilters-foot { display: none; }
+.k-msheet-slot > .k-pill-select { min-block-size: var(--hit-coarse); font-size: var(--fs-16); }
+.k-msheet-tools > .k-mtool-more { display: flex; flex-direction: column; gap: var(--sp-8); }
+.k-mtool-more > .k-btn { justify-content: center; min-block-size: var(--hit-coarse); }
+.k-mtool-more-h { margin: var(--sp-6) 0 0; }
 
 /* ================= the overlay card (frame 11b) ================= */
 .k-mgrid[data-layout="grid"], .k-mgrid:not([data-layout]) { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--mcard-min), 1fr)); gap: var(--sp-16); }
@@ -982,6 +990,30 @@
 
 @media (max-width: 700px) {
 .k-mgrid[data-layout="list"] { padding-inline: var(--sp-6); }
+/* frame 15j: search and one Filters button, then the count and the
+   layout; Actions and the primary wait in ⋯ */
+.k-mmain > .k-btn.k-disclosure { display: none; }
+.k-mcontrols { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-10) var(--sp-8); }
+.k-mtoolbar { display: contents; }
+.k-mtoolbar > .k-mtool:not(.k-mfilter-sheet), .k-mtoolbar > .k-pill-select, .k-mtoolbar > .k-btn--primary { display: none; }
+.k-msearch { order: 1; inline-size: auto; min-block-size: var(--hit-coarse); font-size: var(--fs-16); }
+.k-mfilter-sheet { order: 2; display: inline-flex; min-block-size: var(--hit-coarse); }
+.k-mcount { order: 3; white-space: normal; }
+.k-mlayout { order: 4; justify-self: end; }
+/* the spotlight: the cover beside its title, the bar and actions under */
+.k-vhero { display: grid; grid-template-columns: var(--vhero-cover-w-sm) minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; gap: 0 var(--sp-14); align-items: start; }
+.k-vhero-body { display: contents; }
+.k-vhero-body > * { grid-column: 2; }
+.k-vhero-cover { grid-column: 1; grid-row: 1 / span 4; inline-size: var(--vhero-cover-w-sm); block-size: var(--vhero-cover-h-sm); margin: 0; transform: none; font-size: var(--fs-22); }
+.k-vhero-body > .k-vhero-bar, .k-vhero-body > .k-vhero-actions { grid-column: 1 / -1; }
+.k-vhero-bar { inline-size: 100%; margin-block-start: var(--sp-12); }
+.k-vhero-chips { margin-block-end: 0; }
+.k-vhero-actions { flex-wrap: wrap; }
+.k-vhero-actions > .k-btn:not(.k-vhero-more) { flex: 1 1 0; justify-content: center; min-block-size: var(--hit-coarse); }
+/* a cover's +1 is a 44px button on its corner; its status is the editor's */
+.k-mcard .k-mquickrow > select { display: none; }
+.k-mcard .k-mplus { position: absolute; inset-inline-end: 0; inset-block-end: 0; inline-size: var(--hit-coarse); block-size: var(--hit-coarse); padding: 0; border-radius: 50%; background: var(--vh-accent, var(--anime)); box-shadow: none; font-size: var(--fs-11); font-weight: var(--weight-bold); color: var(--bg); }
+.k-mcard:has(.k-mplus) .k-mcard-meta, .k-mcard:has(.k-mplus) .k-mcard-title { padding-inline-end: calc(var(--hit-coarse) + var(--sp-4)); }
 .k-mrow { --mrow-cols: var(--mrow-cover-w) minmax(0, 1fr) auto; gap: var(--sp-10); }
 .k-mrow--head, .k-mrow-status, .k-mrow-c1 { display: none; }
 .k-pf-hero-in { padding: var(--sp-20); }
@@ -1007,8 +1039,8 @@
 .k-bk-volrec, .k-vn-chrec { grid-template-columns: minmax(0, 1fr); }
 .k-bk-vols { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .k-bk-range-grid { grid-template-columns: minmax(0, 1fr); }
-.k-vhero { flex-direction: column; align-items: flex-start; padding: var(--sp-18); }
-.k-vhero-title { white-space: normal; font-size: var(--fs-22); }
+.k-vhero { min-block-size: 0; padding: var(--sp-18); }
+.k-vhero-title { white-space: normal; font-size: var(--fs-18); }
 .k-mgrid[data-layout="grid"], .k-mgrid:not([data-layout]) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
 .k-mquickrow { display: flex; }
 .k-medit { border-radius: var(--r-24) var(--r-24) 0 0; }

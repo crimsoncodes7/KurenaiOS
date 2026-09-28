@@ -469,6 +469,8 @@ color-scheme: dark;
 --vhero-h: 240px;
 --vhero-cover-w: 132px;
 --vhero-cover-h: 192px;
+--vhero-cover-w-sm: 88px;   /* the phone spotlight's cover (15j) */
+--vhero-cover-h-sm: 124px;
 --vhero-body-w: 600px;
 --vhero-bar-w: 340px;
 --fs-30: 30px;
@@ -578,6 +580,8 @@ color-scheme: dark;
 --gv-buy-ink: oklch(0.22 0.04 70);
 --gv-rail-w: 200px;
 --gv-pv-h: 112px;
+--gv-pv-thumb: 64px;        /* a phone ware's preview thumb (15k) */
+--gv-pv-zoom: 0.4;
 --gv-id-w: 400px;
 --gv-id-band-h: 130px;
 --gv-seal: 40px;

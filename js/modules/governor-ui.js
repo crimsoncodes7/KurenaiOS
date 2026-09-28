@@ -606,7 +606,10 @@
         ]));
       });
       sections.appendChild(el("p", { class: "k-gv-earn", text: "Gold comes from session completions, streak milestones, quiz scores of 80% or more and clearing the due queue. Worked examples, flashcards and quizzes are free forever." }));
-      shop.appendChild(el("div", { class: "k-gv-shop-body" }, [rail, sections]));
+      /* 15k: on a phone the department rail is one declared chip scroller;
+         above that tier the wrapper is transparent and the rail is itself */
+      shop.appendChild(el("div", { class: "k-gv-shop-body" }, [
+        KOS.ui.scroller(rail, { keepRole: true, label: "Shop departments", className: "k-gv-rail-scroll" }), sections]));
 
       /* the catalogue opens on All wares */
       select({ dept: "all" });

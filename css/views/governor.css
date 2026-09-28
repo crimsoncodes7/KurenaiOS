@@ -134,6 +134,8 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-rail-l { flex: 1 1 0; min-inline-size: 0; }
 .k-gv-rail-n { font: var(--fs-11) var(--font-mono); color: var(--muted); }
 .k-gv-rail-label { padding: var(--sp-14) var(--sp-12) var(--sp-6); font-size: var(--fs-11); font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
+.k-gv-rail-scroll { display: contents; }
+.k-gv-rail-scroll > .k-scroller-arrow { display: none; }
 .k-gv-wares { display: flex; flex-direction: column; gap: var(--sp-24); min-inline-size: 0; }
 .k-gv-ware-head { display: flex; align-items: baseline; gap: var(--sp-10); margin-block-end: var(--sp-12); }
 .k-gv-ware-head h3 { margin: 0; font-size: var(--fs-15); font-weight: var(--weight-semibold); }
@@ -365,12 +367,30 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 
 @media (max-width: 700px) {
 .k-gv-row { grid-template-columns: var(--gv-row-time) minmax(0, 1fr) auto; }
+/* frame 15k: the instruments are a 2 × 2 grid, each figure under its
+   label; the departments one chip scroller; the balance stacked */
+.k-gv-stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
+.k-gv-stat { grid-template-columns: minmax(0, 1fr); align-content: start; padding: var(--sp-12) var(--sp-14); border-radius: var(--r-20); }
+.k-gv-stat-k, .k-gv-stat-v, .k-gv-stat-h { grid-column: 1; grid-row: auto; }
+.k-gv-stat-v { font-size: var(--fs-20); }
+.k-gv-rail-scroll { display: flex; }
+.k-gv-rail-scroll > .k-scroller-arrow { display: grid; }
+.k-gv-rail { flex-wrap: nowrap; }
+.k-gv-rail-item { flex: 0 0 auto; white-space: nowrap; min-block-size: var(--hit-coarse); }
+.k-gv-balance { flex-direction: column; align-items: stretch; gap: var(--sp-10); padding: var(--sp-18) var(--sp-20); }
+.k-gv-bal-copy { flex: 0 0 auto; }
+.k-gv-bal-facts { flex-direction: row; flex-wrap: wrap; gap: var(--sp-8) var(--sp-20); }
+.k-gv-ware { display: grid; grid-template-columns: var(--gv-pv-thumb) minmax(0, 1fr); gap: var(--sp-4) var(--sp-12); padding: var(--sp-14); border-radius: var(--r-20); }
+.k-gv-ware > .k-gv-pv { grid-row: 1 / span 2; align-self: start; zoom: var(--gv-pv-zoom); aspect-ratio: 1; block-size: auto; }
+.k-gv-ware > .k-gv-ware-h, .k-gv-ware > .k-gv-ware-desc { grid-column: 2; padding-inline: 0; }
+.k-gv-ware > .k-gv-ware-foot { grid-column: 2; display: flex; justify-content: flex-end; gap: var(--sp-8); margin-block-start: var(--sp-6); }
+.k-gv-ware-foot > .k-btn { inline-size: auto; min-block-size: var(--hit-coarse); border-radius: var(--r-pill); }
+.k-gv-ware-foot > .k-gv-buy { background: var(--s2); color: var(--amber); box-shadow: none; }
 .k-gv-row .k-chip { display: none; }
 .k-gv-log-week { margin-inline-start: 0; }
 }
 
 @media (max-width: 560px) {
-.k-gv-stack { grid-template-columns: minmax(0, 1fr); }
 .k-gv-ware-grid { grid-template-columns: minmax(0, 1fr); }
 .k-gv-row { grid-template-columns: var(--gv-row-time) minmax(0, 1fr); }
 .k-gv-row .k-gv-reward { grid-column: 2; }

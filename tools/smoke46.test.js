@@ -335,7 +335,7 @@ step("all four vaults share the same compact status/list disclosure seam", () =>
   /* the one seam: every vault layout, found by its hook, not a module list */
   assert(/main\.querySelectorAll\("\[data-ui~='vault\.layout'\]"\)\.forEach\(enhanceVaultDisclosure\)/.test(shellSrc),
     "vault disclosure is module-specific");
-  assert(/slot\.appendChild\(node\)/.test(shellSrc) && /origin\.insertBefore\(node/.test(shellSrc),
+  assert(/slot\.appendChild\((?:h\.)?node\)/.test(shellSrc) && /origin\.insertBefore\((?:h\.)?node/.test(shellSrc),
     "compact filters are cloned rather than moved and restored");
   assert(shellSrc.indexOf('setAttribute("data-shell", "ready")') > shellSrc.indexOf("syncShell();"),
     "the no-JS fallback is disabled before mobile-shell setup succeeds");
