@@ -369,6 +369,7 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 .k-asst-drawer-head .k-asst-emblem { inline-size: var(--asst-emblem-sm); block-size: var(--asst-emblem-sm); }
 .k-asst-drawer-name { font-size: var(--fs-14-5); font-weight: var(--weight-semibold); }
 .k-asst-drawer-btns { margin-inline-start: auto; display: flex; gap: var(--sp-6); }
+.k-asst-phead { display: none; }
 .k-asst-drawer-stage { display: flex; align-items: center; padding: var(--sp-10) var(--sp-18); border-block-end: var(--hairline) solid var(--line); }
 .k-asst-drawer .k-asst-thread { padding: var(--sp-18) var(--sp-20); }
 .k-asst-drawer .k-asst-compose { padding: 0 var(--sp-20) var(--sp-20); }
@@ -509,7 +510,27 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 }
 
 @media (max-width: 700px) {
-.k-asst-drawer { inset: var(--sp-12) var(--sp-12) calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); inline-size: auto; block-size: auto; }
+/* frame 15l: one header; the column, project and pin wait in ⋯ */
+.k-asst-phead { display: flex; align-items: center; gap: var(--sp-6); padding: var(--sp-8) var(--sp-10); border-block-end: var(--hairline) solid var(--line); }
+.k-asst-phead-t { flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.k-asst-phead-t > b { max-inline-size: 100%; font-size: var(--fs-16); font-weight: var(--weight-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-asst-phead-t > span { font-size: var(--fs-12); color: var(--muted); }
+.k-asst > .k-asst-nav, .k-asst-toolbar { display: none; }
+.k-msheet-slot > .k-asst-nav { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; padding: 0; border: 0; overflow: visible; }
+.k-msheet-slot > .k-asst-nav .k-asst-nav-label { display: flex; }
+.k-msheet-slot > .k-asst-nav .k-asst-nav-sec { display: block; }
+.k-msheet-slot > .k-asst-nav .k-asst-tab-l { display: inline; }
+.k-msheet-slot > .k-asst-nav :is(.k-asst-brand, .k-asst-nav-acts) { display: none; }
+.k-msheet-slot > .k-asst-nav .k-asst-tabs { flex-direction: column; flex-wrap: nowrap; }
+.k-msheet-slot > .k-asst-nav .k-asst-tab { inline-size: 100%; min-block-size: var(--hit-coarse); }
+.k-msheet-slot > .k-asst-chip-select, .k-msheet-slot > .k-asst-pin { min-block-size: var(--hit-coarse); margin-block-start: var(--sp-8); }
+/* the drawer is a bottom sheet over the page; she steps out of it */
+.k-asst-drawer { inset: var(--sp-48) 0 0; inline-size: auto; block-size: auto; border-radius: var(--r-28) var(--r-28) 0 0; padding-block-end: env(safe-area-inset-bottom); }
+.k-asst-drawer-stage { display: none; }
+.k-asst-starters { flex-direction: column; flex-wrap: nowrap; gap: 0; }
+.k-asst-starter { display: flex; justify-content: space-between; align-items: center; min-block-size: var(--hit-coarse); padding: var(--sp-10) 0; border-radius: 0; border-block-start: var(--hairline) solid var(--line); background: none; font-size: var(--fs-15); color: var(--text); text-align: start; }
+.k-asst-starter::after { content: "↗"; color: var(--muted); }
+.k-asst-starter:hover { background: none; color: var(--crimson-soft); }
 .k-asst-page { padding: var(--sp-18) var(--sp-16) var(--sp-24); }
 .k-asst-toolbar { flex-wrap: wrap; padding: var(--sp-12) var(--sp-16); }
 .k-asst-thread { padding: var(--sp-16); }

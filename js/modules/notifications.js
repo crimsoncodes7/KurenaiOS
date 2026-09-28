@@ -131,7 +131,10 @@
     KOS.shell.tree("none");
     var filter = arg && typeof arg === "string" && FILTERS.some(function (f) { return f[0] === arg; }) ? arg : "all";
 
-    var markAll = el("button", { type: "button", class: "k-btn", text: "✓ Mark all as read", onclick: function () { KOS.notify.markAllRead(); } });
+    /* 15m: on a phone Mark all as read is the ✓ beside the title, and the
+       alert settings wait in the title bar's ⋯ */
+    var markAll = el("button", { type: "button", class: "k-btn", "data-phone-action": "", title: "Mark all as read", onclick: function () { KOS.notify.markAllRead(); } },
+      [el("span", { "aria-hidden": "true", text: "✓" }), el("span", { class: "k-btn-label", text: " Mark all as read" })]);
     main.appendChild(KOS.ui.pageHeader({
       kicker: "The archive · 通",
       title: "Notifications",
@@ -140,7 +143,7 @@
     }));
 
     var feed = el("div", { class: "k-nt-feed" });
-    var side = el("aside", { class: "k-nt-side", "aria-label": "Alerts" });
+    var side = el("aside", { class: "k-nt-side", "aria-label": "Alerts", "data-phone-more": "" });
     main.appendChild(el("div", { class: "k-nt", "data-ui": "notify.page" }, [feed, side]));
 
     /* filter tabs + the list */

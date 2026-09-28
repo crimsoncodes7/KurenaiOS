@@ -1963,7 +1963,7 @@
         el("h2", { class: "k-asst-title", text: S.conversationTitle || "A fresh thread" }),
         projectPicker(),
         el("span", { class: "k-asst-toolbar-end" }, [
-          el("button", { class: "k-asst-chip-btn", type: "button", text: currentPinned ? "◆ Pinned" : "◇ Pin",
+          el("button", { class: "k-asst-chip-btn k-asst-pin", type: "button", text: currentPinned ? "◆ Pinned" : "◇ Pin",
             "aria-label": currentPinned ? "Unpin current conversation" : "Pin current conversation", title: currentPinned ? "Unpin conversation" : "Pin conversation",
             "aria-pressed": currentPinned ? "true" : "false",
             onclick: function () { togglePin(); KOS.show("assistant", { tab: "chat" }); } }),
@@ -2461,7 +2461,30 @@
     var tabs = assistantTabs(tab);
     var body = el("section", { id: "asst-page-panel", class: "k-asst-page", "data-ui": "asst.page", "data-tab": tab,
       role: "tabpanel", "aria-label": "Assistant " + tab });
-    var shell = el("div", { class: "k-asst", "data-ui": "asst.shell" }, [tabs, body]);
+    /* frame 15l: on a phone the page is one chat under one header — back,
+       the title over its model, "+" and ⋯ — and ⋯ lends the navigation
+       column, the project and the pin to one sheet (the same nodes) */
+    var route = routingNow().complex;
+    var pageName = (PAGE_TABS.filter(function (t) { return t[3] === tab; })[0] || PAGE_TABS[0])[0];
+    var more = el("button", { class: "k-iconbtn", "data-ui": "asst.phone-more", type: "button", text: "⋯",
+      "aria-label": "Assistant pages and conversations", "aria-haspopup": "dialog", "aria-expanded": "false",
+      onclick: function () {
+        if (!KOS.mobileShell || !KOS.mobileShell.moveToSheet) return;
+        KOS.mobileShell.moveToSheet({ nodes: [tabs, body.querySelector(".k-asst-chip-select"), body.querySelector(".k-asst-pin")],
+          trigger: more, eyebrow: "Kurenai", title: "Assistant", slot: "asst-nav", tall: true });
+      } });
+    var phead = el("div", { class: "k-asst-phead", "data-ui": "asst.phone-head" }, [
+      el("button", { class: "k-iconbtn", type: "button", text: "‹", "aria-label": "Back",
+        onclick: function () { if (window.history.length > 1) window.history.back(); else KOS.show("home"); } }),
+      el("div", { class: "k-asst-phead-t" }, [
+        el("b", { text: tab === "chat" ? (S.conversationTitle || "A fresh thread") : pageName }),
+        route ? el("span", { text: providerName(route.provider) + " · auto" }) : null
+      ].filter(Boolean)),
+      el("button", { class: "k-iconbtn", type: "button", text: "＋", "aria-label": "New conversation",
+        onclick: function () { newConversation(); KOS.show("assistant", { tab: "chat" }); } }),
+      more
+    ]);
+    var shell = el("div", { class: "k-asst", "data-ui": "asst.shell" }, [phead, tabs, body]);
     if (workspaceCfg().sidebarCollapsed) KOS.ui.state(shell, "is-side-collapsed", true);
     main.appendChild(shell);
     if (tab === "chat") pageChat(body);

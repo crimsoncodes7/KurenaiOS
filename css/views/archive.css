@@ -228,15 +228,22 @@
 }
 
 @media (max-width: 700px) {
+/* frame 15m: the alert settings are ⋯'s sheet; a title wraps to two lines */
+.k-nt > .k-nt-side { display: none; }
+.k-msheet-tools > .k-nt-side { display: flex; flex-direction: column; gap: var(--sp-12); }
+.k-nt-row { align-items: start; }
+.k-nt-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .k-bk-hero { padding: var(--sp-20); }
-.k-bk-danger { flex-direction: column; align-items: flex-start; }
+.k-bk-danger { flex-direction: column; align-items: stretch; }
+.k-bk-danger > .k-btn { justify-content: center; min-block-size: var(--hit-coarse); background: none; box-shadow: inset 0 0 0 var(--hairline) var(--red); color: var(--red); }
+.k-bk-actions { flex-direction: column; margin-block-start: var(--sp-16); }
+.k-bk-actions > .k-btn { justify-content: center; min-block-size: var(--hit-coarse); }
+.k-bk-mark { display: none; }
 .k-bk-cover { grid-template-columns: var(--sp-32) minmax(0, 1fr); }
 .k-bk-count { grid-column: 2; white-space: normal; }
 }
 
 @media (max-width: 560px) {
-.k-nt-row { grid-template-columns: var(--sp-32) minmax(0, 1fr); }
-.k-nt-when { display: none; }
 .k-help-pager { flex-direction: column; }
 }
 }
