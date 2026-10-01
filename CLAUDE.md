@@ -12,9 +12,10 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `3cf4596` (Graphite rebuild, review B third pass)
-- Runtime release: `e1377e3` (design part 2) — immutable deployment
-  https://ade0184c.kurenai-os.pages.dev (28 September 2026)
+- Release source checkpoint: `fdc954a` (Statistics S1–S5 at depth, Mechanics
+  refs M6–M9, Home Focus ladder / class lesson dating / paper-level picker)
+- Runtime release: `fdc954a` — immutable deployment
+  https://2022f878.kurenai-os.pages.dev (1 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-stats-notes-1`
 - Required smoke gate: 64 / 64 suites.

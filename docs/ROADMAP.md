@@ -357,7 +357,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
   no longer exists, so this starts from `maths-applied.js`.
 - **Pace:** one spec section per commit, each followed by the smoke gate
   (smoke50 counts).
-- **Status (1 October 2026, branch `feat/stats-depth`):** Statistics is done —
+- **Status (1 October 2026, released as `fdc954a`):** Statistics is done and deployed —
   `maths-stats-s1.js` … `s5.js`, 14 leaves, 64 pages, 137 worked examples,
   125 derived exam items, every number checked with scipy; smoke63 guards
   it. Mechanics was renamed from S6–S9 to **M6–M9** first (Paper 3 sections

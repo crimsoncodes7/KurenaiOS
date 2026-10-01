@@ -17,22 +17,24 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `e1377e3` (design part 2, frames 15–23), immutable https://ade0184c.kurenai-os.pages.dev — deployed 28 September 2026 |
+| Runtime release commit | `fdc954a` (Statistics S1–S5, Mechanics refs M6–M9, Home/Pacing/picker), immutable https://2022f878.kurenai-os.pages.dev — deployed 1 October 2026 |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-graphite-4` |
-| Smoke gate | 63 suites (smoke63 added 1 October 2026 for Statistics and the Mechanics rename); 62 at the `e1377e3` release (smoke39 needs a working `git`/`node` toolchain on the host) |
-| Latest release date | 28 September 2026 (Category 7: 9 August 2026) |
-| Latest delivery | design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
+| Service-worker cache | `kos-stats-notes-1` |
+| Smoke gate | 64 suites at the `fdc954a` release (smoke63: Statistics and the Mechanics rename; smoke64: Home Focus ladder and lesson dating). smoke39 needs a working `git`/`node` toolchain on the host |
+| Latest release date | 1 October 2026 (Category 7: 9 August 2026) |
+| Latest delivery | Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
-## On `feat/stats-depth` (1 October 2026) — Statistics at full depth
+## Released 1 October 2026 — Statistics at full depth
 
-Roadmap Phase 4, Statistics half. Not yet merged or deployed.
+Roadmap Phase 4, Statistics half. Merged to `main` as `fdc954a` and deployed
+(immutable https://2022f878.kurenai-os.pages.dev, service worker
+`kos-stats-notes-1`). Mechanics M6–M9 at depth is next.
 
 - The 14 Statistics leaves are paged notes in `js/data/content/maths-stats-s1.js`
   … `s5.js`, built like Pure: overview, concept pages, worked examples
@@ -49,7 +51,7 @@ Roadmap Phase 4, Statistics half. Not yet merged or deployed.
   lab index's Statistics/Mechanics split no longer files 6.1 under
   Statistics. Stored state is renamed at the store's gate and attachments
   once per boot.
-- Smoke gate 63/63 (smoke63 new).
+- Smoke gate 64/64 at release (smoke63 new; smoke64 from the Home/Pacing work).
 
 ## Released 27 September 2026 — the Graphite UI rebuild
 
