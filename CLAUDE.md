@@ -17,7 +17,7 @@ chronological diary here.
 - Runtime release: `fdc954a` — immutable deployment
   https://2022f878.kurenai-os.pages.dev (1 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-stats-notes-1`
+- Service-worker version: `kos-mech-notes-1`
 - Required smoke gate: 64 / 64 suites.
 
 ## Run, test and deploy
