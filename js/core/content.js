@@ -460,8 +460,9 @@
      the exam-item schema the Exam questions tab self-marks against, so a
      question is authored once: the card is the model answer, the item is
      the practice. Only exam-tagged cards with a plain-string question and
-     a mark count in `src` qualify. */
-  function examFromWorked(notes) {
+     a mark count in `src` qualify. `board` names the awarding body the
+     paper belongs to (Edexcel for Maths, AQA for Computer Science). */
+  function examFromWorked(notes, board) {
     var out = [];
     (notes || []).forEach(function (b) {
       var w = b && b.worked;
@@ -470,7 +471,7 @@
       if (!mm) return;
       var marks = parseInt(mm[1], 10);
       var lvl = /^AS\b/.test(w.src) ? "AS" : null;
-      var src = "Edexcel " + w.src.replace(/^(AS|A-level)\s*/, "").replace(/\s*·\s*\d+\s*marks?\s*$/, "");
+      var src = (board || "Edexcel") + " " + w.src.replace(/^(AS|A-level)\s*/, "").replace(/\s*·\s*\d+\s*marks?\s*$/, "");
       var ms = (w.steps || []).map(function (st) {
         /* a mark-scheme bullet is inline text: the card's display-size
            fractions become inline fractions */
