@@ -2,7 +2,7 @@
  * Modelled on the Topic Practice compilation (8MA0 Paper 2 / 9MA0 Paper 3 Section B).
  * Numbers and contexts are re-written; `src` names the paper each item is modelled on.
  * g = 9.8 m/s² throughout, answers to 2 or 3 s.f. as the mark schemes expect.
- * Loaded after maths-applied.js; extends the base leaves via KOS.content.extend. */
+ * Loaded after maths-mech-m7.js … m9.js; extends the base leaves via KOS.content.extend. */
 (function (X) {
 "use strict";
 

@@ -71,7 +71,8 @@ step("every bank file is registered after the base content and loads clean", () 
   assert(!errors.some(e => /LOAD FAIL.*bank-/.test(e)), errors.filter(e => /bank-/.test(e)).join("; "));
   const idx = s => html.indexOf(s);
   assert(idx("bank-cs-41.js") > idx("cs-datastructures.js"), "a bank loads before the base content it extends");
-  assert(idx("bank-maths-stats.js") > idx("maths-applied.js"), "the stats bank loads before maths-applied.js");
+  assert(idx("bank-maths-stats.js") > idx("maths-stats-s5.js"), "the stats bank loads after the Statistics notes");
+  assert(idx("bank-maths-mech.js") > idx("maths-mech-m9.js"), "the mechanics bank loads after the Mechanics notes");
 });
 
 step("KOS.content.extend concatenates and never replaces", () => {

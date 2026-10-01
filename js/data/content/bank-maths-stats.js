@@ -1,7 +1,7 @@
 /* KurenaiOS — Edexcel Maths Statistics question bank (S1–S5).
  * Modelled on the Topic Practice compilation (8MA0/9MA0 Paper 3 Section A).
  * Numbers and contexts are re-written; `src` names the paper each item is modelled on.
- * Loaded after maths-applied.js; extends the base leaves via KOS.content.extend. */
+ * Loaded after maths-stats-s1.js … s5.js; extends the base leaves via KOS.content.extend. */
 (function (X) {
 "use strict";
 

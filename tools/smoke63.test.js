@@ -19,9 +19,10 @@
          restore) is renamed on the way in — a device that has not
          updated yet cannot reintroduce an old ref.
      D · ATTACHMENTS. A file filed under an old ref moves to the new one.
-     E · THE NOTES. Every Statistics leaf is paged, carries worked
-         examples with Edexcel marks, and derives self-marking exam items
-         whose marks match their source.
+     E · THE NOTES. Every Statistics and Mechanics leaf is paged, carries
+         worked examples with Edexcel marks, and derives self-marking exam
+         items whose marks match their source; the old outline file
+         (maths-applied.js) is gone.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -37,6 +38,7 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
 let app, KOS;
 const OLD = /^S[6-9](\.|$)/;
 const STATS = ["S1.1", "S2.1", "S2.2", "S2.3", "S2.4", "S3.1", "S3.2", "S3.3", "S4.1", "S4.2", "S4.3", "S5.1", "S5.2", "S5.3"];
+const MECH = ["M6.1", "M7.1", "M7.2", "M7.3", "M7.4", "M7.5", "M8.1", "M8.2", "M8.3", "M8.4", "M8.5", "M8.6", "M9.1"];
 
 /* ============ A · the tree ============ */
 step("A · Maths sections are P1–P10, S1–S5, M6–M9", () => {
@@ -152,8 +154,8 @@ step("D · a file filed under an old ref moves to the new one", async () => {
 });
 
 /* ============ E · the notes ============ */
-step("E · every Statistics leaf is paged, worked and examined", () => {
-  STATS.forEach(ref => {
+step("E · every Statistics and Mechanics leaf is paged, worked and examined", () => {
+  STATS.concat(MECH).forEach(ref => {
     const c = app.window.KOS_CONTENT["maths:" + ref];
     assert(c, "content for " + ref);
     const pages = c.notes.filter(b => b && b.page).length;
@@ -176,9 +178,11 @@ step("E · every Statistics leaf is paged, worked and examined", () => {
   });
 });
 
-step("E · the old Statistics outline is gone from the base file", () => {
+step("E · the old Statistics and Mechanics outlines are gone", () => {
   const C = app.window.KOS_CONTENT;
-  STATS.forEach(ref => {
+  const html = require("fs").readFileSync(require("path").join(__dirname, "..", "index.html"), "utf8");
+  assert(html.indexOf("maths-applied.js") < 0, "the outline file is no longer loaded");
+  STATS.concat(MECH).forEach(ref => {
     const first = C["maths:" + ref].notes[0];
     assert(first && /— the whole topic on one page$/.test(first.h || ""), ref + " opens on its overview, not the old outline: " + JSON.stringify(first));
   });
