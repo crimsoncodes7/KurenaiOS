@@ -83,8 +83,8 @@ C["maths:M8.1"] = {
     ] } },
     { fig: { w: 520, h: 200, items: [].concat(
       [ground(20, 500, 150), box(250, 128, 80, 44, 0)],
-      F(290, 128, 0, 80, "tension T", { c: "accent", dx: 10 }),
-      F(210, 128, 180, 70, "friction F", { c: "accent3", dx: -14 }),
+      F(290, 128, 0, 80, "tension T", { c: "accent", dx: 30 }),
+      F(210, 128, 180, 70, "friction F", { c: "accent3", dx: -32 }),
       F(250, 106, 90, 60, "R", { c: "text2" }),
       F(250, 150, 270, 40, "W = mg", { c: "accent2", dx: 34, dy: -6 }),
       [{ text: [250, 128], t: "m", i: true, b: true, c: "text" }]
@@ -245,7 +245,7 @@ C["maths:M8.2"] = {
       "Resolve along the slope (the direction of motion) and perpendicular to it — never horizontally and vertically on a slope."
     ] } },
     { fig: { w: 520, h: 250, items: (function () {
-      var x0 = 60, y0 = 220, d = 30, p = along(x0, y0, d, 250, 24), it = [].concat(slope(x0, y0, 400, d, "α"), [box(p[0], p[1], 64, 44, d)]);
+      var x0 = 60, y0 = 230, d = 30, p = along(x0, y0, d, 250, 24), it = [].concat(slope(x0, y0, 370, d, "α"), [box(p[0], p[1], 64, 44, d)]);
       it = it.concat(F(p[0], p[1], 270, 90, "mg", { c: "accent2", dx: 18 }));
       it = it.concat(F(p[0], p[1], 180 + d, 78, "mg sin α", { c: "accent", dx: -26, dy: 8 }));
       it = it.concat(F(p[0], p[1], 270 + d, 80, "mg cos α", { c: "accent3", dx: 34, dy: 0 }));
@@ -510,7 +510,7 @@ C["maths:M8.4"] = {
       "Each particle's equation uses its **own** direction of motion as positive.",
       "The force on a pulley from the string is the resultant of the two tensions: $2T$ if both parts are parallel."
     ] } },
-    { fig: { w: 520, h: 250, items: [].concat(
+    { fig: { w: 520, h: 275, items: [].concat(
       [{ poly: [[30, 120], [330, 120], [330, 240], [30, 240]], fill: "muted", alpha: 0.08, c: "text2", w: 1.6 }],
       [box(150, 104, 56, 32, 0, { fill: "accent" }), { text: [150, 104], t: "P", b: true, c: "text" }],
       [{ circle: [345, 120, 15], c: "text2", w: 1.8 }, { line: [[178, 105], [345, 105]], c: "text2", w: 1.4 }, { line: [[360, 120], [360, 200]], c: "text2", w: 1.4 }],
@@ -607,7 +607,8 @@ C["maths:M8.4"] = {
       it.push({ line: [along(x0, y0, d, 225, 18), [top[0] - 6, top[1] - 20]], c: "text2", w: 1.4 });
       it.push({ line: [[top[0] + 16, top[1] - 12], [top[0] + 16, top[1] + 80]], c: "text2", w: 1.4 });
       it.push(box(top[0] + 16, top[1] + 96, 26, 26, 0, { fill: "accent2" }), { text: [top[0] + 16, top[1] + 96], t: "m", b: true, size: 11, c: "text" });
-      it = it.concat(F(p[0], p[1], 180 + d, 60, "F, 3mg sin α", { c: "accent3", dx: -30, dy: 6 }));
+      it = it.concat(F(p[0], p[1], 180 + d, 60, "3mg sin α", { c: "accent2", dx: -26, dy: 6 }));
+      it = it.concat(F(p[0] + 6, p[1] + 12, d, 46, "F", { c: "accent3", dy: 8 }));
       it = it.concat(F(p[0], p[1], 90 + d, 56, "R", { c: "text2" }));
       return it;
     })(), cap: "A-level Oct 2021: $A$ slides down, so friction acts up the slope with the tension; $B$ is pulled up." } },
@@ -635,7 +636,7 @@ C["maths:M8.4"] = {
       function mark(x, hgt, t, c) { it.push({ line: [[x - 8, g0 - hgt * u], [x + 8, g0 - hgt * u]], c: "text2", w: 1.4 }, { text: [x + 14, g0 - hgt * u], t: t, pos: "e", size: 11.5, c: c || "text", off: 2 }); }
       it.push({ line: [[120, g0], [120, g0 - 3.6 * u]], c: "line", w: 1 }, { line: [[330, g0], [330, g0 - 1.3 * u]], c: "line", w: 1 });
       mark(120, 2, "P starts: 2h"); mark(120, 3, "Q lands: P at 3h", "accent2"); mark(120, 24 / 7, "rest: 24h/7", "accent");
-      mark(330, 1, "Q starts: h"); mark(330, 0, "ground", "muted");
+      mark(330, 1, "Q starts: h"); it.push({ text: [40, g0 - 10], t: "ground", pos: "e", size: 11, c: "muted", off: 2 });
       it.push({ line: [[100, g0 - 2 * u], [100, g0 - 3 * u]], arrow: true, c: "accent2", w: 2 }, { line: [[90, g0 - 3 * u], [90, g0 - 24 / 7 * u]], arrow: true, c: "accent", w: 2 });
       it.push({ text: [70, g0 - 2.5 * u], t: "a = 3g/7", pos: "w", size: 11, c: "accent2" }, { text: [80, g0 - 3.3 * u], t: "free", pos: "w", size: 11, c: "accent" });
       return it;
@@ -721,7 +722,325 @@ C["maths:M8.4"] = {
   ]
 };
 
-/* @@M8.5@@ */
+/* =====================================================================
+   M8.5  Resultant forces and dynamics in a plane
+   ===================================================================== */
+C["maths:M8.5"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Resultant forces and dynamics in a plane — the whole topic on one page" },
+    "Spec 8.5: understand and use addition of forces; resultant forces; dynamics for motion in a plane. Resolve a vector into two components or use a vector diagram — e.g. two or more forces given in magnitude-direction form.",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["Add $\\mathbf i$-$\\mathbf j$ forces; the acceleration's magnitude", "4", "AS June 2025 Q2(a)(b)"],
+      ["A third force giving constant velocity (equilibrium)", "1", "AS June 2025 Q2(c)"],
+      ["The resultant is parallel to a given vector → a relation", "4", "A-level June 2022 Q3(a)"],
+      ["Then a displacement from rest: $\\mathbf s = \\frac12\\mathbf a t^2$", "5", "A-level June 2022 Q3(b)"],
+      ["Forces in magnitude-direction form: resolve, add, recombine", "4–6", "variations; inside slope and ladder questions"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**Adding forces** — components, magnitude, direction.",
+      "**Forces in magnitude-direction form**.",
+      "**Dynamics in a plane** — $\\mathbf F = m\\mathbf a$ and then kinematics.",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "Adding forces" },
+    { kv: [
+      ["Resultant", "the single force with the same effect as all of them: $\\mathbf R = \\mathbf F_1 + \\mathbf F_2 + \\cdots$"],
+      ["In components", "add the $\\mathbf i$ parts and the $\\mathbf j$ parts separately"],
+      ["Magnitude", "$|\\mathbf R| = \\sqrt{R_x^2 + R_y^2}$"],
+      ["Direction", "$\\theta = \\tan^{-1}\\dfrac{R_y}{R_x}$ from $\\mathbf i$ — sketch it to get the quadrant right"],
+      ["Parallel to $p\\mathbf i + q\\mathbf j$", "$R_x : R_y = p : q$, i.e. $qR_x = pR_y$"],
+      ["Equilibrium", "$\\mathbf R = \\mathbf 0$: a missing force is minus the sum of the others"]
+    ] },
+    { fig: { x: [-1, 8], y: [-2, 4], w: 460, h: 260, aspect: "equal", axes: { x: "i", y: "j", xt: [2, 4, 6], yt: [-1, 1, 2, 3] },
+      items: [
+        { vec: [[0, 0], [4, -1]], c: "accent" }, { text: [2.2, -1], t: "F₁ = 4i − j", c: "accent", b: true, size: 12 },
+        { vec: [[4, -1], [6, 2]], c: "accent3" }, { text: [6.6, 0.4], t: "F₂ = 2i + 3j", c: "accent3", b: true, size: 12 },
+        { vec: [[0, 0], [6, 2]], c: "accent2", w: 2.6 }, { text: [2.4, 1.6], t: "R = 6i + 2j", c: "accent2", b: true, size: 12 },
+        { line: [[0, 0], [7.5, 2.5]], c: "muted", dash: true }
+      ], cap: "A-level June 2022 with $\\lambda = 2$, $\\mu = 3$: nose to tail, the resultant $6\\mathbf i + 2\\mathbf j$ lies along $3\\mathbf i + \\mathbf j$ (dashed)." } },
+    { worked: { tag: "exam", title: "The resultant, the acceleration, a balancing force", src: "AS June 2025 · P2 Q2 · 5 marks",
+      q: "A particle $P$ of mass 0.25 kg moves on a smooth horizontal surface under the action of two horizontal forces $\\mathbf F_1 = (3\\mathbf i - 5\\mathbf j)$ N and $\\mathbf F_2 = (-6\\mathbf i + 9\\mathbf j)$ N. **(a)** Find the resultant force on $P$ in terms of $\\mathbf i$ and $\\mathbf j$. **(b)** Find the magnitude of the acceleration of $P$. A third horizontal force $\\mathbf F_3$ is now applied, and under $\\mathbf F_1$, $\\mathbf F_2$ and $\\mathbf F_3$ the particle moves with constant velocity. **(c)** Find $\\mathbf F_3$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf R = (-3\\mathbf i + 4\\mathbf j)$ N", mk: "B1" },
+        { h: "(b) $\\mathbf R = m\\mathbf a$", m: "$\\mathbf a = \\dfrac{-3\\mathbf i + 4\\mathbf j}{0.25} = -12\\mathbf i + 16\\mathbf j$", mk: "M1" },
+        { m: "$|\\mathbf a| = \\sqrt{144 + 256}$", mk: "M1" },
+        { m: "$= 20$ m s$^{-2}$", mk: "A1", n: "Or $|\\mathbf R| = 5$, so $|\\mathbf a| = 5 / 0.25$." },
+        { h: "(c) Constant velocity: resultant zero", m: "$\\mathbf F_3 = -\\mathbf R = (3\\mathbf i - 4\\mathbf j)$ N", mk: "B1ft" }
+      ], result: "(a) $-3\\mathbf i + 4\\mathbf j$ (b) 20 m s$^{-2}$ (c) $3\\mathbf i - 4\\mathbf j$" } },
+    { worked: { tag: "exam", title: "Moving along $3\\mathbf i + \\mathbf j$: a relation, then a distance", src: "A-level June 2022 · P3 Q3 · 9 marks",
+      q: "[$\\mathbf i$ and $\\mathbf j$ are horizontal unit vectors.] A particle $P$ of mass 4 kg is at rest at $A$ on a smooth horizontal plane. At $t = 0$ two forces $\\mathbf F_1 = (4\\mathbf i - \\mathbf j)$ N and $\\mathbf F_2 = (\\lambda\\mathbf i + \\mu\\mathbf j)$ N are applied. $P$ moves in the direction of $(3\\mathbf i + \\mathbf j)$. **(a)** Show that $\\lambda - 3\\mu + 7 = 0$. At $t = 4$ s, $P$ passes through $B$. Given that $\\lambda = 2$, **(b)** find the length $AB$.",
+      steps: [
+        { h: "(a) Resultant", m: "$\\mathbf R = (4 + \\lambda)\\mathbf i + (\\mu - 1)\\mathbf j$", mk: "M1 A1" },
+        { h: "Starting from rest it moves along $\\mathbf R$, parallel to $3\\mathbf i + \\mathbf j$", m: "$4 + \\lambda = 3(\\mu - 1)$", mk: "M1" },
+        { m: "$\\lambda - 3\\mu + 7 = 0$", mk: "A1*" },
+        { h: "(b) $\\lambda = 2 \\Rightarrow \\mu = 3$", m: "$\\mathbf R = 6\\mathbf i + 2\\mathbf j$; $\\; \\mathbf a = \\dfrac{\\mathbf R}{4} = 1.5\\mathbf i + 0.5\\mathbf j$", mk: "M1 A1" },
+        { h: "From rest", m: "$\\overrightarrow{AB} = \\tfrac12 \\mathbf a (4^2) = 12\\mathbf i + 4\\mathbf j$", mk: "M1 A1" },
+        { m: "$AB = \\sqrt{144 + 16} = \\sqrt{160} = 12.6$ m", mk: "A1" }
+      ], result: "(b) $4\\sqrt{10} = 12.6$ m" } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "Forces in magnitude-direction form" },
+    { steps: [
+      { h: "1. Resolve each force", m: "$P$ at $\\theta$ to $\\mathbf i$ gives $(P\\cos\\theta)\\mathbf i + (P\\sin\\theta)\\mathbf j$; check signs by quadrant." },
+      { h: "2. Add the components", m: "$R_x = \\sum P\\cos\\theta$, $\\; R_y = \\sum P\\sin\\theta$" },
+      { h: "3. Recombine", m: "$|\\mathbf R| = \\sqrt{R_x^2 + R_y^2}$, direction $\\tan^{-1}(R_y / R_x)$" }
+    ] },
+    { worked: { tag: "variation", title: "Resultant of two forces at an angle", q: "Two forces act on a particle: 10 N due east and 6 N on a bearing of 060°. Find the magnitude and bearing of the resultant.",
+      steps: [
+        { h: "Components (east, north)", m: "10 N: $(10, 0)$; $\\;$ 6 N at 30° above east: $(6\\cos30°, 6\\sin30°) = (5.196, 3)$" },
+        { h: "Add", m: "$\\mathbf R = (15.196, 3)$" },
+        { m: "$|\\mathbf R| = \\sqrt{15.196^2 + 3^2} = 15.5$ N; angle above east $\\tan^{-1}\\frac{3}{15.196} = 11.2°$", n: "Bearing $90° - 11.2° = 078.8°$." }
+      ], result: "15.5 N, bearing 079°" } },
+    { worked: { tag: "variation", title: "Accelerating under three forces", q: "A particle of mass 3 kg on a smooth horizontal plane is acted on by forces of 12 N on a bearing of 000°, 8 N on a bearing of 090° and 20 N on a bearing of 225°. Find its acceleration.",
+      steps: [
+        { h: "Components (east, north)", m: "$(0, 12) + (8, 0) + (-20\\cos45°, -20\\sin45°) = (8 - 14.14,\\; 12 - 14.14) = (-6.14, -2.14)$" },
+        { h: "Magnitude", m: "$|\\mathbf R| = 6.50$ N, so $a = \\dfrac{6.50}{3} = 2.17$ m s$^{-2}$" },
+        { h: "Direction", m: "west and slightly south: $\\tan^{-1}\\frac{2.14}{6.14} = 19.2°$ south of west, a bearing of $270° - 19.2° = 250.8°$" }
+      ], result: "2.17 m s$^{-2}$ on a bearing of 251°" } },
+    { worked: { tag: "variation", title: "Equilibrium: find the missing force", q: "A particle is in equilibrium under $\\mathbf F_1 = (5\\mathbf i + 2\\mathbf j)$ N, $\\mathbf F_2 = (-3\\mathbf i + 7\\mathbf j)$ N and $\\mathbf F_3$. Find $\\mathbf F_3$, its magnitude and its direction.",
+      steps: [
+        { h: "Sum to zero", m: "$\\mathbf F_3 = -(\\mathbf F_1 + \\mathbf F_2) = -(2\\mathbf i + 9\\mathbf j) = -2\\mathbf i - 9\\mathbf j$" },
+        { m: "$|\\mathbf F_3| = \\sqrt{85} = 9.22$ N, at $\\tan^{-1}\\frac92 = 77.5°$ below the $-\\mathbf i$ direction" }
+      ], result: "$-2\\mathbf i - 9\\mathbf j$" } },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "Dynamics in a plane" },
+    "Once the resultant is known, $\\mathbf a = \\mathbf R / m$ and the constant-acceleration vector equations (M7.3) take over. A particle **starting from rest** always moves along the line of the resultant force; one already moving generally curves.",
+    { worked: { tag: "variation", title: "Force, then velocity and position", q: "A particle of mass 2 kg is at rest at the origin when forces $(3\\mathbf i - \\mathbf j)$ N and $(1\\mathbf i + 5\\mathbf j)$ N start to act. Find its velocity and position after 3 s, and its speed then.",
+      steps: [
+        { h: "$\\mathbf a$", m: "$\\mathbf R = 4\\mathbf i + 4\\mathbf j \\Rightarrow \\mathbf a = 2\\mathbf i + 2\\mathbf j$" },
+        { h: "$\\mathbf v = \\mathbf a t$", m: "$\\mathbf v = 6\\mathbf i + 6\\mathbf j$, speed $6\\sqrt2 = 8.49$ m s$^{-1}$" },
+        { h: "$\\mathbf r = \\frac12 \\mathbf a t^2$", m: "$\\mathbf r = 9\\mathbf i + 9\\mathbf j$" }
+      ], result: "$6\\mathbf i + 6\\mathbf j$, $9\\mathbf i + 9\\mathbf j$, 8.49 m s$^{-1}$" } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "Resultants", body: [
+      "Add components. Magnitude by Pythagoras. Direction from a sketch and $\\tan^{-1}$.",
+      "Parallel to $p\\mathbf i + q\\mathbf j$: components in the ratio $p : q$.",
+      "Equilibrium / constant velocity: the sum is $\\mathbf 0$.",
+      "Then $\\mathbf a = \\mathbf R / m$ and M7.3."
+    ] } },
+    { callout: { t: "mnemonic", h: "\"Resolve, add, recombine\"", body: "Every magnitude-direction force problem is these three steps." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "Adding magnitudes instead of vectors (10 N + 6 N is not 16 N unless they are parallel).",
+      "A wrong quadrant for the direction.",
+      "Using $\\mathbf r = \\mathbf u t + \\frac12 \\mathbf a t^2$ with $\\mathbf u \\ne \\mathbf 0$ when the particle starts from rest — or forgetting $\\mathbf u$ when it does not."
+    ] } }
+  ],
+  flashcards: [
+    ["Resultant of $(2\\mathbf i + 3\\mathbf j)$ N and $(4\\mathbf i - 7\\mathbf j)$ N?", "$(6\\mathbf i - 4\\mathbf j)$ N."],
+    ["Magnitude of $(5\\mathbf i - 12\\mathbf j)$ N?", "13 N."],
+    ["Condition for $a\\mathbf i + b\\mathbf j$ to be parallel to $3\\mathbf i + \\mathbf j$?", "$a = 3b$."],
+    ["A particle in equilibrium under $\\mathbf F_1$, $\\mathbf F_2$, $\\mathbf F_3$: $\\mathbf F_3$?", "$-(\\mathbf F_1 + \\mathbf F_2)$."],
+    ["Components of 10 N at 30° above $\\mathbf i$?", "$(8.66\\mathbf i + 5\\mathbf j)$ N."],
+    ["A particle from rest under a constant force moves …?", "Along the line of the resultant force."],
+    ["$|\\mathbf a|$ for $|\\mathbf R| = 5$ N on 0.25 kg?", "20 m s$^{-2}$."],
+    ["Displacement from rest after $t$ under constant $\\mathbf a$?", "$\\frac12 \\mathbf a t^2$."]
+  ],
+  quiz: [
+    { q: "$(3\\mathbf i + 4\\mathbf j)$ N and $(\\mathbf i - 7\\mathbf j)$ N act. The resultant's magnitude is", opts: ["5 N", "7 N", "25 N", "1 N"], ans: 0, why: "$4\\mathbf i - 3\\mathbf j$." },
+    { q: "Forces of 3 N and 4 N at right angles have a resultant of", opts: ["5 N", "7 N", "1 N", "12 N"], ans: 0, why: "Pythagoras." },
+    { q: "For constant velocity under three forces, the third is", opts: ["minus the sum of the other two", "the sum of the other two", "zero", "any force"], ans: 0, why: "Resultant zero." },
+    { q: "$(4 + \\lambda)\\mathbf i + 2\\mathbf j$ is parallel to $\\mathbf i + \\mathbf j$ when $\\lambda =$", opts: ["$-2$", "2", "0", "6"], ans: 0, why: "$4 + \\lambda = 2$." }
+  ]
+};
+
+/* =====================================================================
+   M8.6  Friction
+   ===================================================================== */
+C["maths:M8.6"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Friction — the whole topic on one page" },
+    "Spec 8.6: understand and use the $F \\le \\mu R$ model for friction; coefficient of friction; motion of a body on a rough surface; limiting friction and statics. $F = \\mu R$ when the body is moving; $F \\le \\mu R$ in equilibrium.",
+    "Friction appears in almost every A-level paper, usually with an angled force or a slope:",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["Limiting equilibrium on a horizontal plane", "3", "A-level June 2024 Q1"],
+      ["Pulled at an angle: reaction, friction, acceleration", "6–8", "A-level 2018 Q7, Specimen Q3"],
+      ["Pulling vs pushing at the same angle", "2", "A-level 2018 Q7(b)"],
+      ["On the point of sliding on a slope: $\\mu = \\tan\\alpha$", "6", "A-level Oct 2020 Q1"],
+      ["Held on a slope by a horizontal force: friction's size and direction", "4", "A-level 2022 Q2(a)"],
+      ["Sliding down a rough slope: acceleration (in terms of $\\mu$)", "6–7", "A-level 2022 Q2(b), 2024 Q3"],
+      ["Does it move again after stopping? Compare $mg\\sin\\alpha$ with $\\mu R$", "3", "A-level Specimen Q3(c)"],
+      ["Slowing to rest on a rough plane: a distance", "4–5", "A-level 2025 Q2(d)"],
+      ["Rough slope with a pulley", "12", "A-level Oct 2021 Q2 (M8.4)"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**The friction model** — $F \\le \\mu R$, limiting, direction.",
+      "**Rough horizontal surfaces** — angled forces, pulling and pushing.",
+      "**Rough slopes** — equilibrium, sliding, will it move?",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "The friction model" },
+    { callout: { t: "memorise", h: "$F \\le \\mu R$", body: [
+      "Friction acts **along** the surface, opposing the motion — or, at rest, opposing the way the body would otherwise move.",
+      "At rest it takes **whatever value is needed** for equilibrium, up to a maximum $\\mu R$.",
+      "**Limiting** (on the point of sliding) or **moving**: $F = \\mu R$.",
+      "$\\mu$ is the coefficient of friction: no units, $\\mu \\ge 0$; $\\mu = 0$ is smooth."
+    ] } },
+    { fig: { x: [0, 24], y: [0, 14], w: 480, h: 230, axes: { x: "applied force P (N)", y: "friction F (N)", xt: [5, 10, 15, 20], yt: [{ v: 10, label: "μR" }] },
+      items: [
+        { line: [[0, 0], [10, 10]], c: "accent", w: 2.4 }, { line: [[10, 10], [22, 10]], c: "accent2", w: 2.4 },
+        { text: [4.5, 7.5], t: "at rest: F = P", c: "accent", b: true, size: 12 },
+        { text: [16, 11.8], t: "sliding: F = μR", c: "accent2", b: true, size: 12 },
+        { pt: [10, 10], label: "limiting", pos: "se", i: false }
+      ], cap: "Push harder on a resting block and friction matches you — until it reaches its limit $\\mu R$. Beyond that the block slides and friction stays at $\\mu R$." } },
+    { callout: { t: "miscon", h: "\"Friction is always $\\mu R$\"", body: "Only when limiting or sliding. A 20 N block with $\\mu = 0.5$ pushed by 4 N stays still with friction **4 N**, not 10 N. Always find the friction needed first, then compare it with $\\mu R$." } },
+    { worked: { tag: "exam", title: "Limiting equilibrium on a horizontal plane", src: "A-level June 2024 · P3 Q1 · 3 marks",
+      q: "A particle $P$ of mass 0.5 kg is at rest on a rough horizontal plane. **(a)** Find the magnitude of the normal reaction of the plane on $P$. The coefficient of friction between $P$ and the plane is $\\frac27$. A horizontal force of magnitude $X$ newtons is applied to $P$, and $P$ is now in limiting equilibrium. **(b)** Find $X$.",
+      steps: [
+        { h: "(a)", m: "$R = 0.5g = 4.9$ N", mk: "B1" },
+        { h: "(b) Limiting: $X = F = \\mu R$", m: "$X = \\tfrac27 \\times 4.9$", mk: "M1" },
+        { m: "$X = 1.4$", mk: "A1" }
+      ], result: "(a) 4.9 N (b) 1.4" } },
+    { worked: { tag: "variation", title: "Does it move?", q: "A box of mass 5 kg rests on a rough horizontal floor with $\\mu = 0.4$. A horizontal force of $P$ N is applied. Find the friction and say whether the box moves when (a) $P = 15$, (b) $P = 25$; in (b) find the acceleration.",
+      steps: [
+        { h: "Maximum friction", m: "$R = 5g = 49$, $\\; \\mu R = 19.6$ N" },
+        { h: "(a) $15 < 19.6$", m: "stays at rest; friction $= 15$ N" },
+        { h: "(b) $25 > 19.6$", m: "slides; friction $= 19.6$ N; $\\; 25 - 19.6 = 5a \\Rightarrow a = 1.08$ m s$^{-2}$" }
+      ], result: "(a) at rest, 15 N (b) 1.08 m s$^{-2}$" } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "Rough horizontal surfaces" },
+    { worked: { tag: "exam", title: "A crate pulled by a handle; pushed instead", src: "A-level June 2018 · P3 Q7 · 8 marks",
+      q: "A wooden crate of mass 20 kg is pulled in a straight line along a rough horizontal floor by a handle inclined at $\\alpha$ to the floor, where $\\tan\\alpha = \\frac34$. The tension in the handle is 40 N and the coefficient of friction is 0.14. Modelling the crate as a particle and the handle as a light rod, **(a)** find the acceleration of the crate. The crate is now pushed along the same floor using the handle, at the same angle, with a thrust of 40 N. **(b)** Explain briefly why the acceleration would now be less than in (a).",
+      steps: [
+        { h: "(a) Vertical", m: "$R + 40\\sin\\alpha = 20g \\Rightarrow R = 196 - 24 = 172$", mk: "M1 A1" },
+        { h: "Sliding", m: "$F = 0.14 \\times 172 = 24.08$", mk: "M1" },
+        { h: "Horizontal", m: "$40\\cos\\alpha - F = 20a \\Rightarrow 32 - 24.08 = 20a$", mk: "M1 A1" },
+        { m: "$a = 0.396 = 0.40$ m s$^{-2}$", mk: "A1" },
+        { h: "(b)", m: "Pushing, the vertical component of the thrust acts **downwards**, so the normal reaction increases,", mk: "B1" },
+        { m: "so the friction ($\\mu R$) increases while the forward component is unchanged — the resultant force, and the acceleration, are smaller.", mk: "B1" }
+      ], result: "(a) 0.40 m s$^{-2}$" } },
+    { fig: { w: 540, h: 170, items: [].concat(
+      [ground(10, 260, 140), box(120, 118, 70, 44, 0), { text: [120, 118], t: "pull", b: true, size: 11, c: "text" }],
+      F(155, 108, 36.87, 70, "40 N", { c: "accent" }),
+      F(120, 96, 90, 34, "R = 172", { c: "text2", dy: -2 }),
+      [ground(280, 530, 140), box(420, 118, 70, 44, 0), { text: [420, 118], t: "push", b: true, size: 11, c: "text" }],
+      [{ vec: [[330, 70], [385, 104]], c: "accent", w: 2.2 }, { text: [322, 60], t: "40 N", b: true, c: "accent" }],
+      F(420, 96, 90, 34, "R = 220", { c: "text2", dy: -2 })
+    ), cap: "A-level June 2018: pulling lifts the crate ($R = 172$ N); pushing presses it down ($R = 196 + 24 = 220$ N) — more friction, less acceleration." } },
+    { worked: { tag: "exam", title: "Sliding to rest: the stopping distance", src: "A-level June 2025 · P3 Q2(d)(e) · 5 marks",
+      q: "A small box $B$ of mass 2 kg moves on a rough horizontal plane. At the point $O$ the force dragging it is removed. After this the box is modelled as a particle, air resistance is negligible, the coefficient of friction is 0.2, the speed of the box at $O$ is 4 m s$^{-1}$ and it comes to rest at $X$. **(d)** Find the length $OX$. **(e)** State one limitation of the model, apart from ignoring air resistance, that could affect (d).",
+      steps: [
+        { h: "(d) Friction now", m: "$R = 2g = 19.6$, $\\; F = 0.2 \\times 19.6 = 3.92$", mk: "M1 B1" },
+        { h: "Deceleration", m: "$3.92 = 2a \\Rightarrow a = 1.96$; $\\; 0 = 4^2 - 2(1.96)s$", mk: "M1" },
+        { m: "$OX = \\dfrac{16}{3.92} = 4.08$ m", mk: "A1", n: "The mass cancels: deceleration $= \\mu g$." },
+        { h: "(e)", m: "e.g. the coefficient of friction may not be constant along the plane; the box is not a particle.", mk: "B1" }
+      ], result: "(d) 4.08 m" } },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "Rough slopes" },
+    { callout: { t: "memorise", h: "On a slope", body: [
+      "$R = mg\\cos\\alpha$ (plus or minus any force with a component perpendicular to the slope).",
+      "Sliding down: friction acts **up** the slope; $mg\\sin\\alpha - \\mu R = ma$.",
+      "Pushed up: friction acts **down** the slope.",
+      "On the point of sliding with no other force: $mg\\sin\\alpha = \\mu mg\\cos\\alpha \\Rightarrow \\mu = \\tan\\alpha$, whatever the mass.",
+      "A body at rest slides only if $mg\\sin\\alpha > \\mu mg\\cos\\alpha$, i.e. $\\tan\\alpha > \\mu$."
+    ] } },
+    { worked: { tag: "exam", title: "On the point of sliding: show $\\mu = \\frac34$", src: "A-level Oct 2020 · P3 Q1(a)(b) · 6 marks",
+      q: "A rough plane is inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac34$. A brick $P$ of mass $m$ on the plane is in equilibrium and on the point of sliding down the plane; the coefficient of friction is $\\mu$. Modelling $P$ as a particle, **(a)** find, in terms of $m$ and $g$, the magnitude of the normal reaction of the plane on $P$; **(b)** show that $\\mu = \\frac34$.",
+      steps: [
+        { h: "(a) Perpendicular", m: "$R = mg\\cos\\alpha$", mk: "M1" },
+        { m: "$R = \\dfrac{4mg}{5}$", mk: "A1" },
+        { h: "(b) Along the slope (friction up it)", m: "$F = mg\\sin\\alpha = \\dfrac{3mg}{5}$", mk: "M1 A1" },
+        { h: "Limiting", m: "$F = \\mu R \\Rightarrow \\dfrac{3mg}{5} = \\mu \\cdot \\dfrac{4mg}{5}$", mk: "M1" },
+        { m: "$\\mu = \\dfrac34$", mk: "A1*" }
+      ], result: "(a) $\\frac{4mg}{5}$" } },
+    { worked: { tag: "exam", title: "Sliding down: show the acceleration is $\\frac{g(5 - 12\\mu)}{13}$", src: "A-level June 2024 · P3 Q3 · 7 marks",
+      q: "A particle $P$ of mass $m$ is held at rest on a rough plane inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac{5}{12}$. The coefficient of friction is $\\mu$, where $\\mu < \\frac{5}{12}$. $P$ is released and slides down the plane; air resistance is negligible. **(a)** Find, in terms of $m$ and $g$, the normal reaction on $P$. **(b)** Show that the acceleration of $P$ down the plane is $\\frac{g(5 - 12\\mu)}{13}$. **(c)** State what would happen to $P$ if it were released from rest with $\\mu \\ge \\frac{5}{12}$.",
+      steps: [
+        { h: "(a)", m: "$R = mg\\cos\\alpha$", mk: "M1" },
+        { m: "$= \\dfrac{12mg}{13}$", mk: "A1" },
+        { h: "(b) Down the slope", m: "$mg\\sin\\alpha - \\mu R = ma$", mk: "M1" },
+        { m: "$\\dfrac{5mg}{13} - \\mu \\cdot \\dfrac{12mg}{13} = ma$", mk: "A1 M1" },
+        { m: "$a = \\dfrac{g(5 - 12\\mu)}{13}$", mk: "A1*" },
+        { h: "(c)", m: "It would stay at rest: the friction available is enough to hold it ($\\tan\\alpha \\le \\mu$).", mk: "B1" }
+      ], result: "$a = \\frac{g(5 - 12\\mu)}{13}$" } },
+    { worked: { tag: "exam", title: "Held by a horizontal force; then released", src: "A-level June 2022 · P3 Q2 · 10 marks",
+      q: "A rough plane is inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac34$. A small block $B$ of mass 5 kg is held in equilibrium on the plane by a horizontal force of magnitude $X$ newtons, acting in the vertical plane containing a line of greatest slope (pushing the block towards the plane). The magnitude of the normal reaction on $B$ is 68.6 N. Modelling $B$ as a particle, **(a)** (i) find the magnitude of the frictional force on $B$, (ii) state its direction. The horizontal force is removed and $B$ moves down the plane. Given that the coefficient of friction is 0.5, **(b)** find the acceleration of $B$ down the plane.",
+      steps: [
+        { h: "(a)(i) Perpendicular", m: "$68.6 = 5g\\cos\\alpha + X\\sin\\alpha = 39.2 + 0.6X \\Rightarrow X = 49$", mk: "M1 A1" },
+        { h: "Along the slope", m: "up: $X\\cos\\alpha = 39.2$; $\\;$ down: $5g\\sin\\alpha = 29.4$; $\\;$ friction $= 39.2 - 29.4 = 9.8$ N", mk: "A1" },
+        { h: "(a)(ii)", m: "Down the plane — without it, $X$ would push the block up.", mk: "A1" },
+        { h: "(b) New reaction", m: "$R = 5g\\cos\\alpha = 39.2$", mk: "M1 A1" },
+        { h: "Sliding", m: "$F = 0.5 \\times 39.2 = 19.6$", mk: "M1 A1" },
+        { h: "Down the slope", m: "$29.4 - 19.6 = 5a$", mk: "M1" },
+        { m: "$a = 1.96$ m s$^{-2}$", mk: "A1" }
+      ], result: "(a) 9.8 N, down the plane (b) 1.96 m s$^{-2}$" } },
+    { fig: { w: 520, h: 240, items: (function () {
+      var x0 = 50, y0 = 225, d = 36.87, p = along(x0, y0, d, 200, 20), it = [].concat(slope(x0, y0, 280, d, "α"), [box(p[0], p[1], 46, 34, d)]);
+      it = it.concat(F(p[0] - 90, p[1], 0, 62, "X", { c: "accent", dy: -12, dx: -40 }));
+      it = it.concat(F(p[0], p[1], 180 + d, 64, "F = 9.8", { c: "accent3", dx: -24, dy: 10 }));
+      it = it.concat(F(p[0], p[1], 90 + d, 62, "R = 68.6", { c: "text2", dx: -8 }));
+      it = it.concat(F(p[0], p[1], 270, 60, "5g", { c: "accent2", dx: 16 }));
+      return it;
+    })(), cap: "A-level June 2022: $X\\cos\\alpha = 39.2$ up the slope beats $5g\\sin\\alpha = 29.4$, so friction (9.8 N) acts down it." } },
+    { worked: { tag: "exam", title: "Pulled up a rough slope by a rope at an angle; will it slide back?", src: "A-level Specimen · P3 Q3 · 11 marks",
+      q: "A small box of mass 3 kg moves on a rough plane inclined at 20° to the horizontal. It is pulled up a line of greatest slope by a rope making 30° with the plane, in the vertical plane containing the line of greatest slope. The coefficient of friction is 0.3 and the tension is 25 N. The box is a particle, the rope a light inextensible string, air resistance ignored. **(a)** Find the acceleration of the box. **(b)** Suggest one improvement to the model. The rope now breaks and the box slows down and comes to rest. **(c)** Show that, after the box comes to rest, it immediately starts to move down the plane.",
+      steps: [
+        { h: "(a) Perpendicular", m: "$R + 25\\sin30° = 3g\\cos20° \\Rightarrow R = 15.13$", mk: "M1 A1" },
+        { h: "Along, up the slope", m: "$25\\cos30° - 3g\\sin20° - F = 3a$", mk: "M1 A1" },
+        { h: "Sliding", m: "$F = 0.3R = 4.54$", mk: "B1" },
+        { m: "$21.65 - 10.06 - 4.54 = 3a \\Rightarrow a = 2.35$ m s$^{-2}$", mk: "M1 A1" },
+        { h: "(b)", m: "e.g. include air resistance; allow for the weight of the rope; do not model the box as a particle.", mk: "B1" },
+        { h: "(c) At rest, no rope", m: "$R = 3g\\cos20°$, so $F_{\\max} = 0.9g\\cos20° = 8.29$ N", mk: "B1" },
+        { m: "Down the slope: $3g\\sin20° = 10.06$ N, and $10.06 > 8.29$", mk: "M1" },
+        { m: "so friction cannot hold it: the box moves down the plane.", mk: "A1*" }
+      ], result: "(a) 2.35 m s$^{-2}$" } },
+    { fig: { w: 520, h: 230, items: (function () {
+      var x0 = 40, y0 = 210, d = 20, p = along(x0, y0, d, 250, 20), it = [].concat(slope(x0, y0, 440, d, "20°"), [box(p[0], p[1], 50, 34, d)]);
+      it = it.concat(F(p[0], p[1], d + 30, 90, "25 N", { c: "accent" }));
+      it.push({ arc: [p[0], p[1], 40, d, d + 30], label: "30°", c: "accent3" });
+      it = it.concat(F(p[0], p[1], 180 + d, 60, "F", { c: "accent3", dx: -6 }));
+      it = it.concat(F(p[0], p[1], 90 + d, 55, "R", { c: "text2" }));
+      it = it.concat(F(p[0], p[1], 270, 60, "3g", { c: "accent2", dx: 16 }));
+      return it;
+    })(), cap: "A-level Specimen: the rope's 30° is measured from the slope, so $25\\cos30°$ is along it and $25\\sin30°$ lifts the box off it." } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "The friction routine", body: [
+      "1. $R$ from resolving perpendicular to the surface (include every force with a perpendicular part).",
+      "2. Moving or limiting: $F = \\mu R$, against the motion. At rest: find the $F$ needed and check $F \\le \\mu R$.",
+      "3. $F = ma$ (or equilibrium) along the surface."
+    ] } },
+    { callout: { t: "mnemonic", h: "\"R first, then μR\"", body: "Never write $\\mu mg$ until you have checked that $R = mg$." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "$F = \\mu mg$ on a slope or with an angled force.",
+      "Friction in the wrong direction (it opposes the motion, or the tendency to move).",
+      "Assuming $F = \\mu R$ for a body that is at rest and not limiting.",
+      "Forgetting that $\\mu$ has no units."
+    ] } }
+  ],
+  flashcards: [
+    ["The friction model?", "$F \\le \\mu R$; $F = \\mu R$ when moving or on the point of moving."],
+    ["Direction of friction?", "Along the surface, opposing motion or the tendency to move."],
+    ["What is limiting equilibrium?", "At rest, with friction at its maximum $\\mu R$."],
+    ["On the point of sliding on a slope (no other forces): $\\mu$?", "$\\tan\\alpha$."],
+    ["Deceleration of a body sliding on a rough horizontal plane?", "$\\mu g$."],
+    ["Acceleration sliding down a rough slope?", "$g(\\sin\\alpha - \\mu\\cos\\alpha)$."],
+    ["Why is pushing at an angle worse than pulling?", "Pushing down increases $R$, so friction increases."],
+    ["When does a body at rest on a slope start sliding?", "When $\\tan\\alpha > \\mu$."],
+    ["Units of $\\mu$?", "None."],
+    ["5 kg block, $\\mu = 0.4$, pushed by 15 N. Friction?", "15 N (it stays at rest; $\\mu R = 19.6$)."]
+  ],
+  quiz: [
+    { q: "$\\mu = 0.4$, $R = 50$ N. The maximum friction is", opts: ["20 N", "125 N", "50 N", "0.4 N"], ans: 0, why: "$\\mu R$." },
+    { q: "A block at rest with $\\mu R = 12$ N is pushed by 7 N. Friction is", opts: ["7 N", "12 N", "5 N", "19 N"], ans: 0, why: "Only what is needed." },
+    { q: "A block slides down a rough slope. Friction acts", opts: ["up the slope", "down the slope", "perpendicular to it", "vertically"], ans: 0, why: "Against the motion." },
+    { q: "A particle is on the point of sliding on a slope at 30°. $\\mu$ is", opts: ["$\\tan30° = 0.577$", "$\\sin30° = 0.5$", "$\\cos30° = 0.866$", "0.3"], ans: 0, why: "$\\mu = \\tan\\alpha$." },
+    { q: "A 2 kg box slides on a floor with $\\mu = 0.25$. Its deceleration is", opts: ["2.45 m s$^{-2}$", "4.9 m s$^{-2}$", "0.25 m s$^{-2}$", "9.8 m s$^{-2}$"], ans: 0, why: "$\\mu g$." }
+  ]
+};
 
 /* the exam-tagged worked cards above are this section's past-paper
    practice: derive the self-marking exam items from them once */
