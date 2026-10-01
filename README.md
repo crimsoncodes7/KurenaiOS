@@ -19,11 +19,11 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `fdc954a` (1 October 2026: Statistics notes at
-  full depth, Mechanics refs M6–M9) — immutable deployment
-  https://2022f878.kurenai-os.pages.dev
+- Runtime release commit: `9eac539` (1 October 2026: Statistics and
+  Mechanics notes at full depth) — immutable deployment
+  https://32db7dba.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-stats-notes-1`
+- Service-worker cache: `kos-mech-notes-1`
 - Verification: all **64 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).

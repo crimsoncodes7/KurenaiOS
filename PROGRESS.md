@@ -17,22 +17,24 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `fdc954a` (Statistics S1–S5, Mechanics refs M6–M9, Home/Pacing/picker), immutable https://2022f878.kurenai-os.pages.dev — deployed 1 October 2026 |
+| Runtime release commit | `9eac539` (Mechanics M6–M9 at depth), immutable https://32db7dba.kurenai-os.pages.dev — deployed 1 October 2026; before it `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-stats-notes-1` |
-| Smoke gate | 64 suites at the `fdc954a` release (smoke63: Statistics and the Mechanics rename; smoke64: Home Focus ladder and lesson dating). smoke39 needs a working `git`/`node` toolchain on the host |
+| Service-worker cache | `kos-mech-notes-1` |
+| Smoke gate | 64 suites at the `9eac539` and `fdc954a` releases (smoke63: Statistics and the Mechanics rename; smoke64: Home Focus ladder and lesson dating). smoke39 needs a working `git`/`node` toolchain on the host |
 | Latest release date | 1 October 2026 (Category 7: 9 August 2026) |
-| Latest delivery | Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
+| Latest delivery | Mechanics M6–M9 at full depth (below), completing Roadmap Phase 4 content; deployed 1 October 2026 (service worker `kos-mech-notes-1`). Before it, Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
-## On `feat/mech-depth` (1 October 2026) — Mechanics at full depth
+## Released 1 October 2026 — Mechanics at full depth
 
-Roadmap Phase 4, Mechanics half. Not yet merged or deployed.
+Roadmap Phase 4, Mechanics half. Merged to `main` as `9eac539` and deployed
+(immutable https://32db7dba.kurenai-os.pages.dev, service worker
+`kos-mech-notes-1`).
 
 - The 13 Mechanics leaves are paged notes in `js/data/content/maths-mech-m7.js`
   (M6.1 units and modelling, M7.1–M7.5 kinematics), `maths-mech-m8.js`

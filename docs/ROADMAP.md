@@ -363,13 +363,13 @@ Claude Design and comes back as a handoff, the way Graphite did.
   it. Mechanics was renamed from S6–S9 to **M6–M9** first (Paper 3 sections
   6–9 keep their numbers; the "S" read as Statistics), with stored state
   migrated at the store's gate.
-- **Status (1 October 2026, branch `feat/mech-depth`):** Mechanics is done —
+- **Status (1 October 2026, released as `9eac539`):** Mechanics is done and deployed —
   `maths-mech-m7.js` (M6.1, M7.1–M7.5), `maths-mech-m8.js` (M8.1–M8.6) and
   `maths-mech-m9.js` (M9.1): 13 leaves, 59 pages, 125 worked examples (every
   Mechanics question in the Topic Practice packs, Specimen to June 2025),
   91 derived exam items, 46 force, motion and projectile diagrams, every
   number recomputed. `maths-applied.js` is retired; smoke63 guards both
-  halves. Not yet merged or deployed. Phase 4 is then complete.
+  halves. Phase 4 content is complete.
 
 ---
 
