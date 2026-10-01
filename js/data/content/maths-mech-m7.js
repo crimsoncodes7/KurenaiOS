@@ -454,7 +454,480 @@ C["maths:M7.1"] = {
   ]
 };
 
-/* @@M7.2@@ */
+/* =====================================================================
+   M7.2  Graphs in kinematics
+   ===================================================================== */
+C["maths:M7.2"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Graphs in kinematics — the whole topic on one page" },
+    "Spec 7.2: understand, use and interpret graphs for motion in a straight line — **displacement against time** (gradient = velocity) and **velocity against time** (gradient = acceleration, area = displacement). Graphical solutions may be required.",
+    "Almost every AS paper opens its Mechanics section with a journey drawn as a speed-time graph:",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["Sketch a speed-time / velocity-time graph from a description", "1–3", "AS Specimen Q2, 2018 Q7, 2019 Q1, 2022 Q2"],
+      ["Total area = total distance → an equation in one unknown ($T$, $V$, $t$)", "2–5", "AS Specimen Q2, 2018 Q7, 2019 Q1, 2022 Q2, 2024 Q1, 2025 Q1"],
+      ["Gradient → an acceleration; a speed at a given time", "1–2", "AS 2022 Q2(c)(d), 2023 Q1(b), A-level 2024 Q2(a)"],
+      ["Two graphs with equal areas (two runners, same race)", "4–8", "AS June 2023 Q1"],
+      ["The final speed from the remaining distance", "3", "A-level June 2024 Q2(c)"],
+      ["Sketch a **distance-time** graph from a speed-time graph", "3", "AS June 2024 Q1(b)"],
+      ["Explain why a model allows a range of values", "2", "AS Specimen Q2(c)"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**Displacement-time graphs** — gradient, curvature, sketching.",
+      "**Velocity-time graphs** — gradient, area, below the axis.",
+      "**Journey problems** — accelerate, cruise, decelerate.",
+      "**Unknowns and comparisons** — two graphs, a missing speed, a range of times.",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "Displacement-time graphs" },
+    { kv: [
+      ["Gradient", "velocity (for a distance-time graph, speed)"],
+      ["Straight line", "constant velocity"],
+      ["Horizontal line", "at rest"],
+      ["Curve getting steeper", "speeding up (accelerating in the direction of motion)"],
+      ["Curve levelling off", "slowing down; a horizontal tangent means instantaneous rest"],
+      ["Line sloping down", "moving back towards the origin (negative velocity)"]
+    ] },
+    { fig: { x: [0, 33], y: [0, 130], w: 500, h: 240,
+      axes: { x: "t (s)", y: "s (m)", xt: [5, 20, 30], yt: [12.5, 87.5, 112.5] },
+      items: [
+        { fn: "0.5*x^2", from: 0, to: 5, c: "accent", w: 2.4 },
+        { fn: "12.5+5*(x-5)", from: 5, to: 20, c: "accent", w: 2.4 },
+        { fn: "87.5+5*(x-20)-0.25*(x-20)^2", from: 20, to: 30, c: "accent", w: 2.4 },
+        { text: [3.2, 30], t: "steeper", c: "accent2", size: 11.5 },
+        { text: [13, 74], t: "straight: 5 m s⁻¹", c: "accent2", size: 11.5 },
+        { text: [27, 124], t: "levels off", c: "accent2", size: 11.5 }
+      ], cap: "The distance-time graph of the AS June 2024 car: a curve getting steeper while it accelerates, a straight line at constant speed, a curve levelling off to a horizontal tangent as it stops." } },
+    { worked: { tag: "exam", title: "A distance, then the distance-time graph", src: "AS June 2024 · P2 Q1 · 6 marks",
+      q: "A car moves in a long queue of traffic on a straight horizontal road. At $t = 0$ it is at rest at $A$. It accelerates uniformly for 5 seconds until it reaches a speed of 5 m s$^{-1}$, travels at a constant 5 m s$^{-1}$ for the next 15 seconds, then decelerates uniformly until it comes to rest at $B$. The total journey time is 30 seconds. **(a)** Find the distance $AB$. **(b)** Sketch a distance-time graph for the journey from $A$ to $B$.",
+      steps: [
+        { h: "(a) Area under the speed-time graph", m: "$\\tfrac12 \\times 5 \\times 5 + 15 \\times 5 + \\tfrac12 \\times 10 \\times 5$", mk: "M1 A1", n: "Or one trapezium: $\\frac12(30 + 15) \\times 5$." },
+        { m: "$AB = 12.5 + 75 + 25 = 112.5$ m", mk: "A1" },
+        { h: "(b) Three sections", m: "$0 \\le t \\le 5$: a curve, gradient increasing from 0 (to 12.5 m).", mk: "B1" },
+        { m: "$5 \\le t \\le 20$: a straight line with positive gradient (to 87.5 m).", mk: "B1" },
+        { m: "$20 \\le t \\le 30$: a curve, gradient decreasing to zero, never going down; ends at (30, 112.5). Mark 5, 20, 30 and 112.5.", mk: "B1", n: "Joined smoothly. A vertical line at the end loses a mark." }
+      ], result: "(a) 112.5 m" } },
+    { worked: { tag: "variation", title: "Reading velocities off a displacement-time graph", q: "A cyclist's displacement from home is 0 m at $t = 0$, 600 m at $t = 120$ s, stays 600 m until $t = 200$ s, then is 0 m at $t = 320$ s, each stage a straight line. Find the velocity in each stage and the average speed.",
+      steps: [
+        { h: "Gradients", m: "$\\frac{600}{120} = 5$ m s$^{-1}$; $\\;0$ (at rest); $\\;\\frac{0 - 600}{120} = -5$ m s$^{-1}$" },
+        { h: "Average speed", m: "$\\dfrac{1200}{320} = 3.75$ m s$^{-1}$", n: "The average velocity is 0 — the cyclist is back home." }
+      ], result: "5, 0, −5 m s$^{-1}$; 3.75 m s$^{-1}$" } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "Velocity-time graphs" },
+    { callout: { t: "memorise", h: "Gradient and area", body: [
+      "**Gradient** of a velocity-time graph = **acceleration**. A straight line means constant acceleration.",
+      "**Area** between the graph and the $t$-axis = **displacement**. Area above the axis is positive, area below is negative.",
+      "Total **distance** = the sum of the areas, all counted positive."
+    ] } },
+    { fig: vtFig([[0, 0], [4, 10], [18, 10], [24, 10 / 3]], { area: true, xt: [4, 18, 24], yt: [{ v: 10 / 3, label: "U" }, 10],
+      marks: [[4, 10, "(4, 10)", "n"], [18, 10, "(18, 10)", "n"]],
+      extra: [{ text: [2.4, 2.4], t: "triangle", c: "text2", size: 11 }, { text: [11, 5], t: "rectangle 14 × 10", c: "text2", size: 11 }, { text: [21, 3], t: "trapezium", c: "text2", size: 11 }],
+      cap: "The A-level June 2024 sprint: area $= 20 + 140 + 40 = 200$ m. Triangles, rectangles and trapezia are all you ever need." }) },
+    { table: { head: ["Shape", "Area"], rows: [
+      ["Triangle (start or end at rest)", "$\\frac12 \\times$ time $\\times$ top speed"],
+      ["Rectangle (constant speed)", "time $\\times$ speed"],
+      ["Trapezium (speed changes from $u$ to $v$)", "$\\frac12(u + v) \\times$ time"],
+      ["Whole accelerate–cruise–decelerate journey", "$\\frac12(\\text{total time} + \\text{cruise time}) \\times$ top speed"]
+    ] } },
+    { callout: { t: "warn", h: "One suvat equation for the whole journey is M0", body: "The acceleration changes between stages, so suvat may only be used stage by stage. The mark schemes give no credit for a single formula across the whole motion, and no credit for a triangle drawn where a trapezium is needed (\"equivalent to using three triangles\")." } },
+    { worked: { tag: "variation", title: "Velocity below the axis: displacement and distance", q: "A particle's velocity-time graph is a straight line from (0, 6) to (5, −4). Find (a) its acceleration, (b) its displacement over the 5 s, (c) the distance travelled.",
+      steps: [
+        { h: "(a) Gradient", m: "$\\dfrac{-4 - 6}{5} = -2$ m s$^{-2}$" },
+        { h: "It stops at $t = 3$", m: "$6 - 2t = 0$" },
+        { h: "(b) Signed areas", m: "$\\tfrac12 \\times 3 \\times 6 - \\tfrac12 \\times 2 \\times 4 = 9 - 4 = 5$ m" },
+        { h: "(c) Both positive", m: "$9 + 4 = 13$ m" }
+      ], result: "(a) −2 m s$^{-2}$ (b) 5 m (c) 13 m" } },
+    { fig: vtFig([[0, 6], [5, -4]], { xt: [3, 5], yt: [-4, 6],
+      extra: [{ poly: [[0, 0], [0, 6], [3, 0]], fill: "accent3", alpha: 0.25, c: "accent3", w: 0.5 }, { poly: [[3, 0], [5, -4], [5, 0]], fill: "accent2", alpha: 0.3, c: "accent2", w: 0.5 },
+        { text: [1, 2], t: "+9", c: "accent3", b: true }, { text: [4.4, -1.4], t: "−4", c: "accent2", b: true }],
+      cap: "Above the axis it moves forwards 9 m; below, back 4 m. Displacement 5 m, distance 13 m." }) },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "Journey problems" },
+    "Draw the graph, mark every time and speed you know, then write **total area = total distance** as an equation with one unknown.",
+    { worked: { tag: "exam", title: "Accelerate then decelerate: find $V$; why $T$ can vary", src: "AS Specimen · P2 Q2(a)–(c) · 6 marks",
+      q: "A car travels along a straight horizontal road between two sets of traffic lights 1500 m apart. In a model, it accelerates uniformly from rest to a speed of $V$ m s$^{-1}$, then immediately decelerates uniformly to rest at the second lights, taking 120 s in total. **(a)** Sketch a velocity-time graph for the model. **(b)** Find $V$. It is given that the car accelerates uniformly for $T$ seconds. **(c)** Explain why there is a range of possible values for $T$ which satisfy the requirements of the model.",
+      steps: [
+        { h: "(a) A triangle", m: "Starts at the origin, rises to a peak $V$, falls to the $t$-axis at 120.", mk: "B1 B1" },
+        { h: "(b) Area = 1500", m: "$\\tfrac12 \\times 120 \\times V = 1500$", mk: "M1" },
+        { m: "$V = 25$", mk: "A1" },
+        { h: "(c) The area does not depend on $T$", m: "The area of a triangle with base 120 and height 25 is 1500 wherever the peak is,", mk: "B1" },
+        { m: "so any $T$ with $0 < T < 120$ fits the model (the accelerations change but the distance does not).", mk: "B1" }
+      ], result: "(b) $V = 25$" } },
+    { fig: vtFig([[0, 0], [40, 25], [120, 0]], { area: true, xt: [{ v: 40, label: "T" }, 120], yt: [{ v: 25, label: "V = 25" }],
+      extra: [{ line: [[0, 0], [90, 25]], c: "muted", dash: true }, { line: [[90, 25], [120, 0]], c: "muted", dash: true }, { text: [60, 8], t: "area 1500", c: "text2", b: true }],
+      cap: "Moving the peak (dashed) keeps base 120 and height 25: the same 1500 m, a different $T$." }) },
+    { worked: { tag: "exam", title: "Accelerate, cruise, decelerate: the total time", src: "AS June 2018 · P2 Q7(a)(b) · 6 marks",
+      q: "A train travels along a straight horizontal track between stations $A$ and $B$. In a model, it starts from rest at $A$ and moves with constant acceleration 0.3 m s$^{-2}$ for 80 s, then at constant velocity, then with constant deceleration 0.5 m s$^{-2}$, coming to rest at $B$. **(a)** (i) State the value of the constant velocity, (ii) state the time for which the train is decelerating, (iii) sketch a velocity-time graph. The distance between the stations is 4800 m. **(b)** Find the total time taken from $A$ to $B$.",
+      steps: [
+        { h: "(a)(i)", m: "$v = 0.3 \\times 80 = 24$ m s$^{-1}$", mk: "B1" },
+        { h: "(a)(ii)", m: "$\\dfrac{24}{0.5} = 48$ s", mk: "B1" },
+        { h: "(a)(iii)", m: "A trapezium starting at the origin and ending on the $t$-axis.", mk: "B1" },
+        { h: "(b) Let the cruise last $T$ s", m: "$\\tfrac12 \\times 80 \\times 24 + 24T + \\tfrac12 \\times 48 \\times 24 = 4800$", mk: "M1 A1ft", n: "Or $\\frac12(T + T + 80 + 48) \\times 24 = 4800$. Three triangles is M0." },
+        { m: "$960 + 24T + 576 = 4800 \\Rightarrow T = 136$; total $80 + 136 + 48 = 264$ s", mk: "A1" }
+      ], result: "(a) 24 m s$^{-1}$, 48 s (b) 264 s" } },
+    { worked: { tag: "exam", title: "Decelerating for four times as long", src: "AS June 2022 · P2 Q2(a)–(d) · 7 marks",
+      q: "A train travels from station $P$ to station $Q$. It starts from rest and accelerates uniformly to its maximum speed of 25 m s$^{-1}$, travels at this speed, then decelerates uniformly to rest at $Q$. The time spent decelerating is four times the time spent accelerating. The journey takes 700 s and the stations are 15 km apart. **(a)** Sketch a speed-time graph. **(b)** Show that the time spent accelerating is 40 s. **(c)** Find the acceleration. **(d)** Find the speed of the train 572 s after leaving $P$.",
+      steps: [
+        { h: "(a)", m: "A trapezium from the origin to (700, 0), top at 25, with the falling side longer than the rising side.", mk: "B1" },
+        { h: "(b) Accelerate $t$, cruise $700 - 5t$, decelerate $4t$", m: "$\\tfrac12\\big(700 + (700 - 5t)\\big) \\times 25 = 15\\,000$", mk: "M1 A1", n: "Convert 15 km to 15 000 m. Or triangle + rectangle + triangle: $\\frac12 \\cdot t \\cdot 25 + 25(700 - 5t) + \\frac12 \\cdot 4t \\cdot 25$." },
+        { m: "$1400 - 5t = 1200 \\Rightarrow t = 40$ s", mk: "A1*" },
+        { h: "(c)", m: "$\\dfrac{25}{40} = 0.625$ m s$^{-2}$", mk: "B1" },
+        { h: "(d) Deceleration runs from 540 s to 700 s", m: "deceleration $= \\dfrac{25}{160}$; $\\; 572 - 540 = 32$ s into it: $\\; v = 25 - 32 \\times \\dfrac{25}{160}$", mk: "M1" },
+        { m: "$v = 20$ m s$^{-1}$", mk: "A1", n: "Or by similar triangles: 128 s before the end, $\\frac{128}{160} \\times 25$." }
+      ], result: "(c) 0.625 m s$^{-2}$ (d) 20 m s$^{-1}$" } },
+    { fig: vtFig([[0, 0], [40, 25], [540, 25], [700, 0]], { area: true, xt: [40, 540, 572, 700], yt: [20, 25],
+      extra: [{ line: [[572, 0], [572, 20]], c: "accent2", dash: true }, { pt: [572, 20], label: "20", pos: "ne", c: "accent2", i: false }],
+      cap: "AS June 2022: accelerate 40 s, cruise 500 s, decelerate 160 s. At 572 s the speed is 20 m s$^{-1}$." }) },
+    { worked: { tag: "exam", title: "The total time from the distance", src: "AS June 2025 · P2 Q1(a) · 3 marks",
+      q: "A runner travels along a straight horizontal road from $A$ to $B$, 400 m. In a model the runner starts from rest at $A$, moves with constant acceleration for 5 s reaching 5 m s$^{-1}$, travels at a constant 5 m s$^{-1}$, then moves with constant deceleration for 15 s until coming to rest at $B$, taking $T$ seconds in all. Find $T$.",
+      steps: [
+        { h: "Cruise time $T - 20$", m: "$400 = \\tfrac12\\big(T + (T - 20)\\big) \\times 5$", mk: "M1 A1", n: "Or $12.5 + 5(T - 20) + 37.5 = 400$." },
+        { m: "$2T - 20 = 160 \\Rightarrow T = 90$", mk: "A1" }
+      ], result: "$T = 90$" } },
+    { worked: { tag: "exam", title: "A parachutist: free fall, braking, steady descent", src: "AS June 2019 · P2 Q1(a)–(c) · 8 marks",
+      q: "At $t = 0$ a parachutist falls vertically from rest from a helicopter hovering 550 m above horizontal ground. She falls freely under gravity ($g = 10$ m s$^{-2}$) for 3 s, until her parachute opens. She then decelerates at 12 m s$^{-2}$ for 2 s, reaching a constant speed with which she reaches the ground. The total time is $T$ s. **(a)** Find her speed when the parachute opens. **(b)** Sketch a speed-time graph for $0 \\le t \\le T$. **(c)** Find $T$ to the nearest whole number.",
+      steps: [
+        { h: "(a)", m: "$v = 0 + 10 \\times 3 = 30$ m s$^{-1}$", mk: "B1" },
+        { h: "(b)", m: "From the origin up to (3, 30), straight down to (5, 6), then horizontal at 6 until $T$.", mk: "B1 B1ft", n: "Speed after braking: $30 - 12 \\times 2 = 6$. Mark 3, 5 and $T$; 3 must be the peak." },
+        { h: "(c) Total area = 550", m: "$\\tfrac12 \\times 3 \\times 30 + \\tfrac12(30 + 6) \\times 2 + 6(T - 5) = 550$", mk: "M1 A2ft", n: "All three sections, each with the right shape — triangle, trapezium, rectangle." },
+        { m: "$45 + 36 + 6T - 30 = 550 \\Rightarrow 6T = 499$", mk: "M1" },
+        { m: "$T = 83.2 \\approx 83$", mk: "A1" }
+      ], result: "(a) 30 m s$^{-1}$ (c) $T = 83$" } },
+    { fig: vtFig([[0, 0], [3, 30], [5, 6], [83.17, 6]], { area: true, xt: [3, 5, { v: 83.17, label: "T" }], yt: [6, 30], yl: "speed (m s⁻¹)",
+      cap: "AS June 2019: area $45 + 36 + 6(T - 5) = 550$." }) },
+
+    /* ---------------------------------------------------------------- Page 4 */
+    { page: "Unknowns and comparisons" },
+    { worked: { tag: "exam", title: "Two runners who finish together", src: "AS June 2023 · P2 Q1 · 8 marks",
+      q: "Pat and Sam run a race along a straight horizontal track. Both start from rest at the same time and cross the finish line together, after 27.5 s. In a model: Pat accelerates at a constant rate from rest for 5 s to 4 m s$^{-1}$, then runs at 4 m s$^{-1}$; Sam accelerates at a constant 1 m s$^{-2}$ from rest to $X$ m s$^{-1}$, then runs at $X$ m s$^{-1}$. **(a)** Explain why the areas under their two velocity-time graphs are equal. **(b)** Find Pat's acceleration during the first 5 s. **(c)** Find the length of the race. **(d)** Find $X$ to 3 significant figures.",
+      steps: [
+        { h: "(a)", m: "The areas are the distances travelled, and both run the same distance (the length of the race).", mk: "B1" },
+        { h: "(b)", m: "$\\dfrac45 = 0.8$ m s$^{-2}$", mk: "B1" },
+        { h: "(c) Pat's area", m: "$\\tfrac12 \\times 5 \\times 4 + 22.5 \\times 4 = 10 + 90$", mk: "M1" },
+        { m: "$= 100$ m", mk: "A1" },
+        { h: "(d) Sam takes $X$ s to reach $X$ m s$^{-1}$ (acceleration 1)", m: "$\\tfrac12 \\times X \\times X + X(27.5 - X) = 100$", mk: "M1 A1ft A1ft" },
+        { m: "$X^2 - 55X + 200 = 0 \\Rightarrow X = \\dfrac{55 - \\sqrt{2225}}{2} = 3.92$", mk: "A1", n: "The other root, 51.1, would mean accelerating for longer than the race." }
+      ], result: "(b) 0.8 m s$^{-2}$ (c) 100 m (d) 3.92" } },
+    { fig: vtFig([[0, 0], [5, 4], [27.5, 4]], { xt: [3.92, 5, 27.5], yt: [3.92, 4],
+      extra: [{ line: [[0, 0], [3.915, 3.915]], c: "accent2", w: 2.4 }, { line: [[3.915, 3.915], [27.5, 3.915]], c: "accent2", w: 2.4 },
+        { text: [16, 4.5], t: "Pat (P)", c: "accent", b: true, size: 12 }, { text: [16, 3.3], t: "Sam (S)", c: "accent2", b: true, size: 12 }],
+      y: [0, 5.2], cap: "Equal areas, 100 m each: Sam's lower top speed is reached sooner." }) },
+    { worked: { tag: "exam", title: "A sprint: distance so far, then the finishing speed", src: "A-level June 2024 · P3 Q2(b)(c) · 6 marks",
+      q: "A speed-time graph models an athlete running a 200 m race in 24 s. The athlete starts from rest at $t = 0$, accelerates at a constant rate to 10 m s$^{-1}$ at $t = 4$, runs at 10 m s$^{-1}$ from $t = 4$ to $t = 18$, then decelerates at a constant rate from $t = 18$ to $t = 24$, crossing the finishing line with speed $U$ m s$^{-1}$. Using the model, **(b)** find the distance covered during the first 18 s, **(c)** find $U$.",
+      steps: [
+        { h: "(b) Triangle + rectangle", m: "$\\tfrac12 \\times 4 \\times 10 + 14 \\times 10$", mk: "M1 A1", n: "Or the trapezium $\\frac12(14 + 18) \\times 10$." },
+        { m: "$= 160$ m", mk: "A1" },
+        { h: "(c) The last 6 s cover the remaining 40 m", m: "$\\tfrac12(10 + U) \\times 6 = 200 - 160$", mk: "M1 A1ft", n: "Not $(10 - U)$: a trapezium adds the parallel sides." },
+        { m: "$10 + U = \\dfrac{40}{3} \\Rightarrow U = \\dfrac{10}{3} = 3.33$", mk: "A1" }
+      ], result: "(b) 160 m (c) $U = \\frac{10}{3}$" } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "The two rules", body: [
+      "Displacement-time: **gradient = velocity**.",
+      "Velocity-time: **gradient = acceleration**, **area = displacement** (distance if it never goes below the axis)."
+    ] } },
+    { callout: { t: "memorise", h: "A sketch that scores", body: [
+      "Start at the origin if it starts from rest; end **on** the $t$-axis if it comes to rest (no vertical line down).",
+      "Straight lines for constant acceleration; mark every time and speed you know.",
+      "A longer stage is drawn longer; a deceleration of 0.5 after an acceleration of 0.3 is the steeper side."
+    ] } },
+    { callout: { t: "mnemonic", h: "\"Draw, mark, area\"", body: "**Draw** the graph, **mark** the knowns and the unknown, set **area** = distance." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "Using one suvat formula across stages with different accelerations.",
+      "Forgetting the $\\frac12$ in a triangle or trapezium.",
+      "Leaving distances in km.",
+      "Taking the root of a quadratic that is impossible in context (51.1 s in a 27.5 s race)."
+    ] } }
+  ],
+  flashcards: [
+    ["Gradient of a displacement-time graph?", "Velocity."],
+    ["Gradient of a velocity-time graph?", "Acceleration."],
+    ["Area under a velocity-time graph?", "Displacement."],
+    ["Area below the $t$-axis on a velocity-time graph?", "Negative displacement (moving backwards)."],
+    ["Area of an accelerate–cruise–decelerate journey with top speed $V$, total time $T$, cruise $c$?", "$\\frac12(T + c)V$."],
+    ["Horizontal line on a displacement-time graph?", "At rest."],
+    ["How does a distance-time graph look while the object accelerates from rest?", "A curve with increasing gradient."],
+    ["Train: 0.3 m s$^{-2}$ for 80 s. Top speed?", "24 m s$^{-1}$."],
+    ["Why can one suvat equation not be used for a whole journey?", "The acceleration changes between stages."],
+    ["A triangle journey: 120 s, 1500 m. Top speed?", "25 m s$^{-1}$."]
+  ],
+  quiz: [
+    { q: "On a velocity-time graph the area under the line gives", opts: ["displacement", "acceleration", "velocity", "time"], ans: 0, why: "Velocity × time." },
+    { q: "A horizontal line on a velocity-time graph means", opts: ["constant velocity", "at rest", "constant acceleration", "deceleration"], ans: 0, why: "Gradient zero, so acceleration zero." },
+    { q: "A car accelerates from rest to 20 m s$^{-1}$ in 8 s. The distance is", opts: ["80 m", "160 m", "2.5 m", "40 m"], ans: 0, why: "$\\frac12 \\times 8 \\times 20$." },
+    { q: "The end of a speed-time sketch for a train stopping at $B$ should", opts: ["meet the $t$-axis", "drop vertically", "stay horizontal", "go below the axis"], ans: 0, why: "A vertical line would be an instant stop." },
+    { q: "A velocity-time line from (0, 6) to (5, −4) gives a distance of", opts: ["13 m", "5 m", "1 m", "25 m"], ans: 0, why: "$9 + 4$." }
+  ]
+};
+
+/* =====================================================================
+   M7.3  Constant acceleration
+   ===================================================================== */
+C["maths:M7.3"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Constant acceleration — the whole topic on one page" },
+    "Spec 7.3: understand, use and **derive** the formulae for constant acceleration in a straight line, and extend them to 2 dimensions using vectors: $\\mathbf v = \\mathbf u + \\mathbf a t$, $\\mathbf r = \\mathbf u t + \\frac12 \\mathbf a t^2$, in $\\mathbf i$–$\\mathbf j$ or column form.",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["One suvat step: a speed or a distance", "2–3", "A-level June 2023 Q1, June 2025 Q1(a)"],
+      ["Vertical motion: time to hit the ground from a height", "2–4", "AS 2018 Q6, AS 2020 Q1(b), AS 2022 Q1(b)"],
+      ["Vertical motion: find the launch speed from the impact speed", "2–3", "AS Specimen Q1(a), AS 2020 Q1(a), AS 2022 Q1(a)"],
+      ["Time to a point below the start (a quadratic, one root rejected)", "4", "AS June 2020 Q1(c)"],
+      ["Sketch the velocity-time graph of a throw", "2", "AS June 2020 Q1(d)"],
+      ["Height reached after a bounce", "2", "AS Specimen Q1(b)"],
+      ["Vectors: find $\\mathbf u$, $\\mathbf a$, a velocity or a position", "4", "A-level Specimen Q1, Oct 2021 Q1"],
+      ["Vectors: a time from one component, then the other component", "8–10", "A-level 2018 Q8, Oct 2020 Q2, 2023 Q4"],
+      ["Moving in a given direction (north-east, parallel to …)", "4", "A-level 2018 Q8(b)"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**The five equations** — derived from the velocity-time graph.",
+      "**Using them** — choosing the equation, one-step questions.",
+      "**Motion under gravity** — up, down, from a height, bouncing.",
+      "**Two objects** — meeting and overtaking.",
+      "**Constant acceleration with vectors**.",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "The five equations" },
+    { callout: { t: "formula", h: "Constant acceleration (\"suvat\")", body: [
+      "$s$ displacement, $u$ initial velocity, $v$ final velocity, $a$ acceleration, $t$ time.",
+      "$$v = u + at \\qquad s = \\tfrac12(u + v)t \\qquad s = ut + \\tfrac12 at^2$$",
+      "$$s = vt - \\tfrac12 at^2 \\qquad v^2 = u^2 + 2as$$",
+      "Not in the formulae booklet — learn them, and be ready to derive them."
+    ] } },
+    { fig: vtFig([[0, 3], [6, 9]], { area: true, xt: [{ v: 6, label: "t" }], yt: [{ v: 3, label: "u" }, { v: 9, label: "v" }],
+      extra: [{ line: [[0, 3], [6, 3]], c: "muted", dash: true }, { line: [[6, 3], [6, 9]], arrow: "both", c: "accent2", label: "at", loff: 12 }, { text: [3, 1.5], t: "ut", c: "text2", b: true }, { text: [4, 4.6], t: "½ at²", c: "text2", b: true }],
+      y: [0, 11], cap: "Gradient $a$ gives $v = u + at$; the trapezium area gives $s = \\frac12(u + v)t$, which splits into a rectangle $ut$ and a triangle $\\frac12 at^2$." }) },
+    { worked: { tag: "example", title: "Derive all five from the velocity-time graph", q: "A particle moves in a straight line with constant acceleration $a$, from velocity $u$ to velocity $v$ in time $t$, with displacement $s$. Derive the five constant-acceleration formulae.",
+      steps: [
+        { h: "Gradient = acceleration", m: "$a = \\dfrac{v - u}{t} \\;\\Rightarrow\\; v = u + at$" },
+        { h: "Area = displacement (a trapezium)", m: "$s = \\tfrac12(u + v)t$" },
+        { h: "Eliminate $v$", m: "$s = \\tfrac12(u + u + at)t = ut + \\tfrac12 at^2$" },
+        { h: "Eliminate $u = v - at$", m: "$s = \\tfrac12(v - at + v)t = vt - \\tfrac12 at^2$" },
+        { h: "Eliminate $t = \\frac{v - u}{a}$", m: "$s = \\tfrac12(u + v)\\dfrac{v - u}{a} = \\dfrac{v^2 - u^2}{2a} \\;\\Rightarrow\\; v^2 = u^2 + 2as$", n: "Calculus gives the same: integrate $a$ to get $v = u + at$, integrate again to get $s = ut + \\frac12 at^2$ (M7.4)." }
+      ], result: "the five suvat equations" } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "Using the equations" },
+    { table: { head: ["Variable you neither know nor want", "Use"], rows: [
+      ["$s$", "$v = u + at$"],
+      ["$a$", "$s = \\frac12(u + v)t$"],
+      ["$v$", "$s = ut + \\frac12 at^2$"],
+      ["$u$", "$s = vt - \\frac12 at^2$"],
+      ["$t$", "$v^2 = u^2 + 2as$"]
+    ] } },
+    { steps: [
+      { h: "1. Choose a positive direction", m: "Usually the direction of motion, or upwards." },
+      { h: "2. List s, u, v, a, t", m: "Mark the one wanted and the one not involved." },
+      { h: "3. Pick the equation without the uninvolved letter", m: "Substitute with signs, solve." }
+    ] },
+    { worked: { tag: "exam", title: "A speed and a distance from rest", src: "A-level June 2023 · P3 Q1 · 3 marks",
+      q: "A car is initially at rest on a straight horizontal road. It then accelerates along the road with a constant acceleration of 3.2 m s$^{-2}$. Find **(a)** the speed of the car after 5 s, **(b)** the distance travelled by the car in the first 5 s.",
+      steps: [
+        { h: "(a) $v = u + at$", m: "$v = 0 + 3.2 \\times 5 = 16$ m s$^{-1}$", mk: "B1" },
+        { h: "(b) $s = ut + \\frac12 at^2$", m: "$s = \\tfrac12 \\times 3.2 \\times 5^2$", mk: "M1", n: "Or $s = \\frac12(0 + 16) \\times 5$ using (a)." },
+        { m: "$s = 40$ m", mk: "A1" }
+      ], result: "(a) 16 m s$^{-1}$ (b) 40 m" } },
+    { worked: { tag: "exam", title: "Already moving: a speed 4 s later", src: "A-level June 2025 · P3 Q1(a) · 2 marks",
+      q: "A car moves in a straight line along a horizontal road with constant acceleration 2 m s$^{-2}$. It is moving with speed 15 m s$^{-1}$ in the direction of the acceleration when it passes a signpost. Modelling the car as a particle, find its speed 4 s after passing the signpost.",
+      steps: [
+        { h: "$v = u + at$", m: "$v = 15 + 2 \\times 4$", mk: "M1", n: "M0 for $u = 0$." },
+        { m: "$v = 23$ m s$^{-1}$", mk: "A1" }
+      ], result: "23 m s$^{-1}$" } },
+    { worked: { tag: "variation", title: "Braking distance with $v^2 = u^2 + 2as$", q: "A car travelling at 72 km h$^{-1}$ brakes with constant deceleration 5 m s$^{-2}$. Find the distance it travels before stopping and the time it takes.",
+      steps: [
+        { h: "Units", m: "$u = 72 \\div 3.6 = 20$ m s$^{-1}$, $v = 0$, $a = -5$" },
+        { h: "No $t$: $v^2 = u^2 + 2as$", m: "$0 = 400 - 10s \\Rightarrow s = 40$ m" },
+        { h: "Time: $v = u + at$", m: "$0 = 20 - 5t \\Rightarrow t = 4$ s" }
+      ], result: "40 m, 4 s" } },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "Motion under gravity" },
+    { callout: { t: "memorise", h: "Moving freely under gravity", body: [
+      "The acceleration is $g$ **downwards** throughout — on the way up, at the top and on the way down.",
+      "Take **up as positive**: $a = -9.8$ (or $-10$ if told), a point below the start has $s < 0$, a downward velocity is negative.",
+      "At the top $v = 0$. Times up and down to the same level are equal, and the speed back at the start equals the launch speed."
+    ] } },
+    { fig: vertFig([[11.025, "top: v = 0"], [0, "A: u = 14.7 m s⁻¹ up"], [-19.6, "ground: s = −19.6", "accent3"]],
+      { lo: -21, hi: 13, h: 240, w: 420, ground: -19.6,
+        paths: [[150, 0, 11.025, "a = −9.8 all the way", "accent2"], [210, 11.025, -19.6, "", "accent"]],
+        cap: "AS Specimen: up positive, the ground is at $s = -19.6$ for the whole flight. One equation covers the whole motion." }) },
+    { worked: { tag: "exam", title: "Impact speed in one equation; then the height after the bounce", src: "AS Specimen · P2 Q1(a)(b) · 5 marks",
+      q: "A small ball is projected vertically upwards from a point $A$ which is 19.6 m above the ground. It strikes the ground for the first time 4 s later. The ball is modelled as a particle moving freely under gravity. **(a)** Find the speed of the ball as it hits the ground for the first time. The ball rebounds with a vertical speed of 14.7 m s$^{-1}$ and next comes to instantaneous rest at $B$. **(b)** Find the height of $B$ above the ground.",
+      steps: [
+        { h: "(a) No $u$: $s = vt - \\frac12 at^2$ (up positive)", m: "$-19.6 = 4v - \\tfrac12(-9.8)(4^2) = 4v + 78.4$", mk: "M1 A1", n: "Or find $u$ first: $-19.6 = 4u - 4.9 \\times 16 \\Rightarrow u = 14.7$, then $v = 14.7 - 9.8 \\times 4$." },
+        { m: "$v = -24.5$, so the speed is 24.5 m s$^{-1}$", mk: "A1" },
+        { h: "(b) $v^2 = u^2 + 2as$ up from the ground", m: "$0 = 14.7^2 - 2 \\times 9.8 \\times h$", mk: "M1" },
+        { m: "$h = 11.025 \\approx 11$ m", mk: "A1" }
+      ], result: "(a) 24.5 m s$^{-1}$ (b) 11 m" } },
+    { worked: { tag: "exam", title: "A tennis ball: time to the ground", src: "AS June 2018 · P2 Q6 · 4 marks",
+      q: "A man throws a tennis ball into the air so that, as it leaves his hand, the ball is 2 m above the ground and moving vertically upwards with speed 9 m s$^{-1}$. The ball is modelled as a particle moving freely under gravity, with $g$ modelled as 10 m s$^{-2}$. The ball hits the ground $T$ seconds after leaving his hand. Find $T$.",
+      steps: [
+        { h: "Whole flight, up positive: $s = -2$", m: "$-2 = 9T - \\tfrac12 \\times 10 \\times T^2$", mk: "M1 A1", n: "Splitting works too: 0.9 s up, then 1.1 s down." },
+        { m: "$5T^2 - 9T - 2 = 0 \\Rightarrow (5T + 1)(T - 2) = 0$", mk: "DM1" },
+        { m: "$T = 2$ (only)", mk: "A1", n: "Giving both roots is A0." }
+      ], result: "$T = 2$" } },
+    { worked: { tag: "exam", title: "Launch speed, flight time, a point below the start, the graph", src: "AS June 2020 · P2 Q1(a)–(d) · 10 marks",
+      q: "At $t = 0$ a small ball is projected vertically upwards with speed $U$ m s$^{-1}$ from a point $A$ that is 16.8 m above horizontal ground. Its speed immediately before it first hits the ground is 19 m s$^{-1}$, at $t = T$. The ball is modelled as a particle moving freely under gravity with $g = 10$ m s$^{-2}$. **(a)** Show that $U = 5$. **(b)** Find $T$. **(c)** Find the time from projection until the ball is 1.2 m below $A$. **(d)** Sketch a velocity-time graph for $0 \\le t \\le T$, stating the coordinates of its start and end points.",
+      steps: [
+        { h: "(a) $v^2 = u^2 + 2as$, up positive", m: "$(-19)^2 = U^2 + 2(-10)(-16.8)$", mk: "M1" },
+        { m: "$U^2 = 361 - 336 = 25 \\Rightarrow U = 5$", mk: "A1*" },
+        { h: "(b) $v = u + at$", m: "$-19 = 5 - 10T$", mk: "M1" },
+        { m: "$T = 2.4$", mk: "A1" },
+        { h: "(c) $s = -1.2$", m: "$-1.2 = 5t - 5t^2$", mk: "M1 A1" },
+        { m: "$5t^2 - 5t - 1.2 = 0 \\Rightarrow 25t^2 - 25t - 6 = 0 \\Rightarrow (5t + 1)(5t - 6) = 0$", mk: "M(A)1" },
+        { m: "$t = 1.2$ s", mk: "A1", n: "The root $t = -0.2$ is before projection." },
+        { h: "(d)", m: "A straight line from $(0, 5)$ down to $(2.4, -19)$, crossing the axis at $t = 0.5$.", mk: "B1 B1ft", n: "A reflection (down positive) is also accepted, from $(0, -5)$ to $(2.4, 19)$." }
+      ], result: "(b) 2.4 (c) 1.2 s" } },
+    { fig: vtFig([[0, 5], [2.4, -19]], { xt: [0.5, 1.2, 2.4], yt: [-19, 5], y: [-22, 8],
+      marks: [[0, 5, "(0, 5)", "e"], [2.4, -19, "(2.4, −19)", "w"]],
+      cap: "AS June 2020: one straight line, gradient $-10$, for the whole flight. Above the axis going up, below coming down." }) },
+    { worked: { tag: "exam", title: "Launch speed from the impact speed; then the time", src: "AS June 2022 · P2 Q1(a)(b) · 5 marks",
+      q: "The point $A$ is 1.8 m vertically above horizontal ground. At $t = 0$ a small stone is projected vertically upwards with speed $U$ m s$^{-1}$ from $A$, and hits the ground at $t = T$ with speed 10 m s$^{-1}$. The stone is modelled as a particle moving freely under gravity with $g = 10$ m s$^{-2}$. Find **(a)** $U$, **(b)** $T$.",
+      steps: [
+        { h: "(a) An equation in $U$ only", m: "$10^2 = U^2 + 2(-10)(-1.8)$", mk: "M1 A1" },
+        { m: "$U^2 = 64 \\Rightarrow U = 8$", mk: "A1" },
+        { h: "(b)", m: "$-10 = 8 - 10T$", mk: "M1" },
+        { m: "$T = 1.8$", mk: "A1" }
+      ], result: "(a) 8 (b) 1.8" } },
+
+    /* ---------------------------------------------------------------- Page 4 */
+    { page: "Two objects" },
+    "When two objects move at once, give each its own suvat with the **same clock**, write each position from the **same origin**, and set the positions equal (they meet) or the gap to a value.",
+    { worked: { tag: "variation", title: "Overtaking from rest", q: "A van passes a stationary car at a constant 20 m s$^{-1}$. At that instant the car sets off after it with constant acceleration 2 m s$^{-2}$. Find when and where the car catches the van, and the car's speed then.",
+      steps: [
+        { h: "Positions from the meeting point", m: "Van: $x = 20t$; $\\quad$ car: $x = \\tfrac12 \\times 2t^2 = t^2$" },
+        { h: "Equal positions", m: "$t^2 = 20t \\Rightarrow t = 20$ s (not 0, the start)" },
+        { m: "$x = 400$ m; car's speed $= 2 \\times 20 = 40$ m s$^{-1}$" }
+      ], result: "20 s, 400 m, 40 m s$^{-1}$" } },
+    { worked: { tag: "variation", title: "Two stones meeting in the air", q: "Stone $P$ is dropped from rest from the top of a 40 m tower. At the same instant stone $Q$ is thrown vertically upwards from the foot of the tower at 20 m s$^{-1}$. Find when and at what height they meet ($g = 9.8$).",
+      steps: [
+        { h: "Heights above the ground", m: "$P$: $h = 40 - 4.9t^2$; $\\quad Q$: $h = 20t - 4.9t^2$" },
+        { h: "Equal", m: "$40 = 20t \\Rightarrow t = 2$ s", n: "The $4.9t^2$ terms cancel — both have the same acceleration." },
+        { m: "$h = 40 - 4.9 \\times 4 = 20.4$ m" }
+      ], result: "2 s, 20.4 m" } },
+
+    /* ---------------------------------------------------------------- Page 5 */
+    { page: "Constant acceleration with vectors" },
+    { callout: { t: "formula", h: "In two dimensions", body: [
+      "$$\\mathbf v = \\mathbf u + \\mathbf a t \\qquad \\mathbf r = \\mathbf r_0 + \\mathbf u t + \\tfrac12 \\mathbf a t^2$$",
+      "Each is two equations at once: one for the $\\mathbf i$-components, one for the $\\mathbf j$-components, sharing the same $t$. $v^2 = u^2 + 2as$ has **no** vector form — do not use it."
+    ] } },
+    { kv: [
+      ["Speed", "$|\\mathbf v| = \\sqrt{v_x^2 + v_y^2}$"],
+      ["Moving parallel to $p\\mathbf i + q\\mathbf j$", "$\\mathbf v = k(p\\mathbf i + q\\mathbf j)$: $\\; v_x : v_y = p : q$"],
+      ["Moving north-east", "$v_x = v_y$ (both positive)"],
+      ["Moving due north / perpendicular to $\\mathbf i$", "$v_x = 0$"],
+      ["Passing through a point", "match **one** component to find $t$, then use the other"]
+    ] },
+    { worked: { tag: "exam", title: "Find the initial velocity", src: "A-level Specimen · P3 Q1 · 4 marks",
+      q: "A particle $P$ moves with constant acceleration $(\\mathbf i - 2\\mathbf j)$ m s$^{-2}$. At $t = 0$ it is at $A$, with position vector $(2\\mathbf i + 5\\mathbf j)$ m, moving with velocity $\\mathbf u$ m s$^{-1}$. At $t = 3$ s it is at $B$, with position vector $(-2.5\\mathbf i + 8\\mathbf j)$ m. Find $\\mathbf u$.",
+      steps: [
+        { h: "Displacement $\\overrightarrow{AB}$", m: "$(-2.5\\mathbf i + 8\\mathbf j) - (2\\mathbf i + 5\\mathbf j) = -4.5\\mathbf i + 3\\mathbf j$", mk: "B1" },
+        { h: "$\\mathbf s = \\mathbf u t + \\frac12 \\mathbf a t^2$", m: "$-4.5\\mathbf i + 3\\mathbf j = 3\\mathbf u + \\tfrac92(\\mathbf i - 2\\mathbf j)$", mk: "M1 A1ft" },
+        { m: "$3\\mathbf u = -9\\mathbf i + 12\\mathbf j \\Rightarrow \\mathbf u = -3\\mathbf i + 4\\mathbf j$", mk: "A1" }
+      ], result: "$\\mathbf u = (-3\\mathbf i + 4\\mathbf j)$ m s$^{-1}$" } },
+    { worked: { tag: "exam", title: "A velocity, then a position", src: "A-level Oct 2021 · P3 Q1 · 4 marks",
+      q: "A particle $P$ moves with constant acceleration $(2\\mathbf i - 3\\mathbf j)$ m s$^{-2}$. At $t = 0$, $P$ is moving with velocity $4\\mathbf i$ m s$^{-1}$. **(a)** Find the velocity of $P$ at $t = 2$ s. At $t = 0$ the position vector of $P$ relative to $O$ is $(\\mathbf i + \\mathbf j)$ m. **(b)** Find the position vector of $P$ at $t = 3$ s.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf v = 4\\mathbf i + 2(2\\mathbf i - 3\\mathbf j)$", mk: "M1" },
+        { m: "$\\mathbf v = (8\\mathbf i - 6\\mathbf j)$ m s$^{-1}$", mk: "A1" },
+        { h: "(b)", m: "$\\mathbf r = (\\mathbf i + \\mathbf j) + 3(4\\mathbf i) + \\tfrac92(2\\mathbf i - 3\\mathbf j)$", mk: "M1", n: "Do not forget the starting position $\\mathbf i + \\mathbf j$." },
+        { m: "$\\mathbf r = (22\\mathbf i - 12.5\\mathbf j)$ m", mk: "A1" }
+      ], result: "(a) $8\\mathbf i - 6\\mathbf j$ (b) $22\\mathbf i - 12.5\\mathbf j$" } },
+    { worked: { tag: "exam", title: "Show the acceleration; then the time to move north-east", src: "A-level June 2018 · P3 Q8 · 8 marks",
+      q: "[$\\mathbf i$ and $\\mathbf j$ are horizontal unit vectors due east and due north.] A particle $P$ moves with constant acceleration. At $t = 0$ it is at $O$ moving with velocity $(2\\mathbf i - 3\\mathbf j)$ m s$^{-1}$. At $t = 2$ s it is at $A$, with position vector $(7\\mathbf i - 10\\mathbf j)$ m. **(a)** Show that the magnitude of the acceleration of $P$ is 2.5 m s$^{-2}$. As $P$ leaves $A$, its acceleration changes to a constant $(4\\mathbf i + 8.8\\mathbf j)$ m s$^{-2}$. At the instant $P$ reaches $B$, its direction of motion is north-east. **(b)** Find the time it takes to travel from $A$ to $B$.",
+      steps: [
+        { h: "(a) $\\mathbf r = \\mathbf u t + \\frac12 \\mathbf a t^2$", m: "$7\\mathbf i - 10\\mathbf j = 2(2\\mathbf i - 3\\mathbf j) + \\tfrac12 \\mathbf a (2^2)$", mk: "M1" },
+        { m: "$2\\mathbf a = 3\\mathbf i - 4\\mathbf j \\Rightarrow \\mathbf a = 1.5\\mathbf i - 2\\mathbf j$", mk: "A1" },
+        { m: "$|\\mathbf a| = \\sqrt{1.5^2 + 2^2}$", mk: "M1" },
+        { m: "$= \\sqrt{6.25} = 2.5$ m s$^{-2}$", mk: "A1*" },
+        { h: "(b) Velocity at $A$", m: "$\\mathbf v_A = (2\\mathbf i - 3\\mathbf j) + 2(1.5\\mathbf i - 2\\mathbf j) = 5\\mathbf i - 7\\mathbf j$", mk: "M1 A1" },
+        { h: "After $A$", m: "$\\mathbf v = (5 + 4t)\\mathbf i + (8.8t - 7)\\mathbf j$; north-east: $5 + 4t = 8.8t - 7$", mk: "M1" },
+        { m: "$4.8t = 12 \\Rightarrow t = 2.5$ s", mk: "A1", n: "Check: $\\mathbf v = 15\\mathbf i + 15\\mathbf j$, both positive, so north-east (not south-west)." }
+      ], result: "(b) 2.5 s" } },
+    { worked: { tag: "exam", title: "A time from the $\\mathbf j$-component, then $\\lambda$", src: "A-level Oct 2020 · P3 Q2 · 8 marks",
+      q: "A particle $P$ moves with acceleration $(4\\mathbf i - 5\\mathbf j)$ m s$^{-2}$. At $t = 0$, $P$ is moving with velocity $(-2\\mathbf i + 2\\mathbf j)$ m s$^{-1}$. **(a)** Find the velocity of $P$ at $t = 2$ s. At $t = 0$, $P$ passes through $O$. At $t = T$, where $T > 0$, $P$ passes through $A$, with position vector $(\\lambda\\mathbf i - 4.5\\mathbf j)$ m. **(b)** Find $T$. **(c)** Hence find $\\lambda$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf v = (-2\\mathbf i + 2\\mathbf j) + 2(4\\mathbf i - 5\\mathbf j)$", mk: "M1" },
+        { m: "$= (6\\mathbf i - 8\\mathbf j)$ m s$^{-1}$", mk: "A1" },
+        { h: "(b) Only the $\\mathbf j$-component is known", m: "$\\mathbf r = T(-2\\mathbf i + 2\\mathbf j) + \\tfrac12 T^2(4\\mathbf i - 5\\mathbf j)$", mk: "M1" },
+        { m: "$\\mathbf j$: $\\; 2T - 2.5T^2 = -4.5$", mk: "A1 M1" },
+        { m: "$5T^2 - 4T - 9 = 0 \\Rightarrow (5T - 9)(T + 1) = 0 \\Rightarrow T = 1.8$", mk: "A1" },
+        { h: "(c) $\\mathbf i$-component", m: "$\\lambda = -2(1.8) + 2(1.8)^2$", mk: "M1" },
+        { m: "$\\lambda = 2.88$", mk: "A1" }
+      ], result: "(a) $6\\mathbf i - 8\\mathbf j$ (b) $T = 1.8$ (c) $\\lambda = 2.88$" } },
+    { worked: { tag: "exam", title: "A speed; a time from the $\\mathbf i$-component; then $c$", src: "A-level June 2023 · P3 Q4 · 10 marks",
+      q: "A particle $P$ moves on a smooth horizontal plane with constant acceleration $(2.4\\mathbf i + \\mathbf j)$ m s$^{-2}$. At $t = 0$ it passes through $A$ with velocity $(-16\\mathbf i - 3\\mathbf j)$ m s$^{-1}$; at $t = 5$ s it passes through $B$. **(a)** Find the speed of $P$ at $B$. The position vector of $A$ is $(44\\mathbf i - 10\\mathbf j)$ m. At $t = T$, where $T > 5$, $P$ passes through $C$, with position vector $(4\\mathbf i + c\\mathbf j)$ m. **(b)** Find $T$. **(c)** Find $c$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf v_B = (-16\\mathbf i - 3\\mathbf j) + 5(2.4\\mathbf i + \\mathbf j)$", mk: "M1" },
+        { m: "$= -4\\mathbf i + 2\\mathbf j$", mk: "A1" },
+        { m: "speed $= \\sqrt{(-4)^2 + 2^2}$", mk: "M1" },
+        { m: "$= 2\\sqrt5 = 4.47$ m s$^{-1}$", mk: "A1" },
+        { h: "(b) $\\mathbf i$-component from $A$", m: "$4 = 44 - 16T + 1.2T^2$", mk: "M1 A1" },
+        { m: "$1.2T^2 - 16T + 40 = 0 \\Rightarrow 3T^2 - 40T + 100 = 0 \\Rightarrow (3T - 10)(T - 10) = 0$; $\\; T > 5$, so $T = 10$", mk: "A1" },
+        { h: "(c) $\\mathbf j$-component at $T = 10$", m: "$c = -10 + (-3)(10) + \\tfrac12(1)(10^2)$", mk: "M1 A1" },
+        { m: "$c = 10$", mk: "A1" }
+      ], result: "(a) 4.47 m s$^{-1}$ (b) $T = 10$ (c) $c = 10$" } },
+    { fig: { x: [-12, 50], y: [-16, 14], w: 500, h: 260, aspect: "equal",
+      axes: { x: "x (m)", y: "y (m)", xt: [-10, 10, 20, 30, 40], yt: [-10, 10] },
+      items: [
+        { param: { x: "44-16*t+1.2*t^2", y: "-10-3*t+0.5*t^2" }, t: [0, 10.5], c: "accent", w: 2.2 },
+        { pt: [44, -10], label: "A (t = 0)", pos: "s", i: false },
+        { pt: [-6, -12.5], label: "B (t = 5)", pos: "s", i: false },
+        { pt: [4, 10], label: "C (t = 10)", pos: "e", i: false },
+        { pt: [-9.33, -14.4], r: 2.5, c: "muted" }
+      ], cap: "A-level June 2023 Q4: the particle heads west, is turned round by the acceleration and passes $C(4, 10)$ at $t = 10$. The time $\\frac{10}{3}$ is the first pass through $x = 4$, rejected because it is before $B$." } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "The method", body: [
+      "Positive direction first. List s u v a t. Drop the letter you neither know nor want.",
+      "Vertical motion: $a = -g$ all the way; a point below the start is a negative $s$; one equation can cover the whole flight.",
+      "Vectors: $\\mathbf v = \\mathbf u + \\mathbf a t$, $\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\frac12 \\mathbf a t^2$; one component gives $t$, the other gives the unknown."
+    ] } },
+    { callout: { t: "mnemonic", h: "\"Which one is missing?\"", body: "No $s$ → $v = u + at$; no $t$ → $v^2 = u^2 + 2as$; no $v$ → $s = ut + \\frac12 at^2$; no $u$ → $s = vt - \\frac12 at^2$; no $a$ → $s = \\frac12(u + v)t$." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "Inconsistent signs: $u = 14.7$ up but $a = +9.8$.",
+      "Keeping a negative root for a time, or giving both roots.",
+      "Forgetting the starting position vector $\\mathbf r_0$.",
+      "Using $v^2 = u^2 + 2as$ with vectors.",
+      "North-east needs $v_x = v_y > 0$ — check the signs."
+    ] } }
+  ],
+  flashcards: [
+    ["Five suvat equations?", "$v = u + at$; $s = \\frac12(u + v)t$; $s = ut + \\frac12 at^2$; $s = vt - \\frac12 at^2$; $v^2 = u^2 + 2as$."],
+    ["Which equation has no $t$?", "$v^2 = u^2 + 2as$."],
+    ["Which equation has no $u$?", "$s = vt - \\frac12 at^2$."],
+    ["How is $v = u + at$ derived?", "From the gradient of the velocity-time graph."],
+    ["How is $s = \\frac12(u + v)t$ derived?", "From the area (a trapezium) under the velocity-time graph."],
+    ["Acceleration of a ball thrown upwards, at the top?", "$g$ downwards — not zero."],
+    ["Velocity at the top of a vertical throw?", "Zero."],
+    ["Ball thrown up at $u$: time to the top?", "$u / g$."],
+    ["Greatest height above the start of a ball thrown up at $u$?", "$u^2 / (2g)$."],
+    ["Vector suvat equations?", "$\\mathbf v = \\mathbf u + \\mathbf a t$, $\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\frac12 \\mathbf a t^2$."],
+    ["Condition for moving north-east?", "$v_x = v_y$, both positive."],
+    ["Condition for moving parallel to $\\mathbf j$?", "$v_x = 0$."]
+  ],
+  quiz: [
+    { q: "A car accelerates from 10 m s$^{-1}$ at 2 m s$^{-2}$ for 5 s. Its speed is", opts: ["20 m s$^{-1}$", "15 m s$^{-1}$", "12 m s$^{-1}$", "35 m s$^{-1}$"], ans: 0, why: "$10 + 2 \\times 5$." },
+    { q: "To find a stopping distance without the time, use", opts: ["$v^2 = u^2 + 2as$", "$v = u + at$", "$s = ut + \\frac12 at^2$", "$s = vt - \\frac12 at^2$"], ans: 0, why: "No $t$." },
+    { q: "A ball is thrown up at 19.6 m s$^{-1}$ ($g = 9.8$). It returns to the hand after", opts: ["4 s", "2 s", "1 s", "19.6 s"], ans: 0, why: "2 s up, 2 s down." },
+    { q: "With up positive, a point 3 m below the start has", opts: ["$s = -3$", "$s = 3$", "$s = 0$", "$a = -3$"], ans: 0, why: "Below the start is negative." },
+    { q: "$\\mathbf u = 2\\mathbf i$, $\\mathbf a = \\mathbf j$. After 2 s, $\\mathbf v$ is", opts: ["$2\\mathbf i + 2\\mathbf j$", "$2\\mathbf i + \\mathbf j$", "$4\\mathbf i + 2\\mathbf j$", "$2\\mathbf j$"], ans: 0, why: "$\\mathbf u + 2\\mathbf a$." },
+    { q: "$\\mathbf v = (3 + t)\\mathbf i + (2t - 1)\\mathbf j$ is parallel to $\\mathbf i + \\mathbf j$ when", opts: ["$t = 4$", "$t = 1$", "$t = 3$", "$t = 0.5$"], ans: 0, why: "$3 + t = 2t - 1$." }
+  ]
+};
+
+/* @@M7.4@@ */
 
 /* the exam-tagged worked cards above are this section's past-paper
    practice: derive the self-marking exam items from them once */
