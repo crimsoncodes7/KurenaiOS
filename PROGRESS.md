@@ -21,7 +21,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-graphite-4` |
-| Smoke gate | 62 suites, all passing at the `e1377e3` release (28 September 2026; smoke39 needs a working `git`/`node` toolchain on the host) |
+| Smoke gate | 63 suites (smoke63 added 1 October 2026 for Statistics and the Mechanics rename); 62 at the `e1377e3` release (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Latest release date | 28 September 2026 (Category 7: 9 August 2026) |
 | Latest delivery | design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
@@ -29,6 +29,27 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
+
+## On `feat/stats-depth` (1 October 2026) — Statistics at full depth
+
+Roadmap Phase 4, Statistics half. Not yet merged or deployed.
+
+- The 14 Statistics leaves are paged notes in `js/data/content/maths-stats-s1.js`
+  … `s5.js`, built like Pure: overview, concept pages, worked examples
+  modelled on every Edexcel question shape in the Topic Practice packs (AS
+  Paper 2 and A-level Paper 3, Specimen to June 2025) with M1/A1/B1 marks,
+  diagrams drawn from the numbers (histograms, box plots, Venn and tree
+  diagrams, binomial critical regions, Normal curves), an exam toolkit,
+  flashcards and quizzes; 125 exam items derived from the worked cards.
+  Every number was recomputed with scipy. `maths-applied.js` now holds
+  Mechanics only.
+- Mechanics refs are **M6–M9** (were S6–S9): Edexcel's Paper 3 section
+  numbers kept, the letter fixed. `tools/gen_data.py --mech-refs` renamed
+  the checked-in tree; content, labs, intel and the plan seed follow; the
+  lab index's Statistics/Mechanics split no longer files 6.1 under
+  Statistics. Stored state is renamed at the store's gate and attachments
+  once per boot.
+- Smoke gate 63/63 (smoke63 new).
 
 ## Released 27 September 2026 — the Graphite UI rebuild
 
@@ -122,7 +143,8 @@ and self-marking past-paper practice.** Deployed 20 September 2026
   section's exam items from its exam-tagged cards
   (`KOS.content.examFromWorked`), so a question is authored once; the
   4.1 bank was re-verified against the real papers and two bank-a items
-  corrected. Statistics and Mechanics (S1–S9) are unchanged — next.
+  corrected. Statistics and Mechanics were unchanged then; Statistics
+  followed on 1 October 2026 (below), Mechanics (now M6–M9) is next.
 - Service-worker `kos-pure-notes-1`; smoke gate 53/53.
 
 **Pacing — my rows are ticked off, the unticked carry over, and the plan
@@ -453,11 +475,18 @@ The numbered suites form one release gate:
   tokens/themes, raw px only in `tokens.css`, the five tiers, the layer order.
 - `smoke56.test.js`: render purity (a view never writes state while it
   draws) and control parity against `tools/baselines/render-purity.json`.
+- `smoke57.test.js`–`smoke62.test.js`: the Phase 1 backend — the topic
+  picker's spec index, IT units, the quick note and drag order, the Shrine
+  order, the Focus modes and the OOP IDE.
+- `smoke63.test.js`: Statistics S1–S5 at depth (every leaf paged, worked,
+  marked and examined) and the Mechanics rename S6–S9 → M6–M9 — the
+  generated tree, the labs, the plan seed, and the stored-state migration
+  at boot, on import/pull, and for attachments.
 
 Run all suites with:
 
 ```sh
-for i in "" {2..62}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..63}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

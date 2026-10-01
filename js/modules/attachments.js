@@ -127,6 +127,25 @@
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
+  /* the S6–S9 → M6–M9 Mechanics rename (KOS.store.renamedRef): a file
+     filed under an old ref moves to the new one, restamped so its
+     metadata syncs. Idempotent; run once per boot (and harmless after a
+     pull from a device that has not updated yet). cb(err, moved) */
+  function renameRefs(cb) {
+    if (!available() || !KOS.store.renamedRef) { cb && cb(null, 0); return; }
+    tx("readwrite", function (err, os) {
+      if (err) { cb && cb(err, 0); return; }
+      var moved = 0, cur = os.openCursor();
+      cur.onsuccess = function (ev) {
+        var c = ev.target.result;
+        if (!c) { if (moved) noteCloud(); cb && cb(null, moved); return; }
+        var rec = c.value, to = KOS.store.renamedRef(rec.subject, rec.ref);
+        if (to != null) { rec.ref = to; rec.updatedAt = Date.now(); c.update(rec); moved++; }
+        c.continue();
+      };
+      cur.onerror = function () { cb && cb(cur.error, moved); };
+    });
+  }
   function get(id, cb) {
     tx("readonly", function (err, os) {
       if (err) { cb(err, null); return; }
@@ -796,6 +815,7 @@
     rename: rename,
     replace: replace,
     remove: remove,
+    renameRefs: renameRefs,
     mountTab: mountTab,
     exportAll: exportAll,
     importAll: importAll,

@@ -67,7 +67,13 @@
     }
   };
   var DECODE = {
-    ref: function (p) { return p.length >= 2 ? { subject: p[0], ref: p.slice(1).join("/") } : null; },
+    ref: function (p) {
+      if (p.length < 2) return null;
+      /* a bookmark or history entry from before a ref rename (S7.3 → M7.3)
+         opens the topic under its new name */
+      var ref = p.slice(1).join("/"), moved = KOS.store && KOS.store.renamedRef ? KOS.store.renamedRef(p[0], ref) : null;
+      return { subject: p[0], ref: moved || ref };
+    },
     subject: function (p) { return p[0] || null; },
     governor: function (p) { return p[0] || null; },
     sims: function (p) { return p[0] || null; },

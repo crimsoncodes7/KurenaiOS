@@ -262,6 +262,62 @@
   function scrubLegacy(s) {
     delete s.streak;
     delete s.notes;
+    return renameRefs(s);
+  }
+
+  /* Specification refs that were renamed. Edexcel numbers Paper 3 as one
+     run (Statistics 1–5, Mechanics 6–9) and the generator gave the whole
+     paper the prefix "S", so Kinematics read "S7" as if it were
+     Statistics. Mechanics keeps its section numbers and takes "M": S6–S9
+     became M6–M9 on 1 Oct 2026 (tools/gen_data.py MECH_SECTIONS).
+     Stored state names topics in many places — "sid:ref" keys (progress,
+     SRS card keys, forks, quick notes), "sid:ref" strings (refs lists),
+     and bare refs beside a subject (plan rows, ledger entries, lastRef).
+     This gate is the one every document passes through — boot, backup
+     import, cloud pull — so a copy written by a device that has not
+     updated yet is folded in when it arrives. Idempotent; when both the
+     old and the new key exist, the new one is kept. Returns the count. */
+  var REF_RENAMES = { maths: /^S([6-9])(?=[.:]|$)/ };
+  function renamedRef(sid, ref) {
+    var re = REF_RENAMES[sid];
+    return re && typeof ref === "string" && re.test(ref) ? ref.replace(re, "M$1") : null;
+  }
+  function renamedKey(k) {
+    var i = typeof k === "string" ? k.indexOf(":") : -1;
+    if (i < 0) return null;
+    var r = renamedRef(k.slice(0, i), k.slice(i + 1));
+    return r == null ? null : k.slice(0, i + 1) + r;
+  }
+  function renameRefs(s) {
+    var n = 0;
+    function walk(o, bareSid) {
+      if (Array.isArray(o)) {
+        for (var i = 0; i < o.length; i++) {
+          var v = o[i];
+          if (typeof v === "string") {
+            var r = renamedKey(v) || (bareSid ? renamedRef(bareSid, v) : null);
+            if (r != null) { o[i] = r; n++; }
+          } else if (v && typeof v === "object") walk(v, null);
+        }
+        return;
+      }
+      var sid = typeof o.subject === "string" ? o.subject : typeof o.sid === "string" ? o.sid : null;
+      Object.keys(o).forEach(function (k) {
+        var v = o[k];
+        if (typeof v === "string") {
+          var r = renamedKey(v) || (k === "ref" && sid ? renamedRef(sid, v) : null) || renamedRef(k, v);
+          if (r != null) { o[k] = r; n++; }
+        } else if (Array.isArray(v)) walk(v, k === "refs" ? sid : null);
+        else if (v && typeof v === "object") walk(v, null);
+        var nk = renamedKey(k);
+        if (nk != null) {
+          if (!Object.prototype.hasOwnProperty.call(o, nk)) o[nk] = o[k];
+          delete o[k]; n++;
+        }
+      });
+    }
+    if (s && typeof s === "object") walk(s, null);
+    return n;
   }
 
   var state;
@@ -273,9 +329,10 @@
     console.warn("Kurenai OS: stored state unreadable, starting fresh.", e);
     state = JSON.parse(JSON.stringify(DEFAULTS));
   }
-  scrubLegacy(state);
+  var renamedAtLoad = scrubLegacy(state);
 
   var saveTimer = null;
+  if (renamedAtLoad) save();
   function save() {
     /* Build 4a — nudge cloud sync (debounced + no-op when absent/signed
        out; dirtiness is DERIVED by hashing, so a missed nudge is only a
@@ -314,6 +371,9 @@
     flush: flush,
 
     progressKey: function (subjectId, ref) { return subjectId + ":" + ref; },
+    /* the renamed-ref table (S6–S9 → M6–M9) for stores outside the state
+       document — topic attachments in IndexedDB use it at boot */
+    renamedRef: renamedRef,
 
     getProgress: function (subjectId, ref) {
       var k = this.progressKey(subjectId, ref);

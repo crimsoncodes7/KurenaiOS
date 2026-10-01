@@ -915,37 +915,37 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
-"maths:S6.1": {
+"maths:M6.1": {
   defs: [["SI base units", "mass (kg), length (m), time (s); force (N) = kg m s^-2 is derived."]],
   tips: ["Check formulas by comparing base units.", "Force, velocity, momentum are derived quantities."],
   pitfalls: ["Treating force or velocity as a base quantity.", "Mismatched units in a calculation."]
 },
-"maths:S7.1": {
+"maths:M7.1": {
   defs: [["Scalars vs vectors", "Distance/speed are scalars; displacement/velocity/acceleration are vectors."]],
   tips: ["Displacement can be zero while distance is not.", "Negative velocity means motion in the negative direction."],
   pitfalls: ["Confusing distance with displacement.", "Treating speed as a vector."]
 },
-"maths:S7.2": {
+"maths:M7.2": {
   defs: [["Motion graphs", "x-t gradient = velocity; v-t gradient = acceleration; v-t area = displacement."]],
   tips: ["Split v-t graphs into triangles/rectangles for area.", "A horizontal v-t line is constant velocity."],
   pitfalls: ["Reading area as acceleration.", "Confusing the two graph types."]
 },
-"maths:S7.4": {
+"maths:M7.4": {
   defs: [["Calculus kinematics", "v=ds/dt, a=dv/dt; s=integral v dt, v=integral a dt."]],
   tips: ["Use calculus when acceleration varies with time.", "Use initial conditions to fix the constant of integration."],
   pitfalls: ["Applying suvat to variable acceleration.", "Forgetting +c when integrating."]
 },
-"maths:S8.1": {
+"maths:M8.1": {
   defs: [["Newton's first law", "No resultant force => rest or constant velocity (equilibrium)."]],
   tips: ["Constant velocity means forces balance.", "Name the forces: weight, reaction, friction, tension, thrust."],
   pitfalls: ["Assuming a moving object needs a net force.", "Forgetting equilibrium gives zero resultant."]
 },
-"maths:S8.3": {
+"maths:M8.3": {
   defs: [["Weight", "W = mg, vertically downward; mass is constant, weight depends on g."]],
   tips: ["A freely falling body accelerates at g.", "Distinguish kg (mass) from N (weight)."],
   pitfalls: ["Confusing mass and weight.", "Using g where a different acceleration applies."]
 },
-"maths:S8.5": {
+"maths:M8.5": {
   defs: [["Resultant force", "Vector sum of forces; equilibrium when it is zero."]],
   tips: ["Resolve into perpendicular components, then combine with Pythagoras/trig.", "Equilibrium: components balance in each direction."],
   pitfalls: ["Adding magnitudes instead of vectors.", "Forgetting one direction's balance."]
@@ -1341,32 +1341,32 @@ window.KOS_DATA.intel = {
          "Always define p in words: 'p is the population proportion of …'."],
   pitfalls: ["Concluding 'H₀ is true' — you fail to reject, never prove.", "Comparing a p-value with the wrong tail of a two-tailed α (halve it)."]
 },
-"maths:S7.3": {
+"maths:M7.3": {
   tips: ["List s, u, v, a, t with knowns/unknowns before choosing a formula — it is the standard method and prevents wrong-formula slips.",
          "Take a positive direction and declare it ('taking up as positive') — sign consistency is where most marks die."],
   pitfalls: ["Using suvat when acceleration is NOT constant — check the wording; variable a means calculus (7.4).", "g sign errors in vertical motion: with up positive, a = −9.8."]
 },
-"maths:S7.5": {
+"maths:M7.5": {
   tips: ["Projectiles: resolve once at the start — horizontal: constant velocity u cos θ; vertical: suvat with a = −g. Treat the two directions in separate columns.",
          "Time links the components: find t from one direction, substitute into the other."],
   pitfalls: ["Using suvat horizontally with a ≠ 0 — horizontal acceleration is zero in the model.", "Greatest height: vertical velocity = 0, not speed = 0."]
 },
-"maths:S8.2": {
+"maths:M8.2": {
   tips: ["F = ma questions: draw the force diagram, resolve along/perpendicular to motion, then write the equation of motion per particle/direction. The diagram itself often carries a mark.",
          "Inclined planes: weight components mg sin θ along, mg cos θ perpendicular — derive once, memorise."],
   pitfalls: ["Missing a force on the diagram (normal reaction, friction, tension) — every later mark depends on the diagram.", "Mass vs weight: W = mg; never put 'm' into a force balance."]
 },
-"maths:S8.4": {
+"maths:M8.4": {
   tips: ["Connected particles: equation of motion for EACH particle separately, same magnitude a, same tension for a light inextensible string over a smooth pulley — and state those modelling assumptions when asked why.",
          "'Inextensible ⇒ same acceleration', 'light string ⇒ same tension throughout', 'smooth pulley ⇒ tension equal both sides' — assumption-to-consequence pairs are mark-scheme lines."],
   pitfalls: ["Adding the two particles' equations before being asked for the system — fine for a, useless for T."]
 },
-"maths:S8.6": {
+"maths:M8.6": {
   tips: ["Limiting equilibrium ⇒ F = μR exactly; moving ⇒ F = μR; otherwise F ≤ μR. Choose and state which case applies.",
          "R is found by resolving perpendicular to the surface FIRST — friction questions are two-stage."],
   pitfalls: ["Assuming R = mg on an inclined plane or when other vertical forces act — resolve, don't assume."]
 },
-"maths:S9.1": {
+"maths:M9.1": {
   tips: ["Moments: choose the pivot that eliminates the unknown you don't want (take moments about the point where an unknown force acts).",
          "State 'taking moments about …' and the sense (clockwise = anticlockwise) — the structure line is a mark."],
   pitfalls: ["Using the full length instead of the perpendicular distance for angled forces — moment = force × PERPENDICULAR distance.", "Ladder problems: forgetting friction at the ground acts toward the wall."]

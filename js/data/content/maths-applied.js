@@ -1,8 +1,9 @@
-/* Kurenai OS — deep content: Applied Mathematics (Stats/Mech) */
+/* Kurenai OS — deep content: Mechanics (Edexcel Paper 3 sections 6–9,
+   refs M6–M9). Statistics S1–S5 lives in maths-stats-s1.js … s5.js. */
 window.KOS_CONTENT = window.KOS_CONTENT || {};
 (function (C) {
 
-C["maths:S6.1"] = {
+C["maths:M6.1"] = {
   "notes": [
     {
       "h": "S.I. Units in Mechanics"
@@ -209,7 +210,7 @@ C["maths:S6.1"] = {
   ]
 };
 
-C["maths:S7.1"] = {
+C["maths:M7.1"] = {
   "notes": [
     {
       "h": "Language of Kinematics"
@@ -378,7 +379,7 @@ C["maths:S7.1"] = {
   ]
 };
 
-C["maths:S7.2"] = {
+C["maths:M7.2"] = {
   "notes": [
     {
       "h": "Kinematics Graphs"
@@ -578,7 +579,7 @@ C["maths:S7.2"] = {
   ]
 };
 
-C["maths:S7.3"] = {
+C["maths:M7.3"] = {
   "notes": [
     {
       "h": "suvat: Constant Acceleration"
@@ -738,7 +739,7 @@ C["maths:S7.3"] = {
   ]
 };
 
-C["maths:S7.4"] = {
+C["maths:M7.4"] = {
   "notes": [
     {
       "h": "Calculus in Kinematics"
@@ -902,7 +903,7 @@ C["maths:S7.4"] = {
   ]
 };
 
-C["maths:S7.5"] = {
+C["maths:M7.5"] = {
   "notes": [
     {
       "h": "Projectiles"
@@ -1062,7 +1063,7 @@ C["maths:S7.5"] = {
   ]
 };
 
-C["maths:S8.1"] = {
+C["maths:M8.1"] = {
   "notes": [
     {
       "h": "Newton's First Law"
@@ -1221,7 +1222,7 @@ C["maths:S8.1"] = {
   ]
 };
 
-C["maths:S8.2"] = {
+C["maths:M8.2"] = {
   "notes": [
     {
       "h": "Newton's Second Law: $F=ma$"
@@ -1380,7 +1381,7 @@ C["maths:S8.2"] = {
   ]
 };
 
-C["maths:S8.3"] = {
+C["maths:M8.3"] = {
   "notes": [
     {
       "h": "Weight and Gravity"
@@ -1530,7 +1531,7 @@ C["maths:S8.3"] = {
   ]
 };
 
-C["maths:S8.4"] = {
+C["maths:M8.4"] = {
   "notes": [
     {
       "h": "Newton's Third Law"
@@ -1688,7 +1689,7 @@ C["maths:S8.4"] = {
   ]
 };
 
-C["maths:S8.5"] = {
+C["maths:M8.5"] = {
   "notes": [
     {
       "h": "Resultant Forces"
@@ -1838,7 +1839,7 @@ C["maths:S8.5"] = {
   ]
 };
 
-C["maths:S8.6"] = {
+C["maths:M8.6"] = {
   "notes": [
     {
       "h": "Friction"
@@ -1997,7 +1998,7 @@ C["maths:S8.6"] = {
   ]
 };
 
-C["maths:S9.1"] = {
+C["maths:M9.1"] = {
   "notes": [
     {
       "h": "Moments"

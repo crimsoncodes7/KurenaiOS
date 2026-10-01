@@ -1239,11 +1239,11 @@ window.KOS_DATA.maths = {
       "paper": "Paper 3"
     },
     {
-      "ref": "S6",
+      "ref": "M6",
       "title": "Quantities and units in mechanics",
       "children": [
         {
-          "ref": "S6.1",
+          "ref": "M6.1",
           "title": "Understand and use fundamental quantities and units in the S.I. system: length, …",
           "content": [
             "Understand and use fundamental quantities and units in the S.I. system: length, time, mass.",
@@ -1258,11 +1258,11 @@ window.KOS_DATA.maths = {
       "paper": "Paper 3"
     },
     {
-      "ref": "S7",
+      "ref": "M7",
       "title": "Kinematics",
       "children": [
         {
-          "ref": "S7.1",
+          "ref": "M7.1",
           "title": "Understand and use the language of kinematics: position; displacement; distance …",
           "content": [
             "Understand and use the language of kinematics: position; displacement; distance travelled; velocity; speed; acceleration."
@@ -1273,7 +1273,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S7.2",
+          "ref": "M7.2",
           "title": "Understand, use and interpret graphs in kinematics for motion in a straight line…",
           "content": [
             "Understand, use and interpret graphs in kinematics for motion in a straight line: displacement against time and interpretation of gradient; velocity against time and interpretation of gradient and area under the graph."
@@ -1284,7 +1284,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S7.3",
+          "ref": "M7.3",
           "title": "Understand, use and derive the formulae for constant acceleration for motion in …",
           "content": [
             "Understand, use and derive the formulae for constant acceleration for motion in a straight line.",
@@ -1300,7 +1300,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S7.4",
+          "ref": "M7.4",
           "title": "Use calculus in kinematics for motion in a straight line: d2r dr dv v = , a = = …",
           "content": [
             "Use calculus in kinematics for motion in a straight line: d2r dr dv v = , a = = dt dt dt2",
@@ -1318,7 +1318,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S7.5",
+          "ref": "M7.5",
           "title": "Model motion under gravity in a vertical plane using vectors; projectiles. stude…",
           "content": [
             "Model motion under gravity in a vertical plane using vectors; projectiles. students need to learn:"
@@ -1332,11 +1332,11 @@ window.KOS_DATA.maths = {
       "paper": "Paper 3"
     },
     {
-      "ref": "S8",
+      "ref": "M8",
       "title": "Forces and Newton’s laws",
       "children": [
         {
-          "ref": "S8.1",
+          "ref": "M8.1",
           "title": "Understand the concept of a force; understand and use Newton’s first law.",
           "content": [
             "Understand the concept of a force; understand and use Newton’s first law."
@@ -1347,7 +1347,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S8.2",
+          "ref": "M8.2",
           "title": "Understand and use Newton’s second law for motion in a straight line",
           "content": [
             "Understand and use Newton’s second law for motion in a straight line",
@@ -1361,7 +1361,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S8.3",
+          "ref": "M8.3",
           "title": "Understand and use weight and motion in a straight line under gravity; gravitati…",
           "content": [
             "Understand and use weight and motion in a straight line under gravity; gravitational acceleration, g, and its value in S.I. units to varying degrees of accuracy.",
@@ -1374,7 +1374,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S8.4",
+          "ref": "M8.4",
           "title": "Understand and use Newton’s third law; equilibrium of forces on a particle and m…",
           "content": [
             "Understand and use Newton’s third law; equilibrium of forces on a particle and motion in a straight line (restricted to forces in two perpendicular directions or simple cases of forces given as 2-D vectors); application to problems involving smooth pulleys and connected particles; resolving forces in 2 dimensions; equilibrium of a particle under coplanar forces."
@@ -1386,7 +1386,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S8.5",
+          "ref": "M8.5",
           "title": "Understand and use addition of forces; resultant forces; dynamics for motion in …",
           "content": [
             "Understand and use addition of forces; resultant forces; dynamics for motion in a plane."
@@ -1397,7 +1397,7 @@ window.KOS_DATA.maths = {
           "children": []
         },
         {
-          "ref": "S8.6",
+          "ref": "M8.6",
           "title": "Understand and use the F ≤ µRmodel for friction; coefficient of friction; motion…",
           "content": [
             "Understand and use the F ≤ µRmodel for friction; coefficient of friction; motion of a body on a rough surface; limiting friction and statics."
@@ -1413,11 +1413,11 @@ window.KOS_DATA.maths = {
       "paper": "Paper 3"
     },
     {
-      "ref": "S9",
+      "ref": "M9",
       "title": "Moments",
       "children": [
         {
-          "ref": "S9.1",
+          "ref": "M9.1",
           "title": "Understand and use moments in simple static contexts.",
           "content": [
             "Understand and use moments in simple static contexts."

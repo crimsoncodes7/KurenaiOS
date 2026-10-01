@@ -95,6 +95,10 @@
      specification (F203, F205) is removed so nothing counts it */
   KOS.itUnits.ensureSeeded();
   KOS.itUnits.pruneDropped();
+  /* Phase 4: Mechanics refs became M6–M9 (was S6–S9). The state document
+     is renamed at the store's own gate; topic attachments live in
+     IndexedDB and are moved here, once per boot (idempotent). */
+  if (KOS.attach && KOS.attach.renameRefs) KOS.attach.renameRefs();
   KOS.governor.tick();
   KOS.governor.applyCosmetics();
   KOS.governor.installGates();

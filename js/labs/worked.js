@@ -408,7 +408,7 @@
     }
   },
   {
-    id: "suvat", cat: "applied", subject: "maths", ref: "S7.3",
+    id: "suvat", cat: "applied", subject: "maths", ref: "M7.3",
     title: "suvat: pick the formula, solve the motion",
     blurb: "Given u, a, t — list the variables, choose the equations, find v and s.",
     inputs: [
@@ -807,7 +807,7 @@
     }
   },
   {
-    id: "kinematics", cat: "applied", subject: "maths", ref: "S7.4",
+    id: "kinematics", cat: "applied", subject: "maths", ref: "M7.4",
     title: "Kinematics by calculus: s → v → a",
     blurb: "Differentiate a displacement function to velocity then acceleration, and evaluate all three at a chosen time.",
     inputs: [
@@ -999,7 +999,7 @@
     "maths:S4.1": ["binomprob"],
     "maths:S4.2": ["normal"],
     "maths:S5.2": ["hyptest"],
-    "maths:S7.3": ["suvat"], "maths:S7.4": ["kinematics"],
+    "maths:M7.3": ["suvat"], "maths:M7.4": ["kinematics"],
     "compsci:4.5.4.2": ["bin"], "compsci:4.5.4.3": ["bin"],
     "compsci:4.5.4.4": ["float"]
   };

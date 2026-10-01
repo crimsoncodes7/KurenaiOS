@@ -346,7 +346,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
 
 ## Phase 4 — Content
 
-- **Statistics S1–S5 and Mechanics S6–S9 at full depth**, the same way as Pure
+- **Statistics S1–S5 and Mechanics M6–M9 at full depth**, the same way as Pure
   P1–P10:
   - paged notes;
   - Edexcel-modelled worked examples with M1/A1/B1 marks;
@@ -357,6 +357,14 @@ Claude Design and comes back as a handoff, the way Graphite did.
   no longer exists, so this starts from `maths-applied.js`.
 - **Pace:** one spec section per commit, each followed by the smoke gate
   (smoke50 counts).
+- **Status (1 October 2026, branch `feat/stats-depth`):** Statistics is done —
+  `maths-stats-s1.js` … `s5.js`, 14 leaves, 64 pages, 137 worked examples,
+  125 derived exam items, every number checked with scipy; smoke63 guards
+  it. Mechanics was renamed from S6–S9 to **M6–M9** first (Paper 3 sections
+  6–9 keep their numbers; the "S" read as Statistics), with stored state
+  migrated at the store's gate. **Mechanics M6–M9 at depth is next**: it
+  still uses the outline in `maths-applied.js`, and its packs are under
+  `Topic Practice/Maths — our compilation/Mechanics/`.
 
 ---
 

@@ -202,7 +202,7 @@ step("every registered sim mounts inline without throwing", () => {
 });
 
 step("the maths and CS sims are wired to their spec points", () => {
-  for (const [sid, ref, id] of [["maths", "9.4", "trapezium-rule"], ["maths", "S7.5", "projectile-lab"], ["maths", "S9.1", "moments-beam"],
+  for (const [sid, ref, id] of [["maths", "9.4", "trapezium-rule"], ["maths", "M7.5", "projectile-lab"], ["maths", "M9.1", "moments-beam"],
     ["compsci", "4.4.5.1", "turing-machine"], ["compsci", "4.9.4.4", "subnet-lab"], ["compsci", "4.5.6.10", "cipher-lab"]]) {
     assert(KOS.sims.forRef(sid, ref).some(s => s.id === id), id + " is not reachable from " + sid + ":" + ref);
   }
@@ -232,7 +232,7 @@ step("every worked generator solves its defaults and 40 random draws without NaN
 });
 
 step("new generators are wired to their topic pages and mount there", () => {
-  for (const [sid, ref, id] of [["maths", "9.4", "trapezium"], ["maths", "S5.1", "pmcctest"], ["maths", "S8.6", "incline"], ["compsci", "4.3.3.1", "rpn"], ["compsci", "4.9.4.4", "subnet"]]) {
+  for (const [sid, ref, id] of [["maths", "9.4", "trapezium"], ["maths", "S5.1", "pmcctest"], ["maths", "M8.6", "incline"], ["compsci", "4.3.3.1", "rpn"], ["compsci", "4.9.4.4", "subnet"]]) {
     assert(KOS.worked.forRef(sid, ref).some(g => g.id === id), id + " is not wired to " + sid + ":" + ref);
   }
   KOS.show("ref", { subject: "maths", ref: "9.4" });

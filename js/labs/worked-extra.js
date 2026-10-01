@@ -353,7 +353,7 @@
 
   /* ---------------- MECHANICS ---------------- */
   W.register({
-    id: "projectile", cat: "applied", subject: "maths", ref: "S7.5",
+    id: "projectile", cat: "applied", subject: "maths", ref: "M7.5",
     title: "Projectile from a height: flight time, range, greatest height, impact speed",
     blurb: "Resolve U at angle α, then run the four standard parts with the suvat line for each — including the quadratic in T when the launch point is above the landing level.",
     inputs: [{ k: "U", label: "U (m/s)", def: 14, type: "number" }, { k: "ang", label: "α (°)", def: 36.87, type: "number", step: "0.01" }, { k: "h", label: "launch height (m)", def: 44.8, type: "number", step: "0.1" }],
@@ -370,10 +370,10 @@
         { h: "Speed on impact", m: "v_y² = u_y² + 2g h = " + fmt(uy * uy, 3) + " + " + fmt(2 * g * v.h, 3) + "  ⇒  v_y = " + fmt(vy, 3) + "\nspeed = √(uₓ² + v_y²) = " + fmt(Math.hypot(ux, vy), 3) + " m/s", n: "Direction: tan θ = v_y/uₓ below the horizontal." }
       ], answer: "T = " + fmt(T, 2) + " s, range " + fmt(R, 1) + " m, max height " + fmt(H + v.h, 1) + " m, impact speed " + fmt(Math.hypot(ux, vy), 1) + " m/s" };
     }
-  }, ["maths:S7.5"]);
+  }, ["maths:M7.5"]);
 
   W.register({
-    id: "pulley", cat: "applied", subject: "maths", ref: "S8.4",
+    id: "pulley", cat: "applied", subject: "maths", ref: "M8.4",
     title: "Connected particles over a pulley (table & hanging mass)",
     blurb: "Particle A on a horizontal table (smooth or rough) connected over a smooth pulley to hanging B: an equation of motion for each, add to find a, back-substitute for T, then the force on the pulley.",
     inputs: [{ k: "mA", label: "m_A on table (kg)", def: 3, type: "number", step: "0.1" }, { k: "mB", label: "m_B hanging (kg)", def: 2, type: "number", step: "0.1" }, { k: "mu", label: "μ (0 = smooth)", def: 0, type: "number", step: "0.05" }],
@@ -389,10 +389,10 @@
         { h: "Force on the pulley", m: "two perpendicular tensions: √(T² + T²) = T√2 = " + fmt(T * Math.SQRT2, 2) + " N at 45° below the horizontal", n: "For two vertical strands (both particles hanging) it is simply 2T." }
       ], answer: "a = " + fmt(a, 3) + " m/s², T = " + fmt(T, 2) + " N" };
     }
-  }, ["maths:S8.4", "maths:S8.2"]);
+  }, ["maths:M8.4", "maths:M8.2"]);
 
   W.register({
-    id: "incline", cat: "applied", subject: "maths", ref: "S8.6",
+    id: "incline", cat: "applied", subject: "maths", ref: "M8.6",
     title: "Particle on a rough inclined plane",
     blurb: "Resolve perpendicular for R, along the slope for the net force, decide whether friction can hold the particle, then find the acceleration or state limiting equilibrium.",
     inputs: [{ k: "m", label: "mass (kg)", def: 5, type: "number", step: "0.5" }, { k: "th", label: "θ (°)", def: 30, type: "number" }, { k: "mu", label: "μ", def: 0.4, type: "number", step: "0.05" }, { k: "P", label: "force up the slope (N)", def: 0, type: "number" }],
@@ -416,10 +416,10 @@
       }
       return { steps: steps, answer: ans };
     }
-  }, ["maths:S8.6", "maths:S8.5"]);
+  }, ["maths:M8.6", "maths:M8.5"]);
 
   W.register({
-    id: "moments", cat: "applied", subject: "maths", ref: "S9.1",
+    id: "moments", cat: "applied", subject: "maths", ref: "M9.1",
     title: "Beam on two supports: reactions & the tipping point",
     blurb: "Take moments about one support to find the other reaction, resolve vertically for the second, then find how far a load can travel before the beam tilts.",
     inputs: [{ k: "L", label: "beam length (m)", def: 6, type: "number", step: "0.5" }, { k: "Wb", label: "beam mass (kg)", def: 30, type: "number" }, { k: "cm", label: "centre of mass from A (m)", def: 2.5, type: "number", step: "0.1" }, { k: "c", label: "support C from A (m)", def: 1, type: "number", step: "0.1" }, { k: "d", label: "support D from A (m)", def: 4, type: "number", step: "0.1" }, { k: "load", label: "load mass (kg)", def: 40, type: "number" }, { k: "lx", label: "load from A (m)", def: 3, type: "number", step: "0.1" }],
@@ -436,7 +436,7 @@
         { h: "Tipping about D", m: "on the point of tilting, R_C = 0.  M(D): " + fmt(W, 1) + " × " + fmt(v.d - v.cm) + " = " + fmt(Lw, 1) + " × (x − " + fmt(v.d) + ")\nx = " + fmt(tipX, 3) + " m from A" + (tipX > v.L ? " — beyond the end, so it never tilts" : ""), n: "'On the point of tilting' = the far reaction is zero." }
       ], answer: "R_C = " + fmt(RC, 1) + " N, R_D = " + fmt(RD, 1) + " N; tilts when the load passes " + fmt(tipX, 2) + " m" };
     }
-  }, ["maths:S9.1"]);
+  }, ["maths:M9.1"]);
 
   /* ---------------- COMPUTER SCIENCE ---------------- */
   W.register({

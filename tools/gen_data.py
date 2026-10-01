@@ -63,6 +63,39 @@ def scope_existing():
     print(f"IT: {before} units -> {len(it['sections'])} (dropped {', '.join(IT_NOT_TAKEN)})")
 
 
+# Mechanics refs (Phase 4, decided 1 Oct 2026). Edexcel numbers Paper 3 as
+# one run — Statistics sections 1–5, Mechanics 6–9 — and the extraction
+# gives the whole paper the prefix "S", so Kinematics read "S7" as if it
+# were Statistics. Mechanics keeps the specification's section numbers and
+# takes "M": S6–S9 become M6–M9 (S7.3 is M7.3). Statistics stays S1–S5.
+MECH_SECTIONS = ("6", "7", "8", "9")
+_MECH_REF = re.compile(r"^S(" + "|".join(MECH_SECTIONS) + r")(?=\.|$)")
+
+
+def mech_refs(obj):
+    """Rename the Mechanics sections and their topics from S6–S9 to M6–M9."""
+    def walk(node):
+        if isinstance(node.get("ref"), str):
+            node["ref"] = _MECH_REF.sub(r"M\1", node["ref"])
+        for child in node.get("children", []):
+            walk(child)
+    for section in obj.get("sections", []):
+        walk(section)
+    return obj
+
+
+def mech_existing():
+    """Apply mech_refs to the checked-in maths.js payload.
+
+    For a repository without the original extraction (/home/claude/extract):
+    it renames refs only and changes nothing else in the payload.
+    """
+    maths = read_generated("maths", "maths")
+    write("maths", "maths", mech_refs(maths))
+    refs = [s["ref"] for s in maths["sections"] if s["ref"].startswith("M")]
+    print(f"Maths: Mechanics sections now {', '.join(refs)}")
+
+
 def format_existing():
     """Re-emit the checked-in generated data with stable, editable layout."""
     for name, var in (("compsci", "compsci"), ("maths", "maths"), ("it", "it")):
@@ -76,6 +109,10 @@ if "--format-existing" in sys.argv:
 
 if "--scope-it" in sys.argv:
     scope_existing()
+    raise SystemExit(0)
+
+if "--mech-refs" in sys.argv:
+    mech_existing()
     raise SystemExit(0)
 
 def clean(s):
@@ -214,7 +251,7 @@ it = scope_it({"id": "it", "name": "IT: Data Analytics", "board": "OCR AAQ H019/
       "sections": it_sections})
 
 write("compsci", "compsci", compsci)
-write("maths", "maths", maths)
+write("maths", "maths", mech_refs(maths))
 write("it", "it", it)
 
 import subprocess

@@ -4,8 +4,8 @@
      trapezium-rule (9.4)  cobweb-iteration (9.2)  newton-raphson-viz (9.3)
      tangent-gradient (7.1) sector-explorer (5.1)  sequence-explorer (4.4)
      normal-curve (S4.2)   binomial-test-viz (S5.2) sampling-lab (S1.1)
-     scatter-regression (S2.2) projectile-lab (S7.5) vt-graph-builder (S7.2)
-     vector-playground (10.3) incline-forces (S8.6) moments-beam (S9.1)
+     scatter-regression (S2.2) projectile-lab (M7.5) vt-graph-builder (M7.2)
+     vector-playground (10.3) incline-forces (M8.6) moments-beam (M9.1)
    Loaded after sims.js (KOS.sims.canvas / KOS.sims.COL) and worked.js. */
 (function () {
   "use strict";
@@ -645,7 +645,7 @@
 
   /* =================== PROJECTILE LAB =================== */
   KOS.sims.register({
-    id: "projectile-lab", title: "Projectile Lab — launch, trace, read the numbers", subject: "maths", ref: "S7.5",
+    id: "projectile-lab", title: "Projectile Lab — launch, trace, read the numbers", subject: "maths", ref: "M7.5",
     desc: "Choose speed, angle and launch height and fire. The trajectory draws with the velocity components shown at the peak and on landing, and the read-out gives time of flight, range, greatest height and impact speed — with the suvat lines that produce them.",
     mount: function (panel) {
       var U = 20, ang = 40, h0 = 0, g = 9.8, t = 0, timer = null;
@@ -697,7 +697,7 @@
 
   /* =================== V–T GRAPH BUILDER =================== */
   KOS.sims.register({
-    id: "vt-graph-builder", title: "Velocity–time graph builder", subject: "maths", ref: "S7.2",
+    id: "vt-graph-builder", title: "Velocity–time graph builder", subject: "maths", ref: "M7.2",
     desc: "Build a three-phase journey — accelerate, cruise, decelerate — and read the areas and gradients straight off the graph: distance is the area under the line, acceleration its slope. The matching displacement–time curve draws beneath.",
     mount: function (panel) {
       var V = 20, t1 = 8, t2 = 20, t3 = 12, v0 = 0;
@@ -792,7 +792,7 @@
 
   /* =================== INCLINE & FRICTION =================== */
   KOS.sims.register({
-    id: "incline-forces", title: "Rough Inclined Plane — resolve and decide", subject: "maths", ref: "S8.6",
+    id: "incline-forces", title: "Rough Inclined Plane — resolve and decide", subject: "maths", ref: "M8.6",
     desc: "Tilt the plane, set μ, the mass and a force along the slope, and the diagram resolves weight into mg sin θ and mg cos θ, compares the friction needed with μR, and tells you whether the block stays put, is in limiting equilibrium, or accelerates — and which way friction points.",
     mount: function (panel) {
       var th = 25, mu = 0.3, m = 5, Pf = 0, g = 9.8;
@@ -845,7 +845,7 @@
 
   /* =================== MOMENTS BEAM =================== */
   KOS.sims.register({
-    id: "moments-beam", title: "Beam on two supports — reactions & tipping", subject: "maths", ref: "S9.1",
+    id: "moments-beam", title: "Beam on two supports — reactions & tipping", subject: "maths", ref: "M9.1",
     desc: "A beam rests on two supports with a load you can slide along it. Reactions are found by taking moments about each support; when a reaction hits zero the beam is on the point of tilting. Move the centre of mass to make the beam non-uniform.",
     mount: function (panel) {
       var L = 6, Wb = 30, cm = 3, sA = 1, sB = 4, load = 40, lx = 2.5, g = 9.8;

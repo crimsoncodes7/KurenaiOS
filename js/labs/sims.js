@@ -1763,8 +1763,8 @@
     { id: "networking", sid: "compsci", label: "Networking", re: /^4\.9\./ },
     { id: "databases", sid: "compsci", label: "Databases", re: /^4\.1[01]\./ },
     { id: "pure", sid: "maths", label: "Pure", re: /^\d/ },
-    { id: "statistics", sid: "maths", label: "Statistics", re: /^S[1-6]\./ },
-    { id: "mechanics", sid: "maths", label: "Mechanics", re: /^S(7|8|9|1\d)\./ }
+    { id: "statistics", sid: "maths", label: "Statistics", re: /^S\d\./ },
+    { id: "mechanics", sid: "maths", label: "Mechanics", re: /^M\d\./ }
   ];
   function areaOf(s) {
     return AREAS.filter(function (a) { return a.sid === s.subject && a.re.test(String(s.ref || "")); })[0]

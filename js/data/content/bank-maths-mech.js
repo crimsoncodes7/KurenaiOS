@@ -1,4 +1,4 @@
-/* KurenaiOS — Edexcel Maths Mechanics question bank (S6–S9).
+/* KurenaiOS — Edexcel Maths Mechanics question bank (M6–M9).
  * Modelled on the Topic Practice compilation (8MA0 Paper 2 / 9MA0 Paper 3 Section B).
  * Numbers and contexts are re-written; `src` names the paper each item is modelled on.
  * g = 9.8 m/s² throughout, answers to 2 or 3 s.f. as the mark schemes expect.
@@ -6,7 +6,7 @@
 (function (X) {
 "use strict";
 
-X("maths:S6.1", {
+X("maths:M6.1", {
   notes: [
     { page: "Past-paper patterns" },
     "Every mechanics question ends with a **modelling** part worth 1–2 marks: *state a limitation / assumption* and *how the answer would change*. Have the standard list ready and tie it to the question: **particle** (no size, no rotation, no air resistance area); **light** string/rod (no mass, so tension is the same throughout); **inextensible** string (both particles have the same speed and acceleration); **smooth** surface/pulley (no friction; tension the same each side); **rough** (friction $\\le \\mu R$); **uniform** rod (weight at the midpoint); **$g$ constant** at 9.8. Because $g = 9.8$ is used, give final answers to **2 or 3 significant figures** — an answer to 5 s.f. loses the accuracy mark.",
@@ -47,7 +47,7 @@ X("maths:S6.1", {
   ]
 });
 
-X("maths:S7.1", {
+X("maths:M7.1", {
   notes: [
     { page: "Past-paper patterns" },
     "**Displacement** is a vector from the start point; **distance** is the total length travelled — a ball thrown up and caught has zero displacement but non-zero distance (Nov 2021 Q1 \"total distance in 4 s\" needs the up *and* down legs). **Velocity** is a vector; **speed** is its magnitude. In $\\mathbf i$–$\\mathbf j$ questions: *position* $\\mathbf r$, *velocity* $\\mathbf v$, *speed* $|\\mathbf v|$, *direction of motion* is the direction of $\\mathbf v$ (as a bearing from $\\mathbf j$ = north), *distance from $O$* is $|\\mathbf r|$. With constant acceleration $\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\tfrac12\\mathbf a t^2$ (Specimen Q1: two positions give $\\mathbf u$).",
@@ -92,7 +92,7 @@ X("maths:S7.1", {
   ]
 });
 
-X("maths:S7.2", {
+X("maths:M7.2", {
   notes: [
     { page: "Past-paper patterns" },
     "**Velocity–time graphs**: gradient $=$ acceleration, area $=$ displacement. Every graph question (AS 2022 Q2, AS 2025 Q1, Specimen Q2, 2024 Q2) is *\"sketch, then use the area\"*: write the area as a trapezium $\\tfrac12(a + b)h$ or as triangles + rectangle in terms of the unknown ($V$ or $T$), set it equal to the given distance and solve. **Two-phase symmetric journeys** (accelerate at 2, decelerate at 3): times are $\\tfrac V2$ and $\\tfrac V3$, so area $= \\tfrac12 V\\left(\\tfrac V2 + \\tfrac V3\\right)$. **Distance–time sketch** (AS 2024 Q1): constant speed is a straight line, acceleration curves upward (convex), deceleration levels off; the graph never falls if the particle keeps moving forward.",
@@ -145,7 +145,7 @@ X("maths:S7.2", {
   ]
 });
 
-X("maths:S7.3", {
+X("maths:M7.3", {
   notes: [
     { page: "Past-paper patterns" },
     "**Vertical motion under gravity** dominates the AS papers: choose *up* as positive, $a = -9.8$, write $s$ as displacement *from the launch point* (a stone thrown from 1.8 m that hits the ground has $s = -1.8$). The classic parts: **maximum height** ($v = 0$), **time to hit the ground** (quadratic in $t$ — reject the negative root), **speed on impact** ($v^2 = u^2 + 2as$), **time above a height / speed below a threshold** (\"$|v| < 9.8$\" $\\Rightarrow$ a time interval, use symmetry). **Two-stage motion** (AS 2019 Q1 parachutist): free fall then uniform deceleration — the final speed of stage 1 is the initial speed of stage 2. **Cars** (2023 Q1): $v = u + at$, $s = ut + \\tfrac12 at^2$, then link to $F = ma$.",
@@ -200,7 +200,7 @@ X("maths:S7.3", {
   ]
 });
 
-X("maths:S7.4", {
+X("maths:M7.4", {
   notes: [
     { page: "Past-paper patterns" },
     "$v = \\dfrac{ds}{dt}$, $a = \\dfrac{dv}{dt}$; $s = \\int v\\,dt$, $v = \\int a\\,dt$ (+ constant from the initial conditions). The examiners' favourite trap is **total distance**: find where $v = 0$ (direction changes), integrate over each interval separately and *add the magnitudes*. **Maximum speed** on an interval: check where $a = 0$ *and* the endpoints, and remember speed is $|v|$ (AS 2025 Q4). **Vectors** (2023 Q3, 2024 Q4): differentiate/integrate each component; \"parallel to $\\mathbf i + \\mathbf j$\" means the components are equal; \"bearing 045\" means $x = y$; \"perpendicular to $y = x$\" means $\\mathbf a \\parallel \\mathbf i - \\mathbf j$.",
@@ -255,7 +255,7 @@ X("maths:S7.4", {
   ]
 });
 
-X("maths:S7.5", {
+X("maths:M7.5", {
   notes: [
     { page: "Past-paper patterns" },
     "Resolve the initial velocity: $u_x = U\\cos\\alpha$, $u_y = U\\sin\\alpha$. Horizontal: $x = U\\cos\\alpha\\, t$ (no acceleration). Vertical: $y = U\\sin\\alpha\\, t - \\tfrac12 gt^2$. **Time of flight** from $y =$ landing level (a cliff of height $H$: $y = -H$); **range** $= u_x \\times$ time; **maximum height** from $v_y = 0$: $\\dfrac{U^2\\sin^2\\alpha}{2g}$; **speed at a point** from $v_x$ and $v_y$; **trajectory** $y = x\\tan\\alpha - \\dfrac{gx^2}{2U^2}(1 + \\tan^2\\alpha)$ — the \"show that $\\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$\" questions (2023 Q5, 2024 Q5) substitute a point into this. **Show $U = 28$** (Oct 2020 Q5): a 45° cliff shot with range 100 m and drop 25 m.",
@@ -311,7 +311,7 @@ X("maths:S7.5", {
   ]
 });
 
-X("maths:S8.1", {
+X("maths:M8.1", {
   notes: [
     { page: "Past-paper patterns" },
     "**Newton's first law**: a particle stays at rest or moves with constant velocity unless a resultant force acts. So \"constant speed\" $\\Rightarrow$ **resultant zero** $\\Rightarrow$ resolve and equate. **Equilibrium in $\\mathbf i$–$\\mathbf j$** (AS 2025 Q2): the extra force needed is *minus the resultant*. **Limiting equilibrium** on a rough surface (2024 Q1): $F = \\mu R$ exactly and the particle is on the point of moving. **Force diagrams** score marks: weight down, normal reaction perpendicular to the surface, tension along the string away from the particle, friction along the surface opposing (potential) motion.",
@@ -353,7 +353,7 @@ X("maths:S8.1", {
   ]
 });
 
-X("maths:S8.2", {
+X("maths:M8.2", {
   notes: [
     { page: "Past-paper patterns" },
     "$\\mathbf F = m\\mathbf a$ — always write the *resultant* on the left in the direction of motion: \"driving force $-$ resistance $= ma$\". **Vector versions** (AS 2024 Q3, 2022 Q3, 2025 Q3): add the forces, divide by $m$; a magnitude condition gives $(2 + c)^2 + 6^2 = 100$-type equations with **two** solutions; \"moves in the direction $\\mathbf i + 3\\mathbf j$\" means the resultant is parallel to it — equate the ratio of components. **Lifts** (AS 2022 Q4): treat the whole system for the cable tension, then a single body for the force between them. **Braking**: the resultant is backwards, so $a$ is negative.",
@@ -403,7 +403,7 @@ X("maths:S8.2", {
   ]
 });
 
-X("maths:S8.3", {
+X("maths:M8.3", {
   notes: [
     { page: "Past-paper patterns" },
     "Weight $= mg$ acts *down* at the centre of mass; on Earth $g = 9.8$ m/s². Objects moving freely under gravity have $a = g$ downward — the same for every mass (2019 Q1 parachutist, Specimen Q1 rebound). In a **lift** the apparent weight changes: $R - mg = ma$ (up) — a person feels *heavier* accelerating up and *lighter* accelerating down; $R = 0$ would mean free fall. Questions also ask for the reaction force on a person *in a lift that is decelerating*: decelerating while going up is an acceleration *downwards*.",
@@ -444,7 +444,7 @@ X("maths:S8.3", {
   ]
 });
 
-X("maths:S8.4", {
+X("maths:M8.4", {
   notes: [
     { page: "Past-paper patterns" },
     "**Newton's third law**: the forces between two bodies are equal and opposite — the tension pulling the hanging ball is the same tension pulling the ball on the table; the force of the lift floor on the block equals the force of the block on the floor. **Connected particles** (every AS paper): write $F = ma$ for **each particle separately** in its own direction of motion, then add to eliminate $T$. Pulleys: $T$ is the same on both sides (smooth), accelerations equal (inextensible). **Force on the pulley** $= 2T$ (both string segments vertical). **After the string goes slack** (Nov 2021 Q3 \"Q hits the ground\"), the other particle moves freely under gravity with the speed it had — a suvat tail. **Tow-bar** (AS 2024 Q4): a light rod can be in **thrust** when braking.",
@@ -494,7 +494,7 @@ X("maths:S8.4", {
   ]
 });
 
-X("maths:S8.5", {
+X("maths:M8.5", {
   notes: [
     { page: "Past-paper patterns" },
     "**Resolve** along and perpendicular to the motion (or the slope). On a smooth slope of angle $\\theta$: $R = mg\\cos\\theta$, and along the slope $mg\\sin\\theta = ma$ (down). With a pulling force $P$ at angle $\\beta$ above the horizontal on a horizontal plane: $R = mg - P\\sin\\beta$ (the pull *reduces* $R$), $P\\cos\\beta - F = ma$. A rope on a slope at angle $\\beta$ *to the slope* (Specimen Q3): $R = mg\\cos\\theta - T\\sin\\beta$, $T\\cos\\beta - mg\\sin\\theta - F = ma$. **Two-particle slopes** (Oct 2021 Q2): one particle on a rough incline, one hanging — equations for each, add.",
@@ -540,7 +540,7 @@ X("maths:S8.5", {
   ]
 });
 
-X("maths:S8.6", {
+X("maths:M8.6", {
   notes: [
     { page: "Past-paper patterns" },
     "$F \\le \\mu R$, with $F = \\mu R$ only in **limiting equilibrium or when moving**. Three question shapes: (1) *moving* — use $F = \\mu R$ and $F = ma$ (2023 Q2, 2024 Q3: \"show $a = \\dfrac{g(5 - 12\\mu)}{13}$\"); (2) *on the point of sliding* — $F = \\mu R$ with equilibrium: on a slope $\\mu = \\tan\\theta$ (Oct 2020 Q1); (3) *at rest, not limiting* — find $F$ from equilibrium first, then **check** $F \\le \\mu R$ and state the **direction** of friction (2022 Q2). Friction opposes the direction the particle *would* move; if the sign comes out negative, it acts the other way — say which. **Constant speed** (2025 Q2) still means $F = \\mu R$ and resultant zero.",
@@ -594,7 +594,7 @@ X("maths:S8.6", {
   ]
 });
 
-X("maths:S9.1", {
+X("maths:M9.1", {
   notes: [
     { page: "Past-paper patterns" },
     "Moment $=$ force $\\times$ **perpendicular** distance from the pivot. For a rod at angle $\\theta$ to the horizontal, a vertical force at distance $d$ along the rod has moment $Fd\\cos\\theta$; a force perpendicular to the rod has moment $Fd$. **Choose the pivot where the unknown forces act** — for a ladder, take moments about the foot to kill both ground forces. **Ladder / beam against a smooth wall** (2023 Q6, Oct 2021 Q3): wall gives a horizontal $N$ only; ground gives $R$ (up) and $F$ (toward the wall); limiting $\\Rightarrow F = \\mu R$; a \"show $\\mu \\ge \\ldots$\" answer comes from $F \\le \\mu R$. **Tilting** (non-uniform rods): about to tilt means the reaction at the *other* support is **zero**. **Non-uniform rod**: the weight acts at an unknown distance $x$ — find it from the ratio of reactions.",

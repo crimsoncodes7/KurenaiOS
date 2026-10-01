@@ -17,7 +17,7 @@ chronological diary here.
   https://ade0184c.kurenai-os.pages.dev (28 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-4`
-- Required smoke gate: 62 / 62 suites.
+- Required smoke gate: 63 / 63 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..62}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..63}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -240,7 +240,13 @@ source comments and audit notes refer to it.
     regenerate; use `--format-existing` only for a payload-preserving format pass.
     The IT units not taken (F203, F205) are left out by the generator
     (`IT_NOT_TAKEN` in `tools/gen_data.py`; `--scope-it` applies it to the
-    checked-in payload), so no reader filters them.
+    checked-in payload), so no reader filters them. Maths refs are P1–P10,
+    S1–S5 (Statistics) and M6–M9 (Mechanics): Edexcel numbers Paper 3 as one
+    run, so Mechanics keeps its section numbers and takes "M"
+    (`MECH_SECTIONS`; `--mech-refs` applies it to the checked-in payload).
+    Stored state named by an old S6–S9 ref is renamed at the store's own
+    gate (`scrubLegacy` → `renameRefs`, so boot, import and every cloud pull)
+    and topic attachments once per boot (`KOS.attach.renameRefs`).
 25. Authored content keys target visible leaf refs only. Callout objects need two
     closing braces; validate every edited JS file.
 26. Classes are presentation only and carry the `k-` prefix; logic and tests
