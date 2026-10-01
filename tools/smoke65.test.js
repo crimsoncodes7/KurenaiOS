@@ -29,11 +29,14 @@ function assert(c, m) { if (!c) throw new Error(m); }
 
 /* the leaves rewritten so far, by file */
 const DONE = {
-  "cs-p2-45a.js": ["4.5.1.1", "4.5.1.2", "4.5.1.3", "4.5.1.4", "4.5.1.5", "4.5.1.6", "4.5.1.7", "4.5.2.1", "4.5.3.1", "4.5.3.2"]
+  "cs-p2-45a.js": ["4.5.1.1", "4.5.1.2", "4.5.1.3", "4.5.1.4", "4.5.1.5", "4.5.1.6", "4.5.1.7", "4.5.2.1", "4.5.3.1", "4.5.3.2"],
+  "cs-p2-45b.js": ["4.5.4.1", "4.5.4.2", "4.5.4.3", "4.5.4.4", "4.5.4.5", "4.5.4.6", "4.5.4.7", "4.5.4.8", "4.5.4.9"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
-const KEEP = {};
+const KEEP = {
+  "4.5.4.4": { sims: ["binary-number"], gens: ["float", "bin"] }
+};
 
 let app, KOS;
 
