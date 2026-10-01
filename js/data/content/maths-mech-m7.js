@@ -927,7 +927,326 @@ C["maths:M7.3"] = {
   ]
 };
 
-/* @@M7.4@@ */
+/* =====================================================================
+   M7.4  Calculus in kinematics
+   ===================================================================== */
+C["maths:M7.4"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Calculus in kinematics — the whole topic on one page" },
+    "Spec 7.4: use calculus for motion in a straight line — $v = \\dfrac{dr}{dt}$, $a = \\dfrac{dv}{dt} = \\dfrac{d^2r}{dt^2}$, $r = \\displaystyle\\int v\\,dt$, $v = \\displaystyle\\int a\\,dt$ — and extend to 2 dimensions using vectors. The calculus is that of Pure sections 7 and 8.",
+    "Use it whenever the acceleration is **not constant** (a formula in $t$). Every AS paper has one of these, every A-level paper has the vector version:",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["Instantaneous rest: solve $v = 0$", "2–5", "AS Specimen Q4(b), 2018 Q8(a), 2019 Q3(a), 2021 Q2(b), 2022 Q3(a), 2023 Q3(a), 2025 Q4(a)"],
+      ["Acceleration at an instant; when it stops accelerating ($a = 0$)", "2–5", "AS 2019 Q3(a), 2020 Q3(a), 2021 Q2(a), 2022 Q3(a), 2023 Q3(b), 2024 Q2(a)"],
+      ["Distance over an interval with no turning point", "3", "AS Specimen Q4(a), 2019 Q3(b), 2020 Q3(b), 2024 Q2(b)"],
+      ["**Total distance** across a turning point", "3–4", "AS 2018 Q8(b), 2021 Q2(c), 2022 Q3(b), 2023 Q3(c), 2025 Q4(b)"],
+      ["Returns to the start; never negative; maximum speed", "2–3", "AS Specimen Q4(c), 2018 Q8(c), 2025 Q4(c)"],
+      ["Vectors: differentiate/integrate, with a constant from a given position", "3–6", "A-level 2018 Q6, 2022 Q1, Oct 2020 Q3, Oct 2021 Q5"],
+      ["Vectors: speed, moving parallel/perpendicular, a bearing", "2–6", "A-level 2023 Q3, 2024 Q4, 2025 Q4, Oct 2021 Q5"],
+      ["Force from a variable velocity ($\\mathbf F = m\\mathbf a$)", "7", "A-level Specimen Q2"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**The calculus chain** — differentiate down, integrate up, find the constant.",
+      "**Rest, acceleration and extremes** — straight-line questions on $v$ and $a$.",
+      "**Distance with calculus** — when the particle turns round.",
+      "**Calculus with vectors**.",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "The calculus chain" },
+    { fig: { w: 500, h: 130, items: [
+      { poly: [[20, 40], [130, 40], [130, 90], [20, 90]], c: "accent", w: 1.6 }, { text: [75, 65], t: "r (or s, x)", b: true, c: "text", size: 13 },
+      { poly: [[195, 40], [305, 40], [305, 90], [195, 90]], c: "accent", w: 1.6 }, { text: [250, 65], t: "v", b: true, c: "text", size: 14 },
+      { poly: [[370, 40], [480, 40], [480, 90], [370, 90]], c: "accent", w: 1.6 }, { text: [425, 65], t: "a", b: true, c: "text", size: 14 },
+      { line: [[135, 52], [190, 52]], arrow: true, c: "accent2", w: 2 }, { line: [[310, 52], [365, 52]], arrow: true, c: "accent2", w: 2 },
+      { text: [162, 30], t: "d/dt", c: "accent2", b: true, size: 12 }, { text: [338, 30], t: "d/dt", c: "accent2", b: true, size: 12 },
+      { line: [[190, 78], [135, 78]], arrow: true, c: "accent3", w: 2 }, { line: [[365, 78], [310, 78]], arrow: true, c: "accent3", w: 2 },
+      { text: [162, 104], t: "∫ dt + c", c: "accent3", b: true, size: 12 }, { text: [338, 104], t: "∫ dt + c", c: "accent3", b: true, size: 12 }
+    ], cap: "Differentiate to go right, integrate to go left — and every integration needs its constant." } },
+    { callout: { t: "memorise", h: "Which tool?", body: [
+      "Acceleration **constant** → suvat (M7.3). Acceleration **a function of $t$** → calculus. Using suvat on a $t$-dependent motion scores nothing.",
+      "The constant of integration comes from a known value: \"starts from rest at $O$\" gives $v = 0$ and $s = 0$ at $t = 0$; \"when $t = 1$, $\\mathbf r = -\\mathbf j$\" fixes $\\mathbf c$.",
+      "A definite integral $\\int_a^b v\\,dt$ is a **displacement**, not a distance."
+    ] } },
+    { worked: { tag: "example", title: "Up the chain with a constant", q: "A particle moves in a straight line with acceleration $a = (6t - 4)$ m s$^{-2}$. When $t = 0$ it is at $O$ with velocity 3 m s$^{-1}$. Find $v$ and $s$ in terms of $t$.",
+      steps: [
+        { h: "Integrate $a$", m: "$v = 3t^2 - 4t + c$; $\\; t = 0, v = 3 \\Rightarrow c = 3$: $\\; v = 3t^2 - 4t + 3$" },
+        { h: "Integrate $v$", m: "$s = t^3 - 2t^2 + 3t + k$; $\\; t = 0, s = 0 \\Rightarrow k = 0$" }
+      ], result: "$v = 3t^2 - 4t + 3$, $s = t^3 - 2t^2 + 3t$" } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "Rest, acceleration and extremes" },
+    { kv: [
+      ["Instantaneous rest", "$v = 0$ (solve; reject $t < 0$)"],
+      ["Stops accelerating / maximum or minimum velocity", "$a = \\dfrac{dv}{dt} = 0$"],
+      ["Changes direction", "$v = 0$ **and** $v$ changes sign there"],
+      ["Returns to the start", "displacement $s = 0$ (with $t > 0$)"],
+      ["Maximum speed on an interval", "check $|v|$ where $a = 0$ and at the ends"]
+    ] },
+    { worked: { tag: "exam", title: "Distance in the first second; direction change; back to the start", src: "AS Specimen · P2 Q4 · 8 marks",
+      q: "A particle $P$ moves along a straight line such that at time $t$ seconds, $t \\ge 0$, its velocity is $v = 16 - 3t^2$ m s$^{-1}$. Find **(a)** the distance travelled by $P$ in the first second, **(b)** the value of $t$ when $P$ changes its direction of motion, **(c)** the value of $t$ when $P$ returns to its starting point.",
+      steps: [
+        { h: "(a) $v > 0$ on $[0, 1]$, so integrate", m: "$\\displaystyle\\int_0^1 (16 - 3t^2)\\,dt = \\big[16t - t^3\\big]_0^1$", mk: "M1 A1" },
+        { m: "$= 15$ m", mk: "A1" },
+        { h: "(b)", m: "$16 - 3t^2 = 0$", mk: "M1" },
+        { m: "$t = \\dfrac{4}{\\sqrt3} = 2.31$", mk: "A1" },
+        { h: "(c) Displacement zero", m: "$s = 16t - t^3 = 0$", mk: "M1" },
+        { m: "$t(16 - t^2) = 0 \\Rightarrow t = 4$", mk: "A1 A1" }
+      ], result: "(a) 15 m (b) 2.31 (c) 4" } },
+    { worked: { tag: "exam", title: "Acceleration at rest; distance over 3 s", src: "AS June 2019 · P2 Q3 · 8 marks",
+      q: "A particle $P$ moves along a straight line such that at time $t$ seconds, $t \\ge 0$, its velocity is modelled as $v = 12 + 4t - t^2$ m s$^{-1}$. Find **(a)** the magnitude of the acceleration of $P$ when $P$ is at instantaneous rest, **(b)** the distance travelled by $P$ in the interval $0 \\le t \\le 3$.",
+      steps: [
+        { h: "(a) Rest", m: "$t^2 - 4t - 12 = 0 \\Rightarrow (t - 6)(t + 2) = 0 \\Rightarrow t = 6$", mk: "M1 A1" },
+        { h: "Differentiate", m: "$a = 4 - 2t$", mk: "M1" },
+        { m: "$t = 6$: $a = -8$, magnitude 8 m s$^{-2}$", mk: "M1 A1" },
+        { h: "(b) $v > 0$ throughout (first rest at $t = 6$)", m: "$\\displaystyle\\int_0^3 (12 + 4t - t^2)\\,dt = \\Big[12t + 2t^2 - \\tfrac{t^3}{3}\\Big]_0^3$", mk: "M1 A1" },
+        { m: "$= 36 + 18 - 9 = 45$ m", mk: "A1" }
+      ], result: "(a) 8 m s$^{-2}$ (b) 45 m" } },
+    { worked: { tag: "exam", title: "When it stops accelerating; where it turns (no calculator)", src: "AS June 2020 · P2 Q3 · 9 marks",
+      q: "In this question solutions relying on calculator technology are not acceptable. A particle $P$ moves along a straight line; $t$ seconds after leaving the point $O$ on the line its velocity is modelled as $v = (7 - 2t)(t + 2)$ m s$^{-1}$. **(a)** Find the value of $t$ when $P$ stops accelerating. **(b)** Find the distance of $P$ from $O$ when $P$ changes its direction of motion.",
+      steps: [
+        { h: "(a) Expand, differentiate", m: "$v = 14 + 3t - 2t^2$; $\\; a = 3 - 4t$", mk: "M1 A1" },
+        { m: "$a = 0$: $t = \\dfrac34$", mk: "M1 A1" },
+        { h: "(b) Direction changes at $v = 0$", m: "$t = \\dfrac72$ (the root $t = -2$ is rejected)", mk: "B1" },
+        { h: "Integrate from $O$", m: "$s = 14t + \\tfrac32 t^2 - \\tfrac23 t^3$", mk: "M1 A1" },
+        { m: "$s = 49 + \\dfrac{147}{8} - \\dfrac{343}{12} = \\dfrac{1176 + 441 - 686}{24}$", mk: "M1" },
+        { m: "$= \\dfrac{931}{24} = 38.8$ m", mk: "A1" }
+      ], result: "(a) $\\frac34$ (b) $\\frac{931}{24}$ m" } },
+    { worked: { tag: "exam", title: "Rest twice; total distance; maximum speed", src: "AS June 2025 · P2 Q4 · 10 marks",
+      q: "In this question you must show all stages of your working. A particle $P$ moves along a straight line; at time $t$ seconds, $t \\ge 0$, its distance from a fixed point $O$ on the line is $s = 2t^3 - 12t^2 + 18t$ metres. **(a)** Find the values of $t$ for which $P$ is instantaneously at rest. **(b)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 4$. **(c)** Find the maximum speed of $P$ in the interval $1 \\le t \\le 3$.",
+      steps: [
+        { h: "(a) Differentiate", m: "$v = 6t^2 - 24t + 18$", mk: "M1 A1" },
+        { m: "$6(t - 1)(t - 3) = 0 \\Rightarrow t = 1, 3$", mk: "M1 A1" },
+        { h: "(b) Positions at 0, 1, 3, 4", m: "$s(0) = 0$, $s(1) = 8$, $s(3) = 0$, $s(4) = 8$", mk: "M1" },
+        { m: "$8 + 8 + 8$", mk: "M1" },
+        { m: "$= 24$ m", mk: "A1" },
+        { h: "(c) $a = 0$", m: "$a = 12t - 24 = 0 \\Rightarrow t = 2$", mk: "M1" },
+        { m: "$v(2) = 24 - 48 + 18 = -6$", mk: "M1" },
+        { m: "maximum speed 6 m s$^{-1}$", mk: "A1", n: "At $t = 1$ and $t = 3$ the speed is 0, so the largest $|v|$ is at $t = 2$." }
+      ], result: "(a) 1, 3 (b) 24 m (c) 6 m s$^{-1}$" } },
+    { fig: { x: [0, 4.4], y: [-2, 10], w: 480, h: 220,
+      axes: { x: "t (s)", y: "s (m)", xt: [1, 2, 3, 4], yt: [4, 8] },
+      items: [
+        { fn: "2*x^3-12*x^2+18*x", from: 0, to: 4, c: "accent", w: 2.4 },
+        { pt: [1, 8], label: "rest", pos: "n", i: false }, { pt: [3, 0], label: "rest", pos: "s", i: false },
+        { line: [[1, 8], [3, 0]], c: "accent2", dash: true }
+      ], cap: "AS June 2025: out 8 m, back 8 m, out 8 m — 24 m in all, though the displacement after 4 s is only 8 m." } },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "Distance with calculus" },
+    { callout: { t: "memorise", h: "Total distance across a turning point", body: [
+      "1. Solve $v = 0$ for the turning times inside the interval.",
+      "2. Integrate **piece by piece** between them (or find $s$ at each turning time).",
+      "3. Add the **magnitudes**. One integral straight across the interval gives the displacement — the areas below the axis cancel the ones above."
+    ] } },
+    { fig: { x: [0, 6.6], y: [-28, 4], w: 500, h: 240,
+      axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [4, 6], yt: [-24, -10, 1] },
+      items: [
+        { shade: { fn: "10*x-x^2-24", from: 0, to: 4 }, c: "accent2", alpha: 0.3 },
+        { shade: { fn: "10*x-x^2-24", from: 4, to: 6 }, c: "accent3", alpha: 0.45 },
+        { fn: "10*x-x^2-24", from: 0, to: 6.4, c: "accent", w: 2.4 },
+        { text: [2, -12], t: "−112/3", c: "accent2", b: true }, { text: [5, 3], t: "+4/3", c: "accent3", b: true }
+      ], cap: "AS Nov 2021: $v = 10t - t^2 - 24$. Distance $= \\frac{112}{3} + \\frac43 = \\frac{116}{3}$; a single integral from 0 to 6 would give $-36$." } },
+    { worked: { tag: "exam", title: "Find $k$; the other rest; total distance", src: "AS Nov 2021 · P2 Q2 · 10 marks",
+      q: "A particle $P$ moves along a straight line. At time $t$ seconds its velocity is modelled as $v = 10t - t^2 - k$ m s$^{-1}$, $t \\ge 0$, where $k$ is a constant. **(a)** Find the acceleration of $P$ at time $t$. $P$ is instantaneously at rest when $t = 6$. **(b)** Find the other value of $t$ when $P$ is instantaneously at rest. **(c)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 6$.",
+      steps: [
+        { h: "(a)", m: "$a = \\dfrac{dv}{dt} = 10 - 2t$", mk: "M1 A1" },
+        { h: "(b) Use $t = 6$ to find $k$", m: "$60 - 36 - k = 0 \\Rightarrow k = 24$", mk: "M1 A1" },
+        { m: "$t^2 - 10t + 24 = 0 \\Rightarrow (t - 4)(t - 6) = 0 \\Rightarrow t = 4$", mk: "M1 A1" },
+        { h: "(c) Integrate in two pieces", m: "$s = 5t^2 - \\tfrac13 t^3 - 24t$: $\\; s(4) = -\\dfrac{112}{3}$, $\\; s(6) = -36$", mk: "M1 A1" },
+        { m: "$\\dfrac{112}{3} + \\left|-36 + \\dfrac{112}{3}\\right| = \\dfrac{112}{3} + \\dfrac43$", mk: "M1" },
+        { m: "$= \\dfrac{116}{3} = 38.7$ m", mk: "A1" }
+      ], result: "(a) $10 - 2t$ (b) 4 (c) 38.7 m" } },
+    { worked: { tag: "exam", title: "Acceleration at each rest; total distance over 4 s", src: "AS June 2022 · P2 Q3 · 9 marks",
+      q: "A fixed point $O$ lies on a straight line along which a particle $P$ moves. At time $t$ seconds, $t \\ge 0$, the distance of $P$ from $O$ is $s = \\tfrac13 t^3 - \\tfrac52 t^2 + 6t$ metres. **(a)** Find the acceleration of $P$ at each of the times when $P$ is at instantaneous rest. **(b)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 4$.",
+      steps: [
+        { h: "(a)", m: "$v = t^2 - 5t + 6$", mk: "M1 A1" },
+        { m: "$(t - 2)(t - 3) = 0 \\Rightarrow t = 2, 3$", mk: "M1 A1" },
+        { m: "$a = 2t - 5$: $\\; -1$ m s$^{-2}$ at $t = 2$, $\\; 1$ m s$^{-2}$ at $t = 3$", mk: "M1 A1" },
+        { h: "(b) Positions", m: "$s(2) = \\dfrac{14}{3}$, $\\; s(3) = \\dfrac92$, $\\; s(4) = \\dfrac{16}{3}$", mk: "M1" },
+        { m: "$\\dfrac{14}{3} + \\left(\\dfrac{14}{3} - \\dfrac92\\right) + \\left(\\dfrac{16}{3} - \\dfrac92\\right) = \\dfrac{14}{3} + \\dfrac16 + \\dfrac56$", mk: "M1" },
+        { m: "$= \\dfrac{17}{3} = 5.67$ m", mk: "A1" }
+      ], result: "(a) −1 and 1 m s$^{-2}$ (b) $\\frac{17}{3}$ m" } },
+    { worked: { tag: "exam", title: "Verify rest; the acceleration there; total distance", src: "AS June 2023 · P2 Q3 · 8 marks",
+      q: "In this question you must show all stages of your working. A particle $P$ moves along a straight line such that at time $t$ seconds, $t \\ge 0$, after passing through $O$, its velocity is modelled as $v = 15 - t^2 - 2t$ m s$^{-1}$. **(a)** Verify that $P$ comes to instantaneous rest when $t = 3$. **(b)** Find the magnitude of the acceleration of $P$ when $t = 3$. **(c)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 4$.",
+      steps: [
+        { h: "(a)", m: "$v(3) = 15 - 9 - 6 = 0$ ✓", mk: "B1" },
+        { h: "(b)", m: "$a = -2t - 2$", mk: "M1 A1" },
+        { m: "$a(3) = -8$, magnitude 8 m s$^{-2}$", mk: "A1" },
+        { h: "(c) Integrate to the turn, then beyond", m: "$s = 15t - \\tfrac13 t^3 - t^2$: $\\; s(3) = 45 - 9 - 9 = 27$", mk: "M1 A1" },
+        { m: "$s(4) = 60 - \\dfrac{64}{3} - 16 = \\dfrac{68}{3}$; back $27 - \\dfrac{68}{3} = \\dfrac{13}{3}$", mk: "M1" },
+        { m: "total $27 + \\dfrac{13}{3} = \\dfrac{94}{3} = 31.3$ m", mk: "A1" }
+      ], result: "(b) 8 m s$^{-2}$ (c) $\\frac{94}{3}$ m" } },
+    { worked: { tag: "exam", title: "Rest from a displacement; total distance; never negative", src: "AS June 2018 · P2 Q8 · 10 marks",
+      q: "A particle $P$ moves along the $x$-axis. At time $t$ seconds, $t \\ge 0$, its displacement from $O$ is $x = \\tfrac12 t^2(t^2 - 2t + 1)$ metres. **(a)** Find the times when $P$ is instantaneously at rest. **(b)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 2$. **(c)** Show that $P$ will never move along the negative $x$-axis.",
+      steps: [
+        { h: "(a) Expand, differentiate", m: "$x = \\tfrac12(t^4 - 2t^3 + t^2)$; $\\; v = 2t^3 - 3t^2 + t$", mk: "M1 A1" },
+        { m: "$v = t(2t^2 - 3t + 1) = t(2t - 1)(t - 1)$", mk: "M1" },
+        { m: "$t = 0, \\tfrac12, 1$", mk: "A1 A1" },
+        { h: "(b) Positions", m: "$x(0) = 0$, $\\; x(\\tfrac12) = \\tfrac{1}{32}$, $\\; x(1) = 0$, $\\; x(2) = 2$", mk: "M1" },
+        { m: "$\\tfrac{1}{32} + \\tfrac{1}{32} + 2$", mk: "M1" },
+        { m: "$= \\dfrac{33}{16} = 2.06$ m", mk: "A1" },
+        { h: "(c) Factorise $x$", m: "$x = \\tfrac12 t^2(t - 1)^2$", mk: "M1" },
+        { m: "a product of squares, so $x \\ge 0$ for all $t$: $P$ is never on the negative $x$-axis.", mk: "A1" }
+      ], result: "(a) 0, ½, 1 (b) $\\frac{33}{16}$ m" } },
+    { worked: { tag: "exam", title: "Roots of $t$: an acceleration, then an exact distance", src: "AS June 2024 · P2 Q2 · 7 marks",
+      q: "In this question you must show all stages of your working; solutions relying on calculator technology are not acceptable. A particle moves along a straight line. At time $t$ seconds, $t > 0$, its velocity is $v = 2t - 7\\sqrt t + 6$ m s$^{-1}$. **(a)** Find the acceleration of the particle when $t = 4$. When $t = 1$ the particle is at $X$; when $t = 2$ it is at $Y$. Given that it does not come to instantaneous rest in $1 < t < 2$, **(b)** show that $XY = \\tfrac13(41 - 28\\sqrt2)$ metres.",
+      steps: [
+        { h: "(a)", m: "$a = 2 - \\tfrac72 t^{-\\frac12}$", mk: "M1 A1" },
+        { m: "$a(4) = 2 - \\tfrac74 = \\tfrac14$ m s$^{-2}$", mk: "A1" },
+        { h: "(b) No rest in between, so one integral", m: "$\\displaystyle\\int_1^2 \\big(2t - 7t^{\\frac12} + 6\\big)\\,dt = \\Big[t^2 - \\tfrac{14}{3} t^{\\frac32} + 6t\\Big]_1^2$", mk: "M1 A1" },
+        { m: "$= \\Big(4 - \\tfrac{28\\sqrt2}{3} + 12\\Big) - \\Big(1 - \\tfrac{14}{3} + 6\\Big)$", mk: "M1" },
+        { m: "$= 16 - \\tfrac73 - \\tfrac{28\\sqrt2}{3} = \\tfrac13(41 - 28\\sqrt2)$", mk: "A1*", n: "$2^{\\frac32} = 2\\sqrt2$. Positive (0.467), so it is the distance." }
+      ], result: "(a) ¼ m s$^{-2}$" } },
+
+    /* ---------------------------------------------------------------- Page 4 */
+    { page: "Calculus with vectors" },
+    { callout: { t: "formula", h: "Component by component", body: [
+      "$\\mathbf r = x\\mathbf i + y\\mathbf j \\;\\Rightarrow\\; \\mathbf v = \\dot x\\mathbf i + \\dot y\\mathbf j, \\quad \\mathbf a = \\ddot x\\mathbf i + \\ddot y\\mathbf j$",
+      "Integrating gives a **vector** constant $\\mathbf c = c_1\\mathbf i + c_2\\mathbf j$.",
+      "Speed $|\\mathbf v|$; distance from $O$ $|\\mathbf r|$; parallel to $p\\mathbf i + q\\mathbf j$: $\\dot x : \\dot y = p : q$; perpendicular to $\\mathbf i$: $\\mathbf i$-component zero; $\\mathbf F = m\\mathbf a$."
+    ] } },
+    { worked: { tag: "exam", title: "The time when the force has a given size", src: "A-level Specimen · P3 Q2 · 7 marks",
+      q: "A particle $P$ moves under the action of a single force so that at time $t$ seconds, $t \\ge 0$, its velocity is $\\mathbf v = (t^2 - 3t)\\mathbf i - 12t\\mathbf j$ m s$^{-1}$. The mass of $P$ is 0.5 kg. Find the time at which the magnitude of the force acting on $P$ is 6.5 N.",
+      steps: [
+        { h: "Differentiate", m: "$\\mathbf a = (2t - 3)\\mathbf i - 12\\mathbf j$", mk: "M1 A1" },
+        { h: "$|\\mathbf F| = 6.5 \\Rightarrow |\\mathbf a| = 13$", m: "$(2t - 3)^2 + 12^2 = 13^2$", mk: "M1 M1" },
+        { m: "$(2t - 3)^2 = 25$", mk: "A1" },
+        { m: "$2t - 3 = \\pm 5$", mk: "M1" },
+        { m: "$t = 4$ (as $t \\ge 0$)", mk: "A1" }
+      ], result: "$t = 4$ s" } },
+    { worked: { tag: "exam", title: "An exact distance from a velocity with $t^{-\\frac12}$", src: "A-level June 2018 · P3 Q6 · 6 marks",
+      q: "At time $t$ seconds, $t \\ge 0$, a particle $P$ moves in the $x$-$y$ plane with velocity $\\mathbf v = t^{-\\frac12}\\mathbf i - 4t\\mathbf j$ m s$^{-1}$. When $t = 1$, $P$ is at $A$; when $t = 4$, $P$ is at $B$. Find the exact distance $AB$.",
+      steps: [
+        { h: "Integrate", m: "$\\mathbf r = 2t^{\\frac12}\\mathbf i - 2t^2\\mathbf j + \\mathbf c$", mk: "M1 A1" },
+        { h: "$\\overrightarrow{AB} = \\mathbf r(4) - \\mathbf r(1)$", m: "$(4\\mathbf i - 32\\mathbf j) - (2\\mathbf i - 2\\mathbf j) = 2\\mathbf i - 30\\mathbf j$", mk: "M1 A1", n: "The constant cancels — or use $\\int_1^4$." },
+        { m: "$AB = \\sqrt{2^2 + 30^2} = \\sqrt{904}$", mk: "M1" },
+        { m: "$= 2\\sqrt{226}$ m", mk: "A1" }
+      ], result: "$2\\sqrt{226}$ m" } },
+    { worked: { tag: "exam", title: "From acceleration: a velocity, a direction; then a speed from a position", src: "A-level Oct 2020 · P3 Q3 · 12 marks",
+      q: "(i) At time $t$ seconds, $t \\ge 0$, a particle $P$ has acceleration $\\mathbf a = (1 - 4t)\\mathbf i + (3 - t^2)\\mathbf j$ m s$^{-2}$. When $t = 0$ its velocity is $36\\mathbf i$ m s$^{-1}$. **(a)** Find the velocity of $P$ when $t = 4$. **(b)** Find $t$ when $P$ is moving in a direction perpendicular to $\\mathbf i$. (ii) A particle $Q$ has position vector $\\mathbf r = (t^2 - t)\\mathbf i + 3t\\mathbf j$ m. Find $t$ when the speed of $Q$ is 5 m s$^{-1}$.",
+      steps: [
+        { h: "(i)(a) Integrate with $\\mathbf c = 36\\mathbf i$", m: "$\\mathbf v = (36 + t - 2t^2)\\mathbf i + \\left(3t - \\tfrac13 t^3\\right)\\mathbf j$", mk: "M1 A1" },
+        { m: "$\\mathbf v(4) = 8\\mathbf i - \\tfrac{28}{3}\\mathbf j$ m s$^{-1}$", mk: "A1" },
+        { h: "(b) Perpendicular to $\\mathbf i$: $\\mathbf i$-component zero", m: "$36 + t - 2t^2 = 0$", mk: "M1" },
+        { m: "$(2t - 9)(t + 4) = 0 \\Rightarrow t = 4.5$", mk: "M1 A1" },
+        { h: "(ii) Differentiate", m: "$\\mathbf v = (2t - 1)\\mathbf i + 3\\mathbf j$", mk: "M1 A1" },
+        { m: "$(2t - 1)^2 + 9 = 25$", mk: "M1 A1" },
+        { m: "$2t - 1 = 4 \\Rightarrow t = 2.5$", mk: "M1 A1", n: "$2t - 1 = -4$ gives a negative time." }
+      ], result: "(a) $8\\mathbf i - \\frac{28}{3}\\mathbf j$ (b) 4.5 (ii) 2.5" } },
+    { worked: { tag: "exam", title: "Direction $\\mathbf i - \\mathbf j$; $\\mathbf r$ from a condition; distance at speed 10", src: "A-level Oct 2021 · P3 Q5 · 14 marks",
+      q: "At time $t$ seconds a particle $P$ has velocity $\\mathbf v = 3t^{\\frac12}\\mathbf i - 2t\\mathbf j$ m s$^{-1}$, $t > 0$. **(a)** Find the acceleration of $P$ at time $t$. **(b)** Find $t$ when $P$ is moving in the direction of $\\mathbf i - \\mathbf j$. The position vector of $P$ relative to $O$ is $\\mathbf r$ metres, and $\\mathbf r = -\\mathbf j$ when $t = 1$. **(c)** Find $\\mathbf r$ in terms of $t$. **(d)** Find the exact distance of $P$ from $O$ when $P$ is moving with speed 10 m s$^{-1}$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf a = \\tfrac32 t^{-\\frac12}\\mathbf i - 2\\mathbf j$", mk: "M1 A1" },
+        { h: "(b) Components equal and opposite", m: "$3t^{\\frac12} = 2t$", mk: "M1" },
+        { m: "$t^{\\frac12} = \\tfrac32 \\Rightarrow t = \\tfrac94$", mk: "DM1 A1" },
+        { h: "(c) Integrate", m: "$\\mathbf r = 2t^{\\frac32}\\mathbf i - t^2\\mathbf j + \\mathbf c$", mk: "M1 A1" },
+        { m: "$t = 1$: $2\\mathbf i - \\mathbf j + \\mathbf c = -\\mathbf j \\Rightarrow \\mathbf c = -2\\mathbf i$; $\\; \\mathbf r = (2t^{\\frac32} - 2)\\mathbf i - t^2\\mathbf j$", mk: "A1" },
+        { h: "(d) Speed 10", m: "$9t + 4t^2 = 100$", mk: "M1" },
+        { m: "$4t^2 + 9t - 100 = 0 \\Rightarrow (4t + 25)(t - 4) = 0 \\Rightarrow t = 4$", mk: "M(A)1 A1" },
+        { m: "$\\mathbf r(4) = 14\\mathbf i - 16\\mathbf j$", mk: "M1" },
+        { m: "$|\\mathbf r| = \\sqrt{196 + 256} = \\sqrt{452}$", mk: "M1" },
+        { m: "$= 2\\sqrt{113}$ m", mk: "A1" }
+      ], result: "(b) $\\frac94$ (c) $(2t^{3/2} - 2)\\mathbf i - t^2\\mathbf j$ (d) $2\\sqrt{113}$ m" } },
+    { worked: { tag: "exam", title: "Speed, acceleration, and a position from a later position", src: "A-level June 2022 · P3 Q1 · 8 marks",
+      q: "At time $t$ seconds, $t > 0$, a particle $P$ has velocity $\\mathbf v = 3t^2\\mathbf i - 6t^{\\frac12}\\mathbf j$ m s$^{-1}$. **(a)** Find the speed of $P$ at $t = 2$. **(b)** Find the acceleration of $P$ at time $t$. At $t = 4$ the position vector of $P$ is $(\\mathbf i - 4\\mathbf j)$ m. **(c)** Find the position vector of $P$ at $t = 1$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf v(2) = 12\\mathbf i - 6\\sqrt2\\mathbf j$; $\\; |\\mathbf v| = \\sqrt{144 + 72}$", mk: "M1" },
+        { m: "$= \\sqrt{216} = 14.7$ m s$^{-1}$", mk: "A1" },
+        { h: "(b)", m: "$\\mathbf a = 6t\\mathbf i - 3t^{-\\frac12}\\mathbf j$", mk: "M1 A1" },
+        { h: "(c) Integrate", m: "$\\mathbf r = t^3\\mathbf i - 4t^{\\frac32}\\mathbf j + \\mathbf c$", mk: "M1 A1" },
+        { m: "$t = 4$: $64\\mathbf i - 32\\mathbf j + \\mathbf c = \\mathbf i - 4\\mathbf j \\Rightarrow \\mathbf c = -63\\mathbf i + 28\\mathbf j$", mk: "M1" },
+        { m: "$\\mathbf r(1) = (-62\\mathbf i + 24\\mathbf j)$ m", mk: "A1" }
+      ], result: "(a) 14.7 m s$^{-1}$ (c) $-62\\mathbf i + 24\\mathbf j$" } },
+    { worked: { tag: "exam", title: "Speed at $t = 0$; parallel to $\\mathbf i + \\mathbf j$; acceleration perpendicular to $\\mathbf i$", src: "A-level June 2023 · P3 Q3 · 9 marks",
+      q: "At time $t$ seconds, $t \\ge 0$, a particle $P$ has velocity $\\mathbf v = (t^2 - 3t + 7)\\mathbf i + (2t^2 - 3)\\mathbf j$ m s$^{-1}$. Find **(a)** the speed of $P$ at $t = 0$, **(b)** the value of $t$ when $P$ is moving parallel to $(\\mathbf i + \\mathbf j)$, **(c)** the acceleration of $P$ at time $t$, **(d)** the value of $t$ when the direction of the acceleration is perpendicular to $\\mathbf i$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf v(0) = 7\\mathbf i - 3\\mathbf j$; $\\; \\sqrt{49 + 9}$", mk: "M1 A1" },
+        { m: "$= \\sqrt{58} = 7.62$ m s$^{-1}$", mk: "A1" },
+        { h: "(b) Components equal", m: "$t^2 - 3t + 7 = 2t^2 - 3 \\Rightarrow t^2 + 3t - 10 = 0$", mk: "M1" },
+        { m: "$(t + 5)(t - 2) = 0 \\Rightarrow t = 2$", mk: "A1", n: "Check: $\\mathbf v(2) = 5\\mathbf i + 5\\mathbf j$." },
+        { h: "(c)", m: "$\\mathbf a = (2t - 3)\\mathbf i + 4t\\mathbf j$", mk: "M1 A1" },
+        { h: "(d) $\\mathbf i$-component zero", m: "$2t - 3 = 0$", mk: "M1" },
+        { m: "$t = 1.5$", mk: "A1" }
+      ], result: "(a) 7.62 m s$^{-1}$ (b) 2 (d) 1.5" } },
+    { worked: { tag: "exam", title: "A bearing fixes $c$; a speed; accelerating in a given direction", src: "A-level June 2024 · P3 Q4 · 11 marks",
+      q: "In this question you must show all stages of your working. [$\\mathbf i$ is due east, $\\mathbf j$ due north.] At time $t$ seconds, $t \\ge 1$, the position vector of a particle $P$ is $\\mathbf r = ct^{\\frac12}\\mathbf i - \\tfrac38 t^2\\mathbf j$ metres, where $c$ is a constant. When $t = 4$ the bearing of $P$ from $O$ is 135°. **(a)** Show that $c = 3$. **(b)** Find the speed of $P$ when $t = 4$. When $t = T$, $P$ is accelerating in the direction of $(-\\mathbf i - 27\\mathbf j)$. **(c)** Find $T$.",
+      steps: [
+        { h: "(a) At $t = 4$", m: "$\\mathbf r = 2c\\mathbf i - 6\\mathbf j$", mk: "B1" },
+        { m: "Bearing 135° is south-east: east and south components equal, so $2c = 6$", mk: "M1", n: "The justification (45° angle, or an isosceles right-angled triangle) must be seen." },
+        { m: "$c = 3$", mk: "A1*" },
+        { h: "(b) Differentiate", m: "$\\mathbf v = \\tfrac32 t^{-\\frac12}\\mathbf i - \\tfrac34 t\\mathbf j$", mk: "M1 A1" },
+        { m: "$\\mathbf v(4) = \\tfrac34\\mathbf i - 3\\mathbf j$; $\\; |\\mathbf v| = \\sqrt{\\tfrac{9}{16} + 9}$", mk: "M1" },
+        { m: "$= \\tfrac34\\sqrt{17} = 3.09$ m s$^{-1}$", mk: "A1" },
+        { h: "(c) Differentiate again", m: "$\\mathbf a = -\\tfrac34 t^{-\\frac32}\\mathbf i - \\tfrac34\\mathbf j$", mk: "M1 A1" },
+        { h: "Parallel to $-\\mathbf i - 27\\mathbf j$", m: "$\\dfrac{\\frac34 T^{-\\frac32}}{\\frac34} = \\dfrac{1}{27} \\Rightarrow T^{\\frac32} = 27$", mk: "M1" },
+        { m: "$T = 9$", mk: "A1" }
+      ], result: "(b) 3.09 m s$^{-1}$ (c) $T = 9$" } },
+    { fig: { x: [0, 10], y: [-10, 1.5], w: 480, h: 250,
+      axes: { x: "x (east, m)", y: "y (north, m)", xt: [3, 6, 9], yt: [-9, -6, -3] },
+      items: [
+        { param: { x: "3*sqrt(t)", y: "-0.375*t^2" }, t: [1, 5], c: "accent", w: 2.4 },
+        { pt: [6, -6], label: "t = 4: (6, −6)", pos: "e", i: false },
+        { line: [[0, 0], [6, -6]], c: "accent2", dash: true },
+        { arc: [0, 0, 34, 315, 360], label: "45°", c: "accent2" }
+      ], cap: "A-level June 2024: at $t = 4$, $P$ is at $(6, -6)$, 45° south of east — a bearing of 135°." } },
+    { worked: { tag: "exam", title: "A position, its distance, a velocity; acceleration perpendicular to a line", src: "A-level June 2025 · P3 Q4 · 9 marks",
+      q: "At time $t$ seconds, $t > 0$, the position vector of a particle $P$ relative to $O$ is $\\mathbf r = 4t^{\\frac32}\\mathbf i - t^2\\mathbf j$ metres. **(a)** Find the position vector of $P$ at $t = 4$. **(b)** Find the exact distance of $P$ from $O$ at $t = 4$. **(c)** Find the velocity of $P$ at time $t$. At $t = T$ the acceleration of $P$ is perpendicular to the line $y = \\tfrac13 x$. **(d)** Find $T$.",
+      steps: [
+        { h: "(a)", m: "$\\mathbf r(4) = 4 \\times 8\\,\\mathbf i - 16\\mathbf j = (32\\mathbf i - 16\\mathbf j)$ m", mk: "B1" },
+        { h: "(b)", m: "$\\sqrt{32^2 + 16^2} = \\sqrt{1280}$", mk: "M1" },
+        { m: "$= 16\\sqrt5$ m", mk: "A1" },
+        { h: "(c)", m: "$\\mathbf v = 6t^{\\frac12}\\mathbf i - 2t\\mathbf j$", mk: "M1 A1" },
+        { h: "(d) Acceleration", m: "$\\mathbf a = 3t^{-\\frac12}\\mathbf i - 2\\mathbf j$", mk: "M1" },
+        { h: "The line has direction $3\\mathbf i + \\mathbf j$", m: "Perpendicular: $(3T^{-\\frac12})(3) + (-2)(1) = 0$", mk: "A1 M1", n: "Or gradients: $\\dfrac{-2}{3T^{-1/2}} = -3$." },
+        { m: "$T^{-\\frac12} = \\tfrac29 \\Rightarrow T = \\tfrac{81}{4}$", mk: "A1" }
+      ], result: "(a) $32\\mathbf i - 16\\mathbf j$ (b) $16\\sqrt5$ m (c) $6t^{1/2}\\mathbf i - 2t\\mathbf j$ (d) $\\frac{81}{4}$" } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "The chain", body: [
+      "$r \\xrightarrow{\\;d/dt\\;} v \\xrightarrow{\\;d/dt\\;} a$; $\\; a \\xrightarrow{\\;\\int\\;} v \\xrightarrow{\\;\\int\\;} r$, each with a constant.",
+      "Rest: $v = 0$. Stops accelerating, maximum velocity: $a = 0$. Back at the start: $s = 0$.",
+      "Distance: split at every $v = 0$ inside the interval, add the sizes."
+    ] } },
+    { callout: { t: "memorise", h: "Vectors", body: "Treat $\\mathbf i$ and $\\mathbf j$ separately; the constant is a vector. Speed $= |\\mathbf v|$, distance from $O = |\\mathbf r|$. Parallel to $p\\mathbf i + q\\mathbf j$: components in ratio $p : q$ with the right signs. Perpendicular to a direction $\\mathbf d$: scalar product zero." } },
+    { callout: { t: "mnemonic", h: "\"Constant? suvat. Changing? calculus.\"", body: "Look at $a$ first: a number means suvat, a function of $t$ means calculus." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "Forgetting the constant of integration, or setting it to 0 when the particle does not start at $O$.",
+      "One integral across a turning point when the **distance** is asked for.",
+      "Index slips with $t^{\\frac12}$: $\\int t^{\\frac12} dt = \\frac23 t^{\\frac32}$, $\\frac{d}{dt} t^{\\frac12} = \\frac12 t^{-\\frac12}$.",
+      "Keeping a negative time or a direction with the wrong signs (south-west for north-east).",
+      "Relying on the calculator when the question says not to."
+    ] } }
+  ],
+  flashcards: [
+    ["$v$ from $s$?", "$v = \\dfrac{ds}{dt}$."],
+    ["$a$ from $v$?", "$a = \\dfrac{dv}{dt}$."],
+    ["$s$ from $v$?", "$s = \\int v\\,dt$ + a constant."],
+    ["When is calculus needed instead of suvat?", "When the acceleration varies with time."],
+    ["Condition for instantaneous rest?", "$v = 0$."],
+    ["Condition for maximum velocity (or \"stops accelerating\")?", "$a = 0$."],
+    ["What does $\\int_a^b v\\,dt$ give?", "The displacement from $t = a$ to $t = b$."],
+    ["How do you get a total distance with calculus?", "Split at each $v = 0$, integrate each piece, add the sizes."],
+    ["Moving perpendicular to $\\mathbf i$?", "The $\\mathbf i$-component of $\\mathbf v$ is zero."],
+    ["Moving parallel to $\\mathbf i + \\mathbf j$?", "The two components of $\\mathbf v$ are equal."],
+    ["Distance of $P$ from $O$?", "$|\\mathbf r|$."],
+    ["Force from a velocity vector?", "Differentiate to get $\\mathbf a$, then $\\mathbf F = m\\mathbf a$."]
+  ],
+  quiz: [
+    { q: "$s = t^3 - 6t$. Then $v$ is", opts: ["$3t^2 - 6$", "$6t$", "$\\frac14 t^4 - 3t^2$", "$3t^2$"], ans: 0, why: "Differentiate." },
+    { q: "$v = 4 - 2t$. The particle is at rest when", opts: ["$t = 2$", "$t = 4$", "$t = 0$", "never"], ans: 0, why: "$v = 0$." },
+    { q: "$v = 3t^2$ and $s = 2$ when $t = 0$. Then $s$ is", opts: ["$t^3 + 2$", "$t^3$", "$6t$", "$t^3 - 2$"], ans: 0, why: "The constant is 2." },
+    { q: "$v = t^2 - 4$ for $0 \\le t \\le 3$. The distance is found by", opts: ["splitting at $t = 2$", "one integral from 0 to 3", "suvat", "differentiating"], ans: 0, why: "It turns round at $t = 2$." },
+    { q: "$\\mathbf v = (t - 3)\\mathbf i + 2t\\mathbf j$ is perpendicular to $\\mathbf i$ when", opts: ["$t = 3$", "$t = 0$", "$t = 1$", "never"], ans: 0, why: "$\\mathbf i$-component zero." },
+    { q: "$\\frac{d}{dt}\\big(4t^{\\frac32}\\big)$ is", opts: ["$6t^{\\frac12}$", "$4t^{\\frac12}$", "$\\frac83 t^{\\frac52}$", "$6t^{\\frac32}$"], ans: 0, why: "$4 \\times \\frac32 t^{\\frac12}$." }
+  ]
+};
+
+/* @@M7.5@@ */
 
 /* the exam-tagged worked cards above are this section's past-paper
    practice: derive the self-marking exam items from them once */
