@@ -362,9 +362,14 @@ Claude Design and comes back as a handoff, the way Graphite did.
   125 derived exam items, every number checked with scipy; smoke63 guards
   it. Mechanics was renamed from S6–S9 to **M6–M9** first (Paper 3 sections
   6–9 keep their numbers; the "S" read as Statistics), with stored state
-  migrated at the store's gate. **Mechanics M6–M9 at depth is next**: it
-  still uses the outline in `maths-applied.js`, and its packs are under
-  `Topic Practice/Maths — our compilation/Mechanics/`.
+  migrated at the store's gate.
+- **Status (1 October 2026, branch `feat/mech-depth`):** Mechanics is done —
+  `maths-mech-m7.js` (M6.1, M7.1–M7.5), `maths-mech-m8.js` (M8.1–M8.6) and
+  `maths-mech-m9.js` (M9.1): 13 leaves, 59 pages, 125 worked examples (every
+  Mechanics question in the Topic Practice packs, Specimen to June 2025),
+  91 derived exam items, 46 force, motion and projectile diagrams, every
+  number recomputed. `maths-applied.js` is retired; smoke63 guards both
+  halves. Not yet merged or deployed. Phase 4 is then complete.
 
 ---
 

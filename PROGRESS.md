@@ -30,6 +30,25 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## On `feat/mech-depth` (1 October 2026) — Mechanics at full depth
+
+Roadmap Phase 4, Mechanics half. Not yet merged or deployed.
+
+- The 13 Mechanics leaves are paged notes in `js/data/content/maths-mech-m7.js`
+  (M6.1 units and modelling, M7.1–M7.5 kinematics), `maths-mech-m8.js`
+  (M8.1–M8.6 forces and Newton's laws) and `maths-mech-m9.js` (M9.1
+  moments), built like Pure and Statistics: overview, concept pages, worked
+  examples for every Mechanics question in the Topic Practice packs (AS
+  Paper 2 and A-level Paper 3, Specimen to June 2025) with M1/A1/B1 marks,
+  diagrams drawn from the numbers (velocity-time graphs, projectile paths,
+  force diagrams on floors and slopes, pulleys, ladders and hinged beams),
+  an exam toolkit, flashcards and quizzes; 91 exam items derived from the
+  worked cards. Every number was recomputed (sympy).
+- `maths-applied.js` is retired: Mechanics no longer has an outline file.
+  smoke50 checks both banks load after their notes; smoke63 checks every
+  Statistics and Mechanics leaf.
+- Smoke gate 64/64.
+
 ## Released 1 October 2026 — Statistics at full depth
 
 Roadmap Phase 4, Statistics half. Merged to `main` as `fdc954a` and deployed
