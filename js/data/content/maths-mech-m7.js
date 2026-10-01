@@ -35,7 +35,7 @@ function vertFig(levels, o) {
   var lo = o.lo, hi = o.hi, top = 22, bot = (o.h || 260) - 24;
   function Yp(h) { return bot - (h - lo) / (hi - lo) * (bot - top); }
   var it = [{ line: [[60, Yp(lo)], [60, Yp(hi)]], c: "line", w: 1.2 }];
-  if (o.ground != null) it.push({ line: [[20, Yp(o.ground)], [o.w ? o.w - 20 : 380, Yp(o.ground)]], c: "muted", w: 2 });
+  if (o.ground != null) it.push({ line: [[o.gx || 20, Yp(o.ground)], [o.w ? o.w - 20 : 380, Yp(o.ground)]], c: "muted", w: 2 });
   levels.forEach(function (l) {
     it.push({ line: [[54, Yp(l[0])], [66, Yp(l[0])]], c: "text2", w: 1.4 });
     it.push({ text: [72, Yp(l[0])], t: l[1], pos: "e", size: 12, c: l[2] || "text", off: 2 });
@@ -197,7 +197,7 @@ C["maths:M6.1"] = {
       { line: [[448, 55], [448, 110]], c: "text2", w: 1.4 },
       { vec: [[412, 95], [412, 70]], label: "T", lpos: 0.5, loff: 10 },
       { vec: [[448, 95], [448, 70]], label: "T", lpos: 0.5, loff: -10 },
-      { text: [430, 22], t: "smooth pulley, light string", b: true, size: 12.5, c: "text" },
+      { text: [430, 22], t: "smooth pulley", b: true, size: 12.5, c: "text" },
       { text: [430, 160], t: "same tension both sides", size: 11, c: "muted" }
     ], cap: "Three of the standard model words, drawn: what each lets you assume." } },
     { h: "3.1  Refinements that score — and the ones that do not" },
@@ -347,13 +347,13 @@ C["maths:M7.1"] = {
     ] },
     { fig: { w: 520, h: 150, items: [
       { line: [[30, 70], [500, 70]], arrow: true, c: "line", w: 1.4 },
-      { pt: [130, 70], label: "O", pos: "s", r: 3.5, c: "muted", i: false },
-      { pt: [210, 70], label: "start x = 2", pos: "s", r: 3.5, c: "accent", i: false },
-      { pt: [370, 70], label: "turns at x = 6", pos: "s", r: 3.5, c: "accent2", i: false },
-      { pt: [90, 70], label: "ends at x = −1", pos: "s", r: 3.5, c: "accent3", i: false },
-      { line: [[210, 50], [370, 50]], arrow: true, c: "accent2", w: 2, label: "4 m", loff: -10 },
-      { line: [[370, 34], [90, 34]], arrow: true, c: "accent3", w: 2, label: "7 m", loff: -10 },
-      { line: [[210, 118], [90, 118]], arrow: true, c: "accent", w: 2.2, label: "displacement −3 m", loff: 12 }
+      { pt: [150, 70], label: "O", pos: "n", r: 3.5, c: "muted", i: false },
+      { pt: [230, 70], label: "start x = 2", pos: "s", r: 3.5, c: "accent", i: false },
+      { pt: [390, 70], label: "turns at x = 6", pos: "s", r: 3.5, c: "accent2", i: false },
+      { pt: [110, 70], label: "ends at x = −1", pos: "s", r: 3.5, c: "accent3", i: false },
+      { line: [[230, 46], [390, 46]], arrow: true, c: "accent2", w: 2, label: "4 m", loff: -10 },
+      { line: [[390, 28], [110, 28]], arrow: true, c: "accent3", w: 2, label: "7 m", loff: 10 },
+      { line: [[230, 122], [110, 122]], arrow: true, c: "accent", w: 2.2, label: "displacement −3 m", loff: -12 }
     ], cap: "A particle moves from $x = 2$ to $x = 6$ and back to $x = -1$. Distance travelled $4 + 7 = 11$ m; displacement $-1 - 2 = -3$ m." } },
     { callout: { t: "memorise", h: "Choose a positive direction — and keep it", body: "Before any equation, say which way is positive (\"take upwards as positive\"). Every displacement, velocity and acceleration then carries its sign: a ball thrown up at 14.7 m s$^{-1}$ under gravity has $u = +14.7$, $a = -9.8$; a point below the start has $s < 0$." } },
     { callout: { t: "miscon", h: "\"Decelerating\" is not \"moving backwards\"", body: "Deceleration means the speed is falling: the acceleration points against the velocity. A car braking while moving forwards has $v > 0$, $a < 0$. Moving backwards is $v < 0$." } },
@@ -376,8 +376,8 @@ C["maths:M7.1"] = {
         { h: "Add the pieces", m: "$11.025 + 30.625 = 41.65 \\approx 41.7$ m", mk: "M1 A1", n: "Or $2 \\times 11.025 + 19.6$: up to the top, back to $A$, then 19.6 m below. Not 19.6 — that is the displacement." }
       ], result: "(a) $T = 3$ (b) 41.7 m (or 42 m)" } },
     { fig: vertFig([[11.025, "top: 11.025 m above A, t = 1.5"], [0, "A: t = 0 and t = 3"], [-19.6, "t = 4: 19.6 m below A", "accent3"]],
-      { lo: -21, hi: 13, h: 250, w: 420,
-        paths: [[150, 0, 11.025, "up 11.025", "accent"], [195, 11.025, -19.6, "down 30.625", "accent2"]],
+      { lo: -21, hi: 13, h: 250, w: 480,
+        paths: [[310, 0, 11.025, "up 11.025", "accent"], [370, 11.025, -19.6, "down 30.625", "accent2"]],
         cap: "Distance 41.65 m is the length of both arrows; the displacement at $t = 4$ is only $-19.6$ m." }) },
     { worked: { tag: "exam", title: "How high is the start? A negative displacement", src: "AS June 2023 · P2 Q2(a) · 3 marks",
       q: "A small stone is projected vertically upwards with speed 39.2 m s$^{-1}$ from a point $O$. The stone is modelled as a particle moving freely under gravity from when it is projected until it hits the ground 10 s later. Using the model, find the height of $O$ above the ground.",
@@ -558,7 +558,7 @@ C["maths:M7.2"] = {
         { h: "(c) The area does not depend on $T$", m: "The area of a triangle with base 120 and height 25 is 1500 wherever the peak is,", mk: "B1" },
         { m: "so any $T$ with $0 < T < 120$ fits the model (the accelerations change but the distance does not).", mk: "B1" }
       ], result: "(b) $V = 25$" } },
-    { fig: vtFig([[0, 0], [40, 25], [120, 0]], { area: true, xt: [{ v: 40, label: "T" }, 120], yt: [{ v: 25, label: "V = 25" }],
+    { fig: vtFig([[0, 0], [40, 25], [120, 0]], { area: true, xt: [{ v: 40, label: "T" }, 120], yt: [25],
       extra: [{ line: [[0, 0], [90, 25]], c: "muted", dash: true }, { line: [[90, 25], [120, 0]], c: "muted", dash: true }, { text: [60, 8], t: "area 1500", c: "text2", b: true }],
       cap: "Moving the peak (dashed) keeps base 120 and height 25: the same 1500 m, a different $T$." }) },
     { worked: { tag: "exam", title: "Accelerate, cruise, decelerate: the total time", src: "AS June 2018 · P2 Q7(a)(b) · 6 marks",
@@ -580,8 +580,8 @@ C["maths:M7.2"] = {
         { h: "(d) Deceleration runs from 540 s to 700 s", m: "deceleration $= \\dfrac{25}{160}$; $\\; 572 - 540 = 32$ s into it: $\\; v = 25 - 32 \\times \\dfrac{25}{160}$", mk: "M1" },
         { m: "$v = 20$ m s$^{-1}$", mk: "A1", n: "Or by similar triangles: 128 s before the end, $\\frac{128}{160} \\times 25$." }
       ], result: "(c) 0.625 m s$^{-2}$ (d) 20 m s$^{-1}$" } },
-    { fig: vtFig([[0, 0], [40, 25], [540, 25], [700, 0]], { area: true, xt: [40, 540, 572, 700], yt: [20, 25],
-      extra: [{ line: [[572, 0], [572, 20]], c: "accent2", dash: true }, { pt: [572, 20], label: "20", pos: "ne", c: "accent2", i: false }],
+    { fig: vtFig([[0, 0], [40, 25], [540, 25], [700, 0]], { area: true, xt: [40, 540, 700], yt: [20, 25],
+      extra: [{ line: [[572, 0], [572, 20]], c: "accent2", dash: true }, { pt: [572, 20], label: "t = 572: 20", pos: "w", c: "accent2", i: false }],
       cap: "AS June 2022: accelerate 40 s, cruise 500 s, decelerate 160 s. At 572 s the speed is 20 m s$^{-1}$." }) },
     { worked: { tag: "exam", title: "The total time from the distance", src: "AS June 2025 · P2 Q1(a) · 3 marks",
       q: "A runner travels along a straight horizontal road from $A$ to $B$, 400 m. In a model the runner starts from rest at $A$, moves with constant acceleration for 5 s reaching 5 m s$^{-1}$, travels at a constant 5 m s$^{-1}$, then moves with constant deceleration for 15 s until coming to rest at $B$, taking $T$ seconds in all. Find $T$.",
@@ -598,8 +598,9 @@ C["maths:M7.2"] = {
         { m: "$45 + 36 + 6T - 30 = 550 \\Rightarrow 6T = 499$", mk: "M1" },
         { m: "$T = 83.2 \\approx 83$", mk: "A1" }
       ], result: "(a) 30 m s$^{-1}$ (c) $T = 83$" } },
-    { fig: vtFig([[0, 0], [3, 30], [5, 6], [83.17, 6]], { area: true, xt: [3, 5, { v: 83.17, label: "T" }], yt: [6, 30], yl: "speed (m s⁻¹)",
-      cap: "AS June 2019: area $45 + 36 + 6(T - 5) = 550$." }) },
+    { fig: vtFig([[0, 0], [3, 30], [5, 6], [28, 6]], { area: true, xt: [3, 5], yt: [6, 30], yl: "speed (m s⁻¹)", x: [0, 31],
+      extra: [{ text: [17, 10], t: "6 m s⁻¹ until t = T (83 s)", c: "accent2", size: 12 }],
+      cap: "AS June 2019 (time axis cut short): area $45 + 36 + 6(T - 5) = 550$." }) },
 
     /* ---------------------------------------------------------------- Page 4 */
     { page: "Unknowns and comparisons" },
@@ -613,9 +614,9 @@ C["maths:M7.2"] = {
         { h: "(d) Sam takes $X$ s to reach $X$ m s$^{-1}$ (acceleration 1)", m: "$\\tfrac12 \\times X \\times X + X(27.5 - X) = 100$", mk: "M1 A1ft A1ft" },
         { m: "$X^2 - 55X + 200 = 0 \\Rightarrow X = \\dfrac{55 - \\sqrt{2225}}{2} = 3.92$", mk: "A1", n: "The other root, 51.1, would mean accelerating for longer than the race." }
       ], result: "(b) 0.8 m s$^{-2}$ (c) 100 m (d) 3.92" } },
-    { fig: vtFig([[0, 0], [5, 4], [27.5, 4]], { xt: [3.92, 5, 27.5], yt: [3.92, 4],
+    { fig: vtFig([[0, 0], [5, 4], [27.5, 4]], { xt: [5, 27.5], yt: [4],
       extra: [{ line: [[0, 0], [3.915, 3.915]], c: "accent2", w: 2.4 }, { line: [[3.915, 3.915], [27.5, 3.915]], c: "accent2", w: 2.4 },
-        { text: [16, 4.5], t: "Pat (P)", c: "accent", b: true, size: 12 }, { text: [16, 3.3], t: "Sam (S)", c: "accent2", b: true, size: 12 }],
+        { text: [16, 4.5], t: "Pat (P)", c: "accent", b: true, size: 12 }, { text: [16, 3.3], t: "Sam (S): X = 3.92", c: "accent2", b: true, size: 12 }],
       y: [0, 5.2], cap: "Equal areas, 100 m each: Sam's lower top speed is reached sooner." }) },
     { worked: { tag: "exam", title: "A sprint: distance so far, then the finishing speed", src: "A-level June 2024 · P3 Q2(b)(c) · 6 marks",
       q: "A speed-time graph models an athlete running a 200 m race in 24 s. The athlete starts from rest at $t = 0$, accelerates at a constant rate to 10 m s$^{-1}$ at $t = 4$, runs at 10 m s$^{-1}$ from $t = 4$ to $t = 18$, then decelerates at a constant rate from $t = 18$ to $t = 24$, crossing the finishing line with speed $U$ m s$^{-1}$. Using the model, **(b)** find the distance covered during the first 18 s, **(c)** find $U$.",
@@ -757,8 +758,9 @@ C["maths:M7.3"] = {
       "At the top $v = 0$. Times up and down to the same level are equal, and the speed back at the start equals the launch speed."
     ] } },
     { fig: vertFig([[11.025, "top: v = 0"], [0, "A: u = 14.7 m s⁻¹ up"], [-19.6, "ground: s = −19.6", "accent3"]],
-      { lo: -21, hi: 13, h: 240, w: 420, ground: -19.6,
-        paths: [[150, 0, 11.025, "a = −9.8 all the way", "accent2"], [210, 11.025, -19.6, "", "accent"]],
+      { lo: -21, hi: 13, h: 240, w: 460, ground: -19.6, gx: 250,
+        paths: [[300, 0, 11.025, "up", "accent2"], [350, 11.025, -19.6, "down", "accent"]],
+        extra: [{ text: [380, 40], t: "a = −9.8 throughout", pos: "e", c: "accent3", b: true, size: 12 }],
         cap: "AS Specimen: up positive, the ground is at $s = -19.6$ for the whole flight. One equation covers the whole motion." }) },
     { worked: { tag: "exam", title: "Impact speed in one equation; then the height after the bounce", src: "AS Specimen · P2 Q1(a)(b) · 5 marks",
       q: "A small ball is projected vertically upwards from a point $A$ which is 19.6 m above the ground. It strikes the ground for the first time 4 s later. The ball is modelled as a particle moving freely under gravity. **(a)** Find the speed of the ball as it hits the ground for the first time. The ball rebounds with a vertical speed of 14.7 m s$^{-1}$ and next comes to instantaneous rest at $B$. **(b)** Find the height of $B$ above the ground.",
@@ -883,8 +885,7 @@ C["maths:M7.3"] = {
         { param: { x: "44-16*t+1.2*t^2", y: "-10-3*t+0.5*t^2" }, t: [0, 10.5], c: "accent", w: 2.2 },
         { pt: [44, -10], label: "A (t = 0)", pos: "s", i: false },
         { pt: [-6, -12.5], label: "B (t = 5)", pos: "s", i: false },
-        { pt: [4, 10], label: "C (t = 10)", pos: "e", i: false },
-        { pt: [-9.33, -14.4], r: 2.5, c: "muted" }
+        { pt: [4, 10], label: "C (t = 10)", pos: "e", i: false }
       ], cap: "A-level June 2023 Q4: the particle heads west, is turned round by the acceleration and passes $C(4, 10)$ at $t = 10$. The time $\\frac{10}{3}$ is the first pass through $x = 4$, rejected because it is before $B$." } },
 
     /* ---------------------------------------------------------------- Exam toolkit */
@@ -1043,7 +1044,7 @@ C["maths:M7.4"] = {
       "3. Add the **magnitudes**. One integral straight across the interval gives the displacement — the areas below the axis cancel the ones above."
     ] } },
     { fig: { x: [0, 6.6], y: [-28, 4], w: 500, h: 240,
-      axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [4, 6], yt: [-24, -10, 1] },
+      axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [4, 6], yt: [-24, -10] },
       items: [
         { shade: { fn: "10*x-x^2-24", from: 0, to: 4 }, c: "accent2", alpha: 0.3 },
         { shade: { fn: "10*x-x^2-24", from: 4, to: 6 }, c: "accent3", alpha: 0.45 },
@@ -1185,7 +1186,7 @@ C["maths:M7.4"] = {
         { h: "Parallel to $-\\mathbf i - 27\\mathbf j$", m: "$\\dfrac{\\frac34 T^{-\\frac32}}{\\frac34} = \\dfrac{1}{27} \\Rightarrow T^{\\frac32} = 27$", mk: "M1" },
         { m: "$T = 9$", mk: "A1" }
       ], result: "(b) 3.09 m s$^{-1}$ (c) $T = 9$" } },
-    { fig: { x: [0, 10], y: [-10, 1.5], w: 480, h: 250,
+    { fig: { x: [0, 10], y: [-10, 1.5], w: 480, h: 250, aspect: "equal",
       axes: { x: "x (east, m)", y: "y (north, m)", xt: [3, 6, 9], yt: [-9, -6, -3] },
       items: [
         { param: { x: "3*sqrt(t)", y: "-0.375*t^2" }, t: [1, 5], c: "accent", w: 2.4 },
@@ -1350,8 +1351,10 @@ C["maths:M7.5"] = {
       ], result: "(c) 36 m" } },
     { fig: { x: [0, 52], y: [0, 42], w: 480, h: 250, axes: { x: "x (m)", y: "y (m)", xt: [20, 40], yt: [20, 36] },
       items: [
-        { param: { x: "19.799*t", y: "19.799*t-4.9*t^2" }, t: [0, 2.6], c: "accent2", w: 2.2, label: "tan α = 1", pos: "e" },
-        { param: { x: "8.854*t", y: "26.563*t-4.9*t^2" }, t: [0, 5.35], c: "accent", w: 2.4, label: "tan α = 3", pos: "w" },
+        { param: { x: "19.799*t", y: "19.799*t-4.9*t^2" }, t: [0, 2.6], c: "accent2", w: 2.2 },
+        { param: { x: "8.854*t", y: "26.563*t-4.9*t^2" }, t: [0, 5.35], c: "accent", w: 2.4 },
+        { text: [30, 10], t: "tan α = 1", c: "accent2", b: true, size: 12 },
+        { text: [8, 30], t: "tan α = 3", c: "accent", b: true, size: 12 },
         { pt: [40, 20], label: "A (40, 20)", pos: "e", i: false },
         { hline: 36, c: "accent", label: "36 m" }
       ], cap: "A-level June 2023: two launch angles reach $A$. The steep one rises to 36 m first; the shallow one has $A$ as its top." } },
@@ -1383,7 +1386,7 @@ C["maths:M7.5"] = {
         { m: "$h = \\dfrac{392}{19.6} = 20$, so $25 + 20 = 45$ m", mk: "A1" }
       ], result: "(b) 45 m" } },
     { fig: projFig(19.799, 19.799, 25, 5.0508, { xt: [50, 100], yt: [25, 45], h: 230, ulabel: "U",
-      extra: [{ pt: [0, 25], label: "O", pos: "w", i: false }, { pt: [0, 0], label: "N", pos: "sw", i: false }, { pt: [100, 0], label: "A", pos: "n", i: false }, { hline: 45, c: "accent2", label: "45 m" }],
+      extra: [{ pt: [0, 25], label: "O", pos: "se", i: false }, { pt: [0, 0], label: "N", pos: "sw", i: false }, { pt: [100, 0], label: "A", pos: "n", i: false }, { hline: 45, c: "accent2", label: "45 m" }],
       cap: "A-level Oct 2020: from the cliff top, up 20 m, then down 45 m to $A$." }) },
     { worked: { tag: "exam", title: "Time to land; speed on landing ($g = 10$)", src: "A-level Oct 2021 · P3 Q4(a)(b) · 9 marks",
       q: "A small stone is projected with speed 65 m s$^{-1}$ from a point $O$ at the top of a vertical cliff, 70 m vertically above the point $N$ on horizontal ground. It is projected at an angle $\\alpha$ above the horizontal, where $\\tan\\alpha = \\frac{5}{12}$, and hits the ground at $A$. The stone is modelled as a particle moving freely under gravity, with $g = 10$ m s$^{-2}$. Find **(a)** the time taken for the stone to travel from $O$ to $A$, **(b)** the speed of the stone just before it hits the ground at $A$.",
