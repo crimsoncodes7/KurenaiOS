@@ -434,7 +434,294 @@ C["maths:M8.3"] = {
   ]
 };
 
-/* @@M8.4@@ */
+/* =====================================================================
+   M8.4  Newton's third law, connected particles and equilibrium
+   ===================================================================== */
+C["maths:M8.4"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Newton's third law and connected particles — the whole topic on one page" },
+    "Spec 8.4: understand and use **Newton's third law**; equilibrium of forces on a particle and motion in a straight line; application to problems involving **smooth pulleys and connected particles** (including particles in contact, e.g. lifts); resolving forces in 2 dimensions; **equilibrium of a particle under coplanar forces**.",
+    "The single most frequent AS Mechanics question:",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["Write an equation of motion for each particle", "2–4", "AS Nov 2021 Q3(a), AS 2025 Q3(a), A-level Oct 2021 Q2(a)"],
+      ["Show the acceleration; find the tension", "3–7", "AS 2018 Q9, 2019 Q2, 2020 Q2, 2025 Q3, Specimen Q3; A-level Oct 2021 Q2"],
+      ["Find a mass or a ratio $k$", "4–6", "AS Specimen Q3, AS 2018 Q9(c)"],
+      ["Force exerted on the pulley ($2T$)", "8", "AS June 2020 Q2"],
+      ["After the string goes slack: second stage (free motion or constant speed)", "4–7", "AS 2019 Q2(b), Nov 2021 Q3(b), 2025 Q3(d)"],
+      ["Car and trailer: towbar/rope tension, resistance, then the bar breaks", "6–12", "AS 2023 Q4, 2024 Q4"],
+      ["Lift: reaction between the block and the floor (third law)", "3", "AS June 2022 Q4(b)"],
+      ["One particle on a rough slope, one hanging", "12", "A-level Oct 2021 Q2"],
+      ["Limitations: light string, smooth pulley, inextensible", "1", "nearly all of these"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**Newton's third law** — action and reaction.",
+      "**Equilibrium of a particle** — resolving coplanar forces.",
+      "**Pulleys** — hanging, on a table, on a slope; force on the pulley.",
+      "**When the string goes slack** — the second stage.",
+      "**Towing and lifts**.",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "Newton's third law" },
+    { callout: { t: "def", h: "Newton's third law", body: "When body $A$ exerts a force on body $B$, $B$ exerts a force on $A$ that is **equal in magnitude and opposite in direction**. The two forces act on **different** bodies, so they never cancel in one equation of motion." } },
+    { kv: [
+      ["Block on a lift floor", "the floor pushes the block up with $R$; the block pushes the floor down with $R$"],
+      ["Towbar between car and trailer", "it pulls the trailer forward with $T$ and the car backward with $T$ (tension); when braking it may push both ways (thrust)"],
+      ["String over a smooth pulley", "pulls each particle towards the pulley with $T$; pulls the pulley with $T$ along **each** part"]
+    ] },
+    { callout: { t: "memorise", h: "Two ways to find the acceleration", body: [
+      "**Separate**: one equation per particle, each containing the tension; add them to eliminate $T$.",
+      "**Whole system** (when the particles move along one line, e.g. a car and trailer): internal forces cancel — external forces $= (\\text{total mass}) \\times a$. Then one separate equation for the tension.",
+      "Over a pulley the directions turn, so use separate equations."
+    ] } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "Equilibrium of a particle" },
+    "A particle at rest under several coplanar forces: **resolve in two perpendicular directions** and set each sum to zero. Choose directions that kill an unknown (along a slope and perpendicular to it, or horizontal and vertical).",
+    { fig: { w: 460, h: 220, items: [].concat(
+      [{ line: [[60, 30], [400, 30]], c: "text2", w: 2.5 }],
+      [{ line: [[100, 30], [230, 105]], c: "text2", w: 1.6 }, { line: [[360, 30], [230, 105]], c: "text2", w: 1.6 }],
+      [{ circle: [230, 105, 6], fill: "accent", alpha: 0.8, c: "accent" }],
+      F(230, 105, 150, 70, "T₁", { c: "accent" }),
+      F(230, 105, 30, 80, "T₂", { c: "accent" }),
+      F(230, 105, 270, 70, "20 N", { c: "accent2", dx: 22 }),
+      [{ arc: [100, 30, 36, 300, 330], label: "30°", c: "accent3", loff: 14 }, { arc: [360, 30, 36, 210, 240], label: "30°", c: "accent3", loff: 14 }]
+    ), cap: "Resolve horizontally and vertically: the horizontal parts of the tensions balance; their vertical parts hold up the weight." } },
+    { worked: { tag: "variation", title: "A weight held by two strings", q: "A particle of weight 20 N hangs in equilibrium from two light strings attached to a horizontal ceiling. One string makes 30° with the horizontal, the other 60°. Find the tensions.",
+      steps: [
+        { h: "Horizontal", m: "$T_1\\cos30° = T_2\\cos60° \\Rightarrow T_2 = \\sqrt3\\,T_1$" },
+        { h: "Vertical", m: "$T_1\\sin30° + T_2\\sin60° = 20 \\Rightarrow \\tfrac12 T_1 + \\tfrac32 T_1 = 20$" },
+        { m: "$T_1 = 10$ N, $\\; T_2 = 10\\sqrt3 = 17.3$ N", n: "The steeper string carries more of the weight." }
+      ], result: "10 N and 17.3 N" } },
+    { worked: { tag: "variation", title: "Three forces in equilibrium: find $P$ and $\\theta$", q: "A particle is in equilibrium under three forces: 8 N due east, 6 N due north, and a force $P$ N at angle $\\theta$ south of west. Find $P$ and $\\theta$.",
+      steps: [
+        { h: "$P$ must cancel the other two", m: "$P\\cos\\theta = 8$ (west), $\\; P\\sin\\theta = 6$ (south)" },
+        { m: "$P = \\sqrt{64 + 36} = 10$ N, $\\; \\theta = \\tan^{-1}\\frac68 = 36.9°$" }
+      ], result: "$P = 10$, $\\theta = 36.9°$ south of west" } },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "Pulleys" },
+    { callout: { t: "memorise", h: "The pulley model", body: [
+      "**Light, inextensible string**: the tension is the same all along it, and both particles move with the **same speed and the same size of acceleration**.",
+      "**Smooth pulley**: the tension is the same on both sides.",
+      "Each particle's equation uses its **own** direction of motion as positive.",
+      "The force on a pulley from the string is the resultant of the two tensions: $2T$ if both parts are parallel."
+    ] } },
+    { fig: { w: 520, h: 250, items: [].concat(
+      [{ poly: [[30, 120], [330, 120], [330, 240], [30, 240]], fill: "muted", alpha: 0.08, c: "text2", w: 1.6 }],
+      [box(150, 104, 56, 32, 0, { fill: "accent" }), { text: [150, 104], t: "P", b: true, c: "text" }],
+      [{ circle: [345, 120, 15], c: "text2", w: 1.8 }, { line: [[178, 105], [345, 105]], c: "text2", w: 1.4 }, { line: [[360, 120], [360, 200]], c: "text2", w: 1.4 }],
+      [box(360, 214, 34, 30, 0, { fill: "accent2" }), { text: [360, 214], t: "Q", b: true, c: "text" }],
+      F(178, 104, 0, 60, "T", { c: "accent", dy: -10 }),
+      F(360, 199, 90, 50, "T", { c: "accent", dx: 14, dy: 20 }),
+      F(360, 229, 270, 18, "3g", { c: "accent2", dx: 20, dy: 0 }),
+      F(150, 120, 270, 40, "2g", { c: "accent2", dx: 18 }),
+      F(150, 88, 90, 40, "R", { c: "text2" }),
+      [{ vec: [[440, 150], [440, 210]], c: "text2", w: 1.6 }, { text: [470, 180], t: "a", i: true, c: "text2" }, { vec: [[80, 70], [140, 70]], c: "text2", w: 1.6 }, { text: [110, 56], t: "a", i: true, c: "text2" }]
+    ), cap: "AS June 2025: $P$ (2 kg) on a smooth table, $Q$ (3 kg) hanging. Same $T$, same $a$, each in its own direction." } },
+    { worked: { tag: "exam", title: "On a smooth table: equation, acceleration, impact speed, time to the pulley", src: "AS June 2025 · P2 Q3 · 11 marks",
+      q: "A package $P$ of mass 2 kg is held at rest on a horizontal table, 1.2 m from a pulley fixed at the edge. A thin rope attached to $P$ passes over the pulley to a package $Q$ of mass 3 kg hanging freely, 0.4 m above a horizontal floor; the rope is taut. $P$ is released and $Q$ moves down. In an initial model the table is smooth, the packages are particles, air resistance is negligible, the pulley is small and smooth and the rope light and inextensible. **(a)** Write down an equation of motion for $Q$. **(b)** Find the acceleration of $Q$. **(c)** Find the speed of $Q$ when it hits the floor. $K$ seconds after $Q$ hits the floor, $P$ hits the pulley. **(d)** Find $K$. In a refinement a resistance acts against the motion of $P$. **(e)** State, with a reason, how the new acceleration of $Q$ compares with (b). **(f)** Suggest one further refinement, apart from air resistance.",
+      steps: [
+        { h: "(a) $Q$, down positive", m: "$3g - T = 3a$", mk: "M1 A1" },
+        { h: "(b) $P$: $T = 2a$; add", m: "$3g = 5a$", mk: "M1 A1" },
+        { m: "$a = 5.88$ m s$^{-2}$", mk: "A1" },
+        { h: "(c) $Q$ falls 0.4 m", m: "$v^2 = 2 \\times 5.88 \\times 0.4 = 4.704$", mk: "M1" },
+        { m: "$v = 2.17$ m s$^{-1}$", mk: "A1" },
+        { h: "(d) The rope goes slack; the table is smooth", m: "$P$ moves the remaining $1.2 - 0.4 = 0.8$ m at a constant 2.17 m s$^{-1}$: $\\; K = \\dfrac{0.8}{2.17}$", mk: "M1" },
+        { m: "$K = 0.37$", mk: "A1" },
+        { h: "(e)", m: "**Less** — the resistance opposes $P$'s motion, so the resultant force on the system, and its acceleration, are smaller.", mk: "B1" },
+        { h: "(f)", m: "e.g. the table is rough (friction); the pulley is not smooth; the rope has mass; the packages have size.", mk: "B1" }
+      ], result: "(b) 5.88 m s$^{-2}$ (c) 2.17 m s$^{-1}$ (d) 0.37" } },
+    { worked: { tag: "exam", title: "Show the acceleration is 4.2; time for $P$ to reach the pulley", src: "AS June 2019 · P2 Q2(a)(b) · 11 marks",
+      q: "A small ball $P$ of mass 0.8 kg is held at rest on a smooth horizontal table, attached to a thin rope that passes over a pulley at the edge of the table to a ball $Q$ of mass 0.6 kg hanging freely. $P$ is released from rest with the rope taut, 1.5 m from the pulley, with $Q$ 0.4 m above the floor. $Q$ hits the floor and does not rebound. The balls are particles, the rope light and inextensible, the pulley small and smooth. **(a)** Show that the acceleration of $Q$ as it falls is 4.2 m s$^{-2}$. **(b)** Find the time taken by $P$ to hit the pulley from the instant it is released.",
+      steps: [
+        { h: "(a) $Q$ (down)", m: "$0.6g - T = 0.6a$", mk: "M1 A1" },
+        { h: "$P$ (towards the pulley)", m: "$T = 0.8a$", mk: "M1 A1" },
+        { m: "$0.6g = 1.4a \\Rightarrow a = \\dfrac{0.6 \\times 9.8}{1.4} = 4.2$ m s$^{-2}$", mk: "A1*" },
+        { h: "(b) Stage 1: $Q$ falls 0.4 m", m: "$0.4 = \\tfrac12 \\times 4.2\\,t_1^2 \\Rightarrow t_1 = 0.436$ s", mk: "M1 A1" },
+        { m: "speed then: $v = 4.2 \\times 0.436 = 1.83$ m s$^{-1}$ (or $v^2 = 2 \\times 4.2 \\times 0.4$)", mk: "M1 A1" },
+        { h: "Stage 2: slack rope, smooth table — constant speed for 1.1 m", m: "$t_2 = \\dfrac{1.1}{1.83} = 0.600$ s", mk: "M1" },
+        { m: "total $= 0.436 + 0.600 = 1.04$ s", mk: "A1" }
+      ], result: "(b) 1.04 s" } },
+    { worked: { tag: "exam", title: "Rough table with a resistance: tension, mass, time ($g = 10$)", src: "AS Specimen · P2 Q3(a)–(c) · 9 marks",
+      q: "A ball $P$ of mass 0.4 kg rests on a rough horizontal table, attached to a rope that passes over a pulley at the edge of the table to a ball $Q$ of mass $M$ kg hanging freely. Released from rest with the rope taut and $Q$ 2 m above the ground, $Q$ moves down with acceleration 2.5 m s$^{-2}$; $P$ does not reach the pulley first. The balls are particles, the rope light and inextensible, the pulley small and smooth; the total resistance to the motion of $P$ is a constant 1.5 N; $g = 10$ m s$^{-2}$. Find, to 2 s.f., **(a)** (i) the tension in the rope, (ii) $M$; **(b)** the time for $Q$ to hit the ground. **(c)** State one limitation of the model that will affect the accuracy of (a).",
+      steps: [
+        { h: "(a)(i) $P$", m: "$T - 1.5 = 0.4 \\times 2.5$", mk: "M1 A1" },
+        { m: "$T = 2.5$ N", mk: "A1" },
+        { h: "(ii) $Q$", m: "$10M - 2.5 = 2.5M$", mk: "B1 M1" },
+        { m: "$M = \\dfrac{2.5}{7.5} = 0.33$", mk: "A1" },
+        { h: "(b)", m: "$2 = \\tfrac12 \\times 2.5\\,t^2$", mk: "DM1" },
+        { m: "$t = 1.3$ s", mk: "A1" },
+        { h: "(c)", m: "e.g. the resistance to $P$'s motion will not be constant; the rope will have weight; the pulley will not be smooth.", mk: "B1" }
+      ], result: "(a) 2.5 N, 0.33 (b) 1.3 s" } },
+    { worked: { tag: "exam", title: "Both hanging: tension in terms of $m$ and $g$; the ratio $k$", src: "AS June 2018 · P2 Q9(a)–(d) · 9 marks",
+      q: "Two small balls $P$ and $Q$ have masses $2m$ and $km$, where $k < 2$. They are attached to the ends of a string passing over a fixed pulley and held at rest with the string taut and the hanging parts vertical. Released, $P$ moves downwards with acceleration of magnitude $\\frac{g}{5}$. The balls are particles moving freely, the string light and inextensible, the pulley small and smooth. **(a)** Find the tension in terms of $m$ and $g$. **(b)** Explain why $Q$'s acceleration also has magnitude $\\frac{g}{5}$. **(c)** Find $k$. **(d)** Identify one limitation of the model that will affect the accuracy of (c).",
+      steps: [
+        { h: "(a) $P$, down", m: "$2mg - T = 2m \\cdot \\dfrac{g}{5}$", mk: "M1 A1" },
+        { m: "$T = \\dfrac{8mg}{5}$", mk: "A1" },
+        { h: "(b)", m: "The string is **inextensible**, so $P$ and $Q$ move together with the same size of acceleration.", mk: "B1" },
+        { h: "(c) $Q$, up", m: "$T - kmg = km \\cdot \\dfrac{g}{5}$", mk: "M1 A1" },
+        { m: "$\\dfrac{8mg}{5} = \\dfrac{6kmg}{5}$", mk: "M1" },
+        { m: "$k = \\dfrac43$", mk: "A1" },
+        { h: "(d)", m: "e.g. the pulley will not be smooth, so the tensions either side differ; the string is not light; the balls have size.", mk: "B1" }
+      ], result: "(a) $\\frac{8mg}{5}$ (c) $\\frac43$" } },
+    { worked: { tag: "exam", title: "The force exerted on the pulley", src: "AS June 2020 · P2 Q2 · 9 marks",
+      q: "One end of a string is attached to a small ball $P$ of mass $4m$ and the other to a small ball $Q$ of mass $3m$. The string passes over a fixed pulley; $P$ is held at rest with the string taut and the hanging parts vertical, then released. The string is light and inextensible, the balls are particles, the pulley smooth and air resistance ignored. **(a)** Find, in terms of $m$ and $g$, the magnitude of the force exerted on the pulley by the string while $P$ is falling and before $Q$ hits the pulley. **(b)** State one limitation of the model, apart from ignoring air resistance, that will affect the accuracy of (a).",
+      steps: [
+        { h: "(a) $P$, down", m: "$4mg - T = 4ma$", mk: "M1 A1" },
+        { h: "$Q$, up", m: "$T - 3mg = 3ma$", mk: "M1 A1" },
+        { h: "Add", m: "$mg = 7ma \\Rightarrow a = \\dfrac{g}{7}$", mk: "M1 A1" },
+        { m: "$T = 3m\\left(g + \\dfrac{g}{7}\\right) = \\dfrac{24mg}{7}$", mk: "M1" },
+        { h: "Both parts pull the pulley down", m: "force on the pulley $= 2T = \\dfrac{48mg}{7}$", mk: "A1" },
+        { h: "(b)", m: "e.g. the string is not light, or the pulley not smooth, so the tension is not the same on both sides.", mk: "B1" }
+      ], result: "$\\frac{48mg}{7}$" } },
+    { fig: { w: 420, h: 240, items: [].concat(
+      [{ line: [[150, 20], [270, 20]], c: "text2", w: 2.5 }, { line: [[210, 20], [210, 50]], c: "text2", w: 1.6 }, { circle: [210, 64, 16], c: "text2", w: 1.8 }],
+      [{ line: [[194, 64], [194, 180]], c: "text2", w: 1.4 }, { line: [[226, 64], [226, 130]], c: "text2", w: 1.4 }],
+      [box(194, 196, 34, 32, 0, { fill: "accent2" }), { text: [194, 196], t: "4m", size: 11, b: true, c: "text" }],
+      [box(226, 146, 30, 30, 0, { fill: "accent" }), { text: [226, 146], t: "3m", size: 11, b: true, c: "text" }],
+      F(194, 110, 90, 34, "T", { c: "accent", dx: -16 }),
+      F(226, 100, 90, 30, "T", { c: "accent", dx: 16 }),
+      F(300, 70, 270, 70, "2T on the pulley", { c: "accent2", dx: 50, dy: -30 })
+    ), cap: "AS June 2020: the string pulls the pulley down along both parts — $2T = \\frac{48mg}{7}$." } },
+    { worked: { tag: "exam", title: "On a rough slope, one hanging: show $a = \\frac{g}{10}$", src: "A-level Oct 2021 · P3 Q2 · 12 marks",
+      q: "A small stone $A$ of mass $3m$ is attached to one end of a string and a small stone $B$ of mass $m$ to the other. $A$ is held at rest on a fixed rough plane inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac34$. The string passes over a small smooth pulley $P$ at the top of the plane, the part $AP$ parallel to a line of greatest slope, and $B$ hangs freely below $P$. The coefficient of friction between $A$ and the plane is $\\frac16$. $A$ is released and moves down the plane. Modelling the stones as particles and the string as light and inextensible, for the motion before $B$ reaches the pulley, **(a)** write down an equation of motion for $A$, **(b)** show that the acceleration of $A$ is $\\frac{1}{10}g$, **(c)** sketch a velocity-time graph for $B$, explaining your answer. In reality the string is not light. **(d)** State how this would affect the working in (b).",
+      steps: [
+        { h: "(a) $A$, down the plane", m: "$3mg\\sin\\alpha - T - F = 3ma$", mk: "M1 A1" },
+        { h: "(b) Perpendicular to the plane", m: "$R = 3mg\\cos\\alpha = \\dfrac{12mg}{5}$", mk: "M1 A1" },
+        { h: "Sliding", m: "$F = \\tfrac16 R = \\dfrac{2mg}{5}$", mk: "B1" },
+        { h: "$B$, up", m: "$T - mg = ma$", mk: "M1 A1" },
+        { h: "Add", m: "$\\dfrac{9mg}{5} - \\dfrac{2mg}{5} - mg = 4ma \\Rightarrow \\dfrac{2mg}{5} = 4ma$", mk: "DM1" },
+        { m: "$a = \\dfrac{g}{10}$", mk: "A1*" },
+        { h: "(c)", m: "A straight line through the origin with positive gradient,", mk: "B1" },
+        { m: "because $B$ starts from rest and has a constant acceleration $\\frac{g}{10}$.", mk: "B1" },
+        { h: "(d)", m: "The tension would not be the same throughout the string, so the same $T$ could not be used in the equations for $A$ and $B$.", mk: "B1" }
+      ], result: "$a = \\frac{g}{10}$" } },
+    { fig: { w: 520, h: 230, items: (function () {
+      var x0 = 40, y0 = 210, d = 36.87, top = along(x0, y0, d, 330, 0), p = along(x0, y0, d, 200, 18);
+      var it = [].concat(slope(x0, y0, 330 * Math.cos(rad(d)), d, "α"), [box(p[0], p[1], 50, 34, d), { text: [p[0], p[1]], t: "3m", size: 11, b: true, c: "text" }]);
+      it.push({ circle: [top[0] + 4, top[1] - 12, 12], c: "text2", w: 1.6 });
+      it.push({ line: [along(x0, y0, d, 225, 18), [top[0] - 6, top[1] - 20]], c: "text2", w: 1.4 });
+      it.push({ line: [[top[0] + 16, top[1] - 12], [top[0] + 16, top[1] + 80]], c: "text2", w: 1.4 });
+      it.push(box(top[0] + 16, top[1] + 96, 26, 26, 0, { fill: "accent2" }), { text: [top[0] + 16, top[1] + 96], t: "m", b: true, size: 11, c: "text" });
+      it = it.concat(F(p[0], p[1], 180 + d, 60, "F, 3mg sin α", { c: "accent3", dx: -30, dy: 6 }));
+      it = it.concat(F(p[0], p[1], 90 + d, 56, "R", { c: "text2" }));
+      return it;
+    })(), cap: "A-level Oct 2021: $A$ slides down, so friction acts up the slope with the tension; $B$ is pulled up." } },
+
+    /* ---------------------------------------------------------------- Page 4 */
+    { page: "When the string goes slack" },
+    { callout: { t: "memorise", h: "Two stages", body: [
+      "When the falling particle hits the ground (and does not rebound), the string goes **slack**: the tension becomes zero.",
+      "The other particle keeps the speed it had at that instant, then moves under its remaining forces only: **constant speed** on a smooth table; **deceleration $\\mu g$** on a rough one; **free motion under gravity** if it hangs.",
+      "Find the speed at the end of stage 1 with suvat, then start stage 2 from that speed."
+    ] } },
+    { worked: { tag: "exam", title: "Equations of motion; then the height where $P$ comes to rest", src: "AS Nov 2021 · P2 Q3(a)(b)(d) · 12 marks",
+      q: "A ball $P$ of mass $2m$ and a ball $Q$ of mass $5m$ are attached to the ends of a string that passes over a fixed pulley. Held at rest with the string taut and hanging parts vertical, $P$ is at height $2h$ and $Q$ at height $h$ above horizontal ground. Released from rest, $Q$ does not rebound when it hits the ground and $P$ does not hit the pulley. The balls are particles, the string light and inextensible, the pulley small and smooth, air resistance negligible. **(a)** Write down an equation of motion for (i) $P$, (ii) $Q$. **(b)** Find, in terms of $h$ only, the height above the ground at which $P$ first comes to instantaneous rest. In reality the string will not be inextensible. **(d)** State how this would affect the accelerations of the particles.",
+      steps: [
+        { h: "(a)(i) $P$, up", m: "$T - 2mg = 2ma$", mk: "M1 A1" },
+        { h: "(a)(ii) $Q$, down", m: "$5mg - T = 5ma$", mk: "M1 A1" },
+        { h: "(b) Add", m: "$3mg = 7ma \\Rightarrow a = \\dfrac{3g}{7}$", mk: "M1 A1" },
+        { h: "$Q$ falls $h$", m: "$v^2 = 2 \\cdot \\dfrac{3g}{7} \\cdot h = \\dfrac{6gh}{7}$", mk: "M1" },
+        { h: "$P$ is now at $3h$, moving up freely", m: "$0 = \\dfrac{6gh}{7} - 2gs \\Rightarrow s = \\dfrac{3h}{7}$", mk: "M1 A1" },
+        { m: "height $= 3h + \\dfrac{3h}{7} = \\dfrac{24h}{7}$", mk: "M1 A1", n: "$P$ rose $h$ in stage 1 (from $2h$ to $3h$) — forgetting that is the usual slip." },
+        { h: "(d)", m: "The accelerations of $P$ and $Q$ would not be equal in magnitude.", mk: "B1" }
+      ], result: "(b) $\\frac{24h}{7}$" } },
+    { fig: { w: 460, h: 260, items: (function () {
+      var g0 = 230, u = 52, it = [ground(20, 440, g0)];
+      function mark(x, hgt, t, c) { it.push({ line: [[x - 8, g0 - hgt * u], [x + 8, g0 - hgt * u]], c: "text2", w: 1.4 }, { text: [x + 14, g0 - hgt * u], t: t, pos: "e", size: 11.5, c: c || "text", off: 2 }); }
+      it.push({ line: [[120, g0], [120, g0 - 3.6 * u]], c: "line", w: 1 }, { line: [[330, g0], [330, g0 - 1.3 * u]], c: "line", w: 1 });
+      mark(120, 2, "P starts: 2h"); mark(120, 3, "Q lands: P at 3h", "accent2"); mark(120, 24 / 7, "rest: 24h/7", "accent");
+      mark(330, 1, "Q starts: h"); mark(330, 0, "ground", "muted");
+      it.push({ line: [[100, g0 - 2 * u], [100, g0 - 3 * u]], arrow: true, c: "accent2", w: 2 }, { line: [[90, g0 - 3 * u], [90, g0 - 24 / 7 * u]], arrow: true, c: "accent", w: 2 });
+      it.push({ text: [70, g0 - 2.5 * u], t: "a = 3g/7", pos: "w", size: 11, c: "accent2" }, { text: [80, g0 - 3.3 * u], t: "free", pos: "w", size: 11, c: "accent" });
+      return it;
+    })(), cap: "AS Nov 2021: $P$ rises $h$ with the string taut, then $\\frac{3h}{7}$ more under gravity alone." } },
+
+    /* ---------------------------------------------------------------- Page 5 */
+    { page: "Towing and lifts" },
+    { fig: { w: 540, h: 170, items: [].concat(
+      [ground(10, 530, 130)],
+      [box(390, 104, 120, 50, 0, { fill: "accent" }), { text: [390, 104], t: "car 800 kg", b: true, size: 12, c: "text" }],
+      [box(150, 108, 110, 42, 0, { fill: "accent2" }), { text: [150, 108], t: "trailer 600 kg", b: true, size: 12, c: "text" }],
+      [{ line: [[205, 112], [330, 112]], c: "text2", w: 3 }],
+      F(450, 104, 0, 60, "1740", { c: "accent", dx: 14 }),
+      F(330, 92, 180, 36, "T", { c: "accent3", dy: -8 }),
+      F(205, 92, 0, 36, "T", { c: "accent3", dy: -8 }),
+      F(95, 108, 180, 50, "R", { c: "text2", dx: -6 }),
+      [{ text: [330, 150], t: "400 N resistance on the car", c: "text2", size: 11.5 }]
+    ), cap: "AS June 2024: the towbar pulls the trailer forward and the car back with the same $T$ (Newton's third law)." } },
+    { worked: { tag: "exam", title: "A car towing a trailer by a rope: find $a$", src: "AS June 2023 · P2 Q4 · 7 marks",
+      q: "A car of mass 1200 kg tows a trailer of mass 400 kg along a straight horizontal road with a horizontal tow rope parallel to the motion. The resistance to the car is a constant $2R$ N and to the trailer a constant $R$ N. The rope is light and inextensible, the acceleration is $a$ m s$^{-2}$, the driving force is 7400 N and the tension in the rope is 2400 N. **(a)** Find $a$. In a refined model the rope has mass, and the acceleration is $a_1$ m s$^{-2}$. **(b)** State how $a_1$ compares with $a$. **(c)** State one limitation of the model for the resistance to the motion of the car.",
+      steps: [
+        { h: "(a) Trailer", m: "$2400 - R = 400a$", mk: "M1 A1" },
+        { h: "Car", m: "$7400 - 2400 - 2R = 1200a$", mk: "M1 A1" },
+        { m: "$R = 2400 - 400a \\Rightarrow 5000 - 4800 + 800a = 1200a \\Rightarrow a = 0.5$", mk: "A1", n: "Or the whole system: $7400 - 3R = 1600a$ with either equation." },
+        { h: "(b)", m: "$a_1 < a$: the same forces now move a larger total mass.", mk: "B1" },
+        { h: "(c)", m: "The resistance is unlikely to be constant — it will vary with the speed.", mk: "B1" }
+      ], result: "(a) 0.5" } },
+    { worked: { tag: "exam", title: "A towbar: resistance, tension, then it breaks", src: "AS June 2024 · P2 Q4 · 12 marks",
+      q: "A car of mass 800 kg tows a trailer of mass 600 kg along a straight horizontal road by a towbar, modelled as a light rod, parallel to the road and the motion. The resistance to the car is a constant 400 N, to the trailer a constant $R$ N. The engine's driving force is a constant 1740 N, the acceleration is 0.6 m s$^{-2}$ and the tension in the towbar is $T$ N. **(a)** Show that $R = 500$. **(b)** Find $T$. When the speed is 12.5 m s$^{-1}$ the towbar breaks, and the trailer moves a further $d$ metres before stopping, its resistance still 500 N. **(c)** Show that the trailer's deceleration is $\\frac56$ m s$^{-2}$. **(d)** Find $d$. **(e)** Give two different reasons why the real $d$ is likely to differ from (d).",
+      steps: [
+        { h: "(a) Whole system", m: "$1740 - 400 - R = 1400 \\times 0.6$", mk: "M1 A1" },
+        { m: "$R = 1340 - 840 = 500$", mk: "A1*" },
+        { h: "(b) Trailer", m: "$T - 500 = 600 \\times 0.6$", mk: "M1 A1" },
+        { m: "$T = 860$", mk: "A1" },
+        { h: "(c) Only the resistance acts", m: "$-500 = 600a \\Rightarrow a = -\\dfrac56$: a deceleration of $\\dfrac56$ m s$^{-2}$", mk: "B1*" },
+        { h: "(d)", m: "$0 = 12.5^2 - 2 \\times \\dfrac56 \\times d$", mk: "M1 A1" },
+        { m: "$d = 93.75 \\approx 93.8$ m", mk: "A1" },
+        { h: "(e)", m: "e.g. the resistance will not be constant (it depends on speed);", mk: "B1" },
+        { m: "the trailer is not a particle / the road may not be level or straight / the trailer may have brakes.", mk: "B1" }
+      ], result: "(b) 860 (d) 93.8 m" } },
+    { worked: { tag: "exam", title: "The force between a block and the lift floor", src: "AS June 2022 · P2 Q4(b) · 3 marks",
+      q: "A lift cage of mass 40 kg carries a block of mass 10 kg and is raised vertically with constant acceleration 0.2 m s$^{-2}$ by a light inextensible rope (the tension was found to be 500 N). Air resistance is ignored. Find the magnitude of the force exerted on the block by the lift cage.",
+      steps: [
+        { h: "The block alone, up positive", m: "$R - 10g = 10 \\times 0.2$", mk: "M1 A1" },
+        { m: "$R = 98 + 2 = 100$ N", mk: "A1", n: "By the third law the block pushes down on the cage floor with 100 N too." }
+      ], result: "100 N" } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "Connected particles", body: [
+      "One force diagram and one equation per particle, each in its own direction of motion.",
+      "Same $T$ (light string, smooth pulley); same $a$ (inextensible). Add the equations to remove $T$.",
+      "Force on a pulley: $2T$ for parallel strings; otherwise add the two tension vectors.",
+      "Slack string: $T = 0$; the free particle keeps its speed and continues under the remaining forces."
+    ] } },
+    { callout: { t: "mnemonic", h: "\"Same T, same a, own direction\"", body: "The three facts the pulley model gives you." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "Using the whole-system mass over a pulley, where the forces point different ways.",
+      "Missing the first-stage rise (from $2h$ to $3h$) when finding a final height.",
+      "Writing $T = mg$ for a hanging particle that is accelerating.",
+      "Including an internal force (tension, towbar) in a whole-system equation."
+    ] } }
+  ],
+  flashcards: [
+    ["Newton's third law?", "If $A$ pushes or pulls $B$, then $B$ pushes or pulls $A$ with an equal and opposite force."],
+    ["Why don't third-law pairs cancel?", "They act on different bodies."],
+    ["What does \"inextensible\" give in a pulley problem?", "Both particles have the same speed and size of acceleration."],
+    ["What does \"smooth pulley\" give?", "The tension is the same either side."],
+    ["Masses $4m$ and $3m$ over a pulley: $a$?", "$\\frac{g}{7}$."],
+    ["… and $T$?", "$\\frac{24mg}{7}$."],
+    ["Force on a pulley with both string parts vertical?", "$2T$."],
+    ["What happens to $T$ when the hanging particle hits the floor?", "It becomes zero (the string goes slack)."],
+    ["Mass on a smooth table after the string goes slack?", "Moves at constant speed."],
+    ["Car-and-trailer acceleration quickly?", "Whole system: external forces = total mass × $a$."],
+    ["Equilibrium of a particle?", "Resolve in two perpendicular directions; each sum is zero."]
+  ],
+  quiz: [
+    { q: "A 3 kg and a 2 kg particle hang over a smooth pulley. The acceleration is", opts: ["$\\frac{g}{5}$", "$\\frac{g}{3}$", "$g$", "$\\frac{2g}{5}$"], ans: 0, why: "$(3 - 2)g / 5$." },
+    { q: "A 2 kg block on a smooth table is pulled by a 3 kg hanging mass. $a$ is", opts: ["$\\frac{3g}{5}$", "$\\frac{2g}{3}$", "$\\frac{3g}{2}$", "$g$"], ans: 0, why: "$3g = 5a$." },
+    { q: "In a car-and-trailer whole-system equation, the towbar tension", opts: ["does not appear", "appears once", "appears twice with the same sign", "equals the driving force"], ans: 0, why: "It is internal and cancels." },
+    { q: "The string over a smooth pulley has tension 20 N, both parts vertical. The force on the pulley is", opts: ["40 N", "20 N", "10 N", "0"], ans: 0, why: "$2T$." },
+    { q: "Two strings at 30° and 60° to the horizontal hold a 20 N weight. The tension in the 60° string is", opts: ["17.3 N", "10 N", "20 N", "11.5 N"], ans: 0, why: "$10\\sqrt3$." }
+  ]
+};
+
+/* @@M8.5@@ */
 
 /* the exam-tagged worked cards above are this section's past-paper
    practice: derive the self-marking exam items from them once */
