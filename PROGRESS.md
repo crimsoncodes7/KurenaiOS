@@ -486,7 +486,7 @@ The numbered suites form one release gate:
 Run all suites with:
 
 ```sh
-for i in "" {2..63}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..64}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

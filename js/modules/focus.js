@@ -1653,7 +1653,7 @@
     var obj = el("section", { class: "k-fx-rev-card" });
     body.appendChild(obj);
     if (sess.objective) {
-      var btns = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": "Objective result" });
+      var btns = el("div", { class: "k-seg k-seg--grid k-fx-rev-choices", role: "group", "aria-label": "Objective result" });
       OBJ_RESULTS.forEach(function (o) {
         var b = el("button", { type: "button", class: "k-seg-item", "data-ui": "focus.review-choice", "aria-pressed": "false", text: o.label, onclick: function () {
           result = result === o.v ? null : o.v;

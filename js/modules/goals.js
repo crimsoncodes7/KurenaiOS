@@ -442,7 +442,7 @@
     if (!g.deadline) return null;
     var d = new Date(g.deadline + "T12:00:00"), days = Math.round((d - new Date(todayISO() + "T12:00:00")) / 86400000), text, tone = null;
     if (g._status === "completed") text = "Met " + new Date(g.completedAt || Date.now()).toLocaleDateString(undefined, { day: "numeric", month: "short" });
-    else if (days < 0) { text = "Expired " + (-days) + "d ago"; tone = "crimson"; }
+    else if (days < 0) { text = "Expired " + (-days) + "d ago"; tone = "danger"; }
     else if (days === 0) { text = "Due today"; tone = "soon"; }
     else if (days <= 14) { text = days + "d left"; tone = "soon"; }
     else text = "Due " + d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });

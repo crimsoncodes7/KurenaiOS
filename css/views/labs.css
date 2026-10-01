@@ -408,4 +408,12 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-bit, .k-lab-fsm-cell, .k-lab-switch, .k-lab-code-line, .k-lab-rec-frame { transition: none; }
 }
 
+/* touch: the 44px minimum (base.css) raised the HEIGHT of every button,
+   so a round control drew as a 28×44 oval (phone review, after part 2).
+   A round control grows as a circle; a tiny inline mark keeps the
+   documented dense size (invariant 69) instead of stretching. */
+@media (pointer: coarse) {
+.k-ide-tab-x { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
+}
+
 }

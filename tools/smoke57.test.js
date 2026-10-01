@@ -89,6 +89,33 @@ step("A · a returned node is a copy: callers cannot corrupt the index", () => {
   assert(again.title !== "hacked" && again.children.length && !again.path.length, "the index moved");
 });
 
+step("A · papers sit above the units: CS Paper 1/2, Maths Pure/Statistics/Mechanics, IT units are their own", () => {
+  const S = KOS.spec;
+  eq(S.papers("compsci").map(p => p.ref), ["Paper 1", "Paper 2"], "CS papers");
+  eq(S.papers("maths").map(p => p.ref), ["Pure", "Statistics", "Mechanics"], "Maths papers");
+  eq(S.papers("it").length, 0, "IT has no paper nodes");
+  eq(S.level("compsci", "Paper 1"), "paper", "a paper's level");
+  eq(S.node("compsci:4.1.1.1").paper, "Paper 1", "a leaf knows its paper");
+  eq(S.node("compsci:4.5").paper, "Paper 2", "a unit knows its paper");
+  const p1 = S.resolve(["compsci:Paper 1"]);
+  ["4.1", "4.2", "4.3", "4.4"].forEach(u => S.leaves("compsci", u).forEach(l => assert(p1.indexOf("compsci:" + l.ref) !== -1, "Paper 1 misses " + l.ref)));
+  assert(p1.indexOf("compsci:" + S.leaves("compsci", "4.5")[0].ref) === -1, "Paper 1 must not cover 4.5");
+  eq(S.normaliseRefs(["Pure"]), ["maths:Pure"], "a bare paper ref only one subject has");
+  eq(S.leaves("compsci").length, KOS.hub.LEAVES.compsci.length, "papers are never leaves");
+});
+
+step("A · the picker's Paper level: picking a paper replaces its leaves; IT offers its units", () => {
+  const p = picker({ multi: true, value: ["compsci:4.1.1.1", "compsci:4.5.1"] });
+  p.open();
+  level(p, "paper");
+  const row = p.el.querySelector("[data-ui~='tp.row'][data-key='compsci:Paper 1']");
+  assert(row, "no Paper 1 row");
+  row.click();
+  eq(p.value(), ["compsci:4.5.1", "compsci:Paper 1"].filter(k => KOS.spec.node(k)), "Paper 1 took the place of the leaf under it");
+  assert(p.el.querySelector("[data-ui~='tp.row'][data-key='it:F201']"), "IT's units are offered as its papers");
+  p.close();
+});
+
 /* ============ B · search ============ */
 step("B · search by reference or title, exact ref first", () => {
   const S = KOS.spec;
@@ -316,7 +343,7 @@ step("H · Escape and Tab belong to the panel inside a dialog; Enter ticks the a
   s.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   eq(p.value(), ["compsci:4.1.1.1"], "Enter ticked the active row");
   s.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
-  assert(p.el.querySelector("[data-ui~='tp.levels'] [data-value='unit'][aria-pressed='true']"), "Tab stepped the level (leaf → unit)");
+  assert(p.el.querySelector("[data-ui~='tp.levels'] [data-value='paper'][aria-pressed='true']"), "Tab stepped the level (leaf → paper, the first)");
   s.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
   assert(!p.isOpen(), "Escape closed the panel");
   eq(closed, 0, "Escape did not close the dialog around it");

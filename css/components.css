@@ -61,7 +61,7 @@ transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--
 .k-seg-count:empty { display: none; }
 .k-seg-sep { flex: 0 0 auto; inline-size: var(--hairline); margin: var(--sp-6) var(--sp-4); background: var(--line); }
 .k-seg-dot { inline-size: var(--sp-7); block-size: var(--sp-7); flex: 0 0 auto; border-radius: 50%; background: var(--dot, var(--muted)); }
-.k-seg-count[data-tone="urgent"] { background: color-mix(in oklch, var(--crimson) 22%, var(--s1)); }
+.k-seg-count[data-tone="urgent"] { background: var(--alarm-wash); color: var(--alarm); }
 .k-seg-count[data-tone="neutral"] { background: var(--s2); color: var(--muted); }
 .k-seg-item[aria-current="page"] .k-seg-count, .k-seg-item[aria-selected="true"] .k-seg-count { background: var(--bg); color: var(--text); }
 /* the section sub-navigation: the main group in a track, the rest loose
@@ -80,9 +80,11 @@ transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--
 .k-card { background: var(--s1); border-radius: var(--r-24); padding: var(--sp-20) var(--sp-22); min-inline-size: 0; }
 .k-card--hero { border-radius: var(--r-26); padding: var(--sp-24) var(--sp-26); position: relative; overflow: hidden; }
 .k-card--tight { padding: var(--sp-16) var(--sp-18); }
-.k-card-head { display: flex; align-items: baseline; gap: var(--sp-10); margin-block-end: var(--sp-8); }
-.k-card-title { font-size: var(--fs-15); font-weight: var(--weight-semibold); }
-.k-card-meta { font-size: var(--fs-12); color: var(--muted); }
+/* a header with an action wraps the action under the title and meta on a
+   narrow card, rather than crushing the meta into a one-word column */
+.k-card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-4) var(--sp-10); margin-block-end: var(--sp-8); }
+.k-card-title { flex: 0 0 auto; font-size: var(--fs-15); font-weight: var(--weight-semibold); }
+.k-card-meta { flex: 1 1 var(--card-meta-min); min-inline-size: 0; font-size: var(--fs-12); color: var(--muted); }
 .k-card-head .k-link { margin-inline-start: auto; }
 .k-card-row { display: flex; align-items: center; gap: var(--sp-12); padding-block: var(--sp-10); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13-5); min-inline-size: 0; }
 .k-card-row:first-of-type { border-block-start: 0; }
@@ -169,14 +171,17 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-day-title { display: block; font-size: var(--fs-14); font-weight: var(--weight-medium); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-day-sub { display: block; font-size: var(--fs-12); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-day-when { font-size: var(--fs-11-5); color: var(--muted); white-space: nowrap; }
-.k-day-when[data-state~="now"] { color: var(--crimson); }
+.k-day-when[data-state~="now"] { color: var(--alarm); }
+.k-day-row[data-state~="done"] .k-day-title { color: var(--muted); }
+.k-day-row[data-state~="done"] .k-day-bar { opacity: 0.4; }
 .k-days-dot { inline-size: var(--day-dot); block-size: var(--day-dot); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: var(--s2); font-size: var(--fs-14); font-weight: var(--weight-semibold); }
-.k-days-dot[data-state~="now"] { background: var(--crimson); color: var(--crimson-ink); }
+.k-days-dot[data-state~="now"] { background: var(--alarm); color: var(--alarm-ink); }
 .k-days-dot[data-state~="late"] { background: color-mix(in oklch, var(--red) 30%, transparent); color: var(--red-soft); }
 
 /* ---------- chips ---------- */
 .k-chip { display: inline-flex; align-items: center; gap: var(--sp-4); padding: var(--sp-2) var(--sp-9); border-radius: var(--r-pill); background: color-mix(in oklch, var(--chip-c, var(--text-2)) 18%, transparent); color: var(--chip-c, var(--text-2)); font-size: var(--fs-11-5); white-space: nowrap; }
 .k-chip[data-tone="crimson"] { --chip-c: var(--crimson); }
+.k-chip[data-tone="danger"] { --chip-c: var(--alarm); }
 .k-chip[data-tone="teal"] { --chip-c: var(--teal); }
 .k-chip[data-tone="amber"] { --chip-c: var(--amber); }
 .k-chip[data-tone="green"] { --chip-c: var(--green); }
@@ -208,7 +213,7 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-menu-panel.k-profile-pop { inset-block-start: var(--pop-top, auto); inset-inline-start: var(--pop-left, auto); inset-inline-end: var(--pop-right, auto); inline-size: var(--pc-w); padding: 0; overflow: hidden; }
 .k-pc { --ring: var(--teal); display: flex; flex-direction: column; gap: var(--sp-12); padding-block-end: var(--sp-16); }
 .k-pc[data-hp="strained"] { --ring: var(--amber); }
-.k-pc[data-hp="critical"] { --ring: var(--crimson); }
+.k-pc[data-hp="critical"] { --ring: var(--alarm); }
 .k-pc-band { block-size: var(--pc-band-h); background: var(--gv-hero-bg); }
 .k-pc-ident { display: flex; flex-direction: column; gap: var(--sp-12); }
 .k-pc-id { display: flex; align-items: flex-end; gap: var(--sp-12); margin-block-start: calc(var(--pc-band-h) * -0.5); padding-inline: var(--sp-16); }
@@ -269,10 +274,10 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-legend-bar { grid-column: 2 / -1; block-size: var(--bar-4); border-radius: var(--r-pill); background: linear-gradient(90deg, var(--c) var(--p), var(--s2) var(--p)); }
 
 /* ---------- empty state ---------- */
-.k-empty { display: flex; align-items: center; gap: var(--sp-14); padding: var(--sp-18) var(--sp-22); border-radius: var(--r-24); background: var(--s1); color: var(--text-2); font-size: var(--fs-13-5); }
+.k-empty { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-14); padding: var(--sp-18) var(--sp-22); border-radius: var(--r-24); background: var(--s1); color: var(--text-2); font-size: var(--fs-13-5); }
 .k-empty[data-state~="compact"] { background: none; padding: var(--sp-10) 0; }
 .k-empty-mark { font: var(--weight-semibold) var(--fs-26) / 1 var(--font-kanji); color: var(--muted); }
-.k-empty-txt { flex: 1 1 0; min-inline-size: 0; }
+.k-empty-txt { flex: 1 1 var(--empty-txt-min); min-inline-size: 0; }
 .k-empty-txt b { display: block; color: var(--text); font-size: var(--fs-15); }
 .k-empty-action { flex: 0 0 auto; }
 
@@ -524,8 +529,15 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 }
 
 /* ---------- touch ---------- */
+/* touch: the 44px minimum (base.css) raised the HEIGHT of every button,
+   so a round control drew as a 28×44 oval (phone review, after part 2).
+   A round control grows as a circle; a tiny inline mark keeps the
+   documented dense size (invariant 69) instead of stretching. */
 @media (pointer: coarse) {
 .k-btn, .k-seg-item, .k-menu-item, .k-rail-item { min-block-size: var(--hit-coarse); }
+.k-btn { min-inline-size: var(--hit-coarse); }
+.k-iconbtn, .k-scroller-arrow, .k-ptitle-tools > .k-btn, .k-syncdot { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+.k-tp-x { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 
 }

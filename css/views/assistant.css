@@ -475,6 +475,8 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 @media (pointer: coarse) {
 .k-asst-x { opacity: 1; }
 .k-asst-tab, .k-asst-starter, .k-asst-ctx-btn { min-block-size: var(--hit-coarse); }
+.k-asst-send { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+.k-asst-x, .k-asst-add { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 
 /* ---------- the five tiers, widest first ---------- */

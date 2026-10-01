@@ -8,6 +8,8 @@
    this module instead, so a ref means the same thing everywhere.
 
    Levels:
+     paper   the exam paper a unit is sat in ("Paper 1", "Pure") — see
+             PAPERS below; IT's units are their own papers;
      unit    a top-level section ("4.1", "P3", "F200");
      parent  any node between a unit and a leaf ("4.1.1", "F200.TA1").
              Maths has none — its leaves hang off the unit directly;
@@ -29,8 +31,32 @@
   window.KOS = window.KOS || {};
 
   var SUBJECTS = ["compsci", "maths", "it"];
-  var LEVELS = ["unit", "parent", "leaf"];
-  var IDX = null;   // sid -> { nodes: [node], byRef: {ref: node}, leaves: [node], units: [node] }
+  var LEVELS = ["paper", "unit", "parent", "leaf"];
+
+  /* PAPERS — the exam papers each specification is sat as, a level above
+     the units. Read from the specifications' own assessment pages:
+       AQA 7517  Paper 1 assesses 4.1–4.4 and the skills of 4.13; Paper 2
+                 assesses 4.5–4.12. The NEA is not a paper.
+       Edexcel 9MA0  Papers 1 and 2 are both pure (the whole of P); Paper 3
+                 is statistics (section A) and mechanics (section B).
+       OCR IT    every examined unit IS its paper (F201 is sat as F201), so
+                 IT has no paper nodes and the picker offers its units.
+     A paper is a synthetic node: it carries no content, it is never a
+     leaf, and its ref never collides with a real one in ANY subject (a
+     bare "Pure" must stay unambiguous for normaliseRefs). */
+  var PAPERS = {
+    compsci: [
+      { ref: "Paper 1", title: "Programming, data structures, algorithms, computation", units: ["4.1", "4.2", "4.3", "4.4", "4.13"] },
+      { ref: "Paper 2", title: "Data, systems, architecture, networks, databases, functional", units: ["4.5", "4.6", "4.7", "4.8", "4.9", "4.10", "4.11", "4.12"] }
+    ],
+    maths: [
+      { ref: "Pure", title: "Papers 1 and 2 — pure mathematics", units: ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"] },
+      { ref: "Statistics", title: "Paper 3 section A — statistics", units: ["S1", "S2", "S3", "S4", "S5"] },
+      { ref: "Mechanics", title: "Paper 3 section B — mechanics", units: ["M6", "M7", "M8", "M9"] }
+    ],
+    it: []
+  };
+  var IDX = null;   // sid -> { nodes: [node], byRef: {ref: node}, leaves: [node], units: [node], papers: [node] }
 
   function isLeafNode(n) { return !!(n && n.content && n.content.length); }
 
@@ -76,6 +102,25 @@
         });
       }
       data.sections.forEach(function (sec) { walk(sec, 0, null, null, []); });
+      /* the papers, over the units that exist; a paper whose units are
+         all missing (a test fixture) is left out */
+      (PAPERS[sid] || []).forEach(function (pp, pi) {
+        var us = pp.units.filter(function (u) { return ix.byRef[u] && ix.byRef[u].level === "unit"; });
+        if (!us.length || ix.byRef[pp.ref]) return;
+        var pn = {
+          key: sid + ":" + pp.ref, subject: sid, ref: pp.ref, title: pp.title,
+          level: "paper", depth: -1, unit: pp.ref, parent: null, path: [],
+          children: us.slice(), leafRefs: [], order: -100 + pi
+        };
+        us.forEach(function (u) {
+          Array.prototype.push.apply(pn.leafRefs, ix.byRef[u].leafRefs);
+          /* every node under the unit knows its paper */
+          ix.nodes.forEach(function (n) { if (n.unit === u) n.paper = pp.ref; });
+        });
+        ix.byRef[pp.ref] = pn;
+        ix.papers = (ix.papers || []).concat(pn);
+      });
+      ix.nodes = (ix.papers || []).concat(ix.nodes);
     });
     return IDX;
   }
@@ -85,7 +130,7 @@
     if (!n) return null;
     return {
       key: n.key, subject: n.subject, ref: n.ref, title: n.title, level: n.level,
-      unit: n.unit, parent: n.parent, path: n.path.slice(),
+      unit: n.unit, parent: n.parent, paper: n.paper || null, path: n.path.slice(),
       children: n.children.slice(), leafCount: n.leafRefs.length
     };
   }
@@ -121,7 +166,8 @@
     return n ? n.children.map(function (r) { return pub(raw(sid, r)); }) : [];
   }
   /* every node of one level, in spec order. For a subject with no parent
-     level (Maths) the parent list is empty — the picker offers units. */
+     level (Maths) the parent list is empty, and IT has no paper level —
+     the picker offers units in both cases. */
   function levelNodes(sid, lvl) {
     var ix = build()[sid];
     if (!ix || LEVELS.indexOf(lvl) === -1) return [];
@@ -253,6 +299,8 @@
   KOS.spec = {
     SUBJECTS: SUBJECTS.slice(),
     LEVELS: LEVELS.slice(),
+    /* the papers one subject is sat as (none for IT: a unit is its paper) */
+    papers: function (sid) { var ix = build()[sid]; return ix && ix.papers ? ix.papers.map(pub) : []; },
     key: key,
     parse: parse,
     node: node,

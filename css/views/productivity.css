@@ -224,6 +224,10 @@
 .k-fx-rev-fig[data-tone="teal"] dd { color: var(--teal); }
 .k-fx-rev-fig[data-tone="gold"] dd { color: var(--gold); }
 .k-fx-rev-award { grid-column: span 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-12); }
+.k-fx-rev-fig dd { overflow: hidden; text-overflow: ellipsis; }
+/* the three answers sit on a track of their own — on the card's ground a
+   quiet group read as three loose words */
+.k-fx-rev-choices { grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--s2); }
 .k-fx-rev-none { grid-column: 1 / -1; align-self: center; margin: 0; font-size: var(--fs-13); color: var(--muted); }
 .k-fx-rev-foot { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-6) var(--sp-16); font-size: var(--fs-12-5); color: var(--muted); }
 .k-fx-rev-foot > :first-child { flex: 1 1 auto; }
@@ -266,7 +270,7 @@
 .k-rem-glyph { inline-size: var(--rem-glyph-w); flex: 0 0 auto; text-align: center; font-family: var(--font-kanji); color: var(--muted); }
 .k-rem-item-l { flex: 1 1 auto; min-inline-size: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-rem-n { font-size: var(--fs-11-5); color: var(--muted); }
-.k-rem-item[data-tone="crimson"] .k-rem-glyph, .k-rem-item[data-tone="crimson"] .k-rem-n { color: var(--crimson); }
+.k-rem-item[data-tone="crimson"] .k-rem-glyph, .k-rem-item[data-tone="crimson"] .k-rem-n { color: var(--alarm); }
 .k-rem-item[data-state~="list"] .k-rem-n { color: oklch(var(--cal-l) var(--cal-c) var(--list-hue)); }
 .k-rem-item[data-state~="list"] .k-rem-glyph::before { content: ""; display: inline-block; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: oklch(var(--cal-l) var(--cal-c) var(--list-hue)); }
 .k-rem-list-row { position: relative; display: flex; align-items: center; }
@@ -291,19 +295,19 @@
 .k-rem-count { margin: 0; font-size: var(--fs-12); color: var(--muted); }
 .k-rem-items { display: flex; flex-direction: column; gap: var(--sp-2); }
 .k-rem-when { margin: 0; padding: var(--sp-10) var(--sp-14) var(--sp-2); }
-.k-rem-when[data-tone="crimson"] { color: var(--crimson); }
+.k-rem-when[data-tone="crimson"] { color: var(--alarm); }
 
 .k-rem-row { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-6) var(--sp-10) var(--sp-6) var(--sp-14); border-radius: var(--r-16); cursor: pointer; }
 .k-rem-row:hover { background: var(--s1); }
 .k-rem-row[data-state~="selected"] { background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-rem-check { inline-size: var(--rem-check); block-size: var(--rem-check); flex: 0 0 auto; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: inset 0 0 0 var(--ring-1-5) var(--muted); font-size: var(--fs-11); font-weight: var(--weight-bold); color: var(--bg); cursor: pointer; }
-.k-rem-check[data-state~="urgent"] { box-shadow: inset 0 0 0 var(--ring-1-5) var(--crimson); }
+.k-rem-check[data-state~="urgent"] { box-shadow: inset 0 0 0 var(--ring-1-5) var(--alarm); }
 .k-rem-check[aria-pressed="true"] { background: var(--teal); box-shadow: none; }
 .k-rem-row-body { flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-4) 0; border: 0; background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
 .k-rem-title { font-size: var(--fs-14); font-weight: var(--weight-medium); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-rem-row[data-state~="done"] .k-rem-title { color: var(--muted); text-decoration: line-through; }
 .k-rem-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); font-size: var(--fs-12); color: var(--muted); }
-.k-rem-due[data-tone="crimson"] { color: var(--crimson); }
+.k-rem-due[data-tone="crimson"] { color: var(--alarm); }
 .k-rem-due[data-tone="amber"] { color: var(--amber); }
 .k-rem-tagtext { color: var(--teal); }
 .k-chip[data-tone="muted"] { --chip-c: var(--muted); }
@@ -467,7 +471,7 @@
 .k-cal-month .k-ev-time { display: none; }
 .k-ev-t { flex: 1 1 auto; min-inline-size: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-ev-mark { flex: 0 0 auto; color: var(--muted); }
-.k-ev[data-state~="overdue"] .k-ev-t { color: var(--crimson); }
+.k-ev[data-state~="overdue"] .k-ev-t { color: var(--alarm); }
 .k-ev[data-state~="handed-in"] .k-ev-t { color: var(--muted); text-decoration: line-through; }
 .k-cal-more { align-self: flex-start; min-block-size: var(--hit-dense); padding: 0 var(--sp-6); border: 0; background: none; font: inherit; font-size: var(--fs-11); color: var(--muted); cursor: pointer; }
 .k-cal-more:hover { color: var(--text); }
@@ -550,7 +554,7 @@
 .k-cal-dcard > .k-cal-cd-empty { padding-block: var(--sp-4) var(--sp-10); }
 .k-cal-arow { display: grid; grid-template-columns: var(--cal-when-w) auto minmax(0, 1fr); gap: var(--sp-12); align-items: stretch; inline-size: 100%; min-block-size: var(--hit-coarse); padding: var(--sp-10) 0; border: 0; border-block-start: var(--hairline) solid var(--line); background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
 .k-cal-arow-when { align-self: center; font-size: var(--fs-11); color: var(--muted); }
-.k-cal-arow[data-state~="overdue"] .k-cal-row-t { color: var(--crimson); }
+.k-cal-arow[data-state~="overdue"] .k-cal-row-t { color: var(--alarm); }
 .k-cal-arow .k-cal-row-t { font-size: var(--fs-15); white-space: normal; }
 .k-cal-arow .k-cal-row-m { font-size: var(--fs-12); }
 
@@ -664,6 +668,13 @@
 .k-pace-lesson-row[data-state~="is-done"] .k-pace-lesson-t { color: var(--muted); text-decoration: line-through; }
 .k-pace-lesson-row[data-state~="is-assess"] .k-pace-lesson-t { color: var(--amber); font-weight: var(--weight-medium); }
 .k-pace-lesson-row[data-state~="is-nea"] .k-pace-lesson-t { color: var(--bloom); }
+/* the lesson's day — from the class timetable unless moved */
+.k-pace-lesson-day { flex: 0 0 auto; inline-size: auto; min-block-size: var(--hit-dense); padding-block: 0; padding-inline-start: var(--sp-8); font-size: var(--fs-12); color: var(--muted); }
+.k-pace-lesson-day[data-state~="moved"] { color: var(--text); }
+/* the Class days dialog: one subject per row */
+.k-pace-tt-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-12); flex-wrap: wrap; padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); }
+.k-pace-tt-subj { display: inline-flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-14); }
+.k-pace-tt-subj::before { content: ""; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--pace-hue, var(--muted)); }
 .k-pace-cls[data-state~="is-done"] .k-pace-cls-head .k-pace-row-title { color: var(--muted); }
 .k-pace-lessons { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-4); }
 .k-pace-lesson { display: flex; gap: var(--sp-8); font-size: var(--fs-13); color: var(--text-2); }
@@ -793,7 +804,7 @@
 .k-msheet-slot > .k-rem-insp .k-rem-insp-head { display: none; }
 .k-rem-secs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .k-rem-secs > .k-seg-item { justify-content: center; gap: var(--sp-4); padding-inline: var(--sp-4); }
-.k-rem-secs .k-rem-n[data-tone="crimson"] { color: var(--crimson); }
+.k-rem-secs .k-rem-n[data-tone="crimson"] { color: var(--alarm); }
 .k-rem-secs > .k-seg-item[aria-pressed="true"] > .k-rem-n { color: inherit; }
 .k-rem-tools { flex-wrap: nowrap; padding: 0; }
 .k-rem-tools > .k-rem-filter { flex: 1 1 auto; justify-content: center; min-inline-size: 0; }
@@ -862,7 +873,7 @@
 .k-fx-body { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-16); }
 .k-fx-body > .k-fx-left, .k-fx-body > .k-fx-centre { display: contents; }
 .k-fx-left > * { max-inline-size: none; }
-.k-fx-min { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); padding: 0; justify-content: center; border-radius: 50%; }
+.k-fx-min { flex: 0 0 auto; inline-size: var(--hit-coarse); block-size: var(--hit-coarse); padding: 0; justify-content: center; border-radius: 50%; }
 .k-fx-min > .k-btn-label { display: none; }
 .k-fx-ring-in > .k-kicker { max-inline-size: 84%; text-wrap: balance; }
 .k-fx-what { order: 1; align-items: flex-start; text-align: start; padding: var(--sp-14) var(--sp-16); border-radius: var(--r-16); background: var(--fx-note-fill); gap: var(--sp-6); }
@@ -890,6 +901,11 @@
 }
 
 @media (max-width: 560px) {
+/* a phone fits two figures a row, not four: four 26px mono figures in
+   ~300px overlapped each other ("40 min" over "4", "+48 XP+4 gold") */
+.k-fx-rev-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--sp-14); }
+.k-fx-rev-award { grid-column: 1 / -1; }
+.k-fx-rev-fig dd { font-size: var(--fs-22); }
 .k-pace-fgrid { grid-template-columns: minmax(0, 1fr); }
 .k-pace-merge { grid-template-columns: minmax(0, 1fr); }
 .k-pace-merge-when { grid-column: auto; grid-row: auto; }
@@ -897,6 +913,16 @@
 .k-cal-fgrid, .k-cal-fgrid--3 { grid-template-columns: minmax(0, 1fr); }
 .k-fx-pair { grid-template-columns: minmax(0, 1fr); }
 .k-fx-hero { padding: var(--sp-20); }
+}
+
+/* touch: the 44px minimum (base.css) raised the HEIGHT of every button,
+   so a round control drew as a 28×44 oval (phone review, after part 2).
+   A round control grows as a circle; a tiny inline mark keeps the
+   documented dense size (invariant 69) instead of stretching. */
+@media (pointer: coarse) {
+.k-rem-quick-add { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+.k-rem-check, .k-hb-tick { min-inline-size: var(--hit); min-block-size: var(--hit); }
+.k-hb-dir-tick, .k-cal-add { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 
 }

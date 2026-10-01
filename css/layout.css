@@ -110,7 +110,7 @@ display: none;
 .k-msheet-profile-meta { display: flex; gap: var(--sp-8); }
 .k-msheet-hp { color: var(--teal); }
 .k-msheet-hp[data-hp="strained"] { color: var(--amber); }
-.k-msheet-hp[data-hp="critical"] { color: var(--crimson); }
+.k-msheet-hp[data-hp="critical"] { color: var(--alarm); }
 .k-msheet-gold { font-family: var(--font-mono); color: var(--gold); }
 .k-msheet-dest { display: flex; align-items: center; gap: var(--sp-12); min-block-size: var(--sheet-row-h); padding: var(--sp-8) var(--sp-4); color: var(--text); text-align: start; }
 .k-msheet-dest + .k-msheet-dest { border-block-start: var(--hairline) solid var(--line); }
@@ -141,10 +141,15 @@ display: none;
 .k-datamode { white-space: nowrap; cursor: pointer; }
 .k-bell-badge { font-size: 0; }
 .k-bell-badge:not([data-state~="is-on"]) { display: none; }
-.k-syncdot { inline-size: var(--sp-8); block-size: var(--sp-8); flex: 0 0 auto; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--muted) 18%, transparent); font-size: 0; }
-.k-syncdot[data-sync="ok"] { background: var(--teal); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--teal) 18%, transparent); }
-.k-syncdot[data-sync="busy"] { background: var(--amber); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--amber) 18%, transparent); }
-.k-syncdot[data-sync="error"] { background: var(--red); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--red) 18%, transparent); }
+/* the sync state is an 8px dot drawn INSIDE a real button: on touch the
+   button takes the 44px target, so the dot itself was stretched into an
+   8×44 pill (phone review) */
+.k-syncdot { --sync-c: var(--muted); inline-size: var(--hit); block-size: var(--hit); flex: 0 0 auto; display: grid; place-items: center; padding: 0; border-radius: 50%; background: none; box-shadow: none; font-size: 0; }
+.k-syncdot::before { content: ""; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--sync-c); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--sync-c) 18%, transparent); }
+.k-syncdot:hover { background: var(--s1); }
+.k-syncdot[data-sync="ok"] { --sync-c: var(--teal); }
+.k-syncdot[data-sync="busy"] { --sync-c: var(--amber); }
+.k-syncdot[data-sync="error"] { --sync-c: var(--red); }
 
 
 /* ---------- the main rail ---------- */
@@ -223,13 +228,13 @@ font-size: var(--fs-12);
 .k-profile:hover { background: var(--s2); }
 .k-profile-ring { --ring: var(--teal); inline-size: var(--icon-btn); block-size: var(--icon-btn); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--ring) 0 var(--hp, 100%), var(--line) var(--hp, 100%) 100%); }
 .k-profile[data-hp="strained"] .k-profile-ring { --ring: var(--amber); }
-.k-profile[data-hp="critical"] .k-profile-ring { --ring: var(--crimson); }
+.k-profile[data-hp="critical"] .k-profile-ring { --ring: var(--alarm); }
 .k-profile-txt { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; line-height: var(--lh-snug); }
 .k-profile-name { font-size: var(--fs-13); font-weight: var(--weight-semibold); }
 .k-profile-meta { display: flex; gap: var(--sp-6); font-size: var(--fs-11-5); color: var(--muted); }
 .k-profile-state { color: var(--teal); }
 .k-profile[data-hp="strained"] .k-profile-state { color: var(--amber); }
-.k-profile[data-hp="critical"] .k-profile-state { color: var(--crimson); }
+.k-profile[data-hp="critical"] .k-profile-state { color: var(--alarm); }
 .k-profile-gold { margin-inline-start: auto; font-family: var(--font-mono); color: var(--amber); }
 .k-avatar { inline-size: var(--avatar, var(--sp-32)); block-size: var(--avatar, var(--sp-32)); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; overflow: hidden; background: var(--s2); }
 .k-avatar > img, .k-avatar > svg { inline-size: 100%; block-size: 100%; object-fit: cover; }
@@ -363,7 +368,9 @@ overflow-y: auto;
 @media (max-width: 860px) {
 #cols[data-tree="closed"] #tree { display: none; }
 #tree { position: fixed; inset-block: var(--topbar-h) 0; inset-inline-start: 0; z-index: var(--z-drawer); background: var(--bg); box-shadow: var(--elev-3); }
-#cols[data-tree="open"] #tree-scrim { display: block; position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1); background: var(--shadow-ink); }
+/* the scrim is an unclassed <button>, so it took base.css's pill radius
+   and drew as a screen-sized ellipse over the page (phone review) */
+#cols[data-tree="open"] #tree-scrim { display: block; position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1); padding: 0; border-radius: 0; box-shadow: none; background: var(--shadow-ink); }
 #stage { padding: var(--sp-16) var(--sp-16) var(--sp-24); }
 .k-split { grid-template-columns: minmax(0, 1fr); }
 }

@@ -108,6 +108,30 @@
   }
   /* which types default to appearing in the Countdown rail */
   var COUNTDOWN_TYPES = ["exam", "deadline"];
+  /* how much an exam matters, and so how far ahead it takes over Home's
+     Focus card from assignments and study blocks: a real exam a week out,
+     a mock five days, an end-of-topic test three, a retrieval quiz the day
+     before. `goalMins` is the day's revision goal while it leads. */
+  var EXAM_LEVELS = [
+    { v: "exam", label: "Real exam", short: "Exam", leadDays: 7, goalMins: 120 },
+    { v: "mock", label: "Mock exam", short: "Mock", leadDays: 5, goalMins: 120 },
+    { v: "topic", label: "End-of-topic test", short: "Topic test", leadDays: 3, goalMins: 60 },
+    { v: "retrieval", label: "Retrieval test", short: "Retrieval test", leadDays: 1, goalMins: 30 }
+  ];
+  /* an exam saved before the kind existed (or added without one) reads
+     its kind from its title — "Paper 2 mock", "Algebra topic test" — and
+     is a real exam otherwise; choosing a kind always wins */
+  function guessLevel(title) {
+    var t = String(title || "");
+    if (/\bmocks?\b/i.test(t)) return "mock";
+    if (/\bretrieval\b|\bquiz\b/i.test(t)) return "retrieval";
+    if (/end[- ]of[- ](the[- ])?(topic|unit)|\btopic test\b|\bunit test\b|\bprogress (test|exam|check)\b|\bclass test\b/i.test(t)) return "topic";
+    return "exam";
+  }
+  function examLevel(ev) {
+    var v = ev && ev.examLevel;
+    return EXAM_LEVELS.filter(function (l) { return l.v === v; })[0] || EXAM_LEVELS[0];
+  }
   /* the lead time a NEWLY created exam or deadline gets when the caller does
      not say otherwise — the same three days the retired global threshold
      defaulted to. It is applied at creation only: clearing every alert in
@@ -283,6 +307,7 @@
       alerts: alerts,
       /* exam-only */
       paper: String(pick("paper", "") || "").trim(),
+      examLevel: type === "exam" ? examLevel({ examLevel: pick("examLevel", guessLevel(pick("title", ""))) }).v : null,
       room: String(pick("room", "") || "").trim(),
       refs: refs,
       /* exam + study share ONE duration field rather than two that mean the
@@ -444,7 +469,7 @@
         return {
           kind: "event", key: "ev" + d.ev.id, ev: d.ev, days: d.days, date: d.date,
           title: d.ev.title,
-          meta: TYPE_LABEL[d.ev.type] + (d.ev.subject ? " · " + d.ev.subject : "") + " · " + prettyDate(d.date)
+          meta: (d.ev.type === "exam" ? examLevel(d.ev).short : TYPE_LABEL[d.ev.type]) + (d.ev.subject ? " · " + d.ev.subject : "") + " · " + prettyDate(d.date)
         };
       });
     if (KOS.assignments && KOS.assignments.countdownItems) {
@@ -464,7 +489,7 @@
           kind: "pacing", key: "pc" + m.entry.id, entry: m.entry,
           days: m.days, date: m.date, title: m.entry.title,
           meta: m.label + " in class" + (m.entry.subject ? " · " + m.entry.subject : "") +
-            " · " + (m.inWeek ? "this week" : "w/c " + prettyDate(m.date))
+            " · " + prettyDate(m.date)
         });
       });
     }
@@ -756,6 +781,7 @@
     if (ev.location) rows.appendChild(detailRow("Location", ev.location));
 
     if (ev.type === "exam") {
+      rows.appendChild(detailRow("Kind", examLevel(ev).label));
       if (ev.paper) rows.appendChild(detailRow("Paper", ev.paper));
       if (ev.durationMins) rows.appendChild(detailRow("Duration", durationLabel(ev.durationMins)));
       if (ev.room) rows.appendChild(detailRow("Room", ev.room));
@@ -945,6 +971,8 @@
 
     /* ---- conditional: exam ---- */
     var paper = input("text", { placeholder: "e.g. Paper 1", maxlength: 60 });
+    var levelSel = select(EXAM_LEVELS.map(function (l) { return [l.v, l.label]; }));
+    levelSel.value = examLevel(d).v;
     var duration = input("number", { min: 0, max: 1440, step: 5, placeholder: "minutes" });
     var room = input("text", { placeholder: "e.g. Sports hall", maxlength: 60 });
     var examPick = KOS.topicPicker({ label: "Related topics", multi: true, value: refsOf(d) });
@@ -1042,13 +1070,13 @@
       var t = type.value;
       countdownRow.hidden = COUNTDOWN_TYPES.indexOf(t) === -1;
       if (t === "exam") {
-        condHost.appendChild(disclosure("Exam details", "Paper, duration, room, related topics",
+        condHost.appendChild(disclosure("Exam details", "Kind, paper, duration, room, related topics",
           el("div", { class: "k-cal-fgrid" }, [
-            field("Paper", paper), field("Duration (min)", duration), field("Room", room),
+            field("Kind", levelSel), field("Paper", paper), field("Duration (min)", duration), field("Room", room),
             examPick.el
           ]),
-          !!(existing && existing.type === "exam" &&
-            (existing.paper || existing.room || existing.durationMins || refsOf(existing).length))));
+          !(existing && existing.type === "exam") || !!(existing &&
+            (existing.paper || existing.examLevel !== "exam" || existing.room || existing.durationMins || refsOf(existing).length))));
       } else if (t === "deadline") {
         condHost.appendChild(disclosure("Deadline details", "Priority, status, countdown",
           el("div", { class: "k-cal-fgrid" }, [field("Priority", priority), field("Status", status)]),
@@ -1121,6 +1149,7 @@
          switching a record's type cannot leave stale exam fields behind */
       if (t === "exam") {
         patch.paper = paper.value.trim();
+        patch.examLevel = levelSel.value;
         patch.room = room.value.trim();
         patch.durationMins = duration.value === "" ? null : Number(duration.value);
         patch.refs = examPick.value();
@@ -1704,6 +1733,7 @@
     alertLabel: alertLabel,
     TYPES: TYPES, TYPE_LABEL: TYPE_LABEL, COLOURS: COLOURS,
     RECUR: RECUR, ALERTS: ALERTS, PRIORITIES: PRIORITIES,
-    COUNTDOWN_TYPES: COUNTDOWN_TYPES
+    COUNTDOWN_TYPES: COUNTDOWN_TYPES,
+    EXAM_LEVELS: EXAM_LEVELS, examLevel: examLevel
   };
 })();

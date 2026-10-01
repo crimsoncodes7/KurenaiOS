@@ -668,6 +668,126 @@
   }
   KOS.homeNextAction = nextAction;
 
+  /* ---------- the Focus card's own ladder ----------
+     What a focus session should be spent on, which is a narrower question
+     than nextAction(): never the review queue (the card's Review side owns
+     that) and never an in-class item — a lesson is sat in class, not at
+     the desk (review after part 2). Each rung says what the Goal row means
+     for it.
+       1  a study block from the calendar, from 30 minutes before it starts
+          until it ends — it is the plan you made for this hour, so it
+          leads even in an exam week; the goal is the block's length;
+       2  an exam inside its lead time (calendar EXAM_LEVELS: a real exam 7
+          days, a mock 5, an end-of-topic test 3, a retrieval test 1) —
+          more important kinds first, then nearer; the goal is that kind's
+          daily revision time;
+       3  an open assignment due within 7 days (or overdue), nearest first;
+          the goal is what its estimate has left;
+       4  the next exam of any kind within six weeks; a 2-hour goal;
+       5  the personal plan's carried rows, then where the reading stopped,
+          then a clear board — each with the 2-hour daily goal. */
+  var FOCUS_LEAD_MIN = 30, FOCUS_GOAL_MIN = 120;
+  function hmMins(t) { var p = String(t || "").split(":"); return +p[0] * 60 + +p[1]; }
+  function minsText(m) {
+    m = Math.max(0, Math.round(m));
+    return m < 60 ? m + " min" : Math.floor(m / 60) + "h" + (m % 60 ? " " + (m % 60) + "m" : "");
+  }
+  function focusPlan(now) {
+    now = now || new Date();
+    var today = KOS.srs.todayISO();
+    var nowM = now.getHours() * 60 + now.getMinutes();
+    var doneToday = Math.round(hoursOn(today) * 60);
+    function dailyGoal(mins) {
+      return { k: "Goal", v: minsText(Math.min(doneToday, mins)) + " of " + minsText(mins) + " today", bar: Math.round(100 * doneToday / mins) };
+    }
+    function refsOfEv(ev) { return KOS.calendar.refsOf ? KOS.calendar.refsOf(ev) : []; }
+
+    /* 1 — a study block about to start, or running */
+    var blocks = (KOS.calendar.eventsOn ? KOS.calendar.eventsOn(today) : []).filter(function (e) {
+      if (e.type !== "study" || !e.time) return false;
+      var st = hmMins(e.time);
+      var en = e.endTime ? hmMins(e.endTime) : st + (e.durationMins || 60);
+      return nowM >= st - FOCUS_LEAD_MIN && nowM < en;
+    });
+    if (blocks.length) {
+      var b = blocks[0], st = hmMins(b.time);
+      var len = b.endTime ? hmMins(b.endTime) - st : (b.durationMins || 60);
+      var left = Math.min(len, (b.endTime ? hmMins(b.endTime) : st + len) - Math.max(nowM, st));
+      var asg = b.assignmentId != null && KOS.assignments ? KOS.assignments.get(b.assignmentId) : null;
+      return { kind: "block", kicker: nowM < st ? "Study block · starts in " + (st - nowM) + " min" : "Study block · now",
+        label: b.title, why: b.time + (b.endTime ? "–" + b.endTime : "") + (asg ? " · for " + asg.title : "") + (b.subject ? " · " + SUBJ_SHORT[b.subject] : ""),
+        subject: b.subject || (asg && asg.subject) || null, ref: b.ref || null, refs: refsOfEv(b),
+        assignmentId: asg ? asg.id : null, mins: Math.max(5, Math.min(180, left)), fixed: true,
+        goal: { k: "Block", v: minsText(len) + (nowM >= st && left < len ? " · " + minsText(left) + " left" : "") },
+        go: function () { KOS.show("calendar"); } };
+    }
+
+    /* 2 — an exam inside its lead time */
+    var exams = (KOS.calendar.deadlines ? KOS.calendar.deadlines() : []).filter(function (d) { return d.ev.type === "exam"; });
+    var LV = KOS.calendar.EXAM_LEVELS || [];
+    function lvOf(ev) { return KOS.calendar.examLevel ? KOS.calendar.examLevel(ev) : { v: "exam", short: "Exam", leadDays: 7, goalMins: 120 }; }
+    function rank(ev) { var v = lvOf(ev).v; for (var i = 0; i < LV.length; i++) if (LV[i].v === v) return i; return 0; }
+    function examPlan(d, goalMins) {
+      var lv = lvOf(d.ev);
+      return { kind: "exam", kicker: lv.short + " " + (d.days === 0 ? "today" : d.days === 1 ? "tomorrow" : "in " + d.days + " days"),
+        label: "Revise for " + d.ev.title,
+        why: [d.ev.paper, d.ev.subject ? SUBJ_SHORT[d.ev.subject] : null, d.ev.time ? d.date === today ? "at " + d.ev.time : null : null].filter(Boolean).join(" · ") || lv.label,
+        subject: d.ev.subject || null, ref: d.ev.ref || null, refs: refsOfEv(d.ev),
+        goal: dailyGoal(goalMins), go: function () { KOS.show("calendar"); } };
+    }
+    var hot = exams.filter(function (d) { return d.days <= lvOf(d.ev).leadDays; })
+      .sort(function (a, b2) { return rank(a.ev) - rank(b2.ev) || a.days - b2.days; });
+    if (hot.length) return examPlan(hot[0], lvOf(hot[0].ev).goalMins);
+
+    /* 3 — an assignment due within a week, or overdue */
+    var A = KOS.assignments;
+    var asgs = A ? A.all().filter(function (a) {
+      if (!A.isOpen(a) || !a.due) return false;
+      return A.isOverdue(a) || A.daysLeft(a) <= 7;
+    }).sort(function (a, b2) {
+      var oa = A.isOverdue(a) ? 0 : 1, ob = A.isOverdue(b2) ? 0 : 1;
+      return oa - ob || (a.due + (a.dueTime || "")).localeCompare(b2.due + (b2.dueTime || "")) || b2.priority - a.priority;
+    }) : [];
+    if (asgs.length) {
+      var a = asgs[0], dl = A.daysLeft(a), est = a.estimateMins || 0, spent = a.actualMins || 0;
+      var refs = A.refsOf ? A.refsOf(a) : (a.refs || []);
+      var first = KOS.spec.firstLeaf(refs);
+      return { kind: "assignment",
+        kicker: A.isOverdue(a) ? "Overdue" : dl === 0 ? "Due today" : dl === 1 ? "Due tomorrow" : "Due in " + dl + " days",
+        label: a.title, why: "Assignment" + (a.subject ? " · " + SUBJ_SHORT[a.subject] : "") + (a.progress ? " · " + a.progress + "% done" : ""),
+        subject: a.subject || (first && first.subject) || null, ref: first ? first.ref : null, refs: refs, assignmentId: a.id,
+        goal: est ? { k: "Left", v: (spent >= est ? "Over the " + minsText(est) + " estimate" : "About " + minsText(est - spent) + " of " + minsText(est)), bar: Math.round(100 * spent / est) }
+          : { k: "Left", v: "No estimate yet" + (spent ? " · " + minsText(spent) + " spent" : "") },
+        go: function () { if (KOS.assignmentDetail) KOS.assignmentDetail(a.id, function () { KOS.show("home", undefined, { _nav: true }); }); else KOS.show("assignments"); } };
+    }
+
+    /* 4 — the next exam of any kind, further out */
+    var later = exams.filter(function (d) { return d.days <= 42; })[0];
+    if (later) return examPlan(later, FOCUS_GOAL_MIN);
+
+    /* 5 — the personal plan, the reading, or a clear board */
+    var rest = null;
+    if (KOS.pacing && KOS.pacing.dueThisWeek) {
+      var owe = KOS.pacing.dueThisWeek();
+      if (owe.carried.length) {
+        var c0 = owe.carried[0].entry, l0 = (c0.refs || [])[0];
+        rest = { kicker: "Behind on the plan", label: c0.title,
+          why: owe.carried.length > 1 ? "and " + (owe.carried.length - 1) + " more carried over from earlier weeks" : "carried over from an earlier week",
+          subject: c0.subject, ref: l0 || null, refs: (c0.refs || []).map(function (r) { return c0.subject + ":" + r; }),
+          go: function () { KOS.show("pacing", { wb: owe.week.wb }); } };
+      }
+    }
+    var keep = store.state.ui.lastRef || {};
+    for (var i = 0; i < SUBJECTS.length && !rest; i++) {
+      var sid = SUBJECTS[i], last = keep[sid];
+      if (last && BYREF[sid][last]) rest = { kicker: "Where you left off", label: last + " " + BYREF[sid][last].title, why: KOS_DATA[sid].name,
+        subject: sid, ref: last, go: (function (s2, r2) { return function () { KOS.show("ref", { subject: s2, ref: r2 }); }; })(sid, last) };
+    }
+    if (!rest) rest = { kicker: "Clear", label: "Nothing is waiting", why: "No study block, exam or assignment inside a week.", go: function () { KOS.show("focus"); } };
+    return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(FOCUS_GOAL_MIN) });
+  }
+  KOS.homeFocusPlan = focusPlan;
+
   /* ---------- Home (Graphite frame 7a/7b) ----------
      Reads only: every figure comes from a service that already owns it
      (sessions, SRS, the directive list, habits, reminders, the calendar,
@@ -866,7 +986,7 @@
     if (running) KOS.ui.state(upnext, "live", true);
     function paintUpNext() {
       upnext.innerHTML = "";
-      var n = mode === "review" ? null : (running ? next : nextAction({ skipDue: true }));
+      var n = mode === "review" ? null : (running ? next : focusPlan());
       var sw = KOS.ui.tabs([
         { label: "Focus", active: mode === "focus", onSelect: function () { homeMode = mode = "focus"; paintUpNext(); } },
         { label: "Review", active: mode === "review", onSelect: function () { homeMode = mode = "review"; paintUpNext(); } }
@@ -897,7 +1017,7 @@
       } else {
         upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label" }, [
           running || !n.go ? n.label : el("button", { type: "button", class: "k-upnext-open", "data-ui": "home.next-open",
-            title: n.cta.replace(/[→◉]/g, "").trim(), onclick: n.go }, [n.label])
+            title: (n.cta || "Open").replace(/[→◉]/g, "").trim(), onclick: n.go }, [n.label])
         ]));
         /* Critical: a finished focus session of 25+ minutes is one of the
            three recovery wins, so the card says so (7a·crit) */
@@ -905,9 +1025,9 @@
         var why = [n.why, winPending ? "counts as a recovery win" : null].filter(Boolean).join(" · ");
         if (why) upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why", text: why }));
         if (!running) {
-          var todayH = hoursOn(today), goalH = 2;
-          upnext.appendChild(cardRow("Session", homeMins + " min" + (homeMins === 25 ? " · 1 pomodoro" : homeMins === 50 ? " · one long block" : " · deep work")));
-          upnext.appendChild(cardRow("Goal", fmtH(todayH) + " of " + goalH + "h today", Math.round(100 * todayH / goalH)));
+          var sessMins = n.fixed ? n.mins : homeMins;
+          upnext.appendChild(cardRow("Session", n.fixed ? minsText(sessMins) + " · the block" : homeMins + " min" + (homeMins === 25 ? " · 1 pomodoro" : homeMins === 50 ? " · one long block" : " · deep work")));
+          if (n.goal) upnext.appendChild(cardRow(n.goal.k, n.goal.v, n.goal.bar == null ? null : n.goal.bar));
         }
         /* the Focus side starts the session it just configured; the
            recommendation stays one press away on its title (review A: the
@@ -916,15 +1036,20 @@
         else {
           cta = "Start focus";
           go = function () {
-            KOS.focus.start({ mode: homeMins === 25 ? "pomodoro" : "custom", workMin: homeMins,
-              breakMin: homeMins === 25 ? 5 : homeMins === 50 ? 10 : 0,
-              subject: n.subject || null, ref: n.ref || null, objective: n.label });
+            var m = n.fixed ? n.mins : homeMins;
+            var cfg = { mode: m === 25 ? "pomodoro" : "custom", workMin: m,
+              breakMin: m === 25 ? 5 : m === 50 ? 10 : 0,
+              subject: n.subject || null, ref: n.ref || null, objective: n.label };
+            /* a Focus session links ONE subject (invariant 4a) */
+            if (n.refs && n.refs.length && n.subject) cfg.refs = n.refs.filter(function (k) { return k.indexOf(n.subject + ":") === 0; });
+            if (n.assignmentId != null) cfg.assignmentId = n.assignmentId;
+            KOS.focus.start(cfg);
             KOS.show("focus");
           };
         }
       }
       var foot = el("div", { class: "k-upnext-foot" });
-      if (mode === "focus" && !running) {
+      if (mode === "focus" && !running && !n.fixed) {
         foot.appendChild(el("div", { class: "k-durations", role: "group", "aria-label": "Session length" },
           [25, 50, 90].map(function (m) {
             return el("button", { type: "button", class: "k-btn", "aria-pressed": String(m === homeMins), text: m + "m",
@@ -952,6 +1077,15 @@
         hue: SUBJ_HUE[as.subject] || "var(--muted)", when: as.dueTime || "Today", now: true,
         go: function () { openAssignment(as.id); } });
     });
+    /* the class lessons on today's timetable, one row each — the plan's
+       lessons dated by the class timetable (KOS.pacing.lessonPlan). Only
+       the Today card lists single lessons; Upcoming keeps the milestones. */
+    (KOS.pacing && KOS.pacing.lessonsOn ? KOS.pacing.lessonsOn(today) : []).forEach(function (x) {
+      var e = x.entry, l = x.lesson;
+      todayItems.push({ title: l.text, sub: "In class · " + SUBJ_SHORT[e.subject] + (l.whole ? "" : " · " + e.title),
+        hue: SUBJ_HUE[e.subject] || "var(--muted)", when: x.sat ? "Sat" : "Lesson", now: !x.sat && l.tone !== "lesson",
+        done: x.sat, ui: "home.lesson", go: function () { KOS.show("pacing", { wb: e.wb }); } });
+    });
     /* an assignment row opens the one Assignment dialog in place, as the
        tracker's own rows do; closing it redraws Home */
     function openAssignment(id) {
@@ -971,10 +1105,10 @@
     ]);
     if (!hasToday) {
       tcard.appendChild(KOS.ui.emptyState({ compact: true, mark: "澄", title: "Nothing on today",
-        body: hasUp ? "No events or assignments due today." : "No events today, no countdowns, no assignments due. Add a deadline or start a session." }));
+        body: hasUp ? "No lessons, events or assignments due today." : "No lessons or events today, no countdowns, no assignments due. Add a deadline or start a session." }));
     }
-    todayItems.slice(0, 4).forEach(function (t) {
-      tcard.appendChild(el("button", { type: "button", class: "k-day-row", onclick: t.go }, [
+    todayItems.slice(0, 6).forEach(function (t) {
+      tcard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": t.ui || null, "data-state": t.done ? "done" : null, onclick: t.go }, [
         el("span", { class: "k-day-bar", style: "--row-c: " + t.hue, "aria-hidden": "true" }),
         el("span", { class: "k-day-txt" }, [
           el("span", { class: "k-day-title", text: t.title }),
@@ -1017,8 +1151,12 @@
     /* Study hours — this week, Monday to Sunday */
     var days = weekIsos.map(function (iso) { return { iso: iso, h: hoursOn(iso) }; });
     var weekH = days.reduce(function (a, d) { return a + d.h; }, 0);
-    var lastWeekH = 0;
-    for (var lw = 1; lw <= 7; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - lw); lastWeekH += hoursOn(isoOf(ld)); }
+    /* the comparison is like for like: this week so far against the SAME
+       days of last week (Monday to today's weekday). Against the whole of
+       last week, a Thursday always read as a loss — and the bare figure
+       never said what it was compared with. */
+    var lastWeekH = 0, daysIn = weekIsos.filter(function (iso) { return iso <= today; }).length;
+    for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += hoursOn(isoOf(ld)); }
     var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && weekIsos.indexOf(s.date) !== -1; }).length;
     var peak = Math.max(2, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
     /* every bar and the goal line are measured in ONE track per column
@@ -1066,7 +1204,9 @@
       el("div", { class: "k-hours-big" }, [
         el("span", { class: "k-hours-n", text: fmtH(weekH) }),
         el("span", { class: "k-hours-u", text: "hours" + (weekSess ? " · " + weekSess + " session" + (weekSess === 1 ? "" : "s") : " · no sessions yet") }),
-        lastWeekH || weekH ? el("span", { class: "k-hours-d", "data-state": delta < 0 ? "down" : null, text: (delta >= 0 ? "+" : "−") + fmtH(Math.abs(delta)) }) : null
+        lastWeekH || weekH ? el("span", { class: "k-hours-d", "data-ui": "home.week-delta", "data-state": delta < 0 ? "down" : null,
+          title: fmtH(lastWeekH) + "h by this point last week",
+          text: (delta >= 0 ? "+" : "−") + fmtH(Math.abs(delta)) + "h vs last week" }) : null
       ].filter(Boolean)),
       chart,
       el("div", { class: "k-hours-facts", "data-ui": "home.facts", "aria-label": "This week" }, [

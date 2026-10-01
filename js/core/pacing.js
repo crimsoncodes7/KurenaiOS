@@ -117,8 +117,21 @@
       /* a class row's lessons each take their own tick (review B): `sat`
          names the lessons sat, by their text, and the row counts as done
          once every lesson in it is sat */
-      sat: (Array.isArray(e.sat) ? e.sat : []).map(str).filter(Boolean)
+      sat: (Array.isArray(e.sat) ? e.sat : []).map(str).filter(Boolean),
+      /* a lesson moved off its timetabled day: lesson text → ISO weekday
+         (1 Monday … 7 Sunday). Only overrides are stored; every other
+         lesson takes its day from the class timetable (lessonPlan) */
+      lessonDays: cleanLessonDays(e.lessonDays)
     };
+  }
+  function cleanLessonDays(m) {
+    var out = {};
+    if (!m || typeof m !== "object" || Array.isArray(m)) return out;
+    Object.keys(m).forEach(function (k) {
+      var d = parseInt(m[k], 10);
+      if (k && d >= 1 && d <= 7) out[k] = d;
+    });
+    return out;
   }
 
   /* ---------------- the one-time seed ----------------
@@ -307,6 +320,78 @@
   }
   function lessonSat(e, text) {
     return !!e && (lessonsOf(e).length ? (e.sat || []).indexOf(text) !== -1 : !!e.done);
+  }
+
+  /* ---------------- the class timetable ----------------
+     Which weekdays each subject is taught (ISO weekday, 1 Monday … 7
+     Sunday). It dates a class row's lessons: the first lesson falls on the
+     first class day of the week, the second on the second, and so on, with
+     any lessons beyond the last class day sharing it; a row with a single
+     lesson ("supervised coursework, continuing") runs every class day.
+     A lesson can be moved to another day (`lessonDays`). Read with a
+     default, stored only once edited, so an untouched install writes
+     nothing. */
+  var TIMETABLE = { compsci: [1, 3, 5], maths: [1, 2, 5], it: [2, 4] };
+  function timetable(subject) {
+    var t = P().timetable;
+    var src = t && typeof t === "object" && Array.isArray(t[subject]) ? t[subject] : TIMETABLE[subject] || [];
+    return src.filter(function (d, i, a) { return d >= 1 && d <= 7 && a.indexOf(d) === i; }).sort();
+  }
+  function setTimetable(subject, days) {
+    if (SUBJECTS.indexOf(subject) === -1) return null;
+    var s = P();
+    s.timetable = (s.timetable && typeof s.timetable === "object") ? s.timetable : {};
+    s.timetable[subject] = (Array.isArray(days) ? days : []).map(function (d) { return parseInt(d, 10); })
+      .filter(function (d, i, a) { return d >= 1 && d <= 7 && a.indexOf(d) === i; }).sort();
+    KOS.store.save();
+    return s.timetable[subject].slice();
+  }
+  /* one class row's lessons, each with the weekdays it falls on and those
+     days as dates in the row's week. A row whose detail lists nothing is
+     one lesson under its own title. */
+  function lessonPlan(e) {
+    if (!e || e.source !== "school") return [];
+    var ls = lessonsOf(e);
+    var whole = !ls.length;
+    if (whole) ls = [{ text: e.title, tone: /Mock|Assessment/.test(e.kind) ? "assess" : /NEA/.test(e.kind) ? "nea" : "lesson" }];
+    var tt = timetable(e.subject);
+    var over = e.lessonDays || {};
+    return ls.map(function (l, i) {
+      var days = over[l.text] ? [over[l.text]]
+        : !tt.length ? []
+        : ls.length === 1 ? tt.slice()
+        : [tt[Math.min(i, tt.length - 1)]];
+      return { text: l.text, tone: l.tone, whole: whole, index: i, moved: !!over[l.text], days: days,
+        dates: days.map(function (d) { return KOS.srs ? KOS.srs.addDays(e.wb, d - 1) : e.wb; }) };
+    });
+  }
+  function setLessonDay(id, text, dow) {
+    var e = entryById(id);
+    if (!e) return null;
+    var map = cleanLessonDays(e.lessonDays);
+    var d = parseInt(dow, 10);
+    /* back on its timetabled day is no override at all */
+    delete map[text];
+    var dflt = lessonPlan(Object.assign({}, e, { lessonDays: map })).filter(function (l) { return l.text === text; })[0];
+    if (d >= 1 && d <= 7 && !(dflt && dflt.days.length === 1 && dflt.days[0] === d)) map[text] = d;
+    e.lessonDays = map;
+    KOS.store.save();
+    return e;
+  }
+  /* the class lessons on one date, from the week that date falls in —
+     what the Home Today card lists */
+  function lessonsOn(dateISO) {
+    var w = weekFor(dateISO);
+    if (!w || dateISO < w.wb || dateISO > weekEnd(w.wb)) return [];
+    var out = [];
+    entriesFor(w.wb, null, "school").forEach(function (e) {
+      lessonPlan(e).forEach(function (l) {
+        if (l.dates.indexOf(dateISO) !== -1) out.push({ entry: e, lesson: l, sat: lessonSat(e, l.text) || (l.whole && !!e.done) });
+      });
+    });
+    var order = { compsci: 0, maths: 1, it: 2 };
+    out.sort(function (a, b) { return order[a.entry.subject] - order[b.entry.subject] || a.lesson.index - b.lesson.index; });
+    return out;
   }
 
   /* ---------------- reads ---------------- */
@@ -581,6 +666,20 @@
      beside calendar exams and assignment deadlines. DERIVED from the
      school rows (invariant 44's rule: never written as events). */
   var MILESTONE_KINDS = { "Mock": "Mock", "Assessment": "Assessment", "NEA Milestone": "NEA milestone" };
+  /* the day a milestone actually happens: the lesson that IS the
+     milestone (an assessment for a Mock/Assessment row, an NEA lesson for
+     an NEA one, else the first lesson), on its FIRST class day — a
+     "continuing" lesson that runs every class day is a milestone once,
+     when it starts, and then lives on Today's lessons only.
+     Dated by its week beginning alone, a milestone read "0 days" — today —
+     from Monday to Sunday (review after part 2). */
+  function milestoneDate(e, today) {
+    var plan = lessonPlan(e);
+    var want = e.kind === "NEA Milestone" ? "nea" : "assess";
+    var l = plan.filter(function (x) { return x.tone === want; })[0] || plan[0];
+    if (!l || !l.dates.length) return e.wb < today && weekEnd(e.wb) >= today ? today : e.wb;
+    return l.dates[0] >= today ? l.dates[0] : null;
+  }
   function classMilestones(subject, limit) {
     var today = KOS.srs ? KOS.srs.todayISO() : new Date().toISOString().slice(0, 10);
     var out = [];
@@ -589,8 +688,10 @@
       if (subject && e.subject !== subject) return;
       var end = weekEnd(e.wb);
       if (end < today) return;                       /* the week has passed */
-      var days = Math.max(0, KOS.srs ? KOS.srs.daysBetween(today, e.wb) : 0);
-      out.push({ entry: e, days: days, date: e.wb, label: MILESTONE_KINDS[e.kind],
+      var date = milestoneDate(e, today);
+      if (!date) return;                             /* its day has passed */
+      var days = Math.max(0, KOS.srs ? KOS.srs.daysBetween(today, date) : 0);
+      out.push({ entry: e, days: days, date: date, label: MILESTONE_KINDS[e.kind],
         inWeek: e.wb <= today });
     });
     out.sort(function (a, b) { return a.days - b.days || a.entry.title.localeCompare(b.entry.title); });
@@ -672,6 +773,12 @@
     lessonsOf: lessonsOf,
     setLessonSat: setLessonSat,
     lessonSat: lessonSat,
+    lessonPlan: lessonPlan,
+    lessonsOn: lessonsOn,
+    setLessonDay: setLessonDay,
+    timetable: timetable,
+    setTimetable: setTimetable,
+    TIMETABLE: TIMETABLE,
     coverage: coverage,
     alignment: alignment,
     alignmentLine: alignmentLine,

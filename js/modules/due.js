@@ -124,7 +124,7 @@
         el("span", { class: "k-rv-topic-bar", "aria-hidden": "true" }),
         el("span", { class: "k-rv-topic-ref k-mono", text: g.ref }),
         el("span", { class: "k-rv-topic-t", text: topicTitle(g.sid, g.ref) }),
-        g.late ? el("span", { class: "k-chip", "data-tone": "crimson", text: g.late + " overdue" }) : null,
+        g.late ? el("span", { class: "k-chip", "data-tone": "danger", text: g.late + " overdue" }) : null,
         el("span", { class: "k-rv-topic-n k-mono" }, [String(g.n), el("span", { class: "k-muted", text: " due" })]),
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "review.topic-go",
           "aria-label": "Review " + g.n + " due in " + g.ref + " " + topicTitle(g.sid, g.ref), text: "▶",

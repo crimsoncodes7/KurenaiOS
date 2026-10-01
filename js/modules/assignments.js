@@ -50,7 +50,7 @@
   function statusChip(a) {
     var s = A().STATUSES.find(function (x) { return x.v === a.status; }) || A().STATUSES[0];
     var late = A().isOverdue(a);
-    var tone = late ? "crimson" : a.status === "inProgress" ? "amber" : a.status === "blocked" ? "red" : (a.status === "complete" || a.status === "submitted") ? "green" : "muted";
+    var tone = late ? "danger" : a.status === "inProgress" ? "amber" : a.status === "blocked" ? "red" : (a.status === "complete" || a.status === "submitted") ? "green" : "muted";
     return el("span", { class: "k-chip", "data-ui": "asg.status", "data-tone": tone, text: late ? "Overdue" : s.label });
   }
   function progressBar(a) {
@@ -205,7 +205,7 @@
           el("span", { class: "k-chip", "data-tone": "muted", text: A().typeLabel(a.type) }),
           a.priority ? el("span", { class: "k-chip", "data-tone": "amber", text: "Priority · " + A().PRIORITIES[a.priority].label }) : null,
           a.showInCountdown ? el("span", { class: "k-chip", "data-tone": "crimson", text: "◈ major" }) : null,
-          el("span", { class: "k-chip", "data-tone": d.late ? "crimson" : "muted", title: "Deadline: " + fmtDue(a), text: d.late ? d.text : "Deadline · " + fmtDue(a) })
+          el("span", { class: "k-chip", "data-tone": d.late ? "danger" : "muted", title: "Deadline: " + fmtDue(a), text: d.late ? d.text : "Deadline · " + fmtDue(a) })
         ].filter(Boolean))
       ]));
       host.appendChild(el("div", { class: "k-asg-stats" }, [

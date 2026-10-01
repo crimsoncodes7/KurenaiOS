@@ -86,11 +86,19 @@
   /* streak integrity (2c): an early-stopped focus session stays in the log as
      evidence (and still counts as "activity" for the HP day-drain), but only
      COMPLETED sessions keep a streak alive. Non-timer activity types have no
-     `complete` field and count as before. */
+     `complete` field and count as before.
+     A "todo" tick (a reminder, a habit, a task, an assignment marked
+     complete) is activity for the day-drain too, but it is not study: a
+     day whose only entry was ticking a habit used to keep the STUDY streak
+     alive (invariant 4 — the streak is a derivation of study, not of
+     the ledger as a whole). */
+  function studyEntry(e, sid) {
+    return (!sid || e.subject === sid) && e.type !== "media" && e.type !== "todo" &&
+      !(e.type === "focus" && e.metrics && e.metrics.complete === false);
+  }
   function hasStreakActivity(dateISO, sid) {
     return store.state.sessions.some(function (e) {
-      return e.date === dateISO && (!sid || e.subject === sid) && e.type !== "media" &&
-        !(e.type === "focus" && e.metrics && e.metrics.complete === false);
+      return e.date === dateISO && studyEntry(e, sid);
     });
   }
   function hasMediaActivity(dateISO) {
@@ -118,8 +126,7 @@
   function bestStreak(sid) {
     var days = {};
     store.state.sessions.forEach(function (e) {
-      if ((!sid || e.subject === sid) && e.type !== "media" &&
-        !(e.type === "focus" && e.metrics && e.metrics.complete === false)) days[e.date] = true;
+      if (studyEntry(e, sid)) days[e.date] = true;
     });
     var best = 0, run = 0, prev = null;
     Object.keys(days).sort().forEach(function (d) {

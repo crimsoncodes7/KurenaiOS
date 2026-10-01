@@ -330,6 +330,47 @@
      addresses, so moving it re-points those rows in the same write — that
      is why this goes through KOS.pacing.updateWeek rather than the field.
      ============================================================ */
+  /* the class timetable: which weekdays each subject is taught. It dates
+     the week's lessons (KOS.pacing.lessonPlan) — the Home Today card lists
+     them and a class milestone counts down to its real day. */
+  var ISO_DOW = [[1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"], [7, "Sun"]];
+  function timetableDialog(onSaved) {
+    var overlay;
+    var pick = {};
+    var rows = SUBJ.map(function (sb) {
+      pick[sb.id] = KOS.pacing.timetable(sb.id).slice();
+      var grp = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": sb.name + " class days", "data-ui": "pace.tt-days" },
+        ISO_DOW.slice(0, 5).map(function (d) {
+          var on = pick[sb.id].indexOf(d[0]) !== -1;
+          var btn = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(on), text: d[1],
+            onclick: function () {
+              var i = pick[sb.id].indexOf(d[0]);
+              if (i === -1) pick[sb.id].push(d[0]); else pick[sb.id].splice(i, 1);
+              var now = i === -1;
+              btn.setAttribute("aria-pressed", String(now)); KOS.ui.state(btn, "active", now);
+            } });
+          if (on) KOS.ui.state(btn, "active", true);
+          return btn;
+        }));
+      var row = el("div", { class: "k-pace-tt-row", "data-ui": "pace.tt-row" }, [
+        el("b", { class: "k-pace-tt-subj", text: sb.name }), grp
+      ]);
+      row.style.setProperty("--pace-hue", HUE[sb.id]);
+      return row;
+    });
+    function save() {
+      SUBJ.forEach(function (sb) { KOS.pacing.setTimetable(sb.id, pick[sb.id]); });
+      KOS.ui.toast("Class days saved.");
+      overlay.close();
+      onSaved && onSaved();
+    }
+    overlay = dialogShell("Class days", [
+      el("p", { class: "k-field-hint", text: "A week's lessons fall on these days in order; a row with one lesson runs on every class day. Move a single lesson from its own row." })
+    ].concat(rows), [
+      el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", text: "Save", onclick: save })
+    ]);
+  }
+
   function weekDialog(existing, onSaved) {
     var creating = !existing;
     var w = existing || {};
@@ -946,6 +987,7 @@
        listing no lessons is its own single lesson. */
     function classBlock(e) {
       var lessons = KOS.pacing.lessonsOf(e);
+      var plan = KOS.pacing.lessonPlan(e);
       if (lessons.length < 2) return tickRow(e, null, "class");
       var sub = refLine(e);
       var satN = lessons.filter(function (l) { return KOS.pacing.lessonSat(e, l.text); }).length;
@@ -956,15 +998,23 @@
           el("b", { class: "k-pace-row-title", text: e.title }),
           sub ? el("span", { class: "k-pace-row-m k-mono", "data-ui": "part.sub", text: sub }) : null
         ].filter(Boolean)),
-        el("ul", { class: "k-pace-cls-lessons", "data-ui": "pace.lessons" }, lessons.map(function (l) {
+        el("ul", { class: "k-pace-cls-lessons", "data-ui": "pace.lessons" }, lessons.map(function (l, li0) {
           var on = KOS.pacing.lessonSat(e, l.text);
+          var lp = plan[li0] || { days: [] };
+          var day = el("select", { class: "k-select k-pace-lesson-day", "data-ui": "pace.lesson-day", "aria-label": "Day for " + l.text,
+            title: lp.moved ? "Moved from its timetabled day" : "From the class timetable",
+            onchange: function () { KOS.pacing.setLessonDay(e.id, l.text, day.value); redraw(); } },
+            ISO_DOW.map(function (d) { return el("option", { value: String(d[0]), text: d[1] }); }));
+          day.value = String(lp.days[0] || "");
+          if (lp.moved) KOS.ui.state(day, "moved", true);
           var tick = el("input", { type: "checkbox", class: "k-pace-tick-in", "aria-label": (on ? "Untick " : "Tick off ") + l.text,
             onchange: function () { KOS.pacing.setLessonSat(e.id, l.text, tick.checked); redraw(); } });
           tick.checked = on;
           var li = el("li", { class: "k-pace-plan k-pace-lesson-row", "data-ui": "pace.lesson" }, [
             el("label", { class: "k-pace-tick", "data-ui": "pace.tick", title: on ? "Sat" : "Tick when you have sat it" }, [tick]),
-            el("span", { class: "k-pace-lesson-t", text: l.text })
-          ]);
+            el("span", { class: "k-pace-lesson-t", text: l.text }),
+            lp.days.length ? day : null
+          ].filter(Boolean));
           if (on) KOS.ui.state(li, "is-done", true);
           if (l.tone !== "lesson") KOS.ui.state(li, "is-" + l.tone, true);
           return li;
@@ -1006,6 +1056,8 @@
                 redraw();
               });
             } }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.timetable", "data-phone-more": "", text: "Class days",
+            onclick: function () { timetableDialog(redraw); } }),
           todayWeek && !isNow ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "This week",
             onclick: function () { KOS.show("pacing", { wb: todayWeek.wb }); } }) : null
         ].filter(Boolean));

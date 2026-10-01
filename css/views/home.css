@@ -17,7 +17,7 @@
 .k-home-hero-body { position: relative; z-index: 1; block-size: 100%; min-block-size: var(--home-hero-h); display: flex; align-items: center; gap: var(--sp-24); padding: var(--sp-24) var(--sp-28); }
 .k-home-ring { inline-size: var(--home-avatar-ring); block-size: var(--home-avatar-ring); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--ring, var(--teal)) 0 var(--hp, 100%), var(--home-ring-track) var(--hp, 100%) 100%); }
 .k-home-ring[data-hp="strained"] { --ring: var(--amber); }
-.k-home-ring[data-hp="critical"] { --ring: var(--crimson); }
+.k-home-ring[data-hp="critical"] { --ring: var(--alarm); }
 .k-home-ring .k-avatar { box-shadow: 0 0 0 var(--rail-mark) var(--home-hero-bg); }
 .k-home-ring { --frame-out: calc((var(--home-avatar-ring) - var(--home-avatar)) / 2); --frame-ground: var(--home-hero-bg); }
 .k-home-hero-txt { flex: 1 1 0; min-inline-size: 0; }
@@ -32,7 +32,7 @@
 .k-home-level .k-bar { flex: 0 1 var(--home-xp-w); inline-size: auto; min-inline-size: var(--sp-40); --bar-h: var(--bar-6); background: var(--home-xp-track); --bar-c: var(--text); }
 .k-home-hp { color: var(--teal); white-space: nowrap; }
 .k-home-hp[data-hp="strained"] { color: var(--amber); }
-.k-home-hp[data-hp="critical"] { color: var(--crimson); }
+.k-home-hp[data-hp="critical"] { color: var(--alarm); }
 .k-home-goal { inline-size: var(--home-goal-w); flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--sp-10); }
 .k-home-goal-head { display: flex; align-items: baseline; }
 .k-home-goal-head .k-kicker { color: var(--home-goal-ink); }
@@ -47,11 +47,11 @@
 .k-home-goal > .k-btn { align-self: flex-start; margin-block-start: var(--sp-4); }
 /* Critical (7a·crit): the hero's hue swings from blue to crimson, the
    recovery wins are outlined crimson checks; nothing else changes */
-.k-home-hero[data-hp="critical"] { --home-hero-bg: var(--home-crit-bg); --home-hero-scrim: var(--home-crit-scrim); --home-hero-ink: var(--home-crit-ink); --home-goal-ink: var(--crimson); --home-ring-track: var(--home-crit-track); --home-xp-track: var(--home-crit-track); }
-.k-home-crit { color: var(--crimson); }
-.k-home-hero[data-hp="critical"] .k-goal-mark { box-shadow: inset 0 0 0 var(--ring-1-5) var(--crimson); }
-.k-home-hero[data-hp="critical"] .k-goal-item[aria-pressed="true"] .k-goal-mark { background: var(--crimson); box-shadow: none; }
-.k-card[data-state~="overdue"] > .k-card-head .k-card-meta { color: var(--crimson); }
+.k-home-hero[data-hp="critical"] { --home-hero-bg: var(--home-crit-bg); --home-hero-scrim: var(--home-crit-scrim); --home-hero-ink: var(--home-crit-ink); --home-goal-ink: var(--alarm); --home-ring-track: var(--home-crit-track); --home-xp-track: var(--home-crit-track); }
+.k-home-crit { color: var(--alarm); }
+.k-home-hero[data-hp="critical"] .k-goal-mark { box-shadow: inset 0 0 0 var(--ring-1-5) var(--alarm); }
+.k-home-hero[data-hp="critical"] .k-goal-item[aria-pressed="true"] .k-goal-mark { background: var(--alarm); box-shadow: none; }
+.k-card[data-state~="overdue"] > .k-card-head .k-card-meta { color: var(--alarm); }
 .k-home-goal-note { font-size: var(--fs-12-5); color: var(--text-2); }
 
 /* ---------- Routines and Reminders ---------- */
@@ -158,7 +158,9 @@ button.k-hours-fact:hover .k-hours-fact-v { color: var(--crimson); }
 .k-plan-day { inline-size: var(--tile); text-align: end; font-size: var(--fs-12); color: var(--muted); }
 .k-plan-foot { font-size: var(--fs-12-5); color: var(--muted); padding-block-start: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 .k-plan-foot .k-soft { color: var(--text-2); }
-.k-plan-more { padding: 0; background: none; box-shadow: none; color: var(--muted); font-size: var(--fs-12-5); }
+/* a link inside a sentence: on touch the 44px button minimum made it a
+   tall inline box the wrapped line beside it ran into (phone review) */
+.k-plan-more { padding: 0; background: none; box-shadow: none; color: var(--muted); font-size: var(--fs-12-5); min-block-size: 0; line-height: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: var(--sp-3); }
 .k-plan-more:hover { background: none; color: var(--text); }
 
 /* ---------- Continue: the four desks ---------- */
@@ -229,6 +231,14 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 
 @media (max-width: 560px) {
 .k-routines { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* touch: the 44px minimum (base.css) raised the HEIGHT of every button,
+   so a round control drew as a 28×44 oval (phone review, after part 2).
+   A round control grows as a circle; a tiny inline mark keeps the
+   documented dense size (invariant 69) instead of stretching. */
+@media (pointer: coarse) {
+.k-desk-go { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 }
 
 }

@@ -17,7 +17,7 @@ chronological diary here.
   https://ade0184c.kurenai-os.pages.dev (28 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-4`
-- Required smoke gate: 63 / 63 suites.
+- Required smoke gate: 64 / 64 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..63}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..64}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -143,7 +143,9 @@ source comments and audit notes refer to it.
    sessions do not take distraction penalties.
 4. Study streak, rest streak and the HP day-activity test are separate derivations
    of the session ledger. An incomplete Focus entry does not count for a streak but
-   still counts as activity for the day-drain check.
+   still counts as activity for the day-drain check; so does a `todo` tick (a
+   habit, reminder, task or assignment completion) — activity, never study
+   (`studyEntry` in `sessions.js`).
 4a. `KOS.governor.focusAward({complete, mins, secs, pauses, rule|mode})` is the
    one pure definition used by previews and payment; the completion screen
    reports `lastAward()`. The mode picks the rule (`focusRule`):
@@ -268,7 +270,12 @@ source comments and audit notes refer to it.
     (`g.themeFollow`: Dawn while the device is light, the chosen theme —
     Graphite if Dawn is the choice — while it is dark), else the choice
     (`g.theme`). The choice and the follow flag sync; amber, green, red,
-    gold and the medium hues are the same in every theme.
+    gold and the medium hues are the same in every theme. STATUS IS NOT THE
+    ACCENT: overdue, late, Critical and error states read `--alarm`
+    (`-soft`/`-ink`/`-wash`, from the fixed `--red`) and the Critical washes
+    derive from `--red`; `--crimson` is the theme's accent and a status
+    painted in it turned teal or white in a shop theme. Markup marks such a
+    chip `data-tone="danger"`.
 26b. Theme variants target `:root[data-theme="..."]` as semantic-token
     overrides only; unknown legacy ids map to the default.
 26c. `KOS.imageCrop` is the only crop/focal workflow. Persist source and
@@ -286,7 +293,11 @@ source comments and audit notes refer to it.
     boot and stay readable through each owner's `refsOf()`. Every form that
     names topics uses `KOS.topicPicker` (Assignments, Exams & Papers, Focus,
     the Calendar event and exam, the Pacing row); it writes nothing and an
-    owner whose contract is leaves only expands on save.
+    owner whose contract is leaves only expands on save. Above the units sits
+    the PAPER level (`KOS.spec.papers`): CS "Paper 1"/"Paper 2", Maths
+    "Pure"/"Statistics"/"Mechanics", synthetic nodes whose refs collide with
+    nothing; IT's units are their own papers, so the picker offers its units
+    there. A paper pick is stored as picked and resolves to its leaves.
 26f. `state.itUnits` is the one IT unit record (per-unit `status`
     done/sitting/not-taken, `raw`, `ums`, `series`, `year`, `date`), behind
     `KOS.itUnits.normalise*`, seeded once like the plan. `js/data/it-grades.js`
@@ -422,6 +433,15 @@ source comments and audit notes refer to it.
     state surface. Do not duplicate counts/mastery.
 53. Home asks “what next?” from canonical recommendations and keeps empty states
     compact; do not restore decorative fold-filling panels.
+53a. Home's Focus card has its own ladder (`KOS.homeFocusPlan`), never the
+    review queue and never an in-class item: a calendar study block from 30
+    minutes before it starts until it ends (goal = its length), an exam
+    inside its kind's lead time (`KOS.calendar.EXAM_LEVELS`: real 7 days,
+    mock 5, end-of-topic 3, retrieval 1; goal = that kind's revision time),
+    an open assignment due within 7 days (goal = what its estimate has
+    left), the next exam within six weeks, then the plan/reading with the
+    2-hour daily goal. An exam's kind is `examLevel`, kept on exams only;
+    one saved without it reads its kind from its title.
 54. Study and Home use shared derivations and preserve navigation/focus on redraw.
 55. Mangaka owns its compact discovery grammar; do not restore the old permanent
     filter wall.
@@ -582,7 +602,10 @@ source comments and audit notes refer to it.
     attributes rather than stringifying them.
 69. Increase actual visual hit areas (32px, 44px for coarse pointer) without
     overlapping invisible pseudo-targets. Dense calendar chips use the documented
-    24px-with-spacing exception.
+    24px-with-spacing exception. The touch minimum raises HEIGHT for every
+    button, so a round control must raise its width too (a circle, never a
+    28×44 oval) and a `.k-btn` never narrows below 44px; a tiny inline mark
+    (a chip's ✕, a tick) takes the dense size instead of stretching.
 70. Use shared `--z-*` tokens and account for ancestor stacking contexts.
 71. `KOS.search.run()` is a pure cross-domain disclosure layer. It searches user
     study/organisation/Collection data but never credentials, provider kv/logs,
@@ -663,6 +686,14 @@ source comments and audit notes refer to it.
     assignments due inside the week; "Remind me" creates one real reminder
     (due the week's Sunday, tagged `pacing`) — a link by text, not a copy;
     the rollover notice `pace:carry:<wb>` is one notification per plan week.
+    A class row's lessons are DATED by the class timetable
+    (`KOS.pacing.timetable`, read with a default, stored in
+    `state.pacing.timetable` only once edited): lesson i on the subject's
+    i-th class day, extras on the last, a single lesson on every class day;
+    a lesson moved by hand is `lessonDays[text]` (back on its timetabled day
+    stores nothing). Home's Today card lists the day's lessons
+    (`lessonsOn`); a milestone counts down to its milestone lesson's FIRST
+    day and leaves the countdowns once that day has passed.
 83. Ahead/aligned/behind/unplanned is set arithmetic over linked refs, measured
     from FIRST contact in the personal plan, and a week whose class rows carry
     no refs makes no claim at all rather than an empty verdict.

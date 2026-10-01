@@ -13,7 +13,7 @@
        multi:    true,                 many chips, or one that choosing replaces
        value:    ["compsci:4.2.6.1"],  the starting links
        subject:  "compsci" | fn,       lock to one subject (Focus: one per session)
-       levels:   ["unit","parent","leaf"],  what may be picked
+       levels:   ["paper","unit","parent","leaf"],  what may be picked
        placeholder, onChange(refs)
      }) → { el, value(), set(refs), open(), close(), refresh() }
 
@@ -21,7 +21,7 @@
    with "+ Add"; past two lines the rest fold into a "+N" chip. The panel
    opens under the field, fixed so a scrolling dialog never clips it: a
    search over ref and title (matches marked), a subject switch, a level
-   switch, and the tree at that level with the unit (and parent) above
+   switch (Paper · Unit · Parent · Leaf), and the tree at that level with the unit (and parent) above
    each row as quiet headings. ↑↓ move, Space ticks, Tab steps the level,
    Esc closes. Ticking a parent swaps any of its leaves already chosen
    for the whole parent; a leaf under a chosen parent reads as covered. */
@@ -29,19 +29,25 @@
   "use strict";
   var el = KOS.ui.el;
   var SUBJ = { compsci: "CS", maths: "Maths", it: "IT" };
-  var LEVEL_NAME = { unit: "Unit", parent: "Parent", leaf: "Leaf" };
+  var LEVEL_NAME = { paper: "Paper", unit: "Unit", parent: "Parent", leaf: "Leaf" };
+  var LEVEL_PLURAL = { paper: "papers", unit: "units", parent: "parents", leaf: "leaves" };
   var uid = 0;
 
   function short(t) {
     t = String(t || "");
     return t.length > 34 ? t.slice(0, 32).replace(/\s+\S*$/, "") + "…" : t;
   }
-  function node(k) { return KOS.spec.node(k); }
+  /* node("sid:ref") or node(sid, ref) — the walk below needs both; with
+     one argument only, ancestors() stopped at the first parent, so a unit
+     pick never absorbed a leaf two levels under it */
+  function node(k, ref) { return ref === undefined ? KOS.spec.node(k) : KOS.spec.node(k, ref); }
   /* the ancestors of a key, as keys, nearest first */
   function ancestors(k) {
     var out = [], n = node(k);
     while (n && n.parent) { out.push(n.subject + ":" + n.parent); n = node(n.subject, n.parent); }
-    if (n && n.level !== "unit" && n.unit) out.push(n.subject + ":" + n.unit);
+    if (n && n.level !== "unit" && n.level !== "paper" && n.unit) out.push(n.subject + ":" + n.unit);
+    /* a unit sits in its exam paper (IT's units are their own papers) */
+    if (n && n.paper && n.paper !== n.ref) out.push(n.subject + ":" + n.paper);
     return out.filter(function (x, i) { return out.indexOf(x) === i; });
   }
   function isUnder(k, anc) {
@@ -248,13 +254,14 @@
       var out = [], count = 0;
       subs.forEach(function (sid) {
         var nodes = KOS.spec.levelNodes(sid, level);
-        /* a subject with no parent level (Maths) offers its units there */
-        if (!nodes.length && level === "parent") nodes = KOS.spec.units(sid);
+        /* a subject with no parent level (Maths) offers its units there,
+           and so does one whose units are their own papers (IT) */
+        if (!nodes.length && (level === "parent" || level === "paper")) nodes = KOS.spec.units(sid);
         var lastUnit = null, lastParent = null;
         nodes.forEach(function (n) {
           if (q && n.ref.toLowerCase().indexOf(q) === -1 && n.title.toLowerCase().indexOf(q) === -1) return;
           count++;
-          if (n.level !== "unit" && n.unit !== lastUnit) {
+          if (n.level !== "unit" && n.level !== "paper" && n.unit !== lastUnit) {
             var u = KOS.spec.node(sid, n.unit);
             out.push({ head: "unit", node: u });
             lastUnit = n.unit; lastParent = null;
@@ -286,7 +293,7 @@
       });
       var e = entries();
       var hits = panel.querySelector("[data-ui~='tp.hits']");
-      hits.textContent = e.q ? e.count + " " + (level === "leaf" ? (e.count === 1 ? "leaf" : "leaves") : level === "parent" ? (e.count === 1 ? "parent" : "parents") : (e.count === 1 ? "unit" : "units")) : "";
+      hits.textContent = e.q ? e.count + " " + (e.count === 1 ? LEVEL_NAME[level].toLowerCase() : LEVEL_PLURAL[level]) : "";
       list.innerHTML = "";
       rows = [];
       if (!e.items.length) {

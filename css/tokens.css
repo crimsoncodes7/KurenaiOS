@@ -191,6 +191,12 @@ color-scheme: dark;
 --hit: 32px;
 --hit-coarse: 44px;
 --hit-dense: 24px;
+/* an empty state's text never narrower than this: below it, the actions
+   wrap under the text instead of crushing it into a one-word column */
+--empty-txt-min: 200px;
+/* a card header's meta keeps at least this much line before the header's
+   own action wraps under it */
+--card-meta-min: 120px;
 
 /* ---------- the shell's measures ---------- */
 --topbar-h: 60px;
@@ -749,15 +755,26 @@ color-scheme: dark;
 --crimson-glow: oklch(from var(--crimson) calc(l - 0.18) c h / 0.25);
 --crimson-soft: oklch(from var(--crimson) calc(l + 0.14) calc(c * 0.375) h);
 --red-soft: oklch(from var(--red) calc(l + 0.14) calc(c * 0.47) h);
+/* STATUS IS NOT THE ACCENT. Overdue, late, Critical and error states read
+   these, never --crimson: a shop theme re-tints the accent (teal, gold,
+   near-white), and a "critical" painted in the accent turned teal or white
+   and stopped meaning danger (review after part 2). --red is fixed in
+   every theme, so danger stays red everywhere. */
+--alarm: var(--red);
+--alarm-soft: var(--red-soft);
+--alarm-ink: oklch(from var(--red) 0.16 0.02 h);
+--alarm-wash: color-mix(in oklch, var(--red) 22%, var(--s1));
 --bloom-hi: oklch(from var(--bloom) calc(l + 0.04) c h);
 --bloom-lo: oklch(from var(--bloom) calc(l - 0.14) calc(c * 1.25) h);
 --collection-hue: oklch(from var(--crimson) calc(l + 0.02) calc(c * 0.875) h);
-/* the accent's dark washes: overdue, Critical, late, the Focus stage */
---crit-wash: linear-gradient(120deg, oklch(from var(--crimson) 0.26 calc(c * 0.3125) h), var(--s1) 60%);
---home-crit-bg: oklch(from var(--crimson) 0.21 calc(c * 0.28) h);
---home-crit-scrim: linear-gradient(90deg, oklch(from var(--crimson) 0.21 calc(c * 0.375) h / 0.85) 0%, oklch(from var(--crimson) 0.21 calc(c * 0.375) h / 0.6) 30%, oklch(from var(--crimson) 0.21 calc(c * 0.375) h / 0.18) 54%, transparent 64%, oklch(from var(--crimson) 0.17 calc(c * 0.25) h / 0.55) 78%, oklch(from var(--crimson) 0.17 calc(c * 0.25) h / 0.75) 100%);
---home-crit-ink: oklch(from var(--crimson) 0.8 calc(c * 0.5) h);
---home-crit-track: oklch(from var(--crimson) 0.32 calc(c * 0.3125) h);
+/* the dark washes: Critical (from the fixed red, so it means danger in
+   every theme — the offsets reproduce Graphite's crimson-based values),
+   then the Focus stage (the accent's) */
+--crit-wash: linear-gradient(120deg, oklch(from var(--red) 0.26 calc(c * 0.2941) calc(h - 4)), var(--s1) 60%);
+--home-crit-bg: oklch(from var(--red) 0.21 calc(c * 0.2635) calc(h - 4));
+--home-crit-scrim: linear-gradient(90deg, oklch(from var(--red) 0.21 calc(c * 0.3529) calc(h - 4) / 0.85) 0%, oklch(from var(--red) 0.21 calc(c * 0.3529) calc(h - 4) / 0.6) 30%, oklch(from var(--red) 0.21 calc(c * 0.3529) calc(h - 4) / 0.18) 54%, transparent 64%, oklch(from var(--red) 0.17 calc(c * 0.2353) calc(h - 4) / 0.55) 78%, oklch(from var(--red) 0.17 calc(c * 0.2353) calc(h - 4) / 0.75) 100%);
+--home-crit-ink: oklch(from var(--red) 0.8 calc(c * 0.4706) calc(h - 4));
+--home-crit-track: oklch(from var(--red) 0.32 calc(c * 0.2941) calc(h - 4));
 --fx-wash: oklch(from var(--crimson) 0.25 calc(c * 0.25) h);
 --fx-stage-glow: oklch(from var(--crimson) 0.23 calc(c * 0.3125) h);
 --fx-stage-track: oklch(from var(--crimson) 0.26 calc(c * 0.125) h);

@@ -138,7 +138,7 @@
     main.appendChild(el("div", { class: "k-cs-row" }, [perDayChart, mixCard]));
 
     /* due forecast, next 14 days, overdue first; ease distribution */
-    var forecast = [{ label: "over", value: overdue, color: "var(--crimson)", hint: "Overdue: " + overdue }];
+    var forecast = [{ label: "over", value: overdue, color: "var(--alarm)", hint: "Overdue: " + overdue }];
     for (var j = 0; j < 14; j++) {
       var d2 = KOS.srs.addDays(today, j);
       var n2 = tracked.filter(function (c) { return c.meta.due === d2; }).length;

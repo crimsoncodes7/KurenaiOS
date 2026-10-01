@@ -17,7 +17,8 @@
 .k-gv [data-tone="teal"] { --tone-c: var(--teal); }
 .k-gv [data-tone="healthy"] { --tone-c: var(--green); }
 .k-gv [data-tone="green"] { --tone-c: var(--green); }
-.k-gv [data-tone="crimson"], .k-gv [data-tone="critical"] { --tone-c: var(--crimson); }
+.k-gv [data-tone="crimson"] { --tone-c: var(--crimson); }
+.k-gv [data-tone="critical"], .k-gv [data-tone="danger"] { --tone-c: var(--alarm); }
 .k-gv [data-tone="amber"], .k-gv [data-tone="strained"], .k-gv [data-tone="gold"] { --tone-c: var(--amber); }
 .k-gv [data-tone="bloom"] { --tone-c: var(--bloom); }
 .k-gv [data-tone="red"] { --tone-c: var(--red); }
@@ -51,7 +52,7 @@
 .k-gv-ring { --frame-out: var(--sp-6); --ring: var(--green); position: relative; flex: 0 0 auto; align-self: flex-start; display: grid; place-items: center; padding: var(--sp-6); border-radius: 50%; background: conic-gradient(var(--ring) 0 var(--hp, 100%), var(--line) var(--hp, 100%) 100%); }
 .k-gv-hero .k-gv-ring { align-self: center; }
 .k-gv-ring[data-hp="strained"] { --ring: var(--amber); }
-.k-gv-ring[data-hp="critical"] { --ring: var(--crimson); }
+.k-gv-ring[data-hp="critical"] { --ring: var(--alarm); }
 button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-ring-seal { position: absolute; inset-inline-end: calc(var(--sp-2) * -1); inset-block-end: var(--sp-6); inline-size: var(--gv-seal-badge); block-size: var(--gv-seal-badge); display: grid; place-items: center; border-radius: 50%; background: var(--crimson); color: var(--crimson-ink); font: var(--weight-semibold) var(--fs-16) var(--font-kanji); box-shadow: 0 0 0 var(--bar-3) var(--bg); }
 
