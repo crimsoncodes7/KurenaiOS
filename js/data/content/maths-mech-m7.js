@@ -1246,7 +1246,243 @@ C["maths:M7.4"] = {
   ]
 };
 
-/* @@M7.5@@ */
+/* =====================================================================
+   M7.5  Projectiles
+   ===================================================================== */
+C["maths:M7.5"] = {
+  notes: [
+    /* ---------------------------------------------------------------- Overview */
+    { h: "Projectiles — the whole topic on one page" },
+    "Spec 7.5: model motion under gravity in a vertical plane using vectors; projectiles. Includes the derivation of the time of flight, the range, the greatest height and the equation of the path.",
+    "A-level only, and on every A-level paper since the Specimen — usually the longest Mechanics question (8–15 marks):",
+    { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
+      ["Show a given relation from the range (eliminate $t$)", "6", "2022 Q5(a), 2023 Q5(a)(b)"],
+      ["Greatest height (vertical $v = 0$)", "2–4", "2018 Q10(a), Oct 2020 Q5(b), 2022 Q5(b), 2024 Q5(c), 2025 Q5(b)"],
+      ["Projected from a cliff: time to land, launch speed, the cliff height", "4–6", "Oct 2020 Q5(a), Oct 2021 Q4(a), 2025 Q5(a)"],
+      ["Speed (and direction) at a point", "4–5", "Specimen Q5(b), Oct 2021 Q4(b)"],
+      ["Height at a given horizontal distance (clears a net?)", "8", "Specimen Q5(a)"],
+      ["Find the angle: a quadratic in $\\tan\\alpha$ (using $\\sec^2 = 1 + \\tan^2$)", "5–9", "2018 Q10(b), 2023 Q5(b)"],
+      ["Derive the equation of the path $y = f(x)$; use it", "6–10", "2024 Q5(a)–(c)"],
+      ["Refinements and limitations (M6.1)", "1–2", "every one"]
+    ] } },
+    { h: "How these notes are organised" },
+    { ol: [
+      "**The model** — split the velocity, two independent motions.",
+      "**The standard results** — time of flight, greatest height, range, path — derived.",
+      "**From level ground** — range, height, angles.",
+      "**From a height** — cliffs, nets, speed on landing.",
+      "**Exam toolkit**."
+    ] },
+
+    /* ---------------------------------------------------------------- Page 1 */
+    { page: "The model" },
+    { callout: { t: "memorise", h: "Two motions, one clock", body: [
+      "A particle projected with speed $U$ at angle $\\alpha$ above the horizontal, moving freely under gravity:",
+      "**Horizontal**: no force, so constant velocity $U\\cos\\alpha$: $\\; x = (U\\cos\\alpha)t$.",
+      "**Vertical**: acceleration $g$ downwards: $\\; \\dot y = U\\sin\\alpha - gt$, $\\; y = (U\\sin\\alpha)t - \\tfrac12 gt^2$.",
+      "The **time** links them. In vector form: $\\mathbf r = (U\\cos\\alpha\\,\\mathbf i + U\\sin\\alpha\\,\\mathbf j)t - \\tfrac12 gt^2\\mathbf j$."
+    ] } },
+    { fig: { w: 460, h: 220, items: [
+      { line: [[40, 180], [420, 180]], c: "muted", w: 2 },
+      { vec: [[60, 180], [210, 80]], label: "U", lpos: 0.6, loff: -14 },
+      { line: [[60, 180], [210, 180]], arrow: true, c: "accent", w: 2, label: "U cos α", loff: 14 },
+      { line: [[210, 180], [210, 80]], arrow: true, c: "accent3", w: 2, label: "U sin α", loff: -30 },
+      { arc: [60, 180, 40, 0, 33.7], label: "α", c: "accent2" },
+      { text: [330, 60], t: "horizontal: a = 0", c: "accent", b: true, size: 12 },
+      { text: [330, 84], t: "vertical: a = −g", c: "accent3", b: true, size: 12 },
+      { vec: [[380, 110], [380, 160]], label: "g", lpos: 0.6, loff: -10, c: "accent3" }
+    ], cap: "Resolve the launch velocity once, at the start; then never mix the two directions." } },
+    { table: { head: ["Fact", "Why"], rows: [
+      ["At the greatest height the vertical velocity is zero", "it stops rising; the horizontal velocity is still $U\\cos\\alpha$"],
+      ["The speed at any instant is $\\sqrt{\\dot x^2 + \\dot y^2}$", "Pythagoras on the two components"],
+      ["The direction of motion is at $\\tan^{-1}\\dfrac{|\\dot y|}{\\dot x}$ to the horizontal", "the velocity is tangent to the path"],
+      ["Landing at the launch height takes twice the time to the top", "the vertical motion is symmetrical"]
+    ] } },
+
+    /* ---------------------------------------------------------------- Page 2 */
+    { page: "The standard results" },
+    "These are derived, not quoted. A \"show that\" needs the derivation each time.",
+    { worked: { tag: "example", title: "Time to the top and the greatest height", q: "A particle is projected from level ground with speed $U$ at angle $\\alpha$ above the horizontal. Derive the time to the greatest height and the greatest height.",
+      steps: [
+        { h: "Vertical: $v = u + at$ with $v = 0$", m: "$0 = U\\sin\\alpha - gt \\Rightarrow t = \\dfrac{U\\sin\\alpha}{g}$" },
+        { h: "Vertical: $v^2 = u^2 + 2as$", m: "$0 = U^2\\sin^2\\alpha - 2gH \\Rightarrow H = \\dfrac{U^2\\sin^2\\alpha}{2g}$" }
+      ], result: "$t = \\frac{U\\sin\\alpha}{g}$, $H = \\frac{U^2\\sin^2\\alpha}{2g}$" } },
+    { worked: { tag: "example", title: "Time of flight and range", q: "Derive the time of flight and the horizontal range on level ground, and the angle giving the greatest range.",
+      steps: [
+        { h: "Vertical: back to $y = 0$", m: "$0 = (U\\sin\\alpha)T - \\tfrac12 gT^2 \\Rightarrow T = \\dfrac{2U\\sin\\alpha}{g}$" },
+        { h: "Horizontal", m: "$R = (U\\cos\\alpha)T = \\dfrac{2U^2\\sin\\alpha\\cos\\alpha}{g} = \\dfrac{U^2\\sin 2\\alpha}{g}$" },
+        { h: "Greatest range", m: "$\\sin 2\\alpha = 1 \\Rightarrow \\alpha = 45°$, $R_{\\max} = \\dfrac{U^2}{g}$", n: "Complementary angles ($\\alpha$ and $90° - \\alpha$) give the same range." }
+      ], result: "$T = \\frac{2U\\sin\\alpha}{g}$, $R = \\frac{U^2\\sin 2\\alpha}{g}$" } },
+    { worked: { tag: "example", title: "The equation of the path", q: "Show that the path is $y = x\\tan\\alpha - \\dfrac{gx^2}{2U^2\\cos^2\\alpha} = x\\tan\\alpha - \\dfrac{gx^2(1 + \\tan^2\\alpha)}{2U^2}$.",
+      steps: [
+        { h: "Eliminate $t$", m: "$t = \\dfrac{x}{U\\cos\\alpha}$" },
+        { h: "Substitute into $y$", m: "$y = U\\sin\\alpha \\cdot \\dfrac{x}{U\\cos\\alpha} - \\tfrac12 g \\dfrac{x^2}{U^2\\cos^2\\alpha} = x\\tan\\alpha - \\dfrac{gx^2}{2U^2\\cos^2\\alpha}$" },
+        { h: "$\\sec^2\\alpha = 1 + \\tan^2\\alpha$", m: "$y = x\\tan\\alpha - \\dfrac{gx^2(1 + \\tan^2\\alpha)}{2U^2}$", n: "A quadratic in $\\tan\\alpha$ — the route to finding an angle through a given point." }
+      ], result: "a parabola" } },
+
+    /* ---------------------------------------------------------------- Page 3 */
+    { page: "From level ground" },
+    { worked: { tag: "exam", title: "From the range, show $U^2\\sin\\alpha\\cos\\alpha = 588$; then $U^2 = 1960$", src: "A-level June 2022 · P3 Q5(a)(b) · 10 marks",
+      q: "A golf ball is at rest at $A$ on horizontal ground. It is hit and initially moves at an angle $\\alpha$ to the ground, first hitting the ground at $B$, where $AB = 120$ m. The ball is modelled as a particle moving freely under gravity with initial speed $U$ m s$^{-1}$. **(a)** Show that $U^2\\sin\\alpha\\cos\\alpha = 588$. The ball reaches a maximum height of 10 m above the ground. **(b)** Show that $U^2 = 1960$.",
+      steps: [
+        { h: "(a) Horizontal", m: "$120 = (U\\cos\\alpha)t$", mk: "M1 A1" },
+        { h: "Vertical, back to the ground", m: "$0 = (U\\sin\\alpha)t - 4.9t^2 \\Rightarrow t = \\dfrac{U\\sin\\alpha}{4.9}$", mk: "M1 A1" },
+        { h: "Eliminate $t$", m: "$120 = U\\cos\\alpha \\cdot \\dfrac{U\\sin\\alpha}{4.9}$", mk: "DM1" },
+        { m: "$U^2\\sin\\alpha\\cos\\alpha = 120 \\times 4.9 = 588$", mk: "A1*" },
+        { h: "(b) Greatest height", m: "$0 = U^2\\sin^2\\alpha - 2 \\times 9.8 \\times 10 \\Rightarrow U^2\\sin^2\\alpha = 196$", mk: "M1 A1" },
+        { h: "Divide", m: "$\\dfrac{U^2\\sin^2\\alpha}{U^2\\sin\\alpha\\cos\\alpha} = \\tan\\alpha = \\dfrac{196}{588} = \\dfrac13 \\Rightarrow \\sin^2\\alpha = \\dfrac{1}{10}$", mk: "DM1" },
+        { m: "$U^2 = 196 \\times 10 = 1960$", mk: "A1*", n: "Working backwards from 1960 is not accepted." }
+      ], result: "$U = 44.3$ m s$^{-1}$, $\\alpha = 18.4°$" } },
+    { fig: projFig(42, 14, 0, 2.857, { xt: [60, 120], yt: [10], h: 200, ulabel: "U",
+      extra: [{ pt: [120, 0], label: "B", pos: "n", i: false }, { pt: [0, 0], label: "A", pos: "s", i: false }, { line: [[60, 0], [60, 10]], c: "accent2", dash: true, label: "10 m", loff: -18 }],
+      cap: "A-level June 2022: $U\\cos\\alpha = 42$, $U\\sin\\alpha = 14$ — range 120 m, top 10 m (the axes are not to the same scale)." }) },
+    { worked: { tag: "exam", title: "Through a point: a quadratic in $\\tan\\alpha$", src: "A-level June 2023 · P3 Q5(a)–(c) · 10 marks",
+      q: "A small ball is projected with speed 28 m s$^{-1}$ from a point $O$ on horizontal ground at an angle $\\alpha$ to the ground. After $T$ seconds it passes through $A$, 40 m horizontally and 20 m vertically from $O$. Modelling the ball as a particle moving freely under gravity, **(a)** show that $T = \\dfrac{10}{7\\cos\\alpha}$, **(b)** show that $\\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$, **(c)** find the greatest possible height, in metres, of the ball above the ground as it moves from $O$ to $A$.",
+      steps: [
+        { h: "(a) Horizontal", m: "$40 = 28\\cos\\alpha \\cdot T$", mk: "M1" },
+        { m: "$T = \\dfrac{40}{28\\cos\\alpha} = \\dfrac{10}{7\\cos\\alpha}$", mk: "A1*" },
+        { h: "(b) Vertical", m: "$20 = 28\\sin\\alpha \\cdot T - 4.9T^2$", mk: "M1 A1" },
+        { h: "Substitute $T$", m: "$20 = 40\\tan\\alpha - 4.9 \\times \\dfrac{100}{49\\cos^2\\alpha} = 40\\tan\\alpha - 10\\sec^2\\alpha$", mk: "M1" },
+        { h: "$\\sec^2\\alpha = 1 + \\tan^2\\alpha$", m: "$20 = 40\\tan\\alpha - 10 - 10\\tan^2\\alpha$", mk: "M1" },
+        { m: "$10\\tan^2\\alpha - 40\\tan\\alpha + 30 = 0 \\Rightarrow \\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$", mk: "A1*" },
+        { h: "(c) Two angles: $\\tan\\alpha = 1$ or $3$", m: "Greatest height with the steeper one, $\\sin\\alpha = \\dfrac{3}{\\sqrt{10}}$: $\\; H = \\dfrac{(28\\sin\\alpha)^2}{2 \\times 9.8}$", mk: "M1 A1", n: "Check it is reached before $A$: time to top 2.71 s, $T = 4.52$ s. With $\\tan\\alpha = 1$, $A$ is the top (20 m)." },
+        { m: "$H = \\dfrac{784 \\times 0.9}{19.6} = 36$ m", mk: "A1" }
+      ], result: "(c) 36 m" } },
+    { fig: { x: [0, 52], y: [0, 42], w: 480, h: 250, axes: { x: "x (m)", y: "y (m)", xt: [20, 40], yt: [20, 36] },
+      items: [
+        { param: { x: "19.799*t", y: "19.799*t-4.9*t^2" }, t: [0, 2.6], c: "accent2", w: 2.2, label: "tan α = 1", pos: "e" },
+        { param: { x: "8.854*t", y: "26.563*t-4.9*t^2" }, t: [0, 5.35], c: "accent", w: 2.4, label: "tan α = 3", pos: "w" },
+        { pt: [40, 20], label: "A (40, 20)", pos: "e", i: false },
+        { hline: 36, c: "accent", label: "36 m" }
+      ], cap: "A-level June 2023: two launch angles reach $A$. The steep one rises to 36 m first; the shallow one has $A$ as its top." } },
+    { worked: { tag: "exam", title: "Derive the path; then the range and the greatest height from it", src: "A-level June 2024 · P3 Q5(a)–(c) · 10 marks",
+      q: "At $t = 0$ a small stone is projected with speed 35 m s$^{-1}$ from a point $O$ on horizontal ground at an angle $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac34$. It is modelled as a particle $P$ moving freely under gravity and hits the ground at $A$. At time $t$ seconds the horizontal distance of $P$ from $O$ is $x$ metres and its height above the ground is $y$ metres. **(a)** Show that $y = \\tfrac34 x - \\dfrac{x^2}{160}$. **(b)** Find the length $OA$. **(c)** Find the greatest height $H$ of the stone above the ground.",
+      steps: [
+        { h: "(a) Components", m: "$\\cos\\alpha = \\frac45$, $\\sin\\alpha = \\frac35$: $\\; 35\\cos\\alpha = 28$, $\\; 35\\sin\\alpha = 21$", mk: "M1" },
+        { m: "$x = 28t$", mk: "A1" },
+        { m: "$y = 21t - 4.9t^2$", mk: "M1 A1" },
+        { h: "Eliminate $t = \\frac{x}{28}$", m: "$y = \\dfrac{21x}{28} - \\dfrac{4.9x^2}{784}$", mk: "M1" },
+        { m: "$y = \\tfrac34 x - \\dfrac{x^2}{160}$", mk: "A1*" },
+        { h: "(b) $y = 0$", m: "$x\\left(\\tfrac34 - \\tfrac{x}{160}\\right) = 0 \\Rightarrow x = 120$", mk: "M1" },
+        { m: "$OA = 120$ m", mk: "A1" },
+        { h: "(c) Top halfway, at $x = 60$", m: "$H = \\tfrac34(60) - \\dfrac{60^2}{160}$", mk: "M1", n: "Or $\\frac{dy}{dx} = 0$, or $\\frac{21^2}{2 \\times 9.8}$." },
+        { m: "$H = 45 - 22.5 = 22.5$ m", mk: "A1" }
+      ], result: "(b) 120 m (c) 22.5 m" } },
+
+    /* ---------------------------------------------------------------- Page 4 */
+    { page: "From a height" },
+    { callout: { t: "tip", h: "Put the origin at the launch point", body: "Up positive, so a landing point below the cliff top has $y = -h$. One vertical equation then covers the whole flight, exactly as in M7.3." } },
+    { worked: { tag: "exam", title: "Show $U = 28$; greatest height above the ground", src: "A-level Oct 2020 · P3 Q5(a)(b) · 9 marks",
+      q: "A small ball is projected with speed $U$ m s$^{-1}$ at 45° above the horizontal from a point $O$ at the top of a vertical cliff. $O$ is 25 m vertically above the point $N$ on horizontal ground. The ball hits the ground at $A$, where $AN = 100$ m. The ball is modelled as a particle moving freely under gravity. **(a)** Show that $U = 28$. **(b)** Find the greatest height of the ball above the horizontal ground $NA$.",
+      steps: [
+        { h: "(a) Horizontal", m: "$100 = U\\cos45° \\cdot t$", mk: "M1 A1" },
+        { h: "Vertical (up positive, lands at $-25$)", m: "$-25 = U\\sin45° \\cdot t - 4.9t^2$", mk: "M1 A1" },
+        { h: "$U\\sin45° \\cdot t = U\\cos45° \\cdot t = 100$", m: "$-25 = 100 - 4.9t^2 \\Rightarrow t^2 = \\dfrac{125}{4.9} \\Rightarrow t = 5.05$", mk: "M1" },
+        { m: "$U = \\dfrac{100}{t\\cos45°} = 28$", mk: "A1*", n: "Exact: $t^2 = \\frac{1250}{49}$, $U^2 = \\frac{2 \\times 100^2}{t^2} = 784$." },
+        { h: "(b) Rise above $O$", m: "$0 = (28\\sin45°)^2 - 2 \\times 9.8 \\times h$", mk: "M1 A1" },
+        { m: "$h = \\dfrac{392}{19.6} = 20$, so $25 + 20 = 45$ m", mk: "A1" }
+      ], result: "(b) 45 m" } },
+    { fig: projFig(19.799, 19.799, 25, 5.0508, { xt: [50, 100], yt: [25, 45], h: 230, ulabel: "U",
+      extra: [{ pt: [0, 25], label: "O", pos: "w", i: false }, { pt: [0, 0], label: "N", pos: "sw", i: false }, { pt: [100, 0], label: "A", pos: "n", i: false }, { hline: 45, c: "accent2", label: "45 m" }],
+      cap: "A-level Oct 2020: from the cliff top, up 20 m, then down 45 m to $A$." }) },
+    { worked: { tag: "exam", title: "Time to land; speed on landing ($g = 10$)", src: "A-level Oct 2021 · P3 Q4(a)(b) · 9 marks",
+      q: "A small stone is projected with speed 65 m s$^{-1}$ from a point $O$ at the top of a vertical cliff, 70 m vertically above the point $N$ on horizontal ground. It is projected at an angle $\\alpha$ above the horizontal, where $\\tan\\alpha = \\frac{5}{12}$, and hits the ground at $A$. The stone is modelled as a particle moving freely under gravity, with $g = 10$ m s$^{-2}$. Find **(a)** the time taken for the stone to travel from $O$ to $A$, **(b)** the speed of the stone just before it hits the ground at $A$.",
+      steps: [
+        { h: "Components", m: "$\\sin\\alpha = \\frac{5}{13}$, $\\cos\\alpha = \\frac{12}{13}$: $\\; 65\\sin\\alpha = 25$, $\\; 65\\cos\\alpha = 60$" },
+        { h: "(a) Vertical", m: "$-70 = 25t - 5t^2$", mk: "M1 A1" },
+        { m: "$t^2 - 5t - 14 = 0 \\Rightarrow (t - 7)(t + 2) = 0$", mk: "M(A)1" },
+        { m: "$t = 7$ s", mk: "A1" },
+        { h: "(b) Horizontal velocity at $A$", m: "$60$ m s$^{-1}$", mk: "B1" },
+        { h: "Vertical velocity at $A$", m: "$25 - 10 \\times 7 = -45$", mk: "M1 A1ft" },
+        { m: "speed $= \\sqrt{60^2 + 45^2}$", mk: "M1" },
+        { m: "$= 75$ m s$^{-1}$", mk: "A1", n: "Or straight from suvat: $v_y^2 = 25^2 + 2 \\times 10 \\times 70 = 2025$." }
+      ], result: "(a) 7 s (b) 75 m s$^{-1}$" } },
+    { worked: { tag: "exam", title: "The cliff height from the landing distance; the greatest height", src: "A-level June 2025 · P3 Q5 · 8 marks",
+      q: "A small stone is projected with speed 14 m s$^{-1}$ from a point $O$ on the top of a cliff, $H$ metres vertically above the point $N$ on horizontal ground. It is projected at an angle $\\theta$ above the horizontal, where $\\tan\\theta = \\frac12$, and strikes the ground at $A$, where $NA = 40$ m. Modelling the stone as a particle moving freely under gravity, find **(a)** the value of $H$, **(b)** the maximum height of the stone above the horizontal ground.",
+      steps: [
+        { h: "Components", m: "$\\cos\\theta = \\frac{2}{\\sqrt5}$, $\\sin\\theta = \\frac{1}{\\sqrt5}$: $\\; \\dfrac{28}{\\sqrt5}$ and $\\dfrac{14}{\\sqrt5}$" },
+        { h: "(a) Horizontal", m: "$40 = \\dfrac{28}{\\sqrt5}t \\Rightarrow t = \\dfrac{10\\sqrt5}{7} = 3.19$ s", mk: "M1 A1" },
+        { h: "Vertical", m: "$-H = \\dfrac{14}{\\sqrt5}t - 4.9t^2$", mk: "M1 A1" },
+        { m: "$-H = 20 - 4.9 \\times \\dfrac{500}{49} = 20 - 50 \\Rightarrow H = 30$", mk: "A1" },
+        { h: "(b) Rise above $O$", m: "$0 = \\left(\\dfrac{14}{\\sqrt5}\\right)^2 - 2 \\times 9.8 \\times h$", mk: "M1" },
+        { m: "$h = \\dfrac{39.2}{19.6} = 2$", mk: "A1" },
+        { m: "$30 + 2 = 32$ m", mk: "A1" }
+      ], result: "(a) $H = 30$ (b) 32 m" } },
+    { worked: { tag: "exam", title: "Does the serve clear the net? Its speed there", src: "A-level Specimen · P3 Q5(a)(b) · 12 marks",
+      q: "A tennis player serves so the ball passes over the net. The ball is struck at $O$, 3.5 m vertically above the point $A$ on horizontal ground, with velocity 45 m s$^{-1}$ at 10° **below** the horizontal. The bottom of the net is $B$, on the ground, with $AB = 12$ m; the net is 1 m high. The ball is modelled as a particle moving freely under gravity and passes over the net vertically above $B$. Find, using the model, **(a)** in centimetres to 2 s.f., the distance between the ball and the top of the net as it passes over, **(b)** to 2 s.f., the speed of the ball as it passes over the net.",
+      steps: [
+        { h: "(a) Horizontal: time to the net", m: "$12 = 45\\cos10° \\cdot T$", mk: "M1 A1" },
+        { m: "$T = 0.2708$ s", mk: "A1" },
+        { h: "Vertical (down positive)", m: "$s = 45\\sin10° \\cdot T + 4.9T^2$", mk: "M1 A1" },
+        { m: "$s = 2.116 + 0.359 = 2.475$ m dropped", mk: "M1" },
+        { h: "Height above the net", m: "$3.5 - 2.475 - 1 = 0.025$ m", mk: "M1" },
+        { m: "$= 2.5$ cm", mk: "A1", n: "2.5 is the only answer: a very close shave." },
+        { h: "(b) Vertical velocity at the net", m: "$v_y = 45\\sin10° + 9.8 \\times 0.2708 = 10.47$ (down)", mk: "M1 A1" },
+        { m: "speed $= \\sqrt{(45\\cos10°)^2 + 10.47^2}$", mk: "M1" },
+        { m: "$= 45.5 \\approx 46$ m s$^{-1}$", mk: "A1" }
+      ], result: "(a) 2.5 cm (b) 46 m s$^{-1}$" } },
+    { fig: { x: [-1, 14], y: [0, 4.2], w: 500, h: 220, axes: { x: "x (m)", y: "height (m)", xt: [12], yt: [1, 3.5] },
+      items: [
+        { param: { x: "44.316*t", y: "3.5-7.814*t-4.9*t^2" }, t: [0, 0.31], c: "accent", w: 2.4 },
+        { line: [[12, 0], [12, 1]], c: "text2", w: 3 },
+        { pt: [0, 3.5], label: "O", pos: "n", i: false },
+        { pt: [12, 1.025], label: "2.5 cm above the net", pos: "ne", i: false }
+      ], cap: "A-level Specimen: the ball drops 2.475 m in the 0.27 s it takes to reach the net." } },
+    { worked: { tag: "exam", title: "From a greatest height to the launch angle", src: "A-level June 2018 · P3 Q10(a)(b)(d) · 14 marks",
+      q: "A boy throws a ball at a target. As it leaves his hand at $A$, the ball is 2 m above horizontal ground, moving with speed $U$ at angle $\\alpha$ above the horizontal. The highest point reached is 3 m above the ground. The target is modelled as the point $T$, 20 m horizontally from $A$ and 0.75 m above the ground; the ball reaches $T$ without hitting the ground. The ball is modelled as a particle moving freely under gravity. **(a)** Show that $U^2 = \\dfrac{2g}{\\sin^2\\alpha}$. **(b)** Find the size of the angle $\\alpha$. **(d)** Find the time taken for the ball to travel from $A$ to $T$.",
+      steps: [
+        { h: "(a) It rises 1 m", m: "$0^2 = (U\\sin\\alpha)^2 - 2g(3 - 2)$", mk: "M1" },
+        { m: "$U^2 = \\dfrac{2g}{\\sin^2\\alpha}$", mk: "A1*" },
+        { h: "(b) Horizontal", m: "$20 = U\\cos\\alpha \\cdot t$", mk: "M1 A1" },
+        { h: "Vertical: $T$ is 1.25 m below $A$", m: "$-1.25 = U\\sin\\alpha \\cdot t - \\tfrac12 gt^2$", mk: "M1 A1" },
+        { h: "Substitute $t = \\dfrac{20}{U\\cos\\alpha}$", m: "$-1.25 = 20\\tan\\alpha - \\dfrac{200g}{U^2\\cos^2\\alpha}$", mk: "M1" },
+        { h: "Use (a): $U^2\\cos^2\\alpha = \\dfrac{2g}{\\tan^2\\alpha}$", m: "$-1.25 = 20\\tan\\alpha - 100\\tan^2\\alpha$", mk: "M1 A1", n: "$g$ cancels." },
+        { m: "$100\\tan^2\\alpha - 20\\tan\\alpha - 1.25 = 0 \\Rightarrow (4\\tan\\alpha - 1)(100\\tan\\alpha + 5) = 0$", mk: "M1" },
+        { m: "$\\tan\\alpha = \\frac14 \\Rightarrow \\alpha = 14.0°$", mk: "A1", n: "No restriction on accuracy, since $g$ cancels." },
+        { h: "(d)", m: "$U = \\dfrac{\\sqrt{2 \\times 9.8}}{\\sin 14.04°} = 18.25$", mk: "M1" },
+        { m: "$t = \\dfrac{20}{U\\cos\\alpha}$", mk: "M1" },
+        { m: "$t = 1.1$ s", mk: "A1" }
+      ], result: "(b) 14° (d) 1.1 s" } },
+
+    /* ---------------------------------------------------------------- Exam toolkit */
+    { page: "Exam toolkit" },
+    { callout: { t: "memorise", h: "Every projectile question", body: [
+      "Resolve the launch velocity: $U\\cos\\alpha$ across, $U\\sin\\alpha$ up (or down, if projected below the horizontal).",
+      "Across: $x = U\\cos\\alpha\\, t$. Up: $y = U\\sin\\alpha\\, t - \\frac12 gt^2$, $\\dot y = U\\sin\\alpha - gt$.",
+      "Top: $\\dot y = 0$. Landing: $y = 0$ or $y = -h$. Speed: $\\sqrt{\\dot x^2 + \\dot y^2}$."
+    ] } },
+    { callout: { t: "formula", h: "Derived results (level ground) — derive, do not quote", body: "$t_{\\text{top}} = \\dfrac{U\\sin\\alpha}{g}$, $\\; H = \\dfrac{U^2\\sin^2\\alpha}{2g}$, $\\; T = \\dfrac{2U\\sin\\alpha}{g}$, $\\; R = \\dfrac{U^2\\sin2\\alpha}{g}$, $\\; y = x\\tan\\alpha - \\dfrac{gx^2(1 + \\tan^2\\alpha)}{2U^2}$" } },
+    { callout: { t: "mnemonic", h: "\"Split, link, solve\"", body: "**Split** into across and up; **link** them with $t$; **solve** the one with the unknown." } },
+    { callout: { t: "warn", h: "Common losses", body: [
+      "sin/cos confused when resolving (condoned in the M mark, never in the A mark).",
+      "Using the horizontal speed alone as the speed at a point.",
+      "Forgetting the cliff: landing is $y = -h$, not $y = 0$.",
+      "\"Show that\" without eliminating $t$ fully, or with $g = 9.81$.",
+      "Leaving $\\sec^2\\alpha$ instead of turning it into $1 + \\tan^2\\alpha$."
+    ] } }
+  ],
+  flashcards: [
+    ["Horizontal acceleration of a projectile?", "Zero — the horizontal velocity is constant."],
+    ["Vertical acceleration of a projectile?", "$g$ downwards."],
+    ["Velocity components at launch?", "$U\\cos\\alpha$ horizontal, $U\\sin\\alpha$ vertical."],
+    ["Condition at the greatest height?", "Vertical velocity zero."],
+    ["Greatest height on level ground?", "$\\dfrac{U^2\\sin^2\\alpha}{2g}$."],
+    ["Time of flight on level ground?", "$\\dfrac{2U\\sin\\alpha}{g}$."],
+    ["Range on level ground?", "$\\dfrac{U^2\\sin2\\alpha}{g}$."],
+    ["Angle for the greatest range?", "45°."],
+    ["Equation of the path?", "$y = x\\tan\\alpha - \\dfrac{gx^2(1 + \\tan^2\\alpha)}{2U^2}$."],
+    ["Speed at any instant?", "$\\sqrt{\\dot x^2 + \\dot y^2}$."],
+    ["Landing point 70 m below the launch point, up positive?", "$y = -70$."],
+    ["$\\tan\\alpha = \\frac34$, $U = 35$: components?", "28 horizontal, 21 vertical."]
+  ],
+  quiz: [
+    { q: "At the top of its path a projectile's velocity is", opts: ["horizontal, $U\\cos\\alpha$", "zero", "vertical", "$U$"], ans: 0, why: "Only the vertical part is zero." },
+    { q: "Projected at 20 m s$^{-1}$ at 30°: its horizontal velocity is", opts: ["17.3 m s$^{-1}$", "10 m s$^{-1}$", "20 m s$^{-1}$", "11.5 m s$^{-1}$"], ans: 0, why: "$20\\cos30°$." },
+    { q: "The range is greatest when $\\alpha$ is", opts: ["45°", "30°", "60°", "90°"], ans: 0, why: "$\\sin2\\alpha = 1$." },
+    { q: "Which pair of angles gives the same range?", opts: ["20° and 70°", "20° and 40°", "30° and 45°", "15° and 60°"], ans: 0, why: "Complementary angles." },
+    { q: "$\\sec^2\\alpha$ in a path equation is replaced by", opts: ["$1 + \\tan^2\\alpha$", "$1 - \\tan^2\\alpha$", "$\\cos^2\\alpha$", "$\\tan^2\\alpha - 1$"], ans: 0, why: "The Pythagorean identity." }
+  ]
+};
 
 /* the exam-tagged worked cards above are this section's past-paper
    practice: derive the self-marking exam items from them once */
