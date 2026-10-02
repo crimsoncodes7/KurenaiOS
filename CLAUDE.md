@@ -17,8 +17,8 @@ chronological diary here.
 - Runtime release: `9eac539` — immutable deployment
   https://32db7dba.kurenai-os.pages.dev (1 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-mech-notes-1`
-- Required smoke gate: 64 / 64 suites.
+- Service-worker version: `kos-cs-depth-1`
+- Required smoke gate: 66 / 66 suites.
 
 ## Run, test and deploy
 
@@ -28,7 +28,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..64}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..66}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -730,6 +730,17 @@ source comments and audit notes refer to it.
 
 Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 `js/data/content/cs-p1-42b.js` as the depth reference.
+
+- Computer Science content is `cs-p1-*.js` (Paper 1, 4.1–4.4, code in C#),
+  `cs-p2-*.js` (Paper 2, 4.5–4.13) and `cs-nea.js` (the NEA as a project
+  guide: no exam items). smoke65 and smoke66 hold every leaf to the depth
+  contract (paged, ≥3 worked cards with AQA marks, a mnemonic, a
+  misconception callout, synoptic links, an exam toolkit, flashcards and a
+  quiz); a leaf AQA has never examined on its own is listed in smoke66's
+  `NOT_EXAMINED` and says so on the page. Exam items derive from worked
+  cards through `KOS.content.examFromWorked(notes, "AQA")`, and no item is
+  filed under two leaves. Notes carry no top-level bare paragraphs:
+  `node tools/validate_content.js js/data/content/cs-*.js` reports no errors.
 
 - Simulations auto-wire by their own `subject` + `ref`; `WIRE` adds extra refs.
 - Worked generators use explicit `GENWIRE` because their displayed `ref` is a

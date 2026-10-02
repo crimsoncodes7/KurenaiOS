@@ -20,15 +20,50 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Runtime release commit | `9eac539` (Mechanics M6–M9 at depth), immutable https://32db7dba.kurenai-os.pages.dev — deployed 1 October 2026; before it `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-mech-notes-1` |
-| Smoke gate | 64 suites at the `9eac539` and `fdc954a` releases (smoke63: Statistics and the Mechanics rename; smoke64: Home Focus ladder and lesson dating). smoke39 needs a working `git`/`node` toolchain on the host |
-| Latest release date | 1 October 2026 (Category 7: 9 August 2026) |
-| Latest delivery | Mechanics M6–M9 at full depth (below), completing Roadmap Phase 4 content; deployed 1 October 2026 (service worker `kos-mech-notes-1`). Before it, Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
+| Service-worker cache | `kos-cs-depth-1` |
+| Smoke gate | 66 suites at the Computer Science release (smoke65: CS Paper 2; smoke66: CS Paper 1 and the NEA); 64 at `9eac539` and `fdc954a`. smoke39 needs a working `git`/`node` toolchain on the host |
+| Latest release date | 2 October 2026 (Category 7: 9 August 2026) |
+| Latest delivery | Computer Science at full depth — both AQA papers in C# and the NEA as a project companion — with the UI review fixes (below); service worker `kos-cs-depth-1`. Before it, Mechanics M6–M9 at full depth (below), completing Roadmap Phase 4 content; deployed 1 October 2026 (service worker `kos-mech-notes-1`). Before it, Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
+
+## Released 2 October 2026 — Computer Science at full depth
+
+Roadmap Phase 4, Computer Science. Built on `feat/cs-p2-depth` and
+`feat/cs-p1-nea`, merged to `main` and deployed (service worker
+`kos-cs-depth-1`).
+
+- **Paper 2 (4.5–4.13):** 88 leaves in `js/data/content/cs-p2-*.js` — 419
+  pages, 653 worked examples, 600 exam items derived from them. Every way
+  AQA examined each topic (June 2017–2025) is worked in the mark scheme's
+  own format; answers were checked by program (an AQA assembly
+  interpreter, SQLite, Python mirrors of the functional code).
+- **Paper 1 (4.1–4.4):** 63 leaves in `js/data/content/cs-p1-*.js` — 311
+  pages, 312 worked examples, 226 exam items, 100 C# listings, every one
+  compiled and run under .NET 10 with the papers' own test data. Where a
+  paper's figure could not be reproduced, the state diagram is redrawn so
+  the mark scheme's labels and answers hold, and the caption says so.
+  Three leaves AQA has never examined on their own (4.4.1.5, 4.4.1.6,
+  4.4.4.1) are taught with variations and say so.
+- **The NEA:** NEA.0–NEA.5 follow the AQA criteria as project guides (the
+  level ladder, what to include, how the exemplar did it, C# templates, a
+  hand-in checklist) with no exam items, plus two free labs in a new "NEA
+  project" area: an objective checker and a mark estimator.
+- Every pre-rewrite CS content file is retired (`cs-programming`,
+  `cs-databases-sys`, `cs-datastructures`, `cs-algorithms(-2)`, `cs-theory`,
+  `cs-theory-computation(-2)`, `cs-advanced`, `cs-architecture`,
+  `cs-networking-ethics`); their labs stay wired. CS notes carry no bare
+  paragraphs (`tools/validate_content.js` is clean for `cs-*`).
+- **UI review fixes (`8daa00f`):** a drawn search icon; Home's exam goal
+  counts only revision for that exam; Home's lessons grouped per class row
+  ("Done", not "Sat"); the seasonal anime controls laid out for phones;
+  tap-to-copy on touch screens.
+- smoke43 now picks a topic with three or more pages; smoke56 records the
+  seeded due-card figures (203 → 210) that follow Paper 1's flashcards.
+- Smoke gate 66/66.
 
 ## Released 1 October 2026 — Mechanics at full depth
 
@@ -509,7 +544,7 @@ The numbered suites form one release gate:
 Run all suites with:
 
 ```sh
-for i in "" {2..64}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..66}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

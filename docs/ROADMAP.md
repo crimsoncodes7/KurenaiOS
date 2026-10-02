@@ -370,6 +370,17 @@ Claude Design and comes back as a handoff, the way Graphite did.
   91 derived exam items, 46 force, motion and projectile diagrams, every
   number recomputed. `maths-applied.js` is retired; smoke63 guards both
   halves. Phase 4 content is complete.
+- **Computer Science at full depth (2 October 2026, released with service
+  worker `kos-cs-depth-1`):** both AQA papers and the NEA.
+  - Paper 2 (4.5–4.13): `cs-p2-*.js`, 88 leaves, 419 pages, 653 worked
+    examples, 600 derived exam items; smoke65 guards it.
+  - Paper 1 (4.1–4.4): `cs-p1-*.js`, 63 leaves, 311 pages, 312 worked
+    examples, 226 derived exam items, 100 C# listings (every one compiled
+    and run under .NET 10); smoke66 guards it.
+  - The NEA: six project-guide leaves (`cs-nea.js`, NEA.0–NEA.5 following
+    the AQA criteria) and two free labs in a new "NEA project" area — an
+    objective checker and a mark estimator (`js/labs/nea-tools.js`).
+  - Every pre-rewrite CS content file is retired.
 
 ---
 
