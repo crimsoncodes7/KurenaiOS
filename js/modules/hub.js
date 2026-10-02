@@ -428,7 +428,7 @@
     var filter = el("input", { type: "search", class: "k-spine-filter", "data-ui": "study.spine-filter",
       placeholder: "Filter " + st.total + " topics", "aria-label": "Filter topics" });
     filter.value = spineQuery;
-    tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [el("span", { "aria-hidden": "true", text: "⌕" }), filter]));
+    tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [KOS.ui.icon("search"), filter]));
     tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
       el("div", { class: "k-spine-board-row" }, [
         el("span", { text: data.board }),
@@ -727,13 +727,31 @@
     var LV = KOS.calendar.EXAM_LEVELS || [];
     function lvOf(ev) { return KOS.calendar.examLevel ? KOS.calendar.examLevel(ev) : { v: "exam", short: "Exam", leadDays: 7, goalMins: 120 }; }
     function rank(ev) { var v = lvOf(ev).v; for (var i = 0; i < LV.length; i++) if (LV[i].v === v) return i; return 0; }
+    /* the time today that was FOR this exam: a session started from its
+       card (the objective names it) or one whose topics meet the exam's
+       linked topics. A bare timer, or another subject, is not revision for
+       it (review: the goal counted every minute of the day) */
+    function examMins(ev) {
+      var label = "Revise for " + ev.title;
+      var leaves = KOS.spec.resolve(refsOfEv(ev));
+      return Math.round(KOS.sessions.all().reduce(function (sum, x) {
+        if (x.date !== today || x.type === "media" || x.type === "todo" || !x.dur) return sum;
+        var hit = x.metrics && x.metrics.objective === label;
+        if (!hit && leaves.length) {
+          var mine = KOS.spec.resolve(x.refs && x.refs.length ? x.refs : x.ref && x.subject ? [x.subject + ":" + x.ref] : []);
+          hit = mine.some(function (k) { return leaves.indexOf(k) !== -1; });
+        }
+        return hit ? sum + x.dur : sum;
+      }, 0) / 60);
+    }
     function examPlan(d, goalMins) {
-      var lv = lvOf(d.ev);
+      var lv = lvOf(d.ev), done = examMins(d.ev);
       return { kind: "exam", kicker: lv.short + " " + (d.days === 0 ? "today" : d.days === 1 ? "tomorrow" : "in " + d.days + " days"),
         label: "Revise for " + d.ev.title,
         why: [d.ev.paper, d.ev.subject ? SUBJ_SHORT[d.ev.subject] : null, d.ev.time ? d.date === today ? "at " + d.ev.time : null : null].filter(Boolean).join(" · ") || lv.label,
         subject: d.ev.subject || null, ref: d.ev.ref || null, refs: refsOfEv(d.ev),
-        goal: dailyGoal(goalMins), go: function () { KOS.show("calendar"); } };
+        goal: { k: "Goal", v: minsText(Math.min(done, goalMins)) + " of " + minsText(goalMins) + " for this exam today", bar: Math.round(100 * done / goalMins) },
+        go: function () { KOS.show("calendar"); } };
     }
     var hot = exams.filter(function (d) { return d.days <= lvOf(d.ev).leadDays; })
       .sort(function (a, b2) { return rank(a.ev) - rank(b2.ev) || a.days - b2.days; });
@@ -1080,11 +1098,22 @@
     /* the class lessons on today's timetable, one row each — the plan's
        lessons dated by the class timetable (KOS.pacing.lessonPlan). Only
        the Today card lists single lessons; Upcoming keeps the milestones. */
+    /* one row per class row: its title leads (the scheme of work's lesson
+       text is the detail beneath), and a ticked day reads "Done", never
+       "Sat", which read as Saturday (review) */
+    var byRow = [];
     (KOS.pacing && KOS.pacing.lessonsOn ? KOS.pacing.lessonsOn(today) : []).forEach(function (x) {
-      var e = x.entry, l = x.lesson;
-      todayItems.push({ title: l.text, sub: "In class · " + SUBJ_SHORT[e.subject] + (l.whole ? "" : " · " + e.title),
-        hue: SUBJ_HUE[e.subject] || "var(--muted)", when: x.sat ? "Sat" : "Lesson", now: !x.sat && l.tone !== "lesson",
-        done: x.sat, ui: "home.lesson", go: function () { KOS.show("pacing", { wb: e.wb }); } });
+      var g = byRow.filter(function (r) { return r.entry === x.entry; })[0];
+      if (!g) byRow.push(g = { entry: x.entry, lessons: [], done: true, flag: false });
+      if (!x.lesson.whole && x.lesson.text !== x.entry.title) g.lessons.push(x.lesson.text);
+      if (!x.sat) g.done = false;
+      if (x.lesson.tone !== "lesson") g.flag = true;
+    });
+    byRow.forEach(function (g) {
+      var e = g.entry;
+      todayItems.push({ title: e.title, sub: ["In class", SUBJ_SHORT[e.subject]].concat(g.lessons.length ? [g.lessons.join("; ")] : []).join(" · "),
+        hue: SUBJ_HUE[e.subject] || "var(--muted)", when: g.done ? "Done" : "In class", now: !g.done && g.flag,
+        done: g.done, ui: "home.lesson", go: function () { KOS.show("pacing", { wb: e.wb }); } });
     });
     /* an assignment row opens the one Assignment dialog in place, as the
        tracker's own rows do; closing it redraws Home */
@@ -1092,7 +1121,7 @@
       if (KOS.assignmentDetail) KOS.assignmentDetail(id, function () { KOS.show("home", undefined, { _nav: true }); });
       else KOS.show("assignments");
     }
-    var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 4) : [];
+    var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 5) : [];
     var urgent = (KOS.assignments && KOS.assignments.urgent ? KOS.assignments.urgent() : []).filter(function (a) { return KOS.assignments.isOverdue(a); });
     var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0;
     /* the Today card is always there (review B), saying so when the day is
@@ -1134,7 +1163,7 @@
           ])
         ]));
       });
-      counts.slice(0, Math.max(0, 3 - Math.min(2, urgent.length))).forEach(function (c) {
+      counts.slice(0, Math.max(0, 4 - Math.min(2, urgent.length))).forEach(function (c) {
         ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item" + (c.kind === "assignment" ? " asg.urgent" : ""),
           onclick: function () { KOS.calendar.openCountdown(c, function () { KOS.show("home", undefined, { _nav: true }); }); } }, [
           el("span", { class: "k-days-dot", "data-state": c.days === 0 ? "now" : null, text: String(c.days) }),
@@ -2971,6 +3000,9 @@
 
   /* ---------- search ---------- */
   var input = document.getElementById("search");
+  /* the shell's text glyph rendered at half the bell's size: drawn instead */
+  var glyph = document.querySelector("#searchbox .k-search-glyph");
+  if (glyph && !glyph.querySelector("svg")) { glyph.textContent = ""; glyph.appendChild(KOS.ui.icon("search")); }
   var resultsEl = document.getElementById("search-results");
   var selIdx = -1;
 

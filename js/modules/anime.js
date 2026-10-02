@@ -632,12 +632,21 @@
         b.setAttribute("aria-pressed", String((b.getAttribute("data-v") === "all") === showAll));
       });
     }
+    /* each control carries its own place, so a phone can set them out as
+       season | year, Today | which titles, Refresh | the vault, then the
+       "as of" line (review: the vault sat a row below Refresh, beside it
+       a dangling timestamp) */
+    seasonSel.classList.add("k-season-sel");
+    todayBtn.classList.add("k-season-today");
+    showSeg.classList.add("k-season-show");
+    refreshedLine.classList.add("k-season-asof");
+    refreshBtn.classList.add("k-season-refresh");
     wrap.appendChild(el("div", { class: "k-mcontrols k-season-picker", "data-ui": "anime.season-picker" }, [
       seasonSel, yearIn, todayBtn, showSeg,
       el("span", { class: "k-spacer" }),
       refreshedLine,
       refreshBtn,
-      el("button", { type: "button", class: "k-btn k-btn--sm", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } })
+      el("button", { type: "button", class: "k-btn k-btn--sm k-season-vault", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } })
     ]));
 
     var holder = el("div", { class: "k-season-grid", "data-ui": "vault.grid" });

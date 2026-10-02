@@ -138,7 +138,14 @@ step("D · an exam inside its kind's lead time outranks assignments; outside it,
   KOS.calendar.updateEvent(t.id, { date: day(3) });
   p = plan(10, 0);
   eq([p.kind, p.label, p.goal.k], ["exam", "Revise for Algebra test", "Goal"], "3 days out it leads");
-  assert(/of 1h today/.test(p.goal.v), "an end-of-topic test's goal is an hour: " + p.goal.v);
+  assert(/^0 min of 1h for this exam today/.test(p.goal.v), "an end-of-topic test's goal is an hour, none done yet: " + p.goal.v);
+  const S = KOS.store.state.sessions;
+  S.push({ id: 9001, ts: 0, date: today(), type: "focus", subject: null, ref: null, dur: 1800, metrics: { complete: true } });
+  S.push({ id: 9002, ts: 0, date: today(), type: "focus", subject: "compsci", ref: "4.1.1.1", dur: 1200, metrics: { complete: true } });
+  assert(/^0 min of 1h/.test(plan(10, 0).goal.v), "a bare timer and another subject are not revision for it: " + plan(10, 0).goal.v);
+  S.push({ id: 9003, ts: 0, date: today(), type: "focus", subject: "maths", ref: null, dur: 900, metrics: { complete: true, objective: "Revise for Algebra test" } });
+  assert(/^15 min of 1h/.test(plan(10, 0).goal.v), "a session started from the card counts: " + plan(10, 0).goal.v);
+  KOS.store.state.sessions = [];
   KOS.calendar.addEvent({ type: "exam", examLevel: "exam", title: "Paper 1", date: day(6), subject: "compsci" });
   eq(plan(10, 0).label, "Revise for Paper 1", "a real exam outranks a nearer topic test");
   const b = KOS.calendar.addEvent({ type: "study", title: "Block", date: today(), time: "10:10", endTime: "11:00" });
@@ -152,7 +159,7 @@ step("D · with nothing within a week: the next exam with a 2-hour goal; never a
   KOS.calendar.addEvent({ type: "exam", examLevel: "retrieval", title: "Retrieval quiz", date: day(9), subject: "maths" });
   let p = plan(10, 0);
   eq([p.kind, p.label], ["exam", "Revise for Retrieval quiz"], "the next exam");
-  assert(/of 2h today/.test(p.goal.v), "2-hour goal: " + p.goal.v);
+  assert(/of 2h for this exam today/.test(p.goal.v), "2-hour goal: " + p.goal.v);
   KOS.store.state.calendar.events = [];
   const wb = KOS.pacing.weekFor(today()).wb;
   const ms = KOS.pacing.addEntry({ source: "school", subject: "it", wb, kind: "NEA Milestone", title: "Live NEA", detail: "Coursework." });

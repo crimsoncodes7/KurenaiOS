@@ -998,6 +998,16 @@
    layout; Actions and the primary wait in ⋯ */
 .k-mmain > .k-btn.k-disclosure { display: none; }
 .k-mcontrols { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-10) var(--sp-8); }
+.k-season-picker { grid-template-areas: "sel yr" "today show" "refresh vault" "asof asof"; }
+.k-season-picker > .k-spacer { display: none; }
+.k-season-sel { grid-area: sel; }
+.k-season-yr { grid-area: yr; }
+.k-season-today { grid-area: today; }
+.k-season-show { grid-area: show; }
+.k-season-refresh { grid-area: refresh; }
+.k-season-vault { grid-area: vault; }
+.k-season-asof { grid-area: asof; }
+.k-season-asof:empty { display: none; }
 .k-mtoolbar { display: contents; }
 .k-mtoolbar > .k-mtool:not(.k-mfilter-sheet), .k-mtoolbar > .k-pill-select, .k-mtoolbar > .k-btn--primary { display: none; }
 .k-msearch { order: 1; inline-size: auto; min-block-size: var(--hit-coarse); font-size: var(--fs-16); }

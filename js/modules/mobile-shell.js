@@ -268,7 +268,7 @@
     "aria-haspopup": "dialog",
     "aria-expanded": "false",
     title: "Search"
-  }, [el("span", { "aria-hidden": "true", text: "⌕" })]);
+  }, [KOS.ui.icon("search")]);
   topbarRight.insertBefore(searchTrigger, topbarRight.firstChild);
 
   function restoreSearchbox() {

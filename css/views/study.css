@@ -114,6 +114,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-spine-subjects .k-seg-item { padding: var(--sp-4); }
 .k-spine-filter-wrap { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-8) var(--sp-12); margin-block-end: var(--sp-14); border-radius: var(--r-pill); background: var(--s1); color: var(--muted); font-size: var(--fs-13); }
 .k-spine-filter { flex: 1 1 0; min-inline-size: 0; min-block-size: 0; padding: 0; border: 0; background: none; color: var(--text); font-size: var(--fs-13); outline: none; }
+.k-spine-filter-wrap > .k-icon { flex: 0 0 auto; inline-size: var(--icon-glyph-sm); block-size: var(--icon-glyph-sm); color: var(--muted); }
 .k-spine-filter-wrap:focus-within { box-shadow: inset 0 0 0 var(--focus-width) var(--focus-ring); }
 .k-spine-board { display: flex; flex-direction: column; gap: var(--sp-6); padding: 0 var(--sp-10) var(--sp-12); }
 .k-spine-board-row { display: flex; font-size: var(--fs-12); color: var(--muted); }
@@ -191,15 +192,19 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-topic-steps .k-iconbtn { inline-size: var(--topic-step); block-size: var(--topic-step); }
 
 .k-topic-nav { display: flex; flex-direction: column; gap: var(--sp-14); }
-.k-topic-tabrow { display: flex; align-items: center; gap: var(--sp-10); min-inline-size: 0; border-block-end: var(--hairline) solid var(--line); }
+.k-topic-tabrow { display: flex; align-items: flex-end; gap: var(--sp-10); min-inline-size: 0; border-block-end: var(--hairline) solid var(--line); }
 .k-topic-tabs { flex: 1 1 0; min-inline-size: 0; display: flex; gap: var(--sp-18); overflow: hidden; font-size: var(--fs-13-5); }
-.k-topic-tab { display: flex; align-items: baseline; gap: var(--sp-6); padding: 0 0 var(--sp-10); white-space: nowrap; color: var(--muted); }
+/* the label sits on the underline: a tab is 44px tall on touch, and with
+   its line at the TOP the label floated far above the underline (phone
+   review) — the one line is packed to the bottom, baselines kept */
+.k-topic-tab { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-content: flex-end; align-items: baseline; gap: var(--sp-6); padding: 0 0 var(--sp-10); white-space: nowrap; color: var(--muted); }
+.k-topic-tabrow .k-scroller-arrow { inset-block-start: auto; inset-block-end: var(--sp-6); translate: none; }
 .k-topic-tab:hover { color: var(--text); }
 .k-topic-tab[aria-selected="true"] { color: var(--text); font-weight: var(--weight-semibold); box-shadow: inset 0 calc(var(--sp-2) * -1) 0 var(--crimson); }
 .k-topic-tab .k-mono { font-size: var(--fs-11); opacity: 0.8; }
 .k-topic-more .k-btn { padding: 0 0 var(--sp-10); box-shadow: none; background: none; font-size: var(--fs-13-5); color: var(--muted); }
 .k-topic-more .k-btn:hover { color: var(--text); }
-.k-topic-edit { margin-block-end: var(--sp-8); }
+.k-topic-edit { margin-block-end: 0; }
 .k-topic-edit[aria-pressed="true"] { background: var(--s2); }
 .k-topic-reader { display: flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-12-5); }
 .k-topic-page-select { min-block-size: 0; padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); background: var(--s1); font-size: var(--fs-12-5); max-inline-size: 100%; }
@@ -253,11 +258,13 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-n-copy:hover, .k-n-copy[data-state~="copied"] { color: var(--text); }
 .k-n-kv > .k-n-copy, .k-n-tablewrap > .k-n-copy, .k-callout > .k-n-copy, .k-n-steps > .k-n-copy, .k-n-worked > .k-n-copy { position: absolute; inset-block-start: var(--sp-8); inset-inline-end: var(--sp-8); opacity: 0; }
 .k-n-kv:hover > .k-n-copy, .k-n-tablewrap:hover > .k-n-copy, .k-callout:hover > .k-n-copy, .k-n-steps:hover > .k-n-copy, .k-n-worked:hover > .k-n-copy, .k-n-copy:focus-visible { opacity: 1; }
-/* no hover on a touch screen: the corner button sat ON the block it copies
-   (over a table's last header, a callout's first line). It takes a row of
-   its own at the block's top end instead (phone review). */
+/* no hover on a touch screen: a tap on the block reveals its Copy (the
+   block takes data-state="copy" from content.js), so a page of notes is
+   not a column of Copy buttons */
 @media (hover: none) {
-.k-n-kv > .k-n-copy, .k-n-tablewrap > .k-n-copy, .k-callout > .k-n-copy, .k-n-steps > .k-n-copy, .k-n-worked > .k-n-copy { position: static; display: block; inline-size: max-content; margin: var(--sp-6) var(--sp-6) var(--sp-4) auto; opacity: 1; min-block-size: var(--hit); }
+.k-n-kv[data-state~="copy"] > .k-n-copy, .k-n-tablewrap[data-state~="copy"] > .k-n-copy, .k-callout[data-state~="copy"] > .k-n-copy, .k-n-steps[data-state~="copy"] > .k-n-copy, .k-n-worked[data-state~="copy"] > .k-n-copy { opacity: 1; }
+.k-n-kv > .k-n-copy, .k-n-tablewrap > .k-n-copy, .k-callout > .k-n-copy, .k-n-steps > .k-n-copy, .k-n-worked > .k-n-copy { pointer-events: none; }
+.k-n-kv[data-state~="copy"] > .k-n-copy, .k-n-tablewrap[data-state~="copy"] > .k-n-copy, .k-callout[data-state~="copy"] > .k-n-copy, .k-n-steps[data-state~="copy"] > .k-n-copy, .k-n-worked[data-state~="copy"] > .k-n-copy { pointer-events: auto; }
 }
 .k-n-kv { position: relative; display: grid; grid-template-columns: var(--kv-key-w) minmax(0, 1fr); border-radius: var(--r-16); overflow: hidden; background: var(--s1); font-size: var(--fs-14); line-height: 1.5; }
 .k-n-kv dt, .k-n-kv dd { padding: var(--sp-10) var(--sp-16); border-block-start: var(--hairline) solid var(--line); }

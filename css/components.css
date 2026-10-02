@@ -536,7 +536,10 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 @media (pointer: coarse) {
 .k-btn, .k-seg-item, .k-menu-item, .k-rail-item { min-block-size: var(--hit-coarse); }
 .k-btn { min-inline-size: var(--hit-coarse); }
-.k-iconbtn, .k-scroller-arrow, .k-ptitle-tools > .k-btn, .k-syncdot { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+.k-iconbtn, .k-ptitle-tools > .k-btn, .k-syncdot { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+/* the scroller's arrow is a hint (the strip swipes): a 32px circle, its
+   chevron large enough to read */
+.k-scroller-arrow { min-inline-size: var(--hit); min-block-size: var(--hit); font-size: var(--fs-20); line-height: 1; }
 .k-tp-x { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 

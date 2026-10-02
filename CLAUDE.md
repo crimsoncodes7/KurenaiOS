@@ -438,7 +438,9 @@ source comments and audit notes refer to it.
     review queue and never an in-class item: a calendar study block from 30
     minutes before it starts until it ends (goal = its length), an exam
     inside its kind's lead time (`KOS.calendar.EXAM_LEVELS`: real 7 days,
-    mock 5, end-of-topic 3, retrieval 1; goal = that kind's revision time),
+    mock 5, end-of-topic 3, retrieval 1; goal = that kind's revision time,
+    counting only time FOR that exam — a session started from its card or
+    one on its linked topics, never a bare timer),
     an open assignment due within 7 days (goal = what its estimate has
     left), the next exam within six weeks, then the plan/reading with the
     2-hour daily goal. An exam's kind is `examLevel`, kept on exams only;
