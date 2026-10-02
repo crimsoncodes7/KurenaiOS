@@ -43,7 +43,7 @@ function node(x, y, label, col, r) {
 C["compsci:4.1.1.9"] = {
   notes: [
     { h: "Exception handling — the whole topic on one page" },
-    "Spec 4.1.1.9: be able to **write simple exception-handling code**. Exam questions ask what exception handling is FOR, where the Skeleton Program uses it and what would go wrong without it.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.9)", body: "Be able to **write simple exception-handling code**. Exam questions ask what exception handling is FOR, where the Skeleton Program uses it and what would go wrong without it." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What exception handling is / is used for", "Explain", "1–2", "AS 2022 Q10.1, AS 2016 Q07.4"],
       ["How it could be used in a given subroutine", "Explain", "2", "AS 2016 Q07.4, AS 2025 Q08.2"],
@@ -94,7 +94,7 @@ C["compsci:4.1.1.9"] = {
     ] } },
 
     { page: "The re-enter loop" },
-    "The most common exam use: keep asking until the user types something that converts.",
+    { callout: { t: "info", h: "Key idea", body: "The most common exam use: keep asking until the user types something that converts." } },
     { code: { lang: "csharp", src: "static int ReadWholeNumber(string prompt)\n{\n    while (true)\n    {\n        Console.Write(prompt);\n        string text = Console.ReadLine();\n        try\n        {\n            return Convert.ToInt32(text);    // success leaves the loop\n        }\n        catch (FormatException)\n        {\n            Console.WriteLine(\"That is not a whole number - try again.\");\n        }\n    }\n}", cap: "Run with seven, (blank), 12: two error messages, then 12 is returned." } },
     { worked: { tag: "variation", title: "Trace the re-enter loop", q: "ReadWholeNumber(\"Row: \") is called and the user types seven, then presses Enter on an empty line, then types 12. Give the output and the value returned.",
       steps: [
@@ -190,7 +190,7 @@ C["compsci:4.1.1.9"] = {
 C["compsci:4.1.1.10"] = {
   notes: [
     { h: "Subroutines — the whole topic on one page" },
-    "Spec 4.1.1.10: be familiar with subroutines and their uses; know that a subroutine is a **named, 'out of line' block of code** that may be executed (**called**) by simply writing its name in a program statement; be able to explain the **advantages** of using subroutines; know that a **function** is a subroutine that returns a value and a **procedure** is one that does not.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.10)", body: ["Be familiar with subroutines and their uses.", "Know that a subroutine is a **named, 'out of line' block of code** that may be executed (**called**) by simply writing its name in a program statement.", "Be able to explain the **advantages** of using subroutines.", "Know that a **function** is a subroutine that returns a value and a **procedure** is one that does not."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Define a subroutine", "Define / What is", "1", "AS 2025 Q04.1, AS 2022 Q11.1"],
       ["Advantages of subroutines", "State", "3", "AS 2025 Q04.2"],
@@ -312,7 +312,7 @@ C["compsci:4.1.1.10"] = {
 C["compsci:4.1.1.11"] = {
   notes: [
     { h: "Parameters of subroutines — the whole topic on one page" },
-    "Spec 4.1.1.11: be able to describe the use of **parameters** to pass data **within programs**; be able to use subroutines with **interfaces**. A parameter is the variable in the subroutine's heading; an **argument** is the value given to it in a call.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.11)", body: ["Be able to describe the use of **parameters** to pass data **within programs**.", "Be able to use subroutines with **interfaces**. A parameter is the variable in the subroutine's heading.", "An **argument** is the value given to it in a call."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How parameters improve subroutines", "Describe", "2", "AS 2025 Q04.3"],
       ["What a parameter contains when called", "Describe", "1", "AS 2019 Q07"],
@@ -354,7 +354,7 @@ C["compsci:4.1.1.11"] = {
     ] } },
 
     { page: "References, arrays and strings" },
-    "Arrays and objects are **reference types**: the variable holds a reference, and passing it by value copies the REFERENCE — so the subroutine can change the elements, but not make the caller's variable point at a new array.",
+    { callout: { t: "info", h: "Key idea", body: "Arrays and objects are **reference types**: the variable holds a reference, and passing it by value copies the REFERENCE — so the subroutine can change the elements, but not make the caller's variable point at a new array." } },
     { code: { lang: "csharp", src: "static void Zero(int[] a)            { a[0] = 0; }\nstatic void Replace(int[] a)         { a = new[] { 9, 9, 9 }; }\nstatic void ReplaceRef(ref int[] a)  { a = new[] { 9, 9, 9 }; }\n\nint[] arr = { 1, 2, 3 };\nZero(arr);           // 0,2,3  — element changed through the copied reference\nReplace(arr);        // 0,2,3  — only the local copy was re-pointed\nReplaceRef(ref arr); // 9,9,9  — the caller's variable itself changed\n\nstring name = \"ada\";\nstatic void Shout(string s) { s = s.ToUpper(); }\nShout(name);         // name is still \"ada\": strings are immutable", cap: "Checked by running: 0,2,3 · 0,2,3 · 9,9,9 · ada." } },
     { worked: { tag: "variation", title: "Predict the output", q: "int[] t = {4, 7}; int k = 2; Change(t, k); Console.WriteLine(t[0] + \" \" + k); where static void Change(int[] arr, int v) { arr[0] = arr[0] * v; v = 0; }",
       steps: [
@@ -414,7 +414,7 @@ C["compsci:4.1.1.11"] = {
 C["compsci:4.1.1.12"] = {
   notes: [
     { h: "Returning values — the whole topic on one page" },
-    "Spec 4.1.1.12: be able to use subroutines that **return values to the calling routine**. A function's call is replaced by its returned value; several values come back as a record/tuple or through by-reference (out) parameters.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.12)", body: ["Be able to use subroutines that **return values to the calling routine**. A function's call is replaced by its returned value.", "Several values come back as a record/tuple or through by-reference (out) parameters."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Trace an algorithm that calls a function", "Complete the trace table", "5", "AS 2017 Q02.1"],
       ["Explain a sentinel return value's weakness", "Explain", "2", "AS 2017 Q02.2 (see 4.1.1.9)"],
@@ -543,7 +543,7 @@ function scopeFig(cap) {
 C["compsci:4.1.1.13"] = {
   notes: [
     { h: "Local variables — the whole topic on one page" },
-    "Spec 4.1.1.13: know that subroutines may declare their own variables, called **local variables**, and that local variables **only exist while the subroutine is executing** and are **only accessible within the subroutine**; be able to use local variables and explain why it is good practice to do so.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.13)", body: ["Know that subroutines may declare their own variables, called **local variables**, and that local variables **only exist while the subroutine is executing** and are **only accessible within the subroutine**.", "Be able to use local variables and explain why it is good practice to do so."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Difference + reasons to use local variables", "State / give", "3", "AS 2019 Q01"],
       ["Two reasons local variables are good practice", "Give", "2", "AS 2024 Q02.2"],
@@ -647,7 +647,7 @@ C["compsci:4.1.1.13"] = {
 C["compsci:4.1.1.14"] = {
   notes: [
     { h: "Global variables — the whole topic on one page" },
-    "Spec 4.1.1.14: be able to **contrast local variables with global variables**. A global variable is declared outside every subroutine (in the main program block) and can be used anywhere, for the whole run.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.14)", body: "Be able to **contrast local variables with global variables**. A global variable is declared outside every subroutine (in the main program block) and can be used anywhere, for the whole run." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["One difference between global and local", "Describe", "2", "AS 2023 Q03"],
       ["Two differences", "State", "2", "AS 2024 Q02.1"],
@@ -658,7 +658,7 @@ C["compsci:4.1.1.14"] = {
     { ol: ["**Globals in C#**.", "**Local vs global**.", "**The problem with globals**.", "**In exam questions**.", "**Exam toolkit**."] },
 
     { page: "Globals in C#" },
-    "C# has no variables outside a class. The equivalent of a global is a **static field** of a class: one copy, visible to every method that can see the class, alive for the whole run.",
+    { callout: { t: "info", h: "Key idea", body: "C# has no variables outside a class. The equivalent of a global is a **static field** of a class: one copy, visible to every method that can see the class, alive for the whole run." } },
     { code: { lang: "csharp", src: "static class Counter\n{\n    public static int Total;          // 'global': one copy for the whole program\n}\n\nstatic void AddScore(int points)\n{\n    Counter.Total = Counter.Total + points;   // reads and CHANGES the global\n}\n\nCounter.Total = 0;\nAddScore(10);\nAddScore(5);\nConsole.WriteLine(Counter.Total);     // 15", cap: "Checked: prints 15. Every call changes shared state — that is the side-effect." } },
     { code: { lang: "csharp", src: "// the same job without a global: data in through a parameter, out through return\nstatic int AddScore(int total, int points)\n{\n    return total + points;\n}\n\nint total = 0;\ntotal = AddScore(total, 10);\ntotal = AddScore(total, 5);   // 15 — and AddScore can be tested on its own", cap: "Replacing a global with a parameter and a return value." } },
     scopeFig("The global (static field) is visible inside every subroutine; each subroutine's locals are visible only inside it."),
@@ -750,7 +750,7 @@ function frameFig() {
 C["compsci:4.1.1.15"] = {
   notes: [
     { h: "Stack frames — the whole topic on one page" },
-    "Spec 4.1.1.15: be able to explain how a **stack frame** is used with subroutine calls to store **return addresses, parameters and local variables**. Each call pushes a frame onto the **call stack**; each return pops it.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.15)", body: ["Be able to explain how a **stack frame** is used with subroutine calls to store **return addresses, parameters and local variables**. Each call pushes a frame onto the **call stack**.", "Each return pops it."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Components of a stack frame", "State two", "2", "A-level 2018 Q02.5, A-level 2021 Q02.6"],
       ["How a stack is used for subroutine calls / recursion", "Explain / describe", "2–4", "synoptic with 4.2.3.1 and 4.1.1.16"],
@@ -868,7 +868,7 @@ function bstFig() {
 C["compsci:4.1.1.16"] = {
   notes: [
     { h: "Recursive techniques — the whole topic on one page" },
-    "Spec 4.1.1.16: be familiar with the use of **recursive techniques** in programming languages (general and **base cases**, and the mechanism for implementation); be able to **solve simple problems using recursion**. A-level only.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.16)", body: ["Be familiar with the use of **recursive techniques** in programming languages (general and **base cases**, and the mechanism for implementation)", "Be able to **solve simple problems using recursion**. A-level only."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What is a recursive subroutine?", "What is meant / explain", "1", "A-level 2017 Q04.1, 2021 Q02.4, 2022 Q04.2"],
       ["Base case — define, or state one for given code", "Explain / state / describe", "1", "A-level 2017 Q04.2, 2021 Q02.5, 2025 Q03.4"],

@@ -45,7 +45,7 @@ function cells(x, y, vals, o) {
 C["compsci:4.2.1.1"] = {
   notes: [
     { h: "Data structures — the whole topic on one page" },
-    "Spec 4.2.1.1: be familiar with the **concept of data structures**. A data structure is a way of **organising and storing related data** in memory so it can be used efficiently — and the choice of structure decides which operations are fast, which are slow and how much memory is used.",
+    { callout: { t: "info", h: "What the specification asks (4.2.1.1)", body: "Be familiar with the **concept of data structures**. A data structure is a way of **organising and storing related data** in memory so it can be used efficiently — and the choice of structure decides which operations are fast, which are slow and how much memory is used." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Name the data structure an algorithm implements", "State", "1", "A-level 2024 Q06.4"],
       ["Data abstraction", "Explain", "1", "AS 2025 Q05"],
@@ -155,7 +155,7 @@ C["compsci:4.2.1.1"] = {
 C["compsci:4.2.1.2"] = {
   notes: [
     { h: "Arrays — the whole topic on one page" },
-    "Spec 4.2.1.2: use arrays (or equivalent) in the design of solutions to simple problems. A **1-D array** represents a **vector**, a **2-D array** a **matrix**; an **n-dimensional array** is a set of elements of the **same data type** indexed by a **tuple of n integers**.",
+    { callout: { t: "info", h: "What the specification asks (4.2.1.2)", body: ["Use arrays (or equivalent) in the design of solutions to simple problems. A **1-D array** represents a **vector**, a **2-D array** a **matrix**.", "An **n-dimensional array** is a set of elements of the **same data type** indexed by a **tuple of n integers**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Dry-run an algorithm over arrays", "Complete the table", "3–5", "AS 2016 Q04.1, AS 2025 Q01"],
       ["Ordinal numbers and array positions", "Describe", "2", "A-level 2018 P2 Q09.2"],
@@ -197,7 +197,7 @@ C["compsci:4.2.1.2"] = {
     ] } },
 
     { page: "Arrays as linked structures" },
-    "Arrays of integers can hold **pointers** (indices) to other elements — the classic AQA way to store trees and lists when the language has no pointers. −1 means \"no child\".",
+    { callout: { t: "info", h: "Key idea", body: "Arrays of integers can hold **pointers** (indices) to other elements — the classic AQA way to store trees and lists when the language has no pointers. −1 means \"no child\"." } },
     { code: { lang: "csharp", src: "// AS 2025 Q01: a letter tree in three parallel arrays (index 0 is the root)\nstring letter = \"?ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\nint[] L = { 5, 18, -1, -1, 2, 9, -1, 26, -1, 19, -1, 3, -1, 7, 4, -1, -1, -1, 12, 8, 14, 6, -1, 16, -1, -1, -1 };\nint[] R = { 20, 23, -1, -1, 24, 1, -1, 17, -1, 21, -1, 25, -1, 15, 11, -1, -1, -1, -1, 22, 13, -1, -1, 10, -1, -1, -1 };\n\nint current = 0;\nforeach (char symbol in \"1001\")\n    current = symbol == '0' ? L[current] : R[current];   // 0 → left, 1 → right\nConsole.WriteLine(letter[current]);                      // X", cap: "Checked: Current goes 0 → 20 → 14 → 4 → 24, and Letter[24] = X." } },
 
     { page: "In exam questions" },
@@ -263,7 +263,7 @@ C["compsci:4.2.1.2"] = {
 C["compsci:4.2.1.3"] = {
   notes: [
     { h: "Fields, records and files — the whole topic on one page" },
-    "Spec 4.2.1.3: be able to **read/write from/to a text file**, and **read/write data from/to a binary (non-text) file**. A **record** groups related **fields** of different types; a **file** stores records permanently in secondary storage.",
+    { callout: { t: "info", h: "What the specification asks (4.2.1.3)", body: ["Be able to **read/write from/to a text file**, and **read/write data from/to a binary (non-text) file**. A **record** groups related **fields** of different types.", "A **file** stores records permanently in secondary storage."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How data is stored in a binary vs a text file", "Describe", "2", "AS 2016 Q08.6"],
       ["Why a binary file might be chosen", "State two reasons", "2", "A-level 2019 Q06"],
@@ -283,7 +283,7 @@ C["compsci:4.2.1.3"] = {
     { code: { lang: "csharp", src: "// a record type: three fields of different types\npublic record Student(string Name, int Year, double Mark);\n\nvar students = new List<Student>\n{\n    new(\"Ada\", 13, 72.5),\n    new(\"Bob\", 12, 65.0)\n};\nConsole.WriteLine(students[1]);   // Student { Name = Bob, Year = 12, Mark = 65 }\n\n// a struct works as a record too (4.1.1.1): public struct PirateRecord { public int Row, Col; public double WalkTime; }", cap: "C# record and struct types both model AQA's records." } },
 
     { page: "Text files" },
-    "A text file stores **characters** (ASCII/Unicode) — every number is written as its digits — usually one record per **line**, fields separated by a delimiter (comma, tab).",
+    { callout: { t: "info", h: "Key idea", body: "A text file stores **characters** (ASCII/Unicode) — every number is written as its digits — usually one record per **line**, fields separated by a delimiter (comma, tab)." } },
     { code: { lang: "csharp", src: "string path = \"scores.txt\";\n\n// WRITE — StreamWriter, one line per record\nusing (var w = new StreamWriter(path))           // creates or overwrites the file\n{\n    w.WriteLine(\"Ada,72\");\n    w.WriteLine(\"Bob,65\");\n}                                                 // using closes the file\n\n// READ — line by line, split into fields, convert the number\nforeach (string line in File.ReadAllLines(path))\n{\n    string[] fields = line.Split(',');\n    string name = fields[0];\n    int score = int.Parse(fields[1]);             // text → integer\n    Console.Write(name + \"=\" + score + \" \");\n}\n// Ada=72 Bob=65 — the file is 14 bytes: 7 characters per line including the newline\n\nFile.AppendAllText(path, \"Cy,80\\n\");             // add to the end without overwriting", cap: "Checked by running. Also: new StreamReader(path) with ReadLine() until it returns null; File.Exists(path) before reading." } },
     { steps: [
       "**Open** the file (for reading, writing or appending).",
@@ -293,7 +293,7 @@ C["compsci:4.2.1.3"] = {
     ] },
 
     { page: "Binary files" },
-    "A binary file stores values in their **in-memory representation** — an int as 4 bytes, a double as 8 — so there is no conversion to and from text, and it is not human-readable.",
+    { callout: { t: "info", h: "Key idea", body: "A binary file stores values in their **in-memory representation** — an int as 4 bytes, a double as 8 — so there is no conversion to and from text, and it is not human-readable." } },
     { code: { lang: "csharp", src: "string path = \"scores.bin\";\n\nusing (var bw = new BinaryWriter(File.Open(path, FileMode.Create)))\n{\n    bw.Write(\"Ada\");     // length-prefixed string: 1 + 3 bytes\n    bw.Write(72);        // int: 4 bytes\n    bw.Write(3.5);       // double: 8 bytes\n    bw.Write(true);      // bool: 1 byte\n}\n\nusing (var br = new BinaryReader(File.OpenRead(path)))\n{\n    // read back in EXACTLY the order and types written\n    Console.WriteLine(br.ReadString() + \" \" + br.ReadInt32() + \" \" + br.ReadDouble() + \" \" + br.ReadBoolean());\n}\n// Ada 72 3.5 True — 17 bytes", cap: "Checked: 17 bytes = 4 + 4 + 8 + 1. Reading in a different order gives garbage — the file has no field names." } },
     { code: { lang: "csharp", src: "// a FILE OF RECORDS: write each record's fields, read until the end of the stream\nusing (var bw = new BinaryWriter(File.Open(\"students.bin\", FileMode.Create)))\n    foreach (var s in students) { bw.Write(s.Name); bw.Write(s.Year); bw.Write(s.Mark); }\n\nvar back = new List<Student>();\nusing (var br = new BinaryReader(File.OpenRead(\"students.bin\")))\n    while (br.BaseStream.Position < br.BaseStream.Length)\n        back.Add(new Student(br.ReadString(), br.ReadInt32(), br.ReadDouble()));\nConsole.WriteLine(back.Count);   // 2", cap: "Checked: two records written and read back intact." } },
 
@@ -371,7 +371,7 @@ C["compsci:4.2.1.3"] = {
 C["compsci:4.2.1.4"] = {
   notes: [
     { h: "Abstract data types — the whole topic on one page" },
-    "Spec 4.2.1.4: be familiar with the concept and uses of a **queue, stack, graph, tree, hash table, dictionary and vector**; distinguish **static and dynamic** structures and compare their uses, advantages and disadvantages; describe the creation and maintenance of data within queues (linear, circular, priority), stacks and hash tables; know how to represent them when a language has no built-in type.",
+    { callout: { t: "info", h: "What the specification asks (4.2.1.4)", body: ["Be familiar with the concept and uses of a **queue, stack, graph, tree, hash table, dictionary and vector**.", "Distinguish **static and dynamic** structures and compare their uses, advantages and disadvantages.", "Describe the creation and maintenance of data within queues (linear, circular, priority), stacks and hash tables.", "Know how to represent them when a language has no built-in type."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Advantages and disadvantages of dynamic vs static", "Discuss", "4", "A-level 2020 Q04.1"],
       ["Three differences between dynamic and static", "Describe", "3", "A-level 2022 Q02.2"],

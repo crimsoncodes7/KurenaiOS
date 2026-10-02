@@ -6,7 +6,7 @@
 
    Usage:
      node tools/validate_content.js                 # every js/data/content/*.js
-     node tools/validate_content.js js/data/content/cs-algorithms.js …
+     node tools/validate_content.js js/data/content/cs-p1-43a.js …
 
    ERRORS (exit 1):
    - a file fails to eval or registers zero KOS_CONTENT keys

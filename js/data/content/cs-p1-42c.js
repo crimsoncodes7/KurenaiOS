@@ -48,7 +48,7 @@ function warehouseFig() {
 C["compsci:4.2.4.1"] = {
   notes: [
     { h: "Graphs — the whole topic on one page" },
-    "Spec 4.2.4.1: a **graph** represents complex relationships; know typical uses; explain **graph, weighted graph, vertex/node, edge/arc, undirected graph, directed graph**; know how an **adjacency matrix** and an **adjacency list** represent a graph, and **compare** them.",
+    { callout: { t: "info", h: "What the specification asks (4.2.4.1)", body: ["A **graph** represents complex relationships.", "Know typical uses.", "Explain **graph, weighted graph, vertex/node, edge/arc, undirected graph, directed graph**.", "Know how an **adjacency matrix** and an **adjacency list** represent a graph, and **compare** them."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Write the adjacency matrix for a drawn graph", "Complete the table", "1–2", "A-level 2018 Q03.1, 2022 Q04.4, 2025 Q03.3"],
       ["When a list / a matrix is more appropriate", "Explain the circumstances", "2", "A-level 2018 Q03.2, 2019 Q03.5"],
@@ -79,7 +79,7 @@ C["compsci:4.2.4.1"] = {
     { diagram: "dijkstra" },
 
     { page: "Adjacency matrix" },
-    "A 2-D array with a row and a column for every vertex: cell [i, j] holds the **weight** of edge i–j (or 1 for an unweighted edge), and **0** (or ∞ / blank) where there is no edge.",
+    { callout: { t: "info", h: "Key idea", body: "A 2-D array with a row and a column for every vertex: cell [i, j] holds the **weight** of edge i–j (or 1 for an unweighted edge), and **0** (or ∞ / blank) where there is no edge." } },
     { table: { head: ["", "1", "2", "3", "4", "5", "6"], rows: [
       ["1", "0", "2", "5", "3", "0", "8"], ["2", "2", "0", "1", "0", "0", "0"], ["3", "5", "1", "0", "0", "0", "4"],
       ["4", "3", "0", "0", "0", "1", "0"], ["5", "0", "0", "0", "1", "0", "5"], ["6", "8", "0", "4", "0", "5", "0"]
@@ -93,7 +93,7 @@ C["compsci:4.2.4.1"] = {
     { code: { lang: "csharp", src: "int[,] am = { {0,2,5,3,0,8}, {2,0,1,0,0,0}, {5,1,0,0,0,4},\n              {3,0,0,0,1,0}, {0,0,0,1,0,5}, {8,0,4,0,5,0} };\n\nbool sym = true;\nfor (int i = 0; i < 6; i++)\n    for (int j = 0; j < 6; j++)\n        if (am[i, j] != am[j, i]) sym = false;\nConsole.WriteLine(sym);            // True — undirected\nConsole.WriteLine(am[2, 5]);       // 4 — the edge 3–6 (C# rows and columns count from 0)", cap: "Checked by running." } },
 
     { page: "Adjacency list" },
-    "For each vertex, a list of its **neighbours** (with weights if weighted) — only edges that EXIST are stored.",
+    { callout: { t: "info", h: "Key idea", body: "For each vertex, a list of its **neighbours** (with weights if weighted) — only edges that EXIST are stored." } },
     { table: { head: ["Vertex", "Adjacent (weight)"], rows: [
       ["1", "2 (2), 3 (5), 4 (3), 6 (8)"], ["2", "1 (2), 3 (1)"], ["3", "1 (5), 2 (1), 6 (4)"], ["4", "1 (3), 5 (1)"], ["5", "4 (1), 6 (5)"], ["6", "1 (8), 3 (4), 5 (5)"]
     ] } },
@@ -213,13 +213,13 @@ function btsFig() {
 C["compsci:4.2.5.1"] = {
   notes: [
     { h: "Trees — the whole topic on one page" },
-    "Spec 4.2.5.1: a **tree** is a **connected, undirected graph with no cycles**; a **rooted tree** has one vertex designated the **root**, with parent–child relationships (the root is the only node with no parent; all others are its descendants); a **binary tree** is a rooted tree in which each node has **at most two children**; know typical uses — commonly a **binary search tree**.",
+    { callout: { t: "info", h: "What the specification asks (4.2.5.1)", body: ["A **tree** is a **connected, undirected graph with no cycles**.", "A **rooted tree** has one vertex designated the **root**, with parent–child relationships (the root is the only node with no parent; all others are its descendants)", "A **binary tree** is a rooted tree in which each node has **at most two children**.", "Know typical uses — commonly a **binary search tree**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Define binary tree / its characteristics", "Define / state", "2", "A-level 2021 Q02.1, 2023 Q03.1"],
       ["The properties that make a graph a tree", "State", "2", "A-level 2024 Q06.1"],
       ["Why a given graph is not a tree", "State", "1–2", "A-level 2018 Q03.3, 2025 Q03.2"],
       ["What a cycle-finder returning True/False tells you", "What can you determine", "1", "A-level 2022 Q04.8"],
-      ["Fill the gaps in a binary tree search", "Complete the table", "4", "A-level 2023 Q03.2"],
+      ["Fill the gaps in a binary tree search", "Complete the table", "4", "A-level 2023 Q03.2 (worked in 4.3.4.3)"],
       ["Shape of a tree that needs the deepest stack", "Describe", "2", "A-level 2024 Q06.3"]
     ] } },
     { h: "How these notes are organised" },
@@ -248,7 +248,7 @@ C["compsci:4.2.5.1"] = {
     { code: { lang: "csharp", src: "// 1) parallel arrays / an array of records — AQA's usual representation\nvar tree = new (int Data, int Left, int Right)[]\n{\n    (6, 1, 4), (3, 2, 3), (1, -1, -1), (4, -1, -1), (9, -1, -1)\n};\n\n// 2) objects with references (dynamic)\nclass TreeNode\n{\n    public string Value;\n    public TreeNode Left, Right;   // null = no child\n}", cap: "−1 in an array (or null as a reference) marks a missing child." } },
 
     { page: "Binary search trees" },
-    "In a **binary search tree** every value in a node's LEFT subtree is smaller than the node and every value in its RIGHT subtree is larger — so a search discards one subtree at every step.",
+    { callout: { t: "info", h: "Key idea", body: "In a **binary search tree** every value in a node's LEFT subtree is smaller than the node and every value in its RIGHT subtree is larger — so a search discards one subtree at every step." } },
     btsFig(),
     { code: { lang: "csharp", src: "bool BTS(int k)\n{\n    int current = 0;                                        // start at the root\n    while (current > -1)                                    // −1: fell off the tree\n    {\n        if (tree[current].Data == k) return true;\n        else if (tree[current].Data < k) current = tree[current].Right;   // bigger → go right\n        else current = tree[current].Left;                                // smaller → go left\n    }\n    return false;\n}\n// BTS(4) True · BTS(5) False · BTS(9) True", cap: "A-level 2023's search in C#, checked by running." } },
     { code: { lang: "csharp", src: "class Bst\n{\n    class N { public string V; public N L, R; }\n    N root;\n    public void Insert(string v)\n    {\n        if (root == null) { root = new N { V = v }; return; }\n        var c = root;\n        while (true)\n        {\n            if (string.CompareOrdinal(v, c.V) < 0) { if (c.L == null) { c.L = new N { V = v }; return; } c = c.L; }\n            else                                   { if (c.R == null) { c.R = new N { V = v }; return; } c = c.R; }\n        }\n    }\n}\n// insert Norbert, Phil, Judith, Mary, Caspar, Tahir → in-order: Caspar Judith Mary Norbert Phil Tahir", cap: "Insertion follows the same path as a search and adds a leaf where it falls off. Checked: in-order output is sorted." } },
@@ -285,14 +285,7 @@ C["compsci:4.2.5.1"] = {
       q: "FUNCTION E(): set all of Visited to False; IF G(0, −1) = True THEN RETURN False ELSE RETURN F(). G returns True if the graph contains a cycle; F returns True only if every node was visited. If the graph represented by ConnectedNodes is undirected, what can you determine about the graph when a value of True is returned by subroutine E?",
       steps: [{ m: "The graph is a tree;", mk: "1", n: "No cycle (G False) AND every node reached (connected) AND undirected — exactly the three tree properties." }],
       result: "It is a tree" } },
-    { worked: { tag: "exam", title: "Fill the gaps in BTS", src: "A-level June 2023 · P1 Q03.2 · 4 marks",
-      q: "A binary tree is stored as an array of records Tree with fields Data, Left and Right: [0] (6, 1, 4), [1] (3, 2, 3), [2] (1, −1, −1), [3] (4, −1, −1), [4] (9, −1, −1). SUBROUTINE BTS(k): Current ← __1__; WHILE Current > __2__: IF Tree[Current].Data = k THEN RETURN __3__; ELSEIF Tree[Current].Data < k THEN __4__; ELSE __5__; ENDIF; ENDWHILE; RETURN __6__. State what each label should be replaced by.",
-      steps: [
-        { m: "Row 1: 0 (the root's index);", mk: "1" },
-        { m: "Row 2: −1;", mk: "1" },
-        { m: "Rows 3 and 6: True and False;", mk: "1" },
-        { m: "Rows 4 and 5: Current ← Tree[Current].Right and Current ← Tree[Current].Left;", mk: "1", n: "Data < k means k is BIGGER, so go right." }
-      ], result: "0 · −1 · True · Right · Left · False" } },
+    { callout: { t: "info", h: "See also", body: "The four-mark gap-fill of this search (A-level 2023 Q03.2) is worked in full under 4.3.4.3 Binary tree search." } },
     { worked: { tag: "exam", title: "The tree that fills the stack", src: "A-level June 2024 · P1 Q06.3 · 2 marks",
       q: "An in-order traversal pushes each node onto an array Temp as it follows Left pointers down from the current node, and pops to output. For a five-node tree whose root has a left child with two children of its own and a right child, Temp needs three values. For some five-node binary trees Temp would need five. Describe the structure of a five-node binary tree that would require Temp to store five values.",
       steps: [

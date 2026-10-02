@@ -54,7 +54,7 @@ function probeFig() {
 C["compsci:4.2.6.1"] = {
   notes: [
     { h: "Hash tables — the whole topic on one page" },
-    "Spec 4.2.6.1: be familiar with the concept of a **hash table** (a mapping from keys to values) and its uses; **apply simple hashing algorithms**; know what a **collision** is (two keys hash to the same value) and how collisions are handled by **rehashing**.",
+    { callout: { t: "info", h: "What the specification asks (4.2.6.1)", body: ["Be familiar with the concept of a **hash table** (a mapping from keys to values) and its uses.", "**Apply simple hashing algorithms**.", "Know what a **collision** is (two keys hash to the same value) and how collisions are handled by **rehashing**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Steps to add a record to a hash table", "Describe", "4–5", "A-level 2021 Q04, 2025 Q01.2"],
       ["Add a card (given a key field) to a hash table", "Describe", "3", "A-level 2022 Q07.3"],
@@ -176,7 +176,7 @@ C["compsci:4.2.6.1"] = {
 C["compsci:4.2.7.1"] = {
   notes: [
     { h: "Dictionaries — the whole topic on one page" },
-    "Spec 4.2.7.1: be familiar with the concept of a **dictionary** — a collection of **key–value pairs** in which a value is **accessed via its key** — and simple applications such as **information retrieval**, with experience of using a dictionary in a programming language.",
+    { callout: { t: "info", h: "What the specification asks (4.2.7.1)", body: "Be familiar with the concept of a **dictionary** — a collection of **key–value pairs** in which a value is **accessed via its key** — and simple applications such as **information retrieval**, with experience of using a dictionary in a programming language." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why a hash table suits a dictionary", "Explain", "1", "A-level 2022 Q07.4"],
       ["Build or amend a dictionary in a program", "Write", "Section D", "A-level 2018 CreateTileDictionary"],
@@ -278,7 +278,7 @@ function vectorFig() {
 C["compsci:4.2.8.1"] = {
   notes: [
     { h: "Vectors — the whole topic on one page" },
-    "Spec 4.2.8.1: be familiar with the concept of a **vector** and its notations — a list [2.0, 3.14159, −1.0, 2.718281828]; a **4-vector over ℝ** written **ℝ⁴**; the **function** interpretation 0 ↦ 2.0, 1 ↦ 3.14159, …; all entries from the **same field**; **dictionary, list and 1-D array** representations; visualising as an **arrow**; **addition** (translation) and **scalar–vector multiplication** (scaling); **convex combination** αu + βv (α, β ≥ 0, α + β = 1); the **dot product** and its applications (the angle between vectors).",
+    { callout: { t: "info", h: "What the specification asks (4.2.8.1)", body: ["Be familiar with the concept of a **vector** and its notations — a list [2.0, 3.14159, −1.0, 2.718281828].", "A **4-vector over ℝ** written **ℝ⁴**.", "The **function** interpretation 0 ↦ 2.0, 1 ↦ 3.14159, …", "All entries from the **same field**.", "**Dictionary, list and 1-D array** representations.", "Visualising as an **arrow**.", "**Addition** (translation) and **scalar–vector multiplication** (scaling)", "**Convex combination** αu + βv (α, β ≥ 0, α + β = 1)", "The **dot product** and its applications (the angle between vectors)."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Dot product", "Calculate", "1–2", "A-level 2017 Q05.1, 2020 Q01.2"],
       ["Vector addition", "Perform", "1", "A-level 2017 Q05.2"],

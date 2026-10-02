@@ -55,7 +55,7 @@ function queueFig() {
 C["compsci:4.2.2.1"] = {
   notes: [
     { h: "Queues — the whole topic on one page" },
-    "Spec 4.2.2.1: describe and apply **add an item, remove an item, test for empty, test for full** to **linear, circular and priority queues**. A queue is **FIFO**: items join at the **rear** and leave from the **front**.",
+    { callout: { t: "info", h: "What the specification asks (4.2.2.1)", body: "Describe and apply **add an item, remove an item, test for empty, test for full** to **linear, circular and priority queues**. A queue is **FIFO**: items join at the **rear** and leave from the **front**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Add to a linear queue (array)", "Describe the steps", "3", "A-level 2020 Q04.2"],
       ["Extra steps to add to a priority queue", "Describe", "3", "A-level 2020 Q04.3"],
@@ -96,7 +96,7 @@ C["compsci:4.2.2.1"] = {
     ] } },
 
     { page: "Priority queues" },
-    "Each item has a **priority**; it is dequeued from the front as usual, but is **inserted ahead of every item with a lower priority** (behind those of the same or higher priority, so equal priorities stay FIFO).",
+    { callout: { t: "info", h: "Key idea", body: "Each item has a **priority**; it is dequeued from the front as usual, but is **inserted ahead of every item with a lower priority** (behind those of the same or higher priority, so equal priorities stay FIFO)." } },
     { code: { lang: "csharp", src: "class PriorityQueue\n{\n    private readonly (string Item, int Pri)[] items;\n    private int count = 0;                       // items[0] is the front\n    public PriorityQueue(int max) { items = new (string, int)[max]; }\n\n    public void Add(string item, int pri)\n    {\n        if (count == items.Length) throw new InvalidOperationException(\"full\");\n        int i = count - 1;                        // start at the REAR\n        while (i >= 0 && items[i].Pri < pri)      // lower priority? move it back one place\n        {\n            items[i + 1] = items[i];\n            i--;\n        }\n        items[i + 1] = (item, pri);               // insert before the first same/higher priority\n        count++;\n    }\n}\n// Add print:2, save:1, alarm:5, email:2  →  alarm:5 print:2 email:2 save:1", cap: "Checked: email (2) lands behind print (2) — equal priorities keep their arrival order." } },
 
     { page: "In exam questions" },
@@ -209,7 +209,7 @@ function stackFig() {
 C["compsci:4.2.3.1"] = {
   notes: [
     { h: "Stacks — the whole topic on one page" },
-    "Spec 4.2.3.1: describe and apply **push, pop, peek (top), test for empty, test for full**. A stack is **LIFO**: the last item pushed is the first popped. **Peek** returns the top item **without removing it**.",
+    { callout: { t: "info", h: "What the specification asks (4.2.3.1)", body: "Describe and apply **push, pop, peek (top), test for empty, test for full**. A stack is **LIFO**: the last item pushed is the first popped. **Peek** returns the top item **without removing it**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How a stack implements undo/repeat", "Explain", "5 + 1", "A-level 2017 Q06"],
       ["How a stack evaluates RPN", "Explain / describe", "3–4", "A-level 2018 Q02.4, 2021 Q05.2"],

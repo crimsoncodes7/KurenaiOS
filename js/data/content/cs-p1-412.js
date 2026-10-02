@@ -63,7 +63,7 @@ function diamondLink(x1, y1, x2, y2, filled) {
 C["compsci:4.1.2.1"] = {
   notes: [
     { h: "Programming paradigms — the whole topic on one page" },
-    "Spec 4.1.2.1: understand the **characteristics of the procedural- and object-oriented programming paradigms**, and have experience of programming in each. (The functional paradigm is 4.12, Paper 2.)",
+    { callout: { t: "info", h: "What the specification asks (4.1.2.1)", body: "Understand the **characteristics of the procedural- and object-oriented programming paradigms**, and have experience of programming in each. (The functional paradigm is 4.12, Paper 2.)" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Procedural decomposition", "Explain", "3", "A-level 2021 Q03"],
       ["Why an OOP approach (private data + public method) is favoured", "Explain", "2", "A-level 2017 Q08.4"],
@@ -185,7 +185,7 @@ function hierarchyFig() {
 C["compsci:4.1.2.2"] = {
   notes: [
     { h: "Procedural-oriented programming — the whole topic on one page" },
-    "Spec 4.1.2.2: understand the **structured approach** to program design and construction; be able to construct and use **hierarchy charts** when designing programs; be able to explain the **advantages** of the structured approach.",
+    { callout: { t: "info", h: "What the specification asks (4.1.2.2)", body: ["Understand the **structured approach** to program design and construction.", "Be able to construct and use **hierarchy charts** when designing programs.", "Be able to explain the **advantages** of the structured approach."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Reasons for / advantages of the structured approach", "Explain", "3", "AS 2024 Q03"],
       ["Decomposition", "Explain / define", "2", "AS 2022 Q08, A-level 2025 Q02"],
@@ -323,7 +323,7 @@ function wholePartFig() {
 C["compsci:4.1.2.3"] = {
   notes: [
     { h: "Object-oriented programming — the whole topic on one page" },
-    "Spec 4.1.2.3: be familiar with **class, object, instantiation, encapsulation, inheritance, aggregation, composition, polymorphism and overriding**; know why the OO paradigm is used; be aware of the design principles **encapsulate what varies**, **favour composition over inheritance** and **program to interfaces, not implementation**; write OO programs; draw and interpret **class diagrams** (+ public, - private, # protected; black diamond composition, white diamond aggregation; abstract, virtual and static methods).",
+    { callout: { t: "info", h: "What the specification asks (4.1.2.3)", body: ["Be familiar with **class, object, instantiation, encapsulation, inheritance, aggregation, composition, polymorphism and overriding**.", "Know why the OO paradigm is used.", "Be aware of the design principles **encapsulate what varies**, **favour composition over inheritance** and **program to interfaces, not implementation**.", "Write OO programs.", "Draw and interpret **class diagrams** (+ public, - private, # protected; black diamond composition, white diamond aggregation; abstract, virtual and static methods)."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which features does a class diagram show?", "Write Yes/No", "3", "A-level 2017 Q08.1"],
       ["Private vs protected / public vs protected", "Explain", "1–2", "A-level 2017 Q08.3, 2020 Q07.3, 2022 Q06.3"],

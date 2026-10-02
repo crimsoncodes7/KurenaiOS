@@ -54,7 +54,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA programming mark scheme",
 C["compsci:4.1.1.1"] = {
   notes: [
     { h: "Data types — the whole topic on one page" },
-    "Spec 4.1.1.1: understand the concept of a **data type**; use integer, real/float, Boolean, character, string, date/time, pointer/reference, records and arrays appropriately; define and use **user-defined data types** based on built-in ones.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.1)", body: ["Understand the concept of a **data type**.", "Use integer, real/float, Boolean, character, string, date/time, pointer/reference, records and arrays appropriately.", "Define and use **user-defined data types** based on built-in ones."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Most appropriate data type for given data", "State", "1", "AS 2022 Q04.1, AS 2024 Q05.1, Q06.1"],
       ["Identify a variable / structure of a type in the Skeleton Program", "State the identifier", "1", "every AS Paper 1 Section B"],
@@ -167,7 +167,7 @@ C["compsci:4.1.1.1"] = {
 C["compsci:4.1.1.2"] = {
   notes: [
     { h: "Programming concepts — the whole topic on one page" },
-    "Spec 4.1.1.2: use and combine **variable declaration, constant declaration, assignment, iteration, selection** and **subroutines**; use **definite** and **indefinite iteration** (condition at the **start** or the **end**); use **nested** selection and iteration; use **meaningful identifiers** and know why.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.2)", body: ["Use and combine **variable declaration, constant declaration, assignment, iteration, selection** and **subroutines**.", "Use **definite** and **indefinite iteration** (condition at the **start** or the **end**)", "Use **nested** selection and iteration.", "Use **meaningful identifiers** and know why."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Write a program from pseudo-code", "Write", "6–11", "AS P1 Section A every year (2020 Q03.1, 2023 Q05.1 here; others in 4.1.1.3–4.1.1.8)"],
       ["Trace an algorithm in a table", "Complete the table", "3–5", "AS 2020 Q02.1"],
@@ -219,10 +219,10 @@ C["compsci:4.1.1.2"] = {
     { code: { lang: "csharp", src: "for (int row = 1; row <= 3; row++)          // nested iteration: 3 × 4 = 12 lines\n{\n    for (int col = 1; col <= 4; col++)\n    {\n        Console.Write(row * col + \"\\t\");\n    }\n    Console.WriteLine();\n}", cap: "Nested iteration: the inner loop runs completely for every pass of the outer loop." } },
 
     { page: "Tracing" },
-    "A **trace table** has one column per variable (and one for output); a new row is written whenever a value changes. AS 2020's sentinel loop with input 4, 6, 3, 2, −1:",
+    { callout: { t: "info", h: "Key idea", body: "A **trace table** has one column per variable (and one for output); a new row is written whenever a value changes. AS 2020's sentinel loop with input 4, 6, 3, 2, −1:" } },
     { code: { lang: "pseudo", src: "X <- 0\nResult <- 0\nWHILE X != -1\n  INPUT X\n  Result <- Result + X\nENDWHILE\nOUTPUT Result", cap: "Intended to add numbers until the sentinel −1." } },
     { table: { head: ["X", "Result", "Output"], rows: [["0", "0", "—"], ["4", "4", ""], ["6", "10", ""], ["3", "13", ""], ["2", "15", ""], ["−1", "14", "14"]] } },
-    "The sentinel −1 was **added** before the loop condition was tested, so the answer is 14 not 15. Fix: read the first value before the loop and read the next at the END of the body:",
+    { callout: { t: "info", h: "What went wrong", body: "The sentinel −1 was **added** before the loop condition was tested, so the answer is 14 not 15. Fix: read the first value before the loop and read the next at the END of the body:" } },
     { code: { lang: "csharp", src: "int result = 0;\nint x = Convert.ToInt32(Console.ReadLine());   // read ahead\nwhile (x != -1)\n{\n    result = result + x;\n    x = Convert.ToInt32(Console.ReadLine());   // read the next value last\n}\nConsole.WriteLine(result);                     // 15 for 4, 6, 3, 2, -1", cap: "The read-ahead pattern: the sentinel is tested before it can be used." } },
 
     { page: "Meaningful identifiers" },
@@ -337,7 +337,7 @@ C["compsci:4.1.1.2"] = {
 C["compsci:4.1.1.3"] = {
   notes: [
     { h: "Arithmetic operations in a programming language — the whole topic on one page" },
-    "Spec 4.1.1.3: be familiar with and use **addition, subtraction, multiplication, real/float division, integer division including remainders, exponentiation, rounding** and **truncation**.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.3)", body: "Be familiar with and use **addition, subtraction, multiplication, real/float division, integer division including remainders, exponentiation, rounding** and **truncation**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Programs built on DIV and MOD", "Write", "8–11", "AS 2016 Q05.1, AS 2019 Q03.1, AS 2024 Q04.1"],
       ["Trace DIV / MOD arithmetic", "Complete the table", "3–5", "AS Section A traces"],
@@ -466,7 +466,7 @@ C["compsci:4.1.1.3"] = {
 C["compsci:4.1.1.4"] = {
   notes: [
     { h: "Relational operations in a programming language — the whole topic on one page" },
-    "Spec 4.1.1.4: be familiar with and use **equal to, not equal to, less than, greater than, less than or equal to, greater than or equal to**.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.4)", body: "Be familiar with and use **equal to, not equal to, less than, greater than, less than or equal to, greater than or equal to**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Loop and IF conditions inside a program task", "Write", "1–2 of 6–11", "AS 2018 Q03.1 (validation loop) and every Section A program"],
       ["Off-by-one boundaries in traces", "Complete the table", "—", "Section A traces"]
@@ -563,7 +563,7 @@ C["compsci:4.1.1.4"] = {
 C["compsci:4.1.1.5"] = {
   notes: [
     { h: "Boolean operations in a programming language — the whole topic on one page" },
-    "Spec 4.1.1.5: be familiar with and use **NOT, AND, OR** and **XOR**.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.5)", body: "Be familiar with and use **NOT, AND, OR** and **XOR**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Rewrite a condition with other operators", "Rewrite", "1", "A-level 2023 Q10.2"],
       ["Compound conditions in program tasks", "Write", "1–2 of 8–9", "AS 2018 Q03.1, AS 2022 Q03.1"]
@@ -646,7 +646,7 @@ C["compsci:4.1.1.5"] = {
 C["compsci:4.1.1.6"] = {
   notes: [
     { h: "Constants and variables in a programming language — the whole topic on one page" },
-    "Spec 4.1.1.6: explain the differences between a **variable** and a **constant**; explain the **advantages of named constants**.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.6)", body: ["Explain the differences between a **variable** and a **constant**.", "Explain the **advantages of named constants**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Benefit / advantage of named constants", "State / Explain", "1–2", "AS 2016 Q07.1, AS 2017 Q05.1"],
       ["Why copy values into other variables", "Explain", "1", "AS 2017 Q03.3"],
@@ -677,7 +677,7 @@ C["compsci:4.1.1.6"] = {
     { code: { lang: "csharp", src: "const int FieldLength = 20;\nconst int FieldWidth = 35;\nconst string TrainingFile = \"Training.txt\";\n\nchar[,] field = new char[FieldLength, FieldWidth];\nfor (int row = 0; row < FieldLength; row++)\n    for (int col = 0; col < FieldWidth; col++)\n        field[row, col] = '.';", cap: "Change the field size once, at the top; every loop follows." } },
 
     { page: "Working copies of variables" },
-    "AS 2017's GCF algorithm copies the inputs before the loop changes them:",
+    { callout: { t: "info", h: "Key idea", body: "AS 2017's GCF algorithm copies the inputs before the loop changes them:" } },
     { code: { lang: "csharp", src: "Console.Write(\"Enter a whole number: \");\nint number1 = Convert.ToInt32(Console.ReadLine());\nConsole.Write(\"Enter another whole number: \");\nint number2 = Convert.ToInt32(Console.ReadLine());\nint temp1 = number1;              // working copies: the loop destroys these\nint temp2 = number2;\nwhile (temp1 != temp2)\n{\n    if (temp1 > temp2) temp1 = temp1 - temp2;\n    else temp2 = temp2 - temp1;\n}\nint result = temp1;\nConsole.WriteLine(result + \" is GCF of \" + number1 + \" and \" + number2);", cap: "12 and 39 → \"3 is GCF of 12 and 39\": the output still needs the ORIGINAL values." } },
 
     { page: "In exam questions" },
@@ -738,7 +738,7 @@ C["compsci:4.1.1.6"] = {
 C["compsci:4.1.1.7"] = {
   notes: [
     { h: "String-handling operations in a programming language — the whole topic on one page" },
-    "Spec 4.1.1.7: use **length, position, substring, concatenation, character → character code, character code → character** and **string conversion** (string ↔ integer, string ↔ float, date/time ↔ string).",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.7)", body: "Use **length, position, substring, concatenation, character → character code, character code → character** and **string conversion** (string ↔ integer, string ↔ float, date/time ↔ string)." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Hand-trace a string-processing algorithm", "Complete the table", "5", "AS 2024 Q01"],
       ["Write a string-processing program", "Write", "8", "AS 2025 Q03.1"],
@@ -847,7 +847,7 @@ C["compsci:4.1.1.7"] = {
 C["compsci:4.1.1.8"] = {
   notes: [
     { h: "Random number generation in a programming language — the whole topic on one page" },
-    "Spec 4.1.1.8: be familiar with, and be able to use, **random number generation**.",
+    { callout: { t: "info", h: "What the specification asks (4.1.1.8)", body: "Be familiar with, and be able to use, **random number generation**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Program with random dice", "Write", "8", "AS 2022 Q03.1"],
       ["Screen capture of a random run", "Test", "1", "AS 2022 Q03.2"],
