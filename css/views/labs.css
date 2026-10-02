@@ -416,4 +416,13 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-ide-tab-x { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 
+/* ---------- the NEA tools (labs/nea-tools.js): sections, audits, verdicts ---------- */
+.k-lab-row { display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-12) var(--sp-16); border-radius: var(--r-12); background: var(--s2); }
+.k-lab-total { padding: var(--sp-12) var(--sp-16); border-radius: var(--r-12); background: var(--s3); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-lab-fieldset { display: flex; flex-direction: column; gap: var(--sp-6); margin: 0; padding: var(--sp-10) var(--sp-16); border: var(--hairline) solid var(--line); border-radius: var(--r-12); }
+.k-lab-fieldset > legend { padding-inline: var(--sp-6); font-size: var(--fs-12-5); font-weight: var(--weight-semibold); color: var(--text-2); }
+[data-verdict="good"] { color: var(--green); }
+[data-verdict="check"] { color: var(--amber); }
+[data-verdict="rewrite"] { color: var(--alarm); }
+
 }

@@ -1764,7 +1764,8 @@
     { id: "databases", sid: "compsci", label: "Databases", re: /^4\.1[01]\./ },
     { id: "pure", sid: "maths", label: "Pure", re: /^\d/ },
     { id: "statistics", sid: "maths", label: "Statistics", re: /^S\d\./ },
-    { id: "mechanics", sid: "maths", label: "Mechanics", re: /^M\d\./ }
+    { id: "mechanics", sid: "maths", label: "Mechanics", re: /^M\d\./ },
+    { id: "project", sid: "compsci", label: "NEA project", re: /^NEA/ }   /* appended: AREAS[8] is the maths fallback */
   ];
   function areaOf(s) {
     return AREAS.filter(function (a) { return a.sid === s.subject && a.re.test(String(s.ref || "")); })[0]
@@ -1777,7 +1778,8 @@
     "fsm-lab": "machine", "turing-machine": "machine", "cpu-fetch-execute": "machine", "lmc-sandbox": "code",
     "sql-sandbox": "code", "regex-sandbox": "code", "bnf-checker": "code", "cipher-lab": "code", "compression-lab": "code",
     "big-o-plot": "plot", "sort-viz": "diagram", "cs-vector": "plot", "adc-sampling": "plot",
-    "logic-lab": "bits", "logic-gates": "bits", "subnet-lab": "bits"
+    "logic-lab": "bits", "logic-gates": "bits", "subnet-lab": "bits",
+    "nea-objectives": "code", "nea-marks": "diagram"
   };
   function kindOf(s) {
     if (KIND_OF[s.id]) return KIND_OF[s.id];
@@ -1800,7 +1802,7 @@
     bars: '<path class="k-th-e" d="M24 92H176"/><rect class="k-th-n k-th-on" x="34" y="56" width="16" height="34" rx="3"/><rect class="k-th-n k-th-on" x="58" y="40" width="16" height="50" rx="3"/><rect class="k-th-n k-th-hot" x="82" y="24" width="16" height="66" rx="3"/><rect class="k-th-n k-th-on" x="106" y="66" width="16" height="24" rx="3"/><rect class="k-th-n k-th-on" x="130" y="48" width="16" height="42" rx="3"/><rect class="k-th-n" x="154" y="34" width="16" height="56" rx="3"/>',
     stack: '<rect class="k-th-n" x="76" y="14" width="48" height="18" rx="4"/><rect class="k-th-n k-th-hot" x="76" y="36" width="48" height="18" rx="4"/><rect class="k-th-n k-th-on" x="76" y="58" width="48" height="18" rx="4"/><rect class="k-th-n k-th-on" x="76" y="80" width="48" height="18" rx="4"/><path class="k-th-head" d="M140 45l-10-6v12z"/>'
   };
-  var THUMB_OF = { "tl-tree": "tree", "tl-stack": "stack", "recursion-viz": "stack", "rpn-eval": "stack",
+  var THUMB_OF = { "nea-marks": "bars", "tl-tree": "tree", "tl-stack": "stack", "recursion-viz": "stack", "rpn-eval": "stack",
     "hash-table": "cells", "dictionary": "cells", "binary-search": "cells", "linear-search": "cells", "sort-viz": "bars" };
   function thumb(s) {
     var box = el("span", { class: "k-lab-thumb", "aria-hidden": "true", "data-kind": kindOf(s) });

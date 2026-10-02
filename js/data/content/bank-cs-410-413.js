@@ -1,5 +1,5 @@
 /* Kurenai OS — past-paper bank: AQA 7517 §4.10 Databases, §4.11 Big Data,
-   §4.12 Functional programming, §4.13 Systematic approach and the NEA.
+   §4.12 Functional programming and §4.13 Systematic approach.
    Modelled on AS/A-level Paper 1 Section A and Paper 2, June 2016–2025. */
 window.KOS_CONTENT = window.KOS_CONTENT || {};
 (function (X) {
@@ -636,129 +636,7 @@ X("compsci:4.13.1.5", {
   ]
 });
 
-X("compsci:NEA.1", {
-  flashcards: [
-    ["What must the NEA analysis section contain?", "A description of the problem and its background, the intended users, an investigation (interviews/observation), research into existing solutions, a modelling of the problem, and a numbered list of measurable objectives."],
-    ["Why must objectives be measurable?", "The evaluation must be able to say objectively whether each was met."],
-    ["What makes an NEA problem 'appropriately complex'?", "It requires technical skills from the A-level list — e.g. complex data structures, recursion, OOP, a database with several linked tables, complex algorithms."],
-    ["Who is the client / end user and why does it matter?", "A real third party whose needs are investigated and who evaluates the result — authenticity of requirements."],
-    ["What is meant by modelling in the analysis?", "Representing the problem abstractly — data-flow, entity models, state diagrams — to understand it before designing."],
-    ["What are 'existing solutions' research for?", "To learn what works, what is missing and to justify the features of your own design."],
-    ["How many objectives is sensible?", "Enough to cover every requirement — typically 10–20, each specific and testable."],
-    ["Give an example of a well-formed objective.", "'The system must allow a user to search the catalogue by title and return results within 1 second.'"]
-  ],
-  quiz: [
-    { q: "'The system should be good' is a poor objective because it is:", opts: ["too long", "not measurable", "too technical", "illegal"], ans: 1, why: "Cannot be evaluated." },
-    { q: "Interviewing the client during analysis provides:", opts: ["code", "authentic requirements", "test data", "a UI"], ans: 1, why: "Investigation." },
-    { q: "Researching existing solutions helps to:", opts: ["copy them", "identify features and gaps to justify the design", "avoid coding", "skip testing"], ans: 1, why: "Informed design." },
-    { q: "An ER model in the analysis is an example of:", opts: ["testing", "modelling the problem", "implementation", "evaluation"], ans: 1, why: "Abstraction of the problem." },
-    { q: "Technical complexity in the NEA is judged by:", opts: ["line count", "the sophistication of the techniques used", "language choice", "colours"], ans: 1, why: "Skills list." },
-    { q: "Objectives are used again in:", opts: ["nothing", "design, testing and evaluation", "only design", "only coding"], ans: 1, why: "Thread through the project." }
-  ],
-  exam: [
-    { q: "Explain why an NEA analysis must include a numbered list of measurable objectives, and how these objectives are used in the later stages of the project.", marks: 4,
-      ms: ["Objectives define precisely what the system must do, agreed with the client (1)", "Measurable objectives can be tested — each becomes one or more entries in the test plan (1)", "The design is checked against the objectives to ensure every requirement is covered (1)", "The evaluation judges, objective by objective, whether the finished system meets them, with client feedback (1)"] }
-  ]
-});
-
-X("compsci:NEA.2", {
-  flashcards: [
-    ["What should the NEA design section include?", "Overall system structure (hierarchy/module chart), data structures and data dictionary, database design (ER + normalised tables), key algorithms in pseudo-code, UI designs, and a plan for testing."],
-    ["Why record design decisions?", "So the examiner sees the rationale — why a hash table rather than a list, why a class hierarchy — and complexity is evidenced."],
-    ["What level of detail should algorithms have?", "Enough that another competent programmer could implement them — pseudo-code for every non-trivial algorithm."],
-    ["What is the purpose of a modular structure diagram?", "Shows decomposition into subroutines/classes and their interfaces, evidencing a systematic approach."],
-    ["How should the database design be presented?", "ER diagram, then normalised relations with keys, then a data dictionary of fields and types."],
-    ["What should UI designs show?", "Screen layouts with annotations explaining navigation, validation and how users achieve each objective."],
-    ["Why design validation rules?", "Robustness — the design shows how erroneous input is handled before it reaches the logic."],
-    ["How does design link to objectives?", "Each design element should reference the objectives it satisfies."]
-  ],
-  quiz: [
-    { q: "A pseudo-code algorithm belongs in:", opts: ["analysis", "design", "evaluation", "the appendix only"], ans: 1, why: "Design artefact." },
-    { q: "A normalised set of relations with keys evidences:", opts: ["testing", "database design", "the UI", "analysis"], ans: 1, why: "Design." },
-    { q: "Justifying the choice of a queue over a stack is:", opts: ["irrelevant", "a documented design decision", "testing", "coding"], ans: 1, why: "Rationale." },
-    { q: "UI sketches should be annotated to show:", opts: ["colours only", "navigation, validation and which objectives they meet", "the code", "test results"], ans: 1, why: "Purposeful design." },
-    { q: "A module chart shows:", opts: ["test cases", "decomposition into subroutines/classes", "data values", "user feedback"], ans: 1, why: "Structure." },
-    { q: "Designing validation rules improves:", opts: ["speed", "robustness", "compression", "the database size"], ans: 1, why: "Handles bad input." }
-  ],
-  exam: [
-    { q: "Describe four items that should appear in the design section of a project that stores data in a relational database and processes it with several algorithms.", marks: 4,
-      ms: ["A module / hierarchy chart showing the decomposition into subroutines or classes (1)", "An entity-relationship diagram and normalised relations with primary and foreign keys, plus a data dictionary (1)", "Pseudo-code for each significant algorithm, with the data structures used and the reasons for choosing them (1)", "Annotated user-interface designs and validation rules, cross-referenced to the objectives (1)"] }
-  ]
-});
-
-X("compsci:NEA.3", {
-  flashcards: [
-    ["What does the technical solution section contain?", "The complete, annotated source code, a table pointing to where each technical skill is demonstrated, and explanation of the completeness of the solution."],
-    ["Why annotate the code?", "So the examiner can find the sophisticated techniques and understand the structure without running it."],
-    ["What does 'completeness' mean here?", "How much of the designed system has been implemented and works — a partial but robust implementation scores for what it does."],
-    ["What are the two strands of technical solution marks?", "Technical skill (sophistication of techniques used) and coding style (structure, naming, annotation, robustness, modularity)."],
-    ["Give three examples of Group A (high-complexity) skills.", "Complex data model in a database, hash tables/queues/stacks/graphs/trees, complex user-defined algorithms, recursive algorithms, dynamic object generation, OOP with inheritance/polymorphism."],
-    ["Why is exception handling relevant to the technical solution?", "It demonstrates robustness — the program copes with invalid input and failures."],
-    ["What coding-style features are rewarded?", "Modular structure, meaningful identifiers, consistent layout, constants, local variables, comments, validation."],
-    ["How should the code be presented?", "In full, in a readable font, with a contents/index of files and a skills table referencing line numbers or files."]
-  ],
-  quiz: [
-    { q: "The skills table in the technical solution:", opts: ["lists test data", "maps each demonstrated technique to its location in the code", "is the design", "records user feedback"], ans: 1, why: "Evidence for examiners." },
-    { q: "Which is a Group A technique?", opts: ["A simple linear search", "Recursion over a tree structure", "A single table", "A text file read"], ans: 1, why: "High complexity." },
-    { q: "Coding style marks reward:", opts: ["long code", "modularity, naming, annotation and robustness", "using many languages", "no comments"], ans: 1, why: "Quality." },
-    { q: "A partially complete but robust solution:", opts: ["scores zero", "scores for what works", "must be hidden", "counts as design"], ans: 1, why: "Completeness is graded." },
-    { q: "Exception handling evidences:", opts: ["speed", "robustness", "compression", "normalisation"], ans: 1, why: "Copes with errors." },
-    { q: "Source code should be presented:", opts: ["as screenshots only", "in full, readable and indexed", "summarised", "encrypted"], ans: 1, why: "Examiner access." }
-  ],
-  exam: [
-    { q: "Explain how a student should present the technical solution of an NEA so that it earns marks for both technical skill and coding style.", marks: 4,
-      ms: ["Include the complete source code, readable and indexed by file / module (1)", "Provide a table mapping each technical skill demonstrated (e.g. recursion, OOP, SQL with joins) to its location in the code (1)", "Annotate the code with comments explaining structure and purpose; use meaningful identifiers, constants, local variables and modular subroutines / classes (1)", "Show robustness — validation and exception handling — and state clearly how complete the implementation is against the design (1)"] }
-  ]
-});
-
-X("compsci:NEA.4", {
-  flashcards: [
-    ["What does the NEA testing section require?", "A test plan mapped to the objectives, evidence (screenshots / videos) of tests actually run — normal, boundary and erroneous data — and evidence of robustness."],
-    ["How is testing evidence presented?", "A table: test number, objective tested, input, expected result, actual result (with screenshot), pass/fail, and any fix made."],
-    ["Why include tests that failed?", "They evidence the iterative development — the fault, the fix and the re-test."],
-    ["What is robustness testing?", "Deliberately entering invalid, unexpected or extreme data to show the program does not crash."],
-    ["What kinds of test data should be included?", "Normal, boundary and erroneous for every input, plus tests of the complex algorithms with known answers."],
-    ["How does a video help?", "It shows dynamic behaviour (animation, navigation, real-time features) that screenshots cannot."],
-    ["Why link tests to objectives?", "To demonstrate coverage — every objective has evidence of being met or not."],
-    ["What is meant by 'thoroughness' of testing?", "Coverage of all functions, all data types and all pathways, including error paths."]
-  ],
-  quiz: [
-    { q: "Each test in the plan should reference:", opts: ["a colour", "an objective", "a file name", "the compiler"], ans: 1, why: "Coverage." },
-    { q: "Evidence of a test is best given as:", opts: ["a statement it passed", "a screenshot of input and output", "the code", "a diagram"], ans: 1, why: "Actual result shown." },
-    { q: "A test that failed should be:", opts: ["deleted", "recorded with the fix and re-test", "ignored", "hidden"], ans: 1, why: "Iterative evidence." },
-    { q: "Entering a letter where a number is expected tests:", opts: ["normal data", "robustness / erroneous data", "boundary data", "nothing"], ans: 1, why: "Error handling." },
-    { q: "Thorough testing covers:", opts: ["the main path only", "all functions and data types including error paths", "the UI only", "one objective"], ans: 1, why: "Definition." },
-    { q: "A video is useful for testing:", opts: ["static output", "dynamic / real-time behaviour", "the database schema", "comments"], ans: 1, why: "Screenshots cannot show motion." }
-  ],
-  exam: [
-    { q: "Describe how the testing section of an NEA should be structured to demonstrate thoroughness and robustness.", marks: 4,
-      ms: ["A test plan with each test referenced to an objective, giving input, expected result, actual result and pass/fail (1)", "Tests using normal, boundary and erroneous data for every input, plus tests of complex algorithms against known results (1)", "Evidence of each test actually run — screenshots or video of input and output (1)", "Failed tests recorded with the fault, the fix and the re-test, and deliberate invalid input to show the program does not crash (1)"] }
-  ]
-});
-
-X("compsci:NEA.5", {
-  flashcards: [
-    ["What must the NEA evaluation contain?", "An assessment of how well each objective was met, with evidence; independent feedback from the client/user; analysis of that feedback; and realistic improvements / further development."],
-    ["Why must the evaluation reference the objectives one by one?", "The marks are for a full, objective assessment of the outcomes against the original criteria."],
-    ["What makes user feedback 'independent'?", "It comes from the real client or third-party users, not the developer, and is quoted / evidenced."],
-    ["How should feedback be used?", "Analysed — agree or explain, then turned into specific improvements."],
-    ["What is a realistic improvement?", "A specific, technically described change that addresses a shortcoming or feedback point — not 'make it better'."],
-    ["Should the evaluation mention failures?", "Yes — honest recognition of unmet objectives with reasons scores better than overclaiming."],
-    ["What is the link between testing and evaluation?", "Test results are the evidence cited when judging whether an objective was met."],
-    ["What could 'further development' include?", "New features requested by the client, performance improvements, portability, security enhancements."]
-  ],
-  quiz: [
-    { q: "The evaluation judges the system against:", opts: ["other students' work", "the numbered objectives", "the code length", "the language"], ans: 1, why: "Original criteria." },
-    { q: "Feedback should come from:", opts: ["the developer", "the independent client / users", "the teacher only", "nobody"], ans: 1, why: "Authenticity." },
-    { q: "'The program could be better' is:", opts: ["a good improvement", "too vague to score", "an objective", "a test"], ans: 1, why: "Not specific." },
-    { q: "An unmet objective should be:", opts: ["hidden", "acknowledged with reasons and a proposed fix", "deleted", "renamed"], ans: 1, why: "Honest evaluation." },
-    { q: "Evidence for 'objective met' comes from:", opts: ["the design", "test results and user feedback", "the analysis", "the code comments"], ans: 1, why: "Testing feeds evaluation." },
-    { q: "Analysing feedback means:", opts: ["copying it", "responding to each point and deriving improvements", "ignoring it", "summarising the code"], ans: 1, why: "Critical use." }
-  ],
-  exam: [
-    { q: "Explain what a complete NEA evaluation should contain and why each element matters.", marks: 4,
-      ms: ["An objective-by-objective assessment of how well the system meets its requirements, citing test results as evidence — so the judgement is measurable (1)", "Independent feedback from the client / end users, quoted or evidenced — so fitness for purpose is judged by those who asked for it (1)", "Analysis of the feedback, agreeing or explaining, and honest acknowledgement of shortcomings — credibility (1)", "Specific, realistic improvements and further developments derived from the shortcomings and feedback (1)"] }
-  ]
-});
+/* The NEA entries that used to follow were removed: the NEA is not examined on
+   paper, and its project guide lives in cs-nea.js. */
 
 })(KOS.content.extend);

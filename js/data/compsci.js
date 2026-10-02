@@ -2553,50 +2553,63 @@ window.KOS_DATA.compsci = {
     },
     {
       "ref": "NEA",
-      "title": "NEA Programming Project",
+      "title": "NEA — the programming project",
       "paper": 3,
       "children": [
+        {
+          "ref": "NEA.0",
+          "title": "Choosing and planning the project",
+          "content": [
+            "Choose a problem or investigation that interests you, in a field you know or can find out about, and that gives the opportunity to show A-level technical skill.",
+            "Projects in a centre must be sufficiently different from one another.",
+            "Identify the critical path — the part everything else depends on — prototype it early, then develop iteratively.",
+            "Present the report in five sections: Analysis (9), Documented design (12), Technical solution (42), Testing (8), Evaluation (4) — 75 marks, 20% of the A-level."
+          ],
+          "info": [
+            "A task that is not of A-level standard is marked down two levels in every section except the technical solution (two marks for evaluation).",
+            "The section order is the order of PRESENTATION, not a required life cycle: AQA expects an iterative, agile approach."
+          ],
+          "children": []
+        },
         {
           "ref": "NEA.1",
           "title": "Analysis",
           "content": [
-            "Define the problem to be solved.",
-            "Establish the requirements of the solution by interaction with the intended users/client.",
-            "Identify inputs, processes and outputs. Decompose the problem into manageable sub-problems.",
-            "Define measurable and testable success criteria (objectives).",
-            "Research similar existing solutions and explain design decisions."
+            "Produce a clear statement that describes the problem area and the specific problem being solved or investigated.",
+            "Outline how the problem was researched, and state for whom it is being solved or investigated.",
+            "Provide background in sufficient detail for a third party to understand the problem.",
+            "Produce a numbered list of measurable, appropriate (single-purpose, unambiguous) specific objectives covering all the required functionality.",
+            "Report any modelling of the problem that will inform the design (E-R model, graph/network model, data flow diagram, state diagram, formulae)."
           ],
           "info": [
-            "Marks: problem identification, decomposition, user research, measurable objectives. Use 'the client requires…' phrasing."
+            "9 marks (AO2b), three levels. Level 3 needs a fully scoped analysis of a real problem, requirements arrived at through dialogue with the intended users, ALL functionality in measurable objectives, and the problem modelled well enough to use in later stages."
           ],
           "children": []
         },
         {
           "ref": "NEA.2",
-          "title": "Design",
+          "title": "Documented design",
           "content": [
-            "Design the solution: data structures, algorithms, and user interface.",
-            "Justify design decisions with reference to the requirements from Analysis.",
-            "Produce algorithm designs using pseudocode or flowcharts.",
-            "Design test plans including normal, boundary, and erroneous test cases before coding begins.",
-            "Produce UI mockups/wireframes."
+            "Articulate the design so that a third party can understand how the key aspects of the solution or investigation are structured, and what the design relies on (libraries, database, framework).",
+            "Use a combination of diagrams and prose: a high-level overview (hierarchy chart, system flowchart, data flow or class diagram), key algorithms (pseudo-code), data structures, file structure, database design and queries, and the user interface (explained screenshots are acceptable).",
+            "Design may be produced before, during or after coding."
           ],
           "info": [
-            "Design evidence must reference the Analysis requirements. Hierarchy charts show module structure; structure charts add data flows."
+            "12 marks (AO3a), four levels. Level 4: fully or nearly fully articulated — describes how all or almost all key aspects are structured. A design focused on the interface with little on algorithms is not fully articulated."
           ],
           "children": []
         },
         {
           "ref": "NEA.3",
-          "title": "Technical Solution",
+          "title": "Technical solution",
           "content": [
-            "Develop a working technical solution that meets the identified requirements.",
-            "Use appropriate data structures and algorithms.",
-            "Write well-structured, maintainable, and commented code.",
-            "Demonstrate OOP, modular design, or other paradigms as appropriate."
+            "Provide program listings that demonstrate technical skill, appropriately annotated and self-documenting, divided into labelled sections.",
+            "Include an overview guide: executables, file names, database names and paths, and where the most sophisticated algorithms and the code meeting the hardest objectives can be found.",
+            "Completeness of solution (15 marks): how many of the requirements the system meets.",
+            "Techniques used (27 marks): the level of technical skill (Table 1 Groups A, B, C) shown proficiently, with the coding style (Table 2) and the effectiveness of the solution placing the mark within the level."
           ],
           "info": [
-            "Code quality matters: meaningful identifiers, good structure, comments explaining non-obvious decisions. Screen captures of running code are required as evidence."
+            "42 marks (AO3b). Techniques are credited for what the code demonstrates, not for what was planned. Table 2 is cumulative: excellent style (loosely coupled cohesive modules with good interfaces, defensive programming, good exception handling) assumes the good and basic characteristics too."
           ],
           "children": []
         },
@@ -2604,13 +2617,12 @@ window.KOS_DATA.compsci = {
           "ref": "NEA.4",
           "title": "Testing",
           "content": [
-            "Test the solution against the test plan created at Design.",
-            "Include evidence of testing: test tables with input, expected output, actual output, and pass/fail.",
-            "Test with normal, boundary, and erroneous data.",
-            "Show iterative testing during development, not just final testing."
+            "Present clear evidence of testing in a structured way, for example a table: the test, its purpose, the test data, the expected outcome and the actual outcome with sampled evidence (before-and-after screenshots or video time-stamps).",
+            "Select carefully chosen, representative samples that show the solution is robust and that the requirements have been achieved — not every possible test.",
+            "Testing may be carried out during development as well as at the end."
           ],
           "info": [
-            "Testing evidence must link back to the test plan. Show how bugs found were fixed. Evaluators look for test data variety and coverage of objectives."
+            "8 marks (AO3c), four levels. Level 4 needs thorough testing of the complete or nearly complete solution, demonstrating robustness and that the requirements were achieved. Focus on the technically challenging, core objectives."
           ],
           "children": []
         },
@@ -2618,13 +2630,12 @@ window.KOS_DATA.compsci = {
           "ref": "NEA.5",
           "title": "Evaluation",
           "content": [
-            "Evaluate the solution against the success criteria defined in Analysis.",
-            "Discuss the effectiveness, efficiency, usability, and maintainability of the solution.",
-            "Identify limitations and suggest realistic improvements.",
-            "Reflect on the development process."
+            "Consider and assess how well the outcome meets each of its requirements.",
+            "Obtain independent feedback on how well the outcome meets its requirements, and discuss it.",
+            "Consider how the outcome could realistically be improved if the problem were revisited."
           ],
           "info": [
-            "Each success criterion should be addressed individually. Use 'my solution meets/does not meet criterion X because…' structure. Vague praise earns no marks."
+            "4 marks (AO3c), one mark per level. Level 4 needs full consideration of ALL requirements, detailed improvements, and independent feedback that is evaluated and discussed — not just pasted in."
           ],
           "children": []
         }
