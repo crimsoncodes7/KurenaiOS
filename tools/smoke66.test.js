@@ -35,7 +35,8 @@ function assert(c, m) { if (!c) throw new Error(m); }
 /* the Paper 1 leaves rewritten so far, by file */
 const DONE = {
   "cs-p1-411a.js": ["4.1.1.1", "4.1.1.2", "4.1.1.3", "4.1.1.4", "4.1.1.5", "4.1.1.6", "4.1.1.7", "4.1.1.8"],
-  "cs-p1-411b.js": ["4.1.1.9", "4.1.1.10", "4.1.1.11", "4.1.1.12", "4.1.1.13", "4.1.1.14", "4.1.1.15", "4.1.1.16"]
+  "cs-p1-411b.js": ["4.1.1.9", "4.1.1.10", "4.1.1.11", "4.1.1.12", "4.1.1.13", "4.1.1.14", "4.1.1.15", "4.1.1.16"],
+  "cs-p1-412.js": ["4.1.2.1", "4.1.2.2", "4.1.2.3"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
