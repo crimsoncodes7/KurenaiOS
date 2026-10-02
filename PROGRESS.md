@@ -17,7 +17,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `9eac539` (Mechanics M6–M9 at depth), immutable https://32db7dba.kurenai-os.pages.dev — deployed 1 October 2026; before it `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
+| Runtime release commit | `87ee60c` (Computer Science at depth, with the UI review fixes), immutable https://bfb13afc.kurenai-os.pages.dev — deployed 2 October 2026; before it `9eac539` (Mechanics M6–M9 at depth), https://32db7dba.kurenai-os.pages.dev; before that `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-cs-depth-1` |
@@ -33,8 +33,8 @@ https://bb17097f.kurenai-os.pages.dev.
 ## Released 2 October 2026 — Computer Science at full depth
 
 Roadmap Phase 4, Computer Science. Built on `feat/cs-p2-depth` and
-`feat/cs-p1-nea`, merged to `main` and deployed (service worker
-`kos-cs-depth-1`).
+`feat/cs-p1-nea`, merged to `main` as `87ee60c` and deployed (immutable
+https://bfb13afc.kurenai-os.pages.dev, service worker `kos-cs-depth-1`).
 
 - **Paper 2 (4.5–4.13):** 88 leaves in `js/data/content/cs-p2-*.js` — 419
   pages, 653 worked examples, 600 exam items derived from them. Every way

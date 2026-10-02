@@ -19,9 +19,9 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `9eac539` (1 October 2026: Statistics and
-  Mechanics notes at full depth) — immutable deployment
-  https://32db7dba.kurenai-os.pages.dev
+- Runtime release commit: `87ee60c` (2 October 2026: Computer Science
+  notes at full depth — both AQA papers in C# and the NEA) — immutable
+  deployment https://bfb13afc.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker cache: `kos-cs-depth-1`
 - Verification: all **66 smoke suites**, including the rebuild guards

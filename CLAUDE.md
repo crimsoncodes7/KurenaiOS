@@ -12,10 +12,10 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `9eac539` (Mechanics M6–M9 at depth; Phase 4
-  content complete)
-- Runtime release: `9eac539` — immutable deployment
-  https://32db7dba.kurenai-os.pages.dev (1 October 2026)
+- Release source checkpoint: `87ee60c` (Computer Science at depth — both
+  AQA papers and the NEA — with the UI review fixes)
+- Runtime release: `87ee60c` — immutable deployment
+  https://bfb13afc.kurenai-os.pages.dev (2 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-cs-depth-1`
 - Required smoke gate: 66 / 66 suites.
