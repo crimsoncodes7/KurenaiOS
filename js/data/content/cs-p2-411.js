@@ -2,7 +2,7 @@
    (Big Data: volume, velocity and variety; distributing storage and
    processing; why functional programming fits; the fact-based model and
    graph schemas) at full A-level depth. It REPLACES the short entry
-   cs-advanced.js carried; every way AQA has examined it (7517/2 June
+   the retired cs-advanced.js carried; every way AQA has examined it (7517/2 June
    2018–2024, including the 2021 12-mark essay, whose full mark scheme was
    read from the original paper) is explained, worked and answered in the
    mark scheme's own format. Past-paper banks stay in bank-cs-410-413.js. */
