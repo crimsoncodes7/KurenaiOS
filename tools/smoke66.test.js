@@ -5,8 +5,9 @@
    The claims:
 
      A · PAPER 1 NOTES. Every rewritten Paper 1 leaf is paged, opens on its
-         whole-topic overview, carries worked examples with AQA marks, ends
-         with an exam toolkit, and has flashcards and a quiz.
+         whole-topic overview, carries worked examples with AQA marks, a
+         mnemonic, its misconceptions and synoptic links, ends with an exam
+         toolkit, and has flashcards and a quiz.
      B · PAPER 1 EXAM ITEMS derive from the exam-tagged worked cards, name
          AQA and keep their marks.
      C · ONE OWNER. No older CS file still defines a rewritten leaf, and
@@ -36,7 +37,11 @@ function assert(c, m) { if (!c) throw new Error(m); }
 const DONE = {
   "cs-p1-411a.js": ["4.1.1.1", "4.1.1.2", "4.1.1.3", "4.1.1.4", "4.1.1.5", "4.1.1.6", "4.1.1.7", "4.1.1.8"],
   "cs-p1-411b.js": ["4.1.1.9", "4.1.1.10", "4.1.1.11", "4.1.1.12", "4.1.1.13", "4.1.1.14", "4.1.1.15", "4.1.1.16"],
-  "cs-p1-412.js": ["4.1.2.1", "4.1.2.2", "4.1.2.3"]
+  "cs-p1-412.js": ["4.1.2.1", "4.1.2.2", "4.1.2.3"],
+  "cs-p1-42a.js": ["4.2.1.1", "4.2.1.2", "4.2.1.3", "4.2.1.4"],
+  "cs-p1-42b.js": ["4.2.2.1", "4.2.3.1"],
+  "cs-p1-42c.js": ["4.2.4.1", "4.2.5.1"],
+  "cs-p1-42d.js": ["4.2.6.1", "4.2.7.1", "4.2.8.1"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
@@ -64,6 +69,10 @@ step("A · every rewritten Paper 1 leaf is paged, worked and ends with a toolkit
     assert(worked.length >= 3, ref + " has worked examples (" + worked.length + ")");
     assert(worked.some(b => (b.worked.steps || []).some(s => s && s.mk)), ref + " annotates marks");
     assert(n.some(b => b && b.page === "Exam toolkit"), ref + " ends with an exam toolkit");
+    const callouts = n.filter(b => b && b.callout).map(b => b.callout);
+    assert(callouts.some(c => c.t === "mnemonic"), ref + " has a mnemonic");
+    assert(callouts.some(c => c.t === "miscon"), ref + " names its misconceptions");
+    assert(callouts.some(c => /^Synoptic links$/.test(c.h || "")), ref + " links to the rest of the course");
     assert((c.flashcards || []).length >= 8 && (c.quiz || []).length >= 4, ref + " flashcards and quiz");
   });
 });

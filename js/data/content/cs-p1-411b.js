@@ -111,7 +111,7 @@ C["compsci:4.1.1.9"] = {
       ["Weakness", "every failure must be anticipated; the checks can make code complex", "the cost of throwing; can hide bugs if catch is too broad"],
       ["Mark-scheme phrase", "—", "avoids the structure of the code becoming too complex from checking for errors before they occur"]
     ] } },
-    { callout: { t: "warn", h: "Misconceptions", body: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"Exception handling fixes errors.\" — it **responds** to them: shows a message, asks again, uses a default, saves and exits. The bad input is still bad.",
       "\"A catch handles syntax errors.\" — no: syntax errors stop compilation; only **run-time** errors reach a catch.",
       "An empty catch { } that silently swallows everything hides bugs — catch the specific type and do something visible."
@@ -160,7 +160,7 @@ C["compsci:4.1.1.9"] = {
       "**Response**: re-enter · default value · error message · save and close safely.",
       "**Identifier questions**: copy the subroutine name exactly (R. misspelt); a circumstance must be possible IN that subroutine."
     ] },
-    { callout: { t: "tip", h: "Mnemonic — TCF", body: "**T**ry the risky statement, **C**atch the specific type, **F**inally clean up." } },
+    { callout: { t: "mnemonic", h: "TCF", body: "**T**ry the risky statement, **C**atch the specific type, **F**inally clean up." } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.12 a sentinel return value (−1) vs an exception; 4.2.1.3 file handling (FileNotFoundException); 4.13.1.4 erroneous test data; 4.7.3.6 interrupts — another way normal flow is suspended to handle an event." } }
   ],
   flashcards: [
@@ -250,7 +250,8 @@ C["compsci:4.1.1.10"] = {
       ["Fewer side-effects", "local variables mean a subroutine cannot unexpectedly change data elsewhere"],
       ["Supports a structured approach / recursion", "a problem is decomposed into subroutines; a subroutine can call itself"]
     ] } },
-    { callout: { t: "tip", h: "Mnemonic — RE-TEAM", body: "**R**euse · **E**asier to read · **T**est separately · **E**dit (maintain) in one place · **A**llows team working · **M**inimises side-effects." } },
+    { callout: { t: "miscon", h: "Misconceptions", body: ["\"A procedure can't take parameters.\" — procedures and functions both can; the only difference is whether a value is RETURNED.", "Calling a function as a lone statement — Square(4); — compiles, but throws the result away.", "\"Main isn't a subroutine.\" — in C# it is a method like any other (top-level statements are compiled into one)."] } },
+    { callout: { t: "mnemonic", h: "RE-TEAM", body: "**R**euse · **E**asier to read · **T**est separately · **E**dit (maintain) in one place · **A**llows team working · **M**inimises side-effects." } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Define subroutine", src: "AS June 2025 · P1 Q04.1 · 1 mark",
@@ -360,7 +361,7 @@ C["compsci:4.1.1.11"] = {
         { m: "arr receives a copy of the REFERENCE: arr[0] = 4 × 2 = 8 changes the caller's array.", mk: "1" },
         { m: "v is a copy of k: v = 0 changes only the copy.", mk: "1" }
       ], result: "8 2" } },
-    { callout: { t: "warn", h: "Misconception", body: "\"Arrays are passed by reference in C#.\" — strictly, the REFERENCE is passed by value. Element changes are visible; re-assigning the parameter is not. Only ref makes the caller's variable itself change." } },
+    { callout: { t: "miscon", h: "Misconception", body: "\"Arrays are passed by reference in C#.\" — strictly, the REFERENCE is passed by value. Element changes are visible; re-assigning the parameter is not. Only ref makes the caller's variable itself change." } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "How parameters improve subroutines", src: "AS June 2025 · P1 Q04.3 · 2 marks",
@@ -384,6 +385,7 @@ C["compsci:4.1.1.11"] = {
       "**By value** copies; **by reference** passes the address — use it to change the caller's variable or return several values.",
       "**In code tasks**: when you add a parameter, change the heading AND every call."
     ] },
+    { callout: { t: "mnemonic", h: "\"Value copies, ref rewrites\"", body: "By **value** the subroutine gets a **copy** — the caller's variable is safe. By **ref** it works on the **real** variable — changes come back. In C#, ref is written at BOTH the heading and the call." } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.12 out parameters as extra return values; 4.1.1.14 parameters replace globals; 4.1.1.15 parameters are stored in the stack frame; 4.1.1.1 value vs reference types; 4.12.1.3 function application in functional programming." } }
   ],
   flashcards: [
@@ -497,6 +499,8 @@ C["compsci:4.1.1.12"] = {
       "**In traces**: work out the returned value first, then the calling statement's assignment.",
       "**Sentinel values** like −1 must be checked by the caller (AS 2017 Q02.2)."
     ] },
+    { callout: { t: "miscon", h: "Misconceptions", body: ["\"return prints the value.\" — it hands the value back to the caller; nothing appears unless the caller outputs it.", "\"A function can only return one thing.\" — one VALUE, but it can be a tuple, record or array; out parameters add more.", "\"Code after return still runs.\" — an executed return ends the subroutine (only a finally block still runs)."] } },
+    { callout: { t: "mnemonic", h: "\"Return = replace and leave\"", body: "A function call is **replaced** by the value it returns, and return makes the subroutine **leave** at once." } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.9 exceptions vs sentinel returns; 4.1.1.11 out parameters; 4.1.1.16 recursion — each call returns its value to the call below; 4.5.2 hexadecimal; 4.12.1.1 a function maps a domain to a co-domain." } }
   ],
   flashcards: [
@@ -581,7 +585,8 @@ C["compsci:4.1.1.13"] = {
       ["Fewer side-effects / accidental changes", "no other part of the program can change it"],
       ["Easier debugging / testing / maintenance", "a fault in a local is confined to one subroutine"]
     ] } },
-    { callout: { t: "tip", h: "Mnemonic — the two Ls", body: "**L**ocal = **L**imited scope + **L**ifetime of one call." } },
+    { callout: { t: "miscon", h: "Misconceptions", body: ["\"A local variable keeps its value between calls.\" — it is created afresh on every call; keep a value between calls in a field or pass it back.", "\"Parameters aren't local.\" — they have the same scope and lifetime as locals, but a 'name a local variable' answer wants one DECLARED in the body.", "\"Same name means same variable.\" — two subroutines' totals are separate variables with separate scopes."] } },
+    { callout: { t: "mnemonic", h: "the two Ls", body: "**L**ocal = **L**imited scope + **L**ifetime of one call." } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Difference and two reasons", src: "AS June 2019 · P1 Q01 · 3 marks",
@@ -677,7 +682,7 @@ C["compsci:4.1.1.14"] = {
       "**Memory**: held for the whole run even when not needed.",
       "**When they are reasonable**: true constants (const), and data genuinely shared by the whole program — but pass it as a parameter where you can."
     ] },
-    { callout: { t: "warn", h: "Misconception", body: "\"Global variables are faster so they are better.\" — any saving is trivial; AQA's answers all favour locals and parameters. A global CONSTANT is fine, because it cannot be changed." } },
+    { callout: { t: "miscon", h: "Misconception", body: "\"Global variables are faster so they are better.\" — any saving is trivial; AQA's answers all favour locals and parameters. A global CONSTANT is fine, because it cannot be changed." } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "One difference, described", src: "AS June 2023 · P1 Q03 · 2 marks",
@@ -705,6 +710,7 @@ C["compsci:4.1.1.14"] = {
       "**Why avoid globals**: side-effects, harder to test/debug/reuse.",
       "**In C#**: a global is a static field; prefer parameters and return values."
     ] },
+    { callout: { t: "mnemonic", h: "\"Global: everywhere, every moment, everyone's problem\"", body: "**Scope** — the whole program. **Lifetime** — the whole run. **Risk** — any subroutine can change it: side-effects." } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.13 local variables; 4.1.1.11 parameters as the alternative; 4.1.1.6 named constants are the acceptable global; 4.12 functional programming forbids side-effects altogether; 4.1.2.3 static vs instance fields." } }
   ],
   flashcards: [
@@ -763,7 +769,8 @@ C["compsci:4.1.1.15"] = {
       ["Local variables", "a fresh set for every call — so recursive calls do not overwrite each other"],
       ["Register values", "the caller's working registers, saved so they can be restored"]
     ] },
-    { callout: { t: "tip", h: "Mnemonic — RPLR", body: "**R**eturn address · **P**arameters · **L**ocal variables · **R**egisters: \"Real Programmers Love Recursion\"." } },
+    { callout: { t: "miscon", h: "Misconceptions", body: ["\"The stack frame stores the subroutine's code.\" — code lives elsewhere in memory; a frame holds the data of ONE call.", "\"Globals live in the stack frame.\" — only parameters, local variables, the return address and saved registers do.", "\"Frames leave in the order they arrived.\" — LIFO: the newest frame is popped first."] } },
+    { callout: { t: "mnemonic", h: "RPLR", body: "**R**eturn address · **P**arameters · **L**ocal variables · **R**egisters: \"Real Programmers Love Recursion\"." } },
 
     { page: "What happens on a call and a return" },
     { steps: [
@@ -875,7 +882,7 @@ C["compsci:4.1.1.16"] = {
     { page: "Base case and general case" },
     { callout: { t: "def", h: "Recursive subroutine", body: "A subroutine that **calls itself**. It must have a **base case** — the circumstance in which it does NOT call itself — and a **general (recursive) case** that calls itself on a smaller problem, so every chain of calls eventually reaches the base case." } },
     { code: { lang: "csharp", src: "static int Factorial(int n)\n{\n    if (n <= 1) return 1;              // BASE CASE: stops the recursion\n    return n * Factorial(n - 1);       // GENERAL CASE: a smaller problem\n}\n\nstatic int SumList(List<int> xs)       // total [] = 0; total (x:xs) = x + total xs\n{\n    if (xs.Count == 0) return 0;                       // base case: empty list\n    return xs[0] + SumList(xs.GetRange(1, xs.Count - 1));   // head + total of tail\n}\n\nstatic long Power(long b, int e) => e == 0 ? 1 : b * Power(b, e - 1);", cap: "Checked: Factorial(5) = 120, SumList([3, 4, 5]) = 12, Power(2, 10) = 1024." } },
-    { callout: { t: "tip", h: "Mnemonic — BGU", body: "**B**ase case stops it · **G**eneral case moves TOWARDS the base case · **U**nwind: the results are combined as each call returns." } },
+    { callout: { t: "mnemonic", h: "BGU", body: "**B**ase case stops it · **G**eneral case moves TOWARDS the base case · **U**nwind: the results are combined as each call returns." } },
 
     { page: "How recursion runs" },
     { steps: [
@@ -1008,7 +1015,7 @@ C["compsci:4.1.1.16"] = {
       "**Efficiency**: one stack frame per call (overflow risk); naive double recursion repeats work — exponential.",
       "**Write recursion**: base case FIRST, then a call on a smaller problem."
     ] },
-    { callout: { t: "warn", h: "Misconceptions", body: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"Recursion is always slower and worse.\" — it can be as efficient (merge sort, tree traversal) and far clearer; only CERTAIN recursions (naive Fibonacci) repeat work.",
       "\"Each call shares the same variables.\" — each call has its own parameters and locals in its own frame; only globals/shared arrays are shared.",
       "\"The base case is the first call.\" — it is the call that does NOT recurse."

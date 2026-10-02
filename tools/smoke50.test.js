@@ -70,7 +70,7 @@ step("every bank file is registered after the base content and loads clean", () 
   assert(BANKS.length >= 17, "expected the CS and maths bank files, found " + BANKS.length);
   assert(!errors.some(e => /LOAD FAIL.*bank-/.test(e)), errors.filter(e => /bank-/.test(e)).join("; "));
   const idx = s => html.indexOf(s);
-  assert(idx("bank-cs-41.js") > idx("cs-datastructures.js"), "a bank loads before the base content it extends");
+  assert(idx("bank-cs-41.js") > idx("cs-p1-42d.js") && idx("cs-p1-42d.js") > 0, "a bank loads before the base content it extends");
   assert(idx("bank-maths-stats.js") > idx("maths-stats-s5.js"), "the stats bank loads after the Statistics notes");
   assert(idx("bank-maths-mech.js") > idx("maths-mech-m9.js"), "the mechanics bank loads after the Mechanics notes");
 });

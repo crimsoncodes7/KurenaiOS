@@ -727,7 +727,7 @@ source comments and audit notes refer to it.
 ### Deep content and labs
 
 Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
-`js/data/content/cs-datastructures.js` as the depth reference.
+`js/data/content/cs-p1-42b.js` as the depth reference.
 
 - Simulations auto-wire by their own `subject` + `ref`; `WIRE` adds extra refs.
 - Worked generators use explicit `GENWIRE` because their displayed `ref` is a

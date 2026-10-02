@@ -138,7 +138,7 @@ C["compsci:4.1.1.1"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"Is It Real, Boolean Character? Strings Date Pointers, Records Arrays\"", body: "**I**nteger · **R**eal · **B**oolean · **C**haracter · **S**tring · **D**ate/time · **P**ointer/reference · **R**ecord · **A**rray — the spec's nine." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["Storing a phone number as an integer.", "char for more than one character.", "Comparing doubles with == (rounding error).", "Saying a pointer stores the object — it stores its address."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["Storing a phone number as an integer.", "char for more than one character.", "Comparing doubles with == (rounding error).", "Saying a pointer stores the object — it stores its address."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.4 binary representations of integers, reals and characters; 4.2.1.3 records and fields; 4.2.1.2 arrays; 4.1.2.3 classes as user-defined types; 4.2.2 and 4.2.5 pointers in queues, linked lists and trees." } }
   ],
   flashcards: [
@@ -308,7 +308,7 @@ C["compsci:4.1.1.2"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"See Wild, Remember Once\"", body: "**S**equence · **S**election · **I**teration. **W**HILE may run **zero** times; **R**EPEAT runs at least **once**." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["An output inside the loop that belongs after it.", "Off-by-one FOR bounds (TO is inclusive).", "Copying UNTIL's condition into do…while without negating it.", "Using a sentinel value in the calculation.", "Single-letter identifiers in your own code."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["An output inside the loop that belongs after it.", "Off-by-one FOR bounds (TO is inclusive).", "Copying UNTIL's condition into do…while without negating it.", "Using a sentinel value in the calculation.", "Single-letter identifiers in your own code."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.3 DIV and MOD in loop bodies; 4.1.1.4 and 4.1.1.5 the conditions; 4.1.1.10 subroutines; 4.7.3.5 the same structures in assembly (CMP and branches); 4.13.1.4 testing the programs you write; 4.1.2.2 structured programming." } }
   ],
   flashcards: [
@@ -437,7 +437,7 @@ C["compsci:4.1.1.3"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"DIV divides, MOD's the leftover\"", body: "n % 10 = last digit, n / 10 = the rest; n % 2 == 0 means even. And in C#, int / int is ALWAYS integer division." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["Using a double somewhere so / becomes real division.", "Missing brackets: value / 10 * value % 10 is evaluated left to right.", "Testing MOD 5 before MOD 10.", "Assuming Math.Round(2.5) is 3.", "Forgetting Math.Pow returns a double."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["Using a double somewhere so / becomes real division.", "Missing brackets: value / 10 * value % 10 is evaluated left to right.", "Testing MOD 5 before MOD 10.", "Assuming Math.Round(2.5) is 3.", "Forgetting Math.Pow returns a double."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.2 converting between bases (MOD 2 and DIV 2); 4.2.6 hashing with MOD; 4.2.2 circular queues ((rear + 1) MOD size); 4.5.4 floating-point rounding errors; 4.7.3.5 LSR as DIV 2 in assembly." } }
   ],
   flashcards: [
@@ -536,7 +536,7 @@ C["compsci:4.1.1.4"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"The bar under the sign includes the boundary\"", body: "≤ and ≥ include the edge value; < and > exclude it. Assignment has ONE =, comparison TWO." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["= instead of == in C#.", "AND where OR is needed for 'outside the range'.", "< where <= is needed at a boundary.", "Comparing user input without normalising case."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["= instead of == in C#.", "AND where OR is needed for 'outside the range'.", "< where <= is needed at a boundary.", "Comparing user input without normalising case."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.5 combining conditions; 4.13.1.4 boundary test data; 4.7.3.5 CMP and BLT/BGT/BEQ/BNE in assembly; 4.5.5.1 character codes behind string comparison." } }
   ],
   flashcards: [
@@ -619,7 +619,7 @@ C["compsci:4.1.1.5"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"Break the line, change the sign\"", body: "De Morgan: push the NOT inside the brackets and swap AND ↔ OR. XOR = \"one or the other but not both\"." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["Writing NOT A AND NOT B for NOT (A AND B).", "Treating OR as exclusive.", "Forgetting brackets when mixing && and ||.", "A guard on the right of && (it runs too late)."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["Writing NOT A AND NOT B for NOT (A AND B).", "Treating OR as exclusive.", "Forgetting brackets when mixing && and ||.", "A guard on the right of && (it runs too late)."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.6.4 logic gates and Boolean algebra (the same laws); 4.6.5 De Morgan in simplification; 4.1.1.4 relational conditions; 4.7.3.5 AND/ORR/EOR/MVN bitwise in assembly; 4.5.6 XOR in encryption." } }
   ],
   flashcards: [
@@ -711,7 +711,7 @@ C["compsci:4.1.1.6"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"RUCS\" — why named constants", body: "**R**eadable · **U**pdate once · **C**onsistent · **S**afe from accidental change." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["\"A constant never changes\" without contrasting a variable.", "\"Saves memory\" — not a reason.", "Overwriting input variables you later need to output."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["\"A constant never changes\" without contrasting a variable.", "\"Saves memory\" — not a reason.", "Overwriting input variables you later need to output."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.13 and 4.1.1.14 scope of variables; 4.1.1.2 constant declaration as a statement type; NEA Table 2: use of constants is a 'good' coding-style characteristic." } }
   ],
   flashcards: [
@@ -818,7 +818,7 @@ C["compsci:4.1.1.7"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"Lazy People Steal Cake, Cook Cakes, Convert\"", body: "**L**ength · **P**osition · **S**ubstring · **C**oncatenation · **C**haracter→code · **C**ode→character · **C**onversions — the spec's seven." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["Off-by-one: the last index is Length − 1.", "Substring(start, end) when C# wants (start, length).", "Comparing a char with a string: s[0] == \"A\" does not compile; use 'A'.", "Concatenating in the wrong order in a trace."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["Off-by-one: the last index is Length − 1.", "Substring(start, end) when C# wants (start, length).", "Comparing a char with a string: s[0] == \"A\" does not compile; use 'A'.", "Concatenating in the wrong order in a trace."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.5.1 ASCII and Unicode codes; 4.5.6 Caesar and Vernam ciphers; 4.4.2.3 regular expressions match strings; 4.1.1.9 parsing input safely." } }
   ],
   flashcards: [
@@ -912,7 +912,7 @@ C["compsci:4.1.1.8"] = {
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"Next excludes the last\"", body: "rng.Next(min, max) gives min to max − 1. Same seed, same sequence." } },
-    { callout: { t: "warn", h: "Specific errors", body: ["Next(1, 6) for a die.", "Generating the dice once, before the loop.", "A new Random() inside a loop.", "Using Random for passwords or keys."] } },
+    { callout: { t: "miscon", h: "Specific errors", body: ["Next(1, 6) for a die.", "Generating the dice once, before the loop.", "A new Random() inside a loop.", "Using Random for passwords or keys."] } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.13.1.4 testing random programs (what can and cannot be predicted); 4.5.6 random keys in the Vernam cipher; 4.2.6 hash functions; NEA simulations and games." } }
   ],
   flashcards: [

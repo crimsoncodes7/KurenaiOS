@@ -5,20 +5,20 @@
    "surface": "home",
    "hooks": "home.fact",
    "from": "^203Cards? due.*$",
-   "to": "206 cards due",
+   "to": "208 cards due",
    "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands."
   },
   {
    "surface": "home",
    "hooks": "habit.tick",
    "from": "^Seal directive: Clear 203 due flashcards \\(158 overdue\\)$",
-   "to": "Seal directive: Clear 206 due flashcards (160 overdue)",
+   "to": "Seal directive: Clear 208 due flashcards (162 overdue)",
    "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands."
   },
   {
    "hooks": "shell.rail-item",
    "from": "^学Study203$",
-   "to": "学Study206",
+   "to": "学Study208",
    "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands."
   },
   {

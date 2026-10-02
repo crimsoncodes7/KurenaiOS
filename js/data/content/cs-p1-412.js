@@ -99,7 +99,7 @@ C["compsci:4.1.2.1"] = {
       ["Change", "a change to a data structure can ripple into every procedure that uses it", "the representation is hidden, so it can change without breaking other classes"],
       ["Best for", "small programs, step-by-step processes, scripts, calculations", "large systems, many similar entities, simulations, GUIs, games (the Skeleton Programs)"]
     ] } },
-    { callout: { t: "warn", h: "Misconception", body: "\"OOP doesn't use procedures.\" — every method IS a subroutine with sequence, selection and iteration inside it; OOP changes how code and data are GROUPED, not what a statement is." } },
+    { callout: { t: "miscon", h: "Misconception", body: "\"OOP doesn't use procedures.\" — every method IS a subroutine with sequence, selection and iteration inside it; OOP changes how code and data are GROUPED, not what a statement is." } },
 
     { page: "The same task both ways" },
     { code: { lang: "csharp", src: "// PROCEDURAL: data in an array, subroutines receive it\nint[] marks = { 62, 75, 48, 90 };\nReport(marks);                                  // Average 68.8, highest 90, grade B\n\nstatic void Report(int[] marks)\n{\n    double average = Average(marks);\n    Console.WriteLine($\"Average {average:F1}, highest {Highest(marks)}, grade {Grade(average)}\");\n}\nstatic double Average(int[] values)\n{\n    int total = 0;\n    foreach (int v in values) total += v;\n    return (double)total / values.Length;\n}\nstatic int Highest(int[] values)\n{\n    int best = values[0];\n    foreach (int v in values) if (v > best) best = v;\n    return best;\n}\nstatic string Grade(double mark) => mark >= 70 ? \"A\" : mark >= 60 ? \"B\" : mark >= 50 ? \"C\" : \"U\";", cap: "Checked: Average 68.8, highest 90, grade B." } },
@@ -145,6 +145,7 @@ C["compsci:4.1.2.1"] = {
       "**Why OOP**: hidden representation can change without affecting other classes; reuse through inheritance; models real-world entities; suits large team projects.",
       "Say WHICH paradigm the code in front of you uses: classes and new → object-oriented."
     ] },
+    { callout: { t: "mnemonic", h: "\"Procedures DO, objects ARE\"", body: "**Procedural** code is organised around what the program **does** — subroutines acting on data passed to them. **Object-oriented** code is organised around the **things** in the problem — objects bundling data with methods." } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.2.2 the structured approach; 4.1.2.3 OOP in full; 4.12.1.1–4.12.3.1 the functional paradigm; 4.10.4 SQL as declarative; 4.4.1 abstraction and decomposition; NEA.4 complex OOP models earn Group A marks." } }
   ],
   flashcards: [
@@ -234,7 +235,8 @@ C["compsci:4.1.2.2"] = {
       ["Testing and debugging", "each module can be tested independently; errors are easier to locate"],
       ["Maintenance", "a change is confined to one module"]
     ] } },
-    { callout: { t: "tip", h: "Mnemonic — ORTTM", body: "**O**verview · **R**euse · **T**eam working · **T**est independently · **M**aintain easily — \"Our Robots Test Their Modules\"." } },
+    { callout: { t: "miscon", h: "Misconceptions", body: ["\"A hierarchy chart shows the order and the loops.\" — it shows only which subroutine calls which.", "\"Structured means object-oriented.\" — the structured approach organises PROCEDURAL code; OOP is a different paradigm.", "\"Decomposition is abstraction.\" — decomposition splits a problem into parts; abstraction removes unnecessary detail (4.4.1)."] } },
+    { callout: { t: "mnemonic", h: "ORTTM", body: "**O**verview · **R**euse · **T**eam working · **T**est independently · **M**aintain easily — \"Our Robots Test Their Modules\"." } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Three reasons for the structured approach", src: "AS June 2024 · P1 Q03 · 3 marks",
@@ -498,12 +500,13 @@ C["compsci:4.1.2.3"] = {
       "**Composition** black ◆ (owns, same lifetime); **aggregation** white ◇ (refers, independent); diamond at the WHOLE.",
       "**Writing a class** (4-mark style): header with parent · private attributes with types · override the method · public getters/new methods."
     ] },
-    { callout: { t: "warn", h: "Misconceptions", body: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"Protected means other classes can access it.\" — only INHERITING classes (A-level 2020 NE).",
       "\"Polymorphism and overriding are the same.\" — overriding is the mechanism; polymorphism is the effect of one call working on many classes.",
       "\"A static method belongs to each object.\" — it belongs to the class; there is one copy.",
       "Diamond at the wrong end loses the relationship mark: it goes on the WHOLE (the container)."
     ] } },
+    { callout: { t: "mnemonic", h: "\"PIE, plus the diamonds\"", body: "**P**olymorphism · **I**nheritance · **E**ncapsulation — plus composition (black ◆, the whole owns its parts) and aggregation (white ◇, it only refers to them). Specifiers: **+** public, **-** private, **#** protected — \"# is family only\"." } },
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.1 references and user-defined types; 4.1.1.13 local variables vs attributes; 4.1.2.1 paradigms; 4.2.1.4 abstract data types implemented as classes (Stack, Queue); 4.4.1 abstraction and information hiding; NEA.4 complex OOP (polymorphism, interfaces) is Group A." } }
   ],
   flashcards: [

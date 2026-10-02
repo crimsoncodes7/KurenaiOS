@@ -79,7 +79,7 @@ classification in writing. Do not touch unrelated `art-source/`/Krita work.
 ### Study and labs
 
 - `KOS_CONTENT` keys map only to visible specification leaves and follow
-  `js/core/content.js`. Use `cs-datastructures.js` as the depth reference.
+  `js/core/content.js`. Use `cs-p1-42b.js` as the depth reference.
 - Callouts require two closing braces. Validate every edited JS file with
   `node --check`.
 - Simulations mount inline and auto-wire by `subject` + `ref`; use `WIRE` only for
