@@ -10,8 +10,8 @@
          toolkit, and has flashcards and a quiz.
      B · PAPER 1 EXAM ITEMS derive from the exam-tagged worked cards, name
          AQA and keep their marks.
-     C · ONE OWNER. No older CS file still defines a rewritten leaf, and
-         every new file is loaded.
+     C · ONE OWNER. No older CS file still defines a rewritten leaf, every
+         new file is loaded, and all 63 Paper 1 leaves are covered.
      D · NOTHING LOST. A sim or generator an old entry listed is still wired.
      E · THE NEA IS A PROJECT, NOT AN EXAM. NEA.0–NEA.5 exist in the spec,
          each is a project guide (level ladder, checklist, worked judgement
@@ -46,7 +46,8 @@ const DONE = {
   "cs-p1-43b.js": ["4.3.4.1", "4.3.4.2", "4.3.4.3"],
   "cs-p1-43c.js": ["4.3.5.1", "4.3.5.2", "4.3.6.1"],
   "cs-p1-441.js": ["4.4.1.1", "4.4.1.2", "4.4.1.3", "4.4.1.4", "4.4.1.5", "4.4.1.6", "4.4.1.7", "4.4.1.8", "4.4.1.9", "4.4.1.10", "4.4.1.11"],
-  "cs-p1-442.js": ["4.4.2.1", "4.4.2.2", "4.4.2.3", "4.4.2.4", "4.4.3.1"]
+  "cs-p1-442.js": ["4.4.2.1", "4.4.2.2", "4.4.2.3", "4.4.2.4", "4.4.3.1"],
+  "cs-p1-444.js": ["4.4.4.1", "4.4.4.2", "4.4.4.3", "4.4.4.4", "4.4.4.5", "4.4.4.6", "4.4.4.7", "4.4.5.1"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
@@ -117,6 +118,11 @@ step("C · no older CS file still defines a rewritten leaf; every new file is lo
   const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
   Object.keys(DONE).concat(["cs-nea.js"]).forEach(f => assert(html.indexOf("js/data/content/" + f) > 0, f + " is loaded"));
   assert(html.indexOf("js/labs/nea-tools.js") > 0, "nea-tools.js is loaded");
+  /* Paper 1 is complete: every leaf of spec sections 4.1–4.4 is rewritten */
+  const paper1 = [];
+  (function walk(n) { if (/^4\.[1-4]\./.test(n.ref || "") && !(n.children || []).length) paper1.push(n.ref); (n.children || []).forEach(walk); })({ children: app.window.KOS_DATA.compsci.sections });
+  const missing = paper1.filter(r => LEAVES.indexOf(r) < 0);
+  assert(paper1.length === 63 && !missing.length, "every Paper 1 leaf is rewritten (" + paper1.length + " leaves; missing " + missing.join(", ") + ")");
 });
 
 step("D · sims and generators the old entries named are still wired", () => {
