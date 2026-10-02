@@ -88,6 +88,15 @@ async function waitFor(cond, ms) {
   }
   return cond();
 }
+/* poll an async read until it satisfies `ok`: a push's bookkeeping (the record's
+   put, then the write log) lands AFTER the request is seen, so a read taken the
+   moment netLog grows races it under load */
+async function settle(read, ok, ms) {
+  const deadline = Date.now() + (ms || 3000);
+  let out = await read();
+  while (!ok(out) && Date.now() < deadline) { await tick(25); out = await read(); }
+  return out;
+}
 
 /* ---- network mock: records every fetch; scriptable per-URL ---- */
 let netLog = [];
@@ -183,7 +192,7 @@ step("AniList push body matches the introspected mutation (scoreRaw, no local-on
   ["physical", "mood", "shelves", "notes", "quotes", "routes", "cgGallery", "contentWarnings"].forEach(k => {
     if (raw.indexOf('"' + k + '"') !== -1) throw new Error("local-only field leaked: " + k);
   });
-  const after = await p(cb => KOS.mediadb.get(idAnime, cb));
+  const after = await settle(() => p(cb => KOS.mediadb.get(idAnime, cb)), r => r.lastSyncedAt && !r.push);
   if (!after.lastSyncedAt) throw new Error("lastSyncedAt not updated");
   if (after.push) throw new Error("push state should clear on success");
 });
@@ -233,21 +242,20 @@ step("429 → waits Retry-After, then succeeds; both attempts in the write log",
   await waitFor(() => netLog.length === 2, 5000);
   netScript = null;
   if (netLog.length !== 2) throw new Error("expected retry after 429, got " + netLog.length + " calls");
-  const after = await p(cb => KOS.mediadb.get(idAnime, cb));
+  const after = await settle(() => p(cb => KOS.mediadb.get(idAnime, cb)), r => !r.push);
   if (after.push) throw new Error("should have recovered");
-  const log = await p(cb => KOS.mediapush.getLog(cb));
+  const log = await settle(() => p(cb => KOS.mediapush.getLog(cb)), l => l.length && l[0].ok === true);
   if (!log.length || log[0].ok !== true) throw new Error("success not logged");
 });
 step("auth failure → persisted failed state, listwrite wording for VNDB, log records it", async () => {
   netScript = url => /vndb/.test(url) ? mockResponse(403, "Forbidden") : null;
   const v = await p(cb => KOS.mediadb.get(idVn, cb));
   KOS.mediapush.flush(v.id);
-  await waitFor(() => false, 300);   // let it settle
+  const after = await settle(() => p(cb => KOS.mediadb.get(idVn, cb)), r => r.push && r.push.state === "failed");
   netScript = null;
-  const after = await p(cb => KOS.mediadb.get(idVn, cb));
   if (!after.push || after.push.state !== "failed") throw new Error("failed state not persisted");
   if (!/listwrite|modify my list/i.test(after.push.error)) throw new Error("error must name the permission: " + after.push.error);
-  const log = await p(cb => KOS.mediapush.getLog(cb));
+  const log = await settle(() => p(cb => KOS.mediapush.getLog(cb)), l => l.some(r => r.entryId === idVn && !r.ok));
   const bad = log.find(r => r.entryId === idVn && !r.ok);
   if (!bad) throw new Error("failure not in the write log");
   if (bad.service !== "vndb") throw new Error("service tag");
