@@ -394,6 +394,19 @@
     if (btn && window.KOS.sims) KOS.sims.open(btn.dataset.sim);
   });
 
+  /* a touch screen has no hover: a tap on a copyable block reveals its Copy
+     (data-state="copy"), and a tap elsewhere hides it again */
+  var COPY_BOX = "[data-ui~='content.callout'],[data-ui~='content.table-wrap'],[data-ui~='content.kv'],[data-ui~='content.steps'],[data-ui~='content.worked']";
+  document.addEventListener("click", function (e) {
+    if (!window.matchMedia || !window.matchMedia("(hover: none)").matches || !e.target.closest) return;
+    if (e.target.closest("[data-ui~='content.copy']")) return;
+    var box = e.target.closest(COPY_BOX);
+    [].forEach.call(document.querySelectorAll("[data-state~='copy']"), function (b) {
+      if (b !== box && KOS.ui) KOS.ui.state(b, "copy", false);
+    });
+    if (box && KOS.ui) KOS.ui.state(box, "copy", !KOS.ui.hasState(box, "copy"));
+  });
+
   /* copy-to-clipboard on rendered code blocks (delegated) */
   document.addEventListener("click", function (e) {
     var cp = e.target && e.target.closest ? e.target.closest("[data-ui~='content.copy']") : null;

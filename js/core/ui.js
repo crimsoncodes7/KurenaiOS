@@ -1010,6 +1010,30 @@
     });
     return { refresh: function () {} };
   }
+  /* drawn icons, for glyphs a font renders too small or off-centre (the
+     "⌕" search mark sat at half the size of the bell beside it). Stroked
+     in currentColor; the owning button sizes the svg. */
+  var ICONS = {
+    search: [["circle", { cx: "10.5", cy: "10.5", r: "6.5" }], ["path", { d: "M15.5 15.5L20 20" }]]
+  };
+  function icon(name) {
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2.2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("class", "k-icon");
+    (ICONS[name] || []).forEach(function (part) {
+      var n = document.createElementNS(NS, part[0]);
+      Object.keys(part[1]).forEach(function (k) { n.setAttribute(k, part[1][k]); });
+      svg.appendChild(n);
+    });
+    return svg;
+  }
+  KOS.ui.icon = icon;
   KOS.ui.reorder = reorder;
   KOS.ui.pageHeader = pageHeader;
   KOS.ui.sectionHeader = sectionHeader;
