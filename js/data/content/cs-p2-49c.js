@@ -817,8 +817,7 @@ C["compsci:4.9.4.11"] = {
     ["Two reasons to choose thin clients?", "Cheaper clients; software installed/updated once on the server; more secure; less power."]
   ],
   quiz: [
-    { q: "Thin-client software is updated", opts: ["once, on the server", "on every client", "never", "by each user"], ans: 0, why: "See the notes." },
-    { q: "Thin-client software is updated", opts: ["once, on the server", "on every client", "never", "by each user"], ans: 0, why: "See the notes." },
+    { q: "Thin-client software is updated", opts: ["once, on the server", "on every client", "never", "by each user"], ans: 0, why: "Installed once on the server, not on every client." },
     { q: "In thin-client computing, applications run on", opts: ["the server", "each client", "the router", "the DNS server"], ans: 0, why: "Definition." },
     { q: "A thin-client system especially needs", opts: ["a high-bandwidth network", "large client hard disks", "fast client CPUs", "no server"], ans: 0, why: "Everything crosses the network." },
     { q: "\"The server must be more powerful\" scores", opts: ["NE.", "1 mark", "2 marks", "full marks"], ans: 0, why: "Name cores/RAM/drives." }
