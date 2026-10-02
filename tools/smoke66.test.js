@@ -44,7 +44,8 @@ const DONE = {
   "cs-p1-42d.js": ["4.2.6.1", "4.2.7.1", "4.2.8.1"],
   "cs-p1-43a.js": ["4.3.1.1", "4.3.2.1", "4.3.3.1"],
   "cs-p1-43b.js": ["4.3.4.1", "4.3.4.2", "4.3.4.3"],
-  "cs-p1-43c.js": ["4.3.5.1", "4.3.5.2", "4.3.6.1"]
+  "cs-p1-43c.js": ["4.3.5.1", "4.3.5.2", "4.3.6.1"],
+  "cs-p1-441.js": ["4.4.1.1", "4.4.1.2", "4.4.1.3", "4.4.1.4", "4.4.1.5", "4.4.1.6", "4.4.1.7", "4.4.1.8", "4.4.1.9", "4.4.1.10", "4.4.1.11"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
@@ -58,6 +59,9 @@ const KEEP = {
   "4.4.2.1": { sims: ["fsm-lab"] }
 };
 const NEA = ["NEA.0", "NEA.1", "NEA.2", "NEA.3", "NEA.4", "NEA.5"];
+/* leaves AQA has never examined on their own (7516/1 and 7517/1, 2016–2025):
+   their worked cards are variations, and the notes say so in an info callout */
+const NOT_EXAMINED = ["4.4.1.5", "4.4.1.6", "4.4.4.1"];
 
 let app, KOS;
 
@@ -84,6 +88,11 @@ step("B · Paper 1 exam items derive from the worked cards and name AQA", () => 
   LEAVES.forEach(ref => {
     const c = app.window.KOS_CONTENT["compsci:" + ref];
     const derived = KOS.content.examFromWorked(c.notes, "AQA");
+    if (NOT_EXAMINED.indexOf(ref) >= 0) {
+      assert(!derived.length, ref + " is listed as never examined but has exam items — take it off the list");
+      assert(c.notes.some(b => b && b.callout && b.callout.h === "How AQA examines it"), ref + " says it is not examined on its own");
+      return;
+    }
     assert(derived.length >= 1, ref + " derives exam items");
     const qs = (c.exam || []).map(x => x.q);
     derived.forEach(x => {

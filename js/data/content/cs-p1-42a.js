@@ -48,7 +48,7 @@ C["compsci:4.2.1.1"] = {
     { callout: { t: "info", h: "What the specification asks (4.2.1.1)", body: "Be familiar with the **concept of data structures**. A data structure is a way of **organising and storing related data** in memory so it can be used efficiently — and the choice of structure decides which operations are fast, which are slow and how much memory is used." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Name the data structure an algorithm implements", "State", "1", "A-level 2024 Q06.4"],
-      ["Data abstraction", "Explain", "1", "AS 2025 Q05"],
+      ["Data abstraction", "Explain", "1", "AS 2025 Q05 (worked in 4.4.1.7)"],
       ["Static vs dynamic", "Explain the differences", "2", "A-level 2017 Q05.5 (more in 4.2.1.4)"]
     ] } },
     { h: "How these notes are organised" },
@@ -100,10 +100,7 @@ C["compsci:4.2.1.1"] = {
       q: "An algorithm walks a binary tree: Pos ← −1; WHILE Current ≠ −1: Pos ← Pos + 1; Temp[Pos] ← Current; Current ← Dir1[Current]; ENDWHILE; then OUTPUT Data[Temp[Pos]]; Current ← Dir2[Temp[Pos]]; Pos ← Pos − 1. State the type of data structure the algorithm implements using the array Temp.",
       steps: [{ m: "Stack // LIFO (data structure);", mk: "1", n: "Pos is the top pointer: Pos + 1 then store = push; read Temp[Pos] then Pos − 1 = pop." }],
       result: "A stack" } },
-    { worked: { tag: "exam", title: "Data abstraction", src: "AS June 2025 · P1 Q05 · 1 mark",
-      q: "Explain what is meant by data abstraction.",
-      steps: [{ m: "(The detail of) how the data are actually represented is hidden // new kinds of data objects/structures can be constructed from previously defined types // by example: a stack/queue/tree implemented as an array;", mk: "1" }],
-      result: "Representation hidden; new types built from existing ones" } },
+    { callout: { t: "info", h: "Worked elsewhere", body: "AS 2025 Q05 — \"Explain what is meant by data abstraction\" — is worked in full under 4.4.1.7 Data abstraction." } },
     { worked: { tag: "exam", title: "Static vs dynamic", src: "A-level June 2017 · P1 Q05.5 · 2 marks",
       q: "Explain the differences between static and dynamic data structures.",
       steps: [
@@ -375,7 +372,7 @@ C["compsci:4.2.1.4"] = {
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Advantages and disadvantages of dynamic vs static", "Discuss", "4", "A-level 2020 Q04.1"],
       ["Three differences between dynamic and static", "Describe", "3", "A-level 2022 Q02.2"],
-      ["Data abstraction", "Explain", "1", "AS 2025 Q05 (see 4.2.1.1)"],
+      ["Data abstraction", "Explain", "1", "AS 2025 Q05 (worked in 4.4.1.7)"],
       ["Maintenance of queues, stacks, hash tables", "Describe the steps", "3–5", "see 4.2.2.1, 4.2.3.1, 4.2.6.1"]
     ] } },
     { h: "How these notes are organised" },

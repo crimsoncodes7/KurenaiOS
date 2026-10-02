@@ -65,9 +65,9 @@ C["compsci:4.1.2.1"] = {
     { h: "Programming paradigms — the whole topic on one page" },
     { callout: { t: "info", h: "What the specification asks (4.1.2.1)", body: "Understand the **characteristics of the procedural- and object-oriented programming paradigms**, and have experience of programming in each. (The functional paradigm is 4.12, Paper 2.)" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
-      ["Procedural decomposition", "Explain", "3", "A-level 2021 Q03"],
+      ["Procedural decomposition", "Explain", "3", "A-level 2021 Q03 (worked in 4.4.1.9)"],
       ["Why an OOP approach (private data + public method) is favoured", "Explain", "2", "A-level 2017 Q08.4"],
-      ["Procedural / data composition in a program", "Explain / describe", "2 + 2", "AS 2024 Q11"],
+      ["Procedural / data composition in a program", "Explain / describe", "2 + 2", "AS 2024 Q11 (worked in 4.4.1.10)"],
       ["Write code in either paradigm", "Write", "Section D", "every Paper 1 (the Skeleton Program is object-oriented at A-level)"]
     ] } },
     { h: "How these notes are organised" },
@@ -110,34 +110,22 @@ C["compsci:4.1.2.1"] = {
         { m: "(b) Object-oriented — a Vehicle base class with Car/Van/Lorry subclasses: inheritance shares the common code, overriding handles the differences.", mk: "1" },
         { m: "(c) Object-oriented — each control is an object with its own state and event methods; every GUI library is built this way.", mk: "1" }
       ], result: "Procedural · OOP · OOP" } },
+    { worked: { tag: "variation", title: "Spot the paradigm features", q: "A program has: a class Player with private fields and public Move() and Score(); a static method ReadInt(prompt) that keeps asking until a number is typed; a class Enemy : Player that overrides Move(). Name the paradigm feature each shows.",
+      steps: [
+        { m: "Player: encapsulation — data bundled with methods, hidden behind a public interface (object-oriented).", mk: "1" },
+        { m: "ReadInt: a procedural subroutine — a reusable step that works on the values passed in (procedural style, even inside an OO program).", mk: "1" },
+        { m: "Enemy : Player with an override: inheritance and polymorphism (object-oriented).", mk: "1" }
+      ], result: "Encapsulation · procedure · inheritance/polymorphism" } },
 
     { page: "In exam questions" },
-    { worked: { tag: "exam", title: "Procedural decomposition", src: "A-level June 2021 · P1 Q03 · 3 marks",
-      q: "Explain what is meant by procedural decomposition.",
-      steps: [
-        { h: "AO1 knowledge", m: "Breaking a problem into smaller sub-problems;", mk: "1" },
-        { h: "AO1 understanding", m: "Each of which solves an identifiable task;", mk: "1" },
-        { m: "Each of which might be further subdivided;", mk: "1", n: "In the procedural paradigm each sub-problem becomes a subroutine." }
-      ], result: "Smaller sub-problems, each an identifiable task, subdivided further" } },
+    { callout: { t: "info", h: "Worked elsewhere", body: "A-level 2021 Q03 (procedural decomposition, 3 marks) is worked under 4.4.1.9 Decomposition." } },
     { worked: { tag: "exam", title: "Why a private attribute with a public method", src: "A-level June 2017 · P1 Q08.4 · 2 marks",
       q: "In the Warren class there is a private attribute RabbitCount and a public method GetRabbitCount. Explain the need for the GetRabbitCount method and explain why this approach is favoured in object-oriented programming.",
       steps: [
         { h: "The need (AO2)", m: "RabbitCount is a private attribute so it is not accessible outside the Warren class // GetRabbitCount is public so it is accessible outside the class;", mk: "1" },
         { h: "Why favoured (AO1)", m: "The way RabbitCount is represented can be modified without having to change any other objects that interact with Warren // it makes it easier to reuse / inherit from Warren (a well-defined interface);", mk: "1", n: "A. data can be modified/read in a controlled way. NE. \"without having to change other code\"." }
       ], result: "Controlled access; the representation can change safely" } },
-    { worked: { tag: "exam", title: "Composition in a program", src: "AS June 2024 · P1 Q11.1 · 2 marks",
-      q: "A queue simulation has a subroutine Serving that calls FindFreeTill, ServeBuyer, UpdateStats and CalculateServingTime, and stores each buyer as a record Q_Node of BuyerID, WaitingTime and ItemsInBasket in an array BuyerQ. Explain what is meant by composition and give an example where composition is used in the program.",
-      steps: [
-        { h: "Knowledge — one of", m: "Procedural composition: combining subroutines to form a compound subroutine // a subroutine that calls other subroutines; OR data composition: combining data objects to form compound data;", mk: "1" },
-        { h: "Example — matching", m: "FindFreeTill, ServeBuyer, UpdateStats, CalculateServingTime… are combined into the one subroutine Serving // BuyerID, WaitingTime and ItemsInBasket are combined to make a Q_Node, and Q_Nodes into BuyerQ;", mk: "1", n: "Two or more subroutines must be named for the procedural example." }
-      ], result: "Combining parts into a compound whole: Serving / Q_Node" } },
-    { worked: { tag: "exam", title: "Why composition is used", src: "AS June 2024 · P1 Q11.2 · 2 marks",
-      q: "Describe two reasons why composition is used in the queue-simulation program described above.",
-      steps: [
-        { m: "The group of subroutines in Serving needs calling in more than one place (during the main simulation and after buyers stop arriving) // less code is needed if only one compound subroutine is called;", mk: "1" },
-        { m: "It improves understanding of the code // the grouped data items/record can be manipulated as one unit // array elements are easier to address than individual variables;", mk: "1", n: "Max 2." }
-      ], result: "Reuse in several places; handle the group as one unit" } },
-
+    { callout: { t: "info", h: "Worked elsewhere", body: "AS 2024 Q11.1–11.2 (procedural and data composition in a program) are worked under 4.4.1.10 Composition." } },
     { page: "Exam toolkit" },
     { steps: [
       "**Procedural**: decomposition into subroutines; data passed in parameters; top-down design with hierarchy charts.",
@@ -188,7 +176,7 @@ C["compsci:4.1.2.2"] = {
     { callout: { t: "info", h: "What the specification asks (4.1.2.2)", body: ["Understand the **structured approach** to program design and construction.", "Be able to construct and use **hierarchy charts** when designing programs.", "Be able to explain the **advantages** of the structured approach."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Reasons for / advantages of the structured approach", "Explain", "3", "AS 2024 Q03"],
-      ["Decomposition", "Explain / define", "2", "AS 2022 Q08, A-level 2025 Q02"],
+      ["Decomposition", "Explain / define", "2", "AS 2022 Q08, A-level 2025 Q02 (worked in 4.4.1.9)"],
       ["Purpose of a hierarchy chart; what a box represents; when it is drawn", "State / what", "1 each", "AS 2020 Q08.1–2, AS 2025 Q10.1, Q10.4"],
       ["Complete a hierarchy chart from the Skeleton Program", "State what goes in box (a)", "1 each", "AS 2016–2025, A-level 2019 Q09"]
     ] } },
@@ -246,18 +234,7 @@ C["compsci:4.1.2.2"] = {
         { m: "Can re-use subroutines/modules // less duplication of code;", mk: "1" },
         { m: "Can test subroutines/modules independently // quicker/easier to debug/maintain // easier to locate errors;", mk: "1", n: "Also: break the problem into sub-tasks; distribute modules among a team. Max 3." }
       ], result: "Overview · reuse · independent testing" } },
-    { worked: { tag: "exam", title: "Explain decomposition", src: "AS June 2022 · P1 Q08 · 2 marks",
-      q: "Explain what is meant by decomposition.",
-      steps: [
-        { m: "Breaking down a problem into a number of sub-problems;", mk: "1" },
-        { m: "So that each sub-problem accomplishes an identifiable task // each of these sub-problems might be decomposed further;", mk: "1" }
-      ], result: "Sub-problems, each an identifiable task" } },
-    { worked: { tag: "exam", title: "Define decomposition", src: "A-level June 2025 · P1 Q02 · 2 marks",
-      q: "Define the term decomposition.",
-      steps: [
-        { m: "Splitting a problem into smaller sub-problems;", mk: "1" },
-        { m: "So that each sub-problem accomplishes an identifiable task, which might itself be further divided // repeating this process until each sub-problem performs a single task;", mk: "1" }
-      ], result: "Split until each part is a single task" } },
+    { callout: { t: "info", h: "Worked elsewhere", body: "AS 2022 Q08 and A-level 2025 Q02 (decomposition, 2 marks each) are worked under 4.4.1.9 Decomposition." } },
     { worked: { tag: "exam", title: "Purpose of a hierarchy chart", src: "AS June 2020 · P1 Q08.1 · 1 mark",
       q: "What is the purpose of a hierarchy chart?",
       steps: [{ m: "To represent the structure of the program // which subroutine is called from which subroutine // to aid decomposition // to aid stepwise refinement;", mk: "1" }],
