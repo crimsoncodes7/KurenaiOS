@@ -53,8 +53,8 @@ function stackFig(cap) {
 C["compsci:4.6.1.1"] = {
   notes: [
     { h: "Relationship between hardware and software — the whole topic on one page" },
-    "Spec 4.6.1.1: understand the **relationship between hardware and software** and be able to define the terms **hardware** and **software**.",
-    "Short AO1 marks, asked on most AS papers. The definitions are marked on exact words:",
+    { callout: { t: "info", h: "What the specification asks (4.6.1.1)", body: "Understand the **relationship between hardware and software** and be able to define the terms **hardware** and **software**." } },
+    { callout: { t: "info", h: "Key idea", body: "Short AO1 marks, asked on most AS papers. The definitions are marked on exact words:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What is meant by hardware", "What is meant by", "1", "AS 2019 Q05.1"],
       ["What is meant by / define software", "What is meant by / Define", "1", "AS 2019 Q05.2, AS 2022 Q06.1"],
@@ -155,7 +155,7 @@ C["compsci:4.6.1.1"] = {
 C["compsci:4.6.1.2"] = {
   notes: [
     { h: "Classification of software — the whole topic on one page" },
-    "Spec 4.6.1.2: explain what is meant by **system software** and **application software**; understand the need for, and attributes of, different types of software.",
+    { callout: { t: "info", h: "What the specification asks (4.6.1.2)", body: ["Explain what is meant by **system software** and **application software**.", "Understand the need for, and attributes of, different types of software."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which category is an OS / a virus checker", "Shade one lozenge", "1", "AS 2018 Q05.1, A-level 2019 Q01.1"],
       ["Which of these are system software / which is not", "Shade", "1–2", "AS 2019 Q05.4, AS 2024 Q05.1, A-level 2022 Q04.2"],
@@ -289,7 +289,7 @@ C["compsci:4.6.1.2"] = {
 C["compsci:4.6.1.3"] = {
   notes: [
     { h: "System software — the whole topic on one page" },
-    "Spec 4.6.1.3: understand the need for, and functions of, **operating systems**, **utility programs**, **libraries** and **translators** (compiler, assembler, interpreter).",
+    { callout: { t: "info", h: "What the specification asks (4.6.1.3)", body: "Understand the need for, and functions of, **operating systems**, **utility programs**, **libraries** and **translators** (compiler, assembler, interpreter)." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Two other types of system software", "Give", "2", "AS 2022 Q06.2"],
       ["What libraries are and why programmers use them", "Describe", "2", "AS 2023 Q06.1"],
@@ -398,7 +398,7 @@ C["compsci:4.6.1.3"] = {
 C["compsci:4.6.1.4"] = {
   notes: [
     { h: "Role of an operating system — the whole topic on one page" },
-    "Spec 4.6.1.4: understand that a role of the operating system is to **hide the complexities of the hardware**; know that the OS handles **resource management**, managing hardware to allocate **processors, memories and I/O devices among competing processes**.",
+    { callout: { t: "info", h: "What the specification asks (4.6.1.4)", body: ["Understand that a role of the operating system is to **hide the complexities of the hardware**.", "Know that the OS handles **resource management**, managing hardware to allocate **processors, memories and I/O devices among competing processes**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["One / another / two resources the OS manages", "State / Name", "1–2", "AS 2018 Q05.2, AS 2023 Q08.2, AS 2024 Q05.2"],
       ["A role other than resource management", "State", "1", "AS 2018 Q05.3"],
@@ -515,7 +515,7 @@ C["compsci:4.6.1.4"] = {
 C["compsci:4.6.2.1"] = {
   notes: [
     { h: "Classification of programming languages — the whole topic on one page" },
-    "Spec 4.6.2.1: show awareness of the development of programming languages and their classification into **low-level** (machine code, assembly language) and **high-level** languages (including **imperative** HLLs); describe machine code and assembly language; understand the **advantages and disadvantages** of machine code and assembly language programming compared with HLL programming; explain **imperative high-level language** and its relationship to low-level languages.",
+    { callout: { t: "info", h: "What the specification asks (4.6.2.1)", body: ["Show awareness of the development of programming languages and their classification into **low-level** (machine code, assembly language) and **high-level** languages (including **imperative** HLLs)", "Describe machine code and assembly language.", "Understand the **advantages and disadvantages** of machine code and assembly language programming compared with HLL programming.", "Explain **imperative high-level language** and its relationship to low-level languages."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["The other low-level language", "Which / State", "1", "AS 2016 Q04.1, AS 2025 Q06.4"],
       ["Imperative (high-level language)", "Explain", "1–2", "AS 2016 Q09.1, AS 2018 Q11.3, A-level 2024 Q10.4"],
@@ -722,7 +722,7 @@ function transFig(cap) {
 C["compsci:4.6.3.1"] = {
   notes: [
     { h: "Types of program translator — the whole topic on one page" },
-    "Spec 4.6.3.1: understand the role of an **assembler**, a **compiler** and an **interpreter**; explain the differences between compilation and interpretation and describe situations in which each is appropriate; explain why an **intermediate language such as bytecode** is produced by some compilers and how it is used; understand the difference between **source code** and **object (executable) code**.",
+    { callout: { t: "info", h: "What the specification asks (4.6.3.1)", body: ["Understand the role of an **assembler**, a **compiler** and an **interpreter**.", "Explain the differences between compilation and interpretation and describe situations in which each is appropriate.", "Explain why an **intermediate language such as bytecode** is produced by some compilers and how it is used.", "Understand the difference between **source code** and **object (executable) code**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Differences between a compiler and an interpreter", "Describe / Explain", "2–4", "AS 2016 Q09.3, AS 2017 Q04.1"],
       ["Why bytecode; how it is executed", "Explain / Describe", "1–2", "AS 2018 Q11.1–11.2, AS 2022 Q06.3–06.4"],

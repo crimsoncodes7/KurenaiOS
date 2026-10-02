@@ -88,7 +88,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.5.4.1"] = {
   notes: [
     { h: "Unsigned binary — the whole topic on one page" },
-    "Spec 4.5.4.1: know the difference between **unsigned binary** and **signed binary**; know that in unsigned binary the minimum and maximum values for a given number of bits, n, are **0** and **2ⁿ − 1**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.1)", body: ["Know the difference between **unsigned binary** and **signed binary**.", "Know that in unsigned binary the minimum and maximum values for a given number of bits, n, are **0** and **2ⁿ − 1**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Decimal → 8-bit unsigned binary", "Convert / Represent", "1", "AS 2022 Q02.1 (177), AS 2024 Q02.2 (139)"],
       ["Unsigned binary → decimal", "Convert", "1", "AS 2025 Q02.2"],
@@ -178,7 +178,7 @@ C["compsci:4.5.4.1"] = {
 C["compsci:4.5.4.2"] = {
   notes: [
     { h: "Unsigned binary arithmetic — the whole topic on one page" },
-    "Spec 4.5.4.2: be able to **add** two and **multiply** two unsigned binary integers.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.2)", body: "Be able to **add** two and **multiply** two unsigned binary integers." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Add two unsigned integers, showing the carry row", "Show / Complete", "1–2", "AS 2017 Q02.2, AS 2023 Q03.2, AS 2024 Q02.3, AS 2025 Q02.3"],
       ["Multiply two unsigned integers, showing working", "Calculate", "2", "AS 2017 Q02.3, AS 2020 Q02.1, AS 2022 Q03.2"],
@@ -218,7 +218,7 @@ C["compsci:4.5.4.2"] = {
       ], result: "Column C: carry ignored" } },
 
     { page: "Binary multiplication" },
-    "Multiplying by a binary digit gives either 0 or the number itself, so long multiplication becomes **shift and add**: for every 1 in the multiplier, write the multiplicand shifted left by that bit's position, then add the shifted copies.",
+    { callout: { t: "info", h: "Key idea", body: "Multiplying by a binary digit gives either 0 or the number itself, so long multiplication becomes **shift and add**: for every 1 in the multiplier, write the multiplicand shifted left by that bit's position, then add the shifted copies." } },
     { steps: [
       { h: "1.", m: "For each 1 bit in the multiplier (from the right, position k = 0, 1, 2 …), write the multiplicand shifted **left k places** (append k zeros)." },
       { h: "2.", m: "Ignore the 0 bits — they contribute nothing." },
@@ -288,7 +288,7 @@ C["compsci:4.5.4.2"] = {
 C["compsci:4.5.4.3"] = {
   notes: [
     { h: "Two's complement — the whole topic on one page" },
-    "Spec 4.5.4.3: know that **signed binary** can be used to represent negative integers and that one possible coding scheme is **two's complement**; know how to represent negative and positive integers in two's complement; perform **subtraction** using two's complement; calculate the **range** of a given number of bits, n.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.3)", body: ["Know that **signed binary** can be used to represent negative integers and that one possible coding scheme is **two's complement**.", "Know how to represent negative and positive integers in two's complement.", "Perform **subtraction** using two's complement.", "Calculate the **range** of a given number of bits, n."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Two's complement pattern → decimal", "What is the decimal equivalent", "1", "AS 2016 Q02.4"],
       ["Range of n-bit two's complement", "State / In decimal", "1–2", "AS 2018 Q02.3 (12-bit), AS 2023 Q03.4 (8-bit), AS 2025 Q02.4 (4-bit), A-level 2025 Q07.4"],
@@ -317,7 +317,7 @@ C["compsci:4.5.4.3"] = {
       { h: "1.", m: "From the right, copy bits up to and including the first 1: …100" },
       { h: "2.", m: "Invert every bit to its left: 11011 → **11011100**" }
     ] },
-    "Check: −128 + 64 + 16 + 8 + 4 = −36 ✓. Either method works both ways (negating a negative gives the positive back).",
+    { callout: { t: "info", h: "Key idea", body: "Check: −128 + 64 + 16 + 8 + 4 = −36 ✓. Either method works both ways (negating a negative gives the positive back)." } },
     { callout: { t: "miscon", h: "\"Put a 1 at the front for negative\"", body: "That is **sign and magnitude**, not two's complement. In two's complement −36 is 11011100, not 10100100. Two's complement is used because ordinary binary **addition** then works for negative numbers, so the processor needs no separate subtractor." } },
 
     { page: "Subtraction" },
@@ -413,8 +413,8 @@ C["compsci:4.5.4.3"] = {
 C["compsci:4.5.4.4"] = {
   notes: [
     { h: "Numbers with a fractional part — the whole topic on one page" },
-    "Spec 4.5.4.4: know how numbers with a fractional part can be represented in **fixed point** form and in **floating point** form in binary in a given number of bits; be able to **convert** for each representation from decimal to binary and from binary to decimal.",
-    "AS papers ask fixed point every year; A-level Paper 2 has asked floating point every year since 2017:",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.4)", body: ["Know how numbers with a fractional part can be represented in **fixed point** form and in **floating point** form in binary in a given number of bits.", "Be able to **convert** for each representation from decimal to binary and from binary to decimal."] } },
+    { callout: { t: "info", h: "Key idea", body: "AS papers ask fixed point every year; A-level Paper 2 has asked floating point every year since 2017:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Unsigned fixed point → decimal", "Convert / What is the decimal equivalent", "2", "AS 2016 Q02.3, 2019 Q02.3, 2023 Q03.5, 2024 Q02.5"],
       ["Decimal → unsigned fixed point", "Convert / Represent", "2", "AS 2020 Q02.2, 2025 Q02.6"],
@@ -460,7 +460,7 @@ C["compsci:4.5.4.4"] = {
       steps: [{ h: "19 = 10011; .375 = ¼ + ⅛ = .011", m: "**10011.011** — the point between the 5th and 6th bits", mk: "1 mark" }], result: "10011.011" } },
 
     { page: "Fixed point, two's complement" },
-    "In **two's complement fixed point**, the leftmost bit's place value is **negative**; everything else is as before.",
+    { callout: { t: "info", h: "Key idea", body: "In **two's complement fixed point**, the leftmost bit's place value is **negative**; everything else is as before." } },
     { fig: bitsFig("1011001011".split(""), weights(6, 4, true), { point: 6, neg: 0, cw: 44, cap: "A-level June 2022: −32 + 8 + 4 + ½ + ⅛ + 1/16 = −19.3125." }) },
     { worked: { tag: "exam", title: "Two's complement fixed point → decimal", src: "A-level June 2022 · P2 Q05.1 · 2 marks",
       q: "A number is stored using a fixed point representation and two's complement, with six bits before and four bits after the binary point: 1 0 1 1 0 0 1 0 1 1. Convert it to decimal, showing your working.",
@@ -560,7 +560,7 @@ C["compsci:4.5.4.4"] = {
 C["compsci:4.5.4.5"] = {
   notes: [
     { h: "Rounding errors — the whole topic on one page" },
-    "Spec 4.5.4.5: know and be able to explain why both fixed point and floating point representation of decimal numbers may be **inaccurate**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.5)", body: "Know and be able to explain why both fixed point and floating point representation of decimal numbers may be **inaccurate**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why a rounding error occurs; what the system might do", "Explain", "2", "A-level 2020 Q02.5"],
       ["Closest possible normalised representation", "Write, show working", "3", "A-level 2024 Q04.3, 2025 Q12.5"],
@@ -656,7 +656,7 @@ C["compsci:4.5.4.5"] = {
 C["compsci:4.5.4.6"] = {
   notes: [
     { h: "Absolute and relative errors — the whole topic on one page" },
-    "Spec 4.5.4.6: be able to calculate the **absolute error** of numerical data stored and processed in computer systems; calculate the **relative error**; compare absolute and relative errors for large and small magnitude numbers, and numbers close to one.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.6)", body: ["Be able to calculate the **absolute error** of numerical data stored and processed in computer systems.", "Calculate the **relative error**.", "Compare absolute and relative errors for large and small magnitude numbers, and numbers close to one."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Absolute error", "Calculate", "1", "A-level 2017 Q11.5, 2021 Q10.3"],
       ["Relative error as a percentage", "Calculate", "1–2", "A-level 2017 Q11.6, 2021 Q10.4, 2022 Q05.5, 2025 Q12.6"],
@@ -673,7 +673,7 @@ C["compsci:4.5.4.6"] = {
     { table: { head: ["Intended", "Stored", "Absolute error", "Relative error"], rows: [
       ["0.5", "0.4", "0.1", "20%"], ["1000.5", "1000.4", "0.1", "0.01%"], ["13.8", "13.75", "0.05", "0.36%"], ["104.7", "105", "0.3", "0.29%"]
     ] } },
-    "The first two rows share an absolute error but differ by a factor of 2000 in relative error: the same slip matters far more to a small number.",
+    { callout: { t: "info", h: "Key idea", body: "The first two rows share an absolute error but differ by a factor of 2000 in relative error: the same slip matters far more to a small number." } },
     { callout: { t: "miscon", h: "Absolute error is never negative", body: "Write 0.05, not −0.05 — the mark scheme **rejects** a negative absolute error unless the method is shown, and **rejects −0.43%** as a relative error." } },
 
     { page: "Errors in exam questions" },
@@ -734,7 +734,7 @@ C["compsci:4.5.4.6"] = {
 C["compsci:4.5.4.7"] = {
   notes: [
     { h: "Range and precision — the whole topic on one page" },
-    "Spec 4.5.4.7: compare the advantages and disadvantages of **fixed point and floating point** forms in terms of **range, precision and speed of calculation**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.7)", body: "Compare the advantages and disadvantages of **fixed point and floating point** forms in terms of **range, precision and speed of calculation**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["One advantage of each form", "State", "2", "A-level 2020 Q02.1"],
       ["Which statements about fixed/floating are true", "Shade", "2", "A-level 2024 Q04.1"],
@@ -829,7 +829,7 @@ C["compsci:4.5.4.7"] = {
 C["compsci:4.5.4.8"] = {
   notes: [
     { h: "Normalisation of floating point form — the whole topic on one page" },
-    "Spec 4.5.4.8: know why floating point numbers are **normalised** and be able to **normalise un-normalised** floating point numbers with positive or negative mantissas.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.8)", body: "Know why floating point numbers are **normalised** and be able to **normalise un-normalised** floating point numbers with positive or negative mantissas." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why are floating point numbers normalised?", "State", "1–2", "A-level 2022 Q05.2, 2025 Q12.3"],
       ["Which bit pattern is (not) normalised / most negative / largest", "Shade / Complete the table", "1–3", "A-level 2017 Q11.1–2, 2021 Q10.1, 2025 Q12.1–2"],
@@ -960,7 +960,7 @@ C["compsci:4.5.4.8"] = {
 C["compsci:4.5.4.9"] = {
   notes: [
     { h: "Underflow and overflow — the whole topic on one page" },
-    "Spec 4.5.4.9: explain **underflow** and **overflow** and describe the circumstances in which they occur.",
+    { callout: { t: "info", h: "What the specification asks (4.5.4.9)", body: "Explain **underflow** and **overflow** and describe the circumstances in which they occur." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Name the error: underflow / overflow / rounding", "State (table)", "2", "A-level 2023 Q06.3"],
       ["A product overflows: explain the problem and redesign", "Explain", "3", "A-level 2019 Q11.4"],

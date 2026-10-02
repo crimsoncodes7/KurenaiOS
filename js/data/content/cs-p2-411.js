@@ -73,7 +73,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.11.1"] = {
   notes: [
     { h: "Big Data — the whole topic on one page" },
-    "Spec 4.11.1: know that **Big Data** is a catch-all term for data that won't fit the usual containers, described by **volume**, **velocity** and **variety**; that when data will not fit on one server the **processing must be distributed** and **functional programming** makes correct, distributable code easier to write, and which of its features do so; be familiar with the **fact-based model** and the **graph schema** (nodes, edges and properties).",
+    { callout: { t: "info", h: "What the specification asks (4.11.1)", body: ["Know that **Big Data** is a catch-all term for data that won't fit the usual containers, described by **volume**, **velocity** and **variety**.", "That when data will not fit on one server the **processing must be distributed** and **functional programming** makes correct, distributable code easier to write, and which of its features do so.", "Be familiar with the **fact-based model** and the **graph schema** (nodes, edges and properties)."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Characteristics of Big Data", "Describe", "1–2", "A-level 2018 Q14.1, 2023 Q08.1"],
       ["Complete a graph schema for new facts", "Complete / Modify", "3", "A-level 2018 Q14.2, 2023 Q08.2"],
@@ -108,7 +108,7 @@ C["compsci:4.11.1"] = {
     { callout: { t: "miscon", h: "Variety is not \"lots of different values\"", body: "A column of a million different prices is still structured. Variety means different **forms** of data — a table, a video and a tweet in the same dataset." } },
 
     { page: "Distributing storage and processing" },
-    "When the data will not fit on one server, **both** the storage and the processing must be **distributed across more than one machine**:",
+    { callout: { t: "info", h: "Key idea", body: "When the data will not fit on one server, **both** the storage and the processing must be **distributed across more than one machine**:" } },
     { kv: [
       ["Distributed storage", "the dataset is split into blocks held on many (often thousands of cheap, commodity) servers, each block replicated for fault tolerance — a distributed file system / distributed database"],
       ["Function to data", "moving terabytes across a network is slow, so the **code is sent to the servers holding the data**, and only small results travel back"],
@@ -143,7 +143,7 @@ C["compsci:4.11.1"] = {
     ] } },
 
     { page: "Why functional programming" },
-    "Functional programming is a solution because it makes it easier to write **correct** and **efficient distributed** code. The features (spec, 4.11.1 and 4.12):",
+    { callout: { t: "info", h: "Key idea", body: "Functional programming is a solution because it makes it easier to write **correct** and **efficient distributed** code. The features (spec, 4.11.1 and 4.12):" } },
     { table: { head: ["Feature", "What it means", "Why it helps"], rows: [
       ["**Immutable data structures**", "a value or data structure cannot be changed after it is created — no variables to overwrite", "no two servers can change shared data under each other → **correct**; data can be copied to any server freely"],
       ["**Statelessness / no side effects**", "a function's output depends only on its inputs; it changes nothing else (pure functions)", "a function gives the same answer on any server, in any order, any number of times → **distributable**, easy to test and reason about"],
@@ -161,7 +161,7 @@ C["compsci:4.11.1"] = {
       ["Truck PT63JTR was serviced", "2018-05-10 16:02"],
       ["Truck PT63JTR delivered to Birmingham", "2018-05-11 07:45"]
     ] } },
-    "\"Last serviced\" is not stored and overwritten — it is **derived** as the latest service fact. The 2017 service is still there.",
+    { callout: { t: "info", h: "Key idea", body: "\"Last serviced\" is not stored and overwritten — it is **derived** as the latest service fact. The 2017 service is still there." } },
     { table: { head: [" ", "Relational (update in place)", "Fact-based (append only)"], rows: [
       ["A change", "overwrites the old value", "adds a new timestamped fact"],
       ["History", "lost unless designed in", "kept automatically — can query any past state"],
@@ -171,7 +171,7 @@ C["compsci:4.11.1"] = {
     ] } },
 
     { page: "Graph schemas" },
-    "A **graph schema** captures the structure of a fact-based dataset visually:",
+    { callout: { t: "info", h: "Key idea", body: "A **graph schema** captures the structure of a fact-based dataset visually:" } },
     { kv: [
       ["Node", "an entity — drawn as an **oval** labelled type: value (Truck: MJ15HWE)"],
       ["Edge", "a relationship between two nodes — a **solid line** with a **label** (Delivered_To, Owns); arrows are accepted"],
@@ -198,7 +198,7 @@ C["compsci:4.11.1"] = {
     { callout: { t: "miscon", h: "Graph schema ≠ ER diagram", body: "An ER diagram shows entity **types** and the degree of relationships between them. A graph schema shows **individual** instances (Truck MJ15HWE) and their values. It has no crow's feet." } },
 
     { page: "Ethics and law" },
-    "The 2021 essay's third area. Big Data about people raises questions that link straight to 4.8.1:",
+    { callout: { t: "info", h: "Key idea", body: "The 2021 essay's third area. Big Data about people raises questions that link straight to 4.8.1:" } },
     { table: { head: ["Issue", "Question to raise"], rows: [
       ["Security", "how can such a large, distributed dataset be kept secure?"],
       ["Access", "who should have access to which data?"],

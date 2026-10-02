@@ -38,7 +38,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.7.3.7"] = {
   notes: [
     { h: "Factors affecting processor performance — the whole topic on one page" },
-    "Spec 4.7.3.7: explain the effect on processor performance of **multiple cores, cache memory, clock speed, word length, address bus width, data bus width**.",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.7)", body: "Explain the effect on processor performance of **multiple cores, cache memory, clock speed, word length, address bus width, data bus width**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Three factors, each with how it improves performance", "State and explain", "6", "AS 2016 Q05.6"],
       ["One fast core vs four slower cores", "Explain", "2", "AS 2018 Q06.3"],
@@ -177,7 +177,7 @@ C["compsci:4.7.3.7"] = {
 C["compsci:4.7.4.1"] = {
   notes: [
     { h: "Input and output devices — the whole topic on one page" },
-    "Spec 4.7.4.1: know the main characteristics, purposes and suitability of the **barcode reader, digital camera, laser printer and RFID**, and understand their principles of operation.",
+    { callout: { t: "info", h: "What the specification asks (4.7.4.1)", body: "Know the main characteristics, purposes and suitability of the **barcode reader, digital camera, laser printer and RFID**, and understand their principles of operation." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Laser printer principles of operation", "Describe", "6", "AS 2017 Q10, A-level 2021 Q07.2"],
       ["How data is read from an RFID tag", "Describe", "3", "AS 2024 Q09.1"],
@@ -390,7 +390,7 @@ C["compsci:4.7.4.1"] = {
 C["compsci:4.7.4.2"] = {
   notes: [
     { h: "Secondary storage devices — the whole topic on one page" },
-    "Spec 4.7.4.2: explain the **need for secondary storage**; know the characteristics, purposes, suitability and principles of operation of the **hard disk, optical disk and solid-state disk (SSD)**; compare their **capacity and speed of access** and judge their suitability for applications. (SSD = NAND flash memory + a controller; floating-gate transistors trap charge; a block of pages must be erased before it can be rewritten.)",
+    { callout: { t: "info", h: "What the specification asks (4.7.4.2)", body: ["Explain the **need for secondary storage**.", "Know the characteristics, purposes, suitability and principles of operation of the **hard disk, optical disk and solid-state disk (SSD)**.", "Compare their **capacity and speed of access** and judge their suitability for applications. (SSD = NAND flash memory + a controller; floating-gate transistors trap charge; a block of pages must be erased before it can be rewritten.)"] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why computers have secondary storage", "Explain", "2", "A-level 2022 Q13.2"],
       ["SSD principles of operation; components", "Describe / State", "2–4", "AS 2016 Q08.3, 2025 Q11.2, A-level 2022 Q13.3"],

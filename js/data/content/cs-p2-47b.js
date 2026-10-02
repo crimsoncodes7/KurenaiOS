@@ -66,7 +66,7 @@ var ISA = { table: { head: ["Instruction", "Meaning"], rows: [
 C["compsci:4.7.3.3"] = {
   notes: [
     { h: "The processor instruction set — the whole topic on one page" },
-    "Spec 4.7.3.3: understand the term **processor instruction set** and know that an instruction set is **processor specific**; know that instructions consist of an **opcode** and one or more **operands** (value, memory address or register). In AQA's model the addressing mode is part of the opcode.",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.3)", body: ["Understand the term **processor instruction set** and know that an instruction set is **processor specific**.", "Know that instructions consist of an **opcode** and one or more **operands** (value, memory address or register). In AQA's model the addressing mode is part of the opcode."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why an executable will not run on another processor", "Explain", "2", "AS 2018 Q06.2, AS 2023 Q08.3"],
       ["How many opcodes / memory locations / registers a format allows", "How many / Calculate", "1", "AS 2018 Q10.2–10.3, A-level 2020 Q09.1, 2025 Q07.3"],
@@ -171,7 +171,7 @@ C["compsci:4.7.3.3"] = {
 C["compsci:4.7.3.4"] = {
   notes: [
     { h: "Addressing modes — the whole topic on one page" },
-    "Spec 4.7.3.4: understand and apply **immediate** and **direct** addressing. Immediate: **the operand is the datum**. Direct: **the operand is the address of the datum** — where the address means main memory **or a register**.",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.4)", body: "Understand and apply **immediate** and **direct** addressing. Immediate: **the operand is the datum**. Direct: **the operand is the address of the datum** — where the address means main memory **or a register**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which mode does this instruction / operand use", "Shade / State", "1", "AS 2016 Q04.4, 2022 Q09.1, A-level 2022 Q09.1"],
       ["What is immediate addressing; immediate vs direct", "What is / Explain", "1", "AS 2017 Q07.3, 2020 Q07.2, A-level 2020 Q09.2"],
@@ -285,8 +285,8 @@ C["compsci:4.7.3.4"] = {
 C["compsci:4.7.3.5"] = {
   notes: [
     { h: "Machine-code and assembly language operations — the whole topic on one page" },
-    "Spec 4.7.3.5: understand and apply the basic machine-code operations **load, add, subtract, store, branching (conditional and unconditional), compare, logical bitwise operators (AND, OR, NOT, XOR), logical shift right, shift left, halt**, written in mnemonic form (assembly language) with immediate and direct addressing.",
-    "Every Paper 2 has an assembly question — 30 sub-questions in the packs, from 1-mark single instructions to an 8-mark and a 10-mark program:",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.5)", body: "Understand and apply the basic machine-code operations **load, add, subtract, store, branching (conditional and unconditional), compare, logical bitwise operators (AND, OR, NOT, XOR), logical shift right, shift left, halt**, written in mnemonic form (assembly language) with immediate and direct addressing." } },
+    { callout: { t: "info", h: "Key idea", body: "Every Paper 2 has an assembly question — 30 sub-questions in the packs, from 1-mark single instructions to an 8-mark and a 10-mark program:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Complete one instruction; one shift", "Complete / What value", "1", "AS 2016 Q04.2, 2017 Q07.2"],
       ["Translate an IF / loop into assembly", "Write", "4–7", "AS 2016 Q04.3, 2019 Q10.1, 2022 Q09.2, 2023 Q09"],

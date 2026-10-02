@@ -37,7 +37,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.9.1.1"] = {
   notes: [
     { h: "Communication methods — the whole topic on one page" },
-    "Spec 4.9.1.1: define **serial** and **parallel** transmission and discuss the advantages of serial over parallel; define and compare **synchronous** and **asynchronous** transmission; describe the purpose of **start and stop bits** in asynchronous transmission.",
+    { callout: { t: "info", h: "What the specification asks (4.9.1.1)", body: ["Define **serial** and **parallel** transmission and discuss the advantages of serial over parallel.", "Define and compare **synchronous** and **asynchronous** transmission.", "Describe the purpose of **start and stop bits** in asynchronous transmission."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What serial / parallel transmission is; the difference", "State / Describe", "1–2", "AS 2025 Q13.1, A-level 2021 Q03.3, 2022 Q02.1"],
       ["Advantages of serial over parallel (and how)", "Describe / State and explain", "1–4", "AS 2017 Q08.1, 2020 Q10.4, A-level 2017 Q03.4, 2022 Q02.2"],
@@ -199,7 +199,7 @@ C["compsci:4.9.1.1"] = {
 C["compsci:4.9.1.2"] = {
   notes: [
     { h: "Communication basics — the whole topic on one page" },
-    "Spec 4.9.1.2: define **baud rate, bit rate, bandwidth, latency, protocol**; differentiate between baud rate and bit rate; understand the relationship between bit rate and bandwidth. Bit rate can exceed baud rate if more than one bit is encoded in each signal change; bit rate is **directly proportional** to bandwidth.",
+    { callout: { t: "info", h: "What the specification asks (4.9.1.2)", body: ["Define **baud rate, bit rate, bandwidth, latency, protocol**.", "Differentiate between baud rate and bit rate.", "Understand the relationship between bit rate and bandwidth. Bit rate can exceed baud rate if more than one bit is encoded in each signal change.", "Bit rate is **directly proportional** to bandwidth."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Define bit rate / latency / baud rate / bandwidth / protocol", "Define", "1–2", "AS 2016 Q07.5, 2017 Q08.2, 2019 Q09.2–09.4, 2022 Q10.2–10.3"],
       ["Baud vs bit rate; how bit rate exceeds baud", "Describe / Explain", "1–2", "AS 2020 Q10.2, 2024 Q11.1, 2025 Q13.2"],
@@ -323,7 +323,7 @@ C["compsci:4.9.1.2"] = {
 C["compsci:4.9.2.1"] = {
   notes: [
     { h: "Network topology — the whole topic on one page" },
-    "Spec 4.9.2.1: understand **physical star** topology and **logical bus** topology; differentiate between them; explain their operation. A network physically wired as a star can behave logically as a bus by using a **bus protocol** and appropriate **physical switching**.",
+    { callout: { t: "info", h: "What the specification asks (4.9.2.1)", body: ["Understand **physical star** topology and **logical bus** topology.", "Differentiate between them.", "Explain their operation. A network physically wired as a star can behave logically as a bus by using a **bus protocol** and appropriate **physical switching**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Physical vs logical topology", "Describe / Explain", "2", "AS 2018 Q08.1, A-level 2017 Q09.2"],
       ["Operation of a physical star", "Explain", "2", "AS 2018 Q08.2, 2023 Q13.1"],
@@ -449,7 +449,7 @@ C["compsci:4.9.2.1"] = {
 C["compsci:4.9.2.2"] = {
   notes: [
     { h: "Peer-to-peer and client-server — the whole topic on one page" },
-    "Spec 4.9.2.2: explain **peer-to-peer** and **client-server** networking and describe situations where each might be used. In peer-to-peer each computer has equal status; in client-server most computers are clients and one or more are servers — clients request services, servers provide them.",
+    { callout: { t: "info", h: "What the specification asks (4.9.2.2)", body: ["Explain **peer-to-peer** and **client-server** networking and describe situations where each might be used. In peer-to-peer each computer has equal status.", "In client-server most computers are clients and one or more are servers — clients request services, servers provide them."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How client-server operates", "Explain", "2", "AS 2023 Q13.2"],
       ["Differences / compare the two", "Explain / Compare", "3–4", "A-level 2017 Q09.3, 2022 Q08.1"],
@@ -579,7 +579,7 @@ C["compsci:4.9.2.2"] = {
 C["compsci:4.9.2.3"] = {
   notes: [
     { h: "Wireless networking — the whole topic on one page" },
-    "Spec 4.9.2.3: explain the **purpose of Wi-Fi** (a wireless LAN based on international standards); the components (**wireless network adapter, wireless access point**); how wireless networks are **secured** (WPA/WPA2 encryption, SSID broadcast disabled, MAC address allow list); the protocol **CSMA/CA** with and without **RTS/CTS**; the purpose of the **SSID**.",
+    { callout: { t: "info", h: "What the specification asks (4.9.2.3)", body: ["Explain the **purpose of Wi-Fi** (a wireless LAN based on international standards)", "The components (**wireless network adapter, wireless access point**)", "How wireless networks are **secured** (WPA/WPA2 encryption, SSID broadcast disabled, MAC address allow list)", "The protocol **CSMA/CA** with and without **RTS/CTS**.", "The purpose of the **SSID**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Hardware each device needs", "What", "1", "AS 2016 Q07.1"],
       ["SSID: role / purpose; disabling its broadcast", "Explain", "1–2", "AS 2016 Q07.4, 2017 Q08.3, 2023 Q12.1, 2024 Q11.3–11.4, 2025 Q13.4"],

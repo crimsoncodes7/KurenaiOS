@@ -68,8 +68,8 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.5.1.1"] = {
   notes: [
     { h: "Natural numbers — the whole topic on one page" },
-    "Spec 4.5.1.1: be familiar with the concept of a **natural number** and the set **ℕ** of natural numbers **(including zero)**. ℕ = {0, 1, 2, 3, …}.",
-    "Number systems open almost every AS Paper 2 (Question 1) and appear in A-level Paper 2 as lozenge (multiple-choice) and one-line definition questions, often tied to functional programming function types (4.12):",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.1)", body: "Be familiar with the concept of a **natural number** and the set **ℕ** of natural numbers **(including zero)**. ℕ = {0, 1, 2, 3, …}." } },
+    { callout: { t: "info", h: "Key idea", body: "Number systems open almost every AS Paper 2 (Question 1) and appear in A-level Paper 2 as lozenge (multiple-choice) and one-line definition questions, often tied to functional programming function types (4.12):" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Pick the natural number from a list", "Shade", "1", "AS 2016 Q01.1, AS 2023 Q01.2"],
       ["Pick the symbol for the set best for counting", "Shade", "1", "AS 2017 Q01.3, AS 2023 Q01.4"],
@@ -175,7 +175,7 @@ C["compsci:4.5.1.1"] = {
 C["compsci:4.5.1.2"] = {
   notes: [
     { h: "Integer numbers — the whole topic on one page" },
-    "Spec 4.5.1.2: be familiar with the concept of an **integer** and the set **ℤ** of integers. ℤ = {…, −3, −2, −1, 0, 1, 2, 3, …}.",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.2)", body: "Be familiar with the concept of an **integer** and the set **ℤ** of integers. ℤ = {…, −3, −2, −1, 0, 1, 2, 3, …}." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Identify an integer that is not natural", "Shade", "1", "AS 2016 Q01.3"],
       ["Which two numbers belong to ℤ?", "Shade two", "2", "AS 2025 Q01.1"],
@@ -266,7 +266,7 @@ C["compsci:4.5.1.2"] = {
 C["compsci:4.5.1.3"] = {
   notes: [
     { h: "Rational numbers — the whole topic on one page" },
-    "Spec 4.5.1.3: be familiar with the concept of a **rational number** and the set **ℚ** of rational numbers, and that this set **includes the integers**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.3)", body: "Be familiar with the concept of a **rational number** and the set **ℚ** of rational numbers, and that this set **includes the integers**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Symbol for the set of rational numbers", "Shade", "1", "AS 2017 Q01.1, AS 2024 Q01.3"],
       ["Description matching the rationals", "Shade", "1", "AS 2018 Q01 (table)"],
@@ -342,7 +342,7 @@ C["compsci:4.5.1.3"] = {
 C["compsci:4.5.1.4"] = {
   notes: [
     { h: "Irrational numbers — the whole topic on one page" },
-    "Spec 4.5.1.4: be familiar with the concept of an **irrational number** — a number that **cannot be represented as a fraction** p/q of integers.",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.4)", body: "Be familiar with the concept of an **irrational number** — a number that **cannot be represented as a fraction** p/q of integers." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Pick the irrational value", "Shade", "1", "AS 2016 Q01.2, AS 2023 Q01.1"],
       ["Description that matches the irrationals", "Shade", "1", "AS 2018 Q01.2"],
@@ -364,7 +364,7 @@ C["compsci:4.5.1.4"] = {
     ] } },
     { callout: { t: "miscon", h: "\"A value written to many decimal places is irrational\"", body: "The mark scheme rejects *\"any value expressed to a fixed number of decimal places\"* as an example: 1.41421356 is rational. Give the exact form — **√2**, **π** or **e**." } },
     { h: "Why it matters in computing" },
-    "No finite number of bits can store an irrational number exactly; a computer stores the nearest representable value. So π in a `double` is a rational approximation — every calculation with it carries a rounding error (4.5.4.5–4.5.4.6).",
+    { callout: { t: "info", h: "Key idea", body: "No finite number of bits can store an irrational number exactly; a computer stores the nearest representable value. So π in a `double` is a rational approximation — every calculation with it carries a rounding error (4.5.4.5–4.5.4.6)." } },
 
     { page: "Irrational numbers in exam questions" },
     { worked: { tag: "exam", title: "Pick the irrational number", src: "AS June 2023 · P2 Q01.1 · 1 mark",
@@ -422,7 +422,7 @@ C["compsci:4.5.1.4"] = {
 C["compsci:4.5.1.5"] = {
   notes: [
     { h: "Real numbers — the whole topic on one page" },
-    "Spec 4.5.1.5: be familiar with the concept of a **real number**: a possible **real-world quantity**. The set **ℝ** is the set of all \"possible real-world quantities\".",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.5)", body: "Be familiar with the concept of a **real number**: a possible **real-world quantity**. The set **ℝ** is the set of all \"possible real-world quantities\"." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Define / describe the set of real numbers", "Define / Describe", "1", "AS 2023 Q01.3, AS 2024 Q01.1"],
       ["Description that matches ℝ", "Shade", "1", "AS 2018 Q01.1"],
@@ -443,7 +443,7 @@ C["compsci:4.5.1.5"] = {
     ] },
     { callout: { t: "miscon", h: "\"Real numbers are numbers that exist\" / \"decimals\"", body: "Too vague for the mark. Use the AQA phrase **\"all possible real-world quantities\"** or **\"the rational and irrational numbers\"**." } },
     { h: "In computing" },
-    "Programming languages call their floating point types `real`, `float` or `double`. They approximate ℝ: the set is infinite and continuous, but a fixed number of bits gives only finitely many values (4.5.4.7 range and precision).",
+    { callout: { t: "info", h: "Key idea", body: "Programming languages call their floating point types `real`, `float` or `double`. They approximate ℝ: the set is infinite and continuous, but a fixed number of bits gives only finitely many values (4.5.4.7 range and precision)." } },
 
     { page: "Real numbers in exam questions" },
     { worked: { tag: "exam", title: "Define the set of real numbers", src: "AS June 2023 · P2 Q01.3 · 1 mark",
@@ -500,7 +500,7 @@ C["compsci:4.5.1.5"] = {
 C["compsci:4.5.1.6"] = {
   notes: [
     { h: "Ordinal numbers — the whole topic on one page" },
-    "Spec 4.5.1.6: be familiar with the concept of **ordinal numbers** and their use to describe the **numerical positions of objects**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.6)", body: "Be familiar with the concept of **ordinal numbers** and their use to describe the **numerical positions of objects**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What is meant by an ordinal number?", "Describe / What is", "1", "AS 2023 Q01.5, AS 2025 Q01.2"],
       ["Describe ordinal numbers and their use for an array", "Describe", "2", "A-level 2018 Q09.2"]
@@ -518,7 +518,7 @@ C["compsci:4.5.1.6"] = {
     ] } },
     { callout: { t: "miscon", h: "\"Ordinal numbers are numbers in order\"", body: "Not enough — 1, 2, 3 written in order are still just natural numbers. The concept is **position**: an ordinal says *where* an item is in a sequence. If you answer by example, AQA requires **at least three** (1st, 2nd, 3rd)." } },
     { h: "Zero-based positions" },
-    "Most languages index arrays from 0, so the 1st element has index 0. Both are ordinal: 0 is still a position. Off-by-one errors come from mixing the two conventions.",
+    { callout: { t: "info", h: "Key idea", body: "Most languages index arrays from 0, so the 1st element has index 0. Both are ordinal: 0 is still a position. Off-by-one errors come from mixing the two conventions." } },
 
     { page: "Ordinal numbers in exam questions" },
     { worked: { tag: "exam", title: "What is meant by an ordinal number?", src: "AS June 2023 · P2 Q01.5 · 1 mark",
@@ -568,7 +568,7 @@ C["compsci:4.5.1.6"] = {
 C["compsci:4.5.1.7"] = {
   notes: [
     { h: "Counting and measurement — the whole topic on one page" },
-    "Spec 4.5.1.7: be familiar with the use of **natural numbers for counting** and **real numbers for measurement**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.1.7)", body: "Be familiar with the use of **natural numbers for counting** and **real numbers for measurement**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Most suitable set for counting / measuring", "Shade", "1–2", "AS 2022 Q01.3, AS 2023 Q01.4"],
       ["Set for measuring a circumference / rope", "Shade", "1", "AS 2017 Q01.3, A-level 2020 Q07.2"],
@@ -645,7 +645,7 @@ C["compsci:4.5.1.7"] = {
 C["compsci:4.5.2.1"] = {
   notes: [
     { h: "Number bases — the whole topic on one page" },
-    "Spec 4.5.2.1: be familiar with the concept of a **number base**, in particular **decimal (base 10)**, **binary (base 2)** and **hexadecimal (base 16)**; convert between them; know that computers use **binary** to represent all data and instructions; explain the use of **hexadecimal as a shorthand for binary** and understand why it is used in this way.",
+    { callout: { t: "info", h: "What the specification asks (4.5.2.1)", body: ["Be familiar with the concept of a **number base**, in particular **decimal (base 10)**, **binary (base 2)** and **hexadecimal (base 16)**.", "Convert between them.", "Know that computers use **binary** to represent all data and instructions.", "Explain the use of **hexadecimal as a shorthand for binary** and understand why it is used in this way."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Binary → hexadecimal", "Convert / What is", "1", "AS 2016 Q02.1, AS 2019 Q02.1, AS 2024 Q02.1"],
       ["Hexadecimal → decimal", "State", "1", "AS 2020 Q01.1"],
@@ -673,9 +673,9 @@ C["compsci:4.5.2.1"] = {
     { ol: ["Split the bit pattern into **groups of four bits (nibbles), starting from the right** (pad the left group with 0s).", "Convert **each nibble to one hexadecimal digit** (0–9, then A–F for 10–15).", "Write the digits in the same order."] },
     { fig: bitsFig("010010101110".split(""), [2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1], { cw: 40, groups: [[0, 3, "0100 → 4"], [4, 7, "1010 → A"], [8, 11, "1110 → E"]], cap: "A-level 2022: 010010101110₂ = 4AE₁₆ — nibbles from the right, one hex digit each." }) },
     { h: "2.2  Hexadecimal → binary" },
-    "Replace each hex digit by its 4-bit pattern: C9₁₆ → 1100 1001₂.",
+    { callout: { t: "info", h: "Key idea", body: "Replace each hex digit by its 4-bit pattern: C9₁₆ → 1100 1001₂." } },
     { h: "2.3  Binary or hex → decimal" },
-    "Multiply each digit by its place value and add: C57₁₆ = 12×256 + 5×16 + 7 = 3072 + 80 + 7 = **3159**.",
+    { callout: { t: "info", h: "Key idea", body: "Multiply each digit by its place value and add: C57₁₆ = 12×256 + 5×16 + 7 = 3072 + 80 + 7 = **3159**." } },
     { h: "2.4  Decimal → binary or hex: repeated division" },
     { steps: [
       { h: "1.", m: "Divide by the base; record the **remainder** (MOD) — it is the next digit, from the **right**." },
@@ -683,7 +683,7 @@ C["compsci:4.5.2.1"] = {
       { h: "3.", m: "Repeat until the quotient is 0; read the remainders bottom-to-top." }
     ] },
     { table: { head: ["193 DIV 16", "remainder (MOD 16)", "digit"], rows: [["193 ÷ 16 = 12", "1", "1 (rightmost)"], ["12 ÷ 16 = 0", "12", "C"]] } },
-    "So 193₁₀ = **C1₁₆**. (Or subtract place values: 193 = 128 + 64 + 1 = 1100 0001₂ = C1₁₆.)",
+    { callout: { t: "info", h: "Key idea", body: "So 193₁₀ = **C1₁₆**. (Or subtract place values: 193 = 128 + 64 + 1 = 1100 0001₂ = C1₁₆.)" } },
     { worked: { tag: "exam", title: "Binary → hexadecimal", src: "AS June 2016 · P2 Q02.1 · 1 mark",
       q: "Figure 1 contains the bit pattern 0 0 1 1 1 0 0 1. What is the hexadecimal equivalent of the bit pattern?",
       steps: [{ h: "Nibbles", m: "0011 | 1001 → 3 | 9" }, { m: "**39**", mk: "1 mark", n: "A. #39." }], result: "39₁₆" } },
@@ -744,7 +744,7 @@ C["compsci:4.5.2.1"] = {
     { page: "Algorithms that convert" },
     { h: "5.1  Hexadecimal string → decimal" },
     { code: { lang: "text", src: "FOR Count ← 1 TO 2\n  INPUT HexString\n  Number ← 0\n  FOR EACH HexDigit IN HexString     // left to right\n    Value ← ToDecimal(HexDigit)        // A→10 … F→15, '0'–'9' → ASCII − 48, else −1\n    Number ← Number * 16 + Value\n  ENDFOR\n  OUTPUT Number\nENDFOR", cap: "AS June 2017 Paper 1, Figures 3–4 (ToDecimal shown as a comment)." } },
-    "The key line is **Number ← Number × 16 + Value** (Horner's method): each new digit shifts the running total one hexadecimal column left, then adds the digit. Left to right, it rebuilds the place values without powers.",
+    { callout: { t: "info", h: "Key idea", body: "The key line is **Number ← Number × 16 + Value** (Horner's method): each new digit shifts the running total one hexadecimal column left, then adds the digit. Left to right, it rebuilds the place values without powers." } },
     { worked: { tag: "exam", title: "Hand-trace the hex → decimal algorithm", src: "AS June 2017 · P1 Q02.1 · 5 marks",
       q: "Complete a trace table (Count, HexString, Number, HexDigit, Value, Output) by hand-tracing the algorithm above with the input strings \"A2\" and \"1G\".",
       steps: [
@@ -809,7 +809,7 @@ C["compsci:4.5.2.1"] = {
 C["compsci:4.5.3.1"] = {
   notes: [
     { h: "Bits and bytes — the whole topic on one page" },
-    "Spec 4.5.3.1: know that the **bit is the fundamental unit of information**; a **byte is a group of 8 bits**; know that **2ⁿ different values can be represented with n bits**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.3.1)", body: ["Know that the **bit is the fundamental unit of information**.", "A **byte is a group of 8 bits**.", "Know that **2ⁿ different values can be represented with n bits**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How many values can n bits / bytes represent?", "How many", "1", "AS 2020 Q01.2 (two bytes), AS 2023 Q02.2 (10 bits), AS 2025 Q02.1 (one byte)"],
       ["Addressable memory from an address bus width", "What is the maximum", "1–2", "A-level 2019 Q12.1, AS 2022 Q08.5, A-level 2024 Q03.5"],
@@ -903,7 +903,7 @@ C["compsci:4.5.3.1"] = {
 C["compsci:4.5.3.2"] = {
   notes: [
     { h: "Units of information — the whole topic on one page" },
-    "Spec 4.5.3.2: know the names, symbols and corresponding powers of 2 for the **binary prefixes** kibi (Ki, 2¹⁰), mebi (Mi, 2²⁰), gibi (Gi, 2³⁰), tebi (Ti, 2⁴⁰); and the names, symbols and powers of 10 for the **decimal prefixes** kilo (k, 10³), mega (M, 10⁶), giga (G, 10⁹), tera (T, 10¹²).",
+    { callout: { t: "info", h: "What the specification asks (4.5.3.2)", body: ["Know the names, symbols and corresponding powers of 2 for the **binary prefixes** kibi (Ki, 2¹⁰), mebi (Mi, 2²⁰), gibi (Gi, 2³⁰), tebi (Ti, 2⁴⁰)", "And the names, symbols and powers of 10 for the **decimal prefixes** kilo (k, 10³), mega (M, 10⁶), giga (G, 10⁹), tera (T, 10¹²)."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which prefix represents 10⁶ (or 2²⁰)?", "Shade", "1", "AS 2023 Q03.1"],
       ["Order quantities in mixed units", "Place in order", "2", "AS 2018 Q02.1"],

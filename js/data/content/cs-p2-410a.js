@@ -90,7 +90,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.10.1"] = {
   notes: [
     { h: "Conceptual data models and entity relationship modelling — the whole topic on one page" },
-    "Spec 4.10.1: produce a **data model** from given data requirements for a simple scenario involving **multiple entities**; produce **entity relationship diagrams** and **entity descriptions** in the form Entity1(Attribute1, Attribute2, …), underlining the attribute(s) that form the **entity identifier**.",
+    { callout: { t: "info", h: "What the specification asks (4.10.1)", body: ["Produce a **data model** from given data requirements for a simple scenario involving **multiple entities**.", "Produce **entity relationship diagrams** and **entity descriptions** in the form Entity1(Attribute1, Attribute2, …), underlining the attribute(s) that form the **entity identifier**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Draw the degree of the relationships between given entities", "Draw / Show", "1–2", "A-level 2017 Q10.3, 2018 Q07.1, 2022 Q07.2, 2025 Q06.2"],
       ["Complete an ER diagram by adding the missing entities", "Complete", "3", "A-level 2019 Q06.1"],
@@ -110,7 +110,7 @@ C["compsci:4.10.1"] = {
       ["Relationship", "an association between two entities (a Customer **owns** a Pet)"],
       ["Degree of a relationship", "how many instances of one entity can be linked to one instance of the other: **one-to-one**, **one-to-many** or **many-to-many**"]
     ] },
-    "An **entity description** lists the entity's name then its attributes in brackets, with the identifier **underlined** (composite identifiers: every part underlined):",
+    { callout: { t: "info", h: "Key idea", body: "An **entity description** lists the entity's name then its attributes in brackets, with the identifier **underlined** (composite identifiers: every part underlined):" } },
     { ul: [R("Pet", ["PetID"], ["PetName", "Type", "DateOfBirth"]), R("Surgery", ["SurgeryName"], ["Town", "TelephoneNumber"]), R("PetOwner", ["CustomerID", "PetID"]) + " — a composite identifier"] },
     { callout: { t: "miscon", h: "An entity is a TYPE, not one thing", body: "\"Customer\" is an entity; \"Sophie Latham\" is an **instance** (one row). Name entities in the singular — Customer, not Customers." } },
 
@@ -151,11 +151,11 @@ C["compsci:4.10.1"] = {
       ["Its identifier", "usually the **composite** of the two foreign keys (StudentID, CourseID); add a date/time to the key when the same pair can occur more than once"],
       ["Its attributes", "facts about the **pairing** itself — DateEnrolled, Grade, QuantityUsed — which belong to neither entity alone"]
     ] },
-    "Past-paper linking entities: **PartUsedForJob**(JobID, PartID, QuantityUsed), **PetOwner**(CustomerID, PetID), **EventAtFixture**(FixtureID, EventTypeID), **FacilityForSport**(Sport, FacilityID), **SaleLine**(SaleID, ProductID, QuantitySold).",
+    { callout: { t: "info", h: "Key idea", body: "Past-paper linking entities: **PartUsedForJob**(JobID, PartID, QuantityUsed), **PetOwner**(CustomerID, PetID), **EventAtFixture**(FixtureID, EventTypeID), **FacilityForSport**(Sport, FacilityID), **SaleLine**(SaleID, ProductID, QuantitySold)." } },
     { callout: { t: "miscon", h: "AQA accepts the M:M — sometimes", body: "In 2018 the mark scheme **accepted** a M:M line between EventType and Fixture \"as this is modelled by a linking relation\"; in 2019 a M:M between Pet and Customer earned the mark only **if PetOwner was not drawn**. When the linking entity is on the diagram, draw the two 1:M relationships through it." } },
 
     { page: "From relations to a diagram" },
-    "Most AQA ER questions give the **relations** and ask for the relationships. The rule:",
+    { callout: { t: "info", h: "Key idea", body: "Most AQA ER questions give the **relations** and ask for the relationships. The rule:" } },
     { callout: { t: "def", h: "The foot goes where the foreign key is", body: "If relation B contains an attribute that is the identifier of relation A, then A–B is **one-to-many** with the crow's foot at **B**. One A row's key value can appear in many B rows; each B row holds exactly one A key." } },
     { steps: [
       "List each relation's identifier.",
@@ -280,7 +280,7 @@ C["compsci:4.10.1"] = {
 C["compsci:4.10.2"] = {
   notes: [
     { h: "Relational databases — the whole topic on one page" },
-    "Spec 4.10.2: explain the concept of a **relational database**; define **attribute**, **primary key**, **composite primary key** and **foreign key**.",
+    { callout: { t: "info", h: "What the specification asks (4.10.2)", body: ["Explain the concept of a **relational database**.", "Define **attribute**, **primary key**, **composite primary key** and **foreign key**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which other attributes could be the key?", "State / Shade", "1", "A-level 2017 Q10.1, 2021 Q05.1"],
       ["What assumption does this key / design make?", "State / Shade", "1", "A-level 2020 Q04.4, 2024 Q08.1"],
@@ -333,7 +333,7 @@ C["compsci:4.10.2"] = {
     { callout: { t: "warn", h: "Define precisely", body: "\"A key that identifies a record\" is not enough for primary key — it must be **unique**. \"A key from another table\" is not enough for foreign key — it is that table's **primary** key, used to **link** the tables." } },
 
     { page: "Choosing a key — and the assumption it makes" },
-    "A set of attributes can be the key only if the scenario guarantees **no two rows could ever share those values**. So every key states an **assumption** about the real world.",
+    { callout: { t: "info", h: "Key idea", body: "A set of attributes can be the key only if the scenario guarantees **no two rows could ever share those values**. So every key states an **assumption** about the real world." } },
     { steps: [
       "Read the rules in the scenario (\"each facility can only be booked by one customer at any one time\").",
       "Ask: could two different rows ever have the same values in these attributes?",
@@ -443,7 +443,7 @@ C["compsci:4.10.2"] = {
 C["compsci:4.10.3"] = {
   notes: [
     { h: "Database design and normalisation techniques — the whole topic on one page" },
-    "Spec 4.10.3: **normalise relations to third normal form**; understand **why databases are normalised**; know the properties of a relation in **third normal form**.",
+    { callout: { t: "info", h: "What the specification asks (4.10.3)", body: ["**Normalise relations to third normal form**.", "Understand **why databases are normalised**.", "Know the properties of a relation in **third normal form**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why normalise / problems if not normalised", "State / Describe", "2", "A-level 2017 Q10.2, 2018 Q07.3, 2024 Q08.5"],
       ["Why an un-normalised alternative design was rejected", "Explain", "2", "A-level 2021 Q05.2"],
@@ -514,7 +514,7 @@ C["compsci:4.10.3"] = {
     { callout: { t: "miscon", h: "A single-attribute key is automatically 2NF", body: "Partial dependency needs a composite key to be \"part\" of. A 1NF relation whose key is one attribute is already in 2NF — check it straight for 3NF. And 3NF does **not** require single-attribute keys (2022 Q07.1)." } },
 
     { page: "Normalising step by step" },
-    "An online shop's order form, as an **un-normalised** relation (the braces mark the repeating group — one set per product on the order):",
+    { callout: { t: "info", h: "Key idea", body: "An online shop's order form, as an **un-normalised** relation (the braces mark the repeating group — one set per product on the order):" } },
     { ul: ["UNF: Order(OrderID, OrderDate, CustomerID, CustName, CustTown, {ProductID, Description, UnitPrice, Quantity})"] },
     { steps: [
       { h: "1NF — remove the repeating group", m: "One row per product per order; the key becomes (OrderID, ProductID):\n" + R("OrderItem", ["OrderID", "ProductID"], ["OrderDate", "CustomerID", "CustName", "CustTown", "Description", "UnitPrice", "Quantity"]) },
@@ -533,7 +533,7 @@ C["compsci:4.10.3"] = {
       ], result: "1NF, 2NF, UNF, 3NF" } },
 
     { page: "Designing relations from a scenario" },
-    "AQA's 4–5 mark design questions give some relations and ask for the rest. The marks go to **each relation with the right attributes and no others**, plus **correct identifiers**.",
+    { callout: { t: "info", h: "Key idea", body: "AQA's 4–5 mark design questions give some relations and ask for the rest. The marks go to **each relation with the right attributes and no others**, plus **correct identifiers**." } },
     { steps: [
       "List what the scenario says is recorded. Every fact must land in exactly one relation.",
       "Give each real thing (customer, booking) a relation and an identifier — reuse the attribute names the question already used (R. renamed ones).",
@@ -544,7 +544,7 @@ C["compsci:4.10.3"] = {
     { callout: { t: "tip", h: "Foreign keys are not marked", body: "\"I. any representation for foreign keys\" — you may mark them (dotted underline, asterisk) or not. SQL answers are accepted too, ignoring syntax and data-type errors." } },
 
     { page: "Normalisation versus speed" },
-    "A fully normalised design can need **more joins** to answer a query. Sometimes designers **denormalise** deliberately — store a derivable fact again — to make a frequent query quicker.",
+    { callout: { t: "info", h: "Key idea", body: "A fully normalised design can need **more joins** to answer a query. Sometimes designers **denormalise** deliberately — store a derivable fact again — to make a frequent query quicker." } },
     { table: { head: [" ", "Fully normalised", "Denormalised (redundant attribute added)"], rows: [
       ["Storage", "each fact once — least space", "extra copies — more space"],
       ["Consistency", "cannot disagree with itself", "copies can disagree (inconsistency)"],

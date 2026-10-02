@@ -90,8 +90,8 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.6.4.1"] = {
   notes: [
     { h: "Logic gates — the whole topic on one page" },
-    "Spec 4.6.4.1: construct truth tables for **NOT, AND, OR, XOR, NAND, NOR**; draw and interpret logic circuit diagrams; complete a truth table for a circuit; write a Boolean expression for a circuit; draw a circuit for a Boolean expression; recognise and trace the **half-adder** and **full-adder**, construct a half-adder; be familiar with the **edge-triggered D-type flip-flop** as a memory unit. Use the ANSI/IEEE distinctive-shape symbols; the internal operation of the flip-flop is not required.",
-    "Logic gates are on every Paper 2 since 2016 — 45 sub-questions in the packs:",
+    { callout: { t: "info", h: "What the specification asks (4.6.4.1)", body: ["Construct truth tables for **NOT, AND, OR, XOR, NAND, NOR**.", "Draw and interpret logic circuit diagrams.", "Complete a truth table for a circuit.", "Write a Boolean expression for a circuit.", "Draw a circuit for a Boolean expression.", "Recognise and trace the **half-adder** and **full-adder**, construct a half-adder.", "Be familiar with the **edge-triggered D-type flip-flop** as a memory unit. Use the ANSI/IEEE distinctive-shape symbols.", "The internal operation of the flip-flop is not required."] } },
+    { callout: { t: "info", h: "Key idea", body: "Logic gates are on every Paper 2 since 2016 — 45 sub-questions in the packs:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Name the gate from a symbol / truth table", "State / What is the name", "1", "AS 2016 Q05.1, 2017 Q05.1, 2018 Q09.1, 2019 Q06.1, 2022 Q07.1–07.2, 2024 Q06.1"],
       ["Complete a gate's truth table", "Complete", "1", "AS 2020 Q05.1, A-level 2019 Q08.1"],
@@ -475,8 +475,8 @@ C["compsci:4.6.4.1"] = {
 C["compsci:4.6.5.1"] = {
   notes: [
     { h: "Using Boolean algebra — the whole topic on one page" },
-    "Spec 4.6.5.1: be familiar with the use of **Boolean identities** and **De Morgan's laws** to manipulate and simplify Boolean expressions.",
-    "A 4-mark simplification is on almost every Paper 2 — 26 sub-questions in the packs:",
+    { callout: { t: "info", h: "What the specification asks (4.6.5.1)", body: "Be familiar with the use of **Boolean identities** and **De Morgan's laws** to manipulate and simplify Boolean expressions." } },
+    { callout: { t: "info", h: "Key idea", body: "A 4-mark simplification is on almost every Paper 2 — 26 sub-questions in the packs:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Simplify, showing working", "Using the rules of Boolean algebra, simplify", "4", "AS 2016 Q03, 2017 Q05.3, 2018 Q09.4, 2019 Q06.4, 2020 Q05.3, 2022 Q07.5, 2023 Q07.3, 2024 Q06.4; A-level 2017 Q04.3, 2019 Q08.4, 2020 Q06.4, 2022 Q03.3, 2023 Q09.3, 2024 Q06.3, 2025 Q13"],
       ["Show that X = Y", "Using the laws, show that", "4", "A-level 2018 Q10"],

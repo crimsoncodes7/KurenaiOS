@@ -35,7 +35,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.12.2.1"] = {
   notes: [
     { h: "Functional language programs — the whole topic on one page" },
-    "Spec 4.12.2.1: experience of constructing simple programs in a functional language; **higher-order functions**; using **map**, **filter** and **reduce or fold**.",
+    { callout: { t: "info", h: "What the specification asks (4.12.2.1)", body: ["Experience of constructing simple programs in a functional language.", "**Higher-order functions**.", "Using **map**, **filter** and **reduce or fold**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Calculate the results of map / filter / fold calls", "Calculate", "1–4", "A-level 2017 Q06.2, 2020 Q11.4, 2022 Q12.3"],
       ["Explain what a higher-order function is", "Explain", "1–2", "A-level 2017 Q06.3, 2020 Q11.3"],
@@ -69,7 +69,7 @@ C["compsci:4.12.2.1"] = {
     { page: "filter" },
     { callout: { t: "def", h: "filter", body: "Processes a list in order to produce a **new list** containing **exactly those elements** that match a given condition (a function returning Boolean — a predicate)." } },
     { table: { head: ["Element of b", "1", "5", "10", "15"], rows: [["< 10 ?", "True", "True", "False", "False"], ["kept?", "✔", "✔", "✘", "✘"]] } },
-    "filter (< 10) [1, 5, 10, 15] = **[1, 5]**. The predicate (< 10) is itself a partially applied operator.",
+    { callout: { t: "info", h: "Key idea", body: "filter (< 10) [1, 5, 10, 15] = **[1, 5]**. The predicate (< 10) is itself a partially applied operator." } },
     { code: { lang: "text", src: "filter p []     = []\nfilter p (x:xs)\n  | p x       = x : filter p xs     -- keep the head\n  | otherwise = filter p xs         -- drop it", cap: "filter keeps order and never changes the elements it keeps." } },
 
     { page: "fold / reduce" },
@@ -204,7 +204,7 @@ C["compsci:4.12.2.1"] = {
 C["compsci:4.12.3.1"] = {
   notes: [
     { h: "List processing — the whole topic on one page" },
-    "Spec 4.12.3.1: represent a list as a concatenation of a **head** and a **tail**; know the head is an **element** and the tail is a **list**; know a list can be **empty**; describe and apply: return head, return tail, test for empty, return length, construct an empty list, **prepend** and **append** an item; write programs for them.",
+    { callout: { t: "info", h: "What the specification asks (4.12.3.1)", body: ["Represent a list as a concatenation of a **head** and a **tail**.", "Know the head is an **element** and the tail is a **list**.", "Know a list can be **empty**.", "Describe and apply: return head, return tail, test for empty, return length, construct an empty list, **prepend** and **append** an item.", "Write programs for them."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Head / tail of a list, or of nested calls", "What is", "1", "A-level 2017 Q06.1, 2020 Q11.1"],
       ["How a recursive list function works", "Describe", "3", "A-level 2020 Q11.2"],

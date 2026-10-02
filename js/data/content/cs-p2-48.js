@@ -26,8 +26,8 @@ var MS_KEY = { callout: { t: "tip", h: "How AQA marks these essays", body: [
 C["compsci:4.8.1"] = {
   notes: [
     { h: "Moral, ethical, legal and cultural issues — the whole topic on one page" },
-    "Spec 4.8.1: show awareness of current individual (moral), social (ethical), legal and cultural **opportunities and risks** of computing. Understand that digital technology has transformed the capacity to **monitor behaviour**, **amass and analyse personal information**, and **distribute, publish and disseminate** it; that computer scientists therefore hold **power and responsibility** for their algorithms and code; that **software embeds moral and cultural values**; that **scale** lets one engineer do great good or great harm; and the **challenges facing legislators** in the digital age.",
-    "Every AS paper has a 9- or 12-mark essay on this; the A-level has 3- to 12-mark questions:",
+    { callout: { t: "info", h: "What the specification asks (4.8.1)", body: ["Show awareness of current individual (moral), social (ethical), legal and cultural **opportunities and risks** of computing. Understand that digital technology has transformed the capacity to **monitor behaviour**, **amass and analyse personal information**, and **distribute, publish and disseminate** it.", "That computer scientists therefore hold **power and responsibility** for their algorithms and code.", "That **software embeds moral and cultural values**.", "That **scale** lets one engineer do great good or great harm.", "And the **challenges facing legislators** in the digital age."] } },
+    { callout: { t: "info", h: "Key idea", body: "Every AS paper has a 9- or 12-mark essay on this; the A-level has 3- to 12-mark questions:" } },
     { table: { head: ["Question shape", "Marks", "Seen in"], rows: [
       ["Discuss the ethical, legal, cultural issues of a new service or product", "9–12", "AS 2017 Q09 (Street View indoors), 2018 Q07.1 (driverless taxis), 2020 Q08.1 (care-home life-blogging), 2022 Q11 (smart speakers), 2023 Q11 (AI clothes app), 2025 Q12 (image platform)"],
       ["Discuss both sides of a dilemma", "9", "AS 2019 Q11 (unlocking a suspect's phone)"],

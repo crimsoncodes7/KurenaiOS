@@ -52,7 +52,7 @@ function natFig(cap) {
 C["compsci:4.9.4.3"] = {
   notes: [
     { h: "IP address structure — the whole topic on one page" },
-    "Spec 4.9.4.3: know that an IP address is split into a **network identifier** part and a **host identifier** part.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.3)", body: "Know that an IP address is split into a **network identifier** part and a **host identifier** part." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Suitable IP addresses for router ports / hosts in a diagram", "State", "2–3", "A-level 2017 Q09.1, 2021 Q11.1"]
     ] } },
@@ -137,7 +137,7 @@ C["compsci:4.9.4.3"] = {
 C["compsci:4.9.4.4"] = {
   notes: [
     { h: "Subnet masking — the whole topic on one page" },
-    "Spec 4.9.4.4: know that networks can be divided into **subnets** and how a **subnet mask** is used to identify the **network identifier** part of an IP address.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.4)", body: "Know that networks can be divided into **subnets** and how a **subnet mask** is used to identify the **network identifier** part of an IP address." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Write the mask in binary", "Write", "1", "A-level 2018 Q05.1"],
       ["Maximum devices on a subnet", "What is", "1", "A-level 2018 Q05.2"],
@@ -228,7 +228,7 @@ C["compsci:4.9.4.4"] = {
 C["compsci:4.9.4.5"] = {
   notes: [
     { h: "IP standards: IPv4 and IPv6 — the whole topic on one page" },
-    "Spec 4.9.4.5: know that there are two standards of IP address, **v4** and **v6**, and why **v6** was introduced.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.5)", body: "Know that there are two standards of IP address, **v4** and **v6**, and why **v6** was introduced." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["One reason IPv6 replaced IPv4", "State", "1", "A-level 2021 Q11.3"],
       ["Why IPv6 makes NAT unnecessary", "Explain", "1", "A-level 2024 Q07.7"],
@@ -304,7 +304,7 @@ C["compsci:4.9.4.5"] = {
 C["compsci:4.9.4.6"] = {
   notes: [
     { h: "Public and private IP addresses — the whole topic on one page" },
-    "Spec 4.9.4.6: distinguish between **routable** and **non-routable** IP addresses.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.6)", body: "Distinguish between **routable** and **non-routable** IP addresses." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How many computers share one IP address yet communicate", "Explain", "2", "A-level 2020 Q05.2"],
       ["Public vs private (essay area)", "Explain", "—", "A-level 2025 Q08 — worked in 4.9.4.5"]
@@ -382,7 +382,7 @@ C["compsci:4.9.4.6"] = {
 C["compsci:4.9.4.7"] = {
   notes: [
     { h: "DHCP — the whole topic on one page" },
-    "Spec 4.9.4.7: understand the purpose and function of the **Dynamic Host Configuration Protocol (DHCP)** system.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.7)", body: "Understand the purpose and function of the **Dynamic Host Configuration Protocol (DHCP)** system." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Purpose, why used, the exchange", "Explain", "4", "A-level 2018 Q05.3"],
       ["One advantage of DHCP", "State", "1", "A-level 2020 Q05.1"],
@@ -468,7 +468,7 @@ C["compsci:4.9.4.7"] = {
 C["compsci:4.9.4.8"] = {
   notes: [
     { h: "Network Address Translation — the whole topic on one page" },
-    "Spec 4.9.4.8: explain the basic concept of **NAT** and why it is used.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.8)", body: "Explain the basic concept of **NAT** and why it is used." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["NAT for an outgoing request and its reply", "Describe", "4", "A-level 2024 Q07.6"],
       ["Same private address on many networks", "Explain", "2", "A-level 2020 Q05.2 — see 4.9.4.6"],
@@ -558,7 +558,7 @@ C["compsci:4.9.4.8"] = {
 C["compsci:4.9.4.9"] = {
   notes: [
     { h: "Port forwarding — the whole topic on one page" },
-    "Spec 4.9.4.9: explain the basic concept of **port forwarding** and why it is used.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.9)", body: "Explain the basic concept of **port forwarding** and why it is used." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How the router was configured so a web server is reachable", "Explain", "2–3", "A-level 2018 Q05.4, 2024 Q07.4"]
     ] } },
@@ -636,7 +636,7 @@ C["compsci:4.9.4.9"] = {
 C["compsci:4.9.4.10"] = {
   notes: [
     { h: "The client-server model, WebSockets, CRUD and REST — the whole topic on one page" },
-    "Spec 4.9.4.10: be familiar with the **client server model**; the **WebSocket** protocol, why and where it is used; the principles of **Web CRUD** applications and **REST** (GET → SELECT, POST → INSERT, DELETE → DELETE, PUT → UPDATE); compare **JSON** with **XML**.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.10)", body: ["Be familiar with the **client server model**.", "The **WebSocket** protocol, why and where it is used.", "The principles of **Web CRUD** applications and **REST** (GET → SELECT, POST → INSERT, DELETE → DELETE, PUT → UPDATE)", "Compare **JSON** with **XML**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which statement about CRUD / REST is false", "Shade", "1", "A-level 2020 Q04.1"],
       ["Identify XML vs JSON; reasons JSON is better", "Shade / State", "1–2", "A-level 2020 Q04.2–04.3, 2023 Q05.6"],
@@ -746,7 +746,7 @@ C["compsci:4.9.4.10"] = {
 C["compsci:4.9.4.11"] = {
   notes: [
     { h: "Thin- versus thick-client computing — the whole topic on one page" },
-    "Spec 4.9.4.11: compare and contrast **thin-client** computing with **thick-client** computing.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.11)", body: "Compare and contrast **thin-client** computing with **thick-client** computing." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What thin-client computing is + why chosen", "Describe and explain", "3", "A-level 2021 Q02"],
       ["Compare hardware requirements", "Compare", "3", "A-level 2022 Q11"]

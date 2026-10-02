@@ -42,7 +42,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.12.1.1"] = {
   notes: [
     { h: "Function type — the whole topic on one page" },
-    "Spec 4.12.1.1: know that a function f has a **function type** $f: A \\to B$, where A is the **argument type** and B the **result type**; that A is the **domain** and B the **co-domain**; and that both are always subsets of objects in some data type.",
+    { callout: { t: "info", h: "What the specification asks (4.12.1.1)", body: ["Know that a function f has a **function type** $f: A \\to B$, where A is the **argument type** and B the **result type**.", "That A is the **domain** and B the **co-domain**.", "And that both are always subsets of objects in some data type."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["State / describe the co-domain", "What is / Describe", "1", "A-level 2019 Q07.1, 2024 Q11.1"],
       ["Choose the co-domain of a given function", "Shade", "1", "A-level 2023 Q12.2"],
@@ -160,7 +160,7 @@ C["compsci:4.12.1.1"] = {
 C["compsci:4.12.1.2"] = {
   notes: [
     { h: "First-class object — the whole topic on one page" },
-    "Spec 4.12.1.2: know that a function is a **first-class object** in functional programming languages and in imperative languages that support such objects: it can be an **argument** to another function and the **result** of a function call.",
+    { callout: { t: "info", h: "What the specification asks (4.12.1.2)", body: "Know that a function is a **first-class object** in functional programming languages and in imperative languages that support such objects: it can be an **argument** to another function and the **result** of a function call." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which statements about a function are true (first-class, arguments…)", "Shade all", "1", "A-level 2025 Q11.1"],
       ["What first-class means / why it enables higher-order functions", "Explain", "1–2", "spec; part of 2017 Q06.3 and 2020 Q11.3 answers"]
@@ -247,7 +247,7 @@ C["compsci:4.12.1.2"] = {
 C["compsci:4.12.1.3"] = {
   notes: [
     { h: "Function application — the whole topic on one page" },
-    "Spec 4.12.1.3: know that **function application** means a function **applied to its arguments**.",
+    { callout: { t: "info", h: "What the specification asks (4.12.1.3)", body: "Know that **function application** means a function **applied to its arguments**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Calculate the results of function calls", "Calculate", "3–4", "A-level 2018 Q15.2 (here); 2017 Q06.2, 2022 Q12.3 in 4.12.2.1"],
       ["What the result means in context", "Explain", "1", "A-level 2018 Q15.3"]
@@ -274,7 +274,7 @@ C["compsci:4.12.1.3"] = {
     { callout: { t: "warn", h: "The bracket trap", body: "square 3 + 1 is 10, not 16. When an argument is an expression, it needs brackets: f (x - 1), not f x - 1." } },
 
     { page: "Evaluating by substitution" },
-    "Evaluate an application by replacing the call with the function's body, the parameter replaced by the argument — innermost applications first:",
+    { callout: { t: "info", h: "Key idea", body: "Evaluate an application by replacing the call with the function's body, the parameter replaced by the argument — innermost applications first:" } },
     { code: { lang: "text", src: "fw [a,b] = a * b\nfx c = map fw c\nfy d = fold (+) 0 d\nfz e = fy (fx e)\nsales = [[10,2], [2,25], [4,8]]", cap: "The 2018 shop program." } },
     { table: { head: ["Step", "Expression", "Rule used"], rows: [
       ["1", "fz sales", "start"],
@@ -339,7 +339,7 @@ C["compsci:4.12.1.3"] = {
 C["compsci:4.12.1.4"] = {
   notes: [
     { h: "Partial function application — the whole topic on one page" },
-    "Spec 4.12.1.4: know what is meant by **partial function application** for **one, two and three argument** functions and use the notation $\\text{add}: \\text{integer} \\to (\\text{integer} \\to \\text{integer})$, with the brackets dropped as integer → integer → integer.",
+    { callout: { t: "info", h: "What the specification asks (4.12.1.4)", body: "Know what is meant by **partial function application** for **one, two and three argument** functions and use the notation $\\text{add}: \\text{integer} \\to (\\text{integer} \\to \\text{integer})$, with the brackets dropped as integer → integer → integer." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Describe how a given function could be partially applied", "Describe", "3", "A-level 2019 Q07.3"],
       ["Describe what partial function application is", "Describe", "2", "A-level 2025 Q11.4"]
@@ -439,7 +439,7 @@ C["compsci:4.12.1.4"] = {
 C["compsci:4.12.1.5"] = {
   notes: [
     { h: "Composition of functions — the whole topic on one page" },
-    "Spec 4.12.1.5: know what is meant by **composition of functions**: combining two functions to get a new function. Given $f: A \\to B$ and $g: B \\to C$, $g \\circ f$ has domain A and co-domain C; **f is applied first**, then g to its result.",
+    { callout: { t: "info", h: "What the specification asks (4.12.1.5)", body: ["Know what is meant by **composition of functions**: combining two functions to get a new function. Given $f: A \\to B$ and $g: B \\to C$, $g \\circ f$ has domain A and co-domain C.", "**F is applied first**, then g to its result."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Evaluate a composition", "What is the result", "1", "A-level 2019 Q07.2"],
       ["Purpose of a composed function", "Explain", "1", "A-level 2022 Q12.4"],

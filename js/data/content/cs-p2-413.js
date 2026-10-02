@@ -51,7 +51,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.13.1.1"] = {
   notes: [
     { h: "Analysis — the whole topic on one page" },
-    "Spec 4.13.1.1: before a problem can be solved it must be **defined**, the **requirements** of the system must be **established** and a **data model** created; requirements are established by **interaction with the intended users**, and clarifying them may involve **prototyping / an agile approach**. Students use **abstraction** to model aspects of the external world.",
+    { callout: { t: "info", h: "What the specification asks (4.13.1.1)", body: ["Before a problem can be solved it must be **defined**, the **requirements** of the system must be **established** and a **data model** created.", "Requirements are established by **interaction with the intended users**, and clarifying them may involve **prototyping / an agile approach**. Students use **abstraction** to model aspects of the external world."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Examples of work in the analysis stage", "State", "2", "AS 2020 P1 Q01"],
       ["Analysis section of the NEA", "—", "9 (NEA)", "your project: problem, users, objectives, data model"]
@@ -91,7 +91,7 @@ C["compsci:4.13.1.1"] = {
     { callout: { t: "mnemonic", h: "SMART objectives", body: "**S**pecific · **M**easurable · **A**chievable · **R**elevant · **T**estable (time-bound in project management). If you cannot write a test for an objective, rewrite it." } },
 
     { page: "Abstraction and the data model" },
-    "Modelling the external world means **abstraction**: keep only the details relevant to the problem and discard the rest.",
+    { callout: { t: "info", h: "Key idea", body: "Modelling the external world means **abstraction**: keep only the details relevant to the problem and discard the rest." } },
     { table: { head: ["Real world", "Kept in the model", "Discarded"], rows: [
       ["A driving-school pupil", "name, licence number, lessons booked, test date", "hair colour, favourite music"],
       ["A lesson", "date, time, instructor, pupil, duration", "the weather that day"],
@@ -163,7 +163,7 @@ C["compsci:4.13.1.1"] = {
 C["compsci:4.13.1.2"] = {
   notes: [
     { h: "Design — the whole topic on one page" },
-    "Spec 4.13.1.2: before constructing a solution it should be **designed and specified**: planning **data structures** for the data model, designing **algorithms**, an appropriate **modular structure**, and the **human user interface**; design can be **iterative** (prototyping / agile). Students structure programs into **modular parts with clear, documented interfaces**.",
+    { callout: { t: "info", h: "What the specification asks (4.13.1.2)", body: ["Before constructing a solution it should be **designed and specified**: planning **data structures** for the data model, designing **algorithms**, an appropriate **modular structure**, and the **human user interface**.", "Design can be **iterative** (prototyping / agile). Students structure programs into **modular parts with clear, documented interfaces**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Implement and test a given pseudo-code design", "Write / Test", "1 per test", "AS P1 Section A every year — e.g. 2017 Q03.2, 2022 Q03.2"],
       ["Design section of the NEA", "—", "12 (NEA)", "your project: hierarchy chart, algorithms, data structures, UI"]
@@ -199,7 +199,7 @@ C["compsci:4.13.1.2"] = {
     ] },
 
     { page: "Designing and desk-checking algorithms" },
-    "An algorithm design is checked BEFORE coding by a **dry run** (trace table). The 2017 GCF design:",
+    { callout: { t: "info", h: "Key idea", body: "An algorithm design is checked BEFORE coding by a **dry run** (trace table). The 2017 GCF design:" } },
     { code: { lang: "pseudo", src: "Temp1 <- Number1\nTemp2 <- Number2\nWHILE Temp1 != Temp2\n  IF Temp1 > Temp2 THEN Temp1 <- Temp1 - Temp2\n  ELSE Temp2 <- Temp2 - Temp1\n  ENDIF\nENDWHILE\nResult <- Temp1", cap: "Greatest common factor by repeated subtraction." } },
     { table: { head: ["Pass", "Temp1", "Temp2", "Temp1 ≠ Temp2?"], rows: [
       ["start", "12", "39", "yes"], ["1", "12", "27", "yes"], ["2", "12", "15", "yes"], ["3", "12", "3", "yes"],
@@ -271,7 +271,7 @@ C["compsci:4.13.1.2"] = {
 C["compsci:4.13.1.3"] = {
   notes: [
     { h: "Implementation — the whole topic on one page" },
-    "Spec 4.13.1.3: the models and algorithms must be implemented as **data structures and code** a computer can understand; the final solution may be reached **iteratively** (prototyping / agile) with a focus on **solving the critical path first**. Students practise writing, **debugging** and testing, and **argue for correctness and efficiency** using logical reasoning, test data and user feedback.",
+    { callout: { t: "info", h: "What the specification asks (4.13.1.3)", body: ["The models and algorithms must be implemented as **data structures and code** a computer can understand.", "The final solution may be reached **iteratively** (prototyping / agile) with a focus on **solving the critical path first**. Students practise writing, **debugging** and testing, and **argue for correctness and efficiency** using logical reasoning, test data and user feedback."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Write a program for a pseudo-code algorithm", "Write", "4–8", "AS P1 Section A every year"],
       ["Show it running with given data", "Test (screen capture)", "1", "AS 2016 Q05.2, 2019 Q03.2, 2024 Q04.2"]
@@ -377,7 +377,7 @@ C["compsci:4.13.1.3"] = {
 C["compsci:4.13.1.4"] = {
   notes: [
     { h: "Testing — the whole topic on one page" },
-    "Spec 4.13.1.4: the solution must be **tested for errors** using appropriate test data — **normal, boundary and erroneous** — and **tested for efficiency** using logical reasoning.",
+    { callout: { t: "info", h: "What the specification asks (4.13.1.4)", body: "The solution must be **tested for errors** using appropriate test data — **normal, boundary and erroneous** — and **tested for efficiency** using logical reasoning." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Name the type of each test value", "Complete the table", "2", "AS 2016 P1 Q03"],
       ["Show the program running with given test data", "Test (screen capture)", "1", "AS 2018 Q03.2, 2020 Q03.2, 2023 Q05.2"],
@@ -415,10 +415,10 @@ C["compsci:4.13.1.4"] = {
       ["4", "accept bottom of range", "1", "boundary", "1", "as expected", "✓"],
       ["5", "typical value", "4", "normal", "1 3 3 1", "as expected", "✓"]
     ] } },
-    "That plan tests the AS 2018 validation loop (accept 1–10) and series. Every row has an **expected** result written BEFORE running; evidence (screenshots) shows the **actual** result.",
+    { callout: { t: "info", h: "Key idea", body: "That plan tests the AS 2018 validation loop (accept 1–10) and series. Every row has an **expected** result written BEFORE running; evidence (screenshots) shows the **actual** result." } },
 
     { page: "Testing for efficiency" },
-    "\"Tested for efficiency using logical reasoning\": argue how the work grows with the input instead of only timing it.",
+    { callout: { t: "info", h: "Key idea", body: "\"Tested for efficiency using logical reasoning\": argue how the work grows with the input instead of only timing it." } },
     { table: { head: ["Algorithm", "Reasoning", "Growth"], rows: [
       ["GCF by subtraction (2017)", "worst case subtracts the small number repeatedly: GCF(1, n) takes n − 1 passes", "O(n)"],
       ["GCF by MOD (Euclid)", "the remainder at least halves every two steps", "O(log n)"],
@@ -496,7 +496,7 @@ C["compsci:4.13.1.4"] = {
 C["compsci:4.13.1.5"] = {
   notes: [
     { h: "Evaluation — the whole topic on one page" },
-    "Spec 4.13.1.5: the solution needs to be **evaluated against the initial requirements**.",
+    { callout: { t: "info", h: "What the specification asks (4.13.1.5)", body: "The solution needs to be **evaluated against the initial requirements**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Judge a program's test output against what was required", "Evaluate / Test", "1", "AS 2025 P1 Q03.2 (the capture), and Section B questions on the Skeleton Program"],
       ["Evaluation section of the NEA", "—", "4 (NEA)", "each objective met / partly / not, with evidence; independent feedback; improvements"]

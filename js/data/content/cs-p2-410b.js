@@ -41,7 +41,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA SQL mark scheme", body: [
 C["compsci:4.10.4"] = {
   notes: [
     { h: "Structured Query Language (SQL) — the whole topic on one page" },
-    "Spec 4.10.4: use SQL to **retrieve, update, insert and delete** data from **multiple tables** of a relational database; use SQL to **define a database table**.",
+    { callout: { t: "info", h: "What the specification asks (4.10.4)", body: ["Use SQL to **retrieve, update, insert and delete** data from **multiple tables** of a relational database.", "Use SQL to **define a database table**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Complete a CREATE TABLE statement", "Complete", "3", "A-level 2021 Q05.3, 2022 Q07.3"],
       ["Find the errors in given SQL", "State / Describe", "2", "A-level 2018 Q07.2, 2019 Q06.3, 2023 Q05.2"],
@@ -109,9 +109,9 @@ C["compsci:4.10.4"] = {
       ], result: "One row per student, highest count first" } },
 
     { page: "Querying several tables" },
-    "Data about one question is usually spread over tables, so a query must **join** them. Two equivalent ways:",
+    { callout: { t: "info", h: "Key idea", body: "Data about one question is usually spread over tables, so a query must **join** them. Two equivalent ways:" } },
     { code: { lang: "sql", src: "-- 1 · list both tables and LINK them in WHERE\nSELECT Car.CarRegNo, Make, JobDate\nFROM Car, Job\nWHERE Car.CarRegNo = Job.CarRegNo\n  AND Make = 'Ford'\n\n-- 2 · INNER JOIN … ON\nSELECT Car.CarRegNo, Make, JobDate\nFROM Car INNER JOIN Job ON Car.CarRegNo = Job.CarRegNo\nWHERE Make = 'Ford'", cap: "The linking condition equates the primary key in one table with the foreign key in the other. A field name in both tables must be written Table.Field." } },
-    "**Why the link matters — the trace.** FROM Car, Job pairs **every** Car row with **every** Job row (2 × 3 = 6). The linking condition keeps only the pairs that belong together:",
+    { callout: { t: "info", h: "Key idea", body: "**Why the link matters — the trace.** FROM Car, Job pairs **every** Car row with **every** Job row (2 × 3 = 6). The linking condition keeps only the pairs that belong together:" } },
     { table: { head: ["Car.CarRegNo", "Make", "Job.JobID", "Job.CarRegNo", "Car.CarRegNo = Job.CarRegNo?"], rows: [
       ["AB12 CDE", "Ford", "205", "AB12 CDE", "✔ kept"],
       ["AB12 CDE", "Ford", "206", "XY65 ZZZ", "✘"],
@@ -120,7 +120,7 @@ C["compsci:4.10.4"] = {
       ["XY65 ZZZ", "Kia", "206", "XY65 ZZZ", "✔ kept"],
       ["XY65 ZZZ", "Kia", "207", "AB12 CDE", "✘"]
     ] } },
-    "Without the link, the query returns all six rows — Fords with Kia jobs. That is exactly the error in 2019 Q06.3.",
+    { callout: { t: "info", h: "Key idea", body: "Without the link, the query returns all six rows — Fords with Kia jobs. That is exactly the error in 2019 Q06.3." } },
     { steps: [
       "List the fields wanted → they decide which tables you need.",
       "Add any table needed only for a CONDITION (Fixture for the date; Term for the dates of term).",
@@ -140,7 +140,7 @@ C["compsci:4.10.4"] = {
     })() },
 
     { page: "Ranges and overlaps" },
-    "Several AQA queries ask for records that **overlap a period** — bookings that clash, animals at a zoo between two dates, merits during a term.",
+    { callout: { t: "info", h: "Key idea", body: "Several AQA queries ask for records that **overlap a period** — bookings that clash, animals at a zoo between two dates, merits during a term." } },
     { fig: (function () {
       var x0 = 40, sc = 60, it = [];
       function X(h) { return x0 + (h - 12) * sc; }
@@ -370,7 +370,7 @@ function timeline(rows, cap, o) {
 C["compsci:4.10.5"] = {
   notes: [
     { h: "Client server databases — the whole topic on one page" },
-    "Spec 4.10.5: know that a **client server database** system provides **simultaneous access** to the database for **multiple clients**; know how **concurrent access** can be controlled to preserve the **integrity** of the database — the **lost update** problem, managed by **record locks**, **serialisation**, **timestamp ordering** and **commitment ordering**.",
+    { callout: { t: "info", h: "What the specification asks (4.10.5)", body: ["Know that a **client server database** system provides **simultaneous access** to the database for **multiple clients**.", "Know how **concurrent access** can be controlled to preserve the **integrity** of the database — the **lost update** problem, managed by **record locks**, **serialisation**, **timestamp ordering** and **commitment ordering**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["The problem if concurrent access is not managed", "Describe", "2–3", "A-level 2019 Q06.4, 2025 Q06.5"],
       ["How record locks OR timestamp ordering works", "Describe", "2–3", "A-level 2019 Q06.5, 2024 Q08.4"],
@@ -471,7 +471,7 @@ C["compsci:4.10.5"] = {
       ["5", "T1 restarts as TS 14, reads 8", "14", "12", "WTS 12 ≤ 14 → OK"],
       ["6", "T1 writes 8 − 3 = 5", "14", "14", "OK — final 5, nothing lost"]
     ] } },
-    "No transaction ever **waits** for a lock, so there is no deadlock — the price is that some transactions are aborted and redone.",
+    { callout: { t: "info", h: "Key idea", body: "No transaction ever **waits** for a lock, so there is no deadlock — the price is that some transactions are aborted and redone." } },
 
     { page: "Commitment ordering" },
     { callout: { t: "def", h: "Commitment ordering", body: "Transactions are allowed to run concurrently, but they are **committed** (their changes made permanent) in an order that is consistent with the order of their conflicting operations — so the result is serialisable. A transaction that would have to commit out of order is aborted. Because transactions are not blocked waiting for locks, it avoids **deadlock**." } },
@@ -486,7 +486,7 @@ C["compsci:4.10.5"] = {
     ] } },
 
     { page: "A faster database server" },
-    "The 2018 12-mark essay asked how to speed up a bank's database server across **hardware**, **network** and **database and software**; it is worked in full in 4.7.3.7. The database-and-software strand belongs here:",
+    { callout: { t: "info", h: "Key idea", body: "The 2018 12-mark essay asked how to speed up a bank's database server across **hardware**, **network** and **database and software**; it is worked in full in 4.7.3.7. The database-and-software strand belongs here:" } },
     { ul: [
       "Use a more efficient concurrency method — replace record/table locks with serialisation, timestamp or commitment ordering.",
       "**Index** the fields commonly searched on.",

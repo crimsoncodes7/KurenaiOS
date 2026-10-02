@@ -43,7 +43,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.5.5.1"] = {
   notes: [
     { h: "Character form of a decimal digit — the whole topic on one page" },
-    "Spec 4.5.5.1: differentiate between the **character code** representation of a decimal digit and its **pure binary** representation.",
+    { callout: { t: "info", h: "What the specification asks (4.5.5.1)", body: "Differentiate between the **character code** representation of a decimal digit and its **pure binary** representation." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Which character does a code represent?", "What character", "1", "AS 2016 Q02.5"],
       ["Convert a digit's character code to its value", "Explain how", "1", "AS 2019 Q03.1"],
@@ -116,7 +116,7 @@ C["compsci:4.5.5.1"] = {
 C["compsci:4.5.5.2"] = {
   notes: [
     { h: "ASCII and Unicode — the whole topic on one page" },
-    "Spec 4.5.5.2: describe **ASCII** and **Unicode** coding systems for coding character data and explain **why Unicode was introduced**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.5.2)", body: "Describe **ASCII** and **Unicode** coding systems for coding character data and explain **why Unicode was introduced**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Explain the term character code", "Explain", "1", "AS 2022 Q04.1"],
       ["Why was Unicode introduced?", "Explain", "2", "AS 2019 Q03.2, AS 2022 Q04.2"],
@@ -226,8 +226,8 @@ C["compsci:4.5.5.2"] = {
 C["compsci:4.5.5.3"] = {
   notes: [
     { h: "Error checking and correction — the whole topic on one page" },
-    "Spec 4.5.5.3: describe and explain the use of **parity bits**, **majority voting**, **checksums** and **check digits**.",
-    "Asked on almost every AS paper and regularly at A-level — calculating a parity bit, spotting a corrupted byte, decoding a majority vote, and comparing the methods:",
+    { callout: { t: "info", h: "What the specification asks (4.5.5.3)", body: "Describe and explain the use of **parity bits**, **majority voting**, **checksums** and **check digits**." } },
+    { callout: { t: "info", h: "Key idea", body: "Asked on almost every AS paper and regularly at A-level — calculating a parity bit, spotting a corrupted byte, decoding a majority vote, and comparing the methods:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Calculate / write the parity bit", "Calculate / Write", "1", "AS 2017 Q02.5, AS 2022 Q04.4"],
       ["Describe how a parity bit is generated", "Describe / Explain", "2", "AS 2016 Q02.6, AS 2022 Q04.3"],

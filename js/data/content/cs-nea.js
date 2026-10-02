@@ -50,7 +50,7 @@ var NOT_EXAM = { callout: { t: "tip", h: "How this section works", body: "There 
 C["compsci:NEA.0"] = {
   notes: [
     { h: "Choosing and planning the project — the project guide" },
-    "The NEA is a programming project of your choice, written up in five sections and marked by your teacher (moderated by AQA) out of **75 — 20% of the A-level**. AQA recommends about **50 hours** of lesson time.",
+    { callout: { t: "info", h: "Key idea", body: "The NEA is a programming project of your choice, written up in five sections and marked by your teacher (moderated by AQA) out of **75 — 20% of the A-level**. AQA recommends about **50 hours** of lesson time." } },
     marksBar(null),
     NOT_EXAM,
     { h: "How this guide is organised" },
@@ -70,7 +70,7 @@ C["compsci:NEA.0"] = {
     ] } },
 
     { page: "Is it of A-level standard?" },
-    "A project that is **not** of A-level standard is marked **two levels down** in every section except the technical solution (two marks down in Evaluation). AQA's guidance gives four examples:",
+    { callout: { t: "info", h: "Key idea", body: "A project that is **not** of A-level standard is marked **two levels down** in every section except the technical solution (two marks down in Evaluation). AQA's guidance gives four examples:" } },
     { table: { head: ["Idea", "Not A-level as it stands", "What makes it A-level", "What reaches higher marks"], rows: [
       ["Noughts and crosses", "validates moves, checks for a winner", "a computer player using a game tree / minimax", "a richer game with advanced AI, graphics or networking"],
       ["Rota system", "the user does the matching", "the program matches staff to shifts", "the algorithm weighs holidays, qualifications, desired hours"],
@@ -103,7 +103,7 @@ C["compsci:NEA.0"] = {
     ] } },
 
     { page: "The exemplar's choice" },
-    "The supplied exemplar is **Getaway Driver**, a Java endless-runner game written for the student and their friends:",
+    { callout: { t: "info", h: "Key idea", body: "The supplied exemplar is **Getaway Driver**, a Java endless-runner game written for the student and their friends:" } },
     { ul: [
       "**Why it is A-level**: objects generated dynamically from an OOP model (vehicles, police, tanks, helicopters, pick-ups) with inheritance, polymorphism, interfaces and overloading; a difficulty model (a \"Wanted Level\" driven by score); collision and lane-finding algorithms; double buffering.",
       "**A real audience**: a survey of sixty peers, a prototype tested on friends, research into comparable games — so the objectives come from dialogue, not invention.",
@@ -163,7 +163,7 @@ C["compsci:NEA.0"] = {
 C["compsci:NEA.1"] = {
   notes: [
     { h: "Analysis — the project guide" },
-    "**9 marks (AO2b)**. Analysis is where you understand the problem well enough to write the **objectives** — the yardstick every later section is measured against: Completeness is judged against them, Testing evidences them, Evaluation discusses them.",
+    { callout: { t: "info", h: "Key idea", body: "**9 marks (AO2b)**. Analysis is where you understand the problem well enough to write the **objectives** — the yardstick every later section is measured against: Completeness is judged against them, Testing evidences them, Evaluation discusses them." } },
     marksBar("Analysis"),
     NOT_EXAM,
     { h: "How this guide is organised" },
@@ -193,14 +193,14 @@ C["compsci:NEA.1"] = {
     ] },
 
     { page: "Writing objectives" },
-    "AQA's guidance contrasts two real objective lists. The weak one (a supermarket recommender):",
+    { callout: { t: "info", h: "Key idea", body: "AQA's guidance contrasts two real objective lists. The weak one (a supermarket recommender):" } },
     { table: { head: ["AQA's weak objective", "Problem", "Rewritten"], rows: [
       ["Users must find it easy to work through the system", "not measurable — and not about the solution's function", "(drop it; usability belongs in evaluation feedback)"],
       ["Secure logging in procedure", "what is secure? what is stored?", "Passwords are stored only as salted SHA-256 hashes; three failed attempts lock the account for 5 minutes"],
       ["The system should show any recommendation of the products, depending on the data produced by the algorithm", "\"the algorithm\" was never defined in the analysis", "When an item is added to the basket, show the 3 products most often bought in the same transactions as it, from the last 90 days of sales"],
       ["Random product ID generator should create a random and unique Product ID", "nearly there", "New products receive a random 6-digit ID not already in the Product table"]
     ] } },
-    "The strong list (a puzzle quiz) nests detail under each feature: **3** the puzzle; **3.1** the answer is calculated from the random question and shown on a 16-square grid; **3.4** a tile next to the empty square moves when clicked… Every line can be tested.",
+    { callout: { t: "info", h: "Key idea", body: "The strong list (a puzzle quiz) nests detail under each feature: **3** the puzzle; **3.1** the answer is calculated from the random question and shown on a 16-square grid; **3.4** a tile next to the empty square moves when clicked… Every line can be tested." } },
     { steps: [
       "Start from what the program must DO with data — store, calculate, decide, display.",
       "One purpose per objective; put detail in sub-objectives (5, 5.1, 5.2).",
@@ -286,7 +286,7 @@ C["compsci:NEA.1"] = {
 C["compsci:NEA.2"] = {
   notes: [
     { h: "Documented design — the project guide" },
-    "**12 marks (AO3a)**. The design must let a third party understand how the **key aspects** of the solution are structured — without reading the code. It is also where you show off the sophistication of the solution.",
+    { callout: { t: "info", h: "Key idea", body: "**12 marks (AO3a)**. The design must let a third party understand how the **key aspects** of the solution are structured — without reading the code. It is also where you show off the sophistication of the solution." } },
     marksBar("Design"),
     NOT_EXAM,
     { h: "How this guide is organised" },
@@ -346,7 +346,7 @@ C["compsci:NEA.2"] = {
     { code: { lang: "csharp", src: "public interface IScheduler\n{\n    int NextInterval(int lastInterval, double ease, int grade);\n}\n\npublic sealed class SpacedRepetitionScheduler : IScheduler\n{\n    private const int FirstInterval = 1, SecondInterval = 6, PassGrade = 3;\n\n    public int NextInterval(int lastInterval, double ease, int grade)\n    {\n        if (grade < PassGrade) return FirstInterval;          // forgotten: start again\n        if (lastInterval <= FirstInterval) return SecondInterval;\n        return (int)Math.Round(lastInterval * ease);\n    }\n}", cap: "The design's class diagram becomes code with the same names — which is what the assessor checks." } },
 
     { page: "Algorithms and data structures" },
-    "For each KEY algorithm: what it is for, pseudo-code (or structured English), and the data structure it works on. Choose the ones that show sophistication — they are what Techniques marks are for.",
+    { callout: { t: "info", h: "Key idea", body: "For each KEY algorithm: what it is for, pseudo-code (or structured English), and the data structure it works on. Choose the ones that show sophistication — they are what Techniques marks are for." } },
     { code: { lang: "pseudo", src: "FUNCTION StudyOrder(goal)\n  order <- empty list ; seen <- empty set\n  Visit(goal)\n  RETURN order\n\nPROCEDURE Visit(topic)\n  IF topic IN seen THEN RETURN            # base case\n  ADD topic TO seen\n  FOR EACH need IN Prerequisites(topic)\n    Visit(need)                           # recursive case\n  ENDFOR\n  APPEND topic TO order                   # after everything it needs\nENDPROCEDURE", cap: "A recursive depth-first traversal of the prerequisite graph — Group A (graph traversal, recursion)." } },
     { table: { head: ["Data structure", "Holds", "Why this one"], rows: [
       ["MinHeap<Topic> (own)", "today's due topics keyed by urgency", "O(log n) insert and remove-min; the most urgent topic always first"],
@@ -420,7 +420,7 @@ C["compsci:NEA.2"] = {
 C["compsci:NEA.3"] = {
   notes: [
     { h: "Technical solution — the project guide" },
-    "**42 marks (AO3b)** — more than all the documentation together: **Completeness of solution (15)** + **Techniques used (27)**. The evidence is your **program listing**, organised so a third party can find and judge the quality.",
+    { callout: { t: "info", h: "Key idea", body: "**42 marks (AO3b)** — more than all the documentation together: **Completeness of solution (15)** + **Techniques used (27)**. The evidence is your **program listing**, organised so a third party can find and judge the quality." } },
     marksBar("Technical solution"),
     NOT_EXAM,
     { h: "How this guide is organised" },
@@ -539,7 +539,7 @@ C["compsci:NEA.3"] = {
 C["compsci:NEA.4"] = {
   notes: [
     { h: "Testing — the project guide" },
-    "**8 marks (AO3c)**. Testing proves which objectives were achieved — it is also what the assessor uses to judge Completeness. Show **carefully selected, representative samples**, not every test you ran.",
+    { callout: { t: "info", h: "Key idea", body: "**8 marks (AO3c)**. Testing proves which objectives were achieved — it is also what the assessor uses to judge Completeness. Show **carefully selected, representative samples**, not every test you ran." } },
     marksBar("Testing"),
     NOT_EXAM,
     { h: "How this guide is organised" },
@@ -644,7 +644,7 @@ C["compsci:NEA.4"] = {
 C["compsci:NEA.5"] = {
   notes: [
     { h: "Evaluation — the project guide" },
-    "**4 marks (AO3c)**, one per level. An honest appraisal of how well the outcome meets **each** requirement, **independent feedback** that you analyse, and **realistic improvements** described in detail.",
+    { callout: { t: "info", h: "Key idea", body: "**4 marks (AO3c)**, one per level. An honest appraisal of how well the outcome meets **each** requirement, **independent feedback** that you analyse, and **realistic improvements** described in detail." } },
     marksBar("Evaluation"),
     NOT_EXAM,
     { h: "How this guide is organised" },

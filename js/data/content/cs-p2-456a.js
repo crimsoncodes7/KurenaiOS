@@ -63,7 +63,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.5.6.1"] = {
   notes: [
     { h: "Bit patterns, images, sound and other data — the whole topic on one page" },
-    "Spec 4.5.6.1: describe how **bit patterns** may represent other forms of data, including **graphics and sound**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.1)", body: "Describe how **bit patterns** may represent other forms of data, including **graphics and sound**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What does each stored bit pattern represent (a sample, a pixel)?", "Describe", "1", "AS 2025 Q04.1"],
       ["Name the extra information stored with an image", "State", "1", "AS 2024 Q03.3"],
@@ -74,7 +74,7 @@ C["compsci:4.5.6.1"] = {
     { ol: ["**One bit pattern, many meanings**.", "**In exam questions**.", "**Exam toolkit**."] },
 
     { page: "One bit pattern, many meanings" },
-    "Everything a computer stores is a **bit pattern**. What the pattern **means** depends entirely on how the program **interprets** it — the bits themselves carry no type.",
+    { callout: { t: "info", h: "Key idea", body: "Everything a computer stores is a **bit pattern**. What the pattern **means** depends entirely on how the program **interprets** it — the bits themselves carry no type." } },
     { table: { head: ["Interpreted as", "01000001 means"], rows: [
       ["unsigned integer", "65"], ["two's complement integer", "+65"], ["ASCII character", "'A'"], ["a pixel in an 8-bit greyscale image", "a dark grey (65 of 255)"],
       ["one sound sample (8-bit)", "an amplitude level of 65 of 256"], ["part of a machine code instruction", "an opcode or operand (4.7.3.3)"]
@@ -131,7 +131,7 @@ C["compsci:4.5.6.1"] = {
 C["compsci:4.5.6.2"] = {
   notes: [
     { h: "Analogue and digital — the whole topic on one page" },
-    "Spec 4.5.6.2: understand the difference between **analogue and digital** data and analogue and digital **signals**.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.2)", body: "Understand the difference between **analogue and digital** data and analogue and digital **signals**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["The difference between analogue and digital data", "Describe", "2", "AS 2018 Q03.1, AS 2022 Q05.1"],
       ["Why sensor voltages are analogue and pixel data digital", "Explain", "2", "A-level 2024 Q02.3"],
@@ -207,7 +207,7 @@ C["compsci:4.5.6.2"] = {
 C["compsci:4.5.6.3"] = {
   notes: [
     { h: "Analogue/digital conversion — the whole topic on one page" },
-    "Spec 4.5.6.3: describe the principles of operation of an **analogue to digital converter (ADC)** and a **digital to analogue converter (DAC)**; know that analogue signals from a sensor can be digitised by sampling the signal at regular intervals.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.3)", body: ["Describe the principles of operation of an **analogue to digital converter (ADC)** and a **digital to analogue converter (DAC)**.", "Know that analogue signals from a sensor can be digitised by sampling the signal at regular intervals."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Describe the steps an ADC performs", "Describe / Explain the principles", "2–3", "AS 2017 Q03.2, AS 2020 Q03.1, AS 2022 Q05.2, A-level 2020 Q01.2, 2025 Q02.2"],
       ["Name the component (ADC / DAC)", "State", "1", "AS 2024 Q03.1, A-level 2023 Q01.3"],
@@ -313,8 +313,8 @@ C["compsci:4.5.6.3"] = {
 C["compsci:4.5.6.4"] = {
   notes: [
     { h: "Bitmapped graphics — the whole topic on one page" },
-    "Spec 4.5.6.4: explain how **bitmaps** are represented; explain the terms **resolution** and **colour depth**; calculate storage requirements for bitmapped images (size = **width × height × colour depth**, excluding metadata); be aware that bitmap files may store **metadata**.",
-    "The file-size calculation is asked on almost every paper, forwards and backwards:",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.4)", body: ["Explain how **bitmaps** are represented.", "Explain the terms **resolution** and **colour depth**.", "Calculate storage requirements for bitmapped images (size = **width × height × colour depth**, excluding metadata)", "Be aware that bitmap files may store **metadata**."] } },
+    { callout: { t: "info", h: "Key idea", body: "The file-size calculation is asked on almost every paper, forwards and backwards:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Minimum file size from width, height, colours", "Calculate, show working", "2–3", "AS 2016 Q06.1, AS 2018 Q12.1, A-level 2018 Q02.2, A-level 2024 Q02.1"],
       ["Bits needed for a number of colours", "Shade / How many", "1", "AS 2016 Q06.3, AS 2018 Q12.2"],
@@ -441,7 +441,7 @@ C["compsci:4.5.6.4"] = {
 C["compsci:4.5.6.5"] = {
   notes: [
     { h: "Vector graphics — the whole topic on one page" },
-    "Spec 4.5.6.5: explain how **vector graphics** represent images using **lists of objects**; give examples of typical **properties** of objects; use vector graphic primitives to create a simple vector graphic.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.5)", body: ["Explain how **vector graphics** represent images using **lists of objects**.", "Give examples of typical **properties** of objects.", "Use vector graphic primitives to create a simple vector graphic."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Describe how a vector graphic is represented, applied to a shape", "Describe", "3", "A-level 2018 Q02.1"],
       ["Why a vector version takes far less space than the bitmap", "Explain", "3", "A-level 2021 Q01.2"],
@@ -521,7 +521,7 @@ C["compsci:4.5.6.5"] = {
 C["compsci:4.5.6.6"] = {
   notes: [
     { h: "Vector graphics versus bitmapped graphics — the whole topic on one page" },
-    "Spec 4.5.6.6: compare the vector graphics approach with the bitmapped graphics approach and understand the advantages and disadvantages of each; be aware of appropriate uses of each approach.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.6)", body: ["Compare the vector graphics approach with the bitmapped graphics approach and understand the advantages and disadvantages of each.", "Be aware of appropriate uses of each approach."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Discuss vector vs bitmap, with an appropriate example of each", "Discuss", "6", "A-level 2019 Q13"],
       ["Two advantages of vectors besides file size", "State", "2", "A-level 2021 Q01.3"],

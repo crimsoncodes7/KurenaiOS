@@ -35,8 +35,8 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.5.6.7"] = {
   notes: [
     { h: "Digital representation of sound — the whole topic on one page" },
-    "Spec 4.5.6.7: describe the digital representation of sound in terms of **sample resolution** and **sampling rate** and the **Nyquist theorem**; calculate sound sample sizes in bytes (size = **sampling rate × resolution × seconds**).",
-    "Sound is asked on every AS paper and most A-level papers — 41 sub-questions in the packs:",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.7)", body: ["Describe the digital representation of sound in terms of **sample resolution** and **sampling rate** and the **Nyquist theorem**.", "Calculate sound sample sizes in bytes (size = **sampling rate × resolution × seconds**)."] } },
+    { callout: { t: "info", h: "Key idea", body: "Sound is asked on every AS paper and most A-level papers — 41 sub-questions in the packs:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Define sampling rate / sample resolution", "What is meant by", "1 each", "AS 2023 Q05.2–05.3"],
       ["File size from rate, resolution, duration", "Calculate, show working", "2–3", "AS 2017 Q03.1, AS 2019 Q04.2, A-level 2017 Q08.1, 2020 Q01.1"],
@@ -214,7 +214,7 @@ C["compsci:4.5.6.7"] = {
 C["compsci:4.5.6.8"] = {
   notes: [
     { h: "MIDI — the whole topic on one page" },
-    "Spec 4.5.6.8: describe the purpose of **MIDI** and the use of **event messages** in MIDI; describe the **advantages of using MIDI files** for representing music.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.8)", body: ["Describe the purpose of **MIDI** and the use of **event messages** in MIDI.", "Describe the **advantages of using MIDI files** for representing music."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How MIDI represents music", "Describe / Explain", "2", "AS 2024 Q03.6, A-level 2021 Q12"],
       ["Advantages of MIDI over sampled sound", "State / Describe", "1–3", "AS 2018 Q03.2, AS 2023 Q05.5, AS 2024 Q03.7, A-level 2022 Q10.2"],
@@ -317,7 +317,7 @@ C["compsci:4.5.6.8"] = {
 C["compsci:4.5.6.9"] = {
   notes: [
     { h: "Data compression — the whole topic on one page" },
-    "Spec 4.5.6.9: know why images and sound files are often **compressed** and that other files, such as text files, can also be compressed; understand the difference between **lossless** and **lossy** compression and explain the advantages and disadvantages of each; explain the principles behind **run length encoding (RLE)** and **dictionary-based** methods.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.9)", body: ["Know why images and sound files are often **compressed** and that other files, such as text files, can also be compressed.", "Understand the difference between **lossless** and **lossy** compression and explain the advantages and disadvantages of each.", "Explain the principles behind **run length encoding (RLE)** and **dictionary-based** methods."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Why compress? (one / two reasons)", "State / Explain", "1–2", "AS 2020 Q09.1, AS 2025 Q05.1, A-level 2025 Q10.1"],
       ["Lossless vs lossy: key difference / an advantage", "Explain / Describe", "1–2", "AS 2017 Q03.3, AS 2020 Q09.2, A-level 2019 Q03.1"],
@@ -481,7 +481,7 @@ C["compsci:4.5.6.9"] = {
 C["compsci:4.5.6.10"] = {
   notes: [
     { h: "Encryption — the whole topic on one page" },
-    "Spec 4.5.6.10: understand what is meant by **encryption** and be able to define it; be familiar with the terms **cipher, plaintext, ciphertext**; describe how the **Caesar cipher** and the **Vernam cipher** (one-time pad) work and compare them; explain why the Vernam cipher is **perfectly secure**; understand that ciphers other than Vernam are **computationally secure** but crackable.",
+    { callout: { t: "info", h: "What the specification asks (4.5.6.10)", body: ["Understand what is meant by **encryption** and be able to define it.", "Be familiar with the terms **cipher, plaintext, ciphertext**.", "Describe how the **Caesar cipher** and the **Vernam cipher** (one-time pad) work and compare them.", "Explain why the Vernam cipher is **perfectly secure**.", "Understand that ciphers other than Vernam are **computationally secure** but crackable."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What is encryption?", "Define / What is", "1", "AS 2018 Q04.1"],
       ["Caesar: encrypt or decrypt a word", "Encrypt / Decrypt / What is the plaintext", "1", "A-level 2017 Q02.1, 2023 Q03.1, AS 2024 Q04.1"],

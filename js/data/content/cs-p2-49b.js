@@ -36,7 +36,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.9.3.1"] = {
   notes: [
     { h: "The Internet and how it works — the whole topic on one page" },
-    "Spec 4.9.3.1: the **structure of the Internet**; the role of **packet switching** and **routers**; the main **components of a packet**; define **router** and **gateway** and where and why they are used; how **routing** is achieved; **URL**; **fully qualified domain name (FQDN)**, **domain name** and **IP address**; how domain names are organised; the **Domain Name System (DNS)**; the service provided by **Internet registries**.",
+    { callout: { t: "info", h: "What the specification asks (4.9.3.1)", body: ["The **structure of the Internet**.", "The role of **packet switching** and **routers**.", "The main **components of a packet**.", "Define **router** and **gateway** and where and why they are used.", "How **routing** is achieved.", "**URL**.", "**Fully qualified domain name (FQDN)**, **domain name** and **IP address**.", "How domain names are organised.", "The **Domain Name System (DNS)**.", "The service provided by **Internet registries**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Name packet fields", "Name", "2", "A-level 2023 Q02.1"],
       ["Role of a router in packet switching; a gateway", "Describe", "1–2", "A-level 2023 Q02.3, 2023 Q11.2"],
@@ -187,7 +187,7 @@ C["compsci:4.9.3.1"] = {
 C["compsci:4.9.3.2"] = {
   notes: [
     { h: "Internet security — the whole topic on one page" },
-    "Spec 4.9.3.2: how a **firewall** works (packet filtering, proxy server, stateful inspection); **symmetric** and **asymmetric** (public/private key) encryption and **key exchange**; how **digital certificates** and **digital signatures** are obtained and used; **worms, trojans and viruses** and the vulnerabilities they exploit; how improved **code quality, monitoring and protection** address them.",
+    { callout: { t: "info", h: "What the specification asks (4.9.3.2)", body: ["How a **firewall** works (packet filtering, proxy server, stateful inspection)", "**Symmetric** and **asymmetric** (public/private key) encryption and **key exchange**.", "How **digital certificates** and **digital signatures** are obtained and used.", "**Worms, trojans and viruses** and the vulnerabilities they exploit.", "How improved **code quality, monitoring and protection** address them."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Four ways a firewall protects a LAN", "Explain", "4", "A-level 2020 Q05.3"],
       ["Decrypt and verify a signed message", "Explain", "4", "A-level 2019 Q14.4"],
@@ -322,7 +322,7 @@ C["compsci:4.9.3.2"] = {
 C["compsci:4.9.4.1"] = {
   notes: [
     { h: "TCP/IP — the whole topic on one page" },
-    "Spec 4.9.4.1: describe the role of the four layers of the **TCP/IP stack** (application, transport, network, link); the role of **sockets**; the role of **MAC addresses**; what **well-known ports** and **client ports** are used for and how they differ.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.1)", body: ["Describe the role of the four layers of the **TCP/IP stack** (application, transport, network, link)", "The role of **sockets**.", "The role of **MAC addresses**.", "What **well-known ports** and **client ports** are used for and how they differ."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How the transport layer picks the application", "Explain", "1", "A-level 2019 Q02.2"],
       ["One function of the network layer", "Describe", "1", "A-level 2019 Q02.3"],
@@ -418,7 +418,7 @@ C["compsci:4.9.4.1"] = {
 C["compsci:4.9.4.2"] = {
   notes: [
     { h: "Standard application layer protocols — the whole topic on one page" },
-    "Spec 4.9.4.2: be familiar with **FTP, HTTP, HTTPS, POP3, SMTP, SSH**; FTP client and server with **anonymous and non-anonymous** access; **SSH** for remote management, and using an SSH client to make a TCP connection to a remote port and send application-level commands (HTTP **GET**, SMTP commands, POP3); the roles of an **email server**, a **web server** and a **web browser**.",
+    { callout: { t: "info", h: "What the specification asks (4.9.4.2)", body: ["Be familiar with **FTP, HTTP, HTTPS, POP3, SMTP, SSH**.", "FTP client and server with **anonymous and non-anonymous** access.", "**SSH** for remote management, and using an SSH client to make a TCP connection to a remote port and send application-level commands (HTTP **GET**, SMTP commands, POP3)", "The roles of an **email server**, a **web server** and a **web browser**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Two protocols an email + remote-managed server needs", "State and explain", "4", "A-level 2019 Q02.1"],
       ["Two protocols with different purposes for an email", "State", "4", "A-level 2023 Q11.3"],

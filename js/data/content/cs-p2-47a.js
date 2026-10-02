@@ -78,7 +78,7 @@ var MS_KEY = { callout: { t: "tip", h: "Reading an AQA mark scheme", body: [
 C["compsci:4.7.1.1"] = {
   notes: [
     { h: "Internal hardware components of a computer — the whole topic on one page" },
-    "Spec 4.7.1.1: the role of the **processor, main memory, address bus, data bus, control bus and I/O controllers** and how they relate; the concept of a **bus**; the difference between **von Neumann** and **Harvard** architectures and where each is used; the concept of **addressable memory**.",
+    { callout: { t: "info", h: "What the specification asks (4.7.1.1)", body: ["The role of the **processor, main memory, address bus, data bus, control bus and I/O controllers** and how they relate.", "The concept of a **bus**.", "The difference between **von Neumann** and **Harvard** architectures and where each is used.", "The concept of **addressable memory**."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["How each bus is used in a memory write / control bus example", "Explain / State", "1–4", "AS 2019 Q07, A-level 2024 Q03.6"],
       ["Why the data bus is bidirectional", "Explain", "2", "AS 2020 Q06.3"],
@@ -286,7 +286,7 @@ C["compsci:4.7.1.1"] = {
 C["compsci:4.7.2.1"] = {
   notes: [
     { h: "The stored program concept — the whole topic on one page" },
-    "Spec 4.7.2.1: describe the stored program concept: **machine code instructions stored in main memory are fetched and executed serially by a processor that performs arithmetic and logical operations**.",
+    { callout: { t: "info", h: "What the specification asks (4.7.2.1)", body: "Describe the stored program concept: **machine code instructions stored in main memory are fetched and executed serially by a processor that performs arithmetic and logical operations**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What is / Describe / State the stored program concept", "Describe / State", "2", "AS 2018 Q06.1, 2020 Q06.2, 2024 Q07.2, A-level 2025 Q07.1"],
       ["Which term does this definition define", "Shade", "1", "A-level 2022 Q13.1"],
@@ -390,7 +390,7 @@ C["compsci:4.7.2.1"] = {
 C["compsci:4.7.3.1"] = {
   notes: [
     { h: "The processor and its components — the whole topic on one page" },
-    "Spec 4.7.3.1: the role and operation of a processor and its major components: **arithmetic logic unit, control unit, clock, general-purpose registers** and the dedicated registers **program counter, current instruction register, memory address register, memory buffer register, status register**.",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.1)", body: "The role and operation of a processor and its major components: **arithmetic logic unit, control unit, clock, general-purpose registers** and the dedicated registers **program counter, current instruction register, memory address register, memory buffer register, status register**." } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["What is a register", "Explain / What is", "1", "AS 2016 Q04.5, 2020 Q06.1"],
       ["Name the component for arithmetic", "State", "1", "AS 2022 Q08.3"],
@@ -534,8 +534,8 @@ C["compsci:4.7.3.2"] = {
   sims: ["cpu-fetch-execute"],
   notes: [
     { h: "The Fetch-Execute cycle — the whole topic on one page" },
-    "Spec 4.7.3.2: explain how the **Fetch-Execute cycle** is used to execute machine code programs, including the stages **fetch, decode, execute** and the details of the registers used.",
-    "The most-asked processor topic — two levels-of-response questions and two 12-mark essays:",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.2)", body: "Explain how the **Fetch-Execute cycle** is used to execute machine code programs, including the stages **fetch, decode, execute** and the details of the registers used." } },
+    { callout: { t: "info", h: "Key idea", body: "The most-asked processor topic — two levels-of-response questions and two 12-mark essays:" } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Steps of the whole cycle, by stage", "Describe (full sentences)", "6", "AS 2017 Q06.3"],
       ["Four fetch steps, each with its purpose", "Describe and explain", "8", "AS 2020 Q06.5"],
@@ -579,7 +579,7 @@ C["compsci:4.7.3.2"] = {
     ] },
 
     { page: "A traced example" },
-    "Memory holds a program from address 100. Trace the cycle for `LDR R1, 200` at address 100, where location 200 holds 37.",
+    { callout: { t: "info", h: "Key idea", body: "Memory holds a program from address 100. Trace the cycle for `LDR R1, 200` at address 100, where location 200 holds 37." } },
     { table: { head: ["Step", "PC", "MAR", "MBR", "CIR", "R1"], rows: [
       ["start", "100", "—", "—", "—", "—"],
       ["MAR ← [PC]", "100", "100", "—", "—", "—"],
@@ -696,7 +696,7 @@ C["compsci:4.7.3.2"] = {
 C["compsci:4.7.3.6"] = {
   notes: [
     { h: "Interrupts — the whole topic on one page" },
-    "Spec 4.7.3.6: describe the role of **interrupts** and **interrupt service routines (ISRs)**; their effect on the **Fetch-Execute cycle**; and the need to **save the volatile environment** while the interrupt is being serviced.",
+    { callout: { t: "info", h: "What the specification asks (4.7.3.6)", body: ["Describe the role of **interrupts** and **interrupt service routines (ISRs)**.", "Their effect on the **Fetch-Execute cycle**.", "And the need to **save the volatile environment** while the interrupt is being serviced."] } },
     { table: { head: ["Question shape", "Command word", "Marks", "Seen in"], rows: [
       ["Role of interrupts", "Describe", "2", "A-level 2020 Q03.5"],
       ["What an interrupt is and its purpose", "Describe and explain", "2", "A-level 2023 Q04.2"],
