@@ -47,7 +47,8 @@ const DONE = {
   "cs-p2-410b.js": ["4.10.4", "4.10.5"],
   "cs-p2-411.js": ["4.11.1"],
   "cs-p2-412a.js": ["4.12.1.1", "4.12.1.2", "4.12.1.3", "4.12.1.4", "4.12.1.5"],
-  "cs-p2-412b.js": ["4.12.2.1", "4.12.3.1"]
+  "cs-p2-412b.js": ["4.12.2.1", "4.12.3.1"],
+  "cs-p2-413.js": ["4.13.1.1", "4.13.1.2", "4.13.1.3", "4.13.1.4", "4.13.1.5"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
