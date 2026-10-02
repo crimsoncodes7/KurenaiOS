@@ -82,7 +82,8 @@ const PAGED = (() => {
   for (const k of Object.keys(window.KOS_CONTENT)) {
     const c = window.KOS_CONTENT[k];
     if (!c || !c.notes) continue;
-    if (KOS.content.splitPages(c.notes).length > 1) {
+    /* three pages at least: the footer step needs a MIDDLE page with two neighbours */
+    if (KOS.content.splitPages(c.notes).length > 2) {
       return { subject: k.slice(0, k.indexOf(":")), ref: k.slice(k.indexOf(":") + 1) };
     }
   }
