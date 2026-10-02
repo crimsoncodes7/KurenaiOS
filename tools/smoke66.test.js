@@ -34,10 +34,18 @@ function assert(c, m) { if (!c) throw new Error(m); }
 
 /* the Paper 1 leaves rewritten so far, by file */
 const DONE = {
+  "cs-p1-411a.js": ["4.1.1.1", "4.1.1.2", "4.1.1.3", "4.1.1.4", "4.1.1.5", "4.1.1.6", "4.1.1.7", "4.1.1.8"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
 const KEEP = {
+  "4.2.1.1": { sims: ["tl-list"] },
+  "4.2.2.1": { sims: ["tl-queue"] },
+  "4.2.3.1": { sims: ["tl-stack"] },
+  "4.2.5.1": { sims: ["tl-tree"] },
+  "4.3.1.1": { sims: ["tl-queue", "tl-stack"] },
+  "4.3.2.1": { sims: ["tl-tree"] },
+  "4.4.2.1": { sims: ["fsm-lab"] }
 };
 const NEA = ["NEA.0", "NEA.1", "NEA.2", "NEA.3", "NEA.4", "NEA.5"];
 
