@@ -157,12 +157,14 @@
      started, so every UNTICKED one is laid out again from w/c 12 Oct, five
      per subject per week (one 90-minute session each, a row per study day),
      in their existing order and skipping every week that is a break for the
-     personal plan (half term, the mock week). A row too big for one session
+     personal plan (half term, the mock week and, from termTwo1, the
+     Christmas break at w/c 28 Dec, February half term and Easter). A row too big for one session
      is first split into consecutive rows by the table below (the first part
      keeps the row's id, tick and note; the others take fixed ids so two
      devices applying it independently mint the same rows). Ticked rows stay
      where they are, and count against their week's five. The plan runs on
-     past w/c 21 Dec as personal-only weeks until it fits. IT is untouched. */
+     through the weeks termTwo1 added until it fits (w/c 22 Feb for CS), and
+     only past those as extra personal-only weeks. IT is untouched. */
   var REFLOW_1_FROM = "2026-10-12";
   var REFLOW_1_PER_WEEK = 5;
   var REFLOW_1_SPLITS = [
@@ -297,10 +299,40 @@
     return moved > 0;
   }
 
+  /* termTwo1 (2026-10-07): the school scheme of work stopped at the December
+     mock week. The three Year 13 curriculum sheets run on to the end of the
+     year, so the weeks from w/c 28 Dec (the Christmas break, Feb half term,
+     Easter, and the term 2 and 3 teaching weeks up to w/c 19 Apr) and the
+     class rows in them are copied in from the seed — only weeks and class
+     rows this install does not have yet, so nothing it holds is touched. The
+     later pure-revision weeks are not in the seed. The personal reflow below
+     then plans around the new breaks. */
+  var TERM_TWO_1_FROM = "2026-12-28";
+  function addTermTwo1(s) {
+    if (s.migrations.termTwo1) return false;
+    var seed = window.KOS_PACING;
+    if (!seed || !Array.isArray(seed.weeks) || !Array.isArray(seed.entries)) return false;   /* retry once the seed is there */
+    if (!weekAt("2026-12-14")) { s.migrations.termTwo1 = true; return false; }                /* not this plan */
+    var added = 0;
+    seed.weeks.forEach(function (w) {
+      if (w.wb >= TERM_TWO_1_FROM && !weekAt(w.wb)) { s.weeks.push(normaliseWeek(w)); added++; }
+    });
+    seed.entries.forEach(function (e) {
+      if (e.source === "school" && e.wb >= TERM_TWO_1_FROM && !s.entries.some(function (x) { return x.id === e.id; })) {
+        s.entries.push(normalise(e)); added++;
+      }
+    });
+    s.nextId = Math.max(s.nextId || 1, nextFreeId(s));
+    s.migrations.termTwo1 = true;
+    KOS.store.save();
+    return added > 0;
+  }
+
   function applyMigrations(s) {
     s.migrations = (s.migrations && typeof s.migrations === "object") ? s.migrations : {};
     var shifted = shiftPersonal1(s);
-    return reflowPersonal1(s) || shifted;
+    var grown = addTermTwo1(s);
+    return reflowPersonal1(s) || grown || shifted;
   }
   function shiftPersonal1(s) {
     if (s.migrations.personalShift1) return false;
@@ -337,7 +369,7 @@
     s.entries = seed.entries.map(normalise).filter(function (e) { return e.id && e.wb && e.subject; });
     s.nextId = nextFreeId(s);
     /* a fresh seed already carries the move; mark it so it never re-applies */
-    s.migrations = { personalShift1: true, personalReflow1: true };
+    s.migrations = { personalShift1: true, termTwo1: true, personalReflow1: true };
     KOS.store.save();
     return true;
   }

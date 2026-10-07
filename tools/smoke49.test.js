@@ -99,7 +99,9 @@ step("all four Notion databases and the week hub arrived intact", () => {
   const e = KOS.pacing.entries();
   const n = (source, subject) => e.filter(x => x.source === source && (!subject || x.subject === subject)).length;
   /* the row counts the four databases actually held */
-  assert(n("school") === 45, "school curriculum rows: " + n("school"));
+  /* 45 as imported (weeks 1–15), + 39 class rows from the Year 13 sheets for
+     w/c 4 Jan to w/c 19 Apr (termTwo1) */
+  assert(n("school") === 84, "school curriculum rows: " + n("school"));
   /* 65 each as imported, then the oversized rows were split into
      consecutive sessions (personalReflow1): 14 more CS rows, 8 more Maths */
   assert(n("personal", "compsci") === 79, "CS personal rows: " + n("personal", "compsci"));
@@ -107,15 +109,15 @@ step("all four Notion databases and the week hub arrived intact", () => {
   assert(n("personal", "it") === 16, "IT F201 rows: " + n("personal", "it"));
   /* every subject appears in BOTH registers except IT F201, whose personal
      curriculum is the exam unit only */
-  ["compsci", "maths", "it"].forEach(sid => assert(n("school", sid) === 15, sid + " school weeks: " + n("school", sid)));
+  ["compsci", "maths", "it"].forEach(sid => assert(n("school", sid) === 28, sid + " school weeks: " + n("school", sid)));
 });
 
 step("the week spine carries the school/personal offset the hub recorded", () => {
   const ws = KOS.pacing.weeks();
   /* 16 from the hub + w/c 21 Dec, added when the personal plan moved a week
-     later, + seven personal-only weeks (w/c 28 Dec to w/c 8 Feb) the plan
-     runs on into when it was laid out again from w/c 12 Oct */
-  assert(ws.length === 24, "week count " + ws.length);
+     later, + seventeen from termTwo1 (w/c 28 Dec to w/c 19 Apr: Christmas
+     break, February half term, Easter and the term 2 and 3 teaching weeks) */
+  assert(ws.length === 34, "week count " + ws.length);
   assert(ws[0].wb < ws[ws.length - 1].wb, "weeks are not in date order");
   const paired = ws.filter(w => w.schoolWk != null && w.personalWk != null);
   assert(paired.length, "no week carries both numbers");
@@ -123,9 +125,10 @@ step("the week spine carries the school/personal offset the hub recorded", () =>
     w.label + " breaks the one-week offset: school " + w.schoolWk + ", personal " + w.personalWk));
   /* half term is the week the hub gave neither number to */
   const brk = ws.filter(w => KOS.pacing.isBreak(w));
-  assert(brk.length === 1 && brk[0].wb === "2026-10-26", "half term is not derived: " + JSON.stringify(brk.map(w => w.wb)));
+  assert(brk.map(w => w.wb).join() === "2026-10-26,2026-12-28,2027-02-15,2027-03-29,2027-04-05",
+    "the break weeks are not derived: " + JSON.stringify(brk.map(w => w.wb)));
   const mock = ws.filter(w => KOS.pacing.isMock(w));
-  assert(mock.length === 1 && mock[0].wb === "2026-12-14", "the mock week is not derived: " + JSON.stringify(mock.map(w => w.wb)));
+  assert(mock.map(w => w.wb).join() === "2026-12-14,2027-03-01", "the mock weeks are not derived: " + JSON.stringify(mock.map(w => w.wb)));
 });
 
 step("every ref the plan claims resolves to a real generated spec leaf", () => {
@@ -375,8 +378,8 @@ step("the term ribbon declares its horizontal scroll", () => {
       "a ribbon cell has no real accessible name: " + c.getAttribute("aria-label"));
   });
   assert($$("#main [data-ui~='pace.wk'][aria-current]").length === 1, "the selected week is not marked");
-  assert($$("#main [data-ui~='pace.wk'][data-state~='is-mock']").length === 1 && $$("#main [data-ui~='pace.wk'][data-state~='is-break']").length === 1,
-    "the mock and half-term weeks are not flagged in the ribbon");
+  assert($$("#main [data-ui~='pace.wk'][data-state~='is-mock']").length === 2 && $$("#main [data-ui~='pace.wk'][data-state~='is-break']").length === 5,
+    "the mock and break weeks are not flagged in the ribbon");
 });
 
 step("plan rows are native buttons, not ARIA cards", () => {
@@ -513,23 +516,23 @@ step("a row's week number is derived from its week, never carried", () => {
 
 step("a week can be added, moved and deleted, and its rows follow", () => {
   const w0 = KOS.pacing.weeks().length;
-  const w = KOS.pacing.addWeek({ wb: "2027-03-01", label: "w/c 1 Mar", schoolWk: 17, personalWk: 16 });
+  const w = KOS.pacing.addWeek({ wb: "2027-07-05", label: "w/c 5 Jul", schoolWk: 17, personalWk: 16 });
   assert(w && KOS.pacing.weeks().length === w0 + 1, "addWeek refused a new week");
-  assert(KOS.pacing.addWeek({ wb: "2027-03-01", label: "dup" }) === null, "two weeks began on one date");
+  assert(KOS.pacing.addWeek({ wb: "2027-07-05", label: "dup" }) === null, "two weeks began on one date");
 
-  const row = KOS.pacing.addEntry({ source: "personal", subject: "maths", wb: "2027-03-01", title: "March row" });
+  const row = KOS.pacing.addEntry({ source: "personal", subject: "maths", wb: "2027-07-05", title: "July row" });
   assert(row.wk === 16, "the new week's number did not reach its row");
 
-  const moved = KOS.pacing.updateWeek("2027-03-01", { wb: "2027-03-08", personalWk: 17 });
-  assert(moved && moved.wb === "2027-03-08", "the week did not move");
-  assert(KOS.pacing.entryById(row.id).wb === "2027-03-08", "the row was orphaned by the move");
+  const moved = KOS.pacing.updateWeek("2027-07-05", { wb: "2027-07-12", personalWk: 17 });
+  assert(moved && moved.wb === "2027-07-12", "the week did not move");
+  assert(KOS.pacing.entryById(row.id).wb === "2027-07-12", "the row was orphaned by the move");
   assert(KOS.pacing.entryById(row.id).wk === 17, "the row's number did not follow the move");
-  assert(!KOS.pacing.weekAt("2027-03-01"), "the old week beginning still resolves");
+  assert(!KOS.pacing.weekAt("2027-07-05"), "the old week beginning still resolves");
 
-  const refused = KOS.pacing.removeWeek("2027-03-08");
+  const refused = KOS.pacing.removeWeek("2027-07-12");
   assert(refused.removed === false && refused.entries === 1,
     "a week with rows was deleted without being asked twice: " + JSON.stringify(refused));
-  const done = KOS.pacing.removeWeek("2027-03-08", { cascade: true });
+  const done = KOS.pacing.removeWeek("2027-07-12", { cascade: true });
   assert(done.removed && done.entries === 1, "the cascade did not report what it took");
   assert(!KOS.pacing.entryById(row.id), "the row outlived its week");
   assert(KOS.pacing.weeks().length === w0, "the week count did not come back down");

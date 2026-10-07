@@ -303,7 +303,7 @@ step("the seed carries the shift: no personal rows on w/c 7 Sept, the final week
 
 step("an already-seeded install gets the same move exactly once", () => {
   KOS.store.state.pacing = { v: 1, seeded: true, importedOn: "2026-09-09", nextId: 3, offset: { schoolMinusPersonal: 1 },
-    migrations: { personalReflow1: true },   /* this step is about the week shift alone */
+    migrations: { personalReflow1: true, termTwo1: true },   /* this step is about the week shift alone */
     weeks: window.KOS_PACING.weeks.filter(w => w.wb !== "2026-12-21").map(w => Object.assign({}, w)),
     entries: [
       { id: "p1", source: "personal", subject: "maths", wk: 1, wb: "2026-09-07", title: "first", refs: [] },
@@ -367,17 +367,20 @@ step("an already-seeded install is laid out again once: split, five a subject a 
   assert(order.indexOf("p51") < order.indexOf("p1001") && order.indexOf("p1001") < order.indexOf("p64") && order.indexOf("p64") < order.indexOf("t1") && order.indexOf("t1") < order.indexOf("t50"), "the row order changed");
   cs.forEach(e => assert(e.wk === s.weeks.find(w => w.wb === e.wb).personalWk, "wk out of step with its week: " + e.id));
 
-  /* 51 unticked + split + the renamed one overflows w/c 21 Dec: the plan runs on in personal-only weeks */
-  const dec28 = s.weeks.find(w => w.wb === "2026-12-28");
-  assert(dec28 && dec28.label === "w/c 28 Dec" && dec28.schoolWk === null && dec28.personalWk === 15, "w/c 28 Dec was not added");
-  assert(cs.some(e => e.wb === "2026-12-28"), "nothing landed on the new week");
+  /* 54 rows overflow w/c 21 Dec: the plan runs on through the term 2 weeks termTwo1 added, round the breaks */
+  ["2026-12-28", "2027-02-15"].forEach(wb => {
+    const w = s.weeks.find(w => w.wb === wb);
+    assert(w && w.schoolWk === null && w.personalWk === null && KOS.pacing.isBreak(w), wb + " is not a break week");
+    assert(!cs.some(e => e.wb === wb) && !s.entries.some(e => e.source === "personal" && e.wb === wb), "a row landed on the break at " + wb);
+  });
+  assert(cs.some(e => e.wb === "2027-01-04") && s.weeks.find(w => w.wb === "2027-01-04").personalWk === 15, "the plan did not run on into January");
 
   /* everything else is untouched */
   assert(byId("m1").wb === "2026-10-12", "maths was not laid out from w/c 12 Oct");
   assert(byId("i1").wb === "2026-09-14" && byId("i1").wk === 2, "an IT row moved");
   assert(byId("s1").wb === "2026-09-14" && byId("s1").wk === 3, "a school row moved");
   assert(s.migrations.personalReflow1 === true, "the migration flag was not set");
-  assert(KOS.pacing.ensureSeeded() === false && byId("t1").wb === "2026-10-12" && s.entries.length === cs.length + 3, "the migration applied twice");
+  assert(KOS.pacing.ensureSeeded() === false && byId("t1").wb === "2026-10-12" && s.entries.length === cs.length + 3 + 39, "the migration applied twice");
 });
 
 step("the seed already carries the layout, so the migration is a no-op on a fresh seed", () => {
@@ -388,10 +391,29 @@ step("the seed already carries the layout, so the migration is a no-op on a fres
     const per = {};
     personal.filter(e => e.subject === sid).forEach(e => { per[e.wb] = (per[e.wb] || 0) + 1; });
     Object.keys(per).forEach(wb => assert(per[wb] <= 5, sid + " " + wb + " holds " + per[wb]));
-    assert(!per["2026-10-26"] && !per["2026-12-14"], sid + " has a row in a break week");
+    ["2026-10-26", "2026-12-14", "2026-12-28", "2027-02-15"].forEach(wb => assert(!per[wb], sid + " has a row in the break week " + wb));
   });
   personal.forEach(e => { const w = seed.weeks.find(w => w.wb === e.wb); assert(w && w.personalWk === e.wk, "wk out of step with its week: " + e.id); });
   assert(seed.entries.filter(e => e.source === "personal" && e.subject === "it").every(e => e.wb >= "2026-10-19" && e.wb <= "2026-11-30"), "an IT row moved");
+});
+
+step("termTwo1 adds the term 2 and 3 weeks and class rows once, and touches nothing the install already holds", () => {
+  const mine = { wb: "2027-01-04", label: "my own January", schoolWk: 16, personalWk: 15, note: "mine" };
+  const rowMine = { id: "p2001", source: "school", subject: "compsci", wk: 16, wb: "2027-01-04", kind: "Lessons", title: "my own edit", refs: [] };
+  KOS.store.state.pacing = { v: 1, seeded: true, importedOn: "2026-09-09", nextId: 60, offset: { schoolMinusPersonal: 1 },
+    migrations: { personalShift1: true, personalReflow1: true }, weeks: preReflowWeeks().concat([mine]), entries: [rowMine] };
+  assert(KOS.pacing.ensureSeeded() === true, "the migration reported no change");
+  const s = KOS.store.state.pacing;
+  assert(s.weeks.length === window.KOS_PACING.weeks.length, "weeks: " + s.weeks.length);
+  assert(s.weeks.find(w => w.wb === "2027-01-04").label === "my own January", "an existing week was overwritten");
+  assert(s.entries.find(e => e.id === "p2001").title === "my own edit", "an existing row was overwritten");
+  const school = s.entries.filter(e => e.source === "school");
+  assert(school.length === 39 && school.every(e => e.wb >= "2026-12-28"), "class rows added: " + school.length);
+  assert(school.every(e => s.weeks.find(w => w.wb === e.wb && w.schoolWk === e.wk)), "a class row's number is out of step with its week");
+  assert(["2026-12-28", "2027-02-15", "2027-03-29", "2027-04-05"].every(wb => KOS.pacing.isBreak(s.weeks.find(w => w.wb === wb))), "a break week is missing");
+  assert(KOS.pacing.isMock(s.weeks.find(w => w.wb === "2027-03-01")), "the March mock week is not a mock");
+  assert(s.migrations.termTwo1 === true, "the migration flag was not set");
+  assert(KOS.pacing.ensureSeeded() === false && s.entries.length === 39, "the migration applied twice");
 });
 
 /* ---- run ---- */
