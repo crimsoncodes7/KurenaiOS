@@ -303,6 +303,7 @@ step("the seed carries the shift: no personal rows on w/c 7 Sept, the final week
 
 step("an already-seeded install gets the same move exactly once", () => {
   KOS.store.state.pacing = { v: 1, seeded: true, importedOn: "2026-09-09", nextId: 3, offset: { schoolMinusPersonal: 1 },
+    migrations: { personalReflow1: true },   /* this step is about the week shift alone */
     weeks: window.KOS_PACING.weeks.filter(w => w.wb !== "2026-12-21").map(w => Object.assign({}, w)),
     entries: [
       { id: "p1", source: "personal", subject: "maths", wk: 1, wb: "2026-09-07", title: "first", refs: [] },
@@ -318,6 +319,79 @@ step("an already-seeded install gets the same move exactly once", () => {
   assert(s.weeks.some(w => w.wb === "2026-12-21"), "w/c 21 Dec was not added");
   assert(s.migrations && s.migrations.personalShift1 === true, "the migration flag was not set");
   assert(KOS.pacing.ensureSeeded() === false && byId("p1").wb === "2026-09-14", "the migration applied twice");
+});
+
+/* ==================== F · the plan laid out again from w/c 12 Oct ==================== */
+console.log("== F · the personal CS and Maths rows start on w/c 12 Oct ==");
+
+/* the seed weeks as they stood before the reflow: nothing past w/c 21 Dec */
+const preReflowWeeks = () => window.KOS_PACING.weeks.filter(w => w.wb <= "2026-12-21").map(w => Object.assign({}, w));
+const seedP51 = "Subroutines, parameters, return values & scope";
+
+step("an already-seeded install is laid out again once: split, five a subject a week, breaks skipped", () => {
+  const entries = [];
+  entries.push({ id: "p51", source: "personal", subject: "compsci", wk: 2, wb: "2026-09-14", title: seedP51,
+    refs: ["4.1.1.10", "4.1.1.11", "4.1.1.12", "4.1.1.13", "4.1.1.14"], note: "kept on part one" });
+  entries.push({ id: "p64", source: "personal", subject: "compsci", wk: 2, wb: "2026-09-14",
+    title: "Bitmapped & vector graphics (my own title)", refs: ["4.5.6.4"] });          /* renamed: not split */
+  entries.push({ id: "t0", source: "personal", subject: "compsci", wk: 6, wb: "2026-10-12", title: "ticked", refs: [], done: true, doneAt: 1 });
+  for (let i = 1; i <= 50; i++) entries.push({ id: "t" + i, source: "personal", subject: "compsci", wk: 2, wb: "2026-09-14", title: "cs " + i, refs: [] });
+  entries.push({ id: "m1", source: "personal", subject: "maths", wk: 2, wb: "2026-09-14", title: "maths one", refs: [] });
+  entries.push({ id: "i1", source: "personal", subject: "it", wk: 2, wb: "2026-09-14", title: "it one", refs: [] });
+  entries.push({ id: "s1", source: "school", subject: "compsci", wk: 3, wb: "2026-09-14", title: "class", refs: [] });
+  KOS.store.state.pacing = { v: 1, seeded: true, importedOn: "2026-09-09", nextId: 60, offset: { schoolMinusPersonal: 1 },
+    migrations: { personalShift1: true }, weeks: preReflowWeeks(), entries };
+  assert(KOS.pacing.ensureSeeded() === true, "the migration reported no change");
+  const s = KOS.store.state.pacing;
+  const byId = id => s.entries.find(e => e.id === id);
+  const cs = s.entries.filter(e => e.source === "personal" && e.subject === "compsci");
+
+  /* the split: part one keeps the row's id and note, part two takes the fixed id and follows it */
+  assert(byId("p51").title === "Subroutines & parameters" && byId("p51").refs.join() === "4.1.1.10,4.1.1.11", "part one of the split is wrong");
+  assert(byId("p51").note === "kept on part one", "part one lost the row's note");
+  const two = byId("p1001");
+  assert(two && two.title.indexOf("Return values") === 0 && two.refs.join() === "4.1.1.12,4.1.1.13,4.1.1.14" && two.note === "", "part two is wrong");
+  assert(s.entries.indexOf(two) === s.entries.indexOf(byId("p51")) + 1, "part two does not follow part one");
+  assert(byId("p64").title === "Bitmapped & vector graphics (my own title)" && !byId("p1011"), "a renamed row was split");
+
+  /* the layout: ticked row stays and counts, nothing past five, order kept, breaks skipped */
+  assert(byId("t0").wb === "2026-10-12" && byId("t0").done === true, "a ticked row moved");
+  const per = {}; cs.forEach(e => { per[e.wb] = (per[e.wb] || 0) + 1; });
+  Object.keys(per).forEach(wb => assert(per[wb] <= 5, wb + " holds " + per[wb] + " CS rows"));
+  assert(!cs.some(e => e.wb < "2026-10-12"), "a CS row was left before w/c 12 Oct");
+  assert(!cs.some(e => e.wb === "2026-10-26" || e.wb === "2026-12-14"), "a row landed on half term or the mock week");
+  assert(cs.filter(e => e.wb === "2026-10-12").length === 5, "w/c 12 Oct should hold the ticked row plus four");
+  assert(byId("p51").wb === "2026-10-12" && byId("p1001").wb === "2026-10-12", "the first unticked rows did not start the week");
+  assert(byId("t1").wb === "2026-10-12" && byId("t3").wb === "2026-10-19" && byId("t50").wb >= byId("t49").wb, "order was not kept");
+  const order = cs.filter(e => !e.done).map(e => e.id);
+  assert(order.indexOf("p51") < order.indexOf("p1001") && order.indexOf("p1001") < order.indexOf("p64") && order.indexOf("p64") < order.indexOf("t1") && order.indexOf("t1") < order.indexOf("t50"), "the row order changed");
+  cs.forEach(e => assert(e.wk === s.weeks.find(w => w.wb === e.wb).personalWk, "wk out of step with its week: " + e.id));
+
+  /* 51 unticked + split + the renamed one overflows w/c 21 Dec: the plan runs on in personal-only weeks */
+  const dec28 = s.weeks.find(w => w.wb === "2026-12-28");
+  assert(dec28 && dec28.label === "w/c 28 Dec" && dec28.schoolWk === null && dec28.personalWk === 15, "w/c 28 Dec was not added");
+  assert(cs.some(e => e.wb === "2026-12-28"), "nothing landed on the new week");
+
+  /* everything else is untouched */
+  assert(byId("m1").wb === "2026-10-12", "maths was not laid out from w/c 12 Oct");
+  assert(byId("i1").wb === "2026-09-14" && byId("i1").wk === 2, "an IT row moved");
+  assert(byId("s1").wb === "2026-09-14" && byId("s1").wk === 3, "a school row moved");
+  assert(s.migrations.personalReflow1 === true, "the migration flag was not set");
+  assert(KOS.pacing.ensureSeeded() === false && byId("t1").wb === "2026-10-12" && s.entries.length === cs.length + 3, "the migration applied twice");
+});
+
+step("the seed already carries the layout, so the migration is a no-op on a fresh seed", () => {
+  const seed = window.KOS_PACING;
+  const personal = seed.entries.filter(e => e.source === "personal" && e.subject !== "it");
+  assert(!personal.some(e => e.wb < "2026-10-12"), "a seeded CS/Maths row is before w/c 12 Oct");
+  ["compsci", "maths"].forEach(sid => {
+    const per = {};
+    personal.filter(e => e.subject === sid).forEach(e => { per[e.wb] = (per[e.wb] || 0) + 1; });
+    Object.keys(per).forEach(wb => assert(per[wb] <= 5, sid + " " + wb + " holds " + per[wb]));
+    assert(!per["2026-10-26"] && !per["2026-12-14"], sid + " has a row in a break week");
+  });
+  personal.forEach(e => { const w = seed.weeks.find(w => w.wb === e.wb); assert(w && w.personalWk === e.wk, "wk out of step with its week: " + e.id); });
+  assert(seed.entries.filter(e => e.source === "personal" && e.subject === "it").every(e => e.wb >= "2026-10-19" && e.wb <= "2026-11-30"), "an IT row moved");
 });
 
 /* ---- run ---- */

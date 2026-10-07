@@ -153,8 +153,156 @@
     "2026-11-16": "2026-11-23", "2026-11-23": "2026-11-30", "2026-11-30": "2026-12-07",
     "2026-12-07": "2026-12-21"
   };
+  /* personalReflow1 (2026-10-07): the personal CS and Maths rows had not been
+     started, so every UNTICKED one is laid out again from w/c 12 Oct, five
+     per subject per week (one 90-minute session each, a row per study day),
+     in their existing order and skipping every week that is a break for the
+     personal plan (half term, the mock week). A row too big for one session
+     is first split into consecutive rows by the table below (the first part
+     keeps the row's id, tick and note; the others take fixed ids so two
+     devices applying it independently mint the same rows). Ticked rows stay
+     where they are, and count against their week's five. The plan runs on
+     past w/c 21 Dec as personal-only weeks until it fits. IT is untouched. */
+  var REFLOW_1_FROM = "2026-10-12";
+  var REFLOW_1_PER_WEEK = 5;
+  var REFLOW_1_SPLITS = [
+    ["p51", "Subroutines, parameters, return values & scope", [
+      ["Subroutines & parameters", ["4.1.1.10", "4.1.1.11"]],
+      ["Return values & variable scope (local & global)", ["4.1.1.12", "4.1.1.13", "4.1.1.14"]]]],
+    ["p64", "Bitmapped & vector graphics, sound representation & MIDI", [
+      ["Bitmapped & vector graphics", ["4.5.6.1", "4.5.6.4", "4.5.6.5", "4.5.6.6"]],
+      ["Sound representation & MIDI", ["4.5.6.7", "4.5.6.8"]]]],
+    ["p70", "Hardware, software & classification of software", [
+      ["Hardware, software & classification of software", ["4.6.1.1", "4.6.1.2"]],
+      ["System software & the role of the operating system", ["4.6.1.3", "4.6.1.4"]]]],
+    ["p73", "Logic gates & Boolean algebra", [
+      ["Logic gates & truth tables", ["4.6.4.1"]],
+      ["Boolean algebra: expressions & identities", ["4.6.5.1"]]]],
+    ["p89", "Assembly language & the AQA instruction set", [
+      ["The instruction set, addressing modes & interrupts", ["4.7.3.3", "4.7.3.4", "4.7.3.6"]],
+      ["Assembly language operations & the AQA instruction set", ["4.7.3.5"]]]],
+    ["p90", "I/O devices, secondary storage & RAID", [
+      ["Input & output devices", ["4.7.4.1"]],
+      ["Secondary storage devices & RAID", ["4.7.4.2"]]]],
+    ["p98", "Abstraction, decomposition & automation", [
+      ["Problem-solving, algorithms, abstraction & information hiding", ["4.4.1.1", "4.4.1.2", "4.4.1.3", "4.4.1.4"]],
+      ["Procedural, functional & data abstraction; problem reduction", ["4.4.1.5", "4.4.1.6", "4.4.1.7", "4.4.1.8"]],
+      ["Decomposition, composition & automation", ["4.4.1.9", "4.4.1.10", "4.4.1.11"]]]],
+    ["p103", "IP addressing, subnetting, NAT & DHCP", [
+      ["IP addressing, standards & subnetting", ["4.9.4.3", "4.9.4.4", "4.9.4.5", "4.9.4.6"]],
+      ["DHCP, NAT & port forwarding", ["4.9.4.7", "4.9.4.8", "4.9.4.9"]]]],
+    ["p105", "Databases: ER modelling, normalisation & referential integrity", [
+      ["Databases: conceptual models & ER modelling", ["4.10.1"]],
+      ["Relational databases, referential integrity & normalisation", ["4.10.2", "4.10.3"]]]],
+    ["p109", "SQL & transaction processing (ACID)", [
+      ["SQL", ["4.10.4"]],
+      ["Client–server databases & transaction processing (ACID)", ["4.10.5"]]]],
+    ["p110", "Big Data & functional programming", [
+      ["Big Data: volume, velocity, variety & unstructured data", ["4.11.1"]],
+      ["Big Data: the fact-based model & graph schema", ["4.11.1"]],
+      ["Functional programming: function type, first-class objects & application", ["4.12.1.1", "4.12.1.2", "4.12.1.3"]],
+      ["Partial application, composition, functional programs & list processing", ["4.12.1.4", "4.12.1.5", "4.12.2.1", "4.12.3.1"]]]],
+    ["p114", "Statistical sampling & the large data set", [
+      ["Sampling: population, sample & sampling methods", ["S1.1"]],
+      ["The large data set", ["S1.1"]]]],
+    ["p119", "Data presentation: histograms, box plots & outliers", [
+      ["Interpreting diagrams: histograms, cumulative frequency & box plots", ["S2.1"]],
+      ["Outliers & comparing data sets", ["S2.4"]]]],
+    ["p132", "Exponentials, logarithms & modelling", [
+      ["Exponentials, logarithms & the laws of logarithms", ["6.1", "6.3", "6.4"]],
+      ["Solving a^x = b, logarithmic graphs & exponential growth and decay", ["6.5", "6.6", "6.7"]]]],
+    ["p133", "Vectors in 2D and 3D", [
+      ["Vectors in 2D & 3D: magnitude & direction", ["10.1", "10.2"]],
+      ["Vector addition, position vectors & vector problems", ["10.3", "10.4", "10.5"]]]],
+    ["p159", "Forces, force diagrams & Newton's laws", [
+      ["Forces, force diagrams & Newton's first and second laws", ["M8.1", "M8.2"]],
+      ["Newton's third law & equilibrium of forces", ["M8.4"]]]],
+    ["p168", "Integration by parts & using partial fractions", [
+      ["Integration by parts", ["8.5"]],
+      ["Integration using partial fractions", ["8.6"]]]],
+    ["p171", "Implicit & parametric differentiation, concavity & connected rates", [
+      ["Implicit & parametric differentiation", ["7.5"]],
+      ["Concavity & connected rates of change", ["7.5"]]]],
+    ["p173", "Numerical methods (iteration, Newton–Raphson, trapezium rule)", [
+      ["Locating roots & iterative methods", ["9.1", "9.2"]],
+      ["Newton–Raphson, the trapezium rule & numerical methods in context", ["9.3", "9.4", "9.5"]]]]
+  ];
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+  function plusWeek(wb) {
+    var d = new Date(wb + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + 7);
+    return d.toISOString().slice(0, 10);
+  }
+  function weekLabel(wb) {
+    return "w/c " + parseInt(wb.slice(8), 10) + " " + MONTHS[parseInt(wb.slice(5, 7), 10) - 1];
+  }
+  function reflowPersonal1(s) {
+    if (s.migrations.personalReflow1) return false;
+    function study(e) { return e.source === "personal" && (e.subject === "compsci" || e.subject === "maths"); }
+    if (!weekAt(REFLOW_1_FROM) || !s.entries.some(study)) { s.migrations.personalReflow1 = true; return false; } /* not this plan */
+
+    /* 1 · split the oversized rows (a row the user renamed or ticked is theirs, left alone) */
+    REFLOW_1_SPLITS.forEach(function (sp, k) {
+      var at = -1;
+      s.entries.forEach(function (e, i) { if (e.id === sp[0]) at = i; });
+      var base = at === -1 ? null : s.entries[at];
+      if (!base || !study(base) || base.done || base.title !== sp[1]) return;
+      var parts = sp[2].map(function (p, n) {
+        return normalise(Object.assign({}, base, { title: p[0], refs: p[1],
+          id: n === 0 ? base.id : "p" + (1000 + k * 10 + n),
+          note: n === 0 ? base.note : "", done: false, doneAt: null, sat: [] }));
+      });
+      if (parts.some(function (p, n) { return n > 0 && entryById(p.id); })) return;
+      Object.keys(parts[0]).forEach(function (key) { base[key] = parts[0][key]; });
+      s.entries.splice.apply(s.entries, [at + 1, 0].concat(parts.slice(1)));
+    });
+
+    /* 2 · lay each subject's unticked rows out again, in order, five a week */
+    function planWeeks() {
+      return weeks().filter(function (w) { return w.wb >= REFLOW_1_FROM && w.personalWk != null; });
+    }
+    var moved = 0;
+    ["compsci", "maths"].forEach(function (subject) {
+      var rows = s.entries.map(function (e, i) { return { e: e, i: i }; })
+        .filter(function (x) { return study(x.e) && x.e.subject === subject && !x.e.done; })
+        .sort(function (a, b) { return a.e.wb < b.e.wb ? -1 : a.e.wb > b.e.wb ? 1 : a.i - b.i; });
+      var at = 0, used = 0;
+      rows.forEach(function (x) {
+        var list, w, room;
+        for (;;) {
+          list = planWeeks();
+          if (at >= list.length) {
+            var last = list[list.length - 1];
+            var wb = plusWeek(last.wb);
+            s.weeks.push(normaliseWeek({ wb: wb, label: weekLabel(wb), schoolWk: null, personalWk: last.personalWk + 1,
+              note: "Personal plan only — added when the personal plan was laid out again from w/c 12 Oct." }));
+            continue;
+          }
+          w = list[at];
+          room = REFLOW_1_PER_WEEK - s.entries.filter(function (e) {
+            return study(e) && e.subject === subject && e.done && e.wb === w.wb;
+          }).length;
+          if (used < room) break;
+          at++; used = 0;
+        }
+        if (x.e.wb !== w.wb) moved++;
+        x.e.wb = w.wb;
+        x.e.wk = w.personalWk;
+        used++;
+      });
+    });
+    s.nextId = Math.max(s.nextId || 1, nextFreeId(s));
+    s.migrations.personalReflow1 = true;
+    KOS.store.save();
+    return moved > 0;
+  }
+
   function applyMigrations(s) {
     s.migrations = (s.migrations && typeof s.migrations === "object") ? s.migrations : {};
+    var shifted = shiftPersonal1(s);
+    return reflowPersonal1(s) || shifted;
+  }
+  function shiftPersonal1(s) {
     if (s.migrations.personalShift1) return false;
     if (!weekAt("2026-09-07") || !weekAt("2026-12-07")) { s.migrations.personalShift1 = true; return false; } /* not this plan */
     if (!weekAt("2026-12-21")) {
@@ -189,7 +337,7 @@
     s.entries = seed.entries.map(normalise).filter(function (e) { return e.id && e.wb && e.subject; });
     s.nextId = nextFreeId(s);
     /* a fresh seed already carries the move; mark it so it never re-applies */
-    s.migrations = { personalShift1: true };
+    s.migrations = { personalShift1: true, personalReflow1: true };
     KOS.store.save();
     return true;
   }
