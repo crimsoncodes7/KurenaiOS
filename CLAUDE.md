@@ -12,12 +12,12 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `87ee60c` (Computer Science at depth — both
-  AQA papers and the NEA — with the UI review fixes)
-- Runtime release: `87ee60c` — immutable deployment
-  https://bfb13afc.kurenai-os.pages.dev (2 October 2026)
+- Release source checkpoint: `232769b` (the personal CS and Maths plan laid
+  out again from w/c 12 Oct, and the class plan extended to Easter)
+- Runtime release: `232769b` — immutable deployment
+  https://26ba91af.kurenai-os.pages.dev (7 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-cs-depth-1`
+- Service-worker version: `kos-plan-reflow-1`
 - Required smoke gate: 66 / 66 suites.
 
 ## Run, test and deploy
