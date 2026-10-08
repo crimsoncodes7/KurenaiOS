@@ -16,7 +16,7 @@
     "compsci:4.3.2.1": ["tl-tree"],           /* tree-traversal algorithms */
     "compsci:4.3.4.3": ["tl-tree"],           /* binary tree search */
     "compsci:4.3.5.2": ["sort-viz"],          /* merge sort (sort-viz does both) */
-    "compsci:4.5.4.2": ["binary-number"],
+    "compsci:4.5.4.1": ["binary-number"],
     "compsci:4.5.4.4": ["binary-number"],
     "compsci:4.7.3.1": ["cpu-fetch-execute"],
     "maths:5.3": ["trig-circle"],
@@ -28,7 +28,7 @@
     all: function () { return REG.slice(); },
     forRef: function (sid, ref) {
       /* explicit overrides (handles sims wired to >1 ref, e.g. binary-number
-         on both 4.5.4.2 and 4.5.4.4) … */
+         on both 4.5.4.1 and 4.5.4.4) … */
       var out = (WIRE[sid + ":" + ref] || []).map(KOS.sims.get).filter(Boolean);
       /* … plus any sim that declares this exact subject:ref, so every sim is
          reachable from its own topic page and new sims auto-wire on register */
@@ -630,7 +630,7 @@
 
   /* =================== 6. BINARY REGISTER & CONVERTER =================== */
   KOS.sims.register({
-    id: "binary-number", title: "Binary Register & Converter", subject: "compsci", ref: "4.5.4.2",
+    id: "binary-number", title: "Binary Register & Converter", subject: "compsci", ref: "4.5.4.1",
     desc: "Click the bits of an 8-bit register — denary, hex and two's complement update live. Addition mode shows the carry rippling through.",
     mount: function (panel) {
       var WEIGHTS = [128, 64, 32, 16, 8, 4, 2, 1];

@@ -60,7 +60,7 @@ window.KOS_DATA.compsci = {
             },
             {
               "ref": "4.1.1.3",
-              "title": "Arithmetic operations in a programming language",
+              "title": "Arithmetic, relational and Boolean operations",
               "content": [
                 "Be familiar with and be able to use:",
                 "• addition",
@@ -70,30 +70,14 @@ window.KOS_DATA.compsci = {
                 "• integer division, including remainders",
                 "• exponentiation",
                 "• rounding",
-                "• truncation."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.1.1.4",
-              "title": "Relational operations in a programming language",
-              "content": [
+                "• truncation.",
                 "Be familiar with and be able to use:",
                 "• equal to",
                 "• not equal to",
                 "• less than",
                 "• greater than",
                 "• less than or equal to",
-                "• greater than or equal to."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.1.1.5",
-              "title": "Boolean operations in a programming language",
-              "content": [
+                "• greater than or equal to.",
                 "Be familiar with and be able to use:",
                 "• NOT",
                 "• AND",
@@ -734,91 +718,33 @@ window.KOS_DATA.compsci = {
             },
             {
               "ref": "4.4.1.3",
-              "title": "Abstraction",
+              "title": "Kinds of abstraction",
               "content": [
                 "Be familiar with the concept of abstraction as used in computations and know that:",
                 "• representational abstraction is a representation arrived at by removing unnecessary details",
-                "• abstraction by generalisation or categorisation is a grouping by common characteristics to arrive at a hierarchical relationship of the 'is a kind of' type."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.4.1.4",
-              "title": "Information hiding",
-              "content": [
-                "Be familiar with the process of hiding all details of an object that do not contribute to its essential characteristics."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.4.1.5",
-              "title": "Procedural abstraction",
-              "content": [
-                "Know that procedural abstraction represents a computational method."
+                "• abstraction by generalisation or categorisation is a grouping by common characteristics to arrive at a hierarchical relationship of the 'is a kind of' type.",
+                "Be familiar with the process of hiding all details of an object that do not contribute to its essential characteristics.",
+                "Know that procedural abstraction represents a computational method.",
+                "Know that for functional abstraction the particular computation method is hidden.",
+                "Know that details of how data are actually represented are hidden, allowing new kinds of data objects to be constructed from previously defined types of data objects.",
+                "Know that details are removed until the problem is represented in a way that is possible to solve, because the problem reduces to one that has already been solved."
               ],
               "info": [
-                "The result of abstracting away the actual values used in any particular computation is a computational pattern or computational method - a procedure."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.4.1.6",
-              "title": "Functional abstraction",
-              "content": [
-                "Know that for functional abstraction the particular computation method is hidden."
-              ],
-              "info": [
+                "The result of abstracting away the actual values used in any particular computation is a computational pattern or computational method - a procedure.",
                 "The result of a procedural abstraction is a procedure, not a function. To get a function requires yet another abstraction, which disregards the particular computation method.",
-                "This is functional abstraction."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.4.1.7",
-              "title": "Data abstraction",
-              "content": [
-                "Know that details of how data are actually represented are hidden, allowing new kinds of data objects to be constructed from previously defined types of data objects."
-              ],
-              "info": [
+                "This is functional abstraction.",
                 "Data abstraction is a methodology that enables us to isolate how a compound data object is used from the details of how it is constructed.",
                 "For example, a stack could be implemented as an array and a pointer for top of stack."
               ],
               "children": []
             },
             {
-              "ref": "4.4.1.8",
-              "title": "Problem abstraction/reduction",
-              "content": [
-                "Know that details are removed until the problem is represented in a way that is possible to solve, because the problem reduces to one that has already been solved."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
               "ref": "4.4.1.9",
-              "title": "Decomposition",
+              "title": "Decomposition, composition and automation",
               "content": [
-                "Know that procedural decomposition means breaking a problem into a number of sub- problems, so that each sub-problem accomplishes an identifiable task, which might itself be further subdivided."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.4.1.10",
-              "title": "Composition",
-              "content": [
+                "Know that procedural decomposition means breaking a problem into a number of sub- problems, so that each sub-problem accomplishes an identifiable task, which might itself be further subdivided.",
                 "Know how to build a composition abstraction by combining procedures to form compound procedures.",
-                "Know how to build data abstractions by combining data objects to form compound data, for example tree data structure."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.4.1.11",
-              "title": "Automation",
-              "content": [
+                "Know how to build data abstractions by combining data objects to form compound data, for example tree data structure.",
                 "Understand that automation requires putting models (abstraction of real world objects/ phenomena) into action to solve problems. This is achieved by:",
                 "• creating algorithms",
                 "• implementing the algorithms in program code (instructions)",
@@ -1002,17 +928,9 @@ window.KOS_DATA.compsci = {
             },
             {
               "ref": "4.4.4.4",
-              "title": "Limits of computation",
+              "title": "Tractability and the limits of computation",
               "content": [
-                "Be aware that algorithmic complexity and hardware impose limits on what can be computed."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.4.4.5",
-              "title": "Classification of algorithmic problems",
-              "content": [
+                "Be aware that algorithmic complexity and hardware impose limits on what can be computed.",
                 "Know that algorithms may be classified as being either:",
                 "• tractable - problems that have a polynomial (or less) time solution are called tractable problems.",
                 "• intractable - problems that have no polynomial (or less) time solution are called intractable problems."
@@ -1024,17 +942,9 @@ window.KOS_DATA.compsci = {
             },
             {
               "ref": "4.4.4.6",
-              "title": "Computable and non-computable problems",
+              "title": "Computable and non-computable problems, and the halting problem",
               "content": [
-                "Be aware that some problems cannot be solved algorithmically."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.4.4.7",
-              "title": "Halting problem",
-              "content": [
+                "Be aware that some problems cannot be solved algorithmically.",
                 "Describe the Halting problem (but not prove it), that is the unsolvable problem of determining whether any program will eventually stop if given particular input.",
                 "Understand the significance of the Halting problem for computation."
               ],
@@ -1088,79 +998,26 @@ window.KOS_DATA.compsci = {
           "children": [
             {
               "ref": "4.5.1.1",
-              "title": "Natural numbers",
+              "title": "Number systems",
               "content": [
-                "Be familiar with the concept of a natural number and the set ℕ of natural numbers (including zero)."
-              ],
-              "info": [
-                "ℕ = {0, 1, 2, 3, … }"
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.1.2",
-              "title": "Integer numbers",
-              "content": [
-                "Be familiar with the concept of an integer and the set ℤ of integers."
-              ],
-              "info": [
-                "ℤ = { …, -3, -2, -1, 0, 1, 2, 3, … }"
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.1.3",
-              "title": "Rational numbers",
-              "content": [
-                "Be familiar with the concept of a rational number and the set ℚ of rational numbers, and that this set includes the integers."
-              ],
-              "info": [
-                "ℚ is the set of numbers that can be written as fractions (ratios of integers). Since a number such as 7 can be written as 7/1, all integers are rational numbers."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.1.4",
-              "title": "Irrational numbers",
-              "content": [
-                "Be familiar with the concept of an irrational number."
-              ],
-              "info": [
-                "An irrational number is one that cannot be written as a fraction, for example √2."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.1.5",
-              "title": "Real numbers",
-              "content": [
-                "Be familiar with the concept of a real number and the set ℝ of real numbers, which includes the natural numbers, the rational numbers and the irrational numbers."
-              ],
-              "info": [
-                "ℝ is the set of all 'possible real world quantities'."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.1.6",
-              "title": "Ordinal numbers",
-              "content": [
-                "Be familiar with the concept of ordinal numbers and their use to describe the numerical positions of objects."
-              ],
-              "info": [
-                "When objects are placed in order, ordinal numbers are used to tell their position. For example, if we have a well-ordered set S = {‘a’, ‘b’, ‘c’, ‘d’}, then ‘a’ is the 1st object, ‘b’ the 2nd, and so on."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.1.7",
-              "title": "Counting and measurement",
-              "content": [
+                "Be familiar with the concept of a natural number and the set ℕ of natural numbers (including zero).",
+                "Be familiar with the concept of an integer and the set ℤ of integers.",
+                "Be familiar with the concept of a rational number and the set ℚ of rational numbers, and that this set includes the integers.",
+                "Be familiar with the concept of an irrational number.",
+                "Be familiar with the concept of a real number and the set ℝ of real numbers, which includes the natural numbers, the rational numbers and the irrational numbers.",
+                "Be familiar with the concept of ordinal numbers and their use to describe the numerical positions of objects.",
                 "Be familiar with the use of:",
                 "• natural numbers for counting",
                 "• real numbers for measurement."
               ],
-              "info": [],
+              "info": [
+                "ℕ = {0, 1, 2, 3, … }",
+                "ℤ = { …, -3, -2, -1, 0, 1, 2, 3, … }",
+                "ℚ is the set of numbers that can be written as fractions (ratios of integers). Since a number such as 7 can be written as 7/1, all integers are rational numbers.",
+                "An irrational number is one that cannot be written as a fraction, for example √2.",
+                "ℝ is the set of all 'possible real world quantities'.",
+                "When objects are placed in order, ordinal numbers are used to tell their position. For example, if we have a well-ordered set S = {‘a’, ‘b’, ‘c’, ‘d’}, then ‘a’ is the 1st object, ‘b’ the 2nd, and so on."
+              ],
               "children": []
             }
           ]
@@ -1196,24 +1053,12 @@ window.KOS_DATA.compsci = {
           "children": [
             {
               "ref": "4.5.3.1",
-              "title": "Bits and bytes",
+              "title": "Bits, bytes and units of information",
               "content": [
                 "Know that:",
                 "• the bit is the fundamental unit of information",
                 "• a byte is a group of 8 bits.",
-                "Know that the 2n different values can be represented with n bits."
-              ],
-              "info": [
-                "A bit is either 0 or 1.",
-                "For example, 3 bits can be configured in 23 = 8 different ways.",
-                "000, 001, 010, 011, 100, 101, 110, 111"
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.3.2",
-              "title": "Units",
-              "content": [
+                "Know that the 2n different values can be represented with n bits.",
                 "Know that quantities of bytes can be described using binary prefixes representing powers of 2 or using decimal prefixes representing powers of 10, eg one kibibyte is written as 1KiB = 210 B and one kilobyte is written as 1 kB = 103 B.",
                 "Know the names, symbols and corresponding powers of 2 for the binary prefixes:",
                 "• kibi, Ki - 210",
@@ -1227,6 +1072,9 @@ window.KOS_DATA.compsci = {
                 "• tera, T - 1012"
               ],
               "info": [
+                "A bit is either 0 or 1.",
+                "For example, 3 bits can be configured in 23 = 8 different ways.",
+                "000, 001, 010, 011, 100, 101, 110, 111",
                 "Historically the terms kilobyte, megabyte, etc have often been used when kibibyte, mebibyte, etc are meant."
               ],
               "children": []
@@ -1239,25 +1087,17 @@ window.KOS_DATA.compsci = {
           "children": [
             {
               "ref": "4.5.4.1",
-              "title": "Unsigned binary",
+              "title": "Unsigned binary and binary arithmetic",
               "content": [
                 "Know the difference between unsigned binary and signed binary.",
-                "Know that in unsigned binary the minimum and maximum values for a given number of bits, n, are 0 and 2n -1 respectively."
-              ],
-              "info": [
-                "Students are expected to be able to convert between unsigned binary and decimal and vice versa."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.4.2",
-              "title": "Unsigned binary arithmetic",
-              "content": [
+                "Know that in unsigned binary the minimum and maximum values for a given number of bits, n, are 0 and 2n -1 respectively.",
                 "Be able to:",
                 "• add two unsigned binary integers",
                 "• multiply two unsigned binary integers."
               ],
-              "info": [],
+              "info": [
+                "Students are expected to be able to convert between unsigned binary and decimal and vice versa."
+              ],
               "children": []
             },
             {
@@ -1294,25 +1134,18 @@ window.KOS_DATA.compsci = {
             },
             {
               "ref": "4.5.4.5",
-              "title": "Rounding errors",
+              "title": "Rounding errors, absolute and relative error, overflow and underflow",
               "content": [
-                "Know and be able to explain why both fixed point and floating point representation of decimal numbers may be inaccurate."
+                "Know and be able to explain why both fixed point and floating point representation of decimal numbers may be inaccurate.",
+                "Be able to calculate the absolute error of numerical data stored and processed in computer systems.",
+                "Be able to calculate the relative error of numerical data stored and processed in computer systems.",
+                "Compare absolute and relative errors for large and small magnitude numbers, and numbers close to one.",
+                "Explain underflow and overflow and describe the circumstances in which they occur."
               ],
               "info": [
                 "Use binary fractions. For a real number to be represented exactly by the binary number system, it must be capable of being represented by a binary fraction in the given number of bits.",
                 "Some values cannot ever be represented exactly, for example 0.1 ."
               ],
-              "children": []
-            },
-            {
-              "ref": "4.5.4.6",
-              "title": "Absolute and relative errors",
-              "content": [
-                "Be able to calculate the absolute error of numerical data stored and processed in computer systems.",
-                "Be able to calculate the relative error of numerical data stored and processed in computer systems.",
-                "Compare absolute and relative errors for large and small magnitude numbers, and numbers close to one."
-              ],
-              "info": [],
               "children": []
             },
             {
@@ -1332,15 +1165,6 @@ window.KOS_DATA.compsci = {
               ],
               "info": [],
               "children": []
-            },
-            {
-              "ref": "4.5.4.9",
-              "title": "Underflow and overflow",
-              "content": [
-                "Explain underflow and overflow and describe the circumstances in which they occur."
-              ],
-              "info": [],
-              "children": []
             }
           ]
         },
@@ -1350,17 +1174,9 @@ window.KOS_DATA.compsci = {
           "children": [
             {
               "ref": "4.5.5.1",
-              "title": "Character form of a decimal digit",
+              "title": "Character codes: digits, ASCII and Unicode",
               "content": [
-                "Differentiate between the character code representation of a decimal digit and its pure binary representation."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.5.5.2",
-              "title": "ASCII and Unicode",
-              "content": [
+                "Differentiate between the character code representation of a decimal digit and its pure binary representation.",
                 "Describe ASCII and Unicode coding systems for coding character data and explain why",
                 "Unicode was introduced."
               ],
@@ -1388,28 +1204,12 @@ window.KOS_DATA.compsci = {
           "children": [
             {
               "ref": "4.5.6.1",
-              "title": "Bit patterns, images, sound and other data",
+              "title": "Bit patterns, analogue and digital data, and conversion",
               "content": [
-                "Describe how bit patterns may represent other forms of data, including graphics and sound."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.5.6.2",
-              "title": "Analogue and digital",
-              "content": [
+                "Describe how bit patterns may represent other forms of data, including graphics and sound.",
                 "Understand the difference between analogue and digital:",
                 "• data",
-                "• signals."
-              ],
-              "info": [],
-              "children": []
-            },
-            {
-              "ref": "4.5.6.3",
-              "title": "Analogue/digital conversion",
-              "content": [
+                "• signals.",
                 "Describe the principles of operation of:",
                 "• an analogue to digital converter (ADC)",
                 "• a digital to analogue converter (DAC).",
@@ -1421,7 +1221,7 @@ window.KOS_DATA.compsci = {
             },
             {
               "ref": "4.5.6.4",
-              "title": "Bitmapped graphics",
+              "title": "Bitmap and vector graphics",
               "content": [
                 "Explain how bitmaps are represented.",
                 "Explain the following for bitmaps:",
@@ -1429,7 +1229,12 @@ window.KOS_DATA.compsci = {
                 "• colour depth",
                 "• size in pixels.",
                 "Calculate storage requirements for bitmapped images and be aware that bitmap image files may also contain metadata.",
-                "Be familiar with typical metadata."
+                "Be familiar with typical metadata.",
+                "Explain how vector graphics represents images using lists of objects.",
+                "Give examples of typical properties of objects.",
+                "Use vector graphic primitives to create a simple vector graphic.",
+                "Compare the vector graphics approach with the bitmapped graphics approach and understand the advantages and disadvantages of each.",
+                "Be aware of appropriate uses of each approach."
               ],
               "info": [
                 "The size of an image is also alternatively sometimes described as the resolution of an image.",
@@ -1437,31 +1242,9 @@ window.KOS_DATA.compsci = {
                 "Resolution is expressed as number of dots per inch where a dot is a pixel.",
                 "Colour depth = number of bits stored for each pixel.",
                 "Ignoring metadata, storage requirements = size in pixels x colour depth where size in pixels is width in pixels x height in pixels.",
-                "eg width, height, colour depth."
-              ],
-              "children": []
-            },
-            {
-              "ref": "4.5.6.5",
-              "title": "Vector graphics",
-              "content": [
-                "Explain how vector graphics represents images using lists of objects.",
-                "Give examples of typical properties of objects.",
-                "Use vector graphic primitives to create a simple vector graphic."
-              ],
-              "info": [
+                "eg width, height, colour depth.",
                 "The properties of each geometric object/shape in the vector graphic image are stored as a list."
               ],
-              "children": []
-            },
-            {
-              "ref": "4.5.6.6",
-              "title": "Vector graphics versus bitmapped graphics",
-              "content": [
-                "Compare the vector graphics approach with the bitmapped graphics approach and understand the advantages and disadvantages of each.",
-                "Be aware of appropriate uses of each approach."
-              ],
-              "info": [],
               "children": []
             },
             {

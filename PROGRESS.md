@@ -20,7 +20,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Runtime release commit | `232769b` (personal plan re-laid out, class plan extended to Easter), immutable https://26ba91af.kurenai-os.pages.dev — deployed 7 October 2026; before it `87ee60c` (Computer Science at depth, with the UI review fixes), https://bfb13afc.kurenai-os.pages.dev; before that `9eac539` (Mechanics M6–M9 at depth), https://32db7dba.kurenai-os.pages.dev; before that `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-plan-reflow-1` |
+| Service-worker cache | `kos-cs-merge-1` |
 | Smoke gate | 66 suites at the Computer Science release (smoke65: CS Paper 2; smoke66: CS Paper 1 and the NEA); 64 at `9eac539` and `fdc954a`. smoke39 needs a working `git`/`node` toolchain on the host |
 | Latest release date | 7 October 2026 (Computer Science: 2 October; Category 7: 9 August 2026) |
 | Latest delivery | The weekly plan re-laid out: the personal CS and Maths plan from w/c 12 Oct and the class plan extended to Easter (Christmas, Feb half term and Easter are breaks); service worker `kos-plan-reflow-1`, deployed 7 October 2026. Before it, Computer Science at full depth — both AQA papers in C# and the NEA as a project companion — with the UI review fixes (below); service worker `kos-cs-depth-1`. Before it, Mechanics M6–M9 at full depth (below), completing Roadmap Phase 4 content; deployed 1 October 2026 (service worker `kos-mech-notes-1`). Before it, Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
@@ -29,6 +29,21 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
+
+## 9 October 2026 — flashcard clean-up and merged CS leaves
+
+- **Flashcards:** 4,969 → 4,468. 501 duplicate and paraphrase twins removed
+  (CS −379, Maths −121, IT −1) and 64 cards that leaned on a neighbouring
+  card or a past-paper diagram rewritten to stand alone. A card whose
+  position moved carries its original position as an optional third element
+  so no SM-2 schedule slides onto another card (invariant 87).
+- **Computer Science leaves:** twelve groups of tiny sub-points are one leaf
+  each (157 → 131; `CS_MERGES` in `tools/gen_data.py`, content in
+  `js/data/content/cs-m-*.js`, old refs renamed by `REF_ALIASES`). Each
+  merged leaf has one overview, one page per concept, one worked-examples
+  page, one toolkit and one past-paper page, with de-duplicated practice.
+  Left unmerged by choice: Big-O comparison, Sound and MIDI, range/precision/
+  normalisation, all of 4.9, all of 4.12 and the searching algorithms.
 
 ## Released 2 October 2026 — Computer Science at full depth
 

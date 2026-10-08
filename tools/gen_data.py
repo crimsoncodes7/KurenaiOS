@@ -96,6 +96,73 @@ def mech_existing():
     print(f"Maths: Mechanics sections now {', '.join(refs)}")
 
 
+# Computer Science leaves taught as one topic (decided 9 Oct 2026). Many AQA
+# sub-points are two or three lines of specification wording: each used to be
+# a topic page with its own 20 flashcards and 10 exam questions. The leaf
+# named first in each group is kept; the rest are folded into it. The
+# specification wording of every member is joined on the kept leaf
+# (content and info lists in spec order), so nothing the specification says
+# is lost. Old refs are renamed to the kept leaf in stored state by
+# store.js (REF_RENAMES, "compsci"); the content lives in
+# js/data/content/cs-m-*.js.
+CS_MERGES = (
+    ("4.5.1.1", "Number systems", ("4.5.1.2", "4.5.1.3", "4.5.1.4", "4.5.1.5", "4.5.1.6", "4.5.1.7")),
+    ("4.4.1.3", "Kinds of abstraction", ("4.4.1.4", "4.4.1.5", "4.4.1.6", "4.4.1.7", "4.4.1.8")),
+    ("4.4.1.9", "Decomposition, composition and automation", ("4.4.1.10", "4.4.1.11")),
+    ("4.4.4.4", "Tractability and the limits of computation", ("4.4.4.5",)),
+    ("4.4.4.6", "Computable and non-computable problems, and the halting problem", ("4.4.4.7",)),
+    ("4.5.3.1", "Bits, bytes and units of information", ("4.5.3.2",)),
+    ("4.5.4.1", "Unsigned binary and binary arithmetic", ("4.5.4.2",)),
+    ("4.5.4.5", "Rounding errors, absolute and relative error, overflow and underflow", ("4.5.4.6", "4.5.4.9")),
+    ("4.5.5.1", "Character codes: digits, ASCII and Unicode", ("4.5.5.2",)),
+    ("4.5.6.1", "Bit patterns, analogue and digital data, and conversion", ("4.5.6.2", "4.5.6.3")),
+    ("4.5.6.4", "Bitmap and vector graphics", ("4.5.6.5", "4.5.6.6")),
+    ("4.1.1.3", "Arithmetic, relational and Boolean operations", ("4.1.1.4", "4.1.1.5")),
+)
+
+
+def merge_cs(obj):
+    """Fold the CS_MERGES groups into their first leaf."""
+    def walk(node):
+        kids = node.get("children", [])
+        by_ref = {k.get("ref"): k for k in kids}
+        for host, title, rest in CS_MERGES:
+            if host not in by_ref or not all(r in by_ref for r in rest):
+                continue
+            keep = by_ref[host]
+            keep["title"] = title
+            for r in rest:
+                member = by_ref[r]
+                keep["content"] = list(keep.get("content", [])) + list(member.get("content", []))
+                keep["info"] = list(keep.get("info", [])) + list(member.get("info", []))
+            node["children"] = [k for k in node["children"] if k.get("ref") not in rest]
+            kids = node["children"]
+        for k in kids:
+            walk(k)
+    for section in obj.get("sections", []):
+        walk(section)
+    return obj
+
+
+def merge_cs_existing():
+    """Apply merge_cs to the checked-in compsci.js payload (no PDF extraction needed)."""
+    cs = read_generated("compsci", "compsci")
+    before = sum(1 for _ in _leaves(cs))
+    write("compsci", "compsci", merge_cs(cs))
+    print(f"Computer Science: {before} leaves -> {sum(1 for _ in _leaves(cs))}")
+
+
+def _leaves(obj):
+    def walk(n):
+        kids = n.get("children", [])
+        if not kids and n.get("content"):
+            yield n
+        for k in kids:
+            yield from walk(k)
+    for s in obj.get("sections", []):
+        yield from walk(s)
+
+
 def format_existing():
     """Re-emit the checked-in generated data with stable, editable layout."""
     for name, var in (("compsci", "compsci"), ("maths", "maths"), ("it", "it")):
@@ -113,6 +180,10 @@ if "--scope-it" in sys.argv:
 
 if "--mech-refs" in sys.argv:
     mech_existing()
+    raise SystemExit(0)
+
+if "--merge-cs" in sys.argv:
+    merge_cs_existing()
     raise SystemExit(0)
 
 def clean(s):
@@ -250,7 +321,7 @@ it = scope_it({"id": "it", "name": "IT: Data Analytics", "board": "OCR AAQ H019/
       "labelL": "Teaching content", "labelR": "Breadth & depth / Exemplification",
       "sections": it_sections})
 
-write("compsci", "compsci", compsci)
+write("compsci", "compsci", merge_cs(compsci))
 write("maths", "maths", mech_refs(maths))
 write("it", "it", it)
 

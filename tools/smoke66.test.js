@@ -11,7 +11,7 @@
      B · PAPER 1 EXAM ITEMS derive from the exam-tagged worked cards, name
          AQA and keep their marks.
      C · ONE OWNER. No older CS file still defines a rewritten leaf, every
-         new file is loaded, and all 63 Paper 1 leaves are covered.
+         new file is loaded, and all 52 Paper 1 leaves are covered.
      D · NOTHING LOST. A sim or generator an old entry listed is still wired.
      E · THE NEA IS A PROJECT, NOT AN EXAM. NEA.0–NEA.5 exist in the spec,
          each is a project guide (level ladder, checklist, worked judgement
@@ -35,7 +35,7 @@ function assert(c, m) { if (!c) throw new Error(m); }
 
 /* the Paper 1 leaves rewritten so far, by file */
 const DONE = {
-  "cs-p1-411a.js": ["4.1.1.1", "4.1.1.2", "4.1.1.3", "4.1.1.4", "4.1.1.5", "4.1.1.6", "4.1.1.7", "4.1.1.8"],
+  "cs-p1-411a.js": ["4.1.1.1", "4.1.1.2", "4.1.1.6", "4.1.1.7", "4.1.1.8"],
   "cs-p1-411b.js": ["4.1.1.9", "4.1.1.10", "4.1.1.11", "4.1.1.12", "4.1.1.13", "4.1.1.14", "4.1.1.15", "4.1.1.16"],
   "cs-p1-412.js": ["4.1.2.1", "4.1.2.2", "4.1.2.3"],
   "cs-p1-42a.js": ["4.2.1.1", "4.2.1.2", "4.2.1.3", "4.2.1.4"],
@@ -45,9 +45,14 @@ const DONE = {
   "cs-p1-43a.js": ["4.3.1.1", "4.3.2.1", "4.3.3.1"],
   "cs-p1-43b.js": ["4.3.4.1", "4.3.4.2", "4.3.4.3"],
   "cs-p1-43c.js": ["4.3.5.1", "4.3.5.2", "4.3.6.1"],
-  "cs-p1-441.js": ["4.4.1.1", "4.4.1.2", "4.4.1.3", "4.4.1.4", "4.4.1.5", "4.4.1.6", "4.4.1.7", "4.4.1.8", "4.4.1.9", "4.4.1.10", "4.4.1.11"],
+  "cs-p1-441.js": ["4.4.1.1", "4.4.1.2"],
   "cs-p1-442.js": ["4.4.2.1", "4.4.2.2", "4.4.2.3", "4.4.2.4", "4.4.3.1"],
-  "cs-p1-444.js": ["4.4.4.1", "4.4.4.2", "4.4.4.3", "4.4.4.4", "4.4.4.5", "4.4.4.6", "4.4.4.7", "4.4.5.1"]
+  "cs-p1-444.js": ["4.4.4.1", "4.4.4.2", "4.4.4.3", "4.4.5.1"],
+  "cs-m-abstraction.js": ["4.4.1.3"],
+  "cs-m-decomposition.js": ["4.4.1.9"],
+  "cs-m-tractability.js": ["4.4.4.4"],
+  "cs-m-computability.js": ["4.4.4.6"],
+  "cs-m-operations.js": ["4.1.1.3"]
 };
 const LEAVES = [].concat.apply([], Object.keys(DONE).map(f => DONE[f]));
 /* sims/gens the old entries named explicitly — they must survive */
@@ -63,7 +68,7 @@ const KEEP = {
 const NEA = ["NEA.0", "NEA.1", "NEA.2", "NEA.3", "NEA.4", "NEA.5"];
 /* leaves AQA has never examined on their own (7516/1 and 7517/1, 2016–2025):
    their worked cards are variations, and the notes say so in an info callout */
-const NOT_EXAMINED = ["4.4.1.5", "4.4.1.6", "4.4.4.1"];
+const NOT_EXAMINED = ["4.4.4.1"];
 
 let app, KOS;
 
@@ -122,7 +127,7 @@ step("C · no older CS file still defines a rewritten leaf; every new file is lo
   const paper1 = [];
   (function walk(n) { if (/^4\.[1-4]\./.test(n.ref || "") && !(n.children || []).length) paper1.push(n.ref); (n.children || []).forEach(walk); })({ children: app.window.KOS_DATA.compsci.sections });
   const missing = paper1.filter(r => LEAVES.indexOf(r) < 0);
-  assert(paper1.length === 63 && !missing.length, "every Paper 1 leaf is rewritten (" + paper1.length + " leaves; missing " + missing.join(", ") + ")");
+  assert(paper1.length === 52 && !missing.length, "every Paper 1 leaf is rewritten (" + paper1.length + " leaves; missing " + missing.join(", ") + ")");
 });
 
 step("D · sims and generators the old entries named are still wired", () => {

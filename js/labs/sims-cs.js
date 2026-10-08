@@ -2,8 +2,8 @@
    Computer Science simulations (AQA 7517), registered on KOS.sims so each one
    mounts INLINE on its topic's Simulations tab and in the Simulations view:
      turing-machine (4.4.5.1)  bnf-checker (4.4.3.1)   big-o-plot (4.4.4.3)
-     graph-traversal (4.3.1.1) float-bits (4.5.4.4)    char-codes (4.5.5.2)
-     error-check-lab (4.5.5.3) adc-sampling (4.5.6.3)  bitmap-lab (4.5.6.4)
+     graph-traversal (4.3.1.1) float-bits (4.5.4.4)    char-codes (4.5.5.1)
+     error-check-lab (4.5.5.3) adc-sampling (4.5.6.1)  bitmap-lab (4.5.6.4)
      compression-lab (4.5.6.9) cipher-lab (4.5.6.10)   subnet-lab (4.9.4.4)
    Loaded after sims.js (KOS.sims.canvas / KOS.sims.COL). */
 (function () {
@@ -335,7 +335,7 @@
 
   /* =================== CHARACTER CODES =================== */
   KOS.sims.register({
-    id: "char-codes", title: "ASCII & Unicode — see the codes", subject: "compsci", ref: "4.5.5.2",
+    id: "char-codes", title: "ASCII & Unicode — see the codes", subject: "compsci", ref: "4.5.5.1",
     desc: "Type text and read each character's code in denary, hex and binary. ASCII covers 128 characters in 7 bits; anything beyond — accented letters, kana, emoji — needs Unicode, and UTF-8 shows how many bytes that costs.",
     mount: function (panel) {
       var inp = el("input", { type: "text", value: "Hi! 7 é 漢 😀", style: "--w: 300px", "aria-label": "text" });
@@ -410,7 +410,7 @@
 
   /* =================== ADC SAMPLING =================== */
   KOS.sims.register({
-    id: "adc-sampling", title: "Analogue → Digital — sample rate & resolution", subject: "compsci", ref: "4.5.6.3",
+    id: "adc-sampling", title: "Analogue → Digital — sample rate & resolution", subject: "compsci", ref: "4.5.6.1",
     desc: "An analogue wave is sampled at a rate you choose and quantised to a bit depth you choose. Watch the staircase reconstruction drift from the original as you cut either, and read the file size the settings imply (Nyquist: sample at twice the highest frequency).",
     mount: function (panel) {
       var rate = 12, bits = 3, freq = 1.5, secs = 30;

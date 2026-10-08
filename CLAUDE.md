@@ -17,8 +17,8 @@ chronological diary here.
 - Runtime release: `232769b` — immutable deployment
   https://26ba91af.kurenai-os.pages.dev (7 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-plan-reflow-1`
-- Required smoke gate: 66 / 66 suites.
+- Service-worker version: `kos-cs-merge-1`
+- Required smoke gate: 67 / 67 suites.
 
 ## Run, test and deploy
 
@@ -28,7 +28,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..66}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..67}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -738,6 +738,22 @@ source comments and audit notes refer to it.
 Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 `js/data/content/cs-p1-42b.js` as the depth reference.
 
+- Twelve groups of tiny CS sub-points are taught as ONE leaf each
+  (`tools/gen_data.py` `CS_MERGES`; 157 → 131 leaves): number systems,
+  the kinds of abstraction, decomposition/composition/automation,
+  tractability, computability and the halting problem, bits/bytes/units,
+  unsigned binary and its arithmetic, rounding/absolute-relative error/
+  over- and underflow, character codes, bit patterns with analogue/digital
+  conversion, bitmap and vector graphics, and the arithmetic/relational/
+  Boolean operators. The kept leaf is the group's first ref and carries
+  every member's specification wording; its content is `cs-m-*.js`, which
+  replaces the members' separate entries (their cards keep their SM-2 keys
+  through a whole-key third element, invariant 87). A folded leaf's old
+  ref is renamed to the kept one in stored state by `store.js`
+  `REF_ALIASES` (exact refs only; the kept leaf's own record wins).
+  Examiner intel (`intel.js`) is merged the same way. Adding to a merge
+  means: the table in `gen_data.py`, `REF_ALIASES`, the sims/generators
+  wired to the old refs, the plan seed refs, and smoke65/66's `DONE` lists.
 - Computer Science content is `cs-p1-*.js` (Paper 1, 4.1–4.4, code in C#),
   `cs-p2-*.js` (Paper 2, 4.5–4.13) and `cs-nea.js` (the NEA as a project
   guide: no exam items). smoke65 and smoke66 hold every leaf to the depth

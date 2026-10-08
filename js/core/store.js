@@ -278,9 +278,31 @@
      updated yet is folded in when it arrives. Idempotent; when both the
      old and the new key exist, the new one is kept. Returns the count. */
   var REF_RENAMES = { maths: /^S([6-9])(?=[.:]|$)/ };
+  /* Computer Science sub-points taught as one topic (9 Oct 2026,
+     tools/gen_data.py CS_MERGES): the folded leaf's ref becomes the kept
+     leaf's. Exact refs only — a card key "compsci:4.5.1.3:5" must keep its
+     old suffix, because the merged deck's cards still carry those keys.
+     Where the kept leaf already has a record the kept leaf's wins, as for
+     every rename. */
+  var REF_ALIASES = {
+    compsci: {
+      "4.5.1.2": "4.5.1.1", "4.5.1.3": "4.5.1.1", "4.5.1.4": "4.5.1.1", "4.5.1.5": "4.5.1.1", "4.5.1.6": "4.5.1.1", "4.5.1.7": "4.5.1.1",
+      "4.4.1.4": "4.4.1.3", "4.4.1.5": "4.4.1.3", "4.4.1.6": "4.4.1.3", "4.4.1.7": "4.4.1.3", "4.4.1.8": "4.4.1.3",
+      "4.4.1.10": "4.4.1.9", "4.4.1.11": "4.4.1.9",
+      "4.4.4.5": "4.4.4.4", "4.4.4.7": "4.4.4.6",
+      "4.5.3.2": "4.5.3.1", "4.5.4.2": "4.5.4.1",
+      "4.5.4.6": "4.5.4.5", "4.5.4.9": "4.5.4.5",
+      "4.5.5.2": "4.5.5.1", "4.5.6.2": "4.5.6.1", "4.5.6.3": "4.5.6.1",
+      "4.5.6.5": "4.5.6.4", "4.5.6.6": "4.5.6.4",
+      "4.1.1.4": "4.1.1.3", "4.1.1.5": "4.1.1.3"
+    }
+  };
   function renamedRef(sid, ref) {
+    if (typeof ref !== "string") return null;
+    var al = REF_ALIASES[sid];
+    if (al && Object.prototype.hasOwnProperty.call(al, ref)) return al[ref];
     var re = REF_RENAMES[sid];
-    return re && typeof ref === "string" && re.test(ref) ? ref.replace(re, "M$1") : null;
+    return re && re.test(ref) ? ref.replace(re, "M$1") : null;
   }
   function renamedKey(k) {
     var i = typeof k === "string" ? k.indexOf(":") : -1;

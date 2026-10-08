@@ -319,7 +319,7 @@
     }
   },
   {
-    id: "bin", cat: "cs", subject: "compsci", ref: "4.5.4.2 / 4.5.4.3",
+    id: "bin", cat: "cs", subject: "compsci", ref: "4.5.4.1 / 4.5.4.3",
     title: "Denary → binary, hex & two's complement",
     blurb: "8-bit unsigned conversion, the hex shortcut, and the negative as two's complement.",
     inputs: [{ k: "n", label: "denary (1–127)", def: 53, type: "number" }],
@@ -1000,7 +1000,7 @@
     "maths:S4.2": ["normal"],
     "maths:S5.2": ["hyptest"],
     "maths:M7.3": ["suvat"], "maths:M7.4": ["kinematics"],
-    "compsci:4.5.4.2": ["bin"], "compsci:4.5.4.3": ["bin"],
+    "compsci:4.5.4.1": ["bin"], "compsci:4.5.4.3": ["bin"],
     "compsci:4.5.4.4": ["float"]
   };
 

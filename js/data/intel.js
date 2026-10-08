@@ -23,23 +23,22 @@ window.KOS_DATA.intel = {
   pitfalls: ["Claiming WHILE and DO-WHILE are interchangeable — they differ on whether the body can run zero times.", "Defining definite/indefinite by FOR-vs-WHILE syntax rather than by whether the repeat count is known in advance."]
 },
 "compsci:4.1.1.3": {
-  defs: [["Integer division (DIV)", "The whole-number quotient of a division, discarding the remainder."],
-         ["Modulo (MOD)", "The remainder left after integer division."]],
+  defs: [["Integer division (DIV)","The whole-number quotient of a division, discarding the remainder."],
+         ["Modulo (MOD)","The remainder left after integer division."],
+         ["Relational operator","An operator that compares two values and returns a Boolean (=, <>, <, >, <=, >=)."],
+         ["XOR","Exclusive OR — True when exactly one input is True (the inputs differ); False when they are the same."]],
   tips: ["State the DIV/MOD identity A = (A DIV B)×B + (A MOD B) — it is a frequent marking point.",
-         "Rounding goes to the nearest whole number; truncation discards the fraction — name which the question wants."],
-  pitfalls: ["Assuming `/` always yields a real — in many languages `/` between two integers does integer division.", "Confusing truncation with rounding (3.7 truncates to 3, not 4)."]
-},
-"compsci:4.1.1.4": {
-  defs: [["Relational operator", "An operator that compares two values and returns a Boolean (=, <>, <, >, <=, >=)."]],
-  tips: ["Say the result of a relational comparison is a Boolean — that type statement often earns a mark.",
-         "AQA pseudocode uses <> for not-equal; C#/Java use != — match the convention in the question."],
-  pitfalls: ["Using = (assignment) where == (comparison) is meant in C#/Java.", "Forgetting that strings compare lexicographically, not by length."]
-},
-"compsci:4.1.1.5": {
-  defs: [["XOR", "Exclusive OR — True when exactly one input is True (the inputs differ); False when they are the same."]],
-  tips: ["A truth table with n inputs has 2^n rows — show every input combination for full marks.",
+         "Rounding goes to the nearest whole number; truncation discards the fraction — name which the question wants.",
+         "Say the result of a relational comparison is a Boolean — that type statement often earns a mark.",
+         "AQA pseudocode uses <> for not-equal; C#/Java use != — match the convention in the question.",
+         "A truth table with n inputs has 2^n rows — show every input combination for full marks.",
          "Operator precedence: NOT before AND before OR; brackets override it."],
-  pitfalls: ["Treating XOR like OR — OR(1,1)=1 but XOR(1,1)=0.", "Dropping rows from a truth table or mis-ordering the input combinations."]
+  pitfalls: ["Assuming `/` always yields a real — in many languages `/` between two integers does integer division.",
+             "Confusing truncation with rounding (3.7 truncates to 3, not 4).",
+             "Using = (assignment) where == (comparison) is meant in C#/Java.",
+             "Forgetting that strings compare lexicographically, not by length.",
+             "Treating XOR like OR — OR(1,1)=1 but XOR(1,1)=0.",
+             "Dropping rows from a truth table or mis-ordering the input combinations."]
 },
 "compsci:4.1.1.6": {
   defs: [["Constant", "A named value fixed at design time that cannot change during execution."],
@@ -237,50 +236,40 @@ window.KOS_DATA.intel = {
   pitfalls: ["Omitting the termination requirement from the definition.", "Conflating correctness with efficiency — a correct algorithm can still be slow."]
 },
 "compsci:4.4.1.3": {
-  defs: [["Abstraction", "Omitting unnecessary detail / hiding detail so a problem can be represented in a way that is easier to solve."],
-         ["Information hiding", "Hiding design details behind a standard interface."]],
-  tips: ["AQA distinguishes representational abstraction (removing detail until the problem is solvable) from abstraction by generalisation (grouping by common characteristics — 'is a kind of')."],
-  pitfalls: ["Defining abstraction as 'simplifying' alone — you must mention removing/hiding detail."]
-},
-"compsci:4.4.1.4": {
-  defs: [["Information hiding", "Concealing an object's internal details so it is used only through a clean public interface."]],
-  tips: ["Link it to encapsulation: the interface stays stable while the hidden implementation can change.", "State the benefit — reduces complexity and stops external code depending on internals."],
-  pitfalls: ["Confusing information hiding (hide internals behind an interface) with abstraction in general."]
-},
-"compsci:4.4.1.5": {
-  defs: [["Procedural abstraction", "Capturing a task's logic as a general, parameterised procedure — you know WHAT it does, not the specific values."]],
-  tips: ["Contrast with functional abstraction: procedural still exposes the method; functional hides it entirely.", "Parameters are what make the procedure general/reusable."],
-  pitfalls: ["Confusing procedural abstraction with functional abstraction (which also hides the method)."]
-},
-"compsci:4.4.1.6": {
-  defs: [["Functional abstraction", "Hiding the computational method entirely so only the input→output mapping matters (a black box)."]],
-  tips: ["Say it goes one step beyond procedural abstraction by hiding HOW the result is computed.", "Use the black-box framing — you care only about the mapping."],
-  pitfalls: ["Treating functional and procedural abstraction as identical — functional also hides the method."]
-},
-"compsci:4.4.1.7": {
-  defs: [["Data abstraction", "Separating how a compound data type is USED (its operations) from how it is implemented/constructed."]],
-  tips: ["Use an ADT example (stack/queue): you use push/pop without knowing the underlying array or list.", "Benefit: the implementation can change without affecting users of the type."],
-  pitfalls: ["Describing only the data and missing the use-vs-implementation separation that defines it."]
-},
-"compsci:4.4.1.8": {
-  defs: [["Problem abstraction/reduction", "Removing detail from a problem until it becomes one that is already solved (or solvable)."]],
-  tips: ["The key idea is reducing to a previously-solved problem — say that explicitly.", "Example: model a routing task as a known shortest-path graph problem."],
-  pitfalls: ["Confusing it with representational abstraction — this reduces the PROBLEM, not a data model."]
+  defs: [["Abstraction","Omitting unnecessary detail / hiding detail so a problem can be represented in a way that is easier to solve."],
+         ["Information hiding","Hiding design details behind a standard interface."],
+         ["Procedural abstraction","Capturing a task's logic as a general, parameterised procedure — you know WHAT it does, not the specific values."],
+         ["Functional abstraction","Hiding the computational method entirely so only the input→output mapping matters (a black box)."],
+         ["Data abstraction","Separating how a compound data type is USED (its operations) from how it is implemented/constructed."],
+         ["Problem abstraction/reduction","Removing detail from a problem until it becomes one that is already solved (or solvable)."]],
+  tips: ["AQA distinguishes representational abstraction (removing detail until the problem is solvable) from abstraction by generalisation (grouping by common characteristics — 'is a kind of').",
+         "Link it to encapsulation: the interface stays stable while the hidden implementation can change.",
+         "State the benefit — reduces complexity and stops external code depending on internals.",
+         "Contrast with functional abstraction: procedural still exposes the method; functional hides it entirely.",
+         "Parameters are what make the procedure general/reusable.",
+         "Say it goes one step beyond procedural abstraction by hiding HOW the result is computed.",
+         "Use the black-box framing — you care only about the mapping.",
+         "Use an ADT example (stack/queue): you use push/pop without knowing the underlying array or list."],
+  pitfalls: ["Defining abstraction as 'simplifying' alone — you must mention removing/hiding detail.",
+             "Confusing information hiding (hide internals behind an interface) with abstraction in general.",
+             "Confusing procedural abstraction with functional abstraction (which also hides the method).",
+             "Treating functional and procedural abstraction as identical — functional also hides the method.",
+             "Describing only the data and missing the use-vs-implementation separation that defines it.",
+             "Confusing it with representational abstraction — this reduces the PROBLEM, not a data model."]
 },
 "compsci:4.4.1.9": {
-  defs: [["Decomposition", "Breaking a problem into smaller sub-problems, each an identifiable task that may be subdivided further."]],
-  tips: ["Pair it with composition (its inverse) when asked to contrast.", "Benefits: smaller parts are easier to design, test and divide among a team."],
-  pitfalls: ["Confusing decomposition (break down) with abstraction (remove detail) — different processes."]
-},
-"compsci:4.4.1.10": {
-  defs: [["Composition", "Building a larger system by combining smaller, existing procedures or data objects — the inverse of decomposition."]],
-  tips: ["Define it explicitly as the inverse of decomposition for the mark.", "Relate it to 'favour composition over inheritance' in OOP design."],
-  pitfalls: ["Mixing up composition (build up from parts) with decomposition (break down)."]
-},
-"compsci:4.4.1.11": {
-  defs: [["Automation", "Putting an abstracted model into action — implementing and executing it to solve the problem."]],
-  tips: ["Frame it as the culmination of abstraction + algorithm design — model, then execute.", "Example: a simulation model run as a program."],
-  pitfalls: ["Treating automation as merely 'using a computer' rather than executing a devised model."]
+  defs: [["Decomposition","Breaking a problem into smaller sub-problems, each an identifiable task that may be subdivided further."],
+         ["Composition","Building a larger system by combining smaller, existing procedures or data objects — the inverse of decomposition."],
+         ["Automation","Putting an abstracted model into action — implementing and executing it to solve the problem."]],
+  tips: ["Pair it with composition (its inverse) when asked to contrast.",
+         "Benefits: smaller parts are easier to design, test and divide among a team.",
+         "Define it explicitly as the inverse of decomposition for the mark.",
+         "Relate it to 'favour composition over inheritance' in OOP design.",
+         "Frame it as the culmination of abstraction + algorithm design — model, then execute.",
+         "Example: a simulation model run as a program."],
+  pitfalls: ["Confusing decomposition (break down) with abstraction (remove detail) — different processes.",
+             "Mixing up composition (build up from parts) with decomposition (break down).",
+             "Treating automation as merely 'using a computer' rather than executing a devised model."]
 },
 "compsci:4.4.2.1": {
   defs: [["Finite state machine", "A machine that consists of a finite set of states, an input alphabet, transitions between states, a start state and (for an acceptor) a set of accepting states."]],
@@ -321,25 +310,28 @@ window.KOS_DATA.intel = {
   pitfalls: ["Keeping constant factors or low-order terms in a Big-O answer.", "Quoting best-case when Big-O conventionally describes the worst case."]
 },
 "compsci:4.4.4.4": {
-  defs: [["Limits of computation", "Bounds on what can be computed, set by algorithmic complexity (intractable problems) and finite hardware (time/memory)."]],
-  tips: ["Separate the two limits: complexity (some problems take infeasibly long) vs hardware (finite speed/memory).", "Link to intractable and non-computable problems as concrete examples of limits."],
-  pitfalls: ["Assuming a faster computer removes the limit — intractable and non-computable problems remain beyond reach."]
-},
-"compsci:4.4.4.5": {
-  defs: [["Tractable problem", "A problem with a polynomial-time (or better) solution — feasible as n grows."],
-         ["Intractable problem", "A problem with no known polynomial-time solution — infeasible for large n, though still computable."]],
-  tips: ["Tractable = polynomial or less; intractable = worse than polynomial (e.g. exponential).", "Intractable ≠ non-computable — a solution exists, it is just too slow for large inputs."],
-  pitfalls: ["Confusing intractable (too slow) with non-computable (no algorithm exists).", "Calling a problem intractable for small n — it is about growth as n increases."]
+  defs: [["Limits of computation","Bounds on what can be computed, set by algorithmic complexity (intractable problems) and finite hardware (time/memory)."],
+         ["Tractable problem","A problem with a polynomial-time (or better) solution — feasible as n grows."],
+         ["Intractable problem","A problem with no known polynomial-time solution — infeasible for large n, though still computable."]],
+  tips: ["Separate the two limits: complexity (some problems take infeasibly long) vs hardware (finite speed/memory).",
+         "Link to intractable and non-computable problems as concrete examples of limits.",
+         "Tractable = polynomial or less; intractable = worse than polynomial (e.g. exponential).",
+         "Intractable ≠ non-computable — a solution exists, it is just too slow for large inputs."],
+  pitfalls: ["Assuming a faster computer removes the limit — intractable and non-computable problems remain beyond reach.",
+             "Confusing intractable (too slow) with non-computable (no algorithm exists).",
+             "Calling a problem intractable for small n — it is about growth as n increases."]
 },
 "compsci:4.4.4.6": {
-  defs: [["Non-computable problem", "A problem for which no algorithm can exist that solves it for all inputs (e.g. the Halting problem)."]],
-  tips: ["Give the standard example — the Halting problem is non-computable.", "Distinguish non-computable (no algorithm possible) from intractable (algorithm exists but too slow)."],
-  pitfalls: ["Saying a non-computable problem just needs more computing power — no algorithm can ever solve it.", "Conflating non-computable with intractable."]
-},
-"compsci:4.4.4.7": {
-  defs: [["Halting problem", "The unsolvable problem of deciding, for any program and input, whether the program will eventually halt."]],
-  tips: ["State that it is provably unsolvable (no proof needed) and is an example of a non-computable problem.", "Its significance: there are well-defined problems no algorithm can ever solve."],
-  pitfalls: ["Claiming it can be solved by just running the program — an infinite run never confirms it will not halt.", "Saying no case can be decided — it is the GENERAL problem that is unsolvable."]
+  defs: [["Non-computable problem","A problem for which no algorithm can exist that solves it for all inputs (e.g. the Halting problem)."],
+         ["Halting problem","The unsolvable problem of deciding, for any program and input, whether the program will eventually halt."]],
+  tips: ["Give the standard example — the Halting problem is non-computable.",
+         "Distinguish non-computable (no algorithm possible) from intractable (algorithm exists but too slow).",
+         "State that it is provably unsolvable (no proof needed) and is an example of a non-computable problem.",
+         "Its significance: there are well-defined problems no algorithm can ever solve."],
+  pitfalls: ["Saying a non-computable problem just needs more computing power — no algorithm can ever solve it.",
+             "Conflating non-computable with intractable.",
+             "Claiming it can be solved by just running the program — an infinite run never confirms it will not halt.",
+             "Saying no case can be decided — it is the GENERAL problem that is unsolvable."]
 },
 "compsci:4.4.5.1": {
   defs: [["Turing machine", "A theoretical model of computation: a finite set of states, a finite alphabet, an infinite tape and a read-write head following a transition function."]],
@@ -353,41 +345,29 @@ window.KOS_DATA.intel = {
   pitfalls: ["Writing | inside angle brackets or forgetting ::= — syntax slips cost marks in 'write a rule' questions."]
 },
 "compsci:4.5.1.1": {
-  defs: [["Rational number", "A number expressible as p/q where p, q are integers and q ≠ 0."],
-         ["Irrational number", "A number that cannot be written as a fraction; its decimal expansion is infinite and non-repeating."]],
-  tips: ["Know the nesting ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ and which set an example sits in.", "Recurring decimals ARE rational (e.g. 0.333… = 1/3)."],
-  pitfalls: ["Calling every decimal irrational — terminating/recurring decimals are rational.", "Forgetting that natural numbers exclude negatives."]
-},
-"compsci:4.5.1.2": {
-  defs: [["Integer (ℤ)", "All whole numbers — positive, negative and zero."]],
-  tips: ["In computing, integers have a fixed bit width, hence a finite range (overflow beyond it).", "Use integers for discrete signed quantities (temperatures, balances)."],
-  pitfalls: ["Assuming integers are unbounded — a type has a max/min and can overflow.", "Storing a fractional value in an integer (it truncates)."]
-},
-"compsci:4.5.1.3": {
-  defs: [["Rational number (ℚ)", "A number expressible as p/q with integers p, q and q ≠ 0."]],
-  tips: ["Every integer is rational (n/1); recurring and terminating decimals are rational.", "To prove a value is rational, give the fraction."],
-  pitfalls: ["Saying integers are not rational.", "Treating a recurring decimal as irrational."]
-},
-"compsci:4.5.1.4": {
-  defs: [["Irrational number", "Cannot be written as p/q; an infinite, non-repeating decimal (e.g. π, √2, e)."]],
-  tips: ["√ of a non-perfect-square is irrational; √ of a perfect square is rational.", "Computers store irrationals only as finite approximations, causing rounding error."],
-  pitfalls: ["Calling √9 irrational (it is 3).", "Thinking 22/7 equals π — it is a rational approximation."]
-},
-"compsci:4.5.1.5": {
-  defs: [["Real number (ℝ)", "Every value on the continuous number line — rationals plus irrationals."]],
-  tips: ["Use reals (floating point) for continuous / measured quantities.", "Computers approximate reals (mantissa × base^exp); not all are exact."],
-  pitfalls: ["Assuming computers store all reals exactly.", "Comparing two floats with == instead of a tolerance."]
-},
-"compsci:4.5.1.6": {
-  defs: [["Ordinal number", "Describes position/rank in a sequence (1st, 2nd); a cardinal describes quantity."]],
-  tips: ["Array indices are ordinal and usually 0-based — the 1st element is index 0.", "Distinguish ordinal (position) from cardinal (count) explicitly."],
-  pitfalls: ["Off-by-one: the nth element is index n−1 in a 0-indexed array.", "Confusing ordinal with cardinal."]
-},
-"compsci:4.5.1.7": {
-  defs: [["Counting", "Discrete whole quantities → integer types."],
-         ["Measuring", "Continuous quantities → real (floating-point) types."]],
-  tips: ["Test: 'how many?' (whole → integer) vs 'how much?' (continuous → real).", "Pick the data type from whether the quantity is discrete or continuous."],
-  pitfalls: ["Storing a measurement in an integer (loses the fraction).", "Using a float for an exact count (rounding/comparison issues)."]
+  defs: [["Rational number","A number expressible as p/q where p, q are integers and q ≠ 0."],
+         ["Irrational number","A number that cannot be written as a fraction; its decimal expansion is infinite and non-repeating."],
+         ["Integer (ℤ)","All whole numbers — positive, negative and zero."],
+         ["Real number (ℝ)","Every value on the continuous number line — rationals plus irrationals."],
+         ["Ordinal number","Describes position/rank in a sequence (1st, 2nd); a cardinal describes quantity."],
+         ["Counting","Discrete whole quantities → integer types."],
+         ["Measuring","Continuous quantities → real (floating-point) types."]],
+  tips: ["Know the nesting ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ and which set an example sits in.",
+         "Recurring decimals ARE rational (e.g. 0.333… = 1/3).",
+         "In computing, integers have a fixed bit width, hence a finite range (overflow beyond it).",
+         "Use integers for discrete signed quantities (temperatures, balances).",
+         "Every integer is rational (n/1); recurring and terminating decimals are rational.",
+         "To prove a value is rational, give the fraction.",
+         "√ of a non-perfect-square is irrational; √ of a perfect square is rational.",
+         "Computers store irrationals only as finite approximations, causing rounding error."],
+  pitfalls: ["Calling every decimal irrational — terminating/recurring decimals are rational.",
+             "Forgetting that natural numbers exclude negatives.",
+             "Assuming integers are unbounded — a type has a max/min and can overflow.",
+             "Storing a fractional value in an integer (it truncates).",
+             "Saying integers are not rational.",
+             "Treating a recurring decimal as irrational.",
+             "Calling √9 irrational (it is 3).",
+             "Thinking 22/7 equals π — it is a rational approximation."]
 },
 "compsci:4.5.2.1": {
   defs: [["Hexadecimal", "Base-16 (digits 0-9, A-F); one hex digit = 4 bits (a nibble)."]],
@@ -395,26 +375,30 @@ window.KOS_DATA.intel = {
   pitfalls: ["Saying hex is 'easier for computers' — computers use binary; hex is for humans.", "Mis-grouping nibbles (group from the right, pad on the left)."]
 },
 "compsci:4.5.3.1": {
-  defs: [["Byte", "8 bits — 2^8 = 256 possible values."],
-         ["Nibble", "4 bits (one hex digit)."]],
-  tips: ["n bits → 2^n distinct values; quote the power of two.", "Word size = the bits the CPU processes at once (e.g. 64-bit)."],
-  pitfalls: ["Confusing bit (b) and byte (B) — 1 byte = 8 bits.", "Saying n bits give 2^n − 1 values (that is the max unsigned VALUE, not the count)."]
-},
-"compsci:4.5.3.2": {
-  defs: [["Kibibyte (KiB)", "2^10 = 1024 bytes (binary / IEC)."],
-         ["Kilobyte (kB)", "10^3 = 1000 bytes (decimal / SI)."]],
-  tips: ["Binary prefixes (KiB/MiB/GiB) step by 1024; SI (kB/MB/GB) by 1000.", "Drive makers use SI; OSes report binary, hence the apparent 'missing' capacity."],
-  pitfalls: ["Treating kB and KiB as identical.", "Using 1000 where 1024 is required (or vice versa)."]
+  defs: [["Byte","8 bits — 2^8 = 256 possible values."],
+         ["Nibble","4 bits (one hex digit)."],
+         ["Kibibyte (KiB)","2^10 = 1024 bytes (binary / IEC)."],
+         ["Kilobyte (kB)","10^3 = 1000 bytes (decimal / SI)."]],
+  tips: ["n bits → 2^n distinct values; quote the power of two.",
+         "Word size = the bits the CPU processes at once (e.g. 64-bit).",
+         "Binary prefixes (KiB/MiB/GiB) step by 1024; SI (kB/MB/GB) by 1000.",
+         "Drive makers use SI; OSes report binary, hence the apparent 'missing' capacity."],
+  pitfalls: ["Confusing bit (b) and byte (B) — 1 byte = 8 bits.",
+             "Saying n bits give 2^n − 1 values (that is the max unsigned VALUE, not the count).",
+             "Treating kB and KiB as identical.",
+             "Using 1000 where 1024 is required (or vice versa)."]
 },
 "compsci:4.5.4.1": {
-  defs: [["Unsigned binary", "Represents non-negative integers only; n bits give the range 0 to 2^n − 1."]],
-  tips: ["8-bit unsigned range is 0–255; column values are 128, 64, … , 1.", "Max value = 2^n − 1, not 2^n."],
-  pitfalls: ["Saying 8-bit unsigned reaches 256 (the max is 255).", "Trying to store a negative value in unsigned binary."]
-},
-"compsci:4.5.4.2": {
-  defs: [["Overflow", "A result needing more bits than available — a carry out of the most significant bit (unsigned)."]],
-  tips: ["Binary addition: 1+1 = 10 (carry); 1+1+1 = 11.", "Detect unsigned overflow by a carry out of the MSB."],
-  pitfalls: ["Carrying at 10 (decimal) instead of at 2 (binary).", "Ignoring the final carry / overflow."]
+  defs: [["Unsigned binary","Represents non-negative integers only; n bits give the range 0 to 2^n − 1."],
+         ["Overflow","A result needing more bits than available — a carry out of the most significant bit (unsigned)."]],
+  tips: ["8-bit unsigned range is 0–255; column values are 128, 64, … , 1.",
+         "Max value = 2^n − 1, not 2^n.",
+         "Binary addition: 1+1 = 10 (carry); 1+1+1 = 11.",
+         "Detect unsigned overflow by a carry out of the MSB."],
+  pitfalls: ["Saying 8-bit unsigned reaches 256 (the max is 255).",
+             "Trying to store a negative value in unsigned binary.",
+             "Carrying at 10 (decimal) instead of at 2 (binary).",
+             "Ignoring the final carry / overflow."]
 },
 "compsci:4.5.4.3": {
   defs: [["Two's complement", "The standard signed representation; negate by inverting all bits and adding 1."]],
@@ -428,15 +412,23 @@ window.KOS_DATA.intel = {
   pitfalls: ["Normalising by moving the point the wrong way and forgetting to adjust the exponent in the opposite sense.", "Rounding errors: state that some values cannot be represented exactly, causing rounding/cancellation errors — wording matters."]
 },
 "compsci:4.5.4.5": {
-  defs: [["Rounding error", "The small difference left when a value that is not an exact binary fraction is truncated to the available bits."]],
-  tips: ["A value is exact only if it is a sum of power-of-two fractions (0.5, 0.25, 0.75 ...).", "Fractions like 0.1, 0.2 and 1/3 recur in binary and must be rounded — fixed AND floating point are affected."],
-  pitfalls: ["Assuming 0.1 + 0.2 == 0.3 in floating point.", "Thinking only floating point rounds — fixed point does too."]
-},
-"compsci:4.5.4.6": {
-  defs: [["Absolute error", "|actual - stored value| — the raw size of the difference."],
-         ["Relative error", "absolute error / |actual value| — the error as a proportion of the true value."]],
-  tips: ["Relative error compares fairly across magnitudes; absolute error alone can mislead.", "For numbers near 1, absolute and relative error are almost equal."],
-  pitfalls: ["Assuming a small absolute error means an accurate result — check the relative error.", "Giving relative error units (it is a dimensionless ratio)."]
+  defs: [["Rounding error","The small difference left when a value that is not an exact binary fraction is truncated to the available bits."],
+         ["Absolute error","|actual - stored value| — the raw size of the difference."],
+         ["Relative error","absolute error / |actual value| — the error as a proportion of the true value."],
+         ["Overflow","Result too large — the exponent exceeds its maximum."],
+         ["Underflow","Result too small / near zero — the exponent falls below its minimum."]],
+  tips: ["A value is exact only if it is a sum of power-of-two fractions (0.5, 0.25, 0.75 ...).",
+         "Fractions like 0.1, 0.2 and 1/3 recur in binary and must be rounded — fixed AND floating point are affected.",
+         "Relative error compares fairly across magnitudes; absolute error alone can mislead.",
+         "For numbers near 1, absolute and relative error are almost equal.",
+         "Both concern the EXPONENT's range, not the mantissa.",
+         "Overflow from multiplying large values; underflow from dividing a small value by a large one."],
+  pitfalls: ["Assuming 0.1 + 0.2 == 0.3 in floating point.",
+             "Thinking only floating point rounds — fixed point does too.",
+             "Assuming a small absolute error means an accurate result — check the relative error.",
+             "Giving relative error units (it is a dimensionless ratio).",
+             "Saying overflow is about the mantissa.",
+             "Confusing overflow (too big) with underflow (too small)."]
 },
 "compsci:4.5.4.7": {
   defs: [["Precision", "Number of significant figures, set by the mantissa length."],
@@ -449,22 +441,18 @@ window.KOS_DATA.intel = {
   tips: ["Positive normalised mantissa begins 0.1; negative begins 1.0.", "Each left shift decrements the exponent, so the value is unchanged."],
   pitfalls: ["Thinking normalisation changes the value.", "Leaving 0.0 / 1.1 leading bits (not normalised)."]
 },
-"compsci:4.5.4.9": {
-  defs: [["Overflow", "Result too large — the exponent exceeds its maximum."],
-         ["Underflow", "Result too small / near zero — the exponent falls below its minimum."]],
-  tips: ["Both concern the EXPONENT's range, not the mantissa.", "Overflow from multiplying large values; underflow from dividing a small value by a large one."],
-  pitfalls: ["Saying overflow is about the mantissa.", "Confusing overflow (too big) with underflow (too small)."]
-},
-"compsci:4.5.5.2": {
-  defs: [["ASCII", "A 7-bit character set (128 characters), mainly English/Latin."],
-         ["Unicode", "A character set covering all world scripts and emoji (UTF-8/16); UTF-8 is ASCII-compatible."]],
-  tips: ["Key codes: '0' = 48, 'A' = 65, 'a' = 97; lowercase = uppercase + 32.", "Unicode was introduced for global text ASCII cannot represent; UTF-8 uses 1 byte for ASCII characters."],
-  pitfalls: ["Claiming ASCII covers all languages.", "Saying Unicode always uses more space — UTF-8 matches ASCII for ASCII text."]
-},
 "compsci:4.5.5.1": {
-  defs: [["Character code of a digit", "The character-set code for a digit symbol, e.g. '5' = ASCII 53 — different from the pure binary value 5 (00000101)."]],
-  tips: ["Digit character code = 48 + digit; recover the value with code - 48.", "Keyboard/text input arrives as characters, so convert before arithmetic."],
-  pitfalls: ["Thinking the character '0' is binary 0 (it is 48).", "Adding digit characters directly: '2' + '3' = 50 + 51 = 101, not 5."]
+  defs: [["Character code of a digit","The character-set code for a digit symbol, e.g. '5' = ASCII 53 — different from the pure binary value 5 (00000101)."],
+         ["ASCII","A 7-bit character set (128 characters), mainly English/Latin."],
+         ["Unicode","A character set covering all world scripts and emoji (UTF-8/16); UTF-8 is ASCII-compatible."]],
+  tips: ["Digit character code = 48 + digit; recover the value with code - 48.",
+         "Keyboard/text input arrives as characters, so convert before arithmetic.",
+         "Key codes: '0' = 48, 'A' = 65, 'a' = 97; lowercase = uppercase + 32.",
+         "Unicode was introduced for global text ASCII cannot represent; UTF-8 uses 1 byte for ASCII characters."],
+  pitfalls: ["Thinking the character '0' is binary 0 (it is 48).",
+             "Adding digit characters directly: '2' + '3' = 50 + 51 = 101, not 5.",
+             "Claiming ASCII covers all languages.",
+             "Saying Unicode always uses more space — UTF-8 matches ASCII for ASCII text."]
 },
 "compsci:4.5.5.3": {
   defs: [["Checksum", "A value computed from a data block, recalculated by the receiver to detect errors."],
@@ -473,32 +461,40 @@ window.KOS_DATA.intel = {
   pitfalls: ["Saying a checksum detects all errors (some cancel out).", "Confusing detection with correction."]
 },
 "compsci:4.5.6.4": {
-  defs: [["Resolution", "Pixel dimensions (width x height); also dots per inch."],
-         ["Colour depth", "Bits per pixel; n bits gives 2^n available colours."]],
-  tips: ["Image size (bits) = width x height x colour depth; divide by 8 for bytes.", "Metadata (width, height, colour depth) sits in the header and is excluded from the pixel-size calculation."],
-  pitfalls: ["Treating resolution and colour depth as the same thing.", "Forgetting to divide by 8 when converting bits to bytes."]
+  defs: [["Resolution","Pixel dimensions (width x height); also dots per inch."],
+         ["Colour depth","Bits per pixel; n bits gives 2^n available colours."],
+         ["Vector graphic","An image stored as mathematical shape descriptions (coordinates, properties), not pixels."]],
+  tips: ["Image size (bits) = width x height x colour depth; divide by 8 for bytes.",
+         "Metadata (width, height, colour depth) sits in the header and is excluded from the pixel-size calculation.",
+         "Vectors scale with no quality loss, ideal for logos/diagrams; SVG is XML-based.",
+         "Each object's properties are stored as a list.",
+         "Compare on storage (pixels vs objects), scaling (pixelates vs re-rendered), file size and best use (photos vs logos).",
+         "Bitmap = resolution-dependent; vector = resolution-independent."],
+  pitfalls: ["Treating resolution and colour depth as the same thing.",
+             "Forgetting to divide by 8 when converting bits to bytes.",
+             "Saying vectors are always smaller — complex/photographic images can be larger.",
+             "Using vectors for photographs.",
+             "Saying vectors are always smaller/better — only for geometric art.",
+             "Forgetting to link each property to an appropriate USE for the marks."]
 },
 "compsci:4.5.6.1": {
-  defs: [["Bit pattern", "A sequence of binary digits whose meaning depends on how software interprets it."]],
-  tips: ["The same bits can be a number, character, pixel or sample — the data type/format decides.", "Images = pixel grids or vector objects; sound = amplitude samples; text = character codes."],
-  pitfalls: ["Saying a file 'contains' a picture rather than bit patterns plus a format.", "Assuming a bit pattern has one fixed meaning."]
-},
-"compsci:4.5.6.2": {
-  defs: [["Analogue", "Continuous data/signal — any value in a range."],
-         ["Digital", "Discrete data/signal — a finite set of values, stored in binary."]],
-  tips: ["The distinction applies to both data and signals.", "Computers are digital because discrete levels resist noise and copy without loss."],
-  pitfalls: ["Claiming digital is always higher fidelity — it only approximates the analogue source.", "Confusing analogue/digital data with the signal that carries it."]
-},
-"compsci:4.5.6.3": {
-  defs: [["ADC", "Analogue-to-Digital Converter — samples then quantises a signal (recording); used with analogue sensors."],
-         ["DAC", "Digital-to-Analogue Converter — recreates the analogue signal (playback); commonly for digital audio."]],
-  tips: ["Sample rate = samples per second; sample resolution = bits per sample.", "Nyquist: sample rate must be at least 2x the highest frequency to avoid aliasing."],
-  pitfalls: ["Mixing up ADC (record) and DAC (playback).", "Sampling below the Nyquist rate, causing aliasing."]
-},
-"compsci:4.5.6.5": {
-  defs: [["Vector graphic", "An image stored as mathematical shape descriptions (coordinates, properties), not pixels."]],
-  tips: ["Vectors scale with no quality loss, ideal for logos/diagrams; SVG is XML-based.", "Each object's properties are stored as a list."],
-  pitfalls: ["Saying vectors are always smaller — complex/photographic images can be larger.", "Using vectors for photographs."]
+  defs: [["Bit pattern","A sequence of binary digits whose meaning depends on how software interprets it."],
+         ["Analogue","Continuous data/signal — any value in a range."],
+         ["Digital","Discrete data/signal — a finite set of values, stored in binary."],
+         ["ADC","Analogue-to-Digital Converter — samples then quantises a signal (recording); used with analogue sensors."],
+         ["DAC","Digital-to-Analogue Converter — recreates the analogue signal (playback); commonly for digital audio."]],
+  tips: ["The same bits can be a number, character, pixel or sample — the data type/format decides.",
+         "Images = pixel grids or vector objects; sound = amplitude samples; text = character codes.",
+         "The distinction applies to both data and signals.",
+         "Computers are digital because discrete levels resist noise and copy without loss.",
+         "Sample rate = samples per second; sample resolution = bits per sample.",
+         "Nyquist: sample rate must be at least 2x the highest frequency to avoid aliasing."],
+  pitfalls: ["Saying a file 'contains' a picture rather than bit patterns plus a format.",
+             "Assuming a bit pattern has one fixed meaning.",
+             "Claiming digital is always higher fidelity — it only approximates the analogue source.",
+             "Confusing analogue/digital data with the signal that carries it.",
+             "Mixing up ADC (record) and DAC (playback).",
+             "Sampling below the Nyquist rate, causing aliasing."]
 },
 "compsci:4.5.6.7": {
   defs: [["Sample rate", "Samples taken per second (Hz)."],
@@ -522,10 +518,6 @@ window.KOS_DATA.intel = {
          ["Computational security", "Breakable in theory but infeasibly slow to break (AES/RSA)."]],
   tips: ["The Vernam key must be truly random, ≥ message length, and used only once.", "XOR is reversible: ciphertext XOR key = plaintext."],
   pitfalls: ["Calling AES/RSA 'perfectly secure' — only the one-time pad is.", "Reusing the Vernam key or using a pseudorandom one."]
-},
-"compsci:4.5.6.6": {
-  tips: ["Compare on storage (pixels vs objects), scaling (pixelates vs re-rendered), file size and best use (photos vs logos).", "Bitmap = resolution-dependent; vector = resolution-independent."],
-  pitfalls: ["Saying vectors are always smaller/better — only for geometric art.", "Forgetting to link each property to an appropriate USE for the marks."]
 },
 "compsci:4.6.1.1": {
   defs: [["Hardware", "The physical components of a computer system."],

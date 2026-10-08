@@ -487,7 +487,7 @@
         { h: "Sensitivity", m: img ? "doubling width AND height → ×4 file size; one extra bit of depth → +1 bit per pixel" : "doubling the sample rate → ×2; doubling the resolution → ×2; stereo → ×2" }
       ], answer: bytes.toLocaleString() + " bytes ≈ " + fmt(bytes / 1e6, 2) + " MB" };
     }
-  }, ["compsci:4.5.6.4", "compsci:4.5.6.7", "compsci:4.5.3.2"]);
+  }, ["compsci:4.5.6.4", "compsci:4.5.6.7", "compsci:4.5.3.1"]);
 
   W.register({
     id: "parity", cat: "cs", subject: "compsci", ref: "4.5.5.3",

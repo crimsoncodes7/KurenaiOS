@@ -149,7 +149,7 @@ const SEED = String.raw`(async () => {
     const t = today - Math.floor(rnd() * 140) * DAY - Math.floor(rnd() * 8) * 3600000;
     const type = pick(kinds);
     S.sessions.push({ id: i + 1, ts: t, date: iso(t), type,
-      subject: pick(["compsci", "maths", "it"]), ref: "4.5.4.2",
+      subject: pick(["compsci", "maths", "it"]), ref: "4.5.4.1",
       dur: 300 + Math.floor(rnd() * 2400),
       metrics: { complete: rnd() > .12, module: type === "media" ? pick(["anime","books","vn","game"]) : undefined } });
   }
@@ -230,7 +230,7 @@ const SEED = String.raw`(async () => {
     created: today - 20 * DAY, updatedAt: today });
   S.tracker = { nextId: 1, entries: [] };
   for (let i = 0; i < 22; i++) S.tracker.entries.push({ id: S.tracker.nextId++, kind: i % 2 ? "paper" : "exam",
-    subject: pick(["compsci", "maths", "it"]), ref: "4.5.4.2",
+    subject: pick(["compsci", "maths", "it"]), ref: "4.5.4.1",
     title: "AQA 7517/1 June 2025 — Paper 1 (on-screen)", date: iso(today - i * 9 * DAY),
     marks: 40 + (i % 35), outOf: 100, notes: "" });
 

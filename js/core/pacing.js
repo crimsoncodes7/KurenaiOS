@@ -172,7 +172,7 @@
       ["Subroutines & parameters", ["4.1.1.10", "4.1.1.11"]],
       ["Return values & variable scope (local & global)", ["4.1.1.12", "4.1.1.13", "4.1.1.14"]]]],
     ["p64", "Bitmapped & vector graphics, sound representation & MIDI", [
-      ["Bitmapped & vector graphics", ["4.5.6.1", "4.5.6.4", "4.5.6.5", "4.5.6.6"]],
+      ["Bitmapped & vector graphics", ["4.5.6.1", "4.5.6.4"]],
       ["Sound representation & MIDI", ["4.5.6.7", "4.5.6.8"]]]],
     ["p70", "Hardware, software & classification of software", [
       ["Hardware, software & classification of software", ["4.6.1.1", "4.6.1.2"]],
@@ -187,9 +187,9 @@
       ["Input & output devices", ["4.7.4.1"]],
       ["Secondary storage devices & RAID", ["4.7.4.2"]]]],
     ["p98", "Abstraction, decomposition & automation", [
-      ["Problem-solving, algorithms, abstraction & information hiding", ["4.4.1.1", "4.4.1.2", "4.4.1.3", "4.4.1.4"]],
-      ["Procedural, functional & data abstraction; problem reduction", ["4.4.1.5", "4.4.1.6", "4.4.1.7", "4.4.1.8"]],
-      ["Decomposition, composition & automation", ["4.4.1.9", "4.4.1.10", "4.4.1.11"]]]],
+      ["Problem-solving, algorithms, abstraction & information hiding", ["4.4.1.1", "4.4.1.2", "4.4.1.3"]],
+      ["Procedural, functional & data abstraction; problem reduction", ["4.4.1.3"]],
+      ["Decomposition, composition & automation", ["4.4.1.9"]]]],
     ["p103", "IP addressing, subnetting, NAT & DHCP", [
       ["IP addressing, standards & subnetting", ["4.9.4.3", "4.9.4.4", "4.9.4.5", "4.9.4.6"]],
       ["DHCP, NAT & port forwarding", ["4.9.4.7", "4.9.4.8", "4.9.4.9"]]]],
