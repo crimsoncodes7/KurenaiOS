@@ -24,7 +24,7 @@ behaviour, data and invariants of the earlier releases unchanged.
   sub-points merged into one leaf each) — immutable deployment
   https://7f4a55ea.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-cs-merge-1`
+- Service-worker cache: `kos-cs-merge-2`
 - Verification: all **67 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).
