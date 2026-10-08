@@ -17,7 +17,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `5ccfbd6` (flashcard clean-up and merged CS leaves), immutable https://7f4a55ea.kurenai-os.pages.dev — deployed 9 October 2026; before it `232769b` (personal plan re-laid out, class plan extended to Easter), https://26ba91af.kurenai-os.pages.dev; before that `87ee60c` (Computer Science at depth, with the UI review fixes), https://bfb13afc.kurenai-os.pages.dev; before that `9eac539` (Mechanics M6–M9 at depth), https://32db7dba.kurenai-os.pages.dev; before that `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
+| Runtime release commit | `6442704` (flashcard clean-up and merged CS leaves, capped at about 30 cards each), immutable https://eaf09f62.kurenai-os.pages.dev — deployed 9 October 2026; before it `232769b` (personal plan re-laid out, class plan extended to Easter), https://26ba91af.kurenai-os.pages.dev; before that `87ee60c` (Computer Science at depth, with the UI review fixes), https://bfb13afc.kurenai-os.pages.dev; before that `9eac539` (Mechanics M6–M9 at depth), https://32db7dba.kurenai-os.pages.dev; before that `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-cs-merge-2` |
