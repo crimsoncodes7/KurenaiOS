@@ -302,11 +302,10 @@ C["maths:9.2"] = {
   ],
   flashcards: [
     ["Fixed-point iteration finds a root of $f(x) = 0$ how?", "Rearrange to $x = g(x)$; iterate $x_{n+1} = g(x_n)$; the limit satisfies $g(\\alpha) = \\alpha$."],
-    ["Staircase vs cobweb?", "Staircase when $g' > 0$ near the root; cobweb (spiral) when $g' < 0$."],
-    ["Converges when?", "$|g'(\\alpha)| < 1$ near the root."],
-    ["Two moves of the diagram?", "Vertical to the curve $y = g(x)$, horizontal to the line $y = x$."],
-    ["From $x_1$, how many calculator presses to $x_4$?", "Three."],
-    ["Oct 2021 Q4: turning point of $x^2 + \\ln(2x^2 - 4x + 5)$ satisfies?", "$2x^3 - 4x^2 + 7x - 2 = 0$."]
+    ["Converges when?", "$|g'(\\alpha)| < 1$ near the root.", 2],
+    ["Two moves of the diagram?", "Vertical to the curve $y = g(x)$, horizontal to the line $y = x$.", 3],
+    ["From $x_1$, how many calculator presses to $x_4$?", "Three.", 4],
+    ["Oct 2021 Q4: turning point of $x^2 + \\ln(2x^2 - 4x + 5)$ satisfies?", "$2x^3 - 4x^2 + 7x - 2 = 0$.", 5]
   ],
   quiz: [
     { q: "$x_{n+1} = \\sqrt{3x_n + 1}$, $x_1 = 2$: $x_2 =$", opts: ["$\\sqrt7 \\approx 2.646$", "$7$", "$\\sqrt{10}$", "$2.5$"], ans: 0, why: "$\\sqrt{6 + 1}$." },
@@ -408,10 +407,8 @@ C["maths:9.3"] = {
   ],
   flashcards: [
     ["Newton–Raphson formula?", "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$."],
-    ["Geometric meaning?", "$x_{n+1}$ is where the tangent at $x_n$ crosses the $x$-axis."],
-    ["When does it fail?", "$f'(x_n) = 0$ (horizontal tangent) or small (tangent shoots far away); a start on the wrong side of a turning point."],
-    ["June 2018 Q5: $2x^3 + x^2 - 1 = 0$, $x_1 = 1$: $x_2$?", "$0.75$."],
-    ["Why is NR fast?", "As a fixed-point iteration its $g'(\\alpha) = 0$; errors roughly square each step."]
+    ["June 2018 Q5: $2x^3 + x^2 - 1 = 0$, $x_1 = 1$: $x_2$?", "$0.75$.", 3],
+    ["Why is Newton–Raphson fast?", "As a fixed-point iteration its $g'(\\alpha) = 0$; errors roughly square each step.", 4]
   ],
   quiz: [
     { q: "$f(x) = x^2 - 2$, $x_1 = 1$: $x_2 =$", opts: ["$1.5$", "$1$", "$2$", "$0.5$"], ans: 0, why: "$1 - \\frac{-1}{2} = 1.5$." },
@@ -553,8 +550,7 @@ C["maths:9.4"] = {
     ["$n$ is the number of?", "Strips. Ordinates $= n + 1$."],
     ["Convex curve gives?", "An over-estimate (chords above the arc)."],
     ["Concave curve gives?", "An under-estimate (chords below the arc)."],
-    ["Better approximation how?", "More strips (smaller $h$)."],
-    ["From $\\int_3^9 \\log_3 2x \\approx 13.3$, $\\int_3^9 \\log_3 18x \\approx$?", "$\\log_3 18x = 2 + \\log_3 2x$: $12 + 13.3 = 25.3$."]
+    ["From $\\int_3^9 \\log_3 2x \\approx 13.3$, $\\int_3^9 \\log_3 18x \\approx$?", "$\\log_3 18x = 2 + \\log_3 2x$: $12 + 13.3 = 25.3$.", 5]
   ],
   quiz: [
     { q: "Five ordinates from $x = 1$ to $x = 3$: $h =$", opts: ["0.5", "0.4", "2", "0.25"], ans: 0, why: "Four strips: $2/4$." },

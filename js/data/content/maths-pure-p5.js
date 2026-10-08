@@ -171,12 +171,11 @@ C["maths:5.1"] = {
     ["Arc length, sector area, segment area (radians)?", "$r\\theta$; $\\frac12 r^2\\theta$; $\\frac12 r^2(\\theta - \\sin\\theta)$."],
     ["Why does the sine rule have an ambiguous case?", "$\\sin\\theta = \\sin(180° - \\theta)$; the cosine rule does not because $\\cos$ is one-to-one on $[0°, 180°]$."],
     ["$60°$, $45°$, $30°$ in radians?", "$\\frac{\\pi}{3}$, $\\frac{\\pi}{4}$, $\\frac{\\pi}{6}$."],
-    ["Sector: area 11, perimeter $= 4 \\times$ arc: $r$?", "$\\theta = \\frac23$, $r = \\sqrt{33}$."],
-    ["Major sector 135 cm$^2$, reflex angle 4.8: minor arc?", "$r = 7.5$; $7.5(2\\pi - 4.8) = 15\\pi - 36$."],
-    ["Perimeter of a sector?", "$2r + r\\theta$ — do not forget the two radii."],
-    ["Area 15, sides 10 and 5: $\\cos\\theta$?", "$\\sin\\theta = 0.6$, $\\cos\\theta = \\pm0.8$."],
-    ["Angle between bearings $072°$ and $039°$ from the same point?", "$33°$."],
-    ["Why is one radian defined as it is?", "The angle whose arc equals the radius; then $s = r\\theta$ exactly and a full turn is $2\\pi$."]
+    ["Major sector 135 cm$^2$, reflex angle 4.8: minor arc?", "$r = 7.5$; $7.5(2\\pi - 4.8) = 15\\pi - 36$.", 6],
+    ["Perimeter of a sector?", "$2r + r\\theta$ — do not forget the two radii.", 7],
+    ["Area 15, sides 10 and 5: $\\cos\\theta$?", "$\\sin\\theta = 0.6$, $\\cos\\theta = \\pm0.8$.", 8],
+    ["Angle between bearings $072°$ and $039°$ from the same point?", "$33°$.", 9],
+    ["Why is one radian defined as it is?", "The angle whose arc equals the radius; then $s = r\\theta$ exactly and a full turn is $2\\pi$.", 10]
   ],
   quiz: [
     { q: "$150°$ in radians:", opts: ["$\\tfrac{5\\pi}{6}$", "$\\tfrac{2\\pi}{3}$", "$\\tfrac{5\\pi}{4}$", "$\\tfrac{3\\pi}{4}$"], ans: 0, why: "$150/180 = 5/6$." },
@@ -284,10 +283,9 @@ C["maths:5.2"] = {
     ["$\\cos 4\\theta \\approx$?", "$1 - 8\\theta^2$."],
     ["$\\frac{1 - \\cos 4\\theta}{2\\theta\\sin 3\\theta} \\approx$?", "$\\frac{8\\theta^2}{6\\theta^2} = \\frac43$."],
     ["$4\\sin\\frac{\\theta}{2} + 3\\cos^2\\theta \\approx$?", "$3 + 2\\theta - 3\\theta^2$."],
-    ["Why must $\\theta$ be in radians?", "Only in radians is the gradient of $\\sin\\theta$ at 0 equal to 1, so $\\sin\\theta \\approx \\theta$."],
-    ["Estimate the small root of $\\cos x = 2x + \\frac12$.", "$x^2 + 4x - 1 = 0$, $\\alpha \\approx \\sqrt5 - 2 = 0.236$."],
-    ["$\\frac{\\theta\\tan 2\\theta}{1 - \\cos 3\\theta} \\approx$?", "$\\frac{2\\theta^2}{9\\theta^2/2} = \\frac49$."],
-    ["$(1 - \\frac{\\theta^2}{2})^2 \\approx$?", "$1 - \\theta^2$ (dropping $\\theta^4$)."]
+    ["Estimate the small root of $\\cos x = 2x + \\frac12$.", "$x^2 + 4x - 1 = 0$, $\\alpha \\approx \\sqrt5 - 2 = 0.236$.", 5],
+    ["$\\frac{\\theta\\tan 2\\theta}{1 - \\cos 3\\theta} \\approx$?", "$\\frac{2\\theta^2}{9\\theta^2/2} = \\frac49$.", 6],
+    ["$(1 - \\frac{\\theta^2}{2})^2 \\approx$?", "$1 - \\theta^2$ (dropping $\\theta^4$).", 7]
   ],
   quiz: [
     { q: "$\\sin 3\\theta \\approx$", opts: ["$3\\theta$", "$\\theta$", "$1 - \\tfrac{9\\theta^2}{2}$", "$9\\theta$"], ans: 0, why: "Substitute $3\\theta$." },
@@ -564,13 +562,11 @@ C["maths:5.5"] = {
   ],
   flashcards: [
     ["The Pythagorean identity and its two divided forms?", "$\\sin^2 + \\cos^2 = 1$; $1 + \\tan^2 = \\sec^2$; $1 + \\cot^2 = \\text{cosec}^2$."],
-    ["$4\\cos\\theta - 1 = 2\\sin\\theta\\tan\\theta$ as a quadratic?", "$6\\cos^2\\theta - \\cos\\theta - 2 = 0$."],
-    ["$\\sin\\theta(7\\sin\\theta - 4\\cos\\theta) = 4$ as a quadratic in $\\tan$?", "Write $4 = 4(\\sin^2 + \\cos^2)$, divide by $\\cos^2$: $3\\tan^2\\theta - 4\\tan\\theta - 4 = 0$."],
-    ["$4\\tan x = 5\\cos x$ as a quadratic in $\\sin x$?", "$5\\sin^2 x + 4\\sin x - 5 = 0$."],
-    ["Why never divide an equation by $\\sin x$?", "It discards the solutions where $\\sin x = 0$."],
-    ["Solutions of $\\cos 3x = -\\frac12$ for $0 \\le x < 90°$?", "$3x = 120°, 240°$: $x = 40°, 80°$."],
-    ["How many solutions has $4\\tan 3x = 5\\cos 3x$ in $0 < x \\le 1800°$?", "$3x$ covers 15 periods, two each: 30."],
-    ["$\\tan^2 3x = 4$ gives…", "$\\tan 3x = \\pm2$ — both signs."]
+    ["$\\sin\\theta(7\\sin\\theta - 4\\cos\\theta) = 4$ as a quadratic in $\\tan$?", "Write $4 = 4(\\sin^2 + \\cos^2)$, divide by $\\cos^2$: $3\\tan^2\\theta - 4\\tan\\theta - 4 = 0$.", 2],
+    ["Why never divide an equation by $\\sin x$?", "It discards the solutions where $\\sin x = 0$.", 4],
+    ["Solutions of $\\cos 3x = -\\frac12$ for $0 \\le x < 90°$?", "$3x = 120°, 240°$: $x = 40°, 80°$.", 5],
+    ["How many solutions has $4\\tan 3x = 5\\cos 3x$ in $0 < x \\le 1800°$?", "$3x$ covers 15 periods, two each: 30.", 6],
+    ["$\\tan^2 3x = 4$ gives…", "$\\tan 3x = \\pm2$ — both signs.", 7]
   ],
   quiz: [
     { q: "$1 - \\sin^2\\theta =$", opts: ["$\\cos^2\\theta$", "$\\cos\\theta$", "$\\tan^2\\theta$", "$1 - \\cos^2\\theta$"], ans: 0, why: "Pythagorean identity." },
@@ -664,10 +660,8 @@ C["maths:5.6"] = {
     ["$a\\cos\\theta + b\\sin\\theta = R\\cos(\\theta - \\alpha)$: $R$ and $\\alpha$?", "$R = \\sqrt{a^2 + b^2}$, $\\tan\\alpha = \\frac{b}{a}$."],
     ["Maximum of $2\\cos\\theta + 8\\sin\\theta$?", "$2\\sqrt{17}$."],
     ["$\\cos 3A$ in terms of $\\cos A$?", "$4\\cos^3 A - 3\\cos A$."],
-    ["$\\frac{\\cos 3\\theta}{\\sin\\theta} + \\frac{\\sin 3\\theta}{\\cos\\theta} \\equiv$?", "$\\frac{\\cos 2\\theta}{\\sin\\theta\\cos\\theta} = 2\\cot 2\\theta$."],
-    ["$5\\sin\\theta - 5\\cos\\theta$ in $R$-form?", "$5\\sqrt2\\sin(\\theta - 45°)$."],
-    ["Why $R = \\sqrt{a^2 + b^2}$?", "$R\\cos\\alpha = a$, $R\\sin\\alpha = b$; square and add using $\\cos^2 + \\sin^2 = 1$."],
-    ["$\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) \\equiv$?", "$2\\cos x$."]
+    ["$5\\sin\\theta - 5\\cos\\theta$ in $R$-form?", "$5\\sqrt2\\sin(\\theta - 45°)$.", 7],
+    ["Why $R = \\sqrt{a^2 + b^2}$?", "$R\\cos\\alpha = a$, $R\\sin\\alpha = b$; square and add using $\\cos^2 + \\sin^2 = 1$.", 8],
   ],
   quiz: [
     { q: "$\\cos(A - B) =$", opts: ["$\\cos A\\cos B + \\sin A\\sin B$", "$\\cos A\\cos B - \\sin A\\sin B$", "$\\sin A\\cos B - \\cos A\\sin B$", "$\\cos A - \\cos B$"], ans: 0, why: "Sign flips for cosine." },
@@ -855,10 +849,9 @@ C["maths:5.8"] = {
     ["Rule for proving an identity?", "Transform one side into the other (or both into the same thing); never move terms across $\\equiv$."],
     ["$1 + \\cos 2\\theta$ and $1 - \\cos 2\\theta$?", "$2\\cos^2\\theta$; $2\\sin^2\\theta$."],
     ["How do you turn $\\frac{1 + \\sin\\theta}{\\cos\\theta}$ into $\\frac{\\cos\\theta}{1 - \\sin\\theta}$?", "Multiply top and bottom by $1 - \\sin\\theta$; $1 - \\sin^2 = \\cos^2$; cancel a $\\cos\\theta$."],
-    ["$\\text{cosec}\\,2x + \\cot 2x \\equiv$?", "$\\frac{1 + \\cos 2x}{\\sin 2x} = \\cot x$."],
-    ["$\\text{cosec}^2\\theta - 1 = $?", "$\\cot^2\\theta$."],
-    ["$\\tan\\theta\\sin 2\\theta \\equiv$?", "$2\\sin^2\\theta = 1 - \\cos 2\\theta$."],
-    ["First move in any proof with tan, sec, cosec, cot?", "Rewrite everything in $\\sin$ and $\\cos$."]
+    ["$\\text{cosec}^2\\theta - 1 = $?", "$\\cot^2\\theta$.", 4],
+    ["$\\tan\\theta\\sin 2\\theta \\equiv$?", "$2\\sin^2\\theta = 1 - \\cos 2\\theta$.", 5],
+    ["First move in any proof with tan, sec, cosec, cot?", "Rewrite everything in $\\sin$ and $\\cos$.", 6]
   ],
   quiz: [
     { q: "$\\frac{\\sin 2\\theta}{1 + \\cos 2\\theta} \\equiv$", opts: ["$\\tan\\theta$", "$\\cot\\theta$", "$\\sin\\theta$", "$2\\tan\\theta$"], ans: 0, why: "$\\frac{2\\sin\\theta\\cos\\theta}{2\\cos^2\\theta}$." },

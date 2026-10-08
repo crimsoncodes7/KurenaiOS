@@ -147,15 +147,14 @@ C["compsci:4.7.3.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.6.2.1 machine code vs assembly; 4.6.3.1 assembler (one-to-one), bytecode for portability; 4.7.3.4 addressing modes in the opcode; 4.5.4.5 two's complement ranges for immediate operands; 4.7.3.2 the CU splits opcode from operand at decode." } }
   ],
   flashcards: [
-    ["What is a processor instruction set?", "All the machine code instructions a particular processor can decode and execute."],
-    ["Why is an instruction set processor-specific?", "Different processors decode different opcodes, registers and formats."],
-    ["What is an opcode?", "The part of an instruction giving the operation (and, in AQA's model, the addressing mode)."],
-    ["What is an operand?", "The value, register or memory address the operation uses."],
-    ["k opcode bits allow…", "2ᵏ opcodes."],
-    ["n operand bits in direct addressing address…", "2ⁿ memory locations."],
-    ["32 operations + 1 mode bit → opcodes?", "64."],
-    ["Machine code vs assembly?", "Binary executed directly vs mnemonics translated one-to-one by an assembler."],
-    ["Why won't a compiled program run on a different processor?", "It is machine code for a different instruction set."]
+    ["Why is an instruction set processor-specific?", "Different processors decode different opcodes, registers and formats.", 1],
+    ["What is an opcode?", "The part of an instruction giving the operation (and, in AQA's model, the addressing mode).", 2],
+    ["What is an operand?", "The value, register or memory address the operation uses.", 3],
+    ["k opcode bits allow…", "2ᵏ opcodes.", 4],
+    ["n operand bits in direct addressing address…", "2ⁿ memory locations.", 5],
+    ["32 operations + 1 mode bit → opcodes?", "64.", 6],
+    ["Machine code vs assembly?", "Binary executed directly vs mnemonics translated one-to-one by an assembler.", 7],
+    ["Why won't a compiled program run on a different processor?", "It is machine code for a different instruction set.", 8]
   ],
   quiz: [
     { q: "A 6-bit opcode allows", opts: ["64 opcodes", "32 opcodes", "6 opcodes", "128 opcodes"], ans: 0, why: "2⁶." },
@@ -262,14 +261,13 @@ C["compsci:4.7.3.4"] = {
   ],
   flashcards: [
     ["Immediate addressing?", "The operand is the datum."],
-    ["Direct addressing?", "The operand is the address (memory location or register) of the datum."],
-    ["Mode of MOV R2, #0?", "Immediate."],
-    ["Mode of ADD R3, R3, R0?", "Direct (register)."],
-    ["Mode of LDR R1, 100?", "Direct (memory)."],
-    ["AQA syntax for the value 13?", "#13."],
-    ["12-bit two's complement immediate range?", "−2048 to 2047."],
-    ["How does the addressing mode relate to the operand?", "It says how the operand's value is interpreted — as data or as an address."],
-    ["Which mode needs an extra memory access?", "Direct with a memory address."]
+    ["Mode of MOV R2, #0?", "Immediate.", 2],
+    ["Mode of ADD R3, R3, R0?", "Direct (register).", 3],
+    ["Mode of LDR R1, 100?", "Direct (memory).", 4],
+    ["AQA syntax for the value 13?", "#13.", 5],
+    ["12-bit two's complement immediate range?", "−2048 to 2047.", 6],
+    ["How does the addressing mode relate to the operand?", "It says how the operand's value is interpreted — as data or as an address.", 7],
+    ["Which mode needs an extra memory access?", "Direct with a memory address.", 8]
   ],
   quiz: [
     { q: "In MOV R3, #42 the operand is", opts: ["the datum (immediate)", "an address (direct)", "a register", "an opcode"], ans: 0, why: "# = value." },

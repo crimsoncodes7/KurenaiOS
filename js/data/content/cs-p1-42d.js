@@ -157,7 +157,7 @@ C["compsci:4.2.6.1"] = {
     ["Linear probing problem?", "Clustering — runs of filled slots make searches longer."],
     ["Chaining?", "Each slot holds a list of all records that hashed to it."],
     ["Why are hash tables fast?", "The location is calculated, so no search is needed (average O(1))."],
-    ["Why do they slow down when full?", "More collisions, so fewer records are at their calculated index."],
+    ["Why do hash tables slow down when nearly full?", "More collisions, so fewer records are at their calculated index."],
     ["Load factor?", "Number of items ÷ number of slots."],
     ["47 MOD 11?", "3."]
   ],
@@ -238,13 +238,12 @@ C["compsci:4.2.7.1"] = {
   ],
   flashcards: [
     ["Dictionary?", "A collection of key–value pairs in which values are accessed via their keys."],
-    ["Must keys be unique?", "Yes. Values may repeat."],
-    ["Why implement a dictionary with a hash table?", "Direct access to a value from its key — no search."],
-    ["Dictionary for 'The green, green grass grows'?", "{'grass': 1, 'green': 2, 'grows': 1, 'the': 1}"],
-    ["C# lookup that cannot throw for a missing key?", "TryGetValue(key, out value)."],
-    ["Information retrieval use?", "Word frequencies; word → list of documents containing it."],
-    ["Dictionary vs array?", "Array: integer position. Dictionary: any key type."],
-    ["Missing key with dict[key] in C#?", "KeyNotFoundException."]
+    ["Why implement a dictionary with a hash table?", "Direct access to a value from its key — no search.", 2],
+    ["Dictionary for 'The green, green grass grows'?", "{'grass': 1, 'green': 2, 'grows': 1, 'the': 1}", 3],
+    ["C# lookup that cannot throw for a missing key?", "TryGetValue(key, out value).", 4],
+    ["Information retrieval use?", "Word frequencies; word → list of documents containing it.", 5],
+    ["Dictionary vs array?", "Array: integer position. Dictionary: any key type.", 6],
+    ["Missing key with dict[key] in C#?", "KeyNotFoundException.", 7]
   ],
   quiz: [
     { q: "In a dictionary the value is accessed by", opts: ["its key", "its position", "a hash of the value", "a search of every pair"], ans: 0, why: "Definition." },
@@ -382,12 +381,11 @@ C["compsci:4.2.8.1"] = {
     ["Three representations of a vector in code?", "List, 1-D array, dictionary (index ↦ value)."],
     ["Vector addition achieves…?", "Translation."],
     ["Scalar–vector multiplication achieves…?", "Scaling (a negative scalar also reverses direction)."],
-    ["Convex combination of u and v?", "αu + βv with α, β ≥ 0 and α + β = 1."],
-    ["Dot product of [a1, a2] and [b1, b2]?", "a1b1 + a2b2."],
-    ["Angle from the dot product?", "cos θ = (u · v) ÷ (|u| |v|)."],
-    ["Magnitude of [4, 3]?", "5."],
-    ["[1, 1] · [3, −5]?", "−2."],
-    ["Effect of × −1 on the angle with b?", "θ becomes 180° − θ; magnitude unchanged."]
+    ["Dot product of [a1, a2] and [b1, b2]?", "a1b1 + a2b2.", 6],
+    ["Angle from the dot product?", "cos θ = (u · v) ÷ (|u| |v|).", 7],
+    ["Magnitude of [4, 3]?", "5.", 8],
+    ["[1, 1] · [3, −5]?", "−2.", 9],
+    ["Effect of × −1 on the angle with b?", "θ becomes 180° − θ; magnitude unchanged.", 10]
   ],
   quiz: [
     { q: "[4, 3] · [4, 0] =", opts: ["16", "[16, 0]", "28", "4"], ans: 0, why: "16 + 0." },

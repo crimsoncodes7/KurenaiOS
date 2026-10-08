@@ -13,13 +13,11 @@ X("compsci:4.5.1.1", {
   ],
   flashcards: [
     ["Define the set of natural numbers.", "The positive whole numbers including zero: 0, 1, 2, 3, … — used for counting."],
-    ["What symbol denotes the natural numbers?", "ℕ."],
-    ["Is 0 a natural number in the AQA specification?", "Yes."],
-    ["Which numbers are integers but not natural?", "Negative whole numbers, e.g. −7."],
-    ["Which set is appropriate for counting?", "The natural numbers ℕ."],
-    ["Which set is appropriate for measurement?", "The real numbers ℝ — quantities are not necessarily whole or positive."],
-    ["Why can natural numbers not represent a measured length?", "They have no fractional part and cannot be negative; real-world quantities are continuous."],
-    ["Name the five number sets in the spec.", "Natural, integer, rational, irrational, real (plus ordinal numbers for position)."]
+    ["Which numbers are integers but not natural?", "Negative whole numbers, e.g. −7.", 12],
+    ["Which set is appropriate for counting?", "The natural numbers ℕ.", 13],
+    ["Which set is appropriate for measurement?", "The real numbers ℝ — quantities are not necessarily whole or positive.", 14],
+    ["Why can natural numbers not represent a measured length?", "They have no fractional part and cannot be negative; real-world quantities are continuous.", 15],
+    ["Name the five number sets in the spec.", "Natural, integer, rational, irrational, real (plus ordinal numbers for position).", 16]
   ],
   quiz: [
     { q: "Which is a natural number?", opts: ["−4", "0", "2.5", "√3"], ans: 1, why: "Zero is included in ℕ for AQA." },
@@ -46,14 +44,12 @@ X("compsci:4.5.1.1", {
 
 X("compsci:4.5.1.2", {
   flashcards: [
-    ["Define the set of integers.", "All whole numbers, positive, negative and zero: …, −2, −1, 0, 1, 2, …"],
-    ["What symbol denotes the integers?", "ℤ."],
-    ["State one difference between the integers and the natural numbers.", "The integers include negative whole numbers; the natural numbers do not."],
-    ["Is every natural number an integer?", "Yes — ℕ is a subset of ℤ."],
-    ["Give an example of a value in ℤ but not in ℕ.", "−999 (any negative whole number)."],
-    ["Which computer data type corresponds to ℤ?", "The (signed) integer type — represented with two's complement."],
-    ["Which set would a bank balance that can go overdrawn belong to (in whole pence)?", "Integers — it can be negative."],
-    ["Is 3.0 an integer?", "Mathematically 3.0 = 3 is an integer; as a stored real it is not an integer type."]
+    ["Define the set of integers.", "All whole numbers, positive, negative and zero: …, −2, −1, 0, 1, 2, …", 8],
+    ["State one difference between the integers and the natural numbers.", "The integers include negative whole numbers; the natural numbers do not.", 10],
+    ["Is every natural number an integer?", "Yes — ℕ is a subset of ℤ.", 11],
+    ["Which computer data type corresponds to ℤ?", "The (signed) integer type — represented with two's complement.", 13],
+    ["Which set would a bank balance that can go overdrawn belong to (in whole pence)?", "Integers — it can be negative.", 14],
+    ["Is 3.0 an integer?", "Mathematically 3.0 = 3 is an integer; as a stored real it is not an integer type.", 15]
   ],
   quiz: [
     { q: "Which set contains −8, 0 and 15 but not 2.5?", opts: ["ℕ", "ℤ", "ℝ", "irrationals"], ans: 1, why: "Whole numbers including negatives." },
@@ -73,14 +69,12 @@ X("compsci:4.5.1.2", {
 
 X("compsci:4.5.1.3", {
   flashcards: [
-    ["Define a rational number.", "A number that can be expressed as a fraction — one integer divided by another (non-zero) integer."],
-    ["What symbol denotes the rationals?", "ℚ."],
-    ["Is 0.75 rational?", "Yes — 3/4."],
-    ["Is every integer rational?", "Yes — n = n/1."],
-    ["Is 0.333… (recurring) rational?", "Yes — 1/3. Any recurring or terminating decimal is rational."],
-    ["Give a rational number that is not an integer.", "15/23, 2.5, −0.1."],
-    ["Which is larger as a set, ℤ or ℚ?", "ℚ contains ℤ and much more (all fractions)."],
-    ["Why can a computer represent every rational number exactly in principle?", "Store numerator and denominator as integers; floating point cannot, but a fraction type can."]
+    ["Define a rational number.", "A number that can be expressed as a fraction — one integer divided by another (non-zero) integer.", 8],
+    ["Is 0.75 rational?", "Yes — 3/4.", 10],
+    ["Is 0.333… (recurring) rational?", "Yes — 1/3. Any recurring or terminating decimal is rational.", 12],
+    ["Give a rational number that is not an integer.", "15/23, 2.5, −0.1.", 13],
+    ["Which is larger as a set, ℤ or ℚ?", "ℚ contains ℤ and much more (all fractions).", 14],
+    ["Why can a computer represent every rational number exactly in principle?", "Store numerator and denominator as integers; floating point cannot, but a fraction type can.", 15]
   ],
   quiz: [
     { q: "Which is rational?", opts: ["π", "√2", "0.125", "e"], ans: 2, why: "1/8." },
@@ -100,14 +94,13 @@ X("compsci:4.5.1.3", {
 
 X("compsci:4.5.1.4", {
   flashcards: [
-    ["Define an irrational number.", "A number that cannot be expressed as a fraction of two integers; its decimal expansion never terminates or recurs."],
-    ["Give three irrational numbers.", "√2, π, e."],
-    ["Is 3.14159 irrational?", "No — any value written to a fixed number of decimal places is rational; π itself is irrational."],
-    ["Why can a computer never store π exactly?", "Its expansion is infinite and non-recurring; any finite representation is an approximation."],
-    ["Is √9 irrational?", "No — √9 = 3, an integer."],
-    ["Do the irrationals and rationals overlap?", "No — together they make up the reals with no overlap."],
-    ["Which set suits the circumference of a circle of radius 1?", "The reals — 2π is irrational."],
-    ["Is 22/7 irrational?", "No — it is a rational approximation of π."]
+    ["Define an irrational number.", "A number that cannot be expressed as a fraction of two integers; its decimal expansion never terminates or recurs.", 8],
+    ["Is 3.14159 irrational?", "No — any value written to a fixed number of decimal places is rational; π itself is irrational.", 10],
+    ["Why can a computer never store π exactly?", "Its expansion is infinite and non-recurring; any finite representation is an approximation.", 11],
+    ["Is √9 irrational?", "No — √9 = 3, an integer.", 12],
+    ["Do the irrationals and rationals overlap?", "No — together they make up the reals with no overlap.", 13],
+    ["Which set suits the circumference of a circle of radius 1?", "The reals — 2π is irrational.", 14],
+    ["Is 22/7 irrational?", "No — it is a rational approximation of π.", 15]
   ],
   quiz: [
     { q: "Which is irrational?", opts: ["22/7", "√16", "√2", "0.5"], ans: 2, why: "√2 cannot be written as a fraction." },
@@ -127,14 +120,12 @@ X("compsci:4.5.1.4", {
 
 X("compsci:4.5.1.5", {
   flashcards: [
-    ["Define the set of real numbers.", "All possible real-world quantities — the rational and irrational numbers together; any point on the number line."],
-    ["What symbol denotes the reals?", "ℝ."],
-    ["Which numbers are excluded from ℝ?", "Imaginary/complex numbers."],
-    ["Which computer data type approximates ℝ?", "Real / float (floating point) — an approximation, not exact."],
-    ["Why are reals appropriate for measurement?", "Measured quantities are continuous — fractional and possibly negative."],
-    ["Is every rational number real?", "Yes; ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ."],
-    ["Give a quantity that needs ℝ.", "A temperature, a length, a weight, a time interval."],
-    ["Why is 'ℝ' alone not an accepted description of the reals?", "The examiners want the description — all real-world quantities / rationals and irrationals — not just the symbol."]
+    ["Define the set of real numbers.", "All possible real-world quantities — the rational and irrational numbers together; any point on the number line.", 8],
+    ["Which computer data type approximates ℝ?", "Real / float (floating point) — an approximation, not exact.", 11],
+    ["Why are reals appropriate for measurement?", "Measured quantities are continuous — fractional and possibly negative.", 12],
+    ["Is every rational number real?", "Yes; ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ.", 13],
+    ["Give a quantity that needs ℝ.", "A temperature, a length, a weight, a time interval.", 14],
+    ["Why is 'ℝ' alone not an accepted description of the reals?", "The examiners want the description — all real-world quantities / rationals and irrationals — not just the symbol.", 15]
   ],
   quiz: [
     { q: "The set of real numbers includes:", opts: ["only fractions", "rationals and irrationals", "complex numbers", "only positives"], ans: 1, why: "Everything on the number line." },
@@ -154,14 +145,14 @@ X("compsci:4.5.1.5", {
 
 X("compsci:4.5.1.6", {
   flashcards: [
-    ["Define an ordinal number.", "A number that represents the position / rank / order of an item in a sequence — 1st, 2nd, 3rd…"],
-    ["How are ordinal numbers used with arrays?", "They give the position (index) of each value in the array."],
-    ["Difference between cardinal and ordinal?", "Cardinal says how many (3 apples); ordinal says which position (the 3rd apple)."],
-    ["What is the ordinal number of the first element in a 0-indexed array?", "0 (the index) — position rather than count."],
-    ["Give a real-world use of ordinals.", "Race finishing positions, page numbers, list rankings."],
-    ["Why are natural numbers used as ordinals in computing?", "Positions are non-negative whole numbers that can be computed and compared."],
-    ["Is an ordinal number ever fractional?", "No — a position in an order is always whole."],
-    ["How many ordinals do you need to give as an example to score?", "At least three, e.g. 1st, 2nd, 3rd."]
+    ["Define an ordinal number.", "A number that represents the position / rank / order of an item in a sequence — 1st, 2nd, 3rd…", 8],
+    ["How are ordinal numbers used with arrays?", "They give the position (index) of each value in the array.", 9],
+    ["Difference between cardinal and ordinal?", "Cardinal says how many (3 apples); ordinal says which position (the 3rd apple).", 10],
+    ["What is the ordinal number of the first element in a 0-indexed array?", "0 (the index) — position rather than count.", 11],
+    ["Give a real-world use of ordinals.", "Race finishing positions, page numbers, list rankings.", 12],
+    ["Why are natural numbers used as ordinals in computing?", "Positions are non-negative whole numbers that can be computed and compared.", 13],
+    ["Is an ordinal number ever fractional?", "No — a position in an order is always whole.", 14],
+    ["How many ordinals do you need to give as an example to score?", "At least three, e.g. 1st, 2nd, 3rd.", 15]
   ],
   quiz: [
     { q: "An ordinal number represents:", opts: ["a quantity", "a position in an ordered sequence", "a fraction", "a measurement"], ans: 1, why: "Order/rank." },
@@ -181,14 +172,12 @@ X("compsci:4.5.1.6", {
 
 X("compsci:4.5.1.7", {
   flashcards: [
-    ["Which number set is used for counting?", "The natural numbers ℕ."],
-    ["Which number set is used for measurement?", "The real numbers ℝ."],
-    ["Why not use ℕ for measurement?", "Measured quantities can be fractional or negative; ℕ has neither."],
-    ["Why not use ℝ for counting?", "Counts are whole and non-negative; a real type wastes storage and risks rounding error."],
-    ["Give a counting example and a measuring example.", "Number of emails received (count, ℕ); mass of a letter in grams (measure, ℝ)."],
-    ["What is the computing consequence of the counting/measuring distinction?", "Choose integer vs real data types accordingly."],
-    ["Is a shoe size 'measuring' or 'counting'?", "It is a label from a scale — usually treated as measuring (may be 7.5)."],
-    ["Which set for the number of pixels in an image?", "ℕ — a count."]
+    ["Why not use ℕ for measurement?", "Measured quantities can be fractional or negative; ℕ has neither.", 10],
+    ["Why not use ℝ for counting?", "Counts are whole and non-negative; a real type wastes storage and risks rounding error.", 11],
+    ["Give a counting example and a measuring example.", "Number of emails received (count, ℕ); mass of a letter in grams (measure, ℝ).", 12],
+    ["What is the computing consequence of the counting/measuring distinction?", "Choose integer vs real data types accordingly.", 13],
+    ["Is a shoe size 'measuring' or 'counting'?", "It is a label from a scale — usually treated as measuring (may be 7.5).", 14],
+    ["Which set for the number of pixels in an image?", "ℕ — a count.", 15]
   ],
   quiz: [
     { q: "Counting the cars in a car park uses:", opts: ["ℝ", "ℕ", "irrationals", "ℚ \\ ℤ"], ans: 1, why: "Whole, non-negative." },
@@ -244,14 +233,14 @@ X("compsci:4.5.2.1", {
 
 X("compsci:4.5.3.1", {
   flashcards: [
-    ["What is a bit?", "The fundamental unit of information: a single binary digit, 0 or 1."],
-    ["What is a byte?", "A group of 8 bits — the unit in which memory is usually addressed."],
-    ["What is a nibble?", "4 bits — one hexadecimal digit."],
-    ["How many distinct values can one byte represent?", "2⁸ = 256."],
-    ["How many distinct values can 10 bits represent?", "2¹⁰ = 1024."],
-    ["How many values can two bytes represent?", "2¹⁶ = 65 536."],
-    ["How many bits are needed to represent 18 different values?", "5 — 2⁴ = 16 is too few, 2⁵ = 32 suffices."],
-    ["Why is the byte the standard unit rather than the bit?", "Memory is addressed byte by byte; a byte holds one character in ASCII."]
+    ["What is a bit?", "The fundamental unit of information: a single binary digit, 0 or 1.", 9],
+    ["What is a byte?", "A group of 8 bits — the unit in which memory is usually addressed.", 10],
+    ["What is a nibble?", "4 bits — one hexadecimal digit.", 11],
+    ["How many distinct values can one byte represent?", "2⁸ = 256.", 12],
+    ["How many distinct values can 10 bits represent?", "2¹⁰ = 1024.", 13],
+    ["How many values can two bytes represent?", "2¹⁶ = 65 536.", 14],
+    ["How many bits are needed to represent 18 different values?", "5 — 2⁴ = 16 is too few, 2⁵ = 32 suffices.", 15],
+    ["Why is the byte the standard unit rather than the bit?", "Memory is addressed byte by byte; a byte holds one character in ASCII.", 16]
   ],
   quiz: [
     { q: "Number of values representable in 3 bytes:", opts: ["24", "2²⁴", "768", "3 × 256"], ans: 1, why: "24 bits → 2²⁴ ≈ 16.7 million." },
@@ -277,14 +266,12 @@ X("compsci:4.5.3.2", {
     { callout: { t: "warn", body: "A question that says **mebibytes** expects ÷ 1 048 576 (2²⁰), not ÷ 1 000 000. The mark schemes accept the answer *to at least 4 significant figures*, so keep the exact value until the end." }}
   ],
   flashcards: [
-    ["What is 1 kilobyte in bytes?", "1000 bytes (10³)."],
-    ["What is 1 kibibyte in bytes?", "1024 bytes (2¹⁰)."],
-    ["List the binary prefixes and their powers.", "kibi 2¹⁰, mebi 2²⁰, gibi 2³⁰, tebi 2⁴⁰."],
-    ["List the decimal prefixes.", "kilo 10³, mega 10⁶, giga 10⁹, tera 10¹²."],
-    ["How many KiB in 1 GiB?", "2²⁰ = 1 048 576."],
-    ["Why were binary prefixes introduced?", "To remove the ambiguity of 'kilobyte' meaning 1000 or 1024 bytes."],
-    ["Convert 3 MiB to bytes.", "3 × 2²⁰ = 3 145 728 bytes."],
-    ["Order: 2 GiB, 2500 MiB, 2 × 10⁹ bytes.", "2 × 10⁹ B (1.86 GiB) < 2 GiB (2048 MiB) < 2500 MiB."]
+    ["List the binary prefixes and their powers.", "kibi 2¹⁰, mebi 2²⁰, gibi 2³⁰, tebi 2⁴⁰.", 11],
+    ["List the decimal prefixes.", "kilo 10³, mega 10⁶, giga 10⁹, tera 10¹².", 12],
+    ["How many KiB in 1 GiB?", "2²⁰ = 1 048 576.", 13],
+    ["Why were binary prefixes introduced?", "To remove the ambiguity of 'kilobyte' meaning 1000 or 1024 bytes.", 14],
+    ["Convert 3 MiB to bytes.", "3 × 2²⁰ = 3 145 728 bytes.", 15],
+    ["Order: 2 GiB, 2500 MiB, 2 × 10⁹ bytes.", "2 × 10⁹ B (1.86 GiB) < 2 GiB (2048 MiB) < 2500 MiB.", 16]
   ],
   quiz: [
     { q: "1 MiB =", opts: ["1 000 000 bytes", "1 048 576 bytes", "1024 bytes", "1 000 000 bits"], ans: 1, why: "2²⁰." },
@@ -306,14 +293,13 @@ X("compsci:4.5.3.2", {
 
 X("compsci:4.5.4.1", {
   flashcards: [
-    ["Convert 177 to 8-bit unsigned binary.", "10110001 (128 + 32 + 16 + 1)."],
-    ["Convert 139 to 8-bit unsigned binary.", "10001011 (128 + 8 + 2 + 1)."],
-    ["Convert 01101101 to denary.", "64 + 32 + 8 + 4 + 1 = 109."],
-    ["Range of an 8-bit unsigned integer?", "0 to 255."],
-    ["Range of a 16-bit unsigned integer?", "0 to 65 535 (2¹⁶ − 1)."],
-    ["Largest unsigned value in n bits?", "2ⁿ − 1."],
-    ["Method for denary → binary?", "Subtract the largest power of two that fits, repeat; or repeatedly divide by 2 reading remainders upwards."],
-    ["Place values of an 8-bit unsigned integer?", "128 64 32 16 8 4 2 1."]
+    ["Convert 177 to 8-bit unsigned binary.", "10110001 (128 + 32 + 16 + 1).", 8],
+    ["Convert 139 to 8-bit unsigned binary.", "10001011 (128 + 8 + 2 + 1).", 9],
+    ["Convert 01101101 to denary.", "64 + 32 + 8 + 4 + 1 = 109.", 10],
+    ["Range of an 8-bit unsigned integer?", "0 to 255.", 11],
+    ["Range of a 16-bit unsigned integer?", "0 to 65 535 (2¹⁶ − 1).", 12],
+    ["Method for denary → binary?", "Subtract the largest power of two that fits, repeat; or repeatedly divide by 2 reading remainders upwards.", 14],
+    ["Place values of an 8-bit unsigned integer?", "128 64 32 16 8 4 2 1.", 15]
   ],
   quiz: [
     { q: "200 in 8-bit binary:", opts: ["11001000", "11010000", "10101000", "11000100"], ans: 0, why: "128 + 64 + 8." },
@@ -343,12 +329,11 @@ X("compsci:4.5.4.2", {
   flashcards: [
     ["Add 01101011 + 00110110.", "10100001 (107 + 54 = 161)."],
     ["Multiply 1101 × 11.", "1101 + 11010 = 100111 (13 × 3 = 39)."],
-    ["Rule for binary addition of 1 + 1 + 1?", "1 carry 1 (three ones = 11₂)."],
-    ["How is subtraction performed in a two's complement system?", "Add the two's complement of the subtrahend; discard any carry out of the most significant bit."],
-    ["What does a carry out of the MSB mean in unsigned addition?", "Overflow — the result needs more bits than are available."],
-    ["Multiply 10110 by 10 (binary).", "101100 — multiplying by 2 shifts left one place."],
-    ["Add 1111 + 0001 in 4 bits.", "0000 with carry 1 — overflow."],
-    ["Check 1011 + 0110 = 10001 in denary.", "11 + 6 = 17 ✓."]
+    ["How is subtraction performed in a two's complement system?", "Add the two's complement of the subtrahend; discard any carry out of the most significant bit.", 11],
+    ["What does a carry out of the MSB mean in unsigned addition?", "Overflow — the result needs more bits than are available.", 12],
+    ["Multiply 10110 by 10 (binary).", "101100 — multiplying by 2 shifts left one place.", 13],
+    ["Add 1111 + 0001 in 4 bits.", "0000 with carry 1 — overflow.", 14],
+    ["Check 1011 + 0110 = 10001 in denary.", "11 + 6 = 17 ✓.", 15]
   ],
   quiz: [
     { q: "10110 + 01011 =", opts: ["100001", "11101", "100011", "11111"], ans: 0, why: "22 + 11 = 33 = 100001." },
@@ -378,14 +363,13 @@ X("compsci:4.5.4.3", {
     { callout: { t: "warn", body: "The MSB has place value **−128**, not 128 with a sign. Converting 11001010: −128 + 64 + 8 + 2 = −54. A pattern starting with 1 is negative; do not \"read it as unsigned then negate\"." }}
   ],
   flashcards: [
-    ["Range of 8-bit two's complement?", "−128 to +127."],
-    ["Range of 4-bit two's complement?", "−8 to +7."],
-    ["Most negative 12-bit two's complement value?", "−2048 (100000000000)."],
-    ["Convert 11001010 (two's complement) to denary.", "−128 + 64 + 8 + 2 = −54."],
-    ["Convert −72 to 8-bit two's complement.", "72 = 01001000; flip → 10110111; +1 → 10111000."],
-    ["How do you negate a two's complement number?", "Invert every bit and add 1 (or copy from the right up to and including the first 1, then invert the rest)."],
-    ["Compute 18 − 72 in 8-bit two's complement.", "00010010 + 10111000 = 11001010 = −54."],
-    ["Why is two's complement preferred to sign-and-magnitude?", "One representation of zero, and addition/subtraction use the same adder circuit with no special sign handling."]
+    ["Range of 4-bit two's complement?", "−8 to +7.", 10],
+    ["Most negative 12-bit two's complement value?", "−2048 (100000000000).", 11],
+    ["Convert 11001010 (two's complement) to denary.", "−128 + 64 + 8 + 2 = −54.", 12],
+    ["Convert −72 to 8-bit two's complement.", "72 = 01001000; flip → 10110111; +1 → 10111000.", 13],
+    ["How do you negate a two's complement number?", "Invert every bit and add 1 (or copy from the right up to and including the first 1, then invert the rest).", 14],
+    ["Compute 18 − 72 in 8-bit two's complement.", "00010010 + 10111000 = 11001010 = −54.", 15],
+    ["Why is two's complement preferred to sign-and-magnitude?", "One representation of zero, and addition/subtraction use the same adder circuit with no special sign handling.", 16]
   ],
   quiz: [
     { q: "10000000 in 8-bit two's complement is:", opts: ["128", "−128", "−0", "0"], ans: 1, why: "MSB = −128." },
@@ -425,16 +409,16 @@ X("compsci:4.5.4.4", {
     { callout: { t: "warn", body: "Working earns marks even when the answer is wrong — always write the mantissa and exponent in denary, and the shift direction. A **positive** exponent shifts the point **right**." }}
   ],
   flashcards: [
-    ["In AQA floating point, where is the binary point?", "Immediately after the first (sign) bit of the mantissa; value = mantissa × 2^exponent, both two's complement."],
-    ["Convert mantissa 0.1010000, exponent 0011 to denary.", "Mantissa 0.625, exponent 3 → 0.625 × 8 = 5."],
-    ["Convert mantissa 1.0110000, exponent 0011 to denary.", "Mantissa −0.625, exponent 3 → −5."],
-    ["Represent 58.5 as a normalised floating point number (8-bit mantissa, 4-bit exponent).", "58.5 = 111010.1 → 0.1110101 × 2⁶ → mantissa 01110101, exponent 0110."],
-    ["Represent −23.25 (8-bit mantissa, 4-bit exponent).", "23.25 = 10111.01 → −23.25 = 101000.11 (two's complement) → 1.0100011 × 2⁵ → mantissa 10100011, exponent 0101."],
-    ["Represent 0.15625 (8-bit mantissa, 4-bit exponent).", "0.15625 = 0.00101 → 0.101 × 2⁻² → mantissa 01010000, exponent 1110."],
-    ["Convert the fixed point two's complement pattern 101100.1011 to denary.", "−32 + 8 + 4 + 0.5 + 0.125 + 0.0625 = −19.3125."],
-    ["Represent 6.34375 in fixed point binary with 5 fraction bits.", "110.01011."],
-    ["Advantages of floating point over fixed point?", "Greater range in the same number of bits; can represent numbers much closer to zero and much larger."],
-    ["Advantages of fixed point over floating point?", "Faster/simpler arithmetic; some numbers represented more precisely; constant (guaranteed) absolute precision."]
+    ["In AQA floating point, where is the binary point?", "Immediately after the first (sign) bit of the mantissa; value = mantissa × 2^exponent, both two's complement.", 10],
+    ["Convert mantissa 0.1010000, exponent 0011 to denary.", "Mantissa 0.625, exponent 3 → 0.625 × 8 = 5.", 11],
+    ["Convert mantissa 1.0110000, exponent 0011 to denary.", "Mantissa −0.625, exponent 3 → −5.", 12],
+    ["Represent 58.5 as a normalised floating point number (8-bit mantissa, 4-bit exponent).", "58.5 = 111010.1 → 0.1110101 × 2⁶ → mantissa 01110101, exponent 0110.", 13],
+    ["Represent −23.25 (8-bit mantissa, 4-bit exponent).", "23.25 = 10111.01 → −23.25 = 101000.11 (two's complement) → 1.0100011 × 2⁵ → mantissa 10100011, exponent 0101.", 14],
+    ["Represent 0.15625 (8-bit mantissa, 4-bit exponent).", "0.15625 = 0.00101 → 0.101 × 2⁻² → mantissa 01010000, exponent 1110.", 15],
+    ["Convert the fixed point two's complement pattern 101100.1011 to denary.", "−32 + 8 + 4 + 0.5 + 0.125 + 0.0625 = −19.3125.", 16],
+    ["Represent 6.34375 in fixed point binary with 5 fraction bits.", "110.01011.", 17],
+    ["Advantages of floating point over fixed point?", "Greater range in the same number of bits; can represent numbers much closer to zero and much larger.", 18],
+    ["Advantages of fixed point over floating point?", "Faster/simpler arithmetic; some numbers represented more precisely; constant (guaranteed) absolute precision.", 19]
   ],
   quiz: [
     { q: "Which mantissa is normalised?", opts: ["00110000", "01100000", "11100000", "00000000"], ans: 1, why: "Starts 01 (positive) — 10 would be negative normalised." },
@@ -471,14 +455,14 @@ X("compsci:4.5.4.4", {
 
 X("compsci:4.5.4.5", {
   flashcards: [
-    ["What is a rounding error in floating point?", "The difference between a value and its stored representation when it cannot be represented exactly in the available bits."],
-    ["Why does 28.25 cause a rounding error in a 7-bit mantissa?", "28.25 = 11100.01 has 7 significant bits — more than the mantissa can hold after the sign bit, so it must be rounded or truncated."],
-    ["What are the two ways of shortening a value that does not fit?", "Rounding to the nearest representable value, or truncating (dropping the extra bits)."],
-    ["Why can 0.1 not be stored exactly in binary?", "Its binary expansion 0.000110011… recurs; any finite mantissa truncates it."],
-    ["How can rounding errors accumulate?", "Each arithmetic operation may round; repeated operations compound the error."],
-    ["Name the three error types in the 2023 question.", "Underflow (too close to zero → stored as 0), overflow (too large for the bits), rounding (cannot be represented exactly)."],
-    ["Does a larger mantissa reduce rounding error?", "Yes — more significant bits means the stored value is closer to the true one."],
-    ["Why is testing floats for equality dangerous?", "Rounding errors mean two mathematically equal results may differ in their last bits."]
+    ["What is a rounding error in floating point?", "The difference between a value and its stored representation when it cannot be represented exactly in the available bits.", 8],
+    ["Why does 28.25 cause a rounding error in a 7-bit mantissa?", "28.25 = 11100.01 has 7 significant bits — more than the mantissa can hold after the sign bit, so it must be rounded or truncated.", 9],
+    ["What are the two ways of shortening a value that does not fit?", "Rounding to the nearest representable value, or truncating (dropping the extra bits).", 10],
+    ["Why can 0.1 not be stored exactly in binary?", "Its binary expansion 0.000110011… recurs; any finite mantissa truncates it.", 11],
+    ["How can rounding errors accumulate?", "Each arithmetic operation may round; repeated operations compound the error.", 12],
+    ["Name three kinds of error that arise when storing real numbers in binary.", "Underflow (too close to zero → stored as 0), overflow (too large for the bits), rounding (cannot be represented exactly).", 13],
+    ["Does a larger mantissa reduce rounding error?", "Yes — more significant bits means the stored value is closer to the true one.", 14],
+    ["Why is testing floats for equality dangerous?", "Rounding errors mean two mathematically equal results may differ in their last bits.", 15]
   ],
   quiz: [
     { q: "A value is stored as 28.5 instead of 28.25 because:", opts: ["overflow", "the mantissa has too few bits, so it was rounded", "underflow", "the exponent was negative"], ans: 1, why: "Insufficient precision." },
@@ -504,14 +488,14 @@ X("compsci:4.5.4.6", {
     { callout: { t: "tip", body: "Keep at least four decimal places in the intermediate values; the schemes accept answers to higher precision but not to fewer significant figures than the true value shows." }}
   ],
   flashcards: [
-    ["Define absolute error.", "The magnitude of the difference between the stored (represented) value and the intended value: |stored − intended|."],
-    ["Define relative error.", "Absolute error divided by the intended value — often expressed as a percentage."],
-    ["13.8 is stored as 13.75. Absolute and relative error?", "Absolute 0.05; relative 0.05 ÷ 13.8 = 0.0036 = 0.36%."],
-    ["104.7 is stored as 105. Absolute and relative error?", "Absolute 0.3; relative 0.3 ÷ 104.7 = 0.29%."],
-    ["Why is relative error more useful than absolute error?", "The impact of an error depends on its size relative to the value: 0.1 is huge for 0.2 but negligible for 10 000."],
-    ["Is absolute error ever negative?", "No — it is a magnitude."],
-    ["Which value is the denominator in relative error?", "The intended (true) value."],
-    ["Store 0.2265625 as 0.22558594: relative error?", "0.00097656 ÷ 0.2265625 = 0.43%."]
+    ["Define absolute error.", "The magnitude of the difference between the stored (represented) value and the intended value: |stored − intended|.", 8],
+    ["Define relative error.", "Absolute error divided by the intended value — often expressed as a percentage.", 9],
+    ["13.8 is stored as 13.75. Absolute and relative error?", "Absolute 0.05; relative 0.05 ÷ 13.8 = 0.0036 = 0.36%.", 10],
+    ["104.7 is stored as 105. Absolute and relative error?", "Absolute 0.3; relative 0.3 ÷ 104.7 = 0.29%.", 11],
+    ["Why is relative error more useful than absolute error?", "The impact of an error depends on its size relative to the value: 0.1 is huge for 0.2 but negligible for 10 000.", 12],
+    ["Is absolute error ever negative?", "No — it is a magnitude.", 13],
+    ["Which value is the denominator in relative error?", "The intended (true) value.", 14],
+    ["Store 0.2265625 as 0.22558594: relative error?", "0.00097656 ÷ 0.2265625 = 0.43%.", 15]
   ],
   quiz: [
     { q: "True value 50, stored 49.5. Absolute error:", opts: ["0.5", "−0.5", "1%", "0.01"], ans: 0, why: "|49.5 − 50|." },
@@ -539,7 +523,7 @@ X("compsci:4.5.4.7", {
     ["What determines the precision?", "The number of bits in the mantissa."],
     ["Effect of moving a bit from mantissa to exponent?", "Range increases, precision decreases."],
     ["Largest positive value with 8-bit mantissa and 4-bit exponent?", "0.1111111 × 2⁷ = 127/128 × 128 = 127."],
-    ["Smallest positive normalised value with the same format?", "0.1000000 × 2⁻⁸ = 0.5 × 1/256 = 1/512."],
+    ["Smallest positive normalised value with an 8-bit mantissa and 4-bit exponent?", "0.1000000 × 2⁻⁸ = 0.5 × 1/256 = 1/512."],
     ["Why can a floating point system represent values closer to zero than fixed point?", "A negative exponent shifts the point left as far as the exponent allows; fixed point has a fixed number of fraction bits."],
     ["What is the trade-off in a fixed total number of bits?", "Range (exponent) versus precision (mantissa)."],
     ["How many bits does IEEE single precision use for mantissa and exponent?", "23 (plus implicit 1) and 8, with a sign bit — 32 in total."]
@@ -562,14 +546,14 @@ X("compsci:4.5.4.7", {
 
 X("compsci:4.5.4.8", {
   flashcards: [
-    ["What does normalised mean for a two's complement mantissa?", "It begins 01 (positive) or 10 (negative) — the first two bits differ."],
-    ["Why are floating point numbers normalised? (give two reasons)", "It maximises precision for a given number of bits (no leading redundant bits), and gives each number a unique representation, making equality tests simpler."],
-    ["Normalise 0.0011 × 2⁵.", "0.11 × 2³ — shift the point right 2 places, subtract 2 from the exponent."],
-    ["Is 00110000 a normalised mantissa?", "No — it starts 00; shift left once to 01100000 and reduce the exponent by 1."],
-    ["Is 11000000 normalised?", "No — a negative normalised mantissa starts 10."],
-    ["Which is the smallest positive normalised mantissa?", "0.1000000 = 0.5."],
-    ["Which mantissa represents the most negative normalised value?", "1.0000000 = −1."],
-    ["What happens to precision if a number is stored un-normalised?", "Leading bits carry no information, so fewer significant bits remain — precision is lost."]
+    ["What does normalised mean for a two's complement mantissa?", "It begins 01 (positive) or 10 (negative) — the first two bits differ.", 9],
+    ["Why are floating point numbers normalised? (give two reasons)", "It maximises precision for a given number of bits (no leading redundant bits), and gives each number a unique representation, making equality tests simpler.", 10],
+    ["Normalise 0.0011 × 2⁵.", "0.11 × 2³ — shift the point right 2 places, subtract 2 from the exponent.", 11],
+    ["Is 00110000 a normalised mantissa?", "No — it starts 00; shift left once to 01100000 and reduce the exponent by 1.", 12],
+    ["Is 11000000 normalised?", "No — a negative normalised mantissa starts 10.", 13],
+    ["Which is the smallest positive normalised mantissa?", "0.1000000 = 0.5.", 14],
+    ["Which mantissa represents the most negative normalised value?", "1.0000000 = −1.", 15],
+    ["What happens to precision if a number is stored un-normalised?", "Leading bits carry no information, so fewer significant bits remain — precision is lost.", 16]
   ],
   quiz: [
     { q: "Which is a negative normalised mantissa?", opts: ["11010000", "10110000", "01010000", "00110000"], ans: 1, why: "Starts 10." },
@@ -593,14 +577,14 @@ X("compsci:4.5.4.8", {
 
 X("compsci:4.5.4.9", {
   flashcards: [
-    ["Define overflow.", "The result of a calculation is too large (in magnitude) to be represented in the available number of bits."],
-    ["Define underflow.", "The result of a calculation is so close to zero that it cannot be represented and is stored as zero."],
-    ["When does overflow occur in floating point?", "When the required exponent exceeds the largest exponent the bits can hold."],
-    ["When does underflow occur in floating point?", "When the required exponent is more negative than the smallest exponent available."],
-    ["How can overflow be avoided?", "Allocate more bits to the exponent (possibly reallocating from the mantissa)."],
-    ["Give an integer overflow example.", "127 + 1 in 8-bit two's complement gives 10000000 = −128."],
-    ["Is 'stack overflow' the same thing?", "No — that is exhausting the call stack; the examiners reject it here."],
-    ["What might a program do on overflow?", "Raise an exception, wrap around silently, or saturate — depending on the language/hardware."]
+    ["Define overflow.", "The result of a calculation is too large (in magnitude) to be represented in the available number of bits.", 8],
+    ["Define underflow.", "The result of a calculation is so close to zero that it cannot be represented and is stored as zero.", 9],
+    ["When does overflow occur in floating point?", "When the required exponent exceeds the largest exponent the bits can hold.", 10],
+    ["When does underflow occur in floating point?", "When the required exponent is more negative than the smallest exponent available.", 11],
+    ["How can overflow be avoided?", "Allocate more bits to the exponent (possibly reallocating from the mantissa).", 12],
+    ["Give an integer overflow example.", "127 + 1 in 8-bit two's complement gives 10000000 = −128.", 13],
+    ["Is 'stack overflow' the same thing?", "No — that is exhausting the call stack; the examiners reject it here.", 14],
+    ["What might a program do on overflow?", "Raise an exception, wrap around silently, or saturate — depending on the language/hardware.", 15]
   ],
   quiz: [
     { q: "Multiplying two large floating point numbers so the exponent no longer fits causes:", opts: ["underflow", "overflow", "rounding", "normalisation"], ans: 1, why: "Too large." },

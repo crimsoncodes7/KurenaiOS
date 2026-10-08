@@ -338,8 +338,6 @@ C["maths:10.3"] = {
     ["Midpoint $M$ of $AB$: $\\overrightarrow{OM}$?", "$\\frac12(\\mathbf{a} + \\mathbf{b})$."],
     ["Point $P$ on $AB$ with $AP : PB = m : n$?", "$\\overrightarrow{OP} = \\mathbf{a} + \\frac{m}{m+n}(\\mathbf{b} - \\mathbf{a})$."],
     ["Unknown point on a line through $C$ in direction $\\overrightarrow{CM}$?", "$\\overrightarrow{OC} + \\lambda\\overrightarrow{CM}$."],
-    ["Why can coefficients of $\\mathbf{a}$ and $\\mathbf{b}$ be compared?", "They are not parallel, so the representation is unique."],
-    ["June 2019 P2 Q10 result?", "$ON : NB = 2 : 1$ from $\\lambda = \\frac43$."]
   ],
   quiz: [
     { q: "$M$ is the midpoint of $AB$. $\\overrightarrow{OM} =$", opts: ["$\\frac12(\\mathbf{a} + \\mathbf{b})$", "$\\mathbf{a} + \\mathbf{b}$", "$\\frac12(\\mathbf{b} - \\mathbf{a})$", "$\\mathbf{a} - \\mathbf{b}$"], ans: 0, why: "$\\mathbf{a} + \\frac12(\\mathbf{b} - \\mathbf{a})$." },
@@ -411,10 +409,8 @@ C["maths:10.4"] = {
   ],
   flashcards: [
     ["Distance between $(x_1, y_1, z_1)$ and $(x_2, y_2, z_2)$?", "$\\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}$."],
-    ["$\\overrightarrow{AB} = \\overrightarrow{BD}$: $\\mathbf{d} =$?", "$2\\mathbf{b} - \\mathbf{a}$."],
-    ["$|\\overrightarrow{AC}| = 4$ with $\\overrightarrow{AC} = (a - 2)\\mathbf{i} + 2\\mathbf{j} + 2\\mathbf{k}$?", "$(a - 2)^2 + 8 = 16 \\Rightarrow a = 2 \\pm 2\\sqrt2$."],
-    ["$P$ on $AB$ with $|AP| = 2|BP|$: parameter equation?", "$|t| = 2|t - 1|$: $t = 2$ or $t = \\frac23$."],
-    ["June 2022 P2 Q13: $p$ and $|\\overrightarrow{OD}|$?", "$p = 32$; $10\\sqrt{13}$."]
+    ["$|\\overrightarrow{AC}| = 4$ with $\\overrightarrow{AC} = (a - 2)\\mathbf{i} + 2\\mathbf{j} + 2\\mathbf{k}$?", "$(a - 2)^2 + 8 = 16 \\Rightarrow a = 2 \\pm 2\\sqrt2$.", 2],
+    ["$P$ on $AB$ with $|AP| = 2|BP|$: parameter equation?", "$|t| = 2|t - 1|$: $t = 2$ or $t = \\frac23$.", 3],
   ],
   quiz: [
     { q: "Distance from $(1, 2, 3)$ to $(3, 0, 6)$:", opts: ["$\\sqrt{17}$", "$\\sqrt{7}$", "17", "$\\sqrt{29}$"], ans: 0, why: "$4 + 4 + 9$." },
@@ -521,12 +517,11 @@ C["maths:10.5"] = {
     ] }
   ],
   flashcards: [
-    ["Fourth vertex $D$ of parallelogram $ABCD$?", "$\\mathbf{d} = \\mathbf{a} + \\mathbf{c} - \\mathbf{b}$."],
-    ["Rhombus test (given a parallelogram)?", "Two adjacent sides of equal length."],
-    ["Right angle at $Q$ in triangle $PQR$ — test?", "$PQ^2 + QR^2 = PR^2$."],
-    ["Area of a rhombus from its diagonals?", "$\\frac12 d_1 d_2$."],
-    ["$\\cos ABC$ from three side lengths?", "Cosine rule: $\\cos B = \\frac{AB^2 + BC^2 - AC^2}{2\\cdot AB\\cdot BC}$."],
-    ["$\\overrightarrow{AX}$ in the direction of $\\overrightarrow{AB}$ with length $L$?", "$\\frac{L}{|\\overrightarrow{AB}|}\\overrightarrow{AB}$."]
+    ["Rhombus test (given a parallelogram)?", "Two adjacent sides of equal length.", 1],
+    ["Right angle at $Q$ in triangle $PQR$ — test?", "$PQ^2 + QR^2 = PR^2$.", 2],
+    ["Area of a rhombus from its diagonals?", "$\\frac12 d_1 d_2$.", 3],
+    ["$\\cos ABC$ from three side lengths?", "Cosine rule: $\\cos B = \\frac{AB^2 + BC^2 - AC^2}{2\\cdot AB\\cdot BC}$.", 4],
+    ["$\\overrightarrow{AX}$ in the direction of $\\overrightarrow{AB}$ with length $L$?", "$\\frac{L}{|\\overrightarrow{AB}|}\\overrightarrow{AB}$.", 5]
   ],
   quiz: [
     { q: "$\\mathbf{a} = \\mathbf{i}$, $\\mathbf{b} = \\mathbf{i} + \\mathbf{j}$, $\\mathbf{c} = 3\\mathbf{j}$: parallelogram $ABCD$ has $\\mathbf{d} =$", opts: ["$2\\mathbf{j}$", "$2\\mathbf{i} + 4\\mathbf{j}$", "$\\mathbf{i} + 3\\mathbf{j}$", "$-\\mathbf{i} + 2\\mathbf{j}$"], ans: 0, why: "$\\mathbf{a} + \\mathbf{c} - \\mathbf{b} = (1 + 0 - 1)\\mathbf{i} + (0 + 3 - 1)\\mathbf{j}$." },

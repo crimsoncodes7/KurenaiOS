@@ -417,15 +417,11 @@ C["compsci:4.5.6.4"] = {
   ],
   flashcards: [
     ["Define colour depth.", "The number of bits used to represent the colour of each pixel."],
-    ["Define resolution (image).", "The number of pixels: width × height."],
-    ["What is a pixel?", "A picture element — the smallest addressable dot of colour."],
-    ["Bitmap size formula?", "width × height × colour depth (bits)."],
-    ["Colour depth for 5 colours?", "3 bits."],
-    ["Colour depth for 18 colours?", "5 bits."],
-    ["16 777 216 colours = ? bits", "24."],
-    ["50 × 50, 4 colours, in bytes?", "625."],
-    ["Max colours: 1000 × 800, 400 kB?", "16."],
-    ["What extra data does a bitmap file hold?", "Metadata (width, height, colour depth …)."]
+    ["Colour depth for 5 colours?", "3 bits.", 4],
+    ["16 777 216 colours = ? bits", "24.", 6],
+    ["50 × 50, 4 colours, in bytes?", "625.", 7],
+    ["Max colours: 1000 × 800, 400 kB?", "16.", 8],
+    ["What extra data does a bitmap file hold?", "Metadata (width, height, colour depth …).", 9]
   ],
   quiz: [
     { q: "A 10 × 16 image in 4 colours needs", opts: ["40 bytes", "80 bytes", "160 bytes", "20 bytes"], ans: 0, why: "160 px × 2 bits ÷ 8." },
@@ -498,14 +494,12 @@ C["compsci:4.5.6.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.6.6 vector vs bitmap; 4.5.6.4 bitmaps; 4.1 OOP — a vector object is an object with attributes (and a Draw method)." } }
   ],
   flashcards: [
-    ["How is a vector graphic represented?", "As a list of objects, each with stored properties."],
-    ["Three properties of a rectangle?", "e.g. x/y of a corner, width, height, fill colour, line colour, line width."],
-    ["Properties of a circle?", "Centre x/y, radius, fill colour, line colour, line width."],
-    ["Why are vector files often small?", "They store properties of a few objects, not every pixel."],
-    ["Is \"stored as equations\" acceptable?", "No."],
-    ["A real vector format?", "SVG."],
-    ["What happens when a vector image is displayed?", "The pixels are calculated from the properties."],
-    ["Is a vector image resolution independent?", "Yes."]
+    ["Three properties of a rectangle?", "e.g. x/y of a corner, width, height, fill colour, line colour, line width.", 1],
+    ["Properties of a circle?", "Centre x/y, radius, fill colour, line colour, line width.", 2],
+    ["Why are vector files often small?", "They store properties of a few objects, not every pixel.", 3],
+    ["Is \"stored as equations\" acceptable?", "No.", 4],
+    ["A real vector format?", "SVG.", 5],
+    ["Is a vector image resolution independent?", "Yes.", 7]
   ],
   quiz: [
     { q: "A vector graphic stores", opts: ["objects and their properties", "the colour of every pixel", "samples", "runs of pixels"], ans: 0, why: "Definition." },
@@ -587,9 +581,8 @@ C["compsci:4.5.6.6"] = {
     ["Main advantage of bitmap?", "Represents photographs and complex textures."],
     ["Example suited to vector?", "A logo, chart, map or plan."],
     ["Example suited to bitmap?", "A photograph or scanned image."],
-    ["What happens when a bitmap is enlarged?", "It pixelates."],
-    ["Are vector files always smaller?", "Usually for simple images; a complex image can be bigger as vectors."],
-    ["Why are photos bitmaps?", "They are captured as pixels by sensors."]
+    ["Are vector files always smaller?", "Usually for simple images; a complex image can be bigger as vectors.", 6],
+    ["Why are photos bitmaps?", "They are captured as pixels by sensors.", 7]
   ],
   quiz: [
     { q: "Best format for a company logo used at many sizes", opts: ["vector", "bitmap", "MIDI", "RLE"], ans: 0, why: "Lossless scaling." },

@@ -135,10 +135,9 @@ C["compsci:4.6.1.1"] = {
     ["What is a computer system?", "Hardware and software working together."],
     ["Relationship between hardware and software?", "Software executes on the hardware; hardware allows software to execute."],
     ["Is \"tangible\" enough for hardware?", "No — NE.; say physical / electronic components."],
-    ["Is firmware hardware or software?", "Software — instructions stored in ROM/flash."],
-    ["Is a device driver hardware or software?", "Software."],
-    ["Give two examples of hardware.", "e.g. processor, RAM, SSD, keyboard, monitor, data bus."],
-    ["Is a photo stored on disk software?", "No — it is data; software is programs."]
+    ["Is a device driver hardware or software?", "Software.", 6],
+    ["Give two examples of hardware.", "e.g. processor, RAM, SSD, keyboard, monitor, data bus.", 7],
+    ["Is a photo stored on disk software?", "No — it is data; software is programs.", 8]
   ],
   quiz: [
     { q: "Which best defines hardware?", opts: ["the physical components of a computer system", "anything you can buy", "programs stored in ROM", "the operating system"], ans: 0, why: "Physical / electronic components." },
@@ -264,15 +263,13 @@ C["compsci:4.6.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.6.1.3 the four types of system software; 4.6.1.4 the OS as a virtual machine (abstraction, 4.1.2.2); 4.6.3.1 translators; 4.13 bespoke software and the systems development life cycle." } }
   ],
   flashcards: [
-    ["Define system software.", "Software that manages the computer system / hides the complexity of the hardware from the user."],
-    ["Define application software.", "Software that performs user-oriented tasks."],
-    ["Four types of system software?", "Operating systems, utility programs, libraries, translators."],
-    ["Three types of translator?", "Compiler, assembler, interpreter."],
-    ["Is a compiler system or application software?", "System software (a translator)."],
-    ["Category of a virus checker?", "Utility (system software)."],
-    ["Is a bitmap image editor system software?", "No — application software."],
-    ["General-purpose vs bespoke?", "Off-the-shelf for many users vs written for one organisation."],
-    ["Application software reaches the hardware through…", "the operating system."]
+    ["Four types of system software?", "Operating systems, utility programs, libraries, translators.", 2],
+    ["Three types of translator?", "Compiler, assembler, interpreter.", 3],
+    ["Is a compiler system or application software?", "System software (a translator).", 4],
+    ["Category of a virus checker?", "Utility (system software).", 5],
+    ["Is a bitmap image editor system software?", "No — application software.", 6],
+    ["General-purpose vs bespoke?", "Off-the-shelf for many users vs written for one organisation.", 7],
+    ["Application software reaches the hardware through…", "the operating system.", 8]
   ],
   quiz: [
     { q: "Which is NOT system software?", opts: ["a photo editor", "a compiler", "a library", "a utility"], ans: 0, why: "User-oriented task." },
@@ -373,15 +370,13 @@ C["compsci:4.6.1.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.6.9 compression and 4.5.6.10 encryption — both also utilities; 4.6.3.1 translators; 4.1.2 subroutines and modularity — libraries are reusable subroutines; 4.13.1.3 design for reuse." } }
   ],
   flashcards: [
-    ["Four types of system software?", "Operating systems, utilities, libraries, translators."],
-    ["Define a utility program.", "Software performing a non-core / ancillary management function — helps maintain or configure the computer."],
-    ["Three utility examples?", "e.g. virus checker, defragmenter, backup, compression, encryption."],
-    ["Define a library.", "A collection of pre-written, tested routines that can be included in / called from a program."],
-    ["Two reasons to use a library?", "Faster development (less code); more reliable (already tested); provides routines you could not write."],
-    ["Static vs dynamic linking?", "Library code copied into the executable vs loaded and shared at run time."],
-    ["What does a defragmenter do?", "Rearranges file blocks so each file is contiguous — faster access on a hard disk."],
-    ["Function of a translator?", "Converts program code into machine code the processor can execute."],
-    ["Why is an OS needed?", "To manage the hardware resources and hide their complexity from programs and users."]
+    ["Define a utility program.", "Software performing a non-core / ancillary management function — helps maintain or configure the computer.", 1],
+    ["Three utility examples?", "e.g. virus checker, defragmenter, backup, compression, encryption.", 2],
+    ["Define a library.", "A collection of pre-written, tested routines that can be included in / called from a program.", 3],
+    ["Two reasons to use a library?", "Faster development (less code); more reliable (already tested); provides routines you could not write.", 4],
+    ["Static vs dynamic linking?", "Library code copied into the executable vs loaded and shared at run time.", 5],
+    ["What does a defragmenter do?", "Rearranges file blocks so each file is contiguous — faster access on a hard disk.", 6],
+    ["Why is an OS needed?", "To manage the hardware resources and hide their complexity from programs and users.", 8]
   ],
   quiz: [
     { q: "Translators given — which is a valid OTHER type of system software?", opts: ["libraries", "compilers", "interpreters", "assemblers"], ans: 0, why: "The others are translators." },
@@ -491,14 +486,12 @@ C["compsci:4.6.1.4"] = {
   ],
   flashcards: [
     ["Main role of the OS besides resource management?", "To hide the complexities of the hardware (provide a virtual machine)."],
-    ["Four hardware resources the OS manages?", "Processor(s), main memory, I/O devices, secondary storage."],
-    ["Describe processor management.", "The OS schedules processes — decides which process uses the processor/core next and for how long (time slices)."],
-    ["Describe memory management.", "Allocates areas of memory to processes, moves pages to/from a paging file, and stops a process writing outside its allocation."],
-    ["Describe I/O management.", "Allocates devices to processes and manages communication through device drivers."],
-    ["Describe storage management.", "Allocates space on a device to files and organises them into directories."],
-    ["Is \"memory management\" enough?", "No — NE.; describe what is allocated and why."],
-    ["Is the scheduler a hardware resource?", "No — it is OS software (R.)."],
-    ["Two OS functions that are not resource management?", "Handling interrupts; hiding hardware complexity (also security, power management)."]
+    ["Describe processor management.", "The OS schedules processes — decides which process uses the processor/core next and for how long (time slices).", 2],
+    ["Describe memory management.", "Allocates areas of memory to processes, moves pages to/from a paging file, and stops a process writing outside its allocation.", 3],
+    ["Describe I/O management.", "Allocates devices to processes and manages communication through device drivers.", 4],
+    ["Is \"memory management\" enough?", "No — NE.; describe what is allocated and why.", 6],
+    ["Is the scheduler a hardware resource?", "No — it is OS software (R.).", 7],
+    ["Two OS functions that are not resource management?", "Handling interrupts; hiding hardware complexity (also security, power management).", 8]
   ],
   quiz: [
     { q: "Which is a hardware resource the OS manages?", opts: ["main memory", "the scheduler", "virtual memory", "the file system"], ans: 0, why: "Physical resource." },
@@ -678,13 +671,11 @@ C["compsci:4.6.2.1"] = {
     ["Two low-level languages?", "Machine code and assembly language."],
     ["Describe machine code.", "Binary instructions (opcode + operand) executed directly by the processor; processor-specific."],
     ["Describe assembly language.", "Mnemonics for machine code instructions; one-to-one with machine code; needs an assembler."],
-    ["Explain imperative.", "A sequence of commands executed in a programmer-defined order, describing how to solve a problem and changing state."],
-    ["Three advantages of HLLs.", "Portable; easier to read/debug/maintain; faster development; built-in data and control structures, libraries."],
-    ["Three advantages of low-level languages.", "Faster execution; less memory; direct control of hardware."],
-    ["Why is \"faster because no translation\" wrong?", "The speed advantage is the machine code executing faster, not translation time — R."],
-    ["Relationship of imperative HLL to low-level?", "Same sequence/state model, abstracted: one HLL statement becomes many machine instructions."],
-    ["Is SQL imperative?", "No — declarative (states what, not how)."],
-    ["When might assembly be chosen?", "New / embedded processor with no compiler or little memory; device drivers; time-critical code."]
+    ["Three advantages of low-level languages.", "Faster execution; less memory; direct control of hardware.", 5],
+    ["Why is \"faster because no translation\" wrong?", "The speed advantage is the machine code executing faster, not translation time — R.", 6],
+    ["Relationship of imperative HLL to low-level?", "Same sequence/state model, abstracted: one HLL statement becomes many machine instructions.", 7],
+    ["Is SQL imperative?", "No — declarative (states what, not how).", 8],
+    ["When might assembly be chosen?", "New / embedded processor with no compiler or little memory; device drivers; time-critical code.", 9]
   ],
   quiz: [
     { q: "Which is a low-level language?", opts: ["machine code", "C#", "SQL", "Python"], ans: 0, why: "Plus assembly." },
@@ -861,15 +852,14 @@ C["compsci:4.6.3.1"] = {
   flashcards: [
     ["Why must programs be translated?", "The processor can only execute machine code."],
     ["Source code vs object code?", "Human-readable program as written vs translated machine code the processor executes."],
-    ["Role of an assembler?", "Translates assembly language into machine code, one-to-one."],
-    ["How does a compiler translate?", "The whole program at once, producing object code before execution."],
-    ["How does an interpreter execute?", "Analyses one statement at a time and calls its own subroutines to carry it out; no object code."],
-    ["Compiled vs interpreted on an error?", "Compiler: no executable produced. Interpreter: runs up to the first error."],
-    ["Which runs faster once translated?", "Compiled object code."],
-    ["Which needs the source and translator at run time?", "Interpreted programs."],
-    ["Why do some compilers produce bytecode?", "Platform independence — compile once, run on any machine with a VM."],
-    ["How is bytecode executed?", "By a virtual machine: interpreted, or JIT-compiled to machine code for that processor."],
-    ["Assembler vs compiler similarity?", "Both convert source into object code."]
+    ["How does a compiler translate?", "The whole program at once, producing object code before execution.", 3],
+    ["How does an interpreter execute?", "Analyses one statement at a time and calls its own subroutines to carry it out; no object code.", 4],
+    ["Compiled vs interpreted on an error?", "Compiler: no executable produced. Interpreter: runs up to the first error.", 5],
+    ["Which runs faster once translated?", "Compiled object code.", 6],
+    ["Which needs the source and translator at run time?", "Interpreted programs.", 7],
+    ["Why do some compilers produce bytecode?", "Platform independence — compile once, run on any machine with a VM.", 8],
+    ["How is bytecode executed?", "By a virtual machine: interpreted, or JIT-compiled to machine code for that processor.", 9],
+    ["Assembler vs compiler similarity?", "Both convert source into object code.", 10]
   ],
   quiz: [
     { q: "Which produces NO object code?", opts: ["interpreter", "compiler", "assembler", "linker"], ans: 0, why: "Executes directly." },

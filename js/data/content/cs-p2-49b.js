@@ -168,10 +168,8 @@ C["compsci:4.9.3.1"] = {
     ["Gateway?", "Connects networks with different protocols — performs protocol conversion."],
     ["URL?", "Full address of a resource: protocol + FQDN + path."],
     ["FQDN?", "Domain name including the host, e.g. www.aqa.org.uk."],
-    ["How are domain names organised?", "Hierarchically: root → TLD → second-level → organisation → subdomain/host."],
-    ["Purpose of DNS?", "To resolve FQDNs/domain names into IP addresses."],
-    ["Internet registries?", "Register domain names to owners, ensuring uniqueness, and feed DNS."],
-    ["Does a router change IP or MAC addresses?", "MAC addresses (for the next hop)."]
+    ["Purpose of DNS?", "To resolve FQDNs/domain names into IP addresses.", 8],
+    ["Does a router change IP or MAC addresses?", "MAC addresses (for the next hop).", 10]
   ],
   quiz: [
     { q: "DNS translates", opts: ["domain names into IP addresses", "URLs into MAC addresses", "IP into MAC addresses", "ports into sockets"], ans: 0, why: "R. URLs." },
@@ -298,15 +296,13 @@ C["compsci:4.9.3.2"] = {
   ],
   flashcards: [
     ["Packet filtering?", "The firewall checks packet headers (IP, port, protocol) against rules to block or allow."],
-    ["Stateful inspection?", "Tracks current connections; only allows packets belonging to them."],
-    ["Proxy server?", "Makes requests on clients' behalf so external computers never reach LAN devices directly."],
-    ["Symmetric encryption?", "One shared key encrypts and decrypts; fast; key exchange problem."],
-    ["Asymmetric encryption?", "Public/private key pair; encrypt with the recipient's public key, decrypt with their private key."],
-    ["Digital signature?", "A hash of the message encrypted with the sender's private key."],
-    ["How is a signature verified?", "Decrypt it with the sender's public key; re-hash the message; compare digests."],
-    ["Digital certificate?", "A CA-signed binding of an owner's identity to their public key."],
-    ["Virus vs worm vs trojan?", "Virus attaches to files and needs running; worm self-replicates over networks; trojan disguised as legit software."],
-    ["Code-quality defence against worms?", "Prevent buffer overflows; review and test code; patched libraries."]
+    ["Proxy server?", "Makes requests on clients' behalf so external computers never reach LAN devices directly.", 2],
+    ["Symmetric encryption?", "One shared key encrypts and decrypts; fast; key exchange problem.", 3],
+    ["Asymmetric encryption?", "Public/private key pair; encrypt with the recipient's public key, decrypt with their private key.", 4],
+    ["How is a signature verified?", "Decrypt it with the sender's public key; re-hash the message; compare digests.", 6],
+    ["Digital certificate?", "A CA-signed binding of an owner's identity to their public key.", 7],
+    ["Virus vs worm vs trojan?", "Virus attaches to files and needs running; worm self-replicates over networks; trojan disguised as legit software.", 8],
+    ["Code-quality defence against worms?", "Prevent buffer overflows; review and test code; patched libraries.", 9]
   ],
   quiz: [
     { q: "A digital signature is created with", opts: ["the sender's private key", "the sender's public key", "the receiver's public key", "a shared symmetric key"], ans: 0, why: "Only the sender could." },
@@ -394,15 +390,11 @@ C["compsci:4.9.4.1"] = {
   ],
   flashcards: [
     ["Four TCP/IP layers?", "Application, transport, network (Internet), link."],
-    ["Role of the transport layer?", "Segments data, adds ports, end-to-end connection, ACKs/retransmission, ordering, flow control."],
-    ["Role of the network layer?", "Adds source/destination IP addresses to packets and routes them hop by hop."],
-    ["Role of the link layer?", "Moves frames across one physical link using MAC addresses."],
-    ["What is a socket?", "An IP address + port number — one endpoint of a connection."],
-    ["Well-known port?", "A reserved port (0–1023) assigned by IANA to a standard service."],
-    ["Client port?", "A temporary port chosen by the client OS for one connection."],
-    ["Why do servers use well-known ports?", "Clients initiate contact and must know where to send the first request."],
-    ["MAC address?", "A 48-bit hardware address of a NIC, used by the link layer within one network."],
-    ["Ports for HTTP, HTTPS, SMTP, POP3, SSH?", "80, 443, 25, 110, 22."]
+    ["Well-known port?", "A reserved port (0–1023) assigned by IANA to a standard service.", 5],
+    ["Client port?", "A temporary port chosen by the client OS for one connection.", 6],
+    ["Why do servers use well-known ports?", "Clients initiate contact and must know where to send the first request.", 7],
+    ["MAC address?", "A 48-bit hardware address of a NIC, used by the link layer within one network.", 8],
+    ["Ports for HTTP, HTTPS, SMTP, POP3, SSH?", "80, 443, 25, 110, 22.", 9]
   ],
   quiz: [
     { q: "Which layer adds port numbers?", opts: ["transport", "network", "link", "application"], ans: 0, why: "Segments carry ports." },

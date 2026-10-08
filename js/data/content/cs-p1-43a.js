@@ -124,11 +124,9 @@ C["compsci:4.3.1.1"] = {
     ["DFS uses which data structure?", "A stack (or recursion, using the call stack)."],
     ["BFS typical application?", "Shortest path (fewest edges) in an unweighted graph."],
     ["DFS typical application?", "Navigating a maze."],
-    ["BFS order on the 2025 graph from 1?", "1, 2, 3, 7, 6."],
-    ["DFS order on the 2025 graph from 1?", "1, 2, 6, 3, 7."],
-    ["Traversal used by a recursive cycle finder G(V, P)?", "Depth-first."],
-    ["Why mark vertices visited?", "To avoid processing a vertex twice and looping forever round a cycle."],
-    ["Does BFS find the shortest path in a weighted graph?", "No — use Dijkstra's algorithm."]
+    ["Traversal used by a recursive cycle finder G(V, P)?", "Depth-first.", 6],
+    ["Why mark vertices visited?", "To avoid processing a vertex twice and looping forever round a cycle.", 7],
+    ["Does BFS find the shortest path in a weighted graph?", "No — use Dijkstra's algorithm.", 8]
   ],
   quiz: [
     { q: "Which traversal visits all neighbours before going deeper?", opts: ["breadth-first", "depth-first", "in-order", "post-order"], ans: 0, why: "Level by level." },
@@ -235,15 +233,10 @@ C["compsci:4.3.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.5.1 trees and BSTs; 4.2.3.1 the explicit stack (2021 Q02.3); 4.1.1.16 recursion; 4.3.3.1 post-order gives RPN; 4.3.1.1 tree traversals are depth-first searches." } }
   ],
   flashcards: [
-    ["Pre-order?", "Node, left subtree, right subtree."],
-    ["In-order?", "Left subtree, node, right subtree."],
-    ["Post-order?", "Left subtree, right subtree, node."],
-    ["Use of pre-order?", "Copying a tree."],
-    ["Use of in-order?", "Outputting a BST in ascending order."],
-    ["Use of post-order?", "Infix → RPN from an expression tree; emptying/deleting a tree."],
-    ["In-order of 2021's tree (post-order EHIYQBC)?", "E I H C Y B Q."],
-    ["Dot method: in-order dot is…?", "Underneath each node."],
-    ["Reverse an in-order output?", "Traverse right before left (swap the left and right pointers)."]
+    ["Use of pre-order?", "Copying a tree.", 3],
+    ["Use of in-order?", "Outputting a BST in ascending order.", 4],
+    ["Use of post-order?", "Infix → RPN from an expression tree; emptying/deleting a tree.", 5],
+    ["Dot method: in-order dot is…?", "Underneath each node.", 7],
   ],
   quiz: [
     { q: "In-order traversal of a BST outputs", opts: ["the values in ascending order", "the root first", "the leaves first", "level by level"], ans: 0, why: "Left, node, right." },
@@ -379,12 +372,11 @@ C["compsci:4.3.3.1"] = {
     ["RPN of 3 + 4 × 2 − 1?", "3 4 2 × + 1 −."],
     ["RPN of (3 + 4) × 5?", "3 4 + 5 ×."],
     ["RPN of 5 + 2 × 3 + 4?", "5 2 3 × + 4 +."],
-    ["Another name for RPN?", "Postfix notation."],
-    ["Two advantages of RPN?", "No brackets/precedence needed; simpler for a machine to evaluate with a stack."],
-    ["Where is RPN used?", "Stack-based interpreters: PostScript, bytecode (and RPN calculators)."],
-    ["Which traversal of an expression tree gives RPN?", "Post-order."],
-    ["Infix of 6 2 − 1 3 + ×?", "(6 − 2) × (1 + 3)."],
-    ["In RPN evaluation, the first value popped is…?", "The right-hand operand."]
+    ["Two advantages of RPN?", "No brackets/precedence needed; simpler for a machine to evaluate with a stack.", 5],
+    ["Where is RPN used?", "Stack-based interpreters: PostScript, bytecode (and RPN calculators).", 6],
+    ["Which traversal of an expression tree gives RPN?", "Post-order.", 7],
+    ["Infix of 6 2 − 1 3 + ×?", "(6 − 2) × (1 + 3).", 8],
+    ["In RPN evaluation, the first value popped is…?", "The right-hand operand.", 9]
   ],
   quiz: [
     { q: "The RPN of (3 + 4) × 5 is", opts: ["3 4 + 5 ×", "3 4 5 + ×", "× + 3 4 5", "3 + 4 5 ×"], ans: 0, why: "Bracket first." },

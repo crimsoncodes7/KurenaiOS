@@ -105,6 +105,17 @@
      (core/edits.js), else the shipped cards. A forked card keeps the SM-2
      key it shipped with, so editing its wording never resets its schedule;
      `edited` marks a card whose topic carries a fork at all. */
+  /* A shipped card's SM-2 key is "sid:ref:<position>". When cards are
+     removed from a deck (duplicates, redundancies) the ones after them would
+     slide up and inherit the wrong schedule, so a card whose position changed
+     carries its original position as an optional third element, [q, a, 7]:
+     the key stays "sid:ref:7" however the array is later edited. A string
+     containing ":" is a whole key (a card moved here from another deck). */
+  function shippedKey(sid, ref, c, i) {
+    var k = c[2];
+    if (k == null) return sid + ":" + ref + ":" + i;
+    return typeof k === "string" && k.indexOf(":") >= 0 ? k : sid + ":" + ref + ":" + k;
+  }
   function curriculumCards(sid, ref) {
     if (window.KOS.edits) {
       var forked = KOS.edits.has(sid, ref, "flashcards");
@@ -116,7 +127,7 @@
     var out = [];
     if (entry && entry.flashcards) {
       entry.flashcards.forEach(function (c, i) {
-        out.push({ key: sid + ":" + ref + ":" + i, sid: sid, ref: ref, q: c[0], a: c[1], custom: false });
+        out.push({ key: shippedKey(sid, ref, c, i), sid: sid, ref: ref, q: c[0], a: c[1], custom: false });
       });
     }
     return out;

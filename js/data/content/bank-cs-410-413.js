@@ -12,14 +12,12 @@ X("compsci:4.10.1", {
     { callout: { t: "tip", body: "Read the scenario for the words *each* and *many*: \"each pet has one owner, an owner may have many pets\" → one-to-many from Customer to Pet. When a sentence gives *many … many*, you need a new entity in the middle — the examiners award a mark for creating it and one for its attributes/identifier." }}
   ],
   flashcards: [
-    ["What is an entity?", "A real-world thing about which data is stored — a table in the relational model."],
-    ["What is an attribute?", "A property of an entity — a column/field."],
-    ["What is an entity identifier?", "The attribute (or combination) that uniquely identifies each instance — the primary key."],
-    ["Name the three degrees of relationship.", "One-to-one, one-to-many, many-to-many."],
-    ["How is a many-to-many relationship implemented?", "With a linking (junction) relation whose primary key is the composite of the two entity identifiers, e.g. PetOwner(CustomerID, PetID)."],
-    ["How is 'many' drawn on an ER diagram?", "With a crow's foot at that end of the line."],
-    ["A student receives many merits, a teacher awards many merits. What is the relationship between Student and Teacher?", "Many-to-many, resolved by the Merit entity: Student 1–many Merit and Teacher 1–many Merit."],
-    ["Entity descriptions: how are they written?", "Entity(Identifier, attribute, attribute…) with the identifier underlined — foreign keys are attributes that are identifiers of other entities."]
+    ["What is an entity?", "A real-world thing about which data is stored — a table in the relational model.", 10],
+    ["What is an attribute?", "A property of an entity — a column/field.", 11],
+    ["What is an entity identifier?", "The attribute (or combination) that uniquely identifies each instance — the primary key.", 12],
+    ["How is a many-to-many relationship implemented?", "With a linking (junction) relation whose primary key is the composite of the two entity identifiers, e.g. PetOwner(CustomerID, PetID).", 14],
+    ["A student receives many merits, a teacher awards many merits. What is the relationship between Student and Teacher?", "Many-to-many, resolved by the Merit entity: Student 1–many Merit and Teacher 1–many Merit.", 16],
+    ["Entity descriptions: how are they written?", "Entity(Identifier, attribute, attribute…) with the identifier underlined — foreign keys are attributes that are identifiers of other entities.", 17]
   ],
   quiz: [
     { q: "A customer places many orders; each order belongs to one customer. The relationship is:", opts: ["one-to-one", "one-to-many", "many-to-many", "none"], ans: 1, why: "Crow's foot at Order." },
@@ -54,14 +52,14 @@ X("compsci:4.10.2", {
     ]}
   ],
   flashcards: [
-    ["Define a relation.", "A table in a relational database — a set of tuples (rows) with named attributes (columns)."],
-    ["Define a primary key.", "The attribute or combination of attributes that uniquely identifies each tuple."],
-    ["Define a foreign key.", "An attribute in one relation that is the primary key of another, used to link the two."],
-    ["Define a composite key.", "A primary key made of two or more attributes together."],
-    ["What is referential integrity?", "The rule that a foreign key value must match an existing primary key value in the referenced relation — the DBMS prevents deletes or inserts that would break it."],
-    ["What assumption does using (BuyerID, PropertyID, ViewDate) as a key make?", "That a buyer views a given property at most once on a given day."],
-    ["Why might deleting a Showing record be refused?", "Bookings still reference that ShowingID as a foreign key — the delete would violate referential integrity."],
-    ["What is a tuple?", "One row / record in a relation."]
+    ["Define a relation.", "A table in a relational database — a set of tuples (rows) with named attributes (columns).", 10],
+    ["Define a primary key.", "The attribute or combination of attributes that uniquely identifies each tuple.", 11],
+    ["Define a foreign key.", "An attribute in one relation that is the primary key of another, used to link the two.", 12],
+    ["Define a composite key.", "A primary key made of two or more attributes together.", 13],
+    ["What is referential integrity?", "The rule that a foreign key value must match an existing primary key value in the referenced relation — the DBMS prevents deletes or inserts that would break it.", 14],
+    ["What assumption does using (BuyerID, PropertyID, ViewDate) as a key make?", "That a buyer views a given property at most once on a given day.", 15],
+    ["Why might deleting a Showing record be refused?", "Bookings still reference that ShowingID as a foreign key — the delete would violate referential integrity.", 16],
+    ["What is a tuple?", "One row / record in a relation.", 17]
   ],
   quiz: [
     { q: "A foreign key is:", opts: ["a unique random number", "an attribute that is the primary key of another relation", "an index", "a date field"], ans: 1, why: "Links relations." },
@@ -90,14 +88,14 @@ X("compsci:4.10.3", {
     { callout: { t: "def", h: "Third normal form", body: "No repeating groups (1NF); every non-key attribute depends on the whole of a composite key (2NF); no non-key attribute depends on another non-key attribute (3NF)." }}
   ],
   flashcards: [
-    ["Why are databases normalised? (give three reasons)", "To eliminate data redundancy / duplication; to avoid inconsistency between copies; to eliminate update, insertion and deletion anomalies."],
-    ["What is an update anomaly?", "When data stored in several places must be changed in every place, risking inconsistency."],
-    ["What is an insertion anomaly?", "When data about one entity cannot be stored until a record for another exists — e.g. a customer with no booking."],
-    ["What is a deletion anomaly?", "When deleting a record removes the only copy of data about another entity — e.g. deleting a customer's last booking deletes the customer."],
-    ["State the conditions for 1NF, 2NF and 3NF.", "1NF: atomic values, no repeating groups. 2NF: 1NF and every non-key attribute depends on the whole primary key. 3NF: 2NF and no non-key attribute depends on another non-key attribute."],
-    ["Which two answers are NE for 'why normalise'?", "Saves storage space; easier/faster to query."],
-    ["Give one advantage and one disadvantage of deliberately denormalising (storing CurrentZoo in Animal).", "Advantage: an animal's location is found with a simpler/faster query without searching AnimalLocation. Disadvantage: redundancy — data could become inconsistent and more updates are needed."],
-    ["How do you recognise a table that is not in 3NF?", "A non-key attribute (e.g. CustomerName) is determined by another non-key attribute (CustomerID) rather than by the primary key."]
+    ["Why are databases normalised? (give three reasons)", "To eliminate data redundancy / duplication; to avoid inconsistency between copies; to eliminate update, insertion and deletion anomalies.", 12],
+    ["What is an update anomaly?", "When data stored in several places must be changed in every place, risking inconsistency.", 13],
+    ["What is an insertion anomaly?", "When data about one entity cannot be stored until a record for another exists — e.g. a customer with no booking.", 14],
+    ["What is a deletion anomaly?", "When deleting a record removes the only copy of data about another entity — e.g. deleting a customer's last booking deletes the customer.", 15],
+    ["State the conditions for 1NF, 2NF and 3NF.", "1NF: atomic values, no repeating groups. 2NF: 1NF and every non-key attribute depends on the whole primary key. 3NF: 2NF and no non-key attribute depends on another non-key attribute.", 16],
+    ["Which two answers are NE for 'why normalise'?", "Saves storage space; easier/faster to query.", 17],
+    ["Give one advantage and one disadvantage of deliberately denormalising (storing CurrentZoo in Animal).", "Advantage: an animal's location is found with a simpler/faster query without searching AnimalLocation. Disadvantage: redundancy — data could become inconsistent and more updates are needed.", 18],
+    ["How do you recognise a table that is not in 3NF?", "A non-key attribute (e.g. CustomerName) is determined by another non-key attribute (CustomerID) rather than by the primary key.", 19]
   ],
   quiz: [
     { q: "Storing a customer's address in every booking row causes:", opts: ["faster queries", "redundancy and possible inconsistency", "referential integrity", "a composite key"], ans: 1, why: "Un-normalised." },
@@ -182,14 +180,14 @@ X("compsci:4.10.5", {
     { callout: { t: "memorise", body: "Other methods: **serialisation** (transactions executed one after another, never overlapping) and **commitment ordering** (order the commits so conflicting ones cannot interleave). The client–server DBMS also gives **one point of control for security, backup and integrity**." }}
   ],
   flashcards: [
-    ["What is a client–server database?", "A DBMS running on a server that many clients access over a network, with the server managing the data, integrity, security and concurrent access."],
-    ["Describe the lost update problem.", "Two users read and edit the same record at the same time; one saves, then the other saves — the second save overwrites the first, so the first update is lost."],
-    ["Describe record locking.", "When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed."],
-    ["Describe timestamp ordering.", "Each transaction is given a timestamp; every record stores the timestamps of its last read and write; the DBMS aborts any transaction that would read or write a record already read or written by a later transaction."],
-    ["What is serialisation?", "Transactions are executed one at a time in sequence so they can never interfere."],
-    ["What is commitment ordering?", "Transactions are ordered by their dependencies so that conflicting commits cannot interleave."],
-    ["Give one disadvantage of record locking.", "A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock."],
-    ["Give one advantage of a client–server DBMS over shared files.", "Central control of integrity, security and concurrent access; consistent data for all clients."]
+    ["What is a client–server database?", "A DBMS running on a server that many clients access over a network, with the server managing the data, integrity, security and concurrent access.", 10],
+    ["Describe the lost update problem.", "Two users read and edit the same record at the same time; one saves, then the other saves — the second save overwrites the first, so the first update is lost.", 11],
+    ["Describe record locking.", "When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed.", 12],
+    ["Describe timestamp ordering.", "Each transaction is given a timestamp; every record stores the timestamps of its last read and write; the DBMS aborts any transaction that would read or write a record already read or written by a later transaction.", 13],
+    ["What is serialisation?", "Transactions are executed one at a time in sequence so they can never interfere.", 14],
+    ["What is commitment ordering?", "Transactions are ordered by their dependencies so that conflicting commits cannot interleave.", 15],
+    ["Give one disadvantage of record locking.", "A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock.", 16],
+    ["Give one advantage of a client–server DBMS over shared files.", "Central control of integrity, security and concurrent access; consistent data for all clients.", 17]
   ],
   quiz: [
     { q: "Two users save edits to the same record in turn without concurrency control. The result:", opts: ["both updates merge", "the first update is lost", "the record is deleted", "an error always occurs"], ans: 1, why: "Lost update." },
@@ -259,14 +257,13 @@ X("compsci:4.12.1.1", {
     { callout: { t: "memorise", body: "`f: X → Y` is read *f is a function from X to Y*. The **argument type** is X, the **result type** Y. A function of two arguments is written `add: ℤ × ℤ → ℤ`. The **range** is the subset of the co-domain actually produced." }}
   ],
   flashcards: [
-    ["What is a function type?", "The specification of a function's argument set (domain) and result set (co-domain), written f: A → B."],
-    ["What is the domain?", "The set of values the function's arguments are drawn from."],
-    ["What is the co-domain?", "The set that the function's results belong to."],
-    ["State the type of the function that maps an integer to its square.", "square: ℤ → ℤ (or ℤ → ℕ)."],
-    ["State the type of fibonacci, which maps a position to a Fibonacci number.", "fibonacci: ℕ → ℕ."],
-    ["State the type of a function that halves a real number.", "half: ℝ → ℝ."],
-    ["How is a two-argument function's type written?", "add: ℤ × ℤ → ℤ — the domain is the Cartesian product."],
-    ["Difference between co-domain and range?", "The co-domain is the declared result set; the range is the subset of values actually produced."]
+    ["What is a function type?", "The specification of a function's argument set (domain) and result set (co-domain), written f: A → B.", 9],
+    ["What is the co-domain?", "The set that the function's results belong to.", 11],
+    ["State the type of the function that maps an integer to its square.", "square: ℤ → ℤ (or ℤ → ℕ).", 12],
+    ["State the type of fibonacci, which maps a position to a Fibonacci number.", "fibonacci: ℕ → ℕ.", 13],
+    ["State the type of a function that halves a real number.", "half: ℝ → ℝ.", 14],
+    ["How is a two-argument function's type written?", "add: ℤ × ℤ → ℤ — the domain is the Cartesian product.", 15],
+    ["Difference between co-domain and range?", "The co-domain is the declared result set; the range is the subset of values actually produced.", 16]
   ],
   quiz: [
     { q: "In `f: ℕ → ℝ` the co-domain is:", opts: ["ℕ", "ℝ", "f", "the range"], ans: 1, why: "Right of the arrow." },
@@ -288,14 +285,14 @@ X("compsci:4.12.1.1", {
 
 X("compsci:4.12.1.2", {
   flashcards: [
-    ["What does it mean for a function to be a first-class object?", "It can be treated like any other value: assigned to a variable, passed as an argument, returned as a result, stored in a data structure."],
-    ["Why is first-class status essential for higher-order functions?", "map, filter and fold take a function as an argument — impossible unless functions are values."],
-    ["Give an example of a function returned as a result.", "Partial application: add 4 returns a new function that adds 4."],
-    ["Give an example of a function passed as an argument.", "map square [1, 3, 5] — square is passed to map."],
-    ["Can a function be stored in a list?", "Yes — a list of functions is a legitimate value in a functional language."],
-    ["What other objects are first-class?", "Numbers, strings, lists — anything that can be passed, returned and assigned."],
-    ["What is a function literal / lambda?", "An anonymous function written in place, e.g. λx. x + 1, passed without being named."],
-    ["Which 2025 statement was true: 'the function is a first-class object'?", "Yes — in a functional language every function is a first-class object."]
+    ["What does it mean for a function to be a first-class object?", "It can be treated like any other value: assigned to a variable, passed as an argument, returned as a result, stored in a data structure.", 8],
+    ["Why is first-class status essential for higher-order functions?", "map, filter and fold take a function as an argument — impossible unless functions are values.", 9],
+    ["Give an example of a function returned as a result.", "Partial application: add 4 returns a new function that adds 4.", 10],
+    ["Give an example of a function passed as an argument.", "map square [1, 3, 5] — square is passed to map.", 11],
+    ["Can a function be stored in a list?", "Yes — a list of functions is a legitimate value in a functional language.", 12],
+    ["What other objects are first-class?", "Numbers, strings, lists — anything that can be passed, returned and assigned.", 13],
+    ["What is a function literal / lambda?", "An anonymous function written in place, e.g. λx. x + 1, passed without being named.", 14],
+    ["True or false: in a functional language every function is a first-class object?", "Yes — in a functional language every function is a first-class object.", 15]
   ],
   quiz: [
     { q: "A first-class object can be:", opts: ["only called", "passed as an argument and returned as a result", "only stored on disk", "only compiled"], ans: 1, why: "Value-like." },
@@ -315,14 +312,12 @@ X("compsci:4.12.1.2", {
 
 X("compsci:4.12.1.3", {
   flashcards: [
-    ["What is function application?", "Applying a function to its argument(s) to obtain a result, e.g. add 3 4 = 7."],
-    ["How is application written in a functional language?", "Function name followed by arguments separated by spaces, without brackets: f x y."],
-    ["Evaluate `head (tail (tail [4, 7, 1, 9]))`.", "1."],
-    ["Evaluate `fold (*) 1 [2, 3, 2]`.", "12."],
-    ["Evaluate `fold (+) 0 [3, 8, 1]`.", "12."],
-    ["What is a curried function?", "A multi-argument function treated as a chain of single-argument functions: add 3 4 = (add 3) 4."],
-    ["Evaluate `map (+1) [1, 2, 3]`.", "[2, 3, 4]."],
-    ["What happens when a function is applied to fewer arguments than it takes?", "Partial application — a new function awaiting the remaining arguments is returned."]
+    ["What is function application?", "Applying a function to its argument(s) to obtain a result, e.g. add 3 4 = 7.", 8],
+    ["How is application written in a functional language?", "Function name followed by arguments separated by spaces, without brackets: f x y.", 9],
+    ["Evaluate `head (tail (tail [4, 7, 1, 9]))`.", "1.", 10],
+    ["What is a curried function?", "A multi-argument function treated as a chain of single-argument functions: add 3 4 = (add 3) 4.", 13],
+    ["Evaluate `map (+1) [1, 2, 3]`.", "[2, 3, 4].", 14],
+    ["What happens when a function is applied to fewer arguments than it takes?", "Partial application — a new function awaiting the remaining arguments is returned.", 15]
   ],
   quiz: [
     { q: "`add 3 4` where add x y = x + y evaluates to:", opts: ["34", "7", "a function", "error"], ans: 1, why: "Full application." },
@@ -346,14 +341,14 @@ X("compsci:4.12.1.4", {
     { h: "Partial application — 2019 (3 marks), 2025 (2 marks)" },
     "The three points: the function is **applied to one (some) of its arguments** — that argument is **fixed / bound**; the result is a **new function**; which **takes fewer arguments** (the remaining ones). The AO2 mark: say what the new function does — `add 6` is a function that **adds 6 to its argument** (`add6(x) = 6 + x`). Answers by example alone cap at 2." ],
   flashcards: [
-    ["Define partial function application.", "Applying a function to only some of its arguments, fixing them, to produce a new function that takes the remaining arguments."],
-    ["What does `add 6` produce, where add x y = x + y?", "A new one-argument function that adds 6 to its argument: add6(x) = 6 + x."],
-    ["What is the type of `add 6` if add: ℤ × ℤ → ℤ?", "ℤ → ℤ."],
-    ["Why is partial application useful?", "Specialised functions can be built from general ones and passed to map/filter, e.g. map (add 6) list."],
-    ["What does `multiply 2` give?", "A doubling function."],
-    ["Evaluate `(add 6) 10`.", "16."],
-    ["How does currying enable partial application?", "A curried function takes its arguments one at a time, so supplying one returns a function waiting for the next."],
-    ["What does `map (multiply 3) [1, 2, 3]` give?", "[3, 6, 9]."]
+    ["Define partial function application.", "Applying a function to only some of its arguments, fixing them, to produce a new function that takes the remaining arguments.", 8],
+    ["What does `add 6` produce, where add x y = x + y?", "A new one-argument function that adds 6 to its argument: add6(x) = 6 + x.", 9],
+    ["What is the type of `add 6` if add: ℤ × ℤ → ℤ?", "ℤ → ℤ.", 10],
+    ["Why is partial application useful?", "Specialised functions can be built from general ones and passed to map/filter, e.g. map (add 6) list.", 11],
+    ["What does `multiply 2` give?", "A doubling function.", 12],
+    ["Evaluate `(add 6) 10`.", "16.", 13],
+    ["How does currying enable partial application?", "A curried function takes its arguments one at a time, so supplying one returns a function waiting for the next.", 14],
+    ["What does `map (multiply 3) [1, 2, 3]` give?", "[3, 6, 9].", 15]
   ],
   quiz: [
     { q: "Partial application of a 3-argument function to one argument gives a function of:", opts: ["3 arguments", "2 arguments", "1 argument", "0 arguments"], ans: 1, why: "Remaining arguments." },
@@ -379,14 +374,13 @@ X("compsci:4.12.1.5", {
     { callout: { t: "warn", body: "Types must line up: the co-domain of g must be the domain of f. `average ∘ map toCelsius` is legal; `toCelsius ∘ average` needs average to produce a number." }}
   ],
   flashcards: [
-    ["Define function composition.", "Combining two functions f and g into a new function f ∘ g such that (f ∘ g)(x) = f(g(x)) — g is applied first, then f."],
-    ["What condition must hold to compose f ∘ g?", "The co-domain of g must match (be a subset of) the domain of f."],
-    ["If g doubles and f adds 1, what is (f ∘ g)(5)?", "f(g(5)) = f(10) = 11."],
-    ["If g doubles and f adds 1, what is (g ∘ f)(5)?", "g(f(5)) = g(6) = 12."],
-    ["fv converts a list of Fahrenheit to Celsius and fw averages a list. What does fw ∘ fv compute?", "The average temperature in Celsius."],
-    ["Why is `toCelsius ∘ average` better than `average ∘ map toCelsius`?", "Only one conversion is done instead of one per element — fewer function calls."],
-    ["What is the type of f ∘ g if g: A → B and f: B → C?", "A → C."],
-    ["What does `total ∘ map price` compute over a list of items sold?", "One day's total sales revenue."]
+    ["Define function composition.", "Combining two functions f and g into a new function f ∘ g such that (f ∘ g)(x) = f(g(x)) — g is applied first, then f.", 8],
+    ["What condition must hold to compose f ∘ g?", "The co-domain of g must match (be a subset of) the domain of f.", 9],
+    ["If g doubles and f adds 1, what is (f ∘ g)(5)?", "f(g(5)) = f(10) = 11.", 10],
+    ["If g doubles and f adds 1, what is (g ∘ f)(5)?", "g(f(5)) = g(6) = 12.", 11],
+    ["fv converts a list of Fahrenheit to Celsius and fw averages a list. What does fw ∘ fv compute?", "The average temperature in Celsius.", 12],
+    ["Why is `toCelsius ∘ average` better than `average ∘ map toCelsius`?", "Only one conversion is done instead of one per element — fewer function calls.", 13],
+    ["What does `total ∘ map price` compute over a list of items sold?", "One day's total sales revenue.", 15]
   ],
   quiz: [
     { q: "(f ∘ g)(x) means:", opts: ["g(f(x))", "f(g(x))", "f(x) × g(x)", "f(x) + g(x)"], ans: 1, why: "Right-to-left." },
@@ -416,16 +410,12 @@ X("compsci:4.12.2.1", {
     { callout: { t: "memorise", body: "**map** applies a function to every element, returning a list of the same length. **filter** keeps the elements for which a predicate is true. **fold (reduce)** combines the elements into one value using a binary function and a starting value." }}
   ],
   flashcards: [
-    ["Define a higher-order function.", "A function that takes a function as an argument, or returns a function as its result, or both."],
-    ["What does map do?", "Applies a function to every element of a list, returning a new list of the results."],
-    ["What does filter do?", "Returns the list of elements for which a given predicate (Boolean function) is true."],
-    ["What does fold (reduce) do?", "Combines all the elements of a list into a single value using a two-argument function and an initial value."],
-    ["Evaluate `map square [1, 3, 5]`.", "[1, 9, 25]."],
-    ["Evaluate `filter (< 10) [1, 15, 5, 20]`.", "[1, 5]."],
-    ["Evaluate `fold (+) 0 [2, 4, 6]`.", "12."],
-    ["Evaluate `fold (*) 1 [2, 3, 2]`.", "12."],
-    ["Which built-ins are higher-order: map, filter, fold, head?", "map, filter and fold (they take a function); head is not."],
-    ["Write 'the sum of the squares of the even numbers in xs' with higher-order functions.", "fold (+) 0 (map square (filter even xs))."]
+    ["Define a higher-order function.", "A function that takes a function as an argument, or returns a function as its result, or both.", 12],
+    ["What does filter do?", "Returns the list of elements for which a given predicate (Boolean function) is true.", 14],
+    ["What does fold (reduce) do?", "Combines all the elements of a list into a single value using a two-argument function and an initial value.", 15],
+    ["Evaluate `fold (+) 0 [2, 4, 6]`.", "12.", 18],
+    ["Which built-ins are higher-order: map, filter, fold, head?", "map, filter and fold (they take a function); head is not.", 20],
+    ["Write 'the sum of the squares of the even numbers in xs' with higher-order functions.", "fold (+) 0 (map square (filter even xs)).", 21]
   ],
   quiz: [
     { q: "A higher-order function:", opts: ["is very long", "takes or returns a function", "uses recursion", "has no arguments"], ans: 1, why: "Definition." },
@@ -458,16 +448,16 @@ X("compsci:4.12.3.1", {
     { callout: { t: "tip", body: "`head []` is an error — the empty list has no head. `tail [7]` is `[]`, not an error. When asked to evaluate `head (tail (tail b))`, peel one call at a time from the inside." }}
   ],
   flashcards: [
-    ["What does head return?", "The first element of a non-empty list."],
-    ["What does tail return?", "The list with its first element removed (possibly empty)."],
-    ["What is `[]`?", "The empty list."],
-    ["What does `x:xs` mean?", "The list whose head is x and tail is xs — prepending x to xs; also used as a pattern to split a list."],
-    ["Evaluate `head [4, 2, 5]` and `tail [4, 2, 5]`.", "4 and [2, 5]."],
-    ["Evaluate `head (tail (tail [12, 1, 5, 20]))`.", "5."],
-    ["Define a recursive `total` for a list of numbers.", "total [] = 0; total (x:xs) = x + total xs."],
-    ["Define a recursive `length`.", "length [] = 0; length (x:xs) = 1 + length xs."],
-    ["What is the base case of most list recursions?", "The empty list []."],
-    ["Evaluate `3 : [7, 9]`.", "[3, 7, 9]."]
+    ["What does head return?", "The first element of a non-empty list.", 11],
+    ["What does tail return?", "The list with its first element removed (possibly empty).", 12],
+    ["What is `[]`?", "The empty list.", 13],
+    ["What does `x:xs` mean?", "The list whose head is x and tail is xs — prepending x to xs; also used as a pattern to split a list.", 14],
+    ["Evaluate `head [4, 2, 5]` and `tail [4, 2, 5]`.", "4 and [2, 5].", 15],
+    ["Evaluate `head (tail (tail [12, 1, 5, 20]))`.", "5.", 16],
+    ["Define a recursive `total` for a list of numbers.", "total [] = 0; total (x:xs) = x + total xs.", 17],
+    ["Define a recursive `length`.", "length [] = 0; length (x:xs) = 1 + length xs.", 18],
+    ["What is the base case of most list recursions?", "The empty list [].", 19],
+    ["Evaluate `3 : [7, 9]`.", "[3, 7, 9].", 20]
   ],
   quiz: [
     { q: "`tail [1, 2, 3]` =", opts: ["3", "[2, 3]", "[1, 2]", "1"], ans: 1, why: "Drop the head." },
@@ -528,14 +518,13 @@ X("compsci:4.13.1.1", {
 
 X("compsci:4.13.1.2", {
   flashcards: [
-    ["What is produced during the design stage?", "Data structures, algorithms (pseudo-code / flowcharts), the user interface, the modular structure (hierarchy chart), file/database design and a test plan."],
-    ["What is a hierarchy chart?", "A diagram decomposing the program into modules top-down, showing which module calls which."],
-    ["What is prototyping?", "Building a simplified working model of part of the system (often the interface) to get user feedback early."],
-    ["Why design the test plan before coding?", "Tests are derived from the requirements, not the code, so they check what was asked for."],
-    ["What is a data dictionary?", "A description of every data item: name, type, size, validation, purpose."],
-    ["What is the purpose of designing algorithms in pseudo-code first?", "Logic can be checked and traced independently of language syntax."],
-    ["What does UI design consider?", "Layout, input methods, validation feedback, accessibility, consistency."],
-    ["What is modular design?", "Splitting the program into self-contained modules with defined interfaces so they can be developed and tested separately."]
+    ["What is produced during the design stage?", "Data structures, algorithms (pseudo-code / flowcharts), the user interface, the modular structure (hierarchy chart), file/database design and a test plan.", 8],
+    ["What is prototyping?", "Building a simplified working model of part of the system (often the interface) to get user feedback early.", 10],
+    ["Why design the test plan before coding?", "Tests are derived from the requirements, not the code, so they check what was asked for.", 11],
+    ["What is a data dictionary?", "A description of every data item: name, type, size, validation, purpose.", 12],
+    ["What is the purpose of designing algorithms in pseudo-code first?", "Logic can be checked and traced independently of language syntax.", 13],
+    ["What does UI design consider?", "Layout, input methods, validation feedback, accessibility, consistency.", 14],
+    ["What is modular design?", "Splitting the program into self-contained modules with defined interfaces so they can be developed and tested separately.", 15]
   ],
   quiz: [
     { q: "Deciding to store records in a hash table happens in:", opts: ["analysis", "design", "testing", "evaluation"], ans: 1, why: "Data structure design." },
@@ -584,16 +573,15 @@ X("compsci:4.13.1.4", {
     { callout: { t: "memorise", body: "**Black-box** testing checks outputs against the specification without looking at the code; **white-box** testing examines every path through the code. **Unit** → **integration** → **system** → **acceptance** (by the client). A **test plan** lists each test's purpose, input, expected and actual result." }}
   ],
   flashcards: [
-    ["Name the three types of test data.", "Normal (typical valid values), boundary (values at the limits of the valid range, and just outside), erroneous (invalid values that should be rejected)."],
-    ["Give normal, boundary and erroneous data for a percentage mark 0–100.", "Normal 57; boundary 0, 100, −1, 101; erroneous 'fifty', 250."],
-    ["What is black-box testing?", "Testing against the specification by checking outputs for given inputs, without knowledge of the code."],
-    ["What is white-box testing?", "Testing that examines the code's internal logic to ensure every path and branch is exercised."],
-    ["What is unit testing?", "Testing an individual module / subroutine in isolation."],
-    ["What is integration testing?", "Testing that modules work correctly together once combined."],
-    ["What is acceptance testing?", "Testing by the client against the agreed requirements to decide whether to accept the system."],
-    ["What is in a test plan entry?", "Test purpose, input data, expected result, actual result, pass/fail."],
-    ["What must a screenshot of a test show to score?", "The input entered and the output produced for the specific test the question described."],
-    ["What is regression testing?", "Re-running earlier tests after a change to make sure nothing that worked has broken."]
+    ["Name the three types of test data.", "Normal (typical valid values), boundary (values at the limits of the valid range, and just outside), erroneous (invalid values that should be rejected).", 9],
+    ["Give normal, boundary and erroneous data for a percentage mark 0–100.", "Normal 57; boundary 0, 100, −1, 101; erroneous 'fifty', 250.", 10],
+    ["What is black-box testing?", "Testing against the specification by checking outputs for given inputs, without knowledge of the code.", 11],
+    ["What is white-box testing?", "Testing that examines the code's internal logic to ensure every path and branch is exercised.", 12],
+    ["What is unit testing?", "Testing an individual module / subroutine in isolation.", 13],
+    ["What is integration testing?", "Testing that modules work correctly together once combined.", 14],
+    ["What is acceptance testing?", "Testing by the client against the agreed requirements to decide whether to accept the system.", 15],
+    ["What must a screenshot of a test show to score?", "The input entered and the output produced for the specific test the question described.", 17],
+    ["What is regression testing?", "Re-running earlier tests after a change to make sure nothing that worked has broken.", 18]
   ],
   quiz: [
     { q: "For a valid range 1–10, which is boundary data?", opts: ["5", "10", "'ten'", "50"], ans: 1, why: "At the edge." },

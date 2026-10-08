@@ -482,8 +482,7 @@ C["maths:7.4"] = {
     ["$\\frac{d}{dx}(\\sec x)$, $(\\text{cosec}\\,x)$, $(\\cot x)$?", "$\\sec x\\tan x$; $-\\text{cosec}\\,x\\cot x$; $-\\text{cosec}^2 x$."],
     ["Connected rates formula?", "$\\frac{dV}{dt} = \\frac{dV}{dr}\\cdot\\frac{dr}{dt}$."],
     ["$x = \\sin y$: $\\frac{dy}{dx}$?", "$\\frac{1}{\\cos y} = \\frac{1}{\\sqrt{1 - x^2}}$."],
-    ["$y = 10e^{-0.25x}\\sin x$: turning points satisfy…", "$\\tan x = 4$."],
-    ["$\\frac{x - 4}{2 + \\sqrt x}$ simplifies to…", "$\\sqrt x - 2$ (difference of two squares) — derivative $\\frac{1}{2\\sqrt x}$."]
+    ["$\\frac{x - 4}{2 + \\sqrt x}$ simplifies to…", "$\\sqrt x - 2$ (difference of two squares) — derivative $\\frac{1}{2\\sqrt x}$.", 10]
   ],
   quiz: [
     { q: "$\\frac{d}{dx}(x e^{x}) =$", opts: ["$e^x + xe^x$", "$e^x$", "$xe^x$", "$e^x - xe^x$"], ans: 0, why: "Product rule." },
@@ -578,13 +577,11 @@ C["maths:7.5"] = {
   ],
   flashcards: [
     ["$\\frac{d}{dx}(y^2)$ and $\\frac{d}{dx}(xy)$?", "$2y\\frac{dy}{dx}$; $y + x\\frac{dy}{dx}$."],
-    ["$x^2 - 2xy + 3y^2 = 50$: $\\frac{dy}{dx}$?", "$\\frac{y - x}{3y - x}$."],
-    ["Furthest west point on an implicit curve: condition?", "$\\frac{dx}{dy} = 0$ — the denominator of $\\frac{dy}{dx}$ is zero."],
-    ["Horizontal tangent: condition?", "Numerator of $\\frac{dy}{dx}$ is zero (and denominator non-zero)."],
-    ["Turning point of $y = x^x$?", "$\\ln y = x\\ln x$; $y' = x^x(1 + \\ln x) = 0$; $x = e^{-1}$."],
-    ["$\\frac{d}{dx}(x^2\\tan y)$?", "$2x\\tan y + x^2\\sec^2 y\\frac{dy}{dx}$."],
-    ["Prove a normal meets the curve only at $P$: method?", "Substitute the line, factor out the known root, show the remaining factor has no real roots."],
-    ["$\\frac{dy}{dx}$ for a parametric curve?", "$\\frac{dy/dt}{dx/dt}$."]
+    ["Furthest west point on an implicit curve: condition?", "$\\frac{dx}{dy} = 0$ — the denominator of $\\frac{dy}{dx}$ is zero.", 2],
+    ["Horizontal tangent: condition?", "Numerator of $\\frac{dy}{dx}$ is zero (and denominator non-zero).", 3],
+    ["Turning point of $y = x^x$?", "$\\ln y = x\\ln x$; $y' = x^x(1 + \\ln x) = 0$; $x = e^{-1}$.", 4],
+    ["$\\frac{d}{dx}(x^2\\tan y)$?", "$2x\\tan y + x^2\\sec^2 y\\frac{dy}{dx}$.", 5],
+    ["Prove a normal meets the curve only at $P$: method?", "Substitute the line, factor out the known root, show the remaining factor has no real roots.", 6],
   ],
   quiz: [
     { q: "$\\frac{d}{dx}(3y^2) =$", opts: ["$6y\\frac{dy}{dx}$", "$6y$", "$3y\\frac{dy}{dx}$", "$6\\frac{dy}{dx}$"], ans: 0, why: "Chain rule." },

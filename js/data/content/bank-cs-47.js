@@ -19,14 +19,14 @@ X("compsci:4.7.1.1", {
     ]}}
   ],
   flashcards: [
-    ["Name the three buses of the system bus and what each carries.", "Address bus — the address the processor wants to access (one-way); data bus — the data being transferred (two-way); control bus — control signals such as read, write, clock, interrupt request."],
-    ["How many locations can a 32-line address bus address?", "2³² = 4 294 967 296."],
-    ["Why is the data bus bidirectional?", "Data must travel to memory on a write and from memory on a read."],
-    ["Which bus determines the maximum amount of addressable memory?", "The address bus — n lines give 2ⁿ addresses."],
-    ["Why does a wider data bus improve performance?", "More bits are transferred in one operation, so fewer transfers are needed to move the same data."],
-    ["What is the role of an I/O controller?", "It interfaces a peripheral to the processor: presents the device as ports/registers, translates and buffers data, converts voltages, and raises interrupts."],
-    ["Why are internal buses parallel but USB serial?", "Inside the computer distances are short and fixed so many bits can travel at once; peripherals need longer, flexible cables where serial avoids data skew and crosstalk and is cheaper."],
-    ["What does main memory do during execution?", "Holds the instructions and data of the running program, returning the contents of the addressed location on the data bus and storing results."]
+    ["Name the three buses of the system bus and what each carries.", "Address bus — the address the processor wants to access (one-way); data bus — the data being transferred (two-way); control bus — control signals such as read, write, clock, interrupt request.", 13],
+    ["How many locations can a 32-line address bus address?", "2³² = 4 294 967 296.", 14],
+    ["Why is the data bus bidirectional?", "Data must travel to memory on a write and from memory on a read.", 15],
+    ["Which bus determines the maximum amount of addressable memory?", "The address bus — n lines give 2ⁿ addresses.", 16],
+    ["Why does a wider data bus improve performance?", "More bits are transferred in one operation, so fewer transfers are needed to move the same data.", 17],
+    ["What is the role of an I/O controller?", "It interfaces a peripheral to the processor: presents the device as ports/registers, translates and buffers data, converts voltages, and raises interrupts.", 18],
+    ["Why are internal buses parallel but USB serial?", "Inside the computer distances are short and fixed so many bits can travel at once; peripherals need longer, flexible cables where serial avoids data skew and crosstalk and is cheaper.", 19],
+    ["What does main memory do during execution?", "Holds the instructions and data of the running program, returning the contents of the addressed location on the data bus and storing results.", 20]
   ],
   quiz: [
     { q: "A 20-line address bus can address:", opts: ["20 locations", "2²⁰ = 1 048 576 locations", "20 KiB", "2¹⁰ locations"], ans: 1, why: "2ⁿ." },
@@ -59,14 +59,14 @@ X("compsci:4.7.2.1", {
     { callout: { t: "warn", body: "The 2021 false statement: *the computer can only be used with one program* — the whole point of the stored program concept is that a new program can be loaded into memory." }}
   ],
   flashcards: [
-    ["State the stored program concept.", "Machine code instructions are stored in main memory and are fetched and executed serially / in order by a processor that performs arithmetic and logical operations."],
-    ["What does the stored program concept allow?", "Programs can be loaded into and out of main memory, so the same hardware runs different programs."],
-    ["Where are instructions held while a program runs?", "In main memory (RAM), alongside the data."],
-    ["Who is credited with the stored program concept?", "John von Neumann (1945)."],
-    ["Why must instructions and data both be in memory?", "The processor fetches instructions from memory in sequence and the instructions operate on data also held in memory."],
-    ["Role of main memory in program execution?", "Stores the program's instructions and data; returns the contents of the location on the address bus; stores results; the program is loaded into it from secondary storage."],
-    ["What happens before a program on disk can run?", "It is transferred from secondary storage into main memory."],
-    ["Which statement about stored programs is false: (a) instructions in memory, (b) one program only, (c) fetched serially?", "(b) — different programs can be loaded."]
+    ["State the stored program concept.", "Machine code instructions are stored in main memory and are fetched and executed serially / in order by a processor that performs arithmetic and logical operations.", 8],
+    ["What does the stored program concept allow?", "Programs can be loaded into and out of main memory, so the same hardware runs different programs.", 9],
+    ["Where are instructions held while a program runs?", "In main memory (RAM), alongside the data.", 10],
+    ["Who is credited with the stored program concept?", "John von Neumann (1945).", 11],
+    ["Why must instructions and data both be in memory?", "The processor fetches instructions from memory in sequence and the instructions operate on data also held in memory.", 12],
+    ["Role of main memory in program execution?", "Stores the program's instructions and data; returns the contents of the location on the address bus; stores results; the program is loaded into it from secondary storage.", 13],
+    ["What happens before a program on disk can run?", "It is transferred from secondary storage into main memory.", 14],
+    ["Which statement about stored programs is false: (a) instructions in memory, (b) one program only, (c) fetched serially?", "(b) — different programs can be loaded.", 15]
   ],
   quiz: [
     { q: "The stored program concept says instructions are:", opts: ["hard-wired", "stored in main memory and fetched and executed in sequence", "kept on disk only", "executed in parallel"], ans: 1, why: "Definition." },
@@ -99,16 +99,16 @@ X("compsci:4.7.3.1", {
     ]}
   ],
   flashcards: [
-    ["What is a register?", "A small, very fast memory location inside the processor."],
-    ["Name the special-purpose registers in the fetch–execute cycle.", "Program counter (PC), memory address register (MAR), memory buffer/data register (MBR), current instruction register (CIR), status register, accumulator."],
-    ["What does the program counter hold?", "The address of the next instruction to be fetched."],
-    ["What does the MAR hold?", "The address of the memory location currently being read from or written to."],
-    ["What does the MBR hold?", "The data just read from, or about to be written to, memory — including a fetched instruction before it moves to the CIR."],
-    ["Why is the fetched instruction copied from the MBR to the CIR?", "So that data fetched or stored during execution does not overwrite the instruction; the control unit decodes from the CIR."],
-    ["What is the role of the control unit?", "Controls fetching, decodes instructions, sequences and synchronises the fetch–execute cycle, and sends control signals to the other components."],
-    ["What is the status register for?", "Holds flags describing the result of the last operation (zero, negative, carry, overflow) used to decide conditional branches."],
-    ["What does the ALU do?", "Performs arithmetic (add, subtract…) and logical (AND, OR, comparisons, shifts) operations."],
-    ["What is the clock's role?", "Emits regular pulses that synchronise the processor's operations; clock speed = pulses per second."]
+    ["What is a register?", "A small, very fast memory location inside the processor.", 12],
+    ["Name the special-purpose registers in the fetch–execute cycle.", "Program counter (PC), memory address register (MAR), memory buffer/data register (MBR), current instruction register (CIR), status register, accumulator.", 13],
+    ["What does the program counter hold?", "The address of the next instruction to be fetched.", 14],
+    ["What does the MAR hold?", "The address of the memory location currently being read from or written to.", 15],
+    ["What does the MBR hold?", "The data just read from, or about to be written to, memory — including a fetched instruction before it moves to the CIR.", 16],
+    ["Why is the fetched instruction copied from the MBR to the CIR?", "So that data fetched or stored during execution does not overwrite the instruction; the control unit decodes from the CIR.", 17],
+    ["What is the role of the control unit?", "Controls fetching, decodes instructions, sequences and synchronises the fetch–execute cycle, and sends control signals to the other components.", 18],
+    ["What is the status register for?", "Holds flags describing the result of the last operation (zero, negative, carry, overflow) used to decide conditional branches.", 19],
+    ["What does the ALU do?", "Performs arithmetic (add, subtract…) and logical (AND, OR, comparisons, shifts) operations.", 20],
+    ["What is the clock's role?", "Emits regular pulses that synchronise the processor's operations; clock speed = pulses per second.", 21]
   ],
   quiz: [
     { q: "The register holding the address of the next instruction is the:", opts: ["MAR", "PC", "CIR", "MBR"], ans: 1, why: "Program counter." },
@@ -150,16 +150,15 @@ X("compsci:4.7.3.2", {
     { callout: { t: "memorise", h: "Interrupts (2020, 2023)", body: "An **interrupt** is a **signal from a device or program** telling the processor it needs attention. At the end of each cycle the processor **checks for interrupts**; if one of higher priority is pending it **saves the volatile environment** (registers) on the stack, runs the **interrupt service routine**, then **restores** the registers and resumes." }}
   ],
   flashcards: [
-    ["Describe the fetch stage in five steps.", "PC → MAR; address on address bus with read signal; contents into MBR via data bus; PC incremented; MBR → CIR."],
-    ["What happens in the decode stage?", "The control unit decodes the instruction held in the CIR, splitting it into opcode and operand(s) and determining what operation to perform."],
-    ["What happens in the execute stage?", "Data is fetched or stored if needed; the ALU performs the operation identified by the opcode; the result is stored; the status register is updated; a branch changes the PC."],
-    ["Why is the PC incremented during the fetch?", "So that the next instruction in sequence is fetched next time (unless a branch changes it)."],
-    ["Why does the fetched value go into the MBR before the CIR?", "Not every fetch is an instruction; the value is only transiently on the bus; the MBR buffers the speed difference with memory."],
-    ["What is an interrupt?", "A signal sent to the processor by a hardware device or a program indicating that it needs attention / an event has occurred."],
-    ["Give three sources of interrupts.", "A key press or mouse click (I/O), a printer running out of paper, a timer, a hardware fault, a software error such as division by zero."],
-    ["When does the processor check for interrupts?", "At the end of each fetch–execute cycle, before fetching the next instruction."],
-    ["What happens when an interrupt is serviced?", "The current register contents (volatile environment) are saved to the stack, the interrupt service routine runs, then the registers are restored and the interrupted program continues."],
-    ["What is the order: 'MBR → CIR', 'PC → MAR', 'CU decodes CIR', 'result stored'?", "PC → MAR; MBR → CIR; CU decodes CIR; result stored."]
+    ["Describe the fetch stage in five steps.", "PC → MAR; address on address bus with read signal; contents into MBR via data bus; PC incremented; MBR → CIR.", 11],
+    ["What happens in the decode stage?", "The control unit decodes the instruction held in the CIR, splitting it into opcode and operand(s) and determining what operation to perform.", 12],
+    ["What happens in the execute stage?", "Data is fetched or stored if needed; the ALU performs the operation identified by the opcode; the result is stored; the status register is updated; a branch changes the PC.", 13],
+    ["Why is the PC incremented during the fetch?", "So that the next instruction in sequence is fetched next time (unless a branch changes it).", 14],
+    ["What is an interrupt?", "A signal sent to the processor by a hardware device or a program indicating that it needs attention / an event has occurred.", 16],
+    ["Give three sources of interrupts.", "A key press or mouse click (I/O), a printer running out of paper, a timer, a hardware fault, a software error such as division by zero.", 17],
+    ["When does the processor check for interrupts?", "At the end of each fetch–execute cycle, before fetching the next instruction.", 18],
+    ["What happens when an interrupt is serviced?", "The current register contents (volatile environment) are saved to the stack, the interrupt service routine runs, then the registers are restored and the interrupted program continues.", 19],
+    ["What is the order: 'MBR → CIR', 'PC → MAR', 'CU decodes CIR', 'result stored'?", "PC → MAR; MBR → CIR; CU decodes CIR; result stored.", 20]
   ],
   quiz: [
     { q: "The first step of the fetch stage is:", opts: ["MBR → CIR", "PC → MAR", "decode", "increment PC"], ans: 1, why: "The address must reach memory first." },
@@ -192,14 +191,13 @@ X("compsci:4.7.3.3", {
     { callout: { t: "def", h: "Operand (2017)", body: "The **value / data** the instruction uses. The **addressing mode** tells the processor **how to interpret** the operand — as the datum itself (immediate) or as the address / register that holds it (direct)." }}
   ],
   flashcards: [
-    ["What is the instruction set of a processor?", "The complete set of machine-code operations the processor can carry out — specific to that processor family."],
-    ["What are the two parts of a machine code instruction?", "The opcode (the operation to perform, including addressing-mode bits) and the operand(s) (the data, register number or address to use)."],
-    ["A 6-bit opcode field supports how many operations?", "2⁶ = 64."],
-    ["A 10-bit operand with direct addressing can address how many locations?", "2¹⁰ = 1024."],
-    ["Range of a 12-bit two's complement immediate operand?", "−2048 to +2047."],
-    ["Why is a compiled executable processor-specific?", "It is machine code using the instruction set of the processor it was compiled for, and different processors have different instruction sets."],
-    ["What is the operand?", "The value / data that the instruction operates on (or its address)."],
-    ["How does the processor know whether an operand is data or an address?", "From the addressing-mode bits in the opcode."]
+    ["What is the instruction set of a processor?", "The complete set of machine-code operations the processor can carry out — specific to that processor family.", 9],
+    ["What are the two parts of a machine code instruction?", "The opcode (the operation to perform, including addressing-mode bits) and the operand(s) (the data, register number or address to use).", 10],
+    ["A 6-bit opcode field supports how many operations?", "2⁶ = 64.", 11],
+    ["A 10-bit operand with direct addressing can address how many locations?", "2¹⁰ = 1024.", 12],
+    ["Why is a compiled executable processor-specific?", "It is machine code using the instruction set of the processor it was compiled for, and different processors have different instruction sets.", 14],
+    ["What is the operand?", "The value / data that the instruction operates on (or its address).", 15],
+    ["How does the processor know whether an operand is data or an address?", "From the addressing-mode bits in the opcode.", 16]
   ],
   quiz: [
     { q: "An instruction format has a 4-bit operation code. Maximum number of operations:", opts: ["4", "8", "16", "32"], ans: 2, why: "2⁴." },
@@ -225,14 +223,13 @@ X("compsci:4.7.3.3", {
 
 X("compsci:4.7.3.4", {
   flashcards: [
-    ["What is immediate addressing?", "The operand is the actual value to be used, e.g. `MOV R1, #42`."],
-    ["What is direct addressing?", "The operand is the memory address (or register number) where the value is stored, e.g. `LDR R1, 200`."],
-    ["Difference between direct and immediate addressing?", "Direct: the operand is the address of the datum. Immediate: the operand is the datum."],
-    ["Which AQA instruction uses immediate addressing: `LDR R2, 105` or `MOV R2, #105`?", "`MOV R2, #105` — the # marks an immediate value."],
-    ["What other types of value can an operand hold besides an immediate value?", "A register number; a memory address (or an offset from one)."],
-    ["Complete `MOV R3, ___` to load the value 7 immediately.", "`MOV R3, #7`."],
-    ["Why is immediate addressing faster?", "No extra memory access is needed — the value is in the instruction."],
-    ["In `ADD R0, R1, R2` how are the operands addressed?", "By register — each operand is a register number."]
+    ["What is immediate addressing?", "The operand is the actual value to be used, e.g. `MOV R1, #42`.", 9],
+    ["What is direct addressing?", "The operand is the memory address (or register number) where the value is stored, e.g. `LDR R1, 200`.", 10],
+    ["Which AQA instruction uses immediate addressing: `LDR R2, 105` or `MOV R2, #105`?", "`MOV R2, #105` — the # marks an immediate value.", 12],
+    ["What other types of value can an operand hold besides an immediate value?", "A register number; a memory address (or an offset from one).", 13],
+    ["Complete `MOV R3, ___` to load the value 7 immediately.", "`MOV R3, #7`.", 14],
+    ["Why is immediate addressing faster?", "No extra memory access is needed — the value is in the instruction.", 15],
+    ["In `ADD R0, R1, R2` how are the operands addressed?", "By register — each operand is a register number.", 16]
   ],
   quiz: [
     { q: "`LDR R1, 50` loads R1 with:", opts: ["the value 50", "the contents of memory location 50", "register 50", "nothing"], ans: 1, why: "Direct addressing." },
@@ -307,15 +304,14 @@ X("compsci:4.7.3.5", {
 
 X("compsci:4.7.3.6", {
   flashcards: [
-    ["Define an interrupt.", "A signal sent to the processor by a hardware device or software indicating that it needs attention."],
-    ["Give three sources of interrupt.", "I/O device ready (key press, printer), timer, hardware fault (power failure), software (division by zero, system call)."],
-    ["When is an interrupt detected?", "At the end of each fetch–execute cycle the processor checks the interrupt register / line."],
-    ["What is the volatile environment?", "The contents of the processor's registers (PC, accumulator, status…) for the running program."],
-    ["Why is the volatile environment saved before servicing an interrupt?", "So the interrupted program can be resumed afterwards, because the interrupt handler overwrites the registers."],
-    ["What is an interrupt service routine (ISR)?", "The code that handles a particular interrupt."],
-    ["What happens after the ISR finishes?", "The saved registers are restored and the interrupted program continues from where it stopped."],
-    ["What if a higher-priority interrupt arrives during an ISR?", "The ISR itself is interrupted (its state saved) and the higher-priority one is serviced first."],
-    ["Why are interrupts better than polling?", "The processor does useful work instead of repeatedly checking devices; devices get attention promptly."]
+    ["Define an interrupt.", "A signal sent to the processor by a hardware device or software indicating that it needs attention.", 11],
+    ["Give three sources of interrupt.", "I/O device ready (key press, printer), timer, hardware fault (power failure), software (division by zero, system call).", 12],
+    ["When is an interrupt detected?", "At the end of each fetch–execute cycle the processor checks the interrupt register / line.", 13],
+    ["Why is the volatile environment saved before servicing an interrupt?", "So the interrupted program can be resumed afterwards, because the interrupt handler overwrites the registers.", 15],
+    ["What is an interrupt service routine (ISR)?", "The code that handles a particular interrupt.", 16],
+    ["What happens after the ISR finishes?", "The saved registers are restored and the interrupted program continues from where it stopped.", 17],
+    ["What if a higher-priority interrupt arrives during an ISR?", "The ISR itself is interrupted (its state saved) and the higher-priority one is serviced first.", 18],
+    ["Why are interrupts better than polling?", "The processor does useful work instead of repeatedly checking devices; devices get attention promptly.", 19]
   ],
   quiz: [
     { q: "An interrupt is checked for:", opts: ["during decode", "at the end of each fetch–execute cycle", "only when idle", "at boot"], ans: 1, why: "Before the next fetch." },
@@ -351,16 +347,16 @@ X("compsci:4.7.3.7", {
     { callout: { t: "def", h: "Cache (2021, 4 marks)", body: "Memory that can be **accessed very quickly**, located **on or close to the processor**, storing the **most frequently / recently used** instructions and data (or pre-fetched ones). More cache → more items held → higher chance the item needed is in cache → fewer main-memory fetches." }}
   ],
   flashcards: [
-    ["How does a higher clock speed improve performance?", "More instructions can be executed per second — each instruction completes sooner."],
-    ["When does a higher clock speed NOT help much?", "When the task can be parallelised and a processor with more cores could split it — or when the bottleneck is memory/disk."],
-    ["How do more cores improve performance?", "Multiple instructions / processes execute simultaneously — provided the software is written to use parallel processing."],
-    ["What is cache memory?", "Very fast memory on or close to the processor storing the most frequently or recently used instructions and data."],
-    ["How does more cache improve performance?", "More items fit, so the probability of a cache hit rises and fewer slow fetches from main memory are needed."],
-    ["How does word length affect performance?", "A larger word means more bits are processed or transferred in a single operation."],
-    ["How does data bus width affect performance?", "More bits move between memory and processor per transfer, so fewer transfers are needed."],
-    ["How does address bus width affect performance?", "More memory can be addressed / installed, reducing reliance on slower virtual memory."],
-    ["What is pipelining?", "Overlapping the fetch, decode and execute stages of successive instructions so the processor does not idle between stages."],
-    ["Why do more general-purpose registers help?", "Intermediate values stay inside the processor instead of being written to and read from main memory."]
+    ["How does a higher clock speed improve performance?", "More instructions can be executed per second — each instruction completes sooner.", 10],
+    ["When does a higher clock speed NOT help much?", "When the task can be parallelised and a processor with more cores could split it — or when the bottleneck is memory/disk.", 11],
+    ["How do more cores improve performance?", "Multiple instructions / processes execute simultaneously — provided the software is written to use parallel processing.", 12],
+    ["What is cache memory?", "Very fast memory on or close to the processor storing the most frequently or recently used instructions and data.", 13],
+    ["How does more cache improve performance?", "More items fit, so the probability of a cache hit rises and fewer slow fetches from main memory are needed.", 14],
+    ["How does word length affect performance?", "A larger word means more bits are processed or transferred in a single operation.", 15],
+    ["How does data bus width affect performance?", "More bits move between memory and processor per transfer, so fewer transfers are needed.", 16],
+    ["How does address bus width affect performance?", "More memory can be addressed / installed, reducing reliance on slower virtual memory.", 17],
+    ["What is pipelining?", "Overlapping the fetch, decode and execute stages of successive instructions so the processor does not idle between stages.", 18],
+    ["Why do more general-purpose registers help?", "Intermediate values stay inside the processor instead of being written to and read from main memory.", 19]
   ],
   quiz: [
     { q: "Which change most helps a program that cannot be parallelised?", opts: ["More cores", "Higher clock speed", "More cores and lower clock", "Wider address bus"], ans: 1, why: "Sequential work depends on per-core speed." },
@@ -396,14 +392,14 @@ X("compsci:4.7.4.1", {
     ]}
   ],
   flashcards: [
-    ["Describe how data is read from an RFID tag.", "The reader emits radio waves; these induce a current in the tag's antenna, powering it; the tag transmits the data stored on its chip back by radio; the reader converts the signal to binary."],
-    ["Why are passive RFID tags used in passports?", "No battery to replace; smaller and cheaper; readable only at very short range, so harder to intercept."],
-    ["Give two advantages of RFID over barcodes for a warehouse.", "Tags can be read without line of sight / while items stay on the pallet; many tags read at a distance and quickly without manual scanning; tags are less easily damaged."],
-    ["Give two advantages of barcodes over RFID.", "Much cheaper per item; readable with existing checkout scanners; human-readable digits as a backup; no radio interference."],
-    ["Describe how a barcode reader works.", "A laser or LED illuminates the code; a mirror sweeps the beam (or the user moves the reader); black bars reflect less light than white spaces; a photodiode measures the reflections and the pattern is decoded to digits, often with a check digit."],
-    ["Describe how a digital camera captures an image.", "Light passes through the lens onto a CCD/CMOS sensor array; each photosensor outputs a voltage proportional to the light; RGB filters separate colour; an ADC converts each voltage to a binary pixel value; the pixels are stored as a bitmap."],
-    ["Describe how a laser printer prints.", "A bitmap of the page is built; the drum is charged; a laser via a rotating mirror discharges the drum where the image is; charged toner sticks to those areas; paper passes over the drum and toner transfers; a heated fuser bonds the toner; colour printers repeat with four toners."],
-    ["Why might a laser printer suit a small office?", "Low cost per page, fast printing, toner does not dry out, high-resolution text; with a wireless adapter it is easily shared by all devices."]
+    ["Describe how data is read from an RFID tag.", "The reader emits radio waves; these induce a current in the tag's antenna, powering it; the tag transmits the data stored on its chip back by radio; the reader converts the signal to binary.", 10],
+    ["Why are passive RFID tags used in passports?", "No battery to replace; smaller and cheaper; readable only at very short range, so harder to intercept.", 11],
+    ["Give two advantages of RFID over barcodes for a warehouse.", "Tags can be read without line of sight / while items stay on the pallet; many tags read at a distance and quickly without manual scanning; tags are less easily damaged.", 12],
+    ["Give two advantages of barcodes over RFID.", "Much cheaper per item; readable with existing checkout scanners; human-readable digits as a backup; no radio interference.", 13],
+    ["Describe how a barcode reader works.", "A laser or LED illuminates the code; a mirror sweeps the beam (or the user moves the reader); black bars reflect less light than white spaces; a photodiode measures the reflections and the pattern is decoded to digits, often with a check digit.", 14],
+    ["Describe how a digital camera captures an image.", "Light passes through the lens onto a CCD/CMOS sensor array; each photosensor outputs a voltage proportional to the light; RGB filters separate colour; an ADC converts each voltage to a binary pixel value; the pixels are stored as a bitmap.", 15],
+    ["Describe how a laser printer prints.", "A bitmap of the page is built; the drum is charged; a laser via a rotating mirror discharges the drum where the image is; charged toner sticks to those areas; paper passes over the drum and toner transfers; a heated fuser bonds the toner; colour printers repeat with four toners.", 16],
+    ["Why might a laser printer suit a small office?", "Low cost per page, fast printing, toner does not dry out, high-resolution text; with a wireless adapter it is easily shared by all devices.", 17]
   ],
   quiz: [
     { q: "A passive RFID tag is powered by:", opts: ["a battery", "current induced by the reader's radio waves", "solar cells", "the barcode"], ans: 1, why: "Induction." },
@@ -445,16 +441,16 @@ X("compsci:4.7.4.2", {
     ]}
   ],
   flashcards: [
-    ["Why does a computer need secondary storage?", "To keep programs and data when the power is off (RAM is volatile), to hold data too large for RAM, and to transfer data between machines."],
-    ["Describe how a hard disk stores and reads data.", "Platters coated in magnetisable material are divided into tracks and sectors; the disk spins and the read/write head moves to the track; spots are magnetised in one of two directions to represent 0/1; the head senses the field and converts it to bits."],
-    ["Describe how an optical disk is read.", "A low-power laser is focused on a spiral track of pits and lands; reflected light is measured by a photodiode; a transition between pit and land scatters the light and represents a 1, continuation represents 0."],
-    ["Describe how an SSD stores data.", "In floating-gate transistors (NAND flash) with no moving parts; trapped electrons represent one bit value, their absence the other; data is organised in pages and blocks; a block must be erased before rewriting; a controller manages the process."],
-    ["Give two advantages of SSDs over hard disks.", "Faster access / transfer; lower power; more robust (no moving parts); smaller; quieter; less heat."],
-    ["Give two disadvantages of SSDs.", "Higher cost per gigabyte; cells degrade after many write cycles (rising error rate)."],
-    ["Why might a laptop have both an SSD and a hard disk?", "SSD for the OS and programs that need speed; hard disk for large files because it is cheaper per gigabyte."],
-    ["Why are optical drives disappearing?", "Flash storage and SSDs have greater capacity and speed and are more compact and robust; content is downloaded, streamed or stored in the cloud."],
-    ["Why are flash drives preferred to CD-Rs?", "Higher capacity, faster access, rewritable, no separate drive needed, not damaged by scratches."],
-    ["What does 'constant linear velocity' mean for an optical disk?", "The disk speeds up as the head moves inward so the track passes the laser at a constant rate."]
+    ["Why does a computer need secondary storage?", "To keep programs and data when the power is off (RAM is volatile), to hold data too large for RAM, and to transfer data between machines.", 12],
+    ["Describe how a hard disk stores and reads data.", "Platters coated in magnetisable material are divided into tracks and sectors; the disk spins and the read/write head moves to the track; spots are magnetised in one of two directions to represent 0/1; the head senses the field and converts it to bits.", 13],
+    ["Describe how an optical disk is read.", "A low-power laser is focused on a spiral track of pits and lands; reflected light is measured by a photodiode; a transition between pit and land scatters the light and represents a 1, continuation represents 0.", 14],
+    ["Describe how an SSD stores data.", "In floating-gate transistors (NAND flash) with no moving parts; trapped electrons represent one bit value, their absence the other; data is organised in pages and blocks; a block must be erased before rewriting; a controller manages the process.", 15],
+    ["Give two advantages of SSDs over hard disks.", "Faster access / transfer; lower power; more robust (no moving parts); smaller; quieter; less heat.", 16],
+    ["Give two disadvantages of SSDs.", "Higher cost per gigabyte; cells degrade after many write cycles (rising error rate).", 17],
+    ["Why might a laptop have both an SSD and a hard disk?", "SSD for the OS and programs that need speed; hard disk for large files because it is cheaper per gigabyte.", 18],
+    ["Why are optical drives disappearing?", "Flash storage and SSDs have greater capacity and speed and are more compact and robust; content is downloaded, streamed or stored in the cloud.", 19],
+    ["Why are flash drives preferred to CD-Rs?", "Higher capacity, faster access, rewritable, no separate drive needed, not damaged by scratches.", 20],
+    ["What does 'constant linear velocity' mean for an optical disk?", "The disk speeds up as the head moves inward so the track passes the laser at a constant rate.", 21]
   ],
   quiz: [
     { q: "Secondary storage is needed because:", opts: ["RAM is too fast", "RAM loses its contents when power is off", "the CPU has no registers", "cache is small"], ans: 1, why: "Volatility." },

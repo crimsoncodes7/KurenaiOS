@@ -192,13 +192,12 @@ C["compsci:4.5.6.7"] = {
     ["Sampling rate?", "Number of samples taken per second (Hz)."],
     ["Sample resolution?", "Number of bits used to store each sample."],
     ["Sound file size?", "rate × resolution × duration (bits)."],
-    ["Nyquist's theorem?", "Sample at least twice the highest frequency in the signal."],
-    ["Minimum rate for 15 kHz?", "30 000 Hz."],
-    ["3 min, 16-bit, 44 kHz in MB?", "15.84 MB."],
-    ["Why does more resolution help?", "Less quantisation error — samples stored more accurately."],
-    ["Effect of too low a sample rate?", "High frequencies are lost / not reproduced."],
-    ["8 → 10 bits: extra levels?", "768."],
-    ["What is quantisation error?", "The difference between the true amplitude and the stored level."]
+    ["Minimum rate for 15 kHz?", "30 000 Hz.", 4],
+    ["3 min, 16-bit, 44 kHz in MB?", "15.84 MB.", 5],
+    ["Why does more resolution help?", "Less quantisation error — samples stored more accurately.", 6],
+    ["Effect of too low a sample rate?", "High frequencies are lost / not reproduced.", 7],
+    ["8 → 10 bits: extra levels?", "768.", 8],
+    ["What is quantisation error?", "The difference between the true amplitude and the stored level.", 9]
   ],
   quiz: [
     { q: "30 s at 20 000 Hz, 16-bit, in kB is", opts: ["1200", "9600", "600", "1171"], ans: 0, why: "30 × 16 × 20 000 ÷ 8000." },
@@ -295,13 +294,11 @@ C["compsci:4.5.6.8"] = {
   ],
   flashcards: [
     ["What does MIDI stand for?", "Musical Instrument Digital Interface."],
-    ["How does MIDI represent music?", "As a sequence of event messages."],
-    ["Data in a MIDI message?", "e.g. note on/off, pitch, velocity, channel, instrument."],
-    ["Status byte vs data byte?", "Status byte MSB 1 (command + channel); data bytes MSB 0."],
-    ["Two advantages of MIDI?", "More compact; easy to edit notes/instruments."],
-    ["Why are MIDI files smaller?", "Far fewer events than samples."],
-    ["What can sampled sound do that MIDI cannot?", "Represent any sound, e.g. speech or a voice."],
-    ["How many MIDI channels?", "16."]
+    ["Data in a MIDI message?", "e.g. note on/off, pitch, velocity, channel, instrument.", 2],
+    ["Status byte vs data byte?", "Status byte MSB 1 (command + channel); data bytes MSB 0.", 3],
+    ["Two advantages of MIDI?", "More compact; easy to edit notes/instruments.", 4],
+    ["What can sampled sound do that MIDI cannot?", "Represent any sound, e.g. speech or a voice.", 6],
+    ["How many MIDI channels?", "16.", 7]
   ],
   quiz: [
     { q: "MIDI represents music as", opts: ["event messages", "samples", "a waveform", "pixels"], ans: 0, why: "Definition." },
@@ -657,12 +654,9 @@ C["compsci:4.5.6.10"] = {
     ["SECURITY with Caesar key 4?", "WIGYVMXC."],
     ["Why is Caesar easily cracked?", "Only 25 keys; frequency analysis."],
     ["Vernam cipher operation?", "XOR each bit of plaintext with the key."],
-    ["Four conditions for Vernam perfect security?", "Key as long as the message, truly random, used once, kept secret."],
-    ["What is perfect security?", "Nothing about the plaintext can be learnt from the ciphertext."],
-    ["Computational security?", "Cannot be cracked in a practical amount of time."],
-    ["Key exchange problem?", "Getting the symmetric key to the receiver without interception."],
-    ["Symmetric vs asymmetric?", "Same key vs different (related) keys."],
-    ["Assembly instruction for Vernam?", "EOR."]
+    ["What is perfect security?", "Nothing about the plaintext can be learnt from the ciphertext.", 6],
+    ["Computational security?", "Cannot be cracked in a practical amount of time.", 7],
+    ["Assembly instruction for Vernam?", "EOR.", 10]
   ],
   quiz: [
     { q: "HELLO with Caesar key 3 is", opts: ["KHOOR", "EBIIL", "HELLO", "LIPPS"], ans: 0, why: "Shift +3." },

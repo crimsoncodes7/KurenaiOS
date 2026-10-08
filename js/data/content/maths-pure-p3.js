@@ -460,13 +460,12 @@ C["maths:3.3"] = {
     ["$x = 3\\cos t$, $y = 3\\sin t$ describes…", "the circle $x^2 + y^2 = 9$."],
     ["$x = 2 + 5\\cos t$, $y = -4 + 5\\sin t$?", "Circle centre $(2, -4)$, radius 5."],
     ["$x = 5t$, $y = \\frac5t$ — Cartesian?", "$xy = 25$."],
-    ["$x = 3 + 2\\sin t$, $y = 4 + 2\\cos 2t$ — Cartesian and domain?", "$y = 6 - (x - 3)^2$, $1 \\le x \\le 5$."],
-    ["Why is a parametric curve often only part of its Cartesian curve?", "The parameter's range limits $x$ and $y$ (e.g. $|\\sin t| \\le 1$)."],
-    ["$\\frac{dy}{dx}$ for a parametric curve?", "$\\frac{dy/dt}{dx/dt}$."],
-    ["$x = 4\\cos(t + \\frac{\\pi}{6})$, $y = 2\\sin t$ → Cartesian?", "$(x + y)^2 + 3y^2 = 12$."],
-    ["$x = t^2 + 6t - 16$, $y = 6\\ln(t + 3)$ → Cartesian?", "$y = 3\\ln(x + 25)$."],
-    ["Which identity for $x = 2\\tan t + 1$, $y = 2\\sec^2 t + 3$?", "$\\sec^2 t = 1 + \\tan^2 t$."],
-    ["$x = 10\\cos t$, $y = 4\\sqrt2\\sin t$ meets $x^2 + y^2 = 66$ where…", "$\\sin^2 t = \\frac12$; 4th-quadrant point $(5\\sqrt2, -4)$."]
+    ["Why is a parametric curve often only part of its Cartesian curve?", "The parameter's range limits $x$ and $y$ (e.g. $|\\sin t| \\le 1$).", 4],
+    ["$\\frac{dy}{dx}$ for a parametric curve?", "$\\frac{dy/dt}{dx/dt}$.", 5],
+    ["$x = 4\\cos(t + \\frac{\\pi}{6})$, $y = 2\\sin t$ → Cartesian?", "$(x + y)^2 + 3y^2 = 12$.", 6],
+    ["$x = t^2 + 6t - 16$, $y = 6\\ln(t + 3)$ → Cartesian?", "$y = 3\\ln(x + 25)$.", 7],
+    ["Which identity for $x = 2\\tan t + 1$, $y = 2\\sec^2 t + 3$?", "$\\sec^2 t = 1 + \\tan^2 t$.", 8],
+    ["$x = 10\\cos t$, $y = 4\\sqrt2\\sin t$ meets $x^2 + y^2 = 66$ where…", "$\\sin^2 t = \\frac12$; 4th-quadrant point $(5\\sqrt2, -4)$.", 9]
   ],
   quiz: [
     { q: "$x = t + 1$, $y = t^2$ is the curve", opts: ["$y = (x - 1)^2$", "$y = (x + 1)^2$", "$y = x^2 - 1$", "$y = x - 1$"], ans: 0, why: "$t = x - 1$." },

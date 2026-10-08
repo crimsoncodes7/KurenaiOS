@@ -203,14 +203,11 @@ C["compsci:4.5.5.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.3.1 2⁷ = 128; 4.5.5.3 parity bits pad ASCII to a byte; 4.8 consequences — Unicode supports cultural and linguistic inclusion; 4.9.4.2 HTTP and email declare the character encoding." } }
   ],
   flashcards: [
-    ["What is a character code?", "A unique number used to represent a character."],
-    ["How many bits in standard ASCII?", "7 (128 characters)."],
-    ["Why was Unicode introduced? (two)", "More characters; international communication with consistent codes."],
-    ["Unicode code points for the first 128 characters?", "The same as ASCII."],
-    ["'A' and 'a' in ASCII?", "65 and 97 — differ only in bit 5 (32)."],
-    ["Limitation of extended ASCII?", "Codes 128–255 depend on the code page — inconsistent between countries."],
-    ["Bits per character in UTF-8?", "8 to 32."],
-    ["Disadvantage of Unicode?", "More bits per character — larger files, slower transmission."]
+    ["How many bits in standard ASCII?", "7 (128 characters).", 1],
+    ["'A' and 'a' in ASCII?", "65 and 97 — differ only in bit 5 (32).", 4],
+    ["Limitation of extended ASCII?", "Codes 128–255 depend on the code page — inconsistent between countries.", 5],
+    ["Bits per character in UTF-8?", "8 to 32.", 6],
+    ["Disadvantage of Unicode?", "More bits per character — larger files, slower transmission.", 7]
   ],
   quiz: [
     { q: "Standard ASCII can represent", opts: ["128 characters", "256 characters", "65 536 characters", "1.1 million characters"], ans: 0, why: "7 bits." },
@@ -404,14 +401,10 @@ C["compsci:4.5.5.3"] = {
     ["What is a parity bit?", "An extra bit making the number of 1s even (or odd) as agreed."],
     ["Even parity bit for 1010011?", "0 (four 1s)."],
     ["Odd parity bit for 1001110?", "1."],
-    ["How does the receiver use even parity?", "Counts the 1s; odd total = error."],
-    ["Two limitations of parity?", "Misses even numbers of flipped bits; cannot locate/correct errors."],
-    ["How does majority voting work?", "Each bit sent an odd number (≥3) of times; receiver assumes the majority value."],
-    ["Advantage of majority voting?", "It can correct errors."],
-    ["Disadvantage of majority voting?", "Several times the data — slower, more bandwidth."],
-    ["What is a checksum?", "A value calculated from the data, sent with it and recalculated to detect changes."],
-    ["What is a check digit?", "A digit calculated from the other digits of a number to detect entry errors."],
-    ["Gate that computes parity?", "XOR."]
+    ["How does majority voting work?", "Each bit sent an odd number (≥3) of times; receiver assumes the majority value.", 5],
+    ["Advantage of majority voting?", "It can correct errors.", 6],
+    ["Disadvantage of majority voting?", "Several times the data — slower, more bandwidth.", 7],
+    ["Gate that computes parity?", "XOR.", 10]
   ],
   quiz: [
     { q: "Even parity bit for 1100101", opts: ["0", "1", "either", "2"], ans: 0, why: "Four 1s." },

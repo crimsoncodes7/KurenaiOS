@@ -147,10 +147,9 @@ C["compsci:4.1.1.1"] = {
     ["Best type for a phone number?", "String — no arithmetic, keeps leading zeros and spaces."],
     ["Pointer / reference?", "A variable that stores the memory address of an object created at run time."],
     ["Array vs record?", "Array: many elements of one type by index. Record: fields of different types by name."],
-    ["User-defined data type?", "A type declared by the programmer from built-in types — e.g. a struct, class or enum."],
-    ["C# type for money?", "decimal (double has binary rounding errors)."],
-    ["0.1 + 0.2 == 0.3 in C# with doubles?", "False — 0.30000000000000004."],
-    ["Value type vs reference type in C#?", "A value type (int, struct) is copied on assignment; a reference type (class, array) copies the reference."]
+    ["C# type for money?", "decimal (double has binary rounding errors).", 6],
+    ["0.1 + 0.2 == 0.3 in C# with doubles?", "False — 0.30000000000000004.", 7],
+    ["Value type vs reference type in C#?", "A value type (int, struct) is copied on assignment; a reference type (class, array) copies the reference.", 8]
   ],
   quiz: [
     { q: "Most appropriate type for a quantity in stock", opts: ["integer", "real", "string", "Boolean"], ans: 0, why: "Whole number." },
@@ -312,15 +311,14 @@ C["compsci:4.1.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.3 DIV and MOD in loop bodies; 4.1.1.4 and 4.1.1.5 the conditions; 4.1.1.10 subroutines; 4.7.3.5 the same structures in assembly (CMP and branches); 4.13.1.4 testing the programs you write; 4.1.2.2 structured programming." } }
   ],
   flashcards: [
-    ["Three combining principles?", "Sequence, selection, iteration."],
-    ["Definite iteration?", "The number of iterations is known when the loop starts (FOR)."],
-    ["Indefinite iteration?", "The number of iterations depends on a condition tested before or after each pass."],
-    ["Pre-condition vs post-condition loop?", "WHILE tests at the start (may run 0 times); REPEAT / do…while tests at the end (runs at least once)."],
-    ["REPEAT … UNTIL X ≤ 0 in C#?", "do { … } while (X > 0); — the condition is negated."],
-    ["Why use meaningful identifiers?", "Self-documenting code — easier to read, debug and maintain."],
-    ["Sentinel value?", "A special value marking the end of input; it is not part of the data."],
-    ["Read-ahead pattern?", "Input before the loop, process, then input the next value at the end of the loop body."],
-    ["Nested iteration?", "A loop inside a loop; the inner loop completes for each outer pass."]
+    ["Definite iteration?", "The number of iterations is known when the loop starts (FOR).", 1],
+    ["Indefinite iteration?", "The number of iterations depends on a condition tested before or after each pass.", 2],
+    ["Pre-condition vs post-condition loop?", "WHILE tests at the start (may run 0 times); REPEAT / do…while tests at the end (runs at least once).", 3],
+    ["REPEAT … UNTIL X ≤ 0 in C#?", "do { … } while (X > 0); — the condition is negated.", 4],
+    ["Why use meaningful identifiers?", "Self-documenting code — easier to read, debug and maintain.", 5],
+    ["Sentinel value?", "A special value marking the end of input; it is not part of the data.", 6],
+    ["Read-ahead pattern?", "Input before the loop, process, then input the next value at the end of the loop body.", 7],
+    ["Nested iteration?", "A loop inside a loop; the inner loop completes for each outer pass.", 8]
   ],
   quiz: [
     { q: "A loop that must run at least once should test its condition", opts: ["at the end", "at the start", "twice", "never"], ans: 0, why: "Post-condition." },
@@ -442,14 +440,12 @@ C["compsci:4.1.1.3"] = {
   ],
   flashcards: [
     ["DIV and MOD in C#?", "/ with two int operands, and %."],
-    ["17 DIV 5 and 17 MOD 5?", "3 and 2."],
-    ["Last digit of n?", "n % 10."],
-    ["Test for even?", "n % 2 == 0."],
-    ["-17 / 5 and -17 % 5 in C#?", "-3 and -2 (truncates towards zero)."],
-    ["Math.Round(2.5) in C#?", "2 — banker's rounding; use MidpointRounding.AwayFromZero for 3."],
-    ["Truncation?", "Dropping the fractional part: (int)3.9 = 3."],
-    ["Exponentiation in C#?", "Math.Pow(base, exponent), which returns a double."],
-    ["Why can (double)(7 / 2) be wrong?", "7 / 2 is integer division (3) before the cast; write (double)7 / 2."]
+    ["Last digit of n?", "n % 10.", 2],
+    ["-17 / 5 and -17 % 5 in C#?", "-3 and -2 (truncates towards zero).", 4],
+    ["Math.Round(2.5) in C#?", "2 — banker's rounding; use MidpointRounding.AwayFromZero for 3.", 5],
+    ["Truncation?", "Dropping the fractional part: (int)3.9 = 3.", 6],
+    ["Exponentiation in C#?", "Math.Pow(base, exponent), which returns a double.", 7],
+    ["Why can (double)(7 / 2) be wrong?", "7 / 2 is integer division (3) before the cast; write (double)7 / 2.", 8]
   ],
   quiz: [
     { q: "29 MOD 2", opts: ["1", "14", "0", "2"], ans: 0, why: "29 = 2 × 14 + 1." },
@@ -630,7 +626,6 @@ C["compsci:4.1.1.5"] = {
     ["Precedence of ! && || in C#?", "! highest, then &&, then ||."],
     ["Short-circuit evaluation?", "&& / || skip the right side when the left already decides the result."],
     ["Is OR inclusive?", "Yes — true when both are true."],
-    ["AL 2023 Q10.2 answer?", "NOT Player1HasMirza OR NOT Player2HasMirza."]
   ],
   quiz: [
     { q: "true ^ true is", opts: ["false", "true", "an error", "null"], ans: 0, why: "XOR needs exactly one." },
@@ -830,7 +825,6 @@ C["compsci:4.1.1.7"] = {
     ["Digit character to its value?", "c - '0'."],
     ["String to integer safely?", "int.TryParse(s, out int n)."],
     ["Last character of s?", "s[s.Length - 1] (or s[^1])."],
-    ["AS 2024 Q01 output?", "\"101001\" — binary addition of 011101 and 001100."]
   ],
   quiz: [
     { q: "\"Computer\".Substring(3, 2)", opts: ["\"pu\"", "\"put\"", "\"mp\"", "\"pute\""], ans: 0, why: "Start 3, length 2." },

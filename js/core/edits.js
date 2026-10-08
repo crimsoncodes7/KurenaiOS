@@ -90,7 +90,12 @@
   function shippedFlashcards(sid, ref) {
     var e = shippedEntry(sid, ref);
     return ((e && e.flashcards) || []).map(function (c, i) {
-      return { id: shippedId(i), k: key(sid, ref) + ":" + i, q: c[0], a: c[1] };
+      /* an optional third element is the card's original position (or a
+         whole SM-2 key): it keeps both the schedule and the row id steady
+         when neighbouring cards are removed from the deck (srs.js) */
+      var o = c[2];
+      var k = o == null ? key(sid, ref) + ":" + i : (typeof o === "string" && o.indexOf(":") >= 0 ? o : key(sid, ref) + ":" + o);
+      return { id: shippedId(o == null ? i : o), k: k, q: c[0], a: c[1] };
     });
   }
   function shippedQuiz(sid, ref) {

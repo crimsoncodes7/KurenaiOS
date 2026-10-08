@@ -147,7 +147,7 @@ C["compsci:4.13.1.1"] = {
     ["Abstraction in analysis?", "Keeping only the details relevant to the problem when modelling the real world."],
     ["Prototyping's role in analysis?", "Users react to a working model, clarifying the requirements."],
     ["Waterfall vs agile?", "Waterfall: stages in sequence, fixed requirements. Agile: short iterations with user feedback."],
-    ["AS 2020 Q01: two analysis tasks?", "e.g. problem definition; requirements specification (also data model, interviews…)."]
+    ["Give two tasks carried out during analysis.", "e.g. problem definition; requirements specification (also data model, interviews…)."]
   ],
   quiz: [
     { q: "Which is analysis work?", opts: ["interviewing the client", "writing pseudo-code", "drawing screen layouts", "choosing test data"], ans: 0, why: "Gathering requirements." },
@@ -254,8 +254,7 @@ C["compsci:4.13.1.2"] = {
     ["High cohesion?", "Each module does one well-defined job."],
     ["Low coupling?", "Modules depend on each other only through parameters — no shared globals."],
     ["Why dry-run a design?", "To find logic errors before coding."],
-    ["GCF of 12 and 39?", "3."],
-    ["Can design be iterative?", "Yes — prototyping/agile repeats design each cycle."]
+    ["Can design be iterative?", "Yes — prototyping/agile repeats design each cycle.", 7]
   ],
   quiz: [
     { q: "A hierarchy chart shows", opts: ["modules and how they decompose", "test results", "user requirements", "database keys"], ans: 0, why: "Modular structure." },
@@ -479,8 +478,6 @@ C["compsci:4.13.1.4"] = {
     ["sqrt test values 25, 1, −8?", "Normal, boundary, erroneous."],
     ["Testing for efficiency means…", "using logical reasoning about how the work grows with the input."],
     ["Columns of a test plan?", "Test number, purpose, data, type, expected result, actual result, pass/fail."],
-    ["2020 program: 720 and 600?", "1 2 3 4 5 6; No result."],
-    ["2023 program: 1260?", "2 3 5 7 then 6."]
   ],
   quiz: [
     { q: "For a valid range 1–10, which is boundary data?", opts: ["10", "5", "−3", "\"ten\""], ans: 0, why: "At the edge." },

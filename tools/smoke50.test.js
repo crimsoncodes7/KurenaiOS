@@ -142,7 +142,7 @@ step("bank quiz items are well-formed (2–6 options, a valid answer index, a re
       assert(Array.isArray(q.opts) && q.opts.length >= 2 && q.opts.length <= 6, "bad options " + k + " #" + i);
       assert(Number.isInteger(q.ans) && q.ans >= 0 && q.ans < q.opts.length, "bad answer index " + k + " #" + i);
     });
-    (C[k].flashcards || []).forEach((f, i) => assert(Array.isArray(f) && f.length === 2 && f[0] && f[1], "bad flashcard " + k + " #" + i));
+    (C[k].flashcards || []).forEach((f, i) => assert(Array.isArray(f) && (f.length === 2 || f.length === 3) && f[0] && f[1], "bad flashcard " + k + " #" + i));
   }
 });
 

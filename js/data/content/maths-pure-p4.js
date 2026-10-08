@@ -879,8 +879,7 @@ C["maths:4.4"] = {
     ["$6k$, $10$, $2k$ arithmetic: $k$?", "$k = \\frac52$ (middle term is the mean)."],
     ["Savings £10, £9.20, £8.40… total £64: equation in $n$?", "$n^2 - 26n + 160 = 0$; $n = 10$ (16 rejected — negative savings)."],
     ["Why reject the larger root in a repayment question?", "By then the payments would have become negative — impossible in context."],
-    ["$\\sum_{r=1}^{n} r = $?", "$\\frac{n(n+1)}{2}$."],
-    ["Second, third, fourth terms $2k$, $5k-10$, $7k-14$: $S_n$?", "$k = 6$, $a = 4$, $d = 8$, $S_n = 4n^2$."]
+    ["Second, third, fourth terms $2k$, $5k-10$, $7k-14$: $S_n$?", "$k = 6$, $a = 4$, $d = 8$, $S_n = 4n^2$.", 7]
   ],
   quiz: [
     { q: "$a = 5$, $d = 3$: $u_{20} =$", opts: ["62", "65", "60", "68"], ans: 0, why: "$5 + 19 \\times 3$." },
@@ -990,15 +989,13 @@ C["maths:4.5"] = {
   ],
   flashcards: [
     ["$n$th term, $S_n$ and $S_\\infty$ of a geometric series?", "$ar^{n-1}$; $\\frac{a(1 - r^n)}{1 - r}$; $\\frac{a}{1 - r}$ for $|r| < 1$."],
-    ["Prove $S_n = \\frac{a(1-r^n)}{1-r}$.", "$S_n - rS_n = a - ar^n$ (middle terms cancel), then divide by $1 - r$."],
-    ["Why does $S_\\infty$ need $|r| < 1$?", "Only then does $r^n \\to 0$, so $S_n \\to \\frac{a}{1-r}$."],
-    ["Three terms geometric ⇒ which equation?", "$u_2^2 = u_1 u_3$."],
-    ["$3k + 4$, $12 - 3k$, $k + 16$ geometric and convergent: $k$ and $S_\\infty$?", "$k = 20$ ($r = -\\frac34$); $S_\\infty = \\frac{256}{7}$."],
-    ["Profit £20 000 growing 8%: first year over £65 000?", "$1.08^{n-1} > 3.25 \\Rightarrow n - 1 > 15.3 \\Rightarrow$ Year 17."],
-    ["$S_{10} = 4S_5$: $r$?", "$1 + r^5 = 4 \\Rightarrow r = 3^{1/5}$."],
-    ["2017 to 2030 inclusive is how many terms?", "14."],
-    ["$S_\\infty$ of $-6\\sqrt3, 6, \\ldots$ ($r = -\\frac{1}{\\sqrt3}$)?", "$\\frac{-6\\sqrt3}{1 + 1/\\sqrt3} = 9(1 - \\sqrt3)$."],
-    ["Growth of $p\\%$ per year: $r = $?", "$1 + \\frac{p}{100}$."]
+    ["Why does $S_\\infty$ need $|r| < 1$?", "Only then does $r^n \\to 0$, so $S_n \\to \\frac{a}{1-r}$.", 2],
+    ["Three terms geometric ⇒ which equation?", "$u_2^2 = u_1 u_3$.", 3],
+    ["$3k + 4$, $12 - 3k$, $k + 16$ geometric and convergent: $k$ and $S_\\infty$?", "$k = 20$ ($r = -\\frac34$); $S_\\infty = \\frac{256}{7}$.", 4],
+    ["Profit £20 000 growing 8%: first year over £65 000?", "$1.08^{n-1} > 3.25 \\Rightarrow n - 1 > 15.3 \\Rightarrow$ Year 17.", 5],
+    ["2017 to 2030 inclusive is how many terms?", "14.", 7],
+    ["$S_\\infty$ of $-6\\sqrt3, 6, \\ldots$ ($r = -\\frac{1}{\\sqrt3}$)?", "$\\frac{-6\\sqrt3}{1 + 1/\\sqrt3} = 9(1 - \\sqrt3)$.", 8],
+    ["Growth of $p\\%$ per year: $r = $?", "$1 + \\frac{p}{100}$.", 9]
   ],
   quiz: [
     { q: "$a = 3$, $r = 2$: $u_6 =$", opts: ["96", "192", "48", "64"], ans: 0, why: "$3 \\times 2^5$." },
@@ -1073,7 +1070,6 @@ C["maths:4.6"] = {
     ["Bouncing ball from 5 m, 60% rebound: total distance?", "$\\frac{5}{0.4} + \\frac{3}{0.4} = 20$ m."],
     ["First year a 3%-growing payment from £1200 exceeds £2000?", "$n - 1 > \\frac{\\ln(5/3)}{\\ln 1.03} = 17.3 \\Rightarrow$ year 19."],
     ["Why can a sum-to-infinity model be unrealistic?", "It assumes the process continues for ever with the same ratio (a bounce never stops, growth never slows)."],
-    ["2017 to 2030 inclusive: how many terms?", "14."]
   ],
   quiz: [
     { q: "Payments £500, £550, £600, …: model?", opts: ["arithmetic $d = 50$", "geometric $r = 1.1$", "geometric $r = 50$", "neither"], ans: 0, why: "Same amount added." },

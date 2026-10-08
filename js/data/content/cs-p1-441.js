@@ -120,13 +120,10 @@ C["compsci:4.4.1.1"] = {
   ],
   flashcards: [
     ["How to test a syllogism?", "Draw every arrangement consistent with the statements; a conclusion follows only if true in all of them."],
-    ["AS 2016 Q01.1 answer?", "B — only Conclusion 2 follows."],
-    ["AS 2016 Q01.2 answer?", "C — neither follows."],
-    ["Mislabelled boxes: which box to sample?", "The one labelled \"onions and carrots\" — it must hold only one kind."],
-    ["Which of 2022's six statements is correct?", "Statement 5."],
-    ["What does an answer of \"No\" tell others?", "Every case in which the person would have known is eliminated."],
-    ["Checking a solution?", "Test it against every rule, not only those used to find it."],
-    ["Proof by contradiction?", "Assume the claim and derive something impossible, so the claim is false."]
+    ["Mislabelled boxes: which box to sample?", "The one labelled \"onions and carrots\" — it must hold only one kind.", 3],
+    ["What does an answer of \"No\" tell others?", "Every case in which the person would have known is eliminated.", 5],
+    ["Checking a solution?", "Test it against every rule, not only those used to find it.", 6],
+    ["Proof by contradiction?", "Assume the claim and derive something impossible, so the claim is false.", 7]
   ],
   quiz: [
     { q: "All A are B; no B are C. Which follows?", opts: ["No A are C", "All C are A", "Some C are A", "All B are A"], ans: 0, why: "A sits inside B, which shares nothing with C." },
@@ -237,14 +234,10 @@ C["compsci:4.4.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.2 the three combining principles; 4.1.1 every Section A program; 4.13.1.4 test data; 4.4.4 efficiency and Big-O; 4.4.4.6–4.4.4.7 problems with no algorithm." } }
   ],
   flashcards: [
-    ["Algorithm?", "A sequence of steps that can be followed to complete a task and that always terminates."],
-    ["Four standard constructs?", "Sequence, assignment, selection, iteration."],
-    ["Prime test with 25: when is the factor found?", "d = 5, r = 0 → Not prime."],
-    ["Prime test with 5: Root?", "3."],
-    ["Purpose of AS 2019's MOD 2 / DIV 2 loop?", "Converts denary to binary."],
-    ["What do X values giving a list in AS 2020 Q03 share?", "They are factorial numbers."],
-    ["One inefficiency in AS 2025's palindrome check?", "It compares pairs twice and doesn't stop at the first mismatch."],
-    ["Three ways to argue for a program?", "Logical reasoning, test data, user feedback."]
+    ["Four standard constructs?", "Sequence, assignment, selection, iteration.", 1],
+    ["Prime test with 25: when is the factor found?", "d = 5, r = 0 → Not prime.", 2],
+    ["Prime test with 5: Root?", "3.", 3],
+    ["Three ways to argue for a program?", "Logical reasoning, test data, user feedback.", 7]
   ],
   quiz: [
     { q: "Which is NOT part of AQA's definition of an algorithm?", opts: ["written in a programming language", "a sequence of steps", "completes a task", "always terminates"], ans: 0, why: "Algorithms are language-independent." },
@@ -339,12 +332,10 @@ C["compsci:4.4.1.3"] = {
   flashcards: [
     ["Abstraction?", "Simplifying by removing unnecessary detail or grouping by common characteristics."],
     ["Representational abstraction?", "A representation arrived at by removing unnecessary details."],
-    ["Abstraction by generalisation?", "Grouping by common characteristics to arrive at an \"is a kind of\" hierarchy."],
-    ["Example of representational abstraction?", "The London Underground map."],
-    ["Example of generalisation?", "Car, Lorry and Bicycle as kinds of Vehicle (a class hierarchy)."],
-    ["2019's puzzle as a graph is…?", "Both a representational abstraction and an abstraction by generalisation."],
-    ["Danger of over-abstraction?", "Removing detail the problem actually needs."],
-    ["Abstraction in networking?", "Protocol layers — each hides the details of the layers below."]
+    ["Example of representational abstraction?", "The London Underground map.", 3],
+    ["Example of generalisation?", "Car, Lorry and Bicycle as kinds of Vehicle (a class hierarchy).", 4],
+    ["Danger of over-abstraction?", "Removing detail the problem actually needs.", 6],
+    ["Abstraction in networking?", "Protocol layers — each hides the details of the layers below.", 7]
   ],
   quiz: [
     { q: "A schematic metro map is an example of", opts: ["representational abstraction", "generalisation", "composition", "automation"], ans: 0, why: "Detail removed." },
@@ -423,14 +414,12 @@ C["compsci:4.4.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.2.3 encapsulation and access specifiers; 4.4.1.7 data abstraction; 4.2.1.4 ADTs; 4.1.1.13 locals hide data inside subroutines." } }
   ],
   flashcards: [
-    ["Information hiding?", "Hiding all details of an object that do not contribute to its essential characteristics."],
-    ["How does a class hide information?", "Private attributes; access only through public methods."],
-    ["Benefit?", "The representation can change without other code changing; prevents misuse."],
-    ["Information hiding vs encapsulation?", "Hiding is the principle; encapsulation (bundling + private) is the mechanism."],
-    ["2023 Q09.1 key idea?", "Other parts of the program don't know Queue exists or how options are stored."],
-    ["Is protected hidden?", "Not from subclasses — R. in the 2023 mark scheme."],
-    ["Real-world example?", "A car's controls are the interface; the engine is hidden."],
-    ["Term for \"hiding all details that do not contribute to essential characteristics\"?", "Information hiding (AS 2018 label A)."]
+    ["How does a class hide information?", "Private attributes; access only through public methods.", 1],
+    ["Benefit of information hiding?", "The representation can change without other code changing; prevents misuse.", 2],
+    ["Information hiding vs encapsulation?", "Hiding is the principle; encapsulation (bundling + private) is the mechanism.", 3],
+    ["Is protected hidden?", "Not from subclasses — R. in the 2023 mark scheme.", 5],
+    ["Real-world example?", "A car's controls are the interface; the engine is hidden.", 6],
+    ["Term for \"hiding all details that do not contribute to essential characteristics\"?", "Information hiding (AS 2018 label A).", 7]
   ],
   quiz: [
     { q: "Information hiding is achieved in a class by", opts: ["private attributes and public methods", "public attributes", "static methods", "global variables"], ans: 0, why: "Encapsulation." },
@@ -494,14 +483,11 @@ C["compsci:4.4.1.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.10 subroutines; 4.1.1.11 parameters; 4.4.1.6 functional abstraction; 4.4.1.10 composition of procedures; 4.12 functions as first-class objects." } }
   ],
   flashcards: [
-    ["Procedural abstraction?", "Abstracting away the actual values in a computation to leave a computational method — a procedure."],
-    ["Result of procedural abstraction?", "A procedure (a computational method with parameters)."],
-    ["Is the method hidden in procedural abstraction?", "No — that is functional abstraction."],
-    ["Example?", "CircleArea(r) = π r² instead of π × 3²."],
-    ["What do the abstracted values become?", "Parameters."],
-    ["Procedural vs functional abstraction?", "Procedural keeps the method; functional hides it, leaving only input → output."],
-    ["Procedural abstraction vs decomposition?", "Generalising a computation vs splitting a problem into parts."],
-    ["Benefit?", "One method reused for any values; changes are made once."]
+    ["Is the method hidden in procedural abstraction?", "No — that is functional abstraction.", 2],
+    ["Example of procedural abstraction?", "CircleArea(r) = π r² instead of π × 3².", 3],
+    ["What do the abstracted values become?", "Parameters.", 4],
+    ["Procedural abstraction vs decomposition?", "Generalising a computation vs splitting a problem into parts.", 6],
+    ["Benefit of procedural abstraction?", "One method reused for any values; changes are made once.", 7]
   ],
   quiz: [
     { q: "The result of procedural abstraction is", opts: ["a procedure", "a function with its method hidden", "a data type", "a class hierarchy"], ans: 0, why: "Spec wording." },
@@ -567,9 +553,9 @@ C["compsci:4.4.1.6"] = {
     ["Functional abstraction?", "Abstraction in which the particular computation method is hidden."],
     ["Result of procedural abstraction — procedure or function?", "A procedure."],
     ["How do you get a function from a procedure?", "A further abstraction that disregards the computation method."],
-    ["Example?", "A sort routine whose algorithm is hidden: list ↦ sorted list."],
+    ["Example of functional abstraction?", "A sort routine whose algorithm is hidden: list ↦ sorted list."],
     ["Two procedures, one function?", "SumTo by loop and by formula compute the same mapping."],
-    ["Benefit?", "The method can change without callers changing."],
+    ["Benefit of functional abstraction?", "The method can change without callers changing."],
     ["Procedural vs functional?", "Procedural keeps the method; functional hides it."],
     ["Link to functional programming?", "A function is a mapping from a domain to a co-domain (4.12.1.1)."]
   ],
@@ -641,11 +627,10 @@ C["compsci:4.4.1.7"] = {
     ["Data abstraction?", "Hiding how data are represented, allowing new data objects to be built from previously defined types."],
     ["Spec example?", "A stack implemented as an array and a pointer for the top."],
     ["What does data abstraction isolate?", "How a compound data object is used from how it is constructed."],
-    ["Benefit?", "The representation can change without changing code that uses it."],
+    ["Benefit of data abstraction?", "The representation can change without changing code that uses it."],
     ["Fraction built from…?", "Two integers (numerator and denominator)."],
     ["Link to ADTs?", "An ADT is a data abstraction: defined by operations, representation hidden."],
     ["Data vs functional abstraction?", "Data hides representation; functional hides computation method."],
-    ["AS 2025 Q05 answer?", "How the data are represented is hidden / new types from previous ones."]
   ],
   quiz: [
     { q: "Data abstraction hides", opts: ["how data are represented", "how much data there is", "the data's values", "the operations"], ans: 0, why: "Spec wording." },
@@ -737,14 +722,10 @@ C["compsci:4.4.1.8"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.1.3 abstraction; 4.2.4.1 graphs; 4.3.1.1 BFS and 4.3.6.1 Dijkstra as solved problems; 4.4.4.5 intractable problems (colouring) and heuristics." } }
   ],
   flashcards: [
-    ["Problem abstraction/reduction?", "Removing details until the problem is represented in a way that is possible to solve because it reduces to one already solved."],
-    ["2019's puzzle reduces to…?", "Graph colouring."],
-    ["What did the 2019 graph remove?", "Why cells are linked (same row/column/block) and cell positions."],
-    ["Timetabling reduces to…?", "Graph colouring (exams = nodes, clashes = edges, slots = colours)."],
-    ["Fastest route reduces to…?", "Shortest path in a weighted graph — Dijkstra."],
-    ["Reduction vs decomposition?", "Transform into a solved problem vs split into sub-problems."],
-    ["AS 2018 Q01 label for reduction?", "E — problem abstraction."],
-    ["Last step of a reduction?", "Map the known algorithm's answer back to the original problem."]
+    ["Timetabling reduces to…?", "Graph colouring (exams = nodes, clashes = edges, slots = colours).", 3],
+    ["Fastest route reduces to…?", "Shortest path in a weighted graph — Dijkstra.", 4],
+    ["Reduction vs decomposition?", "Transform into a solved problem vs split into sub-problems.", 5],
+    ["Last step of a reduction?", "Map the known algorithm's answer back to the original problem.", 7]
   ],
   quiz: [
     { q: "Reduction means the problem becomes", opts: ["one already solved", "smaller", "random", "decomposed"], ans: 0, why: "Spec wording." },
@@ -824,14 +805,10 @@ C["compsci:4.4.1.9"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.2.2 the structured approach and hierarchy charts; 4.1.1.10 subroutines; 4.4.1.10 composition; 4.13.1.2 design; NEA.2 design documentation." } }
   ],
   flashcards: [
-    ["Procedural decomposition?", "Breaking a problem into sub-problems, each accomplishing an identifiable task, which may be subdivided further."],
-    ["Three mark points for decomposition?", "Smaller sub-problems; each an identifiable task; each may be subdivided."],
-    ["When does decomposition stop?", "When each sub-problem performs a single task."],
-    ["Diagram for decomposition?", "A hierarchy chart."],
-    ["Decomposition vs composition?", "Splitting vs combining."],
-    ["Benefit?", "Smaller parts are easier to solve, test and share in a team."],
-    ["AS 2018 Q01 label for decomposition?", "F."],
-    ["Each leaf of a decomposition becomes…?", "A subroutine (module)."]
+    ["Three mark points for decomposition?", "Smaller sub-problems; each an identifiable task; each may be subdivided.", 1],
+    ["Decomposition vs composition?", "Splitting vs combining.", 4],
+    ["Benefit of decomposition?", "Smaller parts are easier to solve, test and share in a team.", 5],
+    ["Each leaf of a decomposition becomes…?", "A subroutine (module).", 7]
   ],
   quiz: [
     { q: "Decomposition means", opts: ["breaking a problem into sub-problems", "combining procedures", "removing detail", "hiding data"], ans: 0, why: "Definition." },
@@ -901,11 +878,8 @@ C["compsci:4.4.1.10"] = {
     ["Procedural composition?", "Combining procedures to form a compound procedure."],
     ["Data composition?", "Combining data objects to form compound data (e.g. a record, a tree)."],
     ["Spec example of data composition?", "A tree data structure."],
-    ["AS 2024 compound procedure?", "Serving (FindFreeTill, ServeBuyer, UpdateStats, …)."],
-    ["AS 2024 compound data?", "Q_Node (BuyerID, WaitingTime, ItemsInBasket) and BuyerQ."],
-    ["Reason for procedural composition?", "The group is called in several places — less code, clearer."],
-    ["Reason for data composition?", "The group can be handled as one unit; elements easy to address."],
-    ["AS 2018 Q01 label for composition?", "G — combining procedures into compound procedures."]
+    ["Reason for procedural composition?", "The group is called in several places — less code, clearer.", 5],
+    ["Reason for data composition?", "The group can be handled as one unit; elements easy to address.", 6],
   ],
   quiz: [
     { q: "Combining procedures into a compound procedure is", opts: ["composition", "decomposition", "reduction", "automation"], ans: 0, why: "Spec wording." },
@@ -973,14 +947,8 @@ C["compsci:4.4.1.11"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.1.3 abstraction (the model); 4.4.1.2 algorithms; 4.2 data structures; 4.13 the systematic approach; 4.4.2.1 FSMs as models; NEA simulations." } }
   ],
   flashcards: [
-    ["Automation?", "Putting models (abstractions of real-world objects or phenomena) into action to solve problems."],
-    ["Four steps of automation?", "Create algorithms; implement them in code; implement the models in data structures; execute the code."],
-    ["What should a model include?", "The minimum detail needed to solve the problem to the required accuracy."],
-    ["AS 2018 Q01: \"models are put into action to solve problems\"?", "H — automation."],
-    ["AS 2018 Q01: \"breaking a problem into sub-problems\"?", "F — decomposition."],
-    ["AS 2018 Q01: \"combining procedures into compound procedures\"?", "G — composition."],
-    ["AS 2018 Q01: \"details removed until it reduces to a solved problem\"?", "E — problem abstraction."],
-    ["Mnemonic for automation?", "MACDE: Model, Algorithms, Code, Data structures, Execute."]
+    ["What should a model include?", "The minimum detail needed to solve the problem to the required accuracy.", 2],
+    ["Mnemonic for automation?", "MACDE: Model, Algorithms, Code, Data structures, Execute.", 7]
   ],
   quiz: [
     { q: "\"Models are put into action to solve problems\" describes", opts: ["automation", "composition", "decomposition", "information hiding"], ans: 0, why: "AS 2018 Q01 → H." },

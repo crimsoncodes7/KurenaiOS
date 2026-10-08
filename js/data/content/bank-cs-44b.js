@@ -91,14 +91,13 @@ X("compsci:4.4.4.3", {
     { callout: { t: "warn", body: "Big-O is the **worst case** by default. Bubble sort with a flag has best case O(n) — say *best case* if you mean it." }}
   ],
   flashcards: [
-    ["What does Big-O notation describe?", "The upper bound (worst case) on how an algorithm's time or space grows with input size n, ignoring constants and lower-order terms."],
-    ["Simplify O(3n² + 10n + 7).", "O(n²)."],
-    ["Why are constants dropped in Big-O?", "For large n the highest-order term dominates; constants depend on hardware, not the algorithm."],
-    ["Which order is O(2ⁿ)?", "Exponential — e.g. naive recursive Fibonacci, brute-force subset enumeration."],
-    ["Why is O(n log n) the practical floor for comparison sorting?", "Any comparison sort must distinguish n! orderings, needing log₂(n!) ≈ n log n comparisons."],
-    ["What order is nested loops each running n times?", "O(n²)."],
-    ["What order is a loop that halves the problem each iteration?", "O(log n)."],
-    ["Order of complexity for accessing an array element by index?", "O(1)."]
+    ["What does Big-O notation describe?", "The upper bound (worst case) on how an algorithm's time or space grows with input size n, ignoring constants and lower-order terms.", 10],
+    ["Simplify O(3n² + 10n + 7).", "O(n²).", 11],
+    ["Why are constants dropped in Big-O?", "For large n the highest-order term dominates; constants depend on hardware, not the algorithm.", 12],
+    ["Which order is O(2ⁿ)?", "Exponential — e.g. naive recursive Fibonacci, brute-force subset enumeration.", 13],
+    ["Why is O(n log n) the practical floor for comparison sorting?", "Any comparison sort must distinguish n! orderings, needing log₂(n!) ≈ n log n comparisons.", 14],
+    ["What order is nested loops each running n times?", "O(n²).", 15],
+    ["Order of complexity for accessing an array element by index?", "O(1).", 17]
   ],
   quiz: [
     { q: "O(5n + 20) simplifies to:", opts: ["O(n)", "O(5n)", "O(20)", "O(n²)"], ans: 0, why: "Drop constants." },
@@ -162,14 +161,14 @@ X("compsci:4.4.4.4", {
 
 X("compsci:4.4.4.5", {
   flashcards: [
-    ["What are the two broad classes of algorithmic problem by complexity?", "Tractable (polynomial time or better) and intractable (exponential or worse)."],
-    ["What is the class P?", "Problems solvable in polynomial time by a deterministic algorithm."],
-    ["What is the class NP (informally)?", "Problems whose solutions can be verified in polynomial time, even if finding one may not be."],
-    ["What makes a problem NP-complete (informally)?", "It is in NP and every NP problem reduces to it — a polynomial solution to it would solve all of NP."],
-    ["Give an example of a tractable problem class.", "Searching, sorting, shortest path (Dijkstra)."],
-    ["Give an example of an intractable problem.", "Travelling salesman (optimal), knapsack (exact), Boolean satisfiability by brute force."],
-    ["How is a problem classified?", "By the time complexity of the best-known algorithm that solves it."],
-    ["What is the difference between a computable and a tractable problem?", "Computable: an algorithm exists. Tractable: a polynomial-time algorithm exists. Intractable problems are computable but impractical."]
+    ["What are the two broad classes of algorithmic problem by complexity?", "Tractable (polynomial time or better) and intractable (exponential or worse).", 9],
+    ["What is the class P?", "Problems solvable in polynomial time by a deterministic algorithm.", 10],
+    ["What is the class NP (informally)?", "Problems whose solutions can be verified in polynomial time, even if finding one may not be.", 11],
+    ["What makes a problem NP-complete (informally)?", "It is in NP and every NP problem reduces to it — a polynomial solution to it would solve all of NP.", 12],
+    ["Give an example of a tractable problem class.", "Searching, sorting, shortest path (Dijkstra).", 13],
+    ["Give an example of an intractable problem.", "Travelling salesman (optimal), knapsack (exact), Boolean satisfiability by brute force.", 14],
+    ["How is a problem classified?", "By the time complexity of the best-known algorithm that solves it.", 15],
+    ["What is the difference between a computable and a tractable problem?", "Computable: an algorithm exists. Tractable: a polynomial-time algorithm exists. Intractable problems are computable but impractical.", 16]
   ],
   quiz: [
     { q: "A problem in class P has:", opts: ["no algorithm", "a polynomial-time algorithm", "only exponential algorithms", "no verification"], ans: 1, why: "P = polynomial." },
@@ -189,14 +188,14 @@ X("compsci:4.4.4.5", {
 
 X("compsci:4.4.4.6", {
   flashcards: [
-    ["What is a computable problem?", "A problem for which an algorithm exists that produces the correct answer for every input in a finite number of steps."],
-    ["What is a non-computable problem?", "One for which no algorithm can exist that solves every instance — e.g. the halting problem."],
-    ["What is a decision problem?", "A problem with a yes/no answer."],
-    ["What is an undecidable problem?", "A decision problem that no algorithm can answer correctly for all inputs."],
-    ["Why can a Universal Turing Machine solve problems that a real computer cannot?", "It has an infinite tape (unlimited memory); real computers are finite."],
-    ["What did the halting problem demonstrate?", "That there are non-computable / undecidable problems — some problems have no algorithm at all."],
-    ["Is 'is n prime?' computable?", "Yes — trial division always terminates with the right answer."],
-    ["Is 'does this program ever print X for some input?' computable in general?", "No — it reduces to the halting problem."]
+    ["What is a computable problem?", "A problem for which an algorithm exists that produces the correct answer for every input in a finite number of steps.", 8],
+    ["What is a non-computable problem?", "One for which no algorithm can exist that solves every instance — e.g. the halting problem.", 9],
+    ["What is a decision problem?", "A problem with a yes/no answer.", 10],
+    ["What is an undecidable problem?", "A decision problem that no algorithm can answer correctly for all inputs.", 11],
+    ["Why can a Universal Turing Machine solve problems that a real computer cannot?", "It has an infinite tape (unlimited memory); real computers are finite.", 12],
+    ["What did the halting problem demonstrate?", "That there are non-computable / undecidable problems — some problems have no algorithm at all.", 13],
+    ["Is 'is n prime?' computable?", "Yes — trial division always terminates with the right answer.", 14],
+    ["Is 'does this program ever print X for some input?' computable in general?", "No — it reduces to the halting problem.", 15]
   ],
   quiz: [
     { q: "A problem with no possible algorithm is:", opts: ["intractable", "non-computable", "tractable", "polynomial"], ans: 1, why: "Different from merely slow." },
@@ -224,14 +223,14 @@ X("compsci:4.4.4.7", {
     { callout: { t: "tip", h: "The proof sketch, if asked", body: "Suppose `H(P, I)` decides halting. Build `D(P)`: if `H(P, P)` says halt, loop forever; else halt. Run `D(D)`: if it halts, H said it loops; if it loops, H said it halts. Contradiction, so H cannot exist." }}
   ],
   flashcards: [
-    ["Describe the halting problem.", "Determining, without running it, whether a given program will halt (terminate) for a particular input."],
-    ["Is the halting problem computable?", "No — it is non-computable / undecidable; no algorithm can solve it for all programs and inputs."],
-    ["Why is the halting problem important?", "It proves that there exist problems no algorithm can solve — computation has limits."],
-    ["Can a specific program's halting sometimes be determined?", "Yes, for particular cases by inspection — but no general algorithm works for every program and input."],
-    ["Outline the contradiction in the proof.", "A supposed halting-decider is fed a program that does the opposite of what the decider predicts about itself, so the decider must be wrong."],
-    ["Who proved the halting problem undecidable and when?", "Alan Turing, 1936."],
-    ["What everyday consequence does it have?", "No compiler or tool can detect every infinite loop in every program."],
-    ["Is 'does this program halt within 1000 steps?' decidable?", "Yes — simulate 1000 steps; the general problem is undecidable only because of the unbounded case."]
+    ["Describe the halting problem.", "Determining, without running it, whether a given program will halt (terminate) for a particular input.", 8],
+    ["Is the halting problem computable?", "No — it is non-computable / undecidable; no algorithm can solve it for all programs and inputs.", 9],
+    ["Why is the halting problem important?", "It proves that there exist problems no algorithm can solve — computation has limits.", 10],
+    ["Can a specific program's halting sometimes be determined?", "Yes, for particular cases by inspection — but no general algorithm works for every program and input.", 11],
+    ["Outline the contradiction in the proof.", "A supposed halting-decider is fed a program that does the opposite of what the decider predicts about itself, so the decider must be wrong.", 12],
+    ["Who proved the halting problem undecidable and when?", "Alan Turing, 1936.", 13],
+    ["What everyday consequence does it have?", "No compiler or tool can detect every infinite loop in every program.", 14],
+    ["Is 'does this program halt within 1000 steps?' decidable?", "Yes — simulate 1000 steps; the general problem is undecidable only because of the unbounded case.", 15]
   ],
   quiz: [
     { q: "The halting problem asks whether:", opts: ["a program compiles", "a program will halt for a given input, without running it", "a program is fast", "a CPU halts"], ans: 1, why: "Definition." },
@@ -266,14 +265,13 @@ X("compsci:4.4.5.1", {
     { callout: { t: "memorise", h: "Transition notation", body: "δ(current state, symbol read) = (new state, symbol written, move L/R). A **transition function** maps (state, symbol) → (state, symbol, direction). The machine **halts** when it enters a halting state or has no applicable rule." }}
   ],
   flashcards: [
-    ["List the components of a Turing machine.", "A finite set of states (including a start state and halting/accepting states), a set of transition rules, an infinitely long tape divided into cells, a read/write head that moves one cell at a time, and a state register holding the current state."],
-    ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine: the description of that machine and its input are written on the UTM's tape and the UTM executes them — it acts as an interpreter."],
-    ["Why is a UTM more powerful than any real computer?", "It has an infinite tape — unlimited memory."],
-    ["What does a transition rule specify?", "For a current state and symbol read: the new state, the symbol to write and the direction to move (L/R)."],
-    ["When does a Turing machine halt?", "When it enters a halting state (or no rule applies to the current state and symbol)."],
-    ["What is the significance of the Turing machine?", "It is a formal model of computation: anything computable can be computed by a TM (Church–Turing thesis)."],
-    ["What is a transition function?", "The mapping δ(state, symbol) → (state′, symbol′, direction) that defines the machine's behaviour."],
-    ["Describe a TM that adds 1 to a binary number.", "Move right to the end; move left replacing 1s with 0s until a 0 (or blank) is found; write 1; halt."]
+    ["List the components of a Turing machine.", "A finite set of states (including a start state and halting/accepting states), a set of transition rules, an infinitely long tape divided into cells, a read/write head that moves one cell at a time, and a state register holding the current state.", 10],
+    ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine: the description of that machine and its input are written on the UTM's tape and the UTM executes them — it acts as an interpreter.", 11],
+    ["What does a transition rule specify?", "For a current state and symbol read: the new state, the symbol to write and the direction to move (L/R).", 13],
+    ["When does a Turing machine halt?", "When it enters a halting state (or no rule applies to the current state and symbol).", 14],
+    ["What is the significance of the Turing machine?", "It is a formal model of computation: anything computable can be computed by a TM (Church–Turing thesis).", 15],
+    ["What is a transition function?", "The mapping δ(state, symbol) → (state′, symbol′, direction) that defines the machine's behaviour.", 16],
+    ["Describe a TM that adds 1 to a binary number.", "Move right to the end; move left replacing 1s with 0s until a 0 (or blank) is found; write 1; halt.", 17]
   ],
   quiz: [
     { q: "Which is NOT a component of a Turing machine?", opts: ["Infinite tape", "Read/write head", "Random-access memory", "Transition rules"], ans: 2, why: "Memory is the tape, accessed sequentially." },

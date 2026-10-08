@@ -5,14 +5,13 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 X("compsci:4.6.1.1", {
   flashcards: [
-    ["Define hardware.", "The physical / electrical components of a computer system."],
-    ["Define software.", "The programs (sequences of instructions) that execute on the hardware."],
-    ["State the relationship between hardware and software.", "Software executes on the hardware; the hardware provides the physical resources the software controls — neither is useful without the other."],
-    ["Which is the CPU: hardware or software?", "Hardware."],
-    ["Is firmware hardware or software?", "Software — programs stored in ROM/flash, controlling hardware directly."],
-    ["Give an example of software controlling hardware.", "A device driver sending commands to a printer; the OS scheduling the processor."],
-    ["Can hardware run without software?", "No — a processor with no instructions does nothing useful."],
-    ["Why must software be stored as bit patterns?", "The hardware can only fetch and execute binary instructions."]
+    ["Define software.", "The programs (sequences of instructions) that execute on the hardware.", 10],
+    ["State the relationship between hardware and software.", "Software executes on the hardware; the hardware provides the physical resources the software controls — neither is useful without the other.", 11],
+    ["Which is the CPU: hardware or software?", "Hardware.", 12],
+    ["Is firmware hardware or software?", "Software — programs stored in ROM/flash, controlling hardware directly.", 13],
+    ["Give an example of software controlling hardware.", "A device driver sending commands to a printer; the OS scheduling the processor.", 14],
+    ["Can hardware run without software?", "No — a processor with no instructions does nothing useful.", 15],
+    ["Why must software be stored as bit patterns?", "The hardware can only fetch and execute binary instructions.", 16]
   ],
   quiz: [
     { q: "Hardware is:", opts: ["the programs", "the physical components", "the operating system", "data"], ans: 1, why: "Physical." },
@@ -45,14 +44,14 @@ X("compsci:4.6.1.2", {
     { callout: { t: "warn", body: "A bitmap image editor is **application** software (2022); a virus checker is a **utility**, i.e. system software (2019); an interpreter is a **translator** (2025). Classify by *purpose*, not by who wrote it." }}
   ],
   flashcards: [
-    ["Define application software.", "Software that performs user-oriented tasks — tasks a user would want to do even without a computer, e.g. writing a letter."],
-    ["Define system software.", "Software used in the management of the computer system, providing a platform for other software and hiding the hardware's complexity from the user."],
-    ["Name the four categories of system software.", "Operating systems, utility programs, libraries, translators (compilers, interpreters, assemblers)."],
-    ["What is a utility program?", "System software that performs a non-core management task — virus checking, defragmentation, backup, compression."],
-    ["Classify a spreadsheet, a compiler, a defragmenter and a games program.", "Application; system (translator); system (utility); application."],
-    ["Is a web browser system or application software?", "Application — browsing is a user task."],
-    ["What are libraries?", "Collections of pre-written, tested subroutines that programs can call rather than rewriting the code."],
-    ["Give two examples of utility software.", "Virus checker, disk defragmenter, backup tool, file compression, encryption tool."]
+    ["Define application software.", "Software that performs user-oriented tasks — tasks a user would want to do even without a computer, e.g. writing a letter.", 9],
+    ["Define system software.", "Software used in the management of the computer system, providing a platform for other software and hiding the hardware's complexity from the user.", 10],
+    ["Name the four categories of system software.", "Operating systems, utility programs, libraries, translators (compilers, interpreters, assemblers).", 11],
+    ["What is a utility program?", "System software that performs a non-core management task — virus checking, defragmentation, backup, compression.", 12],
+    ["Classify a spreadsheet, a compiler, a defragmenter and a games program.", "Application; system (translator); system (utility); application.", 13],
+    ["Is a web browser system or application software?", "Application — browsing is a user task.", 14],
+    ["What are libraries?", "Collections of pre-written, tested subroutines that programs can call rather than rewriting the code.", 15],
+    ["Give two examples of utility software.", "Virus checker, disk defragmenter, backup tool, file compression, encryption tool.", 16]
   ],
   quiz: [
     { q: "A virus checker is:", opts: ["application software", "a utility (system software)", "a translator", "a library"], ans: 1, why: "Ancillary management task." },
@@ -76,14 +75,14 @@ X("compsci:4.6.1.2", {
 
 X("compsci:4.6.1.3", {
   flashcards: [
-    ["What are the four types of system software?", "Operating system, utility programs, libraries, translators (compiler, interpreter, assembler)."],
-    ["Why use library programs?", "Pre-written, already tested code saves development time and reduces errors; programs share one copy."],
-    ["What is a translator?", "System software that converts source code into a form the processor can execute: assembler, compiler or interpreter."],
-    ["What is a device driver?", "System software that lets the OS communicate with a specific piece of hardware."],
-    ["Give three utility programs.", "Disk defragmenter, virus scanner, backup software (also compression and encryption tools)."],
-    ["Is a device driver application software?", "No — it is system software controlling hardware."],
-    ["How does system software 'provide a virtual machine'?", "It presents a simplified interface so programs and users need not deal with raw hardware."],
-    ["Which system software runs first when a computer boots?", "The BIOS/firmware loader, then the operating system."]
+    ["What are the four types of system software?", "Operating system, utility programs, libraries, translators (compiler, interpreter, assembler).", 9],
+    ["Why use library programs?", "Pre-written, already tested code saves development time and reduces errors; programs share one copy.", 10],
+    ["What is a translator?", "System software that converts source code into a form the processor can execute: assembler, compiler or interpreter.", 11],
+    ["What is a device driver?", "System software that lets the OS communicate with a specific piece of hardware.", 12],
+    ["Give three utility programs.", "Disk defragmenter, virus scanner, backup software (also compression and encryption tools).", 13],
+    ["Is a device driver application software?", "No — it is system software controlling hardware.", 14],
+    ["How does system software 'provide a virtual machine'?", "It presents a simplified interface so programs and users need not deal with raw hardware.", 15],
+    ["Which system software runs first when a computer boots?", "The BIOS/firmware loader, then the operating system.", 16]
   ],
   quiz: [
     { q: "Which is NOT system software?", opts: ["Assembler", "Disk defragmenter", "Graphics library", "Spreadsheet"], ans: 3, why: "Application." },
@@ -118,14 +117,14 @@ X("compsci:4.6.1.4", {
     { callout: { t: "tip", body: "*A resource the OS manages* (AS 2018, 2023, 2024): processor time, main memory, secondary storage, I/O devices, network access — name the resource **and** the management action." }}
   ],
   flashcards: [
-    ["Describe the OS's processor-management role.", "It allocates processor time / cores to processes, scheduling which runs when and for how long (time slices)."],
-    ["Describe the OS's memory-management role.", "It allocates RAM to processes, moves data between RAM and the paging file (virtual memory), and prevents processes writing outside their allocation."],
-    ["Describe the OS's I/O-management role.", "It allocates I/O devices to processes, manages communication with them via drivers, and installs drivers for new devices."],
-    ["Describe the OS's file-management role.", "It allocates space on storage devices, decides where files are saved, and organises them into directories."],
-    ["What does 'the OS hides the complexity of the hardware' mean?", "It provides a virtual machine — a simplified interface so users and programs need not deal with the raw hardware."],
-    ["How does the OS handle interrupts?", "When an interrupt occurs it saves the current state and calls the appropriate interrupt service routine."],
-    ["Name four resources the OS manages.", "Processor, main memory, secondary storage, I/O devices (also network, power)."],
-    ["Why is 'memory management' alone not an answer?", "The examiners require a description of what the management involves."]
+    ["Describe the OS's processor-management role.", "It allocates processor time / cores to processes, scheduling which runs when and for how long (time slices).", 9],
+    ["Describe the OS's memory-management role.", "It allocates RAM to processes, moves data between RAM and the paging file (virtual memory), and prevents processes writing outside their allocation.", 10],
+    ["Describe the OS's I/O-management role.", "It allocates I/O devices to processes, manages communication with them via drivers, and installs drivers for new devices.", 11],
+    ["Describe the OS's file-management role.", "It allocates space on storage devices, decides where files are saved, and organises them into directories.", 12],
+    ["What does 'the OS hides the complexity of the hardware' mean?", "It provides a virtual machine — a simplified interface so users and programs need not deal with the raw hardware.", 13],
+    ["How does the OS handle interrupts?", "When an interrupt occurs it saves the current state and calls the appropriate interrupt service routine.", 14],
+    ["Name four resources the OS manages.", "Processor, main memory, secondary storage, I/O devices (also network, power).", 15],
+    ["Why is 'memory management' alone not an answer?", "The examiners require a description of what the management involves.", 16]
   ],
   quiz: [
     { q: "Deciding which process runs next on the CPU is:", opts: ["memory management", "processor scheduling", "file management", "interrupt handling"], ans: 1, why: "Processor management described." },
@@ -159,14 +158,14 @@ X("compsci:4.6.2.1", {
     { callout: { t: "memorise", h: "Imperative (AS 2016, 2018; A-level 2024)", body: "Instructions are executed in a **programmer-defined order** / the program is a **sequence of commands** that **describe how** to solve the problem, changing the program's state. An imperative *high-level* language adds: English-like keywords, structured statements, local variables, parameters, named constants." }}
   ],
   flashcards: [
-    ["What is a low-level language?", "One close to the processor's instruction set — machine code (binary) or assembly language (mnemonics with a one-to-one mapping to machine code)."],
-    ["What is a high-level language?", "One with English-like keywords and structured statements, independent of any processor, that must be translated before execution."],
-    ["Give three advantages of a high-level language.", "Easier to read, write, maintain and debug; faster development; portable across hardware; built-in structures, data types and libraries."],
-    ["Give three advantages of assembly language.", "Translated code may run faster and use less memory; the programmer controls the exact machine code; direct manipulation of registers/hardware; no HLL translator needed for a bespoke chip."],
-    ["What does imperative mean?", "The program is a sequence of instructions executed in a programmer-defined order that describe how to solve the problem, changing the program's state."],
-    ["Why might assembly be chosen for an embedded controller?", "No compiler may exist for the bespoke chip; memory is limited so code must be compact; timing must be precise; direct hardware control is needed."],
-    ["Name the low-level language other than assembly.", "Machine code."],
-    ["What makes an imperative language high-level?", "English-like keywords, structured statements (loops, selection), support for local variables, parameters and named constants."]
+    ["What is a low-level language?", "One close to the processor's instruction set — machine code (binary) or assembly language (mnemonics with a one-to-one mapping to machine code).", 10],
+    ["What is a high-level language?", "One with English-like keywords and structured statements, independent of any processor, that must be translated before execution.", 11],
+    ["Give three advantages of a high-level language.", "Easier to read, write, maintain and debug; faster development; portable across hardware; built-in structures, data types and libraries.", 12],
+    ["Give three advantages of assembly language.", "Translated code may run faster and use less memory; the programmer controls the exact machine code; direct manipulation of registers/hardware; no HLL translator needed for a bespoke chip.", 13],
+    ["What does imperative mean?", "The program is a sequence of instructions executed in a programmer-defined order that describe how to solve the problem, changing the program's state.", 14],
+    ["Why might assembly be chosen for an embedded controller?", "No compiler may exist for the bespoke chip; memory is limited so code must be compact; timing must be precise; direct hardware control is needed.", 15],
+    ["Name the low-level language other than assembly.", "Machine code.", 16],
+    ["What makes an imperative language high-level?", "English-like keywords, structured statements (loops, selection), support for local variables, parameters and named constants.", 17]
   ],
   quiz: [
     { q: "'Assembly runs faster because it needs no translation' is:", opts: ["accepted", "rejected — speed comes from tighter code, not from skipping translation", "true for compilers", "worth 2 marks"], ans: 1, why: "Mark-scheme TO/R." },
@@ -209,14 +208,13 @@ X("compsci:4.6.3.1", {
     ]}
   ],
   flashcards: [
-    ["State three differences between a compiler and an interpreter.", "Compiler translates the whole program and produces object code; interpreter translates and executes line by line producing none. A compiler produces no executable on error; an interpreter runs until the first error. Compiled code runs faster and needs no translator afterwards; interpreted code needs the interpreter every run."],
-    ["What does an assembler do?", "Translates assembly language mnemonics into machine code, one instruction to one instruction."],
-    ["Difference between an assembler and a compiler?", "Both produce object code, but an assembler takes simple mnemonics (one-to-one) while a compiler takes complex HLL statements each producing many machine instructions."],
-    ["Why do some compilers produce bytecode rather than machine code?", "So the program is platform-independent — it can run on any machine with the appropriate virtual machine."],
-    ["How is bytecode executed?", "A virtual machine interprets it instruction by instruction, or just-in-time compiles it to native machine code before running it."],
-    ["Advantage of interpreters during development?", "Errors are reported as they are reached and code can be tested immediately without a full compile; partially correct programs run."],
-    ["Why must a processor's instructions be translated at all?", "A processor can execute only machine code; high-level instructions are not machine code."],
-    ["Which translator is needed to run a compiled program on a customer's machine?", "None — the executable runs directly (given the same processor type)."]
+    ["State three differences between a compiler and an interpreter.", "Compiler translates the whole program and produces object code; interpreter translates and executes line by line producing none. A compiler produces no executable on error; an interpreter runs until the first error. Compiled code runs faster and needs no translator afterwards; interpreted code needs the interpreter every run.", 11],
+    ["What does an assembler do?", "Translates assembly language mnemonics into machine code, one instruction to one instruction.", 12],
+    ["Difference between an assembler and a compiler?", "Both produce object code, but an assembler takes simple mnemonics (one-to-one) while a compiler takes complex HLL statements each producing many machine instructions.", 13],
+    ["Why do some compilers produce bytecode rather than machine code?", "So the program is platform-independent — it can run on any machine with the appropriate virtual machine.", 14],
+    ["How is bytecode executed?", "A virtual machine interprets it instruction by instruction, or just-in-time compiles it to native machine code before running it.", 15],
+    ["Advantage of interpreters during development?", "Errors are reported as they are reached and code can be tested immediately without a full compile; partially correct programs run.", 16],
+    ["Which translator is needed to run a compiled program on a customer's machine?", "None — the executable runs directly (given the same processor type).", 18]
   ],
   quiz: [
     { q: "A compiler that finds a syntax error will:", opts: ["run up to the error", "produce no executable", "fix it", "ignore it"], ans: 1, why: "Whole-program translation." },
@@ -255,16 +253,13 @@ X("compsci:4.6.4.1", {
     ]}}
   ],
   flashcards: [
-    ["Give the truth table of NAND.", "Output 0 only when both inputs are 1; otherwise 1."],
-    ["Give the truth table of NOR.", "Output 1 only when both inputs are 0."],
-    ["Give the truth table of XOR.", "Output 1 when the inputs are different."],
-    ["What does a half adder do and how is it built?", "Adds two bits: Sum = A XOR B, Carry = A AND B."],
-    ["What does a full adder do?", "Adds three bits (A, B and carry-in), producing a sum and carry-out — built from two half adders and an OR."],
-    ["What is a D-type flip-flop?", "A one-bit memory: on the clock pulse the output Q takes the value of the D input and holds it until the next pulse."],
-    ["What is the clock input for?", "It triggers the flip-flop to store the current D value, synchronising groups of flip-flops."],
-    ["Express XOR using AND, OR and NOT.", "A.¬B + ¬A.B."],
-    ["What is edge-triggering?", "The flip-flop responds only at the rising (or falling) edge of the clock, not while the clock is simply high."],
-    ["Why are flip-flops important?", "They are the building blocks of registers and memory in a processor."]
+    ["What does a half adder do and how is it built?", "Adds two bits: Sum = A XOR B, Carry = A AND B.", 18],
+    ["What does a full adder do?", "Adds three bits (A, B and carry-in), producing a sum and carry-out — built from two half adders and an OR.", 19],
+    ["What is a D-type flip-flop?", "A one-bit memory: on the clock pulse the output Q takes the value of the D input and holds it until the next pulse.", 20],
+    ["What is the clock input for?", "It triggers the flip-flop to store the current D value, synchronising groups of flip-flops.", 21],
+    ["Express XOR using AND, OR and NOT.", "A.¬B + ¬A.B.", 22],
+    ["What is edge-triggering?", "The flip-flop responds only at the rising (or falling) edge of the clock, not while the clock is simply high.", 23],
+    ["Why are flip-flops important?", "They are the building blocks of registers and memory in a processor.", 24]
   ],
   quiz: [
     { q: "Truth table: 00→1, 01→1, 10→1, 11→0. The gate is:", opts: ["AND", "NAND", "OR", "NOR"], ans: 1, why: "NOT AND." },
@@ -310,16 +305,14 @@ X("compsci:4.6.5.1", {
     { callout: { t: "tip", body: "Push NOT bars inwards with De Morgan **first**, cancel double NOTs, expand, then look for X + X.Y and X + ¬X patterns. Check the answer against a truth table row if time allows." }}
   ],
   flashcards: [
-    ["State De Morgan's laws.", "¬(A + B) = ¬A . ¬B and ¬(A . B) = ¬A + ¬B."],
-    ["Simplify A + A.B.", "A (absorption)."],
-    ["Simplify A . (A + B).", "A (absorption)."],
-    ["Simplify A + ¬A.B.", "A + B."],
-    ["Simplify (A + B) . (B + C.(D + ¬D)).", "= (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C."],
-    ["Simplify ¬(¬(¬B . A) . ¬B) + A.B.", "De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem."],
-    ["Why does A . ¬A = 0?", "One of A and ¬A is always 0, and an AND gate outputs 1 only when both inputs are 1."],
-    ["What is the distributive law?", "A . (B + C) = A.B + A.C, and dually A + B.C = (A + B).(A + C)."],
-    ["Simplify A.B + A.¬B.", "A (factor A out: A.(B + ¬B) = A.1)."],
-    ["Simplify ¬(A + B) . ¬(C.D).", "¬A . ¬B . (¬C + ¬D)."]
+    ["State De Morgan's laws.", "¬(A + B) = ¬A . ¬B and ¬(A . B) = ¬A + ¬B.", 13],
+    ["Simplify A + ¬A.B.", "A + B.", 16],
+    ["Simplify (A + B) . (B + C.(D + ¬D)).", "= (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.", 17],
+    ["Simplify ¬(¬(¬B . A) . ¬B) + A.B.", "De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem.", 18],
+    ["Why does A . ¬A = 0?", "One of A and ¬A is always 0, and an AND gate outputs 1 only when both inputs are 1.", 19],
+    ["What is the distributive law?", "A . (B + C) = A.B + A.C, and dually A + B.C = (A + B).(A + C).", 20],
+    ["Simplify A.B + A.¬B.", "A (factor A out: A.(B + ¬B) = A.1).", 21],
+    ["Simplify ¬(A + B) . ¬(C.D).", "¬A . ¬B . (¬C + ¬D).", 22]
   ],
   quiz: [
     { q: "¬(A . B) equals:", opts: ["¬A . ¬B", "¬A + ¬B", "A + B", "¬A"], ans: 1, why: "De Morgan." },

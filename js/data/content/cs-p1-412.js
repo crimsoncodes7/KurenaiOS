@@ -142,9 +142,7 @@ C["compsci:4.1.2.1"] = {
     ["Object-oriented paradigm?", "Programs are sets of interacting objects, each encapsulating its data with the methods that act on it."],
     ["Procedural decomposition?", "Breaking a problem into smaller sub-problems, each solving an identifiable task, each possibly subdivided further."],
     ["Why is OOP favoured for large systems?", "Encapsulation hides representations, so classes can change without breaking others; inheritance/composition give reuse."],
-    ["Procedural composition?", "Combining subroutines to form a compound subroutine."],
-    ["Data composition?", "Combining data objects to form compound data (records, arrays of records)."],
-    ["Two other paradigms on the A-level?", "Functional (4.12) and declarative (SQL, 4.10.4)."]
+    ["Two other paradigms on the A-level?", "Functional (4.12) and declarative (SQL, 4.10.4).", 7]
   ],
   quiz: [
     { q: "Which is a characteristic of the object-oriented paradigm?", opts: ["data and methods are encapsulated in objects", "all data is global", "programs have no subroutines", "programs describe only the result wanted"], ans: 0, why: "Encapsulation." },
@@ -261,12 +259,11 @@ C["compsci:4.1.2.2"] = {
     ["Structured approach?", "Top-down design: decompose into subroutines built from sequence, selection and iteration, using locals and parameters."],
     ["Decomposition?", "Breaking a problem into sub-problems, each accomplishing an identifiable task, decomposed further if needed."],
     ["Stepwise refinement?", "Repeatedly adding detail to each part of a design until it can be coded."],
-    ["Hierarchy chart — purpose?", "Shows the structure of a program: which subroutine is called from which."],
-    ["Hierarchy chart — a box?", "A subroutine (procedure/function/method/module)."],
-    ["When is a hierarchy chart drawn?", "During the design stage."],
-    ["Does a hierarchy chart show loops or decisions?", "No — only the structure of calls."],
-    ["Three advantages of the structured approach?", "Overview/easier to understand; reuse; modules tested independently (also team working, maintenance)."],
-    ["The three control structures?", "Sequence, selection, iteration."]
+    ["Hierarchy chart — a box?", "A subroutine (procedure/function/method/module).", 4],
+    ["When is a hierarchy chart drawn?", "During the design stage.", 5],
+    ["Does a hierarchy chart show loops or decisions?", "No — only the structure of calls.", 6],
+    ["Three advantages of the structured approach?", "Overview/easier to understand; reuse; modules tested independently (also team working, maintenance).", 7],
+    ["The three control structures?", "Sequence, selection, iteration.", 8]
   ],
   quiz: [
     { q: "A box in a hierarchy chart represents", opts: ["a subroutine", "a variable", "a decision", "a loop"], ans: 0, why: "AS 2025 Q10.1." },

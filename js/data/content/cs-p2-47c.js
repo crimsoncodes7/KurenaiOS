@@ -151,16 +151,13 @@ C["compsci:4.7.3.7"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.1.1 bus widths; 4.7.3.2 the F-E cycle (the 2023 essay); 4.7.4.2 SSD vs HDD; 4.9 network bandwidth; 4.10 indexing and concurrency; 4.6.3.1 compiled vs interpreted speed; 4.12 functional programming and parallelism; 4.11 distributing data across servers." } }
   ],
   flashcards: [
-    ["Effect of a higher clock speed?", "More instructions executed per second."],
-    ["Effect of more cores?", "Several instructions/processes executed simultaneously — if the task can be parallelised."],
-    ["What is cache memory?", "Small, very fast memory on/near the processor holding frequently/recently used instructions and data."],
-    ["Why does more cache help?", "Higher probability of a cache hit — fewer slow main-memory fetches."],
-    ["Effect of a longer word length?", "More bits processed in one operation."],
-    ["Effect of a wider data bus?", "More bits transferred at once — fewer transfers."],
-    ["Effect of a wider address bus?", "More memory addressable, so more RAM can be fitted (less virtual memory)."],
-    ["When does a fast single core beat a slower multi-core?", "For sequential tasks that cannot be split."],
-    ["Cache hit vs miss?", "Item found in cache vs must be fetched from main memory."],
-    ["Name three areas to improve a slow database server.", "Server hardware, the network, the database/software design."]
+    ["Effect of more cores?", "Several instructions/processes executed simultaneously — if the task can be parallelised.", 1],
+    ["Why does more cache help?", "Higher probability of a cache hit — fewer slow main-memory fetches.", 3],
+    ["Effect of a wider data bus?", "More bits transferred at once — fewer transfers.", 5],
+    ["Effect of a wider address bus?", "More memory addressable, so more RAM can be fitted (less virtual memory).", 6],
+    ["When does a fast single core beat a slower multi-core?", "For sequential tasks that cannot be split.", 7],
+    ["Cache hit vs miss?", "Item found in cache vs must be fetched from main memory.", 8],
+    ["Name three areas to improve a slow database server.", "Server hardware, the network, the database/software design.", 9]
   ],
   quiz: [
     { q: "More cores help most when", opts: ["the task can be split into parallel parts", "the task is strictly sequential", "the clock is slow", "cache is small"], ans: 0, why: "Parallelism." },
@@ -365,15 +362,10 @@ C["compsci:4.7.4.1"] = {
   ],
   flashcards: [
     ["How does a barcode reader work?", "Light shone on the code; dark bars reflect less than light ones; a sensor measures reflection; pattern decoded."],
-    ["How is a passive RFID tag read?", "Reader emits radio waves; they induce power in the tag; the tag transmits its data back by radio."],
-    ["Passive vs active RFID?", "No battery, short range, cheap vs own battery, long range, dearer."],
-    ["Two advantages of RFID over barcodes?", "No line of sight; many read at once; at a distance; durable."],
-    ["Two advantages of barcodes over RFID?", "Much cheaper; readable by existing scanners; human-readable backup."],
-    ["Digital camera principle?", "Sensor cells (CCD/CMOS) give voltages proportional to light; RGB filters; ADC converts to binary."],
-    ["Laser printer stages?", "Bitmap; charge drum; laser discharges image; toner sticks; transfer to paper; fuse with heat."],
-    ["Where is the laser directed?", "At the photosensitive drum (via a rotating mirror)."],
-    ["Why is a laser printer good for an office?", "Fast, low cost per page, toner doesn't dry out."],
-    ["Why passive tags in passports?", "Short range makes interception harder; no battery to expire."]
+    ["Passive vs active RFID?", "No battery, short range, cheap vs own battery, long range, dearer.", 2],
+    ["Digital camera principle?", "Sensor cells (CCD/CMOS) give voltages proportional to light; RGB filters; ADC converts to binary.", 5],
+    ["Laser printer stages?", "Bitmap; charge drum; laser discharges image; toner sticks; transfer to paper; fuse with heat.", 6],
+    ["Where is the laser directed?", "At the photosensitive drum (via a rotating mirror).", 7],
   ],
   quiz: [
     { q: "A passive RFID tag is powered by", opts: ["radio waves from the reader", "its own battery", "light", "the mains"], ans: 0, why: "Induced current." },
@@ -584,18 +576,17 @@ C["compsci:4.7.4.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.2.1 programs load from secondary storage into main memory; 4.6.1.3 defragmentation; 4.6.1.4 the OS allocates disk space to files; 4.7.3.7 SSDs in performance essays; 4.9.3.1 TCP/IP (the 2024 essay); 4.8.1 the ethics halves; 4.11 Big Data distributed across many drives." } }
   ],
   flashcards: [
-    ["Why is secondary storage needed?", "To keep data/programs when the power is off (RAM is volatile); capacity beyond RAM; transfer."],
-    ["How does an HDD store a bit?", "A region of magnetisable coating magnetised one way or the other."],
-    ["HDD access time is…", "seek time (head to the track) + rotational delay (sector under the head)."],
-    ["How is data stored on an optical disk?", "Pits and lands on a spiral track; a transition = 1."],
-    ["How is an optical disk read?", "Low-power laser focused on the track; reflected light measured by a photodiode."],
-    ["Optical disk speed?", "Constant linear velocity (variable angular speed)."],
-    ["How does an SSD store a bit?", "Trapped (or absent) electrons in a floating-gate transistor."],
-    ["SSD write rule?", "Pages written whole; a block must be erased before rewriting."],
-    ["Role of the SSD controller?", "Manages data organisation and reading/writing (mapping, wear levelling)."],
-    ["Two SSD advantages over HDD?", "Faster access; lower power; shock-resistant; silent; smaller."],
-    ["Two HDD advantages over SSD?", "Cheaper per GB; higher capacities; no write-cycle wear."],
-    ["Why have both an SSD and an HDD?", "SSD for fast access to the OS/apps; HDD for cheap bulk capacity."]
+    ["How does an HDD store a bit?", "A region of magnetisable coating magnetised one way or the other.", 1],
+    ["HDD access time is…", "seek time (head to the track) + rotational delay (sector under the head).", 2],
+    ["How is data stored on an optical disk?", "Pits and lands on a spiral track; a transition = 1.", 3],
+    ["How is an optical disk read?", "Low-power laser focused on the track; reflected light measured by a photodiode.", 4],
+    ["Optical disk speed?", "Constant linear velocity (variable angular speed).", 5],
+    ["How does an SSD store a bit?", "Trapped (or absent) electrons in a floating-gate transistor.", 6],
+    ["SSD write rule?", "Pages written whole; a block must be erased before rewriting.", 7],
+    ["Role of the SSD controller?", "Manages data organisation and reading/writing (mapping, wear levelling).", 8],
+    ["Two SSD advantages over HDD?", "Faster access; lower power; shock-resistant; silent; smaller.", 9],
+    ["Two HDD advantages over SSD?", "Cheaper per GB; higher capacities; no write-cycle wear.", 10],
+    ["Why have both an SSD and an HDD?", "SSD for fast access to the OS/apps; HDD for cheap bulk capacity.", 11]
   ],
   quiz: [
     { q: "An SSD stores bits as", opts: ["trapped charge in floating-gate transistors", "magnetised regions", "pits and lands", "capacitors needing refresh"], ans: 0, why: "NAND flash." },

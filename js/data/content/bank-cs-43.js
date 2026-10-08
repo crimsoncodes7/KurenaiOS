@@ -12,14 +12,14 @@ X("compsci:4.3.1.1", {
     { callout: { t: "memorise", body: "DFS uses a **stack** (or recursion) and goes as deep as possible before backtracking; BFS uses a **queue** and visits all neighbours of a node before moving outward — BFS finds the shortest path in an *unweighted* graph." }}
   ],
   flashcards: [
-    ["Which data structure does depth-first search use?", "A stack — explicitly, or implicitly through recursion."],
-    ["Which data structure does breadth-first search use?", "A queue of discovered-but-unvisited vertices."],
-    ["Give a use of BFS that DFS cannot guarantee.", "Finding the shortest path (fewest edges) between two vertices in an unweighted graph."],
-    ["Give two uses of DFS.", "Detecting cycles, checking whether a path exists, topological sorting, navigating a maze / backtracking."],
-    ["How does a DFS avoid revisiting nodes?", "A Visited array/set — a node is marked when first reached and never processed again."],
-    ["What is the base case of a recursive path-finding traversal?", "The current node is the target, or the node has no unvisited neighbours."],
-    ["In a DFS, when does backtracking happen?", "When the current node has no unvisited neighbours — the recursion returns (the stack pops) to the previous node."],
-    ["Why does a traversal need Visited flags in a graph but not in a tree?", "Graphs may contain cycles; without the flags the traversal would loop forever."]
+    ["Which data structure does depth-first search use?", "A stack — explicitly, or implicitly through recursion.", 9],
+    ["Which data structure does breadth-first search use?", "A queue of discovered-but-unvisited vertices.", 10],
+    ["Give a use of BFS that DFS cannot guarantee.", "Finding the shortest path (fewest edges) between two vertices in an unweighted graph.", 11],
+    ["Give two uses of DFS.", "Detecting cycles, checking whether a path exists, topological sorting, navigating a maze / backtracking.", 12],
+    ["How does a DFS avoid revisiting nodes?", "A Visited array/set — a node is marked when first reached and never processed again.", 13],
+    ["What is the base case of a recursive path-finding traversal?", "The current node is the target, or the node has no unvisited neighbours.", 14],
+    ["In a DFS, when does backtracking happen?", "When the current node has no unvisited neighbours — the recursion returns (the stack pops) to the previous node.", 15],
+    ["Why does a traversal need Visited flags in a graph but not in a tree?", "Graphs may contain cycles; without the flags the traversal would loop forever.", 16]
   ],
   quiz: [
     { q: "A recursive routine that marks a node visited then immediately recurses into each unvisited neighbour is:", opts: ["breadth-first", "depth-first", "Dijkstra's", "bubble sort"], ans: 1, why: "Recursion before finishing the neighbour list = DFS." },
@@ -52,14 +52,14 @@ X("compsci:4.3.2.1", {
     { callout: { t: "memorise", h: "Which traversal for what", body: "**Pre-order** (node, L, R) copies a tree / prefix expressions. **In-order** (L, node, R) outputs a BST in ascending order / infix. **Post-order** (L, R, node) deletes a tree safely / evaluates postfix (RPN). The name says *where the node is visited relative to its children*." }}
   ],
   flashcards: [
-    ["Define pre-order traversal.", "Visit the node, then traverse the left subtree, then the right subtree."],
-    ["Define in-order traversal.", "Traverse the left subtree, visit the node, then traverse the right subtree."],
-    ["Define post-order traversal.", "Traverse the left subtree, then the right subtree, then visit the node."],
-    ["Which traversal outputs a BST in ascending order?", "In-order."],
-    ["Which traversal produces Reverse Polish from an expression tree?", "Post-order."],
-    ["Which traversal is used to copy a tree?", "Pre-order — the root is created before its children."],
-    ["How do you reverse the output order of a traversal?", "Swap the order in which the left and right subtrees are processed (right before left)."],
-    ["What does the stack hold during an iterative in-order traversal?", "The nodes whose right subtrees are still to be processed — the path back up the tree."]
+    ["Define pre-order traversal.", "Visit the node, then traverse the left subtree, then the right subtree.", 9],
+    ["Define in-order traversal.", "Traverse the left subtree, visit the node, then traverse the right subtree.", 10],
+    ["Define post-order traversal.", "Traverse the left subtree, then the right subtree, then visit the node.", 11],
+    ["Which traversal outputs a BST in ascending order?", "In-order.", 12],
+    ["Which traversal produces Reverse Polish from an expression tree?", "Post-order.", 13],
+    ["Which traversal is used to copy a tree?", "Pre-order — the root is created before its children.", 14],
+    ["How do you reverse the output order of a traversal?", "Swap the order in which the left and right subtrees are processed (right before left).", 15],
+    ["What does the stack hold during an iterative in-order traversal?", "The nodes whose right subtrees are still to be processed — the path back up the tree.", 16]
   ],
   quiz: [
     { q: "Tree: root 8, left 3 (children 1, 6), right 10 (right child 14). In-order output is:", opts: ["8 3 1 6 10 14", "1 3 6 8 10 14", "1 6 3 14 10 8", "8 10 14 3 6 1"], ans: 1, why: "Left, node, right — ascending for a BST." },
@@ -99,14 +99,12 @@ X("compsci:4.3.3.1", {
     { callout: { t: "tip", body: "Converting: bracket the infix expression fully according to precedence, then move each operator to just after its right operand and drop the brackets. `(3 + (4 × 2)) − 1` → `3 4 2 × + 1 −`." }}
   ],
   flashcards: [
-    ["Convert `5 − 3` to RPN.", "5 3 −"],
-    ["Convert `3 + 4 × 2 − 1` to RPN.", "3 4 2 × + 1 −"],
-    ["Convert `(7 + 2) × 3` to RPN.", "7 2 + 3 ×"],
-    ["Convert `5 2 3 × + 4 +` back to infix.", "5 + 2 × 3 + 4 (= 15)."],
-    ["Give two reasons RPN is used instead of infix.", "Simpler for a machine to evaluate; no brackets or precedence rules needed; operators appear in the order of computation."],
-    ["Evaluate `4 6 + 2 /`.", "(4 + 6) / 2 = 5."],
-    ["Why is RPN natural for a stack machine?", "Each operator applies to the two most recently pushed values — exactly what pop, pop, push provides."],
-    ["What is another name for RPN?", "Postfix notation (operators after their operands); infix has them between, prefix before."]
+    ["Convert `(7 + 2) × 3` to RPN.", "7 2 + 3 ×", 12],
+    ["Convert `5 2 3 × + 4 +` back to infix.", "5 + 2 × 3 + 4 (= 15).", 13],
+    ["Give two reasons RPN is used instead of infix.", "Simpler for a machine to evaluate; no brackets or precedence rules needed; operators appear in the order of computation.", 14],
+    ["Evaluate `4 6 + 2 /`.", "(4 + 6) / 2 = 5.", 15],
+    ["Why is RPN natural for a stack machine?", "Each operator applies to the two most recently pushed values — exactly what pop, pop, push provides.", 16],
+    ["What is another name for RPN?", "Postfix notation (operators after their operands); infix has them between, prefix before.", 17]
   ],
   quiz: [
     { q: "`8 2 − 3 ×` evaluates to:", opts: ["2", "18", "−16", "6"], ans: 1, why: "(8 − 2) × 3 = 18." },
@@ -138,14 +136,13 @@ X("compsci:4.3.4.1", {
     { callout: { t: "tip", body: "A trace of a search that uses a `Found` flag: show the flag column, the index column and the comparison result column separately — each is marked as a set of values in sequence, so a slip in one column need not cost the others." }}
   ],
   flashcards: [
-    ["Describe linear search.", "Examine each item in turn from the first, comparing with the target, until it is found or the end of the list is reached."],
-    ["Time complexity of linear search?", "O(n) — in the worst case every one of the n items is compared."],
-    ["Advantage of linear search over binary search?", "It works on an unsorted list (and needs no random access)."],
-    ["Best case for linear search?", "The target is the first item — one comparison, O(1)."],
-    ["Average comparisons for a successful linear search of n items?", "About n/2."],
-    ["How does a linear search report 'not found'?", "It reaches the end of the list without a match — typically a Found flag stays FALSE or the index equals the length."],
-    ["When is linear search the better practical choice?", "Small lists, unsorted data, or when the data is searched only once so sorting would cost more than it saves."],
-    ["Why does the loop condition need both 'not found' and 'index < length'?", "To stop early when the target is found, and to avoid running off the end when it is absent."]
+    ["Describe linear search.", "Examine each item in turn from the first, comparing with the target, until it is found or the end of the list is reached.", 8],
+    ["Time complexity of linear search?", "O(n) — in the worst case every one of the n items is compared.", 9],
+    ["Advantage of linear search over binary search?", "It works on an unsorted list (and needs no random access).", 10],
+    ["Best case for linear search?", "The target is the first item — one comparison, O(1).", 11],
+    ["How does a linear search report 'not found'?", "It reaches the end of the list without a match — typically a Found flag stays FALSE or the index equals the length.", 13],
+    ["When is linear search the better practical choice?", "Small lists, unsorted data, or when the data is searched only once so sorting would cost more than it saves.", 14],
+    ["Why does the loop condition need both 'not found' and 'index < length'?", "To stop early when the target is found, and to avoid running off the end when it is absent.", 15]
   ],
   quiz: [
     { q: "Linear search on 1000 unsorted items, target absent, makes how many comparisons?", opts: ["1", "10", "500", "1000"], ans: 3, why: "Every item must be examined." },
@@ -177,14 +174,14 @@ X("compsci:4.3.4.2", {
     { callout: { t: "tip", body: "When tracing, write `Mid ← (Low + High) DIV 2` explicitly each step and show which bound moves. Examiners accept either `Low ← Mid + 1` or `High ← Mid − 1` conventions but not a bound that stays put." }}
   ],
   flashcards: [
-    ["Describe binary search.", "Compare the target with the middle item of a sorted list; if equal, found; if smaller, repeat on the left half; if larger, on the right half; until found or the range is empty."],
-    ["Time complexity of binary search?", "O(log n) — each comparison halves the remaining list."],
-    ["Precondition for binary search?", "The list must be sorted (and allow direct access by index)."],
-    ["Maximum comparisons for 1000 items?", "About 10 (2^10 = 1024)."],
-    ["If the list doubles, how many more comparisons are needed in the worst case?", "One."],
-    ["How is the middle index calculated?", "Mid ← (Low + High) DIV 2."],
-    ["When does the search conclude 'not found'?", "When Low > High — the range is empty."],
-    ["Why is binary search unsuitable for a linked list?", "It needs direct access to the middle item; a linked list must be traversed, losing the O(log n) benefit."]
+    ["Describe binary search.", "Compare the target with the middle item of a sorted list; if equal, found; if smaller, repeat on the left half; if larger, on the right half; until found or the range is empty.", 9],
+    ["Time complexity of binary search?", "O(log n) — each comparison halves the remaining list.", 10],
+    ["Precondition for binary search?", "The list must be sorted (and allow direct access by index).", 11],
+    ["Maximum comparisons for 1000 items?", "About 10 (2^10 = 1024).", 12],
+    ["If the list doubles, how many more comparisons are needed in the worst case?", "One.", 13],
+    ["How is the middle index calculated?", "Mid ← (Low + High) DIV 2.", 14],
+    ["When does the search conclude 'not found'?", "When Low > High — the range is empty.", 15],
+    ["Why is binary search unsuitable for a linked list?", "It needs direct access to the middle item; a linked list must be traversed, losing the O(log n) benefit.", 16]
   ],
   quiz: [
     { q: "Binary search on 64 sorted items needs at most how many comparisons?", opts: ["6", "7", "32", "64"], ans: 1, why: "⌈log₂64⌉ + 1 = 7 in the standard implementation (6 halvings then a final check)." },
@@ -210,14 +207,14 @@ X("compsci:4.3.4.2", {
 
 X("compsci:4.3.4.3", {
   flashcards: [
-    ["Describe binary tree search.", "Start at the root; if the target equals the node's value, found; if smaller, move to the left child; if larger, to the right child; repeat until found or a null pointer is reached."],
-    ["Time complexity of binary tree search?", "O(log₂ n) for a balanced tree — each comparison halves the part of the tree to look at."],
-    ["Worst case for a binary tree search?", "An unbalanced (chain-like) tree degrades to O(n)."],
-    ["How does binary tree search differ from binary search of an array?", "Same halving idea, but navigation is by child pointers rather than by index arithmetic."],
-    ["What ends an unsuccessful search?", "Reaching a null child pointer (−1 / 0 in an array-of-records implementation)."],
-    ["Why are BSTs good for data that changes often?", "Insert and delete are O(log n) without shifting other items, unlike a sorted array."],
-    ["What must be true for the search to work?", "The tree must be a binary SEARCH tree: left subtree values smaller, right subtree values larger, at every node."],
-    ["Which traversal finds all values in a range in a BST?", "In-order, pruning subtrees outside the range."]
+    ["Describe binary tree search.", "Start at the root; if the target equals the node's value, found; if smaller, move to the left child; if larger, to the right child; repeat until found or a null pointer is reached.", 8],
+    ["Time complexity of binary tree search?", "O(log₂ n) for a balanced tree — each comparison halves the part of the tree to look at.", 9],
+    ["Worst case for a binary tree search?", "An unbalanced (chain-like) tree degrades to O(n).", 10],
+    ["How does binary tree search differ from binary search of an array?", "Same halving idea, but navigation is by child pointers rather than by index arithmetic.", 11],
+    ["What ends an unsuccessful search?", "Reaching a null child pointer (−1 / 0 in an array-of-records implementation).", 12],
+    ["Why are BSTs good for data that changes often?", "Insert and delete are O(log n) without shifting other items, unlike a sorted array.", 13],
+    ["What must be true for the search to work?", "The tree must be a binary SEARCH tree: left subtree values smaller, right subtree values larger, at every node.", 14],
+    ["Which traversal finds all values in a range in a BST?", "In-order, pruning subtrees outside the range.", 15]
   ],
   quiz: [
     { q: "Searching a BST with root 50 for 30 first moves to:", opts: ["the right child", "the left child", "a leaf", "the parent"], ans: 1, why: "30 < 50 → left." },
@@ -253,14 +250,14 @@ X("compsci:4.3.5.1", {
     { callout: { t: "warn", body: "\"Bubble sort and merge sort are both polynomial\" (2025): the accepted reasoning is that as the list grows the increase in time is *reasonable* — neither is exponential. Do not claim bubble sort is efficient." }}
   ],
   flashcards: [
-    ["Describe one pass of bubble sort.", "Compare each adjacent pair from the start; swap if out of order; the largest unsorted item 'bubbles' to the end."],
-    ["Time complexity of bubble sort?", "O(n²) — up to n passes, each examining n items."],
-    ["How many passes guarantee that n items are sorted?", "n − 1."],
-    ["Describe the swap-flag optimisation.", "Reset a flag at the start of each pass; set it when a swap occurs; stop the outer loop when a whole pass makes no swap."],
-    ["Describe the shrinking-range optimisation.", "After each pass the last item is in place, so reduce the inner loop's upper limit by one each pass."],
-    ["Best case of bubble sort with the swap flag?", "An already sorted list — one pass, O(n)."],
-    ["Why is bubble sort rarely used in practice?", "Quadratic time — for large n, merge sort (O(n log n)) is dramatically faster."],
-    ["What is the state of [5, 1, 4, 2] after one pass?", "[1, 4, 2, 5]."]
+    ["Describe one pass of bubble sort.", "Compare each adjacent pair from the start; swap if out of order; the largest unsorted item 'bubbles' to the end.", 10],
+    ["Time complexity of bubble sort?", "O(n²) — up to n passes, each examining n items.", 11],
+    ["How many passes guarantee that n items are sorted?", "n − 1.", 12],
+    ["Describe the swap-flag optimisation.", "Reset a flag at the start of each pass; set it when a swap occurs; stop the outer loop when a whole pass makes no swap.", 13],
+    ["Describe the shrinking-range optimisation.", "After each pass the last item is in place, so reduce the inner loop's upper limit by one each pass.", 14],
+    ["Best case of bubble sort with the swap flag?", "An already sorted list — one pass, O(n).", 15],
+    ["Why is bubble sort rarely used in practice?", "Quadratic time — for large n, merge sort (O(n log n)) is dramatically faster.", 16],
+    ["What is the state of [5, 1, 4, 2] after one pass?", "[1, 4, 2, 5].", 17]
   ],
   quiz: [
     { q: "After the first pass of bubble sort on [4, 2, 5, 1, 3] the list is:", opts: ["[2, 4, 1, 3, 5]", "[1, 2, 3, 4, 5]", "[4, 2, 5, 1, 3]", "[2, 4, 5, 1, 3]"], ans: 0, why: "5 bubbles to the end; the rest shift by adjacent swaps." },
@@ -291,14 +288,14 @@ X("compsci:4.3.5.2", {
     { callout: { t: "memorise", body: "Why `O(n log n)`: there are log₂ n levels of splitting, and merging at every level touches all n items once." }}
   ],
   flashcards: [
-    ["Describe merge sort.", "Split the list in half repeatedly until each sub-list has one item; then merge pairs of sub-lists into sorted lists by repeatedly taking the smaller front item, until one sorted list remains."],
-    ["Time complexity of merge sort?", "O(n log n) — log n levels of splitting, n work per level to merge."],
-    ["How are two sorted lists merged?", "Compare the front items, move the smaller to the output, repeat; when one list is exhausted append the rest of the other."],
-    ["Why is merge sort called divide and conquer?", "It divides the problem into halves, solves each recursively and combines (conquers) the results."],
-    ["Space cost of merge sort?", "O(n) extra memory for the merged lists (bubble sort is in place)."],
-    ["Merge sort's best and worst cases?", "Both O(n log n) — the work is the same regardless of initial order."],
-    ["How many levels of splitting for 16 items?", "4 (16 → 8 → 4 → 2 → 1)."],
-    ["Which data structure suits merge sort well that bubble sort does not?", "Linked lists — merging by re-pointing nodes needs no random access."]
+    ["Describe merge sort.", "Split the list in half repeatedly until each sub-list has one item; then merge pairs of sub-lists into sorted lists by repeatedly taking the smaller front item, until one sorted list remains.", 9],
+    ["Time complexity of merge sort?", "O(n log n) — log n levels of splitting, n work per level to merge.", 10],
+    ["How are two sorted lists merged?", "Compare the front items, move the smaller to the output, repeat; when one list is exhausted append the rest of the other.", 11],
+    ["Why is merge sort called divide and conquer?", "It divides the problem into halves, solves each recursively and combines (conquers) the results.", 12],
+    ["Space cost of merge sort?", "O(n) extra memory for the merged lists (bubble sort is in place).", 13],
+    ["Merge sort's best and worst cases?", "Both O(n log n) — the work is the same regardless of initial order.", 14],
+    ["How many levels of splitting for 16 items?", "4 (16 → 8 → 4 → 2 → 1).", 15],
+    ["Which data structure suits merge sort well that bubble sort does not?", "Linked lists — merging by re-pointing nodes needs no random access.", 16]
   ],
   quiz: [
     { q: "A sort that repeatedly halves the list then combines sorted halves is:", opts: ["bubble sort", "merge sort", "binary search", "linear search"], ans: 1, why: "Divide and conquer sort." },
@@ -327,14 +324,14 @@ X("compsci:4.3.6.1", {
     { callout: { t: "tip", body: "The 2017 heuristic question: a **heuristic** finds a solution that *might not be the best*, using knowledge of the domain to cut the search space — e.g. A* visiting cells nearer the goal first." }}
   ],
   flashcards: [
-    ["State the purpose of Dijkstra's algorithm.", "To find the shortest (lowest-cost) path from a start node to every other node — or to a particular node — in a weighted graph."],
-    ["What does the distance array hold at the end?", "The shortest distance from the start node to each node."],
-    ["What is the predecessor array for?", "It stores the previous node on the shortest path to each node so the path itself can be recreated by working backwards."],
-    ["Can Dijkstra's algorithm be used on directed graphs? Unweighted graphs?", "Yes to both (treat unweighted edges as weight 1)."],
-    ["What restriction does Dijkstra's algorithm have?", "Edge weights must be non-negative."],
-    ["Which node is processed next at each step?", "The unvisited node with the smallest current distance (a priority queue)."],
-    ["What is a heuristic?", "A method of finding a solution that might not be the best, used to cut down the search space — e.g. A* preferring nodes nearer the goal."],
-    ["How does Dijkstra relate to BFS?", "BFS is the special case where all edges have equal weight; Dijkstra uses a priority queue instead of a plain queue."]
+    ["State the purpose of Dijkstra's algorithm.", "To find the shortest (lowest-cost) path from a start node to every other node — or to a particular node — in a weighted graph.", 10],
+    ["What does the distance array hold at the end?", "The shortest distance from the start node to each node.", 11],
+    ["What is the predecessor array for?", "It stores the previous node on the shortest path to each node so the path itself can be recreated by working backwards.", 12],
+    ["Can Dijkstra's algorithm be used on directed graphs? Unweighted graphs?", "Yes to both (treat unweighted edges as weight 1).", 13],
+    ["What restriction does Dijkstra's algorithm have?", "Edge weights must be non-negative.", 14],
+    ["Which node is processed next at each step?", "The unvisited node with the smallest current distance (a priority queue).", 15],
+    ["What is a heuristic?", "A method of finding a solution that might not be the best, used to cut down the search space — e.g. A* preferring nodes nearer the goal.", 16],
+    ["How does Dijkstra relate to BFS?", "BFS is the special case where all edges have equal weight; Dijkstra uses a priority queue instead of a plain queue.", 17]
   ],
   quiz: [
     { q: "The final distance array of Dijkstra's algorithm represents:", opts: ["the shortest route", "the shortest distance from the start to each node", "the number of edges", "the visiting order"], ans: 1, why: "'Shortest route' is what the predecessor array reconstructs." },

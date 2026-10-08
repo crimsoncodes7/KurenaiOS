@@ -172,10 +172,8 @@ C["compsci:4.2.2.1"] = {
     ["First step to remove an item?", "Check the queue is not empty."],
     ["Linear queue problem?", "Freed space at the front cannot be reused (or every item must shuffle up)."],
     ["Circular rear update (0-based)?", "rear ← (rear + 1) MOD maxSize."],
-    ["Priority queue insert?", "From the rear, move lower-priority items back one; insert behind the first item of same or higher priority."],
-    ["Why a size counter in a circular queue?", "Front and rear alone cannot tell empty from full."],
-    ["Reverse a queue with a stack?", "Dequeue everything onto the stack, then pop everything back into the queue."],
-    ["Uses of queues?", "Print/job queues, buffers, simulations, BFS, scheduling."]
+    ["Why a size counter in a circular queue?", "Front and rear alone cannot tell empty from full.", 7],
+    ["Uses of queues?", "Print/job queues, buffers, simulations, BFS, scheduling.", 9]
   ],
   quiz: [
     { q: "A queue is", opts: ["FIFO", "LIFO", "sorted", "random access"], ans: 0, why: "First in, first out." },
@@ -320,14 +318,11 @@ C["compsci:4.2.3.1"] = {
     ["Stack order?", "LIFO — last in, first out."],
     ["Push steps?", "Check not full; add 1 to Top; store the item at S[Top]."],
     ["Pop steps?", "Check not empty; return S[Top]; subtract 1 from Top."],
-    ["Peek?", "Returns the top item without removing it."],
-    ["Empty test with Top starting at −1?", "Top = −1."],
-    ["Full test for an array of size n?", "Top = n − 1."],
-    ["Pop on an empty stack?", "Stack underflow."],
-    ["Push on a full stack?", "Stack overflow."],
-    ["RPN with a stack?", "Push operands; at an operator pop two, apply, push the result; the final value is the answer."],
-    ["Undo/repeat with one stack?", "Push each action; undo pops the top; repeat peeks the top."],
-    ["5 2 7 + + =", "14."]
+    ["Empty test with Top starting at −1?", "Top = −1.", 4],
+    ["Full test for an array of size n?", "Top = n − 1.", 5],
+    ["Pop on an empty stack?", "Stack underflow.", 6],
+    ["Push on a full stack?", "Stack overflow.", 7],
+    ["5 2 7 + + =", "14.", 10]
   ],
   quiz: [
     { q: "Stack: Harry, Skye, Jib (Top = 2). Pop then Peek returns", opts: ["Skye", "Jib", "Harry", "nothing"], ans: 0, why: "Pop removes Jib." },

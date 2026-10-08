@@ -113,14 +113,10 @@ C["compsci:4.3.4.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.3.4.2 binary search; 4.4.4.1–4.4.4.3 Big-O and comparing algorithms; 4.2.1.4 linked lists (sequential access only); 4.2.6.1 hash tables avoid searching altogether." } }
   ],
   flashcards: [
-    ["Linear search?", "Check each item in turn from the start until the target is found or the list ends."],
-    ["Time complexity of linear search?", "O(n)."],
-    ["Why O(n)?", "The maximum number of comparisons grows at the same rate as the list size."],
-    ["Best case?", "1 comparison — the target is first."],
-    ["Worst case?", "n comparisons — the target is last or absent."],
-    ["Advantage over binary search?", "Works on unsorted data (and linked lists)."],
-    ["Linear search returns for a missing item?", "A rogue value such as −1 (or Found = False)."],
-    ["Average comparisons for n items?", "About n/2."]
+    ["Why is linear search O(n)?", "The maximum number of comparisons grows at the same rate as the list size.", 2],
+    ["Worst case for linear search?", "n comparisons — the target is last or absent.", 4],
+    ["Linear search returns for a missing item?", "A rogue value such as −1 (or Found = False).", 6],
+    ["Average comparisons for n items?", "About n/2.", 7]
   ],
   quiz: [
     { q: "Linear search of 1000 unsorted items, worst case", opts: ["1000 comparisons", "10 comparisons", "500 comparisons", "1 comparison"], ans: 0, why: "Every item." },
@@ -223,15 +219,12 @@ C["compsci:4.3.4.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.3.4.1 linear search; 4.3.4.3 binary tree search (the same halving); 4.1.1.3 DIV; 4.1.1.16 the recursive version; 4.4.4.2 logarithms and 4.4.4.3 O(log n); 4.3.5 sorting first." } }
   ],
   flashcards: [
-    ["Binary search precondition?", "The list must be sorted (and allow direct access)."],
-    ["Middle index in AQA's binary search?", "Z ← (X + Y) DIV 2."],
-    ["Target bigger than List[Z]?", "X ← Z + 1 — search the upper half."],
-    ["Target smaller than List[Z]?", "Y ← Z − 1 — search the lower half."],
-    ["When does it stop without finding?", "When X > Y (the range is empty)."],
-    ["Time complexity?", "O(log n)."],
-    ["Why O(log n)?", "Each comparison halves the remaining list; doubling n adds one comparison."],
-    ["Max comparisons for 1 000 000 items?", "20."],
-    ["A(38, 0, 18) on AS 2022's list: Z values?", "9, 4, 6, 7 → result −1."]
+    ["Middle index in AQA's binary search?", "Z ← (X + Y) DIV 2.", 1],
+    ["Target bigger than List[Z]?", "X ← Z + 1 — search the upper half.", 2],
+    ["Target smaller than List[Z]?", "Y ← Z − 1 — search the lower half.", 3],
+    ["When does it stop without finding?", "When X > Y (the range is empty).", 4],
+    ["Why is binary search O(log n)?", "Each comparison halves the remaining list; doubling n adds one comparison.", 6],
+    ["Max comparisons for 1 000 000 items?", "20.", 7],
   ],
   quiz: [
     { q: "First Z for A(38, 0, 18)?", opts: ["9", "8", "10", "18"], ans: 0, why: "(0 + 18) DIV 2." },
@@ -319,13 +312,11 @@ C["compsci:4.3.4.3"] = {
   ],
   flashcards: [
     ["Binary tree search step?", "Equal → found; smaller → left; bigger → right; no child → not found."],
-    ["Time complexity (balanced)?", "O(log n)."],
-    ["Worst case?", "O(n) — a degenerate chain."],
-    ["What makes a chain?", "Inserting values in sorted order."],
+    ["Time complexity of binary tree search on a balanced tree?", "O(log n)."],
+    ["Worst case for binary tree search?", "O(n) — a degenerate chain."],
+    ["What makes a binary search tree degenerate into a chain?", "Inserting values in sorted order."],
     ["In BTS, 'Data < k' means go…?", "Right."],
-    ["Start value of Current in 2023's BTS?", "0 — the root."],
-    ["Loop condition in 2023's BTS?", "Current > −1."],
-    ["Why O(log n)?", "Each comparison discards about half of the remaining tree."]
+    ["Why is binary tree search on a balanced tree O(log n)?", "Each comparison discards about half of the remaining tree.", 7]
   ],
   quiz: [
     { q: "In BTS on 6(3(1, 4), 9), searching for 9 visits", opts: ["6, 9", "6, 3, 4", "6, 3, 1", "every node"], ans: 0, why: "9 > 6 → right." },

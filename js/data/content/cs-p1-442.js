@@ -206,10 +206,7 @@ C["compsci:4.4.2.1"] = {
     ["When is a string accepted?", "When the FSM is in an accepting state at the end of the input."],
     ["Mealy machine?", "An FSM with output: each transition is labelled input/output."],
     ["State transition table columns?", "Current state, input, new state (plus output for a Mealy machine)."],
-    ["Language of AS 2016's FSM?", "Zero or more 1s, optionally a 0, then x (1*0?x)."],
-    ["Trap (dead) state?", "A non-accepting state with no way out — every input loops back to it."],
-    ["AS 2023: event 'Enter correct code' labels?", "C, D, E."],
-    ["AS 2022: Press + labels?", "A and B."]
+    ["Trap (dead) state?", "A non-accepting state with no way out — every input loops back to it.", 7],
   ],
   quiz: [
     { q: "An FSM accepts a string if", opts: ["it ends in an accepting state", "it passes through an accepting state", "it never reaches a trap state", "it reads every symbol"], ans: 0, why: "End of input." },
@@ -314,13 +311,12 @@ C["compsci:4.4.2.2"] = {
     ["Set?", "An unordered collection of values in which each value occurs at most once."],
     ["Set comprehension {x | x ∈ ℕ ∧ x ≥ 1}?", "All x such that x is a natural number and x ≥ 1."],
     ["Empty set symbols?", "{} or Ø."],
-    ["Cardinality?", "The number of elements in a (finite) set."],
-    ["Countably infinite?", "Infinite but can be listed in order and matched one-to-one with ℕ."],
-    ["Cartesian product A × B?", "All ordered pairs (a, b) with a ∈ A and b ∈ B; |A × B| = |A| × |B|."],
-    ["Subset vs proper subset?", "Subset may equal the set; a proper subset must be smaller."],
-    ["Subsets of {a, b}?", "Ø, {a}, {b}, {a, b}."],
-    ["{a, b} ∩ {c, d, bb, b}?", "{b} — cardinality 1."],
-    ["{0ⁿ1ⁿ | n ≥ 1}?", "{01, 0011, 000111, …}."]
+    ["Countably infinite?", "Infinite but can be listed in order and matched one-to-one with ℕ.", 4],
+    ["Cartesian product A × B?", "All ordered pairs (a, b) with a ∈ A and b ∈ B; |A × B| = |A| × |B|.", 5],
+    ["Subset vs proper subset?", "Subset may equal the set; a proper subset must be smaller.", 6],
+    ["Subsets of {a, b}?", "Ø, {a}, {b}, {a, b}.", 7],
+    ["{a, b} ∩ {c, d, bb, b}?", "{b} — cardinality 1.", 8],
+    ["{0ⁿ1ⁿ | n ≥ 1}?", "{01, 0011, 000111, …}.", 9]
   ],
   quiz: [
     { q: "|{c, d, bb, b}| =", opts: ["4", "5", "3", "6"], ans: 0, why: "Four members." },
@@ -534,14 +530,12 @@ C["compsci:4.4.2.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.1 FSMs; 4.4.2.3 regular expressions; 4.4.3.1 BNF (context-free); 4.4.5.1 Turing machines (more powerful still); 4.6 compilers' lexical analysis uses regular languages." } }
   ],
   flashcards: [
-    ["Regular language?", "A language that can be represented by a regular expression (equivalently, accepted by an FSM)."],
-    ["Can a regular language be infinite?", "Yes — e.g. b+."],
-    ["Can an FSM without output represent every regular language?", "Yes."],
-    ["Example of a non-regular language?", "{aⁿbⁿ | n ≥ 1}; balanced brackets."],
-    ["Why isn't aⁿbⁿ regular?", "It needs unbounded counting/memory; an FSM has finitely many states."],
-    ["Can BNF describe non-regular languages?", "Yes — e.g. nested brackets."],
-    ["How to show a language is regular?", "Write a regular expression (or FSM) for it."],
-    ["A-level 2020 Q02.1 answers?", "True, False, True."]
+    ["Can a regular language be infinite?", "Yes — e.g. b+.", 1],
+    ["Can an FSM without output represent every regular language?", "Yes.", 2],
+    ["Example of a non-regular language?", "{aⁿbⁿ | n ≥ 1}; balanced brackets.", 3],
+    ["Why isn't aⁿbⁿ regular?", "It needs unbounded counting/memory; an FSM has finitely many states.", 4],
+    ["Can BNF describe non-regular languages?", "Yes — e.g. nested brackets.", 5],
+    ["How to show a language is regular?", "Write a regular expression (or FSM) for it.", 6],
   ],
   quiz: [
     { q: "Which is NOT regular?", opts: ["{aⁿbⁿ | n ≥ 1}", "a+b", "(ab)*", "1*0?x"], ans: 0, why: "Needs counting." },
@@ -681,14 +675,11 @@ C["compsci:4.4.3.1"] = {
   flashcards: [
     ["::= in BNF?", "\"Is defined as\" — introduces a production rule."],
     ["Non-terminal?", "A symbol in < > that is replaced using another rule."],
-    ["Terminal?", "A symbol that appears in the final string."],
-    ["| in BNF?", "Or — separates alternatives."],
-    ["BNF for a natural number?", "<natural> ::= <digit> | <digit><natural>."],
-    ["Why can BNF describe languages regexes can't?", "Recursion allows unbounded nesting/counting; regexes (FSMs) have finite memory."],
-    ["Number of sentences of <np><v><c><np><v> (2020)?", "8 × 4 × 3 × 8 × 4 = 3072."],
-    ["Sentences from <sentence> ::= <sentence><c><sentence>?", "Infinitely many."],
-    ["Syntax-diagram loop in BNF?", "A recursive rule."],
-    ["Is 97+12 a valid real number (2017)?", "No."]
+    ["| in BNF?", "Or — separates alternatives.", 3],
+    ["BNF for a natural number?", "<natural> ::= <digit> | <digit><natural>.", 4],
+    ["Why can BNF describe languages regexes can't?", "Recursion allows unbounded nesting/counting; regexes (FSMs) have finite memory.", 5],
+    ["Sentences from <sentence> ::= <sentence><c><sentence>?", "Infinitely many.", 7],
+    ["Syntax-diagram loop in BNF?", "A recursive rule.", 8],
   ],
   quiz: [
     { q: "In BNF, <np> is", opts: ["a non-terminal", "a terminal", "a comment", "an operator"], ans: 0, why: "Angle brackets." },

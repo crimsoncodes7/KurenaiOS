@@ -70,13 +70,12 @@ X("maths:1.1", {
 X("maths:2.1", {
   flashcards: [
     ["Simplify $\\dfrac{(2x^3)^2 \\times 4x^{-1}}{8x^2}$.", "$\\dfrac{4x^6 \\cdot 4x^{-1}}{8x^2} = \\dfrac{16x^5}{8x^2} = 2x^3$."],
-    ["Given $2^x \\times 4^y = 2\\sqrt 2$, express $y$ in terms of $x$.", "$2^{x + 2y} = 2^{3/2}$ so $x + 2y = \\tfrac32$, $y = \\tfrac34 - \\tfrac{x}{2}$."],
-    ["Solve $9^{x-1} = 3^{y+2}$ for $y$ in terms of $x$.", "$3^{2x-2} = 3^{y+2} \\Rightarrow y = 2x - 4$."],
-    ["Write $\\dfrac{3x^2 - 5}{\\sqrt x}$ as a sum of powers of $x$.", "$3x^{3/2} - 5x^{-1/2}$."],
-    ["Evaluate $16^{-3/4}$.", "$(16^{1/4})^{-3} = 2^{-3} = \\tfrac18$."],
-    ["Solve $3^{x-2} \\times 4 = 2\\sqrt 2$… what first step?", "Write $2\\sqrt2 = 2^{3/2}$ and $4 = 2^2$: $3^{x-2} = 2^{-1/2}$, then take logs: $x = 2 - \\dfrac{\\ln 2}{2\\ln 3}$."],
-    ["Solve $16a^2 = 2\\sqrt a$.", "$a^{3/2} = \\tfrac18 \\Rightarrow a = (\\tfrac18)^{2/3} = \\tfrac14$ (and $a = 0$)."],
-    ["If $3^x = 7^y$, find $\\dfrac{x}{y}$ exactly.", "$x\\ln 3 = y \\ln 7 \\Rightarrow \\dfrac{x}{y} = \\dfrac{\\ln 7}{\\ln 3} = \\log_3 7$."]
+    ["Solve $9^{x-1} = 3^{y+2}$ for $y$ in terms of $x$.", "$3^{2x-2} = 3^{y+2} \\Rightarrow y = 2x - 4$.", 14],
+    ["Write $\\dfrac{3x^2 - 5}{\\sqrt x}$ as a sum of powers of $x$.", "$3x^{3/2} - 5x^{-1/2}$.", 15],
+    ["Evaluate $16^{-3/4}$.", "$(16^{1/4})^{-3} = 2^{-3} = \\tfrac18$.", 16],
+    ["Solve $3^{x-2} \\times 4 = 2\\sqrt 2$… what first step?", "Write $2\\sqrt2 = 2^{3/2}$ and $4 = 2^2$: $3^{x-2} = 2^{-1/2}$, then take logs: $x = 2 - \\dfrac{\\ln 2}{2\\ln 3}$.", 17],
+    ["Solve $16a^2 = 2\\sqrt a$.", "$a^{3/2} = \\tfrac18 \\Rightarrow a = (\\tfrac18)^{2/3} = \\tfrac14$ (and $a = 0$).", 18],
+    ["If $3^x = 7^y$, find $\\dfrac{x}{y}$ exactly.", "$x\\ln 3 = y \\ln 7 \\Rightarrow \\dfrac{x}{y} = \\dfrac{\\ln 7}{\\ln 3} = \\log_3 7$.", 19]
   ],
   quiz: [
     { q: "$8^{2/3} =$", opts: ["4", "16/3", "2", "64"], ans: 0, why: "$(8^{1/3})^2 = 2^2$." },
@@ -102,14 +101,12 @@ X("maths:2.1", {
 
 X("maths:2.2", {
   flashcards: [
-    ["Simplify $\\sqrt{75} - \\sqrt{12}$.", "$5\\sqrt3 - 2\\sqrt3 = 3\\sqrt3$."],
-    ["Rationalise $\\dfrac{6}{\\sqrt 3}$.", "$\\dfrac{6\\sqrt3}{3} = 2\\sqrt 3$."],
-    ["Rationalise $\\dfrac{5}{2 - \\sqrt 3}$.", "Multiply by $\\dfrac{2 + \\sqrt3}{2 + \\sqrt3}$: $\\dfrac{5(2+\\sqrt3)}{4 - 3} = 10 + 5\\sqrt3$."],
-    ["Expand $(3 - \\sqrt 2)^2$.", "$9 - 6\\sqrt2 + 2 = 11 - 6\\sqrt 2$."],
-    ["Write $\\dfrac{\\sqrt{50} + \\sqrt 8}{\\sqrt 2}$ as an integer.", "$\\dfrac{5\\sqrt2 + 2\\sqrt2}{\\sqrt2} = 7$."],
-    ["Solve $x\\sqrt 2 = 4 - x$, giving $x$ in the form $a + b\\sqrt2$.", "$x(\\sqrt2 + 1) = 4 \\Rightarrow x = \\dfrac{4}{\\sqrt2+1} = 4(\\sqrt2 - 1) = -4 + 4\\sqrt 2$."],
-    ["Why rationalise a denominator?", "To write the number in the standard exact form $a + b\\sqrt c$ with a rational denominator — required for 'exact' answers."],
-    ["Simplify $\\sqrt{18} \\times \\sqrt 8$.", "$\\sqrt{144} = 12$."]
+    ["Rationalise $\\dfrac{5}{2 - \\sqrt 3}$.", "Multiply by $\\dfrac{2 + \\sqrt3}{2 + \\sqrt3}$: $\\dfrac{5(2+\\sqrt3)}{4 - 3} = 10 + 5\\sqrt3$.", 13],
+    ["Expand $(3 - \\sqrt 2)^2$.", "$9 - 6\\sqrt2 + 2 = 11 - 6\\sqrt 2$.", 14],
+    ["Write $\\dfrac{\\sqrt{50} + \\sqrt 8}{\\sqrt 2}$ as an integer.", "$\\dfrac{5\\sqrt2 + 2\\sqrt2}{\\sqrt2} = 7$.", 15],
+    ["Solve $x\\sqrt 2 = 4 - x$, giving $x$ in the form $a + b\\sqrt2$.", "$x(\\sqrt2 + 1) = 4 \\Rightarrow x = \\dfrac{4}{\\sqrt2+1} = 4(\\sqrt2 - 1) = -4 + 4\\sqrt 2$.", 16],
+    ["Why rationalise a denominator?", "To write the number in the standard exact form $a + b\\sqrt c$ with a rational denominator — required for 'exact' answers.", 17],
+    ["Simplify $\\sqrt{18} \\times \\sqrt 8$.", "$\\sqrt{144} = 12$.", 18]
   ],
   quiz: [
     { q: "$\\sqrt{48}$ simplifies to:", opts: ["$4\\sqrt3$", "$2\\sqrt{12}$", "$16\\sqrt3$", "$3\\sqrt4$"], ans: 0, why: "$48 = 16 \\times 3$." },
@@ -137,16 +134,16 @@ X("maths:2.3", {
     { callout: { t: "memorise", h: "Discriminant conditions", body: "$b^2 - 4ac > 0$: two distinct real roots · $= 0$: equal roots (a **tangent**) · $< 0$: no real roots. \"Line meets curve at two distinct points\" → substitute, collect, **discriminant $> 0$**, solve the inequality in $k$ (Specimen, AS 2025)." }}
   ],
   flashcards: [
-    ["Complete the square: $x^2 - 8x + 17$.", "$(x - 4)^2 + 1$ — minimum value 1 at $x = 4$, so $x^2 - 8x + 17 > 0$ for all $x$."],
-    ["Complete the square: $2x^2 + 12x + 5$.", "$2(x+3)^2 - 13$."],
-    ["The profit model $P = 100 - 6.25(x - 9)^2$: what price gives maximum profit and what is it?", "$x = 9$ gives the maximum profit $P = 100$."],
-    ["Find $k$ if $x^2 + kx + 9 = 0$ has equal roots.", "$k^2 - 36 = 0 \\Rightarrow k = \\pm 6$."],
-    ["Line $y = kx - 2$ meets $y = x^2 + 2$ at two distinct points. Find the range of $k$.", "$x^2 - kx + 4 = 0$; $k^2 - 16 > 0 \\Rightarrow k < -4$ or $k > 4$."],
-    ["Sketch $y = -2(x-3)^2 + 8$: vertex, direction, intercepts.", "Maximum at $(3, 8)$, opens downward, $y$-intercept $-10$, roots $x = 1, 5$."],
-    ["Solve $x - 3\\sqrt x + 2 = 0$.", "Let $u = \\sqrt x$: $u^2 - 3u + 2 = 0 \\Rightarrow u = 1, 2 \\Rightarrow x = 1, 4$."],
-    ["A ball's path is $H = 2.5 - 0.1(x - 4)^2$… height of release and maximum?", "At $x = 0$: $H = 2.5 - 1.6 = 0.9$ m; maximum height 2.5 m at $x = 4$."],
-    ["Why is $P = 100 - 6.25(x-9)^2$ unrealistic for large $x$?", "It predicts unlimited negative profit; real profit is bounded and the price would be limited by what customers pay."],
-    ["Show $x^2 + 4x + 7 > 0$ for all real $x$.", "$(x+2)^2 + 3 \\ge 3 > 0$."]
+    ["Complete the square: $x^2 - 8x + 17$.", "$(x - 4)^2 + 1$ — minimum value 1 at $x = 4$, so $x^2 - 8x + 17 > 0$ for all $x$.", 14],
+    ["Complete the square: $2x^2 + 12x + 5$.", "$2(x+3)^2 - 13$.", 15],
+    ["The profit model $P = 100 - 6.25(x - 9)^2$: what price gives maximum profit and what is it?", "$x = 9$ gives the maximum profit $P = 100$.", 16],
+    ["Find $k$ if $x^2 + kx + 9 = 0$ has equal roots.", "$k^2 - 36 = 0 \\Rightarrow k = \\pm 6$.", 17],
+    ["Line $y = kx - 2$ meets $y = x^2 + 2$ at two distinct points. Find the range of $k$.", "$x^2 - kx + 4 = 0$; $k^2 - 16 > 0 \\Rightarrow k < -4$ or $k > 4$.", 18],
+    ["Sketch $y = -2(x-3)^2 + 8$: vertex, direction, intercepts.", "Maximum at $(3, 8)$, opens downward, $y$-intercept $-10$, roots $x = 1, 5$.", 19],
+    ["Solve $x - 3\\sqrt x + 2 = 0$.", "Let $u = \\sqrt x$: $u^2 - 3u + 2 = 0 \\Rightarrow u = 1, 2 \\Rightarrow x = 1, 4$.", 20],
+    ["A ball's path is $H = 2.5 - 0.1(x - 4)^2$… height of release and maximum?", "At $x = 0$: $H = 2.5 - 1.6 = 0.9$ m; maximum height 2.5 m at $x = 4$.", 21],
+    ["Why is $P = 100 - 6.25(x-9)^2$ unrealistic for large $x$?", "It predicts unlimited negative profit; real profit is bounded and the price would be limited by what customers pay.", 22],
+    ["Show $x^2 + 4x + 7 > 0$ for all real $x$.", "$(x+2)^2 + 3 \\ge 3 > 0$.", 23]
   ],
   quiz: [
     { q: "$x^2 - 6x + 13$ in completed-square form:", opts: ["$(x-3)^2 + 4$", "$(x-3)^2 - 4$", "$(x+3)^2 + 4$", "$(x-6)^2 + 13$"], ans: 0, why: "$9 + 4 = 13$." },
@@ -192,7 +189,6 @@ X("maths:2.4", {
     ["Why substitute rather than eliminate with one linear, one quadratic?", "Rearranging the linear equation and substituting produces a single quadratic in one variable."],
     ["Solve $2x - y = 4$ and $x^2 + xy = 12$.", "$y = 2x - 4$: $x^2 + 2x^2 - 4x = 12 \\Rightarrow 3x^2 - 4x - 12 = 0$; $x = \\dfrac{4 \\pm \\sqrt{160}}{6} = \\dfrac{2 \\pm 2\\sqrt{10}}{3}$."],
     ["Line $y = mx$ and circle $(x-4)^2 + y^2 = 4$: condition for two intersections?", "$(1 + m^2)x^2 - 8x + 12 = 0$, discriminant $64 - 48(1 + m^2) > 0 \\Rightarrow m^2 < \\tfrac13$."],
-    ["How many solutions can a line and a parabola have?", "0, 1 or 2 — according to the discriminant sign."]
   ],
   quiz: [
     { q: "Solving $y = x + 1$ with $y = x^2 - 1$ gives $x$ values:", opts: ["$-1, 2$", "$1, 2$", "$0, 1$", "$-2, 1$"], ans: 0, why: "$x^2 - x - 2 = 0$." },
@@ -226,14 +222,14 @@ X("maths:2.5", {
     { callout: { t: "warn", body: "Never multiply an inequality by an expression that could be negative. For $\\dfrac{2}{x} > 1$ sketch both sides or multiply by $x^2$; for $|x - 1| < 2x$ sketch." }}
   ],
   flashcards: [
-    ["Solve $x^2 - x > 20$ in set notation.", "$(x-5)(x+4) > 0$: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$."],
-    ["Solve $3 - 2x \\ge 4x + 9$.", "$-6 \\ge 6x \\Rightarrow x \\le -1$."],
-    ["Solve $x^2 + 3x - 10 \\le 0$.", "$(x+5)(x-2) \\le 0 \\Rightarrow -5 \\le x \\le 2$."],
-    ["Region $R$ below the line $y = 2x + 1$, above the curve $y = x^2 - 2$, right of the $y$-axis. Inequalities?", "$y \\le 2x + 1$, $y \\ge x^2 - 2$, $x \\ge 0$."],
-    ["Solve $|2x - 5| < 3$.", "$-3 < 2x - 5 < 3 \\Rightarrow 1 < x < 4$."],
-    ["Solve $|x + 1| > 2$.", "$x + 1 > 2$ or $x + 1 < -2$: $x > 1$ or $x < -3$."],
-    ["Solve $\\dfrac{3}{x} > 1$ for $x \\ne 0$.", "Sketch or cases: $0 < x < 3$ (for $x < 0$ the LHS is negative so never $> 1$)."],
-    ["Solve simultaneously $x^2 - 4 < 0$ and $2x + 1 > 0$.", "$-2 < x < 2$ and $x > -\\tfrac12$: $-\\tfrac12 < x < 2$."]
+    ["Solve $x^2 - x > 20$ in set notation.", "$(x-5)(x+4) > 0$: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$.", 11],
+    ["Solve $3 - 2x \\ge 4x + 9$.", "$-6 \\ge 6x \\Rightarrow x \\le -1$.", 12],
+    ["Solve $x^2 + 3x - 10 \\le 0$.", "$(x+5)(x-2) \\le 0 \\Rightarrow -5 \\le x \\le 2$.", 13],
+    ["Region $R$ below the line $y = 2x + 1$, above the curve $y = x^2 - 2$, right of the $y$-axis. Inequalities?", "$y \\le 2x + 1$, $y \\ge x^2 - 2$, $x \\ge 0$.", 14],
+    ["Solve $|2x - 5| < 3$.", "$-3 < 2x - 5 < 3 \\Rightarrow 1 < x < 4$.", 15],
+    ["Solve $|x + 1| > 2$.", "$x + 1 > 2$ or $x + 1 < -2$: $x > 1$ or $x < -3$.", 16],
+    ["Solve $\\dfrac{3}{x} > 1$ for $x \\ne 0$.", "Sketch or cases: $0 < x < 3$ (for $x < 0$ the LHS is negative so never $> 1$).", 17],
+    ["Solve simultaneously $x^2 - 4 < 0$ and $2x + 1 > 0$.", "$-2 < x < 2$ and $x > -\\tfrac12$: $-\\tfrac12 < x < 2$.", 18]
   ],
   quiz: [
     { q: "$x^2 < 16$ is equivalent to:", opts: ["$x < 4$", "$-4 < x < 4$", "$x < -4$ or $x > 4$", "$x > 4$"], ans: 1, why: "Between the roots." },
@@ -272,16 +268,14 @@ X("maths:2.6", {
     { callout: { t: "tip", body: "Write the remainder-theorem line explicitly: \"$(x + 3)$ is a factor so $f(-3) = 0$\". When dividing by inspection, write $f(x) = (x + 3)(ax^2 + bx + c)$ and compare **the $x^3$ and constant coefficients first**, then one middle coefficient." }}
   ],
   flashcards: [
-    ["State the factor theorem.", "$(x - a)$ is a factor of the polynomial $f(x)$ if and only if $f(a) = 0$."],
-    ["$(x + 3)$ is a factor of $f(x) = 2x^3 + ax^2 - 5x + 6$. Find $a$.", "$f(-3) = -54 + 9a + 15 + 6 = 0 \\Rightarrow a = \\tfrac{33}{9} = \\tfrac{11}{3}$."],
-    ["Factorise $2x^3 - 24x^2 + 40x$ completely.", "$2x(x^2 - 12x + 20) = 2x(x-2)(x-10)$."],
-    ["Given $f(-4) = 0$ for $f(x) = x^3 + 2x^2 - 5x + 12$, write $f(x) = (x+4)Q(x)$.", "$Q(x) = x^2 - 2x + 3$ (check: constant $12 = 4 \\times 3$, $x^2$: $-2 + 4 = 2$)."],
-    ["How do you prove $x = -4$ is the only real root of $(x+4)(x^2 - 2x + 3) = 0$?", "The discriminant of $x^2 - 2x + 3$ is $4 - 12 < 0$, so it has no real roots."],
-    ["Solve $3x^3 - 17x^2 - 6x = 0$, hence solve $3(y-2)^3 - 17(y-2)^2 - 6(y-2) = 0$.", "$x(3x + 1)(x - 6) = 0 \\Rightarrow x = 0, -\\tfrac13, 6$; hence $y = 2, \\tfrac53, 8$."],
-    ["Remainder when $f(x) = x^3 - 2x + 1$ is divided by $(x - 2)$?", "$f(2) = 8 - 4 + 1 = 5$."],
-    ["$f(x)$ has roots $1, 2, 4$. Roots of $f(x - 3) = 0$?", "$4, 5, 7$ (graph shifted right by 3)."],
-    ["Divide $x^3 - 7x - 6$ by $(x + 1)$.", "$x^2 - x - 6 = (x - 3)(x + 2)$; so $x^3 - 7x - 6 = (x+1)(x+2)(x-3)$."],
-    ["$(2x + k)$ is a factor of $f(x)$. Which value makes $f$ zero?", "$x = -\\tfrac{k}{2}$: $f(-\\tfrac k2) = 0$."]
+    ["$(x + 3)$ is a factor of $f(x) = 2x^3 + ax^2 - 5x + 6$. Find $a$.", "$f(-3) = -54 + 9a + 15 + 6 = 0 \\Rightarrow a = \\tfrac{33}{9} = \\tfrac{11}{3}$.", 13],
+    ["Factorise $2x^3 - 24x^2 + 40x$ completely.", "$2x(x^2 - 12x + 20) = 2x(x-2)(x-10)$.", 14],
+    ["Given $f(-4) = 0$ for $f(x) = x^3 + 2x^2 - 5x + 12$, write $f(x) = (x+4)Q(x)$.", "$Q(x) = x^2 - 2x + 3$ (check: constant $12 = 4 \\times 3$, $x^2$: $-2 + 4 = 2$).", 15],
+    ["How do you prove $x = -4$ is the only real root of $(x+4)(x^2 - 2x + 3) = 0$?", "The discriminant of $x^2 - 2x + 3$ is $4 - 12 < 0$, so it has no real roots.", 16],
+    ["Solve $3x^3 - 17x^2 - 6x = 0$, hence solve $3(y-2)^3 - 17(y-2)^2 - 6(y-2) = 0$.", "$x(3x + 1)(x - 6) = 0 \\Rightarrow x = 0, -\\tfrac13, 6$; hence $y = 2, \\tfrac53, 8$.", 17],
+    ["Remainder when $f(x) = x^3 - 2x + 1$ is divided by $(x - 2)$?", "$f(2) = 8 - 4 + 1 = 5$.", 18],
+    ["Divide $x^3 - 7x - 6$ by $(x + 1)$.", "$x^2 - x - 6 = (x - 3)(x + 2)$; so $x^3 - 7x - 6 = (x+1)(x+2)(x-3)$.", 20],
+    ["$(2x + k)$ is a factor of $f(x)$. Which value makes $f$ zero?", "$x = -\\tfrac{k}{2}$: $f(-\\tfrac k2) = 0$.", 21]
   ],
   quiz: [
     { q: "$(x - 2)$ is a factor of $f(x)$ means:", opts: ["$f(2) = 0$", "$f(-2) = 0$", "$f(0) = 2$", "$f'(2) = 0$"], ans: 0, why: "Factor theorem." },
@@ -328,12 +322,11 @@ X("maths:2.7", {
   flashcards: [
     ["Sketch $y = x(x - 3)(x + 2)$: intercepts and shape.", "Crosses at $-2, 0, 3$; positive cubic (rises to the right); passes through the origin."],
     ["Sketch $y = (x - 2)^2(x + 3)$.", "Touches the $x$-axis at $x = 2$, crosses at $x = -3$, $y$-intercept 12, positive cubic shape."],
-    ["Asymptotes of $y = \\dfrac{3}{x} - 2$?", "$x = 0$ and $y = -2$."],
-    ["Factorise and sketch $y = 9x - x^3$.", "$y = x(3 - x)(3 + x)$: roots $-3, 0, 3$; negative cubic (falls to the right)."],
-    ["$y = 9x - x^3$: for which $k$ does $y = k$ meet the curve at three points?", "Turning points at $x = \\pm\\sqrt3$ with $y = \\pm 6\\sqrt3$: $-6\\sqrt3 < k < 6\\sqrt3$."],
-    ["$y$ is inversely proportional to $x^2$ and $y = 4$ when $x = 3$. Find $y$ when $x = 6$.", "$y = \\dfrac{36}{x^2}$, so $y = 1$."],
-    ["Sketch $y = \\dfrac{1}{x^2}$.", "Both branches above the $x$-axis, asymptotes $x = 0$, $y = 0$, symmetric about the $y$-axis."],
-    ["Where does $y = x^3 - 4x$ cross the axes?", "$x(x-2)(x+2)$: at $-2, 0, 2$."]
+    ["Factorise and sketch $y = 9x - x^3$.", "$y = x(3 - x)(3 + x)$: roots $-3, 0, 3$; negative cubic (falls to the right).", 15],
+    ["$y = 9x - x^3$: for which $k$ does $y = k$ meet the curve at three points?", "Turning points at $x = \\pm\\sqrt3$ with $y = \\pm 6\\sqrt3$: $-6\\sqrt3 < k < 6\\sqrt3$.", 16],
+    ["$y$ is inversely proportional to $x^2$ and $y = 4$ when $x = 3$. Find $y$ when $x = 6$.", "$y = \\dfrac{36}{x^2}$, so $y = 1$.", 17],
+    ["Sketch $y = \\dfrac{1}{x^2}$.", "Both branches above the $x$-axis, asymptotes $x = 0$, $y = 0$, symmetric about the $y$-axis.", 18],
+    ["Where does $y = x^3 - 4x$ cross the axes?", "$x(x-2)(x+2)$: at $-2, 0, 2$.", 19]
   ],
   quiz: [
     { q: "$y = (x + 1)(x - 3)^2$ touches the $x$-axis at:", opts: ["$x = -1$", "$x = 3$", "$x = 0$", "nowhere"], ans: 1, why: "Repeated factor." },
@@ -369,16 +362,15 @@ X("maths:2.8", {
     { callout: { t: "memorise", body: "Domain of $f^{-1}$ = range of $f$; range of $f^{-1}$ = domain of $f$. $f^{-1}(7)$ is the value $x$ with $f(x) = 7$ — solve, don't invert. A function must be **one-to-one** to have an inverse; restrict the domain (e.g. $x \\ge 0$ for $x^2$) to make it so." }}
   ],
   flashcards: [
-    ["$f(x) = \\dfrac{2x + 1}{x - 3}$, $x \\ne 3$. Find $f^{-1}(x)$.", "$y(x-3) = 2x + 1 \\Rightarrow x(y - 2) = 3y + 1 \\Rightarrow f^{-1}(x) = \\dfrac{3x + 1}{x - 2}$, $x \\ne 2$."],
-    ["Range of $f(x) = 3 + \\sqrt{x - 2}$, $x \\ge 2$?", "$f(x) \\ge 3$."],
-    ["Inverse of $f(x) = 3 + \\sqrt{x - 2}$?", "$f^{-1}(x) = (x - 3)^2 + 2$, domain $x \\ge 3$."],
-    ["$f(x) = 2x - 1$, $g(x) = x^2 + 3$. Find $gf(x)$ and $fg(x)$.", "$gf(x) = (2x-1)^2 + 3 = 4x^2 - 4x + 4$; $fg(x) = 2x^2 + 5$."],
-    ["Why does $g(x) = x^2 - 4$, $x \\in \\mathbb R$, have no inverse?", "It is not one-to-one — e.g. $g(2) = g(-2) = 0$ — so the inverse would not be a function."],
-    ["Find $f^{-1}(7)$ for $f(x) = \\dfrac{5x - 2}{x + 1}$.", "Solve $\\dfrac{5x-2}{x+1} = 7$: $5x - 2 = 7x + 7 \\Rightarrow x = -4.5$."],
-    ["Relationship between the graphs of $f$ and $f^{-1}$?", "Reflections of each other in the line $y = x$."],
-    ["$f(x) = \\dfrac{4x + 3}{2x - 1}$: express in the form $A + \\dfrac{B}{2x - 1}$ and state the range.", "$2 + \\dfrac{5}{2x - 1}$; range $f(x) \\ne 2$."],
-    ["$f(x) = e^{2x} + 1$. Find $f^{-1}$ and its domain.", "$f^{-1}(x) = \\tfrac12\\ln(x - 1)$, domain $x > 1$."],
-    ["$f(x) = 4|x - 3| - 5$. Range?", "$f(x) \\ge -5$."]
+    ["$f(x) = \\dfrac{2x + 1}{x - 3}$, $x \\ne 3$. Find $f^{-1}(x)$.", "$y(x-3) = 2x + 1 \\Rightarrow x(y - 2) = 3y + 1 \\Rightarrow f^{-1}(x) = \\dfrac{3x + 1}{x - 2}$, $x \\ne 2$.", 12],
+    ["Range of $f(x) = 3 + \\sqrt{x - 2}$, $x \\ge 2$?", "$f(x) \\ge 3$.", 13],
+    ["$f(x) = 2x - 1$, $g(x) = x^2 + 3$. Find $gf(x)$ and $fg(x)$.", "$gf(x) = (2x-1)^2 + 3 = 4x^2 - 4x + 4$; $fg(x) = 2x^2 + 5$.", 15],
+    ["Why does $g(x) = x^2 - 4$, $x \\in \\mathbb R$, have no inverse?", "It is not one-to-one — e.g. $g(2) = g(-2) = 0$ — so the inverse would not be a function.", 16],
+    ["Find $f^{-1}(7)$ for $f(x) = \\dfrac{5x - 2}{x + 1}$.", "Solve $\\dfrac{5x-2}{x+1} = 7$: $5x - 2 = 7x + 7 \\Rightarrow x = -4.5$.", 17],
+    ["Relationship between the graphs of $f$ and $f^{-1}$?", "Reflections of each other in the line $y = x$.", 18],
+    ["$f(x) = \\dfrac{4x + 3}{2x - 1}$: express in the form $A + \\dfrac{B}{2x - 1}$ and state the range.", "$2 + \\dfrac{5}{2x - 1}$; range $f(x) \\ne 2$.", 19],
+    ["$f(x) = e^{2x} + 1$. Find $f^{-1}$ and its domain.", "$f^{-1}(x) = \\tfrac12\\ln(x - 1)$, domain $x > 1$.", 20],
+    ["$f(x) = 4|x - 3| - 5$. Range?", "$f(x) \\ge -5$.", 21]
   ],
   quiz: [
     { q: "$f(x) = 3x + 2$, $g(x) = x^2$. $fg(2) =$", opts: ["14", "64", "10", "16"], ans: 0, why: "$g(2) = 4$, $f(4) = 14$." },
@@ -431,11 +423,10 @@ X("maths:2.9", {
     ["Image of $P(4, -3)$ on $y = f(2x)$?", "$(2, -3)$."],
     ["Image of $P(4, -3)$ on $y = -f(x) + 1$?", "$(4, 4)$."],
     ["Describe the transformation from $y = x^2$ to $y = (x - 3)^2 + 5$.", "Translation by $\\binom{3}{5}$."],
-    ["Describe $y = f(x) \\to y = f(-x)$.", "Reflection in the $y$-axis."],
-    ["Asymptote $y = 2$ of $y = f(x)$: its image under $y = f(x) - 5$?", "$y = -3$."],
-    ["Describe $y = \\sin x \\to y = \\sin(3x)$.", "Stretch parallel to the $x$-axis, scale factor $\\tfrac13$."],
-    ["$y = f(x)$ has a maximum at $(2, 6)$. Maximum of $y = 2f(x - 1)$?", "$(3, 12)$."],
-    ["Order matters: $y = 2f(x) + 1$ vs $y = 2(f(x) + 1)$ on $(a, b)$?", "$(a, 2b + 1)$ vs $(a, 2b + 2)$."]
+    ["Asymptote $y = 2$ of $y = f(x)$: its image under $y = f(x) - 5$?", "$y = -3$.", 17],
+    ["Describe $y = \\sin x \\to y = \\sin(3x)$.", "Stretch parallel to the $x$-axis, scale factor $\\tfrac13$.", 18],
+    ["$y = f(x)$ has a maximum at $(2, 6)$. Maximum of $y = 2f(x - 1)$?", "$(3, 12)$.", 19],
+    ["Order matters: $y = 2f(x) + 1$ vs $y = 2(f(x) + 1)$ on $(a, b)$?", "$(a, 2b + 1)$ vs $(a, 2b + 2)$.", 20]
   ],
   quiz: [
     { q: "$y = f(x - 4)$ translates the graph:", opts: ["4 left", "4 right", "4 up", "4 down"], ans: 1, why: "Opposite sign inside the bracket." },
@@ -470,14 +461,14 @@ X("maths:2.10", {
     { callout: { t: "tip", body: "Check your constants by substituting one further value (e.g. $x = 0$) into the identity before integrating — a wrong constant costs every later mark." }}
   ],
   flashcards: [
-    ["Express $\\dfrac{5x + 7}{(x+1)(x+3)}$ in partial fractions.", "$\\dfrac{1}{x+1} + \\dfrac{4}{x+3}$ ($x = -1$: $2 = 2A$; $x = -3$: $-8 = -2B$)."],
-    ["Express $\\dfrac{3x + 1}{(x - 1)^2}$ in partial fractions.", "$\\dfrac{3}{x - 1} + \\dfrac{4}{(x-1)^2}$."],
-    ["Express $\\dfrac{2x^2 + 5x + 6}{(x+1)(x+2)}$ in partial fractions.", "Improper: $2 + \\dfrac{-x + 2}{(x+1)(x+2)} = 2 + \\dfrac{3}{x+1} - \\dfrac{4}{x+2}$."],
-    ["Form for $\\dfrac{7}{(x - 2)(x + 1)^2}$?", "$\\dfrac{A}{x-2} + \\dfrac{B}{x+1} + \\dfrac{C}{(x+1)^2}$."],
-    ["When must you divide first?", "When the numerator's degree is at least the denominator's — the fraction is improper."],
-    ["How do you find $B$ in $\\dfrac{A}{x-1} + \\dfrac{B}{(x-1)^2}$?", "Substitute $x = 1$ into the identity $N(x) = A(x-1) + B$."],
-    ["Express $\\dfrac{x}{(2x + 1)(x - 3)}$ in partial fractions.", "$x = 3$: $3 = 7B \\Rightarrow B = \\tfrac37$; $x = -\\tfrac12$: $-\\tfrac12 = -\\tfrac72 A \\Rightarrow A = \\tfrac17$: $\\dfrac{1}{7(2x+1)} + \\dfrac{3}{7(x-3)}$."],
-    ["Why are partial fractions needed before integrating $\\dfrac{1}{(x+1)(x+3)}$?", "Each term $\\dfrac{A}{x + a}$ integrates to $A\\ln|x + a|$; the product form cannot be integrated directly."]
+    ["Express $\\dfrac{5x + 7}{(x+1)(x+3)}$ in partial fractions.", "$\\dfrac{1}{x+1} + \\dfrac{4}{x+3}$ ($x = -1$: $2 = 2A$; $x = -3$: $-8 = -2B$).", 10],
+    ["Express $\\dfrac{3x + 1}{(x - 1)^2}$ in partial fractions.", "$\\dfrac{3}{x - 1} + \\dfrac{4}{(x-1)^2}$.", 11],
+    ["Express $\\dfrac{2x^2 + 5x + 6}{(x+1)(x+2)}$ in partial fractions.", "Improper: $2 + \\dfrac{-x + 2}{(x+1)(x+2)} = 2 + \\dfrac{3}{x+1} - \\dfrac{4}{x+2}$.", 12],
+    ["Form for $\\dfrac{7}{(x - 2)(x + 1)^2}$?", "$\\dfrac{A}{x-2} + \\dfrac{B}{x+1} + \\dfrac{C}{(x+1)^2}$.", 13],
+    ["When must you divide first?", "When the numerator's degree is at least the denominator's — the fraction is improper.", 14],
+    ["How do you find $B$ in $\\dfrac{A}{x-1} + \\dfrac{B}{(x-1)^2}$?", "Substitute $x = 1$ into the identity $N(x) = A(x-1) + B$.", 15],
+    ["Express $\\dfrac{x}{(2x + 1)(x - 3)}$ in partial fractions.", "$x = 3$: $3 = 7B \\Rightarrow B = \\tfrac37$; $x = -\\tfrac12$: $-\\tfrac12 = -\\tfrac72 A \\Rightarrow A = \\tfrac17$: $\\dfrac{1}{7(2x+1)} + \\dfrac{3}{7(x-3)}$.", 16],
+    ["Why are partial fractions needed before integrating $\\dfrac{1}{(x+1)(x+3)}$?", "Each term $\\dfrac{A}{x + a}$ integrates to $A\\ln|x + a|$; the product form cannot be integrated directly.", 17]
   ],
   quiz: [
     { q: "$\\dfrac{1}{(x+1)(x+2)} =$", opts: ["$\\dfrac{1}{x+1} - \\dfrac{1}{x+2}$", "$\\dfrac{1}{x+1} + \\dfrac{1}{x+2}$", "$\\dfrac{2}{x+1} - \\dfrac{1}{x+2}$", "$\\dfrac{1}{x+2} - \\dfrac{1}{x+1}$"], ans: 0, why: "$x = -1$: $A = 1$; $x = -2$: $B = -1$." },
@@ -659,16 +650,15 @@ X("maths:3.3", {
     { callout: { t: "warn", body: "After converting, **state the domain** of the Cartesian equation from the parameter's range — it is a separate mark and the model question (\"a dam / a stage\") depends on it." }}
   ],
   flashcards: [
-    ["Convert $x = 2t + 1$, $y = t^2 - 3$ to Cartesian form.", "$t = \\dfrac{x - 1}{2}$: $y = \\dfrac{(x-1)^2}{4} - 3$."],
-    ["Convert $x = 3 + 2\\sin t$, $y = 4 + 2\\cos 2t$.", "$\\sin t = \\dfrac{x-3}{2}$, $\\cos 2t = 1 - 2\\sin^2 t = 1 - \\dfrac{(x-3)^2}{2}$: $y = 6 - (x-3)^2$, for $1 \\le x \\le 5$."],
-    ["Convert $x = 3\\cos\\theta$, $y = 3\\sin\\theta$.", "$x^2 + y^2 = 9$."],
-    ["Gradient of $x = t^2$, $y = t^3 - 3t$ at $t = 2$?", "$\\dfrac{dy}{dx} = \\dfrac{3t^2 - 3}{2t} = \\dfrac{9}{4}$."],
-    ["Domain of the Cartesian curve from $x = 2\\sin t$, $y = \\cos 2t$?", "$-2 \\le x \\le 2$."],
-    ["Convert $x = \\tan\\theta$, $y = \\sec^2\\theta$.", "$y = 1 + x^2$."],
-    ["Point on $x = t^2 - 4$, $y = 6\\ln(t + 3)$ where $t = 1$?", "$(-3, 6\\ln 4)$."],
-    ["How do you find where a parametric curve crosses the $x$-axis?", "Solve $y(t) = 0$ for $t$, then substitute into $x(t)$."],
-    ["Convert $x = \\dfrac{2t}{1 + t^2}$, $y = \\dfrac{1 - t^2}{1 + t^2}$.", "$x^2 + y^2 = \\dfrac{4t^2 + 1 - 2t^2 + t^4}{(1+t^2)^2} = 1$: the unit circle."],
-    ["Tangent to $x = t^2$, $y = 2t$ at $t = 3$?", "$\\dfrac{dy}{dx} = \\dfrac{2}{2t} = \\tfrac13$ at $(9, 6)$: $y - 6 = \\tfrac13(x - 9)$."]
+    ["Convert $x = 2t + 1$, $y = t^2 - 3$ to Cartesian form.", "$t = \\dfrac{x - 1}{2}$: $y = \\dfrac{(x-1)^2}{4} - 3$.", 10],
+    ["Convert $x = 3 + 2\\sin t$, $y = 4 + 2\\cos 2t$.", "$\\sin t = \\dfrac{x-3}{2}$, $\\cos 2t = 1 - 2\\sin^2 t = 1 - \\dfrac{(x-3)^2}{2}$: $y = 6 - (x-3)^2$, for $1 \\le x \\le 5$.", 11],
+    ["Gradient of $x = t^2$, $y = t^3 - 3t$ at $t = 2$?", "$\\dfrac{dy}{dx} = \\dfrac{3t^2 - 3}{2t} = \\dfrac{9}{4}$.", 13],
+    ["Domain of the Cartesian curve from $x = 2\\sin t$, $y = \\cos 2t$?", "$-2 \\le x \\le 2$.", 14],
+    ["Convert $x = \\tan\\theta$, $y = \\sec^2\\theta$.", "$y = 1 + x^2$.", 15],
+    ["Point on $x = t^2 - 4$, $y = 6\\ln(t + 3)$ where $t = 1$?", "$(-3, 6\\ln 4)$.", 16],
+    ["How do you find where a parametric curve crosses the $x$-axis?", "Solve $y(t) = 0$ for $t$, then substitute into $x(t)$.", 17],
+    ["Convert $x = \\dfrac{2t}{1 + t^2}$, $y = \\dfrac{1 - t^2}{1 + t^2}$.", "$x^2 + y^2 = \\dfrac{4t^2 + 1 - 2t^2 + t^4}{(1+t^2)^2} = 1$: the unit circle.", 18],
+    ["Tangent to $x = t^2$, $y = 2t$ at $t = 3$?", "$\\dfrac{dy}{dx} = \\dfrac{2}{2t} = \\tfrac13$ at $(9, 6)$: $y - 6 = \\tfrac13(x - 9)$.", 19]
   ],
   quiz: [
     { q: "$x = t + 1$, $y = t^2$ is the parabola:", opts: ["$y = x^2 + 1$", "$y = (x - 1)^2$", "$y = (x + 1)^2$", "$y = x^2 - 1$"], ans: 1, why: "$t = x - 1$." },
@@ -705,12 +695,11 @@ X("maths:3.4", {
   flashcards: [
     ["A dam's curved wall is $x = 6\\sin t$, $y = 5\\sin 2t$, $0 \\le t \\le \\tfrac\\pi2$. Where does it meet the $x$-axis?", "$y = 0 \\Rightarrow \\sin 2t = 0 \\Rightarrow t = 0, \\tfrac\\pi2$: $x = 0$ and $x = 6$."],
     ["Why use parametric equations in a model?", "The parameter (often time) drives both coordinates; motion, curves that fail the vertical-line test, and shapes like ellipses are easier to express."],
-    ["Parametric area formula?", "$\\int y\\,dx = \\int y \\dfrac{dx}{dt}\\,dt$ with $t$-limits."],
-    ["A projectile has $x = 20t$, $y = 15t - 5t^2$. Find the Cartesian path.", "$t = \\dfrac{x}{20}$: $y = \\dfrac{3x}{4} - \\dfrac{x^2}{80}$."],
-    ["Range of the projectile $x = 20t$, $y = 15t - 5t^2$?", "$y = 0 \\Rightarrow t = 3$: $x = 60$."],
-    ["Greatest height of a parametric path $y = 15t - 5t^2$?", "$\\dfrac{dy}{dt} = 15 - 10t = 0 \\Rightarrow t = 1.5$, $y = 11.25$."],
-    ["A curve $x = 4\\cos t$, $y = 3\\sin t$ models a running track. Its Cartesian form and shape?", "$\\dfrac{x^2}{16} + \\dfrac{y^2}{9} = 1$ — an ellipse."],
-    ["What does $t$ often represent in a parametric model, and what limitation follows?", "Time; the model applies only for the stated interval of $t$ (e.g. until the object lands)."]
+    ["A projectile has $x = 20t$, $y = 15t - 5t^2$. Find the Cartesian path.", "$t = \\dfrac{x}{20}$: $y = \\dfrac{3x}{4} - \\dfrac{x^2}{80}$.", 9],
+    ["Range of the projectile $x = 20t$, $y = 15t - 5t^2$?", "$y = 0 \\Rightarrow t = 3$: $x = 60$.", 10],
+    ["Greatest height of a parametric path $y = 15t - 5t^2$?", "$\\dfrac{dy}{dt} = 15 - 10t = 0 \\Rightarrow t = 1.5$, $y = 11.25$.", 11],
+    ["A curve $x = 4\\cos t$, $y = 3\\sin t$ models a running track. Its Cartesian form and shape?", "$\\dfrac{x^2}{16} + \\dfrac{y^2}{9} = 1$ — an ellipse.", 12],
+    ["What does $t$ often represent in a parametric model, and what limitation follows?", "Time; the model applies only for the stated interval of $t$ (e.g. until the object lands).", 13]
   ],
   quiz: [
     { q: "A parametric model $x = 3t$, $y = 4t - t^2$ hits the ground ($y = 0$) at $t =$", opts: ["0 only", "4", "2", "3"], ans: 1, why: "$t(4 - t) = 0$." },

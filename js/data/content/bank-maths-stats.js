@@ -12,16 +12,14 @@ X("maths:S1.1", {
     { callout: { t: "warn", h: "Large data set phrasing", body: "State the **variable** and the **outcome** in the terms of the data set: e.g. the variable is *Daily Mean Wind Direction* (qualitative — compass points), the population is *the 184 days at Hurn in 2015*, and a systematic sample of 23 takes every 8th day from a random start in the first 8 (184 ÷ 8 = 23)." } }
   ],
   flashcards: [
-    ["Population vs sample?", "The population is *every* member of the group of interest; a sample is a subset chosen to make inferences about it."],
-    ["What is a sampling frame?", "A list of every member of the population that can be sampled from (numbered)."],
-    ["Describe simple random sampling of size $n$.", "Number every member of the population (sampling frame); generate $n$ random numbers (or use a lottery); select the matching members."],
-    ["Describe systematic sampling of 30 from 180.", "$180 \\div 30 = 6$; choose a random start from 1 to 6; then take every 6th member of the sampling frame."],
-    ["Describe stratified sampling.", "Split the population into strata (groups); take a simple random sample from each stratum in proportion to its size."],
-    ["When is stratified random sampling impossible?", "When there is no sampling frame for the population (e.g. the fish in a lake cannot all be listed)."],
-    ["Opportunity (convenience) sampling — one advantage, one disadvantage?", "Quick and cheap; but not random, so likely to be unrepresentative/biased."],
-    ["Quota sampling — how does it differ from stratified?", "The population is split into groups and a quota is filled from each, but the members are chosen *non-randomly* by the interviewer."],
-    ["Census — advantage and disadvantage?", "Every member is used so the result is completely accurate; but it is expensive/time-consuming and testing may destroy the items."],
-    ["Stratified sample of 80 from 350 mirror carp, 250 common carp, 200 leather carp?", "$\\tfrac{350}{800} \\times 80 = 35$, $\\tfrac{250}{800} \\times 80 = 25$, $\\tfrac{200}{800} \\times 80 = 20$."]
+    ["Population vs sample?", "The population is *every* member of the group of interest; a sample is a subset chosen to make inferences about it.", 21],
+    ["Describe simple random sampling of size $n$.", "Number every member of the population (sampling frame); generate $n$ random numbers (or use a lottery); select the matching members.", 23],
+    ["Describe stratified sampling.", "Split the population into strata (groups); take a simple random sample from each stratum in proportion to its size.", 25],
+    ["When is stratified random sampling impossible?", "When there is no sampling frame for the population (e.g. the fish in a lake cannot all be listed).", 26],
+    ["Opportunity (convenience) sampling — one advantage, one disadvantage?", "Quick and cheap; but not random, so likely to be unrepresentative/biased.", 27],
+    ["Quota sampling — how does it differ from stratified?", "The population is split into groups and a quota is filled from each, but the members are chosen *non-randomly* by the interviewer.", 28],
+    ["Census — advantage and disadvantage?", "Every member is used so the result is completely accurate; but it is expensive/time-consuming and testing may destroy the items.", 29],
+    ["Stratified sample of 80 from 350 mirror carp, 250 common carp, 200 leather carp?", "$\\tfrac{350}{800} \\times 80 = 35$, $\\tfrac{250}{800} \\times 80 = 25$, $\\tfrac{200}{800} \\times 80 = 20$.", 30]
   ],
   quiz: [
     { q: "A sample of 40 students is taken by picking the first 40 through the school gate. This is:", opts: ["simple random", "systematic", "opportunity", "stratified"], ans: 2, why: "Whoever is available." },
@@ -63,16 +61,15 @@ X("maths:S2.1", {
     { callout: { t: "mnemonic", h: "Skew from a box plot", body: "Positive skew: median closer to $Q_1$, long right whisker. Negative skew: median closer to $Q_3$. A hospital stay / waiting time / rainfall is usually positively skewed, which is one reason a **normal model is unsuitable** (2023 Q6)." } }
   ],
   flashcards: [
-    ["Frequency density formula?", "$\\text{fd} = \\dfrac{\\text{frequency}}{\\text{class width}}$."],
-    ["A histogram bar for class $10 \\le x < 20$ is 2 cm wide and 3 cm tall and represents 24 items. What area is 1 item?", "$6 \\text{ cm}^2 = 24$ items, so 1 item $= 0.25$ cm²."],
-    ["Same scale: class $20 \\le x < 25$ has frequency 30. Width and height of its bar?", "Width $= 1$ cm (5 units at 2 cm per 10). Area $= 30 \\times 0.25 = 7.5$ cm² so height $= 7.5$ cm."],
-    ["Estimate the number under 11 minutes when the class $10\\text{–}15$ has frequency 20.", "Assume uniform spread: $\\tfrac{1}{5} \\times 20 = 4$ (plus every lower class)."],
-    ["Five values a box plot shows?", "Minimum (or lowest non-outlier), $Q_1$, median, $Q_3$, maximum (or highest non-outlier); outliers as crosses."],
-    ["Outlier fences with $Q_1 = 8$, $Q_3 = 17$?", "IQR $= 9$; fences $8 - 13.5 = -5.5$ and $17 + 13.5 = 30.5$."],
-    ["How do you compare two box plots for a mark scheme?", "One comparison of location (median), one of spread (IQR/range), both in context."],
-    ["Cumulative frequency graph: how do you read the median for $n = 80$?", "Read across from cumulative frequency 40 to the curve, then down."],
-    ["Why might a histogram show a normal model is unsuitable?", "The distribution is skewed (not symmetric) or has a tail/cut-off."],
-    ["Why must class boundaries be used for continuous data?", "E.g. '10–19' recorded to the nearest unit has boundaries 9.5 and 19.5 — the width is 10, not 9."]
+    ["Frequency density formula?", "$\\text{fd} = \\dfrac{\\text{frequency}}{\\text{class width}}$.", 15],
+    ["A histogram bar for class $10 \\le x < 20$ is 2 cm wide and 3 cm tall and represents 24 items. What area is 1 item?", "$6 \\text{ cm}^2 = 24$ items, so 1 item $= 0.25$ cm².", 16],
+    ["On a histogram the bar for class $10 \\le x < 20$ is 2 cm wide and represents 24 items (so 1 item $= 0.25$ cm²). Class $20 \\le x < 25$ has frequency 30. Width and height of its bar?", "Width $= 1$ cm (5 units at 2 cm per 10). Area $= 30 \\times 0.25 = 7.5$ cm² so height $= 7.5$ cm.", 17],
+    ["Estimate the number under 11 minutes when the class $10\\text{–}15$ has frequency 20.", "Assume uniform spread: $\\tfrac{1}{5} \\times 20 = 4$ (plus every lower class).", 18],
+    ["Outlier fences with $Q_1 = 8$, $Q_3 = 17$?", "IQR $= 9$; fences $8 - 13.5 = -5.5$ and $17 + 13.5 = 30.5$.", 20],
+    ["How do you compare two box plots for a mark scheme?", "One comparison of location (median), one of spread (IQR/range), both in context.", 21],
+    ["Cumulative frequency graph: how do you read the median for $n = 80$?", "Read across from cumulative frequency 40 to the curve, then down.", 22],
+    ["Why might a histogram show a normal model is unsuitable?", "The distribution is skewed (not symmetric) or has a tail/cut-off.", 23],
+    ["Why must class boundaries be used for continuous data?", "E.g. '10–19' recorded to the nearest unit has boundaries 9.5 and 19.5 — the width is 10, not 9.", 24]
   ],
   quiz: [
     { q: "Frequency density for class $30 \\le x < 50$ with frequency 8:", opts: ["0.4", "160", "2.5", "8"], ans: 0, why: "$8 \\div 20$." },
@@ -118,16 +115,16 @@ X("maths:S2.2", {
     { callout: { t: "warn", h: "Describe the correlation", body: "Three words: **strength**, **direction**, **context** — \"strong negative correlation between pressure and rainfall\". Then, if asked for a large-data-set variable, name one exactly (Daily Mean Temperature, Daily Total Rainfall, Daily Mean Pressure, Daily Mean Windspeed, Daily Maximum Gust, Daily Total Sunshine, Daily Mean Visibility, Daily Maximum Relative Humidity, Daily Mean Cloud Cover)." } }
   ],
   flashcards: [
-    ["Interpret the gradient of $p = 22 - 1.1t$ (price £, $t$ years old).", "For each additional year of age the price falls by £1.10 (per year)… i.e. £1100 if in thousands — always quote the units."],
-    ["Why is using $p = 22 - 1.1t$ at $t = 30$ unreliable when the data has $2 \\le t \\le 12$?", "It is extrapolation outside the range of the data — the linear model may not hold."],
-    ["Regression line of $y$ on $x$ — what can it predict?", "$y$ from a given $x$ (the independent variable), not $x$ from $y$."],
-    ["Describe the correlation shown by points falling steeply from top-left to bottom-right.", "Strong negative correlation."],
-    ["Correlation vs causation?", "Correlation shows an association; it does not show that one variable causes the other (a third factor may be involved)."],
-    ["$\\log_{10} y = 0.2x + 1.5$. Write $y$ in the form $ab^x$.", "$y = 10^{1.5} \\times (10^{0.2})^x = 31.6 \\times 1.58^x$."],
-    ["What does a linear relationship between $\\log y$ and $x$ tell you?", "$y$ grows or decays exponentially in $x$."],
-    ["Why might a linear regression line be unsuitable for a scatter diagram?", "The points show a curved (non-linear) pattern, or an outlier distorts the fit."],
-    ["PMCC of $-0.03$ — what does it show?", "Almost no linear correlation."],
-    ["Which large-data-set variable is on the horizontal axis of a rainfall-vs-pressure scatter diagram?", "Daily Mean Pressure (hPa)."]
+    ["Interpret the gradient of $p = 22 - 1.1t$ (price £, $t$ years old).", "For each additional year of age the price falls by £1.10 (per year)… i.e. £1100 if in thousands — always quote the units.", 14],
+    ["Why is using $p = 22 - 1.1t$ at $t = 30$ unreliable when the data has $2 \\le t \\le 12$?", "It is extrapolation outside the range of the data — the linear model may not hold.", 15],
+    ["Regression line of $y$ on $x$ — what can it predict?", "$y$ from a given $x$ (the independent variable), not $x$ from $y$.", 16],
+    ["Describe the correlation shown by points falling steeply from top-left to bottom-right.", "Strong negative correlation.", 17],
+    ["Correlation vs causation?", "Correlation shows an association; it does not show that one variable causes the other (a third factor may be involved).", 18],
+    ["$\\log_{10} y = 0.2x + 1.5$. Write $y$ in the form $ab^x$.", "$y = 10^{1.5} \\times (10^{0.2})^x = 31.6 \\times 1.58^x$.", 19],
+    ["What does a linear relationship between $\\log y$ and $x$ tell you?", "$y$ grows or decays exponentially in $x$.", 20],
+    ["Why might a linear regression line be unsuitable for a scatter diagram?", "The points show a curved (non-linear) pattern, or an outlier distorts the fit.", 21],
+    ["PMCC of $-0.03$ — what does it show?", "Almost no linear correlation.", 22],
+    ["Which large-data-set variable is on the horizontal axis of a rainfall-vs-pressure scatter diagram?", "Daily Mean Pressure (hPa).", 23]
   ],
   quiz: [
     { q: "$y = 3.2 + 0.8x$: the gradient means", opts: ["$y$ is 3.2 when $x = 0$", "each unit increase in $x$ increases $y$ by 0.8", "$x$ causes $y$", "the correlation is 0.8"], ans: 1, why: "Rate of change." },
@@ -169,16 +166,16 @@ X("maths:S2.3", {
     { callout: { t: "tip", h: "Comparing two data sets", body: "Two sentences: one comparing a **location** (mean/median), one comparing a **spread** (sd/IQR), each *in context*: \"Coach B's runners have a lower mean time so are faster on average; their sd is larger so their times are more variable.\"" } }
   ],
   flashcards: [
-    ["Standard deviation from $\\sum x$ and $\\sum x^2$?", "$\\sigma = \\sqrt{\\dfrac{\\sum x^2}{n} - \\left(\\dfrac{\\sum x}{n}\\right)^2}$."],
-    ["$n = 12$, $\\sum x = 780$, $\\sum x^2 = 50850$. Mean and sd?", "$\\bar x = 65$; $\\sigma^2 = 4237.5 - 4225 = 12.5$; $\\sigma = 3.54$."],
-    ["Coding $y = x - 1010$: $\\bar y = 3.2$, $\\sigma_y = 5.46$. Mean and sd of $x$?", "$\\bar x = 1013.2$, $\\sigma_x = 5.46$ (unchanged)."],
-    ["Coding $y = \\dfrac{x - 20}{5}$ with $\\sigma_y = 1.4$. $\\sigma_x$?", "$5 \\times 1.4 = 7$."],
-    ["Every value is reduced by 5 g. Effect on mean and sd?", "Mean decreases by 5 g; sd unchanged."],
-    ["Every value is multiplied by 1.2. Effect on mean and sd?", "Both multiplied by 1.2."],
-    ["Median by interpolation: $n = 60$, cf before the class $10 \\le x < 20$ is 22, class frequency 22.", "$10 + \\dfrac{30 - 22}{22} \\times 10 = 13.6$."],
-    ["Grouped mean: what value represents each class?", "The midpoint of the class."],
-    ["Mean vs median — when is the median preferred?", "When the data are skewed or contain outliers (the median is unaffected by extreme values)."],
-    ["IQR of grouped data — which positions?", "$Q_1$ at $\\tfrac n4$, $Q_3$ at $\\tfrac{3n}{4}$ by interpolation."]
+    ["Standard deviation from $\\sum x$ and $\\sum x^2$?", "$\\sigma = \\sqrt{\\dfrac{\\sum x^2}{n} - \\left(\\dfrac{\\sum x}{n}\\right)^2}$.", 15],
+    ["$n = 12$, $\\sum x = 780$, $\\sum x^2 = 50850$. Mean and sd?", "$\\bar x = 65$; $\\sigma^2 = 4237.5 - 4225 = 12.5$; $\\sigma = 3.54$.", 16],
+    ["Coding $y = x - 1010$: $\\bar y = 3.2$, $\\sigma_y = 5.46$. Mean and sd of $x$?", "$\\bar x = 1013.2$, $\\sigma_x = 5.46$ (unchanged).", 17],
+    ["Coding $y = \\dfrac{x - 20}{5}$ with $\\sigma_y = 1.4$. $\\sigma_x$?", "$5 \\times 1.4 = 7$.", 18],
+    ["Every value is reduced by 5 g. Effect on mean and sd?", "Mean decreases by 5 g; sd unchanged.", 19],
+    ["Every value is multiplied by 1.2. Effect on mean and sd?", "Both multiplied by 1.2.", 20],
+    ["Median by interpolation: $n = 60$, cf before the class $10 \\le x < 20$ is 22, class frequency 22.", "$10 + \\dfrac{30 - 22}{22} \\times 10 = 13.6$.", 21],
+    ["Grouped mean: what value represents each class?", "The midpoint of the class.", 22],
+    ["Mean vs median — when is the median preferred?", "When the data are skewed or contain outliers (the median is unaffected by extreme values).", 23],
+    ["IQR of grouped data — which positions?", "$Q_1$ at $\\tfrac n4$, $Q_3$ at $\\tfrac{3n}{4}$ by interpolation.", 24]
   ],
   quiz: [
     { q: "$\\sum x = 200$, $\\sum x^2 = 4300$, $n = 10$: variance $=$", opts: ["30", "430", "20", "$\\sqrt{30}$"], ans: 0, why: "$430 - 400$." },
@@ -223,14 +220,13 @@ X("maths:S2.4", {
     { callout: { t: "warn", h: "Remove or keep?", body: "An outlier is only removed if it is an **error** (impossible value, recording mistake). A genuine but extreme value (a storm's rainfall) is kept — say so." } }
   ],
   flashcards: [
-    ["Quartile outlier rule?", "Below $Q_1 - 1.5 \\times$ IQR or above $Q_3 + 1.5 \\times$ IQR."],
-    ["Mean-sd outlier rule?", "More than 2 (or 3) standard deviations from the mean: outside $\\bar x \\pm 2\\sigma$."],
-    ["$\\bar x = 24.5$, $\\sigma = 6.2$: outlier limits?", "$12.1$ and $36.9$ — so 11 and 38 would be outliers."],
-    ["What does `tr` mean in the rainfall column of the large data set?", "Trace — less than 0.05 mm; treat as 0 (state the decision)."],
-    ["What should you do with a data entry of 999 or n/a?", "Remove it — it is a code for a missing reading, not a value."],
-    ["When should an outlier be removed?", "Only when it is an error/impossible; a genuine extreme value is kept."],
-    ["Why remove an outlier before calculating the mean and sd?", "They are heavily influenced by extreme values; the median and IQR are not."],
-    ["Effect of removing a high outlier on mean and sd?", "Both decrease."]
+    ["Mean-sd outlier rule?", "More than 2 (or 3) standard deviations from the mean: outside $\\bar x \\pm 2\\sigma$.", 14],
+    ["$\\bar x = 24.5$, $\\sigma = 6.2$: outlier limits?", "$12.1$ and $36.9$ — so 11 and 38 would be outliers.", 15],
+    ["What does `tr` mean in the rainfall column of the large data set?", "Trace — less than 0.05 mm; treat as 0 (state the decision).", 16],
+    ["What should you do with a data entry of 999 or n/a?", "Remove it — it is a code for a missing reading, not a value.", 17],
+    ["When should an outlier be removed?", "Only when it is an error/impossible; a genuine extreme value is kept.", 18],
+    ["Why remove an outlier before calculating the mean and sd?", "They are heavily influenced by extreme values; the median and IQR are not.", 19],
+    ["Effect of removing a high outlier on mean and sd?", "Both decrease.", 20]
   ],
   quiz: [
     { q: "$Q_1 = 15$, $Q_3 = 27$: upper fence ($1.5$ IQR):", opts: ["45", "39", "42", "33"], ans: 0, why: "$27 + 18$." },
@@ -267,14 +263,12 @@ X("maths:S3.1", {
   flashcards: [
     ["Condition for mutually exclusive events?", "$P(A \\cap B) = 0$; then $P(A \\cup B) = P(A) + P(B)$."],
     ["Condition for independent events?", "$P(A \\cap B) = P(A) \\times P(B)$, equivalently $P(A|B) = P(A)$."],
-    ["Addition rule?", "$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$."],
-    ["$P(A) = 0.25$, $P(C) = 0.4$, $A$ and $C$ independent: $P(A \\cap C)$?", "$0.1$."],
-    ["Can mutually exclusive events (non-zero probabilities) be independent?", "No: $P(A \\cap B) = 0 \\ne P(A)P(B)$."],
-    ["Test: 60 students, 24 in Art, 30 in Music, 12 in both. Independent?", "$P(A)P(M) = 0.4 \\times 0.5 = 0.2 = \\tfrac{12}{60}$ — yes."],
-    ["Same club data with 15 in both — independent?", "$\\tfrac{15}{60} = 0.25 \\ne 0.2$ — not independent."],
-    ["Suppliers A (40%, 3% faulty), B (35%, 5%), C (25%, 2%). $P(\\text{faulty})$?", "$0.012 + 0.0175 + 0.005 = 0.0345$."],
-    ["Why are 'faulty' and 'from A' not independent there?", "$P(\\text{faulty}|A) = 0.03 \\ne P(\\text{faulty}) = 0.0345$."],
-    ["$P(A') $ in terms of $P(A)$?", "$1 - P(A)$."]
+    ["$P(A) = 0.25$, $P(C) = 0.4$, $A$ and $C$ independent: $P(A \\cap C)$?", "$0.1$.", 16],
+    ["Test: 60 students, 24 in Art, 30 in Music, 12 in both. Independent?", "$P(A)P(M) = 0.4 \\times 0.5 = 0.2 = \\tfrac{12}{60}$ — yes.", 18],
+    ["60 students: 24 in Art, 30 in Music and 15 in both. Are Art and Music independent?", "$\\tfrac{15}{60} = 0.25 \\ne 0.2$ — not independent.", 19],
+    ["Suppliers A (40%, 3% faulty), B (35%, 5%), C (25%, 2%). $P(\\text{faulty})$?", "$0.012 + 0.0175 + 0.005 = 0.0345$.", 20],
+    ["Suppliers A (40%, 3% faulty), B (35%, 5%), C (25%, 2%). Why are 'faulty' and 'from A' not independent?", "$P(\\text{faulty}|A) = 0.03 \\ne P(\\text{faulty}) = 0.0345$.", 21],
+    ["$P(A') $ in terms of $P(A)$?", "$1 - P(A)$.", 22]
   ],
   quiz: [
     { q: "$P(A) = 0.5$, $P(B) = 0.3$, independent: $P(A \\cup B) =$", opts: ["0.8", "0.65", "0.15", "0.35"], ans: 1, why: "$0.5 + 0.3 - 0.15$." },
@@ -314,15 +308,14 @@ X("maths:S3.2", {
     { callout: { t: "formula", h: "Useful rearrangements", body: "$P(A \\cap B) = P(A|B)P(B) = P(B|A)P(A)$; $P(A|B') = \\dfrac{P(A) - P(A \\cap B)}{1 - P(B)}$; if independent, $P(A|B) = P(A|B') = P(A)$." } }
   ],
   flashcards: [
-    ["Conditional probability formula?", "$P(A|B) = \\dfrac{P(A \\cap B)}{P(B)}$."],
-    ["Two-way table: 120 employees, 60 work from home; 30 of those are full-time. $P(\\text{FT}|\\text{home})$?", "$\\tfrac{30}{60} = 0.5$."],
-    ["If $P(\\text{FT}) = \\tfrac23$ there, are FT and home independent?", "No: $P(\\text{FT}|\\text{home}) = 0.5 \\ne \\tfrac23$."],
-    ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow})$?", "$\\tfrac38 \\times \\tfrac46 = \\tfrac14$."],
-    ["Same bags: $P(\\text{both yellow} \\mid \\text{same colour})$?", "$P(BB) = \\tfrac58 \\times \\tfrac26 = \\tfrac{5}{24}$; $\\dfrac{6/24}{6/24 + 5/24} = \\tfrac{6}{11}$."],
-    ["$P(A|B')$ in terms of Venn regions?", "$\\dfrac{P(A \\cap B')}{1 - P(B)}$."],
-    ["Given $A$ and $B$ independent, $P(A|B') = $?", "$P(A)$."],
-    ["'Given that exactly one of $A$, $B$ occurs, find the probability it was $A$.'", "$\\dfrac{P(A \\cap B')}{P(A \\cap B') + P(A' \\cap B)}$."],
-    ["Tree diagram: second-branch probabilities are…", "Conditional on the first branch — they change when sampling without replacement."]
+    ["Two-way table: 120 employees, 60 work from home; 30 of those are full-time. $P(\\text{FT}|\\text{home})$?", "$\\tfrac{30}{60} = 0.5$.", 13],
+    ["120 employees, 60 work from home, 30 of those full-time (FT). If $P(\\text{FT}) = \\tfrac23$ overall, are FT and working from home independent?", "No: $P(\\text{FT}|\\text{home}) = 0.5 \\ne \\tfrac23$.", 14],
+    ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow})$?", "$\\tfrac38 \\times \\tfrac46 = \\tfrac14$.", 15],
+    ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow} \\mid \\text{same colour})$?", "$P(BB) = \\tfrac58 \\times \\tfrac26 = \\tfrac{5}{24}$; $\\dfrac{6/24}{6/24 + 5/24} = \\tfrac{6}{11}$.", 16],
+    ["$P(A|B')$ in terms of Venn regions?", "$\\dfrac{P(A \\cap B')}{1 - P(B)}$.", 17],
+    ["Given $A$ and $B$ independent, $P(A|B') = $?", "$P(A)$.", 18],
+    ["'Given that exactly one of $A$, $B$ occurs, find the probability it was $A$.'", "$\\dfrac{P(A \\cap B')}{P(A \\cap B') + P(A' \\cap B)}$.", 19],
+    ["Tree diagram: second-branch probabilities are…", "Conditional on the first branch — they change when sampling without replacement.", 20]
   ],
   quiz: [
     { q: "$P(A \\cap B) = 0.2$, $P(B) = 0.5$: $P(A|B) =$", opts: ["0.1", "0.4", "0.7", "0.25"], ans: 1, why: "$0.2/0.5$." },
@@ -363,9 +356,9 @@ X("maths:S3.3", {
   ],
   flashcards: [
     ["Bag A: 2 red, 3 green; bag B: 4 red, 1 green. One ball moved A→B, then one drawn from B. $P(\\text{green drawn})$?", "$\\tfrac35 \\times \\tfrac26 + \\tfrac25 \\times \\tfrac16 = \\tfrac{8}{30} = \\tfrac{4}{15}$."],
-    ["Same setup: $P(\\text{green moved} \\mid \\text{green drawn})$?", "$\\dfrac{6/30}{8/30} = \\tfrac34$."],
+    ["Bag A: 2 red, 3 green; bag B: 4 red, 1 green. One ball moved A→B, then one drawn from B and it is green. $P(\\text{the moved ball was green})$?", "$\\dfrac{6/30}{8/30} = \\tfrac34$."],
     ["Two assumptions when modelling free throws with a fixed probability $p$?", "Each throw is independent of the others; $p$ is constant for every throw."],
-    ["Why might those be unrealistic?", "A player may gain confidence after a success (not independent) or tire (probability changes)."],
+    ["Why might it be unrealistic to model free throws as independent with a constant probability $p$?", "A player may gain confidence after a success (not independent) or tire (probability changes)."],
     ["A spinner lands on $x$ with probability $\\tfrac x{10}$, $x = 1, 2, 3, 4$. Given $X = x$, a coin with $P(\\text{head}) = \\tfrac{k}{x}$ is tossed. Find $P(\\text{head})$ in terms of $k$.", "$\\sum \\tfrac{x}{10}\\cdot\\tfrac{k}{x} = \\tfrac{4k}{10} = 0.4k$."],
     ["'Probability of rain each day is 0.3, days independent' — realistic?", "No — weather on consecutive days is correlated and the probability varies with season."],
     ["When is 'with replacement' a reasonable simplification of 'without'?", "When the population is very large compared with the sample so probabilities barely change."],
@@ -410,13 +403,13 @@ X("maths:S4.1", {
   ],
   flashcards: [
     ["$P(X = x) = kx$, $x = 1, 2, 3, 4$. Find $k$.", "$k(1 + 2 + 3 + 4) = 1 \\Rightarrow k = 0.1$."],
-    ["With that distribution, $P(X_1 + X_2 = 5)$ for two independent spins?", "$2(0.1 \\times 0.4 + 0.2 \\times 0.3) = 0.2$."],
+    ["$P(X = x) = 0.1x$ for $x = 1, 2, 3, 4$. $P(X_1 + X_2 = 5)$ for two independent spins?", "$2(0.1 \\times 0.4 + 0.2 \\times 0.3) = 0.2$."],
     ["$P(X = x) = \\log_{10}\\dfrac{x + 1}{x}$, $x = 1, \\dots, 9$. Why is this a valid distribution?", "Sum telescopes: $\\log_{10}\\tfrac21 + \\dots + \\log_{10}\\tfrac{10}{9} = \\log_{10} 10 = 1$."],
-    ["Same distribution: $P(X > 4)$?", "$\\log_{10}\\tfrac{10}{5} = \\log_{10} 2 = 0.301$."],
+    ["$P(X = x) = \\log_{10}\\dfrac{x + 1}{x}$, $x = 1, \\dots, 9$. $P(X > 4)$?", "$\\log_{10}\\tfrac{10}{5} = \\log_{10} 2 = 0.301$."],
     ["Discrete uniform on $\\{1, \\dots, 5\\}$: $P(X = 2)$?", "$0.2$."],
     ["Why is a discrete uniform a poor model for Daily Mean Cloud Cover (oktas)?", "The observed frequencies are not equal — high oktas (7, 8) occur far more often."],
     ["Spin until the first 4, $P(4) = 0.3$. $P(N = 3)$?", "$0.7^2 \\times 0.3 = 0.147$."],
-    ["$P(N \\le 3)$ there?", "$1 - 0.7^3 = 0.657$."],
+    ["Spin until the first 4, $P(4) = 0.3$. $P(N \\le 3)$?", "$1 - 0.7^3 = 0.657$."],
     ["Two biased spinners, $R$ and $G$; $X = mR + nG$ — how do you find $m$, $n$ from a given distribution of $X$?", "Match the smallest and largest values of $X$ to $m \\cdot \\min R + n \\cdot \\min G$ etc."],
     ["Conditions for a binomial model?", "Fixed number of trials, two outcomes, constant probability, independent trials."]
   ],
@@ -461,15 +454,13 @@ X("maths:S4.2", {
   ],
   flashcards: [
     ["Battery life $\\sim N(18, 4^2)$ hours. $P(L > 16)$?", "$P(Z > -0.5) = 0.6915$."],
-    ["A torch needs two such batteries both working. $P(\\text{works for 16 h})$?", "$0.6915^2 = 0.478$."],
+    ["Battery life $\\sim N(18, 4^2)$ hours. A torch needs two such batteries both working. $P(\\text{works for 16 h})$?", "$0.6915^2 = 0.478$."],
     ["$P(X < a) = 0.1$ for $N(200, \\sigma^2)$ with $a = 196$: find $\\sigma$.", "$\\dfrac{196 - 200}{\\sigma} = -1.2816 \\Rightarrow \\sigma = 3.12$."],
-    ["Two percentiles: $P(H < 160) = 0.4$, $P(H > 170) = 0.15$. Set up the equations.", "$160 = \\mu - 0.2533\\sigma$, $170 = \\mu + 1.0364\\sigma$."],
-    ["Solve them.", "$1.2897\\sigma = 10 \\Rightarrow \\sigma = 7.75$, $\\mu = 162.0$."],
-    ["Female heights $N(162, 6.5^2)$: 90th percentile?", "$162 + 1.2816 \\times 6.5 = 170.3$ cm."],
-    ["$P(H > 170 \\mid H > 165)$ for that distribution?", "$\\dfrac{P(Z > 1.231)}{P(Z > 0.4615)} = \\dfrac{0.1092}{0.3222} = 0.339$."],
-    ["Normal distribution: proportion within one sd / two sd of the mean?", "About 68% and 95%."],
-    ["Points of inflection of the normal curve are at…", "$\\mu \\pm \\sigma$."],
-    ["Expected number out of 500 rods with $P(\\text{reject}) = 0.1$?", "50."]
+    ["Heights: $P(H < 160) = 0.4$ and $P(H > 170) = 0.15$. Find $\\mu$ and $\\sigma$.", "$160 = \\mu - 0.2533\\sigma$ and $170 = \\mu + 1.0364\\sigma$; subtracting, $1.2897\\sigma = 10 \\Rightarrow \\sigma = 7.75$, $\\mu = 162.0$."],
+    ["Female heights $N(162, 6.5^2)$: 90th percentile?", "$162 + 1.2816 \\times 6.5 = 170.3$ cm.", 19],
+    ["$P(H > 170 \\mid H > 165)$ for that distribution?", "$\\dfrac{P(Z > 1.231)}{P(Z > 0.4615)} = \\dfrac{0.1092}{0.3222} = 0.339$.", 20],
+    ["Normal distribution: proportion within one sd / two sd of the mean?", "About 68% and 95%.", 21],
+    ["Expected number out of 500 rods with $P(\\text{reject}) = 0.1$?", "50.", 23]
   ],
   quiz: [
     { q: "$X \\sim N(50, 5^2)$: $P(X < 60) =$", opts: ["0.9772", "0.8413", "0.5", "0.0228"], ans: 0, why: "$z = 2$." },
@@ -564,16 +555,14 @@ X("maths:S5.1", {
     { callout: { t: "warn", h: "Common critique targets (AS 2019 Q5)", body: "Wrong tail; $P(X = 8)$ used instead of $P(X \\ge 8)$; hypotheses about the sample not the population; conclusion 'proves' H₁; comparing a probability with 0.95 rather than 0.05." } }
   ],
   flashcards: [
-    ["What is a null hypothesis?", "The default statement about a population parameter, assumed true unless there is sufficient evidence against it."],
-    ["One-tailed vs two-tailed test?", "One-tailed: H₁ specifies a direction ($p > 0.3$); two-tailed: H₁ is $p \\ne 0.3$ and the level is split between the tails."],
-    ["What is a critical region?", "The set of values of the test statistic that lead to rejecting H₀."],
-    ["Actual significance level?", "The probability, under H₀, of the test statistic lying in the critical region."],
-    ["p-value?", "The probability, under H₀, of a result at least as extreme as the one observed."],
-    ["Hypotheses for a test of negative correlation?", "H₀: $\\rho = 0$, H₁: $\\rho < 0$."],
-    ["$r = -0.915$, $n = 8$, 5% one-tailed: conclusion?", "Critical value $-0.6215$; $-0.915 < -0.6215$ so reject H₀ — evidence of negative correlation."],
-    ["$r = -0.510$, $n = 10$, 5% one-tailed?", "Critical value $-0.5494$; $-0.510 > -0.5494$ so do not reject H₀ — insufficient evidence."],
-    ["How should a conclusion be worded?", "'Reject H₀ (or not); there is (insufficient) evidence at the 5% level that … in context'."],
-    ["Why is 'H₀: the coin is fair' not acceptable?", "Hypotheses must be about a parameter: H₀: $p = 0.5$."]
+    ["What is a null hypothesis?", "The default statement about a population parameter, assumed true unless there is sufficient evidence against it.", 15],
+    ["One-tailed vs two-tailed test?", "One-tailed: H₁ specifies a direction ($p > 0.3$); two-tailed: H₁ is $p \\ne 0.3$ and the level is split between the tails.", 16],
+    ["Actual significance level?", "The probability, under H₀, of the test statistic lying in the critical region.", 18],
+    ["Hypotheses for a test of negative correlation?", "H₀: $\\rho = 0$, H₁: $\\rho < 0$.", 20],
+    ["$r = -0.915$, $n = 8$, 5% one-tailed: conclusion?", "Critical value $-0.6215$; $-0.915 < -0.6215$ so reject H₀ — evidence of negative correlation.", 21],
+    ["$r = -0.510$, $n = 10$, 5% one-tailed?", "Critical value $-0.5494$; $-0.510 > -0.5494$ so do not reject H₀ — insufficient evidence.", 22],
+    ["How should a conclusion be worded?", "'Reject H₀ (or not); there is (insufficient) evidence at the 5% level that … in context'.", 23],
+    ["Why is 'H₀: the coin is fair' not acceptable?", "Hypotheses must be about a parameter: H₀: $p = 0.5$.", 24]
   ],
   quiz: [
     { q: "H₁: $p > 0.2$ is a:", opts: ["two-tailed", "one-tailed (upper)", "one-tailed (lower)", "null"], ans: 1, why: "Direction given." },
@@ -612,8 +601,8 @@ X("maths:S5.2", {
   flashcards: [
     ["Hypotheses for 'a dentist claims fewer than 10% of patients are late'?", "H₀: $p = 0.1$, H₁: $p < 0.1$."],
     ["$X \\sim B(20, 0.1)$, two-tailed 5%: lower critical region?", "None — $P(X = 0) = 0.1216 > 0.025$."],
-    ["Upper critical region there?", "$P(X \\ge 6) = 0.0113 \\le 0.025$ (but $P(X \\ge 5) = 0.0432$): $X \\ge 6$."],
-    ["Actual significance level of that test?", "$0.0113$ (1.13%)."],
+    ["$X \\sim B(20, 0.1)$, two-tailed 5%: upper critical region?", "$P(X \\ge 6) = 0.0113 \\le 0.025$ (but $P(X \\ge 5) = 0.0432$): $X \\ge 6$."],
+    ["Actual significance level of the two-tailed 5% test of $H_0: p = 0.1$ with $X \\sim B(20, 0.1)$?", "$0.0113$ (1.13%)."],
     ["$X \\sim B(40, 0.25)$, two-tailed 5%: critical region?", "$X \\le 4$ ($0.0160$) or $X \\ge 17$ ($0.0116$); actual level 2.76%."],
     ["$B(30, 0.15)$, observed 8, H₁: $p > 0.15$: p-value?", "$P(X \\ge 8) = 1 - 0.9302 = 0.0698 > 0.05$ — do not reject."],
     ["$B(200, 0.015)$, two-tailed 5%: critical region?", "Lower: none ($P(0) = 0.0487$); upper $X \\ge 7$ ($0.0113$)."],
@@ -662,15 +651,14 @@ X("maths:S5.3", {
     { callout: { t: "formula", h: "Critical values of z", body: "One-tailed 5%: 1.6449; 1%: 2.3263. Two-tailed 5%: ±1.9600; 1%: ±2.5758; 10%: ±1.6449." } }
   ],
   flashcards: [
-    ["Distribution of the sample mean of $n$ observations from $N(\\mu, \\sigma^2)$?", "$\\bar X \\sim N\\left(\\mu, \\dfrac{\\sigma^2}{n}\\right)$."],
-    ["Doctor's consultation time $N(10, 3^2)$ min; sample of 20 has mean 11.5. Test statistic?", "$z = \\dfrac{11.5 - 10}{3/\\sqrt{20}} = 2.24$."],
-    ["Conclusion at 5% one-tailed?", "$2.24 > 1.6449$ (p-value 0.0127) — reject H₀; evidence the mean time has increased."],
-    ["Critical value of $\\bar x$ for that test?", "$10 + 1.6449 \\times \\dfrac{3}{\\sqrt{20}} = 11.10$."],
-    ["Heights $N(177, 7.4^2)$; sample of 52 from region B has mean 175.2; two-tailed 5%?", "$z = \\dfrac{-1.8}{7.4/\\sqrt{52}} = -1.75$; $|z| < 1.96$ — do not reject H₀."],
-    ["Standard error of the mean?", "$\\dfrac{\\sigma}{\\sqrt n}$."],
-    ["Effect of increasing $n$ on the test?", "Smaller standard error, so the same difference in means gives a larger $|z|$ — more likely to be significant."],
-    ["What assumption about $\\sigma$ is made?", "The population standard deviation is known and unchanged under H₁."],
-    ["Hypotheses for 'the mean is different from 177'?", "H₀: $\\mu = 177$, H₁: $\\mu \\ne 177$."]
+    ["Doctor's consultation time $N(10, 3^2)$ min; sample of 20 has mean 11.5. Test statistic?", "$z = \\dfrac{11.5 - 10}{3/\\sqrt{20}} = 2.24$.", 11],
+    ["Conclusion at 5% one-tailed?", "$2.24 > 1.6449$ (p-value 0.0127) — reject H₀; evidence the mean time has increased.", 12],
+    ["Critical value of $\\bar x$ for that test?", "$10 + 1.6449 \\times \\dfrac{3}{\\sqrt{20}} = 11.10$.", 13],
+    ["Heights $N(177, 7.4^2)$; sample of 52 from region B has mean 175.2; two-tailed 5%?", "$z = \\dfrac{-1.8}{7.4/\\sqrt{52}} = -1.75$; $|z| < 1.96$ — do not reject H₀.", 14],
+    ["Standard error of the mean?", "$\\dfrac{\\sigma}{\\sqrt n}$.", 15],
+    ["Effect of increasing $n$ on the test?", "Smaller standard error, so the same difference in means gives a larger $|z|$ — more likely to be significant.", 16],
+    ["What assumption about $\\sigma$ is made?", "The population standard deviation is known and unchanged under H₁.", 17],
+    ["Hypotheses for 'the mean is different from 177'?", "H₀: $\\mu = 177$, H₁: $\\mu \\ne 177$.", 18]
   ],
   quiz: [
     { q: "$\\sigma = 6$, $n = 36$: sd of $\\bar X$ is", opts: ["6", "1", "$\\tfrac16$", "36"], ans: 1, why: "$6/\\sqrt{36}$." },

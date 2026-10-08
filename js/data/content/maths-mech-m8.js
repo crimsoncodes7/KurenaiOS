@@ -161,15 +161,14 @@ C["maths:M8.1"] = {
     ] } }
   ],
   flashcards: [
-    ["Newton's first law?", "A body stays at rest or moves with constant velocity unless a resultant force acts on it."],
-    ["Constant velocity means the resultant force is …?", "Zero."],
-    ["Direction of the normal reaction?", "Perpendicular to the surface, away from it."],
-    ["What can a rod do that a string cannot?", "Push — exert a thrust (compression)."],
-    ["Weight of a 5 kg mass ($g = 9.8$)?", "49 N."],
-    ["A force $P$ pulls at $\\alpha$ above the horizontal on a mass $m$ on a floor. $R$?", "$R = mg - P\\sin\\alpha$."],
-    ["Car at constant speed, resistance 400 N. Driving force?", "400 N."],
-    ["What does \"in equilibrium\" mean?", "The resultant force is zero (at rest or constant velocity)."],
-    ["Is acceleration a force?", "No — draw it separately from the force diagram."]
+    ["Constant velocity means the resultant force is …?", "Zero.", 1],
+    ["Direction of the normal reaction?", "Perpendicular to the surface, away from it.", 2],
+    ["What can a rod do that a string cannot?", "Push — exert a thrust (compression).", 3],
+    ["Weight of a 5 kg mass ($g = 9.8$)?", "49 N.", 4],
+    ["A force $P$ pulls at $\\alpha$ above the horizontal on a mass $m$ on a floor. $R$?", "$R = mg - P\\sin\\alpha$.", 5],
+    ["Car at constant speed, resistance 400 N. Driving force?", "400 N.", 6],
+    ["What does \"in equilibrium\" mean?", "The resultant force is zero (at rest or constant velocity).", 7],
+    ["Is acceleration a force?", "No — draw it separately from the force diagram.", 8]
   ],
   quiz: [
     { q: "A particle moves at constant velocity. The resultant force on it is", opts: ["zero", "in the direction of motion", "against the motion", "equal to its weight"], ans: 0, why: "Newton's first law." },
@@ -312,15 +311,14 @@ C["maths:M8.2"] = {
     ] } }
   ],
   flashcards: [
-    ["Newton's second law?", "Resultant force $= ma$, in the direction of the acceleration."],
-    ["1 newton?", "The force giving 1 kg an acceleration of 1 m s$^{-2}$."],
-    ["Component of $mg$ down a slope at $\\alpha$?", "$mg\\sin\\alpha$."],
-    ["Normal reaction on a smooth slope (no other forces)?", "$mg\\cos\\alpha$."],
-    ["Acceleration of a particle released on a smooth slope?", "$g\\sin\\alpha$."],
-    ["Car 1000 kg, driving force 3000 N, resistance 1000 N. $a$?", "2 m s$^{-2}$."],
-    ["Forces $(3\\mathbf i + \\mathbf j)$ and $(\\mathbf i + 2\\mathbf j)$ on 0.5 kg. $\\mathbf a$?", "$8\\mathbf i + 6\\mathbf j$, magnitude 10."],
-    ["Falling 0.2 kg ball, resistance 0.6 N. $a$?", "6.8 m s$^{-2}$."],
-    ["Bearing of a velocity $-3\\mathbf i + 3\\mathbf j$?", "315°."]
+    ["1 newton?", "The force giving 1 kg an acceleration of 1 m s$^{-2}$.", 1],
+    ["Component of $mg$ down a slope at $\\alpha$?", "$mg\\sin\\alpha$.", 2],
+    ["Normal reaction on a smooth slope (no other forces)?", "$mg\\cos\\alpha$.", 3],
+    ["Acceleration of a particle released on a smooth slope?", "$g\\sin\\alpha$.", 4],
+    ["Car 1000 kg, driving force 3000 N, resistance 1000 N. $a$?", "2 m s$^{-2}$.", 5],
+    ["Forces $(3\\mathbf i + \\mathbf j)$ and $(\\mathbf i + 2\\mathbf j)$ on 0.5 kg. $\\mathbf a$?", "$8\\mathbf i + 6\\mathbf j$, magnitude 10.", 6],
+    ["Falling 0.2 kg ball, resistance 0.6 N. $a$?", "6.8 m s$^{-2}$.", 7],
+    ["Bearing of a velocity $-3\\mathbf i + 3\\mathbf j$?", "315°.", 8]
   ],
   quiz: [
     { q: "A 2 kg mass has a resultant force of 10 N. Its acceleration is", opts: ["5 m s$^{-2}$", "20 m s$^{-2}$", "0.2 m s$^{-2}$", "12 m s$^{-2}$"], ans: 0, why: "$10 / 2$." },
@@ -423,7 +421,7 @@ C["maths:M8.3"] = {
     ["Does $g$ depend on location?", "Yes (equator ~9.78, poles ~9.83, Moon ~1.6)."],
     ["Acceleration of a freely falling body of any mass?", "$g$."],
     ["Reaction on a person of mass $m$ in a lift accelerating up at $a$?", "$m(g + a)$."],
-    ["… accelerating down at $a$?", "$m(g - a)$."],
+    ["Reaction on a person of mass $m$ in a lift accelerating down at $a$?", "$m(g - a)$."],
     ["Tension raising 50 kg at 0.2 m s$^{-2}$?", "$50(9.8 + 0.2) = 500$ N."]
   ],
   quiz: [
@@ -706,7 +704,7 @@ C["maths:M8.4"] = {
     ["What does \"inextensible\" give in a pulley problem?", "Both particles have the same speed and size of acceleration."],
     ["What does \"smooth pulley\" give?", "The tension is the same either side."],
     ["Masses $4m$ and $3m$ over a pulley: $a$?", "$\\frac{g}{7}$."],
-    ["… and $T$?", "$\\frac{24mg}{7}$."],
+    ["Masses $4m$ and $3m$ over a smooth pulley: tension $T$?", "$\\frac{24mg}{7}$."],
     ["Force on a pulley with both string parts vertical?", "$2T$."],
     ["What happens to $T$ when the hanging particle hits the floor?", "It becomes zero (the string goes slack)."],
     ["Mass on a smooth table after the string goes slack?", "Moves at constant speed."],
@@ -834,13 +832,12 @@ C["maths:M8.5"] = {
   ],
   flashcards: [
     ["Resultant of $(2\\mathbf i + 3\\mathbf j)$ N and $(4\\mathbf i - 7\\mathbf j)$ N?", "$(6\\mathbf i - 4\\mathbf j)$ N."],
-    ["Magnitude of $(5\\mathbf i - 12\\mathbf j)$ N?", "13 N."],
-    ["Condition for $a\\mathbf i + b\\mathbf j$ to be parallel to $3\\mathbf i + \\mathbf j$?", "$a = 3b$."],
-    ["A particle in equilibrium under $\\mathbf F_1$, $\\mathbf F_2$, $\\mathbf F_3$: $\\mathbf F_3$?", "$-(\\mathbf F_1 + \\mathbf F_2)$."],
-    ["Components of 10 N at 30° above $\\mathbf i$?", "$(8.66\\mathbf i + 5\\mathbf j)$ N."],
-    ["A particle from rest under a constant force moves …?", "Along the line of the resultant force."],
-    ["$|\\mathbf a|$ for $|\\mathbf R| = 5$ N on 0.25 kg?", "20 m s$^{-2}$."],
-    ["Displacement from rest after $t$ under constant $\\mathbf a$?", "$\\frac12 \\mathbf a t^2$."]
+    ["Condition for $a\\mathbf i + b\\mathbf j$ to be parallel to $3\\mathbf i + \\mathbf j$?", "$a = 3b$.", 2],
+    ["A particle in equilibrium under $\\mathbf F_1$, $\\mathbf F_2$, $\\mathbf F_3$: $\\mathbf F_3$?", "$-(\\mathbf F_1 + \\mathbf F_2)$.", 3],
+    ["Components of 10 N at 30° above $\\mathbf i$?", "$(8.66\\mathbf i + 5\\mathbf j)$ N.", 4],
+    ["A particle from rest under a constant force moves …?", "Along the line of the resultant force.", 5],
+    ["$|\\mathbf a|$ for $|\\mathbf R| = 5$ N on 0.25 kg?", "20 m s$^{-2}$.", 6],
+    ["Displacement from rest after $t$ under constant $\\mathbf a$?", "$\\frac12 \\mathbf a t^2$.", 7]
   ],
   quiz: [
     { q: "$(3\\mathbf i + 4\\mathbf j)$ N and $(\\mathbf i - 7\\mathbf j)$ N act. The resultant's magnitude is", opts: ["5 N", "7 N", "25 N", "1 N"], ans: 0, why: "$4\\mathbf i - 3\\mathbf j$." },

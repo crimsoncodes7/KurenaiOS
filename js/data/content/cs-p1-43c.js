@@ -159,15 +159,13 @@ C["compsci:4.3.5.1"] = {
   ],
   flashcards: [
     ["Bubble sort?", "Repeated passes comparing adjacent items and swapping them when out of order."],
-    ["Time complexity?", "O(n²)."],
-    ["Why O(n²)?", "Up to n items examined per pass and up to n passes."],
-    ["Passes guaranteed to sort 100 items?", "99 (n − 1)."],
-    ["Improvement 1?", "A swapped flag: stop when a pass makes no swaps."],
-    ["Improvement 2?", "Reduce the inner loop's upper limit by 1 each pass."],
-    ["3 5 8 1 6 4 after one pass?", "3 5 1 6 4 8."],
-    ["Best case with the flag?", "O(n) — an already sorted list needs one pass."],
-    ["Extra memory needed?", "O(1) — it sorts in place (one Temp)."],
-    ["Is bubble sort tractable?", "Yes — polynomial time."]
+    ["Why is bubble sort O(n²)?", "Up to n items examined per pass and up to n passes.", 2],
+    ["Passes guaranteed to sort 100 items?", "99 (n − 1).", 3],
+    ["Improvement 1?", "A swapped flag: stop when a pass makes no swaps.", 4],
+    ["Improvement 2?", "Reduce the inner loop's upper limit by 1 each pass.", 5],
+    ["3 5 8 1 6 4 after one pass?", "3 5 1 6 4 8.", 6],
+    ["Extra memory needed?", "O(1) — it sorts in place (one Temp).", 8],
+    ["Is bubble sort tractable?", "Yes — polynomial time.", 9]
   ],
   quiz: [
     { q: "After pass 2 of a bubble sort on 3 5 8 1 6 4 the list is", opts: ["3 1 5 4 6 8", "1 3 4 5 6 8", "3 5 1 6 4 8", "1 3 5 8 4 6"], ans: 0, why: "A-level 2021 Q01." },
@@ -294,14 +292,12 @@ C["compsci:4.3.5.2"] = {
   ],
   flashcards: [
     ["Merge sort?", "Divide and conquer: split the list into halves until single items, then merge sorted sublists in pairs."],
-    ["Time complexity?", "O(n log n) — best, average and worst."],
-    ["Why O(n log n)?", "log₂ n levels of splitting, and each level merges n items."],
-    ["Base case?", "A sublist of 0 or 1 items — already sorted."],
-    ["Merge step?", "Repeatedly take the smaller front item of two sorted lists; copy the remainder."],
-    ["Disadvantage vs bubble sort?", "Needs extra memory — O(n)."],
-    ["Which of linear search, merge sort, binary search, post-order traversal is O(n log n)?", "Merge sort."],
-    ["Why are bubble and merge sort tractable?", "Polynomial (or better) time complexity."],
-    ["Max comparisons to merge lists of sizes a and b?", "a + b − 1."]
+    ["Why is merge sort O(n log n)?", "log₂ n levels of splitting, and each level merges n items.", 2],
+    ["Base case?", "A sublist of 0 or 1 items — already sorted.", 3],
+    ["Merge step?", "Repeatedly take the smaller front item of two sorted lists; copy the remainder.", 4],
+    ["Which of linear search, merge sort, binary search, post-order traversal is O(n log n)?", "Merge sort.", 6],
+    ["Why are bubble and merge sort tractable?", "Polynomial (or better) time complexity.", 7],
+    ["Max comparisons to merge lists of sizes a and b?", "a + b − 1.", 8]
   ],
   quiz: [
     { q: "Merge sort's time complexity is", opts: ["O(n log n)", "O(n²)", "O(log n)", "O(n)"], ans: 0, why: "Levels × items." },
@@ -443,16 +439,11 @@ C["compsci:4.3.6.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.4.1 weighted graphs and adjacency matrices; 4.2.2.1 priority queues; 4.3.1.1 BFS for unweighted shortest paths; 4.4.4.5 heuristics for intractable problems; 4.9.3 routing in networks." } }
   ],
   flashcards: [
-    ["Purpose of Dijkstra's algorithm?", "Find the shortest (lowest-cost) path from one node to the others in a weighted graph."],
-    ["Which node is processed next?", "The unvisited node with the smallest distance so far (from a priority queue)."],
-    ["Relaxing an edge?", "If D[U] + weight < D[V], set D[V] to it and P[V] ← U."],
-    ["What does array D hold at the end?", "The shortest distance from the start to each node."],
-    ["What does array P hold?", "The previous node on the shortest path to each node — used to rebuild the route."],
-    ["2018 warehouse: D[6]?", "7 — route 1–2–3–6."],
-    ["2018 A values in order?", "2, 5, 3, 8, 3, 7, 4, 9."],
-    ["Does Dijkstra work with negative weights?", "No."],
-    ["Applications?", "Sat-nav route planning, network routing, logistics, game path-finding."],
-    ["Heuristic?", "A method that finds a good-enough (not necessarily optimal) solution quickly, e.g. using domain knowledge to prune the search."]
+    ["Relaxing an edge?", "If D[U] + weight < D[V], set D[V] to it and P[V] ← U.", 2],
+    ["What does array P hold?", "The previous node on the shortest path to each node — used to rebuild the route.", 4],
+    ["Does Dijkstra work with negative weights?", "No.", 7],
+    ["Applications?", "Sat-nav route planning, network routing, logistics, game path-finding.", 8],
+    ["Heuristic?", "A method that finds a good-enough (not necessarily optimal) solution quickly, e.g. using domain knowledge to prune the search.", 9]
   ],
   quiz: [
     { q: "Dijkstra's algorithm next processes", opts: ["the unvisited node with the smallest distance", "the node with the cheapest edge", "the next node numerically", "the node with most edges"], ans: 0, why: "Priority queue on D." },

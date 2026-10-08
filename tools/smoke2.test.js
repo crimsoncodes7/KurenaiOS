@@ -46,7 +46,7 @@ step("every entry well-formed", () => {
     (v.quiz || []).forEach((q, i) => {
       if (q.ans === undefined || !q.opts || q.ans >= q.opts.length) throw new Error(k + " quiz " + i + " bad ans");
     });
-    (v.flashcards || []).forEach((c, i) => { if (c.length !== 2) throw new Error(k + " card " + i); });
+    (v.flashcards || []).forEach((c, i) => { if (c.length < 2 || c.length > 3) throw new Error(k + " card " + i); });
     (v.gens || []).forEach(g => { if (!KOS.worked.byIds([g]).length) throw new Error(k + " missing gen " + g); });
     (v.sims || []).forEach(s => { if (!KOS.sims.get(s)) throw new Error(k + " missing sim " + s); });
   }

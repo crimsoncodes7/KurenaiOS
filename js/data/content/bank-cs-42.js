@@ -80,14 +80,14 @@ X("compsci:4.2.1.2", {
 
 X("compsci:4.2.1.3", {
   flashcards: [
-    ["What is a record?", "A data structure holding a fixed number of fields, possibly of different types, describing one entity — e.g. a Student with Name, DOB and Grade."],
-    ["What is a field?", "One named item of data within a record."],
-    ["Why is a record preferred to parallel arrays?", "All data about one entity is kept together under one identifier, so it cannot get out of step and can be passed around as a unit."],
-    ["What is a text file?", "A file of human-readable characters organised in lines; read and written as strings."],
-    ["What is a binary file?", "A file storing data in its internal binary representation (records, images); not readable as text but compact and faster to load."],
-    ["Name the four basic file operations.", "Open (in a mode), read, write/append, close."],
-    ["What does EOF mean?", "End of file — a test that returns TRUE when no more data remains to be read."],
-    ["Why must a file be closed after use?", "To flush buffered writes to disk and release the file handle/lock so other programs can use it."]
+    ["What is a record?", "A data structure holding a fixed number of fields, possibly of different types, describing one entity — e.g. a Student with Name, DOB and Grade.", 10],
+    ["What is a field?", "One named item of data within a record.", 11],
+    ["Why is a record preferred to parallel arrays?", "All data about one entity is kept together under one identifier, so it cannot get out of step and can be passed around as a unit.", 12],
+    ["What is a text file?", "A file of human-readable characters organised in lines; read and written as strings.", 13],
+    ["What is a binary file?", "A file storing data in its internal binary representation (records, images); not readable as text but compact and faster to load.", 14],
+    ["Name the four basic file operations.", "Open (in a mode), read, write/append, close.", 15],
+    ["What does EOF mean?", "End of file — a test that returns TRUE when no more data remains to be read.", 16],
+    ["Why must a file be closed after use?", "To flush buffered writes to disk and release the file handle/lock so other programs can use it.", 17]
   ],
   quiz: [
     { q: "A record differs from an array because:", opts: ["it holds fields of different types", "it must be sorted", "it cannot be stored in a file", "it is always dynamic"], ans: 0, why: "Arrays are homogeneous; records are heterogeneous, named fields." },
@@ -115,14 +115,14 @@ X("compsci:4.2.1.4", {
     { callout: { t: "tip", body: "When an algorithm question says \"the queue is implemented as a circular array\", every step you describe must be at the **array** level (pointer arithmetic, MOD) — but when it says \"describe how a queue works\", stay at the **ADT** level (front, rear, FIFO)." }}
   ],
   flashcards: [
-    ["What is an abstract data type (ADT)?", "A data type defined by the operations on it and their behaviour, hiding the detail of how the data are actually represented."],
-    ["Give an example of an ADT and one possible implementation.", "A stack, implemented with an array and a top pointer, or with a linked list."],
-    ["Why are ADTs useful?", "Code using the ADT depends only on its operations, so the implementation can change without affecting that code; new types can be built from existing ones."],
-    ["What is the difference between a linked list and an array as implementations of a list?", "Linked list: dynamic nodes with pointers, O(n) access, O(1) insert once positioned. Array: static contiguous, O(1) access, O(n) insert."],
-    ["What are the operations of a linked list?", "Traverse, insert (after a node / at head), delete, search — all by following the next pointers."],
-    ["How is an item inserted in the middle of a linked list?", "Create the new node; set its pointer to the next node; set the previous node's pointer to the new node."],
-    ["What is the 'interface' of an ADT?", "The set of operations it exposes, e.g. push, pop, peek, isEmpty, isFull."],
-    ["How do you delete a node from a linked list?", "Point the previous node's pointer to the deleted node's next node; return the node's memory to the heap."]
+    ["What is an abstract data type (ADT)?", "A data type defined by the operations on it and their behaviour, hiding the detail of how the data are actually represented.", 10],
+    ["Give an example of an ADT and one possible implementation.", "A stack, implemented with an array and a top pointer, or with a linked list.", 11],
+    ["Why are ADTs useful?", "Code using the ADT depends only on its operations, so the implementation can change without affecting that code; new types can be built from existing ones.", 12],
+    ["What is the difference between a linked list and an array as implementations of a list?", "Linked list: dynamic nodes with pointers, O(n) access, O(1) insert once positioned. Array: static contiguous, O(1) access, O(n) insert.", 13],
+    ["What are the operations of a linked list?", "Traverse, insert (after a node / at head), delete, search — all by following the next pointers.", 14],
+    ["How is an item inserted in the middle of a linked list?", "Create the new node; set its pointer to the next node; set the previous node's pointer to the new node.", 15],
+    ["What is the 'interface' of an ADT?", "The set of operations it exposes, e.g. push, pop, peek, isEmpty, isFull.", 16],
+    ["How do you delete a node from a linked list?", "Point the previous node's pointer to the deleted node's next node; return the node's memory to the heap.", 17]
   ],
   quiz: [
     { q: "An ADT is defined by:", opts: ["its memory layout", "the operations it supports and their behaviour", "its programming language", "its size"], ans: 1, why: "Behaviour, not representation." },
@@ -162,14 +162,14 @@ X("compsci:4.2.2.1", {
     { callout: { t: "tip", h: "Priority queue insert (2020)", body: "Starting from the rear, move each item back one place **until an item with the same or higher priority is found**, then insert the new item in the position after it. \"Same or higher\" is the wording — *higher* alone was NE." }}
   ],
   flashcards: [
-    ["Describe the steps to add an item to a linear queue in an array.", "Check the queue is not full; add 1 to the rear pointer; store the item at the position the rear pointer indicates."],
-    ["Describe the steps to remove an item from a circular queue.", "Check the queue is not empty; read the item at front; add 1 to front, and if it has passed the last position set it to the first (or front ← (front+1) MOD size); reduce the size counter."],
-    ["Why does a circular queue beat a linear one in a fixed array?", "A linear queue leaves unusable space at the front after removals (or must shuffle every item up); a circular queue reuses the freed cells."],
-    ["How is an item added to a priority queue stored in an array?", "From the rear, move each item back one place until one with the same or higher priority is found, then insert after it."],
-    ["How can a stack be used to reverse a queue?", "Dequeue every item, pushing each onto the stack, until the queue is empty; then pop every item and enqueue it until the stack is empty."],
-    ["What error occurs when dequeuing from an empty queue?", "Underflow."],
-    ["What does a MOD operation achieve in a circular queue?", "Wraps a pointer that passes the last index back to 0 in one step: rear ← (rear + 1) MOD size."],
-    ["How do you tell whether a circular queue is full if front = rear could mean full or empty?", "Keep a separate size counter (full when size = maxSize, empty when size = 0)."]
+    ["Describe the steps to add an item to a linear queue in an array.", "Check the queue is not full; add 1 to the rear pointer; store the item at the position the rear pointer indicates.", 10],
+    ["Describe the steps to remove an item from a circular queue.", "Check the queue is not empty; read the item at front; add 1 to front, and if it has passed the last position set it to the first (or front ← (front+1) MOD size); reduce the size counter.", 11],
+    ["Why does a circular queue beat a linear one in a fixed array?", "A linear queue leaves unusable space at the front after removals (or must shuffle every item up); a circular queue reuses the freed cells.", 12],
+    ["How is an item added to a priority queue stored in an array?", "From the rear, move each item back one place until one with the same or higher priority is found, then insert after it.", 13],
+    ["How can a stack be used to reverse a queue?", "Dequeue every item, pushing each onto the stack, until the queue is empty; then pop every item and enqueue it until the stack is empty.", 14],
+    ["What error occurs when dequeuing from an empty queue?", "Underflow.", 15],
+    ["What does a MOD operation achieve in a circular queue?", "Wraps a pointer that passes the last index back to 0 in one step: rear ← (rear + 1) MOD size.", 16],
+    ["How do you tell whether a circular queue is full if front = rear could mean full or empty?", "Keep a separate size counter (full when size = maxSize, empty when size = 0).", 17]
   ],
   quiz: [
     { q: "First step when adding to any array-based queue:", opts: ["Increment rear", "Check the queue is not full", "Store the item", "Set front to 0"], ans: 1, why: "Overflow test before any pointer moves." },
@@ -202,14 +202,14 @@ X("compsci:4.2.3.1", {
     { callout: { t: "memorise", h: "RPN evaluation with a stack (2018, 2021)", body: "Read left to right; **push operands**; when an **operator** is reached **pop two**, apply, **push the result**; at the end the top of the stack is the answer. Pushing operators onto the stack scores 0 — the note for examiners is explicit." }}
   ],
   flashcards: [
-    ["What is the difference between peek and pop?", "Peek returns the top item without removing it; pop removes and returns it."],
-    ["What error occurs when popping an empty stack?", "Underflow (stack empty error)."],
-    ["Describe how a stack evaluates an RPN expression.", "Scan left to right; push operands; on an operator pop two operands, apply it, push the result; the final top item is the answer."],
-    ["How can one stack implement undo and repeat?", "Push each completed action; repeat peeks the top item and performs it again; undo pops the top item."],
-    ["What are the two tests before push and pop?", "Full test before push (overflow); empty test before pop (underflow)."],
-    ["How is a stack implemented in an array?", "An array plus a top pointer (−1 when empty); push increments top then stores; pop reads then decrements."],
-    ["Give three uses of stacks.", "Subroutine calls (stack frames), reversing sequences, RPN evaluation, undo, depth-first search / backtracking."],
-    ["An array is filled and emptied from the same end. Which ADT is it?", "A stack — LIFO."]
+    ["What is the difference between peek and pop?", "Peek returns the top item without removing it; pop removes and returns it.", 11],
+    ["What error occurs when popping an empty stack?", "Underflow (stack empty error).", 12],
+    ["Describe how a stack evaluates an RPN expression.", "Scan left to right; push operands; on an operator pop two operands, apply it, push the result; the final top item is the answer.", 13],
+    ["How can one stack implement undo and repeat?", "Push each completed action; repeat peeks the top item and performs it again; undo pops the top item.", 14],
+    ["What are the two tests before push and pop?", "Full test before push (overflow); empty test before pop (underflow).", 15],
+    ["How is a stack implemented in an array?", "An array plus a top pointer (−1 when empty); push increments top then stores; pop reads then decrements.", 16],
+    ["Give three uses of stacks.", "Subroutine calls (stack frames), reversing sequences, RPN evaluation, undo, depth-first search / backtracking.", 17],
+    ["An array is filled and emptied from the same end. Which ADT is it?", "A stack — LIFO.", 18]
   ],
   quiz: [
     { q: "After pushing 4, 7, 9, a peek returns:", opts: ["4", "7", "9", "nothing"], ans: 2, why: "Top of stack is the last pushed." },
@@ -250,14 +250,13 @@ X("compsci:4.2.4.1", {
     { callout: { t: "memorise", h: "Tree = connected, undirected, no cycles", body: "\"Not a tree because it contains a cycle\" (2018, 2025) · \"Not a tree because it is not connected\" (2025) · \"A tree is a connected, undirected graph with no cycles\" (2024). A **rooted** tree adds a designated root and parent–child relationships." }}
   ],
   flashcards: [
-    ["Define a weighted graph.", "A graph in which each edge has a value (weight/cost) associated with it."],
-    ["Define a directed graph.", "A graph whose edges have a direction — an edge from A to B does not imply one from B to A."],
-    ["When is an adjacency list better than an adjacency matrix?", "When the graph is sparse (few edges relative to vertices), edges rarely change and specific edges are seldom tested for."],
-    ["When is an adjacency matrix better?", "When the graph is dense, edges change frequently, or the presence of a specific edge must be tested often."],
-    ["Why is a tree a special kind of graph?", "It is a connected, undirected graph with no cycles."],
-    ["How does an undirected graph's adjacency matrix look?", "Symmetric about the leading diagonal — cell [i][j] equals cell [j][i]."],
-    ["What does a 0 (or blank) in an adjacency matrix mean?", "No edge between those two vertices (for a weighted graph, a non-zero entry is the weight)."],
-    ["What information does an adjacency matrix lose about a Sudoku-style constraint graph?", "Why the two cells are linked (same row/column/box) — only that they are linked."]
+    ["Define a weighted graph.", "A graph in which each edge has a value (weight/cost) associated with it.", 10],
+    ["Define a directed graph.", "A graph whose edges have a direction — an edge from A to B does not imply one from B to A.", 11],
+    ["When is an adjacency list better than an adjacency matrix?", "When the graph is sparse (few edges relative to vertices), edges rarely change and specific edges are seldom tested for.", 12],
+    ["When is an adjacency matrix better?", "When the graph is dense, edges change frequently, or the presence of a specific edge must be tested often.", 13],
+    ["How does an undirected graph's adjacency matrix look?", "Symmetric about the leading diagonal — cell [i][j] equals cell [j][i].", 15],
+    ["What does a 0 (or blank) in an adjacency matrix mean?", "No edge between those two vertices (for a weighted graph, a non-zero entry is the weight).", 16],
+    ["What information does an adjacency matrix lose about a Sudoku-style constraint graph?", "Why the two cells are linked (same row/column/box) — only that they are linked.", 17]
   ],
   quiz: [
     { q: "A graph with 200 vertices and 210 edges is best stored as:", opts: ["an adjacency matrix", "an adjacency list", "a stack", "a hash table"], ans: 1, why: "Very sparse — a 200×200 matrix would be almost all zeros." },
@@ -293,14 +292,14 @@ X("compsci:4.2.5.1", {
     { callout: { t: "warn", body: "A tree question that shows a *graph* first asks whether it is a tree at all — check **connected**, **no cycles** before anything else." }}
   ],
   flashcards: [
-    ["Define a binary tree.", "A rooted tree in which each node has at most two child nodes."],
-    ["What is a rooted tree?", "A tree with one node designated as the root, giving every other node a parent."],
-    ["What is a leaf node?", "A node with no children."],
-    ["What is the depth/height of a tree?", "The number of edges on the longest path from the root to a leaf."],
-    ["Describe the shape of a five-node binary tree with the greatest depth.", "A chain — each node has exactly one child (e.g. every child on the left), depth 4 with five levels."],
-    ["How is a binary tree stored in an array of records?", "Each record holds the data plus Left and Right indices (pointers), with −1 / 0 for no child."],
-    ["How do you find the smallest value in a BST?", "Follow left pointers from the root until there is no left child."],
-    ["What makes a tree a binary *search* tree?", "For every node, all values in the left subtree are smaller and all in the right subtree are larger."]
+    ["Define a binary tree.", "A rooted tree in which each node has at most two child nodes.", 10],
+    ["What is a rooted tree?", "A tree with one node designated as the root, giving every other node a parent.", 11],
+    ["What is a leaf node?", "A node with no children.", 12],
+    ["What is the depth/height of a tree?", "The number of edges on the longest path from the root to a leaf.", 13],
+    ["Describe the shape of a five-node binary tree with the greatest depth.", "A chain — each node has exactly one child (e.g. every child on the left), depth 4 with five levels.", 14],
+    ["How is a binary tree stored in an array of records?", "Each record holds the data plus Left and Right indices (pointers), with −1 / 0 for no child.", 15],
+    ["How do you find the smallest value in a BST?", "Follow left pointers from the root until there is no left child.", 16],
+    ["What makes a tree a binary *search* tree?", "For every node, all values in the left subtree are smaller and all in the right subtree are larger.", 17]
   ],
   quiz: [
     { q: "'Each node has two child nodes' as a definition of binary tree is:", opts: ["correct", "rejected — it must be at most two", "correct for BSTs only", "correct for rooted trees"], ans: 1, why: "Leaves have none; some nodes have one." },
@@ -339,12 +338,11 @@ X("compsci:4.2.6.1", {
   flashcards: [
     ["Describe the steps to insert a record into a hash table.", "Apply the hash function to the record's key; the result is the index where it should be stored; store it there; if that slot is occupied, use a collision-resolution method such as the next free slot."],
     ["Why is a hash table lookup faster than searching a sorted list?", "The hash function gives the location directly, so no search through the records is needed — O(1) on average."],
-    ["What is a collision?", "Two different keys hashing to the same index."],
-    ["Name two collision-resolution methods.", "Linear probing (next free location, wrapping); chaining (a linked list at each index)."],
-    ["Why do collisions slow a nearly full hash table?", "More items end up away from their calculated index, so direct access happens less often and a search from the calculated position is needed."],
-    ["What is the load factor?", "Number of items ÷ number of slots; performance degrades as it approaches 1, so tables are resized/rehashed."],
-    ["How is a record found in a hash table?", "Hash its key to get the index; check that slot; if it holds a different key, follow the collision method until found or an empty slot is reached."],
-    ["What makes a good hash function?", "Fast to compute, spreads keys uniformly across the table, deterministic (same key → same index)."]
+    ["Name two collision-resolution methods.", "Linear probing (next free location, wrapping); chaining (a linked list at each index).", 13],
+    ["Why do collisions slow a nearly full hash table?", "More items end up away from their calculated index, so direct access happens less often and a search from the calculated position is needed.", 14],
+    ["What is the load factor?", "Number of items ÷ number of slots; performance degrades as it approaches 1, so tables are resized/rehashed.", 15],
+    ["How is a record found in a hash table?", "Hash its key to get the index; check that slot; if it holds a different key, follow the collision method until found or an empty slot is reached.", 16],
+    ["What makes a good hash function?", "Fast to compute, spreads keys uniformly across the table, deterministic (same key → same index).", 17]
   ],
   quiz: [
     { q: "The hash function is applied to:", opts: ["the whole record", "the key field", "the table size", "the previous record"], ans: 1, why: "Key → index. 'Data' is marked NE." },
@@ -371,14 +369,14 @@ X("compsci:4.2.6.1", {
 
 X("compsci:4.2.7.1", {
   flashcards: [
-    ["What is a dictionary?", "An abstract data type holding key–value pairs, where each key is unique and maps to one value; values are looked up by key."],
-    ["How is a dictionary typically implemented?", "As a hash table, giving O(1) average lookup by key."],
-    ["Give three dictionary operations.", "Insert/update a pair, look up the value for a key, delete a key, test whether a key exists."],
-    ["How would a dictionary store a word count?", "Key = the word, value = its count; each occurrence increments the value for that key."],
-    ["Why must keys be unique?", "The dictionary returns one value per key; a repeated key overwrites the previous value."],
-    ["Why is a dictionary more suitable than a 2D array for a phone book?", "Names are not integers, so they cannot index an array; a dictionary maps any key type to a value directly."],
-    ["What does looking up a missing key do?", "Raises an error / returns a null or default value, depending on the language."],
-    ["How does a dictionary differ from a list of pairs?", "Lookup is by key in O(1) rather than a linear search through the pairs."]
+    ["What is a dictionary?", "An abstract data type holding key–value pairs, where each key is unique and maps to one value; values are looked up by key.", 8],
+    ["How is a dictionary typically implemented?", "As a hash table, giving O(1) average lookup by key.", 9],
+    ["Give three dictionary operations.", "Insert/update a pair, look up the value for a key, delete a key, test whether a key exists.", 10],
+    ["How would a dictionary store a word count?", "Key = the word, value = its count; each occurrence increments the value for that key.", 11],
+    ["Why must keys be unique?", "The dictionary returns one value per key; a repeated key overwrites the previous value.", 12],
+    ["Why is a dictionary more suitable than a 2D array for a phone book?", "Names are not integers, so they cannot index an array; a dictionary maps any key type to a value directly.", 13],
+    ["What does looking up a missing key do?", "Raises an error / returns a null or default value, depending on the language.", 14],
+    ["How does a dictionary differ from a list of pairs?", "Lookup is by key in O(1) rather than a linear search through the pairs.", 15]
   ],
   quiz: [
     { q: "In `{\"ASCII\": 128, \"Unicode\": 143859}` the keys are:", opts: ["128 and 143859", "\"ASCII\" and \"Unicode\"", "both", "neither"], ans: 1, why: "Keys map to values." },
@@ -404,14 +402,14 @@ X("compsci:4.2.8.1", {
     { callout: { t: "memorise", body: "Dot product `a·b = a₁b₁ + a₂b₂`; convex combination `αa + βb` with α + β = 1, α, β ≥ 0 gives a point on the line segment between them. A vector can be represented as a list `[3, 4]`, a dictionary `{0: 3, 1: 4}`, or a function from index to value." }}
   ],
   flashcards: [
-    ["Calculate [4, 3] · [2, 5].", "4×2 + 3×5 = 8 + 15 = 23."],
-    ["What is the magnitude of [6, 8]?", "√(6² + 8²) = √100 = 10."],
-    ["A position [3, −1] is moved by velocity [2, 4]. New position?", "[5, 3] — vector addition, component by component."],
-    ["Effect of multiplying a vector by 2?", "Direction/angle unchanged; magnitude doubled."],
-    ["Effect of multiplying a vector by −1?", "Magnitude unchanged; direction reversed (angle 180° from the original)."],
-    ["What does a dot product of 0 tell you?", "The vectors are perpendicular."],
-    ["What is a convex combination of vectors u and v?", "αu + βv where α + β = 1 and α, β ≥ 0 — a point on the segment joining them."],
-    ["Three ways to represent a vector in a program?", "A list/array of components, a dictionary index→value, or a function mapping index to value."]
+    ["Calculate [4, 3] · [2, 5].", "4×2 + 3×5 = 8 + 15 = 23.", 11],
+    ["What is the magnitude of [6, 8]?", "√(6² + 8²) = √100 = 10.", 12],
+    ["A position [3, −1] is moved by velocity [2, 4]. New position?", "[5, 3] — vector addition, component by component.", 13],
+    ["Effect of multiplying a vector by 2?", "Direction/angle unchanged; magnitude doubled.", 14],
+    ["Effect of multiplying a vector by −1?", "Magnitude unchanged; direction reversed (angle 180° from the original).", 15],
+    ["What does a dot product of 0 tell you?", "The vectors are perpendicular.", 16],
+    ["What is a convex combination of vectors u and v?", "αu + βv where α + β = 1 and α, β ≥ 0 — a point on the segment joining them.", 17],
+    ["Three ways to represent a vector in a program?", "A list/array of components, a dictionary index→value, or a function mapping index to value.", 18]
   ],
   quiz: [
     { q: "[1, 2] · [3, −1] =", opts: ["1", "5", "−1", "7"], ans: 0, why: "1×3 + 2×(−1) = 3 − 2 = 1." },

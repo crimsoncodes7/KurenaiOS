@@ -175,18 +175,13 @@ C["compsci:4.12.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12.1.2 first-class functions make these possible; 4.12.1.4 (< 10) and (* 2) are partial applications; 4.12.3.1 map and filter are recursions over head and tail; 4.11.1 MapReduce; 4.10.4 SQL WHERE is a filter and the SELECT list a map." } }
   ],
   flashcards: [
-    ["Higher-order function?", "A function that takes a function as an argument and/or returns a function as its result."],
-    ["map?", "Applies a function to every element of a list, returning the list of results."],
-    ["filter?", "Returns a new list of exactly the elements that satisfy a condition."],
-    ["fold / reduce?", "Reduces a list to a single value by repeatedly applying a combining function from a base value."],
-    ["map square [1,3,5]?", "[1, 9, 25]."],
-    ["filter (<10) [1,5,10,15]?", "[1, 5]."],
-    ["fold (+) 0 [9,7,2]?", "18."],
-    ["fold (*) 1 [2,3,2]?", "12."],
-    ["foldl (-) 10 [1,2,3] vs foldr (-) 0 [1,2,3]?", "4 vs 2."],
-    ["C# LINQ for map / filter / fold?", "Select / Where / Aggregate."],
-    ["fz temps (2022)?", "23.75."],
-    ["Which 2018 functions use a higher-order function?", "fx (map) and fy (fold) — 2."]
+    ["map?", "Applies a function to every element of a list, returning the list of results.", 1],
+    ["map square [1,3,5]?", "[1, 9, 25].", 4],
+    ["filter (<10) [1,5,10,15]?", "[1, 5].", 5],
+    ["fold (+) 0 [9,7,2]?", "18.", 6],
+    ["fold (*) 1 [2,3,2]?", "12.", 7],
+    ["foldl (-) 10 [1,2,3] vs foldr (-) 0 [1,2,3]?", "4 vs 2.", 8],
+    ["C# LINQ for map / filter / fold?", "Select / Where / Aggregate.", 9],
   ],
   quiz: [
     { q: "map changes a list's", opts: ["elements, not its length", "length", "order", "type of container"], ans: 0, why: "One output per element." },
@@ -318,16 +313,14 @@ C["compsci:4.12.3.1"] = {
   ],
   flashcards: [
     ["Head of a list?", "Its first element — a single value."],
-    ["Tail of a list?", "The list of everything after the head (possibly empty)."],
-    ["tail [7]?", "[] — the empty list."],
-    ["head []?", "An error — the empty list has no head."],
-    ["Prepend in Haskell?", "x : xs."],
-    ["Append in Haskell?", "xs ++ [x]."],
-    ["Test for empty?", "null xs (or xs == [])."],
-    ["head(tail(tail [1,5,10,15]))?", "10."],
-    ["FunctionZ [4,2,5,3] returns…", "52 (calls return 52, 24, 11, 3, 0)."],
-    ["Two parts of every recursive list function?", "Base case for [] and a general case for (x:xs) recursing on xs."],
-    ["Why is append slower than prepend?", "It walks the whole list (O(n)); prepend is one step (O(1))."]
+    ["tail [7]?", "[] — the empty list.", 2],
+    ["head []?", "An error — the empty list has no head.", 3],
+    ["Prepend in Haskell?", "x : xs.", 4],
+    ["Append in Haskell?", "xs ++ [x].", 5],
+    ["Test for empty?", "null xs (or xs == []).", 6],
+    ["head(tail(tail [1,5,10,15]))?", "10.", 7],
+    ["Two parts of every recursive list function?", "Base case for [] and a general case for (x:xs) recursing on xs.", 9],
+    ["Why is append slower than prepend?", "It walks the whole list (O(n)); prepend is one step (O(1)).", 10]
   ],
   quiz: [
     { q: "tail [\"Blackpool\", \"Paris\"] is", opts: ["[\"Paris\"]", "\"Paris\"", "\"Blackpool\"", "[]"], ans: 0, why: "The tail is a list." },

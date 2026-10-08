@@ -168,12 +168,11 @@ C["compsci:4.1.1.9"] = {
     ["Exception handling?", "Code that detects (catches) an exception and responds to it so the program does not crash."],
     ["What goes in try?", "The statements that might throw."],
     ["What does catch do?", "Runs when an exception of its type is thrown in the try block."],
-    ["finally?", "A block that runs whether or not an exception occurred — used for clean-up."],
-    ["throw?", "Raises an exception for a caller to handle."],
-    ["Uncaught exception?", "Passes up to the caller, then its caller…; if none catches it the program crashes."],
-    ["Can exception handling catch syntax errors?", "No — syntax errors stop compilation; only run-time errors are caught."],
-    ["5.0 / 0 in C#?", "Infinity — no exception. Integer 5 / 0 throws DivideByZeroException."],
-    ["Typical exam response options?", "Ask to re-enter, use a default value, display an error message."]
+    ["throw?", "Raises an exception for a caller to handle.", 5],
+    ["Uncaught exception?", "Passes up to the caller, then its caller…; if none catches it the program crashes.", 6],
+    ["Can exception handling catch syntax errors?", "No — syntax errors stop compilation; only run-time errors are caught.", 7],
+    ["5.0 / 0 in C#?", "Infinity — no exception. Integer 5 / 0 throws DivideByZeroException.", 8],
+    ["Typical exam response options?", "Ask to re-enter, use a default value, display an error message.", 9]
   ],
   quiz: [
     { q: "Exception handling is used to", opts: ["deal with run-time errors so the program does not crash", "find syntax errors", "speed up a program", "remove logic errors"], ans: 0, why: "AQA: stop crashing / deal with a run-time error." },
@@ -389,15 +388,12 @@ C["compsci:4.1.1.11"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.12 out parameters as extra return values; 4.1.1.14 parameters replace globals; 4.1.1.15 parameters are stored in the stack frame; 4.1.1.1 value vs reference types; 4.12.1.3 function application in functional programming." } }
   ],
   flashcards: [
-    ["Parameter?", "A variable in a subroutine's heading that receives data when the subroutine is called."],
-    ["Argument?", "The actual value passed to a parameter in a call."],
-    ["Passing by value?", "A copy of the argument is passed; changes inside are not seen by the caller."],
-    ["Passing by reference?", "The address is passed; changes inside change the caller's variable."],
-    ["C# keyword for by reference?", "ref (or out), written at the heading AND the call."],
-    ["Interface of a subroutine?", "Its name, parameters (number, order, types) and return type."],
-    ["Two ways parameters improve subroutines?", "Avoid globals / self-contained; reusable with different values."],
-    ["Passing an array by value in C#?", "Copies the reference: element changes are visible, re-assignment is not."],
-    ["Can a by-reference argument be an expression like x + 1?", "No — it must be a variable."]
+    ["Argument?", "The actual value passed to a parameter in a call.", 1],
+    ["C# keyword for by reference?", "ref (or out), written at the heading AND the call.", 4],
+    ["Interface of a subroutine?", "Its name, parameters (number, order, types) and return type.", 5],
+    ["Two ways parameters improve subroutines?", "Avoid globals / self-contained; reusable with different values.", 6],
+    ["Passing an array by value in C#?", "Copies the reference: element changes are visible, re-assignment is not.", 7],
+    ["Can a by-reference argument be an expression like x + 1?", "No — it must be a variable.", 8]
   ],
   quiz: [
     { q: "void F(int x) { x = 9; } int a = 1; F(a); a is now", opts: ["1", "9", "0", "undefined"], ans: 0, why: "By value." },
@@ -505,13 +501,12 @@ C["compsci:4.1.1.12"] = {
   ],
   flashcards: [
     ["What does return do?", "Sends a value back to the caller AND ends the subroutine."],
-    ["Where does a returned value go?", "It replaces the function call in the calling expression."],
-    ["Return several values in C#?", "A tuple/record, or out/ref parameters."],
-    ["CS0161?", "\"Not all code paths return a value\" — every path of a function must return."],
-    ["int.TryParse returns?", "A bool (success) and the number through an out parameter."],
-    ["\"A2\" → decimal?", "10 × 16 + 2 = 162."],
-    ["\"1G\" with ToDecimal returning −1?", "1 × 16 − 1 = 15 — misleading."],
-    ["ASCII(\"1\") − 48?", "49 − 48 = 1."]
+    ["Return several values in C#?", "A tuple/record, or out/ref parameters.", 2],
+    ["CS0161?", "\"Not all code paths return a value\" — every path of a function must return.", 3],
+    ["int.TryParse returns?", "A bool (success) and the number through an out parameter.", 4],
+    ["\"A2\" → decimal?", "10 × 16 + 2 = 162.", 5],
+    ["\"1G\" with ToDecimal returning −1?", "1 × 16 − 1 = 15 — misleading.", 6],
+    ["ASCII(\"1\") − 48?", "49 − 48 = 1.", 7]
   ],
   quiz: [
     { q: "Statements after an executed return", opts: ["do not run", "run once", "run after the caller", "cause an error"], ans: 0, why: "return ends the subroutine." },
@@ -623,15 +618,13 @@ C["compsci:4.1.1.13"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.14 global variables (the contrast); 4.1.1.15 locals live in the stack frame; 4.1.1.16 every recursive call gets its own locals; 4.1.2.3 encapsulation is the same idea for objects." } }
   ],
   flashcards: [
-    ["Local variable?", "Declared inside a subroutine; accessible only there; exists only while it executes."],
-    ["Scope?", "The part of the program where an identifier can be used."],
-    ["Lifetime?", "The period during which a variable exists in memory."],
-    ["Where are locals stored?", "In the subroutine's stack frame."],
-    ["Two reasons to use locals?", "Subroutine is self-contained; memory is reused when not in use (also: names reusable, fewer side-effects)."],
-    ["Same name in two subroutines?", "Allowed — both local, so different scopes."],
-    ["Block scope in C#?", "A variable declared inside { } (e.g. a for loop's i) exists only in that block."],
-    ["Local hides a field?", "Inside the method the name refers to the local; the field is unchanged."],
-    ["Is a parameter a local variable?", "It behaves like one (same scope and lifetime), but exam answers asking for a local want a DECLARED variable."]
+    ["Scope?", "The part of the program where an identifier can be used.", 1],
+    ["Lifetime?", "The period during which a variable exists in memory.", 2],
+    ["Where are locals stored?", "In the subroutine's stack frame.", 3],
+    ["Two reasons to use locals?", "Subroutine is self-contained; memory is reused when not in use (also: names reusable, fewer side-effects).", 4],
+    ["Block scope in C#?", "A variable declared inside { } (e.g. a for loop's i) exists only in that block.", 6],
+    ["Local hides a field?", "Inside the method the name refers to the local; the field is unchanged.", 7],
+    ["Is a parameter a local variable?", "It behaves like one (same scope and lifetime), but exam answers asking for a local want a DECLARED variable.", 8]
   ],
   quiz: [
     { q: "A local variable exists", opts: ["only while its subroutine is executing", "for the whole program run", "only at compile time", "until the computer is switched off"], ans: 0, why: "Lifetime of one call." },
@@ -714,14 +707,12 @@ C["compsci:4.1.1.14"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.13 local variables; 4.1.1.11 parameters as the alternative; 4.1.1.6 named constants are the acceptable global; 4.12 functional programming forbids side-effects altogether; 4.1.2.3 static vs instance fields." } }
   ],
   flashcards: [
-    ["Global variable?", "Declared outside all subroutines; accessible anywhere; exists for the whole run."],
-    ["Global in C#?", "A static field of a class."],
-    ["Difference: scope?", "Global: whole program. Local: only its subroutine/block."],
-    ["Difference: lifetime?", "Global: the whole run. Local: only while its subroutine executes."],
-    ["Difference: where declared?", "Global: main block/outside subroutines. Local: inside a subroutine."],
-    ["Side-effect?", "A subroutine changing data outside itself (e.g. a global) — not visible at the call."],
-    ["Why are globals harder to debug?", "Any subroutine might have changed the value."],
-    ["Acceptable global?", "A named constant — it cannot change."]
+    ["Global in C#?", "A static field of a class.", 1],
+    ["Difference: scope?", "Global: whole program. Local: only its subroutine/block.", 2],
+    ["Difference: where declared?", "Global: main block/outside subroutines. Local: inside a subroutine.", 4],
+    ["Side-effect?", "A subroutine changing data outside itself (e.g. a global) — not visible at the call.", 5],
+    ["Why are globals harder to debug?", "Any subroutine might have changed the value.", 6],
+    ["Acceptable global?", "A named constant — it cannot change.", 7]
   ],
   quiz: [
     { q: "A global variable", opts: ["can be accessed from any part of the program", "exists only during one call", "must be passed as a parameter", "is stored in a stack frame"], ans: 0, why: "Whole-program scope." },
@@ -826,15 +817,14 @@ C["compsci:4.1.1.15"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.3.1 stacks (push/pop, stack overflow); 4.1.1.16 recursion; 4.1.1.13 local variables live in the frame; 4.7.3.6 interrupts save the processor's registers in the same way; 4.7.3.2 the program counter and the return address." } }
   ],
   flashcards: [
-    ["Stack frame?", "Data pushed onto the call stack for each subroutine call: return address, parameters, local variables, register values."],
-    ["Return address?", "Where execution continues in the caller after the subroutine finishes."],
-    ["Why a stack?", "The most recent call is the first to finish — LIFO."],
-    ["What happens on return?", "The frame is popped, registers restored, and execution jumps to the return address."],
-    ["Frames for Factorial(3) from Main at the deepest point?", "4 — Main, Factorial(3), (2), (1)."],
-    ["Stack overflow?", "The call stack runs out of space — usually recursion with no reachable base case."],
-    ["Can C# catch a StackOverflowException?", "No — the process is terminated."],
-    ["Why can recursion keep separate values per call?", "Each call has its own frame with its own locals and parameters."],
-    ["Mnemonic for the components?", "RPLR — Return address, Parameters, Locals, Registers."]
+    ["Return address?", "Where execution continues in the caller after the subroutine finishes.", 1],
+    ["Why a stack?", "The most recent call is the first to finish — LIFO.", 2],
+    ["What happens on return?", "The frame is popped, registers restored, and execution jumps to the return address.", 3],
+    ["Frames for Factorial(3) from Main at the deepest point?", "4 — Main, Factorial(3), (2), (1).", 4],
+    ["Stack overflow?", "The call stack runs out of space — usually recursion with no reachable base case.", 5],
+    ["Can C# catch a StackOverflowException?", "No — the process is terminated.", 6],
+    ["Why can recursion keep separate values per call?", "Each call has its own frame with its own locals and parameters.", 7],
+    ["Mnemonic for the components?", "RPLR — Return address, Parameters, Locals, Registers.", 8]
   ],
   quiz: [
     { q: "Which is NOT stored in a stack frame?", opts: ["the subroutine's program code", "the return address", "parameters", "local variables"], ans: 0, why: "Code lives elsewhere in memory." },
@@ -1024,17 +1014,14 @@ C["compsci:4.1.1.16"] = {
   ],
   flashcards: [
     ["Recursive subroutine?", "A subroutine that calls itself."],
-    ["Base case?", "The circumstance in which a recursive subroutine does not call itself."],
-    ["General case?", "The part that calls itself on a smaller problem, moving towards the base case."],
-    ["What if there is no reachable base case?", "Calls never stop → stack overflow."],
-    ["How does each call keep its own values?", "Its own stack frame with its own parameters and locals."],
-    ["Factorial base case?", "n ≤ 1 returns 1."],
-    ["TreeSearch(Olivia, Norbert) outputs?", "Visited Norbert, Visited Phil — then returns False."],
-    ["G(0, −1) on edges 0–1, 0–2, 0–3, 1–3?", "Calls G(1, 0) then G(3, 1); returns True (a cycle)."],
-    ["Why is naive Fibonacci inefficient?", "Each call makes two more; the same values are recalculated; exponential O(2ⁿ)."],
-    ["Fix for repeated work?", "Memoisation — store each result the first time (or iterate)."],
-    ["Recursion vs iteration memory?", "Recursion: a frame per call. Iteration: one frame."],
-    ["total (x:xs) = x + total xs — base case?", "total [] = 0, the empty list."]
+    ["What if there is no reachable base case?", "Calls never stop → stack overflow.", 3],
+    ["How does each call keep its own values?", "Its own stack frame with its own parameters and locals.", 4],
+    ["Factorial base case?", "n ≤ 1 returns 1.", 5],
+    ["TreeSearch(Olivia, Norbert) outputs?", "Visited Norbert, Visited Phil — then returns False.", 6],
+    ["G(0, −1) on edges 0–1, 0–2, 0–3, 1–3?", "Calls G(1, 0) then G(3, 1); returns True (a cycle).", 7],
+    ["Fix for repeated work?", "Memoisation — store each result the first time (or iterate).", 9],
+    ["Recursion vs iteration memory?", "Recursion: a frame per call. Iteration: one frame.", 10],
+    ["total (x:xs) = x + total xs — base case?", "total [] = 0, the empty list.", 11]
   ],
   quiz: [
     { q: "A base case is", opts: ["when the subroutine does not call itself", "the first call", "the largest input", "the return address"], ans: 0, why: "AQA 2021 Q02.5." },

@@ -6,14 +6,13 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 X("compsci:4.5.5.1", {
   flashcards: [
-    ["What is the ASCII code of the character '0'?", "48 (0110000₂)."],
-    ["How do you convert the character '7' to the integer 7?", "Subtract 48 from its character code (55 − 48 = 7), or AND with 00001111, or XOR with 00110000."],
-    ["What is the ASCII code of '9'?", "57 — the digits 0–9 occupy 48–57 in sequence."],
-    ["Why are the digit characters given consecutive codes?", "So arithmetic on the codes converts between characters and values with one subtraction."],
-    ["Convert the string \"42\" to the integer 42 using character codes.", "(CODE('4') − 48) × 10 + (CODE('2') − 48) = 4 × 10 + 2."],
-    ["What is the code of 'A' and of 'a'?", "65 and 97 — a difference of 32 (bit 5)."],
-    ["How do you convert an upper-case letter to lower-case with a bitwise operation?", "OR with 00100000 (set bit 5)."],
-    ["If the ASCII code of 'T' is 84, what is the code of 'U'?", "85 — letters are consecutive."]
+    ["How do you convert the character '7' to the integer 7?", "Subtract 48 from its character code (55 − 48 = 7), or AND with 00001111, or XOR with 00110000.", 9],
+    ["What is the ASCII code of '9'?", "57 — the digits 0–9 occupy 48–57 in sequence.", 10],
+    ["Why are the digit characters given consecutive codes?", "So arithmetic on the codes converts between characters and values with one subtraction.", 11],
+    ["Convert the string \"42\" to the integer 42 using character codes.", "(CODE('4') − 48) × 10 + (CODE('2') − 48) = 4 × 10 + 2.", 12],
+    ["What is the code of 'A' and of 'a'?", "65 and 97 — a difference of 32 (bit 5).", 13],
+    ["How do you convert an upper-case letter to lower-case with a bitwise operation?", "OR with 00100000 (set bit 5).", 14],
+    ["If the ASCII code of 'T' is 84, what is the code of 'U'?", "85 — letters are consecutive.", 15]
   ],
   quiz: [
     { q: "The character '5' has ASCII code:", opts: ["5", "53", "35", "0101"], ans: 1, why: "48 + 5." },
@@ -49,14 +48,13 @@ X("compsci:4.5.5.2", {
     ]}
   ],
   flashcards: [
-    ["What is a character code?", "A unique number used to represent a character in a character set."],
-    ["How many characters can 7-bit ASCII represent?", "128 (2⁷)."],
-    ["Why was Unicode introduced?", "To support a much larger range of characters — international alphabets and symbols — as communication became global, with each code always meaning the same character."],
-    ["Give one limitation of ASCII.", "It assumes English / Latin letters; only 128 characters; no Chinese, Arabic, emoji etc."],
-    ["Give one disadvantage of Unicode compared with ASCII.", "Each character needs more bits (16 or 32), so text takes more storage and bandwidth."],
-    ["What are the first 128 Unicode code points?", "Identical to ASCII — Unicode is backward compatible."],
-    ["What is UTF-8?", "A variable-length Unicode encoding using 1–4 bytes per character, with ASCII characters as single bytes."],
-    ["What is a character set?", "The complete collection of characters a system can represent, with a code for each."]
+    ["What is a character code?", "A unique number used to represent a character in a character set.", 8],
+    ["Why was Unicode introduced?", "To support a much larger range of characters — international alphabets and symbols — as communication became global, with each code always meaning the same character.", 10],
+    ["Give one limitation of ASCII.", "It assumes English / Latin letters; only 128 characters; no Chinese, Arabic, emoji etc.", 11],
+    ["Give one disadvantage of Unicode compared with ASCII.", "Each character needs more bits (16 or 32), so text takes more storage and bandwidth.", 12],
+    ["What are the first 128 Unicode code points?", "Identical to ASCII — Unicode is backward compatible.", 13],
+    ["What is UTF-8?", "A variable-length Unicode encoding using 1–4 bytes per character, with ASCII characters as single bytes.", 14],
+    ["What is a character set?", "The complete collection of characters a system can represent, with a code for each.", 15]
   ],
   quiz: [
     { q: "A character code is:", opts: ["a font", "a unique number representing a character", "a keyboard key", "a pixel"], ans: 1, why: "Mark-scheme definition." },
@@ -95,14 +93,14 @@ X("compsci:4.5.5.3", {
     ]}}
   ],
   flashcards: [
-    ["Describe how an even parity bit is generated.", "Count the 1s in the data bits; if the count is odd the parity bit is set to 1, otherwise 0, so the total number of 1s is even (equivalently, XOR all the data bits)."],
-    ["How does a receiver check even parity?", "Counts the 1s in the received byte: an even total is assumed correct, an odd total means corruption."],
-    ["State two limitations of parity bits.", "Errors that change an even number of bits go undetected; errors can be detected but not corrected (their position is unknown)."],
-    ["Describe majority voting.", "Each bit (or byte) is sent an odd number of times, at least three; the receiver takes the value received most often as the value sent."],
-    ["Give two advantages of majority voting over parity.", "It can correct errors, not just detect them; it can detect multi-bit errors."],
-    ["Why might parity be chosen instead of majority voting?", "Much less redundant data (one bit per byte vs three copies), so faster transmission."],
-    ["What is a checksum?", "A value calculated from the packet's payload by a function, sent with the data and recalculated on receipt to detect corruption."],
-    ["What is a check digit?", "A digit calculated by an algorithm from the other digits of a number and appended to it, e.g. the last digit of an ISBN or barcode."]
+    ["Describe how an even parity bit is generated.", "Count the 1s in the data bits; if the count is odd the parity bit is set to 1, otherwise 0, so the total number of 1s is even (equivalently, XOR all the data bits).", 11],
+    ["How does a receiver check even parity?", "Counts the 1s in the received byte: an even total is assumed correct, an odd total means corruption.", 12],
+    ["State two limitations of parity bits.", "Errors that change an even number of bits go undetected; errors can be detected but not corrected (their position is unknown).", 13],
+    ["Describe majority voting.", "Each bit (or byte) is sent an odd number of times, at least three; the receiver takes the value received most often as the value sent.", 14],
+    ["Give two advantages of majority voting over parity.", "It can correct errors, not just detect them; it can detect multi-bit errors.", 15],
+    ["Why might parity be chosen instead of majority voting?", "Much less redundant data (one bit per byte vs three copies), so faster transmission.", 16],
+    ["What is a checksum?", "A value calculated from the packet's payload by a function, sent with the data and recalculated on receipt to detect corruption.", 17],
+    ["What is a check digit?", "A digit calculated by an algorithm from the other digits of a number and appended to it, e.g. the last digit of an ISBN or barcode.", 18]
   ],
   quiz: [
     { q: "Even parity bit for 1011001:", opts: ["0", "1", "2", "none"], ans: 0, why: "Four 1s already — even." },
@@ -230,14 +228,13 @@ X("compsci:4.5.6.4", {
     { callout: { t: "tip", body: "Show every multiplication on its own line — the schemes award a method mark for *any three of* the steps even when the arithmetic slips." }}
   ],
   flashcards: [
-    ["What is a pixel?", "The smallest addressable element of a bitmap image — one colour value."],
-    ["Define resolution.", "The number of pixels in the image, usually width × height (or pixels per inch for print)."],
-    ["Define colour depth.", "The number of bits used to store the colour of each pixel."],
-    ["Formula for the minimum size of a bitmap file?", "width × height × colour depth (bits), ÷ 8 for bytes."],
-    ["Size of a 4000 × 3000 image at 24-bit colour?", "4000 × 3000 × 24 / 8 = 36 000 000 bytes ≈ 34.3 MiB."],
-    ["Minimum colour depth for 18 colours?", "5 bits (2⁴ = 16 < 18 ≤ 32)."],
-    ["Why is the actual file bigger than the calculated minimum?", "Metadata — width, height, colour depth, file format, creation date — is stored too."],
-    ["A 200 × 100 image has a 15 000-byte file with no metadata. Colour depth?", "15 000 × 8 / 20 000 = 6 bits."]
+    ["What is a pixel?", "The smallest addressable element of a bitmap image — one colour value.", 10],
+    ["Define resolution.", "The number of pixels in the image, usually width × height (or pixels per inch for print).", 11],
+    ["Formula for the minimum size of a bitmap file?", "width × height × colour depth (bits), ÷ 8 for bytes.", 13],
+    ["Size of a 4000 × 3000 image at 24-bit colour?", "4000 × 3000 × 24 / 8 = 36 000 000 bytes ≈ 34.3 MiB.", 14],
+    ["Minimum colour depth for 18 colours?", "5 bits (2⁴ = 16 < 18 ≤ 32).", 15],
+    ["Why is the actual file bigger than the calculated minimum?", "Metadata — width, height, colour depth, file format, creation date — is stored too.", 16],
+    ["A 200 × 100 image has a 15 000-byte file with no metadata. Colour depth?", "15 000 × 8 / 20 000 = 6 bits.", 17]
   ],
   quiz: [
     { q: "A 50 × 50 image with 4 colours needs at least:", opts: ["2500 bytes", "625 bytes", "10 000 bytes", "1250 bytes"], ans: 1, why: "2 bits per pixel: 2500 × 2 / 8." },
@@ -271,14 +268,13 @@ X("compsci:4.5.6.5", {
     { callout: { t: "tip", body: "The comparison question (2019 — 6 marks; 2021 — 3 + 2) rewards linking each property to a consequence: *stored as shape descriptions → file size independent of resolution → scales without pixelation*." }}
   ],
   flashcards: [
-    ["How is a vector graphic represented?", "As a list of geometric objects (lines, circles, polygons…), each with properties such as coordinates, size, colour and line thickness, stored as values in a drawing list and rendered by calculation."],
-    ["Give the properties stored for a circle in a vector image.", "Centre coordinates, radius, fill colour, line colour and thickness."],
-    ["Give the properties stored for a line.", "Start and end coordinates, colour, thickness (and style)."],
-    ["Why can a vector image be scaled without loss of quality?", "The shapes are recalculated at the new size — nothing is stored as pixels."],
-    ["What is a drawing list?", "The list of objects and their properties that make up a vector image."],
-    ["What happens when a vector graphic is displayed?", "It is rendered — the shapes are converted to pixels at the display's resolution."],
-    ["Name a common vector file format.", "SVG (also PDF paths, fonts)."],
-    ["Why is a vector logo file small?", "Only a few shapes with their properties are stored, regardless of the size at which it is shown."]
+    ["How is a vector graphic represented?", "As a list of geometric objects (lines, circles, polygons…), each with properties such as coordinates, size, colour and line thickness, stored as values in a drawing list and rendered by calculation.", 8],
+    ["Give the properties stored for a line.", "Start and end coordinates, colour, thickness (and style).", 10],
+    ["Why can a vector image be scaled without loss of quality?", "The shapes are recalculated at the new size — nothing is stored as pixels.", 11],
+    ["What is a drawing list?", "The list of objects and their properties that make up a vector image.", 12],
+    ["What happens when a vector graphic is displayed?", "It is rendered — the shapes are converted to pixels at the display's resolution.", 13],
+    ["Name a common vector file format.", "SVG (also PDF paths, fonts).", 14],
+    ["Why is a vector logo file small?", "Only a few shapes with their properties are stored, regardless of the size at which it is shown.", 15]
   ],
   quiz: [
     { q: "A vector graphic stores:", opts: ["a colour per pixel", "shapes and their properties", "samples", "MIDI events"], ans: 1, why: "Object list." },
@@ -296,14 +292,14 @@ X("compsci:4.5.6.5", {
 
 X("compsci:4.5.6.6", {
   flashcards: [
-    ["Why is a vector file often smaller than a bitmap of the same image?", "Only the shapes and their properties are stored — a few values per object — whereas a bitmap stores a value for every pixel."],
-    ["Give two advantages of vector graphics.", "Scale without loss of quality; usually smaller files; individual objects can be edited/moved independently."],
-    ["Give two advantages of bitmaps.", "Can represent photographs / complex images with continuous colour variation; simpler to render; every pixel can be edited."],
-    ["When is a bitmap the only sensible choice?", "Photographs and scanned images — real scenes cannot be described as a small list of shapes."],
-    ["What happens when a bitmap is enlarged?", "Pixels are stretched/interpolated — the image becomes blocky (pixelated)."],
-    ["When might a vector file be larger than the bitmap?", "A highly detailed image needing thousands of objects, versus a small low-depth bitmap."],
-    ["Which format is resolution-independent?", "Vector."],
-    ["How does editing differ?", "Vector: change an object's properties. Bitmap: change individual pixels."]
+    ["Why is a vector file often smaller than a bitmap of the same image?", "Only the shapes and their properties are stored — a few values per object — whereas a bitmap stores a value for every pixel.", 8],
+    ["Give two advantages of vector graphics.", "Scale without loss of quality; usually smaller files; individual objects can be edited/moved independently.", 9],
+    ["Give two advantages of bitmaps.", "Can represent photographs / complex images with continuous colour variation; simpler to render; every pixel can be edited.", 10],
+    ["When is a bitmap the only sensible choice?", "Photographs and scanned images — real scenes cannot be described as a small list of shapes.", 11],
+    ["What happens when a bitmap is enlarged?", "Pixels are stretched/interpolated — the image becomes blocky (pixelated).", 12],
+    ["When might a vector file be larger than the bitmap?", "A highly detailed image needing thousands of objects, versus a small low-depth bitmap.", 13],
+    ["Which format is resolution-independent?", "Vector.", 14],
+    ["How does editing differ?", "Vector: change an object's properties. Bitmap: change individual pixels.", 15]
   ],
   quiz: [
     { q: "For a photograph, the better representation is:", opts: ["vector", "bitmap", "MIDI", "either"], ans: 1, why: "Continuous colour variation." },
@@ -339,14 +335,12 @@ X("compsci:4.5.6.7", {
     ]}}
   ],
   flashcards: [
-    ["Define sampling rate.", "The number of samples taken per second (Hz)."],
-    ["Define sample resolution.", "The number of bits used to store each sample."],
-    ["State Nyquist's theorem.", "To reproduce a signal faithfully the sample rate must be at least twice the highest frequency component in the signal."],
-    ["File size for 30 s at 20 000 Hz, 16-bit, mono?", "30 × 20 000 × 16 / 8 = 1 200 000 bytes."],
-    ["Duration of a 17.199 MB file at 44 100 Hz, 16-bit mono?", "17 199 000 × 8 / (44 100 × 16) ≈ 195 s."],
-    ["What is quantisation error and how is it reduced?", "The rounding of each measured amplitude to the nearest available level; reduce it by increasing the sample resolution."],
-    ["What does a stored sample represent?", "The amplitude of the sound wave at the instant it was sampled, as a binary number."],
-    ["How does increasing the sample rate affect quality and size?", "Higher frequencies captured, closer approximation — and proportionally larger file."]
+    ["State Nyquist's theorem.", "To reproduce a signal faithfully the sample rate must be at least twice the highest frequency component in the signal.", 12],
+    ["File size for 30 s at 20 000 Hz, 16-bit, mono?", "30 × 20 000 × 16 / 8 = 1 200 000 bytes.", 13],
+    ["Duration of a 17.199 MB file at 44 100 Hz, 16-bit mono?", "17 199 000 × 8 / (44 100 × 16) ≈ 195 s.", 14],
+    ["What is quantisation error and how is it reduced?", "The rounding of each measured amplitude to the nearest available level; reduce it by increasing the sample resolution.", 15],
+    ["What does a stored sample represent?", "The amplitude of the sound wave at the instant it was sampled, as a binary number.", 16],
+    ["How does increasing the sample rate affect quality and size?", "Higher frequencies captured, closer approximation — and proportionally larger file.", 17]
   ],
   quiz: [
     { q: "Highest frequency faithfully captured at 30 000 Hz sampling:", opts: ["30 000 Hz", "15 000 Hz", "60 000 Hz", "7 500 Hz"], ans: 1, why: "Half the sample rate." },
@@ -381,14 +375,14 @@ X("compsci:4.5.6.8", {
     { callout: { t: "warn", body: "MIDI cannot store a **voice** or any real recorded sound — it is instructions for a synthesiser. A question that asks why a vocal track must be sampled wants exactly that." }}
   ],
   flashcards: [
-    ["How does MIDI represent music?", "As a sequence of event messages (instructions) — e.g. note on, note off, pitch, velocity, duration, channel, instrument — rather than as sampled sound."],
-    ["Give three items a MIDI message might contain.", "Note on/off, note number (pitch), velocity (loudness), channel, instrument/program, duration, pitch bend."],
-    ["Give three advantages of MIDI over sampled sound.", "Much more compact; easy to edit individual notes or change instruments; no quantisation/sampling loss; a score can be generated from the file."],
-    ["Give one limitation of MIDI.", "It cannot represent real recorded sounds such as a voice — only instructions for synthesised instruments."],
-    ["Why are MIDI files small?", "A note is a few bytes of instruction rather than thousands of samples."],
-    ["What is a MIDI channel?", "One of 16 logical streams, each usually assigned to an instrument."],
-    ["What is velocity in MIDI?", "How hard the key was pressed — controls loudness/attack."],
-    ["How is a MIDI file turned into sound?", "A synthesiser / sound card interprets the messages and generates the audio."]
+    ["How does MIDI represent music?", "As a sequence of event messages (instructions) — e.g. note on, note off, pitch, velocity, duration, channel, instrument — rather than as sampled sound.", 8],
+    ["Give three items a MIDI message might contain.", "Note on/off, note number (pitch), velocity (loudness), channel, instrument/program, duration, pitch bend.", 9],
+    ["Give three advantages of MIDI over sampled sound.", "Much more compact; easy to edit individual notes or change instruments; no quantisation/sampling loss; a score can be generated from the file.", 10],
+    ["Give one limitation of MIDI.", "It cannot represent real recorded sounds such as a voice — only instructions for synthesised instruments.", 11],
+    ["Why are MIDI files small?", "A note is a few bytes of instruction rather than thousands of samples.", 12],
+    ["What is a MIDI channel?", "One of 16 logical streams, each usually assigned to an instrument.", 13],
+    ["What is velocity in MIDI?", "How hard the key was pressed — controls loudness/attack.", 14],
+    ["How is a MIDI file turned into sound?", "A synthesiser / sound card interprets the messages and generates the audio.", 15]
   ],
   quiz: [
     { q: "MIDI stores music as:", opts: ["samples", "event messages / instructions", "a bitmap", "a spectrum"], ans: 1, why: "'Sequence of notes' is rejected." },
@@ -428,9 +422,8 @@ X("compsci:4.5.6.9", {
     ["RLE the row: B B G G G R R R R W.", "(B, 2) (G, 3) (R, 4) (W, 1)."],
     ["Why can RLE increase file size?", "Each run needs two values; if runs are mostly length 1 (varied colours) the counts add more than they save."],
     ["Describe dictionary-based compression.", "Build a dictionary mapping recurring substrings/words to short tokens; replace each occurrence in the text with its token; store the dictionary with the data."],
-    ["Why is dictionary compression ineffective on a short text?", "Little repetition to exploit, and the dictionary itself takes space."],
-    ["Why suit RLE to images and dictionaries to text?", "Images often have adjacent pixels of the same colour; text repeats words spread throughout rather than adjacent identical characters."],
-    ["Give one problem with lossy compression of audio.", "The original cannot be recovered — quality is reduced and later editing is limited."]
+    ["Why suit RLE to images and dictionaries to text?", "Images often have adjacent pixels of the same colour; text repeats words spread throughout rather than adjacent identical characters.", 18],
+    ["Give one problem with lossy compression of audio.", "The original cannot be recovered — quality is reduced and later editing is limited.", 19]
   ],
   quiz: [
     { q: "Lossless compression means:", opts: ["quality is reduced", "the original data can be fully recovered", "no compression happened", "it is faster"], ans: 1, why: "'No data lost' alone is NE." },
@@ -478,16 +471,15 @@ X("compsci:4.5.6.10", {
     ]}}
   ],
   flashcards: [
-    ["What is encryption?", "Transforming plaintext into ciphertext using a key so that it cannot be understood without the key."],
-    ["Encrypt `HELLO` with a Caesar shift of 3.", "KHOOR."],
-    ["Why is a Caesar cipher easy to crack?", "Only 25 keys to try, and letter frequencies of the ciphertext match those of the plaintext (frequency analysis)."],
-    ["Why is a general substitution cipher harder to crack than Caesar?", "There are 26! possible keys and no pattern — learning one letter's replacement reveals nothing about the others."],
-    ["Describe the Vernam cipher.", "Convert plaintext and a random key of equal length to binary; XOR them bit by bit; the result is the ciphertext; XOR with the key again recovers the plaintext."],
-    ["Conditions for the Vernam cipher to be perfectly secure?", "The key is truly random, at least as long as the plaintext, used only once, and kept secret."],
-    ["What does computationally secure mean?", "The cipher cannot be cracked by any known method in a reasonable (polynomial) amount of time — not that it can never be cracked."],
-    ["Symmetric vs asymmetric encryption?", "Symmetric: the same key encrypts and decrypts. Asymmetric: a pair of different but related keys — one encrypts, the other decrypts."],
-    ["What is the key exchange problem?", "With symmetric encryption the key must be passed to the receiver securely, without interception."],
-    ["What is a weakness shared by every substitution cipher?", "Each plaintext letter always maps to the same ciphertext letter, preserving frequencies and structure."]
+    ["Encrypt `HELLO` with a Caesar shift of 3.", "KHOOR.", 12],
+    ["Why is a Caesar cipher easy to crack?", "Only 25 keys to try, and letter frequencies of the ciphertext match those of the plaintext (frequency analysis).", 13],
+    ["Why is a general substitution cipher harder to crack than Caesar?", "There are 26! possible keys and no pattern — learning one letter's replacement reveals nothing about the others.", 14],
+    ["Describe the Vernam cipher.", "Convert plaintext and a random key of equal length to binary; XOR them bit by bit; the result is the ciphertext; XOR with the key again recovers the plaintext.", 15],
+    ["Conditions for the Vernam cipher to be perfectly secure?", "The key is truly random, at least as long as the plaintext, used only once, and kept secret.", 16],
+    ["What does computationally secure mean?", "The cipher cannot be cracked by any known method in a reasonable (polynomial) amount of time — not that it can never be cracked.", 17],
+    ["Symmetric vs asymmetric encryption?", "Symmetric: the same key encrypts and decrypts. Asymmetric: a pair of different but related keys — one encrypts, the other decrypts.", 18],
+    ["What is the key exchange problem?", "With symmetric encryption the key must be passed to the receiver securely, without interception.", 19],
+    ["What is a weakness shared by every substitution cipher?", "Each plaintext letter always maps to the same ciphertext letter, preserving frequencies and structure.", 20]
   ],
   quiz: [
     { q: "Caesar shift 5 of `CAT` is:", opts: ["HFY", "FDW", "XVO", "CAT"], ans: 0, why: "C→H, A→F, T→Y." },

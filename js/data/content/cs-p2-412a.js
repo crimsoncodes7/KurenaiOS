@@ -135,15 +135,13 @@ C["compsci:4.12.1.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.1 number sets ℕ ℤ ℚ ℝ; 4.12.1.4 the curried type ℤ → ℤ → ℤ; 4.12.1.5 composition needs the co-domain of f to fit the domain of g; 4.1.1.1 data types; 4.4.2.2 sets and Cartesian products." } }
   ],
   flashcards: [
-    ["Function type notation?", "f: A → B — A the argument type, B the result type."],
-    ["Domain?", "The set from which a function's input values are chosen."],
-    ["Co-domain?", "The set from which output values are chosen; not every member need be output."],
-    ["Type of add(x, y) on integers?", "ℤ × ℤ → ℤ."],
-    ["Co-domain of pred(x) = x − 1 on ℤ?", "ℤ."],
-    ["Type of fibonacci?", "ℕ → ℕ."],
-    ["Describe the co-domain of f: ℕ → ℝ.", "The set of real numbers."],
-    ["Natural numbers in AQA?", "0, 1, 2, 3, … (0 included)."],
-    ["Domain and co-domain are always…", "subsets of objects in some data type."]
+    ["Domain?", "The set from which a function's input values are chosen.", 1],
+    ["Co-domain?", "The set from which output values are chosen; not every member need be output.", 2],
+    ["Type of add(x, y) on integers?", "ℤ × ℤ → ℤ.", 3],
+    ["Co-domain of pred(x) = x − 1 on ℤ?", "ℤ.", 4],
+    ["Describe the co-domain of f: ℕ → ℝ.", "The set of real numbers.", 6],
+    ["Natural numbers in AQA?", "0, 1, 2, 3, … (0 included).", 7],
+    ["Domain and co-domain are always…", "subsets of objects in some data type.", 8]
   ],
   quiz: [
     { q: "In f: A → B, B is the", opts: ["co-domain", "domain", "argument", "range always"], ans: 0, why: "Result type." },
@@ -224,14 +222,12 @@ C["compsci:4.12.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12.2.1 higher-order functions need first-class functions; 4.12.1.4 partial application returns a function; 4.11.1 functions shipped to the data in MapReduce; 4.1.2.1 C# delegates and lambdas in your own programs." } }
   ],
   flashcards: [
-    ["First-class object?", "A value that can appear in expressions, be assigned to a variable, be passed as an argument and be returned from a function call."],
-    ["Name three first-class objects in most languages.", "Integers, floating-point values, characters, strings."],
-    ["Are functions first-class in a functional language?", "Yes."],
-    ["Can an imperative language have first-class functions?", "Yes — e.g. C# delegates/lambdas, Python, JavaScript."],
-    ["Why are higher-order functions possible?", "Because functions are first-class: they can be passed and returned."],
-    ["fibonacci 2025 Q11.1 — true statements?", "It has one argument; it is a first-class object."],
-    ["C# type for a function from int to int?", "Func<int, int>."],
-    ["First-class vs higher-order?", "First-class describes a kind of value; higher-order describes a function that takes/returns functions."]
+    ["Name three first-class objects in most languages.", "Integers, floating-point values, characters, strings.", 1],
+    ["Are functions first-class in a functional language?", "Yes.", 2],
+    ["Can an imperative language have first-class functions?", "Yes — e.g. C# delegates/lambdas, Python, JavaScript.", 3],
+    ["Why are higher-order functions possible?", "Because functions are first-class: they can be passed and returned.", 4],
+    ["C# type for a function from int to int?", "Func<int, int>.", 6],
+    ["First-class vs higher-order?", "First-class describes a kind of value; higher-order describes a function that takes/returns functions.", 7]
   ],
   quiz: [
     { q: "Which is NOT required of a first-class object?", opts: ["it must be recursive", "it can be passed as an argument", "it can be returned", "it can be assigned to a variable"], ans: 0, why: "Recursion is unrelated." },
@@ -316,14 +312,11 @@ C["compsci:4.12.1.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12.1.1 the type of a two-argument function; 4.12.1.4 partial application is applying to only some arguments; 4.12.2.1 map applies a function to every element; 4.1.1.16 tracing recursive calls." } }
   ],
   flashcards: [
-    ["Function application?", "A function applied to its arguments, e.g. add(3, 4)."],
-    ["Type of add in the application view?", "integer × integer → integer."],
-    ["How many arguments does add really take?", "One — a pair from the Cartesian product."],
-    ["square 3 + 1 = ?", "10 — application binds tighter than +."],
-    ["add 3 4 groups as…", "(add 3) 4 — left-associative."],
-    ["fx sales (2018)?", "[20, 50, 32]."],
-    ["fz sales (2018)?", "102 — the day's total revenue."],
-    ["Evaluate by…", "substituting the argument into the function's body, innermost first."]
+    ["Type of add in the application view?", "integer × integer → integer.", 1],
+    ["How many arguments does add really take?", "One — a pair from the Cartesian product.", 2],
+    ["square 3 + 1 = ?", "10 — application binds tighter than +.", 3],
+    ["add 3 4 groups as…", "(add 3) 4 — left-associative.", 4],
+    ["How is a function application evaluated?", "substituting the argument into the function's body, innermost first.", 7]
   ],
   quiz: [
     { q: "square (3 + 1) evaluates to", opts: ["16", "10", "4", "an error"], ans: 0, why: "Bracketed argument." },
@@ -416,14 +409,13 @@ C["compsci:4.12.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12.1.1 types written A → B → C; 4.12.1.2 the result is a first-class function; 4.12.2.1 map (add 4) and filter (< 10) use partial application; 4.12.1.5 composition also builds new functions." } }
   ],
   flashcards: [
-    ["Partial function application?", "Fixing some of a function's arguments to create a new function that takes the remaining arguments."],
-    ["add: integer → (integer → integer) means…", "add takes an integer and returns a function from integer to integer."],
-    ["Can the brackets be dropped?", "Yes — integer → integer → integer; arrows associate to the right."],
-    ["What is add 4?", "A function that adds 4 to its argument."],
-    ["(add 4) 6?", "10."],
-    ["Type of vol 2 3 if vol: ℤ→ℤ→ℤ→ℤ?", "ℤ → ℤ."],
-    ["Three mark points for describing partial application?", "Arguments fixed; a new function; with fewer/remaining arguments."],
-    ["Partial application in C#?", "A curried Func: add = x => y => x + y; add(4) is a new function."]
+    ["add: integer → (integer → integer) means…", "add takes an integer and returns a function from integer to integer.", 1],
+    ["Can the brackets be dropped?", "Yes — integer → integer → integer; arrows associate to the right.", 2],
+    ["What is add 4?", "A function that adds 4 to its argument.", 3],
+    ["(add 4) 6?", "10.", 4],
+    ["Type of vol 2 3 if vol: ℤ→ℤ→ℤ→ℤ?", "ℤ → ℤ.", 5],
+    ["Three mark points for describing partial application?", "Arguments fixed; a new function; with fewer/remaining arguments.", 6],
+    ["Partial application in C#?", "A curried Func: add = x => y => x + y; add(4) is a new function.", 7]
   ],
   quiz: [
     { q: "add 4 evaluates to", opts: ["a function", "4", "an error", "a list"], ans: 0, why: "One argument still needed." },
@@ -520,11 +512,9 @@ C["compsci:4.12.1.5"] = {
     ["Composition?", "Combining two functions to get a new function."],
     ["(g ∘ f)(x) = ?", "g(f(x)) — f applied first."],
     ["Type of g ∘ f if f: A → B, g: B → C?", "A → C."],
-    ["square ∘ pred on 3?", "4."],
+    ["What is (square ∘ pred) 3, where pred subtracts 1 and square squares?", "4."],
     ["f(x)=x+2, g(y)=y³: (g ∘ f)(x)?", "(x + 2)³."],
     ["Haskell composition operator?", "The full stop: g . f."],
-    ["Purpose of fz (2022)?", "Average temperature in centigrade from a list in Fahrenheit."],
-    ["Why fz d = fu (fy d) is better?", "Only one conversion is done."]
   ],
   quiz: [
     { q: "(f ∘ g)(1) with f(x)=x+2, g(y)=y³", opts: ["3", "27", "9", "1"], ans: 0, why: "g first: 1, then +2." },

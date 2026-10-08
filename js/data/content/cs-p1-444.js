@@ -296,11 +296,8 @@ C["compsci:4.4.4.3"] = {
     ["Logarithmic time example?", "Binary search — O(log n)."],
     ["Linear time example?", "Linear search — O(n)."],
     ["Polynomial time example?", "Bubble sort — O(n²)."],
-    ["Exponential time example?", "Naive recursive Fibonacci — O(2ⁿ)."],
-    ["Nested loops over n?", "O(n²)."],
-    ["Sequential loops over n?", "O(n) — they add."],
-    ["Big-O of 3n² + 5n + 2?", "O(n²)."],
-    ["Loop that halves n each time?", "O(log n)."]
+    ["Sequential loops over n?", "O(n) — they add.", 7],
+    ["Loop that halves n each time?", "O(log n).", 9]
   ],
   quiz: [
     { q: "Constant time means", opts: ["time stays the same as n grows", "time is 1 second", "time doubles", "time grows slowly"], ans: 0, why: "A-level 2023 Q03.7." },
@@ -485,12 +482,11 @@ C["compsci:4.4.4.5"] = {
     ["Tractable problem?", "One with a polynomial (or less) time solution."],
     ["Intractable problem?", "Solvable, but with no polynomial (or less) time solution."],
     ["Example of an intractable problem?", "The travelling salesperson problem."],
-    ["Heuristic?", "A rule of thumb using domain knowledge to find a good, probably non-optimal, solution quickly."],
-    ["How many of linear search, merge sort, binary search, post-order traversal are tractable?", "4."],
-    ["Which of O(1), O(nᵏ), O(kⁿ), O(n), O(log n), O(n log n) is intractable?", "Only O(kⁿ) — one."],
-    ["Why is 'sorting becomes intractable for large lists' wrong?", "Sorting is always tractable — tractability doesn't change with input size."],
-    ["Two approaches to an intractable problem?", "Heuristics (near-optimal); relax constraints / reduce the search space."],
-    ["Intractable vs non-computable?", "Has an algorithm but too slow vs has no algorithm at all."]
+    ["How many of linear search, merge sort, binary search, post-order traversal are tractable?", "4.", 4],
+    ["Which of O(1), O(nᵏ), O(kⁿ), O(n), O(log n), O(n log n) is intractable?", "Only O(kⁿ) — one.", 5],
+    ["Why is 'sorting becomes intractable for large lists' wrong?", "Sorting is always tractable — tractability doesn't change with input size.", 6],
+    ["Two approaches to an intractable problem?", "Heuristics (near-optimal); relax constraints / reduce the search space.", 7],
+    ["Intractable vs non-computable?", "Has an algorithm but too slow vs has no algorithm at all.", 8]
   ],
   quiz: [
     { q: "Tractable problems have", opts: ["a polynomial (or better) time solution", "no solution", "only exponential solutions", "only heuristic solutions"], ans: 0, why: "Definition." },
@@ -562,14 +558,11 @@ C["compsci:4.4.4.6"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.4.5 tractable/intractable; 4.4.4.7 the Halting problem; 4.4.5.1 Turing machines define what is computable; 4.4.1.2 an algorithm must terminate." } }
   ],
   flashcards: [
-    ["Computable problem?", "One that some algorithm can solve in a finite number of steps."],
-    ["Non-computable problem?", "One that no algorithm can solve."],
-    ["Example of a non-computable problem?", "The Halting problem."],
-    ["Importance of the Halting problem?", "It demonstrates that non-computable problems exist."],
-    ["Intractable vs non-computable?", "Solvable but slow vs not solvable at all."],
-    ["Can more memory/speed solve a non-computable problem?", "No."],
-    ["Is the Collatz conjecture non-computable?", "Not known — it is unproven (open), which is different."],
-    ["Another word for non-computable decision problems?", "Undecidable."]
+    ["Example of a non-computable problem?", "The Halting problem.", 2],
+    ["Importance of the Halting problem?", "It demonstrates that non-computable problems exist.", 3],
+    ["Can more memory/speed solve a non-computable problem?", "No.", 5],
+    ["Is the Collatz conjecture non-computable?", "Not known — it is unproven (open), which is different.", 6],
+    ["Another word for non-computable decision problems?", "Undecidable.", 7]
   ],
   quiz: [
     { q: "Non-computable means", opts: ["no algorithm can solve it", "it is slow", "it needs a heuristic", "it is O(n!)"], ans: 0, why: "Definition." },
@@ -650,14 +643,13 @@ C["compsci:4.4.4.7"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.4.6 non-computable problems; 4.4.5.1 Turing machines; 4.4.1.2 algorithms must terminate; 4.1.1.16 infinite recursion; 4.13.1.4 testing can't prove absence of infinite loops." } }
   ],
   flashcards: [
-    ["The Halting problem?", "Determining, without running it, whether a program will halt for a particular input."],
-    ["Can it be solved?", "No — it is non-computable/undecidable."],
-    ["Why can't a Turing machine solve it?", "No algorithm exists that decides halting for every program."],
-    ["Significance?", "It proves some problems cannot be solved by any computer."],
-    ["Who proved it?", "Alan Turing (1936)."],
-    ["Can we ever tell if a specific program halts?", "Often yes — what's impossible is a general method for all programs."],
-    ["Why isn't 'just run it' a solution?", "It never gives an answer for programs that loop forever."],
-    ["2-mark description scheme?", "Determine if a program will halt + without running it / for a particular input."]
+    ["Can it be solved?", "No — it is non-computable/undecidable.", 1],
+    ["Why can't a Turing machine solve it?", "No algorithm exists that decides halting for every program.", 2],
+    ["Significance?", "It proves some problems cannot be solved by any computer.", 3],
+    ["Who proved it?", "Alan Turing (1936).", 4],
+    ["Can we ever tell if a specific program halts?", "Often yes — what's impossible is a general method for all programs.", 5],
+    ["Why isn't 'just run it' a solution?", "It never gives an answer for programs that loop forever.", 6],
+    ["2-mark description scheme?", "Determine if a program will halt + without running it / for a particular input.", 7]
   ],
   quiz: [
     { q: "The Halting problem asks whether", opts: ["a program will halt for a given input, without running it", "a program contains syntax errors", "a computer will crash", "a loop is efficient"], ans: 0, why: "Definition." },
@@ -776,12 +768,11 @@ C["compsci:4.4.5.1"] = {
     ["Halting state?", "A state with no outgoing transitions."],
     ["Transition function notation?", "δ(state, read) = (new state, write, move)."],
     ["How far does the head move per step?", "One square, left or right."],
-    ["Universal Turing Machine?", "A TM that simulates any other TM whose description and input are on its tape — an interpreter."],
-    ["Why is a UTM more powerful than any real computer?", "It has infinite memory (tape)."],
-    ["Importance of Turing machines?", "A formal model of computation that defines what is computable."],
-    ["Unary 111#11 on the adder → ?", "11111 (3 + 2 = 5), halting in S3 after 8 steps."],
-    ["Order of actions in one step?", "Write, move, change state."],
-    ["What does the UTM idea underpin?", "The stored-program computer."]
+    ["Why is a UTM more powerful than any real computer?", "It has infinite memory (tape).", 5],
+    ["Importance of Turing machines?", "A formal model of computation that defines what is computable.", 6],
+    ["Unary 111#11 on the adder → ?", "11111 (3 + 2 = 5), halting in S3 after 8 steps.", 7],
+    ["Order of actions in one step?", "Write, move, change state.", 8],
+    ["What does the UTM idea underpin?", "The stored-program computer.", 9]
   ],
   quiz: [
     { q: "Which is NOT part of a Turing machine?", opts: ["a random-access memory", "an infinite tape", "a read-write head", "a finite set of states"], ans: 0, why: "Tape is sequential." },

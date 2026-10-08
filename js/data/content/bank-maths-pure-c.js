@@ -13,14 +13,12 @@ X("maths:7.1", {
     { callout: { t: "warn", body: "Writing $\\lim_{h \\to 0}$ only on the last line loses the A1. The limit notation must appear from the definition onwards, and the final line must say \"$= 2x$ as $h \\to 0$\" — not \"$= 2x + h$\"." }}
   ],
   flashcards: [
-    ["State the definition of the derivative from first principles.", "$f'(x) = \\displaystyle\\lim_{h \\to 0}\\dfrac{f(x + h) - f(x)}{h}$."],
-    ["Prove from first principles that $\\dfrac{d}{dx}(x^2) = 2x$.", "$\\dfrac{(x+h)^2 - x^2}{h} = \\dfrac{2xh + h^2}{h} = 2x + h \\to 2x$ as $h \\to 0$."],
-    ["Prove from first principles that $\\dfrac{d}{dx}(x^3) = 3x^2$.", "$\\dfrac{(x+h)^3 - x^3}{h} = 3x^2 + 3xh + h^2 \\to 3x^2$."],
-    ["Prove from first principles that $\\dfrac{d}{dx}(\\sin x) = \\cos x$.", "$\\dfrac{\\sin(x+h) - \\sin x}{h} = \\sin x\\dfrac{\\cos h - 1}{h} + \\cos x\\dfrac{\\sin h}{h} \\to \\sin x \\cdot 0 + \\cos x \\cdot 1$."],
-    ["Prove from first principles that $\\dfrac{d}{d\\theta}(\\cos\\theta) = -\\sin\\theta$.", "$\\dfrac{\\cos\\theta\\cos h - \\sin\\theta\\sin h - \\cos\\theta}{h} = \\cos\\theta\\dfrac{\\cos h - 1}{h} - \\sin\\theta\\dfrac{\\sin h}{h} \\to -\\sin\\theta$."],
-    ["Which two limits are quoted in trig first-principles proofs?", "$\\dfrac{\\sin h}{h} \\to 1$ and $\\dfrac{\\cos h - 1}{h} \\to 0$ as $h \\to 0$."],
-    ["Gradient of the chord from $P(2, 4)$ to $Q(2 + h, (2+h)^2)$ on $y = x^2$?", "$\\dfrac{(2+h)^2 - 4}{h} = 4 + h$; as $h \\to 0$ the tangent gradient is 4."],
-    ["Why is $f(x + h) - f(x)$ divided by $h$?", "It is the gradient of the chord between $x$ and $x + h$; the limit as $h \\to 0$ is the tangent gradient."]
+    ["Prove from first principles that $\\dfrac{d}{dx}(x^3) = 3x^2$.", "$\\dfrac{(x+h)^3 - x^3}{h} = 3x^2 + 3xh + h^2 \\to 3x^2$.", 10],
+    ["Prove from first principles that $\\dfrac{d}{dx}(\\sin x) = \\cos x$.", "$\\dfrac{\\sin(x+h) - \\sin x}{h} = \\sin x\\dfrac{\\cos h - 1}{h} + \\cos x\\dfrac{\\sin h}{h} \\to \\sin x \\cdot 0 + \\cos x \\cdot 1$.", 11],
+    ["Prove from first principles that $\\dfrac{d}{d\\theta}(\\cos\\theta) = -\\sin\\theta$.", "$\\dfrac{\\cos\\theta\\cos h - \\sin\\theta\\sin h - \\cos\\theta}{h} = \\cos\\theta\\dfrac{\\cos h - 1}{h} - \\sin\\theta\\dfrac{\\sin h}{h} \\to -\\sin\\theta$.", 12],
+    ["Which two limits are quoted in trig first-principles proofs?", "$\\dfrac{\\sin h}{h} \\to 1$ and $\\dfrac{\\cos h - 1}{h} \\to 0$ as $h \\to 0$.", 13],
+    ["Gradient of the chord from $P(2, 4)$ to $Q(2 + h, (2+h)^2)$ on $y = x^2$?", "$\\dfrac{(2+h)^2 - 4}{h} = 4 + h$; as $h \\to 0$ the tangent gradient is 4.", 14],
+    ["Why is $f(x + h) - f(x)$ divided by $h$?", "It is the gradient of the chord between $x$ and $x + h$; the limit as $h \\to 0$ is the tangent gradient.", 15]
   ],
   quiz: [
     { q: "$\\displaystyle\\lim_{h \\to 0}\\dfrac{(x+h)^2 - x^2}{h} =$", opts: ["$x$", "$2x$", "$2x + h$", "$x^2$"], ans: 1, why: "Cancel then take the limit." },
@@ -136,16 +134,16 @@ X("maths:7.4", {
     { callout: { t: "memorise", body: "Product $(uv)' = u'v + uv'$ · Quotient $\\left(\\dfrac uv\\right)' = \\dfrac{u'v - uv'}{v^2}$ · Chain $\\dfrac{dy}{dx} = \\dfrac{dy}{du}\\cdot\\dfrac{du}{dx}$ · $\\dfrac{dy}{dx} = 1\\Big/\\dfrac{dx}{dy}$." }}
   ],
   flashcards: [
-    ["Differentiate $y = x^2e^{3x}$.", "$2xe^{3x} + 3x^2e^{3x} = xe^{3x}(2 + 3x)$."],
-    ["Differentiate $y = \\dfrac{\\sin x}{x}$.", "$\\dfrac{x\\cos x - \\sin x}{x^2}$."],
-    ["Differentiate $y = (2x - 5)^6$.", "$12(2x - 5)^5$."],
-    ["Differentiate $y = \\ln(x^2 + 1)$.", "$\\dfrac{2x}{x^2 + 1}$."],
-    ["Show $\\dfrac{d}{dx}\\left[4(x^2 - 2)e^{-2x}\\right] = -8e^{-2x}(x^2 - x - 2)$.", "$8xe^{-2x} - 8(x^2 - 2)e^{-2x} = -8e^{-2x}(x^2 - x - 2)$; stationary at $x = -1, 2$."],
-    ["$f(x) = 10e^{-0.25x}\\sin x$: show turning points satisfy $\\tan x = 4$.", "$f' = 10e^{-0.25x}(\\cos x - 0.25\\sin x) = 0 \\Rightarrow \\tan x = 4$."],
-    ["$f(x) = \\dfrac{e^{3x}}{4x^2 + k}$: for which $k$ does $f$ have a stationary point?", "$f' = \\dfrac{e^{3x}(12x^2 - 8x + 3k)}{(4x^2+k)^2}$; need $64 - 144k \\ge 0 \\Rightarrow k \\le \\tfrac49$ (and $k > 0$ for a defined denominator)."],
-    ["Differentiate $y = \\sqrt{1 + \\sin 2x}$.", "$\\dfrac{\\cos 2x}{\\sqrt{1 + \\sin 2x}}$."],
-    ["Connected rates: $V = \\tfrac43\\pi r^3$, $\\dfrac{dV}{dt} = 10$. Find $\\dfrac{dr}{dt}$ when $r = 2$.", "$\\dfrac{dV}{dr} = 4\\pi r^2 = 16\\pi$; $\\dfrac{dr}{dt} = \\dfrac{10}{16\\pi} = \\dfrac{5}{8\\pi}$."],
-    ["Differentiate $y = \\dfrac{x + 2}{(x + 1)^2}$ into the form $\\dfrac{A}{(x+1)^n}$.", "$\\dfrac{(x+1)^2 - 2(x+2)(x+1)}{(x+1)^4} = \\dfrac{(x + 1) - 2(x + 2)}{(x+1)^3} = \\dfrac{-x - 3}{(x+1)^3}$."]
+    ["Differentiate $y = x^2e^{3x}$.", "$2xe^{3x} + 3x^2e^{3x} = xe^{3x}(2 + 3x)$.", 11],
+    ["Differentiate $y = \\dfrac{\\sin x}{x}$.", "$\\dfrac{x\\cos x - \\sin x}{x^2}$.", 12],
+    ["Differentiate $y = (2x - 5)^6$.", "$12(2x - 5)^5$.", 13],
+    ["Differentiate $y = \\ln(x^2 + 1)$.", "$\\dfrac{2x}{x^2 + 1}$.", 14],
+    ["Show $\\dfrac{d}{dx}\\left[4(x^2 - 2)e^{-2x}\\right] = -8e^{-2x}(x^2 - x - 2)$.", "$8xe^{-2x} - 8(x^2 - 2)e^{-2x} = -8e^{-2x}(x^2 - x - 2)$; stationary at $x = -1, 2$.", 15],
+    ["$f(x) = 10e^{-0.25x}\\sin x$: show turning points satisfy $\\tan x = 4$.", "$f' = 10e^{-0.25x}(\\cos x - 0.25\\sin x) = 0 \\Rightarrow \\tan x = 4$.", 16],
+    ["$f(x) = \\dfrac{e^{3x}}{4x^2 + k}$: for which $k$ does $f$ have a stationary point?", "$f' = \\dfrac{e^{3x}(12x^2 - 8x + 3k)}{(4x^2+k)^2}$; need $64 - 144k \\ge 0 \\Rightarrow k \\le \\tfrac49$ (and $k > 0$ for a defined denominator).", 17],
+    ["Differentiate $y = \\sqrt{1 + \\sin 2x}$.", "$\\dfrac{\\cos 2x}{\\sqrt{1 + \\sin 2x}}$.", 18],
+    ["Connected rates: $V = \\tfrac43\\pi r^3$, $\\dfrac{dV}{dt} = 10$. Find $\\dfrac{dr}{dt}$ when $r = 2$.", "$\\dfrac{dV}{dr} = 4\\pi r^2 = 16\\pi$; $\\dfrac{dr}{dt} = \\dfrac{10}{16\\pi} = \\dfrac{5}{8\\pi}$.", 19],
+    ["Differentiate $y = \\dfrac{x + 2}{(x + 1)^2}$ into the form $\\dfrac{A}{(x+1)^n}$.", "$\\dfrac{(x+1)^2 - 2(x+2)(x+1)}{(x+1)^4} = \\dfrac{(x + 1) - 2(x + 2)}{(x+1)^3} = \\dfrac{-x - 3}{(x+1)^3}$.", 20]
   ],
   quiz: [
     { q: "$\\dfrac{d}{dx}(xe^x) =$", opts: ["$e^x$", "$e^x(x + 1)$", "$xe^x$", "$e^x(x - 1)$"], ans: 1, why: "Product rule." },
@@ -189,16 +187,15 @@ X("maths:7.5", {
     { callout: { t: "tip", body: "$y = x^x$ (2019): take logs, $\\ln y = x\\ln x$, differentiate implicitly: $\\dfrac1y\\dfrac{dy}{dx} = \\ln x + 1$; turning point at $x = e^{-1}$." }}
   ],
   flashcards: [
-    ["Differentiate $x^2 + y^2 = 25$ implicitly.", "$2x + 2y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac xy$."],
-    ["$\\dfrac{d}{dx}(xy) = ?$", "$y + x\\dfrac{dy}{dx}$."],
-    ["$\\dfrac{d}{dx}(3y^2) = ?$", "$6y\\dfrac{dy}{dx}$."],
-    ["$x^2 - 2xy + 3y^2 = 50$: find $\\dfrac{dy}{dx}$.", "$2x - 2y - 2x\\dfrac{dy}{dx} + 6y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = \\dfrac{x - y}{x - 3y}$."],
-    ["Where is the tangent to $x^2 - 2xy + 3y^2 = 50$ parallel to the $x$-axis?", "$x = y$: substitute: $2x^2 = 50 \\Rightarrow (5, 5)$ and $(-5, -5)$."],
-    ["$y = x^x$: find $\\dfrac{dy}{dx}$.", "$\\ln y = x\\ln x \\Rightarrow \\dfrac{dy}{dx} = x^x(\\ln x + 1)$."],
-    ["$x^2\\tan y = 9$: show $\\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y}$… or in terms of $x$?", "$2x\\tan y + x^2\\sec^2 y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y} = -\\dfrac{18x}{x^4 + 81}$ using $\\tan y = 9/x^2$."],
-    ["$\\sin x + \\cos y = 0.5$: tangent parallel to the $x$-axis where?", "$\\cos x - \\sin y\\dfrac{dy}{dx} = 0$; $\\dfrac{dy}{dx} = 0 \\Rightarrow \\cos x = 0 \\Rightarrow x = \\tfrac\\pi2$; then $\\cos y = -0.5$, $y = \\tfrac{2\\pi}{3}$."],
-    ["Normal at $P(-2, 3)$ to $x^3 + 2xy + 3y^2 = 7$?", "$3x^2 + 2y + 2x y' + 6y y' = 0$; at $P$: $12 + 6 + (-4 + 18)y' = 0 \\Rightarrow y' = -\\tfrac97$; normal gradient $\\tfrac79$: $y - 3 = \\tfrac79(x + 2)$."],
-    ["Why does implicit differentiation give $\\dfrac{dy}{dx}$ in terms of both $x$ and $y$?", "The relation is not solved for $y$; the gradient at a point needs both coordinates."]
+    ["Differentiate $x^2 + y^2 = 25$ implicitly.", "$2x + 2y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac xy$.", 8],
+    ["$\\dfrac{d}{dx}(3y^2) = ?$", "$6y\\dfrac{dy}{dx}$.", 10],
+    ["$x^2 - 2xy + 3y^2 = 50$: find $\\dfrac{dy}{dx}$.", "$2x - 2y - 2x\\dfrac{dy}{dx} + 6y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = \\dfrac{x - y}{x - 3y}$.", 11],
+    ["Where is the tangent to $x^2 - 2xy + 3y^2 = 50$ parallel to the $x$-axis?", "$x = y$: substitute: $2x^2 = 50 \\Rightarrow (5, 5)$ and $(-5, -5)$.", 12],
+    ["$y = x^x$: find $\\dfrac{dy}{dx}$.", "$\\ln y = x\\ln x \\Rightarrow \\dfrac{dy}{dx} = x^x(\\ln x + 1)$.", 13],
+    ["$x^2\\tan y = 9$: show $\\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y}$… or in terms of $x$?", "$2x\\tan y + x^2\\sec^2 y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y} = -\\dfrac{18x}{x^4 + 81}$ using $\\tan y = 9/x^2$.", 14],
+    ["$\\sin x + \\cos y = 0.5$: tangent parallel to the $x$-axis where?", "$\\cos x - \\sin y\\dfrac{dy}{dx} = 0$; $\\dfrac{dy}{dx} = 0 \\Rightarrow \\cos x = 0 \\Rightarrow x = \\tfrac\\pi2$; then $\\cos y = -0.5$, $y = \\tfrac{2\\pi}{3}$.", 15],
+    ["Normal at $P(-2, 3)$ to $x^3 + 2xy + 3y^2 = 7$?", "$3x^2 + 2y + 2x y' + 6y y' = 0$; at $P$: $12 + 6 + (-4 + 18)y' = 0 \\Rightarrow y' = -\\tfrac97$; normal gradient $\\tfrac79$: $y - 3 = \\tfrac79(x + 2)$.", 16],
+    ["Why does implicit differentiation give $\\dfrac{dy}{dx}$ in terms of both $x$ and $y$?", "The relation is not solved for $y$; the gradient at a point needs both coordinates.", 17]
   ],
   quiz: [
     { q: "$\\dfrac{d}{dx}(y^3) =$", opts: ["$3y^2$", "$3y^2\\dfrac{dy}{dx}$", "$3x^2$", "$y^3\\dfrac{dy}{dx}$"], ans: 1, why: "Chain rule." },
@@ -232,13 +229,12 @@ X("maths:7.5", {
 X("maths:7.6", {
   flashcards: [
     ["The rate of increase of $n$ is proportional to $\\sqrt n$. Write a differential equation.", "$\\dfrac{dn}{dt} = k\\sqrt n$, $k > 0$."],
-    ["A mint's radius decreases at a rate inversely proportional to $r^2$. Differential equation?", "$\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$."],
-    ["A balloon's volume decreases at a constant rate $c$. Show $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$.", "$V = \\tfrac43\\pi r^3$, $\\dfrac{dV}{dt} = 4\\pi r^2\\dfrac{dr}{dt} = -c \\Rightarrow \\dfrac{dr}{dt} = -\\dfrac{c}{4\\pi r^2}$."],
-    ["Water flows into a tank at 9 litres/min and out at a rate proportional to the volume ($0.3V$). Differential equation?", "$\\dfrac{dV}{dt} = 9 - 0.3V$."],
-    ["Newton's law of cooling: differential equation?", "$\\dfrac{d\\theta}{dt} = -k(\\theta - \\theta_{room})$."],
-    ["Population growth with a limit $L$ (logistic): form?", "$\\dfrac{dN}{dt} = kN(L - N)$."],
-    ["A cuboid tank of base area $A$ fills so that $\\dfrac{dV}{dt} = \\dfrac{c}{\\sqrt h}$. Show $\\dfrac{dh}{dt} = \\dfrac{\\lambda}{\\sqrt h}$.", "$V = Ah \\Rightarrow \\dfrac{dV}{dt} = A\\dfrac{dh}{dt}$, so $\\dfrac{dh}{dt} = \\dfrac{c}{A\\sqrt h}$, $\\lambda = \\dfrac cA$."],
-    ["Why is $k$ negative in a decay model $\\dfrac{dN}{dt} = kN$?", "The rate of change is negative — $N$ decreases as $t$ increases."]
+    ["A balloon's volume decreases at a constant rate $c$. Show $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$.", "$V = \\tfrac43\\pi r^3$, $\\dfrac{dV}{dt} = 4\\pi r^2\\dfrac{dr}{dt} = -c \\Rightarrow \\dfrac{dr}{dt} = -\\dfrac{c}{4\\pi r^2}$.", 9],
+    ["Water flows into a tank at 9 litres/min and out at a rate proportional to the volume ($0.3V$). Differential equation?", "$\\dfrac{dV}{dt} = 9 - 0.3V$.", 10],
+    ["Newton's law of cooling: differential equation?", "$\\dfrac{d\\theta}{dt} = -k(\\theta - \\theta_{room})$.", 11],
+    ["Population growth with a limit $L$ (logistic): form?", "$\\dfrac{dN}{dt} = kN(L - N)$.", 12],
+    ["A cuboid tank of base area $A$ fills so that $\\dfrac{dV}{dt} = \\dfrac{c}{\\sqrt h}$. Show $\\dfrac{dh}{dt} = \\dfrac{\\lambda}{\\sqrt h}$.", "$V = Ah \\Rightarrow \\dfrac{dV}{dt} = A\\dfrac{dh}{dt}$, so $\\dfrac{dh}{dt} = \\dfrac{c}{A\\sqrt h}$, $\\lambda = \\dfrac cA$.", 13],
+    ["Why is $k$ negative in a decay model $\\dfrac{dN}{dt} = kN$?", "The rate of change is negative — $N$ decreases as $t$ increases.", 14]
   ],
   quiz: [
     { q: "'Rate of change of $P$ is proportional to $P$' is:", opts: ["$\\dfrac{dP}{dt} = kP$", "$P = kt$", "$\\dfrac{dP}{dt} = k$", "$\\dfrac{dP}{dt} = \\dfrac kP$"], ans: 0, why: "Proportional." },
@@ -273,11 +269,10 @@ X("maths:8.1", {
     ["State the Fundamental Theorem of Calculus.", "If $F'(x) = f(x)$ then $\\displaystyle\\int_a^b f(x)\\,dx = F(b) - F(a)$ — integration is the reverse of differentiation."],
     ["$f'(x) = 6x^2 + ax - 23$ and $f(0) = 4$. Write $f(x)$.", "$f(x) = 2x^3 + \\tfrac a2 x^2 - 23x + 4$."],
     ["Given $\\dfrac{dy}{dx} = 3x^2 - 4$ and the curve passes through $(2, 5)$, find $y$.", "$y = x^3 - 4x + c$; $8 - 8 + c = 5 \\Rightarrow y = x^3 - 4x + 5$."],
-    ["Why is $+c$ needed in an indefinite integral?", "Differentiating any constant gives 0, so the antiderivative is determined only up to a constant."],
-    ["$\\dfrac{d}{dx}\\left(\\int_1^x t^2\\,dt\\right) = ?$", "$x^2$ — differentiating the integral returns the integrand."],
-    ["$f'(x) = 4x + a\\sqrt x + b$ with a stationary point at $x = 1$ and $f(0) = 3$… what do you get from each condition?", "$f'(1) = 0$ gives $4 + a + b = 0$; $f(0) = 3$ gives the constant of integration; a third condition is needed for $a, b$ separately."],
-    ["Evaluate $\\displaystyle\\int_1^4 \\dfrac{1}{\\sqrt x}dx$.", "$[2\\sqrt x]_1^4 = 4 - 2 = 2$."],
-    ["What does a definite integral represent when $f(x) \\ge 0$?", "The area between the curve and the $x$-axis over the interval."]
+    ["$\\dfrac{d}{dx}\\left(\\int_1^x t^2\\,dt\\right) = ?$", "$x^2$ — differentiating the integral returns the integrand.", 9],
+    ["$f'(x) = 4x + a\\sqrt x + b$ with a stationary point at $x = 1$ and $f(0) = 3$… what do you get from each condition?", "$f'(1) = 0$ gives $4 + a + b = 0$; $f(0) = 3$ gives the constant of integration; a third condition is needed for $a, b$ separately.", 10],
+    ["Evaluate $\\displaystyle\\int_1^4 \\dfrac{1}{\\sqrt x}dx$.", "$[2\\sqrt x]_1^4 = 4 - 2 = 2$.", 11],
+    ["What does a definite integral represent when $f(x) \\ge 0$?", "The area between the curve and the $x$-axis over the interval.", 12]
   ],
   quiz: [
     { q: "$\\displaystyle\\int_0^2 3x^2\\,dx =$", opts: ["8", "12", "4", "6"], ans: 0, why: "$[x^3]_0^2$." },
@@ -303,16 +298,14 @@ X("maths:8.1", {
 
 X("maths:8.2", {
   flashcards: [
-    ["$\\int \\left(\\dfrac{2}{x^3} - 6\\sqrt x + 1\\right)dx$", "$-\\dfrac{1}{x^2} - 4x^{3/2} + x + c$."],
-    ["$\\int \\dfrac{3x^4 - 4}{2x^3}dx$", "$\\int\\left(\\tfrac32 x - 2x^{-3}\\right)dx = \\tfrac34 x^2 + x^{-2} + c$."],
-    ["$\\int \\dfrac{2x - 3}{\\sqrt x}dx$", "$\\int(2x^{1/2} - 3x^{-1/2})dx = \\tfrac43 x^{3/2} - 6x^{1/2} + c$."],
-    ["$\\int e^{3x}dx$, $\\int \\sin 2x\\,dx$, $\\int \\cos 5x\\,dx$", "$\\tfrac13 e^{3x}$, $-\\tfrac12\\cos 2x$, $\\tfrac15\\sin 5x$ ($+c$)."],
-    ["$\\int \\dfrac{1}{x}dx$ and $\\int \\dfrac{1}{3x - 2}dx$", "$\\ln|x| + c$; $\\tfrac13\\ln|3x - 2| + c$."],
-    ["$\\int \\sec^2 3x\\,dx$", "$\\tfrac13\\tan 3x + c$."],
-    ["$\\int \\sin^2 x\\,dx$", "Use $\\sin^2 x = \\tfrac12(1 - \\cos 2x)$: $\\tfrac x2 - \\tfrac14\\sin 2x + c$."],
-    ["$\\int \\dfrac{1}{x^4} + 6x^2 + 3\\,dx$", "$-\\dfrac{1}{3x^3} + 2x^3 + 3x + c$."],
-    ["$\\int (2x + 1)^5\\,dx$", "$\\dfrac{(2x+1)^6}{12} + c$ (reverse chain rule)."],
-    ["$\\int \\dfrac{x}{x^2 + 3}dx$", "$\\tfrac12\\ln(x^2 + 3) + c$ — the numerator is half the derivative of the denominator."]
+    ["$\\int \\left(\\dfrac{2}{x^3} - 6\\sqrt x + 1\\right)dx$", "$-\\dfrac{1}{x^2} - 4x^{3/2} + x + c$.", 9],
+    ["$\\int \\dfrac{3x^4 - 4}{2x^3}dx$", "$\\int\\left(\\tfrac32 x - 2x^{-3}\\right)dx = \\tfrac34 x^2 + x^{-2} + c$.", 10],
+    ["$\\int \\dfrac{2x - 3}{\\sqrt x}dx$", "$\\int(2x^{1/2} - 3x^{-1/2})dx = \\tfrac43 x^{3/2} - 6x^{1/2} + c$.", 11],
+    ["$\\int e^{3x}dx$, $\\int \\sin 2x\\,dx$, $\\int \\cos 5x\\,dx$", "$\\tfrac13 e^{3x}$, $-\\tfrac12\\cos 2x$, $\\tfrac15\\sin 5x$ ($+c$).", 12],
+    ["$\\int \\dfrac{1}{x}dx$ and $\\int \\dfrac{1}{3x - 2}dx$", "$\\ln|x| + c$; $\\tfrac13\\ln|3x - 2| + c$.", 13],
+    ["$\\int \\sin^2 x\\,dx$", "Use $\\sin^2 x = \\tfrac12(1 - \\cos 2x)$: $\\tfrac x2 - \\tfrac14\\sin 2x + c$.", 15],
+    ["$\\int \\dfrac{1}{x^4} + 6x^2 + 3\\,dx$", "$-\\dfrac{1}{3x^3} + 2x^3 + 3x + c$.", 16],
+    ["$\\int \\dfrac{x}{x^2 + 3}dx$", "$\\tfrac12\\ln(x^2 + 3) + c$ — the numerator is half the derivative of the denominator.", 18]
   ],
   quiz: [
     { q: "$\\int x^{-1/2}dx =$", opts: ["$2x^{1/2} + c$", "$\\tfrac12 x^{1/2} + c$", "$-\\tfrac12 x^{-3/2} + c$", "$\\ln x + c$"], ans: 0, why: "Raise power to $\\tfrac12$, divide by $\\tfrac12$." },
@@ -418,16 +411,14 @@ X("maths:8.5", {
     { callout: { t: "warn", body: "Change the **limits** when you change the variable — or substitute back before evaluating. $\\int\\ln x\\,dx$ is parts with $u = \\ln x$, $dv = 1$." }}
   ],
   flashcards: [
-    ["$\\int x e^{2x}dx$", "Parts, $u = x$: $\\tfrac x2 e^{2x} - \\tfrac14 e^{2x} + c$."],
-    ["$\\int x^3\\ln x\\,dx$", "$u = \\ln x$: $\\tfrac{x^4}{4}\\ln x - \\tfrac{x^4}{16} + c$."],
-    ["$\\int_1^{e^2} x^3\\ln x\\,dx$", "$\\left[\\tfrac{x^4}{4}\\ln x - \\tfrac{x^4}{16}\\right]_1^{e^2} = \\tfrac{e^8}{2} - \\tfrac{e^8}{16} + \\tfrac{1}{16} = \\tfrac{7e^8}{16} + \\tfrac{1}{16}$."],
-    ["$\\int \\ln x\\,dx$", "$x\\ln x - x + c$."],
-    ["$\\int 2x(x^2 + 2)^{3/2}dx$", "$u = x^2 + 2$: $\\tfrac25(x^2 + 2)^{5/2} + c$."],
-    ["$\\int_1^4 \\dfrac{1}{1 + \\sqrt x}dx$ with $u = 1 + \\sqrt x$", "$x = (u-1)^2$, $dx = 2(u-1)du$, limits $2 \\to 3$: $\\int_2^3 \\dfrac{2(u-1)}{u}du = [2u - 2\\ln u]_2^3 = 2 - 2\\ln\\tfrac32$."],
-    ["$\\int_0^{a}\\sqrt{x(a - x)}\\,dx$ with $x = a\\sin^2\\theta$… set-up?", "$dx = 2a\\sin\\theta\\cos\\theta\\,d\\theta$, limits $0 \\to \\tfrac\\pi2$; integrand becomes $a\\sin\\theta\\cos\\theta \\cdot 2a\\sin\\theta\\cos\\theta = \\tfrac{a^2}{2}\\sin^2 2\\theta$; result $\\tfrac{\\pi a^2}{8}$."],
-    ["$\\int x^2 e^{-3x}dx$ needs parts how many times?", "Twice — each application reduces the power of $x$ by one."],
-    ["Which substitution for $\\int\\dfrac{1}{\\sqrt{4 - x^2}}dx$?", "$x = 2\\sin u$: gives $\\int du = u = \\arcsin\\tfrac x2$."],
-    ["State the parts formula.", "$\\int u\\dfrac{dv}{dx}dx = uv - \\int v\\dfrac{du}{dx}dx$."]
+    ["$\\int x e^{2x}dx$", "Parts, $u = x$: $\\tfrac x2 e^{2x} - \\tfrac14 e^{2x} + c$.", 10],
+    ["$\\int x^3\\ln x\\,dx$", "$u = \\ln x$: $\\tfrac{x^4}{4}\\ln x - \\tfrac{x^4}{16} + c$.", 11],
+    ["$\\int_1^{e^2} x^3\\ln x\\,dx$", "$\\left[\\tfrac{x^4}{4}\\ln x - \\tfrac{x^4}{16}\\right]_1^{e^2} = \\tfrac{e^8}{2} - \\tfrac{e^8}{16} + \\tfrac{1}{16} = \\tfrac{7e^8}{16} + \\tfrac{1}{16}$.", 12],
+    ["$\\int 2x(x^2 + 2)^{3/2}dx$", "$u = x^2 + 2$: $\\tfrac25(x^2 + 2)^{5/2} + c$.", 14],
+    ["$\\int_1^4 \\dfrac{1}{1 + \\sqrt x}dx$ with $u = 1 + \\sqrt x$", "$x = (u-1)^2$, $dx = 2(u-1)du$, limits $2 \\to 3$: $\\int_2^3 \\dfrac{2(u-1)}{u}du = [2u - 2\\ln u]_2^3 = 2 - 2\\ln\\tfrac32$.", 15],
+    ["$\\int_0^{a}\\sqrt{x(a - x)}\\,dx$ with $x = a\\sin^2\\theta$… set-up?", "$dx = 2a\\sin\\theta\\cos\\theta\\,d\\theta$, limits $0 \\to \\tfrac\\pi2$; integrand becomes $a\\sin\\theta\\cos\\theta \\cdot 2a\\sin\\theta\\cos\\theta = \\tfrac{a^2}{2}\\sin^2 2\\theta$; result $\\tfrac{\\pi a^2}{8}$.", 16],
+    ["$\\int x^2 e^{-3x}dx$ needs parts how many times?", "Twice — each application reduces the power of $x$ by one.", 17],
+    ["Which substitution for $\\int\\dfrac{1}{\\sqrt{4 - x^2}}dx$?", "$x = 2\\sin u$: gives $\\int du = u = \\arcsin\\tfrac x2$.", 18],
   ],
   quiz: [
     { q: "For $\\int x\\cos x\\,dx$ choose $u =$", opts: ["$\\cos x$", "$x$", "$x\\cos x$", "$\\sin x$"], ans: 1, why: "Differentiates to 1." },
@@ -488,16 +479,16 @@ X("maths:8.7", {
     { callout: { t: "warn", body: "After $\\ln V = f(t) + c$, write $V = Ae^{f(t)}$ with $A = e^c$ **before** applying the condition — it avoids sign and log errors. A modulus in $\\ln|9 - 6V|$ can be dropped once the sign is known from the context." }}
   ],
   flashcards: [
-    ["Solve $\\dfrac{dy}{dx} = xy$ with $y = 2$ at $x = 0$.", "$\\ln y = \\tfrac{x^2}{2} + c \\Rightarrow y = 2e^{x^2/2}$."],
-    ["Solve $\\dfrac{dH}{dt} = \\dfrac{H\\cos 0.25t}{40}$, $H = 5$ at $t = 0$.", "$\\ln H = \\tfrac{\\sin 0.25t}{10} + c$; $H = 5e^{0.1\\sin 0.25t}$."],
-    ["Maximum of $H = 5e^{0.1\\sin 0.25t}$ and when first reached?", "$5e^{0.1}$ when $\\sin 0.25t = 1$, $t = 2\\pi$."],
-    ["Solve $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$ with $r = 8$ at $t = 0$.", "$\\tfrac13 r^3 = -kt + \\tfrac{512}{3}$, so $r^3 = 512 - 3kt$."],
-    ["Solve $\\dfrac{dH}{dt} = -0.12e^{-0.2t}$, $H = 1.2$ at $t = 0$.", "$H = 0.6e^{-0.2t} + 0.6$."],
-    ["General solution of $\\dfrac{dy}{dx} = \\dfrac{y}{x}$?", "$\\ln y = \\ln x + c \\Rightarrow y = Ax$."],
-    ["Solve $\\dfrac{dN}{dt} = kN$, $N(0) = N_0$.", "$N = N_0e^{kt}$."],
-    ["Solve $\\dfrac{dy}{dx} = \\dfrac{2x}{y}$.", "$\\int y\\,dy = \\int 2x\\,dx \\Rightarrow \\tfrac{y^2}{2} = x^2 + c$."],
-    ["Why is the constant found after integrating, not before?", "The condition applies to the solution, which only exists once both sides are integrated."],
-    ["Solve $\\dfrac{dV}{dt} = \\tfrac{1}{10}V(25 - V)$ with $V(0) = 5$ — final form?", "$\\tfrac{2}{5}\\ln\\dfrac{V}{25 - V} = t + c$; $V = \\dfrac{25}{1 + 4e^{-2.5t}}$."]
+    ["Solve $\\dfrac{dy}{dx} = xy$ with $y = 2$ at $x = 0$.", "$\\ln y = \\tfrac{x^2}{2} + c \\Rightarrow y = 2e^{x^2/2}$.", 8],
+    ["Solve $\\dfrac{dH}{dt} = \\dfrac{H\\cos 0.25t}{40}$, $H = 5$ at $t = 0$.", "$\\ln H = \\tfrac{\\sin 0.25t}{10} + c$; $H = 5e^{0.1\\sin 0.25t}$.", 9],
+    ["Maximum of $H = 5e^{0.1\\sin 0.25t}$ and when first reached?", "$5e^{0.1}$ when $\\sin 0.25t = 1$, $t = 2\\pi$.", 10],
+    ["Solve $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$ with $r = 8$ at $t = 0$.", "$\\tfrac13 r^3 = -kt + \\tfrac{512}{3}$, so $r^3 = 512 - 3kt$.", 11],
+    ["Solve $\\dfrac{dH}{dt} = -0.12e^{-0.2t}$, $H = 1.2$ at $t = 0$.", "$H = 0.6e^{-0.2t} + 0.6$.", 12],
+    ["General solution of $\\dfrac{dy}{dx} = \\dfrac{y}{x}$?", "$\\ln y = \\ln x + c \\Rightarrow y = Ax$.", 13],
+    ["Solve $\\dfrac{dN}{dt} = kN$, $N(0) = N_0$.", "$N = N_0e^{kt}$.", 14],
+    ["Solve $\\dfrac{dy}{dx} = \\dfrac{2x}{y}$.", "$\\int y\\,dy = \\int 2x\\,dx \\Rightarrow \\tfrac{y^2}{2} = x^2 + c$.", 15],
+    ["Why is the constant found after integrating, not before?", "The condition applies to the solution, which only exists once both sides are integrated.", 16],
+    ["Solve $\\dfrac{dV}{dt} = \\tfrac{1}{10}V(25 - V)$ with $V(0) = 5$ — final form?", "$\\tfrac{2}{5}\\ln\\dfrac{V}{25 - V} = t + c$; $V = \\dfrac{25}{1 + 4e^{-2.5t}}$.", 17]
   ],
   quiz: [
     { q: "$\\dfrac{dy}{dx} = 3y$ has general solution:", opts: ["$y = 3x + c$", "$y = Ae^{3x}$", "$y = e^{3x}$", "$y = 3e^{x}$"], ans: 1, why: "$\\ln y = 3x + c$." },
@@ -608,16 +599,16 @@ X("maths:9.2", {
     { callout: { t: "warn", body: "Use the **ANS** key and write $x_1, x_2, x_3$ to 4–5 d.p. even if the answer is wanted to 3 d.p. Give the final answer to the accuracy asked and **state the number of decimal places**." }}
   ],
   flashcards: [
-    ["Show $x^3 - 5x + 1 = 0$ can be written as $x = \\sqrt{5 - \\dfrac1x}$.", "$x^3 = 5x - 1 \\Rightarrow x^2 = 5 - \\dfrac1x \\Rightarrow x = \\sqrt{5 - \\dfrac1x}$."],
-    ["Iterate $x_{n+1} = \\sqrt{5 - 1/x_n}$ from $x_0 = 2$: $x_1, x_2$?", "$x_1 = \\sqrt{4.5} = 2.1213$, $x_2 = \\sqrt{5 - 0.4714} = 2.1281$."],
-    ["Turning point of $y = (8 - x)\\ln x$: derive a convergent iteration.", "$\\dfrac{dy}{dx} = -\\ln x + \\dfrac{8 - x}{x} = 0 \\Rightarrow x(1 + \\ln x) = 8 \\Rightarrow x = \\dfrac{8}{1 + \\ln x}$."],
-    ["When does $x_{n+1} = g(x_n)$ converge to $\\alpha$?", "When $|g'(\\alpha)| < 1$; it diverges if $|g'(\\alpha)| > 1$."],
-    ["Staircase vs cobweb?", "Staircase when $g'(\\alpha) > 0$ (monotone approach); cobweb when $g'(\\alpha) < 0$ (oscillating around the root)."],
-    ["Does $x_{n+1} = 2\\ln(8 - x_n)$ converge near $\\alpha \\approx 3.13$?", "$g'(x) = -\\dfrac{2}{8 - x}$; $|g'(3.13)| = 0.41 < 1$ — converges (cobweb)."],
-    ["$v = (10 - 0.4t)\\ln(t + 1)$: equation for maximum speed?", "$\\dfrac{dv}{dt} = -0.4\\ln(t + 1) + \\dfrac{10 - 0.4t}{t + 1} = 0$."],
-    ["How do you draw a cobweb diagram?", "From $x_0$ go vertically to $y = g(x)$, horizontally to $y = x$, repeat; the staircase/cobweb closes in on the intersection."],
-    ["Verify a root is 2.128 to 3 d.p.", "$f(2.1275)$ and $f(2.1285)$ have opposite signs."],
-    ["Why might an iteration find a different root from the one wanted?", "Different starting values (and different rearrangements) converge to different fixed points — or diverge."]
+    ["Show $x^3 - 5x + 1 = 0$ can be written as $x = \\sqrt{5 - \\dfrac1x}$.", "$x^3 = 5x - 1 \\Rightarrow x^2 = 5 - \\dfrac1x \\Rightarrow x = \\sqrt{5 - \\dfrac1x}$.", 6],
+    ["Iterate $x_{n+1} = \\sqrt{5 - 1/x_n}$ from $x_0 = 2$: $x_1, x_2$?", "$x_1 = \\sqrt{4.5} = 2.1213$, $x_2 = \\sqrt{5 - 0.4714} = 2.1281$.", 7],
+    ["Turning point of $y = (8 - x)\\ln x$: derive a convergent iteration.", "$\\dfrac{dy}{dx} = -\\ln x + \\dfrac{8 - x}{x} = 0 \\Rightarrow x(1 + \\ln x) = 8 \\Rightarrow x = \\dfrac{8}{1 + \\ln x}$.", 8],
+    ["When does $x_{n+1} = g(x_n)$ converge to $\\alpha$?", "When $|g'(\\alpha)| < 1$; it diverges if $|g'(\\alpha)| > 1$.", 9],
+    ["Staircase vs cobweb?", "Staircase when $g'(\\alpha) > 0$ (monotone approach); cobweb when $g'(\\alpha) < 0$ (oscillating around the root).", 10],
+    ["Does $x_{n+1} = 2\\ln(8 - x_n)$ converge near $\\alpha \\approx 3.13$?", "$g'(x) = -\\dfrac{2}{8 - x}$; $|g'(3.13)| = 0.41 < 1$ — converges (cobweb).", 11],
+    ["$v = (10 - 0.4t)\\ln(t + 1)$: equation for maximum speed?", "$\\dfrac{dv}{dt} = -0.4\\ln(t + 1) + \\dfrac{10 - 0.4t}{t + 1} = 0$.", 12],
+    ["How do you draw a cobweb diagram?", "From $x_0$ go vertically to $y = g(x)$, horizontally to $y = x$, repeat; the staircase/cobweb closes in on the intersection.", 13],
+    ["Verify a root is 2.128 to 3 d.p.", "$f(2.1275)$ and $f(2.1285)$ have opposite signs.", 14],
+    ["Why might an iteration find a different root from the one wanted?", "Different starting values (and different rearrangements) converge to different fixed points — or diverge.", 15]
   ],
   quiz: [
     { q: "$x^2 - 3x + 1 = 0$ rearranged as $x = g(x)$:", opts: ["$x = \\dfrac{x^2 + 1}{3}$", "$x = 3 - x$", "$x = x^2$", "$x = 1$"], ans: 0, why: "Isolate $3x$." },
@@ -650,16 +641,15 @@ X("maths:9.3", {
     { callout: { t: "memorise", body: "$x_{n+1} = x_n - \\dfrac{f(x_n)}{f'(x_n)}$. Geometrically: draw the tangent at $x_n$; where it crosses the $x$-axis is $x_{n+1}$." }}
   ],
   flashcards: [
-    ["State the Newton–Raphson formula.", "$x_{n+1} = x_n - \\dfrac{f(x_n)}{f'(x_n)}$."],
-    ["Derive the NR formula for $f(x) = x^3 - 2x - 5$.", "$x_{n+1} = x_n - \\dfrac{x_n^3 - 2x_n - 5}{3x_n^2 - 2} = \\dfrac{2x_n^3 + 5}{3x_n^2 - 2}$."],
-    ["Apply NR once to $f(x) = x^3 - 2x - 5$ from $x_0 = 2$.", "$x_1 = \\dfrac{16 + 5}{12 - 2} = 2.1$."],
-    ["Why does $x_0 = 0$ fail for $f(x) = x^3 - 2x - 5$?", "$f'(0) = -2 \\ne 0$ — it does not fail here; $x_1 = 2.5$. Failure needs $f'(x_0) = 0$, e.g. $x_0 = \\sqrt{2/3}$."],
-    ["Geometric meaning of one NR step?", "The tangent at $(x_n, f(x_n))$ is drawn; $x_{n+1}$ is where it meets the $x$-axis."],
-    ["When does NR fail?", "When $f'(x_n) = 0$ (horizontal tangent), when $x_0$ is near a turning point (tangent shoots off), or it converges to a different root."],
-    ["NR for $f(x) = 8\\sin(x/2) - 3x + 9$ from $x_0 = 4$: $x_1$?", "$f(4) = 8\\sin 2 - 12 + 9 = 4.27$; $f'(x) = 4\\cos(x/2) - 3$, $f'(4) = 4\\cos 2 - 3 = -4.66$; $x_1 = 4 + 0.916 = 4.92$."],
-    ["Why does NR usually converge faster than $x = g(x)$ iteration?", "It uses gradient information — convergence is quadratic (the number of correct figures roughly doubles each step)."],
-    ["NR for $f(x) = \\tan x - 3x + 1$ from $x_0 = 1.2$ — $f'(x)$?", "$f'(x) = \\sec^2 x - 3$."],
-    ["If $f'(x_0) = 0$ what happens geometrically?", "The tangent is parallel to the $x$-axis and never meets it — $x_1$ is undefined."]
+    ["Derive the NR formula for $f(x) = x^3 - 2x - 5$.", "$x_{n+1} = x_n - \\dfrac{x_n^3 - 2x_n - 5}{3x_n^2 - 2} = \\dfrac{2x_n^3 + 5}{3x_n^2 - 2}$.", 6],
+    ["Apply NR once to $f(x) = x^3 - 2x - 5$ from $x_0 = 2$.", "$x_1 = \\dfrac{16 + 5}{12 - 2} = 2.1$.", 7],
+    ["Why does $x_0 = 0$ fail for $f(x) = x^3 - 2x - 5$?", "$f'(0) = -2 \\ne 0$ — it does not fail here; $x_1 = 2.5$. Failure needs $f'(x_0) = 0$, e.g. $x_0 = \\sqrt{2/3}$.", 8],
+    ["Geometric meaning of one NR step?", "The tangent at $(x_n, f(x_n))$ is drawn; $x_{n+1}$ is where it meets the $x$-axis.", 9],
+    ["When does NR fail?", "When $f'(x_n) = 0$ (horizontal tangent), when $x_0$ is near a turning point (tangent shoots off), or it converges to a different root.", 10],
+    ["NR for $f(x) = 8\\sin(x/2) - 3x + 9$ from $x_0 = 4$: $x_1$?", "$f(4) = 8\\sin 2 - 12 + 9 = 4.27$; $f'(x) = 4\\cos(x/2) - 3$, $f'(4) = 4\\cos 2 - 3 = -4.66$; $x_1 = 4 + 0.916 = 4.92$.", 11],
+    ["Why does NR usually converge faster than $x = g(x)$ iteration?", "It uses gradient information — convergence is quadratic (the number of correct figures roughly doubles each step).", 12],
+    ["NR for $f(x) = \\tan x - 3x + 1$ from $x_0 = 1.2$ — $f'(x)$?", "$f'(x) = \\sec^2 x - 3$.", 13],
+    ["If $f'(x_0) = 0$ what happens geometrically?", "The tangent is parallel to the $x$-axis and never meets it — $x_1$ is undefined.", 14]
   ],
   quiz: [
     { q: "NR uses:", opts: ["chords", "tangents", "rectangles", "trapezia"], ans: 1, why: "Tangent intersection." },
@@ -694,16 +684,15 @@ X("maths:9.4", {
     { callout: { t: "warn", body: "The exact area by integration (Oct 2021: $\\int(\\ln x)^2$ by parts) is asked *after* the estimate to compare — keep both to compare the percentage error." }}
   ],
   flashcards: [
-    ["State the trapezium rule.", "$\\int_a^b y\\,dx \\approx \\dfrac h2[y_0 + 2(y_1 + \\ldots + y_{n-1}) + y_n]$ with $h = \\dfrac{b - a}{n}$."],
-    ["Five ordinates from $x = 1$ to $x = 3$: what is $h$?", "Four strips: $h = 0.5$."],
-    ["Table $y$: 1, 1.5, 2.2, 3.1, 4.5 at $h = 0.5$. Estimate.", "$\\tfrac{0.5}{2}[1 + 4.5 + 2(1.5 + 2.2 + 3.1)] = 0.25 \\times 19.1 = 4.775$."],
-    ["Given $\\int_1^3 f(x)dx \\approx 4.78$, deduce $\\int_1^3 (2f(x) + 1)dx$.", "$2 \\times 4.78 + 2 = 11.56$."],
-    ["Given $\\int_1^3 f(x)dx \\approx 4.78$, deduce $\\int_{0.5}^{1.5} f(2x)dx$.", "$\\tfrac12\\int_1^3 f(u)du = 2.39$."],
-    ["When is the trapezium rule an overestimate?", "When the curve is convex (bends upward — $f'' > 0$) on the interval, the chords lie above the curve."],
-    ["How can the estimate be improved?", "Use more strips (smaller $h$)."],
-    ["Speed table every 5 s: 0, 12, 21, 27, 31 m/s. Estimate distance.", "$\\tfrac52[0 + 31 + 2(12 + 21 + 27)] = 2.5 \\times 151 = 377.5$ m."],
-    ["Percentage error of an estimate 4.78 against the exact 4.62?", "$\\dfrac{0.16}{4.62} \\times 100 = 3.5\\%$."],
-    ["Table with unknown $y$-values $a$, $b$: area 17.59 and $a + b = 7.2$… how do you solve?", "The rule gives a linear equation in $a$ and $b$; with the sum, solve simultaneously."]
+    ["Five ordinates from $x = 1$ to $x = 3$: what is $h$?", "Four strips: $h = 0.5$.", 7],
+    ["Table $y$: 1, 1.5, 2.2, 3.1, 4.5 at $h = 0.5$. Estimate.", "$\\tfrac{0.5}{2}[1 + 4.5 + 2(1.5 + 2.2 + 3.1)] = 0.25 \\times 19.1 = 4.775$.", 8],
+    ["Given $\\int_1^3 f(x)dx \\approx 4.78$, deduce $\\int_1^3 (2f(x) + 1)dx$.", "$2 \\times 4.78 + 2 = 11.56$.", 9],
+    ["Given $\\int_1^3 f(x)dx \\approx 4.78$, deduce $\\int_{0.5}^{1.5} f(2x)dx$.", "$\\tfrac12\\int_1^3 f(u)du = 2.39$.", 10],
+    ["When is the trapezium rule an overestimate?", "When the curve is convex (bends upward — $f'' > 0$) on the interval, the chords lie above the curve.", 11],
+    ["How can the estimate be improved?", "Use more strips (smaller $h$).", 12],
+    ["Speed table every 5 s: 0, 12, 21, 27, 31 m/s. Estimate distance.", "$\\tfrac52[0 + 31 + 2(12 + 21 + 27)] = 2.5 \\times 151 = 377.5$ m.", 13],
+    ["Percentage error of an estimate 4.78 against the exact 4.62?", "$\\dfrac{0.16}{4.62} \\times 100 = 3.5\\%$.", 14],
+    ["Table with unknown $y$-values $a$, $b$: area 17.59 and $a + b = 7.2$… how do you solve?", "The rule gives a linear equation in $a$ and $b$; with the sum, solve simultaneously.", 15]
   ],
   quiz: [
     { q: "Six ordinates means how many strips?", opts: ["6", "5", "7", "3"], ans: 1, why: "$n$ strips need $n + 1$ ordinates." },
@@ -861,16 +850,15 @@ X("maths:10.2", {
 
 X("maths:10.3", {
   flashcards: [
-    ["$\\mathbf a = 2\\mathbf i + \\mathbf j$, $\\mathbf b = -\\mathbf i + 3\\mathbf j$. Find $2\\mathbf a - 3\\mathbf b$.", "$7\\mathbf i - 7\\mathbf j$."],
-    ["Geometric meaning of $\\mathbf a + \\mathbf b$?", "Place $\\mathbf b$'s tail at $\\mathbf a$'s head; the resultant runs from $\\mathbf a$'s tail to $\\mathbf b$'s head (triangle law)."],
-    ["Geometric meaning of $k\\mathbf a$ for $k < 0$?", "A vector parallel to $\\mathbf a$, $|k|$ times as long, in the opposite direction."],
-    ["In triangle $OAB$, $M$ is the midpoint of $AB$. Express $\\overrightarrow{OM}$ in terms of $\\mathbf a$, $\\mathbf b$.", "$\\tfrac12(\\mathbf a + \\mathbf b)$."],
-    ["$\\overrightarrow{OA} = \\mathbf a$, $\\overrightarrow{OB} = \\mathbf b$, $C$ divides $OA$ with $OC : CA = 1 : 2$. Find $\\overrightarrow{CB}$.", "$\\mathbf b - \\tfrac13\\mathbf a$."],
-    ["Line through $C$ and $M$ meets $OB$ at $N$. How do you find the ratio $ON : NB$?", "Write $\\overrightarrow{ON}$ two ways — as $\\lambda\\mathbf b$ and as $\\overrightarrow{OC} + \\mu\\overrightarrow{CM}$ — and equate coefficients of $\\mathbf a$ and $\\mathbf b$."],
-    ["Why can coefficients of $\\mathbf a$ and $\\mathbf b$ be equated?", "Because $\\mathbf a$ and $\\mathbf b$ are non-parallel, a vector has a unique expression $\\lambda\\mathbf a + \\mu\\mathbf b$."],
-    ["Parallelogram $PQRS$: $\\overrightarrow{PQ} = \\mathbf u$, $\\overrightarrow{PS} = \\mathbf v$. Diagonals?", "$\\overrightarrow{PR} = \\mathbf u + \\mathbf v$, $\\overrightarrow{QS} = \\mathbf v - \\mathbf u$."],
-    ["Show $PQRS$ with $\\overrightarrow{PQ} = 3\\mathbf i + 4\\mathbf j$, $\\overrightarrow{PS} = 5\\mathbf j$ is a rhombus.", "$|PQ| = 5 = |PS|$ and it is a parallelogram, so all sides are 5."],
-    ["Exact area of that rhombus?", "$|PQ||PS|\\sin\\theta$ where $\\cos\\theta = \\tfrac45$ (angle between $3\\mathbf i + 4\\mathbf j$ and $\\mathbf j$): $25 \\times \\tfrac35 = 15$."]
+    ["$\\mathbf a = 2\\mathbf i + \\mathbf j$, $\\mathbf b = -\\mathbf i + 3\\mathbf j$. Find $2\\mathbf a - 3\\mathbf b$.", "$7\\mathbf i - 7\\mathbf j$.", 6],
+    ["Geometric meaning of $\\mathbf a + \\mathbf b$?", "Place $\\mathbf b$'s tail at $\\mathbf a$'s head; the resultant runs from $\\mathbf a$'s tail to $\\mathbf b$'s head (triangle law).", 7],
+    ["Geometric meaning of $k\\mathbf a$ for $k < 0$?", "A vector parallel to $\\mathbf a$, $|k|$ times as long, in the opposite direction.", 8],
+    ["$\\overrightarrow{OA} = \\mathbf a$, $\\overrightarrow{OB} = \\mathbf b$, $C$ divides $OA$ with $OC : CA = 1 : 2$. Find $\\overrightarrow{CB}$.", "$\\mathbf b - \\tfrac13\\mathbf a$.", 10],
+    ["Line through $C$ and $M$ meets $OB$ at $N$. How do you find the ratio $ON : NB$?", "Write $\\overrightarrow{ON}$ two ways — as $\\lambda\\mathbf b$ and as $\\overrightarrow{OC} + \\mu\\overrightarrow{CM}$ — and equate coefficients of $\\mathbf a$ and $\\mathbf b$.", 11],
+    ["Why can coefficients of $\\mathbf a$ and $\\mathbf b$ be equated?", "Because $\\mathbf a$ and $\\mathbf b$ are non-parallel, a vector has a unique expression $\\lambda\\mathbf a + \\mu\\mathbf b$.", 12],
+    ["Parallelogram $PQRS$: $\\overrightarrow{PQ} = \\mathbf u$, $\\overrightarrow{PS} = \\mathbf v$. Diagonals?", "$\\overrightarrow{PR} = \\mathbf u + \\mathbf v$, $\\overrightarrow{QS} = \\mathbf v - \\mathbf u$.", 13],
+    ["Show $PQRS$ with $\\overrightarrow{PQ} = 3\\mathbf i + 4\\mathbf j$, $\\overrightarrow{PS} = 5\\mathbf j$ is a rhombus.", "$|PQ| = 5 = |PS|$ and it is a parallelogram, so all sides are 5.", 14],
+    ["Exact area of that rhombus?", "$|PQ||PS|\\sin\\theta$ where $\\cos\\theta = \\tfrac45$ (angle between $3\\mathbf i + 4\\mathbf j$ and $\\mathbf j$): $25 \\times \\tfrac35 = 15$.", 15]
   ],
   quiz: [
     { q: "$3(\\mathbf i - 2\\mathbf j) + 2(\\mathbf i + \\mathbf j) =$", opts: ["$5\\mathbf i - 4\\mathbf j$", "$5\\mathbf i - 8\\mathbf j$", "$\\mathbf i - 4\\mathbf j$", "$5\\mathbf i + 4\\mathbf j$"], ans: 0, why: "Component-wise." },
@@ -896,14 +884,14 @@ X("maths:10.3", {
 
 X("maths:10.4", {
   flashcards: [
-    ["Distance between points with position vectors $\\mathbf a = \\mathbf i + 2\\mathbf j - \\mathbf k$ and $\\mathbf b = 3\\mathbf i - \\mathbf j + 4\\mathbf k$?", "$|\\mathbf b - \\mathbf a| = |2\\mathbf i - 3\\mathbf j + 5\\mathbf k| = \\sqrt{38}$."],
-    ["$\\overrightarrow{AB} = \\overrightarrow{BD}$ with $\\mathbf a = (1, 2, 3)$, $\\mathbf b = (4, 0, 5)$. Find $\\mathbf d$.", "$\\mathbf d = 2\\mathbf b - \\mathbf a = (7, -2, 7)$."],
-    ["$|AC| = 4$ where $\\mathbf a = (1, 2, 3)$, $\\mathbf c = (a, 2, 3 + 2\\sqrt3)$: find $a$.", "$(a - 1)^2 + 12 = 16 \\Rightarrow a = 3$ or $-1$."],
-    ["Position vector of the point dividing $AB$ in the ratio $2 : 3$?", "$\\mathbf a + \\tfrac25(\\mathbf b - \\mathbf a) = \\tfrac35\\mathbf a + \\tfrac25\\mathbf b$."],
-    ["A running track has vertices $A(0,0)$, $B(60, 0)$, $C(70, 30)$, $D(10, 30)$. Show $AD \\parallel BC$.", "$\\overrightarrow{AD} = 10\\mathbf i + 30\\mathbf j = \\overrightarrow{BC}$ — equal, so parallel."],
-    ["Average speed round that track (perimeter $60 + 2\\sqrt{1000} + 60$ m) in 40 s?", "$\\dfrac{120 + 20\\sqrt{10}}{40} \\approx 4.58$ m/s."],
-    ["$A, B, C$ collinear with $\\mathbf a = (1, 1)$, $\\mathbf b = (3, 5)$, $\\mathbf c = (p, 13)$. Find $p$.", "$\\overrightarrow{AB} = (2, 4)$, $\\overrightarrow{AC} = (p - 1, 12) = 3(2, 4) \\Rightarrow p = 7$."],
-    ["Extend $OB$ to $D$ so that $CD \\parallel OA$… what condition?", "$\\mathbf d = k\\mathbf b$ and $\\mathbf d - \\mathbf c = \\lambda\\mathbf a$; equate components to find $k$."]
+    ["Distance between points with position vectors $\\mathbf a = \\mathbf i + 2\\mathbf j - \\mathbf k$ and $\\mathbf b = 3\\mathbf i - \\mathbf j + 4\\mathbf k$?", "$|\\mathbf b - \\mathbf a| = |2\\mathbf i - 3\\mathbf j + 5\\mathbf k| = \\sqrt{38}$.", 5],
+    ["$\\overrightarrow{AB} = \\overrightarrow{BD}$ with $\\mathbf a = (1, 2, 3)$, $\\mathbf b = (4, 0, 5)$. Find $\\mathbf d$.", "$\\mathbf d = 2\\mathbf b - \\mathbf a = (7, -2, 7)$.", 6],
+    ["$|AC| = 4$ where $\\mathbf a = (1, 2, 3)$, $\\mathbf c = (a, 2, 3 + 2\\sqrt3)$: find $a$.", "$(a - 1)^2 + 12 = 16 \\Rightarrow a = 3$ or $-1$.", 7],
+    ["Position vector of the point dividing $AB$ in the ratio $2 : 3$?", "$\\mathbf a + \\tfrac25(\\mathbf b - \\mathbf a) = \\tfrac35\\mathbf a + \\tfrac25\\mathbf b$.", 8],
+    ["A running track has vertices $A(0,0)$, $B(60, 0)$, $C(70, 30)$, $D(10, 30)$. Show $AD \\parallel BC$.", "$\\overrightarrow{AD} = 10\\mathbf i + 30\\mathbf j = \\overrightarrow{BC}$ — equal, so parallel.", 9],
+    ["Average speed round that track (perimeter $60 + 2\\sqrt{1000} + 60$ m) in 40 s?", "$\\dfrac{120 + 20\\sqrt{10}}{40} \\approx 4.58$ m/s.", 10],
+    ["$A, B, C$ collinear with $\\mathbf a = (1, 1)$, $\\mathbf b = (3, 5)$, $\\mathbf c = (p, 13)$. Find $p$.", "$\\overrightarrow{AB} = (2, 4)$, $\\overrightarrow{AC} = (p - 1, 12) = 3(2, 4) \\Rightarrow p = 7$.", 11],
+    ["Extend $OB$ to $D$ so that $CD \\parallel OA$… what condition?", "$\\mathbf d = k\\mathbf b$ and $\\mathbf d - \\mathbf c = \\lambda\\mathbf a$; equate components to find $k$.", 12]
   ],
   quiz: [
     { q: "Distance from $(1, 2, 2)$ to the origin:", opts: ["3", "5", "$\\sqrt5$", "9"], ans: 0, why: "$\\sqrt{1 + 4 + 4}$." },
@@ -934,14 +922,14 @@ X("maths:10.4", {
 
 X("maths:10.5", {
   flashcards: [
-    ["A stone slides on ice with constant velocity; positions at $t = 0$ and $t = 3$ are $(2, 8)$ and $(8, -1)$. Does it pass through the origin?", "Velocity $(2, -3)$ per second; position $(2 + 2t, 8 - 3t)$ — at $t = -1$ it is at $(0, 11)$, not $O$; check $2 + 2t = 0 \\Rightarrow t = -1$ gives $y = 11 \\ne 0$: no."],
-    ["Speed of that stone?", "$|(2, -3)| = \\sqrt{13}$ m/s."],
-    ["Forces $\\mathbf F_1 = 3\\mathbf i + 2\\mathbf j$ and $\\mathbf F_2 = -\\mathbf i + 4\\mathbf j$ act on a particle. Resultant and its magnitude?", "$2\\mathbf i + 6\\mathbf j$, $2\\sqrt{10}$ N."],
-    ["Trapezium $ABCD$ with $\\overrightarrow{AB} = 6\\mathbf i$, $\\overrightarrow{DC} = 2\\mathbf i$; diagonals meet at $X$. Ratio $BX : XD$?", "Triangles $ABX$ and $CDX$ are similar with ratio $3 : 1$, so $BX : XD = 3 : 1$."],
-    ["Position of a particle at time $t$ with initial position $\\mathbf r_0$ and constant velocity $\\mathbf v$?", "$\\mathbf r = \\mathbf r_0 + t\\mathbf v$."],
-    ["Two ships: $\\mathbf r_A = (1 + 2t)\\mathbf i + (3 + t)\\mathbf j$, $\\mathbf r_B = (7 - t)\\mathbf i + (t)\\mathbf j$. Do they collide?", "Equal $\\mathbf i$: $t = 2$; then $\\mathbf j$: $5 \\ne 2$ — no collision."],
-    ["Area ratio when a point divides a side of a triangle in ratio $1 : 2$?", "The two sub-triangles share a height, so areas are in the ratio $1 : 2$."],
-    ["How do you find where a line $\\mathbf r = \\mathbf a + \\lambda\\mathbf d$ meets another $\\mathbf r = \\mathbf b + \\mu\\mathbf e$?", "Equate components to get simultaneous equations in $\\lambda$ and $\\mu$."]
+    ["A stone slides on ice with constant velocity; positions at $t = 0$ and $t = 3$ are $(2, 8)$ and $(8, -1)$. Does it pass through the origin?", "Velocity $(2, -3)$ per second; position $(2 + 2t, 8 - 3t)$ — at $t = -1$ it is at $(0, 11)$, not $O$; check $2 + 2t = 0 \\Rightarrow t = -1$ gives $y = 11 \\ne 0$: no.", 6],
+    ["Speed of that stone?", "$|(2, -3)| = \\sqrt{13}$ m/s.", 7],
+    ["Forces $\\mathbf F_1 = 3\\mathbf i + 2\\mathbf j$ and $\\mathbf F_2 = -\\mathbf i + 4\\mathbf j$ act on a particle. Resultant and its magnitude?", "$2\\mathbf i + 6\\mathbf j$, $2\\sqrt{10}$ N.", 8],
+    ["Trapezium $ABCD$ with $\\overrightarrow{AB} = 6\\mathbf i$, $\\overrightarrow{DC} = 2\\mathbf i$; diagonals meet at $X$. Ratio $BX : XD$?", "Triangles $ABX$ and $CDX$ are similar with ratio $3 : 1$, so $BX : XD = 3 : 1$.", 9],
+    ["Position of a particle at time $t$ with initial position $\\mathbf r_0$ and constant velocity $\\mathbf v$?", "$\\mathbf r = \\mathbf r_0 + t\\mathbf v$.", 10],
+    ["Two ships: $\\mathbf r_A = (1 + 2t)\\mathbf i + (3 + t)\\mathbf j$, $\\mathbf r_B = (7 - t)\\mathbf i + (t)\\mathbf j$. Do they collide?", "Equal $\\mathbf i$: $t = 2$; then $\\mathbf j$: $5 \\ne 2$ — no collision.", 11],
+    ["Area ratio when a point divides a side of a triangle in ratio $1 : 2$?", "The two sub-triangles share a height, so areas are in the ratio $1 : 2$.", 12],
+    ["How do you find where a line $\\mathbf r = \\mathbf a + \\lambda\\mathbf d$ meets another $\\mathbf r = \\mathbf b + \\mu\\mathbf e$?", "Equate components to get simultaneous equations in $\\lambda$ and $\\mu$.", 13]
   ],
   quiz: [
     { q: "A particle with position $(1 + 3t)\\mathbf i + (2 - t)\\mathbf j$ has velocity:", opts: ["$3\\mathbf i - \\mathbf j$", "$\\mathbf i + 2\\mathbf j$", "$3\\mathbf i + \\mathbf j$", "$4\\mathbf i + \\mathbf j$"], ans: 0, why: "Coefficient of $t$." },

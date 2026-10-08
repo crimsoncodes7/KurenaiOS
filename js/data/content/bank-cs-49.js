@@ -16,16 +16,14 @@ X("compsci:4.9.1.1", {
     ]}}
   ],
   flashcards: [
-    ["Define serial transmission.", "Bits are sent one after another along a single wire / channel."],
-    ["Define parallel transmission.", "Several bits are sent simultaneously, each along its own wire."],
-    ["State three advantages of serial over parallel transmission.", "Cheaper (fewer wires, simpler hardware); no crosstalk between wires; no data skew, so usable over longer distances and at higher clock rates."],
-    ["What is data skew?", "In parallel transmission, bits sent simultaneously arrive at slightly different times because the wires differ, worsening with distance."],
-    ["What is crosstalk?", "Interference between adjacent parallel wires, corrupting the signals."],
-    ["Why are internal buses parallel?", "Distances are short and fixed and large volumes of data move constantly, so sending many bits at once is worthwhile."],
-    ["What is synchronous transmission?", "Transmitter and receiver are continuously synchronised by a common clock signal, with timing information sent alongside the data."],
-    ["What is asynchronous transmission?", "No shared clock; each byte is framed by a start bit, which synchronises the receiver's clock for that transmission, and a stop bit."],
-    ["What is the purpose of the start bit?", "To start the receiver's clock ticking / bring it into phase with the transmitter's clock."],
-    ["What is the purpose of the stop bit?", "To give the receiver time to process the received data and to allow the next start bit to be recognised."]
+    ["Define serial transmission.", "Bits are sent one after another along a single wire / channel.", 10],
+    ["State three advantages of serial over parallel transmission.", "Cheaper (fewer wires, simpler hardware); no crosstalk between wires; no data skew, so usable over longer distances and at higher clock rates.", 12],
+    ["What is data skew?", "In parallel transmission, bits sent simultaneously arrive at slightly different times because the wires differ, worsening with distance.", 13],
+    ["What is crosstalk?", "Interference between adjacent parallel wires, corrupting the signals.", 14],
+    ["Why are internal buses parallel?", "Distances are short and fixed and large volumes of data move constantly, so sending many bits at once is worthwhile.", 15],
+    ["What is synchronous transmission?", "Transmitter and receiver are continuously synchronised by a common clock signal, with timing information sent alongside the data.", 16],
+    ["What is asynchronous transmission?", "No shared clock; each byte is framed by a start bit, which synchronises the receiver's clock for that transmission, and a stop bit.", 17],
+    ["What is the purpose of the stop bit?", "To give the receiver time to process the received data and to allow the next start bit to be recognised.", 19]
   ],
   quiz: [
     { q: "Serial transmission sends:", opts: ["8 bits at once on 8 wires", "one bit at a time on one wire", "bytes in parallel", "no bits"], ans: 1, why: "Definition." },
@@ -66,14 +64,13 @@ X("compsci:4.9.1.2", {
     { callout: { t: "warn", body: "The 2022 false statement: *latency is the rate at which signals on a line can change* — that is the **baud rate**." }}
   ],
   flashcards: [
-    ["Define bit rate.", "The number of bits transmitted per second."],
-    ["Define baud rate.", "The number of signal changes (symbols) per second on the medium."],
-    ["How can bit rate exceed baud rate?", "By encoding more than one bit in each signal change — e.g. four voltage levels carry 2 bits per change, so bit rate = 2 × baud."],
-    ["A link uses 8 voltage levels at 500 baud. Bit rate?", "3 bits per symbol × 500 = 1500 bits per second."],
-    ["Define bandwidth.", "The range of frequencies that a medium can transmit — directly proportional to the maximum bit rate."],
-    ["Define latency.", "The delay between an action being initiated and its effect being observed — the time taken for data to travel to the receiver."],
-    ["Relationship between bandwidth and bit rate?", "Directly proportional: greater bandwidth allows a higher bit rate."],
-    ["Which is measured in Hz: bit rate or bandwidth?", "Bandwidth (a range of frequencies); bit rate is in bits per second."]
+    ["Define baud rate.", "The number of signal changes (symbols) per second on the medium.", 10],
+    ["How can bit rate exceed baud rate?", "By encoding more than one bit in each signal change — e.g. four voltage levels carry 2 bits per change, so bit rate = 2 × baud.", 11],
+    ["A link uses 8 voltage levels at 500 baud. Bit rate?", "3 bits per symbol × 500 = 1500 bits per second.", 12],
+    ["Define bandwidth.", "The range of frequencies that a medium can transmit — directly proportional to the maximum bit rate.", 13],
+    ["Define latency.", "The delay between an action being initiated and its effect being observed — the time taken for data to travel to the receiver.", 14],
+    ["Relationship between bandwidth and bit rate?", "Directly proportional: greater bandwidth allows a higher bit rate.", 15],
+    ["Which is measured in Hz: bit rate or bandwidth?", "Bandwidth (a range of frequencies); bit rate is in bits per second.", 16]
   ],
   quiz: [
     { q: "A signal with 16 distinct levels carries how many bits per signal change?", opts: ["16", "8", "4", "2"], ans: 2, why: "2⁴ = 16." },
@@ -110,14 +107,14 @@ X("compsci:4.9.2.1", {
     ]}
   ],
   flashcards: [
-    ["Define physical topology.", "The physical layout / arrangement of the cabling and connections between the devices on a network."],
-    ["Define logical topology.", "How data flows around the network — the architecture of the communication mechanism, independent of the cabling."],
-    ["Describe a physical star topology.", "Each device has its own cable to a central switch; the switch forwards each frame only to the port of the destination device."],
-    ["Describe a logical bus topology.", "All devices share one communication channel; every frame is broadcast to all devices and only the addressed device processes it; collisions can occur."],
-    ["How can a physical star operate as a logical bus?", "If the central device is a hub rather than a switch, it repeats every frame to every port, so all devices see all traffic as on a bus."],
-    ["Give two advantages of a physical star.", "A cable fault affects only one device; a switch sends traffic only where needed, so fewer collisions and better security."],
-    ["Give one disadvantage of a physical star.", "More cabling and a central switch are needed; the switch is a single point of failure."],
-    ["What is a hub?", "A device that repeats incoming frames to every port — no addressing."]
+    ["Define physical topology.", "The physical layout / arrangement of the cabling and connections between the devices on a network.", 8],
+    ["Define logical topology.", "How data flows around the network — the architecture of the communication mechanism, independent of the cabling.", 9],
+    ["Describe a physical star topology.", "Each device has its own cable to a central switch; the switch forwards each frame only to the port of the destination device.", 10],
+    ["Describe a logical bus topology.", "All devices share one communication channel; every frame is broadcast to all devices and only the addressed device processes it; collisions can occur.", 11],
+    ["How can a physical star operate as a logical bus?", "If the central device is a hub rather than a switch, it repeats every frame to every port, so all devices see all traffic as on a bus.", 12],
+    ["Give two advantages of a physical star.", "A cable fault affects only one device; a switch sends traffic only where needed, so fewer collisions and better security.", 13],
+    ["Give one disadvantage of a physical star.", "More cabling and a central switch are needed; the switch is a single point of failure.", 14],
+    ["What is a hub?", "A device that repeats incoming frames to every port — no addressing.", 15]
   ],
   quiz: [
     { q: "'How data flows around the network' describes:", opts: ["physical topology", "logical topology", "protocol", "bandwidth"], ans: 1, why: "Definition." },
@@ -154,14 +151,14 @@ X("compsci:4.9.2.2", {
     { callout: { t: "tip", h: "Which suits whom?", body: "**Peer-to-peer** for a home / student house / small trusting group: few devices, users trust each other, no confidential data, no server cost, no expertise needed; and for **large file-sharing** networks where the load is spread across peers. **Client–server** for a school / bank: many users, some untrustworthy, confidential data, complex access rights, centralised backup and control of Internet/printing." }}
   ],
   flashcards: [
-    ["Describe client–server networking.", "One or more computers act as servers holding resources; the other computers are clients that request services / resources from the servers, with centralised security and administration."],
-    ["Describe peer-to-peer networking.", "Every computer has equal status and can act as both client and server; resources are stored on and shared from any machine; there is no central server or centralised security."],
-    ["Why does peer-to-peer suit a household of students?", "Few devices; users trust each other; no confidential data needing complex security; no server to buy or configure."],
-    ["Why does client–server suit a school?", "Many users, not all trustworthy; confidential data; complex access rights needed; centralised management of security, printing and Internet access."],
-    ["Give one disadvantage of client–server.", "Resources are unavailable if the server fails; a server and expertise to configure it cost money."],
-    ["Give one disadvantage of peer-to-peer.", "No central security or backup; each machine must be on for its resources to be available; management is harder as the network grows."],
-    ["Why does peer-to-peer suit a large file-sharing network?", "The load is spread across many peers rather than one server; the same file can be shared from many machines."],
-    ["Which model can optimise hardware for providing services?", "Client–server — the server can have fast disks, more RAM, etc."]
+    ["Describe client–server networking.", "One or more computers act as servers holding resources; the other computers are clients that request services / resources from the servers, with centralised security and administration.", 8],
+    ["Describe peer-to-peer networking.", "Every computer has equal status and can act as both client and server; resources are stored on and shared from any machine; there is no central server or centralised security.", 9],
+    ["Why does peer-to-peer suit a household of students?", "Few devices; users trust each other; no confidential data needing complex security; no server to buy or configure.", 10],
+    ["Why does client–server suit a school?", "Many users, not all trustworthy; confidential data; complex access rights needed; centralised management of security, printing and Internet access.", 11],
+    ["Give one disadvantage of client–server.", "Resources are unavailable if the server fails; a server and expertise to configure it cost money.", 12],
+    ["Give one disadvantage of peer-to-peer.", "No central security or backup; each machine must be on for its resources to be available; management is harder as the network grows.", 13],
+    ["Why does peer-to-peer suit a large file-sharing network?", "The load is spread across many peers rather than one server; the same file can be shared from many machines.", 14],
+    ["Which model can optimise hardware for providing services?", "Client–server — the server can have fast disks, more RAM, etc.", 15]
   ],
   quiz: [
     { q: "In a peer-to-peer network each computer:", opts: ["is a client only", "has equal status and can act as client and server", "is a server only", "needs a login server"], ans: 1, why: "Definition." },
@@ -197,16 +194,15 @@ X("compsci:4.9.2.3", {
     ]}}
   ],
   flashcards: [
-    ["What is an SSID?", "The (locally unique) name / identifier of a wireless network."],
-    ["How does disabling SSID broadcast improve security?", "The network name does not appear in the list of available networks, so only users who already know the SSID can attempt to connect."],
-    ["What is the role of WPA2?", "It encrypts data transmitted over the wireless network so that intercepted transmissions cannot be read by unauthorised devices."],
-    ["How does a MAC address white list work?", "Each network interface card has a unique MAC address; the access point only allows devices whose MAC address is on the approved list to connect."],
-    ["Why is MAC filtering unsuitable for a coffee shop?", "Customers should be able to connect freely; maintaining the list is time-consuming and needs technical knowledge; customers may have several devices."],
-    ["Describe CSMA/CA with RTS/CTS.", "The transmitter checks the channel is idle (waiting if busy), sends a Request To Send; the access point replies Clear To Send; the data is transmitted; the receiver acknowledges; if no CTS or ACK arrives the sender waits a random time and retries."],
-    ["Why is collision avoidance used in wireless rather than collision detection?", "A wireless device cannot transmit and listen at the same time, and the hidden-node problem means it may not hear another station's transmission."],
-    ["What hardware does a device need to join a wireless network?", "A wireless network interface card (adapter); the network needs a wireless access point."],
-    ["What is the hidden node problem and how does RTS/CTS help?", "Two stations out of range of each other can both reach the access point and collide; the CTS from the access point is heard by all, reserving the channel."],
-    ["What does an ACK do in CSMA/CA?", "Confirms the data arrived intact; its absence triggers retransmission."]
+    ["How does disabling SSID broadcast improve security?", "The network name does not appear in the list of available networks, so only users who already know the SSID can attempt to connect.", 11],
+    ["What is the role of WPA2?", "It encrypts data transmitted over the wireless network so that intercepted transmissions cannot be read by unauthorised devices.", 12],
+    ["How does a MAC address white list work?", "Each network interface card has a unique MAC address; the access point only allows devices whose MAC address is on the approved list to connect.", 13],
+    ["Why is MAC filtering unsuitable for a coffee shop?", "Customers should be able to connect freely; maintaining the list is time-consuming and needs technical knowledge; customers may have several devices.", 14],
+    ["Describe CSMA/CA with RTS/CTS.", "The transmitter checks the channel is idle (waiting if busy), sends a Request To Send; the access point replies Clear To Send; the data is transmitted; the receiver acknowledges; if no CTS or ACK arrives the sender waits a random time and retries.", 15],
+    ["Why is collision avoidance used in wireless rather than collision detection?", "A wireless device cannot transmit and listen at the same time, and the hidden-node problem means it may not hear another station's transmission.", 16],
+    ["What hardware does a device need to join a wireless network?", "A wireless network interface card (adapter); the network needs a wireless access point.", 17],
+    ["What is the hidden node problem and how does RTS/CTS help?", "Two stations out of range of each other can both reach the access point and collide; the CTS from the access point is heard by all, reserving the channel.", 18],
+    ["What does an ACK do in CSMA/CA?", "Confirms the data arrived intact; its absence triggers retransmission.", 19]
   ],
   quiz: [
     { q: "The SSID is:", opts: ["the encryption key", "the name of the wireless network", "the MAC address", "the router's IP"], ans: 1, why: "Identifier." },
@@ -248,16 +244,13 @@ X("compsci:4.9.3.1", {
     ]}
   ],
   flashcards: [
-    ["What is the purpose of DNS?", "To translate fully qualified domain names into IP addresses."],
-    ["Describe how DNS works.", "DNS servers hold tables of domain names and IP addresses; the system is distributed and hierarchical — if a server cannot resolve a name it passes the query to another (higher) server; the answer is returned to the client."],
-    ["What is a fully qualified domain name?", "The complete domain name including host, e.g. www.aqa.org.uk."],
-    ["What is the role of a router in packet switching?", "Reads the destination IP address, chooses the best next hop from its routing table, forwards the packet, and updates routes to reflect congestion or failures."],
-    ["What is a gateway?", "A device connecting two networks that use different protocols, converting between them."],
-    ["What is packet switching?", "Data is split into packets, each routed independently across the network and reassembled at the destination."],
-    ["Name four fields in a packet besides the payload and IP addresses.", "Source/destination port numbers, sequence number, time to live (hop limit), checksum."],
-    ["How are domain names organised?", "Hierarchically: top-level domain (e.g. uk), second-level (co), the organisation's domain (aqa), then subdomains, read right to left."],
-    ["What service do internet registries provide?", "They register domain names to organisations, ensuring each is unique, and enter the mappings into the DNS."],
-    ["What is a URL?", "Uniform Resource Locator — protocol, domain name (or IP) and path identifying a resource, e.g. http://www.example.org/index.html."]
+    ["Describe how DNS works.", "DNS servers hold tables of domain names and IP addresses; the system is distributed and hierarchical — if a server cannot resolve a name it passes the query to another (higher) server; the answer is returned to the client.", 12],
+    ["What is the role of a router in packet switching?", "Reads the destination IP address, chooses the best next hop from its routing table, forwards the packet, and updates routes to reflect congestion or failures.", 14],
+    ["What is a gateway?", "A device connecting two networks that use different protocols, converting between them.", 15],
+    ["Name four fields in a packet besides the payload and IP addresses.", "Source/destination port numbers, sequence number, time to live (hop limit), checksum.", 17],
+    ["How are domain names organised?", "Hierarchically: top-level domain (e.g. uk), second-level (co), the organisation's domain (aqa), then subdomains, read right to left.", 18],
+    ["What service do internet registries provide?", "They register domain names to organisations, ensuring each is unique, and enter the mappings into the DNS.", 19],
+    ["What is a URL?", "Uniform Resource Locator — protocol, domain name (or IP) and path identifying a resource, e.g. http://www.example.org/index.html.", 20]
   ],
   quiz: [
     { q: "DNS converts:", opts: ["IP addresses to MAC addresses", "domain names to IP addresses", "URLs to files", "packets to frames"], ans: 1, why: "Name resolution." },
@@ -300,16 +293,16 @@ X("compsci:4.9.3.2", {
     ]}
   ],
   flashcards: [
-    ["Describe four ways a firewall protects a LAN.", "Blocks/allows traffic on specific ports or protocols; blocks traffic from specific IP addresses; blocks certain packet types; stateful inspection admits only packets that belong to current connections; acts as a proxy so outside hosts cannot reach LAN devices directly."],
-    ["What is stateful inspection?", "The firewall keeps information about current connections and only lets through packets that are part of one."],
-    ["What is packet filtering?", "Examining packet headers (addresses, ports) and blocking or allowing according to rules."],
-    ["Describe how a digital signature is created and attached.", "A hash (digest) of the message is calculated and encrypted with the sender's private key to form the signature; it is appended, and message plus signature are encrypted with the receiver's public key."],
-    ["Describe how a digital signature is verified.", "The receiver decrypts with their private key, re-hashes the message, decrypts the signature with the sender's public key, and compares the two digests — a match authenticates the sender and confirms integrity."],
-    ["What is a digital certificate?", "A document issued by a certificate authority confirming that a public key belongs to a particular organisation."],
-    ["Give two 'protection' measures against viruses.", "Keep the OS and applications automatically updated; run untrusted programs in a sandbox / virtual machine; set access rights to limit damage; keep offline backups; disable macros and removable media."],
-    ["Give two 'monitoring' measures against viruses.", "Firewall blocking high-risk sources; spam filters blocking suspicious emails or attachments; web filters; checksums or digital signatures to verify downloaded files."],
-    ["What is a worm and how does it differ from a virus?", "A worm is self-replicating over the network without attaching to a host file; a virus attaches to a program and spreads when it runs."],
-    ["What is a Trojan?", "Malware disguised as legitimate software that the user installs willingly."]
+    ["Describe four ways a firewall protects a LAN.", "Blocks/allows traffic on specific ports or protocols; blocks traffic from specific IP addresses; blocks certain packet types; stateful inspection admits only packets that belong to current connections; acts as a proxy so outside hosts cannot reach LAN devices directly.", 10],
+    ["What is stateful inspection?", "The firewall keeps information about current connections and only lets through packets that are part of one.", 11],
+    ["What is packet filtering?", "Examining packet headers (addresses, ports) and blocking or allowing according to rules.", 12],
+    ["Describe how a digital signature is created and attached.", "A hash (digest) of the message is calculated and encrypted with the sender's private key to form the signature; it is appended, and message plus signature are encrypted with the receiver's public key.", 13],
+    ["Describe how a digital signature is verified.", "The receiver decrypts with their private key, re-hashes the message, decrypts the signature with the sender's public key, and compares the two digests — a match authenticates the sender and confirms integrity.", 14],
+    ["What is a digital certificate?", "A document issued by a certificate authority confirming that a public key belongs to a particular organisation.", 15],
+    ["Give two 'protection' measures against viruses.", "Keep the OS and applications automatically updated; run untrusted programs in a sandbox / virtual machine; set access rights to limit damage; keep offline backups; disable macros and removable media.", 16],
+    ["Give two 'monitoring' measures against viruses.", "Firewall blocking high-risk sources; spam filters blocking suspicious emails or attachments; web filters; checksums or digital signatures to verify downloaded files.", 17],
+    ["What is a worm and how does it differ from a virus?", "A worm is self-replicating over the network without attaching to a host file; a virus attaches to a program and spreads when it runs.", 18],
+    ["What is a Trojan?", "Malware disguised as legitimate software that the user installs willingly.", 19]
   ],
   quiz: [
     { q: "Blocking all traffic on port 23 is an example of a firewall:", opts: ["proxy", "port/protocol filtering", "stateful inspection", "MAC filter"], ans: 1, why: "Port-based rule." },
@@ -343,15 +336,14 @@ X("compsci:4.9.4.1", {
     { callout: { t: "def", h: "Protocol (AS 2016, 2019, 2022)", body: "A **set of rules** governing **communication** between devices — format, order and meaning of messages." }}
   ],
   flashcards: [
-    ["Define a protocol.", "A set of rules governing communication between devices — the format, order and meaning of the messages exchanged."],
-    ["Name the four layers of the TCP/IP stack.", "Application, transport, network (internet), link."],
-    ["What does the transport layer do?", "Establishes an end-to-end connection, splits data into numbered segments, adds port numbers to identify the application, detects errors and requests retransmission, controls flow."],
-    ["What does the network layer do?", "Adds source and destination IP addresses to packets and routes them across networks to the next hop."],
-    ["What does the link layer do?", "Adds the MAC addresses of the sender and the next hop and transmits the frame on the physical local network."],
-    ["Which addresses change at each hop and which stay the same?", "MAC addresses change at every router; IP addresses stay the same end to end."],
-    ["How does the transport layer use port numbers?", "It attaches source and destination port numbers so the receiving computer passes the data to the correct application (e.g. port 80 → web server)."],
-    ["What is a socket?", "The combination of an IP address and a port number identifying one end of a connection, e.g. 192.168.1.5:80."],
-    ["What is encapsulation in the stack?", "Each layer adds its own header around the data from the layer above as it passes down the stack; headers are removed in reverse on receipt."]
+    ["Define a protocol.", "A set of rules governing communication between devices — the format, order and meaning of the messages exchanged.", 10],
+    ["What does the transport layer do?", "Establishes an end-to-end connection, splits data into numbered segments, adds port numbers to identify the application, detects errors and requests retransmission, controls flow.", 12],
+    ["What does the network layer do?", "Adds source and destination IP addresses to packets and routes them across networks to the next hop.", 13],
+    ["What does the link layer do?", "Adds the MAC addresses of the sender and the next hop and transmits the frame on the physical local network.", 14],
+    ["Which addresses change at each hop and which stay the same?", "MAC addresses change at every router; IP addresses stay the same end to end.", 15],
+    ["How does the transport layer use port numbers?", "It attaches source and destination port numbers so the receiving computer passes the data to the correct application (e.g. port 80 → web server).", 16],
+    ["What is a socket?", "The combination of an IP address and a port number identifying one end of a connection, e.g. 192.168.1.5:80.", 17],
+    ["What is encapsulation in the stack?", "Each layer adds its own header around the data from the layer above as it passes down the stack; headers are removed in reverse on receipt.", 18]
   ],
   quiz: [
     { q: "Port numbers are added by the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 1, why: "TCP header." },
@@ -389,16 +381,12 @@ X("compsci:4.9.4.2", {
     { callout: { t: "warn", body: "For \"name two application-layer protocols\" do **not** give TCP or IP — they are transport/network protocols and score nothing. POP3 and IMAP both retrieve mail, so their *purposes* must differ (download vs manage on server) to earn both marks." }}
   ],
   flashcards: [
-    ["What is SMTP for?", "Sending email from a client to a mail server and between mail servers."],
-    ["What is POP3 for?", "Retrieving email from a server to a client, typically downloading and removing it from the server."],
-    ["What is IMAP for?", "Managing email that remains on the server, so it can be read and synchronised from several devices."],
-    ["What is FTP for?", "Transferring files between a client and a server."],
-    ["What is SSH for?", "Secure (encrypted) remote login to execute commands on another computer; can also tunnel other protocols."],
-    ["What is HTTPS?", "HTTP over an encrypted TLS connection — secure web page transfer."],
-    ["What is a well-known port and why is it needed?", "A port number reserved for a specific service (80 for HTTP, 25 for SMTP…); because the client initiates the communication it must know in advance which port the server listens on."],
-    ["Give the well-known ports for HTTP, HTTPS, FTP, SMTP, SSH.", "80, 443, 21, 25, 22."],
-    ["Which protocol would a technician use to administer a remote server securely?", "SSH."],
-    ["Which mail protocol suits reading email on several devices?", "IMAP — messages stay on the server."]
+    ["What is IMAP for?", "Managing email that remains on the server, so it can be read and synchronised from several devices.", 12],
+    ["What is SSH for?", "Secure (encrypted) remote login to execute commands on another computer; can also tunnel other protocols.", 14],
+    ["What is a well-known port and why is it needed?", "A port number reserved for a specific service (80 for HTTP, 25 for SMTP…); because the client initiates the communication it must know in advance which port the server listens on.", 16],
+    ["Give the well-known ports for HTTP, HTTPS, FTP, SMTP, SSH.", "80, 443, 21, 25, 22.", 17],
+    ["Which protocol would a technician use to administer a remote server securely?", "SSH.", 18],
+    ["Which mail protocol suits reading email on several devices?", "IMAP — messages stay on the server.", 19]
   ],
   quiz: [
     { q: "Email is sent between mail servers using:", opts: ["POP3", "IMAP", "SMTP", "FTP"], ans: 2, why: "Sending protocol." },
@@ -421,14 +409,13 @@ X("compsci:4.9.4.2", {
 
 X("compsci:4.9.4.3", {
   flashcards: [
-    ["How long is an IPv4 address and how is it written?", "32 bits, written as four denary numbers 0–255 separated by dots, e.g. 192.168.1.20."],
-    ["What are the two parts of an IP address?", "The network identifier (which network) and the host identifier (which device on that network)."],
-    ["How long is an IPv6 address?", "128 bits, written as eight groups of four hex digits."],
-    ["Why does the network part matter for routing?", "Routers use the network ID to decide where to forward a packet; only the final network uses the host ID."],
-    ["How is the boundary between network and host parts defined?", "By the subnet mask (or the /n prefix length)."],
-    ["Which addresses in a subnet cannot be given to hosts?", "The all-zeros host address (the network address) and the all-ones host address (broadcast)."],
-    ["What is a routable address?", "A public IP address that routers on the Internet will forward packets to."],
-    ["How many IPv4 addresses exist in total?", "2³² ≈ 4.3 billion — hence exhaustion and IPv6."]
+    ["How long is an IPv4 address and how is it written?", "32 bits, written as four denary numbers 0–255 separated by dots, e.g. 192.168.1.20.", 8],
+    ["What are the two parts of an IP address?", "The network identifier (which network) and the host identifier (which device on that network).", 9],
+    ["How long is an IPv6 address?", "128 bits, written as eight groups of four hex digits.", 10],
+    ["Why does the network part matter for routing?", "Routers use the network ID to decide where to forward a packet; only the final network uses the host ID.", 11],
+    ["How is the boundary between network and host parts defined?", "By the subnet mask (or the /n prefix length).", 12],
+    ["Which addresses in a subnet cannot be given to hosts?", "The all-zeros host address (the network address) and the all-ones host address (broadcast).", 13],
+    ["How many IPv4 addresses exist in total?", "2³² ≈ 4.3 billion — hence exhaustion and IPv6.", 15]
   ],
   quiz: [
     { q: "An IPv4 address has:", opts: ["16 bits", "32 bits", "64 bits", "128 bits"], ans: 1, why: "Four octets." },
@@ -455,14 +442,12 @@ X("compsci:4.9.4.4", {
     { callout: { t: "tip", body: "Write the mask in binary, count the 1s for the prefix length, and the 0s for the host bits. Hosts = 2^(host bits) − 2. To find the network ID, copy the IP's bits where the mask is 1 and write 0 where it is 0." }}
   ],
   flashcards: [
-    ["What is a subnet mask?", "A 32-bit pattern of leading 1s and trailing 0s that marks which bits of an IP address form the network ID (1s) and which the host ID (0s)."],
-    ["Write /27 as a dotted-decimal mask.", "255.255.255.224."],
-    ["Write 255.255.240.0 as a prefix length.", "/20."],
-    ["How many hosts can a /27 subnet hold?", "2⁵ − 2 = 30."],
-    ["How many hosts can a /24 subnet hold?", "254."],
-    ["How does a host decide whether a destination is on its own subnet?", "It ANDs the mask with its own address and with the destination address; if the two network IDs are equal the destination is local, otherwise the packet is sent to the default gateway."],
-    ["Find the network ID of 172.16.35.9/20.", "172.16.32.0 (35 = 00100011; keeping the top 4 bits gives 00100000 = 32)."],
-    ["Why subtract 2 when counting hosts?", "The all-zeros host part is the network address and all-ones is the broadcast address."]
+    ["What is a subnet mask?", "A 32-bit pattern of leading 1s and trailing 0s that marks which bits of an IP address form the network ID (1s) and which the host ID (0s).", 8],
+    ["Write 255.255.240.0 as a prefix length.", "/20.", 10],
+    ["How many hosts can a /24 subnet hold?", "254.", 12],
+    ["How does a host decide whether a destination is on its own subnet?", "It ANDs the mask with its own address and with the destination address; if the two network IDs are equal the destination is local, otherwise the packet is sent to the default gateway.", 13],
+    ["Find the network ID of 172.16.35.9/20.", "172.16.32.0 (35 = 00100011; keeping the top 4 bits gives 00100000 = 32).", 14],
+    ["Why subtract 2 when counting hosts?", "The all-zeros host part is the network address and all-ones is the broadcast address.", 15]
   ],
   quiz: [
     { q: "/27 in dotted decimal is:", opts: ["255.255.255.0", "255.255.255.224", "255.255.255.240", "255.255.224.0"], ans: 1, why: "27 ones → last octet 11100000 = 224." },
@@ -492,14 +477,14 @@ X("compsci:4.9.4.5", {
     { callout: { t: "warn", body: "\"IPv6 has more addresses\" is NE for the NAT question — say **every device can have its own public address, so private addresses and translation are no longer needed**." }}
   ],
   flashcards: [
-    ["Why is IPv6 replacing IPv4?", "IPv4's 32-bit space (about 4.3 billion addresses) is exhausted; IPv6's 128-bit space provides enough addresses for every device."],
-    ["Why does IPv6 remove the need for NAT?", "Every device can have its own unique public / routable address, so private addresses no longer need translating."],
-    ["Give three other advantages of IPv6.", "Simpler and more efficient routing; automatic configuration without DHCP; better multicasting and traffic prioritisation; larger packets; devices keep their address when they move."],
-    ["How is an IPv6 address written?", "Eight groups of four hexadecimal digits separated by colons, with runs of zeros compressed to ::."],
-    ["Why did IPv4 exhaustion not stop the Internet growing?", "NAT lets many devices on private networks share one public address; DHCP reuses addresses from a pool."],
-    ["What is dual stack?", "Running IPv4 and IPv6 simultaneously on a device during the transition."],
-    ["What size is an IPv6 address in bits and in hex digits?", "128 bits; 32 hex digits."],
-    ["Is IPv6 backward compatible with IPv4?", "No — transition mechanisms (dual stack, tunnelling, translation) are needed."]
+    ["Why is IPv6 replacing IPv4?", "IPv4's 32-bit space (about 4.3 billion addresses) is exhausted; IPv6's 128-bit space provides enough addresses for every device.", 11],
+    ["Why does IPv6 remove the need for NAT?", "Every device can have its own unique public / routable address, so private addresses no longer need translating.", 12],
+    ["Give three other advantages of IPv6.", "Simpler and more efficient routing; automatic configuration without DHCP; better multicasting and traffic prioritisation; larger packets; devices keep their address when they move.", 13],
+    ["How is an IPv6 address written?", "Eight groups of four hexadecimal digits separated by colons, with runs of zeros compressed to ::.", 14],
+    ["Why did IPv4 exhaustion not stop the Internet growing?", "NAT lets many devices on private networks share one public address; DHCP reuses addresses from a pool.", 15],
+    ["What is dual stack?", "Running IPv4 and IPv6 simultaneously on a device during the transition.", 16],
+    ["What size is an IPv6 address in bits and in hex digits?", "128 bits; 32 hex digits.", 17],
+    ["Is IPv6 backward compatible with IPv4?", "No — transition mechanisms (dual stack, tunnelling, translation) are needed.", 18]
   ],
   quiz: [
     { q: "The main reason for IPv6 is:", opts: ["speed", "IPv4 addresses are running out", "encryption", "smaller packets"], ans: 1, why: "Address exhaustion." },
@@ -521,14 +506,14 @@ X("compsci:4.9.4.5", {
 
 X("compsci:4.9.4.6", {
   flashcards: [
-    ["What is a private (non-routable) IP address?", "An address from a reserved range (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) that is used only inside a LAN and is never forwarded by Internet routers."],
-    ["What is a public (routable) IP address?", "A globally unique address that routers on the Internet will forward packets to."],
-    ["Why can two different LANs both use 192.168.2.3?", "Private addresses are never routed on the Internet; NAT translates them to the router's public address when packets leave."],
-    ["Name the three private IPv4 ranges.", "10.0.0.0–10.255.255.255; 172.16.0.0–172.31.255.255; 192.168.0.0–192.168.255.255."],
-    ["Can a computer on the Internet send a packet directly to 192.168.0.5?", "No — the address is non-routable; it can only be reached via the LAN's public address with port forwarding."],
-    ["What must a router do for a private-addressed device to use the Internet?", "Network address translation — replace the private source address with its public address."],
-    ["Give one benefit of private addressing beyond conserving addresses.", "Security — devices are not directly reachable from the Internet."],
-    ["Which address does a web server see when a home device visits it?", "The home router's public IP address."]
+    ["What is a private (non-routable) IP address?", "An address from a reserved range (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) that is used only inside a LAN and is never forwarded by Internet routers.", 11],
+    ["What is a public (routable) IP address?", "A globally unique address that routers on the Internet will forward packets to.", 12],
+    ["Why can two different LANs both use 192.168.2.3?", "Private addresses are never routed on the Internet; NAT translates them to the router's public address when packets leave.", 13],
+    ["Name the three private IPv4 ranges.", "10.0.0.0–10.255.255.255; 172.16.0.0–172.31.255.255; 192.168.0.0–192.168.255.255.", 14],
+    ["Can a computer on the Internet send a packet directly to 192.168.0.5?", "No — the address is non-routable; it can only be reached via the LAN's public address with port forwarding.", 15],
+    ["What must a router do for a private-addressed device to use the Internet?", "Network address translation — replace the private source address with its public address.", 16],
+    ["Give one benefit of private addressing beyond conserving addresses.", "Security — devices are not directly reachable from the Internet.", 17],
+    ["Which address does a web server see when a home device visits it?", "The home router's public IP address.", 18]
   ],
   quiz: [
     { q: "Which is a private IP address?", opts: ["8.8.8.8", "192.168.1.10", "203.0.113.5", "1.1.1.1"], ans: 1, why: "192.168.x.x range." },
@@ -553,14 +538,14 @@ X("compsci:4.9.4.7", {
     "**Purpose**: to **automate the configuration of hosts** joining a TCP/IP network — allocating **IP address, subnet mask, default gateway** (and DNS server). **Why**: reduces the need for expert knowledge and time; **makes efficient use of a limited pool of addresses** (reuse); avoids errors such as **duplicate addresses**. **The exchange** (2 marks, in order): 1 host **broadcasts a discover** request · 2 DHCP server(s) **offer** a configuration · 3 host **requests / accepts** one offer · 4 server **acknowledges** the allocation (a lease). **Why not for a server** (2024): its address might **change**, so port forwarding / DNS entries would break — give it a **static / reserved** address.",
   ],
   flashcards: [
-    ["What is the purpose of DHCP?", "To automate the configuration of hosts connecting to a TCP/IP network by allocating an IP address, subnet mask, default gateway and DNS server."],
-    ["Give two reasons DHCP is used.", "No expert knowledge or time needed to configure each host; efficient use of a limited pool of addresses through reuse; avoids errors such as duplicate addresses or wrong subnet masks."],
-    ["Describe the DHCP exchange.", "The host broadcasts a discover message; DHCP servers offer a configuration; the host requests (accepts) one; the server acknowledges the allocation with a lease."],
-    ["What is a DHCP lease?", "The period for which an allocated address is valid; the host must renew it or the address returns to the pool."],
-    ["Why should a web server not use DHCP?", "Its IP address might change, so port forwarding rules and DNS entries would no longer reach it — it needs a static (or reserved) address."],
-    ["What does the host send first and how?", "A discover message, broadcast because it has no address yet."],
-    ["What information besides the IP address does DHCP provide?", "Subnet mask, default gateway address, DNS server address, lease time."],
-    ["How does DHCP help a café with many visiting devices?", "Addresses are handed out on demand and reclaimed when leases expire, so a small pool serves many transient users."]
+    ["What is the purpose of DHCP?", "To automate the configuration of hosts connecting to a TCP/IP network by allocating an IP address, subnet mask, default gateway and DNS server.", 11],
+    ["Give two reasons DHCP is used.", "No expert knowledge or time needed to configure each host; efficient use of a limited pool of addresses through reuse; avoids errors such as duplicate addresses or wrong subnet masks.", 12],
+    ["Describe the DHCP exchange.", "The host broadcasts a discover message; DHCP servers offer a configuration; the host requests (accepts) one; the server acknowledges the allocation with a lease.", 13],
+    ["What is a DHCP lease?", "The period for which an allocated address is valid; the host must renew it or the address returns to the pool.", 14],
+    ["Why should a web server not use DHCP?", "Its IP address might change, so port forwarding rules and DNS entries would no longer reach it — it needs a static (or reserved) address.", 15],
+    ["What does the host send first and how?", "A discover message, broadcast because it has no address yet.", 16],
+    ["What information besides the IP address does DHCP provide?", "Subnet mask, default gateway address, DNS server address, lease time.", 17],
+    ["How does DHCP help a café with many visiting devices?", "Addresses are handed out on demand and reclaimed when leases expire, so a small pool serves many transient users.", 18]
   ],
   quiz: [
     { q: "DHCP allocates:", opts: ["MAC addresses", "IP address, subnet mask and gateway", "domain names", "ports"], ans: 1, why: "Host configuration." },
@@ -594,14 +579,14 @@ X("compsci:4.9.4.8", {
     { callout: { t: "tip", body: "Name the **table** — \"the router remembers the mapping\" without a structure is NE. And distinguish NAT (outgoing, dynamic) from **port forwarding** (incoming, fixed rule)." }}
   ],
   flashcards: [
-    ["What is network address translation?", "The process by which a router replaces the private IP addresses of LAN devices with its own public address on outgoing packets, and reverses the change on replies."],
-    ["What does the router change on an outgoing packet?", "The source IP address (private → the router's public address) and the source port number (→ a port number the router generates)."],
-    ["What is the NAT translation table?", "The router's record mapping each generated port number to the private IP address and port of the device that made the request."],
-    ["How does the router direct a reply to the right device?", "It looks up the reply's destination port number in the translation table and rewrites the destination IP and port to the original private values."],
-    ["Why is NAT needed?", "Private addresses are not routable on the Internet, and one public address can be shared by many devices."],
-    ["Give one security benefit of NAT.", "Devices on the LAN are not directly addressable from the Internet."],
-    ["Give one disadvantage of NAT.", "Breaks true end-to-end connectivity; incoming connections need port forwarding; some protocols need special handling."],
-    ["Why are port numbers essential to NAT?", "They distinguish the many simultaneous connections that share the single public address."]
+    ["What is network address translation?", "The process by which a router replaces the private IP addresses of LAN devices with its own public address on outgoing packets, and reverses the change on replies.", 11],
+    ["What does the router change on an outgoing packet?", "The source IP address (private → the router's public address) and the source port number (→ a port number the router generates).", 12],
+    ["What is the NAT translation table?", "The router's record mapping each generated port number to the private IP address and port of the device that made the request.", 13],
+    ["How does the router direct a reply to the right device?", "It looks up the reply's destination port number in the translation table and rewrites the destination IP and port to the original private values.", 14],
+    ["Why is NAT needed?", "Private addresses are not routable on the Internet, and one public address can be shared by many devices.", 15],
+    ["Give one security benefit of NAT.", "Devices on the LAN are not directly addressable from the Internet.", 16],
+    ["Give one disadvantage of NAT.", "Breaks true end-to-end connectivity; incoming connections need port forwarding; some protocols need special handling.", 17],
+    ["Why are port numbers essential to NAT?", "They distinguish the many simultaneous connections that share the single public address.", 18]
   ],
   quiz: [
     { q: "On an outgoing packet NAT replaces:", opts: ["the destination IP", "the private source IP with the router's public IP", "the MAC address", "the payload"], ans: 1, why: "Source translation." },
@@ -621,14 +606,13 @@ X("compsci:4.9.4.8", {
 
 X("compsci:4.9.4.9", {
   flashcards: [
-    ["What is port forwarding?", "A router rule that forwards traffic arriving on a particular port of its public address to a specified device (private IP and port) on the LAN."],
-    ["Why is port forwarding needed for a LAN web server?", "Outside computers can only address the router's public IP; the router must forward traffic on port 80/443 to the web server's private address."],
-    ["What address do outside users use to reach the server?", "The router's public IP address (e.g. 186.7.2.31)."],
-    ["What does the router maintain to implement forwarding?", "A port-mapping table / rules mapping external ports to internal IP addresses and ports."],
-    ["Why must the server have a static IP address?", "If DHCP changed it, the forwarding rule would point at the wrong device."],
-    ["How does port forwarding differ from NAT?", "NAT dynamically maps outgoing connections; port forwarding is a fixed rule for incoming connections."],
-    ["Give a security consideration of port forwarding.", "It exposes the internal server to the Internet, so it must be patched and protected by the firewall."],
-    ["Which ports would be forwarded for HTTP and HTTPS?", "80 and 443."]
+    ["What is port forwarding?", "A router rule that forwards traffic arriving on a particular port of its public address to a specified device (private IP and port) on the LAN.", 12],
+    ["Why is port forwarding needed for a LAN web server?", "Outside computers can only address the router's public IP; the router must forward traffic on port 80/443 to the web server's private address.", 13],
+    ["What address do outside users use to reach the server?", "The router's public IP address (e.g. 186.7.2.31).", 14],
+    ["What does the router maintain to implement forwarding?", "A port-mapping table / rules mapping external ports to internal IP addresses and ports.", 15],
+    ["Why must the server have a static IP address?", "If DHCP changed it, the forwarding rule would point at the wrong device.", 16],
+    ["Give a security consideration of port forwarding.", "It exposes the internal server to the Internet, so it must be patched and protected by the firewall.", 18],
+    ["Which ports would be forwarded for HTTP and HTTPS?", "80 and 443.", 19]
   ],
   quiz: [
     { q: "Port forwarding directs incoming traffic on a given port to:", opts: ["every device", "a specified device on the LAN", "the ISP", "DNS"], ans: 1, why: "Fixed mapping." },
@@ -659,14 +643,14 @@ X("compsci:4.9.4.10", {
     ]}
   ],
   flashcards: [
-    ["Describe the client–server model of a web application.", "The client sends a request to the server; the server processes it (e.g. queries a database) and returns a response; the operations available are defined by an API."],
-    ["What is an API?", "An application programming interface — the set of requests / subroutines a service exposes for other software to use."],
-    ["What is REST?", "A style of API in which each resource is identified by a URL and clients use HTTP requests to it; the server performs CRUD operations on a database and returns data, typically as JSON."],
-    ["Map the REST verbs to CRUD and SQL.", "GET–Retrieve–SELECT; POST–Create–INSERT; PUT–Update–UPDATE; DELETE–Delete–DELETE."],
-    ["Give three reasons for using JSON rather than XML.", "More compact so faster to transmit; quicker and easier to parse; understood natively by JavaScript; supports arrays; easier for humans to read."],
-    ["What is the WebSocket protocol?", "A protocol that keeps a persistent, full-duplex connection open between client and server over a single TCP connection, so either can send data at any time with low latency."],
-    ["When would WebSocket be preferred to HTTP?", "Real-time applications — chat, live prices, multiplayer games — where the server must push data without the client polling."],
-    ["What is CRUD?", "The four database operations: Create, Retrieve (Read), Update, Delete."]
+    ["Describe the client–server model of a web application.", "The client sends a request to the server; the server processes it (e.g. queries a database) and returns a response; the operations available are defined by an API.", 8],
+    ["What is an API?", "An application programming interface — the set of requests / subroutines a service exposes for other software to use.", 9],
+    ["What is REST?", "A style of API in which each resource is identified by a URL and clients use HTTP requests to it; the server performs CRUD operations on a database and returns data, typically as JSON.", 10],
+    ["Map the REST verbs to CRUD and SQL.", "GET–Retrieve–SELECT; POST–Create–INSERT; PUT–Update–UPDATE; DELETE–Delete–DELETE.", 11],
+    ["Give three reasons for using JSON rather than XML.", "More compact so faster to transmit; quicker and easier to parse; understood natively by JavaScript; supports arrays; easier for humans to read.", 12],
+    ["What is the WebSocket protocol?", "A protocol that keeps a persistent, full-duplex connection open between client and server over a single TCP connection, so either can send data at any time with low latency.", 13],
+    ["When would WebSocket be preferred to HTTP?", "Real-time applications — chat, live prices, multiplayer games — where the server must push data without the client polling.", 14],
+    ["What is CRUD?", "The four database operations: Create, Retrieve (Read), Update, Delete.", 15]
   ],
   quiz: [
     { q: "A REST GET request corresponds to SQL:", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 1, why: "Retrieve." },
@@ -696,14 +680,14 @@ X("compsci:4.9.4.11", {
     { callout: { t: "warn", body: "\"Thin clients are cheaper\" scores nothing without the reason (lower hardware specification); \"more powerful server\" scores nothing without naming what — cores, RAM, storage." }}
   ],
   flashcards: [
-    ["What is thin-client computing?", "Processing is carried out on the server — applications execute there — and the client only handles input and display."],
-    ["What is thick-client computing?", "Processing is carried out on the client, which runs the applications locally; the server provides files and services."],
-    ["Give three reasons to choose thin clients.", "Clients are cheaper (lower specification); software is installed and updated only on the server; users cannot install unauthorised software; clients need less configuration, use less power and fail less often."],
-    ["What hardware does a thin-client system need?", "Low-spec clients (slow processor, little RAM, little or no storage); a powerful server (many cores, lots of RAM, many drives); a high-bandwidth network."],
-    ["Give two disadvantages of thin clients.", "Dependence on the server and network — if either fails nothing works; high bandwidth needed; server is expensive."],
-    ["Give two advantages of thick clients.", "Work continues if the network is down; less network traffic; better for demanding applications such as video editing."],
-    ["Where is application software installed in a thin-client system?", "Only on the server."],
-    ["Why does a thin-client network need more bandwidth?", "Every screen update and keystroke travels across the network."]
+    ["What is thin-client computing?", "Processing is carried out on the server — applications execute there — and the client only handles input and display.", 10],
+    ["What is thick-client computing?", "Processing is carried out on the client, which runs the applications locally; the server provides files and services.", 11],
+    ["Give three reasons to choose thin clients.", "Clients are cheaper (lower specification); software is installed and updated only on the server; users cannot install unauthorised software; clients need less configuration, use less power and fail less often.", 12],
+    ["What hardware does a thin-client system need?", "Low-spec clients (slow processor, little RAM, little or no storage); a powerful server (many cores, lots of RAM, many drives); a high-bandwidth network.", 13],
+    ["Give two disadvantages of thin clients.", "Dependence on the server and network — if either fails nothing works; high bandwidth needed; server is expensive.", 14],
+    ["Give two advantages of thick clients.", "Work continues if the network is down; less network traffic; better for demanding applications such as video editing.", 15],
+    ["Where is application software installed in a thin-client system?", "Only on the server.", 16],
+    ["Why does a thin-client network need more bandwidth?", "Every screen update and keystroke travels across the network.", 17]
   ],
   quiz: [
     { q: "In thin-client computing, applications execute on:", opts: ["the client", "the server", "both equally", "the router"], ans: 1, why: "Definition." },

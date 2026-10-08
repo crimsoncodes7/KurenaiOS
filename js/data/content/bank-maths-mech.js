@@ -54,15 +54,13 @@ X("maths:M7.1", {
     { callout: { t: "warn", h: "Bearings from vectors", body: "$\\mathbf v = 4\\mathbf i - 3\\mathbf j$ points east-and-south: bearing $= 90° + \\arctan\\tfrac34 = 126.9°$. Sketch the vector before reaching for arctan." } }
   ],
   flashcards: [
-    ["Displacement vs distance?", "Displacement: vector from start to finish; distance: total path length (scalar)."],
-    ["Velocity vs speed?", "Velocity is a vector (has direction); speed is its magnitude."],
-    ["Position vector formula for constant acceleration?", "$\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\tfrac12\\mathbf a t^2$."],
-    ["$\\mathbf r_0 = 2\\mathbf i + \\mathbf j$, $\\mathbf a = \\mathbf i - 2\\mathbf j$, $\\mathbf r(3) = 14\\mathbf i - 11\\mathbf j$. Find $\\mathbf u$.", "$3\\mathbf u = 14\\mathbf i - 11\\mathbf j - (2\\mathbf i + \\mathbf j) - 4.5(\\mathbf i - 2\\mathbf j) = 7.5\\mathbf i - 3\\mathbf j$; $\\mathbf u = 2.5\\mathbf i - \\mathbf j$."],
-    ["Bearing of the velocity $4\\mathbf i - 3\\mathbf j$?", "$126.9°$ (east then south)."],
-    ["A stone thrown up at 14.7 m/s returns to the hand after 3 s. Displacement and distance?", "Displacement 0; distance $2 \\times 11.025 = 22.05$ m."],
-    ["Average velocity vs average speed?", "Average velocity $= \\dfrac{\\text{displacement}}{\\text{time}}$; average speed $= \\dfrac{\\text{distance}}{\\text{time}}$."],
-    ["Distance of the particle from $O$ when $\\mathbf r = 6\\mathbf i - 8\\mathbf j$?", "10 m."],
-    ["'Instantaneously at rest' means…", "$v = 0$ at that instant (the acceleration need not be zero)."]
+    ["Position vector formula for constant acceleration?", "$\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\tfrac12\\mathbf a t^2$.", 12],
+    ["$\\mathbf r_0 = 2\\mathbf i + \\mathbf j$, $\\mathbf a = \\mathbf i - 2\\mathbf j$, $\\mathbf r(3) = 14\\mathbf i - 11\\mathbf j$. Find $\\mathbf u$.", "$3\\mathbf u = 14\\mathbf i - 11\\mathbf j - (2\\mathbf i + \\mathbf j) - 4.5(\\mathbf i - 2\\mathbf j) = 7.5\\mathbf i - 3\\mathbf j$; $\\mathbf u = 2.5\\mathbf i - \\mathbf j$.", 13],
+    ["Bearing of the velocity $4\\mathbf i - 3\\mathbf j$?", "$126.9°$ (east then south).", 14],
+    ["A stone thrown up at 14.7 m/s returns to the hand after 3 s. Displacement and distance?", "Displacement 0; distance $2 \\times 11.025 = 22.05$ m.", 15],
+    ["Average velocity vs average speed?", "Average velocity $= \\dfrac{\\text{displacement}}{\\text{time}}$; average speed $= \\dfrac{\\text{distance}}{\\text{time}}$.", 16],
+    ["Distance of the particle from $O$ when $\\mathbf r = 6\\mathbf i - 8\\mathbf j$?", "10 m.", 17],
+    ["'Instantaneously at rest' means…", "$v = 0$ at that instant (the acceleration need not be zero).", 18]
   ],
   quiz: [
     { q: "A runner completes one lap of a 400 m track. Displacement:", opts: ["400 m", "0", "200 m", "800 m"], ans: 1, why: "Back at the start." },
@@ -99,15 +97,13 @@ X("maths:M7.2", {
     { callout: { t: "warn", h: "Label the sketch", body: "Axes ($v$ m/s, $t$ s), the value $V$ on the $v$-axis, and each time on the $t$-axis. An unlabelled sketch scores at most the shape mark." } }
   ],
   flashcards: [
-    ["Gradient of a $v$–$t$ graph?", "Acceleration."],
-    ["Area under a $v$–$t$ graph?", "Displacement (distance if $v \\ge 0$)."],
-    ["Gradient of a displacement–time graph?", "Velocity."],
-    ["Train: accelerates from rest for 60 s to $V$, constant for 500 s, decelerates to rest in 140 s; total 12 km. Find $V$.", "$\\tfrac12(700 + 500)V = 12000 \\Rightarrow 600V = 12000$, $V = 20$ m/s."],
-    ["Car: accelerates at 2 m/s² to $V$ then immediately decelerates at 3 m/s² to rest, covering 240 m. $V$?", "$\\tfrac{V^2}{4} + \\tfrac{V^2}{6} = 240 \\Rightarrow \\tfrac{5V^2}{12} = 240$, $V = 24$ m/s."],
-    ["Runner: accelerates uniformly from rest to 8 m/s in 5 s then keeps 8 m/s; 400 m total. Time $T$?", "$20 + 8(T - 5) = 400 \\Rightarrow T = 52.5$ s."],
-    ["Shape of the $s$–$t$ graph during constant acceleration from rest?", "A curve of increasing gradient (parabola)."],
-    ["What does a horizontal section of a $v$–$t$ graph show?", "Constant velocity — zero acceleration."],
-    ["What does a negative gradient on a $v$–$t$ graph show?", "Deceleration (acceleration in the negative direction)."]
+    ["Area under a $v$–$t$ graph?", "Displacement (distance if $v \\ge 0$).", 11],
+    ["Train: accelerates from rest for 60 s to $V$, constant for 500 s, decelerates to rest in 140 s; total 12 km. Find $V$.", "$\\tfrac12(700 + 500)V = 12000 \\Rightarrow 600V = 12000$, $V = 20$ m/s.", 13],
+    ["Car: accelerates at 2 m/s² to $V$ then immediately decelerates at 3 m/s² to rest, covering 240 m. $V$?", "$\\tfrac{V^2}{4} + \\tfrac{V^2}{6} = 240 \\Rightarrow \\tfrac{5V^2}{12} = 240$, $V = 24$ m/s.", 14],
+    ["Runner: accelerates uniformly from rest to 8 m/s in 5 s then keeps 8 m/s; 400 m total. Time $T$?", "$20 + 8(T - 5) = 400 \\Rightarrow T = 52.5$ s.", 15],
+    ["Shape of the $s$–$t$ graph during constant acceleration from rest?", "A curve of increasing gradient (parabola).", 16],
+    ["What does a horizontal section of a $v$–$t$ graph show?", "Constant velocity — zero acceleration.", 17],
+    ["What does a negative gradient on a $v$–$t$ graph show?", "Deceleration (acceleration in the negative direction).", 18]
   ],
   quiz: [
     { q: "A $v$–$t$ graph is a straight line from (0, 0) to (10, 25). Acceleration:", opts: ["2.5 m/s²", "25 m/s²", "0.4 m/s²", "10 m/s²"], ans: 0, why: "Gradient." },
@@ -152,16 +148,15 @@ X("maths:M7.3", {
     { callout: { t: "mnemonic", h: "Pick the suvat", body: "List $s, u, v, a, t$; tick the three you know and the one you want; the formula without the fifth letter is the one to use. Show the substitution line — it is the method mark even if the arithmetic slips." } }
   ],
   flashcards: [
-    ["The five suvat equations?", "$v = u + at$; $s = ut + \\tfrac12 at^2$; $v^2 = u^2 + 2as$; $s = \\tfrac12(u + v)t$; $s = vt - \\tfrac12 at^2$."],
-    ["Stone projected up from 1.8 m above ground reaches 20 m above ground. $U$?", "$0 = U^2 - 2(9.8)(18.2) \\Rightarrow U = 18.9$ m/s."],
-    ["Time for that stone to hit the ground?", "$-1.8 = 18.9t - 4.9t^2 \\Rightarrow t = 3.95$ s."],
-    ["Ball projected up at 14.7 m/s from 19.6 m above ground: speed on impact?", "$v^2 = 14.7^2 + 2(9.8)(19.6) = 600.25$, $v = 24.5$ m/s."],
-    ["Car: $u = 5$, $a = 3.2$, $t = 5$. $v$ and $s$?", "$v = 21$ m/s; $s = 25 + 40 = 65$ m."],
-    ["Parachutist falls freely from rest for 3 s. Speed and distance?", "$v = 29.4$ m/s, $s = 44.1$ m."],
-    ["Then decelerates uniformly to land at 4 m/s after a total fall of 250 m. Deceleration?", "$4^2 = 29.4^2 - 2a(205.9) \\Rightarrow a = 2.06$ m/s²."],
-    ["Stone from $O$ (height $h$) at 19.6 m/s up hits the ground after 5 s. $h$?", "$-h = 19.6(5) - 4.9(25) = -24.5$, so $h = 24.5$ m."],
-    ["For how long is that stone's speed less than 9.8 m/s?", "$|19.6 - 9.8t| < 9.8 \\Rightarrow 1 < t < 3$: 2 s."],
-    ["Why reject the negative root when solving for $t$?", "Time before projection has no physical meaning in the model."]
+    ["Stone projected up from 1.8 m above ground reaches 20 m above ground. $U$?", "$0 = U^2 - 2(9.8)(18.2) \\Rightarrow U = 18.9$ m/s.", 13],
+    ["Time for that stone to hit the ground?", "$-1.8 = 18.9t - 4.9t^2 \\Rightarrow t = 3.95$ s.", 14],
+    ["Ball projected up at 14.7 m/s from 19.6 m above ground: speed on impact?", "$v^2 = 14.7^2 + 2(9.8)(19.6) = 600.25$, $v = 24.5$ m/s.", 15],
+    ["Car: $u = 5$, $a = 3.2$, $t = 5$. $v$ and $s$?", "$v = 21$ m/s; $s = 25 + 40 = 65$ m.", 16],
+    ["Parachutist falls freely from rest for 3 s. Speed and distance?", "$v = 29.4$ m/s, $s = 44.1$ m.", 17],
+    ["A parachutist falls freely for 3 s (reaching 29.4 m/s), then decelerates uniformly to land at 4 m/s after a total fall of 250 m. Deceleration?", "$4^2 = 29.4^2 - 2a(205.9) \\Rightarrow a = 2.06$ m/s².", 18],
+    ["Stone from $O$ (height $h$) at 19.6 m/s up hits the ground after 5 s. $h$?", "$-h = 19.6(5) - 4.9(25) = -24.5$, so $h = 24.5$ m.", 19],
+    ["For how long is that stone's speed less than 9.8 m/s?", "$|19.6 - 9.8t| < 9.8 \\Rightarrow 1 < t < 3$: 2 s.", 20],
+    ["Why reject the negative root when solving for $t$?", "Time before projection has no physical meaning in the model.", 21]
   ],
   quiz: [
     { q: "Max height of a ball thrown up at 19.6 m/s:", opts: ["19.6 m", "39.2 m", "9.8 m", "4.9 m"], ans: 0, why: "$u^2/2g = 384.16/19.6$." },
@@ -208,14 +203,14 @@ X("maths:M7.4", {
   ],
   flashcards: [
     ["$s = 2t^3 - 12t^2 + 18t$: when is the particle at rest?", "$v = 6t^2 - 24t + 18 = 6(t - 1)(t - 3)$: $t = 1, 3$."],
-    ["Total distance for $0 \\le t \\le 4$ with that $s$?", "$s(0) = 0, s(1) = 8, s(3) = 0, s(4) = 8$: $8 + 8 + 8 = 24$ m."],
-    ["Maximum speed for $0 \\le t \\le 4$?", "$a = 12t - 24 = 0$ at $t = 2$ gives $v = -6$; endpoints $v = 18$: max speed 18 m/s."],
+    ["$s = 2t^3 - 12t^2 + 18t$: total distance for $0 \\le t \\le 4$?", "$s(0) = 0, s(1) = 8, s(3) = 0, s(4) = 8$: $8 + 8 + 8 = 24$ m."],
+    ["$s = 2t^3 - 12t^2 + 18t$: maximum speed for $0 \\le t \\le 4$?", "$a = 12t - 24 = 0$ at $t = 2$ gives $v = -6$; endpoints $v = 18$: max speed 18 m/s."],
     ["$v = 15 - 2t - t^2$: time at rest and acceleration then?", "$(5 + t)(3 - t) = 0 \\Rightarrow t = 3$; $a = -2 - 2t = -8$ m/s²."],
-    ["Distance in the first 3 s for that $v$?", "$\\int_0^3 (15 - 2t - t^2)dt = 45 - 9 - 9 = 27$ m."],
+    ["$v = 15 - 2t - t^2$: distance in the first 3 s?", "$\\int_0^3 (15 - 2t - t^2)dt = 45 - 9 - 9 = 27$ m."],
     ["$\\mathbf v = (t^2 - 3t + 7)\\mathbf i + (2t^2 - 3)\\mathbf j$: when parallel to $\\mathbf i + \\mathbf j$?", "$t^2 - 3t + 7 = 2t^2 - 3 \\Rightarrow t^2 + 3t - 10 = 0$, $t = 2$."],
-    ["Acceleration of that particle at $t = 2$?", "$\\mathbf a = (2t - 3)\\mathbf i + 4t\\mathbf j = \\mathbf i + 8\\mathbf j$; $|\\mathbf a| = \\sqrt{65}$."],
+    ["$\\mathbf v = (t^2 - 3t + 7)\\mathbf i + (2t^2 - 3)\\mathbf j$: acceleration at $t = 2$?", "$\\mathbf a = (2t - 3)\\mathbf i + 4t\\mathbf j = \\mathbf i + 8\\mathbf j$; $|\\mathbf a| = \\sqrt{65}$."],
     ["$\\mathbf r = ct^2\\mathbf i + t^{3/2}\\mathbf j$ is on bearing 045 at $t = 4$. $c$?", "$16c = 8 \\Rightarrow c = \\tfrac12$."],
-    ["Speed then?", "$\\mathbf v = 2ct\\,\\mathbf i + \\tfrac32 t^{1/2}\\mathbf j = 4\\mathbf i + 3\\mathbf j$: 5 m/s."],
+    ["$\\mathbf r = ct^2\\mathbf i + t^{3/2}\\mathbf j$ is on bearing 045 at $t = 4$, with $c = \\tfrac12$. Speed at $t = 4$?", "$\\mathbf v = 2ct\\,\\mathbf i + \\tfrac32 t^{1/2}\\mathbf j = 4\\mathbf i + 3\\mathbf j$: 5 m/s."],
     ["$x = t^2(t - 1)^2$: why is $x$ never negative, and when is it at rest?", "It is a product of squares; $v = 2t(2t - 1)(t - 1) = 0$ at $t = 0, \\tfrac12, 1$."]
   ],
   quiz: [
@@ -263,15 +258,14 @@ X("maths:M7.5", {
   ],
   flashcards: [
     ["Horizontal and vertical components of $U$ at angle $\\alpha$?", "$U\\cos\\alpha$ (constant) and $U\\sin\\alpha$ (decreasing by $g$ each second)."],
-    ["Trajectory equation?", "$y = x\\tan\\alpha - \\dfrac{gx^2}{2U^2}(1 + \\tan^2\\alpha)$."],
-    ["$U = 28$, passes through $(40, 20)$: show the tan equation.", "$20 = 40\\tan\\alpha - \\tfrac{9.8 \\cdot 1600}{2 \\cdot 784}(1 + \\tan^2\\alpha) = 40\\tan\\alpha - 10(1 + \\tan^2\\alpha)$, so $\\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$."],
-    ["Solutions?", "$\\tan\\alpha = 1$ or $3$: $\\alpha = 45°$ or $71.6°$."],
-    ["Ball from a 25 m cliff at 45° lands 100 m from the base: show $U = 28$.", "$-25 = 100 - \\tfrac{9.8 \\cdot 10^4}{2U^2} \\cdot 2 \\Rightarrow U^2 = 784$."],
-    ["Greatest height above the sea then?", "$25 + \\dfrac{(28\\sin 45°)^2}{2g} = 25 + 20 = 45$ m."],
-    ["Stone at 14 m/s, $\\tan\\alpha = \\tfrac34$, from a cliff of height $H$, lands after 4 s. $H$?", "$u_y = 8.4$: $y = 33.6 - 78.4 = -44.8$, so $H = 44.8$ m."],
-    ["Maximum height of that stone above the sea?", "$44.8 + \\dfrac{8.4^2}{19.6} = 48.4$ m."],
-    ["Tennis serve: 45 m/s at 5° below horizontal from 2.8 m; net 12 m away, 0.9 m high. Clears?", "$t = 0.268$ s; drop $= 45\\sin5°\\,t + 4.9t^2 = 1.40$ m; height 1.40 m $>$ 0.9 — clears by 0.50 m."],
-    ["Speed at the net?", "$v_x = 44.8$, $v_y = 3.92 + 9.8(0.268) = 6.55$: $45.3$ m/s."]
+    ["$U = 28$, passes through $(40, 20)$: show the tan equation.", "$20 = 40\\tan\\alpha - \\tfrac{9.8 \\cdot 1600}{2 \\cdot 784}(1 + \\tan^2\\alpha) = 40\\tan\\alpha - 10(1 + \\tan^2\\alpha)$, so $\\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$.", 14],
+    ["Solve $\\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$ for the launch angles ($U = 28$, through $(40, 20)$).", "$\\tan\\alpha = 1$ or $3$: $\\alpha = 45°$ or $71.6°$.", 15],
+    ["Ball from a 25 m cliff at 45° lands 100 m from the base: show $U = 28$.", "$-25 = 100 - \\tfrac{9.8 \\cdot 10^4}{2U^2} \\cdot 2 \\Rightarrow U^2 = 784$.", 16],
+    ["Ball from a 25 m cliff at 45° with $U = 28$ m/s. Greatest height above the sea?", "$25 + \\dfrac{(28\\sin 45°)^2}{2g} = 25 + 20 = 45$ m.", 17],
+    ["Stone at 14 m/s, $\\tan\\alpha = \\tfrac34$, from a cliff of height $H$, lands after 4 s. $H$?", "$u_y = 8.4$: $y = 33.6 - 78.4 = -44.8$, so $H = 44.8$ m.", 18],
+    ["Stone at 14 m/s, $\\tan\\alpha = \\tfrac34$, from a cliff of height 44.8 m. Maximum height above the sea?", "$44.8 + \\dfrac{8.4^2}{19.6} = 48.4$ m.", 19],
+    ["Tennis serve: 45 m/s at 5° below horizontal from 2.8 m; net 12 m away, 0.9 m high. Clears?", "$t = 0.268$ s; drop $= 45\\sin5°\\,t + 4.9t^2 = 1.40$ m; height 1.40 m $>$ 0.9 — clears by 0.50 m.", 20],
+    ["Speed at the net?", "$v_x = 44.8$, $v_y = 3.92 + 9.8(0.268) = 6.55$: $45.3$ m/s.", 21]
   ],
   quiz: [
     { q: "Horizontal acceleration of a projectile (no air resistance):", opts: ["$g$", "0", "$-g$", "$g\\cos\\alpha$"], ans: 1, why: "Only gravity, vertical." },
@@ -318,15 +312,13 @@ X("maths:M8.1", {
     { callout: { t: "def", h: "Names of forces", body: "**Weight** $mg$ (down). **Normal reaction** $R$ (perpendicular to contact). **Tension** (string/rope, pulls). **Thrust** (rod, pushes). **Friction** (along the surface). **Driving force / resistance** (vehicles)." } }
   ],
   flashcards: [
-    ["Newton's first law?", "A body remains at rest or in uniform motion in a straight line unless acted on by a resultant force."],
-    ["What does 'moves at constant velocity' tell you about the forces?", "They are in equilibrium — resultant zero."],
-    ["$\\mathbf F_1 = 3\\mathbf i + 2\\mathbf j$, $\\mathbf F_2 = -\\mathbf i + 4\\mathbf j$. Resultant and magnitude?", "$2\\mathbf i + 6\\mathbf j$; $2\\sqrt{10} = 6.32$ N."],
-    ["Force $\\mathbf F_3$ that keeps the particle in equilibrium?", "$-2\\mathbf i - 6\\mathbf j$."],
-    ["Particle of 4 kg on a rough horizontal plane, horizontal force $P$, limiting equilibrium, $\\mu = 0.5$. $P$?", "$P = \\mu mg = 0.5 \\times 39.2 = 19.6$ N."],
-    ["A particle hangs from two strings at 30° and 60° to the horizontal; weight 10 N. Tensions?", "Horizontal: $T_1\\cos30° = T_2\\cos60°$; vertical: $T_1\\sin30° + T_2\\sin60° = 10$ → $T_1 = 5$ N, $T_2 = 8.66$ N."],
-    ["Direction of the normal reaction on a slope?", "Perpendicular to the slope, away from it."],
-    ["Direction of tension in a string?", "Along the string, pulling toward the string (away from the particle)."],
-    ["Thrust vs tension?", "Tension pulls (strings, rods); thrust pushes (rods only)."]
+    ["Newton's first law?", "A body remains at rest or in uniform motion in a straight line unless acted on by a resultant force.", 9],
+    ["What does 'moves at constant velocity' tell you about the forces?", "They are in equilibrium — resultant zero.", 10],
+    ["Force $\\mathbf F_3$ that keeps the particle in equilibrium?", "$-2\\mathbf i - 6\\mathbf j$.", 12],
+    ["Particle of 4 kg on a rough horizontal plane, horizontal force $P$, limiting equilibrium, $\\mu = 0.5$. $P$?", "$P = \\mu mg = 0.5 \\times 39.2 = 19.6$ N.", 13],
+    ["A particle hangs from two strings at 30° and 60° to the horizontal; weight 10 N. Tensions?", "Horizontal: $T_1\\cos30° = T_2\\cos60°$; vertical: $T_1\\sin30° + T_2\\sin60° = 10$ → $T_1 = 5$ N, $T_2 = 8.66$ N.", 14],
+    ["Direction of tension in a string?", "Along the string, pulling toward the string (away from the particle).", 16],
+    ["Thrust vs tension?", "Tension pulls (strings, rods); thrust pushes (rods only).", 17]
   ],
   quiz: [
     { q: "A car moving at a steady 20 m/s on a straight road has resultant force:", opts: ["forward", "backward", "zero", "$mg$"], ans: 2, why: "N1." },
@@ -360,15 +352,15 @@ X("maths:M8.2", {
     { callout: { t: "tip", h: "From force to distance", body: "Force $\\to$ acceleration $\\to$ suvat. A 3-mark tail like \"find the distance in the first 2 s from rest\" is $s = \\tfrac12|\\mathbf a|t^2$ once you have $|\\mathbf a|$." } }
   ],
   flashcards: [
-    ["Newton's second law?", "Resultant force $= $ mass $\\times$ acceleration, $\\mathbf F = m\\mathbf a$, with $\\mathbf a$ in the direction of the resultant."],
-    ["Car 900 kg, resistance 300 N, accelerates at 1.5 m/s². Driving force?", "$D - 300 = 900 \\times 1.5 \\Rightarrow D = 1650$ N."],
-    ["$\\mathbf F_1 = 4\\mathbf i + 2\\mathbf j$, $\\mathbf F_2 = c\\mathbf i + 4\\mathbf j$ on 2 kg give $|\\mathbf a| = 5$. $c$?", "$|(4 + c)\\mathbf i + 6\\mathbf j| = 10 \\Rightarrow (4 + c)^2 = 64$, $c = 4$ or $-12$."],
-    ["$\\mathbf F_1 = 3\\mathbf i + \\mathbf j$, $\\mathbf F_2 = p\\mathbf i + 5\\mathbf j$; particle from rest moves in direction $\\mathbf i + 3\\mathbf j$. $p$?", "Resultant $(3 + p)\\mathbf i + 6\\mathbf j \\parallel \\mathbf i + 3\\mathbf j \\Rightarrow 3(3 + p) = 6$, $p = -1$."],
-    ["Mass 0.5 kg there: acceleration and distance in 2 s from rest?", "$\\mathbf a = 4\\mathbf i + 12\\mathbf j$, $|\\mathbf a| = 4\\sqrt{10}$; $s = \\tfrac12 \\times 4\\sqrt{10} \\times 4 = 8\\sqrt{10} = 25.3$ m."],
-    ["Lift cage 300 kg carrying a 50 kg block accelerates up at 0.8 m/s². Cable tension?", "$T - 350g = 350 \\times 0.8 \\Rightarrow T = 3710$ N."],
-    ["Force from the lift floor on the block?", "$R - 50g = 50 \\times 0.8 \\Rightarrow R = 530$ N."],
-    ["2 kg particle, $\\mathbf u = 3\\mathbf i - \\mathbf j$, after 4 s $\\mathbf v = 11\\mathbf i + 7\\mathbf j$ under constant $\\mathbf F$. Find $\\mathbf F$.", "$\\mathbf a = 2\\mathbf i + 2\\mathbf j$, $\\mathbf F = 4\\mathbf i + 4\\mathbf j$ N."],
-    ["Why can a resultant force have two possible $c$ values in a magnitude question?", "Squaring loses the sign — both roots satisfy $|\\mathbf a| = 5$; reject one only if the question restricts it."]
+    ["Newton's second law?", "Resultant force $= $ mass $\\times$ acceleration, $\\mathbf F = m\\mathbf a$, with $\\mathbf a$ in the direction of the resultant.", 9],
+    ["Car 900 kg, resistance 300 N, accelerates at 1.5 m/s². Driving force?", "$D - 300 = 900 \\times 1.5 \\Rightarrow D = 1650$ N.", 10],
+    ["$\\mathbf F_1 = 4\\mathbf i + 2\\mathbf j$, $\\mathbf F_2 = c\\mathbf i + 4\\mathbf j$ on 2 kg give $|\\mathbf a| = 5$. $c$?", "$|(4 + c)\\mathbf i + 6\\mathbf j| = 10 \\Rightarrow (4 + c)^2 = 64$, $c = 4$ or $-12$.", 11],
+    ["$\\mathbf F_1 = 3\\mathbf i + \\mathbf j$, $\\mathbf F_2 = p\\mathbf i + 5\\mathbf j$; particle from rest moves in direction $\\mathbf i + 3\\mathbf j$. $p$?", "Resultant $(3 + p)\\mathbf i + 6\\mathbf j \\parallel \\mathbf i + 3\\mathbf j \\Rightarrow 3(3 + p) = 6$, $p = -1$.", 12],
+    ["$\\mathbf F_1 = 3\\mathbf i + \\mathbf j$ and $\\mathbf F_2 = -\\mathbf i + 5\\mathbf j$ act on a 0.5 kg particle from rest. Acceleration, and distance in 2 s?", "$\\mathbf a = 4\\mathbf i + 12\\mathbf j$, $|\\mathbf a| = 4\\sqrt{10}$; $s = \\tfrac12 \\times 4\\sqrt{10} \\times 4 = 8\\sqrt{10} = 25.3$ m.", 13],
+    ["Lift cage 300 kg carrying a 50 kg block accelerates up at 0.8 m/s². Cable tension?", "$T - 350g = 350 \\times 0.8 \\Rightarrow T = 3710$ N.", 14],
+    ["Force from the lift floor on the block?", "$R - 50g = 50 \\times 0.8 \\Rightarrow R = 530$ N.", 15],
+    ["2 kg particle, $\\mathbf u = 3\\mathbf i - \\mathbf j$, after 4 s $\\mathbf v = 11\\mathbf i + 7\\mathbf j$ under constant $\\mathbf F$. Find $\\mathbf F$.", "$\\mathbf a = 2\\mathbf i + 2\\mathbf j$, $\\mathbf F = 4\\mathbf i + 4\\mathbf j$ N.", 16],
+    ["Why can a resultant force have two possible $c$ values in a magnitude question?", "Squaring loses the sign — both roots satisfy $|\\mathbf a| = 5$; reject one only if the question restricts it.", 17]
   ],
   quiz: [
     { q: "A 5 kg mass with resultant 20 N accelerates at:", opts: ["100 m/s²", "4 m/s²", "0.25 m/s²", "25 m/s²"], ans: 1, why: "$F/m$." },
@@ -413,7 +405,7 @@ X("maths:M8.3", {
     ["Weight of a 50 kg block?", "$50 \\times 9.8 = 490$ N."],
     ["Acceleration of a falling 2 kg ball vs a 10 kg ball (no air resistance)?", "Both $9.8$ m/s² downward."],
     ["60 kg person in a lift accelerating down at 1.2 m/s². Reaction from the floor?", "$60g - R = 60 \\times 1.2 \\Rightarrow R = 588 - 72 = 516$ N."],
-    ["Same person, lift accelerating up at 1.2 m/s²?", "$R = 60(9.8 + 1.2) = 660$ N."],
+    ["60 kg person in a lift accelerating up at 1.2 m/s². Reaction from the floor?", "$R = 60(9.8 + 1.2) = 660$ N."],
     ["Lift moving up but slowing at 2 m/s²: direction of acceleration?", "Downward, so $R = m(g - 2)$."],
     ["Ball projected up at 14.7 m/s from 19.6 m: impact speed?", "$24.5$ m/s."],
     ["Rebounds at half that speed: height reached?", "$\\dfrac{12.25^2}{19.6} = 7.66$ m."],
@@ -451,16 +443,15 @@ X("maths:M8.4", {
     { callout: { t: "warn", h: "Two equations, not one", body: "The system equation $(m_1 - m_2)g = (m_1 + m_2)a$ gives $a$ but never scores the tension marks. Write both particle equations explicitly." } }
   ],
   flashcards: [
-    ["Newton's third law?", "If $A$ exerts a force on $B$, then $B$ exerts an equal and opposite force on $A$."],
-    ["3 kg on a smooth table, string over a smooth pulley to a hanging 2 kg. Acceleration and tension?", "$2g - T = 2a$, $T = 3a$: $a = 3.92$ m/s², $T = 11.8$ N."],
-    ["3 kg and 5 kg hang over a smooth pulley. $a$, $T$?", "$5g - T = 5a$, $T - 3g = 3a$: $a = 2.45$, $T = 36.75$ N."],
-    ["Force on that pulley?", "$2T = 73.5$ N downward."],
-    ["2 kg and 3 kg over a pulley, 3 kg 1 m above the floor, released. Speed when it lands?", "$a = 1.96$; $v^2 = 2(1.96)(1) \\Rightarrow v = 1.98$ m/s."],
-    ["How much further does the 2 kg then rise?", "String slack, free motion: $\\dfrac{1.98^2}{19.6} = 0.2$ m."],
-    ["Car 1200 kg tows trailer 400 kg, resistances 500 N and 200 N, driving force 2100 N. $a$ and tension?", "$a = (2100 - 700)/1600 = 0.875$; trailer: $T - 200 = 400(0.875)$, $T = 550$ N."],
-    ["Same car brakes with 1500 N (no driving force). Force in the tow-bar?", "$a = -2200/1600 = -1.375$; trailer: $-200 - X = 400(-1.375) \\Rightarrow X = 350$ N thrust."],
-    ["Why is the tension the same throughout a light string?", "A light string has no mass, so any difference in tension would give it infinite acceleration."],
-    ["Why do connected particles have the same acceleration?", "The string is inextensible."]
+    ["3 kg on a smooth table, string over a smooth pulley to a hanging 2 kg. Acceleration and tension?", "$2g - T = 2a$, $T = 3a$: $a = 3.92$ m/s², $T = 11.8$ N.", 12],
+    ["3 kg and 5 kg hang over a smooth pulley. $a$, $T$?", "$5g - T = 5a$, $T - 3g = 3a$: $a = 2.45$, $T = 36.75$ N.", 13],
+    ["3 kg and 5 kg hang over a smooth pulley ($T = 36.75$ N). Force on the pulley?", "$2T = 73.5$ N downward.", 14],
+    ["2 kg and 3 kg over a pulley, 3 kg 1 m above the floor, released. Speed when it lands?", "$a = 1.96$; $v^2 = 2(1.96)(1) \\Rightarrow v = 1.98$ m/s.", 15],
+    ["2 kg and 3 kg over a pulley, 3 kg 1 m above the floor, released; the 3 kg lands at 1.98 m/s and the string goes slack. How much further does the 2 kg rise?", "String slack, free motion: $\\dfrac{1.98^2}{19.6} = 0.2$ m.", 16],
+    ["Car 1200 kg tows trailer 400 kg, resistances 500 N and 200 N, driving force 2100 N. $a$ and tension?", "$a = (2100 - 700)/1600 = 0.875$; trailer: $T - 200 = 400(0.875)$, $T = 550$ N.", 17],
+    ["Car 1200 kg tows a 400 kg trailer, resistances 500 N and 200 N. The car brakes with 1500 N (no driving force). Force in the tow-bar?", "$a = -2200/1600 = -1.375$; trailer: $-200 - X = 400(-1.375) \\Rightarrow X = 350$ N thrust.", 18],
+    ["Why is the tension the same throughout a light string?", "A light string has no mass, so any difference in tension would give it infinite acceleration.", 19],
+    ["Why do connected particles have the same acceleration?", "The string is inextensible.", 20]
   ],
   quiz: [
     { q: "Two 4 kg masses hang over a smooth pulley. Acceleration:", opts: ["9.8", "4.9", "0", "2"], ans: 2, why: "Balanced." },
@@ -501,15 +492,15 @@ X("maths:M8.5", {
     { callout: { t: "tip", h: "Component checklist", body: "Weight on a slope: $mg\\sin\\theta$ *down the slope*, $mg\\cos\\theta$ *into the slope*. If $\\theta$ is the slope angle, the sine goes with the slope-parallel component — sketch the triangle each time rather than memorising." } }
   ],
   flashcards: [
-    ["Components of weight on a slope of angle $\\theta$?", "$mg\\sin\\theta$ down the slope, $mg\\cos\\theta$ perpendicular into the slope."],
-    ["Acceleration of a particle sliding down a smooth 30° slope?", "$g\\sin30° = 4.9$ m/s²."],
-    ["Force of 20 N at 30° above horizontal pulls a 5 kg block on a smooth floor. $a$ and $R$?", "$a = 20\\cos30°/5 = 3.46$ m/s²; $R = 49 - 10 = 39$ N."],
-    ["Why does an upward-angled pull reduce the normal reaction?", "Its vertical component supports part of the weight."],
-    ["Resultant of 3 N east and 4 N north?", "5 N on bearing $036.9°$."],
-    ["Rope at 30° to a 20° rough slope, $T = 80$ N, 10 kg box: $R$?", "$R = 98\\cos20° - 80\\sin30° = 52.1$ N."],
-    ["With $\\mu = 0.3$, acceleration up the slope?", "$80\\cos30° - 98\\sin20° - 0.3(52.1) = 10a \\Rightarrow a = 2.01$ m/s²."],
-    ["Particle 0.5 kg on a smooth slope held by a horizontal force $H$ at angle 30°: $H$?", "$H\\cos30° = 0.5g\\sin30° \\Rightarrow H = 2.83$ N."],
-    ["What is meant by 'resolving'?", "Splitting a force into perpendicular components so each direction can be treated separately."]
+    ["Components of weight on a slope of angle $\\theta$?", "$mg\\sin\\theta$ down the slope, $mg\\cos\\theta$ perpendicular into the slope.", 8],
+    ["Acceleration of a particle sliding down a smooth 30° slope?", "$g\\sin30° = 4.9$ m/s².", 9],
+    ["Force of 20 N at 30° above horizontal pulls a 5 kg block on a smooth floor. $a$ and $R$?", "$a = 20\\cos30°/5 = 3.46$ m/s²; $R = 49 - 10 = 39$ N.", 10],
+    ["Why does an upward-angled pull reduce the normal reaction?", "Its vertical component supports part of the weight.", 11],
+    ["Resultant of 3 N east and 4 N north?", "5 N on bearing $036.9°$.", 12],
+    ["Rope at 30° to a 20° rough slope, $T = 80$ N, 10 kg box: $R$?", "$R = 98\\cos20° - 80\\sin30° = 52.1$ N.", 13],
+    ["With $\\mu = 0.3$, acceleration up the slope?", "$80\\cos30° - 98\\sin20° - 0.3(52.1) = 10a \\Rightarrow a = 2.01$ m/s².", 14],
+    ["Particle 0.5 kg on a smooth slope held by a horizontal force $H$ at angle 30°: $H$?", "$H\\cos30° = 0.5g\\sin30° \\Rightarrow H = 2.83$ N.", 15],
+    ["What is meant by 'resolving'?", "Splitting a force into perpendicular components so each direction can be treated separately.", 16]
   ],
   quiz: [
     { q: "Component of 10 N at 60° to the horizontal, horizontally:", opts: ["5 N", "8.66 N", "10 N", "0"], ans: 0, why: "$10\\cos60°$." },
@@ -547,16 +538,15 @@ X("maths:M8.6", {
     { callout: { t: "warn", h: "Never assume $R = mg$", body: "Any force with a vertical (or slope-perpendicular) component changes $R$ — resolve perpendicular first, *then* find $\\mu R$." } }
   ],
   flashcards: [
-    ["Friction law?", "$F \\le \\mu R$; equality when the object is moving or on the point of moving."],
-    ["4 kg pulled by a horizontal 30 N on a rough plane accelerates at 2.5 m/s². $\\mu$?", "$30 - F = 10 \\Rightarrow F = 20$; $R = 39.2$; $\\mu = 0.51$."],
-    ["Particle released on a rough slope, $\\tan\\alpha = \\tfrac5{12}$: show $a = \\dfrac{g(5 - 12\\mu)}{13}$.", "$mg\\sin\\alpha - \\mu mg\\cos\\alpha = ma$ with $\\sin\\alpha = \\tfrac5{13}$, $\\cos\\alpha = \\tfrac{12}{13}$."],
-    ["If $a = 1.4$ there, $\\mu$?", "$5 - 12\\mu = \\tfrac{1.4 \\times 13}{9.8} = 1.857 \\Rightarrow \\mu = 0.262$."],
-    ["Brick on the point of sliding down a 20° slope: $\\mu$?", "$\\mu = \\tan20° = 0.364$."],
-    ["5 kg block on a rough 30° slope held by a horizontal 20 N force; friction?", "Down-slope weight $24.5$, up-slope from the force $17.3$: friction $7.18$ N *up* the slope."],
-    ["Is that equilibrium possible with $\\mu = 0.4$?", "$R = 49\\cos30° + 20\\sin30° = 52.4$; $\\mu R = 21 > 7.18$ — yes."],
-    ["30 kg box dragged at constant speed by a rope at 20° above horizontal, $\\mu = 0.5$. $T$?", "$T\\cos20° = 0.5(294 - T\\sin20°) \\Rightarrow T = 132$ N; $R = 249$ N."],
-    ["Why does friction act *up* the slope for a particle sliding down?", "Friction opposes the relative motion."],
-    ["Coefficient of friction is a property of…", "The pair of surfaces in contact (dimensionless)."]
+    ["4 kg pulled by a horizontal 30 N on a rough plane accelerates at 2.5 m/s². $\\mu$?", "$30 - F = 10 \\Rightarrow F = 20$; $R = 39.2$; $\\mu = 0.51$.", 11],
+    ["Particle released on a rough slope, $\\tan\\alpha = \\tfrac5{12}$: show $a = \\dfrac{g(5 - 12\\mu)}{13}$.", "$mg\\sin\\alpha - \\mu mg\\cos\\alpha = ma$ with $\\sin\\alpha = \\tfrac5{13}$, $\\cos\\alpha = \\tfrac{12}{13}$.", 12],
+    ["Particle on a rough slope with $\\tan\\alpha = \\tfrac5{12}$ has $a = \\dfrac{g(5 - 12\\mu)}{13}$. If $a = 1.4$, find $\\mu$.", "$5 - 12\\mu = \\tfrac{1.4 \\times 13}{9.8} = 1.857 \\Rightarrow \\mu = 0.262$.", 13],
+    ["Brick on the point of sliding down a 20° slope: $\\mu$?", "$\\mu = \\tan20° = 0.364$.", 14],
+    ["5 kg block on a rough 30° slope held by a horizontal 20 N force; friction?", "Down-slope weight $24.5$, up-slope from the force $17.3$: friction $7.18$ N *up* the slope.", 15],
+    ["Is that equilibrium possible with $\\mu = 0.4$?", "$R = 49\\cos30° + 20\\sin30° = 52.4$; $\\mu R = 21 > 7.18$ — yes.", 16],
+    ["30 kg box dragged at constant speed by a rope at 20° above horizontal, $\\mu = 0.5$. $T$?", "$T\\cos20° = 0.5(294 - T\\sin20°) \\Rightarrow T = 132$ N; $R = 249$ N.", 17],
+    ["Why does friction act *up* the slope for a particle sliding down?", "Friction opposes the relative motion.", 18],
+    ["Coefficient of friction is a property of…", "The pair of surfaces in contact (dimensionless).", 19]
   ],
   quiz: [
     { q: "A block at rest on a rough plane with no other horizontal force: $F =$", opts: ["$\\mu R$", "0", "$mg$", "$\\mu mg$"], ans: 1, why: "Nothing to oppose." },
@@ -601,16 +591,14 @@ X("maths:M9.1", {
     { callout: { t: "mnemonic", h: "Three equations of a rigid body", body: "Resolve horizontally, resolve vertically, take moments about one point. Any extra moment equation is a combination of these, so if you are stuck, take moments about a *different* point instead of resolving." } }
   ],
   flashcards: [
-    ["Moment of a force?", "Force $\\times$ perpendicular distance from the pivot to the line of action (N m); clockwise or anticlockwise."],
-    ["Condition for equilibrium of a rigid body?", "Resultant force zero *and* total moment about any point zero."],
-    ["Uniform ladder 20 kg at 60° against a smooth wall, man 80 kg $\\tfrac34$ up, limiting. Wall reaction?", "Moments about the foot (length $2a$): $N \\cdot 2a\\sin60° = 20g\\,a\\cos60° + 80g \\cdot 1.5a\\cos60°$ → $N = 396$ N."],
-    ["$\\mu$ then?", "$F = N = 396$, $R = 100g = 980$: $\\mu = 0.404$."],
-    ["Why take moments about the foot of the ladder?", "Both unknown ground forces pass through it, so they have zero moment."],
-    ["Rod $AB$, 4 m, 10 kg, hinged at $A$ at 30° to horizontal, particle 5 kg at 3 m from $A$, held by a string at $B$ perpendicular to the rod. $T$?", "$4T = 10g(2\\cos30°) + 5g(3\\cos30°) \\Rightarrow T = 74.3$ N."],
-    ["Plank 6 m, 30 kg, centre of mass 2.5 m from $A$, supports at 1 m and 4 m from $A$. Boy 40 kg walks toward $B$: where does it tilt?", "Tilts about the 4 m support when $R_C = 0$: $30g(1.5) = 40g\\,x \\Rightarrow x = 1.125$ m beyond it, i.e. 5.125 m from $A$."],
-    ["Same plank, boy at 3 m from $A$: reactions?", "About $C$ (1 m): $3R_D = 30g(1.5) + 40g(2) = 125g \\Rightarrow R_D = 408$ N; $R_C = 70g - 408 = 278$ N."],
-    ["Non-uniform 20 kg plank, 5 m, on supports at its ends with $R_A = 2R_B$. Distance of the centre of mass from $A$?", "$R_B = \\tfrac{20g}{3}$; about $A$: $20g\\,x = 5R_B \\Rightarrow x = \\tfrac53$ m."],
-    ["Rod on rough ground resting on a smooth peg — direction of the peg's force?", "Perpendicular to the rod."]
+    ["Uniform ladder 20 kg at 60° against a smooth wall, man 80 kg $\\tfrac34$ up, limiting. Wall reaction?", "Moments about the foot (length $2a$): $N \\cdot 2a\\sin60° = 20g\\,a\\cos60° + 80g \\cdot 1.5a\\cos60°$ → $N = 396$ N.", 13],
+    ["Uniform ladder 20 kg at 60° against a smooth wall, man 80 kg $\\tfrac34$ up, ladder limiting (wall reaction 396 N). Find $\\mu$.", "$F = N = 396$, $R = 100g = 980$: $\\mu = 0.404$.", 14],
+    ["Why take moments about the foot of the ladder?", "Both unknown ground forces pass through it, so they have zero moment.", 15],
+    ["Rod $AB$, 4 m, 10 kg, hinged at $A$ at 30° to horizontal, particle 5 kg at 3 m from $A$, held by a string at $B$ perpendicular to the rod. $T$?", "$4T = 10g(2\\cos30°) + 5g(3\\cos30°) \\Rightarrow T = 74.3$ N.", 16],
+    ["Plank 6 m, 30 kg, centre of mass 2.5 m from $A$, supports at 1 m and 4 m from $A$. Boy 40 kg walks toward $B$: where does it tilt?", "Tilts about the 4 m support when $R_C = 0$: $30g(1.5) = 40g\\,x \\Rightarrow x = 1.125$ m beyond it, i.e. 5.125 m from $A$.", 17],
+    ["Plank 6 m, 30 kg, centre of mass 2.5 m from $A$, supports $C$ and $D$ at 1 m and 4 m from $A$. Boy 40 kg stands 3 m from $A$: reactions?", "About $C$ (1 m): $3R_D = 30g(1.5) + 40g(2) = 125g \\Rightarrow R_D = 408$ N; $R_C = 70g - 408 = 278$ N.", 18],
+    ["Non-uniform 20 kg plank, 5 m, on supports at its ends with $R_A = 2R_B$. Distance of the centre of mass from $A$?", "$R_B = \\tfrac{20g}{3}$; about $A$: $20g\\,x = 5R_B \\Rightarrow x = \\tfrac53$ m.", 19],
+    ["Rod on rough ground resting on a smooth peg — direction of the peg's force?", "Perpendicular to the rod.", 20]
   ],
   quiz: [
     { q: "Moment of 10 N at 2 m perpendicular distance:", opts: ["5 N m", "20 N m", "12 N m", "0"], ans: 1, why: "$Fd$." },

@@ -172,11 +172,9 @@ C["compsci:4.2.4.1"] = {
     ["Directed graph?", "A graph whose edges have a direction (one-way)."],
     ["Adjacency matrix?", "A 2-D array: cell [i, j] holds the edge weight (or 1) if i and j are joined, else 0."],
     ["Adjacency list?", "For each vertex, a list of its adjacent vertices (and weights)."],
-    ["When is a list better?", "Sparse graph; edges rarely change; edge presence not tested often."],
-    ["When is a matrix better?", "Dense graph; edges change often; edge presence tested often."],
-    ["Why is an undirected matrix symmetric?", "Edge i–j is also edge j–i, so [i, j] = [j, i]."],
-    ["Which graph needs both halves of the matrix?", "A directed graph."],
-    ["Memory of a matrix for n vertices?", "n² cells, whatever the number of edges."]
+    ["Why is an undirected matrix symmetric?", "Edge i–j is also edge j–i, so [i, j] = [j, i].", 7],
+    ["Which graph needs both halves of the matrix?", "A directed graph.", 8],
+    ["Memory of a matrix for n vertices?", "n² cells, whatever the number of edges.", 9]
   ],
   quiz: [
     { q: "A sparse graph is best stored as", opts: ["an adjacency list", "an adjacency matrix", "a stack", "a hash table of weights"], ans: 0, why: "Only existing edges are stored." },
@@ -305,15 +303,12 @@ C["compsci:4.2.5.1"] = {
   ],
   flashcards: [
     ["Tree?", "A connected, undirected graph with no cycles."],
-    ["Rooted tree?", "A tree with one vertex designated the root; parent–child relationships."],
-    ["Binary tree?", "A rooted tree in which each node has at most two children."],
-    ["Leaf?", "A node with no children."],
-    ["Edges in a tree of n vertices?", "n − 1."],
-    ["Binary search tree rule?", "Left subtree smaller, right subtree larger than each node."],
-    ["Two reasons a graph may not be a tree?", "It has a cycle; it is not connected (or it is directed)."],
-    ["−1 in a Left/Right array?", "No child in that direction."],
-    ["Worst-case BST shape?", "A chain (sorted insertion order) — search becomes O(n)."],
-    ["Uses of rooted trees?", "BSTs, expression/syntax trees, file systems, Huffman coding, decision trees."]
+    ["Edges in a tree of n vertices?", "n − 1.", 4],
+    ["Binary search tree rule?", "Left subtree smaller, right subtree larger than each node.", 5],
+    ["Two reasons a graph may not be a tree?", "It has a cycle; it is not connected (or it is directed).", 6],
+    ["−1 in a Left/Right array?", "No child in that direction.", 7],
+    ["Worst-case BST shape?", "A chain (sorted insertion order) — search becomes O(n).", 8],
+    ["Uses of rooted trees?", "BSTs, expression/syntax trees, file systems, Huffman coding, decision trees.", 9]
   ],
   quiz: [
     { q: "Which is NOT required for a tree?", opts: ["a root", "connected", "undirected", "no cycles"], ans: 0, why: "Only ROOTED trees need one." },

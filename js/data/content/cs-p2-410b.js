@@ -550,16 +550,14 @@ C["compsci:4.10.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.10.4 the clashing operations are UPDATE statements; 4.9.4.10 the client-server model and thin clients; 4.7.3.7 and the 2018 essay — server performance; 4.12 and 4.11.1 immutable data in functional programs avoids shared-state races; 4.6.1.4 the OS also schedules competing processes." } }
   ],
   flashcards: [
-    ["Client server database?", "The database is on a server; clients send queries over a network and the server's DBMS returns results; many clients have simultaneous access."],
-    ["Lost update problem?", "Two users edit the same record; the second save overwrites the first, so the first update is lost."],
-    ["Record locking?", "A record is locked while one transaction edits it; others cannot edit it until the lock is released."],
-    ["Deadlock?", "Two transactions each hold a lock the other needs, so neither can continue."],
-    ["Serialisation?", "Conflicting transactions run one after another (or with an equivalent result)."],
-    ["Timestamp ordering?", "Each transaction gets a timestamp; each record stores last read/write timestamps; transactions that would break the order are aborted."],
-    ["Timestamp rule for a write?", "Abort if the record's read or write timestamp is later than the transaction's."],
-    ["Timestamp rule for a read?", "Abort if the record's write timestamp is later than the transaction's."],
-    ["Commitment ordering?", "Transactions commit in an order consistent with their conflicts; avoids deadlock."],
-    ["Which method can deadlock?", "Record locking."]
+    ["Record locking?", "A record is locked while one transaction edits it; others cannot edit it until the lock is released.", 2],
+    ["Deadlock?", "Two transactions each hold a lock the other needs, so neither can continue.", 3],
+    ["Serialisation?", "Conflicting transactions run one after another (or with an equivalent result).", 4],
+    ["Timestamp ordering?", "Each transaction gets a timestamp; each record stores last read/write timestamps; transactions that would break the order are aborted.", 5],
+    ["Timestamp rule for a write?", "Abort if the record's read or write timestamp is later than the transaction's.", 6],
+    ["Timestamp rule for a read?", "Abort if the record's write timestamp is later than the transaction's.", 7],
+    ["Commitment ordering?", "Transactions commit in an order consistent with their conflicts; avoids deadlock.", 8],
+    ["Which method can deadlock?", "Record locking.", 9]
   ],
   quiz: [
     { q: "Stock 10; A sells 3 and B sells 2, both reading before either writes, B writing last. Stored value?", opts: ["8", "5", "7", "10"], ans: 0, why: "B overwrote A's 7 with 10 − 2." },

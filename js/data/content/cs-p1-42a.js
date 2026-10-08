@@ -343,16 +343,13 @@ C["compsci:4.2.1.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.1 records and user-defined types; 4.1.1.9 exceptions when a file is missing; 4.5.4 character codes (ASCII/Unicode) in text files; 4.10 databases as structured files; 4.6.4 secondary storage." } }
   ],
   flashcards: [
-    ["Field?", "A single named data item within a record."],
-    ["Record?", "A collection of related fields (which may have different types) about one entity."],
-    ["File?", "A collection of records or text stored permanently in secondary storage."],
-    ["Text file stores…?", "Characters (ASCII/Unicode); human-readable."],
-    ["Binary file stores…?", "Data in its own data types / memory representation; not human-readable."],
-    ["Two reasons to choose a binary file?", "Data hidden from casual reading; no type-conversion routines; smaller file."],
-    ["C# classes for text files?", "StreamWriter / StreamReader (or File.ReadAllLines / WriteAllLines)."],
-    ["C# classes for binary files?", "BinaryWriter / BinaryReader."],
-    ["Why must a binary file be read in the order it was written?", "It has no field names or delimiters — only bytes in sequence."],
-    ["What does using do around a file?", "Closes it automatically, even if an exception occurs."]
+    ["Record?", "A collection of related fields (which may have different types) about one entity.", 1],
+    ["File?", "A collection of records or text stored permanently in secondary storage.", 2],
+    ["Two reasons to choose a binary file?", "Data hidden from casual reading; no type-conversion routines; smaller file.", 5],
+    ["C# classes for text files?", "StreamWriter / StreamReader (or File.ReadAllLines / WriteAllLines).", 6],
+    ["C# classes for binary files?", "BinaryWriter / BinaryReader.", 7],
+    ["Why must a binary file be read in the order it was written?", "It has no field names or delimiters — only bytes in sequence.", 8],
+    ["What does using do around a file?", "Closes it automatically, even if an exception occurs.", 9]
   ],
   quiz: [
     { q: "The integer 72 in a text file is stored as", opts: ["the characters '7' and '2'", "4 bytes holding 72", "one byte holding 72", "a pointer"], ans: 0, why: "Text stores characters." },
@@ -443,16 +440,12 @@ C["compsci:4.2.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.1.1 static vs dynamic first look; 4.2.2–4.2.8 each ADT in detail; 4.1.2.3 classes encapsulate an ADT's representation; 4.4.1 data abstraction; 4.1.1.1 pointers and references." } }
   ],
   flashcards: [
-    ["Abstract data type?", "A type defined by its values and operations, independent of its implementation."],
-    ["Stack operations?", "Push, Pop, Peek/Top, IsEmpty, IsFull."],
-    ["Queue operations?", "Enqueue, Dequeue, IsEmpty, IsFull."],
-    ["Two ways to implement a stack?", "An array with a top pointer; a linked list with a head pointer."],
-    ["Linked list node holds…?", "A data value and a pointer to the next node."],
-    ["Dynamic structure advantage?", "No wasted memory; grows as needed."],
-    ["Dynamic structure disadvantage?", "Memory for pointers; possible memory leaks; slower direct access."],
-    ["Memory leak?", "Memory no longer needed that is never returned to the heap."],
-    ["Heap?", "The pool of memory from which dynamic structures are allocated at run time."],
-    ["Delete a node from a linked list?", "Set the previous node's pointer to the deleted node's next."]
+    ["Stack operations?", "Push, Pop, Peek/Top, IsEmpty, IsFull.", 1],
+    ["Queue operations?", "Enqueue, Dequeue, IsEmpty, IsFull.", 2],
+    ["Two ways to implement a stack?", "An array with a top pointer; a linked list with a head pointer.", 3],
+    ["Linked list node holds…?", "A data value and a pointer to the next node.", 4],
+    ["Dynamic structure advantage?", "No wasted memory; grows as needed.", 5],
+    ["Heap?", "The pool of memory from which dynamic structures are allocated at run time.", 8],
   ],
   quiz: [
     { q: "An ADT is defined by", opts: ["its operations, not its implementation", "the array that stores it", "its memory address", "its programming language"], ans: 0, why: "Abstraction." },

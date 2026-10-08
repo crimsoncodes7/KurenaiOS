@@ -435,15 +435,14 @@ C["maths:M7.1"] = {
   ],
   flashcards: [
     ["Displacement vs distance?", "Displacement is the change in position (signed); distance is the total path length (never negative)."],
-    ["Velocity vs speed?", "Velocity has direction (signed); speed is its magnitude."],
-    ["When are distance and |displacement| equal?", "When the object never turns round."],
-    ["Where can an object change direction?", "Where its velocity is zero."],
-    ["Average velocity of a round trip?", "Zero — the displacement is zero."],
-    ["Average speed?", "Total distance ÷ total time."],
-    ["\"Speed at most 24.5\" in velocities?", "$-24.5 \\le v \\le 24.5$."],
-    ["A deceleration of 3 m s$^{-2}$ as an acceleration?", "$-3$ m s$^{-2}$ (against the motion)."],
-    ["Distance from $O$ of $(5\\mathbf i + 12\\mathbf j)$ m?", "13 m."],
-    ["Stone thrown up at 14.7: back at the start when?", "$t = 3$ s."]
+    ["When are distance and |displacement| equal?", "When the object never turns round.", 2],
+    ["Where can an object change direction?", "Where its velocity is zero.", 3],
+    ["Average velocity of a round trip?", "Zero — the displacement is zero.", 4],
+    ["Average speed?", "Total distance ÷ total time.", 5],
+    ["\"Speed at most 24.5\" in velocities?", "$-24.5 \\le v \\le 24.5$.", 6],
+    ["A deceleration of 3 m s$^{-2}$ as an acceleration?", "$-3$ m s$^{-2}$ (against the motion).", 7],
+    ["Distance from $O$ of $(5\\mathbf i + 12\\mathbf j)$ m?", "13 m.", 8],
+    ["Stone thrown up at 14.7: back at the start when?", "$t = 3$ s.", 9]
   ],
   quiz: [
     { q: "A ball is thrown up 5 m and falls back to its start. Its displacement is", opts: ["0 m", "5 m", "10 m", "−5 m"], ans: 0, why: "Same start and end." },

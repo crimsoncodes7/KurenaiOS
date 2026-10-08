@@ -261,14 +261,11 @@ C["compsci:4.7.1.1"] = {
     ["Name three control bus signals.", "e.g. memory read/write, clock, interrupt request, bus request/grant, acknowledge."],
     ["Max memory with n address lines?", "2ⁿ locations."],
     ["How do you double addressable memory?", "Add one line to the address bus."],
-    ["Why does a wider data bus help?", "More bits transferred at once — fewer transfers."],
-    ["Why must the data bus be bidirectional?", "Data is read into the processor and written back to memory."],
-    ["Role of an I/O controller?", "Interface between processor and peripheral: translates signals/voltages, buffers data, implements the protocol."],
-    ["Von Neumann vs Harvard?", "One shared memory and bus for instructions and data vs separate memories and buses."],
-    ["Where is Harvard used?", "Embedded systems / DSP / microcontrollers."],
-    ["Where is von Neumann used?", "General-purpose computers."],
-    ["The von Neumann bottleneck?", "Instructions and data share one bus, so they cannot be fetched at the same time."],
-    ["32-bit address bus, 1 byte per location → max memory?", "2³² = 4 294 967 296 bytes (4 GiB)."]
+    ["Von Neumann vs Harvard?", "One shared memory and bus for instructions and data vs separate memories and buses.", 8],
+    ["Where is Harvard used?", "Embedded systems / DSP / microcontrollers.", 9],
+    ["Where is von Neumann used?", "General-purpose computers.", 10],
+    ["The von Neumann bottleneck?", "Instructions and data share one bus, so they cannot be fetched at the same time.", 11],
+    ["32-bit address bus, 1 byte per location → max memory?", "2³² = 4 294 967 296 bytes (4 GiB).", 12]
   ],
   quiz: [
     { q: "Which bus is one-way?", opts: ["address bus", "data bus", "control bus", "all of them"], ans: 0, why: "Only the processor places addresses." },
@@ -367,14 +364,11 @@ C["compsci:4.7.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the Fetch-Execute cycle carries the concept out; 4.7.1.1 von Neumann and Harvard; 4.6.3.1 translators produce the machine code that is stored; 4.5.6.1 instructions are just bit patterns." } }
   ],
   flashcards: [
-    ["State the stored program concept.", "Machine code instructions stored in main memory are fetched and executed serially by a processor that performs arithmetic and logical operations."],
-    ["Five key ideas the definition needs?", "Instructions, stored, main memory, fetched and executed, serially."],
-    ["Is the stored program concept the same as von Neumann architecture?", "No — von Neumann adds a single shared memory/bus; Harvard machines are stored-program too."],
-    ["Can a stored-program computer run only one program?", "No — any program can be loaded into memory."],
-    ["Role of main memory?", "Holds the instructions and data in use; returns the contents of addressed locations."],
-    ["Where does a program come from when run?", "It is copied from secondary storage into main memory."],
-    ["What does \"serially\" mean here?", "One instruction after another, in sequence."],
-    ["What changed the task before stored programs?", "Physically re-wiring the machine."]
+    ["Five key ideas the definition needs?", "Instructions, stored, main memory, fetched and executed, serially.", 1],
+    ["Is the stored program concept the same as von Neumann architecture?", "No — von Neumann adds a single shared memory/bus; Harvard machines are stored-program too.", 2],
+    ["Can a stored-program computer run only one program?", "No — any program can be loaded into memory.", 3],
+    ["In the stored program concept, what does \"serially\" mean?", "One instruction after another, in sequence.", 6],
+    ["What changed the task before stored programs?", "Physically re-wiring the machine.", 7]
   ],
   quiz: [
     { q: "The stored program concept says instructions are", opts: ["stored in main memory and fetched and executed serially", "hard-wired into the processor", "kept only in secondary storage", "executed in parallel"], ans: 0, why: "Definition." },
@@ -479,18 +473,13 @@ C["compsci:4.7.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the registers in the F-E cycle; 4.6.4.1 the ALU is built from adders, registers from flip-flops; 4.5.4.6 overflow; 4.7.3.5 CMP and branches read the flags; 4.7.3.7 clock speed; 4.7.3.6 the SR's interrupt flag." } }
   ],
   flashcards: [
-    ["What is a register?", "A memory location inside the processor."],
-    ["Role of the control unit?", "Decodes instructions; controls the F-E cycle and other components by sending control signals."],
-    ["Role of the ALU?", "Performs arithmetic and logical operations."],
-    ["Role of the clock?", "Generates timing pulses that synchronise the processor's operations."],
-    ["PC holds…", "the address of the next instruction to fetch."],
-    ["CIR holds…", "the instruction currently being decoded/executed."],
-    ["MAR holds…", "the address of the location to be read or written."],
-    ["MBR holds…", "the data/instruction just read from, or to be written to, memory."],
-    ["Status register holds…", "flags about the last result (zero, negative, carry, overflow) and processor state."],
-    ["General-purpose registers hold…", "operands and intermediate results the programmer chooses."],
-    ["Which register connects to the address bus?", "MAR."],
-    ["Which register connects to the data bus?", "MBR."]
+    ["PC holds…", "the address of the next instruction to fetch.", 4],
+    ["CIR holds…", "the instruction currently being decoded/executed.", 5],
+    ["MAR holds…", "the address of the location to be read or written.", 6],
+    ["MBR holds…", "the data/instruction just read from, or to be written to, memory.", 7],
+    ["General-purpose registers hold…", "operands and intermediate results the programmer chooses.", 9],
+    ["Which register connects to the address bus?", "MAR.", 10],
+    ["Which register connects to the data bus?", "MBR.", 11]
   ],
   quiz: [
     { q: "The address of the next instruction is in the", opts: ["PC", "CIR", "MBR", "SR"], ans: 0, why: "Program counter." },
@@ -673,13 +662,11 @@ C["compsci:4.7.3.2"] = {
     ["Fetch step 2?", "The address goes on the address bus; memory contents come back on the data bus into the MBR."],
     ["When is the PC incremented?", "During the fetch, after its contents are copied to the MAR (often simultaneously with the memory read)."],
     ["Fetch final step?", "The contents of the MBR are copied into the CIR."],
-    ["What happens at decode?", "The control unit decodes the instruction in the CIR, splitting it into opcode and operand."],
-    ["What happens at execute?", "The operation is carried out (ALU etc.), data fetched/stored, result written, SR updated, PC changed by a branch."],
-    ["Why is PC copied to MAR?", "So the address can be put on the address bus and the PC can be incremented."],
-    ["Why use the MBR, not straight into the CIR?", "Not every fetch is an instruction; the value is only on the bus briefly; it buffers the speed difference."],
-    ["Why decode from the CIR, not the MBR?", "Execute may fetch/write data through the MBR, overwriting the instruction."],
-    ["MAR ← [PC] means…", "the contents of the PC are copied into the MAR."],
-    ["What does a branch do to the PC?", "Loads it with the branch target address."]
+    ["What happens at execute?", "The operation is carried out (ALU etc.), data fetched/stored, result written, SR updated, PC changed by a branch.", 5],
+    ["Why is PC copied to MAR?", "So the address can be put on the address bus and the PC can be incremented.", 6],
+    ["Why use the MBR, not straight into the CIR?", "Not every fetch is an instruction; the value is only on the bus briefly; it buffers the speed difference.", 7],
+    ["Why decode from the CIR, not the MBR?", "Execute may fetch/write data through the MBR, overwriting the instruction.", 8],
+    ["What does a branch do to the PC?", "Loads it with the branch target address.", 10]
   ],
   quiz: [
     { q: "The first step of the fetch is", opts: ["PC copied to MAR", "MBR copied to CIR", "CU decodes", "PC incremented"], ans: 0, why: "MAR ← [PC]." },
@@ -788,17 +775,14 @@ C["compsci:4.7.3.6"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the F-E cycle; 4.7.3.1 the status register's interrupt flag; 4.2.3.1 the stack (LIFO) saves nested contexts; 4.6.1.4 the OS handles interrupts and the scheduler's timer interrupt; 4.7.1.1 I/O controllers raise interrupts; 4.2.1.3 subroutine calls also save the PC on a stack." } }
   ],
   flashcards: [
-    ["What is an interrupt?", "A signal to the processor from hardware or software that needs immediate attention."],
-    ["Purpose of interrupts?", "Suspend the current process so an urgent device/condition can be serviced."],
-    ["What is an ISR?", "The routine that handles a particular interrupt."],
-    ["When are interrupts checked?", "At the end of each Fetch-Execute cycle."],
-    ["What is the volatile environment?", "The contents of the processor's registers (PC, SR, GPRs)."],
-    ["Why save it?", "The ISR overwrites registers; saving lets the interrupted process be resumed."],
-    ["Where is it saved?", "On the system stack."],
-    ["What happens to the PC on an interrupt?", "Saved, then loaded with the ISR's address; restored afterwards."],
-    ["Give three interrupt sources.", "e.g. I/O device, timer, power failure, division by zero."],
-    ["Polling vs interrupts?", "Processor repeatedly asks devices vs devices signal when they need attention."],
-    ["Can an ISR be interrupted?", "Yes, by a higher-priority interrupt."]
+    ["Purpose of interrupts?", "Suspend the current process so an urgent device/condition can be serviced.", 1],
+    ["When are interrupts checked?", "At the end of each Fetch-Execute cycle.", 3],
+    ["What is the volatile environment?", "The contents of the processor's registers (PC, SR, GPRs).", 4],
+    ["Where is it saved?", "On the system stack.", 6],
+    ["What happens to the PC on an interrupt?", "Saved, then loaded with the ISR's address; restored afterwards.", 7],
+    ["Give three interrupt sources.", "e.g. I/O device, timer, power failure, division by zero.", 8],
+    ["Polling vs interrupts?", "Processor repeatedly asks devices vs devices signal when they need attention.", 9],
+    ["Can an ISR be interrupted?", "Yes, by a higher-priority interrupt.", 10]
   ],
   quiz: [
     { q: "Interrupts are checked", opts: ["at the end of each F-E cycle", "in the middle of decode", "only at power-on", "never"], ans: 0, why: "Between instructions." },

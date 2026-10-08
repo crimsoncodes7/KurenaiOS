@@ -255,14 +255,13 @@ C["compsci:4.10.1"] = {
   flashcards: [
     ["Entity?", "A category of object, person, event or thing about which data is recorded."],
     ["Attribute?", "A property or characteristic of an entity."],
-    ["Entity identifier?", "Attribute(s) whose value is unique for each instance — becomes the primary key."],
-    ["Entity description format?", "Entity(Attribute1, Attribute2, …) with the identifier underlined."],
-    ["What does a crow's foot mean?", "The many end of a relationship."],
-    ["Three degrees of relationship?", "One-to-one, one-to-many, many-to-many."],
-    ["How is a many-to-many implemented?", "A linking entity with two one-to-many relationships; its identifier is usually the two foreign keys together."],
-    ["Which end of a 1:M holds the foreign key?", "The many end (where the crow's foot is)."],
-    ["Linking relation in the vets question?", "PetOwner(CustomerID, PetID)."],
-    ["Penalty for drawing extra wrong relationships?", "MAX 1 (or 0 in 2025's one-mark question)."]
+    ["Entity description format?", "Entity(Attribute1, Attribute2, …) with the identifier underlined.", 3],
+    ["What does a crow's foot mean?", "The many end of a relationship.", 4],
+    ["Three degrees of relationship?", "One-to-one, one-to-many, many-to-many.", 5],
+    ["How is a many-to-many implemented?", "A linking entity with two one-to-many relationships; its identifier is usually the two foreign keys together.", 6],
+    ["Which end of a 1:M holds the foreign key?", "The many end (where the crow's foot is).", 7],
+    ["Linking relation in the vets question?", "PetOwner(CustomerID, PetID).", 8],
+    ["Penalty for drawing extra wrong relationships?", "MAX 1 (or 0 in 2025's one-mark question).", 9]
   ],
   quiz: [
     { q: "One customer places many orders. The crow's foot goes at", opts: ["Order", "Customer", "both ends", "neither end"], ans: 0, why: "There are many orders." },
@@ -417,15 +416,9 @@ C["compsci:4.10.2"] = {
   ],
   flashcards: [
     ["Relational database?", "Data in several tables (relations), each about one entity, linked by foreign keys."],
-    ["Attribute?", "A property of an entity — a column/field of a relation."],
-    ["Primary key?", "An attribute that uniquely identifies each record in a relation."],
-    ["Composite primary key?", "A primary key of two or more attributes whose combination is unique."],
-    ["Foreign key?", "An attribute that is the primary key of another relation, used to link the tables."],
-    ["Is a foreign key unique in its own table?", "No — the same value can appear in many rows."],
-    ["Referential integrity?", "Every foreign key value matches an existing primary key value."],
-    ["Viewing key (BuyerID, PropertyID, ViewingDate) assumes…", "A buyer views a property at most once a day."],
-    ["Valid alternative key for Booking (2021)?", "FacilityID, BookingDate, EndTime."],
-    ["Cascade delete?", "Deleting a parent row also deletes the child rows that reference it."]
+    ["Primary key?", "An attribute that uniquely identifies each record in a relation.", 2],
+    ["Is a foreign key unique in its own table?", "No — the same value can appear in many rows.", 5],
+    ["Cascade delete?", "Deleting a parent row also deletes the child rows that reference it.", 9]
   ],
   quiz: [
     { q: "A foreign key is", opts: ["the primary key of another relation, used to link tables", "a unique row identifier", "any indexed field", "a composite key"], ans: 0, why: "Definition." },
@@ -626,11 +619,8 @@ C["compsci:4.10.3"] = {
     ["Partial dependency?", "A non-key attribute depending on only part of a composite key."],
     ["Transitive dependency?", "A non-key attribute depending on another non-key attribute."],
     ["Update anomaly?", "A change must be made in many rows; missing one leaves inconsistent data."],
-    ["Insertion anomaly?", "Cannot store one entity's data without creating a record for another."],
-    ["Deletion anomaly?", "Deleting one record loses data about another entity."],
-    ["Is a 1NF relation with a single-attribute key in 2NF?", "Yes — there is no part of the key to depend on."],
-    ["Cinema design (2023) — the three relations?", "Customer(CustomerID,…), Booking(BookingID, ShowingID, CustomerID), AssignedSeat(BookingID, SeatNumber)."],
-    ["Denormalising: one gain, one cost?", "Quicker/simpler lookup; redundancy → possible inconsistency and extra updates."]
+    ["Is a 1NF relation with a single-attribute key in 2NF?", "Yes — there is no part of the key to depend on.", 9],
+    ["Denormalising: one gain, one cost?", "Quicker/simpler lookup; redundancy → possible inconsistency and extra updates.", 11]
   ],
   quiz: [
     { q: "Which does NOT have to hold for full normalisation?", opts: ["every primary key is one attribute", "no repeating groups", "attributes depend on the whole key", "no transitive dependencies"], ans: 0, why: "2022 Q07.1." },

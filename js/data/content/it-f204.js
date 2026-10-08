@@ -2959,10 +2959,9 @@ C["it:F204.6.5"] = {
     ["What is a Level 1 data flow diagram used for?", "Breaking the single context process into the main processes and data stores — ideal for M5 because each process can be placed at device, edge, fog or cloud."],
     ["What is a wireframe?", "A low-fidelity labelled layout sketch of a screen — boxes, placeholder text and labels showing what goes where and what each control does, deliberately unstyled."],
     ["What should a good wireframe set include beyond the main screen?", "A detail view and an alert/confirmation screen, plus the loading, empty and error states, consistent navigation, and interaction notes."],
-    ["What earns the marks on an annotated wireframe?", "Annotations tying each layout decision to a named HCI feature and the user need it meets, plus notes on what happens on interaction."],
-    ["Which diagram best shows device interactions?", "A labelled system/network diagram — each device as a box and each link as an arrow carrying the connectivity method and the data it moves."],
-    ["Why must diagrams be referenced in the text?", "An unreferenced diagram earns little; figures should be numbered, referred to in the prose, and must agree with what the writing says."],
-    ["Which criteria require technical documentation in F204?", "M5 explicitly requires appropriate technical documentation for processing; P9 requires annotated wireframes; and P2 may use a flow chart for the four pillars."]
+    ["Which diagram best shows device interactions?", "A labelled system/network diagram — each device as a box and each link as an arrow carrying the connectivity method and the data it moves.", 11],
+    ["Why must diagrams be referenced in the text?", "An unreferenced diagram earns little; figures should be numbered, referred to in the prose, and must agree with what the writing says.", 12],
+    ["Which criteria require technical documentation in F204?", "M5 explicitly requires appropriate technical documentation for processing; P9 requires annotated wireframes; and P2 may use a flow chart for the four pillars.", 13]
   ],
   quiz: [
     {

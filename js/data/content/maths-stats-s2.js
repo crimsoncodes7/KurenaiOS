@@ -335,9 +335,8 @@ C["maths:S2.1"] = {
     ["Comparing two box plots — what two things?", "Median (location) and IQR (spread), each in context."],
     ["Positive skew: order of mean, median, mode?", "mode < median < mean."],
     ["Positive skew from quartiles?", "$Q_3 - Q_2 > Q_2 - Q_1$."],
-    ["Why is a Normal model unsuitable for a skewed histogram?", "The Normal distribution is symmetrical."],
-    ["Boundaries for 'aged 5–9'?", "$5 \\le x < 10$."],
-    ["Boundaries for rainfall '0.1–0.5' (to 0.1 mm)?", "0.05 to 0.55."]
+    ["Boundaries for 'aged 5–9'?", "$5 \\le x < 10$.", 13],
+    ["Boundaries for rainfall '0.1–0.5' (to 0.1 mm)?", "0.05 to 0.55.", 14]
   ],
   quiz: [
     { q: "A class $10 \\le x < 25$ has frequency 45. Its frequency density is:", opts: ["3", "45", "4.5", "1.8"], ans: 0, why: "$45 \\div 15$." },
@@ -597,10 +596,8 @@ C["maths:S2.2"] = {
     ["Why is an LDS-based prediction for December unreliable?", "The LDS covers May–October only — extrapolation."],
     ["$p = 22 - 1.1t$: change in $p$ over 3 days?", "Decrease of 3.3."],
     ["$c = a + bm$; 3.5 lower per 500 kg; 20 at 1700 kg. $a$, $b$?", "$b = -0.007$, $a = 31.9$."],
-    ["Linearise $y = ax^n$.", "$\\log y = \\log a + n \\log x$: plot $\\log y$ against $\\log x$."],
-    ["Linearise $y = kb^x$.", "$\\log y = \\log k + x \\log b$: plot $\\log y$ against $x$."],
-    ["$\\log_{10} h = -0.05\\log_{10} m + 1.92$ gives $h =$", "$10^{1.92} m^{-0.05} = 83.2\\,m^{-0.05}$."],
-    ["A scatter diagram has two clusters. Why care?", "There may be two distinct populations; a single line can mislead."]
+    ["$\\log_{10} h = -0.05\\log_{10} m + 1.92$ gives $h =$", "$10^{1.92} m^{-0.05} = 83.2\\,m^{-0.05}$.", 12],
+    ["A scatter diagram has two clusters. Why care?", "There may be two distinct populations; a single line can mislead.", 13]
   ],
   quiz: [
     { q: "$y = 26.1 + 5.60s$: an extra half hour of sleep changes $y$ by", opts: ["+2.8", "+5.6", "+26.1", "+13.05"], ans: 0, why: "$0.5 \\times 5.6$." },
@@ -858,16 +855,15 @@ C["maths:S2.3"] = {
     ["$Q_1$ and $Q_3$ positions for 27 values?", "6.75 → 7th; 20.25 → 21st."],
     ["Interpolation formula?", "$L + \\frac{\\text{position} - \\text{cf before}}{f_{\\text{class}}} \\times \\text{width}$."],
     ["Assumption behind interpolation / midpoints?", "Values are spread evenly through each class."],
-    ["$\\sigma$ from summary statistics?", "$\\sqrt{\\frac{\\sum x^2}{n} - \\bar{x}^2}$."],
-    ["$S_{xx}$?", "$\\sum x^2 - \\frac{(\\sum x)^2}{n}$; $\\sigma = \\sqrt{S_{xx}/n}$."],
-    ["$n = 120$, $\\sum x = 6612$, $\\sum x^2 = 364\\,902$: $\\bar{x}$, $\\sigma$?", "55.1, 2.2."],
-    ["$y = \\frac{x - a}{b}$: $\\bar{x}$ and $\\sigma_x$?", "$\\bar{x} = a + b\\bar{y}$; $\\sigma_x = |b|\\sigma_y$."],
-    ["Effect of adding a constant to every value?", "Location measures shift by it; spread unchanged."],
-    ["Effect of doubling every value?", "Location and spread both double; variance ×4."],
-    ["Mean/sd or median/IQR for skewed data with outliers?", "Median and IQR — unaffected by extreme values."],
-    ["Two values added with sum $2\\bar{x}$, both within 1 sd of the mean?", "Mean unchanged; sd decreases."],
-    ["Why might an LDS-based annual rainfall mean be too low?", "The LDS has May–Oct only; winter months (wetter) are missing."],
-    ["Most LDS rainfall in the first class is 0. Effect on the midpoint estimate of the mean?", "Actual mean is smaller than the estimate."]
+    ["$S_{xx}$?", "$\\sum x^2 - \\frac{(\\sum x)^2}{n}$; $\\sigma = \\sqrt{S_{xx}/n}$.", 6],
+    ["$n = 120$, $\\sum x = 6612$, $\\sum x^2 = 364\\,902$: $\\bar{x}$, $\\sigma$?", "55.1, 2.2.", 7],
+    ["$y = \\frac{x - a}{b}$: $\\bar{x}$ and $\\sigma_x$?", "$\\bar{x} = a + b\\bar{y}$; $\\sigma_x = |b|\\sigma_y$.", 8],
+    ["Effect of adding a constant to every value?", "Location measures shift by it; spread unchanged.", 9],
+    ["Effect of doubling every value?", "Location and spread both double; variance ×4.", 10],
+    ["Mean/sd or median/IQR for skewed data with outliers?", "Median and IQR — unaffected by extreme values.", 11],
+    ["Two values added with sum $2\\bar{x}$, both within 1 sd of the mean?", "Mean unchanged; sd decreases.", 12],
+    ["Why might an LDS-based annual rainfall mean be too low?", "The LDS has May–Oct only; winter months (wetter) are missing.", 13],
+    ["Most LDS rainfall in the first class is 0. Effect on the midpoint estimate of the mean?", "Actual mean is smaller than the estimate.", 14]
   ],
   quiz: [
     { q: "$n = 30$, $\\sum y = 214$, $\\sum y^2 = 5912$, $x = y + 1010$. $\\sigma_x =$", opts: ["12.1", "1022.1", "7.13", "146"], ans: 0, why: "Shift leaves sd unchanged; 146 is the variance." },

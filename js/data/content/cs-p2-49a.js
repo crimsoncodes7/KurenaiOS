@@ -174,16 +174,10 @@ C["compsci:4.9.1.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.1.1 the data bus is synchronous parallel; USB is synchronous serial; 4.9.1.2 baud vs bit rate; 4.5.5.3 parity bits are sent within asynchronous frames; 4.9.2.3 Wi-Fi is serial over radio." } }
   ],
   flashcards: [
-    ["Serial transmission?", "Bits sent one after another along a single wire."],
-    ["Parallel transmission?", "Several bits sent simultaneously, each on its own wire."],
-    ["Four advantages of serial?", "Cheaper; no crosstalk; no data skew; longer distances (and higher clock rates)."],
-    ["What is data skew?", "Bits sent simultaneously on parallel wires arrive at different times."],
-    ["What is crosstalk?", "Interference between signals on neighbouring wires."],
-    ["Synchronous transmission?", "Transmitter and receiver continuously synchronised by a common clock."],
-    ["Asynchronous transmission?", "No common clock; the receiver resynchronises at each start bit."],
-    ["Purpose of the start bit?", "Starts the receiver's clock / brings it into phase with the transmitter's."],
-    ["Purpose of the stop bit?", "Gives the receiver time to process the data and lets the next start bit be recognised."],
-    ["Why is the internal data bus parallel?", "Short distance, fixed positions, huge volume — many bits at once."]
+    ["Parallel transmission?", "Several bits sent simultaneously, each on its own wire.", 1],
+    ["What is crosstalk?", "Interference between signals on neighbouring wires.", 4],
+    ["Purpose of the start bit?", "Starts the receiver's clock / brings it into phase with the transmitter's.", 7],
+    ["Why is the internal data bus parallel?", "Short distance, fixed positions, huge volume — many bits at once.", 9]
   ],
   quiz: [
     { q: "Data skew is a problem of", opts: ["parallel transmission", "serial transmission", "asynchronous framing", "Wi-Fi only"], ans: 0, why: "Bits drift apart on separate wires." },
@@ -299,15 +293,11 @@ C["compsci:4.9.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.1–4.5.3 powers of 2 (levels ↔ bits); 4.9.1.1 serial transmission; 4.9.4.1 the TCP/IP protocols; 4.7.3.7 data bus width is the parallel analogue of bit rate." } }
   ],
   flashcards: [
-    ["Baud rate?", "Number of signal changes per second."],
-    ["Bit rate?", "Number of bits transmitted per second."],
-    ["Bandwidth?", "The range of frequencies a medium can transmit."],
-    ["Latency?", "The time delay between an action and its effect / data arriving."],
-    ["Protocol?", "A set of rules governing communication between devices."],
-    ["How can bit rate exceed baud rate?", "By encoding more than one bit per signal change."],
-    ["8 signal levels at 500 baud → bit rate?", "3 bits per symbol → 1500 bps."],
-    ["Relationship between bandwidth and bit rate?", "Directly proportional."],
-    ["4 signals, 2 bits each → bit rate vs baud?", "Bit rate = 2 × baud rate."]
+    ["Bit rate?", "Number of bits transmitted per second.", 1],
+    ["Bandwidth?", "The range of frequencies a medium can transmit.", 2],
+    ["Latency?", "The time delay between an action and its effect / data arriving.", 3],
+    ["Protocol?", "A set of rules governing communication between devices.", 4],
+    ["4 signals, 2 bits each → bit rate vs baud?", "Bit rate = 2 × baud rate.", 8]
   ],
   quiz: [
     { q: "16 signal levels carry how many bits per symbol?", opts: ["4", "16", "8", "2"], ans: 0, why: "log₂16." },
@@ -432,8 +422,7 @@ C["compsci:4.9.2.1"] = {
     ["Physical star?", "Every device connected to a central switch (or hub), sending data through it."],
     ["Switch vs hub?", "Switch forwards a frame to the recipient only; hub sends it to every device."],
     ["Logical bus?", "Data broadcast on a shared medium; all nodes read it and check the address; one transmitter at a time."],
-    ["How can a physical star act as a logical bus?", "A bus protocol (e.g. CSMA/CD) plus switching/hub."],
-    ["Why do fewer devices improve performance?", "More bandwidth each and fewer collisions."]
+    ["Why do fewer devices improve performance?", "More bandwidth each and fewer collisions.", 7]
   ],
   quiz: [
     { q: "The centre of a star network is a", opts: ["switch", "server", "router", "modem"], ans: 0, why: "DPT for server/router." },
@@ -557,13 +546,12 @@ C["compsci:4.9.2.2"] = {
   ],
   flashcards: [
     ["What is a server?", "A computer that provides services/resources to clients on request."],
-    ["Peer-to-peer network?", "Every computer has equal status; each can act as client and server; resources shared from any computer."],
-    ["Client-server network?", "Servers provide services/resources; clients request them."],
-    ["Two advantages of client-server?", "Centralised security and administration; central storage and backup; always available."],
-    ["Two advantages of peer-to-peer?", "No server cost or expertise; no single point of failure; scales with peers."],
-    ["When to choose peer-to-peer?", "Few, trusting users with no confidential data and no budget for a server."],
-    ["When to choose client-server?", "Many users, confidential data, different access rights (school, bank)."],
-    ["A disadvantage of peer-to-peer availability?", "A resource is unavailable if the peer holding it is turned off."]
+    ["Client-server network?", "Servers provide services/resources; clients request them.", 2],
+    ["Two advantages of client-server?", "Centralised security and administration; central storage and backup; always available.", 3],
+    ["Two advantages of peer-to-peer?", "No server cost or expertise; no single point of failure; scales with peers.", 4],
+    ["When to choose peer-to-peer?", "Few, trusting users with no confidential data and no budget for a server.", 5],
+    ["When to choose client-server?", "Many users, confidential data, different access rights (school, bank).", 6],
+    ["A disadvantage of peer-to-peer availability?", "A resource is unavailable if the peer holding it is turned off.", 7]
   ],
   quiz: [
     { q: "In peer-to-peer networking", opts: ["each computer has equal status", "one server holds all files", "logins are central", "clients cannot share"], ans: 0, why: "Definition." },
@@ -717,13 +705,11 @@ C["compsci:4.9.2.3"] = {
     ["Purpose of Wi-Fi?", "A wireless LAN based on international standards, letting devices connect without cables."],
     ["Two components for wireless networking?", "Wireless network adapter (in each device) and a wireless access point."],
     ["What is an SSID?", "The locally unique identifier/name of a wireless network."],
-    ["Effect of disabling SSID broadcast?", "The network isn't listed; only users who know the name can try to connect."],
-    ["How does a MAC allow list work?", "The AP checks each device's unique MAC address against a list; only listed devices connect."],
-    ["Role of WPA2?", "Strong encryption so intercepted data can't be understood without the key."],
-    ["CSMA/CA steps?", "Listen; wait if busy; RTS; CTS; transmit; ACK; retransmit if no ACK."],
-    ["Why RTS/CTS?", "CTS silences all nodes in range of the receiver — solves hidden nodes."],
-    ["Why avoidance, not detection, in Wi-Fi?", "A radio transmitter cannot detect collisions while transmitting."],
-    ["What does the ACK do?", "Confirms receipt and tells other nodes they may transmit."]
+    ["Role of WPA2?", "Strong encryption so intercepted data can't be understood without the key.", 5],
+    ["CSMA/CA steps?", "Listen; wait if busy; RTS; CTS; transmit; ACK; retransmit if no ACK.", 6],
+    ["Why RTS/CTS?", "CTS silences all nodes in range of the receiver — solves hidden nodes.", 7],
+    ["Why avoidance, not detection, in Wi-Fi?", "A radio transmitter cannot detect collisions while transmitting.", 8],
+    ["What does the ACK do?", "Confirms receipt and tells other nodes they may transmit.", 9]
   ],
   quiz: [
     { q: "Which only stops devices CONNECTING, not eavesdropping?", opts: ["MAC allow list", "WPA2 encryption", "both", "neither"], ans: 0, why: "Listening needs no connection." },

@@ -156,13 +156,12 @@ C["compsci:4.5.4.1"] = {
   ],
   flashcards: [
     ["Range of n-bit unsigned binary?", "0 to 2ⁿ − 1."],
-    ["Highest 8-bit unsigned value?", "255."],
-    ["177 in binary?", "10110001."],
-    ["Unsigned vs signed?", "Unsigned: non-negative only; signed (two's complement) also negative."],
-    ["Highest 16-bit unsigned value?", "65 535."],
-    ["01000011₂ unsigned?", "67."],
-    ["Same pattern 10110001 in two's complement?", "−79."],
-    ["What is unsigned binary used for?", "Counts, addresses, colour values, character codes."]
+    ["177 in binary?", "10110001.", 2],
+    ["Unsigned vs signed?", "Unsigned: non-negative only; signed (two's complement) also negative.", 3],
+    ["Highest 16-bit unsigned value?", "65 535.", 4],
+    ["01000011₂ unsigned?", "67.", 5],
+    ["What is the pattern 10110001 as an 8-bit two's complement number?", "−79.", 6],
+    ["What is unsigned binary used for?", "Counts, addresses, colour values, character codes.", 7]
   ],
   quiz: [
     { q: "The largest 12-bit unsigned value is", opts: ["4095", "4096", "2047", "2048"], ans: 0, why: "2¹² − 1." },
@@ -390,14 +389,13 @@ C["compsci:4.5.4.3"] = {
   ],
   flashcards: [
     ["Place value of the MSB in 8-bit two's complement?", "−128."],
-    ["How do you negate a two's complement number?", "Invert all the bits and add 1."],
-    ["8-bit two's complement range?", "−128 to 127."],
-    ["n-bit two's complement range?", "−2ⁿ⁻¹ to 2ⁿ⁻¹ − 1."],
-    ["How is A − B done in binary?", "Add A to the two's complement of B; discard any carry."],
-    ["−36 in 8-bit two's complement?", "11011100."],
-    ["Why use two's complement?", "Addition works unchanged for negatives, so subtraction needs no extra circuit."],
-    ["Most negative 12-bit value?", "−2048."],
-    ["What is done with the carry out of the MSB?", "It is discarded."]
+    ["8-bit two's complement range?", "−128 to 127.", 2],
+    ["n-bit two's complement range?", "−2ⁿ⁻¹ to 2ⁿ⁻¹ − 1.", 3],
+    ["How is A − B done in binary?", "Add A to the two's complement of B; discard any carry.", 4],
+    ["−36 in 8-bit two's complement?", "11011100.", 5],
+    ["Why use two's complement?", "Addition works unchanged for negatives, so subtraction needs no extra circuit.", 6],
+    ["Most negative 12-bit value?", "−2048.", 7],
+    ["What is done with the carry out of the MSB?", "It is discarded.", 8]
   ],
   quiz: [
     { q: "11111111 in 8-bit two's complement is", opts: ["−1", "255", "−127", "−128"], ans: 0, why: "−128 + 127." },
@@ -539,11 +537,10 @@ C["compsci:4.5.4.4"] = {
     ["0011.1001 unsigned?", "3.5625."],
     ["5.75 in 4.4 fixed point?", "0101.1100."],
     ["Floating point value?", "mantissa × 2^exponent."],
-    ["Where is the mantissa's binary point (AQA)?", "After the first (sign) bit."],
-    ["What does the exponent decide?", "Range."],
-    ["What does the mantissa decide?", "Precision."],
-    ["01101000 / 0110 (8,4)?", "52."],
-    ["10110000 / 0011 (8,4)?", "−5."]
+    ["What does the exponent decide?", "Range.", 6],
+    ["What does the mantissa decide?", "Precision.", 7],
+    ["01101000 / 0110 (8,4)?", "52.", 8],
+    ["10110000 / 0011 (8,4)?", "−5.", 9]
   ],
   quiz: [
     { q: "11011101 with 2 bits before the point is", opts: ["3.453125", "221", "3.5", "13.8125"], ans: 0, why: "221/64." },
@@ -634,13 +631,12 @@ C["compsci:4.5.4.5"] = {
   ],
   flashcards: [
     ["Why may a fixed or floating point value be inaccurate?", "Not enough bits for its significant digits, or its binary form recurs."],
-    ["Can 0.1 be stored exactly in binary?", "No — it recurs (0.000110011…)."],
-    ["What might the system do with 28.25 in a 7-bit mantissa?", "Round to 28 or 28.5, or truncate to 28."],
-    ["Closest (8,4) representation of 12.765625?", "01100110 0100 = 12.75."],
-    ["Why does 0.1 + 0.2 ≠ 0.3 in code?", "Each is stored rounded; the errors accumulate."],
-    ["How should floats be compared?", "Within a tolerance, not with ==."],
-    ["Which fractions are exact in binary?", "Those whose denominator is a power of 2."],
-    ["Rounding vs truncation?", "Rounding picks the nearest value; truncation drops the extra bits."]
+    ["What might the system do with 28.25 in a 7-bit mantissa?", "Round to 28 or 28.5, or truncate to 28.", 2],
+    ["Closest (8,4) representation of 12.765625?", "01100110 0100 = 12.75.", 3],
+    ["Why does 0.1 + 0.2 ≠ 0.3 in code?", "Each is stored rounded; the errors accumulate.", 4],
+    ["How should floats be compared?", "Within a tolerance, not with ==.", 5],
+    ["Which fractions are exact in binary?", "Those whose denominator is a power of 2.", 6],
+    ["Rounding vs truncation?", "Rounding picks the nearest value; truncation drops the extra bits.", 7]
   ],
   quiz: [
     { q: "Which can be stored exactly in binary?", opts: ["0.375", "0.1", "0.2", "1/3"], ans: 0, why: "3/8." },
@@ -713,12 +709,7 @@ C["compsci:4.5.4.6"] = {
   flashcards: [
     ["Absolute error?", "| intended − stored |."],
     ["Relative error?", "Absolute error ÷ | intended |."],
-    ["13.8 stored as 13.75 — absolute error?", "0.05."],
-    ["… relative error?", "0.36%."],
-    ["Why is relative error more useful?", "An error's significance depends on the size of the value."],
-    ["Can an absolute error be negative?", "No."],
-    ["Relative error of 0.3 on 104.7?", "0.29%."],
-    ["Same absolute error, which value suffers more?", "The smaller one."]
+    ["Two stored values have the same absolute error. Which suffers the larger relative error?", "The smaller one.", 7]
   ],
   quiz: [
     { q: "2.5 stored as 2.4375 has absolute error", opts: ["0.0625", "−0.0625", "2.5%", "0.025"], ans: 0, why: "Difference." },
@@ -936,15 +927,13 @@ C["compsci:4.5.4.8"] = {
     { callout: { t: "tip", h: "Confusion alert — two meanings of \"normalisation\"", body: "**Normalisation in floating point** (here) removes wasted leading bits from a mantissa. **Normalisation in databases** (4.10.3) removes redundancy from tables (1NF → 2NF → 3NF). Same word, entirely different ideas." } }
   ],
   flashcards: [
-    ["When is a two's complement mantissa normalised?", "When its first two bits differ (01… or 10…)."],
-    ["Two reasons to normalise?", "Maximum precision for the bits available; unique representation (simple equality tests)."],
-    ["Normalise 00011010 0011.", "01101000 0001."],
-    ["Shift the mantissa left n places — what happens to the exponent?", "Subtract n."],
-    ["58.5 in (8,4)?", "01110101 0110."],
-    ["0.15625 in (8,4)?", "01010000 1110."],
-    ["−23.25 in (8,4)?", "10100011 0101."],
-    ["Is 11000000 a normalised mantissa?", "No — it starts 11."],
-    ["Database normalisation vs floating point normalisation?", "Different: tables without redundancy vs mantissas without wasted bits."]
+    ["Two reasons to normalise?", "Maximum precision for the bits available; unique representation (simple equality tests).", 1],
+    ["Normalise 00011010 0011.", "01101000 0001.", 2],
+    ["Shift the mantissa left n places — what happens to the exponent?", "Subtract n.", 3],
+    ["58.5 in (8,4)?", "01110101 0110.", 4],
+    ["0.15625 in (8,4)?", "01010000 1110.", 5],
+    ["−23.25 in (8,4)?", "10100011 0101.", 6],
+    ["Database normalisation vs floating point normalisation?", "Different: tables without redundancy vs mantissas without wasted bits.", 8]
   ],
   quiz: [
     { q: "Which mantissa is normalised?", opts: ["10110000", "11011000", "00101000", "00000000"], ans: 0, why: "Starts 10." },
@@ -1011,14 +1000,12 @@ C["compsci:4.5.4.9"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.4.2 integer overflow (carry out); 4.2.3 stack overflow is unrelated (a full stack); 4.7.3.1 the status register's overflow flag." } }
   ],
   flashcards: [
-    ["What is overflow?", "A result too large to be represented in the available bits."],
-    ["What is underflow?", "A result too close to zero to be represented — stored as 0."],
-    ["Fix floating point overflow?", "More exponent bits (added or moved from the mantissa)."],
-    ["Error when a decimal cannot be stored exactly?", "Rounding (or truncation)."],
-    ["80 × 6.25 in (8,4)?", "Overflow — 500 > 127."],
-    ["Is stack overflow the same?", "No — it is a full stack (data structures)."],
-    ["Underflow happens because the exponent needed is…?", "More negative than the most negative exponent."],
-    ["Overflow happens because the exponent needed is…?", "Larger than the largest exponent."]
+    ["What is underflow?", "A result too close to zero to be represented — stored as 0.", 1],
+    ["Fix floating point overflow?", "More exponent bits (added or moved from the mantissa).", 2],
+    ["Error when a decimal cannot be stored exactly?", "Rounding (or truncation).", 3],
+    ["80 × 6.25 in (8,4)?", "Overflow — 500 > 127.", 4],
+    ["Underflow happens because the exponent needed is…?", "More negative than the most negative exponent.", 6],
+    ["Overflow happens because the exponent needed is…?", "Larger than the largest exponent.", 7]
   ],
   quiz: [
     { q: "A result too close to zero to represent is", opts: ["underflow", "overflow", "rounding", "truncation"], ans: 0, why: "Stored as 0." },

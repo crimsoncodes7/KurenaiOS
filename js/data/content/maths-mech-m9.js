@@ -265,12 +265,11 @@ C["maths:M9.1"] = {
     ["Where does the weight of a uniform rod act?", "At its midpoint."],
     ["On the point of tilting about one support?", "The reaction at the other support is zero."],
     ["Reaction of a smooth wall on a ladder?", "Horizontal (perpendicular to the wall)."],
-    ["Reaction of a smooth peg or rail on a rod?", "Perpendicular to the rod."],
-    ["Best point to take moments about for a ladder on rough ground?", "The foot $A$ — it removes $R$ and $F$."],
-    ["Uniform ladder, smooth wall, angle $\\theta$ to the ground: $S$?", "$\\frac12 W\\cot\\theta$."],
-    ["Which way does friction act at the foot of a ladder against a smooth wall?", "Towards the wall."],
-    ["Direction of a hinge force with components $X$, $Y$?", "$\\tan\\beta = Y / X$ to the horizontal."],
-    ["Moment of 30 N at 40° to a 2 m rod about its end?", "$30 \\times 2\\sin40° = 38.6$ N m."]
+    ["Best point to take moments about for a ladder on rough ground?", "The foot $A$ — it removes $R$ and $F$.", 6],
+    ["Uniform ladder, smooth wall, angle $\\theta$ to the ground: $S$?", "$\\frac12 W\\cot\\theta$.", 7],
+    ["Which way does friction act at the foot of a ladder against a smooth wall?", "Towards the wall.", 8],
+    ["Direction of a hinge force with components $X$, $Y$?", "$\\tan\\beta = Y / X$ to the horizontal.", 9],
+    ["Moment of 30 N at 40° to a 2 m rod about its end?", "$30 \\times 2\\sin40° = 38.6$ N m.", 10]
   ],
   quiz: [
     { q: "A 20 N force acts 3 m from a pivot, perpendicular to the rod. Its moment is", opts: ["60 N m", "6.67 N m", "23 N m", "17 N m"], ans: 0, why: "$20 \\times 3$." },

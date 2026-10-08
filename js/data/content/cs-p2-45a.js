@@ -245,12 +245,11 @@ C["compsci:4.5.1.2"] = {
   flashcards: [
     ["Define an integer.", "A whole number — positive, negative or zero — with no fractional part."],
     ["Symbol for the integers?", "ℤ."],
-    ["Difference between ℕ and ℤ?", "ℤ includes negative whole numbers; ℕ does not."],
-    ["Is 0 an integer?", "Yes."],
-    ["Is −4.0 an integer?", "Yes — it is −4."],
-    ["Which binary representation stores integers?", "Two's complement."],
-    ["Is every integer rational?", "Yes — n = n/1."],
-    ["Example of an integer that is not natural?", "−2 (any negative whole number)."]
+    ["Is 0 an integer?", "Yes.", 3],
+    ["Is −4.0 an integer?", "Yes — it is −4.", 4],
+    ["Which binary representation stores integers?", "Two's complement.", 5],
+    ["Is every integer rational?", "Yes — n = n/1.", 6],
+    ["Example of an integer that is not natural?", "−2 (any negative whole number).", 7]
   ],
   quiz: [
     { q: "Which is an integer but not a natural number?", opts: ["−4", "0", "81", "0.5"], ans: 0, why: "Negative whole number." },
@@ -319,14 +318,12 @@ C["compsci:4.5.1.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.4.4–4.5.4.5: binary can represent exactly only fractions with power-of-2 denominators — the root of rounding error." } }
   ],
   flashcards: [
-    ["Define a rational number.", "A number that can be expressed as a fraction — one integer divided by another."],
-    ["Symbol for the rationals?", "ℚ."],
-    ["Does ℚ include the integers?", "Yes — n = n/1."],
-    ["Is 0.333… rational?", "Yes — it is 1/3."],
-    ["Is 15/23 an integer?", "No — rational and real only."],
-    ["Can every rational be stored exactly in binary?", "No — only those with a power-of-2 denominator (1/10 recurs)."],
-    ["Difference between rational and irrational?", "Rationals can be written as a fraction of integers; irrationals cannot."],
-    ["Is √25 rational?", "Yes — it is 5."]
+    ["Symbol for the rationals?", "ℚ.", 1],
+    ["Does ℚ include the integers?", "Yes — n = n/1.", 2],
+    ["Is 15/23 an integer?", "No — rational and real only.", 4],
+    ["Can every rational be stored exactly in binary?", "No — only those with a power-of-2 denominator (1/10 recurs).", 5],
+    ["Difference between rational and irrational?", "Rationals can be written as a fraction of integers; irrationals cannot.", 6],
+    ["Is √25 rational?", "Yes — it is 5.", 7]
   ],
   quiz: [
     { q: "Which symbol is the set of rational numbers?", opts: ["ℚ", "ℝ", "ℤ", "ℕ"], ans: 0, why: "Quotient." },
@@ -399,14 +396,11 @@ C["compsci:4.5.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.4.5 rounding errors and 4.5.4.6 absolute/relative error: irrationals can only be approximated in binary." } }
   ],
   flashcards: [
-    ["Define an irrational number.", "A number that cannot be written as a fraction of two integers."],
-    ["Three examples of irrational numbers?", "√2, π, e."],
-    ["Is √25 irrational?", "No — it equals 5."],
-    ["Is 3.142 an acceptable example?", "No — it is a terminating decimal, so rational."],
-    ["Can a computer store π exactly?", "No — only a rational approximation in a finite number of bits."],
-    ["Are irrationals real numbers?", "Yes — ℝ is the rationals plus the irrationals."],
-    ["Is 22/7 irrational?", "No — it is a fraction."],
-    ["Decimal expansion of an irrational?", "Never terminates and never repeats."]
+    ["Three examples of irrational numbers?", "√2, π, e.", 1],
+    ["Is √25 irrational?", "No — it equals 5.", 2],
+    ["Is 3.142 an acceptable example?", "No — it is a terminating decimal, so rational.", 3],
+    ["Are irrationals real numbers?", "Yes — ℝ is the rationals plus the irrationals.", 5],
+    ["Decimal expansion of an irrational?", "Never terminates and never repeats.", 7]
   ],
   quiz: [
     { q: "Which is irrational?", opts: ["√2", "√49", "0.25", "−19"], ans: 0, why: "2 is not a perfect square." },
@@ -477,14 +471,12 @@ C["compsci:4.5.1.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.4.4–4.5.4.9 fixed and floating point approximate ℝ; 4.12.1.1 domain and co-domain; 4.5.1.7 counting vs measurement." } }
   ],
   flashcards: [
-    ["Define the set of real numbers.", "All possible real-world quantities (all rational and irrational numbers)."],
-    ["Symbol for the reals?", "ℝ."],
-    ["Which set is best for measurement?", "ℝ."],
-    ["Is √2 a real number?", "Yes — irrationals are real."],
-    ["Why can a computer not store all of ℝ?", "ℝ is infinite and continuous; finite bits give finitely many values."],
-    ["Is \"ℝ\" alone an acceptable definition?", "No — not enough."],
-    ["What does ℝ exclude?", "Imaginary/complex numbers."],
-    ["Co-domain of f: ℕ → ℝ?", "The set of real numbers."]
+    ["Symbol for the reals?", "ℝ.", 1],
+    ["Which set is best for measurement?", "ℝ.", 2],
+    ["Is √2 a real number?", "Yes — irrationals are real.", 3],
+    ["Why can a computer not store all of ℝ?", "ℝ is infinite and continuous; finite bits give finitely many values.", 4],
+    ["Is \"ℝ\" alone an acceptable definition?", "No — not enough.", 5],
+    ["What does ℝ exclude?", "Imaginary/complex numbers.", 6],
   ],
   quiz: [
     { q: "The most suitable set for measuring a rope's length is", opts: ["ℝ", "ℕ", "ℤ", "ℚ"], ans: 0, why: "Continuous measurement." },
@@ -545,14 +537,13 @@ C["compsci:4.5.1.6"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.1 arrays and indexes; 4.1.1.2 iteration — a FOR loop's variable as a position." } }
   ],
   flashcards: [
-    ["Define an ordinal number.", "A number that describes the position of an object in an ordered sequence."],
-    ["Ordinal vs cardinal?", "Ordinal = position (which); cardinal = quantity (how many)."],
-    ["Examples of ordinal numbers?", "1st, 2nd, 3rd (at least three if answering by example)."],
-    ["Are array indexes ordinal?", "Yes — they give each element's position."],
-    ["Is the length of an array ordinal?", "No — it is a count (cardinal)."],
-    ["Index of the 1st element in a zero-based array?", "0."],
-    ["Is \"numbers in order\" enough?", "No — the idea of position is required."],
-    ["What causes an off-by-one error?", "Mixing 0-based and 1-based positions."]
+    ["Ordinal vs cardinal?", "Ordinal = position (which); cardinal = quantity (how many).", 1],
+    ["Examples of ordinal numbers?", "1st, 2nd, 3rd (at least three if answering by example).", 2],
+    ["Are array indexes ordinal?", "Yes — they give each element's position.", 3],
+    ["Is the length of an array ordinal?", "No — it is a count (cardinal).", 4],
+    ["Index of the 1st element in a zero-based array?", "0.", 5],
+    ["Is \"numbers in order\" enough?", "No — the idea of position is required.", 6],
+    ["What causes an off-by-one error?", "Mixing 0-based and 1-based positions.", 7]
   ],
   quiz: [
     { q: "An ordinal number describes", opts: ["a position", "a quantity", "a measurement", "a fraction"], ans: 0, why: "Definition." },
@@ -622,14 +613,13 @@ C["compsci:4.5.1.7"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.6.2 analogue vs digital (continuous vs discrete) and 4.5.6.3 ADC: measurement is continuous until it is sampled." } }
   ],
   flashcards: [
-    ["Set for counting?", "ℕ (natural numbers)."],
-    ["Set for measuring?", "ℝ (real numbers)."],
-    ["Counting quantities are…?", "Discrete."],
-    ["Measured quantities are…?", "Continuous."],
-    ["Why not ℤ for counting?", "A count can never be negative — ℕ is most suitable."],
-    ["Why not ℚ for measuring?", "Measurements can be irrational (e.g. √2)."],
-    ["Binary representation for counts?", "Unsigned binary integers."],
-    ["Binary representation for measurements?", "Fixed or floating point."]
+    ["Set for measuring?", "ℝ (real numbers).", 1],
+    ["Counting quantities are…?", "Discrete.", 2],
+    ["Measured quantities are…?", "Continuous.", 3],
+    ["Why not ℤ for counting?", "A count can never be negative — ℕ is most suitable.", 4],
+    ["Why not ℚ for measuring?", "Measurements can be irrational (e.g. √2).", 5],
+    ["Binary representation for counts?", "Unsigned binary integers.", 6],
+    ["Binary representation for measurements?", "Fixed or floating point.", 7]
   ],
   quiz: [
     { q: "Most suitable set for the number of files in a folder", opts: ["ℕ", "ℝ", "ℚ", "ℤ"], ans: 0, why: "A count." },
@@ -883,11 +873,8 @@ C["compsci:4.5.3.1"] = {
     ["Bits in a byte?", "8."],
     ["Values representable with n bits?", "2ⁿ."],
     ["Largest unsigned value in n bits?", "2ⁿ − 1."],
-    ["Values in two bytes?", "65 536."],
-    ["Bits needed for k values?", "⌈log₂ k⌉."],
-    ["What limits addressable memory?", "The width of the address bus."],
-    ["How do you double addressable memory?", "Add one line to the address bus."],
-    ["What is a nibble?", "4 bits (one hex digit)."]
+    ["Bits needed for k values?", "⌈log₂ k⌉.", 5],
+    ["What limits addressable memory?", "The width of the address bus.", 6],
   ],
   quiz: [
     { q: "How many values can 10 bits represent?", opts: ["1024", "1023", "100", "512"], ans: 0, why: "2¹⁰." },

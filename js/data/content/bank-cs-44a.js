@@ -13,14 +13,14 @@ X("compsci:4.4.1.1", {
     { callout: { t: "tip", h: "Method", body: "1. Write down what each clue rules out. 2. Look for the clue that forces a single case (the one box you *must* open first). 3. Chain the consequences and state the contradiction that kills each alternative. Spend at most four minutes — it is never more than 4 marks." }}
   ],
   flashcards: [
-    ["Three boxes are labelled Apples, Oranges, Both — every label wrong. Which box do you open to fix all labels?", "The one labelled Both: its fruit is what it really is (say apples); then the box labelled Apples must be oranges and the box labelled Oranges must be both."],
-    ["Only one of the statements is true, and Statement 1 says 'Statement 5 is true'. Can Statement 1 be true?", "No — it would make two statements true, contradicting the premise."],
-    ["What does a 'No' answer to 'Is your shape red?' let you deduce?", "Eliminate every red shape; what remains is the candidate set — record it explicitly before the next question."],
-    ["What is problem solving in the specification's sense?", "Identifying a problem, decomposing it, representing it and devising an algorithm to solve it — a systematic approach rather than guessing."],
-    ["Why write deductions as 'because … so …'?", "The mark is for the justification: the examiner needs to see the reasoning, not just the answer."],
-    ["What is meant by 'the search space' of a puzzle?", "The set of all possible configurations; each deduction shrinks it."],
-    ["How do you check a puzzle answer?", "Substitute it back into every clue and confirm none is violated."],
-    ["What is a logical contradiction in a puzzle?", "A case in which some statement would have to be both true and false — that case is impossible and can be discarded."]
+    ["Three boxes are labelled Apples, Oranges, Both — every label wrong. Which box do you open to fix all labels?", "The one labelled Both: its fruit is what it really is (say apples); then the box labelled Apples must be oranges and the box labelled Oranges must be both.", 8],
+    ["Only one of the statements is true, and Statement 1 says 'Statement 5 is true'. Can Statement 1 be true?", "No — it would make two statements true, contradicting the premise.", 9],
+    ["What does a 'No' answer to 'Is your shape red?' let you deduce?", "Eliminate every red shape; what remains is the candidate set — record it explicitly before the next question.", 10],
+    ["What is problem solving in the specification's sense?", "Identifying a problem, decomposing it, representing it and devising an algorithm to solve it — a systematic approach rather than guessing.", 11],
+    ["Why write deductions as 'because … so …'?", "The mark is for the justification: the examiner needs to see the reasoning, not just the answer.", 12],
+    ["What is meant by 'the search space' of a puzzle?", "The set of all possible configurations; each deduction shrinks it.", 13],
+    ["How do you check a puzzle answer?", "Substitute it back into every clue and confirm none is violated.", 14],
+    ["What is a logical contradiction in a puzzle?", "A case in which some statement would have to be both true and false — that case is impossible and can be discarded.", 15]
   ],
   quiz: [
     { q: "Exactly one of three statements is true. S1: 'S2 is false.' S2: 'S3 is false.' S3: 'S1 is false.' Which is true?", opts: ["S1", "S2", "S3", "None can be"], ans: 3, why: "If S1 true then S2 false, so S3 true — two truths. Each case fails similarly, so the premise is inconsistent." },
@@ -56,14 +56,14 @@ X("compsci:4.4.1.2", {
     { callout: { t: "def", h: "Algorithm (AS 2023, 2 marks)", body: "A **sequence of steps / instructions** that can be followed to **solve a problem / complete a task** — and which always terminates." }}
   ],
   flashcards: [
-    ["Define the term algorithm.", "A sequence of unambiguous steps that can be followed to solve a problem or complete a task, and which terminates."],
-    ["What is a trace table?", "A table recording the values of every variable (and any output) after each statement or iteration, used to follow an algorithm by hand."],
-    ["Trace: `t ← 0; FOR i ← 1 TO 3: t ← t + i × i`. Final t?", "1 + 4 + 9 = 14."],
-    ["What does `Total ← Total × 16 + Value` inside a loop over hex digits compute?", "The denary value of a hexadecimal string, one digit at a time (Horner's method)."],
-    ["What is a sentinel value?", "A special input (e.g. −1) that signals the end of data and terminates a loop."],
-    ["Why might an algorithm keep looping after it has found its answer?", "The loop condition only checks the counter, not a Found/Done flag — an inefficiency examiners ask you to identify."],
-    ["Describe the purpose of `IF n MOD d = 0 THEN Prime ← FALSE` for d from 2 to n − 1.", "A primality test: any divisor found means n is not prime."],
-    ["What should you write in a trace table cell when a value does not change?", "Leave it blank (or repeat only if the scheme says 'I. repeated values')."]
+    ["Define the term algorithm.", "A sequence of unambiguous steps that can be followed to solve a problem or complete a task, and which terminates.", 8],
+    ["What is a trace table?", "A table recording the values of every variable (and any output) after each statement or iteration, used to follow an algorithm by hand.", 9],
+    ["Trace: `t ← 0; FOR i ← 1 TO 3: t ← t + i × i`. Final t?", "1 + 4 + 9 = 14.", 10],
+    ["What does `Total ← Total × 16 + Value` inside a loop over hex digits compute?", "The denary value of a hexadecimal string, one digit at a time (Horner's method).", 11],
+    ["What is a sentinel value?", "A special input (e.g. −1) that signals the end of data and terminates a loop.", 12],
+    ["Why might an algorithm keep looping after it has found its answer?", "The loop condition only checks the counter, not a Found/Done flag — an inefficiency examiners ask you to identify.", 13],
+    ["Describe the purpose of `IF n MOD d = 0 THEN Prime ← FALSE` for d from 2 to n − 1.", "A primality test: any divisor found means n is not prime.", 14],
+    ["What should you write in a trace table cell when a value does not change?", "Leave it blank (or repeat only if the scheme says 'I. repeated values').", 15]
   ],
   quiz: [
     { q: "For input \"1A\" the algorithm `Total ← 0; for each char: Total ← Total × 16 + value(char)` gives:", opts: ["26", "161", "17", "10"], ans: 0, why: "1 → 1; then 1×16 + 10 = 26." },
@@ -117,14 +117,14 @@ X("compsci:4.4.1.3", {
     { callout: { t: "warn", body: "The 2019 Sudoku question: representing the puzzle as a graph **loses** *why* two cells are linked (same row / column / box) and *where* each cell is. A representational abstraction always discards something — say what." }}
   ],
   flashcards: [
-    ["What is representational abstraction?", "Removing unnecessary details so that the problem is represented in a form that can be solved."],
-    ["What is abstraction by generalisation?", "Grouping things by common characteristics to form a hierarchical 'kind-of' relationship."],
-    ["Give an example of representational abstraction.", "The London Underground map — geography and distance removed, only stations and connections kept."],
-    ["Give an example of abstraction by generalisation.", "Treating cars, buses and lorries all as 'vehicles' with a shared set of properties."],
-    ["What information is lost when a Sudoku grid is represented as a graph of cells and constraints?", "Why two cells are linked (same row, column or box) and where each cell is located."],
-    ["Why is abstraction essential in computing?", "Real problems contain far more detail than can be handled; abstraction keeps only what matters to the solution."],
-    ["What is a model?", "An abstraction of a real-world object or phenomenon, keeping the relevant features."],
-    ["How does abstraction help reuse?", "A solution written for the abstract form applies to every concrete problem that reduces to it."]
+    ["What is representational abstraction?", "Removing unnecessary details so that the problem is represented in a form that can be solved.", 8],
+    ["What is abstraction by generalisation?", "Grouping things by common characteristics to form a hierarchical 'kind-of' relationship.", 9],
+    ["Give an example of representational abstraction.", "The London Underground map — geography and distance removed, only stations and connections kept.", 10],
+    ["Give an example of abstraction by generalisation.", "Treating cars, buses and lorries all as 'vehicles' with a shared set of properties.", 11],
+    ["What information is lost when a Sudoku grid is represented as a graph of cells and constraints?", "Why two cells are linked (same row, column or box) and where each cell is located.", 12],
+    ["Why is abstraction essential in computing?", "Real problems contain far more detail than can be handled; abstraction keeps only what matters to the solution.", 13],
+    ["What is a model?", "An abstraction of a real-world object or phenomenon, keeping the relevant features.", 14],
+    ["How does abstraction help reuse?", "A solution written for the abstract form applies to every concrete problem that reduces to it.", 15]
   ],
   quiz: [
     { q: "A tube map that omits distances and street layout is an example of:", opts: ["abstraction by generalisation", "representational abstraction", "automation", "composition"], ans: 1, why: "Unnecessary detail removed." },
@@ -148,14 +148,14 @@ X("compsci:4.4.1.3", {
 
 X("compsci:4.4.1.4", {
   flashcards: [
-    ["Define information hiding.", "The process of hiding all details of an object that do not contribute to its essential characteristics — the interface is visible, the implementation is not."],
-    ["How does information hiding appear in OOP?", "Private attributes accessed only through public methods (encapsulation)."],
-    ["Why does information hiding make systems more robust?", "Code cannot depend on internal details, so those details can change without breaking anything else."],
-    ["Give an everyday example of information hiding.", "A car's accelerator pedal — the driver uses the interface without knowing the engine management inside."],
-    ["Relation between information hiding and an ADT?", "An ADT exposes operations and hides representation — information hiding applied to data."],
-    ["What is an interface?", "The set of operations/methods through which other code interacts with a component."],
-    ["What does information hiding protect against?", "Unintended interference with internal state and reliance on details that may change."],
-    ["How does a library function demonstrate information hiding?", "You call it by name with parameters without knowing (or needing) its implementation."]
+    ["Define information hiding.", "The process of hiding all details of an object that do not contribute to its essential characteristics — the interface is visible, the implementation is not.", 8],
+    ["How does information hiding appear in OOP?", "Private attributes accessed only through public methods (encapsulation).", 9],
+    ["Why does information hiding make systems more robust?", "Code cannot depend on internal details, so those details can change without breaking anything else.", 10],
+    ["Give an everyday example of information hiding.", "A car's accelerator pedal — the driver uses the interface without knowing the engine management inside.", 11],
+    ["Relation between information hiding and an ADT?", "An ADT exposes operations and hides representation — information hiding applied to data.", 12],
+    ["What is an interface?", "The set of operations/methods through which other code interacts with a component.", 13],
+    ["What does information hiding protect against?", "Unintended interference with internal state and reliance on details that may change.", 14],
+    ["How does a library function demonstrate information hiding?", "You call it by name with parameters without knowing (or needing) its implementation.", 15]
   ],
   quiz: [
     { q: "Information hiding means:", opts: ["encrypting data", "hiding implementation details behind an interface", "deleting comments", "using globals"], ans: 1, why: "Interface visible, internals hidden." },
@@ -175,14 +175,14 @@ X("compsci:4.4.1.4", {
 
 X("compsci:4.4.1.5", {
   flashcards: [
-    ["Define procedural abstraction.", "Abstracting away the actual values used in a computation, leaving a named procedure that captures the method — a procedure is a computational pattern with parameters."],
-    ["Give an example of procedural abstraction.", "A procedure `Sort(list)` that works for any list — the specific data is a parameter."],
-    ["What is the result of procedural abstraction?", "A procedure (subroutine) that can be reused with different values."],
-    ["How do parameters relate to procedural abstraction?", "They are the placeholders for the values abstracted away."],
-    ["Difference between procedural and functional abstraction?", "Procedural keeps the method (how) but abstracts the values; functional abstracts even the method, keeping only input→output."],
-    ["Why does procedural abstraction aid problem solving?", "Once a method is captured as a procedure it can be called without re-thinking the steps."],
-    ["What is a computational method?", "A sequence of operations that achieves a result — what a procedure encapsulates."],
-    ["Give a real-world analogy of procedural abstraction.", "A recipe: the method is fixed, the quantities are parameters."]
+    ["Define procedural abstraction.", "Abstracting away the actual values used in a computation, leaving a named procedure that captures the method — a procedure is a computational pattern with parameters.", 8],
+    ["Give an example of procedural abstraction.", "A procedure `Sort(list)` that works for any list — the specific data is a parameter.", 9],
+    ["What is the result of procedural abstraction?", "A procedure (subroutine) that can be reused with different values.", 10],
+    ["How do parameters relate to procedural abstraction?", "They are the placeholders for the values abstracted away.", 11],
+    ["Difference between procedural and functional abstraction?", "Procedural keeps the method (how) but abstracts the values; functional abstracts even the method, keeping only input→output.", 12],
+    ["Why does procedural abstraction aid problem solving?", "Once a method is captured as a procedure it can be called without re-thinking the steps.", 13],
+    ["What is a computational method?", "A sequence of operations that achieves a result — what a procedure encapsulates.", 14],
+    ["Give a real-world analogy of procedural abstraction.", "A recipe: the method is fixed, the quantities are parameters.", 15]
   ],
   quiz: [
     { q: "Writing `Area(length, width)` instead of `5 × 3` each time is:", opts: ["data abstraction", "procedural abstraction", "automation", "composition"], ans: 1, why: "The values are abstracted into parameters." },
@@ -227,14 +227,14 @@ X("compsci:4.4.1.6", {
 
 X("compsci:4.4.1.7", {
   flashcards: [
-    ["Define data abstraction.", "Hiding the details of how data are actually represented so that new kinds of data object can be built from previously defined ones."],
-    ["Give an example of data abstraction.", "A stack implemented as an array with a top pointer — users see push/pop, not the array."],
-    ["How does data abstraction relate to ADTs?", "An ADT is the product of data abstraction: operations without representation."],
-    ["What is a compound data object?", "A data object built from simpler ones, e.g. a record built from fields or a list built from nodes."],
-    ["Why can a stack be built from an array or a linked list?", "Because data abstraction hides the representation — either satisfies the same operations."],
-    ["What would break data abstraction?", "Code accessing the underlying array of a stack directly."],
-    ["One-mark AS 2025 answer for 'data abstraction'?", "The detail of how the data are represented is hidden / new data objects are constructed from previously defined types / by example: a queue implemented as an array."],
-    ["How do records demonstrate data abstraction?", "A record type is a new data object composed from built-in types, used by its field names, not its byte layout."]
+    ["Define data abstraction.", "Hiding the details of how data are actually represented so that new kinds of data object can be built from previously defined ones.", 8],
+    ["Give an example of data abstraction.", "A stack implemented as an array with a top pointer — users see push/pop, not the array.", 9],
+    ["How does data abstraction relate to ADTs?", "An ADT is the product of data abstraction: operations without representation.", 10],
+    ["What is a compound data object?", "A data object built from simpler ones, e.g. a record built from fields or a list built from nodes.", 11],
+    ["Why can a stack be built from an array or a linked list?", "Because data abstraction hides the representation — either satisfies the same operations.", 12],
+    ["What would break data abstraction?", "Code accessing the underlying array of a stack directly.", 13],
+    ["Describe data abstraction (one mark).", "The detail of how the data are represented is hidden / new data objects are constructed from previously defined types / by example: a queue implemented as an array.", 14],
+    ["How do records demonstrate data abstraction?", "A record type is a new data object composed from built-in types, used by its field names, not its byte layout.", 15]
   ],
   quiz: [
     { q: "Data abstraction hides:", opts: ["the algorithm", "how data are represented", "the program name", "the user"], ans: 1, why: "Representation detail." },
@@ -254,14 +254,14 @@ X("compsci:4.4.1.7", {
 
 X("compsci:4.4.1.8", {
   flashcards: [
-    ["Define problem abstraction (reduction).", "Removing details until the problem is represented in a way that is possible to solve, because it reduces to one that has already been solved."],
-    ["Give an example of problem reduction.", "Finding the fastest route between towns reduces to the shortest-path problem in a weighted graph — solved by Dijkstra's algorithm."],
-    ["Why is problem reduction powerful?", "Known algorithms can be reused for any problem that reduces to their abstract form."],
-    ["Another example?", "Scheduling exams so no student has a clash reduces to graph colouring."],
-    ["What must be kept when reducing a problem?", "Enough structure that a solution to the reduced problem maps back to a solution of the original."],
-    ["How does reduction relate to representational abstraction?", "Reduction is representational abstraction aimed at reaching a known solved problem."],
-    ["What is the risk of over-reduction?", "Discarding a constraint that matters, so the 'solution' is invalid for the original problem."],
-    ["How does reduction help prove a problem is hard?", "If a known intractable problem reduces to it, it is at least as hard."]
+    ["Define problem abstraction (reduction).", "Removing details until the problem is represented in a way that is possible to solve, because it reduces to one that has already been solved.", 8],
+    ["Give an example of problem reduction.", "Finding the fastest route between towns reduces to the shortest-path problem in a weighted graph — solved by Dijkstra's algorithm.", 9],
+    ["Why is problem reduction powerful?", "Known algorithms can be reused for any problem that reduces to their abstract form.", 10],
+    ["Another example?", "Scheduling exams so no student has a clash reduces to graph colouring.", 11],
+    ["What must be kept when reducing a problem?", "Enough structure that a solution to the reduced problem maps back to a solution of the original.", 12],
+    ["How does reduction relate to representational abstraction?", "Reduction is representational abstraction aimed at reaching a known solved problem.", 13],
+    ["What is the risk of over-reduction?", "Discarding a constraint that matters, so the 'solution' is invalid for the original problem.", 14],
+    ["How does reduction help prove a problem is hard?", "If a known intractable problem reduces to it, it is at least as hard.", 15]
   ],
   quiz: [
     { q: "Recognising a delivery-route problem as the travelling salesman problem is:", opts: ["automation", "problem reduction", "composition", "information hiding"], ans: 1, why: "Reduced to a known problem." },
@@ -287,14 +287,14 @@ X("compsci:4.4.1.9", {
     { callout: { t: "tip", body: "Pair it with the AS 2024 *structured approach* question — the same decomposition gives an overview of the program, lets modules be tested independently, distributed among a team and reused." }}
   ],
   flashcards: [
-    ["Define decomposition.", "Breaking a problem into smaller sub-problems, each of which solves an identifiable task and may itself be further subdivided."],
-    ["What is procedural decomposition?", "Decomposing a program into subroutines (procedures/functions), each performing one identifiable task."],
-    ["When does decomposition stop?", "When each sub-problem performs a single task that can be solved directly."],
-    ["Give two benefits of decomposition.", "Sub-problems can be solved/tested independently; they can be shared among a team; solutions can be reused."],
-    ["What diagram shows a decomposition?", "A hierarchy (structure) chart."],
-    ["How does decomposition relate to top-down design?", "Top-down design is repeated decomposition from the whole problem downwards."],
-    ["Decompose 'produce a report of exam results'.", "Read the results; calculate statistics; sort; format the output; print/save."],
-    ["What is the AO2 follow-up examiners like?", "Give the sub-tasks for a described scenario — each must be a distinct, identifiable task."]
+    ["Define decomposition.", "Breaking a problem into smaller sub-problems, each of which solves an identifiable task and may itself be further subdivided.", 8],
+    ["What is procedural decomposition?", "Decomposing a program into subroutines (procedures/functions), each performing one identifiable task.", 9],
+    ["When does decomposition stop?", "When each sub-problem performs a single task that can be solved directly.", 10],
+    ["Give two benefits of decomposition.", "Sub-problems can be solved/tested independently; they can be shared among a team; solutions can be reused.", 11],
+    ["What diagram shows a decomposition?", "A hierarchy (structure) chart.", 12],
+    ["How does decomposition relate to top-down design?", "Top-down design is repeated decomposition from the whole problem downwards.", 13],
+    ["Decompose 'produce a report of exam results'.", "Read the results; calculate statistics; sort; format the output; print/save.", 14],
+    ["What is the AO2 follow-up examiners like?", "Give the sub-tasks for a described scenario — each must be a distinct, identifiable task.", 15]
   ],
   quiz: [
     { q: "Decomposition means:", opts: ["deleting code", "breaking a problem into smaller sub-problems", "compressing data", "running in parallel"], ans: 1, why: "Definition." },
@@ -316,14 +316,13 @@ X("compsci:4.4.1.9", {
 
 X("compsci:4.4.1.10", {
   flashcards: [
-    ["Define composition (in problem solving).", "Combining procedures into compound procedures, and combining data objects into compound data structures, to build more complex solutions."],
-    ["Give an example of procedural composition.", "A `ProcessOrder` procedure that calls `ValidateOrder`, `ChargeCard` and `SendConfirmation` in turn."],
-    ["Give an example of data composition.", "A `Customer` record containing an `Address` record and a list of `Order` records."],
-    ["How do decomposition and composition relate?", "Decomposition breaks a problem into parts; composition assembles the solved parts into the whole solution."],
-    ["What is a compound procedure?", "A procedure built by combining simpler procedures."],
-    ["Composition in functional programming?", "f ∘ g — applying g then f, producing a new function."],
-    ["Why is composition safer than one huge procedure?", "Each part is tested separately, then combined; errors are localised."],
-    ["AS 2018 phrase for composition?", "'Combining procedures into compound procedures'."]
+    ["Define composition (in problem solving).", "Combining procedures into compound procedures, and combining data objects into compound data structures, to build more complex solutions.", 8],
+    ["Give an example of procedural composition.", "A `ProcessOrder` procedure that calls `ValidateOrder`, `ChargeCard` and `SendConfirmation` in turn.", 9],
+    ["Give an example of data composition.", "A `Customer` record containing an `Address` record and a list of `Order` records.", 10],
+    ["How do decomposition and composition relate?", "Decomposition breaks a problem into parts; composition assembles the solved parts into the whole solution.", 11],
+    ["What is a compound procedure?", "A procedure built by combining simpler procedures.", 12],
+    ["Composition in functional programming?", "f ∘ g — applying g then f, producing a new function.", 13],
+    ["Why is composition safer than one huge procedure?", "Each part is tested separately, then combined; errors are localised.", 14],
   ],
   quiz: [
     { q: "Composition means:", opts: ["breaking a problem apart", "combining procedures or data objects into compound ones", "hiding data", "removing detail"], ans: 1, why: "Building up from parts." },
@@ -343,14 +342,12 @@ X("compsci:4.4.1.10", {
 
 X("compsci:4.4.1.11", {
   flashcards: [
-    ["Define automation.", "Putting models — abstractions of real-world objects or phenomena — into action to solve problems, by creating algorithms, implementing them in program code and executing them."],
-    ["What are the steps of automation?", "Create a model (abstraction); create an algorithm that operates on it; implement the algorithm as code; execute the code on a computer."],
-    ["What is a model in this sense?", "An abstraction of a real-world object, system or phenomenon, keeping only the relevant features."],
-    ["Give an example of automation.", "Weather forecasting — a model of the atmosphere is turned into algorithms and run on a supercomputer."],
-    ["How do abstraction and automation relate?", "Abstraction produces the model; automation puts the model into action."],
-    ["Why is a model needed before automation?", "The computer can only operate on a representation; the real world must first be abstracted into data and rules."],
-    ["AS 2018 phrase for automation?", "'Models are put into action to solve problems'."],
-    ["What is the output of automation?", "A running program that solves instances of the modelled problem."]
+    ["Define automation.", "Putting models — abstractions of real-world objects or phenomena — into action to solve problems, by creating algorithms, implementing them in program code and executing them.", 8],
+    ["What are the steps of automation?", "Create a model (abstraction); create an algorithm that operates on it; implement the algorithm as code; execute the code on a computer.", 9],
+    ["Give an example of automation.", "Weather forecasting — a model of the atmosphere is turned into algorithms and run on a supercomputer.", 11],
+    ["How do abstraction and automation relate?", "Abstraction produces the model; automation puts the model into action.", 12],
+    ["Why is a model needed before automation?", "The computer can only operate on a representation; the real world must first be abstracted into data and rules.", 13],
+    ["What is the output of automation?", "A running program that solves instances of the modelled problem.", 15]
   ],
   quiz: [
     { q: "Automation is:", opts: ["removing detail", "putting models into action to solve problems", "grouping by characteristics", "hiding data"], ans: 1, why: "Definition." },
@@ -382,14 +379,12 @@ X("compsci:4.4.2.1", {
     { callout: { t: "memorise", h: "Mealy vs Moore", body: "A **Mealy machine** produces its output on the **transition** (label `input | output`); the FSMs *without output* used for language recognition have **accepting states** drawn as double circles. The spec needs: states, transitions labelled with inputs, a start state, accepting states, and — for output machines — outputs on the transitions." }}
   ],
   flashcards: [
-    ["What are the components of a finite state machine?", "A finite set of states, a start state, transitions labelled by input (and optionally output), and a set of accepting states (for recognisers)."],
-    ["How is an accepting state drawn?", "As a double circle."],
-    ["When does an FSM without output accept a string?", "When, after reading all the input, it is in an accepting state (and no undefined transition was met)."],
-    ["What is a Mealy machine?", "An FSM whose outputs are produced on transitions, written input | output."],
-    ["What is a state transition table?", "A table listing, for each current state and input, the new state (and output)."],
-    ["What happens if a transition is not defined for an input?", "The FSM halts / rejects the input."],
-    ["Describe the language accepted by: start S0; S0 –1→ S0; S0 –0→ S1; S0 –x→ S2; S1 –x→ S2; S2 accepting.", "Zero or more 1s, optionally followed by one 0, ending with x."],
-    ["What can an FSM not do?", "Count without bound — it cannot recognise aⁿbⁿ because it has finitely many states (that needs a context-free grammar)."]
+    ["What are the components of a finite state machine?", "A finite set of states, a start state, transitions labelled by input (and optionally output), and a set of accepting states (for recognisers).", 10],
+    ["When does an FSM without output accept a string?", "When, after reading all the input, it is in an accepting state (and no undefined transition was met).", 12],
+    ["What is a Mealy machine?", "An FSM whose outputs are produced on transitions, written input | output.", 13],
+    ["What happens if a transition is not defined for an input?", "The FSM halts / rejects the input.", 15],
+    ["Describe the language accepted by: start S0; S0 –1→ S0; S0 –0→ S1; S0 –x→ S2; S1 –x→ S2; S2 accepting.", "Zero or more 1s, optionally followed by one 0, ending with x.", 16],
+    ["What can an FSM not do?", "Count without bound — it cannot recognise aⁿbⁿ because it has finitely many states (that needs a context-free grammar).", 17]
   ],
   quiz: [
     { q: "An FSM reads all input and ends in a non-accepting state. The string is:", opts: ["accepted", "rejected", "undefined", "partially accepted"], ans: 1, why: "Acceptance needs an accepting final state." },
@@ -432,14 +427,12 @@ X("compsci:4.4.2.2", {
     { callout: { t: "memorise", body: "**Set comprehension**: `{x | x ∈ ℕ ∧ x < 5}` reads *the set of x such that x is a natural number and x < 5*. **Cartesian product** A × B = all ordered pairs. **Compact set notation** for strings: `{0ⁿ1ⁿ | n ≥ 1}` = 01, 0011, 000111…" }}
   ],
   flashcards: [
-    ["What is the cardinality of a set?", "The number of elements (members) in the set."],
-    ["What is a subset?", "A set all of whose elements are in another set; the empty set is a subset of every set."],
-    ["What is a proper subset?", "A subset that is not equal to the whole set."],
-    ["Define union, intersection and difference.", "A ∪ B: in A or B (or both). A ∩ B: in both. A \\ B: in A but not in B."],
-    ["What is the Cartesian product A × B?", "The set of all ordered pairs (a, b) with a ∈ A and b ∈ B; |A × B| = |A| × |B|."],
-    ["Read `{x | x ∈ ℕ ∧ x mod 2 = 0}`.", "The set of natural numbers x such that x is even."],
-    ["What does `{aⁿbⁿ | n ≥ 1}` denote?", "The strings ab, aabb, aaabbb, … — equal numbers of a then b."],
-    ["What is the cardinality of the empty set?", "0."]
+    ["What is the cardinality of a set?", "The number of elements (members) in the set.", 10],
+    ["What is a subset?", "A set all of whose elements are in another set; the empty set is a subset of every set.", 11],
+    ["Define union, intersection and difference.", "A ∪ B: in A or B (or both). A ∩ B: in both. A \\ B: in A but not in B.", 13],
+    ["Read `{x | x ∈ ℕ ∧ x mod 2 = 0}`.", "The set of natural numbers x such that x is even.", 15],
+    ["What does `{aⁿbⁿ | n ≥ 1}` denote?", "The strings ab, aabb, aaabbb, … — equal numbers of a then b.", 16],
+    ["What is the cardinality of the empty set?", "0.", 17]
   ],
   quiz: [
     { q: "|{2, 4, 6, 8}| =", opts: ["4", "8", "20", "0"], ans: 0, why: "Four elements." },
@@ -476,14 +469,10 @@ X("compsci:4.4.2.3", {
     { callout: { t: "warn", body: "Brackets are the commonest lost mark: `ab*` is *a then any number of b*; `(ab)*` is *any number of ab*. Write the group you mean." }}
   ],
   flashcards: [
-    ["What does `*` mean in a regular expression?", "Zero or more of the preceding element."],
-    ["What does `+` mean?", "One or more of the preceding element."],
-    ["What does `?` mean?", "Zero or one — the preceding element is optional."],
-    ["What does `|` mean?", "Alternation — either the element before or the element after."],
-    ["Difference between `ab*` and `(ab)*`?", "`ab*` = a followed by any number of b; `(ab)*` = any number of repetitions of ab (including none)."],
-    ["Write a regex for strings of a's and b's that alternate, starting with either.", "`a(ba)*|b(ab)*`"],
-    ["Regex for a UK postcode: 1–2 letters, digit, optional letter-or-digit, digit, two letters?", "`\\a\\a?\\d(\\a|\\d)?\\d\\a\\a`"],
-    ["Which strings match `1|01+`?", "`1`, and `0` followed by one or more 1s: 01, 011, 0111…"]
+    ["Difference between `ab*` and `(ab)*`?", "`ab*` = a followed by any number of b; `(ab)*` = any number of repetitions of ab (including none).", 14],
+    ["Write a regex for strings of a's and b's that alternate, starting with either.", "`a(ba)*|b(ab)*`", 15],
+    ["Regex for a UK postcode: 1–2 letters, digit, optional letter-or-digit, digit, two letters?", "`\\a\\a?\\d(\\a|\\d)?\\d\\a\\a`", 16],
+    ["Which strings match `1|01+`?", "`1`, and `0` followed by one or more 1s: 01, 011, 0111…", 17]
   ],
   quiz: [
     { q: "`colou?r` matches:", opts: ["color and colour", "colouur", "colr", "only colour"], ans: 0, why: "? makes the u optional." },
@@ -516,14 +505,13 @@ X("compsci:4.4.2.4", {
     { callout: { t: "memorise", body: "**Regular language** = a language that can be represented by a regular expression = recognised by a finite state machine. Every finite language is regular; a regular language may be infinite." }}
   ],
   flashcards: [
-    ["Define a regular language.", "A language that can be represented by a regular expression — equivalently, recognised by a finite state machine."],
-    ["Is every regular language finite?", "No — a* describes infinitely many strings."],
-    ["Can every regular language be recognised by an FSM without outputs?", "Yes."],
-    ["Are there BNF-definable languages that are not regular?", "Yes — e.g. balanced brackets; BNF (context-free) is strictly more powerful."],
-    ["Is {aⁿbⁿ | n ≥ 0} regular?", "No — recognising it requires counting the a's, which needs unbounded memory."],
-    ["Is 'binary strings with an even number of 1s' regular?", "Yes — a two-state FSM tracks parity."],
-    ["Is the set of palindromes over {a, b} regular?", "No — matching the first half against the second needs a stack."],
-    ["Why are finite languages always regular?", "List every string with | — that is a regular expression."]
+    ["Define a regular language.", "A language that can be represented by a regular expression — equivalently, recognised by a finite state machine.", 8],
+    ["Is every regular language finite?", "No — a* describes infinitely many strings.", 9],
+    ["Are there BNF-definable languages that are not regular?", "Yes — e.g. balanced brackets; BNF (context-free) is strictly more powerful.", 11],
+    ["Is {aⁿbⁿ | n ≥ 0} regular?", "No — recognising it requires counting the a's, which needs unbounded memory.", 12],
+    ["Is 'binary strings with an even number of 1s' regular?", "Yes — a two-state FSM tracks parity.", 13],
+    ["Is the set of palindromes over {a, b} regular?", "No — matching the first half against the second needs a stack.", 14],
+    ["Why are finite languages always regular?", "List every string with | — that is a regular expression.", 15]
   ],
   quiz: [
     { q: "Which language is regular?", opts: ["Balanced brackets", "aⁿbⁿ", "Strings ending in 00", "Palindromes"], ans: 2, why: "A three-state FSM recognises 'ends in 00'." },
@@ -556,14 +544,14 @@ X("compsci:4.4.3.1", {
     { callout: { t: "memorise", body: "**Why BNF and not regex?** BNF rules can be **recursive**, so they can define **context-free** languages such as nested brackets and arithmetic expressions, which no regular expression / FSM can. Terminal symbols are in quotes or plain; non-terminals in `< >`; `::=` means *is defined as*; `|` separates alternatives." }}
   ],
   flashcards: [
-    ["What does `::=` mean in BNF?", "'Is defined as' — the non-terminal on the left can be replaced by the sequence on the right."],
-    ["What is a terminal symbol?", "A symbol that appears in the final string and cannot be expanded further (e.g. a digit or keyword)."],
-    ["What is a non-terminal symbol?", "A symbol in angle brackets that is defined by a rule and can be expanded."],
-    ["Write a BNF rule for a natural number.", "`<natural> ::= <digit> | <digit><natural>` with `<digit> ::= 0|1|…|9`."],
-    ["Why can BNF define languages that regular expressions cannot?", "BNF rules can be recursive, allowing unbounded nesting (context-free languages)."],
-    ["How many sentences does `<s> ::= <a><b>` define if <a> has 3 options and <b> has 5?", "15."],
-    ["How many sentences does a recursive rule define?", "Infinitely many."],
-    ["What is a syntax diagram?", "A graphical form of BNF: boxes for symbols joined by arrows showing allowed sequences and loops."]
+    ["What does `::=` mean in BNF?", "'Is defined as' — the non-terminal on the left can be replaced by the sequence on the right.", 10],
+    ["What is a terminal symbol?", "A symbol that appears in the final string and cannot be expanded further (e.g. a digit or keyword).", 11],
+    ["What is a non-terminal symbol?", "A symbol in angle brackets that is defined by a rule and can be expanded.", 12],
+    ["Write a BNF rule for a natural number.", "`<natural> ::= <digit> | <digit><natural>` with `<digit> ::= 0|1|…|9`.", 13],
+    ["Why can BNF define languages that regular expressions cannot?", "BNF rules can be recursive, allowing unbounded nesting (context-free languages).", 14],
+    ["How many sentences does `<s> ::= <a><b>` define if <a> has 3 options and <b> has 5?", "15.", 15],
+    ["How many sentences does a recursive rule define?", "Infinitely many.", 16],
+    ["What is a syntax diagram?", "A graphical form of BNF: boxes for symbols joined by arrows showing allowed sequences and loops.", 17]
   ],
   quiz: [
     { q: "`<int> ::= <digit> | <digit><int>` is:", opts: ["invalid", "recursive", "a regular expression", "a terminal"], ans: 1, why: "It refers to itself." },

@@ -460,13 +460,11 @@ C["maths:2.3"] = {
     ["Vertex and line of symmetry of $y = a(x + b)^2 + c$?", "Vertex $(-b, c)$; symmetry $x = -b$; min if $a > 0$, max if $a < 0$."],
     ["How do you show a line is a tangent to a curve algebraically?", "Substitute, collect into a quadratic, show $b^2 - 4ac = 0$."],
     ["Solve $b^4 + 7b^2 - 18 = 0$.", "$u = b^2$: $(u + 9)(u - 2) = 0$; $b^2 = 2 \\Rightarrow b = \\pm\\sqrt2$ (reject $b^2 = -9$)."],
-    ["Solve $3 \\times 2^x = 15 - 2^{x+1}$ exactly.", "$u = 2^x$: $3u = 15 - 2u \\Rightarrow u = 3 \\Rightarrow x = \\log_2 3$."],
-    ["$3x - 2y = k$ meets $y = 2x^2 - 5$ twice: range of $k$?", "$4x^2 - 3x + k - 10 = 0$, $9 - 16(k - 10) > 0 \\Rightarrow k < \\frac{169}{16}$."],
-    ["Range of $h(x) = \\frac{21}{2x^2 + 4x + 9}$?", "Denominator $= 2(x+1)^2 + 7 \\ge 7$, so $0 < h(x) \\le 3$."],
-    ["Fit $H = a - b(x - 9)^2$ through $(0, 2)$ and $(20, 0.8)$.", "$2 = a - 81b$, $0.8 = a - 121b \\Rightarrow b = 0.03$, $a = 4.43$."],
-    ["Show $x^2 - 8x + 17 > 0$ for all $x$.", "$(x - 4)^2 + 1 \\ge 1 > 0$ since a square is never negative."],
-    ["What must a stated \"limitation\" be?", "An assumption of the model that may fail in reality, phrased in the context of the question."],
-    ["Tunnel $y = 5 - \\frac59 x^2$; coach 2.4 wide, 4.1 high — where do you test?", "At $x = \\pm1.2$ (the half-width): $y = 4.2 > 4.1$, it fits."]
+    ["$3x - 2y = k$ meets $y = 2x^2 - 5$ twice: range of $k$?", "$4x^2 - 3x + k - 10 = 0$, $9 - 16(k - 10) > 0 \\Rightarrow k < \\frac{169}{16}$.", 8],
+    ["Range of $h(x) = \\frac{21}{2x^2 + 4x + 9}$?", "Denominator $= 2(x+1)^2 + 7 \\ge 7$, so $0 < h(x) \\le 3$.", 9],
+    ["Fit $H = a - b(x - 9)^2$ through $(0, 2)$ and $(20, 0.8)$.", "$2 = a - 81b$, $0.8 = a - 121b \\Rightarrow b = 0.03$, $a = 4.43$.", 10],
+    ["What must a stated \"limitation\" be?", "An assumption of the model that may fail in reality, phrased in the context of the question.", 12],
+    ["Tunnel $y = 5 - \\frac59 x^2$; coach 2.4 wide, 4.1 high — where do you test?", "At $x = \\pm1.2$ (the half-width): $y = 4.2 > 4.1$, it fits.", 13]
   ],
   quiz: [
     { q: "$x^2 - 6x + 2$ in completed-square form:", opts: ["$(x - 3)^2 - 7$", "$(x - 3)^2 + 2$", "$(x - 6)^2 - 34$", "$(x + 3)^2 - 7$"], ans: 0, why: "$(x - 3)^2 - 9 + 2$." },
@@ -720,17 +718,16 @@ C["maths:2.5"] = {
     { callout: { t: "mnemonic", h: "\"Roots, sketch, shade\"", body: "Every quadratic inequality: find the roots, sketch the parabola, shade the side asked for. Reading the answer off a sketch never confuses inside with outside; algebra alone often does." } }
   ],
   flashcards: [
-    ["Solve $x^2 - x > 20$ in set notation.", "$\\{x : x < -4\\} \\cup \\{x : x > 5\\}$."],
-    ["Solve $x^2 \\le 9$.", "$-3 \\le x \\le 3$ (between the roots)."],
-    ["Solve $\\frac{16}{x} \\le 2$.", "$x < 0$ or $x \\ge 8$ — sketch $y = 16/x$ against $y = 2$."],
-    ["Why not multiply $\\frac{16}{x} \\le 2$ by $x$?", "The sign of $x$ is unknown; multiply by $x^2$ or use a sketch."],
-    ["When does an inequality sign flip?", "Multiplying or dividing both sides by a negative number."],
-    ["Set notation for $2 < x < 7$?", "$\\{x : 2 < x < 7\\}$ or $\\{x : x > 2\\} \\cap \\{x : x < 7\\}$."],
-    ["Region under $y = 2x + 60$, above $y = 2x^2 - 12x$, right of the $y$-axis?", "$y \\le 2x + 60$, $y \\ge 2x^2 - 12x$, $x \\ge 0$."],
-    ["Quadratic with roots 0 and 6 through $(10, 80)$?", "$y = ax(x - 6)$, $80 = 40a$, $y = 2x^2 - 12x$."],
-    ["Quadratic with minimum $(-2, 13)$ through $(0, 25)$?", "$y = 3(x + 2)^2 + 13$."],
-    ["Solid vs dotted boundary?", "Solid: $\\le$ or $\\ge$ (included); dotted: $<$ or $>$ (excluded)."],
-    ["Solve $3(2 - x) \\ge 5x - 10$.", "$x \\le 2$."]
+    ["Solve $x^2 \\le 9$.", "$-3 \\le x \\le 3$ (between the roots).", 1],
+    ["Solve $\\frac{16}{x} \\le 2$.", "$x < 0$ or $x \\ge 8$ — sketch $y = 16/x$ against $y = 2$.", 2],
+    ["Why not multiply $\\frac{16}{x} \\le 2$ by $x$?", "The sign of $x$ is unknown; multiply by $x^2$ or use a sketch.", 3],
+    ["When does an inequality sign flip?", "Multiplying or dividing both sides by a negative number.", 4],
+    ["Set notation for $2 < x < 7$?", "$\\{x : 2 < x < 7\\}$ or $\\{x : x > 2\\} \\cap \\{x : x < 7\\}$.", 5],
+    ["Region under $y = 2x + 60$, above $y = 2x^2 - 12x$, right of the $y$-axis?", "$y \\le 2x + 60$, $y \\ge 2x^2 - 12x$, $x \\ge 0$.", 6],
+    ["Quadratic with roots 0 and 6 through $(10, 80)$?", "$y = ax(x - 6)$, $80 = 40a$, $y = 2x^2 - 12x$.", 7],
+    ["Quadratic with minimum $(-2, 13)$ through $(0, 25)$?", "$y = 3(x + 2)^2 + 13$.", 8],
+    ["Solid vs dotted boundary?", "Solid: $\\le$ or $\\ge$ (included); dotted: $<$ or $>$ (excluded).", 9],
+    ["Solve $3(2 - x) \\ge 5x - 10$.", "$x \\le 2$.", 10]
   ],
   quiz: [
     { q: "$x^2 - 5x + 6 < 0$ gives", opts: ["$2 < x < 3$", "$x < 2$ or $x > 3$", "$x < 2$", "$x > 3$"], ans: 0, why: "Roots 2 and 3; negative between." },
@@ -1255,8 +1252,7 @@ C["maths:2.8"] = {
     ["Range of $g(x) = x^2 - 3x$, $0 \\le x \\le 5$?", "$-\\frac94 \\le g \\le 10$ (vertex at $\\frac32$ is inside the domain)."],
     ["Range of $-\\frac{5}{1 + 6x^2}$?", "$-5 \\le y < 0$."],
     ["$ff(x)$ for $f(x) = \\frac{3x - 7}{x - 2}$?", "$\\frac{2x - 7}{x - 3}$ — multiply top and bottom by $(x - 2)$."],
-    ["Graph of $y = f^{-1}(x)$ is the graph of $y = f(x)$…", "reflected in the line $y = x$."],
-    ["$\\sqrt{a^2} = $?", "$|a|$, not $a$."]
+    ["$\\sqrt{a^2} = $?", "$|a|$, not $a$.", 11]
   ],
   quiz: [
     { q: "$f(x) = 2x + 1$, $g(x) = x^2$. $fg(3) =$", opts: ["19", "49", "7", "10"], ans: 0, why: "$g(3) = 9$, $f(9) = 19$." },
@@ -1486,13 +1482,12 @@ C["maths:2.10"] = {
     ["Form for $\\frac{px + q}{(x + a)(x + b)^2}$?", "$\\frac{A}{x + a} + \\frac{B}{x + b} + \\frac{C}{(x + b)^2}$."],
     ["When do you need a polynomial part?", "When the numerator's degree is at least the denominator's (improper)."],
     ["How do you find the $A$ over the single power of a repeated factor?", "Compare a coefficient (e.g. $x^2$) or substitute a spare value like $x = 0$."],
-    ["$\\frac{5x + 7}{(x+1)(x+3)}$ in partial fractions?", "$\\frac{1}{x + 1} + \\frac{4}{x + 3}$."],
-    ["$\\frac{x^2 + 8x - 3}{x + 2}$ as $Ax + B + \\frac{C}{x + 2}$?", "$x + 6 - \\frac{15}{x + 2}$."],
-    ["$\\frac{1 + 11x - 6x^2}{(x-3)(1-2x)}$ as $A + \\frac{B}{x-3} + \\frac{C}{1-2x}$?", "$3 + \\frac{4}{x - 3} - \\frac{2}{1 - 2x}$."],
-    ["Why decompose before integrating $\\frac{x^2 + 8x - 3}{x + 2}$?", "Each piece integrates directly: polynomial terms and $\\ln|x + 2|$."],
-    ["$\\int \\frac{A}{x + a}\\,dx = $?", "$A\\ln|x + a| + c$."],
-    ["Cover-up rule?", "To find the constant over $(x - a)$, cover that factor in the original fraction and evaluate the rest at $x = a$ — valid for distinct linear factors and the highest power of a repeated one."],
-    ["$\\frac{3x^3 - 8x^2 - 6x - 11}{(x+1)(x-3)}$: $A, B, C, D$?", "$3, -2, 4, -5$."]
+    ["$\\frac{x^2 + 8x - 3}{x + 2}$ as $Ax + B + \\frac{C}{x + 2}$?", "$x + 6 - \\frac{15}{x + 2}$.", 4],
+    ["$\\frac{1 + 11x - 6x^2}{(x-3)(1-2x)}$ as $A + \\frac{B}{x-3} + \\frac{C}{1-2x}$?", "$3 + \\frac{4}{x - 3} - \\frac{2}{1 - 2x}$.", 5],
+    ["Why decompose before integrating $\\frac{x^2 + 8x - 3}{x + 2}$?", "Each piece integrates directly: polynomial terms and $\\ln|x + 2|$.", 6],
+    ["$\\int \\frac{A}{x + a}\\,dx = $?", "$A\\ln|x + a| + c$.", 7],
+    ["Cover-up rule?", "To find the constant over $(x - a)$, cover that factor in the original fraction and evaluate the rest at $x = a$ — valid for distinct linear factors and the highest power of a repeated one.", 8],
+    ["$\\frac{3x^3 - 8x^2 - 6x - 11}{(x+1)(x-3)}$: $A, B, C, D$?", "$3, -2, 4, -5$.", 9]
   ],
   quiz: [
     { q: "$\\frac{x + 5}{(x+1)(x+3)} = \\frac{A}{x+1} + \\frac{B}{x+3}$: $A =$", opts: ["2", "1", "$-1$", "4"], ans: 0, why: "$x = -1$: $4 = 2A$." },

@@ -42,9 +42,7 @@ X("maths:4.1", {
     ["Using $\\sqrt{4 - 9x}$ with $x = \\tfrac19$ to estimate $\\sqrt3$: over- or under-estimate?", "Overestimate — every term after the first is negative and $x > 0$, so the omitted terms are negative."],
     ["Expand $(1 - 9x)^{1/2}$ to the $x^2$ term; why is $x = -\\tfrac29$ not allowed?", "$1 - \\tfrac92 x - \\tfrac{81}{8}x^2 + \\ldots$; valid only for $|x| < \\tfrac19$, and $\\tfrac29 > \\tfrac19$."],
     ["Coefficient of $x^2$ in $(3 + 2x)(1 - 4x + 10x^2)$?", "$3 \\times 10 + 2 \\times(-4) = 22$."],
-    ["Which $x$ estimates $1.925^6$ from $\\left(2 + \\tfrac34 x\\right)^6$?", "$2 + \\tfrac34 x = 1.925 \\Rightarrow x = -0.1$; substitute into $64 + 144x + 135x^2$."],
-    ["$(4 + 5x)^{1/2}$ to the $x^2$ term?", "$2\\left(1 + \\tfrac54 x\\right)^{1/2} = 2 + \\tfrac54 x - \\tfrac{25}{64}x^2$, valid $|x| < \\tfrac45$."],
-    ["$\\dfrac{1}{\\sqrt{4 - x}}$ to the $x^2$ term?", "$\\tfrac12\\left(1 - \\tfrac x4\\right)^{-1/2} = \\tfrac12 + \\tfrac{1}{16}x + \\tfrac{3}{256}x^2 + \\ldots$, $|x| < 4$."]
+    ["$\\dfrac{1}{\\sqrt{4 - x}}$ to the $x^2$ term?", "$\\tfrac12\\left(1 - \\tfrac x4\\right)^{-1/2} = \\tfrac12 + \\tfrac{1}{16}x + \\tfrac{3}{256}x^2 + \\ldots$, $|x| < 4$.", 36]
   ],
   quiz: [
     { q: "$\\binom{9}{2} =$", opts: ["18", "36", "72", "81"], ans: 1, why: "$\\dfrac{9 \\times 8}{2}$." },
@@ -105,16 +103,13 @@ X("maths:4.2", {
     { callout: { t: "warn", body: "$\\sum_{n=1}^{50}$ of a period-3 sequence: $50 = 16 \\times 3 + 2$ — sixteen full cycles **plus $a_1 + a_2$**. Show the split explicitly." }}
   ],
   flashcards: [
-    ["$a_1 = 3$, $a_{n+1} = 8 - a_n$. Find $a_2, a_3$ and the order.", "$a_2 = 5$, $a_3 = 3$: periodic with order 2."],
-    ["For that sequence, find $\\displaystyle\\sum_{n=1}^{40} a_n$.", "20 cycles of $(3 + 5)$: $160$."],
-    ["$a_1 = 2$, $a_{n+1} = \\dfrac{a_n - 3}{a_n - 2}$. Find $a_2, a_3, a_4$.", "$a_2 = \\dfrac{-1}{0}$ — undefined; start instead with $a_1 = 4$: $a_2 = \\tfrac12$, $a_3 = \\dfrac{-2.5}{-1.5} = \\tfrac53$, $a_4 = \\dfrac{-4/3}{-1/3} = 4$: order 3."],
-    ["$u_{n+1} = k - \\dfrac{2}{u_n}$ with $u_1 = 1$ and $u_3 = u_1$. Find $k$.", "$u_2 = k - 2$, $u_3 = k - \\dfrac{2}{k-2} = 1 \\Rightarrow (k-1)(k-2) = 2 \\Rightarrow k^2 - 3k = 0 \\Rightarrow k = 3$ ($k \\ne 0$)."],
-    ["What is an increasing sequence?", "One with $u_{n+1} > u_n$ for all $n$."],
-    ["What is a periodic sequence of order $p$?", "One with $u_{n+p} = u_n$ for all $n$ — the terms repeat every $p$ terms."],
-    ["$a_n = 5 + 3\\cos\\left(\\dfrac{n\\pi}{2}\\right)$: first four terms and order?", "$5, 2, 5, 8$; order 4."],
-    ["Is $u_n = \\dfrac{n}{n + 1}$ increasing, decreasing or periodic?", "Increasing (towards 1)."],
-    ["$a_{n+1} = \\dfrac{k a_n + 2}{a_n}$, $a_1 = 1$, order 3 with $a_2 = k + 2$… what equation gives $k$?", "$a_3 = \\dfrac{k(k+2) + 2}{k + 2}$; setting $a_4 = a_1 = 1$ leads to a quadratic in $k$ — solve and reject any $k$ that makes a term undefined."],
-    ["Difference between a sequence defined by $u_n = 2n + 1$ and by $u_{n+1} = u_n + 2$, $u_1 = 3$?", "Same sequence; the first is an $n$th-term formula, the second a recurrence relation needing a first term."]
+    ["For that sequence, find $\\displaystyle\\sum_{n=1}^{40} a_n$.", "20 cycles of $(3 + 5)$: $160$.", 9],
+    ["$a_1 = 2$, $a_{n+1} = \\dfrac{a_n - 3}{a_n - 2}$. Find $a_2, a_3, a_4$.", "$a_2 = \\dfrac{-1}{0}$ — undefined; start instead with $a_1 = 4$: $a_2 = \\tfrac12$, $a_3 = \\dfrac{-2.5}{-1.5} = \\tfrac53$, $a_4 = \\dfrac{-4/3}{-1/3} = 4$: order 3.", 10],
+    ["$u_{n+1} = k - \\dfrac{2}{u_n}$ with $u_1 = 1$ and $u_3 = u_1$. Find $k$.", "$u_2 = k - 2$, $u_3 = k - \\dfrac{2}{k-2} = 1 \\Rightarrow (k-1)(k-2) = 2 \\Rightarrow k^2 - 3k = 0 \\Rightarrow k = 3$ ($k \\ne 0$).", 11],
+    ["$a_n = 5 + 3\\cos\\left(\\dfrac{n\\pi}{2}\\right)$: first four terms and order?", "$5, 2, 5, 8$; order 4.", 14],
+    ["Is $u_n = \\dfrac{n}{n + 1}$ increasing, decreasing or periodic?", "Increasing (towards 1).", 15],
+    ["$a_{n+1} = \\dfrac{k a_n + 2}{a_n}$, $a_1 = 1$, order 3 with $a_2 = k + 2$… what equation gives $k$?", "$a_3 = \\dfrac{k(k+2) + 2}{k + 2}$; setting $a_4 = a_1 = 1$ leads to a quadratic in $k$ — solve and reject any $k$ that makes a term undefined.", 16],
+    ["Difference between a sequence defined by $u_n = 2n + 1$ and by $u_{n+1} = u_n + 2$, $u_1 = 3$?", "Same sequence; the first is an $n$th-term formula, the second a recurrence relation needing a first term.", 17]
   ],
   quiz: [
     { q: "$a_1 = 1$, $a_{n+1} = 4 - a_n$. $a_5 =$", opts: ["1", "3", "4", "0"], ans: 0, why: "1, 3, 1, 3, 1." },
@@ -185,14 +180,13 @@ X("maths:4.4", {
     { callout: { t: "memorise", body: "$u_n = a + (n-1)d$ · $S_n = \\dfrac n2(2a + (n-1)d) = \\dfrac n2(a + l)$ · three consecutive terms $p, q, r$ satisfy $2q = p + r$." }}
   ],
   flashcards: [
-    ["Prove $S_n = \\dfrac n2(2a + (n-1)d)$.", "$S_n = a + (a+d) + \\ldots + (a + (n-1)d)$; reversed $S_n = (a+(n-1)d) + \\ldots + a$; adding: $2S_n = n(2a + (n-1)d)$."],
-    ["Arithmetic series: $u_5 = 17$, $u_{12} = 38$. Find $a$ and $d$.", "$7d = 21 \\Rightarrow d = 3$, $a = 5$."],
-    ["Sum of the first 500 terms with $a = 4$, $d = 3$?", "$\\tfrac{500}{2}(8 + 499 \\times 3) = 250 \\times 1505 = 376\\,250$."],
-    ["Terms $2k + 1$, $4k - 2$, $5k + 3$ are consecutive terms of an arithmetic sequence. Find $k$.", "$2(4k - 2) = 2k + 1 + 5k + 3 \\Rightarrow 8k - 4 = 7k + 4 \\Rightarrow k = 8$."],
-    ["Repayments of £100, £110, £120, … total £2550. How many payments?", "$\\dfrac N2(200 + 10(N-1)) = 2550 \\Rightarrow N^2 + 19N - 510 = 0 \\Rightarrow (N + 34)(N - 15) = 0 \\Rightarrow N = 15$."],
-    ["Show the sum of the first $n$ odd numbers is a square.", "$a = 1, d = 2$: $S_n = \\tfrac n2(2 + 2(n-1)) = n^2$."],
-    ["How many terms of $3 + 7 + 11 + \\ldots$ are needed for the sum to exceed 1000?", "$\\tfrac n2(6 + 4(n-1)) > 1000 \\Rightarrow 2n^2 + n - 1000 > 0 \\Rightarrow n \\ge 23$ ($n = 22$ gives 990)."],
-    ["$S_n = 3n^2 + 2n$. Find $u_n$.", "$u_n = S_n - S_{n-1} = 6n - 1$."]
+    ["Arithmetic series: $u_5 = 17$, $u_{12} = 38$. Find $a$ and $d$.", "$7d = 21 \\Rightarrow d = 3$, $a = 5$.", 9],
+    ["Sum of the first 500 terms with $a = 4$, $d = 3$?", "$\\tfrac{500}{2}(8 + 499 \\times 3) = 250 \\times 1505 = 376\\,250$.", 10],
+    ["Terms $2k + 1$, $4k - 2$, $5k + 3$ are consecutive terms of an arithmetic sequence. Find $k$.", "$2(4k - 2) = 2k + 1 + 5k + 3 \\Rightarrow 8k - 4 = 7k + 4 \\Rightarrow k = 8$.", 11],
+    ["Repayments of £100, £110, £120, … total £2550. How many payments?", "$\\dfrac N2(200 + 10(N-1)) = 2550 \\Rightarrow N^2 + 19N - 510 = 0 \\Rightarrow (N + 34)(N - 15) = 0 \\Rightarrow N = 15$.", 12],
+    ["Show the sum of the first $n$ odd numbers is a square.", "$a = 1, d = 2$: $S_n = \\tfrac n2(2 + 2(n-1)) = n^2$.", 13],
+    ["How many terms of $3 + 7 + 11 + \\ldots$ are needed for the sum to exceed 1000?", "$\\tfrac n2(6 + 4(n-1)) > 1000 \\Rightarrow 2n^2 + n - 1000 > 0 \\Rightarrow n \\ge 23$ ($n = 22$ gives 990).", 14],
+    ["$S_n = 3n^2 + 2n$. Find $u_n$.", "$u_n = S_n - S_{n-1} = 6n - 1$.", 15]
   ],
   quiz: [
     { q: "The 20th term of $5, 9, 13, \\ldots$:", opts: ["81", "85", "80", "77"], ans: 0, why: "$5 + 19 \\times 4$." },
@@ -225,16 +219,15 @@ X("maths:4.5", {
     { callout: { t: "warn", body: "$S_{10} = 4S_5$ (Oct 2020): $\\dfrac{1 - r^{10}}{1 - r} = 4\\dfrac{1 - r^5}{1 - r} \\Rightarrow 1 + r^5 = 4 \\Rightarrow r = 3^{1/5}$ — factorise $1 - r^{10} = (1 - r^5)(1 + r^5)$ rather than expanding." }}
   ],
   flashcards: [
-    ["Prove $S_n = \\dfrac{a(1 - r^n)}{1 - r}$.", "$S_n = a + ar + \\ldots + ar^{n-1}$; $rS_n = ar + \\ldots + ar^n$; subtract: $S_n(1 - r) = a - ar^n$."],
-    ["Condition for a geometric series to converge, and $S_\\infty$?", "$|r| < 1$; $S_\\infty = \\dfrac{a}{1 - r}$."],
-    ["$k + 4$, $2k$, $3k - 4$… find $k$ if these are consecutive geometric terms.", "$(2k)^2 = (k+4)(3k-4) \\Rightarrow 4k^2 = 3k^2 + 8k - 16 \\Rightarrow k^2 - 8k + 16 = 0 \\Rightarrow k = 4$ (terms 8, 8, 8)."],
-    ["A profit grows 8% a year from £40 000. First year it exceeds £65 000?", "$40000 \\times 1.08^{n-1} > 65000 \\Rightarrow n - 1 > \\dfrac{\\ln 1.625}{\\ln 1.08} = 6.31 \\Rightarrow n = 8$."],
-    ["Total profit over 20 years for that model?", "$S_{20} = \\dfrac{40000(1.08^{20} - 1)}{0.08} \\approx £1\\,830\\,000$."],
-    ["$S_{10} = 4S_5$. Find $r$.", "$1 + r^5 = 4 \\Rightarrow r = 3^{1/5} \\approx 1.246$."],
-    ["Runner: each km takes 5% longer than the previous; first km 4 minutes. Time for the 10th km and total for 10 km?", "$4 \\times 1.05^9 = 6.21$ min; total $\\dfrac{4(1.05^{10} - 1)}{0.05} = 50.3$ min."],
-    ["Geometric series with $a = 12$, $S_\\infty = 16$. Find $r$.", "$\\dfrac{12}{1 - r} = 16 \\Rightarrow r = \\tfrac14$."],
-    ["Sum of $3 + 6 + 12 + \\ldots$ to 10 terms?", "$\\dfrac{3(2^{10} - 1)}{1} = 3069$."],
-    ["Why does a series with ratio $\\sin\\theta$ ($0 < \\theta < \\tfrac\\pi2$) always converge?", "$0 < \\sin\\theta < 1$ so $|r| < 1$."]
+    ["Prove $S_n = \\dfrac{a(1 - r^n)}{1 - r}$.", "$S_n = a + ar + \\ldots + ar^{n-1}$; $rS_n = ar + \\ldots + ar^n$; subtract: $S_n(1 - r) = a - ar^n$.", 10],
+    ["$k + 4$, $2k$, $3k - 4$… find $k$ if these are consecutive geometric terms.", "$(2k)^2 = (k+4)(3k-4) \\Rightarrow 4k^2 = 3k^2 + 8k - 16 \\Rightarrow k^2 - 8k + 16 = 0 \\Rightarrow k = 4$ (terms 8, 8, 8).", 12],
+    ["A profit grows 8% a year from £40 000. First year it exceeds £65 000?", "$40000 \\times 1.08^{n-1} > 65000 \\Rightarrow n - 1 > \\dfrac{\\ln 1.625}{\\ln 1.08} = 6.31 \\Rightarrow n = 8$.", 13],
+    ["Total profit over 20 years for that model?", "$S_{20} = \\dfrac{40000(1.08^{20} - 1)}{0.08} \\approx £1\\,830\\,000$.", 14],
+    ["$S_{10} = 4S_5$. Find $r$.", "$1 + r^5 = 4 \\Rightarrow r = 3^{1/5} \\approx 1.246$.", 15],
+    ["Runner: each km takes 5% longer than the previous; first km 4 minutes. Time for the 10th km and total for 10 km?", "$4 \\times 1.05^9 = 6.21$ min; total $\\dfrac{4(1.05^{10} - 1)}{0.05} = 50.3$ min.", 16],
+    ["Geometric series with $a = 12$, $S_\\infty = 16$. Find $r$.", "$\\dfrac{12}{1 - r} = 16 \\Rightarrow r = \\tfrac14$.", 17],
+    ["Sum of $3 + 6 + 12 + \\ldots$ to 10 terms?", "$\\dfrac{3(2^{10} - 1)}{1} = 3069$.", 18],
+    ["Why does a series with ratio $\\sin\\theta$ ($0 < \\theta < \\tfrac\\pi2$) always converge?", "$0 < \\sin\\theta < 1$ so $|r| < 1$.", 19]
   ],
   quiz: [
     { q: "The 6th term of $2, 6, 18, \\ldots$:", opts: ["486", "162", "1458", "54"], ans: 0, why: "$2 \\times 3^5$." },
@@ -271,14 +264,14 @@ X("maths:4.5", {
 
 X("maths:4.6", {
   flashcards: [
-    ["A car's gear speeds 10, 15, 20, 25 mph then 30, 45, 67.5… — which sequence is which?", "Arithmetic ($d = 5$) for the first four, geometric ($r = 1.5$) after."],
-    ["Wheat harvest 12 000 tonnes rising 1.2% a year. Total over 10 years?", "$\\dfrac{12000(1.012^{10} - 1)}{0.012} \\approx 126\\,800$ tonnes."],
-    ["Loan: repayments start at £200 and rise by £15 a month. Total after $N$ months?", "$\\dfrac N2(400 + 15(N-1))$."],
-    ["A drug dose halves in the body every 6 hours from 80 mg. Amount after 24 hours?", "$80 \\times 0.5^4 = 5$ mg."],
-    ["Why round *up* when finding the first year a geometric model exceeds a target?", "$n$ must be a whole number of years and the inequality is first satisfied at the next integer above the solution."],
-    ["State a limitation of a geometric growth model for a population.", "Real growth slows as resources run out; the model predicts unbounded growth."],
-    ["A savings account pays 3% compound interest on £5000. Value after $n$ years?", "$5000 \\times 1.03^n$."],
-    ["Depreciation of 20% a year on £12 000: value after 5 years?", "$12000 \\times 0.8^5 = £3932$."]
+    ["A car's gear speeds 10, 15, 20, 25 mph then 30, 45, 67.5… — which sequence is which?", "Arithmetic ($d = 5$) for the first four, geometric ($r = 1.5$) after.", 6],
+    ["Wheat harvest 12 000 tonnes rising 1.2% a year. Total over 10 years?", "$\\dfrac{12000(1.012^{10} - 1)}{0.012} \\approx 126\\,800$ tonnes.", 7],
+    ["Loan: repayments start at £200 and rise by £15 a month. Total after $N$ months?", "$\\dfrac N2(400 + 15(N-1))$.", 8],
+    ["A drug dose halves in the body every 6 hours from 80 mg. Amount after 24 hours?", "$80 \\times 0.5^4 = 5$ mg.", 9],
+    ["Why round *up* when finding the first year a geometric model exceeds a target?", "$n$ must be a whole number of years and the inequality is first satisfied at the next integer above the solution.", 10],
+    ["State a limitation of a geometric growth model for a population.", "Real growth slows as resources run out; the model predicts unbounded growth.", 11],
+    ["A savings account pays 3% compound interest on £5000. Value after $n$ years?", "$5000 \\times 1.03^n$.", 12],
+    ["Depreciation of 20% a year on £12 000: value after 5 years?", "$12000 \\times 0.8^5 = £3932$.", 13]
   ],
   quiz: [
     { q: "A model 'increases by £50 each year' is:", opts: ["geometric", "arithmetic", "exponential", "periodic"], ans: 1, why: "Constant difference." },
@@ -311,16 +304,16 @@ X("maths:5.1", {
     { callout: { t: "memorise", body: "Sine rule $\\dfrac{a}{\\sin A} = \\dfrac{b}{\\sin B}$ · cosine rule $a^2 = b^2 + c^2 - 2bc\\cos A$ · area $\\tfrac12 ab\\sin C$ · arc $s = r\\theta$ · sector $A = \\tfrac12 r^2\\theta$ · segment $= \\tfrac12 r^2(\\theta - \\sin\\theta)$ · **$\\theta$ in radians**." }}
   ],
   flashcards: [
-    ["Arc length and sector area for $r = 6$, $\\theta = \\tfrac{2\\pi}{3}$?", "$s = 4\\pi$, $A = 12\\pi$."],
-    ["A sector has area 11 and perimeter equal to 4 times the arc length. Find $r$.", "$2r + r\\theta = 4r\\theta \\Rightarrow \\theta = \\tfrac23$; $\\tfrac12 r^2 \\cdot \\tfrac23 = 11 \\Rightarrow r^2 = 33 \\Rightarrow r = \\sqrt{33}$."],
-    ["Triangle with sides 5, 7 and included angle $60°$: third side?", "$\\sqrt{25 + 49 - 35} = \\sqrt{39}$."],
-    ["Triangle area 15 with sides 6 and 10: possible values of $\\cos\\theta$?", "$\\tfrac12 \\cdot 60\\sin\\theta = 15 \\Rightarrow \\sin\\theta = \\tfrac12 \\Rightarrow \\theta = 30°$ or $150°$: $\\cos\\theta = \\pm\\dfrac{\\sqrt3}{2}$."],
-    ["Segment area for $r = 4$, $\\theta = \\tfrac\\pi3$?", "$\\tfrac12 \\cdot 16(\\tfrac\\pi3 - \\tfrac{\\sqrt3}{2}) = \\tfrac{8\\pi}{3} - 4\\sqrt3$."],
-    ["Convert $150°$ to radians and $\\tfrac{3\\pi}{4}$ to degrees.", "$\\tfrac{5\\pi}{6}$; $135°$."],
-    ["What error does a student make computing $\\tfrac12 \\cdot 8^2 \\cdot 40$ for a sector with a $40°$ angle?", "The angle must be in radians: $40° = \\tfrac{2\\pi}{9}$, area $= 32 \\cdot \\tfrac{2\\pi}{9} = \\tfrac{64\\pi}{9}$."],
-    ["Sine rule ambiguous case: when does a second triangle exist?", "When the given angle is opposite the shorter of two given sides — $\\sin B$ has two solutions $B$ and $180° - B$, both valid if they leave a positive third angle."],
-    ["Perimeter of a sector with $r = 5$ and $\\theta = 1.2$ rad?", "$2r + r\\theta = 10 + 6 = 16$."],
-    ["Three masts: B is 8 km from A on a bearing of $050°$, C is 6 km from A on $110°$. Distance BC?", "Angle BAC $= 60°$: $BC^2 = 64 + 36 - 96\\cos 60° = 52$, $BC = 2\\sqrt{13}$ km."]
+    ["Arc length and sector area for $r = 6$, $\\theta = \\tfrac{2\\pi}{3}$?", "$s = 4\\pi$, $A = 12\\pi$.", 11],
+    ["A sector has area 11 and perimeter equal to 4 times the arc length. Find $r$.", "$2r + r\\theta = 4r\\theta \\Rightarrow \\theta = \\tfrac23$; $\\tfrac12 r^2 \\cdot \\tfrac23 = 11 \\Rightarrow r^2 = 33 \\Rightarrow r = \\sqrt{33}$.", 12],
+    ["Triangle with sides 5, 7 and included angle $60°$: third side?", "$\\sqrt{25 + 49 - 35} = \\sqrt{39}$.", 13],
+    ["Triangle area 15 with sides 6 and 10: possible values of $\\cos\\theta$?", "$\\tfrac12 \\cdot 60\\sin\\theta = 15 \\Rightarrow \\sin\\theta = \\tfrac12 \\Rightarrow \\theta = 30°$ or $150°$: $\\cos\\theta = \\pm\\dfrac{\\sqrt3}{2}$.", 14],
+    ["Segment area for $r = 4$, $\\theta = \\tfrac\\pi3$?", "$\\tfrac12 \\cdot 16(\\tfrac\\pi3 - \\tfrac{\\sqrt3}{2}) = \\tfrac{8\\pi}{3} - 4\\sqrt3$.", 15],
+    ["Convert $150°$ to radians and $\\tfrac{3\\pi}{4}$ to degrees.", "$\\tfrac{5\\pi}{6}$; $135°$.", 16],
+    ["What error does a student make computing $\\tfrac12 \\cdot 8^2 \\cdot 40$ for a sector with a $40°$ angle?", "The angle must be in radians: $40° = \\tfrac{2\\pi}{9}$, area $= 32 \\cdot \\tfrac{2\\pi}{9} = \\tfrac{64\\pi}{9}$.", 17],
+    ["Sine rule ambiguous case: when does a second triangle exist?", "When the given angle is opposite the shorter of two given sides — $\\sin B$ has two solutions $B$ and $180° - B$, both valid if they leave a positive third angle.", 18],
+    ["Perimeter of a sector with $r = 5$ and $\\theta = 1.2$ rad?", "$2r + r\\theta = 10 + 6 = 16$.", 19],
+    ["Three masts: B is 8 km from A on a bearing of $050°$, C is 6 km from A on $110°$. Distance BC?", "Angle BAC $= 60°$: $BC^2 = 64 + 36 - 96\\cos 60° = 52$, $BC = 2\\sqrt{13}$ km.", 20]
   ],
   quiz: [
     { q: "$\\tfrac{5\\pi}{6}$ radians in degrees:", opts: ["150", "120", "210", "300"], ans: 0, why: "$\\pi = 180°$." },
@@ -356,14 +349,12 @@ X("maths:5.1", {
 
 X("maths:5.2", {
   flashcards: [
-    ["State the small-angle approximations.", "$\\sin\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\dfrac{\\theta^2}{2}$, $\\tan\\theta \\approx \\theta$, for small $\\theta$ in radians."],
-    ["Approximate $\\dfrac{\\sin 2\\theta}{\\theta\\cos\\theta}$ for small $\\theta$.", "$\\dfrac{2\\theta}{\\theta(1 - \\theta^2/2)} \\approx 2$ (to first order; $\\approx 2 + \\theta^2$ with the next term)."],
-    ["Approximate $4\\sin\\tfrac\\theta2 + 3\\cos 2\\theta$.", "$2\\theta + 3(1 - 2\\theta^2) = 3 + 2\\theta - 6\\theta^2$."],
-    ["Approximate $\\dfrac{\\theta\\tan 2\\theta}{1 - \\cos 3\\theta}$.", "$\\dfrac{\\theta \\cdot 2\\theta}{9\\theta^2/2} = \\dfrac{4}{9}$."],
-    ["Use small angles to estimate the root of $\\cos x = 2x + 0.5$… set-up?", "$1 - \\dfrac{x^2}{2} = 2x + 0.5 \\Rightarrow x^2 + 4x - 1 = 0 \\Rightarrow x = -2 + \\sqrt5 \\approx 0.236$."],
-    ["Why must $\\theta$ be in radians?", "The approximations come from the series $\\sin\\theta = \\theta - \\theta^3/6 + \\ldots$, which holds only in radians."],
-    ["Approximate $\\cos\\theta - 1 + \\theta\\sin\\theta$.", "$-\\dfrac{\\theta^2}{2} + \\theta^2 = \\dfrac{\\theta^2}{2}$."],
-    ["Estimate $\\sin 0.1$ and $\\cos 0.1$.", "$0.1$ and $0.995$."]
+    ["State the small-angle approximations.", "$\\sin\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\dfrac{\\theta^2}{2}$, $\\tan\\theta \\approx \\theta$, for small $\\theta$ in radians.", 8],
+    ["Approximate $\\dfrac{\\sin 2\\theta}{\\theta\\cos\\theta}$ for small $\\theta$.", "$\\dfrac{2\\theta}{\\theta(1 - \\theta^2/2)} \\approx 2$ (to first order; $\\approx 2 + \\theta^2$ with the next term).", 9],
+    ["Approximate $4\\sin\\tfrac\\theta2 + 3\\cos 2\\theta$.", "$2\\theta + 3(1 - 2\\theta^2) = 3 + 2\\theta - 6\\theta^2$.", 10],
+    ["Why must $\\theta$ be in radians?", "The approximations come from the series $\\sin\\theta = \\theta - \\theta^3/6 + \\ldots$, which holds only in radians.", 13],
+    ["Approximate $\\cos\\theta - 1 + \\theta\\sin\\theta$.", "$-\\dfrac{\\theta^2}{2} + \\theta^2 = \\dfrac{\\theta^2}{2}$.", 14],
+    ["Estimate $\\sin 0.1$ and $\\cos 0.1$.", "$0.1$ and $0.995$.", 15]
   ],
   quiz: [
     { q: "For small $\\theta$, $\\cos\\theta \\approx$", opts: ["$\\theta$", "$1 - \\theta^2/2$", "$1 - \\theta$", "$\\theta^2$"], ans: 1, why: "Second-order term." },
@@ -388,16 +379,11 @@ X("maths:5.2", {
 
 X("maths:5.3", {
   flashcards: [
-    ["Exact values: $\\sin 30°$, $\\cos 30°$, $\\tan 30°$?", "$\\tfrac12$, $\\dfrac{\\sqrt3}{2}$, $\\dfrac{1}{\\sqrt3}$."],
-    ["Exact values: $\\sin\\tfrac\\pi4$, $\\cos\\tfrac\\pi3$, $\\tan\\tfrac\\pi3$?", "$\\dfrac{\\sqrt2}{2}$, $\\tfrac12$, $\\sqrt3$."],
-    ["Period of $\\sin x$, $\\cos x$, $\\tan x$?", "$360°$ ($2\\pi$), $360°$, $180°$ ($\\pi$)."],
-    ["$\\sin(180° - \\theta)$, $\\cos(360° - \\theta)$, $\\tan(180° + \\theta)$ in terms of $\\theta$?", "$\\sin\\theta$, $\\cos\\theta$, $\\tan\\theta$."],
-    ["$y = 3\\cos x$ minimum point in $0 \\le x \\le 360°$?", "$(180°, -3)$."],
-    ["Describe $y = \\sin(x - 30°)$ compared with $y = \\sin x$.", "Translation by $30°$ to the right."],
-    ["$\\sin(nx) = k$ ($0 < k < 1$) has 6 solutions in $0 \\le x < 360°$. Find $n$.", "$\\sin$ gives 2 solutions per cycle; $n = 3$."],
-    ["How many solutions does $\\sin^2(3x) = k^2$ have in $0 \\le x < 360°$ for $0 < k < 1$?", "$\\sin 3x = \\pm k$: 6 + 6 = 12."],
-    ["Asymptotes of $y = \\tan x$?", "$x = 90° + 180°n$."],
-    ["$\\cos\\theta = -\\dfrac{\\sqrt3}{2}$, $0 \\le \\theta \\le 360°$: solutions?", "$150°, 210°$."]
+    ["$\\sin(180° - \\theta)$, $\\cos(360° - \\theta)$, $\\tan(180° + \\theta)$ in terms of $\\theta$?", "$\\sin\\theta$, $\\cos\\theta$, $\\tan\\theta$.", 13],
+    ["$y = 3\\cos x$ minimum point in $0 \\le x \\le 360°$?", "$(180°, -3)$.", 14],
+    ["Describe $y = \\sin(x - 30°)$ compared with $y = \\sin x$.", "Translation by $30°$ to the right.", 15],
+    ["How many solutions does $\\sin^2(3x) = k^2$ have in $0 \\le x < 360°$ for $0 < k < 1$?", "$\\sin 3x = \\pm k$: 6 + 6 = 12.", 17],
+    ["$\\cos\\theta = -\\dfrac{\\sqrt3}{2}$, $0 \\le \\theta \\le 360°$: solutions?", "$150°, 210°$.", 19]
   ],
   quiz: [
     { q: "$\\sin 150° =$", opts: ["$\\tfrac12$", "$-\\tfrac12$", "$\\dfrac{\\sqrt3}{2}$", "$-\\dfrac{\\sqrt3}{2}$"], ans: 0, why: "$\\sin(180° - 30°)$." },
@@ -425,16 +411,14 @@ X("maths:5.3", {
 
 X("maths:5.4", {
   flashcards: [
-    ["Define $\\sec\\theta$, $\\csc\\theta$, $\\cot\\theta$.", "$\\dfrac{1}{\\cos\\theta}$, $\\dfrac{1}{\\sin\\theta}$, $\\dfrac{1}{\\tan\\theta} = \\dfrac{\\cos\\theta}{\\sin\\theta}$."],
-    ["Domain and range of $\\arcsin x$?", "Domain $-1 \\le x \\le 1$, range $-\\tfrac\\pi2 \\le y \\le \\tfrac\\pi2$."],
-    ["Domain and range of $\\arccos x$?", "Domain $-1 \\le x \\le 1$, range $0 \\le y \\le \\pi$."],
-    ["Range of $\\arctan x$?", "$-\\tfrac\\pi2 < y < \\tfrac\\pi2$, with horizontal asymptotes $y = \\pm\\tfrac\\pi2$."],
-    ["Exact value of $\\sec 60°$ and $\\csc 30°$?", "2 and 2."],
-    ["Exact value of $\\cot\\tfrac{\\pi}{6}$?", "$\\sqrt3$."],
-    ["Asymptotes of $y = \\sec x$?", "Where $\\cos x = 0$: $x = \\pm 90°, \\pm 270°, \\ldots$"],
-    ["Solve $\\sec\\theta = 2$, $0 \\le \\theta \\le 360°$.", "$\\cos\\theta = \\tfrac12$: $60°, 300°$."],
-    ["Value of $\\arccos(-\\tfrac12)$?", "$\\tfrac{2\\pi}{3}$."],
-    ["Range of $y = \\csc x$?", "$y \\le -1$ or $y \\ge 1$."]
+    ["Domain and range of $\\arccos x$?", "Domain $-1 \\le x \\le 1$, range $0 \\le y \\le \\pi$.", 11],
+    ["Range of $\\arctan x$?", "$-\\tfrac\\pi2 < y < \\tfrac\\pi2$, with horizontal asymptotes $y = \\pm\\tfrac\\pi2$.", 12],
+    ["Exact value of $\\sec 60°$ and $\\csc 30°$?", "2 and 2.", 13],
+    ["Exact value of $\\cot\\tfrac{\\pi}{6}$?", "$\\sqrt3$.", 14],
+    ["Asymptotes of $y = \\sec x$?", "Where $\\cos x = 0$: $x = \\pm 90°, \\pm 270°, \\ldots$", 15],
+    ["Solve $\\sec\\theta = 2$, $0 \\le \\theta \\le 360°$.", "$\\cos\\theta = \\tfrac12$: $60°, 300°$.", 16],
+    ["Value of $\\arccos(-\\tfrac12)$?", "$\\tfrac{2\\pi}{3}$.", 17],
+    ["Range of $y = \\csc x$?", "$y \\le -1$ or $y \\ge 1$.", 18]
   ],
   quiz: [
     { q: "$\\sec\\theta =$", opts: ["$\\dfrac{1}{\\sin\\theta}$", "$\\dfrac{1}{\\cos\\theta}$", "$\\dfrac{1}{\\tan\\theta}$", "$\\cos^{-1}\\theta$"], ans: 1, why: "Reciprocal of cosine." },
@@ -462,14 +446,14 @@ X("maths:5.5", {
     { callout: { t: "memorise", body: "$\\sin^2 + \\cos^2 = 1$ · $1 + \\tan^2 = \\sec^2$ · $1 + \\cot^2 = \\csc^2$ · $\\tan = \\dfrac{\\sin}{\\cos}$. **Convert everything to $\\sin$ and $\\cos$** when stuck; multiply by a conjugate ($1 + \\sin\\theta$) to clear a denominator." }}
   ],
   flashcards: [
-    ["Prove $\\dfrac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$.", "LHS $= \\dfrac{1 + \\sin\\theta}{\\cos\\theta} = \\dfrac{(1+\\sin\\theta)(1-\\sin\\theta)}{\\cos\\theta(1 - \\sin\\theta)} = \\dfrac{\\cos^2\\theta}{\\cos\\theta(1-\\sin\\theta)} = \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$."],
-    ["Prove $\\csc\\theta - \\sin\\theta \\equiv \\cos\\theta\\cot\\theta$.", "$\\dfrac{1}{\\sin\\theta} - \\sin\\theta = \\dfrac{1 - \\sin^2\\theta}{\\sin\\theta} = \\dfrac{\\cos^2\\theta}{\\sin\\theta} = \\cos\\theta\\cdot\\dfrac{\\cos\\theta}{\\sin\\theta}$."],
-    ["Simplify $\\dfrac{\\sin^2\\theta}{1 - \\cos\\theta}$.", "$\\dfrac{(1-\\cos\\theta)(1+\\cos\\theta)}{1 - \\cos\\theta} = 1 + \\cos\\theta$."],
-    ["Write $\\tan^2\\theta$ in terms of $\\sec\\theta$.", "$\\sec^2\\theta - 1$."],
-    ["Show $\\dfrac{\\cos\\theta}{1 + \\sin\\theta} + \\dfrac{\\cos\\theta}{1 - \\sin\\theta} \\equiv 2\\sec\\theta$.", "Common denominator $1 - \\sin^2\\theta = \\cos^2\\theta$: numerator $2\\cos\\theta$, so $\\dfrac{2\\cos\\theta}{\\cos^2\\theta} = 2\\sec\\theta$."],
-    ["Rewrite $4\\cos\\theta - 1 = 2\\sin\\theta\\tan\\theta$ as a quadratic in $\\cos\\theta$.", "$4\\cos^2\\theta - \\cos\\theta = 2\\sin^2\\theta = 2 - 2\\cos^2\\theta \\Rightarrow 6\\cos^2\\theta - \\cos\\theta - 2 = 0$."],
-    ["Prove $(\\sin\\theta + \\cos\\theta)^2 \\equiv 1 + \\sin 2\\theta$.", "$\\sin^2 + 2\\sin\\cos + \\cos^2 = 1 + \\sin 2\\theta$."],
-    ["Simplify $\\sec^2\\theta\\cos^2\\theta + \\cot^2\\theta\\sin^2\\theta$.", "$1 + \\cos^2\\theta$."]
+    ["Prove $\\dfrac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$.", "LHS $= \\dfrac{1 + \\sin\\theta}{\\cos\\theta} = \\dfrac{(1+\\sin\\theta)(1-\\sin\\theta)}{\\cos\\theta(1 - \\sin\\theta)} = \\dfrac{\\cos^2\\theta}{\\cos\\theta(1-\\sin\\theta)} = \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$.", 8],
+    ["Prove $\\csc\\theta - \\sin\\theta \\equiv \\cos\\theta\\cot\\theta$.", "$\\dfrac{1}{\\sin\\theta} - \\sin\\theta = \\dfrac{1 - \\sin^2\\theta}{\\sin\\theta} = \\dfrac{\\cos^2\\theta}{\\sin\\theta} = \\cos\\theta\\cdot\\dfrac{\\cos\\theta}{\\sin\\theta}$.", 9],
+    ["Simplify $\\dfrac{\\sin^2\\theta}{1 - \\cos\\theta}$.", "$\\dfrac{(1-\\cos\\theta)(1+\\cos\\theta)}{1 - \\cos\\theta} = 1 + \\cos\\theta$.", 10],
+    ["Write $\\tan^2\\theta$ in terms of $\\sec\\theta$.", "$\\sec^2\\theta - 1$.", 11],
+    ["Show $\\dfrac{\\cos\\theta}{1 + \\sin\\theta} + \\dfrac{\\cos\\theta}{1 - \\sin\\theta} \\equiv 2\\sec\\theta$.", "Common denominator $1 - \\sin^2\\theta = \\cos^2\\theta$: numerator $2\\cos\\theta$, so $\\dfrac{2\\cos\\theta}{\\cos^2\\theta} = 2\\sec\\theta$.", 12],
+    ["Rewrite $4\\cos\\theta - 1 = 2\\sin\\theta\\tan\\theta$ as a quadratic in $\\cos\\theta$.", "$4\\cos^2\\theta - \\cos\\theta = 2\\sin^2\\theta = 2 - 2\\cos^2\\theta \\Rightarrow 6\\cos^2\\theta - \\cos\\theta - 2 = 0$.", 13],
+    ["Prove $(\\sin\\theta + \\cos\\theta)^2 \\equiv 1 + \\sin 2\\theta$.", "$\\sin^2 + 2\\sin\\cos + \\cos^2 = 1 + \\sin 2\\theta$.", 14],
+    ["Simplify $\\sec^2\\theta\\cos^2\\theta + \\cot^2\\theta\\sin^2\\theta$.", "$1 + \\cos^2\\theta$.", 15]
   ],
   quiz: [
     { q: "$1 + \\tan^2\\theta \\equiv$", opts: ["$\\csc^2\\theta$", "$\\sec^2\\theta$", "$\\cot^2\\theta$", "$1$"], ans: 1, why: "Divide $\\sin^2 + \\cos^2 = 1$ by $\\cos^2$." },
@@ -501,16 +485,14 @@ X("maths:5.6", {
     { callout: { t: "warn", body: "Give $\\alpha$ to **at least 3 decimal places in radians** (or 2 d.p. in degrees) and carry the unrounded value; the final answer is usually asked to 1 d.p. State the maximum **and the value of $\\theta$/$t$ at which it occurs** — both marks." }}
   ],
   flashcards: [
-    ["Express $\\sin x + 2\\cos x$ as $R\\sin(x + \\alpha)$.", "$R = \\sqrt5$, $\\tan\\alpha = 2$, $\\alpha = 1.107$: $\\sqrt5\\sin(x + 1.107)$."],
-    ["Express $2\\cos\\theta + 8\\sin\\theta$ as $R\\cos(\\theta - \\alpha)$.", "$R = \\sqrt{68} = 2\\sqrt{17}$, $\\tan\\alpha = 4$, $\\alpha = 1.326$."],
-    ["Maximum of $12 + \\sqrt5\\sin(t + 1.107)$ and when?", "$12 + \\sqrt5$ when $t + 1.107 = \\tfrac\\pi2$, i.e. $t = 0.464$."],
-    ["$\\cos 2A$ — three forms?", "$\\cos^2 A - \\sin^2 A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A$."],
-    ["Show $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$.", "$\\cos(2A + A) = \\cos 2A\\cos A - \\sin 2A\\sin A = (2\\cos^2 A - 1)\\cos A - 2\\sin^2 A\\cos A = 2\\cos^3 A - \\cos A - 2(1 - \\cos^2 A)\\cos A$."],
-    ["Expand $\\sin(x + 30°)$.", "$\\sin x\\cos 30° + \\cos x\\sin 30° = \\dfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x$."],
-    ["Show $\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) \\equiv 2\\cos x$.", "$\\dfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x + \\sqrt3\\left(\\dfrac{\\sqrt3}{2}\\cos x - \\tfrac12\\sin x\\right) = \\tfrac12\\cos x + \\tfrac32\\cos x = 2\\cos x$."],
-    ["Solve $5\\sin x - 5\\cos x = 2$ for $0 \\le x < 360°$.", "$5\\sqrt2\\sin(x - 45°) = 2 \\Rightarrow \\sin(x - 45°) = 0.2828 \\Rightarrow x = 61.4°, 208.6°$."],
-    ["$\\tan 2A$ in terms of $\\tan A$?", "$\\dfrac{2\\tan A}{1 - \\tan^2 A}$."],
-    ["Minimum of $140\\cos\\theta - 480\\sin\\theta$?", "$R = 500$; minimum $-500$ when $\\cos(\\theta + \\alpha) = -1$."]
+    ["Express $\\sin x + 2\\cos x$ as $R\\sin(x + \\alpha)$.", "$R = \\sqrt5$, $\\tan\\alpha = 2$, $\\alpha = 1.107$: $\\sqrt5\\sin(x + 1.107)$.", 10],
+    ["Express $2\\cos\\theta + 8\\sin\\theta$ as $R\\cos(\\theta - \\alpha)$.", "$R = \\sqrt{68} = 2\\sqrt{17}$, $\\tan\\alpha = 4$, $\\alpha = 1.326$.", 11],
+    ["Maximum of $12 + \\sqrt5\\sin(t + 1.107)$ and when?", "$12 + \\sqrt5$ when $t + 1.107 = \\tfrac\\pi2$, i.e. $t = 0.464$.", 12],
+    ["Show $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$.", "$\\cos(2A + A) = \\cos 2A\\cos A - \\sin 2A\\sin A = (2\\cos^2 A - 1)\\cos A - 2\\sin^2 A\\cos A = 2\\cos^3 A - \\cos A - 2(1 - \\cos^2 A)\\cos A$.", 14],
+    ["Expand $\\sin(x + 30°)$.", "$\\sin x\\cos 30° + \\cos x\\sin 30° = \\dfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x$.", 15],
+    ["Show $\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) \\equiv 2\\cos x$.", "$\\dfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x + \\sqrt3\\left(\\dfrac{\\sqrt3}{2}\\cos x - \\tfrac12\\sin x\\right) = \\tfrac12\\cos x + \\tfrac32\\cos x = 2\\cos x$.", 16],
+    ["Solve $5\\sin x - 5\\cos x = 2$ for $0 \\le x < 360°$.", "$5\\sqrt2\\sin(x - 45°) = 2 \\Rightarrow \\sin(x - 45°) = 0.2828 \\Rightarrow x = 61.4°, 208.6°$.", 17],
+    ["Minimum of $140\\cos\\theta - 480\\sin\\theta$?", "$R = 500$; minimum $-500$ when $\\cos(\\theta + \\alpha) = -1$.", 19]
   ],
   quiz: [
     { q: "$R$ for $3\\cos\\theta + 4\\sin\\theta$:", opts: ["7", "5", "25", "1"], ans: 1, why: "$\\sqrt{9 + 16}$." },
@@ -560,8 +542,7 @@ X("maths:5.7", {
     ["Solve $\\tan(\\theta - 30°) = \\sqrt3$, $0 \\le \\theta < 360°$.", "$\\theta - 30° = 60°, 240°$ → $90°, 270°$."],
     ["Solve $3\\tan^2\\theta - 4\\tan\\theta - 4 = 0$.", "$(3\\tan\\theta + 2)(\\tan\\theta - 2) = 0$: $\\tan\\theta = 2$ or $-\\tfrac23$."],
     ["Solve $4\\tan x = 5\\cos x$ as a quadratic in $\\sin x$.", "$4\\sin x = 5\\cos^2 x = 5 - 5\\sin^2 x \\Rightarrow 5\\sin^2 x + 4\\sin x - 5 = 0$."],
-    ["How many solutions does $\\cos 3x = 0.2$ have in $0 \\le x < 360°$?", "6."],
-    ["Solve $2\\sin 2\\theta = \\cos(2\\theta + 30°)$… first step?", "Expand the right-hand side, collect $\\sin 2\\theta$ and $\\cos 2\\theta$, divide by $\\cos 2\\theta$ to get $\\tan 2\\theta = \\dfrac{\\sqrt3}{5}$."]
+    ["Solve $2\\sin 2\\theta = \\cos(2\\theta + 30°)$… first step?", "Expand the right-hand side, collect $\\sin 2\\theta$ and $\\cos 2\\theta$, divide by $\\cos 2\\theta$ to get $\\tan 2\\theta = \\dfrac{\\sqrt3}{5}$.", 16]
   ],
   quiz: [
     { q: "$\\sin\\theta = -\\tfrac12$ in $0 \\le \\theta < 360°$:", opts: ["$30°, 150°$", "$210°, 330°$", "$150°, 210°$", "$30°, 330°$"], ans: 1, why: "Third and fourth quadrants." },
@@ -593,14 +574,13 @@ X("maths:5.7", {
 
 X("maths:5.8", {
   flashcards: [
-    ["Prove $\\dfrac{1 - \\cos 2\\theta}{\\sin 2\\theta} \\equiv \\tan\\theta$.", "$\\dfrac{2\\sin^2\\theta}{2\\sin\\theta\\cos\\theta} = \\dfrac{\\sin\\theta}{\\cos\\theta}$."],
-    ["Prove $\\csc 2x + \\cot 2x \\equiv \\cot x$.", "$\\dfrac{1 + \\cos 2x}{\\sin 2x} = \\dfrac{2\\cos^2 x}{2\\sin x\\cos x} = \\cot x$."],
-    ["Prove $\\dfrac{\\cos 3\\theta}{\\sin\\theta} + \\dfrac{\\sin 3\\theta}{\\cos\\theta} \\equiv 2\\cot 2\\theta$.", "Common denominator: $\\dfrac{\\cos 3\\theta\\cos\\theta + \\sin 3\\theta\\sin\\theta}{\\sin\\theta\\cos\\theta} = \\dfrac{\\cos 2\\theta}{\\tfrac12\\sin 2\\theta} = 2\\cot 2\\theta$."],
-    ["Prove $\\dfrac{1 - \\cos 2t + \\sin 2t}{1 + \\cos 2t + \\sin 2t} \\equiv \\tan t$.", "Numerator $2\\sin^2 t + 2\\sin t\\cos t = 2\\sin t(\\sin t + \\cos t)$; denominator $2\\cos^2 t + 2\\sin t\\cos t = 2\\cos t(\\cos t + \\sin t)$; ratio $\\tan t$."],
-    ["Prove $\\sin x - \\cos x \\ge 1$ for obtuse $x$ — by contradiction, the key step?", "Assume $\\sin x - \\cos x < 1$; for $90° < x < 180°$, $\\sin x > 0$ and $-\\cos x > 0$; squaring the (positive) expression: $1 - \\sin 2x < 1 \\Rightarrow \\sin 2x > 0$, but $180° < 2x < 360°$ gives $\\sin 2x < 0$ — contradiction."],
-    ["Prove $\\tan\\theta + \\cot\\theta \\equiv 2\\csc 2\\theta$.", "$\\dfrac{\\sin^2\\theta + \\cos^2\\theta}{\\sin\\theta\\cos\\theta} = \\dfrac{1}{\\tfrac12\\sin 2\\theta}$."],
-    ["Prove $\\dfrac{\\sin 2\\theta}{1 + \\cos 2\\theta} \\equiv \\tan\\theta$.", "$\\dfrac{2\\sin\\theta\\cos\\theta}{2\\cos^2\\theta}$."],
-    ["What structure earns full marks in a trig proof?", "Start from one side, cite each identity used, and finish with the other side exactly — no working backwards from the result."]
+    ["Prove $\\dfrac{1 - \\cos 2\\theta}{\\sin 2\\theta} \\equiv \\tan\\theta$.", "$\\dfrac{2\\sin^2\\theta}{2\\sin\\theta\\cos\\theta} = \\dfrac{\\sin\\theta}{\\cos\\theta}$.", 7],
+    ["Prove $\\csc 2x + \\cot 2x \\equiv \\cot x$.", "$\\dfrac{1 + \\cos 2x}{\\sin 2x} = \\dfrac{2\\cos^2 x}{2\\sin x\\cos x} = \\cot x$.", 8],
+    ["Prove $\\dfrac{\\cos 3\\theta}{\\sin\\theta} + \\dfrac{\\sin 3\\theta}{\\cos\\theta} \\equiv 2\\cot 2\\theta$.", "Common denominator: $\\dfrac{\\cos 3\\theta\\cos\\theta + \\sin 3\\theta\\sin\\theta}{\\sin\\theta\\cos\\theta} = \\dfrac{\\cos 2\\theta}{\\tfrac12\\sin 2\\theta} = 2\\cot 2\\theta$.", 9],
+    ["Prove $\\dfrac{1 - \\cos 2t + \\sin 2t}{1 + \\cos 2t + \\sin 2t} \\equiv \\tan t$.", "Numerator $2\\sin^2 t + 2\\sin t\\cos t = 2\\sin t(\\sin t + \\cos t)$; denominator $2\\cos^2 t + 2\\sin t\\cos t = 2\\cos t(\\cos t + \\sin t)$; ratio $\\tan t$.", 10],
+    ["Prove $\\sin x - \\cos x \\ge 1$ for obtuse $x$ — by contradiction, the key step?", "Assume $\\sin x - \\cos x < 1$; for $90° < x < 180°$, $\\sin x > 0$ and $-\\cos x > 0$; squaring the (positive) expression: $1 - \\sin 2x < 1 \\Rightarrow \\sin 2x > 0$, but $180° < 2x < 360°$ gives $\\sin 2x < 0$ — contradiction.", 11],
+    ["Prove $\\tan\\theta + \\cot\\theta \\equiv 2\\csc 2\\theta$.", "$\\dfrac{\\sin^2\\theta + \\cos^2\\theta}{\\sin\\theta\\cos\\theta} = \\dfrac{1}{\\tfrac12\\sin 2\\theta}$.", 12],
+    ["What structure earns full marks in a trig proof?", "Start from one side, cite each identity used, and finish with the other side exactly — no working backwards from the result.", 14]
   ],
   quiz: [
     { q: "$1 - \\cos 2\\theta \\equiv$", opts: ["$2\\cos^2\\theta$", "$2\\sin^2\\theta$", "$\\sin^2\\theta$", "$1 - \\cos^2\\theta$"], ans: 1, why: "From $\\cos 2\\theta = 1 - 2\\sin^2\\theta$." },
@@ -688,14 +668,13 @@ X("maths:6.1", {
 
 X("maths:6.2", {
   flashcards: [
-    ["$\\dfrac{d}{dx}(e^{kx}) = ?$", "$ke^{kx}$."],
-    ["Why does the exponential model suit population growth?", "The rate of growth $\\dfrac{dN}{dt} = kN$ is proportional to the population itself — exactly the property of $e^{kt}$."],
-    ["Gradient of $y = e^{3x}$ at $x = 0$?", "3."],
-    ["$N = 200e^{0.05t}$: rate of increase at $t = 10$?", "$10e^{0.5} \\approx 16.5$ per unit time."],
-    ["Differentiate $y = 4e^{-2x}$.", "$-8e^{-2x}$."],
-    ["Interpret $\\dfrac{dV}{dt} = -0.25V$ for a car's value.", "The value decreases at a rate proportional to its current value — 25% per year continuous depreciation."],
-    ["Tangent to $y = e^{2x}$ at $x = 0$?", "Gradient 2, point $(0, 1)$: $y = 2x + 1$."],
-    ["$\\dfrac{d}{dx}(a^x) = ?$", "$a^x\\ln a$."]
+    ["Why does the exponential model suit population growth?", "The rate of growth $\\dfrac{dN}{dt} = kN$ is proportional to the population itself — exactly the property of $e^{kt}$.", 7],
+    ["Gradient of $y = e^{3x}$ at $x = 0$?", "3.", 8],
+    ["$N = 200e^{0.05t}$: rate of increase at $t = 10$?", "$10e^{0.5} \\approx 16.5$ per unit time.", 9],
+    ["Differentiate $y = 4e^{-2x}$.", "$-8e^{-2x}$.", 10],
+    ["Interpret $\\dfrac{dV}{dt} = -0.25V$ for a car's value.", "The value decreases at a rate proportional to its current value — 25% per year continuous depreciation.", 11],
+    ["Tangent to $y = e^{2x}$ at $x = 0$?", "Gradient 2, point $(0, 1)$: $y = 2x + 1$.", 12],
+    ["$\\dfrac{d}{dx}(a^x) = ?$", "$a^x\\ln a$.", 13]
   ],
   quiz: [
     { q: "$\\dfrac{d}{dx}(e^{5x}) =$", opts: ["$e^{5x}$", "$5e^{5x}$", "$5e^{4x}$", "$e^{5}$"], ans: 1, why: "Chain rule." },
@@ -723,14 +702,14 @@ X("maths:6.2", {
 
 X("maths:6.3", {
   flashcards: [
-    ["Define $\\log_a x$.", "The power to which $a$ must be raised to give $x$: $\\log_a x = y \\iff a^y = x$."],
-    ["Evaluate $\\log_2 32$, $\\log_3 \\tfrac19$, $\\log_5 1$.", "5, $-2$, 0."],
-    ["Sketch $y = \\ln x$.", "Defined for $x > 0$, through $(1, 0)$, increasing, vertical asymptote $x = 0$."],
-    ["Relationship between $y = \\ln x$ and $y = e^x$?", "Inverse functions — reflections in $y = x$."],
-    ["Solve $\\ln(2x - 1) = 3$.", "$2x - 1 = e^3 \\Rightarrow x = \\dfrac{e^3 + 1}{2}$."],
-    ["Write $4^{3/2} = 8$ in log form.", "$\\log_4 8 = \\tfrac32$."],
-    ["Solve $\\log_3(12y + 5) - \\log_3(1 - 3y) = 2$.", "$\\dfrac{12y + 5}{1 - 3y} = 9 \\Rightarrow 12y + 5 = 9 - 27y \\Rightarrow y = \\tfrac{4}{39}$."],
-    ["Domain of $y = \\ln(x + 4)$?", "$x > -4$."]
+    ["Define $\\log_a x$.", "The power to which $a$ must be raised to give $x$: $\\log_a x = y \\iff a^y = x$.", 9],
+    ["Evaluate $\\log_2 32$, $\\log_3 \\tfrac19$, $\\log_5 1$.", "5, $-2$, 0.", 10],
+    ["Sketch $y = \\ln x$.", "Defined for $x > 0$, through $(1, 0)$, increasing, vertical asymptote $x = 0$.", 11],
+    ["Relationship between $y = \\ln x$ and $y = e^x$?", "Inverse functions — reflections in $y = x$.", 12],
+    ["Solve $\\ln(2x - 1) = 3$.", "$2x - 1 = e^3 \\Rightarrow x = \\dfrac{e^3 + 1}{2}$.", 13],
+    ["Write $4^{3/2} = 8$ in log form.", "$\\log_4 8 = \\tfrac32$.", 14],
+    ["Solve $\\log_3(12y + 5) - \\log_3(1 - 3y) = 2$.", "$\\dfrac{12y + 5}{1 - 3y} = 9 \\Rightarrow 12y + 5 = 9 - 27y \\Rightarrow y = \\tfrac{4}{39}$.", 15],
+    ["Domain of $y = \\ln(x + 4)$?", "$x > -4$.", 16]
   ],
   quiz: [
     { q: "$\\log_4 64 =$", opts: ["16", "3", "4", "2"], ans: 1, why: "$4^3 = 64$." },
@@ -756,16 +735,14 @@ X("maths:6.4", {
     { callout: { t: "memorise", body: "$\\log xy = \\log x + \\log y$ · $\\log\\dfrac xy = \\log x - \\log y$ · $\\log x^k = k\\log x$ · $\\log_a a = 1$ · $\\log_a 1 = 0$ · $\\log_a b = \\dfrac{\\ln b}{\\ln a}$." }}
   ],
   flashcards: [
-    ["Solve $2\\log(4 - x) = \\log(x + 8)$.", "$(4-x)^2 = x + 8 \\Rightarrow x^2 - 9x + 8 = 0 \\Rightarrow x = 1$ or $8$; $x = 8$ makes $\\log(4 - x)$ undefined, so $x = 1$."],
-    ["Solve $\\log_2(x+3) + \\log_2(x+10) = 2 + 2\\log_2 x$… with base 10 and $2 = \\log 100$.", "$(x+3)(x+10) = 100x^2 \\Rightarrow 99x^2 - 13x - 30 = 0 \\Rightarrow x = \\dfrac{13 \\pm \\sqrt{169 + 11880}}{198}$; take the positive root $x = 0.620$."],
-    ["Express $\\log\\left(\\dfrac{x^2}{x + 8}\\right)$ in terms of $a = \\log x$, $b = \\log(x + 8)$.", "$2a - b$."],
-    ["Express $\\log\\sqrt{x(x+8)}$ in terms of $a$ and $b$.", "$\\tfrac12(a + b)$."],
-    ["Solve $2\\log_3(x + 1) = 1 + \\log_3(x + 7)$.", "$(x+1)^2 = 3(x + 7) \\Rightarrow x^2 - x - 20 = 0 \\Rightarrow x = 5$ (reject $-4$)."],
-    ["Error: '$\\log(x + 2) = \\log x + \\log 2$'. Correct it.", "There is no law for the log of a sum; $\\log x + \\log 2 = \\log 2x$."],
-    ["Given $\\log a - \\log b = \\log(a - b)$, show $a = \\dfrac{b^2}{b - 1}$.", "$\\dfrac ab = a - b \\Rightarrow a = ab - b^2 \\Rightarrow a(b - 1) = b^2$; need $b > 1$ for $a > 0$."],
-    ["Write $3\\log 2 - \\log 4 + \\log 5$ as a single log.", "$\\log\\dfrac{8 \\times 5}{4} = \\log 10 = 1$."],
-    ["If $p = \\log 16$, express $\\log 2$ and $\\log 64$ in terms of $p$.", "$\\tfrac14 p$ and $\\tfrac32 p$."],
-    ["Solve $2\\log_4(2 - x) - \\log_4(x + 5) = 1$.", "$\\dfrac{(2-x)^2}{x+5} = 4 \\Rightarrow x^2 - 8x - 16 = 0 \\Rightarrow x = 4 - 4\\sqrt2$ (reject $4 + 4\\sqrt2 > 2$)."]
+    ["Solve $2\\log(4 - x) = \\log(x + 8)$.", "$(4-x)^2 = x + 8 \\Rightarrow x^2 - 9x + 8 = 0 \\Rightarrow x = 1$ or $8$; $x = 8$ makes $\\log(4 - x)$ undefined, so $x = 1$.", 8],
+    ["Solve $\\log_2(x+3) + \\log_2(x+10) = 2 + 2\\log_2 x$… with base 10 and $2 = \\log 100$.", "$(x+3)(x+10) = 100x^2 \\Rightarrow 99x^2 - 13x - 30 = 0 \\Rightarrow x = \\dfrac{13 \\pm \\sqrt{169 + 11880}}{198}$; take the positive root $x = 0.620$.", 9],
+    ["Express $\\log\\left(\\dfrac{x^2}{x + 8}\\right)$ in terms of $a = \\log x$, $b = \\log(x + 8)$.", "$2a - b$.", 10],
+    ["Express $\\log\\sqrt{x(x+8)}$ in terms of $a$ and $b$.", "$\\tfrac12(a + b)$.", 11],
+    ["Error: '$\\log(x + 2) = \\log x + \\log 2$'. Correct it.", "There is no law for the log of a sum; $\\log x + \\log 2 = \\log 2x$.", 13],
+    ["Given $\\log a - \\log b = \\log(a - b)$, show $a = \\dfrac{b^2}{b - 1}$.", "$\\dfrac ab = a - b \\Rightarrow a = ab - b^2 \\Rightarrow a(b - 1) = b^2$; need $b > 1$ for $a > 0$.", 14],
+    ["Write $3\\log 2 - \\log 4 + \\log 5$ as a single log.", "$\\log\\dfrac{8 \\times 5}{4} = \\log 10 = 1$.", 15],
+    ["If $p = \\log 16$, express $\\log 2$ and $\\log 64$ in terms of $p$.", "$\\tfrac14 p$ and $\\tfrac32 p$.", 16],
   ],
   quiz: [
     { q: "$\\log 8 + \\log 5 - \\log 4 =$", opts: ["$\\log 9$", "$\\log 10$", "$\\log 1$", "$\\log 40$"], ans: 1, why: "$\\log\\dfrac{40}{4}$." },
@@ -836,12 +813,11 @@ X("maths:6.6", {
   flashcards: [
     ["Show that $V = pq^t$ gives a straight line when $\\log V$ is plotted against $t$.", "$\\log V = \\log p + t\\log q$ — linear in $t$ with gradient $\\log q$ and intercept $\\log p$."],
     ["Show that $T = al^b$ gives a straight line when $\\log T$ is plotted against $\\log l$.", "$\\log T = \\log a + b\\log l$ — gradient $b$, intercept $\\log a$."],
-    ["$\\log_{10} V = 0.072t + 2.379$. Find $a$ and $b$ in $V = ab^t$.", "$a = 10^{2.379} = 239$, $b = 10^{0.072} = 1.18$."],
-    ["Interpret $b = 1.18$ in $V = 239 \\times 1.18^t$.", "The value increases by 18% each unit of time."],
-    ["A log–log graph has gradient 0.5 and intercept 0.3. Model?", "$y = 10^{0.3}x^{0.5} \\approx 2.0\\sqrt x$."],
-    ["Which plot linearises $y = ab^t$ and which linearises $y = ax^n$?", "$\\log y$ vs $t$; $\\log y$ vs $\\log x$."],
-    ["Why might a prediction from the linearised model be unreliable?", "It is an extrapolation beyond the data; the constants are read from a rounded line; the real process may change."],
-    ["$h^2 = at + b$ for tree height — what plot gives a line?", "$h^2$ against $t$: gradient $a$, intercept $b$."]
+    ["Interpret $b = 1.18$ in $V = 239 \\times 1.18^t$.", "The value increases by 18% each unit of time.", 11],
+    ["A log–log graph has gradient 0.5 and intercept 0.3. Model?", "$y = 10^{0.3}x^{0.5} \\approx 2.0\\sqrt x$.", 12],
+    ["Which plot linearises $y = ab^t$ and which linearises $y = ax^n$?", "$\\log y$ vs $t$; $\\log y$ vs $\\log x$.", 13],
+    ["Why might a prediction from the linearised model be unreliable?", "It is an extrapolation beyond the data; the constants are read from a rounded line; the real process may change.", 14],
+    ["$h^2 = at + b$ for tree height — what plot gives a line?", "$h^2$ against $t$: gradient $a$, intercept $b$.", 15]
   ],
   quiz: [
     { q: "For $y = ab^x$, plotting $\\log y$ against $x$ gives gradient:", opts: ["$\\log a$", "$\\log b$", "$b$", "$a$"], ans: 1, why: "$\\log y = \\log a + x\\log b$." },
@@ -880,16 +856,16 @@ X("maths:6.7", {
     { callout: { t: "tip", body: "Two unknowns from two data points: divide one equation by the other to eliminate $A$ — $\\dfrac{31 - h_2}{31 - h_1} = e^{-k(t_2 - t_1)}$ — then take logs." }}
   ],
   flashcards: [
-    ["$\\theta = 18 + 65e^{-t/8}$: temperature at $t = 0$ and the long-term temperature?", "83 °C and 18 °C."],
-    ["For $\\theta = 18 + 65e^{-t/8}$, find $t$ when $\\theta = 35$.", "$e^{-t/8} = \\tfrac{17}{65} \\Rightarrow t = -8\\ln\\tfrac{17}{65} = 10.7$ min."],
-    ["Why can $\\theta = 18 + 65e^{-t/8}$ never equal 15?", "$e^{-t/8} > 0$ so $\\theta > 18$ for all $t$."],
-    ["$V = 15700e^{-0.25t} + 2300$: rate of decrease at $t = 2$?", "$\\dfrac{dV}{dt} = -3925e^{-0.5} = -£2381$ per year."],
-    ["$A = 80 - 45e^{ct}$ with $A = 50$ at $t = 5$. Find $c$.", "$e^{5c} = \\tfrac{30}{45} \\Rightarrow c = \\tfrac15\\ln\\tfrac23 = -0.081$."],
-    ["Limiting value of $N = 5000 - 5000e^{-0.075t}$ and its meaning?", "5000 — the total sales approach but never exceed 5000."],
-    ["$P = k + 1.4e^{-0.5t}$ with $P \\to 2$ as $t \\to \\infty$. State $k$ and find $t$ when $P = 2.7$.", "$k = 2$; $e^{-0.5t} = 0.5 \\Rightarrow t = 2\\ln 2 = 1.39$."],
-    ["$h = 31 - Ae^{-kt}$ with $h(0) = 6$, $h(5) = 16$. Find $A$ and $k$.", "$A = 25$; $e^{-5k} = \\tfrac{15}{25} \\Rightarrow k = \\tfrac15\\ln\\tfrac53 = 0.102$."],
-    ["In $V = Ap^t$ with $V(0) = 20000$, $V(3) = 10240$: find $p$.", "$p^3 = 0.512 \\Rightarrow p = 0.8$."],
-    ["Doubling time for $N = Ae^{0.14t}$?", "$e^{0.14t} = 2 \\Rightarrow t = \\ln 2/0.14 = 4.95$."]
+    ["$\\theta = 18 + 65e^{-t/8}$: temperature at $t = 0$ and the long-term temperature?", "83 °C and 18 °C.", 8],
+    ["For $\\theta = 18 + 65e^{-t/8}$, find $t$ when $\\theta = 35$.", "$e^{-t/8} = \\tfrac{17}{65} \\Rightarrow t = -8\\ln\\tfrac{17}{65} = 10.7$ min.", 9],
+    ["Why can $\\theta = 18 + 65e^{-t/8}$ never equal 15?", "$e^{-t/8} > 0$ so $\\theta > 18$ for all $t$.", 10],
+    ["$V = 15700e^{-0.25t} + 2300$: rate of decrease at $t = 2$?", "$\\dfrac{dV}{dt} = -3925e^{-0.5} = -£2381$ per year.", 11],
+    ["$A = 80 - 45e^{ct}$ with $A = 50$ at $t = 5$. Find $c$.", "$e^{5c} = \\tfrac{30}{45} \\Rightarrow c = \\tfrac15\\ln\\tfrac23 = -0.081$.", 12],
+    ["Limiting value of $N = 5000 - 5000e^{-0.075t}$ and its meaning?", "5000 — the total sales approach but never exceed 5000.", 13],
+    ["$P = k + 1.4e^{-0.5t}$ with $P \\to 2$ as $t \\to \\infty$. State $k$ and find $t$ when $P = 2.7$.", "$k = 2$; $e^{-0.5t} = 0.5 \\Rightarrow t = 2\\ln 2 = 1.39$.", 14],
+    ["$h = 31 - Ae^{-kt}$ with $h(0) = 6$, $h(5) = 16$. Find $A$ and $k$.", "$A = 25$; $e^{-5k} = \\tfrac{15}{25} \\Rightarrow k = \\tfrac15\\ln\\tfrac53 = 0.102$.", 15],
+    ["In $V = Ap^t$ with $V(0) = 20000$, $V(3) = 10240$: find $p$.", "$p^3 = 0.512 \\Rightarrow p = 0.8$.", 16],
+    ["Doubling time for $N = Ae^{0.14t}$?", "$e^{0.14t} = 2 \\Rightarrow t = \\ln 2/0.14 = 4.95$.", 17]
   ],
   quiz: [
     { q: "In $\\theta = 25 + Ae^{-0.03t}$ the long-term temperature is:", opts: ["$A$", "25", "$25 + A$", "0"], ans: 1, why: "Exponential term → 0." },

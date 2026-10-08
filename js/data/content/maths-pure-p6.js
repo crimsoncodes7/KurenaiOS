@@ -113,8 +113,7 @@ C["maths:6.2"] = {
     ["Why is $e$ the natural base for growth models?", "Because $\\frac{d}{dx}e^{kx} = ke^{kx}$: the rate is proportional to the value, which is exactly what growth/decay processes do."],
     ["Doubling time for $N = Ae^{kt}$?", "$\\frac{\\ln 2}{k}$."],
     ["$V = 1500 + Ae^{-kt}$: $\\frac{dV}{dt}$ in terms of $V$?", "$-k(V - 1500)$."],
-    ["$\\frac{d}{dx}(2^x) = $?", "$2^x\\ln 2$."],
-    ["Bacteria $1000 \\to 2000$ in 5 h with $N = 1000e^{kt}$: $k$?", "$\\frac{\\ln 2}{5} \\approx 0.139$."]
+    ["Bacteria $1000 \\to 2000$ in 5 h with $N = 1000e^{kt}$: $k$?", "$\\frac{\\ln 2}{5} \\approx 0.139$.", 5]
   ],
   quiz: [
     { q: "$\\frac{d}{dx}(e^{3x}) =$", opts: ["$3e^{3x}$", "$e^{3x}$", "$3xe^{3x}$", "$e^{3}$"], ans: 0, why: "Chain rule with $k = 3$." },
@@ -192,14 +191,13 @@ C["maths:6.3"] = {
   ],
   flashcards: [
     ["$\\log_a x = y$ means…", "$a^y = x$."],
-    ["$\\ln x$ is the inverse of…", "$e^x$: $e^{\\ln x} = x$, $\\ln e^x = x$."],
-    ["Graph of $y = \\ln x$: key features?", "Through $(1, 0)$, asymptote $x = 0$, only for $x > 0$, increasing."],
-    ["Solve $e^{2x+1} = 7$.", "$x = \\frac{\\ln7 - 1}{2}$."],
-    ["Solve $\\ln(3x - 2) = 4$.", "$x = \\frac{e^4 + 2}{3}$."],
-    ["Solve $4^{3p-1} = 5^{210}$.", "$(3p-1)\\ln4 = 210\\ln5$, $p = 81.6$."],
-    ["Why can $18 + 65e^{-t/8}$ never be 15?", "$e^{-t/8} > 0$ so the value always exceeds 18."],
-    ["$\\log_a 1$ and $\\log_a a$?", "0 and 1."],
-    ["Time for $25 + 50e^{-0.03t}$ to reach 60?", "$e^{-0.03t} = 0.7$, $t = 11.9$."]
+    ["Graph of $y = \\ln x$: key features?", "Through $(1, 0)$, asymptote $x = 0$, only for $x > 0$, increasing.", 2],
+    ["Solve $e^{2x+1} = 7$.", "$x = \\frac{\\ln7 - 1}{2}$.", 3],
+    ["Solve $\\ln(3x - 2) = 4$.", "$x = \\frac{e^4 + 2}{3}$.", 4],
+    ["Solve $4^{3p-1} = 5^{210}$.", "$(3p-1)\\ln4 = 210\\ln5$, $p = 81.6$.", 5],
+    ["Why can $18 + 65e^{-t/8}$ never be 15?", "$e^{-t/8} > 0$ so the value always exceeds 18.", 6],
+    ["$\\log_a 1$ and $\\log_a a$?", "0 and 1.", 7],
+    ["Time for $25 + 50e^{-0.03t}$ to reach 60?", "$e^{-0.03t} = 0.7$, $t = 11.9$.", 8]
   ],
   quiz: [
     { q: "$\\log_2 32 =$", opts: ["5", "16", "4", "6"], ans: 0, why: "$2^5$." },
@@ -291,7 +289,6 @@ C["maths:6.4"] = {
     ["$a = \\log_2 x$, $b = \\log_2(x+8)$: $\\log_2(8 + \\frac{64}{x})$?", "$\\log_2\\frac{8(x+8)}{x} = 3 + b - a$."],
     ["How do you write the number 2 as a log base 5?", "$2 = \\log_5 25$."],
     ["Why must you check roots of a log equation?", "Log arguments must be positive; the algebra can create roots that make them negative."],
-    ["$\\log a - \\log b = \\log(a - b)$ gives $a = $?", "$\\frac{b^2}{b - 1}$, requiring $b > 1$."]
   ],
   quiz: [
     { q: "$\\log_2 12 - \\log_2 3 =$", opts: ["2", "$\\log_2 9$", "4", "$\\log_2 36$"], ans: 0, why: "$\\log_2 4$." },
@@ -583,9 +580,8 @@ C["maths:6.7"] = {
     ["Coffee: $H = Ae^{-Bt} + 30$, initially 85 °C cooling at 7.5 °C/min: $A$, $B$?", "$A = 55$; $-55B = -7.5$, $B = 0.136$."],
     ["Why is $A = 0.2e^{0.3t}$ unrealistic long-term?", "Unbounded growth — the pond has a finite area; growth slows."],
     ["Ethanol model limit 69.6 °C but it boiled at 78 °C: verdict?", "Model unsuitable — it never reaches the boiling point."],
-    ["Doubling time for $e^{kt}$?", "$\\frac{\\ln 2}{k}$."],
-    ["Refinement when sales will now cap at 6500 instead of 5000?", "$N = 6500 - 6500e^{-0.075t}$."],
-    ["Rates equal in magnitude: $0.8e^{0.04T} = 4.8e^{-0.02T}$ gives…", "$e^{0.06T} = 6$, $T = \\frac{\\ln 6}{0.06} = 29.9$."]
+    ["Sales modelled by $N = 5000 - 5000e^{-0.075t}$. Refinement when sales will now cap at 6500?", "$N = 6500 - 6500e^{-0.075t}$.", 6],
+    ["Rates equal in magnitude: $0.8e^{0.04T} = 4.8e^{-0.02T}$ gives…", "$e^{0.06T} = 6$, $T = \\frac{\\ln 6}{0.06} = 29.9$.", 7]
   ],
   quiz: [
     { q: "$\\theta = 18 + 65e^{-t/8}$: value at $t = 0$", opts: ["83", "18", "65", "8"], ans: 0, why: "$e^0 = 1$." },

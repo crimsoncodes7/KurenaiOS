@@ -1183,7 +1183,7 @@ C["it:F201.2.5"] = {
   flashcards: [
     ["Purpose of data analytics?", "Examine existing data to answer defined business questions and support decisions (mostly backward-looking)."],
     ["Purpose of data science?", "Discover new insights and build predictive models from large datasets (forward-looking)."],
-    ["The key difference between them?", "Analytics answers a known question about the past/present; science builds a model to predict/discover the unknown."],
+    ["Key difference between data analytics and data science?", "Analytics answers a known question about the past/present; science builds a model to predict/discover the unknown."],
     ["Typical tools for data analytics?", "SQL, Excel, and BI dashboards such as Tableau or PowerBI."],
     ["Typical tools for data science?", "Python, $R$ and machine-learning libraries."],
     ["Name the four types of analytics.", "Descriptive (what happened), diagnostic (why), predictive (what will happen), prescriptive (what to do)."],

@@ -38,7 +38,7 @@ C["maths:8.1"] = {
   flashcards: [
     ["Fundamental Theorem of Calculus?", "If $F' = f$: $\\int f\\,dx = F + c$ and $\\int_a^b f\\,dx = F(b) - F(a)$."],
     ["Why does an indefinite integral need $+c$?", "Any constant differentiates to zero, so the antiderivative is fixed only up to a constant."],
-    ["How is $c$ found?", "From a point on the curve."],
+    ["How is the constant $c$ found when integrating $f'(x)$ to get $f(x)$?", "From a point on the curve."],
     ["How do you check an integral?", "Differentiate the answer."],
     ["$f'(x) = 6x^2 + ax - 23$, $f(0) = -12$, $(x+4)$ a factor: $f$?", "$2x^3 + 3x^2 - 23x - 12$."]
   ],
@@ -131,10 +131,8 @@ C["maths:8.2"] = {
     ["$\\int \\sec^2 3x\\,dx$?", "$\\frac13\\tan 3x + c$."],
     ["$\\int \\frac{2}{3x - k}dx$?", "$\\frac23\\ln|3x - k| + c$."],
     ["$\\int (2x + 5)^4 dx$?", "$\\frac{(2x + 5)^5}{10} + c$."],
-    ["$\\int \\sin^2 x\\,dx$?", "$\\frac x2 - \\frac14\\sin 2x + c$ (via $\\sin^2 x = \\frac{1 - \\cos 2x}{2}$)."],
-    ["$\\int \\frac{3x^4 - 4}{2x^3}dx$?", "$\\frac34 x^2 + x^{-2} + c$."],
-    ["$\\int_1^k (\\frac{5}{2\\sqrt x} + 3)dx = 4$ gives…", "$3k + 5\\sqrt k - 12 = 0$, $k = \\frac{16}{9}$."],
-    ["Booklet integral of $\\tan x$?", "$\\ln|\\sec x| + c$."]
+    ["$\\int_1^k (\\frac{5}{2\\sqrt x} + 3)dx = 4$ gives…", "$3k + 5\\sqrt k - 12 = 0$, $k = \\frac{16}{9}$.", 7],
+    ["Booklet integral of $\\tan x$?", "$\\ln|\\sec x| + c$.", 8]
   ],
   quiz: [
     { q: "$\\int x^{-2}\\,dx =$", opts: ["$-x^{-1} + c$", "$x^{-1} + c$", "$-\\tfrac13 x^{-3} + c$", "$\\ln x + c$"], ans: 0, why: "$\\frac{x^{-1}}{-1}$." },
@@ -421,13 +419,11 @@ C["maths:8.5"] = {
     ["Integration by parts formula?", "$\\int u\\frac{dv}{dx}dx = uv - \\int v\\frac{du}{dx}dx$."],
     ["$\\int \\ln x\\,dx = $?", "$x\\ln x - x + c$."],
     ["Which factor is $u$ in $\\int x^3\\ln x$?", "$u = \\ln x$ (LATE)."],
-    ["$\\int_1^{e^2} x^3\\ln x\\,dx = $?", "$\\frac{7}{16}e^8 + \\frac{1}{16}$."],
-    ["Substitution $u = x + 2$ in $\\int_0^2 2x\\sqrt{x+2}$: new limits and integrand?", "$2 \\to 4$; $\\int (2u^{3/2} - 4u^{1/2})du$."],
-    ["Why substitute $x = a\\sin^2\\theta$ in $\\int x^{1/2}\\sqrt{a - x}$?", "$\\sqrt{a - a\\sin^2\\theta} = \\sqrt a\\cos\\theta$ removes the root."],
-    ["$\\int \\frac{f'(x)}{f(x)}dx = $?", "$\\ln|f(x)| + c$."],
-    ["$\\int_0^1 8x^2 e^{-3x}dx$ needs parts how many times?", "Twice; result $\\frac{16}{27} - \\frac{136}{27}e^{-3}$."],
-    ["$u = 1 + \\sqrt x$: $dx = $?", "$x = (u-1)^2$, $dx = 2(u-1)\\,du$."],
-    ["$\\int \\text{cosec}^2 u\\,du = $?", "$-\\cot u + c$."]
+    ["Substitution $u = x + 2$ in $\\int_0^2 2x\\sqrt{x+2}$: new limits and integrand?", "$2 \\to 4$; $\\int (2u^{3/2} - 4u^{1/2})du$.", 4],
+    ["Why substitute $x = a\\sin^2\\theta$ in $\\int x^{1/2}\\sqrt{a - x}$?", "$\\sqrt{a - a\\sin^2\\theta} = \\sqrt a\\cos\\theta$ removes the root.", 5],
+    ["$\\int \\frac{f'(x)}{f(x)}dx = $?", "$\\ln|f(x)| + c$.", 6],
+    ["$\\int_0^1 8x^2 e^{-3x}dx$ needs parts how many times?", "Twice; result $\\frac{16}{27} - \\frac{136}{27}e^{-3}$.", 7],
+    ["$\\int \\text{cosec}^2 u\\,du = $?", "$-\\cot u + c$.", 9]
   ],
   quiz: [
     { q: "$\\int x e^x\\,dx =$", opts: ["$xe^x - e^x + c$", "$xe^x + e^x + c$", "$\\tfrac{x^2}{2}e^x + c$", "$e^x + c$"], ans: 0, why: "Parts with $u = x$." },
@@ -601,9 +597,8 @@ C["maths:8.7"] = {
     ["$\\int\\frac{20}{9 - 6V}dV = $?", "$-\\frac{10}{3}\\ln|9 - 6V| + c$."],
     ["$\\ln V = \\ln(2t-1) - \\ln(t+1) + c$ rearranged?", "$V = \\frac{A(2t-1)}{t+1}$."],
     ["$\\frac{dV}{dt} = \\frac{1}{10}V(25 - V)$: first step?", "Partial fractions on $\\frac{1}{V(25-V)}$, then separate."],
-    ["$\\frac{dH}{dt} = \\frac{H\\cos 0.25t}{40}$, $H(0) = 5$: solution?", "$H = 5e^{0.1\\sin 0.25t}$."],
-    ["Limit of $V = \\frac{100}{e^{-2.5t} + 4}$?", "25."],
-    ["Why can $\\frac{dy}{dx}$ be 'split' in separation?", "It is the chain rule: $\\int\\frac{1}{g(y)}\\frac{dy}{dx}dx = \\int\\frac{1}{g(y)}dy$."]
+    ["Limit of $V = \\frac{100}{e^{-2.5t} + 4}$?", "25.", 6],
+    ["Why can $\\frac{dy}{dx}$ be 'split' in separation?", "It is the chain rule: $\\int\\frac{1}{g(y)}\\frac{dy}{dx}dx = \\int\\frac{1}{g(y)}dy$.", 7]
   ],
   quiz: [
     { q: "$\\frac{dy}{dx} = xy$ separates to", opts: ["$\\tfrac1y dy = x\\,dx$", "$y\\,dy = x\\,dx$", "$dy = xy\\,dx$", "$\\tfrac1x dx = y\\,dy$"], ans: 0, why: "$y$'s left, $x$'s right." },

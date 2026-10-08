@@ -23,14 +23,14 @@ X("compsci:4.1.1.1", {
     { callout: { t: "memorise", h: "The eight built-ins to name on demand", body: "integer · real/float · Boolean · character · string · date/time · pointer/reference · record (plus array). The spec lists exactly these and a \"state three data types\" question wants three from this list, not `long` or `double`." }}
   ],
   flashcards: [
-    ["A variable will hold a UK postcode. Which data type and why?", "String — postcodes contain letters and a space, and no arithmetic is done on them."],
-    ["A variable holds the number of students in a class. Data type?", "Integer — a count is always a whole number."],
-    ["A variable records whether a form has been submitted. Data type?", "Boolean — exactly two states, true/false."],
-    ["What does a pointer/reference variable actually store?", "The memory address of another data item or object, typically one created dynamically at run time."],
-    ["Why store a telephone number as a string rather than an integer?", "Leading zeros must be kept, the value may contain + or spaces, and no arithmetic is ever performed on it."],
-    ["What is a user-defined data type?", "A type the programmer defines, built from language-defined (built-in) types — e.g. a record with named fields, or an enumeration."],
-    ["State the data type of the result of 7 / 2 in most languages.", "Real/float (3.5). Integer division would need DIV: 7 DIV 2 = 3."],
-    ["Why is date/time listed as a separate data type?", "It needs its own storage format and operations (differences, comparisons, formatting) that neither integer nor string provide safely."]
+    ["A variable will hold a UK postcode. Which data type and why?", "String — postcodes contain letters and a space, and no arithmetic is done on them.", 9],
+    ["A variable holds the number of students in a class. Data type?", "Integer — a count is always a whole number.", 10],
+    ["A variable records whether a form has been submitted. Data type?", "Boolean — exactly two states, true/false.", 11],
+    ["What does a pointer/reference variable actually store?", "The memory address of another data item or object, typically one created dynamically at run time.", 12],
+    ["Why store a telephone number as a string rather than an integer?", "Leading zeros must be kept, the value may contain + or spaces, and no arithmetic is ever performed on it.", 13],
+    ["What is a user-defined data type?", "A type the programmer defines, built from language-defined (built-in) types — e.g. a record with named fields, or an enumeration.", 14],
+    ["State the data type of the result of 7 / 2 in most languages.", "Real/float (3.5). Integer division would need DIV: 7 DIV 2 = 3.", 15],
+    ["Why is date/time listed as a separate data type?", "It needs its own storage format and operations (differences, comparisons, formatting) that neither integer nor string provide safely.", 16]
   ],
   quiz: [
     { q: "A program stores the time an order was placed to the second. Most appropriate type?", opts: ["String", "Integer", "Date/Time", "Real"], ans: 2, why: "Date/Time supports comparison and arithmetic on timestamps; a string cannot be compared chronologically without parsing." },
@@ -73,14 +73,14 @@ X("compsci:4.1.1.2", {
     { callout: { t: "memorise", h: "Definite vs indefinite iteration", body: "**Definite**: the number of repetitions is known before the loop starts (FOR). **Indefinite**: it depends on a condition tested at the **start** (WHILE — may run zero times) or the **end** (REPEAT…UNTIL / DO…WHILE — always runs at least once)." }}
   ],
   flashcards: [
-    ["Why choose WHILE rather than FOR for a loop that reads input until a sentinel value?", "The number of iterations is not known in advance — it depends on the data, so indefinite iteration is required."],
-    ["How does a REPEAT…UNTIL loop differ from WHILE on an input that fails the test immediately?", "REPEAT executes its body once before testing, so the failing input is still processed; WHILE tests first and executes zero times."],
-    ["Name the three combining principles of imperative programming.", "Sequence, selection (choice) and iteration (repetition)."],
-    ["What is nested selection?", "An IF statement placed inside a branch of another IF statement."],
-    ["Why use meaningful identifier names?", "The program is easier to understand, debug and maintain, by the original programmer and by others; the purpose of each variable is clear without comments."],
-    ["What is the difference between a variable declaration and an assignment?", "Declaration reserves storage and fixes the identifier and (usually) type; assignment stores a value in it."],
-    ["When is definite iteration appropriate?", "When the number of repetitions is known before the loop begins, e.g. processing every element of an array of known size."],
-    ["What does 'condition at the end of the iterative structure' guarantee?", "The loop body executes at least once."]
+    ["Why choose WHILE rather than FOR for a loop that reads input until a sentinel value?", "The number of iterations is not known in advance — it depends on the data, so indefinite iteration is required.", 9],
+    ["How does a REPEAT…UNTIL loop differ from WHILE on an input that fails the test immediately?", "REPEAT executes its body once before testing, so the failing input is still processed; WHILE tests first and executes zero times.", 10],
+    ["Name the three combining principles of imperative programming.", "Sequence, selection (choice) and iteration (repetition).", 11],
+    ["What is nested selection?", "An IF statement placed inside a branch of another IF statement.", 12],
+    ["Why use meaningful identifier names?", "The program is easier to understand, debug and maintain, by the original programmer and by others; the purpose of each variable is clear without comments.", 13],
+    ["What is the difference between a variable declaration and an assignment?", "Declaration reserves storage and fixes the identifier and (usually) type; assignment stores a value in it.", 14],
+    ["When is definite iteration appropriate?", "When the number of repetitions is known before the loop begins, e.g. processing every element of an array of known size.", 15],
+    ["What does 'condition at the end of the iterative structure' guarantee?", "The loop body executes at least once.", 16]
   ],
   quiz: [
     { q: "A loop must read marks until the user types −1. Which construct is most appropriate?", opts: ["FOR i ← 1 TO 10", "WHILE mark ≠ −1", "A sequence of ten READ statements", "A nested IF"], ans: 1, why: "The number of marks is unknown, so indefinite iteration with a condition is needed." },
@@ -110,14 +110,14 @@ X("compsci:4.1.1.2", {
 
 X("compsci:4.1.1.3", {
   flashcards: [
-    ["What is the result of 17 DIV 5 and 17 MOD 5?", "17 DIV 5 = 3 (integer quotient); 17 MOD 5 = 2 (remainder)."],
-    ["Which two operators extract the digits of an integer one at a time?", "MOD 10 gives the last digit; DIV 10 removes it."],
-    ["How do you test whether n is even using MOD?", "n MOD 2 = 0."],
-    ["What is truncation?", "Discarding the fractional part of a real number, always towards zero (e.g. 3.9 → 3, −3.9 → −3)."],
-    ["How does rounding differ from truncation for 2.7?", "Rounding gives 3 (nearest integer); truncation gives 2 (fractional part dropped)."],
-    ["Give the order of precedence for arithmetic operators.", "Exponentiation, then multiplication/division/DIV/MOD, then addition/subtraction; brackets override."],
-    ["What does 2 ^ 10 mean in pseudo-code?", "Exponentiation: 2 to the power 10 = 1024."],
-    ["Why might integer division be used when converting seconds to minutes?", "minutes ← seconds DIV 60 gives whole minutes; seconds MOD 60 gives the remaining seconds."]
+    ["What is the result of 17 DIV 5 and 17 MOD 5?", "17 DIV 5 = 3 (integer quotient); 17 MOD 5 = 2 (remainder).", 9],
+    ["Which two operators extract the digits of an integer one at a time?", "MOD 10 gives the last digit; DIV 10 removes it.", 10],
+    ["How do you test whether n is even using MOD?", "n MOD 2 = 0.", 11],
+    ["What is truncation?", "Discarding the fractional part of a real number, always towards zero (e.g. 3.9 → 3, −3.9 → −3).", 12],
+    ["How does rounding differ from truncation for 2.7?", "Rounding gives 3 (nearest integer); truncation gives 2 (fractional part dropped).", 13],
+    ["Give the order of precedence for arithmetic operators.", "Exponentiation, then multiplication/division/DIV/MOD, then addition/subtraction; brackets override.", 14],
+    ["What does 2 ^ 10 mean in pseudo-code?", "Exponentiation: 2 to the power 10 = 1024.", 15],
+    ["Why might integer division be used when converting seconds to minutes?", "minutes ← seconds DIV 60 gives whole minutes; seconds MOD 60 gives the remaining seconds.", 16]
   ],
   quiz: [
     { q: "What is 29 MOD 6?", opts: ["4", "5", "3", "6"], ans: 1, why: "29 = 4×6 + 5, so the remainder is 5." },
@@ -175,14 +175,13 @@ X("compsci:4.1.1.4", {
 
 X("compsci:4.1.1.5", {
   flashcards: [
-    ["Which Boolean operator has the highest precedence in NOT, AND, OR?", "NOT, then AND, then OR."],
-    ["What is the value of NOT (A AND B) when A = TRUE, B = FALSE?", "A AND B = FALSE; NOT FALSE = TRUE."],
-    ["State De Morgan's law for NOT (A OR B).", "NOT A AND NOT B."],
-    ["What is XOR?", "Exclusive OR — TRUE when exactly one input is TRUE; used in parity and simple encryption."],
-    ["What is short-circuit evaluation?", "In A AND B, if A is FALSE then B is never evaluated (and in A OR B, B is skipped when A is TRUE)."],
-    ["Simplify A OR (A AND B).", "A (absorption)."],
-    ["When would a programmer use XOR in a program?", "Toggling a Boolean flag, checking that exactly one of two options was chosen, or as a reversible cipher step."],
-    ["Rewrite `NOT (x > 5)` without NOT.", "x ≤ 5."]
+    ["Which Boolean operator has the highest precedence in NOT, AND, OR?", "NOT, then AND, then OR.", 8],
+    ["What is the value of NOT (A AND B) when A = TRUE, B = FALSE?", "A AND B = FALSE; NOT FALSE = TRUE.", 9],
+    ["What is XOR?", "Exclusive OR — TRUE when exactly one input is TRUE; used in parity and simple encryption.", 11],
+    ["What is short-circuit evaluation?", "In A AND B, if A is FALSE then B is never evaluated (and in A OR B, B is skipped when A is TRUE).", 12],
+    ["Simplify A OR (A AND B).", "A (absorption).", 13],
+    ["When would a programmer use XOR in a program?", "Toggling a Boolean flag, checking that exactly one of two options was chosen, or as a reversible cipher step.", 14],
+    ["Rewrite `NOT (x > 5)` without NOT.", "x ≤ 5.", 15]
   ],
   quiz: [
     { q: "A = TRUE, B = FALSE, C = TRUE. Evaluate `A AND B OR C`.", opts: ["TRUE", "FALSE", "Error", "Depends on the language"], ans: 0, why: "AND binds tighter: (TRUE AND FALSE) OR TRUE = FALSE OR TRUE = TRUE." },
@@ -265,14 +264,14 @@ X("compsci:4.1.1.7", {
     { callout: { t: "tip", body: "The palindrome and Caesar-cipher tasks both earn a mark for **normalising** (converting to one case / stripping spaces) and a mark for the **character-code arithmetic** wrapping with MOD 26 — write both as separate, visible statements." }}
   ],
   flashcards: [
-    ["How do you get the character code of 'A' and what is it in ASCII?", "CHAR_TO_CODE('A') → 65."],
-    ["Write pseudo-code to reverse a string s.", "r ← \"\"; FOR i ← LEN(s) − 1 TO 0 STEP −1: r ← r + s[i]; ENDFOR"],
-    ["Outline an algorithm to test whether a string is a palindrome.", "Normalise case (and strip non-letters), then compare character i with character LEN−1−i for i from 0 to LEN DIV 2 − 1; any mismatch → not a palindrome."],
-    ["What does SUBSTRING(2, 4, \"computer\") return (inclusive indices from 0)?", "\"mpu\"."],
-    ["What is concatenation?", "Joining two strings end to end, e.g. \"data\" + \"base\" → \"database\"."],
-    ["Why does a Caesar shift use MOD 26?", "So a shift past 'Z' wraps back to 'A': code ← (code − 65 + shift) MOD 26 + 65."],
-    ["What does POSITION(\"hello\", \"l\") return?", "2 — the index of the first occurrence."],
-    ["Why convert a string to an integer before arithmetic?", "\"12\" + \"3\" concatenates to \"123\"; STRING_TO_INT gives numeric 12 + 3 = 15."]
+    ["How do you get the character code of 'A' and what is it in ASCII?", "CHAR_TO_CODE('A') → 65.", 9],
+    ["Write pseudo-code to reverse a string s.", "r ← \"\"; FOR i ← LEN(s) − 1 TO 0 STEP −1: r ← r + s[i]; ENDFOR", 10],
+    ["Outline an algorithm to test whether a string is a palindrome.", "Normalise case (and strip non-letters), then compare character i with character LEN−1−i for i from 0 to LEN DIV 2 − 1; any mismatch → not a palindrome.", 11],
+    ["What does SUBSTRING(2, 4, \"computer\") return (inclusive indices from 0)?", "\"mpu\".", 12],
+    ["What is concatenation?", "Joining two strings end to end, e.g. \"data\" + \"base\" → \"database\".", 13],
+    ["Why does a Caesar shift use MOD 26?", "So a shift past 'Z' wraps back to 'A': code ← (code − 65 + shift) MOD 26 + 65.", 14],
+    ["What does POSITION(\"hello\", \"l\") return?", "2 — the index of the first occurrence.", 15],
+    ["Why convert a string to an integer before arithmetic?", "\"12\" + \"3\" concatenates to \"123\"; STRING_TO_INT gives numeric 12 + 3 = 15.", 16]
   ],
   quiz: [
     { q: "`LEN(\"A level\")` returns:", opts: ["6", "7", "8", "5"], ans: 1, why: "The space counts: A, space, l, e, v, e, l = 7." },
@@ -332,14 +331,14 @@ X("compsci:4.1.1.8", {
 
 X("compsci:4.1.1.9", {
   flashcards: [
-    ["What is an exception?", "An error or unexpected event that occurs during program execution and disrupts the normal flow, e.g. division by zero, file not found."],
-    ["What is the purpose of a TRY…CATCH (exception handling) block?", "To run code that might raise an exception and, if one occurs, transfer control to handling code instead of crashing."],
-    ["Name three common exceptions.", "Division by zero, array index out of range, file not found, invalid type conversion (e.g. STRING_TO_INT(\"abc\"))."],
-    ["Why is exception handling preferable to checking every possible error in advance?", "Some errors (hardware/file/network) cannot be predicted; the handler keeps the program running and can report or recover gracefully."],
-    ["What happens to an unhandled exception?", "It propagates up the call stack; if nothing catches it the program terminates with an error message."],
-    ["What is a FINALLY block for?", "Code that must run whether or not an exception occurred, e.g. closing a file."],
-    ["Should exceptions be used for normal control flow?", "No — they are for exceptional conditions; using them for routine decisions is slow and obscures logic."],
-    ["Give an example of graceful recovery from an exception.", "Catching an invalid input conversion and asking the user to enter the value again."]
+    ["What is an exception?", "An error or unexpected event that occurs during program execution and disrupts the normal flow, e.g. division by zero, file not found.", 10],
+    ["What is the purpose of a TRY…CATCH (exception handling) block?", "To run code that might raise an exception and, if one occurs, transfer control to handling code instead of crashing.", 11],
+    ["Name three common exceptions.", "Division by zero, array index out of range, file not found, invalid type conversion (e.g. STRING_TO_INT(\"abc\")).", 12],
+    ["Why is exception handling preferable to checking every possible error in advance?", "Some errors (hardware/file/network) cannot be predicted; the handler keeps the program running and can report or recover gracefully.", 13],
+    ["What happens to an unhandled exception?", "It propagates up the call stack; if nothing catches it the program terminates with an error message.", 14],
+    ["What is a FINALLY block for?", "Code that must run whether or not an exception occurred, e.g. closing a file.", 15],
+    ["Should exceptions be used for normal control flow?", "No — they are for exceptional conditions; using them for routine decisions is slow and obscures logic.", 16],
+    ["Give an example of graceful recovery from an exception.", "Catching an invalid input conversion and asking the user to enter the value again.", 17]
   ],
   quiz: [
     { q: "Which is an exception rather than a syntax error?", opts: ["A missing ENDIF", "Attempting to open a file that does not exist", "Misspelling a keyword", "A missing bracket"], ans: 1, why: "Exceptions occur at run time; the others are detected before execution." },
@@ -418,14 +417,14 @@ X("compsci:4.1.1.11", {
     { callout: { t: "memorise", h: "By value vs by reference", body: "**By value**: a copy of the data is passed; changes inside the subroutine do not affect the caller's variable. **By reference**: the address is passed; the subroutine works on the caller's variable so changes persist. Arrays are passed by reference in most languages." }}
   ],
   flashcards: [
-    ["What is a parameter?", "A variable in the subroutine's declaration that receives a value (the argument) when the subroutine is called."],
-    ["Difference between parameter and argument?", "The parameter is the name in the definition; the argument is the actual value/expression supplied in the call."],
-    ["What does passing by value mean?", "A copy of the argument is passed; changes inside the subroutine do not affect the original."],
-    ["What does passing by reference mean?", "The address of the argument is passed; the subroutine operates on the caller's variable, so changes persist."],
-    ["Why do parameters make a subroutine easier to reuse?", "It depends only on what is passed in, not on global state, so it can be called with different values and moved to another program."],
-    ["When would you pass by reference deliberately?", "When the subroutine must modify the caller's variable (e.g. swap two values) or to avoid copying a large structure."],
-    ["What happens if a subroutine expects two parameters and is called with one?", "A compile-time (or run-time) error — the interface must be matched."],
-    ["Give one advantage of listing parameters explicitly.", "It is clear which outside values the subroutine uses — better documentation and fewer hidden dependencies."]
+    ["What is a parameter?", "A variable in the subroutine's declaration that receives a value (the argument) when the subroutine is called.", 9],
+    ["Difference between parameter and argument?", "The parameter is the name in the definition; the argument is the actual value/expression supplied in the call.", 10],
+    ["What does passing by value mean?", "A copy of the argument is passed; changes inside the subroutine do not affect the original.", 11],
+    ["What does passing by reference mean?", "The address of the argument is passed; the subroutine operates on the caller's variable, so changes persist.", 12],
+    ["Why do parameters make a subroutine easier to reuse?", "It depends only on what is passed in, not on global state, so it can be called with different values and moved to another program.", 13],
+    ["When would you pass by reference deliberately?", "When the subroutine must modify the caller's variable (e.g. swap two values) or to avoid copying a large structure.", 14],
+    ["What happens if a subroutine expects two parameters and is called with one?", "A compile-time (or run-time) error — the interface must be matched.", 15],
+    ["Give one advantage of listing parameters explicitly.", "It is clear which outside values the subroutine uses — better documentation and fewer hidden dependencies.", 16]
   ],
   quiz: [
     { q: "In `Area(length, width)` called as `Area(5, 3)`, the values 5 and 3 are:", opts: ["parameters", "arguments", "locals", "globals"], ans: 1, why: "Actual values supplied at the call are arguments; length and width are the parameters." },
@@ -451,14 +450,14 @@ X("compsci:4.1.1.11", {
 
 X("compsci:4.1.1.12", {
   flashcards: [
-    ["How does a function hand a value back to the caller?", "With a RETURN statement; the value replaces the function call in the calling expression."],
-    ["Can a subroutine return more than one value?", "Yes — return a record/array/tuple, or use by-reference parameters, or (less cleanly) globals."],
-    ["What happens to statements after RETURN in a function?", "They never execute — RETURN exits the function immediately."],
-    ["Why should every path through a function return a value?", "Otherwise some inputs produce no result / an undefined value, causing a run-time error or a bug."],
-    ["What is the type of a function?", "The data type of the value it returns, e.g. an Integer function."],
-    ["Write a function that returns TRUE if n is even.", "FUNCTION IsEven(n): RETURN n MOD 2 = 0"],
-    ["How is a function call used?", "In an expression, e.g. `total ← total + Square(x)` — a procedure call cannot appear there."],
-    ["What does a Boolean-returning function often represent?", "A test or validation, e.g. IsValid(input)."]
+    ["How does a function hand a value back to the caller?", "With a RETURN statement; the value replaces the function call in the calling expression.", 8],
+    ["Can a subroutine return more than one value?", "Yes — return a record/array/tuple, or use by-reference parameters, or (less cleanly) globals.", 9],
+    ["What happens to statements after RETURN in a function?", "They never execute — RETURN exits the function immediately.", 10],
+    ["Why should every path through a function return a value?", "Otherwise some inputs produce no result / an undefined value, causing a run-time error or a bug.", 11],
+    ["What is the type of a function?", "The data type of the value it returns, e.g. an Integer function.", 12],
+    ["Write a function that returns TRUE if n is even.", "FUNCTION IsEven(n): RETURN n MOD 2 = 0", 13],
+    ["How is a function call used?", "In an expression, e.g. `total ← total + Square(x)` — a procedure call cannot appear there.", 14],
+    ["What does a Boolean-returning function often represent?", "A test or validation, e.g. IsValid(input).", 15]
   ],
   quiz: [
     { q: "`FUNCTION Max(a, b)`: `IF a > b THEN RETURN a ENDIF`. What is wrong?", opts: ["Nothing", "No value is returned when a ≤ b", "RETURN cannot be inside IF", "It returns b twice"], ans: 1, why: "The a ≤ b path falls off the end without a RETURN." },
@@ -480,14 +479,14 @@ X("compsci:4.1.1.12", {
 
 X("compsci:4.1.1.13", {
   flashcards: [
-    ["What is a local variable?", "A variable declared inside a subroutine, accessible only within it, existing only while the subroutine runs."],
-    ["Where are local variables stored during a call?", "In the subroutine's stack frame on the call stack."],
-    ["Why can two subroutines use the same local variable name?", "Each name is in its own scope; they are different variables in different stack frames."],
-    ["Does a local variable keep its value between calls?", "No — a new one is created each call and destroyed on return."],
-    ["Why do locals aid modularisation?", "The subroutine depends on nothing outside itself except its parameters, so it can be moved or reused."],
-    ["What is variable shadowing?", "A local with the same name as a global hides the global inside the subroutine."],
-    ["Name a memory advantage of local variables.", "Memory is allocated only while the subroutine executes and is reused afterwards."],
-    ["In recursion, how many copies of a local variable exist?", "One per active call — each stack frame has its own."]
+    ["What is a local variable?", "A variable declared inside a subroutine, accessible only within it, existing only while the subroutine runs.", 9],
+    ["Where are local variables stored during a call?", "In the subroutine's stack frame on the call stack.", 10],
+    ["Why can two subroutines use the same local variable name?", "Each name is in its own scope; they are different variables in different stack frames.", 11],
+    ["Does a local variable keep its value between calls?", "No — a new one is created each call and destroyed on return.", 12],
+    ["Why do locals aid modularisation?", "The subroutine depends on nothing outside itself except its parameters, so it can be moved or reused.", 13],
+    ["What is variable shadowing?", "A local with the same name as a global hides the global inside the subroutine.", 14],
+    ["Name a memory advantage of local variables.", "Memory is allocated only while the subroutine executes and is reused afterwards.", 15],
+    ["In recursion, how many copies of a local variable exist?", "One per active call — each stack frame has its own.", 16]
   ],
   quiz: [
     { q: "A local variable's lifetime is:", opts: ["the whole program run", "the execution of its subroutine", "until the next call", "one statement"], ans: 1, why: "Created on call, destroyed on return." },
@@ -509,14 +508,14 @@ X("compsci:4.1.1.13", {
 
 X("compsci:4.1.1.14", {
   flashcards: [
-    ["What is a global variable?", "A variable declared in the main program block (outside all subroutines) that can be accessed from anywhere in the program."],
-    ["Give one problem caused by global variables.", "Unintended side-effects: any subroutine can change it, so bugs are hard to trace; subroutines become dependent on outside state."],
-    ["When might a global be acceptable?", "For a value genuinely used throughout the program, e.g. a configuration setting — though a constant is often better."],
-    ["How does a global's lifetime differ from a local's?", "A global exists for the whole program run; a local only while its subroutine executes."],
-    ["Why do globals make testing harder?", "A subroutine's behaviour depends on the global's current value, so it cannot be tested in isolation."],
-    ["What is the alternative to using a global to share data with a subroutine?", "Pass it as a parameter (and return results with RETURN)."],
-    ["Can a subroutine modify a global?", "Yes — which is exactly the side-effect risk."],
-    ["Why do globals hinder reuse?", "The subroutine relies on a variable that may not exist in another program."]
+    ["What is a global variable?", "A variable declared in the main program block (outside all subroutines) that can be accessed from anywhere in the program.", 8],
+    ["Give one problem caused by global variables.", "Unintended side-effects: any subroutine can change it, so bugs are hard to trace; subroutines become dependent on outside state.", 9],
+    ["When might a global be acceptable?", "For a value genuinely used throughout the program, e.g. a configuration setting — though a constant is often better.", 10],
+    ["How does a global's lifetime differ from a local's?", "A global exists for the whole program run; a local only while its subroutine executes.", 11],
+    ["Why do globals make testing harder?", "A subroutine's behaviour depends on the global's current value, so it cannot be tested in isolation.", 12],
+    ["What is the alternative to using a global to share data with a subroutine?", "Pass it as a parameter (and return results with RETURN).", 13],
+    ["Can a subroutine modify a global?", "Yes — which is exactly the side-effect risk.", 14],
+    ["Why do globals hinder reuse?", "The subroutine relies on a variable that may not exist in another program.", 15]
   ],
   quiz: [
     { q: "A global variable is declared:", opts: ["inside a subroutine", "in the main program block / outside subroutines", "in a stack frame", "in a parameter list"], ans: 1, why: "That placement is what makes its scope program-wide." },
@@ -542,14 +541,14 @@ X("compsci:4.1.1.15", {
     { callout: { t: "tip", body: "When a trace asks for the *state of the stack* after nested calls, draw one frame per **active** call, most recent on top, and label the return address as \"the statement after the call in the caller\" — not a line number you have invented." }}
   ],
   flashcards: [
-    ["What is a stack frame?", "The block of data pushed onto the call stack for one subroutine call: return address, parameters, local variables and saved register values."],
-    ["Why is a stack (LIFO) the right structure for subroutine calls?", "The most recently called subroutine is always the first to finish, so its frame is on top when it returns."],
-    ["What is the return address?", "The address of the instruction to execute after the subroutine finishes — the one following the call."],
-    ["What happens to the stack when a subroutine returns?", "Its frame is popped; execution continues at the return address with the caller's frame now on top."],
-    ["What causes stack overflow?", "Too many nested (often recursive) calls push more frames than the stack can hold."],
-    ["What is the stack pointer?", "A register holding the address of the top of the stack."],
-    ["Which register value must be saved so the caller can resume?", "The program counter (as the return address), and typically the accumulator/other working registers."],
-    ["Where do a subroutine's parameters live during its execution?", "In its stack frame (or in registers for the first few, depending on the calling convention)."]
+    ["What is a stack frame?", "The block of data pushed onto the call stack for one subroutine call: return address, parameters, local variables and saved register values.", 9],
+    ["Why is a stack (LIFO) the right structure for subroutine calls?", "The most recently called subroutine is always the first to finish, so its frame is on top when it returns.", 10],
+    ["What is the return address?", "The address of the instruction to execute after the subroutine finishes — the one following the call.", 11],
+    ["What happens to the stack when a subroutine returns?", "Its frame is popped; execution continues at the return address with the caller's frame now on top.", 12],
+    ["What causes stack overflow?", "Too many nested (often recursive) calls push more frames than the stack can hold.", 13],
+    ["What is the stack pointer?", "A register holding the address of the top of the stack.", 14],
+    ["Which register value must be saved so the caller can resume?", "The program counter (as the return address), and typically the accumulator/other working registers.", 15],
+    ["Where do a subroutine's parameters live during its execution?", "In its stack frame (or in registers for the first few, depending on the calling convention).", 16]
   ],
   quiz: [
     { q: "Which is NOT normally stored in a stack frame?", opts: ["Return address", "Local variables", "The program's source code", "Parameters"], ans: 2, why: "Code lives in the program area; the frame holds per-call data." },
@@ -577,14 +576,13 @@ X("compsci:4.1.1.16", {
     { callout: { t: "tip", h: "Trace-table discipline", body: "Write the calls **in the order they are made**, deepest last; then fill the *value returned* column **bottom-up** — the deepest call returns first. Examiners award a mark for the argument column being right and a separate mark for the returned values, so a half-finished table still scores." }}
   ],
   flashcards: [
-    ["What is a recursive subroutine?", "A subroutine that calls itself."],
-    ["What is a base case?", "The condition under which a recursive subroutine does not call itself, so the recursion terminates."],
-    ["What is the general (recursive) case?", "The branch in which the subroutine calls itself with a smaller / simpler argument that moves towards the base case."],
-    ["Why must each recursive call move towards the base case?", "Otherwise the recursion never terminates and the stack overflows."],
-    ["Why is naive recursive Fibonacci inefficient?", "It recomputes the same sub-problems many times; the number of calls grows exponentially with n."],
-    ["Give three problems naturally solved recursively.", "Tree traversal, factorial/Fibonacci, binary search, depth-first search, merge sort, Tower of Hanoi."],
-    ["What is the space cost of recursion depth d?", "d stack frames must exist at once — O(d) memory."],
-    ["What does `Sum([]) = 0; Sum(h:t) = h + Sum(t)` compute?", "The sum of a list, recursing on the tail until the empty list."]
+    ["What is a base case?", "The condition under which a recursive subroutine does not call itself, so the recursion terminates.", 13],
+    ["What is the general (recursive) case?", "The branch in which the subroutine calls itself with a smaller / simpler argument that moves towards the base case.", 14],
+    ["Why must each recursive call move towards the base case?", "Otherwise the recursion never terminates and the stack overflows.", 15],
+    ["Why is naive recursive Fibonacci inefficient?", "It recomputes the same sub-problems many times; the number of calls grows exponentially with n.", 16],
+    ["Give three problems naturally solved recursively.", "Tree traversal, factorial/Fibonacci, binary search, depth-first search, merge sort, Tower of Hanoi.", 17],
+    ["What is the space cost of recursion depth d?", "d stack frames must exist at once — O(d) memory.", 18],
+    ["What does `Sum([]) = 0; Sum(h:t) = h + Sum(t)` compute?", "The sum of a list, recursing on the tail until the empty list.", 19]
   ],
   quiz: [
     { q: "The base case of `Fact(n) = n × Fact(n − 1)` is:", opts: ["n = 1 returns 1", "n = 10", "n × 1", "there is none"], ans: 0, why: "Fact(1) (or Fact(0)) = 1 stops the recursion." },
@@ -616,14 +614,14 @@ X("compsci:4.1.1.16", {
 
 X("compsci:4.1.2.1", {
   flashcards: [
-    ["What is a programming paradigm?", "A style or approach to programming — the way a program is structured and its computation expressed, e.g. procedural, object-oriented, functional, declarative."],
-    ["Name the four paradigms the specification lists.", "Procedural (imperative), object-oriented, functional and (as context) declarative/logic."],
-    ["How does a procedural program express computation?", "As a sequence of instructions that change state, organised into subroutines."],
-    ["How does a functional program express computation?", "As the evaluation of functions without side-effects; no mutable state, functions are first-class."],
-    ["What distinguishes object-oriented programming?", "Data and the operations on it are bundled into objects; classes, inheritance, encapsulation and polymorphism."],
-    ["What is a declarative language?", "One where you state what result is wanted, not how to compute it — e.g. SQL, Prolog."],
-    ["Why might one language support several paradigms?", "Modern languages (C#, Python) mix procedural, OO and functional features; the paradigm is how you use it."],
-    ["Which paradigm is best suited to modelling a system of interacting real-world entities?", "Object-oriented — objects map naturally onto the entities."]
+    ["What is a programming paradigm?", "A style or approach to programming — the way a program is structured and its computation expressed, e.g. procedural, object-oriented, functional, declarative.", 8],
+    ["Name the four paradigms the specification lists.", "Procedural (imperative), object-oriented, functional and (as context) declarative/logic.", 9],
+    ["How does a procedural program express computation?", "As a sequence of instructions that change state, organised into subroutines.", 10],
+    ["How does a functional program express computation?", "As the evaluation of functions without side-effects; no mutable state, functions are first-class.", 11],
+    ["What distinguishes object-oriented programming?", "Data and the operations on it are bundled into objects; classes, inheritance, encapsulation and polymorphism.", 12],
+    ["What is a declarative language?", "One where you state what result is wanted, not how to compute it — e.g. SQL, Prolog.", 13],
+    ["Why might one language support several paradigms?", "Modern languages (C#, Python) mix procedural, OO and functional features; the paradigm is how you use it.", 14],
+    ["Which paradigm is best suited to modelling a system of interacting real-world entities?", "Object-oriented — objects map naturally onto the entities.", 15]
   ],
   quiz: [
     { q: "SQL is best described as:", opts: ["procedural", "object-oriented", "declarative", "functional"], ans: 2, why: "You say what data you want, not how to retrieve it." },
@@ -645,14 +643,14 @@ X("compsci:4.1.2.1", {
 
 X("compsci:4.1.2.2", {
   flashcards: [
-    ["What is structured programming?", "A procedural style using only sequence, selection and iteration, with subroutines and no unstructured jumps (GOTO)."],
-    ["What is a hierarchy chart?", "A diagram showing a program decomposed into modules/subroutines, top-down, with each level calling the ones below."],
-    ["Give two benefits of the structured approach.", "Easier to read and debug (block structure, one entry/exit per block); easier to test modules separately; easier to maintain and reuse."],
-    ["What does 'top-down design' mean?", "Start from the whole problem and repeatedly break it into smaller sub-tasks until each is simple enough to code."],
-    ["Why is GOTO avoided?", "It produces 'spaghetti' control flow that is hard to follow and test."],
-    ["What is stepwise refinement?", "Successively adding detail to a high-level outline until it is executable code."],
-    ["How do procedures relate to the procedural paradigm?", "They are the unit of decomposition — the program is a set of procedures that call one another."],
-    ["What is meant by 'one entry, one exit'?", "Each block of structured code has a single point where it is entered and one where it is left, aiding reasoning."]
+    ["What is structured programming?", "A procedural style using only sequence, selection and iteration, with subroutines and no unstructured jumps (GOTO).", 9],
+    ["What is a hierarchy chart?", "A diagram showing a program decomposed into modules/subroutines, top-down, with each level calling the ones below.", 10],
+    ["Give two benefits of the structured approach.", "Easier to read and debug (block structure, one entry/exit per block); easier to test modules separately; easier to maintain and reuse.", 11],
+    ["What does 'top-down design' mean?", "Start from the whole problem and repeatedly break it into smaller sub-tasks until each is simple enough to code.", 12],
+    ["Why is GOTO avoided?", "It produces 'spaghetti' control flow that is hard to follow and test.", 13],
+    ["What is stepwise refinement?", "Successively adding detail to a high-level outline until it is executable code.", 14],
+    ["How do procedures relate to the procedural paradigm?", "They are the unit of decomposition — the program is a set of procedures that call one another.", 15],
+    ["What is meant by 'one entry, one exit'?", "Each block of structured code has a single point where it is entered and one where it is left, aiding reasoning.", 16]
   ],
   quiz: [
     { q: "Structured programming uses which three control structures?", opts: ["sequence, selection, iteration", "GOTO, jump, branch", "class, object, method", "map, filter, reduce"], ans: 0, why: "The three combining principles." },

@@ -484,7 +484,14 @@ source comments and audit notes refer to it.
     fork and the shipped material returns exactly.
 87. A forked flashcard keeps the SM-2 key it shipped with (`sid:ref:i`) through
     every edit, reorder or neighbour deletion; a card added in the editor gets
-    `sid:ref:<rowId>`. Rewording never resets a schedule.
+    `sid:ref:<rowId>`. Rewording never resets a schedule. The same holds for
+    the SHIPPED deck: when cards are removed from a content file, every card
+    whose position moved carries its original position as an optional third
+    element, `[q, a, 7]` (a string containing `:` is a whole key, for a card
+    moved in from another deck). `srs.js` `shippedKey` and `edits.js`
+    `shippedFlashcards` read it, so a removed duplicate never hands its
+    schedule to the card that slid into its place. New cards need no third
+    element; never renumber one that has it.
 88. Every fork row carries an `id`: shipped rows a DETERMINISTIC `s<i>`, new
     rows a random string. The cloud merge keys nested record arrays on it, so
     two devices forking the same topic fold the shared rows and keep both
