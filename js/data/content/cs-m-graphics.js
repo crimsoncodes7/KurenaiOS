@@ -108,10 +108,7 @@ C["compsci:4.5.6.4"] = {
     {"q":"Deleting an object in a vector image","opts":["leaves no hole","leaves a blank area","corrupts it","changes the colour depth"],"ans":0,"why":"Objects are separate."}
   ],
   exam: [
-    {"src":"AQA 2024 P2 Q2","ctx":"A camera produces 4000 × 3000 pixel images with a colour depth of 24 bits, stored uncompressed with no metadata.","parts":[{"q":"Calculate the size of one image in mebibytes, to 2 decimal places. Show your working.","marks":2,"ms":["4000 × 3000 × 24 / 8 = 36 000 000 bytes (1)","÷ 1024² = 34.33 MiB (1)"]},{"q":"The camera's memory card holds 16 GiB. Calculate how many images it can store.","marks":1,"ms":["16 × 1024 / 34.33 = 477 (rounded down) (1)"]}]},
-    {"level":"AS","src":"AS 2024 P2 Q3","ctx":"A 640 × 480 bitmap image is stored in a file of 307 200 bytes. The file also contains some additional information.","parts":[{"q":"Ignoring the additional information, calculate the colour depth of the image.","marks":2,"ms":["307 200 × 8 = 2 457 600 bits ÷ (640 × 480 = 307 200 pixels) (1)","8 bits (1)"]},{"q":"State the name given to the additional information and give one example of what it might contain.","marks":1,"ms":["Metadata — e.g. width, height, colour depth, date created (1)"]}]},
-    {"level":"AS","src":"AS 2018 P2 Q12","q":"An image is 120 pixels wide and 80 pixels high and uses five colours. Calculate the minimum file size in bytes, showing your working.","marks":3,"ms":["Five colours need 3 bits per pixel (1)","120 × 80 × 3 = 28 800 bits (1)","÷ 8 = 3600 bytes (1)"]},
-    {"src":"AQA 2021 P2 Q1","ctx":"A company logo consisting of a few coloured shapes is stored as both a 1200 × 800 24-bit bitmap and as a vector graphic.","parts":[{"q":"Explain why the vector file is much smaller than the bitmap file.","marks":3,"ms":["The bitmap stores a colour value for every one of the 960 000 pixels (1)","The vector graphic stores only each shape's type and properties — coordinates, size, colour (1)","A few shapes need only a few values, so far less data regardless of the image's dimensions (1)"]},{"q":"State two other advantages of storing the logo as a vector graphic.","marks":2,"ms":["It can be scaled to any size without loss of quality / pixelation (1)","Individual shapes can be edited, moved or recoloured independently (1)"]}]}
+
   ]
 };
 

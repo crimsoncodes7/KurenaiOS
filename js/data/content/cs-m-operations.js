@@ -86,7 +86,6 @@ C["compsci:4.1.1.3"] = {
     ["How does C# compare two strings with ==?","By their text (characters), not by reference.","compsci:4.1.1.4:2"],
     ["'A' < 'a'?","True — 65 < 97.","compsci:4.1.1.4:3"],
     ["Condition for 'outside 1–10'?","n < 1 || n > 10.","compsci:4.1.1.4:4"],
-    ["Condition for 'inside 1–10'?","n >= 1 && n <= 10.","compsci:4.1.1.4:5"],
     ["Why test 999 and 1000 for a 0–999 rule?","To catch off-by-one errors at the boundary.","compsci:4.1.1.4:6"],
     ["What type does a relational expression evaluate to?","Boolean — TRUE or FALSE.","compsci:4.1.1.4:9"],
     ["Why is `IF x = 1 OR 2` wrong?","`2` is not a Boolean; each comparison must be complete: `x = 1 OR x = 2`.","compsci:4.1.1.4:10"],
@@ -98,8 +97,6 @@ C["compsci:4.1.1.3"] = {
     ["De Morgan: NOT (A AND B) =","NOT A OR NOT B.","compsci:4.1.1.5:2"],
     ["Precedence of ! && || in C#?","! highest, then &&, then ||.","compsci:4.1.1.5:4"],
     ["Short-circuit evaluation?","&& / || skip the right side when the left already decides the result.","compsci:4.1.1.5:5"],
-    ["Is OR inclusive?","Yes — true when both are true.","compsci:4.1.1.5:6"],
-    ["What is the value of NOT (A AND B) when A = TRUE, B = FALSE?","A AND B = FALSE; NOT FALSE = TRUE.","compsci:4.1.1.5:9"],
     ["When would a programmer use XOR in a program?","Toggling a Boolean flag, checking that exactly one of two options was chosen, or as a reversible cipher step.","compsci:4.1.1.5:14"],
     ["Rewrite `NOT (x > 5)` without NOT.","x ≤ 5.","compsci:4.1.1.5:15"]
   ],
@@ -110,7 +107,6 @@ C["compsci:4.1.1.3"] = {
     {"q":"What is 29 MOD 6?","opts":["4","5","3","6"],"ans":1,"why":"29 = 4×6 + 5, so the remainder is 5."},
     {"q":"Which expression gives the tens digit of a three-digit integer n?","opts":["n MOD 10","(n DIV 10) MOD 10","n DIV 100","n MOD 100"],"ans":1,"why":"DIV 10 drops the units digit, then MOD 10 isolates what is now the last digit."},
     {"q":"Keep asking while n is NOT between 1 and 10:","opts":["while (n < 1 || n > 10)","while (n < 1 && n > 10)","while (n >= 1 && n <= 10)","while (n == 10)"],"ans":0,"why":"Outside = OR."},
-    {"q":"Which condition is TRUE only when `n` lies strictly between 10 and 20?","opts":["n > 10 OR n < 20","n > 10 AND n < 20","n ≥ 10 AND n ≤ 20","NOT (n > 10)"],"ans":1,"why":"Strictly between excludes the ends and both comparisons must hold — AND."},
     {"q":"What is wrong with `IF mark ≥ 50 AND ≤ 70`?","opts":["Nothing","≤ 70 is not a complete comparison","AND cannot join comparisons","Mark should be a string"],"ans":1,"why":"Each side of AND must be a Boolean: `mark ≥ 50 AND mark ≤ 70`."},
     {"q":"Why should `IF total = 0.3` be avoided when total is a real accumulated by adding 0.1 three times?","opts":["Reals cannot be compared","Rounding error may make total ≠ 0.3 exactly","0.3 is an integer","= is not a relational operator"],"ans":1,"why":"Binary floating point cannot represent 0.1 exactly, so the sum may be 0.30000000000000004."},
     {"q":"NOT (A OR B) equals","opts":["NOT A AND NOT B","NOT A OR NOT B","A AND B","A XOR B"],"ans":0,"why":"De Morgan."},
@@ -122,13 +118,9 @@ C["compsci:4.1.1.3"] = {
     {"src":"AQA 2021 P2 Q1","q":"Explain, using an example, the difference between rounding and truncation when a real number is converted to an integer.","marks":2,"ms":["Rounding gives the nearest integer, e.g. 6.8 → 7 (1)","Truncation discards the fractional part, e.g. 6.8 → 6 (1)"]},
     {"src":"AQA 2018 P2 Q3","q":"A subroutine must determine whether an integer `n` is a multiple of both 3 and 4. Write an expression that evaluates to TRUE exactly when this is the case.","marks":2,"ms":["Uses MOD with 3 and MOD with 4 tested against 0 (1)","Combined correctly with AND: `(n MOD 3 = 0) AND (n MOD 4 = 0)` (accept `n MOD 12 = 0`) (1)"]},
     {"level":"AS","src":"AS 2023 P1 Q5.1","q":"Write a program that inputs a positive integer and outputs the sum of its digits. For example, 4072 gives 13.","marks":5,"ms":["Input taken (with validation for a positive integer) (1)","Loop that continues while the number is greater than 0 (1)","Digit extracted with MOD 10 and added to a running total (1)","Number reduced with DIV 10 each iteration (1)","Correct total output — program works for the example (1)"]},
-    {"level":"AS","src":"AS 2020 P1 Q3","q":"A program validates that a percentage mark entered is in the range 0 to 100 inclusive. Write a Boolean expression that is TRUE when the mark is **invalid**.","marks":2,"ms":["Correct comparisons: mark < 0, mark > 100 (1)","Combined with OR: `mark < 0 OR mark > 100` (accept `NOT (mark ≥ 0 AND mark ≤ 100)`) (1)"]},
     {"src":"AQA 2022 P1 Q3","q":"A loop is written as `FOR i ← 1 TO Length(word)` to examine each character of `word`, whose characters are indexed from 0. Explain the error and state the correct loop bounds.","marks":2,"ms":["Off-by-one: index Length(word) does not exist / the first character at index 0 is missed (1)","Correct bounds: `FOR i ← 0 TO Length(word) − 1` (1)"]},
     {"src":"AQA 2017 P2 Q2","q":"Explain why testing two real numbers with `=` can give an unexpected result, and describe how a programmer should test whether they are equal.","marks":3,"ms":["Reals are stored with limited precision so arithmetic introduces rounding errors (1)","Two values that are mathematically equal may differ in their least significant bits (1)","Test whether the absolute difference is less than a small tolerance, e.g. `ABS(a − b) < 0.0001` (1)"]},
-    {"level":"AS","src":"AS 2018 P1 Q2","q":"State the value of each of the following expressions. (i) `9 MOD 4 = 1` (ii) `\"cat\" ≠ \"Cat\"` (iii) `NOT (6 > 2)`","marks":3,"ms":["(i) TRUE (1)","(ii) TRUE — comparison is case-sensitive (1)","(iii) FALSE (1)"]},
-    {"level":"AS","src":"AS 2022 P1 Q1","q":"A lift will move only if the doors are closed and either the up button or the down button (but not both) has been pressed. Write a Boolean expression for `Move` using the variables `DoorsClosed`, `Up` and `Down`.","marks":2,"ms":["`Up XOR Down` (or `(Up OR Down) AND NOT (Up AND Down)`) (1)","Combined with `DoorsClosed AND …` (1)"]},
     {"src":"AQA 2024 P2 Q2","q":"Complete the truth table for `NOT A OR (A AND B)` and hence state a simpler equivalent expression.","marks":3,"ms":["Column for A AND B: F F F T; column for NOT A: T T F F (1)","Final column: T T F T (1)","Equivalent to `NOT A OR B` (1)"]},
-    {"src":"AQA 2019 P1 Q3","q":"Explain what is meant by short-circuit evaluation of a Boolean expression and why a programmer might rely on it.","marks":2,"ms":["The second operand is not evaluated when the first already determines the result — e.g. FALSE AND x, TRUE OR x (1)","Allows a guard such as `index < length AND array[index] = target` to avoid an out-of-range access / division by zero (1)"]},
     {"level":"AS","src":"AS 2024 P1 Q1","q":"Using De Morgan's law, rewrite `NOT (age < 18 OR member = FALSE)` without a NOT operator applied to a bracketed expression.","marks":2,"ms":["`NOT (age < 18) AND NOT (member = FALSE)` (1)","Simplified to `age ≥ 18 AND member = TRUE` (accept `age ≥ 18 AND member`) (1)"]}
   ]
 };

@@ -62,7 +62,6 @@ C["compsci:4.5.6.1"] = {
   flashcards: [
     ["What decides what a bit pattern means?","How the program interprets it (and the metadata).","compsci:4.5.6.1:0"],
     ["What does each sample's bit pattern represent?","The amplitude of the wave at that instant.","compsci:4.5.6.1:1"],
-    ["What does each pixel's bit pattern represent?","Its colour.","compsci:4.5.6.1:2"],
     ["What is metadata?","Data about the data — e.g. width, height, colour depth, sample rate.","compsci:4.5.6.1:3"],
     ["Why is an image file bigger than width × height × depth?","Metadata is stored as well.","compsci:4.5.6.1:5"],
     ["Is a bit pattern typed?","No — the bits carry no type.","compsci:4.5.6.1:6"],
@@ -107,8 +106,7 @@ C["compsci:4.5.6.1"] = {
     {"q":"A thermometer sensor feeding a computer needs:","opts":["a DAC","an ADC","MIDI","a modem"],"ans":1,"why":"Analogue in."}
   ],
   exam: [
-    {"src":"AQA 2017 P2 Q5","q":"Explain why the bit pattern `01001000` might be interpreted differently by two programs, giving two possible interpretations.","marks":2,"ms":["Bit patterns have no inherent meaning; the program (or hardware) decides how to interpret them according to the data type / file format (1)","e.g. the integer 72 in one program and the character 'H' in another (accept a colour value, an instruction, a sound sample) (1)"]},
-    {"level":"AS","src":"AS 2020 P2 Q3.1","q":"Describe the steps an analogue-to-digital converter carries out to convert a sound signal into digital form.","marks":3,"ms":["The analogue signal is sampled at regular / fixed time intervals (1)","The amplitude (voltage) of the signal is measured at each sample point (1)","Each measurement is coded / stored as a fixed number of bits (1)"]}
+
   ]
 };
 
