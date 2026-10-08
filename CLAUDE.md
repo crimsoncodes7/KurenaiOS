@@ -12,10 +12,11 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `232769b` (the personal CS and Maths plan laid
-  out again from w/c 12 Oct, and the class plan extended to Easter)
-- Runtime release: `232769b` — immutable deployment
-  https://26ba91af.kurenai-os.pages.dev (7 October 2026)
+- Release source checkpoint: `5ccfbd6` (501 duplicate and dependent
+  flashcards removed; twelve groups of tiny CS sub-points merged, 157 → 131
+  leaves)
+- Runtime release: `5ccfbd6` — immutable deployment
+  https://7f4a55ea.kurenai-os.pages.dev (9 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-cs-merge-1`
 - Required smoke gate: 67 / 67 suites.

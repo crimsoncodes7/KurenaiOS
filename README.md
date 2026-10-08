@@ -19,12 +19,13 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `232769b` (7 October 2026: the personal CS and
-  Maths plan laid out again, the class plan extended to Easter) — immutable
-  deployment https://26ba91af.kurenai-os.pages.dev
+- Runtime release commit: `5ccfbd6` (9 October 2026: 501 duplicate and
+  dependent flashcards removed, twelve groups of tiny Computer Science
+  sub-points merged into one leaf each) — immutable deployment
+  https://7f4a55ea.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-plan-reflow-1`
-- Verification: all **66 smoke suites**, including the rebuild guards
+- Service-worker cache: `kos-cs-merge-1`
+- Verification: all **67 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).
 
