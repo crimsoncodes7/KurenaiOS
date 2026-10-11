@@ -259,6 +259,11 @@ color-scheme: dark;
 --lab-range-w: 150px;
 --lab-note-h: 80px;
 --lab-stage-h: 220px;
+--lab-read-w: 300px;        /* the lab system's readout column (20a) */
+--lab-mini-w: 150px;        /* the stage's minimap while a drawing pans */
+--lab-toggle-w: 34px;
+--lab-toggle-h: 20px;
+--lab-speed-w: 90px;
 --lab-tt-w: 420px;
 --lab-switch-w: 58px;
 --lab-bit-sw-w: 32px;

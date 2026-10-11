@@ -46,14 +46,13 @@
     }
   };
 
-  /* the four Trace Lab structures, mounted INLINE on their topic's Simulate
-     tab (KOS.traceLabs lives in trace.js, which loads before this file) */
+  /* two Trace Lab structures, mounted INLINE on their topic's Simulate tab
+     (KOS.traceLabs lives in trace.js, which loads before this file); the
+     linked list and the BST are 20a diagrams in sims-structures.js */
   [["tl-stack","Stack push / pop / peek","stack","compsci","4.2.3.1"],
-   ["tl-queue","Linear & circular queue","queue","compsci","4.2.2.1"],
-   ["tl-list","Linked list traversal","list","compsci","4.2.1.4"],
-   ["tl-tree","BST insert & traversals","tree","compsci","4.2.5.1"]
+   ["tl-queue","Linear & circular queue","queue","compsci","4.2.2.1"]
   ].forEach(function (t) {
-    KOS.sims.register({ id: t[0], title: t[1], subject: t[3], ref: t[4],
+    KOS.sims.register({ id: t[0], title: t[1], subject: t[3], ref: t[4], trace: true,
       desc: "Animated canvas with pointer arithmetic and a live trace table.",
       mount: function (panel) { KOS.traceLabs.mount(t[2], panel); } });
   });
@@ -203,103 +202,6 @@
         KOS.ui.hookify(tblWrap);
       }
       build();
-    }
-  });
-
-  /* =================== 2. SORT VISUALISER =================== */
-  KOS.sims.register({
-    id: "sort-viz", title: "Sorting Visualiser", subject: "compsci", ref: "4.3.5.1",
-    desc: "Bubble vs merge on the same data — watch comparisons and swaps mount up, then quote the Big-O difference.",
-    mount: function (panel) {
-      var alg = el("select", {}, [
-        el("option", { value: "bubble", text: "bubble sort — O(n²)" }),
-        el("option", { value: "merge", text: "merge sort — O(n log n)" })
-      ]);
-      var speed = el("input", { type: "range", min: 1, max: 10, value: 6, style: "--w: 120px" });
-      var stats = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("label", {}, ["algorithm", alg]),
-        el("label", {}, ["speed", speed]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Sort", onclick: run }),
-        el("button", { class: "k-btn k-lab-alt", text: "⚄ New data", onclick: reset }),
-        stats
-      ]));
-      var holder = el("div", {});
-      panel.appendChild(holder);
-      var cv = dprCanvas(holder, 300);
-      var N = 28, data = [], comparisons = 0, swaps = 0, running = false;
-      var hot = [-1, -1], sortedFrom = N, band = null;
-
-      function reset() {
-        if (running) return;
-        data = [];
-        for (var i = 0; i < N; i++) data.push(8 + Math.floor(Math.random() * 92));
-        comparisons = 0; swaps = 0; hot = [-1, -1]; sortedFrom = N; band = null;
-        stats.textContent = "";
-        draw();
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var bw = (cv.W - 40) / N;
-        data.forEach(function (v, i) {
-          var h = (cv.H - 60) * v / 100;
-          var x = 20 + i * bw, y = cv.H - 30 - h;
-          ctx.fillStyle = i === hot[0] || i === hot[1] ? COL.crim :
-            (band && i >= band[0] && i <= band[1]) ? COL.vio :
-            i >= sortedFrom ? COL.jade : COL.blue;
-          ctx.fillRect(x, y, bw - 3, h);
-        });
-        ctx.fillStyle = COL.faint;
-        ctx.font = "11px 'SF Mono',Consolas,monospace";
-        ctx.textAlign = "left";
-        ctx.fillText("comparisons: " + comparisons + "   swaps/writes: " + swaps, 20, 18);
-      }
-      function delay() { return 320 - speed.value * 30; }
-      function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-
-      async function run() {
-        if (running) return;
-        running = true; comparisons = 0; swaps = 0; sortedFrom = N;
-        if (alg.value === "bubble") await bubble(); else await merge(0, N - 1);
-        hot = [-1, -1]; band = null; sortedFrom = 0; draw();
-        stats.textContent = alg.value === "bubble"
-          ? "n² growth: doubling n quadruples this."
-          : "n log n: doubling n only ~doubles this.";
-        running = false;
-      }
-      async function bubble() {
-        for (var pass = 0; pass < N - 1; pass++) {
-          var swapped = false;
-          for (var i = 0; i < N - 1 - pass; i++) {
-            hot = [i, i + 1]; comparisons++; draw(); await sleep(delay());
-            if (data[i] > data[i + 1]) {
-              var t = data[i]; data[i] = data[i + 1]; data[i + 1] = t;
-              swaps++; swapped = true; draw(); await sleep(delay() / 2);
-            }
-          }
-          sortedFrom = N - 1 - pass;
-          if (!swapped) { sortedFrom = 0; break; }
-        }
-      }
-      async function merge(lo, hi) {
-        if (lo >= hi) return;
-        var mid = (lo + hi) >> 1;
-        await merge(lo, mid); await merge(mid + 1, hi);
-        band = [lo, hi];
-        var tmp = [], i = lo, j = mid + 1;
-        while (i <= mid && j <= hi) {
-          comparisons++; hot = [i, j]; draw(); await sleep(delay());
-          tmp.push(data[i] <= data[j] ? data[i++] : data[j++]);
-        }
-        while (i <= mid) tmp.push(data[i++]);
-        while (j <= hi) tmp.push(data[j++]);
-        for (var k = 0; k < tmp.length; k++) {
-          data[lo + k] = tmp[k]; swaps++; hot = [lo + k, -1]; draw(); await sleep(delay() / 2);
-        }
-        band = null;
-      }
-      reset();
     }
   });
 
@@ -527,104 +429,6 @@
           ' <span class="k-lab-faint">Inside the bracket → x-direction, acts \u201Cbackwards\u201D. Outside → y-direction, acts as written.</span>';
       }
       draw();
-    }
-  });
-
-  /* =================== 5. RECURSION VISUALISER =================== */
-  KOS.sims.register({
-    id: "recursion-viz", title: "Recursion Visualiser", subject: "compsci", ref: "4.1.1.16",
-    desc: "Watch stack frames pile up until the base case, then values flow back down as the stack unwinds.",
-    mount: function (panel) {
-      var nIn = el("input", { type: "number", min: 1, max: 8, value: 4, style: "--w: 80px" });
-      var fnSel = el("select", {}, [
-        el("option", { value: "fact", text: "factorial(n)" }),
-        el("option", { value: "fib", text: "fibonacci(n)" }),
-        el("option", { value: "sum", text: "sum(1..n)" })
-      ]);
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("label", {}, ["function", fnSel]),
-        el("label", {}, ["n (1–8)", nIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Run", onclick: run }),
-        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
-        msg
-      ]));
-      var stackCol = el("div", { class: "k-lab-rec-stack" });
-      var info = el("div", { class: "k-lab-rec-info" }, [
-        el("p", { text: "Every call pushes a frame holding its argument, its return address and space for the result. Nothing is computed until the base case returns — then the partial results cascade back up." })
-      ]);
-      var result = el("div", { class: "k-lab-rec-result" });
-      panel.appendChild(el("div", { class: "k-lab-rec-wrap" }, [
-        el("div", {}, [el("div", { class: "k-lab-rec-h", text: "CALL STACK — top of stack uppermost" }), stackCol, result]),
-        info
-      ]));
-
-      var timer = null;
-      function build(kind, n) {
-        var ev = [];
-        var FNS = {
-          fact: function fact(n, caller) {
-            ev.push({ t: "call", label: "fact(" + n + ")", caller: caller, base: n <= 1 });
-            var r = n <= 1 ? 1 : n * fact(n - 1, "fact(" + n + ")");
-            ev.push({ t: "ret", value: r,
-              expr: n <= 1 ? "base case → 1" : n + " × fact(" + (n - 1) + ") = " + r });
-            return r;
-          },
-          fib: function fib(n, caller) {
-            ev.push({ t: "call", label: "fib(" + n + ")", caller: caller, base: n <= 1 });
-            var r = n <= 1 ? n : fib(n - 1, "fib(" + n + ")") + fib(n - 2, "fib(" + n + ")");
-            ev.push({ t: "ret", value: r,
-              expr: n <= 1 ? "base case → " + n : "fib(" + (n - 1) + ") + fib(" + (n - 2) + ") = " + r });
-            return r;
-          },
-          sum: function sum(n, caller) {
-            ev.push({ t: "call", label: "sum(" + n + ")", caller: caller, base: n <= 1 });
-            var r = n <= 1 ? n : n + sum(n - 1, "sum(" + n + ")");
-            ev.push({ t: "ret", value: r,
-              expr: n <= 1 ? "base case → " + n : n + " + sum(" + (n - 1) + ") = " + r });
-            return r;
-          }
-        };
-        FNS[kind](n, "main()");
-        return ev;
-      }
-      function reset() {
-        clearInterval(timer);
-        stackCol.innerHTML = ""; result.textContent = ""; msg.textContent = "";
-      }
-      function run() {
-        reset();
-        var n = Math.max(1, Math.min(8, parseInt(nIn.value || "4", 10) || 4));
-        nIn.value = n;
-        var ev = build(fnSel.value, n), i = 0;
-        timer = setInterval(function () {
-          if (i >= ev.length) {
-            clearInterval(timer);
-            msg.textContent = "stack empty — result handed back to main()";
-            return;
-          }
-          var e = ev[i++];
-          if (e.t === "call") {
-            stackCol.insertBefore(el("div", { class: "k-lab-rec-frame", "data-state": e.base ? "base" : null }, [
-              el("b", { text: e.label }),
-              el("span", { class: "k-lab-ra", text: "return to: " + e.caller }),
-              el("span", { class: "k-lab-pr", "data-ui": "lab.register", text: e.base ? "base case ✓ — no deeper call" : "waiting on recursive call…" })
-            ]), stackCol.firstChild);
-            msg.textContent = "PUSH " + e.label + (e.base ? " — base case hit" : "");
-          } else {
-            var top = stackCol.firstElementChild;
-            if (top) {
-              top.querySelector("[data-ui~='lab.register']").textContent = e.expr;
-              KOS.ui.state(top, "returning", true);
-              (function (node) { setTimeout(function () { node.remove(); }, 380); })(top);
-            }
-            var parent = stackCol.children[1];
-            if (parent) parent.querySelector("[data-ui~='lab.register']").textContent = "received " + e.value + " from callee";
-            msg.textContent = "POP — returns " + e.value;
-            result.textContent = "last value returned: " + e.value;
-          }
-        }, 460);
-      }
     }
   });
 
@@ -1166,156 +970,6 @@
     }
   });
 
-  /* =================== 10. REVERSE POLISH EVALUATOR =================== */
-  KOS.sims.register({
-    id: "rpn-eval", title: "Reverse Polish (Postfix) Evaluator", subject: "compsci", ref: "4.3.3.1",
-    desc: "Step through a postfix expression token by token and watch the stack push operands and collapse two-at-a-time on each operator.",
-    mount: function (panel) {
-      var exprIn = el("input", { type: "text", value: "3 4 + 5 2 - *", style: "--w: 240px", "aria-label": "Postfix expression" });
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("label", {}, ["postfix (space-separated, + − × ÷)", exprIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Load", onclick: load }),
-        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
-        el("button", { class: "k-btn k-lab-alt", text: "Run all", onclick: runAll }),
-        msg
-      ]));
-      var holder = el("div", {});
-      panel.appendChild(holder);
-      var cv = dprCanvas(holder, 280);
-      var tokens = [], pos = 0, stack = [], action = "", err = "";
-
-      function norm(s) { return s.replace(/×/g, "*").replace(/÷/g, "/").replace(/−/g, "-"); }
-      function isOp(t) { return t === "+" || t === "-" || t === "*" || t === "/"; }
-      function load() {
-        tokens = norm(exprIn.value).trim().split(/\s+/).filter(Boolean);
-        pos = 0; stack = []; err = ""; action = "loaded — press Step ▸"; draw();
-      }
-      function step() {
-        if (err) return;
-        if (pos >= tokens.length) {
-          action = stack.length === 1 ? "finished ✓ result = " + stack[0]
-            : "finished — malformed: " + stack.length + " values left on the stack";
-          draw(); return;
-        }
-        var t = tokens[pos++];
-        if (isOp(t)) {
-          if (stack.length < 2) { err = "stack underflow at '" + t + "' — an operator needs two operands"; draw(); return; }
-          var b = stack.pop(), a = stack.pop(), r;
-          if (t === "+") r = a + b; else if (t === "-") r = a - b;
-          else if (t === "*") r = a * b; else r = b === 0 ? NaN : a / b;
-          r = Math.round(r * 1e6) / 1e6; stack.push(r);
-          action = "operator " + t + " → pop " + b + ", pop " + a + ", push (" + a + " " + t + " " + b + ") = " + r;
-        } else {
-          var n = parseFloat(t);
-          if (isNaN(n)) { err = "'" + t + "' is neither a number nor an operator"; draw(); return; }
-          stack.push(n); action = "operand " + n + " → push onto the stack";
-        }
-        draw();
-      }
-      function runAll() {
-        if (!tokens.length) load();
-        var guard = 0;
-        while (pos < tokens.length && !err && guard++ < 500) step();
-        if (!err) step();
-      }
-      function wrap(ctx, text, x, y, maxW, lh) {
-        var words = (text || "").split(" "), line = "", yy = y;
-        words.forEach(function (w) {
-          var test = line + w + " ";
-          if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, yy); line = w + " "; yy += lh; }
-          else line = test;
-        });
-        ctx.fillText(line, x, yy);
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        ctx.font = "13px 'SF Mono',Consolas,monospace"; ctx.textAlign = "left";
-        ctx.fillStyle = COL.mute; ctx.fillText("tokens:", 16, 24);
-        var tx = 84;
-        tokens.forEach(function (t, i) {
-          ctx.fillStyle = i < pos ? COL.faint : (i === pos ? COL.gold : COL.text);
-          ctx.fillText(t, tx, 24); tx += ctx.measureText(t).width + 16;
-        });
-        var bx = 40, bw = 96, bh = 30, baseY = cv.H - 52;
-        ctx.fillStyle = COL.mute; ctx.fillText("stack (top on left)", 16, baseY + 34);
-        stack.forEach(function (v, i) {
-          var y = baseY - i * (bh + 6);
-          ctx.fillStyle = i === stack.length - 1 ? COL.crim : COL.line;
-          ctx.fillRect(bx, y, bw, bh);
-          ctx.fillStyle = COL.text; ctx.textAlign = "center"; ctx.fillText(String(v), bx + bw / 2, y + 20);
-          ctx.textAlign = "left";
-        });
-        ctx.fillStyle = err ? COL.crim : COL.jade;
-        ctx.font = "12px 'SF Mono',Consolas,monospace";
-        wrap(ctx, err || action, 160, baseY - 8, cv.W - 175, 16);
-      }
-      load();
-    }
-  });
-
-  /* =================== 11. BINARY SEARCH VISUALISER =================== */
-  KOS.sims.register({
-    id: "binary-search", title: "Binary Search Visualiser", subject: "compsci", ref: "4.3.4.2",
-    desc: "Watch the search interval halve each step as the low, mid and high pointers close in on the target — O(log n).",
-    mount: function (panel) {
-      var targetIn = el("input", { type: "number", value: 42, style: "--w: 80px" });
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("button", { class: "k-btn k-lab-alt", text: "⚄ New sorted array", onclick: reset }),
-        el("label", {}, ["target", targetIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Set target", onclick: start }),
-        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
-        msg
-      ]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = dprCanvas(holder, 200);
-      var N = 15, arr = [], lo = 0, hi = 0, mid = -1, target = 42, done = false, found = -1, comps = 0;
-
-      function reset() {
-        arr = []; var v = Math.floor(Math.random() * 8) + 1;
-        for (var i = 0; i < N; i++) { arr.push(v); v += Math.floor(Math.random() * 7) + 2; }
-        target = arr[Math.floor(Math.random() * N)]; targetIn.value = target; start();
-      }
-      function start() {
-        target = parseFloat(targetIn.value); lo = 0; hi = N - 1; mid = -1;
-        done = false; found = -1; comps = 0; msg.textContent = "press Step ▸"; draw();
-      }
-      function step() {
-        if (done) return;
-        if (lo > hi) { done = true; mid = -1; msg.textContent = "not in the array — " + comps + " comparisons"; draw(); return; }
-        mid = (lo + hi) >> 1; comps++;
-        if (arr[mid] === target) { found = mid; done = true; msg.textContent = "found at index " + mid + " in " + comps + " comparison(s) ✓"; }
-        else if (arr[mid] < target) { msg.textContent = "a[" + mid + "]=" + arr[mid] + " < " + target + " → discard left half"; lo = mid + 1; }
-        else { msg.textContent = "a[" + mid + "]=" + arr[mid] + " > " + target + " → discard right half"; hi = mid - 1; }
-        draw();
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var cw = (cv.W - 40) / N, top = 74, ch = 44;
-        ctx.font = "13px 'SF Mono',Consolas,monospace"; ctx.textAlign = "center";
-        for (var i = 0; i < N; i++) {
-          var x = 20 + i * cw, inRange = i >= lo && i <= hi;
-          ctx.fillStyle = i === found ? COL.jade : i === mid ? COL.crim : inRange ? COL.line : COL.ink;
-          ctx.fillRect(x + 2, top, cw - 4, ch);
-          ctx.strokeStyle = COL.faint; ctx.strokeRect(x + 2, top, cw - 4, ch);
-          ctx.fillStyle = (inRange || i === found) ? COL.text : COL.faint;
-          ctx.fillText(String(arr[i]), x + cw / 2, top + 27);
-          ctx.fillStyle = COL.faint; ctx.font = "9px monospace"; ctx.fillText(String(i), x + cw / 2, top + ch + 12);
-          ctx.font = "13px 'SF Mono',Consolas,monospace";
-        }
-        function ptr(idx, label, col, dy) { if (idx < 0 || idx >= N) return; var x = 20 + idx * cw + cw / 2; ctx.fillStyle = col; ctx.fillText(label, x, top - 10 - dy); }
-        ctx.font = "11px monospace";
-        ptr(lo, "lo", COL.blue, 0); ptr(hi, "hi", COL.gold, 0); if (mid >= 0) ptr(mid, "mid", COL.crim, 15);
-        ctx.textAlign = "left"; ctx.fillStyle = COL.mute; ctx.font = "12px monospace";
-        ctx.fillText("target = " + target + "    comparisons = " + comps, 20, 26);
-      }
-      reset();
-    }
-  });
-
   /* =================== 12. BINOMIAL DISTRIBUTION EXPLORER =================== */
   KOS.sims.register({
     id: "binom-dist", title: "Binomial Distribution Explorer", subject: "maths", ref: "S4.1",
@@ -1356,131 +1010,6 @@
       }
       nIn.oninput = draw; pIn.oninput = draw; kIn.oninput = draw;
       draw();
-    }
-  });
-
-  /* =================== 13. LINEAR SEARCH VISUALISER =================== */
-  KOS.sims.register({
-    id: "linear-search", title: "Linear Search Visualiser", subject: "compsci", ref: "4.3.4.1",
-    desc: "Scan an UNsorted list left-to-right, comparing every element until the target is found or the end is reached — O(n).",
-    mount: function (panel) {
-      var targetIn = el("input", { type: "number", value: 7, style: "--w: 80px" });
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("button", { class: "k-btn k-lab-alt", text: "⚄ New array", onclick: reset }),
-        el("label", {}, ["target", targetIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Set target", onclick: start }),
-        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
-        msg
-      ]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = dprCanvas(holder, 170);
-      var N = 12, arr = [], i = -1, target = 7, done = false, found = -1, comps = 0;
-
-      function reset() {
-        arr = []; for (var k = 0; k < N; k++) arr.push(Math.floor(Math.random() * 20) + 1);
-        target = arr[Math.floor(Math.random() * N)]; targetIn.value = target; start();
-      }
-      function start() { target = parseFloat(targetIn.value); i = -1; done = false; found = -1; comps = 0; msg.textContent = "press Step ▸"; draw(); }
-      function step() {
-        if (done) return;
-        i++;
-        if (i >= N) { done = true; i = -1; msg.textContent = "reached the end — not found (" + comps + " comparisons)"; draw(); return; }
-        comps++;
-        if (arr[i] === target) { found = i; done = true; msg.textContent = "found at index " + i + " after " + comps + " comparison(s) ✓"; }
-        else msg.textContent = "a[" + i + "] = " + arr[i] + " ≠ " + target + " → keep scanning";
-        draw();
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var cw = (cv.W - 40) / N, top = 60, ch = 46;
-        ctx.font = "13px 'SF Mono',Consolas,monospace"; ctx.textAlign = "center";
-        for (var k = 0; k < N; k++) {
-          var x = 20 + k * cw;
-          ctx.fillStyle = k === found ? COL.jade : k === i ? COL.crim : k < i ? COL.ink : COL.line;
-          ctx.fillRect(x + 2, top, cw - 4, ch);
-          ctx.strokeStyle = COL.faint; ctx.strokeRect(x + 2, top, cw - 4, ch);
-          ctx.fillStyle = (k === i || k === found) ? COL.text : (k < i ? COL.faint : COL.text);
-          ctx.fillText(String(arr[k]), x + cw / 2, top + 27);
-          ctx.fillStyle = COL.faint; ctx.font = "9px monospace"; ctx.fillText(String(k), x + cw / 2, top + ch + 12);
-          ctx.font = "13px 'SF Mono',Consolas,monospace";
-        }
-        if (i >= 0 && i < N) { var px = 20 + i * cw + cw / 2; ctx.fillStyle = COL.crim; ctx.font = "11px monospace"; ctx.fillText("i", px, top - 10); }
-        ctx.textAlign = "left"; ctx.fillStyle = COL.mute; ctx.font = "12px monospace";
-        ctx.fillText("target = " + target + "    comparisons = " + comps, 20, 26);
-      }
-      reset();
-    }
-  });
-
-  /* =================== 14. HASH TABLE (linear probing) =================== */
-  KOS.sims.register({
-    id: "hash-table", title: "Hash Table — insert & probe", subject: "compsci", ref: "4.2.6.1",
-    desc: "Insert integer keys with h(k) = k mod 11, then watch linear probing step past collisions to the next free slot — O(1) average lookup.",
-    mount: function (panel) {
-      var SIZE = 11;
-      var keyIn = el("input", { type: "number", value: 24, style: "--w: 90px" });
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("label", {}, ["insert key", keyIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Insert", onclick: insert }),
-        el("button", { class: "k-btn", text: "Find", onclick: find }),
-        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
-        msg
-      ]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = dprCanvas(holder, 230);
-      var table = new Array(SIZE).fill(null), probe = [], hot = -1, count = 0;
-
-      function reset() { table = new Array(SIZE).fill(null); probe = []; hot = -1; count = 0; msg.textContent = ""; draw(); }
-      function insert() {
-        var k = parseInt(keyIn.value, 10);
-        if (isNaN(k)) { KOS.ui.toast("Enter an integer key.", true); return; }
-        if (count >= SIZE) { msg.textContent = "table full"; return; }
-        var h = ((k % SIZE) + SIZE) % SIZE, p = h; probe = [];
-        while (table[p] !== null) {
-          probe.push(p);
-          if (table[p] === k) { hot = p; msg.textContent = "key " + k + " already present at slot " + p; draw(); return; }
-          p = (p + 1) % SIZE;
-        }
-        probe.push(p); table[p] = k; hot = p; count++;
-        msg.textContent = "h(" + k + ") = " + k + " mod " + SIZE + " = " + h +
-          (probe.length > 1 ? "  →  collided, probed to slot " + p : "  →  slot " + p + " free");
-        draw();
-      }
-      function find() {
-        var k = parseInt(keyIn.value, 10);
-        if (isNaN(k)) { KOS.ui.toast("Enter an integer key.", true); return; }
-        var h = ((k % SIZE) + SIZE) % SIZE, p = h, steps = 0; probe = [];
-        while (steps < SIZE) {
-          probe.push(p);
-          if (table[p] === null) { hot = -1; msg.textContent = "key " + k + " not found (hit an empty slot after " + (steps + 1) + " probe(s))"; draw(); return; }
-          if (table[p] === k) { hot = p; msg.textContent = "found key " + k + " at slot " + p + " in " + (steps + 1) + " probe(s)"; draw(); return; }
-          p = (p + 1) % SIZE; steps++;
-        }
-        hot = -1; msg.textContent = "key " + k + " not found"; draw();
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var cw = Math.min(70, (cv.W - 40) / SIZE), x0 = (cv.W - cw * SIZE) / 2, y = 90, ch = 50;
-        ctx.font = "13px 'SF Mono',Consolas,monospace";
-        ctx.textAlign = "left"; ctx.fillStyle = COL.mute; ctx.fillText("h(k) = k mod " + SIZE + "    keys stored: " + count + "/" + SIZE, x0, 40);
-        for (var s = 0; s < SIZE; s++) {
-          var x = x0 + s * cw, probed = probe.indexOf(s) >= 0;
-          ctx.fillStyle = s === hot ? COL.jade : probed ? COL.crim : table[s] !== null ? COL.line : COL.ink;
-          ctx.fillRect(x + 1, y, cw - 2, ch);
-          ctx.strokeStyle = COL.faint; ctx.strokeRect(x + 1, y, cw - 2, ch);
-          ctx.textAlign = "center";
-          ctx.fillStyle = table[s] !== null ? COL.text : COL.faint;
-          ctx.fillText(table[s] !== null ? String(table[s]) : "·", x + cw / 2, y + 30);
-          ctx.fillStyle = COL.faint; ctx.font = "9px monospace"; ctx.fillText(String(s), x + cw / 2, y + ch + 13);
-          ctx.font = "13px 'SF Mono',Consolas,monospace";
-        }
-        if (probe.length) { ctx.textAlign = "left"; ctx.fillStyle = COL.crim; ctx.font = "11px monospace"; ctx.fillText("probe path: " + probe.join(" → "), x0, y + ch + 36); }
-      }
-      reset();
     }
   });
 
@@ -1552,72 +1081,6 @@
         ctx.fillStyle = COL.faint; ctx.fillText("dist  " + row, 16, cv.H - 12);
       }
       reset();
-    }
-  });
-
-  /* =================== 16. DICTIONARY (associative array) =================== */
-  KOS.sims.register({
-    id: "dictionary", title: "Dictionary — key → value store", subject: "compsci", ref: "4.2.7.1",
-    desc: "Set, look up and delete key/value pairs. Keys are unique; lookup by key is O(1) on average because a dictionary is backed by a hash table.",
-    mount: function (panel) {
-      var keyIn = el("input", { type: "text", placeholder: "key", maxlength: 10, style: "--w: 110px" });
-      var valIn = el("input", { type: "text", placeholder: "value", maxlength: 12, style: "--w: 120px" });
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
-        el("label", {}, ["key", keyIn]), el("label", {}, ["value", valIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Set", onclick: set }),
-        el("button", { class: "k-btn", text: "Get", onclick: get }),
-        el("button", { class: "k-btn", text: "Delete", onclick: del }),
-        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
-        msg
-      ]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = dprCanvas(holder, 260);
-      var keys = [], map = {}, hot = null;
-
-      function seed() { keys = ["GBP", "USD", "JPY"]; map = { GBP: "1.00", USD: "1.27", JPY: "190" }; hot = null; }
-      function reset() { seed(); msg.textContent = "seeded with a sample dictionary"; draw(); }
-      function set() {
-        var k = keyIn.value.trim(), v = valIn.value.trim();
-        if (!k) { KOS.ui.toast("Type a key.", true); return; }
-        if (map.hasOwnProperty(k)) { map[k] = v; msg.textContent = "key “" + k + "” already existed → value UPDATED (keys stay unique)"; }
-        else { keys.push(k); map[k] = v; msg.textContent = "inserted “" + k + "” : “" + v + "”"; }
-        hot = k; keyIn.value = ""; valIn.value = ""; draw();
-      }
-      function get() {
-        var k = keyIn.value.trim();
-        if (!k) { KOS.ui.toast("Type a key to look up.", true); return; }
-        if (map.hasOwnProperty(k)) { hot = k; msg.textContent = "dict[“" + k + "”] = “" + map[k] + "”  (direct hash lookup, O(1) average)"; }
-        else { hot = null; msg.textContent = "key “" + k + "” not in the dictionary"; }
-        draw();
-      }
-      function del() {
-        var k = keyIn.value.trim();
-        if (!k) { KOS.ui.toast("Type a key to delete.", true); return; }
-        if (map.hasOwnProperty(k)) { delete map[k]; keys = keys.filter(function (x) { return x !== k; }); hot = null; msg.textContent = "deleted key “" + k + "”"; }
-        else msg.textContent = "key “" + k + "” not found";
-        keyIn.value = ""; draw();
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        ctx.textAlign = "left"; ctx.font = "12px 'SF Mono',monospace"; ctx.fillStyle = COL.mute;
-        ctx.fillText("{ key : value }   pairs: " + keys.length, 20, 26);
-        var x = 20, y = 46, rh = 30, kw = 150, vw = 220;
-        ctx.font = "13px 'SF Mono',Consolas,monospace";
-        if (!keys.length) { ctx.fillStyle = COL.faint; ctx.fillText("empty dictionary", 20, y + 20); return; }
-        keys.forEach(function (k, i) {
-          var ry = y + i * (rh + 4), on = k === hot;
-          ctx.fillStyle = on ? wash(COL.jade, .16) : COL.ink; ctx.fillRect(x, ry, kw, rh);
-          ctx.strokeStyle = on ? COL.jade : COL.line; ctx.strokeRect(x, ry, kw, rh);
-          ctx.fillStyle = on ? COL.ink : COL.line; ctx.fillRect(x + kw + 30, ry, vw, rh);
-          ctx.strokeStyle = on ? COL.jade : COL.line; ctx.strokeRect(x + kw + 30, ry, vw, rh);
-          ctx.fillStyle = COL.gold; ctx.fillText("→", x + kw + 8, ry + 20);
-          ctx.fillStyle = COL.text; ctx.fillText(k, x + 10, ry + 20);
-          ctx.fillStyle = COL.text; ctx.fillText(map[k], x + kw + 40, ry + 20);
-        });
-      }
-      seed(); draw();
     }
   });
 
@@ -1817,7 +1280,7 @@
   /* the one lab header (20a): full page → "Open topic page", embedded →
      "Open full page" */
   function labHead(s, embedded) {
-    var trace = /^tl-/.test(s.id);
+    var trace = !!s.trace;
     return el("header", { class: "k-lab-head", "data-ui": "lab.sim-head" }, [
       el("div", { class: "k-lab-head-t" }, [
         el("span", { class: "k-kicker", text: trace ? "Trace lab" : "Simulation · " + areaOf(s).label }),
@@ -1861,7 +1324,7 @@
   }
   /* a lab on a topic's Simulate tab (hub.js): the same header and lock */
   KOS.sims.embed = function (host, s) {
-    var box = el("section", { class: "k-card k-topic-lab k-lab", "aria-label": s.title }, [labHead(s, true)]);
+    var box = el("section", { class: "k-card k-topic-lab k-lab", "data-state": "embedded", "data-subject": s.subject, "aria-label": s.title }, [labHead(s, true)]);
     host.appendChild(box);
     var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
     if (!acc.ok) { lockedLab(box, s, acc, true); return; }
@@ -1969,7 +1432,7 @@
       el("span", { "aria-hidden": "true", text: "·" }),
       el("button", { type: "button", class: "k-link", text: ar.label, onclick: function () { st.simArea = ar.id; KOS.store.save(); KOS.show("sims"); } })
     ]));
-    var panel = el("section", { class: "k-lab k-card", "aria-label": s.title }, [labHead(s, false)]);
+    var panel = el("section", { class: "k-lab k-card", "data-subject": s.subject, "aria-label": s.title }, [labHead(s, false)]);
     main.appendChild(panel);
     var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
     if (!acc.ok) { lockedLab(panel, s, acc, false); return; }
