@@ -261,7 +261,7 @@ step("the Simulations view groups labs by area, searches across them and deep-li
   const search = $("[data-ui~='lab.toolbar'] input[type=search]");
   search.value = "turing"; search.dispatchEvent(new window.Event("input", { bubbles: true }));
   const hits = $$("[data-ui~='lab.sim-card']");
-  assert(hits.length >= 1 && hits.length <= 4 && hits.some(c => /Turing Machine/.test(c.textContent)), "search did not surface the Turing machine (" + hits.length + " cards)");
+  assert(hits.length >= 1 && hits.length <= 4 && hits.some(c => /Turing machine/i.test(c.textContent)), "search did not surface the Turing machine (" + hits.length + " cards)");
   KOS.show("sims", "turing-machine");
   assert($("[data-ui~='lab.sim-head']") && /Turing/.test($("[data-ui~='lab.sim-head'] h1").textContent), "the open state has no header");
   assert(/Theory of computation/.test($("[data-ui~='lab.sim-head']").textContent), "the header does not name the lab's area");

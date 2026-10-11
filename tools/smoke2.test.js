@@ -215,7 +215,7 @@ step("logic lab parses and builds truth table", () => {
 });
 step("fsm lab steps and accepts", () => {
   KOS.show("sims", "fsm-lab");
-  const stepBtn = $$("button").find(b => b.textContent === "Step");
+  const stepBtn = $("[data-ui~='lab.step']");
   const input = $("[data-ui~='lab.controls'] input");
   input.value = "11";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
