@@ -117,7 +117,7 @@
     var inner = svg("g", { id: id + "-w" });
     var world = svg("g", { class: "k-sv-world" }, [inner]);
     var root = svg("svg", { class: "k-sv", viewBox: "0 0 " + VW + " " + VH, preserveAspectRatio: "xMidYMid meet",
-      role: "img", "aria-label": o.label || "Simulation stage", "data-ui": "lab.svg" }, [defs, world]);
+      role: o.interactive ? "group" : "img", "aria-label": o.label || "Simulation stage", "data-ui": "lab.svg" }, [defs, world]);
     var stage = el("div", { class: "k-lab-stage", "data-ui": "lab.stage" }, [root]);
     var v = { mode: "auto", zoom: 1, s: 1, px: 0, py: 0, ext: { w: VW, h: VH }, canPan: false };
     var pct = null, note = null, mini = null, miniView = null;
@@ -240,13 +240,30 @@
     var drawFn = null;
     lab.draw = function (fn) {
       if (fn) drawFn = fn;
+      /* a redraw keeps keyboard focus on the same control (by data-key) */
+      var ae = document.activeElement, fk = ae && inner.contains(ae) ? ae.getAttribute("data-key") : null;
       inner.innerHTML = "";
       var ext = (drawFn && drawFn(d)) || {};
+      if (fk) { var back = inner.querySelector('[data-key="' + fk + '"]'); if (back && back.focus) back.focus(); }
       v.ext = { w: Math.max(1, ext.w || VW), h: Math.max(1, ext.h || VH) };
       v.count = ext.count; v.noun = ext.noun; v.tail = ext.note;
       place();
     };
     lab.d = d;
+    /* make a drawn element a control: Enter, Space and click; `key` keeps
+       focus on it across a redraw. A stage with controls is created with
+       {interactive: true}, so it is a group rather than an image. */
+    d.hit = function (node, name, fn, op) {
+      op = op || {};
+      node.setAttribute("tabindex", "0");
+      node.setAttribute("role", op.role || "button");
+      node.setAttribute("aria-label", name);
+      if (op.checked != null) node.setAttribute("aria-checked", String(!!op.checked));
+      if (op.key != null) node.setAttribute("data-key", String(op.key));
+      node.setAttribute("class", (node.getAttribute("class") || "") + " k-sv-hit");
+      KOS.a11y.activate(node, fn);
+      return node;
+    };
 
     /* ---------- the plot frame (20c) ----------
        Fixed margins, gridlines at a round step with mono tick labels, the

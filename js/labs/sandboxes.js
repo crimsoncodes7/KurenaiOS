@@ -142,51 +142,6 @@
     }
   });
 
-  /* ============================ 3. BASE CONVERTER ============================ */
-  KOS.sims.register({
-    id: "base-sandbox", title: "Number Base Converter", subject: "compsci", ref: "4.5.2.1",
-    desc: "Type a value in any base — denary, binary, octal or hex — and the others update live, with the repeated-division and place-value working shown.",
-    mount: function (panel) {
-      var BASES = [["Denary", 10], ["Binary", 2], ["Octal", 8], ["Hex", 16]];
-      var fields = {};
-      var row = controls([]);
-      BASES.forEach(function (b) {
-        var f = mono(el("input", { type: "text", value: b[1] === 10 ? "214" : "", style: "--w: 150px" }));
-        f.addEventListener("input", function () { update(b[1]); });
-        fields[b[1]] = f;
-        row.appendChild(el("label", {}, [b[0] + " (base " + b[1] + ")", f]));
-      });
-      panel.appendChild(row);
-      var work = el("div", { class: "k-lab-out" });
-      panel.appendChild(work);
-
-      function clean(s) { return s.replace(/\s+/g, "").toUpperCase(); }
-      function update(fromBase) {
-        var raw = clean(fields[fromBase].value);
-        if (raw === "") { Object.keys(fields).forEach(function (b) { if (+b !== fromBase) fields[b].value = ""; }); work.innerHTML = ""; return; }
-        var n = parseInt(raw, fromBase);
-        var valid = raw.split("").every(function (ch) { return parseInt(ch, fromBase) < fromBase && !isNaN(parseInt(ch, fromBase)); });
-        if (!valid || isNaN(n)) { work.innerHTML = "<div class='k-callout' data-ui='content.callout' data-kind='warn'>“" + raw + "” isn't a valid base-" + fromBase + " number.</div>"; KOS.ui.hookify(work); return; }
-        BASES.forEach(function (b) {
-          if (b[1] !== fromBase) fields[b[1]].value = n.toString(b[1]).toUpperCase();
-        });
-        // working: denary -> binary by repeated division
-        var steps = [], q = n;
-        if (n === 0) steps.push("0 ÷ 2 = 0 r 0");
-        while (q > 0) { steps.push(q + " ÷ 2 = " + Math.floor(q / 2) + " r " + (q % 2)); q = Math.floor(q / 2); }
-        var bin = n.toString(2);
-        var place = bin.split("").map(function (bit, i) {
-          var p = bin.length - 1 - i; return bit === "1" ? "2^" + p + "(" + Math.pow(2, p) + ")" : null;
-        }).filter(Boolean).join(" + ");
-        work.innerHTML =
-          "<div class='k-callout' data-ui='content.callout' data-kind='tip'><b>" + n + " (denary) → binary</b> by repeated division by 2, reading remainders bottom-up:<br>" +
-          "<span class='k-mono k-lab-small'>" + steps.join("<br>") + "</span><br>→ <b class='k-mono'>" + bin + "</b></div>" +
-          "<div class='k-lab-sub k-mono' data-ui='part.sub'>place values: " + (place || "0") + " = " + n + "</div>";
-      }
-      update(10);
-    }
-  });
-
   /* ====================== 4. LITTLE MAN COMPUTER (assembly) ====================== */
   KOS.sims.register({
     id: "lmc-sandbox", title: "Little Man Computer — assembly", subject: "compsci", ref: "4.7.3.5",

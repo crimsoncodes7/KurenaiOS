@@ -61,6 +61,7 @@
     "js/labs/sims-structures.js",
     "js/labs/sims-algorithms.js",
     "js/labs/sims-plots.js",
+    "js/labs/sims-bits.js",
     "js/labs/trace.js",
     "js/labs/oop.js",
     "js/labs/sandboxes.js",

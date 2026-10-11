@@ -291,6 +291,13 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-sv-edge[data-dash] { stroke-dasharray: 3 4; }
 .k-sv-edge[data-tone~="faint"] { opacity: 0.45; }
 .k-sv-axis { stroke: var(--text-2); stroke-width: 1.4; }
+.k-sv-px { fill: var(--c); stroke: var(--line); stroke-width: 1; }
+.k-lab-checks { display: flex; flex-direction: column; gap: var(--sp-4); margin: 0; padding: 0; list-style: none; font-size: var(--fs-13); color: var(--text-2); }
+.k-lab-checks > li[data-tone~="done"] { color: var(--teal); }
+.k-lab-checks > li[data-tone~="hot"] { color: var(--crimson); }
+.k-sv-hit { cursor: pointer; outline: none; }
+.k-sv-hit:hover > .k-sv-node { stroke: var(--text-2); }
+.k-sv-hit:focus-visible > .k-sv-node { stroke: var(--focus-ring); stroke-width: 3; }
 .k-lab-stage[data-state~="draggable"] > .k-sv { touch-action: none; }
 .k-lab-stage[data-state~="dragging"] > .k-sv { cursor: grabbing; }
 /* series tones for a plot of several curves (Big-O): the fixed hues */
