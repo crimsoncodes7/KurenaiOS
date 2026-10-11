@@ -59,6 +59,8 @@
     return n;
   }
   function num(v) { return Math.round(v * 100) / 100; }
+  /* a round step near v: 1, 2 or 5 × a power of ten */
+  function nice(v) { var p = Math.pow(10, Math.floor(Math.log10(v))), m = v / p; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p; }
   /* the words of a rich body, for an announcement */
   function plain(body) {
     if (body == null) return "";
@@ -245,6 +247,133 @@
       place();
     };
     lab.d = d;
+
+    /* ---------- the plot frame (20c) ----------
+       Fixed margins, gridlines at a round step with mono tick labels, the
+       axes in --text-2, the function in the subject hue and shaded areas
+       at 24% of it. Everything is clipped to the frame; where a curve
+       leaves it, a small arrow at the edge shows which way it went.
+       Called inside a draw: var P = lab.plot(x0, x1, y0, y1, {square}). */
+    var clipSeq = 0;
+    lab.plot = function (x0, x1, y0, y1, op) {
+      op = op || {};
+      var L0 = op.l != null ? op.l : 62, T0 = op.t != null ? op.t : 22;
+      var W = VW - L0 - (op.r != null ? op.r : 24), H = VH - T0 - (op.b != null ? op.b : 44);
+      if (op.square) {
+        var k = Math.min(W / (x1 - x0), H / (y1 - y0)), w2 = k * (x1 - x0), h2 = k * (y1 - y0);
+        L0 += (W - w2) / 2; T0 += (H - h2) / 2; W = w2; H = h2;
+      }
+      var cid = id + "-c" + (++clipSeq);
+      d.el("clipPath", { id: cid }).appendChild(svg("rect", { x: num(L0), y: num(T0), width: num(W), height: num(H) }));
+      var clip = "url(#" + cid + ")";
+      var P = { x0: x0, x1: x1, y0: y0, y1: y1, box: { l: L0, t: T0, w: W, h: H } };
+      P.X = function (x) { return L0 + (x - x0) / (x1 - x0) * W; };
+      P.Y = function (y) { return T0 + (y1 - y) / (y1 - y0) * H; };
+      P.invX = function (px) { return x0 + (px - L0) / W * (x1 - x0); };
+      P.invY = function (py) { return y1 - (py - T0) / H * (y1 - y0); };
+      function cy(y) { var s = y1 - y0; return Math.max(y0 - s, Math.min(y1 + s, y)); }
+      function fmt(v, f) { if (f) return f(v); var r = Math.round(v * 1e6) / 1e6; return String(Number(r.toPrecision(4))); }
+      P.axes = function (xl, yl, ao) {
+        ao = ao || {};
+        var sx = ao.xstep || nice((x1 - x0) / (ao.xn || 8)), sy = ao.ystep || nice((y1 - y0) / (ao.yn || 6));
+        var g = d.group({ class: "k-sv-grid" });
+        for (var gx = Math.ceil(x0 / sx - 1e-9) * sx; gx <= x1 + 1e-9; gx += sx) {
+          d.line(P.X(gx), T0, P.X(gx), T0 + H, { tone: "line" }, g);
+          if (!ao.noXTicks) d.text(P.X(gx), T0 + H + 22, fmt(gx, ao.xfmt), { size: 14, tone: "mute" });
+        }
+        for (var gy = Math.ceil(y0 / sy - 1e-9) * sy; gy <= y1 + 1e-9; gy += sy) {
+          d.line(L0, P.Y(gy), L0 + W, P.Y(gy), { tone: "line" }, g);
+          if (!ao.noYTicks) d.text(L0 - 8, P.Y(gy) + 5, fmt(gy, ao.yfmt), { size: 14, tone: "mute", anchor: "end" });
+        }
+        if (y0 <= 0 && y1 >= 0) d.line(L0, P.Y(0), L0 + W, P.Y(0), { cls: "k-sv-axis" });
+        if (x0 <= 0 && x1 >= 0) d.line(P.X(0), T0, P.X(0), T0 + H, { cls: "k-sv-axis" });
+        if (xl) d.text(L0 + W - 4, T0 + H - 8, xl, { size: 14, tone: "sub", anchor: "end" });
+        if (yl) d.text(L0 + 8, T0 + 18, yl, { size: 14, tone: "sub", anchor: "start" });
+      };
+      /* y = f(x) across [from, to]; breaks where f is undefined */
+      P.curve = function (f, co) {
+        co = co || {};
+        var a = co.from != null ? co.from : x0, b = co.to != null ? co.to : x1, n = co.n || 360, dd = "", pen = false, prevIn = null, exits = [];
+        for (var i = 0; i <= n; i++) {
+          var x = a + (b - a) * i / n, y = f(x);
+          if (!isFinite(y)) { pen = false; prevIn = null; continue; }
+          var inside = y >= y0 && y <= y1;
+          if (prevIn !== null && prevIn !== inside) exits.push([x, y > y1 ? "up" : y < y0 ? "down" : prevIn ? null : null]);
+          prevIn = inside;
+          dd += (pen ? "L" : "M") + num(P.X(x)) + " " + num(P.Y(cy(y)));
+          pen = true;
+        }
+        if (dd) d.el("path", { d: dd, class: "k-sv-edge k-sv-curve" + (co.cls ? " " + co.cls : ""), "data-tone": co.tone || "ink", "data-dash": co.dash ? "" : null, "clip-path": clip });
+        if (co.arrows !== false) exits.forEach(function (e) {
+          if (!e[1]) return;
+          var px = P.X(e[0]), py = e[1] === "up" ? T0 + 2 : T0 + H - 2, s = e[1] === "up" ? -1 : 1;
+          d.el("path", { d: "M" + num(px - 6) + " " + num(py - 7 * s) + "L" + num(px) + " " + num(py) + "L" + num(px + 6) + " " + num(py - 7 * s) + "z", class: "k-sv-clipmark", "data-tone": co.tone || "ink" });
+        });
+      };
+      /* (x(t), y(t)) for t in [t0, t1] */
+      P.param = function (fx, fy, t0, t1, co) {
+        co = co || {};
+        var n = co.n || 200, dd = "";
+        for (var i = 0; i <= n; i++) { var t = t0 + (t1 - t0) * i / n, x = fx(t), y = fy(t); if (!isFinite(x) || !isFinite(y)) continue; dd += (dd ? "L" : "M") + num(P.X(x)) + " " + num(P.Y(cy(y))); }
+        if (dd) d.el("path", { d: dd, class: "k-sv-edge k-sv-curve", "data-tone": co.tone || "ink", "data-dash": co.dash ? "" : null, "clip-path": clip });
+      };
+      /* the region between y = f(x) and y = 0 over [a, b] */
+      P.area = function (f, a, b, co) {
+        co = co || {};
+        var n = co.n || 160, dd = "M" + num(P.X(a)) + " " + num(P.Y(cy(0)));
+        for (var i = 0; i <= n; i++) { var x = a + (b - a) * i / n, y = f(x); dd += "L" + num(P.X(x)) + " " + num(P.Y(cy(isFinite(y) ? y : 0))); }
+        dd += "L" + num(P.X(b)) + " " + num(P.Y(cy(0))) + "z";
+        d.el("path", { d: dd, class: "k-sv-area", "data-tone": co.tone || null, "clip-path": clip });
+      };
+      /* a polygon or polyline through data points */
+      P.poly = function (pts, co) {
+        co = co || {};
+        var dd = pts.map(function (p, i) { return (i ? "L" : "M") + num(P.X(p[0])) + " " + num(P.Y(cy(p[1]))); }).join("") + (co.close || co.fill ? "z" : "");
+        d.el("path", { d: dd, class: co.fill ? "k-sv-area" : "k-sv-edge", "data-tone": co.tone || null, "data-dash": co.dash ? "" : null, "clip-path": clip });
+      };
+      P.line = function (xa, ya, xb, yb, co) {
+        co = co || {};
+        var ln = d.line(P.X(xa), P.Y(cy(ya)), P.X(xb), P.Y(cy(yb)), co);
+        if (!co.arrow) ln.setAttribute("clip-path", clip);
+        return ln;
+      };
+      P.dot = function (x, y, co) {
+        co = co || {};
+        if (!isFinite(x) || !isFinite(y) || y < y0 || y > y1 || x < x0 || x > x1) return null;
+        return d.el("circle", { cx: num(P.X(x)), cy: num(P.Y(y)), r: co.r || 5, class: co.hollow ? "k-sv-ring" : "k-sv-dot", "data-tone": co.tone || "ink" });
+      };
+      P.label = function (x, y, t, co) {
+        co = co || {};
+        return d.text(P.X(x) + (co.dx || 0), P.Y(cy(y)) + (co.dy != null ? co.dy : -8), t, { size: co.size || 14, tone: co.tone || "sub", anchor: co.anchor || "middle", weight: co.weight });
+      };
+      /* a bar from 0 up to y, w data units wide, centred on x */
+      P.bar = function (x, w, y, co) {
+        co = co || {};
+        var top = Math.min(P.Y(cy(y)), P.Y(cy(0))), h = Math.abs(P.Y(cy(y)) - P.Y(cy(0)));
+        return d.rect(P.X(x - w / 2), top, Math.max(0, P.X(x + w / 2) - P.X(x - w / 2)), h, { rx: co.rx != null ? co.rx : 3, tone: co.tone || "soft" });
+      };
+      return P;
+    };
+    /* drag something on a plot: pick(x, y, P) names what was grabbed (or
+       null), move(it, x, y) follows the pointer, both in data units */
+    lab.drag = function (getP, pick, move, done) {
+      stage.addEventListener("pointerdown", function (e) {
+        var P = getP(); if (!P) return;
+        var w = lab.toWorld(e.clientX, e.clientY); if (!w) return;
+        var it = pick(P.invX(w.x), P.invY(w.y), P);
+        if (it == null) return;
+        e.preventDefault(); e.stopPropagation();
+        KOS.ui.state(stage, "dragging", true);
+        function mv(ev) { var q = lab.toWorld(ev.clientX, ev.clientY); if (q) move(it, P.invX(q.x), P.invY(q.y)); }
+        function up() { KOS.ui.state(stage, "dragging", false); document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); if (done) done(); }
+        document.addEventListener("pointermove", mv);
+        document.addEventListener("pointerup", up);
+      }, true);
+      KOS.ui.state(stage, "draggable", true);
+    };
+    lab.answer = function (title, big, rest, meta) {
+      return section("now", title, [el("b", { class: "k-lab-big", "data-ui": "lab.answer", text: String(big) }), rest != null ? el("p", { class: "k-lab-work" }, rich(rest)) : null].filter(Boolean), meta);
+    };
     /* a pointer position in the drawing's own units (for dragging a node) */
     lab.toWorld = function (cx, cy) {
       var m = inner.getScreenCTM && inner.getScreenCTM();
@@ -380,6 +509,15 @@
     return b;
   }
   function sep() { return el("span", { class: "k-lab-bar-sep", "aria-hidden": "true" }); }
+  /* a slider with its value printed beside it (20c: every slider shows its value) */
+  function slider(label, min, max, step, val, onchange, show) {
+    show = show || String;
+    var inp = el("input", { type: "range", min: min, max: max, step: step, value: val });
+    var out = el("b", { class: "k-lab-sl-v k-mono", text: show(val) });
+    inp.oninput = function () { var x = parseFloat(inp.value); out.textContent = show(x); onchange(x); };
+    return { node: el("label", { class: "k-lab-field k-lab-sl" }, [el("span", { text: label }), inp, out]), input: inp,
+      set: function (x) { inp.value = x; out.textContent = show(parseFloat(inp.value)); } };
+  }
 
-  KOS.lab = { create: create, svg: svg, field: field, choice: choice, action: action, toggle: toggle, sep: sep, VW: VW, VH: VH, FLOOR: FLOOR };
+  KOS.lab = { create: create, svg: svg, field: field, choice: choice, action: action, toggle: toggle, sep: sep, slider: slider, nice: nice, VW: VW, VH: VH, FLOOR: FLOOR };
 })();

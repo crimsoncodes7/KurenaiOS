@@ -1,10 +1,11 @@
 /* Kurenai OS — labs/sims-cs.js
    Computer Science simulations (AQA 7517), registered on KOS.sims so each one
    mounts INLINE on its topic's Simulations tab and in the Simulations view:
-     turing-machine (4.4.5.1)  bnf-checker (4.4.3.1)   big-o-plot (4.4.4.3)
-     graph-traversal (4.3.1.1) float-bits (4.5.4.4)    char-codes (4.5.5.1)
-     error-check-lab (4.5.5.3) adc-sampling (4.5.6.1)  bitmap-lab (4.5.6.4)
+     turing-machine (4.4.5.1)  bnf-checker (4.4.3.1)   float-bits (4.5.4.4)
+     char-codes (4.5.5.1)      error-check-lab (4.5.5.3) bitmap-lab (4.5.6.4)
      compression-lab (4.5.6.9) cipher-lab (4.5.6.10)   subnet-lab (4.9.4.4)
+   (graph-traversal lives in sims-algorithms.js; big-o-plot and
+   adc-sampling in sims-plots.js, on the lab system)
    Loaded after sims.js (KOS.sims.canvas / KOS.sims.COL). */
 (function () {
   "use strict";
@@ -174,52 +175,6 @@
     }
   });
 
-  /* =================== BIG-O PLOT =================== */
-  KOS.sims.register({
-    id: "big-o-plot", title: "Big-O Growth Curves", subject: "compsci", ref: "4.4.4.3",
-    desc: "Plot the standard complexity classes together and drag n to read how many steps each takes. Toggle the logarithmic scale to see why exponential and factorial algorithms are intractable long before n reaches 100.",
-    mount: function (panel) {
-      var FN = [
-        ["O(1)", function () { return 1; }, "hash table lookup"],
-        ["O(log n)", function (n) { return Math.log2(Math.max(2, n)); }, "binary search"],
-        ["O(n)", function (n) { return n; }, "linear search"],
-        ["O(n log n)", function (n) { return n * Math.log2(Math.max(2, n)); }, "merge sort"],
-        ["O(n²)", function (n) { return n * n; }, "bubble sort"],
-        ["O(2ⁿ)", function (n) { return Math.pow(2, n); }, "subset enumeration"],
-        ["O(n!)", function (n) { var f = 1; for (var i = 2; i <= n; i++) f *= i; return f; }, "travelling salesman (brute force)"]
-      ];
-      var n = 20, logScale = true, maxN = 60;
-      var sl = slider("n", 1, maxN, 1, n, function (v) { n = v; draw(); });
-      var chk = el("input", { type: "checkbox", checked: "checked" }); chk.onchange = function () { logScale = chk.checked; draw(); };
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [sl.node, el("label", { class: "k-check" }, [chk, "log scale"])]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = canvas(holder, 320);
-      var read = readout(); panel.appendChild(read);
-      var colours = [COL.mute, COL.jade, COL.blue, COL.gold, COL.vio, COL.crim, COL.text];
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.beginPath) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var padL = 56, padB = 28, padT = 12, W = cv.W - padL - 12, H = cv.H - padT - padB;
-        var yMax = logScale ? 40 : 2500;   /* log2 of steps, or steps */
-        function Y(v) { var y = logScale ? Math.log2(Math.max(1, v)) : Math.min(v, yMax); return padT + H - y / yMax * H; }
-        function X(k) { return padL + k / maxN * W; }
-        ctx.strokeStyle = COL.grid; ctx.fillStyle = COL.mute; ctx.font = "10.5px 'IBM Plex Mono', monospace"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-        for (var g = 0; g <= 4; g++) { var yv = padT + H - g / 4 * H; ctx.beginPath(); ctx.moveTo(padL, yv); ctx.lineTo(padL + W, yv); ctx.stroke(); ctx.fillText(logScale ? "2^" + (g * 10) : String(g * yMax / 4), padL - 6, yv); }
-        ctx.textAlign = "center"; ctx.textBaseline = "top";
-        for (var k = 0; k <= maxN; k += 10) ctx.fillText(String(k), X(k), padT + H + 4);
-        FN.forEach(function (f, i) {
-          ctx.strokeStyle = colours[i]; ctx.lineWidth = i === 6 ? 1.2 : 2; ctx.beginPath();
-          for (k = 1; k <= maxN; k++) { var v = f[1](k); if (!isFinite(v)) break; var px = X(k), py = Y(v); if (py < padT) { ctx.lineTo(px, padT); break; } if (k === 1) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
-          ctx.stroke();
-        });
-        ctx.strokeStyle = COL.text; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(X(n), padT); ctx.lineTo(X(n), padT + H); ctx.stroke(); ctx.setLineDash([]);
-        read.innerHTML = "n = <b>" + n + "</b>: " + FN.map(function (f, i) { var v = f[1](n); return "<span style='--c: " + colours[i] + "' class='k-lab-tint'>" + f[0] + " ≈ " + (v > 1e15 ? v.toExponential(2) : Math.round(v).toLocaleString()) + "</span>"; }).join(" · ") +
-          "<br><span class='k-lab-aside'>" + FN.map(function (f) { return f[0] + " " + f[2]; }).join(" · ") + ". Polynomial (and better) = tractable; exponential and factorial = intractable — a heuristic gives a good-enough answer instead.</span>";
-      }
-      draw();
-    }
-  });
-
   /* =================== FLOATING POINT BITS =================== */
   KOS.sims.register({
     id: "float-bits", title: "Floating Point — mantissa & exponent bits", subject: "compsci", ref: "4.5.4.4",
@@ -343,55 +298,6 @@
           "<br><span class='k-lab-aside'>Parity and checksums detect; majority voting and more advanced codes correct. Parity adds one bit per byte; majority voting triples the data.</span>";
       }
       resend();
-    }
-  });
-
-  /* =================== ADC SAMPLING =================== */
-  KOS.sims.register({
-    id: "adc-sampling", title: "Analogue → Digital — sample rate & resolution", subject: "compsci", ref: "4.5.6.1",
-    desc: "An analogue wave is sampled at a rate you choose and quantised to a bit depth you choose. Watch the staircase reconstruction drift from the original as you cut either, and read the file size the settings imply (Nyquist: sample at twice the highest frequency).",
-    mount: function (panel) {
-      var rate = 12, bits = 3, freq = 1.5, secs = 30;
-      var s1 = slider("sample rate (Hz)", 2, 60, 1, rate, function (v) { rate = v; draw(); });
-      var s2 = slider("resolution (bits)", 1, 8, 1, bits, function (v) { bits = v; draw(); });
-      var s3 = slider("signal frequency (Hz)", 0.5, 6, 0.5, freq, function (v) { freq = v; draw(); }, function (v) { return v.toFixed(1); });
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [s1.node, s2.node, s3.node]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = canvas(holder, 300);
-      var read = readout(); panel.appendChild(read);
-      function sig(t) { return 0.6 * Math.sin(2 * Math.PI * freq * t) + 0.3 * Math.sin(2 * Math.PI * freq * 2.7 * t + 1); }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.beginPath) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var padL = 40, W = cv.W - padL - 10, H = cv.H - 40, mid = 20 + H / 2, levels = Math.pow(2, bits);
-        function X(t) { return padL + t / 2 * W; } function Y(v) { return mid - v * H / 2; }
-        ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
-        for (var l = 0; l < levels; l++) { var v = -1 + (l + 0.5) * 2 / levels; ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(padL + W, Y(v)); ctx.stroke(); }
-        ctx.strokeStyle = COL.line; ctx.beginPath(); ctx.moveTo(padL, mid); ctx.lineTo(padL + W, mid); ctx.stroke();
-        ctx.strokeStyle = A(COL.text, .55); ctx.lineWidth = 1.6; ctx.beginPath();
-        for (var i = 0; i <= W; i++) { var t = i / W * 2, y = Y(sig(t)); if (i) ctx.lineTo(padL + i, y); else ctx.moveTo(padL + i, y); }
-        ctx.stroke();
-        var n = Math.floor(2 * rate), err = 0, prevY = null;
-        ctx.strokeStyle = COL.crim; ctx.lineWidth = 2; ctx.beginPath();
-        for (i = 0; i <= n; i++) {
-          t = i / rate; if (t > 2) break;
-          var s = sig(t), q = Math.max(0, Math.min(levels - 1, Math.floor((s + 1) / 2 * levels))), qv = -1 + (q + 0.5) * 2 / levels;
-          err += Math.abs(qv - s);
-          var x = X(t), y = Y(qv);
-          if (prevY === null) ctx.moveTo(x, y); else { ctx.lineTo(x, prevY); ctx.lineTo(x, y); }
-          prevY = y;
-          ctx.fillStyle = COL.gold; ctx.fillRect(x - 2, y - 2, 4, 4);
-        }
-        ctx.lineTo(padL + W, prevY); ctx.stroke();
-        ctx.fillStyle = COL.mute; ctx.font = "10.5px 'IBM Plex Mono', monospace"; ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.fillText(levels + " levels (" + bits + "-bit)", padL + 4, 4);
-        var size = rate * bits * secs;
-        var maxF = freq * 2.7;
-        read.innerHTML = "samples per second <b>" + rate + "</b> · <b>" + levels + "</b> quantisation levels · mean quantisation error " + (err / Math.max(1, n)).toFixed(3) +
-          " · Nyquist: highest component " + maxF.toFixed(1) + " Hz needs ≥ " + (2 * maxF).toFixed(0) + " Hz " + (rate >= 2 * maxF ? "<span class='k-lab-good'>✓</span>" : "<span class='k-lab-bad'>✗ aliasing — the reconstruction invents a lower frequency</span>") +
-          "<br>file size = sample rate × resolution × seconds = " + rate + " × " + bits + " × " + secs + " = <b>" + size.toLocaleString() + " bits</b> = " + (size / 8).toLocaleString() + " bytes for " + secs + " s (mono)" +
-          "<br><span class='k-lab-aside'>Grey: analogue signal. Red staircase: digital reconstruction. Higher rate → follows the shape; more bits → smaller steps. Both raise the file size linearly.</span>";
-      }
-      draw();
     }
   });
 

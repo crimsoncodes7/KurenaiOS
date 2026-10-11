@@ -290,7 +290,43 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-sv-edge[data-tone~="front"] { stroke: var(--amber); stroke-width: 2; }
 .k-sv-edge[data-dash] { stroke-dasharray: 3 4; }
 .k-sv-edge[data-tone~="faint"] { opacity: 0.45; }
+.k-sv-axis { stroke: var(--text-2); stroke-width: 1.4; }
+.k-lab-stage[data-state~="draggable"] > .k-sv { touch-action: none; }
+.k-lab-stage[data-state~="dragging"] > .k-sv { cursor: grabbing; }
+/* series tones for a plot of several curves (Big-O): the fixed hues */
+.k-sv-edge[data-tone~="s1"] { stroke: var(--text-2); }
+.k-sv-clipmark[data-tone~="s1"] { fill: var(--text-2); }
+.k-sv-edge[data-tone~="s2"] { stroke: var(--teal); }
+.k-sv-edge[data-tone~="s3"] { stroke: var(--maths); }
+.k-sv-edge[data-tone~="s4"] { stroke: var(--amber); }
+.k-sv-edge[data-tone~="s5"] { stroke: var(--it); }
+.k-sv-edge[data-tone~="s6"] { stroke: var(--crimson); }
+.k-sv-edge[data-tone~="s7"] { stroke: var(--green); }
+.k-sv-clipmark[data-tone~="s2"] { fill: var(--teal); }
+.k-sv-clipmark[data-tone~="s3"] { fill: var(--maths); }
+.k-sv-clipmark[data-tone~="s4"] { fill: var(--amber); }
+.k-sv-clipmark[data-tone~="s5"] { fill: var(--it); }
+.k-sv-clipmark[data-tone~="s6"] { fill: var(--crimson); }
+.k-sv-clipmark[data-tone~="s7"] { fill: var(--green); }
+.k-lab-keys .k-lab-key[data-mark="line-s1"] { background: var(--text-2); }
+.k-lab-keys .k-lab-key[data-mark="line-s2"] { background: var(--teal); }
+.k-lab-keys .k-lab-key[data-mark="line-s3"] { background: var(--maths); }
+.k-lab-keys .k-lab-key[data-mark="line-s4"] { background: var(--amber); }
+.k-lab-keys .k-lab-key[data-mark="line-s5"] { background: var(--it); }
+.k-lab-keys .k-lab-key[data-mark="line-s6"] { background: var(--crimson); }
+.k-lab-keys .k-lab-key[data-mark="line-s7"] { background: var(--green); }
+.k-sv-curve { stroke-width: 2.6; stroke-linejoin: round; }
+.k-sv-curve[data-tone~="sub"] { stroke: var(--text-2); stroke-width: 1.4; }
+.k-sv-clipmark { fill: var(--sim-hue); }
+.k-sv-clipmark[data-tone~="hot"] { fill: var(--crimson); }
+.k-sv-clipmark[data-tone~="done"] { fill: var(--teal); }
+.k-sv-clipmark[data-tone~="front"] { fill: var(--amber); }
+.k-sv-ring { fill: var(--s3); stroke: var(--sim-hue); stroke-width: 2; }
+.k-sv-ring[data-tone~="hot"] { stroke: var(--crimson); }
+.k-sv-ring[data-tone~="front"] { stroke: var(--amber); }
+.k-sv-ring[data-tone~="done"] { stroke: var(--teal); }
 .k-sv-area { fill: color-mix(in oklch, var(--sim-hue) 24%, transparent); stroke: none; }
+.k-sv-area[data-tone~="sub"] { fill: color-mix(in oklch, var(--text-2) 10%, transparent); }
 .k-sv-area[data-tone~="hot"] { fill: color-mix(in oklch, var(--crimson) 22%, transparent); }
 .k-sv-area[data-tone~="done"] { fill: color-mix(in oklch, var(--teal) 22%, transparent); }
 .k-sv-area[data-tone~="front"] { fill: color-mix(in oklch, var(--amber) 20%, transparent); }
@@ -324,7 +360,10 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-rs-meta { margin-inline-start: auto; font-size: var(--fs-11-5); color: var(--muted); white-space: nowrap; }
 .k-lab-rs-b { font-size: var(--fs-13); line-height: 1.55; color: var(--text-2); overflow-wrap: anywhere; }
 .k-lab-now { margin: 0; font-size: var(--fs-14); line-height: 1.55; text-wrap: pretty; color: var(--text); }
-.k-lab-big { display: block; font: var(--weight-semibold) var(--fs-26) var(--font-mono); color: var(--sim-hue); }
+.k-lab-big { display: block; font: var(--weight-semibold) var(--fs-26) var(--font-mono); color: var(--sim-hue); overflow-wrap: anywhere; }
+.k-lab-work { margin: var(--sp-6) 0 0; font: var(--fs-12-5) / 1.6 var(--font-mono); color: var(--text-2); }
+.k-lab-sl > input { --w: var(--lab-range-w); }
+.k-lab-sl-v { min-inline-size: 4ch; font-size: var(--fs-12-5); color: var(--text); }
 .k-lab-em { font-weight: var(--weight-semibold); color: var(--text); }
 .k-lab-em[data-tone~="hot"], .k-lab-kv dd[data-tone~="hot"] { color: var(--crimson); }
 .k-lab-em[data-tone~="done"], .k-lab-kv dd[data-tone~="done"] { color: var(--teal); }
