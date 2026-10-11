@@ -381,7 +381,253 @@
     run(true);
   }
 
+  /* =================== graphs: Dijkstra, BFS and DFS on one graph (20b) ===================
+     One graph, three algorithms: switching resets the run on the same
+     graph so they can be compared. Node states are the same in all three:
+     visited teal, current crimson, frontier an amber ring, unvisited grey;
+     the edge being relaxed or explored is crimson, the tree built so far
+     teal. The structure the algorithm runs on (priority queue, queue,
+     stack) and a step log sit in the readout. */
+  var G_SEED = {
+    nodes: [["A", 90, 222], ["B", 247, 95], ["C", 247, 350], ["D", 437, 202], ["E", 447, 372], ["F", 620, 95], ["G", 712, 297]],
+    edges: [["A", "B", 4], ["A", "C", 2], ["B", "C", 1], ["B", "D", 5], ["C", "D", 8], ["C", "E", 10], ["D", "E", 2], ["D", "F", 6], ["E", "G", 5], ["F", "G", 3]]
+  };
+  var GR = 22, NAMES = "ABCDEFG";
+
+  function graphLab(panel, first) {
+    var g = cloneG(G_SEED), alg = first, start = "A", target = "G", editing = false, shown = null;
+    function cloneG(x) { return { nodes: x.nodes.map(function (n) { return n.slice(); }), edges: x.edges.map(function (e) { return e.slice(); }) }; }
+    function ids() { return g.nodes.map(function (n) { return n[0]; }); }
+    function sel(v, on) {
+      var s = el("select", { style: "--w: 64px" }, ids().map(function (k) { return el("option", { value: k, text: k, selected: k === v ? "" : null }); }));
+      s.onchange = function () { on(s.value); };
+      return s;
+    }
+    var startSel = sel(start, function (v) { start = v; build(); });
+    var targetSel = sel(target, function (v) { target = v; build(); });
+    var targetField = L.field("Target", targetSel);
+    var editBtn = L.action("✎ Edit graph", function () { setEditing(!editing); });
+    editBtn.setAttribute("aria-pressed", "false");
+    var lab = L.create(panel, {
+      controls: [L.choice([["dijkstra", "Dijkstra"], ["bfs", "BFS"], ["dfs", "DFS"]], alg, function (a) { alg = a; build(); }, "Algorithm"),
+        L.field("Start", startSel), targetField, editBtn, L.action("New graph", newGraph)],
+      transport: true, speed: true, tick: 1100, label: "Weighted graph",
+      readout: ["now", "struct", "values", "edges", "log", "legend"],
+      onReset: function () { build(); }
+    });
+    lab.legend([["fill-done", "visited"], ["fill-hot", "current"], ["ring-front", "frontier"], ["fill-mute", "unvisited"], ["line-done", "tree edge"]]);
+
+    function adj() {
+      var a = {};
+      ids().forEach(function (k) { a[k] = []; });
+      g.edges.forEach(function (e) { a[e[0]].push([e[1], e[2]]); a[e[1]].push([e[0], e[2]]); });
+      Object.keys(a).forEach(function (k) { a[k].sort(function (x, y) { return x[0] < y[0] ? -1 : 1; }); });
+      return a;
+    }
+    function ek(a, b) { return a < b ? a + "-" + b : b + "-" + a; }
+    function fmt(d) { return d === Infinity ? "∞" : String(d); }
+
+    function build() {
+      targetField.hidden = alg !== "dijkstra";
+      lab.stop();
+      var out = alg === "dijkstra" ? dijkstra() : traverse(alg);
+      lab.steps(out, render);
+    }
+    function dijkstra() {
+      var A = adj(), dist = {}, prev = {}, done = {}, out = [], log = [], k = 0;
+      ids().forEach(function (n) { dist[n] = Infinity; });
+      dist[start] = 0;
+      function pq(popped, notes) {
+        return ids().filter(function (n) { return !done[n] && dist[n] < Infinity || n === popped; })
+          .sort(function (a, b) { return dist[a] - dist[b] || (a < b ? -1 : 1); })
+          .map(function (n) { return { k: n, v: fmt(dist[n]), note: n === popped ? "popped" : notes[n] || "", live: n === popped }; });
+      }
+      function snap(o) {
+        var st = {}, tree = {};
+        ids().forEach(function (n) { st[n] = done[n] ? "done" : dist[n] < Infinity ? "front" : null; if (prev[n]) tree[ek(n, prev[n])] = "done"; });
+        if (o.cur) st[o.cur] = "hot";
+        Object.keys(o.edges || {}).forEach(function (e) { tree[e] = o.edges[e]; });
+        out.push({ st: st, edges: tree, dist: JSON.parse(JSON.stringify(dist, function (x, v) { return v === Infinity ? "∞" : v; })), labels: "dist",
+          struct: { title: "Priority queue", meta: "dist", items: o.pq }, log: log.slice(), say: o.say, path: o.path, vals: o.vals });
+      }
+      snap({ pq: pq(null, {}), say: ["Start at ", [start, "hot"], " with d = 0; every other node is ∞. The priority queue always hands back the unvisited node with the smallest distance."] });
+      while (true) {
+        var u = null;
+        ids().forEach(function (n) { if (!done[n] && dist[n] < Infinity && (u === null || dist[n] < dist[u] || (dist[n] === dist[u] && n < u))) u = n; });
+        if (u === null) break;
+        k++;
+        var notes = {}, said = ["Visit ", [u + " (" + dist[u] + ")", "hot"], ". "], hot = {}, parts = [];
+        var poppedList = pq(u, {});
+        done[u] = true;
+        A[u].forEach(function (p) {
+          var v = p[0], w = p[1];
+          if (done[v]) return;
+          var nd = dist[u] + w;
+          if (nd < dist[v]) {
+            var was = dist[v];
+            hot[ek(u, v)] = "hot";
+            if (was === Infinity) { said.push(v + " is new at " + nd + ". "); notes[v] = "new"; parts.push(v + " = " + nd); }
+            else { said.push("The edge " + u + " → " + v + " gives " + dist[u] + " + " + w + " = " + nd + ", which beats " + v + "'s " + was + ", so " + v + " becomes " + nd + " via " + u + ". "); notes[v] = "was " + was; parts.push(v + " " + was + " → " + nd); }
+            dist[v] = nd; prev[v] = u;
+          }
+        });
+        if (!parts.length) said.push("No neighbour improves.");
+        log.push({ n: k, t: "Visit " + u + " (" + dist[u] + ")" + (parts.length ? " · " + parts.join(", ") : "") });
+        var list = pq(null, notes); list.unshift({ k: u, v: String(dist[u]), note: "popped", live: true });
+        snap({ cur: u, edges: hot, pq: list, say: said });
+      }
+      var path = [];
+      if (dist[target] < Infinity) { for (var x = target; x; x = prev[x]) path.unshift(x); }
+      var pe = {};
+      for (var i = 1; i < path.length; i++) pe[ek(path[i - 1], path[i])] = "hot";
+      snap({ edges: pe, path: path, pq: [], say: dist[target] < Infinity
+        ? ["Every node is settled. The shortest path from " + start + " to " + target + " is ", [path.join(" → "), "hot"], ", length ", [String(dist[target]), "hot"], "."]
+        : [target + " cannot be reached from " + start + "."], vals: [["shortest " + start + " → " + target, fmt(dist[target]), "hot"]] });
+      return out;
+    }
+    function traverse(kind) {
+      var A = adj(), seen = {}, order = [], out = [], log = [], box = [start], parent = {};
+      seen[start] = true;
+      var name = kind === "bfs" ? "Queue" : "Stack", meta = kind === "bfs" ? "FIFO" : "LIFO";
+      function snap(cur, hot, say) {
+        var st = {}, tree = {};
+        ids().forEach(function (n) { st[n] = order.indexOf(n) >= 0 ? "done" : box.indexOf(n) >= 0 ? "front" : null; if (parent[n] && order.indexOf(n) >= 0) tree[ek(n, parent[n])] = "done"; });
+        if (cur) st[cur] = "hot";
+        Object.keys(hot || {}).forEach(function (e) { tree[e] = hot[e]; });
+        var items = (kind === "bfs" ? box.slice() : box.slice().reverse()).map(function (n, i) { return { k: n, v: "", note: i === 0 ? (kind === "bfs" ? "← front" : "← top") : "" }; });
+        out.push({ st: st, edges: tree, order: order.slice(), labels: "order", struct: { title: name, meta: meta, items: items }, log: log.slice(), say: say });
+      }
+      snap(null, null, [kind === "bfs" ? "Enqueue " : "Push ", [start, "front"], " and mark it seen. " + (kind === "bfs" ? "BFS visits by number of edges, not by weight." : "DFS goes as deep as it can before backing up.")]);
+      while (box.length) {
+        var u = kind === "bfs" ? box.shift() : box.pop();
+        if (kind === "dfs" && order.indexOf(u) >= 0) continue;
+        order.push(u);
+        var nb = A[u].map(function (p) { return p[0]; }).filter(function (v) { return kind === "bfs" ? !seen[v] : order.indexOf(v) < 0; });
+        var hot = {};
+        if (kind === "bfs") nb.forEach(function (v) { seen[v] = true; parent[v] = u; box.push(v); hot[ek(u, v)] = "hot"; });
+        else nb.slice().reverse().forEach(function (v) { parent[v] = u; box.push(v); hot[ek(u, v)] = "hot"; });
+        log.push({ n: order.length, t: (kind === "bfs" ? "Dequeue " : "Pop ") + u + (nb.length ? " · " + (kind === "bfs" ? "enqueue " : "push ") + nb.join(", ") : "") });
+        snap(u, hot, [(kind === "bfs" ? "Dequeue " : "Pop "), [u, "hot"], nb.length
+          ? (kind === "bfs" ? ", enqueue its unvisited neighbours " : ", push its unvisited neighbours ") + nb.join(" and ") + (kind === "dfs" && nb.length > 1 ? " (in reverse, so " + nb[0] + " comes off first)" : "") + "."
+          : ": every neighbour is already " + (kind === "bfs" ? "seen" : "visited") + "."]);
+      }
+      snap(null, null, ["The " + name.toLowerCase() + " is empty: every node reachable from " + start + " is visited, in the order ", [order.join(" "), "done"], "."]);
+      return out;
+    }
+    function render(f, i, n) {
+      shown = f;
+      lab.draw(paint);
+      lab.now(f.say, i ? "Step " + i + " of " + (n - 1) : null);
+      var s = f.struct;
+      lab.section("struct", s.title, s.items.length ? [el("ul", { class: "k-lab-rlist" }, s.items.map(function (it) {
+        return el("li", { "data-state": it.live ? "live" : null }, [el("b", { class: "k-mono", text: it.k }), it.v !== "" ? el("span", { class: "k-mono", text: it.v }) : null, el("span", { class: "k-lab-rlist-v", text: it.note })].filter(Boolean));
+      }))] : [el("p", { class: "k-lab-now", text: "empty" })], s.meta);
+      lab.section("log", "Step log", f.log.length ? [el("ol", { class: "k-lab-rlist" }, f.log.map(function (l, j) {
+        return el("li", { "data-state": j === f.log.length - 1 ? null : "done" }, [el("span", { class: "k-lab-rlist-n", text: String(l.n) }), l.t]);
+      }))] : null);
+      lab.values(f.vals || null);
+      editRows();
+    }
+    function paint(d) {
+      var f = shown, pos = {};
+      g.nodes.forEach(function (n) { pos[n[0]] = { x: n[1], y: n[2] }; });
+      var weighted = alg === "dijkstra";
+      g.edges.forEach(function (e) {
+        var a = pos[e[0]], b = pos[e[1]], len = Math.hypot(b.x - a.x, b.y - a.y), ux = (b.x - a.x) / len, uy = (b.y - a.y) / len;
+        var tn = f.edges[ek(e[0], e[1])] || "mute";
+        d.line(a.x + ux * GR, a.y + uy * GR, b.x - ux * GR, b.y - uy * GR, { tone: tn });
+        var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        d.rect(mx - 13, my - 12, 26, 24, { rx: 8, tone: "well" });
+        d.text(mx, my + 5, String(e[2]), { size: 14, tone: tn === "hot" ? "hot" : weighted ? "sub" : "mute" });
+      });
+      g.nodes.forEach(function (n) {
+        var p = pos[n[0]], st = f.st[n[0]];
+        var c = d.circle(p.x, p.y, GR, { tone: st || null, cls: editing ? "k-sv-drag" : null });
+        c.setAttribute("data-node", n[0]);
+        d.text(p.x, p.y + 6, n[0], { size: 16, weight: "bold", tone: st === "hot" || st === "done" ? "on" : null });
+        if (f.labels === "dist") {
+          var dv = f.dist[n[0]];
+          d.text(p.x, p.y + GR + 22, "d = " + dv, { size: 14, tone: st === "hot" ? "hot" : st === "done" ? "done" : st === "front" ? "front" : "mute" });
+        } else {
+          var oi = f.order.indexOf(n[0]);
+          if (oi >= 0) d.text(p.x + GR + 4, p.y - GR + 4, String(oi + 1), { size: 14, tone: "done", anchor: "start" });
+        }
+      });
+      return { w: 800, h: 450, count: g.nodes.length, noun: "node", note: g.edges.length + " edges" + (weighted ? "" : " · " + alg.toUpperCase() + " ignores weights") };
+    }
+
+    /* ✎ Edit graph: drag the nodes, type the weights; the layout never
+       leaves the viewBox, and every change restarts the run */
+    function setEditing(on) {
+      editing = on;
+      editBtn.setAttribute("aria-pressed", String(on));
+      editBtn.textContent = on ? "✓ Done editing" : "✎ Edit graph";
+      KOS.ui.state(lab.stage, "editing", on);
+      lab.draw(); editRows();
+    }
+    function editRows() {
+      if (!editing) { lab.section("edges", "Edges", null); return; }
+      lab.section("edges", "Edges", [el("div", { class: "k-lab-edges" }, g.edges.map(function (e) {
+        var inp = el("input", { type: "number", min: 1, max: 99, value: e[2], style: "--w: 56px", "aria-label": "Weight of " + e[0] + "–" + e[1] });
+        inp.onchange = function () {
+          var w = Math.round(Number(inp.value));
+          if (!(w >= 1 && w <= 99)) { inp.value = e[2]; KOS.ui.toast("A weight is a whole number from 1 to 99.", true); return; }
+          e[2] = w; build();
+        };
+        return el("label", { class: "k-lab-field" }, [el("span", { text: e[0] + "–" + e[1] }), inp]);
+      }))], "drag a node to move it");
+    }
+    lab.stage.addEventListener("pointerdown", function (e) {
+      if (!editing) return;
+      var t = e.target && e.target.getAttribute && e.target.getAttribute("data-node");
+      if (!t) return;
+      e.preventDefault(); e.stopPropagation();
+      var node = g.nodes.filter(function (n) { return n[0] === t; })[0];
+      function move(ev) {
+        var p = lab.toWorld(ev.clientX, ev.clientY); if (!p) return;
+        node[1] = Math.round(Math.min(800 - GR - 10, Math.max(GR + 10, p.x)));
+        node[2] = Math.round(Math.min(450 - GR - 46, Math.max(GR + 10, p.y)));
+        lab.draw();
+      }
+      function up() { document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); build(); }
+      document.addEventListener("pointermove", move);
+      document.addEventListener("pointerup", up);
+    }, true);
+
+    function newGraph() {
+      var cells = [];
+      for (var r = 0; r < 2; r++) for (var c = 0; c < 4; c++) cells.push([110 + c * 190 + rnd(-40, 40), 110 + r * 220 + rnd(-40, 40)]);
+      cells.sort(function () { return Math.random() - 0.5; });
+      var nodes = [];
+      for (var i = 0; i < 7; i++) nodes.push([NAMES[i], cells[i][0], cells[i][1]]);
+      nodes.sort(function (a, b) { return a[1] - b[1]; });
+      nodes.forEach(function (n, i) { n[0] = NAMES[i]; });
+      function dd(a, b) { return Math.hypot(a[1] - b[1], a[2] - b[2]); }
+      var edges = [], has = {};
+      function add(a, b) { var key = ek(a[0], b[0]); if (has[key] || a === b) return false; has[key] = 1; edges.push([a[0], b[0], rnd(1, 9)]); return true; }
+      /* a spanning tree to the nearest connected node, then a few short extras */
+      for (var j = 1; j < nodes.length; j++) {
+        var best = nodes.slice(0, j).sort(function (p, q) { return dd(p, nodes[j]) - dd(q, nodes[j]); })[0];
+        add(best, nodes[j]);
+      }
+      var pairs = [];
+      nodes.forEach(function (a, x) { nodes.forEach(function (b, y) { if (x < y) pairs.push([dd(a, b), a, b]); }); });
+      pairs.sort(function (p, q) { return p[0] - q[0]; });
+      var extra = 0;
+      pairs.forEach(function (p) { if (extra < 4 && p[0] < 300 && add(p[1], p[2])) extra++; });
+      g = { nodes: nodes, edges: edges };
+      if (ids().indexOf(start) < 0) start = "A";
+      if (ids().indexOf(target) < 0) target = "G";
+      build();
+    }
+    build();
+  }
+
   [
+    { id: "dijkstra", title: "Shortest path", subject: "compsci", ref: "4.3.6.1",
+      desc: "Dijkstra, BFS and DFS on the same weighted graph: the priority queue, queue or stack beside it and a step log you can read back.", mount: function (p) { graphLab(p, "dijkstra"); } },
+    { id: "graph-traversal", title: "Graph traversal", subject: "compsci", ref: "4.3.1.1",
+      desc: "Breadth-first and depth-first search side by side: BFS dequeues from a queue, DFS pops a stack, on the same graph.", mount: function (p) { graphLab(p, "bfs"); } },
     { id: "sort-viz", title: "Sorting", subject: "compsci", ref: "4.3.5.1",
       desc: "Bubble sort and merge sort on the same data, one comparison at a time, with the counts that make O(n²) and O(n log n) concrete.", mount: sortLab },
     { id: "linear-search", title: "Linear search", subject: "compsci", ref: "4.3.4.1",

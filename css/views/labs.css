@@ -363,6 +363,8 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-rlist > li[data-state~="done"] { background: none; color: var(--muted); }
 .k-lab-rlist-n { font-family: var(--font-mono); color: var(--muted); }
 .k-lab-rlist-v { margin-inline-start: auto; font-family: var(--font-mono); font-size: var(--fs-11-5); color: var(--muted); }
+.k-lab-edges { display: flex; flex-wrap: wrap; gap: var(--sp-6) var(--sp-12); }
+.k-lab-stage[data-state~="editing"] .k-sv-drag { cursor: grab; stroke-dasharray: 4 3; }
 .k-lab[data-state~="embedded"] .k-lab-body { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
 .k-lab[data-state~="embedded"] .k-lab-readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-14) var(--sp-22); align-items: start; }
 .k-lab[data-state~="embedded"] .k-lab-rs { padding: 0; border: 0; }

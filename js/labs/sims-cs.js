@@ -220,68 +220,6 @@
     }
   });
 
-  /* =================== GRAPH TRAVERSAL =================== */
-  KOS.sims.register({
-    id: "graph-traversal", title: "Graph Traversal — BFS queue vs DFS stack", subject: "compsci", ref: "4.3.1.1",
-    desc: "Step breadth-first and depth-first search over the same graph. The data structure driving each one is shown beside the picture: BFS dequeues from a queue and finds shortest paths in unweighted graphs; DFS pops a stack (or recurses) and goes deep first.",
-    mount: function (panel) {
-      var NODES = { A: [80, 60], B: [220, 40], C: [360, 70], D: [120, 180], E: [270, 170], F: [420, 190], G: [200, 290], H: [360, 300] };
-      var EDGES = [["A", "B"], ["A", "D"], ["B", "C"], ["B", "E"], ["C", "F"], ["D", "E"], ["D", "G"], ["E", "F"], ["E", "H"], ["G", "H"], ["F", "H"]];
-      var adj = {}; Object.keys(NODES).forEach(function (k) { adj[k] = []; });
-      EDGES.forEach(function (e) { adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
-      Object.keys(adj).forEach(function (k) { adj[k].sort(); });
-      var mode = "bfs", start = "A", frontier, visited, order, cur, done;
-      var mSel = el("select", {}, [el("option", { value: "bfs", text: "breadth-first (queue)" }), el("option", { value: "dfs", text: "depth-first (stack)" })]);
-      var sSel = el("select", {}, Object.keys(NODES).map(function (k) { return el("option", { value: k, text: "start at " + k }); }));
-      mSel.onchange = function () { mode = mSel.value; reset(); }; sSel.onchange = function () { start = sSel.value; reset(); };
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["algorithm", mSel]), el("label", {}, ["start", sSel]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Step", onclick: function () { step(); draw(); } }),
-        el("button", { class: "k-btn k-lab-alt", text: "Run to end", onclick: function () { while (step()) {} draw(); } }),
-        el("button", { class: "k-btn", text: "Reset", onclick: reset })]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = canvas(holder, 340);
-      var read = readout(); panel.appendChild(read);
-      function reset() { frontier = [start]; visited = {}; visited[start] = true; order = []; cur = null; done = false; draw(); }
-      function step() {
-        if (done) return false;
-        if (!frontier.length) { done = true; return false; }
-        cur = mode === "bfs" ? frontier.shift() : frontier.pop();
-        order.push(cur);
-        var ns = mode === "bfs" ? adj[cur] : adj[cur].slice().reverse();
-        ns.forEach(function (n) { if (!visited[n]) { visited[n] = true; frontier.push(n); } });
-        if (!frontier.length) done = true;
-        return !done;
-      }
-      function draw() {
-        var ctx = cv.ctx; if (!ctx || !ctx.beginPath) return;
-        ctx.clearRect(0, 0, cv.W, cv.H);
-        var sx = Math.min(1, (cv.W - 200) / 480);
-        function P(k) { return [NODES[k][0] * sx + 20, NODES[k][1] * sx + 10]; }
-        EDGES.forEach(function (e) { var a = P(e[0]), b = P(e[1]); ctx.strokeStyle = COL.line; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); });
-        Object.keys(NODES).forEach(function (k) {
-          var p = P(k), idx = order.indexOf(k);
-          ctx.fillStyle = k === cur ? COL.crim : idx >= 0 ? A(COL.jade, .35) : frontier.indexOf(k) >= 0 ? A(COL.gold, .35) : COL.ink;
-          ctx.strokeStyle = idx >= 0 ? COL.jade : frontier.indexOf(k) >= 0 ? COL.gold : COL.line; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(p[0], p[1], 18, 0, 7); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = k === cur ? COL.ink : COL.text; ctx.font = "600 13px 'IBM Plex Mono', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(k, p[0], p[1]);
-          if (idx >= 0) { ctx.fillStyle = COL.mute; ctx.font = "10px 'IBM Plex Mono', monospace"; ctx.fillText(String(idx + 1), p[0] + 22, p[1] - 14); }
-        });
-        /* structure panel */
-        var x0 = cv.W - 160, y0 = 16;
-        ctx.fillStyle = COL.text; ctx.font = "600 12px 'IBM Plex Mono', monospace"; ctx.textAlign = "left"; ctx.textBaseline = "top";
-        ctx.fillText(mode === "bfs" ? "QUEUE (front → back)" : "STACK (top ↓)", x0, y0);
-        var list = mode === "bfs" ? frontier : frontier.slice().reverse();
-        list.forEach(function (k, i) { ctx.fillStyle = A(COL.gold, .3); ctx.strokeStyle = COL.gold; ctx.fillRect(x0, y0 + 22 + i * 26, 60, 22); ctx.strokeRect(x0, y0 + 22 + i * 26, 60, 22); ctx.fillStyle = COL.text; ctx.textBaseline = "middle"; ctx.fillText(k, x0 + 24, y0 + 33 + i * 26); ctx.textBaseline = "top"; });
-        if (!list.length) { ctx.fillStyle = COL.faint; ctx.fillText("(empty)", x0, y0 + 24); }
-        ctx.fillStyle = COL.text; ctx.fillText("visited: " + order.join(" "), x0, y0 + 22 + Math.max(list.length, 1) * 26 + 10);
-        read.innerHTML = "<b>" + (mode === "bfs" ? "BFS" : "DFS") + " from " + start + "</b> · order so far: <b>" + (order.join(" → ") || "—") + "</b>" + (done ? " · <span class='k-lab-good'>complete</span>" : "") +
-          "<br><span class='k-lab-aside'>" + (mode === "bfs" ? "Mark the start visited and enqueue it; repeatedly dequeue, then enqueue each unvisited neighbour (marking it). Visits in layers of increasing distance — the basis of shortest paths in unweighted graphs."
-            : "Push the start; repeatedly pop, visit, and push unvisited neighbours. Equivalent to the recursive version, whose call stack does the same job. Neighbours are pushed in reverse so A's smallest neighbour is explored first.") + "</span>";
-      }
-      reset();
-    }
-  });
-
   /* =================== FLOATING POINT BITS =================== */
   KOS.sims.register({
     id: "float-bits", title: "Floating Point — mantissa & exponent bits", subject: "compsci", ref: "4.5.4.4",
