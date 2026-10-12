@@ -16,6 +16,7 @@ handoff maps back to the roadmap.
 | 6 | Focus: stopwatch, study until, mini-player | 1.6 | optional |
 | 7 | The topic picker | 1.1 | optional |
 | 8 | IT unit grades | 1.2 | optional |
+| 9 | Reports: week, month, term, year | 5.1 | next |
 
 ---
 
@@ -207,3 +208,46 @@ Frames:
 18b Entering a new mark on F201.
 18c The same panel at the end of Year 2, all units done.
 ```
+
+## 9 · Reports: week, month, term and year
+
+```text
+Design a Reports feature for KurenaiOS, continuing the approved design in this project: Graphite (Atelier Dusk) and its light twin Dawn, the phone views (frames 15a–15n) and the rest of design part 2 (frames 15–23). Number the new frames 24a onwards. Desktop 1280; phone 390 × 844, checked at 360. Use only the existing tokens, type scale, cards, stat tiles, tabs, chips and chart styles — this is a new page in the same system, not a new look.
+
+What KurenaiOS is: my study companion for A-levels (AQA Computer Science teal, Edexcel Maths violet, OCR IT pink-violet) plus my productivity tools and my media Collection, with a Governor (XP, gold, HP, streaks) and an AI assistant, Kurenai. Areas: Study (specification topics, notes, flashcards with spaced repetition, quizzes, exam questions, Exams & Papers results, IT unit marks), Productivity (Focus timer sessions, calendar, reminders, tasks and habits, assignments, the weekly plan with class vs my plan, carry-overs and the "braid" alignment graph), Collection (anime, books, visual novels, games, the Shrine, the Budget Planner and goals), the Assistant (conversations, scheduled messages), and my profile (level, XP, gold, HP, study and rest streaks, cosmetics).
+
+The idea: like Claude's "Reflect" page — a headline, a short narrative paragraph, a row of facts (most active day, peak hour, totals), an activity chart with a Conversations/Time toggle, a "what it was about" bar split by area, then cards — but across the whole app. Four periods, each deeper than the last:
+- Weekly (Mon–Sun): what moved — study time and sessions, cards reviewed and recall %, topics touched and status changes, Focus blocks, the plan's ticks and carry-overs, tasks/reminders/habits done, what I watched, read and played, XP, gold, streaks.
+- Monthly: adds comparison with last month (up/down, never a bare zero), busiest day and hour, subject balance, mastery change by unit, Collection completions and score spread, Assistant use.
+- Termly (the school term from the plan): adds the plan against class (ahead / aligned / behind), exam and paper results with grades, IT unit marks, weakest and strongest topics, Focus habits (when and how long I actually focus).
+- Yearly (the academic year, Sept–Aug): adds the long view — a month-by-month strip, every graded result, the year's Collection, records (longest streak, longest Focus, best recall week) and milestones.
+Each section links to the page it summarises. Depth should feel earned: a weekly report fits on roughly one screen; a yearly one is a long, scrolling read with chapter-like section heads.
+
+Two ways the words are written, both designed:
+- Template (default, offline, free): sentences built from the numbers by rule — plain, factual, consistent.
+- Kurenai: the assistant writes the headline and narrative from the report's totals (never raw notes or titles), as one request. Show the switch between them, a "Written by Kurenai · regenerate" mark, the generating state, and a failure that falls back to the template without losing the page.
+
+Rules from the app that the design must keep:
+- A zero that is only a supporting fact is not printed; a zero that is the point stays.
+- A chart needs enough evidence to make a claim: show an honest low-data state (first week, a quiet month) instead of an empty chart.
+- Labelled axes and marks, an 11px label floor; subject hues for subject data; status colours (behind, overdue) are the fixed alarm red, never the theme accent.
+- Rewards are reported, never promised.
+- Reports are saved, so a past week reads exactly as it was; a Monday morning notification ("Your week in review is ready") opens the latest.
+
+Sample data for the weekly frame (w/c 5 Oct 2026): 11 h 40 m studied across 14 sessions (CS 5 h 10, Maths 4 h 50, IT 1 h 40); 312 flashcard reviews, 86% recall; 9 topics touched, 3 moved to Green; Focus 21 blocks, longest 70 min, Wednesday 19:00 most focused; plan 6 of 8 personal rows ticked, 2 carried over (Maths P4 binomial, CS 4.10 normalisation); 17 reminders and 4 habits kept; Collection: 3 anime episodes, 1 visual novel route, 2 volumes read; +1,240 XP, +96 gold, study streak 12 days, rest streak 4; Kurenai 9 conversations, the 07:00 plan sent 5 times. Headline example: "A Maths-heavy week that kept the streak alive." Use plausible scaled-up numbers for month, term and year (term: Mock exam Maths 71% A, CS Paper 1 practice 58/75; IT F201 sitting in January).
+
+Frames:
+24a Reports page: period switch (Weekly / Monthly / Termly / Yearly), the latest report open, earlier reports listed (date range, headline, a small spark).
+24b Weekly report, full (template words).
+24c Monthly report, full, with comparisons to last month.
+24d Termly report: the plan-against-class section, results and weakest/strongest topics.
+24e Yearly report: the opening screen and one deeper section further down (records or the month-by-month strip).
+24f The words: the Template/Kurenai switch, generating, written-by-Kurenai with regenerate, and the fallback after a failure.
+24g Low-data states: a first week, and a month with one study day.
+24h The Home card for the latest report, and its notification in the bell.
+24i Phone: weekly report.
+24j Phone: yearly report, scrolled to a deeper section.
+24k Share / export: the report as a share card (the existing share-card finish) and the export options.
+24l Dawn: the weekly report in the light theme.
+```
+
