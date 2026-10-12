@@ -19,13 +19,13 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `6442704` (9 October 2026: 501 duplicate and
-  dependent flashcards removed, twelve groups of tiny Computer Science
-  sub-points merged into one leaf each) — immutable deployment
-  https://eaf09f62.kurenai-os.pages.dev
+- Runtime release commit: `fb2cb60` (12 October 2026: Reports — weekly
+  reviews of study, Focus, the plan and the Collection, with Kurenai's
+  words, a Wrapped-style story and a share card) — immutable deployment
+  https://ecbddb95.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-schedule-1`
-- Verification: all **67 smoke suites**, including the rebuild guards
+- Service-worker cache: `kos-reports-1`
+- Verification: all **70 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).
 
@@ -88,6 +88,11 @@ fonts.
 - The Behavioural Governor derives streaks, HP, gold, XP and rewards from the
   session ledger. Only labs, simulations and the shop can be gated; revision and
   Focus are always available.
+- Reports (under Home) save each week when it ends: study time and topics,
+  Focus blocks, the plan, what moved in the Collection, earnings and streaks,
+  with full overview pages, words by template or by Kurenai (from totals
+  only), a tap-through story and a share card. Months, terms and years
+  follow.
 
 ### Collection
 
@@ -159,7 +164,7 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..66}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..70}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Responsive or shared-component changes also require a dense responsive audit and

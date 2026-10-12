@@ -12,13 +12,14 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `a1841be` (scheduled messages, the eight text
-  labs on the lab system, `gemini-3.6-flash` as the default; on top of the
-  Assistant repair `2e81623`). `ai-chat` is deployed as version 5.
-- Runtime release: `55c19b2` — immutable deployment
-  https://633db8f0.kurenai-os.pages.dev (12 October 2026)
+- Release source checkpoint: `f2f906e` (Reports, roadmap 5.1 phases 1–5:
+  the collected history, weekly reports, Kurenai's words, the story and
+  sharing; on top of scheduled messages `a1841be`). `ai-chat` is deployed
+  as version 5.
+- Runtime release: `fb2cb60` — immutable deployment
+  https://ecbddb95.kurenai-os.pages.dev (12 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-schedule-1`
+- Service-worker version: `kos-reports-1`
 - Required smoke gate: 70 / 70 suites.
 
 ## Run, test and deploy
