@@ -218,7 +218,7 @@ Engineering only. Do it before the design work in Phase 3, so the
 new themes and the phone layout build on a clean base.
 
 **Status (27 September 2026, branch `feat/m14-cleanup`, stacked on
-`feat/tier-c-backend`):** done except the optional sample covers.
+`feat/tier-c-backend`):** done (the optional sample covers were dropped).
 
 - The token bridge is gone: every reader uses the Graphite names, and
   smoke15 fails if a legacy token is defined or read again.
@@ -272,10 +272,8 @@ new themes and the phone layout build on a clean base.
   - the full breakpoint and device matrix;
   - `tools/visual_audit.mjs`.
   - The Category 7 numbers in `PROGRESS.md` predate the rebuild.
-- **Sample covers:** the Sample account's covers are placeholder tiles.
-  - Optionally ship a few licence-free covers, or generated art, so review
-    screenshots show real cover art.
-  - Sample mode never syncs, so this touches no provider.
+- **Sample covers:** dropped (12 October). The Sample account keeps its
+  placeholder tiles; the responsive audit seeds its own cover images.
 
 ---
 
@@ -437,7 +435,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
    - 1.8 Assistant tools (last, so the new tools cover 1.1–1.6).
 2. Meanwhile in Claude Design: **3.1 phone**, then **1.7 OOP IDE**, then
    **3.3 lab system**, then **3.2 Dawn and themes**.
-3. Phase 2 clean-up (done, bar the sample covers), then the phone views
+3. Phase 2 clean-up (done), then the phone views
    from their handoff.
 4. The OOP IDE and the labs from their handoffs; then Dawn and the themes.
 5. Phase 4 content can run between any two of these. It shares no files
