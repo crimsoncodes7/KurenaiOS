@@ -633,6 +633,10 @@ source comments and audit notes refer to it.
     question that asked for no change ends where the answer ends: a closing
     "I have not made any modifications…" line is stripped
     (`stripNoChangeTail`); when a change WAS asked for, that truth stays.
+    One online request carries at most `LIMITS.cloudTools` tools, which IS
+    `ai-chat`'s `MAX_TOOLS` (smoke27); past it the tools are ranked by
+    category and view and cut, never sent whole. A retired model id
+    (`RETIRED_MODELS` in `ai.js`) moves to its successor on read.
 
 ### Responsive integration and visual release quality (72–79)
 

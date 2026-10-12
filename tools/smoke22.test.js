@@ -557,6 +557,13 @@ step("1.8 · a tool-free answer never ends with an \u201cI have not made any mod
   const asked = await run({ userText: "delete my reminders" });
   assert(/not made any modifications/.test(asked.texts.join(" ")), "the statement stays when a change was asked for");
   assert(ORCH._stripNoChangeTail("Answer.\n\nI didn't save or change anything.") === "Answer.", "direct");
+  /* the shapes Gemini 3.x writes it in (12 October 2026), and the rule
+     above it goes too — but a rule inside the answer stays */
+  ["**Note:** I haven't changed anything in your app.", "No changes made.", "(No changes made to your data.)",
+   "No data was changed.", "> I have not modified any of your data.", "Nothing in your app was changed."].forEach(t =>
+    assert(ORCH._stripNoChangeTail("Answer.\n\n---\n" + t) === "Answer.", "not stripped: " + t));
+  assert(ORCH._stripNoChangeTail("Intro\n\n---\n\nBody.") === "Intro\n\n---\n\nBody.", "an answer's own rule stays");
+  assert(/make changes/.test(ORCH._stripNoChangeTail("Answer.\n\nLet me know if you want me to make changes!")), "an offer is not a no-change claim");
 });
 
 step("1.8 · a curriculum edit pauses for approval, names the topic, and runs only once approved", async () => {

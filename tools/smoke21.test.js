@@ -802,6 +802,28 @@ step("1.8 · Focus: stopwatch and study-until start through the tool; one subjec
   assert(bad.err, "until needs HH:MM");
 });
 
+/* ============ 14 · the labs (12 October 2026) ============ */
+step("labs_list names every lab with its lock and price; app_navigate opens one and refuses an unknown id", async () => {
+  const all = await ex("labs_list", {});
+  assert(!all.err && all.result.count === KOS.sims.all().length, "every lab listed: " + (all.result && all.result.count));
+  const tr = all.result.labs.find(l => l.id === "tl-stack");
+  assert(tr && tr.locked === !KOS.governor.simAccess("tl-stack").ok, "the lock follows the Governor's gate");
+  assert(!tr.locked || tr.price > 0, "a locked lab carries its price");
+  const bits = await ex("labs_list", { search: "floating" });
+  assert(bits.result.labs.some(l => l.id === "float-bits"), "search finds floating point");
+  const maths = await ex("labs_list", { subject: "maths" });
+  assert(maths.result.labs.length && maths.result.labs.every(l => l.subject === "maths"), "the subject filter holds");
+  const go = await ex("app_navigate", { view: "sims", lab: "binary-number" });
+  assert(!go.err && KOS.store.state.ui.view === "sims", "app_navigate opens the lab");
+  const bad = await ex("app_navigate", { view: "sims", lab: "no-such-lab" });
+  assert(bad.err && /labs_list/.test(bad.err.message), "an unknown lab id is refused with a pointer to labs_list");
+  for (const v of ["pacing", "reminders", "assignments", "notifications", "oop", "trace", "worked"]) {
+    const r = await ex("app_navigate", { view: v });
+    assert(!r.err, "app_navigate must reach " + v + ": " + (r.err && r.err.message));
+  }
+  KOS.show("home");
+});
+
 /* ============ run ============ */
 (async () => {
   let failed = 0;

@@ -41,7 +41,7 @@ const FN = `${BASE}/functions/v1`;
 const LIVE = process.argv.includes("--live-provider");
 /* the live Gemini model id — overridable via env if the account uses a
    different id, without editing app config (Phase F is Gemini-only) */
-const GEMINI_MODEL = process.env.KOS_GEMINI_MODEL || "gemini-3.5-flash";
+const GEMINI_MODEL = process.env.KOS_GEMINI_MODEL || "gemini-3.8-flash";
 
 const summary = { sections: {}, failures: 0 };
 let section = "-";
@@ -259,7 +259,7 @@ const nosecret = s => !/AIza|sk-[A-Za-z0-9]{6,}|Bearer [A-Za-z0-9._-]{20,}|eyJ[A
   if (LIVE) {
     beginSection("F · provider path (LIVE Gemini; DeepSeek DEFERRED)");
     /* let Gemini's per-minute RPM window recover from section E's concurrent
-       burst, and give it a realistic token budget (gemini-3.5-flash spends
+       burst, and give it a realistic token budget (gemini-3.x Flash spends
        internal reasoning tokens, so a tight cap truncates visible output). */
     await new Promise(r2 => setTimeout(r2, 20000));
     let g = await req(`${FN}/ai-chat`, { method: "POST", body: JSON.stringify({

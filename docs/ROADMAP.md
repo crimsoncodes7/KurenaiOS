@@ -209,6 +209,30 @@ sessions", 20i) is dropped: the gold unlock stays the only one (invariant 2).
 - **Invariants:** 71 (never read credentials, sessions or audits); a
   consequential write stays gated.
 - **Tests:** smoke21–28.
+- **Follow-ups done (12 October 2026):**
+  - **"Bad tools list."** From late September every online request failed:
+    the registry had grown to 115 tools against `ai-chat`'s limit of 96, a
+    check that runs before anything is logged. The limit is now 128 (the
+    most DeepSeek accepts), the client mirrors it (`LIMITS.cloudTools`),
+    ranks its tools by the request's category and view and cuts past it,
+    and smoke27 holds the two limits equal. The refusal names the count.
+  - **The model.** Google retired `gemini-3.5-flash` on 10 October
+    (requests redirect to 3.6 Flash). The default is `gemini-3.8-flash`
+    (stable since 2 September, priced like 3.6); a stored retired id moves
+    to it on read, and so does the untouched old DeepSeek generation
+    default — this deployment holds no DeepSeek key, so it could never
+    answer. "Check availability & usage" now lists the models the server
+    key can call and names a routed model the provider no longer offers;
+    the model fields suggest the live list.
+  - **Feature map** gains the labs, with `labs_list` (every lab, its area,
+    archetype, lock and price) and `app_navigate` to a lab, the Trace Lab,
+    the OOP sandbox and the seven views it could not reach.
+  - **The no-change tail** is also stripped in the shapes Gemini 3.x
+    writes it (bold "Note:", quoted, "No changes made.", "Nothing in your
+    app was changed."), with a rule that only introduced it (smoke22).
+  - **Markdown:** `user_id`-style names and `2 * 3 * 4` are no longer
+    emphasis (CommonMark flanking), and the `<br>` Gemini puts in table
+    cells is a line break — still the only tag that is not text (smoke29).
 
 ---
 

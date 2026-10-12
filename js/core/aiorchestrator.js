@@ -44,6 +44,10 @@
     confirmMs: 120000,       // confirmation validity
     failRetries: 1,          // model may re-try a FAILED identical call once
     auditQueueCap: 300,
+    /* the most tools one request may carry — ai-chat's MAX_TOOLS (smoke27
+       holds the two equal). Past it the tools are ranked by the request's
+       category and view and the rest stay home for that turn. */
+    cloudTools: 128,
     /* Ollama context budgeting: request an 8K window and spend it
        deliberately — reserve output, leave room for tools + system, give
        the rest to recent history (latest turns first). */
@@ -513,11 +517,21 @@
   }
 
   /* drop trailing lines that only announce nothing was changed/saved */
-  var NO_CHANGE_TAIL = /^\s*(?:[*_(\[]*\s*)?(?:note:?\s*)?(?:(?:i|we)\s+(?:have\s+not|haven't|did\s+not|didn't|made\s+no|have\s+made\s+no)\b[^\n]*\b(?:change|modif|edit|alter|save|update|touch)|no\s+(?:changes?|modifications?|edits?)\s+(?:were|was|have\s+been|has\s+been)\s+(?:made|saved|applied)|nothing\s+(?:was|has\s+been)\s+(?:changed|modified|saved|altered))[^\n]*$/i;
+  /* the closing "nothing was changed" line, in the shapes Gemini writes it:
+     bare, italic, bold "Note:", quoted, in brackets, with or without "were" */
+  var NO_CHANGE_TAIL = new RegExp("^\\s*(?:>\\s*)?(?:[*_(\\[]*\\s*)?(?:note\\s*:?\\s*[*_]*\\s*:?\\s*)?(?:" + [
+    "(?:i|we)\\s+(?:have\\s+not|haven't|did\\s+not|didn't|made\\s+no|have\\s+made\\s+no)\\b[^\\n]*\\b(?:change|modif|edit|alter|save|update|touch)",
+    "no\\s+(?:changes?|modifications?|edits?)\\s+(?:(?:were|was|have\\s+been|has\\s+been)\\s+)?(?:made|saved|applied)",
+    "no\\s+(?:data|records?|items?|entries|files?|settings?)\\s+(?:was|were|has\\s+been|have\\s+been)\\s+(?:changed|modified|saved|altered|touched)",
+    "nothing\\b[^\\n]{0,40}?\\b(?:was|were|has\\s+been)\\s+(?:changed|modified|saved|altered|touched)"
+  ].join("|") + ")[^\\n]*$", "i");
+  var RULE_LINE = /^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/;
   function stripNoChangeTail(text) {
     var lines = String(text).replace(/\s+$/, "").split("\n");
     var cut = lines.length;
     while (cut > 0 && (NO_CHANGE_TAIL.test(lines[cut - 1]) || (!lines[cut - 1].trim() && cut < lines.length))) cut--;
+    /* a rule that only introduced the stripped line goes with it */
+    if (cut < lines.length) while (cut > 0 && (RULE_LINE.test(lines[cut - 1]) || !lines[cut - 1].trim())) cut--;
     /* never strip the whole answer */
     if (cut === 0) return text;
     return lines.slice(0, cut).join("\n").replace(/\s+$/, "");
@@ -540,6 +554,7 @@
       "- IT: the unit record — marks, UMS, grades, the aggregate and the marks still needed (it_units_get, it_units_set, it_units_set_target). F203 and F205 are not taken and do not exist in the app.",
       "- Productivity: Focus (pomodoro, custom, stopwatch, study-until; custom/stopwatch/until pay per full 10 minutes), the calendar, reminders (reminders_list; add/complete with todo_add_task/todo_toggle_task), habits, assignments with subtasks and related topics (assignments_*), the weekly plan — class vs my plan, carry-over, lessons, the braid (pacing_*), and notifications (notifications_list, notifications_mark_read).",
       "- Collection: anime, books, visual novels and games (collection_*), quotes on any entry (collection_add_quote), VN routes and chapters, books' physical volumes and their reading records, the 0–10 score with one decimal, the Shrine and its order for tied scores (shrine_get_order, shrine_set_order), the Planner and goals.",
+      "- Labs: the interactive simulations by area (data structures, algorithms, representation, theory, plots), the Trace Lab and the OOP sandbox (labs_list; open one with app_navigate view 'sims' and its lab id, or 'trace'/'oop'). A locked lab needs the shop's one-time gold unlock (governor_buy_item, approval needed) — say its price, never imply it is open.",
       "- Governor: HP, XP, gold, streaks and the shop come only from logged sessions — never promise a reward a tool did not report.",
       "Current context: view=" + (ui.view || "?") + ", subject=" + (ui.subject || "-") +
         (KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle" ? ", a focus session is running" : "") + "."
@@ -819,12 +834,22 @@
 
     /* Tool set offered to the model. A local model (Ollama) has a tiny
        context window, so it gets a deterministic ≤12 shortlist by category +
-       live view; cloud models get every permitted tool. Either way the
+       live view; cloud models get every permitted tool up to
+       LIMITS.cloudTools, the most relevant first. Either way the
        orchestrator remains authoritative — it validates/gates/executes ANY
        registered tool the model returns, shortlisted or not. */
     var allowed = allowedToolNames();
     var route = (KOS.ai.config().routing || {})[req.category] || {};
+    var allowedSet = (function () { var s = {}; allowed.forEach(function (n) { s[n] = 1; }); return { has: function (n) { return !!s[n]; } }; })();
     var toolNames = allowed;
+    if (allowed.length > LIMITS.cloudTools) {
+      /* 115 tools against a 96 limit failed every online request from
+         late September ("Bad tools list."): rank, then cut */
+      var ranked = KOS.ai.tools.shortlist({ category: req.category, view: (KOS.store.state.ui || {}).view,
+        allowed: allowedSet, max: LIMITS.cloudTools });
+      var inRank = {}; ranked.forEach(function (n) { inRank[n] = 1; });
+      toolNames = ranked.concat(allowed.filter(function (n) { return !inRank[n]; })).slice(0, LIMITS.cloudTools);
+    }
     var chatOpts = {
       system: systemPrompt(req),
       messages: req.messages,
@@ -839,7 +864,7 @@
       toolNames = KOS.ai.tools.shortlist({
         category: req.category,
         view: (KOS.store.state.ui || {}).view,
-        allowed: (function () { var s = {}; allowed.forEach(function (n) { s[n] = 1; }); return { has: function (n) { return !!s[n]; } }; })(),
+        allowed: allowedSet,
         max: max
       });
     }

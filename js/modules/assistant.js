@@ -1037,6 +1037,23 @@
     while (at >= 0 && text.charAt(at - 1) === "\\") at = text.indexOf(marker, at + marker.length);
     return at;
   }
+  /* emphasis as CommonMark flanks it, so prose Gemini writes outside code
+     ticks stays prose: a marker opens only before a non-space and closes
+     only after one ("2 * 3 * 4" is arithmetic), and an underscore never
+     opens or closes inside a word (user_id and user_name are names) */
+  var WORD_CH = /[A-Za-z0-9]/;
+  function emphasisClose(text, start, marker) {
+    var under = marker.charAt(0) === "_", after = text.charAt(start + marker.length);
+    if (!after || /\s/.test(after)) return -1;
+    if (under && WORD_CH.test(text.charAt(start - 1) || "")) return -1;
+    var at = closingRun(text, start, marker);
+    while (at >= 0) {
+      var before = text.charAt(at - 1), next = text.charAt(at + marker.length);
+      if (!/\s/.test(before) && !(under && WORD_CH.test(next || ""))) return at;
+      at = closingRun(text, at, marker);
+    }
+    return -1;
+  }
 
   function mathNode(expression, display, source) {
     var node = el("span", {
@@ -1078,6 +1095,13 @@
         flush(i);
         parent.appendChild(el("br"));
         i += 1; plain = i; continue;
+      }
+      /* the one tag providers put in table cells: a line break, never HTML */
+      match = text.charAt(i) === "<" && rest.match(/^<br\s*\/?>/i);
+      if (match) {
+        flush(i);
+        parent.appendChild(el("br"));
+        i += match[0].length; plain = i; continue;
       }
 
       match = rest.match(/^(`+)/);
@@ -1156,7 +1180,7 @@
 
       if (depth < 10 && (rest.indexOf("**") === 0 || rest.indexOf("__") === 0)) {
         var strongMarker = rest.slice(0, 2);
-        close = closingRun(text, i, strongMarker);
+        close = emphasisClose(text, i, strongMarker);
         if (close > i + 2) { addWrapped("strong", "", text.slice(i + 2, close), 2, close); continue; }
       }
       if (depth < 10 && rest.indexOf("~~") === 0) {
@@ -1165,7 +1189,7 @@
       }
       if (depth < 10 && (text.charAt(i) === "*" || text.charAt(i) === "_")) {
         var emMarker = text.charAt(i);
-        close = closingRun(text, i, emMarker);
+        close = emphasisClose(text, i, emMarker);
         if (close > i + 1) { addWrapped("em", "", text.slice(i + 1, close), 1, close); continue; }
       }
       i += 1;
@@ -2093,14 +2117,28 @@
           if (--todo === 0) {
             health.innerHTML = "";
             out.forEach(function (h2) {
-              health.appendChild(el("p", { class: "k-asst-health-line", "data-ok": h2.available ? "" : null }, [
+              /* the models the key can call: how many, and any routed
+                 model the provider no longer offers (the 3.5 Flash lesson) */
+              var routed = CATS.map(function (c) { return cfg.routing[c[0]]; })
+                .filter(function (r) { return r && r.provider === h2.provider && r.model; })
+                .map(function (r) { return r.model; });
+              var missing = h2.models ? routed.filter(function (m, i) { return routed.indexOf(m) === i && h2.models.indexOf(m) === -1; }) : [];
+              health.appendChild(el("p", { class: "k-asst-health-line", "data-ok": h2.available && !missing.length ? "" : null }, [
                 el("span", { class: "k-asst-model-dot", "aria-hidden": "true" }),
                 el("b", { text: providerName(h2.provider) + " " }),
                 h2.available
                   ? "available" + (h2.used != null ? " · " + h2.used + "/" + (h2.cap || "?") + " requests today" : "") +
-                    (h2.models ? " · models: " + h2.models.slice(0, 4).join(", ") : "")
+                    (h2.models ? " · " + h2.models.length + " models" : "") +
+                    (missing.length ? " · not offered any more: " + missing.join(", ") : "")
                   : "unavailable · " + (h2.reason || "unknown")
               ]));
+              /* the model fields suggest what the provider really offers */
+              if (h2.models) {
+                var dl = document.getElementById("asst-models-" + h2.provider) || el("datalist", { id: "asst-models-" + h2.provider });
+                dl.innerHTML = "";
+                h2.models.forEach(function (m) { dl.appendChild(el("option", { value: m })); });
+                if (!dl.parentNode) health.appendChild(dl);
+              }
             });
           }
         });
@@ -2119,7 +2157,8 @@
         return o;
       }));
       var modelIn = el("input", { type: "text", class: "k-input", value: route.model || "",
-        placeholder: "model id (e.g. gemini-3.5-flash)", "aria-label": cat[1] + " model id" });
+        placeholder: "model id (e.g. " + KOS.ai.DEFAULT_MODEL.gemini + ")", "aria-label": cat[1] + " model id",
+        list: "asst-models-" + route.provider });
       function save() {
         if (!KOS.ai.setRouting(cat[0], provSel.value, modelIn.value)) KOS.ui.toast("That routing isn't valid.", true);
       }
@@ -2142,7 +2181,7 @@
       fbSel.addEventListener("change", function () {
         var v = fbSel.value;
         if (!v) { KOS.ai.setFallback(cat[0], null); return; }
-        var model = v === "gemini" ? "gemini-3.5-flash" : v === "deepseek" ? "deepseek-v4-flash" : (cfg.routing.crud.model || "");
+        var model = KOS.ai.DEFAULT_MODEL[v] || (cfg.routing.crud.model || "");
         KOS.ai.setFallback(cat[0], { provider: v, model: model });
         KOS.ui.toast("Fallback enabled for " + cat[1] + " — switches are always labelled, never silent.");
       });

@@ -317,7 +317,7 @@ step("a malformed batch fails cleanly — nothing held, nothing saved (no partia
 console.log("== gemini/deepseek + confirmation unchanged ==");
 
 step("Gemini routing still sends the full tool list and no num_ctx (unchanged)", async () => {
-  KOS.ai.setRouting("complex", "gemini", "gemini-3.5-flash");
+  KOS.ai.setRouting("complex", "gemini", "gemini-3.8-flash");
   chatScript = [say("hi from gemini")];
   await runCollect({ userText: "hello", category: "complex", conversationKey: "c-gem" });
   await untilIdle();

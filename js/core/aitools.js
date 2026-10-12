@@ -2261,20 +2261,26 @@
      APP — navigation + context
      ====================================================================== */
   var NAV_VIEWS = ["home", "subject", "ref", "review", "due", "cardstats", "tracker",
-    "personaldeck", "focus", "calendar", "tasks", "matrix", "anime", "books", "vn",
+    "personaldeck", "focus", "calendar", "tasks", "reminders", "assignments", "pacing",
+    "notifications", "matrix", "anime", "books", "vn",
     "game", "seasonal", "mangaka", "wishlist", "goals", "shrine", "aniprofile",
-    "vndbprofile", "mediasync", "governor", "data", "help"];
+    "vndbprofile", "mediasync", "governor", "data", "help",
+    "sims", "trace", "oop", "worked"];
   def("app_navigate", {
-    desc: "Navigate the app to a view (same as the user clicking — history and rail state stay correct). 'subject' needs subject; 'ref' needs subject+ref.",
+    desc: "Navigate the app to a view (same as the user clicking — history and rail state stay correct). 'subject' needs subject; 'ref' needs subject+ref; 'sims' opens the lab index, or one lab with `lab` (an id from labs_list).",
     category: "app", tier: "read", read: false,
     params: {
       view: { type: "string", enum: NAV_VIEWS, required: true },
       subject: { type: "string", enum: SUBJECTS },
-      ref: { type: "string", maxLen: 40 }
+      ref: { type: "string", maxLen: 40 },
+      lab: { type: "string", maxLen: 60 }
     },
     run: function (args, cb) {
       var arg;
-      if (args.view === "subject") {
+      if (args.view === "sims" && args.lab) {
+        if (!KOS.sims || !KOS.sims.get(args.lab)) { cb(fail("No lab with id '" + args.lab + "' — call labs_list for the ids.")); return; }
+        arg = args.lab;
+      } else if (args.view === "subject") {
         if (!args.subject) { cb(fail("view 'subject' needs a subject.")); return; }
         arg = args.subject;
       } else if (args.view === "ref") {
@@ -2285,6 +2291,34 @@
       }
       KOS.show(args.view, arg);
       cb(null, { navigated: true, view: args.view });
+    }
+  });
+
+  /* the labs (design part 2, frame 20): what exists, where it sits in the
+     specification, and whether the Governor's one-time gold unlock still
+     stands in front of it (invariant 2). Read-only: unlocking is the shop's
+     purchase, governor_buy_item, never a side door. */
+  def("labs_list", {
+    desc: "List the interactive labs and simulations (id, title, subject, spec ref, area, kind, and whether a gold unlock is still needed and its price). Filter by subject or a search word. Open one with app_navigate {view:'sims', lab:id}.",
+    category: "study", tier: "read", read: true,
+    params: {
+      subject: { type: "string", enum: SUBJECTS },
+      search: { type: "string", maxLen: 60 }
+    },
+    run: function (args, cb) {
+      if (!KOS.sims) { cb(null, { labs: [] }); return; }
+      var q = (args.search || "").toLowerCase().trim();
+      var labs = KOS.sims.all().filter(function (s) {
+        if (args.subject && s.subject !== args.subject) return false;
+        return !q || (s.title + " " + (s.desc || "") + " " + (s.ref || "")).toLowerCase().indexOf(q) !== -1;
+      }).map(function (s) {
+        var acc = KOS.governor && KOS.governor.simAccess ? KOS.governor.simAccess(s.id) : { ok: true };
+        var area = KOS.sims.areaOf ? KOS.sims.areaOf(s) : null;
+        return { id: s.id, title: s.title, subject: s.subject, ref: s.ref || null,
+          area: area && area.label ? area.label : (area || null), kind: KOS.sims.kindOf ? KOS.sims.kindOf(s) : null,
+          locked: !acc.ok, price: !acc.ok && acc.item ? acc.item.price : null };
+      });
+      cb(null, { count: labs.length, labs: labs.slice(0, 60) });
     }
   });
 
@@ -3145,7 +3179,7 @@
   var UNIVERSAL_TOOLS = ["app_get_context", "search_app"];
   /* each domain's most useful tools, in priority order (curated) */
   var DOMAIN_TOOLS = {
-    study: ["study_search_spec", "study_get_topic", "study_read_notes",
+    study: ["study_search_spec", "study_get_topic", "study_read_notes", "labs_list",
       "study_propose_flashcards", "study_save_proposed", "study_add_flashcard",
       "study_generate_flashcards", "study_generate_quiz", "study_list_topics",
       "study_set_topic_status", "study_get_due_summary"],

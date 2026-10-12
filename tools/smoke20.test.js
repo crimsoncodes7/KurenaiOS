@@ -8,9 +8,10 @@
 
    TESTED PROPERTIES:
    1. ai.js loads inert: no state.assistant until used, zero network at load.
-   2. Per-category routing defaults match the spec (tutor/complex → gemini
-      gemini-3.5-flash, crud → ollama, generation → deepseek
-      deepseek-v4-flash); setRouting/setFallback validate their inputs.
+   2. Per-category routing defaults match the spec (tutor/complex/
+      generation → gemini gemini-3.8-flash, crud → ollama; generation left
+      DeepSeek on 12 October 2026, the deployment holds no DeepSeek key);
+      setRouting/setFallback validate their inputs.
    3. Ollama transport: exact /api/chat request shape (stream:false, system
       message first, tools + assistant tool_calls + tool-result translation,
       format = the JSON schema for structured output); normalized response
@@ -102,9 +103,9 @@ console.log("== routing defaults + validation ==");
 
 step("defaults match the spec; setRouting/setFallback validate", async () => {
   const a = KOS.ai.config();
-  assert(a.routing.tutor.provider === "gemini" && a.routing.tutor.model === "gemini-3.5-flash", "tutor default wrong");
+  assert(a.routing.tutor.provider === "gemini" && a.routing.tutor.model === "gemini-3.8-flash", "tutor default wrong");
   assert(a.routing.crud.provider === "ollama", "crud default wrong");
-  assert(a.routing.generation.provider === "deepseek" && a.routing.generation.model === "deepseek-v4-flash", "generation default wrong");
+  assert(a.routing.generation.provider === "gemini" && a.routing.generation.model === "gemini-3.8-flash", "generation default wrong");
   assert(a.routing.complex.provider === "gemini", "complex default wrong");
   assert(a.fallback.crud === null && a.fallback.tutor === null, "fallback must default OFF");
   assert(KOS.ai.setRouting("nope", "gemini", "m") === false, "bad category accepted");
@@ -254,14 +255,14 @@ step("signed in: ai-chat body shape + normalized passthrough", async () => {
     }, 200);
   } });
   const schema = { type: "object" };
-  const { err, res } = await pchatWith("gemini", "gemini-3.5-flash", {
+  const { err, res } = await pchatWith("gemini", "gemini-3.8-flash", {
     category: "tutor", system: "s",
     messages: [{ role: "user", content: "q" }],
     tools: [{ name: "t", description: "d", parameters: { type: "object" } }],
     structured: { schema }
   });
   assert(!err, "edge chat errored: " + (err && err.message));
-  assert(lastInvoke.provider === "gemini" && lastInvoke.model === "gemini-3.5-flash", "provider/model missing");
+  assert(lastInvoke.provider === "gemini" && lastInvoke.model === "gemini-3.8-flash", "provider/model missing");
   assert(lastInvoke.messages.length === 1 && lastInvoke.system === "s", "messages/system missing");
   assert(lastInvoke.tools.length === 1 && lastInvoke.structured.schema === schema, "tools/structured missing");
   assert(typeof lastInvoke.correlationId === "string" && lastInvoke.correlationId.length > 8, "correlationId missing");
@@ -287,9 +288,10 @@ step("chat() honours per-category routing", async () => {
     fetch: () => { ollamaCalled++; return Promise.resolve({ ok: true, status: 200,
       json: () => Promise.resolve({ message: { content: "o" }, done_reason: "stop" }) }); }
   });
+  KOS.ai.setRouting("generation", "deepseek", "deepseek-reasoner");
   const g = await pchat("generation", { messages: [{ role: "user", content: "gen" }] });
-  assert(!g.err && edgeBody.provider === "deepseek" && edgeBody.model === "deepseek-v4-flash",
-    "generation must route to deepseek");
+  assert(!g.err && edgeBody.provider === "deepseek" && edgeBody.model === "deepseek-reasoner",
+    "generation must follow its routing to deepseek");
   assert(edgeBody.category === "generation", "category must ride the edge body");
   const c = await pchat("crud", { messages: [{ role: "user", content: "add" }] });
   assert(!c.err && c.res.provider === "ollama" && ollamaCalled > 0, "crud must route to ollama");
@@ -309,7 +311,7 @@ step("no fallback configured → local failure surfaces, edge untouched", async 
 });
 
 step("explicit fallback runs and is labelled", async () => {
-  KOS.ai.setFallback("crud", { provider: "gemini", model: "gemini-3.5-flash" });
+  KOS.ai.setFallback("crud", { provider: "gemini", model: "gemini-3.8-flash" });
   let edgeBody = null;
   KOS.ai._config({
     invoke: (body, cb) => { edgeBody = body; cb(null, { text: "from-fallback", toolCalls: [] }, 200); },

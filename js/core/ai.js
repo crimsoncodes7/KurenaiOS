@@ -33,12 +33,33 @@
   var store = KOS.store;
 
   var CATEGORIES = ["tutor", "crud", "generation", "complex"];
+  /* Gemini 3.8 Flash: the current stable Flash (2 September 2026), priced
+     like 3.6. Generation left DeepSeek (12 October 2026): the deployment
+     holds no DeepSeek key, so a DeepSeek default could never answer. */
+  var GEMINI_MODEL = "gemini-3.8-flash", DEEPSEEK_MODEL = "deepseek-v4-flash";
   var DEFAULT_ROUTING = {
-    tutor:      { provider: "gemini",   model: "gemini-3.5-flash" },
+    tutor:      { provider: "gemini",   model: GEMINI_MODEL },
     crud:       { provider: "ollama",   model: "" },   // model = the user's pulled model
-    generation: { provider: "deepseek", model: "deepseek-v4-flash" },
-    complex:    { provider: "gemini",   model: "gemini-3.5-flash" }
+    generation: { provider: "gemini",   model: GEMINI_MODEL },
+    complex:    { provider: "gemini",   model: GEMINI_MODEL }
   };
+  /* A retired model id moves to its successor wherever it is stored, and
+     a route still holding an OLD default (one nobody customised) follows
+     the new default. Google retired gemini-3.5-flash on 10 October 2026
+     (requests are redirected to 3.6 Flash). */
+  var RETIRED_MODELS = { "gemini-3.5-flash": GEMINI_MODEL };
+  var OLD_DEFAULTS = { generation: [{ provider: "deepseek", model: DEEPSEEK_MODEL }] };
+  function migrateRoute(category, r) {
+    if (!r) return r;
+    if ((OLD_DEFAULTS[category] || []).some(function (o) { return o.provider === r.provider && o.model === r.model; }))
+      return { provider: DEFAULT_ROUTING[category].provider, model: DEFAULT_ROUTING[category].model };
+    if (RETIRED_MODELS[r.model]) return { provider: r.provider, model: RETIRED_MODELS[r.model] };
+    return r;
+  }
+  function migrateRouting(routing) {
+    CATEGORIES.forEach(function (c) { if (routing[c]) routing[c] = migrateRoute(c, routing[c]); });
+    return routing;
+  }
   var DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434";
   var REQUEST_TIMEOUT = 120000;   // whole-call ceiling, ms
   var OLLAMA_HEALTH_TIMEOUT = 2500;
@@ -57,7 +78,9 @@
     if (!s.assistant) s.assistant = {};
     var a = s.assistant;
     if (!a.routing) a.routing = JSON.parse(JSON.stringify(DEFAULT_ROUTING));
+    else migrateRouting(a.routing);
     if (!a.fallback) a.fallback = { tutor: null, crud: null, generation: null, complex: null };
+    CATEGORIES.forEach(function (c) { var f = a.fallback[c]; if (f && RETIRED_MODELS[f.model]) a.fallback[c] = { provider: f.provider, model: RETIRED_MODELS[f.model] }; });
     if (!a.ollama) a.ollama = { url: DEFAULT_OLLAMA_URL };
     if (!a.ollamaUsage) a.ollamaUsage = { day: null, count: 0 };
     return a;
@@ -66,7 +89,7 @@
      page that only displays it must not write — smoke56) */
   function routingView() {
     var a = store.state.assistant;
-    return JSON.parse(JSON.stringify((a && a.routing) || DEFAULT_ROUTING));
+    return migrateRouting(JSON.parse(JSON.stringify((a && a.routing) || DEFAULT_ROUTING)));
   }
   function setRouting(category, provider, model) {
     if (CATEGORIES.indexOf(category) === -1) return false;
@@ -386,7 +409,8 @@
           available: !!(p && p.configured),
           reason: p && p.configured ? null : "server key not configured",
           used: p ? p.used : null,
-          cap: data ? data.cap : null
+          cap: data ? data.cap : null,
+          models: p && Array.isArray(p.models) ? p.models : null
         });
       });
       return;
@@ -466,6 +490,7 @@
   KOS.ai = {
     CATEGORIES: CATEGORIES,
     DEFAULT_ROUTING: DEFAULT_ROUTING,
+    DEFAULT_MODEL: { gemini: GEMINI_MODEL, deepseek: DEEPSEEK_MODEL },
     capabilities: function (provider) { return CAPABILITIES[provider] || null; },
     config: cfg,
     routing: routingView,

@@ -13,8 +13,8 @@
    inside the user's own RLS session.
 
    POST { action:"health" }
-     → { providers:{gemini:{configured,used},deepseek:{configured,used}},
-         cap }
+     → { providers:{gemini:{configured,used,models},deepseek:{…}}, cap }
+       (models: the ids the server key can call, or null)
    POST { provider, model, category?, messages[], system?, tools?,
           structured?, temperature?, maxTokens?, correlationId? }
      → 200 { text, toolCalls, usage:{prompt,completion}, finishReason,
@@ -30,7 +30,11 @@ const DAILY_CAP = clampInt(Deno.env.get("AI_DAILY_CAP"), 1, 5000, 200);
 const PROVIDER_TIMEOUT_MS = 90_000;
 const MAX_MESSAGES = 80;
 const MAX_CONTENT_CHARS = 60_000;
-const MAX_TOOLS = 96;
+/* 128 is the most function definitions DeepSeek (OpenAI-compatible)
+   accepts; Gemini takes more. The client mirrors it (aiorchestrator.js
+   LIMITS.cloudTools) and ranks its tools to fit — smoke27 holds the two
+   equal, so a growing registry can never again fail every request. */
+const MAX_TOOLS = 128;
 
 function clampInt(v: string | undefined, min: number, max: number, dflt: number): number {
   const n = parseInt(v ?? "", 10);
@@ -386,7 +390,8 @@ function validate(input: Record<string, unknown>): { error?: string; body?: {
 
   let tools: NormTool[] | undefined;
   if (input.tools != null) {
-    if (!Array.isArray(input.tools) || input.tools.length > MAX_TOOLS) return { error: "Bad tools list." };
+    if (!Array.isArray(input.tools)) return { error: "The tools list must be an array." };
+    if (input.tools.length > MAX_TOOLS) return { error: `Too many tools (${input.tools.length}); the limit is ${MAX_TOOLS}.` };
     tools = (input.tools as Record<string, unknown>[]).map((t) => ({
       name: String(t.name ?? "").slice(0, 80),
       description: String(t.description ?? "").slice(0, 1000),
@@ -415,6 +420,34 @@ function validate(input: Record<string, unknown>): { error?: string; body?: {
   };
 }
 
+/* ---------------- the models a key can call (health only) ----------------
+   Gemini: GET /v1beta/models, kept to those that answer generateContent;
+   DeepSeek: GET /models. Ids only, cached for ten minutes per provider;
+   a failure is null, never an error — availability is the key, not this. */
+const modelCache: Record<string, { at: number; ids: string[] | null }> = {};
+async function listModels(provider: string, key: string): Promise<string[] | null> {
+  const hit = modelCache[provider];
+  if (hit && Date.now() - hit.at < 600_000) return hit.ids;
+  let ids: string[] | null = null;
+  try {
+    const signal = AbortSignal.timeout(8_000);
+    if (provider === "gemini") {
+      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000", { headers: { "x-goog-api-key": key }, signal });
+      if (res.ok) {
+        const data = await res.json() as { models?: { name?: string; supportedGenerationMethods?: string[] }[] };
+        ids = (data.models ?? [])
+          .filter((m) => (m.supportedGenerationMethods ?? []).includes("generateContent") && /gemini/.test(m.name ?? ""))
+          .map((m) => String(m.name).replace(/^models\//, ""));
+      }
+    } else if (provider === "deepseek") {
+      const res = await fetch("https://api.deepseek.com/models", { headers: { Authorization: `Bearer ${key}` }, signal });
+      if (res.ok) ids = ((await res.json() as { data?: { id?: string }[] }).data ?? []).map((m) => String(m.id)).filter(Boolean);
+    }
+  } catch { ids = null; }
+  modelCache[provider] = { at: Date.now(), ids };
+  return ids;
+}
+
 /* ---------------- handler ---------------- */
 
 Deno.serve(async (req) => {
@@ -430,7 +463,8 @@ Deno.serve(async (req) => {
   if (input.action === "health") {
     const providers: Record<string, unknown> = {};
     for (const p of Object.keys(KEY_ENV)) {
-      providers[p] = { configured: !!Deno.env.get(KEY_ENV[p]), used: await usedToday(userId, p) };
+      const key = Deno.env.get(KEY_ENV[p]);
+      providers[p] = { configured: !!key, used: await usedToday(userId, p), models: key ? await listModels(p, key) : null };
     }
     return json({ providers, cap: DAILY_CAP });
   }

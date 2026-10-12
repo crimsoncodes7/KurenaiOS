@@ -241,12 +241,63 @@ step("a live pending artifact injects a save hint into the system prompt", async
 console.log("== gemini/deepseek unchanged ==");
 
 step("a Gemini turn sends NO num_ctx and the FULL tool list (not shortlisted)", async () => {
-  KOS.ai.setRouting("complex", "gemini", "gemini-3.5-flash");
+  KOS.ai.setRouting("complex", "gemini", KOS.ai.DEFAULT_MODEL.gemini);
   chatScript = [say("ok")];
   await run({ userText: "hi gemini", category: "complex", conversationKey: "conv-gem" });
   assert(chatLog[0].numCtx === undefined, "gemini must not receive num_ctx");
-  assert(chatLog[0].tools.length > 20, "gemini must get the full tool list, got " + chatLog[0].tools.length);
+  const allowed = ORCH.allowedToolNames().length;
+  assert(chatLog[0].tools.length === Math.min(allowed, ORCH.LIMITS.cloudTools),
+    "gemini must get every permitted tool up to the cap, got " + chatLog[0].tools.length + " of " + allowed);
   KOS.ai.setRouting("complex", "ollama", "qwen3:4b-instruct");   // restore
+});
+
+/* "Bad tools list." (12 October 2026): 115 tools against the server's 96
+   failed every online request. The client's cap IS the server's, and a
+   registry past it is ranked and cut, never sent whole. */
+step("the cloud tool cap equals ai-chat's MAX_TOOLS, and a longer list is ranked and cut", async () => {
+  const fnSrc = fs.readFileSync(path.join(ROOT, "supabase/functions/ai-chat/index.ts"), "utf8");
+  const m = /const MAX_TOOLS = (\d+);/.exec(fnSrc);
+  assert(m && Number(m[1]) === ORCH.LIMITS.cloudTools, "client cloudTools (" + ORCH.LIMITS.cloudTools + ") must equal ai-chat MAX_TOOLS (" + (m && m[1]) + ")");
+  const keep = ORCH.LIMITS.cloudTools;
+  ORCH.LIMITS.cloudTools = 20;
+  try {
+    KOS.ai.setRouting("complex", "gemini", KOS.ai.DEFAULT_MODEL.gemini);
+    chatScript = [say("ok")];
+    await run({ userText: "cut", category: "complex", conversationKey: "conv-cap" });
+    const names = chatLog[0].tools.map(t => t.name);
+    assert(names.length === 20, "a list past the cap must be cut to it, got " + names.length);
+    assert(names[0] === "app_get_context" && names[1] === "search_app", "the universal tools must lead the ranked list");
+    assert(new Set(names).size === names.length, "no tool twice");
+    chatScript = [say("ok")];
+    await run({ userText: "cut again", category: "complex", conversationKey: "conv-cap2" });
+    assert(JSON.stringify(chatLog[0].tools.map(t => t.name)) === JSON.stringify(names), "the cut must be deterministic");
+  } finally {
+    ORCH.LIMITS.cloudTools = keep;
+    KOS.ai.setRouting("complex", "ollama", "qwen3:4b-instruct");
+  }
+});
+
+/* the retired gemini-3.5-flash and the old DeepSeek generation default
+   (no key on this deployment) move to the current defaults on read */
+step("retired model ids and untouched old defaults migrate to the current defaults", async () => {
+  const keepR = JSON.parse(JSON.stringify(KOS.store.state.assistant.routing));
+  const keepF = JSON.parse(JSON.stringify(KOS.store.state.assistant.fallback));
+  try {
+    KOS.store.state.assistant.routing.tutor = { provider: "gemini", model: "gemini-3.5-flash" };
+    KOS.store.state.assistant.routing.generation = { provider: "deepseek", model: "deepseek-v4-flash" };
+    KOS.store.state.assistant.routing.crud = { provider: "deepseek", model: "deepseek-reasoner" };
+    KOS.store.state.assistant.fallback.complex = { provider: "gemini", model: "gemini-3.5-flash" };
+    const view = KOS.ai.routing();
+    assert(view.tutor.model === KOS.ai.DEFAULT_MODEL.gemini, "the read view must show the successor");
+    const a = KOS.ai.config();
+    assert(a.routing.tutor.provider === "gemini" && a.routing.tutor.model === KOS.ai.DEFAULT_MODEL.gemini, "a retired id must move to its successor");
+    assert(a.routing.generation.provider === "gemini", "the untouched old DeepSeek default must follow the new default");
+    assert(a.routing.crud.provider === "deepseek" && a.routing.crud.model === "deepseek-reasoner", "a customised route must be left alone");
+    assert(a.fallback.complex.model === KOS.ai.DEFAULT_MODEL.gemini, "a retired fallback id must move too");
+  } finally {
+    KOS.store.state.assistant.routing = keepR;
+    KOS.store.state.assistant.fallback = keepF;
+  }
 });
 
 step("the ollama schema sanitizer / cloud schemas are provider-correct (regression)", async () => {

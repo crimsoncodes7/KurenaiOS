@@ -188,6 +188,21 @@ step("provider-style lists nest, keep their numbering and hold indented code", (
   rich.remove();
 });
 
+/* Gemini 3.x prose outside code ticks (12 October 2026): identifiers with
+   underscores and spaced arithmetic are not emphasis, and the <br> it puts
+   in table cells is a line break — still the only tag that is not text */
+step("names, arithmetic and <br> in provider prose render as written", () => {
+  const html = src => A.renderMarkdown(src).innerHTML;
+  assert(!/<em>/.test(html("Use user_id and user_name as keys.")), "an underscore inside a word is not emphasis");
+  assert(!/<em>/.test(html("snake_case_name stays")), "snake_case stays one word");
+  assert(!/<em>/.test(html("Compute 2 * 3 * 4 here.")), "spaced asterisks are arithmetic");
+  assert(/<em>z<\/em>/.test(html("x * y and *z*")), "real emphasis beside arithmetic still renders");
+  assert(/<strong>bold<\/strong> and <em>italic<\/em>/.test(html("**bold** and _italic_ word")), "ordinary emphasis is unchanged");
+  const cell = A.renderMarkdown("| Term | Meaning |\n| --- | --- |\n| Stack | LIFO<br>push/pop |").querySelector("tbody td:last-child");
+  assert(cell && cell.querySelector("br") && !/&lt;br/.test(cell.innerHTML), "<br> in a table cell is a line break");
+  assert(/&lt;b&gt;/.test(html("<b>not bold</b>")), "any other tag stays inert text");
+});
+
 step("tool activity leads with human copy and keeps the id secondary", async () => {
   const originalSend = ORCH.send;
   ORCH.send = function (request, callbacks) {
