@@ -12,13 +12,13 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `0fd1bd3` (the phone batch: notes tables in the
-  shared scroller, the OOP IDE and the labs on a phone, on top of the lab
-  system rebuild `2cfb73e`)
-- Runtime release: `6aa50b6` — immutable deployment
-  https://7b3626d8.kurenai-os.pages.dev (12 October 2026)
+- Release source checkpoint: `2e81623` (the Assistant: the 128-tool limit,
+  `gemini-3.8-flash`, the labs in its tools and the 1.8 follow-ups; on top
+  of the phone batch `0fd1bd3`). `ai-chat` is deployed as version 5.
+- Runtime release: `2249825` — immutable deployment
+  https://1036cddf.kurenai-os.pages.dev (12 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-phone-1`
+- Service-worker version: `kos-assistant-2`
 - Required smoke gate: 67 / 67 suites.
 
 ## Run, test and deploy
