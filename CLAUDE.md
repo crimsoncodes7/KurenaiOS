@@ -12,11 +12,11 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `5ccfbd6` (501 duplicate and dependent
-  flashcards removed; twelve groups of tiny CS sub-points merged, 157 → 131
-  leaves)
-- Runtime release: `6442704` — immutable deployment
-  https://eaf09f62.kurenai-os.pages.dev (9 October 2026)
+- Release source checkpoint: `2cfb73e` (every simulation rebuilt on the lab
+  system, design part 2 frame 20: diagrams, graph, plots, bits, machines and
+  the Trace Lab)
+- Runtime release: `32d1784` — immutable deployment
+  https://f6cd0f5b.kurenai-os.pages.dev (12 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-labs-1`
 - Required smoke gate: 67 / 67 suites.
