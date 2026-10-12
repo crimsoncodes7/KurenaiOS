@@ -454,6 +454,21 @@ Claude Design and comes back as a handoff, the way Graphite did.
 
 ### 5.1 Reports: the week, month, term and year in review ◆
 
+- **Status (12 October 2026):** designs in (`design_handoff_kurenaios_reports`);
+  the build follows [`reports-plan.md`](reports-plan.md), decisions A–D taken
+  as recommended. Phase 1 (collecting the history: the media journal,
+  AniList tags/country/length and VNDB language, awards on session
+  entries, the Assistant tally, boundary snapshots) is built (smoke68,
+  invariants 99–101). Phase 2 (periods, the facts builder with the zero
+  and evidence rules, template words, saving at period end and the
+  backfill) is built (smoke69, invariant 102). Phase 3 (the Reports page,
+  the weekly report and its Study, Focus and plan, and Collection
+  overviews, low-data tiles, phone, the `reports` bell kind) is built
+  (smoke70, invariant 102a). Phases 4 and 5 (Kurenai's words; the story
+  player, share card and export, the Home card and search) are built
+  (smoke70, invariants 102b–102c) and released with 1–3. Next: phase 6,
+  the month, term and year reports.
+
 - **What:** a report like Claude's *Reflect* page, but across the whole
   app — Study, Productivity, Collection, the Assistant and the profile
   (Governor) — for four periods, each deeper than the last:

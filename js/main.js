@@ -110,6 +110,9 @@
   /* scheduled prompts: sent at their time while the app is open, or on the
      first open later that day (core/aischedule.js) */
   if (KOS.ai && KOS.ai.schedule) KOS.ai.schedule.start();
+  /* Reports (5.1): the state at each week / month boundary, written the
+     first time the app is open in the period (core/reportstore.js) */
+  if (KOS.reportStore) KOS.reportStore.start();
   /* re-check reminders + HP drift every 30 min while the app stays open */
   setInterval(function () {
     KOS.governor.tick();

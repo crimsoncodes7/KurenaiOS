@@ -118,6 +118,7 @@ color-scheme: dark;
 --fs-18: 18px;
 --fs-20: 20px;
 --fs-22: 22px;
+--fs-24: 24px;
 --fs-26: 26px;
 --fs-27: 27px;
 --fs-32: 32px;
@@ -733,6 +734,60 @@ color-scheme: dark;
 --z-menu: 110;
 --z-modal: 120;
 --z-toast: 130;
+
+/* ---------- Reports (design turns 24–25, css/views/reports.css) ---------- */
+--rp-side-w: 340px;          /* the Earlier reports column and overview sides */
+--rp-spark-w: 52px;
+--rp-spark-h: 26px;
+--rp-split-h: 10px;          /* the subject / status split bar */
+--rp-dot: 8px;
+--rp-heat-h: 12px;           /* one heat-grid cell */
+--rp-tile-min: 124px;
+--rp-rank-w: 22px;
+--rp-ref-w: 68px;
+--rp-cover-mini: 22px;       /* the dashboard mosaic */
+--rp-cover-tiny: 24px;       /* Genre DNA's three covers */
+--rp-cell-min: 104px;        /* the overview's cover grid */
+--rp-hist-h: 96px;
+--rp-tl-h: 22px;             /* one day row of the Focus timeline */
+--rp-mark: 22px;             /* the plan's ✓ / → tile */
+--rp-ghost: 160px;           /* the persona's ghost kanji */
+--rp-chart-max: 560px;
+--rp-read-w: 780px;          /* the narrative's measure */
+/* the story player: a dark stage in every theme (like the Shrine card,
+   an export-like surface keeps its own ground), 450 × 800 scaled to fit */
+--rp-stage-w: 450px;
+--rp-stage-h: 800px;
+--rp-stage-bg: oklch(0.135 0.012 265);
+--rp-stage-ink: oklch(0.95 0.005 265);
+--rp-stage-ink-2: oklch(0.85 0.01 265);
+--rp-stage-muted: oklch(0.75 0.01 265);
+--rp-stage-glass: oklch(1 0 0 / 0.08);
+--rp-stage-glass-2: oklch(1 0 0 / 0.12);
+--rp-stage-track: oklch(1 0 0 / 0.18);
+--rp-stage-fill: oklch(0.97 0.005 265);
+--rp-stage-line: oklch(1 0 0 / 0.15);
+--rp-stage-shadow: 0 30px 80px oklch(0 0 0 / 0.55);
+--rp-stage-on-hue: oklch(0.14 0.02 18);
+--rp-stage-big: 84px;        /* the big-number story's figure */
+--rp-stage-kanji: 300px;     /* the intro's outlined kanji */
+--rp-stage-ghost: 230px;     /* the persona's ghost kanji */
+--rp-stage-name: 52px;       /* the persona's name */
+--rp-stage-title: 34px;
+--rp-stage-bars-h: 250px;
+--rp-stage-cover-w: 84px;
+--rp-stage-cover-h: 118px;
+--rp-thumb-w: 74px;
+--rp-thumb-h: 130px;
+--rp-seal: 30px;
+--rp-stroke: 1.5px;
+--rp-export-w: 520px;
+--rp-home-w: 420px;
+--rp-home-row-h: 52px;
+--rp-export-preview-h: 320px;
+--rp-stage-head-top: 26px;
+--rp-stage-body-top: 84px;
+--rp-stage-foot-h: 52px;
 
 /* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */
 --ease: cubic-bezier(0.2, 0, 0, 1);

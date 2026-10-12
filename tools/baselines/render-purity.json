@@ -14640,6 +14640,14 @@
      }
     }
    ]
+  },
+  "reports": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": []
   }
  }
 }

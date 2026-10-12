@@ -40,6 +40,7 @@ const LAYERS = {
   "views/assistant": "css/views/assistant.css",
   "views/archive": "css/views/archive.css",
   "views/labs": "css/views/labs.css",
+  "views/reports": "css/views/reports.css",
   themes: "css/themes.css"
 };
 

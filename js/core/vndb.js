@@ -182,7 +182,7 @@
 
   /* shared vn.* field list — the same nested record serves sync and
      enrichment, so both map through vnRecord() */
-  var VN_FIELDS = "id, title, alttitle, image.url, length, length_minutes, " +
+  var VN_FIELDS = "id, title, alttitle, olang, image.url, length, length_minutes, " +
     "developers.name, tags.name, tags.category, tags.rating, tags.spoiler";
   function vnRecord(vn) {
     vn = vn || {};
@@ -195,7 +195,8 @@
       extra: {
         titleAlt: vn.alttitle || null,
         length: vn.length || null,               // 1–5 very short → very long
-        lengthMinutes: vn.length_minutes || null // crowd-sourced play time
+        lengthMinutes: vn.length_minutes || null, // crowd-sourced play time
+        olang: vn.olang || null                   // original language (Reports 5.1)
       }
     };
   }

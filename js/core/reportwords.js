@@ -1,0 +1,263 @@
+/* Kurenai OS — core/reportwords.js
+   Reports (roadmap 5.1): the words. TEMPLATE words are built here from a
+   report's facts by rule (24f): the largest share first, then recall,
+   moves to Green, the peak hour and carry-overs, then the Collection.
+   Pure and deterministic — the same facts always read the same, offline
+   and free. Kurenai's words (phase 4) replace the headline and narrative
+   only, and fall back to these.
+
+   The formatters live here too, so every surface prints a figure one way:
+   hm(), the comparisons (rule 5: "▲ 18% on last week", "same as last
+   week", "new this week", never a bare 0 or "+∞%"), and the subject and
+   medium names.                                                          */
+(function () {
+  "use strict";
+  window.KOS = window.KOS || {};
+
+  var SUBJECT = { compsci: "Computer Science", maths: "Maths", it: "IT" };
+  var SUBJECT_SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
+  var MEDIUM = { anime: "Anime", books: "Books", vn: "Visual novels", game: "Games" };
+  var PERIOD_NOUN = { week: "week", month: "month", term: "term", year: "year" };
+
+  function hm(mins) {
+    mins = Math.round(mins || 0);
+    var h = Math.floor(mins / 60), m = mins % 60;
+    return h ? (m ? h + "h " + (m < 10 ? "0" : "") + m + "m" : h + "h") : m + "m";
+  }
+  function num(n) { return Math.round(n).toLocaleString("en-GB"); }
+  function plural(n, one, many) { return num(n) + " " + (n === 1 ? one : (many || one + "s")); }
+  function list(items) {
+    if (items.length <= 1) return items.join("");
+    return items.slice(0, -1).join(", ") + (items.length > 2 ? "," : "") + " and " + items[items.length - 1];
+  }
+  /* a comparison against an earlier figure: {dir: "up"|"down"|"same"|"new",
+     text}. `kind` "mins" prints the difference as time, "pct" as points,
+     anything else as a percentage of the earlier figure. */
+  function compare(now, before, label, kind) {
+    if (now == null || before == null) return null;
+    if (now === before) return { dir: "same", text: "same as " + label };
+    if (!before) return now ? { dir: "new", text: "new this " + label.replace(/^last /, "") } : null;
+    var up = now > before, d = Math.abs(now - before);
+    var amount = kind === "mins" ? hm(d) : kind === "pct" ? num(d) + " pts" : Math.round(100 * d / before) + "%";
+    return { dir: up ? "up" : "down", text: (up ? "▲ " : "▼ ") + amount + " on " + label };
+  }
+
+  function largestShare(s) {
+    var keys = Object.keys(s.bySubject || {}).filter(function (k) { return s.bySubject[k] > 0; });
+    if (!keys.length) return null;
+    keys.sort(function (a, b) { return s.bySubject[b] - s.bySubject[a]; });
+    return keys[0];
+  }
+
+  /* {headline, narrative} for any period's facts */
+  function template(f) {
+    var noun = PERIOD_NOUN[f.period] || "period", s = f.study, fo = f.focus || {}, g = f.gov || {};
+    /* the headline: what was studied, what moved, the streak */
+    var bits = [];
+    bits.push(s.mins ? hm(s.mins) + " studied" : "A quiet " + noun + " for study");
+    if (s.toGreen) bits.push(plural(s.toGreen, "topic") + " to Green");
+    else if (f.collection && f.collection.count && !s.mins) bits.push(plural(f.collection.count, "title") + " in the Collection");
+    if (g.streak >= 2) bits.push("the streak at " + g.streak + " days");
+    var headline = list(bits) + ".";
+    headline = headline.charAt(0).toUpperCase() + headline.slice(1);
+
+    var out = [];
+    var top = largestShare(s);
+    if (top && s.mins) {
+      var keys = Object.keys(s.bySubject).filter(function (k) { return s.bySubject[k] > 0; });
+      out.push(keys.length > 1
+        ? SUBJECT[top] + " took the largest share, " + hm(s.bySubject[top]) + " of " + hm(s.mins) + ", across " + plural(s.sessions, "session") + " on " + s.days + " of " + s.of + " days."
+        : "All " + hm(s.mins) + " went to " + SUBJECT[top] + ", across " + plural(s.sessions, "session") + ".");
+    } else if (s.days) {
+      out.push("You studied on " + s.days + " of " + s.of + " days, without a timed session.");
+    }
+    /* only an increase is worth a sentence; a quieter week is not an alarm
+       (rule 4) and the tile already carries the comparison */
+    if (f.prev && f.prev.mins > 0 && s.mins > f.prev.mins) out.push("That is " + hm(s.mins - f.prev.mins) + " more than last " + noun + ".");
+    if (s.recall != null) out.push("Recall was " + s.recall + "% across " + num(s.reviews) + " reviews.");
+    else if (s.reviews) out.push(plural(s.reviews, "card") + " reviewed.");
+    if (s.toGreen) {
+      var greens = (s.moves || []).filter(function (m) { return m.to === "g"; }).slice(0, 2)
+        .map(function (m) { var t = (s.topics || []).filter(function (x) { return x.key === m.key; })[0]; return t ? t.title : null; })
+        .filter(Boolean);
+      out.push(greens.length ? list(greens) + (s.toGreen > greens.length ? " and " + (s.toGreen - greens.length) + " more" : "") + " moved to Green."
+        : plural(s.toGreen, "topic") + " moved to Green.");
+    }
+    if (fo.blocks && fo.peakHour != null) out.push("Most Focus came around " + (fo.peakHour < 10 ? "0" : "") + fo.peakHour + ":00, with the longest block at " + fo.longest + " minutes.");
+    if (f.plan) {
+      out.push(f.plan.carried
+        ? f.plan.ticked + " of " + f.plan.planned + " plan rows ticked; " + plural(f.plan.carried, "row") + " carried on."
+        : "Every plan row was ticked.");
+    }
+    var c = f.collection;
+    if (c && c.count) {
+      var cs = [];
+      if (c.status.finished) cs.push(num(c.status.finished) + " finished");
+      if (c.status.started) cs.push(num(c.status.started) + " started");
+      var whole = c.status.finished === c.count ? " finished" : c.status.started === c.count ? " started" : null;
+      out.push("In the Collection, " + plural(c.count, "title") + (whole || (" moved" + (cs.length ? ", " + list(cs) : ""))) + ".");
+    }
+    return { headline: headline, narrative: out.join(" ") };
+  }
+
+  /* the headline and one sentence an overview page opens with (25b–25d),
+     by rule from the same facts */
+  function section(f, which) {
+    var s = f.study, fo = f.focus || {}, c = f.collection, noun = PERIOD_NOUN[f.period] || "period";
+    if (which === "study") {
+      var keys = Object.keys(s.bySubject || {}).filter(function (k) { return s.bySubject[k] > 0; })
+        .sort(function (a, b) { return s.bySubject[b] - s.bySubject[a]; });
+      var lead = !keys.length ? "" : keys.length === 1 ? ", all " + SUBJECT_SHORT[keys[0]]
+        : (s.bySubject[keys[0]] - s.bySubject[keys[1]]) <= 0.15 * s.bySubject[keys[0]]
+          ? ", " + SUBJECT_SHORT[keys[0]] + " just ahead of " + SUBJECT_SHORT[keys[1]]
+          : ", mostly " + SUBJECT_SHORT[keys[0]];
+      return { headline: s.mins ? hm(s.mins) + " over " + plural(s.sessions, "session") + lead + "." : "No timed study this " + noun + ".",
+        sentence: s.touched ? plural(s.touched, "topic") + " touched" + (s.reviews ? ", " + plural(s.reviews, "review") : "") + "." : "" };
+    }
+    if (which === "focus") {
+      if (!fo.blocks) return { headline: "No Focus blocks this " + noun + ".", sentence: "" };
+      var h = fo.hours || [], tot = h.reduce(function (a, b) { return a + b; }, 0) || 1;
+      var share = function (a, b) { return h.slice(a, b).reduce(function (x, y) { return x + y; }, 0) / tot; };
+      var when = share(18, 24) >= 0.5 ? ", most of them after 18:00" : share(4, 12) >= 0.5 ? ", most of them before noon" : ", the longest " + fo.longest + " minutes";
+      return { headline: plural(fo.blocks, "Focus block") + when + ".", sentence: hm(fo.mins) + " in all, in blocks of about " + fo.typical + " minutes." };
+    }
+    if (which === "collection") {
+      if (!c) return { headline: "Nothing moved in the Collection this " + noun + ".", sentence: "" };
+      var mods = Object.keys(c.byModule).sort(function (a, b) { return c.byModule[b] - c.byModule[a]; });
+      var mostly = mods.length > 1 && c.byModule[mods[0]] > c.count / 2 ? ", mostly " + MEDIUM[mods[0]].toLowerCase() : "";
+      var weekend = "";
+      if (c.dayTitles && c.dayTitles.length === 7) {
+        var tot2 = 0, wk = 0;
+        c.dayTitles.forEach(function (d, i) { var n = Object.keys(d).reduce(function (a, k) { return a + d[k]; }, 0); tot2 += n; if (i >= 5) wk += n; });
+        if (tot2 >= 6 && wk / tot2 >= 0.45) weekend = " at the weekend";
+      }
+      var parts = mods.map(function (m) { return num(c.byModule[m]) + " " + (m === "anime" ? "anime" : m === "books" ? (c.byModule[m] === 1 ? "book" : "books") : m === "vn" ? (c.byModule[m] === 1 ? "visual novel" : "visual novels") : (c.byModule[m] === 1 ? "game" : "games")); });
+      var sent = "You touched " + list(parts) + (c.estMins ? " for about " + hm(c.estMins) : "") + ".";
+      if (c.genres && c.genres[0]) sent += " " + c.genres[0].name + " led the genres.";
+      return { headline: plural(c.count, "title") + " in one " + noun + mostly + weekend + ".", sentence: sent };
+    }
+    return { headline: "", sentence: "" };
+  }
+
+  /* ---------------- Kurenai's words (24f) ----------------
+     ONE request per report, made of the report's TOTALS: study minutes
+     per subject, sessions, reviews, recall, topics touched and moved to
+     Green, Focus blocks, longest, peak, plan ticked and carried, the
+     Collection's counts per medium, XP, gold and streaks. Never notes,
+     card text, topic or title names, or chat history (README "State",
+     invariants 71, 71a). `payload()` is the whole of what is sent, and
+     the "What is sent" panel prints exactly it. */
+  var DAY3 = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  function payload(rep) {
+    var f = rep.facts, s = f.study, fo = f.focus || {}, c = f.collection, g = f.gov || {}, out = {};
+    out.period = f.period + " " + f.start;
+    var sm = {};
+    ["compsci", "maths", "it"].forEach(function (k) { if (s.bySubject[k]) sm[SUBJECT_SHORT[k].toLowerCase()] = s.bySubject[k]; });
+    out.study_min = sm;
+    out.sessions = s.sessions;
+    out.study_days = s.days + "/" + s.of;
+    if (s.reviews) out.reviews = s.reviews;
+    if (s.recall != null) out.recall = Math.round(s.recall) / 100;
+    if (s.touched) out.topics_touched = s.touched;
+    if (s.toGreen != null) out.to_green = s.toGreen;
+    if (s.quizzes) out.quizzes = s.quizzes;
+    if (fo.blocks) {
+      out.focus_blocks = fo.blocks;
+      out.longest_min = fo.longest;
+      var bd = fo.byDay || [], best = 0;
+      bd.forEach(function (m, i) { if (m > bd[best]) best = i; });
+      out.peak = (f.period === "week" ? DAY3[best] + " " : "") + (fo.peakHour < 10 ? "0" : "") + fo.peakHour;
+    }
+    if (f.plan) {
+      out.plan = f.plan.ticked + "/" + f.plan.planned;
+      if (f.plan.carried) {
+        out.carried = f.plan.carried;
+        var subs = [];
+        f.plan.rows.forEach(function (r) { if (!r.done && r.subject && subs.indexOf(SUBJECT_SHORT[r.subject].toLowerCase()) === -1) subs.push(SUBJECT_SHORT[r.subject].toLowerCase()); });
+        if (subs.length) out.carried_in = subs;
+      }
+    }
+    if (c) {
+      var col = {}, u = c.units || {};
+      Object.keys(c.byModule).forEach(function (m) { col[m + "_titles"] = c.byModule[m]; });
+      if (u.ep) col.anime_eps = u.ep;
+      if (u.ch) col.chapters = u.ch;
+      if (u.vol) col.volumes = u.vol;
+      if (u.route) col.vn_routes = u.route;
+      if (u.hours) col.hours_played = Math.round(u.hours * 10) / 10;
+      if (c.status.finished) col.finished = c.status.finished;
+      if (c.status.started) col.started = c.status.started;
+      out.collection = col;
+    }
+    if (g.xp != null) out.xp = g.xp;
+    if (g.gold != null) out.gold = g.gold;
+    if (g.streak) out.streak = g.streak;
+    if (g.rest) out.rest = g.rest;
+    if (f.prev && f.prev.mins != null) out.last_period_study_min = f.prev.mins;
+    if (f.rebuilt) out.rebuilt_from_history = true;
+    return out;
+  }
+  /* the payload as the panel prints it: one line per field */
+  function payloadLines(p) {
+    return Object.keys(p).map(function (k) {
+      var v = p[k];
+      return k + ": " + (v && typeof v === "object" ? (Array.isArray(v) ? "(" + v.join(", ") + ")"
+        : "{" + Object.keys(v).map(function (kk) { return kk + ": " + v[kk]; }).join(", ") + "}") : String(v));
+    });
+  }
+  var SCHEMA = { type: "object", properties: { headline: { type: "string" }, narrative: { type: "string" } }, required: ["headline", "narrative"] };
+  var SYSTEM = "You are Kurenai, the study companion inside KurenaiOS, an app for an A-level student. " +
+    "Write the words for one saved period review from the TOTALS you are given, and nothing else. " +
+    "Return JSON {\"headline\", \"narrative\"}. The headline is one sentence of at most 14 words. " +
+    "The narrative is 3 to 5 sentences of plain prose in the second person and the past tense, in British English. " +
+    "Use only the numbers given; never invent topics, titles, days or figures that are not there. " +
+    "Rest and quiet days are facts, never failures; a lower figure than last time is not a warning. " +
+    "Rewards are things that were earned, never promised. No markdown, no lists, no emoji.";
+  function clean(s) { return String(s || "").replace(/[*_#`>]+/g, "").replace(/\s+/g, " ").trim(); }
+  /* send the one request. cb(err, {headline, narrative}); returns the
+     request's id, which cancel() takes. A reply that is not two sensible
+     strings is a failure, never shown. */
+  function write(rep, cb) {
+    if (!KOS.ai || !KOS.ai.chat) { cb({ kind: "config", message: "The Assistant is not available." }); return null; }
+    var noun = PERIOD_NOUN[rep.facts.period] || "period";
+    return KOS.ai.chat("generation", {
+      system: SYSTEM,
+      messages: [{ role: "user", content: "The " + noun + "'s totals:\n" + JSON.stringify(payload(rep)) }],
+      structured: { schema: SCHEMA },
+      temperature: 0.7,
+      maxTokens: 700
+    }, function (err, res) {
+      if (err) { cb(err); return; }
+      var raw = null;
+      try { raw = JSON.parse(res.text); } catch (e) { raw = null; }
+      var h = raw && clean(raw.headline), n = raw && clean(raw.narrative);
+      if (!h || !n || h.length > 160 || n.length < 30 || n.length > 1600) { cb({ kind: "invalid", message: "The reply was not usable words." }); return; }
+      cb(null, { headline: h, narrative: n, provider: res.provider, model: res.model });
+    });
+  }
+  /* the calm note a failure shows (24f ④) */
+  function failNote(err) {
+    var why = !err ? "something went wrong"
+      : err.kind === "network" || err.kind === "timeout" ? "no connection"
+      : err.kind === "config" || err.kind === "auth" ? "the Assistant isn't connected"
+      : err.kind === "rate" ? "today's requests are used up"
+      : err.kind === "invalid" ? "the reply wasn't usable"
+      : "the provider didn't answer";
+    return "Kurenai couldn't write this one (" + why + "). Showing the template words; nothing else on the page changed.";
+  }
+
+  /* the words a report shows: Kurenai's when written, else the template */
+  function current(rep) {
+    var w = rep && rep.words;
+    if (w && w.mode === "kurenai" && w.headline && w.status !== "failed") return { headline: w.headline, narrative: w.narrative || "", byKurenai: true };
+    var t = template(rep.facts);
+    return { headline: t.headline, narrative: t.narrative, byKurenai: false };
+  }
+
+  KOS.reportWords = {
+    SUBJECT: SUBJECT, SUBJECT_SHORT: SUBJECT_SHORT, MEDIUM: MEDIUM,
+    hm: hm, num: num, plural: plural, list: list, compare: compare,
+    template: template, section: section, current: current,
+    payload: payload, payloadLines: payloadLines, write: write, failNote: failNote
+  };
+})();

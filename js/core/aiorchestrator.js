@@ -361,7 +361,8 @@
          and ISOLATED from the live conversation's in-memory history */
       readOnly: !!opts.readOnly,
       isolated: !!opts.isolated,
-      scheduled: opts.scheduled || null
+      scheduled: opts.scheduled || null,
+      toolNames: []            // every tool run, for the daily tally (5.1)
     };
   }
 
@@ -453,8 +454,37 @@
        exchange is still context), so the immediately-previous turn is never
        silently lost. */
     if (!req.isolated && (status !== "cancelled" || req.messages.length > 1)) pushHistoryTurn(req);
+    if (status === "complete") tallyRequest(req);
     emit(req, "onDone", Object.assign({ status: status, requestId: req.id,
       toolCalls: req.toolCallsExecuted, undos: req.undos.length }, payload || {}));
+  }
+  /* Reports (5.1): a small daily tally of what the Assistant was asked —
+     answered requests (a scheduled send counted apart) and the areas their
+     tools touched, once per request. Counts only: never the text. Kept in
+     the synced state for TALLY_DAYS; a day both devices used keeps one
+     device's count for a field (a leaf conflict), an accepted undercount. */
+  var TALLY_DAYS = 400;
+  var TALLY_AREAS = { study: 1, planner: 1, collection: 1, governor: 1, archive: 1 };
+  function tallyRequest(req) {
+    if (!req.userGoal) return;   // a direct runTool step is not a conversation
+    var a = KOS.store.state.assistant = KOS.store.state.assistant || {};
+    var t = a.tally = a.tally && typeof a.tally === "object" ? a.tally : {};
+    var day = KOS.srs.todayISO();
+    var d = t[day] = t[day] || {};
+    if (req.scheduled) d.s = (d.s || 0) + 1;
+    else d.c = (d.c || 0) + 1;
+    var areas = {};
+    (req.toolNames || []).forEach(function (n) {
+      var tool = KOS.ai.tools.get(n);
+      if (tool && TALLY_AREAS[tool.category]) areas[tool.category] = true;
+    });
+    Object.keys(areas).forEach(function (k) {
+      d.a = d.a || {};
+      d.a[k] = (d.a[k] || 0) + 1;
+    });
+    var floor = KOS.srs.addDays(day, -TALLY_DAYS);
+    Object.keys(t).forEach(function (k) { if (k < floor) delete t[k]; });
+    KOS.store.save();
   }
   function failRequest(req, err) {
     emit(req, "onError", { message: err.message, kind: err.kind || "orchestrator" });
@@ -696,6 +726,7 @@
     if (!auditId) auditId = auditPropose(req, call, tool.tier, null);
     var key = callKey(call);
     emit(req, "onToolStart", { tool: call.name, args: call.args });
+    if (req.toolNames.indexOf(call.name) === -1) req.toolNames.push(call.name);
     KOS.ai.tools.execute(call.name, call.args || {}, function (err, result, undo) {
       if (err) {
         req.failedCounts[key] = (req.failedCounts[key] || 0) + 1;

@@ -19,7 +19,7 @@ chronological diary here.
   https://633db8f0.kurenai-os.pages.dev (12 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-schedule-1`
-- Required smoke gate: 67 / 67 suites.
+- Required smoke gate: 70 / 70 suites.
 
 ## Run, test and deploy
 
@@ -29,7 +29,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..67}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..70}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -119,6 +119,7 @@ non-navigation redraw path.
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`); the Assistant's Scheduled tab |
+| Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js` |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -574,8 +575,9 @@ source comments and audit notes refer to it.
     (`items`, natural string ids `kind:record:occurrence`, capped at 200
     and 45 days) plus `read` and `airing` keyed maps. Kinds are calendar,
     reminder, assignment, airing, wishlist, pacing (the plan's carry-over
-    notice), focus (the idle watch, invariant 4d) and assistant (a
-    scheduled message's reply, invariant 71b) only: sync cycles, cloud
+    notice), focus (the idle watch, invariant 4d), assistant (a
+    scheduled message's reply, invariant 71b) and reports (a saved week,
+    "Your week in review is ready", id `reports:<report id>`) only: sync cycles, cloud
     state and repairs are housekeeping, never notifications. Nothing in it re-derives a due date:
     the calendar, reminder and assignment tickers keep their own alert
     rules and once-only `notified`/`alerted` maps (invariant 42) and hand
@@ -652,6 +654,78 @@ source comments and audit notes refer to it.
     after a pull and before the model is called. The reply is kept on the
     schedule (`last`), in its own conversation when signed in, and pushed
     as an `assistant` notification. "Run now" does not claim the day.
+
+### Reports (99–102)
+
+99. A media row carries its own ACTIVITY JOURNAL (`journal: [[ts, kind,
+    from, to], …]`, `mediadb.js`): kinds progress (Anime/Books), volumes,
+    status, score, route, chapter and hours (VN/Games journal the source,
+    never derived progress, invariant 10). `put()` appends what the save
+    changed against the stored row, and a bulkUpsert merge what the pull
+    moved; same-day steps of one kind collapse, so a step taken back
+    cancels out. Inserts are silent (a first import is not activity), a
+    no-op merge appends nothing (invariant 36a), enrichment never moves
+    it. A row arriving with events the store has never seen (a cloud pull)
+    UNIONS its history rather than appending a second account, and a fold
+    (`foldLocal`, `mergeRows`) unions both. Capped at 200 events and 400
+    days; it is not an index, so no DB version.
+100. A session entry records what the Governor paid it (`award: {xp,
+    gold}`, written in `onSession`, zero when forfeited): "earned this
+    week" is a sum of awards, never a difference of balances that
+    purchases and merges also move. The Assistant keeps a daily TALLY in
+    `state.assistant.tally["YYYY-MM-DD"]` (`c` chats, `s` scheduled sends,
+    `a` areas by tool category, once per request): counts only, never
+    text, 400 days.
+101. `KOS.reportStore` writes the state at each period BOUNDARY (a Monday
+    or the 1st of a month) the first time the app is open on or after it,
+    and never refreshes it: topic band/status/mastery, the Governor,
+    streaks and the Collection's status counts, with `takenAt` so a late
+    snapshot says so. A boundary never opened has none. The store is its
+    own IndexedDB, `kurenai-os-reports`, derived data only; the snapshot
+    taken the day it shipped (12 October 2026) is the baseline.
+102. A report is DERIVED once and SAVED: `KOS.report.compute(input, period)`
+    is pure, reads only what `gather()` hands it from the single sources
+    (invariant 26d), and applies the README's rules at build — a
+    supporting zero is absent (77), recall needs 50 reviews, a day chart
+    three active days, a persona five Focus blocks, a story without
+    evidence is dropped and a week keeps four, earnings are the recorded
+    awards or nothing (100), a status move needs both boundary snapshots.
+    A week is saved on the first open after the following Monday 07:00
+    (`ensureReports`), then never recomputed; only `words` change
+    (`setWords`). Weeks since 1 September are backfilled; one from before
+    the first snapshot is `rebuilt` (no status moves, no invented ranges)
+    and an empty one is not saved. Words: `KOS.reportWords.template` is
+    deterministic; comparisons go through `compare()` ("same as", "new
+    this week", never a bare 0 or "+∞%"). Zero Governor traffic.
+102a. Reports lives under Home with no rail item (`#/reports`, the
+    Reports page 24a; `#/reports/week/<start>`, one week 25a;
+    `#/reports/week/<start>/<study|focus|collection>`, its full overview
+    25b–25d). Every card's "Full overview ›" opens a page inside Reports,
+    never an app page. The pages only READ saved facts: a render writes
+    nothing (smoke56, smoke70) and selecting a past report swaps the view
+    without recomputing; the Collection filter, layout and sort are per
+    visit, never stored. A report's own clicks may write (Next up's "Add to
+    plan" adds a plan row). It is reached from the bell (kind `reports`,
+    invariant 95), the Home card, Home's Study hours card and search.
+102b. The words are the template's unless the user picks ✦ Kurenai for
+    that report: ONE `KOS.ai.chat("generation")` request carrying
+    `KOS.reportWords.payload(rep)` — totals only, never notes, card text,
+    topic or title names, or chat history — and "What is sent" prints
+    exactly that payload. Generating is transient (skeleton lines,
+    Cancel; a reply after Cancel is ignored); a failure falls back to the
+    template in place with a calm note and the switch on Template, so a
+    headline is never empty; written words are saved through `setWords`
+    (facts untouched) and kept when switching back to Template.
+102c. The story (`KOS.reportStory`) draws the saved `facts.stories` list
+    as a dialog: 7.2 s a story, scaled by a per-device speed
+    (`state.ui.reportSpeed`); ← → / taps / swipes move and resume, Space
+    pauses, a quiz waits for a guess that is never stored, reduced motion
+    shows each story finished. The share card and export
+    (`KOS.reportShare`) are made on the device from the saved report; the
+    Collection's titles are OFF by default in every format. The Home card
+    shows the newest week for 7 days after it was saved, "New" until its
+    notification is read — read by a click ("Read the report" or the
+    bell), never by a render.
 
 ### Responsive integration and visual release quality (72–79)
 
@@ -860,6 +934,8 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 
 ### Navigation hierarchy
 
+- Home: Reports (`#/reports`, no rail item; from the bell and Home's
+  Study hours card).
 - Study: subjects, Review and Exams & Papers.
 - Productivity: Focus, Calendar, Reminders, Tasks & Habits and Pacing.
   Pacing has two identities in one route and they cannot collide, because a

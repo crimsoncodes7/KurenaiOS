@@ -70,6 +70,10 @@
     "js/modules/mobile-shell.js",
     "js/core/figures.js",
     "js/labs/worked-extra.js",
+    "js/modules/reports.js",
+    "js/modules/reportstory.js",
+    "js/modules/reportshare.js",
+    "css/views/reports.css",
     "js/core/topicpicker.js",
     "js/modules/itdesk.js"
   ],
@@ -108,6 +112,7 @@
     "sims": {},
     "worked": {},
     "trace": {},
-    "oop": {}
+    "oop": {},
+    "reports": {}
   }
 }

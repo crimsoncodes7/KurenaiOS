@@ -936,6 +936,8 @@
     }
     band.appendChild(el("div", { class: "k-home-hero-body" }, [ring, heroTxt, goal]));
     main.appendChild(band);
+    /* the newest weekly report, for the week after it was saved (24h) */
+    if (KOS.reportsHomeCard) main.appendChild(KOS.reportsHomeCard());
 
     /* ================= Routines · Reminders ================= */
     /* a pure read: todo.habits() materialises the array, and a render
@@ -1229,7 +1231,7 @@
       ]);
     }
     var hours = el("section", { class: "k-card k-hours", "aria-label": "Study hours" }, [
-      cardHead("Study hours", null, null, null),
+      cardHead("Study hours", null, "Weekly reports ›", function () { KOS.show("reports"); }),
       el("div", { class: "k-hours-big" }, [
         el("span", { class: "k-hours-n", text: fmtH(weekH) }),
         el("span", { class: "k-hours-u", text: "hours" + (weekSess ? " · " + weekSess + " session" + (weekSess === 1 ? "" : "s") : " · no sessions yet") }),
@@ -3377,6 +3379,8 @@
   var debounce = KOS.ui.debounce;
 
   KOS.hub = { LEAVES: LEAVES, BYREF: BYREF, COLORS: COLORS, HEX: HEX, esc: esc, search: searchSpec,
+    /* a leaf's mastery, the one figure (Reports 5.1 snapshots read it too) */
+    leafPercent: leafPercent,
     /* IT units (roadmap 1.2): the one derivation of every IT grade figure */
     it: { units: itUnitRows, aggregate: itAggregate, needed: itNeeded, close: itClose, gradeFor: itGradeFor },
     /* the two seams a search PRESENTER needs, and the only two it gets:

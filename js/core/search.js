@@ -252,10 +252,29 @@
     } catch (e) { if (!done) { done = true; clearTimeout(bail); cb(null); } }
   }
 
+  /* Reports (roadmap 5.1): the page itself for "report", "review" or
+     "wrapped", and the saved reports this session has already read from
+     their store, matched on their words. A report's facts are derived
+     from data that has its own home; only the headline is searched. */
+  var REPORT_WORDS = "reports report weekly week in review reviews wrapped story recap";
+  function reportsDomain(q, ts) {
+    var items = [];
+    if (hits(REPORT_WORDS, ts)) items.push({ title: "Reports", sub: "Home", meta: "your weeks in review",
+      open: function () { KOS.show("reports"); } });
+    var seen = (KOS.reportStore && KOS.reportStore.cached) ? KOS.reportStore.cached() : [];
+    seen.forEach(function (r) {
+      var w = KOS.reportWords ? KOS.reportWords.current(r) : { headline: "" };
+      if (!hits(w.headline + " " + r.start, ts) || items.length >= PER_DOMAIN) return;
+      items.push({ title: w.headline, sub: "Week of " + r.start, meta: "weekly report",
+        open: function () { KOS.show("reports", { period: r.period, start: r.start }); } });
+    });
+    return items.length ? { id: "reports", label: "Reports", items: items } : null;
+  }
+
   /* the synchronous domains, in the order a result list should read them:
      what you are studying, then what you owe, then what you own */
   var SYNC_DOMAINS = [specDomain, notesDomain, remindersDomain, assignmentsDomain,
-    calendarDomain, personalCardsDomain, plannerDomain, goalsDomain];
+    calendarDomain, personalCardsDomain, reportsDomain, plannerDomain, goalsDomain];
 
   /* run(q, cb) — cb(groups, done) may be called TWICE: once immediately
      with everything readable from memory, once more when IndexedDB has

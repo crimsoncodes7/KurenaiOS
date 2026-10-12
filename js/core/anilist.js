@@ -164,6 +164,18 @@
     return (hit && hit.node && hit.node.name && hit.node.name.full) || "";
   }
 
+  /* AniList's own tags, for a report's "tags and themes" (5.1): the
+     strongest non-spoiler ones only, kept apart from the PERSONAL `tags`
+     axis as extra.aniTags so a pull never touches what the user tagged.
+     null when AniList has none, so an older stored value is never wiped
+     (extra accretes, invariant 9). */
+  function topTags(tags) {
+    var out = (tags || []).filter(function (t) { return t && t.name && !t.isMediaSpoiler && (t.rank || 0) >= 60; })
+      .sort(function (a, b) { return (b.rank || 0) - (a.rank || 0); })
+      .slice(0, 8).map(function (t) { return t.name; });
+    return out.length ? out : null;
+  }
+
   /* one authenticated list entry → the shared media schema */
   function mapListEntry(en, module, customLists) {
     var m = en.media || {};
@@ -191,7 +203,10 @@
         studio: (m.studios && m.studios.nodes && m.studios.nodes[0] && m.studios.nodes[0].name) || null,
         titleEnglish: (m.title && m.title.english) || null,
         titleRomaji: (m.title && m.title.romaji) || null,
-        volumes: m.volumes || null
+        volumes: m.volumes || null,
+        aniTags: topTags(m.tags),
+        country: m.countryOfOrigin || null,
+        duration: module === "anime" ? (m.duration || null) : null
       }
     };
     if (module !== "anime") {
@@ -218,6 +233,7 @@
       "   startedAt { year month day } completedAt { year month day }" +
       "   media { id idMal title { romaji english } coverImage { extraLarge large } bannerImage" +
       "    genres season seasonYear format episodes chapters volumes" +
+      "    countryOfOrigin duration tags { name rank isMediaSpoiler }" +
       "    studios(isMain: true) { nodes { name } }" +
       (isAnime ? "" : " staff(perPage: 4) { edges { role node { name { full } } } }") +
       " } } } } }";
@@ -447,6 +463,7 @@
       "  media(" + idField + ": $ids, type: $type) {" +
       "   id idMal title { romaji english } coverImage { extraLarge large }" +
       "   genres season seasonYear format episodes chapters volumes" +
+      "   countryOfOrigin duration tags { name rank isMediaSpoiler }" +
       "   studios(isMain: true) { nodes { name } }" +
       (module === "anime" ? "" : " staff(perPage: 4) { edges { role node { name { full } } } }") +
       " } } }";
@@ -504,7 +521,10 @@
               studio: (m.studios && m.studios.nodes && m.studios.nodes[0] && m.studios.nodes[0].name) || null,
               titleEnglish: (m.title && m.title.english) || null,
               titleRomaji: (m.title && m.title.romaji) || null,
-              volumes: m.volumes || null
+              volumes: m.volumes || null,
+              aniTags: topTags(m.tags),
+              country: m.countryOfOrigin || null,
+              duration: module === "anime" ? (m.duration || null) : null
             }
           };
           if (module !== "anime") {

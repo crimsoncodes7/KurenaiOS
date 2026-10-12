@@ -84,7 +84,7 @@ const SURFACES = [
   ["matrix"], ["anime"], ["seasonal"], ["books"], ["mangaka"], ["vn"], ["game"],
   ["shrine"], ["wishlist"], ["goals"], ["mediasync"], ["aniprofile"], ["vndbprofile"],
   ["governor"], ["assistant"], ["notifications"], ["data"], ["help"],
-  ["sims"], ["worked"], ["trace"], ["oop"]
+  ["sims"], ["worked"], ["trace"], ["oop"], ["reports"]
 ];
 /* regions whose controls belong to the surface; the shell's own chrome is
    one extra surface (#topbar, #rail) rendered on Home */

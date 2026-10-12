@@ -51,7 +51,9 @@
     focus:      { label: "Focus",      glyph: "集", section: "productivity", view: "focus" },
     /* a scheduled prompt's reply (core/aischedule.js): the message the user
        asked Kurenai to send at a time, arrived */
-    assistant:  { label: "Assistant",  glyph: "助", section: "assistant", view: "assistant" }
+    assistant:  { label: "Assistant",  glyph: "助", section: "assistant", view: "assistant" },
+    /* a saved report (core/reportstore.js): "Your week in review is ready" */
+    reports:    { label: "Reports",    glyph: "録", section: "reports", view: "reports" }
   };
 
   function N() {

@@ -440,6 +440,105 @@
   }
   function sameMaterial(a, b) { return materialJSON(a) === materialJSON(b); }
 
+  /* ---------------- the activity journal (Reports, roadmap 5.1) ----------
+     A row's state says where a title IS; a report needs what MOVED inside
+     a week ("ep 14–16", started, paused, a score given). Every material
+     change of list state appends one compact event to the row itself:
+       journal: [[ts, kind, from, to], …]   oldest first
+     kinds: progress (episodes / chapters; Anime and Books), volumes,
+     status, score, route (routes cleared), chapter (VN parts completed),
+     hours (playtime). VN and Games progress is DERIVED (invariant 10), so
+     they journal the source that moved, never "progress".
+     Steps of one kind on one local day collapse into one event (three +1
+     clicks are 13→16, and a step taken back cancels out). It rides on the
+     row, so it syncs with it — capped at JOURNAL_CAP events and
+     JOURNAL_DAYS of history, and never an index (no DB version). A no-op
+     merge appends nothing, so it never restamps (invariant 36a). Inserts
+     are silent, like the reward watermark: a first import is not a week of
+     activity. */
+  var JOURNAL_CAP = 200, JOURNAL_DAYS = 400;
+  var JOURNAL_KINDS = ["progress", "volumes", "status", "score", "route", "chapter", "hours"];
+  function journalFacts(e) {
+    var f = { status: e.status, score: e.score || 0 };
+    if (e.module === "anime" || e.module === "books") {
+      f.progress = (e.progress && e.progress.current) || 0;
+      if (e.module === "books") f.volumes = (e.progress && e.progress.volumes) || 0;
+    }
+    if (e.module === "vn") {
+      f.route = (e.routes || []).filter(function (r) { return r.cleared; }).length;
+      f.chapter = (e.chapters || []).filter(function (c) { return c.status === "completed"; }).length;
+    }
+    if (e.module === "vn" || e.module === "game") {
+      f.hours = e.playtimeHours != null ? Math.round(e.playtimeHours * 10) / 10 : 0;
+    }
+    return f;
+  }
+  function normJournal(j) {
+    if (!Array.isArray(j)) return [];
+    var floor = Date.now() - JOURNAL_DAYS * 864e5;
+    var out = j.filter(function (ev) {
+      return Array.isArray(ev) && typeof ev[0] === "number" && ev[0] >= floor &&
+        JOURNAL_KINDS.indexOf(ev[1]) !== -1;
+    }).map(function (ev) {
+      return [ev[0], ev[1], ev[2] == null ? null : ev[2], ev[3] == null ? null : ev[3]];
+    });
+    out.sort(function (a, b) { return a[0] - b[0]; });
+    return out.length > JOURNAL_CAP ? out.slice(out.length - JOURNAL_CAP) : out;
+  }
+  /* the events that take row `a` to row `b` (both normalised), at ts */
+  function journalDiff(a, b, ts) {
+    if (!a || !b) return [];
+    var fa = journalFacts(a), fb = journalFacts(b), out = [];
+    JOURNAL_KINDS.forEach(function (k) {
+      if (!(k in fb) || fa[k] === fb[k]) return;
+      out.push([ts, k, k in fa ? fa[k] : null, fb[k]]);
+    });
+    return out;
+  }
+  function sameDay(t1, t2) { return new Date(t1).toDateString() === new Date(t2).toDateString(); }
+  /* append events, collapsing a same-day step of the same kind */
+  function appendJournal(journal, events) {
+    var out = normJournal(journal);
+    events.forEach(function (ev) {
+      for (var i = out.length - 1; i >= 0; i--) {
+        if (out[i][1] !== ev[1]) continue;
+        if (sameDay(out[i][0], ev[0])) {
+          var from = out[i][2];
+          out.splice(i, 1);
+          if (from !== ev[3]) out.push([ev[0], ev[1], from, ev[3]]);
+          return;
+        }
+        break;
+      }
+      out.push(ev);
+    });
+    return normJournal(out);
+  }
+  function journalKey(ev) { return ev[0] + "|" + ev[1] + "|" + ev[3]; }
+  /* two copies of one title's history (a cloud row, a folded duplicate) */
+  function unionJournal(a, b) {
+    var seen = {}, out = [];
+    normJournal(a).concat(normJournal(b)).forEach(function (ev) {
+      var k = journalKey(ev);
+      if (!seen[k]) { seen[k] = true; out.push(ev); }
+    });
+    return normJournal(out);
+  }
+  /* the journal a LOCAL save writes. The stored row's history is the
+     base; a row arriving with events the store has never seen came from
+     another device (a cloud pull) and brings its own account of the
+     change, so the two histories union and nothing is re-derived. Any
+     other save (an editor, +1, a status pick) appends the difference. */
+  function journalFor(stored, rec) {
+    if (!stored) return rec.journal;
+    var base = normJournal(stored.journal);
+    var have = {};
+    base.forEach(function (ev) { have[journalKey(ev)] = true; });
+    var foreign = rec.journal.some(function (ev) { return !have[journalKey(ev)]; });
+    if (foreign) return unionJournal(base, rec.journal);
+    return appendJournal(base, journalDiff(normalise(stored), rec, Date.now()));
+  }
+
   function normalise(e) {
     e = e || {};
     var now = Date.now();
@@ -553,7 +652,9 @@
          (KOS.mediapush.isPending), so a reload never strands it. */
       push: (e.push && e.push.state === "failed")
         ? { state: "failed", error: String(e.push.error || ""), ts: e.push.ts || null }
-        : null
+        : null,
+      /* Reports (5.1) — what moved, when (see the journal above) */
+      journal: normJournal(e.journal)
     };
     if (out.module === "vn") out.progress = vnProgress(out);
     if (out.module === "game") out.progress = gameProgress(out.playtimeHours);
@@ -586,9 +687,16 @@
       if (err) { cb && cb(err); return; }
       var rec = normalise(entry);
       rec.reward = rewardSnapshot(rec);
-      var rq = os.put(rec);
-      rq.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
-      rq.onerror = function () { cb && cb(rq.error); };
+      /* read the stored row in the same transaction: the journal is
+         derived from what this save changes (journalFor) */
+      var gq = os.get(rec.id);
+      gq.onsuccess = function () {
+        rec.journal = journalFor(gq.result || null, rec);
+        var rq = os.put(rec);
+        rq.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
+        rq.onerror = function () { cb && cb(rq.error); };
+      };
+      gq.onerror = function () { cb && cb(gq.error); };
     });
   }
   function get(id, cb) {
@@ -855,6 +963,7 @@
       if (into.extra[k] == null && from.extra[k] != null) into.extra[k] = from.extra[k];
     });
     into.createdAt = Math.min(into.createdAt || Date.now(), from.createdAt || Date.now());
+    into.journal = unionJournal(into.journal, from.journal);
   }
 
   /* ---------------- bulk upsert (sync/import) ----------------
@@ -1043,6 +1152,9 @@
           if (d) rewards.push({ entryId: inc.id, title: inc.title, module: inc.module,
                                 units: d.units, statusAdvanced: d.statusAdvanced, status: inc.status });
         }
+        /* the journal (5.1): the stored history plus what this pull moved */
+        inc.journal = opts.enrichOnly ? normJournal(old.journal)
+          : appendJournal(old.journal, journalDiff(normalise(old), inc, Date.now()));
         /* a merge that changed nothing keeps the stored timestamp, so the
            row stays clean for cloud sync (and stops a no-op pull
            reshuffling the "recently updated" sort) — see sameMaterial */
@@ -1307,6 +1419,12 @@
     STATUS_RANK: STATUS_RANK,
     rewardSnapshot: rewardSnapshot,
     rewardDelta: rewardDelta,
+    JOURNAL_KINDS: JOURNAL_KINDS,
+    JOURNAL_CAP: JOURNAL_CAP,
+    normJournal: normJournal,
+    journalDiff: journalDiff,
+    appendJournal: appendJournal,
+    unionJournal: unionJournal,
     normalise: normalise,
     add: add,
     put: put,

@@ -216,6 +216,7 @@
         mins: m.mins || Math.round((e.dur || 0) / 60), pauses: m.pauses });
       if (fa.rule === "blocks" && !fa.blocks) {
         lastAward = { xp: 0, gold: 0, hp: 0, notes: ["under 10 minutes — nothing earned yet"], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
         store.save();
         if (KOS.ui) KOS.ui.toast("Focus session logged — under 10 minutes, so nothing earned yet.");
         if (KOS.refreshHUD) KOS.refreshHUD();
@@ -223,6 +224,7 @@
       }
       if (fa.forfeited) {
         lastAward = { xp: 0, gold: 0, hp: 0, notes: ["ended early — award forfeited"], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
         store.save();
         if (KOS.ui) KOS.ui.toast("Focus session logged — ended early, award forfeited.");
         if (KOS.refreshHUD) KOS.refreshHUD();
@@ -250,6 +252,10 @@
     g.xp += xp;
     g.gold += gold;
     restoreHp(hp);
+    /* the award rides on its own ledger entry (Reports 5.1: "earned this
+       week" is a sum over the period, never a difference of running
+       totals that purchases and cloud merges also move) */
+    e.award = { xp: xp, gold: gold };
     store.save();
 
     var after = levelInfo(g.xp).level;
