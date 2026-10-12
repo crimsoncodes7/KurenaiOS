@@ -794,6 +794,7 @@
   "from": "^(✕|\\+ field|\\+ method|↻ virt|⇡ set base)$",
   "retire": true,
   "why": "Design part 2, frames 19a–19c: the class cards became an IDE. A class is deleted from its file row in the tree (oop.file-delete), members are added with + Field / + Method and their modifier is a select in the editor, and a base is set from the editor's base picker or by dragging a file onto another in the tree."
- }
- ]
+ },
+    { "surface": "^trace$", "from": "^Reset$", "to": "↺ Reset", "why": "Design part 2, frame 20f (the Trace Lab rebuilt on the lab system): Reset is the transport's ↺ Reset beside ▶ Run and Step ›; it still clears the structure and writes nothing." }
+  ]
 }

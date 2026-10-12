@@ -257,6 +257,13 @@ h2.k-lab-title { font-size: var(--fs-17); }
 
 .k-lab-body { display: grid; grid-template-columns: minmax(0, 1fr) var(--lab-read-w); gap: var(--sp-22); align-items: start; }
 .k-lab-stage { position: relative; min-inline-size: 0; aspect-ratio: 16 / 9; border-radius: var(--r-16); background: var(--s3); overflow: hidden; }
+/* the stage chrome of the overflow rule (20a): zoom at the top right, the
+   fit state at the bottom left */
+.k-lab-zoom { position: absolute; inset-block-start: var(--sp-10); inset-inline-end: var(--sp-10); display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2); border-radius: var(--r-pill); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-lab-zoom-b { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); padding: 0 var(--sp-8); border-radius: var(--r-pill); font-size: var(--fs-12); color: var(--text-2); }
+.k-lab-zoom-b:hover { background: var(--s2); color: var(--text); }
+.k-lab-zoom-v { min-inline-size: var(--sp-40); text-align: center; font-size: var(--fs-11-5); color: var(--text); }
+.k-lab-stage-note { position: absolute; inset-block-end: var(--sp-10); inset-inline-start: var(--sp-12); font-size: var(--fs-11); color: var(--muted); pointer-events: none; }
 .k-lab-stage .k-lab-stage-note { padding: var(--sp-3) var(--sp-9); border-radius: var(--r-pill); background: color-mix(in oklch, var(--s3) 80%, transparent); font-size: var(--fs-11-5); }
 .k-lab-stage-hint { position: absolute; inset-block-start: var(--sp-10); inset-inline-end: var(--sp-12); font-size: var(--fs-11-5); color: var(--muted); pointer-events: none; }
 .k-lab-stage[data-state~="pannable"] > .k-sv { cursor: grab; touch-action: none; }
@@ -414,27 +421,29 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab[data-state~="embedded"] .k-lab-body { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
 .k-lab[data-state~="embedded"] .k-lab-readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-14) var(--sp-22); align-items: start; }
 .k-lab[data-state~="embedded"] .k-lab-rs { padding: 0; border: 0; }
+.k-lab[data-state~="embedded"] .k-lab-body[data-kind="trace"] { grid-template-columns: minmax(0, var(--lab-code-w)) minmax(0, 1fr); }
+.k-lab[data-state~="embedded"] .k-lab-body[data-kind="trace"] > .k-lab-readout { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr); }
 
-/* ---------- Trace Lab: the canvas beside its code ---------- */
-.k-lab-trace-flex { display: flex; gap: var(--sp-16); align-items: stretch; }
-.k-lab-trace-canvas { flex: 1 1 0; min-inline-size: 0; }
-/* the stage chrome of the overflow rule (20a): zoom at the top right, the
-   fit state at the bottom left, a grab hand while the drawing pans */
-.k-lab-trace-canvas[data-state~="staged"] { position: relative; }
-.k-lab-zoom { position: absolute; inset-block-start: var(--sp-10); inset-inline-end: var(--sp-10); display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2); border-radius: var(--r-pill); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
-.k-lab-zoom-b { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); padding: 0 var(--sp-8); border-radius: var(--r-pill); font-size: var(--fs-12); color: var(--text-2); }
-.k-lab-zoom-b:hover { background: var(--s2); color: var(--text); }
-.k-lab-zoom-v { min-inline-size: var(--sp-40); text-align: center; font-size: var(--fs-11-5); color: var(--text); }
-.k-lab-stage-note { position: absolute; inset-block-end: var(--sp-10); inset-inline-start: var(--sp-12); font-size: var(--fs-11); color: var(--muted); pointer-events: none; }
-.k-lab-trace-canvas[data-state~="pannable"] > .k-lab-canvas { cursor: grab; }
-.k-lab-trace-canvas[data-state~="pannable"] > .k-lab-canvas:active { cursor: grabbing; }
-.k-lab-code-panel { flex: 0 0 var(--lab-code-w); margin: 0; padding: var(--sp-14) 0; overflow-x: auto; align-self: flex-start; border-radius: var(--r-16); background: var(--code-bg); font: var(--fs-11-5) / 1.85 var(--font-mono); color: var(--text); }
-.k-lab-code-line { display: block; padding-inline: var(--sp-14); white-space: pre; box-shadow: inset var(--rail-mark) 0 0 transparent; transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
-.k-lab-code-line[data-state~="hl"] { background: color-mix(in oklch, var(--text) 7%, transparent); box-shadow: inset var(--rail-mark) 0 0 var(--amber); }
+/* ---------- the Trace Lab (20f): code · structure · trace ---------- */
+.k-lab-body[data-kind="trace"] { grid-template-columns: minmax(0, var(--lab-code-w)) minmax(0, 1fr) var(--lab-read-w); }
+.k-lab-body[data-kind="trace"] > .k-lab-stage { aspect-ratio: 4 / 5; }
+.k-lab-codepane { display: flex; flex-direction: column; min-inline-size: 0; border-radius: var(--r-16); background: var(--code-bg); overflow: hidden; }
+.k-lab-code-h { display: flex; align-items: baseline; gap: var(--sp-8); padding: var(--sp-12) var(--sp-14) var(--sp-8); }
+.k-lab-code-tag { margin-inline-start: auto; font-size: var(--fs-11-5); color: var(--muted); }
+.k-lab-code-l { margin: 0; padding: 0 0 var(--sp-12); list-style: none; overflow-x: auto; font: var(--fs-12-5) / 1.85 var(--font-mono); color: var(--text); }
+.k-lab-cl { display: flex; gap: var(--sp-10); padding-inline: var(--sp-10) var(--sp-14); white-space: pre; }
+.k-lab-cl > code { font: inherit; color: inherit; }
+.k-lab-cl-n { flex: 0 0 auto; min-inline-size: 2.5ch; text-align: end; color: var(--muted); }
+.k-lab-cl[data-state~="run"] { background: color-mix(in oklch, var(--crimson) 16%, transparent); box-shadow: inset var(--bar-3) 0 0 var(--crimson); }
+.k-lab-cl[data-state~="run"] > .k-lab-cl-n { color: var(--crimson); }
+.k-lab-cl-empty { color: var(--muted); white-space: normal; }
 .k-lab-trace-table { inline-size: 100%; border-collapse: collapse; font: var(--fs-12) var(--font-mono); }
-.k-lab-trace-table th { padding: var(--sp-6) var(--sp-10); border-block-end: var(--hairline) solid var(--line); text-align: start; font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); font-weight: var(--weight-medium); }
-.k-lab-trace-table td { padding: var(--sp-6) var(--sp-10); border-block-end: var(--hairline) solid var(--line); color: var(--text-2); }
-.k-lab-trace-table tr:last-child td { color: var(--text); }
+.k-lab-trace-wrap { max-block-size: var(--lab-trace-h); overflow: auto; }
+.k-lab-trace-table th { white-space: nowrap; padding: var(--sp-6) var(--sp-8); border-block-end: var(--hairline) solid var(--line); text-align: start; font-size: var(--fs-11); font-weight: var(--weight-medium); color: var(--muted); }
+.k-lab-trace-table td { padding: var(--sp-5) var(--sp-8); border-block-end: var(--hairline) solid var(--line); color: var(--text-2); white-space: nowrap; }
+.k-lab-trace-table td:last-child { white-space: normal; min-inline-size: 12ch; }
+.k-lab-trace-table tr[data-state~="live"] td { background: color-mix(in oklch, var(--crimson) 14%, transparent); color: var(--text); }
+.k-lab-trace-table tr[data-state~="next"] td { border: var(--hairline) dashed var(--line); text-align: center; font-size: var(--fs-11-5); color: var(--muted); }
 
 /* ---------- the OOP sandbox as a small IDE (19a–19f) ---------- */
 .k-cs-kw { color: var(--syn-kw); }
@@ -552,6 +561,11 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-ide-st-p { color: var(--green); }
 .k-ide-st-p[data-tone="red"] { color: var(--red); }
 
+@media (max-width: 1240px) {
+.k-lab-body[data-kind="trace"] { grid-template-columns: minmax(0, var(--lab-code-w)) minmax(0, 1fr); }
+.k-lab-body[data-kind="trace"] > .k-lab-readout { grid-column: 1 / -1; }
+}
+
 @media (max-width: 1080px) {
 /* the generated C# goes to its tab below the editor's width */
 .k-ide-body[data-side] { grid-template-columns: var(--ide-tree-w) minmax(0, 1fr); }
@@ -568,8 +582,6 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-area-h { display: none; }
 .k-lab-area { flex: 0 0 auto; border-radius: var(--r-pill); background: var(--s1); white-space: nowrap; }
 .k-lab-lockwrap { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
-.k-lab-trace-flex { flex-direction: column; }
-.k-lab-code-panel { flex-basis: auto; inline-size: 100%; }
 .k-lab-rec-wrap { grid-template-columns: minmax(0, 1fr); }
 /* the readout moves under the stage, in two columns */
 .k-lab-body { grid-template-columns: minmax(0, 1fr); gap: var(--sp-14); }
@@ -599,11 +611,14 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-bit, .k-lab-bw { inline-size: var(--lab-bit-sm); }
 .k-lab-bit { block-size: var(--lab-bit-sm); font-size: var(--fs-15); }
 .k-lab-readout, .k-lab[data-state~="embedded"] .k-lab-readout { grid-template-columns: minmax(0, 1fr); }
+/* a phone's stage is too small to share with chrome: the zoom control
+   shows only while the drawing pans, and the fit note steps aside */
+.k-lab-stage:not([data-state~="pannable"]) > .k-lab-zoom, .k-lab-stage .k-lab-stage-note, .k-lab-bar-sep { display: none; }
 .k-lab-bar-gap { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-.k-lab-bit, .k-lab-fsm-cell, .k-lab-switch, .k-lab-code-line, .k-lab-rec-frame { transition: none; }
+.k-lab-bit, .k-lab-fsm-cell, .k-lab-switch, .k-lab-rec-frame, .k-lab-toggle-t, .k-lab-toggle-t::after { transition: none; }
 }
 
 /* touch: the 44px minimum (base.css) raised the HEIGHT of every button,

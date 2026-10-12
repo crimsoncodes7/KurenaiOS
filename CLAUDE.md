@@ -120,7 +120,8 @@ non-navigation redraw path.
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
-| Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`); stage overflow rule `js/labs/trace.js` `begin()` |
+| Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
+| The lab itself: control bar, SVG stage and overflow rule, transport, readout, plot frame | `js/labs/lab.js` (`KOS.lab.create`); archetypes in `sims-structures.js`, `sims-algorithms.js`, `sims-maths.js`, `sims-plots.js`, `sims-bits.js`, `sims-machines.js`; the Trace Lab `trace.js` |
 | Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | written by each view itself; `KOS.ui.state/hasState/hook` in `js/core/ui.js` (the M1 legacy-class bridge `ui-hooks.js` was retired at M14) |
 | Spec-spine presence (`#cols[data-tree]`) | `KOS.shell.tree()` in `js/core/ui.js` |
 | Presentation layer (UI rebuild; one `@layer` per file, order declared in `tokens.css`) | `css/tokens.css`, `base.css`, `layout.css`, `components.css`, `css/views/*.css`, `themes.css`; `tools/lib/css.js` `pending()` gates each layer's design contracts |
@@ -784,8 +785,29 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   logs ONE session per item however many parts it has. IT content is untouched
   by the banks.
 - Additional generators register through `KOS.worked.register(gen, refs)` from
-  `js/labs/worked-extra.js`; additional sims live in `js/labs/sims-maths.js` and
-  `js/labs/sims-cs.js` and use the shared `KOS.sims.canvas` / `KOS.sims.COL`.
+  `js/labs/worked-extra.js`.
+- Every simulation is built on the lab system (design part 2, frame 20),
+  `KOS.lab.create(panel, opts)` in `js/labs/lab.js`: a control bar, a stage
+  drawn as ONE SVG (800 × 450 viewBox unless the lab asks for another, as the
+  Trace Lab's portrait column does), and a readout (Now → Values → Legend,
+  plus sections a sim adds). A sim draws through the stage's drawer and
+  returns its extent; the overflow rule places it (100% if it fits, scale to
+  a 70% floor, then pan with a minimap; − + Fit; the note says which). Colour
+  is a `data-tone` the stylesheet maps to tokens — ink is the subject hue,
+  the current step crimson (`hot`), frontier amber (`front`), visited or done
+  teal (`done`) — so a sim never names a colour. An operation is run ONCE
+  into a list of frames (the model commits when they load) and the
+  transport replays them (`lab.steps`). Plots use `lab.plot()` (round-step
+  grid, clipped curves, a square mode), drags `lab.drag()`, and a drawn
+  control `d.hit()` on a stage created `{interactive: true}` (keyboard
+  focus survives a redraw by `data-key`). Archetypes: diagram and algorithm
+  labs (`sims-structures.js`, `sims-algorithms.js` with the 20b graph),
+  plots (`sims-maths.js`, `sims-plots.js`), bits (`sims-bits.js`), machines
+  (`sims-machines.js`), and the Trace Lab (`trace.js`: code · structure ·
+  trace). Only the text sandboxes (BNF, compression, cipher in
+  `sims-cs.js`; SQL, regex, LMC; the NEA tools) are not archetypes; the
+  cipher lab's frequency chart is the last user of `KOS.sims.canvas` /
+  `KOS.sims.COL`.
 - The OOP sandbox's model is pure `KOS.oop` (`js/labs/oop.js`): `normalise`
   is its gate (it drops dangling/self/duplicate links but never "fixes" a
   modelling error), a class's `id` is its identity and its file name is
@@ -800,12 +822,13 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   the first edit (smoke56).
 - The lab index groups sims by area (`KOS.sims.areaOf`) with a subject
   switch; both picks are per device (`state.ui.simSubj`, `state.ui.simArea`).
-  A topic's Simulate tab mounts the same lab through `KOS.sims.embed()`. A
-  stage whose content outgrows it scales down to a 70% floor, then pans with
-  a zoom chip (`KOS.trace` `begin(cw, ch, count)`); never let a sim spill.
-- Lab canvases take every colour from `KOS.labPalette()` (theme tokens, oklch
-  included, resolved once per `data-theme` through a 1px canvas), never from a
-  fixed hex palette — a fixed ink disappears on the other theme.
+  A topic's Simulate tab mounts the same lab through `KOS.sims.embed()`,
+  which marks the card embedded so the readout moves under the stage. Never
+  let a sim spill: the stage's overflow rule is the only way a drawing grows.
+- A canvas that remains (the cipher lab's frequency chart) takes
+  every colour from `KOS.labPalette()` (theme tokens, oklch included,
+  resolved once per `data-theme` through a 1px canvas), never from a fixed
+  hex palette — a fixed ink disappears on the other theme.
 
 ### Navigation hierarchy
 

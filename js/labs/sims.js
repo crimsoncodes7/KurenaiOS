@@ -1,7 +1,9 @@
 /* Kurenai OS — labs/sims.js
-   Simulation registry + four interactive sims:
-   logic-lab (Boolean), sort-viz (bubble/merge), fsm-lab, fn-transform.
-   Trace-lab structures register here too so notes can deep-link them. */
+   The simulation registry, the Simulations index (20h), the shared lab
+   header, the locked lab (20i) and the Simulate-tab embed. The sims
+   themselves are built on the lab system (lab.js) in the archetype files;
+   the Trace Lab's Stack and Queue register here so their topic pages can
+   mount them. */
 (function () {
   "use strict";
   var el = KOS.ui.el;

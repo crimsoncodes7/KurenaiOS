@@ -56,8 +56,7 @@ OOP IDE (19a–19f), the lab system (20a, 20f overflow rule, 20g–20i), Dawn an
 the 23 shop themes, and the cosmetics. Not merged or deployed. Left over:
 
 - the per-simulation rebuilds on the archetypes (20b–20e) and Trace Lab's
-  three-column layout (20f) — the shared stage, header, locked state and
-  overflow rule are in place, so these are batches of sim code;
+  three-column layout (20f) — done on `feat/lab-archetypes` (see 3.3);
 - the locked lab offers the Governor's gold unlock only (the design's "or
   finish two Focus sessions" route would be a new economy rule, invariant 2);
 - the OOP IDE on a phone is a basic stacked layout (tree, editor, C# tab).
@@ -341,6 +340,16 @@ Claude Design and comes back as a handoff, the way Graphite did.
   embedded lab in a topic's Simulate tab, the stage overflow rule (fit to a
   70% floor, then pan with a zoom chip) and the worked-example steps. The
   per-sim archetype rebuilds are still to do.
+- **Status (12 October 2026, branch `feat/lab-archetypes`, not merged or
+  deployed):** every simulation is rebuilt on `js/labs/lab.js` — one SVG
+  stage, the overflow rule, the transport and the readout — by archetype:
+  20a diagrams and algorithms (list, BST, hash table, dictionary, sorting,
+  searches, RPN, recursion), 20b graph (Dijkstra · BFS · DFS on one
+  editable graph), 20c plots (all 15 maths sims and seven more), 20d bits
+  (register, floating point, codes, bitmap, error checks, subnet, bases,
+  both logic labs), 20e machines (Turing, FSM, fetch–execute) and the 20f
+  Trace Lab (code · structure · trace). Left as text sandboxes, outside the
+  archetypes: BNF, compression, cipher, SQL, regex, LMC and the NEA tools.
 
 ---
 

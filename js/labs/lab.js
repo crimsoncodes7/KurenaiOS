@@ -33,6 +33,8 @@
        hint: "Tap a bit…",        a fixed note in the stage's top right
        label: "…",                the stage's accessible name
        readout: ["now", "values", "legend"]   section order
+       before: [node], kind: "trace"           a column ahead of the stage
+       vb: [480, 600]                          a viewBox other than 800 × 450
      });
      lab.draw(function (d) { …; return { w, h, count, noun }; });
      lab.steps(frames, render, { autoplay })   load a run of frames
@@ -42,7 +44,7 @@
   "use strict";
   var el = KOS.ui.el;
   var NS = "http://www.w3.org/2000/svg";
-  var VW = 800, VH = 450, FLOOR = 0.7;
+  var DVW = 800, DVH = 450, FLOOR = 0.7;
   var TIPS = ["", "hot", "done", "front", "ink"];
   var seq = 0;
 
@@ -81,6 +83,9 @@
   function create(panel, o) {
     o = o || {};
     var id = "kl" + (++seq);
+    /* the viewBox: 800 × 450 (16:9) unless a lab asks for another shape —
+       the Trace Lab's structure column is portrait */
+    var VW = o.vb ? o.vb[0] : DVW, VH = o.vb ? o.vb[1] : DVH;
     var lab = { id: id };
 
     /* ---------- the control bar ---------- */
@@ -197,7 +202,8 @@
     };
     lab.em = function (t, tone) { return el("b", { class: "k-lab-em", "data-tone": tone || null, text: String(t) }); };
 
-    panel.appendChild(el("div", { class: "k-lab-body", "data-ui": "lab.body" }, [stage, read]));
+    /* `before`: columns ahead of the stage (the Trace Lab's code pane) */
+    panel.appendChild(el("div", { class: "k-lab-body", "data-ui": "lab.body", "data-kind": o.kind || null }, (o.before || []).concat([stage, read])));
     lab.stage = stage;
     lab.readout = read;
 
@@ -536,5 +542,5 @@
       set: function (x) { inp.value = x; out.textContent = show(parseFloat(inp.value)); } };
   }
 
-  KOS.lab = { create: create, svg: svg, field: field, choice: choice, action: action, toggle: toggle, sep: sep, slider: slider, nice: nice, VW: VW, VH: VH, FLOOR: FLOOR };
+  KOS.lab = { create: create, svg: svg, field: field, choice: choice, action: action, toggle: toggle, sep: sep, slider: slider, nice: nice, VW: DVW, VH: DVH, FLOOR: FLOOR };
 })();
