@@ -485,12 +485,13 @@
             render();
           } }),
         copy,
-        el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "oop.clear", text: "Clear sandbox", onclick: function () {
+        /* a phone shows "Clear"; the name stays the whole phrase */
+        el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "oop.clear", "aria-label": "Clear sandbox", onclick: function () {
           function clearAll() { model().classes = []; model().links = []; edited(true); }
           if (!model().classes.length) { clearAll(); return; }
           KOS.ui.confirm({ title: "Clear the sandbox?", body: "Every class and inheritance arrow is removed.",
             confirm: "Clear sandbox", danger: true }, clearAll);
-        } })
+        } }, ["Clear", el("span", { class: "k-ide-long", text: "sandbox" })])
       ].filter(Boolean));
     }
     function addClass() {

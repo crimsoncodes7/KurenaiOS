@@ -427,6 +427,8 @@ h2.k-lab-title { font-size: var(--fs-17); }
 /* ---------- the Trace Lab (20f): code · structure · trace ---------- */
 .k-lab-body[data-kind="trace"] { grid-template-columns: minmax(0, var(--lab-code-w)) minmax(0, 1fr) var(--lab-read-w); }
 .k-lab-body[data-kind="trace"] > .k-lab-stage { aspect-ratio: 4 / 5; }
+/* the phone crop (lab.js crop()): the stage takes the drawing's shape */
+.k-lab-stage[data-state~="cropped"] { aspect-ratio: var(--lab-ar, 16 / 9); }
 .k-lab-codepane { display: flex; flex-direction: column; min-inline-size: 0; border-radius: var(--r-16); background: var(--code-bg); overflow: hidden; }
 .k-lab-code-h { display: flex; align-items: baseline; gap: var(--sp-8); padding: var(--sp-12) var(--sp-14) var(--sp-8); }
 .k-lab-code-tag { margin-inline-start: auto; font-size: var(--fs-11-5); color: var(--muted); }
@@ -590,6 +592,9 @@ h2.k-lab-title { font-size: var(--fs-17); }
 }
 
 @media (max-width: 700px) {
+/* the Trace Lab stacks too: code, the structure, then the trace (its
+   two-column tier above left the structure a zero-width column) */
+.k-lab-body[data-kind="trace"], .k-lab[data-state~="embedded"] .k-lab-body[data-kind="trace"] { grid-template-columns: minmax(0, 1fr); }
 /* the IDE stacks: the file list above the editor, both at their own height */
 .k-ide-body, .k-ide-body[data-side] { grid-template-columns: minmax(0, 1fr); block-size: auto; }
 .k-ide-tree { border-inline-end: 0; border-block-end: var(--hairline) solid var(--line); }
@@ -600,6 +605,18 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-ide-canvas { block-size: min(var(--ide-h), 60dvh); }
 .k-ide-mini, .k-ide-hint { display: none; }
 .k-ide-key { inset-inline-start: var(--sp-12); font-size: var(--fs-11); }
+/* the toolbar is two even rows: the view switch and Add class, then the
+   C# commands, every button its full width (it wrapped raggedly in three) */
+.k-ide-bar { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.k-ide-bar > .k-spacer { display: none; }
+.k-ide-modes { grid-column: span 4; display: flex; min-inline-size: 0; }
+.k-ide-modes > .k-seg-item { flex: 1 1 0; justify-content: center; }
+.k-ide-bar > .k-btn { grid-column: span 2; min-inline-size: 0; padding-inline: var(--sp-8); white-space: nowrap; }
+/* a long model scrolls inside the file list, so the editor stays near */
+.k-ide-files { max-block-size: calc(var(--hit-coarse) * 4.5); }
+/* the C# header keeps its two buttons; the line count gives way */
+.k-ide-cs-h > b { white-space: nowrap; }
+.k-ide-cs-meta { flex: 0 1 auto; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
 }
 
 @media (max-width: 560px) {
@@ -614,7 +631,13 @@ h2.k-lab-title { font-size: var(--fs-17); }
 /* a phone's stage is too small to share with chrome: the zoom control
    shows only while the drawing pans, and the fit note steps aside */
 .k-lab-stage:not([data-state~="pannable"]) > .k-lab-zoom, .k-lab-stage .k-lab-stage-note, .k-lab-bar-sep { display: none; }
+/* the hint keeps its place only where the crop left it headroom */
+.k-lab-stage:not([data-state~="cropped"]) > .k-lab-stage-hint { display: none; }
 .k-lab-bar-gap { display: none; }
+/* the IDE: a narrower line gutter, and "Clear" keeps its full name for
+   assistive tech only */
+.k-ide { --ide-ln-w: var(--sp-32); }
+.k-ide-long { position: absolute; inline-size: var(--hairline); block-size: var(--hairline); margin: calc(var(--hairline) * -1); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -272,6 +272,12 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-n-kv dd { margin: 0; }
 .k-n-kv dt:first-of-type, .k-n-kv dt:first-of-type + dd { border-block-start: 0; }
 .k-n-tablewrap { position: relative; border-radius: var(--r-16); overflow: auto; background: var(--s1); }
+/* the wide table's scroller (content.js scrollTables): fades in the
+   table's own surface; the arrows sit mid-height, clear of Copy */
+.k-n-tablescroll { align-items: stretch; border-radius: var(--r-16); }
+.k-n-tablescroll::before { background: linear-gradient(90deg, var(--s1) 20%, transparent); border-start-start-radius: var(--r-16); border-end-start-radius: var(--r-16); }
+.k-n-tablescroll::after { background: linear-gradient(270deg, var(--s1) 20%, transparent); border-start-end-radius: var(--r-16); border-end-end-radius: var(--r-16); }
+.k-n-tablescroll > .k-scroller-arrow { margin-inline: var(--sp-4); }
 .k-n-table { inline-size: 100%; font-size: var(--fs-13-5); line-height: 1.5; }
 .k-n-table th { padding: var(--sp-9) var(--sp-14); background: var(--s2); font-size: var(--fs-12); color: var(--muted); font-weight: var(--weight-semibold); }
 .k-n-table td { padding: var(--sp-9) var(--sp-14); border-block-start: var(--hairline) solid var(--line); vertical-align: top; }
@@ -1095,6 +1101,9 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-subj-row > .k-sa { display: none; }
 .k-sa-row { display: flex; }
 .k-res-del { opacity: 1; }
+/* a notes table keeps its columns: tighter cells first, then the shared
+   scroller takes what still does not fit */
+.k-n-table th, .k-n-table td { padding: var(--sp-8) var(--sp-10); }
 }
 
 /* touch: the 44px minimum (base.css) raised the HEIGHT of every button,

@@ -194,23 +194,26 @@
       function draw(say) {
         var m = mant(M), e = sval(E), v = m * Math.pow(2, e);
         lab.draw(function (d) {
-          var w = mb + eb > 14 ? 44 : 52, x0 = 40;
+          /* a phone stacks the exponent under the mantissa, so the cells
+             are drawn at half the frame's width rather than all of it */
+          var narrow = lab.narrow(), w = mb + eb > 14 && !narrow ? 44 : 52, x0 = 40;
           var rm = bitRow(d, x0, 124, M, { w: w, place: showPlace ? M.map(function (_, i) { return frac(i); }) : null, key: "m", flip: function (i) { M[i] ^= 1; draw(); }, name: function (i) { return "mantissa bit, worth " + frac(i); } });
-          var re = bitRow(d, rm.right + 34, 124, E, { w: w, place: showPlace ? E.map(function (_, i) { return i === 0 ? "−" + Math.pow(2, eb - 1) : String(Math.pow(2, eb - 1 - i)); }) : null, key: "e",
+          var re = bitRow(d, narrow ? x0 : rm.right + 34, narrow ? 290 : 124, E, { w: w, place: showPlace ? E.map(function (_, i) { return i === 0 ? "−" + Math.pow(2, eb - 1) : String(Math.pow(2, eb - 1 - i)); }) : null, key: "e",
             flip: function (i) { E[i] ^= 1; draw(); }, name: function (i) { return "exponent bit, worth " + (i === 0 ? "−" + Math.pow(2, eb - 1) : Math.pow(2, eb - 1 - i)); } });
           var px = rm.xs[1] - 4;
           d.circle(px, rm.y + rm.h + 8, 5, { tone: "hot" });
           d.text(px - 8, rm.y + rm.h + 30, "binary point", { size: 14, tone: "hot", anchor: "start" });
           under(d, rm, 0, mb - 1, "Mantissa · " + mb + " bits, two's complement", "ink", 48);
-          under(d, re, 0, eb - 1, "Exponent · " + eb + " bits", "front", 48);
+          under(d, re, 0, eb - 1, "Exponent · " + eb + " bits", "front", narrow ? 14 : 48);
           /* the shift the exponent asks for */
           var digits = M.join(""), pt = 1 + e, shown;
           if (pt <= 0) shown = "0." + new Array(-pt + 1).join(M[0] ? "1" : "0") + digits;
           else if (pt >= digits.length) shown = digits + new Array(pt - digits.length + 1).join("0");
           else shown = digits.slice(0, pt) + "." + digits.slice(pt);
-          d.text(400, 300, M[0] + "." + M.slice(1).join("") + " × 2" + sup(e) + "  →  " + shown + " = " + Number(v.toPrecision(10)), { size: 20, weight: "bold" });
-          d.text(400, 334, e === 0 ? "the point stays where it is" : "move the point " + Math.abs(e) + " place" + (Math.abs(e) > 1 ? "s" : "") + (e > 0 ? " right" : " left"), { size: 14, tone: "mute" });
-          return { w: Math.max(800, re.right + 40), h: 450 };
+          var fx = narrow ? (x0 + rm.right) / 2 : 400, fy = narrow ? re.y + re.h + 84 : 300;
+          d.text(fx, fy, M[0] + "." + M.slice(1).join("") + " × 2" + sup(e) + "  →  " + shown + " = " + Number(v.toPrecision(10)), { size: 20, weight: "bold" });
+          d.text(fx, fy + 34, e === 0 ? "the point stays where it is" : "move the point " + Math.abs(e) + " place" + (Math.abs(e) > 1 ? "s" : "") + (e > 0 ? " right" : " left"), { size: 14, tone: "mute" });
+          return { w: Math.max(800, re.right + 40), h: narrow ? Math.max(450, fy + 60) : 450 };
         });
         lab.answer("Decoded", String(Number(v.toPrecision(10))), say || null);
         lab.section("work", "Working", [el("dl", { class: "k-lab-kv" }, [
@@ -413,14 +416,37 @@
         var hostBits = 32 - prefix, hosts = hostBits >= 2 ? Math.pow(2, hostBits) - 2 : hostBits === 1 ? 2 : 1;
         var first = net.slice(), last = bc.slice(); if (hostBits >= 2) { first[3] += 1; last[3] -= 1; }
         var rows = [["address", ip], ["mask /" + prefix, mask], ["AND → network", net]].concat(ip2 ? [["host 2 AND mask", net2]] : []);
+        function tone(k, j, b) { return k === 1 ? (b ? "on" : null) : j < prefix ? (b ? "on" : "soft") : b ? "faint" : "ghost"; }
+        function labelTone(k) { return k === 2 ? "ink" : k === 3 ? (same ? "done" : "hot") : null; }
         lab.draw(function (d) {
+          /* a phone: each address is two lines of 16 bits under its name,
+             so a cell is half the frame's width instead of a 32nd of it */
+          if (lab.narrow()) {
+            var NX = 40, nw = 26, ng = 3, span = 16 * (nw + ng) - ng + 10;
+            d.text(NX, 22, "/" + prefix + " · network | host", { size: 14, weight: "bold", tone: "hot", anchor: "start" });
+            rows.forEach(function (r, k) {
+              var y = 56 + k * 124, b = bits(r[1]);
+              d.text(NX, y, r[0], { size: 14, weight: "bold", anchor: "start", tone: labelTone(k) });
+              d.text(NX + span, y, r[1].join("."), { size: 14, tone: "mute", anchor: "end" });
+              [0, 16].forEach(function (s0, half) {
+                var line = bitRow(d, NX, y + 14 + half * 40, b.slice(s0, s0 + 16), { w: nw, h: 30, gap: ng, split: [8], splitGap: 10, size: 14,
+                  tone: function (i, v) { return tone(k, s0 + i, v); } });
+                var at = prefix - s0;
+                if (half ? at > 0 && at <= 16 : at >= 0 && at <= 16) {
+                  var px = at === 16 ? line.right + 4 : line.xs[at] - (at % 8 ? ng / 2 : 5);
+                  d.line(px, line.y - 4, px, line.y + line.h + 4, { tone: "hot", dash: true });
+                }
+              });
+            });
+            return { w: 800, h: Math.max(450, 56 + rows.length * 124) };
+          }
           var X0 = 160, w = 17, gap = 2;
           rows.forEach(function (r, k) {
             var y = 60 + k * 86;
-            d.text(X0 - 14, y + 18, r[0], { size: 14, weight: "bold", anchor: "end", tone: k === 2 ? "ink" : k === 3 ? (same ? "done" : "hot") : null });
+            d.text(X0 - 14, y + 18, r[0], { size: 14, weight: "bold", anchor: "end", tone: labelTone(k) });
             d.text(X0 - 14, y + 38, r[1].join("."), { size: 14, tone: "mute", anchor: "end" });
             var row = bitRow(d, X0, y, bits(r[1]), { w: w, h: 30, gap: gap, split: [8, 16, 24], splitGap: 10, size: 14,
-              tone: function (i, b) { return k === 1 ? (b ? "on" : null) : i < prefix ? (b ? "on" : "soft") : b ? "faint" : "ghost"; } });
+              tone: function (i, b) { return tone(k, i, b); } });
             if (k === 0) {
               var px = prefix < 32 ? row.xs[Math.min(prefix, 31)] - (prefix % 8 ? gap / 2 : 5) : row.right + 4;
               d.line(px, 40, px, 60 + rows.length * 86 - 40, { tone: "hot", dash: true });

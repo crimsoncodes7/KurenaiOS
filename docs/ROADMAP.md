@@ -57,9 +57,13 @@ the 23 shop themes, and the cosmetics. Not merged or deployed. Left over:
 
 - the per-simulation rebuilds on the archetypes (20b–20e) and Trace Lab's
   three-column layout (20f) — done on `feat/lab-archetypes` (see 3.3);
-- the locked lab offers the Governor's gold unlock only (the design's "or
-  finish two Focus sessions" route would be a new economy rule, invariant 2);
-- the OOP IDE on a phone is a basic stacked layout (tree, editor, C# tab).
+- the OOP IDE on a phone — done (12 October): the toolbar is two even rows
+  (view switch and Add class; C# tab, Copy C#, Clear), a long class list
+  scrolls inside its own box, and the C# tab's header keeps its buttons
+  inside the card at 360px.
+
+The design's second unlock route for a locked lab ("or finish two Focus
+sessions", 20i) is dropped: the gold unlock stays the only one (invariant 2).
 
 ### 1.1 One topic picker, used everywhere ◇
 
@@ -245,6 +249,13 @@ new themes and the phone layout build on a clean base.
   bare sideways scrollers, which the responsive audit counts as findings. A
   wide code block in notes scrolls sideways too, which is normal for code.
   Whether these wrap or become `KOS.ui.scroller`s is a design call.
+  - **Done (12 October): scrollers.** The three strips are the edge-marked
+    tab scroller (`KOS.ui.tabs({edge})`, design 15n) and the Governor's
+    two-tab switch fits. The last finding, a notes table wider than a
+    phone, now sits in the shared scroller (`content.js` `scrollTables`,
+    run by `typeset`), with tighter cells below 700px; a table that fits
+    shows no arrows and is no tab stop. The audit at 390 and 360, Graphite
+    and Dawn, reports 0 findings (52 before).
 
 - **The legacy token bridge:**
   - `css/tokens.css` still aliases `--bg0`, `--panel`, `--text2`, `--kurenai`,
@@ -350,6 +361,15 @@ Claude Design and comes back as a handoff, the way Graphite did.
   both logic labs), 20e machines (Turing, FSM, fetch–execute) and the 20f
   Trace Lab (code · structure · trace). Left as text sandboxes, outside the
   archetypes: BNF, compression, cipher, SQL, regex, LMC and the NEA tools.
+- **Phones (12 October):** below 480px of stage the viewBox closes in on
+  what a sim drew (the crop only grows, so stepping never jumps the
+  stage): registers, codes, square plots, recursion and the logic gates
+  draw 1.4–2.8× larger. `lab.narrow()` lets a sim lay itself out for a
+  phone: floating point stacks its exponent under the mantissa, and
+  subnetting draws each address as two rows of 16 bits. The Trace Lab's
+  structure column, which had collapsed to zero width below 700px, now
+  stacks under the code. Labs that use the whole frame (graphs, wide
+  plots, the Turing tape) are unchanged.
 
 ---
 

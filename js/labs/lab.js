@@ -45,6 +45,9 @@
   var el = KOS.ui.el;
   var NS = "http://www.w3.org/2000/svg";
   var DVW = 800, DVH = 450, FLOOR = 0.7;
+  /* the phone crop: below NARROW the frame closes in on the drawing when
+     that enlarges it by at least CROP_GAIN; margins in screen pixels */
+  var NARROW = 0.6, CROP_GAIN = 1.15, CROP_PAD = 10, CROP_HINT = 30, CROP_TALL = 1.25;
   var TIPS = ["", "hot", "done", "front", "ink"];
   var seq = 0;
 
@@ -249,6 +252,7 @@
       /* a redraw keeps keyboard focus on the same control (by data-key) */
       var ae = document.activeElement, fk = ae && inner.contains(ae) ? ae.getAttribute("data-key") : null;
       inner.innerHTML = "";
+      v.drawnNarrow = lab.narrow ? lab.narrow() : false;
       var ext = (drawFn && drawFn(d)) || {};
       if (fk) { var back = inner.querySelector('[data-key="' + fk + '"]'); if (back && back.focus) back.focus(); }
       v.ext = { w: Math.max(1, ext.w || VW), h: Math.max(1, ext.h || VH) };
@@ -417,6 +421,7 @@
       v.s = sc; v.canPan = maxX > 0.5 || maxY > 0.5;
       world.setAttribute("transform", "translate(" + num(ox) + " " + num(oy) + ") scale(" + num(sc) + ")");
       KOS.ui.state(stage, "pannable", v.canPan);
+      crop(ox, oy, sc);
       root.setAttribute("tabindex", v.canPan ? "0" : "-1");
       if (pct) pct.textContent = Math.round(sc * 100) + "%";
       if (note) {
@@ -432,6 +437,47 @@
           miniView.setAttribute("width", num(Math.min(w, VW / sc))); miniView.setAttribute("height", num(Math.min(h, VH / sc)));
         }
       }
+    }
+    /* A phone (a stage drawing the 800-wide frame below NARROW of its
+       size): the viewBox closes in on what was actually drawn, so a row of
+       bits fills the width instead of a third of it. The frame only ever
+       grows within a stage width — stepping never makes the stage jump —
+       and it is off while the drawing pans, at a manual zoom, or for a lab
+       with a shape of its own (the Trace Lab). */
+    function crop(ox, oy, sc) {
+      var cw = stage.clientWidth, c = null;
+      if (cw !== v.cropFor) { v.crop = null; v.cropFor = cw; }
+      if (cw && !o.vb && cw / VW < NARROW && !v.canPan && v.mode === "auto" && inner.getBBox) {
+        var bb = null;
+        try { bb = inner.getBBox(); } catch (e) { bb = null; }
+        if (bb && bb.width > 0 && bb.height > 0) {
+          var x0 = ox + bb.x * sc, y0 = oy + bb.y * sc, x1 = x0 + bb.width * sc, y1 = y0 + bb.height * sc;
+          if (v.crop) { x0 = Math.min(x0, v.crop[0]); y0 = Math.min(y0, v.crop[1]); x1 = Math.max(x1, v.crop[2]); y1 = Math.max(y1, v.crop[3]); }
+          v.crop = [x0, y0, x1, y1];
+          /* a margin in screen pixels, with headroom for the hint */
+          var u = (x1 - x0) / Math.max(1, cw - 2 * CROP_PAD);
+          var top = (o.hint ? CROP_HINT : CROP_PAD) * u, side = CROP_PAD * u;
+          var w = x1 - x0 + 2 * side, h = y1 - y0 + top + side;
+          if (h > w * CROP_TALL) { x0 -= (h / CROP_TALL - w) / 2; w = h / CROP_TALL; }   /* at most a little portrait */
+          if (w < VW / CROP_GAIN) c = [x0 - side, y0 - top, w, h];
+        }
+      }
+      root.setAttribute("viewBox", c ? c.map(num).join(" ") : "0 0 " + VW + " " + VH);
+      if (c) stage.style.setProperty("--lab-ar", num(c[2]) + " / " + num(c[3]));
+      else stage.style.removeProperty("--lab-ar");
+      KOS.ui.state(stage, "cropped", !!c);
+    }
+    /* is the stage a phone's? A sim may lay itself out for it (floating
+       point stacks its exponent under the mantissa); crossing the line
+       redraws, any other width change only re-places */
+    lab.narrow = function () { var cw = stage.clientWidth; return !!cw && cw / VW < NARROW; };
+    if (typeof window.ResizeObserver === "function") {
+      try {
+        new window.ResizeObserver(function () {
+          if (stage.clientWidth === v.cropFor) return;
+          if (drawFn && lab.narrow() !== v.drawnNarrow) lab.draw(); else place();
+        }).observe(stage);
+      } catch (e) { /* jsdom */ }
     }
     /* drag (or arrow keys) to pan, in viewBox units */
     root.addEventListener("pointerdown", function (e) {

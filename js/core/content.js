@@ -369,6 +369,7 @@
      first boot render (main.js runs before deferred scripts finish) it may not be
      ready yet — in that case retry once the window finishes loading. */
   function typeset(container) {
+    scrollTables(container);
     if (window.renderMathInElement) {
       window.renderMathInElement(container, {
         delimiters: [
@@ -385,6 +386,20 @@
         if (window.renderMathInElement) typeset(container);
       }, { once: true });
     }
+  }
+
+  /* A notes table wider than a phone scrolls inside the shared scroller
+     (edge fades and ‹ › arrows, invariant 50) rather than as a bare
+     overflow box; one that fits shows neither and is no tab stop. */
+  function scrollTables(container) {
+    if (!container || !container.querySelectorAll || !(window.KOS.ui && KOS.ui.scroller)) return;
+    [].forEach.call(container.querySelectorAll("[data-ui~='content.table-wrap']"), function (wrap) {
+      if (wrap.parentNode && wrap.parentNode.hasAttribute && wrap.parentNode.hasAttribute("data-scroller")) return;
+      var host = wrap.parentNode, at = wrap.nextSibling;
+      var sc = KOS.ui.scroller(wrap, { label: "Table", className: "k-n-tablescroll", tabWhenScrolls: true,
+        prevLabel: "Scroll the table left", nextLabel: "Scroll the table right" });
+      host.insertBefore(sc, at);
+    });
   }
 
   /* {diagram} buttons are emitted as HTML strings, so handle clicks by

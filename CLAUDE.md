@@ -411,7 +411,9 @@ source comments and audit notes refer to it.
 50. Repeated UI uses `KOS.ui.tabs`, `emptyState`, `statTile`, `scroller`,
     `pageHeader`, `sectionHeader` and `num`. Horizontal overflow must be declared.
     The compact section `<nav>` is the sole scroller exception: preserve its nav
-    landmark inside one external scroller shell.
+    landmark inside one external scroller shell. A rendered notes table is
+    wrapped by `KOS.content.typeset` (`scrollTables`), a tab stop only while
+    it overflows (`scroller({tabWhenScrolls})`).
 50a. A page description is the page header's sub-line
     (`data-ui="ui.page-sub"` > `part.board`, 14px on `--muted`), and
     `KOS.ui.pageHeader({sub})` emits exactly that. It is one line, not a
@@ -800,7 +802,11 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   transport replays them (`lab.steps`). Plots use `lab.plot()` (round-step
   grid, clipped curves, a square mode), drags `lab.drag()`, and a drawn
   control `d.hit()` on a stage created `{interactive: true}` (keyboard
-  focus survives a redraw by `data-key`). Archetypes: diagram and algorithm
+  focus survives a redraw by `data-key`). On a phone (a stage under 60% of
+  the frame's width) the viewBox crops to what was drawn — a crop that
+  only grows, off while panning, at a manual zoom or with a lab's own
+  `vb` — and `lab.narrow()` lets a sim choose a phone layout (floating
+  point, subnetting); crossing that width redraws. Archetypes: diagram and algorithm
   labs (`sims-structures.js`, `sims-algorithms.js` with the 20b graph),
   plots (`sims-maths.js`, `sims-plots.js`), bits (`sims-bits.js`), machines
   (`sims-machines.js`), and the Trace Lab (`trace.js`: code · structure ·

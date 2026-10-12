@@ -652,6 +652,9 @@
       KOS.ui.state(wrap, "at-start", atStart || max <= 1);
       KOS.ui.state(wrap, "at-end", atEnd || max <= 1);
       KOS.ui.state(wrap, "no-scroll", max <= 1);
+      /* a block that only sometimes overflows (a notes table) is a tab
+         stop only while there is something to scroll */
+      if (opts.tabWhenScrolls && !opts.keepRole) node.setAttribute("tabindex", max > 1 ? "0" : "-1");
     }
     node.addEventListener("scroll", sync, { passive: true });
     if (typeof window.ResizeObserver === "function") { try { new window.ResizeObserver(sync).observe(node); } catch (e) { /* jsdom */ } }
