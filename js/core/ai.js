@@ -33,10 +33,12 @@
   var store = KOS.store;
 
   var CATEGORIES = ["tutor", "crud", "generation", "complex"];
-  /* Gemini 3.8 Flash: the current stable Flash (2 September 2026), priced
-     like 3.6. Generation left DeepSeek (12 October 2026): the deployment
-     holds no DeepSeek key, so a DeepSeek default could never answer. */
-  var GEMINI_MODEL = "gemini-3.8-flash", DEEPSEEK_MODEL = "deepseek-v4-flash";
+  /* Gemini 3.6 Flash: what Google routes the retired 3.5 Flash to. 3.8
+     Flash (newer, same price) answered "busy" on its first day here, so it
+     stays a choice in Settings rather than the default. Generation left
+     DeepSeek (12 October 2026): the deployment holds no DeepSeek key, so a
+     DeepSeek default could never answer. */
+  var GEMINI_MODEL = "gemini-3.6-flash", DEEPSEEK_MODEL = "deepseek-v4-flash";
   var DEFAULT_ROUTING = {
     tutor:      { provider: "gemini",   model: GEMINI_MODEL },
     crud:       { provider: "ollama",   model: "" },   // model = the user's pulled model
@@ -48,7 +50,9 @@
      the new default. Google retired gemini-3.5-flash on 10 October 2026
      (requests are redirected to 3.6 Flash). */
   var RETIRED_MODELS = { "gemini-3.5-flash": GEMINI_MODEL };
-  var OLD_DEFAULTS = { generation: [{ provider: "deepseek", model: DEEPSEEK_MODEL }] };
+  var BRIEF_DEFAULT = { provider: "gemini", model: "gemini-3.8-flash" };   /* the default for one day */
+  var OLD_DEFAULTS = { tutor: [BRIEF_DEFAULT], complex: [BRIEF_DEFAULT],
+    generation: [{ provider: "deepseek", model: DEEPSEEK_MODEL }, BRIEF_DEFAULT] };
   function migrateRoute(category, r) {
     if (!r) return r;
     if ((OLD_DEFAULTS[category] || []).some(function (o) { return o.provider === r.provider && o.model === r.model; }))
@@ -61,7 +65,8 @@
     return routing;
   }
   var DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434";
-  var REQUEST_TIMEOUT = 120000;   // whole-call ceiling, ms
+  var REQUEST_TIMEOUT = 120000;
+  var BUSY_RX = /HTTP 503|overloaded|UNAVAILABLE|high demand/i, BUSY_RETRY_MS = 2000;   // whole-call ceiling, ms
   var OLLAMA_HEALTH_TIMEOUT = 2500;
 
   /* capability flags per provider. Ollama's real tool/structured support
@@ -430,6 +435,12 @@
       var done = function (err, res) {
         if (err && err.kind === "network" && err.retryable && attempts < 2 && !request.noRetry) {
           setTimeout(attempt, 600);
+          return;
+        }
+        /* a provider that answered "overloaded" (HTTP 503 / UNAVAILABLE)
+           ran nothing, so one patient retry cannot double-run a tool */
+        if (err && err.kind === "provider" && BUSY_RX.test(err.message || "") && attempts < 2 && !request.noRetry) {
+          setTimeout(attempt, BUSY_RETRY_MS);
           return;
         }
         cb(err, res);

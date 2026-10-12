@@ -59,26 +59,6 @@
       mount: function (panel) { KOS.traceLabs.mount(t[2], panel); } });
   });
 
-  function dprCanvas(holder, h) {
-    var c = el("canvas", { class: "k-lab-canvas" });
-    holder.appendChild(c);
-    var dpr = window.devicePixelRatio || 1;
-    var W = (holder.clientWidth || 880) - 2;
-    c.width = W * dpr; c.height = h * dpr; c.style.setProperty("--h", h + "px");
-    var ctx = c.getContext("2d");
-    if (ctx && ctx.scale) ctx.scale(dpr, dpr);
-    return { c: c, ctx: ctx, W: W, H: h };
-  }
-  /* COL resolves against the live theme on every read (KOS.labPalette caches
-     per theme), so a canvas repainted after a theme switch picks up the new
-     ink instead of the old fixed dark palette. */
-  var COL = {};
-  ["ink","line","grid","text","mute","faint","crim","gold","jade","blue","vio","sage"].forEach(function (k) {
-    Object.defineProperty(COL, k, { get: function () { return KOS.labPalette()[k]; } });
-  });
-  function wash(hex, a) { return KOS.labPalette().alpha(hex, a); }
-  KOS.sims.canvas = dprCanvas;
-  KOS.sims.COL = COL;
 
   /* =================== the lab system (design part 2, frame 20) ===================
      Every lab shares one header (its area as the kicker, the title with its

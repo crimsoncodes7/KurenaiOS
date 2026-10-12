@@ -118,6 +118,7 @@ non-navigation redraw path.
 | Vault presentation/editors | `medview.js`, four vault modules, `KOS.mediaEditors` |
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
+| Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`); the Assistant's Scheduled tab |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -573,7 +574,8 @@ source comments and audit notes refer to it.
     (`items`, natural string ids `kind:record:occurrence`, capped at 200
     and 45 days) plus `read` and `airing` keyed maps. Kinds are calendar,
     reminder, assignment, airing, wishlist, pacing (the plan's carry-over
-    notice) and focus (the idle watch, invariant 4d) only: sync cycles, cloud
+    notice), focus (the idle watch, invariant 4d) and assistant (a
+    scheduled message's reply, invariant 71b) only: sync cycles, cloud
     state and repairs are housekeeping, never notifications. Nothing in it re-derives a due date:
     the calendar, reminder and assignment tickers keep their own alert
     rules and once-only `notified`/`alerted` maps (invariant 42) and hand
@@ -636,7 +638,20 @@ source comments and audit notes refer to it.
     One online request carries at most `LIMITS.cloudTools` tools, which IS
     `ai-chat`'s `MAX_TOOLS` (smoke27); past it the tools are ranked by
     category and view and cut, never sent whole. A retired model id
-    (`RETIRED_MODELS` in `ai.js`) moves to its successor on read.
+    (`RETIRED_MODELS` in `ai.js`) moves to its successor on read. A
+    provider that answers "overloaded" (HTTP 503) ran nothing and is retried
+    once, never after a tool ran.
+71b. A scheduled message (`state.assistant.schedules`, synced; cloudmerge
+    keys it on its random string `id`) is sent at its time while the app is
+    open, or on the first open later THAT day — a day never opened is
+    skipped (invariant 98: no push server). Its run is `readOnly` (only
+    `read` tools are offered, any other call is refused, so navigation
+    never moves the screen) and `isolated` (the live conversation's
+    in-memory history is neither read nor written). One run at a time,
+    never while the user's own request runs; the day is CLAIMED (synced)
+    after a pull and before the model is called. The reply is kept on the
+    schedule (`last`), in its own conversation when signed in, and pushed
+    as an `assistant` notification. "Run now" does not claim the day.
 
 ### Responsive integration and visual release quality (72–79)
 
@@ -814,10 +829,12 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   labs (`sims-structures.js`, `sims-algorithms.js` with the 20b graph),
   plots (`sims-maths.js`, `sims-plots.js`), bits (`sims-bits.js`), machines
   (`sims-machines.js`), and the Trace Lab (`trace.js`: code · structure ·
-  trace). Only the text sandboxes (BNF, compression, cipher in
-  `sims-cs.js`; SQL, regex, LMC; the NEA tools) are not archetypes; the
-  cipher lab's frequency chart is the last user of `KOS.sims.canvas` /
-  `KOS.sims.COL`.
+  trace). The TEXT kind (`create({work: [panes]})`, `KOS.lab.pane`,
+  `editor`, `out`, `scrollTable`) puts an editor and its output where the
+  stage would be, with the same bar, transport and readout: BNF,
+  compression and cipher (`sims-cs.js`), SQL, regex and LMC
+  (`sandboxes.js`), the NEA tools (`nea-tools.js`). No lab draws on a
+  canvas any more.
 - The OOP sandbox's model is pure `KOS.oop` (`js/labs/oop.js`): `normalise`
   is its gate (it drops dangling/self/duplicate links but never "fixes" a
   modelling error), a class's `id` is its identity and its file name is
@@ -835,10 +852,11 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   A topic's Simulate tab mounts the same lab through `KOS.sims.embed()`,
   which marks the card embedded so the readout moves under the stage. Never
   let a sim spill: the stage's overflow rule is the only way a drawing grows.
-- A canvas that remains (the cipher lab's frequency chart) takes
-  every colour from `KOS.labPalette()` (theme tokens, oklch included,
-  resolved once per `data-theme` through a 1px canvas), never from a fixed
-  hex palette — a fixed ink disappears on the other theme.
+- No lab draws on a canvas now. A canvas added later takes every colour
+  from `KOS.labPalette()` (`worked.js`: theme tokens, oklch included,
+  resolved once per `data-theme` through a 1px canvas; smoke50 keeps it),
+  never from a fixed hex palette — a fixed ink disappears on the other
+  theme.
 
 ### Navigation hierarchy
 

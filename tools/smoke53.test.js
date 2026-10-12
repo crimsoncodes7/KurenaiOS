@@ -198,8 +198,9 @@ step("the page lives under Archive: section filters, day groups, Mark all, devic
   /* Graphite step 8 (frame 14b): Unread joins the section filters */
   const tabs = [...main().querySelectorAll("[data-ui~='notify.tabs'] [data-ui~='ui.tab']")];
   const tab = (label) => tabs.find(t => t.querySelector("[data-ui~='part.text']").textContent === label);
-  /* frame 16k: the Focus kind has its own chip between Productivity and Collection */
-  assert(tabs.length === 6 && ["All", "Unread", "Study", "Productivity", "Focus", "Collection"].every(tab), "expected All / Unread / Study / Productivity / Focus / Collection");
+  /* frame 16k: the Focus kind has its own chip between Productivity and
+     Collection; a scheduled message's reply (12 October 2026) is Assistant */
+  assert(tabs.length === 7 && ["All", "Unread", "Study", "Productivity", "Focus", "Collection", "Assistant"].every(tab), "expected All / Unread / Study / Productivity / Focus / Collection / Assistant");
   tab("Productivity").click();
   await tick(20);
   assert(main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length === 7, "calendar + reminders are Productivity: " + main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length);

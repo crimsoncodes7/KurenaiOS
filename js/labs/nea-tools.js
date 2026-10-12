@@ -1,6 +1,7 @@
 /* Kurenai OS — labs/nea-tools.js
    Two working tools for the AQA 7517 NEA (the programming project), registered
-   as labs so they mount inline on their topic's Simulate tab:
+   as labs on the lab system's text kind (lab.js `work`), so they mount
+   inline on their topic's Simulate tab:
      nea-objectives (NEA.1) — reads a numbered list of objectives and flags any
                               that are not measurable, not single-purpose, or
                               too vague to test, the way 4.14.3.1 demands
@@ -16,8 +17,6 @@
   var el = KOS.ui.el;
   function ui() { return KOS.store.state.ui; }
   function save() { try { KOS.store.save(); } catch (e) { /* storage may be unavailable */ } }
-  function controls(children) { return el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, children); }
-  function note(kind, text) { return el("div", { class: "k-callout", "data-ui": "content.callout", "data-kind": kind, text: text }); }
 
   /* ======================= 1. OBJECTIVE CHECKER ======================= */
   var VAGUE = ["easy", "easily", "user-friendly", "user friendly", "intuitive", "fast", "quick", "quickly", "good", "nice", "simple",
@@ -57,23 +56,25 @@
     id: "nea-objectives", title: "NEA objective checker", subject: "compsci", ref: "NEA.1",
     desc: "Paste your numbered objectives. Each is checked against what AQA's Analysis descriptor asks for — measurable, appropriate (single purpose, unambiguous) and covering the functionality — and flagged good, check or rewrite, with the reason.",
     mount: function (panel) {
-      panel.appendChild(el("p", { class: "k-lab-sub", "data-ui": "part.sub",
-        text: "One objective per line. The sample mixes AQA's own weak examples (1–4, from the guidance's Project A) with strong ones (5–8). The checker is a first pass for wording only — it cannot tell whether your list covers all the functionality; that is your analysis." }));
-      var box = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "aria-label": "Objectives, one per line" });
-      box.value = ui().neaObjectives || SAMPLE;
-      box.rows = 10;
-      panel.appendChild(box);
-      panel.appendChild(controls([
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", type: "button", text: "Check objectives", onclick: run }),
-        el("button", { class: "k-btn k-lab-alt", type: "button", text: "Load the sample", onclick: function () { box.value = SAMPLE; run(); } })
-      ]));
-      var out = el("div", { class: "k-lab-out", "aria-live": "polite" });
-      panel.appendChild(out);
+      var L = KOS.lab;
+      var box = L.editor("Objectives, one per line", ui().neaObjectives || SAMPLE, { rows: 9, mono: false });
+      var table = el("div", { "aria-live": "polite" });
+      var verdictPane = L.pane("Verdicts", [L.scrollTable(table)], { tag: "" });
+      var lab = L.create(panel, {
+        zoom: false,
+        work: [L.pane("Objectives", [box], { tag: "one per line" }), verdictPane],
+        readout: ["now", "values", "level", "note"],
+        controls: [L.action("Check objectives", run, true), L.action("Load the sample", function () { box.value = SAMPLE; run(); })]
+      });
+      lab.section("level", "Level 3 asks for", ["Requirements “fully documented in a set of measurable and appropriate specific objectives, covering all required functionality”."]);
+      lab.section("note", "A first pass", ["The sample mixes AQA's own weak examples (1–4, from the guidance's Project A) with strong ones (5–8). This checks wording only — whether the list covers all the functionality is your analysis."]);
+      var t = null;
+      box.addEventListener("input", function () { clearTimeout(t); t = setTimeout(run, 350); });
       function run() {
         ui().neaObjectives = box.value; save();
-        out.innerHTML = "";
-        var lines = box.value.split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
-        if (!lines.length) { out.appendChild(note("tip", "Write at least one objective.")); return; }
+        table.innerHTML = "";
+        var lines = box.value.split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
+        if (!lines.length) { lab.answer("Verdict", "—", "Write at least one objective."); lab.values([]); verdictPane.querySelector("[data-ui~='lab.pane-tag']").textContent = ""; return; }
         var res = lines.map(judge), n = { good: 0, check: 0, rewrite: 0 };
         var rows = res.map(function (r, i) {
           n[r.verdict]++;
@@ -81,9 +82,10 @@
           return "<tr><td>" + (i + 1) + "</td><td>" + KOS.ui.esc(r.text) + "</td><td data-verdict='" + r.verdict + "'><b>" + label + "</b></td><td>" +
             KOS.ui.esc(r.issues.concat(r.good).join(" · ") || "—") + "</td></tr>";
         }).join("");
-        out.appendChild(el("div", { html: "<table class='k-n-table' data-ui='content.table'><thead><tr><th>#</th><th>Objective</th><th>Verdict</th><th>Why</th></tr></thead><tbody>" + rows + "</tbody></table>" }));
-        out.appendChild(el("div", { class: "k-lab-sub", "data-ui": "part.sub",
-          text: n.good + " good · " + n.check + " to check · " + n.rewrite + " to rewrite. Level 3 Analysis needs requirements \"fully documented in a set of measurable and appropriate specific objectives, covering all required functionality\"." }));
+        table.appendChild(el("div", { html: "<table class='k-n-table k-lab-verdicts' data-ui='content.table'><thead><tr><th>#</th><th>Objective</th><th>Verdict</th><th>Why</th></tr></thead><tbody>" + rows + "</tbody></table>" }));
+        verdictPane.querySelector("[data-ui~='lab.pane-tag']").textContent = res.length + " objective" + (res.length === 1 ? "" : "s");
+        lab.answer("Measurable", n.good + " of " + res.length, n.rewrite ? n.rewrite + " to rewrite before they can be tested." : n.check ? "Nearly there — " + n.check + " to check." : "Every objective names something a test can check.", null, n.rewrite ? "hot" : n.check ? null : "done");
+        lab.values([["good", String(n.good), "done"], ["check", String(n.check), n.check ? "front" : null], ["rewrite", String(n.rewrite), n.rewrite ? "hot" : null]], "Verdicts");
       }
       run();
     }
@@ -155,21 +157,26 @@
     id: "nea-marks", title: "NEA mark estimator", subject: "compsci", ref: "NEA.3",
     desc: "Self-assess against AQA's level descriptors (spec 4.14.3): choose the level that best fits each section and where you sit in it; tick the Table 1 techniques and Table 2 coding-style features your code really shows; read an estimate out of 75 and what the next level up needs.",
     mount: function (panel) {
+      var L = KOS.lab;
       var st = ui().neaEstimate || {};
       st.lv = st.lv || {}; st.pos = st.pos || {}; st.tech = st.tech || {}; st.style = st.style || {};
       if (st.standard === undefined) st.standard = true;
       ui().neaEstimate = st;
-      panel.appendChild(el("p", { class: "k-lab-sub", "data-ui": "part.sub",
-        text: "Best fit, not a checklist: AQA marks the OVERALL quality of each section, then places you low, middle or high in the level. Techniques are credited only when the code demonstrates them working — planned but unfinished does not count." }));
-      var std = el("input", { type: "checkbox" }); std.checked = !!st.standard;
-      std.addEventListener("change", function () { st.standard = std.checked; save(); paint(); });
-      panel.appendChild(controls([el("label", { class: "k-check" }, [std, "The project is of A-level standard (otherwise every section except the technical solution drops two levels)"])]));
-      var body = el("div", { class: "k-lab-out" });
-      panel.appendChild(body);
+      var secBody = el("div", { class: "k-lab-pane-body" }), techBody = el("div", { class: "k-lab-pane-body" }), styleBody = el("div", { class: "k-lab-pane-body" });
+      var lab = L.create(panel, {
+        zoom: false,
+        work: [L.pane("Sections", [secBody], { tag: "best fit, then low · middle · high" }),
+          L.pane("Techniques audit · Table 1", [techBody], { tag: "only what the code demonstrates" }),
+          L.pane("Coding style · Table 2", [styleBody], { tag: "excellent assumes good and basic" })],
+        readout: ["now", "values", "audit", "how"],
+        controls: [L.toggle("A-level standard", !!st.standard, function (on) { st.standard = on; save(); paint(); }),
+          L.action("Use the audit for Techniques", function () { delete st.lv.techniques; delete st.pos.techniques; save(); paint(); })]
+      });
+      lab.section("how", "How AQA marks it", ["Best fit, not a checklist: the OVERALL quality of each section, then low, middle or high in the level. Techniques count only when the code shows them working. Not of A-level standard: every section but the technical solution drops two levels."]);
 
       function select(opts, value, on, label) {
         var s = el("select", { class: "k-input", "aria-label": label });
-        opts.forEach(function (o) { var op = el("option", { value: String(o[0]), text: o[1] }); s.appendChild(op); });
+        opts.forEach(function (o) { s.appendChild(el("option", { value: String(o[0]), text: o[1] })); });
         s.value = String(value);
         s.addEventListener("change", function () { on(s.value); });
         return s;
@@ -183,10 +190,18 @@
         });
         return wrap;
       }
+      /* the audit's checklists are built once; a tick repaints the marks */
+      techBody.appendChild(checklist("Group A", TECH.A, "A", st.tech));
+      techBody.appendChild(checklist("Group B", TECH.B, "B", st.tech));
+      techBody.appendChild(checklist("Group C", TECH.C, "C", st.tech));
+      styleBody.appendChild(checklist("Excellent", STYLE.excellent, "excellent", st.style));
+      styleBody.appendChild(checklist("Good", STYLE.good, "good", st.style));
+      styleBody.appendChild(checklist("Basic", STYLE.basic, "basic", st.style));
+
       function paint() {
-        body.innerHTML = "";
+        secBody.innerHTML = "";
         var sug = suggestTechniques(st);
-        var total = 0, rows = [];
+        var total = 0, rows = [], marks = [];
         SECTIONS.forEach(function (sec) {
           var auto = sec.id === "techniques" && st.lv.techniques === undefined;
           var lv = auto ? sug.level : +(st.lv[sec.id] || 0);
@@ -197,34 +212,27 @@
           if (!st.standard && sec.id !== "techniques" && sec.id !== "complete" && lv > 0) eff = Math.max(1, lv - 2);
           var mark = eff ? bandMark(sec.levels[eff - 1], pos) : 0;
           total += mark;
+          marks.push([sec.name, mark + " / " + sec.max, mark === sec.max ? "done" : eff !== lv ? "hot" : null]);
           var lvOpts = [[0, "Not yet"]].concat(sec.levels.map(function (r, i) { return [i + 1, "L" + (i + 1) + " · " + (r[0] === r[1] ? r[0] : r[0] + "–" + r[1])]; }));
           var lvSel = select(lvOpts, lv, function (v) { st.lv[sec.id] = +v; save(); paint(); }, sec.name + " level");
           var posSel = select([["low", "low"], ["mid", "middle"], ["high", "high"]], pos, function (v) { st.pos[sec.id] = v; if (sec.id === "techniques" && st.lv.techniques === undefined) st.lv.techniques = sug.level; save(); paint(); }, sec.name + " position");
           var next = lv < sec.levels.length ? "Next level: " + sec.desc[lv] : "Top level.";
           rows.push(el("div", { class: "k-lab-row", "data-ui": "lab.nea-section" }, [
-            el("div", {}, [el("b", { text: sec.name + " · /" + sec.max }), " ", el("span", { class: "k-mono", text: "→ " + mark })]),
-            controls([lvSel, posSel]),
+            el("div", { class: "k-lab-row-h" }, [el("b", { text: sec.name }), el("span", { class: "k-mono", text: mark + " / " + sec.max }), lvSel, posSel]),
             el("p", { class: "k-lab-sub", "data-ui": "part.sub", text: (lv ? "This level: " + sec.desc[lv - 1] + " " : "") + next +
-              (auto ? " (Suggested from your technique and style audit below.)" : "") +
+              (auto ? " (Suggested from your audit.)" : "") +
               (eff !== lv ? " Not A-level standard: marked as level " + eff + "." : "") })
           ]));
         });
-        body.appendChild(el("div", { class: "k-lab-total", "data-ui": "lab.nea-total" }, [
+        secBody.appendChild(el("div", { class: "k-lab-total", "data-ui": "lab.nea-total" }, [
           el("b", { class: "k-mono", text: "Estimate: " + total + " / 75" }),
-          el("span", { class: "k-lab-sub", text: "  (" + Math.round(total / 75 * 100) + "%) — Analysis 9 · Design 12 · Technical solution 42 · Testing 8 · Evaluation 4" })
+          el("span", { class: "k-lab-sub", text: " · Analysis 9 · Design 12 · Technical solution 42 · Testing 8 · Evaluation 4" })
         ]));
-        rows.forEach(function (r) { body.appendChild(r); });
-        body.appendChild(el("h4", { text: "Techniques audit (Table 1) — tick only what your code demonstrates" }));
-        body.appendChild(checklist("Group A", TECH.A, "A", st.tech));
-        body.appendChild(checklist("Group B", TECH.B, "B", st.tech));
-        body.appendChild(checklist("Group C", TECH.C, "C", st.tech));
-        body.appendChild(el("h4", { text: "Coding style (Table 2) — cumulative: excellent assumes good and basic" }));
-        body.appendChild(checklist("Excellent", STYLE.excellent, "excellent", st.style));
-        body.appendChild(checklist("Good", STYLE.good, "good", st.style));
-        body.appendChild(checklist("Basic", STYLE.basic, "basic", st.style));
-        body.appendChild(note("tip", "Audit says: techniques at Group " + (["—", "C", "B", "A"][sug.level]) + " level, " + sug.ex + "/6 excellent and " + sug.gd + "/10 good style features → suggested " +
-          (sug.level ? "level " + sug.level + ", " + sug.pos + " in the level" : "no level yet") + ". This is a guide to the descriptors, not a prediction of your teacher's or AQA's mark."));
-        body.appendChild(el("div", {}, [el("button", { class: "k-btn k-lab-alt", type: "button", text: "Use the audit's suggestion for Techniques", onclick: function () { delete st.lv.techniques; delete st.pos.techniques; save(); paint(); } })]));
+        rows.forEach(function (r) { secBody.appendChild(r); });
+        lab.answer("Estimate", total + " / 75", Math.round(total / 75 * 100) + "% — a guide to the descriptors, not a prediction of your teacher's or AQA's mark.");
+        lab.values(marks, "By section");
+        lab.section("audit", "The audit says", ["Techniques at ", lab.em(sug.level ? "Group " + ["—", "C", "B", "A"][sug.level] : "no group yet", sug.level === 3 ? "done" : "front"),
+          ", " + sug.ex + "/6 excellent and " + sug.gd + "/10 good style features → " + (sug.level ? "level " + sug.level + ", " + sug.pos + " in the level." : "no level yet.")]);
       }
       paint();
     }

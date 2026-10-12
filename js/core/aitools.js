@@ -2322,6 +2322,53 @@
     }
   });
 
+  /* scheduled prompts (core/aischedule.js): a message Kurenai sends at a
+     time while the app is open, answered read-only into a notification */
+  var DAY_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  function schedView(sc) {
+    return { id: sc.id, name: sc.name || null, prompt: sc.prompt, time: sc.time,
+      days: sc.days.map(function (d) { return DAY_NAMES[d]; }), enabled: sc.enabled,
+      next: KOS.ai.schedule.nextAt(sc) ? new Date(KOS.ai.schedule.nextAt(sc)).toISOString() : null,
+      lastReply: sc.last ? { date: sc.last.date, ok: sc.last.ok } : null };
+  }
+  def("schedule_list", {
+    desc: "List the user's scheduled messages (a prompt Kurenai sends for them at a time on chosen days, answered into a notification).",
+    category: "app", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      if (!KOS.ai.schedule) { cb(null, { schedules: [] }); return; }
+      cb(null, { schedules: KOS.ai.schedule.list().map(schedView) });
+    }
+  });
+  def("schedule_add", {
+    desc: "Schedule a message Kurenai sends for the user at a time (HH:MM, 24h) on chosen days (default every day) — e.g. 'Tell me the plan for today' at 07:00. It runs while the app is open, or on the first open later that day, read-only, and the reply arrives as a notification.",
+    category: "app", tier: "reversible", read: false,
+    params: {
+      prompt: { type: "string", required: true, minLen: 1, maxLen: 1000 },
+      time: { type: "string", required: true, maxLen: 5 },
+      days: { type: "array", items: { type: "string", enum: DAY_NAMES } },
+      name: { type: "string", maxLen: 60 }
+    },
+    run: function (args, cb) {
+      if (!TIME_RE.test(args.time)) { cb(fail("time must be HH:MM (24-hour).")); return; }
+      var days = args.days && args.days.length ? args.days.map(function (d) { return DAY_NAMES.indexOf(d); }) : [0, 1, 2, 3, 4, 5, 6];
+      var r = KOS.ai.schedule.add({ prompt: args.prompt, time: args.time, days: days, name: args.name || "" });
+      if (!r.ok) { cb(fail(r.error)); return; }
+      cb(null, schedView(r.schedule),
+        { label: "remove the schedule", run: function (ucb) { KOS.ai.schedule.remove(r.schedule.id); ucb(null); } });
+    }
+  });
+  def("schedule_remove", {
+    desc: "Delete one of the user's scheduled messages by id (from schedule_list).",
+    category: "app", tier: "consequential", read: false,
+    params: { id: { type: "string", required: true, maxLen: 40 } },
+    run: function (args, cb) {
+      var sc = KOS.ai.schedule.get(args.id);
+      if (!sc) { cb(fail("No scheduled message with that id — call schedule_list.")); return; }
+      KOS.ai.schedule.remove(args.id);
+      cb(null, { deleted: true, id: args.id, name: sc.name || sc.prompt.slice(0, 60) });
+    }
+  });
+
   /* ======================================================================
      MEMORY (Phase D) — the explicit-consent notes-to-self store.
      Writes are CONSEQUENTIAL: the Phase C confirmation card is exactly the
@@ -3192,7 +3239,7 @@
       "goals_list", "goals_add"],
     governor: ["governor_get_status", "governor_list_shop", "governor_buy_item",
       "focus_get_state", "focus_start_session", "focus_end_session"],
-    archive: ["archive_get_backup_info", "attachments_list", "attachments_set_note"],
+    archive: ["archive_get_backup_info", "attachments_list", "attachments_set_note", "schedule_list", "schedule_add"],
     memory: ["memory_list", "memory_save"],
     sync: ["sync_cloud_status", "collection_get_sync_health", "collection_sync_provider"]
   };

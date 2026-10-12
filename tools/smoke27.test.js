@@ -306,6 +306,87 @@ step("the ollama schema sanitizer / cloud schemas are provider-correct (regressi
   assert(/additionalProperties/.test(JSON.stringify(full)), "the CLIENT schema must keep full strictness (validation)");
 });
 
+/* ============ scheduled prompts (core/aischedule.js, 12 October 2026) ============ */
+console.log("== scheduled prompts ==");
+const SCH = KOS.ai.schedule;
+
+step("a schedule is validated; it is due only on its days, after its time, once a day", async () => {
+  assert(!SCH.add({ prompt: "", time: "07:00" }).ok, "an empty prompt is refused");
+  assert(!SCH.add({ prompt: "x", time: "7am" }).ok, "a time must be HH:MM");
+  assert(!SCH.add({ prompt: "x", time: "07:00", days: [] }).ok, "no days is refused");
+  const r = SCH.add({ prompt: "Tell me the plan for today", time: "07:00", days: [1, 2, 3, 4, 5], name: "Morning plan" });
+  assert(r.ok && /^sch-/.test(r.schedule.id), "a schedule is made with a string id");
+  const sc = r.schedule; sc.lastRun = null;
+  const mon0659 = new Date(2026, 9, 12, 6, 59), mon0700 = new Date(2026, 9, 12, 7, 0), sun0900 = new Date(2026, 9, 11, 9, 0);
+  assert(!SCH.isDue(sc, mon0659), "not before its time");
+  assert(SCH.isDue(sc, mon0700), "due at its time on one of its days");
+  assert(!SCH.isDue(sc, sun0900), "never on a day it is not set for");
+  sc.lastRun = SCH.today(mon0700);
+  assert(!SCH.isDue(sc, new Date(2026, 9, 12, 21, 0)), "once a day");
+  assert(SCH.nextAt(sc, new Date(2026, 9, 12, 8, 0)) === new Date(2026, 9, 13, 7, 0).getTime(), "next is tomorrow 07:00");
+  const fri0800 = new Date(2026, 9, 16, 8, 0);
+  assert(SCH.nextAt(sc, fri0800) === fri0800.getTime(), "a weekday not yet sent is due now");
+  sc.lastRun = SCH.today(fri0800);
+  assert(SCH.nextAt(sc, fri0800) === new Date(2026, 9, 19, 7, 0).getTime(), "once Friday's is sent, the next is Monday");
+  SCH.remove(sc.id);
+});
+
+step("a due schedule runs read-only and isolated, keeps its reply and rings the bell", async () => {
+  const keepHistory = await (async () => {
+    chatScript = [say("Context turn reply.")];
+    await run({ userText: "Remember: my favourite topic is recursion.", category: "complex", conversationKey: "conv-live" });
+    return true;
+  })();
+  const r = SCH.add({ prompt: "Tell me the plan for today", time: "00:00", name: "Morning plan" });
+  const sc = r.schedule; sc.lastRun = null;
+  const remindersBefore = KOS.store.state.reminders ? (KOS.store.state.reminders.items || []).length : 0;
+  chatLog = [];
+  chatScript = [
+    callTools([{ id: "w1", name: "todo_add_task", args: { text: "sneaky write" } }]),
+    say("Today: **Maths P5** at 09:00, then flashcards.")
+  ];
+  SCH.tick();
+  await tick(30); await untilIdle(); await tick(30);
+  assert(chatLog.length >= 1, "the schedule sent a request");
+  const offered = (chatLog[0].tools || []).map(t => t.name);
+  assert(offered.length && offered.every(n => KOS.ai.tools.get(n).read), "only reading tools are offered: " + offered.filter(n => !KOS.ai.tools.get(n).read).join(","));
+  assert(!offered.includes("app_navigate"), "navigation never runs unattended");
+  assert(chatLog[0].messages.length === 1 && chatLog[0].messages[0].content === "Tell me the plan for today", "isolated: no live history seeded");
+  assert(/SCHEDULED prompt/.test(chatLog[0].system), "the system prompt says it is scheduled");
+  const after = KOS.store.state.reminders ? (KOS.store.state.reminders.items || []).length : 0;
+  assert(after === remindersBefore, "a write the model attempts is refused");
+  const rec = SCH.get(sc.id);
+  assert(rec.lastRun === SCH.today() && rec.last && rec.last.ok && /Maths P5/.test(rec.last.text), "the reply is kept on the schedule");
+  const note = KOS.notify.all().find(n => n.id === "asst:" + sc.id + ":" + SCH.today());
+  assert(note && note.kind === "assistant" && note.view === "assistant" && note.arg.run === sc.id, "a notification opens the schedule");
+  /* the live conversation's own context survived the scheduled run */
+  chatScript = [say("ok")];
+  await run({ userText: "and next?", category: "complex", conversationKey: "conv-live" });
+  assert(keepHistory && chatLog[0].messages.some(m => /recursion/.test(m.content || "")), "the live conversation keeps its history");
+  /* ticking again the same day sends nothing */
+  chatLog = [];
+  SCH.tick(); await tick(30); await untilIdle();
+  assert(chatLog.length === 0, "once a day");
+  SCH.remove(sc.id);
+});
+
+step("a busy assistant holds the schedule; Run now does not claim the day", async () => {
+  const sc = SCH.add({ prompt: "Quick check", time: "00:00" }).schedule; sc.lastRun = null;
+  let release;
+  chatScript = [(req, cb) => { release = () => cb(null, { text: "user reply", toolCalls: [], provider: "stub", model: "stub" }); }];
+  const p = run({ userText: "a long question", category: "complex", conversationKey: "conv-busy" });
+  await tick(20);
+  chatLog = [];
+  SCH.tick(); await tick(20);
+  assert(chatLog.length === 0 && SCH.get(sc.id).lastRun === null, "nothing is sent while the user's request runs");
+  release(); await p; await untilIdle();
+  chatScript = [say("manual")];
+  await new Promise(res => SCH.run(sc.id, () => res()));
+  await untilIdle(); await tick(20);
+  assert(SCH.get(sc.id).last.text === "manual" && SCH.get(sc.id).lastRun === null, "Run now answers without taking today's slot");
+  SCH.remove(sc.id);
+});
+
 /* ============ run ============ */
 (async () => {
   let failed = 0;

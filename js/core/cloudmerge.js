@@ -69,6 +69,7 @@
     { path: "pacing.weeks", id: "wb" },
     { path: "pacing.entries", id: "id", counter: "pacing.nextId", prefix: "p" },
     { path: "notify.items", id: "id", sortBy: "ts", cap: 200 },   // natural string ids (kind:record:occurrence)
+    { path: "assistant.schedules", id: "id" },                    // random string ids (core/aischedule.js)
     { path: "todo.manual", id: "id", counter: "todo.nextId" },
     { path: "todo.habits", id: "id", counter: "todo.nextId" },
     { path: "oop.classes", id: "id", counter: "oop.nextId",

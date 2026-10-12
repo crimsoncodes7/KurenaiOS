@@ -494,7 +494,7 @@ step("the dedicated page renders the SAME thread as the drawer", async () => {
   const pageThread = doc.querySelector("[data-ui~='asst.page'] [data-ui~='asst.thread']");
   assert(pageThread, "page chat must render");
   assert(/slow reply/.test(pageThread.textContent), "the page must show the drawer's conversation (one state)");
-  assert(doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']").length === 6, "six page tabs expected");
+  assert(doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']").length === 7, "seven page tabs expected (Scheduled joined, 12 October 2026)");
 });
 
 step("topic contextual actions submit through the shared path with live context", async () => {

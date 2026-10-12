@@ -139,10 +139,6 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-tint { color: var(--c); }
 
 /* the stage: a canvas on --s3 (frame 8h) */
-.k-lab-canvas { display: block; inline-size: 100%; block-size: var(--h, var(--lab-stage-h)); border-radius: var(--r-16); background: var(--s3); touch-action: none; }
-.k-lab-canvas[data-cursor="crosshair"] { cursor: crosshair; }
-.k-lab-canvas[data-cursor="col-resize"] { cursor: col-resize; }
-.k-lab-canvas[data-cursor="grab"] { cursor: grab; }
 .k-lab-slider { display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-12); color: var(--text-2); }
 .k-lab-slider b { font-family: var(--font-mono); color: var(--text); font-weight: var(--weight-semibold); }
 
@@ -221,6 +217,10 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-lab-mem-cell { padding: var(--sp-6) var(--sp-2); border-radius: var(--r-8); background: var(--s2); text-align: center; font-size: var(--fs-11); color: var(--text); }
 .k-lab-mem-cell[data-state~="empty"] { color: var(--muted); }
 .k-lab-mem-cell[data-state~="current"] { background: color-mix(in oklch, var(--amber) 16%, var(--s2)); box-shadow: inset 0 0 0 var(--hairline) var(--amber); }
+.k-lab-mem-cell[data-state~="written"] { background: color-mix(in oklch, var(--teal) 18%, var(--s2)); color: var(--teal); }
+.k-lab-row-h { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-12); }
+.k-lab-row-h > b { flex: 1 1 auto; }
+.k-lab-row-h > .k-input { inline-size: auto; }
 .k-lab-mem-i { font-size: var(--fs-11); color: var(--muted); }
 
 /* ---------- the lab system (20a–20e, labs/lab.js): bar, stage, readout ----------
@@ -427,6 +427,32 @@ h2.k-lab-title { font-size: var(--fs-17); }
 /* ---------- the Trace Lab (20f): code · structure · trace ---------- */
 .k-lab-body[data-kind="trace"] { grid-template-columns: minmax(0, var(--lab-code-w)) minmax(0, 1fr) var(--lab-read-w); }
 .k-lab-body[data-kind="trace"] > .k-lab-stage { aspect-ratio: 4 / 5; }
+/* text labs (lab.js `work`): the editor and its output in the stage's
+   column, as panes on the code ground — the readout beside is the same */
+.k-lab-workpane { display: flex; flex-direction: column; gap: var(--sp-12); min-inline-size: 0; }
+.k-lab-pane { display: flex; flex-direction: column; min-inline-size: 0; border-radius: var(--r-16); background: var(--code-bg); overflow: hidden; }
+.k-lab-pane-h { display: flex; align-items: baseline; gap: var(--sp-8); padding: var(--sp-12) var(--sp-14) var(--sp-6); }
+.k-lab-pane-tag { margin-inline-start: auto; font-size: var(--fs-11-5); color: var(--muted); }
+.k-lab .k-lab-pane .k-lab-editor { min-block-size: 0; margin: 0; padding: var(--sp-6) var(--sp-14) var(--sp-14); border: 0; border-radius: 0; background: none; box-shadow: none; font-size: var(--fs-13); line-height: 1.6; color: var(--text); }
+.k-lab .k-lab-pane .k-lab-editor[data-mono] { font-family: var(--font-mono); }
+.k-lab .k-lab-pane .k-lab-editor:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: calc(var(--focus-width) * -1); }
+.k-lab-pane-out { padding: var(--sp-4) var(--sp-14) var(--sp-14); font-size: var(--fs-13); line-height: 1.7; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.k-lab-pane-out:empty { display: none; }
+/* code is read character by character here: >= stays two characters */
+.k-lab-pane :is(.k-lab-editor, .k-lab-pane-out), .k-lab-rtable, .k-lab-deriv, .k-lab-controls input { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+.k-lab-pane > .k-lab-tablescroll, .k-lab-pane > .k-lab-pane-body { margin: 0 var(--sp-14) var(--sp-14); }
+.k-lab-tablescroll::before { background: linear-gradient(90deg, var(--code-bg) 20%, transparent); }
+.k-lab-tablescroll::after { background: linear-gradient(270deg, var(--code-bg) 20%, transparent); }
+.k-lab-pane .k-n-table th { background: var(--s1); }
+.k-lab-pane-body { display: flex; flex-direction: column; gap: var(--sp-10); min-inline-size: 0; }
+.k-lab-chart { position: relative; aspect-ratio: var(--lab-chart-ar); margin: 0 var(--sp-14) var(--sp-14); }
+.k-lab-chart > .k-sv { position: absolute; inset: 0; }
+.k-lab-big[data-tone~="hot"] { color: var(--crimson); }
+.k-lab-big[data-tone~="done"] { color: var(--teal); }
+.k-lab-deriv { margin: 0; padding-inline-start: var(--sp-20); font: var(--fs-12-5) / 1.8 var(--font-mono); color: var(--text-2); overflow-wrap: anywhere; }
+.k-lab-deriv > li:last-child { color: var(--text); }
+.k-lab-tag { display: inline-block; padding: 0 var(--sp-6); border-radius: var(--r-6); background: var(--s2); font: var(--fs-12) var(--font-mono); color: var(--text-2); }
+
 /* the phone crop (lab.js crop()): the stage takes the drawing's shape */
 .k-lab-stage[data-state~="cropped"] { aspect-ratio: var(--lab-ar, 16 / 9); }
 .k-lab-codepane { display: flex; flex-direction: column; min-inline-size: 0; border-radius: var(--r-16); background: var(--code-bg); overflow: hidden; }
@@ -637,6 +663,14 @@ h2.k-lab-title { font-size: var(--fs-17); }
 /* the IDE: a narrower line gutter, and "Clear" keeps its full name for
    assistive tech only */
 .k-ide { --ide-ln-w: var(--sp-32); }
+/* the NEA verdicts: a row is a small card — number, objective, verdict,
+   then the reason under them — rather than four columns of prose */
+.k-lab-verdicts, .k-lab-verdicts tbody { display: block; }
+.k-lab-verdicts thead { display: none; }
+.k-lab-verdicts tr { display: grid; grid-template-columns: var(--sp-20) minmax(0, 1fr) auto; gap: var(--sp-4) var(--sp-8); padding-block: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
+.k-lab-verdicts tr:first-child { border-block-start: 0; }
+.k-lab-verdicts td { display: block; padding: 0; border: 0; }
+.k-lab-verdicts td:nth-child(4) { grid-column: 2 / -1; font-size: var(--fs-12-5); color: var(--muted); }
 .k-ide-long { position: absolute; inline-size: var(--hairline); block-size: var(--hairline); margin: calc(var(--hairline) * -1); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 

@@ -1719,10 +1719,11 @@
     ["History", "assistant", { tab: "history" }, "history"],
     ["Settings", "assistant", { tab: "settings" }, "settings"],
     ["Memory", "assistant", { tab: "memory" }, "memory"],
+    ["Scheduled", "assistant", { tab: "scheduled" }, "scheduled"],
     ["Permissions", "assistant", { tab: "permissions" }, "permissions"],
     ["Activity", "assistant", { tab: "activity" }, "activity"]
   ];
-  var TAB_KANJI = { chat: "話", history: "歴", settings: "設", memory: "憶", permissions: "許", activity: "録" };
+  var TAB_KANJI = { chat: "話", history: "歴", settings: "設", memory: "憶", scheduled: "時", permissions: "許", activity: "録" };
   /* the tool areas of js/core/aitools.js, marked like the main rail */
   var AREA_KANJI = { app: "灯", archive: "蔵", collection: "蒐", governor: "守", memory: "憶",
     planner: "整", search: "索", study: "学", sync: "同" };
@@ -2300,6 +2301,135 @@
     render();
   }
 
+  /* Scheduled prompts (core/aischedule.js): a message Kurenai sends for
+     the user at a time — sent while the app is open, or on the first open
+     later that day — answered read-only into its own conversation and the
+     notification centre. `focusId` is the schedule a notification opened. */
+  var DAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  function daysText(days) {
+    var d = (days || []).slice().sort().join(",");
+    if (d === "0,1,2,3,4,5,6") return "every day";
+    if (d === "1,2,3,4,5") return "weekdays";
+    if (d === "0,6") return "weekends";
+    return DAY_ORDER.filter(function (x) { return days.indexOf(x) !== -1; }).map(function (x) { return DAY_ABBR[x]; }).join(" ");
+  }
+  function whenText(ts) {
+    if (!ts) return "not scheduled";
+    var d = new Date(ts), now = new Date();
+    var day = KOS.ai.schedule.today(d) === KOS.ai.schedule.today(now) ? "today"
+      : KOS.ai.schedule.today(d) === KOS.ai.schedule.today(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)) ? "tomorrow"
+      : d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+    return day + " at " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  }
+  function dayPicker(initial) {
+    var on = (initial || [0, 1, 2, 3, 4, 5, 6]).slice();
+    var wrap = el("div", { class: "k-asst-days", role: "group", "aria-label": "Days" });
+    DAY_ORDER.forEach(function (d) {
+      var b = el("button", { type: "button", class: "k-asst-day", "data-ui": "asst.schedule-day", "aria-pressed": String(on.indexOf(d) !== -1),
+        "aria-label": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][d], text: DAY_ABBR[d].charAt(0) });
+      b.addEventListener("click", function () {
+        var i = on.indexOf(d);
+        if (i === -1) on.push(d); else on.splice(i, 1);
+        b.setAttribute("aria-pressed", String(i === -1));
+      });
+      wrap.appendChild(b);
+    });
+    wrap.value = function () { return on.slice(); };
+    return wrap;
+  }
+  function pageScheduled(body, focusId) {
+    var SCH = KOS.ai.schedule;
+    sectionIntro(body, "Kurenai, on a timer", "Scheduled", "Messages Kurenai sends for you at a time; the reply arrives as a notification.");
+    var nameIn = el("input", { type: "text", class: "k-input", maxlength: "60", placeholder: "Name (optional) — e.g. Morning plan", "aria-label": "Schedule name" });
+    var promptIn = el("textarea", { class: "k-asst-input", rows: "2", placeholder: "What should Kurenai answer? e.g. Tell me the plan for today", "aria-label": "Scheduled message" });
+    var timeIn = el("input", { type: "time", class: "k-input k-asst-time", "aria-label": "Time" });
+    timeIn.value = "07:00";
+    var days = dayPicker();
+    body.appendChild(el("section", { class: "k-card k-asst-block k-asst-sched-add", "data-ui": "asst.schedule-add", "aria-label": "New scheduled message" }, [
+      nameIn, promptIn,
+      el("div", { class: "k-asst-sched-when" }, [
+        el("label", { class: "k-asst-sched-at" }, [el("span", { class: "k-asst-muted", text: "At" }), timeIn]),
+        days,
+        el("button", { class: "k-btn k-btn--primary", type: "button", "data-ui": "asst.schedule-create", text: "＋ Schedule", onclick: function () {
+          var r = SCH.add({ name: nameIn.value, prompt: promptIn.value, time: timeIn.value, days: days.value() });
+          if (!r.ok) { KOS.ui.toast(r.error, true); return; }
+          KOS.ui.toast("Scheduled — next " + whenText(SCH.nextAt(r.schedule)) + ".");
+          nameIn.value = ""; promptIn.value = "";
+          render();
+        } })
+      ]),
+      el("p", { class: "k-asst-muted", text: "Sent while KurenaiOS is open, or the first time you open it later that day. Kurenai only reads when it runs — it never changes anything unattended." })
+    ]));
+    /* the device alert is what makes "notified when it responds" reach a
+       phone in a pocket — offer it here, from a click (a user gesture) */
+    var N = KOS.notify && KOS.notify.native;
+    if (N && N.supported() && !N.enabled()) {
+      body.appendChild(el("p", { class: "k-asst-sched-alert", "data-ui": "asst.schedule-alerts" }, [
+        el("span", { class: "k-asst-muted", text: "Device alerts are off, so a reply only shows in the bell." }),
+        el("button", { class: "k-btn k-btn--sm", type: "button", text: "Alert me on this device", onclick: function () {
+          N.request(function (ok) { KOS.ui.toast(ok ? "Alerts on for this device." : "The browser didn't allow alerts.", !ok); render(); });
+        } })
+      ]));
+    }
+    var list = el("div", { class: "k-card k-asst-list-card", "data-ui": "asst.schedules" });
+    body.appendChild(list);
+    var off = SCH.onChange(function () { if (!list.isConnected) { off(); return; } render(); });
+    function render() {
+      list.innerHTML = "";
+      var rows = SCH.list(), live = SCH.running();
+      if (!rows.length) {
+        list.appendChild(el("p", { class: "k-asst-muted", text: "Nothing scheduled yet." }));
+        return;
+      }
+      rows.sort(function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; }).forEach(function (sc) {
+        var isLive = live && live.id === sc.id && !live.syncing;
+        var toggle = el("input", { type: "checkbox", "aria-label": "Send " + (sc.name || "this message") + " on schedule" });
+        toggle.checked = !!sc.enabled;
+        toggle.addEventListener("change", function () { SCH.update(sc.id, { enabled: toggle.checked }); });
+        var last = sc.last;
+        var result = null;
+        if (last) {
+          var open = focusId === sc.id;
+          result = el("details", { class: "k-asst-sched-last", "data-ui": "asst.schedule-last", open: open ? "" : null }, [
+            el("summary", { text: (last.ok ? "Last reply · " : "Last attempt failed · ") + whenText(last.at) }),
+            last.ok ? assistantRichText(last.text) : el("p", { class: "k-asst-error-line", text: last.text }),
+            last.conversationId ? el("button", { class: "k-link", type: "button", text: "Open the conversation →", onclick: function () {
+              KOS.assistant.openConversation(last.conversationId, function (err) { if (!err) KOS.show("assistant", { tab: "chat" }); });
+            } }) : null
+          ].filter(Boolean));
+          if (open && last.ok && KOS.notify) KOS.notify.markRead("asst:" + sc.id + ":" + last.date);
+        }
+        list.appendChild(el("div", { class: "k-asst-line k-asst-sched", "data-ui": "asst.schedule-row", "data-state": focusId === sc.id ? "focus" : null }, [
+          el("span", { class: "k-asst-line-mark k-mono", "aria-hidden": "true", text: sc.time }),
+          el("div", { class: "k-asst-line-txt" }, [
+            sc.name ? el("b", { text: sc.name }) : null,
+            el("div", { class: "k-asst-line-t", text: sc.prompt }),
+            el("span", { class: "k-asst-line-m", text: sc.time + " · " + daysText(sc.days) + " · " +
+              (isLive ? "sending now…" : sc.enabled ? "next " + whenText(SCH.nextAt(sc)) : "paused") }),
+            result
+          ].filter(Boolean)),
+          el("label", { class: "k-asst-sched-on" }, [toggle, el("span", { text: "On" })]),
+          el("button", { class: "k-link", type: "button", text: isLive ? "Sending…" : "Run now", disabled: live ? "" : null,
+            "aria-label": "Run " + (sc.name || "this message") + " now", onclick: function () {
+              SCH.run(sc.id, function (err) { if (err) KOS.ui.toast(err.message, true); });
+              render();
+            } }),
+          el("button", { class: "k-link k-asst-danger", type: "button", text: "Delete", "aria-label": "Delete " + (sc.name || "this scheduled message"), onclick: function () {
+            KOS.ui.confirm({ title: "Delete this schedule?", danger: true, confirm: "Delete",
+              body: "“" + clampText(sc.name || sc.prompt, 120) + "” stops being sent. Past replies stay in History." },
+              function () { SCH.remove(sc.id); });
+          } })
+        ]));
+      });
+    }
+    render();
+    if (focusId) window.requestAnimationFrame(function () {
+      var row = list.querySelector("[data-state~='focus']");
+      if (row && row.scrollIntoView) row.scrollIntoView({ block: "center" });
+    });
+  }
+
   var TIER_TONE = { read: "teal", reversible: "amber", consequential: "crimson" };
   function tierChip(tier) {
     return el("span", { class: "k-chip", "data-tone": TIER_TONE[tier] || "teal", text: tierLabel(tier) });
@@ -2530,6 +2660,7 @@
     else if (tab === "history") pageHistory(body);
     else if (tab === "settings") pageSettings(body);
     else if (tab === "memory") pageMemory(body);
+    else if (tab === "scheduled") pageScheduled(body, arg && arg.run);
     else if (tab === "permissions") pagePermissions(body);
     else if (tab === "activity") pageActivity(body);
     var heading = document.getElementById("asst-page-title");

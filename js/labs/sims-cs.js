@@ -1,48 +1,37 @@
 /* Kurenai OS — labs/sims-cs.js
-   Computer Science simulations (AQA 7517), registered on KOS.sims so each one
-   mounts INLINE on its topic's Simulations tab and in the Simulations view:
-     turing-machine (4.4.5.1)  bnf-checker (4.4.3.1)   float-bits (4.5.4.4)
-     char-codes (4.5.5.1)      error-check-lab (4.5.5.3) bitmap-lab (4.5.6.4)
-     compression-lab (4.5.6.9) cipher-lab (4.5.6.10)   subnet-lab (4.9.4.4)
-   (graph-traversal lives in sims-algorithms.js; big-o-plot and
-   adc-sampling in sims-plots.js, on the lab system)
-   Loaded after sims.js (KOS.sims.canvas / KOS.sims.COL). */
+   Three Computer Science text labs on the lab system (lab.js `work`): the
+   editor and its output fill the stage's column, the readout beside them
+   carries the verdict, the figures and the why.
+     bnf-checker (4.4.3.1)   compression-lab (4.5.6.9)   cipher-lab (4.5.6.10)
+   The cipher lab's letter-frequency chart is an SVG drawn in theme tones,
+   which retired the last canvas a lab used (KOS.sims.canvas / COL). */
 (function () {
   "use strict";
-  var el = KOS.ui.el, COL = KOS.sims.COL, canvas = KOS.sims.canvas;
-  function A(c, a) { return KOS.labPalette().alpha(c, a); }
-  function slider(label, min, max, step, val, onchange, show) {
-    var inp = el("input", { type: "range", min: min, max: max, step: step, value: val, "aria-label": label });
-    var out = el("b", { text: (show || String)(val) });
-    inp.oninput = function () { var v = parseFloat(inp.value); out.textContent = (show || String)(v); onchange(v); };
-    return { node: el("label", { class: "k-lab-slider" }, [el("span", {}, [label + " ", out]), inp]), input: inp };
-  }
-  function readout() { return el("div", { class: "k-lab-read", "data-ui": "lab.readout" }); }
-  function mono(text) { return el("code", { class: "k-mono", text: text }); }
-  function pad(s, n, ch) { s = String(s); while (s.length < n) s = (ch || "0") + s; return s; }
-  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  function table(head, rows, cls) {
-    return el("div", { class: "k-lab-tablewrap", html:
-      '<table class="k-n-table k-lab-table" data-ui="content.table"' + (cls ? ' data-kind="' + cls + '"' : "") + '><thead><tr>' + head.map(function (h) { return "<th>" + h + "</th>"; }).join("") +
-      "</tr></thead><tbody>" + rows.map(function (r) { var c = r.cls ? ' data-state="' + r.cls + '"' : ""; return "<tr" + c + ">" + (r.cells || r).map(function (x) { return "<td>" + x + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>" });
-  }
+  var el = KOS.ui.el, L = KOS.lab;
+  function txtIn(v, w, label) { return el("input", { type: "text", value: v, class: "k-mono", spellcheck: "false", autocomplete: "off", style: "--w: " + w + "px", "aria-label": label }); }
+  function textLab(panel, o) { return L.create(panel, Object.assign({ zoom: false }, o)); }
 
   /* =================== BNF CHECKER =================== */
+  var BNF_DEFAULT = "<sign> ::= + | -\n<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9\n<integer> ::= <digit> | <digit><integer>\n<number> ::= <integer> | <sign><number> | <integer>.<integer>";
+  var BNF_BATCH = ["3.14", "+7", "0-1", "12.", "007"];
   KOS.sims.register({
     id: "bnf-checker", title: "BNF Grammar Checker", subject: "compsci", ref: "4.4.3.1",
     desc: "Write production rules in Backus–Naur Form and test strings against them. Recursion (<integer> ::= <digit> | <digit><integer>) is what gives BNF unbounded strings — and what a regular expression or FSM cannot express when nesting must balance.",
     mount: function (panel) {
-      var gIn = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 130px", "aria-label": "BNF grammar" });
-      gIn.value = "<sign> ::= + | -\n<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9\n<integer> ::= <digit> | <digit><integer>\n<number> ::= <integer> | <sign><number> | <integer>.<integer>";
-      var sIn = el("input", { type: "text", value: "-42.7", class: "k-mono", style: "--w: 180px" });
-      var startIn = el("input", { type: "text", value: "number", class: "k-mono", style: "--w: 90px" });
-      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
-      panel.appendChild(gIn);
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["start symbol <…>", startIn]), el("label", {}, ["test string", sIn]),
-        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Check", onclick: check }),
-        el("button", { class: "k-btn", text: "Try 3.14, +7, 0-1, 12.", onclick: function () { batch(["3.14", "+7", "0-1", "12.", "007"]); } }), msg]));
-      var read = readout(); panel.appendChild(read);
+      var gIn = L.editor("BNF grammar", BNF_DEFAULT, { rows: 5 });
+      var sIn = txtIn("-42.7", 150, "Test string"), startIn = txtIn("number", 96, "Start symbol");
+      var lab = textLab(panel, {
+        work: [L.pane("Grammar", [gIn], { tag: "" })],
+        readout: ["now", "deriv", "batch", "habit"],
+        controls: [L.field("Start ‹…›", startIn), L.field("Test", sIn), L.action("Check", check, true),
+          L.action("Try " + BNF_BATCH.join(", "), batch)]
+      });
+      var tag = lab.work.querySelector("[data-ui~='lab.pane-tag']");
+      [gIn, startIn].forEach(function (f) { f.addEventListener("input", check); });
+      sIn.addEventListener("input", check);
       sIn.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+      lab.section("habit", "Exam habit", ["Terminals are literal characters; ‹non-terminals› expand by their rules. Check a string by writing the derivation top-down, one rule per line — exactly the list under Derivation."]);
+
       function parseGrammar() {
         var rules = {};
         gIn.value.split("\n").forEach(function (line) {
@@ -60,6 +49,7 @@
         });
         return rules;
       }
+      /* every position a non-terminal can END at, starting from pos */
       function ends(rules, nt, str, pos, depth, memo) {
         var key = nt + "@" + pos;
         if (memo[key]) return memo[key] === "busy" ? [] : memo[key];
@@ -81,48 +71,122 @@
         var res = Object.keys(out).map(Number);
         memo[key] = res; return res;
       }
-      function test(str) {
-        var rules = parseGrammar(), start = startIn.value.replace(/[<>]/g, "").trim();
-        if (!rules[start]) return { ok: false, why: "no rule for <" + start + ">" };
-        var e = ends(rules, start, str, 0, 0, {});
-        return { ok: e.indexOf(str.length) >= 0, why: e.length ? "longest valid prefix: " + Math.max.apply(null, e) + " chars" : "no alternative matches from the first character" };
+      /* one parse tree for str[pos, end) from nt, or null */
+      function parse(rules, nt, str, pos, end, depth, memo) {
+        if (depth > 60) return null;
+        var alts = rules[nt] || [];
+        for (var a = 0; a < alts.length; a++) {
+          var kids = matchSeq(rules, alts[a], 0, str, pos, end, depth, memo);
+          if (kids) return { nt: nt, kids: kids };
+        }
+        return null;
       }
-      function check() { var r = test(sIn.value); msg.textContent = ""; read.innerHTML = "<b>" + esc(sIn.value) + "</b> → " + (r.ok ? "<b class='k-lab-good'>VALID</b> — derivable from &lt;" + esc(startIn.value) + "&gt;" : "<b class='k-lab-bad'>INVALID</b> (" + esc(r.why) + ")") + tail(); }
-      function batch(list) { read.innerHTML = list.map(function (s) { var r = test(s); return "<b>" + esc(s) + "</b> → " + (r.ok ? "<span class='k-lab-good'>valid</span>" : "<span class='k-lab-bad'>invalid</span>"); }).join("<br>") + tail(); }
-      function tail() { return "<br><span class='k-lab-aside'>Terminals are literal characters; &lt;non-terminals&gt; expand by their rules. Exam habit: check a string by writing the derivation top-down, one rule per line.</span>"; }
+      function matchSeq(rules, seq, k, str, pos, end, depth, memo) {
+        if (k === seq.length) return pos === end ? [] : null;
+        var tok = seq[k], rest;
+        if (tok.t !== undefined) {
+          if (str.substr(pos, tok.t.length) !== tok.t) return null;
+          rest = matchSeq(rules, seq, k + 1, str, pos + tok.t.length, end, depth, memo);
+          return rest ? [{ t: tok.t }].concat(rest) : null;
+        }
+        var cands = ends(rules, tok.nt, str, pos, depth + 1, memo).filter(function (e) { return e <= end; }).sort(function (x, y) { return y - x; });
+        for (var c = 0; c < cands.length; c++) {
+          var sub = parse(rules, tok.nt, str, pos, cands[c], depth + 1, memo);
+          if (!sub) continue;
+          rest = matchSeq(rules, seq, k + 1, str, cands[c], end, depth, memo);
+          if (rest) return [sub].concat(rest);
+        }
+        return null;
+      }
+      /* the leftmost derivation, one rule per line */
+      function derivation(tree) {
+        var form = [tree], lines = [];
+        function show() { return form.map(function (x) { return x.nt ? "<" + x.nt + ">" : x.t; }).join(""); }
+        lines.push(show());
+        for (var guard = 0; guard < 60; guard++) {
+          var i = form.findIndex(function (x) { return x.nt; });
+          if (i === -1) break;
+          form.splice.apply(form, [i, 1].concat(form[i].kids));
+          lines.push(show());
+        }
+        return lines;
+      }
+      function test(str) {
+        var rules = parseGrammar(), start = startIn.value.replace(/[<>‹›]/g, "").trim();
+        tag.textContent = Object.keys(rules).length + " rule" + (Object.keys(rules).length === 1 ? "" : "s");
+        if (!rules[start]) return { ok: false, why: "There is no rule for <" + start + ">." };
+        var memo = {}, e = ends(rules, start, str, 0, 0, memo);
+        if (e.indexOf(str.length) >= 0) return { ok: true, tree: parse(rules, start, str, 0, str.length, 0, memo) };
+        return { ok: false, why: e.length ? "The longest prefix <" + start + "> can derive is " + Math.max.apply(null, e) + " character" + (Math.max.apply(null, e) === 1 ? "" : "s") + " (“" + str.slice(0, Math.max.apply(null, e)) + "”); the rest has no rule." : "No alternative of <" + start + "> matches the first character." };
+      }
+      function check() {
+        var str = sIn.value, r = test(str), start = startIn.value.replace(/[<>‹›]/g, "").trim();
+        lab.answer("Verdict", r.ok ? "VALID" : "INVALID",
+          r.ok ? "“" + str + "” is derivable from <" + start + ">." : r.why, null, r.ok ? "done" : "hot");
+        lab.section("deriv", "Derivation", r.ok && r.tree ? [el("ol", { class: "k-lab-deriv", "data-ui": "lab.derivation" }, derivation(r.tree).map(function (l) { return el("li", { text: l }); }))] : null,
+          r.ok && r.tree ? derivation(r.tree).length - 1 + " steps" : null);
+      }
+      function batch() {
+        lab.section("batch", "Five strings", [lab.table(["string", "verdict"], BNF_BATCH.map(function (s) {
+          var r = test(s); return [s, [r.ok ? "valid" : "invalid", r.ok ? "done" : "hot"]];
+        }))]);
+      }
       check();
     }
   });
 
   /* =================== COMPRESSION LAB =================== */
+  var PRESETS = [["mixed", "Mixed", "AAAAAABBBCCCCCCCCDAA the cat sat on the mat and the cat sat"],
+    ["image", "Image-like row", "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW"],
+    ["prose", "Prose", "to be or not to be that is the question whether tis nobler in the mind to suffer"]];
   KOS.sims.register({
     id: "compression-lab", title: "Compression — run-length & dictionary", subject: "compsci", ref: "4.5.6.9",
     desc: "Type text and watch run-length encoding and dictionary coding compress it (or fail to). Both are lossless; the read-out shows the ratio and where each method wins — repeated symbols for RLE, repeated words for dictionaries.",
     mount: function (panel) {
-      var inp = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 70px", "aria-label": "text to compress" });
-      inp.value = "AAAAAABBBCCCCCCCCDAA the cat sat on the mat and the cat sat";
-      panel.appendChild(inp);
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Compress", onclick: run }),
-        el("button", { class: "k-btn", text: "Image-like row", onclick: function () { inp.value = "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW"; run(); } }),
-        el("button", { class: "k-btn", text: "Prose", onclick: function () { inp.value = "to be or not to be that is the question whether tis nobler in the mind to suffer"; run(); } })]));
-      var read = readout(); panel.appendChild(read);
-      inp.addEventListener("input", run);
-      function rle(s) { var out = [], i = 0; while (i < s.length) { var j = i; while (j < s.length && s[j] === s[i]) j++; out.push((j - i) + s[i]); i = j; } return out; }
+      var inp = L.editor("Text to compress", PRESETS[0][2], { rows: 3 });
+      var rleOut = L.out("lab.rle"), dictBody = el("div", { class: "k-lab-pane-body" });
+      var rlePane = L.pane("Run-length encoding", [rleOut], { tag: "" }), dictPane = L.pane("Dictionary", [dictBody], { tag: "" });
+      var presets = L.choice(PRESETS.map(function (p) { return [p[0], p[1]]; }), "mixed", function (v) {
+        inp.value = PRESETS.filter(function (p) { return p[0] === v; })[0][2]; run();
+      }, "Sample text");
+      var lab = textLab(panel, {
+        work: [L.pane("Text", [inp], { tag: "1 byte per character" }), rlePane, dictPane],
+        readout: ["now", "values", "why", "lossless"],
+        controls: [presets]
+      });
+      inp.addEventListener("input", function () { presets.set(null); run(); });
+      lab.section("lossless", "Lossless", ["Both rebuild the original exactly. Lossy compression (JPEG, MP3) discards detail the eye or ear will not miss and cannot be undone."]);
+      function rle(s) { var out = [], i = 0; while (i < s.length) { var j = i; while (j < s.length && s[j] === s[i]) j++; out.push([j - i, s[i]]); i = j; } return out; }
       function dict(s) {
-        var words = s.split(/(\s+)/).filter(function (w) { return w.length; }), table = [], idx = {};
-        var tokens = words.map(function (w) { if (/^\s+$/.test(w)) return null; if (idx[w] === undefined) { idx[w] = table.length; table.push(w); } return idx[w]; }).filter(function (t) { return t !== null; });
+        var table = [], idx = {}, tokens = [];
+        s.split(/\s+/).filter(Boolean).forEach(function (w) { if (idx[w] === undefined) { idx[w] = table.length; table.push(w); } tokens.push(idx[w]); });
         return { table: table, tokens: tokens };
       }
+      function pct(b, raw) { return raw ? Math.round(100 * b / raw) + "%" : "—"; }
       function run() {
         var s = inp.value, raw = s.length;
-        var r = rle(s), rleTxt = r.join(""), rleBytes = r.length * 2;
-        var d = dict(s), tableBytes = d.table.join("").length + d.table.length, tokenBytes = d.tokens.length, dictBytes = tableBytes + tokenBytes;
-        function ratio(b) { return raw ? (100 * b / raw).toFixed(0) + "% of original" : "—"; }
-        read.innerHTML = "original: <b>" + raw + " bytes</b> (1 byte per character)" +
-          "<br><b>RLE</b> → " + esc(rleTxt.slice(0, 120)) + (rleTxt.length > 120 ? "…" : "") + " · " + r.length + " (count, symbol) pairs ≈ <b>" + rleBytes + " bytes</b> · " + ratio(rleBytes) + (rleBytes >= raw ? " <span class='k-lab-bad'>— bigger! RLE needs long runs</span>" : " <span class='k-lab-good'>✓</span>") +
-          "<br><b>dictionary</b> → table [" + d.table.slice(0, 12).map(function (w, i) { return i + ":" + esc(w); }).join(" ") + (d.table.length > 12 ? " …" : "") + "] + tokens " + d.tokens.slice(0, 30).join(",") + (d.tokens.length > 30 ? "…" : "") +
-          " ≈ <b>" + dictBytes + " bytes</b> (" + tableBytes + " table + " + tokenBytes + " tokens) · " + ratio(dictBytes) + (dictBytes >= raw ? " <span class='k-lab-bad'>— no repeated words to exploit</span>" : " <span class='k-lab-good'>✓</span>") +
-          "<br><span class='k-lab-aside'>Both are lossless: the original is rebuilt exactly. Lossy compression (JPEG, MP3) discards detail the eye or ear will not miss and cannot be undone.</span>";
+        var r = rle(s), rleBytes = r.length * 2;
+        var d = dict(s), tableBytes = d.table.join("").length + d.table.length, dictBytes = tableBytes + d.tokens.length;
+        rleOut.textContent = r.map(function (p) { return p[0] + (p[1] === " " ? "␠" : p[1]); }).join(" ");
+        rlePane.querySelector("[data-ui~='lab.pane-tag']").textContent = r.length + " (count, symbol) pairs";
+        dictPane.querySelector("[data-ui~='lab.pane-tag']").textContent = d.table.length + " entries · " + d.tokens.length + " tokens";
+        dictBody.innerHTML = "";
+        dictBody.appendChild(L.scrollTable(el("div", {}, [lab.table(["#", "word"], d.table.slice(0, 24).map(function (w, i) { return [String(i), w]; }))])));
+        if (d.table.length > 24) dictBody.appendChild(el("p", { class: "k-lab-sub", text: "… and " + (d.table.length - 24) + " more" }));
+        dictBody.appendChild(el("p", { class: "k-lab-pane-out k-mono", text: "tokens: " + d.tokens.join(" ") }));
+        var best = Math.min(rleBytes, dictBytes);
+        var winner = best >= raw ? "Neither" : rleBytes <= dictBytes ? "Run-length" : "Dictionary";
+        lab.answer("Smallest", winner, best >= raw ? "Both come out bigger than the " + raw + "-byte original." : winner + " stores it in " + best + " bytes, " + pct(best, raw) + " of the original.", null, best >= raw ? "hot" : null);
+        lab.values([["original", raw + " B"],
+          ["run-length", rleBytes + " B · " + pct(rleBytes, raw), rleBytes < raw ? "done" : "hot"],
+          ["dictionary", dictBytes + " B · " + pct(dictBytes, raw), dictBytes < raw ? "done" : "hot"],
+          ["  table + tokens", tableBytes + " + " + d.tokens.length]]);
+        lab.section("why", "Why", [rleBytes >= raw
+          ? "Run-length needs long runs: each run costs two bytes, so text whose symbols change every character doubles in size."
+          : "Run-length wins on long runs of one symbol — a row of an image, a fax, silence in audio.",
+          " ", dictBytes >= raw
+          ? "A dictionary needs repeated words: each new word is stored once in the table, so text with few repeats pays for the table and the tokens."
+          : "A dictionary wins when words repeat: each later use is one small token instead of the word."]);
       }
       run();
     }
@@ -134,19 +198,23 @@
     desc: "Encrypt with a Caesar shift and watch the letter-frequency bars simply slide along — which is why it falls to frequency analysis. Switch to a Vernam one-time pad and the bars flatten: with a truly random key as long as the message, used once, it is perfectly secure.",
     mount: function (panel) {
       var mode = "caesar", shift = 3, key = "XMCKLQZBTPRVWJDG";
-      var mSel = el("select", {}, [el("option", { value: "caesar", text: "Caesar shift" }), el("option", { value: "vernam", text: "Vernam (one-time pad, XOR-style)" })]);
-      mSel.onchange = function () { mode = mSel.value; run(); };
-      var sl = slider("shift", 0, 25, 1, shift, function (v) { shift = v; run(); });
-      var keyIn = el("input", { type: "text", value: key, class: "k-mono", style: "--w: 200px" });
-      keyIn.oninput = function () { key = keyIn.value.toUpperCase().replace(/[^A-Z]/g, ""); run(); };
-      var txt = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", style: "--h: 60px", "aria-label": "plaintext" });
-      txt.value = "the quick brown fox jumps over the lazy dog and the sleepy cat watches";
-      panel.appendChild(txt);
-      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["cipher", mSel]), sl.node, el("label", {}, ["pad key (A–Z)", keyIn]),
-        el("button", { class: "k-btn", text: "Random pad", onclick: function () { key = ""; for (var i = 0; i < 80; i++) key += String.fromCharCode(65 + Math.floor(Math.random() * 26)); keyIn.value = key; run(); } })]));
-      var holder = el("div", {}); panel.appendChild(holder);
-      var cv = canvas(holder, 170);
-      var read = readout(); panel.appendChild(read);
+      var txt = L.editor("Plaintext", "the quick brown fox jumps over the lazy dog and the sleepy cat watches", { rows: 3, mono: false });
+      var cOut = L.out("lab.ciphertext");
+      var chart = el("div", { class: "k-lab-chart", "data-ui": "lab.chart" });
+      var sl = L.slider("Shift", 0, 25, 1, shift, function (v) { shift = v; run(); });
+      var keyIn = txtIn(key, 200, "Pad key, letters A to Z");
+      keyIn.addEventListener("input", function () { key = keyIn.value.toUpperCase().replace(/[^A-Z]/g, ""); run(); });
+      var modes = L.choice([["caesar", "Caesar shift"], ["vernam", "Vernam pad"]], mode, function (v) { mode = v; run(); }, "Cipher");
+      var keyField = L.field("Pad key", keyIn);
+      var lab = textLab(panel, {
+        work: [L.pane("Plaintext", [txt]), L.pane("Ciphertext", [cOut]), L.pane("Letter frequency", [chart], { tag: "plaintext · ciphertext" })],
+        readout: ["now", "values", "why", "legend"],
+        controls: [modes, sl.node, keyField, L.action("Random pad", function () {
+          key = ""; for (var i = 0; i < 80; i++) key += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+          keyIn.value = key; run();
+        })]
+      });
+      lab.legend([["ring-ink", "plaintext letters"], ["fill-hot", "ciphertext letters"]]);
       txt.addEventListener("input", run);
       function enc(s) {
         var ki = 0;
@@ -158,25 +226,42 @@
         }).join("");
       }
       function freq(s) { var f = []; for (var i = 0; i < 26; i++) f.push(0); s.toUpperCase().split("").forEach(function (ch) { var c = ch.charCodeAt(0) - 65; if (c >= 0 && c < 26) f[c]++; }); return f; }
-      function run() {
-        var plain = txt.value, cipher = enc(plain);
-        var ctx = cv.ctx; if (ctx && ctx.beginPath) {
-          ctx.clearRect(0, 0, cv.W, cv.H);
-          var fp = freq(plain), fc = freq(cipher), mx = Math.max(1, Math.max.apply(null, fp.concat(fc)));
-          var bw = (cv.W - 20) / 26;
-          for (var i = 0; i < 26; i++) {
-            var x = 10 + i * bw;
-            ctx.fillStyle = A(COL.mute, .5); ctx.fillRect(x + 1, 70 - fp[i] / mx * 60, bw / 2 - 1, fp[i] / mx * 60);
-            ctx.fillStyle = COL.crim; ctx.fillRect(x + bw / 2, 70 - fc[i] / mx * 60, bw / 2 - 1, fc[i] / mx * 60);
-            ctx.fillStyle = COL.mute; ctx.font = "10px 'IBM Plex Mono', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillText(String.fromCharCode(65 + i), x + bw / 2, 74);
-          }
-          ctx.fillStyle = COL.text; ctx.textAlign = "left"; ctx.font = "11px 'IBM Plex Mono', monospace";
-          ctx.fillText("grey: plaintext letter frequency   red: ciphertext", 10, 100);
-          var reuse = mode === "vernam" && key.length && key.length < plain.replace(/[^a-z]/gi, "").length;
-          ctx.fillStyle = reuse ? COL.crim : COL.mute; ctx.fillText(mode === "vernam" ? (reuse ? "key shorter than message → pad reused → patterns leak" : "key ≥ message length, random, used once → unbreakable") : "the whole histogram shifts by " + shift + " — E's peak gives the shift away", 10, 118);
+      /* 26 pairs of bars in a 520 × 170 frame (the token's 52:17) */
+      function draw(fp, fc) {
+        var W = 520, H = 170, top = 10, base = 136, bw = W / 26, mx = Math.max(1, Math.max.apply(null, fp.concat(fc)));
+        var kids = [];
+        for (var i = 0; i < 26; i++) {
+          var x = i * bw, hp = fp[i] / mx * (base - top), hc = fc[i] / mx * (base - top);
+          if (fp[i]) kids.push(L.svg("rect", { x: x + 2, y: base - hp, width: bw / 2 - 2, height: hp, rx: 2, class: "k-sv-node", "data-tone": "ink" }));
+          if (fc[i]) kids.push(L.svg("rect", { x: x + bw / 2, y: base - hc, width: bw / 2 - 2, height: hc, rx: 2, class: "k-sv-node", "data-tone": "hot" }));
+          kids.push(L.svg("text", { x: x + bw / 2, y: base + 22, "font-size": 14, "text-anchor": "middle", class: "k-sv-t", "data-tone": "mute", text: String.fromCharCode(65 + i) }));
         }
-        read.innerHTML = "ciphertext: <b>" + esc(cipher) + "</b>" +
-          "<br><span class='k-lab-aside'>" + (mode === "caesar" ? "Caesar: each letter moves a fixed number of places; 25 possible keys, so brute force or frequency analysis breaks it in seconds." : "Vernam: each letter is combined with the corresponding key letter (here modulo-26 addition; with bits it is XOR). Security depends on the key being truly random, as long as the message, kept secret and never reused.") + "</span>";
+        kids.push(L.svg("line", { x1: 0, y1: base, x2: W, y2: base, class: "k-sv-edge" }));
+        chart.innerHTML = "";
+        chart.appendChild(L.svg("svg", { class: "k-sv", viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "xMidYMid meet", role: "img",
+          "aria-label": "Letter frequencies of the plaintext and the ciphertext" }, kids));
+      }
+      function run() {
+        keyField.hidden = mode !== "vernam";
+        sl.node.hidden = mode !== "caesar";
+        var plain = txt.value, cipher = enc(plain), letters = plain.replace(/[^a-z]/gi, "").length;
+        cOut.textContent = cipher;
+        var fp = freq(plain), fc = freq(cipher);
+        draw(fp, fc);
+        var topP = fp.indexOf(Math.max.apply(null, fp)), topC = fc.indexOf(Math.max.apply(null, fc));
+        if (mode === "caesar") {
+          lab.answer("Key space", "25 keys", ["The commonest plaintext letter, ", lab.em(String.fromCharCode(65 + topP), "ink"), ", became ", lab.em(String.fromCharCode(65 + topC), "hot"),
+            " — the peak slid " + ((topC - topP + 26) % 26) + " places, which is the key."]);
+          lab.values([["shift", String(shift)], ["letters", String(letters)]]);
+          lab.section("why", "Why it falls", ["Every letter moves the same number of places, so the whole histogram slides without changing shape. Try all 25 shifts, or line the tallest bar up with E."]);
+        } else {
+          var reuse = key.length && key.length < letters;
+          lab.answer("Pad", reuse ? "Reused" : key.length ? "One-time" : "No key", reuse
+            ? ["The key (" + key.length + " letters) is shorter than the message (" + letters + "), so it repeats — and repeated key patterns leak."]
+            : key.length ? ["A random key at least as long as the message, used once: every plaintext is equally likely, so the bars flatten and analysis has nothing to hold."] : ["Type a key, or press Random pad."], null, reuse || !key.length ? "hot" : "done");
+          lab.values([["key length", String(key.length), reuse ? "hot" : "done"], ["message letters", String(letters)]]);
+          lab.section("why", "Why it holds", ["Each letter is combined with its own key letter (here adding modulo 26; with bits it is XOR). The security rests on the key being truly random, as long as the message, secret and never reused."]);
+        }
       }
       run();
     }

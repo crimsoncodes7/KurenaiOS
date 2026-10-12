@@ -431,6 +431,25 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 .k-asst-inline-edit .k-input { flex: 1 1 0; min-inline-size: 0; block-size: var(--hit); min-block-size: 0; padding-block: 0; }
 .k-asst-inline-edit .k-btn { block-size: var(--hit); flex: 0 0 auto; }
 .k-asst-page > .k-asst-composer { align-items: center; }
+/* Scheduled prompts: the time in the row's mark, the days as round
+   toggles, the last reply folded under the row */
+.k-asst-sched-add { display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-asst-sched-add .k-asst-input { min-block-size: calc(var(--hit) * 2); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-14); background: var(--s2); }
+.k-asst-sched-when { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10) var(--sp-16); }
+.k-asst-sched-when > .k-btn { margin-inline-start: auto; }
+.k-asst-sched-at { display: inline-flex; align-items: center; gap: var(--sp-8); }
+.k-asst-time { inline-size: auto; }
+.k-asst-days { display: inline-flex; gap: var(--sp-4); }
+.k-asst-day { flex: 0 0 auto; display: grid; place-items: center; inline-size: var(--hit); block-size: var(--hit); min-inline-size: var(--hit); padding: 0; border-radius: 50%; background: var(--s2); font-size: var(--fs-12-5); font-weight: var(--weight-semibold); color: var(--muted); }
+.k-asst-day[aria-pressed="true"] { background: var(--wash-bloom); color: var(--bloom); box-shadow: inset 0 0 0 var(--hairline) var(--bloom); }
+.k-asst-sched .k-asst-line-mark { inline-size: auto; padding-inline: var(--sp-8); border-radius: var(--r-pill); font-family: var(--font-mono); font-size: var(--fs-12); }
+.k-asst-sched { align-items: flex-start; }
+.k-asst-sched[data-state~="focus"] { box-shadow: inset var(--bar-3) 0 0 var(--bloom); padding-inline-start: var(--sp-10); }
+.k-asst-sched-on { display: inline-flex; align-items: center; gap: var(--sp-6); font-size: var(--fs-12-5); color: var(--text-2); }
+.k-asst-sched-last { margin-block-start: var(--sp-8); }
+.k-asst-sched-last > summary { cursor: pointer; font-size: var(--fs-12-5); color: var(--text-2); }
+.k-asst-sched-last > .k-asst-rich { margin-block: var(--sp-8); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-14); background: var(--s2); }
+.k-asst-sched-alert { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-12); margin: 0; }
 
 /* ---------- Permissions (13e) and Activity (13f) ---------- */
 .k-asst-permbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); }
@@ -545,6 +564,8 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 
 @media (max-width: 560px) {
 .k-asst-line { flex-wrap: wrap; }
+/* a schedule's switch and its two links share one even row */
+.k-asst-sched > :is(.k-asst-sched-on, .k-link) { display: inline-flex; align-items: center; min-block-size: var(--hit-coarse); }
 .k-asst-line-txt { flex-basis: calc(100% - var(--sp-48)); }
 .k-asst-audit { grid-template-columns: minmax(0, 1fr) var(--asst-audit-out); }
 .k-asst-audit-when { display: none; }

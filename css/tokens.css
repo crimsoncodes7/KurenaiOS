@@ -265,6 +265,7 @@ color-scheme: dark;
 --lab-toggle-h: 20px;
 --lab-speed-w: 90px;
 --lab-trace-h: 440px;       /* the Trace Lab's table scrolls past this */
+--lab-chart-ar: 52 / 17;      /* a text lab's in-pane chart (the cipher's letter frequencies) */
 --lab-tt-w: 420px;
 --lab-switch-w: 58px;
 --lab-bit-sw-w: 32px;

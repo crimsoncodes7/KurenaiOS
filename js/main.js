@@ -107,6 +107,9 @@
   /* the notification centre's own watchers (aired episodes, release days):
      once after boot, then every minute alongside the alert tickers */
   if (KOS.notify) setTimeout(function () { KOS.notify.tick(); setInterval(KOS.notify.tick, 60000); }, 5000);
+  /* scheduled prompts: sent at their time while the app is open, or on the
+     first open later that day (core/aischedule.js) */
+  if (KOS.ai && KOS.ai.schedule) KOS.ai.schedule.start();
   /* re-check reminders + HP drift every 30 min while the app stays open */
   setInterval(function () {
     KOS.governor.tick();

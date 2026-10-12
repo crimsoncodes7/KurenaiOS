@@ -18,10 +18,10 @@
   var el = KOS.ui.el;
 
   /* the section a kind belongs to, marked like the main rail */
-  var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐" };
+  var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐", assistant: "助" };
   var KIND_MARK = { wishlist: "円", focus: "集" };
   var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber" };
-  var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection" };
+  var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection", assistant: "Assistant" };
 
   function clock(ts) {
     return new Date(ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -120,7 +120,7 @@
   /* ---------------- the page (frame 14b) ---------------- */
   /* frame 16k: the Focus kind has its own chip, between Productivity and
      Collection */
-  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["focus", "Focus"], ["collection", "Collection"]];
+  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["focus", "Focus"], ["collection", "Collection"], ["assistant", "Assistant"]];
   function matches(filter, it) {
     if (filter === "all") return true;
     if (filter === "unread") return !KOS.notify.isRead(it);

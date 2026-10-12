@@ -48,7 +48,10 @@
     pacing:     { label: "Pacing",     glyph: "暦", section: "productivity", view: "pacing" },
     /* roadmap 1.6: a running Focus session nobody has touched for 30 min,
        and the session it then ended */
-    focus:      { label: "Focus",      glyph: "集", section: "productivity", view: "focus" }
+    focus:      { label: "Focus",      glyph: "集", section: "productivity", view: "focus" },
+    /* a scheduled prompt's reply (core/aischedule.js): the message the user
+       asked Kurenai to send at a time, arrived */
+    assistant:  { label: "Assistant",  glyph: "助", section: "assistant", view: "assistant" }
   };
 
   function N() {

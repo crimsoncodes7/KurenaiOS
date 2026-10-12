@@ -61,7 +61,7 @@ step("one shared controller drives drawer and page", async () => {
   await tick(20);
   assert(A.state() === shared, "page must not create a second controller");
   assert(doc.querySelector("[data-ui~='asst.page'] [data-ui~='asst.composer']").value === "shared draft", "draft must move across surfaces");
-  assert(doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']").length === 6, "six compatible destinations expected");
+  assert(doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']").length === 7, "seven compatible destinations expected (Scheduled joined, 12 October 2026)");
   A.close();
 });
 

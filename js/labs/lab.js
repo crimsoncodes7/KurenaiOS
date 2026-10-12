@@ -35,6 +35,8 @@
        readout: ["now", "values", "legend"]   section order
        before: [node], kind: "trace"           a column ahead of the stage
        vb: [480, 600]                          a viewBox other than 800 × 450
+       work: [node]                            a TEXT lab: a work pane (editor
+                                               and output) where the stage sits
      });
      lab.draw(function (d) { …; return { w, h, count, noun }; });
      lab.steps(frames, render, { autoplay })   load a run of frames
@@ -205,8 +207,14 @@
     };
     lab.em = function (t, tone) { return el("b", { class: "k-lab-em", "data-tone": tone || null, text: String(t) }); };
 
-    /* `before`: columns ahead of the stage (the Trace Lab's code pane) */
-    panel.appendChild(el("div", { class: "k-lab-body", "data-ui": "lab.body", "data-kind": o.kind || null }, (o.before || []).concat([stage, read])));
+    /* `before`: columns ahead of the stage (the Trace Lab's code pane).
+       `work`: a text lab (BNF, SQL, regex, LMC, the NEA tools…) has no
+       drawing — its editor and output fill the stage's column, and the
+       readout beside it works exactly as it does for a drawn lab */
+    var work = o.work ? el("div", { class: "k-lab-workpane", "data-ui": "lab.work" }, o.work) : null;
+    panel.appendChild(el("div", { class: "k-lab-body", "data-ui": "lab.body", "data-kind": o.kind || (work ? "text" : null) },
+      (o.before || []).concat([work || stage, read])));
+    lab.work = work;
     lab.stage = stage;
     lab.readout = read;
 
@@ -398,8 +406,8 @@
       }, true);
       KOS.ui.state(stage, "draggable", true);
     };
-    lab.answer = function (title, big, rest, meta) {
-      return section("now", title, [el("b", { class: "k-lab-big", "data-ui": "lab.answer", text: String(big) }), rest != null ? el("p", { class: "k-lab-work" }, rich(rest)) : null].filter(Boolean), meta);
+    lab.answer = function (title, big, rest, meta, tone) {
+      return section("now", title, [el("b", { class: "k-lab-big", "data-ui": "lab.answer", "data-tone": tone || null, text: String(big) }), rest != null ? el("p", { class: "k-lab-work" }, rich(rest)) : null].filter(Boolean), meta);
     };
     /* a pointer position in the drawing's own units (for dragging a node) */
     lab.toWorld = function (cx, cy) {
@@ -578,6 +586,33 @@
     return b;
   }
   function sep() { return el("span", { class: "k-lab-bar-sep", "aria-hidden": "true" }); }
+  /* a text lab's work-pane panel: a kicker (and a tag) over its body */
+  function pane(title, kids, opts) {
+    opts = opts || {};
+    return el("section", { class: "k-lab-pane", "data-ui": "lab.pane" + (opts.hook ? " " + opts.hook : ""), "aria-label": title }, [
+      el("header", { class: "k-lab-pane-h" }, [
+        el("span", { class: "k-kicker", text: title }),
+        opts.tag != null ? el("span", { class: "k-lab-pane-tag k-mono", "data-ui": "lab.pane-tag", text: String(opts.tag) }) : null
+      ].filter(Boolean))
+    ].concat((kids || []).filter(Boolean)));
+  }
+  /* the editor a text lab is written in: monospace unless told otherwise */
+  function editor(label, value, opts) {
+    opts = opts || {};
+    var ta = el("textarea", { class: "k-lab-editor", "data-ui": "lab.editor", spellcheck: "false", autocomplete: "off",
+      rows: String(opts.rows || 6), "aria-label": label, "data-mono": opts.mono === false ? null : "" });
+    ta.value = value == null ? "" : String(value);
+    return ta;
+  }
+  /* a table that may outgrow a phone: the shared scroller (invariant 50),
+     a tab stop only while it overflows */
+  function scrollTable(node) {
+    node.classList.add("k-lab-tablewrap");
+    return KOS.ui.scroller(node, { label: "Table", className: "k-lab-tablescroll", tabWhenScrolls: true,
+      prevLabel: "Scroll the table left", nextLabel: "Scroll the table right" });
+  }
+  /* a text output block (ciphertext, an encoding, highlighted matches) */
+  function out(hook) { return el("div", { class: "k-lab-pane-out k-mono", "data-ui": "lab.output" + (hook ? " " + hook : "") }); }
   /* a slider with its value printed beside it (20c: every slider shows its value) */
   function slider(label, min, max, step, val, onchange, show) {
     show = show || String;
@@ -588,5 +623,6 @@
       set: function (x) { inp.value = x; out.textContent = show(parseFloat(inp.value)); } };
   }
 
-  KOS.lab = { create: create, svg: svg, field: field, choice: choice, action: action, toggle: toggle, sep: sep, slider: slider, nice: nice, VW: DVW, VH: DVH, FLOOR: FLOOR };
+  KOS.lab = { create: create, svg: svg, field: field, choice: choice, action: action, toggle: toggle, sep: sep, slider: slider,
+    pane: pane, editor: editor, out: out, scrollTable: scrollTable, nice: nice, VW: DVW, VH: DVH, FLOOR: FLOOR };
 })();

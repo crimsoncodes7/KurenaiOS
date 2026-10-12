@@ -392,6 +392,21 @@ Claude Design and comes back as a handoff, the way Graphite did.
   structure column, which had collapsed to zero width below 700px, now
   stacks under the code. Labs that use the whole frame (graphs, wide
   plots, the Turing tape) are unchanged.
+- **The text labs (12 October):** the eight that were not on the system
+  are now its TEXT kind (`KOS.lab.create({work})`): the editor and its
+  output fill the stage's column as panes, the readout beside them works
+  as it does for a drawn lab. BNF shows the leftmost derivation; SQL its
+  query plan; LMC assembles once into frames the lab transport replays
+  (Reset · Run · Step, the counter, speed); compression names the winner;
+  regex lists each match; the NEA checker and estimator read their totals
+  in the readout (a verdict is a card on a phone). The cipher's frequency
+  chart is SVG in theme tones — the last canvas a lab drew, so
+  `KOS.sims.canvas`/`COL` are gone. Code surfaces show `>=` as typed
+  (ligatures off).
+- **Still small on a phone:** the labs that fill the whole frame — Dijkstra
+  and BFS/DFS, binary search, error checking, the bitmap, the Turing
+  machine, fetch–execute and the wide plots. Each would need its own
+  `lab.narrow()` layout, as floating point and subnetting have.
 
 ---
 
@@ -435,6 +450,67 @@ Claude Design and comes back as a handoff, the way Graphite did.
 
 ---
 
+## Phase 5 — New features (asked for 12 October 2026)
+
+### 5.1 Reports: the week, month, term and year in review ◆
+
+- **What:** a report like Claude's *Reflect* page, but across the whole
+  app — Study, Productivity, Collection, the Assistant and the profile
+  (Governor) — for four periods, each deeper than the last:
+  - **Weekly:** the headline numbers and what moved — study time and
+    sessions, cards reviewed and recall, topics touched, Focus blocks,
+    the plan's ticks and carry-overs, tasks and reminders done, what was
+    watched/read/played, XP, gold and the streaks.
+  - **Monthly:** adds trends against the previous month, the busiest day
+    and hour, subject balance, mastery changes by unit, the Collection's
+    completions and score spread, the Assistant's use.
+  - **Termly** (the plan's school terms): adds the plan against class
+    (ahead/aligned/behind from the braid), exam and paper results, IT unit
+    marks, the weakest and strongest topics, Focus habits.
+  - **Yearly** (the academic year, September–August): adds the long view
+    — month-by-month charts, every grade and paper, the year's
+    Collection, records and milestones.
+- **The shape (from Reflect):** a one-line headline, a short narrative
+  paragraph, a stat row (most active day, peak hour, totals), an activity
+  chart with a metric toggle, a "what it was about" bar by area, then one
+  card per domain. Each section links to the page it summarises.
+- **Two ways to write the words:**
+  - **Template** (always available, offline, free): sentences built from
+    the numbers by rule — the default, and the fallback.
+  - **Kurenai** (optional): the Assistant writes the headline and the
+    narrative from the report's AGGREGATES only (never raw notes, titles
+    or messages it does not need), read-only, as one metered request; the
+    text is saved with the report and can be regenerated.
+- **How:**
+  - One derivation module (`js/core/report.js`, `KOS.report.build(period,
+    range)`) that READS the existing single sources — the session ledger,
+    `KOS.hub` statistics (invariant 26d), SRS, pacing, the tracker,
+    `KOS.itUnits`, the Collection's indexes, the Governor's ledger,
+    `kos_ai_usage` — and returns plain data. Nothing new is recorded.
+  - Saved reports (the data snapshot plus any generated text) so a past
+    week reads as it was; a "report ready" notification on Monday morning
+    / the 1st / a term's end, built on the scheduled-message ticker.
+  - A Reports page (and a Home card for the latest), plus export through
+    the existing share card or as a file.
+- **Invariants:** zero Governor traffic; derived, never a second
+  dataset (26d, 82); invariant 77's zero rule; invariant 76's evidence
+  floor for every chart; the Assistant's privacy line (71, 71a).
+- **Design first:** frames for the four depths, phone included.
+
+### 5.2 Scheduled messages — done (12 October 2026)
+
+- The Assistant's **Scheduled** tab and the `schedule_*` tools: a prompt
+  Kurenai sends for you at a time on chosen days ("Tell me the plan for
+  today", 07:00, weekdays). It runs while the app is open, or on the
+  first open later that day; read-only and isolated from the live
+  conversation; the reply lands in its own conversation, on the schedule
+  and in the notification centre (kind `assistant`), with a device alert
+  where allowed. A run is claimed (synced) before the model is called, so
+  two open devices do not both send it. `js/core/aischedule.js`; smoke27.
+- Sending while the app is CLOSED is parked below: it needs a server.
+
+---
+
 ## Parked — not scheduled
 
 | Item | Why it waits | Unblocks when |
@@ -444,6 +520,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
 | Automation engine | never existed; Category 6 refused a placeholder | a concrete use case |
 | Syncing media kv (hero picks, per-season scenery, other view picks) | kv also holds provider credentials, so it needs a whitelist of syncable keys, and an uploaded hero is a data URL too large for the state document (it would ride the attachment path instead). The Shrine's tie order already syncs, in the state document | you schedule it (asked for as a nice-to-have, 27 Sep) |
 | Alternate mascots and logo families (Fallen Crown / Faded Oath), re-polished overlays | art work, not code | art exists (◆ for their presentation) |
+| Scheduled messages while the app is closed | the Assistant's tools read this device's data and there is no push server (invariant 98). It needs a server runner (a cron Edge Function with read tools over the synced state document) and Web Push (VAPID keys, subscriptions, a `push` handler in `sw.js`) | you want 07:00 to arrive with the app shut |
 
 ---
 
@@ -464,6 +541,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
 4. The OOP IDE and the labs from their handoffs; then Dawn and the themes.
 5. Phase 4 content can run between any two of these. It shares no files
    with the UI work.
+6. Phase 5: 5.1 Reports, from its Claude Design frames.
 
 Deploy after each phase, or sooner when you ask. The pre-deploy checklist
 in `CLAUDE.md` applies every time.

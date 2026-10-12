@@ -9,7 +9,7 @@
    TESTED PROPERTIES:
    1. ai.js loads inert: no state.assistant until used, zero network at load.
    2. Per-category routing defaults match the spec (tutor/complex/
-      generation → gemini gemini-3.8-flash, crud → ollama; generation left
+      generation → gemini gemini-3.6-flash, crud → ollama; generation left
       DeepSeek on 12 October 2026, the deployment holds no DeepSeek key);
       setRouting/setFallback validate their inputs.
    3. Ollama transport: exact /api/chat request shape (stream:false, system
@@ -103,9 +103,9 @@ console.log("== routing defaults + validation ==");
 
 step("defaults match the spec; setRouting/setFallback validate", async () => {
   const a = KOS.ai.config();
-  assert(a.routing.tutor.provider === "gemini" && a.routing.tutor.model === "gemini-3.8-flash", "tutor default wrong");
+  assert(a.routing.tutor.provider === "gemini" && a.routing.tutor.model === "gemini-3.6-flash", "tutor default wrong");
   assert(a.routing.crud.provider === "ollama", "crud default wrong");
-  assert(a.routing.generation.provider === "gemini" && a.routing.generation.model === "gemini-3.8-flash", "generation default wrong");
+  assert(a.routing.generation.provider === "gemini" && a.routing.generation.model === "gemini-3.6-flash", "generation default wrong");
   assert(a.routing.complex.provider === "gemini", "complex default wrong");
   assert(a.fallback.crud === null && a.fallback.tutor === null, "fallback must default OFF");
   assert(KOS.ai.setRouting("nope", "gemini", "m") === false, "bad category accepted");
@@ -280,6 +280,20 @@ step("edge 429 → rate kind, not retried", async () => {
 
 /* ============ 5 · routing + fallback ============ */
 console.log("== routing + no-silent-fallback ==");
+
+/* Gemini answers "overloaded" with HTTP 503: nothing ran, so ONE patient
+   retry; a second busy answer surfaces (12 October 2026, 3.8 Flash) */
+step("a busy provider (503) is retried once, then surfaces", async () => {
+  let calls = 0;
+  KOS.ai._config({ invoke: (body, cb) => { calls++; cb(new Error("gemini returned HTTP 503: The model is overloaded."), { kind: "provider", error: "gemini returned HTTP 503: The model is overloaded." }, 502); } });
+  const t0 = Date.now();
+  const r = await pchatWith("gemini", "gemini-3.6-flash", { messages: [{ role: "user", content: "hi" }] });
+  assert(r.err && calls === 2, "busy must retry exactly once, calls=" + calls);
+  assert(Date.now() - t0 >= 1500, "the retry waits");
+  calls = 0;
+  await pchatWith("gemini", "gemini-3.6-flash", { messages: [{ role: "user", content: "hi" }], noRetry: true });
+  assert(calls === 1, "noRetry (a tool already ran) means no retry");
+});
 
 step("chat() honours per-category routing", async () => {
   let edgeBody = null, ollamaCalled = 0;
