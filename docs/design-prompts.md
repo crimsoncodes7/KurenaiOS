@@ -17,6 +17,7 @@ handoff maps back to the roadmap.
 | 7 | The topic picker | 1.1 | optional |
 | 8 | IT unit grades | 1.2 | optional |
 | 9 | Reports: week, month, term, year | 5.1 | next |
+| 10 | Code: a C# study space | 5.3 | after 9 |
 
 ---
 
@@ -251,3 +252,36 @@ Frames:
 24l Dawn: the weekly report in the light theme.
 ```
 
+
+## 10 · Code: a C# study space
+
+```text
+Design a Code space for KurenaiOS, continuing the approved design in this project: Graphite (Atelier Dusk) and its light twin Dawn, the phone views (15a–15n), the OOP IDE (19a–19f), the lab system (20a–20i) and Reports (24a–24l). Number the new frames 26a onwards. Desktop 1280; phone 390 × 844, checked at 360. Use only the existing tokens, type scale, cards, stat tiles, tabs, chips and chart styles. This space needs a FOURTH subject hue beside AQA Computer Science teal, Edexcel Maths violet and OCR IT pink-violet: propose one that is distinct from all three in Dusk and Dawn and passes contrast on both.
+
+What it is: a study space for learning C# as a programming language, separate from the A-level subjects. It has the same structure as them (a spine of units and topics on the left, lessons with notes, flashcards, quizzes, the status and mastery bands, the inspector) and adds what a programming course needs: a curriculum from basics to advanced in 12 units across four stages (Foundations, Working with data, Object-oriented C#, Professional practice); an editor that runs the learner's code and checks it automatically against tests (like Harvard CS50's check50); a Daily 20 task; a weekend mini project; a capstone at the end of units 3, 6, 9 and 12; katas and debugging drills; and retrieval practice that brings back skills from early units after they have faded.
+
+Rules the design must keep:
+- Nothing is locked. A stage the learner has not reached is "recommended later", never greyed out or hidden (study material never locks).
+- A zero that is only a supporting fact is not printed; a chart needs enough evidence to make a claim, so show honest low-data states (a brand-new learner has no skill map yet).
+- Status colours (failing test, error) are the fixed alarm red, never the theme accent. Test results never rely on colour alone (an icon and a word).
+- Code is monospace, never ligatured; the editor is keyboard-complete and screen-reader usable; the results list is a real list.
+- On a phone, typing code is the weak case: lead with lessons, retrieval, predict-the-output and fill-the-gap, and keep full editing available but not the first thing offered.
+- Rewards are reported, never promised: a first pass of a task pays once; a re-run, a seen solution or a repeat retrieval shows "no reward" calmly.
+- Learner code runs on the device; show that plainly where code could be sent to the Assistant ("What is sent", on request only).
+
+Sample data: learner in unit 5 (Strings, parsing, formatting) of 12; 38 of ~120 lessons done; Daily 20 today: "Word frequency counter" (Core, unit 4 Dictionary); 6 retrievals due, including one from unit 1 (swap two variables without a temp) last proven 41 days ago; weekend project "Library fines calculator"; capstone 1 (Text adventure engine) passed, capstone 2 due after unit 6; study streak 12 days. Task results: 5 of 6 cases pass, one hidden case fails with a diff; a compiler error CS0103 shown with a plain-words explanation.
+
+Frames:
+26a Code home: today's task, retrievals due, the stage path with the capstones as checkpoints, the skill map (concepts coloured by how long since last proven), the weekend project card.
+26b A lesson page: paged note, a runnable worked listing, predict-the-output, fill-the-gap, flashcards and quiz tabs, the first task.
+26c The task editor: statement, starter code, run, visible examples, results (pass/fail per case with a diff, timeout and compiler-error states), hint ladder (three rungs), the "see solution" confirm.
+26d Retrieval: a skill card (write from memory), the checked result and the grade it earns, the "Getting rusty" list.
+26e The skill map in full, with a concept opened (when last proven, its cards, a retrieval offered).
+26f A weekend mini project: spec, milestones with tests, stretch goals, files.
+26g A capstone checkpoint: the closed-book quiz before the brief, the brief, rubric self-marking, the Kurenai review (with "What is sent"), the write-up, the pass state.
+26h Katas and debugging drills: a find-the-bug and a write-the-tests task.
+26i Empty and low-data states: a first visit, and a learner with no retrievals due.
+26j Phone: Code home and a retrieval card.
+26k Phone: a lesson with a fill-the-gap item, and the task editor with the short-answer form.
+26l Dawn: the task editor in the light theme.
+```

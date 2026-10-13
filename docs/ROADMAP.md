@@ -526,6 +526,186 @@ Claude Design and comes back as a handoff, the way Graphite did.
   two open devices do not both send it. `js/core/aischedule.js`; smoke27.
 - Sending while the app is CLOSED is parked below: it needs a server.
 
+### 5.3 Code: a C# study space ◆ (asked for 13 October 2026)
+
+- **What:** a fourth space beside Computer Science, Maths and IT, for
+  programming alone. It is built like the general subjects (a spine of
+  units and topics, notes, flashcards, quizzes, the same status/mastery
+  bands, Focus and the topic picker all work on it) and adds what a
+  programming course needs and an exam subject does not: a curriculum from
+  the first `Console.WriteLine` to advanced C#, code that is run and
+  checked in the page, a daily task, a weekend project, capstones at
+  checkpoints, and retrieval that makes the early skills come back.
+- **Not the A-level:** AQA Computer Science stays as it is. This space
+  teaches the language and the craft; each lesson that overlaps a Paper 1
+  topic links to it both ways (the same cross-link the OOP sandbox has).
+
+**The curriculum** (authored, about 12 units, each ending in a checkpoint):
+
+| Stage | Units |
+|---|---|
+| Foundations | 1 Hello, values and types · 2 Decisions and loops · 3 Methods and scope |
+| Working with data | 4 Arrays, `List<T>`, `Dictionary`, tuples · 5 Strings, parsing, formatting · 6 Errors, exceptions and debugging |
+| Object-oriented C# | 7 Classes, properties, encapsulation · 8 Inheritance, interfaces, polymorphism, records · 9 Generics, delegates, events, LINQ |
+| Professional practice | 10 Testing (xUnit), refactoring, clean code, SOLID · 11 Files, JSON, `async`/`await`, the .NET CLI and Git · 12 Data structures, algorithms and complexity in C#; then web APIs and a database as an elective track |
+
+Each lesson follows the content contract's shape for code: a short paged
+note, a worked listing the learner runs and edits, "predict the output",
+"find the bug" and "fill the gap" items, flashcards, a quiz and a first
+task. Every listing in the shipped lessons is compiled and run under the
+current .NET before it ships (as CS Paper 1's 100 listings were).
+
+**The five practice streams** (a day has a shape, set by the weekday):
+
+- **Daily 20:** one task of about 20 minutes, chosen from the learner's
+  frontier plus one retrieval item (below). A task has a statement, starter
+  code, visible examples and hidden tests; ladders of difficulty per unit
+  (warm-up, core, stretch). A graduated hint ladder: nudge, pointer, shape of
+  the answer; the full solution opens only after real attempts and marks the
+  task "seen the answer".
+- **Weekend mini project:** Saturday and Sunday, two to four hours, built
+  from what the learner has covered so far and nothing else. A spec, a
+  scaffold with tests, milestones, stretch goals. Planned on the calendar as
+  a study block and ticked on the plan.
+- **Capstones** at the checkpoints (after units 3, 6, 9 and 12): a larger
+  multi-file project that needs everything so far, with a written brief, an
+  acceptance test suite, a rubric the learner marks against, an optional
+  Kurenai review, and a short write-up. Passing a capstone is what opens
+  the next stage's lessons as "recommended", never as locked (invariant 2).
+- **Katas and debugging drills:** short, repeatable: fix a failing program,
+  read code and say what it does, refactor to a smell list, write the tests
+  for given code (checked by running them against a correct and several
+  broken implementations).
+- **Retrieval** (the point of the space): see below.
+
+**Automated checking (how a task is marked)**
+
+- Two check modes, both deterministic: *program* (stdin → expected stdout,
+  CS50 `check50` style) and *method* (call the learner's method with
+  inputs, compare the return value), plus *tests* for the write-the-tests
+  kind. A run reports each case as pass/fail with a diff, timeouts and
+  compiler errors translated into plain words (CS0103 "the name does not
+  exist in this context" with the likely cause). Hidden cases stay hidden;
+  the visible ones are examples.
+- **Decision A, the runner (take first, as a spike, before any lesson is
+  written):** the app is a script-tag PWA with no build step, no server for
+  code and a rule that signed-out/offline use stays complete (invariant 31).
+  Recommended: (1) a C#-subset interpreter written in JS, in a worker, for
+  stages 1–2 and the early part of 3 (console I/O, types, control flow,
+  methods, arrays, strings, `List`/`Dictionary`, classes, exceptions, a
+  focused LINQ) with an honest "not supported yet" error; offline, instant,
+  no download. (2) For the later units, a lazily loaded .NET WebAssembly
+  runtime and compiler, fetched on first use, cached by the service worker,
+  and presented as an optional download with its size shown. A server runner
+  (a container behind an Edge Function) is the third option and is not
+  recommended: it needs a network, a cost and a sandbox against hostile
+  code. The spike decides whether (1) alone covers units 1–6 and whether
+  (2) is affordable on a phone; the curriculum is written against whatever
+  the spike supports, so the choice moves the schedule, not the design.
+- Learner code never leaves the device by itself. It runs in a worker with a
+  step and time budget, no network and no DOM, and it can read no app data.
+
+**Retrieval practice (so early material is not forgotten)**
+
+- **Skill cards on the existing scheduler.** Besides flashcards, each lesson
+  contributes small code retrievals: write this three-line snippet from
+  memory, predict the output, spot the bug. They are scheduled by SM-2 under
+  the same key scheme (`code:<ref>:<id>`, invariants 86–87), so a card's
+  schedule survives a reword. Because a run is checked automatically, the
+  grade is derived, not self-reported: first-try pass fast = Easy, pass with a
+  hint = Hard, fail = Again.
+- **Variation, not repeats.** A retrieval task that has been solved is
+  re-asked later in a parameterised form (different names, values and a
+  twist), so recognition cannot stand in for recall. Interleaved: the daily
+  retrieval item comes from any earlier unit, weighted to the oldest and
+  weakest.
+- **Cumulative review week:** every fourth week the Daily 20 is a mixed
+  set from all earlier units, and a checkpoint opens with a closed-book
+  quiz before the capstone's brief is shown.
+- **The skill map:** every concept with the date it was last *proven* by
+  passing code (not read), coloured by how long ago; "Getting rusty" lists
+  what has gone longest without being proven and offers one retrieval item
+  for each. Decay is derived from the ledger and the card schedule, never a
+  second record of mastery (invariants 26d, 82).
+
+**Other things recommended (all small, all in the same space)**
+
+- **Code reading and "explain it back":** read an unfamiliar listing and say
+  what it does; the learner's explanation may be sent to Kurenai for
+  feedback, only on request, with the same "What is sent" disclosure as the
+  Reports words (invariant 102b).
+- **Error-message decoder:** paste or click a compiler error to get the
+  meaning, a cause and a fix, from a shipped table (offline).
+- **Reference and glossary:** a searchable cheat sheet (syntax, the common
+  `System` types, LINQ operators), entering cross-domain search.
+- **Algorithm ladder:** after unit 12, interview-style problems with a
+  complexity note, reusing the Trace Lab to step through a solution.
+- **A portfolio page:** each finished project exports as a folder with a
+  README (a zip, made on the device) ready for GitHub.
+- **Assistant tools:** read-only (progress, due retrievals, today's task,
+  rusty topics, a hint for the task open on screen at the current rung);
+  a code review is consequential and waits for the approval card
+  (invariant 71a). The Assistant never writes the solution into the editor.
+- **Reports:** a Programming section in the weekly report (tasks done,
+  retrieval pass rate, projects, concepts proven) and capstones as
+  milestones in the yearly one.
+- **Phone:** typing code on a phone is the weak case, so on a phone the
+  space leads with lessons, retrieval, predict-the-output and fill-the-gap;
+  full editing works but the Daily 20 offers the short-answer form first.
+  Bluetooth keyboards are supported as on desktop.
+
+**How it fits the app**
+
+- **A fourth subject** (`code` in `KOS.spec`; stored links `"code:U4.2"`).
+  Its spine is authored, not generated from a board's specification, so it
+  is a new data kind beside invariant 24's generated files:
+  `js/data/code.js` (the tree) and `js/data/content/code-*.js` (lessons),
+  both validated by a new smoke. It needs a fourth hue, a deliberate change
+  to "keep the three subject hues" in invariant 26; the Topic picker, the
+  inspector, search, Focus links and the session ledger take the subject
+  with no further code.
+- **Own storage.** Learner source, run history and project files live in a
+  new IndexedDB, `kurenai-os-code`, separate from the media and files
+  stores (invariant 7), and are included in the full backup (credentials
+  still are not). Passed-task facts and the retrieval
+  schedules ride the state document; the source replicates to a new
+  owner-only table `kos_code`, local-first like `kos_reports` (invariants
+  31, 102e).
+- **Governor, decision B.** A first pass of a task is one `KOS.sessions.log()`
+  study entry (invariants 1, 5): XP and gold once per task, never for a
+  re-run, a seen solution, or a retrieval already paid that day; a daily cap
+  on retrieval pay so cards cannot be farmed. It does not move HP (invariant
+  2) and gates nothing. Recommended as written; the alternative is Focus-style
+  time-based pay only.
+- **Plan and calendar:** the Daily 20 and the weekend project are offered as
+  plan rows and study blocks by READ (never copied, invariants 45, 82b);
+  the phone dock and Home's next-action ladder show "Today's task" and
+  "N retrievals due".
+
+**Build order** (each phase ships and passes the gate on its own)
+
+1. **Spike A:** the runner, one worker, one checker, twenty tasks across
+   the two modes; decide A and size the download.
+2. **Spine and one unit end to end:** the subject, tree, picker, the unit 1
+   lessons, the editor/run/check view, error decoder.
+3. **Daily practice, hints and the Governor payout (B).**
+4. **Retrieval:** skill cards, variation, the skill map, review weeks.
+5. **Weekend projects and the first capstone** (the checkpoint view, rubric).
+6. **Units 2–6**, then capstone 2.
+7. **Units 7–12** and capstones 3 and 4, katas, debugging drills, reference.
+8. **Replication, Assistant tools, Reports section, portfolio export, phone
+   audit.**
+
+- **Invariants moved:** 26 (a fourth hue), 24 (an authored, validated
+  specification beside the generated ones), 7 and 36 (the new store and its
+  backup/sync rules), 95 and 102 if a notification kind or report section
+  is added. Zero Governor traffic from the editor and the checker; only a
+  first-pass task pays, through the ledger.
+- **Design first:** frames for the space's home (today's task, retrievals
+  due, the skill map, the stage path), the lesson page, the editor with
+  results and hints, a capstone checkpoint, the weekend project, and phone
+  ([prompt 10](design-prompts.md)).
+
 ---
 
 ## Parked — not scheduled
@@ -558,7 +738,9 @@ Claude Design and comes back as a handoff, the way Graphite did.
 4. The OOP IDE and the labs from their handoffs; then Dawn and the themes.
 5. Phase 4 content can run between any two of these. It shares no files
    with the UI work.
-6. Phase 5: 5.1 Reports, from its Claude Design frames.
+6. Phase 5: 5.1 Reports, from its Claude Design frames; then 5.3 Code,
+   starting with its runner spike (decision A), which needs no design and
+   decides the schedule, while its frames are drawn in Claude Design.
 
 Deploy after each phase, or sooner when you ask. The pre-deploy checklist
 in `CLAUDE.md` applies every time.
