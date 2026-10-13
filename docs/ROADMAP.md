@@ -706,6 +706,190 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
   results and hints, a capstone checkpoint, the weekend project, and phone
   ([prompt 10](design-prompts.md)).
 
+### 5.4 Money and Goals, beyond the Collection ◆ (asked for 13 October 2026)
+
+- **Today:** the Budget Planner (`js/modules/wishlist.js`, `state.wishlist`)
+  is a Collection purchase queue against ONE monthly pool for Books, Games
+  and Visual Novels; Goals (`js/modules/goals.js`, `state.goals`) has 14
+  fixed types, nearly all reading the vault. Both live under Collection's
+  Planner tabs. Neither knows about income, bills, study or productivity.
+- **What:** make both general, so they describe the whole of life in the
+  app and the Collection becomes one part of them:
+  - **Money:** the Budget Planner grows into a full personal budget:
+    income and outgoings, recurring payments and subscriptions, many
+    categories, per-category budgets and a month view. The Collection's
+    purchase queue stays (it is a wishlist, and it is Collection-specific)
+    and feeds Money.
+  - **Goals:** the same page and engine, but a goal can be about Study,
+    Productivity, Money, Code (5.3), the Governor or the Collection, and
+    can repeat (every week, every month).
+- **Not a bank:** no bank connection and no network traffic from either
+  (invariant 5a stays). Entries are typed, imported from a CSV on the
+  device, or created by a recurring rule or the wishlist handoff.
+  Open-banking links need a provider, keys and a server, and are parked.
+
+**Money**
+
+- **Transactions:** amount, date, category, payee, note, tags, income or
+  outgoing; split across categories; a refund; a transfer between pots that
+  is never counted as spend. Single base currency (the existing `currency`
+  setting); several currencies are parked.
+- **Income:** sources (allowance, part-time job, gifts, grants), one-off or
+  recurring, shown as expected against received so a late payment reads as
+  late, not as missing.
+- **Categories:** a good default set in groups (Food, Transport, Bills,
+  Subscriptions, Education and exams, Health, Clothing, Social, Gifts,
+  Savings, Collection, Other), all renameable, addable, archivable. A
+  category has a monthly budget, an optional rollover and a colour taken
+  from the shared tokens. "Collection" carries the existing monthly limit
+  and keeps its per-module breakdown (Books, Games, VN) as a sub-field, so
+  the current chart survives.
+- **Recurring payments:** a rule (every N days, weeks, months or years, a
+  day of month, an end date) is computed from ONE record and never
+  materialised into copies (invariant 43). A due occurrence is confirmed
+  (becomes a transaction, optionally with a changed amount), skipped, or
+  left as upcoming. Upcoming bills read onto the calendar as derived chips,
+  never written as events (invariants 44, 82b).
+- **Subscriptions:** a view over the recurring rules flagged as one: the
+  next renewal, the cost normalised to per month and per year, a free-trial
+  end with a "cancel before" alert, the price history (and a "this went up"
+  note), the total, and a review list ("no activity in the linked
+  Collection list for 90 days" is a hint the user can confirm; it never
+  cancels anything). "Remind me" creates a real reminder, a link by text as
+  the plan does.
+- **Budgets:** an overall figure and one per category for the month, with an
+  optional month start on payday (the 25th, say). Left to spend this month,
+  a "safe to spend today" figure, and a month-end projection that appears
+  only once there are enough days of data (invariant 76).
+- **Pots (sinking funds):** named amounts set aside (holiday, laptop,
+  exam fees, emergency), with a yearly or lumpy cost shown as a monthly
+  set-aside. A savings goal reads a pot (below).
+- **Views:** Overview (income, outgoings, left, the category bar, upcoming
+  bills, the subscriptions total); Transactions (searchable, filter by
+  category/date/tag, 60-entry lazy batches, invariant 8); Budgets;
+  Recurring and Subscriptions; Pots; Month and Year summaries that feed
+  Reports. A privacy toggle hides amounts on screen.
+- **Import and export:** CSV import with a column-mapping step, a preview
+  and duplicate detection; CSV export of any view; the data is in the full
+  backup.
+
+**Goals**
+
+- **A type registry, not a fixed list.** `KOS.goals.register(def)` takes a
+  domain, a unit, a direction (reach or stay under), a period and a derive
+  function that READS the single source (invariant 26d); each owner
+  registers its own (the vault's 14 types move to the Collection's module
+  as they are, so no existing goal changes). New types:
+  - **Study:** hours studied this week; flashcards reviewed; recall at or
+    above X% over 50 reviews; N topics to Green in a subject or unit; a mock
+    or paper score at or above a target; finish a unit; revise a topic by an
+    exam date (a calendar link).
+  - **Productivity:** Focus hours or blocks; tasks and reminders done; a
+    habit's streak; plan rows ticked; no overdue assignment; carry-overs
+    cleared.
+  - **Money:** spend a category below an amount; save an amount in a pot by a
+    date; a no-spend day count; the subscriptions total below an amount;
+    income above an amount.
+  - **Code** (once 5.3 ships): daily tasks done; retrievals kept; a capstone
+    passed.
+  - **Governor:** a streak length or a level, shown only; reading a value
+    never pays for it.
+  - **Manual:** the existing custom goal, with a tick or a counter.
+- **Repeating goals:** "10 hours a week" is one goal with a period; each
+  finished period is saved as its outcome (met, missed, the figure) like a
+  report, so a streak of weeks met is read from them. Only the period
+  outcomes are stored; progress is always derived.
+- **Pace:** target, deadline, milestones, and an on-track chip (ahead,
+  on track, behind) from the straight-line expectation; behind is the fixed
+  alarm red, never the accent (invariant 26a). A projected finish date once
+  there is enough data.
+- **Links:** a goal may link a topic (the topic picker, invariant 26e), a
+  subject (its hue), an assignment or exam, a pot, or a title; deleting what
+  it links to leaves the goal, marked.
+- **Templates:** a short list of good starting goals ("10 hours of study a
+  week", "Five topics to Green this month", "A no-spend weekend", "Finish
+  the series I am on") so an empty page is not a blank form.
+- **Archive, not fail:** a missed deadline marks the goal missed and keeps it
+  in history; a goal can be archived or restarted for the next period.
+- **Where it shows:** the Goals page (filter by domain, this week/month,
+  done); a compact card in Home's next-action ladder (a goal behind, or a
+  period ending soon); a Goals section in the weekly/monthly/termly/yearly
+  report; the `goal` notification kind for a deadline or the end of a period
+  (needs invariant 95 widened); search.
+
+**How it fits the app**
+
+- **Placement, decision A (the design confirms it):** recommended is that
+  Money and Goals leave Collection and join the Productivity strip, with
+  Collection keeping a Wishlist tab (the purchase queue) under Planner. Old
+  routes `#/wishlist` and `#/goals` keep resolving (the first to the
+  Wishlist, the second to Goals), so notifications, search results and links
+  never break. `KOS.collectionWorkspaceTabs` loses its Budget Planner and
+  Goals entries; Productivity gains two. If two more items overload the
+  strip, the alternative is a new "Plan and money" rail group.
+- **Storage, decision B:** recommended is the small and slow-changing part in
+  the synced state document (categories, budgets, recurring rules,
+  subscriptions, pots, goals and their period outcomes; cloudmerge keys each
+  record array by its id, invariant 33a), and the large part, TRANSACTIONS,
+  in its own IndexedDB, `kurenai-os-money`, with `syncId` and tombstones as
+  the Collection has (invariant 32) and replication to an owner-only table
+  `kos_money`, local-first like `kos_reports` (invariants 31, 102e). Years of
+  entries do not belong in `localStorage` or the state document.
+- **Migration:** a one-time, idempotent boot pass behind a new gate
+  (`KOS.money.normalise`, `KOS.goals.normalise`): `wishlist.budget.history`
+  and the purchased items become transactions in the Collection category
+  with their original module and date, `monthlyLimit` becomes that
+  category's budget, and `state.goals` moves to a version with a `domain`
+  field (derived from the type for existing goals). Nothing is lost, the old
+  chart reads the same, and a re-run changes nothing.
+- **Governor:** Money has zero Governor traffic and zero provider traffic
+  (invariants 5a, 5b; smoke14 widened to the new module). Goals keep one
+  idempotent `payout: "activity-only"` receipt per goal and never create a
+  second event: a study goal reads sessions that already paid, a money goal
+  has nothing to pay. A goal that targets a Governor value is displayed, never
+  rewarded, so a goal cannot be set to farm itself.
+- **Assistant, decision C:** `money_*` and extended `goals_*` tools through
+  `aitools.js`. Recommended: tools return totals and category aggregates by
+  default and individual transactions only when asked; writes are
+  undoable, deletes and imports wait for the approval card (invariant 71a);
+  Kurenai's report words get totals only, never payees, notes or titles
+  (invariant 102b). The privacy toggle also hides amounts from screenshots
+  of the page.
+- **Reports and search:** Reports gets a Money section (income, outgoings,
+  the biggest categories, the subscriptions total, against last month with
+  `compare()`) and a Goals section; a supporting zero stays absent
+  (invariant 77); a balance is context, not a bar (invariant 78).
+- **Plan and calendar:** recurring bills and goal deadlines read onto the
+  calendar and the plan by derivation only; nothing is copied.
+
+**Build order** (each phase ships on its own and keeps today's pages working)
+
+1. **Money core, no new screens:** `KOS.money` (the normaliser, categories,
+   rules, the IndexedDB), the migration, and the existing Budget Planner
+   reading it. The user sees no change; the gate proves nothing was lost.
+2. **Money pages:** Overview, Transactions, Budgets, Recurring and
+   Subscriptions, Pots; phone; CSV import and export.
+3. **Goals engine:** the registry, `normalise` and the version bump, the
+   existing 14 types re-registered unchanged, repeating goals and period
+   outcomes, pace.
+4. **Goals pages and the new types:** the page, templates, Home card,
+   notification kind, calendar and plan reads.
+5. **Joins:** wishlist handoff into Money, savings goals reading pots,
+   Reports sections, search, Assistant tools, the `kos_money` replication.
+6. **Audits:** phone, Dawn and the shop themes, accessibility, the CSV
+   import on messy files.
+
+- **Invariants moved:** 5a (rewrite as Money: still zero Governor and
+  provider traffic, the wishlist handoff still exact and local), 5b (goals
+  are general; the one-receipt rule stays), 7 and 36 (the new store and its
+  backup and sync rules), 8 (cursor caps on transactions), 27 and 50b (the
+  workspace tabs), 95 (the `goal` and, if chosen, `money` bill-due kinds),
+  102 (the new report sections), 26 (category colours from shared tokens;
+  one more domain hue is not needed).
+- **Design first:** Money's Overview, a transaction, the budget and the
+  subscriptions views, the goals page with domains, a repeating goal and its
+  history, the Home card, phone ([prompt 11](design-prompts.md)).
+
 ---
 
 ## Parked — not scheduled
@@ -741,6 +925,10 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 6. Phase 5: 5.1 Reports, from its Claude Design frames; then 5.3 Code,
    starting with its runner spike (decision A), which needs no design and
    decides the schedule, while its frames are drawn in Claude Design.
+7. Phase 5.4 Money and Goals: its phase 1 (the core and the migration, no
+   new screens) and the Goals engine need no design and can run any time
+   after Reports; the pages wait for their frames. Do the Goals engine
+   before 5.3 reaches its goals, so Code's goal types register in it.
 
 Deploy after each phase, or sooner when you ask. The pre-deploy checklist
 in `CLAUDE.md` applies every time.

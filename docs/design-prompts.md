@@ -18,6 +18,7 @@ handoff maps back to the roadmap.
 | 8 | IT unit grades | 1.2 | optional |
 | 9 | Reports: week, month, term, year | 5.1 | next |
 | 10 | Code: a C# study space | 5.3 | after 9 |
+| 11 | Money and Goals | 5.4 | with 10 |
 
 ---
 
@@ -284,4 +285,42 @@ Frames:
 26j Phone: Code home and a retrieval card.
 26k Phone: a lesson with a fill-the-gap item, and the task editor with the short-answer form.
 26l Dawn: the task editor in the light theme.
+```
+
+## 11 · Money and Goals
+
+```text
+Redesign the Budget Planner and Goals for KurenaiOS, continuing the approved design in this project: Graphite (Atelier Dusk) and its light twin Dawn, the phone views (15a–15n), design part 2 (15–23), Reports (24a–24l) and Code (26a–26l). Number the new frames 27a onwards. Desktop 1280; phone 390 × 844, checked at 360. Use only the existing tokens, type scale, cards, stat tiles, tabs, chips and chart styles: this extends two existing pages, it is not a new look.
+
+What exists: the Budget Planner is a Collection purchase queue against one monthly pool (Books, Games, Visual Novels); Goals has fixed Collection goal types. Both sit under Collection's Planner tabs. What is wanted:
+- MONEY: a full personal budget. Income and outgoings, recurring payments and subscriptions, many categories with a monthly budget each, savings pots, a month view. The Collection's wishlist stays as one tab and feeds Money when something is marked purchased. No bank connection: entries are typed, imported from a CSV, or made by a recurring rule.
+- GOALS: one page for goals about Study, Productivity, Money, Code, the Governor and the Collection, including goals that repeat every week or month ("10 hours of study a week") with a history of the periods met.
+Propose where both live. My recommendation is the Productivity strip (Focus, Calendar, Reminders, Tasks & Habits, Pacing) with a Wishlist tab left in Collection; if that strip is too crowded, propose a new rail group. Show the rail and the strip either way.
+
+Rules from the app that the design must keep:
+- A zero that is only a supporting fact is not printed; a chart needs enough evidence to make a claim (a month-end projection appears only with enough days of data); a balance is a formatted figure, never a progress bar.
+- Behind, overdue and over-budget are the fixed alarm red, never the theme accent; never colour alone (an icon and a word). Category colours come from the shared tokens, and the three subject hues stay (plus the fourth from the Code space for Code goals).
+- Money has no rewards and no Governor numbers anywhere on it. A goal completing says so calmly and promises nothing.
+- A privacy toggle hides amounts on screen (show it on and off).
+- Recurring bills are computed from one rule; an upcoming one is confirmed, skipped, or left; show all three.
+- Lists are lazy (60-entry batches) and keyboard-complete; amounts are right-aligned tabular figures with the currency.
+
+Sample data: base currency £; October income £640 (part-time job £520 expected 28th, allowance £120 received 1st); outgoings £412 so far; categories Food £96 of £120, Transport £34 of £40, Subscriptions £27.97 of £30, Education and exams £85 of £60 (over), Social £48 of £80, Collection £61 of £75 (Books £24, Games £37), Savings £60. Subscriptions: Crunchyroll £6.49 monthly, Spotify £11.99 monthly (price went up from £10.99), GitHub Copilot £10 monthly, a domain name £14 a year (£1.17 a month), a free trial ending 20 October. Pots: Laptop £420 of £900, Exam fees £80 of £160, Holiday £0 of £300. Goals: study 10 h a week (this week 7 h 40 m, repeating, 9 of the last 12 weeks met); 5 topics to Green in Maths Statistics this month (3 of 5, behind pace); save £900 for the laptop by 31 January (on track); a no-spend weekend (met); finish Frieren (Collection, 24 of 28 episodes); a Focus streak of 14 days (shown only).
+
+Frames:
+27a Money Overview: income, outgoings, left to spend, safe to spend today, the category bars, upcoming bills, the subscriptions total.
+27b Transactions: list with filters, a split transaction, a refund, the add form.
+27c Budgets: per category, over-budget state, rollover, month start on payday.
+27d Recurring and Subscriptions: next renewals, per-month and per-year cost, a price rise, a trial ending, the confirm / skip / leave actions.
+27e Pots and a savings goal reading one.
+27f CSV import: column mapping, preview, duplicates found.
+27g Goals page: domain filter, this week / this month / done, pace chips, a repeating goal.
+27h A goal opened: pace, milestones, linked items, the period history, a projected finish.
+27i New goal: the type picker by domain, templates, a linked topic or pot.
+27j Empty and low-data states: first visit to Money, a month with three days of data, a new learner with no goals.
+27k The Home card for a goal behind, and the bell's goal notification.
+27l Collection's Wishlist tab and the "Purchased → add to Money" handoff.
+27m Phone: Money Overview and Transactions.
+27n Phone: Goals page and a goal opened.
+27o Dawn: Money Overview in the light theme.
 ```
