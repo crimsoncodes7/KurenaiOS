@@ -12,12 +12,13 @@ chronological diary here.
   and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `2ff4c3b` (Reports complete, roadmap 5.1
-  phases 6–7: months, terms and years, replication to `kos_reports`; on
-  top of phases 1–5 `f2f906e`). `ai-chat` is deployed as version 5; the
+- Release source checkpoint: `5bece3e` (the Reports pages rebuilt to the
+  design after review: the words on the Reports page, no dead space, the
+  Home card in the middle row, centred icons; on top of Reports complete
+  `2ff4c3b`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied.
-- Runtime release: `345273e` — immutable deployment
-  https://8913f1e2.kurenai-os.pages.dev (13 October 2026)
+- Runtime release: `406cf55` — immutable deployment
+  https://fea75f93.kurenai-os.pages.dev (13 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-reports-3`
 - Required smoke gate: 72 / 72 suites.

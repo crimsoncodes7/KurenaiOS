@@ -19,12 +19,13 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `345273e` (13 October 2026: Reports for weeks,
-  months, terms and years — study, Focus, the plan and the Collection, with
-  Kurenai's words, a Wrapped-style story, a share card, and a copy in the
-  cloud) — immutable deployment https://8913f1e2.kurenai-os.pages.dev
+- Runtime release commit: `406cf55` (13 October 2026: the Reports pages
+  rebuilt to the design — Reports for weeks, months, terms and years, with
+  Kurenai's words, a Wrapped-style story, a share card and a copy in the
+  cloud; the latest report on Home between Study hours and the week's
+  plan) — immutable deployment https://fea75f93.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-reports-2`
+- Service-worker cache: `kos-reports-3`
 - Verification: all **72 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).
