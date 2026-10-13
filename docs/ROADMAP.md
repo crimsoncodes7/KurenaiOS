@@ -466,8 +466,10 @@ Claude Design and comes back as a handoff, the way Graphite did.
   overviews, low-data tiles, phone, the `reports` bell kind) is built
   (smoke70, invariant 102a). Phases 4 and 5 (Kurenai's words; the story
   player, share card and export, the Home card and search) are built
-  (smoke70, invariants 102b–102c) and released with 1–3. Next: phase 6,
-  the month, term and year reports.
+  (smoke70, invariants 102b–102c) and released with 1–3. Phases 6 and 7
+  (months, terms and years; replication to `kos_reports` and the audits)
+  are built (smoke71, smoke72, invariants 102d–102e). Voice actors and
+  creator portraits (decision C) remain deferred.
 
 - **What:** a report like Claude's *Reflect* page, but across the whole
   app — Study, Productivity, Collection, the Assistant and the profile

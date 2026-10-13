@@ -62,6 +62,7 @@
     /* a saved report (`#/reports/week/2026-10-05`) and its full overview
        (`#/reports/week/2026-10-05/collection`); the page itself is bare */
     reports: function (a) {
+      if (a && !a.start && a.period && a.period !== "week") return [a.period];
       if (!a || !a.start) return null;
       return [a.period || "week", a.start].concat(a.section ? [a.section] : []);
     },
@@ -86,6 +87,7 @@
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
     help: function (p) { return p[1] ? { section: p[0], entry: p[1] } : p[0] || null; },
     reports: function (p) {
+      if (p[0] && !p[1] && /^(week|month|term|year)$/.test(p[0])) return { period: p[0] };
       if (!p[0] || !/^\d{4}-\d{2}-\d{2}$/.test(p[1] || "")) return null;
       return { period: p[0], start: p[1], section: p[2] || null };
     },

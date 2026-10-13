@@ -52,13 +52,42 @@ const THEMES = String(flag("themes", "atelier-dawn,atelier-dusk")).split(",");
 const VIEWS = String(flag("views",
   "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks,pacing,pacing-braid," +
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
-  "governor,assistant,data,help")).split(",");
+  "governor,assistant,data,help," +
+  "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year")).split(",");
 /* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
    phone probe honest; profile.lastRef is mutable navigation history. */
 const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 /* pseudo-views: an id in VIEWS that resolves to a real view plus the
    argument that selects a genuinely different page to measure */
-const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'] };
+const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
+  /* Reports (roadmap 5.1): the saved reports the preparation below wrote */
+  "reports-week": ["reports", '{ period: "week", start: (window.__rp || {}).week }'],
+  "reports-week-study": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "study" }'],
+  "reports-week-focus": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "focus" }'],
+  "reports-week-collection": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "collection" }'],
+  "reports-month": ["reports", '{ period: "month", start: (window.__rp || {}).month }'],
+  "reports-term": ["reports", '{ period: "term", start: (window.__rp || {}).term }'],
+  "reports-year": ["reports", '{ period: "year", start: (window.__rp || {}).year }'] };
+/* the report pages need saved reports: run the saving tick, and write the
+   current term and year as they stand (an audit fixture, never shipped) */
+const PREP_REPORTS = `(async () => {
+  if (!KOS.reportStore || !KOS.report) return null;
+  const rs = KOS.reportStore, R = KOS.report;
+  await new Promise(r => rs.ensureSnapshot(() => r()));
+  await new Promise(r => rs.ensureReports(() => r()));
+  const today = KOS.srs.todayISO();
+  for (const p of [R.terms().filter(t => t.start <= today && t.end >= today)[0], R.year(today)].filter(Boolean)) {
+    const have = await new Promise(r => rs.getReport(p.id, (e, x) => r(x)));
+    if (have) continue;
+    const facts = await new Promise(r => R.build(p, { rebuilt: true }, r));
+    await new Promise(r => rs.putReport({ id: p.id, period: p.period, start: p.start, end: p.end, savedAt: Date.now(), rebuilt: true, facts,
+      words: { mode: "template", headline: null, narrative: null, writtenAt: null, status: "idle" } }, () => r()));
+  }
+  const all = await new Promise(r => rs.list(null, (e, l) => r(l || [])));
+  const pick = pd => (all.filter(x => x.period === pd)[0] || {}).start || null;
+  window.__rp = { week: pick("week"), month: pick("month"), term: pick("term"), year: pick("year") };
+  return window.__rp;
+})()`;
 
 /* ---------------- CDP plumbing ---------------- */
 const endpoint = process.env.KOS_CDP || "http://127.0.0.1:9222/json";
@@ -426,6 +455,7 @@ const PROBE = String.raw`(() => {
 
 /* ---------------- sweep ---------------- */
 if (SHOTS) await mkdir(SHOTS, { recursive: true });
+if (VIEWS.some(v => /^reports/.test(v))) console.log("reports:", JSON.stringify(await evaluate(PREP_REPORTS)));
 const results = {};
 let totalOver = 0, totalCut = 0;
 

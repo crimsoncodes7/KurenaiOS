@@ -71,6 +71,7 @@
     "js/core/figures.js",
     "js/labs/worked-extra.js",
     "js/modules/reports.js",
+    "js/modules/reportlong.js",
     "js/modules/reportstory.js",
     "js/modules/reportshare.js",
     "css/views/reports.css",

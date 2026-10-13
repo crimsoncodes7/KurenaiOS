@@ -20,7 +20,7 @@ chronological diary here.
   https://ecbddb95.kurenai-os.pages.dev (12 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-reports-1`
-- Required smoke gate: 70 / 70 suites.
+- Required smoke gate: 72 / 72 suites.
 
 ## Run, test and deploy
 
@@ -30,7 +30,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..70}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..72}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -120,7 +120,7 @@ non-navigation redraw path.
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`); the Assistant's Scheduled tab |
-| Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js` |
+| Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportlong.js` (`KOS.reportsLong`: the month, term and year pages), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js`; the replicated copy in Supabase `kos_reports` |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -727,6 +727,27 @@ source comments and audit notes refer to it.
     shows the newest week for 7 days after it was saved, "New" until its
     notification is read — read by a click ("Read the report" or the
     bell), never by a render.
+102d. Months, terms and years are saved like weeks, on their first
+    morning (a month on the 1st, a term the morning after its last week, a
+    year on 1 September) and built by the same pure `compute`. A TERM is a
+    run of SCHOOL weeks (`schoolWk`) split by two or more weeks without one
+    — the personal plan studying through Christmas does not join two
+    terms. The longer periods add mastery by unit (from the two boundary
+    snapshots; units that did not move are left out), results dated in the
+    period with the IT units still to sit, the plan against class from the
+    braid, weakest/strongest from 20+ reviews, the strip of their saved
+    weeks or months, records and milestones (a year). When the session
+    ledger (2,000 entries) no longer reaches a term's or year's start, the
+    headline totals ROLL UP from the saved weeks/months and the report says
+    so (`rolledUp`). One study day in a month is marked, not charted (24g).
+102e. Saved reports and snapshots replicate to the owner-only table
+    `kos_reports` (`KOS.reportStore.syncCloud`, after each saving tick and
+    a words change): local first (invariant 31 — signed out or in a review
+    namespace nothing is sent), pull-merge-push with a per-item stamp in
+    the media kv (`reports.sync.<uid>`) so nothing is echoed. A report on
+    two devices converges on the FACTS of the copy saved first and the
+    WORDS changed last (`words.changedAt`); a snapshot keeps the one taken
+    first. The facts are derived data only — no credential ever rides it.
 
 ### Responsive integration and visual release quality (72–79)
 
@@ -935,8 +956,8 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 
 ### Navigation hierarchy
 
-- Home: Reports (`#/reports`, no rail item; from the bell and Home's
-  Study hours card).
+- Home: Reports (`#/reports[/<week|month|term|year>]`, no rail item; from
+  the bell, the Home card, Home's Study hours card and search).
 - Study: subjects, Review and Exams & Papers.
 - Productivity: Focus, Calendar, Reminders, Tasks & Habits and Pacing.
   Pacing has two identities in one route and they cannot collide, because a

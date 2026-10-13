@@ -51,9 +51,22 @@
       : dm(start) + " – " + dm(end) + y;
   }
   function longRange(start, end) {
-    return DOW[0] + " " + dm(start) + " – " + DOW[6] + " " + dm(end);
+    var a = parse(start), b = parse(end);
+    if (days(start, end) === 6) return DOW[0] + " " + dm(start) + " – " + DOW[6] + " " + dm(end);
+    return a.getDate() + " " + MONTHS[a.getMonth()] + (a.getFullYear() !== b.getFullYear() ? " " + a.getFullYear() : "") + " – " + b.getDate() + " " + MONTHS[b.getMonth()];
   }
-  function weekOf(rep) { return "Week of " + dm(rep.start); }
+  function days(a, b) { return Math.round((parse(b) - parse(a)) / 864e5); }
+  var MONTH_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var PERIODS = [["week", "Weekly"], ["month", "Monthly"], ["term", "Termly"], ["year", "Yearly"]];
+  var PERIOD_KICKER = { week: "Weekly report", month: "Monthly report", term: "Termly report", year: "Yearly report" };
+  /* what a report is called: "Week of 5 Oct", "September 2026", the
+     term's name, "2025–26" */
+  function weekOf(rep) {
+    if (rep.period === "month") { var d = parse(rep.start); return MONTH_LONG[d.getMonth()] + " " + d.getFullYear(); }
+    if (rep.period === "term") return (rep.facts && rep.facts.label) || "Term from " + dm(rep.start);
+    if (rep.period === "year") return (rep.facts && rep.facts.label) || parse(rep.start).getFullYear() + "–" + String(parse(rep.start).getFullYear() + 1).slice(2);
+    return "Week of " + dm(rep.start);
+  }
   function clock(ts) { var d = new Date(ts); return (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes(); }
   function dayName(ts) { var d = new Date(ts); return DOW[(d.getDay() + 6) % 7]; }
   function saved(rep) {
@@ -186,6 +199,17 @@
     chart.setAttribute("role", "img");
     chart.setAttribute("aria-label", "Study time by day: " + DOW.map(function (d, i) { return d + " " + W.hm(s.dayMins[i]); }).join(", "));
     return el("div", { class: "k-rp-chartwrap" }, [chart, s.daySubj ? legend(keys.map(function (k) { return { hue: SUBJ_HUE[k], label: W.SUBJECT_SHORT[k] }; })) : null].filter(Boolean));
+  }
+  /* the chart a report's period reads by: its days (a week, a month) or
+     its weeks / months (a term, a year) */
+  function periodChart(rep) {
+    if (rep.period === "week" || !KOS.reportsLong) return daySubjChart(rep.facts);
+    if (rep.period === "month") return KOS.reportsLong.monthChart(rep);
+    return KOS.reportsLong.stripChart(rep.facts);
+  }
+  function prevLbl(rep) {
+    if (rep.period === "month") { var d = parse(rep.start); d.setMonth(d.getMonth() - 1); return MONTHS[d.getMonth()]; }
+    return rep.period === "week" ? "last wk" : "last " + rep.period;
   }
   function spark(values) {
     var Wd = 52, H = 26, s = KOS.charts.svgEl(Wd, H);
@@ -354,12 +378,23 @@
   }
 
   /* ================= the Reports page (24a) ================= */
-  function indexPage(holder, reps) {
+  var EMPTY = {
+    week: ["Your first weekly report arrives on Monday", "A week is written down when it ends: each Monday at 07:00, the week before becomes a report you can read here."],
+    month: ["Your first monthly report arrives on the 1st", "A month is written down on the first morning of the next one."],
+    term: ["Your first termly report arrives when the term ends", "Terms come from the plan: a term ends at a break of two weeks or more."],
+    year: ["Your first yearly report arrives on 1 September", "The academic year runs from September to August."]
+  };
+  function periodSwitch(current) {
+    return KOS.ui.tabs(PERIODS.map(function (x) {
+      return { label: x[1], active: current === x[0], onSelect: function () { if (current !== x[0]) { view.selected = null; KOS.show("reports", { period: x[0] }); } } };
+    }), { variant: "workspace", label: "Period", className: "k-rp-periods" });
+  }
+  function indexPage(holder, reps, period) {
+    period = period || "week";
     holder.appendChild(KOS.ui.pageHeader({ kicker: "Home", title: "Reports",
-      sub: "Your weeks in review: study, Focus, the plan and the Collection, saved as they ended." }));
+      sub: "Your weeks, months, terms and years in review, saved as they ended.", actions: [periodSwitch(period)] }));
     if (!reps.length) {
-      holder.appendChild(KOS.ui.emptyState({ mark: "録", title: "Your first weekly report arrives on Monday",
-        body: "A week is written down when it ends: each Monday at 07:00, the week before becomes a report you can read here." }));
+      holder.appendChild(KOS.ui.emptyState({ mark: "録", title: EMPTY[period][0], body: EMPTY[period][1] }));
       return;
     }
     var chosen = reps.filter(function (r) { return r.id === view.selected; })[0] || reps[0];
@@ -379,7 +414,7 @@
       var weeks = reps.slice(i, i + 8).reverse().map(function (x) { return x.facts.study.mins / 60; });
       return [
         el("span", { class: "k-rp-row-top" }, [
-          mono(range(r.start, r.end), "k-rp-row-range"),
+          mono(r.period === "week" ? range(r.start, r.end) : weekOf(r), "k-rp-row-range"),
           w.byKurenai ? el("span", { class: "k-rp-mark", title: "Written by Kurenai", text: "✦" }) : null,
           i === 0 ? el("span", { class: "k-rp-latest", text: "Latest" }) : null,
           r.rebuilt ? el("span", { class: "k-rp-row-note", text: "rebuilt" }) : null
@@ -403,7 +438,7 @@
     var side = el("aside", { class: "k-card k-rp-earlier", "aria-label": "Earlier reports" }, [
       cardHead("Earlier reports"),
       list,
-      el("p", { class: "k-rp-note", text: "Since " + dm(first.start) + " " + parse(first.start).getFullYear() + " · " + W.plural(reps.length, "weekly report") })
+      el("p", { class: "k-rp-note", text: "Since " + dm(first.start) + " " + parse(first.start).getFullYear() + " · " + W.plural(reps.length, PERIODS.filter(function (x) { return x[0] === period; })[0][1].toLowerCase() + " report") })
     ]);
     holder.appendChild(el("div", { class: "k-rp-index" }, [left, side]));
     paintLeft();
@@ -412,7 +447,7 @@
   function summary(rep, reps, onWords) {
     var f = rep.facts, s = f.study;
     return el("section", { class: "k-card k-rp-sum", "data-ui": "reports.summary", "aria-label": "Report for " + weekOf(rep) }, [
-      el("div", { class: "k-kicker", text: "Weekly report · " + longRange(rep.start, rep.end) + " " + parse(rep.end).getFullYear() }),
+      el("div", { class: "k-kicker", text: PERIOD_KICKER[rep.period] + " · " + (rep.period === "week" ? longRange(rep.start, rep.end) + " " + parse(rep.end).getFullYear() : weekOf(rep)) }),
       wordsBlock(rep, { onChange: onWords }),
       tiles([
         tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") : null),
@@ -420,7 +455,7 @@
         f.gov.streak ? tile("Study streak", f.gov.streak, "days" + (f.gov.rest ? " · rest streak " + f.gov.rest : "")) : null
       ]),
       el("h3", { class: "k-rp-subhead", text: "Activity" }),
-      daySubjChart(f),
+      periodChart(rep),
       el("div", { class: "k-rp-actions" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "reports.open",
         text: "Open the full report ›", onclick: function () { open(rep); } })])
     ].filter(Boolean));
@@ -623,7 +658,7 @@
   /* ================= the full overviews (25b–25d) ================= */
   function overviewHead(holder, rep, section) {
     var words = W.section(rep.facts, section);
-    holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports"); } },
+    holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports", { period: rep.period }); } },
       { label: weekOf(rep), go: function () { open(rep); } }, { label: SECTIONS[section] }]));
     holder.appendChild(KOS.ui.pageHeader({ kicker: SECTIONS[section] + " · " + longRange(rep.start, rep.end), title: words.headline, sub: words.sentence || null,
       actions: shareActions(rep) }));
@@ -635,10 +670,10 @@
     var f = rep.facts, s = f.study, prev = f.prev;
     overviewHead(holder, rep, "study");
     holder.appendChild(tiles([
-      tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") + " · " + W.plural(s.days, "day") : null, prev ? W.compare(s.mins, prev.mins, "last wk", "mins") : null),
-      s.touched ? tile("Topics", s.touched, s.toGreen ? s.toGreen + " to Green" : null, prev ? W.compare(s.touched, prev.touched, "last wk") : null) : null,
-      s.reviews ? tile("Reviews", W.num(s.reviews), null, prev ? W.compare(s.reviews, prev.reviews, "last wk") : null) : null,
-      s.recall != null ? tile("Recall", s.recall + "%", null, prev && prev.recall != null ? W.compare(s.recall, prev.recall, "last wk", "pct") : null) : null,
+      tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") + " · " + W.plural(s.days, "day") : null, prev ? W.compare(s.mins, prev.mins, prevLbl(rep), "mins") : null),
+      s.touched ? tile("Topics", s.touched, s.toGreen ? s.toGreen + " to Green" : null, prev ? W.compare(s.touched, prev.touched, prevLbl(rep)) : null) : null,
+      s.reviews ? tile("Reviews", W.num(s.reviews), null, prev ? W.compare(s.reviews, prev.reviews, prevLbl(rep)) : null) : null,
+      s.recall != null ? tile("Recall", s.recall + "%", null, prev && prev.recall != null ? W.compare(s.recall, prev.recall, prevLbl(rep), "pct") : null) : null,
       s.quizzes ? tile("Quizzes", s.quizzes, s.quizPct != null ? "average " + s.quizPct + "%" : null) : null,
       s.exams ? tile("Exam questions", s.exams, s.max ? s.marks + " / " + s.max + " marks" : null) : null
     ]));
@@ -668,7 +703,7 @@
         return { label: W.SUBJECT_SHORT[d.sid] + " · " + d.title, value: d.reviews, text: d.reviews + (d.recall != null ? " · " + d.recall + "%" : ""), hue: SUBJ_HUE[d.sid] };
       }))]));
     }
-    side.appendChild(card("Time by day", {}, [daySubjChart(f)]));
+    side.appendChild(card(rep.period === "week" || rep.period === "month" ? "Time by day" : rep.period === "year" ? "Time by month" : "Time by week", {}, [periodChart(rep)]));
     var hl = [];
     if (s.bestRecall) hl.push(highRow("Best recall", s.bestRecall.title, s.bestRecall.recall + "% over " + s.bestRecall.reviews + " reviews", "green", s.bestRecall.key));
     if (s.lowRecall) hl.push(highRow("Lowest recall", s.lowRecall.title, s.lowRecall.recall + "% over " + s.lowRecall.reviews + " reviews", "alarm", s.lowRecall.key));
@@ -802,7 +837,7 @@
   function collectionOverview(holder, rep) {
     var f = rep.facts, c = f.collection;
     overviewHead(holder, rep, "collection");
-    if (!c) { holder.appendChild(KOS.ui.emptyState({ mark: "蒐", title: "Nothing in the Collection moved this week", compact: true })); return; }
+    if (!c) return;   // the headline already says nothing moved
     var u = c.units || {}, st = c.status || {};
     var vnGame = (c.byModule.vn || 0) + (c.byModule.game || 0);
     holder.appendChild(tiles([
@@ -812,7 +847,8 @@
       vnGame && u.hours ? tile("VN and games", W.hm(u.hours * 60), u.route ? W.plural(u.route, "route") + " finished" : null) : null,
       st.finished ? tile("Finished", st.finished, st.started ? st.started + " started" : null) : (st.started ? tile("Started", st.started, null) : null),
       c.scores ? tile("Scored", c.scores.n, "average " + c.scores.avg) : null,
-      c.busiest ? tile("Busiest day", DOW[(parse(c.busiest.date).getDay() + 6) % 7], W.plural(c.busiest.titles, "title") + (c.busiest.mins ? " · ≈ " + W.hm(c.busiest.mins) : "")) : null
+      c.busiest && rep.period === "week" ? tile("Busiest day", DOW[(parse(c.busiest.date).getDay() + 6) % 7], W.plural(c.busiest.titles, "title") + (c.busiest.mins ? " · ≈ " + W.hm(c.busiest.mins) : "")) : null,
+      rep.facts.mediaPersona ? tile("Persona", rep.facts.mediaPersona.name, rep.facts.mediaPersona.fact) : null
     ]));
     var main = el("div", { class: "k-rp-main" }), side = el("div", { class: "k-rp-side" });
     main.appendChild(everyTitle(c));
@@ -842,6 +878,26 @@
         c.formats.length ? el("h3", { class: "k-rp-subhead", text: "Formats" }) : null,
         c.formats.length ? bars(c.formats.map(function (x) { return { label: formatName(x.name), value: x.n, text: String(x.n), hue: "var(--anime)" }; })) : null
       ].filter(Boolean)));
+    }
+    if (c.monthTitles && Object.keys(c.monthTitles).length) {
+      var mkeys = MODULES.filter(function (m) { return c.byModule[m]; });
+      var months = [], d0 = parse(rep.start);
+      for (var mi = 0; mi < 12; mi++) {
+        var dm0 = new Date(d0.getFullYear(), d0.getMonth() + mi, 1);
+        if (dm0 > parse(rep.end)) break;
+        var key = dm0.getFullYear() + "-" + (dm0.getMonth() < 9 ? "0" : "") + (dm0.getMonth() + 1);
+        months.push({ label: MONTHS[dm0.getMonth()], parts: c.monthTitles[key] || {} });
+      }
+      var mc = stacked(months, mkeys, MOD_HUE, { height: 190, width: 640 });
+      mc.setAttribute("role", "img");
+      mc.setAttribute("aria-label", "Titles touched per month");
+      pair.unshift(card("Month by month", { className: "k-rp-card--wide" }, [mc, legend(mkeys.map(function (m) { return { hue: MOD_HUE[m], label: MOD_SHORT[m] + " " + c.byModule[m] }; }))]));
+    }
+    if (c.topRated && c.topRated.length >= 3 && rep.period !== "week") {
+      pair.push(card("Top rated · " + W.plural(c.topRated.length, "title"), { className: "k-rp-card--wide" }, [el("ol", { class: "k-rp-shelf" }, c.topRated.map(function (t) {
+        return el("li", {}, [el("span", { class: "k-rp-cell-art" }, [cover(t), el("span", { class: "k-rp-badge", "data-tone": t.score >= 8 ? "green" : null, text: String(t.score) })]),
+          el("span", { class: "k-rp-cell-t", text: t.title })]);
+      }))]));
     }
     if (pair.length) main.appendChild(el("div", { class: "k-rp-pairs" }, pair));
     if (c.flow) main.appendChild(card("Genre flow", { meta: "what you moved to next" }, [flowList(c.flow.map(function (x) {
@@ -946,10 +1002,33 @@
   function homeCard() {
     var slot = el("section", { class: "k-card k-rp-home", "data-ui": "reports.home-card", "aria-label": "Your week in review", hidden: "" });
     if (!KOS.reportStore || !KOS.reportStore.available()) return slot;
-    KOS.reportStore.list("week", function (err, reps) {
-      var rep = !err && reps && reps[0];
+    KOS.reportStore.list(null, function (err, all) {
+      if (err || !all) return;
+      var ORDER = { week: 0, month: 1, term: 2, year: 3 };
+      /* the newest of each period, saved in the last 7 days */
+      var fresh = [];
+      ["week", "month", "term", "year"].forEach(function (pd) {
+        var r = all.filter(function (x) { return x.period === pd; })[0];
+        if (r && Date.now() - r.savedAt <= 7 * 864e5) fresh.push(r);
+      });
+      var unread = fresh.filter(function (r) { return !(KOS.notify && KOS.notify.isRead && KOS.notify.isRead({ id: "reports:" + r.id })); });
+      /* 24h: a morning that ends a week and a month lists both */
+      if (unread.length >= 2) {
+        slot.removeAttribute("hidden");
+        KOS.ui.state(slot, "new", true);
+        slot.appendChild(el("div", { class: "k-rp-home-top" }, [el("span", { class: "k-kicker", text: "Ready this morning" }), el("span", { class: "k-rp-new", text: unread.length + " new" })]));
+        slot.appendChild(el("ul", { class: "k-rp-home-multi" }, unread.sort(function (a, b) { return ORDER[a.period] - ORDER[b.period]; }).map(function (r) {
+          var hw = W.current(r);
+          return el("li", {}, [el("button", { type: "button", class: "k-rp-home-row", "data-ui": "reports.home-open", onclick: function () {
+            if (KOS.notify && KOS.notify.markRead) KOS.notify.markRead("reports:" + r.id); open(r); } }, [
+            el("span", { class: "k-rp-home-seal", lang: "ja", "aria-hidden": "true", text: { week: "週", month: "月", term: "期", year: "年" }[r.period] }),
+            el("span", { class: "k-rp-home-row-t" }, [el("b", { text: weekOf(r) }), el("span", { text: hw.headline })]),
+            el("span", { class: "k-link", text: "›" })])]);
+        })));
+        return;
+      }
+      var rep = unread[0] || fresh[0];
       if (!rep || !slot.isConnected && !slot.parentNode) return;
-      if (Date.now() - rep.savedAt > 7 * 864e5) return;
       var nid = "reports:" + rep.id;
       var isNew = KOS.notify && KOS.notify.isRead ? !KOS.notify.isRead({ id: nid }) : true;
       var w = W.current(rep), f = rep.facts, s = f.study;
@@ -958,7 +1037,7 @@
       KOS.ui.state(slot, "new", isNew);
       if (!isNew) {
         slot.appendChild(el("button", { type: "button", class: "k-rp-home-row", "data-ui": "reports.home-open", onclick: read }, [
-          el("span", { class: "k-rp-home-seal", lang: "ja", "aria-hidden": "true", text: "週" }),
+          el("span", { class: "k-rp-home-seal", lang: "ja", "aria-hidden": "true", text: { week: "週", month: "月", term: "期", year: "年" }[rep.period] }),
           el("span", { class: "k-rp-home-row-t" }, [el("b", { text: weekOf(rep) }), el("span", { text: w.headline })]),
           el("span", { class: "k-link", text: "Read ›" })
         ]));
@@ -970,14 +1049,14 @@
       if (f.collection && f.collection.count) facts.push([W.num(f.collection.count), "titles"]);
       else if (f.gov.streak) facts.push([String(f.gov.streak), "day streak"]);
       slot.appendChild(el("div", { class: "k-rp-home-top" }, [
-        el("span", { class: "k-kicker", text: "Your week in review · " + range(rep.start, rep.end) }),
+        el("span", { class: "k-kicker", text: (rep.period === "week" ? "Your week in review · " + range(rep.start, rep.end) : weekOf(rep) + " in review") }),
         el("span", { class: "k-rp-new", text: "New" })
       ]));
       slot.appendChild(el("h2", { class: "k-rp-home-h", text: w.headline }));
       slot.appendChild(el("div", { class: "k-rp-home-body" }, [
         el("dl", { class: "k-rp-home-facts" }, facts.slice(0, 3).reduce(function (a, x) { return a.concat([el("dd", { class: "k-mono", text: x[0] }), el("dt", { text: x[1] })]); }, [])),
-        miniChart(s)
-      ]));
+        rep.period === "week" ? miniChart(s) : null
+      ].filter(Boolean)));
       slot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "reports.home-open", text: "→ Read the report", onclick: read }));
     });
     return slot;
@@ -994,13 +1073,28 @@
   }
   KOS.reportsHomeCard = homeCard;
 
+  /* the parts the month, term and year pages share (reportlong.js) */
+  KOS.reportsKit = {
+    el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, tile: tile, tiles: tiles, crumbs: crumbs,
+    stacked: stacked, legend: legend, bars: bars, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    cover: cover, heat: heat, lengths: lengths, personaChip: personaChip, hiLo: hiLo, flowList: flowList, nextUp: nextUp,
+    open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip,
+    saved: saved, range: range, dm: dm, parse: parse, longRange: longRange, weekOf: weekOf, statusText: statusText,
+    unitText: unitText, scoreHist: scoreHist, countryName: countryName, formatName: formatName,
+    SUBJ_HUE: SUBJ_HUE, MOD_HUE: MOD_HUE, MOD_SHORT: MOD_SHORT, MODULES: MODULES, SUBJECTS: SUBJECTS, BAND: BAND, DOW: DOW,
+    MONTHS: MONTHS, MONTH_LONG: MONTH_LONG, PERIOD_KICKER: PERIOD_KICKER, GENRE_HUE: GENRE_HUE, view: view
+  };
+
   /* ================= the view ================= */
   /* arg: {period, start, section} — or a notification's {period, id} */
   function normArg(arg) {
     arg = arg || {};
-    var out = { period: arg.period === "week" ? "week" : "week", start: null, section: null };
+    var out = { period: PERIODS.some(function (x) { return x[0] === arg.period; }) ? arg.period : "week", start: null, section: null };
+    if (typeof arg.id === "string" && /^(week|month|term|year):/.test(arg.id) && !arg.period) out.period = arg.id.slice(0, arg.id.indexOf(":"));
     if (arg.start && /^\d{4}-\d{2}-\d{2}$/.test(arg.start)) out.start = arg.start;
     else if (typeof arg.id === "string" && /:\d{4}-\d{2}-\d{2}$/.test(arg.id)) out.start = arg.id.slice(arg.id.indexOf(":") + 1);
+    else if (typeof arg.id === "string" && /^month:\d{4}-\d{2}$/.test(arg.id)) out.start = arg.id.slice(6) + "-01";
+    else if (typeof arg.id === "string" && /^year:\d{4}$/.test(arg.id)) out.start = arg.id.slice(5) + "-09-01";
     if (out.start && SECTIONS[arg.section]) out.section = arg.section;
     return out;
   }
@@ -1018,17 +1112,19 @@
     KOS.reportStore.list(arg.period, function (err, reps) {
       if (!holder.isConnected) return;   // the page moved on while the store answered
       reps = err ? [] : reps;
-      if (!arg.start) { indexPage(holder, reps); return; }
+      if (!arg.start) { indexPage(holder, reps, arg.period); return; }
       var rep = reps.filter(function (r) { return r.start === arg.start; })[0];
       if (!rep) {
-        holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports"); } }, { label: "Week of " + dm(arg.start) }]));
-        holder.appendChild(KOS.ui.emptyState({ mark: "録", title: "No report for the week of " + dm(arg.start),
-          body: "A week is saved on the Monday after it ends. This one has not been written yet, or this device was not open for it." }));
+        var what = arg.period === "week" ? "the week of " + dm(arg.start) : arg.period === "month" ? MONTH_LONG[parse(arg.start).getMonth()] + " " + parse(arg.start).getFullYear() : "this " + arg.period;
+        holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports", { period: arg.period }); } }, { label: what.charAt(0).toUpperCase() + what.slice(1) }]));
+        holder.appendChild(KOS.ui.emptyState({ mark: "録", title: "No report for " + what,
+          body: "A report is saved when its period ends. This one has not been written yet, or this device was not open for it." }));
         return;
       }
       if (arg.section === "study") studyOverview(holder, rep);
       else if (arg.section === "focus") focusOverview(holder, rep);
       else if (arg.section === "collection") collectionOverview(holder, rep);
+      else if (rep.period !== "week" && KOS.reportsLong) KOS.reportsLong.page(holder, rep, reps);
       else reportPage(holder, rep, reps);
     });
   };

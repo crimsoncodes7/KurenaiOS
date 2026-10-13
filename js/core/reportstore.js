@@ -210,9 +210,12 @@
         headline: w.headline ? String(w.headline).slice(0, 200) : null,
         narrative: w.narrative ? String(w.narrative).slice(0, 2000) : null,
         writtenAt: w.writtenAt || null,
-        status: WORDS_STATUS.indexOf(w.status) !== -1 ? w.status : "idle"
+        status: WORDS_STATUS.indexOf(w.status) !== -1 ? w.status : "idle",
+        /* when the words last changed on any device: replication keeps
+           the newest (a mode switch moves it too, unlike writtenAt) */
+        changedAt: Date.now()
       };
-      putReport(rep, function (e2) { cb && cb(e2 || null, rep); });
+      putReport(rep, function (e2) { cb && cb(e2 || null, rep); soonSync(); });
     });
   }
   function record(p, facts) {
@@ -239,49 +242,185 @@
     saving = true;
     var R = KOS.report, now = nowArg || Date.now();
     var today = iso(new Date(now));
-    var latest = R.week(R.addDays(R.monday(today), -7));
     var from = R.year(today).start;
-    var ids = [], cur = R.week(from);
-    while (cur.start <= latest.start && ids.length < BACKFILL_WEEKS) { ids.push(cur); cur = R.week(R.addDays(cur.start, 7)); }
+    /* the groups, in an order where each can read the last: weeks (terms
+       roll them up), months (a year rolls them up), terms, years */
+    var groups = [];
+    var weeks = [], cur = R.week(from), lastWeek = R.week(R.addDays(R.monday(today), -7));
+    while (cur.start <= lastWeek.start && weeks.length < BACKFILL_WEEKS) { weeks.push(cur); cur = R.week(R.addDays(cur.start, 7)); }
+    groups.push(weeks);
+    var months = [], m = R.month(from), lastMonth = R.month(R.addDays(R.month(today).start, -1));
+    while (m.start <= lastMonth.start) { months.push(m); m = R.month(R.addDays(m.end, 1)); }
+    groups.push(months);
+    groups.push(R.terms().filter(function (t) { return t.start >= from && t.end < today; }));
+    /* a year is saved on 1 September; the one before the backfill window
+       only if it has just ended */
+    var lastYear = R.year(R.addDays(from, -1));
+    groups.push(now >= R.readyAt(lastYear) && now - R.readyAt(lastYear) < 31 * 864e5 ? [lastYear] : []);
     var saved = [];
     snapshots(function (e0, snaps) {
       var baseline = snaps && snaps.length ? snaps[0].id : null;
-      var i = 0, prevFacts = null;
-      (function next() {
-        if (i >= ids.length) { saving = false; cb && cb(null, saved); return; }
-        var p = ids[i++];
-        var isLatest = p.id === latest.id;
-        if (isLatest && !R.isReady(p, now)) { next(); return; }
-        getReport(p.id, function (e1, have) {
-          if (have) { prevFacts = have.facts; next(); return; }
-          var rebuilt = !baseline || p.start < baseline;
-          R.build(p, { rebuilt: rebuilt, prev: prevFacts }, function (facts) {
-            if (!isLatest && rebuilt && !hasContent(facts)) { prevFacts = null; next(); return; }
-            var rep = record(p, facts);
-            putReport(rep, function (e2) {
-              if (!e2) { saved.push(rep); prevFacts = facts; if (isLatest && !rebuilt) announce(rep); }
-              next();
+      var gi = 0;
+      (function group() {
+        if (gi >= groups.length) { saving = false; cb && cb(null, saved); return; }
+        var ids = groups[gi++], i = 0, prevFacts = null;
+        var latest = ids.length ? ids[ids.length - 1] : null;
+        (function next() {
+          if (i >= ids.length) { group(); return; }
+          var p = ids[i++];
+          var isLatest = p === latest;
+          if (!R.isReady(p, now)) { next(); return; }
+          getReport(p.id, function (e1, have) {
+            if (have) { prevFacts = have.facts; next(); return; }
+            var rebuilt = !baseline || p.start < baseline;
+            R.build(p, { rebuilt: rebuilt, prev: prevFacts }, function (facts) {
+              if (!isLatest && rebuilt && !hasContent(facts)) { prevFacts = null; next(); return; }
+              if (isLatest && rebuilt && p.period !== "week" && !hasContent(facts)) { next(); return; }
+              var rep = record(p, facts);
+              putReport(rep, function (e2) {
+                if (!e2) { saved.push(rep); prevFacts = facts; if (isLatest && !rebuilt) announce(rep); }
+                next();
+              });
             });
           });
-        });
+        })();
       })();
     });
   }
   /* "Your week in review is ready" — one notification per report (its id
      is the report's, so two devices saving the same week never post two;
      the ledger syncs). A no-op until the bell knows the kind. */
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   function announce(rep) {
     if (!KOS.notify || !KOS.notify.push || !KOS.reportWords) return;
     var w = KOS.reportWords.template(rep.facts);
     KOS.notify.push({ id: "reports:" + rep.id, kind: "reports",
-      title: rep.period === "week" ? "Your week in review is ready" : "Your " + rep.period + " in review is ready",
+      title: rep.period === "week" ? "Your week in review is ready"
+        : rep.period === "month" ? MONTH_NAMES[+rep.start.slice(5, 7) - 1] + " in review is ready"
+        : rep.period === "term" ? "Your term in review is ready" : "Your year in review is ready",
       body: w.headline, view: "reports", arg: { period: rep.period, id: rep.id } });
+  }
+
+  /* ---------------- replication (phase 7) ----------------
+     The table `kos_reports` holds a copy of every saved report and
+     snapshot, so a second device reads the weeks the first one saved.
+     Local-first (invariant 31): signed out, or in an Empty/Sample review
+     namespace, nothing is sent. Pull, merge, then push what changed since
+     this device last pushed (a per-item stamp, kept in the media kv store
+     like the main sync's meta). A report merges by its own rules: the
+     facts of the copy saved FIRST (two devices converge on one), the words
+     changed LAST. Snapshots keep the one taken first. */
+  var cloudApi = null, syncing = false, syncTimer = null;
+  var SYNC_PAGE = 200, PUSH_CHUNK = 50;
+  function realCloud() {
+    function c() { return KOS.cloud.client(); }
+    function run(b, cb) {
+      b.then(function (res) { res.error ? cb(new Error(res.error.message || "Reports sync failed.")) : cb(null, res.data); })
+        .catch(function (e) { cb(new Error((e && e.message) || "Reports sync failed — network?")); });
+    }
+    return {
+      since: function (iso, offset, cb) {
+        var q = c().from("kos_reports").select("item_id, kind, stamp, data_json, updated_at");
+        if (iso) q = q.gt("updated_at", iso);
+        run(q.order("updated_at", { ascending: true }).range(offset, offset + SYNC_PAGE - 1), cb);
+      },
+      upsert: function (rows, cb) {
+        run(c().from("kos_reports").upsert(rows, { onConflict: "user_id,item_id" }).select("item_id, updated_at"), cb);
+      }
+    };
+  }
+  function cloud() { return cloudApi || realCloud(); }
+  function canSync() {
+    return !!(KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn() && KOS.mediadb && KOS.mediadb.available() &&
+      !(KOS.dataMode && KOS.dataMode.mode));
+  }
+  function stampOf(kind, rec) {
+    return kind === "snapshot" ? String(rec.takenAt || 0) : String(rec.savedAt || 0) + "|" + String((rec.words && rec.words.changedAt) || 0);
+  }
+  function mergeReport(local, remote) {
+    var base = (remote.savedAt || 0) < (local.savedAt || 0) ? remote : local;
+    var out = JSON.parse(JSON.stringify(base));
+    var lw = local.words || {}, rw = remote.words || {};
+    out.words = JSON.parse(JSON.stringify((rw.changedAt || 0) > (lw.changedAt || 0) ? rw : lw));
+    return out;
+  }
+  function allSnapshots(cb) { snapshots(function (e, l) { cb(e ? [] : l); }); }
+  function allReports(cb) { list(null, function (e, l) { cb(e ? [] : l); }); }
+  function syncCloud(cb) {
+    if (syncing || !available() || !canSync()) { cb && cb(null, { pushed: 0, pulled: 0, skipped: true }); return; }
+    syncing = true;
+    var uid = KOS.cloud.userId(), key = "reports.sync." + uid, out = { pushed: 0, pulled: 0 };
+    function finish(err) { syncing = false; cb && cb(err || null, out); }
+    KOS.mediadb.getKV(key, function (e0, meta) {
+      meta = meta && typeof meta === "object" ? meta : {};
+      meta.pushed = meta.pushed || {};
+      var offset = 0, maxTs = meta.cursor || null;
+      (function page() {
+        cloud().since(meta.cursor || null, offset, function (e1, rows) {
+          if (e1) { finish(e1); return; }
+          rows = rows || [];
+          var i = 0;
+          (function apply() {
+            if (i >= rows.length) {
+              if (rows.length === SYNC_PAGE) { offset += SYNC_PAGE; page(); return; }
+              meta.cursor = maxTs;
+              push();
+              return;
+            }
+            var row = rows[i++], rec = row.data_json || {};
+            if (!maxTs || row.updated_at > maxTs) maxTs = row.updated_at;
+            if (row.kind === "snapshot") {
+              var sid = String(row.item_id).replace(/^snap:/, "");
+              getSnapshot(sid, function (e2, have) {
+                if (!have || (rec.takenAt || 0) < (have.takenAt || 0)) {
+                  putSnapshot(rec, function () { meta.pushed[row.item_id] = row.stamp; out.pulled++; apply(); });
+                } else { if (have.takenAt === rec.takenAt) meta.pushed[row.item_id] = row.stamp; apply(); }
+              });
+              return;
+            }
+            getReport(row.item_id, function (e3, have) {
+              var merged = have ? mergeReport(have, rec) : rec;
+              var changed = !have || JSON.stringify(merged) !== JSON.stringify(have);
+              var same = stampOf("report", merged) === row.stamp;
+              function done() { if (same) meta.pushed[row.item_id] = row.stamp; apply(); }
+              if (changed) putReport(merged, function () { out.pulled++; done(); }); else done();
+            });
+          })();
+        });
+      })();
+      function push() {
+        allReports(function (reps) {
+          allSnapshots(function (snaps) {
+            var rows = [];
+            reps.forEach(function (r) { var st = stampOf("report", r); if (meta.pushed[r.id] !== st) rows.push({ user_id: uid, item_id: r.id, kind: "report", stamp: st, data_json: r }); });
+            snaps.forEach(function (sn) { var id = "snap:" + sn.id, st = stampOf("snapshot", sn); if (meta.pushed[id] !== st) rows.push({ user_id: uid, item_id: id, kind: "snapshot", stamp: st, data_json: sn }); });
+            var j = 0;
+            (function chunk() {
+              if (j >= rows.length) { KOS.mediadb.setKV(key, meta, function () { finish(null); }); return; }
+              var slice = rows.slice(j, j + PUSH_CHUNK);
+              j += PUSH_CHUNK;
+              cloud().upsert(slice, function (e4) {
+                if (e4) { KOS.mediadb.setKV(key, meta, function () { finish(e4); }); return; }
+                slice.forEach(function (r) { meta.pushed[r.item_id] = r.stamp; });
+                out.pushed += slice.length;
+                chunk();
+              });
+            })();
+          });
+        });
+      }
+    });
+  }
+  /* a change worth sending soon (words written, a report saved) */
+  function soonSync() {
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () { syncTimer = null; syncCloud(); }, 2000);
   }
 
   /* once after boot (when the study modules and the vault are ready),
      then every 30 minutes, so a device left open over midnight on Sunday
      still writes Monday's — the snapshot first, then the reports */
-  function tick() { ensure(function () { ensureReports(); }); }
+  function tick() { ensure(function () { ensureReports(function () { syncCloud(); }); }); }
   function start() {
     if (timer || !available()) return;
     setTimeout(tick, 8000);
@@ -304,6 +443,10 @@
     cached: function () { return cache.slice(0, 60); },
     setWords: setWords,
     ensureReports: ensureReports,
+    syncCloud: syncCloud,
+    mergeReport: mergeReport,
+    /* test seam: a fake kos_reports API (since, upsert) */
+    _setCloudApi: function (a) { cloudApi = a || null; },
     start: start
   };
 })();

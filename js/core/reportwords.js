@@ -49,8 +49,79 @@
     return keys[0];
   }
 
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var DOW_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  function parseISO(s) { var p = String(s).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function prevLabel(f) {
+    if (f.period === "month") { var d = parseISO(f.start); d.setMonth(d.getMonth() - 1); return MON3[d.getMonth()]; }
+    return "last " + (PERIOD_NOUN[f.period] || "period");
+  }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  /* the longer periods lead with what the design leads with: the month
+     against the one before, the term's results and the class plan, the
+     year's records (24c–24e) */
+  function longTemplate(f) {
+    var s = f.study, g = f.gov || {}, pl = prevLabel(f), bits = [], out = [];
+    var prev = f.prev;
+    if (f.period === "month") {
+      bits.push(s.mins ? hm(s.mins) + " studied" : "A quiet month for study");
+      if (prev && prev.mins > 0 && s.mins >= 2 * prev.mins) bits.push("more than double " + pl);
+      else if (prev && prev.mins > 0 && s.mins > prev.mins) bits.push(hm(s.mins - prev.mins) + " more than " + pl);
+      if (prev && prev.recall != null && s.recall != null && s.recall > prev.recall) bits.push("with recall up " + (s.recall - prev.recall) + " points");
+      else if (s.toGreen) bits.push(plural(s.toGreen, "topic") + " to Green");
+    } else if (f.period === "term") {
+      var r = f.results && f.results.best;
+      if (r && r.grade) bits.push((/^[AEIOU]/.test(r.grade) ? "an " : "a ") + r.grade + " in " + r.title);
+      (f.vsClass ? f.vsClass.rows : []).forEach(function (row) {
+        var name = SUBJECT_SHORT[row.sid];
+        bits.push(row.end.pos === "ahead" ? name + " ahead of class" : row.end.pos === "behind" ? name + " " + plural(row.end.n, "topic") + " behind" : name + " aligned with class");
+      });
+      if (!bits.length) bits.push(s.mins ? hm(s.mins) + " studied this term" : "A quiet term for study");
+    } else {
+      bits.push(s.mins ? hm(s.mins) + " of study" : "A quiet year for study");
+      if (f.results && f.results.best && f.results.best.grade) bits.push("a best result of " + f.results.best.grade + " in " + f.results.best.title);
+      if (f.records && f.records.streak && f.records.streak.days >= 7) bits.push((f.records.streak.days) + "-day streak");
+    }
+    if (bits.length > 3) bits = bits.slice(0, 3);
+    if (f.period === "year" && bits.length > 1 && /streak$/.test(bits[bits.length - 1])) bits[bits.length - 1] = "a " + bits[bits.length - 1];
+    var headline = cap(list(bits)) + ".";
+    /* the narrative */
+    var keys = Object.keys(s.bySubject || {}).filter(function (k) { return s.bySubject[k] > 0; }).sort(function (a, b) { return s.bySubject[b] - s.bySubject[a]; });
+    if (s.mins) {
+      out.push("You studied on " + s.days + " of " + s.of + " days for " + hm(s.mins) +
+        (keys.length > 1 ? ": " + list(keys.map(function (k) { return SUBJECT[k] + " " + hm(s.bySubject[k]); })) : keys.length ? ", all " + SUBJECT[keys[0]] : "") + ".");
+    } else if (s.days) out.push("You studied on " + s.days + " of " + s.of + " days, without a timed session.");
+    if (prev && prev.mins != null && s.mins !== prev.mins && f.period === "month") {
+      out.push(s.mins > prev.mins ? (prev.mins ? "That is " + hm(s.mins - prev.mins) + " more than " + pl + "." : "New this month: " + pl + " had no timed study.") : "That is " + hm(prev.mins - s.mins) + " less than " + pl + ".");
+    }
+    if (s.recall != null) {
+      out.push(prev && prev.recall != null && prev.recall !== s.recall && f.period === "month"
+        ? "Recall " + (s.recall > prev.recall ? "rose" : "moved") + " from " + prev.recall + "% to " + s.recall + "% across " + num(s.reviews) + " reviews" + (s.toGreen ? ", and " + plural(s.toGreen, "topic") + " moved to Green." : ".")
+        : "Recall was " + s.recall + "% across " + num(s.reviews) + " reviews" + (s.toGreen ? ", and " + plural(s.toGreen, "topic") + " moved to Green." : "."));
+    }
+    if (s.busiest && s.days >= 2) {
+      var bd = parseISO(s.busiest.date);
+      out.push("Your busiest day was " + DOW_LONG[bd.getDay()] + " " + bd.getDate() + " " + MONTH_NAMES[bd.getMonth()] +
+        (f.focus && f.focus.blocks && f.focus.peakHour != null ? ", and " + (f.focus.peakHour < 10 ? "0" : "") + f.focus.peakHour + ":00 was your peak hour." : "."));
+    }
+    if (f.vsClass && f.period !== "month") {
+      var parts = f.vsClass.rows.map(function (row) { return SUBJECT_SHORT[row.sid] + " " + (row.end.pos === "aligned" ? "aligned" : plural(row.end.n, "topic") + " " + row.end.pos); });
+      if (parts.length) out.push("Against the class plan, " + list(parts) + ".");
+    }
+    if (f.results && f.results.list.length && f.period !== "month") {
+      var best = f.results.best;
+      out.push(plural(f.results.list.length, "graded result") + (best ? ", the best " + best.title + " at " + best.pct + "%" + (best.grade ? " (" + best.grade + ")" : "") : "") + ".");
+    }
+    if (f.results && f.results.pending && f.period !== "month") out.push(list(f.results.pending.map(function (u) { return u.title.split(" · ")[0]; })) + " still to sit.");
+    if (f.collection && f.collection.status && f.collection.status.finished) out.push(plural(f.collection.status.finished, "title was", "titles were") + " completed in the Collection.");
+    if (!s.days && f.gov.rest) out.push("The rest streak reached " + plural(f.gov.rest, "day") + ".");
+    return { headline: headline, narrative: out.join(" ") };
+  }
+
   /* {headline, narrative} for any period's facts */
   function template(f) {
+    if (f.period !== "week") return longTemplate(f);
     var noun = PERIOD_NOUN[f.period] || "period", s = f.study, fo = f.focus || {}, g = f.gov || {};
     /* the headline: what was studied, what moved, the streak */
     var bits = [];
@@ -173,7 +244,7 @@
       if (f.plan.carried) {
         out.carried = f.plan.carried;
         var subs = [];
-        f.plan.rows.forEach(function (r) { if (!r.done && r.subject && subs.indexOf(SUBJECT_SHORT[r.subject].toLowerCase()) === -1) subs.push(SUBJECT_SHORT[r.subject].toLowerCase()); });
+        (f.plan.rows || []).forEach(function (r) { if (!r.done && r.subject && subs.indexOf(SUBJECT_SHORT[r.subject].toLowerCase()) === -1) subs.push(SUBJECT_SHORT[r.subject].toLowerCase()); });
         if (subs.length) out.carried_in = subs;
       }
     }
@@ -194,6 +265,18 @@
     if (g.streak) out.streak = g.streak;
     if (g.rest) out.rest = g.rest;
     if (f.prev && f.prev.mins != null) out.last_period_study_min = f.prev.mins;
+    if (f.prev && f.prev.recall != null) out.last_period_recall = Math.round(f.prev.recall) / 100;
+    if (f.period !== "week") {
+      if (s.busiest) out.busiest_day_min = s.busiest.mins;
+      if (f.tasks && f.tasks.reminders) out.reminders_done = f.tasks.reminders;
+      if (f.tasks && f.tasks.habitDays) out.habit_days = f.tasks.habitDays;
+      if (f.mastery) out.units_gaining_green = f.mastery.filter(function (u) { return u.green > 0; }).length;
+      /* results as kind, percentage and grade only: never a paper's name */
+      if (f.results && f.results.list.length) out.results = f.results.list.map(function (r) { return (r.kind || "result") + " " + (r.pct != null ? r.pct + "%" : "") + (r.grade ? " " + r.grade : ""); });
+      if (f.results && f.results.pending) out.units_to_sit = f.results.pending.length;
+      if (f.vsClass) out.vs_class = f.vsClass.rows.map(function (r) { return SUBJECT_SHORT[r.sid].toLowerCase() + " " + r.end.pos + (r.end.n ? " " + r.end.n : ""); });
+      if (f.records && f.records.streak) out.longest_streak = f.records.streak.days;
+    }
     if (f.rebuilt) out.rebuilt_from_history = true;
     return out;
   }

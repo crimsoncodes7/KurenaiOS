@@ -2,8 +2,8 @@
 
 From the Claude Design handoff `design_handoff_kurenaios_reports` (turns 24–25:
 frames 24a–24l, 25a–25g, and the playable `KurenaiOS Wrapped` story).
-Approved 12 October 2026 with the four recommendations below. Phases 1–5
-are built (smoke68, smoke69, smoke70).
+Approved 12 October 2026 with the four recommendations below. All seven phases
+are built (smoke68–72).
 
 ## What the handoff asks for
 
@@ -153,12 +153,16 @@ D estimates with ≈.
    - The Home card (24h) and the bell.
    - The share card and the export dialog (24k).
    - **Release.**
-6. **Month, term and year.**
+6. **Month, term and year.** ✓ Built: terms follow the school weeks; the
+   remaining story layouts (ranked bars, flow, compare, three cards) came
+   with them.
    - Monthly (24c), Termly (24d), Yearly with its seven chapters and the
      sticky chapter chip (24e, 24j) and Year › Collection (25e).
    - Their story lists.
    - **Release.**
-7. **Replication and polish.**
+7. **Replication and polish.** ✓ Built: `kos_reports` (migration
+   `20261012000001`, applied), the responsive audit over every report page
+   at 1920/1440/820/390/360 in Graphite and Dawn (0 findings).
    - `kos_reports` replication, if A is chosen.
    - The responsive and visual audits on every report page, both themes.
 

@@ -56,13 +56,15 @@
     return { period: "year", id: "year:" + y, start: y + "-09-01", end: (y + 1) + "-08-31",
       label: y + "–" + String(y + 1).slice(2) };
   }
-  /* the plan's terms: runs of teaching weeks split by 2+ consecutive break
-     weeks. Named by the month they start in. */
+  /* the plan's terms: runs of school weeks split by 2+ consecutive weeks
+     without one. Named by the month they start in. */
   function terms() {
     if (!KOS.pacing || !KOS.pacing.weeks) return [];
     var ws = KOS.pacing.weeks(), out = [], cur = null, gap = 0;
+    /* a term is SCHOOL weeks: a week the class plan does not teach is a
+       break even when the personal plan studies through it (Christmas) */
     ws.forEach(function (w) {
-      if (KOS.pacing.isBreak(w)) { gap++; if (gap >= 2 && cur) { out.push(cur); cur = null; } return; }
+      if (w.schoolWk == null) { gap++; if (gap >= 2 && cur) { out.push(cur); cur = null; } return; }
       gap = 0;
       if (!cur) cur = { start: w.wb, end: addDays(w.wb, 6) };
       else cur.end = addDays(w.wb, 6);
@@ -246,9 +248,13 @@
       recall: reviews >= MIN_RECALL_REVIEWS ? round(100 * (reviews - again) / reviews) : null,
       quizzes: quizzes, quizPct: quizPct.length ? round(sum(quizPct) / quizPct.length) : null,
       exams: exams, results: results,
-      topics: list, touched: list.length, toGreen: toGreen, moves: moves
+      topics: list, touched: list.length, toGreen: toGreen, moves: moves, again: again
     };
     if (max) { out.marks = marks; out.max = max; }
+    /* the busiest day, for the longer periods (a week reads its chart) */
+    var bi = -1;
+    dayMins.forEach(function (m, i) { if (m > 0 && (bi < 0 || m > dayMins[bi])) bi = i; });
+    if (bi >= 0) out.busiest = { date: addDays(p.start, bi), mins: round(dayMins[bi]) };
     var dk = Object.keys(decks).map(function (k) {
       var d = decks[k]; d.reviews = round(d.reviews);
       d.recall = d.reviews ? round(100 * (d.reviews - d.again) / d.reviews) : null;
@@ -330,6 +336,7 @@
     out.longest = round(Math.max.apply(null, lens));
     out.typical = round(median(lens));
     out.peakHour = peak;
+    out.peakShare = total ? round(100 * hourMins[peak] / total) : 0;
     out.modes = modes;
     out.byDay = byDay.map(round);
     out.heat = heat.map(function (r) { return r.map(round); });
@@ -357,6 +364,12 @@
   function plan(input, p) {
     var rows = (input.planRows || []).filter(function (r) { return r.source === "personal"; });
     if (!rows.length) return null;
+    if (p.period !== "week") {
+      var tk = rows.filter(function (r) { return r.done; }).length;
+      var res2 = { planned: rows.length, ticked: tk };
+      if (rows.length - tk) res2.carried = rows.length - tk;
+      return res2;
+    }
     var out = rows.map(function (r) {
       var row = { id: r.id, subject: r.subject || null, title: r.title || r.detail || "", done: !!r.done,
         refs: (r.refs || []).slice(0, 3) };
@@ -383,6 +396,14 @@
     var out = {};
     if (done.length) { out.reminders = done.length; if (p.period === "week") out.done = done.sort(function (x, y) { return x.completedAt - y.completedAt; }).slice(0, 60).map(function (r) { return { title: r.title, at: r.completedAt }; }); }
     if (habits.length) out.habits = habits;
+    if (habits.length && p.period !== "week") {
+      var keptDays = 0;
+      for (var k = 0; k < n; k++) {
+        var dk = addDays(p.start, k);
+        if ((input.habits || []).some(function (h) { return h.days && h.days[dk]; })) keptDays++;
+      }
+      out.habitDays = keptDays;
+    }
     return Object.keys(out).length ? out : null;
   }
 
@@ -581,12 +602,246 @@
     return out;
   }
 
+  /* ================= the longer periods (24c–24e, 25e) ================= */
+  /* mastery by unit: each unit's Red/Amber/Green mix at the start and at
+     the end, from the two boundary snapshots; units that did not move are
+     left out (24c "Units with no change are listed on Study › Review") */
+  function mastery(input) {
+    var s0 = input.snapStart, s1 = input.snapEnd;
+    if (!s0 || !s1) return null;
+    var units = {};
+    function add(snap, side) {
+      Object.keys(snap.topics || {}).forEach(function (k) {
+        var band = snap.topics[k][0];
+        if (!band) return;
+        var u = unitOf(k);
+        if (!u) return;
+        var row = units[u.key] = units[u.key] || { key: u.key, sid: u.sid, ref: u.ref, title: u.title, start: { r: 0, a: 0, g: 0 }, end: { r: 0, a: 0, g: 0 } };
+        row[side][band]++;
+      });
+    }
+    add(s0, "start"); add(s1, "end");
+    var out = Object.keys(units).map(function (k) { return units[k]; }).filter(function (u) {
+      return u.start.r !== u.end.r || u.start.a !== u.end.a || u.start.g !== u.end.g;
+    }).map(function (u) { u.green = u.end.g - u.start.g; return u; })
+      .sort(function (a, b) { return b.green - a.green || (a.key < b.key ? -1 : 1); });
+    return out.length ? out.slice(0, 12) : null;
+  }
+  /* results: graded papers dated in the period, and IT units still to sit */
+  function results(input, p) {
+    var out = (input.tracker || []).filter(function (e) { return e.date && e.date >= p.start && e.date <= p.end && e.max; })
+      .map(function (e) {
+        return { title: e.paper || e.topic || e.kind || "Result", kind: e.kind || null, date: e.date, subject: e.subject || null,
+          marks: e.marks, max: e.max, pct: e.max ? round(100 * e.marks / e.max) : null, grade: e.grade || null };
+      }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    var pending = (input.itUnits || []).filter(function (u) { return u.status === "sitting"; })
+      .map(function (u) { return { title: u.code + (u.title ? " · " + u.title : ""), date: u.date || null }; });
+    if (!out.length && !pending.length) return null;
+    var res = { list: out };
+    if (pending.length) res.pending = pending;
+    if (out.length) res.best = out.slice().sort(function (a, b) { return (b.pct || 0) - (a.pct || 0); })[0];
+    return res;
+  }
+  /* the plan against class, one cell a week per subject (24d), read from
+     the braid's alignment of each plan week inside the period */
+  function vsClass(p) {
+    if (!KOS.pacing || !KOS.pacing.weeks || !KOS.pacing.alignment) return null;
+    var ws = KOS.pacing.weeks().filter(function (w) { return w.wb >= p.start && w.wb <= p.end && !KOS.pacing.isBreak(w); });
+    if (!ws.length) return null;
+    var rows = SUBJECTS.map(function (sid) {
+      var cells = ws.map(function (w) {
+        var a = KOS.pacing.alignment(w.wb, sid);
+        if (!a.evidence) return null;
+        return a.behind > 0 && a.behind >= a.ahead ? "behind" : a.ahead > 0 ? "ahead" : "aligned";
+      });
+      var lastA = null;
+      for (var i = ws.length - 1; i >= 0; i--) { var a2 = KOS.pacing.alignment(ws[i].wb, sid); if (a2.evidence) { lastA = a2; break; } }
+      if (!lastA) return null;
+      var end = lastA.behind > 0 && lastA.behind >= lastA.ahead ? { pos: "behind", n: lastA.behind }
+        : lastA.ahead > 0 ? { pos: "ahead", n: lastA.ahead } : { pos: "aligned", n: 0 };
+      return { sid: sid, cells: cells, end: end };
+    }).filter(Boolean);
+    return rows.length ? { weeks: ws.map(function (w) { return w.wb; }), rows: rows } : null;
+  }
+  /* the strip of constituent periods (a term's weeks, a year's months),
+     from the saved reports where they exist */
+  function strip(input, p) {
+    if (p.period !== "term" && p.period !== "year") return null;
+    var parts = input.parts || [];
+    var cols = [];
+    if (p.period === "year") {
+      for (var m = 0; m < 12; m++) {
+        var d = parse(p.start); d.setMonth(d.getMonth() + m);
+        var id = "month:" + iso(d).slice(0, 7);
+        var f = parts.filter(function (x) { return x.id === id; })[0];
+        cols.push({ id: id, label: ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"][m], start: iso(d), f: f ? stripCell(f) : null });
+      }
+    } else {
+      for (var wb = monday(p.start); wb <= p.end; wb = addDays(wb, 7)) {
+        var fw = parts.filter(function (x) { return x.id === "week:" + wb; })[0];
+        cols.push({ id: "week:" + wb, label: "w" + (cols.length + 1), start: wb, f: fw ? stripCell(fw) : null });
+      }
+    }
+    return cols;
+  }
+  function stripCell(f) {
+    var c = { mins: f.study.mins, bySubject: f.study.bySubject, days: f.study.days, reviews: f.study.reviews,
+      recall: f.study.recall, blocks: f.focus.blocks, titles: f.collection ? f.collection.count : 0,
+      completed: f.collection && f.collection.status ? (f.collection.status.finished || 0) : 0,
+      results: f.results ? f.results.list.length : 0, xp: f.gov && f.gov.xp != null ? f.gov.xp : null };
+    if (f.study.again != null && f.study.reviews) c.again = f.study.again;
+    return c;
+  }
+  /* when the ledger no longer reaches back to the period's start (it keeps
+     2,000 entries), the headline totals come from the saved weeks or
+     months instead, and the report says it is a roll-up */
+  function rollUp(f, input, p, cols) {
+    if (!cols) return;
+    var first = (input.ledger || []).reduce(function (a, e) { return !a || e.date < a ? e.date : a; }, null);
+    var capped = (input.ledger || []).length >= 1900;
+    if (!(capped && first && first > p.start)) return;
+    var have = cols.filter(function (c) { return c.f; });
+    if (!have.length) return;
+    var sm = {}, mins = 0, days = 0, reviews = 0, again = 0, rk = 0, blocks = 0;
+    have.forEach(function (c) {
+      mins += c.f.mins; days += c.f.days; reviews += c.f.reviews; blocks += c.f.blocks || 0;
+      Object.keys(c.f.bySubject || {}).forEach(function (k) { inc(sm, k, c.f.bySubject[k]); });
+      if (c.f.again != null) { again += c.f.again; rk += c.f.reviews; }
+    });
+    if (mins > f.study.mins) {
+      f.study.mins = mins; f.study.bySubject = sm; f.study.days = Math.max(f.study.days, days);
+      f.study.reviews = Math.max(f.study.reviews, reviews);
+      if (rk >= MIN_RECALL_REVIEWS) f.study.recall = round(100 * (rk - again) / rk);
+      f.focus.blocks = Math.max(f.focus.blocks, blocks);
+      f.rolledUp = true;
+    }
+  }
+  /* records of the year (24j): longest streak with its dates, the longest
+     Focus block, the best recall week, the most studied in a day */
+  function records(input, p, f) {
+    var out = {};
+    var ds = {};
+    input.inRange.forEach(function (e) { if (isStudy(e)) ds[e.date] = true; });
+    var run = 0, best = 0, bestEnd = null, prev = null;
+    Object.keys(ds).sort().forEach(function (d) {
+      run = prev && addDays(prev, 1) === d ? run + 1 : 1;
+      if (run > best) { best = run; bestEnd = d; }
+      prev = d;
+    });
+    if (best >= 2) out.streak = { days: best, start: addDays(bestEnd, -(best - 1)), end: bestEnd };
+    if (f.study.firsts) out.longest = { mins: f.study.firsts.longest.mins, ts: f.study.firsts.longest.ts, label: f.study.firsts.longest.label || null };
+    var weeks = (input.weekParts || []).filter(function (w) { return w.study.reviews >= MIN_RECALL_REVIEWS && w.study.recall != null && w.start >= p.start && w.start <= p.end; });
+    if (weeks.length) {
+      var bw = weeks.slice().sort(function (a, b) { return b.study.recall - a.study.recall || b.study.reviews - a.study.reviews; })[0];
+      out.recallWeek = { start: bw.start, recall: bw.study.recall, reviews: bw.study.reviews };
+    }
+    if (f.study.busiest) out.day = f.study.busiest;
+    return Object.keys(out).length ? out : null;
+  }
+  /* milestones (24j): dated firsts the ledger and the snapshots can prove */
+  function milestones(input, p) {
+    var out = [];
+    var total = 0, next = 1000;
+    input.inRange.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (e) {
+      if (e.type !== "flashcards" && e.type !== "due-review") return;
+      total += (e.metrics && e.metrics.cards) || 0;
+      while (total >= next) { out.push({ date: e.date, what: "First " + next.toLocaleString("en-GB") + " reviews this year", area: "Flashcards" }); next += next < 5000 ? 1000 : 5000; }
+    });
+    (input.snaps || []).filter(function (sn) { return sn.id > p.start && sn.id <= addDays(p.end, 1); }).reduce(function (prevLv, sn) {
+      var lv = sn.gov && sn.gov.level;
+      if (prevLv && lv && lv > prevLv && Math.floor(lv / 10) > Math.floor(prevLv / 10)) out.push({ date: sn.id, what: "Level " + (Math.floor(lv / 10) * 10), area: "Governor" });
+      return lv || prevLv;
+    }, null);
+    out.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    return out.length ? out.slice(0, 12) : null;
+  }
+  /* the study persona of a longer period (24c: "Steady Climber") */
+  var STUDY_PERSONAS = {
+    climber: { name: "Steady Climber", kanji: "登" },
+    sprinter: { name: "Weekend Sprinter", kanji: "疾" },
+    marathon: { name: "Long Hauler", kanji: "長" },
+    returner: { name: "Comeback Kid", kanji: "帰" }
+  };
+  function studyPersona(f) {
+    var s = f.study;
+    if (s.days < 5 || !s.mins) return null;
+    var share = s.days / s.of;
+    var wk = 0;
+    s.dayMins.forEach(function (m, i) { var dow = (parse(addDays(f.start, i)).getDay() + 6) % 7; if (dow >= 5) wk += m; });
+    var id, fact;
+    var maxDay = s.busiest ? s.busiest.mins : 0;
+    if (share >= 0.8) { id = "climber"; fact = "You studied on " + s.days + " of " + s.of + " days, never more than " + hoursText(maxDay / 60) + " in one day."; }
+    else if (wk / s.mins >= 0.45) { id = "sprinter"; fact = round(100 * wk / s.mins) + "% of your study came at weekends."; }
+    else if (maxDay >= 240) { id = "marathon"; fact = "Your longest day ran " + hoursText(maxDay / 60) + ", on " + s.busiest.date + "."; }
+    else { id = "returner"; fact = "You came back to it on " + s.days + " days, " + hoursText(s.mins / 60 / s.days) + " a study day."; }
+    return { id: id, name: STUDY_PERSONAS[id].name, kanji: STUDY_PERSONAS[id].kanji, fact: fact,
+      stats: [[String(s.days), "study days"], [hoursText(s.mins / 60 / Math.max(1, s.days)), "daily average"], [String(f.gov.streak || 0), "day streak"]] };
+  }
+  /* the Collection's persona for a year (25e: "Binge Captain") */
+  function mediaPersona(c) {
+    if (!c || c.count < 10) return null;
+    var u = c.units || {};
+    if ((u.ch || 0) >= 1000) return { name: "Binge Captain", fact: W_num(u.ch) + " chapters cleared", hue: "books" };
+    if ((u.ep || 0) >= 300) return { name: "Season Sweeper", fact: W_num(u.ep) + " episodes watched", hue: "anime" };
+    if ((u.route || 0) >= 10) return { name: "Route Runner", fact: W_num(u.route) + " routes cleared", hue: "vn" };
+    if ((u.hours || 0) >= 100) return { name: "Long Player", fact: W_num(u.hours) + " hours played", hue: "game" };
+    return { name: "Wide Reader", fact: c.count + " titles across " + Object.keys(c.byModule).length + " media", hue: Object.keys(c.byModule)[0] };
+  }
+  function W_num(n) { return Math.round(n).toLocaleString("en-GB"); }
+
   /* ---------------- the story list ---------------- */
   /* README 25g: weekly = intro, study time, top topics, which day? (quiz),
      the titles (mosaic), highs and lows, Focus style, recap. A story with
      too little evidence is dropped; the week keeps at least four. */
+  /* README 25g: monthly 9, termly 11, yearly 20 — each story kept only
+     when its facts can carry it */
+  function longStories(f) {
+    var s = f.study, c = f.collection, out = ["intro"];
+    var keep = function (id, ok) { if (ok) out.push(id); };
+    var cmp = !!(f.prev && f.prev.mins != null);
+    if (f.period === "month") {
+      keep("compare", cmp);
+      keep("bars", s.chartDays);
+      keep("topics", s.touched >= 2);
+      keep("dna", c && c.genres && c.genres.length >= 3);
+      keep("flow", s.flow && s.flow.length >= 2);
+      keep("hilo", c && c.hi);
+      keep("persona", !!f.studyPersona);
+      if (out.length < 4) keep("study", true);
+    } else if (f.period === "term") {
+      keep("study", true);
+      keep("vsclass", f.vsClass && f.vsClass.rows.length);
+      keep("results", f.results && f.results.list.length >= 2);
+      keep("strongest", f.strongest && f.strongest.length >= 3);
+      keep("subjquiz", Object.keys(s.bySubject).filter(function (k) { return s.bySubject[k]; }).length >= 2);
+      keep("weeks", f.strip && f.strip.filter(function (x) { return x.f; }).length >= 3);
+      keep("next", s.next && s.next.length);
+      keep("collection", c && c.count >= 3);
+      keep("persona", !!f.focus.persona);
+    } else if (f.period === "year") {
+      keep("study", true);
+      keep("months", f.strip && f.strip.filter(function (x) { return x.f; }).length >= 3);
+      keep("topicquiz", s.topics.filter(function (t) { return t.reviews; }).length >= 3);
+      keep("topics", s.touched >= 3);
+      keep("results", f.results && f.results.list.length >= 2);
+      keep("thennow", f.thenNow && f.thenNow.length >= 2);
+      keep("firsts", !!s.firsts);
+      keep("records", f.records && f.records.streak);
+      keep("persona", !!(f.focus.persona || f.studyPersona));
+      keep("flow", s.flow && s.flow.length >= 2);
+      keep("collection", c && c.count >= 3);
+      keep("dna", c && c.genres && c.genres.length >= 3);
+      keep("creators", c && (c.studio || c.author));
+      keep("countries", c && c.countries && c.countries.length >= 2);
+      keep("scores", c && c.hi);
+      keep("finishing", c && c.status && (c.status.finished || 0) >= 3);
+      keep("level", f.gov.levelFrom && f.gov.level);
+    }
+    out.push("recap");
+    return out;
+  }
   function stories(f) {
-    if (f.period !== "week") return [];
+    if (f.period !== "week") return longStories(f);
     var out = ["intro", "study"];
     if (f.study.touched >= 2) out.push("topics");
     var fdays = (f.focus.byDay || []).filter(function (m) { return m > 0; }).length;
@@ -615,8 +870,66 @@
     f.gov = governor(input, p);
     var ku = kurenai(input, p); if (ku) f.kurenai = ku;
     if (input.prev) f.prev = input.prev;
+    if (p.period !== "week") {
+      var ma = mastery(input); if (ma) f.mastery = ma;
+      var re = results(input, p); if (re) f.results = re;
+      var sp = studyPersona(f); if (sp) f.studyPersona = sp;
+      if (p.period === "term" || p.period === "year") {
+        var vc = vsClass(p); if (vc) f.vsClass = vc;
+        var st = strip(input, p); if (st) { f.strip = st; rollUp(f, input, p, st); }
+        var ranked = f.study.topics.filter(function (t) { return t.reviews >= 20 && t.recall != null; });
+        if (ranked.length >= 2) {
+          var byR = ranked.slice().sort(function (a, b) { return a.recall - b.recall; });
+          f.weakest = byR.slice(0, 3).map(function (t) { return { key: t.key, sid: t.sid, ref: t.ref, title: t.title, recall: t.recall, reviews: t.reviews }; });
+          f.strongest = byR.slice(-5).reverse().map(function (t) { return { key: t.key, sid: t.sid, ref: t.ref, title: t.title, recall: t.recall, reviews: t.reviews }; });
+        }
+      }
+      if (p.period === "year") {
+        var rc = records(input, p, f); if (rc) f.records = rc;
+        var mi = milestones(input, p); if (mi) f.milestones = mi;
+        var mp = mediaPersona(f.collection); if (mp) f.mediaPersona = mp;
+        f.thenNow = thenNow(f);
+      }
+      if (f.collection) {
+        var cs = f.collection;
+        cs.completed = cs.titles.filter(function (t) { return t.status === "finished"; }).slice(0, 12)
+          .map(function (t) { return { title: t.title, module: t.module, score: t.score || 0, cover: t.cover || null }; });
+        cs.topRated = cs.titles.filter(function (t) { return t.score > 0; }).sort(function (a, b) { return b.score - a.score || (a.title < b.title ? -1 : 1); }).slice(0, 8)
+          .map(function (t) { return { title: t.title, module: t.module, score: t.score, cover: t.cover || null }; });
+        if (p.period === "year" || p.period === "term") cs.monthTitles = monthTitles(input, p);
+      }
+    }
     f.stories = stories(f);
     return f;
+  }
+  /* titles touched per month (25e), stacked by medium */
+  function monthTitles(input, p) {
+    var a = ms(p.start), b = ms(addDays(p.end, 1)), out = {};
+    (input.rows || []).forEach(function (r) {
+      var months = {};
+      (r.journal || []).forEach(function (ev) { if (ev[0] >= a && ev[0] < b) months[iso(new Date(ev[0])).slice(0, 7)] = true; });
+      var ds = r.dates || {};
+      [ds.started, ds.finished].forEach(function (d) { if (d && d >= p.start && d <= p.end) months[d.slice(0, 7)] = true; });
+      Object.keys(months).forEach(function (m) { var row = out[m] = out[m] || {}; row[r.module] = (row[r.module] || 0) + 1; });
+    });
+    return out;
+  }
+  /* then and now (the year story): the first term against the last, from
+     the saved weeks */
+  function thenNow(f) {
+    var cols = (f.strip || []).filter(function (x) { return x.f; });
+    if (cols.length < 6) return null;
+    var half = Math.floor(cols.length / 3);
+    var early = cols.slice(0, half), late = cols.slice(-half);
+    function avg(list, key) { var v = list.map(function (c) { return c.f[key]; }).filter(function (x) { return x != null; }); return v.length ? sum(v) / v.length : null; }
+    var rows = [];
+    var r0 = avg(early, "recall"), r1 = avg(late, "recall");
+    if (r0 != null && r1 != null) rows.push({ label: "Recall", a: round(r0) + "%", b: round(r1) + "%", va: r0, vb: r1, unit: "pts" });
+    var m0 = avg(early, "mins"), m1 = avg(late, "mins");
+    if (m0 != null && m1 != null) rows.push({ label: "Study a month", a: hoursText(m0 / 60), b: hoursText(m1 / 60), va: m0, vb: m1, unit: "mins" });
+    var d0 = avg(early, "days"), d1 = avg(late, "days");
+    if (d0 != null && d1 != null) rows.push({ label: "Study days a month", a: String(round(d0)), b: String(round(d1)), va: d0, vb: d1, unit: "n" });
+    return rows;
   }
   /* the few totals a later report compares against (and the year/term
      roll-ups read): kept small, on every saved report */
@@ -625,7 +938,13 @@
     return { mins: f.study.mins, days: f.study.days, sessions: f.study.sessions, reviews: f.study.reviews,
       recall: f.study.recall, touched: f.study.touched, toGreen: f.study.toGreen,
       blocks: f.focus.blocks, titles: f.collection ? f.collection.count : 0,
-      ticked: f.plan ? f.plan.ticked : null, planned: f.plan ? f.plan.planned : null };
+      ticked: f.plan ? f.plan.ticked : null, planned: f.plan ? f.plan.planned : null,
+      bySubject: f.study.bySubject, busiest: f.study.busiest ? f.study.busiest.mins : null,
+      peakHour: f.focus.peakHour != null ? f.focus.peakHour : null,
+      reminders: f.tasks && f.tasks.reminders ? f.tasks.reminders : 0,
+      chats: f.kurenai && f.kurenai.chats ? f.kurenai.chats : 0,
+      completed: f.collection && f.collection.status ? (f.collection.status.finished || 0) : 0,
+      dayAvg: f.study.of ? Math.round(f.study.mins / f.study.of) : null };
   }
 
   /* ---------------- gather: the single sources ---------------- */
@@ -644,6 +963,12 @@
     if (p.period === "week" && KOS.pacing && KOS.pacing.weekAt) {
       var w = KOS.pacing.weekAt(p.start);
       if (w) { input.planWb = w.wb; input.planRows = KOS.pacing.entriesFor(w.wb, null, "personal"); }
+    } else if (KOS.pacing && KOS.pacing.entries) {
+      input.planRows = KOS.pacing.entries().filter(function (e) { return e.source === "personal" && e.wb >= p.start && e.wb <= p.end; });
+    }
+    if (p.period !== "week") {
+      input.tracker = (KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : ((S.tracker || {}).entries || [])).slice();
+      input.itUnits = KOS.itUnits && KOS.itUnits.all ? KOS.itUnits.all() : [];
     }
     var rs = KOS.reportStore;
     function snaps(next) {
@@ -663,9 +988,23 @@
         });
       });
     }
+    /* a term or a year also reads the saved reports inside it (the strip,
+       the roll-up, the best recall week) and every snapshot (milestones) */
+    function parts(next) {
+      if (!rs || p.period === "week" || p.period === "month") { next(); return; }
+      rs.list(p.period === "year" ? "month" : "week", function (e1, list) {
+        input.parts = (list || []).filter(function (r) { return r.start >= p.start && r.start <= p.end; }).map(function (r) { return r.facts; });
+        rs.list("week", function (e2, weeks) {
+          input.weekParts = (weeks || []).filter(function (r) { return r.start >= p.start && r.start <= p.end; }).map(function (r) { return r.facts; });
+          rs.snapshots(function (e3, sn) { input.snaps = sn || []; next(); });
+        });
+      });
+    }
     snaps(function () {
-      if (!KOS.mediadb || !KOS.mediadb.available()) { input.rows = []; cb(input); return; }
-      KOS.mediadb.query({}, function (err, rows) { input.rows = err ? [] : rows; cb(input); });
+      parts(function () {
+        if (!KOS.mediadb || !KOS.mediadb.available()) { input.rows = []; cb(input); return; }
+        KOS.mediadb.query({}, function (err, rows) { input.rows = err ? [] : rows; cb(input); });
+      });
     });
   }
   function build(p, opts, cb) {
@@ -678,6 +1017,7 @@
     MIN_CHART_DAYS: MIN_CHART_DAYS,
     MIN_PERSONA_BLOCKS: MIN_PERSONA_BLOCKS,
     PERSONAS: PERSONAS,
+    STUDY_PERSONAS: STUDY_PERSONAS,
     SUBJECTS: SUBJECTS,
     MODULES: MODULES,
     week: week, month: month, term: term, terms: terms, year: year, of: of,
