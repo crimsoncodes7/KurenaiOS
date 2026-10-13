@@ -19,7 +19,7 @@ chronological diary here.
 - Runtime release: `fb2cb60` — immutable deployment
   https://ecbddb95.kurenai-os.pages.dev (12 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-reports-1`
+- Service-worker version: `kos-reports-2`
 - Required smoke gate: 72 / 72 suites.
 
 ## Run, test and deploy
