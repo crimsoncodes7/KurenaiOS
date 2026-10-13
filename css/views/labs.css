@@ -512,7 +512,7 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-ide-tab { display: inline-flex; align-items: center; gap: var(--sp-2); padding-inline: var(--sp-10) var(--sp-4); border-radius: var(--r-10) var(--r-10) 0 0; font: var(--fs-12-5) var(--font-mono); color: var(--muted); }
 .k-ide-tab[data-state~="on"] { background: var(--s1); color: var(--text); box-shadow: inset 0 var(--bar-3) 0 var(--crimson); }
 .k-ide-tab-b { padding: var(--sp-8) var(--sp-2); color: inherit; white-space: nowrap; }
-.k-ide-tab-x { inline-size: var(--hit-dense); block-size: var(--hit-dense); border-radius: 50%; color: var(--muted); }
+.k-ide-tab-x { display: inline-grid; place-items: center; padding: 0; line-height: 1; inline-size: var(--hit-dense); block-size: var(--hit-dense); border-radius: 50%; color: var(--muted); }
 .k-ide-tab-x:hover { background: var(--s2); color: var(--text); }
 .k-ide-doc { flex: 1 1 auto; min-block-size: 0; margin: 0; padding: var(--sp-14) var(--sp-8) var(--sp-24) 0; overflow: auto; list-style: none; counter-reset: ide-ln; font-size: var(--fs-13); line-height: 1.5; }
 .k-ide-line { counter-increment: ide-ln; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); min-block-size: var(--hit); padding-inline-start: var(--ide-ln-w); position: relative; }

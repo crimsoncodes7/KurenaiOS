@@ -190,6 +190,12 @@
   if (KOS.cloudsync) KOS.cloudsync.start();
 
   KOS.refreshRailCounters();
+  /* the frame never scrolls: #app clips (overflow: hidden), but
+     scrollIntoView still scrolls a clipping ancestor, so a jump to a
+     chapter or a quiz question slid the header and rail off the top
+     (Reports audit). Only #stage, the page's own scroller, moves. */
+  var frame = document.getElementById("app");
+  if (frame) frame.addEventListener("scroll", function () { if (frame.scrollTop || frame.scrollLeft) { frame.scrollTop = 0; frame.scrollLeft = 0; } });
   /* Category 7 Phase F: the router owns the opening view. A URL wins (a
      deep link, a bookmark, a refresh, a PWA launch); with no hash it
      restores the stored last view exactly as this block used to, then

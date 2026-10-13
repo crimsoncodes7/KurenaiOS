@@ -327,7 +327,8 @@ step("J · the Home card, then search finds Reports", async (app) => {
   assert(KOS.notify.isRead({ id: "reports:" + NOW.id }), "…and marks it read");
   KOS.show("home"); await app.settle();
   card = main(app).querySelector("[data-ui~='reports.home-card']");
-  assert(card && !/New/.test(card.textContent) && card.querySelector(".k-rp-home-row"), "read: a quiet row");
+  assert(card && !card.hasAttribute("hidden") && !/\bNew\b/.test(card.textContent) && card.querySelector(".k-rp-home-h") && card.querySelector("[data-ui~='reports.home-open']"),
+    "read: the same full card without New (it never shrinks to a row)");
   let groups = null;
   KOS.search.run("week in review", (g) => { groups = g; });
   assert(groups && groups.some(g => g.id === "reports"), "search finds Reports");

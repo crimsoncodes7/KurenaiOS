@@ -1,12 +1,16 @@
 /* Kurenai OS — modules/reports.js
    Reports (roadmap 5.1, design turns 24–25): the page under Home.
 
-     #/reports                          the Reports page (24a): the chosen
-                                        report on the left, Earlier
-                                        reports on the right
-     #/reports/week/<start>             one report (25a): the hero, eight
-                                        tiles, Study · Focus · the plan,
-                                        the Collection, Governor & Kurenai
+     #/reports[/<period>]               the Reports page (24a): the chosen
+                                        report on the left (its words,
+                                        three facts, the activity chart),
+                                        Earlier reports on the right
+     #/reports/week/<start>             one report (25a): the story hero
+                                        (headline only — the narrative
+                                        lives on the Reports page and in
+                                        the story), eight facts in a row,
+                                        Study · Focus · the plan, the
+                                        Collection, Governor & Kurenai
      #/reports/week/<start>/<section>   its full overview, inside Reports
                                         (25b Collection, 25c Study,
                                         25d Focus and the plan)
@@ -17,9 +21,11 @@
    render writes nothing (invariant 102, smoke56); the only writes are a
    click's — "Add to plan" adds a plan row.
 
-   The README's rules were applied when the facts were built (a supporting
-   zero is absent, evidence floors, comparisons as values); this file
-   follows them by drawing what is there and leaving out what is not.  */
+   Layout rules (review after release): no empty column and no dead space.
+   A grid row's last card widens to close the row (`pack`), charts are
+   drawn at their container's width (`fluid`), and of two side-by-side
+   columns the shorter one rides along while the longer scrolls
+   (`rideAlong`). */
 (function () {
   "use strict";
   var el = KOS.ui.el, W = KOS.reportWords;
@@ -35,10 +41,11 @@
   var SECTIONS = { study: "Study", focus: "Focus and plan", collection: "Collection" };
   var FLOW_LABEL = { compsci: "CS", maths: "Maths", it: "IT", cards: "Flashcards", quiz: "Quiz" };
   var AREA_LABEL = { study: "Study", planner: "Plan", collection: "Collection", governor: "Governor", archive: "Archive" };
+  var SEAL = { week: "週", month: "月", term: "期", year: "年" };
   var HEAT_FROM = 7;
 
   /* per-visit view state (never saved: a filter is not data) */
-  var view = { selected: null, coll: { module: "all", layout: "covers", sort: "time", all: false } };
+  var view = { selected: null, coll: { module: "all", layout: "covers", sort: "time", all: false }, activity: "time" };
 
   /* ---------------- dates ---------------- */
   function parse(s) { var p = String(s).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
@@ -52,7 +59,7 @@
   }
   function longRange(start, end) {
     var a = parse(start), b = parse(end);
-    if (days(start, end) === 6) return DOW[0] + " " + dm(start) + " – " + DOW[6] + " " + dm(end);
+    if (days(start, end) === 6) return DOW[0] + " " + a.getDate() + (a.getMonth() === b.getMonth() ? "" : " " + MONTHS[a.getMonth()]) + " – " + DOW[6] + " " + dm(end);
     return a.getDate() + " " + MONTHS[a.getMonth()] + (a.getFullYear() !== b.getFullYear() ? " " + a.getFullYear() : "") + " – " + b.getDate() + " " + MONTHS[b.getMonth()];
   }
   function days(a, b) { return Math.round((parse(b) - parse(a)) / 864e5); }
@@ -67,6 +74,13 @@
     if (rep.period === "year") return (rep.facts && rep.facts.label) || parse(rep.start).getFullYear() + "–" + String(parse(rep.start).getFullYear() + 1).slice(2);
     return "Week of " + dm(rep.start);
   }
+  /* the kicker's span: "Mon 5 – Sun 11 Oct 2026", "September 2026" */
+  function spanOf(rep) {
+    if (rep.period === "week") return longRange(rep.start, rep.end) + " " + parse(rep.end).getFullYear();
+    if (rep.period === "term") return weekOf(rep) + " · " + longRange(rep.start, rep.end);
+    if (rep.period === "year") return MONTHS[parse(rep.start).getMonth()] + " " + parse(rep.start).getFullYear() + " – " + MONTHS[parse(rep.end).getMonth()] + " " + parse(rep.end).getFullYear();
+    return weekOf(rep);
+  }
   function clock(ts) { var d = new Date(ts); return (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes(); }
   function dayName(ts) { var d = new Date(ts); return DOW[(d.getDay() + 6) % 7]; }
   function saved(rep) {
@@ -78,38 +92,48 @@
   /* ---------------- small parts ---------------- */
   function mono(text, cls) { return el("span", { class: "k-mono" + (cls ? " " + cls : ""), text: text }); }
   function dot(hue) { return el("span", { class: "k-rp-dot", "aria-hidden": "true", style: "--c: " + hue }); }
+  function more(label, go, name) {
+    return el("button", { type: "button", class: "k-rp-more", "data-ui": "reports.overview-link", text: label || "Full overview ›",
+      "aria-label": name ? "Full overview: " + name : null, onclick: go });
+  }
   function cardHead(title, opts) {
     opts = opts || {};
-    return el("div", { class: "k-card-head" }, [
-      el("h2", { class: "k-card-title", text: title }),
-      opts.meta ? el("span", { class: "k-card-meta", text: opts.meta }) : null,
-      opts.go ? el("button", { type: "button", class: "k-link", "data-ui": "reports.overview-link", text: "Full overview ›",
-        "aria-label": "Full overview: " + title, onclick: opts.go }) : null
+    return el("div", { class: "k-rp-card-head" }, [
+      el("h2", { class: "k-rp-card-title", text: title }),
+      opts.meta ? el("span", { class: "k-rp-card-meta", text: opts.meta }) : null,
+      opts.right || null,
+      opts.go ? more(null, opts.go, title) : null
     ].filter(Boolean));
   }
   function card(title, opts, children) {
     opts = opts || {};
-    return el("section", { class: "k-card k-rp-card" + (opts.className ? " " + opts.className : ""), "data-ui": "reports.card" + (opts.hook ? " " + opts.hook : ""),
+    return el("section", { class: "k-rp-card" + (opts.className ? " " + opts.className : ""), "data-ui": "reports.card" + (opts.hook ? " " + opts.hook : ""),
       "aria-label": title }, [cardHead(title, opts)].concat((children || []).filter(Boolean)));
   }
-  function tile(label, value, sub, cmp) {
+  /* a stat tile: label, the value (an optional unit after it), a line,
+     and a comparison chip (README rule 5) */
+  function tile(label, value, sub, cmp, unit) {
     if (value == null || value === "") return null;
-    var t = KOS.ui.statTile({ label: label, value: value, sub: sub || null, className: "k-rp-tile" });
-    if (cmp) t.appendChild(el("span", { class: "k-rp-cmp", "data-tone": cmp.dir === "up" || cmp.dir === "new" ? "up" : null, text: cmp.text }));
-    return t;
+    return el("div", { class: "k-rp-tile", "data-ui": "ui.stat" }, [
+      el("span", { class: "k-rp-tile-l", "data-ui": "part.label", text: label }),
+      el("span", { class: "k-rp-tile-v" }, [mono(String(value), "k-rp-tile-n"), unit ? mono(unit, "k-rp-tile-u") : null].filter(Boolean)),
+      sub ? el("span", { class: "k-rp-tile-s", text: sub }) : null,
+      cmp ? el("span", { class: "k-rp-cmp", "data-tone": cmp.dir === "up" || cmp.dir === "new" ? "up" : null, text: cmp.text }) : null
+    ].filter(Boolean));
   }
   function tiles(list) {
     return el("div", { class: "k-rp-tiles", "data-ui": "reports.tiles" }, list.filter(Boolean));
   }
-  function crumbs(parts) {
+  /* the breadcrumb row, with the page's actions at its end (25b) */
+  function crumbs(parts, actions) {
     var nav = el("nav", { class: "k-rp-crumbs", "aria-label": "Breadcrumb" });
     parts.forEach(function (p, i) {
       if (i) nav.appendChild(el("span", { class: "k-rp-crumb-sep", "aria-hidden": "true", text: "›" }));
       nav.appendChild(p.go
-        ? el("button", { type: "button", class: "k-link k-rp-crumb", "data-ui": "reports.crumb", text: p.label, onclick: p.go })
+        ? el("button", { type: "button", class: "k-rp-crumb", "data-ui": "reports.crumb", text: p.label, onclick: p.go })
         : el("span", { class: "k-rp-crumb", "aria-current": "page", text: p.label }));
     });
-    return nav;
+    return el("div", { class: "k-rp-crumbbar" }, [nav, actions && actions.length ? el("div", { class: "k-rp-actions" }, actions) : null].filter(Boolean));
   }
   function open(rep, section) {
     KOS.show("reports", { period: rep.period, start: rep.start, section: section || null });
@@ -121,27 +145,158 @@
   /* a rebuilt report says so wherever its words do */
   function rebuiltChip(rep) {
     return rep.rebuilt ? el("span", { class: "k-chip k-rp-rebuilt", "data-ui": "reports.rebuilt",
-      title: "Built after the week from the session history: status moves, title progress and some earnings were not recorded then.",
+      title: "Built after the " + rep.period + " from the session history: status moves, title progress and some earnings were not recorded then.",
       text: "Rebuilt from history" }) : null;
+  }
+
+  /* ---------------- layout helpers ---------------- */
+  /* a chart drawn at its container's width and redrawn when that changes,
+     so an SVG never sits at half a card's width with its text scaled */
+  function fluid(build, fallback) {
+    var box = el("div", { class: "k-rp-fluid" }), drawn = 0;
+    function draw(w) {
+      w = Math.max(220, Math.round(w));
+      if (Math.abs(w - drawn) < 6) return;
+      drawn = w;
+      box.textContent = "";
+      box.appendChild(build(w));
+    }
+    draw(fallback || 560);
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function (entries) {
+        if (!box.isConnected) { ro.disconnect(); return; }
+        var w = entries[0].contentRect.width;
+        if (w > 0) draw(w);
+      });
+      ro.observe(box);
+    }
+    return box;
+  }
+  /* close every grid row: an item that would not fit starts a new row and
+     the row it leaves widens its last card over the gap. Spans for three
+     columns (desktop) and two (from 1080), read by --span3 / --span2. */
+  function pack(items) {
+    function run(cols, prop) {
+      var row = [], used = 0;
+      function close() {
+        if (row.length && used < cols) row[row.length - 1].s += cols - used;
+        row.forEach(function (it) { it.node.style.setProperty(prop, String(Math.min(cols, it.s))); });
+        row = []; used = 0;
+      }
+      items.forEach(function (it) {
+        var s = Math.min(cols, it.span || 1);
+        if (used + s > cols) close();
+        row.push({ node: it.node, s: s }); used += s;
+      });
+      close();
+    }
+    items = items.filter(function (it) { return it && it.node; });
+    run(3, "--span3"); run(2, "--span2");
+    return items.map(function (it) { return it.node; });
+  }
+  /* two columns side by side: the shorter rides along (sticky) while the
+     longer scrolls, so it never leaves a field of empty page under it. A
+     column taller than the screen sticks by its bottom edge. */
+  function rideAlong(a, b) {
+    function fit() {
+      if (!a.isConnected) { if (ro) ro.disconnect(); return; }
+      [a, b].forEach(function (x) { KOS.ui.state(x, "ride", false); });
+      if (Math.abs(a.offsetTop - b.offsetTop) > 4 || a.offsetLeft === b.offsetLeft) return;   // stacked
+      var short = a.offsetHeight <= b.offsetHeight ? a : b, long = short === a ? b : a;
+      if (long.offsetHeight - short.offsetHeight < 120) return;
+      var stage = document.getElementById("stage");
+      var vh = stage && stage.clientHeight ? stage.clientHeight : window.innerHeight;
+      short.style.setProperty("--rp-ride", Math.min(16, vh - short.offsetHeight - 16) + "px");
+      KOS.ui.state(short, "ride", true);
+    }
+    var ro = window.ResizeObserver ? new ResizeObserver(function () { fit(); }) : null;
+    if (ro) { ro.observe(a); ro.observe(b); }
+    else (window.requestAnimationFrame || setTimeout)(fit);
+  }
+  /* cards of uneven height in balanced columns: each card goes to the
+     shortest column, in reading order, measured at the columns' width (a
+     masonry; CSS columns left one column a card short). The count of
+     columns is the stylesheet's --rp-flow-cols at this width, capped at the
+     number of cards, so there is never an empty column. */
+  function masonry(cards, max) {
+    cards = cards.filter(Boolean);
+    if (!cards.length) return null;
+    var box = el("div", { class: "k-rp-masonry", "data-ui": "reports.grid", style: "--max: " + Math.min(max || 3, cards.length) });
+    var laid = 0;
+    function deal(n, hs) {
+      var tot = [], at = [];
+      for (var i = 0; i < n; i++) tot.push(0);
+      hs.forEach(function (h) { var k = tot.indexOf(Math.min.apply(null, tot)); at.push(k); tot[k] += h; });
+      var hi = Math.max.apply(null, tot);
+      return { at: at, waste: tot.reduce(function (a, t) { return a + hi - t; }, 0) / (n * hi || 1) };
+    }
+    function lay() {
+      var want = parseInt(getComputedStyle(box).getPropertyValue("--rp-flow-cols"), 10) || 1;
+      var top = Math.max(1, Math.min(want, max || 3, cards.length));
+      if (top === laid && box.children.length) return;
+      laid = top;
+      /* measure at the widest count, then take the count that leaves the
+         least empty space at the foot of the columns (a short third card
+         does better under one of two) */
+      build(top, cards.map(function (c, i) { return i % top; }));
+      KOS.ui.state(box, "measure", true);   // natural heights, nothing stretched
+      var hs = cards.map(function (c) { return c.offsetHeight || 1; });
+      KOS.ui.state(box, "measure", false);
+      var best = null;
+      for (var n = top; n >= Math.min(2, top); n--) {
+        var d = deal(n, hs);
+        if (!best || d.waste < best.d.waste - 0.06) best = { n: n, d: d };
+      }
+      build(best.n, best.d.at);
+    }
+    function build(n, at) {
+      box.style.setProperty("--n", String(n));
+      box.textContent = "";
+      var cols = [];
+      for (var i = 0; i < n; i++) { cols.push(el("div", { class: "k-rp-masonry-col" })); box.appendChild(cols[i]); }
+      cards.forEach(function (c, i) { cols[at[i]].appendChild(c); });
+    }
+    /* before it is in the page there is nothing to measure: one column
+       each, in order, until the first layout */
+    box.style.setProperty("--n", String(Math.min(max || 3, cards.length)));
+    cards.forEach(function (c) { box.appendChild(el("div", { class: "k-rp-masonry-col" }, [c])); });
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function () { if (!box.isConnected) { ro.disconnect(); return; } lay(); });
+      ro.observe(box);
+    }
+    return box;
+  }
+  function two(main, side, cls) {
+    var wrap = el("div", { class: "k-rp-two" + (cls ? " " + cls : "") }, [main, side]);
+    rideAlong(main, side);
+    return wrap;
   }
 
   /* ---------------- charts (hand-built SVG, invariant 27) ---------------- */
   var svgNode = function (t, a) { return KOS.charts.svgNode(t, a); };
   function paint(n, prop, v) { n.style[prop] = v; return n; }
   /* stacked columns: cols = [{label, parts: {key: value}}], order of keys,
-     a hue per key; values are minutes printed as hours, or counts */
+     a hue per key; values are minutes printed as hours, or counts.
+     opts.avg: a dashed reference line (minutes) labelled at its end. */
   function stacked(cols, keys, hues, opts) {
     opts = opts || {};
-    var Wd = opts.width || 520, H = opts.height || 190, padL = 34, padR = 8, padT = 10, padB = 26;
+    var Wd = opts.width || 520, H = opts.height || 190, padL = 30, padR = opts.avg ? 72 : 6, padT = 12, padB = 24;
     var s = KOS.charts.svgEl(Wd, H);
     s.setAttribute("class", "k-rp-chart");
     var hours = opts.unit === "mins";
     var totals = cols.map(function (c) { return keys.reduce(function (a, k) { return a + (c.parts[k] || 0); }, 0); });
-    var maxV = Math.max(1, Math.max.apply(null, totals));
+    var maxV = Math.max(1, Math.max.apply(null, totals), opts.avg || 0);
     var maxU = hours ? Math.max(1, Math.ceil(maxV / 60)) : maxV;
-    var plotH = H - padT - padB, n = cols.length, gap = n > 14 ? 3 : 10;
-    var bw = Math.max(4, (Wd - padL - padR - gap * (n - 1)) / n);
-    KOS.charts.ticks(maxU).forEach(function (v) {
+    /* the scale tops out on a round tick, so the axis never prints 6 h
+       and 7 h on top of each other */
+    var t0 = KOS.charts.ticks(maxU), step = t0.length > 1 ? t0[1] - t0[0] : 1, axis = [];
+    maxU = Math.max(step, Math.ceil(maxU / step) * step);
+    for (var tv = 0; tv <= maxU; tv += step) axis.push(tv);
+    var plotH = H - padT - padB, n = cols.length, plotW = Wd - padL - padR;
+    var gap = Math.max(2, Math.min(14, plotW / n * (n > 14 ? 0.22 : 0.3)));
+    var bw = Math.max(3, Math.min(opts.maxBar || 44, (plotW - gap * (n - 1)) / n));
+    var x0 = padL + (plotW - (bw * n + gap * (n - 1))) / 2;
+    axis.forEach(function (v) {
       var y = H - padB - plotH * v / maxU;
       var g = svgNode("line", { x1: padL, y1: y, x2: Wd - padR, y2: y, "stroke-width": "1", "stroke-dasharray": v ? "2 4" : "" });
       paint(g, "stroke", "var(--line)"); s.appendChild(g);
@@ -149,25 +304,37 @@
       paint(t, "fill", "var(--muted)"); s.appendChild(t);
     });
     var hiI = opts.hi != null ? opts.hi : totals.indexOf(Math.max.apply(null, totals));
+    var every = opts.every || (n > 16 ? 2 : 1);
     cols.forEach(function (c, i) {
-      var x = padL + i * (bw + gap), y0 = H - padB, g = svgNode("g", {});
-      g.appendChild(svgNode("title", { text: c.label + ": " + (hours ? W.hm(totals[i]) : totals[i]) }));
-      keys.forEach(function (k) {
-        var v = c.parts[k] || 0;
-        if (!v) return;
+      var x = x0 + i * (bw + gap), y0 = H - padB, g = svgNode("g", {});
+      g.appendChild(svgNode("title", { text: (c.title || c.label) + ": " + (hours ? W.hm(totals[i]) : totals[i]) }));
+      var stack = keys.filter(function (k) { return c.parts[k]; });
+      stack.forEach(function (k, si) {
+        var v = c.parts[k];
         var h = plotH * (hours ? v / 60 : v) / maxU;
-        var r = svgNode("rect", { x: x, y: y0 - h, width: bw, height: Math.max(1, h - 1), rx: 3 });
+        var top = si === stack.length - 1;
+        var r = svgNode("rect", { x: x, y: y0 - h, width: bw, height: Math.max(1, h - (top ? 0 : 1.5)), rx: top ? Math.min(4, bw / 3) : 1 });
         paint(r, "fill", hues[k]);
-        r.setAttribute("opacity", i === hiI ? "1" : "0.72");
+        r.setAttribute("opacity", i === hiI ? "1" : "0.78");
         g.appendChild(r);
         y0 -= h;
       });
-      var lt = svgNode("text", { x: x + bw / 2, y: H - padB + 16, "text-anchor": "middle", "font-size": "11",
-        "font-weight": i === hiI ? "600" : "400", text: c.label });
-      paint(lt, "fill", i === hiI ? "var(--text)" : "var(--text-2)");
-      g.appendChild(lt);
+      if (c.label && (i % every === 0 || i === hiI)) {
+        var lt = svgNode("text", { x: x + bw / 2, y: H - padB + 15, "text-anchor": "middle", "font-size": "11",
+          "font-weight": i === hiI ? "600" : "400", text: c.label });
+        paint(lt, "fill", i === hiI ? "var(--text)" : "var(--muted)");
+        g.appendChild(lt);
+      }
       s.appendChild(g);
     });
+    if (opts.avg) {
+      var ya = H - padB - plotH * (hours ? opts.avg / 60 : opts.avg) / maxU;
+      var ln = svgNode("line", { class: "k-rp-avg-line", x1: padL, y1: ya, x2: Wd - padR + 4, y2: ya, "stroke-width": "1.5", "stroke-dasharray": "5 4" });
+      s.appendChild(ln);
+      (opts.avgLabel || []).forEach(function (txt, li) {
+        s.appendChild(svgNode("text", { class: "k-rp-avg-label", x: Wd - padR + 8, y: ya - 2 + li * 13, "font-size": "11", text: txt }));
+      });
+    }
     return s;
   }
   function legend(items) {
@@ -188,24 +355,40 @@
     return el("div", { class: "k-rp-lowdata" }, [list,
       el("p", { class: "k-rp-note", text: "The chart starts once there are 3 active days in the week." })]);
   }
-  function daySubjChart(f) {
+  /* the week's days, stacked by subject (or by sessions, from the blocks) */
+  function daySubjChart(f, opts) {
+    opts = opts || {};
     var s = f.study;
     if (!s.chartDays) return dayTiles(f, s.dayMins, W.hm);
     var keys = SUBJECTS.filter(function (k) { return s.bySubject[k]; });
-    /* an early saved shape has day totals only: one neutral stack */
-    var hues = SUBJ_HUE, cols = DOW.map(function (d, i) { return { label: d, parts: (s.daySubj || [])[i] || {} }; });
-    if (!s.daySubj) { keys = ["all"]; hues = { all: "var(--teal)" }; cols = DOW.map(function (d, i) { return { label: d, parts: { all: s.dayMins[i] || 0 } }; }); }
-    var chart = stacked(cols, keys, hues, { unit: "mins" });
-    chart.setAttribute("role", "img");
-    chart.setAttribute("aria-label", "Study time by day: " + DOW.map(function (d, i) { return d + " " + W.hm(s.dayMins[i]); }).join(", "));
-    return el("div", { class: "k-rp-chartwrap" }, [chart, s.daySubj ? legend(keys.map(function (k) { return { hue: SUBJ_HUE[k], label: W.SUBJECT_SHORT[k] }; })) : null].filter(Boolean));
+    var hues = SUBJ_HUE, cols, unit = "mins";
+    if (opts.sessions && f.focus && f.focus.list) {
+      cols = DOW.map(function (d, i) {
+        var day = KOS.report.addDays(f.start || "", i), parts = {};
+        f.focus.list.forEach(function (b) { if (dateIso(new Date(b.ts)) === day) parts[b.sid || "compsci"] = (parts[b.sid || "compsci"] || 0) + 1; });
+        return { label: d, parts: parts };
+      });
+      unit = "count";
+    } else {
+      cols = DOW.map(function (d, i) { return { label: d, parts: (s.daySubj || [])[i] || {} }; });
+      /* an early saved shape has day totals only: one neutral stack */
+      if (!s.daySubj) { keys = ["all"]; hues = { all: "var(--teal)" }; cols = DOW.map(function (d, i) { return { label: d, parts: { all: s.dayMins[i] || 0 } }; }); }
+    }
+    var chart = fluid(function (w) {
+      var c = stacked(cols, keys, hues, { unit: unit, width: w, height: opts.height || 200 });
+      c.setAttribute("role", "img");
+      c.setAttribute("aria-label", "Study by day: " + DOW.map(function (d, i) { return d + " " + W.hm(s.dayMins[i]); }).join(", "));
+      return c;
+    });
+    return opts.bare ? chart : el("div", { class: "k-rp-chartwrap" }, [chart, s.daySubj ? subjLegend(keys) : null].filter(Boolean));
   }
+  function subjLegend(keys) { return legend(keys.map(function (k) { return { hue: SUBJ_HUE[k], label: W.SUBJECT_SHORT[k] }; })); }
   /* the chart a report's period reads by: its days (a week, a month) or
      its weeks / months (a term, a year) */
-  function periodChart(rep) {
-    if (rep.period === "week" || !KOS.reportsLong) return daySubjChart(rep.facts);
-    if (rep.period === "month") return KOS.reportsLong.monthChart(rep);
-    return KOS.reportsLong.stripChart(rep.facts);
+  function periodChart(rep, opts) {
+    if (rep.period === "week" || !KOS.reportsLong) return daySubjChart(Object.assign({ start: rep.start }, rep.facts), opts);
+    if (rep.period === "month") return KOS.reportsLong.monthChart(rep, opts);
+    return KOS.reportsLong.stripChart(rep.facts, opts);
   }
   function prevLbl(rep) {
     if (rep.period === "month") { var d = parse(rep.start); d.setMonth(d.getMonth() - 1); return MONTHS[d.getMonth()]; }
@@ -229,19 +412,27 @@
   function splitBar(parts) {
     var total = parts.reduce(function (a, p) { return a + p.value; }, 0) || 1;
     return el("div", { class: "k-rp-split", role: "img", "aria-label": parts.map(function (p) { return p.label + " " + p.text; }).join(", ") },
-      parts.map(function (p) { return el("span", { class: "k-rp-split-seg", style: "--w: " + (100 * p.value / total).toFixed(2) + "%; --c: " + p.hue }); }));
+      parts.map(function (p) { return el("span", { class: "k-rp-split-seg", style: "--f: " + (p.value / total).toFixed(4) + "; --c: " + p.hue }); }));
   }
   /* ranked bars: rows = [{label, value, text, hue}] */
   function bars(rows, opts) {
     opts = opts || {};
     var max = Math.max.apply(null, rows.map(function (r) { return r.value; }).concat([1]));
-    return el("ol", { class: "k-rp-bars" + (opts.ranked ? " k-rp-bars--ranked" : "") }, rows.map(function (r, i) {
+    return el("ol", { class: "k-rp-bars" + (opts.className ? " " + opts.className : "") }, rows.map(function (r) {
       return el("li", { class: "k-rp-bar-row" }, [
-        opts.ranked ? mono("#" + (i + 1), "k-rp-rank") : null,
-        el("span", { class: "k-rp-bar-l", text: r.label }),
+        el("span", { class: "k-rp-bar-l" }, [r.hue && opts.dots ? dot(r.hue) : null, el("span", { text: r.label })].filter(Boolean)),
         el("span", { class: "k-rp-bar", "aria-hidden": "true", style: "--w: " + (100 * r.value / max).toFixed(1) + "%; --c: " + (r.hue || "var(--text-2)") }),
-        mono(r.text, "k-rp-bar-v")
+        mono(r.text, "k-rp-bar-v"),
+        r.extra != null ? mono(r.extra, "k-rp-bar-v") : null
       ].filter(Boolean));
+    }));
+  }
+  /* a list of label · value rows, each with a line above (25a, 24c) */
+  function kvRows(rows) {
+    return el("ul", { class: "k-rp-kv" }, rows.map(function (r) {
+      return el("li", {}, [r.hue ? dot(r.hue) : null, el("span", { class: "k-rp-kv-k", text: r.k }),
+        r.chip ? el("span", { class: "k-rp-cmp", "data-tone": r.chip.dir === "up" || r.chip.dir === "new" ? "up" : null, text: r.chip.text }) : null,
+        mono(r.v, "k-rp-kv-v" + (r.tone ? " k-rp-tone-" + r.tone : ""))].filter(Boolean));
     }));
   }
 
@@ -259,11 +450,17 @@
      page moves; written, they carry "Written by Kurenai · ↻ regenerate";
      a failure falls back to the template words in place with a calm note
      and Try again, and the switch returns to Template. The choice is per
-     report and the saved report keeps the latest words (setWords). */
+     report and the saved report keeps the latest words (setWords).
+
+     Two shapes. The Reports page (24a) reads the words in full: headline,
+     narrative, the switch and Share/Export in a column beside them. A
+     report's own hero (25a) keeps the headline only, with ▶ Play and the
+     words pill on one row. */
   var writing = {};   // report id → the request in flight (one per report)
   function wordsBlock(rep, opts) {
     opts = opts || {};
-    var box = el("div", { class: "k-rp-words", "data-ui": "reports.words" });
+    var hero = !!opts.hero;
+    var box = el("div", { class: "k-rp-words" + (hero ? " k-rp-words--hero" : ""), "data-ui": "reports.words" });
     var ui = { status: writing[rep.id] ? "generating" : "idle", err: null };
     function store(words, then) {
       KOS.reportStore.setWords(rep.id, words, function (err, saved) {
@@ -275,19 +472,19 @@
     function generate() {
       var token = {};
       writing[rep.id] = token;
-      ui.status = "generating"; ui.err = null; paint();
+      ui.status = "generating"; ui.err = null; draw();
       token.req = W.write(rep, function (err, out) {
         if (writing[rep.id] !== token) return;      // cancelled, or a newer request
         delete writing[rep.id];
         if (err) {
           ui.status = "failed"; ui.err = err;
-          if (box.isConnected) paint();
+          if (box.isConnected) draw();
           KOS.a11y.announce("Kurenai couldn't write the words. The template words are showing.");
           return;
         }
         store({ mode: "kurenai", headline: out.headline, narrative: out.narrative, writtenAt: Date.now(), status: "idle" }, function () {
           ui.status = "idle";
-          if (box.isConnected) paint();
+          if (box.isConnected) draw();
           KOS.a11y.announce("Kurenai wrote the words for this report.");
         });
       });
@@ -296,70 +493,96 @@
       var t = writing[rep.id];
       delete writing[rep.id];
       if (t && t.req && KOS.ai && KOS.ai.cancel) KOS.ai.cancel(t.req);
-      ui.status = "idle"; paint();
+      ui.status = "idle"; draw();
     }
     function choose(mode) {
       var w = rep.words || {};
       if (mode === "template") {
         if (ui.status === "generating") { cancel(); return; }
         ui.status = "idle"; ui.err = null;
-        if (w.mode === "kurenai") store(Object.assign({}, w, { mode: "template" }), paint); else paint();
+        if (w.mode === "kurenai") store(Object.assign({}, w, { mode: "template" }), draw); else draw();
         return;
       }
-      if (w.headline) store(Object.assign({}, w, { mode: "kurenai" }), paint);   // already written: no new request
+      if (w.headline) store(Object.assign({}, w, { mode: "kurenai" }), draw);   // already written: no new request
       else generate();
     }
-    function paint() {
+    function sw(kurenai) {
+      return KOS.ui.tabs([
+        { label: "Template", short: hero ? "Template words" : "Template", active: !kurenai, onSelect: function () { choose("template"); } },
+        { label: "Kurenai", short: "✦ Kurenai", active: kurenai, onSelect: function () { if (!kurenai) choose("kurenai"); } }
+      ], { variant: "workspace", label: "Words", className: "k-rp-words-switch" + (hero ? " k-rp-words-switch--pill" : "") });
+    }
+    function sentLink() {
+      return el("button", { type: "button", class: "k-rp-textbtn", "data-ui": "reports.words-sent", text: "ⓘ What is sent", onclick: function () { whatIsSent(rep); } });
+    }
+    function byLine(w) {
+      return w.byKurenai ? el("span", { class: "k-rp-by" }, [
+        el("span", { class: "k-rp-bymark", text: "◎ Written by Kurenai · " }),
+        el("button", { type: "button", class: "k-rp-textbtn k-rp-regen", "data-ui": "reports.words-regenerate", text: "↻ regenerate", onclick: generate })
+      ]) : el("span", { text: "Template words · built from the numbers" });
+    }
+    function failNote() {
+      return el("p", { class: "k-rp-fail", "data-ui": "reports.words-failed", role: "status" }, [
+        el("span", { class: "k-rp-fail-dot", "aria-hidden": "true" }),
+        el("span", { text: W.failNote(ui.err) }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "reports.words-retry", text: "Try again", onclick: generate })]);
+    }
+    function skeleton(lines) {
+      return el("div", { class: "k-rp-skel", "aria-hidden": "true" }, [el("span", { class: "k-rp-skel-line", "data-state": "head" })]
+        .concat(lines ? [el("span", { class: "k-rp-skel-line" }), el("span", { class: "k-rp-skel-line" }), el("span", { class: "k-rp-skel-line", "data-state": "short" })] : []));
+    }
+    function writingLine() {
+      return el("p", { class: "k-rp-writing", role: "status" }, [
+        el("span", { text: "Kurenai is writing from this " + rep.period + "'s totals…" }),
+        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "reports.words-cancel", text: "Cancel", onclick: cancel })]);
+    }
+    function draw() {
       box.textContent = "";
       var w = W.current(rep), gen = ui.status === "generating";
       var kurenai = gen || w.byKurenai;
-      var sw = KOS.ui.tabs([
-        { label: "Template", active: !kurenai, onSelect: function () { choose("template"); } },
-        { label: "Kurenai", short: "✦ Kurenai", active: kurenai, onSelect: function () { if (!kurenai) choose("kurenai"); } }
-      ], { variant: "workspace", label: "Words", className: "k-rp-words-switch" });
-      box.appendChild(el("div", { class: "k-rp-words-bar" }, [el("span", { class: "k-rp-words-l", "aria-hidden": "true", text: "Words" }), sw]));
-      if (gen) {
-        box.setAttribute("aria-busy", "true");
-        box.appendChild(el("div", { class: "k-rp-skel", "aria-hidden": "true" }, [
-          el("span", { class: "k-rp-skel-line", "data-state": "head" }), el("span", { class: "k-rp-skel-line" }),
-          el("span", { class: "k-rp-skel-line" }), el("span", { class: "k-rp-skel-line", "data-state": "short" })]));
-        box.appendChild(el("p", { class: "k-rp-meta", role: "status" }, [
-          el("span", { text: "Kurenai is writing from this " + rep.period + "'s totals…" }),
-          el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "reports.words-cancel", text: "Cancel", onclick: cancel })]));
+      if (gen) box.setAttribute("aria-busy", "true"); else box.removeAttribute("aria-busy");
+      if (hero) {
+        /* 25a: kicker, headline, then ▶ Play · words pill · saved */
+        if (opts.kicker) box.appendChild(el("div", { class: "k-kicker", text: opts.kicker }));
+        if (ui.status === "failed") box.appendChild(failNote());
+        box.appendChild(gen ? skeleton(false) : el("h2", { class: "k-rp-headline k-rp-headline--hero", "data-ui": "reports.headline", text: w.headline }));
+        if (gen) box.appendChild(writingLine());
+        var meta = el("div", { class: "k-rp-hero-meta" }, [el("span", { text: saved(rep) })]);
+        if (w.byKurenai && !gen) meta.appendChild(byLine(w));
+        meta.appendChild(sentLink());
+        var chip = rebuiltChip(rep);
+        if (chip) meta.appendChild(chip);
+        box.appendChild(el("div", { class: "k-rp-hero-row" }, [opts.lead || null, sw(kurenai)].filter(Boolean)));
+        box.appendChild(meta);
         return;
       }
-      box.removeAttribute("aria-busy");
-      if (ui.status === "failed") {
-        box.appendChild(el("p", { class: "k-rp-fail", "data-ui": "reports.words-failed", role: "status" }, [
-          el("span", { class: "k-rp-fail-dot", "aria-hidden": "true" }),
-          el("span", { text: W.failNote(ui.err) }),
-          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "reports.words-retry", text: "Try again", onclick: generate })]));
-      }
-      box.appendChild(el("h2", { class: "k-rp-headline" + (opts.hero ? " k-rp-headline--hero" : ""), "data-ui": "reports.headline", text: w.headline }));
-      if (w.narrative) box.appendChild(el("p", { class: "k-rp-narrative", "data-ui": "reports.narrative", text: w.narrative }));
-      var meta = el("div", { class: "k-rp-meta" });
-      if (w.byKurenai) {
-        meta.appendChild(el("span", { class: "k-rp-bymark", text: "◎ Written by Kurenai" }));
-        meta.appendChild(el("button", { type: "button", class: "k-link k-rp-regen", "data-ui": "reports.words-regenerate", text: "↻ regenerate", onclick: generate }));
-      } else {
-        meta.appendChild(el("span", { text: "Template words · built from the numbers" }));
-      }
-      meta.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "reports.words-sent", text: "ⓘ What is sent",
-        onclick: function () { whatIsSent(rep); } }));
-      meta.appendChild(el("span", { text: saved(rep) }));
-      var chip = rebuiltChip(rep);
-      if (chip) meta.appendChild(chip);
-      box.appendChild(meta);
+      /* 24a: the words in full, with their controls in a column beside */
+      var text = el("div", { class: "k-rp-words-text" }, [
+        opts.kicker ? el("div", { class: "k-kicker", text: opts.kicker }) : null,
+        ui.status === "failed" ? failNote() : null,
+        gen ? skeleton(true) : el("h2", { class: "k-rp-headline", "data-ui": "reports.headline", text: w.headline }),
+        gen ? writingLine() : (w.narrative ? el("p", { class: "k-rp-narrative", "data-ui": "reports.narrative", text: w.narrative }) : null),
+        gen ? null : el("div", { class: "k-rp-meta" }, [byLine(w), sentLink(), rebuiltChip(rep)].filter(Boolean))
+      ].filter(Boolean));
+      var side = el("div", { class: "k-rp-words-side" }, [
+        el("div", { class: "k-rp-words-bar" }, [el("span", { class: "k-rp-words-l", "aria-hidden": "true", text: "Words" }), sw(kurenai)]),
+        opts.actions && opts.actions.length ? el("div", { class: "k-rp-actions" }, opts.actions) : null,
+        el("span", { class: "k-rp-saved", text: saved(rep) })
+      ].filter(Boolean));
+      box.appendChild(text);
+      box.appendChild(side);
     }
-    paint();
+    draw();
     return box;
   }
   /* ⇪ Share and ↓ Export (24k): the share card and the export dialog */
   function shareActions(rep) {
     if (!KOS.reportShare) return [];
     return [
-      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "reports.share", text: "⇪ Share", onclick: function () { KOS.reportShare.dialog(rep, { format: "png" }); } }),
-      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "reports.export", text: "↓ Export", onclick: function () { KOS.reportShare.dialog(rep, { format: "pdf" }); } })
+      el("button", { type: "button", class: "k-rp-pillbtn", "data-ui": "reports.share", onclick: function () { KOS.reportShare.dialog(rep, { format: "png" }); } },
+        [KOS.ui.icon("share"), el("span", { text: "Share" })]),
+      el("button", { type: "button", class: "k-rp-pillbtn", "data-ui": "reports.export", onclick: function () { KOS.reportShare.dialog(rep, { format: "pdf" }); } },
+        [KOS.ui.icon("download"), el("span", { text: "Export" })])
     ];
   }
   /* exactly the request Kurenai would be sent (24f ⓘ) */
@@ -377,6 +600,38 @@
     KOS.ui.openDialog(overlay, { label: "What Kurenai is sent" });
   }
 
+  /* ================= the story hero (25a, and the month, term, year) ===== */
+  function hero(rep, opts) {
+    opts = opts || {};
+    var stories = KOS.reportStory ? KOS.reportStory.slides(rep) : [];
+    var noun = rep.period;
+    var mins = Math.max(1, Math.round(stories.length * 7.2 / 60));
+    var kicker = stories.length ? "Your " + noun + " as a story · " + W.plural(stories.length, "story", "stories") + " · about " + W.plural(mins, "minute")
+      : "Your " + noun + " in review";
+    var play = stories.length ? el("button", { type: "button", class: "k-btn k-btn--primary k-rp-play", "data-ui": "reports.play",
+      onclick: function () { KOS.reportStory.open(rep, 0); } }, [KOS.ui.icon("play"), el("span", { text: "Play your " + noun })]) : null;
+    return el("section", { class: "k-rp-hero", "data-ui": "reports.hero", "aria-label": "The " + noun + " in words" }, [
+      el("div", { class: "k-rp-hero-main" }, [
+        opts.big ? el("div", { class: "k-rp-year", "aria-hidden": "true", text: opts.big }) : null,
+        wordsBlock(rep, { hero: true, kicker: kicker, lead: play })
+      ].filter(Boolean)),
+      stories.length ? el("ol", { class: "k-rp-thumbs", "aria-label": "The stories" }, stories.map(function (sl, i) {
+        return el("li", {}, [el("button", { type: "button", class: "k-rp-thumb", "data-ui": "reports.thumb", style: "--hue: " + sl.hue,
+          "aria-label": "Play from story " + (i + 1) + ": " + sl.ch, onclick: function () { KOS.reportStory.open(rep, i); } }, [
+          el("span", { class: "k-rp-thumb-segs", "aria-hidden": "true" }, stories.map(function (x, j) { return el("i", { "data-state": j <= i ? "on" : null }); })),
+          el("span", { class: "k-rp-thumb-l", text: sl.ch })
+        ])]);
+      })) : null
+    ].filter(Boolean));
+  }
+  /* the top of every saved report: the breadcrumb with Share / Export,
+     a heading for assistive tech, the story hero */
+  function reportTop(holder, rep, opts) {
+    holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports", { period: rep.period }); } }, { label: weekOf(rep) }], shareActions(rep)));
+    holder.appendChild(el("h1", { class: "sr-only", text: PERIOD_KICKER[rep.period] + ", " + spanOf(rep) }));
+    holder.appendChild(hero(rep, opts));
+  }
+
   /* ================= the Reports page (24a) ================= */
   var EMPTY = {
     week: ["Your first weekly report arrives on Monday", "A week is written down when it ends: each Monday at 07:00, the week before becomes a report you can read here."],
@@ -391,8 +646,7 @@
   }
   function indexPage(holder, reps, period) {
     period = period || "week";
-    holder.appendChild(KOS.ui.pageHeader({ kicker: "Home", title: "Reports",
-      sub: "Your weeks, months, terms and years in review, saved as they ended.", actions: [periodSwitch(period)] }));
+    holder.appendChild(KOS.ui.pageHeader({ kicker: "Home", title: "Reports", actions: [periodSwitch(period)] }));
     if (!reps.length) {
       holder.appendChild(KOS.ui.emptyState({ mark: "録", title: EMPTY[period][0], body: EMPTY[period][1] }));
       return;
@@ -402,7 +656,7 @@
     var list = el("ol", { class: "k-rp-list", "data-ui": "reports.list" });
     function paintLeft() {
       left.textContent = "";
-      left.appendChild(summary(chosen, reps, function () { paintRow(chosen); }));
+      left.appendChild(summary(chosen, function () { paintRow(chosen); }));
       list.querySelectorAll("[data-ui~='reports.row']").forEach(function (b) {
         var on = b.getAttribute("data-id") === chosen.id;
         b.setAttribute("aria-pressed", String(on));
@@ -413,15 +667,17 @@
       var w = W.current(r);
       var weeks = reps.slice(i, i + 8).reverse().map(function (x) { return x.facts.study.mins / 60; });
       return [
-        el("span", { class: "k-rp-row-top" }, [
-          mono(r.period === "week" ? range(r.start, r.end) : weekOf(r), "k-rp-row-range"),
-          w.byKurenai ? el("span", { class: "k-rp-mark", title: "Written by Kurenai", text: "✦" }) : null,
-          i === 0 ? el("span", { class: "k-rp-latest", text: "Latest" }) : null,
-          r.rebuilt ? el("span", { class: "k-rp-row-note", text: "rebuilt" }) : null
-        ].filter(Boolean)),
-        el("span", { class: "k-rp-row-h", text: w.headline }),
-        spark(weeks)
-      ];
+        el("span", { class: "k-rp-row-txt" }, [
+          el("span", { class: "k-rp-row-top" }, [
+            mono(r.period === "week" ? range(r.start, r.end) : weekOf(r), "k-rp-row-range"),
+            w.byKurenai ? el("span", { class: "k-rp-mark", title: "Written by Kurenai", text: "✦" }) : null,
+            i === 0 ? el("span", { class: "k-rp-latest", text: "Latest" }) : null,
+            r.rebuilt ? el("span", { class: "k-rp-row-note", text: "rebuilt" }) : null
+          ].filter(Boolean)),
+          el("span", { class: "k-rp-row-h", text: w.headline })
+        ]),
+        weeks.length > 1 ? spark(weeks) : null
+      ].filter(Boolean);
     }
     /* the words changed on the left: the row says so too */
     function paintRow(r) {
@@ -435,65 +691,71 @@
         "aria-pressed": "false", onclick: function () { chosen = r; view.selected = r.id; paintLeft(); } }, rowBody(r, i))]));
     });
     var first = reps[reps.length - 1];
-    var side = el("aside", { class: "k-card k-rp-earlier", "aria-label": "Earlier reports" }, [
-      cardHead("Earlier reports"),
+    var side = el("aside", { class: "k-rp-earlier", "aria-label": "Earlier reports" }, [
+      el("div", { class: "k-rp-card-head" }, [el("h2", { class: "k-rp-card-title", text: "Earlier reports" })]),
       list,
-      el("p", { class: "k-rp-note", text: "Since " + dm(first.start) + " " + parse(first.start).getFullYear() + " · " + W.plural(reps.length, PERIODS.filter(function (x) { return x[0] === period; })[0][1].toLowerCase() + " report") })
+      el("p", { class: "k-rp-earlier-foot", text: "Since " + dm(first.start) + " " + parse(first.start).getFullYear() + " · " + W.plural(reps.length, PERIODS.filter(function (x) { return x[0] === period; })[0][1].toLowerCase() + " report") })
     ]);
-    holder.appendChild(el("div", { class: "k-rp-index" }, [left, side]));
+    holder.appendChild(two(left, side, "k-rp-index"));
     paintLeft();
   }
-  /* the left column: the chosen report, short (24a) */
-  function summary(rep, reps, onWords) {
-    var f = rep.facts, s = f.study;
-    return el("section", { class: "k-card k-rp-sum", "data-ui": "reports.summary", "aria-label": "Report for " + weekOf(rep) }, [
-      el("div", { class: "k-kicker", text: PERIOD_KICKER[rep.period] + " · " + (rep.period === "week" ? longRange(rep.start, rep.end) + " " + parse(rep.end).getFullYear() : weekOf(rep)) }),
-      wordsBlock(rep, { onChange: onWords }),
-      tiles([
-        tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") : null),
-        s.reviews ? tile("Flashcards", W.num(s.reviews), s.recall != null ? s.recall + "% recall" : "reviews") : null,
-        f.gov.streak ? tile("Study streak", f.gov.streak, "days" + (f.gov.rest ? " · rest streak " + f.gov.rest : "")) : null
-      ]),
-      el("h3", { class: "k-rp-subhead", text: "Activity" }),
-      periodChart(rep),
-      el("div", { class: "k-rp-actions" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "reports.open",
-        text: "Open the full report ›", onclick: function () { open(rep); } })])
-    ].filter(Boolean));
+  /* the left column: the chosen report, short (24a). Flat on the page —
+     its tiles and its chart are the cards. */
+  function summary(rep, onWords) {
+    var f = rep.facts, s = f.study, g = f.gov;
+    var activity = el("section", { class: "k-rp-card", "aria-label": "Activity" });
+    function paintActivity() {
+      activity.textContent = "";
+      var canSessions = rep.period === "week" && f.focus && f.focus.list && f.focus.list.length && s.chartDays;
+      var keys = SUBJECTS.filter(function (k) { return s.bySubject[k]; });
+      activity.appendChild(cardHead(rep.period === "week" || rep.period === "month" ? "Activity" : rep.period === "year" ? "Activity · by month" : "Activity · by week", {
+        meta: null,
+        right: el("span", { class: "k-rp-head-tools" }, [
+          canSessions ? KOS.ui.tabs([["time", "Time"], ["sessions", "Sessions"]].map(function (x) {
+            return { label: x[1], active: view.activity === x[0], onSelect: function () { view.activity = x[0]; paintActivity(); } };
+          }), { variant: "workspace", label: "Measure", className: "k-rp-mini-switch" }) : null,
+          keys.length && (s.chartDays || rep.period !== "week") ? subjLegend(keys) : null
+        ].filter(Boolean))
+      }));
+      activity.appendChild(periodChart(rep, { bare: true, sessions: canSessions && view.activity === "sessions" }));
+    }
+    paintActivity();
+    var facts = [tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") : null)];
+    if (s.reviews) facts.push(tile("Flashcards", W.num(s.reviews), s.recall != null ? s.recall + "% recall" : "reviews"));
+    else if (f.focus.blocks) facts.push(tile("Focus", f.focus.blocks, "longest " + f.focus.longest + "m", null, "blocks"));
+    if (g.streak) facts.push(tile("Study streak", g.streak, g.rest ? "rest streak " + g.rest : null, null, "days"));
+    else if (f.collection) facts.push(tile("Collection", f.collection.count, "titles"));
+    return el("section", { class: "k-rp-sum", "data-ui": "reports.summary", "aria-label": "Report for " + weekOf(rep) }, [
+      wordsBlock(rep, { onChange: onWords, kicker: PERIOD_KICKER[rep.period] + " · " + spanOf(rep), actions: shareActions(rep) }),
+      el("div", { class: "k-rp-tiles k-rp-tiles--three", "data-ui": "reports.tiles" }, facts.filter(Boolean)),
+      activity,
+      el("p", { class: "k-rp-continue" }, [
+        el("span", { text: (rep.period === "week" ? "Study, Focus, the plan, Collection and Governor" : "Every section of the " + rep.period) + " continue in the full report · " }),
+        el("button", { type: "button", class: "k-rp-more", "data-ui": "reports.open", text: "Open the full report ›", onclick: function () { open(rep); } })
+      ])
+    ]);
   }
 
   /* ================= one report (25a) ================= */
-  function reportPage(holder, rep, reps) {
+  function reportPage(holder, rep) {
     var f = rep.facts;
-    holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports"); } }, { label: weekOf(rep) }]));
-    holder.appendChild(KOS.ui.pageHeader({ kicker: "Weekly report", title: longRange(rep.start, rep.end) + " " + parse(rep.end).getFullYear(),
-      actions: shareActions(rep) }));
-    var stories = KOS.reportStory ? KOS.reportStory.slides(rep) : [];
-    holder.appendChild(el("section", { class: "k-rp-hero", "data-ui": "reports.hero", "aria-label": "The week in words" }, [
-      el("div", { class: "k-rp-hero-grid" }, [
-        el("div", { class: "k-rp-hero-main" }, [
-          el("div", { class: "k-kicker", text: stories.length ? "Your week as a story · " + W.plural(stories.length, "story", "stories") + " · about " + Math.max(1, Math.round(stories.length * 7.2 / 60)) + " minute" + (Math.round(stories.length * 7.2 / 60) > 1 ? "s" : "") : "Your week in review" }),
-          wordsBlock(rep, { hero: true }),
-          stories.length ? el("div", { class: "k-rp-play" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "reports.play",
-            text: "▶ Play your week", onclick: function () { KOS.reportStory.open(rep, 0); } })]) : null
-        ].filter(Boolean)),
-        stories.length ? el("ol", { class: "k-rp-thumbs", "aria-label": "The stories" }, stories.map(function (sl, i) {
-          return el("li", {}, [el("button", { type: "button", class: "k-rp-thumb", "data-ui": "reports.thumb", style: "--hue: " + sl.hue,
-            "aria-label": "Play from story " + (i + 1) + ": " + sl.ch, onclick: function () { KOS.reportStory.open(rep, i); } }, [el("span", { text: sl.ch })])]);
-        })) : null
-      ].filter(Boolean))
-    ]));
+    reportTop(holder, rep);
     holder.appendChild(weekTiles(f));
-    var grid = el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, [
-      studyCard(rep), focusCard(rep), planCard(rep), collectionCard(rep), governorCard(rep)
-    ].filter(Boolean));
-    holder.appendChild(grid);
+    /* 25a's order; a missing card's place in the first row goes to
+       Governor and Kurenai, so Focus keeps its width and the Collection
+       closes the second row */
+    var plan = planCard(rep), gov = governorCard(rep);
+    holder.appendChild(el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, pack([
+      { node: studyCard(rep) }, { node: focusCard(rep) }, { node: plan || gov },
+      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }
+    ])));
   }
   function weekTiles(f) {
     var s = f.study, fo = f.focus, c = f.collection, g = f.gov, prev = f.prev;
     var cmp = prev ? W.compare(s.mins, prev.mins, "last wk", "mins") : null;
     return tiles([
       tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") : null, cmp),
-      s.recall != null ? tile("Recall", s.recall + "%", W.plural(s.reviews, "review")) : null,
+      s.recall != null ? tile("Recall", s.recall + "%", W.plural(s.reviews, "review")) : (s.reviews ? tile("Reviews", W.num(s.reviews), null) : null),
       s.touched ? tile("Topics", s.touched, s.toGreen ? s.toGreen + " to Green" : null) : null,
       fo.blocks ? tile("Focus", fo.blocks, "longest " + fo.longest + "m") : null,
       f.plan ? tile("Plan", f.plan.ticked + "/" + f.plan.planned, f.plan.carried ? f.plan.carried + " carried" : "all ticked") : null,
@@ -505,28 +767,32 @@
   function statusText(t) {
     if (t.to === "g" && t.from !== "g") return { text: "→ Green", tone: "green" };
     if (t.from && t.to && t.from !== t.to) return { text: BAND[t.from] + " → " + BAND[t.to], tone: t.to === "r" ? "alarm" : null };
-    if (t.band) return { text: BAND[t.band], tone: t.band === "r" ? "alarm" : null };
+    if (t.band) return { text: BAND[t.band], tone: t.band === "r" ? "alarm" : t.band === "g" ? "green" : "amber" };
     return null;
+  }
+  function topicRows(top) {
+    return el("ol", { class: "k-rp-topics" }, top.map(function (t, i) {
+      var st = statusText(t);
+      return el("li", {}, [el("button", { type: "button", class: "k-rp-topic", "data-ui": "reports.topic", title: t.ref + " " + t.title, onclick: function () { openTopic(t.key); } }, [
+        mono(String(i + 1), "k-rp-rank"),
+        el("span", { class: "k-rp-topic-name" }, [dot(SUBJ_HUE[t.sid]), mono(t.ref, "k-rp-ref"), el("span", { class: "k-rp-topic-t", text: t.title })]),
+        mono(t.mins ? W.hm(t.mins) : "", "k-rp-topic-m"),
+        mono(t.reviews ? t.reviews + "×" : "", "k-rp-topic-r"),
+        el("span", { class: "k-rp-topic-s", "data-tone": st && st.tone, text: st ? st.text : "" })
+      ])]);
+    }));
   }
   function studyCard(rep) {
     var f = rep.facts, s = f.study;
     var keys = SUBJECTS.filter(function (k) { return s.bySubject[k]; });
     var parts = keys.map(function (k) { return { label: W.SUBJECT_SHORT[k], value: s.bySubject[k], text: W.hm(s.bySubject[k]), hue: SUBJ_HUE[k] }; });
     var top = s.topics.slice(0, 5);
+    if (!parts.length && !top.length) return null;   // nothing studied: the Studied tile says so
     return card("Study", { go: function () { open(rep, "study"); }, className: "k-rp-card--study" }, [
       parts.length ? splitBar(parts) : null,
-      parts.length ? legend(parts.map(function (p) { return { hue: p.hue, label: p.label, value: p.text }; })) : null,
+      parts.length ? el("div", { class: "k-rp-split-legend" }, parts.map(function (p) { return el("span", { style: "--c: " + p.hue }, [el("b", { text: p.label }), " " + p.text]); })) : null,
       top.length ? el("h3", { class: "k-rp-subhead", text: "Top topics" }) : null,
-      top.length ? el("ol", { class: "k-rp-topics" }, top.map(function (t, i) {
-        var st = statusText(t);
-        return el("li", {}, [el("button", { type: "button", class: "k-rp-topic", "data-ui": "reports.topic", onclick: function () { openTopic(t.key); } }, [
-          mono(String(i + 1), "k-rp-rank"), dot(SUBJ_HUE[t.sid]),
-          mono(t.ref, "k-rp-ref"), el("span", { class: "k-rp-topic-t", text: t.title }),
-          t.mins ? mono(W.hm(t.mins), "k-rp-topic-m") : el("span", {}),
-          t.reviews ? mono(t.reviews + "×", "k-rp-topic-r") : el("span", {}),
-          st ? el("span", { class: "k-rp-topic-s", "data-tone": st.tone, text: st.text }) : el("span", {})
-        ])]);
-      })) : el("p", { class: "k-rp-note", text: "No topics touched this week." })
+      top.length ? topicRows(top) : el("p", { class: "k-rp-note", text: "No topics touched this " + rep.period + "." })
     ].filter(Boolean));
   }
   function heat(f) {
@@ -541,7 +807,7 @@
     fo.heat.forEach(function (row, d) {
       grid.appendChild(el("span", { class: "k-rp-heat-l", "aria-hidden": "true", text: "MTWTFSS".charAt(d) }));
       row.forEach(function (v, h) {
-        grid.appendChild(el("span", { class: "k-rp-heat-c", style: "--a: " + (v ? (0.18 + 0.82 * v / max).toFixed(2) : "0"),
+        grid.appendChild(el("span", { class: "k-rp-heat-c", style: "--a: " + (v ? (0.22 + 0.78 * v / max).toFixed(2) : "0"),
           title: DOW[d] + " " + pad2(HEAT_FROM + h) + ":00 · " + W.hm(v) }));
       });
     });
@@ -552,9 +818,11 @@
     return grid;
   }
   function personaChip(p) {
-    return el("div", { class: "k-rp-persona-chip" }, [
-      el("span", { class: "k-rp-persona-k", lang: "ja", "aria-hidden": "true", text: p.kanji }),
-      el("b", { text: p.name }),
+    return el("div", { class: "k-rp-persona-row" }, [
+      el("span", { class: "k-rp-persona-chip" }, [
+        p.kanji ? el("span", { class: "k-rp-persona-k", lang: "ja", "aria-hidden": "true", text: p.kanji }) : null,
+        el("b", { text: p.name })
+      ].filter(Boolean)),
       el("span", { class: "k-rp-persona-f", text: p.fact })
     ]);
   }
@@ -573,9 +841,9 @@
     return el("li", { class: "k-rp-plan-row", "data-state": r.done ? "done" : "carried" }, [
       el("span", { class: "k-rp-plan-mark", "aria-hidden": "true", text: r.done ? "✓" : "→" }),
       r.subject ? dot(SUBJ_HUE[r.subject]) : el("span", {}),
-      el("span", { class: "k-rp-plan-t", text: r.title }),
+      el("span", { class: "k-rp-plan-t", title: r.title, text: r.title }),
       r.done ? (d ? mono(d, "k-rp-plan-w") : el("span", { class: "sr-only", text: "ticked" }))
-        : mono("w/c " + dm(r.carriedTo), "k-rp-plan-w")
+        : mono("→ w/c " + dm(r.carriedTo), "k-rp-plan-w")
     ]);
   }
   function planCard(rep) {
@@ -584,7 +852,8 @@
     var meta = [pl.ticked + " of " + pl.planned + " personal rows"];
     if (tk && tk.reminders) meta.push(W.plural(tk.reminders, "reminder"));
     if (tk && tk.habits) meta.push(W.plural(tk.habits.length, "habit"));
-    return card("The plan", { meta: meta.join(" · "), go: function () { open(rep, "focus"); } }, [
+    return card("The plan", { go: function () { open(rep, "focus"); } }, [
+      el("p", { class: "k-rp-card-sub", text: meta.join(" · ") }),
       el("ul", { class: "k-rp-plan" }, pl.rows.map(planRow))
     ]);
   }
@@ -596,62 +865,86 @@
     if (m === "game" && u.hours) return n + " · " + W.hm(u.hours * 60);
     return String(n);
   }
-  function hiLo(c) {
+  function coverOf(c, x) {
+    return c.titles.filter(function (t) { return (x.syncId && t.syncId === x.syncId) || t.title === x.title; })[0] || x;
+  }
+  function hiLo(c, opts) {
     if (!c.hi) return null;
+    opts = opts || {};
     function one(label, t, tone) {
+      var full = coverOf(c, t);
       return el("div", { class: "k-rp-hilo", "data-tone": tone }, [
-        el("span", { class: "k-kicker", text: label }),
-        el("span", { class: "k-rp-hilo-v" }, [mono(String(t.score), "k-rp-hilo-n"), mono("/10", "k-rp-hilo-of")]),
-        el("span", { class: "k-rp-hilo-t", text: t.title })
-      ]);
+        opts.covers ? cover(full, "k-rp-cover--hilo") : null,
+        el("span", { class: "k-rp-hilo-txt" }, [
+          el("span", { class: "k-rp-hilo-k", text: label }),
+          el("span", { class: "k-rp-hilo-v" }, [mono(String(t.score), "k-rp-hilo-n"), mono("/10", "k-rp-hilo-of")]),
+          el("span", { class: "k-rp-hilo-t", title: t.title, text: t.title + (opts.covers && full.range ? " · " + full.range : "") })
+        ])
+      ].filter(Boolean));
     }
-    return el("div", { class: "k-rp-hilos" }, [one("Highest", c.hi, "green"), one("Lowest", c.lo, "alarm")]);
+    return el("div", { class: "k-rp-hilos" + (opts.covers ? " k-rp-hilos--covers" : "") }, [one("Highest", c.hi, "green"), one("Lowest", c.lo, "alarm")]);
+  }
+  var GENRE_HUE = ["var(--vn)", "var(--books)", "var(--anime)", "var(--red)", "var(--games)"];
+  function genreBars(c) {
+    return el("ol", { class: "k-rp-genres" }, c.genres.map(function (g, i) {
+      return el("li", {}, [el("span", { class: "k-rp-genre-l", text: g.name }),
+        el("span", { class: "k-rp-bar", "aria-hidden": "true", style: "--w: " + Math.min(100, g.pct * 3) + "%; --c: " + GENRE_HUE[i] }),
+        mono(g.pct + "%", "k-rp-genre-p")]);
+    }));
   }
   function collectionCard(rep) {
     var c = rep.facts.collection;
     if (!c) return null;
     var mods = MODULES.filter(function (m) { return c.byModule[m]; });
-    var mosaic = el("ul", { class: "k-rp-mosaic", "data-ui": "reports.mosaic", "aria-label": W.plural(c.count, "title") },
-      c.titles.slice().sort(function (a, b) { return MODULES.indexOf(a.module) - MODULES.indexOf(b.module); }).slice(0, 60).map(function (t) {
-        return el("li", { title: t.title + (t.range ? " · " + t.range : "") }, [cover(t, "k-rp-cover--mini")]);
-      }));
-    return card("Collection · " + W.plural(c.count, "title"), { go: function () { open(rep, "collection"); }, className: "k-rp-card--wide" }, [
+    var shown = c.titles.slice().sort(function (a, b) { return MODULES.indexOf(a.module) - MODULES.indexOf(b.module); }).slice(0, 60);
+    var side = c.genres.length || c.hi;
+    /* the mosaic's density follows the count and the room: sixty titles
+       are 25a's 15-column wall, a dozen draw as real covers — sized so the
+       rows come out full and about as tall as Genre DNA beside them */
+    var mosaic = fluid(function (w) {
+      var n = shown.length, target = side ? 230 : 150, best = null;
+      for (var cc = 4; cc <= 15; cc++) {
+        var cw = (w - 4 * (cc - 1)) / cc;
+        if (cw < 24 || cw > 110) continue;
+        var rows = Math.ceil(n / cc), h = rows * cw * 1.4 + 4 * (rows - 1);
+        var score = Math.abs(h - target) + (rows * cc - n) * cw * 0.9 + (h > target * 1.35 ? h : 0);
+        if (!best || score < best.s) best = { s: score, c: cc };
+      }
+      return el("ul", { class: "k-rp-mosaic", "data-ui": "reports.mosaic", style: "--cols: " + (best ? best.c : 15), "aria-label": W.plural(c.count, "title") },
+        shown.map(function (t) { return el("li", { title: t.title + (t.range ? " · " + t.range : "") }, [cover(t, "k-rp-cover--mini")]); }));
+    }, 440);
+    return card("Collection · " + W.plural(c.count, "title"), { go: function () { open(rep, "collection"); }, className: "k-rp-card--coll" }, [
       el("div", { class: "k-rp-coll" }, [
         el("div", { class: "k-rp-coll-main" }, [mosaic,
-          legend(mods.map(function (m) { return { hue: MOD_HUE[m], label: MOD_SHORT[m], value: unitText(c, m) }; }))]),
-        el("div", { class: "k-rp-coll-side" }, [
+          legend(mods.map(function (m) { return { hue: MOD_HUE[m], label: MOD_SHORT[m] + " " + unitText(c, m) }; }))]),
+        side ? el("div", { class: "k-rp-coll-side" }, [
           c.genres.length ? el("h3", { class: "k-rp-subhead", text: "Genre DNA" }) : null,
-          c.genres.length ? bars(c.genres.map(function (g, i) { return { label: g.name, value: g.n, text: g.pct + "%", hue: GENRE_HUE[i] }; })) : null,
+          c.genres.length ? genreBars(c) : null,
           hiLo(c)
-        ].filter(Boolean))
-      ])
+        ].filter(Boolean)) : null
+      ].filter(Boolean))
     ]);
   }
-  var GENRE_HUE = ["var(--vn)", "var(--books)", "var(--anime)", "var(--red)", "var(--games)"];
   function governorCard(rep) {
     var f = rep.facts, g = f.gov, k = f.kurenai;
     var rows = [];
-    if (g.streak) rows.push(["Study streak", W.plural(g.streak, "day"), "teal"]);
-    if (g.rest) rows.push(["Rest streak", W.plural(g.rest, "day")]);
-    if (g.level) rows.push(["Level", g.level + (g.levelPct != null ? " · " + g.levelPct + "% to " + (g.level + 1) : "") + (g.levelFrom ? " · up from " + g.levelFrom : "")]);
+    if (g.streak) rows.push({ k: "Study streak", v: W.plural(g.streak, "day"), tone: "teal" });
+    if (g.rest) rows.push({ k: "Rest streak", v: W.plural(g.rest, "day") });
+    if (g.level) rows.push({ k: "Level", v: g.level + (g.levelPct != null ? " · " + g.levelPct + "% to " + (g.level + 1) : "") + (g.levelFrom ? " · up from " + g.levelFrom : "") });
     if (k) {
       var bits = [];
       if (k.chats) bits.push(W.plural(k.chats, "chat"));
-      if (k.scheduled) bits.push(W.plural(k.scheduled, "scheduled send"));
-      rows.push(["Kurenai", bits.join(" · ")]);
+      if (k.scheduled) bits.push("scheduled ×" + k.scheduled);
+      if (bits.length) rows.push({ k: "Kurenai", v: bits.join(" · "), hue: "var(--bloom)" });
       var areas = Object.keys(k.areas || {}).sort(function (a, b) { return k.areas[b] - k.areas[a]; });
-      if (areas.length) rows.push(["Asked about", areas.map(function (a) { return (AREA_LABEL[a] || a) + " " + k.areas[a]; }).join(" · ")]);
+      if (areas.length) rows.push({ k: "Asked about", v: areas.slice(0, 3).map(function (a) { return (AREA_LABEL[a] || a) + " " + k.areas[a]; }).join(" · ") });
     }
     if (!rows.length && !g.xp) return null;
     return card("Governor and Kurenai", { className: "k-rp-card--gov" }, [
-      g.xp ? el("div", { class: "k-rp-earned" }, [
-        el("span", { class: "k-kicker", text: "Earned this week" }),
-        el("span", { class: "k-rp-earned-v" }, [mono("+" + W.num(g.xp), "k-rp-xp"), el("span", { class: "k-rp-u", text: "XP" }),
-          g.gold ? mono("+" + W.num(g.gold) + " ◆", "k-rp-gold") : null].filter(Boolean))
-      ]) : null,
-      el("dl", { class: "k-rp-kv" }, rows.reduce(function (a, r) {
-        return a.concat([el("dt", { text: r[0] }), el("dd", { class: "k-mono", "data-tone": r[2] || null, text: r[1] })]);
-      }, []))
+      g.xp ? el("div", { class: "k-rp-earned", "aria-label": "Earned this " + rep.period }, [
+        el("span", { class: "k-rp-earned-xp" }, [mono("+" + W.num(g.xp)), el("span", { class: "k-rp-u", text: "XP" })]),
+        g.gold ? mono("+" + W.num(g.gold) + " ◆", "k-rp-gold") : null].filter(Boolean)) : null,
+      rows.length ? kvRows(rows) : null
     ].filter(Boolean));
   }
 
@@ -659,10 +952,13 @@
   function overviewHead(holder, rep, section) {
     var words = W.section(rep.facts, section);
     holder.appendChild(crumbs([{ label: "Reports", go: function () { KOS.show("reports", { period: rep.period }); } },
-      { label: weekOf(rep), go: function () { open(rep); } }, { label: SECTIONS[section] }]));
-    holder.appendChild(KOS.ui.pageHeader({ kicker: SECTIONS[section] + " · " + longRange(rep.start, rep.end), title: words.headline, sub: words.sentence || null,
-      actions: shareActions(rep) }));
-    if (rep.rebuilt) holder.appendChild(el("div", { class: "k-rp-meta" }, [rebuiltChip(rep)]));
+      { label: weekOf(rep), go: function () { open(rep); } }, { label: SECTIONS[section] }], shareActions(rep)));
+    holder.appendChild(el("header", { class: "k-rp-ohead" }, [
+      el("div", { class: "k-kicker", text: SECTIONS[section] + " · " + spanOf(rep) }),
+      el("h1", { class: "k-rp-ohead-t", text: words.headline }),
+      words.sentence ? el("p", { class: "k-rp-ohead-s", text: words.sentence }) : null,
+      rebuiltChip(rep)
+    ].filter(Boolean)));
   }
 
   /* ---- 25c Study ---- */
@@ -678,7 +974,6 @@
       s.exams ? tile("Exam questions", s.exams, s.max ? s.marks + " / " + s.max + " marks" : null) : null
     ]));
     var main = el("div", { class: "k-rp-main" }), side = el("div", { class: "k-rp-side" });
-    /* every topic */
     if (s.topics.length) {
       main.appendChild(card("All " + W.plural(s.topics.length, "topic"), { className: "k-rp-card--table" }, [
         tableScroll(el("div", { class: "k-rp-tablewrap" }, [el("table", { class: "k-rp-table", "data-ui": "reports.topics-table" }, [
@@ -686,9 +981,9 @@
           el("tbody", {}, s.topics.map(function (t, i) {
             var st = statusText(t);
             return el("tr", {}, [
-              el("td", { class: "k-mono", text: String(i + 1) }),
-              el("td", {}, [el("button", { type: "button", class: "k-rp-tlink", "data-ui": "reports.topic", onclick: function () { openTopic(t.key); } }, [
-                dot(SUBJ_HUE[t.sid]), mono(t.ref, "k-rp-ref"), el("span", { text: t.title })])]),
+              el("td", { class: "k-mono k-rp-muted", text: String(i + 1) }),
+              el("td", {}, [el("button", { type: "button", class: "k-rp-tlink", "data-ui": "reports.topic", title: t.title, onclick: function () { openTopic(t.key); } }, [
+                dot(SUBJ_HUE[t.sid]), mono(t.ref, "k-rp-ref"), el("span", { class: "k-rp-tlink-t", text: t.title })])]),
               el("td", { class: "k-mono", text: t.mins ? W.hm(t.mins) : "" }),
               el("td", { class: "k-mono", text: t.reviews ? String(t.reviews) : "" }),
               el("td", { class: "k-mono", "data-tone": t.recall != null && t.recall < 60 ? "alarm" : null, text: t.recall != null ? t.recall + "%" : "" }),
@@ -699,31 +994,37 @@
       ]));
     }
     if (s.decks) {
-      main.appendChild(card("Flashcards by deck", {}, [bars(s.decks.map(function (d) {
-        return { label: W.SUBJECT_SHORT[d.sid] + " · " + d.title, value: d.reviews, text: d.reviews + (d.recall != null ? " · " + d.recall + "%" : ""), hue: SUBJ_HUE[d.sid] };
-      }))]));
+      main.appendChild(card("Flashcards by deck", {}, [
+        el("ol", { class: "k-rp-decks" }, s.decks.map(function (d) {
+          var max = Math.max.apply(null, s.decks.map(function (x) { return x.reviews; }).concat([1]));
+          return el("li", {}, [el("span", { class: "k-rp-deck-l" }, [dot(SUBJ_HUE[d.sid]), el("span", { text: W.SUBJECT_SHORT[d.sid] + " · " + d.title })]),
+            el("span", { class: "k-rp-bar", "aria-hidden": "true", style: "--w: " + (100 * d.reviews / max).toFixed(1) + "%; --c: " + SUBJ_HUE[d.sid] }),
+            mono(String(d.reviews), "k-rp-bar-v"), mono(d.recall != null ? d.recall + "%" : "", "k-rp-deck-p")]);
+        })),
+        el("p", { class: "k-rp-note", text: W.plural(s.reviews, "review") + (s.recall != null ? " · " + s.recall + "% recall" : "") })
+      ]));
     }
-    side.appendChild(card(rep.period === "week" || rep.period === "month" ? "Time by day" : rep.period === "year" ? "Time by month" : "Time by week", {}, [periodChart(rep)]));
+    side.appendChild(card(rep.period === "week" || rep.period === "month" ? "Time by day" : rep.period === "year" ? "Time by month" : "Time by week", {}, [periodChart(rep, { height: 180 })]));
     var hl = [];
-    if (s.bestRecall) hl.push(highRow("Best recall", s.bestRecall.title, s.bestRecall.recall + "% over " + s.bestRecall.reviews + " reviews", "green", s.bestRecall.key));
-    if (s.lowRecall) hl.push(highRow("Lowest recall", s.lowRecall.title, s.lowRecall.recall + "% over " + s.lowRecall.reviews + " reviews", "alarm", s.lowRecall.key));
+    if (s.bestRecall) hl.push(highRow("Best recall", s.bestRecall.ref ? s.bestRecall.ref + " " + s.bestRecall.title : s.bestRecall.title, s.bestRecall.recall + "% over " + s.bestRecall.reviews + " reviews", "green", s.bestRecall.key));
+    if (s.lowRecall) hl.push(highRow("Lowest recall", s.lowRecall.ref ? s.lowRecall.ref + " " + s.lowRecall.title : s.lowRecall.title, s.lowRecall.recall + "% over " + s.lowRecall.reviews + " reviews", "alarm", s.lowRecall.key));
     if (s.bestQuiz) hl.push(highRow("Best quiz", s.bestQuiz.title || "Quiz", s.bestQuiz.correct + " / " + s.bestQuiz.total + " · " + DOW[(parse(s.bestQuiz.date).getDay() + 6) % 7], "teal", s.bestQuiz.key));
     if (hl.length) side.appendChild(card("Highs and lows", {}, [el("ul", { class: "k-rp-highs" }, hl)]));
     var fl = [];
     if (s.firsts) {
-      fl.push(["First session", dayName(s.firsts.first.ts) + " " + clock(s.firsts.first.ts) + (s.firsts.first.label ? " · " + s.firsts.first.label : "")]);
-      if (s.firsts.last.ts !== s.firsts.first.ts) fl.push(["Last session", dayName(s.firsts.last.ts) + " " + clock(s.firsts.last.ts) + (s.firsts.last.label ? " · " + s.firsts.last.label : "")]);
-      fl.push(["Longest session", dayName(s.firsts.longest.ts) + " " + clock(s.firsts.longest.ts) + " · " + W.hm(s.firsts.longest.mins) + (s.firsts.longest.sid ? " · " + W.SUBJECT_SHORT[s.firsts.longest.sid] : "")]);
+      fl.push({ k: "First session", v: dayName(s.firsts.first.ts) + " " + clock(s.firsts.first.ts) + (s.firsts.first.label ? " · " + s.firsts.first.label : "") });
+      if (s.firsts.last.ts !== s.firsts.first.ts) fl.push({ k: "Last session", v: dayName(s.firsts.last.ts) + " " + clock(s.firsts.last.ts) + (s.firsts.last.label ? " · " + s.firsts.last.label : "") });
+      fl.push({ k: "Longest session", v: dayName(s.firsts.longest.ts) + " " + clock(s.firsts.longest.ts) + " · " + W.hm(s.firsts.longest.mins) + (s.firsts.longest.sid ? " · " + W.SUBJECT_SHORT[s.firsts.longest.sid] : "") });
     }
     if (fl.length || s.flow) {
       side.appendChild(card("Firsts, lasts and flow", {}, [
-        fl.length ? el("dl", { class: "k-rp-kv" }, fl.reduce(function (a, r) { return a.concat([el("dt", { text: r[0] }), el("dd", { class: "k-mono", text: r[1] })]); }, [])) : null,
+        fl.length ? kvRows(fl) : null,
         s.flow ? el("h3", { class: "k-rp-subhead", text: "What you studied next" }) : null,
         s.flow ? flowList(s.flow.map(function (x) { return { from: FLOW_LABEL[x.from] || x.from, fromHue: SUBJ_HUE[x.from] || "var(--teal)", to: FLOW_LABEL[x.to] || x.to, toHue: SUBJ_HUE[x.to] || "var(--teal)", n: x.n + "×" }; })) : null
       ].filter(Boolean)));
     }
     if (s.next) side.appendChild(nextUp(s.next));
-    holder.appendChild(el("div", { class: "k-rp-two" }, [main, side]));
+    holder.appendChild(two(main, side));
   }
   /* a wide table scrolls sideways only through the shared scroller, a
      tab stop only while it overflows (invariant 50) */
@@ -734,15 +1035,15 @@
   function highRow(kicker, title, meta, tone, key) {
     return el("li", {}, [el("button", { type: "button", class: "k-rp-high", "data-tone": tone, "data-ui": "reports.topic", disabled: key ? null : "",
       onclick: function () { if (key) openTopic(key); } }, [
-      el("span", { class: "k-kicker", text: kicker }),
-      el("b", { text: title }),
+      el("span", { class: "k-rp-high-dot", "aria-hidden": "true" }),
+      el("span", { class: "k-rp-high-txt" }, [el("span", { class: "k-rp-high-k", text: kicker }), el("b", { text: title })]),
       mono(meta, "k-rp-high-m")
     ])]);
   }
   function flowList(rows) {
-    return el("ol", { class: "k-rp-flow" }, rows.map(function (r) {
-      return el("li", {}, [dot(r.fromHue), el("span", { text: r.from }), el("span", { class: "k-rp-flow-arrow", "aria-label": "then", text: "→" }),
-        dot(r.toHue), el("span", { text: r.to }), mono(r.n, "k-rp-flow-n")]);
+    return el("ol", { class: "k-rp-flow" }, rows.map(function (r, i) {
+      return el("li", {}, [r.rank ? mono("#" + (i + 1), "k-rp-rank") : null, dot(r.fromHue), el("b", { text: r.from }), el("span", { class: "k-rp-flow-arrow", "aria-label": "then", text: "→" }),
+        dot(r.toHue), el("b", { text: r.to }), mono(r.n, "k-rp-flow-n")].filter(Boolean));
     }));
   }
   function nextUp(list) {
@@ -769,25 +1070,21 @@
     if (fo.blocks && fo.list) {
       var modes = Object.keys(fo.modes || {}).sort(function (a, b) { return fo.modes[b] - fo.modes[a]; })
         .map(function (m) { return m.charAt(0).toUpperCase() + m.slice(1) + " " + fo.modes[m]; });
+      var sids = SUBJECTS.filter(function (k) { return fo.list.some(function (b) { return b.sid === k; }); });
       main.appendChild(card("Every Focus block", { className: "k-rp-card--timeline" }, [
         timeline(rep, fo.list),
-        el("p", { class: "k-rp-note", text: [W.plural(fo.blocks, "block"), W.hm(fo.mins)].concat(modes).join(" · ") })
+        el("div", { class: "k-rp-tl-foot" }, [subjLegend(sids), el("span", { class: "k-rp-note", text: [W.plural(fo.blocks, "block"), W.hm(fo.mins)].concat(modes).join(" · ") })])
       ]));
     }
-    if (pl) main.appendChild(card("The plan · " + pl.ticked + " of " + W.plural(pl.planned, "row"), {}, [el("ul", { class: "k-rp-plan" }, pl.rows.map(planRow))]));
+    var pair = [];
+    if (pl) pair.push(card("The plan · " + pl.ticked + " of " + W.plural(pl.planned, "row"), {}, [el("ul", { class: "k-rp-plan" }, pl.rows.map(planRow))]));
     if (tk && tk.done) {
-      main.appendChild(card("Reminders · " + tk.reminders + " done", {}, [el("ul", { class: "k-rp-done" }, tk.done.map(function (r) {
-        return el("li", {}, [el("span", { class: "k-rp-plan-mark", "aria-hidden": "true", text: "✓" }), el("span", { text: r.title }), mono(dayName(r.at), "k-rp-plan-w")]);
+      pair.push(card("Reminders · " + tk.reminders + " done", {}, [el("ul", { class: "k-rp-done" + (tk.done.length > 8 ? " k-rp-done--two" : "") }, tk.done.map(function (r) {
+        return el("li", {}, [el("span", { class: "k-rp-done-mark", "aria-hidden": "true", text: "✓" }), el("span", { class: "k-rp-plan-t", title: r.title, text: r.title }), mono(dayName(r.at), "k-rp-plan-w")]);
       }))]));
     }
-    if (fo.persona) {
-      side.appendChild(el("section", { class: "k-card k-rp-persona", "data-ui": "reports.persona", "aria-label": "Your Focus style" }, [
-        el("span", { class: "k-kicker", text: "Your Focus style this week" }),
-        el("b", { class: "k-rp-persona-name", text: fo.persona.name }),
-        el("p", { text: fo.persona.fact }),
-        el("span", { class: "k-rp-persona-ghost", lang: "ja", "aria-hidden": "true", text: fo.persona.kanji })
-      ]));
-    }
+    if (pair.length) main.appendChild(masonry(pair, 2));
+    if (fo.persona) side.appendChild(personaCard("Your Focus style this " + rep.period, fo.persona, "var(--amber)"));
     if (fo.lengths && fo.lengths.length >= 3) side.appendChild(card("How long", {}, [lengths(fo.lengths)]));
     if (tk && tk.habits) {
       side.appendChild(card("Habits · " + tk.habits.length + " kept", {}, [el("table", { class: "k-rp-habits" }, [
@@ -800,22 +1097,37 @@
       ])]));
     }
     if (!main.children.length && !side.children.length) {
-      holder.appendChild(KOS.ui.emptyState({ mark: "集", title: "No Focus blocks or plan rows this week", compact: true }));
+      holder.appendChild(KOS.ui.emptyState({ mark: "集", title: "No Focus blocks or plan rows this " + rep.period, compact: true }));
       return;
     }
-    holder.appendChild(el("div", { class: "k-rp-two" }, [main, side]));
+    if (!side.children.length) { holder.appendChild(main); return; }
+    if (!main.children.length) { holder.appendChild(side); return; }
+    holder.appendChild(two(main, side));
+  }
+  function personaCard(kicker, p, hue) {
+    return el("section", { class: "k-rp-card k-rp-persona", "data-ui": "reports.persona", "aria-label": kicker, style: "--c: " + hue }, [
+      el("span", { class: "k-kicker", text: kicker }),
+      el("b", { class: "k-rp-persona-name", text: p.name }),
+      el("p", { text: p.fact }),
+      p.kanji ? el("span", { class: "k-rp-persona-ghost", lang: "ja", "aria-hidden": "true", text: p.kanji }) : null
+    ].filter(Boolean));
   }
   /* every block where it happened: a row a day, 07–23 */
   function timeline(rep, list) {
     var from = HEAT_FROM * 60, to = 23 * 60, span = to - from;
+    var busiest = -1, best = 0;
     var rows = DOW.map(function (d, i) {
       var day = KOS.report.addDays(rep.start, i);
       var mine = list.filter(function (b) { return dateIso(new Date(b.ts)) === day; });
-      return el("li", { class: "k-rp-tl-row" }, [el("span", { class: "k-rp-tl-d", text: d }), el("span", { class: "k-rp-tl-track" }, mine.map(function (b) {
+      var tot = mine.reduce(function (a, b) { return a + b.mins; }, 0);
+      if (tot > best) { best = tot; busiest = i; }
+      return { d: d, mine: mine };
+    }).map(function (r, i) {
+      return el("li", { class: "k-rp-tl-row", "data-state": i === busiest ? "hi" : null }, [el("span", { class: "k-rp-tl-d", text: r.d }), el("span", { class: "k-rp-tl-track" }, r.mine.map(function (b) {
         var st = new Date(b.ts), m = st.getHours() * 60 + st.getMinutes();
-        var left = Math.max(0, Math.min(100, 100 * (m - from) / span)), w = Math.max(0.8, Math.min(100 - left, 100 * b.mins / span));
+        var left = Math.max(0, Math.min(100, 100 * (m - from) / span)), w = Math.max(1.4, Math.min(100 - left, 100 * b.mins / span));
         return el("span", { class: "k-rp-tl-b", style: "--l: " + left.toFixed(2) + "%; --w: " + w.toFixed(2) + "%; --c: " + (SUBJ_HUE[b.sid] || "var(--teal)"),
-          title: d + " " + clock(b.ts) + " · " + W.hm(b.mins) + (b.sid ? " · " + W.SUBJECT_SHORT[b.sid] : "") }, [b.mins >= 60 ? el("span", { class: "k-mono", text: b.mins + "m" }) : null].filter(Boolean));
+          title: r.d + " " + clock(b.ts) + " · " + W.hm(b.mins) + (b.sid ? " · " + W.SUBJECT_SHORT[b.sid] : "") }, [b.mins >= 60 ? el("span", { class: "k-mono", text: b.mins + "m" }) : null].filter(Boolean));
       }))]);
     });
     var axis = el("li", { class: "k-rp-tl-row k-rp-tl-axis", "aria-hidden": "true" }, [el("span", {}), el("span", { class: "k-rp-tl-track" },
@@ -826,10 +1138,10 @@
   function lengths(ls) {
     var b = [0, 0, 0, 0, 0], labels = ["≤15", "15–30", "30–45", "45–60", "60+"];
     ls.forEach(function (m) { b[m <= 15 ? 0 : m <= 30 ? 1 : m <= 45 ? 2 : m <= 60 ? 3 : 4]++; });
-    var max = Math.max.apply(null, b);
+    var max = Math.max.apply(null, b), hi = b.indexOf(max);
     var sorted = ls.slice().sort(function (x, y) { return x - y; }), med = sorted[sorted.length >> 1];
-    return el("div", {}, [el("ol", { class: "k-rp-hist", role: "img", "aria-label": labels.map(function (l, i) { return l + " min: " + b[i]; }).join(", ") }, b.map(function (n, i) {
-      return el("li", {}, [n ? mono(String(n), "k-rp-hist-n") : el("span", {}), el("span", { class: "k-rp-hist-bar", style: "--h: " + (100 * n / max).toFixed(1) + "%" }), mono(labels[i], "k-rp-hist-l")]);
+    return el("div", { class: "k-rp-histwrap" }, [el("ol", { class: "k-rp-hist", role: "img", "aria-label": labels.map(function (l, i) { return l + " min: " + b[i]; }).join(", ") }, b.map(function (n, i) {
+      return el("li", { "data-state": i === hi ? "hi" : null }, [histTrack(n, max), mono(labels[i], "k-rp-hist-l")]);
     })), el("p", { class: "k-rp-note", text: "Minutes per block · median " + med })]);
   }
 
@@ -837,48 +1149,27 @@
   function collectionOverview(holder, rep) {
     var f = rep.facts, c = f.collection;
     overviewHead(holder, rep, "collection");
-    if (!c) return;   // the headline already says nothing moved
+    if (!c) {
+      /* the headline says nothing moved; the page offers the way back
+         rather than a screen of nothing */
+      holder.appendChild(KOS.ui.emptyState({ mark: "蒐", compact: true,
+        body: "Study, Focus and the plan for " + longRange(rep.start, rep.end) + " are in the report.",
+        action: el("button", { type: "button", class: "k-btn", "data-ui": "reports.back", text: "Back to " + weekOf(rep), onclick: function () { open(rep); } }) }));
+      return;
+    }
     var u = c.units || {}, st = c.status || {};
     var vnGame = (c.byModule.vn || 0) + (c.byModule.game || 0);
     holder.appendChild(tiles([
       tile("Titles", c.count, MODULES.filter(function (m) { return c.byModule[m]; }).slice(0, 2).map(function (m) { return c.byModule[m] + " " + MOD_SHORT[m].toLowerCase(); }).join(" · ")),
-      u.ep ? tile("Episodes", W.num(u.ep), null) : null,
+      u.ep ? tile("Episodes", W.num(u.ep), c.byModule.anime && c.estMins ? null : null) : null,
       u.ch ? tile("Chapters", W.num(u.ch), u.vol ? "+ " + W.plural(u.vol, "volume") : null) : (u.vol ? tile("Volumes", W.num(u.vol), null) : null),
       vnGame && u.hours ? tile("VN and games", W.hm(u.hours * 60), u.route ? W.plural(u.route, "route") + " finished" : null) : null,
       st.finished ? tile("Finished", st.finished, st.started ? st.started + " started" : null) : (st.started ? tile("Started", st.started, null) : null),
       c.scores ? tile("Scored", c.scores.n, "average " + c.scores.avg) : null,
-      c.busiest && rep.period === "week" ? tile("Busiest day", DOW[(parse(c.busiest.date).getDay() + 6) % 7], W.plural(c.busiest.titles, "title") + (c.busiest.mins ? " · ≈ " + W.hm(c.busiest.mins) : "")) : null,
-      rep.facts.mediaPersona ? tile("Persona", rep.facts.mediaPersona.name, rep.facts.mediaPersona.fact) : null
+      c.busiest && rep.period === "week" ? tile("Busiest day", DOW[(parse(c.busiest.date).getDay() + 6) % 7], W.plural(c.busiest.titles, "title") + (c.busiest.mins ? " · ≈ " + W.hm(c.busiest.mins) : "")) : null
     ]));
     var main = el("div", { class: "k-rp-main" }), side = el("div", { class: "k-rp-side" });
-    main.appendChild(everyTitle(c));
-    var pair = [];
-    if (c.scores) pair.push(card("Scores", {}, [hiLo(c), scoreHist(c.scores)].filter(Boolean)));
-    if (c.dayTitles) {
-      var keys = MODULES.filter(function (m) { return c.byModule[m]; });
-      var totals = c.dayTitles.map(function (d) { return Object.keys(d).reduce(function (a, k) { return a + d[k]; }, 0); });
-      var wkShare = totals.reduce(function (a, b) { return a + b; }, 0) ? Math.round(100 * (totals[5] + totals[6]) / totals.reduce(function (a, b) { return a + b; }, 0)) : 0;
-      var ch = stacked(DOW.map(function (d, i) { return { label: d, parts: c.dayTitles[i] }; }), keys, MOD_HUE, { height: 170 });
-      ch.setAttribute("role", "img");
-      ch.setAttribute("aria-label", "Titles touched per day: " + DOW.map(function (d, i) { return d + " " + totals[i]; }).join(", "));
-      pair.push(card("Day by day", {}, [ch, legend(keys.map(function (m) { return { hue: MOD_HUE[m], label: MOD_SHORT[m] }; })),
-        el("p", { class: "k-rp-note", text: "Titles touched per day" + (wkShare ? " · the weekend took " + wkShare + "%" : "") })]));
-    }
-    var statusRows = [["finished", "Finished", "var(--green)"], ["started", "Started", "var(--teal)"], ["continued", "Continued", "var(--text-2)"],
-      ["paused", "Paused", "var(--amber)"], ["dropped", "Dropped", "var(--alarm)"]].filter(function (r) { return st[r[0]]; });
-    if (statusRows.length) {
-      pair.push(card("Status this week", {}, [
-        splitBar(statusRows.map(function (r) { return { label: r[1], value: st[r[0]], text: String(st[r[0]]), hue: r[2] }; })),
-        el("ul", { class: "k-rp-status" }, statusRows.map(function (r) { return el("li", {}, [dot(r[2]), el("span", { text: r[1] }), mono(String(st[r[0]]))]); }))
-      ]));
-    }
-    if (c.countries.length || c.formats.length) {
-      pair.push(card("Where it came from", {}, [
-        c.countries.length ? bars(c.countries.map(function (x) { return { label: countryName(x.name), value: x.n, text: String(x.n), hue: "var(--crimson)" }; })) : null,
-        c.formats.length ? el("h3", { class: "k-rp-subhead", text: "Formats" }) : null,
-        c.formats.length ? bars(c.formats.map(function (x) { return { label: formatName(x.name), value: x.n, text: String(x.n), hue: "var(--anime)" }; })) : null
-      ].filter(Boolean)));
-    }
+    if (rep.facts.mediaPersona) side.appendChild(personaCard("Your Collection style", rep.facts.mediaPersona, MOD_HUE[rep.facts.mediaPersona.hue] || "var(--anime)"));
     if (c.monthTitles && Object.keys(c.monthTitles).length) {
       var mkeys = MODULES.filter(function (m) { return c.byModule[m]; });
       var months = [], d0 = parse(rep.start);
@@ -888,72 +1179,118 @@
         var key = dm0.getFullYear() + "-" + (dm0.getMonth() < 9 ? "0" : "") + (dm0.getMonth() + 1);
         months.push({ label: MONTHS[dm0.getMonth()], parts: c.monthTitles[key] || {} });
       }
-      var mc = stacked(months, mkeys, MOD_HUE, { height: 190, width: 640 });
-      mc.setAttribute("role", "img");
-      mc.setAttribute("aria-label", "Titles touched per month");
-      pair.unshift(card("Month by month", { className: "k-rp-card--wide" }, [mc, legend(mkeys.map(function (m) { return { hue: MOD_HUE[m], label: MOD_SHORT[m] + " " + c.byModule[m] }; }))]));
+      main.appendChild(card("Titles by month", { right: legend(mkeys.map(function (m) { return { hue: MOD_HUE[m], label: MOD_SHORT[m] + " " + c.byModule[m] }; })) }, [fluid(function (w) {
+        var mc = stacked(months, mkeys, MOD_HUE, { height: 200, width: w });
+        mc.setAttribute("role", "img");
+        mc.setAttribute("aria-label", "Titles touched per month");
+        return mc;
+      })]));
     }
+    main.appendChild(everyTitle(c));
     if (c.topRated && c.topRated.length >= 3 && rep.period !== "week") {
-      pair.push(card("Top rated · " + W.plural(c.topRated.length, "title"), { className: "k-rp-card--wide" }, [el("ol", { class: "k-rp-shelf" }, c.topRated.map(function (t) {
-        return el("li", {}, [el("span", { class: "k-rp-cell-art" }, [cover(t), el("span", { class: "k-rp-badge", "data-tone": t.score >= 8 ? "green" : null, text: String(t.score) })]),
+      main.appendChild(card("Top rated · " + W.plural(c.topRated.length, "title"), {}, [el("ol", { class: "k-rp-shelf" }, c.topRated.map(function (t) {
+        return el("li", {}, [el("span", { class: "k-rp-cell-art" }, [cover(coverOf(c, t)), el("span", { class: "k-rp-badge", "data-tone": t.score >= 8 ? "green" : null, text: String(t.score) })]),
           el("span", { class: "k-rp-cell-t", text: t.title })]);
       }))]));
     }
-    if (pair.length) main.appendChild(el("div", { class: "k-rp-pairs" }, pair));
-    if (c.flow) main.appendChild(card("Genre flow", { meta: "what you moved to next" }, [flowList(c.flow.map(function (x) {
-      return { from: x.from, fromHue: "var(--vn)", to: x.to, toHue: "var(--books)", n: W.plural(x.n, "switch", "switches") };
+    var pair = [];
+    if (c.scores) pair.push(card("Scores", {}, [hiLo(c, { covers: true }), scoreHist(c.scores)].filter(Boolean)));
+    if (c.dayTitles) {
+      var keys = MODULES.filter(function (m) { return c.byModule[m]; });
+      var totals = c.dayTitles.map(function (d) { return Object.keys(d).reduce(function (a, k) { return a + d[k]; }, 0); });
+      var all = totals.reduce(function (a, b) { return a + b; }, 0);
+      var wkShare = all ? Math.round(100 * (totals[5] + totals[6]) / all) : 0;
+      pair.push(card("Day by day", {}, [fluid(function (w) {
+        var ch = stacked(DOW.map(function (d, i) { return { label: d, parts: c.dayTitles[i] }; }), keys, MOD_HUE, { height: 170, width: w, maxBar: 34 });
+        ch.setAttribute("role", "img");
+        ch.setAttribute("aria-label", "Titles touched per day: " + DOW.map(function (d, i) { return d + " " + totals[i]; }).join(", "));
+        return ch;
+      }, 300), el("p", { class: "k-rp-note", text: "Titles touched per day" + (wkShare ? " · the weekend took " + wkShare + "%" : "") })]));
+    }
+    var statusRows = [["finished", "Finished", "var(--green)"], ["started", "Started", "var(--teal)"], ["continued", "Continued", "var(--text-2)"],
+      ["paused", "Paused", "var(--amber)"], ["dropped", "Dropped", "var(--alarm)"]].filter(function (r) { return st[r[0]]; });
+    if (statusRows.length) {
+      pair.push(card("Status this " + rep.period, {}, [
+        splitBar(statusRows.map(function (r) { return { label: r[1], value: st[r[0]], text: String(st[r[0]]), hue: r[2] }; })),
+        kvRows(statusRows.map(function (r) { return { k: r[1], v: String(st[r[0]]), hue: r[2] }; }))
+      ]));
+    }
+    if (c.countries.length || c.formats.length) {
+      pair.push(card("Where it came from", {}, [
+        c.countries.length ? bars(c.countries.map(function (x) { return { label: countryName(x.name), value: x.n, text: String(x.n), hue: "var(--crimson)" }; })) : null,
+        c.formats.length ? el("h3", { class: "k-rp-subhead", text: "Formats" }) : null,
+        c.formats.length ? bars(c.formats.map(function (x) { return { label: formatName(x.name), value: x.n, text: String(x.n), hue: formatHue(x.name) }; })) : null
+      ].filter(Boolean)));
+    }
+    if (pair.length) main.appendChild(masonry(pair, 2));
+    if (c.flow) main.appendChild(card("Genre flow", { meta: "what you started next, after finishing an episode or chapter" }, [flowList(c.flow.map(function (x, i) {
+      return { rank: true, from: x.from, fromHue: GENRE_HUE[i % 5], to: x.to, toHue: GENRE_HUE[(i + 1) % 5], n: W.plural(x.n, "switch", "switches") };
     }))]));
     if (c.genres.length) {
       side.appendChild(card("Genre DNA", {}, [el("ol", { class: "k-rp-dna" }, c.genres.map(function (g, i) {
         var covers = c.titles.filter(function (t) { return (t.genres || []).indexOf(g.name) !== -1; }).slice(0, 3);
         return el("li", { class: "k-rp-dna-row", style: "--c: " + GENRE_HUE[i] }, [
-          mono("#" + (i + 1), "k-rp-rank"),
-          el("span", { class: "k-rp-dna-t" }, [el("b", { text: g.name }), el("span", { class: "k-rp-note", text: W.plural(g.n, "title") })]),
-          mono(g.pct + "%", "k-rp-dna-p"),
-          el("span", { class: "k-rp-bar", "aria-hidden": "true", style: "--w: " + g.pct + "%; --c: " + GENRE_HUE[i] }),
-          el("span", { class: "k-rp-dna-covers", "aria-hidden": "true" }, covers.map(function (t) { return cover(t, "k-rp-cover--tiny"); }))
+          el("span", { class: "k-rp-dna-h" }, [mono("#" + (i + 1), "k-rp-dna-r"), el("b", { text: g.name }),
+            el("span", { class: "k-rp-note", text: W.plural(g.n, "title") }), mono(g.pct + "%", "k-rp-dna-p")]),
+          el("span", { class: "k-rp-dna-b" }, [
+            el("span", { class: "k-rp-bar", "aria-hidden": "true", style: "--w: " + Math.min(100, g.pct * 1.6) + "%; --c: " + GENRE_HUE[i] }),
+            el("span", { class: "k-rp-dna-covers", "aria-hidden": "true" }, covers.map(function (t) { return cover(t, "k-rp-cover--tiny"); }))
+          ])
         ]);
       }))]));
     }
     if (c.tags.length) {
       side.appendChild(card("Tags and themes", {}, [el("ul", { class: "k-rp-tags" }, c.tags.map(function (t, i) {
-        return el("li", { class: "k-chip", "data-tone": i < 3 ? "lead" : null }, [el("span", { text: t.name }), mono(String(t.n))]);
-      }))]));
+        return el("li", { class: "k-rp-tag", "data-tone": i < 3 ? "lead" : null }, [el("span", { text: t.name }), mono(String(t.n))]);
+      })), el("p", { class: "k-rp-note", text: W.plural(c.tags.length, "tag") + " this " + rep.period })]));
     }
     var cr = [];
-    if (c.studio) cr.push(["Top studio", c.studio.name, W.plural(c.studio.n, "anime", "anime") + " · " + c.studio.titles.join(", ")]);
-    if (c.author) cr.push(["Top author", c.author.name, W.plural(c.author.n, "title") + " · " + c.author.titles.join(", ")]);
+    function firstCover(names) { var t = c.titles.filter(function (x) { return names.indexOf(x.title) !== -1; })[0]; return t || null; }
+    if (c.studio) cr.push(["Top studio", c.studio.name, W.plural(c.studio.n, "anime", "anime") + " · " + c.studio.titles.join(", "), firstCover(c.studio.titles), "var(--anime)"]);
+    if (c.author) cr.push(["Top author", c.author.name, W.plural(c.author.n, "title") + " · " + c.author.titles.join(", "), firstCover(c.author.titles), "var(--books)"]);
     if (cr.length) side.appendChild(card("Creators", {}, [el("ul", { class: "k-rp-creators" }, cr.map(function (r) {
-      return el("li", {}, [el("span", { class: "k-kicker", text: r[0] }), el("b", { text: r[1] }), el("span", { class: "k-rp-note", text: r[2] })]);
+      return el("li", { style: "--c: " + r[4] }, [r[3] ? cover(r[3], "k-rp-cover--creator") : el("span", {}),
+        el("span", { class: "k-rp-creator-t" }, [el("span", { class: "k-rp-creator-k", text: r[0] }), el("b", { text: r[1] }), el("span", { class: "k-rp-note", text: r[2] })])]);
     }))]));
-    holder.appendChild(el("div", { class: "k-rp-two" }, [main, side]));
+    holder.appendChild(side.children.length ? two(main, side) : main);
   }
   var COUNTRY = { JP: "Japan", KR: "South Korea", CN: "China", TW: "Taiwan", US: "United States", GB: "United Kingdom", FR: "France" };
   function countryName(c) { return COUNTRY[c] || c; }
   var FORMAT = { TV: "TV", TV_SHORT: "TV short", MOVIE: "Film", SPECIAL: "Special", OVA: "OVA", ONA: "ONA", MUSIC: "Music",
     MANGA: "Manga", NOVEL: "Light novel", ONE_SHOT: "One-shot", lightNovel: "Light novel", manga: "Manga", oneShot: "One-shot" };
   function formatName(f) { return FORMAT[f] || f; }
+  function formatHue(f) {
+    if (/^(TV|TV_SHORT|MOVIE|SPECIAL|OVA|ONA|MUSIC)$/.test(f)) return "var(--anime)";
+    if (f === "Visual novel") return "var(--vn)";
+    if (f === "Game") return "var(--games)";
+    return "var(--books)";
+  }
+  /* one histogram column: the count sits on its bar */
+  function histTrack(n, max) {
+    return el("span", { class: "k-rp-hist-track" }, [n ? mono(String(n), "k-rp-hist-n") : null,
+      el("span", { class: "k-rp-hist-bar", style: "--h: " + (n ? Math.max(4, 100 * n / max) : 0).toFixed(1) + "%" })].filter(Boolean));
+  }
   function scoreHist(sc) {
     var max = Math.max.apply(null, sc.hist.concat([1]));
-    return el("div", {}, [el("ol", { class: "k-rp-hist k-rp-hist--scores", role: "img",
+    return el("div", { class: "k-rp-histwrap" }, [el("ol", { class: "k-rp-hist k-rp-hist--scores", role: "img",
       "aria-label": "Scores given: " + sc.hist.map(function (n, i) { return n ? (i + 1) + ": " + n : null; }).filter(Boolean).join(", ") }, sc.hist.map(function (n, i) {
       var tone = i + 1 >= 8 ? "green" : i + 1 <= 4 ? "alarm" : null;
-      return el("li", { "data-tone": tone }, [n ? mono(String(n), "k-rp-hist-n") : el("span", {}), el("span", { class: "k-rp-hist-bar", style: "--h: " + (100 * n / max).toFixed(1) + "%" }), mono(String(i + 1), "k-rp-hist-l")]);
+      return el("li", { "data-tone": tone }, [histTrack(n, max), mono(String(i + 1), "k-rp-hist-l")]);
     })), el("p", { class: "k-rp-note", text: W.plural(sc.n, "score") + " given" + (sc.range ? " · range " + W.plural(sc.range, "point") : "") + " · median " + sc.median })]);
   }
   function everyTitle(c) {
-    var box = el("section", { class: "k-card k-rp-card k-rp-titles", "data-ui": "reports.card reports.titles", "aria-label": "Every title" });
-    function paint() {
+    var box = el("section", { class: "k-rp-card k-rp-titles", "data-ui": "reports.card reports.titles", "aria-label": "Every title" });
+    function draw() {
       box.textContent = "";
       var mods = MODULES.filter(function (m) { return c.byModule[m]; });
-      var filter = KOS.ui.tabs([{ label: "All", count: c.count, active: view.coll.module === "all", onSelect: function () { view.coll.module = "all"; paint(); } }]
-        .concat(mods.map(function (m) { return { label: MOD_SHORT[m], count: c.byModule[m], active: view.coll.module === m, onSelect: function () { view.coll.module = m; paint(); } }; })),
+      var filter = KOS.ui.tabs([{ label: "All", count: c.count, active: view.coll.module === "all", onSelect: function () { view.coll.module = "all"; draw(); } }]
+        .concat(mods.map(function (m) { return { label: MOD_SHORT[m], count: c.byModule[m], active: view.coll.module === m, onSelect: function () { view.coll.module = m; draw(); } }; })),
         { variant: "workspace", label: "Medium", className: "k-rp-filter", edge: true });
       var layout = KOS.ui.tabs([["covers", "Covers"], ["list", "List"]].map(function (x) {
-        return { label: x[1], active: view.coll.layout === x[0], onSelect: function () { view.coll.layout = x[0]; paint(); } };
+        return { label: x[1], active: view.coll.layout === x[0], onSelect: function () { view.coll.layout = x[0]; draw(); } };
       }), { variant: "workspace", label: "Layout", className: "k-rp-layout" });
-      var sort = el("select", { class: "k-input k-rp-sort", "data-ui": "reports.sort", "aria-label": "Sort titles",
-        onchange: function () { view.coll.sort = sort.value; paint(); } },
+      var sort = el("select", { class: "k-rp-sort", "data-ui": "reports.sort", "aria-label": "Sort titles",
+        onchange: function () { view.coll.sort = sort.value; draw(); } },
         [["time", "Sort: most time"], ["newest", "Sort: newest"], ["score", "Sort: score"]].map(function (o) {
           return el("option", { value: o[0], text: o[1], selected: view.coll.sort === o[0] ? "" : null });
         }));
@@ -966,8 +1303,8 @@
       var grid;
       if (view.coll.layout === "list") {
         grid = el("ul", { class: "k-rp-tlist", "data-ui": "reports.title-list" }, list.map(function (t) {
-          return el("li", {}, [dot(MOD_HUE[t.module]), el("span", { class: "k-rp-tlist-t", text: t.title }), mono(t.range || "", "k-rp-note"),
-            t.status === "finished" ? el("span", { class: "k-chip", "data-tone": "green", text: "✓ finished" }) : t.status === "dropped" ? el("span", { class: "k-chip", "data-tone": "alarm", text: "dropped" }) : el("span", {}),
+          return el("li", {}, [cover(t, "k-rp-cover--row"), el("span", { class: "k-rp-tlist-t" }, [el("b", { text: t.title }), el("span", { class: "k-rp-note", text: MOD_SHORT[t.module] + (t.range ? " · " + t.range : "") })]),
+            t.status === "finished" ? el("span", { class: "k-chip", "data-tone": "green", text: "✓ finished" }) : t.status === "dropped" ? el("span", { class: "k-chip", "data-tone": "danger", text: "dropped" }) : el("span", {}),
             t.score ? mono(String(t.score), "k-rp-score") : el("span", {})]);
         }));
       } else {
@@ -977,7 +1314,7 @@
               t.score ? el("span", { class: "k-rp-badge", "data-tone": t.score >= 8 ? "green" : t.score <= 4 ? "alarm" : null, text: String(t.score) }) : null,
               t.status === "finished" ? el("span", { class: "k-rp-fin", title: "Finished", text: "✓" }) : t.status === "dropped" ? el("span", { class: "k-rp-drop", text: "dropped" }) : null
             ].filter(Boolean)),
-            el("span", { class: "k-rp-cell-t", text: t.title }),
+            el("span", { class: "k-rp-cell-t", title: t.title, text: t.title }),
             t.range ? mono(t.range, "k-rp-cell-r") : null
           ].filter(Boolean));
         }));
@@ -985,104 +1322,107 @@
       box.appendChild(grid);
       if (view.coll.layout !== "list" && !view.coll.all && list.length > 9) {
         box.appendChild(el("button", { type: "button", class: "k-btn k-rp-showall", "data-ui": "reports.show-all", text: "Show all " + list.length,
-          onclick: function () { view.coll.all = true; paint(); } }));
+          onclick: function () { view.coll.all = true; draw(); } }));
       }
     }
-    paint();
+    draw();
     return box;
   }
 
   /* ================= the Home card (24h) =================
-     The newest weekly report, for the week after it was saved: "New" with
-     its headline, three facts and the week's chart until it has been read,
-     then a quiet one-line row. Filled after the store answers; an empty
-     slot (no report this week) stays hidden. Reading is a click, never a
-     render: "Read the report" (and the bell) mark the report's
-     notification read. */
+     The newest report, in Home's middle column between Study hours and the
+     week's plan: its headline, three facts and the week's chart, and
+     "Read the report". "New" until it has been read — and it stays the
+     full card after reading (review: a one-line row left the column
+     empty). Two or more unread from one morning list the others under it.
+     Filled after the store answers; with no report at all the slot stays
+     hidden and the plan takes the column. Reading is a click, never a
+     render: "Read the report" (and the bell) mark the notification read. */
   function homeCard() {
-    var slot = el("section", { class: "k-card k-rp-home", "data-ui": "reports.home-card", "aria-label": "Your week in review", hidden: "" });
+    var slot = el("section", { class: "k-card k-rp-home", "data-ui": "reports.home-card", "aria-label": "Your latest report", hidden: "" });
     if (!KOS.reportStore || !KOS.reportStore.available()) return slot;
     KOS.reportStore.list(null, function (err, all) {
-      if (err || !all) return;
+      if (err || !all || !all.length) return;
       var ORDER = { week: 0, month: 1, term: 2, year: 3 };
+      function isRead(r) { return !!(KOS.notify && KOS.notify.isRead && KOS.notify.isRead({ id: "reports:" + r.id })); }
       /* the newest of each period, saved in the last 7 days */
       var fresh = [];
       ["week", "month", "term", "year"].forEach(function (pd) {
         var r = all.filter(function (x) { return x.period === pd; })[0];
         if (r && Date.now() - r.savedAt <= 7 * 864e5) fresh.push(r);
       });
-      var unread = fresh.filter(function (r) { return !(KOS.notify && KOS.notify.isRead && KOS.notify.isRead({ id: "reports:" + r.id })); });
-      /* 24h: a morning that ends a week and a month lists both */
-      if (unread.length >= 2) {
-        slot.removeAttribute("hidden");
-        KOS.ui.state(slot, "new", true);
-        slot.appendChild(el("div", { class: "k-rp-home-top" }, [el("span", { class: "k-kicker", text: "Ready this morning" }), el("span", { class: "k-rp-new", text: unread.length + " new" })]));
-        slot.appendChild(el("ul", { class: "k-rp-home-multi" }, unread.sort(function (a, b) { return ORDER[a.period] - ORDER[b.period]; }).map(function (r) {
-          var hw = W.current(r);
-          return el("li", {}, [el("button", { type: "button", class: "k-rp-home-row", "data-ui": "reports.home-open", onclick: function () {
-            if (KOS.notify && KOS.notify.markRead) KOS.notify.markRead("reports:" + r.id); open(r); } }, [
-            el("span", { class: "k-rp-home-seal", lang: "ja", "aria-hidden": "true", text: { week: "週", month: "月", term: "期", year: "年" }[r.period] }),
-            el("span", { class: "k-rp-home-row-t" }, [el("b", { text: weekOf(r) }), el("span", { text: hw.headline })]),
-            el("span", { class: "k-link", text: "›" })])]);
-        })));
-        return;
-      }
-      var rep = unread[0] || fresh[0];
-      if (!rep || !slot.isConnected && !slot.parentNode) return;
-      var nid = "reports:" + rep.id;
-      var isNew = KOS.notify && KOS.notify.isRead ? !KOS.notify.isRead({ id: nid }) : true;
+      var unread = fresh.filter(function (r) { return !isRead(r); }).sort(function (a, b) { return ORDER[a.period] - ORDER[b.period]; });
+      var weeks = all.filter(function (x) { return x.period === "week"; });
+      var rep = unread[0] || weeks[0] || all[0];
+      var others = unread.filter(function (r) { return r !== rep; });
+      var nid = "reports:" + rep.id, isNew = !isRead(rep);
       var w = W.current(rep), f = rep.facts, s = f.study;
-      function read() { if (KOS.notify && KOS.notify.markRead) KOS.notify.markRead(nid); open(rep); }
+      function read(r) { return function () { if (KOS.notify && KOS.notify.markRead) KOS.notify.markRead("reports:" + r.id); open(r); }; }
       slot.removeAttribute("hidden");
       KOS.ui.state(slot, "new", isNew);
-      if (!isNew) {
-        slot.appendChild(el("button", { type: "button", class: "k-rp-home-row", "data-ui": "reports.home-open", onclick: read }, [
-          el("span", { class: "k-rp-home-seal", lang: "ja", "aria-hidden": "true", text: { week: "週", month: "月", term: "期", year: "年" }[rep.period] }),
-          el("span", { class: "k-rp-home-row-t" }, [el("b", { text: weekOf(rep) }), el("span", { text: w.headline })]),
-          el("span", { class: "k-link", text: "Read ›" })
-        ]));
-        return;
-      }
       var facts = [[W.hm(s.mins), "studied"]];
       if (s.recall != null) facts.push([s.recall + "%", "recall"]);
       else if (s.reviews) facts.push([W.num(s.reviews), "reviews"]);
-      if (f.collection && f.collection.count) facts.push([W.num(f.collection.count), "titles"]);
-      else if (f.gov.streak) facts.push([String(f.gov.streak), "day streak"]);
+      if (f.gov.streak) facts.push([W.plural(f.gov.streak, "day"), "streak"]);
+      else if (f.collection && f.collection.count) facts.push([W.num(f.collection.count), "titles"]);
       slot.appendChild(el("div", { class: "k-rp-home-top" }, [
-        el("span", { class: "k-kicker", text: (rep.period === "week" ? "Your week in review · " + range(rep.start, rep.end) : weekOf(rep) + " in review") }),
-        el("span", { class: "k-rp-new", text: "New" })
-      ]));
-      slot.appendChild(el("h2", { class: "k-rp-home-h", text: w.headline }));
-      slot.appendChild(el("div", { class: "k-rp-home-body" }, [
-        el("dl", { class: "k-rp-home-facts" }, facts.slice(0, 3).reduce(function (a, x) { return a.concat([el("dd", { class: "k-mono", text: x[0] }), el("dt", { text: x[1] })]); }, [])),
-        rep.period === "week" ? miniChart(s) : null
+        el("span", { class: "k-kicker", text: rep.period === "week" ? "Week in review · " + range(rep.start, rep.end) : weekOf(rep) + " in review" }),
+        isNew ? el("span", { class: "k-rp-new", text: others.length ? (others.length + 1) + " new" : "New" }) : null
       ].filter(Boolean)));
-      slot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "reports.home-open", text: "→ Read the report", onclick: read }));
+      slot.appendChild(el("h2", { class: "k-rp-home-h", text: w.headline }));
+      slot.appendChild(el("dl", { class: "k-rp-home-facts" }, facts.slice(0, 3).map(function (x) {
+        return el("div", {}, [el("dd", { class: "k-mono", text: x[0] }), el("dt", { text: x[1] })]);
+      })));
+      slot.appendChild(homeChart(rep));
+      if (others.length) {
+        slot.appendChild(el("ul", { class: "k-rp-home-multi" }, others.map(function (r) {
+          return el("li", {}, [el("button", { type: "button", class: "k-rp-home-row", "data-ui": "reports.home-open", onclick: read(r) }, [
+            el("span", { class: "k-rp-home-seal", lang: "ja", "aria-hidden": "true", text: SEAL[r.period] }),
+            el("span", { class: "k-rp-home-row-t" }, [mono(weekOf(r)), el("span", { text: W.current(r).headline })]),
+            el("span", { class: "k-rp-chev", "aria-hidden": "true" }, [KOS.ui.icon("chev-right")])])]);
+        })));
+      }
+      slot.appendChild(el("button", { type: "button", class: "k-rp-home-go", "data-ui": "reports.home-open", onclick: read(rep) }, [
+        el("span", { text: "Read the report" }),
+        el("span", { class: "k-rp-home-arrow", "aria-hidden": "true" }, [KOS.ui.icon("arrow-right")])
+      ]));
     });
     return slot;
   }
-  function miniChart(s) {
-    var max = Math.max.apply(null, s.dayMins.concat([1]));
-    return el("ol", { class: "k-rp-mini", role: "img", "aria-label": "Study by day: " + DOW.map(function (d, i) { return d + " " + W.hm(s.dayMins[i]); }).join(", ") },
-      DOW.map(function (d, i) {
-        var parts = (s.daySubj || [])[i] || {}, tot = s.dayMins[i] || 0;
-        return el("li", { style: "--h: " + (100 * tot / max).toFixed(1) + "%" }, SUBJECTS.filter(function (k) { return parts[k]; }).map(function (k) {
-          return el("span", { style: "--c: " + SUBJ_HUE[k] + "; --f: " + (parts[k] / (tot || 1)).toFixed(3) });
-        }));
+  /* the card's chart: the week's days (or the period's own chart),
+     stacked by subject, filling whatever height the row gives it */
+  function homeChart(rep) {
+    var s = rep.facts.study;
+    var vals = rep.period === "week" ? s.dayMins : (rep.facts.strip ? rep.facts.strip.map(function (c) { return c.f ? c.f.mins : 0; }) : s.dayMins);
+    var parts = rep.period === "week" || !rep.facts.strip ? (s.daySubj || []) : rep.facts.strip.map(function (c) { return c.f ? c.f.bySubject || {} : {}; });
+    var labels = rep.period === "week" ? DOW.map(function (d) { return d.charAt(0); }) : null;
+    var max = Math.max.apply(null, vals.concat([1]));
+    return el("ol", { class: "k-rp-home-chart", role: "img", style: "--n: " + vals.length,
+      "aria-label": "Study by " + (rep.period === "week" ? "day" : rep.period === "month" ? "day" : rep.period === "year" ? "month" : "week") + ": " + W.hm(s.mins) + " in all" },
+      vals.map(function (tot, i) {
+        var p = parts[i] || {};
+        return el("li", {}, [
+          el("span", { class: "k-rp-home-track" }, [el("span", { class: "k-rp-home-col", style: "--h: " + (100 * (tot || 0) / max).toFixed(1) + "%" }, SUBJECTS.filter(function (k) { return p[k]; }).map(function (k) {
+            return el("span", { style: "--c: " + SUBJ_HUE[k] + "; --f: " + (p[k] / (tot || 1)).toFixed(3) });
+          }).concat(SUBJECTS.some(function (k) { return p[k]; }) || !tot ? [] : [el("span", { style: "--c: var(--teal); --f: 1" })]))]),
+          labels ? el("span", { class: "k-rp-home-x", text: labels[i] }) : null
+        ].filter(Boolean));
       }));
   }
   KOS.reportsHomeCard = homeCard;
 
   /* the parts the month, term and year pages share (reportlong.js) */
   KOS.reportsKit = {
-    el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, tile: tile, tiles: tiles, crumbs: crumbs,
-    stacked: stacked, legend: legend, bars: bars, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
-    cover: cover, heat: heat, lengths: lengths, personaChip: personaChip, hiLo: hiLo, flowList: flowList, nextUp: nextUp,
-    open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip,
-    saved: saved, range: range, dm: dm, parse: parse, longRange: longRange, weekOf: weekOf, statusText: statusText,
+    el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
+    stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
+    bars: bars, kvRows: kvRows, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
+    flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,
+    open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip, reportTop: reportTop,
+    saved: saved, range: range, dm: dm, parse: parse, longRange: longRange, weekOf: weekOf, spanOf: spanOf, statusText: statusText,
     unitText: unitText, scoreHist: scoreHist, countryName: countryName, formatName: formatName,
     SUBJ_HUE: SUBJ_HUE, MOD_HUE: MOD_HUE, MOD_SHORT: MOD_SHORT, MODULES: MODULES, SUBJECTS: SUBJECTS, BAND: BAND, DOW: DOW,
-    MONTHS: MONTHS, MONTH_LONG: MONTH_LONG, PERIOD_KICKER: PERIOD_KICKER, GENRE_HUE: GENRE_HUE, view: view
+    MONTHS: MONTHS, MONTH_LONG: MONTH_LONG, PERIOD_KICKER: PERIOD_KICKER, GENRE_HUE: GENRE_HUE, SEAL: SEAL, view: view
   };
 
   /* ================= the view ================= */
@@ -1125,7 +1465,7 @@
       else if (arg.section === "focus") focusOverview(holder, rep);
       else if (arg.section === "collection") collectionOverview(holder, rep);
       else if (rep.period !== "week" && KOS.reportsLong) KOS.reportsLong.page(holder, rep, reps);
-      else reportPage(holder, rep, reps);
+      else reportPage(holder, rep);
     });
   };
 })();

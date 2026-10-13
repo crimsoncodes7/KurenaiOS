@@ -393,7 +393,7 @@
 .k-hb-row:hover .k-hb-del, .k-hb-del:focus-visible { opacity: 1; }
 .k-hb-hint { margin: var(--sp-8) 0 0; font-size: var(--fs-12-5); line-height: var(--lh-body); color: var(--muted); }
 .k-hb-add { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-8) var(--sp-4) 0; border-block-start: var(--hairline) solid var(--line); }
-.k-hb-add-go { inline-size: var(--hb-tick); flex: 0 0 auto; padding: 0; border: 0; background: none; color: var(--crimson); font-size: var(--fs-16); cursor: pointer; }
+.k-hb-add-go { display: inline-grid; place-items: center; line-height: 1; inline-size: var(--hb-tick); flex: 0 0 auto; padding: 0; border: 0; background: none; color: var(--crimson); font-size: var(--fs-16); cursor: pointer; }
 .k-hb-add-in { flex: 1 1 auto; min-inline-size: 0; padding: var(--sp-6) 0; border: 0; background: none; font: inherit; font-size: var(--fs-14); color: var(--text); }
 .k-hb-add-in::placeholder { color: var(--muted); }
 .k-hb-add-in:focus { outline: none; }

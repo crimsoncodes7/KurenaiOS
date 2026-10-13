@@ -936,8 +936,6 @@
     }
     band.appendChild(el("div", { class: "k-home-hero-body" }, [ring, heroTxt, goal]));
     main.appendChild(band);
-    /* the newest weekly report, for the week after it was saved (24h) */
-    if (KOS.reportsHomeCard) main.appendChild(KOS.reportsHomeCard());
 
     /* ================= Routines · Reminders ================= */
     /* a pure read: todo.habits() materialises the array, and a render
@@ -1254,6 +1252,9 @@
       ]) : null
     ].filter(Boolean));
     mid.appendChild(hours);
+    /* the latest report (24h) sits between Study hours and the plan, in
+       the column under Today; with none saved yet the plan takes it */
+    if (KOS.reportsHomeCard) mid.appendChild(KOS.reportsHomeCard());
 
     /* the week's plan, tickable in place (invariant 82b) */
     var planCard = KOS.pacingHomeCard ? KOS.pacingHomeCard() : null;

@@ -490,7 +490,7 @@
       paintChrome();
     } });
     var pauseBtn = el("button", { type: "button", class: "k-rp-st-round", "data-ui": "reports.story-pause", onclick: function () { setPaused(!paused); } });
-    var closeBtn = el("button", { type: "button", class: "k-rp-st-round", "data-ui": "reports.story-close", "aria-label": "Close the story", text: "✕", onclick: close });
+    var closeBtn = el("button", { type: "button", class: "k-rp-st-round", "data-ui": "reports.story-close", "aria-label": "Close the story", onclick: close }, [KOS.ui.icon("close")]);
     var seal = el("span", { class: "k-rp-st-seal", lang: "ja", "aria-hidden": "true", text: SEAL[f.period] || "週" });
     var head = el("div", { class: "k-rp-st-head" }, [seal,
       el("span", { class: "k-rp-st-label" }, [el("b", { text: LABEL[f.period] || "Your week" }), el("span", { class: "k-mono", text: rangeText(f.start, f.end) })]),
@@ -508,9 +508,9 @@
         [el("span", { class: "k-mono", text: String(i + 1) }), el("span", { text: sl.ch })]);
     }));
     var box = el("div", { class: "k-rp-st", "data-ui": "ui.dialog reports.story", "aria-label": (LABEL[f.period] || "Your week") + " as a story" }, [
-      el("button", { type: "button", class: "k-rp-st-arrow", "data-edge": "prev", "data-ui": "reports.story-prev", "aria-label": "Previous story", text: "‹", onclick: function () { go(-1); } }),
+      el("button", { type: "button", class: "k-rp-st-arrow", "data-edge": "prev", "data-ui": "reports.story-prev", "aria-label": "Previous story", onclick: function () { go(-1); } }, [KOS.ui.icon("chev-left")]),
       frame,
-      el("button", { type: "button", class: "k-rp-st-arrow", "data-edge": "next", "data-ui": "reports.story-next", "aria-label": "Next story", text: "›", onclick: function () { go(1); } }),
+      el("button", { type: "button", class: "k-rp-st-arrow", "data-edge": "next", "data-ui": "reports.story-next", "aria-label": "Next story", onclick: function () { go(1); } }, [KOS.ui.icon("chev-right")]),
       chips,
       el("p", { class: "k-rp-st-hint", text: "← → or tap the sides to move · Space pauses · a quiz waits for your guess" })
     ]);
@@ -531,7 +531,8 @@
     function paintChrome() {
       speedBtn.textContent = speedNow() + "×";
       speedBtn.setAttribute("aria-label", "Speed " + speedNow() + "×");
-      pauseBtn.textContent = paused ? "▶" : "❚❚";
+      pauseBtn.textContent = "";
+      pauseBtn.appendChild(KOS.ui.icon(paused ? "play" : "pause"));
       pauseBtn.setAttribute("aria-label", paused ? "Play" : "Pause");
       KOS.ui.state(stage, "paused", paused);
       counterEl.textContent = (idx + 1) + " / " + list.length;
@@ -581,6 +582,11 @@
       var vw = window.innerWidth || 1024, vh = window.innerHeight || 800;
       var phone = vw < 700;
       var s = phone ? Math.min(vw / 450, vh / 800) : Math.min(1, (vh - 120) / 800, (vw - 160) / 450);
+      /* the phone is full screen (25g): the stage keeps the width's scale
+         and grows taller to the screen's height instead of leaving black
+         bands above and below it */
+      if (phone && vh / (vw / 450) >= 800) { s = vw / 450; frame.style.setProperty("--rp-stage-h", Math.floor(vh / s) + "px"); }
+      else frame.style.removeProperty("--rp-stage-h");
       frame.style.setProperty("--s", Math.max(0.4, s).toFixed(4));
     }
     /* swipes on a phone */

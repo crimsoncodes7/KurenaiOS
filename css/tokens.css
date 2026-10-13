@@ -747,7 +747,7 @@ color-scheme: dark;
 --rp-ref-w: 68px;
 --rp-cover-mini: 22px;       /* the dashboard mosaic */
 --rp-cover-tiny: 24px;       /* Genre DNA's three covers */
---rp-cell-min: 104px;        /* the overview's cover grid */
+--rp-cell-min: 84px;         /* the overview's cover grid */
 --rp-hist-h: 96px;
 --rp-tl-h: 22px;             /* one day row of the Focus timeline */
 --rp-mark: 22px;             /* the plan's ✓ / → tile */
@@ -788,6 +788,28 @@ color-scheme: dark;
 --rp-stage-head-top: 26px;
 --rp-stage-body-top: 84px;
 --rp-stage-foot-h: 52px;
+/* the pages after the layout review (25a/24a measured): */
+--fs-28: 28px;
+--rp-period-w: 400px;        /* the Weekly · Monthly · Termly · Yearly track */
+--rp-words-w: 210px;         /* the Template | ✦ Kurenai switch */
+--rp-mini-switch-w: 170px;   /* Time | Sessions */
+--rp-hero-btn: 44px;         /* ▶ Play and the words pill */
+--rp-genre-l: 96px;          /* a Genre DNA label */
+--rp-coll-side: 250px;       /* the week's Collection card: DNA beside the mosaic */
+--rp-badge: 20px;            /* a cover's score badge and ✓ */
+--rp-topic-time: 60px;
+--rp-topic-rev: 44px;
+--rp-topic-st: 72px;
+--rp-cover-hilo: 34px;
+--rp-cover-row: 36px;
+--rp-cover-creator: 34px;
+--rp-ycol-h: 120px;          /* the year table's hours column */
+--rp-home-chart-min: 72px;
+--rp-ride-gap: 16px;
+--rp-flow-cols: 3;           /* masonry columns at this width (reports.css narrows it) */
+--rp-hero-left: 470px;       /* the hero keeps this for its words before thumbnails */
+--rp-vs-name: 144px;         /* the plan-against-class name and end columns */
+--rp-chapter-d: 352px;
 
 /* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */
 --ease: cubic-bezier(0.2, 0, 0, 1);

@@ -241,7 +241,7 @@ step("G · a week and a month on one morning are both on Home", async (app) => {
   await put(app, W1, R.compute(input({ ledger: [focus("2026-09-15", 19, 30)] }), W1));
   KOS.show("home"); await app.settle();
   const card = main(app).querySelector("[data-ui~='reports.home-card']");
-  assert(card && /Ready this morning/.test(card.textContent), "Ready this morning");
+  assert(card && /[2-9] new/.test(card.textContent), "more than one new: " + (card && card.textContent.slice(0, 120)));
   assert(card.querySelectorAll("[data-ui~='reports.home-open']").length >= 2, "a row each");
 });
 

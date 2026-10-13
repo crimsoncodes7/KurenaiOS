@@ -84,7 +84,7 @@
       if (f.records && f.records.streak && f.records.streak.days >= 7) bits.push((f.records.streak.days) + "-day streak");
     }
     if (bits.length > 3) bits = bits.slice(0, 3);
-    if (f.period === "year" && bits.length > 1 && /streak$/.test(bits[bits.length - 1])) bits[bits.length - 1] = "a " + bits[bits.length - 1];
+    if (f.period === "year" && bits.length > 1 && /streak$/.test(bits[bits.length - 1])) bits[bits.length - 1] = (/^(8|11(?!\d)|18(?!\d))/.test(bits[bits.length - 1]) ? "an " : "a ") + bits[bits.length - 1];
     var headline = cap(list(bits)) + ".";
     /* the narrative */
     var keys = Object.keys(s.bySubject || {}).filter(function (k) { return s.bySubject[k] > 0; }).sort(function (a, b) { return s.bySubject[b] - s.bySubject[a]; });

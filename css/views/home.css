@@ -75,7 +75,14 @@ button.k-check-row:hover .k-check-row-text { color: var(--text); text-decoration
 .k-check-row[data-state~="late"] .k-check-row-meta { color: var(--red); }
 
 /* ---------- the middle: Up next · Today/Upcoming · Study hours · plan ---------- */
-.k-home-mid { display: grid; grid-template-columns: var(--home-next-w) minmax(0, 1fr); gap: var(--sp-20); align-items: stretch; }
+/* three columns: Up next | Today | Upcoming, then Study hours | the
+   latest report | the week's plan under them (review after Reports: the
+   report card had a row of its own with nothing beside it). The pair
+   spans the two right columns with the same gap, so its cards line up
+   with the report and the plan below. */
+.k-home-mid { display: grid; grid-template-columns: var(--home-next-w) minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-20); align-items: stretch; }
+.k-home-mid > .k-home-pair { grid-column: span 2; }
+.k-home-mid:has(> .k-rp-home[hidden]) > .k-plan, .k-home-mid > .k-rp-home:last-child { grid-column: span 2; }
 .k-upnext { display: flex; flex-direction: column; padding: var(--sp-22) var(--sp-24); }
 .k-upnext-head { display: flex; align-items: center; gap: var(--sp-8); }
 .k-upnext-head .k-seg { margin-inline-start: auto; background: var(--s2); padding: var(--sp-2); font-size: var(--fs-12); }
@@ -142,6 +149,10 @@ button.k-hours-fact:hover .k-hours-fact-v { color: var(--crimson); }
 .k-plan-status[data-state~="behind"] { color: var(--amber); }
 .k-plan-count { font-size: var(--fs-12); color: var(--muted); white-space: nowrap; }
 .k-plan-segs { flex: 1 1 0; display: flex; gap: var(--rail-mark); margin-inline: var(--sp-8); min-inline-size: var(--sp-40); }
+/* in Home's narrower third column the week's ticks and "Pacing →" share
+   the line under the heading instead of leaving it half empty */
+.k-home-mid > .k-plan .k-plan-head .k-link { order: 10; }
+.k-home-mid > .k-plan .k-plan-segs { flex: 1 1 var(--sp-64); order: 9; margin-inline: 0; }
 .k-plan-segs > span { flex: 1 1 0; block-size: var(--bar-6); border-radius: var(--rail-mark); background: var(--s2); }
 .k-plan-segs > span[data-state~="done"] { background: var(--teal); }
 .k-plan-list { margin-block-start: var(--sp-8); }
@@ -198,7 +209,8 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 
 /* ---------- the tiers, widest first ---------- */
 @media (max-width: 1240px) {
-.k-home-mid { grid-template-columns: minmax(0, 1fr); }
+.k-home-mid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-home-mid > .k-upnext, .k-home-mid > .k-plan, .k-home-mid:has(> .k-rp-home[hidden]) > .k-hours { grid-column: 1 / -1; }
 .k-desks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -208,6 +220,8 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 
 @media (max-width: 860px) {
 .k-home-pair-top, .k-home-pair { grid-template-columns: minmax(0, 1fr); }
+.k-home-mid { grid-template-columns: minmax(0, 1fr); }
+.k-home-mid > * { grid-column: 1 / -1; }
 .k-home-hero-body { flex-wrap: wrap; }
 }
 

@@ -706,7 +706,13 @@ source comments and audit notes refer to it.
     nothing (smoke56, smoke70) and selecting a past report swaps the view
     without recomputing; the Collection filter, layout and sort are per
     visit, never stored. A report's own clicks may write (Next up's "Add to
-    plan" adds a plan row). It is reached from the bell (kind `reports`,
+    plan" adds a plan row). The words in full (headline, narrative, the
+    Template | ✦ Kurenai switch, Share/Export) are read on the Reports
+    page; a report's own page keeps only the headline, in its story hero
+    beside ▶ Play and the words pill (25a). No page leaves dead space: a
+    grid row's last card widens to close it (`pack`), uneven cards deal
+    into measured masonry columns, and of two side-by-side columns the
+    shorter rides along (sticky). It is reached from the bell (kind `reports`,
     invariant 95), the Home card, Home's Study hours card and search.
 102b. The words are the template's unless the user picks ✦ Kurenai for
     that report: ONE `KOS.ai.chat("generation")` request carrying
@@ -724,9 +730,12 @@ source comments and audit notes refer to it.
     shows each story finished. The share card and export
     (`KOS.reportShare`) are made on the device from the saved report; the
     Collection's titles are OFF by default in every format. The Home card
-    shows the newest week for 7 days after it was saved, "New" until its
-    notification is read — read by a click ("Read the report" or the
-    bell), never by a render.
+    sits in Home's middle row (Study hours · the report · the week's plan,
+    under Up next · Today · Upcoming) and shows the newest report as the
+    full card: "New" until its notification is read (by a click, "Read
+    the report" or the bell, never by a render), and never shrunk to a
+    row after reading; other reports new that morning list under it. With
+    none saved the slot is hidden and the plan takes its column.
 102d. Months, terms and years are saved like weeks, on their first
     morning (a month on the 1st, a term the morning after its last week, a
     year on 1 September) and built by the same pure `compute`. A TERM is a

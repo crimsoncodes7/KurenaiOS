@@ -1017,7 +1017,17 @@
      "⌕" search mark sat at half the size of the bell beside it). Stroked
      in currentColor; the owning button sizes the svg. */
   var ICONS = {
-    search: [["circle", { cx: "10.5", cy: "10.5", r: "6.5" }], ["path", { d: "M15.5 15.5L20 20" }]]
+    search: [["circle", { cx: "10.5", cy: "10.5", r: "6.5" }], ["path", { d: "M15.5 15.5L20 20" }]],
+    /* glyphs like ‹ › ✕ ▶ ❚❚ sit on the font's baseline, not the button's
+       centre (review after Reports: every round control looked off) */
+    "chev-left": [["path", { d: "M14.5 6L8.5 12l6 6", "stroke-linejoin": "round" }]],
+    "chev-right": [["path", { d: "M9.5 6l6 6-6 6", "stroke-linejoin": "round" }]],
+    close: [["path", { d: "M6.5 6.5l11 11M17.5 6.5l-11 11" }]],
+    play: [["path", { d: "M8 5.5v13l10.5-6.5z", fill: "currentColor", stroke: "none" }]],
+    pause: [["path", { d: "M8.5 6v12M15.5 6v12", "stroke-width": "3" }]],
+    "arrow-right": [["path", { d: "M5 12h13M13 6.5l5.5 5.5-5.5 5.5", "stroke-linejoin": "round" }]],
+    share: [["path", { d: "M12 15V4M7.5 8.5L12 4l4.5 4.5", "stroke-linejoin": "round" }], ["path", { d: "M5 13v5.5h14V13", "stroke-linejoin": "round" }]],
+    download: [["path", { d: "M12 4v11M7.5 10.5L12 15l4.5-4.5", "stroke-linejoin": "round" }], ["path", { d: "M5 19.5h14" }]]
   };
   function icon(name) {
     var NS = "http://www.w3.org/2000/svg";
