@@ -209,7 +209,7 @@
       }
       const ty = { name, args, arr: 0 };
       if (isOp("?") && (peek(1).t === "id" || isOp("[", 1) || isOp(">", 1) || isOp(",", 1) || isOp(")", 1))) { p++; ty.nullable = true; }
-      while (isOp("[") && (isOp("]", 1) || isOp(",", 1))) { p++; while (acc(",")); expect("]"); ty.arr++; }
+      while (isOp("[") && (isOp("]", 1) || isOp(",", 1))) { p++; let commas = 0; while (acc(",")) commas++; expect("]"); ty.arr++; if (commas && ty.arr === 1) ty.rank = commas + 1; }
       return ty;
     }
     function needType() {
@@ -595,7 +595,7 @@
           const ta = tryTypeArgs(); if (ta) e.targs = ta; continue;
         }
         if (t.t === "op" && t.v === "(") { e = { k: "call", f: e, args: args(), line: t.line }; continue; }
-        if (t.t === "op" && t.v === "[") { p++; const i = expr(); expect("]"); e = { k: "idx", o: e, i, line: t.line }; continue; }
+        if (t.t === "op" && t.v === "[") { p++; const i = expr(); const i2 = []; while (acc(",")) i2.push(expr()); expect("]"); e = { k: "idx", o: e, i, i2: i2.length ? i2 : undefined, line: t.line }; continue; }
         if (t.t === "op" && (t.v === "++" || t.v === "--")) { p++; e = { k: "post", op: t.v, a: e, line: t.line }; continue; }
         if (t.t === "op" && t.v === "!" && (isOp(".", 1) || isOp(";", 1) || isOp(")", 1))) { p++; continue; } // null-forgiving
         if (t.t === "kw" && t.v === "switch") {
@@ -638,8 +638,11 @@
                 return base; })();
               if (isOp("[")) {
                 p++;
-                if (acc("]")) { let arr = 1; while (isOp("[")) { p++; expect("]"); arr++; } const init = arrayInit(); return { k: "newarr", type: ty, items: init.items, line }; }
-                const size = expr(); if (isOp(",")) throw unsupported("multi-dimensional arrays", line); expect("]");
+                if (isOp(",")) { let rank = 1; while (acc(",")) rank++; expect("]"); if (!isOp("{")) throw new CsError("CS1586", "Array creation must have array size or array initializer", line, "compile", file); const init = arrayInit(); return { k: "newgrid", type: ty, rank, items: init.items, line }; }
+                if (acc("]")) { let arr = 1; while (isOp("[")) { p++; expect("]"); arr++; } if (!isOp("{")) throw new CsError("CS1586", "Array creation must have array size or array initializer", line, "compile", file); const init = arrayInit(); return { k: "newarr", type: ty, items: init.items, line }; }
+                const sizes = [expr()]; while (acc(",")) sizes.push(expr());
+                if (sizes.length > 1) { expect("]"); const init = isOp("{") ? arrayInit() : null; return { k: "newgrid", type: ty, sizes, rank: sizes.length, items: init ? init.items : null, line }; }
+                const size = sizes[0]; expect("]");
                 let jag = 0; while (isOp("[") && isOp("]", 1)) { p += 2; jag++; }
                 const init = isOp("{") ? arrayInit() : null;
                 return { k: "newarr", type: ty, size, items: init ? init.items : null, jag, line };
@@ -654,6 +657,12 @@
           break;
         case "op":
           if (t.v === "(") {
+            /* a named tuple literal: (x: 1, y: 2) */
+            if (isId() && isOp(":", 1) && !isOp("::", 1)) {
+              const names = [], items = [];
+              do { if (isId() && isOp(":", 1)) { names.push(next().v); p++; } else names.push(null); items.push(expr()); } while (acc(","));
+              expect(")"); return { k: "tuple", items, names, line };
+            }
             const e = expr();
             if (isOp(",")) { const items = [e]; while (acc(",")) items.push(expr()); expect(")"); return { k: "tuple", items, line }; }
             expect(")"); return e;
@@ -715,6 +724,9 @@
 
   const keyOf = (v) => v instanceof D ? "d" + v.v : v instanceof Ch ? "c" + v.c : v instanceof CsEnum ? "e" + v.type + v.value : typeof v === "string" ? "s" + v : typeof v === "number" ? "d" + v : typeof v === "boolean" ? "b" + v : v instanceof CsTuple ? "t" + v.items.map(keyOf).join("|") : v;
 
+  /* a Dictionary/HashSet made with StringComparer.OrdinalIgnoreCase keys
+     strings by their lower case; a Sorted* collection lists in key order */
+  const dkey = (o, v) => o.ci && typeof v === "string" ? "s" + v.toLowerCase() : keyOf(v);
   const NETNAME = { int: "System.Int32", long: "System.Int64", string: "System.String", double: "System.Double", bool: "System.Boolean", char: "System.Char", decimal: "System.Decimal", float: "System.Single", object: "System.Object" };
   const netName = (ty) => !ty ? "System.Object" : NETNAME[ty.name] || ty.name;
 
@@ -785,7 +797,7 @@
     if (v instanceof CsTuple) return "(" + v.items.map(str).join(", ") + ")";
     if (v instanceof CsKvp) return "[" + str(v.Key) + ", " + str(v.Value) + "]";
     if (v instanceof CsSB) return v.s;
-    if (v instanceof CsList) return v.arr ? v.tname + "[]" : "System.Collections.Generic.List`1[" + v.tname + "]";
+    if (v instanceof CsList) return v.arr ? v.tname + "[" + (v.dims ? ",".repeat(v.dims.length - 1) : "") + "]" : "System.Collections.Generic.List`1[" + v.tname + "]";
     if (v instanceof CsDict) return "System.Collections.Generic.Dictionary`2[" + v.tk + "," + v.tv + "]";
     if (v instanceof CsObj) return CUR ? CUR.objToString(v) : v.cls.name;
     if (v instanceof CsFn) return "System.Func`1";
@@ -815,7 +827,7 @@
 
   // ───────────────────────── the interpreter ─────────────────────────
   const BUILTIN_TYPES = new Set(["Console", "Math", "int", "long", "double", "float", "decimal", "string", "String", "char", "bool", "object", "Convert", "List", "Dictionary",
-    "HashSet", "Queue", "Stack", "StringBuilder", "Random", "Environment", "Array", "Enumerable", "StringSplitOptions", "Exception", "ArgumentException",
+    "HashSet", "Queue", "Stack", "SortedDictionary", "SortedList", "SortedSet", "StringBuilder", "Random", "Environment", "Array", "Enumerable", "StringSplitOptions", "Exception", "ArgumentException",
     "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException", "IndexOutOfRangeException", "DivideByZeroException",
     "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "Assert", "Int32", "Double", "Char", "Boolean", "var",
     "Func", "Action", "Predicate", "KeyValuePair", "Tuple", "IEnumerable", "IList", "ICollection", "IDictionary", "IComparable", "Comparer", "StringComparer",
@@ -913,6 +925,8 @@
     }
     // coercion to declared types
     function coerce(v, ty, line) {
+      /* a tuple is a value type: storing it stores a copy */
+      if (v instanceof CsTuple) v = new CsTuple(v.items.slice(), v.names);
       if (!ty || v === null || v === undefined) return v;
       const n = ty.name;
       if (ty.arr || ty.args && ty.args.length && n !== "tuple") return v;
@@ -1023,6 +1037,8 @@
           refs.push([p.name, v]); env.def(p.name, p.mod === "ref" ? v.get() : defaultOf(p.type), p.type); return;
         }
         if (v instanceof Ref) throw new CsError("CS1615", "Argument " + (i + 1) + " may not be passed with the 'ref' keyword", line, "compile");
+        if (v instanceof CsList && p.type && !v.seq && ((p.type.arr && !v.arr) || (!p.type.arr && /List$/.test(p.type.name) && v.arr)))
+          throw new CsError("CS1503", "Argument " + (i + 1) + ": cannot convert from '" + (v.arr ? "array" : "List") + "' to '" + p.type.name + (p.type.arr ? "[]" : "") + "'", line, "compile");
         let cv;
         const pn = p.type && !p.type.arr && !p.type.nullable ? p.type.name : null, NUMT = ["int", "long", "double", "decimal", "float"];
         const wrong = v === undefined ? "void" : pn === "string" && v != null && typeof v !== "string" ? (typeof v === "boolean" ? "bool" : v instanceof Ch ? "char" : typeof v === "number" ? "int" : v instanceof D ? "double" : null)
@@ -1090,19 +1106,22 @@
         throw new CsError("CS1061", "'string' does not contain a definition for '" + name + "'", line, "compile");
       }
       if (o instanceof CsList && o.seq && (name === "Count" || name === "Length")) throw new CsError("CS0428", "A LINQ result (IEnumerable<T>) has no " + name + " property. Call the method: .Count()", line, "compile");
+      if (o instanceof CsList && o.arr && name === "Rank") return o.dims ? o.dims.length : 1;
       if (o instanceof CsList) { if (name === (o.arr ? "Length" : "Count")) return o.items.length; if (name === "Count" && o.arr) throw new CsError("CS0428", "Arrays have Length, not Count. Use .Length (or the LINQ method .Count())", line, "compile"); if (name === "Length" && !o.arr) throw new CsError("CS1061", "'List<T>' does not contain a definition for 'Length'. A list has .Count", line, "compile"); }
-      if (o instanceof CsDict) { if (name === "Count") return o.map.size; if (name === "Keys") return new CsList([...o.map.values()].map((e) => e[0]), o.tk); if (name === "Values") return new CsList([...o.map.values()].map((e) => e[1]), o.tv); }
+      if (o instanceof CsDict) { if (name === "Count") return o.map.size; if (name === "Keys" || name === "Values") { const kc = new CsList(dentries(o).map((e) => e[name === "Keys" ? 0 : 1]), name === "Keys" ? o.tk : o.tv); kc.ro = true; return kc; } }
       if (o instanceof CsSet && name === "Count") return o.map.size;
+      if (o instanceof CsSet && o.sorted && (name === "Min" || name === "Max")) { const xs = enumerate(o, line); return xs.length ? xs[name === "Min" ? 0 : xs.length - 1] : defaultOf({ name: "int" }); }
       if (o instanceof CsQueue && name === "Count") return o.items.length;
       if (o instanceof CsSB && name === "Length") return o.s.length;
       if (o instanceof CsKvp) { if (name === "Key") return o.Key; if (name === "Value") return o.Value; }
       if (o instanceof CsGroup) { if (name === "Key") return o.Key; if (name === "Count") return o.items.length; }
-      if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); if (m) return o.items[+m[1] - 1]; if (o.names) { const i = o.names.indexOf(name); if (i >= 0) return o.items[i]; } }
+      if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); if (m && +m[1] > o.items.length) throw new CsError("CS1061", "'(…)' does not contain a definition for '" + name + "'", line, "compile"); if (m) return o.items[+m[1] - 1]; if (o.names) { const i = o.names.indexOf(name); if (i >= 0) return o.items[i]; } }
       if (o instanceof CsEnum) { }
       throw new CsError("CS1061", "'" + typeName(o) + "' does not contain a definition for '" + name + "'", line, "compile");
     }
     function setMember(o, name, v, line, ctx) {
       if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
+      if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); const i = m ? +m[1] - 1 : o.names ? o.names.indexOf(name) : -1; if (i >= 0 && i < o.items.length) { o.items[i] = v; return; } }
       if (o instanceof CsObj) {
         const pr = findProp(o.cls, name);
         if (pr) {
@@ -1170,13 +1189,15 @@
               const found = ctx.env.find(d.name); if (found && found !== null && found.v.get(d.name) && !found.isRoot) throw new CsError("CS0128", "A local variable named '" + d.name + "' is already defined in this scope", s.line, "compile");
             }
             let v = d.init ? evalIn(d.init, ctx, s.type) : (s.type.name === "var" ? null : undefined);
-            if (d.init && v === undefined) throw new CsError("CS0815", "Cannot assign void to an implicitly-typed variable", s.line, "compile");
+            if (d.init && v === undefined) throw s.type.name === "var" ? new CsError("CS0815", "Cannot assign void to an implicitly-typed variable", s.line, "compile")
+              : new CsError("CS0029", "Cannot implicitly convert type 'void' to '" + s.type.name + "'", s.line, "compile");
             ctx.env.def(d.name, coerce(v, s.type.name === "var" ? null : s.type, s.line), s.type.name === "var" ? null : s.type);
           }
           return;
         case "deconstruct": {
           const v = evalE(s.e, ctx);
           if (!(v instanceof CsTuple)) throw new CsError("CS8129", "Cannot deconstruct this value", s.line, "compile");
+          if (v.items.length !== s.names.length) throw new CsError("CS8132", "Cannot deconstruct a tuple of '" + v.items.length + "' elements into '" + s.names.length + "' variables.", s.line, "compile");
           s.names.forEach((n, i) => { if (n !== "_") ctx.env.def(n, v.items[i], null); });
           return;
         }
@@ -1275,8 +1296,8 @@
       if (v === null || v === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
       if (typeof v === "string") return [...v].map((c) => new Ch(c));
       if (v instanceof CsList) return v.items.slice();
-      if (v instanceof CsDict) return [...v.map.values()].map((e) => new CsKvp(e[0], e[1]));
-      if (v instanceof CsSet) return [...v.map.values()];
+      if (v instanceof CsDict) return dentries(v).map((e) => new CsKvp(e[0], e[1]));
+      if (v instanceof CsSet) return v.sorted ? [...v.map.values()].sort(cmpVals) : [...v.map.values()];
       if (v instanceof CsQueue) return v.stack ? v.items.slice().reverse() : v.items.slice();
       if (v instanceof CsGroup) return v.items.slice();
       throw new CsError("CS1579", "foreach statement cannot operate on variables of type '" + typeName(v) + "'", line, "compile");
@@ -1289,7 +1310,28 @@
       if (e && e.k === "lambda") return evalE(e, ctx);
       return evalE(e, ctx);
     }
+    /* a rectangular array (int[,]): a flat CsList in row-major order with
+       its dimensions, so Length, foreach and string.Join behave as in .NET */
+    function dentries(o) { const es = [...o.map.values()]; return o.sorted ? es.sort((a, b) => cmpVals(a[0], b[0])) : es; }
+    function makeGrid(rows, dims, elT, line) {
+      const g = new CsList(rows, netName(elT), true); g.dims = dims; return g;
+    }
+    function gridFromInit(items, rank, elT, ctx, line) {
+      const dims = [];
+      (function shape(xs, d) { dims[d] = xs.length; if (d + 1 < rank) xs.forEach((x) => { if (!x || x.k !== "coll") throw new CsError("CS0846", "A nested array initializer is expected", line, "compile"); if (dims[d + 1] !== undefined && x.items.length !== dims[d + 1]) throw new CsError("CS0847", "An array initializer of length '" + dims[d + 1] + "' is expected", line, "compile"); shape(x.items, d + 1); }); })(items, 0);
+      const flat = [];
+      (function walk(xs, d) { xs.forEach((x) => { if (d + 1 < rank) walk(x.items, d + 1); else flat.push(coerce(evalE(x, ctx), elT)); }); })(items, 0);
+      return makeGrid(flat, dims, elT, line);
+    }
+    function gridIndex(o, idx, line) {
+      if (!o.dims) throw new CsError("CS0022", "Wrong number of indices inside []; expected 1", line, "compile");
+      if (idx.length !== o.dims.length) throw new CsError("CS0022", "Wrong number of indices inside []; expected " + o.dims.length, line, "compile");
+      let k = 0;
+      idx.forEach((v, d) => { const n = nv(v); if (n < 0 || n >= o.dims[d] || !Number.isInteger(n)) throw exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line); k = k * o.dims[d] + n; });
+      return k;
+    }
     function makeColl(e, ty, ctx) {
+      if (ty && ty.rank && ty.arr === 1) return gridFromInit(e.items, ty.rank, { name: ty.name }, ctx, e.line);
       const items = e.items.map((x) => x.k === "coll" ? makeColl(x, ty && ty.arr > 1 ? Object.assign({}, ty, { arr: ty.arr - 1 }) : null, ctx) : evalE(x, ctx));
       const elT = ty ? (ty.arr ? { name: ty.name } : ty.args && ty.args[0]) : null;
       const isList = ty && !ty.arr && /List$/.test(ty.name);
@@ -1370,9 +1412,10 @@
         }
         case "idx": {
           const o = evalE(target.o, ctx); const i = evalE(target.i, ctx);
+          if (o instanceof CsList && (target.i2 || o.dims)) { o.items[gridIndex(o, [i].concat((target.i2 || []).map((x) => evalE(x, ctx))), line)] = v; return v; }
           if (o instanceof CsList && o.seq) throw new CsError("CS0021", "Cannot apply indexing with [] to an IEnumerable<T>. Call .ToList() first, or use .ElementAt(i)", e.line, "compile");
           if (o instanceof CsList) { const k = nv(i); if (k < 0 || k >= o.items.length || !Number.isInteger(k)) throw o.arr ? exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line) : exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); o.items[k] = v; return v; }
-          if (o instanceof CsDict) { const k = keyOf(i); o.map.set(k, [i, v]); return v; }
+          if (o instanceof CsDict) { const k = dkey(o, i); const had = o.map.get(k); o.map.set(k, [had ? had[0] : i, v]); return v; }
           if (typeof o === "string") throw new CsError("CS0200", "Property or indexer 'string.this[int]' cannot be assigned to -- it is read only (strings are immutable)", line, "compile");
           if (o === null) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
           throw new CsError("CS0021", "Cannot apply indexing with [] to an expression of type '" + typeName(o) + "'", line, "compile");
@@ -1397,7 +1440,7 @@
         case "this": return ctx.self;
         case "base": return { __base: true };
         case "interp": return e.parts.map((pt) => typeof pt === "string" ? pt : align(formatSpec(evalE(pt.e, ctx), pt.fmt), pt.align)).join("");
-        case "tuple": return new CsTuple(e.items.map((x) => evalE(x, ctx)));
+        case "tuple": return new CsTuple(e.items.map((x) => evalE(x, ctx)), e.names || null);
         case "coll": return makeColl(e, null, ctx);
         case "default": return defaultOf(e.type);
         case "cond": return truthy(evalE(e.c, ctx), e.line) ? evalE(e.a, ctx) : evalE(e.b, ctx);
@@ -1448,9 +1491,10 @@
           const o = evalE(e.o, ctx); const i = evalE(e.i, ctx);
           if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", e.line);
           if (typeof o === "string") { const k = nv(i); if (k < 0 || k >= o.length) throw exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", e.line); return new Ch(o[k]); }
-          if (o instanceof CsList && o.seq) throw new CsError("CS0021", "Cannot apply indexing with [] to an IEnumerable<T>. Call .ToList() first, or use .ElementAt(i)", e.line, "compile");
+          if (o instanceof CsList && (e.i2 || o.dims)) return o.items[gridIndex(o, [i].concat((e.i2 || []).map((x) => evalE(x, ctx))), e.line)];
+          if (o instanceof CsList && (o.seq || o.ro)) throw new CsError("CS0021", o.ro ? "Cannot apply indexing with [] to an expression of type 'Dictionary<TKey, TValue>.KeyCollection'" : "Cannot apply indexing with [] to an IEnumerable<T>. Call .ToList() first, or use .ElementAt(i)", e.line, "compile");
           if (o instanceof CsList) { const k = nv(i); if (k < 0 || k >= o.items.length || !Number.isInteger(k)) throw o.arr ? exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", e.line) : exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", e.line); return o.items[k]; }
-          if (o instanceof CsDict) { const k = keyOf(i); if (!o.map.has(k)) throw exc("KeyNotFoundException", "The given key '" + str(i) + "' was not present in the dictionary.", e.line); return o.map.get(k)[1]; }
+          if (o instanceof CsDict) { const k = dkey(o, i); if (!o.map.has(k)) throw exc("KeyNotFoundException", "The given key '" + str(i) + "' was not present in the dictionary.", e.line); return o.map.get(k)[1]; }
           if (o instanceof CsSB) return new Ch(o.s[nv(i)]);
           throw new CsError("CS0021", "Cannot apply indexing with [] to an expression of type '" + typeName(o) + "'", e.line, "compile");
         }
@@ -1469,6 +1513,14 @@
         }
         case "call": return evalCall(e, ctx);
         case "new": return evalNew(e, ctx);
+        case "newgrid": {
+          const elT = { name: e.type.name, args: e.type.args };
+          if (e.items) return gridFromInit(e.items, e.rank, elT, ctx, e.line);
+          const dims = e.sizes.map((x) => nv(evalE(x, ctx)));
+          if (dims.some((n) => n < 0)) throw exc("OverflowException", "Arithmetic operation resulted in an overflow.", e.line);
+          const d0 = defaultOf(elT);
+          return makeGrid(Array.from({ length: dims.reduce((a, b) => a * b, 1) }, () => d0), dims, elT, e.line);
+        }
         case "newarr": {
           const elT = e.type ? { name: e.type.name, args: e.type.args } : null;
           if (e.items) { const items = e.items.map((x) => x.k === "coll" ? makeColl(x, null, ctx) : evalE(x, ctx)).map((x) => coerce(x, elT)); return new CsList(items, netName(elT) || (items.length ? netName({ name: typeName(items[0]) }) : "System.Object"), true); }
@@ -1507,6 +1559,7 @@
     function cast(v, ty, line) {
       const n = ty.name;
       if (v === null) { if (["int", "double", "char", "bool", "long"].includes(n)) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line); return null; }
+      if (ty.arr) { if (v instanceof CsList && v.arr) return v; throw exc("InvalidCastException", "Unable to cast object of type '" + typeName(v) + "' to type '" + n + "[]'.", line); }
       switch (n) {
         case "int": case "long": case "short": case "byte": if (v instanceof D) { if (!isFinite(v.v)) return -2147483648; return Math.trunc(v.v); } if (v instanceof Ch) return nv(v); if (v instanceof CsEnum) return v.value; if (typeof v === "number") return v; break;
         case "double": case "float": case "decimal": if (isNum(v)) return new D(nv(v)); break;
@@ -1527,11 +1580,14 @@
       const T = ty.args || [];
       let o;
       switch (n) {
-        case "List": case "IList": o = new CsList(args[0] instanceof CsList ? args[0].items.slice() : args[0] && typeof args[0] !== "number" ? enumerate(args[0], e.line) : [], netName(T[0])); break;
-        case "Dictionary": o = new CsDict(netName(T[0]), netName(T[1])); if (args[0] instanceof CsDict) for (const [k, v] of args[0].map) o.map.set(k, v.slice()); break;
-        case "HashSet": o = new CsSet(); if (args[0]) for (const x of enumerate(args[0], e.line)) o.map.set(keyOf(x), x); break;
-        case "Queue": o = new CsQueue(false); if (args[0]) o.items = enumerate(args[0], e.line); break;
-        case "Stack": o = new CsQueue(true); if (args[0]) o.items = enumerate(args[0], e.line); break;
+        case "List": case "IList": o = new CsList(args[0] instanceof CsList ? args[0].items.slice() : args[0] && typeof args[0] !== "number" ? enumerate(args[0], e.line) : [], netName(T[0])); o.elT = T[0] || null; break;
+        case "Dictionary": case "SortedDictionary": case "SortedList":
+          o = new CsDict(netName(T[0]), netName(T[1])); o.sorted = n !== "Dictionary"; o.ci = args.some((x) => x === "CI");
+          if (args[0] instanceof CsDict) for (const v of args[0].map.values()) o.map.set(dkey(o, v[0]), v.slice()); break;
+        case "HashSet": case "SortedSet": o = new CsSet(); o.sorted = n === "SortedSet"; o.ci = args.some((x) => x === "CI");
+          if (args[0] && args[0] !== "CI") for (const x of enumerate(args[0], e.line)) o.map.set(dkey(o, x), x); break;
+        case "Queue": o = new CsQueue(false); o.elT = T[0] || null; if (args[0]) o.items = enumerate(args[0], e.line); break;
+        case "Stack": o = new CsQueue(true); o.elT = T[0] || null; if (args[0]) o.items = enumerate(args[0], e.line); break;
         case "StringBuilder": o = new CsSB(args[0] ? str(args[0]) : ""); break;
         case "Random": return (rnd = new CsRandom(args.length ? nv(args[0]) : 12345));
         case "string": case "String": return str(args[0]).repeat(nv(args[1]));
@@ -1545,9 +1601,9 @@
       }
       if (e.init) {
         for (const it of e.init.items) {
-          if (it.add) { const v = evalE(it.add, ctx); if (o instanceof CsList) o.items.push(coerce(v, T[0])); else if (o instanceof CsSet) o.map.set(keyOf(v), v); else throw new CsError("CS1922", "Cannot initialize this type with a collection initializer", e.line, "compile"); }
-          else if (it.pair) { const k = evalE(it.pair[0], ctx), v = evalE(it.pair[1], ctx); const kk = keyOf(k); if (o.map.has(kk)) throw exc("ArgumentException", "An item with the same key has already been added. Key: " + str(k), e.line); o.map.set(kk, [k, coerce(v, T[1])]); }
-          else if (it.key) { const k = evalE(it.key, ctx), v = evalE(it.e, ctx); o.map.set(keyOf(k), [k, coerce(v, T[1])]); }
+          if (it.add) { const v = evalE(it.add, ctx); if (o instanceof CsList) o.items.push(coerce(v, T[0])); else if (o instanceof CsSet) o.map.set(dkey(o, v), v); else throw new CsError("CS1922", "Cannot initialize this type with a collection initializer", e.line, "compile"); }
+          else if (it.pair) { const k = evalE(it.pair[0], ctx), v = evalE(it.pair[1], ctx); const kk = dkey(o, k); if (o.map.has(kk)) throw exc("ArgumentException", "An item with the same key has already been added. Key: " + str(k), e.line); o.map.set(kk, [k, coerce(v, T[1])]); }
+          else if (it.key) { const k = evalE(it.key, ctx), v = evalE(it.e, ctx); const kk = dkey(o, k), had = o.map.get(kk); o.map.set(kk, [had ? had[0] : k, coerce(v, T[1])]); }
           else if (it.set) throw new CsError("CS0117", "'" + n + "' does not contain a definition for '" + it.set + "'", e.line, "compile");
         }
       }
@@ -1564,6 +1620,7 @@
       if (tn === "Environment" && n === "NewLine") return "\n";
       if (tn === "StringSplitOptions") return n;
       if (tn === "StringComparison") return n;
+      if (tn === "StringComparer") return n.indexOf("IgnoreCase") >= 0 ? "CI" : "CS";
       if (tn === "MidpointRounding") return n;
       if (tn === "Console" && n === "Out") return { __type: "Console" };
       return NOPE;
@@ -1730,7 +1787,7 @@
         }
         case "string": case "String":
           switch (n) {
-            case "Join": { const sep = str(a[0]); const items = a.length === 2 && (a[1] instanceof CsList || a[1] instanceof CsSet || a[1] instanceof CsGroup) ? enumerate(a[1], line) : a.slice(1); return items.map(str).join(sep); }
+            case "Join": { const sep = str(a[0]); const items = a.length === 2 && (a[1] instanceof CsList || a[1] instanceof CsSet || a[1] instanceof CsGroup || a[1] instanceof CsQueue || a[1] instanceof CsDict) ? enumerate(a[1], line) : a.slice(1); return items.map(str).join(sep); }
             case "IsNullOrEmpty": return a[0] === null || a[0] === ""; case "IsNullOrWhiteSpace": return a[0] === null || String(a[0]).trim() === "";
             case "Concat": return a.length === 1 && a[0] instanceof CsList ? a[0].items.map(str).join("") : a.map(str).join(""); case "Format": return composite(a[0], a.slice(1), line);
             case "Compare": return Math.sign(String(a[0]).localeCompare(String(a[1]))); case "Equals": return a[0] === a[1];
@@ -1747,6 +1804,8 @@
           if (n === "Sort") { sortList(a[0], a[1], line); return; }
           if (n === "Reverse") { a[0].items.reverse(); return; }
           if (n === "IndexOf") return a[0].items.findIndex((x) => equals(x, a[1]));
+          if (n === "BinarySearch") { const L = a[0].items; let lo = 0, hi = L.length - 1; while (lo <= hi) { const mid = (lo + hi) >> 1, c = cmpVals(L[mid], a[1]); if (c === 0) return mid; if (c < 0) lo = mid + 1; else hi = mid - 1; } return ~lo; }
+          if (n === "Exists") return a[0].items.some((x) => callFn(a[1], [x], line));
           if (n === "Empty") return new CsList([], "System.Object", true);
           if (n === "Fill") { a[0].items.fill(a[1]); return; }
           if (n === "Copy") { for (let i = 0; i < nv(a[2]); i++) a[1].items[i] = a[0].items[i]; return; }
@@ -1878,10 +1937,23 @@
       }
       if (o instanceof CsList) {
         const L = o.items;
+        if (o.ro && ["Add", "Remove", "RemoveAt", "Insert", "Clear", "AddRange", "Sort", "IndexOf", "Find", "ForEach"].includes(n)) throw new CsError("CS1061", "'Dictionary<TKey, TValue>.KeyCollection' does not contain a definition for '" + n + "'. Copy it into a List first", line, "compile");
         if (o.seq && ["Add", "Remove", "RemoveAt", "Insert", "Clear", "AddRange", "Sort", "IndexOf", "Find", "ForEach"].includes(n)) throw new CsError("CS1061", "'IEnumerable<T>' does not contain a definition for '" + n + "'. Call .ToList() first", line, "compile");
         if (o.arr && ["Add", "Remove", "RemoveAt", "Insert", "Clear", "AddRange"].includes(n)) throw new CsError("CS1061", "Arrays have a fixed size: an array does not contain '" + n + "'. Use a List<T> to add or remove items", line, "compile");
+        if (o.arr && ["Find", "FindAll", "FindIndex", "RemoveAll", "GetRange", "ForEach", "Exists", "TrueForAll"].includes(n)) throw new CsError("CS1061", "'" + o.tname.replace("System.Int32", "int").replace("System.String", "string") + "[]' does not contain a definition for '" + n + "'. Use Array." + n + "(array, …)", line, "compile");
+        if (n === "Length" && o.arr) throw new CsError("CS1955", "Non-invocable member 'Array.Length' cannot be used like a method.", line, "compile");
+        if ((n === "Add" || n === "Insert") && !o.arr) {
+          const v = n === "Add" ? a[0] : a[1], T = o.tname;
+          const got = typeof v === "number" ? "int" : typeof v === "string" ? "string" : typeof v === "boolean" ? "bool" : v instanceof D ? (v.m ? "decimal" : "double") : v instanceof Ch ? "char" : null;
+          const want = { "System.String": "string", "System.Int32": "int", "System.Boolean": "bool", "System.Double": "double", "System.Char": "char" }[T];
+          const fits = !want || !got || got === want || (want === "double" && (got === "int" || got === "char")) || (want === "int" && got === "char");
+          if (!fits) throw new CsError("CS1503", "Argument " + (n === "Add" ? 1 : 2) + ": cannot convert from '" + got + "' to '" + want + "'", line, "compile");
+        }
         switch (n) {
-          case "Add": L.push(a[0]); return; case "AddRange": L.push(...enumerate(a[0], line)); return; case "Clear": L.length = 0; return;
+          case "GetLength": { const d = nv(a[0]); if (o.dims) { if (d < 0 || d >= o.dims.length) throw exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line); return o.dims[d]; } if (d !== 0) throw exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line); return L.length; }
+          case "Clone": if (o.arr) { const c = new CsList(L.slice(), o.tname, true); if (o.dims) c.dims = o.dims.slice(); return c; } break;
+          case "BinarySearch": { let lo = 0, hi = L.length - 1; while (lo <= hi) { const mid = (lo + hi) >> 1, c = cmpVals(L[mid], a[0]); if (c === 0) return mid; if (c < 0) lo = mid + 1; else hi = mid - 1; } return ~lo; }
+          case "Add": L.push(o.elT && a[0] instanceof CsTuple ? coerce(a[0], o.elT, line) : a[0]); return; case "AddRange": L.push(...enumerate(a[0], line)); return; case "Clear": L.length = 0; return;
           case "Remove": { const i = L.findIndex((x) => equals(x, a[0])); if (i >= 0) { L.splice(i, 1); return true; } return false; }
           case "RemoveAt": { const i = nv(a[0]); if (i < 0 || i >= L.length) throw exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); L.splice(i, 1); return; }
           case "RemoveAll": { const before = L.length; o.items = L.filter((x) => !callFn(a[0], [x], line)); return before - o.items.length; }
@@ -1904,33 +1976,49 @@
       }
       if (o instanceof CsDict) {
         switch (n) {
-          case "Add": { const k = keyOf(a[0]); if (o.map.has(k)) throw exc("ArgumentException", "An item with the same key has already been added. Key: " + str(a[0]), line); o.map.set(k, [a[0], a[1]]); return; }
-          case "TryAdd": { const k = keyOf(a[0]); if (o.map.has(k)) return false; o.map.set(k, [a[0], a[1]]); return true; }
-          case "ContainsKey": return o.map.has(keyOf(a[0]));
+          case "Add": { const k = dkey(o, a[0]); if (o.map.has(k)) throw exc("ArgumentException", "An item with the same key has already been added. Key: " + str(a[0]), line); o.map.set(k, [a[0], a[1]]); return; }
+          case "TryAdd": { const k = dkey(o, a[0]); if (o.map.has(k)) return false; o.map.set(k, [a[0], a[1]]); return true; }
+          case "ContainsKey": return o.map.has(dkey(o, a[0]));
           case "ContainsValue": return [...o.map.values()].some((e) => equals(e[1], a[0]));
-          case "Remove": return o.map.delete(keyOf(a[0]));
+          case "Remove": { const k = dkey(o, a[0]); const had = o.map.get(k); if (a[1] instanceof Ref) a[1].set(had ? had[1] : defaultOf({ name: o.tv === "System.Int32" ? "int" : "x" })); return o.map.delete(k); }
           case "Clear": o.map.clear(); return;
-          case "TryGetValue": { const k = keyOf(a[0]); if (o.map.has(k)) { a[1].set(o.map.get(k)[1]); return true; } a[1].set(defaultOf({ name: o.tv === "System.Int32" ? "int" : o.tv === "System.Double" ? "double" : "x" })); return false; }
-          case "GetValueOrDefault": { const k = keyOf(a[0]); return o.map.has(k) ? o.map.get(k)[1] : a.length > 1 ? a[1] : defaultOf({ name: o.tv === "System.Int32" ? "int" : "x" }); }
+          case "TryGetValue": { const k = dkey(o, a[0]); if (o.map.has(k)) { a[1].set(o.map.get(k)[1]); return true; } a[1].set(defaultOf({ name: o.tv === "System.Int32" ? "int" : o.tv === "System.Double" ? "double" : "x" })); return false; }
+          case "GetValueOrDefault": { const k = dkey(o, a[0]); return o.map.has(k) ? o.map.get(k)[1] : a.length > 1 ? a[1] : defaultOf({ name: o.tv === "System.Int32" ? "int" : "x" }); }
         }
-        const r = linq([...o.map.values()].map((e) => new CsKvp(e[0], e[1])), n, a, line, null); if (r !== NOPE) return r;
+        const r = linq(dentries(o).map((e) => new CsKvp(e[0], e[1])), n, a, line, null); if (r !== NOPE) return r;
       }
       if (o instanceof CsSet) {
         switch (n) {
-          case "Add": { const k = keyOf(a[0]); if (o.map.has(k)) return false; o.map.set(k, a[0]); return true; }
-          case "Contains": return o.map.has(keyOf(a[0])); case "Remove": return o.map.delete(keyOf(a[0])); case "Clear": o.map.clear(); return;
-          case "UnionWith": for (const x of enumerate(a[0], line)) o.map.set(keyOf(x), x); return;
-          case "IntersectWith": { const other = new Set(enumerate(a[0], line).map(keyOf)); for (const k of [...o.map.keys()]) if (!other.has(k)) o.map.delete(k); return; }
+          case "Add": { const k = dkey(o, a[0]); if (o.map.has(k)) return false; o.map.set(k, a[0]); return true; }
+          case "Contains": return o.map.has(dkey(o, a[0])); case "Remove": return o.map.delete(dkey(o, a[0])); case "Clear": o.map.clear(); return;
+          case "UnionWith": for (const x of enumerate(a[0], line)) { const k = dkey(o, x); if (!o.map.has(k)) o.map.set(k, x); } return;
+          case "IntersectWith": { const other = new Set(enumerate(a[0], line).map((x) => dkey(o, x))); for (const k of [...o.map.keys()]) if (!other.has(k)) o.map.delete(k); return; }
+          case "ExceptWith": for (const x of enumerate(a[0], line)) o.map.delete(dkey(o, x)); return;
+          case "SymmetricExceptWith": for (const x of enumerate(a[0], line)) { const k = dkey(o, x); if (o.map.has(k)) o.map.delete(k); else o.map.set(k, x); } return;
+          case "IsSubsetOf": { const other = new Set(enumerate(a[0], line).map((x) => dkey(o, x))); return [...o.map.keys()].every((k) => other.has(k)); }
+          case "IsSupersetOf": return enumerate(a[0], line).every((x) => o.map.has(dkey(o, x)));
+          case "Overlaps": return enumerate(a[0], line).some((x) => o.map.has(dkey(o, x)));
+          case "SetEquals": { const xs = enumerate(a[0], line), ks = new Set(xs.map((x) => dkey(o, x))); return ks.size === o.map.size && [...ks].every((k) => o.map.has(k)); }
+          case "Min": if (o.sorted) return enumerate(o, line)[0]; break;
+          case "Max": if (o.sorted) { const xs = enumerate(o, line); return xs[xs.length - 1]; } break;
         }
-        const r = linq([...o.map.values()], n, a, line, null); if (r !== NOPE) return r;
+        const r = linq(enumerate(o, line), n, a, line, null); if (r !== NOPE) return r;
       }
       if (o instanceof CsQueue) {
         const empty = () => { if (!o.items.length) throw exc("InvalidOperationException", o.stack ? "Stack empty." : "Queue empty.", line); };
+        switch (n) {
+          case "Enqueue": case "Push": case "Dequeue": case "Pop": case "TryDequeue": case "TryPop":
+            if ((n === "Push" || n === "Pop" || n === "TryPop") !== o.stack) throw new CsError("CS1061", "'" + (o.stack ? "Stack" : "Queue") + "<T>' does not contain a definition for '" + n + "'", line, "compile");
+        }
         switch (n) {
           case "Enqueue": case "Push": o.items.push(a[0]); return;
           case "Dequeue": empty(); return o.items.shift(); case "Pop": empty(); return o.items.pop();
           case "Peek": empty(); return o.stack ? o.items[o.items.length - 1] : o.items[0];
           case "Contains": return o.items.some((x) => equals(x, a[0])); case "Clear": o.items.length = 0; return;
+          case "TryDequeue": case "TryPop": case "TryPeek": {
+            if (!o.items.length) { a[0].set(defaultOf(o.elT || { name: "x" })); return false; }
+            a[0].set(n === "TryPeek" ? (o.stack ? o.items[o.items.length - 1] : o.items[0]) : n === "TryPop" ? o.items.pop() : o.items.shift()); return true;
+          }
         }
         const r = linq(enumerate(o, line), n, a, line, null); if (r !== NOPE) return r;
       }

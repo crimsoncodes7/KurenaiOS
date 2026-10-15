@@ -549,7 +549,11 @@ Claude Design and comes back as a handoff, the way Graphite did.
 > - smoke73–76 (runner and checker, pay and evidence, the content gate,
 >   capstones); invariants 103–108.
 >
-> **Next, one unit at a time:** units 4–6 and capstone 2 (R2), with katas,
+> - Unit 4 (collections: arrays, List, Dictionary, HashSet, queues and
+>   stacks, 2-D arrays, tuples, sorting and searching): 11 lessons, 22 tasks,
+>   10 retrieval cards; 1,445 of 1,445 programs identical to .NET.
+>
+> **Next, one unit at a time:** units 5–6 and capstone 2 (R2), with katas,
 > in-app projects, Rider, GitHub and the .NET runtime (R2–R3) as planned in
 > code-plan.md §12. Not built yet: 26g's runtime download, 26j–26k and
 > 26m–26q (katas, the project IDE, Rider hub and import, export and

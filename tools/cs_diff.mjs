@@ -46,7 +46,7 @@ function dotnet(src, stdin) {
   const ce = /error (CS\d{4})/.exec(all);
   if (ce) res = { kind: "compile", code: ce[1] };
   else if (/^Stack overflow\./m.test(all)) res = { kind: "exception", code: "StackOverflowException", stdout: r.stdout };
-  else if (/Unhandled exception\. System\.(\w+)/.test(all)) res = { kind: "exception", code: /Unhandled exception\. System\.(\w+)/.exec(all)[1], stdout: r.stdout.replace(/Unhandled exception[\s\S]*$/, "") };
+  else if (/Unhandled exception\. System\.([\w.]+)/.test(all)) res = { kind: "exception", code: /Unhandled exception\. System\.([\w.]+)/.exec(all)[1].split(".").pop(), stdout: r.stdout.replace(/Unhandled exception[\s\S]*$/, "") };
   else res = { kind: "ok", stdout: r.stdout };
   cache[key] = res;
   return res;

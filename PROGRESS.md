@@ -30,6 +30,20 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Released 16 October 2026 — Code unit 4: collections
+
+- **Eleven lessons, stage 2 begins:** arrays, `List<T>`, counting with
+  `Dictionary` (the plan's depth reference, written in full), `HashSet`,
+  queues and stacks, 2-D and jagged arrays, tuples, sorting and searching,
+  choosing a collection, collections and methods, and an inventory to
+  practise on; 22 tasks and 10 retrieval cards.
+- **The runner learned unit 4:** `int[,]` grids, `SortedDictionary`/
+  `SortedSet`, `StringComparer.OrdinalIgnoreCase` keys, the rest of the set
+  and queue API, `BinarySearch`, `Clone`, named tuple literals and tuples
+  copied by value, and the compile errors the lessons teach (CS1955, CS1586,
+  CS1503 for a list's item type, CS0022, CS8132, CS0021 on `Keys`). 1,445 of
+  1,445 programs identical to .NET 10.
+
 ## Released 16 October 2026 — Code capstone 1: the text adventure engine
 
 - **The capstone checkpoint (frames 26l, 26k):** six steps — a
