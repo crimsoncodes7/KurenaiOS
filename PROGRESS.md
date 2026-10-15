@@ -30,6 +30,22 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Released 15 October 2026 — Code unit 3: methods and scope
+
+- **Eight lessons:** why methods, parameters and return values, scope and
+  lifetime, overloads with optional and named arguments, `out` and `ref`,
+  guard clauses and validation, a first look at recursion, and decomposing
+  a problem; 16 tasks and 8 retrieval cards.
+- **The runner learned unit 3:** named and optional arguments, `params`,
+  `out`/`ref` (and `out _`) on local methods, decimals that keep their
+  scale (`9.00m` prints `9.00`), the argument exceptions' messages, and the
+  compile errors the lessons teach (CS0161, CS0177, CS1620, CS1503, CS1737,
+  CS1739, CS0128, CS0136, CS8421). 1,062 of 1,062 programs identical to
+  .NET 10.
+- **The inspector's status menu** (Not started · Started · Paused ·
+  Completed) sits beside the confidence as in a subject, and follows the
+  evidence by itself.
+
 ## Released 15 October 2026 — Code: the fourth study space (platform and unit 1)
 
 - **A fourth subject:** Code sits beside CS, Maths and IT on the subject

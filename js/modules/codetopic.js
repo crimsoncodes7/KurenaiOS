@@ -155,8 +155,20 @@
       if (!ev.checks[2] && plan && plan.task.lesson === ref) sub[2] = "Daily 20 today uses it";
       if (ev.checks[3]) sub[3] = "proven in retrieval";
       /* the subjects' own Topic status component (frame 8b): the same head,
-         bar, confidence row and check grid — without the status dropdown,
-         because a Code lesson's status comes from evidence alone */
+         bar, status and confidence row and check grid. The checks come from
+         evidence alone; the status follows them by itself (store.setCheck,
+         KOS.code.syncChecks) and may still be set by hand, as in a subject */
+      function statusSel() {
+        var H = KOS.hub, cur = (KOS.store.peekProgress(SID, ref) || {}).status || "none";
+        var s = el("select", { class: "k-ts-select", "data-ui": "ui.status-select", id: "ts-status", "aria-label": "Topic status",
+          onchange: function () {
+            KOS.store.setStatus(SID, ref, s.value);
+            if (H.renderTree) H.renderTree(SID, ref);
+            KOS.refreshRailCounters && KOS.refreshRailCounters();
+          } }, H.STATUS.map(function (st) { return el("option", { value: st[0], text: H.STATUS_GLYPH[st[0]] + " " + st[1] }); }));
+        s.value = cur;
+        return s;
+      }
       var node = el("section", { class: "k-ts k-cx-ts", "data-ui": "topic.status code.status", "data-state": tone, "aria-label": "Topic status" }, [
         el("div", { class: "k-ts-head", "data-ui": "topic.status-head" }, [
           el("span", { class: "k-kicker", "data-ui": "topic.status-k", text: "Topic status" }),
@@ -165,6 +177,8 @@
         ]),
         el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": pct + "% from evidence", style: "--p: " + pct + "%" }, [el("i")]),
         el("div", { class: "k-ts-row" }, [
+          el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-status" }, [
+            el("label", { class: "sr-only", "data-ui": "topic.status-lbl", for: "ts-status", text: "Status" }), statusSel()]),
           el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-conf" }, [
             el("span", { class: "sr-only", "data-ui": "topic.status-lbl", text: "Confidence" }), rag.node])
         ]),

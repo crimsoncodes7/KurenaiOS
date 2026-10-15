@@ -123,12 +123,12 @@
         while (/[0-9_]/.test(src[i] || "")) s += src[i++];
         if (src[i] === "." && /[0-9]/.test(src[i + 1] || "")) { dbl = true; s += src[i++]; while (/[0-9_]/.test(src[i] || "")) s += src[i++]; }
         if (/[eE]/.test(src[i] || "")) { dbl = true; s += src[i++]; if (/[+-]/.test(src[i])) s += src[i++]; while (/[0-9]/.test(src[i] || "")) s += src[i++]; }
-        let dec = false;
-        if (/[mM]/.test(src[i] || "")) { dbl = true; dec = true; i++; }
+        let dec = false, scale = 0;
+        if (/[mM]/.test(src[i] || "")) { dbl = true; dec = true; i++; scale = /e/i.test(s) ? null : (s.split(".")[1] || "").length; }
         else if (/[dDfF]/.test(src[i] || "")) { dbl = true; i++; }
         let lng = false;
         if (!dbl && /[lLuU]/.test(src[i] || "")) { lng = /[lL]/.test(src[i]); i++; if (/[lLuU]/.test(src[i] || "")) { lng = lng || /[lL]/.test(src[i]); i++; } }
-        toks.push({ t: "num", v: parseFloat(s.replace(/_/g, "")), dbl, dec, lng, line: L }); continue;
+        toks.push({ t: "num", v: parseFloat(s.replace(/_/g, "")), dbl, dec, scale, lng, line: L }); continue;
       }
       if (c === '"') { toks.push({ t: "str", v: readString(false), line: L }); continue; }
       if (c === "@" && src[i + 1] === '"') { i++; toks.push({ t: "str", v: readString(true), line: L }); continue; }
@@ -298,6 +298,7 @@
           if (isKw("out") || isKw("ref") || isKw("params") || isKw("this") || isId("in")) mod = next().v;
           const type = needType(); const name = ident(); let def;
           if (acc("=")) def = expr();
+          else if (ps.some((q) => q.def !== undefined) && mod !== "params") throw new CsError("CS1737", "Optional parameters must appear after all required parameters", peek().line, "compile", file);
           ps.push({ type, name, def, mod });
         } while (acc(","));
       }
@@ -452,8 +453,10 @@
       }
       if (t.t === "id" && t.v === "await") throw unsupported("async / await", line);
       if (t.t === "id" && t.v === "yield") throw unsupported("iterators (yield)", line);
-      if (t.t === "kw" && t.v === "static" && (peek(1).t === "id" || (peek(1).t === "kw" && PRIM.has(peek(1).v)))) p++; // static local function
+      let stat = false;
+      if (t.t === "kw" && t.v === "static" && (peek(1).t === "id" || (peek(1).t === "kw" && PRIM.has(peek(1).v)))) { p++; stat = true; } // static local function
       const d = tryDecl();
+      if (d && stat && d.k === "localfn") d.static = true;
       if (d) { if (d.k !== "localfn") expect(";"); return d; }
       const e = expr(); expect(";");
       if (!["asg", "call", "pre", "post", "new", "await"].includes(e.k)) throw new CsError("CS0201", "Only assignment, call, increment, decrement and new object expressions can be used as a statement", line, "compile", file);
@@ -482,12 +485,13 @@
     function argument() {
       if (isKw("out") || isKw("ref")) {
         const mod = next().v; const line = peek().line;
+        if (isId("_") && (isOp(")", 1) || isOp(",", 1))) { p++; return { k: "outvar", name: " _" + p, line }; } // out _ discards
         if (isId("var") && isId(undefined, 1)) { p++; return { k: "outvar", name: next().v, line }; }
         const save = p; const ty = tryType();
         if (ty && isId()) return { k: "outvar", name: next().v, type: ty, line };
         p = save; return { k: "ref", e: unary(), mod, line };
       }
-      if (isId() && isOp(":", 1)) { p += 2; } // named argument (name ignored)
+      if (isId() && isOp(":", 1)) { const nm = next().v; p++; const e = expr(); return Object.assign({}, e, { argName: nm }); } // named argument
       return expr();
     }
     function args() { expect("("); const a = []; if (!isOp(")")) { do { a.push(argument()); } while (acc(",")); } expect(")"); return a; }
@@ -606,7 +610,7 @@
     function primary() {
       const t = next(); const line = t.line;
       switch (t.t) {
-        case "num": return { k: "lit", v: t.dbl ? (t.dec ? decm(t.v) : new D(t.v)) : t.v, lng: !!t.lng, line };
+        case "num": return { k: "lit", v: t.dbl ? (t.dec ? decm(t.v, t.scale) : new D(t.v)) : t.v, lng: !!t.lng, line };
         case "str": return { k: "lit", v: t.v, line };
         case "chr": return { k: "lit", v: new Ch(t.v), line };
         case "interp": return { k: "interp", parts: t.v.map((pt) => typeof pt === "string" ? pt : { e: parseExprText(pt.expr, pt.line), align: pt.align, fmt: pt.fmt }), line };
@@ -686,7 +690,10 @@
   // ───────────────────────── runtime values ─────────────────────────
   class D { constructor(v) { this.v = v; } }            // double / decimal / float
   // decimal: a D flagged .m whose arithmetic is rounded to 12 places, so 3 * 0.20m == 0.60m
-  const decm = (v) => { const d = new D(Number(v.toFixed(12))); d.m = true; return d; };
+  /* a decimal keeps its scale, as .NET does: 9.00m prints 9.00, + and −
+     keep the larger scale, × adds them (sc null = the shortest form) */
+  const decm = (v, sc) => { const d = new D(Number(v.toFixed(12))); d.m = true; d.sc = sc == null ? null : Math.min(sc, 12); return d; };
+  const scaleOf = (v) => v instanceof D && v.m ? (v.sc != null ? v.sc : ((String(v.v).split(".")[1] || "").length)) : 0;
   class Ch { constructor(c) { this.c = c; } }           // char
   class CsList { constructor(items, tname, arr) { this.items = items; this.tname = tname || "System.Object"; this.arr = !!arr; } }
   class CsDict { constructor(tk, tv) { this.map = new Map(); this.keys = new Map(); this.tk = tk; this.tv = tv; } }
@@ -771,6 +778,7 @@
     if (typeof v === "string") return v;
     if (typeof v === "number") return String(v);
     if (typeof v === "boolean") return v ? "True" : "False";
+    if (v instanceof D && v.m && v.sc != null && isFinite(v.v) && Math.abs(v.v) < 1e15) { const t = v.v.toFixed(v.sc); return /^-0(\.0*)?$/.test(t) ? t.slice(1) : t; }
     if (v instanceof D) return fmtDouble(v.v);
     if (v instanceof Ch) return v.c;
     if (v instanceof CsEnum) return v.name;
@@ -894,12 +902,21 @@
     function findProp(c, name) { for (const k of chain(c)) { const p = k.props.find((x) => x.name === name); if (p) return { p, owner: k }; } return null; }
     function findField(c, name) { for (const k of chain(c)) { const f = k.fields.find((x) => x.name === name); if (f) return { f, owner: k }; } return null; }
 
+    /* the argument exceptions name their parameter, as .NET does */
+    function argMsg(name, a) {
+      const P = (p) => " (Parameter '" + str(p) + "')";
+      if (name === "ArgumentException" && a.length === 2 && typeof a[1] === "string") return str(a[0]) + P(a[1]);
+      if (name === "ArgumentOutOfRangeException" && a.length === 1) return "Specified argument was out of the range of valid values." + P(a[0]);
+      if (name === "ArgumentNullException" && a.length === 1) return "Value cannot be null." + P(a[0]);
+      if ((name === "ArgumentOutOfRangeException" || name === "ArgumentNullException") && a.length === 2 && typeof a[1] === "string") return str(a[1]) + P(a[0]);
+      return null;
+    }
     // coercion to declared types
     function coerce(v, ty, line) {
       if (!ty || v === null || v === undefined) return v;
       const n = ty.name;
       if (ty.arr || ty.args && ty.args.length && n !== "tuple") return v;
-      if (n === "decimal") { if (isNum(v)) return decm(nv(v)); return v; }
+      if (n === "decimal") { if (v instanceof D && v.m) return v; if (isNum(v)) return decm(nv(v), v instanceof D ? null : 0); return v; }
       if (n === "double" || n === "float") { if (typeof v === "number") return new D(v); if (v instanceof Ch) return new D(nv(v)); if (v instanceof D && v.m) return new D(v.v); return v; }
       if (n === "int" || n === "long" || n === "short" || n === "byte") { if (v instanceof Ch) return nv(v); if (v instanceof D) throw new CsError("CS0266", "Cannot implicitly convert type 'double' to '" + n + "'. An explicit conversion exists (are you missing a cast?)", line, "compile"); return v; }
       if (n === "tuple" && v instanceof CsTuple && ty.names && ty.names.some(Boolean)) return new CsTuple(v.items.map((x, i) => coerce(x, ty.args[i], line)), ty.names);
@@ -923,7 +940,7 @@
     // object creation
     function instantiate(c, args, line, init, ctx) {
       if (c.isAbstract || c.isInterface) throw new CsError("CS0144", "Cannot create an instance of the abstract type or interface '" + c.name + "'", line, "compile");
-      if (c.builtin) { const o = new CsObj(c); o.f.set("Message", args.length ? str(args[0]) : (EXC_DEFAULT[c.name] || "Exception of type 'System." + c.name + "' was thrown.")); if (args[1] instanceof CsObj) o.f.set("InnerException", args[1]); applyInit(o, init, ctx); return o; }
+      if (c.builtin) { const o = new CsObj(c); o.f.set("Message", argMsg(c.name, args) || (args.length ? str(args[0]) : (EXC_DEFAULT[c.name] || "Exception of type 'System." + c.name + "' was thrown."))); if (args[1] instanceof CsObj) o.f.set("InnerException", args[1]); applyInit(o, init, ctx); return o; }
       const o = new CsObj(c);
       // field initialisers, base first
       const ch = chain(c).reverse();
@@ -970,28 +987,64 @@
       tick();
       if (m.abstract) throw new CsError("CS0500", "'" + owner.name + "." + m.name + "' cannot be called: it has no body", line, "compile");
       const env = new Env(null);
-      const refs = [];
-      m.params.forEach((p, i) => {
-        if (p.mod === "params") { const rest = args.slice(i); env.def(p.name, rest.length === 1 && rest[0] instanceof CsList ? rest[0] : new CsList(rest.map((x) => coerce(x, { name: p.type.name })), netName(p.type), true), p.type); return; }
-        let v = i < args.length ? args[i] : (p.def !== undefined ? evalIn(p.def, { self: selfObj, cls: owner, env }, p.type) : undefined);
-        if (p.mod === "out" || p.mod === "ref") { refs.push([p.name, v]); env.def(p.name, p.mod === "ref" && v instanceof Ref ? v.get() : defaultOf(p.type), p.type); return; }
-        env.def(p.name, coerce(v, p.type, line), p.type);
-      });
+      const refs = bindParams(m.name, m.params, args, env, line, (p) => evalIn(p.def, { self: selfObj, cls: owner, env }, p.type));
       const ctx = { self: selfObj, cls: owner, env, isStatic: m.mods.has("static"), method: m };
       const r = callDepth(() => execBlock(m.body, ctx));
       for (const [n, ref] of refs) if (ref instanceof Ref) ref.set(env.v.get(n).val);
       const v = r instanceof Ret ? r.v : undefined;
       return coerce(v, m.type, line);
     }
+    /* bind a call's arguments to a method's parameters: named arguments,
+       defaults, params arrays, out/ref (returns the refs to write back) */
+    const MISSING = {};
+    function bindParams(name, params, args, env, line, evalDef) {
+      let a = args;
+      if (args.names && args.names.some(Boolean)) {
+        a = [];
+        args.forEach((v, i) => {
+          const nm = args.names[i];
+          if (!nm) { a[i] = v; return; }
+          const k = params.findIndex((p) => p.name === nm);
+          if (k < 0) throw new CsError("CS1739", "The best overload for '" + name + "' does not have a parameter named '" + nm + "'", line, "compile");
+          a[k] = v;
+        });
+        for (let i = 0; i < a.length; i++) if (!(i in a)) a[i] = MISSING;
+      }
+      const hasParams = params.length && params[params.length - 1].mod === "params";
+      if (!hasParams && a.length > params.length) throw new CsError("CS1501", "No overload for method '" + name + "' takes " + a.length + " arguments", line, "compile");
+      const refs = [];
+      params.forEach((p, i) => {
+        if (p.mod === "params") { const rest = a.slice(i); env.def(p.name, rest.length === 1 && rest[0] instanceof CsList ? rest[0] : new CsList(rest.map((x) => coerce(x, { name: p.type.name })), netName(p.type), true), p.type); return; }
+        const given = i < a.length && a[i] !== MISSING;
+        if (!given && p.def === undefined) throw new CsError("CS7036", "There is no argument given that corresponds to the required parameter '" + p.name + "' of '" + name + "'", line, "compile");
+        const v = given ? a[i] : evalDef(p);
+        if (p.mod === "out" || p.mod === "ref") {
+          if (!(v instanceof Ref)) throw new CsError("CS1620", "Argument " + (i + 1) + " must be passed with the '" + p.mod + "' keyword", line, "compile");
+          refs.push([p.name, v]); env.def(p.name, p.mod === "ref" ? v.get() : defaultOf(p.type), p.type); return;
+        }
+        if (v instanceof Ref) throw new CsError("CS1615", "Argument " + (i + 1) + " may not be passed with the 'ref' keyword", line, "compile");
+        let cv;
+        const pn = p.type && !p.type.arr && !p.type.nullable ? p.type.name : null, NUMT = ["int", "long", "double", "decimal", "float"];
+        const wrong = v === undefined ? "void" : pn === "string" && v != null && typeof v !== "string" ? (typeof v === "boolean" ? "bool" : v instanceof Ch ? "char" : typeof v === "number" ? "int" : v instanceof D ? "double" : null)
+          : NUMT.includes(pn) && (typeof v === "boolean" || typeof v === "string") ? (typeof v === "boolean" ? "bool" : "string") : pn === "bool" && v != null && typeof v !== "boolean" ? (typeof v === "string" ? "string" : "int") : null;
+        if (wrong) throw new CsError("CS1503", "Argument " + (i + 1) + ": cannot convert from '" + wrong + "' to '" + pn + "'", line, "compile");
+        try { cv = coerce(v, p.type, line); }
+        catch (err) { if (err instanceof CsError && (err.code === "CS0266" || err.code === "CS0029")) throw new CsError("CS1503", "Argument " + (i + 1) + ": cannot convert from '" + (/type '([^']+)'/.exec(err.msg || err.message) || [, "?"])[1] + "' to '" + p.type.name + "'", line, "compile"); throw err; }
+        env.def(p.name, cv, p.type);
+      });
+      return refs;
+    }
     function callFn(fn, args, line) {
       tick();
       if (!(fn instanceof CsFn)) { if (typeof fn === "function") return fn(...args); throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line); }
-      if (fn.params.length && typeof fn.params[0] !== "string") {
-        const req = fn.params.filter((p) => p.def === undefined);
-        if (args.length < req.length) throw new CsError("CS7036", "There is no argument given that corresponds to the required parameter '" + req[args.length].name + "'", line, "compile");
-        if (args.length > fn.params.length) throw new CsError("CS1501", "No overload for method takes " + args.length + " arguments", line, "compile");
-      }
       const env = new Env(fn.env);
+      if (fn.params.length && typeof fn.params[0] !== "string") {
+        const refs = bindParams(fn.name || "method", fn.params, args, env, line, (p) => evalE(p.def, { self: fn.self, cls: fn.cls, env, isStatic: fn.isStatic }));
+        const ctx = { self: fn.self, cls: fn.cls, env, isStatic: fn.isStatic };
+        const r = callDepth(() => execBlock(fn.body, ctx));
+        for (const [n, ref] of refs) ref.set(env.v.get(n).val);
+        return r instanceof Ret ? r.v : undefined;
+      }
       fn.params.forEach((p, i) => env.def(typeof p === "string" ? p : p.name, typeof p === "string" ? args[i] : coerce(args[i], p.type, line), typeof p === "string" ? null : p.type));
       const ctx = { self: fn.self, cls: fn.cls, env, isStatic: fn.isStatic };
       if (fn.e) return callDepth(() => evalE(fn.e, ctx));
@@ -1104,7 +1157,7 @@
       for (const s of b.body) if (s.k === "localfn") env.def(s.name, makeLocalFn(s, c2), null);
       for (const s of b.body) { const r = exec(s, c2); if (r) return r; }
     }
-    function makeLocalFn(s, ctx) { const f = new CsFn(s.params, s.body, null, ctx.env, ctx.self, ctx.cls); f.isStatic = ctx.isStatic; f.retType = s.type; return f; }
+    function makeLocalFn(s, ctx) { const f = new CsFn(s.params, s.body, null, ctx.env, ctx.self, ctx.cls); f.isStatic = ctx.isStatic; f.retType = s.type; f.name = s.name; return f; }
     function exec(s, ctx) {
       tick();
       switch (s.k) {
@@ -1274,7 +1327,10 @@
         if (CHECKED) throw exc("OverflowException", "Arithmetic operation resulted in an overflow.", line);
         r = r | 0; // int wraps like unchecked C#
       }
-      if (dbl && ((a instanceof D && a.m) || (b instanceof D && b.m))) return decm(r);
+      if (dbl && ((a instanceof D && a.m) || (b instanceof D && b.m))) {
+        const sa = scaleOf(a), sb = scaleOf(b);
+        return decm(r, op === "*" ? sa + sb : op === "/" ? null : Math.max(sa, sb));
+      }
       return dbl ? new D(r) : r;
     }
     function lookupName(n, ctx, line) {
@@ -1349,7 +1405,7 @@
         case "un": {
           const v = evalE(e.a, ctx);
           if (e.op === "!") return !truthy(v, e.line);
-          if (e.op === "-") { if (!isNum(v)) throw new CsError("CS0023", "Operator '-' cannot be applied to operand of type '" + typeName(v) + "'", e.line, "compile"); return v instanceof D ? new D(-v.v) : -nv(v); }
+          if (e.op === "-") { if (!isNum(v)) throw new CsError("CS0023", "Operator '-' cannot be applied to operand of type '" + typeName(v) + "'", e.line, "compile"); return v instanceof D ? (v.m ? decm(-v.v, v.sc) : new D(-v.v)) : -nv(v); }
           if (e.op === "~") return ~nv(v);
           return v instanceof Ch ? nv(v) : v;
         }
@@ -1436,6 +1492,11 @@
       if (e.k === "cast") return !!(e.type && (e.type.name === "long" || e.type.name === "ulong"));
       if (e.k === "bin" || e.k === "paren") return isLong(e.a, ctx) || isLong(e.b, ctx) || isLong(e.e, ctx);
       if (e.k === "mem" && e.o && e.o.k === "name" && e.o.n === "long") return true;
+      if (e.k === "call" && e.f && e.f.k === "name") {
+        const en = ctx.env.find(e.f.n);
+        const ty = en ? (en.v.get(e.f.n).val || {}).retType : ctx.cls ? ((chain(ctx.cls).map((k) => k.methods && k.methods.get(e.f.n)).find(Boolean) || [])[0] || {}).type : null;
+        return !!(ty && ty.name === "long");
+      }
       return false;
     }
     function staticTypeOf(target, ctx) {
@@ -1511,7 +1572,7 @@
     // ───── calls ─────
     function evalCall(e, ctx) {
       const f = e.f; const line = e.line;
-      const argv = () => e.args.map((a) => a.k === "outvar" || a.k === "ref" ? evalE(a, ctx) : evalE(a, ctx));
+      const argv = () => { const a = e.args.map((x) => evalE(x, ctx)); if (e.args.some((x) => x.argName)) a.names = e.args.map((x) => x.argName || null); return a; };
       if (f.k === "name" && (f.n === "checked" || f.n === "unchecked") && e.args.length === 1 && !ctx.env.find(f.n)) {
         const was = CHECKED; CHECKED = f.n === "checked" ? 1 : 0;
         try { return evalE(e.args[0], ctx); } finally { CHECKED = was; }
@@ -1624,6 +1685,20 @@
           break;
         case "Math": {
           const x = a.map(nv); const anyD = a.some((v) => v instanceof D);
+          /* decimal in, decimal out (with its scale) */
+          if (a[0] instanceof D && a[0].m && ["Abs", "Max", "Min", "Round", "Floor", "Ceiling", "Truncate"].includes(n)) {
+            const s0 = scaleOf(a[0]);
+            switch (n) {
+              case "Abs": return decm(Math.abs(x[0]), s0);
+              case "Max": case "Min": { const w = (n === "Max" ? x[0] >= x[1] : x[0] <= x[1]) ? a[0] : a[1]; return decm(nv(w), scaleOf(w)); }
+              case "Floor": return decm(Math.floor(x[0]), 0); case "Ceiling": return decm(Math.ceil(x[0]), 0); case "Truncate": return decm(Math.trunc(x[0]), 0);
+              case "Round": { const away = a[a.length - 1] === "AwayFromZero", d = a.length > 1 && typeof x[1] === "number" && a[1] !== "AwayFromZero" ? x[1] : 0, m = Math.pow(10, d);
+                /* a decimal is exact, so a written tie is a tie: compare at 1e-9 */
+                const y = Math.abs(x[0]) * m, f = Math.floor(y), frac = y - f;
+                const up = Math.abs(frac - 0.5) < 1e-9 ? (away || f % 2 === 1) : frac > 0.5;
+                return decm(Math.sign(x[0]) * (f + (up ? 1 : 0)) / m, Math.min(s0, d)); }
+            }
+          }
           const wrap = (r) => anyD ? new D(r) : r;
           switch (n) {
             case "Abs": return wrap(Math.abs(x[0])); case "Max": return wrap(Math.max(x[0], x[1])); case "Min": return wrap(Math.min(x[0], x[1]));
@@ -1972,18 +2047,63 @@
       if (e.k === "interp") return "string";
       if (e.k === "paren") return tyOf(e.e);
       if (e.k === "bin" && ["==", "!=", "<", ">", "<=", ">=", "&&", "||"].includes(e.op)) return "bool";
+      if (e.k === "call" && e.f && e.f.k === "name" && FNTY.has(e.f.n)) return FNTY.get(e.f.n);
       return null;
+    }
+    const FNTY = new Map();
+    /* the locals and parameters of the method being walked (CS0136) */
+    let OWN = new Set();
+    function declLocal(name, sc, line, file, dup) {
+      if (!dup && sc.has(name) && OWN.has(name)) errs.push(new CsError("CS0136", "A local or parameter named '" + name + "' cannot be declared in this scope because that name is used in an enclosing local scope to define a local or parameter", line, "compile", file));
+      OWN.add(name);
+    }
+    /* can control reach the end of this statement? (CS0161) */
+    function canEnd(st) {
+      if (!st) return true;
+      switch (st.k) {
+        case "block": return st.body.every(canEnd);
+        case "return": case "throw": return false;
+        case "if": return !st.b || canEnd(st.a) || canEnd(st.b);
+        case "while": case "do": return !(st.c && st.c.k === "lit" && st.c.v === true && !breaks(st.body));
+        case "for": return !((!st.c || (st.c.k === "lit" && st.c.v === true)) && !breaks(st.body));
+        case "switch": return !(st.sections.some((sec) => sec.labels.some((l) => l.def)) && st.sections.every((sec) => sec.body.length && !canEnd(sec.body[sec.body.length - 1]) && !breaks({ k: "block", body: sec.body })));
+        case "try": return (canEnd(st.body) || st.catches.some((c) => canEnd(c.body))) && true;
+        default: return true;
+      }
+    }
+    function breaks(n) {
+      let found = false;
+      (function walk(x) {
+        if (!x || typeof x !== "object" || found) return;
+        if (Array.isArray(x)) { x.forEach(walk); return; }
+        if (x.k === "break") { found = true; return; }
+        if (["while", "do", "for", "foreach", "switch", "localfn", "lambda"].includes(x.k)) return;
+        for (const key of Object.keys(x)) if (key !== "line" && x[key] && typeof x[key] === "object") walk(x[key]);
+      })(n.k === "block" ? n.body : n);
+      return found;
+    }
+    /* a method's body: every path returns (CS0161), out parameters assigned (CS0177) */
+    function checkBody(name, type, params, body, line, file) {
+      if (!body) return;
+      if (type && type.name !== "void" && canEnd(body)) errs.push(new CsError("CS0161", "'" + name + "': not all code paths return a value", line, "compile", file));
+      const asg = assignsIn(body);
+      (body.body || []).forEach(function scan(st) { if (st && st.k === "expr" && st.e && st.e.k === "call") st.e.args.forEach((a) => { if (a.k === "ref" && a.e && a.e.k === "name") asg.add(a.e.n); }); });
+      params.forEach((p) => { if (p.mod === "out" && !asg.has(p.name)) errs.push(new CsError("CS0177", "The out parameter '" + p.name + "' must be assigned to before control leaves the current method", line, "compile", file)); });
     }
     function walkBlockLike(stmts, scope, mem, file) {
       const sc = new Set(scope);
-      for (const s of stmts) if (s.k === "localfn") sc.add(s.name);
+      const fns = new Set();
+      for (const s of stmts) if (s.k === "localfn") {
+        if (fns.has(s.name)) errs.push(new CsError("CS0128", "A local variable or function named '" + s.name + "' is already defined in this scope", s.line, "compile", file));
+        fns.add(s.name); sc.add(s.name); if (s.type) FNTY.set(s.name, s.type.name === "void" ? "void" : s.type.name);
+      }
       /* definite assignment (CS0165), conservatively: a local declared
          without a value is an error only when a later statement in the
          same block reads it before ANY statement could have assigned it */
       const unset = new Set(), here = new Set();
       for (const s of stmts) {
         if (s.k === "var") for (const d of s.decls) {
-          if (here.has(d.name)) errs.push(new CsError("CS0128", "A local variable or function named '" + d.name + "' is already defined in this scope", s.line, "compile", file));
+          if (here.has(d.name)) { errs.push(new CsError("CS0128", "A local variable or function named '" + d.name + "' is already defined in this scope", s.line, "compile", file)); d._dup = true; }
           here.add(d.name);
         }
         if (unset.size) {
@@ -2022,7 +2142,7 @@
         if (Array.isArray(n)) { n.forEach(walk); return; }
         if (n.k === "asg" && n.a && n.a.k === "name") out.add(n.a.n);
         if ((n.k === "pre" || n.k === "post") && n.a && n.a.k === "name") out.add(n.a.n);
-        if (n.k === "ref" && n.e && n.e.k === "name") out.add(n.e.n);
+        if (n.k === "ref" && n.mod === "out" && n.e && n.e.k === "name") out.add(n.e.n);
         if (n.k === "outname" || (n.k === "out" && n.e && n.e.k === "name")) out.add((n.e && n.e.n) || n.n);
         for (const key of Object.keys(n)) if (key !== "line" && key !== "k" && n[key] && typeof n[key] === "object") walk(n[key]);
       })(node);
@@ -2033,10 +2153,18 @@
       switch (s.k) {
         case "block": walkBlockLike(s.body, sc, mem, file); return;
         case "var": for (const d of s.decls) {
-            if (d.init) expr(d.init, sc, mem, file); sc.add(d.name);
+            if (d.init) expr(d.init, sc, mem, file); declLocal(d.name, sc, s.line, file, d._dup); sc.add(d.name);
             const t = s.type && !s.type.arr && s.type.name !== "var" ? s.type.name : tyOf(d.init);
             if (t) TY.set(d.name, t); else TY.delete(d.name);
             let ie = d.init; while (ie && ie.k === "paren") ie = ie.e;
+            /* a local function's result stored in the wrong type */
+            if (s.type && s.type.name !== "var" && !s.type.arr && ie && ie.k === "call" && ie.f && ie.f.k === "name" && FNTY.has(ie.f.n)) {
+              const from = FNTY.get(ie.f.n), to = s.type.name, NUMS = ["int", "long", "double", "decimal"];
+              const widen = { int: ["long", "double", "decimal"], long: ["double", "decimal"], char: ["int", "long", "double"] };
+              if (from !== to && !(widen[from] || []).includes(to) && (NUMS.includes(to) || to === "string" || to === "bool" || to === "char"))
+                errs.push(NUMS.includes(from) && NUMS.includes(to) ? new CsError("CS0266", "Cannot implicitly convert type '" + from + "' to '" + to + "'. An explicit conversion exists (are you missing a cast?)", s.line, "compile", file)
+                  : new CsError("CS0029", "Cannot implicitly convert type '" + from + "' to '" + to + "'", s.line, "compile", file));
+            }
             if (s.type && s.type.name === "bool" && ie && ie.k === "asg") errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (tyOf(ie.b) || "int") + "' to 'bool'", s.line, "compile", file));
           }
           if (s.type && ["int", "long", "double", "bool", "char"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) {
@@ -2047,12 +2175,22 @@
           if (s.type && s.type.name === "string" && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "lit" && (typeof d.init.v === "number" || d.init.v instanceof D)) errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (d.init.v instanceof D ? "double" : "int") + "' to 'string'", s.line, "compile", file));
           return;
         case "deconstruct": expr(s.e, sc, mem, file); s.names.forEach((n) => sc.add(n)); return;
-        case "localfn": { const inner = new Set(sc); s.params.forEach((p) => inner.add(p.name)); stmt(s.body, inner, mem, file); return; }
+        case "localfn": { const inner = new Set(sc); s.params.forEach((p) => inner.add(p.name));
+          checkBody(s.name, s.type, s.params, s.body, s.line, file);
+          if (s.static) {
+            const own = new Set(s.params.map((p) => p.name)); (function decl(n) { if (!n || typeof n !== "object") return; if (Array.isArray(n)) { n.forEach(decl); return; } if (n.k === "var") n.decls.forEach((d) => own.add(d.name)); if (n.k === "foreach" && n.name) own.add(n.name); if (n.k === "outvar") own.add(n.name); for (const key of Object.keys(n)) if (key !== "line" && n[key] && typeof n[key] === "object") decl(n[key]); })(s.body);
+            const seen = new Set();
+            readsIn(s.body).concat([...assignsIn(s.body)].map((n) => ({ n, line: s.line }))).forEach((r) => { if (sc.has(r.n) && !own.has(r.n) && !FNTY.has(r.n) && !seen.has(r.n)) { seen.add(r.n); errs.push(new CsError("CS8421", "A static local function cannot contain a reference to '" + r.n + "'.", r.line || s.line, "compile", file)); } });
+          }
+          const l0 = loops, s0 = switches, t0 = new Map(TY), o0 = OWN; loops = 0; switches = 0; OWN = new Set(s.params.map((p) => p.name));
+          s.params.forEach((p) => { if (p.type && !p.type.arr && !p.mod) TY.set(p.name, p.type.name); });
+          stmt(s.body, inner, mem, file);
+          loops = l0; switches = s0; OWN = o0; TY.clear(); t0.forEach((v, k) => TY.set(k, v)); return; }
         case "expr": expr(s.e, sc, mem, file); return;
         case "if": expr(s.c, sc, mem, file); stmt(s.a, new Set(sc), mem, file); stmt(s.b, new Set(sc), mem, file); return;
         case "while": case "do": expr(s.c, sc, mem, file); loops++; stmt(s.body, new Set(sc), mem, file); loops--; return;
         case "for": { const inner = new Set(sc); s.init.forEach((i) => stmt(i, inner, mem, file)); if (s.c) expr(s.c, inner, mem, file); s.upd.forEach((u) => expr(u, inner, mem, file)); loops++; stmt(s.body, inner, mem, file); loops--; return; }
-        case "foreach": { expr(s.e, sc, mem, file); const inner = new Set(sc); if (s.names) s.names.forEach((n) => inner.add(n)); else inner.add(s.name);
+        case "foreach": { expr(s.e, sc, mem, file); const inner = new Set(sc); if (s.names) s.names.forEach((n) => inner.add(n)); else { declLocal(s.name, sc, s.line, file); inner.add(s.name); }
           if (!s.names) { const ro = s.name; (function walkAsg(n) { if (!n || typeof n !== "object") return; if (Array.isArray(n)) { n.forEach(walkAsg); return; }
             if ((n.k === "asg" && n.a && n.a.k === "name" && n.a.n === ro) || ((n.k === "pre" || n.k === "post") && n.a && n.a.k === "name" && n.a.n === ro)) errs.push(new CsError("CS1656", "Cannot assign to '" + ro + "' because it is a 'foreach iteration variable'", n.line || s.line, "compile", file));
             if (n.k === "foreach" && n.name === ro) return;
@@ -2080,7 +2218,9 @@
       switch (e.k) {
         case "name": if (!sc.has(e.n) && !mem.has(e.n) && !known.has(e.n)) errs.push(new CsError("CS0103", "The name '" + e.n + "' does not exist in the current context", e.line, "compile", file)); return;
         case "mem": expr(e.o, sc, mem, file); return;
-        case "call": expr(e.f, sc, mem, file); e.args.forEach((a) => { if (a.k === "outvar") sc.add(a.name); else expr(a.k === "ref" ? a.e : a, sc, mem, file); }); return;
+        case "call": expr(e.f, sc, mem, file);
+          e.args.forEach((a, i) => { if (a.k === "call" && a.f && a.f.k === "name" && FNTY.get(a.f.n) === "void") errs.push(new CsError("CS1503", "Argument " + (i + 1) + ": cannot convert from 'void' to 'object'", e.line, "compile", file)); });
+          e.args.forEach((a) => { if (a.k === "outvar") sc.add(a.name); else expr(a.k === "ref" ? a.e : a, sc, mem, file); }); return;
         case "lambda": { const inner = new Set(sc); e.params.forEach((p) => inner.add(typeof p === "string" ? p : p.name)); if (e.e) expr(e.e, inner, mem, file); else stmt(e.body, inner, mem, file); return; }
         case "is": expr(e.e, sc, mem, file); if (e.pat.bind) sc.add(e.pat.bind); if (e.pat.e) expr(e.pat.e, sc, mem, file); return;
         case "interp": e.parts.forEach((p) => typeof p !== "string" && expr(p.e, sc, mem, file)); return;
@@ -2114,6 +2254,7 @@
       const topScope = new Set();
       for (const s of u.top) if (s.k === "localfn") topScope.add(s.name);
       const globalTop = new Set(topScope);
+      OWN = new Set();
       walkBlockLike(u.top, globalTop, new Set(), u.file);
       (function visit(types) {
         for (const t of types) {
@@ -2121,8 +2262,8 @@
           const mem = membersOf(t);
           (t.nested || []).forEach((n) => mem.add(n.name));
           for (const f of t.fields) if (f.init) expr(f.init, new Set(), mem, u.file);
-          for (const m of t.methods) if (m.body) { const sc = new Set(m.params.map((p) => p.name)); stmt(m.body, sc, mem, u.file); }
-          for (const c of t.ctors) { const sc = new Set(c.params.map((p) => p.name)); if (c.init) c.init.args.forEach((a) => expr(a, sc, mem, u.file)); stmt(c.body, sc, mem, u.file); }
+          for (const m of t.methods) if (m.body) { const sc = new Set(m.params.map((p) => p.name)); OWN = new Set(sc); checkBody(m.name, m.type, m.params, m.body, m.line, u.file); stmt(m.body, sc, mem, u.file); }
+          for (const c of t.ctors) { const sc = new Set(c.params.map((p) => p.name)); OWN = new Set(sc); if (c.init) c.init.args.forEach((a) => expr(a, sc, mem, u.file)); stmt(c.body, sc, mem, u.file); }
           for (const p of t.props) { if (p.get) stmt(p.get, new Set(), mem, u.file); if (p.set) stmt(p.set, new Set(["value"]), mem, u.file); if (p.init) expr(p.init, new Set(), mem, u.file); }
           visit(t.nested || []);
         }

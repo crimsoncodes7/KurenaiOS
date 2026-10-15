@@ -3413,6 +3413,8 @@
   var debounce = KOS.ui.debounce;
 
   KOS.hub = { LEAVES: LEAVES, BYREF: BYREF, COLORS: COLORS, HEX: HEX, esc: esc, search: searchSpec,
+    /* the status words and glyphs, and the spine's redraw (Code's inspector shares them) */
+    STATUS: STATUS, STATUS_GLYPH: STATUS_GLYPH, renderTree: renderTree,
     /* a leaf's mastery, the one figure (Reports 5.1 snapshots read it too) */
     leafPercent: leafPercent,
     /* IT units (roadmap 1.2): the one derivation of every IT grade figure */

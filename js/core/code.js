@@ -166,8 +166,10 @@
     var want = evidence(ref).checks;
     var p = store.peekProgress(SID, ref);
     var have = p ? p.check : [false, false, false, false];
-    if (!p && !want.some(Boolean)) return;
     for (var i = 0; i < 4; i++) if (!!have[i] !== !!want[i]) store.setCheck(SID, ref, i, want[i]);
+    /* any evidence at all means the lesson is under way */
+    var q = store.peekProgress(SID, ref);
+    if ((!q || q.status === "none") && studied(ref)) store.setStatus(SID, ref, "started");
   }
   function markPage(ref, i) {
     if (!lesson(ref)) return;

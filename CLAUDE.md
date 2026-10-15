@@ -700,7 +700,10 @@ source comments and audit notes refer to it.
 107. STATUS FROM EVIDENCE. A Code lesson's four checks (notes read, listings
     run, a task passed, a retrieval passed) are derived from evidence in
     `state.code` and written to the shared progress record only by
-    `KOS.code.syncChecks`; the inspector shows them read-only. Reading alone
+    `KOS.code.syncChecks`; the inspector shows them read-only. The status
+    beside the confidence (Not started · Started · Paused · Completed) follows
+    them by itself — any evidence makes it Started, four checks Completed
+    (`store.setCheck`) — and may still be set by hand, as in a subject. Reading alone
     never completes a lesson. A tick means complete: EVERY page of the
     shipped lesson read (a filed "Your notes" page never counts), every
     listing run. A page counts as read after a 2.5 s dwell, or on moving on

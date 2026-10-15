@@ -125,6 +125,18 @@ step("D · a tick needs every page; a quick note never moves the count", async (
   K.code.markPage(ref, pages - 1);
   assert(K.code.evidence(ref).checks[0] && K.store.peekProgress("code", ref).check[0], "every page read ticks it");
 });
+step("D · the status follows the evidence and can still be set by hand", async (app) => {
+  const K = app.KOS, ref = "3.2";
+  assert(!K.store.peekProgress("code", ref), "a fresh lesson has no record");
+  K.code.markPage(ref, 0);
+  assert(K.store.peekProgress("code", ref).status === "started", "a first page read makes it Started");
+  K.store.setStatus("code", ref, "paused");
+  K.code.markPage(ref, 1);
+  assert(K.store.peekProgress("code", ref).status === "paused", "a hand-set Paused survives more evidence");
+  K.show("ref", { subject: "code", ref: ref }); await app.settle();
+  const sel = app.document.querySelector('[data-ui~="code.status"] [data-ui="ui.status-select"]');
+  assert(sel && sel.value === "paused", "the inspector's status menu shows it");
+});
 step("D · the day's plan is computed, stable through the day and reads Done", async (app) => {
   const K = app.KOS;
   const a = K.code.planDay(), b = K.code.planDay();
