@@ -16,10 +16,10 @@ chronological diary here.
   platform from design turn 26 and unit 1; on top of the Reports rebuild
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied.
-- Runtime release: `4b74156` — immutable deployment
-  https://e30bd0f2.kurenai-os.pages.dev (15 October 2026; Code units 1–2)
+- Runtime release: `ad8fce8` — immutable deployment
+  https://e89ae424.kurenai-os.pages.dev (15 October 2026; Code units 1–3)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-3`
+- Service-worker version: `kos-code-4`
 - Required smoke gate: 75 / 75 suites.
 
 ## Run, test and deploy
