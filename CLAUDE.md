@@ -8,19 +8,18 @@ chronological diary here.
 
 ## Current baseline
 
-- Category 7 A–G and the Graphite UI rebuild (review A and B) are integrated
-  and deployed. What is still to do is kept in one place:
+- Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
+  Code (platform and unit 1) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `5bece3e` (the Reports pages rebuilt to the
-  design after review: the words on the Reports page, no dead space, the
-  Home card in the middle row, centred icons; on top of Reports complete
-  `2ff4c3b`). `ai-chat` is deployed as version 5; the
+- Release source checkpoint: `f83148c` (Code, the fourth study space: the
+  platform from design turn 26 and unit 1; on top of the Reports rebuild
+  `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied.
-- Runtime release: `406cf55` — immutable deployment
-  https://fea75f93.kurenai-os.pages.dev (13 October 2026)
+- Runtime release: `d8f90be` — immutable deployment
+  https://792e267a.kurenai-os.pages.dev (15 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-reports-3`
+- Service-worker version: `kos-code-1`
 - Required smoke gate: 75 / 75 suites.
 
 ## Run, test and deploy
