@@ -16,7 +16,7 @@
   function run(id, cap, src, stdin) { return { run: { id: id, cap: cap, src: src, stdin: stdin || "" } }; }
   function page(t) { return { page: t }; }
   function call(t, h, body) { return { callout: { t: t, h: h, body: body } }; }
-  function lesson(ref, o) { window.KOS_CONTENT["code:" + ref] = o; }
+  function lesson(ref, o) { K.lesson(ref, o); }
   function pick(r, list) { return list[r(list.length)]; }
 
   /* ================================================================

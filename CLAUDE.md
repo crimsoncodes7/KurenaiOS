@@ -676,6 +676,10 @@ source comments and audit notes refer to it.
     (smoke75 A). Every lesson meets the notes contract (`docs/code-plan.md`
     §4.3: the required pages in order, Quick reference last, ≥ 6 runnable
     `{run}` listings, a compile-error pitfall, flashcards, quiz, practice);
+    lessons are authored as layers and registered through `KOS_CODE.lesson`,
+    whose `compose` gives text-only layers of a few lines no page of their own
+    (the closing three share one; others join the page before) — layers
+    with code always keep their page;
     every listing, practice item, task answer and retrieval variation runs
     under the interpreter AND agrees with .NET byte for byte
     (`node tools/cs_diff.mjs`, run before every content release). A task's

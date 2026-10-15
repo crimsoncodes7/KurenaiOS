@@ -55,6 +55,9 @@ let bad = 0, n = 0;
 for (const p of list) {
   n++;
   const mine = CSI.run({ files: [{ name: "Program.cs", src: p.src }], stdin: p.stdin });
+  /* a pitfall that never ends is shown stopped by the runner; .NET would run
+     it for ever, so it is not compared */
+  if (!mine.ok && mine.error.kind === "timeout") { n--; continue; }
   const net = dotnet(p.src, p.stdin);
   const ik = mine.ok ? "ok" : mine.error.kind === "compile" ? "compile" : mine.error.kind === "exception" ? "exception" : mine.error.kind;
   let problem = null;

@@ -284,6 +284,64 @@
       StackOverflow: { plain: "A method called itself too deeply.", usually: "a recursive method whose base case is never reached." },
       TIMEOUT: { plain: "The program did not finish in time.", usually: "a loop whose condition never becomes false." }
     },
+    /* A lesson is AUTHORED as its contract's layers, one {page} each (the
+       problem, core idea, rules, variations, under the hood, choosing,
+       pitfalls, connections, good practice, practise, quick reference).
+       Layers with code keep their own page. A SHORT text-only layer (no
+       listing, a few lines) is not worth a page of its own: a run of them
+       becomes one page, and a lone one joins the page before it (or, at the
+       start, the page after), each keeping its title as a {sec} heading.
+       The fold happens once, when the lesson registers. */
+    THIN: 900,
+    compose: function (notes) {
+      var layers = [], cur = null;
+      (notes || []).forEach(function (b) {
+        if (b && b.page) { cur = { title: b.page, blocks: [] }; layers.push(cur); }
+        else if (cur) cur.blocks.push(b);
+      });
+      if (!layers.length) return notes;
+      function hasCode(blocks) {
+        return blocks.some(function (b) { return b && typeof b === "object" && (b.run || b.code || (b.callout && hasCode(b.callout.body || []))); });
+      }
+      function thin(l) {
+        return l.title !== "Quick reference" && !hasCode(l.blocks) && JSON.stringify(l.blocks).length < window.KOS_CODE.THIN;
+      }
+      var PRACTICE = ["Connections", "Good practice", "Practise"];
+      var pages = [], front = [];
+      for (var i = 0; i < layers.length; i++) {
+        var l = layers[i];
+        if (!thin(l)) {
+          var title = front.length && front[0].title === "The problem it solves" && l.title === "Core idea" ? "The idea" : l.title;
+          pages.push({ title: title, parts: front.concat([l]) });
+          front = [];
+          continue;
+        }
+        /* the closing layers (connections, good practice, practise) share a
+           page; any other short layer joins the page it follows */
+        var run = [l];
+        if (PRACTICE.indexOf(l.title) >= 0) {
+          while (i + 1 < layers.length && thin(layers[i + 1]) && PRACTICE.indexOf(layers[i + 1].title) >= 0) run.push(layers[++i]);
+        }
+        if (run.length > 1) pages.push({ title: "Connections and practice", parts: run });
+        else if (pages.length) pages[pages.length - 1].parts.push(l);
+        else front.push(l);
+      }
+      if (front.length) pages.push({ title: front[0].title, parts: front });
+      var out = [];
+      pages.forEach(function (pg) {
+        out.push({ page: pg.title });
+        pg.parts.forEach(function (l) {
+          if (pg.parts.length > 1) out.push({ sec: l.title });
+          out = out.concat(l.blocks);
+        });
+      });
+      return out;
+    },
+    lesson: function (ref, o) {
+      o.notes = window.KOS_CODE.compose(o.notes);
+      window.KOS_CONTENT = window.KOS_CONTENT || {};
+      window.KOS_CONTENT["code:" + ref] = o;
+    },
     /* lesson files register their concepts, tasks and retrieval cards here */
     add: function (o) {
       var K = window.KOS_CODE;

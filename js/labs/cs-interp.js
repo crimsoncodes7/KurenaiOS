@@ -461,7 +461,11 @@
     }
 
     // patterns (switch cases, `is`)
-    function pattern() {
+    /* pattern combinators: not binds tightest, then and, then or */
+    function pattern() { let l = andPattern(); while (isId("or")) { p++; l = { or: [l, andPattern()] }; } return l; }
+    function andPattern() { let l = notPattern(); while (isId("and")) { p++; l = { and: [l, notPattern()] }; } return l; }
+    function notPattern() { if (isId("not")) { p++; return { not: notPattern() }; } return primaryPattern(); }
+    function primaryPattern() {
       const line = peek().line;
       if (isOp("<") || isOp(">") || isOp("<=") || isOp(">=")) { const op = next().v; return { rel: op, e: shift(), line }; }
       if (isId("_")) { p++; return { discard: true }; }
@@ -1193,6 +1197,9 @@
     }
     function matchPattern(v, pat, ctx) {
       if (pat.discard) return true;
+      if (pat.and) return matchPattern(v, pat.and[0], ctx) && matchPattern(v, pat.and[1], ctx);
+      if (pat.or) return matchPattern(v, pat.or[0], ctx) || matchPattern(v, pat.or[1], ctx);
+      if (pat.not) return !matchPattern(v, pat.not, ctx);
       if (pat.rel) { const r = evalE(pat.e, ctx); return compare(pat.rel, v, r); }
       if (pat.type) {
         const ok = isType(v, pat.type);
@@ -1953,6 +1960,20 @@
       return s;
     }
     const errs = [];
+    /* a little static typing for the errors unit 1–2 teach: the declared
+       type of each local (by name), how deep in loops/switches we are */
+    const TY = new Map();
+    let loops = 0, switches = 0;
+    const NUM = new Set(["int", "long", "double", "decimal", "float", "short", "byte"]);
+    function tyOf(e) {
+      if (!e) return null;
+      if (e.k === "lit") return typeof e.v === "string" ? "string" : typeof e.v === "number" ? "int" : e.v instanceof D ? (e.v.m ? "decimal" : "double") : typeof e.v === "boolean" ? "bool" : e.v instanceof Ch ? "char" : null;
+      if (e.k === "name") return TY.get(e.n) || null;
+      if (e.k === "interp") return "string";
+      if (e.k === "paren") return tyOf(e.e);
+      if (e.k === "bin" && ["==", "!=", "<", ">", "<=", ">=", "&&", "||"].includes(e.op)) return "bool";
+      return null;
+    }
     function walkBlockLike(stmts, scope, mem, file) {
       const sc = new Set(scope);
       for (const s of stmts) if (s.k === "localfn") sc.add(s.name);
@@ -2011,7 +2032,13 @@
       if (!s) return;
       switch (s.k) {
         case "block": walkBlockLike(s.body, sc, mem, file); return;
-        case "var": for (const d of s.decls) { if (d.init) expr(d.init, sc, mem, file); sc.add(d.name); }
+        case "var": for (const d of s.decls) {
+            if (d.init) expr(d.init, sc, mem, file); sc.add(d.name);
+            const t = s.type && !s.type.arr && s.type.name !== "var" ? s.type.name : tyOf(d.init);
+            if (t) TY.set(d.name, t); else TY.delete(d.name);
+            let ie = d.init; while (ie && ie.k === "paren") ie = ie.e;
+            if (s.type && s.type.name === "bool" && ie && ie.k === "asg") errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (tyOf(ie.b) || "int") + "' to 'bool'", s.line, "compile", file));
+          }
           if (s.type && ["int", "long", "double", "bool", "char"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) {
             if (d.init && d.init.k === "lit" && typeof d.init.v === "string") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to '" + s.type.name + "'", s.line, "compile", file));
             if (d.init && d.init.k === "call" && d.init.f && d.init.f.k === "mem" && d.init.f.n === "ReadLine" && d.init.f.o && d.init.f.o.n === "Console") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to '" + s.type.name + "'", s.line, "compile", file));
@@ -2023,10 +2050,27 @@
         case "localfn": { const inner = new Set(sc); s.params.forEach((p) => inner.add(p.name)); stmt(s.body, inner, mem, file); return; }
         case "expr": expr(s.e, sc, mem, file); return;
         case "if": expr(s.c, sc, mem, file); stmt(s.a, new Set(sc), mem, file); stmt(s.b, new Set(sc), mem, file); return;
-        case "while": case "do": expr(s.c, sc, mem, file); stmt(s.body, new Set(sc), mem, file); return;
-        case "for": { const inner = new Set(sc); s.init.forEach((i) => stmt(i, inner, mem, file)); if (s.c) expr(s.c, inner, mem, file); s.upd.forEach((u) => expr(u, inner, mem, file)); stmt(s.body, inner, mem, file); return; }
-        case "foreach": { expr(s.e, sc, mem, file); const inner = new Set(sc); if (s.names) s.names.forEach((n) => inner.add(n)); else inner.add(s.name); stmt(s.body, inner, mem, file); return; }
-        case "switch": expr(s.e, sc, mem, file); for (const sec of s.sections) { const inner = new Set(sc); for (const l of sec.labels) { if (l.bind) inner.add(l.bind); } walkBlockLike(sec.body, inner, mem, file); } return;
+        case "while": case "do": expr(s.c, sc, mem, file); loops++; stmt(s.body, new Set(sc), mem, file); loops--; return;
+        case "for": { const inner = new Set(sc); s.init.forEach((i) => stmt(i, inner, mem, file)); if (s.c) expr(s.c, inner, mem, file); s.upd.forEach((u) => expr(u, inner, mem, file)); loops++; stmt(s.body, inner, mem, file); loops--; return; }
+        case "foreach": { expr(s.e, sc, mem, file); const inner = new Set(sc); if (s.names) s.names.forEach((n) => inner.add(n)); else inner.add(s.name);
+          if (!s.names) { const ro = s.name; (function walkAsg(n) { if (!n || typeof n !== "object") return; if (Array.isArray(n)) { n.forEach(walkAsg); return; }
+            if ((n.k === "asg" && n.a && n.a.k === "name" && n.a.n === ro) || ((n.k === "pre" || n.k === "post") && n.a && n.a.k === "name" && n.a.n === ro)) errs.push(new CsError("CS1656", "Cannot assign to '" + ro + "' because it is a 'foreach iteration variable'", n.line || s.line, "compile", file));
+            if (n.k === "foreach" && n.name === ro) return;
+            for (const key of Object.keys(n)) if (key !== "line" && n[key] && typeof n[key] === "object") walkAsg(n[key]); })(s.body); }
+          if (s.type && s.type.name && s.type.name !== "var" && !s.names) TY.set(s.name, s.type.name);
+          loops++; stmt(s.body, inner, mem, file); loops--; return; }
+        case "break": if (!loops && !switches) errs.push(new CsError("CS0139", "No enclosing loop out of which to break or continue", s.line, "compile", file)); return;
+        case "continue": if (!loops) errs.push(new CsError("CS0139", "No enclosing loop out of which to break or continue", s.line, "compile", file)); return;
+        case "switch": expr(s.e, sc, mem, file);
+          /* every non-empty section must end by leaving the switch (CS0163) */
+          s.sections.forEach((sec, i) => {
+            const last = sec.body[sec.body.length - 1];
+            const ends = (st) => st && (["break", "return", "throw", "continue", "goto"].includes(st.k) || (st.k === "block" && ends(st.body[st.body.length - 1])));
+            if (sec.body.length && !ends(last)) errs.push(new CsError("CS0163", "Control cannot fall through from one case label ('" + (sec.labels[0] && sec.labels[0].e && sec.labels[0].e.v != null ? "case " + sec.labels[0].e.v + ":" : "default:") + "') to another", (sec.line || s.line), "compile", file));
+          });
+          switches++;
+          for (const sec of s.sections) { const inner = new Set(sc); for (const l of sec.labels) { if (l.bind) inner.add(l.bind); } walkBlockLike(sec.body, inner, mem, file); }
+          switches--; return;
         case "return": case "throw": if (s.e) expr(s.e, sc, mem, file); return;
         case "try": stmt(s.body, sc, mem, file); for (const c of s.catches) { const inner = new Set(sc); if (c.name) inner.add(c.name); stmt(c.body, inner, mem, file); } stmt(s.fin, sc, mem, file); return;
       }
@@ -2042,7 +2086,20 @@
         case "interp": e.parts.forEach((p) => typeof p !== "string" && expr(p.e, sc, mem, file)); return;
         case "new": e.args.forEach((a) => expr(a, sc, mem, file)); if (e.init) e.init.items.forEach((it) => { if (it.e) expr(it.e, sc, mem, file); if (it.add) expr(it.add, sc, mem, file); if (it.pair) it.pair.forEach((x) => expr(x, sc, mem, file)); if (it.key) expr(it.key, sc, mem, file); }); return;
         case "swexpr": expr(e.e, sc, mem, file); e.arms.forEach((a) => { const inner = new Set(sc); if (a.pat.bind) inner.add(a.pat.bind); if (a.pat.e) expr(a.pat.e, inner, mem, file); expr(a.e, inner, mem, file); }); return;
+        case "cond": {
+          expr(e.c, sc, mem, file); expr(e.a, sc, mem, file); expr(e.b, sc, mem, file);
+          const ta = tyOf(e.a), tb = tyOf(e.b);
+          if (ta && tb && ta !== tb && !(NUM.has(ta) && NUM.has(tb)) && !(ta === "char" && NUM.has(tb)) && !(tb === "char" && NUM.has(ta)))
+            errs.push(new CsError("CS0173", "Type of conditional expression cannot be determined because there is no implicit conversion between '" + ta + "' and '" + tb + "'", e.line, "compile", file));
+          return;
+        }
         default:
+          if (e.k === "bin" && ["==", "!=", "<", ">", "<=", ">="].includes(e.op)) {
+            const ta = tyOf(e.a), tb = tyOf(e.b);
+            const bad = ta && tb && ta !== tb && (ta === "string" || tb === "string" || ta === "bool" || tb === "bool") && !(e.op === "==" || e.op === "!=" ? false : false);
+            if (bad || (["<", ">", "<=", ">="].includes(e.op) && (ta === "bool" || tb === "bool" || ta === "string" && tb === "string")))
+              errs.push(new CsError("CS0019", "Operator '" + e.op + "' cannot be applied to operands of type '" + (ta || "?") + "' and '" + (tb || "?") + "'", e.line, "compile", file));
+          }
           /* constant int arithmetic the compiler can see overflowing (CS0220) */
           if (e.k === "bin" && ["+", "-", "*"].includes(e.op)) {
             const cv = (x) => x && x.k === "lit" && typeof x.v === "number" && !x.lng ? x.v : x && x.k === "mem" && x.o && x.o.k === "name" && x.o.n === "int" ? (x.n === "MaxValue" ? 2147483647 : x.n === "MinValue" ? -2147483648 : null) : null;

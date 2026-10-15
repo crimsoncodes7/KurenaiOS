@@ -2175,7 +2175,6 @@
       ]),
       /* the ONE spine opener rides the phone row (a display:contents
          wrapper above the phone tier), so it is not repeated here */
-      cx ? cx.modeSwitch() : null,
       el("div", { class: "k-topic-steps" }, [stepBtn(prevLeaf, "prev"), stepBtn(nextLeaf, "next")])
     ]);
 
@@ -2342,7 +2341,8 @@
       el("span", { "aria-hidden": "true", text: "✎" }), el("span", { "data-ui": "topic.edit", text: "Edit" })]);
     var pagerSlot = el("div", { class: "k-topic-pages" });
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
-      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, editBtn]),
+      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, editBtn,
+        cx ? cx.modeSwitch() : null]),
       pagerSlot
     ]);
 

@@ -21,6 +21,7 @@
                                            (headings, lists, fences, tables,
                                            quotes, links) — see markdown()
    {h:"Sub-heading"}
+   {sec:"Section"}                         a section heading within a page
    {ul:[..]} {ol:[..]}                     lists (items can embed `code` spans with backticks)
    {kv:[["Term","Definition"],..]}         definition pairs
    {table:{head:[..], rows:[[..],..]}}
@@ -287,6 +288,9 @@
       if (b.p != null) { html += "<p>" + para(b.p) + "</p>"; return; }
       if (b.md != null) { html += '<div class="k-n-md" data-ui="content.md">' + markdown(b.md) + "</div>"; return; }
       if (b.h) { html += '<h3 class="k-n-h">' + inline(b.h) + "</h3>"; return; }
+      /* a section heading inside a page (Code lessons fold thin layers
+         into one page, each keeping its title) */
+      if (b.sec) { html += '<h2 class="k-n-sec" data-ui="content.section">' + inline(b.sec) + "</h2>"; return; }
       if (b.ul) { html += "<ul>" + b.ul.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ul>"; return; }
       if (b.ol) { html += "<ol>" + b.ol.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ol>"; return; }
       if (b.kv) {

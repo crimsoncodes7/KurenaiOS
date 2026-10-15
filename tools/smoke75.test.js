@@ -57,10 +57,14 @@ step("A · a released unit is written whole", () => {
 });
 step("B · every written lesson meets the notes contract", () => {
   written.forEach(({ ref }) => {
-    const c = content["code:" + ref], ps = pages(c.notes), titles = ps.map((p) => p.title);
+    const c = content["code:" + ref], ps = pages(c.notes);
+    /* the contract's layers, as authored: a folded page's {sec} headings,
+       else the page title (KOS_CODE.compose) */
+    const titles = [].concat(...ps.map((p) => { const secs = p.blocks.filter((b) => b && b.sec).map((b) => b.sec); return secs.length ? secs : [p.title]; }));
+    assert(ps.length <= 8, ref + ": " + ps.length + " pages — thin layers should fold together");
     let at = -1;
     REQUIRED.forEach((t) => { const i = titles.indexOf(t); assert(i > at, ref + ": page \"" + t + "\" missing or out of order (" + titles.join(" · ") + ")"); at = i; });
-    assert(titles[titles.length - 1] === "Quick reference", ref + ": Quick reference is not last");
+    assert(ps[ps.length - 1].title === "Quick reference", ref + ": Quick reference is not last");
     const runs = listings(c.notes, []);
     assert(runs.length >= 6, ref + ": " + runs.length + " listings (≥ 6)");
     const ids = runs.map((r) => r.id);
@@ -80,7 +84,7 @@ step("C · every listing and practice item runs as it should", () => {
     ps.forEach((pg) => listings(pg.blocks, []).forEach((r) => {
       const o = run(r.src, r.stdin);
       if (pg.title !== "Pitfalls" && !r.fails) assert(o.ok, ref + " listing " + r.id + " fails: " + JSON.stringify(o.error));
-      else assert(o.ok || ["compile", "exception"].includes(o.error.kind), ref + " pitfall " + r.id + ": " + JSON.stringify(o.error));
+      else assert(o.ok || ["compile", "exception", "timeout"].includes(o.error.kind), ref + " pitfall " + r.id + ": " + JSON.stringify(o.error));
     }));
     const p = c.practice || {};
     (p.predict || []).forEach((it) => assert(run(it.src, it.stdin).ok, ref + " predict " + it.id + " does not run"));

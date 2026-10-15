@@ -97,7 +97,7 @@
           onclick: function () { if (KOS.hub.BYREF.compsci[content.aqa]) KOS.show("ref", { subject: "compsci", ref: content.aqa }); } }));
       }
     };
-    /* Learn | Reference rides the header's right edge, beside ‹ › */
+    /* Learn | Reference rides the right end of the tab row, beside Edit */
     ctx.modeSwitch = function () {
       if (content && content.notes && content.notes.length) {
         var mode = refMode() ? "reference" : "learn";
@@ -154,24 +154,31 @@
       var plan = KOS.code.planDay();
       if (!ev.checks[2] && plan && plan.task.lesson === ref) sub[2] = "Daily 20 today uses it";
       if (ev.checks[3]) sub[3] = "proven in retrieval";
-      var node = el("section", { class: "k-ts k-cx-ts", "data-ui": "topic.status code.status", "data-state": tone, "aria-label": "Lesson status" }, [
-        el("div", { class: "k-ts-head" }, [
-          el("span", { class: "k-kicker", text: "Status" }),
+      /* the subjects' own Topic status component (frame 8b): the same head,
+         bar, confidence row and check grid — without the status dropdown,
+         because a Code lesson's status comes from evidence alone */
+      var node = el("section", { class: "k-ts k-cx-ts", "data-ui": "topic.status code.status", "data-state": tone, "aria-label": "Topic status" }, [
+        el("div", { class: "k-ts-head", "data-ui": "topic.status-head" }, [
+          el("span", { class: "k-kicker", "data-ui": "topic.status-k", text: "Topic status" }),
           el("span", { class: "k-ts-checks", text: n + " of 4 checks" }),
           el("strong", { class: "k-ts-pct", text: pct + "%" })
         ]),
         el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": pct + "% from evidence", style: "--p: " + pct + "%" }, [el("i")]),
-        el("div", { class: "k-ts-row" }, [rag.node]),
-        el("ul", { class: "k-cx-checks", "data-ui": "code.checks", "aria-label": "Evidence checks" }, KOS.code.CHECKS.map(function (label, i) {
-          return el("li", { class: "k-cx-check", "data-state": ev.checks[i] ? "on" : null }, [
-            el("span", { class: "k-cx-check-box", "aria-hidden": "true", text: ev.checks[i] ? "✓" : "" }),
-            el("span", { class: "k-cx-check-t" }, [
-              el("span", { text: label }),
-              el("small", { text: sub[i] })
-            ]),
-            el("span", { class: "sr-only", text: ev.checks[i] ? "done" : "not yet" })
-          ]);
-        })),
+        el("div", { class: "k-ts-row" }, [
+          el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-conf" }, [
+            el("span", { class: "sr-only", "data-ui": "topic.status-lbl", text: "Confidence" }), rag.node])
+        ]),
+        el("div", { class: "k-ts-field", "data-ui": "topic.status-field" }, [
+          el("span", { class: "sr-only", "data-ui": "topic.status-lbl", text: "Progress checks, from evidence" }),
+          el("div", { class: "k-ts-checkgrid", "data-ui": "topic.checkgrid code.checks" }, KOS.code.CHECKS.map(function (label, i) {
+            var cb = el("input", { type: "checkbox", class: "k-box", "aria-readonly": "true", tabindex: "-1",
+              onclick: function (e) { e.preventDefault(); } });
+            cb.checked = !!ev.checks[i];
+            return el("label", { class: "k-ts-check k-cx-check", "data-ui": "topic.check", "data-state": ev.checks[i] ? "on" : null,
+              title: "Ticks itself from evidence: " + sub[i] }, [cb,
+              el("span", { class: "k-cx-check-t" }, [el("span", { text: label }), el("small", { text: sub[i] })])]);
+          }))
+        ]),
         el("p", { class: "k-cx-ts-note", text: "Ticks come from evidence: pages read, listings run, a task passed, a retrieval passed." }),
         rag.auto
       ]);

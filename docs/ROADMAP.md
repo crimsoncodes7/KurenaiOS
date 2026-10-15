@@ -538,11 +538,12 @@ Claude Design and comes back as a handoff, the way Graphite did.
 >   skill map (26i), settings (26r), track pages (26t) and the phone (26u–26v).
 > - The in-app runner (`js/labs/cs-interp.js`) in a sandboxed worker, held to
 >   .NET by `tools/cs_diff.mjs` (245 of 245 programs identical).
-> - Unit 1 at full depth: 8 lessons, 17 tasks, 9 retrieval cards.
+> - Units 1 and 2 at full depth: 17 lessons, 35 tasks, 17 retrieval cards
+>   (695 of 695 programs identical to .NET).
 > - smoke73–75 (runner and checker, pay and evidence, the content gate);
 >   invariants 103–108.
 >
-> **Next, one unit at a time:** units 2 and 3, then capstone 1 (R1 complete);
+> **Next, one unit at a time:** unit 3, then capstone 1 (R1 complete);
 > then katas, in-app projects, Rider, GitHub and the .NET runtime (R2–R3) as
 > planned in code-plan.md §12. Not built yet: 26g's runtime download, 26j–26q
 > (katas, the project IDE, capstones, Rider hub and import, export and
