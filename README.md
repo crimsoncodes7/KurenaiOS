@@ -26,7 +26,7 @@ behaviour, data and invariants of the earlier releases unchanged.
   plan) — immutable deployment https://fea75f93.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker cache: `kos-reports-3`
-- Verification: all **72 smoke suites**, including the rebuild guards
+- Verification: all **75 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).
 
@@ -165,7 +165,7 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..72}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..75}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Responsive or shared-component changes also require a dense responsive audit and

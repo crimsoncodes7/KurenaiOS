@@ -35,8 +35,14 @@
     v: 1,
     created: Date.now(),
     progress: {},          // "subject:ref" -> {status, check:[c,s,q,u], note}
-    ui: { subject: "compsci", view: "dash", openSections: {}, lastRef: {}, railOpen: true },
+    ui: { subject: "compsci", view: "dash", openSections: {}, lastRef: {}, railOpen: true,
+          /* Code (roadmap 5.3): per-device choices and unsaved drafts */
+          code: { drafts: {} } },
     oop: { classes: [], links: [], nextId: 1 },
+    /* Code (roadmap 5.3, core/code.js): evidence, task passes, proofs and
+       the retrieval schedule — keyed maps throughout, so the cloud merge
+       folds two devices per key */
+    code: { v: 1, tasks: {}, lessons: {}, proven: {}, cards: {}, practice: {}, later: {} },
     worked: { last: null },
     trace: {},
 

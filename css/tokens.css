@@ -64,10 +64,14 @@ color-scheme: dark;
 /* the heroes' ground (Home, the Governor): each theme sets its own */
 --hero-tint: oklch(0.2 0.03 235);
 
-/* the three subject hues (invariant 26) and the four media */
+/* the four subject hues (invariant 26) and the four media */
 --cs: oklch(0.74 0.11 190);
 --maths: oklch(0.72 0.12 270);
 --it: oklch(0.72 0.12 325);
+/* Code, the fourth study space (design 26·hue: Sky). Pass and fail never
+   use it; they keep the fixed green and red with a mark and a word. */
+--code: oklch(0.815 0.095 224);
+--code-ink: oklch(0.22 0.03 224);
 --anime: oklch(0.72 0.13 250);
 --books: oklch(0.78 0.11 70);
 --vn: oklch(0.72 0.14 330);
@@ -396,6 +400,37 @@ color-scheme: dark;
 --att-side-w: 240px;
 --att-badge: 34px;
 --att-preview-h: 70vh;
+
+/* ---------- Code (design turn 26) ---------- */
+--cx-lh: 20px;              /* one editor line: the overlay and the textarea share it */
+--cx-lh-phone: 24px;
+--cx-ed-max-h: 520px;
+--cx-ed-compact-max-h: 360px;
+--cx-gutter-w: 48px;
+--cx-task-w: 400px;         /* the task panel (26f); 340 at 1080 */
+--cx-task-w-1080: 340px;
+--cx-strip-w: 44px;         /* the collapsed task strip */
+--cx-sq: 34px;              /* a unit on the stage path */
+--cx-sq-compact: 28px;
+--cx-sq-phone: 30px;
+--cx-dia: 20px;             /* a capstone diamond */
+--cx-dot: 8px;              /* the freshness dot */
+--cx-age-w: 40px;
+--cx-key-w: 40px;           /* the phone's symbol key bar (26v) */
+--cx-key-h: 44px;
+--cx-key-w-sm: 34px;
+--cx-key-h-sm: 40px;
+--cx-rlist-w: 260px;        /* the retrieval due list (26h) */
+--cx-skside-w: 320px;       /* the skill map's side panel (26i) */
+--cx-refcol: 720px;         /* Reference mode's reading column (26d) */
+--cx-res-max-h: 420px;
+--cx-map-side-w: 360px;
+--cx-mapcol-n: 64px;
+--cx-mapcol-s: 72px;
+--cx-mapcol-w: 150px;
+--cx-mapcol-st: 130px;
+--cx-set-min: 280px;
+--cx-when-w: 104px;
 
 /* ---------- Productivity (frames 10a–10g) ---------- */
 --fx-side-w: 340px;

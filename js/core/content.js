@@ -25,6 +25,8 @@
    {kv:[["Term","Definition"],..]}         definition pairs
    {table:{head:[..], rows:[[..],..]}}
    {code:{lang:"csharp", src:"...", cap:"caption"}}
+   {run:{id, src, cap, stdin}}              a runnable C# listing (Code lessons:
+                                           Run · Reset · Copy on the topic page)
    {callout:{t:"def|tip|warn|miscon|mnemonic|memorise|formula", h:"", body:[blocks]}}
    {steps:[{h,m,n},..]}                    inline worked walkthrough
    {fig:{x,y,axes,items,cap}}               declarative diagram (core/figures.js)
@@ -301,6 +303,13 @@
           }).join("") + "</tbody></table></div>"; return;
       }
       if (b.code) { html += codeFigure(b.code.src, b.code.lang, b.code.cap); return; }
+      /* a Code listing: rendered as a plain C# block, which the Code topic
+         page swaps for a live one (KOS.codeUI.mountListings) */
+      if (b.run) {
+        html += '<div class="k-cx-slot" data-ui="code.listing-slot" data-lid="' + esc(String(b.run.id || "")) + '">' +
+          codeFigure(b.run.src, "csharp", b.run.cap) + "</div>";
+        return;
+      }
       if (b.callout) {
         var m = CALLOUT_META[b.callout.t] || CALLOUT_META.tip;
         html += '<aside class="k-callout" data-ui="content.callout" data-kind="' + esc(b.callout.t) + '">' + COPY_BTN +

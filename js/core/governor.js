@@ -186,6 +186,22 @@
       if (pct >= 80) notes.push("high score");
     }
     else if (e.type === "exam") { xp = 12; gold = 2; hp = 3; }
+    else if (e.type === "code") {
+      /* Code (roadmap 5.3): KOS.code.award() is the one definition. A
+         re-run, a pass after the answer was opened, a retrieval past the
+         daily cap and lesson practice all log activity and pay nothing —
+         and say nothing here: the page shows its own "No reward · why". */
+      var ca = KOS.code && KOS.code.award ? KOS.code.award(m) : { xp: 0, gold: 0, hp: 0 };
+      if (!ca.xp && !ca.gold && !ca.hp) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: [], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
+        store.save();
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
+      xp = ca.xp; gold = ca.gold; hp = ca.hp;
+      if (m.phone) notes.push("phone task");
+    }
     else if (e.type === "todo") { xp = 5; gold = 1; hp = 2; }
     else if (e.type === "tracker") { xp = 8; gold = 1; hp = 2; }
     else if (e.type === "media") {

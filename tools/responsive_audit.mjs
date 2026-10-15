@@ -53,13 +53,23 @@ const VIEWS = String(flag("views",
   "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks,pacing,pacing-braid," +
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
   "governor,assistant,data,help," +
-  "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year")).split(",");
+  "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year," +
+  "code-desk,code-lesson,code-map,code-task,code-retrieval,code-skills,code-settings,code-track")).split(",");
 /* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
    phone probe honest; profile.lastRef is mutable navigation history. */
 const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 /* pseudo-views: an id in VIEWS that resolves to a real view plus the
    argument that selects a genuinely different page to measure */
 const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
+  /* Code (roadmap 5.3) */
+  "code-desk": ["subject", '"code"'],
+  "code-lesson": ["ref", '{ subject: "code", ref: "1.5" }'],
+  "code-map": ["code", '{ page: "map" }'],
+  "code-task": ["code", '{ page: "task", id: "1.8-receipt" }'],
+  "code-retrieval": ["code", '{ page: "retrieval" }'],
+  "code-skills": ["code", '{ page: "skills" }'],
+  "code-settings": ["code", '{ page: "settings" }'],
+  "code-track": ["code", '{ page: "track", id: "T3" }'],
   /* Reports (roadmap 5.1): the saved reports the preparation below wrote */
   "reports-week": ["reports", '{ period: "week", start: (window.__rp || {}).week }'],
   "reports-week-study": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "study" }'],

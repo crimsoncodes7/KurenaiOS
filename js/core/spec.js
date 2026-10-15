@@ -30,7 +30,8 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var SUBJECTS = ["compsci", "maths", "it"];
+  /* every subject in the registry (core/subjects.js), Code included */
+  var SUBJECTS = window.KOS.subjects ? window.KOS.subjects.ids() : ["compsci", "maths", "it"];
   var LEVELS = ["paper", "unit", "parent", "leaf"];
 
   /* PAPERS — the exam papers each specification is sat as, a level above
@@ -54,7 +55,8 @@
       { ref: "Statistics", title: "Paper 3 section A — statistics", units: ["S1", "S2", "S3", "S4", "S5"] },
       { ref: "Mechanics", title: "Paper 3 section B — mechanics", units: ["M6", "M7", "M8", "M9"] }
     ],
-    it: []
+    it: [],
+    code: []
   };
   var IDX = null;   // sid -> { nodes: [node], byRef: {ref: node}, leaves: [node], units: [node], papers: [node] }
 
@@ -250,7 +252,9 @@
         else if (!opts.subject) {
           /* a bare ref with no subject (old calendar topics): accepted only
              when exactly one subject has it — never a guess */
-          var owners = SUBJECTS.filter(function (x) { return raw(x, s); });
+          /* bare refs predate Code, and its lesson refs ("4.1") would make
+             every CS unit ambiguous, so Code never claims one */
+          var owners = SUBJECTS.filter(function (x) { return x !== "code" && raw(x, s); });
           if (owners.length === 1) { sid = owners[0]; ref = s; }
         }
       } else if (item && typeof item === "object" && item.subject && item.ref != null) {

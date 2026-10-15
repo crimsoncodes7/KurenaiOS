@@ -384,6 +384,15 @@
     var mat = material(sid, ref, "spec");
     var block = { id: nextId(), md: "**Note · " + dayLabel(date) + "**\n\n" + body.slice(0, DRAFT_MAX),
       date: date, src: opts.src || "quick-note" };
+    /* Code lessons have no Specification tab: the note files to the end of
+       the lesson's notes, on a "Your notes" page (frame 26c) */
+    if (sid === "code") {
+      var notes = material(sid, ref, "notes");
+      if (!notes.some(function (b) { return b && b.page === "Your notes"; })) notes.push({ id: nextId(), page: "Your notes" });
+      notes.push(block);
+      set(sid, ref, "notes", notes);
+      return clone(block);
+    }
     mat.info.push(block);
     set(sid, ref, "spec", mat);
     return clone(block);

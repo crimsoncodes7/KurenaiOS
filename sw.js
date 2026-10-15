@@ -41,6 +41,8 @@ var DEV_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(self.location.hostname)
    derived from index.html at install, like the scripts (UI rebuild M2). */
 var EXTRA_PRECACHE = [
   "manifest.webmanifest",
+  /* Code's in-app runner: a worker script, never a <script> tag (roadmap 5.3) */
+  "js/labs/cs-interp.js",
   "assets/brand/kurenai-bloom.png",
   "icons/icon-192.png",
   "icons/icon-512.png",

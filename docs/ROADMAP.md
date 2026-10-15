@@ -528,6 +528,52 @@ Claude Design and comes back as a handoff, the way Graphite did.
 
 ### 5.3 Code: a C# study space ◆ (asked for 13 October 2026)
 
+> **Status (15 October 2026): the platform and unit 1 are built** from the
+> Claude Design handoff (turn 26). In the app:
+> - Code is the fourth subject (`KOS.subjects`, the Sky `--code` hue in
+>   every theme), with its desk (26a), curriculum map (26b), lessons on the
+>   shared topic page with Learn and Reference, runnable listings and an
+>   evidence inspector (26c–26d), the Practice tab (26e), the task editor
+>   with every result state (26f), retrieval with derived grades (26h), the
+>   skill map (26i), settings (26r), track pages (26t) and the phone (26u–26v).
+> - The in-app runner (`js/labs/cs-interp.js`) in a sandboxed worker, held to
+>   .NET by `tools/cs_diff.mjs` (245 of 245 programs identical).
+> - Unit 1 at full depth: 8 lessons, 17 tasks, 9 retrieval cards.
+> - smoke73–75 (runner and checker, pay and evidence, the content gate);
+>   invariants 103–108.
+>
+> **Next, one unit at a time:** units 2 and 3, then capstone 1 (R1 complete);
+> then katas, in-app projects, Rider, GitHub and the .NET runtime (R2–R3) as
+> planned in code-plan.md §12. Not built yet: 26g's runtime download, 26j–26q
+> (katas, the project IDE, capstones, Rider hub and import, export and
+> portfolio, GitHub, checkpoints) and the Code chapter in Reports.
+
+> **Plan:** [code-plan.md](code-plan.md), revision 2 (13 October 2026). It
+> supersedes the details below wherever they differ.
+>
+> **Curriculum:** a core path (stages 1–4 plus Bridge B, about 121 lessons)
+> with optional deepening modules (D1–D6) and tracks (T1–T9: persistence,
+> Avalonia UI, AI/ML/LLMs, web and more).
+>
+> **Notes:** a layered long-term reference with a depth contract.
+>
+> **Running code:**
+> - Units 1–6 run on the in-app interpreter.
+> - WebAssembly takes over from unit 7, or from unit 8 if Spike W says so.
+> - Real-IDE work uses a Rider workflow: a validation script whose JSON report
+>   is imported as evidence.
+> - The optional "Kurenai Programming" GitHub repository uses API commits,
+>   with an outbox.
+>
+> **Rewards:**
+> - A task pays on its first pass only, with +3 HP.
+> - Phone tasks are for units 1–3 only, at a reduced reward.
+>
+> **Releases:** R1–R4 are the initial release; the tracks follow, one per
+> release.
+>
+> **Design:** [prompt 10](design-prompts.md), frames 26a–26x.
+
 - **What:** a fourth space beside Computer Science, Maths and IT, for
   programming alone. It is built like the general subjects (a spine of
   units and topics, notes, flashcards, quizzes, the same status/mastery

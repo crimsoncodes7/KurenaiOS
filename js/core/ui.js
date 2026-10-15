@@ -357,7 +357,7 @@
      carries the views inside it. ---- */
   var SECTION_OF = {
     home: "home",
-    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study",
+    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study",
     tracker: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
@@ -381,6 +381,7 @@
       { label: "Computer Science", short: "CS", view: "subject", arg: "compsci", dot: "var(--cs)", count: "pc-compsci", countHidden: true },
       { label: "Mathematics", short: "Maths", view: "subject", arg: "maths", dot: "var(--maths)", count: "pc-maths", countHidden: true },
       { label: "IT · Data Analytics", short: "IT", view: "subject", arg: "it", dot: "var(--it)", count: "pc-it", countHidden: true },
+      { label: "Code", short: "Code", view: "subject", arg: "code", dot: "var(--code)", count: "pc-code", countHidden: true },
       null,
       { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
       { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
@@ -1105,12 +1106,24 @@
     var nav = document.getElementById("subnav");
     if (!nav) return;
     var items = SUBNAV[sec];
+    /* inside Code the loose pills are Code's own (frame 26a): Retrieval,
+       Skill map, Curriculum map — and Review, Assignments, Exams & Papers
+       stay one tap away on every other subject */
+    var inCode = sec === "study" && (viewId === "code" || (viewId === "subject" && arg === "code") || (viewId === "ref" && arg && arg.subject === "code"));
+    if (inCode) {
+      var cut = items.indexOf(null);
+      items = items.slice(0, cut).concat([null,
+        { label: "Retrieval", view: "code", arg: { page: "retrieval" }, count: "pc-code-due", tone: "neutral", page: "retrieval" },
+        { label: "Skill map", view: "code", arg: { page: "skills" }, page: "skills" },
+        { label: "Curriculum map", view: "code", arg: { page: "map" }, page: "map" }]);
+    }
     nav.innerHTML = "";
     if (!items) { nav.hidden = true; return; }
     nav.hidden = false;
     /* which entry is lit: the view itself, or the owning subject for ref pages */
     var activeView = viewId, activeArg = arg;
     if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
+    if (viewId === "code") { activeView = arg && (arg.page === "retrieval" || arg.page === "skills" || arg.page === "map") ? "code" : "subject"; activeArg = activeView === "code" ? arg.page : "code"; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
     if (viewId === "due" || viewId === "cardstats") activeView = "review";
     if (["goals"].indexOf(viewId) !== -1) activeView = "wishlist";
@@ -1122,7 +1135,7 @@
       if (!it) return { sep: true };
       return { label: it.label, short: it.short, dot: it.dot, glyph: it.mark,
         countId: it.count || null, countTone: it.tone || null, countHidden: !!it.countHidden,
-        active: it.view === activeView && (it.arg === undefined || it.arg === activeArg),
+        active: it.view === activeView && (it.arg === undefined || it.arg === activeArg || (it.page && it.page === activeArg)),
         onSelect: function () { KOS.show(it.view, it.arg); } };
     }), { variant: "primary", label: "Section" });
     nav.setAttribute("class", strip.getAttribute("class"));

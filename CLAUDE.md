@@ -21,7 +21,7 @@ chronological diary here.
   https://fea75f93.kurenai-os.pages.dev (13 October 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-reports-3`
-- Required smoke gate: 72 / 72 suites.
+- Required smoke gate: 75 / 75 suites.
 
 ## Run, test and deploy
 
@@ -31,7 +31,8 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..72}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..75}; do node "tools/smoke${i}.test.js"; done
+node tools/cs_diff.mjs                 # Code content against real .NET (needs the .NET 10 SDK)
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -122,6 +123,8 @@ non-navigation redraw path.
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`); the Assistant's Scheduled tab |
 | Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportlong.js` (`KOS.reportsLong`: the month, term and year pages), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js`; the replicated copy in Supabase `kos_reports` |
+| The subject list (CS, Maths, IT, Code; which are exam subjects), names and hues | `js/core/subjects.js` (`KOS.subjects`) |
+| Code (roadmap 5.3, `docs/code-plan.md`): curriculum, model, runner, primitives, pages | `js/data/code.js` (the authored spine `KOS_DATA.code` and `KOS_CODE`: stages, tracks, concepts, tasks, cards, the error decoder), `js/data/content/code-u*.js` (one file per released unit), `js/core/code.js` (`KOS.code`: evidence, pay, retrieval, the day's plan), `js/core/coderun.js` (`KOS.codeRun`: the worker and the checker), `js/labs/cs-interp.js` (the in-app C# runner, pure, also in Node), `js/core/codeui.js` (`KOS.codeUI`: editor, results, error card, hints, stage path, listings, key bar), `js/modules/codetopic.js` (`KOS.codeTopic`: the lesson on the shared topic page), `js/modules/code.js` (`KOS.codeDesk` and `#/code/<page>`), `css/views/code.css`; `tools/cs_diff.mjs` (the .NET differential) |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -246,7 +249,9 @@ source comments and audit notes refer to it.
 ### Content, UI and Collection composition (24–30)
 
 24. `js/data/compsci.js`, `maths.js` and `it.js` are generated. Change parsers and
-    regenerate; use `--format-existing` only for a payload-preserving format pass.
+    regenerate. `js/data/code.js` and `code-u*.js` are AUTHORED (Code has no
+    published specification) and held by smoke75 and `tools/cs_diff.mjs`
+    instead (invariant 104). For the generated ones, use `--format-existing` only for a payload-preserving format pass.
     The IT units not taken (F203, F205) are left out by the generator
     (`IT_NOT_TAKEN` in `tools/gen_data.py`; `--scope-it` applies it to the
     checked-in payload), so no reader filters them. Maths refs are P1–P10,
@@ -261,7 +266,7 @@ source comments and audit notes refer to it.
 26. Classes are presentation only and carry the `k-` prefix; logic and tests
     read `data-ui` hooks, ARIA/native state and `data-state` (smoke55 refuses a
     legacy name, a `[data-ui]` selector, a colour literal outside tokens/themes
-    and a raw px outside `tokens.css`). Keep the three subject hues. Extend
+    and a raw px outside `tokens.css`). Keep the four subject hues (invariant 103). Extend
     shared tokens/components rather than hard-coding a page patch.
 26a. Graphite (= Atelier Dusk, `css/tokens.css`) is the default;
     `css/themes.css` holds Atelier Dawn (its light twin) and the 23 shop
@@ -656,6 +661,53 @@ source comments and audit notes refer to it.
     after a pull and before the model is called. The reply is kept on the
     schedule (`last`), in its own conversation when signed in, and pushed
     as an `assistant` notification. "Run now" does not claim the day.
+
+### Code (103–108)
+
+103. The subject list is `KOS.subjects` (`js/core/subjects.js`): four
+    subjects, and only CS, Maths and IT are exam subjects
+    (`ids("exam")` — papers, Pacing, Exams & Papers, Reports' subject
+    split). A reader that needs every subject asks `ids()`; none writes the
+    list out. Code's hue is `--code` (Sky; the deep variant in Dawn, a
+    clear hue in each shop theme) and pass/fail never use it. A bare ref
+    with no subject never resolves to Code (its lesson refs would make CS
+    units ambiguous).
+104. Code's content is authored, released ONE UNIT AT A TIME and whole
+    (smoke75 A). Every lesson meets the notes contract (`docs/code-plan.md`
+    §4.3: the required pages in order, Quick reference last, ≥ 6 runnable
+    `{run}` listings, a compile-error pitfall, flashcards, quiz, practice);
+    every listing, practice item, task answer and retrieval variation runs
+    under the interpreter AND agrees with .NET byte for byte
+    (`node tools/cs_diff.mjs`, run before every content release). A task's
+    answer passes its own cases and rules; its starter does not.
+105. THE SANDBOX. Learner code runs only in `js/labs/cs-interp.js`, in a
+    Worker with fetch, XMLHttpRequest, importScripts and WebSocket removed,
+    no DOM and no app data; the page's watchdog terminates it after 4 s.
+    Only file:// and the test harness run it in the page. It never leaves
+    the device to run. Nullable reference types are off in units 1–6.
+106. PAY ONCE. `KOS.code.award()` is the one definition the Governor pays
+    by (type `code`): a task's first proven pass pays its tier (warm-up
+    12/1, core 18/2, stretch 26/3) and +3 HP; a phone task (units 1–3 only)
+    pays half the XP and gold and +1 HP, and a later computer pass pays
+    exactly the rest. A re-run, a pass after "See the answer" (which also
+    proves nothing), lesson practice and a failed card pay nothing. A
+    retrieval proven pays +4 XP, at most 10 a day, counted from today's
+    ledger; past the cap the card still moves. Every no-reward case shows
+    "No reward · why". HP gates nothing (invariant 2).
+107. STATUS FROM EVIDENCE. A Code lesson's four checks (notes read, listings
+    run, a task passed, a retrieval passed) are derived from evidence in
+    `state.code` and written to the shared progress record only by
+    `KOS.code.syncChecks`; the inspector shows them read-only. Reading alone
+    never completes a lesson. A page counts as read after a 4 s dwell (or
+    scrolled into view in Reference), never by a render. Retrieval grades
+    are derived from tries, hints and time — never self-reported — and each
+    review asks the next seeded variation.
+108. THE COMPUTED PLAN. The Daily 20 (`KOS.code.planDay`) is computed from
+    the date and the evidence, never stored: the pick holds all day and
+    reads Done once passed. `state.code` is keyed maps throughout (the
+    cloud merge folds two devices per key); drafts, the task panel's
+    collapse, the reading mode and phone choices are per device in
+    `state.ui.code`. Code pages write nothing when drawn (smoke74 E).
 
 ### Reports (99–102)
 

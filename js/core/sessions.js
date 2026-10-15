@@ -145,6 +145,7 @@
       compsci: streak("compsci"),
       maths: streak("maths"),
       it: streak("it"),
+      code: streak("code"),
       rest: restStreak(),
       best: bestStreak(null)
     };

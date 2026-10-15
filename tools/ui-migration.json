@@ -76,7 +76,11 @@
     "js/modules/reportshare.js",
     "css/views/reports.css",
     "js/core/topicpicker.js",
-    "js/modules/itdesk.js"
+    "js/modules/itdesk.js",
+    "css/views/code.css",
+    "js/core/codeui.js",
+    "js/modules/code.js",
+    "js/modules/codetopic.js"
   ],
   "views": {
     "home": {},
@@ -114,6 +118,7 @@
     "worked": {},
     "trace": {},
     "oop": {},
-    "reports": {}
+    "reports": {},
+    "code": { "arg": { "page": "map" } }
   }
 }

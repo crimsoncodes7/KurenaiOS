@@ -5,9 +5,10 @@
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
 
-  var SUBJECTS = ["compsci", "maths", "it"];
-  var COLORS = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
-  var HEX = { compsci: "#3D8E76", maths: "#4C6DB3", it: "#8A63A8" };
+  /* the subject list and hues come from the one registry (core/subjects.js) */
+  var SUBJECTS = KOS.subjects.ids();
+  var COLORS = KOS.subjects.map("hue");
+  var HEX = KOS.subjects.map("hex");
   var STATUS = [
     ["none", "Not started"], ["started", "Started"],
     ["paused", "Paused"], ["done", "Completed"]
@@ -318,6 +319,7 @@
     /* the sub-navigation's live counts (a zero prints nothing, invariant 77) */
     function count(id, n) { var c = document.getElementById(id); if (c) c.textContent = n ? String(n) : ""; }
     count("pc-review", n2);
+    if (KOS.code && document.getElementById("pc-code-due")) count("pc-code-due", KOS.code.dueCards().length);
     if (KOS.assignments && KOS.assignments.urgent) count("pc-assign", KOS.assignments.urgent().length);
     if (KOS.reminders && KOS.reminders.counts) {
       var rc = KOS.reminders.counts().sections || {};
@@ -426,7 +428,7 @@
         onclick: function () { setTreeClosed(true); } })
     ]));
     var filter = el("input", { type: "search", class: "k-spine-filter", "data-ui": "study.spine-filter",
-      placeholder: "Filter " + st.total + " topics", "aria-label": "Filter topics" });
+      placeholder: "Filter " + st.total + (sid === "code" ? " lessons" : " topics"), "aria-label": sid === "code" ? "Filter lessons" : "Filter topics" });
     filter.value = spineQuery;
     tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [KOS.ui.icon("search"), filter]));
     tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
@@ -451,8 +453,17 @@
     }
 
     var list = el("div", { class: "k-spine-list", "data-ui": "study.spine-list" });
+    /* Code's spine (frame 26c): Core | Tracks, and stage headings above
+       the units; Tracks lists the tracks and deepening modules instead */
+    var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef) : null;
     tree.appendChild(list);
+    if (codeSpine && codeSpine.tracks) return;
+    var lastStage = null;
     data.sections.forEach(function (sec) {
+      if (codeSpine && sec.stage !== lastStage) {
+        lastStage = sec.stage;
+        list.appendChild(codeSpine.stageHead(sec.stage));
+      }
       var secEl = el("div", { class: "k-spine-sec", "data-ui": "part.section" });
       var sst = sectionStats(sid, sec);
       var head = el("button", { type: "button", class: "k-spine-head", "data-ui": "ui.section-head",
@@ -814,8 +825,8 @@
      work, or tick through the owner's own API (a directive, a plan row). */
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var SUBJ_HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
-  var SUBJ_SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
+  var SUBJ_HUE = KOS.subjects.map("hue");
+  var SUBJ_SHORT = KOS.subjects.map("short");
   var homeMode = null;        /* the Up next switch, per page visit (UI-only state) */
   var homeMins = 25;          /* the Up next focus length (UI-only state) */
 
@@ -1269,7 +1280,8 @@
       ])
     ]);
     var desks = el("div", { class: "k-desks" });
-    SUBJECTS.forEach(function (sid) {
+    /* Code joins Home's desks once it has been started (roadmap 5.3) */
+    SUBJECTS.filter(function (sid) { return sid !== "code" || (KOS.code && !KOS.code.firstVisit()); }).forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
       var last = store.state.ui.lastRef[sid];
       var lastLeaf = last && BYREF[sid][last] ? BYREF[sid][last] : null;
@@ -1290,7 +1302,7 @@
         ]),
         el("div", { class: "k-bar", "data-ui": "media.bar", title: st.done + " of " + st.total + " spec points completed",
           style: "--p: " + Math.max(st.pct, st.done ? 1 : 0) + "%" }, [el("i", { "data-ui": "media.bar-fill" })]),
-        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
+        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: sid === "code" ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
         el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Weakest" }),
           weak ? el("button", { type: "button", class: "k-desk-row-v", "data-ui": "rag.item", text: weak.ref + " " + weak.title,
             onclick: function () { KOS.show("ref", { subject: sid, ref: weak.ref }); } })
@@ -1662,6 +1674,12 @@
 
   KOS.views.subject = function (main, sid) {
     hideTree();
+    /* Code's desk is built like this one, with its own content (frame 26a) */
+    if (sid === "code" && KOS.codeDesk) {
+      main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
+      KOS.codeDesk(main);
+      return;
+    }
     var d = KOS_DATA[sid], s = subjectStats(sid);
     main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var today = KOS.srs.todayISO();
@@ -2054,6 +2072,9 @@
     var d = KOS_DATA[sid];
     main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var content = KOS.content.get(sid, ref);
+    /* Code lessons (frames 26c–26e): the same page, with Learn | Reference,
+       runnable listings, Practice and Tasks, and an evidence inspector */
+    var cx = sid === "code" && KOS.codeTopic ? KOS.codeTopic.begin(ref) : null;
 
     /* ---------- the Topic Status component ----------
        Status, the four progress checks and the RAG confidence rating are one
@@ -2120,6 +2141,7 @@
       if (i) pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "/" }));
       pathLine.appendChild(document.createTextNode(bit));
     });
+    if (cx) cx.decoratePath(pathLine, leaf);
     if (leaf.section.paper) {
       var note = (PAPER_NOTE[sid] || {})[paperLabel(sid, leaf.section.paper)];
       pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
@@ -2239,10 +2261,11 @@
       ["sim", "Simulations", mats.sim, mats.sim],
       ["files", "Files", true, null]
     ].filter(function (t) { return t[2]; });
+    if (cx) TABDEFS = cx.tabs(mats);
 
     var tabBar = el("div", { class: "k-topic-tabs", "data-ui": "ui.tabs topic.tabs", role: "tablist", "aria-label": "Study material" });
     var panel = el("div", { class: "k-topic-panel", "data-ui": "study.panel", role: "tabpanel" });
-    var curTab = (content && content.notes && content.notes.length) ? "notes" : "spec";
+    var curTab = cx ? cx.firstTab() : (content && content.notes && content.notes.length) ? "notes" : "spec";
     var EDIT_KIND = { spec: "spec", notes: "notes", cards: "flashcards", quiz: "quiz", exam: "exam" };
     var editing = store.state.ui.editing;
     if (editing && editing.sid === sid && editing.ref === ref && editing.tab && EDIT_KIND[editing.tab]) curTab = editing.tab;
@@ -2329,7 +2352,7 @@
     var asstStrip = KOS.assistant && KOS.assistant.contextActions
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
       : null;
-    var inspector = buildInspector(studyGrid, sid, ref, ctl, asstStrip);
+    var inspector = buildInspector(studyGrid, sid, ref, cx ? cx.status() : ctl, asstStrip, cx);
     studyGrid.appendChild(inspector);
     /* the inspector as a phone sheet: the same aside, moved in and back */
     function openInspectorSheet() {
@@ -2484,6 +2507,9 @@
           oninput: debounce(function () { store.setNote(sid, ref, ta.value); }, 350) });
         ta.value = prog().note || "";
         panel.appendChild(card("Your notes on this spec point", ta));
+      }
+      else if (cx && cx.owns(curTab, !!editing)) {
+        cx.render(curTab, panel, pagerSlot, { reveal: o.reveal, keep: o.keep, writeBtn: writeBtn });
       }
       else if (curTab === "notes") {
         /* while editing, render the editable shape (id-bearing blocks) even
@@ -2687,7 +2713,7 @@
      recall record, the next review and the assistant's topic actions.
      Every figure comes from topicStats(), the call the status component
      makes, so nothing here can drift (invariant 26d). */
-  function buildInspector(grid, sid, ref, statusComponent, asstStrip) {
+  function buildInspector(grid, sid, ref, statusComponent, asstStrip, cx) {
     var body = el("div", { class: "k-insp-body", "data-ui": "topic.inspector-body" });
     if (statusComponent) body.appendChild(statusComponent);
 
@@ -2705,7 +2731,10 @@
 
     var t = topicStats(sid, ref);
     var qz = t.quiz;
-    body.appendChild(sec("Recall record", [
+    /* a Code lesson's inspector reads evidence: concepts, proof in code and
+       the next practice (frame 26c) — not the recall record */
+    if (cx) cx.inspectorBody(body, t);
+    else body.appendChild(sec("Recall record", [
       count("Card views", t.seen),
       li("Recall accuracy", t.accuracy == null ? "" : pctText(t.accuracy), t.accuracy == null),
       count("Lapses", t.lapses),
@@ -2714,7 +2743,7 @@
       count("Exam questions logged", t.examLogged)
     ]));
     var nextTxt = t.due ? t.due + " due now" : t.next ? t.next : t.reviewed ? "all scheduled" : "";
-    body.appendChild(sec("Next review", [
+    if (!cx) body.appendChild(sec("Next review", [
       li("Review queue", nextTxt, !nextTxt),
       li("Cards scheduled", ratioText(t.reviewed, t.cards), !t.cards),
       li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
@@ -2724,12 +2753,13 @@
        it as one dated block at the end of the Spec tab (invariant 89) */
     if (KOS.edits && KOS.spec && KOS.spec.level(sid, ref) === "leaf") {
       var qn = el("textarea", { class: "k-input k-insp-qn", "data-ui": "topic.quick-note", rows: "3", placeholder: "Quick note…",
-        "aria-label": "Quick note. It files to the Specification tab when you leave this topic." });
+        "aria-label": sid === "code" ? "Quick note. It files to the lesson's notes when you leave this lesson." : "Quick note. It files to the Specification tab when you leave this topic." });
       qn.value = KOS.edits.draft(sid, ref);
       var qnHint = el("p", { class: "k-insp-qn-hint", "data-ui": "topic.quick-note-hint" });
       var paintQn = function () {
         var n = qn.value.trim().length;
-        qnHint.textContent = n ? "Draft · " + n + (n === 1 ? " character" : " characters") + ". Files to Spec when you leave this topic." : "Files to Spec when you leave this topic.";
+        var whereTo = sid === "code" ? "Notes when you leave this lesson." : "Spec when you leave this topic.";
+        qnHint.textContent = n ? "Draft · " + n + (n === 1 ? " character" : " characters") + ". Files to " + whereTo : "Files to " + whereTo;
         KOS.ui.state(qn, "draft", n > 0);
       };
       qn.addEventListener("input", function () { KOS.edits.setDraft(sid, ref, qn.value); paintQn(); });
@@ -2758,6 +2788,8 @@
     }
     paintToggle(grid.matches('[data-state~="insp-closed"]'));
 
+    /* Reference mode: the inspector becomes "On this page" (frame 26d) */
+    if (cx && cx.reference()) { body.innerHTML = ""; cx.onThisPage(body); }
     return el("aside", { class: "k-insp", "data-ui": "topic.inspector", "aria-label": "Study inspector" }, [
       el("div", { class: "k-insp-head" }, [
         el("span", { class: "k-insp-title", text: "Inspector" }),

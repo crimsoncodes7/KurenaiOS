@@ -46,6 +46,10 @@
     ref: function (a) { return a && a.subject && a.ref ? [a.subject, a.ref] : null; },
     subject: function (a) { return typeof a === "string" && a ? [a] : null; },
     governor: function (a) { return typeof a === "string" && a ? [a] : null; },
+    /* Code's own pages (roadmap 5.3): `#/code/map`, `#/code/task/<id>`,
+       `#/code/retrieval[/<card>]`, `#/code/skills`, `#/code/settings`,
+       `#/code/track/<id>` */
+    code: function (a) { return a && a.page ? [a.page].concat(a.id ? [a.id] : []) : null; },
     sims: function (a) { return typeof a === "string" && a ? [a] : null; },
     assistant: function (a) { return a && typeof a.tab === "string" && a.tab ? [a.tab] : null; },
     /* the guide section being read (`#/help/productivity`), and the one
@@ -83,6 +87,7 @@
     },
     subject: function (p) { return p[0] || null; },
     governor: function (p) { return p[0] || null; },
+    code: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
     help: function (p) { return p[1] ? { section: p[0], entry: p[1] } : p[0] || null; },
