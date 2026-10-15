@@ -426,9 +426,14 @@
         marks.appendChild(b);
       });
       if (st.capstone) {
-        var cap = K.CAPSTONES[st.capstone];
-        marks.appendChild(el("span", { class: "k-cx-dia", "data-state": "later", role: "img",
-          "aria-label": "Capstone " + st.capstone.slice(1) + ", " + cap.title + ": recommended later", title: "Capstone " + st.capstone.slice(1) + " · " + cap.title }));
+        var cap = K.CAPSTONES[st.capstone], cst = KOS.code.capStage(st.capstone), cid = st.capstone;
+        var words = cst === "passed" ? "passed" : cst === "next" ? "next" : "recommended later";
+        marks.appendChild(KOS.code.capstone(cid)
+          ? el("button", { type: "button", class: "k-cx-dia", "data-state": cst, "data-ui": "code.path-capstone", tabindex: "-1",
+              "aria-label": "Capstone " + cid.slice(1) + ", " + cap.title + ": " + words, title: "Capstone " + cid.slice(1) + " · " + cap.title,
+              onclick: function () { KOS.show("code", { page: "capstone", id: cid }); } })
+          : el("span", { class: "k-cx-dia", "data-state": cst, role: "img",
+              "aria-label": "Capstone " + cid.slice(1) + ", " + cap.title + ": " + words, title: "Capstone " + cid.slice(1) + " · " + cap.title }));
       }
       grp.appendChild(marks);
       row.appendChild(grp);

@@ -30,6 +30,22 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Released 16 October 2026 — Code capstone 1: the text adventure engine
+
+- **The capstone checkpoint (frame 26l):** a seven-step stepper — a
+  closed-book quiz that never locks (under 3 of 5 it recommends two
+  lessons), the brief, the build against five milestones of acceptance
+  tests, the rubric (correctness filled from the tests), an optional Kurenai
+  review behind "What is sent", the write-up and the result. Passing pays
+  +150 XP, +40 gold and +10 HP once.
+- **Capstone 1:** a text adventure in stage 1 C# only — rooms, exits,
+  items, a locked door and forgiving input; the reference answer matches
+  .NET on every case (1,073 of 1,073 programs).
+- **Reached from** the stage path's diamond, the curriculum map and the
+  desk's Capstones tile. The curriculum map no longer overlaps its columns
+  on a phone.
+- 76/76 suites (smoke76: capstones); the responsive audit is clean.
+
 ## Released 15 October 2026 — Code unit 3: methods and scope
 
 - **Eight lessons:** why methods, parameters and return values, scope and

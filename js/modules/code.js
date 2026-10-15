@@ -121,7 +121,8 @@
       el("div", { class: "k-sa-grid", "data-ui": "study.analytics-grid" }, [
         statTile({ k: "Mastery", v: mastery + "%", pct: mastery, c: "var(--subj-c)" }),
         statTile({ k: "Lessons", v: st.done + " / " + st.lessons, pct: Math.round(100 * st.done / Math.max(1, st.lessons)), c: "var(--green)" }),
-        statTile({ k: "Capstones", v: "0 / 4", empty: true, sub: "The first capstone arrives at the end of stage 1." }),
+        statTile({ k: "Capstones", v: st.capstones + " / " + st.capstonesTotal, empty: !st.capstones && C().capStage("C1") !== "next",
+          pct: st.capstones ? Math.round(100 * st.capstones / st.capstonesTotal) : null, c: "var(--green)", sub: "The first capstone comes at the end of stage 1." }),
         statTile({ k: "Retrieval due", v: String(st.due), empty: !Object.keys(C().state().cards).length, sub: "skills to prove again today" }),
         statTile({ k: "Skills proven", v: String(st.skillsProven), empty: !st.skillsProven }),
         statTile({ k: "Tasks passed", v: st.tasksPassed + " / " + st.tasksTried, empty: !st.tasksTried,
@@ -381,11 +382,12 @@
           ]));
         });
         if (stg.capstone && strand === "all") {
-          var cap = K().CAPSTONES[stg.capstone];
-          tbl.appendChild(el("div", { class: "k-cx-maprow k-cx-mapcap", role: "row" }, [
-            el("span", { role: "cell", class: "k-cx-mapunit" }, [el("span", { class: "k-cx-dia", "data-state": "later", "aria-hidden": "true" }), "Capstone " + stg.capstone.slice(1) + " · " + cap.title]),
+          var cap = K().CAPSTONES[stg.capstone], cst = C().capStage(stg.capstone), ready = !!C().capstone(stg.capstone);
+          tbl.appendChild(el(ready ? "button" : "div", { type: ready ? "button" : null, class: "k-cx-maprow k-cx-mapcap", role: "row", "data-ui": ready ? "code.map-capstone" : null, "data-state": cst,
+            onclick: ready ? (function (cid) { return function () { KOS.show("code", { page: "capstone", id: cid }); }; })(stg.capstone) : null }, [
+            el("span", { role: "cell", class: "k-cx-mapunit" }, [el("span", { class: "k-cx-dia", "data-state": cst, "aria-hidden": "true" }), "Capstone " + stg.capstone.slice(1) + " · " + cap.title]),
             el("span", { role: "cell" }), el("span", { role: "cell" }), el("span", { role: "cell" }, [KOS.codeUI.where(cap.where)]),
-            el("span", { role: "cell", class: "k-cx-mapst", text: "Recommended later" })
+            el("span", { role: "cell", class: "k-cx-mapst", text: cst === "passed" ? "✓ Passed" : cst === "next" ? "Next · open any time" : "Recommended later" })
           ]));
         }
       });
@@ -1157,6 +1159,7 @@
     if (page === "skills") return pageSkills(main, arg);
     if (page === "settings") return pageSettings(main);
     if (page === "track") return pageTrack(main, arg.id);
+    if (page === "capstone" && KOS.codeCapstone) return KOS.codeCapstone.page(main, arg.id || "C1");
     return pageMap(main);
   };
 })();

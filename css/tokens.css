@@ -431,6 +431,9 @@ color-scheme: dark;
 --cx-mapcol-st: 130px;
 --cx-set-min: 280px;
 --cx-when-w: 104px;
+--cx-cap-side-w: 380px;      /* the capstone build's milestones column (26l) */
+--cx-capbody-max: 860px;    /* a capstone step's reading width */
+--cx-step-n: 26px;          /* a stepper number */
 
 /* ---------- Productivity (frames 10a–10g) ---------- */
 --fx-side-w: 340px;

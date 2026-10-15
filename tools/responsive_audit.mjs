@@ -54,7 +54,7 @@ const VIEWS = String(flag("views",
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
   "governor,assistant,data,help," +
   "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year," +
-  "code-desk,code-lesson,code-map,code-task,code-retrieval,code-skills,code-settings,code-track")).split(",");
+  "code-desk,code-lesson,code-map,code-task,code-retrieval,code-skills,code-settings,code-track,code-capstone")).split(",");
 /* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
    phone probe honest; profile.lastRef is mutable navigation history. */
 const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
@@ -70,6 +70,7 @@ const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
   "code-skills": ["code", '{ page: "skills" }'],
   "code-settings": ["code", '{ page: "settings" }'],
   "code-track": ["code", '{ page: "track", id: "T3" }'],
+  "code-capstone": ["code", '{ page: "capstone", id: "C1" }'],
   /* Reports (roadmap 5.1): the saved reports the preparation below wrote */
   "reports-week": ["reports", '{ period: "week", start: (window.__rp || {}).week }'],
   "reports-week-study": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "study" }'],

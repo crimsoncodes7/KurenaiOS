@@ -54,12 +54,13 @@
     return {
       v: 1,
       tasks: obj(c.tasks), lessons: obj(c.lessons), proven: obj(c.proven),
-      cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later)
+      cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later), capstones: obj(c.capstones)
     };
   }
   function S() {
     var st = store.state;
     if (!st.code || st.code.v !== 1 || !st.code.tasks) st.code = normalise(st.code);
+    if (!st.code.capstones) st.code.capstones = {};
     return st.code;
   }
   function U() {
@@ -310,7 +311,136 @@
       return { xp: full.xp, gold: full.gold, hp: TASK_HP };
     }
     if (m.kind === "retrieval" && m.paid) return { xp: CARD_XP, gold: 0, hp: 0 };
+    if (m.kind === "capstone" && m.first && capstone(m.id) && capstone(m.id).reward) {
+      var rw = capstone(m.id).reward;
+      return { xp: rw.xp || 0, gold: rw.gold || 0, hp: rw.hp || 0 };
+    }
     return { xp: 0, gold: 0, hp: 0 };
+  }
+
+  /* ---------------- capstones (frame 26l) ----------------
+     Seven steps, all open: quiz · brief · build · rubric · review ·
+     write-up · result. The record (synced, keyed by capstone id) holds
+     facts only — the quiz's answers, each milestone's last run, the
+     self-marked rubric, the review, the write-up and the pass. The build's
+     source is a per-device draft like a task's ("cap:<id>"). */
+  var CAP_STEPS = [["quiz", "Closed-book quiz"], ["brief", "Brief"], ["build", "Build"], ["rubric", "Rubric"],
+    ["review", "Kurenai review"], ["writeup", "Write-up"], ["result", "Result"]];
+  function capstone(id) { var c = K().CAPSTONES[id]; return c && c.milestones ? c : null; }
+  function capRec(id) { var C = S().capstones; return C[id] = obj(C[id]); }
+  function peekCap(id) { return obj(S().capstones[id]); }
+  function words(t) { return (String(t || "").match(/[A-Za-z0-9\u00C0-\u024F'’-]+/g) || []).length; }
+  function capCases(id) { var c = capstone(id); return c ? c.milestones.reduce(function (a, m) { return a + m.cases.length; }, 0) : 0; }
+  /* the quiz: answered once at a time (it can be retaken); under 3 of 5
+     recommends the lessons of the first two misses and still opens */
+  function answerQuiz(id, answers) {
+    var c = capstone(id); if (!c) return null;
+    var score = 0, missed = [];
+    c.quiz.forEach(function (q, i) { if (answers[i] === q.ans) score++; else missed.push(i); });
+    var r = capRec(id);
+    r.quiz = { answers: answers.slice(0, c.quiz.length), score: score, at: Date.now() };
+    store.save();
+    return quizView(id);
+  }
+  function quizView(id) {
+    var c = capstone(id), q = peekCap(id).quiz;
+    if (!c || !q) return null;
+    var missed = c.quiz.map(function (x, i) { return q.answers[i] === x.ans ? null : i; }).filter(function (i) { return i !== null; });
+    var recommend = q.score < 3 ? missed.slice(0, 2).map(function (i) { return c.quiz[i].lesson; }) : [];
+    return { score: q.score, total: c.quiz.length, answers: q.answers, missed: missed, recommend: recommend, at: q.at };
+  }
+  /* one milestone's acceptance run: its pass count, kept with the time */
+  function recordMilestone(id, mid, pass, total) {
+    var r = capRec(id);
+    r.build = obj(r.build);
+    r.build[mid] = { pass: pass, total: total, at: Date.now() };
+    store.save();
+  }
+  function buildView(id) {
+    var c = capstone(id), b = obj(peekCap(id).build);
+    if (!c) return null;
+    var pass = 0, total = 0, done = 0;
+    var ms = c.milestones.map(function (m) {
+      var x = b[m.id], t = m.cases.length, p = x && x.total === t ? x.pass : 0;
+      pass += p; total += t; if (x && p === t) done++;
+      return { id: m.id, title: m.title, pass: p, total: t, run: !!x, done: !!x && p === t, at: x ? x.at : null };
+    });
+    return { milestones: ms, pass: pass, total: total, done: done, all: done === ms.length };
+  }
+  function setRubric(id, row, n) {
+    var c = capstone(id); if (!c) return;
+    var rw = c.rubric.filter(function (x) { return x.id === row && !x.auto; })[0]; if (!rw) return;
+    var r = capRec(id); r.rubric = obj(r.rubric);
+    r.rubric[row] = Math.max(0, Math.min(rw.max, Math.round(n)));
+    store.save();
+  }
+  function rubricView(id) {
+    var c = capstone(id), b = buildView(id), marks = obj(peekCap(id).rubric);
+    if (!c) return null;
+    var total = 0, max = 0, marked = true;
+    var rows = c.rubric.map(function (rw) {
+      var v = rw.auto ? Math.round(rw.max * (b.total ? b.pass / b.total : 0)) : typeof marks[rw.id] === "number" ? marks[rw.id] : null;
+      if (v === null) marked = false; else total += v;
+      max += rw.max;
+      return { id: rw.id, title: rw.title, auto: !!rw.auto, max: rw.max, value: v, guide: rw.guide || null };
+    });
+    return { rows: rows, total: total, max: max, marked: marked };
+  }
+  function setWriteup(id, text) {
+    var r = capRec(id);
+    r.writeup = { text: String(text || "").slice(0, 8000), at: Date.now() };
+    store.save();
+  }
+  /* the review: not asked · received · skipped (sending is transient) */
+  function setReview(id, o) {
+    var r = capRec(id);
+    r.review = { state: o.state === "received" ? "received" : "skipped", text: o.state === "received" ? String(o.text || "").slice(0, 6000) : "",
+      sent: o.sent || null, at: Date.now() };
+    store.save();
+  }
+  /* where a capstone stands, step by step; ready = the pass conditions */
+  function capView(id) {
+    var c = capstone(id); if (!c) return null;
+    var rec = peekCap(id), b = buildView(id), rb = rubricView(id), q = quizView(id);
+    var wu = rec.writeup ? rec.writeup.text : "", wn = words(wu);
+    var done = {
+      quiz: !!q, brief: !!q || b.milestones.some(function (m) { return m.run; }), build: b.all, rubric: rb.marked && b.all,
+      review: !!(rec.review && rec.review.state), writeup: wn >= (c.writeupMin || 40), result: !!rec.passAt
+    };
+    var missing = [];
+    if (!b.all) missing.push({ step: "build", text: (b.milestones.length - b.done) + " of " + b.milestones.length + " milestones still failing their acceptance tests" });
+    if (!rb.marked) missing.push({ step: "rubric", text: "the rubric's self-marked rows" });
+    if (wn < (c.writeupMin || 40)) missing.push({ step: "writeup", text: "a write-up of at least " + (c.writeupMin || 40) + " words (" + wn + " so far)" });
+    return { id: id, spec: c, steps: CAP_STEPS.map(function (s) { return { id: s[0], title: s[1], done: done[s[0]] }; }),
+      quiz: q, build: b, rubric: rb, review: rec.review || null, writeup: { text: wu, words: wn, at: rec.writeup ? rec.writeup.at : null },
+      ready: !missing.length, missing: missing, passAt: rec.passAt || null, paid: !!rec.paid };
+  }
+  /* submit at the Result step: passes once the conditions hold, and pays
+     once ever (a later resubmission records nothing new) */
+  function submitCapstone(id) {
+    var v = capView(id); if (!v) return null;
+    if (v.passAt) return { passed: true, paid: false, why: "already passed", at: v.passAt };
+    if (!v.ready) return { passed: false, missing: v.missing };
+    var r = capRec(id);
+    r.passAt = Date.now();
+    var first = !r.paid;
+    r.paid = true;
+    var c = v.spec, refs = [];
+    lessons().forEach(function (l) { if (l.stage === c.stage) refs.push(SID + ":" + l.ref); });
+    KOS.sessions.log({ type: "code", subject: SID, ref: refs.length ? refs[refs.length - 1].slice(SID.length + 1) : null,
+      metrics: { kind: "capstone", id: id, first: first, rubric: v.rubric.total, max: v.rubric.max } });
+    return { passed: true, paid: first, pay: first ? award({ kind: "capstone", id: id, first: true }) : null, at: r.passAt };
+  }
+  /* a stage's capstone on the path: passed · next (its stage is where you
+     are, or done) · later */
+  function capStage(id) {
+    var c = K().CAPSTONES[id], rec = peekCap(id);
+    if (rec.passAt) return "passed";
+    var stg = (K().STAGES || []).filter(function (x) { return x.capstone === id; })[0];
+    if (!stg || !capstone(id)) return "later";
+    var cur = stats().current;
+    var started = stg.units.some(function (u) { return unitState(u).state !== "later"; });
+    return started || (cur && cur.stage === stg.id) ? "next" : "later";
   }
 
   /* ---------------- drafts (per device) ---------------- */
@@ -510,7 +640,8 @@
       skillsProven: Object.keys(st.proven).filter(function (c) { return concept(c); }).length,
       due: dueCards().length,
       current: current || null,
-      capstones: 0
+      capstones: Object.keys(K().CAPSTONES || {}).filter(function (id) { return obj(st.capstones)[id] && st.capstones[id].passAt; }).length,
+      capstonesTotal: Object.keys(K().CAPSTONES || {}).length
     };
   }
   /* a unit's stage-path state: done · current · later (dashed) */
@@ -552,6 +683,9 @@
     grade: grade, recordCard: recordCard, recordPractice: recordPractice,
     saveLater: saveLater, dropLater: dropLater, laterList: laterList, isLater: isLater,
     planDay: planDay, reviewWeek: reviewWeek, stats: stats, firstVisit: firstVisit,
-    isPhone: isPhone, phoneFit: phoneFit, hash: hash, rng: rng, isoOf: isoOf, daysBetween: daysBetween
+    isPhone: isPhone, phoneFit: phoneFit,
+    CAP_STEPS: CAP_STEPS, capstone: capstone, capView: capView, capStage: capStage, answerQuiz: answerQuiz, quizView: quizView,
+    recordMilestone: recordMilestone, buildView: buildView, setRubric: setRubric, rubricView: rubricView,
+    setWriteup: setWriteup, setReview: setReview, submitCapstone: submitCapstone, words: words, capCases: capCases, hash: hash, rng: rng, isoOf: isoOf, daysBetween: daysBetween
   };
 })();

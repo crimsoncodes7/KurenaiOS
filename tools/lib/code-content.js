@@ -19,7 +19,7 @@ function loadCode() {
   sandbox.window.window = sandbox.window;
   vm.createContext(sandbox);
   const files = ["js/data/code.js"].concat(
-    fs.readdirSync(path.join(ROOT, "js/data/content")).filter((f) => /^code-u\d+\.js$/.test(f)).sort().map((f) => "js/data/content/" + f));
+    fs.readdirSync(path.join(ROOT, "js/data/content")).filter((f) => /^code-[uc]\d+\.js$/.test(f)).sort().map((f) => "js/data/content/" + f));
   for (const f of files) vm.runInContext("(function(window){" + fs.readFileSync(path.join(ROOT, f), "utf8") + "\n})(window);", sandbox, { filename: f });
   const CSI = require(path.join(ROOT, "js/labs/cs-interp.js"));
   return { K: sandbox.window.KOS_CODE, content: sandbox.window.KOS_CONTENT, data: sandbox.window.KOS_DATA.code, CSI, files };
@@ -50,6 +50,11 @@ function programs(K, content) {
   Object.keys(K.TASKS).forEach((id) => {
     const t = K.TASKS[id];
     (t.examples || []).concat(t.hidden || []).forEach((c, i) => out.push({ where: "task " + id + " case " + (i + 1), src: t.answer, stdin: c.stdin || "", expect: c.out, kind: "answer" }));
+  });
+  Object.keys(K.CAPSTONES).forEach((id) => {
+    const cp = K.CAPSTONES[id];
+    if (!cp.answer) return;
+    (cp.milestones || []).forEach((m) => m.cases.forEach((c, i) => out.push({ where: "capstone " + id + " " + m.id + " case " + (i + 1), src: cp.answer, stdin: c.stdin || "", expect: c.out, kind: "capstone" })));
   });
   Object.keys(K.CARDS).forEach((id) => {
     const cd = K.CARDS[id];

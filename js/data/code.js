@@ -350,6 +350,13 @@
         if (!src) return;
         Object.keys(src).forEach(function (id) { K[k][id] = Object.assign({ id: id }, src[id]); });
       });
+    },
+    /* a capstone's whole content (frame 26l), released like a unit: the
+       quiz, brief, starter, milestones of acceptance cases, rubric and the
+       gates' reference answer join the stage's entry in CAPSTONES */
+    capstone: function (id, o) {
+      var K = window.KOS_CODE;
+      K.CAPSTONES[id] = Object.assign({ id: id }, K.CAPSTONES[id] || {}, o);
     }
   };
 })();

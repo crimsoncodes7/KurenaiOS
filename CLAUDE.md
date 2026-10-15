@@ -20,7 +20,7 @@ chronological diary here.
   https://e89ae424.kurenai-os.pages.dev (15 October 2026; Code units 1–3)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-code-4`
-- Required smoke gate: 75 / 75 suites.
+- Required smoke gate: 76 / 76 suites.
 
 ## Run, test and deploy
 
@@ -30,7 +30,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..75}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..76}; do node "tools/smoke${i}.test.js"; done
 node tools/cs_diff.mjs                 # Code content against real .NET (needs the .NET 10 SDK)
 ```
 
@@ -123,7 +123,7 @@ non-navigation redraw path.
 | Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`); the Assistant's Scheduled tab |
 | Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportlong.js` (`KOS.reportsLong`: the month, term and year pages), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js`; the replicated copy in Supabase `kos_reports` |
 | The subject list (CS, Maths, IT, Code; which are exam subjects), names and hues | `js/core/subjects.js` (`KOS.subjects`) |
-| Code (roadmap 5.3, `docs/code-plan.md`): curriculum, model, runner, primitives, pages | `js/data/code.js` (the authored spine `KOS_DATA.code` and `KOS_CODE`: stages, tracks, concepts, tasks, cards, the error decoder), `js/data/content/code-u*.js` (one file per released unit), `js/core/code.js` (`KOS.code`: evidence, pay, retrieval, the day's plan), `js/core/coderun.js` (`KOS.codeRun`: the worker and the checker), `js/labs/cs-interp.js` (the in-app C# runner, pure, also in Node), `js/core/codeui.js` (`KOS.codeUI`: editor, results, error card, hints, stage path, listings, key bar), `js/modules/codetopic.js` (`KOS.codeTopic`: the lesson on the shared topic page), `js/modules/code.js` (`KOS.codeDesk` and `#/code/<page>`), `css/views/code.css`; `tools/cs_diff.mjs` (the .NET differential) |
+| Code (roadmap 5.3, `docs/code-plan.md`): curriculum, model, runner, primitives, pages | `js/data/code.js` (the authored spine `KOS_DATA.code` and `KOS_CODE`: stages, tracks, concepts, tasks, cards, the error decoder), `js/data/content/code-u*.js` (one file per released unit), `js/data/content/code-c*.js` (one per capstone, through `KOS_CODE.capstone`), `js/core/code.js` (`KOS.code`: evidence, pay, retrieval, the day's plan), `js/core/coderun.js` (`KOS.codeRun`: the worker and the checker), `js/labs/cs-interp.js` (the in-app C# runner, pure, also in Node), `js/core/codeui.js` (`KOS.codeUI`: editor, results, error card, hints, stage path, listings, key bar), `js/modules/codetopic.js` (`KOS.codeTopic`: the lesson on the shared topic page), `js/modules/code.js` (`KOS.codeDesk` and `#/code/<page>`), `js/modules/codecap.js` (`KOS.codeCapstone`: the capstone checkpoint, `#/code/capstone/<id>`), `css/views/code.css`; `tools/cs_diff.mjs` (the .NET differential) |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -682,12 +682,19 @@ source comments and audit notes refer to it.
     every listing, practice item, task answer and retrieval variation runs
     under the interpreter AND agrees with .NET byte for byte
     (`node tools/cs_diff.mjs`, run before every content release). A task's
-    answer passes its own cases and rules; its starter does not.
+    answer passes its own cases and rules; its starter does not. A capstone
+    (frame 26l, smoke76) ships whole too: a five-question quiz linked to
+    written lessons, the brief, a starter that passes no acceptance case,
+    milestones of acceptance cases, a rubric with ONE automatic row, and a
+    reference answer that passes every case under both runners using only
+    its stage's language (stage 1: no arrays, lists or classes).
 105. THE SANDBOX. Learner code runs only in `js/labs/cs-interp.js`, in a
     Worker with fetch, XMLHttpRequest, importScripts and WebSocket removed,
     no DOM and no app data; the page's watchdog terminates it after 4 s.
     Only file:// and the test harness run it in the page. It never leaves
-    the device to run. Nullable reference types are off in units 1–6.
+    the device to run. Nullable reference types are off in units 1–6. A
+    capstone's Kurenai review sends only what is ticked in its "What is
+    sent" dialog (Cancel first), once per press, and is skippable.
 106. PAY ONCE. `KOS.code.award()` is the one definition the Governor pays
     by (type `code`): a task's first proven pass pays its tier (warm-up
     12/1, core 18/2, stretch 26/3) and +3 HP; a phone task (units 1–3 only)
@@ -696,7 +703,12 @@ source comments and audit notes refer to it.
     proves nothing), lesson practice and a failed card pay nothing. A
     retrieval proven pays +4 XP, at most 10 a day, counted from today's
     ledger; past the cap the card still moves. Every no-reward case shows
-    "No reward · why". HP gates nothing (invariant 2).
+    "No reward · why". HP gates nothing (invariant 2). A capstone pays its
+    `reward` (stage 1: 150 XP, 40 gold, +10 HP) once ever, on the first
+    submission that holds: every milestone passing, the self-marked rubric
+    rows marked (correctness is derived from the acceptance runs, never
+    set by hand) and a write-up of at least `writeupMin` words. The quiz and
+    the review never gate it; a capstone is never locked.
 107. STATUS FROM EVIDENCE. A Code lesson's four checks (notes read, listings
     run, a task passed, a retrieval passed) are derived from evidence in
     `state.code` and written to the shared progress record only by
