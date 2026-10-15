@@ -114,6 +114,17 @@ step("D · four checks from evidence; reading alone never completes a lesson", a
   p = K.store.peekProgress("code", ref);
   assert(p.check.every(Boolean) && p.status === "done", "a proven task and a retrieval complete it: " + JSON.stringify(p));
 });
+step("D · a tick needs every page; a quick note never moves the count", async (app) => {
+  const K = app.KOS, ref = "1.2";
+  const pages = K.code.evidence(ref).pages;
+  for (let i = 0; i < pages - 1; i++) K.code.markPage(ref, i);
+  assert(!K.code.evidence(ref).checks[0], "one page short is not a tick");
+  K.edits.appendSpec("code", ref, "my own note");
+  const ev = K.code.evidence(ref);
+  assert(ev.pages === pages && ev.read === pages - 1, "the filed note did not change the count: " + ev.read + " of " + ev.pages);
+  K.code.markPage(ref, pages - 1);
+  assert(K.code.evidence(ref).checks[0] && K.store.peekProgress("code", ref).check[0], "every page read ticks it");
+});
 step("D · the day's plan is computed, stable through the day and reads Done", async (app) => {
   const K = app.KOS;
   const a = K.code.planDay(), b = K.code.planDay();

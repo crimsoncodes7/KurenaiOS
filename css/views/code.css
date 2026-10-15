@@ -103,8 +103,7 @@
 .k-cx-ev[data-level="app"] { color: var(--green); }
 .k-cx-ev[data-level="self"] { color: var(--amber); }
 .k-cx-ev[data-level="ci"] { color: var(--code); }
-.k-cx-strands { display: inline-flex; gap: var(--sp-4); vertical-align: middle; }
-.k-cx-strand { display: inline-grid; place-items: center; min-inline-size: var(--sp-20); block-size: var(--sp-20); padding-inline: var(--sp-4); border-radius: var(--r-6); background: var(--s2); font: var(--weight-semibold) var(--fs-11) var(--font-mono); color: var(--text-2); }
+.k-cx-strands { font-size: var(--fs-12); color: var(--muted); white-space: nowrap; }
 .k-cx-where { display: inline-flex; align-items: center; gap: var(--sp-4); padding: var(--sp-2) var(--sp-8); border-radius: var(--r-pill); background: var(--s2); font-size: var(--fs-12); color: var(--text-2); white-space: nowrap; }
 .k-cx-where[data-where="rider"], .k-cx-where[data-where="external"] { color: var(--muted); }
 .k-cx-chip { display: inline-flex; align-items: center; padding: var(--sp-2) var(--sp-8); border-radius: var(--r-pill); background: var(--s2); font-size: var(--fs-12); color: var(--text-2); white-space: nowrap; }
@@ -124,7 +123,7 @@
 .k-cx-age[data-band="b3"] { box-shadow: inset 0 0 0 var(--hairline) var(--amber); color: var(--amber); }
 
 /* ================= the stage path ================= */
-.k-cx-path { display: flex; align-items: flex-start; gap: var(--sp-18); padding-block: var(--sp-2); }
+.k-cx-path { display: flex; align-items: flex-start; gap: var(--sp-18); padding: var(--sp-6); }
 .k-cx-stage { display: flex; flex-direction: column; gap: var(--sp-8); flex: 0 0 auto; }
 .k-cx-stage-h { font-size: var(--fs-12); color: var(--muted); white-space: nowrap; }
 .k-cx-stage-h b { color: var(--text); font-weight: var(--weight-medium); }
@@ -139,7 +138,11 @@
 .k-cx-dia[data-state~="passed"] { background: var(--code); box-shadow: none; }
 .k-cx-dia[data-state~="next"] { box-shadow: inset 0 0 0 var(--ring-1-5) var(--code); }
 .k-cx-dia[data-state~="later"] { box-shadow: none; outline: var(--hairline) dashed var(--muted); }
-.k-cx-path[data-state~="compact"] .k-cx-sq { inline-size: var(--cx-sq-compact); block-size: var(--cx-sq-compact); }
+.k-cx-path[data-state~="compact"] { gap: var(--sp-14); }
+.k-cx-path[data-state~="compact"] .k-cx-sq { inline-size: var(--cx-sq-compact); block-size: var(--cx-sq-compact); font-size: var(--fs-11); }
+.k-cx-path[data-state~="compact"] .k-cx-stage-m { gap: var(--sp-6); }
+.k-cx-path[data-state~="compact"] .k-cx-stage-h { font-size: var(--fs-11-5); }
+.k-cx-path[data-state~="compact"] .k-cx-dia { inline-size: var(--sp-16); block-size: var(--sp-16); }
 .k-cx-pathcard { padding: var(--sp-14) var(--sp-18); }
 
 /* ================= a runnable listing in notes ================= */
@@ -155,7 +158,15 @@
 
 /* ================= the desk (26a) ================= */
 .k-cx-hero-line { margin: var(--sp-8) 0 0; font-size: var(--fs-13); color: var(--muted); }
-.k-subj-paper-top .k-cx-strand { margin-inline-end: var(--sp-2); }
+/* the hero carries the stage path under the name and the strand bars */
+.k-cx-hero { row-gap: var(--sp-20); align-items: start; }
+.k-cx-hero .k-subj-ring { align-self: center; }
+.k-cx-hero-path { grid-column: 1 / -1; min-inline-size: 0; padding-block-start: var(--sp-16); border-block-start: var(--hairline) solid var(--line); }
+.k-cx-hero .k-subj-papers { align-self: center; }
+.k-cx-core .k-sectionhead { margin-block-end: var(--sp-12); }
+.k-cx-unit .k-unit-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-block-size: calc(2 * 1.25em); }
+.k-cx-unit .k-unit-segs span { background: var(--s3); }
+.k-cx-unit[data-state~="later"] .k-unit-segs span { background: none; box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-cx-d20 { display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-16) var(--sp-18); box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--code) 40%, transparent); }
 .k-cx-d20-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
 .k-cx-d20-t { margin: 0; font-size: var(--fs-17); font-weight: var(--weight-semibold); }
@@ -197,9 +208,9 @@
 .k-cx-spineseg { margin: 0 var(--sp-14) var(--sp-10); }
 .k-spine-stage { padding: var(--sp-14) var(--sp-14) var(--sp-4); font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
 .k-cx-aqa { font-size: var(--fs-12-5); }
-.k-cx-mode { margin-inline-start: auto; }
-.k-topic-path .k-cx-strands { margin-inline: var(--sp-2); }
+.k-topic-head > .k-cx-mode { flex: 0 0 auto; align-self: flex-start; margin-block-start: var(--sp-4); }
 .k-cx-ts { gap: 0; }
+.k-cx-insp-live { display: contents; }
 .k-cx-checks { list-style: none; margin: 0 0 var(--sp-8); padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
 .k-cx-check { display: flex; align-items: flex-start; gap: var(--sp-10); padding-block: var(--sp-6); font-size: var(--fs-13-5); color: var(--text-2); }
 .k-cx-check[data-state~="on"] { color: var(--text); }
@@ -381,8 +392,9 @@
 
 /* ================= the curriculum map (26b) and a track (26t) ================= */
 .k-cx-mapbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); margin-block-end: var(--sp-12); }
-.k-cx-banner { display: flex; align-items: baseline; gap: var(--sp-6); margin: 0 0 var(--sp-16); padding: var(--sp-10) var(--sp-14); border-radius: var(--r-12); background: var(--s1); font-size: var(--fs-13); color: var(--text-2); }
-.k-cx-map { display: grid; grid-template-columns: minmax(0, 1fr) var(--cx-map-side-w); gap: var(--sp-20); align-items: start; }
+.k-cx-banner { flex: 1 1 var(--cx-set-min); display: flex; align-items: baseline; gap: var(--sp-6); margin: 0; padding: var(--sp-10) var(--sp-14); border-radius: var(--r-12); background: var(--s1); font-size: var(--fs-13); color: var(--text-2); }
+.k-cx-mapbar { margin-block-end: var(--sp-16); }
+.k-cx-map { display: flex; flex-direction: column; gap: var(--sp-24); }
 .k-cx-mapcore { padding: var(--sp-16) var(--sp-18); }
 .k-cx-maptbl { display: flex; flex-direction: column; }
 .k-cx-maprow { display: grid; grid-template-columns: minmax(0, 1fr) var(--cx-mapcol-n) var(--cx-mapcol-s) var(--cx-mapcol-w) var(--cx-mapcol-st); align-items: center; gap: var(--sp-10); inline-size: 100%; padding: var(--sp-8) var(--sp-6); border-radius: var(--r-10); text-align: start; font-size: var(--fs-13); }
@@ -397,7 +409,10 @@ button.k-cx-maprow:hover { background: var(--s2); }
 .k-cx-maprow[data-state~="current"] .k-cx-mapst { color: var(--code); }
 .k-cx-maprow[data-state~="later"] .k-cx-mapst { color: var(--muted); }
 .k-cx-mapcap { color: var(--text-2); }
-.k-cx-mapside { display: flex; flex-direction: column; gap: var(--sp-20); }
+.k-cx-mapcap .k-cx-mapst { color: var(--muted); }
+.k-cx-mapside { display: flex; flex-direction: column; gap: var(--sp-24); }
+.k-cx-branchgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cx-set-min), 1fr)); gap: var(--sp-12); align-items: stretch; }
+.k-cx-branchgrid > .k-cx-branch { block-size: 100%; }
 .k-cx-branches { display: flex; flex-direction: column; gap: var(--sp-10); }
 .k-cx-branch { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-8); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-14); background: none; outline: var(--hairline) dashed var(--line); outline-offset: calc(var(--hairline) * -1); text-align: start; }
 .k-cx-branch:hover { background: var(--s1); }
@@ -428,8 +443,7 @@ button.k-cx-maprow:hover { background: var(--s2); }
 
 /* ================= breakpoints, widest first ================= */
 @media (max-width: 1240px) {
-.k-cx-map { grid-template-columns: minmax(0, 1fr); }
-.k-cx-mapside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-18); }
+.k-cx-hero-path { grid-column: 1 / -1; }
 }
 @media (max-width: 1080px) {
 .k-cx-taskgrid { grid-template-columns: minmax(0, 1fr) var(--cx-task-w-1080); }
@@ -447,7 +461,6 @@ button.k-cx-maprow:hover { background: var(--s2); }
 .k-cx-showtask { display: none; }
 .k-cx-maprow { grid-template-columns: minmax(0, 1fr) var(--cx-mapcol-s) var(--cx-mapcol-st); }
 .k-cx-maprow > :nth-child(2), .k-cx-maprow > :nth-child(4) { display: none; }
-.k-cx-mapside { display: flex; }
 .k-cx-settings { grid-template-columns: minmax(0, 1fr); }
 .k-cx-track { grid-template-columns: minmax(0, 1fr); }
 }

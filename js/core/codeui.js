@@ -382,11 +382,11 @@
       el("span", { "aria-hidden": "true", text: e[0] }), " " + e[1]
     ]);
   }
+  /* a unit's strands as quiet words ("C# · Computer science"), never as
+     letter badges — the letters meant nothing at a glance */
+  var STRAND_WORD = { L: "C#", E: "Engineering", S: "Computer science" };
   function strands(list) {
-    var S = (window.KOS_CODE && KOS_CODE.STRANDS) || {};
-    return el("span", { class: "k-cx-strands" }, (list || []).map(function (k) {
-      return el("span", { class: "k-cx-strand", title: S[k] ? S[k].name : k, "aria-label": "Strand " + k + (S[k] ? ", " + S[k].name : ""), text: k });
-    }));
+    return el("span", { class: "k-cx-strands", text: (list || []).map(function (k) { return STRAND_WORD[k] || k; }).join(" · ") });
   }
   function where(kind, opts) {
     var W = (window.KOS_CODE && KOS_CODE.WHERE) || {};

@@ -204,7 +204,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-topic-tab .k-mono { font-size: var(--fs-11); opacity: 0.8; }
 .k-topic-more .k-btn { padding: 0 0 var(--sp-10); box-shadow: none; background: none; font-size: var(--fs-13-5); color: var(--muted); }
 .k-topic-more .k-btn:hover { color: var(--text); }
-.k-topic-edit { margin-block-end: 0; }
+.k-topic-edit { margin-block-end: var(--sp-6); }
 .k-topic-edit[aria-pressed="true"] { background: var(--s2); }
 .k-topic-reader { display: flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-12-5); }
 .k-topic-page-select { min-block-size: 0; padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); background: var(--s1); font-size: var(--fs-12-5); max-inline-size: 100%; }

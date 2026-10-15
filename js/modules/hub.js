@@ -2175,6 +2175,7 @@
       ]),
       /* the ONE spine opener rides the phone row (a display:contents
          wrapper above the phone tier), so it is not repeated here */
+      cx ? cx.modeSwitch() : null,
       el("div", { class: "k-topic-steps" }, [stepBtn(prevLeaf, "prev"), stepBtn(nextLeaf, "next")])
     ]);
 

@@ -23,7 +23,8 @@
   "use strict";
   var el = KOS.ui.el;
   var SID = "code";
-  var DWELL = 4000;   /* ms on a page before it counts as read */
+  var DWELL = 2500;   /* ms on a page before it counts as read */
+  var LEAVE = 1500;   /* …or this long, then moving on with Next */
 
   function U() { return KOS.code.ui(); }
   function announce(msg) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(msg); }
@@ -88,17 +89,19 @@
         if (i) pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "/" }));
         pathLine.appendChild(document.createTextNode(bit));
       });
-      pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
-      pathLine.appendChild(KOS.codeUI.strands(L ? L.strands : []));
       if (content && content.aqa) {
+        pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
         pathLine.appendChild(el("button", { type: "button", class: "k-link k-cx-aqa", "data-ui": "code.aqa-link",
           title: "The AQA Computer Science topic this lesson connects to",
           text: "↔ AQA " + content.aqa,
           onclick: function () { if (KOS.hub.BYREF.compsci[content.aqa]) KOS.show("ref", { subject: "compsci", ref: content.aqa }); } }));
       }
+    };
+    /* Learn | Reference rides the header's right edge, beside ‹ › */
+    ctx.modeSwitch = function () {
       if (content && content.notes && content.notes.length) {
         var mode = refMode() ? "reference" : "learn";
-        pathLine.appendChild(el("span", { class: "k-seg k-seg--quiet k-cx-mode", "data-ui": "code.mode", role: "group", "aria-label": "Reading mode" },
+        return el("span", { class: "k-seg k-seg--quiet k-cx-mode", "data-ui": "code.mode", role: "group", "aria-label": "Reading mode" },
           [["learn", "Learn"], ["reference", "Reference"]].map(function (m) {
             return el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(mode === m[0]), text: m[1],
               onclick: function () {
@@ -107,8 +110,9 @@
                 KOS.rerender();
                 announce(m[1] + " mode.");
               } });
-          })));
+          }));
       }
+      return null;
     };
 
     var practice = KOS.code.practiceOf(ref);
@@ -143,7 +147,7 @@
       var rag = KOS.rag.picker(SID, ref);
       var sub = [
         ev.pages ? ev.read + " of " + ev.pages + " pages" : "no notes yet",
-        ev.listings ? ev.ran + " of " + ev.listings : ev.pages ? "no listings · reading counts" : "—",
+        ev.listings ? ev.ran + " of " + ev.listings + " listings" : ev.pages ? "no listings · reading counts" : "—",
         ev.tasks ? ev.passed + " of " + ev.tasks + " tasks" : "no tasks yet",
         ev.proven ? "after the task" : "after the task"
       ];
@@ -181,7 +185,20 @@
       document.addEventListener("kos:code-evidence", onEv);
       return node;
     };
-    ctx.inspectorBody = function (body, t) {
+    /* the inspector's figures follow the evidence as it arrives */
+    ctx.inspectorBody = function (outer, t) {
+      var body = el("div", { class: "k-cx-insp-live" });
+      outer.appendChild(body);
+      fill(body, t);
+      function onEv(e) {
+        if (!body.isConnected) { document.removeEventListener("kos:code-evidence", onEv); return; }
+        if (e.detail && e.detail.ref !== ref) return;
+        body.innerHTML = "";
+        fill(body, t);
+      }
+      document.addEventListener("kos:code-evidence", onEv);
+    };
+    function fill(body, t) {
       var cs = KOS.code.conceptsOf(ref);
       var proven = cs.filter(function (c) { return KOS.code.state().proven[c.id]; }).length;
       if (cs.length) {
@@ -199,18 +216,27 @@
       var passed = ts.filter(function (x) { return st.tasks[x.id] && st.tasks[x.id].passAt; }).length;
       var hints = ts.reduce(function (a, x) { return a + ((st.tasks[x.id] && st.tasks[x.id].hints) || 0); }, 0);
       var last = cs.map(function (c) { return st.proven[c.id]; }).filter(Boolean).sort(function (a, b) { return b.at - a.at; })[0];
-      body.appendChild(sec("Proof in code", [
-        li("Tasks passed", ts.length ? passed + " / " + ts.length : "", !ts.length),
-        li("Hints opened", hints ? String(hints) : "", !hints),
-        li("Last proven", last ? agoDays(last.at).replace(" d ago", " days ago").replace("1 days", "1 day") : "", !last)
+      /* every kind of material in the lesson, and how far through it you
+         are — the same figures the tabs and the checks read */
+      var ev = KOS.code.evidence(ref);
+      var qz = t.quiz;
+      body.appendChild(sec("Study materials", [
+        li("Pages read", ev.pages ? ev.read + " / " + ev.pages : "", !ev.pages),
+        li("Listings run", ev.listings ? ev.ran + " / " + ev.listings : "", !ev.listings),
+        li("Practice right", ev.practice ? ev.practised + " / " + ev.practice : "", !ev.practice),
+        li("Flashcards reviewed", t.cards ? t.reviewed + " / " + t.cards : "", !t.cards),
+        li("Quiz best", qz && qz.best != null ? Math.round(qz.best) + "%" : "", !(qz && qz.best != null)),
+        li("Tasks passed", ts.length ? passed + " / " + ts.length : "", !ts.length)
       ]));
       var plan = KOS.code.planDay();
       body.appendChild(sec("Next practice", [
         li("Daily 20", plan && plan.task.lesson === ref ? "today" : "", !(plan && plan.task.lesson === ref)),
-        li("Cards scheduled", t.cards ? t.reviewed + " / " + t.cards : "", !t.cards),
+        li("Cards due", t.due ? t.due + " now" : t.next ? KOS.code.daysBetween(KOS.srs.todayISO(), t.next) + " days" : "", !t.due && !t.next),
+        li("Hints opened", hints ? String(hints) : "", !hints),
+        li("Last proven", last ? agoDays(last.at) : "", !last),
         li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
       ]));
-    };
+    }
     function sec(title, items) {
       return el("section", { class: "k-insp-sec", "aria-label": title }, [
         el("h2", { class: "k-kicker", text: title }),
@@ -292,6 +318,13 @@
       el("span", { class: "k-kicker", text: "Note pages" }), stepPrev, pageSelect, stepNext, dots
     ]));
     var dwell = null;
+    function markRead(i) {
+      var e = KOS.code.state().lessons[ref];
+      if (e && e.pages && e.pages[i]) return;
+      KOS.code.markPage(ref, i);
+      paintDots();
+      document.dispatchEvent(new window.CustomEvent("kos:code-evidence", { detail: { ref: ref } }));
+    }
     function paintDots() {
       var ev = KOS.code.state().lessons[ref];
       [].forEach.call(dots.children, function (dt, j) {
@@ -299,8 +332,12 @@
         KOS.ui.state(dt, "read", !!(ev && ev.pages && ev.pages[j]));
       });
     }
+    var shownAt = 0;
     function show(i, moved) {
+      /* moving on after a real look counts the page you leave as read */
+      if (moved && i > cur && shownAt && Date.now() - shownAt >= LEAVE) markRead(cur);
       cur = Math.max(0, Math.min(pages.length - 1, i));
+      shownAt = Date.now();
       /* the page you are on is remembered per device — on a move, never by
          the render itself */
       if (moved && (ui.page || {})[ref] !== cur) { ui.page = ui.page || {}; ui.page[ref] = cur; KOS.store.save(); }
@@ -323,7 +360,7 @@
          written after the dwell, never by the render */
       var at = cur;
       clearTimeout(dwell);
-      dwell = setTimeout(function () { if (article.isConnected && cur === at) { KOS.code.markPage(ref, at); paintDots(); document.dispatchEvent(new window.CustomEvent("kos:code-evidence", { detail: { ref: ref } })); } }, DWELL);
+      dwell = setTimeout(function () { if (article.isConnected && cur === at) markRead(at); }, DWELL);
       paintDots();
     }
     panel.appendChild(article);
@@ -363,9 +400,24 @@
     /* reading in Reference marks the pages that scroll into view */
     if (typeof window.IntersectionObserver === "function") {
       try {
+        /* a section is read once it has filled half the screen (or shown 40%
+           of itself, for a short one) for the same dwell as Learn — a long
+           section can never be 40% visible, which is why it never counted */
+        var timers = {};
         var io = new window.IntersectionObserver(function (es) {
-          es.forEach(function (e) { if (e.isIntersecting) KOS.code.markPage(ref, Number(e.target.getAttribute("data-page"))); });
-        }, { threshold: 0.4 });
+          es.forEach(function (e) {
+            var i = Number(e.target.getAttribute("data-page"));
+            var seen = e.isIntersecting && (e.intersectionRatio >= 0.4 || e.intersectionRect.height >= window.innerHeight * 0.5);
+            clearTimeout(timers[i]);
+            if (seen) timers[i] = setTimeout(function () {
+              if (!col.isConnected) return;
+              var ev = KOS.code.state().lessons[ref];
+              if (ev && ev.pages && ev.pages[i]) return;
+              KOS.code.markPage(ref, i);
+              document.dispatchEvent(new window.CustomEvent("kos:code-evidence", { detail: { ref: ref } }));
+            }, DWELL);
+          });
+        }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1] });
         [].forEach.call(col.querySelectorAll(".k-cx-refsec"), function (s) { io.observe(s); });
       } catch (e) { /* no observer */ }
     }

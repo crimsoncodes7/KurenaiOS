@@ -697,8 +697,12 @@ source comments and audit notes refer to it.
     run, a task passed, a retrieval passed) are derived from evidence in
     `state.code` and written to the shared progress record only by
     `KOS.code.syncChecks`; the inspector shows them read-only. Reading alone
-    never completes a lesson. A page counts as read after a 4 s dwell (or
-    scrolled into view in Reference), never by a render. Retrieval grades
+    never completes a lesson. A tick means complete: EVERY page of the
+    shipped lesson read (a filed "Your notes" page never counts), every
+    listing run. A page counts as read after a 2.5 s dwell, or on moving on
+    with Next after 1.5 s (in Reference, once it has filled half the screen
+    for the dwell) — never by a render. The inspector also lists every
+    material (pages, listings, practice, flashcards, quiz, tasks). Retrieval grades
     are derived from tries, hints and time — never self-reported — and each
     review asks the next seeded variation.
 108. THE COMPUTED PLAN. The Daily 20 (`KOS.code.planDay`) is computed from

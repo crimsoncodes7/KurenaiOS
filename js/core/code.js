@@ -109,7 +109,7 @@
   }
   /* every runnable listing in a lesson's notes */
   function listingsOf(ref) {
-    var c = content(ref);
+    var c = shipped(ref);
     var out = [];
     (function walk(blocks) {
       (blocks || []).forEach(function (b) {
@@ -129,8 +129,12 @@
     return e;
   }
   function peekEv(ref) { var e = S().lessons[ref]; return { pages: obj(e && e.pages), listings: obj(e && e.listings) }; }
+  /* the SHIPPED lesson's pages: a quick note files a "Your notes" page into
+     the user's fork, and that must never move the reading target (it made
+     "8 of 10" become "8 of 11" and took a tick away) */
+  function shipped(ref) { return (window.KOS_CONTENT || {})["code:" + ref] || null; }
   function pageCount(ref) {
-    var c = content(ref);
+    var c = shipped(ref);
     return c && c.notes ? KOS.content.splitPages(c.notes).length : 0;
   }
   function provenPass(t) { var s = S().tasks[t.id]; return !!(s && s.passAt); }
@@ -141,14 +145,17 @@
     var ts = tasksOf(ref), passed = ts.filter(provenPass).length;
     var cs = conceptsOf(ref);
     var byRetrieval = cs.filter(function (c) { var p = S().proven[c.id]; return p && p.by === "retrieval"; }).length;
-    var readOk = pages > 0 && read >= Math.max(1, Math.ceil(pages * 0.75));
+    /* a tick means DONE: every page read, every listing run */
+    var readOk = pages > 0 && read >= pages;
     var checks = [
       readOk,
-      lst.length ? ran >= Math.max(1, Math.ceil(lst.length / 2)) : readOk,
+      lst.length ? ran >= lst.length : readOk,
       passed > 0,
       byRetrieval > 0
     ];
+    var pr = practiceOf(ref), pIds = pr.predict.concat(pr.fill, pr.bug).map(function (it) { return ref + ":" + it.id; });
     return { pages: pages, read: read, listings: lst.length, ran: ran, tasks: ts.length, passed: passed,
+      practice: pIds.length, practised: pIds.filter(function (k) { return S().practice[k]; }).length,
       concepts: cs.length, proven: cs.filter(function (c) { return S().proven[c.id]; }).length, checks: checks };
   }
   /* write the derived checks into the shared progress record, only when
@@ -406,6 +413,7 @@
     if (first) KOS.sessions.log({ type: "code", subject: SID, ref: ref, metrics: { kind: "practice", id: k, proved: (concepts || []).slice() } });
     store.save();
     syncChecks(ref);
+    if (typeof window.CustomEvent === "function") document.dispatchEvent(new window.CustomEvent("kos:code-evidence", { detail: { ref: ref } }));
   }
 
   /* ---------------- For the computer ---------------- */

@@ -74,7 +74,7 @@
     var stageOf = cur ? (cur.stage === "B" ? "Bridge B · Your real toolkit" : "Stage " + cur.stage + " · " + ((K().STAGES.filter(function (x) { return x.id === cur.stage; })[0] || {}).title || "")) : "";
 
     /* ---- the hero: ring, name, and the three strand bars ---- */
-    var hero = el("section", { class: "k-subj-hero", "data-ui": "study.subject-hero code.hero", "aria-label": "Code" }, [
+    var hero = el("section", { class: "k-subj-hero k-cx-hero", "data-ui": "study.subject-hero code.hero", "aria-label": "Code" }, [
       el("span", { class: "k-subj-ring", role: "img", "aria-label": mastery + "% mastery", style: "--p: " + mastery + "%" }, [
         el("span", { class: "k-subj-ring-in" }, [el("b", { text: mastery + "%" }), el("small", { text: "mastery" })])
       ]),
@@ -91,14 +91,16 @@
         var pct = st.strands[k];
         return el("div", { class: "k-subj-paper" }, [
           el("div", { class: "k-subj-paper-top" }, [
-            el("span", { class: "k-cx-strand", "aria-hidden": "true", text: k }),
             el("b", { text: K().STRANDS[k].name }),
             el("span", { class: "k-subj-paper-note" }),
             el("span", { class: "k-mono", text: pct + "%" })
           ]),
           el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": K().STRANDS[k].name + ": " + pct + "%", style: "--p: " + pct + "%" }, [el("i")])
         ]);
-      }))
+      })),
+      /* the stage path lives in the hero, under the name (it filled an
+         otherwise empty block and crowded the unit cards below) */
+      el("div", { class: "k-cx-hero-path" }, [KOS.codeUI.stagePath({ focusable: true, compact: true, onUnit: openUnit })])
     ]);
     var side = el("div", { class: "k-subj-side" }, first ? [firstVisitCard()] : [daily20Card(), continueCard(cur)]);
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
@@ -142,9 +144,11 @@
       var card = el("button", { type: "button", class: "k-unit k-cx-unit", "data-ui": "study.unit code.unit", "data-state": later ? "later" : us.state === "current" ? "current" : null,
         "aria-label": unitName(u.ref) + " " + u.title + ": " + (later ? "recommended later" : us.done + " of " + us.total + " done"),
         onclick: function () { openUnit(u.ref); } }, [
-        el("span", { class: "k-cx-unit-top" }, [el("span", { class: "k-unit-ref", text: u.ref === "B" ? "Bridge B" : u.ref }), KOS.codeUI.strands(u.strands)]),
+        el("span", { class: "k-unit-ref", text: u.ref === "B" ? "Bridge B" : u.ref }),
         el("span", { class: "k-unit-title", text: u.title }),
-        later ? null : el("span", { class: "k-unit-segs", "aria-hidden": "true" }, segs),
+        /* every card has the same three rows — title, bar, foot — so the
+           foot always sits on the same line */
+        el("span", { class: "k-unit-segs", "aria-hidden": "true" }, segs),
         el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, later ? ["Recommended later"]
           : [el("b", { text: us.done + " / " + us.total }), us.state === "current" && us.next ? " · " + us.next.ref + " now" : " done"])
       ].filter(Boolean));
@@ -157,7 +161,6 @@
         el("span", { class: "k-sectionhead-sub", text: "12 units · 4 stages · Bridge B · 4 capstones" }),
         el("div", { class: "k-sectionhead-actions" }, [el("button", { type: "button", class: "k-link", text: "Curriculum map ›", onclick: function () { KOS.show("code", { page: "map" }); } })])
       ]),
-      el("div", { class: "k-card k-cx-pathcard" }, [KOS.codeUI.stagePath({ focusable: true, onUnit: openUnit })]),
       KOS.ui.scroller(units, { label: "Units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
     ]));
 
@@ -189,7 +192,7 @@
       el("span", { class: "k-cx-tier", text: TIER[t.tier] || "Core" })
     ]));
     box.appendChild(el("h2", { class: "k-cx-d20-t", text: t.title }));
-    box.appendChild(el("div", { class: "k-cx-d20-chips" }, [conceptChips(t.concepts), KOS.codeUI.strands(C().lesson(t.lesson).strands)]));
+    box.appendChild(conceptChips(t.concepts));
     box.appendChild(el("p", { class: "k-cx-d20-why", text: plan.why }));
     if (plan.done) {
       var s = C().taskState(t.id);
@@ -321,11 +324,10 @@
     main.appendChild(KOS.ui.pageHeader({ kicker: "Study · Code", title: "Curriculum map", sub: "Core path, deepening modules and tracks" }));
     var bar = el("div", { class: "k-cx-mapbar" });
     var seg = el("div", { class: "k-seg k-seg--quiet", "data-ui": "code.strand-filter", role: "radiogroup", "aria-label": "Strand" });
-    [["all", "All", ""], ["L", "L", " · C# and .NET"], ["E", "E", " · Engineering"], ["S", "S", " · Computer science"]].forEach(function (o) {
+    [["all", "All"], ["L", "C#"], ["E", "Engineering"], ["S", "Computer science"]].forEach(function (o) {
       seg.appendChild(el("button", { type: "button", class: "k-seg-item", role: "radio", "aria-checked": String(strand === o[0]), "data-v": o[0],
-        "aria-label": o[1] + o[2],
-        tabindex: strand === o[0] ? "0" : "-1", "data-state": strand === o[0] ? "active" : null,
-        onclick: function () { pick(o[0]); } }, [o[1], o[2] ? el("span", { class: "k-cx-long", text: o[2] }) : null].filter(Boolean)));
+        tabindex: strand === o[0] ? "0" : "-1", "data-state": strand === o[0] ? "active" : null, text: o[1],
+        onclick: function () { pick(o[0]); } }));
     });
     seg.addEventListener("keydown", function (e) {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
@@ -335,11 +337,11 @@
       var b = seg.querySelector('[data-v="' + order[i] + '"]'); if (b) b.focus();
     });
     bar.appendChild(seg);
-    main.appendChild(bar);
-    main.appendChild(el("p", { class: "k-cx-banner", "data-tone": "info" }, [
+    bar.appendChild(el("p", { class: "k-cx-banner", "data-tone": "info" }, [
       el("span", { "aria-hidden": "true", text: "↗ " }),
       "The order is a recommendation. Every unit, module and track opens now; “Recommended later” only says what it builds on."
     ]));
+    main.appendChild(bar);
     var grid = el("div", { class: "k-cx-map" });
     main.appendChild(grid);
     function has(list) { return strand === "all" || (list || []).indexOf(strand) >= 0; }
@@ -348,7 +350,7 @@
       [].forEach.call(seg.children, function (b) { var on = b.getAttribute("data-v") === v; b.setAttribute("aria-checked", String(on)); b.setAttribute("tabindex", on ? "0" : "-1"); KOS.ui.state(b, "active", on); });
       draw();
       var n = grid.querySelectorAll("[data-ui~='code.map-row'], [data-ui~='code.branch']").length;
-      announce(v === "all" ? "Showing every place." : "Showing " + n + " places with strand " + v + ".");
+      announce(v === "all" ? "Showing every place." : "Showing " + n + " places in " + ({ L: "C#", E: "Engineering", S: "Computer science" })[v] + ".");
     }
     function draw() {
       grid.innerHTML = "";
@@ -398,8 +400,8 @@
       var sec = el("section", { class: "k-cx-branches", "aria-label": title }, [
         el("div", { class: "k-sectionhead" }, [el("h2", { text: title }), el("span", { class: "k-sectionhead-sub", text: sub })])
       ]);
-      if (!items.length) { sec.appendChild(el("p", { class: "k-cx-note", text: "No " + title.toLowerCase() + " with strand " + strand + " yet." })); return sec; }
-      items.forEach(function (t) { sec.appendChild(branchCard(t)); });
+      if (!items.length) { sec.appendChild(el("p", { class: "k-cx-note", text: "No " + title.toLowerCase() + " in this strand yet." })); return sec; }
+      sec.appendChild(el("div", { class: "k-cx-branchgrid" }, items.map(branchCard)));
       return sec;
     }
     draw();
@@ -674,7 +676,7 @@
         else drawNotes();
       }
       function drawTask() {
-        bodyEl.appendChild(el("div", { class: "k-cx-d20-chips" }, [conceptChips(t.concepts), KOS.codeUI.strands(L ? L.strands : [])]));
+        bodyEl.appendChild(conceptChips(t.concepts));
         var stmt = el("div", { class: "k-prose k-cx-stmt", html: KOS.content.renderBlocks(t.statement || []) });
         bodyEl.appendChild(stmt);
         var ex = t.examples || [];
@@ -963,7 +965,7 @@
     var seg = el("div", { class: "k-seg k-seg--quiet", role: "radiogroup", "aria-label": "Strand", "data-ui": "code.skill-strand" });
     ["all", "L", "E", "S"].forEach(function (k) {
       seg.appendChild(el("button", { type: "button", class: "k-seg-item", role: "radio", "aria-checked": String(strand === k), "data-state": strand === k ? "active" : null,
-        "data-v": k, text: k === "all" ? "All" : k, onclick: function () { strand = k; ui.skillStrand = k; KOS.store.save(); draw(); } }));
+        "data-v": k, text: ({ all: "All", L: "C#", E: "Engineering", S: "Computer science" })[k], onclick: function () { strand = k; ui.skillStrand = k; KOS.store.save(); draw(); } }));
     });
     var hdActs = head.querySelector(".k-pagehead-actions");
     if (!hdActs) { hdActs = el("div", { class: "k-pagehead-actions" }); head.appendChild(hdActs); }
@@ -1024,7 +1026,7 @@
           el("span", { class: "k-muted", text: "their concepts arrive with their lessons · recommended later ›" })
         ]));
       }
-      if (!shown) lists.insertBefore(KOS.ui.emptyState({ compact: true, body: strand !== "all" ? "No concepts with strand " + strand + " yet." : "Nothing in this band." }), lists.firstChild);
+      if (!shown) lists.insertBefore(KOS.ui.emptyState({ compact: true, body: strand !== "all" ? "No concepts in this strand yet." : "Nothing in this band." }), lists.firstChild);
       drawAside();
     }
     function byWord(b) { return b === "task" ? "Task" : b === "retrieval" ? "Retrieval" : b === "practice" ? "Practice" : b === "kata" ? "Kata" : b === "project" ? "Project" : b; }
