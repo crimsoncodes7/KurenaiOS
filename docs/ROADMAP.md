@@ -541,7 +541,8 @@ Claude Design and comes back as a handoff, the way Graphite did.
 > - Units 1–3 at full depth: 25 lessons, 51 tasks, 25 retrieval cards
 >   (1,062 of 1,062 programs identical to .NET).
 > - Capstone 1, the text adventure engine, on the capstone checkpoint (26l):
->   the seven-step stepper, quiz, brief, build against five milestones of
+>   six steps — the quiz (the study quiz engine), brief & build in the 26k
+>   workspace (editor, tool window, Milestones window with the brief) against five milestones of
 >   acceptance tests, rubric, the Kurenai review's What is sent, write-up and
 >   result (1,073 of 1,073 programs identical to .NET). Stage 1 (R1's
 >   content) is complete.

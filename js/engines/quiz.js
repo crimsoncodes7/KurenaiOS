@@ -46,10 +46,16 @@
   KOS.quiz = {
     stats: qstats,
 
-    mountMCQ: function (holder, sid, ref, items) {
+    /* opts.onFinish(picks, correct): a caller that keeps its own record
+       (a Code capstone's closed-book quiz) — then nothing is written to the
+       study stats or the session log, and picks[i] is the option chosen
+       for items[i] */
+    mountMCQ: function (holder, sid, ref, items, opts) {
+      opts = opts || {};
       holder.innerHTML = "";
       if (!items || !items.length) return;
-      var st = qstats(sid, ref);
+      var own = typeof opts.onFinish === "function";
+      var st = own ? { attempts: opts.attempts || 0, best: opts.best || 0 } : qstats(sid, ref);
       var order = items.map(function (_, i) { return i; });
       var at = 0, correct = 0, answered = {}, missed = [];
 
@@ -58,7 +64,7 @@
       var head = el("div", { class: "k-qz-head", "data-ui": "quiz.head" }, [title, meta,
         el("span", { class: "k-qz-tools" }, [
           pill("Shuffle", function () { shuffle(order); restart(); }),
-          pill("Retry", function () { KOS.quiz.mountMCQ(holder, sid, ref, items); })
+          pill("Retry", function () { KOS.quiz.mountMCQ(holder, sid, ref, items, opts); })
         ])
       ]);
       var stage = el("div", { class: "k-qz-stage" });
@@ -143,6 +149,11 @@
       });
 
       function finish() {
+        if (own) {
+          var picks = items.map(function (_, i) { return answered[i]; });
+          opts.onFinish(picks, correct);
+          return;
+        }
         st.attempts++;
         st.lastPct = Math.round(100 * correct / items.length);
         if (correct > st.best) st.best = correct;

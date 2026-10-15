@@ -431,8 +431,11 @@ color-scheme: dark;
 --cx-mapcol-st: 130px;
 --cx-set-min: 280px;
 --cx-when-w: 104px;
---cx-cap-side-w: 380px;      /* the capstone build's milestones column (26l) */
---cx-capbody-max: 860px;    /* a capstone step's reading width */
+--cx-cap-side-w: 360px;      /* a capstone step's side panel (26l) */
+--cx-ws-ms-w: 360px;        /* the workspace's Milestones window (26k) */
+--cx-ws-ms-max-h: 560px;
+--cx-capwrite-h: 220px;
+--cx-rub-mark-w: 200px;      /* the rubric's Mark column: five marks */
 --cx-step-n: 26px;          /* a stepper number */
 
 /* ---------- Productivity (frames 10a–10g) ---------- */

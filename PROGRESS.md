@@ -32,9 +32,12 @@ https://bb17097f.kurenai-os.pages.dev.
 
 ## Released 16 October 2026 — Code capstone 1: the text adventure engine
 
-- **The capstone checkpoint (frame 26l):** a seven-step stepper — a
-  closed-book quiz that never locks (under 3 of 5 it recommends two
-  lessons), the brief, the build against five milestones of acceptance
+- **The capstone checkpoint (frames 26l, 26k):** six steps — a
+  closed-book quiz on the study quiz engine that never locks (under 3 of 5
+  it recommends two lessons), the brief & build in one IDE-style workspace
+  (the editor, a Run · Tests · Problems tool window, and a Milestones window
+  with each milestone's examples and the whole brief; the code saves on the
+  device as it is typed) against five milestones of acceptance
   tests, the rubric (correctness filled from the tests), an optional Kurenai
   review behind "What is sent", the write-up and the result. Passing pays
   +150 XP, +40 gold and +10 HP once.

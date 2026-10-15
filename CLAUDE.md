@@ -1075,6 +1075,13 @@ AI/chatbot classification in writing.
 - Authored content: `js/data/content/*.js`; examiner guidance: `js/data/intel.js`.
 - IT grade boundaries: `js/data/it-grades.js`, from the specification (p. 91).
   A change of specification is a change to that table; nothing else moves.
+- Layout (a standing design rule, repeated in every review): a view leaves
+  NO empty gaps, wasted space or inconsistent alignment. A block capped at a
+  reading width must not leave a dead column beside it — fill the width (a
+  side panel, a second column, a grid) or centre it with proportional
+  margins. Reuse the app's existing patterns (the study quiz, the task
+  editor, cards) rather than a bare new version. Check the 1440 screenshot
+  for this before calling a view done.
 - Shared visual behaviour: tokens in `css/tokens.css`, primitives in
   `css/components.css` and `js/core/ui.js`, before adding a rule to
   `css/views/*.css`. `css/main.css` is gone and must not come back (smoke55,

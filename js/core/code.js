@@ -319,12 +319,14 @@
   }
 
   /* ---------------- capstones (frame 26l) ----------------
-     Seven steps, all open: quiz · brief · build · rubric · review ·
+     Six steps, all open: quiz · brief & build · rubric · review ·
      write-up · result. The record (synced, keyed by capstone id) holds
      facts only — the quiz's answers, each milestone's last run, the
      self-marked rubric, the review, the write-up and the pass. The build's
      source is a per-device draft like a task's ("cap:<id>"). */
-  var CAP_STEPS = [["quiz", "Closed-book quiz"], ["brief", "Brief"], ["build", "Build"], ["rubric", "Rubric"],
+  /* the brief lives inside the build's workspace (review: no turning back
+     and forth), so 26l's seven steps are six here */
+  var CAP_STEPS = [["quiz", "Closed-book quiz"], ["build", "Brief & build"], ["rubric", "Rubric"],
     ["review", "Kurenai review"], ["writeup", "Write-up"], ["result", "Result"]];
   function capstone(id) { var c = K().CAPSTONES[id]; return c && c.milestones ? c : null; }
   function capRec(id) { var C = S().capstones; return C[id] = obj(C[id]); }
@@ -404,7 +406,7 @@
     var rec = peekCap(id), b = buildView(id), rb = rubricView(id), q = quizView(id);
     var wu = rec.writeup ? rec.writeup.text : "", wn = words(wu);
     var done = {
-      quiz: !!q, brief: !!q || b.milestones.some(function (m) { return m.run; }), build: b.all, rubric: rb.marked && b.all,
+      quiz: !!q, build: b.all, rubric: rb.marked && b.all,
       review: !!(rec.review && rec.review.state), writeup: wn >= (c.writeupMin || 40), result: !!rec.passAt
     };
     var missing = [];

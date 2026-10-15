@@ -3,7 +3,7 @@
 
    The end of stage 1: one program built from units 1–3 only — variables,
    decisions, loops, methods, scope; no arrays or classes (unit 4 and 7).
-   Seven steps: a closed-book quiz (never locks), the brief, the build
+   Six steps: a closed-book quiz (never locks), the brief & build
    against five milestones of acceptance tests, the rubric, an optional
    Kurenai review, a write-up and the result. The reference solution is
    for the gates only (smoke76, tools/cs_diff.mjs): it passes every
