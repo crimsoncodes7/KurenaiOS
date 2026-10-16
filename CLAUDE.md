@@ -16,10 +16,10 @@ chronological diary here.
   platform from design turn 26 and unit 1; on top of the Reports rebuild
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied.
-- Latest release: `aa19532` — immutable deployment
-  https://3df72dfb.kurenai-os.pages.dev (16 October 2026; Pacing under
-  Study, the folding skill map, Code progress from covered lessons; on top
-  of the runtime release `b4b4a25`)
+- Latest release: `0a4b471` — immutable deployment
+  https://685eec63.kurenai-os.pages.dev (16 October 2026; Code in Focus
+  and the pickers, the spread stage path, Study until laid out; before it
+  `aa19532`, Pacing under Study and the folding skill map)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-code-13`
 - Required smoke gate: 78 / 78 suites.
