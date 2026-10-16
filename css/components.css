@@ -154,6 +154,10 @@ transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--
 .k-btn-caret { font-size: var(--fs-11); color: var(--muted); }
 .k-iconbtn { position: relative; inline-size: var(--icon-btn); block-size: var(--icon-btn); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; padding: 0; background: var(--s1); color: var(--text-2); font-size: var(--fs-18); line-height: 1; }
 .k-iconbtn svg { inline-size: var(--icon-glyph); block-size: var(--icon-glyph); }
+/* the phone's search trigger (mobile-shell.js) is a .k-iconbtn, so it is
+   hidden HERE: a rule in the layout layer loses to this layer's display:grid
+   and left a dead search button in the desktop header */
+#mobile-search-trigger { display: none; }
 .k-iconbtn:hover { background: var(--s2); color: var(--text); }
 .k-iconbtn--sm { inline-size: var(--icon-btn-sm); block-size: var(--icon-btn-sm); font-size: var(--fs-15); }
 .k-iconbtn--sm svg { inline-size: var(--icon-glyph-sm); block-size: var(--icon-glyph-sm); }
@@ -497,6 +501,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-tp-keys { flex: 1 1 auto; min-inline-size: 0; text-align: end; font-size: var(--fs-11); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 @media (max-width: 700px) {
+:root[data-shell="ready"] #mobile-search-trigger { display: grid; }
 .k-tp-panel { inset-inline: var(--sp-8); inset-block: auto calc(var(--sp-8) + env(safe-area-inset-bottom)); inline-size: auto; max-block-size: 75dvh; transform: none; }
 .k-tp-panel[data-side="top"] { transform: none; }
 .k-tp-keys { display: none; }

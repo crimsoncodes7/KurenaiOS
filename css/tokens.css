@@ -422,6 +422,18 @@ color-scheme: dark;
 --cx-key-h-sm: 40px;
 --cx-rlist-w: 260px;        /* the retrieval due list (26h) */
 --cx-skside-w: 320px;       /* the skill map's side panel (26i) */
+--cx-skname-w: 240px;       /* a skill row's concept name column */
+--cx-skrow-h: 40px;
+--cx-spill-w: 104px;        /* the skill map's status pill: one size for every state */
+--cx-spill-h: 24px;
+--cx-spill-w-sm: 84px;
+--cx-age-w-sm: 28px;
+--cx-acc-ring: 26px;        /* a unit card's progress ring */
+--cx-acc-ref-w: 28px;
+--cx-acc-bar-min: 60px;
+--cx-acc-t-w: 300px;        /* a unit card title column, so every bar starts on one line */
+--cx-acc-n-w: 64px;
+--cx-acc-chev: 16px;
 --cx-refcol: 720px;         /* Reference mode's reading column (26d) */
 --cx-res-max-h: 420px;
 --cx-map-side-w: 360px;

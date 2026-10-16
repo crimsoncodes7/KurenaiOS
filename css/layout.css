@@ -98,9 +98,6 @@ display: none;
 #assistant-trigger[data-state~="is-confirm"] .k-trigger-dot { background: var(--amber); }
 .k-bell-glyph { display: grid; place-items: center; }
 .k-bell-glyph svg { inline-size: var(--icon-glyph); block-size: var(--icon-glyph); }
-/* the phone search sheet's trigger (mobile-shell.js); the desktop tiers
-   have the search pill itself */
-#mobile-search-trigger { display: none; }
 /* the compact shell's sheets (mobile-shell.js): the shared dialog, a bottom
    sheet at the phone tier. Provisional until the phone design (roadmap 3.1)
    restyles them; it keeps the hooks. */

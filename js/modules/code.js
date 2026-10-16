@@ -187,6 +187,20 @@
       box.appendChild(el("p", { class: "k-cx-d20-why", text: "No tasks yet. They arrive with each lesson's unit." }));
       return box;
     }
+    /* nothing covered yet: the card points at the lesson to finish, never a
+       task from a lesson not studied */
+    if (!plan.task) {
+      var L = plan.lesson;
+      box.setAttribute("data-state", "locked");
+      box.appendChild(el("div", { class: "k-cx-d20-top" }, [el("span", { class: "k-kicker", text: "Daily 20 · today" })]));
+      box.appendChild(el("h2", { class: "k-cx-d20-t", text: L ? "Finish " + L.ref + " first" : "Nothing to practise yet" }));
+      box.appendChild(el("p", { class: "k-cx-d20-why", "data-ui": "code.daily20-why", text: plan.why }));
+      if (L) box.appendChild(el("div", { class: "k-cx-d20-go" }, [
+        el("button", { type: "button", class: "k-btn", "data-ui": "code.daily20-lesson", text: "Open " + L.ref + " " + L.title,
+          onclick: function () { KOS.show("ref", { subject: SID, ref: L.ref }); } })
+      ]));
+      return box;
+    }
     var t = plan.task, q = C().quote(t.id, false);
     box.appendChild(el("div", { class: "k-cx-d20-top" }, [
       el("span", { class: "k-kicker", text: plan.review ? "Review week · Daily 20" : "Daily 20 · today" }),
@@ -264,12 +278,12 @@
     var total = Math.max(1, proven + n.np);
     var box = el("section", { class: "k-card k-cx-smcard", "data-ui": "code.skillmap-card", "aria-label": "Skill map" }, [
       cardHead("Skill map", "by days since last proven", "Open →", function () { KOS.show("code", { page: "skills" }); }),
-      el("div", { class: "k-cx-bandbar", role: "img", "aria-label": proven + " proven, " + n.np + " studied but not proven" },
+      el("div", { class: "k-cx-bandbar", role: "img", "aria-label": proven + " proven, " + n.np + " covered but not proven" },
         ["b0", "b1", "b2", "b3", "np"].map(function (b) { return el("span", { "data-band": b, style: "--w: " + (100 * n[b] / total) + "%" }); })),
       el("div", { class: "k-cx-bands" }, [["b0", "≤7 days"], ["b1", "8–21 days"], ["b2", "22–40 days"], ["b3", "41+ days"]].map(function (b) {
         return el("div", { class: "k-cx-band" }, [el("b", { text: String(n[b[0]]) }), el("small", { text: b[1] })]);
       })),
-      el("p", { class: "k-cx-note", text: proven ? proven + " proven · " + n.np + " studied, not proven" : "Concepts fill in as you prove them in code." })
+      el("p", { class: "k-cx-note", text: proven ? proven + " proven · " + n.np + " covered, not proven" : "Concepts fill in as you prove them in code." })
     ]);
     return box;
   }
@@ -981,7 +995,7 @@
     var all = C().skills();
     var n = bandCounts(), proven = n.b0 + n.b1 + n.b2 + n.b3;
     var head = KOS.ui.pageHeader({ kicker: "Code · Skill map", title: "Skill map",
-      sub: proven + " proven · " + n.np + " studied, not proven · " + n.later + " recommended later" });
+      sub: proven + " proven · " + n.np + " covered, not proven · " + n.later + " recommended later" });
     main.appendChild(head);
     var seg = el("div", { class: "k-seg k-seg--quiet", role: "radiogroup", "aria-label": "Strand", "data-ui": "code.skill-strand" });
     ["all", "L", "E", "S"].forEach(function (k) {
@@ -991,20 +1005,46 @@
     var hdActs = head.querySelector(".k-pagehead-actions");
     if (!hdActs) { hdActs = el("div", { class: "k-pagehead-actions" }); head.appendChild(hdActs); }
     hdActs.appendChild(seg);
-    var tiles = el("div", { class: "k-cx-tiles", "data-ui": "code.band-tiles" });
-    [["b0", "≤ 7 days"], ["b1", "8–21 days"], ["b2", "22–40 days"], ["b3", "41+ days"], ["np", "Not proven"]].forEach(function (b) {
-      tiles.appendChild(el("button", { type: "button", class: "k-cx-tile", "data-band": b[0], "aria-pressed": "false",
-        onclick: function (ev) { bandF = bandF === b[0] ? null : b[0]; draw(); } }, [
-        el("span", { class: "k-cx-tile-k" }, [KOS.codeUI.dot(b[0]), " " + b[1]]), el("b", { text: String(n[b[0]]) })
+    /* the bands are the side column's first card: a legend that filters */
+    var BANDS = [["b0", "≤ 7 days"], ["b1", "8–21 days"], ["b2", "22–40 days"], ["b3", "41+ days"], ["np", "Not proven"], ["later", "Later"]];
+    var tiles = el("div", { class: "k-cx-bandlist", "data-ui": "code.band-tiles", role: "group", "aria-label": "Filter by band" });
+    BANDS.forEach(function (b) {
+      tiles.appendChild(el("button", { type: "button", class: "k-cx-bandrow", "data-band": b[0], "aria-pressed": "false",
+        onclick: function () { bandF = bandF === b[0] ? null : b[0]; draw(); } }, [
+        KOS.codeUI.dot(b[0]), el("span", { text: b[1] }), el("b", { class: "k-mono", text: String(n[b[0]]) })
       ]));
     });
-    main.appendChild(tiles);
+    var summary = el("section", { class: "k-card k-cx-sksum", "aria-label": "Bands" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "By days since proven" }), el("span", { class: "k-card-meta", text: "tap to filter" })]),
+      el("div", { class: "k-cx-bandbar", "aria-hidden": "true" }, ["b0", "b1", "b2", "b3", "np"].map(function (b) {
+        return el("span", { "data-band": b, style: "--w: " + (100 * n[b] / Math.max(1, proven + n.np)) + "%" });
+      })),
+      tiles
+    ]);
     var grid = el("div", { class: "k-cx-skills" });
-    var lists = el("div", { class: "k-cx-units" });
+    var lists = el("div", { class: "k-cx-units", "data-ui": "code.skill-units" });
     var aside = el("div", { class: "k-cx-skside" });
     grid.appendChild(lists); grid.appendChild(aside);
     main.appendChild(grid);
+    /* which unit cards are open is per device; until it is set, a unit with
+       anything covered or proven opens and the rest stay folded */
+    function isOpen(u, rows) {
+      if (bandF) return true;
+      var o = ui.skillOpen && ui.skillOpen[u];
+      if (typeof o === "boolean") return o;
+      return rows.some(function (s) { return s.band !== "later"; });
+    }
+    function setOpen(u, v) {
+      if (!ui.skillOpen || typeof ui.skillOpen !== "object") ui.skillOpen = {};
+      ui.skillOpen[u] = v; KOS.store.save();
+    }
+    var PILL = { np: ["○", "Not proven"], later: ["◷", "Later"] };
+    function pill(s) {
+      var p = s.proven ? ["✓", s.band === "b3" ? "Rusty" : "Proven"] : PILL[s.band] || PILL.later;
+      return el("span", { class: "k-cx-spill", "data-band": s.band }, [el("span", { "aria-hidden": "true", text: p[0] }), p[1]]);
+    }
     function draw() {
+      var act = document.activeElement, keep = act && lists.contains(act) ? (act.getAttribute("data-id") ? '[data-id="' + act.getAttribute("data-id") + '"]' : act.getAttribute("data-unit") ? '[data-unit="' + act.getAttribute("data-unit") + '"]' : null) : null;
       [].forEach.call(seg.children, function (b) { var on = b.getAttribute("data-v") === strand; b.setAttribute("aria-checked", String(on)); KOS.ui.state(b, "active", on); });
       [].forEach.call(tiles.children, function (b) { var on = b.getAttribute("data-band") === bandF; b.setAttribute("aria-pressed", String(on)); KOS.ui.state(b, "active", on); });
       lists.innerHTML = "";
@@ -1016,43 +1056,53 @@
         if (!rows.length) return;
         shown += rows.length;
         var pr = rows.filter(function (s) { return s.proven; }).length;
-        var ul = el("ul", { class: "k-cx-skl", role: "listbox", "aria-label": u.title, tabindex: "0" });
-        rows.forEach(function (s) {
-          ul.appendChild(el("li", { class: "k-cx-skrow", role: "option", "aria-selected": String(selected === s.id), "data-id": s.id, "data-state": selected === s.id ? "selected" : null,
-            onclick: function () { selected = s.id; draw(); var sk = C().skill(s.id); announce(sk.name + (sk.proven ? ", proven " + sk.days + " days ago by " + byWord(sk.proven.by) + "." : ", not proven yet.")); } }, [
-            KOS.codeUI.dot(s.band), el("span", { class: "k-mono k-cx-skrow-n", text: s.name }),
-            el("span", { class: "k-cx-skrow-by", text: s.proven ? byWord(s.proven.by) : s.band === "later" ? "later" : "not proven" }),
-            el("span", { class: "k-cx-skrow-d k-mono", "data-band": s.band, text: s.proven ? s.days + " d" : "—" })
-          ]));
+        var pct = Math.round(100 * pr / rows.length);
+        var open = isOpen(u.ref, rows);
+        var listId = "k-cx-skl-" + u.ref;
+        var ul = el("ul", { class: "k-cx-skl", id: listId, "aria-label": u.title, hidden: open ? null : "" });
+        if (open) rows.forEach(function (s) {
+          var L = C().lesson(s.lesson);
+          ul.appendChild(el("li", {}, [el("button", { type: "button", class: "k-cx-skrow", "data-id": s.id, "aria-pressed": String(selected === s.id), "data-state": selected === s.id ? "selected" : null,
+            "aria-label": s.name + ", " + (s.proven ? "proven " + s.days + " days ago" : s.band === "np" ? "not proven" : "later") + ", lesson " + s.lesson,
+            onclick: function () { selected = selected === s.id ? null : s.id; draw(); if (selected) { var sk = C().skill(s.id); announce(sk.name + (sk.proven ? ", proven " + sk.days + " days ago by " + byWord(sk.proven.by) + "." : ", not proven yet.")); } } }, [
+            KOS.codeUI.dot(s.band),
+            el("span", { class: "k-mono k-cx-skrow-n", text: s.name }),
+            el("span", { class: "k-cx-skrow-l" }, [el("span", { class: "k-mono", text: s.lesson }), L ? " " + L.title : ""]),
+            pill(s),
+            el("span", { class: "k-cx-skrow-d k-mono", "data-band": s.band, text: s.proven ? s.days + " d" : "—" }),
+            el("span", { class: "k-cx-skrow-go", "aria-hidden": "true", text: "›" })
+          ])]));
         });
-        ul.addEventListener("keydown", function (e) {
-          var opts = [].slice.call(ul.children), i = opts.findIndex(function (o) { return o.getAttribute("data-id") === selected; });
-          if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); var j = Math.max(0, Math.min(opts.length - 1, i + (e.key === "ArrowDown" ? 1 : -1))); selected = opts[j].getAttribute("data-id"); draw(); var nu = lists.querySelector('[data-id="' + selected + '"]'); if (nu && nu.parentNode) nu.parentNode.focus(); }
-        });
-        var bar = el("span", { class: "k-cx-bandbar k-cx-bandbar--thin", "aria-hidden": "true" }, ["b0", "b1", "b2", "b3", "np"].map(function (b) {
-          var k = rows.filter(function (s) { return s.band === b; }).length;
-          return el("span", { "data-band": b, style: "--w: " + (100 * k / rows.length) + "%" });
-        }));
-        lists.appendChild(el("section", { class: "k-card k-cx-unitcard", "aria-label": u.title }, [
-          el("div", { class: "k-cx-unitcard-h" }, [el("span", { class: "k-mono", text: u.ref }), el("b", { text: u.title }), el("span", { class: "k-muted k-mono", text: pr + " / " + rows.length })]),
-          bar, ul
-        ]));
+        var head = el("button", { type: "button", class: "k-cx-acc-h", "data-unit": u.ref, "aria-expanded": String(open), "aria-controls": listId,
+          onclick: function () { setOpen(u.ref, !open); draw(); } }, [
+          el("span", { class: "k-mono k-cx-acc-ref", text: u.ref === "B" ? "B" : u.ref }),
+          el("span", { class: "k-cx-acc-t", text: u.title }),
+          el("span", { class: "k-cx-bandbar k-cx-bandbar--thin k-cx-acc-bar", "aria-hidden": "true" }, ["b0", "b1", "b2", "b3", "np"].map(function (b) {
+            return el("span", { "data-band": b, style: "--w: " + (100 * rows.filter(function (s) { return s.band === b; }).length / rows.length) + "%" });
+          })),
+          el("span", { class: "k-cx-acc-ring", style: "--p: " + pct + "%", "aria-hidden": "true" }, [el("span")]),
+          el("span", { class: "k-cx-acc-n" }, [el("b", { class: "k-mono", text: pr + " / " + rows.length }), el("small", { text: "proven" })]),
+          el("span", { class: "k-cx-acc-chev", "aria-hidden": "true", text: "⌄" })
+        ]);
+        lists.appendChild(el("section", { class: "k-card k-cx-unitcard", "data-state": open ? "open" : null, "aria-label": u.title }, [head, ul]));
       });
       var withConcepts = Object.keys(byUnit);
       var rest = C().units().filter(function (u) { return withConcepts.indexOf(u.ref) < 0; });
       if (rest.length && !bandF) {
         lists.appendChild(el("button", { type: "button", class: "k-card k-cx-unitcard k-cx-later-units", "data-state": "later", onclick: function () { KOS.show("code", { page: "map" }); } }, [
-          el("span", { class: "k-mono", text: rest[0].ref + "+" }),
-          el("b", { text: rest[0].ref === rest[rest.length - 1].ref ? rest[0].title : "Units " + rest[0].ref.slice(1) + "–12 and Bridge B" }),
-          el("span", { class: "k-muted", text: "their concepts arrive with their lessons · recommended later ›" })
+          el("span", { class: "k-mono k-cx-acc-ref", text: rest[0].ref + "+" }),
+          el("span", { class: "k-cx-acc-t", text: rest[0].ref === rest[rest.length - 1].ref ? rest[0].title : "Units " + rest.map(function (u) { return u.ref; }).filter(function (r) { return r !== "B"; }).map(function (r) { return r.slice(1); }).filter(function (r, i, a) { return i === 0 || i === a.length - 1; }).join("–") + (rest.some(function (u) { return u.ref === "B"; }) ? " and Bridge B" : "") }),
+          el("span", { class: "k-muted", text: "their concepts arrive with their lessons ›" })
         ]));
       }
       if (!shown) lists.insertBefore(KOS.ui.emptyState({ compact: true, body: strand !== "all" ? "No concepts in this strand yet." : "Nothing in this band." }), lists.firstChild);
       drawAside();
+      if (keep) { var back = lists.querySelector(keep); if (back) back.focus(); }
     }
     function byWord(b) { return b === "task" ? "Task" : b === "retrieval" ? "Retrieval" : b === "practice" ? "Practice" : b === "kata" ? "Kata" : b === "project" ? "Project" : b; }
     function drawAside() {
       aside.innerHTML = "";
+      aside.appendChild(summary);
       if (selected) {
         var s = C().skill(selected);
         if (s) {

@@ -94,6 +94,8 @@
      the plan), and study state keyed to an IT unit that left the
      specification (F203, F205) is removed so nothing counts it */
   KOS.itUnits.ensureSeeded();
+  /* Code: a lesson only looked at is no longer "Started" (once per device) */
+  if (KOS.code && KOS.code.repairStarted) KOS.code.repairStarted();
   KOS.itUnits.pruneDropped();
   /* Phase 4: Mechanics refs became M6–M9 (was S6–S9). The state document
      is renamed at the store's own gate; topic attachments live in

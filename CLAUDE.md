@@ -21,7 +21,7 @@ chronological diary here.
   Bridge B with the Rider workflow, binary files and the full C# runtime
   for units 7+)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-11`
+- Service-worker version: `kos-code-12`
 - Required smoke gate: 78 / 78 suites.
 
 ## Run, test and deploy
@@ -748,7 +748,8 @@ source comments and audit notes refer to it.
     `state.code` and written to the shared progress record only by
     `KOS.code.syncChecks`; the inspector shows them read-only. The status
     beside the confidence (Not started · Started · Paused · Completed) follows
-    them by itself — any evidence makes it Started, four checks Completed
+    them by itself — its first earned check (or a task tried) makes it
+    Started, four checks Completed
     (`store.setCheck`) — and may still be set by hand, as in a subject. Reading alone
     never completes a lesson. A tick means complete: EVERY page of the
     shipped lesson read (a filed "Your notes" page never counts), every
@@ -758,7 +759,15 @@ source comments and audit notes refer to it.
     material (pages, listings, practice, flashcards, quiz, tasks). Retrieval grades
     are derived from tries, hints and time — never self-reported — and each
     review asks the next seeded variation.
-108. THE COMPUTED PLAN. The Daily 20 (`KOS.code.planDay`) is computed from
+108. THE COMPUTED PLAN. A lesson is COVERED (`KOS.code.studied`) once its
+    first two checks are earned — every page read, every listing run — or
+    its work has passed; a page glanced at is not study. Only covered
+    lessons feed the Daily 20, the frontier and the skill map's "not
+    proven" (everything else reads Later); with nothing covered the Daily
+    20 names the lesson to finish instead of a task. The skill map is one
+    stack of unit cards that fold open (per device, `state.ui.code.skillOpen`;
+    a unit with anything covered opens by default), every status pill one
+    size. The Daily 20 (`KOS.code.planDay`) is computed from
     the date and the evidence, never stored: the pick holds all day and
     reads Done once passed. `state.code` is keyed maps throughout (the
     cloud merge folds two devices per key); drafts, the task panel's
@@ -1094,12 +1103,12 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 
 - Home: Reports (`#/reports[/<week|month|term|year>]`, no rail item; from
   the bell, the Home card, Home's Study hours card and search).
-- Study: subjects, Review and Exams & Papers.
-- Productivity: Focus, Calendar, Reminders, Tasks & Habits and Pacing.
+- Study: subjects, Review, Assignments, Exams & Papers and Pacing.
   Pacing has two identities in one route and they cannot collide, because a
   week is always an ISO date: `#/pacing/YYYY-MM-DD` is the week surface and
   `#/pacing/braid` is the whole-term branch graph, which spans every week and
   so carries none.
+- Productivity: Focus, Calendar, Reminders and Tasks & Habits.
 - Collection: Overview and four vaults, Shrine, Planner and Sync.
 - Review retains `due` and `cardstats` compatibility routes.
 - Planner and Sync use `KOS.collectionWorkspaceTabs()`; transitions still call

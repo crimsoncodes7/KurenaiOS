@@ -152,7 +152,7 @@
         ev.proven ? "after the task" : "after the task"
       ];
       var plan = KOS.code.planDay();
-      if (!ev.checks[2] && plan && plan.task.lesson === ref) sub[2] = "Daily 20 today uses it";
+      if (!ev.checks[2] && plan && plan.task && plan.task.lesson === ref) sub[2] = "Daily 20 today uses it";
       if (ev.checks[3]) sub[3] = "proven in retrieval";
       /* the subjects' own Topic status component (frame 8b): the same head,
          bar, status and confidence row and check grid. The checks come from
@@ -251,7 +251,7 @@
       ]));
       var plan = KOS.code.planDay();
       body.appendChild(sec("Next practice", [
-        li("Daily 20", plan && plan.task.lesson === ref ? "today" : "", !(plan && plan.task.lesson === ref)),
+        li("Daily 20", plan && plan.task && plan.task.lesson === ref ? "today" : "", !(plan && plan.task && plan.task.lesson === ref)),
         li("Cards due", t.due ? t.due + " now" : t.next ? KOS.code.daysBetween(KOS.srs.todayISO(), t.next) + " days" : "", !t.due && !t.next),
         li("Hints opened", hints ? String(hints) : "", !hints),
         li("Last proven", last ? agoDays(last.at) : "", !last),

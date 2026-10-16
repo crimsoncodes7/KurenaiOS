@@ -179,9 +179,10 @@
     var p = store.peekProgress(SID, ref);
     var have = p ? p.check : [false, false, false, false];
     for (var i = 0; i < 4; i++) if (!!have[i] !== !!want[i]) store.setCheck(SID, ref, i, want[i]);
-    /* any evidence at all means the lesson is under way */
+    /* a lesson is under way once it has earned a check or a task has been
+       tried — opening a page to look is not progress (16 October 2026) */
     var q = store.peekProgress(SID, ref);
-    if ((!q || q.status === "none") && studied(ref)) store.setStatus(SID, ref, "started");
+    if ((!q || q.status === "none") && (want.some(Boolean) || tried(ref))) store.setStatus(SID, ref, "started");
   }
   function markPage(ref, i) {
     if (!lesson(ref)) return;
@@ -214,15 +215,38 @@
       });
     });
   }
+  /* COVERED: the lesson's first two checks are earned (every page read,
+     every listing run) or its work has passed. Only a covered lesson feeds
+     the Daily 20, the frontier and the skill map's "not proven" — a page
+     glanced at is not study (16 October 2026) */
   function studied(ref) {
-    var ev = peekEv(ref);
-    return Object.keys(ev.pages).length > 0 || Object.keys(ev.listings).length > 0 ||
-      tasksOf(ref).some(function (t) { return S().tasks[t.id]; });
+    var ev = evidence(ref);
+    return (ev.checks[0] && ev.checks[1]) || ev.passed > 0;
+  }
+  function tried(ref) {
+    return tasksOf(ref).some(function (t) { var r = S().tasks[t.id]; return r && (r.tries || r.passAt); });
+  }
+  /* one pass per device: the rule above used to call any evidence "Started",
+     so a lesson only looked at was marked under way. Put back the ones
+     that earned no check and tried no task. */
+  function repairStarted() {
+    var ui = U();
+    if (ui.startedRepair) return 0;
+    var n = 0;
+    lessons().forEach(function (l) {
+      var p = store.peekProgress(SID, l.ref);
+      if (!p || p.status !== "started") return;
+      if (evidence(l.ref).checks.some(Boolean) || tried(l.ref)) return;
+      store.setStatus(SID, l.ref, "none"); n++;
+    });
+    ui.startedRepair = Date.now();
+    store.save();
+    return n;
   }
   /* a concept's age band (frame 26·kit): ≤7 · 8–21 · 22–40 · 41+ ·
      studied but not proven · later (its lesson not started) */
   function band(days) { return days == null ? null : days <= 7 ? "b0" : days <= 21 ? "b1" : days <= 40 ? "b2" : "b3"; }
-  function skill(id) {
+  function skill(id, memo) {
     var c = concept(id);
     if (!c) return null;
     var p = S().proven[id];
@@ -230,13 +254,14 @@
     return { id: id, name: c.name, lesson: c.lesson, unit: lesson(c.lesson) ? lesson(c.lesson).unit : null,
       strands: c.strands || (lesson(c.lesson) ? lesson(c.lesson).strands : []),
       proven: p || null, days: days,
-      band: p ? band(days) : studied(c.lesson) ? "np" : "later" };
+      band: p ? band(days) : (memo ? (c.lesson in memo ? memo[c.lesson] : (memo[c.lesson] = studied(c.lesson))) : studied(c.lesson)) ? "np" : "later" };
   }
   function skills() {
     var C = K().CONCEPTS;
     var order = {};
     lessons().forEach(function (l, i) { order[l.ref] = i; });
-    return Object.keys(C).map(skill).filter(Boolean).sort(function (a, b) {
+    var memo = {};
+    return Object.keys(C).map(function (id) { return skill(id, memo); }).filter(Boolean).sort(function (a, b) {
       return (order[a.lesson] || 0) - (order[b.lesson] || 0);
     });
   }
@@ -687,9 +712,14 @@
     var order = {};
     lessons().forEach(function (l, i) { order[l.ref] = i; });
     var cands = allTasks().filter(function (t) { return lesson(t.lesson) && !passedBefore(t) && !t.retrievalOnly; });
-    var studiedC = cands.filter(function (t) { return studied(t.lesson); });
-    var pool = studiedC.length ? studiedC : cands;
-    if (!pool.length) return null;
+    /* only what has been covered: a lesson read and run through, never one
+       ahead of where the learner is */
+    var pool = cands.filter(function (t) { return studied(t.lesson); });
+    if (!pool.length) {
+      var next = lessons().filter(function (l) { return !studied(l.ref) && hasLesson(l.ref); })[0] || null;
+      return { task: null, lesson: next, done: false, review: false,
+        why: next ? "The Daily 20 practises lessons you've covered. Read every page of " + next.ref + " and run its listings to unlock it." : "" };
+    }
     var seed = hash(day);
     var best = pool.map(function (t) {
       var fr = (t.concepts || []).filter(function (c) { return frontier[c]; }).length;
@@ -701,8 +731,7 @@
     var t = best.t, s = st.tasks[t.id];
     var why;
     var c0 = (t.concepts || []).map(concept).filter(Boolean)[0];
-    if (!studiedC.length) why = "Next in the course. Read lesson " + t.lesson + " first, then try it.";
-    else if (best.fr) why = "You studied " + t.lesson + " and haven't proven " + (c0 ? c0.name : "it") + " in code yet.";
+    if (best.fr) why = "You studied " + t.lesson + " and haven't proven " + (c0 ? c0.name : "it") + " in code yet.";
     else why = "Practice for " + t.lesson + ", the newest lesson you studied.";
     return { task: t, why: why, done: !!(s && s.passAt && isoOf(s.passAt) === day), tier: t.tier,
       minutes: t.minutes || 20, review: reviewWeek(day) };
@@ -788,7 +817,7 @@
     lessons: lessons, lesson: lesson, units: units, unit: unit, unitState: unitState,
     content: content, hasLesson: hasLesson, tasksOf: tasksOf, task: task, card: card, concept: concept,
     conceptsOf: conceptsOf, allTasks: allTasks, allCards: allCards, practiceOf: practiceOf, listingsOf: listingsOf,
-    evidence: evidence, syncChecks: syncChecks, markPage: markPage, markListing: markListing, studied: studied,
+    evidence: evidence, syncChecks: syncChecks, markPage: markPage, markListing: markListing, studied: studied, tried: tried, repairStarted: repairStarted,
     prove: prove, skill: skill, skills: skills, proofsOf: proofsOf, band: band,
     taskState: taskState, openHint: openHint, seeAnswer: seeAnswer, quote: quote, recordCheck: recordCheck, award: award,
     draft: draft, setDraft: setDraft,

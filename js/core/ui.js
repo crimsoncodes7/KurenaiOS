@@ -358,10 +358,10 @@
   var SECTION_OF = {
     home: "home",
     subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study",
-    tracker: "study", personaldeck: "study", assignments: "study",
+    tracker: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
-    reminders: "productivity", pacing: "productivity",
+    reminders: "productivity",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
@@ -385,14 +385,14 @@
       null,
       { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
       { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
-      { label: "Exams & Papers", view: "tracker" }
+      { label: "Exams & Papers", view: "tracker" },
+      { label: "Pacing", view: "pacing" }
     ],
     productivity: [
       { label: "Focus Timer", view: "focus" },
       { label: "Reminders", view: "reminders", count: "pc-rem", tone: "neutral" },
       { label: "Habits", view: "tasks" },
-      { label: "Calendar", view: "calendar" },
-      { label: "Pacing", view: "pacing" }
+      { label: "Calendar", view: "calendar" }
     ],
     collection: [
       { label: "Overview", view: "matrix" },

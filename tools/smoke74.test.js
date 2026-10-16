@@ -129,13 +129,36 @@ step("D · the status follows the evidence and can still be set by hand", async 
   const K = app.KOS, ref = "3.2";
   assert(!K.store.peekProgress("code", ref), "a fresh lesson has no record");
   K.code.markPage(ref, 0);
-  assert(K.store.peekProgress("code", ref).status === "started", "a first page read makes it Started");
+  const p0 = K.store.peekProgress("code", ref);
+  assert(!p0 || p0.status === "none", "a page glanced at is not progress: no status");
+  assert(!K.code.studied(ref), "one page read does not cover a lesson");
+  const pages = K.code.evidence(ref).pages;
+  for (let i = 0; i < pages; i++) K.code.markPage(ref, i);
+  assert(K.store.peekProgress("code", ref).status === "started", "every page read (a check) makes it Started");
+  assert(!K.code.studied(ref) || !K.code.evidence(ref).listings, "reading without running the listings does not cover it");
   K.store.setStatus("code", ref, "paused");
-  K.code.markPage(ref, 1);
+  K.code.markListing(ref, (K.code.listingsOf(ref)[0] || {}).id);
   assert(K.store.peekProgress("code", ref).status === "paused", "a hand-set Paused survives more evidence");
   K.show("ref", { subject: "code", ref: ref }); await app.settle();
   const sel = app.document.querySelector('[data-ui~="code.status"] [data-ui="ui.status-select"]');
   assert(sel && sel.value === "paused", "the inspector's status menu shows it");
+});
+step("D · the Daily 20 draws only on covered lessons (notes read, listings run)", async (app) => {
+  const K = app.KOS;
+  /* a fresh device: only pages glanced at in a later unit */
+  K.store.state.code = K.code.normalise({});
+  K.code.markPage("2.1", 0);
+  K.code.markListing("2.1", (K.code.listingsOf("2.1")[0] || {}).id);
+  let plan = K.code.planDay();
+  assert(plan && !plan.task && plan.lesson && plan.lesson.ref === "1.1", "nothing covered: the plan points at 1.1, not a task: " + JSON.stringify(plan && plan.lesson));
+  assert(K.code.skill(K.code.conceptsOf("2.1")[0].id).band === "later", "a glanced lesson's skills read later, not 'not proven'");
+  const ref = "1.1", n = K.code.evidence(ref).pages;
+  for (let i = 0; i < n; i++) K.code.markPage(ref, i);
+  K.code.listingsOf(ref).forEach(l => K.code.markListing(ref, l.id));
+  assert(K.code.studied(ref), "1.1 read and run is covered");
+  plan = K.code.planDay();
+  assert(plan.task && plan.task.lesson === ref, "the pick comes from the covered lesson: " + (plan.task && plan.task.lesson));
+  K.show("subject", "code"); await app.settle();
 });
 step("D · the day's plan is computed, stable through the day and reads Done", async (app) => {
   const K = app.KOS;

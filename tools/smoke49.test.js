@@ -326,8 +326,8 @@ step("the braid does not re-teach itself above the diagram", () => {
   assert($$("#main [data-ui~='pace.legend-k']").length === 4, "the legend that replaced the prose is missing");
 });
 
-step("Pacing is a Productivity destination whose route carries the week or the tab", () => {
-  assert(KOS.sectionOf("pacing") === "productivity", "Pacing is not in the Productivity section");
+step("Pacing is a Study destination whose route carries the week or the tab", () => {
+  assert(KOS.sectionOf("pacing") === "study", "Pacing is not in the Study section");
   assert(KOS.router.routeFor("pacing", { wb: "2026-12-14" }) === "#/pacing/2026-12-14", "the week is not in the route");
   assert(KOS.router.routeFor("pacing", "2026-12-14") === "#/pacing/2026-12-14", "the legacy string form broke");
   const back = KOS.router.parse("#/pacing/2026-12-14");
@@ -339,9 +339,13 @@ step("Pacing is a Productivity destination whose route carries the week or the t
   const b = KOS.router.parse("#/pacing/braid");
   assert(b && b.arg.tab === "braid" && !b.arg.wb, "the braid route did not parse back: " + JSON.stringify(b));
   assert(KOS.router.routeFor("pacing") === "#/pacing", "the bare route is wrong");
+  KOS.show("tracker");
+  const names = $$("#subnav [data-ui~='shell.subnav-item']").map(b => subnavName(b));
+  assert(names.indexOf("Pacing") === names.indexOf("Exams & Papers") + 1,
+    "Pacing is not beside Exams & Papers in the Study nav strip: " + names.join("|"));
   KOS.show("focus");
-  assert($$("#subnav [data-ui~='shell.subnav-item']").some(b => subnavName(b) === "Pacing"),
-    "Pacing is not in the Productivity nav strip");
+  assert(!$$("#subnav [data-ui~='shell.subnav-item']").some(b => subnavName(b) === "Pacing"),
+    "Pacing is still in the Productivity strip");
 });
 
 step("a deep link opens that week; an unknown week falls back to today's", () => {

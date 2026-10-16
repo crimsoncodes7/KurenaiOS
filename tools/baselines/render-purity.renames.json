@@ -800,6 +800,12 @@
    "from": "\\+1 (ep|ch|hr)$",
    "rewriteEffects": { "media": ["^entry~(?!journal)", "entry~journal[],"] },
    "why": "Reports phase 1 (roadmap 5.1, invariant 99): a +1 is a list-state change, so the save also appends the step to the row's activity journal."
-  }
+  },
+  { "surface": "focus", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
+  { "surface": "reminders", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
+  { "surface": "tasks", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
+  { "surface": "calendar", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
+  { "surface": "pacing", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
+  { "surface": "pacing:{\"tab\":\"braid\"}", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." }
   ]
 }

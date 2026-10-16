@@ -180,12 +180,12 @@ step("Study Review and Productivity own the intended navigation", () => {
   const productivityTabs = $$("#subnav [data-ui~='shell.subnav-item']").map(b => subnavName(b));
   /* Build 6.2: Reminders became a page of its own, so Tasks & Habits is now
      just Habits and Reminders sits beside it.
-     Pacing (the integrated weekly plan) joined the section afterwards — it is
-     a time surface, so it belongs beside the Calendar rather than under Study.
-     This stays an exact match on purpose: the Productivity section's list of
+     Pacing (the integrated weekly plan) moved to Study beside Exams & Papers
+     (16 October 2026): it plans what is studied, so it sits with the study
+     record. This stays an exact match on purpose: the Productivity section's list of
      destinations is a deliberate decision, not something a page may join by
      registering itself. */
-  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar|Pacing") throw new Error("productivity tabs: " + productivityTabs.join("|"));
+  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
   /* Graphite (frame 9d): the record switch leads the row of filters under the header */
   if (!$("[data-ui~='tracker.tools'] [data-ui~='tracker.kinds']")) throw new Error("the record switch is missing");
