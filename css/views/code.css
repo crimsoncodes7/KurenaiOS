@@ -599,6 +599,17 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-file-pre { margin: 0; padding: var(--sp-8) var(--sp-10); border-radius: var(--r-8); background: var(--code-bg); font-size: var(--fs-12-5); white-space: pre-wrap; overflow-wrap: anywhere; max-block-size: var(--cx-res-max-h); overflow: auto; }
 .k-cx-written { display: flex; flex-direction: column; gap: var(--sp-8); margin-block-start: var(--sp-10); }
 
+/* ================= katas ================= */
+.k-cx-kata { display: flex; flex-direction: column; gap: var(--sp-14); }
+.k-cx-kata-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--sp-18); align-items: stretch; }
+.k-cx-kata-start, .k-cx-kata-end, .k-cx-kata-hist { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-18) var(--sp-20); }
+.k-cx-kata-t { margin: 0; font-size: var(--fs-22); }
+.k-cx-kata-go { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-12); margin-block-start: var(--sp-6); }
+.k-cx-kata-bar { display: flex; align-items: center; gap: var(--sp-14); }
+.k-cx-kata-bar .k-kicker { flex: 1 1 auto; min-inline-size: 0; }
+.k-cx-kata-clock { font-size: var(--fs-15); color: var(--text-2); }
+.k-cx-kata-bar [hidden] { display: none; }
+
 /* ================= breakpoints, widest first ================= */
 @media (max-width: 1240px) {
 .k-cx-hero-path { grid-column: 1 / -1; }
@@ -625,6 +636,7 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-close > :last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 860px) {
+.k-cx-kata-grid { grid-template-columns: minmax(0, 1fr); }
 .k-cx-skills { grid-template-columns: minmax(0, 1fr); }
 .k-cx-skside { position: static; }
 .k-cx-bandlist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--sp-12); }

@@ -182,12 +182,29 @@ step("E · Code is a subject Focus and the topic picker offer", async (app) => {
   assert(chip, "the topic picker does not show a Code lesson");
   tp.el.remove();
 });
+step("E · katas draw from covered lessons, record a run and pay nothing", async (app) => {
+  const K = app.KOS, g = K.store.state.governor;
+  K.store.state.code = K.code.normalise({});
+  assert(!K.code.kataDraw().length, "nothing covered: no kata");
+  K.show("code", { page: "kata" }); await app.settle();
+  assert(app.document.querySelector('#main .k-empty, #main [data-ui~="ui.empty"]'), "the empty kata page says why");
+  ["1.1", "1.2"].forEach(r => { const n = K.code.evidence(r).pages; for (let i = 0; i < n; i++) K.code.markPage(r, i); K.code.listingsOf(r).forEach(l => K.code.markListing(r, l.id)); });
+  const d = K.code.kataDraw();
+  assert(d.length === K.code.KATA_N && d.every(x => x.ref === "1.1" || x.ref === "1.2"), "a kata of five from 1.1 and 1.2: " + d.map(x => x.ref).join(","));
+  assert(JSON.stringify(K.code.kataDraw()) === JSON.stringify(d), "the draw is stable until a run is recorded");
+  const xp0 = g.xp, gold0 = g.gold;
+  K.code.recordKata({ right: 3, total: 5, secs: 200, refs: d.map(x => x.ref) });
+  assert(g.xp === xp0 && g.gold === gold0, "a kata pays nothing");
+  assert(K.code.katas().length === 1 && K.code.katas()[0].right === 3, "the run is recorded");
+  K.show("code", { page: "kata" }); await app.settle();
+  assert(app.document.querySelector('[data-ui~="code.kata-start"]'), "the kata page offers a start");
+});
 step("E · Code's pages write nothing when drawn", async (app) => {
   const K = app.KOS;
   K.show("subject", "compsci"); await app.settle();
   K.store.flush && K.store.flush();
   const pages = [["subject", "code"], ["ref", { subject: "code", ref: "1.3" }], ["code", { page: "map" }], ["code", { page: "task", id: "1.5-label" }],
-    ["code", { page: "skills" }], ["code", { page: "retrieval" }], ["code", { page: "settings" }], ["code", { page: "track", id: "T2" }]];
+    ["code", { page: "skills" }], ["code", { page: "kata" }], ["code", { page: "retrieval" }], ["code", { page: "settings" }], ["code", { page: "track", id: "T2" }]];
   for (const [v, a] of pages) {
     const before = JSON.stringify(K.store.state.code) + JSON.stringify(K.store.state.progress) + JSON.stringify(K.store.state.governor);
     K.show(v, a); await app.settle();

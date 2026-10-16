@@ -125,7 +125,10 @@
         statTile({ k: "Skills proven", v: String(st.skillsProven), empty: !st.skillsProven }),
         statTile({ k: "Tasks passed", v: st.tasksPassed + " / " + st.tasksTried, empty: !st.tasksTried,
           pct: st.tasksTried ? Math.round(100 * st.tasksPassed / st.tasksTried) : null, c: "var(--green)" }),
-        statTile({ k: "Katas", v: "", empty: true, sub: "Katas arrive with unit 2." }),
+        (function () {
+          var ks = C().katas();
+          return statTile({ k: "Katas", v: String(ks.length), empty: !ks.length, sub: ks.length ? "five quick questions, against the clock" : "Five quick questions from lessons you've covered." });
+        })(),
         statTile({ k: "Streak", v: run + (run === 1 ? " day" : " days"), empty: !run })
       ])
     ]);
@@ -141,14 +144,14 @@
         return el("span", { "data-state": p && p.status === "done" ? "done" : p && p.status !== "none" ? "started" : null });
       });
       var card = el("button", { type: "button", class: "k-unit k-cx-unit", "data-ui": "study.unit code.unit", "data-state": later ? "later" : us.state === "current" ? "current" : null,
-        "aria-label": unitName(u.ref) + " " + u.title + ": " + (later ? "recommended later" : us.done + " of " + us.total + " done"),
+        "aria-label": unitName(u.ref) + " " + u.title + ": " + (!us.released ? "coming later" : later ? "recommended later" : us.done + " of " + us.total + " done"),
         onclick: function () { openUnit(u.ref); } }, [
         el("span", { class: "k-unit-ref", text: u.ref === "B" ? "Bridge B" : u.ref }),
         el("span", { class: "k-unit-title", text: u.title }),
         /* every card has the same three rows — title, bar, foot — so the
            foot always sits on the same line */
         el("span", { class: "k-unit-segs", "aria-hidden": "true" }, segs),
-        el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, later ? ["Recommended later"]
+        el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, !us.released ? ["Coming later"] : later ? ["Recommended later"]
           : [el("b", { text: us.done + " / " + us.total }), us.state === "current" && us.next ? " · " + us.next.ref + " now" : " done"])
       ].filter(Boolean));
       if (us.state === "current") KOS.ui.state(card, "current", true);
@@ -286,10 +289,22 @@
     return box;
   }
   function weekendCard() {
-    return el("section", { class: "k-card k-cx-weekend", "data-ui": "code.weekend", "aria-label": "This weekend" }, [
-      cardHead("This weekend", "project"),
-      KOS.ui.emptyState({ compact: true, title: "No projects yet", body: "Your first one arrives at the end of unit 2, for a weekend." })
-    ]);
+    /* the Rider projects (Bridge B); in-app weekend projects are not built */
+    var box = el("section", { class: "k-card k-cx-weekend", "data-ui": "code.weekend", "aria-label": "Projects" }, [cardHead("Projects", "in Rider")]);
+    var ps = C().projects();
+    if (!ps.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "No projects yet." })); return box; }
+    var reached = C().lessons().some(function (l) { return l.unit === "B" && C().studied(l.ref); }) || C().unitState("U6").state === "done";
+    ps.forEach(function (p) {
+      var v = C().projectView(p.id);
+      var sub = v.payAt ? "✓ Complete" : v.done ? v.done + " of " + v.total + " milestones" : reached ? "Ready to start" : "Starts at Bridge B, after unit 6";
+      box.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "code.project-row",
+        onclick: function () { KOS.show("code", { page: "project", id: p.id }); } }, [
+        el("span", { class: "k-day-bar", style: "--row-c: var(--code)", "aria-hidden": "true" }),
+        el("span", { class: "k-day-txt" }, [el("span", { class: "k-day-title", text: p.title }), el("span", { class: "k-day-sub", text: sub })]),
+        el("span", { class: "k-day-when", text: v.total ? v.done + "/" + v.total : "" })
+      ]));
+    });
+    return box;
   }
   function laterCard() {
     var items = C().laterList();
@@ -352,7 +367,7 @@
     bar.appendChild(seg);
     bar.appendChild(el("p", { class: "k-cx-banner", "data-tone": "info" }, [
       el("span", { "aria-hidden": "true", text: "↗ " }),
-      "The order is a recommendation. Every unit, module and track opens now; “Recommended later” only says what it builds on."
+      "The order is a recommendation: every written unit opens now, and “Recommended later” only says what it builds on. “Coming later” is outlined but not written yet: units 7–12, capstones 3–4 and the tracks."
     ]));
     main.appendChild(bar);
     var grid = el("div", { class: "k-cx-map" });
@@ -390,7 +405,7 @@
             el("span", { role: "cell", class: "k-mono", text: String(us.total) }),
             el("span", { role: "cell" }, [KOS.codeUI.strands(u.strands)]),
             el("span", { role: "cell" }, [KOS.codeUI.where(u.where)]),
-            el("span", { role: "cell", class: "k-cx-mapst", text: us.state === "done" ? "✓ Done" : us.state === "current" || us.state === "started" ? us.done + " of " + us.total + (us.state === "current" ? " · now" : "") : "Recommended later" })
+            el("span", { role: "cell", class: "k-cx-mapst", text: us.state === "done" ? "✓ Done" : us.state === "current" || us.state === "started" ? us.done + " of " + us.total + (us.state === "current" ? " · now" : "") : us.released ? "Recommended later" : "Coming later" })
           ]));
         });
         if (stg.capstone && strand === "all") {
@@ -399,7 +414,7 @@
             onclick: ready ? (function (cid) { return function () { KOS.show("code", { page: "capstone", id: cid }); }; })(stg.capstone) : null }, [
             el("span", { role: "cell", class: "k-cx-mapunit" }, [el("span", { class: "k-cx-dia", "data-state": cst, "aria-hidden": "true" }), "Capstone " + stg.capstone.slice(1) + " · " + cap.title]),
             el("span", { role: "cell" }), el("span", { role: "cell" }), el("span", { role: "cell" }, [KOS.codeUI.where(cap.where)]),
-            el("span", { role: "cell", class: "k-cx-mapst", text: cst === "passed" ? "✓ Passed" : cst === "next" ? "Next · open any time" : "Recommended later" })
+            el("span", { role: "cell", class: "k-cx-mapst", text: cst === "passed" ? "✓ Passed" : cst === "next" ? "Next · open any time" : ready ? "Recommended later" : "Coming later" })
           ]));
         }
       });
@@ -425,7 +440,7 @@
     var met = (t.needs || []).filter(needMet).length;
     return el("button", { type: "button", class: "k-cx-branch", "data-ui": "code.branch", "data-state": "later",
       onclick: function () { KOS.show("code", { page: "track", id: t.id }); } }, [
-      el("span", { class: "k-cx-branch-h" }, [el("span", { class: "k-mono", text: t.id }), el("b", { text: t.title }), el("small", { text: "Recommended later" })]),
+      el("span", { class: "k-cx-branch-h" }, [el("span", { class: "k-mono", text: t.id }), el("b", { text: t.title }), el("small", { text: "Coming later" })]),
       el("span", { class: "k-cx-needs" }, ["needs:"].concat((t.needs || []).map(function (u) {
         var ok = needMet(u);
         return el("span", { class: "k-cx-need", "data-state": ok ? "met" : null, text: (ok ? "✓ " : "") + unitName(u) });
@@ -444,7 +459,7 @@
     if (!t) { pageMap(main); return; }
     var isTrack = id.charAt(0) === "T";
     main.appendChild(KOS.ui.pageHeader({ kicker: "Code · " + (isTrack ? "Tracks" : "Deepening"), title: t.id + " · " + t.title,
-      sub: t.lessons + " lessons · recommended later" }));
+      sub: t.lessons + " lessons · coming later: the outline is here, the lessons are not written yet" }));
     var met = (t.needs || []).filter(needMet).length;
     main.appendChild(el("div", { class: "k-cx-track" }, [
       el("section", { class: "k-card", "aria-label": "Overview" }, [
@@ -1246,6 +1261,101 @@
   }
 
   /* ======================================================================
+     katas: five quick questions from covered lessons, against the clock.
+     Each question is the lesson's own practice card; a run proves what its
+     questions prove and pays nothing.
+     ====================================================================== */
+  function pageKata(main) {
+    var head = KOS.ui.pageHeader({ kicker: "Code · Katas", title: "Katas", sub: "Five quick questions from lessons you've covered, against the clock" });
+    main.appendChild(head);
+    var body = el("div", { class: "k-cx-kata" });
+    main.appendChild(body);
+    var past = C().katas();
+    function intro() {
+      stopTimers();
+      body.innerHTML = "";
+      var draw = C().kataDraw();
+      if (!draw.length) {
+        var next = C().planDay(), L = next && next.lesson;
+        body.appendChild(KOS.ui.emptyState({ mark: "型", title: "Nothing to drill yet",
+          body: "Katas draw from lessons you've covered: every page read and every listing run." + (L ? " Finish " + L.ref + " " + L.title + " first." : ""),
+          action: L ? el("button", { type: "button", class: "k-btn", text: "Open " + L.ref, onclick: function () { KOS.show("ref", { subject: SID, ref: L.ref }); } }) : null }));
+        return;
+      }
+      var kinds = {}, refs = {};
+      draw.forEach(function (x) { kinds[x.kind] = (kinds[x.kind] || 0) + 1; refs[x.ref] = 1; });
+      var start = el("section", { class: "k-card k-cx-kata-start", "aria-label": "This kata" }, [
+        el("span", { class: "k-kicker", text: "Today's kata" }),
+        el("h2", { class: "k-cx-kata-t", text: draw.length + " questions · about " + (draw.length * 2) + " min" }),
+        el("p", { class: "k-cx-note", text: Object.keys(kinds).map(function (k) { return kinds[k] + " " + KOS.codeTopic.KIND_LABEL[k].toLowerCase(); }).join(" · ") +
+          " · from " + Object.keys(refs).sort().join(", ") }),
+        el("div", { class: "k-cx-kata-go" }, [
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.kata-start", text: "▶ Start", onclick: function () { run(draw); } }),
+          el("span", { class: "k-muted", text: "No reward · practice. Right answers still prove their skills." })
+        ])
+      ]);
+      var hist = el("section", { class: "k-card k-cx-kata-hist", "aria-label": "Past katas" }, [
+        el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Past katas" }), past.length ? el("span", { class: "k-card-meta", text: String(past.length) }) : null].filter(Boolean)),
+        past.length ? el("ul", { class: "k-insp-list" }, past.slice(0, 8).map(function (k) {
+          var d = new Date(k.at);
+          return el("li", {}, [el("span", { text: DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] }),
+            el("strong", { class: "k-mono", text: k.right + " / " + k.total + " · " + mmss(k.secs) })]);
+        })) : el("p", { class: "k-cx-note", text: "Your runs appear here: how many right, and how long it took." })
+      ]);
+      body.appendChild(el("div", { class: "k-cx-kata-grid" }, [start, hist]));
+    }
+    function run(draw) {
+      body.innerHTML = "";
+      var i = 0, right = 0, t0 = Date.now(), results = [];
+      var pos = el("span", { class: "k-kicker", "data-ui": "code.kata-pos" });
+      var clock = el("span", { class: "k-mono k-cx-kata-clock", role: "timer", "aria-label": "Time" });
+      var skip = el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "code.kata-skip", text: "Skip", onclick: function () { next(false); } });
+      var bar = el("div", { class: "k-cx-kata-bar" }, [pos, clock, skip]);
+      var card = el("section", { class: "k-card k-cx-q", "data-ui": "code.kata-card" });
+      body.appendChild(bar); body.appendChild(card);
+      var tick = setInterval(function () { if (!clock.isConnected) { clearInterval(tick); return; } clock.textContent = "◷ " + mmss(Math.round((Date.now() - t0) / 1000)); }, 1000);
+      openTimers.push(tick);
+      clock.textContent = "◷ 00:00";
+      function show() {
+        var x = draw[i];
+        pos.textContent = "Question " + (i + 1) + " of " + draw.length + " · " + KOS.codeTopic.KIND_LABEL[x.kind] + " · " + x.ref;
+        card.innerHTML = "";
+        KOS.codeTopic.practiceCard(x.kind, card, x.ref, x.item, function () {
+          if (!results[i]) { results[i] = true; right++; }
+          skip.hidden = true;
+          return el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.kata-next",
+            text: i < draw.length - 1 ? "Next →" : "Finish", onclick: function () { next(true); } });
+        });
+        skip.hidden = false;
+      }
+      function next(ok) {
+        if (!ok) results[i] = false;
+        i++;
+        if (i < draw.length) { show(); return; }
+        clearInterval(tick);
+        var secs = Math.round((Date.now() - t0) / 1000);
+        C().recordKata({ right: right, total: draw.length, secs: secs, refs: draw.map(function (x) { return x.ref; }) });
+        past = C().katas();
+        body.innerHTML = "";
+        body.appendChild(el("section", { class: "k-card k-cx-kata-end", "data-ui": "code.kata-end", role: "status" }, [
+          el("span", { class: "k-kicker", text: "Kata done" }),
+          el("h2", { class: "k-cx-kata-t", text: right + " of " + draw.length + " right · " + mmss(secs) }),
+          el("ul", { class: "k-insp-list" }, draw.map(function (x, j) {
+            return el("li", {}, [el("span", { text: KOS.codeTopic.KIND_LABEL[x.kind] + " · " + x.ref }), el("strong", { text: results[j] ? "✓ right" : "skipped" })]);
+          })),
+          el("div", { class: "k-cx-kata-go" }, [
+            el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Another kata", onclick: intro }),
+            el("button", { type: "button", class: "k-btn", text: "Back to Code", onclick: function () { KOS.show("subject", SID); } })
+          ])
+        ]));
+        announce("Kata done. " + right + " of " + draw.length + " right in " + mmss(secs) + ".");
+      }
+      show();
+    }
+    intro();
+  }
+
+  /* ======================================================================
      the route: #/code/<page>[/<id>]
      ====================================================================== */
   KOS.views.code = function (main, arg) {
@@ -1256,6 +1366,7 @@
     var page = arg.page || "map";
     if (page === "task") return pageTask(main, arg);
     if (page === "retrieval") return pageRetrieval(main, arg);
+    if (page === "kata") return pageKata(main);
     if (page === "skills") return pageSkills(main, arg);
     if (page === "settings") return pageSettings(main);
     if (page === "track") return pageTrack(main, arg.id);

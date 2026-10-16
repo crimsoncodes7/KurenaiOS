@@ -68,7 +68,7 @@
       el("span", { class: "k-spine-mastery", "aria-hidden": "true", style: "--p: 0%" }),
       el("span", { class: "k-spine-leaf-txt" }, [
         el("span", { class: "k-spine-leaf-t", text: t.title, title: t.title }),
-        el("span", { class: "k-spine-leaf-ref", text: t.id + " · Recommended later" })
+        el("span", { class: "k-spine-leaf-ref", text: t.id + " · Coming later" })
       ])
     ]);
   }
@@ -694,5 +694,11 @@
     panel.appendChild(list);
   }
 
-  KOS.codeTopic = { begin: begin, spine: spine, quickRef: quickRef };
+  /* one practice question in a card (the kata reuses the lesson's own) */
+  function practiceCard(kind, card, ref, item, done) {
+    if (kind === "predict") predictCard(card, ref, item, done);
+    else if (kind === "fill") fillCard(card, ref, item, done);
+    else bugCard(card, ref, item, done);
+  }
+  KOS.codeTopic = { begin: begin, spine: spine, quickRef: quickRef, practiceCard: practiceCard, KIND_LABEL: KIND_LABEL };
 })();

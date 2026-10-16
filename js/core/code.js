@@ -55,7 +55,7 @@
       v: 1,
       tasks: obj(c.tasks), lessons: obj(c.lessons), proven: obj(c.proven),
       cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later), capstones: obj(c.capstones),
-      projects: obj(c.projects)
+      projects: obj(c.projects), katas: obj(c.katas)
     };
   }
   function S() {
@@ -63,6 +63,7 @@
     if (!st.code || st.code.v !== 1 || !st.code.tasks) st.code = normalise(st.code);
     if (!st.code.capstones) st.code.capstones = {};
     if (!st.code.projects) st.code.projects = {};
+    if (!st.code.katas) st.code.katas = {};
     return st.code;
   }
   function U() {
@@ -676,6 +677,47 @@
     if (typeof window.CustomEvent === "function") document.dispatchEvent(new window.CustomEvent("kos:code-evidence", { detail: { ref: ref } }));
   }
 
+  /* ---------------- katas: five quick questions against the clock ----------------
+     Drawn from the practice (predict, fill the gap, find the bug) of the
+     lessons already COVERED, mixed across lessons and kinds, seeded by the
+     date and how many were run today so each run differs. A kata proves
+     what its questions prove (lesson practice) and pays nothing. */
+  var KATA_N = 5;
+  function kataPool() {
+    var out = [];
+    lessons().forEach(function (l) {
+      if (!studied(l.ref)) return;
+      var p = practiceOf(l.ref);
+      ["predict", "fill", "bug"].forEach(function (k) { p[k].forEach(function (it) { if (it && it.id) out.push({ ref: l.ref, kind: k, item: it }); }); });
+    });
+    return out;
+  }
+  function katasOn(day) { var K2 = S().katas; return Object.keys(K2).filter(function (k) { return isoOf(K2[k].at) === day; }).length; }
+  function kataDraw(day) {
+    day = day || today();
+    var pool = kataPool();
+    if (!pool.length) return [];
+    var r = rng(hash("kata:" + day + ":" + katasOn(day)) || 7);
+    /* shuffle, then take one per lesson first so a run mixes lessons */
+    for (var i = pool.length - 1; i > 0; i--) { var j = r(i + 1), t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+    var pick = [], seen = {};
+    pool.forEach(function (x) { if (pick.length < KATA_N && !seen[x.ref]) { seen[x.ref] = 1; pick.push(x); } });
+    pool.forEach(function (x) { if (pick.length < KATA_N && pick.indexOf(x) < 0) pick.push(x); });
+    return pick;
+  }
+  function recordKata(res) {
+    var id = "k" + Date.now().toString(36);
+    S().katas[id] = { at: Date.now(), right: res.right | 0, total: res.total | 0, secs: Math.max(0, res.secs | 0), refs: (res.refs || []).slice(0, KATA_N) };
+    KOS.sessions.log({ type: "code", subject: SID, ref: (res.refs || [])[0], dur: Math.max(0, res.secs | 0),
+      metrics: { kind: "kata", id: id, right: res.right | 0, total: res.total | 0 } });
+    store.save();
+    return id;
+  }
+  function katas() {
+    var K2 = S().katas;
+    return Object.keys(K2).map(function (k) { return Object.assign({ id: k }, K2[k]); }).sort(function (a, b) { return b.at - a.at; });
+  }
+
   /* ---------------- For the computer ---------------- */
   function saveLater(kind, id, ref) {
     S().later[kind + ":" + id] = { kind: kind, id: id, ref: ref || null, at: Date.now() };
@@ -777,13 +819,16 @@
     };
   }
   /* a unit's stage-path state: done · current · later (dashed) */
+  /* a unit is RELEASED once its lessons ship; units 7–12 are on the path
+     but not written yet, and say so ("Coming later") */
+  function released(ref) { return lessons().some(function (l) { return l.unit === ref && hasLesson(l.ref); }); }
   function unitState(ref) {
     var ls = lessons().filter(function (l) { return l.unit === ref; });
-    if (!ls.length) return { state: "later", done: 0, total: 0 };
+    if (!ls.length) return { state: "later", done: 0, total: 0, released: false };
     var done = ls.filter(function (l) { var p = store.peekProgress(SID, l.ref); return p && p.status === "done"; }).length;
     var any = ls.some(function (l) { return studied(l.ref); });
     var cur = stats().current;
-    return { state: done === ls.length ? "done" : cur && cur.unit === ref ? "current" : any ? "started" : "later",
+    return { released: released(ref), state: done === ls.length ? "done" : cur && cur.unit === ref ? "current" : any ? "started" : "later",
       done: done, total: ls.length, next: ls.filter(function (l) { var p = store.peekProgress(SID, l.ref); return !p || p.status !== "done"; })[0] || null };
   }
   function firstVisit() {
@@ -814,7 +859,7 @@
     normaliseEvidence: normaliseEvidence, noteExport: noteExport, projectMilestonesOf: projectMilestonesOf,
     SID: SID, CHECKS: CHECKS, PAY: PAY, CARD_CAP: CARD_CAP,
     normalise: normalise, state: S, ui: U,
-    lessons: lessons, lesson: lesson, units: units, unit: unit, unitState: unitState,
+    lessons: lessons, lesson: lesson, units: units, unit: unit, unitState: unitState, released: released,
     content: content, hasLesson: hasLesson, tasksOf: tasksOf, task: task, card: card, concept: concept,
     conceptsOf: conceptsOf, allTasks: allTasks, allCards: allCards, practiceOf: practiceOf, listingsOf: listingsOf,
     evidence: evidence, syncChecks: syncChecks, markPage: markPage, markListing: markListing, studied: studied, tried: tried, repairStarted: repairStarted,
@@ -824,6 +869,7 @@
     variation: variation, cardRow: cardRow, dueCards: dueCards, nextDue: nextDue, rewardsToday: rewardsToday,
     grade: grade, recordCard: recordCard, recordPractice: recordPractice,
     saveLater: saveLater, dropLater: dropLater, laterList: laterList, isLater: isLater,
+    kataPool: kataPool, kataDraw: kataDraw, recordKata: recordKata, katas: katas, KATA_N: KATA_N,
     planDay: planDay, reviewWeek: reviewWeek, stats: stats, firstVisit: firstVisit,
     isPhone: isPhone, phoneFit: phoneFit,
     CAP_STEPS: CAP_STEPS, capstone: capstone, capView: capView, capStage: capStage, answerQuiz: answerQuiz, quizView: quizView,

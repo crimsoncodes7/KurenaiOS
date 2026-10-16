@@ -544,7 +544,7 @@
         var us = KOS.code.unitState(u);
         var lbl = u === "B" ? "B" : u;
         var b = el("button", { type: "button", class: "k-cx-sq", "data-state": us.state, "data-ui": "code.path-unit",
-          "aria-label": (u === "B" ? "Bridge B" : "Unit " + u.slice(1)) + ": " + (us.state === "later" ? "recommended later" : us.done + " of " + us.total + " done"),
+          "aria-label": (u === "B" ? "Bridge B" : "Unit " + u.slice(1)) + ": " + (!us.released ? "coming later" : us.state === "later" ? "recommended later" : us.done + " of " + us.total + " done"),
           tabindex: "-1", text: us.state === "done" ? "✓" : lbl,
           onclick: function () { if (o.onUnit) o.onUnit(u); } });
         if (us.state === "done") b.setAttribute("title", lbl + " done");
@@ -552,7 +552,7 @@
       });
       if (st.capstone) {
         var cap = K.CAPSTONES[st.capstone], cst = KOS.code.capStage(st.capstone), cid = st.capstone;
-        var words = cst === "passed" ? "passed" : cst === "next" ? "next" : "recommended later";
+        var words = cst === "passed" ? "passed" : cst === "next" ? "next" : KOS.code.capstone(cid) ? "recommended later" : "coming later";
         marks.appendChild(stop(KOS.code.capstone(cid)
           ? el("button", { type: "button", class: "k-cx-dia", "data-state": cst, "data-ui": "code.path-capstone", tabindex: "-1",
               "aria-label": "Capstone " + cid.slice(1) + ", " + cap.title + ": " + words, title: "Capstone " + cid.slice(1) + " · " + cap.title,

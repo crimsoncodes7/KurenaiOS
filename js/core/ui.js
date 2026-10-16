@@ -1114,6 +1114,7 @@
       var cut = items.indexOf(null);
       items = items.slice(0, cut).concat([null,
         { label: "Retrieval", view: "code", arg: { page: "retrieval" }, count: "pc-code-due", tone: "neutral", page: "retrieval" },
+        { label: "Katas", view: "code", arg: { page: "kata" }, page: "kata" },
         { label: "Skill map", view: "code", arg: { page: "skills" }, page: "skills" },
         { label: "Curriculum map", view: "code", arg: { page: "map" }, page: "map" }]);
     }
