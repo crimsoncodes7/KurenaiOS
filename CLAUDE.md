@@ -21,7 +21,7 @@ chronological diary here.
   Study, the folding skill map, Code progress from covered lessons; on top
   of the runtime release `b4b4a25`)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-12`
+- Service-worker version: `kos-code-13`
 - Required smoke gate: 78 / 78 suites.
 
 ## Run, test and deploy
