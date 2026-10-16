@@ -55,7 +55,7 @@
       v: 1,
       tasks: obj(c.tasks), lessons: obj(c.lessons), proven: obj(c.proven),
       cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later), capstones: obj(c.capstones),
-      projects: obj(c.projects), katas: obj(c.katas)
+      projects: obj(c.projects), katas: obj(c.katas), github: obj(c.github)
     };
   }
   function S() {

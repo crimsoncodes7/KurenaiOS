@@ -646,6 +646,8 @@
         testsPane.appendChild(KOS.codeUI.results(c, { method: t.mode === "method" ? t.method : null }));
         var outcome = C().recordCheck(t.id, c, { phone: phone });
         lastOutcome = outcome;
+        /* a first pass goes to GitHub when it is connected (never on a re-run) */
+        if (outcome && outcome.paid && KOS.codeGit) KOS.codeGit.queueTask(t, ed.files());
         if (c.compile) {
           showError(c.compile, el("div"));
           selTab("tests");
@@ -1201,6 +1203,81 @@
     if (KOS.codeRun.runtime().wanted) KOS.codeRun.runtimeSize().then(function (sz) { if (sz) out.textContent = (sz.bytes / 1e6).toFixed(0) + " MB"; });
     return out;
   }
+  /* GitHub (docs/code-plan.md §10, v1: a fine-grained token). The token is
+     typed by you, kept on this device and never shown again. */
+  function githubCard() {
+    var G = KOS.codeGit;
+    var box = el("section", { class: "k-card k-cx-gh", "data-ui": "code.github", "aria-label": "GitHub" });
+    if (!G) return box;
+    var drawn = false;
+    function draw() {
+      G.status().then(function (st) {
+        if (!box.isConnected && drawn) return;
+        drawn = true;
+        box.innerHTML = "";
+        box.appendChild(el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "GitHub" }),
+          el("span", { class: "k-card-meta", text: st.connected ? st.cfg.repo : "not connected on this device" })]));
+        if (!st.connected) return form(st);
+        connected(st);
+      });
+    }
+    function form(st) {
+      var repo = el("input", { type: "text", class: "k-input", "data-ui": "code.github-repo", placeholder: "owner/kurenai-programming", value: st.cfg.repo || "",
+        autocapitalize: "off", spellcheck: "false", "aria-label": "Repository" });
+      var token = el("input", { type: "password", class: "k-input", "data-ui": "code.github-token", placeholder: "github_pat_…", autocomplete: "off", "aria-label": "Fine-grained token" });
+      var msg = el("p", { class: "k-cx-note", role: "status" });
+      var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.github-connect", text: "Connect",
+        onclick: function () {
+          go.disabled = true; msg.textContent = "Checking the repository…";
+          G.connect(repo.value, token.value).then(function (r) {
+            go.disabled = false; token.value = "";
+            if (!r.ok) { msg.textContent = r.why; announce(r.why); return; }
+            announce("Connected to " + r.repo + "."); draw();
+          });
+        } });
+      box.appendChild(el("p", { class: "k-cx-note", text: "Your passed tasks, capstones and Rider reports, committed to your own private repository. Create the repository on GitHub first; the app never creates one." }));
+      box.appendChild(el("ol", { class: "k-cx-gh-steps" }, [
+        el("li", { text: "Create a private repository, e.g. kurenai-programming." }),
+        el("li", {}, ["Make a fine-grained token at ", el("span", { class: "k-mono", text: "github.com/settings/personal-access-tokens" }), ": only that repository, Contents read and write, an expiry."]),
+        el("li", { text: "Paste both here. The token stays on this device, never in a backup or the synced state." })
+      ]));
+      box.appendChild(el("div", { class: "k-cx-gh-form" }, [
+        el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Repository" }), repo]),
+        el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Token" }), token])
+      ]));
+      box.appendChild(el("div", { class: "k-cx-gh-act" }, [go]));
+      box.appendChild(msg);
+    }
+    function connected(st) {
+      var c = st.cfg;
+      var mode = el("select", { class: "k-input", "data-ui": "code.github-mode", "aria-label": "When to push",
+        onchange: function () { G.setMode(mode.value); announce("GitHub: " + mode.options[mode.selectedIndex].text + "."); } },
+        [["off", "Off: nothing is queued"], ["checkpoint", "Checkpoints: push when I press Push"], ["auto", "Automatic: push soon after a pass"]].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+      mode.value = c.mode;
+      var last = st.last;
+      var lastText = !last ? "Nothing pushed from this device yet." : last.ok ? "Pushed " + dayLabel(new Date(last.at).toISOString().slice(0, 10)) + " " + hmText(last.at) + " · " + last.message
+        : (last.blocked ? "Blocked: " : "Last try failed: ") + last.why;
+      var msgIn = el("input", { type: "text", class: "k-input", "data-ui": "code.github-message", placeholder: "Checkpoint message (optional)", "aria-label": "Commit message" });
+      var push = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.github-push", text: "Push now",
+        onclick: function () {
+          push.disabled = true; push.textContent = "Pushing…";
+          G.push(msgIn.value.trim() || null).then(function (r) { announce(r.ok ? "Pushed " + r.files + " files." : r.why); draw(); });
+        } });
+      box.appendChild(el("ul", { class: "k-insp-list" }, [
+        el("li", {}, [el("span", { text: "Repository" }), el("strong", { class: "k-mono", text: c.repo + " · " + c.branch })]),
+        el("li", {}, [el("span", { text: "Waiting on this device" }), el("strong", { text: st.waiting ? st.waiting + " file" + (st.waiting === 1 ? "" : "s") : "nothing" })])
+      ]));
+      box.appendChild(el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "When to push" }), mode]));
+      box.appendChild(el("p", { class: "k-cx-note", "data-ui": "code.github-last", "data-tone": last && !last.ok ? "warn" : null, text: lastText }));
+      box.appendChild(el("div", { class: "k-cx-gh-act" }, [msgIn, push]));
+      box.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "code.github-disconnect", text: "Disconnect this device",
+        onclick: function () { G.disconnect().then(function () { announce("GitHub disconnected on this device."); draw(); }); } }));
+    }
+    function hmText(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+    box.appendChild(el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "GitHub" })]));
+    draw();
+    return box;
+  }
   function pageSettings(main) {
     var ui = C().ui();
     main.appendChild(KOS.ui.pageHeader({ kicker: "Settings", title: "Code", sub: "Runner, storage, practice and GitHub" }));
@@ -1243,11 +1320,7 @@
         toggle("keybar", "Symbol key bar"),
         el("p", { class: "k-cx-note", text: "Later tasks show “Best on a computer” and can be saved to For the computer." })
       ]),
-      el("section", { class: "k-card", "aria-label": "GitHub" }, [
-        el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "GitHub" })]),
-        el("p", {}, [el("b", { text: "Not connected" })]),
-        el("p", { class: "k-cx-note", text: "Keeping your code in your own private repository arrives with the Rider workflow. It will be off by default, and the app never creates a repository." })
-      ]),
+      githubCard(),
       el("section", { class: "k-card", "aria-label": "What is never sent" }, [
         el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "What is never sent" })]),
         el("ul", { class: "k-cx-never" }, [

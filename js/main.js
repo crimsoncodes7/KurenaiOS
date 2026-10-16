@@ -96,6 +96,8 @@
   KOS.itUnits.ensureSeeded();
   /* Code: a lesson only looked at is no longer "Started" (once per device) */
   if (KOS.code && KOS.code.repairStarted) KOS.code.repairStarted();
+  /* Code → GitHub: a device with pushes waiting tries again (automatic mode) */
+  if (KOS.codeGit) KOS.codeGit.boot();
   KOS.itUnits.pruneDropped();
   /* Phase 4: Mechanics refs became M6–M9 (was S6–S9). The state document
      is renamed at the store's own gate; topic attachments live in

@@ -1324,7 +1324,9 @@
      the same way they did originally after a restore.                      */
   var TOKEN_KV_KEYS = {
     "anilist.clientId": 1, "anilist.token": 1, "anilist.viewer": 1,
-    "vndb.token": 1, "vndb.user": 1
+    "vndb.token": 1, "vndb.user": 1,
+    /* Code's GitHub link: the token, and this device's queue and status */
+    "github.token": 1, "code.github.outbox": 1, "code.github.status": 1
   };
 
   function exportAll(cb) {

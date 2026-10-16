@@ -141,7 +141,10 @@
   }
   function apply(res) {
     if (!res || (res.outcome !== "accepted" && res.outcome !== "practice")) return null;
-    return C().recordReport(res.project.id, res.report, { sha: res.sha, practice: res.practice, mismatched: res.mismatched, level: "self" });
+    var out = C().recordReport(res.project.id, res.report, { sha: res.sha, practice: res.practice, mismatched: res.mismatched, level: "self" });
+    /* the report joins the next GitHub push when it is connected */
+    if (!res.practice && KOS.codeGit) KOS.codeGit.queueReport(res.project.id, res.sha, JSON.stringify(res.report, null, 2));
+    return out;
   }
 
   KOS.codeProject = {

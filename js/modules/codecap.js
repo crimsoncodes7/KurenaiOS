@@ -486,6 +486,7 @@
               disabled: v.ready ? null : "", onclick: function () {
                 var o = C().submitCapstone(id);
                 if (!o || !o.passed) { say("Not yet."); draw(); return; }
+                if (o.paid !== false && KOS.codeGit) KOS.codeGit.queueCapstone(id);
                 say("Capstone passed." + (nextStage && !nextStage.bridge ? " Stage " + nextStage.id + " is now recommended." : ""));
                 KOS.refreshRailCounters && KOS.refreshRailCounters();
                 draw();

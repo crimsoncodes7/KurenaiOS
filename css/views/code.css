@@ -599,6 +599,14 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-file-pre { margin: 0; padding: var(--sp-8) var(--sp-10); border-radius: var(--r-8); background: var(--code-bg); font-size: var(--fs-12-5); white-space: pre-wrap; overflow-wrap: anywhere; max-block-size: var(--cx-res-max-h); overflow: auto; }
 .k-cx-written { display: flex; flex-direction: column; gap: var(--sp-8); margin-block-start: var(--sp-10); }
 
+/* ================= GitHub (settings) ================= */
+.k-cx-gh { display: flex; flex-direction: column; gap: var(--sp-10); grid-column: span 2; }
+.k-cx-gh-steps { margin: 0; padding-inline-start: var(--sp-18); display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-13); color: var(--text-2); }
+.k-cx-gh-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
+.k-cx-gh-act { display: flex; gap: var(--sp-10); align-items: center; }
+.k-cx-gh-act .k-input { flex: 1 1 auto; }
+.k-cx-gh .k-cx-note[data-tone="warn"] { color: var(--amber); }
+
 /* ================= katas ================= */
 .k-cx-kata { display: flex; flex-direction: column; gap: var(--sp-14); }
 .k-cx-kata-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--sp-18); align-items: stretch; }
@@ -632,10 +640,13 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-taskgrid { grid-template-columns: minmax(0, 1fr) var(--cx-task-w-1080); }
 .k-cx-rgrid { grid-template-columns: minmax(0, 1fr); }
 .k-cx-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-cx-settings > .k-cx-gh { grid-column: auto; }
+.k-cx-settings > :last-child { grid-column: 1 / -1; }
 .k-cx-close { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-cx-close > :last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 860px) {
+.k-cx-gh-form { grid-template-columns: minmax(0, 1fr); }
 .k-cx-kata-grid { grid-template-columns: minmax(0, 1fr); }
 .k-cx-skills { grid-template-columns: minmax(0, 1fr); }
 .k-cx-skside { position: static; }
