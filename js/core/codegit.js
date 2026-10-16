@@ -195,7 +195,7 @@
           if (ref.status === 404 || ref.status === 409) {
             /* an empty repository has no branch: the first commit goes
                through the contents API, then the batch builds on it */
-            return gh(token, "PUT", R + "/contents/README.md", { message: "Start Kurenai Programming", content: b64(readme()), branch: c.branch })
+            return gh(token, "PUT", R + "/contents/README.md", { message: "Start Kurenai Programming", content: b64(readme()) })
               .then(function (r) { if (!r.ok) throw r; return n < 2 ? attempt(n + 1) : Promise.reject(r); });
           }
           if (!ref.ok) throw ref;
