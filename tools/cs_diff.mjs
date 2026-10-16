@@ -38,7 +38,10 @@ function dotnet(src, stdin) {
   if (cache[key]) return cache[key];
   const file = path.join(dir, "p" + key.slice(0, 10) + ".cs");
   /* nullable off for units 1–6 (decision Q2), invariant culture for output */
-  fs.writeFileSync(file, "#:property Nullable=disable\n#:property InvariantGlobalization=false\nSystem.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo(\"en-GB\");\n" + src + "\n");
+  /* using directives must come before the culture line we insert */
+  const lines = src.split("\n"), usings = [];
+  while (lines.length && /^\s*using\s+[\w.]+\s*;\s*$/.test(lines[0])) usings.push(lines.shift());
+  fs.writeFileSync(file, "#:property Nullable=disable\n#:property InvariantGlobalization=false\n" + usings.map((u) => u + "\n").join("") + "System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo(\"en-GB\");\n" + lines.join("\n") + "\n");
   const r = spawnSync("dotnet", ["run", file], { input: stdin, encoding: "utf8", timeout: 120000 });
   r.stdout = (r.stdout || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l)).join("\n");
   const all = (r.stdout || "") + (r.stderr || "");

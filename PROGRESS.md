@@ -30,6 +30,21 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Released 16 October 2026 — Code unit 5: text
+
+- **Eight lessons:** strings are immutable, Split and Join, formatting
+  numbers (standard and custom formats, alignment), parsing safely with
+  TryParse, StringBuilder, culture and comparison, characters and Unicode,
+  and a first look at regular expressions; 16 tasks and 8 retrieval cards.
+- **The runner learned unit 5:** ranges and `^` indexes, raw string
+  literals, combined `StringSplitOptions` and a split count, `CultureInfo`
+  (en-GB, en-US, de-DE, fr-FR and invariant, with ICU's digits and
+  spacing), culture-aware `TryParse`, ordinal and case-insensitive
+  comparison, the rest of `StringBuilder`, `Regex` (match, groups numbered
+  as .NET numbers them, replace, split), `long.Parse`, and the using
+  directives .NET does not import for you. 1,730 of 1,730 programs
+  identical to .NET 10.
+
 ## Released 16 October 2026 — Code unit 4: collections
 
 - **Eleven lessons, stage 2 begins:** arrays, `List<T>`, counting with

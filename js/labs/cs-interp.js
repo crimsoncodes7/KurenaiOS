@@ -40,7 +40,7 @@
     "protected public readonly ref return sealed short static string struct switch this throw true try typeof uint ulong using " +
     "virtual void while").split(" "));
   const PRIM = new Set(["int", "long", "short", "byte", "uint", "ulong", "double", "float", "decimal", "bool", "char", "string", "object", "void"]);
-  const OPS = ["??=", "<=", ">=", "==", "!=", "&&", "||", "++", "--", "+=", "-=", "*=", "/=", "%=", "=>", "??", "?.",
+  const OPS = ["??=", "..", "<=", ">=", "==", "!=", "&&", "||", "++", "--", "+=", "-=", "*=", "/=", "%=", "=>", "??", "?.",
     "+", "-", "*", "/", "%", "<", ">", "=", "!", "?", ":", ";", ",", ".", "(", ")", "{", "}", "[", "]", "&", "|", "^", "~"];
 
   function lex(src, file) {
@@ -80,8 +80,8 @@
           i++; let depth = 0, expr = "", align = null, fmt = null, cur = "expr";
           while (i < n) {
             const d = src[i];
-            if (d === '"') { // nested string inside a hole
-              const st = i; readString(false); const raw = src.slice(st, i);
+            if (d === '"' || (d === "@" && src[i + 1] === '"')) { // nested string inside a hole
+              const st = i; if (d === "@") { i++; readString(true); } else readString(false); const raw = src.slice(st, i);
               if (cur === "expr") expr += raw; else if (cur === "fmt") fmt += raw; continue;
             }
             if (d === "'") { const st = i; i++; if (src[i] === "\\") i++; i += 2; const raw = src.slice(st, i); if (cur === "expr") expr += raw; continue; }
@@ -129,6 +129,21 @@
         let lng = false;
         if (!dbl && /[lLuU]/.test(src[i] || "")) { lng = /[lL]/.test(src[i]); i++; if (/[lLuU]/.test(src[i] || "")) { lng = lng || /[lL]/.test(src[i]); i++; } }
         toks.push({ t: "num", v: parseFloat(s.replace(/_/g, "")), dbl, dec, scale, lng, line: L }); continue;
+      }
+      /* a raw string literal (C# 11): """…""", multi-line form trimmed by the
+         closing delimiter's indentation */
+      if (c === '"' && src[i + 1] === '"' && src[i + 2] === '"') {
+        let q = 0; while (src[i] === '"') { q++; i++; }
+        const close = '"'.repeat(q), end = src.indexOf(close, i);
+        if (end < 0) throw new CsError("CS8997", "Unterminated raw string literal", L, "compile", file);
+        let body = src.slice(i, end); i = end + q;
+        for (const ch of body) if (ch === "\n") line++;
+        if (body.indexOf("\n") >= 0) {
+          const lines = body.split("\n"); lines.shift();
+          const last = lines.pop(), indent = /^[ \t]*$/.test(last) ? last.length : 0;
+          body = lines.map((l) => l.slice(Math.min(indent, l.length - l.trimStart().length))).join("\n");
+        }
+        toks.push({ t: "str", v: body, line: L }); continue;
       }
       if (c === '"') { toks.push({ t: "str", v: readString(false), line: L }); continue; }
       if (c === "@" && src[i + 1] === '"') { i++; toks.push({ t: "str", v: readString(true), line: L }); continue; }
@@ -566,6 +581,7 @@
     function unary() {
       const t = peek();
       if (t.t === "op" && ["!", "-", "+", "~"].includes(t.v)) { p++; return { k: "un", op: t.v, a: unary(), line: t.line }; }
+      if (t.t === "op" && t.v === "^") { p++; return { k: "hat", e: unary(), line: t.line }; }
       if (t.t === "op" && (t.v === "++" || t.v === "--")) { p++; return { k: "pre", op: t.v, a: unary(), line: t.line }; }
       if (t.t === "id" && t.v === "await") throw unsupported("async / await", t.line);
       if (t.t === "op" && t.v === "(") { // cast?
@@ -595,7 +611,14 @@
           const ta = tryTypeArgs(); if (ta) e.targs = ta; continue;
         }
         if (t.t === "op" && t.v === "(") { e = { k: "call", f: e, args: args(), line: t.line }; continue; }
-        if (t.t === "op" && t.v === "[") { p++; const i = expr(); const i2 = []; while (acc(",")) i2.push(expr()); expect("]"); e = { k: "idx", o: e, i, i2: i2.length ? i2 : undefined, line: t.line }; continue; }
+        if (t.t === "op" && t.v === "[") {
+          p++;
+          /* a range: [a..b], [..b], [a..] */
+          if (isOp("..")) { p++; const hi = isOp("]") ? null : expr(); expect("]"); e = { k: "idx", o: e, range: [null, hi], line: t.line }; continue; }
+          const i = expr();
+          if (acc("..")) { const hi = isOp("]") ? null : expr(); expect("]"); e = { k: "idx", o: e, range: [i, hi], line: t.line }; continue; }
+          const i2 = []; while (acc(",")) i2.push(expr()); expect("]"); e = { k: "idx", o: e, i, i2: i2.length ? i2 : undefined, line: t.line }; continue;
+        }
         if (t.t === "op" && (t.v === "++" || t.v === "--")) { p++; e = { k: "post", op: t.v, a: e, line: t.line }; continue; }
         if (t.t === "op" && t.v === "!" && (isOp(".", 1) || isOp(";", 1) || isOp(")", 1))) { p++; continue; } // null-forgiving
         if (t.t === "kw" && t.v === "switch") {
@@ -711,6 +734,25 @@
   class CsTuple { constructor(items, names) { this.items = items; this.names = names || null; } }
   class CsKvp { constructor(k, v) { this.Key = k; this.Value = v; } }
   class CsSB { constructor(s) { this.s = s || ""; } }
+  class Hat { constructor(n) { this.n = n; } }                 // ^n, an index from the end
+  class CsCulture { constructor(name) { const c = CULTURES[name] || CULTURES["en-GB"]; Object.assign(this, c); this.name = name; } }
+  class CsMatch { constructor(m, re, input) { this.m = m; this.re = re; this.input = input; } }
+  class CsGroups { constructor(match) { this.match = match; } }
+  class CsRegex { constructor(pattern, flags) { this.pattern = pattern; this.flags = flags; } }
+  /* the cultures the notes use: separators, currency and percent patterns */
+  const NB = " ", NNB = "\u202F";   /* .NET 10 (ICU): a plain space before € and %, a narrow no-break space in French groups */
+  const CULTURES = {
+    "": { dec: ".", grp: ",", nd: 2, pd: 2, cur: (n) => "¤" + n, pct: (n) => n + " %" },
+    "en-GB": { dec: ".", grp: ",", nd: 3, pd: 3, cur: (n) => "£" + n, pct: (n) => n + "%" },
+    "en-US": { dec: ".", grp: ",", nd: 3, pd: 3, cur: (n) => "$" + n, pct: (n) => n + "%" },
+    "de-DE": { dec: ",", grp: ".", nd: 3, pd: 3, cur: (n) => n + NB + "€", pct: (n) => n + NB + "%" },
+    "fr-FR": { dec: ",", grp: NNB, nd: 3, pd: 3, cur: (n) => n + NB + "€", pct: (n) => n + NB + "%" }
+  };
+  /* rewrite a number formatted the en-GB way for another culture */
+  function inCulture(sv, cul) {
+    if (!cul || (cul.dec === "." && cul.grp === ",")) return sv;
+    return sv.replace(/[.,]/g, (ch) => ch === "." ? cul.dec : cul.grp);
+  }
   class CsObj { constructor(cls) { this.cls = cls; this.f = new Map(); } }
   class CsEnum { constructor(type, name, value) { this.type = type; this.name = name; this.value = value; } }
   class CsFn { constructor(params, body, e, env, self, cls) { this.params = params; this.body = body; this.e = e; this.env = env; this.self = self; this.cls = cls; } }
@@ -754,29 +796,33 @@
     if (+trunc.slice(-1) % 2 === 0) return (x < 0 && /[1-9]/.test(trunc) ? "-" : "") + trunc;
     return s;
   }
-  function formatSpec(v, spec) {
-    if (spec == null || spec === "") return str(v);
+  function formatSpec(v, spec, cul) {
+    if (spec == null || spec === "") return cul ? inCulture(str(v), cul) : str(v);
     const num = v instanceof D ? v.v : typeof v === "number" ? v : v instanceof Ch ? null : null;
     if (num === null) return str(v);
     const m = /^([FfNnDdEePpXxGgCc])(\d*)$/.exec(spec);
     if (m) {
       const k = m[1].toUpperCase(); const d = m[2] === "" ? null : parseInt(m[2], 10);
       const dm = v instanceof D && v.m;
-      if (k === "F") return toFixedAway(num, d === null ? 2 : d, dm);
-      if (k === "N") return groupThousands(toFixedAway(num, d === null ? 2 : d, dm));
+      const C = cul || CULTURES["en-GB"];
+      if (k === "F") return inCulture(toFixedAway(num, d === null ? 2 : d, dm), C);
+      if (k === "N") return inCulture(groupThousands(toFixedAway(num, d === null ? C.nd : d, dm)), C);
       if (k === "D") { const s = String(Math.abs(Math.trunc(num))).padStart(d || 0, "0"); return (num < 0 ? "-" : "") + s; }
-      if (k === "P") return toFixedAway(num * 100, d === null ? 2 : d, dm) + "%";
-      if (k === "C") return (num < 0 ? "-" : "") + "£" + groupThousands(toFixedAway(Math.abs(num), d === null ? 2 : d, dm));
+      if (k === "P") { const t = inCulture(groupThousands(toFixedAway(Math.abs(num) * 100, d === null ? C.pd : d, dm)), C); return (num < 0 ? "-" : "") + C.pct(t); }
+      if (k === "C") { const t = inCulture(groupThousands(toFixedAway(Math.abs(num), d === null ? 2 : d, dm)), C); return (num < 0 ? "-" : "") + C.cur(t); }
       if (k === "X") { const s = (num >>> 0).toString(16); return (m[1] === "X" ? s.toUpperCase() : s).padStart(d || 0, "0"); }
       if (k === "E") return num.toExponential(d === null ? 6 : d).replace(/e([+-])(\d+)$/, (_, s, e) => (m[1] === "E" ? "E" : "e") + s + e.padStart(3, "0"));
       if (k === "G") return str(v);
     }
+    if (/^[0#,.]+%$/.test(spec)) return formatSpec(new D(num * 100), spec.slice(0, -1), cul) + "%";
     if (/^[0#,.]+$/.test(spec)) {
       const dec = (spec.split(".")[1] || "").length; const minDec = (spec.split(".")[1] || "").replace(/#/g, "").length;
       let s = num.toFixed(dec);
       if (dec > minDec && s.includes(".")) { s = s.replace(/0+$/, ""); const need = minDec; const [i, f] = s.split("."); s = i + ((f || "").padEnd(need, "0") ? "." + (f || "").padEnd(need, "0") : ""); if (s.endsWith(".")) s = s.slice(0, -1); }
+      const minInt = (spec.split(".")[0].match(/0/g) || []).length;
+      if (minInt > 1) { const neg = s[0] === "-"; const [ip, fp] = (neg ? s.slice(1) : s).split("."); s = (neg ? "-" : "") + ip.padStart(minInt, "0") + (fp !== undefined ? "." + fp : ""); }
       if (spec.includes(",")) s = groupThousands(s);
-      return s;
+      return cul ? inCulture(s, cul) : s;
     }
     return str(v);
   }
@@ -795,6 +841,9 @@
     if (v instanceof Ch) return v.c;
     if (v instanceof CsEnum) return v.name;
     if (v instanceof CsTuple) return "(" + v.items.map(str).join(", ") + ")";
+    if (v instanceof CsMatch) return v.m ? v.m[0] : "";
+    if (v instanceof CsCulture) return v.name;
+    if (v instanceof CsRegex) return v.pattern;
     if (v instanceof CsKvp) return "[" + str(v.Key) + ", " + str(v.Value) + "]";
     if (v instanceof CsSB) return v.s;
     if (v instanceof CsList) return v.arr ? v.tname + "[" + (v.dims ? ",".repeat(v.dims.length - 1) : "") + "]" : "System.Collections.Generic.List`1[" + v.tname + "]";
@@ -827,14 +876,14 @@
 
   // ───────────────────────── the interpreter ─────────────────────────
   const BUILTIN_TYPES = new Set(["Console", "Math", "int", "long", "double", "float", "decimal", "string", "String", "char", "bool", "object", "Convert", "List", "Dictionary",
-    "HashSet", "Queue", "Stack", "SortedDictionary", "SortedList", "SortedSet", "StringBuilder", "Random", "Environment", "Array", "Enumerable", "StringSplitOptions", "Exception", "ArgumentException",
+    "HashSet", "Queue", "Stack", "CultureInfo", "NumberStyles", "Regex", "RegexOptions", "Match", "MatchCollection", "Group", "SortedDictionary", "SortedList", "SortedSet", "StringBuilder", "Random", "Environment", "Array", "Enumerable", "StringSplitOptions", "Exception", "ArgumentException",
     "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException", "IndexOutOfRangeException", "DivideByZeroException",
     "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "Assert", "Int32", "Double", "Char", "Boolean", "var",
     "Func", "Action", "Predicate", "KeyValuePair", "Tuple", "IEnumerable", "IList", "ICollection", "IDictionary", "IComparable", "Comparer", "StringComparer",
     "StringComparison", "Thread", "Fact", "Theory", "InlineData", "System", "nameof", "_", "Linq", "Collections", "Generic", "Text", "value", "MidpointRounding"]);
-  const EXC = ["Exception", "SystemException", "ArgumentException", "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException",
+  const EXC = ["Exception", "SystemException", "ArgumentException", "RegexParseException", "CultureNotFoundException", "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException",
     "IndexOutOfRangeException", "DivideByZeroException", "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "InvalidCastException", "AssertFailedException"];
-  const EXC_BASE = { Exception: null, SystemException: "Exception", ArgumentException: "SystemException", ArgumentOutOfRangeException: "ArgumentException", ArgumentNullException: "ArgumentException",
+  const EXC_BASE = { Exception: null, SystemException: "Exception", ArgumentException: "SystemException", RegexParseException: "ArgumentException", CultureNotFoundException: "ArgumentException", ArgumentOutOfRangeException: "ArgumentException", ArgumentNullException: "ArgumentException",
     InvalidOperationException: "SystemException", FormatException: "SystemException", IndexOutOfRangeException: "SystemException", DivideByZeroException: "SystemException",
     NullReferenceException: "SystemException", KeyNotFoundException: "SystemException", NotImplementedException: "SystemException", OverflowException: "SystemException", InvalidCastException: "SystemException", AssertFailedException: "Exception" };
   const EXC_DEFAULT = { Exception: "Exception of type 'System.Exception' was thrown.", ArgumentException: "Value does not fall within the expected range.", InvalidOperationException: "Operation is not valid due to the current state of the object.", NotImplementedException: "The method or operation is not implemented." };
@@ -1103,6 +1152,8 @@
       }
       if (typeof o === "string") {
         if (name === "Length") return o.length;
+        if (["Trim", "TrimStart", "TrimEnd", "ToUpper", "ToLower", "Substring", "Split", "Replace", "Contains", "IndexOf", "StartsWith", "EndsWith", "PadLeft", "PadRight", "Insert", "Remove", "ToCharArray"].includes(name))
+          throw new CsError("CS0428", "Cannot convert method group '" + name + "' to non-delegate type 'string'. Did you intend to invoke the method?", line, "compile");
         throw new CsError("CS1061", "'string' does not contain a definition for '" + name + "'", line, "compile");
       }
       if (o instanceof CsList && o.seq && (name === "Count" || name === "Length")) throw new CsError("CS0428", "A LINQ result (IEnumerable<T>) has no " + name + " property. Call the method: .Count()", line, "compile");
@@ -1113,6 +1164,13 @@
       if (o instanceof CsSet && o.sorted && (name === "Min" || name === "Max")) { const xs = enumerate(o, line); return xs.length ? xs[name === "Min" ? 0 : xs.length - 1] : defaultOf({ name: "int" }); }
       if (o instanceof CsQueue && name === "Count") return o.items.length;
       if (o instanceof CsSB && name === "Length") return o.s.length;
+      if (o instanceof CsCulture && name === "Name") return o.name;
+      if (o instanceof CsMatch) {
+        if (name === "Success") return !!o.m; if (name === "Value") return o.m ? o.m[0] : ""; if (name === "Index") return o.m ? o.m.index : 0;
+        if (name === "Length") return o.m ? o.m[0].length : 0; if (name === "Groups") return new CsGroups(o);
+      }
+      if (o instanceof CsGroups && name === "Count") return o.match.m ? o.match.m.length : 1;
+      if (o instanceof CsRegex && name === "Options") return o.flags;
       if (o instanceof CsKvp) { if (name === "Key") return o.Key; if (name === "Value") return o.Value; }
       if (o instanceof CsGroup) { if (name === "Key") return o.Key; if (name === "Count") return o.items.length; }
       if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); if (m && +m[1] > o.items.length) throw new CsError("CS1061", "'(…)' does not contain a definition for '" + name + "'", line, "compile"); if (m) return o.items[+m[1] - 1]; if (o.names) { const i = o.names.indexOf(name); if (i >= 0) return o.items[i]; } }
@@ -1122,6 +1180,7 @@
     function setMember(o, name, v, line, ctx) {
       if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
       if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); const i = m ? +m[1] - 1 : o.names ? o.names.indexOf(name) : -1; if (i >= 0 && i < o.items.length) { o.items[i] = v; return; } }
+      if (o instanceof CsSB && name === "Length") { const n = nv(v); if (n < 0) throw exc("ArgumentOutOfRangeException", "Length cannot be less than zero. (Parameter 'value')", line); o.s = n <= o.s.length ? o.s.slice(0, n) : o.s + "\0".repeat(n - o.s.length); return; }
       if (o instanceof CsObj) {
         const pr = findProp(o.cls, name);
         if (pr) {
@@ -1352,7 +1411,11 @@
       if (a instanceof CsObj && b instanceof CsObj) { const eq = findMethod(a.cls, "Equals", 1, [b]); if (eq && !eq.owner.builtin) return invoke(eq.m, eq.owner, a, [b], 0); return false; }
       return false;
     }
+    /* flag enums the notes combine with | (StringSplitOptions, RegexOptions)
+       are carried as their names: "RemoveEmptyEntries|TrimEntries" */
+    const FLAG = /^(None|RemoveEmptyEntries|TrimEntries|IgnoreCase|Multiline|Singleline|Compiled|IgnorePatternWhitespace|CultureInvariant)$/;
     function arith(op, a, b, line, wide) {
+      if (op === "|" && typeof a === "string" && typeof b === "string" && a.split("|").every((x) => FLAG.test(x)) && FLAG.test(b)) return a + "|" + b;
       if (op === "+" && (typeof a === "string" || typeof b === "string")) return str(a) + str(b);
       if (a === null || b === null || a === undefined || b === undefined) { if (op === "+" && (typeof a === "string" || typeof b === "string")) return str(a) + str(b); throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line); }
       if (a instanceof CsEnum) a = a.value; if (b instanceof CsEnum) b = b.value;
@@ -1411,7 +1474,9 @@
           setMember(o, target.n, v, line, ctx); return v;
         }
         case "idx": {
-          const o = evalE(target.o, ctx); const i = evalE(target.i, ctx);
+          const o = evalE(target.o, ctx); let i = evalE(target.i, ctx);
+          if (i instanceof Hat) i = (o instanceof CsList ? o.items.length : o instanceof CsSB ? o.s.length : 0) - i.n;
+          if (o instanceof CsSB) { const k = nv(i); if (k < 0 || k >= o.s.length) throw exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); o.s = o.s.slice(0, k) + str(v) + o.s.slice(k + 1); return v; }
           if (o instanceof CsList && (target.i2 || o.dims)) { o.items[gridIndex(o, [i].concat((target.i2 || []).map((x) => evalE(x, ctx))), line)] = v; return v; }
           if (o instanceof CsList && o.seq) throw new CsError("CS0021", "Cannot apply indexing with [] to an IEnumerable<T>. Call .ToList() first, or use .ElementAt(i)", e.line, "compile");
           if (o instanceof CsList) { const k = nv(i); if (k < 0 || k >= o.items.length || !Number.isInteger(k)) throw o.arr ? exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line) : exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); o.items[k] = v; return v; }
@@ -1441,6 +1506,7 @@
         case "base": return { __base: true };
         case "interp": return e.parts.map((pt) => typeof pt === "string" ? pt : align(formatSpec(evalE(pt.e, ctx), pt.fmt), pt.align)).join("");
         case "tuple": return new CsTuple(e.items.map((x) => evalE(x, ctx)), e.names || null);
+        case "hat": return new Hat(nv(evalE(e.e, ctx)));
         case "coll": return makeColl(e, null, ctx);
         case "default": return defaultOf(e.type);
         case "cond": return truthy(evalE(e.c, ctx), e.line) ? evalE(e.a, ctx) : evalE(e.b, ctx);
@@ -1473,6 +1539,7 @@
           if (e.op === "||") return truthy(evalE(e.a, ctx), e.line) || truthy(evalE(e.b, ctx), e.line);
           if (e.op === "??") { const a = evalE(e.a, ctx); return a !== null && a !== undefined ? a : evalE(e.b, ctx); }
           const a = evalE(e.a, ctx), b = evalE(e.b, ctx);
+          if ((e.op === "==" || e.op === "!=") && ((a instanceof CsSB && typeof b === "string") || (b instanceof CsSB && typeof a === "string"))) throw new CsError("CS0019", "Operator '" + e.op + "' cannot be applied to operands of type 'StringBuilder' and 'string'", e.line, "compile");
           if (e.op === "==") return equals(a, b);
           if (e.op === "!=") return !equals(a, b);
           if (["<", ">", "<=", ">="].includes(e.op)) { try { return compare(e.op, a, b); } catch (er) { if (er instanceof CsError) er.line = e.line; throw er; } }
@@ -1488,14 +1555,31 @@
           throw exc("InvalidOperationException", "The switch expression does not handle all possible values of its input type (it is not exhaustive). Unhandled value: " + str(v), e.line);
         }
         case "idx": {
-          const o = evalE(e.o, ctx); const i = evalE(e.i, ctx);
+          if (e.range) {
+            const o = evalE(e.o, ctx);
+            if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", e.line);
+            const len = typeof o === "string" ? o.length : o instanceof CsList && o.arr ? o.items.length : -1;
+            if (len < 0) throw new CsError("CS0021", "Cannot apply indexing with [] to an expression of type '" + typeName(o) + "'", e.line, "compile");
+            const at = (x, dflt) => { if (!x) return dflt; const v = evalE(x, ctx); return v instanceof Hat ? len - v.n : nv(v); };
+            const lo = at(e.range[0], 0), hi = at(e.range[1], len);
+            if (lo < 0 || hi > len || lo > hi) throw exc("ArgumentOutOfRangeException", "Specified argument was out of the range of valid values. (Parameter 'length')", e.line);
+            return typeof o === "string" ? o.slice(lo, hi) : new CsList(o.items.slice(lo, hi), o.tname, true);
+          }
+          const o = evalE(e.o, ctx); let i = evalE(e.i, ctx);
           if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", e.line);
+          if (i instanceof Hat) i = (typeof o === "string" ? o.length : o instanceof CsList ? o.items.length : o instanceof CsSB ? o.s.length : 0) - i.n;
           if (typeof o === "string") { const k = nv(i); if (k < 0 || k >= o.length) throw exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", e.line); return new Ch(o[k]); }
           if (o instanceof CsList && (e.i2 || o.dims)) return o.items[gridIndex(o, [i].concat((e.i2 || []).map((x) => evalE(x, ctx))), e.line)];
           if (o instanceof CsList && (o.seq || o.ro)) throw new CsError("CS0021", o.ro ? "Cannot apply indexing with [] to an expression of type 'Dictionary<TKey, TValue>.KeyCollection'" : "Cannot apply indexing with [] to an IEnumerable<T>. Call .ToList() first, or use .ElementAt(i)", e.line, "compile");
           if (o instanceof CsList) { const k = nv(i); if (k < 0 || k >= o.items.length || !Number.isInteger(k)) throw o.arr ? exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", e.line) : exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", e.line); return o.items[k]; }
           if (o instanceof CsDict) { const k = dkey(o, i); if (!o.map.has(k)) throw exc("KeyNotFoundException", "The given key '" + str(i) + "' was not present in the dictionary.", e.line); return o.map.get(k)[1]; }
-          if (o instanceof CsSB) return new Ch(o.s[nv(i)]);
+          if (o instanceof CsSB) { const k = nv(i); if (k < 0 || k >= o.s.length) throw exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", e.line); return new Ch(o.s[k]); }
+          if (o instanceof CsGroups) {
+            const m = o.match.m; let v;
+            if (m) v = typeof i === "string" ? (m.groups ? m.groups[i] : undefined) : m[o.match.order ? o.match.order[nv(i)] : nv(i)];
+            const g = new CsMatch(v === undefined ? null : Object.assign([v], { index: m && v !== undefined ? m.index + Math.max(0, m[0].indexOf(v)) : 0 }), null, o.match.input);
+            return g;
+          }
           throw new CsError("CS0021", "Cannot apply indexing with [] to an expression of type '" + typeName(o) + "'", e.line, "compile");
         }
         case "mem": {
@@ -1590,9 +1674,11 @@
         case "Stack": o = new CsQueue(true); o.elT = T[0] || null; if (args[0]) o.items = enumerate(args[0], e.line); break;
         case "StringBuilder": o = new CsSB(args[0] ? str(args[0]) : ""); break;
         case "Random": return (rnd = new CsRandom(args.length ? nv(args[0]) : 12345));
-        case "string": case "String": return str(args[0]).repeat(nv(args[1]));
+        case "string": case "String": return args[0] instanceof CsList ? args[0].items.map(str).join("") : str(args[0]).repeat(nv(args[1]));
         case "object": return new CsObj({ name: "Object", base: null, ifaces: [], fields: [], props: [], methods: new Map(), ctors: [], statics: new Map() });
         case "KeyValuePair": return new CsKvp(args[0], args[1]);
+        case "CultureInfo": if (!(str(args[0]) in CULTURES)) throw exc("CultureNotFoundException", "Only the cultures en-GB, en-US, de-DE and fr-FR are available in the in-app runner.", e.line); return new CsCulture(str(args[0]));
+        case "Regex": jsRegex(args[0], args[1], e.line); return new CsRegex(str(args[0]), args[1] || "");
         default: {
           const c = classes.get(n);
           if (!c) throw new CsError("CS0246", "The type or namespace name '" + n + "' could not be found (are you missing a using directive or an assembly reference?)", e.line, "compile");
@@ -1620,9 +1706,11 @@
       if (tn === "Environment" && n === "NewLine") return "\n";
       if (tn === "StringSplitOptions") return n;
       if (tn === "StringComparison") return n;
-      if (tn === "StringComparer") return n.indexOf("IgnoreCase") >= 0 ? "CI" : "CS";
+      if (tn === "StringComparer") return n.indexOf("IgnoreCase") >= 0 ? "CI" : n === "Ordinal" ? "CS" : "CC";
       if (tn === "MidpointRounding") return n;
       if (tn === "Console" && n === "Out") return { __type: "Console" };
+      if (tn === "CultureInfo") { if (n === "InvariantCulture") return new CsCulture(""); if (n === "CurrentCulture" || n === "CurrentUICulture") return new CsCulture("en-GB"); }
+      if (tn === "RegexOptions" || tn === "NumberStyles") return n;
       return NOPE;
     }
 
@@ -1718,6 +1806,7 @@
     function parseIntStrict(s, line, kind) {
       if (s === null || s === undefined) throw exc("ArgumentNullException", "Value cannot be null. (Parameter 's')", line);
       const t = String(s).trim();
+      if (kind === "long") { if (!/^[+-]?\d+$/.test(t)) throw exc("FormatException", "The input string '" + s + "' was not in a correct format.", line); const v = Number(t); if (Math.abs(v) > 9223372036854775807) throw exc("OverflowException", "Value was either too large or too small for an Int64.", line); return v; }
       if (kind === "int") { if (!/^[+-]?\d+$/.test(t)) throw exc("FormatException", "The input string '" + s + "' was not in a correct format.", line); const v = parseInt(t, 10); if (v > 2147483647 || v < -2147483648) throw exc("OverflowException", "Value was either too large or too small for an Int32.", line); return v; }
       if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t) && !/^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) throw exc("FormatException", "The input string '" + s + "' was not in a correct format.", line);
       return new D(parseFloat(t.replace(/,/g, "")));
@@ -1767,10 +1856,23 @@
           break;
         }
         case "int": case "Int32": case "long": case "Int64":
-          if (n === "Parse") return parseIntStrict(a[0], line, "int");
-          if (n === "TryParse") { try { const v = parseIntStrict(a[0], line, "int"); a[1].set(v); return true; } catch (er) { if (er instanceof Thrown) { a[1].set(0); return false; } throw er; } }
+          if (n === "Parse") return parseIntStrict(a[0], line, /long|64/i.test(tn) ? "long" : "int");
+          if (n === "TryParse") { try { const v = parseIntStrict(a[0], line, /long|64/i.test(tn) ? "long" : "int"); a[1].set(v); return true; } catch (er) { if (er instanceof Thrown) { a[1].set(0); return false; } throw er; } }
           break;
         case "double": case "Double": case "decimal": case "Decimal": case "float":
+          if (n === "Parse" && a[1] instanceof CsCulture) {
+            const C = a[1], t = String(a[0]).trim().split(C.grp).join("");
+            const v = parseIntStrict(C.dec === "." ? t : t.replace(C.dec, "."), line, "double");
+            return /^dec/i.test(tn) ? decm(v.v, ((String(a[0]).split(C.dec)[1] || "").length)) : v;
+          }
+          if (n === "TryParse" && a.length === 4 && a[2] instanceof CsCulture) {
+            const C = a[2], t0 = a[0] == null ? "" : String(a[0]).trim();
+            const t = (C.grp === "." && C.dec === "," ? t0.split(".").join("") : t0).replace(C.dec, C.dec === "," ? "." : C.dec);
+            if (C.dec === "." && /,/.test(t0) && !/AllowThousands|Any|Number/.test(String(a[1]))) { a[3].set(/^dec/i.test(tn) ? decm(0, 0) : new D(0)); return false; }
+            try { const v = parseIntStrict(t, line, "double"); a[3].set(/^dec/i.test(tn) ? decm(v.v, null) : v); return true; }
+            catch (er) { if (er instanceof Thrown) { a[3].set(/^dec/i.test(tn) ? decm(0, 0) : new D(0)); return false; } throw er; }
+          }
+          if (n === "Parse" && /^dec/i.test(tn)) { const v = parseIntStrict(a[0], line, "double"); return decm(v.v, ((String(a[0]).trim().split(".")[1] || "").replace(/[^0-9].*$/, "").length)); }
           if (n === "Parse") return parseIntStrict(a[0], line, "double");
           if (n === "TryParse") { try { const v = parseIntStrict(a[0], line, "double"); a[1].set(v); return true; } catch (er) { if (er instanceof Thrown) { a[1].set(new D(0)); return false; } throw er; } }
           if (n === "IsNaN") return Number.isNaN(nv(a[0]));
@@ -1781,7 +1883,9 @@
           switch (n) {
             case "IsDigit": return /[0-9]/.test(c); case "IsLetter": return /\p{L}/u.test(c); case "IsLetterOrDigit": return /[\p{L}0-9]/u.test(c);
             case "IsUpper": return /\p{Lu}/u.test(c); case "IsLower": return /\p{Ll}/u.test(c); case "IsWhiteSpace": return /\s/.test(c); case "IsPunctuation": return /[!-\/:-@\[-`{-~]/.test(c) && !/[$+<=>^`|~]/.test(c);
-            case "ToUpper": return new Ch(c.toUpperCase()); case "ToLower": return new Ch(c.toLowerCase()); case "GetNumericValue": return new D(/[0-9]/.test(c) ? +c : -1);
+            case "ToUpper": { const u = c.toUpperCase(); return new Ch(u.length === 1 ? u : c); } case "ToLower": { const u = c.toLowerCase(); return new Ch(u.length === 1 ? u : c); } case "GetNumericValue": return new D(/[0-9]/.test(c) ? +c : -1);
+            case "IsSurrogate": return /[\uD800-\uDFFF]/.test(c); case "IsHighSurrogate": return /[\uD800-\uDBFF]/.test(c); case "IsLowSurrogate": return /[\uDC00-\uDFFF]/.test(c);
+            case "IsControl": return /[\u0000-\u001F\u007F-\u009F]/.test(c); case "IsSymbol": return /[\p{S}]/u.test(c); case "IsSeparator": return /[\p{Z}]/u.test(c); case "IsAscii": return c.charCodeAt(0) < 128;
           }
           break;
         }
@@ -1790,7 +1894,9 @@
             case "Join": { const sep = str(a[0]); const items = a.length === 2 && (a[1] instanceof CsList || a[1] instanceof CsSet || a[1] instanceof CsGroup || a[1] instanceof CsQueue || a[1] instanceof CsDict) ? enumerate(a[1], line) : a.slice(1); return items.map(str).join(sep); }
             case "IsNullOrEmpty": return a[0] === null || a[0] === ""; case "IsNullOrWhiteSpace": return a[0] === null || String(a[0]).trim() === "";
             case "Concat": return a.length === 1 && a[0] instanceof CsList ? a[0].items.map(str).join("") : a.map(str).join(""); case "Format": return composite(a[0], a.slice(1), line);
-            case "Compare": return Math.sign(String(a[0]).localeCompare(String(a[1]))); case "Equals": return a[0] === a[1];
+            case "Compare": return compareStrings(a[0], a[1], typeof a[2] === "string" ? a[2] : typeof a[2] === "boolean" && a[2] ? "CurrentCultureIgnoreCase" : null);
+            case "CompareOrdinal": return compareStrings(a[0], a[1], "Ordinal");
+            case "Equals": return typeof a[2] === "string" && /IgnoreCase$/.test(a[2]) ? a[0] != null && a[1] != null && a[0].toLowerCase() === a[1].toLowerCase() : a[0] === a[1];
           }
           break;
         case "Convert":
@@ -1816,6 +1922,7 @@
           if (n === "Repeat") return new CsList(Array.from({ length: nv(a[1]) }, () => a[0]), "System.Object");
           break;
         case "Assert": return assertCall(n, a, line, targs);
+        case "Regex": return regexCall(null, n, a, line);
         case "Thread": throw unsupported("threads", line);
       }
       throw new CsError("CS0117", "'" + tn + "' does not contain a definition for '" + n + "'", line, "compile");
@@ -1846,7 +1953,67 @@
       const a = x instanceof CsEnum ? x.value : nv(x), b = y instanceof CsEnum ? y.value : nv(y);
       return a < b ? -1 : a > b ? 1 : 0;
     }
+    /* string comparison as .NET does it: Ordinal is the first differing
+       UTF-16 unit (or the length), IgnoreCase upper-cases first; culture
+       comparison gives -1, 0 or 1 */
+    function compareStrings(x, y, how) {
+      if (x === null || y === null) return x === y ? 0 : x === null ? -1 : 1;
+      x = String(x); y = String(y);
+      if (how === "Ordinal" || how === "OrdinalIgnoreCase") {
+        if (how === "OrdinalIgnoreCase") { x = x.toUpperCase(); y = y.toUpperCase(); }
+        for (let i = 0; i < Math.min(x.length, y.length); i++) if (x.charCodeAt(i) !== y.charCodeAt(i)) return x.charCodeAt(i) - y.charCodeAt(i);
+        return x.length - y.length;
+      }
+      return Math.sign(x.localeCompare(y, "en", how && /IgnoreCase$/.test(how) ? { sensitivity: "accent" } : { caseFirst: "lower" }));
+    }
+    /* regular expressions on the browser's engine: the subset the notes
+       use (classes, quantifiers, anchors, groups, named groups, options)
+       reads the same in .NET and JavaScript */
+    function jsRegex(pattern, flags, line, global) {
+      const f = String(flags || "").split("|");
+      try {
+        return new RegExp(String(pattern), (global ? "g" : "") + (f.includes("IgnoreCase") ? "i" : "") + (f.includes("Multiline") ? "m" : "") + (f.includes("Singleline") ? "s" : ""));
+      } catch (er) { throw exc("RegexParseException", "Invalid pattern '" + pattern + "'. " + er.message, line); }
+    }
+    /* .NET numbers a pattern's unnamed groups first, then its named ones;
+       JavaScript numbers them all left to right */
+    function groupOrder(pattern) {
+      const p = String(pattern), unnamed = [], named = []; let k = 0;
+      for (let i = 0; i < p.length; i++) {
+        if (p[i] === "\\") { i++; continue; }
+        if (p[i] === "[") { while (i < p.length && p[i] !== "]") { if (p[i] === "\\") i++; i++; } continue; }
+        if (p[i] !== "(") continue;
+        if (p[i + 1] === "?") { if (p[i + 2] === "<" && p[i + 3] !== "=" && p[i + 3] !== "!") { k++; named.push(k); } continue; }
+        k++; unnamed.push(k);
+      }
+      return [0].concat(unnamed, named);
+    }
+    function regexCall(inst, n, a, line) {
+      /* static: (input, pattern, …); instance: (input, …) with the pattern kept */
+      const input = a[0];
+      const pattern = inst ? inst.pattern : a[1];
+      const rest = inst ? a.slice(1) : a.slice(2);
+      const flags = inst ? inst.flags : rest.find((x) => typeof x === "string" && /^(None|IgnoreCase|Multiline|Singleline|Compiled)(\|\w+)*$/.test(x)) || "";
+      if (input === null || input === undefined) throw exc("ArgumentNullException", "Value cannot be null. (Parameter 'input')", line);
+      const s = String(input);
+      switch (n) {
+        case "IsMatch": return jsRegex(pattern, flags, line).test(s);
+        case "Match": { const re = jsRegex(pattern, flags, line, true); const mt = new CsMatch(re.exec(s), re, s); mt.order = groupOrder(pattern); return mt; }
+        case "Matches": { const re = jsRegex(pattern, flags, line, true); const ord = groupOrder(pattern); const out = []; let m; while ((m = re.exec(s))) { const mt = new CsMatch(m, null, s); mt.order = ord; out.push(mt); if (m[0] === "") re.lastIndex++; } return new CsList(out, "Match"); }
+        case "Replace": {
+          const rep = inst ? a[1] : a[2];
+          const re = jsRegex(pattern, flags, line, true);
+          if (rep instanceof CsFn) return s.replace(re, (...g) => { const m = g.slice(0, -2); m.index = g[g.length - 2]; return str(callFn(rep, [new CsMatch(m, null, s)], line)); });
+          return s.replace(re, String(rep).replace(/\$\{(\w+)\}/g, "$<$1>").replace(/\$0/g, "$&"));
+        }
+        case "Split": return new CsList(s.split(jsRegex(pattern, flags, line)).map((x) => x === undefined ? "" : x), "System.String", true);
+        case "Escape": return String(input).replace(/[\\^$.|?*+()[\]{}\s#]/g, (c) => c === " " ? "\\ " : "\\" + c);
+      }
+      throw new CsError("CS0117", "'Regex' does not contain a definition for '" + n + "'", line, "compile");
+    }
     function sortList(list, cmp, line) {
+      if (cmp === "CC") { list.items.sort(cmpVals); return; }
+      if (cmp === "CS" || cmp === "CI") { list.items.sort((x, y) => compareStrings(x, y, cmp === "CI" ? "OrdinalIgnoreCase" : "Ordinal")); return; }
       if (cmp) list.items.sort((x, y) => nv(callFn(cmp, [x, y], line)));
       else list.items.sort(cmpVals);
     }
@@ -1901,26 +2068,41 @@
     function builtinMethod(o, n, a, line) {
       if (typeof o === "string") {
         const s = o;
+        if (n === "Length") throw new CsError("CS1955", "Non-invocable member 'string.Length' cannot be used like a method.", line, "compile");
         switch (n) {
-          case "ToUpper": case "ToUpperInvariant": return s.toUpperCase(); case "ToLower": case "ToLowerInvariant": return s.toLowerCase();
+          /* one char in, one char out, as .NET does ('ß' stays 'ß') */
+          case "ToUpper": case "ToUpperInvariant": return [...s].map((c) => { const u = c.toUpperCase(); return u.length === c.length ? u : c; }).join("");
+          case "ToLower": case "ToLowerInvariant": return [...s].map((c) => { const u = c.toLowerCase(); return u.length === c.length ? u : c; }).join("");
           case "Trim": return a.length ? trimChars(s, a, 3) : s.trim(); case "TrimStart": return a.length ? trimChars(s, a, 1) : s.replace(/^\s+/, ""); case "TrimEnd": return a.length ? trimChars(s, a, 2) : s.replace(/\s+$/, "");
-          case "Contains": return s.includes(str(a[0])); case "StartsWith": return s.startsWith(str(a[0])); case "EndsWith": return s.endsWith(str(a[0]));
-          case "IndexOf": return s.indexOf(str(a[0]), a[1] !== undefined ? nv(a[1]) : 0); case "LastIndexOf": return s.lastIndexOf(str(a[0]));
+          case "Contains": case "StartsWith": case "EndsWith": case "IndexOf": case "LastIndexOf": {
+            const ci = a.some((x) => typeof x === "string" && /IgnoreCase$/.test(x) && a.indexOf(x) > 0);
+            const hay = ci ? s.toLowerCase() : s, needle = ci ? str(a[0]).toLowerCase() : str(a[0]);
+            if (a[0] === null) throw exc("ArgumentNullException", "Value cannot be null. (Parameter 'value')", line);
+            if (n === "Contains") return hay.includes(needle); if (n === "StartsWith") return hay.startsWith(needle); if (n === "EndsWith") return hay.endsWith(needle);
+            if (n === "LastIndexOf") return hay.lastIndexOf(needle);
+            const from = typeof a[1] === "number" ? a[1] : 0;
+            if (from < 0 || from > s.length) throw exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than or equal to the size of the collection. (Parameter 'startIndex')", line);
+            return hay.indexOf(needle, from);
+          }
           case "Replace": return s.split(str(a[0])).join(str(a[1]));
           case "Substring": { const st = nv(a[0]); const len = a.length > 1 ? nv(a[1]) : s.length - st; if (st < 0 || st > s.length || len < 0 || st + len > s.length) throw exc("ArgumentOutOfRangeException", a.length > 1 ? "Index and length must refer to a location within the string. (Parameter 'length')" : "startIndex cannot be larger than length of string. (Parameter 'startIndex')", line); return s.substr(st, len); }
           case "Split": {
-            let seps = a.filter((x) => typeof x === "string" && x !== "RemoveEmptyEntries" && x !== "TrimEntries" && x !== "None" || x instanceof Ch || x instanceof CsList).flatMap((x) => x instanceof CsList ? x.items.map(str) : [str(x)]);
-            const rm = a.includes("RemoveEmptyEntries"), tr = a.includes("TrimEntries");
+            const isOpt = (x) => typeof x === "string" && /^(None|RemoveEmptyEntries|TrimEntries)(\|(None|RemoveEmptyEntries|TrimEntries))*$/.test(x);
+            let seps = a.filter((x) => (typeof x === "string" && !isOpt(x)) || x instanceof Ch || x instanceof CsList).flatMap((x) => x instanceof CsList ? x.items.map(str) : [str(x)]);
+            const opts = a.filter(isOpt).join("|").split("|");
+            const rm = opts.includes("RemoveEmptyEntries"), tr = opts.includes("TrimEntries");
+            const count = a.find((x) => typeof x === "number");
             if (!seps.length) seps = [" "];
             let parts = [s];
-            for (const sp of seps) parts = parts.flatMap((pp) => pp.split(sp));
+            if (count !== undefined && seps.length === 1) { const all = s.split(seps[0]); parts = all.length > count && count > 0 ? all.slice(0, count - 1).concat([all.slice(count - 1).join(seps[0])]) : all; }
+            else for (const sp of seps) parts = parts.flatMap((pp) => pp.split(sp));
             if (tr) parts = parts.map((x) => x.trim());
             if (rm) parts = parts.filter((x) => x !== "");
             return new CsList(parts, "System.String", true);
           }
           case "PadLeft": return s.padStart(nv(a[0]), a[1] ? str(a[1]) : " "); case "PadRight": return s.padEnd(nv(a[0]), a[1] ? str(a[1]) : " ");
           case "ToCharArray": return new CsList([...s].map((c) => new Ch(c)), "System.Char", true);
-          case "Equals": return a[1] === "OrdinalIgnoreCase" || a[1] === "CurrentCultureIgnoreCase" ? s.toLowerCase() === str(a[0]).toLowerCase() : s === a[0];
+          case "Equals": return typeof a[1] === "string" && /IgnoreCase$/.test(a[1]) ? s.toLowerCase() === str(a[0]).toLowerCase() : s === a[0];
           case "CompareTo": return Math.sign(s.localeCompare(str(a[0]), "en", { caseFirst: "lower" }));
           case "Insert": return s.slice(0, nv(a[0])) + str(a[1]) + s.slice(nv(a[0]));
           case "Remove": return a.length > 1 ? s.slice(0, nv(a[0])) + s.slice(nv(a[0]) + nv(a[1])) : s.slice(0, nv(a[0]));
@@ -1930,7 +2112,10 @@
         if (r !== NOPE) return r;
       }
       if (typeof o === "number" || o instanceof D || o instanceof Ch || typeof o === "boolean" || o instanceof CsEnum) {
-        if (n === "ToString") return a.length ? formatSpec(o, str(a[0])) : str(o);
+        if (n === "ToString") {
+          const cul = a.find((x) => x instanceof CsCulture), fmt = a.find((x) => typeof x === "string");
+          return fmt !== undefined ? formatSpec(o, fmt, cul) : cul ? inCulture(str(o), cul) : str(o);
+        }
         if (n === "CompareTo") return cmpVals(o, a[0]);
         if (n === "Equals") return equals(o, a[0]);
         if (n === "GetHashCode") return nv(o) | 0;
@@ -2024,12 +2209,22 @@
       }
       if (o instanceof CsGroup) { const r = linq(o.items, n, a, line, null); if (r !== NOPE) return r; }
       if (o instanceof CsSB) {
+        switch (n) {
+          case "Equals": return (a[0] instanceof CsSB || typeof a[0] === "string") && str(a[0]) === o.s;   /* .NET 10: Equals(ReadOnlySpan<char>) */
+          case "AppendFormat": o.s += composite(a[0], a.slice(1), line); return o;
+          case "AppendJoin": { const sep = str(a[0]); const items = a.length === 2 && (a[1] instanceof CsList || a[1] instanceof CsSet || a[1] instanceof CsQueue) ? enumerate(a[1], line) : a.slice(1); o.s += items.map(str).join(sep); return o; }
+          case "Replace": o.s = o.s.split(str(a[0])).join(str(a[1])); return o;
+          case "Remove": { const st = nv(a[0]), ln = nv(a[1]); if (st < 0 || ln < 0 || st + ln > o.s.length) throw exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'startIndex')", line); o.s = o.s.slice(0, st) + o.s.slice(st + ln); return o; }
+        }
         switch (n) { case "Append": o.s += str(a[0]); return o; case "AppendLine": o.s += (a.length ? str(a[0]) : "") + "\n"; return o; case "ToString": return o.s; case "Clear": o.s = ""; return o; case "Insert": o.s = o.s.slice(0, nv(a[0])) + str(a[1]) + o.s.slice(nv(a[0])); return o; }
       }
       if (o instanceof CsRandom) {
         if (n === "Next") { const r = o.next(); if (a.length === 0) return Math.floor(r * 2147483647); if (a.length === 1) return Math.floor(r * nv(a[0])); return nv(a[0]) + Math.floor(r * (nv(a[1]) - nv(a[0]))); }
         if (n === "NextDouble") return new D(o.next());
       }
+      if (o instanceof CsRegex) return regexCall(o, n, a, line);
+      if (o instanceof CsMatch && n === "NextMatch") { if (!o.re) return new CsMatch(null, null, o.input); const m = o.re.exec(o.input); const mt = new CsMatch(m, o.re, o.input); mt.order = o.order; return mt; }
+      if (o instanceof CsMatch && n === "ToString") return o.m ? o.m[0] : "";
       if (o instanceof CsTuple && n === "ToString") return str(o);
       if (o instanceof CsKvp && n === "ToString") return str(o);
       return NOPE;
@@ -2253,6 +2448,13 @@
                 errs.push(NUMS.includes(from) && NUMS.includes(to) ? new CsError("CS0266", "Cannot implicitly convert type '" + from + "' to '" + to + "'. An explicit conversion exists (are you missing a cast?)", s.line, "compile", file)
                   : new CsError("CS0029", "Cannot implicitly convert type '" + from + "' to '" + to + "'", s.line, "compile", file));
             }
+            /* a variable of one type stored in another (string ↔ number, bool, char) */
+            if (s.type && s.type.name !== "var" && !s.type.arr && ie && ie.k === "name" && TY.get(ie.n)) {
+              const from = TY.get(ie.n), to = s.type.name, NUMS = ["int", "long", "double", "decimal"];
+              const textual = (t) => t === "string", other = (t) => NUMS.includes(t) || t === "bool" || t === "char";
+              if ((textual(from) && other(to)) || (other(from) && textual(to)) || (from === "bool" && NUMS.includes(to)) || (NUMS.includes(from) && to === "bool"))
+                errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + from + "' to '" + to + "'", s.line, "compile", file));
+            }
             if (s.type && s.type.name === "bool" && ie && ie.k === "asg") errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (tyOf(ie.b) || "int") + "' to 'bool'", s.line, "compile", file));
           }
           if (s.type && ["int", "long", "double", "bool", "char"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) {
@@ -2260,6 +2462,12 @@
             if (d.init && d.init.k === "call" && d.init.f && d.init.f.k === "mem" && d.init.f.n === "ReadLine" && d.init.f.o && d.init.f.o.n === "Console") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to '" + s.type.name + "'", s.line, "compile", file));
             if (s.type.name === "int" && d.init && d.init.k === "lit" && d.init.v instanceof D) errs.push(new CsError("CS0266", "Cannot implicitly convert type 'double' to 'int'. An explicit conversion exists (are you missing a cast?)", s.line, "compile", file));
           }
+          /* a double literal stored in a decimal or float needs its suffix */
+          if (s.type && (s.type.name === "decimal" || s.type.name === "float") && !s.type.arr) for (const d of s.decls) {
+            let ie = d.init; while (ie && ie.k === "un" && ie.op === "-") ie = ie.a;
+            if (ie && ie.k === "lit" && ie.v instanceof D && !ie.v.m) errs.push(new CsError("CS0664", "Literal of type double cannot be implicitly converted to type '" + s.type.name + "'; use an '" + (s.type.name === "decimal" ? "M" : "F") + "' suffix to create a literal of this type", s.line, "compile", file));
+          }
+          if (s.type && s.type.name === "string" && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "call" && d.init.f && d.init.f.k === "mem" && d.init.f.n === "Split") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string[]' to 'string'", s.line, "compile", file));
           if (s.type && s.type.name === "string" && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "lit" && (typeof d.init.v === "number" || d.init.v instanceof D)) errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (d.init.v instanceof D ? "double" : "int") + "' to 'string'", s.line, "compile", file));
           return;
         case "deconstruct": expr(s.e, sc, mem, file); s.names.forEach((n) => sc.add(n)); return;
@@ -2306,7 +2514,13 @@
       switch (e.k) {
         case "name": if (!sc.has(e.n) && !mem.has(e.n) && !known.has(e.n)) errs.push(new CsError("CS0103", "The name '" + e.n + "' does not exist in the current context", e.line, "compile", file)); return;
         case "mem": expr(e.o, sc, mem, file); return;
-        case "call": expr(e.f, sc, mem, file);
+        case "call":
+          /* int.TryParse(…, out string s): the out variable must be the parsed type */
+          if (e.f && e.f.k === "mem" && e.f.n === "TryParse" && e.f.o && e.f.o.k === "name" && ["int", "long", "double", "decimal", "bool"].includes(e.f.o.n)) {
+            const ov = e.args.filter((a) => a.k === "outvar")[0];
+            if (ov && ov.type && ov.type.name !== "var" && ov.type.name !== e.f.o.n) errs.push(new CsError("CS1503", "Argument " + e.args.length + ": cannot convert from 'out " + ov.type.name + "' to 'out " + e.f.o.n + "'", e.line, "compile", file));
+          }
+          expr(e.f, sc, mem, file);
           e.args.forEach((a, i) => { if (a.k === "call" && a.f && a.f.k === "name" && FNTY.get(a.f.n) === "void") errs.push(new CsError("CS1503", "Argument " + (i + 1) + ": cannot convert from 'void' to 'object'", e.line, "compile", file)); });
           e.args.forEach((a) => { if (a.k === "outvar") sc.add(a.name); else expr(a.k === "ref" ? a.e : a, sc, mem, file); }); return;
         case "lambda": { const inner = new Set(sc); e.params.forEach((p) => inner.add(typeof p === "string" ? p : p.name)); if (e.e) expr(e.e, inner, mem, file); else stmt(e.body, inner, mem, file); return; }
@@ -2336,6 +2550,20 @@
           }
           for (const k of ["a", "b", "c", "e", "o", "i", "size"]) if (e[k] && typeof e[k] === "object" && e[k].k) expr(e[k], sc, mem, file);
           if (e.items) e.items.forEach((x) => expr(x, sc, mem, file));
+      }
+    }
+    /* types outside the implicit usings need their using (or a full name) */
+    const NEEDS = [[/^(CultureInfo|NumberStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder)$/, "System.Text"]];
+    for (const u of units) {
+      const src = u.src || "";
+      for (const [re, ns] of NEEDS) {
+        if (new RegExp("^\\s*using\\s+" + ns.replace(/\./g, "\\.") + "\\s*;", "m").test(src)) continue;
+        const m = new RegExp("(^|[^.\\w])(" + re.source.slice(2, -2) + ")\\b", "m").exec(src.replace(/"(?:[^"\\\n]|\\.)*"|\/\/.*$/gm, ""));
+        if (!m) continue;
+        const before = src.slice(0, src.indexOf(m[0]) + m[1].length), lineNo = before.split("\n").length;
+        const asType = new RegExp("(new\\s+" + m[2] + "\\b|\\b" + m[2] + "\\s+\\w+\\s*[=;,)])").test(src);
+        errs.push(asType ? new CsError("CS0246", "The type or namespace name '" + m[2] + "' could not be found (are you missing a using directive for " + ns + "?)", lineNo, "compile", u.file)
+          : new CsError("CS0103", "The name '" + m[2] + "' does not exist in the current context. Add: using " + ns + ";", lineNo, "compile", u.file));
       }
     }
     for (const u of units) {
@@ -2394,7 +2622,7 @@
 
   // ───────────────────────── public API ─────────────────────────
   function compile(files) {
-    const units = files.map((f) => parseUnit(f.src, f.name));
+    const units = files.map((f) => Object.assign(parseUnit(f.src, f.name), { src: f.src }));
     const errs = nameCheck(units);
     if (errs.length) throw errs[0];
     return units;
