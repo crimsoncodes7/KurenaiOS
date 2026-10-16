@@ -75,15 +75,15 @@ Nothing is locked anywhere (invariant 2). "Prerequisites" are concept sets on
 the concept graph. Content whose prerequisites you have not covered is shown
 as **recommended later**, and it is still open.
 
-### 3.1 The core path, about 121 lessons (the initial release covers it in stages)
+### 3.1 The core path, about 131 lessons (the initial release covers it in stages)
 
 | Stage | Units | Strands | Checkpoint |
 |---|---|---|---|
 | **1 · Foundations** | **1** How programs run; values and types · **2** Decisions and loops · **3** Methods, scope and decomposition | L S | Capstone 1 (in-app): text adventure engine |
-| **2 · Working with data** | **4** Collections: arrays, `List<T>`, `Dictionary`, sets, queues, tuples · **5** Text: strings, parsing, formatting, culture, Unicode, regular expressions (intro) · **6** Errors, exceptions and a debugging method | L E | Capstone 2 (in-app): gradebook CLI |
+| **2 · Working with data** | **4** Collections: arrays, `List<T>`, `Dictionary`, sets, queues, tuples · **5** Text: strings, parsing, formatting, culture, Unicode, regular expressions (intro), dates and times · **6** Errors, exceptions and a debugging method | L E | Capstone 2 (in-app): gradebook CLI |
 | **Bridge B · Your real toolkit** | about 6 lessons: Rider and its debugger · the `dotnet` CLI · solutions, projects, NuGet · Git and GitHub basics · reading documentation · **the Kurenai validation workflow** (§9) | E | A Rider "hello project" validated end to end |
-| **3 · Object-oriented C#** | **7** Classes, encapsulation, namespaces and files, **nullable reference types** · **8** Inheritance, interfaces, polymorphism, records, structs and value vs reference, pattern matching · **9** Generics, delegates, events, lambdas, LINQ | L E | Capstone 3: a shop with plugins and LINQ reports, with **a console OR an Avalonia front end** over the same services (§3.3) |
-| **4 · Professional practice** | **10** Testing and clean code: xUnit, arrange-act-assert, TDD, test doubles, refactoring, SOLID · **11** I/O and async: files, streams, JSON, configuration, `async`/`await`, cancellation · **12** Data structures and algorithms in C#: complexity, search, sort, recursion, trees, graphs, hashing | L E S | Capstone 4 (Rider): a tested multi-project app with JSON storage, CI-verified |
+| **3 · Object-oriented C#** | **7** Classes, properties and encapsulation, static members, namespaces and files, **nullable reference types** (and reading input correctly), enums and flags · **8** Inheritance, interfaces (and interface vs abstract class), polymorphism, records, value vs reference types (the stack and the heap), operator overloading (a vector type with the dot product), pattern matching, aggregation and composition · **9** Generics, delegates, lambdas, higher-order functions (map, filter, fold), extension methods, events, LINQ | L E | Capstone 3: a shop with plugins and LINQ reports, with **a console OR an Avalonia front end** over the same services (§3.3) |
+| **4 · Professional practice** | **10** Testing and clean code: xUnit, arrange-act-assert, TDD, test doubles, refactoring, SOLID · **11** I/O and async: streams, binary files and raw bytes, JSON, configuration, `async`/`await`, cancellation · **12** Data structures and algorithms in C#: Big O, bitwise operators, search, sort (bubble, insertion, merge, quick), recursion and stack frames, linked lists, stacks and queues, Reverse Polish notation, hash tables and collisions, trees and traversal, graphs (matrix and lists), Dijkstra and A* | L E S | Capstone 4 (Rider): a tested multi-project app with JSON storage, CI-verified |
 
 These "craft" threads run through every core unit rather than forming a track
 of their own:
@@ -99,7 +99,7 @@ of their own:
 |---|---|---|---|---|
 | **D1 Advanced C# and the runtime**: iterators and `yield`, deferred execution, advanced patterns, structs, `ref struct`, `Span<T>`, memory (stack, heap, GC, `IDisposable`), reflection and attributes, source generators (taste), extension methods, operators and indexers, generic constraints and variance, expression trees (taste), immutability | 14 | L | Stage 3 | WebAssembly in-app; reflection-heavy parts in Rider |
 | **D2 Concurrency and parallelism**: threads, `Task`, async internals (the state machine, the context), cancellation, races, locks, deadlocks, concurrent collections, channels, `Parallel` and PLINQ, async streams | 10 | L S | U11 | WebAssembly (single-threaded, so concepts and `async` only); real parallelism in Rider |
-| **D3 Algorithms and problem solving**: heaps and priority queues, tries, union-find, Dijkstra, topological sort, MST, DP patterns, greedy, backtracking, two pointers and sliding window, bit manipulation, string algorithms, an interview ladder | 16 | S | U12 | In-app, and the Trace Lab |
+| **D3 Algorithms and problem solving**: heaps and priority queues, tries, union-find, topological sort, MST, DP patterns, greedy, backtracking, two pointers and sliding window, bit manipulation, string algorithms, an interview ladder | 16 | S | U12 | In-app, and the Trace Lab |
 | **D4 Software design and architecture**: essential GoF patterns (strategy, observer, factory, adapter, decorator, command, repository), DI containers, layered and clean architecture, domain modelling, error strategies (exceptions vs results), logging with `ILogger`, the options pattern, documentation | 12 | E | U10 | In-app for patterns; DI, logging and options in Rider |
 | **D5 Testing in depth**: unit vs integration vs end-to-end, mocking (NSubstitute), property-based testing (taste), `WebApplicationFactory`, Testcontainers, Avalonia headless, coverage, mutation testing (Stryker.NET), debugging and profiling (Rider, BenchmarkDotNet) | 10 | E | U10 | Mostly Rider |
 | **D6 Tooling, Git and collaboration**: rebase and conflicts, GitHub flow (PRs, reviews, issues), CI with GitHub Actions, NuGet packaging, build configurations, analyzers, `.editorconfig`, `dotnet format`, semantic versioning, licences and open source | 10 | E | Bridge B | Rider and GitHub |
@@ -167,7 +167,7 @@ each marked with where it runs:
 
 | Part | Lessons | Initial release? |
 |---|---|---|
-| Core path (stages 1–4 plus Bridge B) | ~121 | **Yes, released in four stages (§12)** |
+| Core path (stages 1–4 plus Bridge B) | ~131 | **Yes, released in four stages (§12)** |
 | Deepening D1–D6 | ~72 | No: after the core |
 | Tracks T1–T9 | ~156 | No: one track per release, in an order you choose |
 | **Total** | **~350** | |
@@ -327,7 +327,7 @@ the pool, and the weekend may offer a T2 project. You choose how much: in
 ## 6. The bank, and why it is authored
 
 **Core bank sizes** (tracks add their own):
-- Lessons: about 121.
+- Lessons: about 131.
 - Daily tasks: about 400, on 3–4 per lesson.
 - Skill cards: about 700, each one a **variation generator**.
 - Katas and drills: about 100.
@@ -794,7 +794,7 @@ Suggested order:
 
 | Risk | Mitigation |
 |---|---|
-| **The volume of content** (~121 core lessons at full depth) | Spike N measures it; one stage per release; the per-section pipeline that shipped CS Papers 1 and 2 |
+| **The volume of content** (~131 core lessons at full depth) | Spike N measures it; one stage per release; the per-section pipeline that shipped CS Papers 1 and 2 |
 | The WebAssembly runtime is heavy on phones | Spike W; phones lead with notes and retrieval after unit 3 anyway |
 | .NET, Avalonia and EF versions churn | `global.json` pins; project scaffold versions; the validator matrix in CI |
 | Imported evidence is gamed | It is your own progress: hashes make tampering visible, and CI-verified is offered as the stronger level |

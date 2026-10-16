@@ -41,7 +41,7 @@
       ["2.5", "while and do…while", "Repeat while a condition holds, and make sure the loop always moves towards its end."],
       ["2.6", "for and foreach", "Count with for, walk every item with foreach, and choose between them."],
       ["2.7", "break, continue and nested loops", "Leave or skip an iteration deliberately, and reason about a loop inside a loop."],
-      ["2.8", "The ternary operator and guards", "Write small decisions as expressions with ?: and keep the main path unindented."],
+      ["2.8", "The ternary operator and guards", "Write small decisions as expressions with ?:, give empty input a default, and keep the main path unindented."],
       ["2.9", "Practise: a number-guessing game", "Combine input, decisions and a loop into a small interactive program."]
     ] },
     { ref: "U3", title: "Methods and scope", stage: 1, strands: ["L", "E"], where: "app", lessons: [
@@ -60,7 +60,7 @@
       ["4.3", "Counting with Dictionary", "Look values up by key, count things, and read a key that might be missing without throwing."],
       ["4.4", "HashSet and uniqueness", "Keep each item once and ask \"have I seen it?\" in one step."],
       ["4.5", "Queues and stacks", "Process items first-in first-out or last-in first-out."],
-      ["4.6", "Multi-dimensional arrays", "Model grids with [,] and jagged arrays, and loop over rows and columns."],
+      ["4.6", "Multi-dimensional arrays", "Model grids with [,], go to three dimensions with [,,], use jagged arrays, and loop over every dimension."],
       ["4.7", "Tuples and deconstruction", "Return and pass small groups of values without a class."],
       ["4.8", "Sorting and searching a collection", "Sort with a key, search for an item, and know what each costs."],
       ["4.9", "Choosing a collection", "Pick the collection from how the data will be used."],
@@ -75,7 +75,8 @@
       ["5.5", "StringBuilder", "Build long text efficiently in a loop."],
       ["5.6", "Culture, case and comparison", "Compare text correctly whatever the case or the machine's culture."],
       ["5.7", "Characters and Unicode", "Work with char values, char methods and text beyond plain English."],
-      ["5.8", "Regular expressions: a first look", "Match and extract simple patterns from text."]
+      ["5.8", "Regular expressions: a first look", "Match and extract simple patterns from text."],
+      ["5.9", "Dates, times and durations", "Work with DateTime and TimeSpan: build, compare and do arithmetic on dates, and format and parse them."]
     ] },
     { ref: "U6", title: "Files, exceptions and debugging", stage: 2, strands: ["L", "E"], where: "app", lessons: [
       ["6.1", "Exceptions: when it goes wrong", "Read what an exception is, where it came from and what stopped."],
@@ -106,33 +107,38 @@
       ["7.5", "Namespaces and files", "Organise classes into files and namespaces."],
       ["7.6", "References and equality", "Know when two variables point at one object, and what == compares."],
       ["7.7", "Nullable reference types: why", "Understand the billion-dollar mistake and how flow analysis helps."],
-      ["7.8", "Nullable in practice: ?, ! and ??", "Use nullable annotations and warnings as a design tool."],
-      ["7.9", "Enums", "Name a fixed set of options."],
+      ["7.8", "Nullable in practice: ?, ! and ??", "Use nullable annotations and warnings as a design tool, and read input correctly now Console.ReadLine says it can return null."],
+      ["7.9", "Enums and flags", "Name a fixed set of options, and combine several with [Flags]."],
       ["7.10", "Practise: a bank account", "Model an account that cannot reach an invalid state."]
     ] },
     { ref: "U8", title: "Interfaces and inheritance", stage: 3, strands: ["L", "E"], where: "sandbox", lessons: [
       ["8.1", "Inheritance", "Share behaviour through a base class."],
       ["8.2", "virtual and override", "Let a derived class change what a method does."],
       ["8.3", "Abstract classes", "Define a template that cannot be created on its own."],
-      ["8.4", "Interfaces", "Describe what something can do without saying how."],
-      ["8.5", "Polymorphism", "Treat different types the same way through a shared contract."],
-      ["8.6", "Records", "Model data with value equality and immutability."],
-      ["8.7", "Structs, values and references", "Know when a type is copied and when it is shared."],
-      ["8.8", "Pattern matching", "Ask what shape a value has and take it apart in one step."],
-      ["8.9", "Composition over inheritance", "Build behaviour from parts instead of deep hierarchies."],
-      ["8.10", "Practise: a shapes library", "Design a small library around an interface."]
+      ["8.4", "Interfaces", "Describe what something can do without saying how, and implement IComparable so your type sorts."],
+      ["8.5", "Interface or abstract class?", "Choose between an interface and an abstract class, and know what each can hold."],
+      ["8.6", "Polymorphism", "Treat different types the same way through a shared contract."],
+      ["8.7", "Records", "Model data with value equality and immutability."],
+      ["8.8", "Value and reference types: the stack and the heap", "Know where a value lives, when it is copied and when it is shared, and what the garbage collector does."],
+      ["8.9", "Operator overloading: a vector type", "Write a Vector struct with +, - and scalar *, its length and the dot product."],
+      ["8.10", "Pattern matching", "Ask what shape a value has and take it apart in one step."],
+      ["8.11", "Has-a: aggregation and composition", "Tell a part that lives and dies with its whole from one that is only borrowed, and draw both."],
+      ["8.12", "Composition over inheritance", "Build behaviour from parts instead of deep hierarchies."],
+      ["8.13", "Practise: a shapes library", "Design a small library around an interface."]
     ] },
     { ref: "U9", title: "LINQ and generics", stage: 3, strands: ["L", "S"], where: "sandbox", lessons: [
       ["9.1", "Generic types", "Write one type that works for many element types."],
       ["9.2", "Generic methods and constraints", "Write methods over T and say what T must support."],
       ["9.3", "Delegates, Func and Action", "Pass behaviour around as a value."],
       ["9.4", "Lambdas", "Write small functions inline."],
-      ["9.5", "Events", "Let one object announce changes to others."],
-      ["9.6", "LINQ: Where, Select and OrderBy", "Filter, project and sort sequences."],
-      ["9.7", "LINQ: GroupBy, ToDictionary and aggregates", "Group and summarise data."],
-      ["9.8", "Deferred execution", "Know when a query actually runs."],
-      ["9.9", "IEnumerable and yield", "Produce sequences lazily."],
-      ["9.10", "Practise: a report generator", "Turn raw records into a report with LINQ."]
+      ["9.5", "Higher-order functions: map, filter and fold", "Pass functions to functions, return them, and reduce a list to one value."],
+      ["9.6", "Extension methods", "Add a method to a type you do not own, the way LINQ does."],
+      ["9.7", "Events", "Let one object announce changes to others."],
+      ["9.8", "LINQ: Where, Select and OrderBy", "Filter, project and sort sequences."],
+      ["9.9", "LINQ: GroupBy, ToDictionary and aggregates", "Group and summarise data."],
+      ["9.10", "Deferred execution", "Know when a query actually runs."],
+      ["9.11", "IEnumerable and yield", "Produce sequences lazily."],
+      ["9.12", "Practise: a report generator", "Turn raw records into a report with LINQ."]
     ] },
     { ref: "U10", title: "Testing and design", stage: 4, strands: ["E"], where: "rider", lessons: [
       ["10.1", "Why test", "Use tests as a safety net and as a specification."],
@@ -148,27 +154,31 @@
     ] },
     { ref: "U11", title: "Async, events and I/O", stage: 4, strands: ["L", "S"], where: "sandbox", lessons: [
       ["11.1", "Streams and files in depth", "Read and write data through streams."],
-      ["11.2", "JSON serialisation", "Save and load objects as JSON."],
-      ["11.3", "Configuration", "Read settings without hard-coding them."],
-      ["11.4", "Why async", "Know what waiting costs and why a thread should not block."],
-      ["11.5", "async and await", "Write asynchronous methods that read like ordinary ones."],
-      ["11.6", "Tasks and Task.WhenAll", "Run independent work at the same time."],
-      ["11.7", "Cancellation", "Stop long work cleanly when asked."],
-      ["11.8", "Async pitfalls", "Avoid deadlocks, async void and fire-and-forget bugs."],
-      ["11.9", "Practise: an async downloader", "Fetch several resources concurrently from a fake server."]
+      ["11.2", "Binary files: writing raw bytes", "Write and read bytes with File.WriteAllBytes, BinaryWriter and BinaryReader, and see text become bytes through an encoding."],
+      ["11.3", "JSON serialisation", "Save and load objects as JSON."],
+      ["11.4", "Configuration", "Read settings without hard-coding them."],
+      ["11.5", "Why async", "Know what waiting costs and why a thread should not block."],
+      ["11.6", "async and await", "Write asynchronous methods that read like ordinary ones."],
+      ["11.7", "Tasks and Task.WhenAll", "Run independent work at the same time."],
+      ["11.8", "Cancellation", "Stop long work cleanly when asked."],
+      ["11.9", "Async pitfalls", "Avoid deadlocks, async void and fire-and-forget bugs."],
+      ["11.10", "Practise: an async downloader", "Fetch several resources concurrently from a fake server."]
     ] },
-    { ref: "U12", title: "Data structures from scratch", stage: 4, strands: ["S"], where: "app", lessons: [
-      ["12.1", "Complexity and Big O", "Estimate how running time grows with input size."],
-      ["12.2", "Linear and binary search", "Search unsorted and sorted data, and compare the cost."],
-      ["12.3", "Simple sorts", "Write bubble and insertion sort and trace them."],
-      ["12.4", "Merge sort and quicksort", "Divide and conquer, and why it is faster."],
-      ["12.5", "Recursion in depth", "Trace the call stack and turn recursion into iteration."],
-      ["12.6", "A linked list", "Build a list from nodes and references."],
-      ["12.7", "Stacks and queues from scratch", "Implement both on an array and on nodes."],
-      ["12.8", "Hash tables from scratch", "Build a dictionary with buckets and hashing."],
-      ["12.9", "Binary search trees", "Insert, search and walk a tree."],
-      ["12.10", "Graphs and traversal", "Represent a graph and explore it breadth- and depth-first."],
-      ["12.11", "Practise: a route planner", "Find shortest routes on a small map."]
+    { ref: "U12", title: "Data structures and algorithms", stage: 4, strands: ["S"], where: "app", lessons: [
+      ["12.1", "Complexity and Big O", "Estimate how running time and memory grow with input size, and read O(1), O(log n), O(n), O(n log n) and O(n²)."],
+      ["12.2", "Bits and bitwise operators", "Use &, |, ^, ~, << and >> on integers: masks, flags, swapping with XOR and testing a bit."],
+      ["12.3", "Linear and binary search", "Search unsorted and sorted data, and compare the cost."],
+      ["12.4", "Simple sorts", "Write bubble and insertion sort and trace them."],
+      ["12.5", "Merge sort and quicksort", "Divide and conquer, and why it is faster."],
+      ["12.6", "Recursion in depth: stack frames", "Trace each call's stack frame, and turn recursion into iteration."],
+      ["12.7", "A linked list", "Build a list from nodes and references: insert, delete and walk it."],
+      ["12.8", "Stacks and queues from scratch", "Implement LIFO and FIFO on an array (a circular queue) and on nodes."],
+      ["12.9", "Reverse Polish notation", "Evaluate postfix expressions with a stack, and turn infix into postfix."],
+      ["12.10", "Hash tables from scratch", "Build a dictionary with a hashing function, and handle collisions by chaining and by open addressing."],
+      ["12.11", "Binary search trees", "Insert, search and walk a tree in pre-, in- and post-order."],
+      ["12.12", "Graphs and traversal", "Represent a graph as an adjacency matrix and as adjacency lists, and explore it breadth- and depth-first."],
+      ["12.13", "Shortest paths: Dijkstra and A*", "Find the cheapest route with Dijkstra's algorithm and a priority queue, then guide it with an A* heuristic."],
+      ["12.14", "Practise: a route planner", "Find shortest routes on a small map."]
     ] }
   ];
 
@@ -220,7 +230,7 @@
       { id: "D2", title: "Concurrency and parallelism", lessons: 10, strands: ["L", "S"], where: "rider", needs: ["U11"],
         about: "Threads, tasks, races and locks, concurrent collections, channels and PLINQ." },
       { id: "D3", title: "Algorithms and problem solving", lessons: 16, strands: ["S"], where: "app", needs: ["U12"],
-        about: "Heaps, tries, union-find, Dijkstra, dynamic programming, greedy and backtracking." },
+        about: "Heaps, tries, union-find, minimum spanning trees, dynamic programming, greedy and backtracking." },
       { id: "D4", title: "Software design and architecture", lessons: 12, strands: ["E"], where: "rider", needs: ["U10"],
         about: "Patterns, dependency injection, layered and clean architecture, logging and options." },
       { id: "D5", title: "Testing in depth", lessons: 10, strands: ["E"], where: "rider", needs: ["U10"],

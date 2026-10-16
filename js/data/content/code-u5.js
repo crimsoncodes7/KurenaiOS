@@ -1,5 +1,5 @@
 /* Kurenai OS — data/content/code-u5.js
-   Code · Unit 5 · Text: strings, parsing, formatting (roadmap 5.3).
+   Code · Unit 5 · Text: strings, parsing, formatting, dates (roadmap 5.3).
 
    Same contract as units 1–4 (docs/code-plan.md §4): every lesson's layers,
    short text layers folded by KOS_CODE.compose; every {run} listing,
@@ -32,7 +32,10 @@
     "char-methods": { name: "char methods", lesson: "5.7", about: "IsDigit, IsLetter, codes" },
     "unicode": { name: "Unicode", lesson: "5.7", about: "UTF-16 and surrogate pairs" },
     "regex": { name: "Regular expressions", lesson: "5.8", about: "patterns in text" },
-    "regex-groups": { name: "Regex groups", lesson: "5.8", about: "pulling parts out" }
+    "regex-groups": { name: "Regex groups", lesson: "5.8", about: "pulling parts out" },
+    "datetime": { name: "DateTime", lesson: "5.9", about: "a moment: a date and a time" },
+    "timespan": { name: "TimeSpan", lesson: "5.9", about: "a length of time" },
+    "date-format": { name: "Date formats", lesson: "5.9", about: "yyyy-MM-dd, dddd, HH:mm …" }
   } });
 
   /* ================================================================
@@ -794,6 +797,117 @@
   } });
 
   /* ================================================================
+     5.9 Dates, times and durations
+     ================================================================ */
+  lesson("5.9", {
+    aqa: "4.1.1.1",
+    notes: [
+      page("The problem it solves"),
+      { ul: [ "\"How many days until the exam?\" \"How long was that shift?\" \"Print the date the way a reader expects.\"", "Doing that with three `int`s means leap years, month lengths and midnight by hand.", "`DateTime` is a moment (a date and a time); `TimeSpan` is a length of time. Together they do the calendar arithmetic for you." ] },
+      page("Core idea"),
+      run("make", "a moment, and its parts", 'var exam = new DateTime(2027, 6, 14, 9, 30, 0);\nConsole.WriteLine(exam);\nConsole.WriteLine($"{exam.Day}/{exam.Month}/{exam.Year} is a {exam.DayOfWeek}");\nConsole.WriteLine(exam.Date);\nConsole.WriteLine(exam.TimeOfDay);'),
+      run("span", "a date minus a date is a TimeSpan", 'var today = new DateTime(2026, 10, 16);\nvar exam = new DateTime(2027, 6, 14);\nTimeSpan left = exam - today;\nConsole.WriteLine(left);\nConsole.WriteLine($"{left.Days} days, about {left.Days / 7} weeks");\nConsole.WriteLine(exam > today);'),
+      { table: { head: ["Type", "Holds", "Prints (en-GB)"], rows: [["`DateTime`", "a date and a time of day", "14/06/2027 09:30:00"], ["`DateOnly`", "a day with no time", "14/06/2027"], ["`TimeOnly`", "a time with no day", "09:30"], ["`TimeSpan`", "a length: days, hours, minutes…", "241.00:00:00"]] } },
+      page("Rules"),
+      { ul: [
+        "A `DateTime` never changes: `AddDays`, `AddMonths` and the rest RETURN a new date — keep it (`d = d.AddDays(7)`).",
+        "date − date gives a `TimeSpan`; date ± `TimeSpan` gives a date; dates compare with `<`, `>` and `==`.",
+        "Months differ in length: `AddMonths(1)` on 31 January lands on 28 February (29 in a leap year).",
+        "A `TimeSpan`'s `Days`, `Hours` and `Minutes` are its PARTS; `TotalDays`, `TotalHours` and `TotalMinutes` are the WHOLE length as a `double`.",
+        "`new DateTime(2027, 2, 30)` throws `ArgumentOutOfRangeException`: a date that does not exist cannot be made.",
+        "`DateTime.Now` and `DateTime.Today` read the clock, so they change every run. These notes use fixed dates, and so should your tests."
+      ] },
+      run("add", "adding days, months, years and hours", 'var d = new DateTime(2027, 1, 31);\nConsole.WriteLine(d.AddDays(1).ToString("d"));\nConsole.WriteLine(d.AddMonths(1).ToString("d"));\nConsole.WriteLine(d.AddYears(1).AddHours(36));\nConsole.WriteLine(d.AddDays(-31).ToString("d"));'),
+      page("Variations"),
+      { h: "Formatting a date" },
+      run("format", "standard and custom formats", 'var d = new DateTime(2027, 6, 14, 9, 5, 0);\nConsole.WriteLine(d.ToString("d"));\nConsole.WriteLine(d.ToString("D"));\nConsole.WriteLine(d.ToString("yyyy-MM-dd"));\nConsole.WriteLine(d.ToString("ddd d MMM, HH:mm"));\nConsole.WriteLine($"{d:dddd} at {d:h:mm tt}");'),
+      { table: { head: ["Format", "Gives", "Format", "Gives"], rows: [["`yyyy` `yy`", "2027 27", "`HH` `H`", "09 9 (24-hour)"], ["`MM` `M`", "06 6", "`hh` `h` `tt`", "09 9 am (12-hour)"], ["`MMM` `MMMM`", "Jun June", "`mm` `ss`", "05 00 (minutes, seconds)"], ["`dd` `d`", "14 14", "`d` `D` alone", "short and long date"], ["`ddd` `dddd`", "Mon Monday", "`t` `T` alone", "short and long time"]] } },
+      { h: "Durations: TimeSpan" },
+      run("timespan", "build, add and print a length of time", 'var lesson = new TimeSpan(1, 15, 0);\nvar week = lesson * 4 + TimeSpan.FromMinutes(45);\nConsole.WriteLine(week);\nConsole.WriteLine(week.TotalHours);\nConsole.WriteLine($"{(int)week.TotalHours}h {week.Minutes}m");\nConsole.WriteLine(week.ToString(@"hh\\:mm"));'),
+      "In a `TimeSpan` format every character that is not a number field needs escaping: `@\"hh\\:mm\"`.",
+      { h: "Parsing what a person typed" },
+      run("parse", "Parse for the reader's shape, TryParseExact for a fixed one", 'using System.Globalization;\nDateTime a = DateTime.Parse(Console.ReadLine());\nConsole.WriteLine(a.ToString("D"));\nstring iso = Console.ReadLine();\nif (DateTime.TryParseExact(iso, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime b))\n    Console.WriteLine(b.ToString("D"));\nelse\n    Console.WriteLine($"\'{iso}\' is not a real date");', "14/06/2027\n2027-02-30"),
+      { h: "A day with no time: DateOnly" },
+      run("dateonly", "due dates and lateness", 'var due = new DateOnly(2027, 3, 1);\nvar handedIn = new DateOnly(2027, 3, 4);\nConsole.WriteLine(due);\nConsole.WriteLine($"{handedIn.DayNumber - due.DayNumber} days late");\nConsole.WriteLine(due.AddMonths(1).DayOfWeek);'),
+      { h: "Other cultures" },
+      run("cultures", "the same day, four ways", 'using System.Globalization;\nvar d = new DateTime(2027, 6, 14);\nConsole.WriteLine(d.ToString("d", new CultureInfo("en-US")));\nConsole.WriteLine(d.ToString("D", new CultureInfo("de-DE")));\nConsole.WriteLine(d.ToString("d", CultureInfo.InvariantCulture));\nConsole.WriteLine(d.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));'),
+      { h: "Walking a calendar" },
+      run("weekdays", "the weekdays of one week", 'var start = new DateTime(2027, 6, 14);\nfor (var d = start; d < start.AddDays(7); d = d.AddDays(1))\n    if (d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday)\n        Console.Write(d.ToString("ddd d") + "  ");\nConsole.WriteLine();'),
+      run("calendar", "leap years and month lengths", 'for (int y = 2024; y <= 2028; y++)\n    Console.WriteLine($"{y}: {(DateTime.IsLeapYear(y) ? "leap" : "common")}, February has {DateTime.DaysInMonth(y, 2)} days");'),
+      page("Under the hood"),
+      { ul: [ "A `DateTime` is one number: the count of 100-nanosecond **ticks** since 1 January 0001. Adding a day adds 864,000,000,000 ticks; the calendar is worked out only when you ask for a part.", "It is a `struct` — a value, copied on assignment (unit 8) — which is why it can never be `null` and why `default` is 01/01/0001.", "A date with no zone (`Kind` is Unspecified) is fine on one machine; storing moments for people in different zones is what `DateTimeOffset` and UTC are for (unit 11)." ] },
+      page("Pitfalls"),
+      { h: "A date minus a date is not a number — CS0029" },
+      run("pit-int", "the answer is a TimeSpan", 'DateTime start = new DateTime(2027, 6, 1);\nDateTime end = new DateTime(2027, 6, 14);\nint days = end - start;\nConsole.WriteLine(days);'),
+      "Ask the `TimeSpan` for the number you want: `int days = (end - start).Days;`",
+      { h: "Throwing the new date away" },
+      run("pit-discard", "AddDays returns a new date", 'var d = new DateTime(2027, 6, 14);\nd.AddDays(7);\nConsole.WriteLine(d.ToString("d"));'),
+      { h: "mm is minutes, MM is months" },
+      run("pit-mm", "one letter's case changes everything", 'var d = new DateTime(2027, 6, 14, 9, 5, 0);\nConsole.WriteLine(d.ToString("dd/mm/yyyy"));\nConsole.WriteLine(d.ToString("dd/MM/yyyy"));'),
+      { h: "Days is not TotalDays" },
+      run("pit-days", "twelve hours is 0 days and 0.5 of a day", 'var gap = new DateTime(2027, 6, 15, 6, 0, 0) - new DateTime(2027, 6, 14, 18, 0, 0);\nConsole.WriteLine(gap.Days + " " + gap.Hours + " " + gap.TotalDays);'),
+      { h: "A date that does not exist — FormatException" },
+      run("pit-parse", "there is no 31 February", 'DateTime d = DateTime.Parse("31/02/2027");\nConsole.WriteLine(d);'),
+      "Text from a person can be wrong: use `TryParse` or `TryParseExact` (as 5.4 did for numbers).",
+      page("Connections"),
+      { ul: [ "**Back:** 5.3's format strings and culture, 5.4's TryParse pattern.", "**Later:** unit 6 reads timestamped log lines; unit 11 stores dates in JSON as ISO 8601 (`yyyy-MM-dd`).", "**AQA:** 4.1.1.1 data types — date/time is one of the listed types." ] },
+      page("Good practice"),
+      { ul: [ "Store and exchange dates as `yyyy-MM-dd`: it means one thing in every country and sorts correctly as text.", "Parse a known shape with `ParseExact`/`TryParseExact` and `CultureInfo.InvariantCulture`; use `Parse` only for what a person in your culture typed.", "Keep `DateTime.Now` out of your logic: pass \"today\" in, so the code can be tested with any date.", "Use `DateOnly` for a day (a birthday, a due date) and `TimeSpan` for a length — the type then says what the value means." ] },
+      page("Practise"),
+      { ul: [ "**Tasks:** *Exam countdown* and *Shift hours*." ] },
+      page("Quick reference"),
+      run("qr", "dates at a glance", 'var a = new DateTime(2027, 6, 14);\nvar b = a.AddDays(10).AddHours(3);\nTimeSpan gap = b - a;\nConsole.WriteLine($"{b:yyyy-MM-dd HH:mm} {b.DayOfWeek} {gap.Days}d {gap.Hours}h {gap.TotalHours}");'),
+      { ul: [ "`new DateTime(y, M, d[, h, m, s])`; `AddDays`, `AddMonths`, `AddHours`; `.Date`, `.DayOfWeek`, `.Year`…", "`b - a` is a `TimeSpan`: `Days`, `Hours`, `TotalHours`; `TimeSpan.FromMinutes(n)`, `new TimeSpan(h, m, s)`.", "`ToString(\"yyyy-MM-dd\")`, `\"D\"`, `\"HH:mm\"`; `ParseExact`/`TryParseExact` with `CultureInfo.InvariantCulture`.", "`DateOnly` for a day; `DateTime.IsLeapYear`, `DateTime.DaysInMonth`." ] },
+      { table: { head: ["Error", "Means", "Page"], rows: [["CS0029", "a TimeSpan stored in an int", "Pitfalls"], ["FormatException", "parsing a date that does not exist", "Pitfalls"], ["ArgumentOutOfRangeException", "new DateTime with an impossible day", "Rules"]] } }
+    ],
+    practice: {
+      predict: [
+        { id: "p1", src: 'var d = new DateTime(2027, 1, 31);\nConsole.WriteLine(d.AddMonths(1).Day);', why: "February 2027 has 28 days, so AddMonths clamps to the 28th.", concepts: ["datetime"] },
+        { id: "p2", src: 'var t = TimeSpan.FromMinutes(135);\nConsole.WriteLine($"{t.Hours} {t.Minutes} {t.TotalHours}");', why: "135 minutes is 2 hours 15 minutes, or 2.25 hours in total.", concepts: ["timespan"] }
+      ],
+      fill: [
+        { id: "f1", q: "Fill the gap so the date prints as 2027-06-14.", src: 'var d = new DateTime(2027, 6, 14);\nConsole.WriteLine(d.ToString("@@"));', out: "2027-06-14", concepts: ["date-format"] }
+      ],
+      bug: [
+        { id: "b1", q: "It should print the date a week later.", src: 'var d = new DateTime(2027, 6, 14);\nd.AddDays(7);\nConsole.WriteLine(d.ToString("d"));', out: "21/06/2027", fixedText: "prints 21/06/2027", why: "AddDays returns a new date; keep it: d = d.AddDays(7).", concepts: ["datetime"] }
+      ]
+    },
+    flashcards: [
+      ["What type is `date2 - date1`?", "`TimeSpan` — ask it for `.Days` or `.TotalDays`."],
+      ["`d.AddDays(7);` on its own line does…", "nothing visible: a DateTime never changes. Write `d = d.AddDays(7);`."],
+      ["`MM` or `mm` in a date format?", "`MM` is the month; `mm` is minutes."],
+      ["`Days` versus `TotalDays`?", "`Days` is the whole-days part (an int); `TotalDays` the whole length as a double."],
+      ["Parse a date in a fixed shape?", "`DateTime.ParseExact` / `TryParseExact` with the format and `CultureInfo.InvariantCulture`."],
+      ["31 January + 1 month?", "28 February (29 in a leap year): AddMonths clamps to the last day."],
+      ["A day with no time?", "`DateOnly`; a time with no day is `TimeOnly`."]
+    ],
+    quiz: [
+      { q: "`(new DateTime(2027, 6, 14) - new DateTime(2027, 6, 1)).Days` is…", opts: ["13", "14", "13.00:00:00", "a compile error"], ans: 0, why: "From the 1st to the 14th is 13 days." },
+      { q: "Which format prints 2027-06-14?", opts: ["\"yyyy-MM-dd\"", "\"yyyy-mm-dd\"", "\"YYYY-MM-DD\"", "\"d\""], ans: 0, why: "Lower-case y and d, capital M for the month." },
+      { q: "`TimeSpan.FromMinutes(90)` prints as…", opts: ["01:30:00", "1.5", "90:00", "1:30"], ans: 0, why: "A TimeSpan prints as hh:mm:ss." },
+      { q: "Why do tests use fixed dates instead of `DateTime.Now`?", opts: ["Now changes every run, so the expected output would too", "Now is slower", "Now is not allowed in C#", "Now has no time"], ans: 0, why: "A test must give the same answer every time." }
+    ]
+  });
+  K.add({ tasks: {
+    "5.9-countdown": { lesson: "5.9", title: "Exam countdown", tier: "core", minutes: 12, concepts: ["datetime", "date-format"], requires: ["tryparse"],
+      statement: ["Read today's date, then an exam date, each as `yyyy-MM-dd`.", "Print `N days to go (W weeks and D days), on a WEEKDAY`, `Exam is today`, or `Exam was N days ago`."],
+      starter: "using System.Globalization;\nstring today = Console.ReadLine();\nstring exam = Console.ReadLine();\n",
+      examples: [{ stdin: "2026-10-16\n2027-06-14", out: "241 days to go (34 weeks and 3 days), on a Monday" }],
+      hidden: [{ stdin: "2027-06-14\n2027-06-14", out: "Exam is today" }, { stdin: "2027-07-01\n2027-06-14", out: "Exam was 17 days ago" }, { stdin: "2028-02-27\n2028-03-01", out: "3 days to go (0 weeks and 3 days), on a Wednesday" }],
+      rules: [uses(/ParseExact|DateTime\.Parse/, "Turn the text into DateTime values.")],
+      hints: ["DateTime.ParseExact(text, \"yyyy-MM-dd\", CultureInfo.InvariantCulture)", "int days = (exam - today).Days;", "days / 7 weeks and days % 7 days; exam.DayOfWeek names the day."],
+      answer: 'using System.Globalization;\nDateTime today = DateTime.ParseExact(Console.ReadLine(), "yyyy-MM-dd", CultureInfo.InvariantCulture);\nDateTime exam = DateTime.ParseExact(Console.ReadLine(), "yyyy-MM-dd", CultureInfo.InvariantCulture);\nint days = (exam - today).Days;\nif (days == 0) Console.WriteLine("Exam is today");\nelse if (days < 0) Console.WriteLine($"Exam was {-days} days ago");\nelse Console.WriteLine($"{days} days to go ({days / 7} weeks and {days % 7} days), on a {exam.DayOfWeek}");' },
+    "5.9-shifts": { lesson: "5.9", title: "Shift hours", tier: "stretch", minutes: 18, concepts: ["timespan"], requires: ["input-loop", "split"],
+      statement: ["Each line is a shift `HH:mm-HH:mm`; a shift may run past midnight. Read lines until `end`.", "Print each shift's length as `Hh MMm` (minutes always two digits), then `Total: Hh MMm`, then `Longest: LINE` (the first longest) if there was a shift."],
+      starter: "string line = Console.ReadLine();\n",
+      examples: [{ stdin: "09:15-17:45\n22:00-06:30\n12:00-12:45\nend", out: "8h 30m\n8h 30m\n0h 45m\nTotal: 17h 45m\nLongest: 09:15-17:45" }],
+      hidden: [{ stdin: "end", out: "Total: 0h 00m" }, { stdin: "23:30-00:15\n08:00-16:05\n07:00-19:00\n06:00-18:00\nend", out: "0h 45m\n8h 05m\n12h 00m\n12h 00m\nTotal: 32h 50m\nLongest: 07:00-19:00" }],
+      rules: [uses(/TimeSpan/, "Hold the lengths as TimeSpan values.")],
+      hints: ["TimeSpan.Parse(\"09:15\") is 9 hours 15 minutes.", "If finish - start is negative, the shift crossed midnight: add TimeSpan.FromDays(1).", "(int)total.TotalHours for the hours, total.Minutes:00 for the minutes."],
+      answer: 'TimeSpan total = TimeSpan.Zero, longest = TimeSpan.Zero;\nstring longestLine = "";\nstring line = Console.ReadLine();\nwhile (line != "end")\n{\n    string[] ends = line.Split(\'-\');\n    TimeSpan length = TimeSpan.Parse(ends[1]) - TimeSpan.Parse(ends[0]);\n    if (length < TimeSpan.Zero) length += TimeSpan.FromDays(1);\n    Console.WriteLine($"{(int)length.TotalHours}h {length.Minutes:00}m");\n    total += length;\n    if (length > longest) { longest = length; longestLine = line; }\n    line = Console.ReadLine();\n}\nConsole.WriteLine($"Total: {(int)total.TotalHours}h {total.Minutes:00}m");\nif (longestLine != "") Console.WriteLine("Longest: " + longestLine);' }
+  } });
+
+  /* ================================================================
      retrieval cards
      ================================================================ */
   K.add({ cards: {
@@ -853,6 +967,12 @@
         var a = 1 + r(99), b = 100 + r(900), w = pick(r, ["box", "kit", "bag"]);
         return { prompt: "What does this print?", label: "matches and a group", params: [],
           src: "using System.Text.RegularExpressions;\nstring t = \"" + w + " " + a + " and " + b + "\";\nConsole.WriteLine(Regex.Matches(t, @\"\\d+\").Count + \" \" + Regex.IsMatch(t, @\"^\\d\") + \" \" + Regex.Match(t, @\"(\\w+) (\\d+)\").Groups[2].Value);", hint: "Count the digit runs; ^ anchors to the start; group 2 is the first number." };
+      } },
+    "u5-dates": { title: "Date arithmetic", lesson: "5.9", concepts: ["datetime", "timespan"], kind: "predict",
+      vary: function (r) {
+        var m = 1 + r(12), d = 1 + r(28), k = 2 + r(40), h = r(3) * 6;
+        return { prompt: "What does this print?", label: "AddDays and a TimeSpan", params: [],
+          src: "var d = new DateTime(2027, " + m + ", " + d + ");\nvar later = d.AddDays(" + k + ").AddHours(" + h + ");\nTimeSpan gap = later - d;\nConsole.WriteLine($\"{later:yyyy-MM-dd} {later.DayOfWeek} {gap.Days} {gap.TotalHours}\");", hint: "AddDays returns a new date; later − d is a TimeSpan of " + k + " days and " + h + " hours." };
       } }
   } });
 })();

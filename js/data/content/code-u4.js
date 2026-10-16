@@ -558,6 +558,11 @@
       run("board", "a 3 × 3 board of chars", 'char[,] board = new char[3, 3];\nfor (int r = 0; r < 3; r++)\n    for (int c = 0; c < 3; c++) board[r, c] = \'.\';\nboard[1, 1] = \'X\';\nboard[0, 2] = \'O\';\nfor (int r = 0; r < 3; r++)\n{\n    for (int c = 0; c < 3; c++) Console.Write(board[r, c]);\n    Console.WriteLine();\n}'),
       { h: "Row and column totals" },
       run("sums", "one loop per direction", 'int[,] m = { { 1, 2, 3 }, { 4, 5, 6 } };\nfor (int r = 0; r < m.GetLength(0); r++)\n{\n    int s = 0;\n    for (int c = 0; c < m.GetLength(1); c++) s += m[r, c];\n    Console.WriteLine($"row {r}: {s}");\n}\nfor (int c = 0; c < m.GetLength(1); c++)\n{\n    int s = 0;\n    for (int r = 0; r < m.GetLength(0); r++) s += m[r, c];\n    Console.Write(s + " ");\n}\nConsole.WriteLine();'),
+      { h: "Three dimensions and more" },
+      "Each extra comma adds a dimension. `int[,,]` has `Rank` 3, one `GetLength` per dimension, and `Length` counts every cell.",
+      run("cube", "weeks × sites × readings", 'int[,,] temps = new int[2, 3, 4];   // 2 weeks × 3 sites × 4 readings\ntemps[1, 2, 3] = 18;\ntemps[0, 1, 0] = 12;\nConsole.WriteLine($"{temps.Rank} dimensions, {temps.Length} cells");\nConsole.WriteLine($"{temps.GetLength(0)} × {temps.GetLength(1)} × {temps.GetLength(2)}");\nint count = 0;\nfor (int w = 0; w < temps.GetLength(0); w++)\n    for (int s = 0; s < temps.GetLength(1); s++)\n        for (int r = 0; r < temps.GetLength(2); r++)\n            if (temps[w, s, r] > 0) count++;\nConsole.WriteLine($"{count} readings taken; temps[1, 2, 3] = {temps[1, 2, 3]}");'),
+      run("cube-init", "a 2 × 2 × 2 initializer", 'int[,,] c = { { { 1, 2 }, { 3, 4 } }, { { 5, 6 }, { 7, 8 } } };\nConsole.WriteLine(c[1, 0, 1]);\nint sum = 0;\nforeach (int v in c) sum += v;\nConsole.WriteLine(sum);'),
+      "Past three dimensions, a class (unit 7) or a dictionary keyed by a tuple (4.7) usually reads better than `[,,,]`.",
       { h: "Neighbours" },
       run("neighbours", "stay inside the grid", 'int rows = 3, cols = 4;\nint r0 = 0, c0 = 3;\nint n = 0;\nfor (int dr = -1; dr <= 1; dr++)\n    for (int dc = -1; dc <= 1; dc++)\n    {\n        if (dr == 0 && dc == 0) continue;\n        int r = r0 + dr, c = c0 + dc;\n        if (r >= 0 && r < rows && c >= 0 && c < cols) n++;\n    }\nConsole.WriteLine($"A corner cell has {n} neighbours");'),
       page("Under the hood"),
@@ -598,7 +603,8 @@
       ["`Length` of an `int[3, 4]`?", "12 — every cell."],
       ["Jagged array indexing?", "`j[r][c]` — each row is its own array."],
       ["Why can a jagged row be null?", "Each row is created separately; until then it is null."],
-      ["CS0022 on `g[0][1]`?", "A 2-D array takes `g[0, 1]`."]
+      ["CS0022 on `g[0][1]`?", "A 2-D array takes `g[0, 1]`."],
+      ["`int[,,] c = new int[2, 3, 4];` — Rank and Length?", "Rank 3; Length 24 (2 × 3 × 4)."]
     ],
     quiz: [
       { q: "`int[,] g = new int[3, 4];` — `g.GetLength(1)` is…", opts: ["3", "4", "12", "2"], ans: 1, why: "Dimension 1 is the columns." },

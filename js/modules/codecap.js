@@ -28,6 +28,8 @@
   window.KOS = window.KOS || {};
   var el = KOS.ui.el;
   var SID = "code";
+  /* what each stage may use, for the Kurenai review's brief */
+  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet" };
   function C() { return KOS.code; }
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function plural(n, one, many) { return KOS.ui.num(n) + " " + (n === 1 ? one : (many || one + "s")); }
@@ -138,7 +140,7 @@
         } });
       }
       body.appendChild(grid(mainCol, [
-        sideCard("What it covers", "stage 1 · closed book", [
+        sideCard("What it covers", "stage " + spec.stage + " · closed book", [
           el("ol", { class: "k-cx-capcover" }, spec.quiz.map(function (qq, i) {
             var st = q ? (q.answers[i] === qq.ans ? "right" : "wrong") : null;
             return el("li", { "data-state": st }, [el("span", { class: "k-cx-capcover-m", "aria-hidden": "true", text: st === "right" ? "✓" : st === "wrong" ? "✗" : String(i + 1) }), lessonLink(qq.lesson)]);
@@ -237,9 +239,11 @@
             : bv.all ? nextBtn("rubric", "Rubric ›") : null
         ].filter(Boolean)));
         scroll.appendChild(el("h3", { class: "k-cx-ws-bt", text: "The brief" }));
+        var files = KOS.codeUI.filesPanel(spec.fs);
+        if (files) scroll.appendChild(files);
         scroll.appendChild(el("div", { class: "k-prose k-cx-capbrief", html: KOS.content.renderBlocks(spec.brief) }));
       }
-      var status = el("div", { class: "k-cx-ws-status" }, [el("span", { text: "Program.cs" }), savedAt, el("span", { text: "in-app runner · stage 1 C#" })]);
+      var status = el("div", { class: "k-cx-ws-status" }, [el("span", { text: "Program.cs" }), savedAt, el("span", { text: "in-app runner · stage " + spec.stage + " C#" })]);
       body.appendChild(el("div", { class: "k-cx-ws", "data-ui": "code.cap-workspace" }, [
         toolbar,
         el("div", { class: "k-cx-ws-centre" }, [ed.el, toolwin]),
@@ -254,7 +258,9 @@
           runBtn.disabled = false; ed.running(false);
           out.innerHTML = "";
           if (r.stdout) out.appendChild(el("pre", { class: "k-cx-out-pre k-mono", "data-ui": "code.stdout", text: r.stdout.replace(/\n$/, "") }));
-          if (r.ok) { ed.state("ready", "Ran"); if (!r.stdout) out.appendChild(el("p", { class: "k-cx-note", text: "(no output)" })); say("Ran. " + (KOS.codeRun.firstLine(r.stdout) || "No output") + "."); }
+          var wrote = KOS.codeUI.writtenPanel(spec.fs, r.fs);
+          if (wrote) out.appendChild(wrote);
+          if (r.ok) { ed.state("ready", "Ran"); if (!r.stdout && !wrote) out.appendChild(el("p", { class: "k-cx-note", text: "(no output)" })); say("Ran. " + (KOS.codeRun.firstLine(r.stdout) || "No output") + "."); }
           else {
             ed.state(r.error.kind === "compile" ? "compile" : r.error.kind === "timeout" ? "timeout" : "exception");
             if (r.error.line) ed.mark(r.error.line, KOS.codeUI.quoted(r.error.msg));
@@ -420,7 +426,7 @@
       body.removeAttribute("data-err");
       var sentList = Object.keys(on).filter(function (k) { return on[k]; });
       reviewReq = KOS.ai.chat("tutor", {
-        system: "You are Kurenai, the study companion in KurenaiOS, reviewing a student's C# capstone (stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet). " +
+        system: "You are Kurenai, the study companion in KurenaiOS, reviewing a student's C# capstone (" + (STAGE_WORDS[spec.stage] || "stage " + spec.stage) + "). " +
           "Write a short review in British English: what works, two or three specific improvements with line-level pointers, and one thing to try next. Plain prose in short paragraphs, no headings, no code longer than a line, no marks or grades.",
         messages: [{ role: "user", content: parts.join("\n\n") }],
         temperature: 0.4, maxTokens: 900

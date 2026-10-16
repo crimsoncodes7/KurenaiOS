@@ -63,14 +63,14 @@ const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
   /* Code (roadmap 5.3) */
   "code-desk": ["subject", '"code"'],
-  "code-lesson": ["ref", '{ subject: "code", ref: "6.2" }'],
+  "code-lesson": ["ref", '{ subject: "code", ref: "5.9" }'],
   "code-map": ["code", '{ page: "map" }'],
   "code-task": ["code", '{ page: "task", id: "6.2-average" }'],
   "code-retrieval": ["code", '{ page: "retrieval" }'],
   "code-skills": ["code", '{ page: "skills" }'],
   "code-settings": ["code", '{ page: "settings" }'],
   "code-track": ["code", '{ page: "track", id: "T3" }'],
-  "code-capstone": ["code", '{ page: "capstone", id: "C1" }'],
+  "code-capstone": ["code", '{ page: "capstone", id: "C2" }'],
   /* Reports (roadmap 5.1): the saved reports the preparation below wrote */
   "reports-week": ["reports", '{ period: "week", start: (window.__rp || {}).week }'],
   "reports-week-study": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "study" }'],

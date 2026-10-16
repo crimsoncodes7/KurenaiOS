@@ -749,6 +749,11 @@
       run("plural", "1 item, 2 items", 'for (int n = 0; n <= 2; n++)\n    Console.WriteLine(n + (n == 1 ? " item" : " items"));'),
       { h: "Clamping a value" },
       run("clamp", "no more than 100", "int score = 130;\nint shown = score > 100 ? 100 : score;\nConsole.WriteLine(shown);\nConsole.WriteLine(Math.Min(score, 100));"),
+      { h: "Input with a default" },
+      run("default", "an empty line becomes \"friend\"", 'string name = Console.ReadLine();\nname = name == "" ? "friend" : name.Trim();\nConsole.WriteLine($"Hello, {name}!");', "\n"),
+      { ul: [ "`Console.ReadLine()` returns the line without its Enter: `\"\"` for an empty line.", "When there is no input left at all it returns `null`, and calling a method on `null` throws `NullReferenceException`.", "`string.IsNullOrWhiteSpace(s)` asks all three questions at once: null, empty or only spaces." ] },
+      run("eof", "no line at all is null, not \"\"", 'string line = Console.ReadLine();\nConsole.WriteLine(line == null ? "no input at all" : $"got [{line}]");'),
+      run("blank", "one test for null, empty or spaces", 'string s = Console.ReadLine();\nstring shown = string.IsNullOrWhiteSpace(s) ? "(blank)" : s.Trim();\nConsole.WriteLine(shown);', "   "),
       { h: "Guards in a loop" },
       run("loopguard", "skip blanks", 'string[] lines = { "a", "", "b" };\nforeach (string line in lines)\n{\n    if (line == "") continue;\n    Console.WriteLine(line);\n}'),
       page("Under the hood"),
@@ -757,6 +762,9 @@
       { h: "Different types — CS0173" },
       run("pit-types", "string or int?", 'int n = 3;\nvar x = n > 2 ? "big" : 0;'),
       "Both sides must agree. Use `\"0\"` or `n.ToString()`.",
+      { h: "Trimming a line that is not there — NullReferenceException" },
+      run("pit-null", "no input, so ReadLine gave null", 'string name = Console.ReadLine();\nConsole.WriteLine(name.Trim());'),
+      "Test for `null` (or use `string.IsNullOrWhiteSpace`) before calling a method on what `ReadLine` returned. Unit 7 shows how the compiler can warn you.",
       { h: "A ternary as a statement — CS0201" },
       run("pit-stmt", "?: on its own line", 'int n = 3;\nn > 2 ? Console.WriteLine("a") : Console.WriteLine("b");'),
       "`?:` chooses a **value**. To choose an action, use `if`.",
@@ -771,7 +779,7 @@
       page("Quick reference"),
       run("qr", "both shapes", 'int n = 5;\nstring s = n > 0 ? "positive" : "not positive";\nConsole.WriteLine(s);\nif (n < 0) return;   // guard\nConsole.WriteLine("main path");'),
       { ul: [ "`cond ? a : b` — a value.", "Both sides the same type.", "Bracket it inside interpolation.", "Guards: handle the odd case, then leave.", "More than two outcomes: switch." ] },
-      { table: { head: ["Error", "Means", "Page"], rows: [["CS0173", "the two results have different types", "Pitfalls"], ["CS0201", "a ternary used as a statement", "Pitfalls"]] } }
+      { table: { head: ["Error", "Means", "Page"], rows: [["CS0173", "the two results have different types", "Pitfalls"], ["CS0201", "a ternary used as a statement", "Pitfalls"], ["NullReferenceException", "a method called on the null ReadLine returns when input runs out", "Pitfalls"]] } }
     ],
     practice: {
       predict: [
@@ -791,12 +799,14 @@
       ["What is a guard clause?", "An early check that handles a bad case and leaves, keeping the main path unindented."],
       ["What does `return` do in top-level code?", "Ends the program early."],
       ["What is CS0173?", "The ternary's two results have no common type."],
-      ["Why bracket a ternary inside +?", "Otherwise + binds first and changes the meaning."]
+      ["Why bracket a ternary inside +?", "Otherwise + binds first and changes the meaning."],
+      ["What does `Console.ReadLine()` return when the input has run out?", "`null` — not `\"\"`. Check it, or use `string.IsNullOrWhiteSpace`."]
     ],
     quiz: [
       { q: "`int x = 5 > 3 ? 1 : 2;` x is…", opts: ["1", "2", "5", "3"], ans: 0, why: "The condition is true." },
       { q: "Which compiles?", opts: ["var v = ok ? \"a\" : 1;", "string v = ok ? \"a\" : \"b\";", "ok ? Write(1) : Write(2);", "int v = ok ? \"1\" : 2;"], ans: 1, why: "Both sides are strings." },
-      { q: "Guards belong…", opts: ["at the end", "at the start", "inside every loop", "only in methods"], ans: 1, why: "Deal with the odd case first." }
+      { q: "Guards belong…", opts: ["at the end", "at the start", "inside every loop", "only in methods"], ans: 1, why: "Deal with the odd case first." },
+      { q: "The user just presses Enter. `Console.ReadLine()` returns…", opts: ["\"\"", "null", "\"\\n\"", "it waits for more"], ans: 0, why: "An empty line is the empty string; null means no input at all." }
     ]
   });
   K.add({ tasks: {

@@ -20,7 +20,7 @@ chronological diary here.
   https://7a5ea20f.kurenai-os.pages.dev (16 October 2026; Code stage 1
   and units 4–5)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-8`
+- Service-worker version: `kos-code-10`
 - Required smoke gate: 76 / 76 suites.
 
 ## Run, test and deploy
@@ -673,7 +673,8 @@ source comments and audit notes refer to it.
     with no subject never resolves to Code (its lesson refs would make CS
     units ambiguous).
 104. Code's content is authored, released ONE UNIT AT A TIME and whole
-    (smoke75 A). Every lesson meets the notes contract (`docs/code-plan.md`
+    (smoke75 A); a lesson added to a released unit later (5.9) ships whole
+    in one release too. Every lesson meets the notes contract (`docs/code-plan.md`
     §4.3: the required pages in order, Quick reference last, ≥ 6 runnable
     `{run}` listings, a compile-error pitfall, flashcards, quiz, practice);
     lessons are authored as layers and registered through `KOS_CODE.lesson`,
@@ -688,7 +689,12 @@ source comments and audit notes refer to it.
     written lessons, the brief, a starter that passes no acceptance case,
     milestones of acceptance cases, a rubric with ONE automatic row, and a
     reference answer that passes every case under both runners using only
-    its stage's language (stage 1: no arrays, lists or classes).
+    its stage's language (stage 1: no arrays, lists or classes; stage 2:
+    no classes or LINQ). A program may read and write FILES: a listing,
+    task, card or capstone carries `fs` (`{name: text}`), the in-memory
+    disk the runner starts from (`req.fs`, returned as the final `fs`),
+    and `tools/cs_diff.mjs` runs that program in a fresh folder holding
+    the same files, so both runners read exactly the same text.
 105. THE SANDBOX. Learner code runs only in `js/labs/cs-interp.js`, in a
     Worker with fetch, XMLHttpRequest, importScripts and WebSocket removed,
     no DOM and no app data; the page's watchdog terminates it after 4 s.
@@ -705,7 +711,8 @@ source comments and audit notes refer to it.
     retrieval proven pays +4 XP, at most 10 a day, counted from today's
     ledger; past the cap the card still moves. Every no-reward case shows
     "No reward · why". HP gates nothing (invariant 2). A capstone pays its
-    `reward` (stage 1: 150 XP, 40 gold, +10 HP) once ever, on the first
+    `reward` (stage 1: 150 XP, 40 gold, +10 HP; stage 2: 200 XP, 50 gold,
+    +10 HP) once ever, on the first
     submission that holds: every milestone passing, the self-marked rubric
     rows marked (correctness is derived from the acceptance runs, never
     set by hand) and a write-up of at least `writeupMin` words. The quiz and

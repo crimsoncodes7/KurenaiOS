@@ -765,6 +765,7 @@
   /* a task that wants a computer, on a phone (frame 26v) */
   function phoneLater(main, t) {
     var saved = C().isLater("task", t.id);
+    var seed = t.fs || ((t.examples || [])[0] || {}).fs;
     main.appendChild(KOS.ui.pageHeader({ kicker: "Code · task", title: t.title }));
     var btn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.save-later",
       text: saved ? "Saved ✓" : "Save for the computer", disabled: saved ? "" : null,
@@ -772,6 +773,7 @@
     main.appendChild(el("section", { class: "k-card k-cx-phonelater", "data-ui": "code.best-on-computer" }, [
       el("span", { class: "k-cx-chip", "data-tone": "amber", text: "Best on a computer" }),
       el("div", { class: "k-prose", html: KOS.content.renderBlocks(t.statement || []) }),
+      seed ? KOS.codeUI.filesPanel(seed, { open: true }) : null,
       t.examples && t.examples[0] ? el("div", { class: "k-cx-ex" }, [el("div", {}, [el("span", { class: "k-cx-ex-k", text: "Example output" }), el("pre", { class: "k-mono", text: t.examples[0].out })])]) : null,
       el("p", { class: "k-cx-note", text: "This one needs a wide editor. Read it now, write it later." }),
       btn

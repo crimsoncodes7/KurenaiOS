@@ -4,8 +4,9 @@
      A · THE CONTENT. A written capstone has a five-question quiz linked to
          written lessons, a brief, a starter, milestones of acceptance cases
          and a rubric with one automatic row. Its reference answer passes
-         every case; its starter passes none; it uses stage 1 only (no
-         arrays, lists or classes).
+         every case (with its files on the in-app disk); its starter passes
+         none; it uses its stage's language only (stage 1: no arrays, lists
+         or classes; stage 2: no classes or LINQ).
      B · THE STEPS. The quiz never locks: under 3 of 5 it recommends two
          lessons. Correctness comes from the acceptance runs and cannot be
          set by hand. Submitting refuses until every milestone passes, the
@@ -28,11 +29,11 @@ const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
-const run = (src, stdin) => CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "" });
+const run = (src, stdin, fs) => CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs });
 const written = Object.keys(K.CAPSTONES).filter((id) => K.CAPSTONES[id].milestones);
 
 step("A · every written capstone is whole, and its answer passes", () => {
-  assert(written.indexOf("C1") >= 0, "capstone 1 ships");
+  assert(written.indexOf("C1") >= 0 && written.indexOf("C2") >= 0, "capstones 1 and 2 ship");
   written.forEach((id) => {
     const c = K.CAPSTONES[id];
     assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]), id + ": the quiz (5, each linked to a written lesson)");
@@ -40,12 +41,14 @@ step("A · every written capstone is whole, and its answer passes", () => {
     assert(c.rubric.filter((r) => r.auto).length === 1 && c.rubric.every((r) => r.max > 0), id + ": one automatic rubric row");
     assert(c.milestones.length >= 3 && c.milestones.every((m) => m.cases.length && m.cases.some((x) => !x.hidden)), id + ": milestones each with a visible case");
     c.milestones.forEach((m) => m.cases.forEach((x, i) => {
-      const r = run(c.answer, x.stdin);
+      const fs = x.fs || m.fs || c.fs;
+      const r = run(c.answer, x.stdin, fs);
       assert(r.ok && norm(r.stdout) === norm(x.out), id + " " + m.id + " case " + (i + 1) + ": the answer fails\n" + (r.ok ? r.stdout : JSON.stringify(r.error)));
-      const s = run(c.starter, x.stdin);
+      const s = run(c.starter, x.stdin, fs);
       assert(!(s.ok && norm(s.stdout) === norm(x.out)), id + " " + m.id + " case " + (i + 1) + ": the starter already passes");
     }));
     if (c.stage === 1) assert(!/\[\s*\]|\bnew\b|\bclass\b|List</.test(c.answer), id + ": stage 1 only — no arrays, lists or classes");
+    if (c.stage === 2) assert(!/\b(class|record|struct|interface)\b|System\.Linq|\.(Select|Where|OrderBy|GroupBy|Sum|Average)\(/.test(c.answer), id + ": stage 2 only — no classes or LINQ");
   });
 });
 

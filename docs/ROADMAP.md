@@ -558,7 +558,25 @@ Claude Design and comes back as a handoff, the way Graphite did.
 >   look at regular expressions): 8 lessons, 16 tasks, 8 retrieval cards;
 >   1,730 of 1,730 programs identical to .NET.
 >
-> **Next, one unit at a time:** unit 6 and capstone 2 (R2), with katas,
+> - Unit 6 (files, exceptions and debugging, on an in-memory disk the
+>   runner and the .NET differential share): 9 lessons, 18 tasks, 6
+>   retrieval cards; 2,045 of 2,045 programs identical to .NET.
+>
+> - Topic gaps closed (16 October 2026): 5.9 dates, times and durations
+>   (`DateTime`, `TimeSpan`, `DateOnly`, formats, parsing; 2 tasks, a
+>   card), three-dimensional arrays in 4.6, empty and ended input in 2.8;
+>   ten lessons added to the unwritten units — 8.5 interface or abstract
+>   class, 8.8 value and reference types (the stack and the heap), 8.9
+>   operator overloading (a vector type and the dot product), 8.11
+>   aggregation and composition, 9.5 higher-order functions, 9.6 extension
+>   methods, 11.2 binary files, 12.2 bitwise operators, 12.9 Reverse Polish
+>   notation, 12.13 Dijkstra and A* — so the core path is 131 lessons.
+>
+> - Capstone 2, the gradebook from a CSV: five milestones over three files
+>   on the in-app disk (clean, messy, empty); stage 2 is complete
+>   (2,088 of 2,088 programs identical to .NET).
+>
+> **Next, one unit at a time:** Bridge B, then stage 3 (R3), with katas,
 > in-app projects, Rider, GitHub and the .NET runtime (R2–R3) as planned in
 > code-plan.md §12. Not built yet: 26g's runtime download, 26j–26k and
 > 26m–26q (katas, the project IDE, Rider hub and import, export and
@@ -567,7 +585,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
 > **Plan:** [code-plan.md](code-plan.md), revision 2 (13 October 2026). It
 > supersedes the details below wherever they differ.
 >
-> **Curriculum:** a core path (stages 1–4 plus Bridge B, about 121 lessons)
+> **Curriculum:** a core path (stages 1–4 plus Bridge B, about 131 lessons)
 > with optional deepening modules (D1–D6) and tracks (T1–T9: persistence,
 > Avalonia UI, AI/ML/LLMs, web and more).
 >

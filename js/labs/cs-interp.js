@@ -85,7 +85,7 @@
               if (cur === "expr") expr += raw; else if (cur === "fmt") fmt += raw; continue;
             }
             if (d === "'") { const st = i; i++; if (src[i] === "\\") i++; i += 2; const raw = src.slice(st, i); if (cur === "expr") expr += raw; continue; }
-            if (cur === "fmt") { if (d === "}") { i++; break; } fmt += d; i++; continue; }
+            if (cur === "fmt") { if (d === "}") { i++; break; } if (!verbatim && d === "\\") { fmt += readEsc(); continue; } fmt += d; i++; continue; }
             if ("([{".includes(d)) depth++;
             if (")]".includes(d)) depth--;
             if (d === "}") { if (depth === 0) { i++; break; } depth--; }
@@ -676,7 +676,7 @@
             case "null": return { k: "lit", v: null, line };
             case "this": return { k: "this", line };
             case "base": return { k: "base", line };
-            case "default": if (acc("(")) { const ty = needType(); expect(")"); return { k: "default", type: ty, line }; } return { k: "lit", v: null, line };
+            case "default": if (acc("(")) { const ty = needType(); expect(")"); return { k: "default", type: ty, line }; } return { k: "default", type: null, line };
             case "typeof": throw unsupported("typeof / reflection", line);
             case "throw": return { k: "throwexpr", e: unary(), line };
             case "new": {
@@ -784,6 +784,158 @@
     if (!cul || (cul.dec === "." && cul.grp === ",")) return sv;
     return sv.replace(/[.,]/g, (ch) => ch === "." ? cul.dec : cul.grp);
   }
+  // ───────────────────────── dates and times (unit 5.9) ─────────────────────────
+  /* a DateTime (or DateOnly / TimeOnly, `only`) is milliseconds on a UTC
+     clock with no zone, as .NET's Unspecified kind; a TimeSpan is
+     milliseconds (fractional, so ticks survive) */
+  class CsDate { constructor(t, only) { this.t = t; this.only = only || null; } }
+  class CsSpan { constructor(ms) { this.ms = ms; } }
+  const DAY_MS = 86400000;
+  function mkDate(y, mo, d, h, mi, s, ms) { const x = new Date(0); x.setUTCFullYear(y, mo - 1, d); x.setUTCHours(h || 0, mi || 0, s || 0, ms || 0); return x.getTime(); }
+  const DT_MIN = mkDate(1, 1, 1), DT_MAX = mkDate(9999, 12, 31, 23, 59, 59, 999.9999);
+  const dparts = (t) => { const x = new Date(Math.floor(t)); return { y: x.getUTCFullYear(), M: x.getUTCMonth() + 1, d: x.getUTCDate(), H: x.getUTCHours(), m: x.getUTCMinutes(), s: x.getUTCSeconds(), ms: x.getUTCMilliseconds(), frac: t - Math.floor(t / 1000) * 1000, dow: x.getUTCDay() }; };
+  const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  const daysIn = (y, m) => [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+  const DOW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const EN_MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const DTC = {
+    "": { days: DOW, mons: EN_MON, sep: "/", am: "AM", pm: "PM", d: "MM/dd/yyyy", D: "dddd, dd MMMM yyyy", t: "HH:mm", T: "HH:mm:ss", M: "MMMM dd", Y: "yyyy MMMM" },
+    "en-GB": { days: DOW, mons: EN_MON, sep: "/", am: "am", pm: "pm", d: "dd/MM/yyyy", D: "dddd, d MMMM yyyy", t: "HH:mm", T: "HH:mm:ss", M: "d MMMM", Y: "MMMM yyyy" },
+    "en-US": { days: DOW, mons: EN_MON, sep: "/", am: "AM", pm: "PM", d: "M/d/yyyy", D: "dddd, MMMM d, yyyy", t: "h:mm\u202Ftt", T: "h:mm:ss\u202Ftt", M: "MMMM d", Y: "MMMM yyyy" },
+    "de-DE": { days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"], mons: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"], sep: ".", am: "AM", pm: "PM", d: "dd.MM.yyyy", D: "dddd, d. MMMM yyyy", t: "HH:mm", T: "HH:mm:ss", M: "d. MMMM", Y: "MMMM yyyy" },
+    "fr-FR": { days: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"], mons: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"], sep: "/", am: "AM", pm: "PM", d: "dd/MM/yyyy", D: "dddd d MMMM yyyy", t: "HH:mm", T: "HH:mm:ss", M: "d MMMM", Y: "MMMM yyyy" }
+  };
+  const dtc = (cul) => DTC[cul ? cul.name : "en-GB"] || DTC["en-GB"];
+  const pad = (n, w) => String(n).padStart(w, "0");
+  function fmtErr() { return CUR.exc("FormatException", "Input string was not in a correct format.", 0); }
+  /* the standard one-letter formats, expanded to the culture's pattern */
+  function dateStd(f, C) {
+    switch (f) {
+      case "d": return C.d; case "D": return C.D; case "t": return C.t; case "T": return C.T;
+      case "f": return C.D + " " + C.t; case "F": return C.D + " " + C.T; case "g": return C.d + " " + C.t; case "G": return C.d + " " + C.T;
+      case "M": case "m": return C.M; case "Y": case "y": return C.Y;
+      case "s": return "yyyy'-'MM'-'dd'T'HH':'mm':'ss"; case "u": return "yyyy'-'MM'-'dd HH':'mm':'ss'Z'";
+      case "o": case "O": return "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff";
+      case "r": case "R": return "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+    }
+    return null;
+  }
+  function fmtDate(v, f, cul) {
+    const C = (f === "r" || f === "R" || f === "o" || f === "O" || f === "s" || f === "u") ? DTC[""] : dtc(cul);
+    if (!f) f = v.only === "date" ? "d" : v.only === "time" ? "t" : "G";
+    if (f.length === 1) { const p = dateStd(f, C); if (p === null) throw fmtErr(); f = p; }
+    const P = dparts(v.t); let out = "";
+    for (let i = 0; i < f.length;) {
+      const c = f[i]; let n = 1; while (f[i + n] === c && /[dMyhHmsftFz]/.test(c)) n++;
+      switch (c) {
+        case "d": out += n === 1 ? P.d : n === 2 ? pad(P.d, 2) : n === 3 ? C.days[P.dow].slice(0, 3) : C.days[P.dow]; break;
+        case "M": out += n === 1 ? P.M : n === 2 ? pad(P.M, 2) : n === 3 ? C.mons[P.M - 1].slice(0, 3) : C.mons[P.M - 1]; break;
+        case "y": out += n === 1 ? P.y % 100 : n === 2 ? pad(P.y % 100, 2) : pad(P.y, n); break;
+        case "h": out += n === 1 ? (P.H % 12 || 12) : pad(P.H % 12 || 12, 2); break;
+        case "H": out += n === 1 ? P.H : pad(P.H, 2); break;
+        case "m": out += n === 1 ? P.m : pad(P.m, 2); break;
+        case "s": out += n === 1 ? P.s : pad(P.s, 2); break;
+        case "f": case "F": { let fr = pad(Math.round(P.frac * 10000), 7).slice(0, n); if (c === "F") fr = fr.replace(/0+$/, ""); if (c === "F" && !fr && out.endsWith(".")) out = out.slice(0, -1); out += fr; break; }
+        case "t": out += n === 1 ? (P.H < 12 ? C.am : C.pm)[0] : (P.H < 12 ? C.am : C.pm); break;
+        case "/": out += C.sep; break;
+        case ":": out += ":"; break;
+        case "'": case "\"": { const j = f.indexOf(c, i + 1); if (j < 0) throw fmtErr(); out += f.slice(i + 1, j); n = j - i + 1; break; }
+        case "\\": out += f[i + 1] || ""; n = 2; break;
+        case "%": n = 1; break;
+        default: out += c.repeat(n);
+      }
+      i += n;
+    }
+    return out;
+  }
+  function spanParts(ms) { const neg = ms < 0; let t = Math.round(Math.abs(ms) * 10000); const ticks = t % 10000000; t = Math.floor(t / 10000000); return { neg, d: Math.floor(t / 86400), h: Math.floor(t / 3600) % 24, m: Math.floor(t / 60) % 60, s: t % 60, ticks }; }
+  function fmtSpan(v, f, cul) {
+    const P = spanParts(v.ms), sg = P.neg ? "-" : "";
+    if (!f || f === "c" || f === "t" || f === "T") return sg + (P.d ? P.d + "." : "") + pad(P.h, 2) + ":" + pad(P.m, 2) + ":" + pad(P.s, 2) + (P.ticks ? "." + pad(P.ticks, 7) : "");
+    const dec = cul ? cul.dec : ".";
+    if (f === "g") return sg + (P.d ? P.d + ":" : "") + P.h + ":" + pad(P.m, 2) + ":" + pad(P.s, 2) + (P.ticks ? dec + pad(P.ticks, 7).replace(/0+$/, "") : "");
+    if (f === "G") return sg + P.d + ":" + pad(P.h, 2) + ":" + pad(P.m, 2) + ":" + pad(P.s, 2) + dec + pad(P.ticks, 7);
+    if (f.length === 1 && !/[dhmsfF%]/.test(f)) throw fmtErr();
+    let out = "";
+    for (let i = 0; i < f.length;) {
+      const c = f[i]; let n = 1; while (f[i + n] === c && /[dhmsfF]/.test(c)) n++;
+      switch (c) {
+        case "d": out += pad(P.d, n); break;
+        case "h": out += n === 1 ? P.h : pad(P.h, 2); break;
+        case "m": out += n === 1 ? P.m : pad(P.m, 2); break;
+        case "s": out += n === 1 ? P.s : pad(P.s, 2); break;
+        case "f": out += pad(P.ticks, 7).slice(0, n); break;
+        case "F": out += pad(P.ticks, 7).slice(0, n).replace(/0+$/, ""); break;
+        case "'": case "\"": { const j = f.indexOf(c, i + 1); if (j < 0) throw fmtErr(); out += f.slice(i + 1, j); n = j - i + 1; break; }
+        case "\\": out += f[i + 1] || ""; n = 2; break;
+        case "%": break;
+        default: throw fmtErr();
+      }
+      i += n;
+    }
+    return out;
+  }
+  /* parsing: the shapes a person types, in the culture's day/month order */
+  const MON_RE = "(" + EN_MON.map((m) => m + "|" + m.slice(0, 3)).join("|") + ")";
+  function monIndex(s) { const l = s.toLowerCase(); return EN_MON.findIndex((m) => m.toLowerCase() === l || m.slice(0, 3).toLowerCase() === l) + 1; }
+  function validDate(y, M, d, H, m, s) { return y >= 1 && y <= 9999 && M >= 1 && M <= 12 && d >= 1 && d <= daysIn(y, M) && (H || 0) < 24 && (m || 0) < 60 && (s || 0) < 60; }
+  function parseDate(text, cul) {
+    if (text === null || text === undefined) return null;
+    const s = String(text).trim(); let m, y, M, d, H = 0, mi = 0, sec = 0;
+    const time = "(?:[ T](\\d{1,2}):(\\d{2})(?::(\\d{2}))?)?";
+    const dayFirst = !cul || !/^(en-US|)$/.test(cul.name);
+    if ((m = new RegExp("^(\\d{4})-(\\d{1,2})-(\\d{1,2})" + time + "$").exec(s))) { y = +m[1]; M = +m[2]; d = +m[3]; H = +(m[4] || 0); mi = +(m[5] || 0); sec = +(m[6] || 0); }
+    else if ((m = new RegExp("^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{4})" + time + "$").exec(s))) { d = +m[dayFirst ? 1 : 2]; M = +m[dayFirst ? 2 : 1]; y = +m[3]; H = +(m[4] || 0); mi = +(m[5] || 0); sec = +(m[6] || 0); }
+    else if ((m = new RegExp("^(\\d{1,2}) " + MON_RE + ",? (\\d{4})" + time + "$", "i").exec(s))) { d = +m[1]; M = monIndex(m[2]); y = +m[3]; H = +(m[4] || 0); mi = +(m[5] || 0); sec = +(m[6] || 0); }
+    else return null;
+    if (!validDate(y, M, d, H, mi, sec)) return null;
+    return new CsDate(mkDate(y, M, d, H, mi, sec));
+  }
+  function parseExact(text, f, cul) {
+    if (text === null || text === undefined) return null;
+    const C = dtc(cul); const order = []; let re = "";
+    if (f.length === 1) { const p = dateStd(f, C); if (p === null) return null; f = p; }
+    for (let i = 0; i < f.length;) {
+      const c = f[i]; let n = 1; while (f[i + n] === c && /[dMyhHmst]/.test(c)) n++;
+      const grp = (k, r) => { order.push(k); re += "(" + r + ")"; };
+      switch (c) {
+        case "d": if (n <= 2) grp("d", n === 1 ? "\\d{1,2}" : "\\d{2}"); else re += "(?:" + C.days.map((x) => n === 3 ? x.slice(0, 3) : x).join("|") + ")"; break;
+        case "M": if (n <= 2) grp("M", n === 1 ? "\\d{1,2}" : "\\d{2}"); else grp(n === 3 ? "MMM" : "MMMM", C.mons.map((x) => n === 3 ? x.slice(0, 3) : x).join("|")); break;
+        case "y": grp(n <= 2 ? "yy" : "y", n <= 2 ? "\\d{2}" : "\\d{4}"); break;
+        case "H": case "h": grp(c, n === 1 ? "\\d{1,2}" : "\\d{2}"); break;
+        case "m": grp("m", n === 1 ? "\\d{1,2}" : "\\d{2}"); break;
+        case "s": grp("s", n === 1 ? "\\d{1,2}" : "\\d{2}"); break;
+        case "t": grp("t", C.am + "|" + C.pm); break;
+        case "/": re += "\\" + C.sep; break;
+        case "'": case "\"": { const j = f.indexOf(c, i + 1); re += f.slice(i + 1, j).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); n = j - i + 1; break; }
+        case "\\": re += "\\" + f[i + 1]; n = 2; break;
+        default: re += c.repeat(n).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+      i += n;
+    }
+    const m = new RegExp("^" + re + "$", "i").exec(String(text));
+    if (!m) return null;
+    const v = { y: 1, M: 1, d: 1, H: 0, m: 0, s: 0 }; let pmv = null, h12 = null;
+    order.forEach((k, i) => { const x = m[i + 1];
+      if (k === "MMM" || k === "MMMM") v.M = C.mons.findIndex((mm) => (k === "MMM" ? mm.slice(0, 3) : mm).toLowerCase() === x.toLowerCase()) + 1;
+      else if (k === "yy") v.y = 2000 + +x - (+x > 49 ? 100 : 0);
+      else if (k === "t") pmv = x.toLowerCase() === C.pm.toLowerCase();
+      else if (k === "h") h12 = +x;
+      else v[k] = +x; });
+    if (h12 !== null) v.H = h12 % 12 + (pmv ? 12 : 0);
+    if (!validDate(v.y, v.M, v.d, v.H, v.m, v.s)) return null;
+    return new CsDate(mkDate(v.y, v.M, v.d, v.H, v.m, v.s));
+  }
+  /* TimeSpan.Parse: [-][d.]h:mm[:ss[.f]] or a whole number of days */
+  function parseSpan(text) {
+    const s = text == null ? "" : String(text).trim();
+    let m;
+    if ((m = /^(-)?(\d+)$/.exec(s))) return new CsSpan((m[1] ? -1 : 1) * +m[2] * DAY_MS);
+    if (!(m = /^(-)?(?:(\d+)[.:])?(\d+):(\d+)(?::(\d+)(?:\.(\d{1,7}))?)?$/.exec(s))) return null;
+    if (+m[3] > 23 || +m[4] > 59 || (m[5] && +m[5] > 59)) return "overflow";
+    const ms = ((+(m[2] || 0) * 24 + +m[3]) * 60 + +m[4]) * 60000 + +(m[5] || 0) * 1000 + (m[6] ? +("0." + m[6]) * 1000 : 0);
+    return new CsSpan(m[1] ? -ms : ms);
+  }
   class CsObj { constructor(cls) { this.cls = cls; this.f = new Map(); } }
   class CsEnum { constructor(type, name, value) { this.type = type; this.name = name; this.value = value; } }
   class CsFn { constructor(params, body, e, env, self, cls) { this.params = params; this.body = body; this.e = e; this.env = env; this.self = self; this.cls = cls; } }
@@ -795,7 +947,7 @@
   const BRK = { brk: true }, CONT = { cont: true };
   class Budget extends Error { constructor(kind) { super(kind); this.kind = kind; } }
 
-  const keyOf = (v) => v instanceof D ? "d" + v.v : v instanceof Ch ? "c" + v.c : v instanceof CsEnum ? "e" + v.type + v.value : typeof v === "string" ? "s" + v : typeof v === "number" ? "d" + v : typeof v === "boolean" ? "b" + v : v instanceof CsTuple ? "t" + v.items.map(keyOf).join("|") : v;
+  const keyOf = (v) => v instanceof D ? "d" + v.v : v instanceof Ch ? "c" + v.c : v instanceof CsEnum ? "e" + v.type + v.value : typeof v === "string" ? "s" + v : typeof v === "number" ? "d" + v : typeof v === "boolean" ? "b" + v : v instanceof CsTuple ? "t" + v.items.map(keyOf).join("|") : v instanceof CsDate ? "D" + v.t : v instanceof CsSpan ? "T" + v.ms : v;
 
   /* a Dictionary/HashSet made with StringComparer.OrdinalIgnoreCase keys
      strings by their lower case; a Sorted* collection lists in key order */
@@ -828,6 +980,8 @@
     return s;
   }
   function formatSpec(v, spec, cul) {
+    if (v instanceof CsDate) return fmtDate(v, spec || null, cul);
+    if (v instanceof CsSpan) return fmtSpan(v, spec || null, cul);
     if (spec == null || spec === "") return cul ? inCulture(str(v), cul) : str(v);
     const num = v instanceof D ? v.v : typeof v === "number" ? v : v instanceof Ch ? null : null;
     if (num === null) return str(v);
@@ -871,6 +1025,8 @@
     if (v instanceof D) return fmtDouble(v.v);
     if (v instanceof Ch) return v.c;
     if (v instanceof CsEnum) return v.name;
+    if (v instanceof CsDate) return fmtDate(v, null, null);
+    if (v instanceof CsSpan) return fmtSpan(v, null);
     if (v instanceof CsTuple) return "(" + v.items.map(str).join(", ") + ")";
     if (v instanceof CsMatch) return v.m ? v.m[0] : "";
     if (v instanceof CsCulture) return v.name;
@@ -913,7 +1069,7 @@
     "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException", "IndexOutOfRangeException", "DivideByZeroException",
     "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "Assert", "Int32", "Double", "Char", "Boolean", "var",
     "Func", "Action", "Predicate", "KeyValuePair", "Tuple", "IEnumerable", "IList", "ICollection", "IDictionary", "IComparable", "Comparer", "StringComparer",
-    "StringComparison", "Thread", "Fact", "Theory", "InlineData", "System", "nameof", "_", "Linq", "Collections", "Generic", "Text", "value", "MidpointRounding"]);
+    "StringComparison", "Thread", "Fact", "Theory", "InlineData", "System", "nameof", "_", "Linq", "Collections", "Generic", "Text", "value", "MidpointRounding", "DateTime", "TimeSpan", "DateOnly", "TimeOnly", "DayOfWeek", "DateTimeStyles", "DateTimeKind"]);
   const EXC = ["Exception", "SystemException", "ArgumentException", "RegexParseException", "CultureNotFoundException", "IOException", "FileNotFoundException", "DirectoryNotFoundException", "ObjectDisposedException", "EndOfStreamException", "UnauthorizedAccessException", "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException",
     "IndexOutOfRangeException", "DivideByZeroException", "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "InvalidCastException", "AssertFailedException"];
   const EXC_BASE = { Exception: null, SystemException: "Exception", ArgumentException: "SystemException", RegexParseException: "ArgumentException", CultureNotFoundException: "ArgumentException",
@@ -1019,6 +1175,8 @@
       if (ty.arr || ty.args && ty.args.length && n !== "tuple") return v;
       if (n === "decimal") { if (v instanceof D && v.m) return v; if (isNum(v)) return decm(nv(v), v instanceof D ? null : 0); return v; }
       if (n === "double" || n === "float") { if (typeof v === "number") return new D(v); if (v instanceof Ch) return new D(nv(v)); if (v instanceof D && v.m) return new D(v.v); return v; }
+      if ((v instanceof CsDate || v instanceof CsSpan) && ["int", "long", "double", "decimal", "string", "bool"].includes(n)) throw new CsError("CS0029", "Cannot implicitly convert type 'System." + typeName(v) + "' to '" + n + "'", line, "compile");
+      if ((n === "DateTime" || n === "TimeSpan" || n === "DateOnly") && v !== null && !(v instanceof CsDate || v instanceof CsSpan)) throw new CsError("CS0029", "Cannot implicitly convert type '" + typeName(v) + "' to 'System." + n + "'", line, "compile");
       if (n === "int" || n === "long" || n === "short" || n === "byte") { if (v instanceof Ch) return nv(v); if (v instanceof D) throw new CsError("CS0266", "Cannot implicitly convert type 'double' to '" + n + "'. An explicit conversion exists (are you missing a cast?)", line, "compile"); return v; }
       if (n === "tuple" && v instanceof CsTuple && ty.names && ty.names.some(Boolean)) return new CsTuple(v.items.map((x, i) => coerce(x, ty.args[i], line)), ty.names);
       return v;
@@ -1027,6 +1185,8 @@
       if (!ty) return null;
       if (ty.arr || ty.nullable) return null;
       switch (ty.name) { case "int": case "long": case "short": case "byte": return 0; case "double": case "float": case "decimal": return new D(0); case "bool": return false; case "char": return new Ch("\0"); }
+      if (ty.name === "DateTime" || ty.name === "DateOnly") return new CsDate(DT_MIN, ty.name === "DateOnly" ? "date" : null);
+      if (ty.name === "TimeSpan") return new CsSpan(0);
       if (enums.has(ty.name)) { const e = enums.get(ty.name); return new CsEnum(e.name, e.members[0] ? e.members[0].name : "0", 0); }
       return null;
     }
@@ -1223,7 +1383,7 @@
       if (o instanceof CsKvp) { if (name === "Key") return o.Key; if (name === "Value") return o.Value; }
       if (o instanceof CsGroup) { if (name === "Key") return o.Key; if (name === "Count") return o.items.length; }
       if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); if (m && +m[1] > o.items.length) throw new CsError("CS1061", "'(…)' does not contain a definition for '" + name + "'", line, "compile"); if (m) return o.items[+m[1] - 1]; if (o.names) { const i = o.names.indexOf(name); if (i >= 0) return o.items[i]; } }
-      if (o instanceof CsEnum) { }
+      if (o instanceof CsDate || o instanceof CsSpan) { const r = dateMember(o, name, line); if (r !== NOPE) return r; }
       throw new CsError("CS1061", "'" + typeName(o) + "' does not contain a definition for '" + name + "'", line, "compile");
     }
     function setMember(o, name, v, line, ctx) {
@@ -1273,7 +1433,7 @@
       if (typeof v === "number") return "int"; if (typeof v === "string") return "string"; if (typeof v === "boolean") return "bool";
       if (v instanceof D) return "double"; if (v instanceof Ch) return "char"; if (v instanceof CsList) return v.arr ? "array" : "List<T>";
       if (v instanceof CsDict) return "Dictionary<TKey, TValue>"; if (v instanceof CsObj) return v.cls.name; if (v instanceof CsEnum) return v.type;
-      if (v instanceof CsTuple) return "tuple"; return "object";
+      if (v instanceof CsTuple) return "tuple"; if (v instanceof CsDate) return v.only === "date" ? "DateOnly" : v.only === "time" ? "TimeOnly" : "DateTime"; if (v instanceof CsSpan) return "TimeSpan"; return "object";
     }
 
     // ───── statements ─────
@@ -1506,6 +1666,7 @@
     // ───── expressions ─────
     function evalIn(e, ctx, ty) {
       if (e && e.k === "coll") return makeColl(e, ty, ctx);
+      if (e && e.k === "default" && !e.type && ty) return defaultOf(ty);
       if (e && e.k === "new" && !e.type && ty) return evalE(Object.assign({}, e, { type: ty }), ctx);
       if (e && e.k === "lambda") return evalE(e, ctx);
       return evalE(e, ctx);
@@ -1540,7 +1701,7 @@
     function compare(op, a, b) {
       let x, y;
       if (typeof a === "string" && typeof b === "string") throw new CsError("CS0019", "Operator '" + op + "' cannot be applied to operands of type 'string' and 'string'. Use string.Compare or CompareTo", 0, "compile");
-      x = a instanceof CsEnum ? a.value : nv(a); y = b instanceof CsEnum ? b.value : nv(b);
+      x = a instanceof CsEnum ? a.value : a instanceof CsDate ? a.t : a instanceof CsSpan ? a.ms : nv(a); y = b instanceof CsEnum ? b.value : b instanceof CsDate ? b.t : b instanceof CsSpan ? b.ms : nv(b);
       switch (op) { case "<": return x < y; case ">": return x > y; case "<=": return x <= y; case ">=": return x >= y; }
     }
     function equals(a, b) {
@@ -1548,6 +1709,8 @@
       if (a === null || b === null || a === undefined || b === undefined) return (a == null) && (b == null);
       if (isNum(a) && isNum(b)) return nv(a) === nv(b);
       if (a instanceof CsEnum && b instanceof CsEnum) return a.type === b.type && a.value === b.value;
+      if (a instanceof CsDate && b instanceof CsDate) return a.t === b.t;
+      if (a instanceof CsSpan && b instanceof CsSpan) return a.ms === b.ms;
       if (a instanceof CsTuple && b instanceof CsTuple) return a.items.length === b.items.length && a.items.every((x, i) => equals(x, b.items[i]));
       if (a instanceof CsObj && b instanceof CsObj) { const eq = findMethod(a.cls, "Equals", 1, [b]); if (eq && !eq.owner.builtin) return invoke(eq.m, eq.owner, a, [b], 0); return false; }
       return false;
@@ -1561,6 +1724,7 @@
       if (typeof a === "boolean" && typeof b === "boolean" && (op === "&" || op === "|" || op === "^")) return op === "&" ? a && b : op === "|" ? a || b : a !== b;
       if (op === "+" && (typeof a === "string" || typeof b === "string")) return str(a) + str(b);
       if (a === null || b === null || a === undefined || b === undefined) { if (op === "+" && (typeof a === "string" || typeof b === "string")) return str(a) + str(b); throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line); }
+      if (a instanceof CsDate || a instanceof CsSpan || b instanceof CsSpan || b instanceof CsDate) return dateArith(op, a, b, line);
       if (a instanceof CsEnum) a = a.value; if (b instanceof CsEnum) b = b.value;
       if (!isNum(a) || !isNum(b)) throw new CsError("CS0019", "Operator '" + op + "' cannot be applied to operands of type '" + typeName(a) + "' and '" + typeName(b) + "'", line, "compile");
       const dbl = a instanceof D || b instanceof D; const x = nv(a), y = nv(b); let r;
@@ -1657,6 +1821,7 @@
         case "un": {
           const v = evalE(e.a, ctx);
           if (e.op === "!") return !truthy(v, e.line);
+          if (e.op === "-" && v instanceof CsSpan) return new CsSpan(-v.ms);
           if (e.op === "-") { if (!isNum(v)) throw new CsError("CS0023", "Operator '-' cannot be applied to operand of type '" + typeName(v) + "'", e.line, "compile"); return v instanceof D ? (v.m ? decm(-v.v, v.sc) : new D(-v.v)) : -nv(v); }
           if (e.op === "~") return ~nv(v);
           return v instanceof Ch ? nv(v) : v;
@@ -1830,6 +1995,21 @@
         case "string": case "String": return args[0] instanceof CsList ? args[0].items.map(str).join("") : str(args[0]).repeat(nv(args[1]));
         case "object": return new CsObj({ name: "Object", base: null, ifaces: [], fields: [], props: [], methods: new Map(), ctors: [], statics: new Map() });
         case "KeyValuePair": return new CsKvp(args[0], args[1]);
+        case "DateTime": case "DateOnly": {
+          if (!args.length) return new CsDate(DT_MIN, n === "DateOnly" ? "date" : null);
+          const x = args.map(nv);
+          if (!validDate(x[0], x[1], x[2], 0, 0, 0)) throw exc("ArgumentOutOfRangeException", "Year, Month, and Day parameters describe an un-representable DateTime.", e.line);
+          if (x.length > 3 && !validDate(x[0], x[1], x[2], x[3], x[4], x[5] || 0)) throw exc("ArgumentOutOfRangeException", "Hour, Minute, and Second parameters describe an un-representable DateTime.", e.line);
+          return new CsDate(mkDate(x[0], x[1], x[2], x[3], x[4], x[5], x[6]), n === "DateOnly" ? "date" : null);
+        }
+        case "TimeOnly": { const x = args.map(nv); return new CsDate(mkDate(1, 1, 1, x[0], x[1], x[2] || 0), "time"); }
+        case "TimeSpan": {
+          const x = args.map(nv);
+          if (x.length === 1) return new CsSpan(x[0] / 10000);
+          if (x.length === 3) return new CsSpan(((x[0] * 60 + x[1]) * 60 + x[2]) * 1000);
+          if (x.length >= 4) return new CsSpan((((x[0] * 24 + x[1]) * 60 + x[2]) * 60 + x[3]) * 1000 + (x[4] || 0));
+          return new CsSpan(0);
+        }
         case "CultureInfo": if (!(str(args[0]) in CULTURES)) throw exc("CultureNotFoundException", "Only the cultures en-GB, en-US, de-DE and fr-FR are available in the in-app runner.", e.line); return new CsCulture(str(args[0]));
         case "Regex": jsRegex(args[0], args[1], e.line); return new CsRegex(str(args[0]), args[1] || "");
         case "StreamReader": return new CsStream("r", fsKey(args[0], e.line), fsRead(args[0], e.line));
@@ -1865,7 +2045,11 @@
       if (tn === "MidpointRounding") return n;
       if (tn === "Console" && n === "Out") return { __type: "Console" };
       if (tn === "CultureInfo") { if (n === "InvariantCulture") return new CsCulture(""); if (n === "CurrentCulture" || n === "CurrentUICulture") return new CsCulture("en-GB"); }
-      if (tn === "RegexOptions" || tn === "NumberStyles") return n;
+      if (tn === "RegexOptions" || tn === "NumberStyles" || tn === "DateTimeStyles") return n;
+      if (tn === "DateTime") { if (n === "MinValue") return new CsDate(DT_MIN); if (n === "MaxValue") return new CsDate(DT_MAX); const now = Date.now() - new Date().getTimezoneOffset() * 60000; if (n === "Now") return new CsDate(now); if (n === "Today") return new CsDate(now - now % DAY_MS); if (n === "UtcNow") return new CsDate(Date.now()); }
+      if (tn === "TimeSpan") { if (n === "Zero") return new CsSpan(0); if (n === "MaxValue") return new CsSpan(922337203685477.5807); }
+      if (tn === "DayOfWeek" && DOW.includes(n)) return new CsEnum("DayOfWeek", n, DOW.indexOf(n));
+      if (tn === "DateTimeKind") return new CsEnum("DateTimeKind", n, ["Unspecified", "Utc", "Local"].indexOf(n));
       return NOPE;
     }
 
@@ -1954,6 +2138,7 @@
       if (o instanceof CsFn && n === "Invoke") return callFn(o, a, line);
       if (n === "GetType" && !a.length) { const tn0 = typeName(o); const map = { int: "Int32", double: "Double", string: "String", bool: "Boolean", char: "Char", long: "Int64" }; return new CsType(map[tn0] || tn0, "System." + (map[tn0] || tn0)); }
       if (o instanceof CsStream) return streamMethod(o, n, a, line);
+      if (o instanceof CsDate || o instanceof CsSpan) { const r = dateMethod(o, n, a, line); if (r !== NOPE) return r; }
       const r = builtinMethod(o, n, a, line);
       if (r !== NOPE) return r;
       throw new CsError("CS1061", "'" + typeName(o) + "' does not contain a definition for '" + n + "'", line, "compile");
@@ -1976,8 +2161,110 @@
       if (y - f === 0.5) return (f % 2 === 0 ? f : f + 1) / m;
       return Math.round(y) / m;
     }
+    /* ───── DateTime, DateOnly, TimeOnly and TimeSpan (unit 5.9) ───── */
+    function inRange(t, line) { if (t < DT_MIN || t > DT_MAX) throw exc("ArgumentOutOfRangeException", "The added or subtracted value results in an un-representable DateTime. (Parameter 'value')", line); return t; }
+    function dateArith(op, a, b, line) {
+      const bad = () => new CsError("CS0019", "Operator '" + op + "' cannot be applied to operands of type '" + typeName(a) + "' and '" + typeName(b) + "'", line, "compile");
+      if (a instanceof CsDate && b instanceof CsDate) { if (op !== "-" || a.only || b.only) throw bad(); return new CsSpan(a.t - b.t); }
+      if (a instanceof CsDate && b instanceof CsSpan) { if (a.only === "date" || (op !== "+" && op !== "-")) throw bad(); return new CsDate(inRange(op === "+" ? a.t + b.ms : a.t - b.ms, line), a.only); }
+      if (a instanceof CsSpan && b instanceof CsSpan) { if (op === "+") return new CsSpan(a.ms + b.ms); if (op === "-") return new CsSpan(a.ms - b.ms); if (op === "/") return new D(a.ms / b.ms); throw bad(); }
+      if (a instanceof CsSpan && isNum(b) && (op === "*" || op === "/")) { if (op === "/" && nv(b) === 0) throw exc("OverflowException", "TimeSpan does not accept floating point Not-a-Number values.", line); return new CsSpan(op === "*" ? a.ms * nv(b) : a.ms / nv(b)); }
+      if (isNum(a) && b instanceof CsSpan && op === "*") return new CsSpan(nv(a) * b.ms);
+      throw bad();
+    }
+    function dateMember(o, name, line) {
+      if (o instanceof CsDate) {
+        const P = dparts(o.t);
+        switch (name) {
+          case "Year": return P.y; case "Month": return P.M; case "Day": return P.d; case "Hour": return P.H; case "Minute": return P.m; case "Second": return P.s; case "Millisecond": return P.ms;
+          case "DayOfWeek": return new CsEnum("DayOfWeek", DOW[P.dow], P.dow);
+          case "DayOfYear": return Math.round((mkDate(P.y, P.M, P.d) - mkDate(P.y, 1, 1)) / DAY_MS) + 1;
+          case "Date": return new CsDate(mkDate(P.y, P.M, P.d), o.only);
+          case "TimeOfDay": return new CsSpan(o.t - mkDate(P.y, P.M, P.d));
+          case "DayNumber": return Math.round((mkDate(P.y, P.M, P.d) - DT_MIN) / DAY_MS);
+          case "Ticks": return Math.round((o.t - DT_MIN) * 10000);
+          case "Kind": return new CsEnum("DateTimeKind", "Unspecified", 0);
+        }
+        return NOPE;
+      }
+      const P = spanParts(o.ms), sg = o.ms < 0 ? -1 : 1, z = (x) => x * sg || 0;
+      switch (name) {
+        case "Days": return z(P.d); case "Hours": return z(P.h); case "Minutes": return z(P.m); case "Seconds": return z(P.s); case "Milliseconds": return z(Math.floor(P.ticks / 10000));
+        case "TotalDays": return new D(o.ms / DAY_MS); case "TotalHours": return new D(o.ms / 3600000); case "TotalMinutes": return new D(o.ms / 60000);
+        case "TotalSeconds": return new D(o.ms / 1000); case "TotalMilliseconds": return new D(o.ms);
+        case "Ticks": return Math.round(o.ms * 10000);
+      }
+      return NOPE;
+    }
+    function dateMethod(o, n, a, line) {
+      const cul = a.find((x) => x instanceof CsCulture) || null, f = typeof a[0] === "string" ? a[0] : null;
+      if (n === "ToString") return o instanceof CsDate ? fmtDate(o, f, cul) : fmtSpan(o, f, cul);
+      if (n === "CompareTo") return cmpVals(o, a[0]);
+      if (n === "Equals") return equals(o, a[0]);
+      if (n === "GetHashCode") return 0;
+      if (o instanceof CsSpan) {
+        switch (n) {
+          case "Add": return new CsSpan(o.ms + a[0].ms); case "Subtract": return new CsSpan(o.ms - a[0].ms);
+          case "Negate": return new CsSpan(-o.ms); case "Duration": return new CsSpan(Math.abs(o.ms));
+          case "Multiply": return new CsSpan(o.ms * nv(a[0])); case "Divide": return a[0] instanceof CsSpan ? new D(o.ms / a[0].ms) : new CsSpan(o.ms / nv(a[0]));
+        }
+        return NOPE;
+      }
+      const x = a.length ? nv(a[0]) : 0;
+      if (o.only === "date" && /^Add(Hours|Minutes|Seconds|Milliseconds)$/.test(n)) return NOPE;
+      switch (n) {
+        case "AddDays": return new CsDate(inRange(o.t + x * DAY_MS, line), o.only);
+        case "AddHours": return new CsDate(inRange(o.t + x * 3600000, line), o.only);
+        case "AddMinutes": return new CsDate(inRange(o.t + x * 60000, line), o.only);
+        case "AddSeconds": return new CsDate(inRange(o.t + x * 1000, line), o.only);
+        case "AddMilliseconds": return new CsDate(inRange(o.t + x, line), o.only);
+        case "AddMonths": case "AddYears": {
+          const P = dparts(o.t); const total = P.y * 12 + (P.M - 1) + (n === "AddYears" ? x * 12 : x);
+          const y = Math.floor(total / 12), M = total % 12 + 1;
+          if (y < 1 || y > 9999) throw exc("ArgumentOutOfRangeException", n === "AddYears" ? "The added or subtracted value results in an un-representable DateTime. (Parameter 'years')" : "The added or subtracted value results in an un-representable DateTime. (Parameter 'months')", line);
+          return new CsDate(mkDate(y, M, Math.min(P.d, daysIn(y, M))) + (o.t - mkDate(P.y, P.M, P.d)), o.only);
+        }
+        case "Add": if (o.only) return NOPE; return new CsDate(inRange(o.t + a[0].ms, line));
+        case "Subtract": if (o.only) return NOPE; return a[0] instanceof CsDate ? new CsSpan(o.t - a[0].t) : new CsDate(inRange(o.t - a[0].ms, line));
+        case "ToShortDateString": return fmtDate(o, "d", null); case "ToLongDateString": return fmtDate(o, "D", null);
+        case "ToShortTimeString": return fmtDate(o, "t", null); case "ToLongTimeString": return fmtDate(o, "T", null);
+        case "ToDateTime": return new CsDate(o.t + (a[0] instanceof CsDate ? a[0].t - DT_MIN : 0));
+      }
+      return NOPE;
+    }
+    function dateStatic(tn, n, a, line) {
+      const cul = a.find((x) => x instanceof CsCulture) || null, outArg = a.find((x) => x instanceof Ref);
+      const kind = tn === "TimeSpan" ? "TimeSpan" : "DateTime";
+      const notValid = (s) => exc("FormatException", "String '" + s + "' was not recognized as a valid " + kind + ".", line);
+      const nul = () => exc("ArgumentNullException", "Value cannot be null. (Parameter '" + (tn === "TimeSpan" ? "input" : "s") + "')", line);
+      if (tn === "TimeSpan") {
+        const x = a.length ? nv(a[0]) : 0;
+        switch (n) {
+          case "FromDays": return new CsSpan(x * DAY_MS); case "FromHours": return new CsSpan(x * 3600000); case "FromMinutes": return new CsSpan(x * 60000);
+          case "FromSeconds": return new CsSpan(x * 1000); case "FromMilliseconds": return new CsSpan(x);
+          case "Parse": { if (a[0] == null) throw nul(); const r = parseSpan(a[0]); if (r === "overflow") throw exc("OverflowException", "The TimeSpan string '" + a[0] + "' could not be parsed because at least one of the numeric components is out of range or contains too many digits.", line); if (!r) throw notValid(a[0]); return r; }
+          case "TryParse": { const r = parseSpan(a[0]); const ok = r instanceof CsSpan; outArg.set(ok ? r : new CsSpan(0)); return ok; }
+          case "Compare": return cmpVals(a[0], a[1]);
+        }
+        return NOPE;
+      }
+      const only = tn === "DateOnly" ? "date" : null;
+      const as = (d) => d ? new CsDate(d.t, only) : d;
+      switch (n) {
+        case "IsLeapYear": return isLeap(nv(a[0]));
+        case "DaysInMonth": { const m = nv(a[1]); if (m < 1 || m > 12) throw exc("ArgumentOutOfRangeException", "Month must be between one and twelve. (Parameter 'month')", line); return daysIn(nv(a[0]), m); }
+        case "Compare": return cmpVals(a[0], a[1]);
+        case "FromDateTime": return new CsDate(mkDate(dparts(a[0].t).y, dparts(a[0].t).M, dparts(a[0].t).d), "date");
+        case "Parse": { if (a[0] == null) throw nul(); const d = parseDate(a[0], cul); if (!d) throw notValid(a[0]); return as(d); }
+        case "ParseExact": { if (a[0] == null) throw nul(); const d = parseExact(a[0], str(a[1]), cul); if (!d) throw notValid(a[0]); return as(d); }
+        case "TryParse": { const d = parseDate(a[0], cul); outArg.set(d ? as(d) : new CsDate(DT_MIN, only)); return !!d; }
+        case "TryParseExact": { const d = parseExact(a[0], str(a[1]), cul); outArg.set(d ? as(d) : new CsDate(DT_MIN, only)); return !!d; }
+      }
+      return NOPE;
+    }
     function callStatic(t, n, a, line, ctx, targs) {
       const tn = t.replace(/^System\./, "");
+      if (tn === "DateTime" || tn === "TimeSpan" || tn === "DateOnly") { const r = dateStatic(tn, n, a, line); if (r !== NOPE) return r; }
       switch (tn) {
         case "Console":
           if (n === "WriteLine") { if (a.length > 1 && typeof a[0] === "string") write(composite(a[0], a.slice(1), line) + "\n"); else write((a.length ? str(a[0]) : "") + "\n"); return; }
@@ -2135,7 +2422,7 @@
       if (typeof x === "string" && typeof y === "string") { const r = x.localeCompare(y, "en", { sensitivity: "variant", caseFirst: "lower" }); return r; }
       if (x instanceof CsObj) { const m = findMethod(x.cls, "CompareTo", 1, [y]); if (m) return nv(invoke(m.m, m.owner, x, [y], 0)); throw CUR.exc("InvalidOperationException", "Failed to compare two elements in the array.", 0); }
       if (x instanceof CsTuple) { for (let i = 0; i < x.items.length; i++) { const r = cmpVals(x.items[i], y.items[i]); if (r) return r; } return 0; }
-      const a = x instanceof CsEnum ? x.value : nv(x), b = y instanceof CsEnum ? y.value : nv(y);
+      const a = x instanceof CsEnum ? x.value : x instanceof CsDate ? x.t : x instanceof CsSpan ? x.ms : nv(x), b = y instanceof CsEnum ? y.value : y instanceof CsDate ? y.t : y instanceof CsSpan ? y.ms : nv(y);
       return a < b ? -1 : a > b ? 1 : 0;
     }
     /* string comparison as .NET does it: Ordinal is the first differing
@@ -2514,6 +2801,7 @@
       if (e.k === "name") return TY.get(e.n) || null;
       if (e.k === "interp") return "string";
       if (e.k === "paren") return tyOf(e.e);
+      if (e.k === "new" && e.type && ["DateTime", "DateOnly", "TimeSpan"].includes(e.type.name)) return e.type.name;
       if (e.k === "bin" && ["==", "!=", "<", ">", "<=", ">=", "&&", "||"].includes(e.op)) return "bool";
       if (e.k === "call" && e.f && e.f.k === "name" && FNTY.has(e.f.n)) return FNTY.get(e.f.n);
       return null;
@@ -2646,6 +2934,12 @@
             }
             if (s.type && s.type.name === "bool" && ie && ie.k === "asg") errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (tyOf(ie.b) || "int") + "' to 'bool'", s.line, "compile", file));
           }
+          if (s.type && ["DateTime", "TimeSpan", "DateOnly"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "lit" && typeof d.init.v === "string") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to 'System." + s.type.name + "'", s.line, "compile", file));
+          /* date − date is a TimeSpan, not a number of days */
+          if (s.type && ["int", "long", "double"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) {
+            let ie = d.init; while (ie && ie.k === "paren") ie = ie.e;
+            if (ie && ie.k === "bin" && ie.op === "-" && ["DateTime", "DateOnly"].includes(tyOf(ie.a)) && ["DateTime", "DateOnly"].includes(tyOf(ie.b))) errs.push(new CsError("CS0029", "Cannot implicitly convert type 'System.TimeSpan' to '" + s.type.name + "'", s.line, "compile", file));
+          }
           if (s.type && ["int", "long", "double", "bool", "char"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) {
             if (d.init && d.init.k === "lit" && typeof d.init.v === "string") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to '" + s.type.name + "'", s.line, "compile", file));
             if (d.init && d.init.k === "call" && d.init.f && d.init.f.k === "mem" && d.init.f.n === "ReadLine" && d.init.f.o && d.init.f.o.n === "Console") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to '" + s.type.name + "'", s.line, "compile", file));
@@ -2757,7 +3051,7 @@
       }
     }
     /* types outside the implicit usings need their using (or a full name) */
-    const NEEDS = [[/^(Debug)$/, "System.Diagnostics"], [/^(CultureInfo|NumberStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder)$/, "System.Text"]];
+    const NEEDS = [[/^(Debug)$/, "System.Diagnostics"], [/^(CultureInfo|NumberStyles|DateTimeStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder)$/, "System.Text"]];
     for (const u of units) {
       const src = u.src || "";
       for (const [re, ns] of NEEDS) {
