@@ -157,12 +157,20 @@
 .k-cx-slot { display: contents; }
 
 /* ================= the desk (26a) ================= */
-.k-cx-hero-line { margin: var(--sp-8) 0 0; font-size: var(--fs-13); color: var(--muted); }
-/* the hero carries the stage path under the name and the strand bars */
-.k-cx-hero { row-gap: var(--sp-20); align-items: start; }
-.k-cx-hero .k-subj-ring { align-self: center; }
-.k-cx-hero-path { grid-column: 1 / -1; min-inline-size: 0; padding-block-start: var(--sp-16); border-block-start: var(--hairline) solid var(--line); }
-.k-cx-hero .k-subj-papers { align-self: center; }
+/* the hero: ring, name and strands centred in the space above the path,
+   the path pinned to the bottom across the full width */
+.k-cx-hero { grid-template-rows: minmax(0, 1fr) auto; row-gap: var(--sp-20); align-items: center; }
+.k-cx-hero-path { grid-column: 1 / -1; align-self: end; min-inline-size: 0; padding-block-start: var(--sp-16); border-block-start: var(--hairline) solid var(--line); }
+/* the spread path: one column per stop, a line joining each to the next */
+.k-cx-path[data-state~="spread"] { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0; padding: var(--sp-6) 0; }
+.k-cx-path[data-state~="spread"] .k-cx-stage { grid-column: span var(--span); display: grid; grid-template-columns: subgrid; row-gap: var(--sp-10); min-inline-size: 0; }
+.k-cx-path[data-state~="spread"] .k-cx-stage-h { grid-column: 1 / -1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; padding-inline-start: calc(50% / var(--span) - var(--cx-sq-compact) / 2); }
+.k-cx-path[data-state~="spread"] .k-cx-stage-m { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; gap: 0; }
+.k-cx-node { position: relative; display: grid; place-items: center; min-block-size: var(--cx-sq-compact); }
+.k-cx-node::after { content: ""; position: absolute; inset-block-start: 50%; inset-inline-start: calc(50% + var(--cx-sq-compact) / 2 + var(--sp-4)); inline-size: calc(100% - var(--cx-sq-compact) - var(--sp-8)); block-size: var(--hairline); background: color-mix(in oklch, var(--muted) 55%, transparent); }
+.k-cx-node[data-state~="last"]::after { content: none; }
+.k-cx-path[data-state~="spread"] .k-cx-stage[data-bridge] .k-cx-stage-h { padding-inline-start: 0; overflow: visible; text-align: center; }
+.k-cx-node:has(> [data-state~="done"], > [data-state~="passed"])::after { background: var(--code); }
 .k-cx-core .k-sectionhead { margin-block-end: var(--sp-12); }
 .k-cx-unit .k-unit-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-block-size: calc(2 * 1.25em); }
 .k-cx-unit .k-unit-segs span { background: var(--s3); }
@@ -594,7 +602,12 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 /* ================= breakpoints, widest first ================= */
 @media (max-width: 1240px) {
 .k-cx-hero-path { grid-column: 1 / -1; }
+/* a narrower hero: the stage titles drop their "Stage n" prefix */
+.k-cx-path[data-state~="spread"] .k-cx-stage-h .k-mono { display: none; }
+/* …and Bridge B, one stop wide, is named by its square alone */
+.k-cx-path[data-state~="spread"] .k-cx-stage[data-bridge] .k-cx-stage-h { visibility: hidden; }
 }
+
 @media (max-width: 1080px) {
 .k-cx-capgrid { grid-template-columns: minmax(0, 1fr); }
 .k-cx-capside { position: static; }
@@ -628,6 +641,11 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-track { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
+/* the phone shows the current stage alone, so the path is a plain row */
+.k-cx-path[data-state~="spread"], .k-cx-path[data-state~="spread"] .k-cx-stage-m { display: flex; gap: var(--sp-6); }
+.k-cx-path[data-state~="spread"] .k-cx-stage { display: flex; }
+.k-cx-path[data-state~="spread"] .k-cx-stage-h { padding-inline-start: 0; }
+.k-cx-node::after { content: none; }
 .k-cx-capmini { display: block; }
 .k-cx-maprow { grid-template-columns: minmax(0, 1fr) auto; }
 .k-cx-maprow > :nth-child(3) { display: none; }

@@ -455,6 +455,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 [data-subject="compsci"] { --tp-hue: var(--cs); }
 [data-subject="maths"] { --tp-hue: var(--maths); }
 [data-subject="it"] { --tp-hue: var(--it); }
+[data-subject="code"] { --tp-hue: var(--code); }
 .k-tp-ref { color: var(--text-2); font-size: var(--fs-12); white-space: nowrap; }
 .k-tp-title { min-inline-size: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-tp-tag { font-size: var(--fs-11); color: var(--muted); white-space: nowrap; }

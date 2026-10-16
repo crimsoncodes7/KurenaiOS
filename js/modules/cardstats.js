@@ -11,10 +11,10 @@
 (function () {
   "use strict";
   var el = KOS.ui.el;
-  var SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
-  var NAME = { compsci: "Computer Science", maths: "Mathematics", it: "IT" };
-  var HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
-  var SUBJECTS = ["compsci", "maths", "it"];
+  var SHORT = KOS.subjects.map("short");
+  var NAME = Object.assign(KOS.subjects.map("name"), { it: "IT" });
+  var HUE = KOS.subjects.map("hue");
+  var SUBJECTS = KOS.subjects.ids();
 
   var barChart = KOS.charts.barChart;
 

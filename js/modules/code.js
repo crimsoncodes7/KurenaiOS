@@ -71,7 +71,6 @@
     ]);
     var first = C().firstVisit();
     var cur = st.current;
-    var stageOf = cur ? (cur.stage === "B" ? "Bridge B · Your real toolkit" : "Stage " + cur.stage + " · " + ((K().STAGES.filter(function (x) { return x.id === cur.stage; })[0] || {}).title || "")) : "";
 
     /* ---- the hero: ring, name, and the three strand bars ---- */
     var hero = el("section", { class: "k-subj-hero k-cx-hero", "data-ui": "study.subject-hero code.hero", "aria-label": "Code" }, [
@@ -84,8 +83,7 @@
         el("div", { class: "k-subj-board" }, [
           el("span", { text: d.board }),
           run ? el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", title: run + "-day study streak in Code", text: "炎 " + run + "-day streak" }) : null
-        ].filter(Boolean)),
-        el("p", { class: "k-cx-hero-line", text: stageOf + " · " + st.done + " of " + st.lessons + " core lessons" })
+        ].filter(Boolean))
       ]),
       el("div", { class: "k-subj-papers", "data-ui": "code.strands" }, ["L", "E", "S"].map(function (k) {
         var pct = st.strands[k];
@@ -98,9 +96,9 @@
           el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": K().STRANDS[k].name + ": " + pct + "%", style: "--p: " + pct + "%" }, [el("i")])
         ]);
       })),
-      /* the stage path lives in the hero, under the name (it filled an
-         otherwise empty block and crowded the unit cards below) */
-      el("div", { class: "k-cx-hero-path" }, [KOS.codeUI.stagePath({ focusable: true, compact: true, onUnit: openUnit })])
+      /* the stage path lives in the hero, under the name, spread across its
+         whole width with a line joining the stops */
+      el("div", { class: "k-cx-hero-path" }, [KOS.codeUI.stagePath({ focusable: true, compact: true, spread: true, onUnit: openUnit })])
     ]);
     var side = el("div", { class: "k-subj-side" }, first ? [firstVisitCard()] : [daily20Card(), continueCard(cur)]);
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));

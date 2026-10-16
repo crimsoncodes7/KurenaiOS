@@ -57,7 +57,7 @@
     return el("span", { class: "k-bar k-asg-track", "data-ui": "asg.track", role: "img", "aria-label": a.progress + "% done",
       style: "--p: " + a.progress + "%; --bar-c: " + HUE(a.subject) }, [el("i")]);
   }
-  function HUE(sid) { return { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" }[sid] || "var(--muted)"; }
+  function HUE(sid) { return KOS.subjects.hue(sid); }
 
   /* ================= the page (Graphite frame 9c) =================
      The queue in groups — Overdue, This week, Later, No deadline, Done —

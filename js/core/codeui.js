@@ -517,10 +517,25 @@
     var K = window.KOS_CODE;
     var row = el("div", { class: "k-cx-path", "data-ui": "code.stage-path", role: "group", "aria-label": "Core path", tabindex: o.focusable ? "0" : null });
     if (o.compact) KOS.ui.state(row, "compact", true);
+    /* spread: one grid column per stop, so the stops share the width evenly
+       and a line joins them (each stop draws the segment to the next) */
+    var nStops = 0;
+    if (o.spread) {
+      KOS.ui.state(row, "spread", true);
+      (K ? K.STAGES : []).forEach(function (st) { nStops += st.units.length + (st.capstone ? 1 : 0); });
+      row.style.setProperty("--n", nStops);
+    }
+    var stopAt = 0;
+    function stop(node) {
+      if (!o.spread) return node;
+      stopAt++;
+      return el("span", { class: "k-cx-node", "data-state": stopAt === nStops ? "last" : null }, [node]);
+    }
     (K ? K.STAGES : []).forEach(function (st) {
       if (o.only && o.only !== st.id) return;
       var cur = st.units.some(function (u) { var x = KOS.code.unitState(u).state; return x === "current"; });
-      var grp = el("div", { class: "k-cx-stage", "data-bridge": st.bridge ? "" : null, "data-state": cur ? "current" : null });
+      var grp = el("div", { class: "k-cx-stage", "data-bridge": st.bridge ? "" : null, "data-state": cur ? "current" : null,
+        style: o.spread ? "--span: " + (st.units.length + (st.capstone ? 1 : 0)) : null });
       grp.appendChild(el("div", { class: "k-cx-stage-h" }, st.bridge
         ? [el("b", { text: "Bridge B" })]
         : [el("span", { class: "k-mono", text: "Stage " + st.id }), " ", el("b", { text: st.title })]));
@@ -533,17 +548,17 @@
           tabindex: "-1", text: us.state === "done" ? "✓" : lbl,
           onclick: function () { if (o.onUnit) o.onUnit(u); } });
         if (us.state === "done") b.setAttribute("title", lbl + " done");
-        marks.appendChild(b);
+        marks.appendChild(stop(b));
       });
       if (st.capstone) {
         var cap = K.CAPSTONES[st.capstone], cst = KOS.code.capStage(st.capstone), cid = st.capstone;
         var words = cst === "passed" ? "passed" : cst === "next" ? "next" : "recommended later";
-        marks.appendChild(KOS.code.capstone(cid)
+        marks.appendChild(stop(KOS.code.capstone(cid)
           ? el("button", { type: "button", class: "k-cx-dia", "data-state": cst, "data-ui": "code.path-capstone", tabindex: "-1",
               "aria-label": "Capstone " + cid.slice(1) + ", " + cap.title + ": " + words, title: "Capstone " + cid.slice(1) + " · " + cap.title,
               onclick: function () { KOS.show("code", { page: "capstone", id: cid }); } })
           : el("span", { class: "k-cx-dia", "data-state": cst, role: "img",
-              "aria-label": "Capstone " + cid.slice(1) + ", " + cap.title + ": " + words, title: "Capstone " + cid.slice(1) + " · " + cap.title }));
+              "aria-label": "Capstone " + cid.slice(1) + ", " + cap.title + ": " + words, title: "Capstone " + cid.slice(1) + " · " + cap.title })));
       }
       grp.appendChild(marks);
       row.appendChild(grp);

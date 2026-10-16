@@ -28,7 +28,7 @@
 (function () {
   "use strict";
   var el = KOS.ui.el;
-  var SUBJ = { compsci: "CS", maths: "Maths", it: "IT" };
+  var SUBJ = KOS.subjects.map("short");
   var LEVEL_NAME = { paper: "Paper", unit: "Unit", parent: "Parent", leaf: "Leaf" };
   var LEVEL_PLURAL = { paper: "papers", unit: "units", parent: "parents", leaf: "leaves" };
   var uid = 0;

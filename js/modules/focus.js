@@ -739,8 +739,8 @@
      what this hour is for on the left, the clock in the middle, the notes
      you keep on the right — with the cycles as a segmented bar beneath. */
   function subjectName(sid) { return KOS_DATA[sid] ? KOS_DATA[sid].name : sid; }
-  function shortName(sid) { return ({ compsci: "CS", maths: "Maths", it: "IT" })[sid] || subjectName(sid); }
-  function hue(sid) { return "var(--" + ({ compsci: "cs", maths: "maths", it: "it" }[sid] || "muted") + ")"; }
+  function shortName(sid) { return KOS.subjects.meta(sid) ? KOS.subjects.short(sid) : subjectName(sid); }
+  function hue(sid) { return KOS.subjects.hue(sid); }
   function topicLabel() {
     if (S && S.kind === "reading") return S.book ? S.book.title : "Reading — no book linked";
     if (!S || !S.subject) return "General study";
@@ -1880,7 +1880,7 @@
 
     /* --- the form --- */
     var form = el("div", { class: "k-fx-form" });
-    var modeRow = el("div", { class: "k-seg k-seg--quiet k-seg--grid", role: "group", "aria-label": "Session type" });
+    var modeRow = el("div", { class: "k-seg k-seg--quiet k-fx-modes", role: "group", "aria-label": "Session type" });
     var customFields = el("div", { class: "k-fx-pair", "data-ui": "focus.custom" }, [
       el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: "Work (min)" }), work]),
       el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: "Break (min, 0 = none)" }), brk])
@@ -1975,8 +1975,12 @@
     var untilSum = el("p", { class: "k-fx-until-sum", "data-ui": "focus.until-sum", role: "status" });
     var untilFields = el("div", { class: "k-fx-until", "data-ui": "focus.until" }, [
       el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Study until" }), hmPicker]),
-      el("div", { class: "k-fx-until-side" }, [untilChips, untilSum])
+      el("div", { class: "k-fx-until-side" }, [untilChips])
     ]);
+    /* the summary sits beside the break nudge, in the slot the stopwatch's
+       limit takes (16 October 2026) */
+    var untilSumField = el("div", { class: "k-fx-until-sumfield" }, [untilSum]);
+    openFields.appendChild(untilSumField);
     function paintUntilChips() {
       untilChips.innerHTML = "";
       var first = halfHourAfter(now() + 15 * 60000), picked = untilTs();
@@ -1989,8 +1993,6 @@
           untilChips.appendChild(b);
         })(first + i * 30 * 60000);
       }
-      untilChips.appendChild(el("button", { type: "button", class: "k-seg-item k-mono", "data-ui": "focus.until-chip", text: "+30 min",
-        onclick: function () { setUntil((untilTs() || now()) + 30 * 60000); } }));
     }
     form.appendChild(untilFields);
     form.appendChild(openFields);
@@ -2000,12 +2002,9 @@
       if (reading() && mode !== "custom") setMode("custom");
       topicPick.refresh(); fillAssignments(); sync();
     } }, [
-      el("option", { value: "", text: "General study — no link" }),
-      el("option", { value: "compsci", text: "Computer Science" }),
-      el("option", { value: "maths", text: "Mathematics" }),
-      el("option", { value: "it", text: "IT · Data Analytics" }),
-      el("option", { value: "reading", text: "Reading — rest, no penalties" })
-    ]);
+      el("option", { value: "", text: "General study — no link" })
+    ].concat(KOS.subjects.ids().map(function (sid) { return el("option", { value: sid, text: KOS.subjects.name(sid) }); }))
+      .concat([el("option", { value: "reading", text: "Reading — rest, no penalties" })]));
     /* frame 17: the topic is the shared picker, single-select, locked to
        the subject (one subject per session, invariant 4a); picking a topic
        under General study takes its subject */
@@ -2277,6 +2276,7 @@
       openFields.hidden = rd || !fixed;
       limitField.hidden = mode !== "stopwatch";
       untilFields.hidden = rd || mode !== "until";
+      untilSumField.hidden = rd || mode !== "until";
       topicPick.el.hidden = rd;
       asgField.hidden = rd;
       objField.hidden = rd;
@@ -2289,9 +2289,10 @@
         err = !ts;
         untilSum.setAttribute("data-state", err ? "warn" : "");
         untilSum.textContent = ts
-          ? hm(now()) + " → " + untilText() + " · " + fmtLong((ts - now()) / 1000) + " · up to " +
+          ? hm(now()) + " → " + untilText() + " · " + fmtLong((ts - now()) / 1000) + " · ≤ " +
             Math.floor((ts - now()) / 1000 / BLK.secs) + " award" + (Math.floor((ts - now()) / 1000 / BLK.secs) === 1 ? "" : "s")
           : "That time has passed. Pick a time after " + hm(now()) + ".";
+        untilSum.title = untilSum.textContent;
       }
       startBtn.disabled = err;
       recordCard.hidden = paid;

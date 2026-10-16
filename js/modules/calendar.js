@@ -894,7 +894,7 @@
     var start = input("time");
     var end = input("time");
     var type = select(TYPES.map(function (t) { return [t.v, t.label]; }));
-    var subj = select([["", "No subject"], ["compsci", "Computer Science"], ["maths", "Mathematics"], ["it", "IT"]]);
+    var subj = select([["", "No subject"]].concat(KOS.subjects.ids().map(function (sid) { return [sid, sid === "it" ? "IT" : KOS.subjects.name(sid)]; })));
     /* frame 17: the event's topic is the shared picker, single-select and
        held to the subject; picking one under no subject takes its subject */
     var topicPick = KOS.topicPicker({ label: "Topic", multi: false, placeholder: "No topic",

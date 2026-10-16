@@ -12,8 +12,8 @@
 (function () {
   "use strict";
   var el = KOS.ui.el;
-  var HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)", personal: "var(--bloom)" };
-  var SHORT = { compsci: "CS", maths: "Maths", it: "IT", personal: "Personal" };
+  var HUE = Object.assign(KOS.subjects.map("hue"), { personal: "var(--bloom)" });
+  var SHORT = Object.assign(KOS.subjects.map("short"), { personal: "Personal" });
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   KOS.review = KOS.review || {};
@@ -37,7 +37,8 @@
     if (opts.run) { runSession(main, opts.run, due); return; }
 
     var overdue = due.filter(function (c) { return c.overdue > 0; }).length;
-    var bySubject = { compsci: 0, maths: 0, it: 0, personal: 0 };
+    var bySubject = {};
+    KOS.subjects.ids().concat(["personal"]).forEach(function (s) { bySubject[s] = 0; });
     due.forEach(function (c) { if (bySubject[c.sid] !== undefined) bySubject[c.sid]++; });
     var subjects = Object.keys(bySubject).filter(function (s) { return bySubject[s]; });
 

@@ -36,15 +36,22 @@
 .k-fx-dial-note { margin: 0; max-inline-size: var(--fx-dial); text-align: center; }
 .k-fx-hero[data-rule="blocks"] .k-fx-dial .k-fx-ring { --ring-fill: var(--teal); }
 .k-fx-hero[data-mode="stopwatch"] .k-fx-dial .k-fx-ring { --pct: 0%; }
-.k-fx-until { display: flex; flex-wrap: wrap; gap: var(--sp-12) var(--sp-16); align-items: flex-end; }
+.k-fx-until { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-12) var(--sp-16); align-items: end; }
 .k-fx-hm-pick { display: flex; align-items: center; gap: var(--sp-8); }
 .k-fx-hm-col { display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); }
 .k-fx-form .k-fx-hm { inline-size: var(--fx-hm-w); padding-inline: 0; text-align: center; font-size: var(--fs-26); font-weight: var(--weight-medium); }
 .k-fx-form .k-fx-hm:focus { box-shadow: inset 0 0 0 var(--ring-1-5) var(--crimson); }
 .k-fx-hm-sep { font-size: var(--fs-26); color: var(--muted); }
-.k-fx-until-side { flex: 1 1 var(--fx-until-side-min); display: flex; flex-direction: column; gap: var(--sp-10); min-inline-size: 0; }
-.k-fx-until-chips { flex-wrap: wrap; align-self: flex-start; }
-.k-fx-until-sum { margin: 0; padding: var(--sp-10) var(--sp-14); border-radius: var(--r-14); background: var(--s3); font-size: var(--fs-13); color: var(--text-2); }
+.k-fx-until-side { display: flex; min-inline-size: 0; align-self: stretch; }
+/* the quick times: 2 × 2, filling the side of the clock, on the inputs' ground */
+.k-fx-until-chips { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: var(--sp-6); padding: var(--sp-6); border-radius: var(--r-20); background: var(--s3); overflow: visible; }
+.k-fx-until-chips > .k-seg-item { justify-content: center; font-size: var(--fs-16); border-radius: var(--r-14); }
+.k-fx-until-sumfield { display: flex; align-items: flex-end; }
+.k-fx-until-sumfield[hidden] { display: none; }
+.k-fx-until-sum { flex: 1 1 auto; margin: 0; min-block-size: var(--hit); padding: var(--sp-10) var(--sp-14); border-radius: var(--r-14); background: var(--s3); font-size: var(--fs-13); color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the session types: one row across the form, on the inputs' ground */
+.k-fx-form > .k-fx-modes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-self: stretch; border-radius: var(--r-pill); background: var(--s3); }
+.k-fx-modes > .k-seg-item { justify-content: center; white-space: nowrap; }
 .k-fx-until-sum[data-state~="warn"] { color: var(--amber); }
 .k-fx-rw-big { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-10); margin: var(--sp-8) 0 var(--sp-12); }
 .k-fx-rw-big > b { font-size: var(--fs-20); font-weight: var(--weight-semibold); color: var(--teal); }
@@ -901,6 +908,8 @@
 }
 
 @media (max-width: 560px) {
+.k-fx-form > .k-fx-modes { grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: var(--r-20); }
+.k-fx-until { grid-template-columns: minmax(0, 1fr); }
 /* a phone fits two figures a row, not four: four 26px mono figures in
    ~300px overlapped each other ("40 min" over "4", "+48 XP+4 gold") */
 .k-fx-rev-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--sp-14); }

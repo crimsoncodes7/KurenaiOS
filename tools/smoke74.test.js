@@ -170,6 +170,18 @@ step("D · the day's plan is computed, stable through the day and reads Done", a
   assert(!("plan" in K.code.state()), "the plan is never stored");
 });
 
+step("E · Code is a subject Focus and the topic picker offer", async (app) => {
+  const K = app.KOS, d = app.document;
+  K.show("focus"); await app.settle();
+  const sel = d.querySelector('select[aria-label="Link to subject"]');
+  assert(sel && [...sel.options].some(o => o.value === "code" && o.textContent === "Code"), "Focus offers no Code subject");
+  sel.value = "code"; sel.dispatchEvent(new app.window.Event("change")); await app.settle();
+  const tp = K.topicPicker({ label: "t", multi: false, value: ["code:1.1"] });
+  d.body.appendChild(tp.el);
+  const chip = tp.el.querySelector('[data-ui~="tp.chip"][data-subject="code"]');
+  assert(chip, "the topic picker does not show a Code lesson");
+  tp.el.remove();
+});
 step("E · Code's pages write nothing when drawn", async (app) => {
   const K = app.KOS;
   K.show("subject", "compsci"); await app.settle();

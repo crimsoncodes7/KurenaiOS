@@ -207,7 +207,7 @@
   function removeAttachments(id, cb) {
     if (!KOS.attach || !KOS.attach.available || !KOS.attach.available()) { cb && cb(null); return; }
     var pending = 0, done = false;
-    ["compsci", "maths", "it", "_"].forEach(function (sid) {
+    KOS.subjects.ids().concat(["_"]).forEach(function (sid) {
       pending++;
       KOS.attach.list(sid, attachRef(id), function (err, rows) {
         (rows || []).forEach(function (r) { KOS.attach.remove(r.id, function () {}); });
