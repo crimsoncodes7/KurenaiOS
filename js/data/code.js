@@ -87,7 +87,8 @@
       ["6.6", "Validating input", "Decide what to do with bad data before it spreads."],
       ["6.7", "A debugging method", "Find a bug by forming and testing hypotheses rather than guessing."],
       ["6.8", "Reading stack traces and errors", "Follow a stack trace back to the line that caused it."],
-      ["6.9", "Practise: a log analyser", "Read a log file, survive its bad lines and report on it."]
+      ["6.9", "Practise: a log analyser", "Read a log file, survive its bad lines and report on it."],
+      ["6.10", "Binary files: raw bytes", "Work with bytes, write and read them with File.WriteAllBytes, BinaryWriter and BinaryReader, and see text become bytes through an encoding."]
     ] },
     { ref: "B", title: "Your real toolkit", stage: "B", strands: ["E"], where: "rider", lessons: [
       ["B.1", "Installing .NET and Rider", "Install the .NET SDK and JetBrains Rider and run a first console project."],
@@ -154,15 +155,14 @@
     ] },
     { ref: "U11", title: "Async, events and I/O", stage: 4, strands: ["L", "S"], where: "sandbox", lessons: [
       ["11.1", "Streams and files in depth", "Read and write data through streams."],
-      ["11.2", "Binary files: writing raw bytes", "Write and read bytes with File.WriteAllBytes, BinaryWriter and BinaryReader, and see text become bytes through an encoding."],
-      ["11.3", "JSON serialisation", "Save and load objects as JSON."],
-      ["11.4", "Configuration", "Read settings without hard-coding them."],
-      ["11.5", "Why async", "Know what waiting costs and why a thread should not block."],
-      ["11.6", "async and await", "Write asynchronous methods that read like ordinary ones."],
-      ["11.7", "Tasks and Task.WhenAll", "Run independent work at the same time."],
-      ["11.8", "Cancellation", "Stop long work cleanly when asked."],
-      ["11.9", "Async pitfalls", "Avoid deadlocks, async void and fire-and-forget bugs."],
-      ["11.10", "Practise: an async downloader", "Fetch several resources concurrently from a fake server."]
+      ["11.2", "JSON serialisation", "Save and load objects as JSON, and choose between JSON, text and binary files."],
+      ["11.3", "Configuration", "Read settings without hard-coding them."],
+      ["11.4", "Why async", "Know what waiting costs and why a thread should not block."],
+      ["11.5", "async and await", "Write asynchronous methods that read like ordinary ones."],
+      ["11.6", "Tasks and Task.WhenAll", "Run independent work at the same time."],
+      ["11.7", "Cancellation", "Stop long work cleanly when asked."],
+      ["11.8", "Async pitfalls", "Avoid deadlocks, async void and fire-and-forget bugs."],
+      ["11.9", "Practise: an async downloader", "Fetch several resources concurrently from a fake server."]
     ] },
     { ref: "U12", title: "Data structures and algorithms", stage: 4, strands: ["S"], where: "app", lessons: [
       ["12.1", "Complexity and Big O", "Estimate how running time and memory grow with input size, and read O(1), O(log n), O(n), O(n log n) and O(n²)."],
@@ -367,6 +367,17 @@
     capstone: function (id, o) {
       var K = window.KOS_CODE;
       K.CAPSTONES[id] = Object.assign({ id: id }, K.CAPSTONES[id] || {}, o);
+    },
+    /* a Rider project (docs/code-plan.md §9, frame 26m): its brief, the
+       scaffold's files, the milestones and their checks, which files are
+       protected, and its reward; built in Rider, validated by
+       assets/code/validator/validate.cs, brought back as a report */
+    PROJECTS: {},
+    project: function (id, o) {
+      var K = window.KOS_CODE;
+      /* the lesson file gives the brief and milestones, a generated file
+         (tools/gen_code_projects.mjs) the scaffold's files: merged */
+      K.PROJECTS[id] = Object.assign({ id: id }, K.PROJECTS[id] || {}, o);
     }
   };
 })();

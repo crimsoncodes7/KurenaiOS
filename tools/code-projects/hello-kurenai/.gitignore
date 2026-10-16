@@ -1,0 +1,5 @@
+bin/
+obj/
+.kurenai/out/
+.idea/
+*.user

@@ -19,7 +19,7 @@ function loadCode() {
   sandbox.window.window = sandbox.window;
   vm.createContext(sandbox);
   const files = ["js/data/code.js"].concat(
-    fs.readdirSync(path.join(ROOT, "js/data/content")).filter((f) => /^code-[uc]\d+\.js$/.test(f)).sort().map((f) => "js/data/content/" + f));
+    fs.readdirSync(path.join(ROOT, "js/data/content")).filter((f) => /^code-(u\d+|c\d+|ub|projects-files)\.js$/.test(f)).sort().map((f) => "js/data/content/" + f));
   for (const f of files) vm.runInContext("(function(window){" + fs.readFileSync(path.join(ROOT, f), "utf8") + "\n})(window);", sandbox, { filename: f });
   const CSI = require(path.join(ROOT, "js/labs/cs-interp.js"));
   return { K: sandbox.window.KOS_CODE, content: sandbox.window.KOS_CONTENT, data: sandbox.window.KOS_DATA.code, CSI, files };
@@ -38,33 +38,42 @@ function listings(blocks, out) {
   return out;
 }
 
+/* which runner a program's lesson uses: "wasm" for the sandbox units (7–9,
+   11) and their capstone, the interpreter otherwise (KOS.code.runnerFor) */
+function runnerOf(K, data, lesson) {
+  const u = (data.sections || []).find((sec) => (sec.children || []).some((l) => l.ref === lesson));
+  const where = u ? u.where : K.CAPSTONES[lesson] ? K.CAPSTONES[lesson].where : null;
+  return where === "sandbox" ? "wasm" : "interp";
+}
+
 function programs(K, content) {
   const out = [];
   Object.keys(content).filter((k) => k.indexOf("code:") === 0).forEach((key) => {
     const c = content[key];
-    listings(c.notes, []).forEach((r) => out.push({ where: key + " listing " + r.id, src: r.src, stdin: r.stdin || "", fs: r.fs, kind: "listing" }));
+    const lesson = key.slice(5);
+    listings(c.notes, []).forEach((r) => out.push({ where: key + " listing " + r.id, src: r.src, stdin: r.stdin || "", fs: r.fs, kind: "listing", lesson }));
     const p = c.practice || {};
-    (p.predict || []).forEach((it) => out.push({ where: key + " predict " + it.id, src: it.src, stdin: it.stdin || "", fs: it.fs, kind: "predict" }));
-    (p.bug || []).forEach((it) => out.push({ where: key + " bug " + it.id + " (broken)", src: it.src, stdin: it.stdin || "", fs: it.fs, kind: "bug-broken", expectNot: it.out }));
+    (p.predict || []).forEach((it) => out.push({ where: key + " predict " + it.id, src: it.src, stdin: it.stdin || "", fs: it.fs, kind: "predict", lesson }));
+    (p.bug || []).forEach((it) => out.push({ where: key + " bug " + it.id + " (broken)", src: it.src, stdin: it.stdin || "", fs: it.fs, kind: "bug-broken", expectNot: it.out, lesson }));
   });
   Object.keys(K.TASKS).forEach((id) => {
     const t = K.TASKS[id];
-    (t.examples || []).concat(t.hidden || []).forEach((c, i) => out.push({ where: "task " + id + " case " + (i + 1), src: t.answer, stdin: c.stdin || "", fs: c.fs || t.fs, expect: c.out, kind: "answer" }));
+    (t.examples || []).concat(t.hidden || []).forEach((c, i) => out.push({ where: "task " + id + " case " + (i + 1), src: t.answer, stdin: c.stdin || "", fs: c.fs || t.fs, expect: c.out, kind: "answer", lesson: t.lesson }));
   });
   Object.keys(K.CAPSTONES).forEach((id) => {
     const cp = K.CAPSTONES[id];
     if (!cp.answer) return;
-    (cp.milestones || []).forEach((m) => m.cases.forEach((c, i) => out.push({ where: "capstone " + id + " " + m.id + " case " + (i + 1), src: cp.answer, stdin: c.stdin || "", fs: c.fs || cp.fs, expect: c.out, kind: "capstone" })));
+    (cp.milestones || []).forEach((m) => m.cases.forEach((c, i) => out.push({ where: "capstone " + id + " " + m.id + " case " + (i + 1), src: cp.answer, stdin: c.stdin || "", fs: c.fs || cp.fs, expect: c.out, kind: "capstone", lesson: id })));
   });
   Object.keys(K.CARDS).forEach((id) => {
     const cd = K.CARDS[id];
     for (let n = 1; n <= 20; n++) {
       const v = variation(cd, n);
-      if (v.kind === "predict") out.push({ where: "card " + id + " v" + n, src: v.src, stdin: v.stdin || "", fs: v.fs, kind: "card-predict" });
-      else if (v.answer) (v.cases || []).forEach((c, i) => out.push({ where: "card " + id + " v" + n + " case " + (i + 1), src: v.answer, stdin: c.stdin || "", fs: c.fs || v.fs, expect: c.out, kind: "card-answer" }));
+      if (v.kind === "predict") out.push({ where: "card " + id + " v" + n, src: v.src, stdin: v.stdin || "", fs: v.fs, kind: "card-predict", lesson: cd.lesson });
+      else if (v.answer) (v.cases || []).forEach((c, i) => out.push({ where: "card " + id + " v" + n + " case " + (i + 1), src: v.answer, stdin: c.stdin || "", fs: c.fs || v.fs, expect: c.out, kind: "card-answer", lesson: cd.lesson }));
     }
   });
   return out;
 }
 
-module.exports = { loadCode, programs, variation, listings, ROOT };
+module.exports = { loadCode, programs, variation, listings, runnerOf, ROOT };

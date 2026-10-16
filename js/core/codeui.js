@@ -234,6 +234,7 @@
   function quoted(msg) { var m = /'([A-Za-z_]\w*)'/.exec(String(msg || "")); return m ? m[1] : null; }
   function errorCard(err, opts) {
     opts = opts || {};
+    if (err && err.kind === "runtime") return runtimeCard(opts);
     var x = KOS.codeRun.explain(err);
     if (!x) return null;
     return el("div", { class: "k-cx-err", "data-ui": "code.error-card", "data-kind": err.kind, role: "group", "aria-label": x.kind }, [
@@ -247,6 +248,115 @@
       x.usually ? el("p", { class: "k-cx-err-why", text: "Usually because: " + x.usually }) : null,
       opts.after ? el("p", { class: "k-cx-err-after", text: opts.after }) : null
     ].filter(Boolean));
+  }
+
+  /* ---------------- the full runtime (frame 26g) ---------------- */
+  var MB = function (b) { return b == null ? "?" : (b / 1e6 < 10 ? (b / 1e6).toFixed(1) : String(Math.round(b / 1e6))); };
+  /* where Run would answer: the reason in one sentence and the ways forward */
+  function runtimeCard(opts) {
+    var rt = KOS.codeRun.runtime();
+    var file = rt.state === "file";
+    return el("div", { class: "k-cx-err k-cx-rtcard", "data-ui": "code.runtime-card", "data-kind": "runtime", role: "group", "aria-label": "Needs the full C# runtime" }, [
+      el("div", { class: "k-cx-err-head" }, [el("b", { text: "◇ The in-app runner can't run this" })]),
+      el("p", { class: "k-cx-err-plain", text: file
+        ? "From unit 7 the code runs on real .NET in this browser, which needs the app served over http(s) rather than opened as a file."
+        : "From unit 7 the code runs on real .NET: the compiler and the runtime, downloaded once and kept on this device." }),
+      file ? null : el("div", { class: "k-cx-rtcard-acts" }, [
+        el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "code.runtime-get", text: "Get the full runtime", onclick: function () { runtimeOffer({ onReady: opts.onReady }); } }),
+        opts.saveLater ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "Save for the computer", onclick: opts.saveLater }) : null
+      ].filter(Boolean)),
+      el("p", { class: "k-cx-err-after", text: "You can still read the listing and its output below. Nothing is uploaded: your code runs only on this device." })
+    ].filter(Boolean));
+  }
+  /* the offer → downloading → ready (or offline, or failed) dialog */
+  function runtimeOffer(opts) {
+    opts = opts || {};
+    var R = KOS.codeRun, announce = function (m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); };
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    var box = el("div", { class: "k-dialog k-cx-rt", "data-ui": "ui.dialog code.runtime-dialog" });
+    overlay.appendChild(box);
+    var size = null, said = -1, off = null, onOnline = null;
+    function close() {
+      if (off) off();
+      if (onOnline) window.removeEventListener("online", onOnline);
+      overlay.remove();
+    }
+    function foot(btns) { return el("div", { class: "k-dialog-foot" }, btns); }
+    function head(t) {
+      return el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: t }),
+        el("button", { type: "button", class: "k-iconbtn", "data-ui": "ui.dialog-close", "aria-label": "Close", text: "✕", onclick: close })]);
+    }
+    function draw() {
+      var rt = R.runtime();
+      box.innerHTML = "";
+      box.setAttribute("data-state", rt.state);
+      if (rt.state === "ready") {
+        box.appendChild(head("✓ Full runtime ready"));
+        box.appendChild(el("div", { class: "k-dialog-body" }, [el("p", { text: "Works offline · " + MB(size && size.bytes) + " MB in Code storage. It compiled a first program in " + (rt.warm || rt.ms) + " ms." })]));
+        var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.runtime-run", text: opts.onReady ? "Run it" : "Done", onclick: function () { close(); if (opts.onReady) opts.onReady(); } });
+        box.appendChild(foot([go]));
+        go.focus();
+        return;
+      }
+      if (rt.state === "downloading") {
+        var pct = rt.total ? Math.round(100 * rt.loaded / rt.total) : 0;
+        var q = Math.floor(pct / 25);
+        if (q !== said) { said = q; announce("Downloading the full runtime, " + pct + " percent."); }
+        box.appendChild(head("Downloading the full runtime"));
+        box.appendChild(el("div", { class: "k-dialog-body" }, [
+          el("p", { class: "k-cx-rt-n", text: (size ? MB(size.gzip * pct / 100) + " of " + MB(size.gzip) + " MB" : pct + "%") }),
+          el("div", { class: "k-cx-rt-bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct), "aria-label": "Download" }, [el("span", { style: "--pct:" + pct + "%" })]),
+          el("p", { class: "k-cx-note", text: pct + "% · units 1–6 still run meanwhile" })
+        ]));
+        box.appendChild(foot([el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { R.removeRuntime(); close(); announce("Download cancelled."); } })]));
+        return;
+      }
+      if (rt.state === "offline") {
+        box.appendChild(head("⌁ You're offline"));
+        box.appendChild(el("div", { class: "k-dialog-body" }, [el("p", { text: "The download starts when you're back online. Units 1–6 run as normal." })]));
+        box.appendChild(foot([el("button", { type: "button", class: "k-btn", text: "Close", onclick: close })]));
+        return;
+      }
+      var failed = rt.state === "failed";
+      box.appendChild(head(failed ? "The download stopped" : "This lesson runs on the full .NET runtime"));
+      var dl = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.runtime-download", text: failed ? "Try again" : "↓ Download", onclick: start });
+      var need = el("p", { class: "k-cx-note", "data-ui": "code.runtime-space" });
+      box.appendChild(el("div", { class: "k-dialog-body" }, [
+        el("p", { text: failed ? "It stopped before the runtime was ready" + (rt.error ? " (" + rt.error + ")" : "") + ". What arrived is kept; trying again fetches the rest."
+          : "Classes, records, generics and LINQ need more than the in-app runner. Download the full runtime once and it stays on this device, working offline afterwards." }),
+        el("div", { class: "k-cx-rt-pkg" }, [el("span", { class: "k-cx-rt-ic", "aria-hidden": "true", text: ".NET" }),
+          el("div", {}, [el("b", { text: ".NET 10 runtime and the C# compiler" }), el("span", { class: "k-cx-note", "data-ui": "code.runtime-size", text: "≈ " + MB(size && size.gzip) + " MB" })])]),
+        el("p", { class: "k-cx-note", text: "Your code still runs only on this device. Nothing is uploaded." }),
+        need
+      ]));
+      box.appendChild(foot([el("button", { type: "button", class: "k-btn", "data-ui": "ui.dialog-cancel", text: "Not now", onclick: close }), dl]));
+      dl.focus();
+      if (navigator.storage && navigator.storage.estimate && size) navigator.storage.estimate().then(function (est) {
+        var free = (est.quota || 0) - (est.usage || 0);
+        if (est.quota && free < size.bytes) { need.textContent = "Needs " + MB(size.bytes) + " MB; " + MB(free) + " MB free."; dl.disabled = true; }
+      }).catch(function () { /* no estimate */ });
+    }
+    function start() {
+      if (navigator.onLine === false) {
+        KOS.codeRun.startRuntime();
+        onOnline = function () { draw(); };
+        window.addEventListener("online", onOnline);
+      } else KOS.codeRun.startRuntime();
+      draw();
+    }
+    off = R.onRuntime(function (rt) { if (rt.state === "ready") announce("Full runtime ready."); draw(); });
+    KOS.ui.openDialog(overlay, { label: "The full C# runtime" });
+    draw();
+    R.runtimeSize().then(function (s) { size = s; draw(); });
+    return { close: close };
+  }
+  /* compiler warnings (nullable from unit 7): a design tool, never a failure */
+  function warningsPanel(ws) {
+    if (!ws || !ws.length) return null;
+    return el("div", { class: "k-cx-warns", "data-ui": "code.warnings" }, [el("span", { class: "k-cx-out-k", text: ws.length + " warning" + (ws.length === 1 ? "" : "s") })]
+      .concat([el("ul", {}, ws.slice(0, 8).map(function (w) {
+        return el("li", {}, [el("span", { class: "k-cx-warn-m", "aria-hidden": "true", text: "⚠" }), el("span", { class: "k-mono", text: w.code }), w.line ? el("span", { class: "k-cx-err-line", text: "line " + w.line }) : null, el("span", { text: w.msg })].filter(Boolean));
+      }))]));
   }
 
   /* ---------------- results list ---------------- */
@@ -457,7 +567,26 @@
      A listing, task or card may bring files ({ "scores.txt": "…" }); the
      runner reads and writes them in memory. filesPanel shows the seed
      files; writtenPanel shows what a run created or changed. */
+  /* a file of bytes ({hex}) as a dump: offset, sixteen bytes, their text */
+  function hexDump(hex) {
+    var b = (hex.match(/../g) || []).map(function (h) { return parseInt(h, 16); }), rows = [];
+    for (var i = 0; i < b.length && i < 512; i += 16) {
+      var part = b.slice(i, i + 16);
+      rows.push(("000" + i.toString(16).toUpperCase()).slice(-4) + "  " + part.map(function (x) { return ("0" + x.toString(16).toUpperCase()).slice(-2); }).join(" ").padEnd(47) + "  " +
+        part.map(function (x) { return x >= 32 && x < 127 ? String.fromCharCode(x) : "."; }).join(""));
+    }
+    if (b.length > 512) rows.push("… " + (b.length - 512) + " more bytes");
+    return rows.join("\n");
+  }
   function fileBox(name, text, tag) {
+    if (text && typeof text === "object") {
+      var n = (text.hex || "").length / 2;
+      return el("div", { class: "k-cx-file", "data-ui": "code.file", "data-kind": "binary" }, [
+        el("div", { class: "k-cx-file-h" }, [el("span", { class: "k-cx-file-ic", "aria-hidden": "true", text: "▦" }), el("b", { class: "k-mono", text: name }),
+          tag ? el("span", { class: "k-cx-file-tag", text: tag }) : null, el("span", { class: "k-cx-file-n", text: n + " byte" + (n === 1 ? "" : "s") + " · binary" })].filter(Boolean)),
+        n ? el("pre", { class: "k-mono k-cx-file-pre", "aria-label": "Bytes in hexadecimal", text: hexDump(text.hex) }) : null
+      ].filter(Boolean));
+    }
     return el("div", { class: "k-cx-file", "data-ui": "code.file" }, [
       el("div", { class: "k-cx-file-h" }, [el("span", { class: "k-cx-file-ic", "aria-hidden": "true", text: "▤" }), el("b", { class: "k-mono", text: name }),
         tag ? el("span", { class: "k-cx-file-tag", text: tag }) : null,
@@ -477,7 +606,8 @@
   function writtenPanel(seed, after) {
     if (!after) return null;
     seed = seed || {};
-    var changed = Object.keys(after).filter(function (n) { return after[n] !== seed[n]; });
+    var same = function (x, y) { return x === y || (x && y && typeof x === "object" && typeof y === "object" && x.hex === y.hex); };
+    var changed = Object.keys(after).filter(function (n) { return !same(after[n], seed[n]); });
     var gone = Object.keys(seed).filter(function (n) { return !(n in after); });
     if (!changed.length && !gone.length) return null;
     return el("div", { class: "k-cx-written", "data-ui": "code.files-written" }, [el("span", { class: "k-cx-out-k", text: "Files after the run" })]
@@ -510,11 +640,12 @@
       if (runBtn.disabled) return;
       runBtn.disabled = true;
       ed.running(true);
-      KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "", fs: run.fs }).then(function (r) {
+      KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "", fs: run.fs, lesson: opts.lesson }).then(function (r) {
         runBtn.disabled = false;
         ed.running(false);
         out.hidden = false;
         out.innerHTML = "";
+        if (r.error && r.error.kind === "runtime") { ed.state("ready"); out.appendChild(runtimeCard({ onReady: go })); return; }
         out.appendChild(el("span", { class: "k-cx-out-k", text: "Output" }));
         if (r.ok) {
           ed.state("pass", "Ran");
@@ -533,6 +664,8 @@
         }
         var wp = writtenPanel(run.fs, r.fs);
         if (wp) out.appendChild(wp);
+        var wn = warningsPanel(r.warnings);
+        if (wn) out.appendChild(wn);
         if (opts.onRun) opts.onRun(run.id, r);
       });
     }
@@ -547,7 +680,7 @@
     [].forEach.call(root.querySelectorAll("[data-ui~='code.listing-slot']"), function (slot) {
       var r = byId[slot.getAttribute("data-lid")];
       if (!r) return;
-      slot.parentNode.replaceChild(listing(r, { onRun: function (id) {
+      slot.parentNode.replaceChild(listing(r, { lesson: ref, onRun: function (id) {
         KOS.code.markListing(ref, id);
         /* the inspector's checks follow the evidence (frame 26c) */
         document.dispatchEvent(new window.CustomEvent("kos:code-evidence", { detail: { ref: ref } }));
@@ -578,6 +711,7 @@
     diffView: diffView, reward: reward, payText: payText, hintLadder: hintLadder, evidence: evidence,
     strands: strands, where: where, dot: dot, daysText: daysText, chip: chip, stagePath: stagePath,
     listing: listing, mountListings: mountListings, keyBar: keyBar, quoted: quoted, hm: hm,
-    filesPanel: filesPanel, writtenPanel: writtenPanel
+    filesPanel: filesPanel, writtenPanel: writtenPanel,
+    runtimeCard: runtimeCard, runtimeOffer: runtimeOffer, warningsPanel: warningsPanel
   };
 })();

@@ -576,7 +576,29 @@ Claude Design and comes back as a handoff, the way Graphite did.
 >   on the in-app disk (clean, messy, empty); stage 2 is complete
 >   (2,088 of 2,088 programs identical to .NET).
 >
-> **Next, one unit at a time:** Bridge B, then stage 3 (R3), with katas,
+> - Binary files (16 October 2026): lesson 6.10 — bytes, encodings,
+>   `File.WriteAllBytes`, `BinaryWriter`/`BinaryReader`, hex dumps, file
+>   signatures, XOR — with the runner's `byte`, `FileStream` and the file
+>   locks .NET keeps on macOS and Linux; the core path stays 131 lessons
+>   (11.2 moved here).
+>
+> - Bridge B and the Rider workflow v1: eight lessons (the SDK and Rider,
+>   the dotnet CLI, solutions and NuGet, the debugger, Git, GitHub, docs,
+>   validation) with command retrieval cards; the Bridge project "Hello,
+>   Kurenai" (five milestones) exported as a zip made on the device,
+>   validated by `assets/code/validator/validate.cs` (SARIF, TRX, scripted
+>   runs, Git, protected-file hashes) and imported through the §9.4 checks
+>   with a preview (26m–26n). Spike V passed on macOS; Windows, Linux and
+>   CI-verified evidence remain.
+>
+> - The prerequisite for units 7+: the full C# runtime (Spike W passed —
+>   unit 7 is the boundary). Roslyn and .NET 10 in WebAssembly, an optional
+>   11 MB download kept offline, in a worker with no network, nullable
+>   warnings shown, 26 of 26 stage 3–4 programs identical to native .NET;
+>   `cs_diff` runs units 7+ content through it. A real-phone measurement is
+>   still owed.
+>
+> **Next, one unit at a time:** stage 3 (R3), with katas,
 > in-app projects, Rider, GitHub and the .NET runtime (R2–R3) as planned in
 > code-plan.md §12. Not built yet: 26g's runtime download, 26j–26k and
 > 26m–26q (katas, the project IDE, Rider hub and import, export and

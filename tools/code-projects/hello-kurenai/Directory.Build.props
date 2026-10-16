@@ -1,0 +1,13 @@
+<Project>
+  <!-- Kurenai: shared settings for every project here. Protected: the
+       validator checks this file has not changed. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- nullable reference types are off until unit 7 -->
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <!-- the validator asks for a SARIF log per project -->
+    <ErrorLog Condition="'$(KurenaiOut)' != ''">$(KurenaiOut)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+  </PropertyGroup>
+</Project>

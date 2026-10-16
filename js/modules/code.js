@@ -310,7 +310,7 @@
   function statusLine() {
     return el("div", { class: "k-cx-status", "data-ui": "code.status-line" }, [
       el("span", {}, [el("span", { class: "k-cx-live", "aria-hidden": "true" }), " Runner ", el("b", { text: "In-app" }), " · " + (online() ? "works offline" : "offline")]),
-      el("span", { text: "Full .NET runtime arrives with unit 7" }),
+      el("span", { text: "Full .NET runtime " + ({ ready: "ready", idle: "on this device", downloading: "downloading", failed: "stopped", offline: "offline", file: "needs http(s)" }[KOS.codeRun.runtime().state] || "not downloaded") }),
       el("span", { text: "GitHub not connected" }),
       el("button", { type: "button", class: "k-link", "data-ui": "code.settings-open", text: "Code settings ›", onclick: function () { KOS.show("code", { page: "settings" }); } })
     ]);
@@ -472,7 +472,7 @@
     if (phone && !C().phoneFit(t)) { phoneLater(main, t); return; }
     KOS.shell.bleed(true);
     var ui = C().ui();
-    var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules, fs: t.fs };
+    var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules, fs: t.fs, lesson: t.lesson };
     var started = Date.now();
     var hintsOpen = C().taskState(t.id).hints;
     var answerShown = !!C().taskState(t.id).seen;
@@ -565,8 +565,8 @@
       if (runBtn.disabled) return;
       runBtn.disabled = true; ed.running(true);
       selTab("output");
-      var req = t.mode === "method" && t.examples && t.examples[0] ? { files: ed.files(), mode: "method", call: { name: t.method, args: t.examples[0].args } }
-        : { files: ed.files(), stdin: stdin.value, fs: (t.examples && t.examples[0] && t.examples[0].fs) || t.fs };
+      var req = t.mode === "method" && t.examples && t.examples[0] ? { files: ed.files(), mode: "method", call: { name: t.method, args: t.examples[0].args }, lesson: t.lesson }
+        : { files: ed.files(), stdin: stdin.value, fs: (t.examples && t.examples[0] && t.examples[0].fs) || t.fs, lesson: t.lesson };
       KOS.codeRun.run(req).then(function (r) {
         runBtn.disabled = false; ed.running(false);
         outBody.innerHTML = "";
@@ -580,9 +580,12 @@
         }
         var wp = KOS.codeUI.writtenPanel(req.fs, r.fs);
         if (wp) outBody.appendChild(wp);
+        var wn = KOS.codeUI.warningsPanel(r.warnings);
+        if (wn) outBody.appendChild(wn);
       });
     }
     function showError(e, into) {
+      if (e.kind === "runtime") { ed.state("ready"); into.appendChild(KOS.codeUI.errorCard(e, { onReady: doRun })); say("This task needs the full C# runtime."); return; }
       ed.state(e.kind === "compile" ? "compile" : e.kind === "timeout" ? "timeout" : "exception",
         e.kind === "compile" ? "1 compile error" : e.kind === "timeout" ? "Did not finish" : "Stopped: exception");
       if (e.line) ed.mark(e.line, KOS.codeUI.quoted(e.msg));
@@ -860,6 +863,11 @@
         card.appendChild(el("pre", { class: "k-cx-q-code k-mono", html: KOS.codeUI.highlight(v.src) }));
         ans = el("textarea", { class: "k-input k-cx-q-in k-mono", rows: "2", spellcheck: "false", "aria-label": "What it prints, one line per line of output", placeholder: "What it prints" });
         card.appendChild(ans);
+      } else if (kind === "command") {
+        /* a Rider lesson's card: the command itself, checked against its forms */
+        ans = el("input", { type: "text", class: "k-input k-cx-q-in k-mono", "data-ui": "code.retrieval-command", spellcheck: "false", autocomplete: "off", autocapitalize: "off", "aria-label": "Your answer", placeholder: v.ci ? "The name" : "The command",
+          onkeydown: function (e) { if (e.key === "Enter") { e.preventDefault(); check(); } } });
+        card.appendChild(ans);
       } else if (kind === "fill") {
         parts = String(v.src).split("@@"); inputs = [];
         var pre = el("pre", { class: "k-cx-q-code k-cx-fill k-mono" });
@@ -924,9 +932,14 @@
         if (go.disabled) return;
         tries++;
         out.querySelectorAll("[data-ui~='code.retrieval-try']").forEach(function (n) { n.remove(); });
+        if (kind === "command") {
+          if (C().commandMatches(v, ans.value)) return finish(true);
+          tryAgain("Not yet. " + (tries >= 3 ? "It was: " + v.answer : "Try again."));
+          return;
+        }
         if (kind === "predict") {
           go.disabled = true;
-          KOS.codeRun.run({ files: [{ name: "Program.cs", src: v.src }], stdin: v.stdin || "", fs: v.fs }).then(function (r) {
+          KOS.codeRun.run({ files: [{ name: "Program.cs", src: v.src }], stdin: v.stdin || "", fs: v.fs, lesson: cd.lesson }).then(function (r) {
             go.disabled = false;
             var real = r.ok ? KOS.codeRun.norm(r.stdout) : "";
             if (KOS.codeRun.norm(ans.value) === real) return finish(true);
@@ -939,7 +952,7 @@
           : ed.files();
         go.disabled = true;
         if (ed) ed.running(true);
-        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs }, files).then(function (c) {
+        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs, lesson: cd.lesson }, files).then(function (c) {
           go.disabled = false;
           if (ed) ed.running(false);
           if (c.passed) return finish(true);
@@ -1091,6 +1104,40 @@
   /* ======================================================================
      26r · Code settings
      ====================================================================== */
+  /* the full runtime's card in settings (26r): its state and what to do */
+  function runtimeState() {
+    var R = KOS.codeRun, box = el("div", { class: "k-cx-runstate", "data-ui": "code.runtime-state" });
+    function draw() {
+      var rt = R.runtime();
+      box.innerHTML = "";
+      box.setAttribute("data-state", rt.state === "ready" ? "on" : rt.state);
+      var words = {
+        absent: ["Not downloaded", "Units 7–9 and 11 run on it: real .NET and the C# compiler, downloaded once."],
+        idle: ["On this device", "Starts when a lesson needs it; works offline."],
+        downloading: ["Downloading · " + (rt.total ? Math.round(100 * rt.loaded / rt.total) : 0) + "%", "Units 1–6 still run meanwhile."],
+        ready: ["● Ready · works offline", "Started in " + (rt.ms / 1000).toFixed(1) + " s; compiles a program in about a second."],
+        failed: ["Download stopped", rt.error || "Try again; what arrived is kept."],
+        offline: ["Offline", "It downloads when you're back online."],
+        file: ["Needs http(s)", "Open the app from its address, not as a file, to use it."]
+      }[rt.state] || ["", ""];
+      box.appendChild(el("span", { class: "k-kicker", text: "Full .NET runtime" }));
+      box.appendChild(el("b", { text: words[0] }));
+      box.appendChild(el("small", { text: words[1] }));
+      var acts = [];
+      if (rt.state === "absent" || rt.state === "failed") acts.push(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "code.runtime-offer", text: rt.state === "failed" ? "Try again" : "Download…", onclick: function () { KOS.codeUI.runtimeOffer(); } }));
+      if (rt.wanted && rt.state !== "file") acts.push(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "code.runtime-remove", text: "Remove from this device",
+        onclick: function () { KOS.ui.confirm({ title: "Remove the full runtime?", body: "Its files leave this device; units 7–9 and 11 offer the download again. Your code and progress are not affected.", danger: true, confirm: "Remove" }, function () { R.removeRuntime().then(function () { announce("Full runtime removed."); KOS.rerender(); }); }); } }));
+      if (acts.length) box.appendChild(el("div", { class: "k-cx-runstate-acts" }, acts));
+    }
+    var off = KOS.codeRun.onRuntime(function () { if (!box.isConnected) { off(); return; } draw(); });
+    draw();
+    return box;
+  }
+  function runtimeStorage() {
+    var out = el("strong", { text: "—" });
+    if (KOS.codeRun.runtime().wanted) KOS.codeRun.runtimeSize().then(function (sz) { if (sz) out.textContent = (sz.bytes / 1e6).toFixed(0) + " MB"; });
+    return out;
+  }
   function pageSettings(main) {
     var ui = C().ui();
     main.appendChild(KOS.ui.pageHeader({ kicker: "Settings", title: "Code", sub: "Runner, storage, practice and GitHub" }));
@@ -1108,8 +1155,7 @@
         el("div", { class: "k-cx-runstates" }, [
           el("div", { class: "k-cx-runstate", "data-state": "on" }, [el("span", { class: "k-kicker", text: "In-app runner" }), el("b", { text: "● Ready · works offline" }),
             el("small", { text: "Units 1–6 · time limit 2 seconds a run" })]),
-          el("div", { class: "k-cx-runstate" }, [el("span", { class: "k-kicker", text: "Full .NET runtime" }), el("b", { text: "Not available yet" }),
-            el("small", { text: "Arrives with unit 7, as an optional download that works offline." })])
+          runtimeState()
         ]),
         el("p", { class: "k-cx-note", text: "Your code runs only on this device, in a worker with no network and no access to the rest of the app." })
       ]),
@@ -1117,7 +1163,7 @@
         el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Storage used by Code" })]),
         el("ul", { class: "k-insp-list" }, [
           el("li", {}, [el("span", { text: "Unsaved drafts on this device" }), el("strong", { text: draftKB + " KB" })]),
-          el("li", {}, [el("span", { text: "Full runtime" }), el("strong", { text: "—" })])
+          el("li", {}, [el("span", { text: "Full runtime" }), runtimeStorage()])
         ]),
         el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "code.clear-drafts", text: "Clear drafts",
           onclick: function () { KOS.ui.confirm({ title: "Clear every draft?", body: "Unsaved code in tasks on this device goes back to each task's starter. Passed tasks and your progress are not affected.", danger: true, confirm: "Clear drafts" }, function () { ui.drafts = {}; KOS.store.save(); announce("Drafts cleared."); KOS.rerender(); }); } })
@@ -1166,6 +1212,7 @@
     if (page === "settings") return pageSettings(main);
     if (page === "track") return pageTrack(main, arg.id);
     if (page === "capstone" && KOS.codeCapstone) return KOS.codeCapstone.page(main, arg.id || "C1");
+    if (page === "project" && KOS.codeRider) return KOS.codeRider.page(main, arg.id || "rp-bridge-hello", arg);
     return pageMap(main);
   };
 })();

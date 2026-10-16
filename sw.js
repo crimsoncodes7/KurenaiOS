@@ -17,6 +17,11 @@
      development hosts stay network-first so an edited index.html shows.
    - CDN statics (Google fonts, jsdelivr): stale-while-revalidate in a
      runtime cache.
+   - THE FULL C# RUNTIME (assets/code/runtime/<id>/, Code units 7+): an
+     optional download the page asks for, CACHE-FIRST in its own cache,
+     kos-csharp-<id>. Its folder is versioned by the runner's id, so its
+     files never change in place; a deploy does not clear it (it is not a
+     VERSION cache) and the page prunes an older id's cache itself.
    - EVERYTHING ELSE — Supabase, AniList, VNDB, Open Library, Google Books,
      any non-GET — is NOT intercepted at all. Authenticated and personalised
      responses must never sit in Cache Storage.
@@ -29,7 +34,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-code-10";
+var VERSION = "kos-code-11";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
@@ -43,6 +48,9 @@ var EXTRA_PRECACHE = [
   "manifest.webmanifest",
   /* Code's in-app runner: a worker script, never a <script> tag (roadmap 5.3) */
   "js/labs/cs-interp.js",
+  "js/labs/cs-wasm-worker.js",
+  /* the Rider validator, zipped into every exported project (offline export) */
+  "assets/code/validator/validate.cs",
   "assets/brand/kurenai-bloom.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
@@ -105,7 +113,7 @@ self.addEventListener("activate", function (e) {
   e.waitUntil((async function () {
     var names = await caches.keys();
     await Promise.all(names.map(function (n) {
-      if (n.indexOf("kos-") === 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE) return caches.delete(n);
+      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE) return caches.delete(n);
       return null;
     }));
     await self.clients.claim();
@@ -170,6 +178,19 @@ self.addEventListener("fetch", function (e) {
     /* only known static CDNs are cached; APIs (Supabase/AniList/VNDB/books)
        and cover art pass straight through — never into Cache Storage */
     if (CDN_HOSTS.indexOf(url.hostname) !== -1) staleWhileRevalidate(e, RUNTIME_CACHE);
+    return;
+  }
+
+  var rt = /\/assets\/code\/runtime\/([^/]+)\//.exec(url.pathname);
+  if (rt) {
+    e.respondWith((async function () {
+      var cache = await caches.open("kos-csharp-" + rt[1]);
+      var hit = await cache.match(req);
+      if (hit) return hit;
+      var res = await fetch(req);
+      if (res && res.ok) cache.put(req, res.clone());
+      return res;
+    })());
     return;
   }
 

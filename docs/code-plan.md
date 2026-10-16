@@ -80,10 +80,10 @@ as **recommended later**, and it is still open.
 | Stage | Units | Strands | Checkpoint |
 |---|---|---|---|
 | **1 · Foundations** | **1** How programs run; values and types · **2** Decisions and loops · **3** Methods, scope and decomposition | L S | Capstone 1 (in-app): text adventure engine |
-| **2 · Working with data** | **4** Collections: arrays, `List<T>`, `Dictionary`, sets, queues, tuples · **5** Text: strings, parsing, formatting, culture, Unicode, regular expressions (intro), dates and times · **6** Errors, exceptions and a debugging method | L E | Capstone 2 (in-app): gradebook CLI |
-| **Bridge B · Your real toolkit** | about 6 lessons: Rider and its debugger · the `dotnet` CLI · solutions, projects, NuGet · Git and GitHub basics · reading documentation · **the Kurenai validation workflow** (§9) | E | A Rider "hello project" validated end to end |
+| **2 · Working with data** | **4** Collections: arrays, `List<T>`, `Dictionary`, sets, queues, tuples · **5** Text: strings, parsing, formatting, culture, Unicode, regular expressions (intro), dates and times · **6** Files (text and binary), errors, exceptions and a debugging method | L E | Capstone 2 (in-app): gradebook CLI |
+| **Bridge B · Your real toolkit** | 8 lessons: Rider and its debugger · the `dotnet` CLI · solutions, projects, NuGet · Git and GitHub basics · reading documentation · **the Kurenai validation workflow** (§9) | E | A Rider "hello project" validated end to end |
 | **3 · Object-oriented C#** | **7** Classes, properties and encapsulation, static members, namespaces and files, **nullable reference types** (and reading input correctly), enums and flags · **8** Inheritance, interfaces (and interface vs abstract class), polymorphism, records, value vs reference types (the stack and the heap), operator overloading (a vector type with the dot product), pattern matching, aggregation and composition · **9** Generics, delegates, lambdas, higher-order functions (map, filter, fold), extension methods, events, LINQ | L E | Capstone 3: a shop with plugins and LINQ reports, with **a console OR an Avalonia front end** over the same services (§3.3) |
-| **4 · Professional practice** | **10** Testing and clean code: xUnit, arrange-act-assert, TDD, test doubles, refactoring, SOLID · **11** I/O and async: streams, binary files and raw bytes, JSON, configuration, `async`/`await`, cancellation · **12** Data structures and algorithms in C#: Big O, bitwise operators, search, sort (bubble, insertion, merge, quick), recursion and stack frames, linked lists, stacks and queues, Reverse Polish notation, hash tables and collisions, trees and traversal, graphs (matrix and lists), Dijkstra and A* | L E S | Capstone 4 (Rider): a tested multi-project app with JSON storage, CI-verified |
+| **4 · Professional practice** | **10** Testing and clean code: xUnit, arrange-act-assert, TDD, test doubles, refactoring, SOLID · **11** I/O and async: streams, JSON, configuration, `async`/`await`, cancellation · **12** Data structures and algorithms in C#: Big O, bitwise operators, search, sort (bubble, insertion, merge, quick), recursion and stack frames, linked lists, stacks and queues, Reverse Polish notation, hash tables and collisions, trees and traversal, graphs (matrix and lists), Dijkstra and A* | L E S | Capstone 4 (Rider): a tested multi-project app with JSON storage, CI-verified |
 
 These "craft" threads run through every core unit rather than forming a track
 of their own:
@@ -705,6 +705,28 @@ setup recommends turning it on.
 | **G · GitHub** | App or PAT, the token Edge Function, atomic commits, conflicts | An end-to-end test repository: consent, batched commit, a Rider push in between, the conflict branch, the secret-scan block, offline replay | R3 |
 | **S · SQL sandbox** | SQLite in WebAssembly in a worker: size and offline | `JOIN`, `GROUP BY` and transactions in-app | T1 |
 | **H · Web sandbox** | A sandboxed iframe with no network (CSP) for HTML/CSS/JS | Isolation proven | T4 |
+
+**Verdicts (16 October 2026).**
+- **Spike W: unit 7 is the boundary.** Roslyn 5.0 and the program run in
+  .NET 10 WebAssembly (`tools/cs-wasm`), not trimmed away: every assembly a
+  program may use is rooted. About 30 MB raw and 11 MB compressed, downloaded
+  once and kept offline. Started from cache in about 4 s in Chrome
+  (0.5 s to boot and the rest the first compile); then about 0.1–0.3 s a run under Node and
+  under 1 s in the browser, compile included. 26 of 26 programs in units
+  7–12's language (classes, records, generics, LINQ, nullable, async, JSON,
+  binary files, exceptions) identical to native .NET
+  (`tools/cs_wasm_check.mjs`). Three findings: an untrimmed build does not
+  load in 10.0.10; writing a PDB blocks on a thread the runtime does not
+  have, so each statement is marked instead (lines, a step budget and a
+  clock); and setting `self.onmessage` in the worker stops .NET starting.
+  **Not measured yet: a phone** — the first test on a real phone is still
+  owed before units 7+ ship.
+- **Spike V: the validator is trustworthy on macOS.** A real build (SARIF),
+  real tests (TRX), scripted runs, a Git check and protected-file hashes,
+  run end to end on the Bridge project in four scenarios
+  (`tools/validator_check.mjs`); every rejection of §9.4 is covered by
+  smoke78 with the reports it wrote. **Windows and Linux still to be run**,
+  and the CI half (CI-verified) waits for the GitHub integration (R3).
 
 ### 12.2 The initial release: the core path, in four releases
 

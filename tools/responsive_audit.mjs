@@ -54,7 +54,7 @@ const VIEWS = String(flag("views",
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
   "governor,assistant,data,help," +
   "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year," +
-  "code-desk,code-lesson,code-map,code-task,code-retrieval,code-skills,code-settings,code-track,code-capstone")).split(",");
+  "code-desk,code-lesson,code-map,code-task,code-retrieval,code-skills,code-settings,code-track,code-capstone,code-bridge,code-project,code-project-setup")).split(",");
 /* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
    phone probe honest; profile.lastRef is mutable navigation history. */
 const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
@@ -63,7 +63,7 @@ const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
   /* Code (roadmap 5.3) */
   "code-desk": ["subject", '"code"'],
-  "code-lesson": ["ref", '{ subject: "code", ref: "5.9" }'],
+  "code-lesson": ["ref", '{ subject: "code", ref: "6.10" }'],
   "code-map": ["code", '{ page: "map" }'],
   "code-task": ["code", '{ page: "task", id: "6.2-average" }'],
   "code-retrieval": ["code", '{ page: "retrieval" }'],
@@ -71,6 +71,9 @@ const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
   "code-settings": ["code", '{ page: "settings" }'],
   "code-track": ["code", '{ page: "track", id: "T3" }'],
   "code-capstone": ["code", '{ page: "capstone", id: "C2" }'],
+  "code-bridge": ["ref", '{ subject: "code", ref: "B.8" }'],
+  "code-project": ["code", '{ page: "project", id: "rp-bridge-hello" }'],
+  "code-project-setup": ["code", '{ page: "project", id: "rp-bridge-hello", tab: "setup" }'],
   /* Reports (roadmap 5.1): the saved reports the preparation below wrote */
   "reports-week": ["reports", '{ period: "week", start: (window.__rp || {}).week }'],
   "reports-week-study": ["reports", '{ period: "week", start: (window.__rp || {}).week, section: "study" }'],

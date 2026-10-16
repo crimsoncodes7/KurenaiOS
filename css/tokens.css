@@ -437,6 +437,10 @@ color-scheme: dark;
 --cx-capwrite-h: 220px;
 --cx-rub-mark-w: 200px;      /* the rubric's Mark column: five marks */
 --cx-step-n: 26px;          /* a stepper number */
+--cx-rt-bar-h: 8px;          /* the full runtime's download bar (26g) */
+--cx-rt-ic: 44px;            /* its package mark */
+--cx-rp-n: 28px;             /* a Rider project's setup step number (26m) */
+--cx-rp-drop-h: 168px;       /* the report drop zone (26n) */
 
 /* ---------- Productivity (frames 10a–10g) ---------- */
 --fx-side-w: 340px;

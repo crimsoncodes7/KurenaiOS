@@ -124,7 +124,7 @@
         ["practice", "Practice", true, nPractice || null],
         ["cards", "Flashcards", true, mats.cards || null],
         ["quiz", "Quiz", true, mats.quiz || null],
-        ["tasks", "Tasks", true, tasks.length || null],
+        ["tasks", "Tasks", true, (tasks.length + KOS.code.projectMilestonesOf(ref).length) || null],
         ["files", "Files", true, null]
       ];
     };
@@ -247,7 +247,7 @@
         li("Practice right", ev.practice ? ev.practised + " / " + ev.practice : "", !ev.practice),
         li("Flashcards reviewed", t.cards ? t.reviewed + " / " + t.cards : "", !t.cards),
         li("Quiz best", qz && qz.best != null ? Math.round(qz.best) + "%" : "", !(qz && qz.best != null)),
-        li("Tasks passed", ts.length ? passed + " / " + ts.length : "", !ts.length)
+        li("Tasks passed", ev.tasks ? ev.passed + " / " + ev.tasks : "", !ev.tasks)
       ]));
       var plan = KOS.code.planDay();
       body.appendChild(sec("Next practice", [
@@ -567,7 +567,7 @@
     var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "Check",
       onclick: function () {
         check.disabled = true;
-        KOS.codeRun.run({ files: [{ name: "Program.cs", src: item.src }], stdin: item.stdin || "", fs: item.fs }).then(function (r) {
+        KOS.codeRun.run({ files: [{ name: "Program.cs", src: item.src }], stdin: item.stdin || "", fs: item.fs, lesson: ref }).then(function (r) {
           check.disabled = false;
           out.innerHTML = "";
           var real = r.ok ? KOS.codeRun.norm(r.stdout) : null;
@@ -603,7 +603,7 @@
         var src = parts.map(function (part, i) { return part + (i < inputs.length ? inputs[i].value : ""); }).join("");
         check.disabled = true;
         var cases = item.cases || [{ stdin: item.stdin || "", out: item.out }];
-        KOS.codeRun.check({ mode: "program", cases: cases, fs: item.fs }, [{ name: "Program.cs", src: src }]).then(function (c) {
+        KOS.codeRun.check({ mode: "program", cases: cases, fs: item.fs, lesson: ref }, [{ name: "Program.cs", src: src }]).then(function (c) {
           check.disabled = false;
           out.innerHTML = "";
           if (c.compile) { out.appendChild(KOS.codeUI.errorCard(c.compile)); announce("Compile error " + c.compile.code + "."); return; }
@@ -630,7 +630,7 @@
     card.appendChild(out);
     function go() {
       run.disabled = true; ed.running(true);
-      KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }], fs: item.fs }, ed.files()).then(function (c) {
+      KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }], fs: item.fs, lesson: ref }, ed.files()).then(function (c) {
         run.disabled = false; ed.running(false);
         out.innerHTML = "";
         if (c.compile) { ed.state("compile", "1 compile error"); ed.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); out.appendChild(KOS.codeUI.errorCard(c.compile)); return; }
@@ -648,6 +648,25 @@
   /* ================= Tasks ================= */
   var TIER = { "warm-up": "Warm-up", core: "Core", stretch: "Stretch" };
   function renderTasks(panel, ref, tasks) {
+    /* a Rider lesson's work: the milestones of its project, proven by a report */
+    var pms = KOS.code.projectMilestonesOf(ref);
+    if (pms.length) {
+      var byProj = {};
+      pms.forEach(function (x) { (byProj[x.project] = byProj[x.project] || []).push(x.id); });
+      Object.keys(byProj).forEach(function (pid) {
+        var v = KOS.code.projectView(pid);
+        panel.appendChild(el("ul", { class: "k-cx-tasks", "data-ui": "code.project-milestones" }, v.milestones.filter(function (m) { return byProj[pid].indexOf(m.id) >= 0; }).map(function (m) {
+          return el("li", { class: "k-cx-task", "data-state": m.passedAt ? "pass" : m.state === "failing" ? "tried" : null }, [
+            el("div", { class: "k-cx-task-txt" }, [el("b", { text: m.id.toUpperCase() + " · " + m.title }),
+              el("span", { class: "k-cx-task-meta" }, [el("span", { class: "k-cx-chip", text: "⌘ Rider" }), " " + v.spec.title])]),
+            el("span", { class: "k-cx-task-st", text: m.passedAt ? "✓ Passed · " + (m.level === "ci" ? "◆ CI-verified" : "◐ Self-run") : m.state === "failing" ? "✗ Failing in the last report" : "Not validated" }),
+            el("button", { type: "button", class: "k-btn k-btn--sm" + (m.passedAt ? "" : " k-btn--primary"), "data-ui": "code.project-open", text: "Open the project",
+              onclick: function () { KOS.show("code", { page: "project", id: pid }); } })
+          ]);
+        })));
+      });
+      if (!tasks.length) return;
+    }
     if (!tasks.length) {
       panel.appendChild(KOS.ui.emptyState({ compact: true, mark: "課", title: "No tasks on this lesson yet",
         body: "Tasks arrive with the lesson's unit. Each one is checked against hidden tests on this device." }));

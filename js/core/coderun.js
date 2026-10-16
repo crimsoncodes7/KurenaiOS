@@ -17,7 +17,19 @@
    card or task adds (no temporary variable, use a foreach …) are checked
    only once the output is right, so the learner hears one thing at a time.
 
-   Pure apart from the worker: no store, no rewards. KOS.code decides what
+   THE FULL RUNTIME (units 7+, decision A). A request whose lesson runs in
+   the "sandbox" (KOS.code.runnerFor) goes to .NET WebAssembly instead:
+   Roslyn and the real runtime in a module worker (js/labs/cs-wasm-worker.js)
+   that removes the network before any learner code runs. It is an optional
+   download (frame 26g), offered once and kept per device
+   (state.ui.code.runtime); the service worker keeps the files in their own
+   cache, kos-csharp-<id>, across deploys. The same protocol and the same
+   result shape; compiler warnings (nullable, from unit 7) ride along as
+   res.warnings. The program stops itself past its step or time budget; the
+   page's watchdog is the backstop, and after it fires the next run boots a
+   fresh runtime.
+
+   Pure apart from the workers: no store, no rewards. KOS.code decides what
    a pass is worth.                                                         */
 (function () {
   "use strict";
@@ -66,9 +78,99 @@
       error: { code: "RUNNER", kind: "internal", msg: "The in-app runner is getting ready.", line: 0 } };
   }
 
-  /* run(req) → Promise of the interpreter's result (see cs-interp.js) */
+  /* ---------------- the full runtime ---------------- */
+  var RUNTIME_ID = "csw-1.0";
+  var RUNTIME_DIR = "assets/code/runtime/" + RUNTIME_ID + "/";
+  var WASM_BOOT = 60000, WASM_WATCHDOG = 9000;
+  var rtw = null, rtSeq = 0, rtPending = {}, rtState = null, rtInfo = { loaded: 0, total: 0, ms: 0, warm: 0, size: null, error: null }, rtListeners = [];
+  function ui() { var u = KOS.store && KOS.store.state && KOS.store.state.ui; return u ? (u.code = u.code || {}) : {}; }
+  function rtEmit() { rtListeners.slice().forEach(function (f) { try { f(runtime()); } catch (e) { /* a listener's problem */ } }); }
+  function rtSet(st) { rtState = st; rtEmit(); }
+  /* absent · offline · downloading · ready · failed (and "file" where workers cannot run) */
+  function runtime() {
+    var st = rtState;
+    if (!st) st = !(typeof window.Worker === "function" && /^https?:$/.test(location.protocol)) ? "file"
+      : ui().runtime ? (navigator.onLine === false && !rtw ? "offline" : "idle") : "absent";
+    return { id: RUNTIME_ID, state: st, wanted: !!ui().runtime, loaded: rtInfo.loaded, total: rtInfo.total, ms: rtInfo.ms, warm: rtInfo.warm, size: rtInfo.size, error: rtInfo.error };
+  }
+  function rtKill() {
+    if (rtw) { try { rtw.terminate(); } catch (e) { /* gone */ } }
+    rtw = null;
+    Object.keys(rtPending).forEach(function (id) { var p = rtPending[id]; clearTimeout(p.t); delete rtPending[id]; p.res(p.dead()); });
+    if (rtState === "ready" || rtState === "downloading") rtState = null;
+  }
+  function rtMake() {
+    try {
+      var w = new window.Worker("js/labs/cs-wasm-worker.js?id=" + encodeURIComponent(RUNTIME_ID), { type: "module" });
+      w.onmessage = function (ev) {
+        var d = ev.data || {};
+        if (d.type === "progress") { rtInfo.loaded = d.loaded; rtInfo.total = d.total; rtEmit(); return; }
+        if (d.type === "ready") { rtInfo.ms = d.ms; rtInfo.warm = d.warm; rtInfo.error = null; rtSet("ready"); return; }
+        if (d.type === "failed") { rtInfo.error = d.msg; rtSet(navigator.onLine === false ? "offline" : "failed"); return; }
+        var p = rtPending[d.id];
+        if (!p) return;
+        clearTimeout(p.t); delete rtPending[d.id];
+        p.res(d.res);
+      };
+      w.onerror = function (e) { rtInfo.error = (e && e.message) || "the worker stopped"; rtKill(); rtSet(navigator.onLine === false ? "offline" : "failed"); };
+      return w;
+    } catch (e) { rtInfo.error = String(e && e.message || e); rtSet("failed"); return null; }
+  }
+  /* start (or reuse) the runtime; the first start is the download */
+  function rtStart() {
+    if (runtime().state === "file") return false;
+    ui().runtime = true;
+    if (KOS.store && KOS.store.save) KOS.store.save();
+    if (!rtw) { rtw = rtMake(); if (!rtw) return false; rtSet("downloading"); rtw.postMessage({}); }
+    return true;
+  }
+  function rtRun(req) {
+    var st = runtime().state;
+    if (st === "absent" || st === "file") return Promise.resolve(needsRuntime(st));
+    if (!rtStart()) return Promise.resolve(needsRuntime("failed"));
+    var id = ++rtSeq;
+    var ms = rtState === "ready" ? WASM_WATCHDOG : WASM_BOOT;
+    return new Promise(function (res) {
+      var dead = function () { return { ok: false, stdout: "", steps: 0, ms: ms,
+        error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (ms / 1000) + " seconds.", line: 0 } }; };
+      var t = setTimeout(function () { var p = rtPending[id]; if (!p) return; delete rtPending[id]; rtKill(); rtEmit(); res(dead()); }, ms);
+      rtPending[id] = { res: res, t: t, dead: dead };
+      rtw.postMessage({ id: id, req: req });
+    });
+  }
+  function needsRuntime(st) {
+    return { ok: false, stdout: "", steps: 0, ms: 0, error: { code: st === "file" ? "RUNTIME_FILE" : "RUNTIME", kind: "runtime", line: 0,
+      msg: st === "file" ? "The full C# runtime needs the app served over http(s), not opened as a file." : "This lesson runs on the full C# runtime, which is not on this device yet." } };
+  }
+  /* the download's size, from the runtime's own manifest */
+  function rtSize() {
+    if (rtInfo.size != null || !window.fetch) return Promise.resolve(rtInfo.size);
+    return window.fetch(RUNTIME_DIR + "kurenai-runtime.json").then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (m) { rtInfo.size = m ? { bytes: m.bytes, gzip: m.gzipBytes, files: m.files.length } : null; return rtInfo.size; })
+      .catch(function () { return null; });
+  }
+  /* remove it from this device: the worker, the cache, the wish */
+  function rtRemove() {
+    rtKill(); rtState = null; rtInfo.loaded = rtInfo.total = 0;
+    ui().runtime = false;
+    if (KOS.store && KOS.store.save) KOS.store.save();
+    var done = window.caches && window.caches.keys ? window.caches.keys().then(function (ks) {
+      return Promise.all(ks.filter(function (k) { return k.indexOf("kos-csharp-") === 0; }).map(function (k) { return window.caches.delete(k); }));
+    }) : Promise.resolve();
+    return done.then(function () { rtEmit(); });
+  }
+  /* an older runner's cache is never needed again */
+  function rtPrune() {
+    if (!window.caches || !window.caches.keys) return;
+    window.caches.keys().then(function (ks) { ks.forEach(function (k) { if (k.indexOf("kos-csharp-") === 0 && k !== "kos-csharp-" + RUNTIME_ID) window.caches.delete(k); }); }).catch(function () { /* no caches */ });
+  }
+
+  /* run(req) → Promise of the interpreter's result (see cs-interp.js);
+     req.runner "wasm", or req.lesson in a sandbox unit, uses the full runtime */
   function run(req) {
     req = Object.assign({ budget: 3e6, ms: 2500 }, req);
+    var which = req.runner || (req.lesson && KOS.code && KOS.code.runnerFor ? KOS.code.runnerFor(req.lesson) : "interp");
+    if (which === "wasm") return rtRun(Object.assign({}, req, { budget: 5e6, ms: 3000, nullable: req.nullable !== false }));
     if (canWork()) {
       if (!worker) worker = make();
       if (worker) {
@@ -117,11 +219,11 @@
       if (i >= cases.length) return Promise.resolve(out);
       var c = cases[i];
       var req = spec.mode === "method"
-        ? { files: files, mode: "method", call: { name: spec.method, args: c.args || [] }, stdin: c.stdin || "", fs: c.fs || spec.fs }
-        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs };
+        ? { files: files, mode: "method", call: { name: spec.method, args: c.args || [] }, stdin: c.stdin || "", fs: c.fs || spec.fs, lesson: spec.lesson, runner: spec.runner }
+        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs, lesson: spec.lesson, runner: spec.runner };
       return run(req).then(function (r) {
         out.ms += r.ms || 0;
-        if (!r.ok && r.error && (r.error.kind === "compile" || r.error.kind === "unsupported")) {
+        if (!r.ok && r.error && (r.error.kind === "compile" || r.error.kind === "unsupported" || r.error.kind === "runtime")) {
           out.compile = r.error;
           results.length = 0;
           out.pass = 0;
@@ -168,7 +270,8 @@
     var kind = err.kind === "compile" ? "Compile error"
       : err.kind === "exception" ? "Runtime exception"
       : err.kind === "timeout" ? "Did not finish"
-      : err.kind === "unsupported" ? "Beyond the in-app runner" : "Runner problem";
+      : err.kind === "unsupported" ? "Beyond the in-app runner"
+      : err.kind === "runtime" ? "Needs the full C# runtime" : "Runner problem";
     return { kind: kind, code: err.code, line: err.line || 0, msg: err.msg,
       plain: d ? d.plain : null, usually: d ? d.usually : null };
   }
@@ -181,7 +284,14 @@
     explain: explain,
     firstLine: firstLine,
     status: status,
-    /* tests: forget the worker so the next run starts a fresh one */
-    _reset: function () { kill(); broken = false; loading = null; }
+    RUNTIME_ID: RUNTIME_ID,
+    runtime: runtime,
+    startRuntime: rtStart,
+    runtimeSize: rtSize,
+    removeRuntime: rtRemove,
+    pruneRuntimes: rtPrune,
+    onRuntime: function (f) { rtListeners.push(f); return function () { rtListeners = rtListeners.filter(function (g) { return g !== f; }); }; },
+    /* tests: forget the workers so the next run starts fresh ones */
+    _reset: function () { kill(); broken = false; loading = null; rtKill(); rtState = null; }
   };
 })();

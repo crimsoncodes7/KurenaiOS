@@ -38,7 +38,7 @@
   const KW = new Set(("abstract as base bool break byte case catch char class const continue decimal default do double else enum " +
     "false finally float for foreach if in int interface internal is long namespace new null object out override params private " +
     "protected public readonly ref return sealed short static string struct switch this throw true try typeof uint ulong using " +
-    "virtual void while").split(" "));
+    "virtual void while sizeof").split(" "));
   const PRIM = new Set(["int", "long", "short", "byte", "uint", "ulong", "double", "float", "decimal", "bool", "char", "string", "object", "void"]);
   const OPS = ["??=", "..", "<=", ">=", "==", "!=", "&&", "||", "++", "--", "+=", "-=", "*=", "/=", "%=", "=>", "??", "?.",
     "+", "-", "*", "/", "%", "<", ">", "=", "!", "?", ":", ";", ",", ".", "(", ")", "{", "}", "[", "]", "&", "|", "^", "~"];
@@ -678,6 +678,7 @@
             case "base": return { k: "base", line };
             case "default": if (acc("(")) { const ty = needType(); expect(")"); return { k: "default", type: ty, line }; } return { k: "default", type: null, line };
             case "typeof": throw unsupported("typeof / reflection", line);
+            case "sizeof": { expect("("); const ty = needType(); expect(")"); if (!(ty.name in SIZEOF)) throw new CsError("CS0233", "'" + ty.name + "' does not have a predefined size, therefore sizeof can only be used in an unsafe context", line, "compile", file); return { k: "lit", v: SIZEOF[ty.name], line }; }
             case "throw": return { k: "throwexpr", e: unary(), line };
             case "new": {
               if (isOp("[")) { p++; expect("]"); const init = arrayInit(); return { k: "newarr", type: null, items: init.items, line }; }
@@ -936,6 +937,46 @@
     const ms = ((+(m[2] || 0) * 24 + +m[3]) * 60 + +m[4]) * 60000 + +(m[5] || 0) * 1000 + (m[6] ? +("0." + m[6]) * 1000 : 0);
     return new CsSpan(m[1] ? -ms : ms);
   }
+  // ───────────────────────── bytes and binary files (unit 6.10) ─────────────────────────
+  /* a byte is its own value so overloads can tell it from an int
+     (BinaryWriter.Write(byte) writes one byte, Write(int) four); arithmetic
+     on bytes gives an int, as in C# */
+  class B8 { constructor(v) { this.v = ((v % 256) + 256) % 256; } }
+  class CsEnc { constructor(name) { this.name = name; } }
+  /* a FileStream over the in-memory disk: its bytes reach the disk on
+     Flush, Close or Dispose (a stream never disposed leaves the file as it
+     was opened, as a buffered FileStream does when the program ends) */
+  class CsFile { constructor(path, data, canRead, canWrite, append) { this.path = path; this.data = data; this.pos = append ? data.length : 0; this.canRead = canRead; this.canWrite = canWrite; this.closed = false; this.start = append ? data.length : 0; } }
+  class CsBin { constructor(kind, s) { this.kind = kind; this.s = s; } }
+  class CsFileInfo { constructor(path) { this.path = path; } }
+  const utf8 = (s) => Array.from(new TextEncoder().encode(s));
+  const fromUtf8 = (b) => new TextDecoder("utf-8").decode(Uint8Array.from(b));
+  const byteList = (arr) => new CsList(Array.from(arr, (x) => new B8(x)), "System.Byte", true);
+  const bytesOf = (v) => v instanceof CsList ? v.items.map(nv) : [];
+  function encGet(enc, s) {
+    if (enc.name === "ASCII") return [...s].map((c) => { const k = c.codePointAt(0); return k < 128 ? k : 63; });
+    if (enc.name === "Unicode") { const out = []; for (let i = 0; i < s.length; i++) { const k = s.charCodeAt(i); out.push(k & 255, k >> 8); } return out; }
+    if (enc.name === "Latin1") return [...s].map((c) => { const k = c.codePointAt(0); return k < 256 ? k : 63; });
+    return utf8(s);
+  }
+  function encStr(enc, b) {
+    if (enc.name === "ASCII") return b.map((x) => x < 128 ? String.fromCharCode(x) : "?").join("");
+    if (enc.name === "Unicode") { let s = ""; for (let i = 0; i + 1 < b.length; i += 2) s += String.fromCharCode(b[i] | (b[i + 1] << 8)); return s; }
+    if (enc.name === "Latin1") return b.map((x) => String.fromCharCode(x)).join("");
+    return fromUtf8(b);
+  }
+  const hexOf = (b) => b.map((x) => x.toString(16).toUpperCase().padStart(2, "0"));
+  function numBytes(kind, x) {
+    const dv = new DataView(new ArrayBuffer(8));
+    if (kind === "double") { dv.setFloat64(0, x, true); return Array.from(new Uint8Array(dv.buffer)); }
+    if (kind === "long") { dv.setBigInt64(0, BigInt(Math.trunc(x)), true); return Array.from(new Uint8Array(dv.buffer)); }
+    dv.setInt32(0, x | 0, true); return Array.from(new Uint8Array(dv.buffer, 0, 4));
+  }
+  function bytesNum(kind, b, at) {
+    const dv = new DataView(Uint8Array.from(b.slice(at, at + (kind === "int" ? 4 : 8))).buffer);
+    return kind === "double" ? dv.getFloat64(0, true) : kind === "long" ? Number(dv.getBigInt64(0, true)) : dv.getInt32(0, true);
+  }
+  const SIZEOF = { byte: 1, sbyte: 1, bool: 1, char: 2, short: 2, ushort: 2, int: 4, uint: 4, float: 4, long: 8, ulong: 8, double: 8, decimal: 16 };
   class CsObj { constructor(cls) { this.cls = cls; this.f = new Map(); } }
   class CsEnum { constructor(type, name, value) { this.type = type; this.name = name; this.value = value; } }
   class CsFn { constructor(params, body, e, env, self, cls) { this.params = params; this.body = body; this.e = e; this.env = env; this.self = self; this.cls = cls; } }
@@ -947,12 +988,12 @@
   const BRK = { brk: true }, CONT = { cont: true };
   class Budget extends Error { constructor(kind) { super(kind); this.kind = kind; } }
 
-  const keyOf = (v) => v instanceof D ? "d" + v.v : v instanceof Ch ? "c" + v.c : v instanceof CsEnum ? "e" + v.type + v.value : typeof v === "string" ? "s" + v : typeof v === "number" ? "d" + v : typeof v === "boolean" ? "b" + v : v instanceof CsTuple ? "t" + v.items.map(keyOf).join("|") : v instanceof CsDate ? "D" + v.t : v instanceof CsSpan ? "T" + v.ms : v;
+  const keyOf = (v) => v instanceof B8 ? "d" + v.v : v instanceof D ? "d" + v.v : v instanceof Ch ? "c" + v.c : v instanceof CsEnum ? "e" + v.type + v.value : typeof v === "string" ? "s" + v : typeof v === "number" ? "d" + v : typeof v === "boolean" ? "b" + v : v instanceof CsTuple ? "t" + v.items.map(keyOf).join("|") : v instanceof CsDate ? "D" + v.t : v instanceof CsSpan ? "T" + v.ms : v;
 
   /* a Dictionary/HashSet made with StringComparer.OrdinalIgnoreCase keys
      strings by their lower case; a Sorted* collection lists in key order */
   const dkey = (o, v) => o.ci && typeof v === "string" ? "s" + v.toLowerCase() : keyOf(v);
-  const NETNAME = { int: "System.Int32", long: "System.Int64", string: "System.String", double: "System.Double", bool: "System.Boolean", char: "System.Char", decimal: "System.Decimal", float: "System.Single", object: "System.Object" };
+  const NETNAME = { int: "System.Int32", long: "System.Int64", string: "System.String", double: "System.Double", bool: "System.Boolean", char: "System.Char", decimal: "System.Decimal", float: "System.Single", object: "System.Object", byte: "System.Byte" };
   const netName = (ty) => !ty ? "System.Object" : NETNAME[ty.name] || ty.name;
 
   // ───────────────────────── formatting ─────────────────────────
@@ -983,7 +1024,7 @@
     if (v instanceof CsDate) return fmtDate(v, spec || null, cul);
     if (v instanceof CsSpan) return fmtSpan(v, spec || null, cul);
     if (spec == null || spec === "") return cul ? inCulture(str(v), cul) : str(v);
-    const num = v instanceof D ? v.v : typeof v === "number" ? v : v instanceof Ch ? null : null;
+    const num = v instanceof D ? v.v : typeof v === "number" ? v : v instanceof B8 ? v.v : null;
     if (num === null) return str(v);
     const m = /^([FfNnDdEePpXxGgCc])(\d*)$/.exec(spec);
     if (m) {
@@ -1025,6 +1066,7 @@
     if (v instanceof D) return fmtDouble(v.v);
     if (v instanceof Ch) return v.c;
     if (v instanceof CsEnum) return v.name;
+    if (v instanceof B8) return String(v.v);
     if (v instanceof CsDate) return fmtDate(v, null, null);
     if (v instanceof CsSpan) return fmtSpan(v, null);
     if (v instanceof CsTuple) return "(" + v.items.map(str).join(", ") + ")";
@@ -1032,6 +1074,10 @@
     if (v instanceof CsCulture) return v.name;
     if (v instanceof CsType) return v.full;
     if (v instanceof CsStream) return v.kind === "r" ? "System.IO.StreamReader" : "System.IO.StreamWriter";
+    if (v instanceof CsFile) return "System.IO.FileStream";
+    if (v instanceof CsBin) return v.kind === "w" ? "System.IO.BinaryWriter" : "System.IO.BinaryReader";
+    if (v instanceof CsFileInfo) return v.path;
+    if (v instanceof CsEnc) return "System.Text." + (v.name === "UTF8" ? "UTF8Encoding+UTF8EncodingSealed" : v.name === "Unicode" ? "UnicodeEncoding" : v.name + "Encoding");
     if (v instanceof CsRegex) return v.pattern;
     if (v instanceof CsKvp) return "[" + str(v.Key) + ", " + str(v.Value) + "]";
     if (v instanceof CsSB) return v.s;
@@ -1060,8 +1106,8 @@
   }
 
   // ───────────────────────── numbers ─────────────────────────
-  const isNum = (v) => typeof v === "number" || v instanceof D || v instanceof Ch;
-  const nv = (v) => v instanceof D ? v.v : v instanceof Ch ? v.c.charCodeAt(0) : v;
+  const isNum = (v) => typeof v === "number" || v instanceof D || v instanceof Ch || v instanceof B8;
+  const nv = (v) => v instanceof D ? v.v : v instanceof Ch ? v.c.charCodeAt(0) : v instanceof B8 ? v.v : v;
 
   // ───────────────────────── the interpreter ─────────────────────────
   const BUILTIN_TYPES = new Set(["Console", "Math", "int", "long", "double", "float", "decimal", "string", "String", "char", "bool", "object", "Convert", "List", "Dictionary",
@@ -1069,7 +1115,7 @@
     "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException", "IndexOutOfRangeException", "DivideByZeroException",
     "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "Assert", "Int32", "Double", "Char", "Boolean", "var",
     "Func", "Action", "Predicate", "KeyValuePair", "Tuple", "IEnumerable", "IList", "ICollection", "IDictionary", "IComparable", "Comparer", "StringComparer",
-    "StringComparison", "Thread", "Fact", "Theory", "InlineData", "System", "nameof", "_", "Linq", "Collections", "Generic", "Text", "value", "MidpointRounding", "DateTime", "TimeSpan", "DateOnly", "TimeOnly", "DayOfWeek", "DateTimeStyles", "DateTimeKind"]);
+    "StringComparison", "Thread", "Fact", "Theory", "InlineData", "System", "nameof", "_", "Linq", "Collections", "Generic", "Text", "value", "MidpointRounding", "DateTime", "TimeSpan", "DateOnly", "TimeOnly", "DayOfWeek", "DateTimeStyles", "DateTimeKind", "Encoding", "BitConverter", "FileMode", "FileAccess", "FileInfo", "FileStream", "BinaryWriter", "BinaryReader", "Stream", "SeekOrigin", "byte", "Byte"]);
   const EXC = ["Exception", "SystemException", "ArgumentException", "RegexParseException", "CultureNotFoundException", "IOException", "FileNotFoundException", "DirectoryNotFoundException", "ObjectDisposedException", "EndOfStreamException", "UnauthorizedAccessException", "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException",
     "IndexOutOfRangeException", "DivideByZeroException", "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "InvalidCastException", "AssertFailedException"];
   const EXC_BASE = { Exception: null, SystemException: "Exception", ArgumentException: "SystemException", RegexParseException: "ArgumentException", CultureNotFoundException: "ArgumentException",
@@ -1089,8 +1135,10 @@
     const globalFns = new Map();
     let rnd = null;
     /* the in-memory file system: path → text, seeded by the request */
-    const fs = new Map(Object.entries(opts.fs || {}));
-    this.fsOut = () => { const o = {}; for (const [k, v] of fs) o[k] = v; return o; };
+    const fs = new Map(Object.entries(opts.fs || {}).map(([k, v]) => [k, v && typeof v === "object" && typeof v.hex === "string" ? Uint8Array.from((v.hex.match(/../g) || []).map((h) => parseInt(h, 16))) : v]));
+    /* the disk after the run: a file of bytes reads back as text when it is
+       text (no NUL, valid UTF-8), otherwise as {hex} — the full runtime's rule */
+    this.fsOut = () => { const o = {}; for (const [k, v] of fs) { if (!(v instanceof Uint8Array)) { o[k] = v; continue; } let t = null; if (v.indexOf(0) < 0) { try { t = new TextDecoder("utf-8", { fatal: true }).decode(v); } catch (e) { t = null; } } o[k] = t !== null ? t : { hex: hexOf(Array.from(v)).join("") }; } return o; };
 
     function tick() { if (++steps > MAX_STEPS || ((steps & 8191) === 0 && Date.now() > DEADLINE)) throw new Budget("timeout"); }
     function write(s) { out += s; if (out.length > MAX_OUT) throw new Budget("output"); }
@@ -1177,14 +1225,18 @@
       if (n === "double" || n === "float") { if (typeof v === "number") return new D(v); if (v instanceof Ch) return new D(nv(v)); if (v instanceof D && v.m) return new D(v.v); return v; }
       if ((v instanceof CsDate || v instanceof CsSpan) && ["int", "long", "double", "decimal", "string", "bool"].includes(n)) throw new CsError("CS0029", "Cannot implicitly convert type 'System." + typeName(v) + "' to '" + n + "'", line, "compile");
       if ((n === "DateTime" || n === "TimeSpan" || n === "DateOnly") && v !== null && !(v instanceof CsDate || v instanceof CsSpan)) throw new CsError("CS0029", "Cannot implicitly convert type '" + typeName(v) + "' to 'System." + n + "'", line, "compile");
-      if (n === "int" || n === "long" || n === "short" || n === "byte") { if (v instanceof Ch) return nv(v); if (v instanceof D) throw new CsError("CS0266", "Cannot implicitly convert type 'double' to '" + n + "'. An explicit conversion exists (are you missing a cast?)", line, "compile"); return v; }
+      if (n === "byte") { if (v instanceof B8) return v; if (typeof v === "number") return new B8(v); if (v instanceof D) throw new CsError("CS0266", "Cannot implicitly convert type 'double' to 'byte'. An explicit conversion exists (are you missing a cast?)", line, "compile"); return v; }
+      if (v instanceof B8 && (n === "int" || n === "long" || n === "short")) return v.v;
+      if (v instanceof B8 && (n === "double" || n === "float")) return new D(v.v);
+      if (n === "int" || n === "long" || n === "short") { if (v instanceof Ch) return nv(v); if (v instanceof D) throw new CsError("CS0266", "Cannot implicitly convert type 'double' to '" + n + "'. An explicit conversion exists (are you missing a cast?)", line, "compile"); return v; }
       if (n === "tuple" && v instanceof CsTuple && ty.names && ty.names.some(Boolean)) return new CsTuple(v.items.map((x, i) => coerce(x, ty.args[i], line)), ty.names);
       return v;
     }
     function defaultOf(ty) {
       if (!ty) return null;
       if (ty.arr || ty.nullable) return null;
-      switch (ty.name) { case "int": case "long": case "short": case "byte": return 0; case "double": case "float": case "decimal": return new D(0); case "bool": return false; case "char": return new Ch("\0"); }
+      if (ty.name === "byte") return new B8(0);
+      switch (ty.name) { case "int": case "long": case "short": return 0; case "double": case "float": case "decimal": return new D(0); case "bool": return false; case "char": return new Ch("\0"); }
       if (ty.name === "DateTime" || ty.name === "DateOnly") return new CsDate(DT_MIN, ty.name === "DateOnly" ? "date" : null);
       if (ty.name === "TimeSpan") return new CsSpan(0);
       if (enums.has(ty.name)) { const e = enums.get(ty.name); return new CsEnum(e.name, e.members[0] ? e.members[0].name : "0", 0); }
@@ -1384,11 +1436,19 @@
       if (o instanceof CsGroup) { if (name === "Key") return o.Key; if (name === "Count") return o.items.length; }
       if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); if (m && +m[1] > o.items.length) throw new CsError("CS1061", "'(…)' does not contain a definition for '" + name + "'", line, "compile"); if (m) return o.items[+m[1] - 1]; if (o.names) { const i = o.names.indexOf(name); if (i >= 0) return o.items[i]; } }
       if (o instanceof CsDate || o instanceof CsSpan) { const r = dateMember(o, name, line); if (r !== NOPE) return r; }
+      if (o instanceof CsFile) { if (o.closed && (name === "Length" || name === "Position")) throw exc("ObjectDisposedException", "Cannot access a closed file.", line);
+        if (name === "Length") return o.data.length; if (name === "Position") return o.pos; if (name === "CanRead") return o.canRead; if (name === "CanWrite") return o.canWrite; if (name === "CanSeek") return true; if (name === "Name") return o.path; }
+      if (o instanceof CsBin && name === "BaseStream") return o.s;
+      if (o instanceof CsFileInfo) { const has = fs.has(o.path);
+        if (name === "Exists") return has; if (name === "Name") return o.path.split("/").pop(); if (name === "Extension") { const m = /\.[^./]*$/.exec(o.path); return m ? m[0] : ""; } if (name === "FullName") return "/" + o.path;
+        if (name === "Length") { if (!has) { const e = exc("FileNotFoundException", "Could not find file '" + o.path + "'.", line); e.obj.f.set("FileName", o.path); throw e; } const v = fs.get(o.path); return v instanceof Uint8Array ? v.length : utf8(v).length; } }
+      if (o instanceof CsEnc && name === "EncodingName") return { UTF8: "Unicode (UTF-8)", ASCII: "US-ASCII", Unicode: "Unicode", Latin1: "Western European (ISO)" }[o.name];
       throw new CsError("CS1061", "'" + typeName(o) + "' does not contain a definition for '" + name + "'", line, "compile");
     }
     function setMember(o, name, v, line, ctx) {
       if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
       if (o instanceof CsTuple) { const m = /^Item(\d)$/.exec(name); const i = m ? +m[1] - 1 : o.names ? o.names.indexOf(name) : -1; if (i >= 0 && i < o.items.length) { o.items[i] = v; return; } }
+      if (o instanceof CsFile && name === "Position") { const k = nv(v); if (k < 0) throw exc("ArgumentOutOfRangeException", "Non-negative number required. (Parameter 'value')", line); o.pos = k; return; }
       if (o instanceof CsSB && name === "Length") { const n = nv(v); if (n < 0) throw exc("ArgumentOutOfRangeException", "Length cannot be less than zero. (Parameter 'value')", line); o.s = n <= o.s.length ? o.s.slice(0, n) : o.s + "\0".repeat(n - o.s.length); return; }
       if (o instanceof CsObj) {
         const pr = findProp(o.cls, name);
@@ -1433,6 +1493,7 @@
       if (typeof v === "number") return "int"; if (typeof v === "string") return "string"; if (typeof v === "boolean") return "bool";
       if (v instanceof D) return "double"; if (v instanceof Ch) return "char"; if (v instanceof CsList) return v.arr ? "array" : "List<T>";
       if (v instanceof CsDict) return "Dictionary<TKey, TValue>"; if (v instanceof CsObj) return v.cls.name; if (v instanceof CsEnum) return v.type;
+      if (v instanceof B8) return "byte"; if (v instanceof CsFile) return "FileStream"; if (v instanceof CsBin) return v.kind === "w" ? "BinaryWriter" : "BinaryReader";
       if (v instanceof CsTuple) return "tuple"; if (v instanceof CsDate) return v.only === "date" ? "DateOnly" : v.only === "time" ? "TimeOnly" : "DateTime"; if (v instanceof CsSpan) return "TimeSpan"; return "object";
     }
 
@@ -1568,6 +1629,8 @@
     function dispose(r, line) {
       if (r === null || r === undefined) return;
       if (r instanceof CsStream) { streamMethod(r, "Dispose", [], line); return; }
+      if (r instanceof CsFile) { fileMethod(r, "Dispose", [], line); return; }
+      if (r instanceof CsBin) { binMethod(r, "Dispose", [], line); return; }
       if (r instanceof CsObj) { const m = findMethod(r.cls, "Dispose", 0, []); if (m) invoke(m.m, m.owner, r, [], line); }
     }
     /* ---- files: an in-memory disk the program reads and writes ---- */
@@ -1579,26 +1642,38 @@
     }
     function fsRead(p0, line) {
       const k = fsKey(p0, line);
+      checkFree(k, false, line);
       if (!fs.has(k)) {
         const dir = k.includes("/") ? k.slice(0, k.lastIndexOf("/")) : null;
         if (dir && ![...fs.keys()].some((x) => x.startsWith(dir + "/"))) throw exc("DirectoryNotFoundException", "Could not find a part of the path '" + k + "'.", line);
         const e = exc("FileNotFoundException", "Could not find file '" + k + "'.", line); e.obj.f.set("FileName", k); throw e;
       }
-      return fs.get(k);
+      const v = fs.get(k);
+      return v instanceof Uint8Array ? new TextDecoder("utf-8").decode(v).replace(/^\uFEFF/, "") : v;
     }
+    /* a file's bytes (text files are stored as text: their UTF-8) */
+    function fsBytes(p0, line) { const t = fs.has(fsKey(p0, line)) ? fs.get(fsKey(p0, line)) : fsRead(p0, line); return t instanceof Uint8Array ? Array.from(t) : utf8(t); }
     function fsWrite(p0, text, append, line) {
       const k = fsKey(p0, line);
+      checkFree(k, false, line);
       const dir = k.includes("/") ? k.slice(0, k.lastIndexOf("/")) : null;
       if (dir && !fs.has(dir + "/") && ![...fs.keys()].some((x) => x.startsWith(dir + "/"))) throw exc("DirectoryNotFoundException", "Could not find a part of the path '" + k + "'.", line);
-      fs.set(k, (append && fs.has(k) ? fs.get(k) : "") + text);
+      const was = append && fs.has(k) ? fs.get(k) : "";
+      fs.set(k, (was instanceof Uint8Array ? new TextDecoder("utf-8").decode(was) : was) + text);
     }
     function splitLines(t) { const ls = t.split(/\r?\n/); if (ls.length && ls[ls.length - 1] === "") ls.pop(); return ls; }
     function linesOf(v, line) { if (v instanceof CsList || v instanceof CsSet || v instanceof CsQueue) return enumerate(v, line).map(str); throw new CsError("CS1503", "Argument 2: cannot convert to 'IEnumerable<string>'", line, "compile"); }
     function fileCall(n, a, line) {
-      const ARGS = { Exists: [1], ReadAllText: [1, 2], ReadAllLines: [1, 2], ReadLines: [1, 2], WriteAllText: [2, 3], AppendAllText: [2, 3], WriteAllLines: [2, 3], AppendAllLines: [2, 3], Delete: [1], Copy: [2, 3], Move: [2, 3] };
+      const ARGS = { WriteAllBytes: [2], ReadAllBytes: [1], Create: [1], OpenRead: [1], OpenWrite: [1], Open: [2, 3], Exists: [1], ReadAllText: [1, 2], ReadAllLines: [1, 2], ReadLines: [1, 2], WriteAllText: [2, 3], AppendAllText: [2, 3], WriteAllLines: [2, 3], AppendAllLines: [2, 3], Delete: [1], Copy: [2, 3], Move: [2, 3] };
       if (ARGS[n] && !ARGS[n].includes(a.length)) throw new CsError("CS1501", "No overload for method '" + n + "' takes " + a.length + " arguments", line, "compile");
       switch (n) {
         case "Exists": return a[0] != null && fs.has(fsKey(a[0], line));
+        case "WriteAllBytes": { const k = fsKey(a[0], line); fsWrite(k, "", false, line); fs.set(k, Uint8Array.from(bytesOf(a[1]))); return; }
+        case "ReadAllBytes": return byteList(fsBytes(a[0], line));
+        case "Create": return openFile(a[0], "Create", line);
+        case "OpenRead": return openFile(a[0], "Open", line, "Read", true);
+        case "OpenWrite": return openFile(a[0], "OpenOrCreate", line, "Write");
+        case "Open": return openFile(a[0], str(a[1]), line, a[2] ? str(a[2]) : null);
         case "ReadAllText": return fsRead(a[0], line);
         case "ReadAllLines": return new CsList(splitLines(fsRead(a[0], line)), "System.String", true);
         case "ReadLines": { const l = new CsList(splitLines(fsRead(a[0], line)), "System.String"); l.seq = true; return l; }
@@ -1621,9 +1696,94 @@
         case "Write": closed(); o.buf += a.length > 1 ? composite(a[0], a.slice(1), line) : str(a[0]); return;
         case "WriteLine": closed(); o.buf += (a.length > 1 ? composite(a[0], a.slice(1), line) : a.length ? str(a[0]) : "") + "\n"; return;
         case "Flush": closed(); if (o.kind === "w") { fs.set(o.path, fs.get(o.path) + o.buf); o.buf = ""; } return;
-        case "Dispose": case "Close": if (!o.closed && o.kind === "w") { fs.set(o.path, fs.get(o.path) + o.buf); o.buf = ""; } o.closed = true; return;
+        case "Dispose": case "Close": if (!o.closed && o.kind === "w") { fs.set(o.path, fs.get(o.path) + o.buf); o.buf = ""; } if (!o.closed) release(o.path, false); o.closed = true; return;
       }
       throw new CsError("CS1061", "'" + (o.kind === "r" ? "StreamReader" : "StreamWriter") + "' does not contain a definition for '" + n + "'", line, "compile");
+    }
+    /* FileMode: Create (new or emptied) · CreateNew · Open · OpenOrCreate · Truncate · Append */
+    /* open handles, as .NET keeps them on macOS and Linux: FileShare.None
+       (File.Create, File.Open, File.OpenWrite) locks a file alone; every
+       other open (File.OpenRead, a StreamReader or StreamWriter, the
+       whole-file methods) shares it. Two opens clash when either is alone. */
+    const handles = new Map();
+    function busy(k, line) { return exc("IOException", "The process cannot access the file '" + k + "' because it is being used by another process.", line); }
+    function checkFree(k, alone, line) { const h = handles.get(k); if (h && (h.x || (alone && h.s))) throw busy(k, line); }
+    function hold(k, alone) { const h = handles.get(k) || { s: 0, x: 0 }; if (alone) h.x++; else h.s++; handles.set(k, h); }
+    function release(k, alone) { const h = handles.get(k); if (!h) return; if (alone) h.x--; else h.s--; if (!h.s && !h.x) handles.delete(k); }
+    function openFile(p0, mode, line, access, shared) {
+      const k = fsKey(p0, line), has = fs.has(k);
+      const alone = !shared;
+      checkFree(k, alone, line);
+      if ((mode === "Open" || mode === "Truncate") && !has) fsRead(p0, line);
+      if (mode === "CreateNew" && has) throw exc("IOException", "The file '" + k + "' already exists.", line);
+      const fresh = mode === "Create" || mode === "CreateNew" || mode === "Truncate" || !has;
+      if (fresh) { fsWrite(k, "", false, line); fs.set(k, new Uint8Array(0)); }
+      const data = fresh ? [] : fsBytes(k, line);
+      const canWrite = access ? access !== "Read" : mode !== "Open" || access === "ReadWrite" ? true : true;
+      const f = new CsFile(k, data, mode !== "Append" && access !== "Write", mode === "Open" && !access ? true : canWrite, mode === "Append");
+      f.alone = alone;
+      hold(k, alone);
+      return f;
+    }
+    function commit(f) { if (f.canWrite) fs.set(f.path, Uint8Array.from(f.data)); }
+    function eos(line) { return exc("EndOfStreamException", "Unable to read beyond the end of the stream.", line); }
+    function take(f, n, line, exact) {
+      if (f.closed) throw exc("ObjectDisposedException", "Cannot access a closed file.", line);
+      if (exact && f.pos + n > f.data.length) { f.pos = f.data.length; throw eos(line); }
+      const b = f.data.slice(f.pos, f.pos + n); f.pos += b.length; return b;
+    }
+    function put(f, b, line) {
+      if (f.closed) throw exc("ObjectDisposedException", "Cannot access a closed file.", line);
+      if (!f.canWrite) throw exc("NotSupportedException", "Stream does not support writing.", line);
+      for (let i = 0; i < b.length; i++) f.data[f.pos + i] = b[i];
+      f.pos += b.length;
+    }
+    function fileMethod(f, n, a, line) {
+      switch (n) {
+        case "ReadByte": if (f.closed) throw exc("ObjectDisposedException", "Cannot access a closed file.", line); return f.pos < f.data.length ? f.data[f.pos++] : -1;
+        case "WriteByte": put(f, [nv(a[0]) & 255], line); return;
+        case "Read": { const buf = a[0], off = a.length > 1 ? nv(a[1]) : 0, cnt = a.length > 2 ? nv(a[2]) : buf.items.length; const b = take(f, cnt, line); b.forEach((x, i) => { buf.items[off + i] = new B8(x); }); return b.length; }
+        case "Write": { const buf = a[0], off = a.length > 1 ? nv(a[1]) : 0, cnt = a.length > 2 ? nv(a[2]) : buf.items.length; put(f, bytesOf(buf).slice(off, off + cnt), line); return; }
+        case "Seek": { const o = nv(a[0]), from = str(a[1]); f.pos = (from === "End" ? f.data.length : from === "Current" ? f.pos : 0) + o; return f.pos; }
+        case "SetLength": f.data.length = nv(a[0]); return;
+        case "Flush": commit(f); return;
+        case "Dispose": case "Close": if (!f.closed) { commit(f); release(f.path, f.alone); } f.closed = true; return;
+      }
+      throw new CsError("CS1061", "'FileStream' does not contain a definition for '" + n + "'", line, "compile");
+    }
+    /* BinaryWriter.Write by the value's own type, as the overloads choose */
+    function binWrite(f, v, line) {
+      if (v instanceof B8) return put(f, [v.v], line);
+      if (typeof v === "boolean") return put(f, [v ? 1 : 0], line);
+      if (typeof v === "number") return put(f, numBytes(v > 2147483647 || v < -2147483648 ? "long" : "int", v), line);
+      if (v instanceof D) { if (v.m) throw unsupported("BinaryWriter.Write(decimal)", line); return put(f, numBytes("double", v.v), line); }
+      if (v instanceof Ch) return put(f, utf8(v.c), line);
+      if (typeof v === "string") { const b = utf8(v); let n = b.length; const len = []; do { let x = n & 127; n >>>= 7; if (n) x |= 128; len.push(x); } while (n); return put(f, len.concat(b), line); }
+      if (v instanceof CsList && v.tname === "System.Byte") return put(f, bytesOf(v), line);
+      if (v === null) throw exc("ArgumentNullException", "Value cannot be null. (Parameter 'value')", line);
+      throw new CsError("CS1503", "Argument 1: cannot convert from '" + typeName(v) + "' to 'bool'", line, "compile");
+    }
+    function binMethod(o, n, a, line) {
+      const f = o.s;
+      if (o.kind === "w") switch (n) {
+        case "Write": if (a.length === 3 && a[0] instanceof CsList) return put(f, bytesOf(a[0]).slice(nv(a[1]), nv(a[1]) + nv(a[2])), line); return binWrite(f, a[0], line);
+        case "Flush": commit(f); return;
+        case "Dispose": case "Close": return fileMethod(f, "Dispose", [], line);
+        case "Seek": return fileMethod(f, "Seek", a, line);
+      }
+      else switch (n) {
+        case "ReadByte": return new B8(take(f, 1, line, true)[0]);
+        case "ReadBytes": return byteList(take(f, nv(a[0]), line));
+        case "ReadBoolean": return take(f, 1, line, true)[0] !== 0;
+        case "ReadInt32": return bytesNum("int", take(f, 4, line, true), 0);
+        case "ReadInt64": return bytesNum("long", take(f, 8, line, true), 0);
+        case "ReadDouble": return new D(bytesNum("double", take(f, 8, line, true), 0));
+        case "ReadChar": { const b0 = take(f, 1, line, true)[0]; const extra = b0 >= 0xF0 ? 3 : b0 >= 0xE0 ? 2 : b0 >= 0xC0 ? 1 : 0; return new Ch(fromUtf8([b0].concat(take(f, extra, line, true)))); }
+        case "ReadString": { let n2 = 0, sh = 0, b; do { b = take(f, 1, line, true)[0]; n2 |= (b & 127) << sh; sh += 7; } while (b & 128); return fromUtf8(take(f, n2, line, true)); }
+        case "PeekChar": return f.pos < f.data.length ? f.data[f.pos] : -1;
+        case "Dispose": case "Close": return fileMethod(f, "Dispose", [], line);
+      }
+      throw new CsError("CS1061", "'" + (o.kind === "w" ? "BinaryWriter" : "BinaryReader") + "' does not contain a definition for '" + n + "'", line, "compile");
     }
     function truthy(v, line) {
       if (typeof v !== "boolean") throw new CsError("CS0029", "Cannot implicitly convert type '" + typeName(v) + "' to 'bool'", line, "compile");
@@ -1647,7 +1807,7 @@
     function isType(v, t) {
       t = t.replace(/^System\./, "");
       if (v === null || v === undefined) return false;
-      switch (t) { case "int": case "long": return typeof v === "number"; case "double": case "decimal": case "float": return v instanceof D; case "string": return typeof v === "string"; case "bool": return typeof v === "boolean"; case "char": return v instanceof Ch; case "object": return true; }
+      switch (t) { case "byte": case "Byte": return v instanceof B8; case "int": case "long": return typeof v === "number"; case "double": case "decimal": case "float": return v instanceof D; case "string": return typeof v === "string"; case "bool": return typeof v === "boolean"; case "char": return v instanceof Ch; case "object": return true; }
       if (v instanceof CsObj) return isA(v.cls, t);
       if (v instanceof CsEnum) return v.type === t;
       return false;
@@ -1786,7 +1946,7 @@
           if (o instanceof CsSB) { const k = nv(i); if (k < 0 || k >= o.s.length) throw exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); o.s = o.s.slice(0, k) + str(v) + o.s.slice(k + 1); return v; }
           if (o instanceof CsList && (target.i2 || o.dims)) { o.items[gridIndex(o, [i].concat((target.i2 || []).map((x) => evalE(x, ctx))), line)] = v; return v; }
           if (o instanceof CsList && o.seq) throw new CsError("CS0021", "Cannot apply indexing with [] to an IEnumerable<T>. Call .ToList() first, or use .ElementAt(i)", e.line, "compile");
-          if (o instanceof CsList) { const k = nv(i); if (k < 0 || k >= o.items.length || !Number.isInteger(k)) throw o.arr ? exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line) : exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); o.items[k] = v; return v; }
+          if (o instanceof CsList) { const k = nv(i); if (k < 0 || k >= o.items.length || !Number.isInteger(k)) throw o.arr ? exc("IndexOutOfRangeException", "Index was outside the bounds of the array.", line) : exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')", line); if (o.tname === "System.Byte" && typeof v === "number") v = new B8(v); o.items[k] = v; return v; }
           if (o instanceof CsDict) { const k = dkey(o, i); const had = o.map.get(k); o.map.set(k, [had ? had[0] : i, v]); return v; }
           if (typeof o === "string") throw new CsError("CS0200", "Property or indexer 'string.this[int]' cannot be assigned to -- it is read only (strings are immutable)", line, "compile");
           if (o === null) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
@@ -1963,7 +2123,8 @@
       if (v === null) { if (["int", "double", "char", "bool", "long"].includes(n)) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line); return null; }
       if (ty.arr) { if (v instanceof CsList && v.arr) return v; throw exc("InvalidCastException", "Unable to cast object of type '" + typeName(v) + "' to type '" + n + "[]'.", line); }
       switch (n) {
-        case "int": case "long": case "short": case "byte": if (v instanceof D) { if (!isFinite(v.v)) return -2147483648; return Math.trunc(v.v); } if (v instanceof Ch) return nv(v); if (v instanceof CsEnum) return v.value; if (typeof v === "number") return v; break;
+        case "byte": if (isNum(v)) { const x = v instanceof D ? Math.trunc(v.v) : nv(v); if (CHECKED && (x < 0 || x > 255)) throw exc("OverflowException", "Arithmetic operation resulted in an overflow.", line); return new B8(x); } break;
+        case "int": case "long": case "short": if (v instanceof B8) return v.v; if (v instanceof D) { if (!isFinite(v.v)) return -2147483648; return Math.trunc(v.v); } if (v instanceof Ch) return nv(v); if (v instanceof CsEnum) return v.value; if (typeof v === "number") return v; break;
         case "double": case "float": case "decimal": if (isNum(v)) return new D(nv(v)); break;
         case "char": if (isNum(v)) return new Ch(String.fromCharCode(nv(v))); break;
         case "string": if (typeof v === "string") return v; break;
@@ -2012,8 +2173,16 @@
         }
         case "CultureInfo": if (!(str(args[0]) in CULTURES)) throw exc("CultureNotFoundException", "Only the cultures en-GB, en-US, de-DE and fr-FR are available in the in-app runner.", e.line); return new CsCulture(str(args[0]));
         case "Regex": jsRegex(args[0], args[1], e.line); return new CsRegex(str(args[0]), args[1] || "");
-        case "StreamReader": return new CsStream("r", fsKey(args[0], e.line), fsRead(args[0], e.line));
-        case "StreamWriter": { const k = fsKey(args[0], e.line); fsWrite(k, "", args[1] === true, e.line); return new CsStream("w", k); }
+        case "StreamReader": { const sr = new CsStream("r", fsKey(args[0], e.line), fsRead(args[0], e.line)); hold(sr.path, false); return sr; }
+        case "FileStream": return openFile(args[0], str(args[1]), e.line, args[2] ? str(args[2]) : null, true);
+        case "FileInfo": return new CsFileInfo(fsKey(args[0], e.line));
+        case "BinaryWriter": case "BinaryReader": {
+          if (!(args[0] instanceof CsFile)) throw new CsError("CS1503", "Argument 1: cannot convert from '" + typeName(args[0]) + "' to 'System.IO.Stream'", e.line, "compile");
+          if (n === "BinaryWriter" && !args[0].canWrite) throw exc("ArgumentException", "Stream was not writable.", e.line);
+          if (n === "BinaryReader" && !args[0].canRead) throw exc("ArgumentException", "Stream was not readable.", e.line);
+          return new CsBin(n === "BinaryWriter" ? "w" : "r", args[0]);
+        }
+        case "StreamWriter": { const k = fsKey(args[0], e.line); fsWrite(k, "", args[1] === true, e.line); hold(k, false); return new CsStream("w", k); }
         default: {
           const c = classes.get(n);
           if (!c) throw new CsError("CS0246", "The type or namespace name '" + n + "' could not be found (are you missing a using directive or an assembly reference?)", e.line, "compile");
@@ -2048,6 +2217,11 @@
       if (tn === "RegexOptions" || tn === "NumberStyles" || tn === "DateTimeStyles") return n;
       if (tn === "DateTime") { if (n === "MinValue") return new CsDate(DT_MIN); if (n === "MaxValue") return new CsDate(DT_MAX); const now = Date.now() - new Date().getTimezoneOffset() * 60000; if (n === "Now") return new CsDate(now); if (n === "Today") return new CsDate(now - now % DAY_MS); if (n === "UtcNow") return new CsDate(Date.now()); }
       if (tn === "TimeSpan") { if (n === "Zero") return new CsSpan(0); if (n === "MaxValue") return new CsSpan(922337203685477.5807); }
+      if (tn === "Encoding" && ["UTF8", "ASCII", "Unicode", "Latin1"].includes(n)) return new CsEnc(n);
+      if (tn === "FileMode" || tn === "FileAccess" || tn === "SeekOrigin") return n;
+      if (tn === "BitConverter" && n === "IsLittleEndian") return true;
+      if ((tn === "byte" || tn === "Byte") && n === "MaxValue") return new B8(255);
+      if ((tn === "byte" || tn === "Byte") && n === "MinValue") return new B8(0);
       if (tn === "DayOfWeek" && DOW.includes(n)) return new CsEnum("DayOfWeek", n, DOW.indexOf(n));
       if (tn === "DateTimeKind") return new CsEnum("DateTimeKind", n, ["Unspecified", "Utc", "Local"].indexOf(n));
       return NOPE;
@@ -2138,6 +2312,13 @@
       if (o instanceof CsFn && n === "Invoke") return callFn(o, a, line);
       if (n === "GetType" && !a.length) { const tn0 = typeName(o); const map = { int: "Int32", double: "Double", string: "String", bool: "Boolean", char: "Char", long: "Int64" }; return new CsType(map[tn0] || tn0, "System." + (map[tn0] || tn0)); }
       if (o instanceof CsStream) return streamMethod(o, n, a, line);
+      if (o instanceof CsFile) return fileMethod(o, n, a, line);
+      if (o instanceof CsBin) return binMethod(o, n, a, line);
+      if (o instanceof CsEnc) {
+        if (n === "GetBytes") return byteList(encGet(o, a[0] instanceof CsList ? a[0].items.map(str).join("") : str(a[0])));
+        if (n === "GetString") { const b = bytesOf(a[0]); return encStr(o, a.length > 1 ? b.slice(nv(a[1]), nv(a[1]) + nv(a[2])) : b); }
+        if (n === "GetByteCount") return encGet(o, str(a[0])).length;
+      }
       if (o instanceof CsDate || o instanceof CsSpan) { const r = dateMethod(o, n, a, line); if (r !== NOPE) return r; }
       const r = builtinMethod(o, n, a, line);
       if (r !== NOPE) return r;
@@ -2347,11 +2528,29 @@
             case "Equals": return typeof a[2] === "string" && /IgnoreCase$/.test(a[2]) ? a[0] != null && a[1] != null && a[0].toLowerCase() === a[1].toLowerCase() : a[0] === a[1];
           }
           break;
+        case "BitConverter": {
+          if (n === "GetBytes") { const v = a[0]; return byteList(typeof v === "boolean" ? [v ? 1 : 0] : v instanceof D ? numBytes("double", v.v) : v instanceof Ch ? [v.c.charCodeAt(0) & 255, v.c.charCodeAt(0) >> 8] : numBytes(v > 2147483647 || v < -2147483648 ? "long" : "int", nv(v))); }
+          const b = bytesOf(a[0]), at = a.length > 1 ? nv(a[1]) : 0;
+          if (n === "ToString") { const len = a.length > 2 ? nv(a[2]) : b.length - at; if (at < 0 || at + len > b.length) throw exc("ArgumentOutOfRangeException", "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'startIndex')", line); return hexOf(b.slice(at, at + len)).join("-"); }
+          const need = { ToInt32: 4, ToInt64: 8, ToDouble: 8, ToBoolean: 1 }[n];
+          if (need) { if (at < 0 || at + need > b.length) throw exc("ArgumentOutOfRangeException", "Destination array is not long enough to copy all the items in the collection. Check array index and length. (Parameter 'value')", line);
+            return n === "ToBoolean" ? b[at] !== 0 : n === "ToDouble" ? new D(bytesNum("double", b, at)) : bytesNum(n === "ToInt32" ? "int" : "long", b, at); }
+          break;
+        }
+        case "byte": case "Byte":
+          if (n === "Parse") { const v = parseIntStrict(a[0], line, "int"); if (v < 0 || v > 255) throw exc("OverflowException", "Value was either too large or too small for an unsigned byte.", line); return new B8(v); }
+          if (n === "TryParse") { let v = null; try { v = parseIntStrict(a[0], line, "int"); } catch (er) { if (!(er instanceof Thrown)) throw er; } const ok = v !== null && v >= 0 && v <= 255; a[1].set(new B8(ok ? v : 0)); return ok; }
+          break;
         case "Convert":
           switch (n) {
+            case "ToHexString": return hexOf(bytesOf(a[0])).join("");
+            case "FromHexString": { const t = str(a[0]); if (t.length % 2 || /[^0-9a-fA-F]/.test(t)) throw exc("FormatException", "The input is not a valid hex string as it contains a non-hex character.", line); return byteList((t.match(/../g) || []).map((h) => parseInt(h, 16))); }
+            case "ToBase64String": return btoa(String.fromCharCode.apply(null, bytesOf(a[0])));
+            case "FromBase64String": return byteList(Array.from(atob(str(a[0])), (c) => c.charCodeAt(0)));
+            case "ToByte": { const v = typeof a[0] === "string" ? parseIntStrict(a[0], line, "int") : a[0] instanceof D ? bankers(a[0].v, 0) : nv(a[0]); if (v < 0 || v > 255) throw exc("OverflowException", "Value was either too large or too small for an unsigned byte.", line); return new B8(v); }
             case "ToInt32": if (typeof a[0] === "string") return parseIntStrict(a[0], line, "int"); if (a[0] instanceof D) return bankers(a[0].v, 0); if (typeof a[0] === "boolean") return a[0] ? 1 : 0; return nv(a[0]);
             case "ToDouble": if (typeof a[0] === "string") return parseIntStrict(a[0], line, "double"); return new D(nv(a[0]));
-            case "ToString": return str(a[0]); case "ToChar": return new Ch(String.fromCharCode(nv(a[0]))); case "ToBoolean": return typeof a[0] === "string" ? a[0].toLowerCase() === "true" : !!nv(a[0]);
+            case "ToString": if (a.length === 2 && typeof a[1] === "number" && isNum(a[0])) { const x = nv(a[0]); return (x < 0 ? (x >>> 0) : x).toString(a[1]); } return str(a[0]); case "ToChar": return new Ch(String.fromCharCode(nv(a[0]))); case "ToBoolean": return typeof a[0] === "string" ? a[0].toLowerCase() === "true" : !!nv(a[0]);
           }
           break;
         case "Array":
@@ -2583,7 +2782,7 @@
         const r = linq([...s].map((c) => new Ch(c)), n, a, line, { tname: "System.Char" });
         if (r !== NOPE) return r;
       }
-      if (typeof o === "number" || o instanceof D || o instanceof Ch || typeof o === "boolean" || o instanceof CsEnum) {
+      if (typeof o === "number" || o instanceof D || o instanceof Ch || typeof o === "boolean" || o instanceof CsEnum || o instanceof B8) {
         if (n === "ToString") {
           const cul = a.find((x) => x instanceof CsCulture), fmt = a.find((x) => typeof x === "string");
           return fmt !== undefined ? formatSpec(o, fmt, cul) : cul ? inCulture(str(o), cul) : str(o);
@@ -2733,6 +2932,8 @@
       if (top.length) {
         const progCls = { name: "Program", base: null, ifaces: [], fields: [], props: [], methods: new Map(), ctors: [], statics: new Map() };
         const root = new Env(null); root.isRoot = true;
+        /* top-level statements see args, the command-line arguments: none here */
+        root.def("args", new CsList([], "System.String", true), { name: "string", arr: 1 });
         const ctx = { self: null, cls: progCls, env: root, isStatic: true, root };
         for (const s of top) if (s.k === "localfn") { const fn = makeLocalFn(s, ctx); root.def(s.name, fn, null); globalFns.set(s.name, fn); }
         for (const s of top) { const r = exec(s, ctx); if (r instanceof Ret) return; }
@@ -2782,6 +2983,8 @@
     const allTypes = [];
     for (const u of units) for (const t of u.types) { (function add(t) { allTypes.push(t); types.set(t.name, t); (t.nested || []).forEach(add); })(t); }
     for (const t of allTypes) known.add(t.name);
+    /* top-level statements have args, the command-line arguments */
+    if (units.some((u) => u.top && u.top.length)) known.add("args");
     function membersOf(t, seen) {
       if (!t) return new Set(); seen = seen || new Set(); if (seen.has(t.name)) return new Set(); seen.add(t.name);
       if (t.k === "enum") return new Set(t.members.map((m) => m.name));
@@ -2934,6 +3137,15 @@
             }
             if (s.type && s.type.name === "bool" && ie && ie.k === "asg") errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (tyOf(ie.b) || "int") + "' to 'bool'", s.line, "compile", file));
           }
+          /* a byte takes a constant 0–255; an int expression needs a cast */
+          if (s.type && s.type.name === "byte" && !s.type.arr) for (const d of s.decls) {
+            let ie = d.init; while (ie && ie.k === "paren") ie = ie.e;
+            if (!ie) continue;
+            const neg = ie.k === "un" && ie.op === "-" && ie.a.k === "lit" && typeof ie.a.v === "number";
+            if ((ie.k === "lit" && typeof ie.v === "number" && (ie.v < 0 || ie.v > 255)) || neg) errs.push(new CsError("CS0031", "Constant value '" + (neg ? -ie.a.v : ie.v) + "' cannot be converted to a 'byte'", s.line, "compile", file));
+            const intExpr = (x) => x && ((x.k === "bin" && ["+", "-", "*", "/", "%", "&", "|", "^"].includes(x.op) && !(x.a.k === "lit" && x.b.k === "lit")) || (x.k === "name" && TY.get(x.n) === "int"));
+            if (intExpr(ie)) errs.push(new CsError("CS0266", "Cannot implicitly convert type 'int' to 'byte'. An explicit conversion exists (are you missing a cast?)", s.line, "compile", file));
+          }
           if (s.type && ["DateTime", "TimeSpan", "DateOnly"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "lit" && typeof d.init.v === "string") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to 'System." + s.type.name + "'", s.line, "compile", file));
           /* date − date is a TimeSpan, not a number of days */
           if (s.type && ["int", "long", "double"].includes(s.type.name) && !s.type.arr) for (const d of s.decls) {
@@ -3051,7 +3263,7 @@
       }
     }
     /* types outside the implicit usings need their using (or a full name) */
-    const NEEDS = [[/^(Debug)$/, "System.Diagnostics"], [/^(CultureInfo|NumberStyles|DateTimeStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder)$/, "System.Text"]];
+    const NEEDS = [[/^(Debug)$/, "System.Diagnostics"], [/^(CultureInfo|NumberStyles|DateTimeStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder|Encoding)$/, "System.Text"]];
     for (const u of units) {
       const src = u.src || "";
       for (const [re, ns] of NEEDS) {

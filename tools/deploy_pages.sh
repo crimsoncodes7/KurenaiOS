@@ -25,6 +25,14 @@ if [ ! -f js/env.local.js ]; then
   exit 1
 fi
 
+# Code's full C# runner (units 7+) is generated, never committed: build it
+# when this checkout has none for the id coderun.js asks for
+RTID=$(grep -o 'RUNTIME_ID = "[^"]*"' js/core/coderun.js | sed 's/.*"\(.*\)"/\1/')
+if [ ! -f "assets/code/runtime/$RTID/dotnet.js" ] || [ ! -f "assets/code/runtime/$RTID/kurenai-runtime.json" ]; then
+  echo "== building the full C# runtime ($RTID) =="
+  tools/build_cs_wasm.sh
+fi
+
 echo "== staging runtime files into $DIST/ =="
 rm -rf "$DIST"
 mkdir -p "$DIST"
@@ -37,6 +45,12 @@ cp -R js/. "$DIST/js/"   # js/. copies the contents on GNU and BSD cp alike
 # env.local.js is the one intentional deployment configuration. The checked-in
 # example is setup documentation, not a runtime asset.
 rm -f "$DIST/js/env.example.js"
+
+# only the runtime coderun.js asks for ships, and none of the spike's scratch
+find "$DIST/assets/code/runtime" -mindepth 1 -maxdepth 1 ! -name "$RTID" -exec rm -rf {} +
+for f in $(node -e 'console.log(require("./assets/code/runtime/'"$RTID"'/kurenai-runtime.json").files.join("\n"))'); do
+  if [ ! -f "$DIST/assets/code/runtime/$RTID/$f" ]; then echo "ERROR: the full runtime is missing $f" >&2; exit 1; fi
+done
 
 # belt-and-braces: nothing development-only may have slipped in
 for banned in tools node_modules supabase Context "Phase 3 Context" .git .idea .claude; do

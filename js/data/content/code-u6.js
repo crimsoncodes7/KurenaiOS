@@ -29,6 +29,8 @@
   var SCORES = { "scores.txt": "Ada,91\nKai,74\nLin,88\n" };
 
   K.add({ concepts: {
+    "bytes": { name: "Bytes", lesson: "6.10", about: "0–255, byte[] and encodings" },
+    "binary-io": { name: "Binary files", lesson: "6.10", about: "BinaryWriter and BinaryReader" },
     "exceptions": { name: "Exceptions", lesson: "6.1", about: "how a program stops" },
     "read-file": { name: "Reading files", lesson: "6.2", about: "ReadAllLines, StreamReader" },
     "write-file": { name: "Writing files", lesson: "6.3", about: "WriteAllText, AppendAllText, StreamWriter" },
@@ -880,6 +882,121 @@
   } });
 
   /* ================================================================
+     6.10 Binary files: raw bytes
+     ================================================================ */
+  lesson("6.10", {
+    aqa: "4.5.3",
+    notes: [
+      page("The problem it solves"),
+      { ul: [ "Every file is bytes. A text file stores characters as bytes through an encoding; a picture, a sound or a game's save file stores numbers directly.", "Writing 1000099 as text costs seven digits and a newline, and it has to be parsed back; as an `int` it is always four bytes.", "A **byte** holds a whole number from 0 to 255. This lesson reads and writes them, one at a time and as typed values." ] },
+      page("Core idea"),
+      run("bytes", "text is bytes underneath", 'using System.Text;\nbyte[] data = Encoding.UTF8.GetBytes("Hi £5");\nConsole.WriteLine(data.Length);\nConsole.WriteLine(BitConverter.ToString(data));\nConsole.WriteLine(Encoding.UTF8.GetString(data));'),
+      "`£` is one character but two bytes in UTF-8 (`C2 A3`); `H`, `i` and the space are one byte each, the ASCII codes of 5.7.",
+      run("allbytes", "write and read raw bytes", 'byte[] header = { 0x4B, 0x4F, 0x53, 1 };\nFile.WriteAllBytes("save.bin", header);\nbyte[] back = File.ReadAllBytes("save.bin");\nConsole.WriteLine($"{back.Length} bytes: {string.Join(" ", back)}");\nforeach (byte b in back) Console.Write($"{b:X2} ");\nConsole.WriteLine();'),
+      { table: { head: ["Value", "Bytes", "Written as"], rows: [["`byte`, `bool`", "1", "the value; true is 1"], ["`char`", "1–4", "its UTF-8 bytes"], ["`int`", "4", "least significant byte first"], ["`long`, `double`", "8", "two's complement / IEEE 754"], ["`string`", "1 + its UTF-8", "a length, then the bytes"]] } },
+      page("Rules"),
+      { ul: [
+        "A `byte` holds 0 to 255. `0x4B` is a hexadecimal literal: 4 × 16 + 11 = 75.",
+        "Arithmetic on bytes gives an `int`: cast back with `(byte)(…)`, and anything above 255 wraps (300 becomes 44).",
+        "`BinaryWriter` writes each value's bytes; `BinaryReader` must read them back **in the same order and with the same types** — the file does not say what it holds.",
+        "Dispose the writer (`using`): until then the bytes wait in the stream's buffer.",
+        "Reading past the end throws `EndOfStreamException`; check `BaseStream.Position < BaseStream.Length` first."
+      ] },
+      run("writer", "BinaryWriter and BinaryReader", 'using (var w = new BinaryWriter(File.Create("score.bin")))\n{\n    w.Write("Ada");\n    w.Write(91);\n    w.Write(3.5);\n    w.Write(true);\n}\nConsole.WriteLine(new FileInfo("score.bin").Length + " bytes");\nusing var r = new BinaryReader(File.OpenRead("score.bin"));\nConsole.WriteLine($"{r.ReadString()} {r.ReadInt32()} {r.ReadDouble()} {r.ReadBoolean()}");'),
+      "4 + 4 + 8 + 1 = 17: the string is one length byte and three letters.",
+      page("Variations"),
+      { h: "What an int looks like" },
+      run("int-bytes", "least significant byte first", 'Console.WriteLine(BitConverter.ToString(BitConverter.GetBytes(1)));\nConsole.WriteLine(BitConverter.ToString(BitConverter.GetBytes(258)));\nConsole.WriteLine(BitConverter.ToString(BitConverter.GetBytes(-1)));\nConsole.WriteLine(BitConverter.ToString(BitConverter.GetBytes(1.0)));\nConsole.WriteLine(BitConverter.IsLittleEndian);'),
+      "258 is 1 × 256 + 2, stored `02 01`: little-endian, as on almost every machine. −1 is all ones (two's complement, AQA 4.5.4).",
+      { h: "A hex dump" },
+      run("hexdump", "offset, bytes, and the text they spell", 'using System.Text;\nFile.WriteAllText("note.txt", "Ready? Ça va!\\n");\nbyte[] bytes = File.ReadAllBytes("note.txt");\nfor (int i = 0; i < bytes.Length; i += 8)\n{\n    var row = new StringBuilder($"{i:X4}  ");\n    var text = new StringBuilder();\n    for (int j = i; j < i + 8; j++)\n    {\n        if (j < bytes.Length)\n        {\n            row.Append($"{bytes[j]:X2} ");\n            text.Append(bytes[j] >= 32 && bytes[j] < 127 ? (char)bytes[j] : \'.\');\n        }\n        else row.Append("   ");\n    }\n    Console.WriteLine(row.ToString() + " " + text);\n}'),
+      { h: "Text or binary: the size" },
+      run("size", "the same 100 numbers, two ways", 'var numbers = new List<int>();\nfor (int i = 0; i < 100; i++) numbers.Add(1000000 + i * 37);\nvar lines = new List<string>();\nforeach (int n in numbers) lines.Add(n.ToString());\nFile.WriteAllLines("n.txt", lines);\nusing (var w = new BinaryWriter(File.Create("n.bin")))\n    foreach (int n in numbers) w.Write(n);\nConsole.WriteLine($"text {new FileInfo("n.txt").Length} bytes, binary {new FileInfo("n.bin").Length} bytes");'),
+      { h: "File signatures" },
+      run("magic", "the first bytes say what a file is", 'byte[] png = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 13 };\nFile.WriteAllBytes("picture.png", png);\nbyte[] start = File.ReadAllBytes("picture.png");\nbool isPng = start.Length >= 4 && start[0] == 0x89 && start[1] == (byte)\'P\' && start[2] == (byte)\'N\' && start[3] == (byte)\'G\';\nConsole.WriteLine(BitConverter.ToString(start, 0, 4) + " → " + (isPng ? "a PNG image" : "not a PNG"));'),
+      "A file's name can lie; its **magic number** usually does not. Your own formats should start with one too.",
+      { h: "Fixed-size records: jump straight to one" },
+      run("records", "every record is 8 bytes, so record 4 starts at byte 24", 'using (var w = new BinaryWriter(File.Create("records.bin")))\n    for (int id = 1; id <= 5; id++) { w.Write(id); w.Write(id * id * 10); }\nusing var fs = File.OpenRead("records.bin");\nusing var r = new BinaryReader(fs);\nfs.Position = 3 * 8;\nConsole.WriteLine($"record 4: id {r.ReadInt32()}, value {r.ReadInt32()}");\nConsole.WriteLine($"{fs.Length / 8} records, now at byte {fs.Position}");'),
+      { h: "XOR: the simplest cipher" },
+      run("xor", "the same key twice gives the text back", 'using System.Text;\nbyte[] data = Encoding.UTF8.GetBytes("Meet at noon");\nbyte key = 0x2A;\nfor (int i = 0; i < data.Length; i++) data[i] = (byte)(data[i] ^ key);\nConsole.WriteLine(BitConverter.ToString(data));\nfor (int i = 0; i < data.Length; i++) data[i] = (byte)(data[i] ^ key);\nConsole.WriteLine(Encoding.UTF8.GetString(data));'),
+      "Easy to break — never real security — but it shows `^` (12.2) at work on bytes.",
+      page("Under the hood"),
+      { ul: [ "`sizeof(int)` is 4 and `sizeof(double)` 8: the bytes a value takes in memory, which is what `BinaryWriter` copies.", "A string is written as its UTF-8 byte count in a **7-bit encoded** prefix (one byte up to 127), then the bytes.", "A `FileStream` collects writes in a buffer and passes them to the disk in blocks; `Flush` and `Dispose` empty it. That is why a writer that is never disposed can leave an empty file." ] },
+      run("sizes", "sizes and encodings", 'using System.Text;\nConsole.WriteLine($"{sizeof(byte)} {sizeof(bool)} {sizeof(char)} {sizeof(int)} {sizeof(long)} {sizeof(double)}");\nConsole.WriteLine($"{Encoding.UTF8.GetByteCount("café")} {Encoding.ASCII.GetString(Encoding.ASCII.GetBytes("café"))} {Encoding.Unicode.GetByteCount("café")}");\nConsole.WriteLine(Convert.ToHexString(new byte[] { 1, 171, 255 }) + " " + Convert.ToString(171, 2) + " " + Convert.ToString(255, 16));'),
+      page("Pitfalls"),
+      { h: "Byte arithmetic gives an int — CS0266" },
+      run("pit-add", "200 + 100 is an int", 'byte a = 200, b = 100;\nbyte c = a + b;\nConsole.WriteLine(c);'),
+      run("pit-cast", "the cast compiles — and wraps", 'byte a = 200, b = 100;\nbyte c = (byte)(a + b);\nConsole.WriteLine(c);'),
+      "300 does not fit: the cast keeps the low 8 bits, 300 − 256 = 44.",
+      { h: "A constant too big for a byte — CS0031" },
+      run("pit-big", "a byte stops at 255", 'byte b = 300;\nConsole.WriteLine(b);'),
+      { h: "Reading in a different order" },
+      run("pit-order", "a double read back as two ints", 'using (var w = new BinaryWriter(File.Create("mix.bin")))\n{\n    w.Write(3.5);\n}\nusing var r = new BinaryReader(File.OpenRead("mix.bin"));\nConsole.WriteLine(r.ReadInt32());\nConsole.WriteLine(r.ReadInt32());'),
+      "No error, just nonsense: the bytes do not know what they are. Write and read with one pair of methods side by side.",
+      { h: "Reading past the end — EndOfStreamException" },
+      run("pit-end", "one int written, two read", 'using (var w = new BinaryWriter(File.Create("one.bin"))) w.Write(7);\nusing var r = new BinaryReader(File.OpenRead("one.bin"));\nConsole.WriteLine(r.ReadInt32());\nConsole.WriteLine(r.ReadInt32());', { fails: true }),
+      { h: "A writer that is never disposed" },
+      run("pit-lost", "the bytes are still in the buffer", 'var w = new BinaryWriter(File.Create("lost.bin"));\nw.Write(12345);\nConsole.WriteLine(new FileInfo("lost.bin").Length + " bytes so far");'),
+      page("Connections"),
+      { ul: [ "**Back:** 6.3's writers and `using`; 5.7's character codes and UTF-8.", "**Later:** 12.2 bitwise operators; unit 11's streams and JSON (the readable choice).", "**AQA:** 4.5.3 bits and bytes, 4.5.1 hexadecimal, 4.5.5 character encoding (ASCII and Unicode)." ] },
+      page("Good practice"),
+      { ul: [ "Prefer text or JSON unless size or speed really matters: a person can read them, and a damaged line can be skipped.", "Start your own binary format with a magic number and a version, so a reader can refuse what it does not understand.", "Keep the writing and reading code together, in the same order; change both at once.", "Always `using` a writer, and check `Position < Length` before reading another record." ] },
+      page("Practise"),
+      { ul: [ "**Tasks:** *Hex bytes* and *High scores file*." ] },
+      page("Quick reference"),
+      run("qr", "bytes at a glance", 'using System.Text;\nbyte[] b = Encoding.UTF8.GetBytes("A€");\nusing (var w = new BinaryWriter(File.Create("q.bin"))) { w.Write(b.Length); w.Write(b); }\nusing var r = new BinaryReader(File.OpenRead("q.bin"));\nint n = r.ReadInt32();\nbyte top = 250;\nConsole.WriteLine($"{n} {BitConverter.ToString(r.ReadBytes(n))} {(byte)(top + 10)} {0xFF}");'),
+      { ul: [ "`byte` 0–255; `(byte)(x)` wraps; `0x4B` hex; `$\"{b:X2}\"`.", "`Encoding.UTF8.GetBytes` / `GetString`; `BitConverter.ToString`, `GetBytes`.", "`File.WriteAllBytes` / `ReadAllBytes`; `BinaryWriter.Write(…)`, `BinaryReader.ReadInt32()`, `ReadString()`…", "`using` the writer; same order, same types; `Position < Length`." ] },
+      { table: { head: ["Error", "Means", "Page"], rows: [["CS0266", "byte arithmetic is an int: cast it", "Pitfalls"], ["CS0031", "a constant above 255 in a byte", "Pitfalls"], ["EndOfStreamException", "reading past the last byte", "Pitfalls"]] } }
+    ],
+    practice: {
+      predict: [
+        { id: "p1", src: 'using System.Text;\nConsole.WriteLine(Encoding.UTF8.GetBytes("ab€").Length);', why: "a and b are one byte each; € is three bytes in UTF-8.", concepts: ["bytes"] },
+        { id: "p2", src: 'byte b = 250;\nb += 10;\nConsole.WriteLine(b);', why: "+= casts back to byte: 260 wraps to 4.", concepts: ["bytes"] }
+      ],
+      fill: [
+        { id: "f1", q: "Fill the gap so it reads back the int it wrote.", src: 'using (var w = new BinaryWriter(File.Create("x.bin"))) w.Write(42);\nusing var r = new BinaryReader(File.OpenRead("x.bin"));\nConsole.WriteLine(r.@@());', out: "42", concepts: ["binary-io"] }
+      ],
+      bug: [
+        { id: "b1", q: "It should print the number it saved, 12345.", src: 'var w = new BinaryWriter(File.Create("n.bin"));\nw.Write(12345);\nvar r = new BinaryReader(File.OpenRead("n.bin"));\nConsole.WriteLine(r.BaseStream.Length == 0 ? "empty file" : r.ReadInt32().ToString());', out: "12345", fixedText: "prints 12345", why: "The writer was never disposed: it still holds the file (so opening it again throws IOException) and its bytes never reached it. using (var w = …) { w.Write(12345); }", concepts: ["binary-io"] }
+      ]
+    },
+    flashcards: [
+      ["What range does a `byte` hold?", "0 to 255 (8 bits)."],
+      ["`byte c = a + b;` with two bytes gives…", "CS0266: byte arithmetic is an int. Write `(byte)(a + b)`."],
+      ["How many bytes does `BinaryWriter.Write(int)` write?", "4, least significant byte first (little-endian)."],
+      ["What must a `BinaryReader` do to read a file back?", "Read the same types in the same order they were written."],
+      ["Text to bytes?", "`Encoding.UTF8.GetBytes(s)`; back with `Encoding.UTF8.GetString(bytes)`."],
+      ["Why `using` a `BinaryWriter`?", "Its bytes wait in a buffer until it is flushed or disposed."],
+      ["What is a magic number in a file?", "Fixed first bytes that say what format it is (PNG starts `89 50 4E 47`)."]
+    ],
+    quiz: [
+      { q: "`(byte)300` is…", opts: ["44", "255", "300", "an OverflowException"], ans: 0, why: "Unchecked, it keeps the low 8 bits: 300 − 256." },
+      { q: "`w.Write(\"Hi\")` with a BinaryWriter writes…", opts: ["3 bytes: a length, then H and i", "2 bytes", "4 bytes", "6 bytes"], ans: 0, why: "A one-byte length prefix, then the UTF-8 bytes." },
+      { q: "One int is written; the reader calls ReadInt32 twice. The second call…", opts: ["throws EndOfStreamException", "returns 0", "returns -1", "returns the first int again"], ans: 0, why: "There are no more bytes to read." },
+      { q: "`BitConverter.ToString(BitConverter.GetBytes(258))` is…", opts: ["02-01-00-00", "00-00-01-02", "258", "01-02"], ans: 0, why: "258 = 0x0102, stored least significant byte first." }
+    ]
+  });
+  K.add({ tasks: {
+    "6.10-hex": { lesson: "6.10", title: "Hex bytes", tier: "core", minutes: 10, concepts: ["bytes"], requires: ["format"],
+      statement: ["Read one line of text. Print its UTF-8 bytes as two-digit hexadecimal, separated by spaces, then `N bytes`."],
+      starter: "using System.Text;\nstring line = Console.ReadLine();\n",
+      examples: [{ stdin: "Hi £", out: "48 69 20 C2 A3\n5 bytes" }],
+      hidden: [{ stdin: "ABC", out: "41 42 43\n3 bytes" }, { stdin: "€1", out: "E2 82 AC 31\n4 bytes" }],
+      rules: [uses(/Encoding\.UTF8\.GetBytes/, "Turn the text into bytes with Encoding.UTF8.GetBytes.")],
+      hints: ["byte[] data = Encoding.UTF8.GetBytes(line);", "b.ToString(\"X2\") gives two hex digits.", "Collect them in a List<string> and string.Join(\" \", …)."],
+      answer: 'using System.Text;\nstring line = Console.ReadLine();\nbyte[] data = Encoding.UTF8.GetBytes(line);\nvar parts = new List<string>();\nforeach (byte b in data) parts.Add(b.ToString("X2"));\nConsole.WriteLine(string.Join(" ", parts));\nConsole.WriteLine($"{data.Length} bytes");' },
+    "6.10-scores": { lesson: "6.10", title: "High scores file", tier: "stretch", minutes: 20, concepts: ["binary-io"], requires: ["input-loop", "split", "using-dispose"],
+      fs: { "scores.bin": { hex: "034164615B000000034B61694A000000" } },
+      statement: ["`scores.bin` holds records written by a BinaryWriter: a name (`Write(string)`), then a score (`Write(int)`).", "Read commands until `end`: `add NAME SCORE` appends a record; `list` prints every record as `NAME SCORE`. Finally print `File: N bytes`."],
+      starter: "string line = Console.ReadLine();\n",
+      examples: [{ stdin: "list\nadd Lin 88\nlist\nend", out: "Ada 91\nKai 74\nAda 91\nKai 74\nLin 88\nFile: 24 bytes" }],
+      hidden: [{ stdin: "end", out: "File: 16 bytes" }, { stdin: "add Zoë 100\nadd Mo 7\nlist\nend", out: "Ada 91\nKai 74\nZoë 100\nMo 7\nFile: 32 bytes" }],
+      rules: [uses(/BinaryWriter/, "Append records with a BinaryWriter."), uses(/BinaryReader/, "Read them with a BinaryReader.", "reader")],
+      hints: ["new BinaryWriter(File.Open(\"scores.bin\", FileMode.Append)) adds to the end.", "while (reader.BaseStream.Position < reader.BaseStream.Length) reads every record.", "Dispose each writer before reading: using var writer = … inside the if block."],
+      answer: 'string line = Console.ReadLine();\nwhile (line != "end")\n{\n    string[] w = line.Split(\' \');\n    if (w[0] == "add")\n    {\n        using var writer = new BinaryWriter(File.Open("scores.bin", FileMode.Append));\n        writer.Write(w[1]);\n        writer.Write(int.Parse(w[2]));\n    }\n    else if (w[0] == "list")\n    {\n        using var reader = new BinaryReader(File.OpenRead("scores.bin"));\n        while (reader.BaseStream.Position < reader.BaseStream.Length)\n            Console.WriteLine($"{reader.ReadString()} {reader.ReadInt32()}");\n    }\n    line = Console.ReadLine();\n}\nConsole.WriteLine($"File: {new FileInfo("scores.bin").Length} bytes");' }
+  } });
+
+  /* ================================================================
      retrieval cards
      ================================================================ */
   K.add({ cards: {
@@ -935,6 +1052,12 @@
           cases: rows.map(function (l) { return { stdin: l, out: f(l) }; }),
           hint: "Check the name, then TryParse, then the range — in that order.",
           answer: "string[] f = Console.ReadLine().Split(',');\nif (string.IsNullOrWhiteSpace(f[0])) Console.WriteLine(\"blank name\");\nelse if (!int.TryParse(f[1], out int v)) Console.WriteLine(\"bad number\");\nelse if (v < " + lo + " || v > " + hi + ") Console.WriteLine(\"out of range\");\nelse Console.WriteLine(\"ok\");" };
+      } },
+    "u6-bytes": { title: "Bytes and encodings", lesson: "6.10", concepts: ["bytes"], kind: "predict",
+      vary: function (r) {
+        var n = 1 + r(1000), w = pick(r, ["café", "naïve", "Zoë", "£10"]);
+        return { prompt: "What does this print?", label: "an int's bytes and a word's", params: [],
+          src: "using System.Text;\nConsole.WriteLine(BitConverter.ToString(BitConverter.GetBytes(" + n + ")));\nConsole.WriteLine(Encoding.UTF8.GetBytes(\"" + w + "\").Length + \" \" + (byte)(" + n + " % 256 + 200));", hint: "An int is 4 bytes, least significant first; an accented letter or £ is 2 bytes in UTF-8; (byte) keeps the low 8 bits." };
       } }
   } });
 })();

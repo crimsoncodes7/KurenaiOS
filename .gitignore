@@ -42,3 +42,8 @@ supabase/.branches/
 # Cloudflare Pages staging output (tools/deploy_pages.sh)
 dist/
 .wrangler/
+
+# the full C# runner (units 7+): built by tools/build_cs_wasm.sh, never committed
+assets/code/runtime/
+tools/cs-wasm/bin/
+tools/cs-wasm/obj/

@@ -54,13 +54,15 @@
     return {
       v: 1,
       tasks: obj(c.tasks), lessons: obj(c.lessons), proven: obj(c.proven),
-      cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later), capstones: obj(c.capstones)
+      cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later), capstones: obj(c.capstones),
+      projects: obj(c.projects)
     };
   }
   function S() {
     var st = store.state;
     if (!st.code || st.code.v !== 1 || !st.code.tasks) st.code = normalise(st.code);
     if (!st.code.capstones) st.code.capstones = {};
+    if (!st.code.projects) st.code.projects = {};
     return st.code;
   }
   function U() {
@@ -86,6 +88,12 @@
   }
   function lessons() { index(); return LESSONS; }
   function lesson(ref) { index(); return BY[ref] || null; }
+  /* which runner a lesson's code needs: the full .NET runtime for the
+     "sandbox" units (7–9, 11; decision A), the in-app interpreter otherwise */
+  function runnerFor(ref) {
+    var l = lesson(ref) || (K().CAPSTONES[ref] ? { where: K().CAPSTONES[ref].where } : null);
+    return l && l.where === "sandbox" ? "wasm" : "interp";
+  }
   function units() { return ((window.KOS_DATA && window.KOS_DATA.code && window.KOS_DATA.code.sections) || []); }
   function unit(ref) { return units().filter(function (u) { return u.ref === ref; })[0] || null; }
   function content(ref) { return KOS.content.get(SID, ref); }
@@ -144,6 +152,9 @@
     var pages = pageCount(ref), read = Object.keys(ev.pages).filter(function (i) { return +i < pages; }).length;
     var lst = listingsOf(ref), ran = lst.filter(function (l) { return ev.listings[l.id]; }).length;
     var ts = tasksOf(ref), passed = ts.filter(provenPass).length;
+    /* a Rider lesson's work is a project milestone, proven by a report */
+    var pm = projectMilestonesOf(ref), pmPassed = pm.filter(function (x) { return peekProj(x.project).passed[x.id]; }).length;
+    passed += pmPassed;
     var cs = conceptsOf(ref);
     var byRetrieval = cs.filter(function (c) { var p = S().proven[c.id]; return p && p.by === "retrieval"; }).length;
     /* a tick means DONE: every page read, every listing run */
@@ -155,7 +166,7 @@
       byRetrieval > 0
     ];
     var pr = practiceOf(ref), pIds = pr.predict.concat(pr.fill, pr.bug).map(function (it) { return ref + ":" + it.id; });
-    return { pages: pages, read: read, listings: lst.length, ran: ran, tasks: ts.length, passed: passed,
+    return { pages: pages, read: read, listings: lst.length, ran: ran, tasks: ts.length + pm.length, passed: passed,
       practice: pIds.length, practised: pIds.filter(function (k) { return S().practice[k]; }).length,
       concepts: cs.length, proven: cs.filter(function (c) { return S().proven[c.id]; }).length, checks: checks };
   }
@@ -311,6 +322,10 @@
       return { xp: full.xp, gold: full.gold, hp: TASK_HP };
     }
     if (m.kind === "retrieval" && m.paid) return { xp: CARD_XP, gold: 0, hp: 0 };
+    if (m.kind === "project" && m.first && project(m.id) && project(m.id).reward) {
+      var pw = project(m.id).reward;
+      return { xp: pw.xp || 0, gold: pw.gold || 0, hp: pw.hp || 0 };
+    }
     if (m.kind === "capstone" && m.first && capstone(m.id) && capstone(m.id).reward) {
       var rw = capstone(m.id).reward;
       return { xp: rw.xp || 0, gold: rw.gold || 0, hp: rw.hp || 0 };
@@ -443,6 +458,92 @@
     var cur = stats().current;
     var started = stg.units.some(function (u) { return unitState(u).state !== "later"; });
     return started || (cur && cur.stage === stg.id) ? "next" : "later";
+  }
+
+  /* ---------------- Rider projects (docs/code-plan.md §9, frames 26m–26n) ----------------
+     The record (synced, keyed by project id) holds facts only: when this
+     device first exported it, every imported report's EVIDENCE (keyed by the
+     report file's SHA-256, so the same report twice changes nothing), and
+     each milestone's first pass. A report never writes progress directly:
+     recordReport() is the one gate (normaliseEvidence), a practice-only
+     report (shipped tests changed) marks nothing, a passed milestone stays
+     passed, and the project pays its reward once, when every milestone has
+     passed at any evidence level. */
+  function project(id) { return (K().PROJECTS || {})[id] || null; }
+  function projects() { var P = K().PROJECTS || {}; return Object.keys(P).map(function (k) { return P[k]; }); }
+  function projRec(id) { var P = S().projects; var r = P[id] = obj(P[id]); r.reports = obj(r.reports); r.passed = obj(r.passed); return r; }
+  function peekProj(id) { var r = obj(S().projects[id]); return { exportedAt: r.exportedAt || null, reports: obj(r.reports), passed: obj(r.passed), payAt: r.payAt || null }; }
+  function projectMilestonesOf(ref) {
+    var out = [];
+    projects().forEach(function (p) { (p.milestones || []).forEach(function (m) { if ((m.lessons || []).indexOf(ref) >= 0) out.push({ project: p.id, id: m.id }); }); });
+    return out;
+  }
+  function noteExport(id) { var r = projRec(id); if (!r.exportedAt) { r.exportedAt = Date.now(); store.save(); } return r.exportedAt; }
+  var cap = function (s, n) { s = s == null ? "" : String(s); return s.length > n ? s.slice(0, n) + "…" : s; };
+  /* a checked report (KOS.codeProject.check) → the evidence record stored */
+  function normaliseEvidence(rep, o) {
+    o = o || {};
+    var st = function (id) { return (rep.steps || []).filter(function (x) { return x && x.id === id; })[0] || null; };
+    var b = st("build"), t = st("test");
+    return {
+      sha: String(o.sha || ""), importedAt: o.at || Date.now(), finishedAt: Date.parse(rep.finishedAt) || null,
+      level: o.level === "ci" ? "ci" : "self", practice: !!o.practice, mismatched: (o.mismatched || []).slice(0, 20).map(function (x) { return cap(x, 200); }),
+      sdk: cap(rep.env && rep.env.sdk, 40), os: cap(rep.env && rep.env.os, 80), arch: cap(rep.env && rep.env.arch, 20),
+      validator: cap(rep.validator && rep.validator.version, 20), scaffold: (rep.project && rep.project.scaffoldVersion) | 0,
+      commit: rep.source && rep.source.gitCommit ? cap(rep.source.gitCommit, 64) : null, dirty: !!(rep.source && rep.source.dirty), tree: cap(rep.source && rep.source.treeSha256, 64),
+      build: b ? { ran: !!b.ran, exit: b.exit == null ? null : b.exit | 0, errors: b.errors | 0, warnings: b.warnings | 0 } : null,
+      tests: t ? { ran: !!t.ran, passed: t.passed | 0, failed: t.failed | 0 } : null,
+      milestones: (rep.milestones || []).map(function (m) { return { id: cap(m.id, 20), ok: !!m.ok, checks: (m.checks || []).slice(0, 12).map(function (c) { return { type: cap(c.type, 20), ok: !!c.ok, note: cap(c.note, 200) }; }) }; }),
+      failures: (rep.failures || []).slice(0, 10).map(function (f) { return { what: cap(f.test || f.build || f.run || "", 200), message: cap(f.message, 300) }; })
+    };
+  }
+  function recordReport(id, rep, o) {
+    var p = project(id);
+    if (!p) return { ok: false, why: "unknown project" };
+    var ev = normaliseEvidence(rep, o), r = projRec(id);
+    if (!ev.sha || r.reports[ev.sha]) return { ok: false, duplicate: true, at: r.reports[ev.sha] && r.reports[ev.sha].importedAt };
+    r.reports[ev.sha] = ev;
+    /* the newest 30 reports are kept; passes are never taken back */
+    var keys = Object.keys(r.reports);
+    if (keys.length > 30) keys.sort(function (a, b) { return r.reports[a].importedAt - r.reports[b].importedAt; }).slice(0, keys.length - 30).forEach(function (k) { delete r.reports[k]; });
+    var newly = [];
+    if (!ev.practice) ev.milestones.forEach(function (m) {
+      if (m.ok && !r.passed[m.id] && p.milestones.some(function (x) { return x.id === m.id; })) { r.passed[m.id] = ev.importedAt; newly.push(m.id); }
+    });
+    /* a milestone passed proves its lessons' concepts, which starts their
+       retrieval schedules, as a task's pass does */
+    newly.forEach(function (mid) {
+      var m = p.milestones.filter(function (x) { return x.id === mid; })[0];
+      (m.lessons || []).forEach(function (l) { prove(conceptsOf(l).map(function (c) { return c.id; }), "project", id + ":" + mid); });
+    });
+    store.save();
+    var refs = [];
+    p.milestones.forEach(function (m) { (m.lessons || []).forEach(function (l) { if (refs.indexOf(l) < 0) refs.push(l); }); });
+    refs.forEach(syncChecks);
+    var all = p.milestones.every(function (m) { return r.passed[m.id]; }), pay = null;
+    if (all && !r.payAt) {
+      r.payAt = Date.now();
+      store.save();
+      KOS.sessions.log({ type: "code", subject: SID, ref: refs[refs.length - 1] || null, refs: refs.map(function (l) { return SID + ":" + l; }),
+        metrics: { kind: "project", id: id, first: true, level: ev.level } });
+      pay = award({ kind: "project", id: id, first: true });
+    }
+    return { ok: true, newly: newly, all: all, pay: pay, practice: ev.practice, evidence: ev };
+  }
+  /* the hub's facts: each milestone's state and the level that passed it */
+  function projectView(id) {
+    var p = project(id);
+    if (!p) return null;
+    var r = peekProj(id);
+    var reps = Object.keys(r.reports).map(function (k) { return r.reports[k]; }).sort(function (a, b) { return b.importedAt - a.importedAt; });
+    var last = reps[0] || null;
+    var ms = p.milestones.map(function (m) {
+      var by = r.passed[m.id] ? reps.filter(function (e) { return !e.practice && e.milestones.some(function (x) { return x.id === m.id && x.ok; }); }).pop() || null : null;
+      var cur = last ? (last.milestones.filter(function (x) { return x.id === m.id; })[0] || null) : null;
+      return { id: m.id, title: m.title, passedAt: r.passed[m.id] || null, level: by ? by.level : null, last: cur, state: r.passed[m.id] ? "passed" : cur ? (cur.ok ? "passed-practice" : "failing") : "open" };
+    });
+    return { spec: p, exportedAt: r.exportedAt, reports: reps, last: last, milestones: ms,
+      done: ms.filter(function (m) { return m.passedAt; }).length, total: ms.length, payAt: r.payAt };
   }
 
   /* ---------------- drafts (per device) ---------------- */
@@ -671,7 +772,17 @@
     return !!(t && t.phone !== false && l && typeof l.stage === "number" && l.stage === 1 && U().phoneTasks !== false);
   }
 
+  /* a COMMAND card (Bridge B): the typed answer, spaces collapsed, against
+     the card's anchored patterns — checked, never self-marked */
+  function commandMatches(v, text) {
+    var t = String(text == null ? "" : text).replace(/\s+/g, " ").trim();
+    if (!t || !v || !v.accept) return false;
+    return v.accept.some(function (a) { try { return new RegExp(a, v.ci ? "i" : "").test(t); } catch (e) { return false; } });
+  }
   KOS.code = {
+    runnerFor: runnerFor, commandMatches: commandMatches,
+    project: project, projects: projects, projectView: projectView, recordReport: recordReport,
+    normaliseEvidence: normaliseEvidence, noteExport: noteExport, projectMilestonesOf: projectMilestonesOf,
     SID: SID, CHECKS: CHECKS, PAY: PAY, CARD_CAP: CARD_CAP,
     normalise: normalise, state: S, ui: U,
     lessons: lessons, lesson: lesson, units: units, unit: unit, unitState: unitState,
