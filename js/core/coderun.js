@@ -117,8 +117,8 @@
       if (i >= cases.length) return Promise.resolve(out);
       var c = cases[i];
       var req = spec.mode === "method"
-        ? { files: files, mode: "method", call: { name: spec.method, args: c.args || [] }, stdin: c.stdin || "" }
-        : { files: files, stdin: c.stdin || "" };
+        ? { files: files, mode: "method", call: { name: spec.method, args: c.args || [] }, stdin: c.stdin || "", fs: c.fs || spec.fs }
+        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs };
       return run(req).then(function (r) {
         out.ms += r.ms || 0;
         if (!r.ok && r.error && (r.error.kind === "compile" || r.error.kind === "unsupported")) {

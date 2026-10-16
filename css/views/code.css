@@ -544,6 +544,18 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-capfact dt { font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
 .k-cx-capfact dd { margin: var(--sp-4) 0 0; font-size: var(--fs-15); }
 
+/* ================= files on the in-app disk (unit 6) ================= */
+.k-cx-files { border-radius: var(--r-10); background: var(--s1); margin-block-end: var(--sp-8); }
+.k-cx-files-s { padding: var(--sp-8) var(--sp-12); font-size: var(--fs-13); color: var(--text-2); cursor: pointer; }
+.k-cx-files-b { display: flex; flex-direction: column; gap: var(--sp-8); padding: 0 var(--sp-12) var(--sp-12); }
+.k-cx-file { display: flex; flex-direction: column; gap: var(--sp-4); min-inline-size: 0; }
+.k-cx-file-h { display: flex; align-items: baseline; gap: var(--sp-8); font-size: var(--fs-13); }
+.k-cx-file-ic { color: var(--code); }
+.k-cx-file-n { margin-inline-start: auto; color: var(--muted); font-size: var(--fs-12); }
+.k-cx-file-tag { padding: 0 var(--sp-6); border-radius: var(--r-pill); background: var(--s2); color: var(--code); font-size: var(--fs-11); }
+.k-cx-file-pre { margin: 0; padding: var(--sp-8) var(--sp-10); border-radius: var(--r-8); background: var(--code-bg); font-size: var(--fs-12-5); white-space: pre-wrap; overflow-wrap: anywhere; max-block-size: var(--cx-res-max-h); overflow: auto; }
+.k-cx-written { display: flex; flex-direction: column; gap: var(--sp-8); margin-block-start: var(--sp-10); }
+
 /* ================= breakpoints, widest first ================= */
 @media (max-width: 1240px) {
 .k-cx-hero-path { grid-column: 1 / -1; }

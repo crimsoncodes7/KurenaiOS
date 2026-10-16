@@ -33,8 +33,11 @@ const norm = (s) => String(s || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\):
 try { execFileSync("dotnet", ["--version"], { stdio: "ignore" }); }
 catch (e) { console.error("cs_diff: the .NET SDK is not installed — nothing compared."); process.exit(2); }
 
-function dotnet(src, stdin) {
-  const key = crypto.createHash("sha1").update("v2\u0000" + src + "\u0000" + stdin).digest("hex");
+function dotnet(src, stdin, files) {
+  /* a program that reads or writes files runs in a fresh folder holding
+     its seed files (the in-app runner's in-memory disk) */
+  const fsTag = files && Object.keys(files).length ? "\u0000fs" + JSON.stringify(files) : "";
+  const key = crypto.createHash("sha1").update("v2\u0000" + src + "\u0000" + stdin + fsTag).digest("hex");
   if (cache[key]) return cache[key];
   const file = path.join(dir, "p" + key.slice(0, 10) + ".cs");
   /* nullable off for units 1–6 (decision Q2), invariant culture for output */
@@ -42,7 +45,16 @@ function dotnet(src, stdin) {
   const lines = src.split("\n"), usings = [];
   while (lines.length && /^\s*using\s+[\w.]+\s*;\s*$/.test(lines[0])) usings.push(lines.shift());
   fs.writeFileSync(file, "#:property Nullable=disable\n#:property InvariantGlobalization=false\n" + usings.map((u) => u + "\n").join("") + "System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo(\"en-GB\");\n" + lines.join("\n") + "\n");
-  const r = spawnSync("dotnet", ["run", file], { input: stdin, encoding: "utf8", timeout: 120000 });
+  let cwd;
+  if (fsTag) {
+    cwd = fs.mkdtempSync(path.join(dir, "fs-"));
+    for (const [name, text] of Object.entries(files)) {
+      const target = path.join(cwd, name);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      if (!name.endsWith("/")) fs.writeFileSync(target, text);
+    }
+  }
+  const r = spawnSync("dotnet", ["run", file], { input: stdin, encoding: "utf8", timeout: 120000, cwd });
   r.stdout = (r.stdout || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l)).join("\n");
   const all = (r.stdout || "") + (r.stderr || "");
   let res;
@@ -58,11 +70,11 @@ function dotnet(src, stdin) {
 let bad = 0, n = 0;
 for (const p of list) {
   n++;
-  const mine = CSI.run({ files: [{ name: "Program.cs", src: p.src }], stdin: p.stdin });
+  const mine = CSI.run({ files: [{ name: "Program.cs", src: p.src }], stdin: p.stdin, fs: p.fs });
   /* a pitfall that never ends is shown stopped by the runner; .NET would run
      it for ever, so it is not compared */
   if (!mine.ok && mine.error.kind === "timeout") { n--; continue; }
-  const net = dotnet(p.src, p.stdin);
+  const net = dotnet(p.src, p.stdin, p.fs);
   const ik = mine.ok ? "ok" : mine.error.kind === "compile" ? "compile" : mine.error.kind === "exception" ? "exception" : mine.error.kind;
   let problem = null;
   if (ik !== net.kind) problem = "interpreter " + ik + (mine.ok ? "" : " " + mine.error.code) + " · .NET " + net.kind + (net.code ? " " + net.code : "");

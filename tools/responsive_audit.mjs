@@ -63,9 +63,9 @@ const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
   /* Code (roadmap 5.3) */
   "code-desk": ["subject", '"code"'],
-  "code-lesson": ["ref", '{ subject: "code", ref: "5.8" }'],
+  "code-lesson": ["ref", '{ subject: "code", ref: "6.2" }'],
   "code-map": ["code", '{ page: "map" }'],
-  "code-task": ["code", '{ page: "task", id: "1.8-receipt" }'],
+  "code-task": ["code", '{ page: "task", id: "6.2-average" }'],
   "code-retrieval": ["code", '{ page: "retrieval" }'],
   "code-skills": ["code", '{ page: "skills" }'],
   "code-settings": ["code", '{ page: "settings" }'],

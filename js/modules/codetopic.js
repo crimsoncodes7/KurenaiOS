@@ -560,13 +560,14 @@
   }
   function predictCard(card, ref, item, done) {
     card.appendChild(el("h3", { class: "k-cx-q-t", text: item.q || "What does this print?" }));
+    if (item.fs) card.appendChild(KOS.codeUI.filesPanel(item.fs, { open: true }));
     card.appendChild(codeBlock(item.src));
     var ans = el("textarea", { class: "k-input k-cx-q-in", rows: "2", "aria-label": "What it prints", placeholder: "Type what it prints" });
     var out = el("div", { class: "k-cx-q-out" });
     var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "Check",
       onclick: function () {
         check.disabled = true;
-        KOS.codeRun.run({ files: [{ name: "Program.cs", src: item.src }], stdin: item.stdin || "" }).then(function (r) {
+        KOS.codeRun.run({ files: [{ name: "Program.cs", src: item.src }], stdin: item.stdin || "", fs: item.fs }).then(function (r) {
           check.disabled = false;
           out.innerHTML = "";
           var real = r.ok ? KOS.codeRun.norm(r.stdout) : null;
@@ -602,7 +603,7 @@
         var src = parts.map(function (part, i) { return part + (i < inputs.length ? inputs[i].value : ""); }).join("");
         check.disabled = true;
         var cases = item.cases || [{ stdin: item.stdin || "", out: item.out }];
-        KOS.codeRun.check({ mode: "program", cases: cases }, [{ name: "Program.cs", src: src }]).then(function (c) {
+        KOS.codeRun.check({ mode: "program", cases: cases, fs: item.fs }, [{ name: "Program.cs", src: src }]).then(function (c) {
           check.disabled = false;
           out.innerHTML = "";
           if (c.compile) { out.appendChild(KOS.codeUI.errorCard(c.compile)); announce("Compile error " + c.compile.code + "."); return; }
@@ -629,7 +630,7 @@
     card.appendChild(out);
     function go() {
       run.disabled = true; ed.running(true);
-      KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }] }, ed.files()).then(function (c) {
+      KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }], fs: item.fs }, ed.files()).then(function (c) {
         run.disabled = false; ed.running(false);
         out.innerHTML = "";
         if (c.compile) { ed.state("compile", "1 compile error"); ed.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); out.appendChild(KOS.codeUI.errorCard(c.compile)); return; }

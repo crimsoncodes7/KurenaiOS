@@ -253,9 +253,10 @@
 
     function compilationUnit() {
       const unit = { types: [], top: [], file };
+      const finishUnit = () => { unit.top = nestUsings(unit.top); return unit; };
       while (peek().t !== "eof") {
         if (isKw("using")) { // using directive (but not a using statement)
-          if (isOp("(", 1)) { unit.top.push(statement()); continue; }
+          if (isOp("(", 1) || isId("var", 1) || (peek(1).t === "id" && peek(2).t === "id" && !isOp(".", 1) && !isOp("=", 1))) { unit.top.push(statement()); continue; }
           while (!isOp(";") && peek().t !== "eof") p++; expect(";"); continue;
         }
         if (isKw("namespace")) {
@@ -267,7 +268,7 @@
         }
         typeOrStatement(unit);
       }
-      return unit;
+      return finishUnit();
     }
     function typeOrStatement(unit) {
       const save = p; const at = attrs(); const m = mods();
@@ -375,7 +376,17 @@
     function block() {
       const line = peek().line; expect("{"); const body = [];
       while (!isOp("}")) { if (peek().t === "eof") throw new CsError("CS1513", "} expected", peek().line, "compile", file); body.push(statement()); }
-      p++; return { k: "block", body, line };
+      p++; return { k: "block", body: nestUsings(body), line };
+    }
+    /* `using var x = …;` disposes x at the end of its block: the statements
+       after it become the body of a using statement (local functions stay
+       where they are, so calls before the using still find them) */
+    function nestUsings(stmts) {
+      const i = stmts.findIndex((st) => st.k === "usingdecl");
+      if (i < 0) return stmts;
+      const rest = stmts.slice(i + 1);
+      const fns = rest.filter((st) => st.k === "localfn"), others = rest.filter((st) => st.k !== "localfn");
+      return stmts.slice(0, i).concat([{ k: "using", decl: stmts[i].decl, decl2: true, body: { k: "block", body: nestUsings(others), line: stmts[i].line, flat: true }, line: stmts[i].line }], fns);
     }
     function embedded() { return statement(); }
     function tryDecl() {
@@ -463,11 +474,27 @@
             if (acc("finally")) fin = block();
             return { k: "try", body, catches, fin, line };
           }
-          case "using": throw unsupported("using statements", line);
+          case "using": {
+            p++;
+            /* using (var r = …) stmt  —  or  —  using var r = …;  */
+            if (acc("(")) {
+              const save = p; const decl = tryDecl();
+              let res;
+              if (decl && decl.k === "var") res = { decl };
+              else { p = save; res = { e: expr() }; }
+              expect(")");
+              return Object.assign({ k: "using", body: embedded(), line }, res);
+            }
+            const decl = tryDecl();
+            if (!decl || decl.k !== "var") throw new CsError("CS1001", "Identifier expected", line, "compile", file);
+            expect(";");
+            return { k: "usingdecl", decl, line };
+          }
         }
       }
       if (t.t === "id" && t.v === "await") throw unsupported("async / await", line);
       if (t.t === "id" && t.v === "yield") throw unsupported("iterators (yield)", line);
+      if (t.t === "id" && (t.v === "checked" || t.v === "unchecked") && isOp("{", 1)) { p++; return { k: "checkedblock", on: t.v === "checked", body: block(), line }; }
       let stat = false;
       if (t.t === "kw" && t.v === "static" && (peek(1).t === "id" || (peek(1).t === "kw" && PRIM.has(peek(1).v)))) { p++; stat = true; } // static local function
       const d = tryDecl();
@@ -671,6 +698,7 @@
                 return { k: "newarr", type: ty, size, items: init ? init.items : null, jag, line };
               }
               let a = []; if (isOp("(")) a = args();
+              else if (!isOp("{")) throw new CsError("CS1526", "A new expression requires an argument list or (), [], or {} after type", line, "compile", file);
               let init = null; if (isOp("{")) init = objInit();
               return { k: "new", type: ty, args: a, init, line };
             }
@@ -734,7 +762,10 @@
   class CsTuple { constructor(items, names) { this.items = items; this.names = names || null; } }
   class CsKvp { constructor(k, v) { this.Key = k; this.Value = v; } }
   class CsSB { constructor(s) { this.s = s || ""; } }
-  class Hat { constructor(n) { this.n = n; } }                 // ^n, an index from the end
+  class Hat { constructor(n) { this.n = n; } }
+  class CsType { constructor(name, full) { this.name = name; this.full = full || name; } }
+  /* a StreamReader/StreamWriter over the in-memory file system */
+  class CsStream { constructor(kind, path, text) { this.kind = kind; this.path = path; this.text = text || ""; this.pos = 0; this.buf = ""; this.closed = false; } }                 // ^n, an index from the end
   class CsCulture { constructor(name) { const c = CULTURES[name] || CULTURES["en-GB"]; Object.assign(this, c); this.name = name; } }
   class CsMatch { constructor(m, re, input) { this.m = m; this.re = re; this.input = input; } }
   class CsGroups { constructor(match) { this.match = match; } }
@@ -843,6 +874,8 @@
     if (v instanceof CsTuple) return "(" + v.items.map(str).join(", ") + ")";
     if (v instanceof CsMatch) return v.m ? v.m[0] : "";
     if (v instanceof CsCulture) return v.name;
+    if (v instanceof CsType) return v.full;
+    if (v instanceof CsStream) return v.kind === "r" ? "System.IO.StreamReader" : "System.IO.StreamWriter";
     if (v instanceof CsRegex) return v.pattern;
     if (v instanceof CsKvp) return "[" + str(v.Key) + ", " + str(v.Value) + "]";
     if (v instanceof CsSB) return v.s;
@@ -876,14 +909,15 @@
 
   // ───────────────────────── the interpreter ─────────────────────────
   const BUILTIN_TYPES = new Set(["Console", "Math", "int", "long", "double", "float", "decimal", "string", "String", "char", "bool", "object", "Convert", "List", "Dictionary",
-    "HashSet", "Queue", "Stack", "CultureInfo", "NumberStyles", "Regex", "RegexOptions", "Match", "MatchCollection", "Group", "SortedDictionary", "SortedList", "SortedSet", "StringBuilder", "Random", "Environment", "Array", "Enumerable", "StringSplitOptions", "Exception", "ArgumentException",
+    "HashSet", "Queue", "Stack", "CultureInfo", "NumberStyles", "File", "Path", "Directory", "Debug", "StreamReader", "StreamWriter", "IOException", "FileNotFoundException", "DirectoryNotFoundException", "ObjectDisposedException", "Regex", "RegexOptions", "Match", "MatchCollection", "Group", "SortedDictionary", "SortedList", "SortedSet", "StringBuilder", "Random", "Environment", "Array", "Enumerable", "StringSplitOptions", "Exception", "ArgumentException",
     "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException", "IndexOutOfRangeException", "DivideByZeroException",
     "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "Assert", "Int32", "Double", "Char", "Boolean", "var",
     "Func", "Action", "Predicate", "KeyValuePair", "Tuple", "IEnumerable", "IList", "ICollection", "IDictionary", "IComparable", "Comparer", "StringComparer",
     "StringComparison", "Thread", "Fact", "Theory", "InlineData", "System", "nameof", "_", "Linq", "Collections", "Generic", "Text", "value", "MidpointRounding"]);
-  const EXC = ["Exception", "SystemException", "ArgumentException", "RegexParseException", "CultureNotFoundException", "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException",
+  const EXC = ["Exception", "SystemException", "ArgumentException", "RegexParseException", "CultureNotFoundException", "IOException", "FileNotFoundException", "DirectoryNotFoundException", "ObjectDisposedException", "EndOfStreamException", "UnauthorizedAccessException", "ArgumentOutOfRangeException", "ArgumentNullException", "InvalidOperationException", "FormatException",
     "IndexOutOfRangeException", "DivideByZeroException", "NullReferenceException", "KeyNotFoundException", "NotImplementedException", "OverflowException", "InvalidCastException", "AssertFailedException"];
-  const EXC_BASE = { Exception: null, SystemException: "Exception", ArgumentException: "SystemException", RegexParseException: "ArgumentException", CultureNotFoundException: "ArgumentException", ArgumentOutOfRangeException: "ArgumentException", ArgumentNullException: "ArgumentException",
+  const EXC_BASE = { Exception: null, SystemException: "Exception", ArgumentException: "SystemException", RegexParseException: "ArgumentException", CultureNotFoundException: "ArgumentException",
+    IOException: "SystemException", FileNotFoundException: "IOException", DirectoryNotFoundException: "IOException", EndOfStreamException: "IOException", ObjectDisposedException: "InvalidOperationException", UnauthorizedAccessException: "SystemException", ArgumentOutOfRangeException: "ArgumentException", ArgumentNullException: "ArgumentException",
     InvalidOperationException: "SystemException", FormatException: "SystemException", IndexOutOfRangeException: "SystemException", DivideByZeroException: "SystemException",
     NullReferenceException: "SystemException", KeyNotFoundException: "SystemException", NotImplementedException: "SystemException", OverflowException: "SystemException", InvalidCastException: "SystemException", AssertFailedException: "Exception" };
   const EXC_DEFAULT = { Exception: "Exception of type 'System.Exception' was thrown.", ArgumentException: "Value does not fall within the expected range.", InvalidOperationException: "Operation is not valid due to the current state of the object.", NotImplementedException: "The method or operation is not implemented." };
@@ -898,6 +932,9 @@
     const classes = new Map(); const enums = new Map();
     const globalFns = new Map();
     let rnd = null;
+    /* the in-memory file system: path → text, seeded by the request */
+    const fs = new Map(Object.entries(opts.fs || {}));
+    this.fsOut = () => { const o = {}; for (const [k, v] of fs) o[k] = v; return o; };
 
     function tick() { if (++steps > MAX_STEPS || ((steps & 8191) === 0 && Date.now() > DEADLINE)) throw new Budget("timeout"); }
     function write(s) { out += s; if (out.length > MAX_OUT) throw new Budget("output"); }
@@ -970,6 +1007,7 @@
       if (name === "ArgumentOutOfRangeException" && a.length === 1) return "Specified argument was out of the range of valid values." + P(a[0]);
       if (name === "ArgumentNullException" && a.length === 1) return "Value cannot be null." + P(a[0]);
       if ((name === "ArgumentOutOfRangeException" || name === "ArgumentNullException") && a.length === 2 && typeof a[1] === "string") return str(a[1]) + P(a[0]);
+      if (name === "ArgumentOutOfRangeException" && a.length === 3) return str(a[2]) + P(a[0]) + "\nActual value was " + str(a[1]) + ".";
       return null;
     }
     // coercion to declared types
@@ -1003,7 +1041,12 @@
     // object creation
     function instantiate(c, args, line, init, ctx) {
       if (c.isAbstract || c.isInterface) throw new CsError("CS0144", "Cannot create an instance of the abstract type or interface '" + c.name + "'", line, "compile");
-      if (c.builtin) { const o = new CsObj(c); o.f.set("Message", argMsg(c.name, args) || (args.length ? str(args[0]) : (EXC_DEFAULT[c.name] || "Exception of type 'System." + c.name + "' was thrown."))); if (args[1] instanceof CsObj) o.f.set("InnerException", args[1]); applyInit(o, init, ctx); return o; }
+      if (c.builtin) {
+        const o = new CsObj(c); o.f.set("Message", argMsg(c.name, args) || (args.length ? str(args[0]) : (EXC_DEFAULT[c.name] || "Exception of type 'System." + c.name + "' was thrown.")));
+        if (args[1] instanceof CsObj) o.f.set("InnerException", args[1]);
+        if (/^Argument/.test(c.name) && args.length) o.f.set("ParamName", c.name === "ArgumentException" ? (typeof args[1] === "string" ? args[1] : null) : str(args[0]));
+        applyInit(o, init, ctx); return o;
+      }
       const o = new CsObj(c);
       // field initialisers, base first
       const ch = chain(c).reverse();
@@ -1132,8 +1175,14 @@
     // member access
     function getMember(o, name, line, ctx) {
       if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
+      if (o instanceof CsType) { if (name === "Name") return o.name; if (name === "FullName") return o.full; }
+      if (o instanceof CsStream) {
+        if (name === "EndOfStream") { if (o.closed) throw exc("ObjectDisposedException", "Cannot read from a closed TextReader.", line); return o.pos >= o.text.length; }
+      }
       if (o instanceof CsObj) {
         if (name === "Message" && chain(o.cls).some((k) => k.builtin)) return o.f.get("Message");
+        if ((name === "ParamName" || name === "FileName") && chain(o.cls).some((k) => k.builtin)) return o.f.has(name) ? o.f.get(name) : null;
+        if (name === "StackTrace" && chain(o.cls).some((k) => k.builtin)) return o.f.get("StackTrace") || "   at Program.<Main>$(String[] args)";
         if (name === "InnerException") return o.f.get("InnerException") || null;
         const pr = findProp(o.cls, name);
         if (pr) {
@@ -1304,6 +1353,7 @@
         case "throw": {
           if (!s.e) { if (ctx.caught) throw ctx.caught; throw new CsError("CS0156", "A throw statement with no arguments is not allowed outside of a catch clause", s.line, "compile"); }
           const v = evalE(s.e, ctx);
+          if (v !== null && !(v instanceof CsObj)) throw new CsError("CS0029", "Cannot implicitly convert type '" + typeName(v) + "' to 'System.Exception'", s.line, "compile");
           if (!(v instanceof CsObj) || !chain(v.cls).some((k) => k.name === "Exception")) throw new CsError("CS0155", "The type caught or thrown must be derived from System.Exception", s.line, "compile");
           throw new Thrown(v, s.line);
         }
@@ -1312,17 +1362,108 @@
           try { result = execBlock(s.body, ctx); }
           catch (e) {
             if (!(e instanceof Thrown)) throw e;
-            const c = s.catches.find((c) => !c.type || isA(e.obj.cls, c.type.replace(/^System\./, "")));
-            if (!c) throw e;
-            const env = new Env(ctx.env); if (c.name) env.def(c.name, e.obj, null);
-            const c2 = Object.assign({}, ctx, { env, caught: e });
-            if (c.when && !truthy(evalE(c.when, c2), s.line)) throw e;
-            result = execBlock(c.body, c2);
+            /* the first catch whose type fits AND whose when-filter holds */
+            let hit = null;
+            for (const c of s.catches) {
+              if (c.type && !isA(e.obj.cls, c.type.replace(/^System\.(IO\.)?/, ""))) continue;
+              const env = new Env(ctx.env); if (c.name) env.def(c.name, e.obj, null);
+              const c2 = Object.assign({}, ctx, { env, caught: e });
+              if (c.when && !truthy(evalE(c.when, c2), s.line)) continue;
+              hit = [c, c2]; break;
+            }
+            if (!hit) throw e;
+            result = execBlock(hit[0].body, hit[1]);
           } finally { if (s.fin) { const r = execBlock(s.fin, ctx); if (r) result = r; } }
           return result;
         }
+        case "checkedblock": { const was = CHECKED; CHECKED = s.on ? 1 : 0; try { return execBlock(s.body, ctx); } finally { CHECKED = was; } }
+        case "using": {
+          /* using (x) body: x is disposed when the body ends, however it ends */
+          const env = new Env(ctx.env), c2 = Object.assign({}, ctx, { env });
+          let res;
+          if (s.decl) { exec(s.decl, c2); res = s.decl.decls.map((d) => env.v.get(d.name).val); }
+          else res = [evalE(s.e, c2)];
+          try { return s.body.k === "block" ? execBlock(s.body, c2) : exec(s.body, c2); }
+          finally { for (const r of res.reverse()) dispose(r, s.line); }
+        }
       }
       throw new CsError("NS0002", "Unknown statement " + s.k, s.line, "internal");
+    }
+    /* the source text of an argument, for [CallerArgumentExpression] */
+    let ARGTEXT = [];
+    function exprText(x) {
+      if (!x) return "";
+      switch (x.k) {
+        case "name": return x.n;
+        case "lit": return typeof x.v === "string" ? JSON.stringify(x.v) : x.v === null ? "null" : x.v instanceof D ? fmtDouble(x.v.v) : x.v instanceof Ch ? "'" + x.v.c + "'" : String(x.v);
+        case "un": return x.op + exprText(x.a);
+        case "mem": return exprText(x.o) + "." + x.n;
+        case "paren": return "(" + exprText(x.e) + ")";
+        case "bin": return exprText(x.a) + " " + x.op + " " + exprText(x.b);
+        case "call": return exprText(x.f) + "(" + x.args.map(exprText).join(", ") + ")";
+        case "idx": return exprText(x.o) + "[" + exprText(x.i) + "]";
+      }
+      return "?";
+    }
+    function dispose(r, line) {
+      if (r === null || r === undefined) return;
+      if (r instanceof CsStream) { streamMethod(r, "Dispose", [], line); return; }
+      if (r instanceof CsObj) { const m = findMethod(r.cls, "Dispose", 0, []); if (m) invoke(m.m, m.owner, r, [], line); }
+    }
+    /* ---- files: an in-memory disk the program reads and writes ---- */
+    function fsKey(p0, line) {
+      if (p0 === null || p0 === undefined) throw exc("ArgumentNullException", "Value cannot be null. (Parameter 'path')", line);
+      const p1 = String(p0).replace(/\\/g, "/").replace(/^\.\//, "");
+      if (p1 === "") throw exc("ArgumentException", "The value cannot be an empty string. (Parameter 'path')", line);
+      return p1;
+    }
+    function fsRead(p0, line) {
+      const k = fsKey(p0, line);
+      if (!fs.has(k)) {
+        const dir = k.includes("/") ? k.slice(0, k.lastIndexOf("/")) : null;
+        if (dir && ![...fs.keys()].some((x) => x.startsWith(dir + "/"))) throw exc("DirectoryNotFoundException", "Could not find a part of the path '" + k + "'.", line);
+        const e = exc("FileNotFoundException", "Could not find file '" + k + "'.", line); e.obj.f.set("FileName", k); throw e;
+      }
+      return fs.get(k);
+    }
+    function fsWrite(p0, text, append, line) {
+      const k = fsKey(p0, line);
+      const dir = k.includes("/") ? k.slice(0, k.lastIndexOf("/")) : null;
+      if (dir && !fs.has(dir + "/") && ![...fs.keys()].some((x) => x.startsWith(dir + "/"))) throw exc("DirectoryNotFoundException", "Could not find a part of the path '" + k + "'.", line);
+      fs.set(k, (append && fs.has(k) ? fs.get(k) : "") + text);
+    }
+    function splitLines(t) { const ls = t.split(/\r?\n/); if (ls.length && ls[ls.length - 1] === "") ls.pop(); return ls; }
+    function linesOf(v, line) { if (v instanceof CsList || v instanceof CsSet || v instanceof CsQueue) return enumerate(v, line).map(str); throw new CsError("CS1503", "Argument 2: cannot convert to 'IEnumerable<string>'", line, "compile"); }
+    function fileCall(n, a, line) {
+      const ARGS = { Exists: [1], ReadAllText: [1, 2], ReadAllLines: [1, 2], ReadLines: [1, 2], WriteAllText: [2, 3], AppendAllText: [2, 3], WriteAllLines: [2, 3], AppendAllLines: [2, 3], Delete: [1], Copy: [2, 3], Move: [2, 3] };
+      if (ARGS[n] && !ARGS[n].includes(a.length)) throw new CsError("CS1501", "No overload for method '" + n + "' takes " + a.length + " arguments", line, "compile");
+      switch (n) {
+        case "Exists": return a[0] != null && fs.has(fsKey(a[0], line));
+        case "ReadAllText": return fsRead(a[0], line);
+        case "ReadAllLines": return new CsList(splitLines(fsRead(a[0], line)), "System.String", true);
+        case "ReadLines": { const l = new CsList(splitLines(fsRead(a[0], line)), "System.String"); l.seq = true; return l; }
+        case "WriteAllText": fsWrite(a[0], str(a[1]), false, line); return;
+        case "AppendAllText": fsWrite(a[0], str(a[1]), true, line); return;
+        case "WriteAllLines": fsWrite(a[0], linesOf(a[1], line).map((x) => x + "\n").join(""), false, line); return;
+        case "AppendAllLines": fsWrite(a[0], linesOf(a[1], line).map((x) => x + "\n").join(""), true, line); return;
+        case "Delete": fs.delete(fsKey(a[0], line)); return;
+        case "Copy": { const t = fsRead(a[0], line), k = fsKey(a[1], line); if (fs.has(k) && a[2] !== true) throw exc("IOException", "The file '" + k + "' already exists.", line); fs.set(k, t); return; }
+        case "Move": { const t = fsRead(a[0], line), k = fsKey(a[1], line); if (fs.has(k)) throw exc("IOException", "Cannot create a file when that file already exists.", line); fs.delete(fsKey(a[0], line)); fs.set(k, t); return; }
+      }
+      throw new CsError("CS0117", "'File' does not contain a definition for '" + n + "'", line, "compile");
+    }
+    function streamMethod(o, n, a, line) {
+      const closed = () => { if (o.closed) throw exc("ObjectDisposedException", o.kind === "r" ? "Cannot read from a closed TextReader." : "Cannot write to a closed TextWriter.", line); };
+      switch (n) {
+        case "ReadLine": { closed(); if (o.pos >= o.text.length) return null; let j = o.text.indexOf("\n", o.pos); if (j < 0) j = o.text.length; let l = o.text.slice(o.pos, j); o.pos = j + 1; if (l.endsWith("\r")) l = l.slice(0, -1); return l; }
+        case "ReadToEnd": { closed(); const t = o.text.slice(o.pos); o.pos = o.text.length; return t; }
+        case "Peek": closed(); return o.pos < o.text.length ? o.text.charCodeAt(o.pos) : -1;
+        case "Write": closed(); o.buf += a.length > 1 ? composite(a[0], a.slice(1), line) : str(a[0]); return;
+        case "WriteLine": closed(); o.buf += (a.length > 1 ? composite(a[0], a.slice(1), line) : a.length ? str(a[0]) : "") + "\n"; return;
+        case "Flush": closed(); if (o.kind === "w") { fs.set(o.path, fs.get(o.path) + o.buf); o.buf = ""; } return;
+        case "Dispose": case "Close": if (!o.closed && o.kind === "w") { fs.set(o.path, fs.get(o.path) + o.buf); o.buf = ""; } o.closed = true; return;
+      }
+      throw new CsError("CS1061", "'" + (o.kind === "r" ? "StreamReader" : "StreamWriter") + "' does not contain a definition for '" + n + "'", line, "compile");
     }
     function truthy(v, line) {
       if (typeof v !== "boolean") throw new CsError("CS0029", "Cannot implicitly convert type '" + typeName(v) + "' to 'bool'", line, "compile");
@@ -1416,6 +1557,8 @@
     const FLAG = /^(None|RemoveEmptyEntries|TrimEntries|IgnoreCase|Multiline|Singleline|Compiled|IgnorePatternWhitespace|CultureInvariant)$/;
     function arith(op, a, b, line, wide) {
       if (op === "|" && typeof a === "string" && typeof b === "string" && a.split("|").every((x) => FLAG.test(x)) && FLAG.test(b)) return a + "|" + b;
+      /* & | ^ on bools evaluate both sides and give a bool */
+      if (typeof a === "boolean" && typeof b === "boolean" && (op === "&" || op === "|" || op === "^")) return op === "&" ? a && b : op === "|" ? a || b : a !== b;
       if (op === "+" && (typeof a === "string" || typeof b === "string")) return str(a) + str(b);
       if (a === null || b === null || a === undefined || b === undefined) { if (op === "+" && (typeof a === "string" || typeof b === "string")) return str(a) + str(b); throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line); }
       if (a instanceof CsEnum) a = a.value; if (b instanceof CsEnum) b = b.value;
@@ -1548,7 +1691,17 @@
         }
         case "is": { const v = evalE(e.e, ctx); const r = matchPattern(v, e.pat, ctx); return e.neg ? !r : r; }
         case "as": { const v = evalE(e.e, ctx); return isType(v, e.type) ? v : null; }
-        case "cast": return cast(evalE(e.e, ctx), e.type, e.line);
+        case "cast": {
+          const v = evalE(e.e, ctx);
+          /* from object the compiler allows any cast; a wrong one fails at run time */
+          const st = e.e.k === "name" ? staticTypeOf(e.e, ctx) : null;
+          if (st && st.name === "object" && v !== null && ["int", "double", "long", "decimal", "bool", "char", "string"].includes(e.type.name) && !e.type.arr) {
+            const ok = { int: typeof v === "number", long: typeof v === "number", double: v instanceof D && !v.m, decimal: v instanceof D && !!v.m, bool: typeof v === "boolean", char: v instanceof Ch, string: typeof v === "string" }[e.type.name];
+            if (!ok) throw exc("InvalidCastException", "Unable to cast object of type 'System." + ({ int: "Int32", string: "String", bool: "Boolean", char: "Char", double: "Double" }[typeName(v)] || typeName(v)) + "' to type 'System." + ({ int: "Int32", string: "String", bool: "Boolean", char: "Char", double: "Double", long: "Int64", decimal: "Decimal" }[e.type.name]) + "'.", e.line);
+            return v;
+          }
+          return cast(v, e.type, e.line);
+        }
         case "swexpr": {
           const v = evalE(e.e, ctx);
           for (const arm of e.arms) { const env = new Env(ctx.env); const c2 = Object.assign({}, ctx, { env }); if (matchPattern(v, arm.pat, c2) && (!arm.when || truthy(evalE(arm.when, c2), e.line))) return evalE(arm.e, c2); }
@@ -1679,6 +1832,8 @@
         case "KeyValuePair": return new CsKvp(args[0], args[1]);
         case "CultureInfo": if (!(str(args[0]) in CULTURES)) throw exc("CultureNotFoundException", "Only the cultures en-GB, en-US, de-DE and fr-FR are available in the in-app runner.", e.line); return new CsCulture(str(args[0]));
         case "Regex": jsRegex(args[0], args[1], e.line); return new CsRegex(str(args[0]), args[1] || "");
+        case "StreamReader": return new CsStream("r", fsKey(args[0], e.line), fsRead(args[0], e.line));
+        case "StreamWriter": { const k = fsKey(args[0], e.line); fsWrite(k, "", args[1] === true, e.line); return new CsStream("w", k); }
         default: {
           const c = classes.get(n);
           if (!c) throw new CsError("CS0246", "The type or namespace name '" + n + "' could not be found (are you missing a using directive or an assembly reference?)", e.line, "compile");
@@ -1758,7 +1913,7 @@
             if (!m.m.mods.has("static")) throw new CsError("CS0120", "An object reference is required for the non-static method '" + tn + "." + f.n + "'. Create an object with new " + tn + "(...) first", line, "compile");
             return invoke(m.m, m.owner, null, a, line);
           }
-          if (BUILTIN_TYPES.has(tn) || tn === "System") return callStatic(tn, f.n, argv(), line, ctx, f.targs);
+          if (BUILTIN_TYPES.has(tn) || tn === "System") { ARGTEXT = e.args.map(exprText); return callStatic(tn, f.n, argv(), line, ctx, f.targs); }
         }
         if (f.o.k === "base") {
           const a = argv(); const base = classes.get(ctx.cls.base);
@@ -1781,7 +1936,7 @@
     function callMethod(o, n, a, line, ctx) {
       if (o === null || o === undefined) throw exc("NullReferenceException", "Object reference not set to an instance of an object.", line);
       if (o instanceof CsObj) {
-        if (n === "GetType") return { Name: o.cls.name };
+        if (n === "GetType") return new CsType(o.cls.name, (chain(o.cls).some((k) => k.builtin) && o.cls.builtin ? (/IOException|FileNotFound|DirectoryNotFound|EndOfStream/.test(o.cls.name) ? "System.IO." : /KeyNotFound/.test(o.cls.name) ? "System.Collections.Generic." : "System.") : "") + o.cls.name);
         const m = findMethod(o.cls, n, a.length, a);
         if (m) {
           if (m.m.mods.has("private") && ctx && ctx.cls && !chain(o.cls).includes(ctx.cls) && ctx.cls !== m.owner) throw new CsError("CS0122", "'" + m.owner.name + "." + n + "' is inaccessible due to its protection level", line, "compile");
@@ -1797,6 +1952,8 @@
         throw new CsError("CS1061", "'" + o.cls.name + "' does not contain a definition for '" + n + "'", line, "compile");
       }
       if (o instanceof CsFn && n === "Invoke") return callFn(o, a, line);
+      if (n === "GetType" && !a.length) { const tn0 = typeName(o); const map = { int: "Int32", double: "Double", string: "String", bool: "Boolean", char: "Char", long: "Int64" }; return new CsType(map[tn0] || tn0, "System." + (map[tn0] || tn0)); }
+      if (o instanceof CsStream) return streamMethod(o, n, a, line);
       const r = builtinMethod(o, n, a, line);
       if (r !== NOPE) return r;
       throw new CsError("CS1061", "'" + typeName(o) + "' does not contain a definition for '" + n + "'", line, "compile");
@@ -1856,6 +2013,7 @@
           break;
         }
         case "int": case "Int32": case "long": case "Int64":
+          if (n === "TryParse" && a.length < 2) throw new CsError("CS1501", "No overload for method 'TryParse' takes " + a.length + " arguments", line, "compile");
           if (n === "Parse") return parseIntStrict(a[0], line, /long|64/i.test(tn) ? "long" : "int");
           if (n === "TryParse") { try { const v = parseIntStrict(a[0], line, /long|64/i.test(tn) ? "long" : "int"); a[1].set(v); return true; } catch (er) { if (er instanceof Thrown) { a[1].set(0); return false; } throw er; } }
           break;
@@ -1876,6 +2034,9 @@
           if (n === "Parse") return parseIntStrict(a[0], line, "double");
           if (n === "TryParse") { try { const v = parseIntStrict(a[0], line, "double"); a[1].set(v); return true; } catch (er) { if (er instanceof Thrown) { a[1].set(new D(0)); return false; } throw er; } }
           if (n === "IsNaN") return Number.isNaN(nv(a[0]));
+          if (n === "IsInfinity") return !Number.isFinite(nv(a[0])) && !Number.isNaN(nv(a[0]));
+          if (n === "IsPositiveInfinity") return nv(a[0]) === Infinity; if (n === "IsNegativeInfinity") return nv(a[0]) === -Infinity;
+          if (n === "IsFinite") return Number.isFinite(nv(a[0]));
           break;
         case "bool": case "Boolean": if (n === "Parse") { const s = String(a[0]).trim().toLowerCase(); if (s === "true") return true; if (s === "false") return false; throw exc("FormatException", "String '" + a[0] + "' was not recognized as a valid Boolean.", line); } break;
         case "char": case "Char": {
@@ -1923,6 +2084,30 @@
           break;
         case "Assert": return assertCall(n, a, line, targs);
         case "Regex": return regexCall(null, n, a, line);
+        case "File": return fileCall(n, a, line);
+        case "Debug": if (n === "Assert") { if (a[0] !== true) throw exc("InvalidOperationException", "Assertion failed. " + (a[1] != null ? str(a[1]) : ""), line); return; } if (n === "WriteLine") return; break;
+        case "Path":
+          if (n === "Combine") return a.map(str).filter((x) => x !== "").join("/");
+          if (n === "GetExtension") { const s0 = str(a[0]); const i = s0.lastIndexOf("."); return i > s0.lastIndexOf("/") ? s0.slice(i) : ""; }
+          if (n === "GetFileName") return str(a[0]).split("/").pop();
+          if (n === "GetFileNameWithoutExtension") { const f0 = str(a[0]).split("/").pop(); const i = f0.lastIndexOf("."); return i > 0 ? f0.slice(0, i) : f0; }
+          break;
+        case "ArgumentNullException": case "ArgumentException": case "ArgumentOutOfRangeException": {
+          const pn = ARGTEXT[0] || "value", v = a[0];
+          const P = " (Parameter '" + pn + "')", act = "\nActual value was " + str(v) + ".";
+          const fail = (type, msg, withParam) => { const e = exc(type, msg, line); e.obj.f.set("ParamName", pn); throw e; };
+          switch (n) {
+            case "ThrowIfNull": if (v === null || v === undefined) fail("ArgumentNullException", "Value cannot be null." + P); return;
+            case "ThrowIfNullOrEmpty": if (v === null) fail("ArgumentNullException", "Value cannot be null." + P); if (v === "") fail("ArgumentException", "The value cannot be an empty string." + P); return;
+            case "ThrowIfNullOrWhiteSpace": if (v === null) fail("ArgumentNullException", "Value cannot be null." + P); if (String(v).trim() === "") fail("ArgumentException", "The value cannot be an empty string or composed entirely of whitespace." + P); return;
+            case "ThrowIfNegative": if (nv(v) < 0) fail("ArgumentOutOfRangeException", pn + " ('" + str(v) + "') must be a non-negative value." + P + act); return;
+            case "ThrowIfNegativeOrZero": if (nv(v) <= 0) fail("ArgumentOutOfRangeException", pn + " ('" + str(v) + "') must be a non-negative and non-zero value." + P + act); return;
+            case "ThrowIfZero": if (nv(v) === 0) fail("ArgumentOutOfRangeException", pn + " ('" + str(v) + "') must be a non-zero value." + P + act); return;
+            case "ThrowIfGreaterThan": if (cmpVals(v, a[1]) > 0) fail("ArgumentOutOfRangeException", pn + " ('" + str(v) + "') must be less than or equal to '" + str(a[1]) + "'." + P + act); return;
+            case "ThrowIfLessThan": if (cmpVals(v, a[1]) < 0) fail("ArgumentOutOfRangeException", pn + " ('" + str(v) + "') must be greater than or equal to '" + str(a[1]) + "'." + P + act); return;
+          }
+          break;
+        }
         case "Thread": throw unsupported("threads", line);
       }
       throw new CsError("CS0117", "'" + tn + "' does not contain a definition for '" + n + "'", line, "compile");
@@ -2334,6 +2519,9 @@
       return null;
     }
     const FNTY = new Map();
+    /* user classes' base types, for the catch-order check */
+    const USERBASE = new Map();
+    (function walkTypes(ts) { for (const t of ts || []) { if (t.bases && t.bases.length) USERBASE.set(t.name, t.bases[0]); walkTypes(t.nested); } })(units.flatMap((u) => u.types));
     /* the locals and parameters of the method being walked (CS0136) */
     let OWN = new Set();
     function declLocal(name, sc, line, file, dup) {
@@ -2351,6 +2539,7 @@
         case "for": return !((!st.c || (st.c.k === "lit" && st.c.v === true)) && !breaks(st.body));
         case "switch": return !(st.sections.some((sec) => sec.labels.some((l) => l.def)) && st.sections.every((sec) => sec.body.length && !canEnd(sec.body[sec.body.length - 1]) && !breaks({ k: "block", body: sec.body })));
         case "try": return (canEnd(st.body) || st.catches.some((c) => canEnd(c.body))) && true;
+        case "using": case "checkedblock": return canEnd(st.body);
         default: return true;
       }
     }
@@ -2467,6 +2656,12 @@
             let ie = d.init; while (ie && ie.k === "un" && ie.op === "-") ie = ie.a;
             if (ie && ie.k === "lit" && ie.v instanceof D && !ie.v.m) errs.push(new CsError("CS0664", "Literal of type double cannot be implicitly converted to type '" + s.type.name + "'; use an '" + (s.type.name === "decimal" ? "M" : "F") + "' suffix to create a literal of this type", s.line, "compile", file));
           }
+          /* File.ReadAllText gives a string, File.ReadAllLines a string[] */
+          if (s.type && s.type.name === "string") for (const d of s.decls) {
+            const f = d.init && d.init.k === "call" && d.init.f && d.init.f.k === "mem" && d.init.f.o && d.init.f.o.k === "name" && d.init.f.o.n === "File" ? d.init.f.n : null;
+            if (f === "ReadAllText" && s.type.arr) errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string' to 'string[]'", s.line, "compile", file));
+            if (f === "ReadAllLines" && !s.type.arr) errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string[]' to 'string'", s.line, "compile", file));
+          }
           if (s.type && s.type.name === "string" && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "call" && d.init.f && d.init.f.k === "mem" && d.init.f.n === "Split") errs.push(new CsError("CS0029", "Cannot implicitly convert type 'string[]' to 'string'", s.line, "compile", file));
           if (s.type && s.type.name === "string" && !s.type.arr) for (const d of s.decls) if (d.init && d.init.k === "lit" && (typeof d.init.v === "number" || d.init.v instanceof D)) errs.push(new CsError("CS0029", "Cannot implicitly convert type '" + (d.init.v instanceof D ? "double" : "int") + "' to 'string'", s.line, "compile", file));
           return;
@@ -2506,7 +2701,16 @@
           for (const sec of s.sections) { const inner = new Set(sc); for (const l of sec.labels) { if (l.bind) inner.add(l.bind); } walkBlockLike(sec.body, inner, mem, file); }
           switches--; return;
         case "return": case "throw": if (s.e) expr(s.e, sc, mem, file); return;
-        case "try": stmt(s.body, sc, mem, file); for (const c of s.catches) { const inner = new Set(sc); if (c.name) inner.add(c.name); stmt(c.body, inner, mem, file); } stmt(s.fin, sc, mem, file); return;
+        case "try": {
+          /* a catch after one for its base type can never run (CS0160) */
+          const baseOf = (t) => EXC_BASE[t] !== undefined ? EXC_BASE[t] : USERBASE.get(t) || null;
+          const isSub = (a, b) => { for (let t = a, n = 0; t && n < 20; t = baseOf(t), n++) if (t === b) return true; return false; };
+          const ts = s.catches.map((c) => c.type ? c.type.replace(/^System\.(IO\.)?/, "") : "Exception");
+          s.catches.forEach((c, i) => { if (!c.when) for (let j = 0; j < i; j++) if (!s.catches[j].when && isSub(ts[i], ts[j])) { errs.push(new CsError("CS0160", "A previous catch clause already catches all exceptions of this or of a super type ('System." + ts[j] + "')", s.line, "compile", file)); break; } });
+          stmt(s.body, sc, mem, file); for (const c of s.catches) { const inner = new Set(sc); if (c.name) inner.add(c.name); stmt(c.body, inner, mem, file); } stmt(s.fin, sc, mem, file); return;
+        }
+        case "checkedblock": stmt(s.body, sc, mem, file); return;
+        case "using": { const inner = new Set(sc); if (s.decl) stmt(s.decl, inner, mem, file); else expr(s.e, inner, mem, file); stmt(s.body, inner, mem, file); return; }
       }
     }
     function expr(e, sc, mem, file) {
@@ -2553,7 +2757,7 @@
       }
     }
     /* types outside the implicit usings need their using (or a full name) */
-    const NEEDS = [[/^(CultureInfo|NumberStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder)$/, "System.Text"]];
+    const NEEDS = [[/^(Debug)$/, "System.Diagnostics"], [/^(CultureInfo|NumberStyles)$/, "System.Globalization"], [/^(Regex|RegexOptions|Match|MatchCollection|Group)$/, "System.Text.RegularExpressions"], [/^(StringBuilder)$/, "System.Text"]];
     for (const u of units) {
       const src = u.src || "";
       for (const [re, ns] of NEEDS) {
@@ -2644,7 +2848,7 @@
     let it = null;
     try {
       const units = compile(req.files);
-      it = new Interp({ stdin: req.stdin, budget: req.budget, ms: req.ms });
+      it = new Interp({ stdin: req.stdin, budget: req.budget, ms: req.ms, fs: req.fs });
       CUR = it;
       it.load(units);
       if (req.mode === "method") {
@@ -2661,9 +2865,9 @@
         return { ok: true, tests: results, stdout: it.out(), steps: it.steps(), ms: Date.now() - t0 };
       }
       it.runMain(units);
-      return { ok: true, stdout: it.out(), steps: it.steps(), ms: Date.now() - t0, constructs: constructs(units) };
+      return { ok: true, stdout: it.out(), steps: it.steps(), ms: Date.now() - t0, constructs: constructs(units), fs: it.fsOut() };
     } catch (e) {
-      return { ok: false, stdout: it ? it.out() : "", error: packError(e, it), steps: it ? it.steps() : 0, ms: Date.now() - t0 };
+      return { ok: false, stdout: it ? it.out() : "", error: packError(e, it), steps: it ? it.steps() : 0, ms: Date.now() - t0, fs: it ? it.fsOut() : null };
     } finally { CUR = null; CHECKED = 0; }
   }
   function toCs(v) {

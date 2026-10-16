@@ -472,7 +472,7 @@
     if (phone && !C().phoneFit(t)) { phoneLater(main, t); return; }
     KOS.shell.bleed(true);
     var ui = C().ui();
-    var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules };
+    var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules, fs: t.fs };
     var started = Date.now();
     var hintsOpen = C().taskState(t.id).hints;
     var answerShown = !!C().taskState(t.id).seen;
@@ -566,7 +566,7 @@
       runBtn.disabled = true; ed.running(true);
       selTab("output");
       var req = t.mode === "method" && t.examples && t.examples[0] ? { files: ed.files(), mode: "method", call: { name: t.method, args: t.examples[0].args } }
-        : { files: ed.files(), stdin: stdin.value };
+        : { files: ed.files(), stdin: stdin.value, fs: (t.examples && t.examples[0] && t.examples[0].fs) || t.fs };
       KOS.codeRun.run(req).then(function (r) {
         runBtn.disabled = false; ed.running(false);
         outBody.innerHTML = "";
@@ -578,6 +578,8 @@
           showError(r.error, outBody);
           if (r.stdout) outBody.insertBefore(el("pre", { class: "k-cx-out-pre k-mono", text: r.stdout.replace(/\n$/, "") }), outBody.firstChild);
         }
+        var wp = KOS.codeUI.writtenPanel(req.fs, r.fs);
+        if (wp) outBody.appendChild(wp);
       });
     }
     function showError(e, into) {
@@ -681,6 +683,8 @@
         bodyEl.appendChild(conceptChips(t.concepts));
         var stmt = el("div", { class: "k-prose k-cx-stmt", html: KOS.content.renderBlocks(t.statement || []) });
         bodyEl.appendChild(stmt);
+        var seed = t.fs || ((t.examples || [])[0] || {}).fs;
+        if (seed) bodyEl.appendChild(KOS.codeUI.filesPanel(seed, { open: true }));
         var ex = t.examples || [];
         if (ex.length) {
           bodyEl.appendChild(el("div", { class: "k-cx-exh" }, [el("span", { class: "k-kicker", text: "Examples" }),
@@ -920,7 +924,7 @@
         out.querySelectorAll("[data-ui~='code.retrieval-try']").forEach(function (n) { n.remove(); });
         if (kind === "predict") {
           go.disabled = true;
-          KOS.codeRun.run({ files: [{ name: "Program.cs", src: v.src }], stdin: v.stdin || "" }).then(function (r) {
+          KOS.codeRun.run({ files: [{ name: "Program.cs", src: v.src }], stdin: v.stdin || "", fs: v.fs }).then(function (r) {
             go.disabled = false;
             var real = r.ok ? KOS.codeRun.norm(r.stdout) : "";
             if (KOS.codeRun.norm(ans.value) === real) return finish(true);
@@ -933,7 +937,7 @@
           : ed.files();
         go.disabled = true;
         if (ed) ed.running(true);
-        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules }, files).then(function (c) {
+        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs }, files).then(function (c) {
           go.disabled = false;
           if (ed) ed.running(false);
           if (c.passed) return finish(true);

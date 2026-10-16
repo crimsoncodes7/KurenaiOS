@@ -453,6 +453,38 @@
     return o.bare ? row : KOS.ui.scroller(row, { keepRole: true, label: "Core path", prevLabel: "Earlier stages", nextLabel: "Later stages" });
   }
 
+  /* ---------------- files (unit 6): the in-memory disk ----------------
+     A listing, task or card may bring files ({ "scores.txt": "…" }); the
+     runner reads and writes them in memory. filesPanel shows the seed
+     files; writtenPanel shows what a run created or changed. */
+  function fileBox(name, text, tag) {
+    return el("div", { class: "k-cx-file", "data-ui": "code.file" }, [
+      el("div", { class: "k-cx-file-h" }, [el("span", { class: "k-cx-file-ic", "aria-hidden": "true", text: "▤" }), el("b", { class: "k-mono", text: name }),
+        tag ? el("span", { class: "k-cx-file-tag", text: tag }) : null,
+        el("span", { class: "k-cx-file-n", text: text === "" ? "empty" : splitN(text) + " line" + (splitN(text) === 1 ? "" : "s") })].filter(Boolean)),
+      text === "" ? null : el("pre", { class: "k-mono k-cx-file-pre", text: text.replace(/\n$/, "") })
+    ].filter(Boolean));
+  }
+  function splitN(t) { var n = String(t).split("\n").length; return /\n$/.test(t) ? n - 1 : n; }
+  function filesPanel(seed, opts) {
+    var names = Object.keys(seed || {});
+    if (!names.length) return null;
+    return el("details", { class: "k-cx-files", "data-ui": "code.files", open: (opts && opts.open) || names.length === 1 ? "" : null }, [
+      el("summary", { class: "k-cx-files-s" }, [names.length === 1 ? "File on the in-app disk: " : "Files on the in-app disk: ", el("span", { class: "k-mono", text: names.join(", ") })]),
+      el("div", { class: "k-cx-files-b" }, names.map(function (n) { return fileBox(n, seed[n]); }))
+    ]);
+  }
+  function writtenPanel(seed, after) {
+    if (!after) return null;
+    seed = seed || {};
+    var changed = Object.keys(after).filter(function (n) { return after[n] !== seed[n]; });
+    var gone = Object.keys(seed).filter(function (n) { return !(n in after); });
+    if (!changed.length && !gone.length) return null;
+    return el("div", { class: "k-cx-written", "data-ui": "code.files-written" }, [el("span", { class: "k-cx-out-k", text: "Files after the run" })]
+      .concat(changed.map(function (n) { return fileBox(n, after[n], n in seed ? "changed" : "new"); }))
+      .concat(gone.map(function (n) { return el("p", { class: "k-cx-note", text: n + " was deleted." }); })));
+  }
+
   /* ---------------- a runnable listing in notes ---------------- */
   /* run: { id, src, cap, stdin, out } — Run · Reset · Copy, the output
      under it, the error line marked. Editing never changes the lesson. */
@@ -473,12 +505,12 @@
       actions: [runBtn, reset, copy],
       onRun: go,
       onChange: function (v) { reset.disabled = v === orig; } });
-    var fig = el("figure", { class: "k-cx-listing", "data-ui": "code.listing", "data-lid": run.id || null }, [ed.el, out]);
+    var fig = el("figure", { class: "k-cx-listing", "data-ui": "code.listing", "data-lid": run.id || null }, [filesPanel(run.fs), ed.el, out].filter(Boolean));
     function go() {
       if (runBtn.disabled) return;
       runBtn.disabled = true;
       ed.running(true);
-      KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "" }).then(function (r) {
+      KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "", fs: run.fs }).then(function (r) {
         runBtn.disabled = false;
         ed.running(false);
         out.hidden = false;
@@ -499,6 +531,8 @@
           KOS.a11y && KOS.a11y.announce && KOS.a11y.announce(e.kind === "compile" ? "Compile error " + e.code + (e.line ? " on line " + e.line : "") + "."
             : e.kind === "timeout" ? "Did not finish." : "Stopped: " + e.code + (e.line ? " on line " + e.line : "") + ".");
         }
+        var wp = writtenPanel(run.fs, r.fs);
+        if (wp) out.appendChild(wp);
         if (opts.onRun) opts.onRun(run.id, r);
       });
     }
@@ -543,6 +577,7 @@
     highlight: highlight, highlightLines: highlightLines, editor: editor, errorCard: errorCard, results: results,
     diffView: diffView, reward: reward, payText: payText, hintLadder: hintLadder, evidence: evidence,
     strands: strands, where: where, dot: dot, daysText: daysText, chip: chip, stagePath: stagePath,
-    listing: listing, mountListings: mountListings, keyBar: keyBar, quoted: quoted, hm: hm
+    listing: listing, mountListings: mountListings, keyBar: keyBar, quoted: quoted, hm: hm,
+    filesPanel: filesPanel, writtenPanel: writtenPanel
   };
 })();

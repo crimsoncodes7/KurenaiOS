@@ -250,7 +250,7 @@
 
       function doRun() {
         runBtn.disabled = true; ed.running(true); tool("run");
-        KOS.codeRun.run({ files: ed.files(), stdin: stdin.value }).then(function (r) {
+        KOS.codeRun.run({ files: ed.files(), stdin: stdin.value, fs: spec.fs }).then(function (r) {
           runBtn.disabled = false; ed.running(false);
           out.innerHTML = "";
           if (r.stdout) out.appendChild(el("pre", { class: "k-cx-out-pre k-mono", "data-ui": "code.stdout", text: r.stdout.replace(/\n$/, "") }));
@@ -291,7 +291,7 @@
       function runMilestone(m, edr, batch) {
         showResults(m, null); tool("tests");
         edr.running(true);
-        return KOS.codeRun.check({ mode: "program", cases: m.cases }, edr.files()).then(function (c) {
+        return KOS.codeRun.check({ mode: "program", cases: m.cases, fs: m.fs || spec.fs }, edr.files()).then(function (c) {
           edr.running(false);
           C().recordMilestone(id, m.id, c.compile ? 0 : c.pass, c.total);
           showResults(m, c);

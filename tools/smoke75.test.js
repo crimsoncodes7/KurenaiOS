@@ -30,10 +30,10 @@ const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
-const run = (src, stdin) => CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "" });
+const run = (src, stdin, fs) => CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs });
 function passes(spec, src) {
   for (const c of spec.cases) {
-    const r = run(src, c.stdin);
+    const r = run(src, c.stdin, c.fs || spec.fs);
     if (!r.ok || norm(r.stdout) !== norm(c.out)) return false;
   }
   return (spec.rules || []).every((rl) => rl.test(src));
@@ -75,22 +75,22 @@ step("B · every written lesson meets the notes contract", () => {
     assert((p.predict || []).length + (p.fill || []).length + (p.bug || []).length >= 3, ref + ": practice items");
     const pit = ps.find((x) => x.title === "Pitfalls");
     const pitRuns = listings(pit.blocks, []);
-    if (pitRuns.length) assert(pitRuns.some((r) => { const o = run(r.src, r.stdin); return !o.ok && o.error.kind === "compile"; }) || ref === "1.8" || ref === "1.4", ref + ": no compile-error pitfall");
+    if (pitRuns.length) assert(pitRuns.some((r) => { const o = run(r.src, r.stdin, r.fs); return !o.ok && o.error.kind === "compile"; }) || ref === "1.8" || ref === "1.4", ref + ": no compile-error pitfall");
   });
 });
 step("C · every listing and practice item runs as it should", () => {
   written.forEach(({ ref }) => {
     const c = content["code:" + ref], ps = pages(c.notes);
     ps.forEach((pg) => listings(pg.blocks, []).forEach((r) => {
-      const o = run(r.src, r.stdin);
+      const o = run(r.src, r.stdin, r.fs);
       if (pg.title !== "Pitfalls" && !r.fails) assert(o.ok, ref + " listing " + r.id + " fails: " + JSON.stringify(o.error));
       else assert(o.ok || ["compile", "exception", "timeout"].includes(o.error.kind), ref + " pitfall " + r.id + ": " + JSON.stringify(o.error));
     }));
     const p = c.practice || {};
-    (p.predict || []).forEach((it) => assert(run(it.src, it.stdin).ok, ref + " predict " + it.id + " does not run"));
+    (p.predict || []).forEach((it) => assert(run(it.src, it.stdin, it.fs).ok, ref + " predict " + it.id + " does not run"));
     (p.bug || []).forEach((it) => {
       const cases = it.cases || [{ stdin: it.stdin || "", out: it.out }];
-      assert(!passes({ cases }, it.src), ref + " bug " + it.id + " already passes");
+      assert(!passes({ cases, fs: it.fs }, it.src), ref + " bug " + it.id + " already passes");
     });
     (p.fill || []).forEach((it) => assert(String(it.src).indexOf("@@") >= 0 && (it.out != null || it.cases), ref + " fill " + it.id + " has no gap or expectation"));
   });
@@ -104,7 +104,7 @@ step("D · every task: answer passes, starter does not, concepts exist", () => {
     assert((t.examples || []).length >= 1 && (t.hints || []).length === 3 && t.answer && t.title && t.statement, id + ": incomplete");
     assert(["warm-up", "core", "stretch"].includes(t.tier), id + ": tier");
     (t.concepts || []).concat(t.requires || []).forEach((c) => assert(K.CONCEPTS[c], id + ": unknown concept " + c));
-    const spec = { cases: (t.examples || []).concat(t.hidden || []), rules: t.rules };
+    const spec = { cases: (t.examples || []).concat(t.hidden || []), rules: t.rules, fs: t.fs };
     assert(passes(spec, t.answer), id + ": the answer does not pass its own check");
     assert(!passes(spec, t.starter || ""), id + ": the starter already passes");
   });
@@ -119,12 +119,12 @@ step("E · retrieval cards: 20 variations each, all solvable", () => {
       const v = variation(cd, n);
       assert(v.prompt, id + " v" + n + ": no prompt");
       const kind = v.kind || cd.kind;
-      if (kind === "predict") assert(run(v.src, v.stdin).ok, id + " v" + n + " does not run");
+      if (kind === "predict") assert(run(v.src, v.stdin, v.fs).ok, id + " v" + n + " does not run");
       else if (kind === "fill") assert(v.src.indexOf("@@") >= 0 && v.cases && v.cases.length, id + " v" + n + ": fill shape");
       else {
         assert(v.answer && v.cases && v.cases.length, id + " v" + n + ": write card without answer/cases");
-        assert(passes({ cases: v.cases, rules: v.rules }, v.answer), id + " v" + n + ": its answer fails");
-        assert(!passes({ cases: v.cases, rules: v.rules }, v.starter || ""), id + " v" + n + ": its starter passes");
+        assert(passes({ cases: v.cases, rules: v.rules, fs: v.fs }, v.answer), id + " v" + n + ": its answer fails");
+        assert(!passes({ cases: v.cases, rules: v.rules, fs: v.fs }, v.starter || ""), id + " v" + n + ": its starter passes");
       }
     }
   });
