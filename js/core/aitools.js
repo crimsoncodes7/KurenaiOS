@@ -885,6 +885,67 @@
   });
 
   /* ======================================================================
+     CODE (the C# study space; read only — evidence is earned in the app,
+     never written by a tool: invariants 106–110)
+     ====================================================================== */
+  function codeReady(cb) { if (!KOS.code || !KOS.code.lessons) { cb({ error: "Code is not loaded." }); return false; } return true; }
+  def("code_overview", {
+    desc: "Code (the C# study space): progress so far — lessons done, the current lesson, today's Daily 20, retrieval due, skills proven, tasks passed, katas, capstones, the Rider project, and which units are written.",
+    category: "study", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      if (!codeReady(cb)) return;
+      var C = KOS.code, st = C.stats(), plan = C.planDay();
+      var units = C.units().map(function (u) {
+        var us = C.unitState(u.ref);
+        return { unit: u.ref, title: u.title, written: us.released !== false, state: us.state, done: us.done, total: us.total };
+      });
+      var proj = C.projects().map(function (p) { var v = C.projectView(p.id); return { id: p.id, title: p.title, milestonesPassed: v.done, milestones: v.total, complete: !!v.payAt }; });
+      cb(null, {
+        lessonsDone: st.done, lessons: st.lessons, currentLesson: st.current ? { ref: st.current.ref, title: st.current.title } : null,
+        daily20: plan ? (plan.task ? { task: plan.task.id, title: plan.task.title, lesson: plan.task.lesson, done: plan.done, why: plan.why }
+          : { task: null, finishFirst: plan.lesson ? plan.lesson.ref : null, why: plan.why }) : null,
+        retrievalDue: st.due, skillsProven: st.skillsProven, tasksPassed: st.tasksPassed, tasksTried: st.tasksTried,
+        katas: C.katas ? C.katas().length : 0, capstonesPassed: st.capstones, capstones: st.capstonesTotal,
+        projects: proj, units: units
+      });
+    }
+  });
+  def("code_lesson", {
+    desc: "One Code lesson by ref (e.g. \"4.3\" or \"B.2\"): its four evidence checks (notes read, listings run, a task passed, a retrieval passed), whether it is covered, its concepts and its tasks with your state on each.",
+    category: "study", tier: "read", read: true,
+    params: { ref: { type: "string", required: true, maxLen: 12 } },
+    run: function (args, cb) {
+      if (!codeReady(cb)) return;
+      var C = KOS.code, L = C.lesson(args.ref);
+      if (!L) { cb({ error: "No Code lesson " + args.ref + "." }); return; }
+      var ev = C.evidence(args.ref), p = KOS.store.peekProgress("code", args.ref);
+      cb(null, {
+        ref: L.ref, title: L.title, unit: L.unit, written: C.hasLesson(L.ref), status: (p && p.status) || "none", covered: C.studied(L.ref),
+        checks: { notesRead: ev.checks[0], listingsRun: ev.checks[1], taskPassed: ev.checks[2], retrievalPassed: ev.checks[3] },
+        pages: ev.read + "/" + ev.pages, listings: ev.ran + "/" + ev.listings, practice: ev.practised + "/" + ev.practice,
+        concepts: C.conceptsOf(L.ref).map(function (c) { var sk = C.skill(c.id); return { id: c.id, name: c.name, proven: !!sk.proven, daysSinceProven: sk.days }; }),
+        tasks: C.tasksOf(L.ref).map(function (t) { var s = C.taskState(t.id); return { id: t.id, title: t.title, tier: t.tier, passed: !!s.passAt, tries: s.tries, hints: s.hints, answerSeen: !!s.seen }; })
+      });
+    }
+  });
+  def("code_skills", {
+    desc: "Code's skill map: concepts by days since last proven (≤7, 8–21, 22–40, 41+), covered-but-not-proven, and later. Optional unit filter (e.g. \"U4\"). Lists the rustiest first.",
+    category: "study", tier: "read", read: true,
+    params: { unit: { type: "string", maxLen: 4 } },
+    run: function (args, cb) {
+      if (!codeReady(cb)) return;
+      var all = KOS.code.skills().filter(function (s) { return !args.unit || s.unit === args.unit; });
+      var n = { b0: 0, b1: 0, b2: 0, b3: 0, np: 0, later: 0 };
+      all.forEach(function (s) { n[s.band]++; });
+      var rusty = all.filter(function (s) { return s.proven; }).sort(function (a, b) { return b.days - a.days; }).slice(0, 10)
+        .map(function (s) { return { name: s.name, lesson: s.lesson, days: s.days, by: s.proven.by }; });
+      var notProven = all.filter(function (s) { return s.band === "np"; }).slice(0, 15).map(function (s) { return { name: s.name, lesson: s.lesson }; });
+      cb(null, { counts: { upTo7Days: n.b0, days8to21: n.b1, days22to40: n.b2, over40Days: n.b3, coveredNotProven: n.np, later: n.later },
+        rustiest: rusty, coveredNotProven: notProven });
+    }
+  });
+
+  /* ======================================================================
      GOVERNOR
      ====================================================================== */
   def("governor_get_status", {

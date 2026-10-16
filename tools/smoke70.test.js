@@ -334,6 +334,33 @@ step("J · the Home card, then search finds Reports", async (app) => {
   assert(groups && groups.some(g => g.id === "reports"), "search finds Reports");
 });
 
+/* ============ Code in a report (invariant 110's ledger) ============ */
+step("Code: a week's proofs from the ledger, a card and a tile; none without code", async (app) => {
+  const CW = { period: "week", id: "week:2026-09-21", start: "2026-09-21", end: "2026-09-27" };
+  const code = (date, h, ref, metrics, dur) => ({ id: "c" + date + h, ts: at(date, h), date, type: "code", subject: "code", ref, dur: dur || null, metrics });
+  const ledger = [
+    code("2026-09-21", 18, "1.1", { kind: "task", id: "1.1-box", tier: "warm-up", proved: ["toplevel", "writeline"] }),
+    code("2026-09-21", 19, "1.1", { kind: "task", id: "1.1-two", seen: true }),
+    code("2026-09-22", 18, "1.2", { kind: "retrieval", id: "u1-x", grade: "good", paid: true, proved: ["types"] }),
+    code("2026-09-23", 18, "1.2", { kind: "retrieval", id: "u1-y", grade: "again", paid: false, proved: [] }),
+    code("2026-09-24", 18, "1.1", { kind: "kata", id: "k1", right: 4, total: 5 }, 420),
+    code("2026-09-24", 19, "1.1", { kind: "practice", id: "1.1:p1", proved: ["writeline"] })
+  ];
+  const f = app.KOS.report.compute({ ledger, rows: [], tally: {}, reminders: [], habits: [] }, CW);
+  const c = f.code;
+  assert(c && c.tasks === 1 && c.skills === 3 && c.retrieval === 2 && c.retrievalOk === 1 && c.katas === 1 && c.kataRight === 4 && c.practice === 1,
+    "the week counts first passes (not a seen answer), skills, retrieval, katas and practice: " + JSON.stringify(c));
+  assert(!("capstones" in c) && c.lessons[0].ref === "1.1", "zero facts are absent; lessons ranked");
+  assert(!app.KOS.report.compute({ ledger: [], rows: [], tally: {}, reminders: [], habits: [] }, CW).code, "no code, no section");
+  const payload = app.KOS.reportWords.payload({ facts: f });
+  assert(payload.code_tasks_passed === 1 && payload.code_retrievals === "1/2", "Kurenai's words get the totals only");
+  await save(app, CW, { ledger });
+  await show(app, { period: "week", start: CW.start });
+  const card = main(app).querySelector("[aria-label='Code'][data-ui~='reports.card']");
+  assert(card && /Tasks passed/.test(card.textContent) && card.querySelector("[data-ui~='reports.code-lesson']"), "the week page has a Code card");
+  assert([...main(app).querySelectorAll("[data-ui~='ui.stat']")].some(t => /Code/.test(t.textContent)), "…and a Code tile");
+});
+
 (async () => {
   const app = await boot();
   let fails = 0;

@@ -20,7 +20,7 @@ chronological diary here.
   https://d5ae99db.kurenai-os.pages.dev (16 October 2026; katas, GitHub v1,
   "Coming later" for units 7–12, Home's one desk row)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-14`
+- Service-worker version: `kos-code-15`
 - Required smoke gate: 79 / 79 suites.
 
 ## Run, test and deploy
@@ -810,6 +810,13 @@ source comments and audit notes refer to it.
     progress, and GitHub moves no XP, gold or HP. Katas
     (`KOS.code.kataDraw`, `#/code/kata`) draw five practice questions from
     covered lessons, are recorded in `state.code.katas` and pay nothing.
+    In Reports, `f.code` (`programming()` in `report.js`) counts what the
+    LEDGER says was proven in the period — first passes (never a seen
+    answer), skills proven, retrievals and grades, katas, practice,
+    capstones, Rider projects — zero facts absent; the words' payload gets
+    those totals only. The Assistant reads Code through `code_overview`,
+    `code_lesson` and `code_skills` and has no Code write tool: evidence is
+    earned in the app, never set by a tool.
 
 ### Reports (99–102)
 

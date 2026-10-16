@@ -199,6 +199,19 @@ step("E · katas draw from covered lessons, record a run and pay nothing", async
   K.show("code", { page: "kata" }); await app.settle();
   assert(app.document.querySelector('[data-ui~="code.kata-start"]'), "the kata page offers a start");
 });
+step("E · the Assistant's Code tools read progress and write nothing", async (app) => {
+  const K = app.KOS;
+  const ex = (name, args) => new Promise(res => K.ai.tools.execute(name, args, (err, result) => res({ err, result })));
+  const before = JSON.stringify(K.store.state.code) + JSON.stringify(K.store.state.progress);
+  const o = await ex("code_overview", {});
+  assert(!o.err && o.result.lessons > 100 && o.result.units.some(u => u.unit === "U7" && !u.written) && o.result.units.some(u => u.unit === "U1" && u.written), "the overview: lessons and which units are written");
+  const l = await ex("code_lesson", { ref: "1.1" });
+  assert(!l.err && l.result.title && typeof l.result.checks.notesRead === "boolean" && l.result.tasks.length, "one lesson's checks and tasks");
+  assert((await ex("code_lesson", { ref: "99.9" })).err, "an unknown lesson is an error");
+  const sk = await ex("code_skills", { unit: "U1" });
+  assert(!sk.err && typeof sk.result.counts.later === "number", "the skill map by band");
+  assert(JSON.stringify(K.store.state.code) + JSON.stringify(K.store.state.progress) === before, "reading wrote nothing");
+});
 step("E · Code's pages write nothing when drawn", async (app) => {
   const K = app.KOS;
   K.show("subject", "compsci"); await app.settle();

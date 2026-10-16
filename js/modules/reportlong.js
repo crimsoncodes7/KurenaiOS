@@ -304,7 +304,7 @@
     k.reportTop(holder, rep);
     holder.appendChild(monthTiles(rep));
     holder.appendChild(activityCard(rep, "Activity · by day"));
-    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), collectionCard(rep), kurenaiCard(rep), planGovCard(rep)]));
+    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), K().codeCard(rep), collectionCard(rep), kurenaiCard(rep), planGovCard(rep)]));
   }
 
   /* ---------------- the term (24d) ---------------- */
@@ -337,7 +337,7 @@
     var fh = focusHabits(rep);
     if (fh) holder.appendChild(fh);
     holder.appendChild(activityCard(rep, "Week by week"));
-    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), collectionCard(rep), kurenaiCard(rep), planGovCard(rep)]));
+    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), K().codeCard(rep), collectionCard(rep), kurenaiCard(rep), planGovCard(rep)]));
   }
 
   /* ---------------- the year (24e, 24j) ---------------- */

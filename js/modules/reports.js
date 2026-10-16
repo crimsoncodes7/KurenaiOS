@@ -747,7 +747,7 @@
     var plan = planCard(rep), gov = governorCard(rep);
     holder.appendChild(el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, pack([
       { node: studyCard(rep) }, { node: focusCard(rep) }, { node: plan || gov },
-      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }
+      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) }
     ])));
   }
   function weekTiles(f) {
@@ -759,6 +759,7 @@
       s.touched ? tile("Topics", s.touched, s.toGreen ? s.toGreen + " to Green" : null) : null,
       fo.blocks ? tile("Focus", fo.blocks, "longest " + fo.longest + "m") : null,
       f.plan ? tile("Plan", f.plan.ticked + "/" + f.plan.planned, f.plan.carried ? f.plan.carried + " carried" : "all ticked") : null,
+      f.code && (f.code.tasks || f.code.skills) ? tile("Code", W.num(f.code.tasks || 0), "tasks" + (f.code.skills ? " · " + W.plural(f.code.skills, "skill") : "")) : null,
       c ? tile("Collection", c.count, "titles" + (c.estMins ? " · ≈ " + W.hm(c.estMins) : "")) : null,
       g.xp ? tile("Earned", "+" + W.num(g.xp), "XP" + (g.gold ? " · +" + W.num(g.gold) + " ◆" : "")) : null,
       g.streak ? tile("Streak", g.streak, "days" + (g.rest ? " · rest " + g.rest : "")) : null
@@ -924,6 +925,32 @@
         ].filter(Boolean)) : null
       ].filter(Boolean))
     ]);
+  }
+  /* Code (f.code, from the ledger): what was proven, not time spent */
+  function codeCard(rep) {
+    var c = rep.facts.code;
+    if (!c) return null;
+    var rows = [];
+    if (c.tasks) rows.push({ k: "Tasks passed", v: W.num(c.tasks), tone: "teal" });
+    if (c.skills) rows.push({ k: "Skills proven", v: W.num(c.skills) });
+    if (c.retrieval) rows.push({ k: "Retrieval", v: (c.retrievalOk || 0) + " of " + c.retrieval + " proven" });
+    if (c.katas) rows.push({ k: "Katas", v: c.katas + (c.kataTotal ? " · " + (c.kataRight || 0) + "/" + c.kataTotal + " right" : "") });
+    if (c.practice) rows.push({ k: "Practice right", v: W.num(c.practice) });
+    if (c.capstones) rows.push({ k: "Capstones passed", v: W.num(c.capstones), tone: "teal" });
+    if (c.projects) rows.push({ k: "Rider projects done", v: W.num(c.projects), tone: "teal" });
+    if (!rows.length && !(c.lessons || []).length) return null;
+    return card("Code", { className: "k-rp-card--code" }, [
+      rows.length ? kvRows(rows) : null,
+      (c.lessons || []).length ? el("h3", { class: "k-rp-subhead", text: "Lessons worked on" }) : null,
+      (c.lessons || []).length ? el("ol", { class: "k-rp-topics" }, c.lessons.map(function (l, i) {
+        return el("li", {}, [el("button", { type: "button", class: "k-rp-topic", "data-ui": "reports.code-lesson", title: l.ref + " " + l.title,
+          onclick: function () { KOS.show("ref", { subject: "code", ref: l.ref }); } }, [
+          mono(String(i + 1), "k-rp-rank"),
+          el("span", { class: "k-rp-topic-name" }, [dot("var(--code)"), mono(l.ref, "k-rp-ref"), el("span", { class: "k-rp-topic-t", text: l.title })]),
+          mono("", "k-rp-topic-m"), mono(l.n + "×", "k-rp-topic-r"), el("span", { class: "k-rp-topic-s" })
+        ])]);
+      })) : null
+    ].filter(Boolean));
   }
   function governorCard(rep) {
     var f = rep.facts, g = f.gov, k = f.kurenai;
@@ -1415,7 +1442,7 @@
   KOS.reportsKit = {
     el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
     stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
-    bars: bars, kvRows: kvRows, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    bars: bars, kvRows: kvRows, codeCard: codeCard, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
     cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
     flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,
     open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip, reportTop: reportTop,

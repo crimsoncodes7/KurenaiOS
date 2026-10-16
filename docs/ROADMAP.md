@@ -1003,6 +1003,10 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 | Automation engine | never existed; Category 6 refused a placeholder | a concrete use case |
 | Syncing media kv (hero picks, per-season scenery, other view picks) | kv also holds provider credentials, so it needs a whitelist of syncable keys, and an uploaded hero is a data URL too large for the state document (it would ride the attachment path instead). The Shrine's tie order already syncs, in the state document | you schedule it (asked for as a nice-to-have, 27 Sep) |
 | Alternate mascots and logo families (Fallen Crown / Faded Oath), re-polished overlays | art work, not code | art exists (◆ for their presentation) |
+| Code units 7–12, capstones 3–4, the deepening modules and the tracks | paused at Bridge B on 17 October 2026 to save weekly usage; the full C# runtime they need is built and live, and the desk shows them "Coming later" | you resume Code content |
+| Code's full runtime on a phone | Code is studied on a Mac, not a phone (17 October 2026) | you want to code on a phone |
+| The Rider validator on Windows and Linux | macOS is the only machine in use; it is verified there (17 October 2026) | another operating system is used |
+| Code → GitHub as a GitHub App (OAuth through a `github-token` Edge Function) and CI-verified evidence | v1 uses a fine-grained token, which is enough for one person; CI evidence needs a workflow in the repository that runs the validator | a token per device becomes a chore, or CI evidence is wanted |
 | Scheduled messages while the app is closed | the Assistant's tools read this device's data and there is no push server (invariant 98). It needs a server runner (a cron Edge Function with read tools over the synced state document) and Web Push (VAPID keys, subscriptions, a `push` handler in `sw.js`) | you want 07:00 to arrive with the app shut |
 
 ---

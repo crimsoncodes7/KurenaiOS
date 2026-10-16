@@ -588,6 +588,38 @@
     if (s0 && s0.gov && s1 && s1.gov && s1.gov.level > s0.gov.level) out.levelFrom = s0.gov.level;
     return out;
   }
+  /* Code (invariant 110's ledger): what was PROVEN in the period, from the
+     code entries of the session ledger only — a task's first pass, the
+     skills proven (task, retrieval, practice), retrievals and their grades,
+     katas, capstones and Rider projects completed. Nothing here re-derives
+     evidence from state.code: a saved report keeps what the ledger said. */
+  function programming(input, p) {
+    var es = input.inRange.filter(function (e) { return e.type === "code" && e.metrics; });
+    if (!es.length) return null;
+    var out = { tasks: 0, practice: 0, retrieval: 0, retrievalOk: 0, katas: 0, kataRight: 0, kataTotal: 0, capstones: 0, projects: 0, skills: 0, mins: 0 };
+    var proved = {}, lessons = {}, days = {};
+    es.forEach(function (e) {
+      var m = e.metrics;
+      days[e.date] = true;
+      if (e.ref) lessons[e.ref] = (lessons[e.ref] || 0) + 1;
+      if (e.dur) out.mins += e.dur / 60;
+      if (m.kind === "task" && !m.seen && !m.topup) out.tasks++;
+      else if (m.kind === "practice") out.practice++;
+      else if (m.kind === "retrieval") { out.retrieval++; if (m.grade && m.grade !== "again") out.retrievalOk++; }
+      else if (m.kind === "kata") { out.katas++; out.kataRight += m.right | 0; out.kataTotal += m.total | 0; }
+      else if (m.kind === "capstone") out.capstones++;
+      else if (m.kind === "project") out.projects++;
+      (m.proved || []).forEach(function (c) { proved[c] = true; });
+    });
+    out.skills = Object.keys(proved).length;
+    out.days = Object.keys(days).length;
+    out.mins = round(out.mins);
+    out.lessons = Object.keys(lessons).sort(function (a, b) { return lessons[b] - lessons[a] || (a < b ? -1 : 1); }).slice(0, 5)
+      .map(function (ref) { var L = KOS.code && KOS.code.lesson ? KOS.code.lesson(ref) : null; return { ref: ref, title: L ? L.title : ref, n: lessons[ref] }; });
+    /* zero-only facts are left out (invariant 77) */
+    Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
+    return out;
+  }
   function kurenai(input, p) {
     var t = input.tally || {}, chats = 0, sched = 0, areas = {};
     Object.keys(t).forEach(function (d) {
@@ -867,6 +899,7 @@
     var pl = plan(input, p); if (pl) f.plan = pl;
     var tk = tasks(input, p); if (tk) f.tasks = tk;
     var co = collection(input, p); if (co) f.collection = co;
+    var pg = programming(input, p); if (pg) f.code = pg;
     f.gov = governor(input, p);
     var ku = kurenai(input, p); if (ku) f.kurenai = ku;
     if (input.prev) f.prev = input.prev;
@@ -943,6 +976,7 @@
       peakHour: f.focus.peakHour != null ? f.focus.peakHour : null,
       reminders: f.tasks && f.tasks.reminders ? f.tasks.reminders : 0,
       chats: f.kurenai && f.kurenai.chats ? f.kurenai.chats : 0,
+      codeTasks: f.code && f.code.tasks ? f.code.tasks : 0, codeSkills: f.code && f.code.skills ? f.code.skills : 0,
       completed: f.collection && f.collection.status ? (f.collection.status.finished || 0) : 0,
       dayAvg: f.study.of ? Math.round(f.study.mins / f.study.of) : null };
   }

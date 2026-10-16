@@ -239,6 +239,12 @@
       bd.forEach(function (m, i) { if (m > bd[best]) best = i; });
       out.peak = (f.period === "week" ? DAY3[best] + " " : "") + (fo.peakHour < 10 ? "0" : "") + fo.peakHour;
     }
+    if (f.code) {
+      if (f.code.tasks) out.code_tasks_passed = f.code.tasks;
+      if (f.code.skills) out.code_skills_proven = f.code.skills;
+      if (f.code.retrieval) out.code_retrievals = (f.code.retrievalOk || 0) + "/" + f.code.retrieval;
+      if (f.code.katas) out.code_katas = f.code.katas;
+    }
     if (f.plan) {
       out.plan = f.plan.ticked + "/" + f.plan.planned;
       if (f.plan.carried) {
