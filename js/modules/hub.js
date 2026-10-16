@@ -1147,7 +1147,7 @@
       tcard.appendChild(KOS.ui.emptyState({ compact: true, mark: "澄", title: "Nothing on today",
         body: hasUp ? "No lessons, events or assignments due today." : "No lessons or events today, no countdowns, no assignments due. Add a deadline or start a session." }));
     }
-    todayItems.slice(0, 6).forEach(function (t) {
+    todayItems.slice(0, 3).forEach(function (t) {
       tcard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": t.ui || null, "data-state": t.done ? "done" : null, onclick: t.go }, [
         el("span", { class: "k-day-bar", style: "--row-c: " + t.hue, "aria-hidden": "true" }),
         el("span", { class: "k-day-txt" }, [
@@ -1174,7 +1174,7 @@
           ])
         ]));
       });
-      counts.slice(0, Math.max(0, 4 - Math.min(2, urgent.length))).forEach(function (c) {
+      counts.slice(0, Math.max(0, 3 - Math.min(2, urgent.length))).forEach(function (c) {
         ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item" + (c.kind === "assignment" ? " asg.urgent" : ""),
           onclick: function () { KOS.calendar.openCountdown(c, function () { KOS.show("home", undefined, { _nav: true }); }); } }, [
           el("span", { class: "k-days-dot", "data-state": c.days === 0 ? "now" : null, text: String(c.days) }),

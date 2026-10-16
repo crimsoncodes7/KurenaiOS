@@ -178,7 +178,9 @@ button.k-hours-fact:hover .k-hours-fact-v { color: var(--crimson); }
 .k-continue-head { display: flex; align-items: baseline; margin: var(--sp-14) var(--sp-4) var(--sp-12); }
 .k-continue-head h2 { font-size: var(--fs-17); }
 .k-continue-head .k-link { margin-inline-start: auto; font-size: var(--fs-12-5); }
-.k-desks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-14); align-items: stretch; }
+.k-desks { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 3 * var(--sp-14)) / 4); gap: var(--sp-14); align-items: stretch; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-block-end: var(--sp-6); }
+/* the four study desks and the Collection in ONE row that scrolls sideways */
+.k-desks > * { scroll-snap-align: start; }
 .k-desk { display: flex; flex-direction: column; min-inline-size: 0; padding: var(--sp-18) var(--sp-20) var(--sp-16); border-radius: var(--r-24); background: linear-gradient(color-mix(in oklch, var(--desk-c) 12%, var(--s1)) 0%, var(--s1) 55%); }
 .k-desk-top { display: flex; align-items: flex-start; gap: var(--sp-12); }
 .k-desk-name { flex: 1 1 0; min-inline-size: 0; }
@@ -211,7 +213,7 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 @media (max-width: 1240px) {
 .k-home-mid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-home-mid > .k-upnext, .k-home-mid > .k-plan, .k-home-mid:has(> .k-rp-home[hidden]) > .k-hours { grid-column: 1 / -1; }
-.k-desks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-desks { grid-auto-columns: calc((100% - var(--sp-14)) / 2); }
 }
 
 @media (max-width: 1080px) {
@@ -239,7 +241,7 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 .k-home-dot { display: none; }
 .k-home-goal { display: flex; grid-column: 1 / -1; inline-size: auto; margin-block-start: var(--sp-6); }
 .k-home-goal > .k-btn { align-self: stretch; justify-content: center; min-block-size: var(--hit-coarse); }
-.k-desks { display: flex; grid-template-columns: none; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.k-desks { display: flex; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
 .k-desks > * { flex: 0 0 var(--home-desk-phone-w); scroll-snap-align: start; }
 }
 
