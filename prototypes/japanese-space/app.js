@@ -307,14 +307,18 @@
     }
   };
 
+  routes.media = function (m, args) { JA.media.view(m, args); };
+
   routes.review = function (m) {
+    // saved lines need their clips indexed first (IndexedDB); everything else is synchronous
+    if (JA.media && !routes.review._ready) { JA.media.ready.then(function () { routes.review._ready = true; if (/^#\/review/.test(location.hash)) draw(); }); return; }
     var day = today(), q = S.queue(st.facets, day);
     if (!q.length) {
       m.appendChild(header("Reviews", "Nothing is due."));
       m.appendChild(el("div", { class: "card empty" }, [el("p", { text: "Your next reviews come due " + nextDue() + ". Use “Next day” on the desk to test the scheduler." }), el("a", { class: "btn primary", href: "#/desk", text: "Back to the desk" })]));
       return;
     }
-    runSession(m, q.map(function (k) { return X.forFacet(k, st.facets[k].reps || 0); }), "Reviews");
+    runSession(m, q.map(function (k) { return X.forFacet(k, st.facets[k].reps || 0); }).filter(Boolean), "Reviews");
   };
   function nextDue() {
     var d = Math.min.apply(null, Object.keys(st.facets).map(function (k) { return st.facets[k].due; }).concat([Infinity]));
@@ -409,5 +413,7 @@
     m.appendChild(el("section", { class: "card" }, [el("h2", { text: "Voice" }), el("p", { class: "muted", text: "The slice uses this browser's Japanese voice; VOICEVOX recordings replace it in the app." }), X.audioBtn("これはほんです。", "Test the voice")]));
   };
 
+  // what media.js needs from the app
+  JA.app = { state: function () { return st; }, save: save, today: today, header: header, draw: draw, announce: announce };
   draw();
 })();

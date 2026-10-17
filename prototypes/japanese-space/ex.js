@@ -92,6 +92,12 @@
       return { id: fk, kind: "say-it", skills: ["S"], items: [p.item], prompt: { text: "“" + it.en[0] + "”" }, ask: "Say it in Japanese.",
         answer: { strategy: "dictation", target: it.r, alt: [it.w] }, model: it.w, targetMs: 8000 };
     }
+    if (kind === "x") { // a line saved from your media (media.js): hear it, write it
+      var c = JA.clipIndex && JA.clipIndex[p.item.slice(2)];
+      if (!c) return null;
+      return { id: fk, kind: "clip-dictation", skills: ["L"], items: [p.item], prompt: { clip: c.url }, ask: "Your saved line. What do they say?",
+        answer: { strategy: "dictation", target: c.kana, alt: (c.alt || []).concat([c.text]) }, model: c.text, targetMs: 20000 };
+    }
     if (kind === "g") {
       if (sk === "R") {
         if (p.item === "g:kosoa" || !JA.builds[p.item]) {
@@ -142,6 +148,14 @@
     if (ex.prompt.sub) prompt.appendChild(el("div", { class: "muted", text: ex.prompt.sub }));
     if (ex.prompt.text) prompt.appendChild(el("div", { class: "ptext", text: ex.prompt.text }));
     if (ex.prompt.gap) prompt.appendChild(el("div", { class: "gap", lang: "ja" }, [ex.prompt.gap.before, el("span", { class: "slot", "aria-label": "blank", text: "？" }), ruby(ex.prompt.gap.after, opts.known, opts.furigana)]));
+    if (ex.prompt.clip) {
+      var clipAudio = el("video", { src: ex.prompt.clip, class: "clip-mini", playsinline: true });
+      var playClip = function (rate) { clipAudio.playbackRate = rate || 1; clipAudio.currentTime = 0; clipAudio.play(); };
+      prompt.appendChild(el("div", { class: "listen" }, [clipAudio,
+        el("button", { class: "btn icon", type: "button", "aria-label": "Play the line", onclick: function () { playClip(1); } }, ["▶"]),
+        el("button", { class: "btn icon slow", type: "button", "aria-label": "Play slowly", onclick: function () { playClip(0.75); } }, ["0.75×"])]));
+      setTimeout(function () { playClip(1); }, 250);
+    }
     if (ex.prompt.audio) {
       prompt.appendChild(el("div", { class: "listen" }, [audioBtn(ex.prompt.audio, "Play the audio"), el("span", { class: "muted", text: G.speechSynthesis ? "" : "No Japanese voice in this browser." })]));
       setTimeout(function () { say(ex.prompt.audio); }, 250);
@@ -170,6 +184,7 @@
       if (res.diagnosis) verdictBox.appendChild(el("p", { class: "diag" }, [el("span", { class: "chip", text: res.diagnosis.code }), " " + res.diagnosis.explain]));
       if (final && res.verdict !== "correct") verdictBox.appendChild(el("p", { class: "model" }, ["Answer: ", el("span", { lang: "ja", text: ex.model })]));
       if (final && ex.en) verdictBox.appendChild(el("p", { class: "muted", text: ex.en }));
+      if (final && ex.prompt.clip) verdictBox.appendChild(el("button", { class: "btn icon", type: "button", "aria-label": "Play the line again", onclick: function () { var v = card.querySelector(".clip-mini"); v.currentTime = 0; v.play(); } }, ["▶"]));
       if (final && (ex.prompt.audio || ex.kind === "say-it")) verdictBox.appendChild(audioBtn(ex.prompt.audio || ex.model, "Play the answer"));
     }
     function judge(res) {

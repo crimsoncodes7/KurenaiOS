@@ -3,12 +3,30 @@
 import init, { TokenizerBuilder } from "./vendor/lindera-unidic/lindera_wasm_unidic.js";
 
 let tok = null, heads = null, wasm = null;
+const FN = { "助詞": 1, "助動詞": 1, "補助記号": 1, "記号": 1, "空白": 1, "接尾辞": 1, "接頭辞": 1 };
 const hira = s => String(s || "").replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+
+const VOWEL = { a: "あかさたなはまやらわがざだばぱぁゃ", i: "いきしちにひみりぎじぢびぴぃ", u: "うくすつぬふむゆるぐずづぶぷぅゅ", e: "えけせてねへめれげぜでべぺぇ", o: "おこそとのほもよろをごぞどぼぽぉょ" };
+const LONG = { a: "あ", i: "い", u: "う", e: "い", o: "う" };
+function spell(p) {
+  let out = "";
+  for (const c of p) {
+    if (c === "ー" && out) { const v = Object.keys(VOWEL).find(k => VOWEL[k].includes(out[out.length - 1])); out += v ? LONG[v] : c; }
+    else out += c;
+  }
+  return out;
+}
 
 function tokenize(text) {
   const t = tok.tokenize(text).map(x => {
     const d = x.details;
-    return { s: x.surface, pos: d[0], lemma: d[7], base: d[10] || d[7], reading: hira(d[6]), pron: d[9] };
+    // pos/pos2 (UniDic), the dictionary form (orthBase, lemma), the lemma's reading, and the
+    // SURFACE pronunciation (pron: ワ for the particle は, ー for long vowels) for dictation targets
+    // kana: the SPELLING for furigana — the lemma's reading for words that do not conjugate
+    // (学校 → がっこう), the pronunciation with ー spelled out for words that do (行き → いき)
+    const pron = hira(d[9]);
+    return { s: x.surface, pos: d[0], pos2: d[1], lemma: d[7], base: d[10] || d[7], reading: hira(d[6]), pron,
+      kana: d[4] === "*" ? hira(d[6]) : spell(pron) };
   });
   const merged = [];
   for (let i = 0; i < t.length; i++) {
@@ -17,8 +35,9 @@ function tokenize(text) {
       head += t[j - 1].s;
       for (const f of [t[j].s, t[j].base]) {
         const w = head + f;
-        // only joins that hold a content character: keeps ました / のに-style joins out of coverage
-        if (f && heads.has(w) && /[㐀-鿿ァ-ヺ]/.test(w)) { merged.push({ s: w, from: i, to: j + 1, pos: "merged" }); break; }
+        // only joins that hold a content word (noun, verb, adjective…): おばあさん and 乗り遅れる
+        // join; grammar runs such as ました or のに do not
+        if (f && heads.has(w) && t.slice(i, j + 1).some(x => !FN[x.pos])) { merged.push({ s: w, from: i, to: j + 1, pos: "merged" }); break; }
       }
     }
   }

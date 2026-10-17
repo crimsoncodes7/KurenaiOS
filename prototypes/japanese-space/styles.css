@@ -28,6 +28,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; } /* a component's own display never beats hidden */
 html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--font-ui); }
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--ja); outline-offset: 2px; }

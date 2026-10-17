@@ -66,6 +66,7 @@
     var held = r && r.s >= 7;
     if (kind === "k") return ["R", "W"];
     if (kind === "j") return ["R"];
+    if (kind === "x") return ["L"]; // a saved line from your media: reviewed by ear
     if (kind === "g") return held ? ["R", "L", "W"] : ["R", "L"];
     // W and S only for words in a production set (a lesson's speaking/writing list); the rest
     // are reading and listening vocabulary, met again in input (plan §8)
