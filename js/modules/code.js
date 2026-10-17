@@ -26,6 +26,27 @@
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function plural(n, one, many) { return KOS.ui.num(n) + " " + (n === 1 ? one : (many || one + "s")); }
   function dayLabel(iso) { var d = new Date(iso + "T12:00:00"); return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
+  /* what "Coming later" covers today, read from what has shipped:
+     "units 10–12, capstones 3–4 and the tracks" */
+  function comingLater() {
+    function runs(ns) {
+      var out = [];
+      ns.forEach(function (n) {
+        var last = out[out.length - 1];
+        if (last && n === last[1] + 1) last[1] = n; else out.push([n, n]);
+      });
+      return out.map(function (r) { return r[0] === r[1] ? String(r[0]) : r[0] + "–" + r[1]; }).join(", ");
+    }
+    var us = C().units().filter(function (u) { return /^U\d+$/.test(u.ref) && !C().released(u.ref); })
+      .map(function (u) { return parseInt(u.ref.slice(1), 10); });
+    var cs = Object.keys(K().CAPSTONES || {}).filter(function (id) { return !C().capstone(id); })
+      .map(function (id) { return parseInt(id.slice(1), 10); });
+    var parts = [];
+    if (us.length) parts.push((us.length === 1 ? "unit " : "units ") + runs(us));
+    if (cs.length) parts.push((cs.length === 1 ? "capstone " : "capstones ") + runs(cs));
+    parts.push("the tracks");
+    return parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1] : parts[0];
+  }
   function online() { return typeof navigator === "undefined" || navigator.onLine !== false; }
   function conceptChips(ids) {
     return el("span", { class: "k-cx-cchips" }, (ids || []).map(function (c) {
@@ -367,7 +388,7 @@
     bar.appendChild(seg);
     bar.appendChild(el("p", { class: "k-cx-banner", "data-tone": "info" }, [
       el("span", { "aria-hidden": "true", text: "↗ " }),
-      "The order is a recommendation: every written unit opens now, and “Recommended later” only says what it builds on. “Coming later” is outlined but not written yet: units 7–12, capstones 3–4 and the tracks."
+      "The order is a recommendation: every written unit opens now, and “Recommended later” only says what it builds on. “Coming later” is outlined but not written yet: " + comingLater() + "."
     ]));
     main.appendChild(bar);
     var grid = el("div", { class: "k-cx-map" });

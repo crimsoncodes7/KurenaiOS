@@ -819,8 +819,8 @@
     };
   }
   /* a unit's stage-path state: done · current · later (dashed) */
-  /* a unit is RELEASED once its lessons ship; units 7–12 are on the path
-     but not written yet, and say so ("Coming later") */
+  /* a unit is RELEASED once its lessons ship; the units after it are on
+     the path but not written yet, and say so ("Coming later") */
   function released(ref) { return lessons().some(function (l) { return l.unit === ref && hasLesson(l.ref); }); }
   function unitState(ref) {
     var ls = lessons().filter(function (l) { return l.unit === ref; });
