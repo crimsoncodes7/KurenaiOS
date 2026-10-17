@@ -74,8 +74,12 @@
         el("li", { text: "Or: a YouTube link with Japanese captions, and its transcript pasted in (no clip saving)." }),
         el("li", { text: "Open them in Your media, play a few lines, try Dictation, and save one line." })
       ]),
-      facts([["Opened", me ? (me.source === "youtube" ? "YouTube · " : "") + me.lines + " lines" : "nothing yet"],
-        ["Coverage", me ? me.coverage.pct + "% of " + me.coverage.words + " words" : "—"], ["Video", me ? (me.video ? "yes" : "subtitles only") : "—"], ["Lines saved", String(clips)]]),
+      el("ul", { class: "yp-check" }, [
+        [!!me, "Subtitles opened", me ? (me.source === "youtube" ? "YouTube · " : "") + me.lines + " lines · " + me.coverage.pct + "% known" : "Your media → Subtitles"],
+        [!!(me && me.video), "Video playing with them", me && me.video ? (me.source === "youtube" ? "YouTube" : "file") : "Your media → Video (either order)"],
+        [clips > 0, "A line saved", clips ? clips + " saved" : me && me.source === "youtube" ? "needs a video file, not YouTube" : "player → Save this line"]
+      ].map(function (r) { return el("li", { "data-done": r[0] ? "1" : null }, [el("span", { "aria-hidden": "true", text: r[0] ? "✓" : "○" }), el("b", { text: r[1] }), el("span", { class: "muted small", text: r[2] })]); })),
+      el("p", { class: "muted small", text: "Results only show here in the browser you used — this page reads that browser's own storage." }),
       el("a", { class: "btn primary", href: "index.html#/media" }, ["Open Your media"])
     ]));
     app.appendChild(grid);

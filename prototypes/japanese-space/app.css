@@ -329,3 +329,9 @@ textarea { width: 100%; font: 15px/1.6 var(--font-ja); color: var(--ink); backgr
 .yt-host iframe { width: 100%; height: 100%; display: block; border: 0; }
 .sub-line { pointer-events: none; }
 .yt-host ~ .sub-line { bottom: 14%; }
+.roma { font: 600 15px var(--font-mono); letter-spacing: .02em; }
+.roma-l { color: var(--ja); }
+.primer { padding: 14px 18px; margin: 14px 0; }
+.primer h2 { margin: 0 0 6px; font-size: 16px; }
+.primer ul { margin: 6px 0; padding-left: 18px; display: grid; gap: 4px; }
+.primer p { margin: 6px 0; }

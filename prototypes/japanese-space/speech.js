@@ -33,6 +33,21 @@
     });
   });
 
+  // ---------- a sound guide in plain letters, for a learner who cannot read kana yet ----------
+  // doubled vowels are held two beats; doubled consonants have a tiny pause before them
+  var ROMA = {
+    "これは本です": "kore wa hon desu", "それはペンです": "sore wa pen desu", "あれはねこです": "are wa neko desu", "これはなんですか": "kore wa nan desu ka",
+    "それはケーキです": "sore wa keeki desu", "おばあさんです": "obaasan desu", "きってをかいます": "kitte o kaimasu", "がっこうにいきます": "gakkoo ni ikimasu",
+    "ちょっとまってください": "chotto matte kudasai", "ありがとうございます": "arigatoo gozaimasu",
+    "これを本です": "kore o hon desu", "それはケキです": "sore wa keki desu", "おばさんです": "obasan desu", "きてをかいます": "kite o kaimasu",
+    "かっこうにいきます": "kakkoo ni ikimasu", "ちょとまってください": "choto matte kudasai", "あれはねごです": "are wa nego desu",
+    "これはなんですが": "kore wa nan desu ga", "ありがとございます": "arigato gozaimasu", "それはベンです": "sore wa ben desu",
+    "おばさん": "obasan", "おばあさん": "obaasan", "きて": "kite", "きって": "kitte", "かこ": "kako", "かっこ": "kakko",
+    "ここ": "koko", "こうこう": "kookoo", "いえ": "ie", "いいえ": "iie"
+  };
+  // the beats, shown under the guide: "o·ba·a·sa·n" makes a held vowel visible
+  function beats(kana) { return JA.kana.morae(JA.kana.toHiragana(kana.replace(/本/g, "ほん"))).length; }
+
   // ---------- state ----------
   var st = (function () { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } })();
   st.results = st.results || {}; st.mora = st.mora || null;
@@ -189,6 +204,19 @@
     app.appendChild(el("header", { class: "ph" }, [el("div", {}, [el("h1", { text: "Speech spike" }),
       el("div", { class: "sub", text: "Record each line. Some ask for a deliberate mistake: the question is whether each engine notices." })])]));
     app.appendChild(engines());
+    app.appendChild(el("section", { class: "card primer", "aria-labelledby": "pr-h" }, [
+      el("h2", { id: "pr-h", text: "Before you start: how to say it" }),
+      el("p", { text: "You don't need to read kana for this. Press ▶ Hear (or ▶ Slow), then say it back the way you heard it — copying is exactly what a beginner does. The plain-letter guide under each line helps you keep the beats right." }),
+      el("ul", {}, [
+        el("li", {}, [el("b", { text: "Vowels: " }), "a as in father, i as in machine, u as in food (lips relaxed), e as in bed, o as in more without the r."]),
+        el("li", {}, [el("b", { text: "Every beat is the same length. " }), "Japanese is even, like a metronome: ko-re-wa-ho-n-de-su."]),
+        el("li", {}, [el("b", { text: "A doubled vowel (aa, ii, oo, ee) is held for two beats. " }), "obasan (aunt) and obaasan (grandmother) are different words — that is what the test listens for."]),
+        el("li", {}, [el("b", { text: "A doubled consonant (kk, tt) has a tiny silent beat before it: " }), "kite vs kit·te, like the pause in “bookcase”."]),
+        el("li", {}, [el("b", { text: "r is a light tap " }), "of the tongue, between an English r, l and d."]),
+        el("li", {}, [el("b", { text: "desu " }), "sounds like “dess”; ", el("b", { text: "wa" }), " after kore/sore/are is the little word for “as for”."])
+      ]),
+      el("p", { class: "muted small", text: "For a red card, ▶ Hear plays the WRONG version you are asked to say. Don't play it while recording — the microphone would hear the speaker." })
+    ]));
     var list = el("ol", { class: "spike" });
     items.forEach(function (it) {
       var row = el("li", { class: "card sp-item", "data-mistake": it.mistake ? "1" : null }, [
@@ -197,6 +225,11 @@
           el("div", { class: "sp-say" }, [
             it.mistake ? el("span", { class: "chip bad", text: "Deliberate mistake: " + it.mistake }) : el("span", { class: "chip", text: it.kind === "word" ? "Word" : "Sentence" }),
             el("div", { class: "say", lang: "ja" }, ["Say: ", el("b", { text: it.say })]),
+            el("div", { class: "roma" }, [el("span", { class: "roma-l", text: ROMA[it.say] || "" }), el("span", { class: "muted small", text: " · " + beats(it.say) + " beats" })]),
+            el("div", { class: "row wrap" }, [
+              el("button", { class: "btn mini", type: "button", "aria-label": "Hear " + (ROMA[it.say] || it.say), onclick: function () { JA.ex.say(it.say, 0.9); } }, ["▶ Hear"]),
+              el("button", { class: "btn mini", type: "button", "aria-label": "Hear it slowly", onclick: function () { JA.ex.say(it.say, 0.6); } }, ["▶ Slow"])
+            ]),
             it.mistake ? el("div", { class: "muted small", lang: "ja", text: "The exercise expects: " + (it.written || it.target) }) : null
           ]),
           el("div", { class: "sp-act" }, [el("button", { class: "btn primary rec", type: "button", onclick: function () { run(it, row); } }, [st.results[it.id] ? "● Again" : "● Record"]), el("span", { class: "meter", "aria-hidden": "true" }, [el("span")])])

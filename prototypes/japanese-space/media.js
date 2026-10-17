@@ -211,7 +211,12 @@
       }).catch(function (e) { status.textContent = "Could not read it: " + e.message; });
     }
     subIn.addEventListener("change", function () { pending.sub = subIn.files[0]; go(); });
-    vidIn.addEventListener("change", function () { pending.vid = vidIn.files[0]; if (session && !pending.sub) { session.videoUrl = URL.createObjectURL(pending.vid); session.videoName = pending.vid.name; api.draw(); } else status.textContent = "Video chosen: " + pending.vid.name + ". Now the subtitles."; });
+    vidIn.addEventListener("change", function () {
+      pending.vid = vidIn.files[0]; if (!pending.vid) return;
+      // subtitles already open (in either order): attach the video to them
+      if (session && !session.yt) { if (session.videoUrl) URL.revokeObjectURL(session.videoUrl); session.videoUrl = URL.createObjectURL(pending.vid); session.videoName = pending.vid.name; api.draw(); }
+      else status.textContent = "Video chosen: " + pending.vid.name + ". Now the subtitles.";
+    });
     JA.media._open = function (subFile, vidFile) { pending.sub = subFile; pending.vid = vidFile || null; go(); }; // used by the test harness
 
     if (session) {

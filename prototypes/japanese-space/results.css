@@ -23,3 +23,8 @@
 .tr-sum { padding: 14px 16px; position: sticky; top: 16px; display: grid; gap: 10px; }
 .tr-sum h2 { margin: 0; font-size: 15px; }
 @media (max-width: 860px) { .tr-layout { grid-template-columns: 1fr; } .tr-sum { position: static; order: -1; } }
+.yp-check { list-style: none; padding: 0 !important; }
+.yp-check li { display: grid; grid-template-columns: 18px 1fr; column-gap: 6px; }
+.yp-check li > span:first-child { grid-row: span 2; color: var(--muted); }
+.yp-check li[data-done] > span:first-child { color: var(--green); }
+.yp-check li > .small { grid-column: 2; }
