@@ -181,7 +181,13 @@
     var calBtn = el("button", { class: "btn", type: "button", onclick: async function () {
       calBtn.disabled = true; calBtn.textContent = "■ Listening… say it once";
       var rc = JA.audio.record({ maxMs: 3500 });
-      try { var r = await rc.done; var an = JA.acoustic.analyse(r.pcm, 16000); st.mora = JA.acoustic.calibrate(an); if (JA.results) JA.results.putAudio("calibration", r.pcm); save(); calOut.textContent = "Your pace: " + Math.round(st.mora * 1000) + " ms a beat."; announce("Calibrated"); }
+      try {
+        var r = await rc.done, peak = 0; for (var i = 0; i < r.pcm.length; i++) peak = Math.max(peak, Math.abs(r.pcm[i]));
+        var an = JA.acoustic.analyse(r.pcm, 16000), mora = JA.acoustic.calibrate(an);
+        // a silent take (the microphone not yet started) once gave 0.30 s a beat and skewed every word
+        if (peak < 0.02 || !an.contour.length || mora < 0.07 || mora > 0.25) { calOut.textContent = peak < 0.02 ? "Didn't hear you (the recording was silent) — try again." : "That didn't sound like the whole phrase (" + Math.round(mora * 1000) + " ms a beat) — try again."; }
+        else { st.mora = mora; if (JA.results) JA.results.putAudio("calibration", r.pcm); save(); calOut.textContent = "Your pace: " + Math.round(st.mora * 1000) + " ms a beat."; announce("Calibrated"); }
+      }
       catch (e) { calOut.textContent = "Microphone unavailable: " + e.message; }
       calBtn.disabled = false; calBtn.textContent = "● Calibrate again";
     } }, [st.mora ? "● Calibrate again" : "● Calibrate"]);

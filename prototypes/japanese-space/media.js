@@ -88,22 +88,25 @@
   /* coverage(cues, split, known) → running-word coverage, the unknown words by frequency, and the
      i+1 lines (exactly one new word): the best sentences to mine (plan §2, principle 8). */
   function coverage(cues, out, known) {
-    var total = 0, hit = 0, freq = {}, lines = [];
+    var total = 0, hit = 0, freq = {}, lines = [], names = {};
     cues.forEach(function (c, i) {
-      var r = out[i], cover = {}, unknown = {};
-      r.merged.slice().sort(function (a, b) { return (b.to - b.from) - (a.to - a.from); }).forEach(function (m) {
-        for (var k = m.from; k < m.to; k++) if (!cover[k]) cover[k] = m.s;
+      var r = out[i], cover = {}, unknown = {}, name = {};
+      r.merged.forEach(function (m) { if (m.pos === "name") { for (var k = m.from; k < m.to; k++) name[k] = m.s; names[m.s] = (names[m.s] || 0) + 1; } });
+      r.merged.filter(function (m) { return m.pos !== "name"; }).sort(function (a, b) { return (b.to - b.from) - (a.to - a.from); }).forEach(function (m) {
+        for (var k = m.from; k < m.to; k++) if (!cover[k]) cover[k] = m;
       });
+      var counted = new Set();
       r.tokens.forEach(function (t, k) {
-        if (!isContent(t)) return;
-        var key = cover[k] || t.base, ok = known.has(key) || knows(known, t);
-        if (cover[k] && cover[k - 1] === cover[k] && isContent(r.tokens[k - 1])) return; // one compound counts once
+        if (!isContent(t) || name[k]) return;
+        var m = cover[k], key = m ? m.s : t.base, ok = known.has(key) || knows(known, t);
+        if (m) { if (counted.has(m)) return; counted.add(m); } // a compound or phrase counts once, particles inside or not
         total++; if (ok) hit++; else { unknown[key] = 1; freq[key] = (freq[key] || 0) + 1; }
       });
       lines.push({ i: i, unknown: Object.keys(unknown) });
     });
     var words = Object.keys(freq).sort(function (a, b) { return freq[b] - freq[a] || (a < b ? -1 : 1); });
     return { total: total, known: hit, pct: total ? hit / total : 0, freq: freq, words: words, lines: lines,
+      names: Object.keys(names).sort(function (a, b) { return names[b] - names[a]; }),
       iPlus1: lines.filter(function (l) { return l.unknown.length === 1; }), clear: lines.filter(function (l) { return !l.unknown.length; }) };
   }
 
@@ -235,7 +238,7 @@
   function record(s, cov) {
     var sum = { at: Date.now(), source: s.yt ? "youtube" : "file", name: s.name, videoId: s.yt || null, video: !!(s.videoUrl || s.yt), lines: s.cues.length,
       coverage: { words: cov.total, known: cov.known, pct: Math.round(cov.pct * 1000) / 10 }, iPlus1: cov.iPlus1.length, clear: cov.clear.length,
-      unknownTop: cov.words.slice(0, 30).map(function (w) { return [w, cov.freq[w]]; }),
+      names: cov.names.slice(0, 20), unknownTop: cov.words.slice(0, 30).map(function (w) { return [w, cov.freq[w]]; }),
       sample: s.cues.slice(0, 60).map(function (c, i) { return { t: Math.round(c.start * 10) / 10, text: c.text, tokens: s.out[i].tokens.map(function (t) { return [t.s, t.pos, t.pos2, t.base, t.kana]; }), merged: (s.out[i].merged || []).map(function (m) { return m.s; }) }; }) };
     try { localStorage.setItem("ja-media-result-v1", JSON.stringify(sum)); } catch (e) {}
   }

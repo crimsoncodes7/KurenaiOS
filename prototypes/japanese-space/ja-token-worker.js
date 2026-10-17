@@ -25,15 +25,33 @@ function tokenize(text) {
     // kana: the SPELLING for furigana — the lemma's reading for words that do not conjugate
     // (学校 → がっこう), the pronunciation with ー spelled out for words that do (行き → いき)
     const pron = hira(d[9]);
-    return { s: x.surface, pos: d[0], pos2: d[1], lemma: d[7], base: d[10] || d[7], reading: hira(d[6]), pron,
-      kana: d[4] === "*" ? hira(d[6]) : spell(pron) };
+    // a word the dictionary lacks (a fantasy place, a coined name) has no lemma: it is its own form
+    const unk = !d[7] || d[7] === "*";
+    return { s: x.surface, pos: unk ? "未知語" : d[0], pos2: unk ? "" : d[1], lemma: unk ? x.surface : d[7], base: unk ? x.surface : (d[10] || d[7]),
+      reading: unk ? hira(x.surface) : hira(d[6]), pron: unk ? hira(x.surface) : pron, kana: unk ? hira(x.surface) : d[4] === "*" ? hira(d[6]) : spell(pron) };
   });
   const merged = [];
+  // names: a run of katakana pieces that holds a name or an unknown word is ONE name (フリー+レン).
+  // Names are not vocabulary, so coverage leaves them out (media.js).
+  const KATA = /^[ァ-ヶー・]+$/;
   for (let i = 0; i < t.length; i++) {
+    if (!KATA.test(t[i].s)) continue;
+    let j = i; while (j + 1 < t.length && KATA.test(t[j + 1].s)) j++;
+    const run = t.slice(i, j + 1), w = run.map(x => x.s).join("");
+    if (run.some(x => x.pos2 === "固有名詞" || x.pos === "未知語") && !heads.has(w)) merged.push({ s: w, from: i, to: j + 1, pos: "name" });
+    i = j;
+  }
+  // a join must START on a word that stands alone or a prefix (お嬢様, 異世界) — never on a particle,
+  // auxiliary, helper verb or the stem of そうだ, else て+き reads as 敵, き+た as 北 and し+て as して
+  const lead = x => (!FN[x.pos] || x.pos === "接頭辞") && x.pos2 !== "非自立可能" && x.pos2 !== "助動詞語幹" && x.pos !== "未知語";
+  for (let i = 0; i < t.length; i++) {
+    if (!lead(t[i])) continue;
     let head = "";
     for (let j = i + 1; j < Math.min(t.length, i + 5); j++) {
       head += t[j - 1].s;
       for (const f of [t[j].s, t[j].base]) {
+        // never end halfway through a conjugation: こう+し (of して) is not 子牛
+        if (f === t[j].s && t[j].s !== t[j].base && t[j + 1] && (t[j + 1].pos === "助詞" || t[j + 1].pos === "助動詞")) continue;
         const w = head + f;
         // only joins that hold a content word (noun, verb, adjective…): おばあさん and 乗り遅れる
         // join; grammar runs such as ました or のに do not

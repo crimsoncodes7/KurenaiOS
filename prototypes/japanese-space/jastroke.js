@@ -69,17 +69,33 @@
     if (!ref) return { verdict: "wrong", diagnosis: { code: "no-reference", explain: "No stroke data for " + ch + "." } };
     var user = strokes.filter(function (s) { return s.length > 1 && length(s) > 3; }).map(function (s) { return resample(s); });
     var per = [];
-    if (user.length !== ref.length)
-      return { verdict: "wrong", perStroke: per, diagnosis: { code: "count", explain: ch + " has " + ref.length + " stroke" + (ref.length > 1 ? "s" : "") + "; you drew " + user.length + "." } };
+    if (user.length !== ref.length) {
+      var explain = ch + " has " + ref.length + " stroke" + (ref.length > 1 ? "s" : "") + "; you drew " + user.length + ".";
+      // a stroke gone over twice (a second pass without Undo) is the commonest extra stroke
+      if (user.length > ref.length) {
+        var seen = {};
+        for (var u = 0; u < user.length; u++) {
+          var bj = 0, bd = Infinity;
+          for (var r = 0; r < ref.length; r++) { var dd = Math.min(meanDist(user[u], ref[r]), meanDist(user[u].slice().reverse(), ref[r])); if (dd < bd) { bd = dd; bj = r; } }
+          if (bd < OFF * 1.5 && seen[bj]) { explain = "You went over stroke " + (bj + 1) + " twice — Undo the extra one. " + explain; break; }
+          if (bd < OFF * 1.5) seen[bj] = 1;
+        }
+      }
+      return { verdict: "wrong", perStroke: per, diagnosis: { code: "count", explain: explain } };
+    }
 
     var issues = [];
     for (var i = 0; i < ref.length; i++) {
       var fwd = meanDist(user[i], ref[i]), rev = meanDist(user[i].slice().reverse(), ref[i]);
       // the reference stroke this one looks most like (for order mistakes)
-      var best = i, bestD = fwd;
-      for (var j = 0; j < ref.length; j++) { var dj = meanDist(user[i], ref[j]); if (dj < bestD - 4) { best = j; bestD = dj; } }
+      // either way round: a stroke both moved AND drawn backwards is still an order mistake, not "shape"
+      var back = user[i].slice().reverse(), best = i, bestD = Math.min(fwd, rev), bestRev = rev < fwd;
+      for (var j = 0; j < ref.length; j++) {
+        var dj = meanDist(user[i], ref[j]), rj = meanDist(back, ref[j]), m = Math.min(dj, rj);
+        if (m < bestD - 4) { best = j; bestD = m; bestRev = rj < dj; }
+      }
       var issue = null;
-      if (best !== i && bestD < OK && fwd > OK) issue = { code: "order", explain: "Your stroke " + (i + 1) + " is stroke " + (best + 1) + " of " + ch + ": stroke " + (Math.min(i, best) + 1) + " comes first." };
+      if (best !== i && bestD < OK && Math.min(fwd, rev) > OK) issue = { code: "order", explain: "Your stroke " + (i + 1) + " is stroke " + (best + 1) + " of " + ch + ": stroke " + (Math.min(i, best) + 1) + " comes first" + (bestRev ? ", and it goes the other way: " + dirWord(ref[best]) : "") + "." };
       // reversed: the backwards stroke fits far better; judged against the stroke's own length so short strokes count too
       else if (rev < OK && rev < fwd * 0.6 && fwd > Math.min(OFF, Math.max(7, 0.3 * length(ref[i])))) issue = { code: "direction", explain: "Stroke " + (i + 1) + " goes the other way: " + dirWord(ref[i]) + "." };
       else if (fwd > OFF) issue = { code: "shape", explain: "Stroke " + (i + 1) + " is out of place or the wrong shape." };

@@ -1,6 +1,22 @@
-# Japanese — a study space for KurenaiOS (plan, revision 3)
+# Japanese — a study space for KurenaiOS (plan, revision 3.1)
 
-**Revision 3 (17 October 2026)** folds in what the vertical slice measured
+**Revision 3.1 (17 October 2026)** closes the slice's measurements on your
+own recordings, handwriting and a real episode (§13, §16):
+- **Speech** (decision D). On your voice the browser recogniser accepted
+  every correct sentence and no wrong word, but still passed three of ten
+  sentence mistakes (a dropped っ, a long vowel, voicing). Whisper base and
+  the acoustic check both failed. So recognition is an intelligibility check
+  only; っ, long vowels and voicing are trained by listening, dictation and
+  self-marked shadowing; the acoustic analysis is an advisory length bar.
+- **Handwriting.** The checker caught all 8 mistakes you actually made, 7 for
+  the right reason (after a fix for strokes both moved and reversed). Six of
+  your "proper" kana were real stroke-order slips, so the model animation
+  plays before a first attempt.
+- **A real episode** (Frieren S1E17): 293 lines, about 925 content words, 485
+  distinct; lesson 1.1 covers 2.9% of them. It exposed four splitter bugs,
+  now fixed. Clip saving works in Chrome and Edge, not Safari.
+
+**Revision 3 (17 October 2026)** folded in what the vertical slice measured
 (`prototypes/japanese-space/`, commits 63993ac and b5a0093):
 - **Load and pace** (§8, §9, §10.2). Simulated on the scheduler:
   - writing and speaking every word fits only ~900 words a year into 40
@@ -75,7 +91,7 @@ does instead.
 | A | Method | Input-led, with explicit grammar and frequency-ordered vocabulary aimed at your media, and skills scheduled separately (§2). |
 | B | Content source | Authored lessons and checks, plus dictionary and corpus data **generated at build time** from openly licensed sources (§4). Nothing is generated live by an LLM. The AI only *grades* free production, and that grade is advisory. |
 | C | Scheduler | **FSRS-style**, per item × skill facet (§9). It is more accurate than SM-2 for long-term retention. It sits in `state.japanese`, the way Code's retrieval scheduler does, not in `srs.js`. Writing and speaking facets go only to production-set words (~30%), which the load simulation showed is what fits the budget (§8). |
-| D | Speech checking | **Words and sound contrasts: the acoustic check alone**, calibrated to your pace; when unsure it asks you to say it again. **Sentences: recognition plus an acoustic length check** wherever the target has っ or a long vowel, because recognisers silently "fix" those mistakes (§13). Two recognisers behind one interface: the browser's (no download; Chrome sends audio to Google) and Whisper on the device (about 200 MB, offered like the C# runtime). The default recogniser waits for your recordings in Spike S. Pitch is always analysed on the device and is advisory. |
+| D | Speech checking | **The browser recogniser, as an intelligibility check** on sentences (any of its alternatives matching) and a lenient one on words ("say it again", never "wrong"); opt-in, because Chrome sends the audio to Google. **っ, long vowels and voicing are never judged from your speech**: every recogniser "fixes" them, and the acoustic check failed on your real voice (§13). They are trained by listening minimal pairs, dictation and self-marked shadowing with a length bar. Whisper is not the default. Pitch stays advisory. |
 | E | Media snippets | Shipped: original illustrated panels, VN scenes, audio and freely licensed text (art per decision I). Personal: your own clips, screenshots and subtitle files, kept in IndexedDB on the device only — never synced as binaries, committed or deployed (§12). |
 | F | Subject hue | **朱 shu (vermilion)**, about `oklch(0.72 0.15 42)`. It reads clearly orange next to the rose crimson (hue 18), so it is a sibling to the identity colour rather than a clash. To be confirmed in the design frames. |
 | G | Rewards | Pay once per lesson, checkpoint and capstone. Reviews pay a small amount with a daily cap. Immersion pays only through Focus. HP gates nothing (invariants 2 and 106). |
@@ -767,11 +783,26 @@ the bottleneck.
   - sentences use recognition plus the acoustic length check on っ and long
     vowels.
 
-  **What waits for your 40 recordings:** the browser recogniser (it only
-  listens to a live microphone) and Whisper base against small on your
-  voice. Those choose the default recogniser. If neither is reliable for an
-  exercise, it falls back to "record, compare, self-mark" (labelled
-  self-marked, paying nothing).
+  **Superseded by your 40 recordings (revision 3.1):**
+
+  | Engine | Task | Correct accepted | Mistake accepted |
+  |---|---|---|---|
+  | Browser (Chrome) | sentences | 10 / 10 | 3 / 10 (ちょと, ありがとご, なんですが) |
+  | Browser | single words | 6 / 10 | 0 / 10 |
+  | Whisper base | sentences / words | 0 / 3 · 3 / 10 | 1 / 10 · 1 / 10 |
+  | Acoustic check (pace re-taken from your s10) | word pairs | 3 / 10 confident | 2 / 10 |
+
+  - The calibration take was silent (the microphone had not started), so
+    the check ran at 0.30 s a beat; a silent or implausible calibration is
+    now refused. With the right pace it is still near chance: real voiced
+    consonants, fading final vowels and a beginner's held vowels do not
+    fit the synthetic timing model.
+  - **Decided:** the browser recogniser for sentences (intelligibility) and
+    words (lenient); no automatic verdict on っ, long vowels or voicing;
+    the acoustic analysis drawn as an advisory length bar beside the model
+    for self-marked shadowing (paying nothing extra); Whisper dropped as
+    the default, to be retried at small or large-v3-turbo if ever needed.
+    Details: `prototypes/japanese-space/SPIKE-S.md`.
 - **Checks:**
   - transcript → kana → `mora-align` against the target, with any accepted
     alternatives;
@@ -914,13 +945,13 @@ risky parts**, not to look finished.
 |---|---|
 | Golden tests 100% | ✓ 128 of 128 (`validate.mjs`) |
 | Conjugation engine correct on its set | ✓ every class and godan ending, the 行く/ある/する/来る exceptions, with diagnoses |
-| Stroke diagnosis catches order and direction | ✓ on synthesised strokes for all 15 kana; the 20 real traced samples are still yours to do |
-| ASR spike numbers and a default | half: synthetic-voice baseline done; your 40 recordings pending |
-| Acoustic check tells おばさん/おばあさん, きて/きって | ✓ on synthetic and Kyoko audio; your voice pending |
-| Face swaps show no body shift | pending: your drafts are in the inbox; import next |
+| Stroke diagnosis catches order and direction | ✓ on your 25 samples: all 8 mistakes you made caught, 7 for the right reason; 6 of your "proper" kana were real order slips, 2 a stroke drawn twice (now named as such) |
+| ASR spike numbers and a default | ✓ the browser recogniser (sentences 10/10 correct accepted, 3/10 mistakes passed; words 6/10, 0/10); Whisper base dropped |
+| Acoustic check tells おばさん/おばあさん, きて/きって | ✗ on your voice (near chance even with the pace fixed): demoted to an advisory length bar; these contrasts are trained by listening |
+| Face swaps show no body shift | ✓ drift 4.0–7.7 on every expression; the VN scene swaps faces only |
 | Tokeniser chosen, memory and load time | ✓ Lindera + UniDic, 576 MB heap, 0.6 s from cache |
-| Clip importer works on one of your files | ✓ on an original test episode; one of your files pending |
-| Coverage for one real episode | ✓ pipeline; a real subtitle file of yours pending |
+| Clip importer works on one of your files | ✓ Frieren S1E17 in Chrome (one line saved); Safari cannot cut clips |
+| Coverage for one real episode | ✓ Frieren S1E17: 293 lines, ~925 content words, 485 distinct, 2.9% known after lesson 1.1; fixed on the way: names counted as unknown words, bogus joins (て+き → 敵), a phrase counted twice |
 | Desk at 1440 and 390 | ✓ no sideways scroll; desk, session, media and spike pages checked |
 
 **Success criteria:**
@@ -986,7 +1017,7 @@ responsive audit, and bumps `sw.js` `VERSION` (CLAUDE.md deploy rules).
 | Risk | Mitigation |
 |---|---|
 | Content volume is huge | Release unit by unit. Stages 3+ lean on input and mining rather than authored lessons. |
-| ASR is poor on beginner speech, or hides mistakes | ASR on sentences only; acoustic checks for sound contrasts; Spike S measures false acceptance; the self-mark fallback. |
+| ASR is poor on beginner speech, or hides mistakes | Measured: it hides っ, long-vowel and voicing mistakes. Recognition is an intelligibility check only; those contrasts are trained by listening and self-marked shadowing. |
 | Tokeniser memory and quality | Lindera + UniDic chosen by Spike T; worker only, Mac only, used by two features; the phone uses deinflection lookup. |
 | A 30-minute day slows everything | The desk shows the timeline at the current budget and what 10 more minutes would change; input outside the app counts. |
 | Large optional downloads (Whisper ~200 MB, tokeniser ~50 MB) | Each is offered, never fetched unasked, and kept in its own cache like the C# runtime. |
@@ -1001,12 +1032,8 @@ responsive audit, and bumps `sw.js` `VERSION` (CLAUDE.md deploy rules).
 
 ## Next step
 
-1. **The art.** Your Gemini drafts are in `art-source/ja/inbox/`. Review them
-   on the contact sheet, then build the import (chroma key, face swaps,
-   WebP), the manga panel and the VN scene.
-2. **Your part:**
-   - record the 40 speech-spike lines;
-   - open one real subtitle file (and its video) on `#/media`;
-   - trace the 15 kana a few times.
-3. **Then** decide the default recogniser and close the slice against the
-   criteria above, before integration.
+1. **Close the slice.** Every §16 criterion now has its evidence; the acoustic
+   check is the one that failed, and decision D says what replaces it.
+2. **Integration**, the platform release in §17: registry, hue, routes, desk,
+   model, scheduler, validators, engine and audio player, with Stage 0
+   (Kana) complete and smokes 80–83.
