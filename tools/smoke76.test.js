@@ -6,7 +6,9 @@
          and a rubric with one automatic row. Its reference answer passes
          every case (with its files on the in-app disk); its starter passes
          none; it uses its stage's language only (stage 1: no arrays, lists
-         or classes; stage 2: no classes or LINQ).
+         or classes; stage 2: no classes or LINQ; stage 3 shows its
+         design: an interface, classes and LINQ). A sandbox capstone (stage
+         3) runs on the full runtime, nullable on, as in the app.
      B · THE STEPS. The quiz never locks: under 3 of 5 it recommends two
          lessons. Correctness comes from the acceptance runs and cannot be
          set by hand. Submitting refuses until every milestone passes, the
@@ -22,6 +24,7 @@
      node tools/smoke76.test.js                                            */
 "use strict";
 const { loadCode } = require("./lib/code-content.js");
+const { loadWasm } = require("./lib/cs-wasm-node.js");
 const { boot } = require("./lib/app-harness");
 const { K, content, CSI } = loadCode();
 
@@ -29,27 +32,36 @@ const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
-const run = (src, stdin, fs) => CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs });
+let WASM = null;
+const run = async (src, stdin, fs, where) => where === "sandbox"
+  ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs, nullable: true })
+  : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs });
 const written = Object.keys(K.CAPSTONES).filter((id) => K.CAPSTONES[id].milestones);
 
-step("A · every written capstone is whole, and its answer passes", () => {
-  assert(written.indexOf("C1") >= 0 && written.indexOf("C2") >= 0, "capstones 1 and 2 ship");
-  written.forEach((id) => {
+step("A · every written capstone is whole, and its answer passes", async () => {
+  assert(written.indexOf("C1") >= 0 && written.indexOf("C2") >= 0 && written.indexOf("C3") >= 0, "capstones 1, 2 and 3 ship");
+  if (written.some((id) => K.CAPSTONES[id].where === "sandbox")) {
+    WASM = await loadWasm();
+    assert(WASM, "a sandbox capstone needs the full runtime — run tools/build_cs_wasm.sh");
+  }
+  for (const id of written) {
     const c = K.CAPSTONES[id];
     assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]), id + ": the quiz (5, each linked to a written lesson)");
     assert(c.brief && c.brief.length && c.starter && c.answer && c.reward, id + ": brief, starter, answer, reward");
     assert(c.rubric.filter((r) => r.auto).length === 1 && c.rubric.every((r) => r.max > 0), id + ": one automatic rubric row");
     assert(c.milestones.length >= 3 && c.milestones.every((m) => m.cases.length && m.cases.some((x) => !x.hidden)), id + ": milestones each with a visible case");
-    c.milestones.forEach((m) => m.cases.forEach((x, i) => {
+    for (const m of c.milestones) for (const [i, x] of m.cases.entries()) {
       const fs = x.fs || m.fs || c.fs;
-      const r = run(c.answer, x.stdin, fs);
+      const r = await run(c.answer, x.stdin, fs, c.where);
       assert(r.ok && norm(r.stdout) === norm(x.out), id + " " + m.id + " case " + (i + 1) + ": the answer fails\n" + (r.ok ? r.stdout : JSON.stringify(r.error)));
-      const s = run(c.starter, x.stdin, fs);
+      if (c.where === "sandbox") assert(!(r.warnings || []).length, id + ": the answer has compiler warnings " + JSON.stringify(r.warnings));
+      const s = await run(c.starter, x.stdin, fs, c.where);
       assert(!(s.ok && norm(s.stdout) === norm(x.out)), id + " " + m.id + " case " + (i + 1) + ": the starter already passes");
-    }));
+    }
     if (c.stage === 1) assert(!/\[\s*\]|\bnew\b|\bclass\b|List</.test(c.answer), id + ": stage 1 only — no arrays, lists or classes");
     if (c.stage === 2) assert(!/\b(class|record|struct|interface)\b|System\.Linq|\.(Select|Where|OrderBy|GroupBy|Sum|Average)\(/.test(c.answer), id + ": stage 2 only — no classes or LINQ");
-  });
+    if (c.stage === 3) assert(/\binterface\b/.test(c.answer) && /\bclass\b/.test(c.answer) && /\bevent\b/.test(c.answer) && /\.GroupBy\(/.test(c.answer), id + ": stage 3 shows its design — an interface, classes, an event and LINQ");
+  }
 });
 
 step("B · the quiz never locks; correctness is automatic; submit waits", async () => {

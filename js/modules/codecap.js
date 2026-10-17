@@ -29,7 +29,7 @@
   var el = KOS.ui.el;
   var SID = "code";
   /* what each stage may use, for the Kurenai review's brief */
-  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet" };
+  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet", 3: "stage 3: classes, interfaces, inheritance, records, generics, delegates, events and LINQ; nullable reference types on" };
   function C() { return KOS.code; }
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function plural(n, one, many) { return KOS.ui.num(n) + " " + (n === 1 ? one : (many || one + "s")); }
@@ -243,7 +243,7 @@
         if (files) scroll.appendChild(files);
         scroll.appendChild(el("div", { class: "k-prose k-cx-capbrief", html: KOS.content.renderBlocks(spec.brief) }));
       }
-      var status = el("div", { class: "k-cx-ws-status" }, [el("span", { text: "Program.cs" }), savedAt, el("span", { text: "in-app runner · stage " + spec.stage + " C#" })]);
+      var status = el("div", { class: "k-cx-ws-status" }, [el("span", { text: "Program.cs" }), savedAt, el("span", { text: (C().runnerFor(id) === "wasm" ? "full .NET runtime" : "in-app runner") + " · stage " + spec.stage + " C#" })]);
       body.appendChild(el("div", { class: "k-cx-ws", "data-ui": "code.cap-workspace" }, [
         toolbar,
         el("div", { class: "k-cx-ws-centre" }, [ed.el, toolwin]),
@@ -261,6 +261,12 @@
           var wrote = KOS.codeUI.writtenPanel(spec.fs, r.fs);
           if (wrote) out.appendChild(wrote);
           if (r.ok) { ed.state("ready", "Ran"); if (!r.stdout && !wrote) out.appendChild(el("p", { class: "k-cx-note", text: "(no output)" })); say("Ran. " + (KOS.codeRun.firstLine(r.stdout) || "No output") + "."); }
+          else if (r.error.kind === "runtime") {
+            /* stage 3 runs on the full runtime: offer it, then run again */
+            ed.state("ready");
+            out.appendChild(KOS.codeUI.errorCard(r.error, { onReady: doRun }));
+            say("This capstone needs the full C# runtime.");
+          }
           else {
             ed.state(r.error.kind === "compile" ? "compile" : r.error.kind === "timeout" ? "timeout" : "exception");
             if (r.error.line) ed.mark(r.error.line, KOS.codeUI.quoted(r.error.msg));
@@ -268,6 +274,8 @@
             if (r.error.kind === "compile") problem(r.error);
             say(r.error.kind === "compile" ? "Compile error " + r.error.code + " on line " + r.error.line + "." : "Stopped: " + r.error.code + ".");
           }
+          var wn = KOS.codeUI.warningsPanel(r.warnings);
+          if (wn) out.appendChild(wn);
         });
       }
       function problem(e) {
@@ -299,6 +307,13 @@
         edr.running(true);
         return KOS.codeRun.check({ mode: "program", cases: m.cases, fs: m.fs || spec.fs, lesson: id }, edr.files()).then(function (c) {
           edr.running(false);
+          if (c.compile && c.compile.kind === "runtime") {
+            /* nothing ran, so nothing is recorded: offer the runtime */
+            edr.state("ready");
+            if (resPanel) { resPanel.innerHTML = ""; resPanel.appendChild(KOS.codeUI.errorCard(c.compile, { onReady: function () { runMilestone(m, edr); } })); }
+            say("This capstone needs the full C# runtime.");
+            return c;
+          }
           C().recordMilestone(id, m.id, c.compile ? 0 : c.pass, c.total);
           showResults(m, c);
           if (c.compile) { edr.state("compile"); if (c.compile.line) edr.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); problem(c.compile); say("Compile error " + c.compile.code + " on line " + c.compile.line + "."); }

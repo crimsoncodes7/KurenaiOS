@@ -9,7 +9,7 @@ chronological diary here.
 ## Current baseline
 
 - Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
-  Code (platform, stages 1–2, Bridge B, units 7–9 on the full runtime) are integrated and deployed. What is still to do is kept in one place:
+  Code (platform, stages 1–3 and Bridge B; stage 3 on the full runtime) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
@@ -21,7 +21,7 @@ chronological diary here.
   and 9, Interfaces and inheritance and LINQ and generics, on the full
   runtime)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-17`
+- Service-worker version: `kos-code-18`
 - Required smoke gate: 79 / 79 suites.
 
 ## Run, test and deploy
@@ -703,9 +703,12 @@ source comments and audit notes refer to it.
     (frame 26l, smoke76) ships whole too: a five-question quiz linked to
     written lessons, the brief, a starter that passes no acceptance case,
     milestones of acceptance cases, a rubric with ONE automatic row, and a
-    reference answer that passes every case under both runners using only
-    its stage's language (stage 1: no arrays, lists or classes; stage 2:
-    no classes or LINQ). A program may read and write FILES: a listing,
+    reference answer that passes every case under its runner (both
+    runners where they agree; a stage 3 capstone, where "sandbox", on the
+    full runtime with no compiler warnings) using only its stage's
+    language (stage 1: no arrays, lists or classes; stage 2: no classes
+    or LINQ; stage 3 shows its design: an interface, classes, an event
+    and LINQ). A program may read and write FILES: a listing,
     task, card or capstone carries `fs` (`{name: text}`), the in-memory
     disk the runner starts from (`req.fs`, returned as the final `fs`),
     and `tools/cs_diff.mjs` runs that program in a fresh folder holding
@@ -737,7 +740,7 @@ source comments and audit notes refer to it.
     ledger; past the cap the card still moves. Every no-reward case shows
     "No reward · why". HP gates nothing (invariant 2). A capstone pays its
     `reward` (stage 1: 150 XP, 40 gold, +10 HP; stage 2: 200 XP, 50 gold,
-    +10 HP) once ever — and a Rider project pays its own (Bridge B: 120 XP,
+    +10 HP; stage 3: 250 XP, 60 gold, +10 HP) once ever — and a Rider project pays its own (Bridge B: 120 XP,
     30 gold, +8 HP) once, when every milestone has passed at any evidence
     level (invariant 109) —, on the first
     submission that holds: every milestone passing, the self-marked rubric
