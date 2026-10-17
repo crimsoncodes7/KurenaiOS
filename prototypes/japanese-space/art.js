@@ -5,7 +5,7 @@
   "use strict";
   var ART = "../../art-source/ja/";
   var KEY = "ja-art-review";
-  var M = null, have = {}, view = localStorage.getItem("ja-art-view") || "todo", compare = null;
+  var M = null, have = {}, report = {}, view = localStorage.getItem("ja-art-view") || "todo", compare = null;
   var app = document.getElementById("app"), live = document.getElementById("live");
 
   function el(tag, attrs, kids) {
@@ -83,7 +83,7 @@
       : st === "ready" ? el("span", { class: "chip ready", text: "Ready to generate" })
       : el("span", { class: "chip wait", text: "Waiting for " + a.attach.filter(function (p) { return !have[p]; }).map(function (p) { return p.replace(/^inbox\/|\.png$/g, ""); }).join(", ") });
     var prompt = fullPrompt(a);
-    var out = have["inbox/" + file(a)];
+    var out = have["inbox/" + file(a)], rep = report[a.id];
     return el("article", { class: "card asset", "data-state": st, id: a.id }, [
       el("header", { class: "a-head" }, [
         el("div", {}, [
@@ -112,6 +112,8 @@
         el("div", { class: "a-out" }, [
           out ? el("a", { href: ART + "inbox/" + file(a), target: "_blank", rel: "noopener" }, [el("img", { src: ART + "inbox/" + file(a) + "?t=" + Date.now(), alt: a.id })]) : el("div", { class: "ph-img big", text: "Result appears here once saved" }),
           out ? el("div", { class: "a-dims mono", text: out.w + " × " + out.h }) : null,
+          rep && rep.grade ? el("div", { class: "a-dims" }, [el("span", { class: "chip " + (rep.grade === "ok" ? "done" : rep.grade === "slight" ? "ready" : "bad"), text: "body drift " + rep.bodyDrift + " · " + rep.grade })]) : null,
+          rep && rep.note ? el("p", { class: "muted small", text: rep.note }) : null,
           out ? el("div", { class: "a-rev", role: "group", "aria-label": "Review " + a.id }, [
             el("button", { class: "btn ok", type: "button", "aria-pressed": String(rv === "ok"), onclick: function () { setReview(a.id, "ok"); render(); } }, ["✓ Approve"]),
             el("button", { class: "btn no", type: "button", "aria-pressed": String(rv === "redo"), onclick: function () { setReview(a.id, "redo"); render(); } }, ["✗ Redo"])
@@ -212,7 +214,10 @@
   }
 
   fetch(ART + "manifest.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (m) {
-    M = m; return probeAll();
+    M = m;
+    // the import's findings (art_import.py → art/report.json), when it has run
+    return fetch("art/report.json?t=" + Date.now()).then(function (r) { return r.ok ? r.json() : { assets: {} }; }, function () { return { assets: {} }; })
+      .then(function (r) { report = r.assets || {}; return probeAll(); });
   }).then(render).catch(function (e) {
     app.textContent = "Could not read art-source/ja/manifest.json — open this page through the dev server (" + e.message + ").";
   });

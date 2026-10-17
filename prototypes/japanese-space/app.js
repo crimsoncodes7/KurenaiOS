@@ -244,8 +244,8 @@
     var I = JA.items;
     return [
       { t: "Hook", body: function () { return [
-        el("figure", { class: "panel-ph" }, [el("div", { class: "panel-art", "aria-hidden": "true" }, [el("span", { class: "bubble", lang: "ja", text: "これはなんですか。" })]),
-          el("figcaption", { class: "muted", text: "Manga panel placeholder: Yōta holds a cake (これ), Akari a drink (それ), the cat poster is far away (あれ). The art arrives from the Gemini batch." })]),
+        el("figure", { class: "scene-fig" }, [JA.vnScene(JA.cafeScene, { ruby: ruby, onMine: mine }),
+          el("figcaption", { class: "muted small", text: "Click or press Enter for the next line. Watch who says これ, それ and あれ — and what each is near. (The manga panel of this moment arrives with art batch 5.)" })]),
         el("p", { text: "By the end of this lesson you can point at things near you, near someone else, and far from both of you — and ask what they are." })
       ]; } },
       { t: "Core idea", body: function () { return [
@@ -365,9 +365,22 @@
   }
 
   // ---------- reading (input) ----------
+  /* Mine a line (plan §11): kept as a sentence card in the slice's state. */
+  function mine(ln) {
+    st.mined = st.mined || {};
+    var id = "m" + X.hash(ln.ja).toString(36);
+    st.mined[id] = { text: X.plain(ln.ja), en: ln.en, src: { kind: "scene", title: JA.cafeScene.title }, at: Date.now() };
+    save(); announce("Line mined");
+  }
+
   routes.read = function (m) {
     var P = JA.passage, shown = {};
-    m.appendChild(header("Reader", "Graded passage · " + P.title));
+    m.appendChild(header("Reader", "Graded passage · " + P.title, [el("button", { class: "btn", type: "button", onclick: function (e) {
+      var host = document.getElementById("scene-host"); host.hidden = !host.hidden;
+      if (!host.hidden && !host.firstChild) host.appendChild(JA.vnScene(JA.cafeScene, { ruby: ruby, onMine: mine }));
+      e.currentTarget.textContent = host.hidden ? "Play as a scene" : "Hide the scene";
+    } }, ["Play as a scene"])]));
+    m.appendChild(el("div", { id: "scene-host", class: "scene-fig", hidden: true }));
     var t0 = Date.now();
     var lines = el("ol", { class: "reader" });
     P.lines.forEach(function (ln, i) {

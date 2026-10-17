@@ -1,0 +1,161 @@
+{
+ "assets": {
+  "ja.base.akari.a": {
+   "kind": "base",
+   "src": [
+    1696,
+    2528
+   ],
+   "out": [
+    329,
+    1400
+   ],
+   "headBox": [
+    86,
+    561
+   ]
+  },
+  "ja.base.yota.a": {
+   "kind": "base",
+   "src": [
+    1696,
+    2528
+   ],
+   "out": [
+    401,
+    1400
+   ],
+   "headBox": [
+    81,
+    564
+   ]
+  },
+  "ja.face.akari.happy": {
+   "kind": "face",
+   "shift": [
+    0,
+    0
+   ],
+   "bodyDrift": 7.0,
+   "bodyOffPct": 1.8,
+   "grade": "slight",
+   "out": [
+    329,
+    1400
+   ],
+   "note": "low resolution (686x1024): upscaled; regenerate at full size"
+  },
+  "ja.face.akari.surprised": {
+   "kind": "face",
+   "shift": [
+    -2,
+    0
+   ],
+   "bodyDrift": 4.7,
+   "bodyOffPct": 2.1,
+   "grade": "ok",
+   "out": [
+    329,
+    1400
+   ],
+   "note": null
+  },
+  "ja.face.akari.troubled": {
+   "kind": "face",
+   "shift": [
+    0,
+    0
+   ],
+   "bodyDrift": 4.0,
+   "bodyOffPct": 1.4,
+   "grade": "ok",
+   "out": [
+    329,
+    1400
+   ],
+   "note": null
+  },
+  "ja.face.akari.thinking": {
+   "kind": "face",
+   "shift": [
+    0,
+    0
+   ],
+   "bodyDrift": 4.0,
+   "bodyOffPct": 1.4,
+   "grade": "ok",
+   "out": [
+    329,
+    1400
+   ],
+   "note": null
+  },
+  "ja.face.yota.happy": {
+   "kind": "face",
+   "shift": [
+    -2,
+    0
+   ],
+   "bodyDrift": 7.7,
+   "bodyOffPct": 4.4,
+   "grade": "slight",
+   "out": [
+    401,
+    1400
+   ],
+   "note": null
+  },
+  "ja.face.yota.surprised": {
+   "kind": "face",
+   "shift": [
+    -2,
+    0
+   ],
+   "bodyDrift": 7.6,
+   "bodyOffPct": 4.4,
+   "grade": "slight",
+   "out": [
+    401,
+    1400
+   ],
+   "note": null
+  },
+  "ja.face.yota.troubled": {
+   "kind": "face",
+   "shift": [
+    -2,
+    0
+   ],
+   "bodyDrift": 7.5,
+   "bodyOffPct": 4.3,
+   "grade": "slight",
+   "out": [
+    401,
+    1400
+   ],
+   "note": null
+  },
+  "ja.face.yota.thinking": {
+   "kind": "face",
+   "shift": [
+    -2,
+    0
+   ],
+   "bodyDrift": 7.7,
+   "bodyOffPct": 4.5,
+   "grade": "slight",
+   "out": [
+    401,
+    1400
+   ],
+   "note": null
+  },
+  "ja.bg.cafe": {
+   "kind": "background",
+   "out": [
+    1920,
+    1072
+   ]
+  }
+ }
+}
