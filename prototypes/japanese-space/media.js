@@ -32,6 +32,26 @@
 
   // ---------- the word splitter (Lindera + UniDic in a worker, Spike T) ----------
   var worker = null, seq = 0, waits = {}, ready = null;
+  /* parseTranscript(text) → cues, from YouTube's "Show transcript" panel copied as text:
+     a time ("1:05") on its own line or at the start of one, the words after it. Lines that are
+     only the panel's spoken time ("1 minute, 5 seconds") or English are dropped. A pasted SRT/VTT
+     is read as one. */
+  function parseTranscript(text) {
+    var asSubs = parseSubs(text); if (asSubs.length) return asSubs;
+    var TS = /^(?:(\d+):)?(\d{1,2}):(\d{2})(?:\s+(.*))?$/, cues = [], cur = null;
+    String(text).split(/\r?\n/).forEach(function (raw) {
+      var line = raw.trim(); if (!line) return;
+      var m = TS.exec(line);
+      if (m) { cur = { start: (+m[1] || 0) * 3600 + +m[2] * 60 + +m[3], text: "" }; cues.push(cur); if (m[4]) cur.text = m[4]; return; }
+      if (/^\d+\s+(hours?|minutes?|seconds?)(,\s*\d+\s+(minutes?|seconds?))*$/i.test(line)) return;
+      if (cur) cur.text += (cur.text ? " " : "") + line;
+    });
+    cues = cues.filter(function (c) { return /[぀-ヿ㐀-鿿]/.test(c.text); }).map(function (c) { return { start: c.start, text: clean(c.text) }; });
+    cues.forEach(function (c, i) { var n = cues[i + 1]; c.end = n ? Math.min(n.start, c.start + 8) : c.start + 5; });
+    return cues;
+  }
+  function ytId(s) { var m = /(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/.exec(s || "") || /^([\w-]{11})$/.exec((s || "").trim()); return m ? m[1] : null; }
+
   function splitter() {
     if (ready) return ready;
     ready = new Promise(function (resolve, reject) {
@@ -155,6 +175,30 @@
     ]);
     main.appendChild(open);
 
+    // or a YouTube video: the embed plays it, the transcript you paste gives the lines
+    var ytUrl = el("input", { type: "url", class: "ans", placeholder: "https://www.youtube.com/watch?v=…", "aria-label": "YouTube link", value: (session && session.yt && "https://youtu.be/" + session.yt) || "" });
+    var ytText = el("textarea", { rows: 4, lang: "ja", "aria-label": "Transcript", placeholder: "Paste the transcript here (on YouTube: ⋯ under the video → Show transcript, select it all, copy)." });
+    var ytStatus = el("p", { class: "muted small", "aria-live": "polite" });
+    main.appendChild(el("section", { class: "card", "aria-labelledby": "yt-h" }, [
+      el("h2", { id: "yt-h", text: "Or a YouTube video" }),
+      el("p", { class: "muted small", text: "Coverage, the line list, looping, 0.75× and dictation all work. Saving a line as a clip needs a video file (an embed cannot be cut)." }),
+      ytUrl, ytText,
+      el("div", { class: "row wrap" }, [el("button", { class: "btn primary", type: "button", onclick: function () {
+        var id = ytId(ytUrl.value); if (!id) { ytStatus.textContent = "That doesn't look like a YouTube link."; return; }
+        var cues = parseTranscript(ytText.value);
+        if (!cues.length) { ytStatus.textContent = "No Japanese lines with times found. Copy the transcript with its timestamps on."; return; }
+        openCues("YouTube " + id, cues, { yt: id }, ytStatus);
+      } }, ["Open the video"])]), ytStatus
+    ]));
+
+    function openCues(name, cues, extra, out) {
+      out.textContent = "Splitting " + cues.length + " lines into words… (first time: loading the splitter)";
+      return split(cues.map(function (c) { return c.text; })).then(function (res) {
+        if (session && session.videoUrl && (extra.videoUrl || extra.yt)) URL.revokeObjectURL(session.videoUrl);
+        session = Object.assign({ name: name, cues: cues, out: res }, extra);
+        api.draw();
+      });
+    }
     var pending = { sub: null, vid: null };
     function go() {
       if (!pending.sub) return;
@@ -162,12 +206,8 @@
       pending.sub.text().then(function (txt) {
         var cues = parseSubs(txt);
         if (!cues.length) { status.textContent = "No Japanese lines found in that file."; return; }
-        status.textContent = "Splitting " + cues.length + " lines into words… (first time: loading the splitter)";
-        return split(cues.map(function (c) { return c.text; })).then(function (out) {
-          if (session && session.videoUrl && pending.vid) URL.revokeObjectURL(session.videoUrl);
-          session = { name: pending.sub.name, cues: cues, out: out, videoUrl: pending.vid ? URL.createObjectURL(pending.vid) : session && session.videoUrl, videoName: pending.vid ? pending.vid.name : session && session.videoName };
-          api.draw();
-        });
+        var keep = session && !session.yt ? session : null;
+        return openCues(pending.sub.name, cues, { videoUrl: pending.vid ? URL.createObjectURL(pending.vid) : keep && keep.videoUrl, videoName: pending.vid ? pending.vid.name : keep && keep.videoName }, status);
       }).catch(function (e) { status.textContent = "Could not read it: " + e.message; });
     }
     subIn.addEventListener("change", function () { pending.sub = subIn.files[0]; go(); });
@@ -176,12 +216,23 @@
 
     if (session) {
       var known = knownSet(), cov = session.cov = coverage(session.cues, session.out, known);
-      if (session.videoUrl) main.appendChild(player(session, cov, known));
+      if (session.videoUrl || session.yt) main.insertBefore(player(session, cov, known), open);
+      record(session, cov);
       main.appendChild(lineList(session, cov));
       side.appendChild(coverageCard(session, cov));
     }
     side.appendChild(knownCard());
     ready0.then(function () { side.appendChild(clipsCard()); });
+  }
+
+  /* What results.html hands over: the figures, the 30 commonest unknown words, and how the first
+     60 lines were split (to judge the splitter on real speech). Never the video. */
+  function record(s, cov) {
+    var sum = { at: Date.now(), source: s.yt ? "youtube" : "file", name: s.name, videoId: s.yt || null, video: !!(s.videoUrl || s.yt), lines: s.cues.length,
+      coverage: { words: cov.total, known: cov.known, pct: Math.round(cov.pct * 1000) / 10 }, iPlus1: cov.iPlus1.length, clear: cov.clear.length,
+      unknownTop: cov.words.slice(0, 30).map(function (w) { return [w, cov.freq[w]]; }),
+      sample: s.cues.slice(0, 60).map(function (c, i) { return { t: Math.round(c.start * 10) / 10, text: c.text, tokens: s.out[i].tokens.map(function (t) { return [t.s, t.pos, t.pos2, t.base, t.kana]; }), merged: (s.out[i].merged || []).map(function (m) { return m.s; }) }; }) };
+    try { localStorage.setItem("ja-media-result-v1", JSON.stringify(sum)); } catch (e) {}
   }
 
   function coverageCard(s, cov) {
@@ -245,8 +296,39 @@
 
   /* The player: one line at a time. Subtitles drawn by the page (so they can hide, and carry
      furigana only on words you do not know yet). */
+  /* The player's source: a local video file or a YouTube embed, behind one small interface. */
+  function fileSource(url) {
+    var v = el("video", { src: url, preload: "auto", playsinline: true });
+    return { node: v, time: function () { return v.currentTime; }, paused: function () { return v.paused; }, seek: function (t) { v.currentTime = t; },
+      play: function () { v.play(); }, pause: function () { v.pause(); }, rate: function (r) { v.playbackRate = r; }, onTick: function (fn) { v.addEventListener("timeupdate", fn); } };
+  }
+  var ytApi = null;
+  function loadYt() {
+    if (ytApi) return ytApi;
+    return (ytApi = new Promise(function (res) {
+      if (window.YT && YT.Player) return res(YT);
+      window.onYouTubeIframeAPIReady = function () { res(YT); };
+      document.head.appendChild(el("script", { src: "https://www.youtube.com/iframe_api" }));
+    }));
+  }
+  function ytSource(id) {
+    var host = el("div", { class: "yt-host" }), box = el("div"), p = null, queued = [];
+    host.appendChild(box);
+    loadYt().then(function (YT) {
+      p = new YT.Player(box, { videoId: id, width: "100%", height: "100%", playerVars: { rel: 0, playsinline: 1, iv_load_policy: 3, cc_load_policy: 0, modestbranding: 1 },
+        events: { onReady: function () { queued.forEach(function (f) { f(); }); queued = []; } } });
+    });
+    function call(f) { if (p && p.getPlayerState) f(); else queued.push(f); }
+    return { node: host,
+      time: function () { return p && p.getCurrentTime ? p.getCurrentTime() : 0; },
+      paused: function () { return !(p && p.getPlayerState && p.getPlayerState() === 1); },
+      seek: function (t) { call(function () { p.seekTo(t, true); }); }, play: function () { call(function () { p.playVideo(); }); },
+      pause: function () { call(function () { p.pauseVideo(); }); }, rate: function (r) { call(function () { p.setPlaybackRate(r); }); },
+      onTick: function (fn) { var t = setInterval(function () { if (!host.isConnected && p) { clearInterval(t); return; } fn(); }, 150); } };
+  }
+
   function player(s, cov, known) {
-    var st = JA.app.state(), video = el("video", { src: s.videoUrl, preload: "auto", playsinline: true });
+    var st = JA.app.state(), m = s.yt ? ytSource(s.yt) : fileSource(s.videoUrl), video = m.node;
     var sub = el("div", { class: "sub-line", lang: "ja", "aria-live": "off" });
     var cur = s.cur || 0, loop = false, subs = s.subs || "show", answered = {};
     function cue() { return s.cues[cur]; }
@@ -261,24 +343,35 @@
       return frag;
     }
     function showSub() {
-      var i = s.cues.findIndex(function (c) { return video.currentTime >= c.start - 0.05 && video.currentTime <= c.end + 0.3; });
+      var now = m.time() - off(), inCue = function (c) { return now >= c.start - 0.05 && now <= c.end + 0.3; };
+      var i = cue() && inCue(cue()) ? cur : s.cues.findIndex(inCue); // the line being practised wins an overlap
       sub.innerHTML = "";
-      if (i < 0 && video.paused && answered[cur]) i = cur; // keep an answered line on screen
+      if (i < 0 && m.paused() && answered[cur]) i = cur; // keep an answered line on screen
       if (i < 0) return;
       if (subs === "hide" || (subs === "dictation" && !answered[i])) { sub.appendChild(el("span", { class: "muted", text: subs === "dictation" ? "(type what you hear below)" : "" })); return; }
       sub.appendChild(rubyLine(i));
     }
     function playLine(i) {
       cur = Math.max(0, Math.min(s.cues.length - 1, i)); s.cur = cur;
-      video.currentTime = Math.max(0, cue().start - 0.15); video.play();
+      m.seek(Math.max(0, cue().start + off() - 0.15)); m.play();
       lineInfo(); dict.reset();
     }
     s.seek = function (i) { playLine(i); video.scrollIntoView({ block: "nearest" }); };
-    video.addEventListener("timeupdate", function () {
+    m.onTick(function () {
       showSub();
-      var c = cue(); if (!c || video.paused) return;
-      if (video.currentTime > c.end + 0.25) { if (loop) video.currentTime = Math.max(0, c.start - 0.15); else video.pause(); }
+      var c = cue(); if (!c || m.paused()) return;
+      if (m.time() - off() > c.end + 0.25) { if (loop) m.seek(Math.max(0, c.start + off() - 0.15)); else m.pause(); }
     });
+    // subtitles from another release run early or late: nudge them (kept for this episode only)
+    function off() { return s.offset || 0; }
+    var offOut = el("span", { class: "mono muted small", "aria-live": "polite" });
+    function offText() { offOut.textContent = "Subs " + (off() >= 0 ? "+" : "") + off().toFixed(1) + " s"; }
+    var nudge = el("div", { class: "row", role: "group", "aria-label": "Subtitle timing" }, [
+      el("button", { class: "btn mini", type: "button", "aria-label": "Subtitles earlier by half a second", onclick: function () { s.offset = off() - 0.5; offText(); showSub(); } }, ["− 0.5 s"]),
+      offOut,
+      el("button", { class: "btn mini", type: "button", "aria-label": "Subtitles later by half a second", onclick: function () { s.offset = off() + 0.5; offText(); showSub(); } }, ["+ 0.5 s"])
+    ]);
+    offText();
     var info = el("div", { class: "line-info" });
     function lineInfo() {
       info.innerHTML = "";
@@ -286,8 +379,8 @@
       info.appendChild(el("span", { class: "mono muted", text: "Line " + (cur + 1) + " of " + s.cues.length + " · " + fmt(cue().start) }));
       if (l.unknown.length) info.appendChild(el("span", { class: "chip" + (l.unknown.length === 1 ? " ready" : ""), lang: "ja", text: "new: " + l.unknown.join("、") }));
     }
-    var speed = el("button", { class: "btn mini", type: "button", "aria-pressed": "false", onclick: function (e) { var slow = video.playbackRate === 1; video.playbackRate = slow ? 0.75 : 1; e.currentTarget.setAttribute("aria-pressed", String(slow)); } }, ["0.75×"]);
-    var loopBtn = el("button", { class: "btn mini", type: "button", "aria-pressed": "false", onclick: function (e) { loop = !loop; e.currentTarget.setAttribute("aria-pressed", String(loop)); if (loop && video.paused) playLine(cur); } }, ["Loop line"]);
+    var speed = el("button", { class: "btn mini", type: "button", "aria-pressed": "false", onclick: function (e) { var slow = e.currentTarget.getAttribute("aria-pressed") !== "true"; m.rate(slow ? 0.75 : 1); e.currentTarget.setAttribute("aria-pressed", String(slow)); } }, ["0.75×"]);
+    var loopBtn = el("button", { class: "btn mini", type: "button", "aria-pressed": "false", onclick: function (e) { loop = !loop; e.currentTarget.setAttribute("aria-pressed", String(loop)); if (loop && m.paused()) playLine(cur); } }, ["Loop line"]);
     var subsGroup = el("div", { class: "row", role: "group", "aria-label": "Subtitles" }, [["show", "Subtitles"], ["hide", "Hidden"], ["dictation", "Dictation"]].map(function (o) {
       return el("button", { class: "btn mini", type: "button", "aria-pressed": String(subs === o[0]), onclick: function () { subs = s.subs = o[0]; Array.prototype.forEach.call(subsGroup.children, function (b, k) { b.setAttribute("aria-pressed", String(k === ["show", "hide", "dictation"].indexOf(o[0]))); }); dict.node.hidden = subs !== "dictation"; showSub(); } }, [o[1]]);
     }));
@@ -319,11 +412,12 @@
     } }, ["● Shadow"]);
     var mineBtn = el("button", { class: "btn mini", type: "button", disabled: true, onclick: function () { if (mine) new Audio(mine).play(); } }, ["▶ Mine"]);
 
-    var saveBtn = el("button", { class: "btn mini", type: "button", onclick: function (e) {
+    var saveBtn = el("button", { class: "btn mini", type: "button", disabled: s.yt ? true : null, title: s.yt ? "Saving a line needs a video file: an embed cannot be cut" : null, onclick: function (e) {
       var b = e.currentTarget, c = cue(), k = kanaOf(s.out[cur]);
+      if (s.yt) { b.textContent = "Clips need a video file"; return; }
       if (!(video.captureStream || video.mozCaptureStream)) { b.textContent = "This browser cannot cut clips"; return; }
       b.disabled = true; b.textContent = "Saving the line…"; loop = false; loopBtn.setAttribute("aria-pressed", "false");
-      captureLine(video, c).then(function (blob) {
+      captureLine(video, { start: c.start + off(), end: c.end + off() }).then(function (blob) {
         var id = "c" + Date.now().toString(36);
         return clips.put({ id: id, text: c.text, kana: k.target, alt: k.alt, blob: blob, from: { name: s.videoName || s.name, start: c.start, end: c.end }, at: Date.now() });
       }).then(indexClips).then(function () { b.textContent = "✓ Saved"; JA.app.announce("Line saved on this device"); setTimeout(function () { JA.app.draw(); }, 600); }, function (err) { b.disabled = false; b.textContent = "Could not save: " + err.message; });
@@ -333,7 +427,7 @@
       el("button", { class: "btn", type: "button", "aria-label": "Previous line", onclick: function () { playLine(cur - 1); } }, ["⏮"]),
       el("button", { class: "btn primary", type: "button", onclick: function () { playLine(cur); } }, ["▶ Line"]),
       el("button", { class: "btn", type: "button", "aria-label": "Next line", onclick: function () { playLine(cur + 1); } }, ["⏭"]),
-      loopBtn, speed, subsGroup, shadowBtn, mineBtn, saveBtn
+      loopBtn, speed, subsGroup, shadowBtn, mineBtn, saveBtn, nudge
     ]);
     setTimeout(lineInfo, 0);
     return el("section", { class: "card player", "aria-label": "Player" }, [el("div", { class: "screen" }, [video, sub]), info, ctrls, dict.node]);
@@ -362,5 +456,5 @@
     return box;
   }
 
-  JA.media = { view: view, parseSubs: parseSubs, coverage: coverage, kanaOf: kanaOf, split: split, ready: ready0, clips: clips };
+  JA.media = { view: view, parseSubs: parseSubs, parseTranscript: parseTranscript, ytId: ytId, coverage: coverage, kanaOf: kanaOf, split: split, ready: ready0, clips: clips };
 })();

@@ -59,6 +59,7 @@
     if (wl) wl.stop();
     btn.removeAttribute("data-rec"); btn.textContent = "● Again"; meter.style.width = "0";
     audio[it.id] = r.blob;
+    if (JA.results) JA.results.putAudio(it.id, r.pcm); // kept for re-tuning on your voice (results.html)
     var res = { at: Date.now(), secs: r.pcm.length / 16000 };
     var an = JA.acoustic.analyse(r.pcm, 16000);
     res.contour = JA.acoustic.semitones(an.contour).filter(function (_, i) { return i % 2 === 0; }).map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(1)]; });
@@ -165,7 +166,7 @@
     var calBtn = el("button", { class: "btn", type: "button", onclick: async function () {
       calBtn.disabled = true; calBtn.textContent = "■ Listening… say it once";
       var rc = JA.audio.record({ maxMs: 3500 });
-      try { var r = await rc.done; var an = JA.acoustic.analyse(r.pcm, 16000); st.mora = JA.acoustic.calibrate(an); save(); calOut.textContent = "Your pace: " + Math.round(st.mora * 1000) + " ms a beat."; announce("Calibrated"); }
+      try { var r = await rc.done; var an = JA.acoustic.analyse(r.pcm, 16000); st.mora = JA.acoustic.calibrate(an); if (JA.results) JA.results.putAudio("calibration", r.pcm); save(); calOut.textContent = "Your pace: " + Math.round(st.mora * 1000) + " ms a beat."; announce("Calibrated"); }
       catch (e) { calOut.textContent = "Microphone unavailable: " + e.message; }
       calBtn.disabled = false; calBtn.textContent = "● Calibrate again";
     } }, [st.mora ? "● Calibrate again" : "● Calibrate"]);

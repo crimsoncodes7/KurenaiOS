@@ -1,0 +1,25 @@
+/* Your part (results.html) and the handwriting test (trace.html) */
+.yp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.yp-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.yp-card > a.btn { margin-top: auto; align-self: flex-start; }
+.yp-card h2 { margin: 0; font-size: 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.yp-card ol, .yp-card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.yp-card .facts { margin: 0; }
+.yp-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.yp-bar span { display: block; height: 100%; background: var(--ja); }
+.yp-send { margin-top: 14px; padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; }
+.yp-send p { margin: 0; }
+@media (max-width: 1080px) { .yp { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px) { .yp, .yp-send { grid-template-columns: 1fr; } }
+
+.tr-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 14px; align-items: start; }
+.tr-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.tr-item { padding: 12px 14px; display: grid; gap: 8px; align-content: start; }
+.tr-item[data-mistake] { border-color: oklch(0.66 0.17 22 / .35); }
+.tr-head { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.tr-ask { margin: 0; min-height: 3em; }
+.tr-ch { font-size: 20px; margin-right: 4px; }
+.tr-pad .pad { max-width: none; }
+.tr-sum { padding: 14px 16px; position: sticky; top: 16px; display: grid; gap: 10px; }
+.tr-sum h2 { margin: 0; font-size: 15px; }
+@media (max-width: 860px) { .tr-layout { grid-template-columns: 1fr; } .tr-sum { position: static; order: -1; } }
