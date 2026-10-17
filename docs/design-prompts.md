@@ -19,7 +19,7 @@ handoff maps back to the roadmap.
 | 9 | Reports: week, month, term, year | 5.1 | next |
 | 10 | Code: a C# study space | 5.3 | after 9 |
 | 11 | Money and Goals | 5.4 | with 10 |
-| 12 | Japanese: a study space for the four skills | 5.5 | after the slice |
+| 12 | Japanese: a study space for the four skills | 5.5 | now (slice closed) |
 
 ---
 
@@ -375,9 +375,18 @@ Frames:
 
 ## 12 · Japanese: a study space for the four skills
 
-The agreed scope is [japanese-plan.md](japanese-plan.md) revision 2. This
+The agreed scope is [japanese-plan.md](japanese-plan.md) revision 3.1, after
+the vertical slice measured speech, handwriting and a real episode. This
 prompt designs the platform, Stage 0 and Stage 1. Later stages reuse these
 frames.
+
+**Attach the slice's art to the conversation** so the frames use the real
+cast and style rather than placeholders, from
+`prototypes/japanese-space/art/`:
+- `ja.base.akari.a.webp` and `ja.face.akari.happy.webp`;
+- `ja.base.yota.a.webp`;
+- `ja.bg.cafe.webp`;
+- `ja.panel.kosoa.1.webp` and `ja.panel.kosoa.2.webp`.
 
 ```text
 Design the Japanese space for KurenaiOS, continuing the approved design in this project: Graphite (Atelier Dusk) and its light twin Dawn, the phone views (15a–15n), the lab system (20a–20i), Reports (24a–24l), Code (26a–26x) and Money and Goals (27a–27o). Number the new frames 28a onwards. Desktop 1280 wide; phone 390 × 844, checked at 360. Use only the existing tokens, type scale, cards, stat tiles, tabs, chips, dialogs and chart styles, and reuse Code's stage path and evidence patterns where they fit.
@@ -388,7 +397,13 @@ TYPOGRAPHY. Japanese is content, never decoration. Japanese body text is Noto Sa
 
 MOTIFS, KEPT QUIET. Genkō-yōshi (manuscript grid) as the writing canvas; a thin hanko-style seal on a passed checkpoint; the media path drawn as stepping stones (飛び石). No cherry-blossom wallpaper, no decorative kanji, no fake Japanese labels.
 
-WHAT THE SPACE IS. A path from zero to watching anime, reading manga, light novels and VNs, and following J-dramas and J-pop without English. It is input-led: reviews, new material, reading/listening input and output (writing/speaking) every day, about 30–45 minutes, computed each day. Mastery is tracked separately for Reading, Writing, Listening and Speaking. Answers are checked by validators that understand Japanese and return one of four verdicts: Correct, Accepted (valid, not the target form, with a note), Near (a slip; one retry), Wrong, each with a diagnosis. Speaking is checked by speech recognition on sentences and by acoustic checks (vowel length, っ, pitch) on single words; pitch is advisory. Media moments are manga panels (black and white, screentone, live text bubbles), VN scenes (background, a character sprite whose face changes, a text box) and the learner's own clips with subtitles (kept on the device).
+WHAT THE SPACE IS. A path from zero to watching anime, reading manga, light novels and VNs, and following J-dramas and J-pop without English. It is input-led: reviews, new material, reading/listening input and output (writing/speaking) every day, about 30–45 minutes, computed each day. Mastery is tracked separately for Reading, Writing, Listening and Speaking. Answers are checked by validators that understand Japanese and return one of four verdicts: Correct, Accepted (valid, not the target form, with a note), Near (a slip; one retry), Wrong, each with a diagnosis. SPEAKING, AS MEASURED. Speech recognition checks only that a sentence would be UNDERSTOOD: the slice showed every recogniser silently "fixes" a dropped っ, a dropped long vowel and voicing (が for か), and an acoustic check failed on a real beginner's voice. So a speaking result says "Understood" or "Not understood — try again", never "Correct", and a single word that is not recognised asks to "Say it again", never marks it wrong. Vowel length, っ and voicing are trained where a verdict is reliable: listening minimal pairs, dictation, and SHADOWING — the learner's recording played back to back with the model, with a length bar of each (beats as segments) — which the learner self-marks ("Self-marked", pays nothing extra). Pitch is an advisory contour. The learner always HEARS a line (▶ Hear, ▶ Slow) before being asked to say it; in Stage 0's first week a plain-letter guide shows the beats ("o·ba·a·sa·n · 5 beats"), then disappears for good.
+
+AUDIO. Every word, sentence and scene line is pre-rendered audio, one distinct voice per character (the browser voice is only a fallback, marked "synthetic voice"). The player shows who is speaking.
+
+MEDIA MOMENTS. Use the attached art. Manga panels are black-and-white raster art with LIVE balloons on top: SVG balloons, real vertical Japanese text (selectable, furigana by mastery, each balloon voiced in its speaker's voice), live sound-effect lettering, panels laid out right to left and balloons read right to left. A "Fill the bubbles" mode blanks words in the balloons for a pick. VN scenes are a painted background, character sprites whose FACE changes while the body stays exactly still, a name plate, a typewriter text box, backlog, English on request and "Mine this line". The learner's own media: an episode's video file plus its Japanese subtitle file, OR a YouTube video with its pasted transcript; everything stays on the device; saving a line as a clip needs a video file in Chrome or Edge (an embed or Safari cannot cut one).
+
+CAST. 白石 灯 (Shiraishi Akari) — third-year senpai and guide, polite です/ます, later keigo; glasses, chestnut hair with a thin braid and a vermilion clip. 朝日 陽太 (Asahi Yōta) — same-year classmate, casual speech and anime contractions; messy dark hair, blazer open over a grey hoodie. Two more to come (a café owner, a little sibling) in the same style.
 
 RULES THE DESIGN MUST KEEP
 - Nothing is locked. Content beyond the learner is "Recommended later" (a calm label, dashed outline).
@@ -396,28 +411,28 @@ RULES THE DESIGN MUST KEEP
 - A zero that is only a supporting fact is not printed; the timeline shows "Calibrating" with under two weeks of data, and every projected date is a RANGE, never one date.
 - Pass/fail use the fixed green and alarm red with an icon AND a word, never the subject hue.
 - Rewards are reported after the fact and paid once.
-- Anything sent to the Assistant is preceded by a "What is sent" dialog. Microphone use is requested from a gesture, with a visible recording state and a clear stop.
+- Anything sent to the Assistant is preceded by a "What is sent" dialog. Microphone use is requested from a gesture, with a visible recording state and a clear stop. Speaking is OPT-IN, and the opt-in says plainly that Chrome's recogniser sends the audio to Google.
 - The five breakpoints (1240, 1080, 860, 700, 560); phone composition from 700; 44px touch targets; keyboard-complete frames; one polite live region for results; reduced motion removes the typewriter and cross-fades.
 
-SAMPLE DATA. Learner 9 weeks in: hiragana and katakana done; Stage 1, unit 3 ("Verbs and ます"), lesson 3.4 "Going places: に and へ". 412 words (R stable 288, L 241, W 160, S 72), 64 kanji read. Reading speed 118 characters a minute. Input this week 2 h 50 m (raw 40 m, JP subtitles 1 h 20 m, reader 50 m). Today ≈ 38 min: Reviews 64 due (≈ 12 min), New: 3.4 (≈ 13 min), Input: graded reader "ねこの いちにち" (≈ 8 min), Output: say-it set (≈ 5 min). Next milestone "Yotsuba&! with a dictionary": 61% there, projected Feb–Apr 2027; "Anime with JP subtitles": calibrated range Nov 2027 – Mar 2028. Collection: Frieren (anime, in progress) — 54% of the words in episode 1's subtitles known; Yotsuba&! vol. 1 (manga, planned). Cast: a polite senpai guide, a casual classmate, a café owner, a little sibling.
+SAMPLE DATA. Learner 9 weeks in: hiragana and katakana done; Stage 1, unit 3 ("Verbs and ます"), lesson 3.4 "Going places: に and へ". 412 words (R stable 288, L 241, W 160, S 72), 64 kanji read. Reading speed 118 characters a minute. Input this week 2 h 50 m (raw 40 m, JP subtitles 1 h 20 m, reader 50 m). Today ≈ 38 min: Reviews 64 due (≈ 12 min), New: 3.4 (≈ 13 min), Input: graded reader "ねこの いちにち" (≈ 8 min), Output: say-it set (≈ 5 min). Next milestone "Yotsuba&! with a dictionary": 61% there, projected Feb–Apr 2027; "Anime with JP subtitles": calibrated range Nov 2027 – Mar 2028. Collection: Frieren (anime, in progress) — 54% of the words in episode 1's subtitles known, 58 lines with exactly one new word, names (フリーレン, フェルン, ヒンメル) listed apart and not counted; Yotsuba&! vol. 1 (manga, planned). Speaking this week: 14 sentences understood of 17, 6 shadowing reps self-marked.
 
 FRAMES
 28a The desk: today's session as four blocks with one Start and the ≈ minutes; the media path strip with the next milestone and its range; the R/W/L/S radar; Collection readiness chips; continue reading; input hours this week. States: first day (Stage 0, nothing calibrated); a heavy review day ("New shrinks to 6 min; input stays").
 28b The media path: stepping-stone milestones with requirement profiles (words, kanji, reading speed, listening hours) as small meters, the projected range for each, and "what moves this date most" ("+15 min/day of listening brings it ~4 months forward").
 28c The skill map: units with four skill bars, the radar, kanji read and written, fluency measures, and a "Rework" list for leeches.
-28d Kana: the chart with per-kana state, a recognition speed drill, and handwriting on a genkō-yōshi square with the Klee One model glyph and stroke-order animation; stroke diagnosis states ("stroke 2 before stroke 1", "direction reversed").
+28d Kana: the chart with per-kana state, a recognition speed drill, and handwriting on a genkō-yōshi square with the Klee One model glyph. The stroke-order animation PLAYS BEFORE THE FIRST ATTEMPT at a new kana (the slice's learner made order slips on 6 of 15 without it), then on request. Stroke diagnosis states with the strokes coloured and the model's numbered starts shown: "Your stroke 1 is stroke 2 — stroke 1 comes first", "Stroke 1 goes the other way: top to bottom", a combined "…comes first, and it goes the other way", and "You went over stroke 1 twice — Undo the extra one".
 28e A lesson on the shared topic page (Learn): the hook (a manga panel the lesson unlocks), core idea with example sentences (audio, furigana by mastery), Listen & notice, the page bar, the inspector with evidence.
-28f The exercise runner: one frame per family with every verdict state: A typed recall (romaji converting to kana live; "Accepted — kana for 食べる, kanji taught"); B build-sentence tiles and conjugation with a diagnosis ("ichidan rule on a godan verb: 帰る → 帰って"); C a passage with questions and per-sentence translation reveal; D dictation and a minimal pair (おばさん / おばあさん) with a mora diff; E say-it with the recording state, transcript, mora alignment and the pitch overlay (advisory).
+28f The exercise runner: one frame per family with every verdict state: A typed recall (romaji converting to kana live; "Accepted — kana for 食べる, kanji taught"); B build-sentence tiles and conjugation with a diagnosis ("ichidan rule on a godan verb: 帰る → 帰って"); C a passage with questions and per-sentence translation reveal; D dictation and a minimal pair (おばさん / おばあさん) with a mora diff — the reliable home of vowel length and っ; E say-it: ▶ Hear first, then the recording state, what was understood, and the two outcomes ("Understood" / "Not understood — try again"), never a mora-level verdict; and SHADOWING: model and learner recordings back to back, two length bars in beats, the advisory pitch contours, and the self-mark ("Matched / Not yet"), labelled Self-marked.
 28g Reviews: due facets interleaved, the skill each card trains as a chip, derived grade and next interval, sibling burying explained once.
 28h The reader: pasted text with furigana by mastery, tap-to-lookup popup (word, reading, pitch, gloss, Add to reviews, audio), mine a sentence, timed reading speed, vertical mode.
-28i Media components: a manga panel (screentone, live bubbles, a hidden-bubble exercise), a VN scene (name plate, typewriter, backlog, the face changing mid-line while the body stays), a clip player (in/out, loop line, 0.75×, subtitles hidden/JP), and the subtitle import with the coverage result.
+28i Media components, using the attached art: a manga page of the two panels side by side in right-to-left order (live vertical balloons with tails to each speaker, the ビシッ sound effect, a balloon highlighted while it is voiced, Read / Fill the bubbles); a VN scene in the café (name plate in the subject hue, typewriter, backlog, the face changing mid-line while the body stays, the listener dimmed); a clip player (loop line, 0.75×, Subtitles / Hidden / Dictation, Shadow, Save this line, a subtitle timing nudge "Subs +0.5 s"); the YouTube variant (embed + pasted transcript, Save this line disabled with its reason); and the subtitle import with the coverage result (percentage known, the commonest unknown words, the one-new-word lines to mine, names listed apart, "Make a target pack").
 28j Checkpoint: four skill sections and a media task, per-skill result with the 80% line, a targeted rework set, the hanko seal on pass, and the stage gate's spoken monologue and essay.
-28k Speech: the engine choice (browser vs on-device download, what each sends), the microphone permission flow, and the self-marked fallback.
+28k Speech: the opt-in (what is sent to Google and when), the microphone permission flow, the pace check ("Say ありがとうございます once"; a silent take is refused with "Didn't hear you — try again"), and what speaking is and is not checked for, said once in plain words.
 28l Immersion through Focus: choosing raw / JP subtitles / EN subtitles and a Collection title; the EN-subtitles note ("logged, counts as 0 listening input").
-28m Settings and credits: furigana, daily minutes, voice, speech engine, audio packs, the Licences & credits page (JMdict, KANJIDIC2, KanjiVG, Tatoeba, Tadoku, VOICEVOX, AI-assisted art).
+28m Settings and credits: furigana, daily minutes, voice, speech engine, audio packs, the Licences & credits page (JMdict, KANJIDIC2, KanjiVG, Tatoeba, Tadoku, the voice provider's credit line per character, AI-assisted art).
 28n Phone: the desk, a review card and the reader.
 28o Phone: say-it and kana handwriting.
 28p Dawn: the desk and the exercise runner in the light theme.
 
-DELIVERABLE NOTES. For every frame annotate the interaction states, focus order, live-region announcements, empty and error states, and what changes at 1080, 860, 700 and 560. Mark new shared components (furigana text, the audio player with pitch, the exercise verdict card, the skill radar, the media panel, the VN scene) with their states. Copy short and calm, in British English.
+DELIVERABLE NOTES. For every frame annotate the interaction states, focus order, live-region announcements, empty and error states, and what changes at 1080, 860, 700 and 560. Mark new shared components (furigana text, the audio player with the speaker and pitch, the exercise verdict card, the shadowing comparison, the skill radar, the manga panel, the VN scene) with their states. Copy short and calm, in British English.
 ```
