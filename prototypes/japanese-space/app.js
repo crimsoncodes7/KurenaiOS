@@ -245,7 +245,7 @@
     return [
       { t: "Hook", body: function () { return [
         el("figure", { class: "scene-fig" }, [JA.vnScene(JA.cafeScene, { ruby: ruby, onMine: mine }),
-          el("figcaption", { class: "muted small", text: "Click or press Enter for the next line. Watch who says これ, それ and あれ — and what each is near. (The manga panel of this moment arrives with art batch 5.)" })]),
+          el("figcaption", { class: "muted small", text: "Click or press Enter for the next line. Watch who says これ, それ and あれ — and what each is near. The Manga page has this moment as two panels." })]),
         el("p", { text: "By the end of this lesson you can point at things near you, near someone else, and far from both of you — and ask what they are." })
       ]; } },
       { t: "Core idea", body: function () { return [
@@ -269,6 +269,23 @@
           var it = I[k]; return el("li", {}, [X.audioBtn(it.w), el("span", { class: "ja", lang: "ja" }, [it.w === "本" ? ruby("{本|ほん}") : it.w]), el("span", { text: it.en[0] }), it.note ? el("span", { class: "muted", text: it.note }) : null]);
         }))
       ]; } },
+      { t: "Manga", body: function () {
+        var host = el("div", {});
+        var draw = function (mode) {
+          host.innerHTML = "";
+          host.appendChild(el("div", { class: "manga-mode", role: "group", "aria-label": "Panel mode" }, [["read", "Read"], ["quiz", "Fill the bubbles"]].map(function (m) {
+            return el("button", { class: "btn", type: "button", "aria-pressed": String(m[0] === mode), onclick: function () { draw(m[0]); } }, [m[1]]);
+          })));
+          host.appendChild(el("p", { class: "muted small", text: mode === "read"
+            ? "Manga reads right to left: the right panel first, and inside a panel the right balloon first. Hover a balloon (or tap ▶) to hear it."
+            : "Each ？ is これ, それ or あれ. Who is speaking, and how near is the thing to them — and to the listener?" }));
+          host.appendChild(el("div", { class: "manga-page" }, [JA.panels.kosoa1, JA.panels.kosoa2].map(function (p) {
+            return JA.mangaPanel(p, { mode: mode, ruby: ruby, onMine: mine });
+          })));
+        };
+        draw("read");
+        return [host];
+      } },
       { t: "Pitfalls", body: function () { return [
         el("ul", {}, [
           el("li", {}, ["The particle は is written は but said “wa”. Typing “wa” gives わ — the checker will point it out."]),
@@ -369,7 +386,7 @@
   function mine(ln) {
     st.mined = st.mined || {};
     var id = "m" + X.hash(ln.ja).toString(36);
-    st.mined[id] = { text: X.plain(ln.ja), en: ln.en, src: { kind: "scene", title: JA.cafeScene.title }, at: Date.now() };
+    st.mined[id] = { text: X.plain(ln.ja), en: ln.en, src: ln.src || { kind: "scene", title: JA.cafeScene.title }, at: Date.now() };
     save(); announce("Line mined");
   }
 

@@ -33,17 +33,17 @@
   "ja.face.akari.happy": {
    "kind": "face",
    "shift": [
-    0,
+    -2,
     0
    ],
-   "bodyDrift": 7.0,
-   "bodyOffPct": 1.8,
-   "grade": "slight",
+   "bodyDrift": 4.6,
+   "bodyOffPct": 1.9,
+   "grade": "ok",
    "out": [
     329,
     1400
    ],
-   "note": "low resolution (686x1024): upscaled; regenerate at full size"
+   "note": null
   },
   "ja.face.akari.surprised": {
    "kind": "face",
@@ -156,6 +156,40 @@
     1920,
     1072
    ]
+  },
+  "ja.bg.classroom": {
+   "kind": "background",
+   "out": [
+    1920,
+    1072
+   ]
+  },
+  "ja.bg.station": {
+   "kind": "background",
+   "out": [
+    1920,
+    1072
+   ]
+  },
+  "ja.panel.kosoa.1": {
+   "kind": "panel",
+   "out": [
+    1800,
+    1344
+   ],
+   "trimmed": {},
+   "note": null
+  },
+  "ja.panel.kosoa.2": {
+   "kind": "panel",
+   "out": [
+    1380,
+    1800
+   ],
+   "trimmed": {
+    "bottom": 62
+   },
+   "note": "trimmed a flat strip: bottom 62px"
   }
  }
 }

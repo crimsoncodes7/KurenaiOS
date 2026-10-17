@@ -77,8 +77,14 @@
     ]);
   }
 
+  // made, but the import (report.json) says to make it again: a "redo" grade or a low-resolution
+  // draft — unless you have approved it by hand
+  function importRedo(a) {
+    var rep = report[a.id];
+    return !!rep && review()[a.id] !== "ok" && (rep.grade === "redo" || /low resolution/.test(rep.note || ""));
+  }
   function assetCard(a) {
-    var st = state(a), rv = review()[a.id];
+    var st = state(a), rv = review()[a.id] || (importRedo(a) ? "redo" : undefined);
     var chip = st === "done" ? (rv === "redo" ? el("span", { class: "chip bad", text: "✗ Redo" }) : rv === "ok" ? el("span", { class: "chip done", text: "✓ Approved" }) : el("span", { class: "chip done", text: "✓ Made" }))
       : st === "ready" ? el("span", { class: "chip ready", text: "Ready to generate" })
       : el("span", { class: "chip wait", text: "Waiting for " + a.attach.filter(function (p) { return !have[p]; }).map(function (p) { return p.replace(/^inbox\/|\.png$/g, ""); }).join(", ") });
@@ -203,7 +209,7 @@
       var list = M.assets.filter(function (a) {
         if (a.batch !== b.n) return false;
         var st = state(a);
-        return view === "all" || (view === "done" ? st === "done" : st !== "done" || review()[a.id] === "redo");
+        return view === "all" || (view === "done" ? st === "done" : st !== "done" || review()[a.id] === "redo" || importRedo(a));
       });
       if (!list.length) return;
       app.appendChild(el("section", { class: "batch" }, [

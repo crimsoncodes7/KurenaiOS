@@ -8,7 +8,8 @@ For every asset in manifest.json whose draft is in inbox/:
   - faces: align the expression to the base by the BODY (a small shift search), measure how far
     the body drifted, and keep only the head from the expression — the body pixels stay the
     base's, so a reaction changes the face alone;
-  - backgrounds: resize.
+  - backgrounds: resize;
+  - manga panels: trim any flat strip along an edge (a white band Gemini leaves under the art), resize.
 Writes WebP to the output folder and report.json (drift per face) for the contact sheet.
 Drafts arrive as JPEG under a .png name (Gemini's download), which is handled.
 """
@@ -19,6 +20,7 @@ from PIL import Image
 SRC, OUT = sys.argv[1], sys.argv[2]
 SPRITE_H = 1400          # exported sprite height (px)
 BG_W = 1920              # exported background width (px)
+PANEL_LONG = 1800        # exported manga panel, long side (px)
 HEAD = 0.20              # share of the figure's height treated as the head (top of hair to the chin/neck)
 FEATHER = 28             # px of blend under the head box
 
@@ -74,6 +76,25 @@ def align(base, base_a, face, face_a, body_from, rng=14):
             if s < best:
                 best, arg = s, (dy * 2, dx * 2)
     return arg
+
+
+def trim_flat(rgb, tol=0.03, min_px=4):
+    """Crop flat bands off each edge: a row (or column) counts as flat when it is one even tone
+    (white, black or grey) — art has texture, a padding strip does not. Returns the crop box and
+    what was trimmed from each side."""
+    g = rgb.mean(axis=2)
+    def flat(lines):
+        return (lines.std(axis=1) < tol) & (np.abs(lines.mean(axis=1) - lines.mean(axis=1)[0]) < tol)
+    h, w = g.shape
+    def run(lines):
+        f = flat(lines); n = 0
+        while n < len(f) and f[n]:
+            n += 1
+        return n if n >= min_px else 0
+    top, bottom = run(g), run(g[::-1])
+    left, right = run(g.T), run(g.T[::-1])
+    trimmed = {k: v for k, v in (("top", top), ("bottom", bottom), ("left", left), ("right", right)) if v}
+    return (left, top, w - right, h - bottom), trimmed
 
 
 def to_image(rgb, a=None):
@@ -166,6 +187,19 @@ def main():
             im = im.resize((BG_W, round(im.height * BG_W / im.width)), Image.LANCZOS)
         im.save(os.path.join(OUT, a["id"] + ".webp"), "WEBP", quality=86, method=6)
         report["assets"][a["id"]] = {"kind": "background", "out": im.size}
+
+    for a in man["assets"]:
+        if a["kind"] != "panel" or not have(a):
+            continue
+        im = Image.open(os.path.join(inbox, a["id"] + ".png")).convert("RGB")
+        box, trimmed = trim_flat(np.asarray(im, dtype=np.float32) / 255.0)
+        im = im.crop(box)
+        if max(im.size) > PANEL_LONG:
+            k = PANEL_LONG / max(im.size)
+            im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
+        im.save(os.path.join(OUT, a["id"] + ".webp"), "WEBP", quality=88, method=6)
+        report["assets"][a["id"]] = {"kind": "panel", "out": im.size, "trimmed": trimmed,
+                                     "note": ("trimmed a flat strip: " + ", ".join("%s %dpx" % t for t in trimmed.items())) if trimmed else None}
 
     json.dump(report, open(os.path.join(OUT, "report.json"), "w"), indent=1, ensure_ascii=False)
     for k, v in report["assets"].items():

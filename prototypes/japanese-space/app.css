@@ -296,3 +296,32 @@ textarea { width: 100%; font: 15px/1.6 var(--font-ja); color: var(--ink); backgr
 .vn-log { position: absolute; inset: 4%; overflow: auto; padding: 14px 18px; border-radius: 12px; background: oklch(0.14 0.01 265 / .95); color: #fff; z-index: 2; }
 .vn-log p { font: 16px/1.8 var(--font-ja); margin: 4px 0; }
 @media (max-width: 700px) { .vn { aspect-ratio: 4 / 5; } .vn-chara { width: 50%; height: 100%; bottom: -12%; } .vn-left { left: -6%; } .vn-right { right: -6%; } .vn-box { min-height: 34%; } }
+
+/* Manga panels (manga.js): raster art, live balloons and text */
+.manga-page { display: grid; grid-template-columns: 1.75fr 1fr; gap: 14px; align-items: start; direction: rtl; }
+.manga-page > * { direction: ltr; }
+.manga-wrap { display: grid; gap: 8px; min-width: 0; }
+.manga { position: relative; margin: 0; width: 100%; overflow: hidden; container-type: inline-size; background: #fff; border: 3px solid #111; border-radius: 2px; user-select: text; }
+.manga-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.manga-balloons { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.b-stroke > * { fill: #111; stroke: #111; stroke-width: 5px; }
+.b-fill > * { fill: #fff; stroke: none; }
+.b-bubble { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; }
+.b-text { margin: 0; writing-mode: vertical-rl; color: #111; font-family: var(--font-ja); font-weight: 700; line-height: 1.5; letter-spacing: .04em; white-space: nowrap; }
+.b-text rt { font-size: .45em; color: #444; }
+.b-bubble.on .b-text { color: oklch(0.55 0.17 42); }
+.b-hear { position: absolute; top: 100%; width: 22px; height: 22px; margin-top: 2px; border-radius: 50%; border: 1px solid #111; background: #fff; color: #111; font-size: 10px; cursor: pointer; opacity: 0; transition: opacity .15s; }
+.b-bubble:hover .b-hear, .b-hear:focus-visible { opacity: 1; }
+@media (pointer: coarse) { .b-hear { opacity: .85; } }
+.b-slot { writing-mode: vertical-rl; font: inherit; color: oklch(0.5 0.17 42); background: oklch(0.72 0.15 42 / .14); border: 1.5px dashed oklch(0.6 0.15 42); border-radius: 6px; padding: .15em 0; min-height: 2.2em; cursor: pointer; }
+.b-slot.filled { border-style: solid; }
+.b-slot.active { outline: 2px solid var(--ja); outline-offset: 2px; }
+.b-slot.ok { color: oklch(0.45 0.13 150); border-color: var(--green); background: oklch(0.72 0.13 150 / .16); }
+.b-slot.no { color: oklch(0.5 0.17 22); border-color: var(--alarm); background: oklch(0.66 0.17 22 / .14); }
+.manga-sfx { position: absolute; font: 900 1em/1 var(--font-kanji); color: #111; -webkit-text-stroke: .14em #fff; paint-order: stroke fill; letter-spacing: -.05em; pointer-events: none; }
+.manga-tools, .manga-pick { display: flex; gap: 6px; flex-wrap: wrap; }
+.manga-pick .btn { font: 600 16px var(--font-ja); min-width: 52px; justify-content: center; }
+.manga-en { margin: 0; padding-left: 18px; }
+.manga-wrap .verdict .why { display: block; }
+.manga-mode { display: flex; gap: 6px; margin-bottom: 10px; }
+@media (max-width: 700px) { .manga-page { grid-template-columns: 1fr; direction: ltr; } }
