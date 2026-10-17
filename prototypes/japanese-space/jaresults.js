@@ -32,6 +32,7 @@
   JA.results = {
     /* putAudio(id, pcm Float32Array at 16 kHz) — copies, so the caller may transfer its buffer after */
     putAudio: function (id, pcm) { var a = toInt16(pcm); return tx("readwrite", function (s) { return s.put({ id: id, sr: 16000, pcm: a, at: Date.now() }); }).catch(function () {}); },
+    putAudio16: function (id, int16, at) { return tx("readwrite", function (s) { return s.put({ id: id, sr: 16000, pcm: int16, at: at || Date.now() }); }); },
     audioIds: function () { return tx("readonly", function (s) { return s.getAllKeys(); }).catch(function () { return []; }); },
     allAudio: function () { return tx("readonly", function (s) { return s.getAll(); }).catch(function () { return []; }); },
     clearAudio: function () { return tx("readwrite", function (s) { return s.clear(); }); },

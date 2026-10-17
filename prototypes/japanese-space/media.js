@@ -417,10 +417,11 @@
     } }, ["● Shadow"]);
     var mineBtn = el("button", { class: "btn mini", type: "button", disabled: true, onclick: function () { if (mine) new Audio(mine).play(); } }, ["▶ Mine"]);
 
-    var saveBtn = el("button", { class: "btn mini", type: "button", disabled: s.yt ? true : null, title: s.yt ? "Saving a line needs a video file: an embed cannot be cut" : null, onclick: function (e) {
+    var canCut = !!(video.captureStream || video.mozCaptureStream);
+    var saveBtn = el("button", { class: "btn mini", type: "button", disabled: s.yt || !canCut ? true : null, title: s.yt ? "Saving a line needs a video file: an embed cannot be cut" : !canCut ? "This browser can't cut clips (Safari can't) — use Chrome" : null, onclick: function (e) {
       var b = e.currentTarget, c = cue(), k = kanaOf(s.out[cur]);
       if (s.yt) { b.textContent = "Clips need a video file"; return; }
-      if (!(video.captureStream || video.mozCaptureStream)) { b.textContent = "This browser cannot cut clips"; return; }
+      if (!(video.captureStream || video.mozCaptureStream)) { b.textContent = "This browser can't cut clips — use Chrome"; return; }
       b.disabled = true; b.textContent = "Saving the line…"; loop = false; loopBtn.setAttribute("aria-pressed", "false");
       captureLine(video, { start: c.start + off(), end: c.end + off() }).then(function (blob) {
         var id = "c" + Date.now().toString(36);
