@@ -1,0 +1,18 @@
+{
+  "note": "The voice bake-off script (bake.mjs). The café scene as it plays in lesson 1.1, plus test lines a learner's audio must get right: long vowels, っ, and pitch accent (箸 HL and 橋 LH sound different).",
+  "lines": [
+    { "id": "cafe1", "who": "yota",  "group": "Café scene", "ja": "これはなんですか。", "en": "What is this?", "mood": "curious, a little puzzled" },
+    { "id": "cafe2", "who": "akari", "group": "Café scene", "ja": "それはケーキです。", "en": "That is cake.", "mood": "warm, gently amused" },
+    { "id": "cafe3", "who": "yota",  "group": "Café scene", "ja": "あれもケーキですか。", "en": "Is that over there cake too?", "mood": "hopeful, excited" },
+    { "id": "cafe4", "who": "akari", "group": "Café scene", "ja": "いいえ、あれはねこです。", "en": "No, that over there is a cat.", "mood": "trying not to laugh" },
+    { "id": "cafe5", "who": "yota",  "group": "Café scene", "ja": "ねこ！？", "en": "A cat!?", "mood": "genuinely shocked" },
+    { "id": "manga1", "who": "akari", "group": "Manga panels", "ja": "それはなんですか。", "en": "What's that (near you)?", "mood": "polite, curious" },
+    { "id": "manga2", "who": "yota",  "group": "Manga panels", "ja": "これですか？ケーキです。", "en": "This? It's cake.", "mood": "proud" },
+    { "id": "t-obaasan", "who": "akari", "group": "Learner checks", "ja": "おばあさんです。", "en": "She's a grandmother. (long あ: o-ba-a-san)", "mood": "neutral, clear" },
+    { "id": "t-obasan",  "who": "akari", "group": "Learner checks", "ja": "おばさんです。", "en": "She's an aunt. (short: o-ba-san)", "mood": "neutral, clear" },
+    { "id": "t-kitte",   "who": "yota",  "group": "Learner checks", "ja": "きってをかいます。", "en": "I'll buy stamps. (small っ: kit-te)", "mood": "neutral, clear" },
+    { "id": "t-hashi1",  "who": "akari", "group": "Learner checks", "ja": "箸で食べます。", "en": "I eat with chopsticks. (箸: HA-shi, high then low)", "mood": "neutral, clear" },
+    { "id": "t-hashi2",  "who": "akari", "group": "Learner checks", "ja": "橋を渡ります。", "en": "I cross the bridge. (橋: ha-SHI, low then high)", "mood": "neutral, clear" },
+    { "id": "t-thanks",  "who": "yota",  "group": "Learner checks", "ja": "ありがとうございます。", "en": "Thank you very much.", "mood": "polite, sincere" }
+  ]
+}

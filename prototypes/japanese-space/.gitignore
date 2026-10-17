@@ -1,3 +1,5 @@
 # Third-party packages and synthetic test audio: kept local, never committed
 vendor/
 tts-test/
+voice/out/
+voice/.env.local

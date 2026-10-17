@@ -28,3 +28,25 @@
 .yp-check li > span:first-child { grid-row: span 2; color: var(--muted); }
 .yp-check li[data-done] > span:first-child { color: var(--green); }
 .yp-check li > .small { grid-column: 2; }
+
+/* Voice bake-off (voice.html) */
+.vb-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; align-items: start; }
+.vb-list { display: grid; gap: 10px; }
+.vb-group { margin: 10px 0 0; font-size: 15px; color: var(--muted); }
+.vb-line { padding: 12px 14px; display: grid; gap: 10px; }
+.vb-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.vb-ja { font-size: 20px; }
+.vb-takes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vb-take { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px; border: 1px solid var(--line); border-radius: var(--r-s); }
+.vb-take[data-best] { border-color: var(--ja); background: var(--ja-soft); }
+.vb-play[data-on] { border-color: var(--ja); color: var(--ja); }
+.vb-flag { cursor: pointer; } .vb-flag input { margin: 0 4px 0 0; }
+.vb-who { flex-basis: 100%; font: 600 12px var(--font-mono); color: var(--ja); }
+.vb-side { padding: 14px 16px; position: sticky; top: 16px; display: grid; gap: 10px; }
+.vb-side h2 { margin: 0; font-size: 15px; }
+.vb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.vb-table th, .vb-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.vb-fit { display: grid; gap: 8px; } .vb-fit > div { display: grid; gap: 4px; } .vb-fit label { justify-content: space-between; }
+.vb-empty { padding: 16px 18px; }
+@media (max-width: 1080px) { .vb-takes { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .vb-layout { grid-template-columns: 1fr; } .vb-side { position: static; } }
