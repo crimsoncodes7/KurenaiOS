@@ -1,0 +1,4 @@
+# Your Gemini outputs land here, named by asset id. Drafts are not committed;
+# approved art is imported into assets/ja/img/.
+*
+!.gitignore

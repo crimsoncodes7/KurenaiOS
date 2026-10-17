@@ -1,0 +1,56 @@
+/* Throwaway vertical-slice styles — Graphite (Atelier Dusk) tokens copied from css/tokens.css.
+   The real space uses the app's components; this only has to read like them. */
+:root {
+  --bg: oklch(0.165 0.008 265);
+  --bg-2: oklch(0.195 0.009 265);
+  --card: oklch(0.215 0.01 265);
+  --card-2: oklch(0.245 0.011 265);
+  --line: oklch(0.27 0.01 265);
+  --line-2: oklch(0.33 0.012 265);
+  --ink: oklch(0.95 0.005 265);
+  --ink-2: oklch(0.78 0.01 265);
+  --muted: oklch(0.62 0.012 265);
+  --crimson: oklch(0.68 0.16 18);
+  --amber: oklch(0.8 0.12 80);
+  --green: oklch(0.72 0.13 150);
+  --red: oklch(0.66 0.17 22);
+  --alarm: var(--red);
+  /* the FIFTH subject hue — 朱 shu, proposed in docs/japanese-plan.md decision F */
+  --ja: oklch(0.72 0.15 42);
+  --ja-soft: oklch(0.72 0.15 42 / 0.14);
+  --ja-ink: oklch(0.2 0.04 42);
+  --font-ui: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-ja: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-kanji: "Shippori Mincho", "Hiragino Mincho ProN", serif;
+  --font-hand: "Klee One", "Hiragino Maru Gothic ProN", sans-serif;
+  --r: 12px; --r-s: 8px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--font-ui); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ja); outline-offset: 2px; }
+:lang(ja) { font-family: var(--font-ja); }
+.mono { font-family: var(--font-mono); font-size: 12.5px; }
+
+main { padding: 26px 32px 80px; max-width: 1320px; margin: 0 auto; }
+@media (max-width: 700px) { main { padding: 18px 16px 60px; } }
+
+.ph { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.ph h1 { margin: 0; font-size: 24px; letter-spacing: -.01em; display: flex; align-items: center; gap: 12px; }
+.ph h1 .seal { font-family: var(--font-kanji); font-weight: 800; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: var(--ja); color: var(--ja-ink); font-size: 20px; }
+.ph .sub { color: var(--muted); margin-top: 4px; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; min-height: 32px; border-radius: var(--r-s); border: 1px solid var(--line-2); background: var(--card-2); cursor: pointer; font-size: 13px; }
+.btn:hover { border-color: var(--ink-2); }
+.btn.primary { background: var(--ja); border-color: var(--ja); color: var(--ja-ink); font-weight: 600; }
+.btn.ok[aria-pressed="true"] { background: oklch(0.72 0.13 150 / .16); border-color: var(--green); }
+.btn.no[aria-pressed="true"] { background: oklch(0.66 0.17 22 / .16); border-color: var(--alarm); }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; border: 1px solid var(--line-2); color: var(--ink-2); white-space: nowrap; }
+.chip.done { border-color: var(--green); color: var(--green); }
+.chip.ready { border-color: var(--ja); color: var(--ja); }
+.chip.wait { border-style: dashed; color: var(--muted); }
+.chip.bad { border-color: var(--alarm); color: var(--alarm); }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); }

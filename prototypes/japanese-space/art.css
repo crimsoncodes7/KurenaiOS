@@ -1,0 +1,64 @@
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.muted { color: var(--muted); font-weight: 400; }
+.ph-act { display: flex; gap: 8px; }
+a.btn { text-decoration: none; color: inherit; }
+a.btn.primary { color: var(--ja-ink); }
+
+.cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 22px; }
+.cast-c { padding: 14px 16px; }
+.cast-c h3 { margin: 0 0 4px; font-size: 16px; }
+.cast-c .role { margin: 0 0 6px; color: var(--ja); font-size: 13px; }
+.cast-c .look { margin: 0; color: var(--ink-2); font-size: 12.5px; }
+.cast-c ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 12.5px; }
+
+.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+.tabs .btn[aria-pressed="true"] { background: var(--ja-soft); border-color: var(--ja); }
+
+.batch { margin-bottom: 26px; }
+.b-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+.b-head h2 { margin: 0; font-size: 18px; }
+.b-head p { margin: 0; font-size: 13px; }
+.assets { display: grid; gap: 12px; }
+
+.asset { padding: 14px 16px; }
+.asset[data-state="wait"] { border-style: dashed; }
+.a-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.a-head h3 { margin: 0; font-size: 14px; }
+.a-meta { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.a-body { display: grid; grid-template-columns: 1fr 260px; gap: 16px; }
+@media (max-width: 860px) { .a-body { grid-template-columns: 1fr; } }
+.a-steps ol { margin: 0 0 10px; padding-left: 20px; color: var(--ink-2); font-size: 13px; }
+.a-steps li { margin: 2px 0; }
+.btn.mini { padding: 1px 8px; min-height: 24px; font-size: 12px; }
+
+.atts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.att { margin: 0; width: 104px; }
+.att img, .att .ph-img { width: 104px; height: 104px; object-fit: contain; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-s); display: grid; place-items: center; }
+.att.missing .ph-img { border-style: dashed; color: var(--muted); font-size: 11px; }
+.att figcaption { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; margin-top: 3px; }
+
+.prompt { position: relative; }
+.prompt pre { margin: 0; white-space: pre-wrap; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-s); padding: 10px 12px 44px; max-height: 260px; overflow: auto; color: var(--ink-2); font-size: 12px; line-height: 1.55; }
+.prompt .btn { position: absolute; right: 10px; bottom: 10px; }
+
+.a-out img, .a-out .ph-img { width: 100%; aspect-ratio: 3 / 4; object-fit: contain; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-s); display: grid; place-items: center; }
+.a-out .ph-img { border-style: dashed; color: var(--muted); font-size: 12px; text-align: center; padding: 12px; }
+.a-dims { color: var(--muted); margin: 4px 0 6px; }
+.a-rev { display: flex; gap: 6px; }
+
+.contact { margin-bottom: 26px; }
+.contact h2 { font-size: 18px; margin: 0 0 10px; }
+.cs-grid { display: grid; grid-template-columns: 1fr minmax(280px, 380px); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .cs-grid { grid-template-columns: 1fr; } }
+.cs-row h4 { margin: 0 0 6px; font-size: 14px; }
+.cs-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
+.cs-item { display: grid; gap: 4px; padding: 6px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-s); cursor: pointer; font-size: 12px; color: var(--ink-2); }
+.cs-item[aria-pressed="true"] { border-color: var(--ja); }
+.cs-item:disabled { cursor: default; }
+.cs-item img { width: 96px; height: 144px; object-fit: contain; }
+.cmp { padding: 12px; position: sticky; top: 12px; }
+.cmp-stage { position: relative; }
+.cmp-stage img { width: 100%; display: block; border-radius: var(--r-s); }
+.cmp-stage .cmp-top { position: absolute; inset: 0; }
+.cmp-ctl p { font-size: 12.5px; color: var(--ink-2); }
+.cmp-ctl label { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 8px; }

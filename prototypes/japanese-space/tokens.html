@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tokeniser spike</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<style>
+.tk-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+@media (max-width: 1080px) { .tk-grid { grid-template-columns: 1fr; } }
+textarea { width: 100%; min-height: 150px; font: 16px/1.6 var(--font-ja); color: var(--ink); background: var(--bg-2); border: 1px solid var(--line-2); border-radius: var(--r-s); padding: 10px; }
+.tk-line { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.tk-src { font-size: 18px; margin-bottom: 6px; }
+.tk-toks { display: flex; flex-wrap: wrap; gap: 6px; }
+.tk { display: grid; padding: 4px 8px; border-radius: 6px; background: var(--card-2); border: 1px solid var(--line); font-size: 15px; }
+.tk small { font-size: 11.5px; color: var(--muted); }
+.tk[data-fn] { opacity: .55; }
+.tk.merged { border-color: var(--ja); }
+.stat { display: grid; gap: 6px; }
+.stat div { display: flex; justify-content: space-between; font-size: 13px; }
+.freq { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 14px; }
+.freq li { display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<main id="app">
+  <header class="ph"><div><h1>Tokeniser spike</h1><div class="sub">Lindera + UniDic in a worker, with the JMdict merge. Paste lines or load a subtitle file.</div></div></header>
+  <div class="tk-grid">
+    <div class="card">
+      <div class="row wrap" style="margin-bottom:10px">
+        <button class="btn primary" id="load" type="button">Load the tokeniser (~55 MB)</button>
+        <button class="btn" id="run" type="button" disabled>Split these lines</button>
+        <label class="btn" for="srt">Load a subtitle file (.srt / .ass)</label>
+        <input id="srt" type="file" accept=".srt,.ass,.ssa,.vtt,.txt" hidden>
+      </div>
+      <textarea id="text" lang="ja" aria-label="Japanese lines">すげえ、マジでやばいじゃん。
+もう全部食べちゃった。
+目を覚ますと、見知らぬ天井があった。
+早く行かなきゃ！
+お嬢様、お茶をお持ちしました。
+電車に乗り遅れた。</textarea>
+      <div id="out" aria-live="polite"></div>
+    </div>
+    <aside class="card stat" id="stat"><h2>Status</h2><p class="muted">Not loaded. Nothing is downloaded until you press Load.</p></aside>
+  </div>
+</main>
+<script src="kana.js"></script>
+<script>
+(function () {
+  "use strict";
+  var w = null, seq = 0, cb = {}, stat = document.getElementById("stat"), out = document.getElementById("out");
+  var FN = { "助詞": 1, "助動詞": 1, "補助記号": 1, "記号": 1, "空白": 1 };
+  function line(k, v) { var d = document.createElement("div"); d.innerHTML = "<span></span><b></b>"; d.firstChild.textContent = k; d.lastChild.textContent = v; return d; }
+  document.getElementById("load").onclick = function () {
+    var t0 = performance.now(); this.disabled = true; this.textContent = "Loading…";
+    w = new Worker("ja-token-worker.js?v=" + Date.now(), { type: "module" });
+    w.onmessage = function (e) {
+      var m = e.data;
+      if (m.type === "ready") {
+        stat.innerHTML = "<h2>Status</h2>";
+        [["Tokeniser ready in", m.tokenizerMs + " ms"], ["With JMdict headwords", m.totalMs + " ms"], ["Page wait (download + start)", Math.round(performance.now() - t0) + " ms"], ["WebAssembly memory", m.wasmMB + " MB"], ["Headwords", m.headwords.toLocaleString()]].forEach(function (r) { stat.appendChild(line(r[0], r[1])); });
+        document.getElementById("load").textContent = "Loaded"; document.getElementById("run").disabled = false; window.__tokReady = m;
+      } else if (m.type === "error") { stat.appendChild(line("Failed", m.message)); }
+      else if (m.type === "result") { cb[m.id](m); delete cb[m.id]; }
+    };
+    w.postMessage({ type: "load" });
+  };
+  function split(lines) { return new Promise(function (res) { var id = ++seq; cb[id] = res; w.postMessage({ type: "tokenize", id: id, lines: lines }); }); }
+  window.__split = split;
+  document.getElementById("run").onclick = function () {
+    var lines = document.getElementById("text").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+    split(lines).then(function (m) {
+      out.innerHTML = "";
+      m.out.forEach(function (r, i) {
+        var box = document.createElement("div"); box.className = "tk-line";
+        var src = document.createElement("div"); src.className = "tk-src"; src.lang = "ja"; src.textContent = lines[i]; box.appendChild(src);
+        var toks = document.createElement("div"); toks.className = "tk-toks";
+        r.tokens.concat(r.merged.map(function (x) { return { s: x.s, base: x.s, reading: "", pos: "merged" }; })).forEach(function (t) {
+          var d = document.createElement("span"); d.className = "tk" + (t.pos === "merged" ? " merged" : ""); d.lang = "ja"; if (FN[t.pos]) d.setAttribute("data-fn", "1");
+          d.innerHTML = "<span></span><small></small>"; d.firstChild.textContent = t.s; d.lastChild.textContent = t.pos === "merged" ? "joined" : (t.base !== t.s ? t.base + " · " : "") + t.reading;
+          toks.appendChild(d);
+        });
+        box.appendChild(toks); out.appendChild(box);
+      });
+      stat.appendChild(line("Split " + lines.length + " lines in", m.ms.toFixed(1) + " ms"));
+    });
+  };
+  // subtitle file → its lines → the most frequent words (a target pack, plan §10.3)
+  document.getElementById("srt").onchange = function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (txt) {
+      var lines = txt.split(/\r?\n/).map(function (l) {
+        if (/^Dialogue:/.test(l)) l = l.split(",").slice(9).join(",");
+        return l.replace(/\{[^}]*\}/g, "").replace(/<[^>]+>/g, "").replace(/\\N/g, " ").trim();
+      }).filter(function (l) { return l && /[぀-ヿ㐀-鿿]/.test(l) && !/-->/.test(l); });
+      if (!w || !window.__tokReady) { stat.appendChild(line("Load the tokeniser first", "")); return; }
+      var t0 = performance.now();
+      split(lines).then(function (m) {
+        var freq = {}, total = 0;
+        m.out.forEach(function (r) {
+          var covered = {};
+          r.merged.forEach(function (x) { for (var k = x.from; k < x.to; k++) covered[k] = x.s; });
+          r.tokens.forEach(function (t, i) {
+            if (FN[t.pos] || !/[぀-ヿ㐀-鿿]/.test(t.s)) return;
+            var key = covered[i] || t.base; total++;
+            if (covered[i] && covered[i - 1] === covered[i]) return;
+            freq[key] = (freq[key] || 0) + 1;
+          });
+        });
+        var top = Object.keys(freq).sort(function (a, b) { return freq[b] - freq[a]; });
+        stat.innerHTML = "<h2>" + f.name.replace(/[<>&]/g, "") + "</h2>";
+        [["Subtitle lines", lines.length], ["Content words", total], ["Different words", top.length], ["Split in", Math.round(performance.now() - t0) + " ms"]].forEach(function (r) { stat.appendChild(line(r[0], String(r[1]))); });
+        var h = document.createElement("h2"); h.textContent = "Most frequent words"; stat.appendChild(h);
+        var ul = document.createElement("ul"); ul.className = "freq"; ul.lang = "ja";
+        top.slice(0, 40).forEach(function (k) { var li = document.createElement("li"); li.innerHTML = "<span></span><span class='muted'></span>"; li.firstChild.textContent = k; li.lastChild.textContent = freq[k]; ul.appendChild(li); });
+        stat.appendChild(ul);
+        var p = document.createElement("p"); p.className = "muted small"; p.textContent = "Coverage against what you know arrives with the slice's known-word list; the file never leaves this device."; stat.appendChild(p);
+      });
+    });
+  };
+})();
+</script>
+</body>
+</html>
