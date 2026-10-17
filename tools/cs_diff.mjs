@@ -64,7 +64,7 @@ async function dotnet(src, stdin, files, full) {
   /* nullable off for units 1–6 (decision Q2), invariant culture for output */
   /* using directives must come before the culture line we insert */
   const lines = src.split("\n"), usings = [];
-  while (lines.length && /^\s*using\s+[\w.]+\s*;\s*$/.test(lines[0])) usings.push(lines.shift());
+  while (lines.length && /^\s*using\s+(static\s+)?(\w+\s*=\s*)?[\w.]+\s*;\s*$/.test(lines[0])) usings.push(lines.shift());
   /* units 1–6: nullable off (decision Q2); 7+: on, and JSON as a normal project has it */
   fs.writeFileSync(file, (full ? "#:property Nullable=enable\n#:property JsonSerializerIsReflectionEnabledByDefault=true\n" : "#:property Nullable=disable\n") + "#:property InvariantGlobalization=false\n" + usings.map((u) => u + "\n").join("") + "System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo(\"en-GB\");\n" + lines.join("\n") + "\n");
   /* every program runs in a fresh folder, so one that writes a file never

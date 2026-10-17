@@ -204,7 +204,7 @@ step("E · the Assistant's Code tools read progress and write nothing", async (a
   const ex = (name, args) => new Promise(res => K.ai.tools.execute(name, args, (err, result) => res({ err, result })));
   const before = JSON.stringify(K.store.state.code) + JSON.stringify(K.store.state.progress);
   const o = await ex("code_overview", {});
-  assert(!o.err && o.result.lessons > 100 && o.result.units.some(u => u.unit === "U7" && !u.written) && o.result.units.some(u => u.unit === "U1" && u.written), "the overview: lessons and which units are written");
+  assert(!o.err && o.result.lessons > 100 && o.result.units.some(u => u.unit === "U8" && !u.written) && o.result.units.some(u => u.unit === "U1" && u.written), "the overview: lessons and which units are written");
   const l = await ex("code_lesson", { ref: "1.1" });
   assert(!l.err && l.result.title && typeof l.result.checks.notesRead === "boolean" && l.result.tasks.length, "one lesson's checks and tasks");
   assert((await ex("code_lesson", { ref: "99.9" })).err, "an unknown lesson is an error");
