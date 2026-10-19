@@ -70,6 +70,11 @@
     { path: "pacing.entries", id: "id", counter: "pacing.nextId", prefix: "p" },
     { path: "notify.items", id: "id", sortBy: "ts", cap: 200 },   // natural string ids (kind:record:occurrence)
     { path: "assistant.schedules", id: "id" },                    // random string ids (core/aischedule.js)
+    /* Money (roadmap 5.4): random or fixed string ids, never a counter, so
+       nothing is ever re-keyed — transactions in IndexedDB point at them */
+    { path: "money.categories", id: "id" },
+    { path: "money.rules", id: "id" },
+    { path: "money.pots", id: "id" },
     { path: "todo.manual", id: "id", counter: "todo.nextId" },
     { path: "todo.habits", id: "id", counter: "todo.nextId" },
     { path: "oop.classes", id: "id", counter: "oop.nextId",

@@ -30,6 +30,11 @@ chronological diary here.
   revision 3.1). The throwaway vertical slice in `prototypes/japanese-space/`
   is closed on real data and touches no app file; the platform release (plan
   §17, smokes 80–83) is next, only when asked.
+- In flight on `feat/money-goals` (a worktree, not merged): Money and Goals
+  (roadmap 5.4). Phase 1 (the Money core) and phase 3 (the Goals engine) are
+  built with smoke84–85; the pages wait for design prompt 11 (frames
+  27a–27s). Smokes 80–83 stay reserved for Japanese, so this branch's gate
+  is `for i in "" {2..79} 84 85`.
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
@@ -41,7 +46,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..79} 84 85; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
 node tools/cs_diff.mjs                 # Code content against real .NET (needs the .NET 10 SDK)
 tools/build_cs_wasm.sh                 # Code's full C# runtime (units 7+), once per change to tools/cs-wasm
 node tools/cs_wasm_check.mjs           # that runtime against native .NET
@@ -110,6 +115,8 @@ non-navigation redraw path.
 - `kurenai-os-media` IndexedDB: Collection records, non-token media preferences
   and provider credentials in its kv store.
 - `kurenai-os-files` IndexedDB: topic attachments.
+- `kurenai-os-money` IndexedDB: Money's transactions and their tombstones
+  (invariant 5a).
 - Supabase: optional replication layer; never the only successful write path.
 - `store.exportFull()` / `importFull()`: state, media, non-token kv and files;
   credentials/sessions are deliberately excluded.
@@ -126,6 +133,8 @@ non-navigation redraw path.
 | Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
 | The topic picker (every form that names topics) | `js/core/topicpicker.js` (`KOS.topicPicker`) |
 | Exams & Papers record and its normaliser | `js/core/tracker.js` (`KOS.tracker`); page `js/modules/tracker.js` |
+| Money (roadmap 5.4): categories, budgets, recurring rules and subscriptions, pots, transactions, the planner mirror, CSV | `js/core/money.js` (`KOS.money`); pages to come from design 27a–27h |
+| Goals: the engine, its types and periods | `js/core/goals.js` (`KOS.goals`: registry, record, compute, pace; the study, productivity, money, code and Governor types), `js/core/goals-collection.js` (the Collection's fourteen); page `js/modules/goals.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`); the desk's two blocks `js/modules/itdesk.js` |
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
@@ -213,10 +222,34 @@ source comments and audit notes refer to it.
    read it.
 5. One deliberate bulk/sync action produces at most one session. Autonomous
    multi-provider sync batches rewards; XML import does not reward.
-5a. Budget Planner is logistics: zero Governor traffic and zero provider/network
-   traffic. Purchase handoff is exact, local and cannot downgrade Collection data.
-5b. Goals completion records one idempotent `payout:"activity-only"` receipt and
-   never creates a second economic event.
+5a. Money (`KOS.money`, roadmap 5.4) and the Budget Planner are logistics:
+   zero Governor traffic and zero provider/network traffic. Purchase handoff
+   is exact, local and cannot downgrade Collection data. Decision B: the small
+   part (`state.money`: currency, `monthStart`, categories, rules, pots) is
+   in the synced state document under `KOS.money.normalise`, every record
+   keyed by a STRING id (fixed for the default categories, random otherwise)
+   so the merge never re-keys what a transaction points at; TRANSACTIONS
+   live in their own IndexedDB, `kurenai-os-money` (`tx` by `syncId`,
+   indexed by date; `del` tombstones), in the full backup, replicated to
+   `kos_money` only from phase 5. Amounts are integer minor units (`minor`).
+   The planner OWNS its purchases: each archived purchase is mirrored as a
+   Collection transaction `wl:<item>:<purchasedAt>` before every read, cannot
+   be edited or deleted from Money and is not backed up twice; the Collection
+   category's budget IS `wishlist.budget.monthlyLimit` (`budgetFrom`). A
+   recurring rule is computed, never copied (invariant 43): an occurrence is
+   confirmed (one transaction `r:<rule>:<date>`), skipped, or left
+   (`marks`). A figure about the rest of the month (left, safe to spend, the
+   projection) is null without its evidence (invariant 76).
+5b. Goals (`KOS.goals`, `js/core/goals.js`) are a registry of types, each
+   registered by the domain that owns its data and measured by READING it
+   (invariant 26d); `state.goals` v3 under `KOS.goals.normalise`, which keeps
+   a type id it does not know. A repeating goal (`repeat` week/month) is one
+   record: the current period is measured live and each ENDED period is
+   judged once into `outcomes[periodKey]`; only types that can be read over
+   any past range repeat. Completion records one idempotent
+   `payout:"activity-only"` receipt (`"none"` for a Governor-value goal,
+   which is display only) and never creates a second economic event or a
+   session.
 
 ### Media schema, storage and sync (6–23)
 

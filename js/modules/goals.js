@@ -1,300 +1,25 @@
 /* Kurenai OS — modules/goals.js
-   Collection Goals v2: a local intention layer over the media vault.
+   The Goals page under Collection's Planner (frame 11h) and its editor.
 
-   Automatic goals READ the existing vault, custom lists and Budget Planner.
-   They never duplicate media state, call a provider, or mutate a vault entry.
+   The model is the Goals engine, core/goals.js (`KOS.goals`): the record,
+   the registry of types, measuring, pace and periods. This file only
+   draws. Until the Money and Goals designs (frames 27i–27k) arrive, the
+   editor offers the Collection's types and the manual goal, as it always
+   has; goals of other domains (made through the Assistant) still list
+   and open here.
 
-   GOVERNOR BOUNDARY: Collection activity already pays through its canonical
-   media session. Goal completion is recorded once in completionLedger but
-   never creates a second session or payout. This is the anti-farming rule. */
+   GOVERNOR BOUNDARY: completion is recorded once in completionLedger and
+   never creates a session or payout (invariant 5b). */
 (function () {
   "use strict";
-  var el = KOS.ui.el, store = KOS.store;
-  var MODULES = [
-    { id: "", label: "All media" },
-    { id: "anime", label: "Anime" },
-    { id: "books", label: "Books" },
-    { id: "vn", label: "Visual novels" },
-    { id: "game", label: "Games" }
-  ];
-  var TYPES = [
-    { id: "titles-completed", label: "Complete a number of titles", icon: "✓", auto: true, module: true },
-    { id: "episodes-watched", label: "Watch episodes", icon: "映", auto: true },
-    { id: "chapters-read", label: "Read chapters", icon: "頁", auto: true },
-    { id: "volumes-read", label: "Read volumes", icon: "冊", auto: true },
-    { id: "specific-title", label: "Complete a specific title", icon: "◎", auto: true, linked: true },
-    { id: "finish-series", label: "Finish a series", icon: "終", auto: true, linked: true },
-    { id: "filtered-completed", label: "Complete titles from a list, tag, or genre", icon: "篩", auto: true, module: true, filter: true },
-    { id: "spend-below", label: "Spend below a set amount", icon: "◈", auto: true, inverse: true },
-    { id: "library-size", label: "Grow the collection", icon: "蔵", auto: true, module: true },
-    { id: "favourites", label: "Enshrine favourites", icon: "祠", auto: true },
-    { id: "purchases", label: "Complete purchases", icon: "包", auto: true },
-    { id: "game-hours", label: "Play a number of hours", icon: "時", auto: true },
-    { id: "routes-cleared", label: "Clear visual-novel routes", icon: "路", auto: true },
-    { id: "custom-manual", label: "Custom manual goal", icon: "標", auto: false }
-  ];
-  var LEGACY = {
-    "anime-completed": ["titles-completed", "anime"],
-    "books-completed": ["titles-completed", "books"],
-    "vn-completed": ["titles-completed", "vn"],
-    "game-completed": ["titles-completed", "game"],
-    "all-completed": ["titles-completed", ""],
-    "anime-episodes": ["episodes-watched", "anime"],
-    "books-volumes": ["volumes-read", "books"],
-    "all-library": ["library-size", ""],
-    "genre": ["filtered-completed", ""],
-    "purchases": ["purchases", ""],
-    "favourites": ["favourites", ""]
-  };
-
-  function typeDef(id) {
-    for (var i = 0; i < TYPES.length; i++) if (TYPES[i].id === id) return TYPES[i];
-    return TYPES[TYPES.length - 1];
-  }
-  function moduleLabel(id) {
-    for (var i = 0; i < MODULES.length; i++) if (MODULES[i].id === (id || "")) return MODULES[i].label;
-    return "All media";
-  }
-  function cleanDate(v) { return /^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : null; }
-  function num(v, fallback, min) {
-    v = Number(v);
-    return isFinite(v) ? Math.max(min == null ? 0 : min, Math.round(v * 100) / 100) : fallback;
-  }
-  function todayISO() {
-    var d = new Date();
-    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  }
-  function monthEndISO() {
-    var d = new Date(), end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-    return end.getFullYear() + "-" + String(end.getMonth() + 1).padStart(2, "0") + "-" + String(end.getDate()).padStart(2, "0");
-  }
-
-  function normaliseGoal(raw) {
-    raw = raw || {};
-    var legacy = LEGACY[raw.metric] || null;
-    var metricIsType = TYPES.some(function (d) { return d.id === raw.metric; });
-    var type = raw.type || (raw.kind === "manual" ? "custom-manual" : legacy ? legacy[0] : metricIsType ? raw.metric : "titles-completed");
-    if (!typeDef(type) || !TYPES.some(function (d) { return d.id === type; })) type = "custom-manual";
-    var def = typeDef(type);
-    var module = raw.module || (legacy && legacy[1]) || "";
-    if (!MODULES.some(function (m) { return m.id === module; })) module = "";
-    var filterKind = raw.filterKind || (raw.metric === "genre" ? "genre" : "");
-    var filterValue = raw.filterValue || raw.genre || "";
-    return {
-      id: raw.id,
-      title: String(raw.title || "Untitled goal").trim().slice(0, 160),
-      description: String(raw.description != null ? raw.description : raw.detail || "").trim().slice(0, 700),
-      detail: String(raw.description != null ? raw.description : raw.detail || "").trim().slice(0, 700),
-      notes: String(raw.notes || "").trim().slice(0, 2000),
-      type: type,
-      kind: def.auto ? "auto" : "manual",
-      metric: def.auto ? type : null,
-      module: module || null,
-      linkedEntryId: raw.linkedEntryId == null || raw.linkedEntryId === "" ? null : Number(raw.linkedEntryId),
-      filterKind: ["genre", "tag", "list"].indexOf(filterKind) !== -1 ? filterKind : null,
-      filterValue: String(filterValue || "").trim().slice(0, 100),
-      genre: filterKind === "genre" ? String(filterValue || "").trim().slice(0, 100) : null,
-      target: num(raw.target, 1, 1),
-      current: def.auto ? 0 : num(raw.current, 0, 0),
-      startDate: cleanDate(raw.startDate) || (raw.createdAt ? new Date(raw.createdAt).toISOString().slice(0, 10) : todayISO()),
-      deadline: cleanDate(raw.deadline),
-      status: ["active", "completed", "failed"].indexOf(raw.status) !== -1 ? raw.status : "active",
-      progress: num(raw.progress, 0, 0),
-      lastCurrent: num(raw.lastCurrent, def.auto ? 0 : raw.current || 0, 0),
-      lastMeasuredAt: raw.lastMeasuredAt || null,
-      createdAt: raw.createdAt || Date.now(),
-      updatedAt: raw.updatedAt || raw.createdAt || Date.now(),
-      completedAt: raw.completedAt || null,
-      failedAt: raw.failedAt || null,
-      failedManual: !!raw.failedManual,
-      completionRecordedAt: raw.completionRecordedAt || null
-    };
-  }
-
-  function data() {
-    var s = store.state.goals = store.state.goals || { v: 2, nextId: 1, items: [], completionLedger: {} };
-    if (!Array.isArray(s.items)) s.items = [];
-    if (!s.nextId) s.nextId = 1;
-    if (!s.completionLedger || typeof s.completionLedger !== "object") s.completionLedger = {};
-    if (s.v !== 2) {
-      s.items = s.items.map(normaliseGoal);
-      s.v = 2;
-      store.save();
-    }
-    return s;
-  }
-  function all() { return data().items; }
-  function get(id) { return all().filter(function (g) { return g.id === Number(id); })[0] || null; }
-
-  function add(fields) {
-    var s = data(), base = Object.assign({}, fields || {});
-    base.id = s.nextId++;
-    base.createdAt = Date.now();
-    base.updatedAt = base.createdAt;
-    base.status = "active";
-    if ((base.type === "spend-below" || base.metric === "spend-below") && !base.deadline) base.deadline = monthEndISO();
-    var g = normaliseGoal(base);
-    s.items.push(g);
-    store.save();
-    return g;
-  }
-  function update(id, patch) {
-    var s = data(), idx = s.items.findIndex(function (g) { return g.id === Number(id); });
-    if (idx < 0) return null;
-    patch = Object.assign({}, patch || {});
-    if (patch.detail !== undefined && patch.description === undefined) patch.description = patch.detail;
-    var next = normaliseGoal(Object.assign({}, s.items[idx], patch, { id: s.items[idx].id, updatedAt: Date.now() }));
-    next.completionRecordedAt = s.items[idx].completionRecordedAt || next.completionRecordedAt;
-    s.items[idx] = next;
-    store.save();
-    return next;
-  }
-  function remove(id) {
-    var s = data();
-    s.items = s.items.filter(function (g) { return g.id !== Number(id); });
-    store.save();
-  }
-  function nudge(id, delta) {
-    var g = get(id);
-    if (!g || g.kind !== "manual") return null;
-    return update(g.id, { current: Math.max(0, (g.current || 0) + Number(delta || 0)) });
-  }
-  function reopen(id) {
-    return update(id, { status: "active", completedAt: null, failedAt: null, failedManual: false });
-  }
-
-  function purchasedItems() {
-    var w = store.state.wishlist;
-    return w && Array.isArray(w.items) ? w.items.filter(function (it) { return it.status === "purchased"; }) : [];
-  }
-  function spendInRange(g) {
-    var start = g.startDate ? new Date(g.startDate + "T00:00:00").getTime() : -Infinity;
-    var end = g.deadline ? new Date(g.deadline + "T23:59:59").getTime() : Infinity;
-    return purchasedItems().reduce(function (sum, it) {
-      var ts = it.purchasedAt || 0;
-      return ts >= start && ts <= end ? sum + (Number(it.price) || 0) : sum;
-    }, 0);
-  }
-  function filterQuery(g) {
-    var q = { status: "completed", sort: "title" };
-    if (g.module) q.module = g.module;
-    if (g.filterKind === "genre") q.genre = g.filterValue;
-    if (g.filterKind === "tag") q.tag = g.filterValue;
-    if (g.filterKind === "list") q.customList = g.filterValue;
-    return q;
-  }
-  function measureGoal(g, agg, cb) {
-    var mods = agg.modules || {}, m = function (id) { return mods[id] || {}; };
-    var result = { current: 0, target: g.target, unit: "", meta: "" };
-    switch (g.type) {
-      case "titles-completed":
-        result.current = g.module ? (m(g.module).completed || 0) : ["anime", "books", "vn", "game"].reduce(function (n, id) { return n + (m(id).completed || 0); }, 0);
-        result.unit = "titles"; result.meta = moduleLabel(g.module); cb(result); return;
-      case "episodes-watched": result.current = m("anime").episodes || 0; result.unit = "episodes"; cb(result); return;
-      case "chapters-read": result.current = m("books").episodes || 0; result.unit = "chapters"; cb(result); return;
-      case "volumes-read": result.current = m("books").volumesRead || 0; result.unit = "volumes"; cb(result); return;
-      case "library-size": result.current = g.module ? (m(g.module).total || 0) : agg.total || 0; result.unit = "titles"; result.meta = moduleLabel(g.module); cb(result); return;
-      case "favourites": result.current = agg.favourites || 0; result.unit = "enshrined"; cb(result); return;
-      case "purchases": result.current = purchasedItems().length; result.unit = "purchases"; cb(result); return;
-      case "game-hours": result.current = m("game").episodes || 0; result.unit = "hours"; cb(result); return;
-      case "routes-cleared": result.current = m("vn").episodes || 0; result.unit = "routes"; cb(result); return;
-      case "spend-below":
-        result.current = Math.round(spendInRange(g) * 100) / 100;
-        result.unit = (store.state.wishlist && store.state.wishlist.budget && store.state.wishlist.budget.currency) || "£";
-        result.meta = result.unit + Math.max(0, g.target - result.current).toFixed(2).replace(/\.00$/, "") + " remaining";
-        cb(result); return;
-      case "filtered-completed":
-        KOS.mediadb.query(filterQuery(g), function (err, rows) {
-          result.current = err ? 0 : rows.length;
-          result.unit = "titles";
-          result.meta = (g.filterKind ? g.filterKind + ": " : "") + (g.filterValue || "Any") + (g.module ? " · " + moduleLabel(g.module) : "");
-          cb(result);
-        }); return;
-      case "specific-title":
-      case "finish-series":
-        if (!g.linkedEntryId) { result.meta = "No title linked"; cb(result); return; }
-        KOS.mediadb.get(g.linkedEntryId, function (err, entry) {
-          if (!entry || err) { result.meta = "Linked title is no longer in the vault"; cb(result); return; }
-          result.meta = entry.title;
-          if (g.type === "specific-title") {
-            result.current = entry.status === "completed" ? 1 : 0; result.target = 1; result.unit = "title";
-          } else if (entry.progress && entry.progress.total) {
-            result.current = entry.progress.current || 0; result.target = entry.progress.total;
-            result.unit = entry.progress.unit || (entry.module === "anime" ? "episodes" : entry.module === "books" ? "chapters" : "steps");
-            if (entry.status === "completed") result.current = result.target;
-          } else {
-            result.current = entry.status === "completed" ? 1 : 0; result.target = 1; result.unit = "series";
-          }
-          cb(result);
-        }); return;
-      default:
-        result.current = g.current || 0; result.unit = "steps"; cb(result);
-    }
-  }
-
-  function derive(g, measure, today) {
-    if (g.failedManual) return "failed";
-    if (g.status === "completed" && g.completedAt) return "completed";
-    if (g.type === "spend-below") {
-      if (measure.current > measure.target) return "failed";
-      if (g.deadline && g.deadline < today) return "completed";
-      return "active";
-    }
-    if (measure.current >= measure.target) return "completed";
-    if (g.deadline && g.deadline < today) return "failed";
-    return "active";
-  }
-  function compute(cb) {
-    KOS.mediadb.stats(function (err, agg) {
-      agg = agg || { total: 0, modules: {}, favourites: 0 };
-      var rows = all(), out = new Array(rows.length), pending = rows.length, dirty = false, today = todayISO();
-      if (!pending) { cb(null, []); return; }
-      rows.forEach(function (g, index) {
-        measureGoal(g, agg, function (measurement) {
-          var target = Math.max(1, Number(measurement.target) || g.target || 1);
-          var status = derive(g, measurement, today);
-          var pct = g.type === "spend-below"
-            ? Math.max(0, Math.min(100, Math.round(100 * (1 - measurement.current / target))))
-            : Math.max(0, Math.min(100, Math.round(100 * measurement.current / target)));
-          if (status === "completed" && !g.completedAt) {
-            g.status = "completed"; g.completedAt = Date.now(); g.failedAt = null;
-            if (!data().completionLedger[g.id]) {
-              data().completionLedger[g.id] = { recordedAt: g.completedAt, type: g.type, payout: "activity-only" };
-            }
-            g.completionRecordedAt = data().completionLedger[g.id].recordedAt;
-            dirty = true;
-          } else if (status === "failed" && g.status !== "failed") {
-            g.status = "failed"; g.failedAt = g.failedAt || Date.now(); dirty = true;
-          } else if (status === "active" && g.status !== "active") {
-            g.status = "active"; g.completedAt = null; g.failedAt = null; dirty = true;
-          }
-          if (g.lastCurrent !== measurement.current || g.progress !== pct) {
-            g.lastCurrent = measurement.current; g.progress = pct; g.lastMeasuredAt = Date.now(); dirty = true;
-          }
-          out[index] = Object.assign({}, g, {
-            _current: measurement.current, _target: target, _unit: measurement.unit,
-            _meta: measurement.meta, _status: status, _pct: pct,
-            _rewardSafe: !!data().completionLedger[g.id]
-          });
-          pending--;
-          if (!pending) { if (dirty) store.save(); cb(err || null, out); }
-        });
-      });
-    });
-  }
-
-  function metricLabel(g) {
-    var d = typeDef(g.type || (LEGACY[g.metric] || ["custom-manual"])[0]);
-    if (g.type === "filtered-completed") return (g.filterKind || "filter") + ": " + (g.filterValue || "not set");
-    if (g.module && d.module) return d.label + " · " + moduleLabel(g.module);
-    return d.label;
-  }
-  KOS.goals = {
-    all: all, get: get, add: add, update: update, remove: remove, nudge: nudge, reopen: reopen,
-    compute: compute, types: function () { return TYPES.slice(); },
-    metrics: function () { return TYPES.filter(function (d) { return d.auto; }).map(function (d) { return { id: d.id, label: d.label }; }); },
-    metricLabel: metricLabel, normalise: normaliseGoal
-  };
+  var el = KOS.ui.el, store = KOS.store, G = KOS.goals;
+  var MODULES = G.MODULES;
+  /* the editor's choices: the Collection's types, the manual goal last */
+  var TYPES = G.types({ domain: "collection" }).filter(function (d) { return d.id !== "custom-manual"; })
+    .concat([G.typeDef("custom-manual")]);
+  var typeDef = G.typeDef, moduleLabel = G.moduleLabel, num = G.num;
+  var todayISO = G.todayISO, monthEndISO = G.monthEndISO, normaliseGoal = G.normalise;
+  var add = G.add, update = G.update, remove = G.remove, nudge = G.nudge, reopen = G.reopen, compute = G.compute;
 
   /* ---------------- modal editor ---------------- */
   function field(label, input, hook) {
@@ -316,7 +41,9 @@
     var titleIn = input("text", existing ? g.title : "", { maxlength: "160", placeholder: "Name this intention" });
     var descIn = el("textarea", { class: "k-input", rows: "3", maxlength: "700", placeholder: "What are you trying to change or finish?" }); descIn.value = g.description || "";
     var notesIn = el("textarea", { class: "k-input", rows: "4", maxlength: "2000", placeholder: "Private notes, rules, or context (optional)" }); notesIn.value = g.notes || "";
-    var typeSel = el("select", { class: "k-input" }, TYPES.map(function (d) { var o = el("option", { value: d.id, text: d.label }); if (g.type === d.id) o.selected = true; return o; }));
+    /* a goal of another domain keeps its own type when edited here */
+    var choices = TYPES.indexOf(typeDef(g.type)) === -1 ? TYPES.concat([typeDef(g.type)]) : TYPES;
+    var typeSel = el("select", { class: "k-input" }, choices.map(function (d) { var o = el("option", { value: d.id, text: d.label }); if (g.type === d.id) o.selected = true; return o; }));
     var moduleSel = el("select", { class: "k-input" }, MODULES.map(function (m) { var o = el("option", { value: m.id, text: m.label }); if ((g.module || "") === m.id) o.selected = true; return o; }));
     var targetIn = input("number", String(g.target || 1), { min: "1", step: "1" });
     var currentIn = input("number", String(g.current || 0), { min: "0", step: "1" });

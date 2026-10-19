@@ -810,6 +810,43 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.4 Money and Goals, beyond the Collection ◆ (asked for 13 October 2026)
 
+> **Status (19 October 2026, branch `feat/money-goals`, not merged or
+> deployed):** started from the second account. Design prompt 11 was
+> revised for the new Claude Design project (frames 27a–27s, adding the
+> placement, month/year, Reports and Calendar frames) and is with Claude
+> Design. Built meanwhile, with no new screens:
+> - **Phase 1, the Money core** (`js/core/money.js`, smoke84): the
+>   `state.money` gate with the default categories, string-keyed
+>   categories, rules and pots in the cloud merge, transactions in
+>   `kurenai-os-money` with tombstones and the full backup, payday months,
+>   summaries with budgets, a one-month rollover and over-budget, honest
+>   insights (left, safe to spend, a projection only after 7 days and 5
+>   data days), recurring rules with confirm / skip / leave and price
+>   history, subscriptions per month and year, pots from transfers, lazy
+>   60-row lists, and the CSV parser, preview with duplicates, import and
+>   export. **Decided differently from the build order:** the migration is
+>   a live MIRROR, not a one-time copy — the Budget Planner keeps owning
+>   its purchases and Money derives a Collection transaction from each one
+>   before every read, so the two can never disagree; the Collection
+>   budget reads the planner's monthly limit. The planner's own page is
+>   unchanged.
+> - **Phase 3, the Goals engine** (`js/core/goals.js`,
+>   `js/core/goals-collection.js`, smoke85): the type registry, `state.goals`
+>   v3 (domain, links, params, milestones, repeat, outcomes; a v2 goal
+>   loses nothing), repeating goals whose ended periods are judged once,
+>   pace and the projected finish, and types for Study (hours, cards,
+>   recall with the 50-review floor, topics to Green from a baseline),
+>   Productivity (Focus hours and blocks, ticks, plan rows), Money (spend
+>   under, income, no-spend days, saving into a pot), Code (tasks, proven
+>   retrievals, a capstone) and the Governor (streak and level, display
+>   only, `payout: "none"`). The Planner's Goals page draws on the engine
+>   and still offers only the Collection's types until 27i–27k.
+> - **Next, without design:** `kos_money` replication (a Supabase
+>   migration, the user's to apply) and the Assistant's `money_*` tools.
+>   **With design:** phase 2 (the Money pages), phase 4 (the Goals pages,
+>   the Home card, the `goal` notification kind, calendar reads), the
+>   Reports sections, the move to the Productivity strip.
+
 - **Today:** the Budget Planner (`js/modules/wishlist.js`, `state.wishlist`)
   is a Collection purchase queue against ONE monthly pool for Books, Games
   and Visual Novels; Goals (`js/modules/goals.js`, `state.goals`) has 14

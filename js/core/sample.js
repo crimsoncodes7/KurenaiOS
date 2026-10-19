@@ -242,7 +242,7 @@
     ];
 
     /* ---------- goals ---------- */
-    S.goals = { v: 2, nextId: 1, items: [], completionLedger: {} };
+    S.goals = { v: 3, nextId: 1, items: [], completionLedger: {} };
     [{ title: "Finish every light novel on the physical shelf", type: "manual", target: 12, current: 7, module: "books", deadline: day(60) },
      { title: "Clear the anime backlog to under ten", type: "manual", target: 10, current: 6, module: "anime", deadline: day(30) },
      { title: "Finish one visual novel this term", type: "manual", target: 1, current: 0, module: "vn", deadline: day(75) },

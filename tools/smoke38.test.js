@@ -199,7 +199,7 @@ step("goals and the anti-farming ledger ride the normal state backup", () => {
      the browser download API; keeping the assertion DOM-only avoids teaching
      jsdom how to manufacture object URLs. */
   const state = JSON.parse(JSON.stringify(KOS.store.state));
-  assert(state.goals && state.goals.v === 2, "goal schema absent from backup");
+  assert(state.goals && state.goals.v === 3, "goal schema absent from backup");
   assert(state.goals.completionLedger && Object.keys(state.goals.completionLedger).length, "completion ledger absent from backup");
 });
 

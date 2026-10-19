@@ -508,6 +508,14 @@
           stepDone(err);
         });
       }
+      /* Money's transactions (roadmap 5.4) live in their own IndexedDB */
+      if (window.KOS && KOS.money && KOS.money.available()) {
+        steps++;
+        KOS.money.exportAll(function (err, dump) {
+          if (!err) result.money = dump;
+          stepDone(err);
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -587,14 +595,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () {
+        function restoreMoney(next) {
+          if (!backup.money) return next();
+          if (!window.KOS || !KOS.money || !KOS.money.available()) {
+            report.missingSections.push("money transactions (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.money.importAll(backup.money, function (err, out) {
+            if (err) report.missingSections.push("money transactions (error: " + err.message + ")");
+            else report.restoredSections.push("money transactions (" + out.tx + ")");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); });
+        }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

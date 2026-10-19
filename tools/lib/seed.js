@@ -97,7 +97,7 @@ async function seedAccount(app) {
     releaseDate: iso(today + (i - 3) * 5 * DAY),
     status: i % 3 === 0 ? "purchased" : i % 3 === 1 ? "waitingRelease" : "wantToBuy",
     linkedEntryId: null, notes: "", addedAt: today - i * DAY, purchasedAt: i % 3 === 0 ? today - i * DAY : null });
-  S.goals = { v: 2, nextId: 1, items: [], completionLedger: {} };
+  S.goals = { v: 3, nextId: 1, items: [], completionLedger: {} };
   for (let i = 0; i < 4; i++) S.goals.items.push(KOS.goals.normalise({ id: S.goals.nextId++,
     title: i === 0 ? "Finish every unfinished light novel on the physical shelf" : "Goal " + (i + 1),
     description: "", measure: "completedTitles", target: 10 + i, current: i, status: i === 3 ? "completed" : "active",
