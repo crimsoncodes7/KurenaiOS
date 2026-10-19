@@ -22,10 +22,10 @@ chronological diary here.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-code-18`
 - Required smoke gate: 79 / 79 suites.
-- Live branch: `claude/roadmap-code-study-space`. It carries everything above
-  and is NOT merged into `main` (`main` is 49 commits behind); the 12 commits
-  after `ff7a8e3` (the Japanese plan and slice) were unpushed on 19 October
-  2026. Work from this branch unless told otherwise.
+- Branches: `main` was fast-forwarded to `claude/roadmap-code-study-space` on
+  19 October 2026 (both at the docs commit after `ff7a8e3`, including the
+  Japanese plan and slice), so they are identical and both pushed. Check
+  `git log` for later drift; new work may use either, branching from `main`.
 - In flight: Japanese (roadmap 5.5, [`docs/japanese-plan.md`](docs/japanese-plan.md)
   revision 3.1). The throwaway vertical slice in `prototypes/japanese-space/`
   is closed on real data and touches no app file; the platform release (plan

@@ -19,9 +19,10 @@ accounts to talk to each other.
    git fetch && git log --oneline HEAD..@{u}      # anything new from the other account?
    ```
 
-3. Check out the live branch. At 19 October 2026 it is
-   **`claude/roadmap-code-study-space`**; every release since Reports is on it
-   and `main` is 49 commits behind. Do not start from `main` unless asked.
+3. Pick the branch. On 19 October 2026 `main` and
+   **`claude/roadmap-code-study-space`** (where every release since Reports was
+   built) are identical and both pushed, so either is current; run
+   `git log --oneline main..origin/<branch>` to see if one has moved on.
 4. Read the shared memory: `docs/memory/MEMORY.md`, then the notes relevant to
    the task. Then load it into this account's own memory:
 

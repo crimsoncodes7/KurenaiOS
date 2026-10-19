@@ -29,9 +29,9 @@ behaviour, data and invariants of the earlier releases unchanged.
 - Verification: all **79 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity) and Code's gates (smoke73–79, plus `tools/cs_diff.mjs`).
-- **Branch:** the live line of work is `claude/roadmap-code-study-space`, not
-  `main` (`main` is 49 commits behind it). Check it out before working. See
-  [docs/HANDOFF.md](docs/HANDOFF.md).
+- **Branch:** `main` is current (19 October 2026); it equals the working
+  branch `claude/roadmap-code-study-space`. Check `git log` before relying on
+  that. See [docs/HANDOFF.md](docs/HANDOFF.md).
 - In flight, not deployed: the Japanese study space (roadmap 5.5). Its
   vertical slice in `prototypes/japanese-space/` is closed; the platform
   release is next, when asked.
