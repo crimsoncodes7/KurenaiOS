@@ -2026,43 +2026,86 @@
   });
 
   def("goals_list", {
-    desc: "Personal collecting/reading goals with live computed progress.",
-    category: "planner", tier: "read", read: true, params: {},
+    desc: "Goals of every domain (study, productivity, money, code, collection, governor) with live progress, pace (ahead/on-track/behind) and, for a repeating goal, this period and the run of periods met.",
+    category: "planner", tier: "read", read: true,
+    params: { domain: { type: "string", enum: ["study", "productivity", "money", "code", "collection", "governor"] } },
     run: function (args, cb) {
       KOS.goals.compute(function (err, rows) {
         if (err) { cb(err); return; }
-        cb(null, { goals: rows.map(function (g) {
-          return { id: g.id, title: g.title, kind: g.kind, metric: g.metric,
-            target: g.target, current: g._current, pct: g._pct,
-            status: g._status, deadline: g.deadline };
+        cb(null, { goals: rows.filter(function (g) { return !args.domain || g._domain === args.domain; }).map(function (g) {
+          var o = { id: g.id, title: g.title, type: g.type, domain: g._domain, kind: g.kind,
+            target: g._target, current: g._current, unit: g._unit || undefined, pct: g._pct,
+            status: g._status, deadline: g.deadline || undefined, pace: g._pace || undefined,
+            projectedFinish: g._projected || undefined, archived: g.archived || undefined,
+            displayOnly: g._displayOnly || undefined, note: g._meta || undefined };
+          if (g.repeat) {
+            var keys = Object.keys(g.outcomes || {}).sort().slice(-12);
+            o.repeat = g.repeat; o.period = g._period; o.runMet = g._run;
+            o.recent = keys.map(function (k) { return { period: k, met: g.outcomes[k].met, value: g.outcomes[k].value }; });
+          }
+          return o;
         }) });
       });
     }
   });
 
+  def("goals_types", {
+    desc: "The goal types that can be created, by domain: what each measures, its unit, whether it can repeat weekly/monthly, and the links it takes (subject, category, pot, capstone).",
+    category: "planner", tier: "read", read: true,
+    params: { domain: { type: "string", enum: ["study", "productivity", "money", "code", "collection", "governor"] } },
+    run: function (args, cb) {
+      cb(null, { types: KOS.goals.types(args.domain ? { domain: args.domain } : null).map(function (d) {
+        return { id: d.id, domain: d.domain, label: d.label, unit: d.unit || undefined,
+          direction: d.direction, repeats: !!d.repeat || undefined, manual: !d.auto || undefined,
+          displayOnly: d.displayOnly || undefined,
+          links: Object.keys(d.fields || {}).filter(function (k) { return d.fields[k]; }) };
+      }) });
+    }
+  });
+
   def("goals_add", {
-    desc: "Add a goal — manual (you update progress) or auto (computed from the vault/sessions; metric required).",
+    desc: "Add a goal. Give `type` (see goals_types) — or, for older callers, kind manual/auto with a Collection metric. A repeating goal (repeat week|month) has no deadline. Links: subject (study/focus types), category (money spend/income), pot (money-save), capstone (code-capstone).",
     category: "planner", tier: "reversible", read: false,
     params: {
       title: { type: "string", required: true, minLen: 1, maxLen: 200 },
       detail: { type: "string", maxLen: 1000 },
+      type: { type: "string", maxLen: 40 },
       deadline: { type: "string", maxLen: 10 },
-      kind: { type: "string", enum: ["manual", "auto"], required: true },
+      startDate: { type: "string", maxLen: 10 },
+      repeat: { type: "string", enum: ["week", "month"] },
+      kind: { type: "string", enum: ["manual", "auto"] },
       metric: { type: "string", maxLen: 40 },
       genre: { type: "string", maxLen: 60 },
-      target: { type: "integer", required: true, min: 1, max: 100000 },
+      subject: { type: "string", maxLen: 20 },
+      category: { type: "string", maxLen: 40 },
+      pot: { type: "string", maxLen: 40 },
+      capstone: { type: "string", maxLen: 40 },
+      target: { type: "number", required: true, min: 0, max: 1000000 },
       current: { type: "integer", min: 0, max: 100000 }
     },
     run: function (args, cb) {
       if (args.deadline && !validDate(args.deadline)) { cb(fail("deadline must be YYYY-MM-DD.")); return; }
-      if (args.kind === "auto") {
-        var ids = KOS.goals.metrics().map(function (m) { return m.id; });
-        if (!args.metric || ids.indexOf(args.metric) === -1) {
-          cb(fail("auto goals need a metric — one of: " + ids.join(", "))); return;
-        }
+      if (args.startDate && !validDate(args.startDate)) { cb(fail("startDate must be YYYY-MM-DD.")); return; }
+      var fields = Object.assign({}, args);
+      if (!fields.type) {
+        if (args.kind === "manual") fields.type = "custom-manual";
+        else if (args.kind === "auto") {
+          var ids = KOS.goals.metrics().map(function (m) { return m.id; });
+          if (!args.metric || ids.indexOf(args.metric) === -1) { cb(fail("auto goals need a metric — one of: " + ids.join(", "))); return; }
+          fields.type = args.metric;
+        } else { cb(fail("Give a goal type — goals_types lists them.")); return; }
       }
-      var g = KOS.goals.add(args);
-      cb(null, { id: g.id, title: g.title, kind: g.kind },
+      var def = KOS.goals.types().filter(function (d) { return d.id === fields.type; })[0];
+      if (!def) { cb(fail("Unknown goal type " + fields.type + " — goals_types lists them.")); return; }
+      if (fields.repeat && !def.repeat) { cb(fail("“" + def.label + "” measures the present state, so it cannot repeat.")); return; }
+      if (fields.repeat && fields.deadline) { cb(fail("A repeating goal has no deadline; each week or month is judged on its own.")); return; }
+      if (def.fields.pot && !(args.pot && KOS.money && KOS.money.pot(args.pot))) { cb(fail("money-save needs a pot id — money_overview lists the pots.")); return; }
+      if (args.category && KOS.money && !KOS.money.category(args.category)) { cb(fail("No money category " + args.category + ".")); return; }
+      if (args.genre && !fields.filterValue) { fields.filterKind = "genre"; fields.filterValue = args.genre; }
+      fields.links = { subject: args.subject, category: args.category, pot: args.pot, capstone: args.capstone };
+      ["subject", "category", "pot", "capstone", "kind", "metric", "genre"].forEach(function (k) { delete fields[k]; });
+      var g = KOS.goals.add(fields);
+      cb(null, { id: g.id, title: g.title, type: g.type, domain: g.domain, repeat: g.repeat || undefined },
         { label: "remove the goal", run: function (ucb) { KOS.goals.remove(g.id); ucb(null); } });
     }
   });
@@ -2076,8 +2119,9 @@
         title: { type: "string", minLen: 1, maxLen: 200 },
         detail: { type: "string", maxLen: 1000 },
         deadline: { type: "string", maxLen: 10 },
-        target: { type: "integer", min: 1, max: 100000 },
-        current: { type: "integer", min: 0, max: 100000 }
+        target: { type: "number", min: 0, max: 1000000 },
+        current: { type: "integer", min: 0, max: 100000 },
+        archived: { type: "boolean" }
       } }
     },
     run: function (args, cb) {
@@ -2103,6 +2147,204 @@
       if (!prev) { cb(fail("No goal with id " + args.id + ".")); return; }
       KOS.goals.remove(args.id);
       cb(null, { id: args.id, deleted: true, title: prev.title });
+    }
+  });
+
+  /* ======================================================================
+     MONEY (roadmap 5.4, decision C): totals by default, single entries
+     only when asked; every write is undoable; nothing here touches the
+     Governor. Amounts in and out are in the base currency's major unit.
+     ====================================================================== */
+  function major(minor) { return minor == null ? null : Math.round(minor) / 100; }
+  function needMoney(cb) {
+    if (!KOS.money || !KOS.money.available()) { cb(fail("Money needs IndexedDB, which this browser does not offer.")); return false; }
+    return true;
+  }
+  function catName(id) { var c = KOS.money.category(id); return c ? c.name : id; }
+  function catId(nameOrId) {
+    if (!nameOrId) return null;
+    var c = KOS.money.category(nameOrId);
+    if (c) return c.id;
+    var low = String(nameOrId).toLowerCase();
+    var hit = KOS.money.categories({ archived: true }).filter(function (x) { return x.name.toLowerCase() === low; })[0];
+    return hit ? hit.id : null;
+  }
+  def("money_overview", {
+    desc: "Money for one month (default: this one): income, outgoings, left to spend, safe to spend today, each category against its budget, bills in the next 14 days, subscriptions per month and pot balances. Totals only — no payees or notes.",
+    category: "planner", tier: "read", read: true,
+    params: { month: { type: "string", maxLen: 7, desc: "YYYY-MM (the month's key; with a payday start it is the month the period starts in)" } },
+    run: function (args, cb) {
+      if (!needMoney(cb)) return;
+      var M = KOS.money, today = KOS.goals.todayISO();
+      var key = args.month && /^\d{4}-\d{2}$/.test(args.month) ? args.month : M.periodKey(today);
+      M.summary(key, function (err, s) {
+        if (err) { cb(err); return; }
+        var ins = M.insights(s, today);
+        M.potBalances(function (e2, bal) {
+          var subs = M.subscriptions();
+          cb(null, {
+            month: key, from: s.from, to: s.to, currency: M.data().currency,
+            income: major(s.income), outgoings: major(s.outgoings), toPots: major(s.toPots) || undefined,
+            budgetTotal: major(s.budgetTotal), left: major(ins.left), safeToSpendToday: major(ins.safeToday),
+            monthEndProjection: major(ins.projection), daysWithData: s.days,
+            categories: Object.keys(s.byCat).map(function (id) {
+              var c = s.byCat[id];
+              return { id: id, name: catName(id), spent: major(c.net) || undefined, income: major(c.income) || undefined,
+                budget: major(c.budget), left: c.left == null ? undefined : major(c.left), over: c.over || undefined };
+            }),
+            upcomingBills: M.upcoming(today, M.periodRange(key).to > today ? KOS.srs.addDays(today, 14) : today, today)
+              .filter(function (o) { return o.state !== "done" && o.state !== "skip"; }).slice(0, 20)
+              .map(function (o) { return { rule: o.rule, name: o.name, date: o.date, amount: major(o.minor), state: o.state }; }),
+            subscriptions: { count: subs.items.length, perMonth: major(subs.perMonth), perYear: major(subs.perYear) },
+            pots: M.pots().map(function (p) { return { id: p.id, name: p.name, balance: major((bal || {})[p.id] || 0), target: major(p.target), by: p.by || undefined }; })
+          });
+        });
+      });
+    }
+  });
+  def("money_transactions", {
+    desc: "Single transactions (date, amount, kind, category, payee) — only when the user asks to see entries. At most 60, newest first.",
+    category: "planner", tier: "read", read: true,
+    params: {
+      from: { type: "string", maxLen: 10 }, to: { type: "string", maxLen: 10 },
+      category: { type: "string", maxLen: 60 }, search: { type: "string", maxLen: 80 },
+      limit: { type: "integer", min: 1, max: 60 }
+    },
+    run: function (args, cb) {
+      if (!needMoney(cb)) return;
+      KOS.money.list({ from: args.from, to: args.to, cat: catId(args.category) || undefined, search: args.search, limit: args.limit || 30 }, function (err, rows) {
+        if (err) { cb(err); return; }
+        cb(null, { transactions: rows.map(function (t) {
+          return { id: t.syncId, date: t.date, amount: major(t.minor), kind: t.kind, category: t.cat ? catName(t.cat) : undefined,
+            payee: t.payee || undefined, from: t.src === "wishlist" ? "Budget Planner" : t.src === "rule" ? "recurring" : undefined };
+        }) });
+      });
+    }
+  });
+  def("money_add_transaction", {
+    desc: "Record money in or out (kind out | in | refund). Category by id or name.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      date: { type: "string", required: true, maxLen: 10 },
+      amount: { type: "number", required: true, min: 0.01, max: 1000000 },
+      kind: { type: "string", enum: ["out", "in", "refund"], required: true },
+      category: { type: "string", maxLen: 60 },
+      payee: { type: "string", maxLen: 80 }, note: { type: "string", maxLen: 500 }
+    },
+    run: function (args, cb) {
+      if (!needMoney(cb)) return;
+      if (!validDate(args.date)) { cb(fail("date must be YYYY-MM-DD.")); return; }
+      var cat = args.category ? catId(args.category) : null;
+      if (args.category && !cat) { cb(fail("No category " + args.category + ".")); return; }
+      KOS.money.addTx({ date: args.date, amount: args.amount, kind: args.kind, cat: cat, payee: args.payee, note: args.note }, function (err, t) {
+        if (err) { cb(err); return; }
+        cb(null, { id: t.syncId, date: t.date, amount: major(t.minor), category: catName(t.cat) },
+          { label: "remove the transaction", run: function (ucb) { KOS.money.deleteTx(t.syncId, function (e) { ucb(e || null); }); } });
+      });
+    }
+  });
+  def("money_delete_transaction", {
+    desc: "Delete one transaction by id. A Budget Planner purchase is removed in the Planner instead.",
+    category: "planner", tier: "consequential", read: false,
+    params: { id: { type: "string", required: true, maxLen: 80 } },
+    run: function (args, cb) {
+      if (!needMoney(cb)) return;
+      KOS.money.deleteTx(args.id, function (err) { if (err) cb(err); else cb(null, { id: args.id, deleted: true }); });
+    }
+  });
+  def("money_set_budget", {
+    desc: "Set a category's monthly budget (amount), or clear it (amount omitted). The Collection category's budget is the Budget Planner's monthly limit.",
+    category: "planner", tier: "reversible", read: false,
+    params: { category: { type: "string", required: true, maxLen: 60 }, amount: { type: "number", min: 0, max: 1000000 } },
+    run: function (args, cb) {
+      var id = catId(args.category);
+      if (!id) { cb(fail("No category " + args.category + ".")); return; }
+      var c = KOS.money.category(id);
+      if (c.kind === "in") { cb(fail("An income category has no budget.")); return; }
+      var was = KOS.money.budgetOf(c);
+      KOS.money.setBudget(id, args.amount == null ? null : args.amount);
+      cb(null, { category: c.name, budget: args.amount == null ? null : args.amount, was: major(was) },
+        { label: "restore the budget", run: function (ucb) { KOS.money.setBudget(id, was == null ? null : was / 100); ucb(null); } });
+    }
+  });
+  def("money_add_rule", {
+    desc: "Add a recurring payment or income (a subscription when subscription is true): every N days/weeks/months/years from start. It is computed, never copied; each occurrence is then confirmed or skipped.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      name: { type: "string", required: true, minLen: 1, maxLen: 80 },
+      amount: { type: "number", required: true, min: 0.01, max: 1000000 },
+      start: { type: "string", required: true, maxLen: 10 },
+      every: { type: "integer", min: 1, max: 365 },
+      unit: { type: "string", enum: ["day", "week", "month", "year"] },
+      end: { type: "string", maxLen: 10 },
+      kind: { type: "string", enum: ["out", "in"] },
+      category: { type: "string", maxLen: 60 },
+      subscription: { type: "boolean" },
+      trialEnd: { type: "string", maxLen: 10 }
+    },
+    run: function (args, cb) {
+      if (!validDate(args.start) || (args.end && !validDate(args.end)) || (args.trialEnd && !validDate(args.trialEnd))) { cb(fail("Dates must be YYYY-MM-DD.")); return; }
+      var cat = args.category ? catId(args.category) : (args.subscription ? "subscriptions" : null);
+      if (args.category && !cat) { cb(fail("No category " + args.category + ".")); return; }
+      var r = KOS.money.addRule({ name: args.name, amount: args.amount, start: args.start, end: args.end || null,
+        every: { n: args.every || 1, unit: args.unit || "month" }, kind: args.kind || "out", cat: cat,
+        sub: !!args.subscription, trialEnd: args.trialEnd || null });
+      if (!r) { cb(fail("That rule could not be made.")); return; }
+      cb(null, { id: r.id, name: r.name, perMonth: major(KOS.money.perMonth(r)), next: KOS.money.occurrences(r, KOS.goals.todayISO(), "9999-12-31").slice(0, 3) },
+        { label: "remove the rule", run: function (ucb) { KOS.money.removeRule(r.id); ucb(null); } });
+    }
+  });
+  def("money_confirm_bill", {
+    desc: "Confirm one occurrence of a recurring rule as paid (or received), optionally at a different amount. It becomes one transaction.",
+    category: "planner", tier: "reversible", read: false,
+    params: { rule: { type: "string", required: true, maxLen: 40 }, date: { type: "string", required: true, maxLen: 10 }, amount: { type: "number", min: 0.01, max: 1000000 } },
+    run: function (args, cb) {
+      if (!KOS.money.rule(args.rule)) { cb(fail("No rule " + args.rule + ".")); return; }
+      KOS.money.confirm(args.rule, args.date, { amount: args.amount }, function (err, t) {
+        if (err) { cb(err); return; }
+        cb(null, { rule: args.rule, date: args.date, amount: major(t.minor), confirmed: true },
+          { label: "leave it unconfirmed", run: function (ucb) { KOS.money.unmark(args.rule, args.date, function (e) { ucb(e || null); }); } });
+      });
+    }
+  });
+  def("money_skip_bill", {
+    desc: "Skip one occurrence of a recurring rule (it did not happen this time).",
+    category: "planner", tier: "reversible", read: false,
+    params: { rule: { type: "string", required: true, maxLen: 40 }, date: { type: "string", required: true, maxLen: 10 } },
+    run: function (args, cb) {
+      var r = KOS.money.rule(args.rule);
+      if (!r || KOS.money.occurrences(r, args.date, args.date)[0] !== args.date) { cb(fail("That is not an occurrence of this rule.")); return; }
+      KOS.money.skip(args.rule, args.date, function (err) {
+        if (err) { cb(err); return; }
+        cb(null, { rule: args.rule, date: args.date, skipped: true },
+          { label: "leave it unconfirmed", run: function (ucb) { KOS.money.unmark(args.rule, args.date, function (e) { ucb(e || null); }); } });
+      });
+    }
+  });
+  def("money_add_pot", {
+    desc: "Make a savings pot (a target and a date are optional).",
+    category: "planner", tier: "reversible", read: false,
+    params: { name: { type: "string", required: true, minLen: 1, maxLen: 60 }, target: { type: "number", min: 0, max: 10000000 }, by: { type: "string", maxLen: 10 } },
+    run: function (args, cb) {
+      if (args.by && !validDate(args.by)) { cb(fail("by must be YYYY-MM-DD.")); return; }
+      var p = KOS.money.addPot({ name: args.name, targetAmount: args.target, by: args.by });
+      cb(null, { id: p.id, name: p.name },
+        { label: "archive the pot", run: function (ucb) { KOS.money.updatePot(p.id, { archived: true }); ucb(null); } });
+    }
+  });
+  def("money_transfer", {
+    desc: "Move money into a pot (direction in) or out of it (direction out). A transfer is never spending.",
+    category: "planner", tier: "reversible", read: false,
+    params: { pot: { type: "string", required: true, maxLen: 40 }, amount: { type: "number", required: true, min: 0.01, max: 10000000 },
+      direction: { type: "string", enum: ["in", "out"] }, date: { type: "string", maxLen: 10 } },
+    run: function (args, cb) {
+      if (!needMoney(cb)) return;
+      if (args.date && !validDate(args.date)) { cb(fail("date must be YYYY-MM-DD.")); return; }
+      KOS.money.addTx({ kind: "transfer", pot: args.pot, dir: args.direction || "in", amount: args.amount, date: args.date || KOS.goals.todayISO() }, function (err, t) {
+        if (err) { cb(err); return; }
+        cb(null, { id: t.syncId, pot: args.pot, amount: major(t.minor), direction: t.dir },
+          { label: "undo the transfer", run: function (ucb) { KOS.money.deleteTx(t.syncId, function (e) { ucb(e || null); }); } });
+      });
     }
   });
 
@@ -3297,7 +3539,7 @@
     planner: ["todo_list", "todo_add_task", "todo_toggle_task", "calendar_list_events",
       "calendar_add_event", "assignments_list", "assignments_add", "pacing_get_week", "reminders_list",
       "assignments_update", "pacing_tick_row", "notifications_list", "wishlist_list", "wishlist_add_item",
-      "goals_list", "goals_add"],
+      "goals_list", "goals_add", "money_overview", "money_add_transaction"],
     governor: ["governor_get_status", "governor_list_shop", "governor_buy_item",
       "focus_get_state", "focus_start_session", "focus_end_session"],
     archive: ["archive_get_backup_info", "attachments_list", "attachments_set_note", "schedule_list", "schedule_add"],

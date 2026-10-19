@@ -841,11 +841,17 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 >   retrievals, a capstone) and the Governor (streak and level, display
 >   only, `payout: "none"`). The Planner's Goals page draws on the engine
 >   and still offers only the Collection's types until 27i–27k.
-> - **Next, without design:** `kos_money` replication (a Supabase
->   migration, the user's to apply) and the Assistant's `money_*` tools.
->   **With design:** phase 2 (the Money pages), phase 4 (the Goals pages,
->   the Home card, the `goal` notification kind, calendar reads), the
->   Reports sections, the move to the Productivity strip.
+> - **Phase 5's joins that need no design** (smoke86): `kos_money`
+>   replication (migration `20261019000001_kos_money.sql`, written and NOT
+>   yet applied — until it is, a signed-in sync fails soft and Money stays
+>   local), the Assistant's `money_*` tools (totals by default, every write
+>   undoable) and `goals_types` with `goals_add` for every domain and
+>   repeat, `f.money` and `f.goals` in every saved report with totals-only
+>   words, and the `goal` notification kind with its ticker.
+> - **With design:** phase 2 (the Money pages), phase 4 (the Goals pages,
+>   the Home card, calendar reads), the Reports cards that draw `f.money`
+>   and `f.goals`, a bill-due notification once Money has a page to open,
+>   search, and the move to the Productivity strip.
 
 - **Today:** the Budget Planner (`js/modules/wishlist.js`, `state.wishlist`)
   is a Collection purchase queue against ONE monthly pool for Books, Games

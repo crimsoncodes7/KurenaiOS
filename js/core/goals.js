@@ -604,8 +604,78 @@
       cb({ current: KOS.governor ? KOS.governor.levelInfo(xp).level : null, unit: "level" });
     } });
 
+  /* ================= notices (the `goal` notification kind) =================
+     What a goal has to say, from a compute()'s rows — pure, so the ticker
+     and the tests read the same list. One notice per event, keyed so the
+     ledger never repeats it (invariant 95):
+       goal:<id>:end:<period>   a period ends tomorrow, not yet met
+       goal:<id>:due:<date>     a deadline tomorrow, not yet reached
+       goal:<id>:done           reached (calm; it promises nothing)
+       goal:<id>:missed         a deadline passed short of it
+     A display-only (Governor) goal says nothing; an archived one neither. */
+  function fmt(n) { return n == null ? "–" : String(Math.round(n * 10) / 10); }
+  function amount(r) {
+    var unit = r._unit || "";
+    if (unit === "hours" && r._current != null) {
+      var mins = Math.round(r._current * 60), t = Math.round(r._target * 60);
+      var hm = function (m) { return Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " m" : ""); };
+      return hm(mins) + " of " + hm(t);
+    }
+    if (/^[£$€¥]$|^[A-Z]{3}$/.test(unit)) return unit + fmt(r._current) + " of " + unit + fmt(r._target);
+    return fmt(r._current) + " of " + fmt(r._target) + (unit ? " " + unit : "");
+  }
+  function notices(rows, today) {
+    var out = [], tomorrow = addDays(today, 1);
+    (rows || []).forEach(function (r) {
+      if (r.archived || r._displayOnly) return;
+      var link = { view: "goals", arg: null };
+      if (r._period) {
+        if (r._period.to === tomorrow && r._status !== "met") {
+          out.push(Object.assign({ id: "goal:" + r.id + ":end:" + r._period.key, kind: "goal",
+            title: (r.repeat === "week" ? "This week's" : "This month's") + " goal ends tomorrow — " + r.title,
+            body: amount(r) }, link));
+        }
+        return;
+      }
+      if (r._status === "completed") {
+        out.push(Object.assign({ id: "goal:" + r.id + ":done", kind: "goal", title: "Goal reached — " + r.title, body: amount(r) }, link));
+      } else if (r._status === "failed" && !r.failedManual && r.deadline && r.deadline < today) {
+        out.push(Object.assign({ id: "goal:" + r.id + ":missed", kind: "goal", title: "Goal missed — " + r.title,
+          body: amount(r) + ". It stays in your history; restart it when you are ready." }, link));
+      } else if (r._status === "active" && r.deadline === tomorrow) {
+        out.push(Object.assign({ id: "goal:" + r.id + ":due:" + r.deadline, kind: "goal",
+          title: "Goal due tomorrow — " + r.title, body: amount(r) }, link));
+      }
+    });
+    return out;
+  }
+  /* a goal completed or missed long ago is not news: the ledger keeps 45
+     days, so only what happened in the last two days is announced */
+  var NEWS_MS = 2 * 86400000;
+  function tick(cb) {
+    if (!KOS.notify || !KOS.notify.push) { cb && cb(null, []); return; }
+    compute(function (err, rows) {
+      var now = Date.now(), sent = [];
+      notices(rows, todayISO()).forEach(function (n) {
+        var r = (rows || []).filter(function (x) { return "goal:" + x.id === n.id.split(":").slice(0, 2).join(":"); })[0];
+        var at = /:done$/.test(n.id) ? r && r.completedAt : /:missed$/.test(n.id) ? r && r.failedAt : now;
+        if (!at || now - at > NEWS_MS) return;
+        if (KOS.notify.push(n)) sent.push(n.id);
+      });
+      cb && cb(err || null, sent);
+    }, { archived: false });
+  }
+  var started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    setTimeout(function () { tick(); }, 12000);
+    setInterval(function () { tick(); }, 30 * 60 * 1000);
+  }
+
   KOS.goals = {
     DOMAINS: DOMAINS.slice(), REPEATS: REPEATS.slice(),
+    notices: notices, tick: tick, start: start, amount: amount,
     register: register, typeDef: typeDef,
     types: function (opts) { return types(opts); },
     metrics: function () { return TYPES.filter(function (d) { return d.auto; }).map(function (d) { return { id: d.id, label: d.label }; }); },

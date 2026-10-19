@@ -32,9 +32,11 @@ chronological diary here.
   §17, smokes 80–83) is next, only when asked.
 - In flight on `feat/money-goals` (a worktree, not merged): Money and Goals
   (roadmap 5.4). Phase 1 (the Money core) and phase 3 (the Goals engine) are
-  built with smoke84–85; the pages wait for design prompt 11 (frames
+  built with smoke84–85, and the joins that need no design (kos_money
+  replication, the Assistant's money tools, Reports' facts, goal notices)
+  with smoke86; the pages wait for design prompt 11 (frames
   27a–27s). Smokes 80–83 stay reserved for Japanese, so this branch's gate
-  is `for i in "" {2..79} 84 85`.
+  is `for i in "" {2..79} 84 85 86`.
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
@@ -46,7 +48,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..79} 84 85; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
+for i in "" {2..79} 84 85 86; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
 node tools/cs_diff.mjs                 # Code content against real .NET (needs the .NET 10 SDK)
 tools/build_cs_wasm.sh                 # Code's full C# runtime (units 7+), once per change to tools/cs-wasm
 node tools/cs_wasm_check.mjs           # that runtime against native .NET
@@ -230,8 +232,15 @@ source comments and audit notes refer to it.
    keyed by a STRING id (fixed for the default categories, random otherwise)
    so the merge never re-keys what a transaction points at; TRANSACTIONS
    live in their own IndexedDB, `kurenai-os-money` (`tx` by `syncId`,
-   indexed by date; `del` tombstones), in the full backup, replicated to
-   `kos_money` only from phase 5. Amounts are integer minor units (`minor`).
+   indexed by date; `del` tombstones), in the full backup, and replicated to
+   the owner-only table `kos_money` (migration `20261019000001`;
+   `KOS.money.syncCloud`): local first, push then pull, a per-row stamp in
+   the media kv (`money.sync.<uid>`) so this device's echo is skipped, a
+   remote deletion applied without a tombstone of its own (never sent
+   back), and the planner's mirror never sent. Amounts are integer minor
+   units (`minor`). The Assistant reads Money as TOTALS (`money_overview`);
+   single entries only through `money_transactions`, when asked; every
+   `money_*` write is undoable and none touches the Governor.
    The planner OWNS its purchases: each archived purchase is mirrored as a
    Collection transaction `wl:<item>:<purchasedAt>` before every read, cannot
    be edited or deleted from Money and is not backed up twice; the Collection
@@ -249,7 +258,15 @@ source comments and audit notes refer to it.
    any past range repeat. Completion records one idempotent
    `payout:"activity-only"` receipt (`"none"` for a Governor-value goal,
    which is display only) and never creates a second economic event or a
-   session.
+   session. A goal speaks through the `goal` notification kind
+   (`KOS.goals.notices`, pure; `tick` every 30 minutes): a period ending
+   tomorrow, a deadline tomorrow, reached, missed — one notice each by id,
+   none for a display-only or archived goal, reached/missed only within two
+   days. In Reports, `f.money` (totals, the three biggest categories, a
+   month's over-budget categories) and `f.goals` (periods met and missed,
+   goals reached and missed in the period) are facts like the rest; the
+   words' payload gets their totals and counts only, never a payee,
+   category or goal title (invariant 102b).
 
 ### Media schema, storage and sync (6–23)
 
@@ -633,8 +650,9 @@ source comments and audit notes refer to it.
     and 45 days) plus `read` and `airing` keyed maps. Kinds are calendar,
     reminder, assignment, airing, wishlist, pacing (the plan's carry-over
     notice), focus (the idle watch, invariant 4d), assistant (a
-    scheduled message's reply, invariant 71b) and reports (a saved week,
-    "Your week in review is ready", id `reports:<report id>`) only: sync cycles, cloud
+    scheduled message's reply, invariant 71b), reports (a saved week,
+    "Your week in review is ready", id `reports:<report id>`) and goal
+    (invariant 5b, id `goal:<goal>:<event>`) only: sync cycles, cloud
     state and repairs are housekeeping, never notifications. Nothing in it re-derives a due date:
     the calendar, reminder and assignment tickers keep their own alert
     rules and once-only `notified`/`alerted` maps (invariant 42) and hand

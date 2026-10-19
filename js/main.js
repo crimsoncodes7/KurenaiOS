@@ -117,6 +117,10 @@
   /* Reports (5.1): the state at each week / month boundary, written the
      first time the app is open in the period (core/reportstore.js) */
   if (KOS.reportStore) KOS.reportStore.start();
+  /* Money (5.4): the transactions' replicated copy in kos_money, and the
+     goals' notices (a period ending, a deadline tomorrow) */
+  if (KOS.money) KOS.money.start();
+  if (KOS.goals && KOS.goals.start) KOS.goals.start();
   /* re-check reminders + HP drift every 30 min while the app stays open */
   setInterval(function () {
     KOS.governor.tick();

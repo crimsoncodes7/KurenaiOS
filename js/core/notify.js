@@ -53,7 +53,10 @@
        asked Kurenai to send at a time, arrived */
     assistant:  { label: "Assistant",  glyph: "助", section: "assistant", view: "assistant" },
     /* a saved report (core/reportstore.js): "Your week in review is ready" */
-    reports:    { label: "Reports",    glyph: "録", section: "reports", view: "reports" }
+    reports:    { label: "Reports",    glyph: "録", section: "reports", view: "reports" },
+    /* a goal (core/goals.js, roadmap 5.4): a period ending tomorrow, a
+       deadline tomorrow, reached, or missed — one notice each, by id */
+    goal:       { label: "Goals",      glyph: "標", section: "productivity", view: "goals" }
   };
 
   function N() {

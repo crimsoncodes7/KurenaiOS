@@ -245,6 +245,20 @@
       if (f.code.retrieval) out.code_retrievals = (f.code.retrievalOk || 0) + "/" + f.code.retrieval;
       if (f.code.katas) out.code_katas = f.code.katas;
     }
+    /* Money and Goals (5.4): totals and counts only — never a category,
+       payee, note or goal title (invariant 102b) */
+    if (f.money) {
+      if (f.money.outgoings) out.money_out = Math.round(f.money.outgoings) / 100;
+      if (f.money.income) out.money_in = Math.round(f.money.income) / 100;
+      if (f.money.toPots) out.money_saved = Math.round(f.money.toPots) / 100;
+      if (f.money.over) out.budgets_over = f.money.over.length;
+    }
+    if (f.goals) {
+      var met = (f.goals.periodsMet || 0) + (f.goals.reached ? f.goals.reached.length : 0);
+      var missed = (f.goals.periodsMissed || 0) + (f.goals.missed ? f.goals.missed.length : 0);
+      if (met) out.goals_met = met;
+      if (missed) out.goals_missed = missed;
+    }
     if (f.plan) {
       out.plan = f.plan.ticked + "/" + f.plan.planned;
       if (f.plan.carried) {

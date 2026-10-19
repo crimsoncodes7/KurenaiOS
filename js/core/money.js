@@ -288,6 +288,13 @@
     });
   }
   function rule(id) { return data().rules.filter(function (r) { return r.id === id; })[0] || null; }
+  /* a rule removed; its confirmed transactions stay (they happened) */
+  function removeRule(id) {
+    var m = data(), before = m.rules.length;
+    m.rules = m.rules.filter(function (r) { return r.id !== id; });
+    if (m.rules.length !== before) store.save();
+    return m.rules.length !== before;
+  }
   function addRule(fields) {
     var f = Object.assign({}, fields || {});
     if (f.amount != null && f.minor == null) f.minor = toMinor(f.amount);
@@ -550,7 +557,7 @@
       t.onerror = function () { cb && cb(t.error); };
     });
   }
-  function putTx(tx, cb) { putRaw([tx], cb); }
+  function putTx(tx, cb) { putRaw([tx], function (err) { if (!err) soonSync(); cb && cb(err); }); }
   function getTx(syncId, cb) {
     txn([TX], "readonly", function (err, t) {
       if (err) { cb(err, null); return; }
@@ -573,7 +580,9 @@
   }
   /* a deletion leaves a tombstone so replication can carry it (invariant 32);
      the wishlist mirror's own rows are derived on every device and need none */
-  function removeTx(syncId, cb) { deleteRaw([syncId], !/^wl:/.test(syncId), cb); }
+  function removeTx(syncId, cb) {
+    deleteRaw([syncId], !/^wl:/.test(syncId), function (err) { if (!err) soonSync(); cb && cb(err); });
+  }
   function range(from, to, cb) {
     mirror(function () {
       txn([TX], "readonly", function (err, t) {
@@ -909,7 +918,10 @@
       return normaliseTx({ date: x.date, minor: x.minor, kind: x.kind, cat: x.cat, payee: x.payee, note: x.note,
         tags: opts.tag ? [opts.tag] : [], src: "csv" });
     }).filter(Boolean);
-    putRaw(txs, function (err) { cb && cb(err || null, { added: err ? 0 : txs.length, skipped: rows.length - txs.length }); });
+    putRaw(txs, function (err) {
+      if (!err) soonSync();
+      cb && cb(err || null, { added: err ? 0 : txs.length, skipped: rows.length - txs.length });
+    });
   }
   function csvCell(v) { v = String(v == null ? "" : v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function exportCSV(from, to, cb) {
@@ -959,6 +971,131 @@
     });
   }
 
+  /* ---------------- replication (phase 5): kos_money ----------------
+     Local first (invariant 31): signed out, or in an Empty/Sample review
+     namespace, nothing is sent. PUSH then PULL (invariant 33): every
+     transaction or tombstone whose stamp (its own updatedAt, or "del")
+     differs from what this device last pushed is upserted; then the rows
+     changed on the server since the cursor are applied — this device's
+     own echo (same stamp) is skipped, and a remote deletion deletes here
+     without a new tombstone, so it is never sent back (invariant 32). No
+     clock is compared between devices: the server's updated_at is only a
+     cursor. The planner's mirrored purchases are never sent. */
+  var cloudApi = null, syncing = false, syncTimer = null, syncStarted = false;
+  var SYNC_PAGE = 200, PUSH_CHUNK = 100;
+  function realCloud() {
+    function c() { return KOS.cloud.client(); }
+    function run(b, cb) {
+      b.then(function (res) { res.error ? cb(new Error(res.error.message || "Money sync failed.")) : cb(null, res.data); })
+        .catch(function (e) { cb(new Error((e && e.message) || "Money sync failed — network?")); });
+    }
+    return {
+      since: function (stamp, offset, cb) {
+        var q = c().from("kos_money").select("sync_id, deleted, stamp, data_json, updated_at");
+        if (stamp) q = q.gt("updated_at", stamp);
+        run(q.order("updated_at", { ascending: true }).range(offset, offset + SYNC_PAGE - 1), cb);
+      },
+      upsert: function (rows, cb) {
+        run(c().from("kos_money").upsert(rows, { onConflict: "user_id,sync_id" }).select("sync_id, updated_at"), cb);
+      }
+    };
+  }
+  function cloud() { return cloudApi || realCloud(); }
+  function canSync() {
+    return !!(KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn() && KOS.mediadb && KOS.mediadb.available() &&
+      available() && !(KOS.dataMode && KOS.dataMode.mode));
+  }
+  function readAll(cb) {
+    txn([TX, DEL], "readonly", function (err, t) {
+      if (err) { cb(err); return; }
+      var a = t.objectStore(TX).getAll(), b = t.objectStore(DEL).getAll();
+      t.oncomplete = function () { cb(null, a.result || [], b.result || []); };
+      t.onerror = function () { cb(t.error); };
+    });
+  }
+  function syncCloud(cb) {
+    if (syncing || !canSync()) { cb && cb(null, { pushed: 0, pulled: 0, skipped: true }); return; }
+    syncing = true;
+    var uid = KOS.cloud.userId(), key = "money.sync." + uid, out = { pushed: 0, pulled: 0, deleted: 0 };
+    function finish(err, meta) {
+      KOS.mediadb.setKV(key, meta, function () { syncing = false; cb && cb(err || null, out); });
+    }
+    KOS.mediadb.getKV(key, function (e0, meta) {
+      meta = meta && typeof meta === "object" ? meta : {};
+      meta.pushed = meta.pushed || {};
+      readAll(function (e1, rows, dels) {
+        if (e1) { syncing = false; cb && cb(e1, out); return; }
+        var up = [];
+        rows.forEach(function (r) {
+          if (r.src === "wishlist") return;
+          var st = String(r.updatedAt || 0);
+          if (meta.pushed[r.syncId] !== st) up.push({ user_id: uid, sync_id: r.syncId, deleted: false, stamp: st, data_json: r });
+        });
+        dels.forEach(function (d) {
+          if (meta.pushed[d.syncId] !== "del") up.push({ user_id: uid, sync_id: d.syncId, deleted: true, stamp: "del", data_json: {} });
+        });
+        var j = 0;
+        (function chunk() {
+          if (j >= up.length) { pull(); return; }
+          var slice = up.slice(j, j + PUSH_CHUNK);
+          j += PUSH_CHUNK;
+          cloud().upsert(slice, function (e2) {
+            if (e2) { finish(e2, meta); return; }
+            slice.forEach(function (r) { meta.pushed[r.sync_id] = r.stamp; });
+            out.pushed += slice.length;
+            chunk();
+          });
+        })();
+      });
+      function pull() {
+        var offset = 0, maxTs = meta.cursor || null;
+        (function page() {
+          cloud().since(meta.cursor || null, offset, function (e3, rows) {
+            if (e3) { finish(e3, meta); return; }
+            rows = rows || [];
+            var puts = [], gone = [];
+            rows.forEach(function (row) {
+              if (!maxTs || row.updated_at > maxTs) maxTs = row.updated_at;
+              if (meta.pushed[row.sync_id] === row.stamp) return;   // our own echo
+              if (row.deleted) { gone.push(row.sync_id); meta.pushed[row.sync_id] = "del"; return; }
+              var t = normaliseTx(row.data_json);
+              if (!t || t.src === "wishlist" || t.syncId !== row.sync_id) return;
+              puts.push(t);
+              meta.pushed[t.syncId] = String(t.updatedAt || 0);
+            });
+            /* a remote deletion leaves no tombstone here (it is not ours to send) */
+            deleteRaw(gone, false, function () {
+              putRaw(puts, function () {
+                out.pulled += puts.length; out.deleted += gone.length;
+                /* a confirmed occurrence that another device deleted goes back to "left" */
+                gone.forEach(function (id) {
+                  var m = /^r:(.+):(\d{4}-\d{2}-\d{2})$/.exec(id), r = m && rule(m[1]);
+                  if (r && r.marks[m[2]] && r.marks[m[2]].tx === id) { delete r.marks[m[2]]; touch(r); }
+                });
+                if (rows.length === SYNC_PAGE) { offset += SYNC_PAGE; page(); return; }
+                meta.cursor = maxTs;
+                finish(null, meta);
+              });
+            });
+          });
+        })();
+      }
+    });
+  }
+  /* a change worth sending soon (a transaction typed, confirmed, imported) */
+  function soonSync() {
+    if (!syncStarted) return;
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () { syncTimer = null; syncCloud(); }, 2000);
+  }
+  /* once after boot, then every 30 minutes (invariant 36c: a safety net) */
+  function start() {
+    if (syncStarted || !available()) return;
+    syncStarted = true;
+    setTimeout(function () { syncCloud(); }, 9000);
+    setInterval(function () { syncCloud(); }, 30 * 60 * 1000);
+  }
+
   /* open (and on first run create) the database at load, so the first
      read or backup does not also pay for the upgrade */
   if (available()) open(function () {});
@@ -971,7 +1108,7 @@
     budgetOf: budgetOf, setBudget: setBudget,
     setMonthStart: function (d) { data().monthStart = int(d, 1, 28, 1); store.save(); return data().monthStart; },
     periodKey: periodKey, periodRange: periodRange, shiftKey: shiftKey,
-    rules: rules, rule: rule, addRule: addRule, updateRule: updateRule, occurrences: occurrences,
+    rules: rules, rule: rule, addRule: addRule, updateRule: updateRule, removeRule: removeRule, occurrences: occurrences,
     amountOn: amountOn, setPrice: setPrice, priceChange: priceChange, occurrenceState: occurrenceState,
     confirm: confirm, skip: skip, unmark: unmark, upcoming: upcoming, perMonth: perMonth,
     subscriptions: subscriptions,
@@ -984,6 +1121,7 @@
     toMinor: toMinor, format: format, isPrivate: isPrivate, setPrivate: setPrivate,
     csv: { parse: parseCSV, guess: guessMapping, parseDate: parseDate, preview: previewCSV, import: importRows, export: exportCSV },
     exportAll: exportAll, importAll: importAll,
+    syncCloud: syncCloud, start: start, _setCloudApi: function (api) { cloudApi = api; },
     PROJECT_MIN_ELAPSED: PROJECT_MIN_ELAPSED, PROJECT_MIN_DAYS: PROJECT_MIN_DAYS
   };
 })();

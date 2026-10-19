@@ -19,7 +19,7 @@
 
   /* the section a kind belongs to, marked like the main rail */
   var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐", assistant: "助", reports: "録" };
-  var KIND_MARK = { wishlist: "円", focus: "集" };
+  var KIND_MARK = { wishlist: "円", focus: "集", goal: "標" };
   var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber", reports: "teal" };
   var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection", assistant: "Assistant", reports: "Reports" };
 

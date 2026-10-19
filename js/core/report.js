@@ -620,6 +620,51 @@
     Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
     return out;
   }
+  /* Money (roadmap 5.4): the period's totals from the transactions gather()
+     read, the three biggest categories, and — a month only, since budgets
+     are monthly — the categories over budget. Category names are the
+     user's own labels; payees and notes are never read here. */
+  function moneyFacts(input, p) {
+    var m = input.money;
+    if (!m || !m.tx || !m.tx.length || !KOS.money) return null;
+    var t = KOS.money.tally(m.tx), out = { currency: m.currency };
+    out.income = t.income; out.outgoings = t.outgoings;
+    out.toPots = t.toPots - t.fromPots;
+    out.count = t.count; out.days = t.days;
+    var cats = Object.keys(t.byCat).filter(function (id) { return t.byCat[id].net > 0; })
+      .sort(function (a, b) { return t.byCat[b].net - t.byCat[a].net || (a < b ? -1 : 1); });
+    out.top = cats.slice(0, 3).map(function (id) { return { cat: id, name: m.names[id] || id, spent: t.byCat[id].net }; });
+    if (p.period === "month") {
+      out.over = cats.filter(function (id) { var b = m.budgets[id]; return b != null && t.byCat[id].net > b; })
+        .map(function (id) { return { cat: id, name: m.names[id] || id, spent: t.byCat[id].net, budget: m.budgets[id] }; });
+    }
+    /* zero-only facts are left out (invariant 77) */
+    Object.keys(out).forEach(function (k) { if (out[k] === 0 || (Array.isArray(out[k]) && !out[k].length)) delete out[k]; });
+    return out.income || out.outgoings || out.toPots ? out : null;
+  }
+  /* Goals: repeating goals' periods judged inside this period, and one-off
+     goals reached or missed in it. Reported, never paid (invariant 5b). */
+  function goalFacts(input, p) {
+    var gs = input.goals;
+    if (!gs || !gs.length) return null;
+    var from = new Date(p.start + "T00:00:00").getTime(), to = new Date(addDays(p.end, 1) + "T00:00:00").getTime();
+    var out = { periodsMet: 0, periodsMissed: 0, reached: [], missed: [] };
+    gs.forEach(function (g) {
+      if (g.repeat) {
+        Object.keys(g.outcomes || {}).forEach(function (k) {
+          var day = k.length === 7 ? k + "-01" : k;
+          if (g.repeat === "month" && p.period === "week") return;
+          if (day < p.start || day > p.end) return;
+          if (g.outcomes[k].met) out.periodsMet++; else out.periodsMissed++;
+        });
+        return;
+      }
+      if (g.completedAt && g.completedAt >= from && g.completedAt < to) out.reached.push({ id: g.id, title: g.title, domain: g.domain });
+      else if (g.status === "failed" && !g.failedManual && g.deadline && g.deadline >= p.start && g.deadline <= p.end) out.missed.push({ id: g.id, title: g.title, domain: g.domain });
+    });
+    Object.keys(out).forEach(function (k) { if (out[k] === 0 || (Array.isArray(out[k]) && !out[k].length)) delete out[k]; });
+    return Object.keys(out).length ? out : null;
+  }
   function kurenai(input, p) {
     var t = input.tally || {}, chats = 0, sched = 0, areas = {};
     Object.keys(t).forEach(function (d) {
@@ -902,6 +947,8 @@
     var pg = programming(input, p); if (pg) f.code = pg;
     f.gov = governor(input, p);
     var ku = kurenai(input, p); if (ku) f.kurenai = ku;
+    var mo = moneyFacts(input, p); if (mo) f.money = mo;
+    var go = goalFacts(input, p); if (go) f.goals = go;
     if (input.prev) f.prev = input.prev;
     if (p.period !== "week") {
       var ma = mastery(input); if (ma) f.mastery = ma;
@@ -978,6 +1025,8 @@
       chats: f.kurenai && f.kurenai.chats ? f.kurenai.chats : 0,
       codeTasks: f.code && f.code.tasks ? f.code.tasks : 0, codeSkills: f.code && f.code.skills ? f.code.skills : 0,
       completed: f.collection && f.collection.status ? (f.collection.status.finished || 0) : 0,
+      moneyOut: f.money && f.money.outgoings ? f.money.outgoings : 0,
+      moneyIn: f.money && f.money.income ? f.money.income : 0,
       dayAvg: f.study.of ? Math.round(f.study.mins / f.study.of) : null };
   }
 
@@ -1034,12 +1083,30 @@
         });
       });
     }
-    snaps(function () {
+    /* Money's transactions in the period, and the goals after a compute
+       (which judges any period that has just ended) */
+    function moneyAndGoals(next) {
+      function goals() {
+        if (!KOS.goals || !KOS.goals.compute) { next(); return; }
+        KOS.goals.compute(function () {
+          input.goals = JSON.parse(JSON.stringify(KOS.goals.all()));
+          next();
+        });
+      }
+      if (!KOS.money || !KOS.money.available()) { goals(); return; }
+      KOS.money.range(p.start, p.end, function (err, tx) {
+        var M = KOS.money, names = {}, budgets = {};
+        M.categories({ archived: true }).forEach(function (c) { names[c.id] = c.name; var b = M.budgetOf(c); if (b != null) budgets[c.id] = b; });
+        input.money = { tx: err ? [] : tx, names: names, budgets: budgets, currency: M.data().currency };
+        goals();
+      });
+    }
+    moneyAndGoals(function () { snaps(function () {
       parts(function () {
         if (!KOS.mediadb || !KOS.mediadb.available()) { input.rows = []; cb(input); return; }
         KOS.mediadb.query({}, function (err, rows) { input.rows = err ? [] : rows; cb(input); });
       });
-    });
+    }); });
   }
   function build(p, opts, cb) {
     gather(p, opts, function (input) { cb(compute(input, p)); });
