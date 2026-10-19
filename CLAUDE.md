@@ -15,7 +15,9 @@ chronological diary here.
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
   platform from design turn 26 and unit 1; on top of the Reports rebuild
   `5bece3e`). `ai-chat` is deployed as version 5; the
-  `kos_reports` migration `20261012000001` is applied.
+  `kos_reports` migration `20261012000001` is applied; so is `kos_money`
+  (`20261019000001`, 19 October 2026, from `feat/money-goals` — unused until
+  that branch is deployed).
 - Latest release: `ff7a8e3` — immutable deployment
   https://6c888d02.kurenai-os.pages.dev (17 October 2026; Code capstone 3,
   a shop with plugins and LINQ reports — stage 3 complete)

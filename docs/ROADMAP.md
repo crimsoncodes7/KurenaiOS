@@ -842,9 +842,9 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 >   only, `payout: "none"`). The Planner's Goals page draws on the engine
 >   and still offers only the Collection's types until 27i–27k.
 > - **Phase 5's joins that need no design** (smoke86): `kos_money`
->   replication (migration `20261019000001_kos_money.sql`, written and NOT
->   yet applied — until it is, a signed-in sync fails soft and Money stays
->   local), the Assistant's `money_*` tools (totals by default, every write
+>   replication (migration `20261019000001_kos_money.sql`, APPLIED to Supabase on
+>   19 October 2026; the table is unused until the app with Money is
+>   deployed), the Assistant's `money_*` tools (totals by default, every write
 >   undoable) and `goals_types` with `goals_add` for every domain and
 >   repeat, `f.money` and `f.goals` in every saved report with totals-only
 >   words, and the `goal` notification kind with its ticker.

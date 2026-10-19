@@ -12,3 +12,4 @@
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 on feat/money-goals (worktree); Money core + Goals engine built (smoke84–85); pages wait on prompt 11 frames 27a–27s; smokes 80–83 reserved for Japanese
 - [Run tests yourself](run-tests-yourself.md) — always run the full gate myself; never tell the user to run tests
+- [Act without asking](act-without-asking.md) — commit/push/tests/migrations automatically; only a production deploy needs a go-ahead
