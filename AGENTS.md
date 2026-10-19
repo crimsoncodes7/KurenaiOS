@@ -141,14 +141,17 @@ Install test-only dependencies once:
 npm install jsdom fake-indexeddb
 ```
 
-All 62 smoke suites are the release gate:
+All 79 smoke suites are the release gate:
 
 ```sh
-for i in "" {2..66}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Also run:
 
+- `node tools/cs_diff.mjs` after any change to Code's content or the C#
+  interpreter (needs the .NET 10 SDK); `tools/build_cs_wasm.sh` then
+  `node tools/cs_wasm_check.mjs` after a change to `tools/cs-wasm`;
 - `node --check <edited.js>` for every changed JavaScript file;
 - `python3 tools/dev_server.py 8765` for local HTTP work (plain `http.server`
   lets Chrome cache stale scripts under the service worker);
@@ -160,6 +163,19 @@ Also run:
 An empty-state screenshot is not a responsive proof. Use dense seeded data, test
 both themes and inspect interaction states that geometry probes cannot see.
 
+## Sessions, accounts and shared memory
+
+The project is worked on from more than one Claude account and machine. Read
+[`docs/HANDOFF.md`](docs/HANDOFF.md) at the start of a session; it covers which
+branch is live, the shared memory in `docs/memory/` (read `docs/memory/MEMORY.md`
+first) and how to hand work over. In short:
+
+- Stage files by name; never `git commit -a` (the tree carries Live2D art and
+  local `.claude/` changes that must never be committed).
+- Anything a later session needs goes in the repo — a doc or `docs/memory/` —
+  never only in a scratchpad, `/tmp` or one account's private memory.
+- Commit, push and deploy only when the user asks.
+
 ## Documentation ownership
 
 - `README.md`: product overview and onboarding.
@@ -168,6 +184,10 @@ both themes and inspect interaction states that geometry probes cannot see.
 - `AGENTS.md`: short execution contract (this file).
 - `docs/ROADMAP.md`: everything deferred or still to build, in order, with
   what goes through Claude Design first.
+- `docs/HANDOFF.md` and `docs/memory/`: working across accounts and machines,
+  and the shared project memory.
+- `docs/code-plan.md`, `docs/reports-plan.md`, `docs/japanese-plan.md`,
+  `docs/design-prompts.md`: the per-feature plans and Claude Design prompts.
 - `docs/ui-rebuild/`: the Graphite rebuild — plan and delivery record
   (`PLAN.md`), view contracts, the review script (`REVIEW-PLAN.md`).
 - `KURENAIOS_FULL_UI_UX_AUDIT.md`, `CATEGORY6_*.md`, `CATEGORY7_PHASE_G_FINDINGS.md`:

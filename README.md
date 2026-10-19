@@ -1,7 +1,7 @@
 # 紅 KurenaiOS
 
 KurenaiOS is a local-first study and personal-organisation workspace for A-level
-Computer Science, Mathematics and IT. It combines the official specification
+Computer Science, Mathematics and IT, plus Code, a C# programming course. It combines the official specification
 spine, deep revision material and interactive labs with spaced repetition,
 planning, focus sessions, progress analytics, a media Collection, cloud sync and
 an optional AI assistant.
@@ -19,16 +19,22 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `406cf55` (13 October 2026: the Reports pages
-  rebuilt to the design — Reports for weeks, months, terms and years, with
-  Kurenai's words, a Wrapped-style story, a share card and a copy in the
-  cloud; the latest report on Home between Study hours and the week's
-  plan) — immutable deployment https://fea75f93.kurenai-os.pages.dev
+- Runtime release commit: `ff7a8e3` (17 October 2026: Code capstone 3, a shop
+  with plugins and LINQ reports, which completes Code's stage 3 on the full
+  C# runtime) — immutable deployment https://6c888d02.kurenai-os.pages.dev.
+  Before it: Reports for weeks, months, terms and years (13 October) and the
+  Code platform and units 1–9 (15–17 October).
 - Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-reports-3`
-- Verification: all **75 smoke suites**, including the rebuild guards
+- Service-worker cache: `kos-code-18`
+- Verification: all **79 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
-  parity).
+  parity) and Code's gates (smoke73–79, plus `tools/cs_diff.mjs`).
+- **Branch:** the live line of work is `claude/roadmap-code-study-space`, not
+  `main` (`main` is 49 commits behind it). Check it out before working. See
+  [docs/HANDOFF.md](docs/HANDOFF.md).
+- In flight, not deployed: the Japanese study space (roadmap 5.5). Its
+  vertical slice in `prototypes/japanese-space/` is closed; the platform
+  release is next, when asked.
 
 Graphite is currently the only theme; phone layouts keep working on the new
 shell but have not been designed yet. What comes next is in
@@ -36,7 +42,8 @@ shell but have not been designed yet. What comes next is in
 
 The concise delivery record is in [PROGRESS.md](PROGRESS.md). Engineering contracts
 live in [CLAUDE.md](CLAUDE.md), with the shorter execution rules in
-[AGENTS.md](AGENTS.md).
+[AGENTS.md](AGENTS.md). Picking the project up on another machine or Claude
+account: [docs/HANDOFF.md](docs/HANDOFF.md).
 
 ## Run locally
 
@@ -76,6 +83,19 @@ fonts.
   number-base, Little Man Computer and C# OOP sandboxes.
 - Topic progress, RAG evidence, assignment tracking, Review (SM-2 due cards and
   card statistics), attachments and cross-subject topic comparison.
+
+### Code
+
+- A fourth study space for learning C#: a staged path (units 1–9 and the
+  Rider "Bridge B" workflow are written; units 10–12 and capstone 4 show
+  "Coming later"), lessons on the shared topic page, tasks proven by a runner
+  and paid once, katas, three capstones and a Daily 20 computed from evidence.
+- Learner code runs only on the device: an in-app interpreter for units 1–6,
+  and an optional offline download of Roslyn and .NET in WebAssembly for
+  units 7+. Work can go to a GitHub repository you create (a fine-grained
+  token you type), and Code appears in Reports and the Assistant.
+- Contracts: invariants 103–110 in [CLAUDE.md](CLAUDE.md), plan in
+  [docs/code-plan.md](docs/code-plan.md).
 
 ### Productivity and Governor
 
@@ -165,8 +185,11 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..75}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done
 ```
+
+Code content also runs against real .NET (`node tools/cs_diff.mjs`, needs the
+.NET 10 SDK).
 
 Responsive or shared-component changes also require a dense responsive audit and
 screenshots. Image, hero, chart or broad visual changes require the specialised

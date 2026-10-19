@@ -994,10 +994,16 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.5 Japanese: a study space for the four skills ◆ (asked for 17 October 2026)
 
-> **Status (17 October 2026): planned.** The plan is
-> [japanese-plan.md](japanese-plan.md) revision 2. Next is the throwaway
-> vertical slice in `prototypes/japanese-space/` (plan §16); nothing in the
-> app changes until it meets its success criteria.
+> **Status (17 October 2026): slice closed; integration next.** The plan is
+> [japanese-plan.md](japanese-plan.md) revision 3.1. The throwaway vertical
+> slice in `prototypes/japanese-space/` (plan §16) met every criterion on
+> real data (commit `03505a9`; voice bake-off `bc75349`): speech is an
+> intelligibility check only (decision D), the handwriting checker caught
+> all 8 performed mistakes, and a real episode's subtitle coverage works.
+> Nothing in the app has changed. Next is the platform release (plan §17:
+> registry, hue, routes, desk, model, scheduler, validators, engine, audio,
+> Stage 0 Kana, smokes 80–83), only when you ask. The slice's results file
+> lives in `~/Downloads` on the machine that ran it and is not committed.
 
 - **What:** a fifth subject (`exam:false`, the 朱 vermilion `--ja` hue),
   built like Code: its own desk, lessons on the shared topic page, a

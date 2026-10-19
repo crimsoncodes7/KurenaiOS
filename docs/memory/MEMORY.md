@@ -1,0 +1,12 @@
+- [Maths notes depth rewrite](maths-notes-depth-rewrite.md) — Pure, Stats and Mechanics all deployed (Mechanics 9eac539); per-section pipeline
+- [Notes layout and diagrams](notes-layout-and-diagrams.md) — short lines/bullets, not paragraphs; annotated inline `{fig}` diagrams wherever a picture helps, including worked examples
+- [Graphite review feedback](graphite-review-feedback.md) — review notes live in the checklist artifact db; deferred work now lives in docs/ROADMAP.md
+- [IT units sitting](it-units-sitting.md) — sitting F201/F204/F206; done F200/F202; never F203/F205
+- [CS Paper 2 depth](cs-paper2-depth.md) — worktree feat/cs-p2-depth; all 88 Paper 2 leaves; released with Paper 1 (87ee60c); per-section pipeline
+- [CS Paper 1 + NEA](cs-paper1-nea.md) — branch feat/cs-p1-nea; NEA companion done (a06b106); Paper 1 + NEA + Paper 2 RELEASED 2026-10-02 (87ee60c, kos-cs-depth-1)
+- [Code study space](code-study-space.md) — stages 1–3 + Bridge B shipped (stage 3 on the full runtime), units 10–12 only when asked; katas, GitHub v1, Code in Reports + Assistant live; phone/Windows/Linux parked in ROADMAP; gates smoke73–79
+- [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
+- [Japanese study space](japanese-study-space.md) — roadmap 5.5, plan rev 3.1; slice closed on real data (03505a9); integration next when asked
+- [Branch and release state](project-branch-and-release-state.md) — live branch is claude/roadmap-code-study-space (main is far behind); last release ff7a8e3; check git first
+- [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
+- [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone

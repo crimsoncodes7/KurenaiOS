@@ -1,0 +1,128 @@
+# Working on KurenaiOS from more than one Claude account or machine
+
+The project is worked on from several places: more than one Claude account
+(a second, Pro account was added on 19 October 2026 for more usage) and possibly
+more than one computer. Each account's Claude has its **own private memory**, so
+the only things both can rely on are **Git** and the **files in the repo**.
+This page is the protocol that keeps them seamless. Nothing in it needs the
+accounts to talk to each other.
+
+## 1. Start of every session (either account)
+
+1. Open the repo and read `CLAUDE.md` (architecture and invariants),
+   `AGENTS.md` (execution contract) and `PROGRESS.md` (what is released).
+2. Check where you are:
+
+   ```sh
+   git status -sb
+   git log --oneline -5
+   git fetch && git log --oneline HEAD..@{u}      # anything new from the other account?
+   ```
+
+3. Check out the live branch. At 19 October 2026 it is
+   **`claude/roadmap-code-study-space`**; every release since Reports is on it
+   and `main` is 49 commits behind. Do not start from `main` unless asked.
+4. Read the shared memory: `docs/memory/MEMORY.md`, then the notes relevant to
+   the task. Then load it into this account's own memory:
+
+   ```sh
+   tools/sync_memory.sh status    # what differs
+   tools/sync_memory.sh pull      # repo -> this account's local memory
+   ```
+
+5. Install test dependencies once: `npm install jsdom fake-indexeddb`.
+
+## 2. Where each kind of knowledge lives
+
+| Knowledge | Home | Notes |
+|---|---|---|
+| Architecture, invariants | `CLAUDE.md` | The numbered invariants are release contracts |
+| Execution rules | `AGENTS.md` | Short; read it first |
+| What is released / in flight | `PROGRESS.md` | One current snapshot, no diary |
+| What is still to build, in order | `docs/ROADMAP.md` | |
+| Per-feature plans | `docs/code-plan.md`, `reports-plan.md`, `japanese-plan.md`, `design-prompts.md` | |
+| Preferences, decisions, gotchas, project state | `docs/memory/` | Mirrors each account's private memory |
+| History | Git | Commit messages and the `docs: baseline at <hash>` commits |
+
+Rule of thumb: if the next session would need it, it goes in one of those
+places. Never leave it only in `/tmp`, a scratchpad, a chat, or one account's
+private memory. (A scratch file in `/private/tmp` was lost once on a usage-limit
+pause.)
+
+## 3. Sharing memory
+
+The shared copy is `docs/memory/`; each account's private copy is
+`~/.claude/projects/<project path with every / and space turned into ->/memory/`.
+`tools/sync_memory.sh` computes that path itself, so a different checkout
+location or home directory still works (override with `CLAUDE_MEMORY_DIR`).
+
+- **Save a memory** (a decision, a correction from the user, a finished piece
+  of work): write it as usual (one fact per file, frontmatter `name`,
+  `description`, `metadata.type` of `user`, `feedback`, `project` or
+  `reference`, a line in `MEMORY.md`), then run `tools/sync_memory.sh push`.
+- **Get the other account's memory**: `git pull`, then
+  `tools/sync_memory.sh pull`. A replaced file is kept beside it as `.bak`.
+- **Both changed the same file**: `status` shows `differs`. Merge by hand, keep
+  the newer facts, and keep `MEMORY.md` to one line per memory. Do not let one
+  side's whole-file copy drop the other's index lines.
+- The script never deletes. Remove a wrong or finished memory from both copies
+  yourself, in the same commit.
+- Commit memory changes with the work they describe, or on their own as
+  `docs(memory): …`. Stage by name.
+- The repository is public. A memory must never hold a token, key, password,
+  provider credential or exported personal data (backups, the Japanese results
+  file). The `STEAM_API_KEY`, `TWITCH_*` and similar secrets live only in the
+  platform secret stores and in the untracked `js/env.local.js`.
+
+Links to things only one account can open (a claude.ai artifact such as the
+Graphite review checklist, a Claude Design project) will not open from the other
+account; ask the user to share them or copy the content into the repo.
+
+## 4. Handing work over
+
+Before stopping (a usage limit, switching account, end of day):
+
+1. Finish or clearly mark the unit of work; do not leave a half-edited generated
+   file. Run `node --check` on what you edited and the smoke suites that cover it.
+2. Update the doc that owns each fact you changed (`PROGRESS.md`, the roadmap
+   status line, the plan), and the matching memory.
+3. Commit with a scoped message and **push the branch**, so the other account
+   sees it. Commit and push only when the user asks; if they have not, say what
+   is uncommitted instead of leaving it silent.
+4. Tell the user, in the final message, what is done, what is half done, and the
+   next step, so they can paste it into the other account's first message.
+
+A good first message to the other account:
+
+> Continue KurenaiOS on branch `claude/roadmap-code-study-space`. Read
+> `docs/HANDOFF.md`, run `tools/sync_memory.sh pull`, and read `PROGRESS.md`.
+> Last session: <what was done>. Next: <what to do>.
+
+## 5. Things both accounts must respect
+
+- **Never `git commit -a` or `git add -A`.** The tree usually carries Live2D art
+  (`art-source/assistant/live2d/`, licence-gated), `.claude/launch.json`,
+  `.claude/settings.local.json` and untracked scratch (`prompt.md`,
+  `media_budget_planner.html`, `prototypes/code-space/`). Stage files by name.
+- A Git push does not deploy. Production is only
+  `tools/deploy_pages.sh --stage` then `tools/deploy_pages.sh`, after the full gate
+  and a `sw.js` `VERSION` bump, and only when the user asks.
+- Merge, push, deploy and force-push are the user's call.
+- Both accounts may have the app's service worker cached in a browser pane:
+  unregister it and reload twice before judging a local edit.
+- `.claude/settings.local.json` is per machine and is not shared. Permissions
+  one account granted do not carry to the other.
+- Two sessions must not edit the same files at once. If both accounts are
+  active, give each its own feature, and its own branch or worktree
+  (`git worktree add ../KurenaiOS-<name> -b feat/<name>`), and merge through the user.
+- Weekly usage limits shape the work: Code content is written a unit at a time
+  and only when asked. Do not start a large content release unprompted.
+
+## 6. Quick reference
+
+```sh
+python3 tools/dev_server.py 8765                          # local server
+for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done   # the gate (79 suites)
+node tools/cs_diff.mjs                                    # Code content vs real .NET
+tools/sync_memory.sh status|pull|push                     # shared memory
+```

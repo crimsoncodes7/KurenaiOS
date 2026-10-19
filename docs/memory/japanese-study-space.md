@@ -1,0 +1,30 @@
+---
+name: japanese-study-space
+description: "Japanese study space (roadmap 5.5) — plan rev 3.1 in docs/japanese-plan.md; vertical slice CLOSED on real data 2026-10-17; integration (platform release) next"
+metadata:
+  node_type: memory
+  type: project
+  originSessionId: f8374df6-dc96-4ee0-a99a-7f4ee584945d
+  modified: 2026-10-17T20:36:01.116Z
+---
+
+Japanese is the planned fifth subject (roadmap 5.5, asked 2026-10-17), built like Code ([[code-study-space]]). Plan: `docs/japanese-plan.md` revision 3.1; Claude Design prompt 12 (frames 28a–28p).
+
+User: absolute zero in Japanese (cannot read kana, had never heard it), ~30–45 min/day. Goal: anime/J-drama/J-pop/manga/LN/VN without English.
+
+Decisions the user made:
+- Art: manual generation in the Gemini app only (NO API spend, NO automation of Gemini). Base poses + expressions as face swaps.
+- Style anchor: Kurenai master art, but Kurenai NOT in lessons; new cast (akari, yota so far).
+- Media: ship only licensed/original assets; the user's own clips stay on-device.
+
+Slice state (branch claude/roadmap-code-study-space, not pushed; last commit bc75349, a voice bake-off of VOICEVOX, ElevenLabs and Gemini TTS after the 03505a9 close): all §16 criteria have evidence. Art all imported (art_import.py; panels trimmed), VN scene (vn.js), manga panels with live vertical balloons + "Fill the bubbles" (manga.js), "Your part" hub (results.html: speech/trace/media + one Download, import from another browser).
+
+Measured on the user's real data (results file in ~/Downloads, not committed):
+- Speech (decision D decided): browser recogniser (Chrome) = intelligibility check (sentences 10/10 ok, 3/10 mistakes passed: っ/long vowel/voicing; words 6/10, 0/10). Whisper base and the acoustic check FAILED on a beginner voice → acoustic is advisory length bar only; っ/long vowels/voicing trained by listening + self-marked shadowing.
+- Handwriting: all 8 performed mistakes caught (7 right reason after the reversed-order fix).
+- Real episode Frieren S1E17: 2.9% known after lesson 1.1; splitter bugs fixed (names, bogus joins, double count).
+
+Gotchas: the app's service worker on localhost:8123 serves prototype files stale — reload twice after edits. Safari cannot cut clips (no captureStream) and Web Speech differs → user tests in Chrome. The user can't read kana: any speaking task needs ▶ Hear + a romaji guide.
+
+**Why:** the user reviews plans first, then a throwaway slice, then integration.
+**How to apply:** next is the plan §17 platform release (registry, hue, routes, desk, model, scheduler, validators, engine, audio, Stage 0 kana, smokes 80–83) — only when the user asks.

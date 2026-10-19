@@ -47,3 +47,6 @@ dist/
 assets/code/runtime/
 tools/cs-wasm/bin/
 tools/cs-wasm/obj/
+
+# memory sync backups (tools/sync_memory.sh)
+docs/memory/*.bak
