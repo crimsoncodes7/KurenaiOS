@@ -1099,15 +1099,16 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.6 FSRS: one scheduler for every card (asked for 20 October 2026)
 
-> **Status (20 October 2026): phase 1 built** on `feat/fsrs`, not yet
-> released. The plan is [fsrs-plan.md](fsrs-plan.md); decisions A–G are
+> **Status (20 October 2026): RELEASED** — `fbea5d5`, sw `kos-fsrs-1`,
+> immutable https://a6e211c9.kurenai-os.pages.dev; `main` fast-forwarded
+> to `feat/fsrs`. Phases 1 and 2 shipped together. The plan is [fsrs-plan.md](fsrs-plan.md); decisions A–G are
 > taken (§9). It includes one FSRS-6 core held to py-fsrs, flashcards and
 > Code on it, the SM-2 switch at boot, the review log, the FSRS figures
 > and the target retention on Card stats, and smoke88 (invariant 111).
 > **Phase 2 is built too:** the exam-aware cap against an exam-day target
 > (default 95%) with the 7–14 day pre-exam spread; leeches go to Rework
 > after 8 lapses; topic memory feeds RAG, the inspector, Due today and Home
-> (invariants 111a, 111b). The release is next. After it comes the Exams &
+> (invariants 111a, 111b). Next comes the Exams &
 > Deadlines hub (test classifications, flexible scopes, study guides and
 > predicted papers, Goals), which will own exam dates.
 

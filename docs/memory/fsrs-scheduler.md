@@ -1,13 +1,13 @@
 ---
 name: fsrs-scheduler
-description: Roadmap 5.6 — flashcards and Code retrieval moved from SM-2 to one FSRS-6 core; phases 1–2 built on feat/fsrs (not released); release next, then the Exams & Deadlines hub
+description: Roadmap 5.6 — flashcards and Code retrieval moved from SM-2 to one FSRS-6 core; phases 1–2 RELEASED 2026-10-20 (fbea5d5, sw kos-fsrs-1); next the Exams & Deadlines hub
 metadata:
   type: project
 ---
 
 On 2026-10-20 the user asked to replace SM-2 with FSRS. They have about 200 reviewed cards and required a seamless migration: no lost history, no starting from scratch. The plan is `docs/fsrs-plan.md` (revision 2; decisions A–G taken, invariant 111).
 
-**Phase 1 is built on `feat/fsrs`** and not yet merged or deployed:
+**Phases 1–2 were released on 2026-10-20** (`fbea5d5`, sw `kos-fsrs-1`, https://a6e211c9.kurenai-os.pages.dev). Phase 1 delivered:
 - `js/core/fsrs.js` (`KOS.fsrs`, FSRS-6), checked by `tools/fsrs_check.mjs` against py-fsrs 6.3.2;
 - `js/core/reviewlog.js` (IndexedDB `kurenai-os-reviews`);
 - `srs.js` and Code's `schedule` on the core;
@@ -21,9 +21,9 @@ The user's decisions:
 
 **Phase 2 is built too:** the exam cap, leeches and Rework (8 lapses), and `topicMemory`. smoke88 now has 18 steps.
 
-The exam cap is built against an EXAM-DAY target (`srsCfg.examRetention`, default 0.95, 0 = off), not the everyday target. Compared with the everyday target the safeguard is always true, so the cap would never fire. The user should be told and may pick the default.
+The exam cap is built against an EXAM-DAY target (`srsCfg.examRetention`, default 0.95, 0 = off), not the everyday target, and the user approved this. Card stats charts use `KOS.charts.fit`, which fills the card: the user objected to a fixed chart height leaving gaps.
 
-Next: the release (deploy only on the user's go). After that comes the Exams & Deadlines hub. The user has additions for it: test classifications, flexible scopes, exhaustive study guides and predicted papers, and Goals integration. Wait for those before planning.
+Next: the Exams & Deadlines hub. The user has additions for it: test classifications, flexible scopes, exhaustive study guides and predicted papers, and Goals integration. Wait for those before planning.
 
 The order the user agreed for later work (roadmap 5.7): server runner + Web Push → GitHub App → Creatives plan → Code content.
 

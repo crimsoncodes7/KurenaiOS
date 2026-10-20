@@ -10,7 +10,7 @@ metadata:
 
 On 2026-10-20, `main` was fast-forwarded to `feat/money-goals` and pushed for the Money and Goals release, so `main` is now the line. `claude/roadmap-code-study-space` is still at `771e967`: it is behind `main` and has nothing of its own.
 
-The production site (https://kurenai-os.pages.dev) is the release `084a628`: Money and Goals, sw `kos-money-1`, immutable https://d8bccd88.kurenai-os.pages.dev. Before it came `ff7a8e3` (Code capstone 3, sw `kos-code-18`). The release was deployed from the worktree `.claude/worktrees/money-goals`, which needed a copy of the gitignored `js/env.local.js` from the main checkout.
+The production site (https://kurenai-os.pages.dev) is the release `fbea5d5`: FSRS, sw `kos-fsrs-1`, immutable https://a6e211c9.kurenai-os.pages.dev. On the same day `main` was fast-forwarded to `feat/fsrs`. Before it came `084a628` (Money and Goals, sw `kos-money-1`). The release was deployed from the worktree `.claude/worktrees/money-goals`, which needed a copy of the gitignored `js/env.local.js` from the main checkout.
 
 The main checkout's LOCAL `main` ref was not moved (it belongs to that checkout). Run `git pull` there before working.
 

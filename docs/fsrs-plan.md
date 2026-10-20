@@ -10,7 +10,8 @@ starting again.
 > (2,993 of 2,993 review steps match py-fsrs 6.3.2; 100 of 100 SM-2
 > conversions hold). Invariant 111. **Phase 2 is built too** (invariants
 > 111a, 111b): the exam-aware cap against an exam-day target, leeches and
-> Rework, and topic memory. smoke88 has 18 steps.
+> Rework, and topic memory. smoke88 has 18 steps. **Released 20 October
+> 2026** (`fbea5d5`, sw `kos-fsrs-1`).
 
 Short answer: **yes.**
 - Build ONE pure FSRS-6 core (`js/core/fsrs.js`, `KOS.fsrs`).
