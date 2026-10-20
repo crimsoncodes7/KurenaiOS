@@ -44,6 +44,7 @@ const LAYERS = {
   "views/code": "css/views/code.css",
   "views/money": "css/views/money.css",
   "views/goals": "css/views/goals.css",
+  "views/exams": "css/views/exams.css",
   themes: "css/themes.css"
 };
 

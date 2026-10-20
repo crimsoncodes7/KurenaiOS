@@ -204,6 +204,11 @@
           subject/ref are derived from refs (roadmap 1.1) */
     },
 
+    /* ---- roadmap 5.8: the Exams & Deadlines hub ----
+       One assessment record per exam, mock, test or deadline, keyed by a
+       random string id (invariant 120); core/exams.js is the gate. */
+    exams: { v: 1, assessments: {}, prefs: {} },
+
     resources: {
       nextId: 1,
       items: []                        // {id, subject, ref|null, name, url}

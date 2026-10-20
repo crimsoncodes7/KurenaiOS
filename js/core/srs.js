@@ -108,33 +108,42 @@
     return { before: before, el: el, next: nx, cap: cap };
   }
 
-  /* ---- the exam-aware cap (phase 2, decision E) ----
-     The next REAL exam that covers a card's topic, for the exam subjects
-     only (KOS.subjects.isExam; Code and the personal deck have none):
-     a calendar exam of kind "Real exam" — linked to topics (a paper or
-     unit pick covers its leaves) or, with no topic links, to its whole
-     subject — and an IT unit still to sit with its date (state.itUnits).
-     Read live, never stored; a mock or a topic test does not cap. */
+  /* ---- the exam-aware cap (phase 2, decision E; by scope, roadmap 5.8) ----
+     The assessments that may hold a card back (invariant 122): a REAL exam,
+     or a mock with its cap on, still ahead, each with its resolved scope
+     (KOS.exams.capList). A card is capped by the earliest whose scope holds
+     its leaf — never by subject alone, so a Pure card is not capped by
+     Paper 3. Exam subjects only (KOS.subjects.isExam; Code and the
+     personal deck have none). A calendar exam not yet moved into the hub
+     (one added since this boot; the boot pass moves it) still counts by its
+     topic links, or its whole subject. Read live, never stored. */
   function examIndex(today) {
     var out = [];
+    if (KOS.exams && KOS.exams.capList) {
+      KOS.exams.capList(today).forEach(function (a) { out.push({ date: a.date, leaves: a.leaves, id: a.id }); });
+    }
     var cal = KOS.calendar;
     if (cal && cal.deadlines) {
       cal.deadlines().forEach(function (d) {
         var ev = d.ev;
-        if (ev.type !== "exam" || cal.examLevel(ev).v !== "exam" || !(d.days >= 1)) return;
+        if (ev.assessmentId || ev.type !== "exam" || cal.examLevel(ev).v !== "exam" || !(d.days >= 1)) return;
         var refs = cal.refsOf ? cal.refsOf(ev) : [];
         if (refs.length) out.push({ date: d.date, leaves: KOS.spec.resolve(refs) });
         else if (ev.subject) out.push({ date: d.date, sid: ev.subject });
       });
     }
-    var units = (store.state.itUnits && store.state.itUnits.units) || {};
-    Object.keys(units).forEach(function (u) {
-      var x = units[u];
-      if (x && x.status === "sitting" && x.date && x.date > today) out.push({ date: x.date, sid: "it", unit: u });
-    });
+    if (!KOS.exams) {
+      var units = (store.state.itUnits && store.state.itUnits.units) || {};
+      Object.keys(units).forEach(function (u) {
+        var x = units[u];
+        if (x && x.status === "sitting" && x.date && x.date > today) out.push({ date: x.date, sid: "it", unit: u });
+      });
+    }
     return out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
   }
   function topicOf(key) {
+    /* a redo item names the leaf its question was tagged with (roadmap 5.8) */
+    if (key.indexOf("x:") === 0) return KOS.tracker && KOS.tracker.redoTopic ? KOS.tracker.redoTopic(key) : null;
     if (key.charAt(0) === "u") {
       var id = +key.slice(1);
       var c = (store.state.custom.cards || []).find(function (x) { return x.id === id; });
@@ -212,22 +221,32 @@
      recall of its rated cards (leeches included — they are part of what
      you know), with the weakest card, the cards set aside and the ones
      held for an exam. recall is null with nothing rated. */
+  /* A redo item is a whole exam question, so it weighs its marks in a
+     topic's recall (roadmap 5.8, refinement 2): ten easy definition cards
+     cannot hide a failed 10-mark question. Every other card weighs 1. */
+  function weightOf(c) { return c && c.redo ? Math.max(1, c.marks || 1) : 1; }
   function topicMemory(sid, ref, today) {
     var t = today || todayISO();
-    var out = { cards: 0, rated: 0, recall: null, weakest: null, leeches: 0, held: 0 };
-    var sum = 0;
+    var out = { cards: 0, rated: 0, recall: null, weakest: null, leeches: 0, held: 0, redo: 0, redoLapsed: 0 };
+    var sum = 0, wsum = 0;
     cardsFor(sid, ref).forEach(function (c) {
       out.cards++;
       var m = peek(c.key);
+      if (c.redo) {
+        out.redo++;
+        /* a redo item last marked Again, or not yet passed, flags the leaf */
+        if (!m || !m.last || m.lastRating === 0) out.redoLapsed++;
+      }
       if (m && m.leech) out.leeches++;
       if (m && m.cap && m.due && m.due < m.cap && m.cap > t) out.held++;
       var mem = memory(c.key, t);
       if (!mem) return;
       out.rated++;
-      sum += mem.r;
+      var w = weightOf(c);
+      sum += mem.r * w; wsum += w;
       if (!out.weakest || mem.r < out.weakest.r) out.weakest = { key: c.key, r: mem.r };
     });
-    if (out.rated) out.recall = sum / out.rated;
+    if (wsum) out.recall = sum / wsum;
     return out;
   }
 
@@ -263,7 +282,7 @@
     if (KOS.reviewLog && KOS.reviewLog.available()) {
       KOS.reviewLog.add({ key: key, ts: Date.now(), day: today, g: rating + 1, el: p.el,
         s0: p.before ? p.before.s : null, d0: p.before ? p.before.d : null,
-        s1: m.s, d1: m.d, ivl: m.ivl, src: "flashcards" });
+        s1: m.s, d1: m.d, ivl: m.ivl, src: key.indexOf("x:") === 0 ? "redo" : "flashcards" });
     }
     return m;
   }
@@ -289,6 +308,29 @@
     });
     if (n) store.save();
     return n;
+  }
+
+  /* ---- redo items (roadmap 5.8, decision G) ----
+     A missed exam question marked "redo" enters the schedule due tomorrow,
+     unrated (its first rating is a first review); unmarked or deleted, its
+     schedule goes with it. core/tracker.js calls these on save. */
+  function seedRedo(key) {
+    var srs = store.state.srs;
+    if (srs[key]) return srs[key];
+    var m = meta(key);
+    m.due = addDays(todayISO(), 1);
+    store.save();
+    return m;
+  }
+  function dropRedo(key) {
+    if (!store.state.srs[key]) return false;
+    delete store.state.srs[key];
+    store.save();
+    return true;
+  }
+  function redoCards(sid, ref) {
+    if (!KOS.tracker || !KOS.tracker.redoCards) return [];
+    return KOS.tracker.redoCards().filter(function (c) { return (!sid || c.sid === sid) && (!ref || c.ref === ref); });
   }
 
   /* ---- unified card enumeration ---- */
@@ -334,7 +376,7 @@
   }
   /* every card for a topic — curriculum first, user cards after */
   function cardsFor(sid, ref) {
-    return curriculumCards(sid, ref).concat(customCards(sid, ref));
+    return curriculumCards(sid, ref).concat(customCards(sid, ref), redoCards(sid, ref));
   }
   /* every card in the OS (all subjects, both origins) */
   function allCards() {
@@ -347,7 +389,7 @@
       var i = k.indexOf(":");
       out = out.concat(curriculumCards(k.slice(0, i), k.slice(i + 1)));
     });
-    return out.concat(customCards(null, null));
+    return out.concat(customCards(null, null), redoCards(null, null));
   }
 
   /* ---- the due queue (FR-1.2): reviewed cards whose due date has arrived
@@ -507,6 +549,10 @@
     leeches: leeches,
     LEECH: LEECH,
     topicMemory: topicMemory,
+    weightOf: weightOf,
+    seedRedo: seedRedo,
+    dropRedo: dropRedo,
+    examIndex: examIndex,
     rate: rate,
     preview: preview,
     cardsFor: cardsFor,

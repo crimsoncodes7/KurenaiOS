@@ -764,7 +764,7 @@
         why: [d.ev.paper, d.ev.subject ? SUBJ_SHORT[d.ev.subject] : null, d.ev.time ? d.date === today ? "at " + d.ev.time : null : null].filter(Boolean).join(" · ") || lv.label,
         subject: d.ev.subject || null, ref: d.ev.ref || null, refs: refsOfEv(d.ev),
         goal: { k: "Goal", v: minsText(Math.min(done, goalMins)) + " of " + minsText(goalMins) + " for this exam today", bar: Math.round(100 * done / goalMins) },
-        go: function () { KOS.show("calendar"); } };
+        go: function () { if (d.ev.assessmentId) KOS.show("exams", d.ev.assessmentId); else KOS.show("calendar"); } };
     }
     var hot = exams.filter(function (d) { return d.days <= lvOf(d.ev).leadDays; })
       .sort(function (a, b2) { return rank(a.ev) - rank(b2.ev) || a.days - b2.days; });

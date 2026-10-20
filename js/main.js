@@ -94,6 +94,11 @@
      the plan), and study state keyed to an IT unit that left the
      specification (F203, F205) is removed so nothing counts it */
   KOS.itUnits.ensureSeeded();
+  /* roadmap 5.8: one assessment record (invariant 120). One-off calendar
+     exams and IT units still to sit move into the Exams hub once (the
+     events are kept, hidden); a past assessment's "Covered in Pacing" rule
+     freezes into a fixed leaf list. Both idempotent. */
+  if (KOS.exams) { KOS.exams.migrate(); KOS.exams.freezePass(); }
   /* roadmap 5.6: the switch from SM-2 to FSRS — every rated flashcard and
      Code retrieval card gets its stability and difficulty, converted from
      its ease and interval (no due date moves). Idempotent, and it converts

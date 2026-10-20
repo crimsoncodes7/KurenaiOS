@@ -396,7 +396,7 @@ step("add exam entry -> stored, session-logged, awarded", () => {
 });
 step("tracker view renders rows, reviewed toggle + update persist", () => {
   KOS.show("tracker");
-  if ($$("[data-ui~='ui.tab']").length !== 2) throw new Error("kind tabs: " + $$("[data-ui~='ui.tab']").length);
+  if ($$("[data-ui~='tracker.kinds'] [data-ui~='ui.tab']").length !== 2) throw new Error("kind tabs: " + $$("[data-ui~='tracker.kinds'] [data-ui~='ui.tab']").length);
   if (!$$("[data-ui~='tracker.row']").length) throw new Error("no rows");
   const e = KOS.store.state.tracker.entries[0];
   KOS.tracker.update(e.id, { reviewed: true, grade: "C" });

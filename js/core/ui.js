@@ -367,7 +367,7 @@
   var SECTION_OF = {
     home: "home",
     subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study",
-    tracker: "study", pacing: "study", personaldeck: "study", assignments: "study",
+    tracker: "study", exams: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
     reminders: "productivity", money: "productivity", goals: "productivity",
@@ -393,7 +393,7 @@
       null,
       { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
       { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
-      { label: "Exams & Papers", view: "tracker" },
+      { label: "Exams & Papers", view: "exams" },
       { label: "Pacing", view: "pacing" }
     ],
     productivity: [
@@ -1346,6 +1346,7 @@
     if (viewId === "code") { activeView = arg && (arg.page === "retrieval" || arg.page === "skills" || arg.page === "map") ? "code" : "subject"; activeArg = activeView === "code" ? arg.page : "code"; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
     if (viewId === "due" || viewId === "cardstats") activeView = "review";
+    if (viewId === "tracker") activeView = "exams";
     if (["aniprofile", "vndbprofile"].indexOf(viewId) !== -1) activeView = "mediasync";
     /* built through the shared tabs primitive (variant "primary") so the
        section strip, the workspace switchers and the Books lens cards are

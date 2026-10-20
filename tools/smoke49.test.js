@@ -856,11 +856,12 @@ step("Home: the week's plan card ticks in place, leads with what is behind, and 
   KOS.store.state.pacing.entries = keepSeed;
   /* the next action — with no session, no due cards and nothing dated within a week */
   const keepEv = KOS.store.state.calendar.events; KOS.store.state.calendar.events = [];
+  const keepEx = KOS.store.state.exams; KOS.store.state.exams = { v: 1, assessments: {}, prefs: {} };
   const keepAsg = KOS.store.state.assignments; KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   const keepEntries = KOS.store.state.pacing.entries;
   KOS.store.state.pacing.entries = keepEntries.filter(e => e.source !== "school" || e.kind === "Lessons");
   const next = KOS.homeNextAction();
-  KOS.store.state.calendar.events = keepEv; KOS.store.state.assignments = keepAsg; KOS.store.state.pacing.entries = keepEntries;
+  KOS.store.state.calendar.events = keepEv; KOS.store.state.exams = keepEx; KOS.store.state.assignments = keepAsg; KOS.store.state.pacing.entries = keepEntries;
   assert(next.kicker === "Behind on the plan" || /Due today|In progress/.test(next.kicker), "the next action ignores the carry-over: " + next.kicker);
   /* the rollover notice: one line for the week, never two */
   if (KOS.notify) {

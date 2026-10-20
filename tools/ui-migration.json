@@ -83,7 +83,9 @@
     "js/modules/codetopic.js",
     "css/views/money.css",
     "css/views/goals.css",
-    "js/modules/money.js"
+    "js/modules/money.js",
+    "css/views/exams.css",
+    "js/modules/exams.js"
   ],
   "views": {
     "home": {},
@@ -116,6 +118,7 @@
     "shrine": {},
     "wishlist": {},
     "goals": {},
+    "exams": {},
     "mediasync": {},
     "aniprofile": {},
     "vndbprofile": {},

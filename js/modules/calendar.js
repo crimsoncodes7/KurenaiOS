@@ -319,6 +319,10 @@
       showInCountdown: showInCountdown,
       /* study-only: a LINK to the canonical assignment, never a copy of it */
       assignmentId: assignmentId,
+      /* an exam moved into the Exams hub (roadmap 5.8, invariant 120): the
+         event is kept, hidden, so a rollback finds it; the calendar draws
+         the assessment instead */
+      migratedTo: pick("migratedTo", null) || null,
       created: b.created || Date.now(),
       updatedAt: Date.now()
     };
@@ -367,7 +371,17 @@
       store.save();
     }
   }
-  function getEvent(id) { return cal().events.find(function (e) { return e.id === id; }) || null; }
+  function getEvent(id) {
+    if (typeof id === "string" && id.indexOf("x:") === 0) return assessmentViews().filter(function (e) { return e.id === id; })[0] || null;
+    return cal().events.find(function (e) { return e.id === id; }) || null;
+  }
+  /* the stored events the calendar draws (an exam moved into the hub is
+     not one of them) and the hub's assessments in an event's shape —
+     derived on every read, never written here (invariants 44, 120) */
+  function assessmentViews() { return KOS.exams && KOS.exams.eventViews ? KOS.exams.eventViews() : []; }
+  function liveEvents() {
+    return cal().events.filter(function (e) { return e && !e.migratedTo; }).concat(assessmentViews());
+  }
 
   /* ---------------- recurrence ----------------
      Occurrences are COMPUTED, never materialised into extra records — a
@@ -426,7 +440,7 @@
      recurring event is ONE record), which is what every caller since
      Build 2a has expected. */
   function eventsOn(dateISO) {
-    return cal().events
+    return liveEvents()
       .filter(function (e) { return occursOn(e, dateISO); })
       .sort(function (a, b) {
         var ta = a.time || "", tb = b.time || "";
@@ -451,7 +465,7 @@
      of their own, and countdowns() is where the two meet. */
   function deadlines(limit) {
     var t = today();
-    var out = cal().events
+    var out = liveEvents()
       .filter(function (e) { return COUNTDOWN_TYPES.indexOf(e.type) !== -1; })
       .map(function (e) {
         var when = nextOccurrence(e, t);
@@ -634,15 +648,18 @@
       if (ev.type === "deadline" && (ev.status === "complete" || ev.status === "submitted")) return;
       var moment = occurrenceMoment(ev, occ.date);
       var days = KOS.srs.daysBetween(t, occ.date);
+      /* an exam moved into the hub keeps the alert identity of the event it
+         was (alertKey), so an alert that already fired never fires again */
+      var aid = ev.alertKey != null ? ev.alertKey : ev.id;
       ev.alerts.forEach(function (m) {
-        var key = t + "|" + ev.id + "|" + occ.date + "|" + m;
+        var key = t + "|" + aid + "|" + occ.date + "|" + m;
         if (c.notified[key]) return;
         var due = m >= 1440
           ? days <= Math.floor(m / 1440)
           : (now >= moment - m * 60000 && now <= moment + 30 * 60000);
         if (!due) return;
         c.notified[key] = true;
-        fired.push({ ev: ev, date: occ.date, days: days, minutes: m });
+        fired.push({ ev: ev, aid: aid, date: occ.date, days: days, minutes: m });
       });
     });
     /* the log is a today-only ledger — yesterday's keys are noise */
@@ -656,7 +673,7 @@
       KOS.ui.toast("⏰ " + f.ev.title + " — " + when, f.days <= 1);
       /* the same fired alert lands in the notification centre, keyed by
          the ticker's own once-only key, so the two never disagree */
-      if (KOS.notify) KOS.notify.push({ id: "cal:" + f.ev.id + ":" + f.date + ":" + f.minutes, kind: "calendar",
+      if (KOS.notify) KOS.notify.push({ id: "cal:" + f.aid + ":" + f.date + ":" + f.minutes, kind: "calendar",
         title: f.ev.title, body: (f.ev.type === "exam" ? "Exam" : f.ev.type === "deadline" ? "Deadline" : "Event") + " · " + when,
         view: "calendar", arg: f.date });
     });
@@ -859,6 +876,8 @@
   }
 
   function eventDetail(ev, dateISO, onChanged) {
+    /* an assessment is the hub's record: it opens there (invariant 120) */
+    if (ev && ev.assessmentId) { KOS.show("exams", ev.assessmentId); return; }
     var overlay;
     var when = dateISO && occursOn(ev, dateISO) ? dateISO : (nextOccurrence(ev, today()) || ev.date);
     var rows = el("dl", { class: "k-cal-kvs" });
@@ -962,6 +981,7 @@
      the event editor — one modal, progressive disclosure, add and edit
      ================================================================ */
   function eventModal(existing, presetDate, onSaved) {
+    if (existing && existing.assessmentId) { KOS.show("exams", existing.assessmentId); return null; }
     var overlay;
     function field(label, input, wide) {
       return el("label", { class: "k-field" + (wide ? " k-cal-span" : ""), "data-ui": "cal.field ui.field" }, [
@@ -1268,7 +1288,19 @@
         if (errBox.scrollIntoView) errBox.scrollIntoView({ block: "nearest" });
         return;
       }
-      var rec = existing ? updateEvent(existing.id, collect()) : addEvent(collect());
+      var patch = collect(), rec;
+      /* a NEW one-off exam is an assessment (roadmap 5.8, invariant 120):
+         it goes to the Exams hub, which the calendar draws */
+      if (!existing && patch.type === "exam" && patch.recur === "none" && KOS.exams) {
+        var a = KOS.exams.add(KOS.exams.fromEvent(normalise(patch)));
+        rec = a ? getEvent("x:" + a.id) : null;
+        KOS.ui.toast("Added to Exams & Deadlines.");
+        overlay.close();
+        onSaved && onSaved();
+        then && then(rec);
+        return;
+      }
+      rec = existing ? updateEvent(existing.id, patch) : addEvent(patch);
       KOS.ui.toast(existing ? "Event updated." : "Event added.");
       overlay.close();
       onSaved && onSaved();

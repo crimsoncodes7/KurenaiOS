@@ -60,6 +60,10 @@ async function seedAccount(app) {
   });
 
   S.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
+  /* the Exams hub (roadmap 5.8): the boot moved the first-run sample exam
+     into it; this account's exams are its calendar events (moved at the
+     next boot), so the hub starts empty */
+  S.exams = { v: 1, assessments: {}, prefs: {} };
   for (let i = 0; i < 24; i++) {
     const d = today + (Math.floor(rnd() * 40) - 15) * DAY;
     /* every record goes through its domain's schema gate (invariant 41 and

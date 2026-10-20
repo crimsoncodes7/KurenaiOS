@@ -40,6 +40,7 @@ function at(hh, mm) { const d = new app.window.Date(today() + "T00:00:00"); d.se
 function blank() {
   KOS.store.state.sessions = [];
   KOS.store.state.calendar.events = [];
+  KOS.store.state.exams = { v: 1, assessments: {}, prefs: {} };   // exams live in the hub now (roadmap 5.8)
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   KOS.store.state.pacing.entries = KOS.store.state.pacing.entries.filter(e => e.source !== "school" || e.kind === "Lessons");
 }
@@ -161,6 +162,7 @@ step("D · with nothing within a week: the next exam with a 2-hour goal; never a
   eq([p.kind, p.label], ["exam", "Revise for Retrieval quiz"], "the next exam");
   assert(/of 2h for this exam today/.test(p.goal.v), "2-hour goal: " + p.goal.v);
   KOS.store.state.calendar.events = [];
+  KOS.store.state.exams = { v: 1, assessments: {}, prefs: {} };   // exams live in the hub now (roadmap 5.8)
   const wb = KOS.pacing.weekFor(today()).wb;
   const ms = KOS.pacing.addEntry({ source: "school", subject: "it", wb, kind: "NEA Milestone", title: "Live NEA", detail: "Coursework." });
   p = plan(10, 0);

@@ -92,8 +92,9 @@
      (roadmap 1.1). A link added on one device and another removed on the
      other both survive; the whole list is never one side's leaf. These are
      spec keys, not record ids, so they need no entry in RECORDS[].refs —
-     re-keying a record never rewrites them. */
-  var SET_FIELDS = { refs: true };
+     re-keying a record never rewrites them. An assessment's scope picks
+     (`include`, `exclude`, roadmap 5.8) are the same kind of link. */
+  var SET_FIELDS = { refs: true, include: true, exclude: true };
   /* ORDERED lists merge whole: a changed list on both sides is one leaf
      (the enclosing record's rule decides, else local), never element-wise —
      merging an ordering position by position can double one item and lose

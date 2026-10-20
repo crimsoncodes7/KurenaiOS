@@ -76,6 +76,12 @@
       if (a.tab && a.tab !== "week") return [a.tab];
       return a.wb ? [a.wb] : null;
     },
+    /* the Exams hub (roadmap 5.8): a tab (`#/exams/past`) or one
+       assessment (`#/exams/<id>`, `#/exams/<id>/practice`) */
+    exams: function (a) {
+      if (a && typeof a === "object" && a.id) return [a.id].concat(a.tab && a.tab !== "overview" ? [a.tab] : []);
+      return typeof a === "string" && a && a !== "timetable" ? [a] : null;
+    },
     /* Money's views (`#/money/transactions`; Overview is bare) */
     money: function (a) { return typeof a === "string" && a && a !== "overview" ? [a] : null; },
     /* Goals: a tab (`#/goals/week`) or one goal (`#/goals/12`) */
@@ -97,6 +103,7 @@
     code: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
     money: function (p) { return p[0] || null; },
+    exams: function (p) { return !p[0] ? null : p[1] ? { id: p[0], tab: p[1] } : p[0]; },
     goals: function (p) { return !p[0] ? null : /^\d+$/.test(p[0]) ? { id: Number(p[0]) } : p[0]; },
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
     help: function (p) { return p[1] ? { section: p[0], entry: p[1] } : p[0] || null; },

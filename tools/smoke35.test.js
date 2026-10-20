@@ -66,6 +66,9 @@ function reset() {
   /* the weekly plan's class milestones are the countdown rail's third read
      (pacing tick release); this suite is about the calendar's own stores */
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
+  /* exams moved into the Exams hub (roadmap 5.8) are drawn by the calendar
+     as derived events; this suite is about the calendar's own store */
+  KOS.store.state.exams = { v: 1, assessments: {}, prefs: {} };
 }
 function closeModals() { $$("[data-ui~='ui.dialog-overlay']").forEach(n => n.remove()); }
 function labelled(text) {

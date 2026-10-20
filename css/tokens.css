@@ -943,6 +943,11 @@ color-scheme: dark;
 --gl-chart-h: 220px;
 --gl-hist-h: 150px;
 --gl-bar-max: 110px;
+/* Exams & Deadlines (roadmap 5.8; drawn before design turn 29 lands) */
+--ex-side-w: 340px;          /* the hub's and an assessment's side column */
+--ex-date-w: 58px;           /* a timetable row's date tile */
+--ex-q-w: 64px;              /* the per-question table's narrow columns */
+--ex-dialog-w: 860px;
 --gl-detail-side: 320px;
 
 /* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */

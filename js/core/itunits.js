@@ -127,12 +127,16 @@
     if (!r.units || typeof r.units !== "object") r.units = {};
     return r;
   }
-  function setUnit(code, patch) {
+  function setUnit(code, patch, opts) {
     if (!table().units[code]) return null;
     var r = branch();
     var next = normaliseUnit(code, patch || {}, r.units[code] || {});
     r.units[code] = next;
     store.save();
+    /* a unit still to sit, with a date, IS an assessment (roadmap 5.8,
+       invariant 120): the hub's record follows the desk's date — unless the
+       hub itself made this write */
+    if (!(opts && opts.fromExam) && KOS.exams) KOS.exams.syncItUnit(code);
     /* a sitting date is an exam date for the flashcard cap (FSRS phase 2) */
     if (next.status === "sitting" && next.date && KOS.srs && KOS.srs.examPass) KOS.srs.examPass();
     return get(code);

@@ -44,7 +44,8 @@
   /* ---------------- the log dialog (Graphite frame 9e) ----------------
      The kind is a switch in the dialog's own head; the percentage and what
      it will do to the topic's RAG band are previewed as the marks go in. */
-  function editorModal(kind, existing, onSaved) {
+  function editorModal(kind, existing, onSaved, seed) {
+    seed = seed || {};
     var overlay = el("div", { class: "k-dialog-overlay" });
     function close() { overlay.remove(); }
     overlay.close = close;
@@ -63,7 +64,138 @@
     var badly = area("Areas that didn't go well…", "Didn't go well");
     var notes = area("Mistakes / notes for next time…", "Mistakes / notes");
     var reviewed = el("input", { type: "checkbox", class: "k-box" });
-    var subjSel = el("select", { class: "k-input", onchange: function () { subjTouched = true; preview(); } }, [
+
+    /* ---- the attempt (roadmap 5.8, decision B): every field optional ---- */
+    var X = KOS.exams;
+    var aidTouched = !!(existing && existing.assessmentId) || !!seed.assessmentId;
+    var aidSel = el("select", { class: "k-input", "data-ui": "tracker.assessment", onchange: function () { aidTouched = true; } }, [el("option", { value: "", text: "Nothing in particular" })]);
+    (X ? X.all().filter(function (a) { return !a.archived; }) : []).forEach(function (a) {
+      aidSel.appendChild(el("option", { value: a.id, text: a.title + (a.date ? " · " + shortDate(a.date) : "") }));
+    });
+    aidSel.value = (existing && existing.assessmentId) || seed.assessmentId || "";
+    var isResult = el("input", { type: "checkbox", class: "k-box", "data-ui": "tracker.result" });
+    isResult.checked = !!(existing && existing.role === "result");
+    var timed = el("input", { type: "checkbox", class: "k-box", "data-ui": "tracker.timed" });
+    var tmins = input("number", { min: 1, max: 600, placeholder: "minutes", "aria-label": "Minutes taken" });
+    var cond = el("select", { class: "k-input", "aria-label": "Conditions" }, [["exam", "Exam conditions"], ["open-book", "Open book"], ["untimed", "Untimed"]].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    var predicted = input("number", { min: 0, placeholder: "before marking", "aria-label": "What you think you got" });
+    var source = existing && existing.source ? Object.assign({}, existing.source) : null;
+    var qs = existing && existing.questions ? existing.questions.map(function (q) { return Object.assign({}, q, { tags: q.tags.slice(), refs: q.refs.slice() }); }) : [];
+    if (existing) {
+      timed.checked = !!existing.timed;
+      if (existing.mins) tmins.value = String(existing.mins);
+      if (existing.conditions) cond.value = existing.conditions;
+      if (existing.predicted != null) predicted.value = String(existing.predicted);
+    }
+    /* the nearest assessment whose scope covers the paper, until one is
+       chosen by hand */
+    function guessAssessment(refs) {
+      if (aidTouched || !X || !refs.length) return;
+      var leaves = KOS.spec.resolve(refs);
+      var hit = X.upcoming().filter(function (a) { var ls = X.leaves(a); return leaves.some(function (k) { return ls.indexOf(k) !== -1; }); })[0];
+      if (hit) aidSel.value = hit.id;
+    }
+
+    /* per question: got / max, error tags, redo (never required to sum) */
+    var qHost = el("div", { class: "k-trk-qs", "data-ui": "tracker.questions" });
+    var qNote = el("p", { class: "k-trk-qnote", "data-ui": "tracker.qnote", hidden: "" });
+    function qSum() {
+      var got = 0, mx = 0, any = false;
+      qs.forEach(function (q) { if (q.got != null) { got += q.got; any = true; } if (q.max != null) mx += q.max; });
+      return { got: got, max: mx, any: any };
+    }
+    function syncQNote() {
+      var sm = qSum(), typed = marks.value === "" ? null : parseInt(marks.value, 10);
+      if (sm.any && typed != null && typed !== sm.got) { qNote.hidden = false; qNote.textContent = "Questions add to " + sm.got + "; the total says " + typed + ". The total wins."; }
+      else if (sm.any && typed == null) { qNote.hidden = false; qNote.textContent = "The total will be " + sm.got + (sm.max ? " / " + sm.max : "") + " from the questions."; }
+      else qNote.hidden = true;
+    }
+    function drawQs() {
+      qHost.innerHTML = "";
+      if (qs.length) qHost.appendChild(el("div", { class: "k-trk-qrow k-trk-qhead", "aria-hidden": "true" }, ["Q", "Got", "Out of", "What went wrong", "Redo", ""].map(function (h) { return el("span", { text: h }); })));
+      qs.forEach(function (q, i) {
+        var lab = input("text", { value: q.q, "aria-label": "Question " + (i + 1) + " label", oninput: function () { q.q = lab.value.trim(); } });
+        var got = input("number", { min: 0, value: q.got == null ? "" : q.got, "aria-label": "Marks got, question " + q.q,
+          oninput: function () { q.got = got.value === "" ? null : Math.max(0, parseInt(got.value, 10)); syncQNote(); } });
+        var mx = input("number", { min: 0, value: q.max == null ? "" : q.max, "aria-label": "Marks available, question " + q.q,
+          oninput: function () { q.max = mx.value === "" ? null : Math.max(0, parseInt(mx.value, 10)); syncQNote(); } });
+        var tags = el("details", { class: "k-trk-tags", "data-ui": "tracker.tags" }, [
+          el("summary", { text: q.tags.length ? q.tags.map(KOS.tracker.tagLabel).join(", ") : "Tag…" }),
+          el("div", { class: "k-trk-tagmenu" }, KOS.tracker.TAGS.map(function (tg) {
+            var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
+              q.tags = cb.checked ? q.tags.concat(tg.v) : q.tags.filter(function (x) { return x !== tg.v; });
+              tags.firstChild.textContent = q.tags.length ? q.tags.map(KOS.tracker.tagLabel).join(", ") : "Tag…";
+            } });
+            cb.checked = q.tags.indexOf(tg.v) !== -1;
+            return el("label", { class: "k-check" }, [cb, el("span", { text: tg.label })]);
+          }))
+        ]);
+        var redo = el("input", { type: "checkbox", class: "k-box", "aria-label": "Redo question " + q.q, onchange: function () { q.redo = redo.checked; } });
+        redo.checked = !!q.redo;
+        qHost.appendChild(el("div", { class: "k-trk-qrow", "data-ui": "tracker.qrow" }, [lab, got, mx, tags, redo,
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove question " + q.q, text: "✕", onclick: function () { qs.splice(i, 1); drawQs(); syncQNote(); } })]));
+      });
+      qHost.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "tracker.add-q", text: "+ Question", onclick: function () {
+        qs.push({ q: String(qs.length + 1), max: null, got: null, refs: [], tags: [], redo: false, note: "" }); drawQs();
+      } }));
+    }
+
+    /* pick from the index (phase 2): a past paper fills its title, marks
+       and question list; a topic pack its topics */
+    var IX = window.KOS_EXAMS && KOS_EXAMS.index;
+    var ixPaper = el("select", { class: "k-input", "data-ui": "tracker.ix-paper", "aria-label": "Past paper" });
+    var ixSit = el("select", { class: "k-input", "data-ui": "tracker.ix-sitting", "aria-label": "Sitting" });
+    var ixPack = el("select", { class: "k-input", "data-ui": "tracker.ix-pack", "aria-label": "Topic pack" });
+    function fillIndex() {
+      if (!IX) return;
+      var sid = subjSel.value;
+      ixPaper.innerHTML = ""; ixPack.innerHTML = "";
+      ixPaper.appendChild(el("option", { value: "", text: "Past paper…" }));
+      Object.keys(IX.papers).filter(function (k) { return !sid || IX.papers[k].subject === sid; }).forEach(function (k) {
+        ixPaper.appendChild(el("option", { value: k, text: IX.papers[k].title }));
+      });
+      ixPack.appendChild(el("option", { value: "", text: "Topic pack…" }));
+      IX.packs.filter(function (pk) { return !sid || pk.subject === sid; }).forEach(function (pk) {
+        ixPack.appendChild(el("option", { value: pk.id, text: pk.sub + " · " + pk.level + (pk.units ? " · " + pk.units + " q" : "") }));
+      });
+      fillSittings();
+    }
+    function fillSittings() {
+      ixSit.innerHTML = "";
+      ixSit.appendChild(el("option", { value: "", text: "Sitting…" }));
+      var pp = IX && IX.papers[ixPaper.value];
+      (pp ? pp.sittings : []).slice().reverse().forEach(function (st) { ixSit.appendChild(el("option", { value: st, text: KOS.examIndex ? KOS.examIndex.sittingLabel(st) : st })); });
+    }
+    ixPaper.addEventListener("change", fillSittings);
+    ixSit.addEventListener("change", function () {
+      if (!IX || !ixPaper.value || !ixSit.value || !KOS.examIndex) return;
+      var fill = KOS.examIndex.paperFill(ixPaper.value, ixSit.value);
+      if (!fill) return;
+      paper.value = fill.title;
+      if (!subjSel.value) subjSel.value = fill.subject;
+      max.value = String(fill.max);
+      qs = fill.questions;
+      source = { kind: "past-paper", ref: fill.ref };
+      refPick.set(fill.refs);
+      if (kind !== "paper") { /* a past paper is practice unless said otherwise */ }
+      drawQs(); syncQNote(); preview();
+      guessAssessment(fill.refs);
+    });
+    ixPack.addEventListener("change", function () {
+      if (!IX || !ixPack.value || !KOS.examIndex) return;
+      var fill = KOS.examIndex.packFill(ixPack.value);
+      if (!fill) return;
+      topic.value = fill.title;
+      if (!subjSel.value) subjSel.value = fill.subject;
+      refPick.set(fill.refs);
+      source = { kind: fill.source === "pmt" ? "pmt-pack" : "topic-pack", ref: fill.ref };
+      preview();
+      guessAssessment(fill.refs);
+    });
+    var more = el("details", { class: "k-trk-more", "data-ui": "tracker.more", open: existing && ((existing.questions || []).length || existing.assessmentId || existing.timed) ? "" : null }, [
+      el("summary", { text: "More detail — per question, timing, which exam it's for" })
+    ]);
+    var subjSel = el("select", { class: "k-input", onchange: function () { subjTouched = true; preview(); if (typeof fillIndex === "function") fillIndex(); } }, [
       el("option", { value: "", text: "No subject" }),
       el("option", { value: "compsci", text: SUBJ.compsci }),
       el("option", { value: "maths", text: SUBJ.maths }),
@@ -77,6 +209,7 @@
       onChange: function (refs) {
         if (!subjTouched && refs.length) subjSel.value = KOS.spec.subjectsOf(refs)[0] || subjSel.value;
         preview();
+        if (typeof guessAssessment === "function") guessAssessment(refs);
       } });
     refPick.el.classList.add("k-trk-half");
     if (existing) {
@@ -106,7 +239,23 @@
       pv.lastChild.textContent = "Logged results count as study evidence" + (first ? " and push " + first.ref + " towards " + band + "." : ".");
     }
     [marks, max].forEach(function (i) { i.addEventListener("input", preview); });
+    marks.addEventListener("input", syncQNote);
     preview();
+    if (!existing && seed.assessmentId && X) {
+      var sa = X.get(seed.assessmentId);
+      if (sa && sa.subject) subjSel.value = sa.subject;
+    }
+    fillIndex();
+    drawQs();
+    syncQNote();
+    more.appendChild(el("div", { class: "k-trk-moregrid" }, [
+      f("Preparing for", aidSel, "k-trk-half"),
+      el("label", { class: "k-check k-trk-half" }, [isResult, el("span", { text: "This is the real result of that assessment" })]),
+      IX ? el("div", { class: "k-trk-ix k-trk-full", "data-ui": "tracker.index" }, [el("span", { class: "k-field-label", text: "From your past-paper index" }), ixPaper, ixSit, ixPack]) : null,
+      el("label", { class: "k-check" }, [timed, el("span", { text: "Timed" })]), f("Minutes taken", tmins), f("Conditions", cond),
+      f("What you think you got", predicted),
+      el("div", { class: "k-trk-full" }, [el("span", { class: "k-field-label", text: "Per question (optional — tags never have to add up)" }), qHost, qNote])
+    ].filter(Boolean)));
 
     var kindTabs = KOS.ui.tabs([["exam", "Exam"], ["paper", "Practice paper"]].map(function (k) {
       return { label: k[1], active: k[0] === kind, onSelect: function (ev) {
@@ -129,6 +278,7 @@
         f("Topic", topic, "k-trk-half"), refPick.el,
         f("Marks awarded", marks), f("Marks available", max), f("Grade", grade), f("Date completed", date),
         pv,
+        more,
         el("div", { class: "k-trk-reflect" }, [
           f("Went well", well, "k-trk-well"), f("Didn't go well", badly, "k-trk-badly"), f("Mistakes / notes", notes, "k-trk-notes")
         ])
@@ -149,7 +299,14 @@
             max: max.value === "" ? null : Math.max(1, parseInt(max.value, 10)),
             grade: grade.value.trim(), date: date.value || KOS.srs.todayISO(),
             well: well.value.trim(), badly: badly.value.trim(), notes: notes.value.trim(),
-            reviewed: reviewed.checked
+            reviewed: reviewed.checked,
+            assessmentId: aidSel.value || null,
+            role: isResult.checked && aidSel.value ? "result" : "practice",
+            source: source,
+            timed: timed.checked, mins: tmins.value === "" ? null : parseInt(tmins.value, 10),
+            conditions: timed.checked ? cond.value : null,
+            predicted: predicted.value === "" ? null : parseInt(predicted.value, 10),
+            questions: qs.filter(function (q) { return q.q; })
           };
           if (existing) { update(existing.id, data); KOS.ui.toast("Entry updated."); }
           else { add(data); KOS.ui.toast("Logged — it counts as study evidence and feeds the RAG flags."); }
@@ -160,6 +317,9 @@
     KOS.ui.openDialog(overlay);
     paper.focus();
   }
+
+  /* the log dialog from anywhere: the Exams hub opens it for an assessment */
+  KOS.trackerLog = function (seed, onSaved) { editorModal((seed && seed.kind) || "paper", null, onSaved, seed || {}); };
 
   /* ---------------- the view (Graphite frame 9d) ----------------
      The kind switch with the filters on one row, four centred figures and
@@ -174,7 +334,7 @@
 
     main.appendChild(KOS.ui.pageHeader({ kicker: "The record", title: "Exams & Papers",
       sub: "Every paper you've sat: marks, what went well, and whether you've reviewed it.",
-      actions: [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "+ Log entry",
+      actions: [KOS.examTabs ? KOS.examTabs("practice") : null, el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "+ Log entry",
         onclick: function () { editorModal(kind, null, render); } })] }));
 
     var kinds = KOS.ui.tabs(Object.keys(KINDS).map(function (k) {

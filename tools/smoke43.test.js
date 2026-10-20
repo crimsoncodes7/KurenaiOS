@@ -625,6 +625,7 @@ step("the decision surface picks the most perishable thing first", () => {
      already owns the work rather than doing anything itself */
   KOS.store.state.srs = {};
   KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
+  KOS.store.state.exams = { v: 1, assessments: {}, prefs: {} };   // the hub's assessments are calendar reads too (roadmap 5.8)
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   /* the weekly plan feeds the ladder too (class milestones, carry-over) — emptied here */
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
@@ -659,6 +660,7 @@ step("a running session outranks everything", () => {
 step("an empty day still draws the Today card, alone, with no Upcoming box beside it", () => {
   KOS.store.state.srs = {};
   KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
+  KOS.store.state.exams = { v: 1, assessments: {}, prefs: {} };   // the hub's assessments are calendar reads too (roadmap 5.8)
   KOS.store.state.reminders = { v: 2, nextId: 1, migrated: true, items: [], lists: [], rewardLog: {} };
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];

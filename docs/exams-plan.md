@@ -1,4 +1,4 @@
-# Exams & Deadlines Hub (plan, revision 1)
+# Exams & Deadlines Hub (plan, revision 2)
 
 Asked for on 20 October 2026, after FSRS shipped (`fbea5d5`). Roadmap 5.8.
 This grows Study → **Exams & Papers** into the place where assessments,
@@ -12,6 +12,19 @@ evidence from practice, and optional linked goals.
 
 The design prompt is [design-prompts.md §13](design-prompts.md) (frames
 29a–29x).
+
+**Revision 2 (20 October 2026).** Decisions A–N approved, with five
+refinements folded in (marked **R1–R5** below). Section 16's suggestions 1,
+2, 4, 6, 7, 8, 9 and 10 are in the plan; 3 and 5 stay light and optional.
+**Phases 1 and 2 are built** (§19); the design frames come next.
+
+| | Refinement | Where |
+|---|---|---|
+| R1 | "Covered in Pacing so far" is a live rule while the assessment is ahead and **freezes** into a leaf list once its date passes or its result is logged | §6.3 |
+| R2 | A redo item **weighs its marks** in a leaf's recall (and R_exam), and a lapsed redo item flags the leaf | §3.3, §7 |
+| R3 | `js/data/exam-index.js` is **committed**; the generator fails with a clear message when the folder is not on the machine | §4.1 |
+| R4 | CS Paper 1's **Sections B–D** (write a program, the Skeleton Program) are part of the blueprint and the Companion, not only 4.1–4.4 | §6.2, §13.2 |
+| R5 | The Phase 6+ paper order is **flexible**: the nearest mock or sitting goes first | §13.2 |
 
 ---
 
@@ -134,7 +147,8 @@ The design prompt is [design-prompts.md §13](design-prompts.md) (frames
   marked low-evidence.
 - **The PDFs are copyrighted** and are never bundled or deployed. The app
   stores references (paper, session, question, marks, topic) and original
-  material only (decision C).
+  material only (decision C). See §4.5 for how your own copies can still be
+  opened inside the app, on your device.
 
 **Your reference documents** set the floor, not the ceiling:
 - `AS_Pure_Maths_Revision.docx`: exam essentials, booklet vs memorise,
@@ -160,7 +174,7 @@ every paper).
 |---|---|---|
 | A | The canonical exam record | **A new `state.exams.assessments`.** Calendar exam events migrate once; the Calendar reads assessments as derived chips. One record, many readers (invariant 27). |
 | B | Where attempts live | **The existing tracker record, widened** (`assessmentId`, `source`, `timed`, `mins`, `questions[]`, `tags`). Past results keep working; RAG, the ledger and Reports keep reading it. |
-| C | Copyright | **No past-paper text or images in the app or the deploy.** Store references and metadata. Every question the app shows is original and **modelled on** an archetype, as the banks already are. Examiner's reports are paraphrased, never quoted at length. |
+| C | Copyright | **No past-paper text or images in the app's code or the deploy** (the deploy is a public URL). Your own copies can be opened in the app from your device (§4.5). Store references and metadata. Every question the app shows is original and **modelled on** an archetype, as the banks already are. Examiner's reports are paraphrased, never quoted at length. |
 | D | Evidence data | **Generated, never hand-edited** (invariant 24 style): `tools/gen_exam_index.py` reads `Question Index.xlsx` and a hand-checked mapping (`tools/exam-index/map.csv`, board sub-topic → spec leaves) and writes `js/data/exam-index.js`. |
 | E | Readiness as one number | **No blended score.** Show the four signals, plus a band (Ready · On track · At risk · Not enough evidence) with its rule stated. A blend hides which lever to pull. |
 | F | The planner | **Read-only allocation; one approved action** writes personal Pacing rows for this week (tagged `exam`), never Calendar blocks (as you specified). |
@@ -258,6 +272,16 @@ tracker.entries[i] = {
     decks include it.
 - **`srs.js` gains the source** (`allCards` lists redo items beside custom
   cards). The schedule record is the same shape, and the exam cap applies.
+- **As built:** the key is `x:<uid>:<q>`, where `uid` is a random string
+  every attempt now carries (tracker ids are per-device counters the merge
+  may re-key, invariant 33a). A redo item pays nothing: a review batch of
+  only redo items logs no session, and a mixed batch counts only the
+  flashcards.
+- **R2: a redo item weighs its marks.** In `KOS.srs.topicMemory` (and
+  R_exam in phase 3) a redo item's recall counts `max(1, marks)` times, so
+  ten easy definition cards cannot hide a failed 10-mark question. A redo
+  item last marked Again, or not yet passed, flags its leaf
+  (`redoLapsed`).
 
 ### 3.4 Migration (once, at boot, idempotent)
 
@@ -310,6 +334,17 @@ KOS_EXAMS.index = {
   you can open them yourself, and never links into the deploy.
 - **Rebuilt when your folder changes.** A new series is new rows; the
   likelihood figures move with it.
+- **R3: committed and portable.** `js/data/exam-index.js` is in the repo,
+  so a machine without the folder runs the app unchanged; the generator
+  says so and exits 2 without touching the file (`--root` or `KOS_ALEVEL`
+  point it elsewhere; `--check` compares).
+- **As built (phase 2):** 9 papers, 1,448 questions (each question once,
+  with every leaf its sub-topics map to), 890 packs (510 rows of ours
+  folded into QP+MS packs, plus PMT's question packs by file name, linked
+  at the unit), and the Year 2 lists. Every real sitting reconciles to its
+  paper's marks; two specimens are short and listed in smoke90. CS Paper
+  1's index covers Section A only (25–37 marks a sitting); the rest is
+  Sections B–D.
 
 ### 4.2 Archetypes
 
@@ -327,6 +362,13 @@ KOS_EXAMS.index = {
   measured statement rather than a guess.
 
 ### 4.3 Grade boundaries (`js/data/boundaries.js`)
+
+As built: AQA 7517 June 2023 and 2024 from AQA's own documents (subject out
+of 375 and the notional component boundaries; confirmed), AQA 7516 Paper 2
+June 2024, and Edexcel 9MA0 June 2023–2025 from three secondary tables that
+agree (unconfirmed until checked against Pearson's document). AQA's June
+2025 file was not reachable; add it when it is.
+
 
 - Per board, qualification and series: raw marks for each grade, with
   `confirmed`.
@@ -346,6 +388,24 @@ KOS_EXAMS.index = {
   are authored from those notes, each citing its series and question.
 - If a report cannot be fetched, the item says "from the mark scheme"
   instead. It never invents an examiner comment.
+- **As built:** `tools/fetch_reports.py` (AQA's file pattern for each
+  year, plus any Pearson URLs listed in `tools/exam-index/report-urls.txt`)
+  saves into your folder, idempotently. The notes format is
+  `tools/exam-index/reports/README.md`. The notes are written once the
+  reports are fetched.
+
+### 4.5 Your own copies, opened in the app
+
+The papers can't go in the code or the deploy: `kurenai-os.pages.dev` is a
+public URL, so anything in the deploy is published to everyone, which is
+redistribution (sites such as PMT and Maths Genie host them under their own
+arrangements with the boards). On your own device it is a different matter:
+a phase 3 "Paper library" lets you add your PDFs (or connect the folder,
+where the browser allows it) into the existing on-device attachments store
+(`kurenai-os-files`), matched to the index by file name. The hub then opens
+the real paper and mark scheme beside a logged attempt or a Redo item. They
+never sync unless you upload them yourself (invariant 36), and they are
+never in a backup you share.
 
 ---
 
@@ -375,7 +435,11 @@ It recomputes on read and moves nothing stored.
 
 ### 6.1 Shape
 
-`scope = { presets, prefixes, include, exclude, pacingCovered }`, resolved by
+As built: `scope = { include, exclude, pacing }`. A preset is a board paper
+(`a.preset`) whose `include` refs (`compsci:Paper 1`, `maths:Pure`) are
+written into the scope when it is picked; a unit pick is an `include` ref
+too, so `presets` and `prefixes` folded into `include`. `pacing` is
+`null | { upTo, frozen, frozenAt, seen }`. Resolved by
 `KOS.exams.leaves(a)` as:
 
 ```
@@ -393,7 +457,7 @@ These are `KOS.spec.papers` nodes plus board metadata:
 
 | Preset | Leaves | Marks · time |
 |---|---|---|
-| AQA 7517 Paper 1 | 4.1–4.4 (+ the year's pre-release skeleton note) | 100 · 2 h 30 |
+| AQA 7517 Paper 1 | 4.1–4.4 and 4.13 (Section A), plus Sections B–D on the Skeleton Program (R4) | 100 · 2 h 30 |
 | AQA 7517 Paper 2 | 4.5–4.13 | 100 · 2 h 30 |
 | Edexcel 9MA0 Paper 1 / Paper 2 (Pure) | P1–P10 | 100 · 2 h each |
 | Edexcel 9MA0 Paper 3 (Stats + Mechanics) | S1–S5, M6–M9 | 100 · 2 h |
@@ -407,8 +471,13 @@ and checked into the preset table, never typed per exam.
 
 - **One click:** every spec leaf the plan covers (class or personal) in
   weeks ending on or before a date, by default the assessment date.
-- **It is stored as a rule** (`pacingCovered.upTo`), so the scope grows
-  as the plan moves. A frozen copy is one more click ("Freeze this list").
+- **It is stored as a rule** (`pacing.upTo`), so the scope grows as the
+  plan moves **while the assessment is ahead**.
+- **R1: it freezes by itself.** Once the date has passed, or a `role:
+  "result"` attempt is logged, the rule becomes a fixed leaf list
+  (`pacing.frozen`, with `frozenAt`), at boot (`KOS.exams.freezePass`) or
+  on the result. A past mock's scope never moves when Pacing is edited
+  later.
 - **The builder's preview** shows "+3 leaves since you made this test"
   when the rule has grown.
 
@@ -824,9 +893,18 @@ For each leaf in the paper:
 - at least 6 practice questions with mark schemes;
 - every index instance linked.
 
-**Release order:** one paper per release, whole:
+**Release order:** one paper per release, whole. **R5: the order is
+flexible** — whichever mock or sitting is chronologically closest goes
+first (the December mocks or OCR F201 can jump the queue). The default is
 CS Paper 2 → CS Paper 1 → Maths Paper 1 → Maths Paper 2 → Maths Paper 3 →
-OCR F201. That follows your timetable; we confirm when the dates are in.
+OCR F201.
+
+**R4: CS Paper 1's programming sections.** The Paper 1 Companion and
+blueprint cover Sections B–D alongside 4.1–4.4: archetypes for "write a
+program" (B), questions about the Skeleton Program (C: trace, explain,
+identify) and modifications to it (D), drawn from that year's Preliminary
+Material once it is released. The index cannot measure them (it covers
+Section A), so their marks are the paper's 100 minus Section A's.
 
 ### 13.3 The playbook drawer (per board)
 
@@ -953,6 +1031,9 @@ migrated.
 
 ## 16. More suggestions
 
+**Revision 2:** 1, 2, 4, 6, 7, 8, 9 and 10 are in the plan, built in the
+phases named in §19; 3 and 5 stay light and optional.
+
 1. **Timetable import:** paste the board's provisional timetable text (or
    an ICS) and pick your papers; dates are marked provisional until
    confirmed.
@@ -1048,11 +1129,11 @@ The old `#/tracker` route aliases to the hub's Practice tab.
 | Phase | What | Gate |
 |---|---|---|
 | 0 | **Design** (prompt 13, frames 29a–29x) while the evidence pipeline is built | — |
-| 1 | **Core:** `state.exams`, tiers, Scope Builder (presets, Pacing rule, tree, exclusions), migration from Calendar and IT, Calendar derived chips, the cap by scope, timetable and assessment pages, widened log dialog (index pick, per-question, tags, timed, predicted), redo items, start-by dates | smoke89 (model, migration, scope, cap, attempts, redo, render purity) |
-| 2 | **Evidence:** `gen_exam_index.py` + `map.csv`, archetype first pass and review, boundaries table, examiner's reports fetch and notes | smoke90 (every question mapped and tagged, marks reconcile per paper, boundaries well-formed) |
-| 3 | **Readiness and decisions:** four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins | smoke91 |
+| 1 ✓ | **Core** (built 20 October 2026): `state.exams`, tiers, Scope Builder (presets, Pacing rule, tree, exclusions), migration from Calendar and IT, Calendar derived chips, the cap by scope, timetable and assessment pages, widened log dialog (index pick, per-question, tags, timed, predicted), redo items, start-by dates | smoke89 (model, migration, scope, cap, attempts, redo, render purity) |
+| 2 ✓ | **Evidence** (built; the examiner's report notes wait for the fetch, and archetypes move to phase 5 with the Companion that uses them): `gen_exam_index.py` + `map.csv`, archetype first pass and review, boundaries table, examiner's reports fetch and notes | smoke90 (every question mapped and tagged, marks reconcile per paper, boundaries well-formed) |
+| 3 | **Readiness and decisions:** four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins, the post-mortem (§8.2), the Paper library (§4.5), timetable import (#1), clash and load view (#2), teacher feedback capture (#6), "what changed since the mock" (#8), results day (#9) | smoke91 |
 | 4 | **Goals:** `examId` links, five types, checklist rules, templates | smoke92 |
-| 5 | **Companion, assembled tier and playbooks:** topic and retrieval guides, cram deck, rapid drill, drawer for all three boards, trend and likelihood pages, paper engine (blueprint, print, interactive, tally) | smoke93 |
+| 5 | **Companion, assembled tier and playbooks:** archetype catalogue and tagging (§4.2), topic and retrieval guides, cram deck, rapid drill, drawer for all three boards, answer habits (#4), trend and likelihood pages, paper engine (blueprint, print, interactive, tally), revision pack export (#7), large print and extra time (#10) | smoke93 |
 | 6+ | **Exhaustive companion, one paper per release:** CS P2, CS P1, Maths P1, P2, P3, F201; each with its predicted papers and subtopic packs | a content smoke per paper (smoke94+), `cs_diff`, the maths checks |
 
 **Deploy** after each phase on your go-ahead; the pre-deploy checklist
@@ -1077,6 +1158,6 @@ applies.
 
 ## Next step
 
-Your review of decisions A–N. Then design prompt 13 goes to Claude Design
-while phase 1 (core) and phase 2 (evidence) are built, neither needing the
-frames for their data layer.
+Phases 1 and 2 are built. Next: run `tools/fetch_reports.py` and write the
+report notes; when design turn 29 lands, restyle the hub's pages to it and
+start phase 3.

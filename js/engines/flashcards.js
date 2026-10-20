@@ -198,6 +198,7 @@
       var b = "";
       if (opts.showTopic) b += '<span class="k-chip" data-ui="fc.topic">' + KOS.hub.esc(c.sid + " · " + c.ref) + "</span>";
       if (c.custom) b += '<span class="k-chip" data-ui="fc.custom" data-tone="bloom">' + (c.ai ? "AI · Custom" : "Custom") + "</span>";
+      if (c.redo) b += '<span class="k-chip" data-ui="fc.redo">Redo · self-marked</span>';
       b += '<span class="k-chip" data-tone="muted" data-ui="fc.due">' + KOS.hub.esc(dueLabel(KOS.srs.peek(c.key))) + "</span>";
       return b;
     }
@@ -287,12 +288,16 @@
       meter.querySelectorAll("[data-ui~='fc.pip']").forEach(function (p) { KOS.ui.state(p, "cur", false); KOS.ui.state(p, "done", true); });
       lifeStats.textContent = "This session: " + counts.again + " again · " + counts.hard + " hard · " + counts.good + " good · " + counts.easy + " easy";
       paintDeck();
-      /* FR-3.2 — one session log entry per completed review batch */
-      KOS.sessions.log({
+      /* FR-3.2 — one session log entry per completed review batch. A redo
+         item (a missed exam question, roadmap 5.8) is self-marked and pays
+         nothing (invariant 129): it is not counted, and a batch of redo
+         items alone logs no session. */
+      var redoN = cards.filter(function (c) { return c.redo; }).length;
+      if (total - redoN > 0) KOS.sessions.log({
         type: opts.type || "flashcards",
         subject: opts.sid || null, ref: opts.ref || null,
-        metrics: { cards: total, again: counts.again, hard: counts.hard,
-                   good: counts.good, easy: counts.easy, pct: pct }
+        metrics: { cards: total - redoN, again: counts.again, hard: counts.hard,
+                   good: counts.good, easy: counts.easy, pct: pct, redo: redoN || undefined }
       });
       if (opts.onFinish) opts.onFinish();
     }
