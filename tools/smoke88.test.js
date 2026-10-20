@@ -32,6 +32,25 @@
          draw from unconverted cards without writing state (the boot pass
          is the only writer), and the ease figures are gone.
 
+   Phase 2:
+
+     J · THE EXAM CAP, PURE. A review that would land on or after an exam
+         is left alone when the card's recall on the exam day already meets
+         the exam-day target (S = 90 d, exam in 30 d); otherwise it lands
+         in the 7–14 days before, spread by the hash; under a week out, any
+         day before it; never longer than it was; off when the target is 0.
+     K · WHICH EXAMS COUNT. A calendar exam of kind Real exam (linked to
+         topics, or to its whole subject) and an IT unit still to sit; never
+         a mock, never Code. Saving an exam brings forward the cards already
+         scheduled past it (examPass), once; a rating's preview carries the
+         cap; the exam-day target is synced and may be off.
+     L · LEECHES. The 8th lapse sets a card aside: out of the due queue, in
+         Rework; back in the schedule, it waits 4 more lapses.
+     M · TOPIC MEMORY is a read: recall today over the rated cards, the
+         weakest, Rework and held counts; RAG and the Due page read it.
+     N · THE REWORK CARD draws on Due today without writing, and "Back in
+         the schedule" returns the card.
+
    Run:
      npm install jsdom fake-indexeddb   (one-time)
      node tools/smoke88.test.js                                            */
@@ -226,6 +245,127 @@ step("I · Card stats, Due today and a deck draw unconverted cards without writi
   assert(!/Average ease|Ease distribution|Avg ease/.test(page), "the ease figures are gone");
   assert(/Recall today/.test(page) && /Target retention/.test(page) && /Difficulty/.test(page), "the FSRS figures are drawn");
   assert(app.document.querySelector('[data-ui~="review.retention"]'), "the retention picker is on Card stats");
+  eq(app.errors, [], "window errors");
+});
+
+/* ---------------- J ---------------- */
+step("J · the exam cap: the safeguard, the window, the spread", () => {
+  const F = K.fsrs;
+  // S = 90 days, exam in 30: recall on the day is high — no cap
+  const r90 = F.retrievability(30, 90);
+  assert(r90 >= 0.95, "S 90 at 30 days recalls " + r90);
+  eq(F.examCap(90, 90, 30, 0.95, "a|x"), { ivl: 90, capped: false }, "left uncapped");
+  // S = 40, exam in 30: recall on the day under 95% — into the window
+  assert(F.retrievability(30, 40) < 0.95, "S 40 at 30 days is under 95%");
+  const days = new Set();
+  for (let i = 0; i < 60; i++) {
+    const c = F.examCap(40, 40, 30, 0.95, "card" + i + "|2026-11-18");
+    assert(c.capped && c.ivl >= 16 && c.ivl <= 23, "inside the 7–14 days before: " + c.ivl);
+    days.add(c.ivl);
+  }
+  assert(days.size >= 5, "spread across the window, not piled on one day: " + [...days]);
+  eq(F.examCap(40, 40, 30, 0.95, "card7|2026-11-18"), F.examCap(40, 40, 30, 0.95, "card7|2026-11-18"), "deterministic");
+  // under a week out: any day before it
+  for (let i = 0; i < 30; i++) { const c = F.examCap(12, 5, 5, 0.95, "near" + i); assert(c.capped && c.ivl >= 1 && c.ivl <= 4, "before a near exam: " + c.ivl); }
+  eq(F.examCap(10, 5, 1, 0.95, "x").capped, false, "an exam tomorrow leaves nothing to move");
+  eq(F.examCap(20, 5, 30, 0.95, "x").capped, false, "a review before the exam is not moved");
+  eq(F.examCap(40, 40, 30, 0, "x").capped, false, "off");
+  eq(F.examCap(40, 40, 30, 0.9, "x").capped, false, "at the everyday target it never fires: the interval already ends at it");
+});
+
+/* ---------------- K ---------------- */
+step("K · real exams cap their topics; mocks, Code and topics outside never do", () => {
+  const S = K.srs;
+  K.store.state.calendar.events = [];
+  const subj = K.calendar.addEvent({ type: "exam", title: "Paper 1", date: day(30), subject: "compsci", examLevel: "exam" });
+  K.calendar.addEvent({ type: "exam", title: "Paper 2 mock", date: day(8), subject: "maths", examLevel: "mock" });
+  K.itUnits.setUnit("F201", { status: "sitting", date: day(20) });
+  eq(S.examFor("compsci:4.2.3.1:0", TODAY), day(30), "a subject-wide real exam covers the topic");
+  eq(S.examFor("maths:2.3:0", TODAY), null, "a mock does not cap");
+  eq(S.examFor("it:F201.1.1:0", TODAY), day(20), "an IT unit still to sit is an exam");
+  eq(S.examFor("it:F204.1.1:0", TODAY), null, "another unit is not");
+  eq(S.examFor("code:1.1:0", TODAY), null, "Code has no exams");
+  const leafExam = K.calendar.addEvent({ type: "exam", title: "Topic paper", date: day(12), refs: ["compsci:4.2.3.1"], examLevel: "exam" });
+  eq(S.examFor("compsci:4.2.3.1:0", TODAY), day(12), "the earliest real exam covering the leaf");
+  eq(S.examFor("compsci:4.2.4.1:0", TODAY), day(30), "a topic the leaf exam does not cover keeps the subject's");
+  K.calendar.deleteEvent(leafExam.id);
+  assert(subj, "exam saved");
+});
+
+step("K · saving an exam brings forward the cards scheduled past it, once", () => {
+  const srs = K.store.state.srs;
+  srs["compsci:4.2.3.1:5"] = { s: 40, d: 5, fl: day(-1), last: day(-1), ivl: 40, due: day(39), views: 3, reps: 2, lapses: 0, lastRating: 2, ef: 2.5 };
+  srs["compsci:4.2.3.1:6"] = { s: 300, d: 4, fl: day(-1), last: day(-1), ivl: 300, due: day(299), views: 9, reps: 8, lapses: 0, lastRating: 2, ef: 2.8 };
+  K.srs.setExamTarget(0.95);          // also runs the pass
+  const moved = srs["compsci:4.2.3.1:5"];
+  assert(moved.due >= day(16) && moved.due <= day(23), "into the window before Paper 1: " + moved.due);
+  eq(moved.cap, day(30), "marked with its exam");
+  eq(srs["compsci:4.2.3.1:6"].due, day(299), "a card still remembered on the day is left alone");
+  eq(K.srs.examPass(), 0, "a second pass moves nothing");
+  K.srs.setExamTarget(0);
+  eq(K.srs.examTarget(), 0, "off");
+  eq(K.store.state.srsCfg.examRetention, 0, "kept in the synced state document");
+  K.srs.setExamTarget(0.95);
+});
+
+step("K · a rating's preview carries the cap", () => {
+  const key = "compsci:4.2.3.1:7";
+  K.store.state.srs[key] = { s: 8, d: 9, fl: day(-8), last: day(-8), ivl: 8, due: TODAY, views: 4, reps: 3, lapses: 1, lastRating: 2, ef: 2.0 };
+  const near = K.calendar.addEvent({ type: "exam", title: "Paper 1 (early)", date: day(12), subject: "compsci", examLevel: "exam" });
+  const pv = K.srs.preview(key, 2);
+  assert(pv >= 1 && pv < 12, "Good lands before the exam: " + pv);
+  const m = K.srs.rate(key, 2);
+  eq([m.ivl, m.cap], [pv, day(12)], "the rating schedules what the button said, held for the exam");
+  K.calendar.deleteEvent(near.id);
+});
+
+/* ---------------- L ---------------- */
+step("L · the 8th lapse sets a card aside; back in the schedule it waits 4 more", () => {
+  const key = "compsci:4.2.3.1:4";
+  K.store.state.srs[key] = { s: 1, d: 9, fl: day(-1), last: day(-1), ivl: 1, due: TODAY, views: 14, reps: 0, lapses: 7, lastRating: 0, ef: 1.3 };
+  assert(K.srs.dueCards().some((c) => c.key === key), "due before");
+  const m = K.srs.rate(key, 0);
+  eq([m.lapses, m.leech], [8, TODAY], "set aside on the 8th lapse");
+  assert(!K.srs.dueCards().some((c) => c.key === key), "out of the due queue");
+  assert(K.srs.leeches().some((c) => c.key === key), "in Rework");
+  assert(K.srs.unleech(key), "returned");
+  assert(K.srs.dueCards().some((c) => c.key === key), "due again");
+  for (let i = 0; i < 3; i++) K.srs.rate(key, 0);
+  eq(K.srs.peek(key).leech, null, "11 lapses: still in the schedule");
+  K.srs.rate(key, 0);
+  eq(K.srs.peek(key).leech, TODAY, "12 lapses: set aside again");
+});
+
+/* ---------------- M ---------------- */
+step("M · topic memory is a read over the topic's rated cards", () => {
+  const before = JSON.stringify(K.store.state);
+  const tm = K.srs.topicMemory("compsci", "4.2.3.1", TODAY);
+  eq(JSON.stringify(K.store.state), before, "reading wrote nothing");
+  assert(tm.rated >= 5 && tm.cards >= tm.rated, "counts: " + JSON.stringify(tm));
+  assert(tm.recall > 0 && tm.recall <= 1, "recall today: " + tm.recall);
+  assert(tm.weakest && K.srs.memory(tm.weakest.key, TODAY).r === tm.weakest.r, "the weakest card");
+  eq(tm.leeches, 1, "one in Rework");
+  assert(tm.held >= 1, "held for an exam: " + tm.held);
+  const empty = K.srs.topicMemory("maths", "9.9.9", TODAY);
+  eq([empty.rated, empty.recall], [0, null], "nothing rated, no claim");
+});
+
+/* ---------------- N ---------------- */
+step("N · the Rework card draws without writing, and puts a card back", async () => {
+  const before = JSON.stringify(K.store.state.srs);
+  K.show("review", { tab: "due" });
+  await app.settle();
+  eq(JSON.stringify(K.store.state.srs), before, "Due today wrote nothing while drawing");
+  const rw = app.document.querySelector('[data-ui~="review.rework"]');
+  assert(rw && rw.querySelector('[data-ui~="review.leech"]'), "the Rework card lists the leech");
+  assert(app.document.querySelector('[data-ui~="review.topic-recall"]'), "topics show their recall");
+  rw.querySelector('[data-ui~="review.leech-back"]').click();
+  await app.settle();
+  eq(K.srs.leeches().length, 0, "back in the schedule");
+  assert(!app.document.querySelector('[data-ui~="review.rework"]'), "the card is gone when Rework is empty");
+  K.show("cardstats");
+  await app.settle();
+  assert(app.document.querySelector('[data-ui~="review.exam-target"]'), "the exam-day target on Card stats");
   eq(app.errors, [], "window errors");
 });
 

@@ -32,17 +32,16 @@
 
     /* the schedule's signals from this topic's cards (FSRS, roadmap 5.6):
        lapses, how much of the deck you would recall today, overdue cards */
-    var lapses = 0, views = 0, rSum = 0, rN = 0, tracked = 0, overdue = 0;
+    var lapses = 0, views = 0, tracked = 0, overdue = 0;
     var today = KOS.srs.todayISO();
     KOS.srs.cardsFor(sid, ref).forEach(function (c) {
       var m = KOS.srs.peek(c.key);
       if (!m || !m.views) return;
       tracked++;
       lapses += m.lapses; views += m.views;
-      var mem = KOS.srs.memory(c.key, today);
-      if (mem) { rSum += mem.r; rN++; }
       if (m.due && m.due < today) overdue++;
     });
+    var tm = KOS.srs.topicMemory(sid, ref, today);
     if (tracked) {
       hasData = true;
       var lapseRate = lapses / Math.max(1, views);
@@ -50,7 +49,7 @@
         score -= Math.min(35, Math.round(lapseRate * 80));
         reasons.push(lapses + (lapses === 1 ? " lapse" : " lapses") + " in " + views + " reviews");
       }
-      var avgR = rN ? rSum / rN : 1;
+      var avgR = tm.recall == null ? 1 : tm.recall;
       if (avgR < 0.85) {
         score -= Math.min(20, Math.round((0.85 - avgR) * 100));
         reasons.push("recall today ≈ " + Math.round(avgR * 100) + "%");

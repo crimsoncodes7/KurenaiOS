@@ -25,7 +25,7 @@
     ]],
     ["Study & review", [
       ["Review", "The Study review workspace keeps the global Due Today queue and Card Stats together. Clear the cards that are ready, then switch to the ledger to understand review volume, scheduling health and lapses."],
-      ["Due Today", "The global review queue: every card whose review date has arrived, across all subjects, most-overdue first. Cards join the schedule the first time you rate them. Clearing this daily is the single highest-value habit."],
+      ["Due Today", "The global review queue: every card whose review date has arrived, across all subjects, most-overdue first. Cards join the schedule the first time you rate them. Clearing this daily is the single highest-value habit. A card that lapses 8 times leaves the queue for Rework (beside the queue), which offers its topic's notes and a way back into the schedule. Before a real exam (a calendar exam of kind Real exam, or an IT unit you are sitting), a card whose predicted recall on the day would be under your target is brought forward into the week or two before it, spread out so they do not pile up; one that will still be remembered is left alone."],
       ["Card Stats", "The flashcard analytics dashboard: reviews per day, due forecast, difficulty and recall-today distributions, rating mix, your target retention, and a per-topic breakdown sorted by lapses."],
       ["Exams & Papers", "Log every exam, assessment and practice paper: marks, grade, what went well, what didn't, mistakes, and a reviewed checkbox. Topic-linked results feed the RAG flags."],
       ["Recommended next", "The flagged-topics panel on the home and subject dashboards — your manual R/A/G plus the computed one, worst first. That's the app telling you what to study next."],

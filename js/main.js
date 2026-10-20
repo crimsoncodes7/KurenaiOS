@@ -99,6 +99,9 @@
      its ease and interval (no due date moves). Idempotent, and it converts
      again any card an older copy of the app rated since. */
   KOS.srs.migrate();
+  /* phase 2: a card scheduled past its next real exam, with its recall on
+     the day under the target, comes forward into the week or two before */
+  KOS.srs.examPass();
   if (KOS.code && KOS.code.migrateCards) KOS.code.migrateCards();
   /* Code: a lesson only looked at is no longer "Started" (once per device) */
   if (KOS.code && KOS.code.repairStarted) KOS.code.repairStarted();

@@ -54,6 +54,9 @@ step("Again -> lapse: reps reset, due today, difficulty stays within 1..10", () 
   for (let i = 0; i < 20; i++) KOS.srs.rate("compsci:4.2.3.1:0", 0);
   const d = KOS.srs.peek("compsci:4.2.3.1:0").d;
   if (!(d >= 1 && d <= 10)) throw new Error("difficulty out of range: " + d);
+  // 21 lapses: set aside as a leech on the 8th (FSRS phase 2), then put back
+  if (!KOS.srs.peek("compsci:4.2.3.1:0").leech) throw new Error("not set aside after 21 lapses");
+  KOS.srs.unleech("compsci:4.2.3.1:0");
 });
 step("the preview on each button is what the rating schedules", () => {
   KOS.store.state.srs["maths:2.3:1"] = { ef: 2.5, ivl: 6, reps: 2, due: today, last: KOS.srs.addDays(today, -6), views: 2, lapses: 0, lastRating: 2 };

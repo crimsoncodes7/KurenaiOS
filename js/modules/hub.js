@@ -165,6 +165,8 @@
     t.sessions = sess.length;
     t.minutes = Math.round(sess.reduce(function (a, e) { return a + (e.dur || 0); }, 0) / 60);
     t.examLogged = sess.filter(function (e) { return e.type === "exam"; }).length;
+    /* topic memory (FSRS phase 2): recall today, Rework, held for an exam */
+    t.memory = KOS.srs.topicMemory(sid, ref, today);
     return t;
   }
 
@@ -1029,8 +1031,18 @@
         var oldest = dueCards.length ? dueCards[0].overdue : 0;
         upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label",
           text: dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s") : "Nothing due to review" }));
+        /* topic memory: the due topic you would recall least today */
+        var weakest = null, seenTopic = {};
+        dueCards.forEach(function (c) {
+          var tk = c.sid + ":" + c.ref;
+          if (seenTopic[tk] || !KOS.hub.BYREF[c.sid]) return;
+          seenTopic[tk] = true;
+          var tm = KOS.srs.topicMemory(c.sid, c.ref);
+          if (tm.recall != null && tm.rated >= 3 && (!weakest || tm.recall < weakest.r)) weakest = { r: tm.recall, ref: c.ref, sid: c.sid };
+        });
+        var weakTxt = weakest && weakest.r < 0.85 ? " · " + weakest.ref + " " + ((KOS.hub.BYREF[weakest.sid][weakest.ref] || {}).title || "") + " is down to " + Math.round(100 * weakest.r) + "% recall" : "";
         upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why",
-          text: dueN ? "About " + Math.max(1, Math.round(dueN * 0.5)) + " minute" + (dueN > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today")
+          text: dueN ? "About " + Math.max(1, Math.round(dueN * 0.5)) + " minute" + (dueN > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today") + weakTxt
             : "The queue is clear — nothing is scheduled for today." }));
         var bySid = {};
         dueCards.forEach(function (c) { var sid = String(c.key).split(":")[0]; (bySid[sid] = bySid[sid] || []).push(c); });
@@ -2791,16 +2803,19 @@
       count("Card views", t.seen),
       li("Recall accuracy", t.accuracy == null ? "" : pctText(t.accuracy), t.accuracy == null),
       count("Lapses", t.lapses),
+      li("Recall today", t.memory.recall == null ? "" : "≈ " + pctText(Math.round(100 * t.memory.recall)), t.memory.recall == null),
+      t.memory.leeches ? count("In Rework", t.memory.leeches) : null,
       li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
       count("Quiz attempts", qz ? qz.attempts || 0 : 0),
       count("Exam questions logged", t.examLogged)
-    ]));
+    ].filter(Boolean)));
     var nextTxt = t.due ? t.due + " due now" : t.next ? t.next : t.reviewed ? "all scheduled" : "";
     if (!cx) body.appendChild(sec("Next review", [
       li("Review queue", nextTxt, !nextTxt),
       li("Cards scheduled", ratioText(t.reviewed, t.cards), !t.cards),
+      t.memory.held ? count("Held for an exam", t.memory.held) : null,
       li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
-    ]));
+    ].filter(Boolean)));
     /* frame 23a: the quick note — always open, no Save. What is typed is
        a draft for this device (KOS.edits.setDraft); leaving the topic files
        it as one dated block at the end of the Spec tab (invariant 89) */

@@ -324,6 +324,12 @@
     };
   }
 
+  /* a real exam saved: cards scheduled past it come forward into the
+     week or two before it (KOS.srs.examPass, FSRS phase 2) */
+  function examSaved(ev) {
+    if (ev && ev.type === "exam" && KOS.srs && KOS.srs.examPass) KOS.srs.examPass();
+  }
+
   /* ---------------- CRUD ---------------- */
   function addEvent(ev) {
     var c = cal();
@@ -335,6 +341,7 @@
     rec.id = c.nextId++;
     c.events.push(rec);
     store.save();
+    examSaved(rec);
     return rec;
   }
   function updateEvent(id, patch) {
@@ -345,6 +352,7 @@
     next.id = c.events[i].id;
     c.events[i] = next;
     store.save();
+    examSaved(next);
     return next;
   }
   function deleteEvent(id) {

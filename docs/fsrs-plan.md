@@ -1,4 +1,4 @@
-# FSRS — one scheduler for every card (plan, revision 2)
+# FSRS — one scheduler for every card (plan, revision 3)
 
 Asked for on 20 October 2026: should flashcards move from SM-2 to FSRS, and
 what about the other spaced-repetition parts of the app? About 200 cards are
@@ -8,7 +8,9 @@ starting again.
 > **Status (20 October 2026):** decisions A–G are taken (§9). Phase 1 is
 > built on `feat/fsrs` and held by smoke88 and `tools/fsrs_check.mjs`
 > (2,993 of 2,993 review steps match py-fsrs 6.3.2; 100 of 100 SM-2
-> conversions hold). Invariant 111. Phase 2 is next.
+> conversions hold). Invariant 111. **Phase 2 is built too** (invariants
+> 111a, 111b): the exam-aware cap against an exam-day target, leeches and
+> Rework, and topic memory. smoke88 has 18 steps.
 
 Short answer: **yes.**
 - Build ONE pure FSRS-6 core (`js/core/fsrs.js`, `KOS.fsrs`).
@@ -219,8 +221,19 @@ KOS.fsrs = {
     day picked by the same deterministic hash as the fuzz. The capped
     reviews are spread across the window rather than piled up the day
     before.
-  - It reads "the next real exam" per subject (the calendar's real exams
-    today; an Exams section could own it later).
+  - It reads "the next real exam" per topic: a calendar exam of kind Real
+    exam (its topic links, or its whole subject), or an IT unit you are
+    sitting with its date. An Exams section could own this later.
+  - **As built, against an exam-day target** (`examRetention`, default 95%,
+    Off available, set on Card stats). Building it showed the safeguard
+    compared with the everyday target is always true: FSRS ends an interval
+    when recall reaches the everyday target, so a review after the exam
+    already means recall on the day is above it. The cap would never fire.
+    "Aim for 95% on the day" is what gives it something to do. Cards
+    already at 95% on the day are left alone (your safeguard); the rest
+    get one review in the window. The same rule runs at a rating and in a
+    pass at boot, or when an exam or a sitting date is saved, for cards
+    already scheduled past an exam.
   - Code (not an exam subject) has no cap.
 - **F — fuzz:** the standard FSRS fuzz (±5–15% from 2.5 days up), taken
   from a hash of the card key and the day rather than `Math.random`. The
@@ -249,7 +262,7 @@ KOS.fsrs = {
 | Phase | What | Gate |
 |---|---|---|
 | 1 | `KOS.fsrs` core; `tools/fsrs_check.mjs` against py-fsrs; flashcards and Code on the core; the boot pass (`KOS.srs.migrate`, `KOS.code.migrateCards`); the stale-copy rule; the review log; the UI figures (D); fuzz (F) — **built** | new smoke88 (conversion table, edge cases, render purity, cloud-merge of a mixed old/new card, Code grades), the full gate, `fsrs_check` |
-| 2 | Exam-aware cap (E); topic memory (§7.1); leeches (§7.3) | smoke88 extended |
+| 2 | Exam-aware cap (E); topic memory (§7.1); leeches (§7.3) — **built** | smoke88 extended (J–N) |
 | 3 | The optimiser (WASM) once the log holds about 1,000 reviews; log replication | smoke89 |
 | later | Missed-question deck (§7.2); load control (§7.4) | — |
 

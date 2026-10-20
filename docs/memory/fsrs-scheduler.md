@@ -1,6 +1,6 @@
 ---
 name: fsrs-scheduler
-description: Roadmap 5.6 — flashcards and Code retrieval moved from SM-2 to one FSRS-6 core; phase 1 built on feat/fsrs (not released); phase 2 the exam-aware cap; the user's ~200 SM-2 cards must keep their schedules
+description: Roadmap 5.6 — flashcards and Code retrieval moved from SM-2 to one FSRS-6 core; phases 1–2 built on feat/fsrs (not released); release next, then the Exams & Deadlines hub
 metadata:
   type: project
 ---
@@ -19,7 +19,11 @@ The user's decisions:
 - B: a FIXED 0.90 conversion retention, chosen for strict `S = interval` parity, not measured.
 - E: phase 2 cap with a safeguard. Leave a card uncapped if its predicted recall on the exam date is already at or above the target; otherwise spread it over a 7–14 day pre-exam window using the hash.
 
-The user also wants a new Study section for exams and deadlines. It is not a prerequisite for FSRS. My suggestions for it were given on 2026-10-20 and are waiting for their reply.
+**Phase 2 is built too:** the exam cap, leeches and Rework (8 lapses), and `topicMemory`. smoke88 now has 18 steps.
+
+The exam cap is built against an EXAM-DAY target (`srsCfg.examRetention`, default 0.95, 0 = off), not the everyday target. Compared with the everyday target the safeguard is always true, so the cap would never fire. The user should be told and may pick the default.
+
+Next: the release (deploy only on the user's go). After that comes the Exams & Deadlines hub. The user has additions for it: test classifications, flexible scopes, exhaustive study guides and predicted papers, and Goals integration. Wait for those before planning.
 
 The order the user agreed for later work (roadmap 5.7): server runner + Web Push → GitHub App → Creatives plan → Code content.
 

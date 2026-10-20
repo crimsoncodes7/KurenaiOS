@@ -13,4 +13,4 @@
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
 - [Run tests yourself](run-tests-yourself.md) — always run the full gate myself; never tell the user to run tests
 - [Act without asking](act-without-asking.md) — commit/push/tests/migrations automatically; only a production deploy needs a go-ahead
-- [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phase 1 built on feat/fsrs (unreleased); SM-2 cards converted at boot, fixed r=0.9; phase 2 exam cap next; exams section suggested
+- [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 built on feat/fsrs (unreleased); exam cap uses exam-day target 0.95; release next, then Exams hub (user has additions)

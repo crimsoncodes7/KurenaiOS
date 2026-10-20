@@ -133,6 +133,8 @@
     var next = normaliseUnit(code, patch || {}, r.units[code] || {});
     r.units[code] = next;
     store.save();
+    /* a sitting date is an exam date for the flashcard cap (FSRS phase 2) */
+    if (next.status === "sitting" && next.date && KOS.srs && KOS.srs.examPass) KOS.srs.examPass();
     return get(code);
   }
   /* a result that turns out wrong is cleared, not left behind: the unit is

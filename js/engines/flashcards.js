@@ -74,7 +74,9 @@
       mem ? ["Recall today", "≈ " + Math.round(mem.r * 100) + "%"] : null,
       mem ? ["Stability", stabText(mem.s)] : null,
       mem ? ["Difficulty", (Math.round(mem.d * 10) / 10) + " / 10"] : null,
-      ["Lapses", String(m.lapses)]
+      ["Lapses", String(m.lapses)],
+      m.leech ? ["Rework", "set aside " + fmtDate(m.leech) + " — out of the due queue"] : null,
+      m.cap && m.due && m.due < m.cap ? ["Exam", "brought forward before the exam on " + fmtDate(m.cap)] : null
     ].filter(Boolean) : [["Reviews", "0"], ["Status", "new — enters the schedule on its first rating"]];
     var dl = el("dl", { class: "k-fc-metrics", "data-ui": "fc.metrics" });
     rows.forEach(function (r) {
@@ -90,7 +92,8 @@
     var mem = KOS.srs.memory(card.key);
     return ["seen " + m.views + "×", m.last ? "last " + dayName(m.last) : null,
       m.lapses ? m.lapses + (m.lapses === 1 ? " lapse" : " lapses") : null,
-      mem ? "recall ≈ " + Math.round(mem.r * 100) + "%" : null].filter(Boolean).join(" · ");
+      mem ? "recall ≈ " + Math.round(mem.r * 100) + "%" : null,
+      m.leech ? "in Rework" : null].filter(Boolean).join(" · ");
   }
 
   /* ---------------- the session engine ---------------- */
@@ -244,7 +247,13 @@
       var c = cur();
       /* long-term schedule updates on EVERY rating — the FSRS opinion.
          The in-session requeue below is a separate mechanism. */
-      KOS.srs.rate(c.key, r);
+      var wasLeech = !!(KOS.srs.peek(c.key) || {}).leech;
+      var rated = KOS.srs.rate(c.key, r);
+      if (rated.leech && !wasLeech) {
+        /* phase 2: lapsed too often to keep drilling — it finishes this
+           session, then waits in Rework with its topic's notes */
+        KOS.ui.toast("This card has lapsed " + rated.lapses + " times — it moves to Rework after this session.");
+      }
       counts[RATE_META[r].cls]++;
       if (legacy) { legacy.seen++; r === 0 ? legacy.wrong++ : legacy.right++; }
       var idx = queue.shift();

@@ -36,8 +36,9 @@ chronological diary here.
   §17, smokes 80–83) is next, only when asked.
 - In flight on `feat/fsrs`: FSRS (roadmap 5.6, [`docs/fsrs-plan.md`](docs/fsrs-plan.md)).
   Phase 1 is built (one FSRS-6 core for flashcards and Code's retrieval
-  cards, the SM-2 switch, the review log, the FSRS figures; smoke88,
-  `tools/fsrs_check.mjs`); phase 2 (the exam-aware cap) is next.
+  cards, the SM-2 switch, the review log, the FSRS figures) and phase 2
+  (the exam-aware cap, leeches and Rework, topic memory) are built and held
+  by smoke88 and `tools/fsrs_check.mjs`; not yet released.
 - Released 20 October 2026: Money and Goals (roadmap 5.4), built whole
   from design prompt 11 (frames 27a–27s) — the Money core and the Goals
   engine (smoke84–85), the joins (kos_money replication, the Assistant's
@@ -934,6 +935,35 @@ source comments and audit notes refer to it.
     rides the full backup and is not in the state document; it exists so
     the parameters can later be fitted to this learner. A rating pays
     exactly what it paid before; scheduling has zero Governor traffic.
+111a. THE EXAM-AWARE CAP (phase 2). For an exam subject's card, the next
+    REAL exam covering its topic (`KOS.srs.examFor`, read live: a calendar
+    exam of kind Real exam linked to topics, or to its whole subject when it
+    has none, and an IT unit still to sit with its date; never a mock, never
+    Code or the personal deck) can bring a review forward. The rule is
+    `KOS.fsrs.examCap`, against the EXAM-DAY target
+    (`state.srsCfg.examRetention`, synced, default 0.95, 0 = off, set on Card
+    stats): a review landing on or after the exam is left alone when the
+    card's predicted recall on the exam day already meets that target;
+    otherwise it lands in the 7–14 days before (any day before, under a
+    week out), on the day `KOS.fsrs.examDay` picks from a hash of the key
+    and the exam date, so capped cards spread instead of piling up. It only
+    ever shortens, and it is the same rule at a rating (the button's
+    preview included) and in `KOS.srs.examPass` — at boot, on saving an
+    exam or an IT unit's date, or a new exam-day target — which brings
+    forward cards already scheduled past an exam, once (`cap` records the
+    exam). The exam-day target must sit above the everyday one to do
+    anything: an interval ends when recall reaches the everyday target, so
+    a review after the exam always means recall on the day is above it.
+111b. LEECHES AND TOPIC MEMORY (phase 2). A flashcard's 8th lapse (`LEECH`)
+    sets it aside (`leech` = the day): out of the due queue and into Rework
+    on Due today, which offers its topic's notes and "Back in the schedule"
+    (`KOS.srs.unleech`; it may be set aside again after 4 more lapses,
+    `leechBase`). Only a rating sets one. `KOS.srs.topicMemory(sid, ref)` is
+    a pure read — recall today as the mean predicted recall of the rated
+    cards, the weakest card, Rework and held-for-an-exam counts, null
+    recall with nothing rated — and is what RAG, the topic inspector, Due
+    today's topics, Home's Review line and the Assistant's due summary
+    read.
 
 ### Reports (99–102)
 

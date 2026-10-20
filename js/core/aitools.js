@@ -500,15 +500,18 @@
   });
 
   def("study_get_due_summary", {
-    desc: "The flashcard due queue: total count and the most-loaded topics.",
+    desc: "The flashcard due queue: total count, the most-loaded topics with each topic's recall today (FSRS), and how many cards sit in Rework (lapsed too often, out of the queue).",
     category: "study", tier: "read", read: true, params: {},
     run: function (args, cb) {
       var due = KOS.srs.dueCards();
       var by = {};
       due.forEach(function (c) { var k = c.sid + ":" + c.ref; by[k] = (by[k] || 0) + 1; });
-      var topics = Object.keys(by).map(function (k) { return { topic: k, due: by[k] }; })
-        .sort(function (a, b) { return b.due - a.due; }).slice(0, 20);
-      cb(null, { total: due.length, oldestOverdueDays: due.length ? due[0].overdue : 0, byTopic: topics });
+      var topics = Object.keys(by).map(function (k) {
+        var i = k.indexOf(":"), tm = KOS.srs.topicMemory(k.slice(0, i), k.slice(i + 1));
+        return { topic: k, due: by[k], recallToday: tm.recall == null ? null : Math.round(tm.recall * 100) };
+      }).sort(function (a, b) { return b.due - a.due; }).slice(0, 20);
+      cb(null, { total: due.length, oldestOverdueDays: due.length ? due[0].overdue : 0, byTopic: topics,
+        inRework: KOS.srs.leeches().length });
     }
   });
 

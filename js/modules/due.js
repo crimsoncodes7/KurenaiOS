@@ -104,6 +104,8 @@
       if (c.overdue > 0) g.late++;
       g.oldest = Math.max(g.oldest, c.overdue);
     });
+    /* topic memory (FSRS phase 2): each topic's recall today, a read */
+    Object.keys(groups).forEach(function (k) { var g = groups[k]; g.recall = KOS.srs.topicMemory(g.sid, g.ref, today).recall; });
     var sort = KOS.review.topicSort || "overdue";
     var list = Object.keys(groups).map(function (k) { return groups[k]; }).sort(sort === "size"
       ? function (a, b) { return b.n - a.n || b.oldest - a.oldest; }
@@ -126,6 +128,8 @@
         el("span", { class: "k-rv-topic-ref k-mono", text: g.ref }),
         el("span", { class: "k-rv-topic-t", text: topicTitle(g.sid, g.ref) }),
         g.late ? el("span", { class: "k-chip", "data-tone": "danger", text: g.late + " overdue" }) : null,
+        g.recall != null ? el("span", { class: "k-chip", "data-tone": "muted", "data-ui": "review.topic-recall",
+          title: "How much of this topic's deck you would recall today", text: "recall " + Math.round(g.recall * 100) + "%" }) : null,
         el("span", { class: "k-rv-topic-n k-mono" }, [String(g.n), el("span", { class: "k-muted", text: " due" })]),
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "review.topic-go",
           "aria-label": "Review " + g.n + " due in " + g.ref + " " + topicTitle(g.sid, g.ref), text: "▶",
@@ -144,6 +148,34 @@
       el("button", { type: "button", class: "k-btn k-btn--sm", title: "Cards with no curriculum subject — VN quotes and your own general cards",
         text: "❝ Open personal deck", onclick: function () { KOS.show("personaldeck"); } })
     ]));
+    /* Rework (FSRS phase 2): cards that lapsed too often to keep drilling.
+       Each offers its topic's notes, and a way back into the schedule. */
+    var leeches = KOS.srs.leeches();
+    if (leeches.length) {
+      var rw = el("section", { class: "k-card k-rv-rework", "data-ui": "review.rework", "aria-label": "Rework" }, [
+        el("div", { class: "k-card-head" }, [
+          el("span", { class: "k-card-title", text: "Rework" }),
+          el("span", { class: "k-card-meta k-spacer", text: leeches.length + (leeches.length === 1 ? " card" : " cards") })
+        ]),
+        el("p", { class: "k-rv-side-p", text: "Lapsed " + KOS.srs.LEECH + " times or more, so they are out of the queue. Reread the notes, reword the card if it is the problem, then put it back." })
+      ]);
+      leeches.slice(0, 5).forEach(function (c) {
+        var custom = c.custom || c.sid === KOS.srs.PERSONAL_SID;
+        rw.appendChild(el("div", { class: "k-rv-leech", "data-ui": "review.leech" }, [
+          el("div", { class: "k-rv-leech-q", html: KOS.content.inline(c.q) }),
+          el("div", { class: "k-rv-leech-acts" }, [
+            el("span", { class: "k-mono k-muted", text: (c.sid === KOS.srs.PERSONAL_SID ? "personal" : c.ref) + " · " + c.meta.lapses + " lapses" }),
+            custom ? null : el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "review.leech-notes",
+              text: "Notes", "aria-label": "Read the notes for " + topicTitle(c.sid, c.ref),
+              onclick: function () { KOS.show("ref", { subject: c.sid, ref: c.ref }); } }),
+            el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "review.leech-back", text: "Back in the schedule",
+              onclick: function () { KOS.srs.unleech(c.key); KOS.ui.toast("Back in the schedule — due when its recall dips to your target."); KOS.rerender(); } })
+          ].filter(Boolean))
+        ]));
+      });
+      if (leeches.length > 5) rw.appendChild(el("p", { class: "k-muted k-rv-side-p", text: "and " + (leeches.length - 5) + " more" }));
+      side.appendChild(rw);
+    }
     if (KOS.srs.dueCount() > KOS.governor.BACKLOG_LIMIT) {
       side.appendChild(el("section", { class: "k-card k-rv-warn", "data-ui": "review.backlog", role: "note" }, [
         el("b", { text: "⚠ Backlog pressure" }),

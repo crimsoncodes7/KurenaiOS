@@ -56,9 +56,10 @@
        {s, d, fl:"YYYY-MM-DD" (the day FSRS last moved it), ivl, reps,
         due:"YYYY-MM-DD", last:"YYYY-MM-DD", views, lapses, lastRating,
         ef (SM-2's ease, frozen at the switch; read only to convert)} */
-    srsCfg: { retention: 0.9 },
+    srsCfg: { retention: 0.9, examRetention: 0.95 },
     /* the flashcard scheduler's settings, synced: the recall it aims for
-       at each due date (0.80–0.95, Card stats) */
+       at each due date (0.80–0.95) and on the day of a real exam (0 off,
+       0.90–0.98), both set on Card stats */
 
     sessions: [],
     /* study session log — the data backbone streaks/HP/XP/RAG read from:

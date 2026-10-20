@@ -137,6 +137,35 @@
     return { s: m.s, d: m.d, ivl: ivl };
   }
 
+  /* ---- the exam-aware cap (roadmap 5.6 phase 2, decision E) ----
+     examDay(examDays, seed) → the day, counted from today, a review held
+     for an exam lands on: inside the 7–14 days before it, picked by the
+     seed (the card key and the exam date) so capped cards spread across
+     the window instead of piling up; when the exam is under a week away,
+     any day before it. null when there is no day left before it.        */
+  function examDay(examDays, seed) {
+    var u = unit(seed);
+    var d = examDays - (7 + Math.floor(u * 8));
+    if (d >= 1) return d;
+    var span = examDays - 1;
+    return span >= 1 ? 1 + Math.floor(u * span) : null;
+  }
+  /* examCap(ivl, s, examDays, target, seed) → {ivl, capped}. A review
+     that would land on or after the exam is brought into that window —
+     UNLESS the card's predicted recall on the exam date (from this review,
+     at stability s) already meets the EXAM-DAY target, which needs no extra
+     look. The exam-day target must sit above the everyday one to do
+     anything: an interval runs until recall falls to the everyday target,
+     so a review after the exam always means recall on the day is above
+     that. It only ever shortens an interval. */
+  function examCap(ivl, s, examDays, target, seed, w) {
+    var keep = { ivl: ivl, capped: false };
+    if (!(target > 0) || !(examDays >= 2) || ivl < examDays) return keep;
+    if (retrievability(examDays, s, w || W) >= target) return keep;
+    var d = examDay(examDays, seed);
+    return d != null && d < ivl ? { ivl: d, capped: true } : keep;
+  }
+
   /* fsrs-rs memory_state_from_sm2 */
   function fromSM2(ease, ivl, r, w) {
     w = w || W;
@@ -178,6 +207,8 @@
     schedule: schedule,
     fromSM2: fromSM2,
     recordMemory: recordMemory,
+    examDay: examDay,
+    examCap: examCap,
     initS: function (g, w) { return initS(g, w || W); },
     initD: function (g, w) { return initD(g, w || W); },
     forgetS: function (d, s, r, w) { return forgetS(d, s, r, w || W); }

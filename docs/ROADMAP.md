@@ -1104,8 +1104,12 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > taken (§9). It includes one FSRS-6 core held to py-fsrs, flashcards and
 > Code on it, the SM-2 switch at boot, the review log, the FSRS figures
 > and the target retention on Card stats, and smoke88 (invariant 111).
-> Phase 2 (the exam-aware cap with the pre-exam spread) is next. It reads
-> the next real exam per subject, which a future Exams section would own.
+> **Phase 2 is built too:** the exam-aware cap against an exam-day target
+> (default 95%) with the 7–14 day pre-exam spread; leeches go to Rework
+> after 8 lapses; topic memory feeds RAG, the inspector, Due today and Home
+> (invariants 111a, 111b). The release is next. After it comes the Exams &
+> Deadlines hub (test classifications, flexible scopes, study guides and
+> predicted papers, Goals), which will own exam dates.
 
 - **What:** a pure FSRS-6 core (`KOS.fsrs`) that replaces the SM-2 step in
   `srs.js` and Code's copy of it. The Japanese facets use it when they

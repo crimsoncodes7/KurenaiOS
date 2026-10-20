@@ -175,6 +175,24 @@
     var pick = el("select", { class: "k-pill-select", "data-ui": "review.retention", "aria-label": "Target retention",
       onchange: function () { KOS.srs.setRetention(+pick.value); KOS.rerender(); } },
       TARGETS.map(function (t) { return el("option", { value: String(t), selected: t === target ? "" : null, text: Math.round(t * 100) + "%" }); }));
+    /* the exam-day target (FSRS phase 2): before a real exam, a card whose
+       recall on the day would fall short of it gets one review in the 7–14
+       days before; one that will still be remembered is left alone */
+    function examRow() {
+      var et = KOS.srs.examTarget();
+      var held = withMem.filter(function (c) { return c.meta.cap && c.meta.due < c.meta.cap && c.meta.cap > today; }).length;
+      var examPick = el("select", { class: "k-pill-select", "data-ui": "review.exam-target", "aria-label": "Recall to aim for on a real exam's day",
+        onchange: function () { KOS.srs.setExamTarget(+examPick.value); KOS.rerender(); } },
+        [0, 0.92, 0.94, 0.95, 0.96, 0.97, 0.98].map(function (t) {
+          return el("option", { value: String(t), selected: t === et ? "" : null, text: t ? Math.round(t * 100) + "%" : "Off" });
+        }));
+      return el("div", { class: "k-cs-exam", "data-ui": "review.exam" }, [
+        el("label", { class: "k-cs-target" }, [el("span", { text: "On a real exam's day, aim for" }), examPick]),
+        el("p", { class: "k-muted", text: et && et <= target ? "Set it above your everyday target, or it changes nothing."
+          : held ? held + (held === 1 ? " card is" : " cards are") + " brought forward to the week or two before an exam."
+          : "Cards that would fall short on the day get one review in the 7–14 days before it." })
+      ]);
+    }
     var lower = TARGETS[Math.max(0, TARGETS.indexOf(target) - 1)], higher = TARGETS[Math.min(TARGETS.length - 1, TARGETS.indexOf(target) + 1)];
     var targetCard = el("section", { class: "k-card k-cs-card", "data-ui": "review.target", "aria-label": "Target retention" }, [
       el("div", { class: "k-card-head" }, [
@@ -188,7 +206,8 @@
           el("span", { text: "≈ " + perDayAt(t) + " reviews a day at today's memory" })
         ]);
       })),
-      el("p", { class: "k-muted", text: "Higher keeps more in memory and asks for more reviews; 90% is the usual balance." })
+      el("p", { class: "k-muted", text: "Higher keeps more in memory and asks for more reviews; 90% is the usual balance." }),
+      examRow()
     ]);
     main.appendChild(el("div", { class: "k-cs-row k-cs-row--even" }, [
       chart("Difficulty", "1 easy · 10 hard — how hard FSRS finds each card", barChart(binned(DIFF, function (m) { return m.d; }), { height: 150 }), "review.difficulty"),
