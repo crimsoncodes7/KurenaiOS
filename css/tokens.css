@@ -246,6 +246,7 @@ color-scheme: dark;
 --hours-goal-w: 48px;
 --hbar-label-w: 140px;
 --chart-wide-h: 240px;
+--chart-fit-min: 150px;
 /* the image cropper */
 --crop-url-min: 220px;
 --crop-preview-max-h: 360px;

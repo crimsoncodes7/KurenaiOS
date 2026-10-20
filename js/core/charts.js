@@ -87,7 +87,11 @@
     var max = Math.max(1, opts.max || data.reduce(function (a, d) { return Math.max(a, d.value); }, 0));
     var n = data.length;
     var gap = compact ? 5 : 8;
-    var bw = Math.max(4, (W - padL - padR - gap * (n - 1)) / n);
+    /* a narrow box (a fitted chart on a phone) closes the gaps before a bar
+       drops under 6 units, so every bar stays inside the plot */
+    var inner = W - padL - padR;
+    if (n > 1 && (inner - gap * (n - 1)) / n < 6) gap = Math.max(1, (inner - 6 * n) / (n - 1));
+    var bw = Math.max(2, (inner - gap * (n - 1)) / n);
     var plotH = H - padB - padT;
 
     /* the value axis: gridlines and their own labels, so a bar height
@@ -383,7 +387,44 @@
     return s;
   }
 
-  KOS.charts = { svgEl: svgEl, svgNode: svgNode, barChart: barChart, hbarChart: hbarChart,
+  /* ---- a chart that fills its box ----
+     A viewBox chart keeps its aspect ratio, so in a card stretched to its
+     neighbour's height it leaves the rest empty. fit() draws the chart at
+     the box's own size in CSS pixels instead — the box grows to fill the
+     card (a floor of --chart-fit-min), the drawing takes all of it, and
+     its text stays at its real size because nothing is scaled. It redraws
+     when the box changes size; a first drawing at the default size stands
+     until it is measured (and wherever nothing measures, as in tests).
+     draw(w, h) → an svg; a redraw writes nothing.                        */
+  function fit(draw, label) {
+    var box = document.createElement("div");
+    box.className = "k-chart-fit";
+    box.setAttribute("data-ui", "chart.fit");
+    if (label) { box.setAttribute("role", "img"); box.setAttribute("aria-label", label); }
+    var last = "";
+    function paintAt(w, h) {
+      var key = w + "x" + h;
+      if (key === last) return;
+      last = key;
+      var svg = draw(w, h);
+      if (label) svg.setAttribute("aria-hidden", "true");
+      box.innerHTML = "";
+      box.appendChild(svg);
+    }
+    paintAt(undefined, undefined);
+    last = "";
+    if (typeof window.ResizeObserver === "function") {
+      try {
+        new window.ResizeObserver(function () {
+          var w = Math.round(box.clientWidth), h = Math.round(box.clientHeight);
+          if (w > 40 && h > 40) paintAt(w, h);
+        }).observe(box);
+      } catch (e) { /* jsdom */ }
+    }
+    return box;
+  }
+
+  KOS.charts = { svgEl: svgEl, svgNode: svgNode, barChart: barChart, hbarChart: hbarChart, fit: fit,
     donutChart: donutChart, donutWithLegend: donutWithLegend, lineChart: lineChart,
     smallMultiples: smallMultiples, ticks: ticks, chartCard: chartCard, heatmap: heatmap };
 })();

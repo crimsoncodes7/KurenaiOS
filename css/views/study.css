@@ -775,11 +775,13 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-cs-row { display: grid; grid-template-columns: minmax(0, 1fr) var(--rv-side-w); gap: var(--sp-20); align-items: stretch; }
 .k-cs-row--even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-cs-card { min-inline-size: 0; display: flex; flex-direction: column; }
-.k-cs-card svg { inline-size: 100%; block-size: auto; }
+.k-cs-card > svg { inline-size: 100%; block-size: auto; }
 .k-cs-mixbar { display: flex; gap: var(--sp-2); block-size: var(--sp-8); border-radius: var(--r-pill); overflow: hidden; margin-block: var(--sp-10) var(--sp-14); background: var(--s2); }
 .k-cs-mixbar span { flex: var(--f) 1 0; background: var(--c); }
 .k-cs-legend { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--sp-10); font-size: var(--fs-13); }
 .k-cs-legend li { display: flex; align-items: center; gap: var(--sp-10); }
+/* the rating mix fills a card stretched to its neighbour: the rows share the height */
+.k-cs-legend--fill { flex: 1 1 auto; justify-content: space-around; }
 .k-cs-dot { inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--c); }
 .k-cs-legend-n { margin-inline-start: auto; font-size: var(--fs-12); color: var(--muted); }
 .k-cs-target { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); font-size: var(--fs-13); color: var(--text-2); margin-block-end: var(--sp-12); }

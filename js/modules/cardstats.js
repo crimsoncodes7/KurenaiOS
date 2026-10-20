@@ -35,6 +35,12 @@
       return true;
     });
   }
+  /* a bar chart that fills its card (no fixed height leaving a gap under it) */
+  function bars(data, opts, label) {
+    return KOS.charts.fit(function (w, h) {
+      return barChart(data, Object.assign({}, opts, w ? { width: w, height: h } : {}));
+    }, label);
+  }
   function chart(title, sub, body, hooks) {
     return el("section", { class: "k-card k-cs-card", "data-ui": "chart.chart" + (hooks ? " " + hooks : ""), "aria-label": title }, [
       el("div", { class: "k-card-head" }, [
@@ -117,9 +123,9 @@
       if (perDay[e.date] !== undefined) { perDay[e.date] += (e.metrics.cards || 0); total30 += (e.metrics.cards || 0); }
     });
     var perDayChart = chart("Reviews per day", "last 30 days · avg " + Math.round(total30 / 30),
-      barChart(Object.keys(perDay).map(function (d, k, all) {
+      bars(Object.keys(perDay).map(function (d, k, all) {
         return { label: k === 0 || k === 14 ? d.slice(8) + "/" + d.slice(5, 7) : k === all.length - 1 ? "today" : "", value: perDay[d], hint: d + ": " + perDay[d] + " cards" };
-      }), { color: color, height: 170 }));
+      }), { color: color }));
 
     /* rating mix, as the design's one stacked bar with its legend */
     var mix = { again: 0, hard: 0, good: 0, easy: 0 };
@@ -130,7 +136,7 @@
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Rating mix" })]),
       el("div", { class: "k-cs-mixbar", role: "img", "aria-label": MIX.map(function (m) { return m[1] + " " + mix[m[0]]; }).join(", ") },
         MIX.filter(function (m) { return mix[m[0]]; }).map(function (m) { return el("span", { style: "--f: " + mix[m[0]] + "; --c: " + m[2] }); })),
-      el("ul", { class: "k-cs-legend" }, MIX.map(function (m) {
+      el("ul", { class: "k-cs-legend k-cs-legend--fill" }, MIX.map(function (m) {
         return el("li", { style: "--c: " + m[2] }, [
           el("span", { class: "k-cs-dot", "aria-hidden": "true" }), el("span", { text: m[1] }),
           el("span", { class: "k-mono k-cs-legend-n", text: mix[m[0]] + (mixTotal ? " · " + Math.round(100 * mix[m[0]] / mixTotal) + "%" : "") })
@@ -158,8 +164,8 @@
     var DIFF = [["1–3", 0, 3, "var(--teal)"], ["3–5", 3, 5, "var(--green)"], ["5–7", 5, 7, "var(--amber)"],
       ["7–9", 7, 9, "var(--amber)"], ["9–10", 9, 11, "var(--red-soft)"]];
     main.appendChild(el("div", { class: "k-cs-row k-cs-row--even" }, [
-      chart("Due forecast", "next 14 days", barChart(forecast, { color: "var(--s3)", height: 150 })),
-      chart("Recall today", "the predicted chance you remember each card now", barChart(binned(RECALL, function (m) { return m.r; }), { height: 150 }), "review.recall")
+      chart("Due forecast", "next 14 days", bars(forecast, { color: "var(--s3)" })),
+      chart("Recall today", "the predicted chance you remember each card now", bars(binned(RECALL, function (m) { return m.r; }), {}), "review.recall")
     ]));
 
     /* difficulty, and the recall the schedule aims for (decision A). A new
@@ -210,7 +216,7 @@
       examRow()
     ]);
     main.appendChild(el("div", { class: "k-cs-row k-cs-row--even" }, [
-      chart("Difficulty", "1 easy · 10 hard — how hard FSRS finds each card", barChart(binned(DIFF, function (m) { return m.d; }), { height: 150 }), "review.difficulty"),
+      chart("Difficulty", "1 easy · 10 hard — how hard FSRS finds each card", bars(binned(DIFF, function (m) { return m.d; }), {}), "review.difficulty"),
       targetCard
     ]));
 
