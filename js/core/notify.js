@@ -44,7 +44,7 @@
     reminder:   { label: "Reminders",  glyph: "🔔", section: "productivity", view: "reminders" },
     assignment: { label: "Assignments", glyph: "課", section: "study", view: "assignments" },
     airing:     { label: "Airing",     glyph: "映", section: "collection", view: "anime" },
-    wishlist:   { label: "Planner",    glyph: "購", section: "collection", view: "wishlist" },
+    wishlist:   { label: "Wishlist",   glyph: "願", section: "collection", view: "wishlist" },
     pacing:     { label: "Pacing",     glyph: "暦", section: "study", view: "pacing" },
     /* roadmap 1.6: a running Focus session nobody has touched for 30 min,
        and the session it then ended */
@@ -56,7 +56,10 @@
     reports:    { label: "Reports",    glyph: "録", section: "reports", view: "reports" },
     /* a goal (core/goals.js, roadmap 5.4): a period ending tomorrow, a
        deadline tomorrow, reached, or missed — one notice each, by id */
-    goal:       { label: "Goals",      glyph: "標", section: "productivity", view: "goals" }
+    goal:       { label: "Goals",      glyph: "標", section: "productivity", view: "goals" },
+    /* Money (core/money.js): a trial ending tomorrow, a bill two days
+       ahead, income a day late — id money:<rule>:<date> */
+    money:      { label: "Money",      glyph: "円", section: "productivity", view: "money" }
   };
 
   function N() {

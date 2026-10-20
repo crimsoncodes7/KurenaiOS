@@ -14648,6 +14648,1559 @@
     "errors": []
    },
    "controls": []
+  },
+  "money": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/tasks"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Overview",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Transactions",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/transactions",
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/budgets"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Recurring",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/recurring"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Pots",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/pots"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month and year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/month",
+      "announce": [
+       "September 2026, so far. Spent £0.00."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.privacy",
+      "name": "◐ Hide amounts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "moneyHidden"
+      ],
+      "announce": [
+       "Amounts hidden"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.add",
+      "name": "＋ Add entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.page",
+      "hooks": "money.fab",
+      "name": "Add entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.empty-action",
+      "hooks": "money.first-income",
+      "name": "Add your first income",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.empty-action",
+      "hooks": "money.first-import",
+      "name": "Import a CSV",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Import a CSV"
+      ]
+     }
+    }
+   ]
+  },
+  "money:\"transactions\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/tasks"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Overview",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Transactions",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/budgets"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Recurring",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/recurring"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Pots",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/pots"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month and year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/month",
+      "announce": [
+       "September 2026, so far. Spent £0.00."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.privacy",
+      "name": "◐ Hide amounts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "moneyHidden"
+      ],
+      "announce": [
+       "Amounts hidden",
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.add",
+      "name": "＋ Add entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "All",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "In",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Out",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.tx-toolbar",
+      "hooks": "money.import",
+      "name": "Import CSV",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Import a CSV"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.tx-toolbar",
+      "hooks": "money.export",
+      "name": "Export CSV",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Export CSV"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.page",
+      "hooks": "money.fab",
+      "name": "Add entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    }
+   ]
+  },
+  "money:\"budgets\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/tasks"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Overview",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Transactions",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/transactions",
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Recurring",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/recurring"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Pots",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/pots"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month and year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/month",
+      "announce": [
+       "September 2026, so far. Spent £0.00."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.privacy",
+      "name": "◐ Hide amounts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "moneyHidden"
+      ],
+      "announce": [
+       "Amounts hidden"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.bud-nav",
+      "hooks": "",
+      "name": "Earlier month",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "August 2026"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.bud-nav",
+      "hooks": "",
+      "name": "Later month",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "September 2026"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.bud-nav",
+      "hooks": "money.cat-add",
+      "name": "＋ Add category",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Add a category"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.bud-nav",
+      "hooks": "money.bud-edit",
+      "name": "Edit budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Edit budgets"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.bud-row",
+      "hooks": "ui.menu-button",
+      "name": "More for Collection",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "menu": true
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.bud-idle",
+      "hooks": "",
+      "name": "Set a budget",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Edit budgets"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "The 1st",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "The month starts on the 1st"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Payday · the 28th",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "money.monthStart"
+      ],
+      "announce": [
+       "The month starts on the 28th"
+      ]
+     }
+    }
+   ]
+  },
+  "money:\"recurring\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/tasks"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Overview",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Transactions",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/transactions",
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/budgets"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Recurring",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Pots",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/pots"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month and year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/month",
+      "announce": [
+       "September 2026, so far. Spent £0.00."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.privacy",
+      "name": "◐ Hide amounts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "moneyHidden"
+      ],
+      "announce": [
+       "Amounts hidden"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.add",
+      "name": "＋ Add entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.empty-action",
+      "hooks": "money.rule-add",
+      "name": "Add a rule",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "money.page",
+      "hooks": "money.fab",
+      "name": "Add entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New entry"
+      ]
+     }
+    }
+   ]
+  },
+  "money:\"pots\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/tasks"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Overview",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Transactions",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/transactions",
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/budgets"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Recurring",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/recurring"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Pots",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month and year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/month",
+      "announce": [
+       "September 2026, so far. Spent £0.00."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.privacy",
+      "name": "◐ Hide amounts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "moneyHidden"
+      ],
+      "announce": [
+       "Amounts hidden"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.pot-new",
+      "hooks": "money.pot-add",
+      "name": "＋ New pot",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New pot"
+      ]
+     }
+    }
+   ]
+  },
+  "money:\"month\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/tasks"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Overview",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Transactions",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/transactions",
+      "announce": [
+       "0 entries"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Budgets",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/budgets"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Recurring",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/recurring"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Pots",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/pots"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month and year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later money views",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "money.privacy",
+      "name": "◐ Hide amounts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "moneyHidden"
+      ],
+      "announce": [
+       "Amounts hidden",
+       "September 2026, so far. Spent ."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Month",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "September 2026, so far. Spent £0.00."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Year",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "money.page",
+      "hooks": "",
+      "name": "Earlier",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "money.page",
+      "hooks": "",
+      "name": "Later",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "money.page",
+      "hooks": "",
+      "name": "Export CSV",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Export CSV"
+      ]
+     }
+    }
+   ]
   }
  }
 }

@@ -500,6 +500,7 @@
    "to": "Mark purchased",
    "why": "Graphite step 5e (Budget Planner, frame 11h): the release desk's purchase action reads \"Mark purchased\", as in the frame."
   },
+  {"surface": "^wishlist$", "hooks": "plan.budget-edit", "from": "^(Edit monthly budget|Edit allowance|Money › Budgets →)$", "to": "Money › Budgets →", "expect": {"nav": "#/money/budgets"}, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the allowance IS Money's Collection budget (budgetFrom), so the card's action opens Money › Budgets instead of a second editor."},
   {
    "surface": "wishlist",
    "hooks": "plan.budget-edit",
@@ -806,6 +807,10 @@
   { "surface": "tasks", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
   { "surface": "calendar", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
   { "surface": "pacing", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  { "surface": "pacing:{\"tab\":\"braid\"}", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." }
+  { "surface": "pacing:{\"tab\":\"braid\"}", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
+  {"hooks": "shell.subnav-item", "from": "^Planner$", "to": "Wishlist", "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Collection's Planner is now the Wishlist (願): the queue stays in the Collection and its money moved to Money."},
+  {"surface": "^(wishlist|goals)$", "hooks": "ui.tab", "retire": true, "from": "^(Budget Planner|Goals)$", "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Planner/Goals workspace switch is gone — Goals is a Productivity page of its own and the Budget Planner is the Wishlist, so there is nothing left to switch between."},
+  {"surface": "^goals$", "hooks": "shell.subnav-item", "retire": true, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Goals moved from the Collection to Productivity, so its page no longer draws the Collection strip."},
+  {"surface": "^wishlist$", "from": "^(Mark purchased|Purchased)$", "expect": {"dialog": ["Mark purchased"]}, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Mark purchased first says what it will do (the Money entry, Purchased, the Books volume) in a dialog; confirming it does the handoff (smoke87 C)."}
   ]
 }

@@ -171,27 +171,39 @@ step("completion receipts are idempotent and never duplicate Governor rewards", 
   });
 });
 
-step("Goals renders summary, status views, useful cards and the integrity statement", async () => {
-  KOS.store.state.media.goalsTab = "active";
+step("Goals (27i) renders the hero, the domain filter, the card grid and the new-goal tile", async () => {
   KOS.show("goals");
-  await waitFor(() => document.querySelector("[data-ui~='goal.overview']"));
-  const summary = [...document.querySelectorAll("[data-ui~='goal.metric']")];
-  assert(summary.length && summary.length <= 4, "meaningful summary metrics missing");
-  assert(summary.every(node => Number(node.querySelector("b").textContent) > 0), "a zero-value summary metric returned");
-  assert(document.querySelectorAll("[data-ui~='goal.tabs'] [data-ui~='ui.tab']").length === 3, "status tabs missing");
-  assert(document.querySelector("[data-ui~='goal.card']"), "useful goal card missing");
-  assert(/never duplicates Governor rewards/.test(document.querySelector("[data-ui~='goal.integrity']").textContent), "anti-farming rule not explained");
+  await waitFor(() => document.querySelector("[data-ui~='goal.page'] > *"));
+  assert(document.querySelector("[data-ui~='goal.grid'] [data-ui~='goal.new-tile']"), "new-goal tile missing");
+  assert(document.querySelector("[data-ui~='goal.domain']"), "domain filter missing");
+  /* this fixture's goals have all ended: the open grid holds none of them,
+     and Done lists each one with its ended state */
+  KOS.show("goals", "done");
+  await waitFor(() => document.querySelector("[data-ui~='goal.card']"));
+  assert(document.querySelector("[data-ui~='goal.card'] [data-ui~='goal.pace']"), "an ended goal carries no state chip");
 });
 
-step("the create/edit modal is internally structured and full-field", () => {
-  KOS.goalEditor(null, () => {});
+step("a goal's page says how it is counted: one activity-only receipt, never a second reward", async () => {
+  const g = KOS.goals.all()[0];
+  KOS.show("goals", { id: g.id });
+  await waitFor(() => document.querySelector("[data-ui~='goal.counted']"));
+  const counted = document.querySelector("[data-ui~='goal.counted']");
+  assert(counted && /nothing|never/i.test(counted.textContent), "the counting rule is not explained");
+});
+
+step("the create flow (27k): a type picker, then one structured form with Save", () => {
+  KOS.goalEditor(null);
+  const picker = document.querySelector("[data-ui~='goal.new-dialog']");
+  assert(picker, "new-goal dialog missing");
+  const types = picker.querySelectorAll("[data-ui~='goal.type']");
+  assert(types.length >= 5, "type picker too thin: " + types.length);
+  types[0].click();
   const modal = document.querySelector("[data-ui~='goal.editor']");
-  assert(modal, "goal modal missing");
-  const heads = [...modal.querySelectorAll("[data-ui~='goal.form-section'] b")].map(node => node.textContent);
-  assert(heads.join("|") === "Identity|Measure|Schedule|Notes", "modal sections wrong: " + heads.join("|"));
-  assert(modal.querySelector("[data-ui~='goal.editor-body']"), "internal scrolling body missing");
-  assert(modal.querySelector("[data-ui~='goal.modal-foot']"), "separate action rail missing");
-  modal.closest("[data-ui~='ui.dialog-overlay']").close();
+  assert(modal, "goal form missing after picking a type");
+  assert(modal.querySelector("[data-ui~='goal.save']"), "Save missing");
+  assert(modal.querySelector("[data-ui~='goal.back']"), "Back to the picker missing");
+  modal.remove();
+  document.querySelectorAll("[data-ui~='goal.new-dialog']").forEach(n => n.remove());
 });
 
 step("goals and the anti-farming ledger ride the normal state backup", () => {

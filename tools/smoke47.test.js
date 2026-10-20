@@ -83,12 +83,15 @@ step("Exams & Papers collapses an empty summary instead of printing four zero ti
   assert(!main().querySelector("[data-ui~='tracker.strip']"), "tracker prints a zero summary before any record exists");
 });
 
-step("Goals suppresses the whole metric strip when every summary count is zero", async () => {
+step("Goals with nothing set offers first goals, never a strip of zeros (27i)", async () => {
   KOS.show("goals");
-  assert(await waitFor(() => main().querySelector("[data-ui~='goal.overview']")), "Goals did not render");
-  assert(main().querySelector("[data-ui~='goal.overview'][data-ui~='goal.no-metrics']"), "zero Goals summary is not marked compact");
-  assert(!main().querySelector("[data-ui~='goal.metric']"), "Goals restored a zero-value summary tile");
-  assert(main().querySelector("[data-ui~='goal.empty'][data-ui~='ui.empty'][data-state~='compact']"), "Goals empty tab bypasses EmptyState");
+  assert(await waitFor(() => main().querySelector("[data-ui~='goal.overview'] > *")), "Goals did not render");
+  const none = !KOS.goals.all().some(g => !g.archived);
+  if (none) {
+    assert(main().querySelector("[data-ui~='goal.first'] [data-ui~='goal.template']"), "an empty Goals page offers no first goal");
+    assert(!main().querySelector("[data-ui~='goal.hero']"), "an empty Goals page drew a hero of nothing");
+  }
+  assert(!main().querySelector("[data-ui~='goal.metric']"), "Goals restored a summary tile");
 });
 
 console.log("== B · one empty-state grammar ==");

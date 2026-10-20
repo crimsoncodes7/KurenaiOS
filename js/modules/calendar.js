@@ -502,8 +502,89 @@
     return {
       events: eventsOn(dateISO),
       assignments: (KOS.assignments && KOS.assignments.forDate) ? KOS.assignments.forDate(dateISO) : [],
-      reminders: (KOS.reminders && KOS.reminders.forDate) ? KOS.reminders.forDate(dateISO) : []
+      reminders: (KOS.reminders && KOS.reminders.forDate) ? KOS.reminders.forDate(dateISO) : [],
+      derived: derivedOn(dateISO)
     };
+  }
+  /* 27p: bills, income and goal deadlines read onto the calendar by
+     DERIVATION (invariants 44, 82b) — drawn from the Money rule or the goal
+     each time, never written as events. Per device, each source can be
+     hidden (state.ui.calDerived). */
+  function derivedShown(kind) { var d = KOS.store.state.ui.calDerived || {}; return d[kind] !== false; }
+  var TONE_HUE = { sage: 1, sky: 1, iris: 1, slate: 1, plum: 1, jade: 1, brass: 1, clay: 1 };
+  function derivedOn(dateISO) {
+    var out = [];
+    if (KOS.money && derivedShown("money")) {
+      var M = KOS.money;
+      M.rules().forEach(function (r) {
+        var c = r.cat ? M.category(r.cat) : null, tone = r.kind === "transfer" ? "jade" : c ? c.tone : null;
+        if (r.trialEnd === dateISO) out.push({ kind: "money", glyph: "円", title: r.name + " trial ends · cancel before", rule: r, date: dateISO, trial: true, tone: tone });
+        M.occurrences(r, dateISO, dateISO).forEach(function (d) {
+          var st = M.occurrenceState(r, d);
+          if (r.trialEnd && d <= r.trialEnd) return;
+          out.push({ kind: "money", glyph: "円", title: r.kind === "transfer" ? r.name : r.name, rule: r, date: d, minor: M.amountOn(r, d),
+            income: r.kind === "in", state: st, tone: tone });
+        });
+      });
+    }
+    if (KOS.goals && derivedShown("goals")) {
+      KOS.goals.all().forEach(function (g) {
+        if (g.archived || g.status !== "active") return;
+        var end = g.repeat ? KOS.goals.periodOf(g, dateISO).to : g.deadline;
+        if (end !== dateISO) return;
+        out.push({ kind: "goal", glyph: "標", title: (g.repeat ? (g.repeat === "week" ? "Week ends · " : "Month ends · ") : "Deadline · ") + g.title, goal: g, date: dateISO });
+      });
+    }
+    return out;
+  }
+  function derivedChip(d) {
+    var M = KOS.money, hidden = M && M.isHidden();
+    var fig = d.minor && !hidden ? (d.income ? "+" : "") + M.format(d.minor) : null;
+    var chip = el("button", {
+      class: "k-ev k-ev--derived", "data-ui": "cal.event cal.derived", "data-type": "derived", "data-kind": d.kind, type: "button",
+      "data-state": d.state === "skip" ? "skipped" : d.state === "done" ? "confirmed" : null,
+      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", from " + (d.kind === "money" ? "Money" : "Goals"),
+      onclick: function (e) { e.stopPropagation(); derivedPanel(d); }
+    }, [
+      el("span", { class: "k-ev-glyph", lang: "ja", "aria-hidden": "true", text: d.state === "done" ? "✓" : d.glyph }),
+      el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: d.title + (fig ? " · " + fig : "") })
+    ]);
+    if (d.tone && TONE_HUE[d.tone]) chip.style.setProperty("--ev-hue", "var(--cal-" + d.tone + ")");
+    return chip;
+  }
+  function derivedPanel(d) {
+    var M = KOS.money, overlay;
+    var body = el("div", { class: "k-dialog-body" });
+    if (d.kind === "money") {
+      if (d.minor) body.appendChild(el("div", { class: "k-cal-derived-fig" }, [KOS.ui.amount(d.minor, { size: "20", plus: d.income, tone: d.income ? "in" : null }),
+        el("span", { class: "k-muted", text: prettyDate(d.date) + " · " + (d.rule.sub ? "subscription" : d.rule.kind === "in" ? "income" : d.rule.kind === "transfer" ? "set-aside" : "a rule") })]));
+      body.appendChild(el("p", { class: "k-muted", text: "A derived chip: it is read from the rule each time and is never written as an event. Editing happens in Money." }));
+    } else {
+      body.appendChild(el("p", { class: "k-muted", text: "Read from the goal each time; never written as an event." }));
+    }
+    var acts = [el("span")];
+    if (d.kind === "money" && !d.trial && d.state !== "done" && d.state !== "skip") acts.push(el("button", { type: "button", class: "k-btn", "data-ui": "cal.derived-skip", text: "Skip this one", onclick: function () {
+      M.skip(d.rule.id, d.date, function () { overlay.close(); KOS.a11y.announce("Skipped · " + d.rule.name + ", " + prettyDate(d.date)); KOS.rerender(); });
+    } }));
+    acts.push(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "cal.derived-open", text: d.kind === "money" ? "Open in Money" : "Open goal", onclick: function () {
+      overlay.close(); if (d.kind === "money") KOS.show("money", "recurring"); else KOS.show("goals", { id: d.goal.id });
+    } }));
+    overlay = dialog("cal.derived-panel", d.kind === "money" ? "From Money" : "From Goals", d.kind === "money" ? d.rule.name : d.goal.title, [body], foot(acts));
+    KOS.ui.openDialog(overlay, { label: d.title });
+  }
+  function derivedToggles(rerender) {
+    function sw(kind, glyph, label) {
+      var box = el("input", { type: "checkbox", class: "k-switch", "data-ui": "cal.derived-toggle", "aria-label": label });
+      box.checked = derivedShown(kind);
+      box.addEventListener("change", function () {
+        var d = KOS.store.state.ui.calDerived = Object.assign({}, KOS.store.state.ui.calDerived || {});
+        d[kind] = box.checked; KOS.store.save(); rerender && rerender();
+      });
+      return el("label", { class: "k-card-row k-cal-toggle" }, [el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: glyph }), el("span", { class: "k-cal-toggle-t", text: label }), box]);
+    }
+    return el("section", { class: "k-card", "data-ui": "cal.derived-card" }, [
+      el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Shown on the calendar" })]),
+      sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends")]);
   }
 
   /* ---------------- sample data ---------------- */
@@ -738,6 +819,10 @@
     d0.reminders.forEach(function (r) {
       body.appendChild(dayRow({ type: "reminder" }, r.dueTime || "Any time", r.title, "Reminder — manage in Reminders",
         function () { overlay.close(); KOS.show("reminders"); }));
+    });
+    d0.derived.forEach(function (d) {
+      body.appendChild(dayRow({ type: "reminder" }, "All day", d.title, d.kind === "money" ? "From Money" : "From Goals",
+        function () { overlay.close(); derivedPanel(d); }));
     });
     var d = parseISO(dateISO);
     overlay = dialog("cal.day-modal", DOW_LONG[(d.getDay() + 6) % 7], d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
@@ -1344,7 +1429,7 @@
       board.appendChild(legend());
 
       body.appendChild(board);
-      body.appendChild(el("div", { class: "k-cal-side" }, [todayCard(render), countdownWidget(null)]));
+      body.appendChild(el("div", { class: "k-cal-side" }, [todayCard(render), countdownWidget(null), derivedToggles(render)]));
     }
 
     /* Frame 15g: the phone composition. Agenda (the stored "week" mode) is
@@ -1444,6 +1529,7 @@
       });
       body.appendChild(list);
       body.appendChild(countdownWidget(null));
+      body.appendChild(derivedToggles(render));
     }
     render();
   };
@@ -1453,7 +1539,8 @@
     var items = dayItems(dISO);
     return items.events.map(function (ev) { return { type: ev.type, colour: ev.colour }; })
       .concat(items.assignments.map(function () { return { type: "assignment" }; }))
-      .concat(items.reminders.map(function () { return { type: "reminder" }; }));
+      .concat(items.reminders.map(function () { return { type: "reminder" }; }))
+      .concat(items.derived.map(function () { return { type: "reminder" }; }));
   }
   function dotOf(h) { return hueAttrs(el("i", { class: "k-cal-dot" }), h); }
 
@@ -1491,6 +1578,10 @@
       var ln = KOS.reminders.listName && r.listId != null ? KOS.reminders.listName(r.listId) : "";
       out.push(row("cal.event cal.rem", { type: "reminder" }, r.dueTime || "Any time", r.title, ln || "Reminder",
         "Reminder: " + r.title, function () { KOS.show("reminders"); }));
+    });
+    items.derived.forEach(function (d) {
+      out.push(row("cal.event cal.derived", { type: "reminder" }, "All day", d.glyph + " " + d.title, d.kind === "money" ? "From Money" : "From Goals",
+        d.title, function () { derivedPanel(d); }));
     });
     return out;
   }
@@ -1533,6 +1624,7 @@
       items.events.forEach(function (ev) { chips.push(eventChip(ev, dISO, onChanged)); });
       items.assignments.forEach(function (a) { chips.push(assignmentChip(a, onChanged)); });
       items.reminders.forEach(function (r) { chips.push(reminderChip(r)); });
+      items.derived.forEach(function (d) { chips.push(derivedChip(d)); });
 
       /* a "+1 more" costs exactly as much room as the chip it hides, so the
          cap only bites from the second hidden item onwards */
@@ -1607,6 +1699,7 @@
         .forEach(function (ev) { col.appendChild(eventChip(ev, d.iso, onChanged)); });
       d.items.assignments.forEach(function (a) { col.appendChild(assignmentChip(a, onChanged)); });
       d.items.reminders.forEach(function (r) { col.appendChild(reminderChip(r)); });
+      d.items.derived.forEach(function (x) { col.appendChild(derivedChip(x)); });
       band.appendChild(col);
     });
     wrap.appendChild(band);

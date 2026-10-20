@@ -167,7 +167,7 @@ step("B · goals_add takes any type; goals_list reports pace and the run", async
   const list = await tool("goals_list", { domain: "study" });
   const g = list.result.goals.find(x => x.id === add.result.id);
   eq([g.current, g.runMet, g.recent.map(x => x.met)], [2, 0, [true, false]], "this week, the run, the recent weeks");
-  eq(g.pace, "ahead", "2 h on a Monday is ahead");
+  eq(g.pace, "early", "the first day of a week is too early to call");
   const types = await tool("goals_types", { domain: "money" });
   assert(types.result.types.some(t => t.id === "money-save" && t.links.includes("pot")), "types with their links");
 });
@@ -192,7 +192,8 @@ step("C · a week's and a month's facts carry Money and Goals; the payload carri
   const pay = K.reportWords.payload({ facts: week });
   eq([pay.money_out, pay.money_in, pay.goals_met, pay.goals_missed], [30, 520, 1, 1], "totals and counts");
   const s = JSON.stringify(pay);
-  ["Secret Payee", "Food", "Private goal title"].forEach(x => assert(!s.includes(x), "payload leaks " + x));
+  ["Secret Payee", "Frieren 12"].forEach(x => assert(!s.includes(x), "payload leaks " + x));
+  assert(s.includes("Food 30") && s.includes("Private goal title"), "27o: the biggest categories and goal names are what Kurenai sees");
 });
 
 /* ---------------- D ---------------- */

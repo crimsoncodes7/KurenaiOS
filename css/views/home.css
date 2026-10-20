@@ -257,4 +257,15 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 .k-desk-go { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 }
 
+/* ---------- 27m: the Upcoming card's Goals view ---------- */
+.k-home-upswitch { margin-inline-start: auto; font-size: var(--fs-12-5); background: var(--s2); }
+.k-home-upswitch .k-seg-item { padding: var(--sp-5) var(--sp-12); }
+.k-home-goals { display: flex; flex-direction: column; }
+.k-home-goal-list { flex: 1 1 auto; }
+.k-home-goal-list > .k-day-row:first-child { border-block-start: 0; }
+.k-home-goalnum { inline-size: var(--goal-num); block-size: var(--goal-num); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--crimson) 0 var(--p, 0%), var(--s2) var(--p, 0%) 100%); }
+.k-home-goalnum > span { inline-size: var(--goal-num-in); block-size: var(--goal-num-in); display: grid; place-items: center; border-radius: 50%; background: var(--s1); font: var(--weight-semibold) var(--fs-14) var(--font-mono); }
+.k-home-goal-sub { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-6) var(--sp-8); margin-block-start: var(--sp-4); }
+.k-home-goals-all { align-self: flex-end; margin-block-start: var(--sp-10); }
+
 }

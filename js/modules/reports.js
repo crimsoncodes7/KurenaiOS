@@ -747,7 +747,8 @@
     var plan = planCard(rep), gov = governorCard(rep);
     holder.appendChild(el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, pack([
       { node: studyCard(rep) }, { node: focusCard(rep) }, { node: plan || gov },
-      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) }
+      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) },
+      { node: moneyCard(rep) }, { node: goalsCard(rep) }, { node: kurenaiSees(rep) }
     ])));
   }
   function weekTiles(f) {
@@ -951,6 +952,57 @@
         ])]);
       })) : null
     ].filter(Boolean));
+  }
+  /* Money (f.money, 27o): totals, the three biggest categories, what went
+     into pots, then one line of context. A balance is words, never a bar
+     (invariant 78); a supporting zero is not printed (invariant 77). With
+     Hide amounts on, the figures mask exactly as in Money. */
+  function moneyCard(rep) {
+    var m = rep.facts.money;
+    if (!m) return null;
+    var A = function (minor, o) { return KOS.ui.amount(minor, Object.assign({ size: "22" }, o || {})); };
+    var figs = [
+      m.outgoings ? el("div", { class: "k-rp-mfig" }, [el("span", { class: "k-kicker", text: "Spent" }), A(m.outgoings)]) : null,
+      m.income ? el("div", { class: "k-rp-mfig" }, [el("span", { class: "k-kicker", text: "In" }), A(m.income, { tone: "in", plus: true })]) : null,
+      m.toPots ? el("div", { class: "k-rp-mfig" }, [el("span", { class: "k-kicker", text: "To pots" }), A(m.toPots, { tone: "transfer" })]) : null
+    ].filter(Boolean);
+    var tone = function (id) { var c = KOS.money && KOS.money.category(id); return c ? c.tone : "muted"; };
+    var context = [];
+    if (m.over && m.over.length) context.push("Over budget: " + m.over.map(function (o) { return o.name; }).join(", ") + ".");
+    if (m.subs) context.push("Subscriptions run at " + (KOS.money && !KOS.money.isHidden() ? KOS.money.format(m.subs) : "a set amount") + " a month.");
+    return card("Money", { className: "k-rp-card--money" }, [
+      figs.length ? el("div", { class: "k-rp-mfigs" }, figs) : null,
+      (m.top || []).length ? el("h3", { class: "k-rp-subhead", text: "Biggest categories" }) : null,
+      (m.top || []).length ? el("div", { class: "k-rp-mcats" }, m.top.map(function (c) {
+        return el("button", { type: "button", class: "k-rp-mcat", "data-ui": "reports.money-cat", onclick: function () { KOS.show("money", "month"); } }, [
+          el("span", { class: "k-mn-dot", "data-cat-tone": tone(c.cat), "aria-hidden": "true" }), el("span", { class: "k-rp-mcat-n", text: c.name }), A(c.spent, { size: "13" })]);
+      })) : null,
+      context.length ? el("p", { class: "k-rp-note", text: context.join(" ") }) : null
+    ].filter(Boolean));
+  }
+  /* Goals (f.goals, 27o): how many periods ended met or missed, then the
+     named goals with their ended state. Reported, never paid (5b). */
+  function goalsCard(rep) {
+    var g = rep.facts.goals;
+    if (!g) return null;
+    var met = (g.periodsMet || 0) + (g.reached ? g.reached.length : 0), missed = (g.periodsMissed || 0) + (g.missed ? g.missed.length : 0);
+    return card("Goals", { className: "k-rp-card--goals" }, [
+      el("div", { class: "k-rp-gcounts" }, [
+        met ? el("div", { "data-k": "met" }, [el("b", { class: "k-mono", text: String(met) }), el("span", { class: "k-muted", text: "met" })]) : null,
+        missed ? el("div", { "data-k": "missed" }, [el("b", { class: "k-mono", text: String(missed) }), el("span", { class: "k-muted", text: "missed" })]) : null].filter(Boolean)),
+      el("div", { class: "k-rp-goals" }, (g.rows || []).slice(0, 6).map(function (r) {
+        return el("button", { type: "button", class: "k-rp-goal", "data-ui": "reports.goal-row", onclick: function () { KOS.show("goals", { id: r.id }); } }, [
+          el("span", { class: "k-rp-goal-t" }, [el("b", { text: r.title }),
+            el("span", { class: "k-muted", text: r.repeat ? r.met + " of " + r.of + (r.repeat === "week" ? " weeks met" : " months met") : r.state === "met" ? "reached" : "missed by its deadline" })]),
+          KOS.ui.paceChip(r.state)]);
+      }))
+    ]);
+  }
+  /* what Kurenai's words are written from (27o) */
+  function kurenaiSees(rep) {
+    if (!rep.facts.money && !rep.facts.goals) return null;
+    return card("What Kurenai sees", { className: "k-rp-card--sees", meta: "for the words" }, [
+      el("p", { class: "k-rp-note", text: "Totals in and out, the three biggest categories by amount, the subscriptions total, and how many goals were met or missed with their names. Never payees, notes, tags or the titles you bought." })]);
   }
   function governorCard(rep) {
     var f = rep.facts, g = f.gov, k = f.kurenai;
@@ -1442,7 +1494,7 @@
   KOS.reportsKit = {
     el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
     stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
-    bars: bars, kvRows: kvRows, codeCard: codeCard, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    bars: bars, kvRows: kvRows, codeCard: codeCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
     cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
     flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,
     open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip, reportTop: reportTop,

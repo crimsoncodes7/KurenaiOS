@@ -318,20 +318,17 @@ step("ticking a checkbox updates the live Remaining figure (pure simulation)", a
   const remAfter = main.querySelector("[data-ui~='plan.bn-rem'] b").textContent;
   if (remBefore === remAfter) throw new Error("Remaining did not react to the simulation");
 });
-step("Edit monthly budget uses a modal and saves into the existing budget state", async () => {
+step("the allowance IS Money's Collection budget (27n): the button opens Money › Budgets and one write moves both", async () => {
   KOS.show("wishlist");
   await tick(30);
-  document.querySelector("[data-ui~='plan.budget-edit']").click();
-  await tick(20);
-  const modal = document.querySelector("[data-ui~='plan.budget-dialog']");
-  if (!modal) throw new Error("budget modal did not open");
-  if (modal.querySelector('input[type="text"]')) throw new Error("currency should lock once planner values exist");
-  if (!/never relabelled/i.test(modal.textContent)) throw new Error("locked-currency explanation missing");
-  const amount = modal.querySelector('input[type="number"]');
-  amount.value = "125";
-  [...modal.querySelectorAll("button")].find(b => /save budget/i.test(b.textContent)).click();
-  await tick(20);
-  if (KOS.wishlist.budget().monthlyLimit !== 125) throw new Error("budget modal did not save");
+  const go = document.querySelector("[data-ui~='plan.budget-edit']");
+  if (!/Money/.test(go.textContent)) throw new Error("the budget button does not point at Money");
+  go.click();
+  await tick(30);
+  if (!document.querySelector("#main .k-mn")) throw new Error("did not open Money");
+  KOS.money.setBudget("collection", 125);
+  if (KOS.wishlist.budget().monthlyLimit !== 125) throw new Error("Money's Collection budget is not the Wishlist's allowance");
+  if (KOS.money.category("collection").budgetFrom !== "wishlist") throw new Error("the Collection category no longer reads the Wishlist");
 });
 step("waiting-for-release tab shows the release-aware next-to-drop hero", async () => {
   const soon = KOS.srs.addDays(KOS.srs.todayISO(), 5);
@@ -370,23 +367,23 @@ step("a full planner flow fires ZERO governor traffic and zero network", async (
 });
 
 /* ============ 8 · nav ============ */
-step("nav: Collection keeps vaults primary and reaches the Budget Planner through Planner", async () => {
+step("nav: Collection keeps vaults primary and reaches the queue through Wishlist (27n)", async () => {
   const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
   const labels = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map(b => subnavName(b));
-  ["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"].forEach(label => {
+  ["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Wishlist", "Sync"].forEach(label => {
     if (!labels.includes(label)) throw new Error("primary Collection destination missing: " + label);
   });
   if (labels.some(label => /Budget Planner|Goals|AniList|VNDB|Sync & Import/.test(label))) throw new Error("utility route leaked into primary Collection navigation");
-  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(subnavName(b)));
-  if (!sn) throw new Error("Planner entry missing");
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Wishlist$/.test(subnavName(b)));
+  if (!sn) throw new Error("Wishlist entry missing");
   sn.click();
   await tick(60);
-  if (!/Budget/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
-  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.getAttribute("aria-label").includes("Planner")) throw new Error("Planner nav state was not retained");
-  if (!document.querySelector("[data-ui~='coll.workspace-tabs'] [data-ui~='ui.tab'][data-state~='active']")?.textContent.includes("Budget Planner")) throw new Error("Planner secondary tab missing");
+  if (!/Wishlist/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
+  const active = document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']");
+  if (!active || !active.getAttribute("aria-label").includes("Wishlist")) throw new Error("Wishlist nav state was not retained");
 });
 step("backup coverage: wishlist rides the localStorage state (exportJSON serialises it)", async () => {
   const raw = JSON.parse(JSON.stringify(KOS.store.state));
@@ -432,11 +429,12 @@ step("an auto goal measures against the vault (mediadb.stats), not a stored coun
   if (row._current < 1) throw new Error("auto metric did not read completed games from the vault");
   if (row._status !== "completed") throw new Error("auto goal should complete once the vault meets it");
 });
-step("the view renders Active/Completed/Failed tabs and goal cards", async () => {
+step("the view renders the This week / This month / All / Done tabs (27i)", async () => {
   KOS.show("goals");
   await tick(60);
   const main = document.getElementById("main");
-  if (main.querySelectorAll("[data-ui~='goal.tabs'] [data-ui~='ui.tab']").length !== 3) throw new Error("expected 3 goal tabs");
+  const tabs = [...main.querySelectorAll(".k-gl-tabs [role='tab']")].map(b => b.textContent.trim());
+  if (tabs.join("|") !== "This week|This month|All|Done") throw new Error("goal tabs: " + tabs.join("|"));
   if (!/Goals/.test(main.textContent)) throw new Error("goals view did not render");
 });
 step("Goals fires ZERO governor traffic and zero network", async () => {
@@ -455,15 +453,12 @@ step("Goals fires ZERO governor traffic and zero network", async () => {
   if (after.hp !== before.hp || after.gold !== before.gold || after.xp !== before.xp) throw new Error("governor HP/gold/XP moved");
   if (netLog.length !== 0) throw new Error("Goals emitted network: " + netLog.map(r => r.url).join(", "));
 });
-step("nav: Planner secondary tab reaches Goals; goals ride the serialised backup", async () => {
-  const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
+step("nav: Goals is a Productivity page (27a); goals ride the serialised backup", async () => {
+  const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "productivity");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(subnavName(b)));
-  sn.click();
-  await tick(60);
-  const goals = [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].find(b => /^Goals$/.test(b.textContent.trim()));
-  if (!goals) throw new Error("Goals secondary tab missing");
+  const goals = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Goals$/.test(subnavName(b)));
+  if (!goals) throw new Error("Goals missing from the Productivity strip");
   goals.click();
   await tick(60);
   if (!/Goals/.test(document.getElementById("main").textContent)) throw new Error("Goals navigation failed");

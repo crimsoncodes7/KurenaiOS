@@ -75,6 +75,13 @@
       if (!a) return null;
       if (a.tab && a.tab !== "week") return [a.tab];
       return a.wb ? [a.wb] : null;
+    },
+    /* Money's views (`#/money/transactions`; Overview is bare) */
+    money: function (a) { return typeof a === "string" && a && a !== "overview" ? [a] : null; },
+    /* Goals: a tab (`#/goals/week`) or one goal (`#/goals/12`) */
+    goals: function (a) {
+      if (a && a.id != null) return [String(a.id)];
+      return typeof a === "string" && a && a !== "all" ? [a] : null;
     }
   };
   var DECODE = {
@@ -89,6 +96,8 @@
     governor: function (p) { return p[0] || null; },
     code: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
+    money: function (p) { return p[0] || null; },
+    goals: function (p) { return !p[0] ? null : /^\d+$/.test(p[0]) ? { id: Number(p[0]) } : p[0]; },
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
     help: function (p) { return p[1] ? { section: p[0], entry: p[1] } : p[0] || null; },
     reports: function (p) {
@@ -120,6 +129,8 @@
     });
     if (!parts.length) return null;
     var viewId = parts[0];
+    /* routes that moved (27a): the Planner is the Wishlist now */
+    if (viewId === "planner") viewId = "wishlist";
     if (!KOS.views[viewId]) return null;
     var dec = DECODE[viewId];
     var arg;

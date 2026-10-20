@@ -83,6 +83,7 @@ const SURFACES = [
   ["focus"], ["reminders"], ["tasks"], ["calendar"], ["pacing"], ["pacing", { tab: "braid" }],
   ["matrix"], ["anime"], ["seasonal"], ["books"], ["mangaka"], ["vn"], ["game"],
   ["shrine"], ["wishlist"], ["goals"], ["mediasync"], ["aniprofile"], ["vndbprofile"],
+  ["money"], ["money", "transactions"], ["money", "budgets"], ["money", "recurring"], ["money", "pots"], ["money", "month"],
   ["governor"], ["assistant"], ["notifications"], ["data"], ["help"],
   ["sims"], ["worked"], ["trace"], ["oop"], ["reports"]
 ];

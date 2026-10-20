@@ -57,7 +57,17 @@
   /* the period of a repeating goal holding `date`: {key, from, to}. A
      Money goal's month follows Money's month start (a payday month). */
   function periodOf(g, date) {
-    if (g.repeat === "week") { var ws = weekStart(date); return { key: ws, from: ws, to: addDays(ws, 6) }; }
+    if (g.repeat === "week") {
+      /* "The week runs" (27k): Monday to Sunday, or from the weekday the
+         goal started (a goal begun on a Wednesday runs Wed–Tue) */
+      var ws = weekStart(date);
+      if (g.weekFrom === "start" && g.startDate) {
+        var off = ((parseISO(g.startDate).getDay() + 6) % 7);
+        ws = addDays(ws, off);
+        if (ws > date) ws = addDays(ws, -7);
+      }
+      return { key: ws, from: ws, to: addDays(ws, 6) };
+    }
     if (g.domain === "money" && KOS.money) {
       var r = KOS.money.periodRange(KOS.money.periodKey(date));
       return { key: r.key, from: r.from, to: r.to };
@@ -173,6 +183,7 @@
       current: auto ? 0 : num(raw.current, 0, 0),
       milestones: milestones,
       repeat: repeat,
+      weekFrom: repeat === "week" && raw.weekFrom === "start" ? "start" : null,
       outcomes: outcomes,
       startDate: cleanDate(raw.startDate) || (raw.createdAt ? iso(new Date(raw.createdAt)) : todayISO()),
       deadline: repeat ? null : cleanDate(raw.deadline),
@@ -279,25 +290,29 @@
     if (g.deadline && g.deadline < today) return "failed";
     return "active";
   }
-  /* the straight-line expectation: where a goal "should" be by today.
-     "ahead" | "on-track" | "behind" | null (no claim: no end date, not
-     started, nothing measured, or a value that is only displayed). An
-     under-goal (spend below) is behind when it runs ahead of its line. */
-  var PACE = { ahead: 1.15, onTrack: 0.9 };
+  /* the pace chip (design primitive): expected = target × elapsed ÷ length,
+     elapsed counting today. "ahead" at or above expected + 10% of the
+     target, "behind" below expected − 5%, else "on-track"; "early" before
+     15% of the period has gone (or on its first day). A stay-under goal has
+     no line — purchases are lumpy — so it is "under" or "over". null makes
+     no claim: no deadline, not started, nothing measured, or a value that
+     is only displayed. */
+  var PACE = { ahead: 0.10, behind: 0.05, early: 0.15 };
+  function expectedOf(target, from, to, today) {
+    var total = daysBetween(from, to) + 1;
+    var elapsed = Math.max(0, Math.min(total, daysBetween(from, today) + 1));
+    return { total: total, elapsed: elapsed, value: target * elapsed / total, frac: elapsed / total };
+  }
   function pace(g, def, current, target, from, to, today) {
     if (def.displayOnly || current == null || !from || !to || today < from) return null;
-    var total = daysBetween(from, to) + 1;
-    if (total < 2) return null;
-    var elapsed = Math.min(total, daysBetween(from, today) + 1);
-    var expected = target * elapsed / total;
-    if (def.direction === "under") {
-      if (current > target) return "behind";
-      return current > expected * (2 - PACE.onTrack) ? "behind" : "on-track";
-    }
+    if (def.direction === "under") return current > target ? "over" : "under";
+    var e = expectedOf(target, from, to, today);
+    if (e.total < 2) return null;
     if (current >= target) return "ahead";
-    if (expected <= 0) return null;
-    var ratio = current / expected;
-    return ratio >= PACE.ahead ? "ahead" : ratio >= PACE.onTrack ? "on-track" : "behind";
+    if (e.elapsed <= 1 || e.frac < PACE.early) return "early";
+    if (current >= e.value + PACE.ahead * target) return "ahead";
+    if (current < e.value - PACE.behind * target) return "behind";
+    return "on-track";
   }
   /* a projected finish from the rate so far — only with three days of it
      and something done (invariant 76) */
@@ -411,6 +426,8 @@
           _domain: def.domain, _direction: def.direction, _displayOnly: !!def.displayOnly,
           _period: per, _run: per ? runOf(g) : 0,
           _pace: status === "active" || per ? pace(g, def, m.current, target, from, paceTo, today) : null,
+          _expected: paceTo && def.direction === "reach" && !def.displayOnly && today >= from ? Math.round(expectedOf(target, from, paceTo, today).value * 100) / 100 : null,
+          _from: from, _to: paceTo || null,
           _projected: per ? null : projected(def, m.current, target, from, today),
           _milestonesMet: (g.milestones || []).filter(function (x) { return (m.current || 0) >= x; }).length,
           _rewardSafe: !!data().completionLedger[g.id]
@@ -422,6 +439,26 @@
       if (per && def.repeat) closePeriods(g, def, base, today, function (d) { if (d) dirty = true; measureNow(); });
       else measureNow();
     });
+  }
+
+  /* the pace chart's data (27j): the figure at the end of each day of the
+     current period (or from the start to the deadline), read over [from,
+     day] — only for types that can be read over any range. Days to come
+     are left out; the chart draws the line to the end. */
+  function series(g, cb) {
+    var def = typeDef(g.type), today = todayISO();
+    if (!def.repeat || !def.measure) { cb(null); return; }
+    var per = g.repeat ? periodOf(g, today) : null;
+    var from = per ? per.from : g.startDate, to = per ? per.to : g.deadline;
+    if (!from || !to || from > today) { cb(null); return; }
+    var days = [], d = from;
+    for (var guard = 0; d <= to && d <= today && guard < 400; guard++, d = addDays(d, 1)) days.push(d);
+    var base = { today: today, stats: function (done) { done({ total: 0, modules: {}, favourites: 0 }); } };
+    var out = [];
+    (function next(i) {
+      if (i >= days.length) { cb({ from: from, to: to, points: out, target: g.target }); return; }
+      measureOne(g, def, ctxFor(base, from, days[i]), function (m) { out.push([days[i], m.current == null ? 0 : m.current]); next(i + 1); });
+    })(0);
   }
 
   function metricLabel(g) {
@@ -522,7 +559,62 @@
       }).length, unit: "rows" });
     } });
 
+  /* ---- the rest of 27k's picker ---- */
+  /* the best mark in the period, as a percentage (Exams & Papers) */
+  register({ id: "study-paper-score", domain: "study", label: "A mock or paper score", icon: "試", unit: "%",
+    fields: { subject: true },
+    measure: function (g, ctx, cb) {
+      var rows = KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : [];
+      var best = null;
+      rows.forEach(function (e) {
+        if (e.date < ctx.from || e.date > ctx.to || (g.links.subject && e.subject !== g.links.subject)) return;
+        var p2 = KOS.tracker.pct ? KOS.tracker.pct(e) : null;
+        if (p2 != null && (best == null || p2 > best)) best = p2;
+      });
+      cb({ current: best, unit: "%", meta: best == null ? "No paper marked in this time yet" : "" });
+    } });
+  /* every leaf of the picked unit at Completed (the topic's own status) */
+  register({ id: "study-finish-unit", domain: "study", label: "Finish a unit", icon: "単", unit: "topics",
+    fields: { refs: true },
+    measure: function (g, ctx, cb) {
+      var keys = g.links.refs && KOS.spec && KOS.spec.resolve ? KOS.spec.resolve(g.links.refs) : [];
+      if (!keys.length) { cb({ current: null, meta: "Pick the unit with the topic picker" }); return; }
+      var done = keys.filter(function (k) {
+        var i = k.indexOf(":"), pr = store.peekProgress(k.slice(0, i), k.slice(i + 1));
+        return pr && pr.status === "done";
+      }).length;
+      cb({ current: done, target: keys.length, unit: "topics" });
+    } });
+  register({ id: "habit-streak", domain: "productivity", label: "A habit's streak", icon: "習", unit: "days",
+    measure: function (g, ctx, cb) {
+      var hs = (store.state.todo && store.state.todo.habits) || [];
+      var h = hs.filter(function (x) { return String(x.id) === String(g.params.habit); })[0] || null;
+      if (!h) { cb({ current: null, meta: g.params.habit ? "The linked habit was removed" : "No habit linked" }); return; }
+      var d = todayISO(), n = 0;
+      if (!h.days[d]) d = addDays(d, -1);
+      while (h.days && h.days[d]) { n++; d = addDays(d, -1); }
+      cb({ current: n, unit: "days", meta: h.text });
+    } });
+  register({ id: "no-overdue", domain: "productivity", label: "No overdue assignment", icon: "課", unit: "overdue",
+    direction: "under",
+    measure: function (g, ctx, cb) {
+      var c = KOS.assignments && KOS.assignments.counts ? KOS.assignments.counts() : null;
+      cb({ current: c ? c.overdue : null, target: 0, unit: "overdue" });
+    } });
+  register({ id: "carryovers-cleared", domain: "productivity", label: "Carry-overs cleared", icon: "越", unit: "carried",
+    direction: "under",
+    measure: function (g, ctx, cb) {
+      var w = KOS.pacing && KOS.pacing.dueThisWeek ? KOS.pacing.dueThisWeek() : null;
+      cb({ current: w ? w.carried.length : null, target: 0, unit: "carried" });
+    } });
+
   /* ---- Money (reads KOS.money; nothing here writes it) ---- */
+  register({ id: "money-subs-under", domain: "money", label: "Subscriptions below an amount", icon: "↻", unit: "£",
+    direction: "under",
+    measure: function (g, ctx, cb) {
+      if (!KOS.money) { cb({ current: null }); return; }
+      cb({ current: KOS.money.subscriptions().perMonth / 100, unit: KOS.money.data().currency, meta: "a month" });
+    } });
   function moneyTally(ctx, cb) {
     if (!KOS.money || !KOS.money.available()) { cb(null); return; }
     KOS.money.range(ctx.from, ctx.to, function (err, rows) { cb(err ? null : rows); });
@@ -682,7 +774,7 @@
     all: all, get: get, add: add, update: update, remove: remove, nudge: nudge, reopen: reopen,
     archive: archive, restart: restart,
     compute: compute, normalise: normalise, metricLabel: metricLabel,
-    periodOf: periodOf, pace: pace, projected: projected, runOf: runOf,
+    periodOf: periodOf, pace: pace, expectedOf: expectedOf, series: series, projected: projected, runOf: runOf,
     todayISO: todayISO, monthEndISO: monthEndISO, num: num,
     PACE: PACE, PROJECT_MIN_DAYS: PROJECT_MIN_DAYS
   };

@@ -64,12 +64,21 @@
   }
 
   var toastTimer = null;
-  function toast(msg, bad) {
+  /* action (optional): {label, run} — one button in the toast ("View in
+     Transactions", "Undo"), held for 8 seconds instead of 2.6. The spoken
+     half is still the message alone; the button is a pointer convenience
+     (the toast is aria-hidden), so whatever it does must also be reachable
+     on the page. */
+  function toast(msg, bad, action) {
     var t = document.getElementById("toast");
     t.textContent = msg;
-    t.setAttribute("data-state", "show" + (bad ? " bad" : ""));
+    if (action && action.label) {
+      t.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-toast-act", tabindex: "-1", text: action.label,
+        onclick: function () { t.removeAttribute("data-state"); action.run && action.run(); } }));
+    }
+    t.setAttribute("data-state", "show" + (bad ? " bad" : "") + (action ? " action" : ""));
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.removeAttribute("data-state"); }, 2600);
+    toastTimer = setTimeout(function () { t.removeAttribute("data-state"); }, action ? 8000 : 2600);
     /* Phase F: #toast is the VISIBLE half and is aria-hidden; the spoken
        half goes through the one live region, so the same sentence twice
        running still announces twice and a failure interrupts rather than
@@ -361,11 +370,10 @@
     tracker: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
-    reminders: "productivity",
+    reminders: "productivity", money: "productivity", goals: "productivity",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
-    goals: "collection",
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
     governor: "governor",
     assistant: "assistant",
@@ -392,7 +400,10 @@
       { label: "Focus Timer", view: "focus" },
       { label: "Reminders", view: "reminders", count: "pc-rem", tone: "neutral" },
       { label: "Habits", view: "tasks" },
-      { label: "Calendar", view: "calendar" }
+      { label: "Calendar", view: "calendar" },
+      /* 27a: Money and Goals join the strip; the rail keeps seven sections */
+      { label: "Money", view: "money" },
+      { label: "Goals", view: "goals" }
     ],
     collection: [
       { label: "Overview", view: "matrix" },
@@ -402,7 +413,7 @@
       { label: "Games", view: "game", dot: "var(--games)" },
       null,
       { label: "Shrine", view: "shrine", mark: "祠" },
-      { label: "Planner", view: "wishlist", mark: "円" },
+      { label: "Wishlist", view: "wishlist", mark: "願" },
       { label: "Sync", view: "mediasync", mark: "同" }
     ],
     /* Archive opens on Backup, so Backup leads the strip (review A) */
@@ -523,10 +534,12 @@
     }), { variant: "workspace", label: label, className: className });
   };
   KOS.collectionWorkspaceTabs = function (area, current) {
+    /* 27a: the Planner's two pages left — Money and Goals are Productivity's
+       now — so only Sync keeps a workspace switch here */
     var groups = {
-      planner: [["Budget Planner", "wishlist"], ["Goals", "goals"]],
       sync: [["AniList", "aniprofile"], ["VNDB", "vndbprofile"], ["Sync & Import", "mediasync"]]
     };
+    if (!groups[area]) return null;
     var tabs = KOS.workspaceTabs(groups[area], current,
       area === "planner" ? "Planner pages" : "Sync pages");
     tabs.setAttribute("data-ui", tabs.getAttribute("data-ui") + " coll.workspace-tabs");
@@ -1057,6 +1070,212 @@
   KOS.ui.menu = menu;
 
   /* ============================================================
+     MONEY AND GOALS PRIMITIVES  (design 27, "Primitives")
+     Each built once here and in components.css; Money, Goals, the
+     Wishlist, Home, Calendar and Reports compose them.
+     ============================================================ */
+  /* THE AMOUNT — JetBrains Mono, tabular, "£" and a true minus. Hide amounts
+     (state.ui.moneyHidden, per device) keeps the exact text, transparent,
+     under an --s2 mask, so the width never changes. opts: {size (a --fs-
+     step: "12", "13-5", "24" …), tone ("in" | "out" | "transfer" | "muted"
+     | "alarm"), plus (a + on income), w ("500"), hidden (override)} */
+  function amount(minor, opts) {
+    opts = opts || {};
+    var text = typeof minor === "string" ? minor
+      : (KOS.money ? KOS.money.format(minor, { sign: !!opts.plus, whole: !!opts.whole }) : String(minor));
+    var hidden = opts.hidden != null ? opts.hidden : !!(KOS.money && KOS.money.isHidden());
+    var node = el("span", { class: "k-amount" + (opts.className ? " " + opts.className : ""), "data-ui": "money.amount",
+      "data-size": opts.size || null, "data-tone": opts.tone || null, "data-w": opts.w || null,
+      "aria-label": hidden ? "amount hidden" : null, text: text });
+    if (hidden) state(node, "hidden", true);
+    return node;
+  }
+  /* THE AMOUNT FIELD — inputmode decimal; 23.4, £23.40 and 23,40 all read;
+     the value is integer pence. field.value() → minor | null; validate()
+     shows "✕ Enter an amount above £0.00" and returns false. */
+  function amountField(opts) {
+    opts = opts || {};
+    var cur = KOS.money ? KOS.money.data().currency : "£";
+    var input = el("input", { class: "k-amount-input", "data-ui": "money.amount-input", type: "text", inputmode: "decimal",
+      autocomplete: "off", "aria-label": opts.label || "Amount", placeholder: "0.00" });
+    if (opts.value != null) input.value = (Math.abs(opts.value) / 100).toFixed(2);
+    var err = el("div", { class: "k-field-error", "data-ui": "money.amount-error", role: "alert", hidden: "" });
+    var box = el("div", { class: "k-amount-field", "data-ui": "money.amount-field", "data-size": opts.size || null }, [
+      el("span", { class: "k-amount-cur", "aria-hidden": "true", text: /^[A-Z]{3}$/.test(cur) ? cur : cur }), input]);
+    var node = el("div", { class: "k-amount-wrap" }, [box, err]);
+    function value() {
+      var m = KOS.money ? KOS.money.toMinor(input.value) : Math.round(Number(input.value) * 100);
+      return m == null || !isFinite(m) ? null : Math.abs(m);
+    }
+    function validate() {
+      var v = value(), ok = v != null && v > 0;
+      input.setAttribute("aria-invalid", ok ? "false" : "true");
+      state(box, "invalid", !ok);
+      err.hidden = ok;
+      err.textContent = ok ? "" : "✕ Enter an amount above " + (KOS.money ? KOS.money.format(0) : "£0.00");
+      return ok;
+    }
+    input.addEventListener("input", function () {
+      if (!err.hidden) validate();
+      if (opts.onInput) opts.onInput(value());
+    });
+    if (opts.disabled) input.disabled = true;
+    return { node: node, input: input, value: value, validate: validate };
+  }
+  /* THE CATEGORY BAR — spend against its budget, ALWAYS both figures.
+     Over: the alarm fill, a --text tick where the budget ends, "▲ Over by".
+     No budget: no bar, "Set a budget". opts: {name, tone, spent, budget,
+     sub, note, left (override), foot (false hides the line), onSet} */
+  function catBar(opts) {
+    opts = opts || {};
+    var spent = opts.spent || 0, budget = opts.budget;
+    var over = budget != null && spent > budget;
+    var node = el("div", { class: "k-catbar", "data-ui": "money.catbar", "data-cat-tone": opts.tone || "muted" });
+    if (over) state(node, "over", true);
+    node.appendChild(el("div", { class: "k-catbar-head" }, [
+      el("span", { class: "k-catbar-dot", "aria-hidden": "true" }),
+      el("span", { class: "k-catbar-name", text: opts.name || "" }),
+      opts.sub ? el("span", { class: "k-catbar-sub", text: opts.sub }) : null,
+      el("span", { class: "k-catbar-figs" }, budget != null
+        ? [amount(spent), el("span", { class: "k-catbar-of", text: "of" }), amount(budget, { w: "500", tone: "muted" })]
+        : [amount(spent)])
+    ].filter(Boolean)));
+    if (budget != null) {
+      var bar = el("div", { class: "k-catbar-bar", "aria-hidden": "true" }, [el("i")]);
+      bar.style.setProperty("--p", (budget > 0 ? Math.min(100, 100 * spent / budget) : (spent > 0 ? 100 : 0)).toFixed(1) + "%");
+      if (over) {
+        bar.style.setProperty("--tick", (100 * budget / spent).toFixed(1) + "%");
+        bar.appendChild(el("b"));
+      }
+      node.appendChild(bar);
+    }
+    if (opts.foot !== false) {
+      var foot = el("div", { class: "k-catbar-foot" });
+      if (budget == null) {
+        foot.appendChild(opts.onSet ? el("button", { type: "button", class: "k-link", "data-ui": "money.set-budget", text: "Set a budget", onclick: opts.onSet })
+          : el("span", { text: "No budget set" }));
+      } else if (over) {
+        foot.appendChild(el("span", { class: "k-catbar-over" }, ["▲ Over by ", amount(spent - budget, { size: "12", tone: "alarm" })]));
+      } else {
+        foot.appendChild(el("span", { class: "k-catbar-left" }, [amount(budget - spent, { size: "12", w: "500", tone: "muted" }), " left"]));
+      }
+      if (opts.note) foot.appendChild(el("span", { class: "k-catbar-note", text: opts.note }));
+      node.appendChild(foot);
+    }
+    return node;
+  }
+  /* THE PACE CHIP — an icon and a word, never colour alone; Behind, Missed
+     and Over are the fixed alarm (data-tone="danger"). */
+  var PACE_CHIP = {
+    ahead: ["▲ Ahead", "teal"], "on-track": ["● On track", "green"], behind: ["▼ Behind", "danger"],
+    early: ["◌ Too early to call", "muted"], met: ["✓ Met", "green"], missed: ["✕ Missed", "danger"],
+    under: ["● Under", "green"], over: ["▲ Over", "danger"], notyet: ["○ Not started", "muted"],
+    done: ["✓ Done", "green"], archived: ["▣ Archived", "muted"], display: ["Display only", "muted"], none: ["No pace", "muted"]
+  };
+  function paceChip(kind) {
+    var p = PACE_CHIP[kind];
+    if (!p) return null;
+    return el("span", { class: "k-chip", "data-ui": "goal.pace", "data-state": kind, "data-tone": p[1], text: p[0] });
+  }
+  /* THE PERIOD-HISTORY STRIP — oldest first; met ✓ on teal, missed ✕ in an
+     alarm outline, the open period outlined with its part done filled, a
+     period before the goal existed as --s2. Each square is a list item
+     read aloud ("Week of 17 Sep, met, 13.2 hours"). items: [{state:
+     "met"|"missed"|"open"|"none", label, fill (0..1)}], opts: {size} */
+  function periods(items, opts) {
+    opts = opts || {};
+    var list = el("ol", { class: "k-periods", "data-ui": "goal.periods", "data-size": opts.size || null,
+      "aria-label": opts.label || "Every period" });
+    (items || []).forEach(function (it) {
+      var li = el("li", { class: "k-period", "data-state": it.state || "none", "aria-label": it.label || null,
+        text: it.state === "met" ? "✓" : it.state === "missed" ? "✕" : "" });
+      if (it.state === "open") li.style.setProperty("--fill", Math.round(100 * Math.max(0, Math.min(1, it.fill || 0))) + "%");
+      list.appendChild(li);
+    });
+    return list;
+  }
+  /* THE GOAL RING — progress in the accent, the straight line's tick in
+     --text, met in teal with ✓. Sizes 164 (hero), 96, 92 (phone).
+     opts: {p (0..1), tick (0..1 | null), size, stroke, met, label} */
+  function ring(opts, inner) {
+    opts = opts || {};
+    var NS = "http://www.w3.org/2000/svg";
+    var size = opts.size || 96, sw = opts.stroke || (size >= 140 ? 14 : 9);
+    var r = (size - sw) / 2, c = 2 * Math.PI * r, cx = size / 2;
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 " + size + " " + size);
+    svg.setAttribute("aria-hidden", "true");
+    function circle(cls, dash) {
+      var n = document.createElementNS(NS, "circle");
+      n.setAttribute("class", cls);
+      n.setAttribute("cx", cx); n.setAttribute("cy", cx); n.setAttribute("r", r);
+      n.setAttribute("stroke-width", sw);
+      if (dash) { n.setAttribute("stroke-dasharray", dash); n.setAttribute("transform", "rotate(-90 " + cx + " " + cx + ")"); }
+      return n;
+    }
+    svg.appendChild(circle("k-ring-track"));
+    var p = Math.max(0, Math.min(1, opts.p || 0));
+    if (p > 0) svg.appendChild(circle("k-ring-fill", (c * p).toFixed(1) + " " + c.toFixed(1)));
+    if (opts.tick != null && !opts.met) {
+      var a = (Math.max(0, Math.min(1, opts.tick)) * 360 - 90) * Math.PI / 180, r1 = r - sw / 2 - 3, r2 = r + sw / 2 + 3;
+      var t = document.createElementNS(NS, "line");
+      t.setAttribute("class", "k-ring-tick");
+      t.setAttribute("x1", (cx + r1 * Math.cos(a)).toFixed(1)); t.setAttribute("y1", (cx + r1 * Math.sin(a)).toFixed(1));
+      t.setAttribute("x2", (cx + r2 * Math.cos(a)).toFixed(1)); t.setAttribute("y2", (cx + r2 * Math.sin(a)).toFixed(1));
+      svg.appendChild(t);
+    }
+    var node = el("div", { class: "k-ring", "data-ui": "goal.ring", "data-size": String(size), role: opts.label ? "img" : null,
+      "aria-label": opts.label || null }, [svg, el("div", { class: "k-ring-in" }, inner || [])]);
+    if (opts.met) state(node, "met", true);
+    return node;
+  }
+  /* THE PICTURE SLOT — the user's own picture through KOS.imageCrop:
+     empty ("◫ Add a picture"), filled, placing. The source and {x,y,zoom}
+     are stored apart by the owner (opts.save); nothing is ever fetched.
+     opts: {pic: {src, crop} | null, label, aspect, save(pic|null), hue} */
+  function pictureSlot(opts) {
+    opts = opts || {};
+    var node = el("div", { class: "k-pic", "data-ui": "money.picture" });
+    function edit() {
+      KOS.imageCrop.open({
+        title: opts.title || "Picture", source: opts.pic ? opts.pic.src : "", crop: opts.pic ? opts.pic.crop : null,
+        aspect: opts.aspect || 1, allowUrl: false, allowUpload: true,
+        fileOptions: { maxWidth: 1200, maxHeight: 1200, maxBytes: 450 * 1024, quality: 0.84 },
+        removeLabel: "Remove the picture",
+        onRemove: opts.pic ? function () { opts.save && opts.save(null); } : null,
+        onSave: function (res) { opts.save && opts.save({ src: res.source, crop: res.crop }); }
+      });
+    }
+    if (opts.pic && opts.pic.src) {
+      var img = KOS.imageCrop.image(opts.pic.src, { alt: opts.alt || "", class: "k-pic-img", draggable: "false" }, opts.pic.crop);
+      node.appendChild(img);
+      state(node, "filled", true);
+      if (opts.save) node.appendChild(el("button", { type: "button", class: "k-pic-change", "data-ui": "money.picture-change",
+        "aria-label": "Change picture", text: "◫", onclick: edit }));
+    } else {
+      state(node, "empty", true);
+      if (opts.save) node.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-pic-add", "data-ui": "money.picture-add",
+        text: "◫ Add a picture", onclick: edit }));
+      if (opts.label) node.appendChild(el("span", { class: "k-pic-label", text: opts.label }));
+    }
+    return node;
+  }
+  /* a domain's wash with its kanji (a goal card's band when it has no picture) */
+  function wash(mark, tone, opts) {
+    opts = opts || {};
+    return el("div", { class: "k-wash", "data-ui": "goal.wash", "data-tone": tone || null, "data-mono": opts.mono ? "" : null, "aria-hidden": "true" },
+      [el("span", { class: "k-wash-mark", text: mark || "" })]);
+  }
+  KOS.ui.amount = amount;
+  KOS.ui.amountField = amountField;
+  KOS.ui.catBar = catBar;
+  KOS.ui.paceChip = paceChip;
+  KOS.ui.periods = periods;
+  KOS.ui.ring = ring;
+  KOS.ui.pictureSlot = pictureSlot;
+  KOS.ui.wash = wash;
+
+  /* ============================================================
      THE SPEC SPINE'S PRESENCE  (UI rebuild M1)
 
      Thirty-odd views each hid the spine with the same two class writes, and
@@ -1127,7 +1346,6 @@
     if (viewId === "code") { activeView = arg && (arg.page === "retrieval" || arg.page === "skills" || arg.page === "map") ? "code" : "subject"; activeArg = activeView === "code" ? arg.page : "code"; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
     if (viewId === "due" || viewId === "cardstats") activeView = "review";
-    if (["goals"].indexOf(viewId) !== -1) activeView = "wishlist";
     if (["aniprofile", "vndbprofile"].indexOf(viewId) !== -1) activeView = "mediasync";
     /* built through the shared tabs primitive (variant "primary") so the
        section strip, the workspace switchers and the Books lens cards are

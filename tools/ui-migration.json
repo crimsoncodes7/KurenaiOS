@@ -80,12 +80,22 @@
     "css/views/code.css",
     "js/core/codeui.js",
     "js/modules/code.js",
-    "js/modules/codetopic.js"
+    "js/modules/codetopic.js",
+    "css/views/money.css",
+    "css/views/goals.css",
+    "js/modules/money.js"
   ],
   "views": {
     "home": {},
-    "subject": { "arg": "compsci" },
-    "ref": { "arg": { "subject": "compsci", "ref": "4.2.3.1" } },
+    "subject": {
+      "arg": "compsci"
+    },
+    "ref": {
+      "arg": {
+        "subject": "compsci",
+        "ref": "4.2.3.1"
+      }
+    },
     "review": {},
     "cardstats": {},
     "assignments": {},
@@ -119,6 +129,11 @@
     "trace": {},
     "oop": {},
     "reports": {},
-    "code": { "arg": { "page": "map" } }
+    "code": {
+      "arg": {
+        "page": "map"
+      }
+    },
+    "money": {}
   }
 }

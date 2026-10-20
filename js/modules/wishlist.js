@@ -755,11 +755,12 @@
     var selected = {};   // ephemeral checkbox simulation — id -> true
     var heroRotationTimer = null;
 
+    /* 27n: the Budget Planner's queue is Collection › Wishlist; its money
+       lives in Money, and its allowance IS Money's Collection budget */
     main.appendChild(KOS.ui.pageHeader({
-      kicker: "円 · The allowance",
-      title: "Budget Planner",
-      sub: "One wishlist, one monthly pool. Tick items to try a purchase on paper: nothing spends until you say so.",
-      actions: [KOS.collectionWorkspaceTabs("planner", "wishlist")]
+      kicker: "願 · The queue",
+      title: "Wishlist",
+      sub: "What you want from the Collection, in order. Buying one adds it to Money."
     }));
 
     /* ---- top row: the release desk and the allowance ---- */
@@ -834,8 +835,8 @@
       var purchases = (w.budget.history.find(function (h) { return h.month === monthKey(); }) || { items: [] }).items.length;
 
       barWrap.appendChild(el("div", { class: "k-pl-allow-head" }, [
-        el("h2", { class: "k-kicker", text: monthName + " allowance" }),
-        el("span", { class: "k-muted", text: "resets " + next.toLocaleDateString(undefined, { day: "numeric", month: "short" }) })
+        el("h2", { class: "k-kicker", text: "Collection budget · " + monthName }),
+        el("span", { class: "k-muted", text: "from Money" })
       ]));
       var head = el("div", { class: "k-pl-allow-figure", "data-ui": "plan.bn-rem" }, limit
         ? [el("b", { text: money(rem) }), el("span", { text: "left of " + money(limit) })]
@@ -860,36 +861,8 @@
       ]));
       barWrap.appendChild(el("div", { class: "k-pl-allow-foot" }, [
         el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "plan.budget-edit",
-          text: limit ? "Edit allowance" : "Set allowance", onclick: editBudget })
+          text: limit ? "Money › Budgets →" : "Set a Collection budget in Money", onclick: function () { KOS.show("money", "budgets"); } })
       ]));
-    }
-    function editBudget() {
-      var overlay = KOS.medview.modalOverlay(), close = overlay.close;
-      var amount = el("input", { type: "number", class: "k-input", min: "0", step: "1", placeholder: "0.00",
-        value: w.budget.monthlyLimit ? String(w.budget.monthlyLimit) : "" });
-      var currencyIsEditable = canChangeCurrency();
-      var currency = currencyIsEditable
-        ? el("input", { type: "text", class: "k-input", maxlength: "3", value: w.budget.currency || "£", "aria-label": "Currency symbol or code" })
-        : null;
-      KOS.medview.dialogBox(overlay, "plan.budget-dialog", "Monthly allowance", "This changes the allowance, not your recorded purchases.",
-        el("div", { class: "k-dialog-body k-pl-form", "data-ui": "ui.form" }, [
-          KOS.medview.field("Monthly allowance", amount),
-          currencyIsEditable
-            ? KOS.medview.field("Currency", currency)
-            : el("p", { class: "k-muted k-pl-guidance", text: "Currency stays " + (w.budget.currency || "£") + " once priced items or purchases exist, so totals are never relabelled without a real conversion." })
-        ]),
-        el("div", { class: "k-dialog-foot" }, [
-          el("span", { class: "k-pl-spacer" }),
-          el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: close }),
-          el("button", { type: "button", class: "k-btn k-btn--primary", text: "Save budget", onclick: function () {
-            var patch = { monthlyLimit: amount.value };
-            if (currencyIsEditable) patch.currency = currency.value;
-            setBudget(patch);
-            close(); renderPlanner(); KOS.ui.toast("Monthly allowance updated.");
-          } })
-        ]));
-      KOS.ui.openDialog(overlay);
-      amount.focus();
     }
 
     /* ---- the active tab's queue ---- */
@@ -1086,11 +1059,54 @@
       return row;
     }
 
+    /* 27n: Mark purchased says exactly what it will do, then does it */
     function doPurchase(it) {
-      markPurchased(it.id);
-      delete selected[it.id];
-      renderPlanner();
-      KOS.ui.toast("Purchase recorded — added to " + monthKey() + " actual spend.");
+      var M = KOS.money, was = { status: it.status, price: it.price, priority: it.priority };
+      var price = KOS.ui.amountField({ value: it.price ? Math.round(it.price * 100) : null, label: "Paid" });
+      var on = el("input", { type: "date", class: "k-input", "aria-label": "On" });
+      on.value = dayKey(now());
+      var medium = MODULE_LABEL[it.module] || "Collection";
+      var vol = it.module === "books" && it.physicalVolumeNumber ? it.physicalVolumeNumber : null;
+      var willList = el("div", { class: "k-pl-will" });
+      var monthNote = el("p", { class: "k-muted k-pl-guidance" });
+      function drawWill() {
+        var v = price.value(), money2 = v != null ? (M ? M.format(v) : money(v / 100)) : "the price";
+        willList.textContent = "";
+        willList.appendChild(el("div", { class: "k-field-label", text: "This will" }));
+        [["円", "Add an outgoing of " + money2 + " to Money, in Collection › " + medium + ", on " + on.value.split("-").reverse().slice(0, 2).join("/")],
+          ["願", "Move " + it.title + " to Purchased"],
+          vol ? ["本", "Mark volume " + vol + " owned on its Books entry (exact; it never lowers what is there)"] : ["蒐", "Add it to the Collection as planned, if it is not there yet"]]
+          .forEach(function (x) { willList.appendChild(el("div", { class: "k-pl-will-row" }, [el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: x[0] }), el("span", { text: x[1] })])); });
+        var limit = (data().budget.monthlyLimit || 0), after = currentMonthSpend() + (v || 0) / 100;
+        monthNote.textContent = limit ? "Collection would be " + money(after) + " of " + money(limit) + " this month." : "";
+      }
+      price.input.addEventListener("input", drawWill);
+      on.addEventListener("change", drawWill);
+      drawWill();
+      var overlay = KOS.medview.modalOverlay();
+      var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "plan.buy-go", text: "Mark purchased", onclick: function () {
+        if (!price.validate()) return;
+        var v = price.value() / 100, ts = new Date(on.value + "T12:00:00").getTime();
+        overlay.close();
+        if (v !== it.price) update(it.id, { price: v });
+        markPurchased(it.id, isFinite(ts) ? ts : null);
+        delete selected[it.id];
+        renderPlanner();
+        KOS.ui.toast("Added to Money · Collection › " + medium + " · " + (M ? M.format(Math.round(v * 100)) : money(v)), false, {
+          label: "View in Transactions", run: function () { KOS.show("money", "transactions"); } });
+        if (KOS.a11y) KOS.a11y.announce("Added to Money: Collection, " + medium + ", " + money(v) + ". " + it.title + " moved to Purchased.");
+        afterPurchase(it, was);
+      } });
+      KOS.medview.dialogBox(overlay, "plan.buy-dialog", "Mark purchased", it.title + " · " + medium,
+        el("div", { class: "k-dialog-body k-pl-form", "data-ui": "ui.form" }, [
+          el("div", { class: "k-pl-two" }, [KOS.medview.field("Paid", price.node), KOS.medview.field("On", on)]),
+          el("p", { class: "k-muted k-pl-guidance", text: "The wishlist price; change it if it differed." }),
+          willList, monthNote]),
+        el("div", { class: "k-dialog-foot" }, [el("span"),
+          el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }), go]));
+      KOS.ui.openDialog(overlay, { label: "Mark purchased", initialFocus: price.input });
+    }
+    function afterPurchase(it, was) {
       handoffPurchased(it.id, function (err, entry, detail) {
         renderPlanner();
         if (err) {

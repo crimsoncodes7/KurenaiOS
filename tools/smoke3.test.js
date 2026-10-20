@@ -184,8 +184,10 @@ step("Study Review and Productivity own the intended navigation", () => {
      (16 October 2026): it plans what is studied, so it sits with the study
      record. This stays an exact match on purpose: the Productivity section's list of
      destinations is a deliberate decision, not something a page may join by
-     registering itself. */
-  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar") throw new Error("productivity tabs: " + productivityTabs.join("|"));
+     registering itself. Money and Goals joined it with roadmap 5.4 (design
+     27a, 20 October 2026): the Budget Planner's money moved to Money and
+     Goals left the Collection's workspace. */
+  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar|Money|Goals") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
   /* Graphite (frame 9d): the record switch leads the row of filters under the header */
   if (!$("[data-ui~='tracker.tools'] [data-ui~='tracker.kinds']")) throw new Error("the record switch is missing");

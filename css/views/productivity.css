@@ -480,6 +480,16 @@
 .k-ev-mark { flex: 0 0 auto; color: var(--muted); }
 .k-ev[data-state~="overdue"] .k-ev-t { color: var(--alarm); }
 .k-ev[data-state~="handed-in"] .k-ev-t { color: var(--muted); text-decoration: line-through; }
+/* 27p: a derived chip (Money, Goals) is outlined, never filled, so it never
+   looks like something you scheduled; its source glyph leads */
+.k-ev--derived { --ev-hue: var(--cal-slate); background: color-mix(in oklch, oklch(var(--cal-l) var(--cal-c) var(--ev-hue)) 8%, transparent); box-shadow: inset 0 0 0 var(--hairline) oklch(var(--cal-l) var(--cal-c) var(--ev-hue)); }
+.k-ev--derived[data-kind="goal"] { background: color-mix(in oklch, var(--text-2) 8%, transparent); box-shadow: inset 0 0 0 var(--hairline) var(--text-2); }
+.k-ev-glyph { flex: 0 0 auto; font: var(--weight-semibold) var(--fs-11) var(--font-kanji); color: oklch(var(--cal-l) var(--cal-c) var(--ev-hue)); }
+.k-ev--derived[data-kind="goal"] .k-ev-glyph { color: var(--text-2); }
+.k-ev--derived[data-state~="skipped"] .k-ev-t { color: var(--muted); text-decoration: line-through; }
+.k-cal-toggle { cursor: pointer; }
+.k-cal-toggle-t { flex: 1 1 auto; font-size: var(--fs-13); }
+.k-cal-derived-fig { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-10); }
 .k-cal-more { align-self: flex-start; min-block-size: var(--hit-dense); padding: 0 var(--sp-6); border: 0; background: none; font: inherit; font-size: var(--fs-11); color: var(--muted); cursor: pointer; }
 .k-cal-more:hover { color: var(--text); }
 

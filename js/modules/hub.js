@@ -1134,7 +1134,11 @@
     }
     var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 5) : [];
     var urgent = (KOS.assignments && KOS.assignments.urgent ? KOS.assignments.urgent() : []).filter(function (a) { return KOS.assignments.isOverdue(a); });
-    var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0;
+    /* 27m: Goals are the Upcoming card's second view (Upcoming | Goals, like
+       the Focus card's Focus | Review), per device in state.ui.homeUpcoming */
+    var liveGoals = KOS.goals ? KOS.goals.all().filter(function (g) { return !g.archived && g.status === "active"; }) : [];
+    var upMode = liveGoals.length && KOS.store.state.ui.homeUpcoming === "goals" ? "goals" : "upcoming";
+    var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0 || liveGoals.length > 0;
     /* the Today card is always there (review B), saying so when the day is
        empty; Upcoming joins it only with something in it, and the Today
        card then takes the row */
@@ -1158,9 +1162,54 @@
       ]));
     });
     pair.appendChild(tcard);
-    if (hasUp) {
+    function upSwitch() {
+      if (!liveGoals.length) return null;
+      var sw = KOS.ui.tabs([["upcoming", "Upcoming"], ["goals", "Goals"]].map(function (x) {
+        return { label: x[1], active: upMode === x[0], onSelect: function () {
+          if (upMode === x[0]) return;
+          KOS.store.state.ui.homeUpcoming = x[0]; KOS.store.save();
+          if (KOS.a11y) KOS.a11y.announce(x[0] === "goals" ? "Goals" : "Upcoming");
+          KOS.rerender();
+        } };
+      }), { variant: "workspace", label: "Upcoming or goals", className: "k-seg--quiet k-home-upswitch" });
+      return sw;
+    }
+    if (hasUp && upMode === "goals") {
+      var gcard = el("section", { class: "k-card k-home-goals", "data-ui": "home.goals", "aria-label": "Goals" }, [
+        el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Goals" }), el("span", { class: "k-card-meta", "data-ui": "home.goals-meta" }), upSwitch()])]);
+      var gl = el("div", { class: "k-home-goal-list" });
+      gcard.appendChild(gl);
+      gcard.appendChild(el("button", { type: "button", class: "k-link k-home-goals-all", "data-ui": "home.goals-all", text: "All goals →", onclick: function () { KOS.show("goals"); } }));
+      KOS.goals.compute(function (err, rows) {
+        var open = (rows || []).filter(function (g) { return !g.archived && (g._status === "active") && !g._displayOnly; });
+        open.sort(function (a, b) { var ra = (a._pace === "behind" || a._pace === "over") ? 0 : 1, rb = (b._pace === "behind" || b._pace === "over") ? 0 : 1;
+          var ea = a._period ? a._period.to : a.deadline || "9999-99-99", eb = b._period ? b._period.to : b.deadline || "9999-99-99";
+          return ra - rb || (ea < eb ? -1 : ea > eb ? 1 : 0); });
+        var behind = open.filter(function (g) { return g._pace === "behind" || g._pace === "over"; }).length;
+        var meta = gcard.querySelector('[data-ui~="home.goals-meta"]');
+        if (meta) meta.textContent = behind ? behind + " behind" : open.length ? "nothing behind" : "";
+        if (!open.length) { gl.appendChild(KOS.ui.emptyState({ compact: true, mark: "標", title: "Nothing needs you this week" })); return; }
+        open.slice(0, 3).forEach(function (g) {
+          var end = g._period ? g._period.to : g.deadline;
+          var left = end ? Math.max(0, Math.round((new Date(end + "T12:00:00") - new Date(today + "T12:00:00")) / 86400000)) : null;
+          var ring = el("span", { class: "k-home-goalnum", "data-ui": "home.goal-num", "aria-hidden": "true" }, [el("span", { text: left == null ? "–" : String(left) })]);
+          ring.style.setProperty("--p", Math.min(100, g._pct || 0) + "%");
+          var chipKind = KOS.goalsUI ? KOS.goalsUI.paceKind(g) : g._pace;
+          var w = KOS.goalsUI ? KOS.goalsUI.word : function (x, v) { return String(v); };
+          gl.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "home.goal-row", onclick: function () { KOS.show("goals", { id: g.id }); } }, [
+            ring,
+            el("span", { class: "k-day-txt" }, [el("span", { class: "k-day-title", text: g.title }),
+              el("span", { class: "k-home-goal-sub" }, [chipKind ? KOS.ui.paceChip(chipKind) : null,
+                el("span", { class: "k-day-sub", text: w(g, g._current) + " of " + w(g, g._target) + (left === 0 ? " · ends tonight" : end ? " · by " + end.slice(8, 10).replace(/^0/, "") + " " + ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][+end.slice(5, 7) - 1] : "") })].filter(Boolean))])]));
+        });
+      }, { archived: false });
+      pair.appendChild(gcard);
+    }
+    if (hasUp && upMode === "upcoming") {
       var ucard = el("section", { class: "k-card", "data-ui": "cal.countdowns", "aria-label": "Upcoming" }, [
-        cardHead("Upcoming", urgent.length ? urgent.length + " overdue" : "nothing overdue", "Tracker →", function () { KOS.show("assignments"); })
+        liveGoals.length
+          ? el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Upcoming" }), el("span", { class: "k-card-meta", text: urgent.length ? urgent.length + " overdue" : "nothing overdue" }), upSwitch()])
+          : cardHead("Upcoming", urgent.length ? urgent.length + " overdue" : "nothing overdue", "Tracker →", function () { KOS.show("assignments"); })
       ]);
       if (urgent.length) KOS.ui.state(ucard, "overdue", true);
       urgent.slice(0, 2).forEach(function (a) {
@@ -1184,6 +1233,9 @@
           ])
         ]));
       });
+      /* with the Goals switch in the head, the way to the tracker moves to
+         the foot, as "All goals →" does on the other side */
+      if (liveGoals.length) ucard.appendChild(el("button", { type: "button", class: "k-link k-home-goals-all", text: "Tracker →", onclick: function () { KOS.show("assignments"); } }));
       pair.appendChild(ucard);
     }
     mid.appendChild(pair);

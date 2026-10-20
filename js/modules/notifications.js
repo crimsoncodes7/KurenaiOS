@@ -19,8 +19,8 @@
 
   /* the section a kind belongs to, marked like the main rail */
   var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐", assistant: "助", reports: "録" };
-  var KIND_MARK = { wishlist: "円", focus: "集", goal: "標" };
-  var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber", reports: "teal" };
+  var KIND_MARK = { wishlist: "願", focus: "集", goal: "標", money: "円" };
+  var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber", reports: "teal", goal: "teal", money: "amber" };
   var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection", assistant: "Assistant", reports: "Reports" };
 
   function clock(ts) {
@@ -120,11 +120,11 @@
   /* ---------------- the page (frame 14b) ---------------- */
   /* frame 16k: the Focus kind has its own chip, between Productivity and
      Collection */
-  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["focus", "Focus"], ["collection", "Collection"], ["assistant", "Assistant"], ["reports", "Reports"]];
+  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["focus", "Focus"], ["goal", "Goals"], ["money", "Money"], ["collection", "Collection"], ["assistant", "Assistant"], ["reports", "Reports"]];
   function matches(filter, it) {
     if (filter === "all") return true;
     if (filter === "unread") return !KOS.notify.isRead(it);
-    if (filter === "focus") return it.kind === "focus";
+    if (filter === "focus" || filter === "goal" || filter === "money") return it.kind === filter;
     return (KOS.notify.KINDS[it.kind] || {}).section === filter;
   }
   KOS.views.notifications = function (main, arg) {

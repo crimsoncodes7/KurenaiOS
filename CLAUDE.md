@@ -32,13 +32,15 @@ chronological diary here.
   revision 3.1). The throwaway vertical slice in `prototypes/japanese-space/`
   is closed on real data and touches no app file; the platform release (plan
   §17, smokes 80–83) is next, only when asked.
-- In flight on `feat/money-goals` (a worktree, not merged): Money and Goals
-  (roadmap 5.4). Phase 1 (the Money core) and phase 3 (the Goals engine) are
-  built with smoke84–85, and the joins that need no design (kos_money
-  replication, the Assistant's money tools, Reports' facts, goal notices)
-  with smoke86; the pages wait for design prompt 11 (frames
-  27a–27s). Smokes 80–83 stay reserved for Japanese, so this branch's gate
-  is `for i in "" {2..79} 84 85 86`.
+- In flight on `feat/money-goals` (a worktree, not merged, not deployed):
+  Money and Goals (roadmap 5.4), built whole from design prompt 11 (frames
+  27a–27s, handoff 20 October 2026): the Money core and the Goals engine
+  (smoke84–85), the joins (kos_money replication, the Assistant's money
+  tools, Reports' facts, goal and money notices; smoke86) and the pages —
+  Money's six views, Goals and a goal's page, Home's Goals switch, the
+  Wishlist's purchase handoff, Calendar's derived chips, Reports' Money and
+  Goals cards (smoke87). Smokes 80–83 stay reserved for Japanese, so this
+  branch's gate is `for i in "" {2..79} 84 85 86 87`.
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
@@ -50,7 +52,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..79} 84 85 86; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
+for i in "" {2..79} 84 85 86 87; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
 node tools/cs_diff.mjs                 # Code content against real .NET (needs the .NET 10 SDK)
 tools/build_cs_wasm.sh                 # Code's full C# runtime (units 7+), once per change to tools/cs-wasm
 node tools/cs_wasm_check.mjs           # that runtime against native .NET
@@ -137,8 +139,8 @@ non-navigation redraw path.
 | Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
 | The topic picker (every form that names topics) | `js/core/topicpicker.js` (`KOS.topicPicker`) |
 | Exams & Papers record and its normaliser | `js/core/tracker.js` (`KOS.tracker`); page `js/modules/tracker.js` |
-| Money (roadmap 5.4): categories, budgets, recurring rules and subscriptions, pots, transactions, the planner mirror, CSV | `js/core/money.js` (`KOS.money`); pages to come from design 27a–27h |
-| Goals: the engine, its types and periods | `js/core/goals.js` (`KOS.goals`: registry, record, compute, pace; the study, productivity, money, code and Governor types), `js/core/goals-collection.js` (the Collection's fourteen); page `js/modules/goals.js` |
+| Money (roadmap 5.4): categories, budgets, recurring rules and subscriptions, pots, transactions, the planner mirror, CSV | `js/core/money.js` (`KOS.money`); the pages `js/modules/money.js` (`KOS.views.money`, `#/money/<overview|transactions|budgets|recurring|pots|month>`, design 27a–27h; `KOS.moneyUI`), `css/views/money.css`; the shared primitives (`KOS.ui.amount`, `amountField`, `catBar`, `paceChip`, `periods`, `ring`, `pictureSlot`, `wash`) in `js/core/ui.js` and `css/components.css` |
+| Goals: the engine, its types and periods | `js/core/goals.js` (`KOS.goals`: registry, record, compute, pace; the study, productivity, money, code and Governor types), `js/core/goals-collection.js` (the Collection's fourteen); pages `js/modules/goals.js` (`#/goals[/week|month|done|<id>]`, design 27i–27k; `KOS.goalsUI`, `KOS.goalEditor`), `css/views/goals.css`; Home's Goals switch in `hub.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`); the desk's two blocks `js/modules/itdesk.js` |
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
@@ -250,7 +252,13 @@ source comments and audit notes refer to it.
    recurring rule is computed, never copied (invariant 43): an occurrence is
    confirmed (one transaction `r:<rule>:<date>`), skipped, or left
    (`marks`). A figure about the rest of the month (left, safe to spend, the
-   projection) is null without its evidence (invariant 76).
+   projection) is null without its evidence (invariant 76). The pages only
+   READ (smoke56 holds all six views): Hide amounts is per device
+   (`state.ui.moneyHidden`) and masks every `KOS.ui.amount` on every
+   surface, Reports included; the Wishlist's "Mark purchased" says what it
+   will do before it does it; the Calendar draws bills, income and trial
+   ends as DERIVED chips (`derivedOn`, never written as events, invariant
+   44), hidden per device by `state.ui.calDerived`.
 5b. Goals (`KOS.goals`, `js/core/goals.js`) are a registry of types, each
    registered by the domain that owns its data and measured by READING it
    (invariant 26d); `state.goals` v3 under `KOS.goals.normalise`, which keeps
@@ -268,7 +276,8 @@ source comments and audit notes refer to it.
    month's over-budget categories) and `f.goals` (periods met and missed,
    goals reached and missed in the period) are facts like the rest; the
    words' payload gets their totals and counts only, never a payee,
-   category or goal title (invariant 102b).
+   category or goal title (invariant 102b). The Reports pages draw them as
+   the Money and Goals cards with "What Kurenai sees" (27o).
 
 ### Media schema, storage and sync (6–23)
 
@@ -395,7 +404,8 @@ source comments and audit notes refer to it.
     ledger is history and is kept. Zero Governor traffic.
 27. Navigate via `KOS.show()`. Assignments, reminders and events each have one
     canonical store; other surfaces derive from them. Use `KOS.workspaceTabs` for
-    Review, Planner and Sync.
+    Review and Sync. (The Planner's Planner/Goals switch is gone: Goals is a
+    Productivity page and the Planner is the Collection's Wishlist, 27a/27n.)
 28. Vault editors register in `KOS.mediaEditors`; hooks register in
     `KOS.mediaEditorHooks`. Never wrap the dispatcher.
 29. VN CG gallery is a counter only; content warnings are manual.
@@ -653,8 +663,10 @@ source comments and audit notes refer to it.
     reminder, assignment, airing, wishlist, pacing (the plan's carry-over
     notice), focus (the idle watch, invariant 4d), assistant (a
     scheduled message's reply, invariant 71b), reports (a saved week,
-    "Your week in review is ready", id `reports:<report id>`) and goal
-    (invariant 5b, id `goal:<goal>:<event>`) only: sync cycles, cloud
+    "Your week in review is ready", id `reports:<report id>`), goal
+    (invariant 5b, id `goal:<goal>:<event>`) and money (a trial ending
+    tomorrow, a bill two days ahead, income a day late, id
+    `money:<rule>:<date>`) only; Goals and Money are filters of their own: sync cycles, cloud
     state and repairs are housekeeping, never notifications. Nothing in it re-derives a due date:
     the calendar, reminder and assignment tickers keep their own alert
     rules and once-only `notified`/`alerted` maps (invariant 42) and hand
@@ -1200,10 +1212,11 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   week is always an ISO date: `#/pacing/YYYY-MM-DD` is the week surface and
   `#/pacing/braid` is the whole-term branch graph, which spans every week and
   so carries none.
-- Productivity: Focus, Calendar, Reminders and Tasks & Habits.
-- Collection: Overview and four vaults, Shrine, Planner and Sync.
+- Productivity: Focus, Reminders, Habits, Calendar, Money and Goals.
+- Collection: Overview and four vaults, Shrine, Wishlist (`#/wishlist`; the
+  old `#/planner` route aliases to it) and Sync.
 - Review retains `due` and `cardstats` compatibility routes.
-- Planner and Sync use `KOS.collectionWorkspaceTabs()`; transitions still call
+- Sync uses `KOS.collectionWorkspaceTabs()`; transitions still call
   `KOS.show()`.
 
 ### Live2D development gate

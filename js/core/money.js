@@ -36,8 +36,11 @@
   "use strict";
   window.KOS = window.KOS || {};
   var store = KOS.store;
-  var DB_NAME = "kurenai-os-money" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), DB_VER = 1;
-  var TX = "tx", DEL = "del";
+  var DB_NAME = "kurenai-os-money" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), DB_VER = 2;
+  /* tx: transactions · del: their tombstones · pics: a pot's picture, the
+     user's own (source + {x,y,zoom}, KOS.imageCrop), on this device only —
+     never fetched, never in the state document */
+  var TX = "tx", DEL = "del", PICS = "pics";
   var db = null;
 
   /* ---------------- small pure helpers ---------------- */
@@ -69,24 +72,29 @@
 
   /* ---------------- the state document's part ---------------- */
   var DEFAULT_CATEGORIES = [
-    ["food", "Food", "out", "essentials", 35],
-    ["transport", "Transport", "out", "essentials", 215],
-    ["bills", "Bills", "out", "essentials", 260],
-    ["health", "Health", "out", "essentials", 150],
-    ["subscriptions", "Subscriptions", "out", "lifestyle", 290],
-    ["social", "Social", "out", "lifestyle", 15],
-    ["clothing", "Clothing", "out", "lifestyle", 330],
-    ["gifts", "Gifts", "out", "lifestyle", 350],
-    ["collection", "Collection", "out", "lifestyle", 70],
-    ["education", "Education and exams", "out", "future", 190],
-    ["other", "Other", "out", "other", null],
-    ["job", "Job", "in", "income", 160],
-    ["allowance", "Allowance", "in", "income", 120],
-    ["gifts-in", "Gifts received", "in", "income", 340],
-    ["grants", "Grants", "in", "income", 200],
-    ["other-in", "Other income", "in", "income", null]
+    ["food", "Food", "out", "essentials", "sage"],
+    ["transport", "Transport", "out", "essentials", "sky"],
+    ["bills", "Bills", "out", "essentials", "brass"],
+    ["health", "Health", "out", "essentials", "clay"],
+    ["subscriptions", "Subscriptions", "out", "lifestyle", "iris"],
+    ["social", "Social", "out", "lifestyle", "plum"],
+    ["clothing", "Clothing", "out", "lifestyle", "clay"],
+    ["gifts", "Gifts", "out", "lifestyle", "plum"],
+    ["collection", "Collection", "out", "lifestyle", "collection"],
+    ["education", "Education and exams", "out", "future", "slate"],
+    ["other", "Other", "out", "other", "muted"],
+    ["job", "Job", "in", "income", "green"],
+    ["allowance", "Allowance", "in", "income", "green"],
+    ["gifts-in", "Gifts received", "in", "income", "green"],
+    ["grants", "Grants", "in", "income", "green"],
+    ["other-in", "Other income", "in", "income", "green"]
   ];
   var GROUPS = ["essentials", "lifestyle", "future", "other", "income"];
+  /* a category's colour is a NAME, mapped to the calendar's hue tokens in
+     css/components.css ([data-cat-tone]): sage, sky, iris, slate, plum,
+     jade, brass, clay, the Collection's own hue, green for income, or muted.
+     Savings (pot transfers) is jade. No colour is stored. */
+  var TONES = ["sage", "sky", "iris", "slate", "plum", "jade", "brass", "clay", "collection", "green", "muted"];
   var UNITS = ["day", "week", "month", "year"];
 
   function normaliseCategory(raw) {
@@ -100,7 +108,7 @@
       group: GROUPS.indexOf(raw.group) !== -1 ? raw.group : (raw.kind === "in" ? "income" : "other"),
       budget: raw.budget == null || raw.budget === "" ? null : Math.max(0, minorOf(raw.budget) || 0),
       rollover: !!raw.rollover,
-      hue: raw.hue == null || raw.hue === "" ? null : int(raw.hue, 0, 359, null),
+      tone: TONES.indexOf(raw.tone) !== -1 ? raw.tone : (raw.kind === "in" ? "green" : "muted"),
       archived: !!raw.archived,
       order: int(raw.order, 0, 9999, 0),
       updatedAt: raw.updatedAt || 0
@@ -120,7 +128,7 @@
       var m = raw.marks[d];
       if (!isISO(d) || !m || (m.s !== "done" && m.s !== "skip")) return;
       var o = { s: m.s, at: m.at || 0 };
-      if (m.s === "done") { o.tx = str(m.tx, 80); o.minor = minorOf(m.minor); }
+      if (m.s === "done") { o.tx = str(m.tx, 80); o.minor = minorOf(m.minor); if (m.changed) o.changed = true; }
       marks[d] = o;
     });
     var prices = (Array.isArray(raw.prices) ? raw.prices : []).filter(function (p) {
@@ -131,19 +139,26 @@
     return {
       id: id,
       name: str(raw.name, 80) || "Untitled",
-      kind: raw.kind === "in" ? "in" : "out",
-      cat: str(raw.cat, 40) || (raw.kind === "in" ? "other-in" : "other"),
+      /* out (a payment), in (income) or transfer (a set-aside into a pot) */
+      kind: raw.kind === "in" ? "in" : raw.kind === "transfer" && raw.pot ? "transfer" : "out",
+      cat: raw.kind === "transfer" && raw.pot ? null : (str(raw.cat, 40) || (raw.kind === "in" ? "other-in" : "other")),
+      pot: raw.kind === "transfer" && raw.pot ? str(raw.pot, 40) : null,
       payee: str(raw.payee, 80),
       note: str(raw.note, 500),
       minor: minor,
       every: { n: int(every.n, 1, 365, 1), unit: unit },
       start: start,
       end: isISO(raw.end) && raw.end >= start ? raw.end : null,
+      /* "ends after N times" — the Nth occurrence is the last */
+      count: raw.count == null || raw.count === "" ? null : int(raw.count, 1, 999, null),
       /* the day of the month a monthly or yearly rule falls on; 31 means the
          last day of a shorter month */
       dom: unit === "month" || unit === "year" ? int(raw.dom, 1, 31, parsedStart.getDate()) : null,
       sub: !!raw.sub,
       trialEnd: isISO(raw.trialEnd) ? raw.trialEnd : null,
+      /* "Remind me" made a real reminder in Reminders (one canonical store,
+         invariant 27); the rule keeps only its id, a link by reference */
+      remind: raw.remind == null || raw.remind === "" ? null : int(raw.remind, 1, 1e9, null),
       prices: prices,
       marks: marks,
       archived: !!raw.archived,
@@ -159,6 +174,11 @@
       name: str(raw.name, 60) || "Untitled",
       target: raw.target == null || raw.target === "" ? null : Math.max(0, minorOf(raw.target) || 0),
       by: isISO(raw.by) ? raw.by : null,
+      /* the user's own line: "For uni. The old one can't run Rider." */
+      why: str(raw.why, 140),
+      /* the pot that leads Pots as its hero, chosen in ⋯; else the one
+         nearest its date with a target */
+      pinned: !!raw.pinned,
       archived: !!raw.archived,
       order: int(raw.order, 0, 9999, 0),
       updatedAt: raw.updatedAt || 0
@@ -166,7 +186,7 @@
   }
   function defaultCategories() {
     return DEFAULT_CATEGORIES.map(function (d, i) {
-      var c = { id: d[0], name: d[1], kind: d[2], group: d[3], hue: d[4], order: i };
+      var c = { id: d[0], name: d[1], kind: d[2], group: d[3], tone: d[4], order: i };
       if (d[0] === "collection") c.budgetFrom = "wishlist";
       return normaliseCategory(c);
     });
@@ -317,12 +337,27 @@
     return touch(next);
   }
   function monthDate(y, m, dom) { return iso(new Date(y, m, Math.min(dom, daysInMonth(y, m)))); }
+  /* "after N times": the date of the Nth occurrence, found once from the
+     rule itself (the count is at most 999) */
+  function countEnd(r) {
+    if (!r.count) return null;
+    var open = Object.assign({}, r, { count: null, end: null }), d = r.start, got = [];
+    while (got.length < r.count) {
+      var more = occurrences(open, d, addDays(d, 3700));
+      if (!more.length) break;
+      got = got.concat(more);
+      d = addDays(more[more.length - 1], 1);
+    }
+    return got.length >= r.count ? got[r.count - 1] : null;
+  }
   /* every occurrence date of `r` in [from, to], computed from the rule alone */
   function occurrences(r, from, to) {
     var out = [], step, i, d, cap = 400;
     if (!r || to < r.start) return out;
     if (from < r.start) from = r.start;
     var end = r.end && r.end < to ? r.end : to;
+    var ce = r.count ? countEnd(r) : null;
+    if (ce && ce < end) end = ce;
     if (from > end) return out;
     if (r.every.unit === "day" || r.every.unit === "week") {
       step = r.every.n * (r.every.unit === "week" ? 7 : 1);
@@ -383,11 +418,15 @@
     if (!r || occurrences(r, date, date)[0] !== date) { cb && cb(new Error("Not an occurrence of this rule")); return; }
     var minor = opts.amount != null ? toMinor(opts.amount) : amountOn(r, date);
     if (minor == null || minor <= 0) { cb && cb(new Error("Amount must be more than zero")); return; }
-    var tx = normaliseTx({ syncId: ruleTxId(id, date), date: date, minor: minor, kind: r.kind, cat: r.cat,
-      payee: r.payee || r.name, note: r.note, src: "rule", rule: { id: id, date: date } });
+    /* the entry may land on another day than the occurrence (a late pay
+       marked received, "Move the date"); its id stays the occurrence's */
+    var tx = normaliseTx({ syncId: ruleTxId(id, date), date: isISO(opts.date) ? opts.date : date, minor: minor, kind: r.kind, cat: r.cat,
+      pot: r.pot, dir: "in", payee: r.payee || r.name, note: r.note, src: "rule", rule: { id: id, date: date } });
+    if (!tx) { cb && cb(new Error("This rule's pot no longer exists")); return; }
     putTx(tx, function (err) {
       if (err) { cb && cb(err); return; }
       r.marks[date] = { s: "done", tx: tx.syncId, minor: minor, at: Date.now() };
+      if (minor !== amountOn(r, date)) r.marks[date].changed = true;
       touch(r);
       cb && cb(null, tx);
     });
@@ -416,8 +455,10 @@
     var out = [];
     rules().forEach(function (r) {
       occurrences(r, from, to).forEach(function (d) {
-        out.push({ rule: r.id, name: r.name, date: d, minor: amountOn(r, d), kind: r.kind, cat: r.cat,
-          sub: r.sub, state: occurrenceState(r, d, now) });
+        var m = r.marks[d];
+        out.push({ rule: r.id, name: r.name, date: d, minor: m && m.s === "done" && m.minor ? m.minor : amountOn(r, d),
+          kind: r.kind, cat: r.cat, pot: r.pot, sub: r.sub, trial: !!(r.trialEnd && d <= r.trialEnd),
+          changed: !!(m && m.changed), state: occurrenceState(r, d, now) });
       });
     });
     return out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
@@ -432,10 +473,23 @@
       default: return Math.round(a / n);
     }
   }
-  function subscriptions() {
-    var subs = rules({ sub: true });
-    var total = subs.reduce(function (n, r) { return n + perMonth(r); }, 0);
-    return { items: subs, perMonth: total, perYear: total * 12 };
+  /* the real yearly cost: twelve monthly payments, or one yearly one */
+  function perYear(r) {
+    var n = r.every.n, a = r.minor;
+    switch (r.every.unit) {
+      case "day": return Math.round(a * 365.25 / n);
+      case "week": return Math.round(a * 52.1775 / n);
+      case "year": return Math.round(a / n);
+      default: return Math.round(a * 12 / n);
+    }
+  }
+  /* a free trial still running: listed, not yet counted */
+  function inTrial(r, now) { return !!(r.trialEnd && r.trialEnd >= (now || today())); }
+  function subscriptions(now) {
+    var subs = rules({ sub: true }), paid = subs.filter(function (r) { return !inTrial(r, now); });
+    return { items: subs, paid: paid, trials: subs.filter(function (r) { return inTrial(r, now); }),
+      perMonth: paid.reduce(function (n, r) { return n + perMonth(r); }, 0),
+      perYear: paid.reduce(function (n, r) { return n + perYear(r); }, 0) };
   }
 
   /* ---------------- pots ---------------- */
@@ -507,6 +561,9 @@
       rule: raw.rule && raw.rule.id && isISO(raw.rule.date) ? { id: str(raw.rule.id, 40), date: raw.rule.date } : null,
       src: SRCS.indexOf(raw.src) !== -1 ? raw.src : "manual",
       wl: raw.wl && raw.wl.id != null ? { id: raw.wl.id, module: str(raw.wl.module, 10) || null } : null,
+      /* one CSV import shares a batch id, so "Undo this import" removes
+         exactly those entries */
+      batch: str(raw.batch, 40) || null,
       createdAt: raw.createdAt || Date.now(),
       updatedAt: raw.updatedAt || raw.createdAt || Date.now()
     };
@@ -534,6 +591,7 @@
         os.createIndex("src", "src", { unique: false });
       }
       if (!d.objectStoreNames.contains(DEL)) d.createObjectStore(DEL, { keyPath: "syncId" });
+      if (!d.objectStoreNames.contains(PICS)) d.createObjectStore(PICS, { keyPath: "id" });
     };
     rq.onsuccess = function () {
       db = rq.result;
@@ -660,6 +718,25 @@
     });
   }
 
+  /* ---------------- a pot's picture ---------------- */
+  function getPic(id, cb) {
+    txn([PICS], "readonly", function (err, t) {
+      if (err) { cb(null); return; }
+      var rq = t.objectStore(PICS).get(id);
+      rq.onsuccess = function () { cb(rq.result || null); };
+      rq.onerror = function () { cb(null); };
+    });
+  }
+  function setPic(id, pic, cb) {
+    txn([PICS], "readwrite", function (err, t) {
+      if (err) { cb && cb(err); return; }
+      if (pic && pic.src) t.objectStore(PICS).put({ id: id, src: String(pic.src), crop: pic.crop || null });
+      else t.objectStore(PICS).delete(id);
+      t.oncomplete = function () { cb && cb(null); };
+      t.onerror = function () { cb && cb(t.error); };
+    });
+  }
+
   /* ---------------- the Budget Planner mirror ---------------- */
   var mirrorSig = null, mirrorWaiters = null;
   function wishlistRows() {
@@ -735,6 +812,22 @@
       });
     });
     s.days = Object.keys(days).length;
+    /* spend per day and its biggest category (the Overview's day chart) */
+    s.spendDays = {};
+    var dayCat = {};
+    rows.forEach(function (t) {
+      if (t.kind !== "out" && t.kind !== "refund") return;
+      var sign = t.kind === "refund" ? -1 : 1;
+      var d = s.spendDays[t.date] = s.spendDays[t.date] || { minor: 0, top: null };
+      d.minor += sign * t.minor;
+      var dc = dayCat[t.date] = dayCat[t.date] || {};
+      (t.splits || [{ cat: t.cat, minor: t.minor }]).forEach(function (p) { dc[p.cat] = (dc[p.cat] || 0) + sign * p.minor; });
+    });
+    Object.keys(dayCat).forEach(function (d) {
+      var best = null;
+      Object.keys(dayCat[d]).forEach(function (c) { if (best == null || dayCat[d][c] > dayCat[d][best]) best = c; });
+      s.spendDays[d].top = best;
+    });
     return s;
   }
   /* one month's facts. Budgets and rollover per category; a rollover
@@ -760,9 +853,11 @@
            category's budget as it stands */
         if (c.rollover && b != null) row.rollover = b - (p.byCat[c.id] ? p.byCat[c.id].net : 0);
         if (b != null) {
-          row.left = b + row.rollover - row.net;
+          /* an overspend rolls as a smaller budget, never below zero */
+          row.effective = Math.max(0, b + row.rollover);
+          row.left = row.effective - row.net;
           row.over = row.left < 0;
-          if (!c.archived) s.budgetTotal = (s.budgetTotal || 0) + b + row.rollover;
+          if (!c.archived) s.budgetTotal = (s.budgetTotal || 0) + row.effective;
         }
       });
       cb(null, s);
@@ -779,44 +874,69 @@
       });
     })(0);
   }
-  /* The figures that make a claim about the rest of the month. Each is
-     null when it has nothing to stand on (invariant 76): left and safe to
-     spend need a budget; the month-end projection needs a week of the
-     month gone and five days with spending in it. */
-  var PROJECT_MIN_ELAPSED = 7, PROJECT_MIN_DAYS = 5;
+  /* The month as the Overview tells it (design 27b):
+       planned income = received + expected (income rules still to land
+                        this month; a late one still counts, and says so)
+       outgoings      = spent + moved to pots (a transfer is never spend,
+                        but it has left what there is to spend)
+       left to spend  = planned income − outgoings
+       safe today     = (left − bills and set-asides still to come) ÷ the
+                        days left, today included
+       projection     = spent ÷ days gone × the month's length
+     Safe today and the projection need SEVEN days with entries in the
+     month (invariant 76); before that they are null and the page says so. */
+  var LOW_DATA_DAYS = 7;
   function insights(s, now) {
     now = now || today();
     var inMonth = now >= s.from && now <= s.to;
     var elapsed = inMonth ? daysBetween(s.from, now) + 1 : (now > s.to ? s.length : 0);
     var daysLeft = inMonth ? daysBetween(now, s.to) + 1 : 0;
-    var bills = inMonth ? upcoming(addDays(now, 1), s.to, now).filter(function (o) {
-      return o.kind === "out" && o.state === "upcoming";
-    }).reduce(function (n, o) { return n + o.minor; }, 0) : 0;
-    var left = s.budgetTotal == null ? null : s.budgetTotal - s.outgoings;
-    var out = {
-      elapsed: elapsed, daysLeft: daysLeft, billsAhead: bills,
-      left: left,
-      safeToday: left == null || !inMonth ? null : Math.max(0, Math.floor((left - bills) / daysLeft)),
-      projection: null
+    var occ = upcoming(s.from, s.to, now).filter(function (o) { return o.state !== "done" && o.state !== "skip"; });
+    var expected = occ.filter(function (o) { return o.kind === "in"; });
+    var late = expected.filter(function (o) { return o.date < now; }).map(function (o) {
+      return Object.assign({ daysLate: daysBetween(o.date, now) }, o);
+    });
+    var ahead = occ.filter(function (o) { return o.kind !== "in" && o.date >= now && !o.trial; });
+    var sum = function (a) { return a.reduce(function (n, o) { return n + o.minor; }, 0); };
+    var toPots = s.toPots - s.fromPots;
+    var planned = s.income + sum(expected);
+    var outAll = s.outgoings + toPots;
+    var enough = s.days >= LOW_DATA_DAYS;
+    var left = planned || outAll ? planned - outAll : null;
+    return {
+      elapsed: elapsed, daysLeft: daysLeft, enough: enough, dataDays: s.days,
+      received: s.income, expected: sum(expected), expectedList: expected, late: late,
+      planned: planned, spent: s.outgoings, toPots: toPots, outgoings: outAll,
+      left: left, ahead: sum(ahead), aheadList: ahead,
+      safeToday: inMonth && enough && left != null ? Math.max(0, Math.floor((left - sum(ahead)) / daysLeft)) : null,
+      projection: inMonth && enough ? Math.round(s.outgoings / elapsed * s.length) : null
     };
-    if (inMonth && elapsed >= PROJECT_MIN_ELAPSED && s.days >= PROJECT_MIN_DAYS) {
-      out.projection = Math.round(s.outgoings / elapsed * s.length);
-    }
-    return out;
+  }
+  /* the facts for any stretch of days — Month and year compares a month
+     with the SAME number of days of the month before (design 27g) */
+  function rangeSummary(from, to, cb) {
+    range(from, to, function (err, rows) {
+      if (err) { cb(err, null); return; }
+      var t = tally(rows);
+      t.from = from; t.to = to;
+      cb(null, t);
+    });
   }
 
   /* ---------------- formatting ---------------- */
-  /* one figure: "£1,234.56", a refund or a deficit "−£7.99". With the
-     privacy toggle on (per device, `state.ui.moneyPrivate`) the digits are
-     masked at the same width so nothing on the page moves. */
-  function isPrivate() { return !!(store.state.ui && store.state.ui.moneyPrivate); }
-  function setPrivate(on) { store.state.ui.moneyPrivate = !!on; store.save(); }
+  /* one figure: "£1,234.56", a refund or a deficit "−£7.99" (U+2212).
+     Hide amounts (per device, `state.ui.moneyHidden`) is drawn by the
+     page — KOS.ui.amount keeps the exact text under a mask so nothing
+     moves; `format(…, {private: true})` is for plain text that must not
+     carry the figure. */
+  function isHidden() { return !!(store.state.ui && store.state.ui.moneyHidden); }
+  function setHidden(on) { store.state.ui.moneyHidden = !!on; store.save(); }
   function format(minor, opts) {
     opts = opts || {};
     var cur = data().currency, neg = minor < 0, a = Math.abs(Math.round(minor || 0));
     var whole = String(Math.floor(a / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     var body = whole + (opts.whole && a % 100 === 0 ? "" : "." + pad(a % 100));
-    if (opts.private != null ? opts.private : isPrivate()) body = body.replace(/\d/g, "•");
+    if (opts.private) body = body.replace(/\d/g, "•");
     var sign = neg ? "−" : (opts.sign && minor > 0 ? "+" : "");
     return /^[A-Z]{3}$/.test(cur) ? sign + body + " " + cur : sign + cur + body;
   }
@@ -914,13 +1034,22 @@
   function importRows(rows, opts, cb) {
     opts = opts || {};
     var take = rows.filter(function (x) { return opts.includeDuplicates || !x.duplicate; });
+    var batch = rid("b");
     var txs = take.map(function (x) {
       return normaliseTx({ date: x.date, minor: x.minor, kind: x.kind, cat: x.cat, payee: x.payee, note: x.note,
-        tags: opts.tag ? [opts.tag] : [], src: "csv" });
+        tags: opts.tag ? [opts.tag] : [], src: "csv", batch: batch });
     }).filter(Boolean);
     putRaw(txs, function (err) {
       if (!err) soonSync();
-      cb && cb(err || null, { added: err ? 0 : txs.length, skipped: rows.length - txs.length });
+      cb && cb(err || null, { added: err ? 0 : txs.length, skipped: rows.length - txs.length, batch: batch });
+    });
+  }
+  /* remove exactly one import's entries (tombstoned like any deletion) */
+  function undoBatch(batch, cb) {
+    allTx(function (err, rows) {
+      if (err) { cb && cb(err); return; }
+      var ids = rows.filter(function (t) { return t.batch === batch; }).map(function (t) { return t.syncId; });
+      deleteRaw(ids, true, function (e2) { if (!e2) soonSync(); cb && cb(e2 || null, ids.length); });
     });
   }
   function csvCell(v) { v = String(v == null ? "" : v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
@@ -1092,13 +1221,54 @@
   function start() {
     if (syncStarted || !available()) return;
     syncStarted = true;
-    setTimeout(function () { syncCloud(); }, 9000);
-    setInterval(function () { syncCloud(); }, 30 * 60 * 1000);
+    setTimeout(function () { syncCloud(); tick(); }, 9000);
+    setInterval(function () { syncCloud(); tick(); }, 30 * 60 * 1000);
+  }
+
+  /* ---------------- notices (the `money` notification kind) ----------------
+     Pure, from the rules alone: a free trial ending tomorrow, a bill two
+     days ahead, income a day late. Ids are natural (money:<rule>:<date>),
+     so the ledger never repeats one (invariant 95). With Hide amounts on,
+     a notice drops its figure rather than masking it. */
+  var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function dayLabel(d) { var x = parseISO(d); return DAY3[x.getDay()] + " " + x.getDate() + " " + MON3[x.getMonth()]; }
+  function notices(now) {
+    now = now || today();
+    var out = [], hide = isHidden(), tomorrow = addDays(now, 1), inTwo = addDays(now, 2), yesterday = addDays(now, -1);
+    rules().forEach(function (r) {
+      if (r.trialEnd === tomorrow) {
+        out.push({ id: "money:" + r.id + ":" + r.trialEnd, kind: "money", title: r.name + ": the free trial ends tomorrow. Cancel before " + dayLabel(r.trialEnd) + ".",
+          body: "", view: "money", arg: "recurring" });
+      }
+      occurrences(r, yesterday, inTwo).forEach(function (d) {
+        var st = occurrenceState(r, d, now), fig = hide ? "" : " · " + format(amountOn(r, d));
+        if (st === "done" || st === "skip") return;
+        if (r.kind !== "in" && d === inTwo && !(r.trialEnd && d <= r.trialEnd)) {
+          out.push({ id: "money:" + r.id + ":" + d, kind: "money", view: "money", arg: "recurring", body: "",
+            title: r.kind === "transfer" ? r.name + " set-aside on " + dayLabel(d) + fig
+              : r.name + (r.sub ? " renews on " : " is due on ") + dayLabel(d) + fig });
+        }
+        if (r.kind === "in" && d === yesterday) {
+          out.push({ id: "money:" + r.id + ":" + d + ":late", kind: "money", view: "money", arg: "overview", body: "Still expected; mark it received when it lands.",
+            title: r.name + " has not arrived yet — expected " + dayLabel(d) + fig });
+        }
+      });
+    });
+    return out;
+  }
+  function tick(cb) {
+    var sent = [];
+    if (KOS.notify && KOS.notify.push) notices().forEach(function (n) { if (KOS.notify.push(n)) sent.push(n.id); });
+    cb && cb(null, sent);
   }
 
   /* open (and on first run create) the database at load, so the first
-     read or backup does not also pay for the upgrade */
+     read or backup does not also pay for the upgrade; and pass the state
+     document's part through its gate now, so no page's first render is
+     the write that creates it (render purity, smoke56) */
   if (available()) open(function () {});
+  data();
 
   KOS.money = {
     /* state document */
@@ -1109,7 +1279,7 @@
     setMonthStart: function (d) { data().monthStart = int(d, 1, 28, 1); store.save(); return data().monthStart; },
     periodKey: periodKey, periodRange: periodRange, shiftKey: shiftKey,
     rules: rules, rule: rule, addRule: addRule, updateRule: updateRule, removeRule: removeRule, occurrences: occurrences,
-    amountOn: amountOn, setPrice: setPrice, priceChange: priceChange, occurrenceState: occurrenceState,
+    amountOn: amountOn, setPrice: setPrice, priceChange: priceChange, occurrenceState: occurrenceState, perYear: perYear, inTrial: inTrial,
     confirm: confirm, skip: skip, unmark: unmark, upcoming: upcoming, perMonth: perMonth,
     subscriptions: subscriptions,
     pots: pots, pot: pot, addPot: addPot, updatePot: updatePot, potBalances: potBalances, setAside: setAside,
@@ -1118,10 +1288,11 @@
     list: list, range: range, mirror: mirror,
     summary: summary, yearSummary: yearSummary, insights: insights, tally: tally,
     /* formatting, CSV, backup */
-    toMinor: toMinor, format: format, isPrivate: isPrivate, setPrivate: setPrivate,
+    toMinor: toMinor, format: format, isHidden: isHidden, setHidden: setHidden, rangeSummary: rangeSummary,
+    getPic: getPic, setPic: setPic, undoBatch: undoBatch, LOW_DATA_DAYS: LOW_DATA_DAYS,
     csv: { parse: parseCSV, guess: guessMapping, parseDate: parseDate, preview: previewCSV, import: importRows, export: exportCSV },
     exportAll: exportAll, importAll: importAll,
     syncCloud: syncCloud, start: start, _setCloudApi: function (api) { cloudApi = api; },
-    PROJECT_MIN_ELAPSED: PROJECT_MIN_ELAPSED, PROJECT_MIN_DAYS: PROJECT_MIN_DAYS
+    notices: notices, tick: tick, TONES: TONES.slice()
   };
 })();

@@ -166,13 +166,21 @@ step("D · budgets, a one-month rollover, over budget, and honest insights", asy
   eq(ed.left, 6000 + 2000 - 8500, "left");
   eq(ed.over, true, "over budget");
   eq(s.byCat.food.over, false, "food within budget");
-  const early = M.insights(Object.assign({}, s, { days: 2 }), "2026-10-04");
-  eq(early.projection, null, "no projection on the 4th");
-  const late = M.insights(Object.assign({}, s, { days: 5 }), "2026-10-19");
-  assert(late.projection > 0, "a projection with 19 days and 5 data days");
-  assert(late.left != null && late.safeToday != null, "left and safe to spend with budgets");
-  const none = M.insights(Object.assign({}, s, { budgetTotal: null }), "2026-10-19");
-  eq([none.left, none.safeToday], [null, null], "no budget, no claim");
+  const early = M.insights(Object.assign({}, s, { days: 6 }), "2026-10-19");
+  eq([early.projection, early.safeToday], [null, null], "six days of entries make no claim");
+  const late = M.insights(Object.assign({}, s, { days: 7 }), "2026-10-19");
+  assert(late.projection > 0 && late.safeToday != null, "seven days of entries do");
+});
+step("D · the design's worked example: left £228.03, safe today £4.73 (27b)", () => {
+  /* the hero's numbers with no rules in play: £640 planned (all received
+     here), £351.97 spent, £60.00 moved to pots, £166.49 still to come */
+  const s = { from: "2026-10-01", to: "2026-10-31", length: 31, income: 64000, outgoings: 35197,
+    toPots: 6000, fromPots: 0, days: 15, byCat: {} };
+  const ins = M.insights(s, "2026-10-19");
+  eq([ins.planned, ins.outgoings, ins.left], [64000, 41197, 22803], "planned, outgoings, left");
+  eq(ins.daysLeft, 13, "13 days left, today included");
+  eq(Math.floor((ins.left - 16649) / 13), 473, "£4.73 a day after £166.49 to come");
+  eq(ins.projection, Math.round(35197 / 19 * 31), "the projection is spend only, about £574");
 });
 
 /* ---------------- E ---------------- */
@@ -213,7 +221,7 @@ step("E · confirm, skip, leave; a price rise; subscriptions", async () => {
   const subs = M.subscriptions();
   eq(subs.items.length, 2, "two subscriptions");
   eq(subs.perMonth, 1199 + 117, "per month");
-  eq(subs.perYear, (1199 + 117) * 12, "per year");
+  eq(subs.perYear, 1199 * 12 + 1400, "per year: the real yearly cost (twelve monthly, one yearly)");
 });
 
 /* ---------------- F ---------------- */
@@ -260,7 +268,8 @@ step("G · CSV: parse, guess, preview duplicates, import, export", async () => {
   eq(prev.rows.map(r => r.duplicate), [true, false, true, false], "Tesco £13 on the 3rd is stored; the café repeats in the file");
   eq(prev.rows[3].kind, "in", "a positive amount is income");
   const res = await p(cb => M.csv.import(prev.rows, {}, cb));
-  eq(res, { added: 2, skipped: 2 }, "duplicates skipped");
+  eq([res.added, res.skipped], [2, 2], "duplicates skipped");
+  assert(/^b-/.test(res.batch), "one batch id for the import");
   const csv = await p(cb => M.csv.export("2026-10-05", "2026-10-05", cb));
   eq(csv.trim().split("\n").length, 3, "a split exports as two lines");
 });

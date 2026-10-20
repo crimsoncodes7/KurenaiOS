@@ -200,7 +200,7 @@ step("the page lives under Archive: section filters, day groups, Mark all, devic
   const tab = (label) => tabs.find(t => t.querySelector("[data-ui~='part.text']").textContent === label);
   /* frame 16k: the Focus kind has its own chip between Productivity and
      Collection; a scheduled message's reply (12 October 2026) is Assistant */
-  assert(tabs.length === 8 && ["All", "Unread", "Study", "Productivity", "Focus", "Collection", "Assistant", "Reports"].every(tab), "expected All / Unread / Study / Productivity / Focus / Collection / Assistant / Reports");
+  assert(tabs.length === 10 && ["All", "Unread", "Study", "Productivity", "Focus", "Goals", "Money", "Collection", "Assistant", "Reports"].every(tab), "expected All / Unread / Study / Productivity / Focus / Goals / Money / Collection / Assistant / Reports");
   tab("Productivity").click();
   await tick(20);
   assert(main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length === 7, "calendar + reminders are Productivity: " + main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length);

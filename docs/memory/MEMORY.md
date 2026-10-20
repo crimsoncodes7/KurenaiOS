@@ -10,6 +10,6 @@
 - [Branch and release state](project-branch-and-release-state.md) — main and claude/roadmap-code-study-space identical on 2026-10-19; last release ff7a8e3; git fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
-- [Money and Goals](money-goals.md) — roadmap 5.4 on feat/money-goals (worktree); Money core + Goals engine built (smoke84–85); pages wait on prompt 11 frames 27a–27s; smokes 80–83 reserved for Japanese
+- [Money and Goals](money-goals.md) — roadmap 5.4 on feat/money-goals (worktree); built whole to design 27a–27s (smoke84–87); not merged or deployed; gate adds 84–87
 - [Run tests yourself](run-tests-yourself.md) — always run the full gate myself; never tell the user to run tests
 - [Act without asking](act-without-asking.md) — commit/push/tests/migrations automatically; only a production deploy needs a go-ahead

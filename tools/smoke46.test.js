@@ -165,7 +165,7 @@ step("compact subnav is one declared scroller without changing the nav landmark"
     "responsive scrolling overwrote Phase F's navigation seam");
   KOS.show("wishlist");
   await tick(20);
-  assert($("#subnav [data-ui~='shell.subnav-item'][data-state~='active'] [data-ui~='part.text']").textContent === "Planner",
+  assert($("#subnav [data-ui~='shell.subnav-item'][data-state~='active'] [data-ui~='part.text']").textContent === "Wishlist",
     "a rebuilt Collection strip lost its active destination");
 });
 

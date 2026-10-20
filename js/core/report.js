@@ -631,6 +631,7 @@
     out.income = t.income; out.outgoings = t.outgoings;
     out.toPots = t.toPots - t.fromPots;
     out.count = t.count; out.days = t.days;
+    if (m.subs) out.subs = m.subs;
     var cats = Object.keys(t.byCat).filter(function (id) { return t.byCat[id].net > 0; })
       .sort(function (a, b) { return t.byCat[b].net - t.byCat[a].net || (a < b ? -1 : 1); });
     out.top = cats.slice(0, 3).map(function (id) { return { cat: id, name: m.names[id] || id, spent: t.byCat[id].net }; });
@@ -648,19 +649,31 @@
     var gs = input.goals;
     if (!gs || !gs.length) return null;
     var from = new Date(p.start + "T00:00:00").getTime(), to = new Date(addDays(p.end, 1) + "T00:00:00").getTime();
-    var out = { periodsMet: 0, periodsMissed: 0, reached: [], missed: [] };
+    var out = { periodsMet: 0, periodsMissed: 0, reached: [], missed: [], metNames: [], missedNames: [], rows: [] };
     gs.forEach(function (g) {
       if (g.repeat) {
-        Object.keys(g.outcomes || {}).forEach(function (k) {
+        var met = 0, missed = 0, last = null;
+        Object.keys(g.outcomes || {}).sort().forEach(function (k) {
           var day = k.length === 7 ? k + "-01" : k;
           if (g.repeat === "month" && p.period === "week") return;
           if (day < p.start || day > p.end) return;
-          if (g.outcomes[k].met) out.periodsMet++; else out.periodsMissed++;
+          if (g.outcomes[k].met) met++; else missed++;
+          last = g.outcomes[k];
         });
+        if (!met && !missed) return;
+        out.periodsMet += met; out.periodsMissed += missed;
+        (missed && !met ? out.missedNames : out.metNames).push(g.title);
+        out.rows.push({ id: g.id, title: g.title, domain: g.domain, state: missed && !met ? "missed" : "met",
+          repeat: g.repeat, met: met, of: met + missed, value: last ? last.value : null });
         return;
       }
-      if (g.completedAt && g.completedAt >= from && g.completedAt < to) out.reached.push({ id: g.id, title: g.title, domain: g.domain });
-      else if (g.status === "failed" && !g.failedManual && g.deadline && g.deadline >= p.start && g.deadline <= p.end) out.missed.push({ id: g.id, title: g.title, domain: g.domain });
+      if (g.completedAt && g.completedAt >= from && g.completedAt < to) {
+        out.reached.push({ id: g.id, title: g.title, domain: g.domain });
+        out.rows.push({ id: g.id, title: g.title, domain: g.domain, state: "met", at: g.completedAt });
+      } else if (g.status === "failed" && !g.failedManual && g.deadline && g.deadline >= p.start && g.deadline <= p.end) {
+        out.missed.push({ id: g.id, title: g.title, domain: g.domain });
+        out.rows.push({ id: g.id, title: g.title, domain: g.domain, state: "missed", deadline: g.deadline });
+      }
     });
     Object.keys(out).forEach(function (k) { if (out[k] === 0 || (Array.isArray(out[k]) && !out[k].length)) delete out[k]; });
     return Object.keys(out).length ? out : null;
@@ -1097,7 +1110,8 @@
       KOS.money.range(p.start, p.end, function (err, tx) {
         var M = KOS.money, names = {}, budgets = {};
         M.categories({ archived: true }).forEach(function (c) { names[c.id] = c.name; var b = M.budgetOf(c); if (b != null) budgets[c.id] = b; });
-        input.money = { tx: err ? [] : tx, names: names, budgets: budgets, currency: M.data().currency };
+        input.money = { tx: err ? [] : tx, names: names, budgets: budgets, currency: M.data().currency,
+          subs: M.subscriptions(p.end).perMonth || 0 };
         goals();
       });
     }

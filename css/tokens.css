@@ -868,6 +868,82 @@ color-scheme: dark;
 --rp-vs-name: 144px;         /* the plan-against-class name and end columns */
 --rp-chapter-d: 352px;
 
+/* ---------- Money and Goals (design turn 27, roadmap 5.4) ---------- */
+--fs-46: 46px;
+--fs-60: 60px;
+/* the primitives */
+--period: 16px;              /* a period-history square */
+--period-sm: 13px;
+--period-xs: 12px;
+--period-lg: 18px;
+--period-xl: 20px;
+--ring-hero: 164px;          /* the goal ring: hero, card, phone */
+--ring-md: 96px;
+--ring-sm: 92px;
+--goal-num: 44px;            /* Home's days-left circle with its ring */
+--goal-num-in: 36px;
+--catbar-dot: 8px;
+--amount-field-h: 48px;
+--amount-field-h-lg: 56px;
+--amount-field-h-xl: 72px;
+--pic-btn: 32px;
+/* Money's pages */
+--mn-side-w: 340px;          /* the Overview's side column, the rule editor */
+--mn-side-sm: 320px;         /* Transactions' and Budgets' side panels */
+--mn-hero-side: 300px;       /* Safe to spend today */
+--mn-hero-mark: 300px;       /* the 円 watermark */
+--mn-chart-h: 96px;          /* the day chart */
+--mn-chart-h-phone: 56px;
+--mn-chart-gap: 3px;
+--mn-dot: 6px;               /* a no-spend day; a day still to come */
+--mn-day-w: 62px;
+--mn-search-w: 250px;        /* Transactions' search */            /* "Mon 2 Nov" in Next 14 days */
+--rp-mfig-w: 76px;           /* a Reports money figure (27o) */
+--mn-tx-cat: 150px;          /* a transaction row: box · category · payee · amount */
+--mn-tx-amt: 112px;
+--mn-dialog-w: 600px;        /* the entry editor */
+--mn-split-amt: 120px;
+--mn-roll-w: 170px;          /* Budgets: the rollover note */
+--mn-sub-next: 120px;        /* Subscriptions: Next · a month · a year */
+--mn-sub-fig: 92px;
+--mn-pot-pic: 240px;         /* the pot hero's picture */
+--mn-pot-plan: 280px;        /* the plan timeline */
+--mn-pot-hero-h: 300px;
+--mn-pot-band: 124px;        /* a pot card's picture band */
+--mn-pot-tile-min: 300px;
+--mn-node: 9px;              /* a timeline node; now is larger */
+--mn-node-now: 12px;
+--mn-node-col: 16px;
+--mn-node-date: 50px;
+--mn-cmp-now: 100px;         /* Month: October · September · Change */
+--mn-cmp-then: 120px;
+--mn-cmp-change: 170px;
+--mn-year-h: 200px;
+--mn-year-bar: 140px;
+--mn-map-col: 120px;         /* CSV import: a column · its sample · → · to */
+--mn-map-to: 170px;
+--mn-map-w: 420px;
+--mn-pv-state: 150px;
+--mn-pv-date: 74px;
+--mn-pv-amt: 90px;
+--mn-drop-h: 150px;
+--mn-fab: 56px;
+--mn-chip-min: 24px;         /* a Calendar derived chip (the dense exception) */
+/* Goals */
+--gl-side-w: 320px;          /* the hero's run panel */
+--gl-band: 96px;             /* a goal card's picture band */
+--gl-band-phone: 84px;
+--gl-wash-kanji: 96px;
+--gl-wash-kanji-sm: 56px;
+--gl-hero-mark: 280px;
+--gl-card-min: 320px;
+--gl-tpl-min: 180px;
+--gl-dialog-w: 760px;
+--gl-chart-h: 220px;
+--gl-hist-h: 150px;
+--gl-bar-max: 110px;
+--gl-detail-side: 320px;
+
 /* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */
 --ease: cubic-bezier(0.2, 0, 0, 1);
 --dur-fast: 150ms;

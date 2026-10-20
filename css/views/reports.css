@@ -21,6 +21,22 @@
 .k-rp-subhead { margin: var(--sp-14) 0 var(--sp-6); font-size: var(--fs-11); font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
 .k-rp-subrow { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-10); }
 .k-rp-subrow .k-rp-note { margin: 0; }
+/* Money and Goals in a report (27o) */
+.k-rp-mfigs { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--rp-mfig-w), 1fr)); gap: var(--sp-12); }
+.k-rp-mfig { display: flex; flex-direction: column; gap: var(--sp-4); min-inline-size: 0; }
+.k-rp-mcats, .k-rp-goals { display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-rp-mcat, .k-rp-goal { display: flex; align-items: center; gap: var(--sp-10); inline-size: 100%; padding: var(--sp-8) var(--sp-6); border: 0; border-radius: var(--r-8); background: none; color: var(--ink); text-align: start; font: inherit; cursor: pointer; }
+.k-rp-mcat:hover, .k-rp-goal:hover { background: var(--s2); }
+.k-rp-mcat-n { flex: 1 1 auto; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-13); }
+.k-rp-gcounts { display: flex; gap: var(--sp-20); margin-block-end: var(--sp-8); }
+.k-rp-gcounts > div { display: flex; align-items: baseline; gap: var(--sp-6); }
+.k-rp-gcounts b { font-size: var(--fs-22); letter-spacing: var(--track-head); }
+.k-rp-gcounts [data-k="met"] b { color: var(--teal); }
+.k-rp-gcounts [data-k="missed"] b { color: var(--alarm-ink); }
+.k-rp-goal-t { display: flex; flex-direction: column; flex: 1 1 auto; min-inline-size: 0; gap: var(--sp-2); }
+.k-rp-goal-t b { font-size: var(--fs-13); font-weight: var(--weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-rp-goal-t .k-muted { font-size: var(--fs-12); }
+.k-rp-card--sees .k-rp-note { margin: 0; }
 .k-rp-dot { inline-size: var(--sp-7); block-size: var(--sp-7); flex: 0 0 auto; border-radius: 50%; background: var(--c, var(--text-2)); }
 .k-rp-rank { color: var(--muted); font-size: var(--fs-12); }
 .k-rp-ref { color: var(--text-2); font-size: var(--fs-11-5); white-space: nowrap; }

@@ -245,12 +245,17 @@
       if (f.code.retrieval) out.code_retrievals = (f.code.retrievalOk || 0) + "/" + f.code.retrieval;
       if (f.code.katas) out.code_katas = f.code.katas;
     }
-    /* Money and Goals (5.4): totals and counts only — never a category,
-       payee, note or goal title (invariant 102b) */
+    /* Money and Goals (5.4, "What Kurenai sees", 27o): totals in and out,
+       the three biggest categories by amount, the subscriptions total, and
+       how many goals were met or missed with their names. Never payees,
+       notes, tags or the titles bought (invariant 102b). */
     if (f.money) {
-      if (f.money.outgoings) out.money_out = Math.round(f.money.outgoings) / 100;
-      if (f.money.income) out.money_in = Math.round(f.money.income) / 100;
-      if (f.money.toPots) out.money_saved = Math.round(f.money.toPots) / 100;
+      var m2 = function (n) { return Math.round(n) / 100; };
+      if (f.money.outgoings) out.money_out = m2(f.money.outgoings);
+      if (f.money.income) out.money_in = m2(f.money.income);
+      if (f.money.toPots) out.money_saved = m2(f.money.toPots);
+      if (f.money.top) out.money_top = f.money.top.map(function (c) { return c.name + " " + m2(c.spent); });
+      if (f.money.subs) out.subscriptions_month = m2(f.money.subs);
       if (f.money.over) out.budgets_over = f.money.over.length;
     }
     if (f.goals) {
@@ -258,6 +263,9 @@
       var missed = (f.goals.periodsMissed || 0) + (f.goals.missed ? f.goals.missed.length : 0);
       if (met) out.goals_met = met;
       if (missed) out.goals_missed = missed;
+      var names = function (l) { return (l || []).map(function (g) { return g.title; }); };
+      if (f.goals.reached || f.goals.metNames) out.goals_met_names = names(f.goals.reached).concat(f.goals.metNames || []);
+      if (f.goals.missed || f.goals.missedNames) out.goals_missed_names = names(f.goals.missed).concat(f.goals.missedNames || []);
     }
     if (f.plan) {
       out.plan = f.plan.ticked + "/" + f.plan.planned;

@@ -117,7 +117,7 @@ step("C · a weekly goal judges each ended week once", async () => {
   eq(Object.keys(o), ["2026-09-28", "2026-10-05", "2026-10-12"], "three ended weeks judged");
   eq([o["2026-09-28"].met, o["2026-10-05"].met, o["2026-10-12"].met], [true, false, true], "met, missed, met");
   eq(o["2026-10-05"].value, 6, "the figure kept");
-  eq(r._pace, "ahead", "3 h on the Monday is ahead of the line");
+  eq(r._pace, "early", "the first day of a week is too early to call");
   const stamp = o["2026-10-12"].at;
   G.update(weekly.id, { target: 12 });
   await p(cb => G.compute(cb));
@@ -131,8 +131,14 @@ step("D · pace and the projected finish", () => {
   const g = {};
   const P = (def, cur, tgt) => G.pace(g, def, cur, tgt, "2026-10-01", "2026-10-30", "2026-10-15");
   eq([P(reach, 30, 100), P(reach, 48, 100), P(reach, 60, 100), P(reach, 100, 100)], ["behind", "on-track", "ahead", "ahead"], "reach");
-  eq([P(under, 40, 75), P(under, 45, 75), P(under, 80, 75)], ["on-track", "behind", "behind"], "spend under");
+  eq([P(under, 40, 75), P(under, 80, 75)], ["under", "over"], "a stay-under goal has no line: under or over");
   eq(P(shown, 5, 14), null, "display only");
+  /* the design's own goals on Monday 19 October (27i) */
+  eq(G.pace(g, reach, 7.67, 10, "2026-10-14", "2026-10-20", "2026-10-19"), "behind", "study week: 7 h 40 m against the line's 8 h 34 m");
+  eq(G.pace(g, reach, 3, 20, "2026-10-19", "2026-10-25", "2026-10-19"), "early", "Focus blocks: the week began today");
+  eq(G.pace(g, reach, 3, 5, "2026-10-01", "2026-10-25", "2026-10-19"), "behind", "Statistics: 3 of 5");
+  eq(G.pace(g, reach, 6, 10, "2026-10-01", "2026-10-31", "2026-10-19"), "on-track", "Daily 20: 6 of 10");
+  eq(Math.round(G.expectedOf(10, "2026-10-14", "2026-10-20", "2026-10-19").value * 60), 514, "the line says 8 h 34 m");
   eq(G.pace(g, reach, 1, 10, "2026-10-20", "2026-10-30", "2026-10-15"), null, "not started");
   eq(G.projected(reach, 4, 10, "2026-10-10", "2026-10-19"), "2026-11-03", "projected from the rate");
   eq(G.projected(reach, 4, 10, "2026-10-18", "2026-10-19"), null, "two days is too few");
@@ -207,11 +213,10 @@ step("H · topics to Green count from the goal's own start", async () => {
   eq([r._current, r._status], [2, "completed"], "two new greens");
 });
 
-step("the Planner's Goals page still draws every goal", async () => {
-  K.store.state.media.goalsTab = "active";
+step("the Goals page (27i) still draws every goal: the hero's and the grid's", async () => {
   K.show("goals");
   await app.settle();
-  const cards = app.document.querySelectorAll('[data-ui~="goal.card"]');
+  const cards = app.document.querySelectorAll('[data-ui~="goal.hero"], [data-ui~="goal.grid"] [data-ui~="goal.card"]');
   const active = (await p(cb => G.compute(cb))).filter(g => g._status === "active" || g._status === "met").length;
   eq(cards.length, active, "every active goal drawn");
   eq(app.errors, [], "window errors");

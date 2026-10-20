@@ -191,7 +191,7 @@
     });
     if (!out.length) return null;
     return {
-      id: "goals", label: "Collection goals",
+      id: "goals", label: "Goals",
       items: rank(out, ts, function (g) { return g.title; }).slice(0, PER_DOMAIN).map(function (g) {
         return {
           title: g.title, sub: g.status || "active", meta: clip(g.description, 70),

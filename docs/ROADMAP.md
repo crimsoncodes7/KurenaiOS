@@ -810,6 +810,24 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.4 Money and Goals, beyond the Collection ◆ (asked for 13 October 2026)
 
+> **Status (20 October 2026, branch `feat/money-goals`, not merged or
+> deployed): BUILT WHOLE.** The design handoff (frames 27a–27s) arrived and
+> every page is built to it: Money's six views (Overview with the day
+> chart and Safe to spend, Transactions with splits, refunds, tags, bulk
+> actions and CSV, Budgets with rollover and the Collection breakdown,
+> Recurring with due cards and subscriptions, Pots with the saving-for
+> hero, Month and year), Goals (the hero ring, domain filter, card grid,
+> "Every period, kept", Done) and a goal's page (pace chart, history,
+> milestones, how it is counted), the new-goal picker and form, Home's
+> Upcoming | Goals switch, the Wishlist (the Planner renamed, its
+> allowance read from Money, "Mark purchased" as a dialog that says what
+> it will do), the Calendar's derived chips with their toggles, Reports'
+> Money and Goals cards with "What Kurenai sees", and the Goals/Money
+> notification filters. Placement (27a): Money and Goals join the
+> Productivity strip; the Collection keeps the Wishlist. Held by
+> smoke84–87 and smoke56 (all six Money views under render purity).
+> Next: the user's review, then a release when asked.
+
 > **Status (19 October 2026, branch `feat/money-goals`, not merged or
 > deployed):** started from the second account. Design prompt 11 was
 > revised for the new Claude Design project (frames 27a–27s, adding the
