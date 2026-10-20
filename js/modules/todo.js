@@ -1,6 +1,6 @@
 /* Kurenai OS — modules/todo.js
    Auto-generated daily to-do (FR-4.1), rule-based, regenerated every day:
-     1. cards due today from the SM-2 queue
+     1. cards due today from the review queue
      2. exams/deadlines/study blocks from the calendar in the next few days
      3. the user's own manual tasks (persist independently)
    Ticks feed XP/HP through the session log like every other governor action.
@@ -17,7 +17,7 @@
     var out = [];
     var today = KOS.srs.todayISO();
 
-    /* 1 — SM-2 due queue */
+    /* 1 — the review due queue */
     var due = KOS.srs.dueCards();
     if (due.length) {
       var overdue = due.filter(function (c) { return c.overdue > 0; }).length;

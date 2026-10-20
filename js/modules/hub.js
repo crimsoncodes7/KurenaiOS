@@ -617,7 +617,7 @@
 
   /* ---------- "what should I do next" ----------
      The one statement the front page leads with. It reads the surfaces that
-     already exist — the focus machine, the SM-2 queue, the merged countdowns,
+     already exist — the focus machine, the review queue, the merged countdowns,
      the generated directives, the last topic — and picks the first that has
      something to say. It creates nothing and writes nothing; every branch
      hands off to a view that already owns the work. */
@@ -633,7 +633,7 @@
     var due = opts.skipDue ? 0 : KOS.srs.dueCount();
     if (due) {
       return { kicker: "Due today", label: KOS.ui.num(due) + " card" + (due === 1 ? "" : "s") + " ready for review",
-        why: "Recall decays on a schedule — this is the queue SM-2 built for today.",
+        why: "Recall decays on a schedule — these cards have dipped to the recall you aim for.",
         cta: "Start reviewing →", go: function () { KOS.show("due"); } };
     }
     /* 3 — anything dated and close. countdowns() is the merged read over the
@@ -1031,7 +1031,7 @@
           text: dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s") : "Nothing due to review" }));
         upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why",
           text: dueN ? "About " + Math.max(1, Math.round(dueN * 0.5)) + " minute" + (dueN > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today")
-            : "The queue is clear — SM-2 has nothing scheduled for today." }));
+            : "The queue is clear — nothing is scheduled for today." }));
         var bySid = {};
         dueCards.forEach(function (c) { var sid = String(c.key).split(":")[0]; (bySid[sid] = bySid[sid] || []).push(c); });
         SUBJECTS.forEach(function (sid) {

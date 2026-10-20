@@ -17,7 +17,7 @@
      notes:      [block, …]          content.js blocks, each with an `id`
      spec:       {content:[block…], info:[block…]}   converted from the
                                      generated lines on first edit
-     flashcards: [{id, k, q, a}]     `k` is the SM-2 key — a card that came
+     flashcards: [{id, k, q, a}]     `k` is the schedule key — a card that came
                                      from the curriculum keeps its original
                                      "sid:ref:i" key so its review history
                                      survives being edited or reordered; a
@@ -91,7 +91,7 @@
     var e = shippedEntry(sid, ref);
     return ((e && e.flashcards) || []).map(function (c, i) {
       /* an optional third element is the card's original position (or a
-         whole SM-2 key): it keeps both the schedule and the row id steady
+         whole schedule key): it keeps both the schedule and the row id steady
          when neighbouring cards are removed from the deck (srs.js) */
       var o = c[2];
       var k = o == null ? key(sid, ref) + ":" + i : (typeof o === "string" && o.indexOf(":") >= 0 ? o : key(sid, ref) + ":" + o);
@@ -243,7 +243,7 @@
 
   /* ---------------- reordering (roadmap 1.4) ----------------
      A row moves inside its own fork; nothing about it changes but its
-     place. Row ids stay (invariant 88) and a flashcard keeps its SM-2 key
+     place. Row ids stay (invariant 88) and a flashcard keeps its schedule key
      `k` (invariant 87), because set() re-stamps nothing that already has
      one. Spec rows live in two lists, `content` and `info`; a move may
      cross between them. */

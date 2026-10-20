@@ -8,7 +8,8 @@
                   paid/phonePaid say what was paid, so nothing pays twice
      lessons[ref] { pages: {i: ts}, listings: {id: ts} }   evidence only
      proven[c]    { at, by, id, grade }   the last proof of a concept
-     cards[id]    { due, ivl, ef, reps, lapses, last, n, grade }   retrieval
+     cards[id]    { due, ivl, s, d, fl, reps, lapses, last, n, grade }   retrieval (FSRS;
+                  ef only on a card from before the switch, read to convert)
      practice[k]  ts   a Practice item answered right (proves, never pays)
      later[id]    { kind, ref, at }   "Save for the computer"
    Per device (state.ui.code): the task panel collapsed, phone choices and
@@ -632,16 +633,42 @@
     if (o.tries === 1 && (o.secs || 0) <= 180) return "easy";
     return "good";
   }
-  function schedule(s, g) {
-    var ef = s.ef || 2.5, ivl = s.ivl || 2, reps = s.reps || 0;
-    if (g === "again") { ivl = 1; ef = Math.max(1.3, ef - 0.2); s.lapses = (s.lapses || 0) + 1; reps = 0; }
-    else if (g === "hard") { ivl = Math.max(1, Math.round(ivl * 1.2)); ef = Math.max(1.3, ef - 0.15); reps++; }
-    else if (g === "good") { ivl = reps ? Math.round(ivl * ef) : Math.max(3, ivl + 1); reps++; }
-    else { ivl = Math.round((reps ? ivl * ef : Math.max(4, ivl + 2)) * 1.3); ef = ef + 0.15; reps++; }
-    s.ef = Math.round(ef * 100) / 100; s.ivl = ivl; s.reps = reps;
-    s.last = today(); s.due = addDays(today(), ivl); s.grade = g;
+  /* the schedule is FSRS (roadmap 5.6): the same core as the flashcards,
+     the derived grade as its 1–4. An Again waits the forget interval
+     rather than staying due today, because no session requeues a Code
+     card. A card from before the switch converts from its ease and
+     interval (KOS.fsrs.recordMemory), so its due date never moved. */
+  var GRADE_NUM = { again: 1, hard: 2, good: 3, easy: 4 };
+  function r4(v) { return Math.round(v * 1e4) / 1e4; }
+  function schedule(s, g, id) {
+    var t = today();
+    var before = KOS.fsrs.recordMemory(s);
+    var el = s.last ? Math.max(0, daysBetween(s.last, t)) : 0;
+    var nx = KOS.fsrs.schedule(before, GRADE_NUM[g], el, { retention: KOS.srs.retention(), seed: "code:" + id + "|" + t });
+    if (g === "again") { s.lapses = (s.lapses || 0) + 1; s.reps = 0; }
+    else s.reps = (s.reps || 0) + 1;
+    s.s = r4(nx.s); s.d = r4(nx.d); s.ivl = nx.ivl;
+    s.last = t; s.fl = t; s.due = addDays(t, nx.ivl); s.grade = g;
     s.n = (s.n || 1) + 1;
+    if (KOS.reviewLog && KOS.reviewLog.available()) {
+      KOS.reviewLog.add({ key: "code:" + id, ts: Date.now(), day: t, g: GRADE_NUM[g], el: el,
+        s0: before ? before.s : null, d0: before ? before.d : null, s1: s.s, d1: s.d, ivl: s.ivl, src: "code" });
+    }
     return s;
+  }
+  /* the switch, persisted at boot like the flashcards' (KOS.srs.migrate) */
+  function migrateCards() {
+    var cards = S().cards || {}, n = 0;
+    Object.keys(cards).forEach(function (id) {
+      var c = cards[id];
+      if (!c || !c.last || (c.s > 0 && c.d > 0 && c.fl === c.last)) return;
+      var mem = KOS.fsrs.recordMemory(c);
+      if (!mem) return;
+      c.s = r4(mem.s); c.d = r4(mem.d); c.fl = c.last;
+      n++;
+    });
+    if (n) store.save();
+    return n;
   }
   /* a card answered: o = { passed, tries, hint, secs } → outcome */
   function recordCard(id, o) {
@@ -650,7 +677,7 @@
     var s = st.cards[id] = obj(st.cards[id]);
     if (!s.due) Object.assign(s, { due: today(), ivl: 2, ef: 2.5, reps: 0, lapses: 0, n: 1 });
     var g = grade(o);
-    schedule(s, g);
+    schedule(s, g, id);
     var paid = false, capped = false;
     if (g !== "again") {
       if (rewardsToday() < CARD_CAP) paid = true; else capped = true;
@@ -867,7 +894,7 @@
     taskState: taskState, openHint: openHint, seeAnswer: seeAnswer, quote: quote, recordCheck: recordCheck, award: award,
     draft: draft, setDraft: setDraft,
     variation: variation, cardRow: cardRow, dueCards: dueCards, nextDue: nextDue, rewardsToday: rewardsToday,
-    grade: grade, recordCard: recordCard, recordPractice: recordPractice,
+    grade: grade, recordCard: recordCard, migrateCards: migrateCards, recordPractice: recordPractice,
     saveLater: saveLater, dropLater: dropLater, laterList: laterList, isLater: isLater,
     kataPool: kataPool, kataDraw: kataDraw, recordKata: recordKata, katas: katas, KATA_N: KATA_N,
     planDay: planDay, reviewWeek: reviewWeek, stats: stats, firstVisit: firstVisit,

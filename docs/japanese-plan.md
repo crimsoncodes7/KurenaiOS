@@ -487,6 +487,9 @@ where reading runs ahead of listening, which is the usual imbalance.
 
 ## 9. Spaced repetition
 
+- **The core is `KOS.fsrs`** (roadmap 5.6, invariant 111; `js/core/fsrs.js`,
+  FSRS-6 and held to py-fsrs). `jasrs.js` keeps the facets, burying and
+  load control and calls it, instead of its own FSRS-4.5 copy.
 - **One scheduler for every facet** (FSRS-style: stability, difficulty,
   retrievability). It is a pure function, like Code's `schedule()`.
 - **Grades are derived** from correctness, hints, time and validator verdict:
@@ -999,18 +1002,18 @@ responsive audit, and bumps `sw.js` `VERSION` (CLAUDE.md deploy rules).
 | smoke83 | the scheduler (determinism, facet unlock, sibling burying, load forecast) and the timeline (calibrating state, ranges, no NaN) |
 | Node tools | `tools/ja_valid_check.mjs` (golden tests), `tools/gen_ja.mjs --check` (the dictionary is reproducible) |
 
-## 19. Invariants this would add (draft, numbered 111+)
+## 19. Invariants this would add (draft, numbered 112+; 111 is FSRS's one scheduler)
 
-- 111: the Japanese subject registry, hue and exam status.
-- 112: facets are per item × skill; their grades are derived and never
+- 112: the Japanese subject registry, hue and exam status.
+- 113: facets are per item × skill; their grades are derived and never
   self-reported.
-- 113: validators are pure, each verdict is one of four, and the AI grade is
+- 114: validators are pure, each verdict is one of four, and the AI grade is
   advisory.
-- 114: personal media never leaves the device.
-- 115: pay once; immersion only through Focus; the Collection stays leisure.
-- 116: the timeline is a derived projection, shown as a range, never stored
+- 115: personal media never leaves the device.
+- 116: pay once; immersion only through Focus; the Collection stays leisure.
+- 117: the timeline is a derived projection, shown as a range, never stored
   as a promise.
-- 117: generated dictionary data and attribution.
+- 118: generated dictionary data and attribution.
 
 ## 20. Risks
 

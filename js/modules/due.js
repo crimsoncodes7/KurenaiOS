@@ -1,6 +1,6 @@
 /* Kurenai OS — modules/due.js
    The global "Due Today" queue (FR-1.2): every card — curriculum and custom,
-   across all three subjects and the personal bucket — whose SM-2 due date
+   across all three subjects and the personal bucket — whose due date
    has arrived, most-overdue first. Per-topic browsing stays on each topic's
    Flashcards tab; this view is the daily clearing house.
 
@@ -58,7 +58,7 @@
         }).concat([el("span", { class: "k-muted", text: "about " + Math.max(1, Math.round(due.length * 0.5)) + " min" })])) : null,
         due.length ? null : el("div", { class: "k-rv-clear", "data-ui": "review.due-clear" }, [
           el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "澄" }),
-          el("span", { text: "Queue clear. Rate cards on any topic's Flashcards tab and SM-2 schedules them back here." })
+          el("span", { text: "Queue clear. Rate cards on any topic's Flashcards tab and they are scheduled back here." })
         ])
       ].filter(Boolean)),
       due.length ? el("div", { class: "k-rv-go" }, [
@@ -179,7 +179,7 @@
     if (!cards.length) {
       main.appendChild(el("div", { class: "k-rv-clear", "data-ui": "review.due-clear" }, [
         el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "澄" }),
-        el("span", { text: "Queue clear. Nothing is due — SM-2 brings cards back here at the right moment." })
+        el("span", { text: "Queue clear. Nothing is due — cards come back here when their recall dips to your target." })
       ]));
       return;
     }

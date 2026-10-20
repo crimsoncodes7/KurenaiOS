@@ -23,7 +23,7 @@ chronological diary here.
   (17 October 2026; Code capstone 3), https://6c888d02.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-money-1`
-- Required smoke gate: 83 / 83 suites (`""`, 2–79 and 84–87; 80–83 are
+- Required smoke gate: 84 / 84 suites (`""`, 2–79 and 84–88; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` for the Money and Goals release, so
@@ -34,6 +34,10 @@ chronological diary here.
   revision 3.1). The throwaway vertical slice in `prototypes/japanese-space/`
   is closed on real data and touches no app file; the platform release (plan
   §17, smokes 80–83) is next, only when asked.
+- In flight on `feat/fsrs`: FSRS (roadmap 5.6, [`docs/fsrs-plan.md`](docs/fsrs-plan.md)).
+  Phase 1 is built (one FSRS-6 core for flashcards and Code's retrieval
+  cards, the SM-2 switch, the review log, the FSRS figures; smoke88,
+  `tools/fsrs_check.mjs`); phase 2 (the exam-aware cap) is next.
 - Released 20 October 2026: Money and Goals (roadmap 5.4), built whole
   from design prompt 11 (frames 27a–27s) — the Money core and the Goals
   engine (smoke84–85), the joins (kos_money replication, the Assistant's
@@ -52,7 +56,8 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..79} 84 85 86 87; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
+for i in "" {2..79} 84 85 86 87 88; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
+node tools/fsrs_check.mjs              # KOS.fsrs against py-fsrs (needs Python; after any change to js/core/fsrs.js)
 node tools/cs_diff.mjs                 # Code content against real .NET (needs the .NET 10 SDK)
 tools/build_cs_wasm.sh                 # Code's full C# runtime (units 7+), once per change to tools/cs-wasm
 node tools/cs_wasm_check.mjs           # that runtime against native .NET
@@ -123,6 +128,8 @@ non-navigation redraw path.
 - `kurenai-os-files` IndexedDB: topic attachments.
 - `kurenai-os-money` IndexedDB: Money's transactions and their tombstones
   (invariant 5a).
+- `kurenai-os-reviews` IndexedDB: the review log, one row per rating
+  (invariant 111).
 - Supabase: optional replication layer; never the only successful write path.
 - `store.exportFull()` / `importFull()`: state, media, non-token kv and files;
   credentials/sessions are deliberately excluded.
@@ -143,7 +150,8 @@ non-navigation redraw path.
 | Goals: the engine, its types and periods | `js/core/goals.js` (`KOS.goals`: registry, record, compute, pace; the study, productivity, money, code and Governor types), `js/core/goals-collection.js` (the Collection's fourteen); pages `js/modules/goals.js` (`#/goals[/week|month|done|<id>]`, design 27i–27k; `KOS.goalsUI`, `KOS.goalEditor`), `css/views/goals.css`; Home's Goals switch in `hub.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`); the desk's two blocks `js/modules/itdesk.js` |
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
-| SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
+| The spaced-repetition model (FSRS-6), the flashcard schedule and the review log | `js/core/fsrs.js` (`KOS.fsrs`, pure, also in Node), `srs.js` (`KOS.srs`), `js/core/reviewlog.js` (`KOS.reviewLog`); `tools/fsrs_check.mjs`, `tools/smoke88.test.js` |
+| Sessions and rewards | `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
 | Integrated weekly plan and pacing | `js/core/pacing.js`, `js/modules/pacing.js` |
 | Collection schema and sync | `mediadb.js`, `media*.js`, provider clients |
@@ -574,7 +582,7 @@ source comments and audit notes refer to it.
     takes the EFFECTIVE material: `KOS.content.get()/has()` and
     `KOS.srs.curriculumCards()` consult `KOS.edits` first. `reset()` deletes the
     fork and the shipped material returns exactly.
-87. A forked flashcard keeps the SM-2 key it shipped with (`sid:ref:i`) through
+87. A forked flashcard keeps the schedule key it shipped with (`sid:ref:i`) through
     every edit, reorder or neighbour deletion; a card added in the editor gets
     `sid:ref:<rowId>`. Rewording never resets a schedule. The same holds for
     the SHIPPED deck: when cards are removed from a content file, every card
@@ -609,7 +617,7 @@ source comments and audit notes refer to it.
     drags, or Space lifts, ↑ ↓ move, Space drops, Esc puts back, announced.
     A reorder is a MOVE inside the fork (`KOS.edits.move(sid, ref, kind, id,
     to)`, `moveBy(…, ±1)` for the keyboard; Spec blocks may cross between its
-    `content` and `info` lists). The row's id and a flashcard's SM-2 key ride
+    `content` and `info` lists). The row's id and a flashcard's schedule key ride
     with it (invariants 87, 88); a refused step writes nothing. Spec's
     optional column break is ONE stored block id, `colBreak` in the Spec fork
     (`setSpecBreak`, read as `specColumns()`): the second column starts at
@@ -896,6 +904,37 @@ source comments and audit notes refer to it.
     `code_lesson` and `code_skills` and has no Code write tool: evidence is
     earned in the app, never set by a tool.
 
+### Spaced repetition (111)
+
+111. ONE SCHEDULER. Every card that comes back on a schedule — flashcards
+    (`srs.js`) and Code's retrieval cards (`code.js` `schedule`), and the
+    Japanese facets when they are built — schedules through `KOS.fsrs`
+    (`js/core/fsrs.js`): FSRS-6 with its 21 default parameters, pure, held
+    to py-fsrs 6.3.2 by `tools/fsrs_check.mjs` (every stability, difficulty
+    and interval). A card's memory is `s` (days until recall falls to 90%)
+    and `d` (1–10); a review under a day after the last takes the
+    short-term rule. The flashcard target retention is
+    `state.srsCfg.retention` (synced, 0.80–0.95, default 0.90, set on Card
+    stats); a new target applies from each card's next review and moves no
+    due date. A flashcard Again stays due today (the session requeues it);
+    a Code Again waits the forget interval. Fuzz is deterministic — seeded
+    by the card key and the day — so a rating button's preview is exactly
+    what it schedules, on every device, and it never fuzzes under 2.5 days.
+    THE SWITCH FROM SM-2 (20 October 2026) converts a card's ease and
+    interval the way Anki does (fsrs-rs `memory_state_from_sm2`, r = 0.9:
+    `s` = the interval), so no due date moved and the next on-time Good
+    matches SM-2. `KOS.srs.migrate()` and `KOS.code.migrateCards()` persist
+    it at boot (idempotent); a render never writes (it reads through
+    `KOS.fsrs.recordMemory`). `ef` stays on a card, frozen, and `fl` is the
+    day FSRS last moved it: a card whose `last` moved without `fl` (an
+    older copy of the app rated it) converts again from its ease and
+    interval. Every rating appends ONE row to the review log
+    (`KOS.reviewLog`, IndexedDB `kurenai-os-reviews`: key, grade, elapsed,
+    memory before and after, interval, source — never card text), which
+    rides the full backup and is not in the state document; it exists so
+    the parameters can later be fitted to this learner. A rating pays
+    exactly what it paid before; scheduling has zero Governor traffic.
+
 ### Reports (99–102)
 
 99. A media row carries its own ACTIVITY JOURNAL (`journal: [[ts, kind,
@@ -1115,7 +1154,7 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   conversion, bitmap and vector graphics, and the arithmetic/relational/
   Boolean operators. The kept leaf is the group's first ref and carries
   every member's specification wording; its content is `cs-m-*.js`, which
-  replaces the members' separate entries (their cards keep their SM-2 keys
+  replaces the members' separate entries (their cards keep their schedule keys
   through a whole-key third element, invariant 87). A folded leaf's old
   ref is renamed to the kept one in stored state by `store.js`
   `REF_ALIASES` (exact refs only; the kept leaf's own record wins).

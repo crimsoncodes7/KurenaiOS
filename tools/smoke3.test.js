@@ -35,25 +35,32 @@ function step(name, fn) {
 }
 const today = KOS.srs.todayISO();
 
-console.log("== SM-2 core ==");
-step("Good on a new card -> 1d interval, due tomorrow", () => {
+console.log("== FSRS core (roadmap 5.6) ==");
+step("Good on a new card -> FSRS-6 first stability, 2-day interval", () => {
   const m = KOS.srs.rate("compsci:4.2.3.1:0", 2);
-  if (m.ivl !== 1 || m.reps !== 1) throw new Error("ivl=" + m.ivl + " reps=" + m.reps);
-  if (m.due !== KOS.srs.addDays(today, 1)) throw new Error("due=" + m.due);
+  if (m.ivl !== 2 || m.reps !== 1) throw new Error("ivl=" + m.ivl + " reps=" + m.reps);
+  if (Math.abs(m.s - 2.3065) > 1e-4 || m.fl !== today) throw new Error("s=" + m.s + " fl=" + m.fl);
+  if (m.due !== KOS.srs.addDays(today, 2)) throw new Error("due=" + m.due);
 });
-step("second Good -> 6d, third grows by EF", () => {
-  let m = KOS.srs.rate("compsci:4.2.3.1:0", 2);
-  if (m.ivl !== 6) throw new Error("ivl2=" + m.ivl);
-  const efBefore = m.ef;
-  m = KOS.srs.rate("compsci:4.2.3.1:0", 2);
-  if (m.ivl < 10) throw new Error("ivl3=" + m.ivl + " ef=" + efBefore);
-  if (m.views !== 3) throw new Error("views=" + m.views);
+step("a second Good the same day takes the short-term rule (never shrinks on a pass)", () => {
+  const s0 = KOS.srs.peek("compsci:4.2.3.1:0").s;
+  const m = KOS.srs.rate("compsci:4.2.3.1:0", 2);
+  if (m.s < s0) throw new Error("stability fell on a pass: " + s0 + " -> " + m.s);
+  if (m.views !== 2) throw new Error("views=" + m.views);
 });
-step("Again -> lapse: reps reset, due today, EF floored >= 1.3", () => {
+step("Again -> lapse: reps reset, due today, difficulty stays within 1..10", () => {
   const m = KOS.srs.rate("compsci:4.2.3.1:0", 0);
-  if (m.reps !== 0 || m.due !== today || m.lapses !== 1) throw new Error(JSON.stringify(m));
+  if (m.reps !== 0 || m.due !== today || m.lapses !== 1 || m.ivl !== 0) throw new Error(JSON.stringify(m));
   for (let i = 0; i < 20; i++) KOS.srs.rate("compsci:4.2.3.1:0", 0);
-  if (KOS.srs.peek("compsci:4.2.3.1:0").ef < 1.3) throw new Error("EF fell through floor");
+  const d = KOS.srs.peek("compsci:4.2.3.1:0").d;
+  if (!(d >= 1 && d <= 10)) throw new Error("difficulty out of range: " + d);
+});
+step("the preview on each button is what the rating schedules", () => {
+  KOS.store.state.srs["maths:2.3:1"] = { ef: 2.5, ivl: 6, reps: 2, due: today, last: KOS.srs.addDays(today, -6), views: 2, lapses: 0, lastRating: 2 };
+  const want = [0, 1, 2, 3].map((r) => KOS.srs.preview("maths:2.3:1", r));
+  const got = KOS.srs.rate("maths:2.3:1", 2).ivl;
+  if (got !== want[2]) throw new Error("preview " + want[2] + " but scheduled " + got);
+  if (!(want[0] === 0 && want[1] <= want[2] && want[2] <= want[3])) throw new Error("previews out of order: " + want);
 });
 step("due queue picks up the lapsed card, overdue sorting", () => {
   KOS.store.state.srs["maths:2.3:0"] = { ef: 2.5, ivl: 3, reps: 2, due: KOS.srs.addDays(today, -4), last: today, views: 1, lapses: 0, lastRating: 2 };

@@ -51,8 +51,14 @@
     /* user-created flashcards: {id, sid, ref, q, a, created:"YYYY-MM-DD"} */
 
     srs: {},
-    /* SM-2 metadata per card key ("sid:ref:i" curriculum, "u<id>" custom):
-       {ef, ivl, reps, due:"YYYY-MM-DD", last:"YYYY-MM-DD", views, lapses, lastRating} */
+    /* the schedule per card key ("sid:ref:i" curriculum, "u<id>" custom),
+       FSRS since roadmap 5.6 (core/fsrs.js):
+       {s, d, fl:"YYYY-MM-DD" (the day FSRS last moved it), ivl, reps,
+        due:"YYYY-MM-DD", last:"YYYY-MM-DD", views, lapses, lastRating,
+        ef (SM-2's ease, frozen at the switch; read only to convert)} */
+    srsCfg: { retention: 0.9 },
+    /* the flashcard scheduler's settings, synced: the recall it aims for
+       at each due date (0.80–0.95, Card stats) */
 
     sessions: [],
     /* study session log — the data backbone streaks/HP/XP/RAG read from:
@@ -516,6 +522,14 @@
           stepDone(err);
         });
       }
+      /* the review log (roadmap 5.6) lives in its own IndexedDB */
+      if (window.KOS && KOS.reviewLog && KOS.reviewLog.available()) {
+        steps++;
+        KOS.reviewLog.exportAll(function (err, rows) {
+          if (!err) result.reviews = rows;
+          stepDone(err);
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -608,14 +622,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () {
+        function restoreReviews(next) {
+          if (!backup.reviews) return next();
+          if (!window.KOS || !KOS.reviewLog || !KOS.reviewLog.available()) {
+            report.missingSections.push("review log (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.reviewLog.importAll(backup.reviews, function (err, out) {
+            if (err) report.missingSections.push("review log (error: " + err.message + ")");
+            else report.restoredSections.push("review log (" + out.rows + " reviews)");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); });
+        }); }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

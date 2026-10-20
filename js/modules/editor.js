@@ -16,7 +16,7 @@
 
    Flashcards, Quiz and Exam questions are row editors over the same
    shapes the engines read, so a question edited here is the question the
-   session asks next. A curriculum flashcard keeps its SM-2 key through
+   session asks next. A curriculum flashcard keeps its schedule key through
    every edit (core/edits.js), so rewording it never resets its schedule.
 
    Persistence is immediate and permanent: each change writes the fork
@@ -160,7 +160,7 @@
     return el("button", { type: "button", class: "k-grip", "data-reorder": "", "data-ui": "editor.grip", "aria-label": "Move " + label, title: "Drag to move · Space lifts it", text: "⠿" });
   }
   /* a row list's drop: the row moves inside its own array (its id, and a
-     card's SM-2 key, ride with it — invariants 87, 88) */
+     card's schedule key, ride with it — invariants 87, 88) */
   function dropIn(getArr, save, redraw) {
     return function (row, list, index) {
       var arr = getArr();

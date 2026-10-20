@@ -1,5 +1,5 @@
 /* Kurenai OS — engines/flashcards.js
-   SM-2 flashcard sessions (FR-1.2/1.4/1.5) + custom-card CRUD (FR-1.1).
+   FSRS flashcard sessions (FR-1.2/1.4/1.5) + custom-card CRUD (FR-1.1).
 
    KOS.flashcards.session(holder, cards, opts)
      the core review engine over any card list (per-topic or the global due
@@ -8,7 +8,7 @@
    KOS.flashcards.mount(holder, sid, ref, {onEdit})
      the per-topic tab: session over the effective deck (the curriculum's
      cards, or the user's fork of them, plus custom cards) and the deck
-     browser with per-card SM-2 metrics. Editing lives in the study editor
+     browser with per-card schedule metrics. Editing lives in the study editor
      (modules/editor.js); onEdit opens it.
 
    Graphite (frame 8d): a centred column — the mode pills, a row of pips,
@@ -31,7 +31,7 @@
 
   /* per-ref tallies (state.study.fc) — LOAD-BEARING, not legacy: the home
      dashboard ("Flashcards reviewed") and each subject dashboard read these.
-     SM-2 metadata (KOS.srs) owns scheduling; this owns the lifetime counts. */
+     The schedule (KOS.srs, FSRS) owns scheduling; this owns the lifetime counts. */
   function stats(sid, ref) {
     var st = store.state.study = store.state.study || {};
     var fc = st.fc = st.fc || {};
@@ -60,17 +60,22 @@
   function kbd(t) { return el("kbd", { class: "k-kbd", text: t }); }
 
   /* FR-1.5 — the per-card history panel */
+  /* stability: the days until recall falls to 90% (FSRS, core/fsrs.js) */
+  function stabText(s) { return s < 1 ? "under a day" : s < 30 ? Math.round(s) + (Math.round(s) === 1 ? " day" : " days") : ivlText(Math.round(s)); }
   function metricsPanel(card) {
     var m = KOS.srs.peek(card.key);
+    var mem = KOS.srs.memory(card.key);
     var rows = m ? [
       ["Reviews", String(m.views)],
       ["Current rating", m.lastRating === null ? "—" : RATE_META[m.lastRating].label],
       ["Last reviewed", fmtDate(m.last)],
       ["Next review", fmtDate(m.due) + " (" + dueLabel(m) + ")"],
       ["Interval", m.ivl + (m.ivl === 1 ? " day" : " days")],
-      ["Ease factor", m.ef.toFixed(2)],
+      mem ? ["Recall today", "≈ " + Math.round(mem.r * 100) + "%"] : null,
+      mem ? ["Stability", stabText(mem.s)] : null,
+      mem ? ["Difficulty", (Math.round(mem.d * 10) / 10) + " / 10"] : null,
       ["Lapses", String(m.lapses)]
-    ] : [["Reviews", "0"], ["Status", "new — enters the schedule on its first rating"]];
+    ].filter(Boolean) : [["Reviews", "0"], ["Status", "new — enters the schedule on its first rating"]];
     var dl = el("dl", { class: "k-fc-metrics", "data-ui": "fc.metrics" });
     rows.forEach(function (r) {
       dl.appendChild(el("dt", { text: r[0] }));
@@ -78,13 +83,14 @@
     });
     return dl;
   }
-  /* the card's history as one line: "seen 4× · last Tue 22 Sep · 1 lapse · ease 2.5" */
+  /* the card's history as one line: "seen 4× · last Tue 22 Sep · 1 lapse · recall ≈ 87%" */
   function historyLine(card) {
     var m = KOS.srs.peek(card.key);
     if (!m || !m.views) return "new card — enters the schedule on its first rating";
+    var mem = KOS.srs.memory(card.key);
     return ["seen " + m.views + "×", m.last ? "last " + dayName(m.last) : null,
       m.lapses ? m.lapses + (m.lapses === 1 ? " lapse" : " lapses") : null,
-      "ease " + (Math.round(m.ef * 10) / 10)].filter(Boolean).join(" · ");
+      mem ? "recall ≈ " + Math.round(mem.r * 100) + "%" : null].filter(Boolean).join(" · ");
   }
 
   /* ---------------- the session engine ---------------- */
@@ -236,7 +242,7 @@
     function rate(r) {
       if (!flipped || finished) return;
       var c = cur();
-      /* long-term schedule updates on EVERY rating — the SM-2 opinion.
+      /* long-term schedule updates on EVERY rating — the FSRS opinion.
          The in-session requeue below is a separate mechanism. */
       KOS.srs.rate(c.key, r);
       counts[RATE_META[r].cls]++;
@@ -342,7 +348,7 @@
           if (!q.value.trim() || !a.value.trim()) { KOS.ui.toast("Both a question and an answer are needed.", true); return; }
           if (existing) KOS.srs.updateCustom(existing.id, q.value.trim(), a.value.trim());
           else KOS.srs.addCustom(sid, ref, q.value.trim(), a.value.trim());
-          KOS.ui.toast(existing ? "Card updated." : "Card added — it joins this deck and the SM-2 schedule.");
+          KOS.ui.toast(existing ? "Card updated." : "Card added — it joins this deck and the review schedule.");
           onDone();
         } })
       ])
@@ -350,7 +356,7 @@
   }
 
   /* ---------------- the deck browser ----------------
-     Every card in the topic's deck, one row each, with its SM-2 history a
+     Every card in the topic's deck, one row each, with its schedule history a
      tap away. On a topic page nothing is edited here: the study editor is
      the one place a card's wording changes, and "Edit deck" opens it. A
      deck with no topic page (the Personal Deck) keeps its own form. */

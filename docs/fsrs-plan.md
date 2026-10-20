@@ -1,9 +1,14 @@
-# FSRS — one scheduler for every card (plan, revision 1)
+# FSRS — one scheduler for every card (plan, revision 2)
 
 Asked for on 20 October 2026: should flashcards move from SM-2 to FSRS, and
 what about the other spaced-repetition parts of the app? About 200 cards are
 already on SM-2. They must move across without losing their history or
 starting again.
+
+> **Status (20 October 2026):** decisions A–G are taken (§9). Phase 1 is
+> built on `feat/fsrs` and held by smoke88 and `tools/fsrs_check.mjs`
+> (2,993 of 2,993 review steps match py-fsrs 6.3.2; 100 of 100 SM-2
+> conversions hold). Invariant 111. Phase 2 is next.
 
 Short answer: **yes.**
 - Build ONE pure FSRS-6 core (`js/core/fsrs.js`, `KOS.fsrs`).
@@ -113,7 +118,7 @@ So the switch is invisible on the day:
 
 ### 3.3 How it rolls out safely
 
-- **One boot pass, `maint.fsrs1`** (like the other `maint.*` passes) adds
+- **One boot pass, `KOS.srs.migrate()` and `KOS.code.migrateCards()`** (in `main.js`, beside the other boot migrations) adds
   `s`, `d` and `fl` (the day FSRS last moved the card) to every rated card.
   It writes nothing else.
 - **The old fields stay:**
@@ -135,16 +140,12 @@ So the switch is invisible on the day:
 - **A backup taken before the switch** (`exportFull`) imports into the new
   version through the same converter.
 
-### 3.4 Your measured retention (decision B)
+### 3.4 The conversion retention (decision B: fixed 0.90)
 
 The conversion asks what retention SM-2 gave you (`sm2_retention`). The
-ledger can measure it: the share of due-review ratings that were not Again,
-over `due-review` sessions (first-time learning left out).
-- If that's 85% or 95% rather than 90%, the stabilities come out a little
-  shorter or longer.
-- Recommended: measure it. Use it only if at least 100 due-review ratings
-  are on the ledger, clamped to 0.80–0.97; otherwise use 0.9.
-- The migration notice says which value was used.
+ledger could estimate it, but with about 200 cards that estimate is noisy.
+**Decided: a fixed 0.90.** That gives strict `S = interval` parity on day
+one, so every interval stays exactly predictable.
 
 ## 4. The review log (start collecting now)
 
@@ -208,14 +209,23 @@ KOS.fsrs = {
   - Card Stats' "Ease distribution" becomes a Difficulty distribution plus a
     retrievability histogram;
   - RAG (`rag.js`) reads difficulty and R instead of the ease sum.
-- **E — exam-aware cap (recommended):** for an exam subject, no interval
-  ends after that subject's next real exam in the calendar
-  (`KOS.calendar.EXAM_LEVELS`, real only). A card that would go past it is
-  scheduled for when R would fall to the target before the exam, so every
-  card gets one more look before June. Code (not an exam subject) has no
-  cap.
+- **E — exam-aware cap (phase 2, decided with a safeguard):** for an exam
+  subject, an interval that would end after that subject's next real exam
+  is considered against the exam date:
+  - **If the card's predicted recall ON the exam date is already at or
+    above the target, it is left uncapped.** For example, S = 90 days with
+    the exam in 30 days needs no extra look.
+  - **Otherwise it is capped into a 7–14 day window before the exam**, at a
+    day picked by the same deterministic hash as the fuzz. The capped
+    reviews are spread across the window rather than piled up the day
+    before.
+  - It reads "the next real exam" per subject (the calendar's real exams
+    today; an Exams section could own it later).
+  - Code (not an exam subject) has no cap.
 - **F — fuzz:** the standard FSRS fuzz (±5–15% from 2.5 days up), taken
   from a hash of the card key and the day rather than `Math.random`. The
+  pick floors where py-fsrs rounds: py-fsrs's rounding can land one day
+  past its own window, and the floor keeps it uniform and inside. The
   preview then always matches the rating, and two devices agree. It stops
   200 cards learnt on one evening from falling due on the same day forever.
 
@@ -238,7 +248,7 @@ KOS.fsrs = {
 
 | Phase | What | Gate |
 |---|---|---|
-| 1 | `KOS.fsrs` core; `tools/fsrs_check.mjs` against py-fsrs; flashcards and Code on the core; `maint.fsrs1`; the stale-copy rule; the review log; the measured retention; the UI figures (D); fuzz (F) | new smoke88 (conversion table, edge cases, render purity, cloud-merge of a mixed old/new card, Code grades), the full gate, `fsrs_check` |
+| 1 | `KOS.fsrs` core; `tools/fsrs_check.mjs` against py-fsrs; flashcards and Code on the core; the boot pass (`KOS.srs.migrate`, `KOS.code.migrateCards`); the stale-copy rule; the review log; the UI figures (D); fuzz (F) — **built** | new smoke88 (conversion table, edge cases, render purity, cloud-merge of a mixed old/new card, Code grades), the full gate, `fsrs_check` |
 | 2 | Exam-aware cap (E); topic memory (§7.1); leeches (§7.3) | smoke88 extended |
 | 3 | The optimiser (WASM) once the log holds about 1,000 reviews; log replication | smoke89 |
 | later | Missed-question deck (§7.2); load control (§7.4) | — |
@@ -252,14 +262,14 @@ KOS.fsrs = {
 
 No Governor traffic changes: a rating still pays exactly what it pays now.
 
-## 9. Decisions for you
+## 9. Decisions (taken 20 October 2026)
 
-| | Question | Recommended |
+| | Question | Decided |
 |---|---|---|
-| A | Target retention | 0.90, adjustable in Review settings |
-| B | The retention used to convert the SM-2 cards | measured from the ledger if ≥ 100 due-review ratings, else 0.90 |
-| C | Where the review log lives | local IndexedDB now, Supabase replication in phase 3 |
-| D | Replace the ease figures with difficulty, stability and recall | yes |
-| E | Cap intervals at the next real exam | yes, exam subjects only |
-| F | Deterministic fuzz | yes |
+| A | Target retention | 0.90 by default, adjustable 0.80–0.95 on Card stats (the Review workspace's settings card), with the reviews a day each target asks for |
+| B | The retention used to convert the SM-2 cards | **a fixed 0.90**: strict `S = interval` parity on day one |
+| C | Where the review log lives | local IndexedDB `kurenai-os-reviews` and the full backup now, Supabase replication in phase 3 |
+| D | Replace the ease figures with difficulty, stability and recall | yes: the card panel, Card stats and RAG |
+| E | Cap intervals at the next real exam | phase 2, exam subjects only, with the safeguard in §6 |
+| F | Deterministic fuzz | yes (key + day) |
 | G | Code's retrieval cards on the same core in phase 1 | yes |

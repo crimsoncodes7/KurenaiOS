@@ -778,6 +778,8 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-cs-legend li { display: flex; align-items: center; gap: var(--sp-10); }
 .k-cs-dot { inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--c); }
 .k-cs-legend-n { margin-inline-start: auto; font-size: var(--fs-12); color: var(--muted); }
+.k-cs-target { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); font-size: var(--fs-13); color: var(--text-2); margin-block-end: var(--sp-12); }
+.k-cs-legend li[data-state="current"] { color: var(--text); font-weight: var(--weight-semibold); }
 .k-cs-crumb { display: flex; align-items: center; gap: var(--sp-12); font-size: var(--fs-13); color: var(--text-2); }
 .k-cs-tablewrap { overflow-x: auto; }
 .k-cs-table { inline-size: 100%; font-size: var(--fs-13); }

@@ -421,9 +421,10 @@
       if (args.origin === "curriculum") cards = cards.filter(function (c) { return !c.custom; });
       if (args.origin === "custom") cards = cards.filter(function (c) { return c.custom; });
       cb(null, { total: cards.length, cards: cards.slice(0, 100).map(function (c) {
-        var m = KOS.srs.peek(c.key);
+        var m = KOS.srs.peek(c.key), mem = KOS.srs.memory(c.key);
         return { key: c.key, id: c.id || null, q: clampText(c.q, 500), a: clampText(c.a, 500),
-          custom: !!c.custom, ai: !!c.ai, due: m ? m.due : null };
+          custom: !!c.custom, ai: !!c.ai, due: m ? m.due : null,
+          recallToday: mem ? Math.round(mem.r * 100) : null };
       }) });
     }
   });
@@ -483,7 +484,7 @@
   });
 
   def("study_rate_flashcard", {
-    desc: "Rate one flashcard (0 Again, 1 Hard, 2 Good, 3 Easy) — updates its SM-2 schedule exactly like an in-app review.",
+    desc: "Rate one flashcard (0 Again, 1 Hard, 2 Good, 3 Easy) — updates its FSRS schedule exactly like an in-app review.",
     category: "study", tier: "reversible", read: false,
     params: {
       key: { type: "string", required: true, maxLen: 80 },
@@ -493,12 +494,13 @@
       var exists = KOS.srs.allCards().some(function (c) { return c.key === args.key; });
       if (!exists) { cb(fail("No card with key “" + args.key + "” — list the topic's cards first.")); return; }
       var m = KOS.srs.rate(args.key, args.rating);
-      cb(null, { key: args.key, rating: args.rating, nextDue: m.due, interval: m.ivl });
+      cb(null, { key: args.key, rating: args.rating, nextDue: m.due, interval: m.ivl,
+        stabilityDays: Math.round(m.s * 10) / 10, difficulty: Math.round(m.d * 10) / 10 });
     }
   });
 
   def("study_get_due_summary", {
-    desc: "The SM-2 due queue: total count and the most-loaded topics.",
+    desc: "The flashcard due queue: total count and the most-loaded topics.",
     category: "study", tier: "read", read: true, params: {},
     run: function (args, cb) {
       var due = KOS.srs.dueCards();

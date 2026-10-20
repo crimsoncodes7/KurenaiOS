@@ -94,6 +94,12 @@
      the plan), and study state keyed to an IT unit that left the
      specification (F203, F205) is removed so nothing counts it */
   KOS.itUnits.ensureSeeded();
+  /* roadmap 5.6: the switch from SM-2 to FSRS — every rated flashcard and
+     Code retrieval card gets its stability and difficulty, converted from
+     its ease and interval (no due date moves). Idempotent, and it converts
+     again any card an older copy of the app rated since. */
+  KOS.srs.migrate();
+  if (KOS.code && KOS.code.migrateCards) KOS.code.migrateCards();
   /* Code: a lesson only looked at is no longer "Started" (once per device) */
   if (KOS.code && KOS.code.repairStarted) KOS.code.repairStarted();
   /* Code → GitHub: a device with pushes waiting tries again (automatic mode) */

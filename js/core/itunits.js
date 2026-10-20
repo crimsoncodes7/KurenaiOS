@@ -172,7 +172,7 @@
 
   /* F203 and F205 left the specification (roadmap 1.2). The study state
      keyed to a unit that no longer exists is removed at boot, so no count,
-     queue or backup carries it: progress, SM-2 schedules, quiz and card
+     queue or backup carries it: progress, card schedules, quiz and card
      tallies, curriculum forks, custom cards and quiz items, and a remembered
      "last topic". The session ledger is history and is left as it is.
      Idempotent; writes only when it finds something. */

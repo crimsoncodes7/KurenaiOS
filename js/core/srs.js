@@ -1,23 +1,30 @@
 /* Kurenai OS — core/srs.js
-   The SM-2 spaced-repetition engine + unified card registry (FR-1.1/1.2/1.4/1.5).
+   The flashcard schedule + unified card registry (FR-1.1/1.2/1.4/1.5).
 
    Every flashcard — curriculum (KOS_CONTENT) and user-created (store.custom) —
-   carries persistent SM-2 metadata in store.state.srs, keyed:
+   carries a persistent schedule in store.state.srs, keyed:
      curriculum:  "sid:ref:i"   (index into the entry's flashcards array)
      custom:      "u<id>"       (stable across topic moves)
 
-   Rating scale (4-point, mapped onto classic SM-2 quality):
-     0 Again  → q=1  lapse: reps reset, interval snaps short, card requeues
-     1 Hard   → q=3  passes, interval grows slowly
-     2 Good   → q=4  classic SM-2 progression (1d, 6d, ivl×EF)
-     3 Easy   → q=5  progression with a bonus multiplier
+   The schedule is FSRS-6 (roadmap 5.6, docs/fsrs-plan.md): core/fsrs.js
+   owns the model; this file turns dates into elapsed days, keeps the card
+   record and logs each rating (core/reviewlog.js). Ratings are
+   0 Again, 1 Hard, 2 Good, 3 Easy here and grades 1–4 in the core.
+   An Again stays due today; the session engine requeues it at once
+   (js/engines/flashcards.js), and that same-day answer takes FSRS's
+   short-term rule.
 
-   The in-session requeue for "Again" is the session engine's job
-   (js/engines/flashcards.js) — this file only owns the long-term schedule. */
+   The switch from SM-2 (20 October 2026) converted each card's ease and
+   interval the way Anki does (fsrs-rs memory_state_from_sm2, r = 0.9):
+   stability = the interval, so no due date moved and the next on-time
+   Good lands where SM-2 would have put it. `ef` stays on the record,
+   frozen, so a card an older copy of the app rates converts again
+   (KOS.fsrs.recordMemory: `fl` is the day FSRS last moved it). */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
   var store = KOS.store;
+  var F = KOS.fsrs;
 
   var RATINGS = [
     { id: 0, key: "again", label: "Again", hint: "blanked — retest now" },
@@ -25,7 +32,6 @@
     { id: 2, key: "good",  label: "Good",  hint: "solid recall" },
     { id: 3, key: "easy",  label: "Easy",  hint: "instant" }
   ];
-  var QUALITY = [1, 3, 4, 5];   // rating id -> SM-2 quality
 
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function toISO(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
@@ -42,6 +48,7 @@
     var db = new Date(+pb[0], +pb[1] - 1, +pb[2]);
     return Math.round((db - da) / 864e5);
   }
+  function r4(v) { return Math.round(v * 1e4) / 1e4; }
 
   function meta(key) {
     var srs = store.state.srs;
@@ -53,59 +60,91 @@
   }
   function peek(key) { return store.state.srs[key] || null; }
 
-  /* ---- the SM-2 step: ease, repetitions and interval after a rating,
-     applied to any meta-shaped object. rate() applies it to the stored
-     record; preview() to a copy, so the rating buttons can say what each
-     choice schedules without writing anything. ---- */
-  function step(m, rating) {
-    var q = QUALITY[rating];
-    /* EF update applies on every review (classic SM-2 formula), floor 1.3 */
-    m.ef = Math.max(1.3, m.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
-    if (rating === 0) {
-      /* lapse: repetition count resets and the long-term interval snaps to a
-         short value. Due today — the card stays in the due queue until it is
-         re-rated (the session engine also requeues it immediately). */
-      m.reps = 0;
-      m.ivl = 0;
-    } else {
-      m.reps++;
-      if (m.reps === 1) m.ivl = 1;
-      else if (m.reps === 2) m.ivl = rating === 1 ? 3 : 6;
-      else {
-        var next = m.ivl * m.ef;
-        if (rating === 1) next = m.ivl * 1.2;         // Hard: grow slowly
-        if (rating === 3) next = m.ivl * m.ef * 1.3;  // Easy: bonus
-        m.ivl = Math.max(m.ivl + 1, Math.round(next));
-      }
-    }
-    return m;
+  /* the recall the schedule aims for at each due date (decision A) */
+  function retention() {
+    var c = store.state.srsCfg;
+    return F.clampRetention(c && c.retention);
+  }
+  function setRetention(r) {
+    store.state.srsCfg = store.state.srsCfg || {};
+    store.state.srsCfg.retention = F.clampRetention(r);
+    store.save();
+    return store.state.srsCfg.retention;
+  }
+  function elapsedOf(m, today) { return m && m.last ? Math.max(0, daysBetween(m.last, today)) : 0; }
+
+  /* one rating, worked out without writing: the next memory and interval.
+     The fuzz seed is the card key and the day, so the preview on a rating
+     button is exactly what pressing it schedules, on every device. */
+  function plan(key, m, rating, today) {
+    var before = F.recordMemory(m);
+    var el = elapsedOf(m, today);
+    var nx = F.schedule(before, rating + 1, el, { retention: retention(), seed: key + "|" + today, againToday: true });
+    return { before: before, el: el, next: nx };
   }
 
-  /* ---- the SM-2 update. rating: 0..3. Returns the updated meta. ---- */
+  /* the memory a card holds today, for the figures every surface shows:
+     {s, d, r (recall today, 0..1), due}; null for a card never rated */
+  function memory(key, today) {
+    var m = peek(key);
+    var mem = F.recordMemory(m);
+    if (!mem) return null;
+    var t = today || todayISO();
+    return { s: mem.s, d: mem.d, r: F.retrievability(elapsedOf(m, t), mem.s), due: m.due };
+  }
+
+  /* ---- the update. rating: 0..3. Returns the updated record. ---- */
   function rate(key, rating) {
     var m = meta(key);
     var today = todayISO();
+    var p = plan(key, m, rating, today);
     m.views++;
     m.lastRating = rating;
     m.last = today;
-    step(m, rating);
-    if (rating === 0) { m.lapses++; m.due = today; }
-    else m.due = addDays(today, m.ivl);
+    m.fl = today;
+    m.s = r4(p.next.s);
+    m.d = r4(p.next.d);
+    m.ivl = p.next.ivl;
+    if (rating === 0) { m.lapses++; m.reps = 0; m.due = today; }
+    else { m.reps++; m.due = addDays(today, m.ivl); }
     store.save();
+    if (KOS.reviewLog && KOS.reviewLog.available()) {
+      KOS.reviewLog.add({ key: key, ts: Date.now(), day: today, g: rating + 1, el: p.el,
+        s0: p.before ? p.before.s : null, d0: p.before ? p.before.d : null,
+        s1: m.s, d1: m.d, ivl: m.ivl, src: "flashcards" });
+    }
     return m;
   }
   /* the interval in days a rating would schedule — 0 is "again today" */
   function preview(key, rating) {
-    var cur = peek(key) || { ef: 2.5, ivl: 0, reps: 0 };
-    return step({ ef: cur.ef, ivl: cur.ivl, reps: cur.reps }, rating).ivl;
+    return plan(key, peek(key), rating, todayISO()).next.ivl;
+  }
+
+  /* The switch, persisted (docs/fsrs-plan.md §3.3): every rated card gets
+     its s, d and fl. Idempotent — a card FSRS already moved is left alone,
+     and one an older copy of the app rated since converts again. Runs at
+     boot (main.js), never from a render; writes once, only if anything
+     moved. Returns how many cards it converted. */
+  function migrate() {
+    var srs = store.state.srs || {}, n = 0;
+    Object.keys(srs).forEach(function (k) {
+      var m = srs[k];
+      if (!m || !m.last || (m.s > 0 && m.d > 0 && m.fl === m.last)) return;
+      var mem = F.recordMemory(m);
+      if (!mem) return;
+      m.s = r4(mem.s); m.d = r4(mem.d); m.fl = m.last;
+      n++;
+    });
+    if (n) store.save();
+    return n;
   }
 
   /* ---- unified card enumeration ---- */
   /* the effective deck: the user's fork of the topic when there is one
-     (core/edits.js), else the shipped cards. A forked card keeps the SM-2
+     (core/edits.js), else the shipped cards. A forked card keeps the schedule
      key it shipped with, so editing its wording never resets its schedule;
      `edited` marks a card whose topic carries a fork at all. */
-  /* A shipped card's SM-2 key is "sid:ref:<position>". When cards are
+  /* A shipped card's schedule key is "sid:ref:<position>". When cards are
      removed from a deck (duplicates, redundancies) the ones after them would
      slide up and inherit the wrong schedule, so a card whose position changed
      carries its original position as an optional third element, [q, a, 7]:
@@ -182,7 +221,7 @@
   /* Build 3c: `sid` is no longer necessarily a curriculum subject — the
      reserved sid "personal" (PERSONAL_SID) is a general bucket for cards
      with no A-level home (VN quotes use ref "vn"). Everything downstream
-     (SM-2 keys "u<id>", the due queue, the session engine) already treats
+     (schedule keys "u<id>", the due queue, the session engine) already treats
      sid/ref as opaque strings, so the bucket needs no migration; `extra`
      is optional origin metadata (e.g. {src:{module,entryId,title}}). */
   var PERSONAL_SID = "personal";
@@ -303,6 +342,10 @@
     daysBetween: daysBetween,
     meta: meta,
     peek: peek,
+    memory: memory,
+    retention: retention,
+    setRetention: setRetention,
+    migrate: migrate,
     rate: rate,
     preview: preview,
     cardsFor: cardsFor,
