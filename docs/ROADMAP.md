@@ -1123,6 +1123,39 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 - **Needs no design:** it follows existing frames, with the ease figures
   replaced by difficulty, stability and recall.
 
+### 5.8 Exams & Deadlines Hub ◆ (asked for 20 October 2026)
+
+> **Status (20 October 2026): planned.** The plan is
+> [exams-plan.md](exams-plan.md), revision 1, with decisions A–N for
+> review. The design prompt is [design-prompts.md §13](design-prompts.md)
+> (frames 29a–29x).
+
+- **What:** Study → Exams & Papers grows into the hub where assessments,
+  readiness, practice evidence, revision planning and goals meet.
+- **The pieces:**
+  - one assessment record with five tiers (real exam, mock, topic test,
+    retrieval test, deadline);
+  - a composable Scope Builder ("Covered in Pacing so far", exclusions);
+  - the FSRS cap by scope;
+  - four-signal readiness, never blended;
+  - fast logging with optional per-question tags and redo items;
+  - prescriptive analytics (the next ten marks, a predicted grade range,
+    pace, calibration);
+  - a read-only weekly planner with one approved send to Pacing;
+  - start-by dates, Exam Season and the Exam Room;
+  - a tier-scaled Companion: an exhaustive authored layer per paper,
+    driven by the real past-paper index in `~/Downloads/A-level`,
+    examiner's reports and original predicted papers;
+  - five exam goal types.
+- **Releases:**
+  - core;
+  - the evidence pipeline;
+  - readiness and planning;
+  - goals;
+  - the assembled Companion and paper engine;
+  - then the exhaustive Companion, one paper per release.
+- **Numbering:** invariants 120–129, smokes 89+.
+
 ### 5.7 After FSRS (asked for 20 October 2026, in this order)
 
 1. **A server-side runner, Web Push and which notifications reach a closed

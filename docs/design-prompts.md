@@ -20,6 +20,7 @@ handoff maps back to the roadmap.
 | 10 | Code: a C# study space | 5.3 | after 9 |
 | 11 | Money and Goals | 5.4 | with 10 |
 | 12 | Japanese: a study space for the four skills | 5.5 | now (slice closed) |
+| 13 | Exams & Deadlines Hub | 5.8 | after FSRS (released) |
 
 ---
 
@@ -454,4 +455,136 @@ FRAMES
 28p Dawn: the desk and the exercise runner in the light theme.
 
 DELIVERABLE NOTES. For every frame annotate the interaction states, focus order, live-region announcements, empty and error states, and what changes at 1080, 860, 700 and 560. Mark new shared components (furigana text, the audio player with the speaker and pitch, the exercise verdict card, the shadowing comparison, the skill radar, the manga panel, the VN scene) with their states. Copy short and calm, in British English.
+```
+
+## 13 · Exams & Deadlines Hub
+
+The agreed scope is [exams-plan.md](exams-plan.md) revision 1. This prompt
+designs the hub, every tier, the Companion and the paper engine. Later
+papers' Companions reuse these frames.
+
+**Attach your own revision materials to the conversation.** They show the
+content types and the floor of depth. They are NOT a look to copy: the
+frames use the app's design.
+- `AS_Pure_Interactive.html`;
+- `AS_Pure_Maths_Revision.docx`;
+- `F200_Mock_Paper_1.docx`;
+- `F200_Subtopic_Questions.docx`;
+- `DataStructures_Revision.docx`.
+
+```text
+Design the Exams & Deadlines Hub for KurenaiOS, continuing the approved design. The earlier handover packages are attached to this project: Graphite (Atelier Dusk) and its light twin Dawn (frames 7a–14c, 21a–21h), the phone views (15a–15n), design part 2 (15–23, including the topic picker 17a–17e and the lab system 20a–20i), Reports (24a–24l, 25a–25g), Code (26a–26x) and Money and Goals (27a–27s). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth for tokens and components, and read docs/exams-plan.md (the agreed scope) and the invariants in CLAUDE.md. The current page is js/modules/tracker.js (Study → Exams & Papers, frame 9e). Number the new frames 29a–29x (28a onwards is the Japanese space). Desktop 1280; phone 390 × 844, checked at 360. Use only the existing tokens, type scale, cards, stat tiles, tabs, chips, dialogs, the topic picker, the lab system and the chart styles; extend Exams & Papers, do not invent a new look.
+
+THE IDEA. An assessment is not just a date: it is a classified event with a scope, a readiness model, a preparation workflow, evidence from practice and optional linked goals. The hub grows Study → Exams & Papers (keep its name in the Study strip; its log dialog and record list survive inside it).
+
+TIERS (a chip on every assessment, icon + word, never colour alone):
+- Real exam (AQA 7517 Paper 1/2, Edexcel 9MA0 Paper 1/2/3, OCR F201);
+- Mock (December, March);
+- Topic test;
+- Retrieval test / quiz;
+- Deadline (NEA, coursework).
+The tier decides how much machinery appears: a retrieval quiz is one light card; a real exam has the full set. Show the same page at each tier to prove it scales down rather than going empty.
+
+WHAT IS WANTED (detail in exams-plan.md):
+- TIMETABLE: every assessment in date order, subject hue, board, paper, date/time/duration/room, tier, scope summary, readiness band, start-by marker; provisional dates marked.
+- SCOPE BUILDER: paper presets (one tap), "Covered in Pacing so far" (a live rule that grows; "+3 leaves since you made this test"), the topic picker in Include and Exclude modes down to leaves, "Exclude Year 2 content", and the "Excluded from this test" callout on the assessment page.
+- READINESS: FOUR separate signals, never one blended number:
+  1. Coverage (Pacing);
+  2. RAG (G/A/R/unrated bar);
+  3. Projected exam-day recall (from FSRS), with the five weakest leaves;
+  4. Timed practice (count, last three %, predicted grade RANGE).
+  Plus a band (Ready · On track · At risk · Not enough evidence) that names the signal holding it down. Each signal has a silent low-evidence state.
+- PRACTICE: the quick log stays one screen; pick a past paper from the index (board → paper → session fills marks and the question list); per-question marks, ten error tags and a redo toggle are OPTIONAL; "what do you think you got?" before marking; timed with minutes. Topic packs (ours and PMT's) can be logged, and a pack shelf shows what's done per topic.
+- POST-MORTEM: one screen after a marked paper: lost marks by topic, by archetype and by error tag, the three costliest questions, and actions (make redo items, add to this week's priorities, open the Companion there). Untagged lost marks read "untagged"; nothing forces tags to add up.
+- ANALYTICS: "Where the next ten marks come from" as plain sentences with their evidence; predicted grade as a range with the boundaries' series named; pace in minutes per mark against the board budget; calibration (predicted vs actual); error-pattern prescriptions.
+- PLANNER: read-only weekly allocation: hours available (editable), split across assessments, then topics with suggested 25-minute sessions and a reason each, the week's practice paper, the cram deck size. ONE action: "Send this week's priorities to Pacing / Today", a confirm dialog listing exactly what it adds. Never writes the Calendar.
+- START-BY dates: advisory, editable, with the derivation shown in one line.
+- EXAM SEASON: the hub's Season view (next exams and days left, highest-risk topics, due reviews in scope, rapid recall, latest post-mortem, checklists, logistics).
+- EXAM ROOM: the calm last 60 minutes: five blocks and a quiet countdown, no dashboards, no new material.
+- COMPANION, scaled by tier:
+  - topic and retrieval tests get an assembled guide (key notes, labs, flashcards, exam items, the command words present, booklet vs must-memorise, traps, cram deck, 15-question rapid drill);
+  - real exams and mocks get an exhaustive layer BEYOND the topic notes: per topic an archetype catalogue with real frequency ("8 of 11 sittings, 4–10 marks"), Variations A–n each fully worked with M1/A1/B1 (or AQA mark points, OCR PO1–PO3) annotations on the step that earns them, Method 1 vs Method 2, the board's working rules, an examiner's-report trap, a sandbox or generator, a practice set with mark schemes, and real-question pointers ("June 2019 P1 Q8 · 10 marks").
+- PLAYBOOK DRAWER (slide-out, per board): formula booklet vs must-memorise, command-word decoder, OCR levels-of-response guidance, FX-991CW setup and checking techniques, master mnemonics, Misconceptions Blacklist.
+- TREND & LIKELIHOOD: topic mark-weighting table, a yield map (High/Medium/Low with the word, not colour only), "the core half of the paper" (the archetypes that make up ~50% of marks), "due by its pattern" markers, discriminator post-mortems, and the standing caveat that anything in the specification can appear.
+- PAPERS:
+  - predicted papers (original, labelled "written by KurenaiOS, not a board paper") in exact board style: cover sheet, instructions, marks in brackets, the question ramp, answer space;
+  - the mark scheme with board conventions and level descriptors;
+  - a self-marking tally sheet that logs straight into an attempt;
+  - an interactive timed mode;
+  - an A4 PRINT layout (black on white, no app chrome);
+  - also custom mocks from a scope, subtopic packs (5 questions each) and 20-question mixed drills.
+- GOALS: five exam goal types linked by exam (grade/score, projected recall, topics green/covered, papers done, checklist); templates offered when an exam is created; a goal whose exam was deleted shows "Exam removed · unlinked".
+
+RULES THE DESIGN MUST KEEP
+- A zero that is only a supporting fact is not printed; a zero that is the point stays. Every figure has an evidence threshold and an honest low-data line instead of a guess. Projections and predicted grades are RANGES.
+- At risk, behind, overdue, Red and "ran out of time" use the FIXED alarm red with an icon and a word, never the theme accent; subject hues stay (CS teal, Maths violet, IT pink-violet, Code sky; Japanese vermilion is coming).
+- No Governor numbers (XP, gold, HP) anywhere in the hub; an attempt still logs its study session as today.
+- No past-paper text or images appear anywhere: real papers are references (board · paper · session · question · marks · topic) and the user's own folder path as text. Every question shown is original.
+- Likelihood is evidence, not prophecy: the caveat is visible wherever yield is shown.
+- Dialogs trap and restore focus; a delete is a danger dialog with Cancel focused; Delete never beside Save. Lists are lazy and keyboard-complete; per-question entry works with the keyboard alone (Tab through got/max, a key for tags).
+- Five breakpoints: 1240, 1080, 860, 700, 560; phone composition from 700 (bottom tabs, bottom sheets, 16px inputs, safe areas); 44px touch targets, round controls stay round.
+- No dead space: a view fills its width (a side panel, a second column, a grid); charts fill their cards. Check 1440 too.
+- Print: the paper and the mark scheme print cleanly on A4 in black; nothing interactive prints.
+
+SAMPLE DATA (use consistently; today is Tuesday 20 October 2026; the summer 2027 dates are illustrative and marked provisional)
+- Real exams:
+  - OCR F201 Big data and machine learning: Wed 13 Jan 2027, 1 h 30, 60 marks.
+  - Edexcel 9MA0 Paper 1: Wed 2 Jun 2027; Paper 2: Wed 9 Jun; Paper 3: Wed 16 Jun (each 2 h, 100 marks, FX-991CW).
+  - AQA 7517 Paper 1: Fri 4 Jun 2027, 2 h 30, on-screen; Paper 2: Mon 14 Jun, 2 h 30.
+- Mocks:
+  - CS Paper 2 mock: Tue 8 Dec 2026, scope "Covered in Pacing so far" (4.5–4.9 and 4.11, excluding 4.10 Databases).
+  - Maths Pure mock: Thu 10 Dec 2026, scope P1–P6 plus P8, "Exclude Year 2 content" on, cap opted in.
+- Topic test: Maths "Integration topic test", Tue 3 Nov, scope P8.
+- Retrieval test: CS "Networking quiz", Thu 22 Oct, 8 leaves of 4.9.
+- Deadlines: IT F204 NEA "Task 2 draft", Fri 27 Nov (milestones 2 of 4); CS NEA "Analysis section", Fri 18 Dec.
+- Readiness for the CS mock:
+  - Coverage 78% (6 leaves not yet met).
+  - RAG: Green 41%, Amber 37%, Red 9%, unrated 13%.
+  - Projected recall on 8 Dec: 84% (exam-day target 95%); weakest: TCP/IP stack 61%, subnetting 66%, Big O 70%.
+  - Practice: 3 timed papers, 61 → 68 → 72%, predicted B–A (boundaries from 2023–25).
+  - Band: At risk — limiting: projected recall.
+- Practice attempt: Edexcel 9MA0 Paper 1, June 2019, timed 118 min, predicted 70, scored 64/100. Lost marks: Integration 11 (Q8 area between curves 6 of 10: method ×2, slip ×1), Trigonometry 8 (Q6: command, working), Vectors 5, untagged 6. Redo items made for Q8 and Q6.
+- Next ten marks:
+  1. Area between curves: ~9 marks a paper, on 6 of 8 papers, you dropped 7 of 18 here → 2 sessions on Variations C–E, then redo June 2019 Q8.
+  2. Trig identities "show that" → the working rules card and 1 session.
+  3. Vectors: due by its pattern (absent 2024 and 2025).
+- Planner, week of 26 Oct, 7 h available:
+  - CS mock 3 h 30 (TCP/IP 2 sessions, subnetting 2, Big O 1, the CS Paper 2 June 2023 timed paper);
+  - Integration test 2 h (Variations A–F, cram deck 34 cards);
+  - Maths Paper 1 1 h;
+  - reviews 30 min.
+- Start-by: CS mock, Mon 2 Nov ("2 weeks of buffer + 9 h at your 4.5 h a week").
+- Likelihood (Edexcel Paper 1): Integration high yield (8 of 8 sittings, mean 11 marks); Proof medium; Vectors due by its pattern. The core half of the paper: 9 archetypes.
+- Goals:
+  - "CS Paper 1 projected recall ≥ 85% by 21 May" (now 79%, on track);
+  - "4 marked Maths past papers before Paper 1" (1 of 4, behind);
+  - "Pre-exam checklist: F201" (3 of 7, auto items ticked by the app).
+
+FRAMES
+29a Placement: Study strip with Exams & Papers, the hub's own tabs (Timetable · Readiness · Planner · Practice · Companion), the phone More sheet entry, and the Season view replacing the hub's landing when on.
+29b Timetable: the list grouped by month with tier chips, bands, start-by markers, provisional dates; filters by subject and tier; "Import timetable" (paste text) and "New assessment".
+29c New / edit assessment: tier picker (what each tier gives, one line each), paper presets, date/time/duration/room/seat, calculator, extra time, cap toggle (mock only, explained), and the goal templates step after saving.
+29d Scope Builder: presets, "Covered in Pacing so far" (the live rule and its "+3 since" note, Freeze), the topic picker in Include and Exclude modes, "Exclude Year 2 content", the resolved count, and the "Excluded from this test" callout as it appears on the assessment page.
+29e Assessment overview at REAL EXAM tier: header (title, date, days left, tier, band), the four readiness signals, the band's limiting signal, next ten marks, the week's planned sessions, checklist, linked goals, logistics.
+29f The same overview at MOCK, TOPIC TEST and RETRIEVAL tiers side by side (how it scales down), and the DEADLINE tier (milestones, start-by, at-risk state).
+29g Readiness in depth: each signal opened (coverage list of unmet leaves, RAG by unit, recall by leaf with the weakest first, practice trend with the grade-range band), and every low-evidence state.
+29h The log dialog: quick mode (one screen) and the index pick (board → paper → session), topic-pack pick, timed/minutes, "what do you think you got?", link to an assessment, and "This IS the result of…".
+29i Per-question entry: the question list with got/max, error-tag chips (ten tags), redo toggle, the "questions add to 64, total says 66" note (not an error), keyboard flow.
+29j Post-mortem: lost marks by topic, archetype and tag, the costliest three questions, the action row, untagged marks.
+29k Analytics: next ten marks, predicted grade range with series named, pace (min/mark vs budget, the "ran out" markers on the question ramp), calibration chart, error-pattern prescription cards; each with its low-data state.
+29l Planner: hours available, the split across assessments, topic rows with sessions and reasons, the week's paper, cram deck; the "Send to Pacing / Today" confirm dialog; the week after a disrupted week (nothing stale to clean).
+29m Exam Season view: next exams, highest-risk topics, due reviews in scope, rapid recall, latest post-mortem, checklists, logistics, "quiet the rest" toggle.
+29n Exam Room: the five calm blocks with the countdown, reduced-motion version.
+29o Companion, assembled tier (Integration topic test): key notes, labs, cram deck, rapid drill, command words, booklet vs must-memorise, traps.
+29p Companion, exhaustive tier, one topic (Integration — area between curves): archetype catalogue with frequency, Variations A–F (one opened fully with M1/A1/B1 on each scoring step), Method 1 vs Method 2, Edexcel working rules, examiner's-report trap, a sandbox, the practice set, real-question pointers with "Log this question".
+29q The same for a CS topic (AQA pseudocode conventions, a trace table variation, mark points) and an OCR F201 extended question (PO1/PO2/PO3, level descriptors, the band-climbing checklist).
+29r Playbook drawer: booklet vs must-memorise, command-word decoder, OCR levels of response, FX-991CW techniques, mnemonics, Misconceptions Blacklist; open over the Companion.
+29s Trend & likelihood: mark-weighting table, the yield map, the core half of the paper, due-by-pattern markers, discriminator post-mortems, the caveat.
+29t Predicted paper: interactive timed mode and the board-style cover sheet; mark scheme with conventions and level descriptors; the self-marking tally that logs an attempt.
+29u Print: the predicted paper and mark scheme as A4 pages (cover, a question page with answer space, a mark-scheme page).
+29v Goals: the five exam goal types in the new-goal picker, templates on exam creation, a linked goal card on the assessment, "Exam removed · unlinked".
+29w Elsewhere: Home's ladder (exam inside lead days, start-by today, deadline at risk), the Calendar with assessment chips and start-by markers, Review's "cram this scope" run, Reports' Exams card, the bell's exam notification.
+29x Phone: timetable, an assessment overview, the log dialog as a sheet, per-question entry, the Exam Room; plus Dawn: the assessment overview and the Companion in the light theme.
+
+DELIVERABLE NOTES. For every frame annotate the interaction states, focus order, live-region announcements, empty, low-evidence and error states, and what changes at 1080, 860, 700 and 560. Mark new shared components with their states so each is built once: the tier chip, the readiness signal card, the band with its limiting signal, the scope summary and excluded callout, the error-tag chip set, the question ramp, the yield map, the variation card with mark annotations, the method comparison, the drawer, the paper page (screen and print), the tally sheet.
 ```
