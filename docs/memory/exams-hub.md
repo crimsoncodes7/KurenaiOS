@@ -1,6 +1,6 @@
 ---
 name: exams-hub
-description: Roadmap 5.8 Exams & Deadlines Hub — plan rev 2 approved; phases 1–2 BUILT on feat/exams-hub (not deployed); smoke89–90; next = examiner reports fetch (needs user OK) + design turn 29 + phase 3
+description: Roadmap 5.8 Exams & Deadlines Hub — plan rev 2 approved; phases 1–2 BUILT on feat/exams-hub (not deployed); smoke89–90; AQA 2022–23 report notes written; next design turn 29 + phase 3
 metadata:
   type: project
 ---
@@ -20,10 +20,12 @@ Suggestions 1, 2, 4, 6–10 are in the plan; 3 and 5 stay optional.
 
 **Copyright answer given to the user:** the papers stay out of the code and the deploy, because pages.dev is public. The user's own copies can be opened on their device via a phase 3 "Paper library" (§4.5).
 
-**Why:** the examiner's report notes can't be written until the reports are downloaded.
+**Report notes (2026-10-20, user approved the fetch):** AQA's file store serves only its 2022–23 reports, so 7 were saved into ~/Downloads/A-level and paraphrased into `tools/exam-index/reports/aqa-75{16,17}-{1,2}.md`. smoke90 (I) checks each cited question and its marks. Edexcel needs URLs in `tools/exam-index/report-urls.txt`.
+
+**Why:** the reports are copyrighted, so only paraphrased notes go in the repo.
 
 **How to apply:**
-- `fetch_reports.py` downloads files, so ask the user before running it.
+- `fetch_reports.py` downloads files: ask the user before running it again.
 - Boundaries: AQA 7517 2023 and 2024 are confirmed; Edexcel 9MA0 2023–25 are unconfirmed (third-party).
 - When design turn 29 arrives, restyle the hub's pages, then start phase 3.
 

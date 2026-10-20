@@ -21,6 +21,10 @@
      G · NO PAST-PAPER TEXT. The index holds references and numbers only:
          rows of seven fields, short tag reasons, no PDF in the repo, and
          none of the boards' printed boilerplate anywhere in js/.
+     I · REPORT NOTES cite real questions: every "### Q.. (marks) · leaf"
+         heading in tools/exam-index/reports/<paper>.md names a question of
+         that series in the index with those marks, and the notes quote no
+         printed boilerplate.
      H · THE GENERATOR is up to date with the user's folder when that folder
          is on this machine (skipped, and said so, when it is not).
 
@@ -144,6 +148,31 @@ step("G · references and numbers only", () => {
       BOILER.forEach((re) => assert(!re.test(src), path.relative(ROOT, p) + " carries a board's printed boilerplate: " + re));
     });
   })(path.join(ROOT, "js"));
+});
+
+step("I · report notes cite real questions with their marks", () => {
+  const dir = path.join(ROOT, "tools/exam-index/reports");
+  const files = fs.readdirSync(dir).filter((f) => /\.md$/.test(f) && f !== "README.md");
+  assert(files.length >= 4, "notes for the four AQA papers");
+  const MONTH = { January: "01", June: "06", October: "10", November: "11" };
+  let cited = 0;
+  files.forEach((f) => {
+    const pid = f.replace(/\.md$/, "");
+    assert(IX.papers[pid], f + " names a paper in the index");
+    let sit = null;
+    fs.readFileSync(path.join(dir, f), "utf8").split("\n").forEach((line) => {
+      const h = /^## (January|June|October|November) (\d{4})/.exec(line);
+      if (h) { sit = h[2] + "-" + MONTH[h[1]]; return; }
+      const m = /^### (Q\d\d(?:\.\d+)?)(?:[–-]Q?\d\d\.\d+)? \((\d+)(?:\+\d+)*\)/.exec(line);
+      if (!m || !sit) return;
+      const q = IX.questions.find((r) => r[0] === pid && r[1] === sit && r[3] === m[1]);
+      assert(q, f + " " + sit + " cites " + m[1] + ", which is not in the index");
+      assert(q[4] === +m[2], f + " " + sit + " " + m[1] + " says " + m[2] + " marks; the index has " + q[4]);
+      cited++;
+    });
+    assert(!/Copyright ©|AQA retains the copyright|Report on the Examination\s+\d/.test(fs.readFileSync(path.join(dir, f), "utf8")), f + " carries the report's printed text");
+  });
+  assert(cited >= 40, "the notes cite questions (" + cited + ")");
 });
 
 step("H · the generator matches the user's folder (when it is here)", () => {

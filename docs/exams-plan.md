@@ -390,9 +390,15 @@ agree (unconfirmed until checked against Pearson's document). AQA's June
   instead. It never invents an examiner comment.
 - **As built:** `tools/fetch_reports.py` (AQA's file pattern for each
   year, plus any Pearson URLs listed in `tools/exam-index/report-urls.txt`)
-  saves into your folder, idempotently. The notes format is
-  `tools/exam-index/reports/README.md`. The notes are written once the
-  reports are fetched.
+  saves into your folder, idempotently (falling back to curl where
+  Python has no CA certificates).
+- **Fetched and written (20 October 2026):** AQA's file store still serves
+  only its 2022 and 2023 reports, so seven were saved: 7517 Paper 1 (2022),
+  7517 Paper 2 (2022, 2023), 7516 Papers 1 and 2 (2022, 2023). Their
+  paraphrased notes are `tools/exam-index/reports/aqa-75{16,17}-{1,2}.md`,
+  each point citing its series and question; smoke90 holds every cited
+  question and its marks to the index. Pearson's feedback and the other
+  AQA years wait for URLs in `tools/exam-index/report-urls.txt`.
 
 ### 4.5 Your own copies, opened in the app
 
@@ -1130,7 +1136,7 @@ The old `#/tracker` route aliases to the hub's Practice tab.
 |---|---|---|
 | 0 | **Design** (prompt 13, frames 29a–29x) while the evidence pipeline is built | — |
 | 1 ✓ | **Core** (built 20 October 2026): `state.exams`, tiers, Scope Builder (presets, Pacing rule, tree, exclusions), migration from Calendar and IT, Calendar derived chips, the cap by scope, timetable and assessment pages, widened log dialog (index pick, per-question, tags, timed, predicted), redo items, start-by dates | smoke89 (model, migration, scope, cap, attempts, redo, render purity) |
-| 2 ✓ | **Evidence** (built; the examiner's report notes wait for the fetch, and archetypes move to phase 5 with the Companion that uses them): `gen_exam_index.py` + `map.csv`, archetype first pass and review, boundaries table, examiner's reports fetch and notes | smoke90 (every question mapped and tagged, marks reconcile per paper, boundaries well-formed) |
+| 2 ✓ | **Evidence** (built, report notes included for the AQA reports still online; archetypes move to phase 5 with the Companion that uses them): `gen_exam_index.py` + `map.csv`, archetype first pass and review, boundaries table, examiner's reports fetch and notes | smoke90 (every question mapped and tagged, marks reconcile per paper, boundaries well-formed) |
 | 3 | **Readiness and decisions:** four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins, the post-mortem (§8.2), the Paper library (§4.5), timetable import (#1), clash and load view (#2), teacher feedback capture (#6), "what changed since the mock" (#8), results day (#9) | smoke91 |
 | 4 | **Goals:** `examId` links, five types, checklist rules, templates | smoke92 |
 | 5 | **Companion, assembled tier and playbooks:** archetype catalogue and tagging (§4.2), topic and retrieval guides, cram deck, rapid drill, drawer for all three boards, answer habits (#4), trend and likelihood pages, paper engine (blueprint, print, interactive, tally), revision pack export (#7), large print and extra time (#10) | smoke93 |
@@ -1158,6 +1164,6 @@ applies.
 
 ## Next step
 
-Phases 1 and 2 are built. Next: run `tools/fetch_reports.py` and write the
-report notes; when design turn 29 lands, restyle the hub's pages to it and
-start phase 3.
+Phases 1 and 2 are built, with the AQA report notes. Next: when design
+turn 29 lands, restyle the hub's pages to it and start phase 3. Edexcel's
+reports wait for their URLs.

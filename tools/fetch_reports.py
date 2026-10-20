@@ -24,7 +24,9 @@ could not find. Nothing here runs at build time or in the app.
 Usage:  python3 tools/fetch_reports.py [--root PATH] [--dry-run]
 """
 import os
+import subprocess
 import sys
+import urllib.error
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,12 +54,26 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def get(url):
-    opener = urllib.request.build_opener(NoRedirect)
-    req = urllib.request.Request(url, headers={"User-Agent": "KurenaiOS revision index (personal use)"})
-    with opener.open(req, timeout=30) as r:
-        if r.status != 200:
-            raise IOError("HTTP %d" % r.status)
-        body = r.read()
+    """urllib first; a Python with no CA certificates installed (python.org's
+    macOS build until "Install Certificates" is run) falls back to curl,
+    which uses the system's trust store. Redirects are never followed."""
+    try:
+        opener = urllib.request.build_opener(NoRedirect)
+        req = urllib.request.Request(url, headers={"User-Agent": "KurenaiOS revision index (personal use)"})
+        with opener.open(req, timeout=30) as r:
+            if r.status != 200:
+                raise IOError("HTTP %d" % r.status)
+            body = r.read()
+    except urllib.error.URLError as e:
+        if "CERTIFICATE_VERIFY_FAILED" not in str(e):
+            raise
+        out = subprocess.run(["curl", "-sS", "--max-time", "60", "-A", "KurenaiOS revision index (personal use)",
+                              "-w", "\n%{http_code}", url], capture_output=True)
+        if out.returncode:
+            raise IOError(out.stderr.decode(errors="replace").strip() or "curl failed")
+        body, _, code = out.stdout.rpartition(b"\n")
+        if code.strip() != b"200":
+            raise IOError("HTTP %s" % code.decode().strip())
     if not body.startswith(b"%PDF"):
         raise IOError("not a PDF")
     return body

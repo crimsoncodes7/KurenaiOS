@@ -1132,8 +1132,9 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > attempt with redo items, start-by dates (smoke89); the past-paper index,
 > boundaries and the report fetcher (smoke90). The pages use shared
 > components until design turn 29 ([design-prompts.md §13](design-prompts.md),
-> frames 29a–29x) lands. Next: fetch the examiner's reports and write the
-> notes, then phase 3.
+> frames 29a–29x) lands. The AQA examiner's reports still online
+> (2022–23) are fetched and paraphrased into notes. Next: phase 3, styled to
+> design turn 29.
 
 - **What:** Study → Exams & Papers grows into the hub where assessments,
   readiness, practice evidence, revision planning and goals meet.

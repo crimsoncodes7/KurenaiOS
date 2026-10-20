@@ -1,0 +1,5 @@
+# One examiner's report per line: <paper-id> <sitting> <url>
+# paper ids: aqa-7517-1 aqa-7517-2 aqa-7516-1 aqa-7516-2
+#            edexcel-9ma0-1 edexcel-9ma0-2 edexcel-9ma0-3 edexcel-8ma0-1 edexcel-8ma0-2
+# e.g.  edexcel-9ma0-1 2024-06 https://qualifications.pearson.com/…/9ma0-01-pef-….pdf
+# then: python3 tools/fetch_reports.py   (saves into your A-level folder, never the repo)
