@@ -1097,6 +1097,34 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
   states, the reader, a checkpoint, the media components and phone
   ([prompt 12](design-prompts.md)).
 
+### 5.6 FSRS: one scheduler for every card (asked for 20 October 2026)
+
+> **Status (20 October 2026): planned.** The plan is
+> [fsrs-plan.md](fsrs-plan.md), revision 1, with decisions A–G to take.
+
+- **What:** a pure FSRS-6 core (`KOS.fsrs`) that replaces the SM-2 step in
+  `srs.js` and Code's copy of it. The Japanese facets use it when they
+  arrive.
+- **The migration:** the SM-2 cards convert the way Anki does
+  (`memory_state_from_sm2`). Due dates don't move, and the next on-time
+  Good matches SM-2.
+- **New data:** a review log starts in a local IndexedDB store, for a later
+  optimiser.
+- **Needs no design:** it follows existing frames, with the ease figures
+  replaced by difficulty, stability and recall.
+
+### 5.7 After FSRS (asked for 20 October 2026, in this order)
+
+1. **A server-side runner, Web Push and which notifications reach a closed
+   app** (an exploration doc; it unparks "Scheduled messages while the app
+   is closed").
+2. **Code → GitHub as a GitHub App** (a short doc; it uses the same Edge
+   Function pattern).
+3. **A Creatives study space** (art, graphic design, editing, writing): a
+   plan first, then Claude Design.
+4. **Code content** (units 10–12, capstone 4) when usage allows. Its new
+   retrieval cards start on FSRS.
+
 ---
 
 ## Parked — not scheduled
