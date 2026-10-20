@@ -810,8 +810,9 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.4 Money and Goals, beyond the Collection ◆ (asked for 13 October 2026)
 
-> **Status (20 October 2026, branch `feat/money-goals`, not merged or
-> deployed): BUILT WHOLE.** The design handoff (frames 27a–27s) arrived and
+> **Status (20 October 2026): RELEASED** — `084a628`, sw `kos-money-1`,
+> immutable https://d8bccd88.kurenai-os.pages.dev; `main` fast-forwarded
+> to `feat/money-goals`. **Built whole.** The design handoff (frames 27a–27s) arrived and
 > every page is built to it: Money's six views (Overview with the day
 > chart and Safe to spend, Transactions with splits, refunds, tags, bulk
 > actions and CSV, Budgets with rollover and the Collection breakdown,
@@ -826,7 +827,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > notification filters. Placement (27a): Money and Goals join the
 > Productivity strip; the Collection keeps the Wishlist. Held by
 > smoke84–87 and smoke56 (all six Money views under render purity).
-> Next: the user's review, then a release when asked.
+> Next: whatever the user's review of the live pages turns up.
 
 > **Status (19 October 2026, branch `feat/money-goals`, not merged or
 > deployed):** started from the second account. Design prompt 11 was

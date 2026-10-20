@@ -1,12 +1,24 @@
 ---
 name: project-branch-and-release-state
-description: Which git branch is live, what is deployed, what is unpushed — check git before trusting this; it was true on 2026-10-19
+description: "Which git branch is live, what is deployed, what is unpushed — check git before trusting this; it was true on 2026-10-20"
 metadata:
+  node_type: memory
   type: project
+  originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
+  modified: 2026-10-20T16:16:29.892Z
 ---
 
-On 2026-10-19 the live line of work is branch `claude/roadmap-code-study-space`. It holds every release since the Reports work and was fast-forwarded into `main` on 2026-10-19, so the two are identical (both pushed; an earlier note that main was 49 behind came from a stale local main — always `git fetch` first). The production site (https://kurenai-os.pages.dev) is deployed from it: last release `ff7a8e3` (Code capstone 3, sw `kos-code-18`, immutable https://6c888d02.kurenai-os.pages.dev). The 12 commits after it (the Japanese plan + slice, last `bc75349`) and the docs commit `fdd02bd` are pushed.
+On 2026-10-20, `main` was fast-forwarded to `feat/money-goals` and pushed for the Money and Goals release, so `main` is now the line. `claude/roadmap-code-study-space` is still at `771e967`: it is behind `main` and has nothing of its own.
 
-**Why:** the user ran releases as direct Cloudflare uploads from this branch and never merged to main; a git push does not deploy.
+The production site (https://kurenai-os.pages.dev) is the release `084a628`: Money and Goals, sw `kos-money-1`, immutable https://d8bccd88.kurenai-os.pages.dev. Before it came `ff7a8e3` (Code capstone 3, sw `kos-code-18`). The release was deployed from the worktree `.claude/worktrees/money-goals`, which needed a copy of the gitignored `js/env.local.js` from the main checkout.
 
-**How to apply:** start every session with `git status -sb` and `git log --oneline -5`, and run `git fetch` first, then work from `main` or `claude/roadmap-code-study-space` (identical on 2026-10-19). Merge, push and deploy only when the user asks. Related: [[code-study-space]], [[japanese-study-space]], [[two-account-workflow]].
+The main checkout's LOCAL `main` ref was not moved (it belongs to that checkout). Run `git pull` there before working.
+
+**Why:** releases are direct Cloudflare uploads (`tools/deploy_pages.sh`), and a git push does not deploy.
+
+**How to apply:**
+- Start every session with `git fetch`, `git status -sb` and `git log --oneline -5`.
+- Branch new work from `main`.
+- Commit and push freely, but deploy only when the user says go ([[act-without-asking]]).
+
+Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-account-workflow]].

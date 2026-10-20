@@ -1,6 +1,6 @@
 ---
 name: money-goals
-description: Money & Goals (roadmap 5.4) on branch feat/money-goals (worktree .claude/worktrees/money-goals); BUILT WHOLE to design 27a–27s on 20 Oct 2026 (smoke84–87); not merged or deployed
+description: Money & Goals (roadmap 5.4) on branch feat/money-goals (worktree .claude/worktrees/money-goals); RELEASED 20 Oct 2026 (084a628, sw kos-money-1, main fast-forwarded); smoke84–87
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,7 @@ metadata:
   modified: 2026-10-20T16:07:21.588Z
 ---
 
-Started 19 October 2026 from the second account while the first account works on other things. Branch `feat/money-goals` from `main` at 771e967, in the worktree `.claude/worktrees/money-goals`, so the main checkout and the other account's branch stay untouched. Not merged, not deployed.
+Started 19 October 2026 from the second account while the first account works on other things. Branch `feat/money-goals` from `main` at 771e967, in the worktree `.claude/worktrees/money-goals`, so the main checkout and the other account's branch stay untouched. RELEASED on 20 October 2026: `main` fast-forwarded to it (`084a628`), deployed as https://d8bccd88.kurenai-os.pages.dev, sw `kos-money-1`.
 
 State on 20 October 2026: everything is built to the design handoff (frames 27a–27s, from /Users/fj/Downloads/design_handoff_kurenaios_money_goals/).
 - Core: `js/core/money.js`, `js/core/goals.js`, `js/core/goals-collection.js`.
@@ -24,7 +24,7 @@ Decisions: the small part lives in `state.money` with string ids. Transactions l
 **Why:** the user wants design and build to run in parallel, and the other account must not be disturbed.
 
 **How to apply:**
-- Next is the user's review of the pages, then a release, but only when they ask (deploy needs a go-ahead, see [[act-without-asking]]).
+- Next is whatever the user's review of the live pages turns up. Further work branches from `main`.
 - Screenshot checks use a headless-Chrome CDP driver over file://.
 - Seed in the same run as the shots, and use a fresh `--profile` each time: a killed Chrome leaves the old profile locked.
 

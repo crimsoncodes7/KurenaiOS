@@ -16,31 +16,31 @@ chronological diary here.
   platform from design turn 26 and unit 1; on top of the Reports rebuild
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
-  (`20261019000001`, 19 October 2026, from `feat/money-goals` — unused until
-  that branch is deployed).
-- Latest release: `ff7a8e3` — immutable deployment
-  https://6c888d02.kurenai-os.pages.dev (17 October 2026; Code capstone 3,
-  a shop with plugins and LINQ reports — stage 3 complete)
+  (`20261019000001`, 19 October 2026), live since the Money and Goals release.
+- Latest release: `084a628` — immutable deployment
+  https://d8bccd88.kurenai-os.pages.dev (20 October 2026; Money and Goals,
+  roadmap 5.4, built whole to design 27a–27s). Before it `ff7a8e3`
+  (17 October 2026; Code capstone 3), https://6c888d02.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-18`
-- Required smoke gate: 79 / 79 suites.
-- Branches: `main` was fast-forwarded to `claude/roadmap-code-study-space` on
-  19 October 2026 (both at the docs commit after `ff7a8e3`, including the
-  Japanese plan and slice), so they are identical and both pushed. Check
-  `git log` for later drift; new work may use either, branching from `main`.
+- Service-worker version: `kos-money-1`
+- Required smoke gate: 83 / 83 suites (`""`, 2–79 and 84–87; 80–83 are
+  reserved for Japanese).
+- Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
+  `feat/money-goals` for the Money and Goals release, so
+  `claude/roadmap-code-study-space` (at `771e967`) is now behind it with
+  nothing of its own. Check `git log` for later drift; branch new work from
+  `main`.
 - In flight: Japanese (roadmap 5.5, [`docs/japanese-plan.md`](docs/japanese-plan.md)
   revision 3.1). The throwaway vertical slice in `prototypes/japanese-space/`
   is closed on real data and touches no app file; the platform release (plan
   §17, smokes 80–83) is next, only when asked.
-- In flight on `feat/money-goals` (a worktree, not merged, not deployed):
-  Money and Goals (roadmap 5.4), built whole from design prompt 11 (frames
-  27a–27s, handoff 20 October 2026): the Money core and the Goals engine
-  (smoke84–85), the joins (kos_money replication, the Assistant's money
-  tools, Reports' facts, goal and money notices; smoke86) and the pages —
-  Money's six views, Goals and a goal's page, Home's Goals switch, the
-  Wishlist's purchase handoff, Calendar's derived chips, Reports' Money and
-  Goals cards (smoke87). Smokes 80–83 stay reserved for Japanese, so this
-  branch's gate is `for i in "" {2..79} 84 85 86 87`.
+- Released 20 October 2026: Money and Goals (roadmap 5.4), built whole
+  from design prompt 11 (frames 27a–27s) — the Money core and the Goals
+  engine (smoke84–85), the joins (kos_money replication, the Assistant's
+  money tools, Reports' facts, goal and money notices; smoke86) and the
+  pages (Money's six views, Goals and a goal's page, Home's Goals switch,
+  the Wishlist's purchase handoff, Calendar's derived chips, Reports' Money
+  and Goals cards; smoke87).
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
