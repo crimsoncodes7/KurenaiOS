@@ -265,7 +265,7 @@ step("J · the Companion, trend, the paper and its dialogs draw without writing"
   for (const b of app.document.querySelectorAll("[data-ui~='exams.pb-section']")) { b.click(); await app.settle(); }
   app.document.querySelector("[data-ui~='exams.drawer']").parentNode.close();
   K.examGuide.pack(topic); await app.settle();
-  assert(app.document.querySelectorAll("[data-ui~='exams.pack-part']").length === 5, "the pack's parts");
+  assert(app.document.querySelectorAll("[data-ui~='exams.pack-part']").length === 6, "the pack's parts (phase 6 added the subtopic packs)");
   app.document.querySelector("[data-ui~='exams.pack-print']").click(); await app.settle();
   assert(app.window.__printed === 1 && app.document.getElementById("k-ex-print"), "printed from its own root");
   app.document.querySelector("[data-ui~='exams.pack-dialog']").parentNode.close();

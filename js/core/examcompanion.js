@@ -378,6 +378,7 @@
   var PARTS = [
     ["notes", "Key notes for every leaf"],
     ["variations", "Worked variations with mark annotations"],
+    ["packs", "Subtopic packs: five questions a leaf, with schemes"],
     ["traps", "Traps and conventions"],
     ["cards", "Cram deck as fold-over cards"],
     ["drill", "The 15-question drill and answers"]
@@ -389,17 +390,25 @@
     var cards = [];
     E().leaves(a).forEach(function (k) { var p = KOS.spec.parse(k); if (p) KOS.srs.cardsFor(p.subject, p.ref).forEach(function (c) { if (c.q && c.a) cards.push(c); }); });
     var dr = drill(a, opts.seed || 1);
+    /* the full Companion's worked variations and subtopic packs, where this
+       paper has one (phase 6, KOS.examDeep) */
+    var DD = KOS.examDeep, pid = DD ? DD.paperOf(a) : null, ix = pid ? DD.index(a) : null;
+    var vars = [], packs = [];
+    if (ix) ix.units.forEach(function (un) { un.rows.forEach(function (r) { var x = DD.archetype(pid, r.id); if (x) vars.push(x); }); });
+    if (pid) DD.data(pid).leaves.forEach(function (l) { if (E().leaves(a).indexOf(l.key) !== -1) { var pk = DD.pack(pid, l.ref); if (pk && pk.items.length) packs.push(pk); } });
+    var nVars = vars.reduce(function (s, x) { return s + x.a.variations.length; }, 0);
     var parts = PARTS.map(function (p) {
       var pages = 0, available = true, why = null;
       if (p[0] === "notes") pages = Math.ceil(g.tiles.filter(function (t) { return t.has; }).length / (2 * per));
-      else if (p[0] === "variations") { available = false; why = "Worked variations arrive when the Companion for this paper is built."; }
+      else if (p[0] === "variations") { if (nVars) pages = Math.ceil(nVars / (3 * per)); else { available = false; why = "Worked variations come with a board paper's full Companion."; } }
+      else if (p[0] === "packs") { if (packs.length) pages = Math.ceil(packs.length / (1.5 * per)); else { available = false; why = "Subtopic packs come with a board paper's full Companion."; } }
       else if (p[0] === "traps") pages = Math.max(1, Math.ceil((g.traps.length + g.commands.length) / (14 * per)));
       else if (p[0] === "cards") pages = Math.ceil(cards.length / (12 * per));
       else if (p[0] === "drill") pages = Math.ceil(dr.items.length / (10 * per));
       if (!pages && available) { available = false; why = "Nothing to print for this scope."; }
-      return { id: p[0], title: p[1], pages: pages, available: available, why: why, count: p[0] === "cards" ? cards.length : p[0] === "drill" ? dr.items.length : null };
+      return { id: p[0], title: p[1], pages: pages, available: available, why: why, count: p[0] === "cards" ? cards.length : p[0] === "drill" ? dr.items.length : p[0] === "variations" && nVars ? nVars : p[0] === "packs" && packs.length ? packs.length : null };
     });
-    return { guide: g, parts: parts, cards: cards, drill: dr, large: large };
+    return { guide: g, parts: parts, cards: cards, drill: dr, large: large, variations: vars, packs: packs };
   }
 
   KOS.examCompanion = {

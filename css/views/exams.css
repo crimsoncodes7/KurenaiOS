@@ -777,6 +777,63 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-ex-pcard > div { padding: var(--sp-8); }
 .k-ex-pcard > div + div { border-inline-start: var(--hairline) dashed var(--ex-paper-rule); }
 
+
+/* ---------- the full Companion (phase 6, frames 29p, 29q) ---------- */
+.k-ex-crumb { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8); font-size: var(--fs-13); color: var(--muted); }
+.k-ex-crumb b { color: var(--text); font-weight: var(--weight-semibold); }
+.k-ex-mks { display: inline-flex; flex-wrap: wrap; gap: var(--sp-5); }
+.k-ex-mk { padding: var(--sp-2) var(--sp-7); border-radius: var(--r-6); background: color-mix(in oklch, var(--s) 24%, transparent); color: var(--text); font: var(--weight-bold) var(--fs-11) var(--font-mono); white-space: nowrap; }
+.k-ex-vhead { flex-wrap: wrap; }
+.k-ex-vkey { display: grid; place-items: center; flex: none; inline-size: var(--ex-vkey); block-size: var(--ex-vkey); border-radius: var(--r-10); background: var(--text); color: var(--bg); font: var(--weight-bold) var(--fs-13) var(--font-mono); }
+.k-ex-vkey--sm { inline-size: var(--ex-vkey-sm); block-size: var(--ex-vkey-sm); border-radius: var(--r-8); background: var(--s3); color: var(--text-2); font-size: var(--fs-11-5); }
+.k-ex-vtitle { margin: 0; font-size: var(--fs-18); font-weight: var(--weight-semibold); }
+.k-ex-vq { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-16) var(--sp-18); border-radius: var(--r-16); background: var(--s2); font-size: var(--fs-15); line-height: 1.6; }
+.k-ex-vq p { margin: 0; }
+.k-ex-code { padding: var(--sp-12) var(--sp-14); border-radius: var(--r-14); background: var(--code-bg); font: var(--fs-13) / 1.7 var(--font-mono); overflow-x: auto; }
+.k-ex-code-l { display: grid; grid-template-columns: var(--sp-22) minmax(0, 1fr); gap: var(--sp-10); }
+.k-ex-code-n { color: var(--muted); text-align: end; font-size: var(--fs-11-5); }
+.k-ex-code-t { white-space: pre; }
+.k-ex-steps { display: flex; flex-direction: column; }
+.k-ex-step { display: grid; grid-template-columns: minmax(0, 1fr) var(--ex-step-m); gap: var(--sp-16); align-items: start; padding-block: var(--sp-10); border-block-end: var(--hairline) solid var(--line); }
+.k-ex-step-t { font-size: var(--fs-15); line-height: 1.55; }
+.k-ex-step-m { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-4); line-height: 1.4; }
+.k-ex-vtrap { display: flex; gap: var(--sp-10); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-14); background: var(--s2); font-size: var(--fs-13); line-height: 1.5; color: var(--text-2); }
+.k-ex-levels { display: flex; flex-direction: column; gap: var(--sp-4); margin-block-end: var(--sp-8); }
+.k-ex-methods > .k-card { min-inline-size: 0; }
+.k-ex-mlines { display: flex; flex-direction: column; padding: var(--sp-2) var(--sp-14); border-radius: var(--r-14); background: var(--s2); }
+.k-ex-mline { display: grid; grid-template-columns: var(--sp-20) minmax(0, 1fr) auto; gap: var(--sp-10); align-items: baseline; padding-block: var(--sp-8); font-size: var(--fs-14); line-height: 1.5; }
+.k-ex-mline + .k-ex-mline { border-block-start: var(--hairline) solid var(--line); }
+.k-ex-vgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
+.k-ex-vtile { display: flex; flex-direction: column; gap: var(--sp-5); min-inline-size: 0; padding: var(--sp-12) var(--sp-14); border: 0; border-radius: var(--r-14); background: var(--s2); color: var(--text); font: inherit; text-align: start; cursor: pointer; }
+.k-ex-vtile[aria-current="true"] { box-shadow: inset 0 0 0 var(--sp-2) var(--text); }
+.k-ex-vtile[aria-current="true"] .k-ex-vkey--sm { background: var(--text); color: var(--bg); }
+.k-ex-vtile [data-tone="ok"] { color: var(--green); }
+.k-ex-rule { display: grid; grid-template-columns: var(--sp-16) minmax(0, 1fr); gap: var(--sp-10); padding-block: var(--sp-7); font-size: var(--fs-13); line-height: 1.45; color: var(--text-2); }
+.k-ex-rule + .k-ex-rule { border-block-start: var(--hairline) solid var(--line); }
+.k-ex-arow { display: grid; grid-template-columns: minmax(0, 1fr) var(--ex-arow-f) var(--ex-arow-v); gap: var(--sp-10); align-items: center; inline-size: 100%; padding: var(--sp-8) var(--sp-10); border: 0; border-radius: var(--r-10); background: none; color: var(--text); font: inherit; font-size: var(--fs-13); text-align: start; cursor: pointer; }
+.k-ex-arow--sm { grid-template-columns: minmax(0, 1fr) auto auto; }
+.k-ex-arow:hover, .k-ex-arow[aria-current="true"] { background: var(--s2); }
+.k-ex-arow[aria-current="true"] .k-ex-arow-t { font-weight: var(--weight-semibold); }
+.k-ex-arow-t { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
+.k-ex-arow-f { color: var(--text-2); font-size: var(--fs-12); }
+.k-ex-arow-v { color: var(--muted); font-size: var(--fs-12); text-align: end; }
+.k-ex-arow-v[data-done] { color: var(--green); }
+.k-ex-deep-units { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--ex-unit-min), 1fr)); gap: var(--sp-20); align-items: start; }
+.k-ex-trapline { display: flex; flex-direction: column; gap: var(--sp-4); padding-block: var(--sp-8); }
+.k-ex-trapline + .k-ex-trapline { border-block-start: var(--hairline) solid var(--line); }
+.k-ex-ptr--2 { align-items: center; padding-block: var(--sp-8); }
+.k-ex-deep-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-20); align-items: stretch; }
+.k-ex-deep-row[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-ex-deep-row[data-n="1"] { grid-template-columns: minmax(0, 1fr); }
+.k-ex-sandbox { min-inline-size: 0; }
+.k-ex-pset { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.k-ex-pq-row { display: grid; grid-template-columns: var(--sp-24) minmax(0, 1fr) auto; gap: var(--sp-10); align-items: start; padding-block: var(--sp-10); border-block-end: var(--hairline) solid var(--line); font-size: var(--fs-13-5); line-height: 1.5; }
+.k-ex-pq-meta { display: flex; flex-direction: column; align-items: flex-end; gap: var(--sp-2); }
+.k-ex-diff { color: var(--muted); font-size: var(--fs-11); letter-spacing: var(--sp-2); }
+.k-ex-deep-g { display: flex; flex-direction: column; gap: var(--sp-14); }
+.k-ex-shape--b { border: 0; color: var(--text); font: inherit; text-align: start; cursor: pointer; }
+.k-ex-shape--b:hover { background: var(--s3); }
+
 /* ---------- breakpoints, widest first (invariant 48) ---------- */
 @media (max-width: 1240px) {
 .k-ex-hero { grid-template-columns: auto minmax(0, 1fr); }
@@ -785,6 +842,8 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 }
 @media (max-width: 1080px) {
 .k-ex-grid2, .k-ex-grid2[data-side="wide"] { grid-template-columns: minmax(0, 1fr) var(--ex-side-sm); }
+.k-ex-deep-row, .k-ex-deep-row[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-ex-deep-row > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 .k-ex-notes, .k-ex-traps, .k-ex-shapes, .k-ex-core { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-ex-drawer { inline-size: min(var(--ex-drawer-sm), 100%); }
 .k-ex-sigs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -799,6 +858,7 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 }
 @media (max-width: 860px) {
 .k-ex-grid2, .k-ex-grid2[data-side="wide"], .k-ex-rgrid, .k-ex-three, .k-ex-pair { grid-template-columns: minmax(0, 1fr); }
+.k-ex-deep-row, .k-ex-deep-row[data-n="2"] { grid-template-columns: minmax(0, 1fr); }
 .k-ex-side[data-sticky] { position: static; }
 .k-ex-ghero, .k-ex-grid-even, .k-ex-grid-cram, .k-ex-labs { grid-template-columns: minmax(0, 1fr); }
 .k-ex-cmd { grid-template-columns: var(--ex-ref-w) minmax(0, 1fr); }
@@ -819,6 +879,9 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-exr-left > .k-ex-eyebrow { text-align: start; }
 }
 @media (max-width: 700px) {
+.k-ex-step { grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
+.k-ex-vgrid { grid-template-columns: minmax(0, 1fr); }
+.k-ex-deep-units { grid-template-columns: minmax(0, 1fr); }
 .k-ex-hero { grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-14); padding: var(--sp-16); }
 .k-ex-notes, .k-ex-traps, .k-ex-shapes, .k-ex-core, .k-ex-flash, .k-ex-yield { grid-template-columns: minmax(0, 1fr); }
 .k-ex-ghero { padding: var(--sp-16); }

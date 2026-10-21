@@ -76,11 +76,13 @@
     var read = readOf(a.id), nRead = g.sections.filter(function (s) { return read[s.id]; }).length;
     var rc = rd && rd.signals && rd.signals.recall;
     var days = E().daysTo(a);
+    var deep = KOS.examDeep && KOS.examDeep.paperOf(a) && KOS.examDeepView ? KOS.examDeepView.guideSection(a) : null;
     /* the hero */
     var acts = [
       u.btn("Start the rapid drill · 15", "primary", function () { drillDialog(a); }, { "data-ui": "exams.drill-start" }),
       g.cram && g.cram.cards ? u.btn("Cram " + (g.cram.due || Math.min(g.cram.cards, 40)) + " cards", "", function () { KOS.show("review", { tab: "due", run: "scope:" + a.id }); }, { "data-ui": "exams.cram" }) : null,
-      big ? u.btn("Practice paper", "", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: "1" }); }, { "data-ui": "exams.paper-open" }) : null,
+      deep ? u.btn("Full Companion", "", function () { KOS.show("exams", { id: a.id, tab: "deep" }); }, { "data-ui": "exams.deep-hero-open" }) : null,
+      big ? u.btn(deep ? "Predicted paper" : "Practice paper", "", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: "1" }); }, { "data-ui": "exams.paper-open" }) : null,
       board ? u.btn("Playbook · " + board, "quiet", function () { openPlaybook(board, a); }, { "data-ui": "exams.playbook-open" }) : null
     ].filter(Boolean);
     var dots = el("span", { class: "k-ex-readdots", "aria-hidden": "true" }, g.sections.map(function (s) { return el("i", { "data-on": read[s.id] ? "" : null }); }));
@@ -126,7 +128,8 @@
       if (s.id === "traps") wrap.appendChild(section("traps", "Traps", "from examiner's reports and your notes", null, trapsBody(g)));
       if (s.id === "labs") wrap.appendChild(section("labs", "Labs", u.plural(g.labs.length, "lab") + ", from the lab system", null, labsBody(g)));
       if (s.id === "items") {
-        if (big) { var sh = shapesBody(a); if (sh) wrap.appendChild(section("shapes", "Question shapes", "the archetypes of this paper in your scope", U().linkBtn("Trend and likelihood ›", function () { KOS.show("exams", { id: a.id, tab: "trend" }); }), sh)); }
+        if (deep) wrap.appendChild(section("shapes", "Question shapes, worked", "the full Companion: every shape of this paper in your scope, most frequent first", U().linkBtn("Trend and likelihood ›", function () { KOS.show("exams", { id: a.id, tab: "trend" }); }), deep));
+        else if (big) { var sh = shapesBody(a); if (sh) wrap.appendChild(section("shapes", "Question shapes", "the archetypes of this paper in your scope", U().linkBtn("Trend and likelihood ›", function () { KOS.show("exams", { id: a.id, tab: "trend" }); }), sh)); }
         wrap.appendChild(section("items", "Exam items", u.plural(g.items.length, "item") + " in the topic banks", big ? u.btn("Practise them as a paper", "sm", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: "1" }); }) : null, itemsBody(g, board)));
       }
       if (s.id === "cram") wrap.appendChild(cramRow(a, g, section));
@@ -135,7 +138,7 @@
       u.btn("Export the revision pack", "", function () { packDialog(a); }, { "data-ui": "exams.pack-open" }),
       u.btn("Exams settings", "quiet", function () { settingsDialog(); }, { "data-ui": "exams.settings-open" }),
       el("span", { class: "k-ex-grow" }),
-      u.muted("Every question here is from the topic banks; nothing is new material.")]));
+      u.muted(deep ? "The exam items are from the topic banks; the worked variations and practice sets are the full Companion's, written by KurenaiOS." : "Every question here is from the topic banks; nothing is new material.")]));
     typeset(wrap);
   }
   function pad2(i) { return (i < 10 ? "0" : "") + i; }
@@ -362,22 +365,27 @@
     KOS.ui.openDialog(overlay, { labelledBy: t });
     return overlay;
   }
-  function drillDialog(a) {
-    var u = U(), dr = C().drill(a, Date.now() % 100000), i = 0, got = [], start = Date.now();
+  function drillDialog(a, o) {
+    o = o || {};
+    var recog = !!(o.recog && KOS.examDeep);
+    var u = U(), dr = recog ? KOS.examDeep.recognition(a, Date.now() % 100000, 20) : C().drill(a, Date.now() % 100000), i = 0, got = [], start = Date.now();
+    if (!dr) return null;
     var body = el("div", { class: "k-ex-drill", "data-ui": "exams.drill" });
-    var ov = dialog("Rapid drill · " + a.title, "速", [body], null, "exams.drill-dialog");
+    var ov = dialog((recog ? "Recognition drill · " : "Rapid drill · ") + a.title, recog ? "識" : "速", [body], null, "exams.drill-dialog");
     function step() {
       body.textContent = "";
       if (i >= dr.items.length) return finish();
       var it = dr.items[i], shown = false;
-      var ans = el("div", { class: "k-ex-drill-a", hidden: "" }, [html("div", "", it.kind === "card" ? inline(it.a) : (it.ms || []).map(inline).join("<br>"))]);
+      var ans = el("div", { class: "k-ex-drill-a", hidden: "" }, [html("div", "", it.kind === "card" || it.kind === "recog" ? inline(it.a) : (it.ms || []).map(inline).join("<br>"))]);
       var marks = el("div", { class: "k-ex-actions", hidden: "" }, [
         u.btn("✓ Got it", "primary", function () { got.push(true); i++; step(); }, { "data-ui": "exams.drill-got" }),
         u.btn("✕ Missed it", "", function () { got.push(false); i++; step(); }, { "data-ui": "exams.drill-miss" })]);
-      var reveal = u.btn("Show the answer", "primary", function () { ans.hidden = false; marks.hidden = false; reveal.hidden = true; typeset(ans); marks.firstChild.focus(); }, { "data-ui": "exams.drill-show" });
+      var reveal = u.btn(it.kind === "recog" ? "Show the shape" : "Show the answer", "primary", function () { ans.hidden = false; marks.hidden = false; reveal.hidden = true; typeset(ans); marks.firstChild.focus(); }, { "data-ui": "exams.drill-show" });
       body.appendChild(el("div", { class: "k-ex-inline" }, [u.muted("Question " + (i + 1) + " of " + dr.items.length + " · " + it.ref + " " + it.title), el("span", { class: "k-ex-grow" }),
         u.squares(dr.items.length, i)]));
       if (it.ctx) body.appendChild(html("p", "", inline(it.ctx)));
+      if (recog) body.appendChild(u.muted("Name the shape and your first move, then check.", "k-ex-small"));
+      if (it.code) body.appendChild(el("pre", { class: "k-ex-pre", text: it.code.join("\n") }));
       body.appendChild(html("div", "k-ex-drill-q", inline(it.q) + (it.marks ? " <span class=\"k-mono k-ex-muted\">(" + it.marks + ")</span>" : "")));
       body.appendChild(ans); body.appendChild(reveal); body.appendChild(marks);
       typeset(body);
@@ -394,7 +402,7 @@
         missed.length ? el("ul", { class: "k-ex-ul" }, missed.slice(0, 8).map(function (x) { return html("li", "", "<b>" + KOS.ui.esc(x.ref) + "</b> " + inline(x.q)); })) : u.muted("Nothing missed."),
         el("div", { class: "k-ex-actions" }, [keys.length ? u.btn("Cram the " + u.plural(keys.length, "card") + " you missed", "primary", function () { ov.close(); KOS.show("review", { tab: "due", run: "cards:" + keys.join("|") }); }, { "data-ui": "exams.drill-cram" }) : null,
           u.btn("Close", "", function () { ov.close(); })].filter(Boolean)),
-        u.muted("A drill is self-marked: nothing is rated or rescheduled, and it pays nothing.", "k-ex-small")]));
+        u.muted(recog ? "Recognising the shape is half the question. Open a missed shape from the full Companion to work its variations." : "A drill is self-marked: nothing is rated or rescheduled, and it pays nothing.", "k-ex-small")]));
       typeset(body);
     }
     step();
@@ -538,6 +546,18 @@
     function page(title, kids) { root.appendChild(el("section", { class: "k-ex-ppage" }, [el("div", { class: "k-ex-ppage-k", text: "KurenaiOS revision pack · " + a.title }), el("h1", { text: title })].concat(kids, [el("div", { class: "k-ex-ppage-f", text: "Written by KurenaiOS from your notes · not a board document" })]))); }
     if (on.notes) page("Key notes", g.tiles.filter(function (t) { return t.has; }).map(function (t) {
       return el("div", { class: "k-ex-pnote" }, [el("h2", { text: t.ref + " " + t.title }), t.rule ? html("p", "", (t.rule.h ? "<b>" + inline(t.rule.h) + "</b> " : "") + inline(t.rule.text)) : null, t.line ? html("p", "", inline(t.line)) : null].filter(Boolean));
+    }));
+    if (on.variations && pk.variations.length) page("Worked variations", pk.variations.map(function (x) {
+      return el("div", { class: "k-ex-pnote" }, [el("h2", { text: (x.leaf ? x.leaf.ref + " · " : "") + x.a.title })].concat(x.a.variations.map(function (v) {
+        return el("div", {}, [html("p", "", "<b>" + v.v + " · " + KOS.ui.esc(v.t) + "</b> (" + v.m + ") " + inline(v.q)), v.code ? el("pre", { class: "k-ex-pre", text: v.code.join("\n") }) : null,
+          el("ol", {}, v.steps.map(function (st) { return html("li", "", inline(st.text) + (st.marks ? " <b>[" + KOS.ui.esc(st.marks) + "]</b>" : "")); }))].filter(Boolean));
+      })));
+    }));
+    if (on.packs && pk.packs.length) page("Subtopic packs", pk.packs.map(function (p) {
+      return el("div", { class: "k-ex-pnote" }, [el("h2", { text: p.leaf.ref + " " + p.leaf.title + " · " + p.marks + " marks" }),
+        el("ol", {}, p.items.map(function (it) { return html("li", "", inline(it.parts[0].q) + " (" + it.marks + ")"); })),
+        el("p", {}, [el("b", { text: "Mark scheme" })]),
+        el("ol", {}, p.items.map(function (it) { return html("li", "", it.parts[0].ms.map(inline).join("; ")); }))]);
     }));
     if (on.traps) page("Traps and conventions", g.commands.map(function (c) { return html("p", "", "<b>" + KOS.ui.esc(c.w) + "</b>: " + inline(c.asks) + " <i>Loses it:</i> " + inline(c.loses)); })
       .concat(g.traps.slice(0, 30).map(function (t) { return html("p", "", "✕ " + inline(t.text) + (t.cite ? " <i>(" + KOS.ui.esc(t.cite) + ")</i>" : "")); })));

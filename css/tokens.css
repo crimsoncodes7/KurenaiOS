@@ -945,6 +945,12 @@ color-scheme: dark;
 --gl-bar-max: 110px;
 /* Exams & Deadlines (roadmap 5.8; drawn before design turn 29 lands) */
 --ex-side-w: 340px;          /* the hub's and an assessment's side column */
+--ex-step-m: 220px;           /* a worked step's mark column (29p) */
+--ex-vkey: 30px;              /* a variation's letter badge */
+--ex-vkey-sm: 22px;
+--ex-arow-f: 92px;            /* a shape row's frequency column */
+--ex-arow-v: 64px;            /* a shape row's marks or variations column */
+--ex-unit-min: 340px;         /* a unit card in the full Companion's grid */
 --ex-date-w: 58px;           /* a timetable row's date tile */
 --ex-q-w: 64px;              /* the per-question table's narrow columns */
 --ex-dialog-w: 760px;         /* the assessment editor and the importer (29c, 29y) */

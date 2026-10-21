@@ -1140,7 +1140,8 @@ The old `#/tracker` route aliases to the hub's Practice tab.
 | 3 ✓ | **Readiness and decisions** (built 21 October 2026, to design turn 29): four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins, the post-mortem (§8.2), the Paper library (§4.5), timetable import (#1), clash and load view (#2), teacher feedback capture (#6), "what changed since the mock" (#8), results day (#9) | smoke91 |
 | 4 ✓ | **Goals** (built 21 October 2026, frame 29v and 29c's last step): `examId` links, five types, checklist rules, templates | smoke92 |
 | 5 ✓ | **Companion, assembled tier and playbooks** (built 21 October 2026): archetype catalogue and tagging (§4.2), topic and retrieval guides, cram deck, rapid drill, drawer for all three boards, answer habits (#4), trend and likelihood pages, paper engine (blueprint, print, interactive, tally), revision pack export (#7), large print and extra time (#10) | smoke93 |
-| 6+ | **Exhaustive companion, one paper per release:** CS P2, CS P1, Maths P1, P2, P3, F201; each with its predicted papers and subtopic packs | a content smoke per paper (smoke94+), `cs_diff`, the maths checks |
+| 6 · CS P2 ✓ | **Exhaustive companion, CS Paper 2** (built 21 October 2026, frames 29p–29q): every leaf of 4.5–4.12 — 98 shapes, 317 worked variations with AQA mark points, 409 practice questions, the extended answers with levels; predicted papers, subtopic packs, practice sets and the 20-stem recognition drill | smoke94 |
+| 6+ | **Exhaustive companion, one paper per release:** CS P1, Maths P1, P2, P3, F201; each with its predicted papers and subtopic packs | a content smoke per paper (smoke95+), `cs_diff`, the maths checks |
 
 **Deploy** after each phase on your go-ahead; the pre-deploy checklist
 applies.
@@ -1221,6 +1222,35 @@ applies.
   its pace budget, the Exam Room's timing plan and every print; an
   assessment's own extra time wins.
 
+### Phase 6, CS Paper 2, as built: the deviations
+
+- **The data** is `js/data/exams/aqa-7517-2-45.js`, `-46`, `-47`, `-49`
+  and `-410.js` (one file per section group; 4.8 rides with 4.9), read by
+  `KOS.examDeep`. A shape keeps the catalogue's id where one exists; the
+  13 shapes the catalogue does not name (for example range against
+  precision, interrupts, port forwarding) carry their own pattern over
+  the index's tag text, so their real questions are linked too. The
+  catalogue itself is unchanged.
+- **Variations** number three or four a shape (every variation the index
+  shows, plus the obvious neighbours), not the whole alphabet. Method 1
+  against Method 2 appears where a real choice exists (floating point,
+  Boolean simplification, SQL joins), not on every variation.
+- **Sandboxes** reuse the leaf's existing lab, mounted on the page; no
+  new archetype labs or numeric generators were written for this paper.
+- **Practice** is six questions a leaf at three difficulties (409 in all);
+  the subtopic pack is five of them, easiest first, and opens as a short
+  paper (`pack-<ref>`); the whole set is `set-<ref>`. The plan's "three
+  questions at three difficulty steps per archetype" is met per leaf.
+- **Checks.** No Paper 2 question asks for C#, so `cs_diff` has nothing to
+  run; instead every float, two's complement, subnet and sound figure was
+  computed by script, each assembly program run on an interpreter of
+  AQA's instruction set, each Boolean simplification checked by truth
+  table, and each SQL statement run against SQLite.
+- **Worked** is per device (`state.ui.examWorked`), like the open
+  variation; it does not sync.
+- **Predicted papers** come to about 100 marks in about 50 short items
+  (AQA Paper 2's own count of parts), one extended answer last.
+
 ---
 
 ## 20. Risks
@@ -1240,7 +1270,8 @@ applies.
 
 ## Next step
 
-Phases 1–5 are built, with the AQA report notes, styled to design turn
-29. Next: phase 6, the exhaustive Companion, one paper per release (the
-nearest sitting first, R5). The deploy waits for the end of the hub.
+Phases 1–5 and phase 6's first paper (CS Paper 2) are built, with the
+AQA report notes, styled to design turn 29. Next: the exhaustive
+Companion for CS Paper 1, then Maths Papers 1–3 and F201, one paper per
+release (the nearest sitting first, R5).
 Edexcel's reports wait for their URLs.

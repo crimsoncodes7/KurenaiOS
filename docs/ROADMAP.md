@@ -1138,8 +1138,11 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > exam goal types, their templates and the Assistant's hub tools (smoke92);
 > the archetype catalogue, the assembled Companion, three playbooks, trend
 > and likelihood, the paper engine, the revision pack and accessibility
-> (smoke93). Next: phase 6, the exhaustive Companion, one paper per
-> release; the deploy comes at the end of the hub.
+> (smoke93); phase 6's first paper, the exhaustive Companion for CS
+> Paper 2 — every shape of 4.5–4.12 worked with AQA mark points, practice
+> sets, subtopic packs, predicted papers and the recognition drill
+> (smoke94). Next: the same for CS Paper 1, then Maths Papers 1–3 and
+> F201, one paper per release.
 
 - **What:** Study → Exams & Papers grows into the hub where assessments,
   readiness, practice evidence, revision planning and goals meet.

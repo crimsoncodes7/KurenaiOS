@@ -90,7 +90,8 @@
     "js/modules/examprac.js",
     "js/modules/examroom.js",
     "js/modules/examguide.js",
-    "js/modules/exampaperview.js"
+    "js/modules/exampaperview.js",
+    "js/modules/examdeep.js"
   ],
   "views": {
     "home": {},

@@ -44,7 +44,7 @@
   }
 
   function page(main, a, seed) {
-    seed = Math.max(1, parseInt(seed, 10) || 1);
+    seed = /^(pack|set)-/.test(String(seed || "")) ? String(seed) : Math.max(1, parseInt(seed, 10) || 1);
     var paper = P().build(a, seed);
     var s = sessFor(paper);
     if (s && !s.ended) return timed(main, a, paper, s);
@@ -54,7 +54,8 @@
   /* ================= the viewer (29t, 29u) ================= */
   function viewer(main, a, paper) {
     var u = U(), bp = paper.blueprint, showMs = false;
-    u.head(main, "guide", { right: u.btn("‹ Companion", "quiet sm", function () { KOS.show("exams", { tab: "guide", sub: a.id }); }) });
+    var leafRun = paper.kind === "pack" || paper.kind === "set";
+    u.head(main, "guide", { right: u.btn("‹ " + (leafRun || paper.kind === "predicted" ? "Full Companion" : "Companion"), "quiet sm", function () { if (leafRun || paper.kind === "predicted") KOS.show("exams", { id: a.id, tab: "deep" }); else KOS.show("exams", { tab: "guide", sub: a.id }); }) });
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.paper", style: "--s: " + u.hueOf(a) });
     main.appendChild(wrap);
     if (!paper.questions.length) {
@@ -63,7 +64,7 @@
     }
     var pages = el("div", { class: "k-ex-pages", "data-ui": "exams.pages" });
     var msB = u.btn("Mark scheme", "sm", function () { showMs = !showMs; msB.setAttribute("aria-pressed", showMs ? "true" : "false"); draw(); }, { "aria-pressed": "false", "data-ui": "exams.ms-toggle" });
-    var bar = el("div", { class: "k-ex-viewbar" }, [el("b", { text: paper.title + " · " + a.title }), el("span", { class: "k-ex-grow" }), msB,
+    var bar = el("div", { class: "k-ex-viewbar" }, [el("b", { text: paper.title + " · " + (leafRun ? paper.for : a.title) }), el("span", { class: "k-ex-grow" }), msB,
       u.btn("⎙ Print", "sm", function () { printPaper(a, paper, showMs); }, { "data-ui": "exams.paper-print" }),
       u.btn("Mark an untimed attempt", "sm", function () { tally(a, paper, { timed: false }); }, { "data-ui": "exams.tally-open" }),
       u.btn("Start timed", "primary sm", function () { start(a, paper); }, { "data-ui": "exams.timed-start" })]);
@@ -79,11 +80,14 @@
         u.kv("Time", hm(paper.mins) + (bp.extra ? " · " + hm(paper.allowed) + " with " + bp.extra + "% extra" : "")),
         u.kv("Budget", (Math.round(bp.perMark * 10) / 10) + " min a mark"),
         bp.paper ? u.muted("Shaped like " + bp.title + ": " + bp.marks + " marks, about " + bp.questions + " questions a sitting, short to long.", "k-ex-small") : u.muted("Shaped to the assessment's marks.", "k-ex-small")], "", "exams.paper-bp"),
-      u.card([u.chead("Where the questions come from", "")].concat([
+      u.card([u.chead("Where the questions come from", "")].concat(paper.kind === "practice" ? [
         el("p", { class: "k-ex-small", text: "Written by KurenaiOS from the topic banks for this scope, weighted to the paper's high-yield topics. Not a board paper." }),
-        el("p", { class: "k-ex-small k-ex-muted", text: paper.questions.filter(function (q) { return q.src; }).length + " of " + paper.questions.length + " items are modelled on a past paper, named in the mark scheme. Predicted papers, from the archetype bank, arrive with this paper's full Companion." })]), "", "exams.paper-src"),
-      u.card([u.chead("Another paper", "the same scope, a different draw")].concat([1, 2, 3, 4].filter(function (n) { return n !== paper.seed; }).slice(0, 3).map(function (n) {
-        return el("button", { type: "button", class: "k-ex-ptr k-link", "data-ui": "exams.paper-seed", onclick: function () { KOS.show("exams", { id: a.id, tab: "paper", sub: String(n) }); } }, ["Practice paper " + n, el("span", { class: "k-ex-grow" }), "›"]);
+        el("p", { class: "k-ex-small k-ex-muted", text: paper.questions.filter(function (q) { return q.src; }).length + " of " + paper.questions.length + " items are modelled on a past paper, named in the mark scheme." })] : [
+        el("p", { class: "k-ex-small", text: leafRun ? "The original practice questions of " + paper.title.replace(/^\S+ \S+ /, "") + " " + paper.for + ", easiest first, written by KurenaiOS. Not a board paper." :
+          "Original questions written by KurenaiOS for this paper's question shapes, weighted to its high-yield topics and to the shapes due by their pattern. Not a board paper, and not a prediction of one." }),
+        el("p", { class: "k-ex-small k-ex-muted", text: "The mark scheme names each question's shape." })]), "", "exams.paper-src"),
+      u.card([u.chead("Another paper", leafRun ? "the whole scope" : "the same scope, a different draw")].concat([1, 2, 3, 4].filter(function (n) { return n !== paper.seed; }).slice(0, 3).map(function (n) {
+        return el("button", { type: "button", class: "k-ex-ptr k-link", "data-ui": "exams.paper-seed", onclick: function () { KOS.show("exams", { id: a.id, tab: "paper", sub: String(n) }); } }, [(paper.kind === "practice" ? "Practice paper " : "Predicted paper ") + n, el("span", { class: "k-ex-grow" }), "›"]);
       }), [el("span", { class: "k-ex-grow" }), u.btn("Exams settings", "quiet sm", function () { G().settings(); })]), "k-ex-fill", "exams.paper-more")]);
     /* the paper is long: the side rides along with it (no dead column) */
     side.setAttribute("data-sticky", "");
@@ -113,7 +117,7 @@
     paper.questions.forEach(function (q, i) {
       out.push(el("section", { class: "k-ex-ppage k-ex-pq", "data-ui": "exams.ppage" }, [
         el("div", { class: "k-ex-pq-q" }, [el("b", { class: "k-ex-pq-n", text: String(q.n) }), el("div", {}, [q.ctx ? html("p", "", inline(q.ctx)) : null].concat(q.parts.map(function (p) {
-          return el("div", { class: "k-ex-pq-part" }, [el("span", { text: p.label }), html("span", "", inline(p.q)), el("b", { text: "(" + p.marks + ")" }), el("div", { class: "k-ex-lines", style: "--n: " + Math.min(18, p.marks * 2 + 2) })]);
+          return el("div", { class: "k-ex-pq-part" }, [el("span", { text: p.label }), el("span", {}, [p.code ? el("pre", { class: "k-ex-pre k-mono", text: p.code.join("\n") }) : null, html("span", "", inline(p.q))].filter(Boolean)), el("b", { text: "(" + p.marks + ")" }), el("div", { class: "k-ex-lines", style: "--n: " + Math.min(18, p.marks * 2 + 2) })]);
         })).filter(Boolean))]),
         el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }),
         foot(i + 2)]));
@@ -128,7 +132,7 @@
             return q.parts.map(function (p, j) {
               return el("tr", {}, [el("td", { text: (j ? "" : String(q.n)) + p.label }), html("td", "", (p.ms || []).map(inline).join("<br>")),
                 el("td", { text: p.chips.map(function (c) { return c.label === "✓" || /^\d+$/.test(c.label) ? "" : c.label; }).filter(Boolean).join(" ") || String(p.marks) }),
-                el("td", { text: j === q.parts.length - 1 && q.src ? "Modelled on " + q.src : "" })]);
+                el("td", { text: j === q.parts.length - 1 ? (q.src ? "Modelled on " + q.src : q.origin || "") : "" })]);
             });
           })))]),
         foot("MS")].filter(Boolean)));
@@ -201,7 +205,7 @@
         u.btn(s.flags[q.n] ? "⚑ Flagged" : "⚑ Flag", "quiet sm", function () { if (s.flags[q.n]) delete s.flags[q.n]; else s.flags[q.n] = 1; saveSess(s); KOS.rerender(); }, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tflag" })]),
       q.ctx ? html("p", "k-ex-tq-ctx", inline(q.ctx)) : null,
       el("div", { class: "k-ex-tq-parts", "data-state": s.paused ? "paused" : null }, q.parts.map(function (p) {
-        return el("div", { class: "k-ex-tq-part" }, [el("b", { text: p.label }), html("span", "", inline(p.q)), el("span", { class: "k-mono k-ex-muted", text: "(" + p.marks + ")" })]);
+        return el("div", { class: "k-ex-tq-part" }, [el("b", { text: p.label }), el("span", {}, [p.code ? el("pre", { class: "k-ex-pre k-mono", text: p.code.join("\n") }) : null, html("span", "", inline(p.q))].filter(Boolean)), el("span", { class: "k-mono k-ex-muted", text: "(" + p.marks + ")" })]);
       })),
       el("div", { class: "k-ex-tq-ans" }, [u.muted("Your working stays on paper; mark it after with the tally.", "k-ex-small"), el("div", { class: "k-ex-lines", style: "--n: 10" })]),
       el("div", { class: "k-ex-inline" }, [q.n > 1 ? u.btn("‹ Question " + (q.n - 1), "sm", function () { go(q.n - 1); }) : null, el("span", { class: "k-ex-grow" }),

@@ -598,6 +598,7 @@
     if (tab === "scope") return scopeBuilder(main, a);
     if (tab === "room" && KOS.examRoom) return KOS.examRoom(main, a);
     if (tab === "readiness" && KOS.examViews) return KOS.examViews.readiness(main, a.id);
+    if (tab === "deep" && KOS.examDeepView) return KOS.examDeepView.page(main, a, sub);
     if ((tab === "guide" || tab === "trend" || tab === "paper") && KOS.examGuide) return KOS.examGuide.page(main, a, tab, sub);
     overview(main, a);
   }

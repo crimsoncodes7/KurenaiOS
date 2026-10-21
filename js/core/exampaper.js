@@ -61,12 +61,65 @@
      paper's leaf weights (a leaf's mean marks a sitting, else even), at
      most two from one leaf, until the marks reach the blueprint's (or
      o.marks); then short to long */
+  function DD() { return KOS.examDeep; }
+  /* a leaf's own short paper from the full Companion: "pack-<ref>" (its
+     five-question subtopic pack) or "set-<ref>" (its whole practice set) */
+  function leafPaper(a, seed) {
+    var m = /^(pack|set)-(.+)$/.exec(String(seed)), pid = DD() ? DD().paperOf(a) : null;
+    if (!m || !pid) return null;
+    var d = DD().data(pid), l = d.byLeaf[m[2]];
+    if (!l) return null;
+    var items = m[1] === "pack" ? DD().pack(pid, l.ref).items : DD().bank(pid, [l.key]);
+    if (m[1] === "set") items.sort(function (x, y) { return x.d - y.d || x.marks - y.marks; });
+    var bp = blueprint(a);
+    var qs = number(items), sum = items.reduce(function (s, it) { return s + it.marks; }, 0);
+    return { aid: a.id, seed: String(seed), kind: m[1], title: (m[1] === "pack" ? "Subtopic pack " : "Practice set ") + l.ref, for: l.title, subject: a.subject, board: bp.board, blueprint: bp,
+      questions: qs, marks: sum, mins: Math.round(bp.perMark * sum * 100 / (100 + bp.extra)), allowed: Math.round(bp.perMark * sum) };
+  }
+  function number(picked) {
+    var LET = "abcdefghij";
+    return picked.map(function (it, i) {
+      return { n: i + 1, id: it.id, key: it.key, ref: it.ref, title: it.title, ctx: it.ctx, src: it.src, origin: it.origin || null, marks: it.marks,
+        parts: it.parts.map(function (p, j) { return { label: it.parts.length > 1 ? "(" + LET.charAt(j) + ")" : "", q: p.q, code: p.code || null, marks: p.marks, ms: p.ms, chips: chips(p) }; }) };
+    });
+  }
+  /* the shapes "due by pattern": in at least half the sittings, absent
+     from the last two — a predicted paper leans on them a little */
+  function dueShapes(pid) {
+    var ix = IX(), p = ix.papers[pid], sits = p.sittings.filter(function (s) { return s !== "specimen" && s !== "sample"; }).sort();
+    var last = sits.slice(-2), out = {};
+    DD().data(pid).archs.forEach(function (x) {
+      var f = DD().freq(pid, DD().instances(pid, x));
+      var recent = DD().instances(pid, x).some(function (q) { return last.indexOf(q.sitting) !== -1; });
+      if (f.enough && f.appear * 2 >= f.of && !recent) out[x.id] = true;
+    });
+    return out;
+  }
   function build(a, seed, o) {
     o = o || {};
     if (!a) return null;
+    var lp = leafPaper(a, seed);
+    if (lp) return lp;
+    seed = Math.max(1, parseInt(seed, 10) || 1);
     var bp = blueprint(a), target = o.marks || bp.marks, rand = C().rng(a.id + ":paper:" + seed);
     var w = E().paperWeights ? E().paperWeights(a) : null;
     var pool = [];
+    var pid = DD() ? DD().paperOf(a) : null;
+    /* PREDICTED: the full Companion's original questions, weighted to the
+       paper's high-yield leaves and its shapes due by pattern; one extended
+       answer, last */
+    if (pid) {
+      var due = dueShapes(pid), ext = null;
+      DD().bank(pid, E().leaves(a)).forEach(function (it) {
+        if (it.extended) { if (!ext || rand() < 0.5) ext = it; return; }
+        var lw = w && w.leaves[it.key] ? w.leaves[it.key].mean : 0.5;
+        pool.push({ it: it, w: (0.5 + lw) * (due[it.arch] ? 1.5 : 1) * (it.d === 3 ? 1.2 : 1), r: rand() });
+      });
+      var pr = pick(pool, ext ? target - ext.marks : target);
+      if (ext) pr.picked.push(ext), pr.sum += ext.marks;
+      return { aid: a.id, seed: seed, kind: "predicted", title: "Predicted paper " + seed, for: a.title, subject: a.subject, board: bp.board, blueprint: bp,
+        questions: number(pr.picked), marks: pr.sum, mins: Math.round(bp.perMark * pr.sum * 100 / (100 + bp.extra)), allowed: Math.round(bp.perMark * pr.sum) };
+    }
     E().leaves(a).forEach(function (k) {
       var info = C().leafInfo(k);
       C().itemsOf(info).forEach(function (it) {
@@ -75,8 +128,17 @@
         pool.push({ it: it, w: 0.5 + lw, r: rand() });
       });
     });
+    var pk = pick(pool, target), sum = pk.sum;
+    var qs = number(pk.picked);
+    return { aid: a.id, seed: seed, kind: "practice", title: "Practice paper " + seed, for: a.title, subject: a.subject, board: bp.board, blueprint: bp,
+      questions: qs, marks: sum, mins: Math.round(bp.perMark * sum * 100 / (100 + bp.extra)), allowed: Math.round(bp.perMark * sum) };
+  }
+
+  /* weighted order (an exponential race, −ln r ÷ weight, stable by seed),
+     at most two items a leaf, until the marks reach the target; then short
+     to long */
+  function pick(pool, target) {
     var picked = [], sum = 0, perLeaf = {};
-    /* weighted order: an exponential race (−ln r ÷ weight), stable by seed */
     pool.sort(function (x, y) { return (-Math.log(x.r || 1e-9) / x.w) - (-Math.log(y.r || 1e-9) / y.w); });
     pool.forEach(function (c) {
       if (sum >= target - 1) return;
@@ -85,15 +147,8 @@
       picked.push(c.it); sum += c.it.marks; perLeaf[c.it.key] = (perLeaf[c.it.key] || 0) + 1;
     });
     picked.sort(function (x, y) { return x.marks - y.marks || (x.id < y.id ? -1 : 1); });
-    var LET = "abcdefghij";
-    var qs = picked.map(function (it, i) {
-      return { n: i + 1, id: it.id, key: it.key, ref: it.ref, title: it.title, ctx: it.ctx, src: it.src, marks: it.marks,
-        parts: it.parts.map(function (p, j) { return { label: it.parts.length > 1 ? "(" + LET.charAt(j) + ")" : "", q: p.q, marks: p.marks, ms: p.ms, chips: chips(p) }; }) };
-    });
-    return { aid: a.id, seed: seed, title: "Practice paper " + seed, for: a.title, subject: a.subject, board: bp.board, blueprint: bp,
-      questions: qs, marks: sum, mins: Math.round(bp.perMark * sum * 100 / (100 + bp.extra)), allowed: Math.round(bp.perMark * sum) };
+    return { picked: picked, sum: sum };
   }
-
   /* mark points from a scheme's lines: "[M1 A1]", "M1", "(1)", "[2 marks]".
      When the lines do not add up to the part's marks, one chip a mark. */
   function chips(part) {
@@ -112,7 +167,9 @@
         });
         return;
       }
-      var m = /\[(\d+) marks?\]|\((\d+)\)/.exec(t);
+      /* a trailing "(n)" first, so a scheme line's own brackets (VARCHAR(20)) are not marks */
+      var m = /\((\d+)\)\s*$/.exec(t) || /\[(\d+) marks?\]|\((\d+)\)/.exec(t);
+      if (m && m.length === 2) m = [m[0], null, m[1]];
       var n = m ? +(m[1] || m[2]) : 0;
       for (var i = 0; i < n; i++) out.push({ id: li + ":" + out.length, label: "✓", value: 1, line: li });
     });
