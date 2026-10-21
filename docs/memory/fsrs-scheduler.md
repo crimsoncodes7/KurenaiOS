@@ -1,6 +1,6 @@
 ---
 name: fsrs-scheduler
-description: Roadmap 5.6 — flashcards and Code retrieval moved from SM-2 to one FSRS-6 core; phases 1–2 RELEASED 2026-10-20 (fbea5d5, sw kos-fsrs-1); next the Exams & Deadlines hub
+description: Roadmap 5.6 — flashcards and Code retrieval moved from SM-2 to one FSRS-6 core; phases 1–2 RELEASED 2026-10-20 (fbea5d5, sw kos-fsrs-1); phase 3 optimiser built 2026-10-22 on feat/after-fsrs, not deployed
 metadata:
   type: project
 ---
@@ -30,5 +30,7 @@ The order the user agreed for later work (roadmap 5.7): server runner + Web Push
 **Why:** Japanese, whose plan also wants FSRS, is blocked on the other account until Thursday 2026-10-22. It will reuse `KOS.fsrs` (its draft invariants were renumbered 112–118).
 
 **How to apply:** don't release without a go-ahead. Run `fsrs_check` after any edit to `fsrs.js`.
+
+**Phase 3 (2026-10-22):** the optimiser `KOS.fsrsOpt`, the Card stats "Fitted to your reviews" card (off under 1,000 logged reviews), `state.srsCfg.fit`, and the review log replicating to `kos_reviews` — on `feat/after-fsrs`, see [[after-fsrs-branch]].
 
 Related: [[japanese-study-space]], [[code-study-space]], [[project-branch-and-release-state]].

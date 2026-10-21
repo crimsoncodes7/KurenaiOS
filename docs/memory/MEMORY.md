@@ -13,5 +13,6 @@
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
 - [Run tests yourself](run-tests-yourself.md) — always run the full gate myself; never tell the user to run tests
 - [Act without asking](act-without-asking.md) — commit/push/tests/migrations automatically; only a production deploy needs a go-ahead
-- [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 RELEASED 2026-10-20 (fbea5d5, kos-fsrs-1); exam-day target 0.95; next Exams hub (user has additions)
+- [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 RELEASED 2026-10-20 (fbea5d5, kos-fsrs-1); phase 3 optimiser built on feat/after-fsrs
 - [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–6 (CS Paper 2) RELEASED 2026-10-21 (3b39ae1, kos-exams-1); next CS Paper 1; ask before each deploy
+- [After-FSRS branch](after-fsrs-branch.md) — feat/after-fsrs: Focus switch, FSRS3, closed-app runner, GitHub App; pushed, migrations applied, not deployed; account setup left to user
