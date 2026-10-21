@@ -678,6 +678,32 @@
     Object.keys(out).forEach(function (k) { if (out[k] === 0 || (Array.isArray(out[k]) && !out[k].length)) delete out[k]; });
     return Object.keys(out).length ? out : null;
   }
+  /* the Exams hub's facts (roadmap 5.8, 29w's Exams card): papers logged
+     in the period, the timed ones and their average, and calibration
+     (predicted against actual, from two). Counts and percentages only;
+     a zero is absent (invariant 77). */
+  function examFacts(input, p) {
+    var list = (input.tracker || []).filter(function (e) { return e && e.date >= p.start && e.date <= p.end; });
+    if (!list.length) return null;
+    var out = {}, by = {};
+    var withPct = list.filter(function (e) { return e.marks != null && e.max > 0; });
+    var timed = withPct.filter(function (e) { return e.timed; });
+    if (withPct.length) out.marked = withPct.length;
+    if (timed.length) {
+      out.timed = timed.length;
+      timed.forEach(function (e) { if (e.subject) by[e.subject] = (by[e.subject] || 0) + 1; });
+      out.bySubject = by;
+      out.avg = Math.round(timed.reduce(function (t, e) { return t + 100 * e.marks / e.max; }, 0) / timed.length);
+    }
+    var cal = withPct.filter(function (e) { return e.predicted != null; });
+    if (cal.length >= 2) out.calibration = Math.round(cal.reduce(function (t, e) { return t + 100 * (e.predicted - e.marks) / e.max; }, 0) / cal.length);
+    var redo = 0;
+    list.forEach(function (e) { (e.questions || []).forEach(function (q) { if (q.redo) redo++; }); });
+    if (redo) out.redo = redo;
+    var res = list.filter(function (e) { return e.role === "result"; }).length;
+    if (res) out.results = res;
+    return Object.keys(out).length ? out : null;
+  }
   function kurenai(input, p) {
     var t = input.tally || {}, chats = 0, sched = 0, areas = {};
     Object.keys(t).forEach(function (d) {
@@ -962,6 +988,7 @@
     var ku = kurenai(input, p); if (ku) f.kurenai = ku;
     var mo = moneyFacts(input, p); if (mo) f.money = mo;
     var go = goalFacts(input, p); if (go) f.goals = go;
+    var ex = examFacts(input, p); if (ex) f.exams = ex;
     if (input.prev) f.prev = input.prev;
     if (p.period !== "week") {
       var ma = mastery(input); if (ma) f.mastery = ma;
@@ -1040,6 +1067,7 @@
       completed: f.collection && f.collection.status ? (f.collection.status.finished || 0) : 0,
       moneyOut: f.money && f.money.outgoings ? f.money.outgoings : 0,
       moneyIn: f.money && f.money.income ? f.money.income : 0,
+      examAvg: f.exams && f.exams.avg != null ? f.exams.avg : null,
       dayAvg: f.study.of ? Math.round(f.study.mins / f.study.of) : null };
   }
 
@@ -1062,10 +1090,10 @@
     } else if (KOS.pacing && KOS.pacing.entries) {
       input.planRows = KOS.pacing.entries().filter(function (e) { return e.source === "personal" && e.wb >= p.start && e.wb <= p.end; });
     }
-    if (p.period !== "week") {
-      input.tracker = (KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : ((S.tracker || {}).entries || [])).slice();
-      input.itUnits = KOS.itUnits && KOS.itUnits.all ? KOS.itUnits.all() : [];
-    }
+    /* attempts feed every period's Exams card (5.8) and a longer period's
+       results */
+    input.tracker = (KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : ((S.tracker || {}).entries || [])).slice();
+    if (p.period !== "week") input.itUnits = KOS.itUnits && KOS.itUnits.all ? KOS.itUnits.all() : [];
     var rs = KOS.reportStore;
     function snaps(next) {
       if (!rs) { next(); return; }

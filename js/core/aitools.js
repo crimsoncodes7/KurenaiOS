@@ -2568,7 +2568,7 @@
   /* ======================================================================
      APP — navigation + context
      ====================================================================== */
-  var NAV_VIEWS = ["home", "subject", "ref", "review", "due", "cardstats", "tracker",
+  var NAV_VIEWS = ["home", "subject", "ref", "review", "due", "cardstats", "tracker", "exams",
     "personaldeck", "focus", "calendar", "tasks", "reminders", "assignments", "pacing",
     "notifications", "matrix", "anime", "books", "vn",
     "game", "seasonal", "mangaka", "wishlist", "goals", "shrine", "aniprofile",

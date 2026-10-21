@@ -29,8 +29,10 @@
          and an IT unit's date and its assessment's follow each other.
      H · START-BY is derived from tier, scope and weekly hours, and an
          override wins.
-     I · RENDERS WRITE NOTHING. The timetable, an assessment's page, the
-         Practice record and the editor draw without writing state.
+     I · RENDERS WRITE NOTHING. The timetable, an assessment's page, its
+         Scope Builder, the Practice record and the editor draw without
+         writing state (redrawn to design 29 in phase 3; smoke91 K holds
+         every phase 3 page).
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -250,8 +252,12 @@ step("I · the hub's pages draw without writing", async () => {
   K.show("exams"); await app.settle();
   assert(app.document.querySelectorAll("[data-ui~='exams.row']").length >= 2, "the timetable lists them");
   K.show("exams", a.id); await app.settle();
-  assert(app.document.querySelector("[data-ui~='exams.scope']"), "an assessment's scope");
-  assert(app.document.querySelector("[data-ui~='exams.start']"), "its start-by");
+  /* phase 3 (design 29e): the overview draws the hero, the signals and the
+     scope line; the scope itself is the Scope Builder's page (29d) */
+  assert(app.document.querySelector("[data-ui~='exams.ahero']"), "an assessment's hero");
+  assert(app.document.querySelector("[data-ui~='exams.signals']") || app.document.querySelector("[data-ui~='exams.quiz']") || a.tier === "deadline", "its signals");
+  K.show("exams", { id: a.id, tab: "scope" }); await app.settle();
+  assert(app.document.querySelector("[data-ui~='exams.scope-builder']"), "its Scope Builder");
   if (d) { K.show("exams", d.id); await app.settle(); assert(app.document.querySelector("[data-ui~='exams.milestones']"), "a deadline's milestones"); }
   K.show("tracker"); await app.settle();
   assert(app.document.querySelector("[data-ui~='exams.tabs']"), "Practice carries the hub's switch");
@@ -259,7 +265,7 @@ step("I · the hub's pages draw without writing", async () => {
   eq(strip(JSON.stringify(K.store.state)).exams, strip(before).exams, "no assessment written");
   eq(strip(JSON.stringify(K.store.state)).tracker, strip(before).tracker, "no attempt written");
   const ov = K.examEditor(a, {}, () => {}); await app.settle();
-  assert(app.document.querySelector("[data-ui~='exams.scope-builder']"), "the Scope Builder");
+  assert(app.document.querySelector("[data-ui~='exams.tiers']"), "the editor, tier first (29c)");
   ov.close();
   eq(app.errors, [], "no errors");
 });

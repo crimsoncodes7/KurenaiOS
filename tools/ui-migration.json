@@ -85,7 +85,10 @@
     "css/views/goals.css",
     "js/modules/money.js",
     "css/views/exams.css",
-    "js/modules/exams.js"
+    "js/modules/exams.js",
+    "js/modules/examviews.js",
+    "js/modules/examprac.js",
+    "js/modules/examroom.js"
   ],
   "views": {
     "home": {},

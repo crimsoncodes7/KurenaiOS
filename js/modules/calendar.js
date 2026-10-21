@@ -549,6 +549,15 @@
         });
       });
     }
+    /* the Exams hub (roadmap 5.8, 29w): a start-by date, outlined so it
+       never looks scheduled; read from the assessment each time */
+    if (KOS.exams && derivedShown("exams")) {
+      KOS.exams.upcoming(dateISO).forEach(function (a) {
+        var st = KOS.exams.startState(a);
+        if (!st || st.date !== dateISO || (st.state !== "future" && st.state !== "today")) return;
+        out.push({ kind: "startby", glyph: "⚐", title: "Start by · " + a.title, assessment: a, date: dateISO });
+      });
+    }
     if (KOS.goals && derivedShown("goals")) {
       KOS.goals.all().forEach(function (g) {
         if (g.archived || g.status !== "active") return;
@@ -565,8 +574,8 @@
     var chip = el("button", {
       class: "k-ev k-ev--derived", "data-ui": "cal.event cal.derived", "data-type": "derived", "data-kind": d.kind, type: "button",
       "data-state": d.state === "skip" ? "skipped" : d.state === "done" ? "confirmed" : null,
-      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", from " + (d.kind === "money" ? "Money" : "Goals"),
-      onclick: function (e) { e.stopPropagation(); derivedPanel(d); }
+      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", " + (d.kind === "startby" ? "derived from Exams" : "from " + (d.kind === "money" ? "Money" : "Goals")),
+      onclick: function (e) { e.stopPropagation(); if (d.kind === "startby") KOS.show("exams", d.assessment.id); else derivedPanel(d); }
     }, [
       el("span", { class: "k-ev-glyph", lang: "ja", "aria-hidden": "true", text: d.state === "done" ? "✓" : d.glyph }),
       el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: d.title + (fig ? " · " + fig : "") })
@@ -606,7 +615,8 @@
     }
     return el("section", { class: "k-card", "data-ui": "cal.derived-card" }, [
       el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Shown on the calendar" })]),
-      sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends")]);
+      sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends"),
+      KOS.exams ? sw("exams", "⚐", "Start-by dates from Exams") : null].filter(Boolean));
   }
 
   /* ---------------- sample data ---------------- */

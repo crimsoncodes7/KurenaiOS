@@ -947,7 +947,30 @@ color-scheme: dark;
 --ex-side-w: 340px;          /* the hub's and an assessment's side column */
 --ex-date-w: 58px;           /* a timetable row's date tile */
 --ex-q-w: 64px;              /* the per-question table's narrow columns */
---ex-dialog-w: 860px;
+--ex-dialog-w: 760px;         /* the assessment editor and the importer (29c, 29y) */
+--ex-dialog-sm: 560px;        /* the send, why and pack dialogs */
+--ex-side-sm: 280px;          /* the side column at 1080 */
+--ex-band-w: 168px;           /* a timetable row's band column (29b) */
+--ex-days-w: 52px;            /* a timetable row's days-left column */
+--ex-after-w: 300px;          /* the hero's "After that" column */
+--ex-mark: 220px;             /* the hero's kanji watermark */
+--ex-num-w: 44px;             /* a mono label column (a leaf ref, a number box) */
+--ex-ref-w: 64px;             /* a leaf ref column (4.9.4.4) */
+--ex-bar-w: 140px;            /* a recall or loss bar column */
+--ex-q-topic: 120px;          /* marks by question's topic column (29i) */
+--ex-ch-topic: 200px;         /* what changed's topic column, its floor (29aa) */
+--ex-ch-bar: 104px;           /* what changed's two bar columns */
+--ex-chart-h: 170px;          /* the trend chart and the question ramp */
+--ex-calib-max: 300px;        /* the calibration scatter */
+--ex-load-h: 180px;           /* a load-view day cell's height */
+--ex-photo-h: 168px;          /* teacher feedback's photo slot */
+--ex-room-ring: 400px;        /* the Exam Room's ring (29n) */
+--ex-room-ring-sm: 340px;
+--ex-room-ring-phone: 280px;
+--ex-room-side: 360px;        /* the Exam Room's side columns, at most */
+--ex-tick-h: 6px;             /* a recall or coverage bar */
+--ex-wide-w: 96px;            /* a spark, the hours field, a library file column */
+--ex-ums-w: 72px;             /* results day's UMS column */
 --gl-detail-side: 320px;
 
 /* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */

@@ -76,11 +76,18 @@
       if (a.tab && a.tab !== "week") return [a.tab];
       return a.wb ? [a.wb] : null;
     },
-    /* the Exams hub (roadmap 5.8): a tab (`#/exams/past`) or one
-       assessment (`#/exams/<id>`, `#/exams/<id>/practice`) */
+    /* the Exams hub (roadmap 5.8, frame 29a): a hub tab (`#/exams/plan`,
+       `#/exams/practice/analytics`, `#/exams/timetable/load`), one
+       assessment (`#/exams/<id>`, `#/exams/<id>/room`) or one attempt
+       (`#/exams/attempt/<uid>`, its marks `#/exams/attempt/<uid>/marks`);
+       bare `#/exams` is the landing (Season while exam season is on) */
     exams: function (a) {
-      if (a && typeof a === "object" && a.id) return [a.id].concat(a.tab && a.tab !== "overview" ? [a.tab] : []);
-      return typeof a === "string" && a && a !== "timetable" ? [a] : null;
+      if (!a) return null;
+      if (typeof a === "string") return [a];
+      if (a.attempt) return ["attempt", a.attempt].concat(a.page ? [a.page] : []);
+      if (a.id) return [a.id].concat(a.tab && a.tab !== "overview" ? [a.tab] : []);
+      if (a.tab) return [a.tab].concat(a.sub ? [a.sub] : []);
+      return null;
     },
     /* Money's views (`#/money/transactions`; Overview is bare) */
     money: function (a) { return typeof a === "string" && a && a !== "overview" ? [a] : null; },
@@ -90,6 +97,7 @@
       return typeof a === "string" && a && a !== "all" ? [a] : null;
     }
   };
+  var EXAM_TABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, season: 1, results: 1, past: 1 };
   var DECODE = {
     ref: function (p) {
       if (p.length < 2) return null;
@@ -103,7 +111,12 @@
     code: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
     money: function (p) { return p[0] || null; },
-    exams: function (p) { return !p[0] ? null : p[1] ? { id: p[0], tab: p[1] } : p[0]; },
+    exams: function (p) {
+      if (!p[0]) return null;
+      if (p[0] === "attempt") return p[1] ? { attempt: p[1], page: p[2] || null } : null;
+      if (EXAM_TABS[p[0]]) return p[1] ? { tab: p[0], sub: p[1] } : p[0];
+      return p[1] ? { id: p[0], tab: p[1] } : p[0];
+    },
     goals: function (p) { return !p[0] ? null : /^\d+$/.test(p[0]) ? { id: Number(p[0]) } : p[0]; },
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
     help: function (p) { return p[1] ? { section: p[0], entry: p[1] } : p[0] || null; },

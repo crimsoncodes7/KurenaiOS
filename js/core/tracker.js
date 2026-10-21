@@ -46,16 +46,16 @@
   /* the error tags (decision M): a fixed vocabulary, optional, many per
      question, never required to explain every lost mark */
   var TAGS = [
-    { v: "knowledge", label: "Didn't know it" },
-    { v: "recall", label: "Knew it, couldn't recall" },
-    { v: "method", label: "Wrong method" },
-    { v: "slip", label: "Slip" },
-    { v: "misread", label: "Misread the question" },
-    { v: "command", label: "Missed the command word" },
-    { v: "working", label: "Working not shown" },
-    { v: "notation", label: "Units, accuracy or notation" },
-    { v: "time", label: "Ran out of time" },
-    { v: "incomplete", label: "Stopped part-way" }
+    { v: "knowledge", label: "Didn't know it", short: "Knowledge" },
+    { v: "recall", label: "Knew it, couldn't recall", short: "Recall" },
+    { v: "method", label: "Wrong method", short: "Method" },
+    { v: "slip", label: "Slip", short: "Slip" },
+    { v: "misread", label: "Misread the question", short: "Misread" },
+    { v: "command", label: "Missed the command word", short: "Command word" },
+    { v: "working", label: "Working not shown", short: "Working" },
+    { v: "notation", label: "Units, accuracy or notation", short: "Notation" },
+    { v: "time", label: "Ran out of time", short: "Ran out of time" },
+    { v: "incomplete", label: "Stopped part-way", short: "Incomplete" }
   ];
   var TAG_IDS = TAGS.map(function (t) { return t.v; });
   function rid(n) {
@@ -159,6 +159,16 @@
       conditions: CONDITIONS.indexOf(pick("conditions", null)) !== -1 ? pick("conditions", null) : null,
       predicted: num(pick("predicted", null)),
       questions: questions,
+      /* teacher feedback (roadmap 5.8 §16.6): a note linked to question
+         labels, and a photo kept ON THIS DEVICE only (its id names a file
+         in kurenai-os-papers; the text syncs, the picture never does) */
+      feedback: (function (f) {
+        f = f && typeof f === "object" ? f : null;
+        if (!f) return null;
+        var note = String(f.note || "").slice(0, 2000), qs = (Array.isArray(f.qs) ? f.qs : []).map(function (q) { return String(q).slice(0, 16); }).filter(Boolean).slice(0, 40);
+        var photo = typeof f.photo === "string" && /^pp[a-z0-9]{4,30}$/.test(f.photo) ? f.photo : null;
+        return note || qs.length || photo ? { note: note, qs: qs, photo: photo, at: isFinite(f.at) ? f.at : Date.now() } : null;
+      })(pick("feedback", null)),
       added: b.added || Date.now(),
       updatedAt: Date.now()
     };
@@ -241,6 +251,8 @@
     return c && c.ref !== "redo" ? { sid: c.sid, ref: c.ref } : null;
   }
   function tagLabel(v) { var t = TAGS.filter(function (x) { return x.v === v; })[0]; return t ? t.label.toLowerCase() : v; }
+  /* the chip's word (design 29i): Knowledge, Recall, Method … */
+  function tagShort(v) { var t = TAGS.filter(function (x) { return x.v === v; })[0]; return t ? t.short : v; }
 
   /* a real result fills its assessment (invariant 124) */
   function afterResult(next, prev) {
@@ -295,6 +307,7 @@
     CONDITIONS: CONDITIONS.slice(),
     TAGS: TAGS,
     tagLabel: tagLabel,
+    tagShort: tagShort,
     redoCards: redoCards,
     redoTopic: redoTopic,
     forAssessment: forAssessment,

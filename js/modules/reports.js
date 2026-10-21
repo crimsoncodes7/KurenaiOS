@@ -748,7 +748,7 @@
     holder.appendChild(el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, pack([
       { node: studyCard(rep) }, { node: focusCard(rep) }, { node: plan || gov },
       { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) },
-      { node: moneyCard(rep) }, { node: goalsCard(rep) }, { node: kurenaiSees(rep) }
+      { node: examsCard(rep) }, { node: moneyCard(rep) }, { node: goalsCard(rep) }, { node: kurenaiSees(rep) }
     ])));
   }
   function weekTiles(f) {
@@ -998,11 +998,32 @@
       }))
     ]);
   }
+  /* the Exams card (roadmap 5.8, 29w): timed papers, their average against
+     the last report's, and calibration */
+  function examsCard(rep) {
+    var x = rep.facts.exams, prev = rep.facts.prev;
+    if (!x || !(x.timed || x.marked)) return null;
+    var by = x.bySubject || {};
+    var subj = Object.keys(by).map(function (k) { return (SUBJ_SHORT_RP[k] || k) + " " + by[k]; }).join(", ");
+    var cmp = x.avg != null && prev && prev.examAvg != null ? (x.avg > prev.examAvg ? "up from " : x.avg < prev.examAvg ? "down from " : "same as ") + prev.examAvg + "% last time" : null;
+    var calTxt = x.calibration == null ? null : x.calibration > 2 ? "you over-predict a little" : x.calibration < -2 ? "you under-predict a little" : "your predictions are close";
+    return card("Exams and papers", { className: "k-rp-card--exams", meta: rep.period === "week" ? "this week" : "this " + rep.period }, [
+      el("div", { class: "k-rp-extiles" }, [
+        x.timed ? el("div", {}, [el("span", { class: "k-muted", text: "Timed papers" }), mono(String(x.timed)), el("span", { class: "k-muted", text: subj })]) :
+          el("div", {}, [el("span", { class: "k-muted", text: "Papers marked" }), mono(String(x.marked))]),
+        x.avg != null ? el("div", {}, [el("span", { class: "k-muted", text: "Average" }), mono(x.avg + "%"), cmp ? el("span", { class: "k-muted", text: cmp }) : null].filter(Boolean)) : null,
+        x.calibration != null ? el("div", {}, [el("span", { class: "k-muted", text: "Calibration" }), mono((x.calibration > 0 ? "+" : x.calibration < 0 ? "−" : "") + Math.abs(x.calibration)), el("span", { class: "k-muted", text: calTxt })]) : null
+      ].filter(Boolean)),
+      x.redo || x.results ? el("p", { class: "k-rp-note", text: [x.redo ? W.plural(x.redo, "redo item") + " made" : null, x.results ? W.plural(x.results, "real result") + " logged" : null].filter(Boolean).join(" · ") + "." }) : null,
+      el("button", { type: "button", class: "k-link", "data-ui": "reports.exams-open", text: "Exams & Papers →", onclick: function () { KOS.show("exams", { tab: "practice", sub: "analytics" }); } })
+    ].filter(Boolean));
+  }
+  var SUBJ_SHORT_RP = { compsci: "CS", maths: "Maths", it: "IT" };
   /* what Kurenai's words are written from (27o) */
   function kurenaiSees(rep) {
-    if (!rep.facts.money && !rep.facts.goals) return null;
+    if (!rep.facts.money && !rep.facts.goals && !rep.facts.exams) return null;
     return card("What Kurenai sees", { className: "k-rp-card--sees", meta: "for the words" }, [
-      el("p", { class: "k-rp-note", text: "Totals in and out, the three biggest categories by amount, the subscriptions total, and how many goals were met or missed with their names. Never payees, notes, tags or the titles you bought." })]);
+      el("p", { class: "k-rp-note", text: "Totals in and out, the three biggest categories by amount, the subscriptions total, how many goals were met or missed with their names, and the count and average of timed papers, never their names. Never payees, notes, tags or the titles you bought." })]);
   }
   function governorCard(rep) {
     var f = rep.facts, g = f.gov, k = f.kurenai;
@@ -1494,7 +1515,7 @@
   KOS.reportsKit = {
     el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
     stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
-    bars: bars, kvRows: kvRows, codeCard: codeCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    bars: bars, kvRows: kvRows, codeCard: codeCard, examsCard: examsCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
     cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
     flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,
     open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip, reportTop: reportTop,

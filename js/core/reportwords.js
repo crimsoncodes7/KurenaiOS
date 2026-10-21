@@ -258,6 +258,13 @@
       if (f.money.subs) out.subscriptions_month = m2(f.money.subs);
       if (f.money.over) out.budgets_over = f.money.over.length;
     }
+    /* the Exams card (5.8): counts and percentages only */
+    if (f.exams) {
+      if (f.exams.timed) out.timed_papers = f.exams.timed;
+      if (f.exams.avg != null) out.timed_avg_pct = f.exams.avg;
+      if (f.exams.calibration != null) out.predicted_minus_actual_pct = f.exams.calibration;
+      if (f.exams.redo) out.redo_items = f.exams.redo;
+    }
     if (f.goals) {
       var met = (f.goals.periodsMet || 0) + (f.goals.reached ? f.goals.reached.length : 0);
       var missed = (f.goals.periodsMissed || 0) + (f.goals.missed ? f.goals.missed.length : 0);

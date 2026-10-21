@@ -4808,19 +4808,99 @@
     },
     {
      "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "exams.season",
+      "name": "Exam season",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/exams/season",
+      "state": [
+       "exams.prefs.season"
+      ],
+      "announce": [
+       "Exam season on. Season view is now the landing page."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "exams.log",
+      "name": "＋ Log a result",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Log a result"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "exams.add",
+      "name": "＋ New assessment",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New assessment"
+      ]
+     }
+    },
+    {
+     "key": {
       "ctx": "exams.tabs",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier exams & papers",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Timetable",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/exams"
+      "nav": "#/exams/timetable"
      }
     },
     {
      "key": {
-      "ctx": "exams.tabs",
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Readiness",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/exams/readiness"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Planner",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/exams/plan"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Practice",
       "tag": "button"
@@ -4830,16 +4910,46 @@
     },
     {
      "key": {
-      "ctx": "ui.page-actions",
-      "hooks": "",
-      "name": "+ Log entry",
+      "ctx": "exams.tabs",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later exams & papers",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "exams.pracviews",
+      "hooks": "ui.tab",
+      "name": "Attempts",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "exams.pracviews",
+      "hooks": "ui.tab",
+      "name": "Analytics",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "dialog": [
-       "Log exam"
-      ]
+      "nav": "#/exams/practice/analytics"
+     }
+    },
+    {
+     "key": {
+      "ctx": "exams.pracviews",
+      "hooks": "ui.tab",
+      "name": "Library",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/exams/practice/library"
      }
     },
     {
@@ -4926,7 +5036,7 @@
      "occurrence": 0,
      "effects": {
       "dialog": [
-       "Edit exam"
+       "Edit the record"
       ]
      }
     },
@@ -7411,6 +7521,20 @@
       "ctx": "cal.derived-card",
       "hooks": "cal.derived-toggle",
       "name": "Goal deadlines and period ends",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "calDerived"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.derived-card",
+      "hooks": "cal.derived-toggle",
+      "name": "Start-by dates from Exams",
       "tag": "input"
      },
      "occurrence": 0,
@@ -15101,6 +15225,20 @@
       "ctx": "notify.filters",
       "hooks": "notify.filter",
       "name": "Money notifications",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "notifyMuted"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "notify.filters",
+      "hooks": "notify.filter",
+      "name": "Exams: start-by, milestones, tests notifications",
       "tag": "input"
      },
      "occurrence": 0,

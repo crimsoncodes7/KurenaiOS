@@ -16,7 +16,8 @@ The design prompt is [design-prompts.md §13](design-prompts.md) (frames
 **Revision 2 (20 October 2026).** Decisions A–N approved, with five
 refinements folded in (marked **R1–R5** below). Section 16's suggestions 1,
 2, 4, 6, 7, 8, 9 and 10 are in the plan; 3 and 5 stay light and optional.
-**Phases 1 and 2 are built** (§19); the design frames come next.
+**Phases 1, 2 and 3 are built** (§19), phase 3 styled to design turn 29
+(frames 29a–29ac).
 
 | | Refinement | Where |
 |---|---|---|
@@ -1137,13 +1138,32 @@ The old `#/tracker` route aliases to the hub's Practice tab.
 | 0 | **Design** (prompt 13, frames 29a–29x) while the evidence pipeline is built | — |
 | 1 ✓ | **Core** (built 20 October 2026): `state.exams`, tiers, Scope Builder (presets, Pacing rule, tree, exclusions), migration from Calendar and IT, Calendar derived chips, the cap by scope, timetable and assessment pages, widened log dialog (index pick, per-question, tags, timed, predicted), redo items, start-by dates | smoke89 (model, migration, scope, cap, attempts, redo, render purity) |
 | 2 ✓ | **Evidence** (built, report notes included for the AQA reports still online; archetypes move to phase 5 with the Companion that uses them): `gen_exam_index.py` + `map.csv`, archetype first pass and review, boundaries table, examiner's reports fetch and notes | smoke90 (every question mapped and tagged, marks reconcile per paper, boundaries well-formed) |
-| 3 | **Readiness and decisions:** four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins, the post-mortem (§8.2), the Paper library (§4.5), timetable import (#1), clash and load view (#2), teacher feedback capture (#6), "what changed since the mock" (#8), results day (#9) | smoke91 |
+| 3 ✓ | **Readiness and decisions** (built 21 October 2026, to design turn 29): four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins, the post-mortem (§8.2), the Paper library (§4.5), timetable import (#1), clash and load view (#2), teacher feedback capture (#6), "what changed since the mock" (#8), results day (#9) | smoke91 |
 | 4 | **Goals:** `examId` links, five types, checklist rules, templates | smoke92 |
 | 5 | **Companion, assembled tier and playbooks:** archetype catalogue and tagging (§4.2), topic and retrieval guides, cram deck, rapid drill, drawer for all three boards, answer habits (#4), trend and likelihood pages, paper engine (blueprint, print, interactive, tally), revision pack export (#7), large print and extra time (#10) | smoke93 |
 | 6+ | **Exhaustive companion, one paper per release:** CS P2, CS P1, Maths P1, P2, P3, F201; each with its predicted papers and subtopic packs | a content smoke per paper (smoke94+), `cs_diff`, the maths checks |
 
 **Deploy** after each phase on your go-ahead; the pre-deploy checklist
 applies.
+
+### Phase 3 as built: the deviations
+
+- **The Companion tab** is not drawn yet. It arrives with the Companion in
+  phase 5, so no tab opens onto nothing.
+- **The Paper library** lives in its own IndexedDB, `kurenai-os-papers`, not
+  in the files store (§4.5). Your PDFs never sync and stay out of backups;
+  a connected folder is read through the File System Access API where the
+  browser has it.
+- **The send dialog** has no "To Today" section. The week's rows go to
+  Pacing (invariant 126) and Today reads them from there.
+- **Per-question minutes** are not recorded. An attempt keeps `mins` for
+  the whole paper only.
+- **On track** means every signal's ratio to the straight line from start-by
+  to the window's start is at least 1. Ready means every target is met
+  (coverage ≥ 95%, no red leaves, recall ≥ the exam-day target, the last
+  timed paper ≥ the target grade's cut or 70%).
+- **The topic-test coverage card.** The README's open decision is resolved
+  as a card, so the overview leaves no dead column.
 
 ---
 
@@ -1164,6 +1184,6 @@ applies.
 
 ## Next step
 
-Phases 1 and 2 are built, with the AQA report notes. Next: when design
-turn 29 lands, restyle the hub's pages to it and start phase 3. Edexcel's
-reports wait for their URLs.
+Phases 1–3 are built, with the AQA report notes, and phase 3 is styled to
+design turn 29. Next: deploy on your go-ahead, then phase 4 (Goals) when
+asked. Edexcel's reports wait for their URLs.

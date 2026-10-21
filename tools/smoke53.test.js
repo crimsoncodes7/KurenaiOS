@@ -200,7 +200,11 @@ step("the page lives under Archive: section filters, day groups, Mark all, devic
   const tab = (label) => tabs.find(t => t.querySelector("[data-ui~='part.text']").textContent === label);
   /* frame 16k: the Focus kind has its own chip between Productivity and
      Collection; a scheduled message's reply (12 October 2026) is Assistant */
-  assert(tabs.length === 10 && ["All", "Unread", "Study", "Productivity", "Focus", "Goals", "Money", "Collection", "Assistant", "Reports"].every(tab), "expected All / Unread / Study / Productivity / Focus / Goals / Money / Collection / Assistant / Reports");
+  /* roadmap 5.8 (29w): an Exams chip joins after Study, and only while
+     there is an assessment or an exam notice to filter */
+  const hasExams = !!window.KOS.exams && window.KOS.exams.all().length > 0;
+  const want = ["All", "Unread", "Study"].concat(hasExams ? ["Exams"] : [], ["Productivity", "Focus", "Goals", "Money", "Collection", "Assistant", "Reports"]);
+  assert(tabs.length === want.length && want.every(tab), "expected " + want.join(" / ") + ", got " + tabs.map(t => t.textContent).join(" / "));
   tab("Productivity").click();
   await tick(20);
   assert(main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length === 7, "calendar + reminders are Productivity: " + main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length);

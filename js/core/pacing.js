@@ -121,7 +121,10 @@
       /* a lesson moved off its timetabled day: lesson text → ISO weekday
          (1 Monday … 7 Sunday). Only overrides are stored; every other
          lesson takes its day from the class timetable (lessonPlan) */
-      lessonDays: cleanLessonDays(e.lessonDays)
+      lessonDays: cleanLessonDays(e.lessonDays),
+      /* a row the Exams planner sent (invariant 126): "exam:<assessment
+         id>", so it can be replaced or undone as a set; empty otherwise */
+      tag: /^exam:[a-z0-9]{1,24}$/.test(str(e.tag)) ? str(e.tag) : ""
     };
   }
   function cleanLessonDays(m) {

@@ -59,7 +59,11 @@
     goal:       { label: "Goals",      glyph: "標", section: "productivity", view: "goals" },
     /* Money (core/money.js): a trial ending tomorrow, a bill two days
        ahead, income a day late — id money:<rule>:<date> */
-    money:      { label: "Money",      glyph: "円", section: "productivity", view: "money" }
+    money:      { label: "Money",      glyph: "円", section: "productivity", view: "money" },
+    /* the Exams & Deadlines hub (roadmap 5.8, core/exams.js notices): a
+       start-by that is today, an overdue milestone, a test tomorrow, exam
+       season starting — id exam:<assessment>:<event> */
+    exam:       { label: "Exams",      glyph: "試", section: "study", view: "exams" }
   };
 
   function N() {
@@ -86,6 +90,12 @@
      the feed still records what happened. */
   function ui() { return store.state.ui = store.state.ui || {}; }
   function isMuted(kind) { var m = ui().notifyMuted; return !!(m && m[kind]); }
+  /* Exam season's "Quiet the rest" (roadmap 5.8 §12.1): while it is on,
+     notices from outside study wait — kept in the ledger, out of the feed,
+     the bell, the count and device alerts — and come back when it ends.
+     Exam, reminder and study notices are never held. */
+  function isHeld(kind) { return !!(KOS.exams && KOS.exams.quieted && KOS.exams.quieted(kind)); }
+  function held() { return N().items.filter(function (it) { return KINDS[it.kind] && !isMuted(it.kind) && isHeld(it.kind) && !N().read[it.id]; }).length; }
   function setMuted(kind, on) {
     if (!KINDS[kind]) return;
     var u = ui();
@@ -119,7 +129,7 @@
   function all() {
     var n = N();
     if (n.items.some(function (it) { return !it || !KINDS[it.kind]; })) { prune(n); store.save(); }
-    return n.items.filter(function (it) { return !isMuted(it.kind); }).sort(function (a, b) { return b.ts - a.ts; });
+    return n.items.filter(function (it) { return !isMuted(it.kind) && !isHeld(it.kind); }).sort(function (a, b) { return b.ts - a.ts; });
   }
   function isRead(item) { return !!N().read[item.id]; }
   function unread() {
@@ -265,7 +275,7 @@
     }
   };
   function deviceAlert(rec) {
-    if (!native.enabled() || isMuted(rec.kind) || inQuiet()) return;
+    if (!native.enabled() || isMuted(rec.kind) || isHeld(rec.kind) || inQuiet()) return;
     if (typeof document !== "undefined" && document.visibilityState === "visible" && document.hasFocus && document.hasFocus()) {
       /* the page is in front — the bell and the toast already say it */
       return;
@@ -304,6 +314,7 @@
     recordAiring: recordAiring, tick: tick, onChange: onChange,
     native: native, ago: ago,
     isMuted: isMuted, setMuted: setMuted, quiet: quiet, setQuiet: setQuiet, inQuiet: inQuiet,
+    isHeld: isHeld, held: held,
     _state: N
   };
 })();

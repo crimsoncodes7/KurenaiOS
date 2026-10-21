@@ -800,4 +800,10 @@ button.k-rp-crumb:hover { background: none; color: var(--text); }
 .k-rp-results-m { display: none; }
 .k-rp-tlist .k-chip { display: none; }
 }
+
+/* the Exams card (roadmap 5.8, 29w): three figures, each with its line */
+.k-rp-extiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--rp-tile-min), 1fr)); gap: var(--sp-12); }
+.k-rp-extiles > div { display: flex; flex-direction: column; gap: var(--sp-3); min-inline-size: 0; }
+.k-rp-extiles .k-mono { font-size: var(--fs-26); font-weight: var(--weight-semibold); letter-spacing: var(--track-head); }
+
 }

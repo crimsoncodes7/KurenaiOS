@@ -84,6 +84,10 @@
           items.forEach(function (it) { list.appendChild(row(it, { compact: true, before: close })); });
           panel.appendChild(list);
         }
+        /* Exam season's "Quiet the rest" (5.8): a quiet line says how many
+           notices from outside study are waiting */
+        var waiting = KOS.notify.held ? KOS.notify.held() : 0;
+        if (waiting) panel.appendChild(el("p", { class: "k-nt-pop-empty", "data-ui": "notify.held", text: "Exam season · " + waiting + (waiting === 1 ? " notice waits" : " notices wait") + " until it ends." }));
         panel.appendChild(el("button", { type: "button", class: "k-nt-pop-all", text: "View all notifications →",
           onclick: function () { close(); KOS.show("notifications"); } }));
       } });
@@ -120,11 +124,11 @@
   /* ---------------- the page (frame 14b) ---------------- */
   /* frame 16k: the Focus kind has its own chip, between Productivity and
      Collection */
-  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["focus", "Focus"], ["goal", "Goals"], ["money", "Money"], ["collection", "Collection"], ["assistant", "Assistant"], ["reports", "Reports"]];
+  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["exam", "Exams"], ["productivity", "Productivity"], ["focus", "Focus"], ["goal", "Goals"], ["money", "Money"], ["collection", "Collection"], ["assistant", "Assistant"], ["reports", "Reports"]];
   function matches(filter, it) {
     if (filter === "all") return true;
     if (filter === "unread") return !KOS.notify.isRead(it);
-    if (filter === "focus" || filter === "goal" || filter === "money") return it.kind === filter;
+    if (filter === "focus" || filter === "goal" || filter === "money" || filter === "exam") return it.kind === filter;
     return (KOS.notify.KINDS[it.kind] || {}).section === filter;
   }
   KOS.views.notifications = function (main, arg) {
@@ -153,7 +157,10 @@
     feed.appendChild(list);
     function buildTabs() {
       var items = KOS.notify.all();
-      return KOS.ui.tabs(FILTERS.map(function (f) {
+      return KOS.ui.tabs(FILTERS.filter(function (f) {
+        /* no assessments and no exam notice: no Exams chip (29w) */
+        return f[0] !== "exam" || filter === "exam" || items.some(function (it) { return it.kind === "exam"; }) || (KOS.exams && KOS.exams.all().length);
+      }).map(function (f) {
         var n = items.filter(function (it) { return matches(f[0], it); }).length;
         return { label: f[1], count: n || null, countTone: f[0] === "unread" ? null : "neutral", active: filter === f[0], onSelect: function () {
           if (filter === f[0]) return;
@@ -242,7 +249,7 @@
       ]));
     }
     /* the frame's filters: one switch per kind */
-    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan", focus: "Focus idle watch" };
+    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan", focus: "Focus idle watch", exam: "Exams: start-by, milestones, tests" };
     var lands = el("section", { class: "k-card k-nt-card", "aria-label": "Notification filters", "data-ui": "notify.filters" });
     function paintLands() {
       lands.innerHTML = "";

@@ -1125,16 +1125,17 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.8 Exams & Deadlines Hub ◆ (asked for 20 October 2026)
 
-> **Status (20 October 2026): phases 1–2 built on `feat/exams-hub`, not
+> **Status (21 October 2026): phases 1–3 built on `feat/exams-hub`, not
 > deployed.** The plan is [exams-plan.md](exams-plan.md), revision 2
 > (decisions A–N approved with refinements R1–R5). Built: the assessment
 > record and migration, the Scope Builder, the cap by scope, the widened
 > attempt with redo items, start-by dates (smoke89); the past-paper index,
-> boundaries and the report fetcher (smoke90). The pages use shared
-> components until design turn 29 ([design-prompts.md §13](design-prompts.md),
-> frames 29a–29x) lands. The AQA examiner's reports still online
-> (2022–23) are fetched and paraphrased into notes. Next: phase 3, styled to
-> design turn 29.
+> boundaries and the report fetcher (smoke90); readiness (four signals and
+> the band), analytics, the planner and its send, Exam Season and the Exam
+> Room, the joins, the post-mortem, the Paper library, timetable import,
+> the load view, teacher feedback, what changed since the mock and results
+> day (smoke91), styled to design turn 29 (frames 29a–29ac). Next: deploy on
+> the go-ahead, then phase 4 (Goals).
 
 - **What:** Study → Exams & Papers grows into the hub where assessments,
   readiness, practice evidence, revision planning and goals meet.

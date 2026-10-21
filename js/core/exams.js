@@ -44,6 +44,7 @@
   ];
   var LEVEL_TIER = { exam: "real_exam", mock: "mock", topic: "topic_test", retrieval: "retrieval_test" };
   var CALCULATORS = ["", "none", "allowed"];
+  var GRADE_LIST = ["A*", "A", "B", "C", "D", "E", "D*", "M", "P"];
   var DEFAULT_WEEKLY = 6;          // hours a week, when the ledger has nothing to say
 
   /* ---------------- small helpers ---------------- */
@@ -60,10 +61,12 @@
     return n;
   }
   function today() { return KOS.srs.todayISO(); }
+  /* route words an id must never spell (#/exams/<tab> beside #/exams/<id>) */
+  var RESERVED = { timetable: 1, readiness: 1, plan: 1, practice: 1, season: 1, results: 1, attempt: 1, past: 1, load: 1 };
   function rid(n) {
     var a = "abcdefghijkmnpqrstuvwxyz23456789", s = "";
     for (var i = 0; i < (n || 8); i++) s += a.charAt(Math.floor(Math.random() * a.length));
-    return s;
+    return RESERVED[s] ? rid(n) : s;
   }
   function tier(v) { return TIERS.filter(function (t) { return t.v === v; })[0] || TIERS[0]; }
   function presets() { return (window.KOS_EXAM_PRESETS && KOS_EXAM_PRESETS.papers) || []; }
@@ -141,7 +144,11 @@
       startBy: isDate(pick("startBy", null)) ? pick("startBy", null) : null,
       checklist: cleanList(pick("checklist", []), 40, function (c) {
         if (!c || !str(c.text)) return null;
-        return { id: str(c.id, 16) || rid(6), text: str(c.text, 160), done: !!c.done, at: c.done && isFinite(c.at) ? c.at : null };
+        /* `group`: prep (the overview's checklist) or day (On the day, and
+           the Exam Room's "Before you go in"); a default item's id is
+           "d:<key>" so ticking it once stores it (phase 3) */
+        return { id: str(c.id, 16) || rid(6), text: str(c.text, 160), done: !!c.done, at: c.done && isFinite(c.at) ? c.at : null,
+          group: c.group === "day" ? "day" : "prep" };
       }),
       milestones: cleanList(pick("milestones", []), 40, function (m) {
         if (!m || !str(m.text)) return null;
@@ -149,6 +156,15 @@
       }),
       alerts: cleanList(pick("alerts", []), 4, function (x) { var n = parseInt(x, 10); return isFinite(n) && n >= 0 ? n : null; }),
       notes: String(pick("notes", "") || "").slice(0, 4000),
+      /* the grade aimed for (phase 3): readiness's "last timed paper at or
+         above target" and the target gap read it; blank is 70% */
+      target: GRADE_LIST.indexOf(pick("target", "")) !== -1 ? pick("target", "") : "",
+      /* the predicted range as it stood just before the exam (written at
+         boot, never by a render), for results day's "predicted in May" */
+      predictedAtExam: (function (p) {
+        p = p && typeof p === "object" ? p : null;
+        return p && str(p.lo, 3) && str(p.hi, 3) ? { lo: str(p.lo, 3), hi: str(p.hi, 3), series: str(p.series, 12), at: isDate(p.at) ? p.at : null } : null;
+      })(pick("predictedAtExam", null)),
       result: res && typeof res === "object" ? {
         attempt: str(res.attempt, 20) || null,
         marks: num(res.marks, 0), max: num(res.max, 1), grade: str(res.grade, 20), at: isDate(res.at) ? res.at : null
@@ -197,11 +213,20 @@
     });
     return KOS.spec.resolve(out);
   }
+  /* the live rule stays inside the board paper's own scope when the
+     assessment has one (a Paper 2 mock grows by Paper 2 leaves only) */
   function ruleLeaves(a, from) {
     var p = a.scope && a.scope.pacing;
     if (!p) return [];
     if (p.frozen) return p.frozen.slice();
-    return pacingCovered(p.upTo || a.date || from || today(), a.subject);
+    return withinPreset(a, pacingCovered(p.upTo || a.date || from || today(), a.subject));
+  }
+  function withinPreset(a, list) {
+    var pr = a && a.preset ? preset(a.preset) : null;
+    if (!pr || !pr.include || !pr.include.length) return list;
+    var ok = {};
+    KOS.spec.resolve(pr.include).forEach(function (k) { ok[k] = true; });
+    return list.filter(function (k) { return ok[k]; });
   }
   /* the resolved scope (invariant 121): union first, exclusions last */
   function leaves(a, from) {
@@ -285,6 +310,12 @@
     var p = X().prefs;
     if (has(patch, "weeklyHours")) p.weeklyHours = num(patch.weeklyHours, 0, 100);
     if (has(patch, "seasonDays")) p.seasonDays = num(patch.seasonDays, 1, 120);
+    /* the Exam season switch (decision K): an override of the automatic
+       state, keyed to the season it was set in so it lapses with it */
+    if (has(patch, "season")) p.season = patch.season && (patch.season.mode === "on" || patch.season.mode === "off")
+      ? { mode: patch.season.mode, key: str(patch.season.key, 20) || "none" } : null;
+    if (has(patch, "quiet")) p.quiet = !!patch.quiet;
+    if (has(patch, "resultsDay")) p.resultsDay = isDate(patch.resultsDay) ? patch.resultsDay : null;
     store.save();
     return p;
   }
@@ -296,7 +327,7 @@
   function freeze(a, on) {
     var p = a && a.scope && a.scope.pacing;
     if (!p || p.frozen) return false;
-    p.frozen = pacingCovered(p.upTo || a.date || on || today(), a.subject);
+    p.frozen = withinPreset(a, pacingCovered(p.upTo || a.date || on || today(), a.subject));
     p.frozenAt = on || today();
     a.updatedAt = Date.now();
     return true;
@@ -509,6 +540,521 @@
     };
   }
 
+  /* ================================================================
+     PHASE 3 — readiness and decisions (plan §7–§12, §16). Pure reads of
+     the state; the arithmetic is KOS.examStats (core/examstats.js). A
+     render calls these and writes nothing (invariant 129, smoke91).
+     ================================================================ */
+  function S() { return KOS.examStats; }
+  /* a leaf's node, with its unit's title for the breakdowns (29j) */
+  function nodeOf(k) {
+    var p = KOS.spec.parse(k), n = p ? KOS.spec.node(p.subject, p.ref) : null;
+    if (!n) return null;
+    var u = n.unit ? KOS.spec.node(p.subject, n.unit) : null;
+    n.unitTitle = u ? u.title.replace(/^Fundamentals of (the )?/i, "").replace(/^./, function (c) { return c.toUpperCase(); }) : n.unit;
+    return n;
+  }
+  function presetOf(a) { return a && a.preset ? preset(a.preset) : null; }
+  function paperWeights(a) {
+    var pr = presetOf(a), ix = IX();
+    return pr && pr.index && ix && S() ? S().weights(pr.index, ix) : null;
+  }
+  /* the attempts that are practice for an assessment: linked to it, or a
+     past paper of its board paper (decision B's `source.ref`) */
+  function attemptsFor(a) {
+    if (!a || !KOS.tracker) return [];
+    var pr = presetOf(a), px = pr && pr.index ? pr.index + ":" : null;
+    return KOS.tracker.all().filter(function (e) {
+      return e.assessmentId === a.id || (px && e.source && e.source.kind === "past-paper" && String(e.source.ref || "").indexOf(px) === 0);
+    }).sort(function (x, y) { return x.date < y.date ? -1 : x.date > y.date ? 1 : 0; });
+  }
+  function leafCovered(k) {
+    var p = KOS.spec.parse(k);
+    if (!p) return false;
+    var pr = KOS.store.peekProgress ? KOS.store.peekProgress(p.subject, p.ref) : null;
+    if (pr && (pr.status === "started" || pr.status === "done")) return true;
+    return !!(KOS.pacing && KOS.pacing.entries().some(function (e) {
+      return e.done && e.subject === p.subject && (e.refs || []).indexOf(p.ref) !== -1;
+    }));
+  }
+  /* the first plan week still to come that reaches a leaf */
+  function nextInPacing(k, from) {
+    var p = KOS.spec.parse(k);
+    if (!p || !KOS.pacing) return null;
+    var wk = null;
+    KOS.pacing.entries().forEach(function (e) {
+      if (e.subject !== p.subject || (e.refs || []).indexOf(p.ref) === -1 || KOS.srs.addDays(e.wb, 6) < from) return;
+      if (!wk || e.wb < wk) wk = e.wb;
+    });
+    return wk;
+  }
+  function targetPct(a, rows) {
+    if (a && a.target && rows && rows.length) {
+      var cuts = rows.map(function (r) { return r.marks[a.target] != null ? 100 * r.marks[a.target] / r.max : null; }).filter(function (v) { return v != null; });
+      if (cuts.length) return Math.round(Math.max.apply(null, cuts));
+    }
+    return 70;
+  }
+  function boundsFor(a) {
+    var pr = presetOf(a);
+    return pr && S() ? S().boundaryRows(window.KOS_BOUNDARIES, pr.board, pr.qual, pr.paper) : [];
+  }
+  /* how far through the run-up we are: 0 at the start-by date, 1 at the
+     start of the 7–14 day window (a straight line to Ready, decision E) */
+  function runUp(a, now) {
+    var sb = startBy(a, now), t = tier(a.tier);
+    if (!sb || !a.date) return 1;
+    var end = KOS.srs.addDays(a.date, -Math.max(1, t.buffer));
+    var len = KOS.srs.daysBetween(sb.date, end);
+    if (len <= 0) return now >= end ? 1 : 0;
+    return Math.max(0, Math.min(1, KOS.srs.daysBetween(sb.date, now) / len));
+  }
+  /* which signals a tier reads (plan §7 "scaling by tier", frame 29f) */
+  function signalsOf(t) {
+    return t === "real_exam" || t === "mock" ? ["coverage", "rag", "recall", "practice"]
+      : t === "topic_test" ? ["coverage", "rag", "recall"]
+      : t === "retrieval_test" ? ["recall"] : [];
+  }
+
+  /* READINESS (invariant 123): four signals over the resolved scope, each
+     mark-weighted by the leaf's weight for the paper (uniform without an
+     index), each silent below its evidence, and the band with the one
+     signal holding it down. A retrieval quiz reads recall TODAY; every
+     other tier projects to the exam date through FSRS. */
+  function readiness(a, from) {
+    if (!a) return null;
+    var now = from || today(), t = a.tier, X = S();
+    if (t === "deadline") return deadlineBand(a, now);
+    var on = t === "retrieval_test" ? now : (a.date && a.date > now ? a.date : now);
+    var ls = leaves(a, now), w = paperWeights(a);
+    var wt = function (k) { return X.weightOf(w, k); };
+    var want = signalsOf(t), sig = {}, detail = { leaves: ls.length, on: on, weights: w };
+    var totalW = ls.reduce(function (s, k) { return s + wt(k); }, 0);
+
+    /* 1 · coverage: Pacing ticked, or the topic Started or Completed */
+    if (want.indexOf("coverage") !== -1) {
+      if (!ls.length) sig.coverage = { thin: true, why: "This scope has no leaves yet.", sub: "Pick a preset or include a topic" };
+      else {
+        var covW = 0, unmet = [];
+        ls.forEach(function (k) { if (leafCovered(k)) covW += wt(k); else unmet.push(k); });
+        sig.coverage = { value: totalW ? covW / totalW : 0, unmet: unmet.map(function (k) {
+          var n = nodeOf(k), wk = nextInPacing(k, now);
+          return { key: k, ref: n ? n.ref : k, title: n ? n.title : k, week: wk };
+        }), met: ls.length - unmet.length, of: ls.length };
+      }
+    }
+    /* 2 · RAG: the effective band, mark-weighted; unrated apart */
+    if (want.indexOf("rag") !== -1) {
+      var g = 0, am = 0, r = 0, u = 0, rated = 0, byUnit = {}, units = [];
+      ls.forEach(function (k) {
+        var p = KOS.spec.parse(k), n = nodeOf(k), b = KOS.rag && p ? KOS.rag.effective(p.subject, p.ref).band : null, x = wt(k);
+        if (b === "g") g += x; else if (b === "a") am += x; else if (b === "r") r += x; else u += x;
+        if (b) rated++;
+        var uk = n ? p.subject + ":" + n.unit : "?";
+        if (!byUnit[uk]) { byUnit[uk] = { key: uk, g: 0, a: 0, r: 0, u: 0 }; units.push(uk); }
+        byUnit[uk][b || "u"] += x;
+      });
+      if (rated < X.NEED.ragLeaves) sig.rag = { thin: true, why: "Fewer than 3 leaves rated.", sub: rated ? rated + " rated so far · rate topics as you study them" : "Rate topics as you study them", rated: rated };
+      else {
+        var tw = g + am + r + u || 1;
+        sig.rag = { green: g / tw, amber: am / tw, red: r / tw, unrated: u / tw, rated: rated, units: units.map(function (uk) {
+          var o = byUnit[uk], s2 = o.g + o.a + o.r + o.u || 1, pu = KOS.spec.parse(uk), n2 = pu ? KOS.spec.node(pu.subject, pu.ref) : null;
+          return { key: uk, ref: pu ? pu.ref : uk, title: n2 ? n2.title : uk, green: o.g / s2, amber: o.a / s2, red: o.r / s2, unrated: o.u / s2 };
+        }) };
+      }
+    }
+    /* 3 · recall on the day: R(on − last, s) per rated card (redo items
+       weigh their marks), averaged per leaf, then mark-weighted */
+    var perLeaf = {};
+    if (want.indexOf("recall") !== -1) {
+      var cards = 0, ratedCards = 0, sumR = 0, sumW = 0;
+      ls.forEach(function (k) {
+        var p = KOS.spec.parse(k);
+        if (!p) return;
+        var ls2 = 0, lw = 0, n = 0;
+        KOS.srs.cardsFor(p.subject, p.ref).forEach(function (c) {
+          cards++;
+          var m = KOS.srs.peek(c.key), mem = KOS.fsrs.recordMemory(m);
+          if (!mem || !m.last) return;
+          ratedCards++;
+          var rr = KOS.fsrs.retrievability(Math.max(0, KOS.srs.daysBetween(m.last, on)), mem.s), cw = KOS.srs.weightOf(c);
+          ls2 += rr * cw; lw += cw; n++;
+        });
+        if (lw) { perLeaf[k] = { r: ls2 / lw, n: n }; sumR += perLeaf[k].r * wt(k); sumW += wt(k); }
+      });
+      if (ratedCards < X.NEED.recallCards) sig.recall = { thin: true, why: "Appears after 20 rated cards in scope.", sub: ratedCards + " rated so far · " + cards + " cards in scope", rated: ratedCards, cards: cards };
+      else sig.recall = { value: sumR / sumW, rated: ratedCards, cards: cards, on: on, today: on === now,
+        weakest: Object.keys(perLeaf).sort(function (x, y) { return perLeaf[x].r - perLeaf[y].r; }).map(function (k) {
+          var n = nodeOf(k); return { key: k, ref: n ? n.ref : k, title: n ? n.title : k, r: perLeaf[k].r, n: perLeaf[k].n };
+        }),
+        noEvidence: ls.filter(function (k) { return !perLeaf[k]; }).length };
+    }
+    /* 4 · timed practice: linked attempts or the board paper's sittings */
+    var rows = boundsFor(a), tPct = targetPct(a, rows), atts = attemptsFor(a);
+    if (want.indexOf("practice") !== -1) {
+      var timed = atts.filter(function (e) { return e.timed && e.role !== "result" && KOS.tracker.pct(e) != null; });
+      if (!timed.length) sig.practice = { thin: true, why: "No timed paper yet.", sub: "The first one sets the baseline" };
+      else {
+        var list = timed.map(function (e) { return { pct: KOS.tracker.pct(e), date: e.date, label: e.paper || e.topic || "", mins: e.mins, uid: e.uid }; });
+        sig.practice = { n: list.length, last: list[list.length - 1].pct, list: list, predicted: X.predicted(list, rows), targetPct: tPct };
+      }
+    }
+    var f = runUp(a, now);
+    var target = KOS.srs.examTarget() || 0.9;
+    var b = t === "retrieval_test" ? null : X.band(sig, { target: target, targetPct: tPct, f: f });
+    return { tier: t, signals: sig, band: b, f: f, target: target, targetPct: tPct, perLeaf: perLeaf, attempts: atts, bounds: rows, detail: detail };
+  }
+  /* a deadline has no readiness model: At risk comes from an overdue
+     milestone, or from more estimated work than days left (§11) */
+  function deadlineBand(a, now) {
+    var ms = a.milestones || [];
+    var over = ms.filter(function (m) { return !m.done && m.date && m.date < now; });
+    var done = ms.filter(function (m) { return m.done; }).length;
+    var asg = a.links.assignmentId != null && KOS.assignments && KOS.assignments.get ? KOS.assignments.get(a.links.assignmentId) : null;
+    var left = asg && asg.estimateMins ? Math.max(0, asg.estimateMins - (asg.actualMins || 0)) : 0;
+    var days = a.date ? KOS.srs.daysBetween(now, a.date) : null;
+    var tight = left && days != null && left / 60 > Math.max(0, days) * 1.5;
+    var b = !ms.length && !left ? null : over.length || tight
+      ? { band: "risk", limit: "milestones", limitName: over.length ? "milestones" : "time left", why: over.length ? "A milestone is overdue." : "More work is estimated than the days left allow." }
+      : { band: "on", limit: null, why: "Every milestone is on its date." };
+    return { tier: "deadline", signals: {}, band: b, milestones: { done: done, of: ms.length, overdue: over }, left: left };
+  }
+
+  /* where the next ten marks come from (§9.4), for an assessment */
+  function nextMarks(a, opts) {
+    var rd = readiness(a);
+    if (!rd || a.tier === "deadline") return null;
+    var w = paperWeights(a), ls = leaves(a);
+    var lost = {}, marked = 0, reviews = 0;
+    rd.attempts.forEach(function (e) {
+      var any = false;
+      (e.questions || []).forEach(function (q) {
+        if (q.max == null || q.got == null) return;
+        any = true;
+        var share = q.refs && q.refs.length ? 1 / q.refs.length : 0;
+        (q.refs || []).forEach(function (k) {
+          var r = lost[k] || (lost[k] = { lost: 0, avail: 0, tags: {}, qs: [] });
+          r.lost += (q.max - q.got) * share; r.avail += q.max * share;
+          (q.tags || []).forEach(function (t2) { r.tags[t2] = (r.tags[t2] || 0) + 1; });
+          if (q.got < q.max) r.qs.push({ q: q.q, sitting: e.source && e.source.ref ? String(e.source.ref).split(":")[1] : null, lost: q.max - q.got, max: q.max });
+        });
+      });
+      if (any) marked++;
+    });
+    if (rd.signals.recall && !rd.signals.recall.thin) reviews = rd.signals.recall.rated;
+    if (!marked && reviews < S().NEED.nextReviews) return { thin: true, marked: marked, reviews: reviews,
+      why: "Needs one marked paper or 50 rated reviews in scope." };
+    var items = ls.map(function (k) {
+      var p = KOS.spec.parse(k), n = nodeOf(k), lw = w && w.leaves[k], lo = lost[k];
+      return { key: k, title: n ? n.title : k, ref: n ? n.ref : k, weight: lw ? lw.mean : null, rate: lw ? lw.rate : null,
+        appear: lw ? lw.appear : null, of: lw ? lw.of : null, due: lw ? lw.due : false,
+        recall: rd.perLeaf[k] ? rd.perLeaf[k].r : null, rag: KOS.rag && p ? KOS.rag.effective(p.subject, p.ref).band : null,
+        lost: lo ? Math.round(lo.lost) : 0, avail: lo ? Math.round(lo.avail) : 0, tags: lo ? lo.tags : {}, questions: lo ? lo.qs : [] };
+    });
+    return { items: S().nextMarks(items, opts), marked: marked, reviews: reviews, sittings: w ? w.sittings.length : 0 };
+  }
+
+  /* ---------------- Exam Season (§12.1, decision K) ----------------
+     On by itself while a real exam is within `seasonDays` (28) and until
+     the series' last one has passed; the switch overrides it, keyed to
+     the season it was set in (the series' last date, or "none") so an
+     override lapses with its season. */
+  function season(from) {
+    var now = from || today(), days = X().prefs.seasonDays || 28;
+    var reals = upcoming(now).filter(function (a) { return a.tier === "real_exam"; });
+    var start = reals.filter(function (a) { return KOS.srs.daysBetween(now, a.date) <= days; })[0] || null;
+    var series = [];
+    if (start) {
+      series.push(start);
+      reals.slice(reals.indexOf(start) + 1).forEach(function (a) {
+        if (KOS.srs.daysBetween(series[series.length - 1].date, a.date) <= days) series.push(a);
+      });
+    }
+    var auto = !!start, key = auto ? series[series.length - 1].date : "none";
+    var o = X().prefs.season;
+    var override = o && o.key === key ? o.mode : null;
+    var on = override ? override === "on" : auto;
+    return { on: on, auto: auto, override: override, key: key, exams: series, next: series[0] || reals[0] || null,
+      last: series.length ? series[series.length - 1] : null, quiet: !!(on && X().prefs.quiet) };
+  }
+  function setSeason(on) {
+    var s = season();
+    setPrefs({ season: on === s.auto ? null : { mode: on ? "on" : "off", key: s.key } });
+    return season();
+  }
+  /* "Quiet the rest" (§12.1): while the season is on, notices from
+     outside study wait; exam, reminder and study notices never do */
+  var QUIET_KINDS = { airing: 1, wishlist: 1, money: 1, goal: 1, reports: 1, assistant: 1 };
+  function quieted(kind) { return !!QUIET_KINDS[kind] && season().quiet; }
+
+  /* ---------------- the checklist (29e, 29n) ----------------
+     Auto items tick themselves from the evidence and cannot be unticked by
+     hand; default items are offered by tier and stored once ticked; the
+     user's own items are stored. `day` items are On the day's and the
+     Exam Room's "Before you go in". */
+  function checklist(a) {
+    if (!a || a.tier === "deadline" || a.tier === "retrieval_test") return [];
+    var stored = {};
+    (a.checklist || []).forEach(function (c) { stored[c.id] = c; });
+    var atts = attemptsFor(a);
+    var out = [];
+    function auto(id, text, done, why) { out.push({ id: id, text: text, done: !!done, auto: true, group: "prep", why: why }); }
+    function def(id, text, group) { var s = stored[id]; out.push({ id: id, text: text, done: !!(s && s.done), auto: false, group: group, def: true }); }
+    auto("a:scope", "Scope set", leaves(a).length > 0, "Ticks when the scope has at least one topic");
+    if (a.tier === "real_exam" || a.tier === "mock") {
+      if (a.subject === "maths") def("d:booklet", "Formula booklet read once", "prep");
+      auto("a:timed1", "First timed paper", atts.some(function (e) { return e.timed; }), "Ticks with your first timed paper");
+      if (a.tier === "real_exam") auto("a:marked4", "Four marked papers", atts.filter(function (e) { return e.marks != null; }).length >= 4, "Ticks with four marked papers");
+      if (a.calculator === "allowed") def("d:calc", "Calculator in exam mode", "prep");
+      def("d:memorise", "Must-memorise list drilled", "prep");
+      if (a.tier === "real_exam") auto("a:confirmed", "Timetable confirmed by the board", !!a.date && !a.provisional, "Ticks when the date is no longer provisional");
+      def("d:pens", "Black pens", "day");
+      def("d:pencil", "Pencil and ruler", "day");
+      if (a.tier === "real_exam") def("d:cand", "Candidate number", "day");
+      def("d:water", "Water, label off", "day");
+      def("d:phone", "Phone off and away", "day");
+    } else if (a.tier === "topic_test") {
+      def("d:notes", "Notes read once", "prep");
+      def("d:cram", "Cram deck done", "prep");
+    }
+    (a.checklist || []).forEach(function (c) { if (c.id.indexOf("d:") !== 0) out.push({ id: c.id, text: c.text, done: c.done, auto: false, group: c.group || "prep" }); });
+    return out;
+  }
+  /* a click on a checklist box (never a render): stores a default the
+     first time; an auto item refuses */
+  function tickCheck(id, itemId, done) {
+    var a = get(id);
+    if (!a || itemId.indexOf("a:") === 0) return null;
+    var items = checklist(a).filter(function (c) { return c.id === itemId; })[0];
+    if (!items) return null;
+    var list = (a.checklist || []).map(function (c) { return Object.assign({}, c); });
+    var cur = list.filter(function (c) { return c.id === itemId; })[0];
+    if (cur) { cur.done = !!done; cur.at = done ? Date.now() : null; }
+    else list.push({ id: itemId, text: items.text, done: !!done, at: done ? Date.now() : null, group: items.group });
+    return update(id, { checklist: list });
+  }
+  function addCheck(id, text, group) {
+    var a = get(id);
+    if (!a || !str(text)) return null;
+    return update(id, { checklist: (a.checklist || []).concat([{ id: rid(6), text: str(text, 160), done: false, group: group === "day" ? "day" : "prep" }]) });
+  }
+
+  /* ---------------- the timetable importer (§16.1, frame 29y) ----------------
+     Each pasted or .ics paper is matched to a board preset and to an
+     assessment you already have: same, moves date (both dates), new, or
+     not yours. Import never deletes; a date stays provisional until the
+     board confirms. */
+  function presetFor(p) {
+    var list = presets().filter(function (x) { return x.qual === p.qual && (p.unit ? x.itUnit === p.unit : String(parseInt(String(x.paper).replace(/\D/g, ""), 10)) === p.paper); });
+    return list[0] || null;
+  }
+  function importMatch(parsed, from) {
+    var now = from || today();
+    return (parsed || []).map(function (p, i) {
+      var pr = presetFor(p);
+      var mine = all().filter(function (a) {
+        return !a.archived && !a.result && ((pr && a.preset === pr.id) || (p.unit && a.links.itUnit === p.unit)) && (!a.date || a.date >= KOS.srs.addDays(now, -1));
+      })[0] || null;
+      var status, why;
+      var taking = pr && (pr.level !== "AS" || all().some(function (a) { return a.preset && preset(a.preset) && preset(a.preset).level === "AS"; }));
+      if (p.unit && KOS.itUnits) { var u = KOS.itUnits.get(p.unit); taking = !!(u && u.status === "sitting"); }
+      if (mine) { status = mine.date === p.date ? "same" : "moves"; why = mine.date === p.date ? "already in your timetable" : "matches your " + mine.title; }
+      else if (pr && taking) { status = "new"; why = "a new assessment from the board's paper"; }
+      else { status = "notyours"; why = pr ? (pr.level === "AS" ? "an AS paper; you take the A-level" : "not one of your units") : "not a paper you take"; }
+      return { i: i, parsed: p, preset: pr ? pr.id : null, assessment: mine ? mine.id : null, from: mine ? mine.date : null,
+        status: status, why: why, pick: status !== "notyours" && status !== "same", title: pr ? pr.title : p.title };
+    });
+  }
+  function importApply(rows) {
+    var added = 0, moved = 0;
+    (rows || []).forEach(function (r) {
+      if (!r.pick) return;
+      var p = r.parsed, time = p.time || (p.session === "pm" ? "13:30" : p.session === "am" ? "09:00" : null);
+      if (r.status === "moves" && r.assessment) { update(r.assessment, { date: p.date, time: time || undefined, provisional: true }); moved++; }
+      else if (r.status === "new" && r.preset) {
+        var pr = preset(r.preset);
+        add({ preset: pr.id, tier: "real_exam", date: p.date, time: time, durationMins: p.mins || pr.mins || null, provisional: true,
+          links: pr.itUnit ? { itUnit: pr.itUnit } : {} });
+        added++;
+      }
+    });
+    return { added: added, moved: moved };
+  }
+
+  /* ---------------- the load view (§16.2) ----------------
+     Real exams, mocks and deadlines over the season (or the next eight
+     weeks), through KOS.examStats.load. */
+  function loadView(from) {
+    var now = from || today(), sn = season(now);
+    var end = sn.on && sn.last ? sn.last.date : KOS.srs.addDays(now, 56);
+    var items = upcoming(now).filter(function (a) { return (a.tier === "real_exam" || a.tier === "mock" || a.tier === "deadline") && a.date <= end; })
+      .map(function (a) { return { id: a.id, date: a.date, title: a.title, subject: a.subject, tier: a.tier, time: a.time }; });
+    return S().load(items);
+  }
+
+  /* ---------------- results (§8.4, §16.9) ----------------
+     The predicted range at the last moment before each real exam, kept so
+     results day can set the grade beside it; written at boot. */
+  function predictPass() {
+    var now = today(), n = 0;
+    all().forEach(function (a) {
+      if (a.tier !== "real_exam" || !a.date) return;
+      var d = KOS.srs.daysBetween(now, a.date);
+      if (d > 14 || (d < 0 && a.predictedAtExam)) return;
+      var rd = readiness(a), pr = rd && rd.signals.practice && rd.signals.practice.predicted;
+      if (!pr || pr.thin) return;
+      var next = { lo: pr.lo, hi: pr.hi, series: pr.seriesText || "", at: now };
+      var cur = a.predictedAtExam;
+      if (cur && cur.lo === next.lo && cur.hi === next.hi) return;
+      a.predictedAtExam = next; a.updatedAt = Date.now(); n++;
+    });
+    if (n) store.save();
+    return n;
+  }
+  /* a subject's grade on results day (the board issues one per subject) */
+  function setSubjectResult(series, subject, patch) {
+    var x = X();
+    if (!x.results || typeof x.results !== "object") x.results = {};
+    var s = x.results[series] = x.results[series] || {};
+    if (patch == null) delete s[subject];
+    else s[subject] = { grade: str(patch.grade, 4), remark: !!patch.remark, at: isDate(patch.at) ? patch.at : today() };
+    store.save();
+    return s[subject] || null;
+  }
+  function subjectResults(series) { var r = X().results; return (r && r[series]) || {}; }
+  /* the summer series: real exams dated May–July of a year */
+  function seriesOf(a) { return a && a.date && /-0[5-7]-/.test(a.date) ? a.date.slice(0, 4) + "-06" : a && a.date ? a.date.slice(0, 7) : null; }
+
+  /* the first study session on the scope since the assessment was made:
+     the start-by marker reads "Started Mon 19 Oct" once there is one, and
+     a passed start-by goes away (29-primitives) */
+  function startedOn(a) {
+    if (!a || !KOS.sessions || !KOS.sessions.all) return null;
+    var ls = {}, since = new Date(a.created || 0).toISOString().slice(0, 10), first = null;
+    leaves(a).forEach(function (k) { ls[k] = true; });
+    if (!Object.keys(ls).length) return null;
+    KOS.sessions.all().forEach(function (s) {
+      if (!s || !s.date || s.date < since || s.type === "media" || s.type === "todo") return;
+      var keys = KOS.spec.resolve(s.refs && s.refs.length ? s.refs : s.ref && s.subject ? [s.subject + ":" + s.ref] : []);
+      if (keys.some(function (k) { return ls[k]; }) && (!first || s.date < first)) first = s.date;
+    });
+    return first;
+  }
+  /* the start-by marker's state: future ⚐, today, met ✓ (studied), or
+     passed ▼ (and not yet studied) — null past the date or with none */
+  function startState(a, from) {
+    var now = from || today();
+    if (!a || !a.date || a.date < now || a.result) return null;
+    var sb = startBy(a, now);
+    if (!sb) return null;
+    var st = startedOn(a);
+    if (st && st <= now && sb.date <= now) return { state: "met", date: st, sb: sb };
+    if (sb.date === now) return { state: "today", date: sb.date, sb: sb };
+    if (sb.date < now) return { state: "passed", date: sb.date, sb: sb, ago: KOS.srs.daysBetween(sb.date, now) };
+    return { state: "future", date: sb.date, sb: sb, in: KOS.srs.daysBetween(now, sb.date), started: st };
+  }
+  /* the Scope Builder's Freeze (29d): the live rule fixed at today, by
+     hand; Unfreeze lets it grow again while the assessment is ahead */
+  function freezeNow(id) {
+    var a = get(id);
+    if (!a || !a.scope.pacing || a.scope.pacing.frozen) return null;
+    freeze(a, today());
+    store.save();
+    return a;
+  }
+  function unfreeze(id) {
+    var a = get(id);
+    if (!a || !a.scope.pacing || !a.scope.pacing.frozen || (a.date && a.date < today()) || a.result) return null;
+    a.scope.pacing.frozen = null; a.scope.pacing.frozenAt = null; a.updatedAt = Date.now();
+    store.save();
+    return a;
+  }
+  /* "4.5–4.9, 4.11" — a list of unit refs with consecutive runs folded */
+  function unitRuns(refs) {
+    var out = [], run = [];
+    function key(r) { return /^([A-Z]?)(\d+)\.(\d+)$/.exec(r) || /^([A-Z]?)(\d+)$/.exec(r); }
+    function flush() { if (run.length) out.push(run.length > 2 ? run[0].r + "–" + run[run.length - 1].r : run.map(function (x) { return x.r; }).join(", ")); run = []; }
+    refs.forEach(function (r) {
+      var m = key(r);
+      if (!m) { flush(); out.push(r); return; }
+      var x = { r: r, m: m }, prev = run[run.length - 1];
+      var n = +(m[3] || m[2]), pn = prev ? +(prev.m[3] || prev.m[2]) : null;
+      if (prev && prev.m[1] === m[1] && (m[3] ? prev.m[2] === m[2] : !prev.m[3]) && n === pn + 1) run.push(x);
+      else { flush(); run.push(x); }
+    });
+    flush();
+    return out.join(", ");
+  }
+  /* the scope summary a row and a hero print (29b): the rule or the picks,
+     by unit, with what is excluded */
+  function scopeSummary(a) {
+    if (!a || a.tier === "deadline") return a && a.paper ? a.paper : "";
+    var ls = leaves(a), units = {}, order = [];
+    ls.forEach(function (k) { var p = KOS.spec.parse(k), n = p && KOS.spec.node(p.subject, p.ref); if (n && !units[n.unit]) { units[n.unit] = true; order.push(n.unit); } });
+    var all2 = {};
+    if (a.subject) KOS.spec.units(a.subject).forEach(function (u, i) { all2[u.ref] = i; });
+    order.sort(function (x, y) { return (all2[x] || 0) - (all2[y] || 0); });
+    var ex = excluded(a).map(function (x) { return x.ref; });
+    var head = a.scope.pacing ? (a.scope.pacing.frozen ? "Covered in Pacing (fixed)" : "Covered in Pacing so far") : null;
+    var pr = presetOf(a), named = !head && pr && a.scope.include.length === pr.include.length && a.scope.include.every(function (k) { return pr.include.indexOf(k) !== -1; })
+      ? (pr.include.map(function (k) { return k.split(":")[1]; }).join(", ")) : null;
+    var parts = [head || named, order.length ? unitRuns(order) : null].filter(Boolean);
+    if (named && order.length) parts = [named + " · " + unitRuns(order)];
+    return (parts.join(" · ") || "No topics yet") + (ls.length ? " · " + ls.length + (ls.length === 1 ? " leaf" : " leaves") : "") + (ex.length ? " · excl. " + ex.join(", ") : "");
+  }
+
+  /* ---------------- notices (29w: the bell's Exams filter) ----------------
+     Pure: what should be announced now, one notice each by id (the
+     ledger refuses a repeat). A start-by that is today, a milestone that
+     has gone overdue, a topic test or quiz tomorrow, and exam season
+     turning on. tick() hands them to KOS.notify.push. */
+  function notices(from) {
+    var now = from || today(), out = [];
+    upcoming(now).forEach(function (a) {
+      var sb = startBy(a, now);
+      if (sb && sb.date === now && a.tier !== "retrieval_test") out.push({ id: "exam:" + a.id + ":startby:" + now, kind: "exam",
+        title: "Start today: " + a.title, body: sb.override ? "Your start-by date is today." : "Its suggested start-by date is today.", view: "exams", arg: a.id });
+      (a.milestones || []).forEach(function (m) {
+        if (m.done || !m.date || m.date >= now || KOS.srs.daysBetween(m.date, now) > 7) return;
+        out.push({ id: "exam:" + a.id + ":ms:" + m.id, kind: "exam", title: a.title + ": " + m.text + " is overdue",
+          body: "It was due " + m.date + ".", view: "exams", arg: a.id });
+      });
+      if ((a.tier === "topic_test" || a.tier === "retrieval_test") && KOS.srs.daysBetween(now, a.date) === 1) {
+        var rd = readiness(a), rc = rd && rd.signals.recall;
+        out.push({ id: "exam:" + a.id + ":eve", kind: "exam", title: a.title + " tomorrow",
+          body: rc && !rc.thin ? "Recall " + Math.round(100 * rc.value) + "% " + (a.tier === "retrieval_test" ? "today" : "on the day") + (rc.weakest[0] ? "; " + rc.weakest[0].title + " is the weak one." : ".") : "Tomorrow" + (a.time ? " at " + a.time : "") + ".",
+          view: "exams", arg: a.id });
+      }
+    });
+    var sn = season(now);
+    if (sn.on && sn.auto && sn.next) out.push({ id: "exam:season:" + sn.key, kind: "exam", title: "Exam season is on",
+      body: sn.next.title + " is " + KOS.srs.daysBetween(now, sn.next.date) + " days away.", view: "exams", arg: "season" });
+    return out;
+  }
+  function tick() {
+    if (!KOS.notify || !KOS.notify.push) return 0;
+    var n = 0;
+    notices().forEach(function (it) { if (KOS.notify.push(it)) n++; });
+    return n;
+  }
+
+  /* ---------------- the previous attempt (§16.8) ----------------
+     For an attempt with marks by question: the latest earlier one of the
+     same subject whose questions share the most leaves. */
+  function previousAttempt(entry) {
+    if (!entry || !KOS.tracker) return null;
+    var mine = {};
+    (entry.questions || []).forEach(function (q) { (q.refs || []).forEach(function (k) { mine[k] = true; }); });
+    var best = null, bestN = 0;
+    KOS.tracker.all().forEach(function (e) {
+      if (e.uid === entry.uid || e.subject !== entry.subject || !(e.date < entry.date || (e.date === entry.date && e.id < entry.id))) return;
+      var n = 0;
+      (e.questions || []).forEach(function (q) { if (q.got != null) (q.refs || []).forEach(function (k) { if (mine[k]) n++; }); });
+      if (n > bestN || (n === bestN && n > 0 && best && e.date > best.date)) { best = e; bestN = n; }
+    });
+    return bestN ? best : null;
+  }
+
   /* ---------------- the past-paper index (plan §4.1) ----------------
      Reads js/data/exam-index.js (generated, references only). */
   var SIT_MONTH = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -593,6 +1139,38 @@
     eventViews: eventViews,
     startBy: startBy,
     weeklyHours: weeklyHours,
-    progress: progress
+    progress: progress,
+    /* phase 3 */
+    attemptsFor: attemptsFor,
+    paperWeights: paperWeights,
+    boundsFor: boundsFor,
+    readiness: readiness,
+    signalsOf: signalsOf,
+    nextMarks: nextMarks,
+    leafCovered: leafCovered,
+    nextInPacing: nextInPacing,
+    season: season,
+    setSeason: setSeason,
+    quieted: quieted,
+    checklist: checklist,
+    tickCheck: tickCheck,
+    addCheck: addCheck,
+    importMatch: importMatch,
+    importApply: importApply,
+    loadView: loadView,
+    predictPass: predictPass,
+    setSubjectResult: setSubjectResult,
+    subjectResults: subjectResults,
+    seriesOf: seriesOf,
+    previousAttempt: previousAttempt,
+    notices: notices,
+    tick: tick,
+    startedOn: startedOn,
+    startState: startState,
+    freezeNow: freezeNow,
+    unfreeze: unfreeze,
+    unitRuns: unitRuns,
+    scopeSummary: scopeSummary,
+    nodeOf: nodeOf
   };
 })();

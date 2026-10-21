@@ -770,6 +770,33 @@
       .sort(function (a, b2) { return rank(a.ev) - rank(b2.ev) || a.days - b2.days; });
     if (hot.length) return examPlan(hot[0], lvOf(hot[0].ev).goalMins);
 
+    /* 2b — the Exams hub's two rungs (roadmap 5.8, 29w): a deadline at
+       risk (a milestone gone overdue), then an assessment whose start-by
+       is today. Both read KOS.exams; neither writes. */
+    if (KOS.exams) {
+      var EX = KOS.exams;
+      var risky = EX.upcoming(today).filter(function (x) { return x.tier === "deadline" && (x.milestones || []).some(function (m) { return !m.done && m.date && m.date < today; }); })[0];
+      if (risky) {
+        var om = risky.milestones.filter(function (m) { return !m.done && m.date && m.date < today; })[0];
+        var nm = risky.milestones.filter(function (m) { return !m.done && m.date && m.date >= today; })[0];
+        var late = KOS.srs.daysBetween(om.date, today);
+        return { kind: "deadline", kicker: "Deadline at risk", label: risky.title,
+          why: [risky.subject ? SUBJ_SHORT[risky.subject] : null, "due " + risky.date].filter(Boolean).join(" · "),
+          subject: risky.subject || null, ref: null, refs: [], mins: 50,
+          goal: { k: "Overdue", v: om.text + " · " + late + (late === 1 ? " day" : " days") + (nm ? " · next: " + nm.text : "") },
+          go: function () { KOS.show("exams", risky.id); } };
+      }
+      var sbToday = EX.upcoming(today).filter(function (x) { var st = EX.startState(x); return st && st.state === "today"; })[0];
+      if (sbToday) {
+        var sbs = EX.startBy(sbToday), lsb = EX.leaves(sbToday), lead = KOS.spec.firstLeaf(lsb);
+        return { kind: "startby", kicker: "Start today · advisory", label: sbToday.title,
+          why: [sbToday.subject ? SUBJ_SHORT[sbToday.subject] : null, EX.daysTo(sbToday) + " days to go"].filter(Boolean).join(" · "),
+          subject: sbToday.subject || (lead && lead.subject) || null, ref: lead ? lead.ref : null, refs: lsb.slice(0, 30), mins: 25,
+          goal: { k: "Plan", v: sbs && !sbs.override ? sbs.why : "your own start-by date" },
+          go: function () { KOS.show("exams", sbToday.id); } };
+      }
+    }
+
     /* 3 — an assignment due within a week, or overdue */
     var A = KOS.assignments;
     var asgs = A ? A.all().filter(function (a) {

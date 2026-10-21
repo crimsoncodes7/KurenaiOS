@@ -595,10 +595,17 @@
       "- Goals: about study, productivity, money, Code, the Collection or the Governor, one-off or repeating weekly/monthly with a history of periods met (goals_list, goals_types, goals_add, goals_update). Progress is measured from the app's own data; a streak or level goal is shown only and never pays.",
       "- Labs: the interactive simulations by area (data structures, algorithms, representation, theory, plots), the Trace Lab and the OOP sandbox (labs_list; open one with app_navigate view 'sims' and its lab id, or 'trace'/'oop'). A locked lab needs the shop's one-time gold unlock (governor_buy_item, approval needed) — say its price, never imply it is open.",
       "- Scheduled messages: a prompt Kurenai sends for the user at a time on chosen days, answered read-only into a notification while the app is open (schedule_list, schedule_add, schedule_remove). Say plainly that a closed app sends it on the next open that day.",
+      "- Exams & Papers: every exam, mock, topic test, quiz and deadline is an assessment with a scope (the topics it covers), a readiness band from four separate signals (coverage, RAG, projected recall, timed practice — never one number), a start-by date, a weekly planner and practice analytics; open it with app_navigate view 'exams'. Predicted grades are always ranges with their boundary series.",
       "- Governor: HP, XP, gold, streaks and the shop come only from logged sessions — never promise a reward a tool did not report.",
       "Current context: view=" + (ui.view || "?") + ", subject=" + (ui.subject || "-") +
         (KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle" ? ", a focus session is running" : "") + "."
     ];
+    /* Exam season (roadmap 5.8 §12.1): the Assistant has it in context */
+    var sn = KOS.exams && KOS.exams.season ? KOS.exams.season() : null;
+    if (sn && sn.on && sn.exams.length) {
+      lines.push("Exam season is on: " + sn.exams.slice(0, 5).map(function (a) { return a.title + " on " + a.date + (a.time ? " " + a.time : ""); }).join("; ") +
+        ". Keep suggestions inside these papers' scopes, short and calm; no new material the day before an exam.");
+    }
     if (req.scheduled) {
       lines.push("This message is a SCHEDULED prompt the user set for " + (req.scheduled.time || "a set time") +
         "; it ran on its own and the user will read your answer later. Answer it completely in one reply: do not ask follow-up questions, " +

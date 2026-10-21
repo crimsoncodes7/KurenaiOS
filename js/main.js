@@ -135,6 +135,14 @@
      goals' notices (a period ending, a deadline tomorrow) */
   if (KOS.money) KOS.money.start();
   if (KOS.goals && KOS.goals.start) KOS.goals.start();
+  /* the Exams hub (5.8, phase 3): the predicted range kept just before
+     each real exam (results day reads it), then its notices — once after
+     boot and every 30 minutes */
+  if (KOS.exams && KOS.exams.tick) setTimeout(function () {
+    KOS.exams.predictPass();
+    KOS.exams.tick();
+    setInterval(KOS.exams.tick, 30 * 60 * 1000);
+  }, 6000);
   /* re-check reminders + HP drift every 30 min while the app stays open */
   setInterval(function () {
     KOS.governor.tick();

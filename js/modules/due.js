@@ -21,8 +21,33 @@
   function cardsFor(run, due) {
     if (!run || run === "all") return due;
     if (run === "overdue") return due.filter(function (c) { return c.overdue > 0; });
+    if (run.indexOf("scope:") === 0) return scopeCards(run.slice(6), due);
     var cut = run.indexOf(":"), sid = run.slice(0, cut), ref = run.slice(cut + 1);
     return due.filter(function (c) { return c.sid === sid && c.ref === ref; });
+  }
+  /* "Cram this scope" (roadmap 5.8, 29w): an assessment's due cards, then
+     the cards on its weakest leaves whose recall today is under 75%,
+     weakest first; the review itself is the ordinary review */
+  function scopeCards(aid, due) {
+    var a = KOS.exams && KOS.exams.get(aid);
+    if (!a) return [];
+    var ls = {}, seen = {}, out = [];
+    KOS.exams.leaves(a).forEach(function (k) { ls[k] = true; });
+    due.forEach(function (c) { if (ls[c.sid + ":" + c.ref]) { seen[c.key] = true; out.push(c); } });
+    var weak = [];
+    Object.keys(ls).forEach(function (k) {
+      var p = KOS.spec.parse(k);
+      if (!p) return;
+      KOS.srs.cardsFor(p.subject, p.ref).forEach(function (c) {
+        if (seen[c.key]) return;
+        var m = KOS.srs.peek(c.key), mem = KOS.srs.memory(c.key);
+        if (!mem || (m && m.leech) || mem.r >= 0.75) return;
+        c.meta = m; c.overdue = 0; c.r = mem.r;
+        weak.push(c);
+      });
+    });
+    weak.sort(function (x, y) { return x.r - y.r; });
+    return out.concat(weak).slice(0, 80);
   }
   function topicTitle(sid, ref) {
     var leaf = KOS.hub && KOS.hub.BYREF[sid] && KOS.hub.BYREF[sid][ref];
@@ -203,7 +228,8 @@
   /* one review run over the queue (or part of it) */
   function runSession(main, run, due) {
     var cards = cardsFor(run, due);
-    var what = run === "all" ? "the whole queue" : run === "overdue" ? "overdue cards first" : topicTitle(run.split(":")[0], run.slice(run.indexOf(":") + 1));
+    var sa = run.indexOf("scope:") === 0 && KOS.exams ? KOS.exams.get(run.slice(6)) : null;
+    var what = run === "all" ? "the whole queue" : run === "overdue" ? "overdue cards first" : sa ? "cram: " + sa.title + ", weakest first" : topicTitle(run.split(":")[0], run.slice(run.indexOf(":") + 1));
     main.appendChild(el("div", { class: "k-rv-runhead" }, [
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "review.back", text: "← Queue", onclick: function () { KOS.show("review", { tab: "due" }); } }),
       el("span", { class: "k-rv-runwhat", text: cards.length ? cards.length + (cards.length === 1 ? " card · " : " cards · ") + what : what })
