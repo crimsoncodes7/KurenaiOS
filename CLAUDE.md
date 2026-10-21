@@ -22,7 +22,7 @@ chronological diary here.
   5.6 phases 1–2). Before it `084a628` (20 October 2026; Money and Goals),
   https://d8bccd88.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-fsrs-1`
+- Service-worker version: `kos-exams-1`
 - Required smoke gate: 90 / 90 suites (`""`, 2–79 and 84–94; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
