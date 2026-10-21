@@ -24,7 +24,7 @@ chronological diary here.
   https://a6e211c9.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-exams-1`
-- Required smoke gate: 90 / 90 suites (`""`, 2–79 and 84–94; 80–83 are
+- Required smoke gate: 92 / 92 suites (`""`, 2–79 and 84–96; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), and on
@@ -41,7 +41,11 @@ chronological diary here.
   cards, with the SM-2 switch at boot, the review log, the exam-aware cap
   against an exam-day target, leeches and Rework, topic memory, and Card
   stats' fitted charts. Held by smoke88 and `tools/fsrs_check.mjs`. Phase 3
-  (the optimiser) waits for about 1,000 logged reviews.
+  (the optimiser, `KOS.fsrsOpt`, and the review log's replication to
+  `kos_reviews`, migration `20261022000001`) is built on `feat/after-fsrs`
+  (smoke96); Optimise stays off until 1,000 reviews are logged.
+- Built on `feat/after-fsrs`, not deployed: switching a Focus session's
+  subject, topic or assignment mid-way (invariant 4a, smoke95).
 - Released 21 October 2026: the Exams & Deadlines hub (roadmap 5.8,
   [`docs/exams-plan.md`](docs/exams-plan.md) revision 2), branch
   `feat/exams-hub`. Phases 1 (the assessment record, migration, Scope
@@ -78,7 +82,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..79} 84 85 86 87 88 89 90 91 92 93 94; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
+for i in "" {2..79} {84..96}; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
 python3 tools/gen_exam_index.py        # the past-paper index, from ~/Downloads/A-level (when that folder changes)
 node tools/gen_exam_reports.mjs        # js/data/exam-reports.js, after editing tools/exam-index/reports/*.md
 node tools/fsrs_check.mjs              # KOS.fsrs against py-fsrs (needs Python; after any change to js/core/fsrs.js)
@@ -181,7 +185,8 @@ non-navigation redraw path.
 | Goals: the engine, its types and periods | `js/core/goals.js` (`KOS.goals`: registry, record, compute, pace; the study, productivity, money, code and Governor types), `js/core/goals-collection.js` (the Collection's fourteen); pages `js/modules/goals.js` (`#/goals[/week|month|done|<id>]`, design 27i–27k; `KOS.goalsUI`, `KOS.goalEditor`), `css/views/goals.css`; Home's Goals switch in `hub.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`); the desk's two blocks `js/modules/itdesk.js` |
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
-| The spaced-repetition model (FSRS-6), the flashcard schedule and the review log | `js/core/fsrs.js` (`KOS.fsrs`, pure, also in Node), `srs.js` (`KOS.srs`), `js/core/reviewlog.js` (`KOS.reviewLog`); `tools/fsrs_check.mjs`, `tools/smoke88.test.js` |
+| The spaced-repetition model (FSRS-6), the flashcard schedule and the review log | `js/core/fsrs.js` (`KOS.fsrs`, pure, also in Node), `srs.js` (`KOS.srs`: the parameters in use, `weights`/`setFit`/`resetFit`), `js/core/reviewlog.js` (`KOS.reviewLog`, replicated to `kos_reviews`); `tools/fsrs_check.mjs`, `tools/smoke88.test.js` |
+| The optimiser (FSRS phase 3) | `js/core/fsrsopt.js` (`KOS.fsrsOpt`, pure, also in Node: prepare, pretrain, the Adam job, accept-if-better, `changes`); the "Fitted to your reviews" card and its preview in `js/modules/cardstats.js`; `tools/smoke96.test.js` |
 | Sessions and rewards | `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
 | Integrated weekly plan and pacing | `js/core/pacing.js`, `js/modules/pacing.js` |
@@ -244,8 +249,20 @@ source comments and audit notes refer to it.
    ended and paid exactly like Stop, `ended: "limit"`).
    A focus entry records its `rule`, `secs` and `blocks`; an entry from before
    the blocks rule carries none and reads as Pomodoro, so history is never
-   re-priced. A Focus session links ONE subject: its `refs` may name several
-   topics in it, and `ref` is the first leaf they cover.
+   re-priced. Each STRETCH of a Focus session links ONE subject: its `refs`
+   may name several topics in it, and `ref` is the first leaf they cover.
+   "Switch…" (`KOS.focus.switchTo`, the `focus_switch` tool) moves a
+   running study session to another subject, topic or assignment without
+   stopping the clock: the session stays ONE entry, paid once on its whole
+   time, and the stretches (`segs`, each starting at the focus second of
+   its switch, so breaks and pauses belong to none) are logged as
+   `metrics.segments` [{subject, ref, refs, assignmentId, secs}] when there
+   is more than one. A stretch under a minute is a correction and is
+   replaced. The entry's own `subject`/`ref`/`refs` are the longest
+   stretch; every reader that splits time by subject or topic (goals,
+   Reports, Home, a topic's minutes, a subject's streak) reads
+   `KOS.sessions.parts(e)`, and a completed session banks each stretch's
+   minutes on its own assignment. Reading sessions do not switch.
 4b. A Focus session is logged and paid before its review opens. Review may annotate
    that record and linked work but must never log or pay again.
 4c. Page hide banks the live clock with `KOS.store.flush()` — the count-up
@@ -947,9 +964,19 @@ source comments and audit notes refer to it.
 111. ONE SCHEDULER. Every card that comes back on a schedule — flashcards
     (`srs.js`) and Code's retrieval cards (`code.js` `schedule`), and the
     Japanese facets when they are built — schedules through `KOS.fsrs`
-    (`js/core/fsrs.js`): FSRS-6 with its 21 default parameters, pure, held
-    to py-fsrs 6.3.2 by `tools/fsrs_check.mjs` (every stability, difficulty
-    and interval). A card's memory is `s` (days until recall falls to 90%)
+    (`js/core/fsrs.js`): FSRS-6, pure, held to py-fsrs 6.3.2 by
+    `tools/fsrs_check.mjs` (every stability, difficulty and interval), with
+    the parameters `KOS.srs.weights()` returns — the 21 defaults, or this
+    learner's FIT (phase 3). Every caller passes them; none reads `F.W`
+    itself. The fit (`KOS.fsrsOpt`, pure) replays the review log per card
+    (a card met mid-life starts from its first row's `s0`/`d0`; redo items
+    are left out), pretrains w0–w3 from new cards' second reviews, trains
+    w4–w20 by Adam on the log loss with a pull towards the defaults, and is
+    offered only when it beats the parameters in use on the same reviews
+    and the log holds 1,000. Nothing changes until the preview's "Use these
+    parameters"; the fit is `state.srsCfg.fit` (synced; its `w` merges
+    whole, `ATOMIC_PREFIX`), applies from each card's next review, moves no
+    due date, and "Back to the defaults" undoes it. A card's memory is `s` (days until recall falls to 90%)
     and `d` (1–10); a review under a day after the last takes the
     short-term rule. The flashcard target retention is
     `state.srsCfg.retention` (synced, 0.80–0.95, default 0.90, set on Card
@@ -969,8 +996,11 @@ source comments and audit notes refer to it.
     interval. Every rating appends ONE row to the review log
     (`KOS.reviewLog`, IndexedDB `kurenai-os-reviews`: key, grade, elapsed,
     memory before and after, interval, source — never card text), which
-    rides the full backup and is not in the state document; it exists so
-    the parameters can later be fitted to this learner. A rating pays
+    rides the full backup and is not in the state document. It replicates
+    to the owner-only table `kos_reviews` (migration `20261022000001`,
+    `KOS.reviewLog.syncCloud`): each row keyed by its `uid` (key|ts),
+    insert-or-ignore, local first; a pulled row is marked `rm` and never
+    pushed back, so the fit reads every device's ratings. A rating pays
     exactly what it paid before; scheduling has zero Governor traffic.
 111a. THE EXAM-AWARE CAP (phase 2; by scope since roadmap 5.8, invariant
     122). For an exam subject's card, the earliest assessment whose

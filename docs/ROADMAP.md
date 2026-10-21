@@ -1099,6 +1099,17 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.6 FSRS: one scheduler for every card (asked for 20 October 2026)
 
+> **Status (22 October 2026): phase 3 built on `feat/after-fsrs`, not
+> deployed.** The optimiser is `KOS.fsrsOpt` (`js/core/fsrsopt.js`): pure
+> JS, not fsrs-browser, whose threaded WebAssembly needs a
+> cross-origin-isolated page that would block every hot-linked image. It
+> pretrains w0–w3, trains w4–w20 by Adam with a pull towards the defaults,
+> and is kept only when it beats the parameters in use. "Optimise" on Card
+> stats is off until 1,000 reviews are logged; its preview says what
+> changes; the fit syncs as `state.srsCfg.fit` and "Back to the defaults"
+> undoes it. The review log replicates to `kos_reviews` (migration
+> `20261022000001`). Held by smoke96.
+
 > **Status (20 October 2026): RELEASED** — `fbea5d5`, sw `kos-fsrs-1`,
 > immutable https://a6e211c9.kurenai-os.pages.dev; `main` fast-forwarded
 > to `feat/fsrs`. Phases 1 and 2 shipped together. The plan is [fsrs-plan.md](fsrs-plan.md); decisions A–G are
@@ -1171,6 +1182,11 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 - **Numbering:** invariants 120–129, smokes 89+.
 
 ### 5.7 After FSRS (asked for 20 October 2026, in this order)
+
+> **22 October 2026:** items 1 and 2 are under way on `feat/after-fsrs`,
+> with a small extra asked for the same day: switching a Focus session's
+> subject, topic or assignment mid-way without stopping the clock (built;
+> invariant 4a, smoke95).
 
 1. **A server-side runner, Web Push and which notifications reach a closed
    app** (an exploration doc; it unparks "Scheduled messages while the app
