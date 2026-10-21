@@ -1,6 +1,6 @@
 ---
 name: exams-hub
-description: Roadmap 5.8 Exams & Deadlines Hub — plan rev 2; phases 1–5 and phase 6 CS Paper 2 BUILT (smoke89–94); next phase 6 CS Paper 1; deploy approved after CS Paper 2
+description: Roadmap 5.8 Exams & Deadlines Hub — phases 1–6 (CS Paper 2) RELEASED 2026-10-21 (3b39ae1, kos-exams-1); smoke89–94; next CS Paper 1's full Companion
 metadata:
   type: project
 ---
@@ -32,7 +32,7 @@ Suggestions 1, 2, 4, 6–10 are in the plan; 3 and 5 stay optional.
 **How to apply:**
 - `fetch_reports.py` downloads files: ask the user before running it again.
 - Boundaries: AQA 7517 2023 and 2024 are confirmed; Edexcel 9MA0 2023–25 are unconfirmed (third-party).
-- 2026-10-21 the user said "start phase 6 with CS Paper 2, you can deploy after this" — that one deploy is approved. Later papers (CS P1, Maths P1–P3, F201) follow one per release; ask before deploying each.
+- 2026-10-21 the user said "start phase 6 with CS Paper 2, you can deploy after this" — RELEASED 2026-10-21: main fast-forwarded to 3b39ae1, sw kos-exams-1, https://e94eede7.kurenai-os.pages.dev. Later papers (CS P1, Maths P1–P3, F201) follow one per release; ask before deploying each.
 - In the localhost preview, unregister the SW and clear caches before reloading, or stale scripts load.
 
 Related: [[fsrs-scheduler]], [[it-units-sitting]], [[japanese-study-space]], [[no-dead-space-layout]].

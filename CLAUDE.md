@@ -17,16 +17,18 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `fbea5d5` — immutable deployment
-  https://a6e211c9.kurenai-os.pages.dev (20 October 2026; FSRS, roadmap
-  5.6 phases 1–2). Before it `084a628` (20 October 2026; Money and Goals),
-  https://d8bccd88.kurenai-os.pages.dev.
+- Latest release: `3b39ae1` — immutable deployment
+  https://e94eede7.kurenai-os.pages.dev (21 October 2026; the Exams &
+  Deadlines hub, roadmap 5.8 phases 1–6 with CS Paper 2's full Companion).
+  Before it `fbea5d5` (20 October 2026; FSRS),
+  https://a6e211c9.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-exams-1`
 - Required smoke gate: 90 / 90 suites (`""`, 2–79 and 84–94; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
-  `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), so
+  `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), and on
+  21 October to `feat/exams-hub` (the Exams hub), so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
@@ -40,7 +42,7 @@ chronological diary here.
   against an exam-day target, leeches and Rework, topic memory, and Card
   stats' fitted charts. Held by smoke88 and `tools/fsrs_check.mjs`. Phase 3
   (the optimiser) waits for about 1,000 logged reviews.
-- In flight: the Exams & Deadlines hub (roadmap 5.8,
+- Released 21 October 2026: the Exams & Deadlines hub (roadmap 5.8,
   [`docs/exams-plan.md`](docs/exams-plan.md) revision 2), branch
   `feat/exams-hub`. Phases 1 (the assessment record, migration, Scope
   Builder, the cap by scope, the widened attempt, redo items, start-by;
@@ -55,10 +57,9 @@ chronological diary here.
   pack, accessibility; smoke93) and 6 for CS Paper 2 (the exhaustive
   Companion: every shape of 4.5–4.12 with worked variations, report-cited
   traps, practice sets, subtopic packs, predicted papers and the
-  recognition drill; smoke94) are built, not yet deployed, and the pages
-  are drawn to design turn 29 (frames 29a–29ac). Phase 6 (the exhaustive
-  Companion, one paper per release) is next; the deploy waits for the end
-  of the hub.
+  recognition drill; smoke94) are released, and the pages
+  are drawn to design turn 29 (frames 29a–29ac). Next: the full Companion
+  for CS Paper 1, then Maths Papers 1–3 and F201, one paper per release.
 - Released 20 October 2026: Money and Goals (roadmap 5.4), built whole
   from design prompt 11 (frames 27a–27s) — the Money core and the Goals
   engine (smoke84–85), the joins (kos_money replication, the Assistant's

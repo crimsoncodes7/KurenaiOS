@@ -22,3 +22,6 @@ The main checkout's LOCAL `main` ref was not moved (it belongs to that checkout)
 - Commit and push freely, but deploy only when the user says go ([[act-without-asking]]).
 
 Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-account-workflow]].
+
+
+2026-10-21: main fast-forwarded to feat/exams-hub; release 3b39ae1 (Exams & Deadlines hub, phases 1–6 with CS Paper 2), sw kos-exams-1, https://e94eede7.kurenai-os.pages.dev.
