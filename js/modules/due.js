@@ -22,6 +22,8 @@
     if (!run || run === "all") return due;
     if (run === "overdue") return due.filter(function (c) { return c.overdue > 0; });
     if (run.indexOf("scope:") === 0) return scopeCards(run.slice(6), due);
+    /* the rapid drill's misses (roadmap 5.8 phase 5): those cards, due or not */
+    if (run.indexOf("cards:") === 0) return listedCards(run.slice(6).split("|"));
     var cut = run.indexOf(":"), sid = run.slice(0, cut), ref = run.slice(cut + 1);
     return due.filter(function (c) { return c.sid === sid && c.ref === ref; });
   }
@@ -48,6 +50,16 @@
     });
     weak.sort(function (x, y) { return x.r - y.r; });
     return out.concat(weak).slice(0, 80);
+  }
+  function listedCards(keys) {
+    var want = {}, out = [];
+    keys.forEach(function (k) { if (k) want[k] = true; });
+    Object.keys(want).forEach(function (k) {
+      var m = /^([a-z]+):(.+):([^:]+)$/.exec(k);
+      if (!m) return;
+      KOS.srs.cardsFor(m[1], m[2]).forEach(function (c) { if (want[c.key] && !out.some(function (x) { return x.key === c.key; })) { c.meta = KOS.srs.peek(c.key); c.overdue = 0; out.push(c); } });
+    });
+    return out.slice(0, 40);
   }
   function topicTitle(sid, ref) {
     var leaf = KOS.hub && KOS.hub.BYREF[sid] && KOS.hub.BYREF[sid][ref];
@@ -229,7 +241,7 @@
   function runSession(main, run, due) {
     var cards = cardsFor(run, due);
     var sa = run.indexOf("scope:") === 0 && KOS.exams ? KOS.exams.get(run.slice(6)) : null;
-    var what = run === "all" ? "the whole queue" : run === "overdue" ? "overdue cards first" : sa ? "cram: " + sa.title + ", weakest first" : topicTitle(run.split(":")[0], run.slice(run.indexOf(":") + 1));
+    var what = run === "all" ? "the whole queue" : run === "overdue" ? "overdue cards first" : sa ? "cram: " + sa.title + ", weakest first" : run.indexOf("cards:") === 0 ? "the drill's misses" : topicTitle(run.split(":")[0], run.slice(run.indexOf(":") + 1));
     main.appendChild(el("div", { class: "k-rv-runhead" }, [
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "review.back", text: "← Queue", onclick: function () { KOS.show("review", { tab: "due" }); } }),
       el("span", { class: "k-rv-runwhat", text: cards.length ? cards.length + (cards.length === 1 ? " card · " : " cards · ") + what : what })

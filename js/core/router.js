@@ -85,7 +85,7 @@
       if (!a) return null;
       if (typeof a === "string") return [a];
       if (a.attempt) return ["attempt", a.attempt].concat(a.page ? [a.page] : []);
-      if (a.id) return [a.id].concat(a.tab && a.tab !== "overview" ? [a.tab] : []);
+      if (a.id) return [a.id].concat(a.tab && a.tab !== "overview" ? [a.tab] : [], a.tab && a.sub != null ? [String(a.sub)] : []);
       if (a.tab) return [a.tab].concat(a.sub ? [a.sub] : []);
       return null;
     },
@@ -97,7 +97,7 @@
       return typeof a === "string" && a && a !== "all" ? [a] : null;
     }
   };
-  var EXAM_TABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, season: 1, results: 1, past: 1 };
+  var EXAM_TABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1, past: 1 };
   var DECODE = {
     ref: function (p) {
       if (p.length < 2) return null;
@@ -115,7 +115,7 @@
       if (!p[0]) return null;
       if (p[0] === "attempt") return p[1] ? { attempt: p[1], page: p[2] || null } : null;
       if (EXAM_TABS[p[0]]) return p[1] ? { tab: p[0], sub: p[1] } : p[0];
-      return p[1] ? { id: p[0], tab: p[1] } : p[0];
+      return p[1] ? (p[2] ? { id: p[0], tab: p[1], sub: p[2] } : { id: p[0], tab: p[1] }) : p[0];
     },
     goals: function (p) { return !p[0] ? null : /^\d+$/.test(p[0]) ? { id: Number(p[0]) } : p[0]; },
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },

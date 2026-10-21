@@ -971,6 +971,26 @@ color-scheme: dark;
 --ex-tick-h: 6px;             /* a recall or coverage bar */
 --ex-wide-w: 96px;            /* a spark, the hours field, a library file column */
 --ex-ums-w: 72px;             /* results day's UMS column */
+/* the Companion, the playbook and the paper (phase 5: 29o–29u, 29ac) */
+--ex-drawer-w: 540px;         /* the playbook drawer (29r) */
+--ex-drawer-sm: 420px;
+--ex-cmd-w: 120px;            /* the command-word column */
+--ex-heat-topic: 180px;       /* trend and likelihood's topic column (29s) */
+--ex-heat-cell: 30px;
+--ex-lab-art: 160px;          /* a lab's picture column in the guide */
+--ex-flash-h: 86px;           /* a cram-deck card */
+--ex-tile-max: 210px;         /* a key-note tile's rule, at most (it fades past it) */
+--ex-frow-max: 132px;         /* a booklet or memorise row, at most */
+--ex-tnav-b: 30px;            /* a timed paper's navigator square */
+--ex-line-h: 22px;            /* one dotted answer line */
+--ex-paper-w: 595px;          /* an A4 page on screen (29u) */
+--ex-paper-h: 842px;
+--ex-paper: #ffffff;          /* printed and on-screen paper: black on white in every theme */
+--ex-paper-ink: #111111;
+--ex-paper-soft: #444444;
+--ex-paper-rule: #9a9a9a;
+--ex-paper-edge: #c9c9c9;
+--ex-paper-head: #eeeeee;
 --gl-detail-side: 320px;
 
 /* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */

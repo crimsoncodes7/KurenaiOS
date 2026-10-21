@@ -14,4 +14,4 @@
 - [Run tests yourself](run-tests-yourself.md) — always run the full gate myself; never tell the user to run tests
 - [Act without asking](act-without-asking.md) — commit/push/tests/migrations automatically; only a production deploy needs a go-ahead
 - [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 RELEASED 2026-10-20 (fbea5d5, kos-fsrs-1); exam-day target 0.95; next Exams hub (user has additions)
-- [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–4 BUILT on feat/exams-hub (smoke89–92); deploy only at the end of the hub; next phase 5 Companion
+- [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–5 BUILT on feat/exams-hub (smoke89–93); deploy only at the end of the hub; next phase 6

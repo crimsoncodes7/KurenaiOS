@@ -62,7 +62,7 @@
   }
   function today() { return KOS.srs.todayISO(); }
   /* route words an id must never spell (#/exams/<tab> beside #/exams/<id>) */
-  var RESERVED = { timetable: 1, readiness: 1, plan: 1, practice: 1, season: 1, results: 1, attempt: 1, past: 1, load: 1 };
+  var RESERVED = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1, attempt: 1, past: 1, load: 1 };
   function rid(n) {
     var a = "abcdefghijkmnpqrstuvwxyz23456789", s = "";
     for (var i = 0; i < (n || 8); i++) s += a.charAt(Math.floor(Math.random() * a.length));
@@ -321,6 +321,12 @@
       ? { mode: patch.season.mode, key: str(patch.season.key, 20) || "none" } : null;
     if (has(patch, "quiet")) p.quiet = !!patch.quiet;
     if (has(patch, "resultsDay")) p.resultsDay = isDate(patch.resultsDay) ? patch.resultsDay : null;
+    /* accessibility (§16.10, 29ac): extra time on every timer and pace
+       budget, large print on every printed page, rest breaks that pause a
+       timed paper's clock (the attempt records them) */
+    if (has(patch, "extraTime")) p.extraTime = Math.round(num(patch.extraTime, 0, 100) || 0);
+    if (has(patch, "largePrint")) p.largePrint = !!patch.largePrint;
+    if (has(patch, "restBreaks")) p.restBreaks = !!patch.restBreaks;
     store.save();
     return p;
   }
@@ -1162,6 +1168,8 @@
     remove: remove,
     setPrefs: setPrefs,
     prefs: function () { return Object.assign({}, X().prefs); },
+    /* the extra time an assessment's timers use: its own, else the setting */
+    extraTimeOf: function (a) { return (a && a.extraTime) || X().prefs.extraTime || 0; },
     leaves: leaves,
     contains: contains,
     excluded: excluded,

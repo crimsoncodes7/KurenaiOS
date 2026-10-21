@@ -4910,6 +4910,18 @@
     },
     {
      "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Companion",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/exams/guide"
+     }
+    },
+    {
+     "key": {
       "ctx": "exams.tabs",
       "hooks": "ui.scroller-arrow",
       "name": "Later exams & papers",

@@ -434,6 +434,102 @@
     return /BEGIN:VCALENDAR|BEGIN:VEVENT/.test(text || "") ? parseICS(text) : parseText(text);
   }
 
+  /* ---------------- §4.2: archetypes ----------------
+     raw: KOS_EXAMS.archetypes rows [id, subject, leaves, title, pattern].
+     A question is tagged with the first matching row among, in order,
+     its subject's "*" rows, then the rows of its first leaf, then of its
+     next (each in file order); none, and it is unique (its tag text is
+     the reason). Pure: the index and the rows in, the tags out. */
+  function qkey(q) { return q[0] + "|" + q[1] + "|" + q[2] + "|" + q[3]; }
+  function tagArchetypes(ix, raw) {
+    var rows = (raw || []).map(function (r) {
+      return { id: r[0], subject: r[1], any: r[2] === "*", leaves: r[2] === "*" ? [] : r[2].split(/\s+/).map(function (x) { return r[1] + ":" + x; }),
+        title: r[3], re: new RegExp(r[4], "i") };
+    });
+    var byId = {}, of = {}, unique = [];
+    rows.forEach(function (r) { byId[r.id] = r; });
+    ((ix && ix.questions) || []).forEach(function (q) {
+      var p = ix.papers[q[0]], subj = p ? p.subject : null, ls = q[5] || [], hit = null;
+      /* the subject-wide rows first (the extended answer), then the rows
+         of the question's first leaf, then of its next, each in file order */
+      var cand = rows.filter(function (r) { return r.any && r.subject === subj; });
+      ls.forEach(function (k) { rows.forEach(function (r) { if (!r.any && r.leaves.indexOf(k) !== -1 && cand.indexOf(r) === -1) cand.push(r); }); });
+      for (var i = 0; i < cand.length && !hit; i++) if (cand[i].re.test(q[6] || "")) hit = cand[i];
+      if (hit) of[qkey(q)] = hit.id;
+      else unique.push(q);
+    });
+    return { of: of, byId: byId, rows: rows, unique: unique };
+  }
+  /* per paper: each archetype's real frequency, its marks and its
+     instances (references only) */
+  function archetypeStats(ix, tags, paperId) {
+    var p = ix && ix.papers && ix.papers[paperId];
+    if (!p || !tags) return null;
+    var sits = p.sittings.filter(real), per = {}, total = 0;
+    ix.questions.forEach(function (q) {
+      if (q[0] !== paperId) return;
+      var id = tags.of[qkey(q)] || null, r = id ? tags.byId[id] : null;
+      var key = id || "unique:" + qkey(q);
+      var a = per[key] || (per[key] = { id: id, title: r ? r.title : q[6], unique: !id, leaves: {}, marks: 0, sits: {}, instances: [], lo: null, hi: null });
+      (q[5] || []).forEach(function (k) { a.leaves[k] = true; });
+      a.instances.push({ sitting: q[1], q: q[3], marks: q[4], section: q[2] });
+      if (!real(q[1])) return;
+      total += q[4];
+      a.marks += q[4];
+      a.sits[q[1]] = (a.sits[q[1]] || 0) + q[4];
+    });
+    var n = sits.length || 1;
+    var list = Object.keys(per).map(function (k) {
+      var a = per[k], seen = sits.filter(function (s) { return a.sits[s]; }), vals = seen.map(function (s) { return a.sits[s]; });
+      return { id: a.id, title: a.title, unique: a.unique, leaves: Object.keys(a.leaves), appear: seen.length, of: sits.length,
+        lo: vals.length ? Math.min.apply(null, vals) : null, hi: vals.length ? Math.max.apply(null, vals) : null,
+        mean: round(a.marks / n, 2), share: total ? round(a.marks / total, 3) : 0,
+        instances: a.instances.sort(function (x, y) { return x.sitting < y.sitting ? 1 : x.sitting > y.sitting ? -1 : 0; }) };
+    }).sort(function (x, y) { return y.mean - x.mean || y.appear - x.appear; });
+    return { paper: paperId, sittings: sits, marks: total / n, list: list };
+  }
+  /* "the core half of the paper": the fewest archetypes whose marks make
+     up half of the paper, sitting after sitting (unique questions never
+     count — they are not a shape) */
+  function coreHalf(stats) {
+    if (!stats || stats.sittings.length < 4) return null;
+    var items = [], sum = 0;
+    stats.list.filter(function (a) { return !a.unique; }).some(function (a) { items.push(a); sum += a.share; return sum >= 0.5; });
+    return { items: items, share: round(sum, 3), marks: round(sum * stats.marks, 0) };
+  }
+  /* the marks-by-topic-and-sitting table (29s): groupOf(leafKey) names a
+     topic (the spec unit); a question's marks are shared across its
+     leaves. "Due by pattern": absent from the last one or two sittings,
+     present in at least three quarters of those before. */
+  function heat(ix, paperId, groupOf) {
+    var p = ix && ix.papers && ix.papers[paperId];
+    if (!p) return null;
+    var sits = p.sittings.filter(real), g = {}, order = [];
+    ix.questions.forEach(function (q) {
+      if (q[0] !== paperId || !real(q[1])) return;
+      var ls = q[5] && q[5].length ? q[5] : [];
+      ls.forEach(function (k) {
+        var t = groupOf(k) || "Other";
+        if (!g[t]) { g[t] = { topic: t, cells: {} }; order.push(t); }
+        g[t].cells[q[1]] = (g[t].cells[q[1]] || 0) + q[4] / ls.length;
+      });
+    });
+    var enough = sits.length >= 4;
+    var rows = order.map(function (t) {
+      var r = g[t], vals = sits.map(function (s) { return r.cells[s] ? round(r.cells[s], 0) : 0; });
+      var on = vals.filter(function (v) { return v; }).length;
+      var mean = on ? round(vals.reduce(function (a, b) { return a + b; }, 0) / on, 0) : 0;
+      var lastGap = 0;
+      for (var i = vals.length - 1; i >= 0 && !vals[i]; i--) lastGap++;
+      var before = vals.slice(0, vals.length - lastGap), beforeOn = before.filter(function (v) { return v; }).length;
+      var due = enough && lastGap >= 1 && lastGap <= 2 && before.length >= 3 && beforeOn / before.length >= 0.75;
+      var rate = on / (sits.length || 1);
+      return { topic: t, cells: vals, appear: on, of: sits.length, mean: mean, gap: lastGap,
+        yield: !enough ? null : due ? "due" : rate >= 0.75 && mean >= 8 ? "high" : rate >= 0.6 ? "medium" : "low" };
+    }).sort(function (a, b) { return b.mean * b.appear - a.mean * a.appear; });
+    return { paper: paperId, sittings: sits, enough: enough, rows: rows };
+  }
+
   var api = {
     GRADES: GRADES, NEED: NEED, FIX_HOURS: FIX_HOURS, TAG_FIX: TAG_FIX, NAMES: NAMES,
     weights: weights, weightOf: weightOf,
@@ -441,7 +537,8 @@
     band: band, nextMarks: nextMarks, patterns: patterns, pace: pace, calibration: calibration,
     postMortem: postMortem, compare: compare, load: load,
     parseTimetable: parseTimetable, parseText: parseText, parseICS: parseICS, codeOf: codeOf,
-    addDays: addDays, isoDays: isoDays, pct: pct
+    addDays: addDays, isoDays: isoDays, pct: pct,
+    tagArchetypes: tagArchetypes, archetypeStats: archetypeStats, coreHalf: coreHalf, heat: heat, qkey: qkey
   };
   if (typeof module === "object" && module.exports) module.exports = api;
   if (root) { root.KOS = root.KOS || {}; root.KOS.examStats = api; }

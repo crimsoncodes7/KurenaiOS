@@ -40,7 +40,7 @@
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var MONTH_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  var TABS = [["season", "Season"], ["timetable", "Timetable"], ["readiness", "Readiness"], ["plan", "Planner"], ["practice", "Practice"]];
+  var TABS = [["season", "Season"], ["timetable", "Timetable"], ["readiness", "Readiness"], ["plan", "Planner"], ["practice", "Practice"], ["guide", "Companion"]];
 
   /* ---------------- words ---------------- */
   function today() { return KOS.srs.todayISO(); }
@@ -587,7 +587,7 @@
   }
 
   /* ---------------- one assessment (29e, 29f) ---------------- */
-  function page(main, id, tab) {
+  function page(main, id, tab, sub) {
     var a = E().get(id);
     if (!a) {
       main.appendChild(KOS.ui.pageHeader({ kicker: "Exams & Papers", title: "Not found" }));
@@ -598,6 +598,7 @@
     if (tab === "scope") return scopeBuilder(main, a);
     if (tab === "room" && KOS.examRoom) return KOS.examRoom(main, a);
     if (tab === "readiness" && KOS.examViews) return KOS.examViews.readiness(main, a.id);
+    if ((tab === "guide" || tab === "trend" || tab === "paper") && KOS.examGuide) return KOS.examGuide.page(main, a, tab, sub);
     overview(main, a);
   }
   function backLink(text, go) { return el("button", { type: "button", class: "k-ex-back", "data-ui": "exams.back", onclick: go }, [el("span", { "aria-hidden": "true", text: "‹ " }), text]); }
@@ -631,6 +632,7 @@
     var room = roomNow();
     var acts = [btn("Edit", "quiet", function () { editor(a, {}, function () { KOS.rerender(); }); }, { "data-ui": "exams.edit" }),
       t !== "deadline" ? btn("Scope", "", function () { KOS.show("exams", { id: a.id, tab: "scope" }); }, { "data-ui": "exams.scope-btn" }) : null,
+      t !== "deadline" && KOS.examGuide ? btn("Companion", "", function () { KOS.show("exams", { tab: "guide", sub: a.id }); }, { "data-ui": "exams.guide-btn" }) : null,
       room && room.id === a.id ? btn("Exam Room", "primary", function () { KOS.show("exams", { id: a.id, tab: "room" }); }, { "data-ui": "exams.room-btn" })
         : t === "real_exam" || t === "mock" || t === "topic_test" ? btn("Log a paper", "primary", function () { KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); }); }, { "data-ui": "exams.log" }) : null
     ].filter(Boolean);
@@ -1268,13 +1270,13 @@
   }
 
   /* ---------------- the view ---------------- */
-  var HUBTABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, season: 1, results: 1 };
+  var HUBTABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1 };
   KOS.views.exams = function (main, arg) {
     KOS.shell.tree("none");
     var V = KOS.examViews || {}, P = KOS.examPractice || {};
     if (arg && typeof arg === "object") {
       if (arg.attempt) return P.attempt ? P.attempt(main, arg.attempt, arg.page) : null;
-      if (arg.id) return page(main, arg.id, arg.tab);
+      if (arg.id) return page(main, arg.id, arg.tab, arg.sub);
       if (arg.tab) return hub(main, arg.tab, arg.sub);
     }
     if (typeof arg === "string" && arg) {
@@ -1291,6 +1293,7 @@
     if (tab === "season" && V.season) return V.season(main);
     if (tab === "results" && V.results) return V.results(main, sub);
     if (tab === "practice" && P.practice) return P.practice(main, sub);
+    if (tab === "guide" && KOS.examGuide) return KOS.examGuide.hub(main, sub);
     timetable(main, sub);
   }
 

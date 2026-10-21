@@ -77,7 +77,7 @@
     var pr = a.preset ? E().preset(a.preset) : null;
     var m = a.durationMins || (pr && pr.mins), mk = a.marks || (pr && pr.marks);
     if (!m || !mk) return "Move on after 90 seconds on any one part.";
-    var total = Math.round(m * (1 + (a.extraTime || 0) / 100)), per = Math.round(10 * total / mk) / 10;
+    var total = Math.round(m * (1 + E().extraTimeOf(a) / 100)), per = Math.round(10 * total / mk) / 10;
     var half = null;
     if (a.time) { var p = a.time.split(":"), t = +p[0] * 60 + +p[1] + Math.round(total / 2); half = Math.floor(t / 60) + ":" + ("0" + (t % 60)).slice(-2); }
     return "About " + per + " min a mark" + (half ? " · half the marks by " + half : "") + " · move on after 90 seconds";

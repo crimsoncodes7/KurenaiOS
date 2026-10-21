@@ -88,7 +88,9 @@
     "js/modules/exams.js",
     "js/modules/examviews.js",
     "js/modules/examprac.js",
-    "js/modules/examroom.js"
+    "js/modules/examroom.js",
+    "js/modules/examguide.js",
+    "js/modules/exampaperview.js"
   ],
   "views": {
     "home": {},
