@@ -15,7 +15,14 @@
      flashcards/due-review: {cards, again, hard, good, easy}
      quiz:                  {correct, total, pct}
      exam:                  {marks, max}
-     todo:                  {item}                                            */
+     todo:                  {item}
+     focus:                 {complete, mode, rule, secs, …, segments?}
+
+   A Focus session switched mid-way keeps ONE entry, paid once, with
+   `metrics.segments` = [{subject, ref, refs, assignmentId, secs}] in the
+   order they ran; `subject`/`ref`/`refs` on the entry are the stretch that
+   took the most time. Readers that split time by subject or topic read
+   parts(), never the entry's own subject.                                  */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -69,9 +76,31 @@
     return e;
   }
 
+  /* what an entry's time was for: a switched Focus session's stretches,
+     and every other entry as one part, itself. Pure. */
+  function parts(e) {
+    var segs = e && e.type === "focus" && e.metrics && Array.isArray(e.metrics.segments) ? e.metrics.segments : null;
+    if (segs && segs.length) {
+      return segs.map(function (s) {
+        return { subject: s.subject || null, ref: s.ref || null, refs: s.refs || [],
+          assignmentId: s.assignmentId != null ? s.assignmentId : null, secs: s.secs || 0 };
+      });
+    }
+    return [{ subject: e.subject || null, ref: e.ref || null,
+      refs: e.refs && e.refs.length ? e.refs : e.subject && e.ref ? [e.subject + ":" + e.ref] : [],
+      assignmentId: e.metrics && e.metrics.assignmentId != null ? e.metrics.assignmentId : null, secs: e.dur || 0 }];
+  }
+  /* the seconds of an entry spent on one subject (null: on any) */
+  function secsFor(e, sid) {
+    return parts(e).reduce(function (n, p) { return !sid || p.subject === sid ? n + p.secs : n; }, 0);
+  }
+  function hasSubject(e, sid) {
+    return e.subject === sid || parts(e).some(function (p) { return p.subject === sid; });
+  }
+
   function forDate(dateISO, sid) {
     return store.state.sessions.filter(function (e) {
-      return e.date === dateISO && (!sid || e.subject === sid);
+      return e.date === dateISO && (!sid || hasSubject(e, sid));
     });
   }
   /* Collection Matrix (Build 3a) contract: "media" entries are rest, not
@@ -80,7 +109,7 @@
      either direction. They feed only the rest streak below. */
   function hasActivity(dateISO, sid) {
     return store.state.sessions.some(function (e) {
-      return e.date === dateISO && (!sid || e.subject === sid) && e.type !== "media";
+      return e.date === dateISO && (!sid || hasSubject(e, sid)) && e.type !== "media";
     });
   }
   /* streak integrity (2c): an early-stopped focus session stays in the log as
@@ -93,7 +122,7 @@
      alive (invariant 4 — the streak is a derivation of study, not of
      the ledger as a whole). */
   function studyEntry(e, sid) {
-    return (!sid || e.subject === sid) && e.type !== "media" && e.type !== "todo" &&
+    return (!sid || hasSubject(e, sid)) && e.type !== "media" && e.type !== "todo" &&
       !(e.type === "focus" && e.metrics && e.metrics.complete === false);
   }
   function hasStreakActivity(dateISO, sid) {
@@ -173,6 +202,9 @@
     hasActivity: hasActivity,
     streak: streak,
     streaks: streaks,
-    restStreak: restStreak
+    restStreak: restStreak,
+    parts: parts,
+    secsFor: secsFor,
+    hasSubject: hasSubject
   };
 })();

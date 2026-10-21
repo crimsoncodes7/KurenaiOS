@@ -137,6 +137,8 @@
     if (s.idleWarnedAt === undefined) s.idleWarnedAt = null;
     /* roadmap 1.1: a snapshot from before topic links were a list */
     if (!Array.isArray(s.refs)) s.refs = s.subject && s.ref ? [s.subject + ":" + s.ref] : [];
+    /* a snapshot from before the mid-session switch: one stretch */
+    if (!Array.isArray(s.segs) || !s.segs.length) s.segs = [segOf(s, 0)];
     return s;
   }
 
@@ -171,6 +173,57 @@
     refs = refs.filter(function (k) { return k.indexOf(subject + ":") === 0; });
     var first = KOS.spec.firstLeaf(refs);
     return { subject: subject, refs: refs, ref: first ? first.ref : null };
+  }
+
+  /* SWITCHING MID-SESSION. The clock runs on and the session is paid once
+     for its whole time; each stretch remembers what it was for from the
+     focus second it began (`w`), so breaks and pauses belong to no stretch.
+     A stretch under SWITCH_FOLD of focus was a correction: the new pick
+     replaces it. The entry splits the time by stretch (sessions.js parts). */
+  var SWITCH_FOLD = 60;
+  var SEG_CAP = 24;
+  function segOf(x, w) {
+    return { w: w, subject: x.subject || null, ref: x.ref || null, refs: (x.refs || []).slice(),
+      assignmentId: x.assignmentId != null ? x.assignmentId : null };
+  }
+  function sameSeg(a, b) {
+    return a.subject === b.subject && a.assignmentId === b.assignmentId &&
+      a.refs.length === b.refs.length && a.refs.every(function (k, i) { return k === b.refs[i]; });
+  }
+  function switchTo(cfg) {
+    if (!S || S.kind === "reading") return false;
+    cfg = cfg || {};
+    var links = sessionLinks(cfg);
+    /* an assignment is kept across a topic change, dropped with its subject */
+    var asg = cfg.assignmentId !== undefined ? cfg.assignmentId
+      : links.subject === S.subject ? S.assignmentId : null;
+    var w = workSeconds();
+    var next = segOf({ subject: links.subject, ref: links.ref, refs: links.refs, assignmentId: asg }, w);
+    var segs = S.segs, last = segs[segs.length - 1];
+    if (sameSeg(next, last)) return false;
+    if (w - last.w < SWITCH_FOLD) { next.w = last.w; segs[segs.length - 1] = next; }
+    else if (segs.length >= SEG_CAP) return false;
+    else segs.push(next);
+    /* a correction that lands back on the stretch before is that stretch */
+    if (segs.length > 1 && sameSeg(segs[segs.length - 2], segs[segs.length - 1])) segs.pop();
+    S.subject = next.subject; S.ref = next.ref; S.refs = next.refs; S.assignmentId = next.assignmentId;
+    store.save();
+    return true;
+  }
+  /* the stretches of a finished session, clipped to the focus it is paid
+     for (the idle watch may credit less) and with empty ones dropped */
+  function segmentsOf(sess, dur, live) {
+    var segs = sess.segs && sess.segs.length ? sess.segs : [segOf(sess, 0)];
+    var out = [];
+    segs.forEach(function (g, i) {
+      var end = i + 1 < segs.length ? Math.min(segs[i + 1].w, dur) : dur;
+      var secs = Math.max(0, Math.floor(end - Math.min(g.w, dur)));
+      if (!secs && !(live && i === segs.length - 1)) return;
+      var prev = out[out.length - 1];
+      if (prev && sameSeg(prev, g)) { prev.secs += secs; return; }
+      out.push({ subject: g.subject, ref: g.ref, refs: g.refs.slice(), assignmentId: g.assignmentId, secs: secs });
+    });
+    return out;
   }
 
   /* "HH:MM" → the next moment the clock reads it, at least a minute away
@@ -227,6 +280,7 @@
          an id only: the assignment record stays canonical, and a deleted
          assignment simply stops resolving rather than leaving a stale copy. */
       assignmentId: cfg.assignmentId != null ? cfg.assignmentId : null,
+      segs: null,                                       // the stretches, set below
       book: cfg.book || null,                           // 3i: {id,title}|null — the linked vault entry
       /* Build 6.5 — the session's own working record. It rides the persisted
          snapshot, so a reload brings the notes back with the clock. */
@@ -251,6 +305,7 @@
       activeCycles: 0,
       idleWarnedAt: null
     };
+    S.segs = [segOf(S, 0)];
     if (S.kind === "reading") {
       f.lastReading = { workMin: cfg.workMin, bookId: cfg.book ? cfg.book.id : null };
     } else {
@@ -571,8 +626,12 @@
        minutes as actual effort. Only COMPLETE sessions count: an abandoned
        session forfeits its award, and it should not quietly inflate effort
        either. */
-    if (complete && sess.assignmentId != null && KOS.assignments) {
-      KOS.assignments.addEffort(sess.assignmentId, Math.round(dur / 60));
+    var parts = segmentsOf(sess, dur);
+    var main = parts.reduce(function (m, p) { return !m || p.secs > m.secs ? p : m; }, null) || segOf(sess, 0);
+    if (complete && KOS.assignments) {
+      parts.forEach(function (p) {
+        if (p.assignmentId != null) KOS.assignments.addEffort(p.assignmentId, Math.round(p.secs / 60));
+      });
     }
     /* The record is written HERE, before any review is offered, and the
        governor pays off this one entry. Everything the review collects is a
@@ -580,7 +639,7 @@
        precondition for the session having happened. */
     var entry = KOS.sessions.log({
       type: "focus",
-      subject: sess.subject, ref: sess.ref, refs: sess.refs,
+      subject: main.subject, ref: main.ref, refs: main.refs,
       dur: dur,
       metrics: {
         complete: complete,
@@ -601,7 +660,12 @@
         notes: (sess.notes || []).length,
         objective: sess.objective || undefined,
         activities: counts,
-        assignmentId: sess.assignmentId != null ? sess.assignmentId : undefined,
+        assignmentId: main.assignmentId != null ? main.assignmentId : undefined,
+        segments: parts.length > 1 ? parts.map(function (p) {
+          var o = { subject: p.subject, ref: p.ref, refs: p.refs, secs: p.secs };
+          if (p.assignmentId != null) o.assignmentId = p.assignmentId;
+          return o;
+        }) : undefined,
         summary: summary
       }
     });
@@ -614,7 +678,7 @@
        study block in the daily to-do. When the review is on screen it is one
        of its checkboxes rather than a second stacked modal; when the review
        is suppressed the original confirm still asks. */
-    var block = complete && sess.subject ? openStudyBlock(sess) : null;
+    var block = complete && main.subject ? openStudyBlock(main) : null;
 
     if (opts.review !== false && !window.__kosAutoConfirm) {
       reviewModal(sess, entry, award, block);
@@ -797,6 +861,18 @@
       }
     }
     box.appendChild(topic);
+    if (S.kind !== "reading") {
+      topic.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "focus.switch",
+        title: "Change the subject, topic or assignment — the clock keeps running", text: "Switch…", onclick: promptSwitch }));
+      /* the stretches already behind this one, oldest first */
+      if (S.segs && S.segs.length > 1) {
+        var w = workSeconds();
+        box.appendChild(el("p", { class: "k-muted", "data-ui": "focus.stretches", text: "Earlier: " + S.segs.slice(0, -1).map(function (g, i) {
+          var secs = Math.min(S.segs[i + 1].w, w) - g.w;
+          return (g.subject ? shortName(g.subject) + (g.ref ? " " + g.ref : "") : "General") + " " + Math.max(1, Math.round(secs / 60)) + "m";
+        }).join(" → ") }));
+      }
+    }
     var asg = linkedAssignment();
     if (asg) {
       box.appendChild(el("div", { class: "k-cluster", "data-ui": "focus.context" }, [
@@ -913,6 +989,57 @@
     function save() { setObjective(input.value); overlay.close(); }
     KOS.ui.openDialog(overlay);
     input.focus();
+  }
+
+  /* switching what the session is for, without stopping it: the start
+     form's own three links (subject, the shared topic picker, an open
+     assignment). The new stretch starts at the focus second of Switch. */
+  function promptSwitch() {
+    if (!S || S.kind === "reading") return;
+    var subjSel = el("select", { class: "k-input", "aria-label": "Subject", onchange: function () { topicPick.refresh(); fillAsg(); } },
+      [el("option", { value: "", text: "General study — no link" })]
+        .concat(KOS.subjects.ids().map(function (sid) { return el("option", { value: sid, text: KOS.subjects.name(sid) }); })));
+    subjSel.value = S.subject || "";
+    var topicPick = KOS.topicPicker({ label: "Topic (optional)", multi: false, placeholder: "Whole subject",
+      subject: function () { return subjSel.value || null; },
+      value: (S.refs || []).slice(),
+      onChange: function (refs) {
+        var s0 = refs.length ? KOS.spec.subjectsOf(refs)[0] : null;
+        if (s0 && subjSel.value !== s0) { subjSel.value = s0; fillAsg(); }
+      } });
+    var asgSel = el("select", { class: "k-input", "aria-label": "Assignment" });
+    function fillAsg() {
+      var keep = asgSel.value || (S.assignmentId != null ? String(S.assignmentId) : "");
+      asgSel.innerHTML = "";
+      asgSel.appendChild(el("option", { value: "", text: "No assignment" }));
+      var rows = KOS.assignments ? KOS.assignments.linkable(subjSel.value || null) : [];
+      rows.forEach(function (a) { asgSel.appendChild(el("option", { value: String(a.id), text: a.title + (a.due ? " · due " + a.due : "") })); });
+      asgSel.disabled = !rows.length;
+      asgSel.value = rows.some(function (a) { return String(a.id) === keep; }) ? keep : "";
+    }
+    topicPick.refresh();
+    fillAsg();
+    var overlay = dialogShell("Switch what you are studying", [el("div", { class: "k-stack" }, [
+      el("p", { class: "k-muted", text: "The clock keeps running. The time so far stays with " +
+        (S.subject ? shortName(S.subject) + (S.ref ? " " + S.ref : "") : "General study") + "." }),
+      el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Subject" }), subjSel]),
+      topicPick.el,
+      el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Assignment (optional)" }), asgSel])
+    ])], [
+      el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }),
+      el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "focus.switch-save", text: "Switch", onclick: save })
+    ]);
+    function save() {
+      var refs = topicPick.value ? topicPick.value() : [];
+      var moved = switchTo({ subject: subjSel.value || null, refs: refs, assignmentId: asgSel.value ? +asgSel.value : null });
+      overlay.close();
+      if (moved) {
+        KOS.a11y.announce("Now studying " + (S.subject ? subjectName(S.subject) + (S.ref ? " " + S.ref : "") : "General study") + ". The clock kept running.");
+        render();
+      }
+    }
+    KOS.ui.openDialog(overlay);
+    subjSel.focus();
   }
 
   /* the phone composes the running session differently (frames 15f, 16i):
@@ -1562,8 +1689,12 @@
     var idle = m.ended === "idle";
     var paidRule0 = m.rule === "blocks";
     var blk = KOS.governor.FOCUS_BLOCK.secs;
-    var where = [sess.subject ? subjectName(sess.subject) : "General study"];
-    if (sess.ref && KOS.hub.BYREF[sess.subject] && KOS.hub.BYREF[sess.subject][sess.ref]) where.push(sess.ref + " " + KOS.hub.BYREF[sess.subject][sess.ref].title);
+    var where = [entry.subject ? subjectName(entry.subject) : "General study"];
+    if (entry.ref && KOS.hub.BYREF[entry.subject] && KOS.hub.BYREF[entry.subject][entry.ref]) where.push(entry.ref + " " + KOS.hub.BYREF[entry.subject][entry.ref].title);
+    /* a switched session names each stretch and its minutes instead */
+    if (m.segments) where = [m.segments.map(function (p) {
+      return (p.subject ? shortName(p.subject) + (p.ref ? " " + p.ref : "") : "General") + " " + Math.max(1, Math.round(p.secs / 60)) + "m";
+    }).join(" → ")];
 
     /* --- 1. the time it measured (or, ended by the idle watch, the time it
        paid) leads, with the span it covers (frames 16f, 16j) --- */
@@ -2418,6 +2549,8 @@
     NUDGES: NUDGES.slice(),
     LIMITS: LIMITS.slice(),
     sessionLinks: sessionLinks,
+    switchTo: switchTo,
+    segments: function () { return S ? segmentsOf(S, workSeconds(), true) : []; },
     untilTarget: untilTarget,
     idleVerdict: idleVerdict,
     IDLE: { warn: IDLE_WARN, grace: IDLE_GRACE },

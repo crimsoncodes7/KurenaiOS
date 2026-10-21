@@ -161,9 +161,13 @@
       else if (!t.next || m.due < t.next) t.next = m.due;
     });
     if (fc.right + fc.wrong) t.accuracy = pctOf(fc.right, fc.right + fc.wrong);
-    var sess = KOS.sessions.all().filter(function (e) { return e.subject === sid && e.ref === ref; });
+    /* a switched Focus session counts here for the stretch on this topic */
+    var onTopic = function (p) { return p.subject === sid && p.ref === ref; };
+    var sess = KOS.sessions.all().filter(function (e) { return KOS.sessions.parts(e).some(onTopic); });
     t.sessions = sess.length;
-    t.minutes = Math.round(sess.reduce(function (a, e) { return a + (e.dur || 0); }, 0) / 60);
+    t.minutes = Math.round(sess.reduce(function (a, e) {
+      return a + KOS.sessions.parts(e).reduce(function (n, p) { return onTopic(p) ? n + p.secs : n; }, 0);
+    }, 0) / 60);
     t.examLogged = sess.filter(function (e) { return e.type === "exam"; }).length;
     /* topic memory (FSRS phase 2): recall today, Rework, held for an exam */
     t.memory = KOS.srs.topicMemory(sid, ref, today);
@@ -749,12 +753,13 @@
       var leaves = KOS.spec.resolve(refsOfEv(ev));
       return Math.round(KOS.sessions.all().reduce(function (sum, x) {
         if (x.date !== today || x.type === "media" || x.type === "todo" || !x.dur) return sum;
-        var hit = x.metrics && x.metrics.objective === label;
-        if (!hit && leaves.length) {
-          var mine = KOS.spec.resolve(x.refs && x.refs.length ? x.refs : x.ref && x.subject ? [x.subject + ":" + x.ref] : []);
-          hit = mine.some(function (k) { return leaves.indexOf(k) !== -1; });
-        }
-        return hit ? sum + x.dur : sum;
+        if (x.metrics && x.metrics.objective === label) return sum + x.dur;
+        if (!leaves.length) return sum;
+        /* by stretch: a switched session counts only its time on these topics */
+        return sum + KOS.sessions.parts(x).reduce(function (n, p) {
+          var mine = KOS.spec.resolve(p.refs);
+          return mine.some(function (k) { return leaves.indexOf(k) !== -1; }) ? n + p.secs : n;
+        }, 0);
       }, 0) / 60);
     }
     function examPlan(d, goalMins) {
@@ -1316,7 +1321,10 @@
         ])
       ]));
     var bySubj = { compsci: 0, maths: 0, it: 0 };
-    KOS.sessions.all().forEach(function (s) { if (s.type !== "media" && weekIsos.indexOf(s.date) !== -1 && bySubj[s.subject] != null) bySubj[s.subject] += (s.dur || 0) / 3600; });
+    KOS.sessions.all().forEach(function (s) {
+      if (s.type === "media" || weekIsos.indexOf(s.date) === -1) return;
+      KOS.sessions.parts(s).forEach(function (p) { if (bySubj[p.subject] != null) bySubj[p.subject] += p.secs / 3600; });
+    });
     var learnt = 0;
     Object.keys(store.state.srs || {}).forEach(function (k) { var m = store.state.srs[k]; if (m && m.reps > 0) learnt++; });
     var delta = weekH - lastWeekH;

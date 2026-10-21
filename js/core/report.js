@@ -115,6 +115,10 @@
     return e.type !== "media" && e.type !== "todo" &&
       !(e.type === "focus" && e.metrics && e.metrics.complete === false);
   }
+  function partsOf(e) {
+    return KOS.sessions && KOS.sessions.parts ? KOS.sessions.parts(e)
+      : [{ subject: e.subject || null, ref: e.ref || null, refs: e.refs || [], secs: e.dur || 0 }];
+  }
   function leavesOf(e) {
     var refs = e.refs && e.refs.length ? e.refs : (e.subject && e.ref ? [e.subject + ":" + e.ref] : []);
     if (!refs.length) return [];
@@ -186,10 +190,17 @@
       if (focusE) {
         var mm = (e.dur || 0) / 60;
         sessions++; mins += mm;
-        if (e.subject) inc(bySubject, e.subject, mm);
         var di = days(p.start, e.date);
-        if (di >= 0 && di < n) { dayMins[di] += mm; if (e.subject) inc(daySubj[di], e.subject, mm); }
-        leaves.forEach(function (k) { topic(k).mins += mm / leaves.length; });
+        if (di >= 0 && di < n) dayMins[di] += mm;
+        /* a switched session credits each stretch its own subject and topics */
+        partsOf(e).forEach(function (pt) {
+          var pm = pt.secs / 60, pl = leavesOf(pt);
+          if (pt.subject) {
+            inc(bySubject, pt.subject, pm);
+            if (di >= 0 && di < n) inc(daySubj[di], pt.subject, pm);
+          }
+          pl.forEach(function (k) { topic(k).mins += pm / pl.length; });
+        });
         if (mm > 0) timed.push({ ts: e.ts - (e.dur || 0) * 1000, mins: mm, sid: e.subject || null,
           label: leaves.length ? KOS.spec && KOS.spec.label ? KOS.spec.label(leaves[0]) : titleOf(leaves[0]) : null });
       } else if (e.type === "flashcards" || e.type === "due-review") {

@@ -1133,6 +1133,32 @@
     }
   });
 
+  def("focus_switch", {
+    desc: "Switch what the RUNNING study session is for — subject, topics (one subject) or assignment — without stopping it. The clock runs on and the session pays once; the time so far stays with what it was for.",
+    category: "governor", tier: "reversible", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, desc: "omit with no refs for General study" },
+      refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60 }, desc: "topics in ONE subject, as \"subject:ref\"" },
+      assignmentId: { type: "integer", min: 1 }
+    },
+    run: function (args, cb) {
+      if (KOS.focus.state() === "idle") { cb(fail("No session is running.")); return; }
+      if (KOS.focus.kind() === "reading") { cb(fail("A reading session has no subject to switch.")); return; }
+      var badRefs = checkRefs(args.refs);
+      if (badRefs) { cb(badRefs); return; }
+      if (args.refs && args.refs.length && KOS.spec.subjectsOf(args.refs).length > 1) { cb(fail("A stretch links ONE subject — pick topics from one.")); return; }
+      if (args.assignmentId != null && (!KOS.assignments || !KOS.assignments.get(args.assignmentId))) {
+        cb(fail("No assignment with id " + args.assignmentId + " — list them first.")); return;
+      }
+      var moved = KOS.focus.switchTo({ subject: args.subject || null, refs: args.refs || [],
+        assignmentId: args.assignmentId != null ? args.assignmentId : undefined });
+      var s = KOS.focus.session();
+      cb(null, { switched: moved, subject: s.subject, ref: s.ref, refs: s.refs || [],
+        assignmentId: s.assignmentId != null ? s.assignmentId : null,
+        stretches: KOS.focus.segments().map(function (p) { return { subject: p.subject, ref: p.ref, minutes: Math.round(p.secs / 60) }; }) });
+    }
+  });
+
   def("focus_end_session", {
     desc: "End the running session. Completing pays the award through the one governor pipeline. Ending a Pomodoro EARLY logs it but forfeits the award — early:true must be stated deliberately; a custom, stopwatch or until session keeps every full 10 minutes either way.",
     category: "governor", tier: "reversible", read: false,
@@ -3613,7 +3639,7 @@
       "assignments_update", "pacing_tick_row", "notifications_list", "wishlist_list", "wishlist_add_item",
       "goals_list", "goals_add", "money_overview", "money_add_transaction"],
     governor: ["governor_get_status", "governor_list_shop", "governor_buy_item",
-      "focus_get_state", "focus_start_session", "focus_end_session"],
+      "focus_get_state", "focus_start_session", "focus_switch", "focus_end_session"],
     archive: ["archive_get_backup_info", "attachments_list", "attachments_set_note", "schedule_list", "schedule_add"],
     memory: ["memory_list", "memory_save"],
     sync: ["sync_cloud_status", "collection_get_sync_health", "collection_sync_provider"]

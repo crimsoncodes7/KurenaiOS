@@ -502,8 +502,16 @@
     return L.filter(function (e) { return e.date >= ctx.from && e.date <= ctx.to && test(e); });
   }
   function subjectOk(g, e) { return !g.links.subject || e.subject === g.links.subject; }
-  function focusMins(e) { return e.type === "focus" ? (e.dur || 0) / 60 : 0; }
-  function studyFocus(e) { return e.type === "focus" && e.subject && e.subject !== "media"; }
+  /* a Focus entry's seconds for the goal's subject, read by stretch (a
+     switched session splits its time, sessions.js parts); `linked` keeps
+     only time that was for a subject at all */
+  function focusSecs(g, e, linked) {
+    if (e.type !== "focus") return 0;
+    return KOS.sessions.parts(e).reduce(function (n, p) {
+      if (linked && (!p.subject || p.subject === "media")) return n;
+      return !g.links.subject || p.subject === g.links.subject ? n + p.secs : n;
+    }, 0);
+  }
   function round1(n) { return Math.round(n * 10) / 10; }
   function greenCount(g) {
     if (!KOS.rag || !KOS.hub || !KOS.hub.LEAVES) return null;
@@ -525,7 +533,7 @@
   register({ id: "study-hours", domain: "study", label: "Study for a number of hours", icon: "時", unit: "hours",
     repeat: true, fields: { subject: true },
     measure: function (g, ctx, cb) {
-      var mins = ledger(ctx, function (e) { return studyFocus(e) && subjectOk(g, e); }).reduce(function (n, e) { return n + focusMins(e); }, 0);
+      var mins = ledger(ctx, function (e) { return e.type === "focus"; }).reduce(function (n, e) { return n + focusSecs(g, e, true) / 60; }, 0);
       cb({ current: round1(mins / 60), unit: "hours" });
     } });
   register({ id: "cards-reviewed", domain: "study", label: "Review flashcards", icon: "札", unit: "cards",
@@ -558,16 +566,16 @@
   register({ id: "focus-hours", domain: "productivity", label: "Focus for a number of hours", icon: "焦", unit: "hours",
     repeat: true, fields: { subject: true },
     measure: function (g, ctx, cb) {
-      cb({ current: round1(ledger(ctx, function (e) { return e.type === "focus" && subjectOk(g, e); })
-        .reduce(function (n, e) { return n + focusMins(e); }, 0) / 60), unit: "hours" });
+      cb({ current: round1(ledger(ctx, function (e) { return e.type === "focus"; })
+        .reduce(function (n, e) { return n + focusSecs(g, e, false) / 60; }, 0) / 60), unit: "hours" });
     } });
   /* a block is a full 10 minutes of focus (invariant 4a), whatever the mode */
   register({ id: "focus-blocks", domain: "productivity", label: "Focus blocks", icon: "塊", unit: "blocks",
     repeat: true, fields: { subject: true },
     measure: function (g, ctx, cb) {
       var secs = (KOS.governor && KOS.governor.FOCUS_BLOCK && KOS.governor.FOCUS_BLOCK.secs) || 600;
-      cb({ current: ledger(ctx, function (e) { return e.type === "focus" && subjectOk(g, e); })
-        .reduce(function (n, e) { return n + Math.floor((e.dur || 0) / secs); }, 0), unit: "blocks" });
+      cb({ current: ledger(ctx, function (e) { return e.type === "focus"; })
+        .reduce(function (n, e) { return n + Math.floor(focusSecs(g, e, false) / secs); }, 0), unit: "blocks" });
     } });
   register({ id: "todos-done", domain: "productivity", label: "Tick off tasks, habits and reminders", icon: "済", unit: "ticks",
     repeat: true,
