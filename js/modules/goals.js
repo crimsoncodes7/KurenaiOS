@@ -69,6 +69,69 @@
     return U.tabs(items.map(function (it) { return { label: it[1], count: it[2], active: it[0] === current, onSelect: function () { onPick(it[0]); } }; }),
       { variant: "workspace", label: label, className: "k-seg--quiet" + (cls ? " " + cls : "") });
   }
+  /* ---- exam goals (29v): linked to one assessment of the Exams hub ---- */
+  function examOf(g) { return KOS.goalsExams && g.links && g.links.examId ? KOS.goalsExams.examOf(g) : null; }
+  function isExam(g) { var d = G.typeDef(g.type); return !!(d && d.exam); }
+  function examChip(g) {
+    if (g._unlinked || (g.params && g.params.examGone && !(g.links && g.links.examId))) {
+      return el("span", { class: "k-gl-examchip", "data-state": "gone", "data-ui": "goal.exam-chip" }, [el("span", { "aria-hidden": "true", text: "⊘" }), "Exam removed · unlinked"]);
+    }
+    var a = examOf(g);
+    if (!a) return null;
+    return el("span", { class: "k-gl-examchip", "data-tone": SUBJECT_TONE[a.subject] || null, "data-ui": "goal.exam-chip" }, [
+      el("i", { class: "k-gl-examdot", "aria-hidden": "true" }), a.title + (a.date ? " · " + dayLabel(a.date) : "")]);
+  }
+  function examNext(g) {
+    var a = examOf(g), cur = g._current, tgt = g._target || g.target;
+    if (!a) return null;
+    if (cur == null) return g._meta || null;
+    if (g._status === "completed") return null;
+    var left = Math.max(0, tgt - cur), dl = daysLeft(g);
+    if (g.type === "exam_recall") {
+      var due = KOS.examPlan ? KOS.examPlan.dueInScope(a, today()) : 0;
+      return cur >= tgt ? "At the target; it is judged on " + dayLabel(g.deadline) + ", so keep the reviews going." : "Keep the reviews in scope going" + (due ? ": " + due + " due today." : ".");
+    }
+    if (g.type === "exam_papers_done") {
+      var np = KOS.examPlan ? KOS.examPlan.nextPaper(a) : null, every = dl != null && dl > 0 && left ? Math.max(1, Math.floor((dl + 1) / left)) : null;
+      return (left === 1 ? "One more paper" : left + " more papers") + (every && every > 1 ? ": one every " + (every >= 28 ? Math.round(every / 7) + " weeks" : every + " days") + " gets you there" : "") + "." +
+        (np && KOS.examIndex ? " Next: " + KOS.examIndex.sittingLabel(np.sitting) + "." : "");
+    }
+    if (g.type === "exam_checklist") {
+      var list = KOS.exams.checklist(a), next = list.filter(function (c) { return !c.done && !c.auto; })[0] || list.filter(function (c) { return !c.done; })[0];
+      return next ? "Next: " + next.text.charAt(0).toLowerCase() + next.text.slice(1) + "." : null;
+    }
+    if (g.type === "exam_topics_green") return left + " to go." + (g.params && g.params.basis === "covered" ? " A topic counts once it is ticked in Pacing or started." : " A topic counts once it is Green.");
+    if (g.type === "exam_grade") return g._meta || null;
+    return null;
+  }
+  function examAction(g) {
+    var a = examOf(g);
+    if (g._unlinked) return ["Link to an exam", function () { linkDialog(g); }];
+    if (!a) return null;
+    if (g.type === "exam_recall") return ["Review", function () { KOS.show("review", { tab: "due", run: "scope:" + a.id }); }];
+    if (g.type === "exam_papers_done") return ["Plan a paper", function () { KOS.show("exams", "plan"); }];
+    if (g.type === "exam_checklist") return ["Open checklist", function () { KOS.show("exams", a.id); }];
+    if (g.type === "exam_topics_green") return ["Readiness", function () { KOS.show("exams", { id: a.id, tab: "readiness" }); }];
+    return ["Open the exam", function () { KOS.show("exams", a.id); }];
+  }
+  /* the exams a type can link to: upcoming, of a tier the type offers */
+  function examChoices(typeId, keep) {
+    if (!KOS.exams || !KOS.goalsExams) return [];
+    var tiers = G.typeDef(typeId).tiers || [];
+    return KOS.exams.upcoming().filter(function (a) {
+      return a.id === keep || (tiers.indexOf(a.tier) !== -1 && (typeId !== "exam_checklist" || KOS.exams.checklist(a).length));
+    });
+  }
+  function linkDialog(g) {
+    var list = examChoices(g.type, null);
+    var sel = select(list.map(function (a) { return [a.id, a.title + (a.date ? " · " + dayLabel(a.date) : "")]; }), "", { "aria-label": "Exam" });
+    var ov = dialogBox("Link to an exam", "試", [list.length ? field("Exam", sel, "The goal picks up from here; nothing was lost.")
+      : el("p", { class: "k-muted k-gl-small", text: "No exam it can follow is coming up. Add one in Exams first." })],
+      [el("span"), btn("Cancel", "", function () { ov.remove(); }), list.length ? btn("Link", "k-btn--primary", function () {
+        var a = KOS.exams.get(sel.value);
+        G.linkExam(g.id, sel.value); ov.remove(); announce("Linked to " + a.title); redraw();
+      }, "goal.link-save") : null].filter(Boolean), "goal.link-dialog", "k-gl-dialog--form");
+  }
   function isMoney(g) { return /^[£$€¥]$|^[A-Z]{3}$/.test(g._unit || ""); }
   function hm(hours) {
     var m = Math.round((hours || 0) * 60);
@@ -91,6 +154,7 @@
   function domainOf(g) { return g._domain || g.domain || "collection"; }
   function tone(g) {
     var d = domainOf(g);
+    if (g._unlinked) return null;
     if (d === "study") return SUBJECT_TONE[g.links && g.links.subject] || null;
     if (d === "code") return "code";
     if (d === "money") return g.links && g.links.category === "collection" ? "collection" : g.type === "money-save" ? "jade" : null;
@@ -108,10 +172,11 @@
     var mono = markOf(g) === "C#", cls = mono ? "k-mono k-gl-pillmark" : "k-kanji k-gl-pillmark";
     return el("span", { class: cls, text: markOf(g) });
   }
-  function markOf(g) { return domainOf(g) === "collection" && g.module ? MODULE_K[g.module] : (DOMAIN[domainOf(g)] || DOMAIN.collection).k; }
+  function markOf(g) { if (isExam(g)) return "試"; return domainOf(g) === "collection" && g.module ? MODULE_K[g.module] : (DOMAIN[domainOf(g)] || DOMAIN.collection).k; }
   /* the chip a goal shows: its pace, or why it has none */
   function paceKind(g) {
     if (g.archived) return "archived";
+    if (g._unlinked) return null;
     if (g._displayOnly) return "display";
     /* a stay-under goal still running has no line: Under or Over */
     if (g._direction === "under" && g._status !== "completed" && g._status !== "failed") return g._pace || "under";
@@ -126,6 +191,7 @@
   }
   function whenText(g) {
     var dl = daysLeft(g);
+    if (g._unlinked) return "kept as it was";
     if (dl == null) return g._displayOnly ? "Shown only" : "No deadline, so no pace";
     var left = dl < 0 ? "ended " + shortDate(g._period ? g._period.to : g.deadline) : dl === 0 ? "ends tonight" : dl + (dl === 1 ? " day left" : " days left");
     if (g._period) return left + " · " + (g.repeat === "week" ? DAY3[parse(g._period.from).getDay()] + "–" + DAY3[parse(g._period.to).getDay()] : MONTHS[parse(g._period.from).getMonth()]);
@@ -134,6 +200,8 @@
   /* the next concrete step, in one line */
   function nextStep(g) {
     var cur = g._current || 0, tgt = g._target || g.target, left = Math.max(0, tgt - cur), dl = daysLeft(g);
+    if (g._unlinked) return "The exam was deleted" + (g.params.examGone.at ? " on " + dayLabel(g.params.examGone.at) : "") + ". Link it to another exam to keep it going; nothing was lost.";
+    if (isExam(g)) { var xs = examNext(g); if (xs) return xs; }
     if (g._displayOnly) return (left ? left + " more to go. " : "") + "Shown only; a goal never pays.";
     if (g._direction !== "under" && (g._status === "completed" || g._status === "met")) return "Met. Nothing more to do here.";
     if (g._direction === "under") return isMoney(g) ? (KOS.money && KOS.money.isHidden() ? "Room left before the limit." : KOS.money.format(Math.round(Math.max(0, tgt - cur) * 100)) + " left before the limit.") : (cur ? cur + " to clear." : "Clear so far.");
@@ -151,6 +219,7 @@
   /* the action that moves a goal */
   function actionFor(g) {
     var t = g.type;
+    if (isExam(g)) return examAction(g);
     if (t === "study-hours" || t === "focus-hours" || t === "focus-blocks") return ["Start focus", function () { KOS.show("focus"); }];
     if (t === "topics-green" || t === "study-finish-unit" || t === "cards-reviewed" || t === "recall-rate") {
       var sid = g.links && g.links.subject;
@@ -188,11 +257,18 @@
   }
   function visual(g) {
     if (g.repeat) return strip(g, "sm");
+    if (g._unlinked) return null;
+    if (g.type === "exam_recall" && g._current != null) {
+      var rt = g._target || g.target;
+      return U.ring({ p: rt ? g._current / rt : 0, tick: g._expected != null && rt ? Math.min(1, g._expected / rt) : null, size: 92, met: g._status === "completed",
+        label: g._current + "% of " + rt + "%" + (g._expected != null ? "; the line is at " + Math.round(g._expected) + "%" : "") }, [
+        el("span", { class: "k-mono k-gl-strong", text: g._current + "%" }), el("span", { class: "k-muted k-gl-tiny", text: "of " + rt })]);
+    }
     if (g.type === "money-spend-under" || g.type === "spend-below") return U.catBar({ name: g.links && g.links.category ? (KOS.money.category(g.links.category) || {}).name : "Spending", tone: g.links && g.links.category ? (KOS.money.category(g.links.category) || {}).tone : "muted",
       spent: Math.round((g._current || 0) * 100), budget: Math.round((g._target || 0) * 100), foot: false });
     if (isMoney(g) || g._current == null) return null;
     var t = g._target || g.target;
-    if (t <= 20 && t === Math.round(t) && g._unit !== "hours") return squares(t, Math.min(t, Math.floor(g._current || 0)), g._displayOnly ? "teal" : g._domain === "code" ? "code" : "green");
+    if (t <= 20 && t === Math.round(t) && g._unit !== "hours") return squares(t, Math.min(t, Math.floor(g._current || 0)), g._displayOnly ? "teal" : g._domain === "code" ? "code" : isExam(g) ? tone(g) || "green" : "green");
     var b = el("div", { class: "k-bar k-bar--6 k-gl-bar", "data-tone": tone(g) || null, role: "img", "aria-label": g._pct + "%" }, [el("i")]);
     b.style.setProperty("--p", Math.min(100, g._pct || 0) + "%");
     return b;
@@ -322,15 +398,17 @@
       : figure(g, cur);
     var unit = isMoney(g) ? (g._direction === "under" ? "left before the limit" : el("span", {}, ["of ", U.amount(Math.round(tgt * 100), { size: "13", w: "500" })]))
       : g.type === "code-capstone" && !cur ? "recommended after unit 9"
-      : g._unit === "hours" ? "of " + hm(tgt) : "of " + tgt + (g._unit ? " " + g._unit : "");
+      : g._unit === "hours" ? "of " + hm(tgt) : "of " + tgt + (g._unit === "%" ? "%" : g._unit ? " " + g._unit : "");
     var node = el("article", { class: "k-gl-card", "data-ui": "goal.card", "data-status": g._status }, [
       el("div", { class: "k-gl-cardband" }, [band(g),
-        el("div", { class: "k-gl-bandtop" }, [el("span", { class: "k-gl-pill" }, [pillMark(g), pillText(g)]),
+        el("div", { class: "k-gl-bandtop" }, [isExam(g) && examChip(g) ? examChip(g) : el("span", { class: "k-gl-pill" }, [pillMark(g), pillText(g)]),
           el("span", { class: "k-mn-spacer" }), (function () { var c = U.paceChip(paceKind(g)); return c ? el("span", { class: "k-gl-chipwrap" }, [c]) : null; })()].filter(Boolean))]),
       el("div", { class: "k-gl-cardbody" }, [
         el("h3", { class: "k-gl-cardtitle" }, [el("button", { type: "button", class: "k-gl-titlelink", "data-ui": "goal.open", onclick: function () { KOS.show("goals", { id: g.id }); }, text: g.title })]),
         el("div", { class: "k-gl-figrow" }, [big, typeof unit === "string" ? el("span", { class: "k-muted", text: unit }) : unit]),
         visual(g),
+        g._unlinked ? el("span", { class: "k-chip", "data-tone": "muted", "data-ui": "goal.unlinked", text: "▣ Archives at its next judgement" })
+          : g._noPace && g._status === "active" && g._meta && g.type === "exam_checklist" ? el("span", { class: "k-muted k-gl-small", text: g._meta }) : null,
         el("p", { class: "k-soft k-gl-small k-gl-next", text: nextStep(g) }),
         el("span", { class: "k-mn-spacer" }),
         el("div", { class: "k-gl-cardfoot" }, [el("span", { class: "k-muted k-gl-small k-gl-grow", text: whenText(g) }),
@@ -549,7 +627,14 @@
         ok ? (onOpen ? el("button", { type: "button", class: "k-link", text: "›", "aria-label": "Open " + title, onclick: onOpen }) : null)
           : btn("Remove link", "k-btn--sm k-btn--quiet", function () { var l = Object.assign({}, links); delete l[key]; G.update(g.id, { links: l }); announce("Link removed"); redraw(); }, "goal.unlink")].filter(Boolean)));
     }
-    if (links.subject) row("学", { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[links.subject] || links.subject, "Counts sessions in this subject", true, function () { KOS.show("subject", links.subject); });
+    if (isExam(g)) {
+      var xa = examOf(g);
+      if (xa) row("試", xa.title, (KOS.exams.tier(xa.tier) || {}).label + (xa.date ? " · " + dayLabel(xa.date) : "") + " · the goal ends on its date" + (g.params && g.params.by ? " unless sooner (" + dayLabel(g.params.by) + ")" : ""), true, function () { KOS.show("exams", xa.id); });
+      else if (g.params && g.params.examGone) rows.push(el("div", { class: "k-card-row k-gl-link", "data-state": "dead" }, [el("span", { class: "k-tile", "aria-hidden": "true", text: "⊘" }),
+        el("div", { class: "k-gl-grow" }, [el("div", { class: "k-gl-strong k-gl-linktitle", text: g.params.examGone.title || "The exam" }), el("div", { class: "k-muted k-gl-small", text: "Exam removed · unlinked · nothing was lost" })]),
+        btn("Link to an exam", "k-btn--sm", function () { linkDialog(g); }, "goal.relink")]));
+    }
+    if (links.subject && !isExam(g)) row("学", { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[links.subject] || links.subject, "Counts sessions in this subject", true, function () { KOS.show("subject", links.subject); });
     (links.refs || []).slice(0, 6).forEach(function (k) {
       var i = k.indexOf(":"), lab = KOS.spec && KOS.spec.label ? KOS.spec.label(k.slice(0, i), k.slice(i + 1)) : k;
       row("学", lab || k, "Topic · from the topic picker", true, function () { KOS.show("ref", { subject: k.slice(0, i), ref: k.slice(i + 1) }); });
@@ -573,6 +658,13 @@
   function countedText(g) {
     var d = domainOf(g);
     if (g._displayOnly) return "Read from the Governor and shown only. Reaching it records nothing and pays nothing.";
+    if (isExam(g)) return ({
+      exam_grade: "Read from the exam's own attempts: the result once logged (or the best timed paper), against the boundaries for a grade.",
+      exam_recall: "Read from the readiness model: FSRS's recall across the exam's scope on the morning of the exam, mark-weighted. Met when it holds on the date.",
+      exam_topics_green: "Read from the exam's resolved scope: leaves at Green, or ticked in Pacing or started.",
+      exam_papers_done: "Read from the exam's own attempts: timed papers with a mark, since the goal began.",
+      exam_checklist: "Read from the exam's checklist: what you ticked and what the app verified."
+    })[g.type] + " Meeting it records one activity-only receipt and pays nothing.";
     if (d === "study" || d === "productivity") return "Read from sessions already logged and paid by Focus and study. Reading this goal pays nothing again, and meeting it records one activity-only receipt.";
     if (d === "money") return "Read from Money's entries and pots. A goal never moves money, and meeting it pays nothing.";
     if (d === "code") return "Read from Code's evidence: first passes and proven retrievals in the ledger, never a seen answer.";
@@ -590,8 +682,18 @@
     body.appendChild(templGrid(null, function (t) { announce("Template chosen: " + t[1]); next(t[3]); }));
     body.appendChild(el("div", { class: "k-field-label", text: "Or choose a type" }));
     var groups = el("div", { class: "k-gl-types" });
+    var examTypes = G.types({ domain: "study" }).filter(function (t) { return t.exam; });
+    if (examTypes.length) {
+      var anyExam = KOS.exams && KOS.exams.upcoming().some(function (a) { return a.tier !== "deadline"; });
+      groups.appendChild(el("div", { class: "k-gl-typegroup", role: "group", "aria-label": "Exams", "data-ui": "goal.exam-types" }, [
+        el("div", { class: "k-gl-typehead", text: "試 Exams" }),
+        el("div", { class: "k-gl-typelist" }, examTypes.map(function (t) {
+          return el("button", { type: "button", class: "k-gl-type", "data-ui": "goal.type", disabled: anyExam ? null : "", title: t.blurb || null,
+            onclick: function () { next({ type: t.id }); }, text: t.label });
+        }).concat(anyExam ? [] : [btn("Add an exam first", "k-btn--sm", function () { ov.remove(); KOS.show("exams", "timetable"); KOS.examEditor(null, {}, function () { KOS.rerender(); }); }, "goal.add-exam")]))]));
+    }
     DOMAIN_ORDER.concat(["manual"]).forEach(function (d) {
-      var ts = d === "manual" ? [G.typeDef("custom-manual")] : G.types({ domain: d }).filter(function (t) { return t.id !== "custom-manual"; });
+      var ts = d === "manual" ? [G.typeDef("custom-manual")] : G.types({ domain: d }).filter(function (t) { return t.id !== "custom-manual" && !t.exam; });
       if (!ts.length) return;
       groups.appendChild(el("div", { class: "k-gl-typegroup", role: "group", "aria-label": d === "manual" ? "Manual" : DOMAIN[d].label }, [
         el("div", { class: "k-gl-typehead", text: d === "manual" ? "✎ Manual" : DOMAIN[d].k + " " + DOMAIN[d].label }),
@@ -641,9 +743,76 @@
     var hint = el("p", { class: "k-gl-hint k-gl-small" });
     var form = el("div", { class: "k-gl-form" });
     var picker = null, extra = {};
+    /* an exam goal (29v): the exam, the aim, and an optional earlier "By" */
+    var xs = { examId: links.examId || seed.examId || null, params: Object.assign({}, g.params || {}, seed.params || {}), titled: !!existing };
+    if (def.exam && !xs.examId) { var first = examChoices(typeId, null)[0]; xs.examId = first ? first.id : null; }
+    var byIn = input("date", xs.params.by || "", { "aria-label": "By" });
+    if (def.exam && !existing && seed.target == null) countIn.value = String({ exam_grade: 70, exam_recall: 90, exam_topics_green: 10, exam_papers_done: 4, exam_checklist: 1 }[typeId] || 1);
+    title.addEventListener("input", function () { xs.titled = true; });
+    function autoTitle() {
+      if (xs.titled || !def.exam) return;
+      var a = KOS.exams.get(xs.examId), t = +countIn.value || 0;
+      if (!a) return;
+      title.value = typeId === "exam_grade" ? a.title + (xs.params.grade ? " at " + xs.params.grade : " ≥ " + t + "%")
+        : typeId === "exam_recall" ? a.title + " projected recall ≥ " + t + "%"
+        : typeId === "exam_topics_green" ? (xs.params.all ? "All of " : t + " topics ") + (xs.params.basis === "covered" ? "covered" : "Green") + " for " + a.title
+        : typeId === "exam_papers_done" ? t + " marked papers before " + a.title : "Pre-exam checklist: " + a.title;
+    }
+    function drawExam() {
+      var list = examChoices(typeId, xs.examId);
+      if (!list.length) { form.appendChild(el("p", { class: "k-muted k-gl-small", text: "No exam this goal can follow is coming up. Add one in Exams first." })); return; }
+      var a = KOS.exams.get(xs.examId) || list[0];
+      xs.examId = a.id;
+      var sel = select(list.map(function (x) { return [x.id, x.title + (x.date ? " · " + dayLabel(x.date) : "")]; }), a.id, { "aria-label": "Exam", "data-ui": "goal.exam" });
+      sel.addEventListener("change", function () { xs.examId = sel.value; autoTitle(); draw(); });
+      var row = [field("Exam", sel)];
+      if (typeId === "exam_grade") {
+        var gs = KOS.goalsExams.grades(a);
+        if (xs.params.grade && gs.indexOf(xs.params.grade) === -1) delete xs.params.grade;
+        form.appendChild(field("Measured from", seg([["result", "The result"], ["best", "Best timed paper"]], xs.params.basis === "best" ? "best" : "result",
+          function (v) { xs.params.basis = v; draw(); }, "Measured from", "k-seg--fill")));
+        if (gs.length) {
+          var gsel = select([["", "A percentage"]].concat(gs.map(function (x) { return [x, "Grade " + x + " (about " + KOS.goalsExams.gradeCut(a, x) + "%)"]; })), xs.params.grade || "", { "aria-label": "Aim" });
+          gsel.addEventListener("change", function () { if (gsel.value) xs.params.grade = gsel.value; else delete xs.params.grade; autoTitle(); draw(); });
+          row.push(field("Aim at", gsel));
+        }
+      }
+      if (typeId === "exam_topics_green") {
+        form.appendChild(field("Counts a topic", seg([["green", "Green"], ["covered", "Covered in Pacing"]], xs.params.basis === "covered" ? "covered" : "green",
+          function (v) { xs.params.basis = v; autoTitle(); draw(); }, "Counts a topic", "k-seg--fill")));
+        var allBox = el("input", { type: "checkbox", class: "k-box", "aria-label": "All of the scope" });
+        allBox.checked = !!xs.params.all;
+        allBox.addEventListener("change", function () { xs.params.all = allBox.checked; autoTitle(); draw(); });
+        form.appendChild(el("label", { class: "k-check" }, [allBox, el("span", { text: "All of the scope (" + KOS.exams.leaves(a).length + " leaves)" })]));
+      }
+      var needsTarget = typeId !== "exam_checklist" && !(typeId === "exam_grade" && xs.params.grade) && !(typeId === "exam_topics_green" && xs.params.all);
+      if (needsTarget) row.push(field("At least", el("div", { class: "k-gl-stepper" }, [countIn, el("span", { class: "k-muted k-gl-small", text: def.unit === "%" ? "%" : def.unit })])));
+      byIn.max = a.date || "";
+      row.push(field("By · optional", byIn));
+      form.appendChild(el("div", { class: "k-gl-tworow k-gl-examrow" }, row));
+      form.appendChild(el("p", { class: "k-field-hint", text: "Ends on the exam's date (" + (a.date ? dayLabel(a.date) : "not set") + ") unless you pick an earlier one, and follows it if the exam moves." }));
+    }
+    function examLine() {
+      var a = KOS.exams.get(xs.examId);
+      hint.textContent = "";
+      if (!a) return;
+      var tmp = G.normalise({ type: typeId, target: +countIn.value || 1, links: { examId: a.id }, params: xs.params, startDate: now });
+      def.measure(tmp, { from: now, to: byIn.value || a.date || now, today: now, stats: function (d) { d({}); } }, function (m) {
+        if (!m || m.current == null) { hint.textContent = m && m.meta ? m.meta + "." : ""; return; }
+        var t = m.target != null ? m.target : +countIn.value || 0, end = byIn.value || a.date;
+        var text = "Now " + m.current + (def.unit === "%" ? "%" : " of " + t + " " + def.unit) + ".";
+        if (typeId === "exam_recall" && end && t > m.current) {
+          var days = Math.max(1, between(now, end)), nextWk = Math.round(m.current + (t - m.current) * Math.min(1, 7 / days));
+          text += " On the straight line to " + t + "% by " + shortDate(end) + " it should read " + nextWk + "% next week.";
+        } else if (typeId === "exam_grade" && xs.params.grade) text += " " + xs.params.grade + " needs about " + t + "% on this paper.";
+        else if (typeId === "exam_papers_done" && end && t > m.current) text += " One about every " + Math.max(1, Math.round(between(now, end) / (t - m.current))) + " days gets you there.";
+        hint.textContent = text;
+      });
+    }
     function draw() {
       form.textContent = "";
       form.appendChild(field("Title", title));
+      if (def.exam) { drawExam(); autoTitle(); form.appendChild(hint); form.appendChild(err); examLine(); return; }
       /* the source: a subject, topics, a pot, a category, a capstone, a title */
       if (def.fields.subject) {
         extra.subject = select([["", "All subjects"]].concat((KOS.subjects ? KOS.subjects.ids() : ["compsci", "maths", "it", "code"]).map(function (s) { return [s, { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[s] || s]; })), links.subject || "", { "aria-label": "Subject" });
@@ -721,6 +890,7 @@
     }
     function targetValue() { return money ? (targetIn.value() == null ? null : targetIn.value() / 100) : +countIn.value; }
     function line() {
+      if (def.exam) { autoTitle(); examLine(); return; }
       var t = targetValue(), end = repeat ? null : deadline.value, s = start.value || now;
       hint.textContent = "";
       if (def.displayOnly) { hint.textContent = "Shown only. Reaching it records nothing and pays nothing."; return; }
@@ -732,9 +902,32 @@
     }
     if (countIn) countIn.addEventListener("input", line);
     deadline.addEventListener("change", line);
+    byIn.addEventListener("change", line);
     start.addEventListener("change", function () { if (repeat === "week") draw(); else line(); });
     draw();
+    function saveExam() {
+      var a = KOS.exams.get(xs.examId);
+      if (!a) { err.hidden = false; err.textContent = "✕ Choose the exam it follows"; return; }
+      if (!title.value.trim()) { err.hidden = false; err.textContent = "✕ Give the goal a title"; title.focus(); return; }
+      var params = Object.assign({}, xs.params);
+      if (byIn.value && a.date && byIn.value < a.date) params.by = byIn.value; else delete params.by;
+      if (typeId === "exam_grade" && !params.basis) params.basis = "result";
+      if (typeId === "exam_topics_green" && !params.basis) params.basis = "green";
+      var t = +countIn.value;
+      if (typeId === "exam_grade" && params.grade) t = KOS.goalsExams.gradeCut(a, params.grade) || 1;
+      if (typeId === "exam_topics_green" && params.all) t = KOS.exams.leaves(a).length || 1;
+      if (typeId === "exam_checklist") t = KOS.exams.checklist(a).length || 1;
+      if (!(t > 0)) { err.hidden = false; err.textContent = "✕ The target must be above 0"; return; }
+      var l = Object.assign({}, links, { examId: a.id });
+      if (a.subject) l.subject = a.subject;
+      var fields = { title: title.value.trim(), type: typeId, target: t, links: l, params: params, deadline: params.by || a.date || null, milestones: [] };
+      var saved = existing ? G.update(existing.id, fields) : G.add(fields);
+      ov.remove();
+      announce("Goal added: " + saved.title + (saved.deadline ? " by " + shortDate(saved.deadline) : ""));
+      KOS.show("goals", { id: saved.id });
+    }
     function save() {
+      if (def.exam) { saveExam(); return; }
       var t = targetValue();
       if (!title.value.trim()) { err.hidden = false; err.textContent = "✕ Give the goal a title"; title.focus(); return; }
       if (!(t > 0) && !(def.direction === "under" && t === 0)) { err.hidden = false; err.textContent = "✕ The target must be above 0"; return; }

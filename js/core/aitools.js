@@ -2174,6 +2174,73 @@
     var hit = KOS.money.categories({ archived: true }).filter(function (x) { return x.name.toLowerCase() === low; })[0];
     return hit ? hit.id : null;
   }
+  /* ======================================================================
+     EXAMS (the Exams & Deadlines hub, roadmap 5.8; read only — an attempt
+     is logged in the app, and no tool edits a scope: plan §15)
+     ====================================================================== */
+  function examsReady(cb) { if (!KOS.exams || !KOS.exams.all) { cb({ error: "The Exams hub is not loaded." }); return false; } return true; }
+  function examBrief(a) {
+    var rd = KOS.exams.readiness(a), sb = KOS.exams.startBy(a);
+    return { id: a.id, title: a.title, tier: a.tier, subject: a.subject || null, date: a.date || null, provisional: !!a.provisional,
+      daysLeft: KOS.exams.daysTo(a), startBy: sb ? sb.date : null, band: rd && rd.band ? rd.band.band : null,
+      limitingSignal: rd && rd.band ? rd.band.limitName || null : null, hasResult: !!a.result };
+  }
+  function sigOut(sig) {
+    var out = {};
+    Object.keys(sig || {}).forEach(function (k) {
+      var x = sig[k];
+      if (x.thin) { out[k] = { silent: true, why: x.why }; return; }
+      if (k === "coverage") out[k] = { covered: Math.round(100 * x.value) + "%", leavesMet: x.met, of: x.of };
+      else if (k === "rag") out[k] = { green: Math.round(100 * x.green) + "%", amber: Math.round(100 * x.amber) + "%", red: Math.round(100 * x.red) + "%", rated: x.rated };
+      else if (k === "recall") out[k] = { recall: Math.round(100 * x.value) + "%", on: x.on, ratedCards: x.rated, weakest: (x.weakest || []).slice(0, 5).map(function (w) { return { ref: w.ref, title: w.title, recall: Math.round(100 * w.r) + "%" }; }) };
+      else if (k === "practice") out[k] = { timedPapers: x.n, lastPct: x.last, targetPct: x.targetPct, predicted: x.predicted && x.predicted.lo ? { lo: x.predicted.lo, hi: x.predicted.hi } : null };
+    });
+    return out;
+  }
+  def("exams_overview", {
+    desc: "The Exams hub: every assessment still ahead (real exams, mocks, topic tests, retrieval quizzes, deadlines) with its date, days left, start-by date and readiness band (Ready, On track, At risk with the signal holding it down, or not enough evidence), plus whether Exam Season is on.",
+    category: "study", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      if (!examsReady(cb)) return;
+      var sn = KOS.exams.season();
+      cb(null, { season: { on: !!sn.on, until: sn.last ? sn.last.date : null }, upcoming: KOS.exams.upcoming().slice(0, 30).map(examBrief) });
+    }
+  });
+  def("exam_detail", {
+    desc: "One assessment by id (from exams_overview): its readiness as four separate signals (coverage, RAG, projected recall, timed practice; each silent below its evidence), its scope size, where the next ten marks come from, and its linked goals.",
+    category: "study", tier: "read", read: true,
+    params: { id: { type: "string", required: true, maxLen: 24 } },
+    run: function (args, cb) {
+      if (!examsReady(cb)) return;
+      var a = KOS.exams.get(args.id);
+      if (!a) { cb({ error: "No assessment " + args.id + " — exams_overview lists them." }); return; }
+      var rd = KOS.exams.readiness(a), nm = KOS.exams.nextMarks ? KOS.exams.nextMarks(a) : null;
+      var out = examBrief(a);
+      out.scopeLeaves = KOS.exams.leaves(a).length;
+      out.signals = rd ? sigOut(rd.signals) : {};
+      out.nextTenMarks = nm && !nm.thin && nm.items ? nm.items.map(function (r) {
+        return { topic: r.title, from: r.from, lostOf: r.avail ? r.lost + " of " + r.avail : undefined, recall: r.recall != null ? Math.round(100 * r.recall) + "%" : undefined, mostLostTo: r.top || undefined };
+      }) : nm && nm.thin ? nm.why : null;
+      out.goals = KOS.goals ? KOS.goals.byExam(a.id).map(function (g) { return { id: g.id, title: g.title, type: g.type, status: g.status }; }) : [];
+      cb(null, out);
+    }
+  });
+  def("exam_attempts", {
+    desc: "The papers logged for one assessment (by id): date, marks and %, timed or not, practice or the result, and the marks lost by tag where questions were marked. Marks only — never notes.",
+    category: "study", tier: "read", read: true,
+    params: { id: { type: "string", required: true, maxLen: 24 } },
+    run: function (args, cb) {
+      if (!examsReady(cb)) return;
+      var a = KOS.exams.get(args.id);
+      if (!a) { cb({ error: "No assessment " + args.id + " — exams_overview lists them." }); return; }
+      cb(null, { id: a.id, title: a.title, attempts: KOS.exams.attemptsFor(a).slice(-20).map(function (e) {
+        var lost = {};
+        (e.questions || []).forEach(function (q) { if (q.max != null && q.got != null && q.got < q.max) (q.tags && q.tags.length ? q.tags : ["untagged"]).forEach(function (t) { lost[t] = (lost[t] || 0) + (q.max - q.got) / (q.tags && q.tags.length ? q.tags.length : 1); }); });
+        return { date: e.date, paper: e.paper || e.topic || null, marks: e.marks, max: e.max, pct: KOS.tracker.pct(e), timed: !!e.timed, role: e.role || "practice",
+          lostByTag: Object.keys(lost).length ? lost : undefined };
+      }) });
+    }
+  });
   def("money_overview", {
     desc: "Money for one month (default: this one): income, outgoings, left to spend, safe to spend today, each category against its budget, bills in the next 14 days, subscriptions per month and pot balances. Totals only — no payees or notes.",
     category: "planner", tier: "read", read: true,
@@ -3534,7 +3601,7 @@
   var UNIVERSAL_TOOLS = ["app_get_context", "search_app"];
   /* each domain's most useful tools, in priority order (curated) */
   var DOMAIN_TOOLS = {
-    study: ["study_search_spec", "study_get_topic", "study_read_notes", "labs_list",
+    study: ["study_search_spec", "study_get_topic", "study_read_notes", "labs_list", "exams_overview", "exam_detail", "exam_attempts",
       "study_propose_flashcards", "study_save_proposed", "study_add_flashcard",
       "study_generate_flashcards", "study_generate_quiz", "study_list_topics",
       "study_set_topic_status", "study_get_due_summary"],

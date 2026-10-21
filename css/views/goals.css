@@ -83,6 +83,17 @@
 .k-gl-squares { --sq-c: var(--green); display: flex; flex-wrap: wrap; gap: var(--sp-4); }
 .k-gl-squares[data-tone="code"] { --sq-c: var(--code); }
 .k-gl-squares[data-tone="teal"] { --sq-c: var(--teal); }
+.k-gl-squares[data-tone="cs"] { --sq-c: var(--cs); }
+.k-gl-squares[data-tone="maths"] { --sq-c: var(--maths); }
+.k-gl-squares[data-tone="it"] { --sq-c: var(--it); }
+/* an exam goal's link (29v): the exam with its subject dot, or removed */
+.k-gl-examchip { --chip-c: var(--muted); display: inline-flex; align-items: center; gap: var(--sp-6); min-inline-size: 0; padding: var(--sp-3) var(--sp-10); border-radius: var(--r-pill); background: var(--bg); color: var(--text); font-size: var(--fs-12); font-weight: var(--weight-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-gl-examchip[data-tone="cs"] { --chip-c: var(--cs); }
+.k-gl-examchip[data-tone="maths"] { --chip-c: var(--maths); }
+.k-gl-examchip[data-tone="it"] { --chip-c: var(--it); }
+.k-gl-examchip[data-state="gone"] { background: var(--s1); color: var(--muted); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-gl-cardbody > .k-chip { align-self: flex-start; }
+.k-gl-examdot { flex: 0 0 auto; inline-size: var(--sp-7); block-size: var(--sp-7); border-radius: 50%; background: var(--chip-c); }
 .k-gl-sq { inline-size: var(--period); block-size: var(--period); border-radius: var(--r-6); background: var(--s2); }
 .k-gl-sq[data-state="on"] { background: var(--sq-c); }
 .k-gl-bar { --bar-c: var(--text-2); }
@@ -168,6 +179,7 @@
 .k-gl-type:hover, .k-gl-type:focus-visible { background: var(--text); color: var(--bg); }
 .k-gl-form { display: flex; flex-direction: column; gap: var(--sp-14); }
 .k-gl-tworow { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: var(--sp-12); align-items: end; }
+.k-gl-examrow { grid-template-columns: minmax(0, 1.3fr) repeat(auto-fit, minmax(0, 1fr)); }
 .k-gl-stepper { display: flex; align-items: center; gap: var(--sp-6); }
 .k-gl-num { inline-size: var(--mn-sub-fig); text-align: center; padding-inline: var(--sp-6); }
 .k-gl-hint { margin: 0; padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s1); color: var(--text-2); }

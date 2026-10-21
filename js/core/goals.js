@@ -14,10 +14,14 @@
              can be read over ANY past range, so a goal may repeat weekly or
              monthly and each ended period be judged), displayOnly (a
              Governor value: shown, never a claim of reward),
-             fields: { module, filter, linked, subject, pot, category, … }
-             (what the editor asks for), onCreate(goal) (a baseline taken
+             fields: { module, filter, linked, subject, pot, category, exam,
+             … } (what the editor asks for), onCreate(goal) (a baseline taken
              when the goal is made), measure(goal, ctx, cb) → cb({current,
-             target?, unit, meta}) }
+             target?, unit, meta}),
+             deadlineOf(goal) (a deadline READ from its source: an exam
+             goal's follows its exam), judge(goal, m, today) (a status rule
+             of its own), fromBase (the straight line starts at the
+             baseline taken at creation, `params.baseline`), noPace }
      ctx = { from, to, today, stats(cb) (the vault's aggregate, read once
              per compute) }
 
@@ -128,6 +132,8 @@
     if (raw.pot) out.pot = String(raw.pot).slice(0, 40);
     if (raw.category) out.category = String(raw.category).slice(0, 40);
     if (raw.capstone) out.capstone = String(raw.capstone).slice(0, 40);
+    /* an assessment of the Exams hub (invariant 128): a random string id */
+    if (raw.examId && /^[a-z0-9]{1,24}$/.test(String(raw.examId))) out.examId = String(raw.examId);
     return out;
   }
   /* THE SCHEMA GATE for a goal (v3). Unknown type ids are KEPT as they are
@@ -280,6 +286,8 @@
   function derive(g, def, measure, today) {
     if (g.failedManual) return "failed";
     if (g.status === "completed" && g.completedAt) return "completed";
+    if (unlinked(g)) return "active";
+    if (def.judge) return def.judge(g, measure, today);
     if (measure.current == null) return g.deadline && g.deadline < today ? "failed" : "active";
     if (def.direction === "under") {
       if (measure.current > measure.target) return "failed";
@@ -298,33 +306,44 @@
      no claim: no deadline, not started, nothing measured, or a value that
      is only displayed. */
   var PACE = { ahead: 0.10, behind: 0.05, early: 0.15 };
-  function expectedOf(target, from, to, today) {
-    var total = daysBetween(from, to) + 1;
+  /* `base` (a fromBase type): the line runs from the figure at creation,
+     not from zero — recall that starts at 79% is not "ahead" of a line
+     from 0 to 85% */
+  function expectedOf(target, from, to, today, base) {
+    var total = daysBetween(from, to) + 1, b = base || 0;
     var elapsed = Math.max(0, Math.min(total, daysBetween(from, today) + 1));
-    return { total: total, elapsed: elapsed, value: target * elapsed / total, frac: elapsed / total };
+    return { total: total, elapsed: elapsed, value: b + (target - b) * elapsed / total, frac: elapsed / total };
+  }
+  function baseOf(g, def) {
+    return def.fromBase && g.params && isFinite(g.params.baseline) ? Number(g.params.baseline) : 0;
   }
   function pace(g, def, current, target, from, to, today) {
-    if (def.displayOnly || current == null || !from || !to || today < from) return null;
+    if (def.displayOnly || def.noPace || unlinked(g) || current == null || !from || !to || today < from) return null;
     if (def.direction === "under") return current > target ? "over" : "under";
-    var e = expectedOf(target, from, to, today);
+    var base = baseOf(g, def), span = Math.max(target - base, 0);
+    var e = expectedOf(target, from, to, today, base);
     if (e.total < 2) return null;
     if (current >= target) return "ahead";
     if (e.elapsed <= 1 || e.frac < PACE.early) return "early";
-    if (current >= e.value + PACE.ahead * target) return "ahead";
-    if (current < e.value - PACE.behind * target) return "behind";
+    if (current >= e.value + Math.max(PACE.ahead * span, def.fromBase ? 1 : 0)) return "ahead";
+    if (current < e.value - Math.max(PACE.behind * span, def.fromBase ? 1 : 0)) return "behind";
     return "on-track";
   }
   /* a projected finish from the rate so far — only with three days of it
      and something done (invariant 76) */
   var PROJECT_MIN_DAYS = 3;
-  function projected(def, current, target, from, today) {
-    if (def.direction !== "reach" || def.displayOnly || !current || current >= target || !from) return null;
-    var elapsed = daysBetween(from, today) + 1;
-    if (elapsed < PROJECT_MIN_DAYS) return null;
-    return addDays(today, Math.ceil((target - current) / (current / elapsed)));
+  function projected(def, current, target, from, today, base) {
+    if (def.direction !== "reach" || def.displayOnly || def.noPace || !current || current >= target || !from) return null;
+    var elapsed = daysBetween(from, today) + 1, gained = current - (base || 0);
+    if (elapsed < PROJECT_MIN_DAYS || gained <= 0) return null;
+    return addDays(today, Math.ceil((target - current) / (gained / elapsed)));
   }
 
+  /* an exam goal whose exam was deleted (invariant 128): kept, measured
+     as nothing, no pace and no notices, archived at its next judgement */
+  function unlinked(g) { return !!(g && g.params && g.params.examGone && !(g.links && g.links.examId)); }
   function measureOne(g, def, ctx, cb) {
+    if (unlinked(g)) { cb({ current: null, target: g.target, unit: def.unit || "", meta: "Exam removed · unlinked" }); return; }
     if (!def.auto) { cb({ current: g.current || 0, target: g.target, unit: "steps", meta: "" }); return; }
     try {
       def.measure(g, ctx, function (m) {
@@ -392,11 +411,14 @@
     rows.forEach(function (g, index) {
       var def = typeDef(g.type);
       var per = g.repeat ? periodOf(g, today) : null;
+      /* a deadline read from its source (an exam goal follows its exam) */
+      var dl = !per && def.deadlineOf && !unlinked(g) ? (def.deadlineOf(g) || g.deadline) : g.deadline;
+      var gv = dl === g.deadline ? g : Object.assign({}, g, { deadline: dl });
       var from = per ? per.from : g.startDate;
-      var to = per ? per.to : (g.deadline || today);
+      var to = per ? per.to : (dl || today);
       function finish(m) {
         var target = def.direction === "under" ? Math.max(0, Number(m.target) || 0) : Math.max(1, Number(m.target) || g.target || 1);
-        var status = per ? "active" : derive(g, def, m, today);
+        var status = per ? "active" : derive(gv, def, m, today);
         var cur = m.current == null ? 0 : m.current;
         var pct = def.direction === "under"
           ? (target ? Math.max(0, Math.min(100, Math.round(100 * (1 - cur / target)))) : (cur ? 0 : 100))
@@ -419,16 +441,18 @@
           g.lastCurrent = m.current; g.progress = pct; g.lastMeasuredAt = Date.now(); dirty = true;
         }
         var met = per && m.current != null && (def.direction === "under" ? m.current <= target : m.current >= target);
-        var paceTo = per ? per.to : g.deadline;
-        out[index] = Object.assign({}, g, {
+        var paceTo = per ? per.to : dl;
+        var base = baseOf(g, def);
+        out[index] = Object.assign({}, g, { deadline: per ? g.deadline : dl,
           _current: m.current, _target: target, _unit: m.unit, _meta: m.meta,
           _status: per ? (met ? "met" : "active") : status, _pct: pct,
           _domain: def.domain, _direction: def.direction, _displayOnly: !!def.displayOnly,
           _period: per, _run: per ? runOf(g) : 0,
           _pace: status === "active" || per ? pace(g, def, m.current, target, from, paceTo, today) : null,
-          _expected: paceTo && def.direction === "reach" && !def.displayOnly && today >= from ? Math.round(expectedOf(target, from, paceTo, today).value * 100) / 100 : null,
-          _from: from, _to: paceTo || null,
-          _projected: per ? null : projected(def, m.current, target, from, today),
+          _expected: paceTo && def.direction === "reach" && !def.displayOnly && !def.noPace && !unlinked(g) && today >= from ? Math.round(expectedOf(target, from, paceTo, today, base).value * 100) / 100 : null,
+          _from: from, _to: paceTo || null, _base: def.fromBase ? base : null,
+          _exam: !!def.exam, _unlinked: unlinked(g), _noPace: !!def.noPace,
+          _projected: per ? null : projected(def, m.current, target, from, today, base),
           _milestonesMet: (g.milestones || []).filter(function (x) { return (m.current || 0) >= x; }).length,
           _rewardSafe: !!data().completionLedger[g.id]
         });
@@ -719,7 +743,7 @@
   function notices(rows, today) {
     var out = [], tomorrow = addDays(today, 1);
     (rows || []).forEach(function (r) {
-      if (r.archived || r._displayOnly) return;
+      if (r.archived || r._displayOnly || r._unlinked) return;
       var link = { view: "goals", arg: null };
       if (r._period) {
         if (r._period.to === tomorrow && r._status !== "met") {
@@ -744,7 +768,41 @@
   /* a goal completed or missed long ago is not news: the ledger keeps 45
      days, so only what happened in the last two days is announced */
   var NEWS_MS = 2 * 86400000;
+
+  /* ---------------- goals linked to an exam (invariant 128) ----------------
+     Deleting an exam UNLINKS its goals and never deletes one: the goal is
+     kept as it was, marked "Exam removed · unlinked" (`params.examGone`),
+     measured as nothing, and moved to Archived at its next judgement —
+     the first tick on a later day. Linking it to another exam picks it up
+     again with nothing lost. */
+  function byExam(examId) {
+    return all().filter(function (g) { return g.links && g.links.examId === String(examId); });
+  }
+  function unlinkExam(examId, title) {
+    var list = byExam(examId);
+    list.forEach(function (g) {
+      var l = Object.assign({}, g.links); delete l.examId;
+      update(g.id, { links: l, params: Object.assign({}, g.params, { examGone: { title: String(title || "").slice(0, 160), at: todayISO() } }) });
+    });
+    return list.length;
+  }
+  function linkExam(id, examId) {
+    var g = get(id), a = KOS.exams && KOS.exams.get(examId);
+    if (!g || !a) return null;
+    var p = Object.assign({}, g.params); delete p.examGone;
+    var l = Object.assign({}, g.links, { examId: a.id });
+    if (a.subject) l.subject = a.subject;
+    return update(g.id, { links: l, params: p, archived: false, deadline: a.date || g.deadline });
+  }
+  function judgeUnlinked(today) {
+    var n = 0;
+    all().forEach(function (g) {
+      if (unlinked(g) && !g.archived && g.params.examGone.at < today) { update(g.id, { archived: true }); n++; }
+    });
+    return n;
+  }
   function tick(cb) {
+    judgeUnlinked(todayISO());
     if (!KOS.notify || !KOS.notify.push) { cb && cb(null, []); return; }
     compute(function (err, rows) {
       var now = Date.now(), sent = [];
@@ -773,6 +831,7 @@
     metrics: function () { return TYPES.filter(function (d) { return d.auto; }).map(function (d) { return { id: d.id, label: d.label }; }); },
     all: all, get: get, add: add, update: update, remove: remove, nudge: nudge, reopen: reopen,
     archive: archive, restart: restart,
+    byExam: byExam, unlinkExam: unlinkExam, linkExam: linkExam, judgeUnlinked: judgeUnlinked, unlinked: unlinked,
     compute: compute, normalise: normalise, metricLabel: metricLabel,
     periodOf: periodOf, pace: pace, expectedOf: expectedOf, series: series, projected: projected, runOf: runOf,
     todayISO: todayISO, monthEndISO: monthEndISO, num: num,

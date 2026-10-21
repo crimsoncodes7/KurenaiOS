@@ -16,8 +16,7 @@ The design prompt is [design-prompts.md §13](design-prompts.md) (frames
 **Revision 2 (20 October 2026).** Decisions A–N approved, with five
 refinements folded in (marked **R1–R5** below). Section 16's suggestions 1,
 2, 4, 6, 7, 8, 9 and 10 are in the plan; 3 and 5 stay light and optional.
-**Phases 1, 2 and 3 are built** (§19), phase 3 styled to design turn 29
-(frames 29a–29ac).
+**Phases 1–4 are built** (§19), styled to design turn 29 (frames 29a–29ac).
 
 | | Refinement | Where |
 |---|---|---|
@@ -1139,7 +1138,7 @@ The old `#/tracker` route aliases to the hub's Practice tab.
 | 1 ✓ | **Core** (built 20 October 2026): `state.exams`, tiers, Scope Builder (presets, Pacing rule, tree, exclusions), migration from Calendar and IT, Calendar derived chips, the cap by scope, timetable and assessment pages, widened log dialog (index pick, per-question, tags, timed, predicted), redo items, start-by dates | smoke89 (model, migration, scope, cap, attempts, redo, render purity) |
 | 2 ✓ | **Evidence** (built, report notes included for the AQA reports still online; archetypes move to phase 5 with the Companion that uses them): `gen_exam_index.py` + `map.csv`, archetype first pass and review, boundaries table, examiner's reports fetch and notes | smoke90 (every question mapped and tagged, marks reconcile per paper, boundaries well-formed) |
 | 3 ✓ | **Readiness and decisions** (built 21 October 2026, to design turn 29): four signals and band, analytics (§9), planner + send action, Exam Season, Exam Room, Home / Focus / Review / Reports / notifications / Assistant joins, the post-mortem (§8.2), the Paper library (§4.5), timetable import (#1), clash and load view (#2), teacher feedback capture (#6), "what changed since the mock" (#8), results day (#9) | smoke91 |
-| 4 | **Goals:** `examId` links, five types, checklist rules, templates | smoke92 |
+| 4 ✓ | **Goals** (built 21 October 2026, frame 29v and 29c's last step): `examId` links, five types, checklist rules, templates | smoke92 |
 | 5 | **Companion, assembled tier and playbooks:** archetype catalogue and tagging (§4.2), topic and retrieval guides, cram deck, rapid drill, drawer for all three boards, answer habits (#4), trend and likelihood pages, paper engine (blueprint, print, interactive, tally), revision pack export (#7), large print and extra time (#10) | smoke93 |
 | 6+ | **Exhaustive companion, one paper per release:** CS P2, CS P1, Maths P1, P2, P3, F201; each with its predicted papers and subtopic packs | a content smoke per paper (smoke94+), `cs_diff`, the maths checks |
 
@@ -1165,6 +1164,31 @@ applies.
 - **The topic-test coverage card.** The README's open decision is resolved
   as a card, so the overview leaves no dead column.
 
+### Phase 4 as built: the deviations
+
+- **Type ids** follow the plan's names (`exam_grade`, `exam_recall`,
+  `exam_topics_green`, `exam_papers_done`, `exam_checklist`), registered
+  from their own file, `js/core/goals-exams.js`, after the engine.
+- **A grade goal is judged when the result is logged**, not on the exam's
+  date: results day comes weeks later. "Best timed paper" is the other
+  basis, judged by the date.
+- **Projected recall's straight line starts at the figure at creation**,
+  not at zero (`fromBase`), so a goal from 79% to 85% is not "ahead" on
+  day one.
+- **Tiers.** A retrieval quiz offers recall only (the tier has no
+  checklist), and a deadline offers no exam goal (its milestones are on
+  the assessment itself). A topic test offers grade, recall, topics and
+  checklist.
+- **The paired template** ("85% recall and 100% Green two weeks before")
+  is two ticked rows in the 29c dialog, plus an earlier "By" in the
+  editor, not one tap.
+- **Checklist rules.** `all-green`, `mocks:N` and `recall:x` are built.
+  `variations-done`, `rapid-15` and `blacklist-read` need the Companion
+  and arrive with phase 5.
+- **The Assistant.** §15's read tools (`exams_overview`, `exam_detail`,
+  `exam_attempts`) are built here. `exam_log_attempt` is not: an attempt
+  is logged in the app.
+
 ---
 
 ## 20. Risks
@@ -1184,6 +1208,7 @@ applies.
 
 ## Next step
 
-Phases 1–3 are built, with the AQA report notes, and phase 3 is styled to
-design turn 29. Next: deploy on your go-ahead, then phase 4 (Goals) when
-asked. Edexcel's reports wait for their URLs.
+Phases 1–4 are built, with the AQA report notes, styled to design turn
+29. Next: phase 5 (the Companion, the assembled tier and playbooks). The
+deploy waits for the end of the hub. Edexcel's reports wait for their
+URLs.

@@ -653,13 +653,30 @@
     var lp = latestPaper(a, rd);
     if (lp) left.appendChild(lp);
     else if (t === "topic_test") left.appendChild(packShelf(a));
-    left.lastChild.classList.add("k-ex-fill");
     var chk = checklistCard(a, "prep");
     if (chk) right.appendChild(chk);
+    var gl = goalsCard(a);
+    if (gl) right.appendChild(gl);
     right.appendChild(dayCard(a));
     if (a.notes) right.appendChild(card([chead("Notes", ""), el("p", { class: "k-ex-pre", text: a.notes })], "", "exams.notes"));
-    right.lastChild.classList.add("k-ex-fill");
     wrap.appendChild(el("div", { class: "k-ex-grid2" }, [left, right]));
+    balance(left, right, gl);
+  }
+  /* no dead column (the standing layout rule): the Goals card sits on the
+     side (29e) unless the other column is so much shorter that it fits
+     better there; then each column's last card stretches to the row */
+  function balance(left, right, mover) {
+    function fill() {
+      [left, right].forEach(function (c) { if (c.lastChild) c.lastChild.classList.add("k-ex-fill"); });
+    }
+    if (!mover || !left.isConnected) { fill(); return; }
+    (function () {
+      /* the columns stretch to the row, so add up what is in them */
+      function natural(c) { return Array.prototype.reduce.call(c.children, function (n, x) { return n + x.getBoundingClientRect().height; }, 0); }
+      var L = natural(left), R = natural(right), g = mover.getBoundingClientRect().height;
+      if (g && left.offsetTop === right.offsetTop && Math.abs((L + g) - (R - g)) < Math.abs(L - R)) left.appendChild(mover);
+      fill();
+    })();
   }
   function practiceFoot(a, rd) {
     var pr = a.preset ? E().preset(a.preset) : null, ix = window.KOS_EXAMS && KOS_EXAMS.index;
@@ -778,6 +795,78 @@
     });
     return c;
   }
+  /* linked goals (29e, 29v): each reads this assessment's own data */
+  function goalsCard(a) {
+    if (!KOS.goals || !KOS.goalsExams || !KOS.goalsExams.typesFor(a).length) return null;
+    var linked = KOS.goals.byExam(a.id).filter(function (g) { return !g.archived; });
+    var c = card([chead("Goals", linked.length ? linked.length + " linked" : "", linkBtn("＋", function () { goalTemplates(a); }, "exams.goal-add"))], "", "exams.goals");
+    c.lastChild.querySelector("[data-ui~='exams.goal-add']").setAttribute("aria-label", "Add a goal for " + a.title);
+    if (!linked.length) {
+      c.appendChild(el("p", { class: "k-ex-small k-ex-muted", text: "Aim at something for this " + (TIER[a.tier] ? TIER[a.tier][1].toLowerCase() : "exam") + ": a score, recall on the day, papers done." }));
+      c.appendChild(btn("＋ Add a goal", "sm", function () { goalTemplates(a); }, { "data-ui": "exams.goal-first" }));
+      return c;
+    }
+    var host = el("div", { class: "k-ex-goals" });
+    c.appendChild(host);
+    KOS.goals.compute(function (err, rows) {
+      (rows || []).filter(function (r) { return r.links && r.links.examId === a.id && !r.archived; }).forEach(function (r) {
+        var ui = KOS.goalsUI, tgt = r._target || r.target, cur = r._current;
+        var vis = cur == null ? null : tgt <= 20 && tgt === Math.round(tgt) && r._unit !== "%" ? squares(tgt, Math.min(tgt, Math.floor(cur)))
+          : (function () { var b = el("div", { class: "k-bar k-bar--6", role: "img", "aria-label": Math.round(cur) + " of " + tgt }, [el("i")]); b.style.setProperty("--p", Math.min(100, Math.round(100 * cur / tgt)) + "%"); return b; })();
+        var chip = ui ? KOS.ui.paceChip(ui.paceKind(r)) : null;
+        host.appendChild(el("div", { class: "k-ex-goalline", "data-ui": "exams.goal" }, [
+          el("div", { class: "k-ex-inline" }, [el("button", { type: "button", class: "k-link k-ex-grow k-ex-goaltitle", text: r.title, onclick: function () { KOS.show("goals", { id: r.id }); } }), chip].filter(Boolean)),
+          el("div", { class: "k-ex-inline" }, [vis, muted(cur == null ? (r._meta || "Nothing to measure yet") : KOS.goals.amount(r))].filter(Boolean))]));
+      });
+    }, { archived: false });
+    return c;
+  }
+  /* the 29c offer when an assessment is made: one row per type its tier
+     offers, ticked ones added, nothing added on Skip */
+  function goalTemplates(a, then) {
+    var rows = KOS.goalsExams ? KOS.goalsExams.templates(a) : [];
+    if (!rows.length) { if (then) then(); return null; }
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    function close() { overlay.remove(); if (then) then(); }
+    overlay.close = close;
+    var word = TIER[a.tier] ? TIER[a.tier][1].toLowerCase() : "exam";
+    var addBtn = btn("", "primary", function () {
+      var picks = rows.map(function (r, i) {
+        var v = String(inputs[i] ? inputs[i].value : "").trim().replace(/[≥%\s]/g, "");
+        var row = Object.assign({}, r, { on: boxes[i].checked });
+        if (r.type === "exam_grade" && /^(A\*|[A-E])$/i.test(v)) { row.grade = v.toUpperCase(); row.title = a.title + " at " + row.grade; }
+        else if (inputs[i] && +v > 0) { row.value = +v; row.grade = null; row.title = r.title.replace(/\d+(?=%| of | marked| topics)/, String(+v)).replace(/ at (A\*|[A-E])$/, " ≥ " + (+v) + "%"); }
+        return row;
+      });
+      var made = KOS.goalsExams.add(KOS.exams.get(a.id), picks);
+      var msg = made.length ? plural(made.length, "goal") + " added for " + a.title + "." : "No goals added.";
+      KOS.ui.toast(msg); announce(msg);
+      close(); KOS.rerender();
+    }, { "data-ui": "exams.goals-add" });
+    var boxes = [], inputs = [];
+    function count() { var n = boxes.filter(function (b) { return b.checked; }).length; addBtn.textContent = n ? "Add " + plural(n, "goal") : "Add goals"; addBtn.disabled = !n; }
+    var list = el("div", { class: "k-ex-tpls" }, rows.map(function (r, i) {
+      var box = el("input", { type: "checkbox", class: "k-box", "aria-label": r.label });
+      box.checked = r.on; box.addEventListener("change", count); boxes.push(box);
+      var inp = r.value == null ? null : el("input", { type: "text", class: "k-input k-mono k-ex-tplval", "aria-label": r.label + " target", inputmode: r.type === "exam_grade" ? "text" : "numeric" });
+      if (inp) inp.value = r.grade || (r.type === "exam_grade" || r.type === "exam_recall" ? r.value + "%" : String(r.value));
+      inputs.push(inp);
+      return el("label", { class: "k-ex-tplrow", "data-ui": "exams.goal-template" }, [box, el("span", { class: "k-ex-grow" }, [el("span", { class: "k-ex-tpltitle", text: r.label }), muted(r.sub)]), inp].filter(Boolean));
+    }));
+    var days = E().daysTo(a);
+    overlay.appendChild(el("div", { class: "k-dialog k-ex-dialog", "data-size": "sm", "data-ui": "ui.dialog exams.goals-dialog" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "標" }),
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Add a goal for this " + word + "?" }),
+        a.date ? muted("Saved · " + pretty(a.date) + (days != null && days >= 0 ? " · " + plural(days, "day") : ""), "k-ex-small") : null].filter(Boolean)),
+      el("div", { class: "k-dialog-body k-ex-dbody" }, [
+        el("p", { class: "k-ex-small", text: "Templates for " + a.title + ", measured from its own data. Ticked ones are added; nothing is added if you skip." }),
+        list,
+        muted("Each goal is linked to the " + word + " and ends on its date. Deleting the " + word + " unlinks them; they are never deleted with it.", "k-ex-small")]),
+      el("div", { class: "k-dialog-foot" }, [btn("Skip", "", close, { "data-ui": "exams.goals-skip" }), el("span", { class: "k-spacer" }), addBtn])]));
+    count();
+    KOS.ui.openDialog(overlay);
+    return overlay;
+  }
   /* the checklist (29e): auto items cannot be ticked by hand */
   function checklistCard(a, group) {
     var items = E().checklist(a).filter(function (c) { return c.group === group; });
@@ -785,7 +874,17 @@
     var done = items.filter(function (c) { return c.done; }).length;
     var c = card([chead("Checklist", done + " of " + items.length)], "", "exams.checklist");
     items.forEach(function (it) { c.appendChild(checkRow(a, it, items)); });
-    c.appendChild(addCheckRow(a, group));
+    var rt = "recall:" + Math.max(50, Math.min(100, Math.round(100 * ((KOS.srs.examTarget && KOS.srs.examTarget()) || 0.9))));
+    var rules = ["all-green", a.tier === "real_exam" ? "mocks:2" : null, rt].filter(function (r) { return r && !(a.checklist || []).some(function (x) { return x.rule === r; }); });
+    var addRow = el("div", { class: "k-ex-inline" }, [addCheckRow(a, group)]);
+    if (group === "prep" && rules.length && KOS.ui.menu) {
+      var m = KOS.ui.menu({ label: "＋ App-checked", className: "k-btn--sm k-btn--quiet", items: rules.map(function (r) {
+        return { label: E().ruleText(r), onSelect: function () { E().addCheck(a.id, null, group, r); announce(E().ruleText(r) + " added; the app ticks it."); KOS.rerender(); } };
+      }) });
+      m.setAttribute("data-ui", "exams.check-rule");
+      addRow.appendChild(m);
+    }
+    c.appendChild(addRow);
     return c;
   }
   function checkRow(a, it, items) {
@@ -990,6 +1089,8 @@
       KOS.ui.toast(msg); announce(msg);
       close();
       if (then) then(a); else if (onSaved) onSaved(a);
+      /* 29c, the last step: goal templates for a new one */
+      if (!existing && KOS.goalsExams && KOS.goalsExams.templates(a).length) setTimeout(function () { goalTemplates(X.get(a.id) || a); }, 0);
     }
     var nextBtn = btn("Next: scope ›", "quiet", function () { save(function (a) { KOS.show("exams", { id: a.id, tab: "scope" }); }); }, { "data-ui": "exams.next-scope" });
     var body = el("div", { class: "k-dialog-body k-ex-dbody" }, [
@@ -1014,8 +1115,14 @@
       body,
       el("div", { class: "k-dialog-foot" }, [
         existing ? btn("Delete assessment", "danger", function () {
-          KOS.ui.confirm({ title: "Delete this assessment?", body: "Its practice papers stay in the record; goals linked to it are unlinked, not deleted.", danger: true, confirm: "Delete" }, function () {
-            X.remove(existing.id); close(); KOS.show("exams", "timetable");
+          var gl = KOS.goals ? KOS.goals.byExam(existing.id) : [];
+          KOS.ui.confirm({ title: "Delete " + existing.title + "?", danger: true, confirm: "Delete " + (TIER[existing.tier] ? TIER[existing.tier][1].toLowerCase() : "assessment"),
+            body: "The " + (TIER[existing.tier] ? TIER[existing.tier][1].toLowerCase() : "assessment") + ", its scope and its readiness go. Logged attempts stay in Practice." +
+              (gl.length ? " " + (gl.length === 1 ? "1 goal is linked to it: “" + gl[0].title + "”. It will be" : gl.length + " goals are linked to it. They will be") + " kept, marked “Exam removed · unlinked”, and archived at " + (gl.length === 1 ? "its" : "their") + " next judgement." : "") }, function () {
+            X.remove(existing.id); close();
+            var msg = existing.title + " deleted." + (gl.length ? " " + plural(gl.length, "goal") + " unlinked and kept." : "");
+            KOS.ui.toast(msg); announce(msg);
+            KOS.show("exams", "timetable");
           });
         }) : null,
         el("span", { class: "k-spacer" }),
@@ -1189,6 +1296,7 @@
 
   KOS.examTabs = examTabs;
   KOS.examEditor = editor;
+  KOS.examGoalTemplates = goalTemplates;
   KOS.examUI = {
     TIER: TIER, BAND: BAND, SUBJ: SUBJ, SHORT: SHORT, HUE: HUE, MONTHS: MONTHS, DOW: DOW,
     pretty: pretty, inDays: inDays, mins: mins, plural: plural, pc: pc, hueOf: hueOf, announce: announce,

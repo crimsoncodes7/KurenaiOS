@@ -147,8 +147,11 @@
         /* `group`: prep (the overview's checklist) or day (On the day, and
            the Exam Room's "Before you go in"); a default item's id is
            "d:<key>" so ticking it once stores it (phase 3) */
-        return { id: str(c.id, 16) || rid(6), text: str(c.text, 160), done: !!c.done, at: c.done && isFinite(c.at) ? c.at : null,
+        var o = { id: str(c.id, 16) || rid(6), text: str(c.text, 160), done: !!c.done, at: c.done && isFinite(c.at) ? c.at : null,
           group: c.group === "day" ? "day" : "prep" };
+        /* an app-checked item (phase 4, §14): the app verifies it */
+        if (RULE_RE.test(String(c.rule || ""))) { o.rule = String(c.rule); o.done = false; o.at = null; }
+        return o;
       }),
       milestones: cleanList(pick("milestones", []), 40, function (m) {
         if (!m || !str(m.text)) return null;
@@ -292,6 +295,8 @@
     var a = get(id);
     if (!a) return false;
     delete X().assessments[id];
+    /* its goals are unlinked and kept, never deleted (invariant 128) */
+    if (KOS.goals && KOS.goals.unlinkExam) KOS.goals.unlinkExam(a.id, a.title);
     /* a calendar event it came from stays hidden — the record moved here
        and was deleted here; tracker attempts keep their link as history */
     store.save();
@@ -792,6 +797,30 @@
      hand; default items are offered by tier and stored once ticked; the
      user's own items are stored. `day` items are On the day's and the
      Exam Room's "Before you go in". */
+  /* app-checked rules (§14): every topic in scope Green, N mocks sat in
+     the subject before this one, projected recall at least x%. The
+     Companion's rules (variations, rapid 15/15, the blacklist) come with
+     the Companion in phase 5. */
+  var RULE_RE = /^(all-green|mocks:[1-9]|recall:(?:[5-9]\d|100))$/;
+  function ruleText(rule) {
+    var m = String(rule).split(":");
+    return m[0] === "all-green" ? "Every topic in scope Green" : m[0] === "mocks" ? (m[1] === "1" ? "One mock sat" : m[1] + " mocks sat")
+      : "Projected recall at least " + m[1] + "%";
+  }
+  function ruleMet(a, rule, now) {
+    var m = String(rule).split(":");
+    if (m[0] === "all-green") {
+      var ls = leaves(a, now);
+      return !!ls.length && ls.every(function (k) { var p = KOS.spec.parse(k); return p && KOS.rag && KOS.rag.effective(p.subject, p.ref).band === "g"; });
+    }
+    if (m[0] === "mocks") {
+      return all().filter(function (x) {
+        return x.id !== a.id && x.tier === "mock" && x.subject === a.subject && x.date && (!a.date || x.date < a.date) && (x.result || x.date < now);
+      }).length >= Number(m[1]);
+    }
+    var rd = readiness(a, now), rc = rd && rd.signals.recall;
+    return !!(rc && !rc.thin && 100 * rc.value >= Number(m[1]));
+  }
   function checklist(a) {
     if (!a || a.tier === "deadline" || a.tier === "retrieval_test") return [];
     var stored = {};
@@ -817,7 +846,12 @@
       def("d:notes", "Notes read once", "prep");
       def("d:cram", "Cram deck done", "prep");
     }
-    (a.checklist || []).forEach(function (c) { if (c.id.indexOf("d:") !== 0) out.push({ id: c.id, text: c.text, done: c.done, auto: false, group: c.group || "prep" }); });
+    var now = today();
+    (a.checklist || []).forEach(function (c) {
+      if (c.id.indexOf("d:") === 0) return;
+      if (c.rule) out.push({ id: c.id, text: c.text, done: ruleMet(a, c.rule, now), auto: true, rule: c.rule, group: c.group || "prep", why: "The app ticks this: " + ruleText(c.rule).toLowerCase() });
+      else out.push({ id: c.id, text: c.text, done: c.done, auto: false, group: c.group || "prep" });
+    });
     return out;
   }
   /* a click on a checklist box (never a render): stores a default the
@@ -826,17 +860,22 @@
     var a = get(id);
     if (!a || itemId.indexOf("a:") === 0) return null;
     var items = checklist(a).filter(function (c) { return c.id === itemId; })[0];
-    if (!items) return null;
+    if (!items || items.auto) return null;
     var list = (a.checklist || []).map(function (c) { return Object.assign({}, c); });
     var cur = list.filter(function (c) { return c.id === itemId; })[0];
     if (cur) { cur.done = !!done; cur.at = done ? Date.now() : null; }
     else list.push({ id: itemId, text: items.text, done: !!done, at: done ? Date.now() : null, group: items.group });
     return update(id, { checklist: list });
   }
-  function addCheck(id, text, group) {
+  function addCheck(id, text, group, rule) {
     var a = get(id);
+    if (rule && !RULE_RE.test(rule)) return null;
+    if (rule && !text) text = ruleText(rule);
     if (!a || !str(text)) return null;
-    return update(id, { checklist: (a.checklist || []).concat([{ id: rid(6), text: str(text, 160), done: false, group: group === "day" ? "day" : "prep" }]) });
+    if (rule && (a.checklist || []).some(function (c) { return c.rule === rule; })) return a;
+    var item = { id: rid(6), text: str(text, 160), done: false, group: group === "day" ? "day" : "prep" };
+    if (rule) item.rule = rule;
+    return update(id, { checklist: (a.checklist || []).concat([item]) });
   }
 
   /* ---------------- the timetable importer (§16.1, frame 29y) ----------------
@@ -1155,6 +1194,8 @@
     checklist: checklist,
     tickCheck: tickCheck,
     addCheck: addCheck,
+    ruleText: ruleText,
+    RULES: ["all-green", "mocks:2", "recall:90"],
     importMatch: importMatch,
     importApply: importApply,
     loadView: loadView,
