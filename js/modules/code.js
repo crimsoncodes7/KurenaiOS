@@ -1224,8 +1224,10 @@
     if (KOS.codeRun.runtime().wanted) KOS.codeRun.runtimeSize().then(function (sz) { if (sz) out.textContent = (sz.bytes / 1e6).toFixed(0) + " MB"; });
     return out;
   }
-  /* GitHub (docs/code-plan.md §10, v1: a fine-grained token). The token is
-     typed by you, kept on this device and never shown again. */
+  /* GitHub (docs/code-plan.md §10). v2 (docs/github-app-plan.md): your
+     installation of the KurenaiOS GitHub App, so no device holds a token;
+     v1, under "Use a token instead": a fine-grained token typed by you,
+     kept on this device and never shown again. */
   function githubCard() {
     var G = KOS.codeGit;
     var box = el("section", { class: "k-card k-cx-gh", "data-ui": "code.github", "aria-label": "GitHub" });
@@ -1243,6 +1245,26 @@
       });
     }
     function form(st) {
+      /* the App first, when this app has one and you are signed in */
+      if (st.app !== "unconfigured") {
+        var appMsg = el("p", { class: "k-cx-note", role: "status" });
+        var viaApp = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.github-app",
+          text: "Connect with GitHub", disabled: st.app ? "" : null,
+          onclick: function () {
+            viaApp.disabled = true;
+            G.connectApp().then(function (r) { if (!r.ok) { viaApp.disabled = false; appMsg.textContent = r.why; announce(r.why); } });
+          } });
+        box.appendChild(el("p", { class: "k-cx-note", text: "Your passed tasks, capstones and Rider reports, committed to your own repository. Install the KurenaiOS GitHub App on that one repository: no token to make, and every signed-in device can push." }));
+        box.appendChild(el("div", { class: "k-cx-gh-act" }, [viaApp]));
+        if (st.app === "signed-out") appMsg.textContent = "Sign in to cloud sync first.";
+        box.appendChild(appMsg);
+        var more = el("details", { class: "k-cx-gh-token", "data-ui": "code.github-token-way" }, [el("summary", { text: "Use a token instead" })]);
+        box.appendChild(more);
+        return tokenForm(st, more);
+      }
+      return tokenForm(st, box);
+    }
+    function tokenForm(st, into) {
       var repo = el("input", { type: "text", class: "k-input", "data-ui": "code.github-repo", placeholder: "owner/kurenai-programming", value: st.cfg.repo || "",
         autocapitalize: "off", spellcheck: "false", "aria-label": "Repository" });
       var token = el("input", { type: "password", class: "k-input", "data-ui": "code.github-token", placeholder: "github_pat_…", autocomplete: "off", "aria-label": "Fine-grained token" });
@@ -1256,18 +1278,18 @@
             announce("Connected to " + r.repo + "."); draw();
           });
         } });
-      box.appendChild(el("p", { class: "k-cx-note", text: "Your passed tasks, capstones and Rider reports, committed to your own private repository. Create the repository on GitHub first; the app never creates one." }));
-      box.appendChild(el("ol", { class: "k-cx-gh-steps" }, [
+      if (into === box) into.appendChild(el("p", { class: "k-cx-note", text: "Your passed tasks, capstones and Rider reports, committed to your own private repository. Create the repository on GitHub first; the app never creates one." }));
+      into.appendChild(el("ol", { class: "k-cx-gh-steps" }, [
         el("li", { text: "Create a private repository, e.g. kurenai-programming." }),
         el("li", {}, ["Make a fine-grained token at ", el("span", { class: "k-mono", text: "github.com/settings/personal-access-tokens" }), ": only that repository, Contents read and write, an expiry."]),
         el("li", { text: "Paste both here. The token stays on this device, never in a backup or the synced state." })
       ]));
-      box.appendChild(el("div", { class: "k-cx-gh-form" }, [
+      into.appendChild(el("div", { class: "k-cx-gh-form" }, [
         el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Repository" }), repo]),
         el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Token" }), token])
       ]));
-      box.appendChild(el("div", { class: "k-cx-gh-act" }, [go]));
-      box.appendChild(msg);
+      into.appendChild(el("div", { class: "k-cx-gh-act" }, [go]));
+      into.appendChild(msg);
     }
     function connected(st) {
       var c = st.cfg;
@@ -1286,13 +1308,21 @@
         } });
       box.appendChild(el("ul", { class: "k-insp-list" }, [
         el("li", {}, [el("span", { text: "Repository" }), el("strong", { class: "k-mono", text: c.repo + " · " + c.branch })]),
+        el("li", {}, [el("span", { text: "Connected" }), el("strong", { "data-ui": "code.github-via", text: c.via === "app" ? "Through the GitHub App" : "With a token on this device" })]),
         el("li", {}, [el("span", { text: "Waiting on this device" }), el("strong", { text: st.waiting ? st.waiting + " file" + (st.waiting === 1 ? "" : "s") : "nothing" })])
       ]));
       box.appendChild(el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "When to push" }), mode]));
       box.appendChild(el("p", { class: "k-cx-note", "data-ui": "code.github-last", "data-tone": last && !last.ok ? "warn" : null, text: lastText }));
       box.appendChild(el("div", { class: "k-cx-gh-act" }, [msgIn, push]));
-      box.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "code.github-disconnect", text: "Disconnect this device",
-        onclick: function () { G.disconnect().then(function () { announce("GitHub disconnected on this device."); draw(); }); } }));
+      box.appendChild(c.via === "app"
+        ? el("button", { type: "button", class: "k-link", "data-ui": "code.github-disconnect", text: "Disconnect the GitHub App…",
+            onclick: function () {
+              KOS.ui.confirm({ title: "Disconnect the GitHub App?", confirm: "Disconnect",
+                body: "No device pushes through it any more. To remove its access to the repository entirely, uninstall it on GitHub too." },
+                function () { G.disconnectApp().then(function () { announce("The GitHub App is disconnected."); draw(); }); });
+            } })
+        : el("button", { type: "button", class: "k-link", "data-ui": "code.github-disconnect", text: "Disconnect this device",
+            onclick: function () { G.disconnect().then(function () { announce("GitHub disconnected on this device."); draw(); }); } }));
     }
     function hmText(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
     box.appendChild(el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "GitHub" })]));

@@ -1183,10 +1183,16 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.7 After FSRS (asked for 20 October 2026, in this order)
 
-> **22 October 2026:** items 1 and 2 are under way on `feat/after-fsrs`,
-> with a small extra asked for the same day: switching a Focus session's
-> subject, topic or assignment mid-way without stopping the clock (built;
-> invariant 4a, smoke95).
+> **22 October 2026:** items 1 and 2 are built on `feat/after-fsrs`, not
+> deployed. Item 1: [server-runner-plan.md](server-runner-plan.md), the
+> outlook, Web Push and the `runner` function (invariant 131, smoke97).
+> Item 2: [github-app-plan.md](github-app-plan.md), the GitHub App and the
+> `github-token` function (invariant 110, smoke98). Their migrations are
+> applied; the functions, their secrets, the cron job and the App itself
+> need your accounts (each doc's "What you run once"). A small extra asked
+> for the same day is built too: switching a Focus session's subject,
+> topic or assignment mid-way without stopping the clock (invariant 4a,
+> smoke95).
 
 1. **A server-side runner, Web Push and which notifications reach a closed
    app** (an exploration doc; it unparks "Scheduled messages while the app
@@ -1212,8 +1218,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 | Code units 10–12, capstone 4, the deepening modules and the tracks | paused on 17 October 2026 to save weekly usage (stage 3 — units 7–9 and capstone 3 — shipped that day on the full runtime); the desk shows the rest "Coming later" | you resume Code content |
 | Code's full runtime on a phone | Code is studied on a Mac, not a phone (17 October 2026) | you want to code on a phone |
 | The Rider validator on Windows and Linux | macOS is the only machine in use; it is verified there (17 October 2026) | another operating system is used |
-| Code → GitHub as a GitHub App (OAuth through a `github-token` Edge Function) and CI-verified evidence | v1 uses a fine-grained token, which is enough for one person; CI evidence needs a workflow in the repository that runs the validator | a token per device becomes a chore, or CI evidence is wanted |
-| Scheduled messages while the app is closed | the Assistant's tools read this device's data and there is no push server (invariant 98). It needs a server runner (a cron Edge Function with read tools over the synced state document) and Web Push (VAPID keys, subscriptions, a `push` handler in `sw.js`) | you want 07:00 to arrive with the app shut |
+| CI-verified evidence for Code (the GitHub App is built, 5.7) | needs a workflow in the repository that runs the validator and the App's Checks: read permission (docs/github-app-plan.md §7) | CI evidence is wanted |
+| Airing and release-day pushes to a closed app (phase C of 5.7 item 1) | airing needs AniList's schedule on the server; release days need the Wishlist in the outlook | you want them |
 
 ---
 

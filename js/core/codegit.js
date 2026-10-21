@@ -22,6 +22,12 @@
    Recording is local first: a push failing never blocks progress, and
    GitHub moves no XP, gold or HP.
 
+   v2 (roadmap 5.7, docs/github-app-plan.md): connected through YOUR
+   installation of the KurenaiOS GitHub App (`via: "app"`, synced), the
+   device holds no token at all. The `github-token` Edge Function mints a one-hour token for the one
+   linked repository, Contents write only, kept in memory here until five
+   minutes before it expires. A fine-grained token stays the fallback.
+
    Modes: "off" (nothing is queued), "checkpoint" (queued; pushed when you
    press Push), "auto" (pushed about half a minute after something passes).
    Every push passes a path allowlist, size caps (1 MB a file, 5 MB a push)
@@ -49,7 +55,7 @@
     var c = store().state.code;
     var g = c && c.github && typeof c.github === "object" ? c.github : {};
     return { repo: typeof g.repo === "string" ? g.repo : "", branch: typeof g.branch === "string" && g.branch ? g.branch : "main",
-      mode: MODES.indexOf(g.mode) >= 0 ? g.mode : "off", publicOk: !!g.publicOk };
+      mode: MODES.indexOf(g.mode) >= 0 ? g.mode : "off", publicOk: !!g.publicOk, via: g.via === "app" ? "app" : "token" };
   }
   function setCfg(patch) {
     var c = KOS.code.state();
@@ -107,6 +113,70 @@
     return delKv(TOKEN).then(function () { changed(); });
   }
   function hasToken() { return kv(TOKEN).then(function (t) { return !!t; }); }
+
+  /* ---------------- v2: the GitHub App ---------------- */
+  var appToken = null;   // {token, exp} — memory only, never kv, a backup or a log
+  var edgeApi = null, nav = function (url) { window.location.assign(url); };
+  function appSlug() { return (window.KOS_ENV && window.KOS_ENV.GITHUB_APP_SLUG) || ""; }
+  function signedIn() { return !!(KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn()); }
+  function edge(body) {
+    if (edgeApi) return edgeApi(body);
+    return KOS.cloud.client().functions.invoke("github-token", { body: body }).then(function (res) {
+      if (!res.error) return res.data;
+      var ctx = res.error.context;
+      return (ctx && typeof ctx.json === "function" ? ctx.json().catch(function () { return null; }) : Promise.resolve(null)).then(function (p) {
+        throw new Error((p && p.error) || "The GitHub App could not be reached.");
+      });
+    });
+  }
+  /* why the App cannot be used here, or null */
+  function appBlocked() {
+    if (!appSlug()) return "unconfigured";
+    if (!signedIn()) return "signed-out";
+    return null;
+  }
+  /* to GitHub's install page; the Setup URL brings us back to the app
+     with ?installation_id&code&state, which completeApp() takes */
+  function connectApp() {
+    var why = appBlocked();
+    if (why) return Promise.resolve({ ok: false, why: why === "signed-out" ? "Sign in to cloud sync first." : "The GitHub App isn't set up for this app yet." });
+    var nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    try { sessionStorage.setItem("kos.gh.state", nonce); } catch (e) { /* the state check then fails safe */ }
+    nav("https://github.com/apps/" + encodeURIComponent(appSlug()) + "/installations/new?state=" + nonce);
+    return Promise.resolve({ ok: true, leaving: true });
+  }
+  /* the return trip: link the installation, once signed in */
+  function completeApp(params) {
+    var inst = params.get("installation_id"), code = params.get("code"), state = params.get("state");
+    var want = null;
+    try { want = sessionStorage.getItem("kos.gh.state"); sessionStorage.removeItem("kos.gh.state"); } catch (e) { want = null; }
+    if (!inst || !code) return Promise.resolve({ ok: false, why: "GitHub did not send the installation back." });
+    if (!want || want !== state) return Promise.resolve({ ok: false, why: "That GitHub return did not come from this app. Connect again." });
+    return edge({ action: "link", installation_id: Number(inst), code: code }).then(function (r) {
+      appToken = null;
+      setCfg({ repo: r.repo, branch: r.branch || "main", via: "app", mode: cfg().mode === "off" ? "checkpoint" : cfg().mode });
+      changed();
+      return { ok: true, repo: r.repo, account: r.account };
+    }, function (e) { return { ok: false, why: e.message }; });
+  }
+  function disconnectApp() {
+    appToken = null;
+    return (signedIn() ? edge({ action: "unlink" }).catch(function () {}) : Promise.resolve()).then(function () {
+      setCfg({ via: "token", repo: "" });
+      changed();
+    });
+  }
+  /* the token a push uses: the App's when connected through it (fetched
+     when missing or within five minutes of expiry), else this device's */
+  function tokenFor() {
+    if (cfg().via !== "app") return kv(TOKEN);
+    if (appToken && appToken.exp - Date.now() > 5 * 60 * 1000) return Promise.resolve(appToken.token);
+    if (!signedIn()) return Promise.resolve(null);
+    return edge({ action: "token" }).then(function (r) {
+      appToken = { token: r.token, exp: Date.parse(r.expires_at) || Date.now() + 3600 * 1000 };
+      return appToken.token;
+    }, function () { return null; });
+  }
 
   /* ---------------- what gets queued ---------------- */
   function slug(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "item"; }
@@ -180,9 +250,11 @@
   function push(message) {
     if (pushing) return pushing;
     var c = cfg();
-    pushing = Promise.all([kv(TOKEN), kv(OUTBOX)]).then(function (a) {
+    pushing = Promise.all([tokenFor(), kv(OUTBOX)]).then(function (a) {
       var token = a[0], box = Array.isArray(a[1]) ? a[1] : [];
-      if (!c.repo || !token) return finish({ ok: false, why: "GitHub is not connected on this device." });
+      if (!c.repo || !token) return finish({ ok: false, why: c.via === "app"
+        ? (signedIn() ? "The GitHub App did not give a token. Check it is still installed." : "Sign in to cloud sync to push through the GitHub App.")
+        : "GitHub is not connected on this device." });
       var files = box.map(function (x) { return { path: x.path, content: x.content }; });
       files.push({ path: "README.md", content: readme() });
       var bad = guard(files);
@@ -247,10 +319,25 @@
   function status() {
     return Promise.all([kv(STATUS), kv(OUTBOX), kv(TOKEN)]).then(function (a) {
       var box = Array.isArray(a[1]) ? a[1] : [];
-      return { last: a[0] || null, waiting: box.length, connected: !!(a[2] && cfg().repo), cfg: cfg() };
+      var c = cfg();
+      return { last: a[0] || null, waiting: box.length, connected: !!(c.repo && (c.via === "app" || a[2])), cfg: c, app: appBlocked() };
     });
   }
   function boot() {
+    /* back from GitHub's install page: take the query off the address at
+       once, then link when the cloud session is ready (it restores async) */
+    if (typeof location !== "undefined" && /[?&]installation_id=/.test(location.search)) {
+      var params = new URLSearchParams(location.search);
+      try { history.replaceState(null, "", location.pathname + (location.hash || "")); } catch (e) { /* file:// */ }
+      var tries = 0;
+      (function wait() {
+        if (!signedIn() && tries++ < 20) { setTimeout(wait, 1000); return; }
+        completeApp(params).then(function (r) {
+          KOS.ui.toast(r.ok ? "GitHub connected: " + r.repo + "." : r.why, !r.ok);
+          if (r.ok && KOS.show) KOS.show("code", { page: "settings" });
+        });
+      })();
+    }
     if (!KOS.mediadb || cfg().mode !== "auto") return;
     kv(OUTBOX).then(function (box) { if (Array.isArray(box) && box.length) schedule(); });
   }
@@ -259,7 +346,11 @@
     MODES: MODES, cfg: cfg, setMode: function (m) { if (MODES.indexOf(m) >= 0) { setCfg({ mode: m }); changed(); } },
     setPublicOk: function (v) { setCfg({ publicOk: !!v }); },
     connect: connect, disconnect: disconnect, hasToken: hasToken, status: status, onChange: onChange,
+    connectApp: connectApp, completeApp: completeApp, disconnectApp: disconnectApp, appBlocked: appBlocked, tokenFor: tokenFor,
     queueTask: queueTask, queueCapstone: queueCapstone, queueReport: queueReport, push: push, guard: guard, readme: readme, boot: boot,
-    _schedule: schedule
+    _schedule: schedule,
+    /* test seam: the github-token function (body → Promise of data) */
+    _setEdge: function (fn) { edgeApi = fn || null; appToken = null; },
+    _setNav: function (fn) { nav = fn || function (url) { window.location.assign(url); }; }
   };
 })();

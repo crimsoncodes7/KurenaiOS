@@ -11,5 +11,11 @@
    cloud sync simply stays unconfigured. */
 window.KOS_ENV = {
   SUPABASE_URL: "https://<project-ref>.supabase.co",
-  SUPABASE_ANON_KEY: "<publishable-or-anon-key>"
+  SUPABASE_ANON_KEY: "<publishable-or-anon-key>",
+  /* optional — closed-app notifications (docs/server-runner-plan.md §8):
+     the PUBLIC half from `node tools/gen_vapid.mjs` */
+  VAPID_PUBLIC_KEY: "",
+  /* optional — Code → GitHub through your GitHub App
+     (docs/github-app-plan.md §6): the App's slug from its URL */
+  GITHUB_APP_SLUG: ""
 };

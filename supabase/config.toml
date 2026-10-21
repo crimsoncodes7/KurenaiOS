@@ -440,3 +440,8 @@ verify_jwt = true
 # user ever calls it, so there is no user JWT to verify.
 [functions.runner]
 verify_jwt = false
+
+# Code → GitHub as a GitHub App (roadmap 5.7, docs/github-app-plan.md):
+# every action acts for the signed-in user, so the JWT is always verified.
+[functions.github-token]
+verify_jwt = true
