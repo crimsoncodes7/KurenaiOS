@@ -244,9 +244,39 @@
     if (KOS.cloudsync && KOS.cloudsync.noteChange) { try { KOS.cloudsync.noteChange(); } catch (e) { /* offline is fine */ } }
   }
 
+  /* ---------------- the server's runs (roadmap 5.7, docs/server-runner-plan.md §4) ----
+     With `state.notifyCloud.serverRuns` on, the server owns every
+     schedule's run: a device never runs one itself (one owner, so a reply
+     can never come twice) and takes the server's result in here — the
+     day claimed, `last` kept, and the same `asst:` notification the push
+     already showed, so the ledger and the push share one id. */
+  function serverOwned() {
+    var c = store.state.notifyCloud;
+    return !!(c && c.on && c.serverRuns);
+  }
+  function applyServerRun(r) {
+    var rec = get(r && r.schedule_id);
+    if (!rec || !r.day || !r.text) return false;
+    if (rec.last && rec.last.date === r.day && rec.last.server && rec.last.text === r.text) return false;
+    if (!rec.lastRun || rec.lastRun < r.day) rec.lastRun = r.day;
+    rec.last = { date: r.day, at: Date.parse(r.updated_at) || Date.now(), ok: !!r.ok, text: clampText(r.text, TEXT_KEEP), conversationId: null, server: true };
+    rec.updatedAt = Date.now();
+    store.save();
+    if (KOS.notify && KOS.notify.push) {
+      KOS.notify.push({
+        id: "asst:" + rec.id + ":" + r.day, kind: "assistant",
+        title: r.ok ? "Kurenai · " + (rec.name || clampText(rec.prompt, 60)) : "Kurenai couldn't send “" + clampText(rec.name || rec.prompt, 50) + "”",
+        body: clampText(plain(r.text), 280), view: "assistant", arg: { tab: "scheduled", run: rec.id },
+        ts: Date.parse(r.updated_at) || Date.now()
+      });
+    }
+    emit();
+    return true;
+  }
+
   /* ---------------- the ticker ---------------- */
   function tick() {
-    if (busy()) return;
+    if (busy() || serverOwned()) return;
     var next = due()[0];
     if (!next) return;
     var signedIn = KOS.cloud && KOS.cloud.userId && KOS.cloud.userId() && KOS.cloudsync && KOS.cloudsync.syncNow;
@@ -275,6 +305,7 @@
     run: function (id, cb) { return run(id, { manual: true }, cb); },
     due: due, isDue: isDue, nextAt: nextAt, today: today,
     running: function () { return running; },
-    tick: tick, start: start, stop: stop, onChange: onChange
+    tick: tick, start: start, stop: stop, onChange: onChange,
+    serverOwned: serverOwned, applyServerRun: applyServerRun
   };
 })();

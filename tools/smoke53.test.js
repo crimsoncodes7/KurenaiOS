@@ -128,7 +128,11 @@ step("a fired reminder alert and a fired assignment alert land in the feed", asy
   assert(af.some(f => f.assignment.id === a.id), "assignment alert did not fire");
   const remSrc = fs.readFileSync(path.join(ROOT, "js/modules/reminders.js"), "utf8");
   const asgSrc = fs.readFileSync(path.join(ROOT, "js/modules/assignments.js"), "utf8");
-  assert(/KOS\.notify\.push\(\{ id: "rem:"/.test(remSrc) && /KOS\.notify\.push\(\{ id: "asg:"/.test(asgSrc), "the reminder/assignment tickers do not hand their alerts to the feed");
+  /* the tickers hand each fired alert over as the owner's one notice()
+     (shared with the closed-app outlook, roadmap 5.7), under its own key */
+  assert(/KOS\.notify\.push\(KOS\.reminders\.notice\(/.test(remSrc) && /KOS\.notify\.push\(A\(\)\.notice\(/.test(asgSrc), "the reminder/assignment tickers do not hand their alerts to the feed");
+  assert(KOS.reminders.notice(r, 5).id === "rem:" + r.id + ":" + r.due + ":" + r.dueTime + ":5", "the reminder notice keeps the ticker's key");
+  assert(KOS.assignments.notice(a, 5).id === "asg:" + a.id + ":" + a.due + ":" + a.dueTime + ":5", "the assignment notice keeps the ticker's key");
 });
 step("an episode airing: the cache is remembered per watched title and announced once it has aired", async () => {
   N().clear();

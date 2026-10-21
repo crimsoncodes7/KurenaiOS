@@ -215,10 +215,11 @@
       var perm = nat.permission(), on = nat.enabled();
       var what = /iPhone|iPad|Android/i.test(navigator.userAgent) ? "phone" : "computer";
       device.appendChild(el("div", { class: "k-card-title", text: "Device alerts" }));
-      /* one line (review A); invariant 98: the page still says there is no push */
+      /* one line (review A); invariant 98: these fire while the page is
+         open — the card below is the closed-app path */
       device.appendChild(el("p", { class: "k-nt-card-p", text: perm === "unsupported" ? "Not supported in this browser."
         : perm === "denied" ? "Blocked in this site's browser settings."
-        : "While Kurenai is open. No push server, so a closed app stays quiet." }));
+        : "While Kurenai is open." }));
       var sw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.device-toggle",
         "aria-label": "Device alerts on this " + what });
       sw.checked = on;
@@ -248,6 +249,56 @@
         time("from", "Quiet hours start"), el("span", { class: "k-muted", text: "to" }), time("to", "Quiet hours end")
       ]));
     }
+    /* closed-app delivery (roadmap 5.7, docs/server-runner-plan.md): the
+       device publishes its outlook and the runner pushes it while no
+       device is open. This device's switch is its subscription; the
+       schedules switch is the account's (synced). */
+    var closed = el("section", { class: "k-card k-nt-card", "aria-label": "When the app is closed", "data-ui": "notify.closed" });
+    function paintClosed() {
+      closed.innerHTML = "";
+      if (!KOS.push) return;
+      var P = KOS.push, why = P.blocked(), c = P.config();
+      var what = /iPhone|iPad|Android/i.test(navigator.userAgent) ? "phone" : "computer";
+      var ios = /iPhone|iPad/.test(navigator.userAgent);
+      closed.appendChild(el("div", { class: "k-card-title", text: "When the app is closed" }));
+      closed.appendChild(el("p", { class: "k-nt-card-p", "data-ui": "notify.closed-why", text:
+        why === "unconfigured" ? "Not set up on this server yet."
+        : why === "signed-out" ? "Sign in to cloud sync to use it."
+        : why === "review" ? "Off while you look at the empty or sample app."
+        : why === "unsupported" ? (ios ? "On iPhone, add Kurenai to the Home Screen first." : "This browser cannot receive push.")
+        : "Alerts for the next 7 days reach you as notifications. They wait while Kurenai is open." }));
+      var sw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.closed-toggle",
+        "aria-label": "Notifications on this " + what + " when the app is closed" });
+      sw.disabled = !!why;
+      P.subscribed(function (on) { sw.checked = on; });
+      sw.addEventListener("change", function () {
+        sw.disabled = true;
+        (sw.checked ? P.subscribe : P.unsubscribe)(function (err) {
+          sw.disabled = false;
+          if (err) {
+            sw.checked = !sw.checked;
+            KOS.ui.toast(err.message === "permission" ? "Notifications were not allowed." : "That didn't work — " + err.message, true);
+            return;
+          }
+          KOS.a11y.announce(sw.checked ? "This " + what + " will get notifications when Kurenai is closed." : "This " + what + " won't get them any more.");
+          paintClosed();
+        });
+      });
+      closed.appendChild(el("label", { class: "k-nt-switch-row" }, [el("span", { text: "This " + what }), sw]));
+      var runs = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.server-runs",
+        "aria-label": "Scheduled messages sent from the server" });
+      runs.checked = !!(c.on && c.serverRuns);
+      runs.disabled = !!why || !c.on;
+      runs.addEventListener("change", function () { P.setServerRuns(runs.checked); paintClosed(); });
+      closed.appendChild(el("label", { class: "k-nt-switch-row" }, [el("span", { text: "Scheduled messages from the server" }), runs]));
+      if (c.on && !why) {
+        closed.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "notify.closed-off", text: "Turn off on every device…", onclick: function () {
+          KOS.ui.confirm({ title: "Turn off closed-app notifications?", confirm: "Turn off",
+            body: "The server stops sending them to every device, and scheduled messages run in the app again." },
+            function () { P.turnOff(function () { paintClosed(); }); });
+        } }));
+      }
+    }
     /* the frame's filters: one switch per kind */
     var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan", focus: "Focus idle watch", exam: "Exams: start-by, milestones, tests" };
     var lands = el("section", { class: "k-card k-nt-card", "aria-label": "Notification filters", "data-ui": "notify.filters" });
@@ -264,6 +315,7 @@
       });
     }
     side.appendChild(device);
+    side.appendChild(closed);
     side.appendChild(lands);
     side.appendChild(el("button", { type: "button", class: "k-link k-nt-clear", text: "Clear the feed…", onclick: function () {
       KOS.ui.confirm({ title: "Clear every notification?", danger: true, confirm: "Clear",
@@ -274,6 +326,7 @@
     paintTabs();
     paintList();
     paintDevice();
+    paintClosed();
     paintLands();
 
     /* repaint while mounted; the listener unhooks itself once the view is

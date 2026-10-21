@@ -24,7 +24,7 @@ chronological diary here.
   https://a6e211c9.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-exams-1`
-- Required smoke gate: 92 / 92 suites (`""`, 2–79 and 84–96; 80–83 are
+- Required smoke gate: 93 / 93 suites (`""`, 2–79 and 84–97; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), and on
@@ -45,7 +45,11 @@ chronological diary here.
   `kos_reviews`, migration `20261022000001`) is built on `feat/after-fsrs`
   (smoke96); Optimise stays off until 1,000 reviews are logged.
 - Built on `feat/after-fsrs`, not deployed: switching a Focus session's
-  subject, topic or assignment mid-way (invariant 4a, smoke95).
+  subject, topic or assignment mid-way (invariant 4a, smoke95); what
+  reaches a closed app (roadmap 5.7 item 1, [`docs/server-runner-plan.md`](docs/server-runner-plan.md):
+  the outlook, Web Push and the `runner` Edge Function; invariants 98,
+  71b, 131; smoke97; migration `20261022000002` applied; the function, its
+  secrets and the cron job are not deployed yet).
 - Released 21 October 2026: the Exams & Deadlines hub (roadmap 5.8,
   [`docs/exams-plan.md`](docs/exams-plan.md) revision 2), branch
   `feat/exams-hub`. Phases 1 (the assessment record, migration, Scope
@@ -82,7 +86,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..79} {84..96}; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
+for i in "" {2..79} {84..97}; do node "tools/smoke${i}.test.js"; done   # 80–83 are Japanese's, not yet written
 python3 tools/gen_exam_index.py        # the past-paper index, from ~/Downloads/A-level (when that folder changes)
 node tools/gen_exam_reports.mjs        # js/data/exam-reports.js, after editing tools/exam-index/reports/*.md
 node tools/fsrs_check.mjs              # KOS.fsrs against py-fsrs (needs Python; after any change to js/core/fsrs.js)
@@ -194,7 +198,8 @@ non-navigation redraw path.
 | Vault presentation/editors | `medview.js`, four vault modules, `KOS.mediaEditors` |
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
-| Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`); the Assistant's Scheduled tab |
+| Scheduled messages (a prompt sent at a time; read-only, isolated runs) | `js/core/aischedule.js` (`KOS.ai.schedule`; `serverOwned`, `applyServerRun`); the Assistant's Scheduled tab |
+| What reaches a closed app (roadmap 5.7) | `js/core/outlook.js` (`KOS.outlook`: the week's notices and the brief, a pure read), the owners' `forecast`/`notice` (`KOS.calendar`, `KOS.reminders`, `KOS.assignments`), `js/core/push.js` (`KOS.push`: subscribe, publish, presence, pull), the `push` handler in `sw.js`, the "When the app is closed" card in `js/modules/notifications.js`; `supabase/functions/runner/` (`index.ts`, `logic.ts`, `webpush.ts`, `model.ts`); `tools/gen_vapid.mjs`; smoke97 |
 | Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportlong.js` (`KOS.reportsLong`: the month, term and year pages), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js`; the replicated copy in Supabase `kos_reports` |
 | The subject list (CS, Maths, IT, Code; which are exam subjects), names and hues | `js/core/subjects.js` (`KOS.subjects`) |
 | Code (roadmap 5.3, `docs/code-plan.md`): curriculum, model, runner, primitives, pages | `js/data/code.js` (the authored spine `KOS_DATA.code` and `KOS_CODE`: stages, tracks, concepts, tasks, cards, the error decoder), `js/data/content/code-u*.js` (one file per released unit; units 1–9 and Bridge B), `js/data/content/code-c*.js` (one per capstone, through `KOS_CODE.capstone`), `js/core/code.js` (`KOS.code`: evidence, pay, retrieval, the day's plan), `js/core/coderun.js` (`KOS.codeRun`: the worker and the checker), `js/labs/cs-interp.js` (the in-app C# runner, pure, also in Node), `js/core/codeui.js` (`KOS.codeUI`: editor, results, error card, hints, stage path, listings, key bar), `js/modules/codetopic.js` (`KOS.codeTopic`: the lesson on the shared topic page), `js/modules/code.js` (`KOS.codeDesk` and `#/code/<page>`), `js/modules/codecap.js` (`KOS.codeCapstone`: the capstone checkpoint, `#/code/capstone/<id>`), `css/views/code.css`; `tools/cs_diff.mjs` (the .NET differential) |
@@ -750,8 +755,11 @@ source comments and audit notes refer to it.
     while the page is not in front, through the service-worker
     registration when one controls the page (an installed phone app) and
     the constructor otherwise; `sw.js` `notificationclick` focuses a client
-    and posts `kos-open`, which `pwa.js` routes through `KOS.show()`. There
-    is no push server and the page says so; a closed app stays quiet.
+    and posts `kos-open`, which `pwa.js` routes through `KOS.show()`. A
+    CLOSED app is reached only through closed-app delivery (invariant 131):
+    a per-device Web Push subscription (`KOS.push.subscribe`, from a
+    gesture, needing cloud sign-in and `KOS_ENV.VAPID_PUBLIC_KEY`), with
+    the account's switch `state.notifyCloud.on` (synced).
     Filters (`state.ui.notifyMuted`, per device, frame 14b) hide a kind
     from the feed, the bell, the unread count and device alerts while the
     ledger keeps it; quiet hours (`state.ui.notifyQuiet`, a window that may
@@ -806,6 +814,13 @@ source comments and audit notes refer to it.
     after a pull and before the model is called. The reply is kept on the
     schedule (`last`), in its own conversation when signed in, and pushed
     as an `assistant` notification. "Run now" does not claim the day.
+    With `state.notifyCloud.serverRuns` on, the SERVER owns every run
+    (invariant 131): a device never runs a schedule itself, the runner
+    answers from the published brief with no tools (one metered request,
+    `runner/model.ts`; an Ollama route cannot run there and says so), and
+    the device takes the reply in through `KOS.push.pull` →
+    `KOS.ai.schedule.applyServerRun` (`lastRun`, `last.server`, and the
+    ledger's own `asst:<id>:<day>`, once).
 
 ### Code (103–110)
 
@@ -1167,6 +1182,34 @@ source comments and audit notes refer to it.
     by program before they are written. The Companion is READ
     (`KOS.examDeep`); "worked" is per device (`state.ui.examWorked`), as
     is the open variation (`state.ui.examDeepVar`).
+
+### What reaches a closed app (131)
+
+131. THE DEVICE COMPUTES, THE SERVER DELIVERS (roadmap 5.7,
+    `docs/server-runner-plan.md`). `KOS.outlook.build` is a pure read: the
+    next seven days of notices under the ledger's own ids — the calendar,
+    reminder and assignment tickers' `forecast(from, to)` (each ticker and
+    its forecast share one `notice()`), and `KOS.exams`/`KOS.money`/
+    `KOS.goals` `notices(day)` at the morning time (`ui.notifyMorning`,
+    08:00; reached/missed goals are never forecast) — with this device's
+    muted kinds, Exam Season's hold and quiet hours applied (a day notice
+    waits for the window's end, a short alert inside it is dropped), and
+    NO money figure (`notices(day, {hide: true})`); plus the brief, the
+    read tools' answers for the week (never notes, card text, amounts or
+    chat). `KOS.push` publishes it to `kos_outlook` when its hash changes
+    (at most every 5 minutes, at least every 6 hours) with the schedules
+    and model route only when the server owns runs, beats presence
+    (`seen_at`) every 2 minutes while a page is visible, and pulls
+    `kos_runs`. The `runner` Edge Function (pg_cron every 5 minutes,
+    `CRON_SECRET` compared in constant time, `verify_jwt = false`) reads
+    only `kos_outlook`, `kos_push_subs`, `kos_push_sent` and `kos_runs`,
+    never `kos_state`, media, files or a credential: it holds every push
+    while a device was seen in the last 5 minutes, drops an item 30
+    minutes late, sends each item once (`kos_push_sent`) as an RFC 8291
+    payload signed with VAPID (WebCrypto, no library; the private key is a
+    function secret), deletes a subscription a push service calls gone,
+    and claims each due schedule in `kos_runs` before its one request.
+    `sw.js` shows a push under its id as the tag. Zero Governor traffic.
 
 ### Reports (99–102)
 

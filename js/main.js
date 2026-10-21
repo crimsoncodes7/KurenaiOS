@@ -128,6 +128,9 @@
   /* scheduled prompts: sent at their time while the app is open, or on the
      first open later that day (core/aischedule.js) */
   if (KOS.ai && KOS.ai.schedule) KOS.ai.schedule.start();
+  /* closed-app delivery (5.7): publish the outlook, the presence beat, the
+     server's scheduled replies (core/push.js) */
+  if (KOS.push) KOS.push.start();
   /* Reports (5.1): the state at each week / month boundary, written the
      first time the app is open in the period (core/reportstore.js) */
   if (KOS.reportStore) KOS.reportStore.start();

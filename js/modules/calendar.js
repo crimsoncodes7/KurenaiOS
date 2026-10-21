@@ -678,16 +678,51 @@
     });
     store.save();
     fired.forEach(function (f) {
-      var when = f.days === 0 ? "today" + (f.ev.time ? " at " + f.ev.time : "") :
-        f.days + (f.days === 1 ? " day" : " days") + " away";
-      KOS.ui.toast("⏰ " + f.ev.title + " — " + when, f.days <= 1);
+      var n = alertNotice(f.ev, f.aid, f.date, f.days, f.minutes);
+      KOS.ui.toast("⏰ " + f.ev.title + " — " + n.when, f.days <= 1);
       /* the same fired alert lands in the notification centre, keyed by
          the ticker's own once-only key, so the two never disagree */
-      if (KOS.notify) KOS.notify.push({ id: "cal:" + f.aid + ":" + f.date + ":" + f.minutes, kind: "calendar",
-        title: f.ev.title, body: (f.ev.type === "exam" ? "Exam" : f.ev.type === "deadline" ? "Deadline" : "Event") + " · " + when,
-        view: "calendar", arg: f.date });
+      if (KOS.notify) KOS.notify.push(n.item);
     });
     return fired;
+  }
+  function alertNotice(ev, aid, date, days, minutes) {
+    var when = days === 0 ? "today" + (ev.time ? " at " + ev.time : "") :
+      days + (days === 1 ? " day" : " days") + " away";
+    return { when: when, item: { id: "cal:" + aid + ":" + date + ":" + minutes, kind: "calendar",
+      title: ev.title, body: (ev.type === "exam" ? "Exam" : ev.type === "deadline" ? "Deadline" : "Event") + " · " + when,
+      view: "calendar", arg: date } };
+  }
+  /* the alerts checkReminders WOULD fire in [from, to) (ms) — for a closed
+     app's push (docs/server-runner-plan.md §3). A lead of a day or more is
+     day-grained, so it lands on its first day in the window at `morning`
+     ("HH:MM"); a shorter lead at the minute. Pure read. */
+  function forecast(from, to, morning) {
+    var out = [], t = today(), mh = String(morning || "08:00").split(":");
+    var c = cal();
+    occurrencesBetween(t, KOS.srs.addDays(t, 38)).forEach(function (occ) {
+      var ev = occ.ev;
+      if (!ev.alerts || !ev.alerts.length) return;
+      if (ev.type === "deadline" && (ev.status === "complete" || ev.status === "submitted")) return;
+      var moment = occurrenceMoment(ev, occ.date);
+      var aid = ev.alertKey != null ? ev.alertKey : ev.id;
+      ev.alerts.forEach(function (m) {
+        var at, day;
+        if (m >= 1440) {
+          day = KOS.srs.addDays(occ.date, -Math.floor(m / 1440));
+          var p = day.split("-");
+          at = new Date(+p[0], +p[1] - 1, +p[2], +mh[0], +mh[1] || 0, 0, 0).getTime();
+        } else {
+          at = moment - m * 60000;
+          var d = new Date(at);
+          day = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+        }
+        if (at < from || at >= to) return;
+        if (c.notified && c.notified[day + "|" + aid + "|" + occ.date + "|" + m]) return;
+        out.push(Object.assign(alertNotice(ev, aid, occ.date, KOS.srs.daysBetween(day, occ.date), m).item, { at: at }));
+      });
+    });
+    return out;
   }
 
   /* ---------------- formatting ---------------- */
@@ -1868,6 +1903,7 @@
     dayItems: dayItems,
     seedSamples: seedSamples,
     checkReminders: checkReminders,
+    forecast: forecast,
     countdownWidget: countdownWidget,
     openCountdown: openCountdown,
     eventModal: eventModal,

@@ -431,6 +431,30 @@
     var a = ALERTS.find(function (x) { return x.v === mins; });
     return a ? a.label : mins + " minutes before";
   }
+  /* the notification a fired alert raises — the ticker's and the
+     outlook's one wording, under the ticker's own once-only id */
+  function notice(item, mins) {
+    var when = mins === 0 ? "now" : alertLabel(mins).replace(" before", " to go");
+    return { id: "rem:" + item.id + ":" + item.due + ":" + (item.dueTime || "") + ":" + mins,
+      kind: "reminder", title: item.title, body: "Reminder · due " + when, view: "reminders" };
+  }
+  /* the alerts checkAlerts WOULD fire in [from, to) (ms), unfired — what a
+     closed app's push delivers (docs/server-runner-plan.md §3). Pure read. */
+  function forecast(from, to) {
+    var out = [];
+    all().forEach(function (item) {
+      if (item.done || !item.due || !(item.alerts || []).length) return;
+      var moment = dueMoment(item);
+      if (moment == null) return;
+      item.alerts.forEach(function (mins) {
+        var at = moment - mins * 60000;
+        if (at < from || at >= to) return;
+        if (item.alerted && item.alerted[item.due + "|" + (item.dueTime || "") + "|" + mins]) return;
+        out.push(Object.assign(notice(item, mins), { at: at }));
+      });
+    });
+    return out;
+  }
 
   /* ---------------- integrations ---------------- */
   /* Calendar: dated, still-open reminders on a day. Deliberately NOT routed
@@ -502,7 +526,7 @@
     query: query, counts: counts, isOverdue: isOverdue, nextOccurrence: nextOccurrence,
     nextDueAfterCompletion: nextDueAfterCompletion,
     section: section, SECTIONS: SECTIONS, SORTS: SORTS,
-    PRIORITIES: PRIORITIES, RECUR: RECUR, ALERTS: ALERTS, alertLabel: alertLabel,
+    PRIORITIES: PRIORITIES, RECUR: RECUR, ALERTS: ALERTS, alertLabel: alertLabel, notice: notice, forecast: forecast,
     checkAlerts: checkAlerts, dueMoment: dueMoment,
     forDate: forDate, summary: summary,
     rewardState: rewardState, rewardedToday: rewardedToday, REWARD_CAP: REWARD_CAP,

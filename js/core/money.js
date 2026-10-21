@@ -1233,9 +1233,11 @@
   var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   function dayLabel(d) { var x = parseISO(d); return DAY3[x.getDay()] + " " + x.getDate() + " " + MON3[x.getMonth()]; }
-  function notices(now) {
+  /* opts.hide: leave every amount out whatever Hide amounts says — the
+     closed-app outlook never sends a figure (docs/server-runner-plan.md §3) */
+  function notices(now, opts) {
     now = now || today();
-    var out = [], hide = isHidden(), tomorrow = addDays(now, 1), inTwo = addDays(now, 2), yesterday = addDays(now, -1);
+    var out = [], hide = isHidden() || !!(opts && opts.hide), tomorrow = addDays(now, 1), inTwo = addDays(now, 2), yesterday = addDays(now, -1);
     rules().forEach(function (r) {
       if (r.trialEnd === tomorrow) {
         out.push({ id: "money:" + r.id + ":" + r.trialEnd, kind: "money", title: r.name + ": the free trial ends tomorrow. Cancel before " + dayLabel(r.trialEnd) + ".",

@@ -143,6 +143,21 @@ self.addEventListener("notificationclick", function (e) {
   })());
 });
 
+/* Closed-app delivery (roadmap 5.7, docs/server-runner-plan.md §5): the
+   runner's Web Push carries one notification the device published in its
+   outlook, under the ledger's own id as the tag, so a repeat replaces
+   rather than stacks. A tap is the notificationclick above. */
+self.addEventListener("push", function (e) {
+  var m = {};
+  try { m = e.data ? e.data.json() : {}; } catch (err) { m = {}; }
+  if (!m || !m.title) return;
+  e.waitUntil(self.registration.showNotification(String(m.title).slice(0, 200), {
+    body: String(m.body || "").slice(0, 300), tag: m.id || undefined,
+    icon: "icons/icon-192.png", badge: "icons/icon-192.png",
+    data: { view: m.view || null, arg: m.arg == null ? null : m.arg }
+  }));
+});
+
 /* Background Sync (progressive enhancement — correctness never depends on
    it; cloudsync retries on online/boot/focus/manual regardless). The engine
    lives in the page, so the event just nudges any open client. */

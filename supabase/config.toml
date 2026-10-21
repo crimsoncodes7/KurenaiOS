@@ -434,3 +434,9 @@ verify_jwt = true
 # an open proxy; the user's VNDB token rides in the body for one request.
 [functions.vndb-ulist]
 verify_jwt = true
+
+# The closed-app runner (roadmap 5.7, docs/server-runner-plan.md): called
+# only by pg_cron with the CRON_SECRET bearer, which it checks itself — no
+# user ever calls it, so there is no user JWT to verify.
+[functions.runner]
+verify_jwt = false

@@ -468,6 +468,31 @@
     return fired;
   }
 
+  /* the notification a fired alert raises (the ticker's and the outlook's
+     one wording, under the ticker's own once-only id) */
+  function notice(rec, mins) {
+    var a = ALERTS.find(function (x) { return x.v === mins; });
+    var when = mins === 0 ? "due now" : (a && a.label) || "due soon";
+    return { id: "asg:" + rec.id + ":" + rec.due + ":" + (rec.dueTime || "") + ":" + mins,
+      kind: "assignment", title: rec.title, body: "Assignment · " + when, view: "assignments" };
+  }
+  /* the alerts checkAlerts WOULD fire in [from, to) (ms), unfired. Pure. */
+  function forecast(from, to) {
+    var out = [];
+    all().forEach(function (rec) {
+      if (!isOpen(rec) || !rec.due || !(rec.alerts || []).length) return;
+      var moment = dueMoment(rec);
+      if (moment == null) return;
+      rec.alerts.forEach(function (mins) {
+        var at = moment - mins * 60000;
+        if (at < from || at >= to) return;
+        if (rec.alerted && rec.alerted[rec.due + "|" + (rec.dueTime || "") + "|" + mins]) return;
+        out.push(Object.assign(notice(rec, mins), { at: at }));
+      });
+    });
+    return out;
+  }
+
   /* one-time pass (boot): pre-1.1 `topics` pairs become `refs`. Only the
      link field moves — a migration is not an edit, so updatedAt stays. */
   function migrate() {
@@ -485,7 +510,7 @@
   KOS.assignments = {
     refsOf: refsOf, topicsOf: topicsOf, migrate: migrate,
     all: all, get: get, add: add, update: update, remove: remove,
-    setStatus: setStatus, addEffort: addEffort,
+    setStatus: setStatus, addEffort: addEffort, notice: notice, forecast: forecast,
     subAdd: subAdd, subToggle: subToggle, subRemove: subRemove, nextSubtask: nextSubtask,
     query: query, counts: counts,
     isOpen: isOpen, isOverdue: isOverdue, daysLeft: daysLeft,

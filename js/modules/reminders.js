@@ -557,8 +557,7 @@
     KOS.reminders.checkAlerts().forEach(function (f) {
       var when = f.minutes === 0 ? "now" : KOS.reminders.alertLabel(f.minutes).replace(" before", " to go");
       KOS.ui.toast("🔔 " + f.item.title + " — " + when, f.minutes === 0);
-      if (KOS.notify) KOS.notify.push({ id: "rem:" + f.item.id + ":" + f.item.due + ":" + (f.item.dueTime || "") + ":" + f.minutes,
-        kind: "reminder", title: f.item.title, body: "Reminder · due " + when, view: "reminders" });
+      if (KOS.notify) KOS.notify.push(KOS.reminders.notice(f.item, f.minutes));
     });
   }
   setTimeout(function () {
