@@ -787,6 +787,14 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-cs-target { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); font-size: var(--fs-13); color: var(--text-2); margin-block-end: var(--sp-12); }
 .k-cs-legend li[data-state="current"] { color: var(--text); font-weight: var(--weight-semibold); }
 .k-cs-exam { margin-block-start: var(--sp-12); padding-block-start: var(--sp-12); border-block-start: var(--hairline) solid var(--line); }
+/* fitted to your reviews (FSRS phase 3): the status beside its actions,
+   one row on a wide screen, stacked when they do not fit */
+.k-cs-fit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-12); font-size: var(--fs-13); }
+.k-cs-fit > p { flex: 1 1 auto; margin: 0; }
+.k-cs-fit-list { display: grid; gap: var(--sp-10); margin: 0 0 var(--sp-12); font-size: var(--fs-13); }
+.k-cs-fit-list > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-4) var(--sp-12); }
+.k-cs-fit-list dt { color: var(--text-2); }
+.k-cs-fit-list dd { margin: 0; color: var(--text); }
 .k-cs-crumb { display: flex; align-items: center; gap: var(--sp-12); font-size: var(--fs-13); color: var(--text-2); }
 .k-cs-tablewrap { overflow-x: auto; }
 .k-cs-table { inline-size: 100%; font-size: var(--fs-13); }

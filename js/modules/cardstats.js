@@ -51,6 +51,107 @@
     ]);
   }
 
+  /* ---------------- fitted to your reviews (FSRS phase 3) ----------------
+     The optimiser (KOS.fsrsOpt) reads the review log and fits the
+     parameters to this learner; nothing changes until "Use these" in the
+     preview, which says what moves. The card draws from the log's count
+     and writes nothing (the fit runs only on Optimise). */
+  function pct(x) { return Math.round(x * 1000) / 10 + "%"; }
+  function dayText(n) { return n == null ? "—" : n + (n === 1 ? " day" : " days"); }
+  function fitCard(withMem, target, today) {
+    var O = KOS.fsrsOpt, fit = KOS.srs.fitted();
+    var status = el("p", { class: "k-muted", "data-ui": "review.fit-status", role: "status",
+      text: fit ? "Fitted " + new Date(fit.at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) + " to " +
+        fit.reviews.toLocaleString() + " reviews · log loss " + fit.loss[0] + " → " + fit.loss[1]
+        : "Using FSRS-6's defaults, learnt from millions of other people's reviews." });
+    var run = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "review.fit-run", text: "Optimise", disabled: "" });
+    var reset = fit ? el("button", { type: "button", class: "k-btn", "data-ui": "review.fit-reset", text: "Back to the defaults",
+      onclick: function () {
+        KOS.ui.confirm({ title: "Back to the defaults?", body: "Scheduling goes back to FSRS-6's default parameters from each card's next review. No due date moves.",
+          confirm: "Use the defaults" }, function () { KOS.srs.resetFit(); KOS.a11y.announce("Back to the default parameters."); KOS.rerender(); });
+      } }) : null;
+    var count = el("span", { class: "k-card-meta", "data-ui": "review.fit-count", text: "" });
+    if (KOS.reviewLog && KOS.reviewLog.available()) {
+      KOS.reviewLog.count(function (err, n) {
+        n = err ? 0 : n;
+        count.textContent = n.toLocaleString() + " reviews logged";
+        if (n >= O.MIN_REVIEWS) run.disabled = false;
+        else if (!fit) status.textContent = "Fitting needs " + O.MIN_REVIEWS.toLocaleString() + " logged reviews — " +
+          (O.MIN_REVIEWS - n).toLocaleString() + " to go. Until then the defaults are the better guess.";
+      });
+    }
+    run.onclick = function () {
+      run.disabled = true;
+      KOS.reviewLog.all(function (err, rows) {
+        if (err) { run.disabled = false; status.textContent = "The review log could not be read."; return; }
+        var job = O.job(rows, { current: KOS.srs.weights() });
+        (function slice() {
+          var t0 = Date.now();
+          while (!job.done && Date.now() - t0 < 40) job.tick();
+          if (!job.done) { status.textContent = "Fitting… " + Math.round(100 * job.step / job.steps) + "%"; setTimeout(slice, 0); return; }
+          run.disabled = false;
+          var res = job.result;
+          if (!res.ok) {
+            status.textContent = res.why === "reviews" ? "Fitting needs " + res.need.toLocaleString() + " logged reviews."
+              : res.why === "items" ? "Too few reviews a day or more apart to fit (" + res.items + " of " + res.need + ")."
+              : "Your current parameters already predict your reviews as well as a new fit would. Nothing changed.";
+            KOS.a11y.announce(status.textContent);
+            return;
+          }
+          preview(res, withMem, target, today);
+        })();
+      });
+    };
+    return el("section", { class: "k-card k-cs-card", "data-ui": "review.fit", "aria-label": "Fitted to your reviews" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Fitted to your reviews" }), count]),
+      el("div", { class: "k-cs-fit" }, [
+        status,
+        el("div", { class: "k-cluster" }, [run, reset].filter(Boolean))
+      ])
+    ]);
+  }
+  /* what a fit would change, before anything does */
+  function preview(res, withMem, target, today) {
+    var mems = withMem.map(function (c) {
+      return { s: c.mem.s, d: c.mem.d, el: c.meta.last ? Math.max(0, KOS.srs.daysBetween(c.meta.last, today)) : 0 };
+    });
+    var ch = KOS.fsrsOpt.changes(mems, KOS.srs.weights(), res.w, target);
+    var better = Math.round(1000 * (res.before.loss - res.after.loss) / res.before.loss) / 10;
+    var rows = [
+      ["How well it predicts your " + res.items.toLocaleString() + " spaced reviews", "log loss " + res.before.loss.toFixed(4) + " → " + res.after.loss.toFixed(4) + " (" + better + "% better)"],
+      ["Recall it predicts against what happened", pct(res.after.predicted) + " predicted · " + pct(res.after.actual) + " actual"]
+    ];
+    if (ch.n) {
+      rows.push(["Next interval after a Good, middle card", dayText(ch.medOld) + " → " + dayText(ch.medNew)]);
+      rows.push(["Your " + ch.n + " cards' next Good", ch.longer + " longer · " + ch.shorter + " shorter · " + ch.same + " the same"]);
+      rows.push(["Recall today, on average", pct(ch.rOld) + " → " + pct(ch.rNew)]);
+    }
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    overlay.close = function () { overlay.remove(); };
+    overlay.appendChild(el("div", { class: "k-dialog", "data-ui": "ui.dialog review.fit-preview" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "What changes" }),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: function () { overlay.close(); } })
+      ]),
+      el("div", { class: "k-dialog-body" }, [
+        el("dl", { class: "k-cs-fit-list" }, rows.map(function (r) {
+          return el("div", {}, [el("dt", { text: r[0] }), el("dd", { class: "k-mono", text: r[1] })]);
+        })),
+        el("p", { class: "k-muted", text: "It applies from each card's next review. No due date moves, and Back to the defaults undoes it." })
+      ]),
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "review.fit-use", text: "Use these parameters", onclick: function () {
+          KOS.srs.setFit(res);
+          overlay.close();
+          KOS.a11y.announce("Scheduling now uses parameters fitted to your reviews.");
+          KOS.rerender();
+        } })
+      ])
+    ]));
+    KOS.ui.openDialog(overlay);
+  }
+
   /* ---------------- the view ---------------- */
   KOS.review = KOS.review || {};
   KOS.review.renderStats = function (main, arg, opts) {
@@ -175,7 +276,7 @@
     /* the workload a target asks for at today's memory: each card comes
        round once per interval, so a day holds the sum of 1 / interval */
     function perDayAt(t) {
-      var n = withMem.reduce(function (a, c) { return a + 1 / KOS.fsrs.interval(c.mem.s, t); }, 0);
+      var n = withMem.reduce(function (a, c) { return a + 1 / KOS.fsrs.interval(c.mem.s, t, KOS.srs.weights()); }, 0);
       return n < 10 ? Math.round(n * 10) / 10 : Math.round(n);
     }
     var pick = el("select", { class: "k-pill-select", "data-ui": "review.retention", "aria-label": "Target retention",
@@ -219,6 +320,8 @@
       chart("Difficulty", "1 easy · 10 hard — how hard FSRS finds each card", bars(binned(DIFF, function (m) { return m.d; }), {}), "review.difficulty"),
       targetCard
     ]));
+
+    if (!ref) main.appendChild(fitCard(withMem, target, today));
 
     /* the per-topic breakdown — every subject in scope, sorted by lapses */
     if (!ref) {

@@ -60,6 +60,34 @@
   }
   function peek(key) { return store.state.srs[key] || null; }
 
+  /* the parameters in use (phase 3): this learner's fit when there is a
+     valid one (state.srsCfg.fit, synced), else FSRS-6's defaults. A new
+     set applies from each card's next review; no due date moves. */
+  function weights() {
+    var f = store.state.srsCfg && store.state.srsCfg.fit;
+    return f && KOS.fsrsOpt && KOS.fsrsOpt.valid(f.w) ? f.w : F.W;
+  }
+  function fitted() {
+    var f = store.state.srsCfg && store.state.srsCfg.fit;
+    return f && KOS.fsrsOpt && KOS.fsrsOpt.valid(f.w) ? f : null;
+  }
+  /* keep an accepted fit (KOS.fsrsOpt result with ok) */
+  function setFit(res) {
+    if (!res || !res.ok || !KOS.fsrsOpt.valid(res.w)) return null;
+    store.state.srsCfg = store.state.srsCfg || {};
+    store.state.srsCfg.fit = { w: res.w.slice(), at: Date.now(), reviews: res.reviews, items: res.items,
+      loss: [Math.round(res.before.loss * 1e4) / 1e4, Math.round(res.after.loss * 1e4) / 1e4] };
+    store.save();
+    examPass();
+    return store.state.srsCfg.fit;
+  }
+  function resetFit() {
+    if (!store.state.srsCfg || !store.state.srsCfg.fit) return;
+    delete store.state.srsCfg.fit;
+    store.save();
+    examPass();
+  }
+
   /* the recall the schedule aims for at each due date (decision A) */
   function retention() {
     var c = store.state.srsCfg;
@@ -94,14 +122,14 @@
      The fuzz seed is the card key and the day, so the preview on a rating
      button is exactly what pressing it schedules, on every device. */
   function plan(key, m, rating, today, idx) {
-    var before = F.recordMemory(m);
+    var before = F.recordMemory(m, weights());
     var el = elapsedOf(m, today);
-    var nx = F.schedule(before, rating + 1, el, { retention: retention(), seed: key + "|" + today, againToday: true });
+    var nx = F.schedule(before, rating + 1, el, { retention: retention(), seed: key + "|" + today, againToday: true, w: weights() });
     var cap = null;
     if (rating > 0) {
       var exam = examFor(key, today, idx);
       if (exam) {
-        var c = F.examCap(nx.ivl, nx.s, daysBetween(today, exam), examTarget(), key + "|" + exam);
+        var c = F.examCap(nx.ivl, nx.s, daysBetween(today, exam), examTarget(), key + "|" + exam, weights());
         if (c.capped) { nx.ivl = c.ivl; cap = exam; }
       }
     }
@@ -180,8 +208,8 @@
       if (!m || !m.last || !m.due || m.leech || m.due <= today) return;
       var exam = examFor(k, today, idx);
       if (!exam || m.due < exam) return;
-      var mem = F.recordMemory(m);
-      if (!mem || F.retrievability(daysBetween(m.last, exam), mem.s) >= r0) return;
+      var mem = F.recordMemory(m, weights());
+      if (!mem || F.retrievability(daysBetween(m.last, exam), mem.s, weights()) >= r0) return;
       var d = F.examDay(daysBetween(today, exam), k + "|" + exam);
       if (d == null) return;
       var due = addDays(today, d);
@@ -254,10 +282,10 @@
      {s, d, r (recall today, 0..1), due}; null for a card never rated */
   function memory(key, today) {
     var m = peek(key);
-    var mem = F.recordMemory(m);
+    var mem = F.recordMemory(m, weights());
     if (!mem) return null;
     var t = today || todayISO();
-    return { s: mem.s, d: mem.d, r: F.retrievability(elapsedOf(m, t), mem.s), due: m.due };
+    return { s: mem.s, d: mem.d, r: F.retrievability(elapsedOf(m, t), mem.s, weights()), due: m.due };
   }
 
   /* ---- the update. rating: 0..3. Returns the updated record. ---- */
@@ -301,7 +329,7 @@
     Object.keys(srs).forEach(function (k) {
       var m = srs[k];
       if (!m || !m.last || (m.s > 0 && m.d > 0 && m.fl === m.last)) return;
-      var mem = F.recordMemory(m);
+      var mem = F.recordMemory(m, weights());
       if (!mem) return;
       m.s = r4(mem.s); m.d = r4(mem.d); m.fl = m.last;
       n++;
@@ -540,6 +568,10 @@
     memory: memory,
     retention: retention,
     setRetention: setRetention,
+    weights: weights,
+    fitted: fitted,
+    setFit: setFit,
+    resetFit: resetFit,
     examTarget: examTarget,
     setExamTarget: setExamTarget,
     migrate: migrate,

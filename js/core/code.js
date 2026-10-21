@@ -642,9 +642,9 @@
   function r4(v) { return Math.round(v * 1e4) / 1e4; }
   function schedule(s, g, id) {
     var t = today();
-    var before = KOS.fsrs.recordMemory(s);
+    var before = KOS.fsrs.recordMemory(s, KOS.srs.weights());
     var el = s.last ? Math.max(0, daysBetween(s.last, t)) : 0;
-    var nx = KOS.fsrs.schedule(before, GRADE_NUM[g], el, { retention: KOS.srs.retention(), seed: "code:" + id + "|" + t });
+    var nx = KOS.fsrs.schedule(before, GRADE_NUM[g], el, { retention: KOS.srs.retention(), seed: "code:" + id + "|" + t, w: KOS.srs.weights() });
     if (g === "again") { s.lapses = (s.lapses || 0) + 1; s.reps = 0; }
     else s.reps = (s.reps || 0) + 1;
     s.s = r4(nx.s); s.d = r4(nx.d); s.ivl = nx.ivl;
@@ -662,7 +662,7 @@
     Object.keys(cards).forEach(function (id) {
       var c = cards[id];
       if (!c || !c.last || (c.s > 0 && c.d > 0 && c.fl === c.last)) return;
-      var mem = KOS.fsrs.recordMemory(c);
+      var mem = KOS.fsrs.recordMemory(c, KOS.srs.weights());
       if (!mem) return;
       c.s = r4(mem.s); c.d = r4(mem.d); c.fl = c.last;
       n++;

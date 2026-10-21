@@ -685,10 +685,10 @@
         var ls2 = 0, lw = 0, n = 0;
         KOS.srs.cardsFor(p.subject, p.ref).forEach(function (c) {
           cards++;
-          var m = KOS.srs.peek(c.key), mem = KOS.fsrs.recordMemory(m);
+          var m = KOS.srs.peek(c.key), mem = KOS.fsrs.recordMemory(m, KOS.srs.weights());
           if (!mem || !m.last) return;
           ratedCards++;
-          var rr = KOS.fsrs.retrievability(Math.max(0, KOS.srs.daysBetween(m.last, on)), mem.s), cw = KOS.srs.weightOf(c);
+          var rr = KOS.fsrs.retrievability(Math.max(0, KOS.srs.daysBetween(m.last, on)), mem.s, KOS.srs.weights()), cw = KOS.srs.weightOf(c);
           ls2 += rr * cw; lw += cw; n++;
         });
         if (lw) { perLeaf[k] = { r: ls2 / lw, n: n }; sumR += perLeaf[k].r * wt(k); sumW += wt(k); }

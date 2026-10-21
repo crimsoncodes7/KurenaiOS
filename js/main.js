@@ -131,6 +131,9 @@
   /* Reports (5.1): the state at each week / month boundary, written the
      first time the app is open in the period (core/reportstore.js) */
   if (KOS.reportStore) KOS.reportStore.start();
+  /* FSRS (5.6, phase 3): the review log's replicated copy in kos_reviews,
+     so every device's ratings join the optimiser's fit */
+  if (KOS.reviewLog && KOS.reviewLog.start) KOS.reviewLog.start();
   /* Money (5.4): the transactions' replicated copy in kos_money, and the
      goals' notices (a period ending, a deadline tomorrow) */
   if (KOS.money) KOS.money.start();

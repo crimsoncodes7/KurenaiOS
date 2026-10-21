@@ -99,8 +99,9 @@
      (the enclosing record's rule decides, else local), never element-wise —
      merging an ordering position by position can double one item and lose
      another. Paths are prefixes: the Shrine's tie orders, one per score
-     (roadmap 1.5). */
-  var ATOMIC_PREFIX = ["media.shrine.order."];
+     (roadmap 1.5), and the fitted FSRS parameters (roadmap 5.6 phase 3:
+     one fit's 21 numbers, never two fits' mixed). */
+  var ATOMIC_PREFIX = ["media.shrine.order.", "srsCfg.fit.w"];
   function isAtomic(path) {
     if (typeof path !== "string") return false;
     for (var i = 0; i < ATOMIC_PREFIX.length; i++) if (path.indexOf(ATOMIC_PREFIX[i]) === 0) return true;
