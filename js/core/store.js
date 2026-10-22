@@ -37,12 +37,18 @@
     progress: {},          // "subject:ref" -> {status, check:[c,s,q,u], note}
     ui: { subject: "compsci", view: "dash", openSections: {}, lastRef: {}, railOpen: true,
           /* Code (roadmap 5.3): per-device choices and unsaved drafts */
-          code: { drafts: {} } },
+          code: { drafts: {} },
+          /* Japanese (roadmap 5.5): per-device view choices */
+          japanese: {} },
     oop: { classes: [], links: [], nextId: 1 },
     /* Code (roadmap 5.3, core/code.js): evidence, task passes, proofs and
        the retrieval schedule — keyed maps throughout, so the cloud merge
        folds two devices per key */
     code: { v: 1, tasks: {}, lessons: {}, proven: {}, cards: {}, practice: {}, later: {} },
+    /* Japanese (roadmap 5.5, core/ja.js): facets (item × skill, on KOS.fsrs), lesson and
+       checkpoint evidence, mined lines, input tallies and settings — keyed maps throughout */
+    japanese: { v: 1, facets: {}, lessons: {}, checkpoints: {}, mined: {}, input: {},
+      settings: { furigana: "unknown", dailyMin: 40, speech: false } },
     worked: { last: null },
     trace: {},
 

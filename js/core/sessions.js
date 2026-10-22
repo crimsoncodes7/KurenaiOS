@@ -175,6 +175,7 @@
       maths: streak("maths"),
       it: streak("it"),
       code: streak("code"),
+      ja: streak("ja"),
       rest: restStreak(),
       best: bestStreak(null)
     };

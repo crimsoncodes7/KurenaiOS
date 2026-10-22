@@ -72,6 +72,10 @@ color-scheme: dark;
    use it; they keep the fixed green and red with a mark and a word. */
 --code: oklch(0.815 0.095 224);
 --code-ink: oklch(0.22 0.03 224);
+/* Japanese, the fifth study space (朱 shu, docs/japanese-plan.md decision F; each shop theme
+   restates it clear of its own accent and Code hue — provisional until design turn 28). */
+--ja: oklch(0.72 0.15 42);
+--ja-ink: oklch(0.2 0.04 42);
 --anime: oklch(0.72 0.13 250);
 --books: oklch(0.78 0.11 70);
 --vn: oklch(0.72 0.14 330);

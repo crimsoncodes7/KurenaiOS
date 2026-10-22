@@ -102,6 +102,10 @@
      (roadmap 1.5), and the fitted FSRS parameters (roadmap 5.6 phase 3:
      one fit's 21 numbers, never two fits' mixed). */
   var ATOMIC_PREFIX = ["media.shrine.order.", "srsCfg.fit.w"];
+  /* a Japanese facet (state.japanese.facets["<item>|<skill>"]) is one memory state — stability,
+     difficulty and due belong together. Changed on both devices, the one reviewed more recently
+     wins whole (a tie goes local), so two devices never mix one facet's numbers (invariant 113). */
+  var FACET_PATH = /^japanese\.facets\.[^.]+$/;
   function isAtomic(path) {
     if (typeof path !== "string") return false;
     for (var i = 0; i < ATOMIC_PREFIX.length; i++) if (path.indexOf(ATOMIC_PREFIX[i]) === 0) return true;
@@ -385,6 +389,10 @@
       }
     }
 
+    if (typeof path === "string" && FACET_PATH.test(path) && isPlain(l) && isPlain(r)) {
+      ctx.stats.conflicts++;
+      return String(r.last || "") > String(l.last || "") ? r : l;
+    }
     if (isPlain(l) && isPlain(r)) {
       var bb = isPlain(b) ? b : null;
       var out = {}, keys = {};

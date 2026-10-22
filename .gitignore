@@ -50,3 +50,6 @@ tools/cs-wasm/obj/
 
 # memory sync backups (tools/sync_memory.sh)
 docs/memory/*.bak
+
+# downloaded source data (KanjiVG SVGs for tools/gen_ja_strokes.mjs)
+tools/.cache/

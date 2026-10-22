@@ -202,6 +202,20 @@
       xp = ca.xp; gold = ca.gold; hp = ca.hp;
       if (m.phone) notes.push("phone task");
     }
+    else if (e.type === "ja") {
+      /* Japanese (roadmap 5.5): KOS.ja.award() is the one definition — a
+         review session's capped XP, a lesson, checkpoint or stage gate once.
+         A session past the daily cap pays nothing and says so on its page. */
+      var ja = KOS.ja && KOS.ja.award ? KOS.ja.award(m) : { xp: 0, gold: 0, hp: 0 };
+      if (!ja.xp && !ja.gold && !ja.hp) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: [], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
+        store.save();
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
+      xp = ja.xp; gold = ja.gold; hp = ja.hp;
+    }
     else if (e.type === "todo") { xp = 5; gold = 1; hp = 2; }
     else if (e.type === "tracker") { xp = 8; gold = 1; hp = 2; }
     else if (e.type === "media") {

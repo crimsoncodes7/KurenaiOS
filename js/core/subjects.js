@@ -24,7 +24,9 @@
     { id: "compsci", name: "Computer Science", short: "CS", hue: "var(--cs)", hex: "#3D8E76", exam: true },
     { id: "maths", name: "Mathematics", short: "Maths", hue: "var(--maths)", hex: "#4C6DB3", exam: true },
     { id: "it", name: "IT · Data Analytics", short: "IT", hue: "var(--it)", hex: "#8A63A8", exam: true },
-    { id: "code", name: "Code", short: "Code", hue: "var(--code)", hex: "#7AD0F0", exam: false }
+    { id: "code", name: "Code", short: "Code", hue: "var(--code)", hex: "#7AD0F0", exam: false },
+    /* Japanese (roadmap 5.5): listed here, live once KOS_DATA.ja (its spine) is loaded */
+    { id: "ja", name: "Japanese", short: "Japanese", hue: "var(--ja)", hex: "#E27A4E", exam: false }
   ];
   var BY = {};
   LIST.forEach(function (s) { BY[s.id] = s; });
