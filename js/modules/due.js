@@ -168,7 +168,7 @@
         g.recall != null ? el("span", { class: "k-chip", "data-tone": "muted", "data-ui": "review.topic-recall",
           title: "How much of this topic's deck you would recall today", text: "recall " + Math.round(g.recall * 100) + "%" }) : null,
         el("span", { class: "k-rv-topic-n k-mono" }, [String(g.n), el("span", { class: "k-muted", text: " due" })]),
-        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "review.topic-go",
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-rv-topic-go", "data-ui": "review.topic-go",
           "aria-label": "Review " + g.n + " due in " + g.ref + " " + topicTitle(g.sid, g.ref), text: "▶",
           onclick: function () { KOS.show("review", { tab: "due", run: g.sid + ":" + g.ref }); } })
       ].filter(Boolean)));

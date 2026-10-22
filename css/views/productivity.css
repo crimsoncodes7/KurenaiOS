@@ -944,4 +944,10 @@
 .k-hb-dir-tick, .k-cal-add { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 
+/* no hover (an iPad wider than the phone tier): a row's delete and the
+   plan's move are always there rather than found by a first tap */
+@media (hover: none) {
+.k-rem-del, .k-hb-del, .k-pace-move { opacity: 1; }
+}
+
 }

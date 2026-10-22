@@ -209,10 +209,12 @@ color-scheme: dark;
 --brand-logo: 34px;
 --search-w: 480px;
 --search-h: 34px;
---rail-w: 212px;
+--rail-w: var(--rail-w-full);
+--rail-w-full: 212px;
 --rail-w-compact: 72px;
 --spine-w: 284px;
 --inspector-w: 284px;
+--pagehead-txt-min: 18rem;
 --aside-w: 400px;
 --menu-w: 300px;
 --menu-max-h: 560px;
@@ -1128,10 +1130,6 @@ color-scheme: dark;
 }
 
 /* ---------- the five tiers, widest first ---------- */
-@media (max-width: 1240px) {
-:root { --inspector-w: 100%; }
-}
-
 @media (max-width: 1080px) {
 :root { --rail-w: var(--rail-w-compact); --search-w: 360px; }
 }

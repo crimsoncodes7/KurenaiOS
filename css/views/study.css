@@ -262,6 +262,9 @@ button.k-subj-next:hover { background: var(--s2); }
    block takes data-state="copy" from content.js), so a page of notes is
    not a column of Copy buttons */
 @media (hover: none) {
+/* a row's own controls that a mouse finds on hover: on an iPad, wider
+   than the phone tier that already shows them, they are always there */
+.k-res-del, .k-asg-x, .k-asg-open { opacity: 1; }
 .k-n-kv[data-state~="copy"] > .k-n-copy, .k-n-tablewrap[data-state~="copy"] > .k-n-copy, .k-callout[data-state~="copy"] > .k-n-copy, .k-n-steps[data-state~="copy"] > .k-n-copy, .k-n-worked[data-state~="copy"] > .k-n-copy { opacity: 1; }
 .k-n-kv > .k-n-copy, .k-n-tablewrap > .k-n-copy, .k-callout > .k-n-copy, .k-n-steps > .k-n-copy, .k-n-worked > .k-n-copy { pointer-events: none; }
 .k-n-kv[data-state~="copy"] > .k-n-copy, .k-n-tablewrap[data-state~="copy"] > .k-n-copy, .k-callout[data-state~="copy"] > .k-n-copy, .k-n-steps[data-state~="copy"] > .k-n-copy, .k-n-worked[data-state~="copy"] > .k-n-copy { pointer-events: auto; }
@@ -1066,6 +1069,14 @@ button.k-subj-next:hover { background: var(--s2); }
 }
 
 @media (max-width: 700px) {
+/* a topic row on a phone or a narrow Split View: the chips and the count
+   take a second line (with touch-sized buttons the one line ran ~60px
+   past a 375px screen) */
+.k-rv-topic { flex-wrap: wrap; row-gap: var(--sp-6); }
+.k-rv-topic::after { content: ""; order: 1; flex-basis: 100%; }
+.k-rv-topic > .k-chip, .k-rv-topic-n { order: 2; }
+.k-rv-topic-t + .k-chip { margin-inline-start: calc(var(--sp-4) + var(--sp-14)); }
+.k-rv-topic-n { inline-size: auto; margin-inline-start: auto; }
 .k-it-agg { grid-template-columns: minmax(0, 1fr); gap: var(--sp-20); }
 .k-it-th { display: none; }
 .k-it-tr { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name grade" "status mark" "bar bar"; row-gap: var(--sp-6); padding-block: var(--sp-12); }

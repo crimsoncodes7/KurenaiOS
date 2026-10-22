@@ -538,6 +538,9 @@ h2.k-lab-title { font-size: var(--fs-17); }
 .k-ide-chip[aria-pressed="true"] { background: color-mix(in oklch, var(--crimson) 18%, transparent); box-shadow: none; color: var(--crimson-soft); }
 .k-ide-rm { margin-inline-start: auto; opacity: 0; }
 .k-ide-member:hover .k-ide-rm, .k-ide-rm:focus-visible { opacity: 1; }
+@media (hover: none) {
+.k-ide-rm { opacity: 1; }
+}
 .k-ide-add { min-block-size: var(--hit-dense); padding: 0 var(--sp-12); border-radius: var(--r-10); box-shadow: inset 0 0 0 var(--hairline) var(--line); font: inherit; font-size: var(--fs-12-5); color: var(--text-2); }
 .k-ide-add:hover { background: var(--s1); color: var(--text); }
 .k-ide-err { display: flex; align-items: center; gap: var(--sp-12); inline-size: 100%; padding: var(--sp-10) var(--sp-14); border-radius: var(--r-14); background: color-mix(in oklch, var(--red) 12%, var(--s1)); font-family: var(--font-ui); font-size: var(--fs-13); }

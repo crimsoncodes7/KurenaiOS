@@ -1063,6 +1063,17 @@
   KOS.ui.icon = icon;
   KOS.ui.reorder = reorder;
   KOS.ui.pageHeader = pageHeader;
+  /* The device, for WORDS only ("this iPad", "Add to the Home Screen"):
+     layout never reads it (invariant 47). iPadOS Safari asks for desktop
+     sites and calls itself a Mac, so an iPad is a "Mac" with a touch
+     screen. */
+  KOS.ui.device = function () {
+    var ua = navigator.userAgent || "", touch = (navigator.maxTouchPoints || 0) > 1;
+    if (/iPad/.test(ua) || (/Macintosh/.test(ua) && touch)) return { kind: "tablet", name: "iPad", ios: true };
+    if (/iPhone|iPod/.test(ua)) return { kind: "phone", name: "iPhone", ios: true };
+    if (/Android/.test(ua)) return /Mobile/.test(ua) ? { kind: "phone", name: "phone", ios: false } : { kind: "tablet", name: "tablet", ios: false };
+    return { kind: "computer", name: "computer", ios: false };
+  };
   KOS.ui.sectionHeader = sectionHeader;
   KOS.ui.emptyState = emptyState;
   KOS.ui.statTile = statTile;

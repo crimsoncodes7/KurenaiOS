@@ -53,8 +53,8 @@ window.fetch = () => Promise.reject(new Error("network disabled in smoke43"));
    suite drives it explicitly rather than letting the code fall back. */
 let mediaWidth = 1440;
 window.matchMedia = q => {
-  const m = /max-width:\s*(\d+)px/.exec(q);
-  return { matches: m ? mediaWidth <= Number(m[1]) : false, media: q,
+  const m = /max-width:\s*(\d+)px/.exec(q), n = /min-width:\s*(\d+)px/.exec(q);
+  return { matches: m ? mediaWidth <= Number(m[1]) && (!n || mediaWidth >= Number(n[1])) : false, media: q,
     addListener: noop, removeListener: noop, addEventListener: noop, removeEventListener: noop };
 };
 
@@ -200,6 +200,30 @@ step("the spine is a dismissible drawer on the tiers where it is an overlay", ()
   assert((document.getElementById("cols").getAttribute("data-tree") === "closed"), "Escape did not close the drawer");
   mediaWidth = 1440;
   KOS.store.state.ui.treeClosed = false;
+});
+
+step("an iPad in portrait: the rail is tiles, opens over the page and closes on a destination", () => {
+  /* 701–1080 forced the tiles and hid the toggle, so the rail could not be
+     opened at all on an iPad in portrait (22 October 2026) */
+  mediaWidth = 820;
+  KOS.store.state.ui.railOpenNarrow = false;
+  KOS.show("home");
+  KOS.shell.applyRail();
+  assert(!$("#cols").hasAttribute("data-rail"), "820: the rail does not start as tiles");
+  const lay = fs.readFileSync(path.join(ROOT, "css/layout.css"), "utf8");
+  const tier = lay.slice(lay.indexOf("@media (max-width: 1080px)"), lay.indexOf("@media (max-width: 860px)"));
+  assert(/#cols\[data-rail="full"\] #rail/.test(tier) && !/\.k-rail-toggle \{ display: none; \}/.test(tier),
+    "the 1080 tier hides the rail's toggle again");
+  click($("#rail-toggle"));
+  assert($("#cols").getAttribute("data-rail") === "full" && KOS.store.state.ui.railOpenNarrow === true, "820: the toggle did not open the rail");
+  assert($("#rail-toggle").getAttribute("aria-expanded") === "true", "the toggle does not say it is open");
+  click($("#rail [data-section='productivity']"));
+  assert(!$("#cols").hasAttribute("data-rail") && KOS.store.state.ui.railOpenNarrow === false, "a destination did not close the rail");
+  KOS.store.state.ui.railOpen = true;
+  mediaWidth = 1440;
+  KOS.show("home");
+  KOS.shell.applyRail();
+  assert(!$("#cols").hasAttribute("data-rail"), "the wide rail's own choice was disturbed");
 });
 
 step("above the overlay tier Escape is left alone", () => {

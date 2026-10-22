@@ -168,12 +168,13 @@
           paintTabs();
           paintList();
         } };
-      }), { variant: "workspace", label: "Notification filters", className: "k-nt-tablist" });
+      }), { variant: "workspace", label: "Notification filters", className: "k-nt-tablist", edge: true });
     }
     function paintTabs() {
       tabWrap.innerHTML = "";
-      var tabs = buildTabs();
-      tabs.setAttribute("data-ui", (tabs.getAttribute("data-ui") || "") + " notify.tabs");
+      /* an edge track: nine filters outrun an iPad in portrait */
+      var tabs = buildTabs(), strip = tabs.querySelector("[role='tablist']") || tabs;
+      strip.setAttribute("data-ui", (strip.getAttribute("data-ui") || "") + " notify.tabs");
       tabWrap.appendChild(tabs);
     }
     function dayLabel(d) {
@@ -213,7 +214,7 @@
     function paintDevice() {
       device.innerHTML = "";
       var perm = nat.permission(), on = nat.enabled();
-      var what = /iPhone|iPad|Android/i.test(navigator.userAgent) ? "phone" : "computer";
+      var what = KOS.ui.device().name;
       device.appendChild(el("div", { class: "k-card-title", text: "Device alerts" }));
       /* one line (review A); invariant 98: these fire while the page is
          open — the card below is the closed-app path */
@@ -258,14 +259,13 @@
       closed.innerHTML = "";
       if (!KOS.push) return;
       var P = KOS.push, why = P.blocked(), c = P.config();
-      var what = /iPhone|iPad|Android/i.test(navigator.userAgent) ? "phone" : "computer";
-      var ios = /iPhone|iPad/.test(navigator.userAgent);
+      var dev = KOS.ui.device(), what = dev.name, ios = dev.ios;
       closed.appendChild(el("div", { class: "k-card-title", text: "When the app is closed" }));
       closed.appendChild(el("p", { class: "k-nt-card-p", "data-ui": "notify.closed-why", text:
         why === "unconfigured" ? "Not set up on this server yet."
         : why === "signed-out" ? "Sign in to cloud sync to use it."
         : why === "review" ? "Off while you look at the empty or sample app."
-        : why === "unsupported" ? (ios ? "On iPhone, add Kurenai to the Home Screen first." : "This browser cannot receive push.")
+        : why === "unsupported" ? (ios ? "On " + what + ", add Kurenai to the Home Screen first." : "This browser cannot receive push.")
         : "Alerts for the next 7 days reach you as notifications. They wait while Kurenai is open." }));
       var sw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.closed-toggle",
         "aria-label": "Notifications on this " + what + " when the app is closed" });

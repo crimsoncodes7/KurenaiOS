@@ -1,7 +1,7 @@
 {
   "name": "Kurenai OS — Study Atelier",
   "short_name": "Kurenai",
-  "description": "A-level revision atelier: specification tracking, SM-2 flashcards, the Behavioural Governor and the Collection Matrix — offline-first, with optional cloud sync.",
+  "description": "A-level revision atelier: specification tracking, FSRS flashcards, the Behavioural Governor and the Collection Matrix — offline-first, with optional cloud sync.",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",

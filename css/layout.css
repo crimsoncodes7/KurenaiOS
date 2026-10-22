@@ -223,6 +223,13 @@ color: var(--muted);
 font-size: var(--fs-12);
 }
 .k-rail-toggle:hover { color: var(--text); }
+/* touch (an iPad): the touch minimum raised its HEIGHT to 44px, so the
+   tab drew as a squashed oval reaching down onto the subject spine. It
+   keeps the desktop's place on the rail's edge and stays a circle, at the
+   documented dense size (invariant 69). */
+@media (pointer: coarse) {
+.k-rail-toggle { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); padding: 0; }
+}
 /* the profile chip: avatar in an HP ring, level, state and gold */
 .k-profile { inline-size: 100%; display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-8) var(--sp-10) var(--sp-8) var(--sp-8); border-radius: var(--r-16); background: var(--s1); box-shadow: none; text-align: start; }
 .k-profile:hover { background: var(--s2); }
@@ -353,15 +360,18 @@ overflow-y: auto;
 }
 
 @media (max-width: 1080px) {
-#rail { align-items: center; padding-inline: 0; }
-.k-rail-item { padding: var(--sp-4) 0; }
-.k-rail-item::before { inset-inline-start: calc(var(--sp-20) * -1); }
-.k-rail-label, .k-rail-count { position: absolute; inline-size: var(--hairline); block-size: var(--hairline); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* the rail is tiles here unless opened (an iPad in portrait): opened
+   ("full"), it lays over the page at its full width instead of pushing
+   it narrower, and closes again on a destination (main.js) */
+#cols:not([data-rail="full"]) #rail { align-items: center; padding-inline: 0; }
+#cols:not([data-rail="full"]) .k-rail-item { padding: var(--sp-4) 0; }
+#cols:not([data-rail="full"]) .k-rail-item::before { inset-inline-start: calc(var(--sp-20) * -1); }
+#cols:not([data-rail="full"]) .k-rail-label, #cols:not([data-rail="full"]) .k-rail-count { position: absolute; inline-size: var(--hairline); block-size: var(--hairline); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* the profile chip compacts with the rail: its ring alone, as in the compact rail */
-.k-profile { inline-size: auto; padding: 0; background: none; }
-.k-profile-txt { display: none; }
-.k-rail-foot { border-block-start: 0; }
-.k-rail-toggle { display: none; }
+#cols:not([data-rail="full"]) .k-profile { inline-size: auto; padding: 0; background: none; }
+#cols:not([data-rail="full"]) .k-profile-txt { display: none; }
+#cols:not([data-rail="full"]) .k-rail-foot { border-block-start: 0; }
+#cols[data-rail="full"] #rail { inline-size: var(--rail-w-full); margin-inline-end: calc(var(--rail-w-compact) - var(--rail-w-full)); z-index: var(--z-drawer); box-shadow: var(--elev-3); }
 .k-split { grid-template-columns: repeat(min(var(--split, 2), 2), minmax(0, 1fr)); }
 }
 
@@ -413,7 +423,8 @@ padding-inline: 0;
 #cols[data-rail="compact"] .k-rail-label, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-label, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }
 #cols[data-rail="compact"] .k-rail-item, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-item, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-item { padding: var(--sp-6) 0; }
 .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }
-.k-rail-foot { display: none; }
+.k-rail-foot, .k-rail-toggle { display: none; }
+#cols[data-rail="full"] #rail { inline-size: auto; margin-inline-end: 0; box-shadow: none; z-index: var(--z-tabbar); }
 :root[data-shell="ready"] .k-rail-more { display: flex; }
 #topbar { padding-inline: var(--sp-12); gap: var(--sp-8); padding-block-start: env(safe-area-inset-top); block-size: calc(var(--topbar-h) + env(safe-area-inset-top)); }
 .k-topbar-brand { inline-size: auto; }

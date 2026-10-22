@@ -33,7 +33,12 @@
      node tools/responsive_audit.mjs --out before.json
      node tools/responsive_audit.mjs --diff before.json  # compare with a baseline
      node tools/responsive_audit.mjs --shots /tmp/kos-shots
-     node tools/responsive_audit.mjs --widths 390,820 --views home,subject  */
+     node tools/responsive_audit.mjs --widths 390,820 --views home,subject
+     node tools/responsive_audit.mjs --ipad --shots /tmp/kos-ipad
+                                    # iPad Air 11": 820×1180 and 1180×820
+                                    # (the installed app), touch, no hover
+     node tools/responsive_audit.mjs --sizes 590x800,375x800 --touch
+                                    # Split View and Slide Over widths  */
 
 import { writeFile, readFile, mkdir } from "node:fs/promises";
 
@@ -47,12 +52,20 @@ const DO_SEED = argv.includes("--seed");
 const OUT = flag("out", null);
 const DIFF = flag("diff", null);
 const SHOTS = flag("shots", null);
-const WIDTHS = String(flag("widths", "1920,1440,820,390")).split(",").map(Number);
+const IPAD = argv.includes("--ipad");
+/* a size is WIDTHxHEIGHT; a bare width keeps the old heights (844 at a
+   phone width, 1000 above). The iPad Air 11" is 820×1180 points, and its
+   Home Screen app keeps all but the 24pt status bar. */
+const SIZES = String(flag("sizes", IPAD ? "820x1156,1180x796" : flag("widths", "1920,1440,820,390"))).split(",")
+  .map(s => { const [w, h] = s.split("x").map(Number); return { width: w, height: h || (w <= 700 ? 844 : 1000) }; });
+const WIDTHS = SIZES.map(s => s.width);
+/* touch input as an iPad has it: coarse pointer, no hover */
+const TOUCH = IPAD || argv.includes("--touch");
 const THEMES = String(flag("themes", "atelier-dawn,atelier-dusk")).split(",");
 const VIEWS = String(flag("views",
   "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks,pacing,pacing-braid," +
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
-  "governor,assistant,data,help," +
+  "governor,assistant,data,help,money,exams,notifications," +
   "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year," +
   "code-desk,code-lesson,code-map,code-task,code-retrieval,code-skills,code-settings,code-track,code-capstone,code-bridge,code-project,code-project-setup")).split(",");
 /* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
@@ -106,7 +119,7 @@ const PREP_REPORTS = `(async () => {
 /* ---------------- CDP plumbing ---------------- */
 const endpoint = process.env.KOS_CDP || "http://127.0.0.1:9222/json";
 const pages = await fetch(endpoint).then(r => r.json());
-const page = pages.find(p => p.type === "page" && /127\.0\.0\.1:8765/.test(p.url)) || pages.find(p => p.type === "page");
+const page = pages.find(p => p.type === "page" && /127\.0\.0\.1:(8765|8123)\//.test(p.url)) || pages.find(p => p.type === "page");
 if (!page) throw new Error("No debuggable KurenaiOS page found.");
 
 const ws = new WebSocket(page.webSocketDebuggerUrl);
@@ -477,9 +490,15 @@ for (const theme of THEMES) {
   await evaluate(`(() => { KOS.store.state.governor.theme = ${JSON.stringify(theme)};
     if (KOS.governor.applyCosmetics) KOS.governor.applyCosmetics();
     document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)}); return true; })()`);
-  for (const width of WIDTHS) {
+  for (const { width, height } of SIZES) {
     await send("Emulation.setDeviceMetricsOverride",
-      { width, height: width <= 700 ? 844 : 1000, deviceScaleFactor: 1, mobile: width <= 700 });
+      { width, height, deviceScaleFactor: 1, mobile: width <= 700 || TOUCH });
+    if (TOUCH) {
+      await send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+      await send("Emulation.setEmulatedMedia", { features: [{ name: "pointer", value: "coarse" }, { name: "hover", value: "none" },
+        { name: "any-pointer", value: "coarse" }, { name: "any-hover", value: "none" }] }).catch(() => {});
+      console.log(`touch ${width}x${height}: coarse ${await evaluate("matchMedia('(pointer: coarse)').matches")}, hover:none ${await evaluate("matchMedia('(hover: none)').matches")}`);
+    }
     await sleep(250);
     for (const view of VIEWS) {
       /* a few entries are a view PLUS an argument that makes it a different
@@ -510,7 +529,7 @@ for (const theme of THEMES) {
       }
       if (SHOTS) {
         const shot = await send("Page.captureScreenshot", { format: "jpeg", quality: 72 });
-        await writeFile(`${SHOTS}/${width}-${theme}-${view}.jpg`, Buffer.from(shot.data, "base64"));
+        await writeFile(`${SHOTS}/${width}x${height}-${theme}-${view}.jpg`, Buffer.from(shot.data, "base64"));
       }
     }
   }

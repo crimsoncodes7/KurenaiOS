@@ -84,6 +84,11 @@ chronological diary here.
   pages (Money's six views, Goals and a goal's page, Home's Goals switch,
   the Wishlist's purchase handoff, Calendar's derived chips, Reports' Money
   and Goals cards; smoke87).
+- Planned 22 October 2026 (`feat/ipad`): the iPad and the Pencil (roadmap
+  Phase 6, [`docs/ipad-plan.md`](docs/ipad-plan.md); 6.0, the iPad layout,
+  is built) and the Creatives study space (roadmap 5.7 item 3,
+  [`docs/creatives-plan.md`](docs/creatives-plan.md), waiting on its §12
+  questions).
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
@@ -111,6 +116,8 @@ not only JSON:
 
 ```sh
 node tools/responsive_audit.mjs --seed
+node tools/responsive_audit.mjs --ipad                     # iPad Air 11": both orientations, touch, no hover
+node tools/responsive_audit.mjs --sizes 590x796,375x796 --touch   # Split View and Slide Over
 ```
 
 Use the wider breakpoint/device matrices described in the audit script headers
@@ -181,7 +188,7 @@ non-navigation redraw path.
 
 | Contract | Owner |
 |---|---|
-| DOM primitives, dialogs, tabs, scrollers, the reorder (drag) pattern, rendering | `js/core/ui.js` |
+| DOM primitives, dialogs, tabs, scrollers, the reorder (drag) pattern, rendering; `KOS.ui.device()` (the device's NAME for words, never layout: an iPad's Safari says "Macintosh") | `js/core/ui.js` |
 | Live regions and activation helpers | `js/core/a11y.js` |
 | Hash URL/history | `js/core/router.js` |
 | Cross-domain search | `js/core/search.js`; presentation in `hub.js`/`mobile-shell.js` |

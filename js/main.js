@@ -37,26 +37,47 @@
     var t = document.getElementById("cols").getAttribute("data-tree");
     return t === "open" || t === "closed";
   }
+  /* 701–1080px (an iPad in portrait): the rail is tiles by default and
+     opens OVER the page (layout.css), closing again on a destination or a
+     tap on the page; its own remembered choice is ui.railOpenNarrow */
+  var NARROW = "(max-width: 1080px) and (min-width: 701px)";
+  var narrowMq = window.matchMedia ? window.matchMedia(NARROW) : null;
+  function narrow() { return !!(window.matchMedia && window.matchMedia(NARROW).matches); }
   function railIsOpen() {
-    return besideSpine() ? KOS.store.state.ui.railOpenSpine === true : KOS.store.state.ui.railOpen !== false;
+    var ui = KOS.store.state.ui;
+    return narrow() ? ui.railOpenNarrow === true : besideSpine() ? ui.railOpenSpine === true : ui.railOpen !== false;
   }
   function applyRail() {
     var open = railIsOpen();
     /* the collapsed rail is tiles only; layout.css reads the attribute */
     var cols = document.getElementById("cols");
-    if (besideSpine()) { if (open) cols.setAttribute("data-rail", "full"); else cols.removeAttribute("data-rail"); }
+    if (narrow() || besideSpine()) { if (open) cols.setAttribute("data-rail", "full"); else cols.removeAttribute("data-rail"); }
     else if (open) cols.removeAttribute("data-rail"); else cols.setAttribute("data-rail", "compact");
     if (railBtn) {
       railBtn.textContent = open ? "‹" : "›";
       railBtn.setAttribute("aria-label", open ? "Collapse sidebar" : "Expand sidebar");
+      railBtn.setAttribute("aria-expanded", String(open));
+      KOS.ui.state(railBtn, "open", open);
     }
   }
-  if (railBtn) {
-    railBtn.addEventListener("click", function () {
-      if (besideSpine()) KOS.store.state.ui.railOpenSpine = !railIsOpen();
-      else KOS.store.state.ui.railOpen = !railIsOpen();
-      KOS.store.save();
-      applyRail();
+  function setRail(open) {
+    var ui = KOS.store.state.ui;
+    if (narrow()) ui.railOpenNarrow = open;
+    else if (besideSpine()) ui.railOpenSpine = open;
+    else ui.railOpen = open;
+    KOS.store.save();
+    applyRail();
+  }
+  if (railBtn) railBtn.addEventListener("click", function () { setRail(!railIsOpen()); });
+  if (narrowMq) {
+    if (narrowMq.addEventListener) narrowMq.addEventListener("change", applyRail);
+    else if (narrowMq.addListener) narrowMq.addListener(applyRail);
+    /* the overlay closes on a destination, or on a tap on the page */
+    document.getElementById("rail").addEventListener("click", function (e) {
+      if (narrow() && railIsOpen() && e.target.closest(".k-rail-item")) setRail(false);
+    });
+    document.getElementById("stage").addEventListener("pointerdown", function () {
+      if (narrow() && railIsOpen()) setRail(false);
     });
   }
   KOS.shell.applyRail = applyRail;

@@ -25,8 +25,10 @@
 .k-ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-inline-size: 0; }
 
 /* ---------- page head: kicker → H1 → subline; controls on the same row ---------- */
-.k-pagehead { display: flex; align-items: flex-end; gap: var(--sp-16); }
-.k-pagehead-txt { flex: 1 1 0; min-inline-size: 0; }
+/* the actions wrap under the title before the title is squeezed: a long
+   action row beside it left the Shrine's title one word a line at 820px */
+.k-pagehead { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-16); }
+.k-pagehead-txt { flex: 1 1 var(--pagehead-txt-min); min-inline-size: 0; }
 .k-pagehead h1 { margin-block: var(--sp-6) var(--sp-4); }
 .k-pagehead-sub { font-size: var(--fs-13-5); color: var(--text-2); }
 .k-pagehead-actions { display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap; justify-content: flex-end; min-inline-size: 0; max-inline-size: 100%; }
@@ -523,6 +525,10 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-pic-label { position: absolute; inset-inline-end: var(--sp-10); inset-block-start: var(--sp-10); font: var(--weight-medium) var(--fs-11) var(--font-mono); color: var(--muted); }
 .k-pic-change { position: absolute; inset-inline-end: var(--sp-10); inset-block-end: var(--sp-10); inline-size: var(--pic-btn); block-size: var(--pic-btn); border-radius: 50%; background: var(--shadow-ink); color: var(--text); display: grid; place-items: center; opacity: 0; transition: opacity var(--dur-fast) var(--ease); }
 .k-pic:hover .k-pic-change, .k-pic-change:focus-visible { opacity: 1; }
+/* no hover (an iPad, a phone): the change button is always there */
+@media (hover: none) {
+.k-pic-change { opacity: 1; }
+}
 /* a domain wash with its kanji */
 .k-wash { --wash-c: var(--text-2); position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 130% at 0% 0%, color-mix(in oklch, var(--wash-c) 34%, transparent), transparent 70%), color-mix(in oklch, var(--wash-c) 9%, var(--s1)); }
 .k-wash-mark { position: absolute; inset-inline-end: var(--sp-14); inset-block-end: calc(-1 * var(--sp-16)); font: var(--weight-semibold) var(--gl-wash-kanji) / 1 var(--font-kanji); color: var(--wash-c); opacity: 0.24; }

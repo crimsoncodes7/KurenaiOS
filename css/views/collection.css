@@ -946,6 +946,16 @@
 .k-pl-tools { margin-inline-start: 0; inline-size: 100%; }
 .k-pl-tools > .k-msearch { flex: 1 1 auto; inline-size: auto; }
 .k-shr-hero-title { font-size: var(--fs-40); }
+/* the podium from 860 down: cover, title and medal side by side left the
+   title ~50px ("F… B…") on a phone and two letters a line in the two
+   pods of an iPad in portrait. The medal drops under the title, small. */
+.k-shr-pod { grid-template-columns: calc(var(--shr-pod-cover-w) * 0.72) minmax(0, 1fr); gap: var(--sp-14); }
+.k-shr-pod-cover { grid-row: span 2; inline-size: calc(var(--shr-pod-cover-w) * 0.72); block-size: calc(var(--shr-pod-cover-h) * 0.72); }
+.k-shr-pod-title { font-size: var(--fs-20); }
+.k-shr-pod-meta { font-size: var(--fs-13); }
+.k-shr-pod-foot { grid-column: 2; flex-direction: row; justify-content: flex-start; }
+.k-shr-pod-medal { inline-size: auto; block-size: auto; padding: var(--sp-4) var(--sp-12); border-radius: var(--r-pill); flex-direction: row; display: inline-flex; align-items: baseline; gap: var(--sp-4); }
+.k-shr-pod-score { font-size: var(--fs-20); }
 .k-shr-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .k-mlayout-grid { grid-template-columns: minmax(0, 1fr); }
 .k-mrail { position: static; max-block-size: none; overflow: visible; }
@@ -1034,15 +1044,6 @@
 }
 
 @media (max-width: 560px) {
-/* the podium on a phone: cover, title and medal side by side left the
-   title ~50px ("F… B…"). The medal drops under the title, small. */
-.k-shr-pod { grid-template-columns: calc(var(--shr-pod-cover-w) * 0.72) minmax(0, 1fr); gap: var(--sp-14); }
-.k-shr-pod-cover { grid-row: span 2; inline-size: calc(var(--shr-pod-cover-w) * 0.72); block-size: calc(var(--shr-pod-cover-h) * 0.72); }
-.k-shr-pod-title { font-size: var(--fs-20); }
-.k-shr-pod-meta { font-size: var(--fs-13); }
-.k-shr-pod-foot { grid-column: 2; flex-direction: row; justify-content: flex-start; }
-.k-shr-pod-medal { inline-size: auto; block-size: auto; padding: var(--sp-4) var(--sp-12); border-radius: var(--r-pill); flex-direction: row; display: inline-flex; align-items: baseline; gap: var(--sp-4); }
-.k-shr-pod-score { font-size: var(--fs-20); }
 .k-fs-row { grid-template-columns: var(--pl-thumb-col) minmax(0, 1fr); }
 .k-fs-act { grid-column: 1 / -1; align-items: flex-start; }
 .k-fs-picker { justify-content: flex-start; }

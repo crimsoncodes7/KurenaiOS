@@ -87,7 +87,8 @@
   }
   function label() {
     var ua = navigator.userAgent || "";
-    return (/iPhone|iPad/.test(ua) ? "iPhone or iPad" : /Android/.test(ua) ? "Android" : /Mac/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : "Browser") +
+    var dev = KOS.ui && KOS.ui.device ? KOS.ui.device() : {};
+    return (dev.ios ? dev.name : /Android/.test(ua) ? "Android" : /Mac/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : "Browser") +
       " · " + (/Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "web");
   }
   /* subscribe(cb): from a user gesture. Asks for notification permission

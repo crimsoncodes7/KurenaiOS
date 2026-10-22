@@ -1200,9 +1200,68 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 2. **Code → GitHub as a GitHub App** (a short doc; it uses the same Edge
    Function pattern).
 3. **A Creatives study space** (art, graphic design, editing, writing): a
-   plan first, then Claude Design.
+   plan first, then Claude Design. **Planned 22 October 2026:**
+   [creatives-plan.md](creatives-plan.md) revision 1. One subject with four
+   tracks, evidence from work made, the iPad's sketchbook for drills,
+   pieces brought in from Procreate and the like. Its §12 questions set
+   the starting points, then design prompt 15.
 4. **Code content** (units 10–12, capstone 4) when usage allows. Its new
    retrieval cards start on FSRS.
+
+---
+
+## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
+
+> **Status (22 October 2026): 6.0 built** on `feat/ipad`; the rest is
+> planned in [ipad-plan.md](ipad-plan.md) revision 1. Next come its three
+> spikes on the device: P (what the Metapen A8 reports), D (pdf.js on a
+> whole paper) and H (how well Kurenai reads your Maths working).
+
+The iPad Air 11" (M4) becomes a first-class device and then the study
+notes device, written with a stylus: the Metapen A8 now, an Apple Pencil
+Pro later. It stays a web app. Everything Pencil-related is built on one
+ink engine.
+
+- **6.0 Layout for the iPad** (done):
+  - the audit's `--ipad` mode (820 × 1156 and 1180 × 796, touch, no
+    hover) and `--sizes` for Split View;
+  - fixed: the main rail (in portrait it could not be opened, its toggle
+    hidden under 1080px, and now it opens over the page; in landscape the
+    toggle was a squashed oval on the subject spine, and now it is the
+    desktop's 24px circle), topic pages collapsing at 1081–1240px (the iPad in
+    landscape),
+    page headers squeezing their titles, the Shrine's podium, the
+    Notification filters' overflow, Review's rows at 375, and hover-only
+    row controls on touch;
+  - `KOS.ui.device()` so an iPad is called an iPad.
+- **6.1 The ink engine** (`KOS.ink`):
+  - pen only with palm rejection;
+  - pen, highlighter, eraser, lasso, shape snap, ruler and papers;
+  - vector strokes in `kurenai-os-ink`, synced a page at a time.
+- **6.2 A topic's Handwritten tab**, side by side with the notes, with
+  "Clip to page".
+- **6.3 Answering by hand:** an answer pad under every question, the
+  mark-point tally, and "Mark with Kurenai" (opt-in, after Spike H).
+- **6.4 Past papers and PDFs:** the Paper library in an in-app viewer
+  with ink, timed sitting, the mark scheme beside it, attempts logged by
+  question, and flattened export.
+- **6.5 Maths working:** squared paper beside the calculator panel, the
+  "Write it out" drill and "Check my working".
+- **6.6 Retrieval by hand:** blurting against the notes, diagram drills
+  with the model answer overlaid, and handwritten flashcard answers.
+- **6.7 Japanese writing** with its platform release: kana on a guide
+  square, checked by the slice's stroke checker.
+- **6.8 The Creatives sketchbook** (layers-lite, brushes, drill tools).
+- **6.9 The iPad as a study desk:**
+  - keyboard shortcuts;
+  - Stage Manager and Split View;
+  - Focus with the screen kept on;
+  - a check of Code's full runtime on the M4.
+- **Invariants it would add:** 132 (ink is vector and local first) and 133
+  (handwriting is read only when asked). Those it touches: 89, 102b, 111,
+  124, 125 and 127.
+- **Design first:** the toolbar, the Handwritten tab, the answer pad, the
+  PDF viewer, the drills and the Split View compositions (prompt 14).
 
 ---
 
@@ -1216,7 +1275,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 | Syncing media kv (hero picks, per-season scenery, other view picks) | kv also holds provider credentials, so it needs a whitelist of syncable keys, and an uploaded hero is a data URL too large for the state document (it would ride the attachment path instead). The Shrine's tie order already syncs, in the state document | you schedule it (asked for as a nice-to-have, 27 Sep) |
 | Alternate mascots and logo families (Fallen Crown / Faded Oath), re-polished overlays | art work, not code | art exists (◆ for their presentation) |
 | Code units 10–12, capstone 4, the deepening modules and the tracks | paused on 17 October 2026 to save weekly usage (stage 3 — units 7–9 and capstone 3 — shipped that day on the full runtime); the desk shows the rest "Coming later" | you resume Code content |
-| Code's full runtime on a phone | Code is studied on a Mac, not a phone (17 October 2026) | you want to code on a phone |
+| Code's full runtime on a phone | Code is studied on a Mac, not a phone (17 October 2026). The M4 iPad may run it; checking that is part of 6.9 | you want to code on a phone |
 | The Rider validator on Windows and Linux | macOS is the only machine in use; it is verified there (17 October 2026) | another operating system is used |
 | CI-verified evidence for Code (the GitHub App is built, 5.7) | needs a workflow in the repository that runs the validator and the App's Checks: read permission (docs/github-app-plan.md §7) | CI evidence is wanted |
 | Airing and release-day pushes to a closed app (phase C of 5.7 item 1) | airing needs AniList's schedule on the server; release days need the Wishlist in the outlook | you want them |
@@ -1250,6 +1309,9 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 8. Phase 5.5 Japanese: the vertical slice first (no design needed, and it
    decides speech and the tokeniser), while its frames are drawn in Claude
    Design; then the platform with Stage 0.
+9. Phase 6, the iPad: the three spikes on the device, then the ink engine
+   and the topic notebook, while prompt 14 is drawn. Creatives' platform
+   follows the ink engine, because its sketchbook is built on it.
 
 Deploy after each phase, or sooner when you ask. The pre-deploy checklist
 in `CLAUDE.md` applies every time.
