@@ -328,6 +328,9 @@
     paintDevice();
     paintClosed();
     paintLands();
+    /* js/env.local.js is deferred: a first draw during boot runs before it,
+       so the closed-app card reads the VAPID key again once it has loaded */
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", paintClosed, { once: true });
 
     /* repaint while mounted; the listener unhooks itself once the view is
        gone, so a hundred visits do not leave a hundred listeners */

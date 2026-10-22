@@ -1327,6 +1327,9 @@
     function hmText(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
     box.appendChild(el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "GitHub" })]));
     draw();
+    /* the App's slug lives in the deferred js/env.local.js: a first draw
+       during boot runs before it, so draw again once it has loaded */
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { if (box.isConnected) draw(); }, { once: true });
     return box;
   }
   function pageSettings(main) {
