@@ -16,4 +16,4 @@
 - [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 RELEASED 2026-10-20 (fbea5d5, kos-fsrs-1); phase 3 optimiser built on feat/after-fsrs
 - [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–6 (CS Paper 2) RELEASED 2026-10-21 (3b39ae1, kos-exams-1); next CS Paper 1; ask before each deploy
 - [After-FSRS release](after-fsrs-branch.md) — Focus switch, FSRS3, closed-app runner, GitHub App; RELEASED 2026-10-22 (13cef94, kos-runner-2); env.local.js is deferred
-- [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); Creatives plan waits on §12 answers
+- [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); Creatives rev 2 approved; prompts 14–15 written

@@ -1200,11 +1200,15 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 2. **Code → GitHub as a GitHub App** (a short doc; it uses the same Edge
    Function pattern).
 3. **A Creatives study space** (art, graphic design, editing, writing): a
-   plan first, then Claude Design. **Planned 22 October 2026:**
-   [creatives-plan.md](creatives-plan.md) revision 1. One subject with four
-   tracks, evidence from work made, the iPad's sketchbook for drills,
-   pieces brought in from Procreate and the like. Its §12 questions set
-   the starting points, then design prompt 15.
+   plan first, then Claude Design. **Planned and approved 22 October
+   2026:** [creatives-plan.md](creatives-plan.md) revision 2 (decisions
+   A–H). One subject, four tracks, built for a complete beginner:
+   micro-studies before pieces, a private Practice Log apart from the
+   Portfolio, Momentum mode and best-of-five, "Good for this unit" in
+   every rubric, and a procedural reference generator. Free apps first.
+   20–30 minutes a day, paused in Exam Season. First release: the
+   platform, the Writing Desk and the design drills, then Art units 1–3
+   on the ink engine. Next: [design prompt 15](design-prompts.md).
 4. **Code content** (units 10–12, capstone 4) when usage allows. Its new
    retrieval cards start on FSRS.
 

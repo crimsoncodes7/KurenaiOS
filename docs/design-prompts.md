@@ -21,6 +21,8 @@ handoff maps back to the roadmap.
 | 11 | Money and Goals | 5.4 | with 10 |
 | 12 | Japanese: a study space for the four skills | 5.5 | now (slice closed) |
 | 13 | Exams & Deadlines Hub | 5.8 | after FSRS (released) |
+| 14 | The iPad and the Pencil | 6 | now (layout released) |
+| 15 | Creatives: art, design, editing, writing | 5.7 item 3 | with 14 |
 
 ---
 
@@ -588,3 +590,68 @@ FRAMES
 
 DELIVERABLE NOTES. For every frame annotate the interaction states, focus order, live-region announcements, empty, low-evidence and error states, and what changes at 1080, 860, 700 and 560. Mark new shared components with their states so each is built once: the tier chip, the readiness signal card, the band with its limiting signal, the scope summary and excluded callout, the error-tag chip set, the question ramp, the yield map, the variation card with mark annotations, the method comparison, the drawer, the paper page (screen and print), the tally sheet.
 ```
+
+---
+
+## 14 · The iPad and the Pencil
+
+The agreed scope is [ipad-plan.md](ipad-plan.md) revision 1. The layout
+for the iPad (6.0) is already released, so this prompt designs only what
+is new: the ink surfaces and the iPad compositions around them.
+
+```text
+Design the iPad and Pencil features for KurenaiOS, continuing the approved design. The earlier handover packages are attached to this project: Graphite (Atelier Dusk) and Dawn (7a–14c, 21a–21h), the phone views (15a–15n), design part 2 (15–23, including the topic picker 17a–17e and the lab system 20a–20i), Reports (24–25), Code (26a–26x), Money and Goals (27a–27s) and the Exams hub (29a–29ac). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth, and read docs/ipad-plan.md (the agreed scope) and the invariants in CLAUDE.md. Number the new frames 30a onwards (28 is Japanese, 31 is Creatives). The device is an iPad Air 11": draw at 1180 × 796 (landscape, the installed app) and 820 × 1156 (portrait), and show one Split View at 590. Use only the existing tokens, type, cards, tabs, chips, dialogs and the lab system; extend the existing pages, do not invent a new look. The rail, the spine and the inspector stay as they are.
+
+THE IDEA. One ink engine, mounted in many places: the iPad becomes the study notes device. The stylus is a Metapen A8 now (probably no pressure) and an Apple Pencil Pro later. It is pen only: a finger scrolls and pinches, two fingers tap to undo, and the palm never draws.
+
+WHAT IS WANTED:
+1. THE INK TOOLBAR (30a–30b): pen, highlighter, eraser (stroke or partial), lasso, shape snap, ruler, text and image, colour (theme roles only, three widths), undo and redo, and the paper choice (blank, lined, squared 5 mm, dotted, Cornell, answer booklet). Show it docked on the top edge and as a small floating palette, in both orientations. Every tool has a visible name on long press; nothing is icon-only without a label.
+2. A TOPIC'S HANDWRITTEN TAB (30c–30e): a new tab beside Notes, Flashcards, Quiz and Exam questions. Show its empty state (where writing starts), a notebook of A4 pages, and landscape SIDE BY SIDE: the shipped notes left, your page right, scrolling separately, with "Clip to page" on a figure in the notes. The inspector counts pages written.
+3. THE ANSWER PAD (30f–30g): under a question (an exam item, a practice-set question from the Companion, a predicted paper). A strip for a short answer, a page for a long one, and the mark-point tally beside it (M1, A1, B1 ticks). Then "Mark with Kurenai": first its "What is sent" dialog (exactly the image and the scheme), then its result, which SUGGESTS ticks with a reason each and asks you to confirm. Nothing logs on its own.
+4. THE PDF VIEWER (30h–30j): a past paper from the Paper library with thumbnails, jump to question, an ink layer per page, the Exam Room's timer, and the mark scheme in a second pane (in the viewer, and as a Split View). Then the marking step: marks by question log one attempt and pick redo items.
+5. MATHS WORKING (30k–30l): squared paper with the FX-991CW panel and the formula booklet beside it; the "Write it out" drill (a worked example's steps hidden one at a time; write the next line, reveal, say whether you had it); "Check my working" pointing at the first wrong line without giving the rest away.
+6. RETRIEVAL BY HAND (30m–30o): a blurt page with a timer, then compare mode (the notes beside it, tick what you had, circle what you missed); a diagram drill (draw an FSM, a logic circuit, a binary tree or a free-body diagram from memory, then the model answer overlays at 50%); a handwritten flashcard answer strip.
+7. KANA PRACTICE (30p): a guide square, the model stroke animation, and the checker's result (order, direction, shape), in the Japanese space's look (28a onwards).
+8. SETTINGS (30q): this device's pen-only and finger-drawing switches, sync of ink, "Make my handwriting searchable" (off), and storage used.
+9. SPLIT VIEW AND SLIDE OVER (30r): a notebook beside the Assistant at 590, and Focus's dock at 375.
+
+STATES: no pen detected (finger drawing offered), a page syncing, a conflict (both copies kept), offline, a very long notebook, Dawn for one ink frame (ink colours stay readable).
+
+RULES: ink colours are theme roles, never fixed hex; the Pencil Pro's squeeze and barrel roll are not available to the web, so nothing depends on them; "written by KurenaiOS, not a board paper" stays on generated questions; status is never colour alone.
+```
+
+---
+
+## 15 · Creatives: art, design, editing, writing
+
+The agreed scope is [creatives-plan.md](creatives-plan.md) revision 2
+(decisions A–H approved). The sketchbook is built on prompt 14's ink
+engine, so draw 14 first or alongside it.
+
+```text
+Design Creatives for KurenaiOS, a new non-exam study space beside CS, Maths, IT, Code and Japanese, continuing the approved design. The earlier handover packages are attached to this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23 with the lab system 20a–20i, Reports 24–25, Code 26a–26x, Money and Goals 27a–27s, the Exams hub 29a–29ac, and the iPad ink frames 30a onwards). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth, and read docs/creatives-plan.md (the agreed scope) and the invariants in CLAUDE.md. Code's desk and lesson frames (26a–26f) are the closest model: Creatives is a sibling, not a new app. Number the new frames 31a onwards. Draw at iPad 1180 × 796 and 820 × 1156 (this is the iPad's track), desktop 1280, and phone 390 × 844 for review only. Propose ONE new subject hue that is distinct from CS, Maths, IT, Code (Sky) and Japanese (vermilion) and from every status colour, with its Dawn variant.
+
+WHO IT IS FOR. A complete beginner in all four tracks who has quit before because of the taste gap: comparing Day 1 with professional anime art and YouTubers. It is a light hobby (20–30 minutes a day, or a couple of sessions a week), behind the A-levels. The whole space must feel SAFE TO BE BAD AT: small steps, private practice, progress measured only against yourself. It is aimed at the media they love: anime and light-novel characters, background scenery, short edits and AMVs, clean covers and UI, and one day their own VN scenes.
+
+THE FOUR TRACKS: Art (the iPad and stylus), Graphic design (interactive drills in the app, then Figma or Canva), Editing (video: DaVinci Resolve for iPad, CapCut or Alight Motion), Writing (the in-app Writing Desk). Free apps only; paid apps appear as an optional upgrade note after 20 sessions, never before.
+
+WHAT IS WANTED:
+1. THE DESK (31a–31b): the four tracks with their unit paths; the Daily Creative (one drill or micro-study, or a milestone, plus due theory cards), sized to minutes; a "chosen days" setting with no streak pressure; and its Exam Season state ("Paused for Exam Season", one calm line). Recent work shows PORTFOLIO pieces only; the Practice Log is a quiet link, never a gallery here.
+2. A LESSON (31c–31d) on the shared topic page: notes with step images, then MICRO-STUDIES (each isolates one skill, 5–20 minutes, with what is given: a reference to trace over, a fixed palette, a pre-cut clip and beat grid, a written setup). Then the unit's project, offered only once its micro-studies are done, with a quiet "Try it anyway".
+3. "GOOD FOR THIS UNIT" (31e): the check on every micro-study: one or two rows for the unit's ONE skill, each with its calibration text ("Your lines will wobble and nothing will look like a finished anime frame yet. Pass if the box's edges head to consistent vanishing points. Ignore shading and proportions: later units."), and an EXPECTED BEGINNER OUTPUT example, deliberately rough. Design this as the emotional centre of the space.
+4. THE SKETCHBOOK IN A TIMED DRILL (31f–31g): the rep timer (for example 30 s gestures, 20 reps), the MOMENTUM MODE switch (no undo, no eraser: commit and move on), clearly shown while on, layers-lite (three layers), a few brushes, the mirror flip and greyscale, and tracing-over at 30%.
+5. BEST OF FIVE (31h): after a batch, the reps in groups of five; star the best of each group (optional), and critique only the starred ones.
+6. THE PROCEDURAL REFERENCE GENERATOR (31i): boxes, cylinders, spheres and cones at random angles, a perspective grid, a block mannequin in a random pose, a block head turned; with Next, Show construction and a seed. It is drawn on the lab system's SVG stage, so use the lab frames' bar and readout.
+7. THE PRACTICE LOG AND THE PORTFOLIO (31j–31k): the log is private, raw, batch by batch, and prunable, opened only on purpose. The portfolio is curated, reached by a deliberate "Promote to Portfolio". Show the promote dialog. A piece's page shows its milestones, time from Focus, tools, the "made from" link to a Collection title, and its critique if one was asked for.
+8. THE REDO (31l): the same micro-study months apart, side by side, old and new, then rate the redo: you against you only.
+9. THE WRITING DESK (31m–31n): distraction-free Markdown with word count; versions and a diff between drafts; a sprint running in Focus (word target and timer); a 150-word dialogue micro-study with its calibration; "reading as a writer" questions about a finished Collection book or VN.
+10. DESIGN DRILLS (31o–31p): kerning (space a word, then the reference overlay), font pairing for a brief, the hierarchy fix, the palette builder with its contrast check, and snapping to a grid.
+11. EDITING (31q): the beat map (tap along to a song; markers listed and exported for Resolve or CapCut), a storyboard page in the sketchbook, and the 8-beat loop micro-study's brief.
+12. ASK KURENAI FOR A CRITIQUE (31r): the "What is sent" dialog (the starred image or excerpt, the brief, the unit and its one skill), then the reply: what worked against THIS unit's bar and ONE thing to try on the next rep. It never mentions later skills and never compares with professional work.
+13. PHONE (31s): the desk, the theory cards and the Portfolio, read and review only.
+
+STATES: first visit (an encouraging start, not a wall of 13 units), a skipped week (no guilt, just "pick up here"), the Exam Season pause, an empty Portfolio (the log has work but nothing promoted yet), Dawn for the desk and a lesson.
+
+RULES: no locks for good (a project says "Try it anyway"); no streaks, badges or counts that shame; zero-value facts suppressed (invariant 77); Kurenai never generates or rewrites work; status is never colour alone; the Practice Log never appears in Reports, a share or the Home page.
+```
+

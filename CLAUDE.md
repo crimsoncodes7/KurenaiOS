@@ -90,8 +90,9 @@ chronological diary here.
 - Planned 22 October 2026 (`feat/ipad`): the iPad and the Pencil (roadmap
   Phase 6, [`docs/ipad-plan.md`](docs/ipad-plan.md); 6.0, the iPad layout,
   is RELEASED as `87f9437`, sw `kos-ipad-1`) and the Creatives study space (roadmap 5.7 item 3,
-  [`docs/creatives-plan.md`](docs/creatives-plan.md), waiting on its §12
-  questions).
+  [`docs/creatives-plan.md`](docs/creatives-plan.md) revision 2, decisions
+  A–H approved; design prompts 14 and 15 are written, frames 30a and 31a
+  onwards).
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
