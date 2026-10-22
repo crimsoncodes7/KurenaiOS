@@ -53,14 +53,18 @@ step("boot", async () => {
 
 let rem, asg;
 step("A · the tickers' forecasts", () => {
-  rem = K.reminders.add({ title: "Hand in the form", due: "2026-10-23", dueTime: "09:00", alerts: [0, 1440] });
+  /* due the day after tomorrow: both alerts (on time and a day before, 23 Oct 09:00) lie ahead of
+     the clock (22 Oct 10:00) — a reminder due tomorrow at 09:00 has its day-before alert an hour
+     in the past, which a forecast rightly leaves out */
+  rem = K.reminders.add({ title: "Hand in the form", due: "2026-10-24", dueTime: "09:00", alerts: [0, 1440] });
   asg = K.assignments.add({ title: "NEA analysis", subject: "compsci", due: "2026-10-25", dueTime: "17:00", alerts: [60] });
   K.calendar.addEvent({ title: "Maths mock", date: "2026-10-27", time: "09:00", type: "exam", subject: "maths", alerts: [1440, 30] });
   const to = T0 + 7 * 864e5;
   const r = K.reminders.forecast(T0, to);
-  eq(r.map((x) => x.id).sort(), ["rem:" + rem.id + ":2026-10-23:09:00:0", "rem:" + rem.id + ":2026-10-23:09:00:1440"], "two reminder alerts");
+  eq(r.map((x) => x.id).sort(), ["rem:" + rem.id + ":2026-10-24:09:00:0", "rem:" + rem.id + ":2026-10-24:09:00:1440"], "two reminder alerts");
   assert(r.every((x) => x.kind === "reminder" && x.at >= T0), "reminder kind and times");
-  eq(r.find((x) => /:0$/.test(x.id)).at, new Date(2026, 9, 23, 9, 0).getTime(), "at the time");
+  eq(r.find((x) => /:0$/.test(x.id)).at, new Date(2026, 9, 24, 9, 0).getTime(), "at the time");
+  eq(r.find((x) => /:1440$/.test(x.id)).at, new Date(2026, 9, 23, 9, 0).getTime(), "and a day before");
   eq(K.reminders.notice(rem, 0).id, r.find((x) => /:0$/.test(x.id)).id, "the ticker and the forecast share one id");
   const a = K.assignments.forecast(T0, to);
   eq([a.length, a[0].at], [1, new Date(2026, 9, 25, 16, 0).getTime()], "an assignment's hour-before alert");
@@ -94,7 +98,7 @@ step("B · the outlook", async () => {
   K.notify.setQuiet({ on: true, from: "07:00", to: "09:30" });
   const q = await p((cb) => K.outlook.build(cb, { now: T0 }));
   assert(!q.items.some((x) => x.kind === "money"), "a muted kind is left out");
-  assert(!q.items.some((x) => x.id === "rem:" + rem.id + ":2026-10-23:09:00:0"), "a short alert inside quiet hours is dropped");
+  assert(!q.items.some((x) => x.id === "rem:" + rem.id + ":2026-10-24:09:00:0"), "a short alert inside quiet hours is dropped");
   const exam = q.items.find((x) => /:1440$/.test(x.id) && x.kind === "calendar");
   eq(new Date(exam.at).getHours() * 60 + new Date(exam.at).getMinutes(), 9 * 60 + 30, "a day notice waits for quiet hours to end");
   K.notify.setMuted("money", false);
