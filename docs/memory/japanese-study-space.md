@@ -34,3 +34,6 @@ Voices (plan §4.4, rev 3.2, blind bake-off 2026-10-22): ElevenLabs for the cast
 
 Integration started 2026-10-22 on branch feat/japanese (from main): BACKEND committed 6655440 — KOS.ja, KOS.jaSrs (on KOS.fsrs), jaKana/jaConj/jaValid/jaStroke, js/data/ja.js (Stage 0 spine, 16 lessons), js/data/ja-strokes.js (KanjiVG, generated), --ja token per theme (provisional), invariants 112–118, smoke81 + smoke83. Subject stays hidden until KOS_DATA.ja + pages. Next: pages from design turn 28 (user said Claude Design still working), Stage 0 lesson content (mnemonics/notes), smoke80 + smoke82. Pay: reviews +1 XP/facet cap 30/day, one ledger entry per session; lesson 15/2/+3; checkpoint 60/15/+5; gate 150/40/+10.
 
+
+
+Review fixes 2026-10-22 (ee1a746, sw kos-japanese-2): the user wants NO Japanese rail item (a Study subject), subject pills grouped (A-levels alone on their pages; Code + Japanese together; one switch pill), ONE nav (no second tab bar), the core path inside the desk hero like Code, aligned rows everywhere.

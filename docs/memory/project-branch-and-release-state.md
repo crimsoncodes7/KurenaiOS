@@ -29,3 +29,4 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 
 
 2026-10-22: main fast-forwarded to feat/japanese; released d061169 (sw kos-japanese-1), https://6a6bcfa7.kurenai-os.pages.dev — the Japanese platform release.
+2026-10-22: then ee1a746 (sw kos-japanese-2), https://0714e554.kurenai-os.pages.dev — the Japanese review fixes.

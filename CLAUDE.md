@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `d061169` — immutable deployment
+- Latest release: `ee1a746` — immutable deployment
+  https://0714e554.kurenai-os.pages.dev (22 October 2026; `feat/japanese`:
+  the Japanese review fixes — one navigation, the path in the desk's hero,
+  aligned rows). Before it `d061169`,
   https://6a6bcfa7.kurenai-os.pages.dev (22 October 2026; `feat/japanese`:
   the Japanese platform release, roadmap 5.5 — the backend, the pages from
   design turn 28 and Stage 0's sixteen kana lessons). Before it `87f9437`,

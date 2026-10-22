@@ -6,8 +6,8 @@
 - [CS Paper 1 + NEA](cs-paper1-nea.md) — branch feat/cs-p1-nea; NEA companion done (a06b106); Paper 1 + NEA + Paper 2 RELEASED 2026-10-02 (87ee60c, kos-cs-depth-1)
 - [Code study space](code-study-space.md) — stages 1–3 + Bridge B shipped (stage 3 on the full runtime), units 10–12 only when asked; katas, GitHub v1, Code in Reports + Assistant live; phone/Windows/Linux parked in ROADMAP; gates smoke73–79
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
-- [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169, kos-japanese-1); next Stage 1, reader/media pages, audio packs
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/japanese 2026-10-22; last release d061169 (kos-japanese-1); fetch first
+- [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); next Stage 1, reader/media pages, audio packs
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/japanese 2026-10-22; last release ee1a746 (kos-japanese-2); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
