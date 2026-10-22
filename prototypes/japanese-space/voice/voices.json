@@ -1,24 +1,52 @@
 {
   "note": "Who speaks with which voice, per provider. Edit freely; `node bake.mjs --list <provider>` prints what each provider offers.",
   "characters": {
-    "akari": { "about": "17-year-old girl, third-year senpai: calm, kind, polite です/ます, quietly warm" },
-    "yota":  { "about": "16-year-old boy, same-year classmate: energetic, friendly, casual, a bit goofy" }
+    "akari": {
+      "about": "17-year-old girl, third-year senpai: calm, kind, polite です/ます, quietly warm"
+    },
+    "yota": {
+      "about": "16-year-old boy, same-year classmate: energetic, friendly, casual, a bit goofy"
+    }
   },
   "voicevox": {
     "about": "Free, runs on this Mac. Each character needs its credit line, e.g. VOICEVOX:冥鳴ひまり.",
-    "akari": { "speaker": "冥鳴ひまり", "style": "ノーマル", "speedScale": 0.95 },
-    "yota":  { "speaker": "白上虎太郎", "style": "ふつう", "speedScale": 1.0 }
+    "akari": {
+      "speaker": "冥鳴ひまり",
+      "style": "ノーマル",
+      "speedScale": 0.95
+    },
+    "yota": {
+      "speaker": "白上虎太郎",
+      "style": "ふつう",
+      "speedScale": 1.0
+    }
   },
   "elevenlabs": {
-    "about": "API key needed. Voice ids are chosen after --list (Japanese voices from the Voice Library work best).",
+    "about": "Voices designed on the website (KOS Akari, KOS Yota): the free plan's API refuses library voices and API voice design.",
     "model": "eleven_multilingual_v2",
-    "akari": { "voice_id": null, "stability": 0.5, "similarity_boost": 0.8, "style": 0.25 },
-    "yota":  { "voice_id": null, "stability": 0.4, "similarity_boost": 0.8, "style": 0.4 }
+    "akari": {
+      "voice_id": "rE3I3vsy7DdPreSdmHw9",
+      "stability": 0.5,
+      "similarity_boost": 0.8,
+      "style": 0.25
+    },
+    "yota": {
+      "voice_id": "hV3yAOJnQ8nEdHwe8Eow",
+      "stability": 0.4,
+      "similarity_boost": 0.8,
+      "style": 0.4
+    }
   },
   "gemini": {
     "about": "Free-tier API key from Google AI Studio. Prebuilt voices are multilingual; the mood is steered by the prompt.",
     "model": "gemini-3.8-flash-tts",
-    "akari": { "voice": "Leda", "direction": "Speak natural standard Japanese (Tokyo accent) as a calm, kind 17-year-old girl, a polite senpai" },
-    "yota":  { "voice": "Puck", "direction": "Speak natural standard Japanese (Tokyo accent) as an energetic, friendly 16-year-old boy" }
+    "akari": {
+      "voice": "Leda",
+      "direction": "Speak natural standard Japanese (Tokyo accent) as a calm, kind 17-year-old girl, a polite senpai"
+    },
+    "yota": {
+      "voice": "Puck",
+      "direction": "Speak natural standard Japanese (Tokyo accent) as an energetic, friendly 16-year-old boy"
+    }
   }
 }
