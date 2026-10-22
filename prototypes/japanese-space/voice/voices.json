@@ -22,16 +22,16 @@
     }
   },
   "elevenlabs": {
-    "about": "Voices designed on the website (KOS Akari, KOS Yota): the free plan's API refuses library voices and API voice design.",
+    "about": "Voices designed on the website from design.mjs's v2 prompts (KOS Akari 2, KOS Yota 2), chosen 22 October 2026. The free plan's API refuses library voices and API voice design.",
     "model": "eleven_multilingual_v2",
     "akari": {
-      "voice_id": "rE3I3vsy7DdPreSdmHw9",
+      "voice_id": "3KtjE2QgL64SGINQfppp",
       "stability": 0.5,
       "similarity_boost": 0.8,
       "style": 0.25
     },
     "yota": {
-      "voice_id": "hV3yAOJnQ8nEdHwe8Eow",
+      "voice_id": "Ws11z3nray2ls2wCn05V",
       "stability": 0.4,
       "similarity_boost": 0.8,
       "style": 0.4

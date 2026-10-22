@@ -292,9 +292,12 @@ A **Licences & credits** page under Help lists every source.
     which a personal app is. Starter (about $6 a month) if more is needed.
     Voice Design refuses a prompt that describes a minor, so the cast is
     described as young adults, as anime casting does.
-  - **Still open:** Yōta's designed voice sounds a little too cool for him
-    (redesign: younger-sounding, goofier); Akari's is "decent" — VOICEVOX's
-    冥鳴ひまり read as too timid for her.
+  - **The cast's voices** are "KOS Akari 2" and "KOS Yota 2", designed on
+    the website from the v2 prompts in
+    `prototypes/japanese-space/voice/design.mjs` (Yōta younger-sounding and
+    goofier than the first design, Akari warmer and never timid) and
+    approved by ear. A new character is designed the same way, described
+    as a young adult.
 - Files are Opus/m4a, content-hashed, in `assets/ja/audio/`. They come as an
   **optional download pack per unit**, cache-first in the service worker,
   like the C# runtime.
