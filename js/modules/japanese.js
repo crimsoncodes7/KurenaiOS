@@ -68,22 +68,16 @@
     return { pct: out, stable: stable, need: need };
   }
 
-  /* ---------------- the space tabs (jTop): one nav pattern per inner page ---------------- */
-  var TABS = [["desk", "Desk"], ["path", "Path"], ["skills", "Skills"], ["kana", "Kana"], ["reviews", "Reviews"], ["checkpoints", "Checkpoints"]];
+  /* ---------------- an inner page's head: the pages are the top bar's pills (Reviews, Kana,
+     Skills, Path, Checkpoints; the desk is the subject pill), so the page adds only its header
+     and the actions every Japanese page shares, Focus and settings ---------------- */
   function spaceHead(main, page, o) {
     o = o || {};
-    var due = J().due().length;
-    var tabs = el("nav", { class: "k-ja-tabs", "data-ui": "ja.tabs", "aria-label": "Japanese" }, TABS.map(function (t) {
-      return el("button", { type: "button", class: "k-ja-tab", "data-ui": "ja.tab", "aria-current": t[0] === page ? "page" : null,
-        onclick: function () { if (t[0] === "desk") KOS.show("subject", SID); else KOS.show("japanese", { page: t[0] }); } },
-        [t[1], t[0] === "reviews" && due ? el("span", { class: "k-count", text: String(due) }) : null].filter(Boolean));
-    }).concat([
-      el("span", { class: "k-ja-tabs-gap" }),
-      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.focus", text: "◷ Focus", onclick: function () { KOS.show("focus", { subject: SID }); } }),
+    KOS.shell.actions([
+      el("button", { type: "button", class: "k-btn", "data-ui": "ja.focus", text: "Start focus", onclick: function () { KOS.show("focus", { subject: SID }); } }),
       el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.settings-open", "aria-label": "Japanese settings", "aria-current": page === "settings" ? "page" : null, text: "⚙",
         onclick: function () { KOS.show("japanese", { page: "settings" }); } })
-    ]));
-    main.appendChild(tabs);
+    ]);
     main.appendChild(KOS.ui.pageHeader({ kicker: "Japanese", title: o.title, sub: o.sub }));
   }
 
@@ -95,7 +89,9 @@
     var first = !J().started();
     KOS.shell.actions([
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Start focus",
-        onclick: function () { KOS.show("focus", { subject: SID }); } })
+        onclick: function () { KOS.show("focus", { subject: SID }); } }),
+      el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.settings-open", "aria-label": "Japanese settings", text: "⚙",
+        onclick: function () { KOS.show("japanese", { page: "settings" }); } })
     ]);
     var next = J().nextLesson(), stage = next ? stageOf(next.unit) : null;
     var hero = el("section", { class: "k-subj-hero k-ja-hero", "data-ui": "study.subject-hero ja.hero", "aria-label": "Japanese" }, [
@@ -119,7 +115,9 @@
             el("span", { class: "k-mono", text: off ? "off" : pct + "%" })]),
           el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": UI().SKILL[s] + ": " + (off ? "speaking is off" : pct + "%"), style: "--p: " + (off ? 0 : pct) + "%" }, [el("i")])
         ]);
-      }))
+      })),
+      /* the core path lives in the hero, under the name, across its whole width (as Code's, 26a) */
+      el("div", { class: "k-ja-hero-path" }, [UI().stagePath({ onUnit: openUnit, onCheckpoint: function () { KOS.show("japanese", { page: "checkpoints" }); } })])
     ]);
     var side = el("div", { class: "k-subj-side k-ja-deskside" }, [first ? firstDayCard() : todayCard(), continueCard(next)].filter(Boolean));
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
@@ -177,7 +175,6 @@
         el("span", { class: "k-sectionhead-sub", text: "6 stages · " + st.lessons + " lessons so far · a checkpoint per unit" }),
         el("div", { class: "k-sectionhead-actions" }, [el("button", { type: "button", class: "k-link", text: "Skill map ›", onclick: function () { KOS.show("japanese", { page: "skills" }); } })])
       ]),
-      el("div", { class: "k-card k-ja-pathcard" }, [UI().stagePath({ compact: true, onUnit: openUnit, onCheckpoint: function () { KOS.show("japanese", { page: "checkpoints" }); } })]),
       KOS.ui.scroller(units, { label: "Units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
     ]));
 
@@ -206,7 +203,7 @@
       p.learn && p.learn.heavy && p.reviews.n ? el("p", { class: "k-ja-today-note", text: "A heavy review day: New shrinks; input stays." }) : null,
       el("div", { class: "k-ja-today-go" }, [
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.start", text: "▶ Start",
-          disabled: !p.reviews.n && !p.learn,
+          disabled: !p.reviews.n && !p.learn ? "" : null,
           onclick: function () { KOS.show("japanese", { page: "session", id: p.reviews.n ? "reviews" : "learn-" + p.learn.lesson }); } }),
         p.reviews.n ? el("span", { class: "k-muted", text: plural(p.reviews.n, "review") + " due" }) : null
       ].filter(Boolean))
@@ -217,17 +214,14 @@
   function firstDayCard() {
     var L = J().lessons()[0];
     return el("section", { class: "k-card k-ja-today", "data-ui": "ja.today ja.first-day", "data-state": "first" }, [
-      el("div", { class: "k-ja-today-top" }, [el("span", { class: "k-kicker", text: "Today · your first session" }), el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", text: "≈ 15 min" })]),
-      el("p", { class: "k-muted", text: "The plan settles in about two weeks." }),
+      el("div", { class: "k-ja-today-top" }, [el("span", { class: "k-kicker", text: "Today · first session" }), el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", title: "The plan settles in about two weeks.", text: "≈ 15 min" })]),
       el("ol", { class: "k-ja-firstlist" }, [
-        el("li", {}, [el("b", { text: "Kana" }), " ", el("span", { lang: "ja", text: "あ い う え お" }), el("small", { text: "Watch, trace, write, then read · ≈ 8 min" })]),
-        el("li", {}, [el("b", { text: "Listen" }), " Your first sounds", el("small", { text: "the five vowels and the か row · ≈ 5 min" })]),
-        el("li", {}, [el("b", { text: "Say it" }), " Hear, then say", el("small", { text: "optional · speaking is off until you opt in · ≈ 2 min" })])
-      ]),
+        ["Kana", "あ い う え お", "8"], ["Listen", "your first sounds", "5"], ["Say it", "optional", "2"]
+      ].map(function (r) { return el("li", {}, [el("b", { text: r[0] }), el("span", { lang: /[ぁ-ん]/.test(r[1]) ? "ja" : null, text: r[1] }), el("small", { class: "k-mono", text: "≈ " + r[2] + " min" })]); })),
       el("div", { class: "k-ja-today-go" }, [
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.start", text: "▶ Start",
           onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } }),
-        el("span", { class: "k-muted", text: "Each block can be skipped from inside the session." })
+        el("span", { class: "k-muted", text: "Skip any block inside" })
       ])
     ]);
   }
@@ -305,6 +299,7 @@
      ====================================================================== */
   KOS.views.japanese = function (main, arg) {
     arg = arg || {};
+    KOS.shell.tree("none");   // the inner pages have no spine; a lesson page brings it back
     main.style.setProperty("--subj-c", "var(--ja)");
     var page = arg.page || "path";
     if (page === "session") {
@@ -350,7 +345,7 @@
 
   /* ---------------- 28d · kana ---------------- */
   var ROWS = [["あ", "a"], ["か", "ka"], ["さ", "sa"], ["た", "ta"], ["な", "na"], ["は", "ha"], ["ま", "ma"], ["や", "ya"], ["ら", "ra"], ["わ", "wa"], ["ん", "n"]];
-  var HIRA_COLS = ["あいうえお", "かきくけこ", "さしすせそ", "たちつてと", "なにぬねの", "はひふへほ", "まみむめも", "や ゆ よ", "らりるれろ", "わ   を", "ん    "];
+  var HIRA_COLS = ["あいうえお", "かきくけこ", "さしすせそ", "たちつてと", "なにぬねの", "はひふへほ", "まみむめも", "や ゆ よ", "らりるれろ", "わ   を", "ん"];
   function kanaState(ch) {
     var j = J().peek(), r = j.facets["k:" + ch + "|R"], w = j.facets["k:" + ch + "|W"];
     if (r && r.reps && r.s >= KOS.jaSrs.STABLE && w && w.reps && w.s >= KOS.jaSrs.STABLE) return "stable";
@@ -455,7 +450,7 @@
           }))
         ]),
         cols,
-        el("p", { class: "k-muted", text: "Columns read from the right, あ-row first." })
+        el("p", { class: "k-muted", text: "Columns read from the right, あ-row first. A dash is a sound modern Japanese doesn't use (yi, ye, wu…), so the gaps are part of the chart." })
       ]),
       el("section", { class: "k-card k-ja-chartcounts", "data-ui": "ja.kana-counts" }, [
         cardHead(script === "kata" ? "Katakana" : "Hiragana", null, null),
@@ -497,16 +492,6 @@
     var left = el("div", { class: "k-ja-col" }, [
       el("section", { class: "k-card", "data-ui": "ja.skill-units" }, [cardHead("By unit", "% of the unit's items stable in that skill; 80 is the checkpoint line", null), table,
         el("p", { class: "k-muted", text: "Kana have no Listening or Speaking facet of their own." })]),
-      el("section", { class: "k-card", "data-ui": "ja.fluency" }, [cardHead("Fluency", null, null),
-        el("dl", { class: "k-ja-dl" }, [
-          ["Recognition", fl.kanaMs ? (fl.kanaMs / 1000).toFixed(1) + " s / kana · kana drill, median" : "Drill kana to time it"],
-          ["Reading speed", "Time a reading in the reader (Stage 1)"]
-        ].map(function (r) { return el("div", {}, [el("dt", { text: r[0] }), el("dd", { text: r[1] })]); }))])
-    ]);
-    var side = el("div", { class: "k-ja-side" }, [
-      el("section", { class: "k-card k-ja-shape", "data-ui": "ja.radar-card" }, [cardHead("Shape", tl.calibrating ? "calibrating" : "now", null),
-        UI().radar({ values: sp.pct, calibrating: tl.calibrating }),
-        tl.calibrating ? el("p", { class: "k-muted", text: "The shape appears once each skill has a week of results." }) : null].filter(Boolean)),
       (function () {
         var list = J().rework();
         var box = el("section", { class: "k-card k-ja-rework", "data-ui": "ja.rework" }, [cardHead("Rework", list.length ? "items that keep slipping · " + list.length : null, null)]);
@@ -515,6 +500,17 @@
         box.appendChild(el("p", { class: "k-muted", text: "Rework teaches the item again from its own lesson. It is not a penalty and has no reward." }));
         return box;
       })()
+    ]);
+    var side = el("div", { class: "k-ja-side" }, [
+      el("section", { class: "k-card k-ja-shape", "data-ui": "ja.radar-card" }, [cardHead("Shape", tl.calibrating ? "calibrating" : "now", null),
+        UI().radar({ values: sp.pct, calibrating: tl.calibrating }),
+        tl.calibrating ? el("p", { class: "k-muted", text: "The shape appears once each skill has a week of results." }) : null].filter(Boolean)),
+      el("section", { class: "k-card", "data-ui": "ja.fluency" }, [cardHead("Fluency", null, null),
+        el("dl", { class: "k-ja-dl" }, [
+          ["Recognition", fl.kanaMs ? (fl.kanaMs / 1000).toFixed(1) + " s / kana · kana drill, median" : "Drill kana to time it"],
+          ["Reading speed", "Time a reading in the reader (Stage 1)"]
+        ].map(function (r) { return el("div", {}, [el("dt", { text: r[0] }), el("dd", { text: r[1] })]); }))])
+
     ]);
     main.appendChild(el("div", { class: "k-ja-twocol" }, [left, side]));
   }
@@ -545,11 +541,14 @@
     }
     main.appendChild(el("div", { class: "k-ja-twocol" }, [el("div", { class: "k-ja-col" }, [detail]), el("div", { class: "k-ja-side" }, [levers])]));
     main.appendChild(el("section", { class: "k-card", "data-ui": "ja.stones-all" }, [cardHead("All stones", tl.perWeek ? "about " + tl.perWeek.mid + " new words a week" : null, null),
-      el("ul", { class: "k-ja-stonelist" }, tl.milestones.map(function (m) {
+      el("ul", { class: "k-ja-stonelist" }, [el("li", { class: "k-ja-stonelist-h", "aria-hidden": "true" }, [el("span", { text: "Stone" }), el("span", { text: "Requirements met" }), el("span", { text: "Likely" })])]
+        .concat(tl.milestones.map(function (m) {
+        var pct = Math.min(100, Math.round(100 * m.have / Math.max(1, m.need)));
         return el("li", { "data-state": m.done ? "done" : null }, [el("span", { text: (m.done ? "✓ " : "") + m.title }),
-          el("span", { class: "k-mono", text: m.done ? "Done" : tl.calibrating ? "Calibrating" : m.unit === "kana" ? Math.round(100 * m.have / m.need) + "%" : UI().range(m.from, m.to) }),
-          el("span", { class: "k-mono k-muted", text: Math.min(100, Math.round(100 * m.have / Math.max(1, m.need))) + "%" })]);
-      }))]));
+          el("span", { class: "k-ja-stonelist-p" }, [el("span", { class: "k-bar", role: "img", "aria-label": pct + "% of the requirements", style: "--p: " + pct + "%; --bar-c: var(--subj-c)" }, [el("i")]),
+            el("span", { class: "k-mono", text: pct + "%" })]),
+          el("span", { class: "k-mono", text: m.done ? "Done" : tl.calibrating ? "Calibrating" : UI().range(m.from, m.to) })]);
+      })))]));
   }
 
   /* ---------------- 28j · checkpoints ---------------- */

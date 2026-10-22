@@ -7,7 +7,8 @@
          sixteen lessons as leaves.
      B · THE ROUTES. #/subject/ja (the desk, 28a), #/ref/ja/<lesson> (the
          lesson, 28e) and every #/japanese/<page> render their own hooks with
-         no error; the rail lights the 語 tile on them.
+         no error; Study is lit on the rail, and the subject pills are Code and
+         Japanese alone (the A-level subjects keep their own group).
      C · LANG. Every Japanese run on a lesson page says lang="ja", so its
          glyphs are Japanese and not a Chinese variant.
      D · A RENDER WRITES NOTHING. Drawing the desk and every reading page
@@ -53,7 +54,9 @@ step("B · routes: the desk, a lesson and every Japanese page", async (app) => {
     ["japanese", { page: "licences" }, "ui.page-head"], ["japanese", { page: "session", id: "learn-H1" }, "ja.runner"]]) {
     K.show(v, a); await app.settle();
     assert(app.document.querySelector('[data-ui~="' + id + '"]'), v + " " + JSON.stringify(a) + " did not render " + id);
-    assert(app.document.querySelector('[data-ui~="shell.rail-item"][data-section="japanese"][aria-current="page"]'), v + " " + JSON.stringify(a) + " does not light the 語 tile");
+    assert(app.document.querySelector('[data-ui~="shell.rail-item"][data-section="study"][aria-current="page"]'), v + " " + JSON.stringify(a) + " does not light Study");
+    const pills = [...app.document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map((b) => b.textContent.trim());
+    assert(pills.some((t) => /Japanese/.test(t)) && pills.some((t) => /Code/.test(t)) && !pills.some((t) => /Maths|Mathematics|Computer Science/.test(t)), v + ": the subject pills are not Code and Japanese alone: " + pills.join(", "));
   }
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
   assert(app.window.location.hash === "#/japanese/session/learn-H1", "the session has its own route: " + app.window.location.hash);

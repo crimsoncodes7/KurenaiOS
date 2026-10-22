@@ -152,34 +152,39 @@
   }
 
   /* ---------------- the stage path (28·kit) ---------------- */
-  /* o: { compact, onUnit(id), onCheckpoint(id) } — stages with their emblem kanji, unit squares
-     (done · current · later) and the checkpoint after each unit (合 when passed) */
+  /* o: { onUnit(id), onCheckpoint(id) } — Code's spread path (26a): one grid column per stop,
+     so the stops share the width evenly and every row lines up; each stage spans its stops under
+     one heading (emblem kanji, name), a line joins each stop to the next. Unit squares are
+     done · current · later; the checkpoint after each unit shows 合 when passed; a stage still to
+     come holds one dashed stop. */
   function stagePath(o) {
     o = o || {};
-    var J = window.KOS_JA, row = el("div", { class: "k-ja-path", "data-ui": "ja.stage-path", role: "group", "aria-label": "Core path", tabindex: "0" });
-    if (o.compact) KOS.ui.state(row, "compact", true);
-    (J ? J.STAGES : []).forEach(function (st, si) {
-      var g = el("div", { class: "k-ja-stage", "data-ui": "ja.stage" });
-      var head = el("div", { class: "k-ja-stage-h" }, [
+    var J = window.KOS_JA, stages = J ? J.STAGES : [];
+    var row = el("div", { class: "k-ja-path", "data-ui": "ja.stage-path", role: "group", "aria-label": "Core path", tabindex: "0" });
+    function stops(st) { return st.units.length ? st.units.reduce(function (n, u) { return n + (u.checkpoint ? 2 : 1); }, 0) : 2; }
+    var n = stages.reduce(function (a, st) { return a + stops(st); }, 0), at = 0;
+    row.style.setProperty("--n", n);
+    function node(x) { at++; return el("span", { class: "k-ja-node", "data-state": at === n ? "last" : null }, [x]); }
+    stages.forEach(function (st) {
+      var g = el("div", { class: "k-ja-stage", "data-ui": "ja.stage", "data-state": st.units.length ? null : "later", style: "--span: " + stops(st) });
+      g.appendChild(el("div", { class: "k-ja-stage-h", title: st.name + (st.units.length ? "" : " · coming later") }, [
         el("span", { class: "k-ja-emblem", lang: "ja", "aria-hidden": "true", text: st.kanji }),
-        el("b", { text: st.name }),
-        !st.units.length ? el("small", { class: "k-muted", text: "Coming later" }) : null
-      ].filter(Boolean));
-      g.appendChild(head);
+        el("b", { text: st.name })
+      ]));
       var marks = el("div", { class: "k-ja-stage-m" });
       st.units.forEach(function (u) {
         var us = KOS.ja.unitState(u.id);
-        marks.appendChild(el("button", { type: "button", class: "k-ja-sq", "data-ui": "ja.path-unit", "data-state": us.state, tabindex: "-1",
+        marks.appendChild(node(el("button", { type: "button", class: "k-ja-sq", "data-ui": "ja.path-unit", "data-state": us.state, tabindex: "-1",
           "aria-label": u.name + ": " + (us.state === "later" ? "recommended later" : us.done + " of " + us.total + " done"),
-          text: us.state === "done" ? "✓" : u.id, onclick: function () { if (o.onUnit) o.onUnit(u.id); } }));
+          text: us.state === "done" ? "✓" : u.id, onclick: function () { if (o.onUnit) o.onUnit(u.id); } })));
         if (u.checkpoint) {
           var cs = KOS.ja.checkpointState(u.checkpoint);
-          marks.appendChild(el("button", { type: "button", class: "k-ja-cp", "data-ui": "ja.path-checkpoint", "data-state": cs, tabindex: "-1",
+          marks.appendChild(node(el("button", { type: "button", class: "k-ja-cp", "data-ui": "ja.path-checkpoint", "data-state": cs, tabindex: "-1",
             "aria-label": u.name + " checkpoint: " + (cs === "passed" ? "passed" : cs === "next" ? "next" : "recommended later"),
-            text: cs === "passed" ? "合" : "", lang: "ja", onclick: function () { if (o.onCheckpoint) o.onCheckpoint(u.checkpoint); } }));
+            text: cs === "passed" ? "合" : "", lang: "ja", onclick: function () { if (o.onCheckpoint) o.onCheckpoint(u.checkpoint); } })));
         }
       });
-      if (!st.units.length) marks.appendChild(el("span", { class: "k-ja-sq", "data-state": "future", "aria-hidden": "true", text: "·" }));
+      if (!st.units.length) marks.appendChild(node(el("span", { class: "k-ja-sq", "data-state": "future", role: "img", "aria-label": st.name + ": coming later" })));
       g.appendChild(marks);
       row.appendChild(g);
     });

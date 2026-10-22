@@ -107,8 +107,7 @@ step("the Phase E module loads before main binds the canonical rail", () => {
   const shellAt = html.indexOf('src="js/modules/mobile-shell.js"');
   const mainAt = html.indexOf('src="js/main.js"');
   assert(shellAt !== -1 && shellAt < mainAt, "mobile-shell.js is missing or loads after main.js");
-  /* eight since Japanese (frame 28a): its 語 tile sits under Study */
-  assert($$("#rail > [data-ui~='shell.rail-item']").length === 8, "a canonical desktop rail destination was removed");
+  assert($$("#rail > [data-ui~='shell.rail-item']").length === 7, "a canonical desktop rail destination was removed");
 });
 
 step("phone navigation is four primary destinations plus More, with no cloned routes", () => {

@@ -38,6 +38,12 @@
       return LIST.filter(function (s) { return loaded(s) && (kind !== "exam" || s.exam); })
         .map(function (s) { return s.id; });
     },
+    /* the subjects that share a switch with id: the A-level exam subjects together, and the
+       study spaces (Code, Japanese) together — a page shows only its own group */
+    group: function (id) {
+      var exam = !!(BY[id] && BY[id].exam);
+      return LIST.filter(function (s) { return loaded(s) && !!s.exam === exam; }).map(function (s) { return s.id; });
+    },
     meta: function (id) { return BY[id] || null; },
     has: function (id) { return !!(BY[id] && loaded(BY[id])); },
     isExam: function (id) { return !!(BY[id] && BY[id].exam); },

@@ -428,7 +428,6 @@
   /* the landing view when a rail section button is pressed */
   KOS.sectionLanding = function (sec) {
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
-    if (sec === "japanese") return ["subject", "ja"];
     return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor",
       assistant: "assistant", system: "data" }[sec] || "home", undefined];
   };
@@ -1342,13 +1341,17 @@
        Skill map, Curriculum map — and Review, Assignments, Exams & Papers
        stay one tap away on every other subject */
     var inCode = sec === "study" && (viewId === "code" || (viewId === "subject" && arg === "code") || (viewId === "ref" && arg && arg.subject === "code"));
-    /* inside Japanese the loose pills are its own (frame 28a): Reviews with its count, and Kana */
+    /* inside Japanese the loose pills are its own pages: Reviews with its count, Kana, Skills,
+       the path and the checkpoints (the desk is the subject pill itself) */
     var inJa = sec === "study" && (viewId === "japanese" || (viewId === "subject" && arg === "ja") || (viewId === "ref" && arg && arg.subject === "ja"));
     if (inJa) {
       var cutJ = items.indexOf(null);
       items = items.slice(0, cutJ).concat([null,
         { label: "Reviews", view: "japanese", arg: { page: "reviews" }, count: "pc-ja-due", tone: "neutral", page: "reviews" },
-        { label: "Kana", view: "japanese", arg: { page: "kana" }, page: "kana" }]);
+        { label: "Kana", view: "japanese", arg: { page: "kana" }, page: "kana" },
+        { label: "Skills", view: "japanese", arg: { page: "skills" }, page: "skills" },
+        { label: "Path", view: "japanese", arg: { page: "path" }, page: "path" },
+        { label: "Checkpoints", view: "japanese", arg: { page: "checkpoints" }, page: "checkpoints" }]);
     }
     if (inCode) {
       var cut = items.indexOf(null);
@@ -1358,6 +1361,20 @@
         { label: "Skill map", view: "code", arg: { page: "skills" }, page: "skills" },
         { label: "Curriculum map", view: "code", arg: { page: "map" }, page: "map" }]);
     }
+    /* the subject pills show one group: the A-level subjects on their pages (and on Review,
+       Assignments, Exams and Pacing), Code and Japanese on theirs */
+    if (sec === "study" && items && KOS.subjects) {
+      var here = viewId === "subject" ? arg : viewId === "ref" && arg ? arg.subject : inCode ? "code" : inJa ? "ja" : "compsci";
+      var grp = KOS.subjects.group(here), exam = KOS.subjects.isExam(here);
+      var other = KOS.subjects.ids().filter(function (s) { return grp.indexOf(s) < 0; });
+      items = items.filter(function (it) { return !it || it.view !== "subject" || grp.indexOf(it.arg) >= 0; });
+      /* one pill reaches the other group: its subject last opened, else its first */
+      if (other.length) {
+        var to = other.indexOf(KOS.store.state.ui.subject) >= 0 ? KOS.store.state.ui.subject : other[0];
+        var at = items.indexOf(null);
+        items.splice(at < 0 ? items.length : at, 0, { label: exam ? "Code & Japanese" : "A-levels", view: "subject", arg: to, switchGroup: true });
+      }
+    }
     nav.innerHTML = "";
     if (!items) { nav.hidden = true; return; }
     nav.hidden = false;
@@ -1365,7 +1382,7 @@
     var activeView = viewId, activeArg = arg;
     if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
     if (viewId === "code") { activeView = arg && (arg.page === "retrieval" || arg.page === "skills" || arg.page === "map") ? "code" : "subject"; activeArg = activeView === "code" ? arg.page : "code"; }
-    if (viewId === "japanese") { activeView = arg && (arg.page === "reviews" || arg.page === "kana") ? "japanese" : "subject"; activeArg = activeView === "japanese" ? arg.page : "ja"; }
+    if (viewId === "japanese") { activeView = arg && ["reviews", "kana", "skills", "path", "checkpoints"].indexOf(arg.page) >= 0 ? "japanese" : "subject"; activeArg = activeView === "japanese" ? arg.page : "ja"; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
     if (viewId === "due" || viewId === "cardstats") activeView = "review";
     if (viewId === "tracker") activeView = "exams";
@@ -1377,7 +1394,7 @@
       if (!it) return { sep: true };
       return { label: it.label, short: it.short, dot: it.dot, glyph: it.mark,
         countId: it.count || null, countTone: it.tone || null, countHidden: !!it.countHidden,
-        active: it.view === activeView && (it.arg === undefined || it.arg === activeArg || (it.page && it.page === activeArg)),
+        active: !it.switchGroup && it.view === activeView && (it.arg === undefined || it.arg === activeArg || (it.page && it.page === activeArg)),
         onSelect: function () { KOS.show(it.view, it.arg); } };
     }), { variant: "primary", label: "Section" });
     nav.setAttribute("class", strip.getAttribute("class"));
@@ -1426,8 +1443,7 @@
        any section (none today) highlight nothing. */
     var sec = SECTION_OF[viewId] || null;
     /* Japanese's pages are Study's, but its own tile (語) is the one lit there */
-    var inJa = viewId === "japanese" || (viewId === "subject" && arg === "ja") || (viewId === "ref" && arg && arg.subject === "ja");
-    var railSec = inJa ? "japanese" : sec;
+    var railSec = sec;
     document.querySelectorAll("[data-ui~='shell.rail-item']").forEach(function (b) {
       var lit = !!railSec && b.dataset.section === railSec;
       KOS.ui.state(b, "active", lit);

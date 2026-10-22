@@ -416,7 +416,7 @@
       el("span", { class: "k-spine-strip-l", "aria-hidden": "true", text: data.name })
     ]));
     tree.appendChild(el("div", { class: "k-spine-top" }, [
-      el("div", { class: "k-seg k-seg--fill k-spine-subjects", "data-ui": "study.spine-subjects", role: "group", "aria-label": "Subject" }, SUBJECTS.map(function (s) {
+      el("div", { class: "k-seg k-seg--fill k-spine-subjects", "data-ui": "study.spine-subjects", role: "group", "aria-label": "Subject" }, KOS.subjects.group(sid).map(function (s) {
         return el("button", { type: "button", class: "k-seg-item", "data-ui": "study.spine-subject-pick",
           "aria-pressed": String(s === sid), "aria-label": KOS_DATA[s].name, text: SUBJ_SHORT[s],
           /* on a topic page the switch keeps you studying (review B): it
