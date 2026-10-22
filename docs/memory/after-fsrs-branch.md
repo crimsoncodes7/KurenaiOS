@@ -10,7 +10,7 @@ metadata:
 
 On 2026-10-22 the user asked for, in one go: roadmap 5.6 (they meant FSRS phase 3, the optimiser, built gated on 1,000 reviews), the server runner (5.7 item 1), Code → GitHub as a GitHub App (5.7 item 2), and a "small" extra: switching subject, topic or assignment mid-Focus-session. They chose: optimiser built now but gated; docs THEN build for the server work; Focus switch recorded as SEGMENTS (one session, paid once, time split per stretch).
 
-All four are on branch `feat/after-fsrs` (from main `ced4eab`), pushed, gate 94 suites (smoke95 Focus, smoke96 FSRS3, smoke97 runner, smoke98 GitHub App). Migrations 20261022000001 (kos_reviews), …02 (kos_push), …03 (kos_github) are APPLIED to Supabase. Nothing is deployed to Pages and no Edge Function is deployed.
+All four are on branch `feat/after-fsrs` (from main `ced4eab`), pushed, gate 94 suites (smoke95 Focus, smoke96 FSRS3, smoke97 runner, smoke98 GitHub App). Migrations 20261022000001 (kos_reviews), …02 (kos_push), …03 (kos_github) are APPLIED to Supabase. Nothing is deployed to Pages; the runner and github-token Edge Functions are (see below).
 
 Design facts worth keeping:
 - Optimiser is pure JS `js/core/fsrsopt.js`, NOT fsrs-browser: that package's threaded WASM needs cross-origin isolation, which would block the app's hot-linked images.
