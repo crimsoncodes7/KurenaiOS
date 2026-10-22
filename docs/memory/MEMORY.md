@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — stages 1–3 + Bridge B shipped (stage 3 on the full runtime), units 10–12 only when asked; katas, GitHub v1, Code in Reports + Assistant live; phone/Windows/Linux parked in ROADMAP; gates smoke73–79
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5, plan rev 3.1; slice closed on real data (03505a9); integration next when asked
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/after-fsrs 2026-10-22; last release 13cef94 (kos-runner-2); fetch first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/ipad 2026-10-22; last release 87f9437 (kos-ipad-1); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
@@ -16,3 +16,4 @@
 - [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 RELEASED 2026-10-20 (fbea5d5, kos-fsrs-1); phase 3 optimiser built on feat/after-fsrs
 - [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–6 (CS Paper 2) RELEASED 2026-10-21 (3b39ae1, kos-exams-1); next CS Paper 1; ask before each deploy
 - [After-FSRS release](after-fsrs-branch.md) — Focus switch, FSRS3, closed-app runner, GitHub App; RELEASED 2026-10-22 (13cef94, kos-runner-2); env.local.js is deferred
+- [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); Creatives plan waits on §12 answers
