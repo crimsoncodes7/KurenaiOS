@@ -1212,7 +1212,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
-> **Status (22 October 2026): 6.0 built** on `feat/ipad`; the rest is
+> **Status (22 October 2026): 6.0 RELEASED** (`87f9437`, sw `kos-ipad-1`,
+> https://982f307b.kurenai-os.pages.dev); the rest is
 > planned in [ipad-plan.md](ipad-plan.md) revision 1. Next come its three
 > spikes on the device: P (what the Metapen A8 reports), D (pdf.js on a
 > whole paper) and H (how well Kurenai reads your Maths working).

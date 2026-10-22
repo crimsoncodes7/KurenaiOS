@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `13cef94` — immutable deployment
+- Latest release: `87f9437` — immutable deployment
+  https://982f307b.kurenai-os.pages.dev (22 October 2026; `feat/ipad`: the
+  iPad layout, roadmap 6.0 — the rail opens over the page at 701–1080px,
+  topic pages no longer collapse at 1081–1240px). Before it `13cef94`,
   https://3191f2e6.kurenai-os.pages.dev (22 October 2026; `feat/after-fsrs`:
   switching mid-Focus, FSRS phase 3, what reaches a closed app, Code →
   GitHub as a GitHub App). The `runner` and `github-token` Edge Functions
@@ -32,7 +35,7 @@ chronological diary here.
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
-  `feat/after-fsrs`, so
+  `feat/after-fsrs`, then to `feat/ipad`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
@@ -86,7 +89,7 @@ chronological diary here.
   and Goals cards; smoke87).
 - Planned 22 October 2026 (`feat/ipad`): the iPad and the Pencil (roadmap
   Phase 6, [`docs/ipad-plan.md`](docs/ipad-plan.md); 6.0, the iPad layout,
-  is built) and the Creatives study space (roadmap 5.7 item 3,
+  is RELEASED as `87f9437`, sw `kos-ipad-1`) and the Creatives study space (roadmap 5.7 item 3,
   [`docs/creatives-plan.md`](docs/creatives-plan.md), waiting on its §12
   questions).
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
