@@ -26,7 +26,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-runner-2`
+- Service-worker version: `kos-ipad-1`
 - Required smoke gate: 94 / 94 suites (`""`, 2–79 and 84–98; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
