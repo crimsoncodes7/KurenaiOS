@@ -1,7 +1,8 @@
 // ElevenLabs Voice Design for the bake-off. NEEDS A PAID PLAN: on the free plan the API refuses both
 // library voices (402) and creating a voice (403, 22 October 2026). On the free plan, design the two
 // voices on the website with the descriptions and samples below; a voice of your own is usable here.
-// A voice you design is your own. For each character: three previews from a description and a
+// A voice you design is your own. Version 2 of both prompts (22 October 2026): the bake-off found
+// Yōta's first design too cool for him and Akari's "decent". For each character: three previews from a description and a
 // Japanese sample (kept in out/design/ to listen to), the chosen one saved as a voice, and its id
 // written into voices.json. Keys come from voice/.env.local and are never printed.
 //
@@ -21,12 +22,12 @@ if (!KEY) throw new Error("no ELEVENLABS_API_KEY in voice/.env.local");
 const DESIGN = {
   akari: {
     name: "KOS Akari",
-    description: "A young Japanese woman in her early twenties speaking native standard Tokyo Japanese. Calm, kind and gentle, polite and quietly amused; a soft, warm, youthful mid-high voice with clear articulation. Natural anime-heroine voice-acting quality, studio-clean recording.",
+    description: "A young Japanese woman in her early twenties speaking native standard Tokyo Japanese. Warm, gentle older-sister confidence: composed and kind, smiling as she speaks, quietly amused; a bright, clear mid-high voice with soft warmth. Never shy, timid or breathy, never flat. Natural anime-heroine voice-acting quality, studio-clean recording.",
     text: "はじめまして、白石灯です。今日からあなたの案内役になりました。わからないことがあったら、遠慮しないで何でも聞いてくださいね。まずは、このカフェでゆっくりお話ししましょう。ケーキも紅茶もおいしいんですよ。楽しみですね。"
   },
   yota: {
     name: "KOS Yota",
-    description: "A young Japanese man in his early twenties speaking native standard Tokyo Japanese. Energetic, friendly and a bit goofy, casual tone; a bright, youthful light tenor voice, lively and expressive like a cheerful anime protagonist. Studio-clean recording.",
+    description: "A young Japanese man in his early twenties with a boyish, playful voice that sounds younger than his age. Goofy, cheeky and excitable, quick to laugh and easily surprised; a bright, slightly higher light tenor. Not deep, smooth, cool or charismatic: the comic-relief best friend in a slice-of-life anime. Native standard Tokyo Japanese, casual speech, studio-clean recording.",
     text: "よっ、朝日陽太だ！これからよろしくな！なあなあ、あのケーキ、めっちゃうまそうじゃない？え、あれって猫なの？マジかよ、全然気づかなかったぜ。じゃあ、一緒に行こうぜ！夕方、駅前のカフェで待ってるからな。絶対来いよ！"
   }
 };

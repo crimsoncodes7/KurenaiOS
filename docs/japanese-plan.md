@@ -1,4 +1,9 @@
-# Japanese — a study space for KurenaiOS (plan, revision 3.1)
+# Japanese — a study space for KurenaiOS (plan, revision 3.2)
+
+**Revision 3.2 (22 October 2026)** chooses the voices (§4.4) from a blind
+bake-off of VOICEVOX, ElevenLabs and Gemini TTS: ElevenLabs for the cast's
+dialogue, VOICEVOX for model audio where the accent must be right, Gemini
+dropped.
 
 **Revision 3.1 (17 October 2026)** closes the slice's measurements on your
 own recordings, handwriting and a real episode (§13, §16):
@@ -258,10 +263,38 @@ A **Licences & credits** page under Help lists every source.
 
 ### 4.4 Audio
 
-- **Shipped audio** is pre-rendered at build time with VOICEVOX. The voices
-  vary by speaker, age and gender. Each character requires its credit line
-  (`VOICEVOX:<name>`), and the per-character terms are checked when the voices
-  are chosen.
+- **Shipped audio is pre-rendered, from two providers** (the voice bake-off,
+  22 October 2026: 13 lines, three providers, judged blind;
+  `prototypes/japanese-space/voice.html`):
+
+  | Provider | Best take | Wrong reading/accent flags | Fit as Akari / Yōta (1–5) |
+  |---|---|---|---|
+  | ElevenLabs (voices designed for the cast) | 7 of 13 | 2 (箸 said with 橋's pitch; one café line) | 4 / 4 |
+  | VOICEVOX | 5 of 13 (both 箸/橋 pitch checks and おばあさん) | 0 | 3 / 1 |
+  | Gemini TTS | 1 of 13 | 2 | 1 / 2 — and it read the instruction aloud, clipped endings, a few requests a day free: **dropped** |
+
+  - **Character dialogue** (VN scenes, manga balloons, dialogues and
+    dialogue turns) is **ElevenLabs**, one designed voice per character —
+    it won on character and naturalness. Its accent is not guaranteed
+    (it gave 箸 the pitch of 橋), so every rendered line is listened to
+    before a unit ships, a misread word is respelled in kana, and a line
+    whose pitch matters is not used to TEACH pitch.
+  - **Model audio** — vocabulary, the kana, example sentences, minimal pairs,
+    pitch and long-vowel drills, dictation — is **VOICEVOX**, a narrator
+    voice that is none of the cast. It made no reading errors, it was picked
+    for every pitch check, and its accent can be corrected mora by mora in
+    `audio_query` before synthesis; each file records the accent pattern
+    used. Credit: `VOICEVOX:<speaker>` on the Licences page.
+  - **Cost.** ElevenLabs' free plan cannot use library voices or create
+    voices through the API; voices designed on the website can be used.
+    Its 10,000 credits a month (about one Japanese character each) cover a
+    unit's dialogue; the free plan needs attribution and is non-commercial,
+    which a personal app is. Starter (about $6 a month) if more is needed.
+    Voice Design refuses a prompt that describes a minor, so the cast is
+    described as young adults, as anime casting does.
+  - **Still open:** Yōta's designed voice sounds a little too cool for him
+    (redesign: younger-sounding, goofier); Akari's is "decent" — VOICEVOX's
+    冥鳴ひまり read as too timid for her.
 - Files are Opus/m4a, content-hashed, in `assets/ja/audio/`. They come as an
   **optional download pack per unit**, cache-first in the service worker,
   like the C# runtime.
@@ -650,7 +683,7 @@ exercises and checkpoints.
 | Component | What it shows | Shipped content | Personal content |
 |---|---|---|---|
 | **Panel** (manga) | An image plus **text layers**. Bubble text is real text, so it is selectable, can carry furigana by mastery, and can be looked up and hidden for a "read the bubble" exercise. Includes vertical text (`writing-mode: vertical-rl`). | Original panels: raster art from the cast (§12.1) with live text bubbles on top | Your screenshots, with bubble regions you draw and type (or paste from OCR) |
-| **VN scene** | Background, sprite and a text box with typewriter advance, a name plate, voiced lines and a backlog. Clicking a line mines it. | Original scenes from the cast and backgrounds (§12.1) with VOICEVOX voices | Your screenshots plus the line text from a texthooker |
+| **VN scene** | Background, sprite and a text box with typewriter advance, a name plate, voiced lines and a backlog. Clicking a line mines it. | Original scenes from the cast and backgrounds (§12.1), voiced by each character's ElevenLabs voice (§4.4) | Your screenshots plus the line text from a texthooker |
 | **Clip** (anime/drama) | A `<video>` with in/out points, subtitles hidden or shown (JP/none), loop line, 0.75× speed, a "what did they say?" dictation and a shadowing overlay. | Short original or CC-licensed clips; official YouTube embeds (IFrame API start/end) for trailers and MVs, as links only, never downloaded | **Your own video and subtitle files**, opened, never copied. "Save this line" cuts only that line out of the playing video (`captureStream` → a few seconds of WebM) into IndexedDB on the device (`kurenai-os-ja-media`; not synced, not backed up). A saved line can join reviews as clip dictation |
 | **Song** | An audio/embed player with line-timed **user-supplied** lyrics | Official MV embed only; **no lyrics shipped** (copyright) | Lyrics you paste for your own use, stored locally |
 
