@@ -366,7 +366,7 @@
      carries the views inside it. ---- */
   var SECTION_OF = {
     home: "home",
-    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study",
+    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study", japanese: "study",
     tracker: "study", exams: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
@@ -390,6 +390,7 @@
       { label: "Mathematics", short: "Maths", view: "subject", arg: "maths", dot: "var(--maths)", count: "pc-maths", countHidden: true },
       { label: "IT · Data Analytics", short: "IT", view: "subject", arg: "it", dot: "var(--it)", count: "pc-it", countHidden: true },
       { label: "Code", short: "Code", view: "subject", arg: "code", dot: "var(--code)", count: "pc-code", countHidden: true },
+      { label: "Japanese", short: "Japanese", view: "subject", arg: "ja", dot: "var(--ja)", count: "pc-ja", countHidden: true },
       null,
       { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
       { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
@@ -427,6 +428,7 @@
   /* the landing view when a rail section button is pressed */
   KOS.sectionLanding = function (sec) {
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
+    if (sec === "japanese") return ["subject", "ja"];
     return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor",
       assistant: "assistant", system: "data" }[sec] || "home", undefined];
   };
@@ -1340,6 +1342,14 @@
        Skill map, Curriculum map — and Review, Assignments, Exams & Papers
        stay one tap away on every other subject */
     var inCode = sec === "study" && (viewId === "code" || (viewId === "subject" && arg === "code") || (viewId === "ref" && arg && arg.subject === "code"));
+    /* inside Japanese the loose pills are its own (frame 28a): Reviews with its count, and Kana */
+    var inJa = sec === "study" && (viewId === "japanese" || (viewId === "subject" && arg === "ja") || (viewId === "ref" && arg && arg.subject === "ja"));
+    if (inJa) {
+      var cutJ = items.indexOf(null);
+      items = items.slice(0, cutJ).concat([null,
+        { label: "Reviews", view: "japanese", arg: { page: "reviews" }, count: "pc-ja-due", tone: "neutral", page: "reviews" },
+        { label: "Kana", view: "japanese", arg: { page: "kana" }, page: "kana" }]);
+    }
     if (inCode) {
       var cut = items.indexOf(null);
       items = items.slice(0, cut).concat([null,
@@ -1355,6 +1365,7 @@
     var activeView = viewId, activeArg = arg;
     if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
     if (viewId === "code") { activeView = arg && (arg.page === "retrieval" || arg.page === "skills" || arg.page === "map") ? "code" : "subject"; activeArg = activeView === "code" ? arg.page : "code"; }
+    if (viewId === "japanese") { activeView = arg && (arg.page === "reviews" || arg.page === "kana") ? "japanese" : "subject"; activeArg = activeView === "japanese" ? arg.page : "ja"; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
     if (viewId === "due" || viewId === "cardstats") activeView = "review";
     if (viewId === "tracker") activeView = "exams";
@@ -1414,8 +1425,11 @@
     /* exactly one rail section lit: the one owning this view. Views outside
        any section (none today) highlight nothing. */
     var sec = SECTION_OF[viewId] || null;
+    /* Japanese's pages are Study's, but its own tile (語) is the one lit there */
+    var inJa = viewId === "japanese" || (viewId === "subject" && arg === "ja") || (viewId === "ref" && arg && arg.subject === "ja");
+    var railSec = inJa ? "japanese" : sec;
     document.querySelectorAll("[data-ui~='shell.rail-item']").forEach(function (b) {
-      var lit = !!sec && b.dataset.section === sec;
+      var lit = !!railSec && b.dataset.section === railSec;
       KOS.ui.state(b, "active", lit);
       if (lit) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });

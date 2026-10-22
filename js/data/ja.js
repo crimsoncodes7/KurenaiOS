@@ -52,42 +52,59 @@
   ITEMS["s:voicing"] = { key: "s:voicing", kind: "sound", w: "゛", r: "voicing", pairs: [["かき", "かぎ"], ["てんき", "でんき"], ["ふた", "ぶた"]] };
 
   var hira = [
-    lesson("k-h1", "kana-h", "あ and か rows", ["a", "ka"], "hiragana"),
-    lesson("k-h2", "kana-h", "さ and た rows", ["sa", "ta"], "hiragana"),
-    lesson("k-h3", "kana-h", "な and は rows", ["na", "ha"], "hiragana"),
-    lesson("k-h4", "kana-h", "ま, や and ら rows", ["ma", "ya", "ra"], "hiragana"),
-    lesson("k-h5", "kana-h", "わ, を and ん", ["wa"], "hiragana"),
-    lesson("k-h6", "kana-h", "Voiced sounds: ゛ and ゜", ["ga", "za", "da", "ba", "pa"], "hiragana", ["s:voicing"]),
-    lesson("k-h7", "kana-h", "Combined sounds: きゃ, しゅ, ちょ…", ["yoon"], "hiragana"),
-    lesson("k-h8", "kana-h", "Small っ, small kana and long vowels", ["small"], "hiragana", ["s:sokuon", "s:long"])
+    lesson("H1", "H", "あ and か rows", ["a", "ka"], "hiragana"),
+    lesson("H2", "H", "さ and た rows", ["sa", "ta"], "hiragana"),
+    lesson("H3", "H", "な and は rows", ["na", "ha"], "hiragana"),
+    lesson("H4", "H", "ま, や and ら rows", ["ma", "ya", "ra"], "hiragana"),
+    lesson("H5", "H", "わ, を and ん", ["wa"], "hiragana"),
+    lesson("H6", "H", "Voiced sounds: ゛ and ゜", ["ga", "za", "da", "ba", "pa"], "hiragana", ["s:voicing"]),
+    lesson("H7", "H", "Combined sounds: きゃ, しゅ, ちょ…", ["yoon"], "hiragana"),
+    lesson("H8", "H", "Small っ, small kana and long vowels", ["small"], "hiragana", ["s:sokuon", "s:long"])
   ];
   var kata = [
-    lesson("k-k1", "kana-k", "ア and カ rows", ["a", "ka"], "katakana"),
-    lesson("k-k2", "kana-k", "サ and タ rows", ["sa", "ta"], "katakana"),
-    lesson("k-k3", "kana-k", "ナ and ハ rows", ["na", "ha"], "katakana"),
-    lesson("k-k4", "kana-k", "マ, ヤ and ラ rows", ["ma", "ya", "ra"], "katakana"),
-    lesson("k-k5", "kana-k", "ワ, ヲ and ン", ["wa"], "katakana"),
-    lesson("k-k6", "kana-k", "Voiced sounds in katakana", ["ga", "za", "da", "ba", "pa"], "katakana"),
-    lesson("k-k7", "kana-k", "Combined sounds in katakana", ["yoon"], "katakana"),
-    lesson("k-k8", "kana-k", "ー, small kana and sounds for loanwords", ["small", "ext"], "katakana")
+    lesson("K1", "K", "ア and カ rows", ["a", "ka"], "katakana"),
+    lesson("K2", "K", "サ and タ rows", ["sa", "ta"], "katakana"),
+    lesson("K3", "K", "ナ and ハ rows", ["na", "ha"], "katakana"),
+    lesson("K4", "K", "マ, ヤ and ラ rows", ["ma", "ya", "ra"], "katakana"),
+    lesson("K5", "K", "ワ, ヲ and ン", ["wa"], "katakana"),
+    lesson("K6", "K", "Voiced sounds in katakana", ["ga", "za", "da", "ba", "pa"], "katakana"),
+    lesson("K7", "K", "Combined sounds in katakana", ["yoon"], "katakana"),
+    lesson("K8", "K", "ー, small kana and sounds for loanwords", ["small", "ext"], "katakana")
   ];
 
-  window.KOS_JA = {
-    STAGES: [
+  var STAGES = [
       { id: "s0", kanji: "仮", name: "Kana", units: [
-        { id: "kana-h", name: "Hiragana", lessons: hira, checkpoint: "cp-h" },
-        { id: "kana-k", name: "Katakana", lessons: kata, checkpoint: "cp-k" }] },
+        { id: "H", name: "Hiragana", lessons: hira, checkpoint: "cp-H" },
+        { id: "K", name: "Katakana", lessons: kata, checkpoint: "cp-K" }] },
       { id: "s1", kanji: "基", name: "Foundations", units: [] },
       { id: "s2", kanji: "橋", name: "Bridge", units: [] },
       { id: "s3", kanji: "中", name: "Intermediate", units: [] },
       { id: "s4", kanji: "上", name: "Upper intermediate", units: [] },
       { id: "s5", kanji: "達", name: "Advanced", units: [] }
-    ],
-    LESSONS: LESSONS,
-    ITEMS: ITEMS,
-    CHECKPOINTS: {
-      "cp-h": { id: "cp-h", unit: "kana-h", title: "Hiragana checkpoint", skills: ["R", "W", "L"] },
-      "cp-k": { id: "cp-k", unit: "kana-k", title: "Katakana checkpoint", skills: ["R", "W", "L"] }
-    }
+  ];
+  var CHECKPOINTS = {
+      "cp-H": { id: "cp-H", unit: "H", title: "Hiragana checkpoint", skills: ["R", "W", "L"] },
+      "cp-K": { id: "cp-K", unit: "K", title: "Katakana checkpoint", skills: ["R", "W", "L"] }
+  };
+
+  window.KOS_JA = { STAGES: STAGES, LESSONS: LESSONS, ITEMS: ITEMS, CHECKPOINTS: CHECKPOINTS };
+
+  /* the spine every Study surface reads (units → lessons), like KOS_DATA.code. Loading it is what
+     makes Japanese a live subject (invariant 112). */
+  window.KOS_DATA = window.KOS_DATA || {};
+  // the lesson's one-line can-do (§3): what the leaf shows where a subject shows its specification
+  function canDo(l) {
+    var kana = l.items.filter(function (k) { return k.indexOf("k:") === 0; }).map(function (k) { return k.slice(2); });
+    return (l.produce.length >= kana.length ? "Read and write " : "Read ") + (kana.length > 12 ? kana.length + " kana" : kana.join(" ")) + " by sight and by ear.";
+  }
+  window.KOS_DATA.ja = {
+    id: "ja", name: "Japanese", board: "Kana to native media",
+    labelL: "What this lesson teaches", labelR: "Where it leads",
+    sections: [].concat.apply([], STAGES.map(function (st, si) {
+      return st.units.map(function (u) {
+        return { ref: u.id, title: u.name, stage: si, kanji: st.kanji,
+          children: u.lessons.map(function (id) { return { ref: id, title: LESSONS[id].title, content: [canDo(LESSONS[id])] }; }) };
+      });
+    }))
   };
 })();

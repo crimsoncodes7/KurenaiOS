@@ -48,7 +48,7 @@ step("E · reads write nothing, even before Japanese was ever opened", () => {
 
 /* ---------------- A ---------------- */
 step("A · a session is one ledger entry, paid through KOS.ja.award", () => {
-  K.ja.startLesson("k-h1");
+  K.ja.startLesson("H1");
   const due = K.ja.due();
   assert(due.length >= 8, "lesson 1 is due: " + due.length);
   const n0 = jaEntries().length, x0 = xp();
@@ -64,7 +64,7 @@ step("A · a session is one ledger entry, paid through KOS.ja.award", () => {
 
 /* ---------------- B ---------------- */
 step("B · the daily cap is 30 XP across sessions", () => {
-  K.ja.startLesson("k-h2"); K.ja.startLesson("k-h3");
+  K.ja.startLesson("H2"); K.ja.startLesson("H3");
   const keys = Object.keys(K.store.state.japanese.facets).filter((k) => !K.store.state.japanese.facets[k].reps).slice(0, 40);
   const x0 = xp();
   const out1 = K.ja.finishSession(rateAll(keys.slice(0, 15)));
@@ -83,21 +83,21 @@ step("B · the daily cap is 30 XP across sessions", () => {
 /* ---------------- C ---------------- */
 step("C · a lesson pays once; a checkpoint passes at 80% and pays once", () => {
   const x0 = xp(), g0 = K.store.state.governor.gold;
-  const a = K.ja.finishLesson("k-h1");
+  const a = K.ja.finishLesson("H1");
   eq([a.paid, a.pay], [true, { xp: 15, gold: 2, hp: 3 }], "first finish");
   eq([xp() - x0, K.store.state.governor.gold - g0], [15, 2], "paid by the Governor");
-  const b = K.ja.finishLesson("k-h1");
+  const b = K.ja.finishLesson("H1");
   eq([b.paid, b.why], [false, "already finished"], "second finish");
   eq(xp() - x0, 15, "nothing more");
-  const miss = K.ja.recordCheckpoint("cp-h", { R: 0.95, W: 0.7, L: 0.9 });
+  const miss = K.ja.recordCheckpoint("cp-H", { R: 0.95, W: 0.7, L: 0.9 });
   eq([miss.pass, miss.weak, miss.paid], [false, ["W"], false], "W under 80%: not passed, W to rework");
   const x1 = xp();
-  const pass = K.ja.recordCheckpoint("cp-h", { R: 0.9, W: 0.85, L: 0.8 });
+  const pass = K.ja.recordCheckpoint("cp-H", { R: 0.9, W: 0.85, L: 0.8 });
   eq([pass.pass, pass.paid], [true, true], "retaken: passed and paid");
   eq(xp() - x1, 60, "60 XP");
-  const again = K.ja.recordCheckpoint("cp-h", { R: 1, W: 1, L: 1 });
+  const again = K.ja.recordCheckpoint("cp-H", { R: 1, W: 1, L: 1 });
   eq([again.pass, again.paid], [true, false], "a later pass pays nothing");
-  assert(K.store.state.japanese.checkpoints["cp-h"].passAt, "the pass is kept");
+  assert(K.store.state.japanese.checkpoints["cp-H"].passAt, "the pass is kept");
 });
 
 /* ---------------- D ---------------- */
@@ -130,10 +130,10 @@ step("F · the gate", () => {
   eq(K.ja.setSettings({ furigana: "loud", dailyMin: 500 }), { furigana: "unknown", dailyMin: 120, speech: false }, "clamped");
   eq(K.ja.setSettings({ furigana: "none", dailyMin: 5, speech: 1 }), { furigana: "none", dailyMin: 15, speech: true }, "clamped low");
   const n = K.ja.normalise({ facets: [], lessons: "x", v: 7 });
-  eq(Object.keys(n), ["v", "facets", "lessons", "checkpoints", "mined", "input", "settings"], "every part");
+  eq(Object.keys(n), ["v", "facets", "lessons", "checkpoints", "mined", "input", "settings", "fluency"], "every part");
   assert(!Array.isArray(n.facets) && typeof n.lessons === "object", "keyed maps, never arrays");
   K.store.state.japanese = { v: 1, facets: null };
-  assert(K.ja.startLesson("k-h4").length > 0 && K.store.state.japanese.facets["k:ま|R"], "a broken state is rebuilt on write");
+  assert(K.ja.startLesson("H4").length > 0 && K.store.state.japanese.facets["k:ま|R"], "a broken state is rebuilt on write");
   eq(app.errors, [], "window errors");
 });
 

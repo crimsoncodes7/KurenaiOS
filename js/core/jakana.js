@@ -28,7 +28,7 @@
     sha: "しゃ", shu: "しゅ", sho: "しょ", she: "しぇ", sya: "しゃ", syu: "しゅ", syo: "しょ",
     cha: "ちゃ", chu: "ちゅ", cho: "ちょ", che: "ちぇ", tya: "ちゃ", tyu: "ちゅ", tyo: "ちょ",
     ja: "じゃ", ju: "じゅ", jo: "じょ", je: "じぇ", jya: "じゃ", jyu: "じゅ", jyo: "じょ", zya: "じゃ", zyu: "じゅ", zyo: "じょ",
-    fa: "ふぁ", fi: "ふぃ", fe: "ふぇ", fo: "ふぉ", thi: "てぃ", dhi: "でぃ",
+    fa: "ふぁ", fi: "ふぃ", fe: "ふぇ", fo: "ふぉ", thi: "てぃ", dhi: "でぃ", vu: "ゔ", wi: "うぃ", we: "うぇ", twu: "とぅ", dwu: "どぅ",
     "-": "ー"
   };
   ["k", "g", "n", "h", "b", "p", "m", "r"].forEach(function (c) {

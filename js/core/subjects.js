@@ -26,7 +26,7 @@
     { id: "it", name: "IT · Data Analytics", short: "IT", hue: "var(--it)", hex: "#8A63A8", exam: true },
     { id: "code", name: "Code", short: "Code", hue: "var(--code)", hex: "#7AD0F0", exam: false },
     /* Japanese (roadmap 5.5): listed here, live once KOS_DATA.ja (its spine) is loaded */
-    { id: "ja", name: "Japanese", short: "Japanese", hue: "var(--ja)", hex: "#E27A4E", exam: false }
+    { id: "ja", name: "Japanese", short: "Japanese", hue: "var(--ja)", hex: "#F38372", exam: false }
   ];
   var BY = {};
   LIST.forEach(function (s) { BY[s.id] = s; });

@@ -42,6 +42,7 @@ step("KOS + content registry", () => {
 });
 step("every entry well-formed", () => {
   for (const [k, v] of Object.entries(window.KOS_CONTENT)) {
+    if (/^ja:/.test(k)) continue; // a Japanese lesson is pages, held by smoke82
     if (!v.notes || !v.notes.length) throw new Error(k + " has no notes");
     (v.quiz || []).forEach((q, i) => {
       if (q.ans === undefined || !q.opts || q.ans >= q.opts.length) throw new Error(k + " quiz " + i + " bad ans");

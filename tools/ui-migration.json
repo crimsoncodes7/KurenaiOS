@@ -81,6 +81,11 @@
     "js/core/codeui.js",
     "js/modules/code.js",
     "js/modules/codetopic.js",
+    "css/views/japanese.css",
+    "js/core/jaui.js",
+    "js/modules/jarun.js",
+    "js/modules/japanese.js",
+    "js/modules/jatopic.js",
     "css/views/money.css",
     "css/views/goals.css",
     "js/modules/money.js",
@@ -143,6 +148,11 @@
         "page": "map"
       }
     },
-    "money": {}
+    "money": {},
+    "japanese": {
+      "arg": {
+        "page": "kana"
+      }
+    }
   }
 }

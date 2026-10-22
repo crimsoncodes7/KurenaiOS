@@ -54,7 +54,7 @@
     return {
       v: 1,
       facets: obj(j.facets), lessons: obj(j.lessons), checkpoints: obj(j.checkpoints),
-      mined: obj(j.mined), input: obj(j.input), settings: settings(j.settings)
+      mined: obj(j.mined), input: obj(j.input), settings: settings(j.settings), fluency: obj(j.fluency)
     };
   }
   function S() {
@@ -102,7 +102,68 @@
   function markPage(id, i) {
     var rec = S().lessons[id] = obj(S().lessons[id]);
     rec.pages = obj(rec.pages);
-    if (!rec.pages[i]) { rec.pages[i] = Date.now(); store.save(); }
+    if (!rec.pages[i]) { rec.pages[i] = Date.now(); store.save(); syncChecks(id); }
+  }
+  /* markHeard(id, key): an example line played (evidence for "Heard every example") */
+  function markHeard(id, key) {
+    var rec = S().lessons[id] = obj(S().lessons[id]);
+    rec.heard = obj(rec.heard);
+    if (!rec.heard[key]) { rec.heard[key] = Date.now(); store.save(); syncChecks(id); }
+  }
+
+  /* ---------------- evidence → the shared progress record ---------------- */
+  var CHECKS = ["Read the notes", "Heard every example", "Passed the practice", "Held in reviews"];
+  function content(id) { return (window.KOS_CONTENT || {})["ja:" + id] || null; }
+  function pagesOf(id) { var c = content(id); return c && c.pages ? c.pages : []; }
+  function linesOf(id) {
+    var out = [];
+    pagesOf(id).forEach(function (pg) { (pg.blocks || []).forEach(function (b) { if (b.line) out.push(b.line.ja); }); });
+    return out;
+  }
+  /* evidence(id) → { checks[4], read, pages, heard, lines, practised, held, items } — a read */
+  function evidence(id) {
+    var l = lesson(id), j = peek(), rec = obj(j.lessons[id]);
+    var pages = pagesOf(id).length, read = Object.keys(obj(rec.pages)).filter(function (i) { return +i < pages; }).length;
+    var lines = linesOf(id), heard = lines.filter(function (t) { return obj(rec.heard)[t]; }).length;
+    var items = l ? l.items : [], rf = items.map(function (k) { return j.facets[k + "|R"] || j.facets[k + "|L"]; });
+    var held = rf.filter(function (f) { return f && f.reps >= 2 && f.s >= T().HOLD; }).length;
+    var checks = [pages > 0 && read >= pages, lines.length > 0 ? heard >= lines.length : read >= pages && pages > 0, !!rec.doneAt, items.length > 0 && held === items.length];
+    return { checks: checks, read: read, pages: pages, heard: heard, lines: lines.length, practised: !!rec.doneAt, held: held, items: items.length };
+  }
+  /* syncChecks(id): the four checks written to the shared progress record, from evidence only
+     (as Code's, invariant 107): the status follows them by itself */
+  function syncChecks(id) {
+    if (!lesson(id) || !store.setCheck) return;
+    var ev = evidence(id), p = store.peekProgress ? store.peekProgress(SID, id) : null;
+    var cur = p && p.check ? p.check : [false, false, false, false];
+    ev.checks.forEach(function (on, i) { if (!!cur[i] !== on) store.setCheck(SID, id, i, on); });
+  }
+  /* unitState(unit) → { state: done | current | later, done, total, next } */
+  function unitState(uid) {
+    var j = peek(), us = [];
+    (J().STAGES || []).forEach(function (st) { st.units.forEach(function (u) { us.push(u); }); });
+    var u = us.filter(function (x) { return x.id === uid; })[0];
+    if (!u) return { state: "later", done: 0, total: 0, next: null };
+    var done = u.lessons.filter(function (id) { return j.lessons[id] && j.lessons[id].doneAt; }).length;
+    var next = u.lessons.filter(function (id) { return !(j.lessons[id] && j.lessons[id].doneAt); })[0] || null;
+    var firstOpen = us.filter(function (x) { return x.lessons.some(function (id) { return !(j.lessons[id] && j.lessons[id].doneAt); }); })[0];
+    var state = done === u.lessons.length ? "done" : firstOpen && firstOpen.id === uid ? "current" : "later";
+    return { state: state, done: done, total: u.lessons.length, next: next ? lesson(next) : null };
+  }
+  /* checkpointState(id) → passed | next (its unit done) | later */
+  function checkpointState(id) {
+    var cp = (J().CHECKPOINTS || {})[id], rec = peek().checkpoints[id];
+    if (rec && rec.passAt) return "passed";
+    return cp && unitState(cp.unit).state === "done" ? "next" : "later";
+  }
+  /* stats() → the desk's figures, derived once (invariant 26d) */
+  function stats() {
+    var j = peek(), ls = lessons(), done = ls.filter(function (l) { return j.lessons[l.id] && j.lessons[l.id].doneAt; }).length;
+    var cps = Object.keys(J().CHECKPOINTS || {}), passed = cps.filter(function (c) { return j.checkpoints[c] && j.checkpoints[c].passAt; }).length;
+    var mastery = ls.length ? Math.round(ls.reduce(function (a, l) { return a + 25 * evidence(l.id).checks.filter(Boolean).length; }, 0) / ls.length) : 0;
+    var sk = skills();
+    return { lessons: ls.length, done: done, checkpoints: cps.length, passed: passed, mastery: mastery, due: due().length,
+      kanaRead: sk.kanaRead, kanjiRead: sk.kanjiRead, wordsStable: sk.words.R, skills: sk };
   }
 
   /* record(facetKey, result) → { grade, facet, unlocked } — one answer, scheduled. result is the
@@ -121,6 +182,24 @@
     }
     store.save();
     return { grade: g, facet: f, unlocked: Object.keys(st.facets).slice(keys) };
+  }
+
+  /* noteSpeed(kind, ms): a timed answer for the fluency figures (the kana drill's reading time);
+     the last 30 kept, per kind */
+  function noteSpeed(kind, ms) {
+    if (!(ms > 0) || ms > 60000) return;
+    var f = S().fluency = obj(S().fluency), list = Array.isArray(f[kind]) ? f[kind].slice(-29) : [];
+    list.push(Math.round(ms)); f[kind] = list; store.save();
+  }
+  function median(list) { if (!list || !list.length) return null; var a = list.slice().sort(function (x, y) { return x - y; }); return a[a.length >> 1]; }
+  /* fluency() → { kanaMs, kanaN } — derived from timed answers, never self-reported */
+  function fluency() { var f = obj(peek().fluency); return { kanaMs: median(f.kana), kanaN: (f.kana || []).length }; }
+  /* rework() → facets that keep slipping: 4+ lapses, or 3 in Speaking (28c) */
+  function rework() {
+    var j = peek();
+    return Object.keys(j.facets).filter(function (k) { var f = j.facets[k], s = T().split(k).skill; return f.lapses >= (s === "S" ? 3 : 4); })
+      .map(function (k) { var p = T().split(k); return { key: k, item: item(p.item), skill: p.skill, lapses: j.facets[k].lapses }; })
+      .filter(function (r) { return r.item; }).sort(function (a, b) { return b.lapses - a.lapses; });
   }
 
   /* paidToday() → review XP already paid today, from today's ledger */
@@ -153,6 +232,7 @@
     if (rec.paidAt) { store.save(); return { paid: false, why: "already finished", at: rec.paidAt }; }
     rec.paidAt = Date.now();
     KOS.sessions.log({ type: "ja", subject: SID, ref: id, metrics: { kind: "lesson", id: id, first: true } });
+    syncChecks(id);
     return { paid: true, pay: LESSON_PAY };
   }
 
@@ -209,6 +289,8 @@
   function setSettings(patch) { var st = S(); st.settings = settings(Object.assign({}, st.settings, patch)); store.save(); return st.settings; }
 
   /* ---------------- derived reads (a render writes nothing) ---------------- */
+  /* started() — has Japanese been begun on this account? (Home lists its desk only then) */
+  function started() { var j = peek(); return Object.keys(j.facets).length > 0 || Object.keys(j.lessons).length > 0; }
   function due(t) { var j = peek(); return T().queue(j.facets, t || today(), KOS.srs.weights()); }
 
   /* nextLesson() → the first lesson not yet finished, in path order */
@@ -300,10 +382,12 @@
 
   KOS.ja = {
     SID: SID, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces,
-    startLesson: startLesson, markPage: markPage, record: record, finishSession: finishSession, finishLesson: finishLesson,
+    startLesson: startLesson, markPage: markPage, markHeard: markHeard, evidence: evidence, syncChecks: syncChecks,
+    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson,
     recordCheckpoint: recordCheckpoint, award: award, paidToday: paidToday,
     mine: mine, addInput: addInput, setSettings: setSettings,
-    due: due, nextLesson: nextLesson, planDay: planDay, skills: skills, timeline: timeline,
+    noteSpeed: noteSpeed, fluency: fluency, rework: rework,
+    started: started, due: due, nextLesson: nextLesson, planDay: planDay, skills: skills, timeline: timeline,
     peek: peek, ui: U,
     PAY: { review: REVIEW_XP, reviewCap: REVIEW_CAP, lesson: LESSON_PAY, checkpoint: CHECK_PAY, gate: GATE_PAY }, PASS: PASS, MILESTONES: MILESTONES
   };

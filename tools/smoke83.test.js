@@ -57,7 +57,7 @@ step("B · grades are derived, never chosen", () => {
     S.gradeOf({ verdict: "accepted", ms: 100 }, 4000), S.gradeOf({ verdict: "correct", ms: 3000 }, 4000),
     S.gradeOf({ verdict: "correct", ms: 9000 }, 4000)], [1, 2, 2, 3, 4, 3], "the grade table");
   eq(S.gradeOf({ verdict: "correct", selfMarked: true }), null, "self-marked: no grade");
-  K.ja.startLesson("k-h1");
+  K.ja.startLesson("H1");
   const before = JSON.stringify(K.store.state.japanese.facets["k:あ|R"]);
   const r = K.ja.record("k:あ|R", { verdict: "correct", selfMarked: true });
   eq(r.grade, null, "record: no grade");

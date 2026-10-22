@@ -31,9 +31,9 @@ const run = (src, stdin) => CSI.run({ files: [{ name: "Program.cs", src }], stdi
 const out = (src, stdin) => { const r = run(src, stdin); if (!r.ok) throw new Error(src + " → " + JSON.stringify(r.error)); return r.stdout; };
 const err = (src) => { const r = run(src); return r.ok ? null : r.error.code; };
 
-step("A · four subjects; Code is not an exam subject", async (app) => {
+step("A · the subjects; Code is not an exam subject", async (app) => {
   const S = app.KOS.subjects;
-  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code"]), "ids: " + S.ids());
+  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja"]), "ids (Japanese is the fifth, smoke80): " + S.ids());
   assert(JSON.stringify(S.ids("exam")) === JSON.stringify(["compsci", "maths", "it"]), "exam ids: " + S.ids("exam"));
   assert(S.hue("code") === "var(--code)" && S.short("code") === "Code", "Code's hue and short name");
   assert(app.KOS.hub.LEAVES.code.length === 131, "131 core lessons on the spine, got " + app.KOS.hub.LEAVES.code.length);

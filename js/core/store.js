@@ -48,7 +48,7 @@
     /* Japanese (roadmap 5.5, core/ja.js): facets (item × skill, on KOS.fsrs), lesson and
        checkpoint evidence, mined lines, input tallies and settings — keyed maps throughout */
     japanese: { v: 1, facets: {}, lessons: {}, checkpoints: {}, mined: {}, input: {},
-      settings: { furigana: "unknown", dailyMin: 40, speech: false } },
+      settings: { furigana: "unknown", dailyMin: 40, speech: false }, fluency: {} },
     worked: { last: null },
     trace: {},
 

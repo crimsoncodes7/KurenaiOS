@@ -18,7 +18,7 @@
 <!-- the Graphite design's four families (UI rebuild; docs/ui-rebuild/PLAN.md) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Shippori+Mincho:wght@600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Shippori+Mincho:wght@600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Noto+Sans+JP:wght@400;500;700&family=Klee+One:wght@600&display=swap">
 <!-- the presentation layer: one file per cascade layer; the order of the
      layers is declared once, at the top of tokens.css -->
 <link rel="stylesheet" href="css/tokens.css">
@@ -35,6 +35,7 @@
 <link rel="stylesheet" href="css/views/labs.css">
 <link rel="stylesheet" href="css/views/reports.css">
 <link rel="stylesheet" href="css/views/code.css">
+<link rel="stylesheet" href="css/views/japanese.css">
 <link rel="stylesheet" href="css/views/money.css">
 <link rel="stylesheet" href="css/views/goals.css">
 <link rel="stylesheet" href="css/views/exams.css">
@@ -101,6 +102,8 @@
       <button id="rail-toggle" class="k-rail-toggle" type="button" aria-label="Collapse sidebar" title="Collapse / expand sidebar">‹</button>
       <button class="k-rail-item" data-ui="shell.rail-item" data-section="home" data-view="home" type="button"><span class="k-rail-tile" lang="ja" aria-hidden="true">灯</span><span class="k-rail-label" data-ui="shell.rail-label part.text">Home</span></button>
       <button class="k-rail-item" data-ui="shell.rail-item" data-section="study" data-view="subject" type="button"><span class="k-rail-tile" lang="ja" aria-hidden="true">学</span><span class="k-rail-label" data-ui="shell.rail-label part.text">Study</span><span class="k-rail-count" id="pc-due"></span></button>
+      <!-- Japanese (roadmap 5.5, frame 28a): its own tile under Study; lit on Japanese pages -->
+      <button class="k-rail-item" data-ui="shell.rail-item" data-section="japanese" data-view="subject" type="button"><span class="k-rail-tile" lang="ja" aria-hidden="true">語</span><span class="k-rail-label" data-ui="shell.rail-label part.text">Japanese</span></button>
       <button class="k-rail-item" data-ui="shell.rail-item" data-section="productivity" data-view="focus" type="button"><span class="k-rail-tile" lang="ja" aria-hidden="true">整</span><span class="k-rail-label" data-ui="shell.rail-label part.text">Productivity</span></button>
       <button class="k-rail-item" data-ui="shell.rail-item" data-section="collection" data-view="matrix" type="button"><span class="k-rail-tile" lang="ja" aria-hidden="true">蒐</span><span class="k-rail-label" data-ui="shell.rail-label part.text">Collection</span></button>
       <button class="k-rail-item" data-ui="shell.rail-item" data-section="governor" data-view="governor" type="button"><span class="k-rail-tile" lang="ja" aria-hidden="true">守</span><span class="k-rail-label" data-ui="shell.rail-label part.text">Governor</span></button>
@@ -236,6 +239,7 @@
 <script src="js/core/coderun.js"></script>
 <script src="js/core/code.js"></script>
 <script src="js/core/ja.js"></script>
+<script src="js/core/jaui.js"></script>
 <script src="js/core/codezip.js"></script>
 <script src="js/core/codeproj.js"></script>
 <script src="js/core/codegit.js"></script>
@@ -345,6 +349,7 @@
 <script src="js/data/content/code-c3.js"></script>
 <script src="js/data/content/code-ub.js"></script>
 <script src="js/data/content/code-projects-files.js"></script>
+<script src="js/data/content/ja-s0.js"></script>
 <!-- engines -->
 <script src="js/engines/flashcards.js"></script>
 <script src="js/engines/quiz.js"></script>
@@ -355,6 +360,9 @@
 <script src="js/modules/code.js"></script>
 <script src="js/modules/codecap.js"></script>
 <script src="js/modules/coderider.js"></script>
+<script src="js/modules/jarun.js"></script>
+<script src="js/modules/japanese.js"></script>
+<script src="js/modules/jatopic.js"></script>
 <!-- the IT desk: the qualification aggregate and the units table (frames 18a–18c) -->
 <script src="js/modules/itdesk.js"></script>
 <script src="js/modules/due.js"></script>

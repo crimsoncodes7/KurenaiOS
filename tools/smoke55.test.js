@@ -246,8 +246,8 @@ step("the page carries no petal backdrop, and loads only the Graphite families",
   const fonts = [...html.matchAll(/href="(https:\/\/fonts\.googleapis\.com\/css2\?[^"]+)"/g)].map(m => m[1]);
   assert(fonts.length === 1, "expected one Google Fonts stylesheet, found " + fonts.length);
   const families = [...fonts[0].matchAll(/family=([^:&]+)/g)].map(m => m[1].replace(/\+/g, " ")).sort();
-  assert(JSON.stringify(families) === JSON.stringify(["JetBrains Mono", "Newsreader", "Onest", "Shippori Mincho"]),
-    "the page loads " + families.join(", ") + " — the design specifies Onest, JetBrains Mono, Shippori Mincho and Newsreader");
+  assert(JSON.stringify(families) === JSON.stringify(["JetBrains Mono", "Klee One", "Newsreader", "Noto Sans JP", "Onest", "Shippori Mincho"]),
+    "the page loads " + families.join(", ") + " — the design specifies Onest, JetBrains Mono, Shippori Mincho and Newsreader, and Japanese adds Noto Sans JP and Klee One (design turn 28)");
   /* M14: the legacy-class bridge is retired — nothing derives hooks from a class */
   assert(!fs.existsSync(path.join(ROOT, "js", "core", "ui-hooks.js")), "the legacy-class bridge js/core/ui-hooks.js is back");
   assert(!/ui-hooks\.js/.test(read("index.html")), "index.html loads the retired legacy-class bridge");

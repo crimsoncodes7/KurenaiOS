@@ -72,10 +72,11 @@ color-scheme: dark;
    use it; they keep the fixed green and red with a mark and a word. */
 --code: oklch(0.815 0.095 224);
 --code-ink: oklch(0.22 0.03 224);
-/* Japanese, the fifth study space (朱 shu, docs/japanese-plan.md decision F; each shop theme
-   restates it clear of its own accent and Code hue — provisional until design turn 28). */
---ja: oklch(0.72 0.15 42);
---ja-ink: oklch(0.2 0.04 42);
+/* Japanese, the fifth study space: 珊瑚 Sango (design turn 28, chosen over Shu). It sits near the
+   crimson accent, so a Sango chip never stands unlabelled beside a crimson button; each shop theme
+   restates it clear of its own accent and Code hue. Never pass or fail. */
+--ja: oklch(0.73 0.14 30);
+--ja-ink: oklch(0.2 0.04 30);
 --anime: oklch(0.72 0.13 250);
 --books: oklch(0.78 0.11 70);
 --vn: oklch(0.72 0.14 330);
@@ -107,6 +108,13 @@ color-scheme: dark;
 --font-ui: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 --font-kanji: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+/* Japanese (design 28·type): body text, the model glyph to copy, and their metrics */
+--font-ja: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+--font-hand: "Klee One", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif;
+--ja-lh: 2;
+--ja-lh-20: 1.9;
+--ja-lh-28: 1.8;
+--ja-ruby: 0.5em;
 --font-read: "Newsreader", "Iowan Old Style", Georgia, serif;
 
 /* 11 is the floor (invariant 63); 13.5 is body */
@@ -348,6 +356,22 @@ color-scheme: dark;
 
 /* ---------- Study (frames 8a–9e) ---------- */
 --subj-side-w: 290px;
+/* Japanese (design turn 28) */
+--ja-insp-w: 300px;
+--ja-unit-w: 196px;
+--ja-runner-w: 640px;
+--ja-genko: 300px;
+--ja-genko-md: 260px;
+--ja-genko-sm: 200px;
+--ja-model: 120px;
+--ja-kana-tile: 200px;
+--ja-chart-cell: 44px;
+--ja-radar: 190px;
+--ja-stone: 40px;
+--ja-seal: 96px;
+--ja-seal-sm: 64px;
+--ja-scene-w: 820px;
+--ja-opt-h: 50px;
 --subj-ring: 132px;
 --subj-ring-hole: 114px;
 --subj-go: 34px;
