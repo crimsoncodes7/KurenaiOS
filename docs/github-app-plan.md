@@ -37,10 +37,12 @@ IndexedDB.
 
 - **Permissions:** Repository Contents: read and write; Metadata: read
   (implied). Nothing else: no issues, no workflows, no account access.
-- **Installation:** "Only select repositories", one of them. The App's
-  Setup URL returns to `https://kurenai-os.pages.dev/#/code/settings` with
-  `installation_id` and, because "Request user authorization (OAuth)
-  during installation" is on, a `code`.
+- **Installation:** "Only select repositories", one of them. Because
+  "Request user authorization (OAuth) during installation" is on, GitHub
+  returns to the Callback URL (`https://kurenai-os.pages.dev/`) with a
+  `code`, perhaps `installation_id`, and NO `state` (GitHub does not pass
+  it through the install-time flow). The app's nonce only says this device
+  started a connect; the proof is the function's ownership check (§5).
 - **Why an installation token and not a user token:** it can only touch
   the repositories you installed it on, and it expires in an hour. A user
   token can act as you everywhere you have access.
@@ -49,9 +51,9 @@ IndexedDB.
 
 ```
 Code settings ─ "Connect with GitHub" ─► github.com/apps/<slug>/installations/new
-   (state = a random nonce, kept in sessionStorage)
-github.com ─ install on one repo ─► back to #/code/settings?installation_id=…&code=…&state=…
-device ─ POST github-token {action:"link", installation_id, code} (Supabase JWT) ─►
+   (a nonce in sessionStorage: this device started a connect)
+github.com ─ install on one repo ─► back to https://kurenai-os.pages.dev/?code=…[&installation_id=…]
+device ─ POST github-token {action:"link", code, installation_id?} (Supabase JWT) ─►
    Edge Function:
      1. exchange `code` for a user token (client id + secret), once, in memory
      2. GET /user/installations with it: the installation must be listed,
@@ -110,8 +112,9 @@ device ─ keeps it in memory until 5 minutes before it expires, then asks again
 
 1. GitHub → Settings → Developer settings → GitHub Apps → New:
    - name "KurenaiOS (yours)", homepage the app's URL;
-   - Setup URL `https://kurenai-os.pages.dev/#/code/settings`, with
-     "Request user authorization (OAuth) during installation" on;
+   - Callback (Redirect) URL `https://kurenai-os.pages.dev/`, with
+     "Request user authorization (OAuth) during installation" on (the Setup
+     URL is then unavailable: GitHub returns to the callback);
    - no webhook;
    - permissions: Contents read and write;
    - "Only on this account".

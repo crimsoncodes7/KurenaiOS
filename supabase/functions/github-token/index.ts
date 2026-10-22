@@ -2,11 +2,15 @@
    docs/github-app-plan.md). Code → GitHub through YOUR installation of a
    KurenaiOS GitHub App, so no device ever holds a long-lived token.
 
-   POST { action:"link", installation_id, code }  (Supabase JWT)
+   POST { action:"link", code, installation_id? }  (Supabase JWT)
      → exchanges `code` (OAuth during installation) for a user token, once,
        in memory; the installation must be listed in that user's own
-       /user/installations (the ownership proof) and reach exactly one
-       repository; stores {installation_id, repo, account} in kos_github
+       /user/installations (the ownership proof — a user token of this App
+       sees only this App's installations, and the App installs only on its
+       owner's account, so a forged return has nothing to link). GitHub's
+       install-time OAuth sends no `state` and may send no installation id:
+       without one, the user's single installation is taken. It must reach
+       exactly one repository; stores {installation_id, repo, account} in kos_github
        (service role only) → 200 { repo, account, branch }
    POST { action:"token" }   → a one-hour installation token for the linked
        repository, Contents write only → 200 { token, expires_at, repo }
@@ -70,9 +74,9 @@ Deno.serve(async (req) => {
   if (!c) return json({ error: "The GitHub App isn't configured on the server yet." }, 503);
 
   if (input.action === "link") {
-    const inst = Number(input.installation_id);
+    const inst = input.installation_id == null || input.installation_id === "" ? null : Number(input.installation_id);
     const code = typeof input.code === "string" ? input.code.trim() : "";
-    if (!Number.isInteger(inst) || inst <= 0 || !/^[A-Za-z0-9_-]{6,100}$/.test(code)) return json({ error: "The installation's details are missing." }, 400);
+    if ((inst !== null && (!Number.isInteger(inst) || inst <= 0)) || !/^[A-Za-z0-9_-]{6,100}$/.test(code)) return json({ error: "The installation's details are missing." }, 400);
     const tok = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json", "User-Agent": UA },
@@ -83,12 +87,12 @@ Deno.serve(async (req) => {
     /* the ownership proof: the installation is one of THIS user's */
     const mine = await gh("GET", "/user/installations?per_page=100", `Bearer ${userToken}`);
     const list = (mine.json?.installations ?? []) as { id: number; account?: { login?: string } }[];
-    const hit = list.find((i) => i.id === inst);
-    if (!hit) return json({ error: "That installation isn't yours." }, 403);
-    const repos = await gh("GET", `/user/installations/${inst}/repositories?per_page=5`, `Bearer ${userToken}`);
+    const hit = inst !== null ? list.find((i) => i.id === inst) : list.length === 1 ? list[0] : undefined;
+    if (!hit) return json({ error: inst !== null || !list.length ? "That installation isn't yours." : "More than one installation: open the App's settings on GitHub and keep one." }, inst !== null || !list.length ? 403 : 409);
+    const repos = await gh("GET", `/user/installations/${hit.id}/repositories?per_page=5`, `Bearer ${userToken}`);
     const rs = (repos.json?.repositories ?? []) as { full_name: string; default_branch?: string; private?: boolean }[];
     if (rs.length !== 1) return json({ error: rs.length ? "Install the App on exactly one repository." : "The App can't see a repository yet." }, 409);
-    const row = { user_id: uid, installation_id: inst, repo: rs[0].full_name, account: hit.account?.login ?? "" };
+    const row = { user_id: uid, installation_id: hit.id, repo: rs[0].full_name, account: hit.account?.login ?? "" };
     const up = await serviceRest("kos_github", {
       method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(row),
     });

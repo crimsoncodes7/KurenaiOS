@@ -104,8 +104,12 @@ step("B · connecting through the App", async () => {
   const bad = await G.completeApp(new URLSearchParams("installation_id=42&code=abcdef123&state=forged"));
   assert(!bad.ok && /did not come from this app/.test(bad.why), "a return with another state is refused");
   eq([G.cfg().via, G.cfg().repo, edgeCalls.length], ["token", "", 0], "and changes nothing");
+  const stray = await G.completeApp(new URLSearchParams("code=abcdef123"));
+  assert(!stray.ok && edgeCalls.length === 0, "a return this device did not start is refused");
+  /* GitHub's install-time OAuth comes back with a code, maybe the
+     installation, and NO state: the function's ownership check decides */
   app.window.sessionStorage.setItem("kos.gh.state", state);
-  const good = await G.completeApp(new URLSearchParams("installation_id=42&code=abcdef123&state=" + state));
+  const good = await G.completeApp(new URLSearchParams("code=abcdef123&installation_id=42&setup_action=install"));
   eq([good.ok, good.repo, G.cfg().via, G.cfg().repo, G.cfg().mode], [true, REPO, "app", REPO, "checkpoint"], "linked through the function");
   eq(K.store.state.code.github.via, "app", "the link is in the synced state");
 });
@@ -143,6 +147,7 @@ step("D · the card", async () => {
 step("E · the server side", () => {
   const src = fs.readFileSync(path.join(ROOT, "supabase/functions/github-token/index.ts"), "utf8");
   assert(/requireUserId/.test(src) && !/console\.(log|warn|error|info|debug)/.test(src), "JWT checked, nothing logged");
+  assert(/list\.length === 1 \? list\[0\]/.test(src), "with no installation id, the user's single installation is taken");
   const link = src.indexOf("/user/installations?"), store = src.indexOf("serviceRest(\"kos_github\"");
   assert(link > 0 && store > link, "ownership is proved before a link is stored");
   assert(/repositories: \[name\], permissions: \{ contents: "write" \}/.test(src), "one repository, Contents write");

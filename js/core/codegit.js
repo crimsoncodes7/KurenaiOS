@@ -135,8 +135,11 @@
     if (!signedIn()) return "signed-out";
     return null;
   }
-  /* to GitHub's install page; the Setup URL brings us back to the app
-     with ?installation_id&code&state, which completeApp() takes */
+  /* to GitHub's install page. With "Request user authorization (OAuth)
+     during installation" GitHub returns to the Callback URL with ?code
+     (and maybe installation_id) but NO state, so the nonce here only says
+     this device started a connect; the ownership proof is the function's
+     (the installation must be in the user's own installations). */
   function connectApp() {
     var why = appBlocked();
     if (why) return Promise.resolve({ ok: false, why: why === "signed-out" ? "Sign in to cloud sync first." : "The GitHub App isn't set up for this app yet." });
@@ -150,9 +153,10 @@
     var inst = params.get("installation_id"), code = params.get("code"), state = params.get("state");
     var want = null;
     try { want = sessionStorage.getItem("kos.gh.state"); sessionStorage.removeItem("kos.gh.state"); } catch (e) { want = null; }
-    if (!inst || !code) return Promise.resolve({ ok: false, why: "GitHub did not send the installation back." });
-    if (!want || want !== state) return Promise.resolve({ ok: false, why: "That GitHub return did not come from this app. Connect again." });
-    return edge({ action: "link", installation_id: Number(inst), code: code }).then(function (r) {
+    if (!code) return Promise.resolve({ ok: false, why: "GitHub did not send the sign-in back. Connect again." });
+    /* a connect this device did not start, or a state that is not ours */
+    if (!want || (state && state !== want)) return Promise.resolve({ ok: false, why: "That GitHub return did not come from this app. Connect again." });
+    return edge({ action: "link", installation_id: inst ? Number(inst) : null, code: code }).then(function (r) {
       appToken = null;
       setCfg({ repo: r.repo, branch: r.branch || "main", via: "app", mode: cfg().mode === "off" ? "checkpoint" : cfg().mode });
       changed();
@@ -326,7 +330,7 @@
   function boot() {
     /* back from GitHub's install page: take the query off the address at
        once, then link when the cloud session is ready (it restores async) */
-    if (typeof location !== "undefined" && /[?&]installation_id=/.test(location.search)) {
+    if (typeof location !== "undefined" && /[?&]code=/.test(location.search)) {
       var params = new URLSearchParams(location.search);
       try { history.replaceState(null, "", location.pathname + (location.hash || "")); } catch (e) { /* file:// */ }
       var tries = 0;
