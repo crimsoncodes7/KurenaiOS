@@ -1056,6 +1056,15 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.5 Japanese: a study space for the four skills ◆ (asked for 17 October 2026)
 
+> **Status (22 October 2026): PLATFORM RELEASED** (`d061169`, sw
+> `kos-japanese-1`, https://6a6bcfa7.kurenai-os.pages.dev). Plan §17 step 1:
+> the backend (model, facet scheduler, kana, conjugation, validators,
+> strokes), the pages drawn to design turn 28 (the desk, the lesson, the
+> session, Kana, Skills, the path, checkpoints, settings, licences) and
+> Stage 0's sixteen kana lessons; smokes 80–83. Next: Stage 1, one unit a
+> release; the reader, media and immersion pages (28h, 28i, 28l); the baked
+> audio packs (KOS Akari 2, KOS Yota 2, VOICEVOX).
+
 > **Status (17 October 2026): slice closed; integration next.** The plan is
 > [japanese-plan.md](japanese-plan.md) revision 3.1. The throwaway vertical
 > slice in `prototypes/japanese-space/` (plan §16) met every criterion on

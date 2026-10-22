@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `87f9437` — immutable deployment
+- Latest release: `d061169` — immutable deployment
+  https://6a6bcfa7.kurenai-os.pages.dev (22 October 2026; `feat/japanese`:
+  the Japanese platform release, roadmap 5.5 — the backend, the pages from
+  design turn 28 and Stage 0's sixteen kana lessons). Before it `87f9437`,
   https://982f307b.kurenai-os.pages.dev (22 October 2026; `feat/ipad`: the
   iPad layout, roadmap 6.0 — the rail opens over the page at 701–1080px,
   topic pages no longer collapse at 1081–1240px). Before it `13cef94`,
@@ -34,14 +37,15 @@ chronological diary here.
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
-  `feat/after-fsrs`, then to `feat/ipad`, so
+  `feat/after-fsrs`, then to `feat/ipad`, then to `feat/japanese`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
 - In flight: Japanese (roadmap 5.5, [`docs/japanese-plan.md`](docs/japanese-plan.md)
   revision 3.2), branch `feat/japanese`. The vertical slice in
   `prototypes/japanese-space/` is closed on real data. The platform release
-  (plan §17) is built on the branch, not yet released: the backend (the
+  (plan §17) was RELEASED on 22 October 2026 (`d061169`, sw
+  `kos-japanese-1`): the backend (the
   model, the facet scheduler, kana, conjugation, validators, strokes;
   invariants 112–118, smoke81 and smoke83), the pages drawn to design turn
   28 (`js/core/jaui.js`, `js/modules/japanese.js`, `jatopic.js`, `jarun.js`,
