@@ -1,6 +1,6 @@
 ---
 name: japanese-study-space
-description: "Japanese study space (roadmap 5.5), plan rev 3.2; on feat/japanese the backend (6655440) and the pages + Stage 0 lessons (d5591f5) are built, gate 98/98; NOT released"
+description: "Japanese study space (roadmap 5.5), plan rev 3.2; PLATFORM RELEASED 2026-10-22 (d061169, sw kos-japanese-1): backend, pages, Stage 0 kana lessons; next Stage 1 units"
 metadata:
   node_type: memory
   type: project
@@ -27,7 +27,7 @@ Measured on the user's real data (results file in ~/Downloads, not committed):
 Gotchas: the app's service worker on localhost:8123 serves prototype files stale — reload twice after edits. Safari cannot cut clips (no captureStream) and Web Speech differs → user tests in Chrome. The user can't read kana: any speaking task needs ▶ Hear + a romaji guide.
 
 **Why:** the user reviews plans first, then a throwaway slice, then integration.
-**State 2026-10-22:** feat/japanese has the backend (6655440) and the pages from design turn 28 + Stage 0's 16 lessons (d5591f5; smoke80/82; gate 98/98). Not deployed. Lesson leaves need non-empty `content` in KOS_DATA.ja or hub's BYREF skips them. Left: reader/media/immersion (28h/28i/28l), sw VERSION bump and a deploy go-ahead.
+**State 2026-10-22:** feat/japanese has the backend (6655440) and the pages from design turn 28 + Stage 0's 16 lessons (d5591f5; smoke80/82; gate 98/98). RELEASED 2026-10-22 as d061169 (sw kos-japanese-1, https://6a6bcfa7.kurenai-os.pages.dev); main fast-forwarded. Lesson leaves need non-empty `content` in KOS_DATA.ja or hub's BYREF skips them. Left: reader/media/immersion (28h/28i/28l), Stage 1 units one per release, baked audio packs.
 **How to apply:** the plan §17 platform release (registry, hue, routes, desk, model, scheduler, validators, engine, audio, Stage 0 kana, smokes 80–83) — only when the user asks.
 
 Voices (plan §4.4, rev 3.2, blind bake-off 2026-10-22): ElevenLabs for the cast's dialogue (voices DESIGNED on the website: "KOS Akari 2", "KOS Yota 2" (v2 prompts, approved 2026-10-22; account voice cap means old designs get deleted); the free plan's API refuses library voices and API voice design; Voice Design refuses prompts describing a minor → describe young adults), VOICEVOX for model audio (accent-correct, editable), Gemini TTS dropped — the user said never pick it. Bake-off tools: prototypes/japanese-space/voice/ (bake.mjs, design.mjs, keys in git-ignored voice/.env.local, never print them).
