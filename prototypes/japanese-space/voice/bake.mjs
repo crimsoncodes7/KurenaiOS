@@ -100,7 +100,9 @@ const P = {
     },
     async render(ln) {
       const c = cast.gemini[ln.who];
-      const prompt = c.direction + ", sounding " + ln.mood + ". Say exactly this and nothing else: " + plain(ln.ja);
+      // short, in the form Google documents ("Say cheerfully: …"): a long English direction was
+      // sometimes read aloud before the line (4 of 12 on the first run). The voice is the voice name.
+      const prompt = "Say in a " + ln.mood + " tone: " + plain(ln.ja);
       for (let attempt = 1; ; attempt++) {
         const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + cast.gemini.model + ":generateContent", {
           method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key("GEMINI_API_KEY") },
@@ -111,7 +113,10 @@ const P = {
         const j = await r.json(), part = j.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
         if (!part) throw new Error("no audio in the reply");
         const sr = +(/rate=(\d+)/.exec(part.inlineData.mimeType || "") || [0, 24000])[1];
-        return { audio: wav(Buffer.from(part.inlineData.data, "base64"), sr), voice: "Gemini " + cast.gemini.model + " · " + c.voice };
+        const pcm = Buffer.from(part.inlineData.data, "base64"), secs = pcm.length / 2 / sr;
+        // a line takes about 0.2 s a character; far longer means it spoke the instruction too
+        if (secs > plain(ln.ja).length * 0.3 + 3) throw new Error("the clip ran " + secs.toFixed(1) + " s: it read the instruction aloud");
+        return { audio: wav(pcm, sr), voice: "Gemini " + cast.gemini.model + " · " + c.voice };
       }
     }
   }
