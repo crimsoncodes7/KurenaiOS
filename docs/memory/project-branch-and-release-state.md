@@ -25,4 +25,4 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 
 
 2026-10-21: main fast-forwarded to feat/exams-hub; release 3b39ae1 (Exams & Deadlines hub, phases 1–6 with CS Paper 2), sw kos-exams-1, https://e94eede7.kurenai-os.pages.dev.
-2026-10-22: new work on `feat/after-fsrs` (from main `ced4eab`), pushed, not merged or deployed — see [[after-fsrs-branch]].
+2026-10-22: main fast-forwarded to feat/after-fsrs; release 13cef94, sw kos-runner-2, https://3191f2e6.kurenai-os.pages.dev — see [[after-fsrs-branch]].

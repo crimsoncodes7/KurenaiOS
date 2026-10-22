@@ -1099,8 +1099,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.6 FSRS: one scheduler for every card (asked for 20 October 2026)
 
-> **Status (22 October 2026): phase 3 built on `feat/after-fsrs`, not
-> deployed.** The optimiser is `KOS.fsrsOpt` (`js/core/fsrsopt.js`): pure
+> **Status (22 October 2026): phase 3 RELEASED** (`13cef94`, sw
+> `kos-runner-2`). The optimiser is `KOS.fsrsOpt` (`js/core/fsrsopt.js`): pure
 > JS, not fsrs-browser, whose threaded WebAssembly needs a
 > cross-origin-isolated page that would block every hot-linked image. It
 > pretrains w0–w3, trains w4–w20 by Adam with a pull towards the defaults,
@@ -1183,8 +1183,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.7 After FSRS (asked for 20 October 2026, in this order)
 
-> **22 October 2026:** items 1 and 2 are built on `feat/after-fsrs`, not
-> deployed. Item 1: [server-runner-plan.md](server-runner-plan.md), the
+> **22 October 2026:** items 1 and 2 are RELEASED (`13cef94`, sw
+> `kos-runner-2`); the functions, secrets, cron job and App are live. Item 1: [server-runner-plan.md](server-runner-plan.md), the
 > outlook, Web Push and the `runner` function (invariant 131, smoke97).
 > Item 2: [github-app-plan.md](github-app-plan.md), the GitHub App and the
 > `github-token` function (invariant 110, smoke98). Their migrations are

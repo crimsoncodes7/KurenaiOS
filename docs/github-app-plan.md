@@ -3,9 +3,10 @@
 Asked for on 20 October 2026 (roadmap 5.7 item 2), started 22 October 2026.
 It unparks "Code → GitHub as a GitHub App" (docs/code-plan.md §10, v2).
 
-> **Status (22 October 2026):** plan written; built on `feat/after-fsrs`
-> (smoke98). Nothing is deployed. Creating the App on GitHub and its
-> secrets need your account (§6).
+> **Status (22 October 2026): RELEASED** (`13cef94`, sw `kos-runner-2`;
+> smoke98). The App `kurenaios` exists, its secrets are set and
+> `github-token` is deployed. The first "Connect with GitHub" is the first
+> end-to-end test of the client ID and secret.
 
 Short answer:
 - **You install a KurenaiOS GitHub App on the one repository** your work

@@ -3,10 +3,10 @@
 Asked for on 20 October 2026 (roadmap 5.7 item 1), started 22 October 2026.
 It unparks "Scheduled messages while the app is closed".
 
-> **Status (22 October 2026):** plan written; phases A and B are built on
-> `feat/after-fsrs` (smoke97). Nothing is deployed. The steps that need
-> your accounts (VAPID keys, function secrets, the cron job) are listed in
-> §8.
+> **Status (22 October 2026): RELEASED** (`13cef94`, sw `kos-runner-2`;
+> smoke97). The `runner` function is deployed with its secrets, and the
+> `kos-runner` pg_cron job calls it every five minutes (200s since 01:40
+> UTC).
 
 Short answer:
 - **The server never re-implements the app.** The device already knows,

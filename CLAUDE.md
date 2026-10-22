@@ -17,18 +17,22 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `3b39ae1` — immutable deployment
-  https://e94eede7.kurenai-os.pages.dev (21 October 2026; the Exams &
-  Deadlines hub, roadmap 5.8 phases 1–6 with CS Paper 2's full Companion).
-  Before it `fbea5d5` (20 October 2026; FSRS),
-  https://a6e211c9.kurenai-os.pages.dev.
+- Latest release: `13cef94` — immutable deployment
+  https://3191f2e6.kurenai-os.pages.dev (22 October 2026; `feat/after-fsrs`:
+  switching mid-Focus, FSRS phase 3, what reaches a closed app, Code →
+  GitHub as a GitHub App). The `runner` and `github-token` Edge Functions
+  are deployed with their secrets, the `kos-runner` pg_cron job runs every
+  five minutes, and migrations `20261022000001`–`03` are applied. Before
+  it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
+  https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-exams-1`
+- Service-worker version: `kos-runner-2`
 - Required smoke gate: 94 / 94 suites (`""`, 2–79 and 84–98; 80–83 are
   reserved for Japanese).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
-  `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), and on
-  21 October to `feat/exams-hub` (the Exams hub), so
+  `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
+  October to `feat/exams-hub` (the Exams hub), and on 22 October to
+  `feat/after-fsrs`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
@@ -42,9 +46,9 @@ chronological diary here.
   against an exam-day target, leeches and Rework, topic memory, and Card
   stats' fitted charts. Held by smoke88 and `tools/fsrs_check.mjs`. Phase 3
   (the optimiser, `KOS.fsrsOpt`, and the review log's replication to
-  `kos_reviews`, migration `20261022000001`) is built on `feat/after-fsrs`
-  (smoke96); Optimise stays off until 1,000 reviews are logged.
-- Built on `feat/after-fsrs`, not deployed: switching a Focus session's
+  `kos_reviews`, migration `20261022000001`; smoke96) was released on 22
+  October 2026; Optimise stays off until 1,000 reviews are logged.
+- Released 22 October 2026 (`feat/after-fsrs`): switching a Focus session's
   subject, topic or assignment mid-way (invariant 4a, smoke95); what
   reaches a closed app (roadmap 5.7 item 1, [`docs/server-runner-plan.md`](docs/server-runner-plan.md):
   the outlook, Web Push and the `runner` Edge Function; invariants 98,
