@@ -21,13 +21,13 @@ if (!KEY) throw new Error("no ELEVENLABS_API_KEY in voice/.env.local");
 const DESIGN = {
   akari: {
     name: "KOS Akari",
-    description: "A 17-year-old Japanese high-school girl speaking native standard Tokyo Japanese. Calm, kind and gentle, a polite older schoolmate; soft, warm mid-high voice, clear articulation, quietly amused. Natural anime-heroine quality, studio-clean recording.",
-    text: "はじめまして、白石灯です。三年生で、今日からあなたの案内役になりました。わからないことがあったら、遠慮しないで何でも聞いてくださいね。まずは、このカフェでゆっくりお話ししましょう。ケーキも紅茶もおいしいんですよ。"
+    description: "A young Japanese woman in her early twenties speaking native standard Tokyo Japanese. Calm, kind and gentle, polite and quietly amused; a soft, warm, youthful mid-high voice with clear articulation. Natural anime-heroine voice-acting quality, studio-clean recording.",
+    text: "はじめまして、白石灯です。今日からあなたの案内役になりました。わからないことがあったら、遠慮しないで何でも聞いてくださいね。まずは、このカフェでゆっくりお話ししましょう。ケーキも紅茶もおいしいんですよ。楽しみですね。"
   },
   yota: {
     name: "KOS Yota",
-    description: "A 16-year-old Japanese high-school boy speaking native standard Tokyo Japanese. Energetic, friendly and a bit goofy, casual tone; bright, youthful light tenor voice, lively and expressive like a cheerful anime protagonist, studio-clean recording.",
-    text: "よっ、朝日陽太だ！同じクラスだから、よろしくな！なあなあ、あのケーキ、めっちゃうまそうじゃない？え、あれって猫なの？マジかよ、全然気づかなかったぜ。じゃあ、一緒に行こうぜ！放課後、駅前のカフェで待ってるからな。"
+    description: "A young Japanese man in his early twenties speaking native standard Tokyo Japanese. Energetic, friendly and a bit goofy, casual tone; a bright, youthful light tenor voice, lively and expressive like a cheerful anime protagonist. Studio-clean recording.",
+    text: "よっ、朝日陽太だ！これからよろしくな！なあなあ、あのケーキ、めっちゃうまそうじゃない？え、あれって猫なの？マジかよ、全然気づかなかったぜ。じゃあ、一緒に行こうぜ！夕方、駅前のカフェで待ってるからな。絶対来いよ！"
   }
 };
 
