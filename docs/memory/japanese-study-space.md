@@ -1,6 +1,6 @@
 ---
 name: japanese-study-space
-description: "Japanese study space (roadmap 5.5) — plan rev 3.1 in docs/japanese-plan.md; vertical slice CLOSED on real data 2026-10-17; integration (platform release) next"
+description: "Japanese study space (roadmap 5.5) — plan rev 3.2 in docs/japanese-plan.md; vertical slice CLOSED on real data 2026-10-17; integration (platform release) next"
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,7 @@ metadata:
   modified: 2026-10-17T20:36:01.116Z
 ---
 
-Japanese is the planned fifth subject (roadmap 5.5, asked 2026-10-17), built like Code ([[code-study-space]]). Plan: `docs/japanese-plan.md` revision 3.1; Claude Design prompt 12 (frames 28a–28p).
+Japanese is the planned fifth subject (roadmap 5.5, asked 2026-10-17), built like Code ([[code-study-space]]). Plan: `docs/japanese-plan.md` revision 3.2; Claude Design prompt 12 (frames 28a–28p).
 
 User: absolute zero in Japanese (cannot read kana, had never heard it), ~30–45 min/day. Goal: anime/J-drama/J-pop/manga/LN/VN without English.
 
@@ -28,3 +28,6 @@ Gotchas: the app's service worker on localhost:8123 serves prototype files stale
 
 **Why:** the user reviews plans first, then a throwaway slice, then integration.
 **How to apply:** next is the plan §17 platform release (registry, hue, routes, desk, model, scheduler, validators, engine, audio, Stage 0 kana, smokes 80–83) — only when the user asks.
+
+Voices (plan §4.4, rev 3.2, blind bake-off 2026-10-22): ElevenLabs for the cast's dialogue (voices DESIGNED on the website: "KOS Akari", "KOS Yota"; the free plan's API refuses library voices and API voice design; Voice Design refuses prompts describing a minor → describe young adults), VOICEVOX for model audio (accent-correct, editable), Gemini TTS dropped — the user said never pick it. Bake-off tools: prototypes/japanese-space/voice/ (bake.mjs, design.mjs, keys in git-ignored voice/.env.local, never print them). Open: Yōta's voice too cool → redesign with design.mjs v2 prompts on the website.
+
