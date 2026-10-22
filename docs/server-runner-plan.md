@@ -164,6 +164,10 @@ device (next open) ◄── kos_runs pulled: the reply lands on its schedule an
 
 ## 8. What you run once (needs your accounts)
 
+> **22 October 2026:** steps 1–3 are done (keys generated, secrets set,
+> `runner` deployed and answering). Step 4 is the SQL in the gitignored
+> `supabase/runner-cron.sql.local`, which holds the secret.
+
 1. `node tools/gen_vapid.mjs`. Put the public key in `js/env.local.js` as
    `VAPID_PUBLIC_KEY`.
 2. `supabase secrets set VAPID_PUBLIC_KEY=… VAPID_PRIVATE_KEY=…

@@ -17,6 +17,6 @@ Design facts worth keeping:
 - Runner rule (invariant 131): the DEVICE computes the outlook (each owner's forecast/notices), the server only delivers. Server-run schedules answer from a published brief with no tools. The runner has its own text-only model call (`runner/model.ts`) because ai-chat is JWT-verified for users.
 - Web Push and the GitHub App JWT use WebCrypto only (no npm). Node 26 imports the .ts files directly in tests.
 
-Still the user's to do (needs their accounts): VAPID keys (`node tools/gen_vapid.mjs`), function secrets, `supabase functions deploy runner --no-verify-jwt` and `github-token`, the pg_cron job, and creating the GitHub App. Steps are in docs/server-runner-plan.md §8 and docs/github-app-plan.md §6.
+Done 2026-10-22: VAPID keys generated (public key in js/env.local.js; private only in function secrets), CRON_SECRET + VAPID_* secrets set, `runner` and `github-token` deployed with `--use-api` (Docker is not installed here) and probed. Still the user's: the pg_cron SQL (in gitignored supabase/runner-cron.sql.local, holds the secret) and creating the GitHub App + its GITHUB_* secrets + GITHUB_APP_SLUG in env.local.js. Steps are in docs/server-runner-plan.md §8 and docs/github-app-plan.md §6.
 
 **How to apply:** before merging or releasing, ask: the release needs a go-ahead ([[act-without-asking]]), a `sw.js` VERSION bump and the usual pre-deploy checks. Related: [[fsrs-scheduler]], [[project-branch-and-release-state]], [[code-study-space]].

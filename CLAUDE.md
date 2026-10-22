@@ -48,11 +48,13 @@ chronological diary here.
   subject, topic or assignment mid-way (invariant 4a, smoke95); what
   reaches a closed app (roadmap 5.7 item 1, [`docs/server-runner-plan.md`](docs/server-runner-plan.md):
   the outlook, Web Push and the `runner` Edge Function; invariants 98,
-  71b, 131; smoke97; migration `20261022000002` applied; the function, its
-  secrets and the cron job are not deployed yet); Code → GitHub as a GitHub
+  71b, 131; smoke97; migration `20261022000002` applied; `runner` deployed
+  22 October 2026 with its VAPID and `CRON_SECRET` secrets; the cron job is
+  the SQL in the gitignored `supabase/runner-cron.sql.local`); Code → GitHub as a GitHub
   App (roadmap 5.7 item 2, [`docs/github-app-plan.md`](docs/github-app-plan.md);
-  invariant 110; smoke98; migration `20261022000003` applied; the App, the
-  `github-token` function and its secrets are not set up yet).
+  invariant 110; smoke98; migration `20261022000003` applied;
+  `github-token` deployed 22 October 2026; the App itself and its
+  `GITHUB_*` secrets are not created yet).
 - Released 21 October 2026: the Exams & Deadlines hub (roadmap 5.8,
   [`docs/exams-plan.md`](docs/exams-plan.md) revision 2), branch
   `feat/exams-hub`. Phases 1 (the assessment record, migration, Scope

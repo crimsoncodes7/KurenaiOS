@@ -105,6 +105,9 @@ device ─ keeps it in memory until 5 minutes before it expires, then asks again
 
 ## 6. What you run once (needs your account)
 
+> **22 October 2026:** `kos_github` is applied and `github-token` is
+> deployed (it answers 503 "not configured" until step 3's secrets exist).
+
 1. GitHub → Settings → Developer settings → GitHub Apps → New:
    - name "KurenaiOS (yours)", homepage the app's URL;
    - Setup URL `https://kurenai-os.pages.dev/#/code/settings`, with
