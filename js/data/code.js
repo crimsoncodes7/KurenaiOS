@@ -164,7 +164,7 @@
       ["11.8", "Async pitfalls", "Avoid deadlocks, async void and fire-and-forget bugs."],
       ["11.9", "Practise: an async downloader", "Fetch several resources concurrently from a fake server."]
     ] },
-    { ref: "U12", title: "Data structures and algorithms", stage: 4, strands: ["S"], where: "app", lessons: [
+    { ref: "U12", title: "Data structures and algorithms", stage: 4, strands: ["S"], where: "sandbox", lessons: [
       ["12.1", "Complexity and Big O", "Estimate how running time and memory grow with input size, and read O(1), O(log n), O(n), O(n log n) and O(n²)."],
       ["12.2", "Bits and bitwise operators", "Use &, |, ^, ~, << and >> on integers: masks, flags, swapping with XOR and testing a bit."],
       ["12.3", "Linear and binary search", "Search unsorted and sorted data, and compare the cost."],

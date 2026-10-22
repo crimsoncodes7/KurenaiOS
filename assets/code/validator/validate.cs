@@ -1,4 +1,4 @@
-// Kurenai validator 1.0.0 — run from the project folder:
+// Kurenai validator 1.1.0 — run from the project folder:
 //     dotnet run .kurenai/validate.cs
 // (or "Kurenai Validate" in Rider's run configurations).
 //
@@ -11,6 +11,11 @@
 // checked against their SHA-256 hashes in kurenai.project.json; a changed
 // one is reported, never hidden, and KurenaiOS then records the report as
 // practice only. Exit code 0 only when every milestone passes.
+//
+// 1.1.0 adds four checks for projects where you write the tests: your own
+// tests (by name prefix), planted bugs your tests must catch (each run in a
+// throw-away copy of the project — your files are never touched), a
+// file that must or must not contain something, and a warning-free build.
 #:property Nullable=enable
 #:property PublishAot=false
 using System.Diagnostics;
@@ -21,7 +26,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 
-const string Version = "1.0.0";
+const string Version = "1.1.0";
 var started = DateTime.UtcNow;
 string root = FindRoot(Environment.CurrentDirectory);
 var project = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "kurenai.project.json")))!.AsObject();
@@ -83,6 +88,7 @@ Say(restoreOk ? (buildOk ? $"✓ build · {errors} errors, {warnings} warnings" 
 string trxDir = Path.Combine(outDir, "tests");
 var (testRan, _, _, testMs) = stepOk["build"] ? Run("dotnet", new[] { "test", sln, "--no-build", "-c", "Release", "-nologo", "--logger", "trx", "--results-directory", trxDir }, root, 900_000) : (false, "", "", 0);
 var byClass = new Dictionary<string, (int pass, int fail)>();
+var results = new List<(string Name, string Outcome)>();
 int passed = 0, failed = 0, skipped = 0;
 if (Directory.Exists(trxDir))
     foreach (var trx in Directory.GetFiles(trxDir, "*.trx", SearchOption.AllDirectories))
@@ -92,6 +98,7 @@ if (Directory.Exists(trxDir))
         {
             string name = (string?)r.Attribute("testName") ?? "";
             string outcome = (string?)r.Attribute("outcome") ?? "";
+            results.Add((name, outcome));
             string cls = System.Text.RegularExpressions.Regex.Match(name, @"(?:^|\.)(Milestone\d+)\.").Groups[1].Value;
             var c = byClass.GetValueOrDefault(cls);
             if (outcome == "Passed") { passed++; byClass[cls] = (c.pass + 1, c.fail); }
@@ -152,6 +159,42 @@ foreach (var m in project["milestones"]!.AsArray())
                 var changes = Norm(porcelain).Split('\n').Where(l => l.Trim().Length > 0 && !l.Contains(".kurenai/out") && !l.Contains(".kurenai/reports")).ToList();
                 commit = hasHead ? head.Trim() : null; dirty = !st || changes.Count > 0;
                 pass = hasHead && !dirty; note = !hasHead ? "no commit yet" : dirty ? changes.Count + " uncommitted change(s)" : "committed, clean"; break;
+            }
+            case "owntests":
+            {
+                string prefix = (string)ch["prefix"]!;
+                int min = (int?)ch["min"] ?? 1;
+                var mine = results.Where(r => r.Name.StartsWith(prefix, StringComparison.Ordinal)).ToList();
+                int good = mine.Count(r => r.Outcome == "Passed"), bad = mine.Count(r => r.Outcome != "Passed" && r.Outcome != "NotExecuted");
+                pass = stepOk["test"] && good >= min && bad == 0;
+                note = !stepOk["test"] ? "not run: the tests did not run" : $"{good} of your tests pass, {bad} fail (at least {min} needed)";
+                break;
+            }
+            case "source":
+            {
+                var texts = SourceTexts(root, (string)ch["path"]!);
+                var missing = (ch["contains"]?.AsArray() ?? new JsonArray()).Select(x => (string)x!).Where(pat => !texts.Any(t => System.Text.RegularExpressions.Regex.IsMatch(t, pat))).ToList();
+                var still = (ch["forbids"]?.AsArray() ?? new JsonArray()).Select(x => (string)x!).Where(pat => texts.Any(t => System.Text.RegularExpressions.Regex.IsMatch(t, pat))).ToList();
+                pass = texts.Count > 0 && missing.Count == 0 && still.Count == 0;
+                note = texts.Count == 0 ? "no such file: " + ch["path"] : pass ? "as asked" : string.Join("; ", missing.Select(x => "missing " + x).Concat(still.Select(x => "still has " + x)));
+                break;
+            }
+            case "warnings":
+            {
+                int max = (int?)ch["max"] ?? 0;
+                pass = stepOk["build"] && warnings <= max;
+                note = stepOk["build"] ? $"{warnings} warning(s), at most {max}" : "not run: the build failed";
+                break;
+            }
+            case "mutants":
+            {
+                if (!stepOk["test"]) { note = "not run: the tests did not run"; break; }
+                var (killed, total, detail) = Mutants(root, ch);
+                int min = (int?)ch["min"] ?? total;
+                pass = killed >= min;
+                note = killed < 0 ? detail : $"your tests caught {killed} of {total} planted bugs (at least {min} needed){detail}";
+                if (!pass && failures.Count < 20) failures.Add(new JsonObject { ["mutants"] = (string?)m["id"], ["message"] = Cap(note) });
+                break;
             }
             default: note = "unknown check " + type; break;
         }
@@ -242,6 +285,57 @@ static string TreeHash(string root)
             sb.Append(f).Append('\n').Append(Sha256Text(File.ReadAllText(Path.Combine(root, f)))).Append('\n');
     }
     return Sha256Text(sb.ToString());
+}
+/* the .cs text of a file, or of every file under a folder (bin and obj left out) */
+static List<string> SourceTexts(string root, string rel)
+{
+    string full = Path.Combine(root, rel.Replace('/', Path.DirectorySeparatorChar));
+    if (File.Exists(full)) return new List<string> { File.ReadAllText(full) };
+    if (!Directory.Exists(full)) return new List<string>();
+    return Directory.GetFiles(full, "*.cs", SearchOption.AllDirectories)
+        .Where(f => !f.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar) && !f.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar))
+        .Select(File.ReadAllText).ToList();
+}
+/* planted bugs: in a throw-away copy of the project, each mutant replaces one
+   piece of text in one file and your test project runs; a failing run means
+   your tests caught it. Your own files are never changed. */
+static (int killed, int total, string detail) Mutants(string root, JsonNode ch)
+{
+    string file = ((string)ch["file"]!).Replace('/', Path.DirectorySeparatorChar);
+    string tests = ((string)ch["tests"]!).Replace('/', Path.DirectorySeparatorChar);
+    var muts = ch["mutants"]!.AsArray();
+    string work = Path.Combine(Path.GetTempPath(), "kurenai-mutants-" + Guid.NewGuid().ToString("N")[..8]);
+    try
+    {
+        CopyTree(root, work);
+        string target = Path.Combine(work, file);
+        if (!File.Exists(target)) return (-1, muts.Count, "no such file: " + ch["file"]);
+        string original = File.ReadAllText(target);
+        var (clean, _, _, _) = Run("dotnet", new[] { "test", Path.Combine(work, tests), "-c", "Release", "-nologo" }, work, 900_000);
+        if (!clean) return (-1, muts.Count, "your tests do not pass on the unchanged code, so planted bugs prove nothing");
+        int killed = 0;
+        var missed = new List<string>();
+        foreach (var mu in muts)
+        {
+            string id = (string)mu!["id"]!, find = (string)mu["find"]!, replace = (string)mu["replace"]!;
+            int at = original.IndexOf(find, StringComparison.Ordinal);
+            if (at < 0) { missed.Add(id + " (its code is no longer there)"); continue; }
+            File.WriteAllText(target, original[..at] + replace + original[(at + find.Length)..]);
+            var (ok, _, _, _) = Run("dotnet", new[] { "test", Path.Combine(work, tests), "-c", "Release", "-nologo" }, work, 900_000);
+            if (!ok) killed++; else missed.Add(id);
+            File.WriteAllText(target, original);
+        }
+        return (killed, muts.Count, missed.Count > 0 ? " · not caught: " + string.Join(", ", missed) : "");
+    }
+    finally { try { Directory.Delete(work, true); } catch { } }
+}
+static void CopyTree(string from, string to)
+{
+    var skip = new HashSet<string> { "bin", "obj", ".git", ".kurenai", ".idea", ".vs" };
+    Directory.CreateDirectory(to);
+    foreach (var f in Directory.GetFiles(from)) File.Copy(f, Path.Combine(to, Path.GetFileName(f)));
+    foreach (var d in Directory.GetDirectories(from))
+        if (!skip.Contains(Path.GetFileName(d))) CopyTree(d, Path.Combine(to, Path.GetFileName(d)));
 }
 static string Cap(string? s) { s = (s ?? "").Trim(); return s.Length > 300 ? s[..300] + "…" : s; }
 static string FirstLine(string s) => Norm(s).Split('\n').FirstOrDefault(l => l.Trim().Length > 0)?.Trim() ?? "";

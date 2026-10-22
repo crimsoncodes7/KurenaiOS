@@ -91,7 +91,7 @@
   function lessons() { index(); return LESSONS; }
   function lesson(ref) { index(); return BY[ref] || null; }
   /* which runner a lesson's code needs: the full .NET runtime for the
-     "sandbox" units (7–9, 11; decision A), the in-app interpreter otherwise */
+     "sandbox" units (7–9, 11, 12; decision A, and unit 12 since its lists, trees and graphs are classes), the in-app interpreter otherwise */
   function runnerFor(ref) {
     var l = lesson(ref) || (K().CAPSTONES[ref] ? { where: K().CAPSTONES[ref].where } : null);
     return l && l.where === "sandbox" ? "wasm" : "interp";
