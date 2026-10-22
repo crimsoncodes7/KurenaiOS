@@ -1,4 +1,4 @@
-# Creatives — a study space for art, design, editing and writing (plan, revision 2)
+# Creatives — a study space for art, design, editing and writing (plan, revision 2, approved)
 
 Roadmap 5.7 item 3, asked for on 20 October 2026 and planned on 22 October
 2026, the day the iPad Air arrived. It follows the Code plan's shape: a
@@ -274,6 +274,12 @@ Two places, kept apart on purpose.
   - the timer moves to the next rep;
   - the batch is marked "Momentum".
   - It is off for studies and pieces, and remembered per drill type.
+- **Vectors and a picture of them.** A sketchbook save keeps the
+  editable strokes in `kurenai-os-ink` (`sketch:<id>`). It also writes a
+  flat PNG snapshot to `kurenai-os-creatives`, and best-of-five grids,
+  the Practice Log and the redo side by side draw from those snapshots.
+  That way a batch of 20 never mounts 20 live ink surfaces. Editing a
+  sketch rewrites its snapshot.
 - **Storage:** a new IndexedDB, `kurenai-os-creatives`, for the files.
   The records (titles, dates, check ticks, links) are small and sync.
   Files upload only when you say so, like topic attachments (invariant

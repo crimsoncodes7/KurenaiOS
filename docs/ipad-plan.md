@@ -1,4 +1,4 @@
-# The iPad and the Pencil (plan, revision 1)
+# The iPad and the Pencil (plan, revision 1, approved)
 
 Asked for on 22 October 2026: the iPad Air 11" (M4) becomes a first-class
 device, and then the study notes device, written with a stylus. For now
@@ -108,9 +108,15 @@ the document belongs to.
 - **Pointer Events** only, with `touch-action: none` on the surface and
   `getCoalescedEvents()` where Safari has it, so a fast stroke keeps every
   sample.
+- **No Scribble delay.** The surface calls `preventDefault()` on
+  `pointerdown` and `touchstart`. Otherwise iPadOS Safari can hold a
+  stroke's start for about 150 ms while it checks for Scribble
+  handwriting. Spike P measures both ways.
 - **Pen only by default:** a finger never draws. One finger scrolls the
   page, two pinch and pan, and two-finger tap is Undo (the gesture iPad
-  note apps use). A "Draw with a finger" switch is per device, for the Mac
+  note apps use). The tap counts only when both fingers go down and up
+  within 200 ms and move under 10 px, so starting a pinch is never an
+  Undo. A "Draw with a finger" switch is per device, for the Mac
   trackpad and for no pen.
 - **Palm rejection** comes free from pen-only. A touch that starts while
   the pen is down is ignored.
@@ -290,7 +296,7 @@ and finished pieces come in as evidence (that plan's decision C).
 
 | | Question | Pass when |
 |---|---|---|
-| **P (pen)** | What does the Metapen report? Check `pointerType`, pressure, tilt, coalesced events and the sample rate. How long from pen to pixel? Does palm rejection hold while writing a page? | It reports as `"pen"`, writing a paragraph never draws from a palm, and the stroke keeps up at normal writing speed |
+| **P (pen)** | What does the Metapen report? Check `pointerType`, pressure, tilt, coalesced events and the sample rate. How long from pen to pixel, with and without `preventDefault()` on `pointerdown` and `touchstart` (the Scribble buffer)? Does palm rejection hold while writing a page? Does the two-finger-tap Undo threshold ever fire during a pinch? | It reports as `"pen"`, writing a paragraph never draws from a palm, and the stroke keeps up at normal writing speed |
 | **D (documents)** | Can pdf.js in Safari open a 30-page paper with an ink layer and keep scrolling smooth? How much memory does it use? Can the Paper library's PDFs be imported from Files? | First page under a second, no tab reload on a whole paper |
 | **H (handwriting)** | Does Kurenai read your Maths working well enough to mark it? Test 10 real answers, marked by hand first. | It agrees on at least 9 of 10 mark-point decisions, and never awards an A without its M |
 
