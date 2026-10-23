@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `a1bc5c5` — immutable deployment
+- Latest release: `07b3520` — immutable deployment
+  https://4eef907a.kurenai-os.pages.dev (23 October 2026; `feat/code-t1`:
+  Code's SQL sandbox (Spike S) and T1A, Databases — eight SQL lessons and
+  The Case of the Missing Mug). Before it `a1bc5c5`,
   https://a53c4f26.kurenai-os.pages.dev (23 October 2026; `feat/code-stage4`:
   Code stage 4 — units 10–12, capstone 4 and validator 1.1.0; the core
   path complete). Before it `ee1a746`,
@@ -44,7 +47,7 @@ chronological diary here.
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
   `feat/after-fsrs`, then to `feat/ipad`, then to `feat/japanese`, and on
-  23 October to `feat/code-stage4`, so
+  23 October to `feat/code-stage4`, then to `feat/code-t1`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.

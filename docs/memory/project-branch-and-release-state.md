@@ -32,3 +32,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-22: then ee1a746 (sw kos-japanese-2), https://0714e554.kurenai-os.pages.dev — the Japanese review fixes.
 
 2026-10-23: main fast-forwarded to `feat/code-stage4` and released as `a1bc5c5` (sw `kos-code-19`, https://a53c4f26.kurenai-os.pages.dev): Code stage 4, the core path complete.
+
+2026-10-23: main fast-forwarded to `feat/code-t1`, released as `07b3520` (sw `kos-code-20`, https://4eef907a.kurenai-os.pages.dev): the SQL sandbox and T1A.
