@@ -35,3 +35,4 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 
 2026-10-23: main fast-forwarded to `feat/code-t1`, released as `07b3520` (sw `kos-code-20`, https://4eef907a.kurenai-os.pages.dev): the SQL sandbox and T1A.
 2026-10-23: kos-code-22 (T2) and kos-code-23 (spine split) released from feat/code-t2; main fast-forwarded. The rest of T1 is on feat/code-t1-rest (not deployed).
+2026-10-23: released the rest of T1 from feat/code-t1-rest (sw kos-code-24, https://f6ddf42e.kurenai-os.pages.dev); main fast-forwarded.

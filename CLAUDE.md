@@ -9,7 +9,7 @@ chronological diary here.
 ## Current baseline
 
 - Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
-  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; Track T1's parts A–C and the whole of Track T2; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed; the rest of Track T1 (T1D–T1F and its capstone `CT1`) is built on `feat/code-t1-rest`, not yet deployed. What is still to do is kept in one place:
+  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; the whole of Tracks T1 and T2 with their capstones; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
@@ -17,9 +17,14 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the Code spine's Core/Tracks split (sw `kos-code-23`) —
-  immutable deployment https://b0ccc028.kurenai-os.pages.dev (23 October
-  2026; `feat/code-t2`: Core or Tracks, never both; Projects shows two;
+- Latest release: the rest of Code's Track T1 (sw `kos-code-24`) —
+  immutable deployment https://f6ddf42e.kurenai-os.pages.dev (23 October
+  2026; `feat/code-t1-rest`: T1D HTTP and REST in the app with fake
+  servers, T1E Networking and T1F Building an API in Rider, the Weather
+  client, Loopback chat and the track's capstone CT1, The Planner goes
+  online; the full runtime is `csw-1.1`). Before it the Code spine's
+  Core/Tracks split (sw `kos-code-23`),
+  https://b0ccc028.kurenai-os.pages.dev (23 October 2026; `feat/code-t2`: Core or Tracks, never both; Projects shows two;
   real track states). Before it `8ff3751`,
   https://b7cc2382.kurenai-os.pages.dev (23 October 2026; `feat/code-t2`:
   the whole of Code's Track T2 — 20 Rider lessons in Avalonia, four
@@ -51,7 +56,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-23`
+- Service-worker version: `kos-code-24`
 - Required smoke gate: 99 / 99 suites (`""` and 2–99; 80–83 are Japanese's, 99 is Code's SQL runner).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21

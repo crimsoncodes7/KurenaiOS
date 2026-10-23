@@ -33,9 +33,10 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
-## Built 23 October 2026 — Code Track T1 complete (not deployed yet)
+## Released 23 October 2026 — Code Track T1 complete
 
-Branch `feat/code-t1-rest`, from `main` at the `kos-code-23` release.
+sw `kos-code-24`, immutable https://f6ddf42e.kurenai-os.pages.dev
+(branch `feat/code-t1-rest`).
 
 - **T1D, HTTP and REST**: five lessons in the app on the full runtime
   (methods, status codes and headers; HttpClient and JSON; retries,
