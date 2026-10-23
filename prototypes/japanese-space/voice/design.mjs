@@ -29,6 +29,11 @@ const DESIGN = {
     name: "KOS Yota",
     description: "A young Japanese man in his early twenties with a boyish, playful voice that sounds younger than his age. Goofy, cheeky and excitable, quick to laugh and easily surprised; a bright, slightly higher light tenor. Not deep, smooth, cool or charismatic: the comic-relief best friend in a slice-of-life anime. Native standard Tokyo Japanese, casual speech, studio-clean recording.",
     text: "よっ、朝日陽太だ！これからよろしくな！なあなあ、あのケーキ、めっちゃうまそうじゃない？え、あれって猫なの？マジかよ、全然気づかなかったぜ。じゃあ、一緒に行こうぜ！夕方、駅前のカフェで待ってるからな。絶対来いよ！"
+  },
+  makoto: {
+    name: "KOS Makoto",
+    description: "A Japanese man in his late forties who runs a small neighbourhood café. Calm, unhurried and kindly, with a warm, slightly low baritone and a gentle smile in his voice; polite customer-service Japanese, never stiff or formal. Native standard Tokyo Japanese, clear diction at a relaxed pace, studio-clean recording.",
+    text: "いらっしゃいませ。お二人ですか？こちらのお席へどうぞ。今日のおすすめは、いちごのケーキとコーヒーのセットです。コーヒーは五百円、ケーキセットは八百円になります。ごゆっくりどうぞ。"
   }
 };
 
