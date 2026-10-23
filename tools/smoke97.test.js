@@ -46,7 +46,7 @@ let app, K, T0;
 step("boot", async () => {
   app = await boot({ clock: TODAY + "T10:00:00" });
   K = app.KOS;
-  T0 = Date.now();
+  T0 = app.window.Date.now();   // the app's fixed clock, not this process's real one
   K.store.state.calendar.events = [];
   eq(app.errors, [], "boot errors");
 });
