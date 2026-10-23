@@ -10,7 +10,8 @@
      node tools/code_unit_check.js 12.        lessons 12.x, tasks 12.x-*, cards u12-*
      SHOW=1 node tools/code_unit_check.js 12.  also print every listing's output   */
 "use strict";
-const { loadCode, variation, listings, runnerOf } = require("./lib/code-content.js");
+const { loadCode, variation, listings, runnerOf, seedOf } = require("./lib/code-content.js");
+const { loadSql } = require("./lib/sql-node.js");
 const { loadWasm } = require("./lib/cs-wasm-node.js");
 const { K, content, data, CSI } = loadCode();
 const prefix = process.argv[2];
@@ -19,7 +20,10 @@ const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n
 
 (async () => {
   const W = await loadWasm();
-  const run = (src, stdin, fs, lesson) => runnerOf(K, data, lesson) === "wasm"
+  const SQ = await loadSql();
+  const run = (src, stdin, fs, lesson, db) => runnerOf(K, data, lesson) === "sql"
+    ? Promise.resolve(SQ.run({ src, seed: seedOf(K, data, { lesson, db }) }))
+    : runnerOf(K, data, lesson) === "wasm"
     ? (W ? W.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs, nullable: true }) : Promise.reject(new Error("build the runtime: tools/build_cs_wasm.sh")))
     : Promise.resolve(CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs }));
   let bad = 0;
@@ -27,7 +31,7 @@ const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n
   const warn = (where, r) => { if (r.warnings && r.warnings.length) console.log("  ⚠ " + where + " " + JSON.stringify(r.warnings.map((w) => w.code + " L" + w.line))); };
   async function passes(cases, rules, src, fs, lesson) {
     for (const c of cases) {
-      const r = await run(src, c.stdin, c.fs || fs, lesson);
+      const r = await run(src, c.stdin, c.fs || fs, lesson, c.db);
       if (!r.ok || norm(r.stdout) !== norm(c.out)) return { ok: false, got: r.ok ? r.stdout : JSON.stringify(r.error), c };
     }
     const br = (rules || []).find((rl) => !rl.test(src));
@@ -45,8 +49,8 @@ const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n
       if (b && b.sec) { page = b.sec; continue; }
       for (const r of listings([b], [])) {
         nRun++;
-        const o = await run(r.src, r.stdin, r.fs, ref);
-        if (page === "Pitfalls") { console.log("    pit " + r.id + ": " + (o.ok ? "ok " + JSON.stringify(o.stdout) : o.error.kind + " " + o.error.code)); if (!o.ok && o.error.kind === "compile") pitCompile = true; }
+        const o = await run(r.src, r.stdin, r.fs, ref, r.db);
+        if (page === "Pitfalls") { console.log("    pit " + r.id + ": " + (o.ok ? "ok " + JSON.stringify(o.stdout) : o.error.kind + " " + (o.error.code || o.error.msg))); if (!o.ok && (o.error.kind === "compile" || o.error.kind === "sql")) pitCompile = true; }
         else if (!o.ok && !r.fails) say(r.id + " " + JSON.stringify(o.error));
         else { warn(r.id, o); if (process.env.SHOW) console.log("    " + r.id + ": " + JSON.stringify(o.stdout)); }
       }

@@ -78,7 +78,7 @@ step("C · the sandbox: sealed worker, lazy, routed", async () => {
   assert(/ready\.then\(function \(SQL\)/.test(w), "every request waits for the sealed module");
   assert(/self\.addEventListener\("message"/.test(w) && !/self\.onmessage\s*=/.test(w), "messages through addEventListener");
   const run = read("js/core/coderun.js");
-  assert(/req\.lang === "sql" \|\| req\.runner === "sql"\) return sqlRun\(req\)/.test(run) && /new window\.Worker\("js\/labs\/sql-worker\.js"\)/.test(run), "lang sql goes to its own worker");
+  assert(/which === "sql"\) \{[\s\S]{0,200}return sqlRun\(req\)/.test(run) && /new window\.Worker\("js\/labs\/sql-worker\.js"\)/.test(run), "lang sql goes to its own worker");
   assert(/sqlw = sqlw \|\| sqlMake\(\)/.test(run), "the worker is made on the first SQL run, not at boot");
   const app = await boot();
   assert(!app.document.querySelector('script[src*="sql-wasm"], script[src*="sql-run"]'), "the page loads no SQL script");

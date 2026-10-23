@@ -83,20 +83,41 @@
     ((data && data.sections) || []).forEach(function (sec, ui) {
       (sec.children || []).forEach(function (l) {
         var row = { ref: l.ref, title: l.title, aim: (l.content || [])[0] || "", unit: sec.ref, unitIdx: ui,
-          unitTitle: sec.title, stage: sec.stage, strands: sec.strands || [], where: sec.where, idx: LESSONS.length };
+          unitTitle: sec.title, stage: sec.stage, strands: sec.strands || [], where: sec.where, track: sec.track || null, db: sec.db || null, idx: LESSONS.length };
         LESSONS.push(row); BY[l.ref] = row;
       });
     });
   }
   function lessons() { index(); return LESSONS; }
+  /* the core path only (units 1–12 and Bridge B): what the desk's units,
+     the stage path and the lesson counts read; a track's parts are in the
+     spine too (docs/code-plan.md §3.3), read by the Study spine, search,
+     retrieval and the Daily 20 once covered */
+  function coreLessons() { return lessons().filter(function (l) { return !l.track; }); }
   function lesson(ref) { index(); return BY[ref] || null; }
   /* which runner a lesson's code needs: the full .NET runtime for the
      "sandbox" units (7–9, 11, 12; decision A, and unit 12 since its lists, trees and graphs are classes), the in-app interpreter otherwise */
   function runnerFor(ref) {
     var l = lesson(ref) || (K().CAPSTONES[ref] ? { where: K().CAPSTONES[ref].where } : null);
-    return l && l.where === "sandbox" ? "wasm" : "interp";
+    return l && l.where === "sandbox" ? "wasm" : l && l.where === "sql" ? "sql" : "interp";
+  }
+  /* an SQL lesson's dataset: the item's own db, else its part's */
+  function datasetFor(ref, db) {
+    var D = K().DATASETS || {}, l = lesson(ref);
+    var name = db || (l && l.db) || null;
+    return name && D[name] != null ? D[name] : "";
+  }
+  /* the file a learner's code is written in: query.sql for an SQL lesson */
+  function fileFor(ref) { return runnerFor(ref) === "sql" ? "query.sql" : "Program.cs"; }
+  /* a unit's or part's name in words: Unit 7 · Bridge B · T1 Databases */
+  function unitName(ref) {
+    var u = unit(ref);
+    if (ref === "B") return "Bridge B";
+    if (u && u.track) return u.track + " " + u.title;
+    return "Unit " + String(ref).slice(1);
   }
   function units() { return ((window.KOS_DATA && window.KOS_DATA.code && window.KOS_DATA.code.sections) || []); }
+  function coreUnits() { return units().filter(function (u) { return !u.track; }); }
   function unit(ref) { return units().filter(function (u) { return u.ref === ref; })[0] || null; }
   function content(ref) { return KOS.content.get(SID, ref); }
   function hasLesson(ref) { var c = content(ref); return !!(c && c.notes && c.notes.length); }
@@ -831,7 +852,7 @@
 
   /* ---------------- the desk's figures ---------------- */
   function stats() {
-    var ls = lessons();
+    var ls = coreLessons();
     var done = 0, touched = 0;
     var strand = { L: [0, 0], E: [0, 0], S: [0, 0] };
     ls.forEach(function (l) {
@@ -894,12 +915,12 @@
     return v.accept.some(function (a) { try { return new RegExp(a, v.ci ? "i" : "").test(t); } catch (e) { return false; } });
   }
   KOS.code = {
-    runnerFor: runnerFor, commandMatches: commandMatches,
+    runnerFor: runnerFor, fileFor: fileFor, datasetFor: datasetFor, unitName: unitName, commandMatches: commandMatches,
     project: project, projects: projects, projectView: projectView, recordReport: recordReport,
     normaliseEvidence: normaliseEvidence, noteExport: noteExport, projectMilestonesOf: projectMilestonesOf,
     SID: SID, CHECKS: CHECKS, PAY: PAY, CARD_CAP: CARD_CAP,
     normalise: normalise, state: S, ui: U,
-    lessons: lessons, lesson: lesson, units: units, unit: unit, unitState: unitState, released: released,
+    lessons: lessons, coreLessons: coreLessons, lesson: lesson, units: units, coreUnits: coreUnits, unit: unit, unitState: unitState, released: released,
     content: content, hasLesson: hasLesson, tasksOf: tasksOf, task: task, card: card, concept: concept,
     conceptsOf: conceptsOf, allTasks: allTasks, allCards: allCards, practiceOf: practiceOf, listingsOf: listingsOf,
     evidence: evidence, syncChecks: syncChecks, markPage: markPage, markListing: markListing, studied: studied, tried: tried, repairStarted: repairStarted,

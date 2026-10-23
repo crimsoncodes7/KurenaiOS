@@ -61,7 +61,7 @@
       link ? el("button", { type: "button", class: "k-link", text: link, onclick: go }) : null
     ].filter(Boolean));
   }
-  function unitName(u) { return u === "B" ? "Bridge B" : "Unit " + String(u).slice(1); }
+  function unitName(u) { return C().unitName(u); }
   function openUnit(u) {
     var us = C().unitState(u);
     var target = us.next || C().lessons().filter(function (l) { return l.unit === u; })[0];
@@ -84,7 +84,7 @@
 
   KOS.codeDesk = function (main) {
     var st = C().stats(), d = KOS_DATA.code;
-    var mastery = Math.round(C().lessons().reduce(function (a, l) { return a + KOS.hub.leafPercent(SID, l.ref); }, 0) / Math.max(1, st.lessons));
+    var mastery = Math.round(C().coreLessons().reduce(function (a, l) { return a + KOS.hub.leafPercent(SID, l.ref); }, 0) / Math.max(1, st.lessons));
     var run = KOS.sessions.streak(SID);
     KOS.shell.actions([
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Start focus",
@@ -157,7 +157,7 @@
 
     /* ---- the core path: the stage path above the unit cards ---- */
     var units = el("div", { class: "k-units", "data-ui": "study.units code.units" });
-    C().units().forEach(function (u) {
+    C().coreUnits().forEach(function (u) {
       var us = C().unitState(u.ref);
       var later = us.state === "later";
       var segs = C().lessons().filter(function (l) { return l.unit === u.ref; }).map(function (l) {
@@ -408,7 +408,7 @@
       grid.innerHTML = "";
       var core = el("section", { class: "k-card k-cx-mapcore", "aria-labelledby": "k-cx-map-core" }, [
         el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", id: "k-cx-map-core", text: "Core path" }),
-          el("span", { class: "k-card-meta", text: "4 stages · Bridge B · " + C().lessons().length + " lessons · 4 capstones" })])
+          el("span", { class: "k-card-meta", text: "4 stages · Bridge B · " + C().coreLessons().length + " lessons · 4 capstones" })])
       ]);
       var tbl = el("div", { class: "k-cx-maptbl", role: "table", "aria-label": "Core path" }, [
         el("div", { class: "k-cx-maprow k-cx-maprow--h", role: "row" }, ["Unit", "Lessons", "Strand", "Where it runs", "Status"].map(function (h) {
@@ -482,8 +482,12 @@
     var t = K().TRACKS.concat(K().DEEPENING).filter(function (x) { return x.id === id; })[0];
     if (!t) { pageMap(main); return; }
     var isTrack = id.charAt(0) === "T";
+    /* a track whose parts are in the spine lists them, part by part */
+    var parts = C().units().filter(function (u) { return u.track === id; });
+    var written = parts.filter(function (u) { return C().released(u.ref); });
     main.appendChild(KOS.ui.pageHeader({ kicker: "Code · " + (isTrack ? "Tracks" : "Deepening"), title: t.id + " · " + t.title,
-      sub: t.lessons + " lessons · coming later: the outline is here, the lessons are not written yet" }));
+      sub: parts.length ? t.lessons + " lessons in " + parts.length + " parts · " + (written.length ? written.length + " of " + parts.length + " parts written" : "the parts are outlined; each is released whole")
+        : t.lessons + " lessons · coming later: the outline is here, the lessons are not written yet" }));
     var met = (t.needs || []).filter(needMet).length;
     main.appendChild(el("div", { class: "k-cx-track" }, [
       el("section", { class: "k-card", "aria-label": "Overview" }, [
@@ -501,11 +505,28 @@
         })),
         el("p", { class: "k-cx-note", text: met === (t.needs || []).length ? "Every need is met." : "Missing needs link to their units. The " + (isTrack ? "track" : "module") + " still opens." })
       ]),
-      el("section", { class: "k-card", "aria-label": "Lessons" }, [
+      parts.length ? null : el("section", { class: "k-card", "aria-label": "Lessons" }, [
         el("span", { class: "k-kicker", text: "Lessons" }),
         KOS.ui.emptyState({ compact: true, title: "Arrives in its own release", body: "Tracks and deepening modules are released one at a time after the core path, each written to the same depth as the core lessons." + (t.taster ? " Its taster: " + t.taster + "." : "") })
       ])
-    ]));
+    ].filter(Boolean)));
+    if (parts.length) main.appendChild(el("section", { class: "k-cx-parts", "data-ui": "code.track-parts", "aria-label": "Parts" }, parts.map(function (u) {
+      var us = C().unitState(u.ref), rel = us.released;
+      return el("section", { class: "k-card k-cx-part", "data-state": rel ? null : "later", "aria-label": u.ref + " " + u.title }, [
+        el("div", { class: "k-card-head" }, [
+          el("span", { class: "k-card-title" }, [el("span", { class: "k-mono", text: u.ref + " · " }), u.title]),
+          el("span", { class: "k-card-meta", text: rel ? us.done + " of " + us.total + " done" : "coming later" })
+        ]),
+        el("div", { class: "k-cx-branch-f" }, [KOS.codeUI.strands(u.strands), KOS.codeUI.where(u.where)]),
+        el("ol", { class: "k-cx-partlist" }, u.children.map(function (l) {
+          var p = KOS.store.peekProgress(SID, l.ref);
+          var st = p && p.status === "done" ? "done" : p && p.status && p.status !== "none" ? "started" : null;
+          return el("li", {}, [rel ? el("button", { type: "button", class: "k-link k-cx-partlesson", "data-state": st, onclick: function () { KOS.show("ref", { subject: SID, ref: l.ref }); } },
+            [el("span", { class: "k-mono", text: l.ref }), " " + l.title + (st === "done" ? " ✓" : "")])
+            : el("span", { class: "k-cx-partlesson k-muted" }, [el("span", { class: "k-mono", text: l.ref }), " " + l.title])]);
+        }))
+      ]);
+    })));
   }
 
   /* ======================================================================
@@ -523,7 +544,7 @@
     if (phone && !C().phoneFit(t)) { phoneLater(main, t); return; }
     KOS.shell.bleed(true);
     var ui = C().ui();
-    var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules, fs: t.fs, lesson: t.lesson };
+    var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules, fs: t.fs, db: t.db, lesson: t.lesson };
     var started = Date.now();
     var hintsOpen = C().taskState(t.id).hints;
     var answerShown = !!C().taskState(t.id).seen;
@@ -553,7 +574,7 @@
 
     /* ---- the editor and its results panel ---- */
     var initial = C().draft(t.id);
-    var ed = KOS.codeUI.editor({ value: initial != null ? initial : t.starter || "", file: t.file || "Program.cs", label: "Your code", minLines: 14,
+    var ed = KOS.codeUI.editor({ value: initial != null ? initial : t.starter || "", file: t.file || C().fileFor(t.lesson), label: "Your code", minLines: 14,
       onRun: doRun, onToggle: function () { setCollapsed(!KOS.ui.hasState(page, "collapsed")); },
       onChange: KOS.ui.debounce(function (v) { C().setDraft(t.id, v === (t.starter || "") ? null : v); }, 400) });
     var stdin = el("input", { type: "text", class: "k-input k-cx-stdin k-mono", "data-ui": "code.stdin", "aria-label": "Input for Run",
@@ -617,7 +638,7 @@
       runBtn.disabled = true; ed.running(true);
       selTab("output");
       var req = t.mode === "method" && t.examples && t.examples[0] ? { files: ed.files(), mode: "method", call: { name: t.method, args: t.examples[0].args }, lesson: t.lesson }
-        : { files: ed.files(), stdin: stdin.value, fs: (t.examples && t.examples[0] && t.examples[0].fs) || t.fs, lesson: t.lesson };
+        : { files: ed.files(), stdin: stdin.value, fs: (t.examples && t.examples[0] && t.examples[0].fs) || t.fs, db: t.db, lesson: t.lesson };
       KOS.codeRun.run(req).then(function (r) {
         runBtn.disabled = false; ed.running(false);
         outBody.innerHTML = "";
@@ -930,7 +951,7 @@
         });
         card.appendChild(pre);
       } else {
-        ed = KOS.codeUI.editor({ value: v.starter || "", file: "Program.cs", compact: true, label: "Your answer", onRun: check });
+        ed = KOS.codeUI.editor({ value: v.starter || "", file: C().fileFor(cd.lesson), compact: true, label: "Your answer", onRun: check });
         card.appendChild(ed.el);
         if (phone && C().ui().keybar !== false) card.appendChild(KOS.codeUI.keyBar(ed.input));
       }
@@ -992,7 +1013,7 @@
         }
         if (kind === "predict") {
           go.disabled = true;
-          KOS.codeRun.run({ files: [{ name: "Program.cs", src: v.src }], stdin: v.stdin || "", fs: v.fs, lesson: cd.lesson }).then(function (r) {
+          KOS.codeRun.run({ files: [{ name: C().fileFor(cd.lesson), src: v.src }], stdin: v.stdin || "", fs: v.fs, db: v.db, lesson: cd.lesson }).then(function (r) {
             go.disabled = false;
             var real = r.ok ? KOS.codeRun.norm(r.stdout) : "";
             if (KOS.codeRun.norm(ans.value) === real) return finish(true);
@@ -1005,7 +1026,7 @@
           : ed.files();
         go.disabled = true;
         if (ed) ed.running(true);
-        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs, lesson: cd.lesson }, files).then(function (c) {
+        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs, db: v.db, lesson: cd.lesson }, files).then(function (c) {
           go.disabled = false;
           if (ed) ed.running(false);
           if (c.passed) return finish(true);
@@ -1126,7 +1147,7 @@
         lists.appendChild(el("section", { class: "k-card k-cx-unitcard", "data-state": open ? "open" : null, "aria-label": u.title }, [head, ul]));
       });
       var withConcepts = Object.keys(byUnit);
-      var rest = C().units().filter(function (u) { return withConcepts.indexOf(u.ref) < 0; });
+      var rest = C().coreUnits().filter(function (u) { return withConcepts.indexOf(u.ref) < 0; });
       if (rest.length && !bandF) {
         lists.appendChild(el("button", { type: "button", class: "k-card k-cx-unitcard k-cx-later-units", "data-state": "later", onclick: function () { KOS.show("code", { page: "map" }); } }, [
           el("span", { class: "k-mono k-cx-acc-ref", text: rest[0].ref + "+" }),

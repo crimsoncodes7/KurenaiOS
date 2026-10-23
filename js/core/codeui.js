@@ -43,12 +43,21 @@
   function tok(t, s) { return '<span class="k-t" data-t="' + t + '">' + esc(s) + "</span>"; }
   /* one line at a time, carrying an open block comment across lines;
      `mark` wraps the first occurrence of a name in the squiggle */
-  function highlightLines(src, markLine, markName) {
+  /* SQL (T1): line and block comments, '…' strings, numbers, keywords in
+     any case, functions by the bracket after them */
+  var SQL_KW = {};
+  ("select from where and or not null is in like between order by group having limit offset as distinct all join inner left right " +
+   "full outer cross on using union intersect except with recursive insert into values update set delete create table view index " +
+   "drop alter add column primary key foreign references unique check default constraint integer int real text blob numeric " +
+   "begin commit rollback savepoint release transaction case when then else end asc desc exists explain query plan pragma " +
+   "over partition rows range preceding following current row returning conflict do nothing replace strict if true false")
+    .split(" ").forEach(function (w) { SQL_KW[w] = true; });
+  function highlightLines(src, markLine, markName, lang) {
     var lines = String(src == null ? "" : src).replace(/\r\n?/g, "\n").split("\n");
-    var inBlock = false;
+    var inBlock = false, sql = lang === "sql";
     return lines.map(function (line, li) {
       var out = "", i = 0, n = line.length;
-      var re = /(\/\/.*$)|(\/\*)|(\$?@?"(?:[^"\\]|\\.)*"?|'(?:[^'\\]|\\.)*'?)|(\b\d[\d_]*(?:\.\d+)?[mMdDfFL]?\b)|(\[(?:Fact|Theory|InlineData)\b[^\]]*\])|([A-Za-z_]\w*)|([^\sA-Za-z_\d"'$@/\[]+|.)/g;
+      var re = sql ? /(--.*$)|(\/\*)|('(?:[^']|'')*'?)|(\b\d+(?:\.\d+)?\b)|(\[\b\B\])|([A-Za-z_]\w*)|([^\sA-Za-z_\d'\/-]+|.)/g : /(\/\/.*$)|(\/\*)|(\$?@?"(?:[^"\\]|\\.)*"?|'(?:[^'\\]|\\.)*'?)|(\b\d[\d_]*(?:\.\d+)?[mMdDfFL]?\b)|(\[(?:Fact|Theory|InlineData)\b[^\]]*\])|([A-Za-z_]\w*)|([^\sA-Za-z_\d"'$@/\[]+|.)/g;
       var squig = markName && li + 1 === markLine;
       var done = false;
       function word(w, kind) {
@@ -77,7 +86,7 @@
         else if (m[5]) out += tok("attr", m[5]);
         else if (m[6]) {
           var w = m[6], call = line.charAt(re.lastIndex) === "(";
-          out += word(w, KW[w] ? "kw" : call ? "fn" : /^[A-Z]/.test(w) ? "ty" : null);
+          out += word(w, sql ? (SQL_KW[w.toLowerCase()] ? "kw" : call ? "fn" : null) : KW[w] ? "kw" : call ? "fn" : /^[A-Z]/.test(w) ? "ty" : null);
         }
         else out += esc(m[7]);
         i = re.lastIndex;
@@ -96,6 +105,7 @@
     opts = opts || {};
     var id = "k-ced-" + (++edSeq);
     var file = opts.file || "Program.cs";
+    var lang = opts.lang || (/\.sql$/i.test(file) ? "sql" : "csharp");
     var errLine = 0, errName = null, escArmed = false, readOnly = !!opts.readOnly, running = false;
     var gutter = el("div", { class: "k-ced-gutter", "aria-hidden": "true" });
     var pre = el("pre", { class: "k-ced-hl", "aria-hidden": "true" });
@@ -108,7 +118,7 @@
     var posEl = el("span", { class: "k-ced-pos", "data-ui": "code.editor-pos" });
     var note = el("span", { class: "k-ced-note", "data-ui": "code.editor-note", hidden: "" }, ["Read-only while it runs"]);
     var head = el("div", { class: "k-ced-head" }, [
-      el("span", { class: "k-ced-lang", "aria-hidden": "true", text: "C#" }),
+      el("span", { class: "k-ced-lang", "aria-hidden": "true", text: lang === "sql" ? "SQL" : "C#" }),
       el("span", { class: "k-ced-file", text: file }),
       note,
       opts.actions ? el("span", { class: "k-ced-actions" }, opts.actions) : null
@@ -130,7 +140,7 @@
       stateEl.textContent = (s === "ready" || s === "edited" ? "● " : s === "running" ? "◌ " : s === "pass" ? "✓ " : "✗ ") + (text || STATE_WORD[s] || "Ready");
     }
     function paint() {
-      var lines = highlightLines(ta.value, errLine, errName);
+      var lines = highlightLines(ta.value, errLine, errName, lang);
       pre.innerHTML = lines.join("\n") + "\n ";
       var n = Math.max(lines.length, opts.minLines || 1);
       var g = "";
@@ -646,7 +656,7 @@
         try { navigator.clipboard.writeText(ed.value).then(done, done); } catch (e) { done(); }
       } });
     var runBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "code.listing-run", text: "▶ Run", onclick: go });
-    ed = editor({ value: orig, file: run.cap || "Listing", compact: true, noBar: true, label: "Listing" + (run.cap ? ": " + run.cap : ""),
+    ed = editor({ value: orig, file: run.cap || "Listing", lang: opts.lesson && KOS.code && KOS.code.runnerFor(opts.lesson) === "sql" ? "sql" : null, compact: true, noBar: true, label: "Listing" + (run.cap ? ": " + run.cap : ""),
       actions: [runBtn, reset, copy],
       onRun: go,
       onChange: function (v) { reset.disabled = v === orig; } });
@@ -655,7 +665,7 @@
       if (runBtn.disabled) return;
       runBtn.disabled = true;
       ed.running(true);
-      KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "", fs: run.fs, lesson: opts.lesson }).then(function (r) {
+      KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "", fs: run.fs, db: run.db, lesson: opts.lesson }).then(function (r) {
         runBtn.disabled = false;
         ed.running(false);
         out.hidden = false;

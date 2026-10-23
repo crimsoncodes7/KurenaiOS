@@ -215,8 +215,12 @@
      runtime; req.runner "sql" (or req.lang "sql") runs SQLite */
   function run(req) {
     req = Object.assign({ budget: 3e6, ms: 2500 }, req);
-    if (req.lang === "sql" || req.runner === "sql") return sqlRun(req);
-    var which = req.runner || (req.lesson && KOS.code && KOS.code.runnerFor ? KOS.code.runnerFor(req.lesson) : "interp");
+    var which = req.lang === "sql" ? "sql" : req.runner || (req.lesson && KOS.code && KOS.code.runnerFor ? KOS.code.runnerFor(req.lesson) : "interp");
+    if (which === "sql") {
+      /* the lesson's dataset unless the request brings its own */
+      if (req.seed == null && KOS.code && KOS.code.datasetFor) req.seed = KOS.code.datasetFor(req.lesson, req.db);
+      return sqlRun(req);
+    }
     if (which === "wasm") return rtRun(Object.assign({}, req, { budget: 5e6, ms: 3000, nullable: req.nullable !== false }));
     if (canWork()) {
       if (!worker) worker = make();
@@ -267,7 +271,7 @@
       var c = cases[i];
       var req = spec.mode === "method"
         ? { files: files, mode: "method", call: { name: spec.method, args: c.args || [] }, stdin: c.stdin || "", fs: c.fs || spec.fs, lesson: spec.lesson, runner: spec.runner }
-        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs, seed: c.seed || spec.seed, lang: spec.lang, lesson: spec.lesson, runner: spec.runner };
+        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs, seed: c.seed || spec.seed, db: c.db || spec.db, lang: spec.lang, lesson: spec.lesson, runner: spec.runner };
       return run(req).then(function (r) {
         out.ms += r.ms || 0;
         if (!r.ok && r.error && (r.error.kind === "compile" || r.error.kind === "unsupported" || r.error.kind === "runtime")) {

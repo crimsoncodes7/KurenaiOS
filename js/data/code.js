@@ -181,6 +181,52 @@
       ["12.14", "Practise: a route planner", "Find shortest routes on a small map."]
     ] }
   ];
+  /* the tracks' parts (docs/code-plan.md §3.3): each part is a section of
+     the spine like a unit, marked with its track, and released whole; the
+     core surfaces (the desk's units, the stage path, the lesson counts)
+     read the core only (KOS.code.coreUnits / coreLessons) */
+  var TRACK_PARTS = [
+    { ref: "T1A", track: "T1", title: "Databases", strands: ["S", "E"], where: "sql", db: "cafe", lessons: [
+      ["T1.1", "Tables, rows and keys", "Read a database as tables of rows, name the primary and foreign keys, and see why a database beats a CSV file."],
+      ["T1.2", "Reading: SELECT, WHERE, ORDER BY, LIMIT", "Ask a table for the columns and rows you want, filtered, sorted and cut to size."],
+      ["T1.3", "Expressions, NULL and three-valued logic", "Compute new columns, use SQL's functions, and handle NULL — the value that is neither true nor false."],
+      ["T1.4", "Aggregates: GROUP BY and HAVING", "Count, total and average whole tables, then one group at a time, and filter the groups."],
+      ["T1.5", "Joins: inner, left, self and many-to-many", "Combine tables through their keys, keep the rows that have no partner, and read a link table."],
+      ["T1.6", "Subqueries, sets, CTEs and windows", "Use a query inside a query, combine results with UNION, name steps with WITH, and rank rows with window functions."],
+      ["T1.7", "Designing tables: relationships and normalisation", "Turn a messy spreadsheet into related tables in 1NF, 2NF and 3NF, with the constraints that keep the data true."],
+      ["T1.8", "Changing data safely: transactions and indexes", "Insert, update and delete without surprises, group changes into a transaction, and see what an index changes in the query plan."]
+    ] },
+    { ref: "T1B", track: "T1", title: "SQL from C#", strands: ["E"], where: "rider", lessons: [
+      ["T1.9", "Microsoft.Data.Sqlite: connections and readers", "Open a SQLite database from C#, run a command and read its rows."],
+      ["T1.10", "Parameters, never concatenation", "Pass values as parameters, and see SQL injection happen to code that glues strings together."],
+      ["T1.11", "Transactions and a small repository", "Wrap changes in a transaction and hide the SQL behind a repository class."]
+    ] },
+    { ref: "T1C", track: "T1", title: "Entity Framework Core", strands: ["E"], where: "rider", lessons: [
+      ["T1.12", "Entities and DbContext", "Map classes to tables with EF Core and save objects without writing SQL."],
+      ["T1.13", "LINQ to SQL: what gets translated", "Write LINQ that EF turns into SQL, and recognise what it cannot translate."],
+      ["T1.14", "Migrations", "Change the model and let migrations change the database to match."],
+      ["T1.15", "Relationships and loading", "Model one-to-many and many-to-many, and load related data on purpose."],
+      ["T1.16", "Change tracking", "Know what EF is tracking, when SaveChanges writes, and when not to track."],
+      ["T1.17", "N+1 and performance", "Spot the N+1 query, fix it, and measure the difference."]
+    ] },
+    { ref: "T1D", track: "T1", title: "HTTP and REST", strands: ["E"], where: "sandbox", lessons: [
+      ["T1.18", "HTTP: methods, status codes and headers", "Read a request and a response line by line, and know what each status code promises."],
+      ["T1.19", "HttpClient and JSON", "Call an API from C# and turn its JSON into objects and back."],
+      ["T1.20", "Retries, timeouts and cancellation", "Survive a slow or failing server without hanging or hammering it."],
+      ["T1.21", "REST design", "Design resources, URLs and status codes an API's users can guess."],
+      ["T1.22", "Authentication: API keys, OAuth and JWT", "Prove who is calling, and keep the secret out of the code."]
+    ] },
+    { ref: "T1E", track: "T1", title: "Networking", strands: ["S"], where: "app", lessons: [
+      ["T1.23", "IP, DNS and ports", "Follow a request from a name to an address to a program listening on a port."],
+      ["T1.24", "TCP and UDP", "Compare a reliable stream with fire-and-forget datagrams, and know which an app wants."],
+      ["T1.25", "Sockets: a client and a server", "Write a TCP server and client that talk over your own machine."]
+    ] },
+    { ref: "T1F", track: "T1", title: "Building an API", strands: ["E"], where: "rider", lessons: [
+      ["T1.26", "ASP.NET Core minimal APIs", "Serve your own endpoints with a few lines of ASP.NET Core."],
+      ["T1.27", "Persistence, configuration and secrets", "Give the API a database, settings per environment and secrets that never reach Git."],
+      ["T1.28", "Testing an API", "Test every endpoint end to end with WebApplicationFactory."]
+    ] }
+  ];
 
   window.KOS_DATA.code = {
     id: "code",
@@ -188,9 +234,9 @@
     board: "C# and .NET",
     labelL: "What this lesson covers",
     labelR: "Where it leads",
-    sections: UNITS.map(function (u) {
+    sections: UNITS.concat(TRACK_PARTS).map(function (u) {
       return {
-        ref: u.ref, title: u.title, stage: u.stage, strands: u.strands, where: u.where,
+        ref: u.ref, title: u.title, stage: u.stage || null, strands: u.strands, where: u.where, track: u.track || null, db: u.db || null,
         children: u.lessons.map(function (l) { return { ref: l[0], title: l[1], content: [l[2]] }; })
       };
     })
@@ -207,7 +253,8 @@
       app: { label: "In-app", mark: "▸", hint: "Runs on this device with the in-app runner." },
       sandbox: { label: "In-app sandbox", mark: "▹", hint: "Needs the full .NET runtime, offered from unit 7." },
       rider: { label: "Rider", mark: "⌘", hint: "Built in JetBrains Rider and brought back as a validation report." },
-      external: { label: "External tools", mark: "⇱", hint: "Needs tools outside KurenaiOS, such as Python, Docker or a GPU." }
+      external: { label: "External tools", mark: "⇱", hint: "Needs tools outside KurenaiOS, such as Python, Docker or a GPU." },
+      sql: { label: "SQL sandbox", mark: "▤", hint: "Runs on this device in SQLite, fetched once the first time a lesson runs SQL." }
     },
     /* the core path: four stages and the bridge between stages 2 and 3 */
     STAGES: [

@@ -29,7 +29,8 @@ const require = createRequire(import.meta.url);
 const { loadCode, programs, runnerOf } = require("./lib/code-content.js");
 const { loadWasm } = require("./lib/cs-wasm-node.js");
 const { K, content, CSI, data } = loadCode();
-const list = programs(K, content).map((p) => Object.assign(p, { runner: runnerOf(K, data, p.lesson) }));
+/* SQL programs (T1A) are held to native SQLite by tools/sql_diff.mjs instead */
+const list = programs(K, content).map((p) => Object.assign(p, { runner: runnerOf(K, data, p.lesson) })).filter((p) => p.runner !== "sql");
 const wasm = list.some((p) => p.runner === "wasm") ? await loadWasm() : null;
 if (list.some((p) => p.runner === "wasm") && !wasm) { console.error("cs_diff: units 7+ need the full runtime — run tools/build_cs_wasm.sh"); process.exit(2); }
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kos-csdiff-"));

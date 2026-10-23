@@ -311,7 +311,7 @@
          page swaps for a live one (KOS.codeUI.mountListings) */
       if (b.run) {
         html += '<div class="k-cx-slot" data-ui="code.listing-slot" data-lid="' + esc(String(b.run.id || "")) + '">' +
-          codeFigure(b.run.src, "csharp", b.run.cap) + "</div>";
+          codeFigure(b.run.src, b.run.lang || "csharp", b.run.cap) + "</div>";
         return;
       }
       if (b.callout) {

@@ -465,7 +465,14 @@ button.k-cx-maprow:hover { background: var(--s2); }
 .k-cx-need[data-state~="met"] { background: color-mix(in oklch, var(--code) 16%, transparent); box-shadow: none; color: var(--code); }
 .k-cx-branch-f { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); font-size: var(--fs-12); color: var(--text-2); }
 .k-cx-track { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-18); }
-.k-cx-track > :last-child { grid-column: 1 / -1; }
+.k-cx-track > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+/* a track's parts (T1…): one card each, three across */
+.k-cx-parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-18); margin-block-start: var(--sp-18); }
+.k-cx-part { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-16) var(--sp-18); }
+.k-cx-part[data-state~="later"] { opacity: 0.78; }
+.k-cx-partlist { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); font-size: var(--fs-13); }
+.k-cx-partlesson { display: inline; text-align: start; }
+.k-cx-partlesson .k-mono { color: var(--text-2); }
 .k-cx-track .k-card { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-16) var(--sp-18); }
 .k-cx-track-about { margin: 0; font-size: var(--fs-14); }
 
@@ -632,6 +639,7 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 }
 
 @media (max-width: 1080px) {
+.k-cx-parts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-cx-capgrid { grid-template-columns: minmax(0, 1fr); }
 .k-cx-capside { position: static; }
 .k-cx-ws { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "centre" "ms" "status"; }
@@ -666,6 +674,7 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-maprow > :nth-child(2), .k-cx-maprow > :nth-child(4) { display: none; }
 .k-cx-settings { grid-template-columns: minmax(0, 1fr); }
 .k-cx-track { grid-template-columns: minmax(0, 1fr); }
+.k-cx-parts { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
 /* the phone shows the current stage alone, so the path is a plain row */

@@ -36,7 +36,7 @@ step("A · the subjects; Code is not an exam subject", async (app) => {
   assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja"]), "ids (Japanese is the fifth, smoke80): " + S.ids());
   assert(JSON.stringify(S.ids("exam")) === JSON.stringify(["compsci", "maths", "it"]), "exam ids: " + S.ids("exam"));
   assert(S.hue("code") === "var(--code)" && S.short("code") === "Code", "Code's hue and short name");
-  assert(app.KOS.hub.LEAVES.code.length === 131, "131 core lessons on the spine, got " + app.KOS.hub.LEAVES.code.length);
+  assert(app.KOS.code.coreLessons().length === 131 && app.KOS.hub.LEAVES.code.length === 131 + 28, "131 core lessons and T1's 28 on the spine, got " + app.KOS.code.coreLessons().length + " / " + app.KOS.hub.LEAVES.code.length);
   assert(app.KOS.spec.node("code", "1.1") && app.KOS.spec.level("code", "1.1") === "leaf", "the spec index knows Code's lessons");
 });
 step("A · the --code hue is a token in Graphite and every theme", () => {

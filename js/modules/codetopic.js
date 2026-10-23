@@ -316,7 +316,7 @@
   function renderNoLesson(panel, ref, o) {
     var L = KOS.code.lesson(ref);
     panel.appendChild(KOS.ui.emptyState({
-      mark: "碼", title: "This lesson arrives with " + (L && L.unit === "B" ? "Bridge B" : "unit " + (L ? L.unit.slice(1) : "")),
+      mark: "碼", title: "This lesson arrives with " + (L ? KOS.code.unitName(L.unit).replace(/^Unit /, "unit ") : "a later release"),
       body: "Lessons are released one unit at a time, each written in full. Its aim: " + (L ? L.aim : ""),
       action: el("button", { type: "button", class: "k-btn", text: "Open the curriculum map", onclick: function () { KOS.show("code", { page: "map" }); } })
     }));
@@ -567,7 +567,7 @@
     var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "Check",
       onclick: function () {
         check.disabled = true;
-        KOS.codeRun.run({ files: [{ name: "Program.cs", src: item.src }], stdin: item.stdin || "", fs: item.fs, lesson: ref }).then(function (r) {
+        KOS.codeRun.run({ files: [{ name: KOS.code.fileFor(ref), src: item.src }], stdin: item.stdin || "", fs: item.fs, db: item.db, lesson: ref }).then(function (r) {
           check.disabled = false;
           out.innerHTML = "";
           var real = r.ok ? KOS.codeRun.norm(r.stdout) : null;
@@ -603,7 +603,7 @@
         var src = parts.map(function (part, i) { return part + (i < inputs.length ? inputs[i].value : ""); }).join("");
         check.disabled = true;
         var cases = item.cases || [{ stdin: item.stdin || "", out: item.out }];
-        KOS.codeRun.check({ mode: "program", cases: cases, fs: item.fs, lesson: ref }, [{ name: "Program.cs", src: src }]).then(function (c) {
+        KOS.codeRun.check({ mode: "program", cases: cases, fs: item.fs, db: item.db, lesson: ref }, [{ name: KOS.code.fileFor(ref), src: src }]).then(function (c) {
           check.disabled = false;
           out.innerHTML = "";
           if (c.compile) { out.appendChild(KOS.codeUI.errorCard(c.compile)); announce("Compile error " + c.compile.code + "."); return; }
@@ -622,7 +622,7 @@
   function bugCard(card, ref, item, done) {
     card.appendChild(el("h3", { class: "k-cx-q-t", text: item.q || "Find the bug, fix it, then run." }));
     if (item.expect) card.appendChild(el("p", { class: "k-cx-q-sub", text: item.expect }));
-    var ed = KOS.codeUI.editor({ value: item.src, file: item.file || "Bug.cs", compact: true, label: "Buggy code", onRun: go });
+    var ed = KOS.codeUI.editor({ value: item.src, file: item.file || (KOS.code.runnerFor(ref) === "sql" ? "query.sql" : "Bug.cs"), compact: true, label: "Buggy code", onRun: go });
     card.appendChild(ed.el);
     var out = el("div", { class: "k-cx-q-out" });
     var run = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "▶ Run", onclick: go });
@@ -630,7 +630,7 @@
     card.appendChild(out);
     function go() {
       run.disabled = true; ed.running(true);
-      KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }], fs: item.fs, lesson: ref }, ed.files()).then(function (c) {
+      KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }], fs: item.fs, db: item.db, lesson: ref }, ed.files()).then(function (c) {
         run.disabled = false; ed.running(false);
         out.innerHTML = "";
         if (c.compile) { ed.state("compile", "1 compile error"); ed.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); out.appendChild(KOS.codeUI.errorCard(c.compile)); return; }

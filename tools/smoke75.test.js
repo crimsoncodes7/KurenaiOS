@@ -29,7 +29,8 @@
    Run:
      node tools/smoke75.test.js                                            */
 "use strict";
-const { loadCode, variation, listings, runnerOf } = require("./lib/code-content.js");
+const { loadCode, variation, listings, runnerOf, seedOf } = require("./lib/code-content.js");
+const { loadSql } = require("./lib/sql-node.js");
 const { loadWasm } = require("./lib/cs-wasm-node.js");
 const { K, content, data, CSI } = loadCode();
 /* units 7+ run on the full runtime (nullable on), as in the app */
@@ -40,12 +41,16 @@ function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
 const full = (lesson) => runnerOf(K, data, lesson) === "wasm";
-const run = async (src, stdin, fs, lesson) => full(lesson)
+const isSql = (lesson) => runnerOf(K, data, lesson) === "sql";
+let SQL = null;
+const run = async (src, stdin, fs, lesson, db) => isSql(lesson)
+  ? SQL.run({ src, seed: seedOf(K, data, { lesson, db }) })
+  : full(lesson)
   ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs, nullable: true })
   : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs });
 async function passes(spec, src, lesson) {
   for (const c of spec.cases) {
-    const r = await run(src, c.stdin, c.fs || spec.fs, lesson);
+    const r = await run(src, c.stdin, c.fs || spec.fs, lesson, c.db || spec.db);
     if (!r.ok || norm(r.stdout) !== norm(c.out)) return false;
   }
   return (spec.rules || []).every((rl) => rl.test(src));
@@ -99,7 +104,7 @@ step("B · every written lesson meets the notes contract", async () => {
     const pit = ps.find((x) => x.title === "Pitfalls");
     const pitRuns = listings(pit.blocks, []);
     let compileErr = false;
-    for (const r of pitRuns) { const o = await run(r.src, r.stdin, r.fs, ref); if (!o.ok && o.error.kind === "compile") { compileErr = true; break; } }
+    for (const r of pitRuns) { const o = await run(r.src, r.stdin, r.fs, ref); if (!o.ok && (o.error.kind === "compile" || o.error.kind === "sql")) { compileErr = true; break; } }
     if (pitRuns.length) assert(compileErr || ref === "1.8" || ref === "1.4", ref + ": no compile-error pitfall");
   }
 });
@@ -107,15 +112,15 @@ step("C · every listing and practice item runs as it should", async () => {
   for (const { ref } of written) {
     const c = content["code:" + ref], ps = pages(c.notes);
     for (const pg of ps) for (const r of listings(pg.blocks, [])) {
-      const o = await run(r.src, r.stdin, r.fs, ref);
+      const o = await run(r.src, r.stdin, r.fs, ref, r.db);
       if (pg.title !== "Pitfalls" && !r.fails) assert(o.ok, ref + " listing " + r.id + " fails: " + JSON.stringify(o.error));
-      else assert(o.ok || ["compile", "exception", "timeout"].includes(o.error.kind), ref + " pitfall " + r.id + ": " + JSON.stringify(o.error));
+      else assert(o.ok || ["compile", "exception", "timeout", "sql"].includes(o.error.kind), ref + " pitfall " + r.id + ": " + JSON.stringify(o.error));
     }
     const p = c.practice || {};
-    for (const it of (p.predict || [])) assert((await run(it.src, it.stdin, it.fs, ref)).ok, ref + " predict " + it.id + " does not run");
+    for (const it of (p.predict || [])) assert((await run(it.src, it.stdin, it.fs, ref, it.db)).ok, ref + " predict " + it.id + " does not run");
     for (const it of (p.bug || [])) {
       const cases = it.cases || [{ stdin: it.stdin || "", out: it.out }];
-      assert(!(await passes({ cases, fs: it.fs }, it.src, ref)), ref + " bug " + it.id + " already passes");
+      assert(!(await passes({ cases, fs: it.fs, db: it.db }, it.src, ref)), ref + " bug " + it.id + " already passes");
     }
     (p.fill || []).forEach((it) => assert(String(it.src).indexOf("@@") >= 0 && (it.out != null || it.cases), ref + " fill " + it.id + " has no gap or expectation"));
   }
@@ -129,7 +134,7 @@ step("D · every task: answer passes, starter does not, concepts exist", async (
     assert((t.examples || []).length >= 1 && (t.hints || []).length === 3 && t.answer && t.title && t.statement, id + ": incomplete");
     assert(["warm-up", "core", "stretch"].includes(t.tier), id + ": tier");
     (t.concepts || []).concat(t.requires || []).forEach((c) => assert(K.CONCEPTS[c], id + ": unknown concept " + c));
-    const spec = { cases: (t.examples || []).concat(t.hidden || []), rules: t.rules, fs: t.fs };
+    const spec = { cases: (t.examples || []).concat(t.hidden || []), rules: t.rules, fs: t.fs, db: t.db };
     assert(await passes(spec, t.answer, t.lesson), id + ": the answer does not pass its own check");
     assert(!(await passes(spec, t.starter || "", t.lesson)), id + ": the starter already passes");
   }
@@ -144,7 +149,7 @@ step("E · retrieval cards: 20 variations each, all solvable", async () => {
       const v = variation(cd, n);
       assert(v.prompt, id + " v" + n + ": no prompt");
       const kind = v.kind || cd.kind;
-      if (kind === "predict") assert((await run(v.src, v.stdin, v.fs, cd.lesson)).ok, id + " v" + n + " does not run");
+      if (kind === "predict") assert((await run(v.src, v.stdin, v.fs, cd.lesson, v.db)).ok, id + " v" + n + " does not run");
       else if (kind === "fill") assert(v.src.indexOf("@@") >= 0 && v.cases && v.cases.length, id + " v" + n + ": fill shape");
       else if (kind === "command") {
         const ok = (t) => { const x = String(t).replace(/\s+/g, " ").trim(); return !!x && v.accept.some((a) => new RegExp(a, v.ci ? "i" : "").test(x)); };
@@ -155,8 +160,8 @@ step("E · retrieval cards: 20 variations each, all solvable", async () => {
       }
       else {
         assert(v.answer && v.cases && v.cases.length, id + " v" + n + ": write card without answer/cases");
-        assert(await passes({ cases: v.cases, rules: v.rules, fs: v.fs }, v.answer, cd.lesson), id + " v" + n + ": its answer fails");
-        assert(!(await passes({ cases: v.cases, rules: v.rules, fs: v.fs }, v.starter || "", cd.lesson)), id + " v" + n + ": its starter passes");
+        assert(await passes({ cases: v.cases, rules: v.rules, fs: v.fs, db: v.db }, v.answer, cd.lesson), id + " v" + n + ": its answer fails");
+        assert(!(await passes({ cases: v.cases, rules: v.rules, fs: v.fs, db: v.db }, v.starter || "", cd.lesson)), id + " v" + n + ": its starter passes");
       }
     }
   }
@@ -164,6 +169,7 @@ step("E · retrieval cards: 20 variations each, all solvable", async () => {
 
 (async () => {
 let failed = 0;
+SQL = await loadSql();
 if (written.some((l) => full(l.ref))) {
   WASM = await loadWasm();
   if (!WASM) { console.log("  FAIL units 7+ need the full runtime — run tools/build_cs_wasm.sh"); process.exit(1); }
