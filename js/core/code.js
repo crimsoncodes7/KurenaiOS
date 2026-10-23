@@ -370,11 +370,13 @@
      and forth), so 26l's seven steps are six here */
   var CAP_STEPS = [["quiz", "Closed-book quiz"], ["build", "Brief & build"], ["rubric", "Rubric"],
     ["review", "Kurenai review"], ["writeup", "Write-up"], ["result", "Result"]];
-  function capstone(id) { var c = K().CAPSTONES[id]; return c && c.milestones ? c : null; }
+  /* a written capstone: acceptance cases in the app (C1–C3), or a Rider
+     project whose validator milestones are its build (C4, `project`) */
+  function capstone(id) { var c = K().CAPSTONES[id]; return c && (c.milestones || (c.project && project(c.project))) ? c : null; }
   function capRec(id) { var C = S().capstones; return C[id] = obj(C[id]); }
   function peekCap(id) { return obj(S().capstones[id]); }
   function words(t) { return (String(t || "").match(/[A-Za-z0-9\u00C0-\u024F'’-]+/g) || []).length; }
-  function capCases(id) { var c = capstone(id); return c ? c.milestones.reduce(function (a, m) { return a + m.cases.length; }, 0) : 0; }
+  function capCases(id) { var c = capstone(id); return c && c.milestones ? c.milestones.reduce(function (a, m) { return a + m.cases.length; }, 0) : 0; }
   /* the quiz: answered once at a time (it can be retaken); under 3 of 5
      recommends the lessons of the first two misses and still opens */
   function answerQuiz(id, answers) {
@@ -404,6 +406,16 @@
     var c = capstone(id), b = obj(peekCap(id).build);
     if (!c) return null;
     var pass = 0, total = 0, done = 0;
+    if (c.project) {
+      /* a Rider capstone: each validator milestone counts once, passed by an
+         accepted report (recordReport), never by a click */
+      var pv = projectView(c.project);
+      var pms = pv.milestones.map(function (m) {
+        if (m.passedAt) done++;
+        return { id: m.id, title: m.title, pass: m.passedAt ? 1 : 0, total: 1, run: !!(m.passedAt || m.last), done: !!m.passedAt, at: m.passedAt, state: m.state };
+      });
+      return { milestones: pms, pass: done, total: pms.length, done: done, all: pms.length > 0 && done === pms.length, project: c.project };
+    }
     var ms = c.milestones.map(function (m) {
       var x = b[m.id], t = m.cases.length, p = x && x.total === t ? x.pass : 0;
       pass += p; total += t; if (x && p === t) done++;
@@ -452,7 +464,7 @@
       review: !!(rec.review && rec.review.state), writeup: wn >= (c.writeupMin || 40), result: !!rec.passAt
     };
     var missing = [];
-    if (!b.all) missing.push({ step: "build", text: (b.milestones.length - b.done) + " of " + b.milestones.length + " milestones still failing their acceptance tests" });
+    if (!b.all) missing.push({ step: "build", text: (b.milestones.length - b.done) + " of " + b.milestones.length + " milestones " + (c.project ? "still to pass in a validation report" : "still failing their acceptance tests") });
     if (!rb.marked) missing.push({ step: "rubric", text: "the rubric's self-marked rows" });
     if (wn < (c.writeupMin || 40)) missing.push({ step: "writeup", text: "a write-up of at least " + (c.writeupMin || 40) + " words (" + wn + " so far)" });
     return { id: id, spec: c, steps: CAP_STEPS.map(function (s) { return { id: s[0], title: s[1], done: done[s[0]] }; }),
@@ -548,7 +560,8 @@
     p.milestones.forEach(function (m) { (m.lessons || []).forEach(function (l) { if (refs.indexOf(l) < 0) refs.push(l); }); });
     refs.forEach(syncChecks);
     var all = p.milestones.every(function (m) { return r.passed[m.id]; }), pay = null;
-    if (all && !r.payAt) {
+    /* a capstone's project pays nothing of its own: the capstone pays */
+    if (all && !r.payAt && p.reward) {
       r.payAt = Date.now();
       store.save();
       KOS.sessions.log({ type: "code", subject: SID, ref: refs[refs.length - 1] || null, refs: refs.map(function (l) { return SID + ":" + l; }),

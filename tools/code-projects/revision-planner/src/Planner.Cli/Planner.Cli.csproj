@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The command line on top of the planner and its storage. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Planner.Core/Planner.Core.csproj" />
+    <ProjectReference Include="../Planner.Storage/Planner.Storage.csproj" />
+  </ItemGroup>
+</Project>

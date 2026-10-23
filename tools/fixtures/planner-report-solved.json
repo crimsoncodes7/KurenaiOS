@@ -1,0 +1,161 @@
+{
+  "schema": "kurenai.validation/1",
+  "project": {
+    "id": "rp-c4-planner",
+    "scaffoldVersion": 1
+  },
+  "validator": {
+    "version": "1.1.0",
+    "sha256": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+  },
+  "env": {
+    "sdk": "10.0.302",
+    "os": "macOS 27.0.1",
+    "arch": "arm64"
+  },
+  "source": {
+    "treeSha256": "f4c3da857cf27e3bcdf796d27f9dc7b2f6bd4fc56bd39f8f54af69a863a9567b",
+    "gitCommit": "80f19ee52b22efda41107111debe4ee86608f226",
+    "dirty": false
+  },
+  "protected": {
+    "ok": true,
+    "mismatched": [],
+    "files": {
+      "Directory.Build.props": "20ba05de9808e2347b49b7fec883a9847080f2f7a7a85d95151b7f839711968e",
+      "src/Planner.Core/Priority.cs": "906e1d808f6665bb9d7f8d61a923e098f0c6acfa068f643d5bc8b57160c8ab2a",
+      "tests/Planner.Acceptance/Planner.Acceptance.csproj": "0ac0dc69606a2fe71ac9b2a8d22a76d3bd0c4e99afa6d8608e7465b43d474749",
+      "tests/Planner.Acceptance/Milestone2.cs": "31615db9ef58e7c4874a404dae3b136abe543aff0f53e8e586235f7bcc912bea",
+      "tests/Planner.Acceptance/Milestone3.cs": "32fb9d337596568cf200106617d7ab85e0fb7140080ad442ed5198291b4df2c1",
+      ".kurenai/validate.cs": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+    }
+  },
+  "steps": [
+    {
+      "id": "preflight",
+      "ran": true,
+      "exit": 0,
+      "ms": 91,
+      "sdk": "10.0.302"
+    },
+    {
+      "id": "restore",
+      "ran": true,
+      "exit": 0,
+      "ms": 432
+    },
+    {
+      "id": "build",
+      "ran": true,
+      "exit": 0,
+      "ms": 526,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "id": "test",
+      "ran": true,
+      "exit": 0,
+      "ms": 947,
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "ok": true,
+      "checks": [
+        {
+          "type": "owntests",
+          "ok": true,
+          "note": "12 of your tests pass, 0 fail (at least 6 needed)"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        },
+        {
+          "type": "mutants",
+          "ok": true,
+          "note": "your tests caught 4 of 4 planted bugs (at least 3 needed)"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "5 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "ok": true,
+      "checks": [
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        },
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "ok": true,
+      "checks": [
+        {
+          "type": "owntests",
+          "ok": true,
+          "note": "12 of your tests pass, 0 fail (at least 10 needed)"
+        },
+        {
+          "type": "warnings",
+          "ok": true,
+          "note": "0 warning(s), at most 0"
+        },
+        {
+          "type": "git",
+          "ok": true,
+          "note": "committed, clean"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "startedAt": "2026-10-23T05:08:51Z",
+  "finishedAt": "2026-10-23T05:09:00Z",
+  "reportSha256": "3380f088540b2e7706a5887b530cd18a16625a6477f65855e00fe1ab7513a4fd"
+}

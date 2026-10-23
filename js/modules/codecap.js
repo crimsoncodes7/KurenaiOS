@@ -29,7 +29,7 @@
   var el = KOS.ui.el;
   var SID = "code";
   /* what each stage may use, for the Kurenai review's brief */
-  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet", 3: "stage 3: classes, interfaces, inheritance, records, generics, delegates, events and LINQ; nullable reference types on" };
+  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet", 3: "stage 3: classes, interfaces, inheritance, records, generics, delegates, events and LINQ; nullable reference types on", 4: "stage 4: a multi-project solution built in Rider — xUnit tests, test doubles and SOLID, async/await with cancellation, System.Text.Json, and data structures such as PriorityQueue" };
   function C() { return KOS.code; }
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function plural(n, one, many) { return KOS.ui.num(n) + " " + (n === 1 ? one : (many || one + "s")); }
@@ -152,9 +152,48 @@
       ]));
     }
 
+    /* ② brief & build for a Rider capstone (C4): the brief, and beside it
+       the project's validator milestones — passed only by an accepted
+       report, brought in on the project's own page */
+    function stepBuildRider() {
+      var bv = C().buildView(id), pv = C().projectView(spec.project);
+      var status = el("p", { class: "k-cx-note", role: "status", "data-ui": "code.cap-export-status" });
+      var exp = el("button", { type: "button", class: "k-btn", "data-ui": "code.cap-export", text: "↓ Export the project", onclick: function () {
+        exp.disabled = true; status.textContent = "Building the zip…";
+        KOS.codeProject.download(spec.project).then(function (z) { exp.disabled = false; status.textContent = "Zip ready: " + z.name + " (" + z.files.length + " files)."; announce("Zip ready: " + z.name + "."); },
+          function (e) { exp.disabled = false; status.textContent = "The zip could not be made: " + (e && e.message || e) + ". Try again."; });
+      } });
+      var ms = el("ol", { class: "k-cx-rp-ms", "data-ui": "code.cap-milestones" }, bv.milestones.map(function (m, i) {
+        var sp = pv.spec.milestones[i];
+        return el("li", { class: "k-cx-rp-m", "data-state": m.done ? "pass" : m.state === "failing" ? "fail" : null }, [
+          el("div", { class: "k-cx-rp-mh" }, [el("b", { class: "k-mono", text: "M" + (i + 1) }), el("span", { text: m.title }),
+            el("span", { class: "k-cx-rp-badge", "data-ui": "code.cap-m-badge", text: m.done ? "✓ passed " + dateLabel(m.at) : m.state === "failing" ? "✗ failing in the last report" : m.state === "passed-practice" ? "passes · practice only" : "not validated" })]),
+          el("p", { class: "k-cx-note", text: sp.about })
+        ]);
+      }));
+      body.appendChild(grid([
+        el("section", { class: "k-card k-cx-capcard" }, [el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "The brief" }), el("span", { class: "k-card-meta", text: "built in Rider" })]),
+          el("div", { class: "k-prose k-cx-capbrief", html: KOS.content.renderBlocks(spec.brief) })])
+      ], [
+        sideCard("Milestones", bv.done + " of " + bv.total + " passed", [ms,
+          el("p", { class: "k-cx-note", text: "The validator decides each one. Run it in Rider, then bring the report in on the project's page." })]),
+        sideCard("In Rider", phone ? "best on a computer" : pv.exportedAt ? "exported " + dateLabel(pv.exportedAt) : null, [
+          el("div", { class: "k-cx-capacts" }, [exp,
+            el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.cap-bring", text: "Bring in a report ›", onclick: function () { KOS.show("code", { page: "project", id: spec.project, tab: "validation" }); } })]),
+          status,
+          el("button", { type: "button", class: "k-link", "data-ui": "code.cap-project", text: "Setup, validation and history ›", onclick: function () { KOS.show("code", { page: "project", id: spec.project, tab: "setup" }); } }),
+          bv.all ? nextBtn("rubric", "Rubric ›") : null
+        ])
+      ]));
+    }
+    /* the source a review sends: the draft, or for a Rider capstone the file pasted at the review */
+    function capSrc() { return C().draft("cap:" + id) || spec.starter || ""; }
+    function srcName() { return spec.project ? "Your pasted file" : "Program.cs"; }
+
     /* ② brief & build: the 26k workspace */
     var msPick = null;
     function stepBuild() {
+      if (spec.project) { stepBuildRider(); return; }
       if (phone) {
         body.appendChild(grid([
           el("section", { class: "k-card k-cx-phonelater", "data-ui": "code.best-on-computer" }, [
@@ -351,7 +390,7 @@
           el("span", { role: "cell", class: "k-cx-rub-t", text: r.title }),
           el("span", { role: "cell", class: "k-cx-rub-k", text: r.auto ? "Automatic" : "Self-marked" }),
           el("span", { role: "cell", class: "k-cx-rub-v" }, [cell]),
-          el("span", { role: "cell", class: "k-cx-rub-g", text: r.auto ? (v.build.all ? "Every acceptance case passes." : v.build.pass + " of " + v.build.total + " acceptance cases pass; fills itself and cannot be edited.") : r.value == null ? "Not marked yet" : r.guide[r.value] })
+          el("span", { role: "cell", class: "k-cx-rub-g", text: r.auto ? (v.build.all ? (spec.project ? "Every milestone passes in a validation report." : "Every acceptance case passes.") : v.build.pass + " of " + v.build.total + (spec.project ? " milestones pass in a validation report" : " acceptance cases pass") + "; fills itself and cannot be edited.") : r.value == null ? "Not marked yet" : r.guide[r.value] })
         ]));
       });
       tbl.appendChild(el("div", { class: "k-cx-rubrow k-cx-rubrow--total", role: "row" }, [
@@ -361,7 +400,7 @@
       ]));
       body.appendChild(tbl);
       body.appendChild(el("div", { class: "k-cx-capacts" }, [nextBtn("review", "Kurenai review →"),
-        !v.build.all ? el("span", { class: "k-cx-note", text: "Acceptance tests still failing: correctness shows its score, and the build step stays open until they pass." }) : null].filter(Boolean)));
+        !v.build.all ? el("span", { class: "k-cx-note", text: spec.project ? "Milestones still to pass: correctness shows its score, and the build step stays open until a report passes them." : "Acceptance tests still failing: correctness shows its score, and the build step stays open until they pass." }) : null].filter(Boolean)));
     }
 
     /* ④ the Kurenai review: What is sent, once; skippable */
@@ -383,24 +422,33 @@
           el("p", { class: "k-cx-note", text: "What works, two or three specific improvements, and one thing to try next. It never marks or grades, and it is optional: skipping changes nothing about passing." })
         ]));
       }
+      if (spec.project && !reviewReq) {
+        /* the project lives in Rider: the learner pastes the file they most want read */
+        var paste = el("textarea", { class: "k-input k-mono k-cx-capwrite", "data-ui": "code.cap-paste", rows: "10", spellcheck: "false", autocapitalize: "off",
+          "aria-label": "The file to review", placeholder: "Paste the file you most want reviewed — StudyPlanner.cs, say." });
+        paste.value = C().draft("cap:" + id) || "";
+        var keep = KOS.ui.debounce(function () { C().setDraft("cap:" + id, paste.value.trim() ? paste.value : null); }, 400);
+        paste.addEventListener("input", keep);
+        mainCol.push(el("section", { class: "k-card k-cx-capcard" }, [el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "The file to review" }), el("span", { class: "k-card-meta", text: "kept on this device" })]), paste]));
+      }
       if (body.getAttribute("data-err")) mainCol.push(el("p", { class: "k-cx-capfail", role: "status" }, [el("span", { text: body.getAttribute("data-err") })]));
       mainCol.push(el("div", { class: "k-cx-capacts" }, [
         el("button", { type: "button", class: r && r.state === "received" ? "k-btn" : "k-btn k-btn--primary", "data-ui": "code.cap-review-open",
           text: r && r.state === "received" ? "Ask again…" : "Choose what is sent…", onclick: whatIsSent }),
         !r ? el("button", { type: "button", class: "k-btn", "data-ui": "code.cap-review-skip", text: "Skip the review", onclick: function () { C().setReview(id, { state: "skipped" }); say("Review skipped."); go("writeup"); } }) : nextBtn("writeup", "Write-up →")
       ]));
-      var src = C().draft("cap:" + id) || spec.starter;
+      var src = capSrc();
       body.appendChild(grid(mainCol, [sideCard("What is sent", "you choose, each time", [
         el("ul", { class: "k-cx-sentlist k-cx-sentlist--quiet" }, [
-          ["✓", "Program.cs · " + src.split("\n").length + " lines"], ["✓", "The rubric, as marked"], ["✓", "The brief"], ["○", "Your write-up, if you tick it"]
+          [src ? "✓" : "○", src ? srcName() + " · " + src.split("\n").length + " lines" : srcName() + " · nothing yet"], ["✓", "The rubric, as marked"], ["✓", "The brief"], ["○", "Your write-up, if you tick it"]
         ].map(function (x) { return el("li", {}, [el("span", { class: "k-cx-sent-m", "aria-hidden": "true", text: x[0] }), x[1]]); })),
         el("p", { class: "k-cx-note", text: "One Assistant request. Nothing else from the app is sent, and nothing is sent until you press Send." })
       ])]));
     }
     function whatIsSent() {
-      var src = C().draft("cap:" + id) || spec.starter;
+      var src = capSrc();
       var items = [
-        { id: "code", label: "Program.cs", sub: src.split("\n").length + " lines", on: true },
+        { id: "code", label: srcName(), sub: src ? src.split("\n").length + " lines" : "nothing pasted", on: !!src, off: !src },
         { id: "rubric", label: "The rubric, as marked", on: true },
         { id: "brief", label: "The brief", on: true },
         { id: "writeup", label: "Your write-up", on: false, off: !v.writeup.words }
@@ -435,7 +483,7 @@
       var on = {}; items.forEach(function (x) { on[x.id] = x.on && !x.off; });
       var parts = [];
       if (on.brief) parts.push("THE BRIEF\n" + briefText());
-      if (on.code) parts.push("PROGRAM.CS\n" + src);
+      if (on.code) parts.push((spec.project ? "A FILE FROM THE RIDER SOLUTION" : "PROGRAM.CS") + "\n" + src);
       if (on.rubric) parts.push("THE RUBRIC AS MARKED\n" + C().rubricView(id).rows.map(function (r) { return r.title + ": " + (r.value == null ? "not marked" : r.value + "/" + r.max); }).join("\n"));
       if (on.writeup) parts.push("THE WRITE-UP\n" + v.writeup.text);
       body.removeAttribute("data-err");
@@ -474,8 +522,8 @@
       body.appendChild(grid([ta, el("div", { class: "k-cx-capacts" }, [count, nextBtn("result", "Result →")])], [
         sideCard("Prompts", "at least " + min + " words", [el("ul", { class: "k-cx-capprompts" }, (spec.writeupPrompts || []).map(function (p) { return el("li", { text: p }); }))]),
         sideCard("To mention", null, [el("dl", { class: "k-cx-capmini-facts" }, [
-          ["Tests", v.build.pass + " / " + v.build.total], ["Milestones", v.build.done + " / " + v.build.milestones.length], ["Rubric", v.rubric.marked ? v.rubric.total + " / " + v.rubric.max : "not marked"]
-        ].map(function (f) { return el("div", {}, [el("dt", { text: f[0] }), el("dd", { class: "k-mono", text: f[1] })]); }))])
+          spec.project ? null : ["Tests", v.build.pass + " / " + v.build.total], ["Milestones", v.build.done + " / " + v.build.milestones.length], ["Rubric", v.rubric.marked ? v.rubric.total + " / " + v.rubric.max : "not marked"]
+        ].filter(Boolean).map(function (f) { return el("div", {}, [el("dt", { text: f[0] }), el("dd", { class: "k-mono", text: f[1] })]); }))])
       ]));
     }
 
@@ -513,7 +561,7 @@
       body.appendChild(head);
       body.appendChild(el("dl", { class: "k-cx-capfacts", "data-ui": "code.cap-facts" }, [
         ["Rubric", rb.marked ? rb.total + " / " + rb.max : "not marked yet"],
-        ["Acceptance tests", v.build.pass + " / " + v.build.total],
+        [spec.project ? "Validated milestones" : "Acceptance tests", v.build.pass + " / " + v.build.total],
         ["Evidence", "✓ In-app"],
         ["Kurenai review", v.review && v.review.state === "received" ? "read " + dateLabel(v.review.at) : "no review"],
         ["Write-up", plural(v.writeup.words, "word")],

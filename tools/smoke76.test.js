@@ -17,6 +17,12 @@
          once; a second submission pays nothing.
      D · THE PAGE. Every step draws without writing to the store; the
          stage path's diamond and the map row open it.
+     E · A RIDER CAPSTONE (stage 4). C4's build is its project's validator
+         milestones: the quiz, brief and rubric as above, a project with
+         its checks and no reward of its own; a real report
+         (tools/fixtures/planner-report-solved.json) passes the milestones,
+         the project pays nothing, and the capstone pays once when
+         submitted. Its steps draw without writing.
    tools/cs_diff.mjs additionally runs the reference against .NET.
 
    Run:
@@ -37,6 +43,7 @@ const run = async (src, stdin, fs, where) => where === "sandbox"
   ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs, nullable: true })
   : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs });
 const written = Object.keys(K.CAPSTONES).filter((id) => K.CAPSTONES[id].milestones);
+const riderCaps = Object.keys(K.CAPSTONES).filter((id) => K.CAPSTONES[id].project);
 
 step("A · every written capstone is whole, and its answer passes", async () => {
   assert(written.indexOf("C1") >= 0 && written.indexOf("C2") >= 0 && written.indexOf("C3") >= 0, "capstones 1, 2 and 3 ship");
@@ -125,6 +132,49 @@ step("D · every step draws without writing; the path and map open it", async ()
   assert(dia, "the stage path's diamond is a button");
   dia.click(); await app.settle();
   assert(doc.querySelector("[data-ui~='code.capstone']"), "the diamond opens it");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+  app.window.close();
+});
+
+step("E · capstone 4 is built in Rider: validator milestones, the capstone pays once", async () => {
+  assert(riderCaps.join() === "C4", "capstone 4 is the Rider capstone");
+  const c = K.CAPSTONES.C4, p = K.PROJECTS[c.project];
+  assert(c.where === "rider" && c.stage === 4 && p && p.capstone === "C4" && !p.reward && p.files && p.files["RevisionPlanner.sln"], "C4's project: its scaffold, linked back, no reward of its own");
+  assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]), "the quiz (5, each linked to a written lesson)");
+  assert(c.rubric.filter((r) => r.auto).length === 1 && c.brief.length && c.reward.xp === 300 && c.writeupMin >= 80, "brief, one automatic rubric row, the reward");
+  assert(p.milestones.length === 5 && p.milestones[0].checks.some((x) => x.type === "mutants") && p.protected.indexOf("src/Planner.Core/Priority.cs") >= 0, "milestones with planted bugs; the rule is protected");
+  const fsx = require("fs"), path = require("path");
+  const app = await boot(), KOS = app.KOS, g = KOS.store.state.governor, doc = app.document;
+  KOS.codeProject._setValidator(fsx.readFileSync(path.join(__dirname, "..", "assets/code/validator/validate.cs"), "utf8"));
+  const j = JSON.parse(fsx.readFileSync(path.join(__dirname, "fixtures/planner-report-solved.json"), "utf8")), now = app.window.Date.now();
+  j.startedAt = new Date(now - 3600000).toISOString().slice(0, 19) + "Z"; j.finishedAt = new Date(now - 3500000).toISOString().slice(0, 19) + "Z";
+  assert(KOS.code.capStage("C4") !== "passed" && !KOS.code.capView("C4").build.all, "before: the build is open");
+  const snap = () => JSON.stringify(KOS.store.state.code) + JSON.stringify(KOS.store.state.governor) + JSON.stringify(KOS.store.state.progress);
+  for (const s of KOS.code.CAP_STEPS.map((x) => x[0])) {
+    KOS.store.state.ui.code.capStep = { C4: s };
+    const before = snap();
+    KOS.show("code", { page: "capstone", id: "C4" }); await app.settle();
+    assert(doc.querySelector('[data-step="' + s + '"][aria-selected="true"]'), s + ": the stepper marks it");
+    assert(snap() === before, "C4 " + s + " wrote to the store while drawing");
+  }
+  KOS.store.state.ui.code.capStep = { C4: "build" };
+  KOS.show("code", { page: "capstone", id: "C4" }); await app.settle();
+  assert(doc.querySelectorAll("[data-ui~='code.cap-m-badge']").length === 5 && doc.querySelector("[data-ui~='code.cap-bring']") && !doc.querySelector("[data-ui~='code.cap-workspace']"), "the build step lists five milestones and links to the project, no in-app editor");
+  const xp0 = g.xp, gold0 = g.gold;
+  const res = await KOS.codeProject.check(JSON.stringify(j));
+  assert(res.outcome === "accepted" && !res.completes && !res.reward, "accepted; the project itself shows no reward: " + (res.msg || JSON.stringify(res.mismatched)));
+  const r = KOS.codeProject.apply(res);
+  assert(r.ok && r.all && !r.pay && g.xp === xp0 && g.gold === gold0, "every milestone passes and the project pays nothing");
+  const v = KOS.code.capView("C4");
+  assert(v.build.all && v.build.pass === 5 && v.rubric.rows.filter((x) => x.auto)[0].value === 12, "the capstone's build reads the project: correctness 12 / 12");
+  assert(!KOS.code.submitCapstone("C4").passed, "submit refuses before the rubric and write-up");
+  c.rubric.filter((x) => !x.auto).forEach((x) => KOS.code.setRubric("C4", x.id, 3));
+  KOS.code.setWriteup("C4", Array(c.writeupMin + 5).fill("word").join(" "));
+  const sub = KOS.code.submitCapstone("C4");
+  assert(sub.passed && sub.paid && sub.pay.xp === 300 && g.xp - xp0 === 300 && g.gold - gold0 === 75, "the capstone pays once: " + JSON.stringify(sub.pay));
+  assert(!KOS.code.submitCapstone("C4").paid && g.xp - xp0 === 300 && KOS.code.capStage("C4") === "passed", "a second submission pays nothing");
+  KOS.show("code", { page: "project", id: c.project }); await app.settle();
+  assert(/Capstone 4/.test(doc.querySelector("#main").textContent) && doc.querySelector("[data-ui~='code.project-capstone']"), "the project's page names its capstone and links back");
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
   app.window.close();
 });

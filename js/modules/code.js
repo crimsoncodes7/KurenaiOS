@@ -312,7 +312,8 @@
   function weekendCard() {
     /* the Rider projects (Bridge B, unit 10); in-app weekend projects are not built */
     var box = el("section", { class: "k-card k-cx-weekend", "data-ui": "code.weekend", "aria-label": "Projects" }, [cardHead("Projects", "in Rider")]);
-    var ps = C().projects();
+    /* a capstone's project is reached from its capstone, not listed here */
+    var ps = C().projects().filter(function (p) { return !p.capstone; });
     if (!ps.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "No projects yet." })); return box; }
     /* a project is ready once its unit is begun (Bridge B also after unit 6) */
     var begun = function (u) { return C().lessons().some(function (l) { return l.unit === u && C().studied(l.ref); }); };

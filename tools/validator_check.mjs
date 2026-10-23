@@ -13,7 +13,9 @@
    smoke78's import matrix. Then the unit 10 project (rp-u10-library) runs
    fresh (nothing passes) and solved (own tests, a Theory, five planted bugs
    caught, Renew test-first, an IClock, an INotifier, no warnings, a commit:
-   m1–m6 pass), saved as tools/fixtures/library-report-solved.json. Needs the .NET 10 SDK, NuGet and git; outside
+   m1–m6 pass), saved as tools/fixtures/library-report-solved.json; then
+   capstone 4's project (rp-c4-planner) fresh and solved (m1–m5), saved as
+   tools/fixtures/planner-report-solved.json. Needs the .NET 10 SDK, NuGet and git; outside
    the jsdom gate. macOS here; Windows and Linux are still to be run.
      node tools/validator_check.mjs                                          */
 import { createRequire } from "module";
@@ -27,7 +29,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 global.window = global;
 window.KOS_CONTENT = {}; window.KOS_DATA = {}; window.KOS = {};
-for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
+for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
 const K = window.KOS_CODE;
 window.KOS.code = { project: (id) => K.PROJECTS[id] || null };
 window.KOS.codeProject._setValidator(fs.readFileSync(path.join(ROOT, "assets/code/validator/validate.cs"), "utf8"));
@@ -77,12 +79,13 @@ expect(build.errors === 1 && v.rep.failures[0].build === "CS0103" && !test.ran &
 fs.writeFileSync(path.join(ROOT, "tools/fixtures/bridge-report-broken.json"), v.text);
 
 /* ---------------- the unit 10 project ---------------- */
+let put;
 files = await window.KOS.codeProject.files("rp-u10-library");
 d = fresh(); v = validate(d);
 expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "library fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
 
 d = fresh();
-const put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
 put("src/Library/LateFees.cs", `namespace Library;
 
 /// <summary>Late fees: two days' grace for a book, then 25p a day; a DVD £1 a day; at most £10; damage adds £5.</summary>
@@ -220,6 +223,232 @@ fs.writeFileSync(lt, fs.readFileSync(lt, "utf8").replace(/\n    \[Fact\]\n    pu
 v = validate(d);
 const weak = v.rep.milestones.find((m) => m.id === "m2");
 expect(!weak.ok && ms(v.rep).includes("m1") && /3 of 5/.test(weak.checks[0].note), "library weak tests: without the damage tests only 3 of 5 bugs are caught, m2 fails (" + weak.checks[0].note + ")");
+
+/* ---------------- capstone 4: the Revision Planner ---------------- */
+files = await window.KOS.codeProject.files("rp-c4-planner");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "planner fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put("src/Planner.Core/StudyPlanner.cs", String.raw`namespace Planner.Core;
+
+/// <summary>The service: add topics, rate them, and ask what to study next.</summary>
+public class StudyPlanner(ITopicStore store, IClock clock)
+{
+    public async Task<Topic> AddAsync(string subject, string name, CancellationToken ct = default)
+    {
+        subject = subject.Trim().ToLowerInvariant();
+        name = name.Trim();
+        if (name.Length == 0) throw new ArgumentException("A topic needs a name.", nameof(name));
+        var topics = await store.LoadAsync(ct);
+        if (topics.Any(t => t.Subject == subject && string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException($"{subject} already has {name}.");
+        var topic = new Topic(topics.Count == 0 ? 1 : topics.Max(t => t.Id) + 1, subject, name);
+        topics.Add(topic);
+        await store.SaveAsync(topics, ct);
+        return topic;
+    }
+
+    public async Task<Topic> RateAsync(int id, int confidence, CancellationToken ct = default)
+    {
+        if (confidence < 1 || confidence > 5) throw new ArgumentOutOfRangeException(nameof(confidence), "Confidence runs from 1 to 5.");
+        var topics = await store.LoadAsync(ct);
+        int i = topics.FindIndex(t => t.Id == id);
+        if (i < 0) throw new KeyNotFoundException($"No topic #{id}.");
+        topics[i] = topics[i] with { Confidence = confidence, LastStudied = clock.Today };
+        await store.SaveAsync(topics, ct);
+        return topics[i];
+    }
+
+    public async Task<IReadOnlyList<Topic>> NextAsync(int n, CancellationToken ct = default)
+    {
+        if (n < 1) throw new ArgumentOutOfRangeException(nameof(n), "Ask for at least one topic.");
+        var queue = new PriorityQueue<Topic, (int Score, string Name)>(Comparer<(int Score, string Name)>.Create((a, b) =>
+            a.Score != b.Score ? a.Score.CompareTo(b.Score) : string.CompareOrdinal(a.Name, b.Name)));
+        foreach (var t in await store.LoadAsync(ct)) queue.Enqueue(t, (Priority.Score(t, clock.Today), t.Name));
+        var next = new List<Topic>();
+        while (next.Count < n && queue.TryDequeue(out var t, out _)) next.Add(t);
+        return next;
+    }
+}
+`);
+put("src/Planner.Storage/JsonTopicStore.cs", String.raw`using System.Text.Json;
+using Planner.Core;
+
+namespace Planner.Storage;
+
+/// <summary>Keeps the topics in one JSON file.</summary>
+public class JsonTopicStore(string filePath) : ITopicStore
+{
+    public string FilePath { get; } = filePath;
+
+    public async Task<List<Topic>> LoadAsync(CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (!File.Exists(FilePath)) return new List<Topic>();
+        await using var stream = File.OpenRead(FilePath);
+        try
+        {
+            return await JsonSerializer.DeserializeAsync<List<Topic>>(stream, cancellationToken: ct) ?? new List<Topic>();
+        }
+        catch (JsonException e)
+        {
+            throw new InvalidDataException($"{FilePath} is not a topics file.", e);
+        }
+    }
+
+    public async Task SaveAsync(IReadOnlyList<Topic> topics, CancellationToken ct = default)
+    {
+        string? dir = Path.GetDirectoryName(Path.GetFullPath(FilePath));
+        if (dir is not null) Directory.CreateDirectory(dir);
+        string temp = FilePath + ".tmp";
+        await using (var stream = File.Create(temp))
+            await JsonSerializer.SerializeAsync(stream, topics, cancellationToken: ct);
+        File.Move(temp, FilePath, overwrite: true);
+    }
+}
+`);
+put("src/Planner.Cli/Program.cs", String.raw`using Planner.Core;
+using Planner.Storage;
+
+var store = new JsonTopicStore(Path.Combine("planner-data", "topics.json"));
+var planner = new StudyPlanner(store, new SystemClock());
+
+string? line;
+while ((line = Console.ReadLine()) is not null)
+{
+    string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    if (words.Length == 0) continue;
+    try
+    {
+        switch (words[0].ToLowerInvariant())
+        {
+            case "clear":
+                await store.SaveAsync(Array.Empty<Topic>());
+                Console.WriteLine("Cleared.");
+                break;
+            case "add" when words.Length >= 3:
+                var added = await planner.AddAsync(words[1], string.Join(' ', words[2..]));
+                Console.WriteLine($"Added #{added.Id} {added.Subject}: {added.Name}");
+                break;
+            case "rate" when words.Length == 3:
+                var rated = await planner.RateAsync(int.Parse(words[1]), int.Parse(words[2]));
+                Console.WriteLine($"Rated #{rated.Id}: {rated.Confidence}");
+                break;
+            case "next" when words.Length == 2:
+                var next = await planner.NextAsync(int.Parse(words[1]));
+                if (next.Count == 0) Console.WriteLine("Nothing to study.");
+                for (int i = 0; i < next.Count; i++) Console.WriteLine($"{i + 1}. #{next[i].Id} {next[i].Subject}: {next[i].Name} (confidence {next[i].Confidence})");
+                break;
+            case "list":
+                var all = await store.LoadAsync();
+                if (all.Count == 0) Console.WriteLine("No topics yet.");
+                foreach (var t in all.OrderBy(t => t.Id)) Console.WriteLine($"#{t.Id} {t.Subject}: {t.Name} (confidence {t.Confidence})");
+                break;
+            case "help":
+                Console.WriteLine("Commands: clear, add <subject> <name>, rate <id> <1-5>, next <n>, list, help, quit");
+                break;
+            case "quit":
+                Console.WriteLine("Bye.");
+                return;
+            default:
+                Console.WriteLine($"Unknown command: {words[0]}");
+                break;
+        }
+    }
+    catch (Exception e) when (e is ArgumentException or InvalidOperationException or KeyNotFoundException or FormatException or InvalidDataException)
+    {
+        Console.WriteLine("Error: " + e.Message);
+    }
+}
+`);
+put("tests/Planner.Tests/PriorityTests.cs", String.raw`using Planner.Core;
+
+namespace Planner.Tests;
+
+public class PriorityTests
+{
+    static readonly DateOnly Today = new(2026, 5, 1);
+
+    [Theory]
+    [InlineData(1, 0, 100)]
+    [InlineData(2, 3, 197)]
+    [InlineData(5, 30, 470)]
+    [InlineData(3, 45, 270)]
+    public void Score_is_confidence_times_100_minus_days(int confidence, int daysAgo, int expected) =>
+        Assert.Equal(expected, Priority.Score(new Topic(1, "cs", "X", confidence, Today.AddDays(-daysAgo)), Today));
+
+    [Fact]
+    public void Never_studied_counts_as_thirty_days() =>
+        Assert.Equal(170, Priority.Score(new Topic(1, "cs", "X", 2), Today));
+
+    [Fact]
+    public void Confidence_outweighs_a_month_of_days() =>
+        Assert.True(Priority.Score(new Topic(1, "cs", "X", 1, Today), Today) < Priority.Score(new Topic(2, "cs", "Y", 2), Today));
+}
+`);
+put("tests/Planner.Tests/PlannerTests.cs", String.raw`using Planner.Core;
+using Planner.Storage;
+
+namespace Planner.Tests;
+
+public class PlannerTests
+{
+    sealed class FixedClock(DateOnly today) : IClock { public DateOnly Today => today; }
+    sealed class MemoryStore : ITopicStore
+    {
+        List<Topic> saved = new();
+        public Task<List<Topic>> LoadAsync(CancellationToken ct = default) => Task.FromResult(new List<Topic>(saved));
+        public Task SaveAsync(IReadOnlyList<Topic> topics, CancellationToken ct = default) { saved = new List<Topic>(topics); return Task.CompletedTask; }
+    }
+    static StudyPlanner Make() => new(new MemoryStore(), new FixedClock(new DateOnly(2026, 5, 1)));
+
+    [Fact]
+    public async Task Ids_count_up_from_one() => Assert.Equal(2, (await AddTwo()).Id);
+    static async Task<Topic> AddTwo() { var p = Make(); await p.AddAsync("cs", "A"); return await p.AddAsync("cs", "B"); }
+
+    [Fact]
+    public async Task A_repeat_name_is_refused()
+    {
+        var p = Make();
+        await p.AddAsync("cs", "Big O");
+        await Assert.ThrowsAsync<InvalidOperationException>(() => p.AddAsync("CS", "BIG O"));
+    }
+
+    [Fact]
+    public async Task Rating_six_is_refused()
+    {
+        var p = Make();
+        await p.AddAsync("cs", "Big O");
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => p.RateAsync(1, 6));
+    }
+
+    [Fact]
+    public async Task Next_puts_the_shakiest_first()
+    {
+        var p = Make();
+        await p.AddAsync("cs", "Solid");
+        await p.AddAsync("cs", "Shaky");
+        await p.RateAsync(1, 5);
+        Assert.Equal("Shaky", (await p.NextAsync(1))[0].Name);
+    }
+
+    [Fact]
+    public async Task The_json_store_round_trips()
+    {
+        string file = Path.Combine(Path.GetTempPath(), "kos-" + Guid.NewGuid().ToString("N"), "t.json");
+        var topics = new[] { new Topic(1, "cs", "Big O", 2, new DateOnly(2026, 4, 1)) };
+        await new JsonTopicStore(file).SaveAsync(topics);
+        Assert.Equal(topics, await new JsonTopicStore(file).LoadAsync());
+    }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "The revision planner"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "planner solved: every milestone passes, exit 0 (" + ms(v.rep) + "; m1 " + v.rep.milestones[0].checks.map((c) => c.note).join(" · ") + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/planner-report-solved.json"), v.text);
 
 console.log(bad ? "✗ " + bad + " check(s) failed" : "✓ the validator behaves on every scenario");
 process.exit(bad ? 1 : 0);

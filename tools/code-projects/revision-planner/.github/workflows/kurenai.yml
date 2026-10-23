@@ -1,0 +1,19 @@
+# Optional: run the Kurenai validator on GitHub Actions at every push. The
+# report is kept as the run's artifact "kurenai-report"; download it and
+# import it in KurenaiOS like one you ran yourself.
+name: Kurenai validate
+on: [push, workflow_dispatch]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet run .kurenai/validate.cs
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kurenai-report
+          path: .kurenai/reports/

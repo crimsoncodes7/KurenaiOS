@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The planner's model and rules. Yours to build: StudyPlanner is a stub.
+       Priority.cs is protected: test it, don't change it. -->
+</Project>

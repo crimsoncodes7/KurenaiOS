@@ -140,7 +140,7 @@
         var failing = got ? got.checks.filter(function (c) { return !c.ok; }) : [];
         return { id: m.id, title: m.title, was: passed[m.id], now: !!(got && got.ok), becomes: !practice && !passed[m.id] && !!(got && got.ok), why: !got ? "not in this report" : failing.length ? failing[0].note : "" };
       });
-      var completes = !practice && !view.payAt && p.milestones.every(function (m, i) { return passed[m.id] || changes[i].becomes; });
+      var completes = !practice && !view.payAt && !!p.reward && p.milestones.every(function (m, i) { return passed[m.id] || changes[i].becomes; });
       return { outcome: practice ? "practice" : "accepted", sha: sha, report: rep, project: p, practice: practice, mismatched: mismatched,
         changes: changes, completes: completes, reward: completes ? C().award({ kind: "project", id: p.id, first: true }) : null };
     });

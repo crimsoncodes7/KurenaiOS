@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Storage: JsonTopicStore keeps the topics in a JSON file. Yours to build. -->
+  <ItemGroup>
+    <ProjectReference Include="../Planner.Core/Planner.Core.csproj" />
+  </ItemGroup>
+</Project>
