@@ -210,6 +210,35 @@ step("F · every Stage 1 answer checks against its own validator", (app) => {
   });
 });
 
+/* voices not designed yet (prototypes/japanese-space/voice/voices.json): their lines keep the
+   browser's voice; a unit voiced by one is not released until its audio is baked */
+const AWAITED_VOICE = ["makoto"];
+step("G · the audio pack: every file exists and every voiced line has one", (app) => {
+  const A = app.window.KOS_JA_AUDIO, J = app.window.KOS_JA, C = app.window.KOS_CONTENT;
+  assert(A && Object.keys(A).length > 0, "js/data/ja-audio.js is not loaded (node tools/bake_ja_audio.mjs)");
+  Object.entries(A).forEach(([k, f]) => assert(fs.existsSync(path.join(ROOT, "assets/ja/audio", f)), "the pack names a missing file: " + k + " → " + f));
+  const missing = [], awaited = new Set();
+  const CAST = ["akari", "yota", "makoto"];
+  function walk(o, who) {
+    if (!o || typeof o !== "object") return;
+    if (Array.isArray(o)) return o.forEach((x) => walk(x, who));
+    const w = o.who || who;
+    if (typeof o.ja === "string") {
+      const v = CAST.indexOf(w) >= 0 ? w : "narrator";
+      if (app.KOS.jaUI.synthetic(o.ja, v)) { if (AWAITED_VOICE.indexOf(v) >= 0) awaited.add(v); else missing.push(v + "|" + o.ja); }
+    }
+    if (o.pattern && app.KOS.jaUI.synthetic(o.pattern.eg, "narrator")) missing.push("narrator|" + o.pattern.eg);
+    Object.values(o).forEach((x) => { if (x && typeof x === "object") walk(x, w); });
+  }
+  Object.keys(J.LESSONS).forEach((id) => walk(C["ja:" + id], null));
+  Object.entries(J.ITEMS).forEach(([id, it]) => {
+    if (/^w:/.test(id) && app.KOS.jaUI.synthetic(it.r, "narrator")) missing.push("narrator|" + it.r);
+    if (/^g:/.test(id)) (it.says || []).forEach((x) => { if (app.KOS.jaUI.synthetic(x.ja, "narrator")) missing.push("narrator|" + x.ja); });
+  });
+  assert(!missing.length, missing.length + " voiced lines have no recording (node tools/bake_ja_audio.mjs): " + missing.slice(0, 4).join(" · "));
+  if (awaited.size) console.log("       awaiting voices: " + [...awaited].join(", "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();

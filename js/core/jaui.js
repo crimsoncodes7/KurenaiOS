@@ -64,7 +64,7 @@
   var audio = null, playing = null;
   function voiceFile(text, who) {
     var A = window.KOS_JA_AUDIO;
-    var k = (who || "narrator") + "|" + plain(text);
+    var k = (who || "narrator") + "|" + plain(text).replace(/\n/g, "");
     return A && A[k] ? "assets/ja/audio/" + A[k] : null;
   }
   function jaVoice() {

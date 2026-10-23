@@ -662,9 +662,9 @@
       cardHead("Japanese settings", null, null), saved,
       row("Furigana", "by Reading mastery", furi),
       row("Daily minutes", "the session is computed to this, 20–90", el("span", { class: "k-ja-range" }, [minutes, minOut])),
-      row("Voices", "one voice per character", el("ul", { class: "k-ja-voices" }, ["akari", "yota", "narrator"].map(function (w) {
-        var c = UI().CAST[w];
-        return el("li", {}, [el("span", { class: "k-ja-who-i", lang: "ja", "aria-hidden": "true", text: c.initial }), c.name + " · " + (window.KOS_JA_AUDIO ? "pre-rendered" : "browser voice until the audio packs arrive")]);
+      row("Voices", "one voice per character", el("ul", { class: "k-ja-voices" }, ["akari", "yota", "makoto", "narrator"].map(function (w) {
+        var c = UI().CAST[w], baked = Object.keys(window.KOS_JA_AUDIO || {}).some(function (k) { return k.indexOf(w + "|") === 0; });
+        return el("li", {}, [el("span", { class: "k-ja-who-i", lang: "ja", "aria-hidden": "true", text: c.initial }), c.name + " · " + (baked ? "pre-rendered" : "browser voice until its audio arrives")]);
       }))),
       row("Speech", "Chrome's recogniser · sends each take to Google", el("span", { class: "k-ja-speech" }, [speech,
         el("button", { type: "button", class: "k-link", text: "What is sent", onclick: function () { speechOptIn(null, true); } })]))
@@ -684,10 +684,10 @@
     main.appendChild(el("section", { class: "k-card k-ja-credits", "data-ui": "ja.licences" }, [
       el("dl", { class: "k-ja-credit-dl" }, rows.map(function (r) { return el("div", {}, [el("dt", {}, [el("b", { text: r[0] }), el("span", { class: "k-chip", text: r[1] })]), el("dd", { text: r[2] })]); })),
       el("h2", { class: "k-kicker", text: "Voices" }),
-      el("dl", { class: "k-ja-credit-dl" }, [["Shiraishi Akari 白石 灯", "ElevenLabs · a voice designed for the character"], ["Asahi Yōta 朝日 陽太", "ElevenLabs · a voice designed for the character"], ["Narrator", "VOICEVOX · its speaker's credit line, as VOICEVOX requires"]].map(function (r) {
+      el("dl", { class: "k-ja-credit-dl" }, [["Shiraishi Akari 白石 灯", "ElevenLabs · a voice designed for the character"], ["Asahi Yōta 朝日 陽太", "ElevenLabs · a voice designed for the character"], ["Kobayashi Makoto 小林 誠", "ElevenLabs · a voice designed for the character"], ["Narrator", "VOICEVOX:No.7 · words, examples and kana"]].map(function (r) {
         return el("div", {}, [el("dt", { lang: "ja", text: r[0] }), el("dd", { text: r[1] })]);
       })),
-      el("p", { class: "k-muted", text: "Until the audio packs are on this device, lines are read by the browser's own Japanese voice and marked synthetic voice." }),
+      el("p", { class: "k-muted", text: "A line without its recording is read by the browser's own Japanese voice and marked synthetic voice." }),
       el("h2", { class: "k-kicker", text: "Art" }),
       el("p", { text: "Character sprites, backgrounds and manga panels were made with AI image tools. Balloon text, lettering and layout are set live by the app." })
     ]));
