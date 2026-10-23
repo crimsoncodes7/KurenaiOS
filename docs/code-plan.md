@@ -152,15 +152,15 @@ each marked with where it runs:
 | **C · Practice and responsibility** | Local models (Ollama, ONNX Runtime) · evaluating LLM apps · cost and latency · privacy · hallucination · bias · safety · responsible deployment | Concepts in-app; local models in Rider plus external installs |
 | **D · The Python bridge (optional)** | NumPy, pandas, scikit-learn, PyTorch; real datasets; GPUs | **External**: notes in-app; projects in Jupyter (PyCharm or VS Code), with GPUs on a hosted notebook. A pytest-based validator writes the **same report format** (§9). |
 
-**Other tracks, in a suggested order after T1–T3:**
+**Other tracks, in a suggested order after T1–T3** (T5 and T8 swapped places on 23 October 2026: Games is T5, Computer systems T8):
 
 | Track | Lessons | Strands | Where it runs |
 |---|---|---|---|
 | **T4 Web development**: HTML, CSS, JS, TypeScript, the DOM and events, `fetch`, frontend architecture, accessibility, backend with ASP.NET Core (shared with T1), full-stack, deployment. **A case study: how KurenaiOS itself is built.** | 22 | E | HTML/CSS/JS **in-app** in a sandboxed iframe with no network (Spike H); TypeScript and full-stack in Rider |
-| **T5 Computer systems**: data representation, CPU and memory hierarchy, how C# runs (IL, JIT, GC), operating systems (processes, threads, scheduling, memory, file systems), low-level C# (`unsafe`, pointers, `stackalloc`) | 14 | S | Mostly in-app; low-level in Rider. Heavy cross-links to AQA Paper 2. |
+| **T5 Game development and graphics** (moved from T8, 23 October 2026): the game loop, vectors and the maths of motion (links to Maths Mechanics), collisions, game states, then **two engines** — MonoGame (the loop and rendering written by you) and **Unity** (scenes, GameObjects and components, prefabs, physics, input, UI, animation, ScriptableObjects, the Unity Test Framework, builds); the game logic kept in a plain, tested .NET library both engines use | 26 | L S | Loop and physics toys in-app on the lab stage; MonoGame in Rider; Unity in the Unity Editor with Rider as its code editor |
 | **T6 Security**: threat modelling, the OWASP top 10 in .NET, authentication and authorisation, hashing vs encryption, secrets, secure coding, vulnerable dependencies | 10 | E S | Concepts in-app; labs in Rider |
 | **T7 Cloud, DevOps and deployment**: containers, CI/CD with GitHub Actions, deploying ASP.NET Core, configuration and secrets in the cloud, monitoring, cost | 10 | E | External (Docker, a cloud account) |
-| **T8 Game development and graphics**: the game loop, vectors and the maths of motion (links to Maths Mechanics), collisions, MonoGame (C#-first; Godot .NET as the alternative) | 14 | L S | Loop and physics toys in-app on the lab stage; games in Rider |
+| **T8 Computer systems**: data representation, CPU and memory hierarchy, how C# runs (IL, JIT, GC), operating systems (processes, threads, scheduling, memory, file systems), low-level C# (`unsafe`, pointers, `stackalloc`) | 14 | S | Mostly in-app; low-level in Rider. Heavy cross-links to AQA Paper 2. |
 | **T9 Theory of computation**: discrete maths, automata and regular languages, grammars and parsing, **building an interpreter for a small language in C#**, computability and complexity (links to AQA 4.4) | 12 | S | In-app |
 
 ### 3.4 Size, honestly
@@ -169,12 +169,154 @@ each marked with where it runs:
 |---|---|---|
 | Core path (stages 1–4 plus Bridge B) | ~131 | **Yes, released in four stages (§12)** |
 | Deepening D1–D6 | ~72 | No: after the core |
-| Tracks T1–T9 | ~156 | No: one track per release, in an order you choose |
-| **Total** | **~350** | |
+| Tracks T1–T9 | ~156 (≈150 if T3 becomes "AI in .NET apps", §3.6) | No: one track per release, in an order you choose |
+| The Python path, proposed (§3.6): core PY1–PY3 and tracks PA, PB | ~80 | No: after the core, when chosen |
+| **Total** | **~350** (≈425 with Python) | |
 
 With the notes contract in §4, a core lesson is roughly 3,000–6,000 words,
 with 10–20 runnable examples. **Content is the long pole, not code.** Spike N
 measures the real cost of one lesson before any schedule is promised.
+
+### 3.5 Projects and capstones beyond the core (planned 23 October 2026)
+
+Every deepening module ends in ONE project; every track has its taster, two
+or three projects and a capstone. They follow the core's three forms:
+- **in-app**: milestones of acceptance cases, as capstones 1–3;
+- **Rider**: a real scaffold in `tools/code-projects/`, validator milestones,
+  as Bridge B, unit 10 and capstone 4;
+- **external** (Unity, Python outside the app, Docker, a cloud account):
+  the same report format (§9), written by a validator for that toolchain.
+
+Rewards follow the core's scale: a module project 150 XP · 40 gold · +8 HP,
+a track project 120 · 30 · +8, a track capstone 300 · 75 · +10. Projects
+reuse the core's own programs where it helps — the Revision Planner and the
+Lending Library come back — so a later project changes something you know.
+
+#### Deepening modules
+
+| Module | Project | Form | What proves it |
+|---|---|---|---|
+| **D1** Advanced C# | **MiniLinq and a zero-allocation reader**: your own `Where`/`Select`/`Take`/`GroupBy` with `yield` (deferred execution shown by a counting source), then a `Span<char>` CSV tokenizer measured against `string.Split` | in-app, full runtime | acceptance cases; an allocation counter must stay at zero |
+| **D2** Concurrency | **A parallel file indexer**: producer/consumer over `Channel<T>`, bounded parallelism, progress, cancellation mid-run, a deliberate race found and fixed | Rider | tests under a deterministic scheduler; a run check; planted locking bugs caught |
+| **D3** Algorithms | **The interview ladder** (30 graded problems, kata-style) and **a timetable solver**: lessons and rooms by topological sort, backtracking and a greedy first pass | in-app | acceptance cases with hidden large inputs and a step budget (complexity matters) |
+| **D4** Design | **The Revision Planner, re-architected**: layers, a DI container, `ILogger`, the options pattern, a repository, results instead of exceptions at the edges | Rider (capstone 4's code) | its acceptance tests unchanged and green; source checks for the layering; no warnings |
+| **D5** Testing | **Test the Lending Library's API**: a shipped minimal API over unit 10's code; integration tests with `WebApplicationFactory`, NSubstitute, a property-based test, a Stryker.NET score, a BenchmarkDotNet run | Rider | owntests; mutation score from Stryker's report; the benchmark file present |
+| **D6** Tooling | **Publish a NuGet package**: a small library (suggested: the Gacha Lab's odds engine, T5), analyzers and `.editorconfig`, CI on GitHub Actions, semantic-version tags, a pull request reviewed on your own repository | Rider + GitHub | package metadata check; analyzers at zero warnings; a version tag; CI evidence |
+
+#### Tracks
+
+| Track | Taster | Projects | Capstone |
+|---|---|---|---|
+| **T1** Connectivity and persistence | Contacts on SQLite | **The Case of the Missing Mug** (a SQL mystery in the in-app SQLite sandbox: joins, grouping, a timeline from a café's database) · **The Lending Library on EF Core** (entities, migrations, relationships, N+1 found and fixed; tests on SQLite in-memory) · **Weather client** (`HttpClient`, retries, timeouts, against a fake server) · **Loopback chat** (`TcpListener`) | **The Planner goes online**: an ASP.NET Core minimal API over the Revision Planner — EF Core persistence, API-key/JWT auth, validation, configuration and user secrets, integration tests with `WebApplicationFactory` |
+| **T2** Desktop apps (Avalonia) | Your first window (a tip calculator) | **Markdown notes** (MVVM, binding, files, commands) · **Focus timer** (async UI that never blocks, notifications, settings) | **The Planner on the desktop**: a full MVVM front end over the planner (local JSON, or T1's API when it exists) — navigation, validation, accessibility, headless UI tests |
+| **T3** AI (see §3.6: becomes **AI in .NET apps** if the Python path is chosen) | Ask a model from C# | **Semantic search over your notes** (embeddings, cosine similarity, a local ONNX model or an API) · **A tool-calling assistant** with an approval step (the Assistant's own design) | **A RAG study helper** in .NET: chunking, retrieval, grounded answers with citations, an evaluation set; optionally the model trained in PB |
+| **T4** Web development | A page in a sandbox | **A portfolio site** (semantic HTML, responsive CSS, accessibility audit) · **A TypeScript flashcards app** (DOM, `fetch`, local storage, tests) | **The Planner on the web**: ASP.NET Core backend (T1's, or a new one) and a TypeScript front end, end-to-end tests |
+| **T5** Game development and graphics (MonoGame + **Unity**) | Bouncing ball (in-app lab stage) | **Breakout in MonoGame** (the loop, collisions, game states, all written by you) · **Roll-a-ball, then an obstacle course in Unity** (scenes, components, prefabs, physics, input, UI) · **The Gacha Lab** (below) | **A small complete Unity game** of your choice from a short list (a 2D arena roguelite, a puzzle platformer, a tower defence): menus, a save system, audio, a macOS build; its rules in a tested .NET library; a playthrough write-up |
+| **T6** Security | Threat-model a login | **Break it, then fix it** (a deliberately vulnerable minimal API: injection, XSS, IDOR, weak hashing — each exploit a failing test, then fixed) · **Passwords done right** (PBKDF2/Argon2, salts, secrets out of the repository) | **Harden your T1 API**: a written threat model and a test per OWASP item that applies |
+| **T7** Cloud and DevOps | A first GitHub Action | **Containerise the API** (Dockerfile, compose with Postgres, health checks) · **A CI/CD pipeline** (test, build an image, deploy to a free tier) | **Ship it**: T1's API live, with monitoring, structured logs, a rehearsed rollback and a cost note |
+| **T8** Computer systems | How C# runs | **Bits and bitmaps** (parse and write BMP files, endianness, headers) · **Memory explorer** (`unsafe`, `stackalloc`, struct layout, BenchmarkDotNet, reading IL) | **A stack VM and its assembler**: bytecode, a fetch–decode–execute loop, a disassembler, programs that run on it (T9's compiler can target it) |
+| **T9** Theory of computation | A tiny calculator language | **A regex engine** (Thompson's construction, NFA simulation) · **A Turing machine simulator** (with the busy beavers) | **An interpreter for a small language**: lexer, parser, AST, evaluator, errors with line numbers; optionally compiling to T8's VM |
+
+#### The Gacha Lab (T5, with a sequel in Python)
+
+A pull simulator, worth a track project rather than a capstone: big enough
+to use every core stage, small enough to finish in a weekend or two.
+
+1. **The odds engine** (a plain .NET library, Rider, validator-checked): a
+   banner's rates (say 0.6% for 5★, 5.1% for 4★), soft pity from pull 74,
+   hard pity at 90, a 4★ guarantee every 10, the 50/50 and its guarantee,
+   a seeded random source so a run can be replayed. Your tests pin every
+   rule; the validator plants bugs in the pity code (milestone 2 style).
+2. **The numbers**: the exact distribution of pulls-to-5★ by dynamic
+   programming over the pity state (a Markov chain), checked against a
+   million-pull Monte Carlo run; expected pulls, the chance of the featured
+   unit within N pulls, a histogram. Links to Maths Statistics (geometric
+   and binomial models) and to D3.
+3. **The banner in Unity**: 1× and 10× pulls with the reveal animation,
+   the pity counter, the history, a save file — the engine-agnostic library
+   underneath, so Unity only draws.
+4. **One lesson on design and honesty**: why pity exists, odds disclosure,
+   spending limits; the simulator never takes money.
+5. **The sequel (Python, PA)**: *Analyse a million pulls* — load the Lab's
+   exported history into pandas, plot the pity distribution, test the RNG's
+   fairness with a chi-squared test.
+
+#### How Unity is checked
+
+Unity projects cannot be built by the `dotnet` CLI, so a Unity project has:
+- its rules in a .NET class library, checked by the usual validator (own
+  tests, planted bugs, warnings);
+- the Unity Test Framework's EditMode tests, run in batch mode
+  (`Unity -batchmode -runTests -testPlatform EditMode`) by validator 1.2's
+  new `unitytests` check, which reads the NUnit XML it writes — the check
+  is skipped (and says so) when the Unity Editor is not installed;
+- look and feel as self-marked rubric rows, as in every capstone.
+
+### 3.6 A Python path (proposed 23 October 2026; awaiting your decision)
+
+**Recommendation: yes — a short Python core, then two Python tracks**, and
+T3 narrowed to what C# is good at. Python is where data and ML work happens;
+you would already know how to program, so its core can be compact
+("Python for a C# programmer") and every lesson can compare the two.
+
+It runs like Code's full runtime: **Pyodide** (CPython in WebAssembly, an
+optional download offered like the .NET one), which also carries NumPy,
+pandas and matplotlib, so most data lessons run in the app. Every listing is
+held to native `python3` by a `py_diff` like `cs_diff`. PyTorch and real
+LLM work need a local install (PyCharm or VS Code), checked by a
+pytest-based validator writing the same report format (§9).
+
+| Part | Lessons | Contents | Where |
+|---|---|---|---|
+| **PY1** Python from C# | ~10 | syntax and dynamic types, strings and f-strings, lists, dicts, sets, tuples, comprehensions, functions (`*args`, `**kwargs`, defaults), modules — each beside its C# twin | in-app |
+| **PY2** Pythonic code | ~11 | iterators and generators, classes and `dataclass`es, dunder methods, exceptions and context managers, files, CSV and JSON, type hints and mypy, decorators | in-app |
+| **PY3** Tooling and testing | ~8 | virtual environments and uv, packages, pytest, notebooks (Jupyter), a first look at NumPy | external |
+| **PY capstone** | — | **The gradebook, in Python**: capstone 2 ported to idiomatic Python, with a pytest suite and a write-up comparing the two | in-app + pytest |
+| **PA** Data analytics | ~22 | NumPy and pandas, cleaning, joins and `groupby`, time series, visualisation (matplotlib, seaborn), statistics in practice (tests, regression — linked to Maths Statistics), SQL from pandas, a Streamlit dashboard, telling the story | mostly in-app |
+| **PB** AI, ML and LLMs | ~28 | from scratch in NumPy (regression and gradient descent, k-NN, k-means, trees, a neural network with backpropagation), scikit-learn, evaluation, PyTorch, a small CNN; tokenisation (a toy BPE), embeddings, attention (a toy transformer); prompting, structured output, tool calling, RAG, evaluating LLM apps, local models, responsible AI | foundations in-app; PyTorch and LLMs external |
+
+**PA projects.** Taster: *your study hours* (a CSV export of your own
+KurenaiOS sessions, never uploaded). Projects: *Analyse a million pulls*
+(the Gacha Lab's history: pity distribution, a chi-squared fairness test) ·
+*An open-data report* (UK weather or football results: clean, explore,
+explain). Capstone: **a dashboard of your own study data** (Streamlit) —
+time by subject, recall against the FSRS forecast, what moved your grades —
+with a findings write-up.
+
+**PB projects.** Taster: *linear regression from scratch*. Projects: *A
+digit recogniser* (MNIST: your NumPy network, then PyTorch) · *A text
+classifier with an honest evaluation* (baselines, a confusion matrix,
+leakage avoided) · *A character-level mini-GPT* (a tiny transformer trained
+on a small text on the CPU). Capstone: **from data to model** — one dataset
+of your choice taken through cleaning, a baseline, a model, an evaluation
+report, an ONNX export and a model card.
+
+**What happens to T3.** It becomes **T3 · AI in .NET apps** (~12 lessons):
+calling models from C# (`Microsoft.Extensions.AI`), embeddings, tool
+calling, RAG and ONNX inference — the product side, with PB as the
+recommended (not required) way in. Its capstone (the RAG study helper, §3.5)
+can load PB's exported model. The from-scratch C# layer moves to PB, where
+NumPy makes it clearer.
+
+**The cost.** A second runtime (Pyodide, its worker sealed like the .NET
+one), `py_diff`, a pytest validator, Python in the lesson renderer and
+error decoder, and the subject showing two languages. About one platform
+release before PY1's first lesson.
+
+### 3.7 A revised order (proposed 23 October 2026)
+
+If the Python path is chosen:
+1. **T1** Connectivity and persistence (with Spike S, the SQLite sandbox);
+2. **T2** Desktop apps;
+3. **T5** Games and graphics (MonoGame, Unity, the Gacha Lab);
+4. **PY1–PY3** and the Python capstone (with the Pyodide platform release);
+5. **PA** Data analytics (the Gacha Lab's sequel);
+6. **PB** AI, ML and LLMs;
+7. **T3** AI in .NET apps;
+8. **D1–D2**, then **D3**, then **D4–D6**;
+9. **T4** Web, **T6** Security, **T7** Cloud, **T8** Systems, **T9** Theory.
+
+Without it, §12.3's order stands (with Games as T5).
 
 ---
 
@@ -747,11 +889,14 @@ Suggested order:
 5. **D3** Algorithms;
 6. **D4–D6** Engineering;
 7. **T4** Web (with Spike H);
-8. **T5** Systems;
+8. **T5** Games (Unity; swapped with Systems 23 October 2026);
 9. **T6** Security;
 10. **T7** Cloud;
-11. **T8** Games;
+11. **T8** Systems;
 12. **T9** Theory.
+
+The revised order proposed on 23 October 2026, with the Python path, is in
+§3.7; this list stands until it is chosen.
 
 **Gate for every track:**
 - its notes meet the depth contract;
