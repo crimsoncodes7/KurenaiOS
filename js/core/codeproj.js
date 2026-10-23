@@ -23,7 +23,7 @@
   /* earlier validators' own hashes: a project exported before a validator
      release still reports with the one it shipped, and is accepted while
      that version meets the project's minValidator */
-  var EARLIER = { "1.0.0": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0" };
+  var EARLIER = { "1.0.0": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0", "1.1.0": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4" };
   var validatorText = null;
   function C() { return KOS.code; }
   function Z() { return KOS.codeZip; }

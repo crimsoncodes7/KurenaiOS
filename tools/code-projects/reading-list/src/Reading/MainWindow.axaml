@@ -1,0 +1,7 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Reading.MainWindow"
+        Title="The Reading List" Width="640" Height="480">
+    <!-- Milestones 1–4: the list, its template, styles, the boxes and the summary. -->
+    <TextBlock Text="Nothing to read yet." Margin="16" />
+</Window>

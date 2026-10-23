@@ -24,6 +24,8 @@
          milestones and pays once, under Track T1 · T1C.
      H · T2A. Your first window's real report (Avalonia driven headless)
          passes its four milestones and pays once, under Track T2 · T2A.
+     I · T2B–T2D. The Reading List, Markdown notes and Focus timer: each
+         real report passes every milestone and pays once, under its part.
      E · UNIT 10. The Lending Library's real report (validator 1.1.0: own
          tests, planted bugs, warnings, source checks) passes all six
          milestones and pays once; a Bridge report from validator 1.0.0 is
@@ -58,7 +60,7 @@ step("A · the export: files, hashes and the zip", async (app) => {
   const files = await P.files(ID), spec = K.code.project(ID);
   assert(files[".kurenai/validate.cs"] && files["kurenai.project.json"] && files["HelloKurenai.sln"] && files["tests/Hello.Acceptance/Milestone2.cs"], "the scaffold, the validator and the manifest");
   const man = JSON.parse(files["kurenai.project.json"]);
-  assert(man.id === ID && man.validator === "1.1.0" && man.milestones.length === spec.milestones.length, "the manifest names the project, the validator and the milestones");
+  assert(man.id === ID && man.validator === "1.1.1" && man.milestones.length === spec.milestones.length, "the manifest names the project, the validator and the milestones");
   spec.protected.forEach((p) => assert(man.protected[p] === K.codeZip.sha256(files[p]), "protected hash for " + p));
   const sol = JSON.parse(SOLVED);
   Object.keys(man.protected).forEach((p) => assert(sol.protected.files[p] === man.protected[p], "the validator computed the same hash for " + p));
@@ -188,6 +190,24 @@ step("H · T2A's taster: Your first window, under Track T2", async (app) => {
   ["T2.1", "T2.2", "T2.3"].forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
   K.show("code", { page: "project", id }); await app.settle();
   assert(app.document.querySelectorAll("[data-ui~='code.project-badge']").length === 4 && /Track T2 · T2A/.test(app.document.querySelector("#main").textContent), "the hub draws four milestones under Track T2 · T2A");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
+step("I · T2B–T2D: The Reading List, Markdown notes and Focus timer", async (app) => {
+  const K = app.KOS, P = K.codeProject, g = K.store.state.governor;
+  for (const [id, fixture, unit, ms, xp, lessons] of [
+    ["rp-t2b-reading", "reading", "T2B", "m1,m2,m3,m4,m5", 120, ["T2.4", "T2.5", "T2.6", "T2.7"]],
+    ["rp-t2c-notes", "notes", "T2C", "m1,m2,m3,m4", 140, ["T2.8", "T2.9", "T2.10", "T2.11"]],
+    ["rp-t2d-timer", "timer", "T2D", "m1,m2,m3,m4,m5", 140, ["T2.12", "T2.13", "T2.14", "T2.15"]]
+  ]) {
+    const res = await P.check(dated("tools/fixtures/" + fixture + "-report-solved.json", app, 3));
+    assert(res.outcome === "accepted" && res.completes && res.reward.xp === xp, id + ": accepted with its reward: " + (res.msg || JSON.stringify(res.mismatched)));
+    const xp0 = g.xp, r = P.apply(res);
+    assert(r.ok && r.newly.join() === ms && g.xp - xp0 === xp, id + ": every milestone, paid once");
+    lessons.forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
+    K.show("code", { page: "project", id }); await app.settle();
+    assert(new RegExp("Track T2 · " + unit).test(app.document.querySelector("#main").textContent), id + ": the hub names Track T2 · " + unit);
+  }
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 

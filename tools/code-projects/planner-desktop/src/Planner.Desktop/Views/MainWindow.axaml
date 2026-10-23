@@ -1,0 +1,7 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Planner.Desktop.MainWindow"
+        Title="Planner" Width="1000" Height="640">
+    <!-- Milestone 1: a bar with Topics, Next and Back, and a ContentControl named Page showing Current. -->
+    <TextBlock Text="The Planner on the desktop" Margin="16" />
+</Window>

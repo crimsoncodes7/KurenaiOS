@@ -23,6 +23,11 @@
          (tools/fixtures/planner-report-solved.json) passes the milestones,
          the project pays nothing, and the capstone pays once when
          submitted. Its steps draw without writing.
+     F · A TRACK'S CAPSTONE. Track T2's (CT2) has no stage: its build is
+         T2E's Rider project, its page and the project's say "Track T2
+         capstone", the T2 page links to it, and a real report
+         (tools/fixtures/planner-desktop-report-solved.json) lets it pay
+         once (250 XP, 60 gold, +10 HP).
    tools/cs_diff.mjs additionally runs the reference against .NET.
 
    Run:
@@ -137,7 +142,7 @@ step("D · every step draws without writing; the path and map open it", async ()
 });
 
 step("E · capstone 4 is built in Rider: validator milestones, the capstone pays once", async () => {
-  assert(riderCaps.join() === "C4", "capstone 4 is the Rider capstone");
+  assert(riderCaps.join() === "C4,CT2", "capstone 4 and Track T2's are the Rider capstones: " + riderCaps.join());
   const c = K.CAPSTONES.C4, p = K.PROJECTS[c.project];
   assert(c.where === "rider" && c.stage === 4 && p && p.capstone === "C4" && !p.reward && p.files && p.files["RevisionPlanner.sln"], "C4's project: its scaffold, linked back, no reward of its own");
   assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]), "the quiz (5, each linked to a written lesson)");
@@ -175,6 +180,47 @@ step("E · capstone 4 is built in Rider: validator milestones, the capstone pays
   assert(!KOS.code.submitCapstone("C4").paid && g.xp - xp0 === 300 && KOS.code.capStage("C4") === "passed", "a second submission pays nothing");
   KOS.show("code", { page: "project", id: c.project }); await app.settle();
   assert(/Capstone 4/.test(doc.querySelector("#main").textContent) && doc.querySelector("[data-ui~='code.project-capstone']"), "the project's page names its capstone and links back");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+  app.window.close();
+});
+
+step("F · a track's capstone: Track T2's, built in Rider, on the track page", async () => {
+  const c = K.CAPSTONES.CT2, p = K.PROJECTS[c.project];
+  assert(c.where === "rider" && c.track === "T2" && !c.stage && p && p.capstone === "CT2" && p.unit === "T2E" && !p.reward && p.files && p.files["PlannerDesktop.sln"], "CT2: a track, no stage, its project linked back with no reward of its own");
+  assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]) && c.quiz.every((q) => /^T2\./.test(q.lesson)), "the quiz (5, each linked to a written T2 lesson)");
+  assert(c.rubric.filter((r) => r.auto).length === 1 && c.reward.xp === 250 && c.writeupMin >= 80, "one automatic rubric row, the reward");
+  assert(p.milestones.length === 5 && p.milestones.every((m) => m.lessons.length), "five milestones, each proving a T2E lesson");
+  const fsx = require("fs"), path = require("path");
+  const app = await boot(), KOS = app.KOS, g = KOS.store.state.governor, doc = app.document;
+  KOS.codeProject._setValidator(fsx.readFileSync(path.join(__dirname, "..", "assets/code/validator/validate.cs"), "utf8"));
+  const j = JSON.parse(fsx.readFileSync(path.join(__dirname, "fixtures/planner-desktop-report-solved.json"), "utf8")), now = app.window.Date.now();
+  j.startedAt = new Date(now - 3600000).toISOString().slice(0, 19) + "Z"; j.finishedAt = new Date(now - 3500000).toISOString().slice(0, 19) + "Z";
+  const snap = () => JSON.stringify(KOS.store.state.code) + JSON.stringify(KOS.store.state.governor) + JSON.stringify(KOS.store.state.progress);
+  for (const s of KOS.code.CAP_STEPS.map((x) => x[0])) {
+    KOS.store.state.ui.code.capStep = { CT2: s };
+    const before = snap();
+    KOS.show("code", { page: "capstone", id: "CT2" }); await app.settle();
+    assert(doc.querySelector('[data-step="' + s + '"][aria-selected="true"]'), s + ": the stepper marks it");
+    assert(snap() === before, "CT2 " + s + " wrote to the store while drawing");
+  }
+  assert(/Track T2 capstone/.test(doc.querySelector("#main").textContent) && !/Capstone T2/.test(doc.querySelector("#main").textContent), "the page names it the Track T2 capstone");
+  KOS.show("code", { page: "track", id: "T2" }); await app.settle();
+  const link = doc.querySelector("[data-ui~='code.track-capstone'] button");
+  assert(link, "the T2 page offers the capstone in T2E's card");
+  link.click(); await app.settle();
+  assert(doc.querySelector("[data-ui~='code.capstone']"), "and opens it");
+  const xp0 = g.xp, gold0 = g.gold;
+  const res = await KOS.codeProject.check(JSON.stringify(j));
+  assert(res.outcome === "accepted" && !res.completes && !res.reward, "accepted; the project itself shows no reward: " + (res.msg || JSON.stringify(res.mismatched)));
+  const r = KOS.codeProject.apply(res);
+  assert(r.ok && r.all && !r.pay && g.xp === xp0 && g.gold === gold0, "every milestone passes and the project pays nothing");
+  assert(KOS.code.capView("CT2").build.all, "the capstone's build reads the project");
+  c.rubric.filter((x) => !x.auto).forEach((x) => KOS.code.setRubric("CT2", x.id, 3));
+  KOS.code.setWriteup("CT2", Array(c.writeupMin + 5).fill("word").join(" "));
+  const sub = KOS.code.submitCapstone("CT2");
+  assert(sub.passed && sub.paid && g.xp - xp0 === 250 && g.gold - gold0 === 60, "the capstone pays once: " + JSON.stringify(sub.pay));
+  KOS.show("code", { page: "project", id: c.project }); await app.settle();
+  assert(/Track T2 capstone/.test(doc.querySelector("#main").textContent) && doc.querySelector("[data-ui~='code.project-capstone']"), "the project's page names its capstone and links back");
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
   app.window.close();
 });

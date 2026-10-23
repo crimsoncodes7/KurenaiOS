@@ -1,4 +1,4 @@
-// Kurenai validator 1.1.0 — run from the project folder:
+// Kurenai validator 1.1.1 — run from the project folder:
 //     dotnet run .kurenai/validate.cs
 // (or "Kurenai Validate" in Rider's run configurations).
 //
@@ -26,7 +26,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 
-const string Version = "1.1.0";
+const string Version = "1.1.1";
 var started = DateTime.UtcNow;
 string root = FindRoot(Environment.CurrentDirectory);
 var project = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "kurenai.project.json")))!.AsObject();
@@ -72,7 +72,9 @@ foreach (var sarif in Directory.Exists(outDir) ? Directory.GetFiles(outDir, "*.s
         foreach (var run in JsonNode.Parse(File.ReadAllText(sarif))!["runs"]!.AsArray())
             foreach (var res in run!["results"]?.AsArray() ?? new JsonArray())
             {
-                string level = (string?)res!["level"] ?? "warning";
+                // a diagnostic suppressed in source (a #pragma, often in generated code) is not the learner's
+                if (res!["suppressions"] is JsonArray sup && sup.Count > 0) continue;
+                string level = (string?)res["level"] ?? "warning";
                 if (level == "error") { errors++; if (failures.Count < 20) failures.Add(new JsonObject { ["build"] = (string?)res["ruleId"], ["message"] = Cap((string?)res["message"]?["text"]) }); }
                 else if (level == "warning") warnings++;
             }

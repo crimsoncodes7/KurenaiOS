@@ -1,0 +1,159 @@
+{
+  "schema": "kurenai.validation/1",
+  "project": {
+    "id": "rp-ct2-planner",
+    "scaffoldVersion": 1
+  },
+  "validator": {
+    "version": "1.1.1",
+    "sha256": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
+  },
+  "env": {
+    "sdk": "10.0.302",
+    "os": "macOS 27.0.1",
+    "arch": "arm64"
+  },
+  "source": {
+    "treeSha256": "375ee5e9cb018de6c90ab690fd21246f0102d317568f5fd1741f57fedc919656",
+    "gitCommit": "61d946d3bc0c5a9e3d19bca22b250442dca14ab6",
+    "dirty": false
+  },
+  "protected": {
+    "ok": true,
+    "mismatched": [],
+    "files": {
+      "Directory.Build.props": "20ba05de9808e2347b49b7fec883a9847080f2f7a7a85d95151b7f839711968e",
+      "tests/Planner.Acceptance/Planner.Acceptance.csproj": "40968b2613f7f43c15465de0d9849a23ace1cc903005525a49a3c627e7a5371a",
+      "tests/Planner.Acceptance/Headless.cs": "40d24115f6326a0b242b827cc1b516045f1d48fdf3322b1cb425392b5ad309c3",
+      "tests/Planner.Acceptance/Fakes.cs": "63c94ecc4ae7f84f07b561a9f28345e199e9310171de207cde9e9bd017613a90",
+      "tests/Planner.Acceptance/Milestone1.cs": "1bcfb636d44cf2cde323be55e0cee9e014e018d5713327a414b0ba01323864d7",
+      "tests/Planner.Acceptance/Milestone2.cs": "7b001c86f54f0223d68641d33316cf57bf77e1b3752a0edffa4cf4d0d27af760",
+      "tests/Planner.Acceptance/Milestone3.cs": "1dde28438768d745d0a305632a6f668f32c3b0c1f4daaea1531239540cd18ca8",
+      "tests/Planner.Acceptance/Milestone4.cs": "de58a3ca76238d0d1dda903913d2ca7f22c9fa9eb59040dfeb8824204951d56e",
+      ".kurenai/validate.cs": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
+    }
+  },
+  "steps": [
+    {
+      "id": "preflight",
+      "ran": true,
+      "exit": 0,
+      "ms": 84,
+      "sdk": "10.0.302"
+    },
+    {
+      "id": "restore",
+      "ran": true,
+      "exit": 0,
+      "ms": 451
+    },
+    {
+      "id": "build",
+      "ran": true,
+      "exit": 0,
+      "ms": 878,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "id": "test",
+      "ran": true,
+      "exit": 0,
+      "ms": 2130,
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "8 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "4 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "4 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "ok": true,
+      "checks": [
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        },
+        {
+          "type": "owntests",
+          "ok": true,
+          "note": "9 of your tests pass, 0 fail (at least 8 needed)"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        },
+        {
+          "type": "warnings",
+          "ok": true,
+          "note": "0 warning(s), at most 0"
+        },
+        {
+          "type": "git",
+          "ok": true,
+          "note": "committed, clean"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "startedAt": "2026-10-23T11:34:52Z",
+  "finishedAt": "2026-10-23T11:34:55Z",
+  "reportSha256": "d2d0664de68840996540bf0d9013c7c465212596c83fb6e3c319b74164ba043a"
+}

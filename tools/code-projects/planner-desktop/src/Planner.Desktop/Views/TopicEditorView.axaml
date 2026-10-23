@@ -1,0 +1,5 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Planner.Desktop.TopicEditorView">
+    <TextBlock Text="TopicEditor — yours to build." Margin="16" />
+</UserControl>

@@ -537,6 +537,16 @@
           var rp = rel && C().projects().filter(function (x) { return x.unit === u.ref; })[0];
           if (!rp) return null;
           var pv = C().projectView(rp.id);
+          /* the track's capstone: its project is the capstone's build */
+          if (rp.capstone && C().capstone(rp.capstone)) {
+            var cv = C().capView(rp.capstone);
+            return el("div", { class: "k-cx-partproj", "data-ui": "code.track-capstone" }, [
+              el("span", { class: "k-kicker", text: "Capstone · in Rider" }),
+              el("b", { text: cv.spec.title }),
+              el("span", { class: "k-muted", text: cv.passAt ? "Passed." : pv.done + " of " + pv.total + " milestones passed." }),
+              el("button", { type: "button", class: "k-btn k-btn--sm", text: "Open the capstone ›", onclick: function () { KOS.show("code", { page: "capstone", id: rp.capstone }); } })
+            ]);
+          }
           return el("div", { class: "k-cx-partproj", "data-ui": "code.track-project" }, [
             el("span", { class: "k-kicker", text: "Project · in Rider" }),
             el("b", { text: rp.title }),

@@ -12,6 +12,9 @@
   window.KOS = window.KOS || {};
   var el = KOS.ui.el;
   var SID = "code";
+  /* "Capstone 4", or "Track T2 capstone" for a track's own */
+  function capName(id) { var c = (window.KOS_CODE.CAPSTONES || {})[id]; return c && c.track ? "Track " + c.track + " capstone" : "Capstone " + String(id).slice(1); }
+  function capRef(id) { var c = (window.KOS_CODE.CAPSTONES || {})[id]; return (c && c.track ? "the " : "") + capName(id); }
   function C() { return KOS.code; }
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function day(ts) { return new Date(ts).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); }
@@ -23,7 +26,7 @@
     if (!v) { KOS.show("code", { page: "map" }); return; }
     var p = v.spec, tab = (arg && arg.tab) || "overview", flash = null;
     var body = el("div", { class: "k-cx-rp", "data-ui": "code.project" });
-    main.appendChild(KOS.ui.pageHeader({ kicker: "Code · " + (p.capstone ? "Capstone " + p.capstone.slice(1) : /^U\d+$/.test(p.unit) ? "Unit " + p.unit.slice(1) : /^T\d/.test(p.unit) ? "Track " + p.unit.replace(/[A-Z]$/, "") + " · " + p.unit : "Bridge " + p.unit) + " · Rider project", title: p.title, sub: p.summary,
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Code · " + (p.capstone ? capName(p.capstone) : /^U\d+$/.test(p.unit) ? "Unit " + p.unit.slice(1) : /^T\d/.test(p.unit) ? "Track " + p.unit.replace(/[A-Z]$/, "") + " · " + p.unit : "Bridge " + p.unit) + " · Rider project", title: p.title, sub: p.summary,
       actions: [el("span", { class: "k-cx-chip", text: "⌘ Rider" }),
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.project-bring", text: "Bring in a report", onclick: function () { tab = "validation"; draw(); pick(); } })] }));
     main.appendChild(body);
@@ -54,15 +57,15 @@
         li("Milestones", v.done + " of " + v.total),
         li("Last report", v.last ? day(v.last.importedAt) + " · " + levelText(v.last.level) : "none yet"),
         li("Exported here", v.exportedAt ? day(v.exportedAt) : "not yet"),
-        li("Reward", p.capstone ? "with Capstone " + p.capstone.slice(1) + ", when it is submitted" : v.payAt ? "paid " + day(v.payAt) : "+" + p.reward.xp + " XP · +" + p.reward.gold + " gold · +" + p.reward.hp + " HP, once")
+        li("Reward", p.capstone ? "with " + capRef(p.capstone) + ", when it is submitted" : v.payAt ? "paid " + day(v.payAt) : "+" + p.reward.xp + " XP · +" + p.reward.gold + " gold · +" + p.reward.hp + " HP, once")
       ])]);
     }
     function li(k, val) { return el("li", {}, [el("span", { text: k }), el("strong", { text: val })]); }
     function lessons() {
       /* a capstone's project proves the capstone, not single lessons */
-      if (p.capstone) return card("Capstone " + p.capstone.slice(1), null, [
+      if (p.capstone) return card(capName(p.capstone), null, [
         el("p", { class: "k-cx-note", text: "These milestones are the capstone's build. The quiz, rubric, review, write-up and result are on its page." }),
-        el("button", { type: "button", class: "k-btn", "data-ui": "code.project-capstone", text: "Open Capstone " + p.capstone.slice(1) + " ›", onclick: function () { KOS.show("code", { page: "capstone", id: p.capstone }); } })]);
+        el("button", { type: "button", class: "k-btn", "data-ui": "code.project-capstone", text: "Open " + capRef(p.capstone) + " ›", onclick: function () { KOS.show("code", { page: "capstone", id: p.capstone }); } })]);
       var refs = [];
       p.milestones.forEach(function (m) { (m.lessons || []).forEach(function (r) { if (refs.indexOf(r) < 0) refs.push(r); }); });
       refs.sort();
@@ -176,7 +179,7 @@
         if (!out || out.duplicate) { banner("mute", "= Already imported", "Nothing changed."); return; }
         if (res.practice) { banner("warn", "◐ Practice only", "The shipped tests were changed (" + res.mismatched.length + " file" + (res.mismatched.length === 1 ? "" : "s") + "), so milestones are not marked.", [el("p", { class: "k-mono", text: res.mismatched.join(" · ") })]); announce("Practice only."); return; }
         var said = out.newly.length ? out.newly.map(function (m) { return "Milestone " + m.slice(1); }).join(", ") + " passed · Self-run." : "No new milestone passed this time.";
-        banner("ok", "✓ Accepted", said, out.pay ? [KOS.codeUI.reward({ pay: out.pay }, "the project is complete")] : [el("p", { class: "k-cx-note", text: p.capstone && out.all ? "Every milestone passes: finish Capstone " + p.capstone.slice(1) + " on its page." : v.payAt || out.all ? "" : (v.total - C().projectView(id).done) + " milestone(s) to go." })]);
+        banner("ok", "✓ Accepted", said, out.pay ? [KOS.codeUI.reward({ pay: out.pay }, "the project is complete")] : [el("p", { class: "k-cx-note", text: p.capstone && out.all ? "Every milestone passes: finish " + capRef(p.capstone) + " on its page." : v.payAt || out.all ? "" : (v.total - C().projectView(id).done) + " milestone(s) to go." })]);
         announce("Accepted. " + said);
       } });
       var rows = [["Project", p.title], ["Scaffold", "v" + rep.project.scaffoldVersion], ["Validator", rep.validator.version], ["Machine", [rep.env.os, rep.env.arch].filter(Boolean).join(" · ")], ["SDK", ".NET " + (rep.env.sdk || "?")]];

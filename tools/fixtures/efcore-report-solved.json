@@ -5,8 +5,8 @@
     "scaffoldVersion": 1
   },
   "validator": {
-    "version": "1.1.0",
-    "sha256": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+    "version": "1.1.1",
+    "sha256": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
   },
   "env": {
     "sdk": "10.0.302",
@@ -14,8 +14,8 @@
     "arch": "arm64"
   },
   "source": {
-    "treeSha256": "e2c72a81b72b2231e1ba57eeb34d12e60de6b6d1ef6cf442365c94924dccbc8e",
-    "gitCommit": "c1bba1fddd3a4f76c0adff32aa138d53c43a6b2c",
+    "treeSha256": "e19f16d5f3a6f18a038bfa34c111e2ae5c3f609d651b3af25fd7b5cecc1b7a5b",
+    "gitCommit": "08ecdda23c0ddc7335c21935b0a0d332b5233689",
     "dirty": false
   },
   "protected": {
@@ -31,7 +31,7 @@
       "tests/Library.Acceptance/Milestone4.cs": "e6029b333f6bf66b55781757509926bb8e445b9a143ef15a2257b43cb23f8687",
       "tests/Library.Acceptance/Milestone5.cs": "dedbe723d22dc52fa08ce611d3a98dbc59e393c0e947981eb7db9c562334f1ca",
       "tests/Library.Acceptance/Milestone6.cs": "78fbf7263a05238ca1a5e46c3344719dd5e0b2bdfc5395d87eae35c0c2592bd2",
-      ".kurenai/validate.cs": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+      ".kurenai/validate.cs": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
     }
   },
   "steps": [
@@ -39,20 +39,20 @@
       "id": "preflight",
       "ran": true,
       "exit": 0,
-      "ms": 79,
+      "ms": 74,
       "sdk": "10.0.302"
     },
     {
       "id": "restore",
       "ran": true,
       "exit": 0,
-      "ms": 363
+      "ms": 338
     },
     {
       "id": "build",
       "ran": true,
       "exit": 0,
-      "ms": 569,
+      "ms": 510,
       "errors": 0,
       "warnings": 0
     },
@@ -60,7 +60,7 @@
       "id": "test",
       "ran": true,
       "exit": 0,
-      "ms": 1520,
+      "ms": 1507,
       "passed": 31,
       "failed": 0,
       "skipped": 0
@@ -176,7 +176,7 @@
     }
   ],
   "failures": [],
-  "startedAt": "2026-10-23T10:41:19Z",
-  "finishedAt": "2026-10-23T10:41:23Z",
-  "reportSha256": "1f06e4b989397b705588cc966bd8912ae92fb01890ccebbc6564a12d7b94c153"
+  "startedAt": "2026-10-23T11:33:52Z",
+  "finishedAt": "2026-10-23T11:33:56Z",
+  "reportSha256": "35b315d95f68e44f8594dcbcab1e7ea32fba5f97e56f7550cadeff49ade87daf"
 }

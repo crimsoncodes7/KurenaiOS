@@ -5,8 +5,8 @@
     "scaffoldVersion": 1
   },
   "validator": {
-    "version": "1.1.0",
-    "sha256": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+    "version": "1.1.1",
+    "sha256": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
   },
   "env": {
     "sdk": "10.0.302",
@@ -15,7 +15,7 @@
   },
   "source": {
     "treeSha256": "f4c3da857cf27e3bcdf796d27f9dc7b2f6bd4fc56bd39f8f54af69a863a9567b",
-    "gitCommit": "0f1bc5bba5ce7bc599c85f0be430ae6772227bb9",
+    "gitCommit": "da3d924b72b1926a9b3c2147cd1b7caa3e601660",
     "dirty": false
   },
   "protected": {
@@ -27,7 +27,7 @@
       "tests/Planner.Acceptance/Planner.Acceptance.csproj": "0ac0dc69606a2fe71ac9b2a8d22a76d3bd0c4e99afa6d8608e7465b43d474749",
       "tests/Planner.Acceptance/Milestone2.cs": "31615db9ef58e7c4874a404dae3b136abe543aff0f53e8e586235f7bcc912bea",
       "tests/Planner.Acceptance/Milestone3.cs": "32fb9d337596568cf200106617d7ab85e0fb7140080ad442ed5198291b4df2c1",
-      ".kurenai/validate.cs": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+      ".kurenai/validate.cs": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
     }
   },
   "steps": [
@@ -35,20 +35,20 @@
       "id": "preflight",
       "ran": true,
       "exit": 0,
-      "ms": 83,
+      "ms": 80,
       "sdk": "10.0.302"
     },
     {
       "id": "restore",
       "ran": true,
       "exit": 0,
-      "ms": 430
+      "ms": 420
     },
     {
       "id": "build",
       "ran": true,
       "exit": 0,
-      "ms": 595,
+      "ms": 504,
       "errors": 0,
       "warnings": 0
     },
@@ -56,7 +56,7 @@
       "id": "test",
       "ran": true,
       "exit": 0,
-      "ms": 1034,
+      "ms": 913,
       "passed": 23,
       "failed": 0,
       "skipped": 0
@@ -155,7 +155,7 @@
     }
   ],
   "failures": [],
-  "startedAt": "2026-10-23T10:40:50Z",
-  "finishedAt": "2026-10-23T10:40:59Z",
-  "reportSha256": "56ba54dcd8bab731a5211523f72da74880cb7a4281e6daef74a6766f5d954a19"
+  "startedAt": "2026-10-23T11:33:25Z",
+  "finishedAt": "2026-10-23T11:33:33Z",
+  "reportSha256": "92220e5b4f950a29a79c1a62313f4512efc97f71baa27671ec0db6ea09439e6d"
 }

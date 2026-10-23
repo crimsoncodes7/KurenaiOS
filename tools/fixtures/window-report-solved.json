@@ -5,8 +5,8 @@
     "scaffoldVersion": 1
   },
   "validator": {
-    "version": "1.1.0",
-    "sha256": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+    "version": "1.1.1",
+    "sha256": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
   },
   "env": {
     "sdk": "10.0.302",
@@ -14,8 +14,8 @@
     "arch": "arm64"
   },
   "source": {
-    "treeSha256": "ded20852789b37c856cfe4cc7fa044d1399a0a83a7c7485303a62da88b670ce0",
-    "gitCommit": "8350083d91eb64b347efa0bea574704e87b1af7b",
+    "treeSha256": "1ba0544f84ed30f16ad296be3f084ff968cae4a26fd252a0715ee2f80ba8d4a8",
+    "gitCommit": "897c7c769e27d5e0ac220892a851e5526269f69d",
     "dirty": false
   },
   "protected": {
@@ -23,12 +23,12 @@
     "mismatched": [],
     "files": {
       "Directory.Build.props": "20ba05de9808e2347b49b7fec883a9847080f2f7a7a85d95151b7f839711968e",
-      "tests/Tips.Acceptance/Tips.Acceptance.csproj": "89da4fd4e7409ca042c3650a9481f7254bc5e177c01a8a9c892ba05eb5bb86c9",
+      "tests/Tips.Acceptance/Tips.Acceptance.csproj": "bd592a3ae3a7ed54cf63c02aa0d32eda81a57c9388b08b2d7ea1feed81298e1d",
       "tests/Tips.Acceptance/Headless.cs": "b9b23c997cf999accf8a6a23021f1966eab950fc38728652b65404f189f757d8",
       "tests/Tips.Acceptance/Milestone1.cs": "b1ae379220dfbc34b31e2c5cdccd3a8feae2bdb7228e531434333c0bf1071985",
       "tests/Tips.Acceptance/Milestone2.cs": "188f578afe1a27496ecc40484b4e09f23ef8c9534a6d0a372ad57a7c1680a5c2",
       "tests/Tips.Acceptance/Milestone3.cs": "612d27156de9c350f0b73db24fdc16fbcd59e73bfcf997431e746125b8a320dc",
-      ".kurenai/validate.cs": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+      ".kurenai/validate.cs": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
     }
   },
   "steps": [
@@ -36,14 +36,14 @@
       "id": "preflight",
       "ran": true,
       "exit": 0,
-      "ms": 80,
+      "ms": 78,
       "sdk": "10.0.302"
     },
     {
       "id": "restore",
       "ran": true,
       "exit": 0,
-      "ms": 461
+      "ms": 515
     },
     {
       "id": "build",
@@ -57,7 +57,7 @@
       "id": "test",
       "ran": true,
       "exit": 0,
-      "ms": 1912,
+      "ms": 1924,
       "passed": 24,
       "failed": 0,
       "skipped": 0
@@ -125,7 +125,7 @@
     }
   ],
   "failures": [],
-  "startedAt": "2026-10-23T10:41:32Z",
-  "finishedAt": "2026-10-23T10:41:35Z",
-  "reportSha256": "a02e0e046dbbed453afad92cc4ef26b284f1ccd1945f16d9e61ac56ebf35f071"
+  "startedAt": "2026-10-23T11:34:05Z",
+  "finishedAt": "2026-10-23T11:34:08Z",
+  "reportSha256": "4a66b043f2484abc0920f6ce2a7b7d424975d2988b803725063beb0d5fbaa097"
 }

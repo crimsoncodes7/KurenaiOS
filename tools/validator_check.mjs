@@ -23,7 +23,12 @@
    model change left unmigrated (m3 fails); then T2A's taster
    (rp-t2a-window, Avalonia driven headless) fresh, solved (m1–m4,
    window-report-solved.json), and with the bill box unwired and fixed at
-   500px (m3 and m2 fail). Needs the .NET 10 SDK, NuGet and git; outside
+   500px (m3 and m2 fail); then the rest of T2, each fresh, solved and with
+   one planted mistake: The Reading List (a Book without change
+   notification, m4), Markdown notes (a Click handler and stale files, m2
+   and m3), Focus timer (the real clock instead of the injected one, m2)
+   and the capstone, The Planner on the desktop (a fixed layout and no
+   publish profile, m4 and m5). Needs the .NET 10 SDK, NuGet and git; outside
    the jsdom gate. macOS here; Windows and Linux are still to be run.
      node tools/validator_check.mjs                                          */
 import { createRequire } from "module";
@@ -37,7 +42,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 global.window = global;
 window.KOS_CONTENT = {}; window.KOS_DATA = {}; window.KOS = {};
-for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-t2a.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
+for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-t2a.js", "js/data/content/code-t2b.js", "js/data/content/code-t2c.js", "js/data/content/code-t2d.js", "js/data/content/code-t2e.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
 const K = window.KOS_CODE;
 window.KOS.code = { project: (id) => K.PROJECTS[id] || null };
 window.KOS.codeProject._setValidator(fs.readFileSync(path.join(ROOT, "assets/code/validator/validate.cs"), "utf8"));
@@ -968,6 +973,1173 @@ v = validate(d);
 const wid = (id) => v.rep.milestones.find((m) => m.id === id);
 expect(wid("m1").ok && !wid("m3").ok, "window not listening to the bill: m3 fails (" + wid("m3").checks.map((c) => c.note).join(" · ") + ")");
 expect(!wid("m2").ok, "window with a fixed 500px bill box: m2 fails (" + wid("m2").checks.map((c) => c.note).join(" · ") + ")");
+
+/* ---------------- T2B: The Reading List ---------------- */
+files = await window.KOS.codeProject.files("rp-t2b-reading");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "reading fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+d = fresh();
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+put("src/Reading/Book.cs", String.raw`using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace Reading;
+
+/// <summary>One book on the list; tells the UI when its title or Done changes.</summary>
+public class Book(string title, string author) : INotifyPropertyChanged
+{
+    string title = title;
+    bool done;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public string Title { get => title; set => Set(ref title, value); }
+    public string Author { get; set; } = author;
+    public bool Done { get => done; set => Set(ref done, value); }
+
+    void Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+}
+`);
+put("src/Reading/ReadingList.cs", String.raw`using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace Reading;
+
+/// <summary>Everything the window shows, as properties it can bind to.</summary>
+public class ReadingList : INotifyPropertyChanged
+{
+    string newTitle = "", newAuthor = "";
+    Book? selected;
+
+    public ReadingList()
+    {
+        Books.CollectionChanged += (_, e) =>
+        {
+            foreach (Book b in e.NewItems ?? Array.Empty<Book>()) b.PropertyChanged += BookChanged;
+            foreach (Book b in e.OldItems ?? Array.Empty<Book>()) b.PropertyChanged -= BookChanged;
+            Changed(nameof(Summary));
+        };
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public ObservableCollection<Book> Books { get; } = new();
+
+    public string NewTitle
+    {
+        get => newTitle;
+        set { if (newTitle == value) return; newTitle = value; Changed(); Changed(nameof(CanAdd)); }
+    }
+
+    public string NewAuthor { get => newAuthor; set { if (newAuthor == value) return; newAuthor = value; Changed(); } }
+
+    public Book? Selected { get => selected; set { if (selected == value) return; selected = value; Changed(); } }
+
+    public bool CanAdd => !string.IsNullOrWhiteSpace(NewTitle);
+
+    public string Summary
+    {
+        get
+        {
+            if (Books.Count == 0) return "No books yet";
+            int read = Books.Count(b => b.Done);
+            return $"{Books.Count} book{(Books.Count == 1 ? "" : "s")} · {read} read";
+        }
+    }
+
+    public void Add()
+    {
+        if (!CanAdd) return;
+        var book = new Book(NewTitle.Trim(), string.IsNullOrWhiteSpace(NewAuthor) ? "Unknown" : NewAuthor.Trim());
+        Books.Add(book);
+        NewTitle = "";
+        NewAuthor = "";
+        Selected = book;
+    }
+
+    public void RemoveSelected()
+    {
+        if (Selected is null) return;
+        Books.Remove(Selected);
+        Selected = null;
+    }
+
+    void BookChanged(object? sender, PropertyChangedEventArgs e) { if (e.PropertyName == nameof(Book.Done)) Changed(nameof(Summary)); }
+    void Changed([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+}
+`);
+put("src/Reading/MainWindow.axaml", String.raw`<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Reading"
+        x:Class="Reading.MainWindow"
+        x:DataType="local:ReadingList"
+        Title="The Reading List" Width="640" Height="480">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Accent" Color="#C2410C" />
+    </Window.Resources>
+    <Window.Styles>
+        <Style Selector="TextBlock.done">
+            <Setter Property="Opacity" Value="0.55" />
+            <Setter Property="TextDecorations" Value="Strikethrough" />
+        </Style>
+        <Style Selector="TextBlock.heading">
+            <Setter Property="Foreground" Value="{StaticResource Accent}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </Window.Styles>
+    <DockPanel Margin="16">
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <TextBlock Classes="heading" Text="The Reading List" FontSize="20" />
+            <ToggleSwitch Grid.Column="1" x:Name="DarkToggle" OnContent="Dark" OffContent="Light" />
+        </Grid>
+        <TextBlock DockPanel.Dock="Bottom" x:Name="SummaryText" Text="{Binding Summary}" Margin="0,12,0,0" />
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+            <ListBox x:Name="BookList" ItemsSource="{Binding Books}" SelectedItem="{Binding Selected}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="local:Book">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <CheckBox IsChecked="{Binding Done}" />
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding Title}" Classes.done="{Binding Done}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Author}" Opacity="0.7" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Column="1" Spacing="8">
+                <Label Content="_Title" Target="{Binding #TitleBox}" />
+                <TextBox x:Name="TitleBox" Text="{Binding NewTitle}" />
+                <Label Content="_Author" Target="{Binding #AuthorBox}" />
+                <TextBox x:Name="AuthorBox" Text="{Binding NewAuthor}" />
+                <Button x:Name="AddButton" Content="Add" IsEnabled="{Binding CanAdd}" Click="OnAdd" />
+                <Label Content="_Rename the chosen book" Target="{Binding #EditTitle}" />
+                <TextBox x:Name="EditTitle" Text="{Binding Selected.Title, FallbackValue=''}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                <Button x:Name="RemoveButton" Content="Remove" Click="OnRemove" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>
+`);
+put("src/Reading/MainWindow.axaml.cs", String.raw`using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Styling;
+
+namespace Reading;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        DataContext = new ReadingList();
+        DarkToggle.IsCheckedChanged += (_, _) =>
+            Application.Current!.RequestedThemeVariant = DarkToggle.IsChecked == true ? ThemeVariant.Dark : ThemeVariant.Light;
+    }
+
+    ReadingList List => (ReadingList)DataContext!;
+
+    void OnAdd(object? sender, RoutedEventArgs e) => List.Add();
+    void OnRemove(object? sender, RoutedEventArgs e) => List.RemoveSelected();
+}
+`);
+put("tests/Reading.Tests/ReadingListTests.cs", String.raw`namespace Reading.Tests;
+
+public class ReadingListTests
+{
+    [Fact]
+    public void Adding_trims_and_selects()
+    {
+        var list = new ReadingList { NewTitle = "  Dune ", NewAuthor = " Frank Herbert " };
+        list.Add();
+        Assert.Equal(("Dune", "Frank Herbert"), (list.Books[0].Title, list.Books[0].Author));
+        Assert.Same(list.Books[0], list.Selected);
+    }
+
+    [Fact]
+    public void A_blank_title_adds_nothing()
+    {
+        var list = new ReadingList { NewTitle = " " };
+        list.Add();
+        Assert.Empty(list.Books);
+    }
+
+    [Fact]
+    public void Reading_a_book_changes_the_summary()
+    {
+        var list = new ReadingList { NewTitle = "Dune" };
+        list.Add();
+        list.Books[0].Done = true;
+        Assert.Equal("1 book · 1 read", list.Summary);
+    }
+
+    [Fact]
+    public void Removing_with_nothing_chosen_does_nothing()
+    {
+        var list = new ReadingList { NewTitle = "Dune" };
+        list.Add();
+        list.Selected = null;
+        list.RemoveSelected();
+        Assert.Single(list.Books);
+    }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "The Reading List"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "reading solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/reading-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Reading/Book.cs"); fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));", "_ = name;")); }
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m3").ok && !at("m4").ok, "reading Book that never raises PropertyChanged: m4 fails, m3 still passes (" + at("m4").checks.map((c) => c.note).join(" · ") + ")"); }
+
+/* ---------------- T2C: Markdown notes ---------------- */
+files = await window.KOS.codeProject.files("rp-t2c-notes");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "notes fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+d = fresh();
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+put("src/Notes/ViewModels/NoteViewModel.cs", String.raw`using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace Notes;
+
+/// <summary>One note: its text, and the title and word count that follow it.</summary>
+public partial class NoteViewModel(string text = "") : ObservableObject
+{
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title), nameof(Words))]
+    public partial string Text { get; set; } = text;
+
+    public string Title
+    {
+        get
+        {
+            foreach (var line in Text.Split('\n'))
+            {
+                var t = line.Trim().TrimStart('#').Trim();
+                if (t.Length > 0) return t;
+            }
+            return "Untitled";
+        }
+    }
+
+    public string Words
+    {
+        get
+        {
+            int n = Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Count(w => w.Any(char.IsLetterOrDigit));
+            return n == 0 ? "No words" : n == 1 ? "1 word" : $"{n} words";
+        }
+    }
+}
+`);
+put("src/Notes/ViewModels/MainViewModel.cs", String.raw`using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+namespace Notes;
+
+/// <summary>The window's view model: the notes, the one being edited, and what can be done.</summary>
+public partial class MainViewModel(INoteStore store, IDialogs dialogs) : ObservableObject
+{
+    public INoteStore Store { get; } = store;
+    public IDialogs Dialogs { get; } = dialogs;
+
+    public ObservableCollection<NoteViewModel> Notes { get; } = new();
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
+    public partial NoteViewModel? Selected { get; set; }
+
+    bool HasSelection => Selected is not null;
+
+    [RelayCommand]
+    void New()
+    {
+        var note = new NoteViewModel();
+        Notes.Add(note);
+        Selected = note;
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    async Task Delete()
+    {
+        if (Selected is not { } note) return;
+        if (!await Dialogs.ConfirmAsync($"Delete “{note.Title}”?")) return;
+        int at = Notes.IndexOf(note);
+        Notes.RemoveAt(at);
+        Selected = Notes.Count == 0 ? null : Notes[Math.Min(at, Notes.Count - 1)];
+    }
+
+    [RelayCommand]
+    Task Save() => Store.SaveAllAsync(Notes.Select(n => n.Text).ToList());
+
+    [RelayCommand]
+    async Task Load()
+    {
+        var texts = await Store.LoadAllAsync();
+        Notes.Clear();
+        foreach (var t in texts) Notes.Add(new NoteViewModel(t));
+        Selected = Notes.FirstOrDefault();
+    }
+}
+`);
+put("src/Notes/Services/FolderNoteStore.cs", String.raw`using System.Text;
+
+namespace Notes;
+
+/// <summary>The notes as .md files in one folder.</summary>
+public class FolderNoteStore(string folder) : INoteStore
+{
+    public string Folder { get; } = folder;
+
+    public static string FileName(int position, string text)
+    {
+        var slug = new StringBuilder();
+        foreach (char c in new NoteViewModel(text).Title.ToLowerInvariant())
+        {
+            if (char.IsAsciiLetterOrDigit(c)) slug.Append(c);
+            else if (slug.Length > 0 && slug[^1] != '-') slug.Append('-');
+        }
+        string s = slug.ToString().Trim('-');
+        if (s.Length > 40) s = s[..40].TrimEnd('-');
+        if (s.Length == 0 || text.Trim().Trim('#').Trim().Length == 0) s = "untitled";
+        return $"{position:00}-{s}.md";
+    }
+
+    public async Task<IReadOnlyList<string>> LoadAllAsync(CancellationToken ct = default)
+    {
+        if (!Directory.Exists(Folder)) return Array.Empty<string>();
+        var notes = new List<string>();
+        foreach (var file in Directory.GetFiles(Folder, "*.md").Order(StringComparer.Ordinal))
+            notes.Add(await File.ReadAllTextAsync(file, ct));
+        return notes;
+    }
+
+    public async Task SaveAllAsync(IReadOnlyList<string> notes, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        Directory.CreateDirectory(Folder);
+        foreach (var old in Directory.GetFiles(Folder, "*.md")) File.Delete(old);
+        for (int i = 0; i < notes.Count; i++)
+            await File.WriteAllTextAsync(Path.Combine(Folder, FileName(i + 1, notes[i])), notes[i], ct);
+    }
+}
+`);
+put("src/Notes/Views/MainWindow.axaml", String.raw`<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Notes"
+        x:Class="Notes.MainWindow"
+        x:DataType="local:MainViewModel"
+        Title="Markdown notes" Width="760" Height="500">
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{Binding NewCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+    </Window.KeyBindings>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="12">
+            <Button x:Name="NewButton" Content="New" Command="{Binding NewCommand}" />
+            <Button x:Name="DeleteButton" Content="Delete" Command="{Binding DeleteCommand}" />
+            <Button x:Name="SaveButton" Content="Save" Command="{Binding SaveCommand}" />
+            <Button x:Name="LoadButton" Content="Load" Command="{Binding LoadCommand}" />
+        </StackPanel>
+        <TextBlock DockPanel.Dock="Bottom" x:Name="WordCount" Margin="12" Text="{Binding Selected.Words, FallbackValue=''}" />
+        <Grid ColumnDefinitions="240,*" Margin="12,0">
+            <ListBox x:Name="NoteList" ItemsSource="{Binding Notes}" SelectedItem="{Binding Selected}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="local:NoteViewModel">
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBox Grid.Column="1" x:Name="Editor" Margin="12,0,0,0" AcceptsReturn="True" TextWrapping="Wrap"
+                     Text="{Binding Selected.Text, FallbackValue=''}" />
+        </Grid>
+    </DockPanel>
+</Window>
+`);
+put("tests/Notes.Tests/OwnTests.cs", String.raw`using Avalonia.Controls;
+using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
+
+namespace Notes.Tests;
+
+class Store : INoteStore
+{
+    public List<string> Saved = new();
+    public Task<IReadOnlyList<string>> LoadAllAsync(CancellationToken ct = default) => Task.FromResult<IReadOnlyList<string>>(Saved);
+    public Task SaveAllAsync(IReadOnlyList<string> notes, CancellationToken ct = default) { Saved = notes.ToList(); return Task.CompletedTask; }
+}
+class Yes : IDialogs { public Task<bool> ConfirmAsync(string q) => Task.FromResult(true); }
+
+public class ViewModelTests
+{
+    [Fact]
+    public void A_heading_only_note_is_titled_by_it() => Assert.Equal("Plans", new NoteViewModel("### Plans").Title);
+
+    [Fact]
+    public void Words_ignore_heading_marks() => Assert.Equal("2 words", new NoteViewModel("# Two words").Words);
+
+    [Fact]
+    public async Task Loading_nothing_selects_nothing()
+    {
+        var vm = new MainViewModel(new Store(), new Yes());
+        await vm.LoadCommand.ExecuteAsync(null);
+        Assert.Null(vm.Selected);
+    }
+
+    [Fact]
+    public async Task Deleting_the_last_note_leaves_none()
+    {
+        var vm = new MainViewModel(new Store(), new Yes());
+        vm.NewCommand.Execute(null);
+        await vm.DeleteCommand.ExecuteAsync(null);
+        Assert.Empty(vm.Notes);
+    }
+
+    [Fact]
+    public void File_names_drop_punctuation() => Assert.Equal("01-a-b.md", FolderNoteStore.FileName(1, "a, b"));
+}
+
+public class WindowTests
+{
+    [AvaloniaFact]
+    public void The_editor_is_empty_with_no_note()
+    {
+        var w = new MainWindow { DataContext = new MainViewModel(new Store(), new Yes()) };
+        w.Show();
+        Dispatcher.UIThread.RunJobs();
+        Assert.True(string.IsNullOrEmpty(w.FindControl<TextBox>("Editor")!.Text));
+    }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "Markdown notes"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4" && v.rep.protected.ok, "notes solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/notes-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Notes/Services/FolderNoteStore.cs"); const t = fs.readFileSync(f, "utf8"); if (!t.includes("        foreach (var old in Directory.GetFiles(Folder, \"*.md\")) File.Delete(old);\n")) throw new Error("edit anchor missing in src/Notes/Services/FolderNoteStore.cs"); fs.writeFileSync(f, t.replace("        foreach (var old in Directory.GetFiles(Folder, \"*.md\")) File.Delete(old);\n", "")); }
+{ const f = path.join(d, "src/Notes/Views/MainWindow.axaml"); const t = fs.readFileSync(f, "utf8"); if (!t.includes("<Button x:Name=\"LoadButton\" Content=\"Load\" Command=\"{Binding LoadCommand}\" />")) throw new Error("edit anchor missing in src/Notes/Views/MainWindow.axaml"); fs.writeFileSync(f, t.replace("<Button x:Name=\"LoadButton\" Content=\"Load\" Command=\"{Binding LoadCommand}\" />", "<Button x:Name=\"LoadButton\" Content=\"Load\" Click=\"OnLoad\" />")); }
+{ const f = path.join(d, "src/Notes/Views/MainWindow.axaml.cs"); const t = fs.readFileSync(f, "utf8"); if (!t.includes("    public MainWindow() => InitializeComponent();")) throw new Error("edit anchor missing in src/Notes/Views/MainWindow.axaml.cs"); fs.writeFileSync(f, t.replace("    public MainWindow() => InitializeComponent();", "    public MainWindow() => InitializeComponent();\n    async void OnLoad(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await ((MainViewModel)DataContext!).LoadCommand.ExecuteAsync(null);")); }
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m1").ok && !at("m2").ok && !at("m3").ok, "notes with a Click handler and old files left behind: m2 and m3 fail (" + at("m2").checks.map((c) => c.note).join(" · ") + " / " + at("m3").checks.map((c) => c.note).join(" · ") + ")"); }
+
+/* ---------------- T2D: Focus timer ---------------- */
+files = await window.KOS.codeProject.files("rp-t2d-timer");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "timer fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+d = fresh();
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+put("src/Focus/Composition.cs", String.raw`using Microsoft.Extensions.DependencyInjection;
+
+namespace Focus;
+
+/// <summary>The composition root: every service registered in one place.</summary>
+public static class Composition
+{
+    public static ServiceProvider Build(string dataFolder)
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<ISettingsStore>(_ => new JsonSettingsStore(Path.Combine(dataFolder, "settings.json")));
+        services.AddSingleton<IQuoteService>(_ => new HttpQuoteService(new HttpClient { BaseAddress = HttpQuoteService.Api }));
+        services.AddSingleton<INotifier, WindowNotifier>();
+        services.AddTransient<MainViewModel>();
+        return services.BuildServiceProvider();
+    }
+}
+`);
+put("src/Focus/MainViewModel.cs", String.raw`using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+namespace Focus;
+
+/// <summary>The timer, its settings and the quote.</summary>
+public partial class MainViewModel : ObservableObject
+{
+    TimeSpan left;
+    CancellationTokenSource? running;
+
+    public MainViewModel(TimeProvider time, ISettingsStore settings, IQuoteService quotes, INotifier notifier)
+    {
+        Time = time; Settings = settings; Quotes = quotes; Notifier = notifier;
+        var s = settings.Load();
+        focusMinutes = s.FocusMinutes;
+        BreakMinutes = s.BreakMinutes;
+        left = TimeSpan.FromMinutes(s.FocusMinutes);
+    }
+
+    public TimeProvider Time { get; }
+    public ISettingsStore Settings { get; }
+    public IQuoteService Quotes { get; }
+    public INotifier Notifier { get; }
+    public int BreakMinutes { get; }
+
+    [ObservableProperty] public partial string Phase { get; private set; } = "Focus";
+
+    public string Remaining => $"{(int)left.TotalMinutes:00}:{left.Seconds:00}";
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartCommand), nameof(PauseCommand))]
+    public partial bool IsRunning { get; private set; }
+
+    int focusMinutes;
+    public int FocusMinutes
+    {
+        get => focusMinutes;
+        set
+        {
+            value = Math.Max(1, value);
+            if (!SetProperty(ref focusMinutes, value)) return;
+            Settings.Save(new Settings(value, BreakMinutes));
+            if (!IsRunning && Phase == "Focus") Show(TimeSpan.FromMinutes(value));
+        }
+    }
+
+    [ObservableProperty] public partial Quote? Quote { get; private set; }
+    [ObservableProperty] public partial string? QuoteError { get; private set; }
+    [ObservableProperty] public partial bool IsLoadingQuote { get; private set; }
+
+    bool CanStart => !IsRunning;
+
+    [RelayCommand(CanExecute = nameof(CanStart))]
+    void Start()
+    {
+        running = new CancellationTokenSource();
+        IsRunning = true;
+        _ = CountDown(running.Token);
+    }
+
+    [RelayCommand(CanExecute = nameof(IsRunning))]
+    void Pause()
+    {
+        running?.Cancel();
+        IsRunning = false;
+    }
+
+    async Task CountDown(CancellationToken ct)
+    {
+        var end = Time.GetUtcNow() + left;
+        try
+        {
+            while (left > TimeSpan.Zero)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), Time, ct);
+                var rest = end - Time.GetUtcNow();
+                Show(rest > TimeSpan.Zero ? rest : TimeSpan.Zero);
+            }
+        }
+        catch (OperationCanceledException) { return; }
+        IsRunning = false;
+        if (Phase == "Focus")
+        {
+            Phase = "Break";
+            Show(TimeSpan.FromMinutes(BreakMinutes));
+            Notifier.Notify("Focus done", $"Time for a {BreakMinutes}-minute break.");
+        }
+        else
+        {
+            Phase = "Focus";
+            Show(TimeSpan.FromMinutes(FocusMinutes));
+            Notifier.Notify("Break over", "Ready when you are.");
+        }
+    }
+
+    void Show(TimeSpan t) { left = TimeSpan.FromSeconds(Math.Ceiling(t.TotalSeconds)); OnPropertyChanged(nameof(Remaining)); }
+
+    [RelayCommand]
+    async Task LoadQuote()
+    {
+        QuoteError = null;
+        IsLoadingQuote = true;
+        try { Quote = await Quotes.TodayAsync(); }
+        catch (QuoteUnavailableException) { Quote = null; QuoteError = "Couldn't load a quote. Try again."; }
+        finally { IsLoadingQuote = false; }
+    }
+}
+`);
+put("src/Focus/MainWindow.axaml", String.raw`<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Focus"
+        x:Class="Focus.MainWindow"
+        x:DataType="local:MainViewModel"
+        Title="Focus timer" Width="420" Height="420">
+    <StackPanel Margin="24" Spacing="12" HorizontalAlignment="Stretch">
+        <TextBlock Text="{Binding Phase}" HorizontalAlignment="Center" />
+        <TextBlock x:Name="RemainingText" Text="{Binding Remaining}" FontSize="56" HorizontalAlignment="Center" />
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+            <Button x:Name="StartButton" Content="Start" Command="{Binding StartCommand}" />
+            <Button x:Name="PauseButton" Content="Pause" Command="{Binding PauseCommand}" />
+        </StackPanel>
+        <Label Content="_Focus minutes" Target="{Binding #FocusMinutesBox}" />
+        <NumericUpDown x:Name="FocusMinutesBox" Value="{Binding FocusMinutes}" Minimum="1" Maximum="120" FormatString="0" />
+        <Button Content="A quote to begin" Command="{Binding LoadQuoteCommand}" />
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoadingQuote}" />
+        <TextBlock Text="{Binding Quote.Text, FallbackValue=''}" TextWrapping="Wrap" FontStyle="Italic" />
+        <TextBlock Text="{Binding QuoteError}" Foreground="OrangeRed" />
+    </StackPanel>
+</Window>
+`);
+put("src/Focus/Services/Settings.cs", String.raw`using System.Text.Json;
+
+namespace Focus;
+
+/// <summary>What the user chose, remembered between runs.</summary>
+public record Settings(int FocusMinutes = 25, int BreakMinutes = 5);
+
+public interface ISettingsStore
+{
+    Settings Load();
+    void Save(Settings settings);
+}
+
+/// <summary>Settings as a JSON file.</summary>
+public class JsonSettingsStore(string path) : ISettingsStore
+{
+    public string FilePath { get; } = path;
+
+    public Settings Load()
+    {
+        try { return File.Exists(FilePath) ? JsonSerializer.Deserialize<Settings>(File.ReadAllText(FilePath)) ?? new Settings() : new Settings(); }
+        catch (JsonException) { return new Settings(); }
+    }
+
+    public void Save(Settings settings)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
+        File.WriteAllText(FilePath, JsonSerializer.Serialize(settings));
+    }
+}
+`);
+put("src/Focus/Services/Quotes.cs", String.raw`using System.Net.Http.Json;
+using System.Text.Json;
+
+namespace Focus;
+
+/// <summary>A quote to start a session with.</summary>
+public record Quote(string Text, string Author);
+
+public interface IQuoteService
+{
+    Task<Quote> TodayAsync(CancellationToken ct = default);
+}
+
+/// <summary>Thrown when no quote could be had: a failed request, a bad answer, or too slow.</summary>
+public class QuoteUnavailableException(string message, Exception? inner = null) : Exception(message, inner);
+
+/// <summary>The quote of the day from the quotes API: GET quote/today → {"text": …, "author": …}.</summary>
+public class HttpQuoteService(HttpClient http, TimeSpan? timeout = null) : IQuoteService
+{
+    public static readonly Uri Api = new("https://quotes.kurenai.invalid/");
+
+    public HttpClient Http { get; } = http;
+    public TimeSpan Timeout { get; } = timeout ?? TimeSpan.FromSeconds(5);
+
+    public async Task<Quote> TodayAsync(CancellationToken ct = default)
+    {
+        using var limit = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        limit.CancelAfter(Timeout);
+        try
+        {
+            using var response = await Http.GetAsync("quote/today", limit.Token);
+            if (!response.IsSuccessStatusCode) throw new QuoteUnavailableException($"The quotes API answered {(int)response.StatusCode}.");
+            var quote = await response.Content.ReadFromJsonAsync<Quote>(new JsonSerializerOptions(JsonSerializerDefaults.Web), limit.Token);
+            if (quote is null || string.IsNullOrWhiteSpace(quote.Text)) throw new QuoteUnavailableException("The quotes API sent no quote.");
+            return quote;
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested) { throw new QuoteUnavailableException("The quotes API took too long."); }
+        catch (HttpRequestException e) { throw new QuoteUnavailableException("The quotes API could not be reached.", e); }
+        catch (JsonException e) { throw new QuoteUnavailableException("The quotes API sent something that is not a quote.", e); }
+    }
+}
+`);
+put("tests/Focus.Tests/OwnTests.cs", String.raw`using System.Net;
+using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
+using Microsoft.Extensions.Time.Testing;
+
+namespace Focus.Tests;
+
+class Store : ISettingsStore { public Settings S = new(); public Settings Load() => S; public void Save(Settings s) => S = s; }
+class Quiet : INotifier { public int N; public void Notify(string t, string m) => N++; }
+class NoQuotes : IQuoteService { public Task<Quote> TodayAsync(CancellationToken ct = default) => throw new QuoteUnavailableException("none"); }
+class Answer(HttpStatusCode code, string body) : HttpMessageHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage r, CancellationToken ct) =>
+        Task.FromResult(new HttpResponseMessage(code) { Content = new StringContent(body) });
+}
+
+public class TimerTests
+{
+    static void Tick(FakeTimeProvider t, int s) { for (int i = 0; i < s; i++) { t.Advance(TimeSpan.FromSeconds(1)); Dispatcher.UIThread.RunJobs(); } }
+
+    [AvaloniaFact]
+    public void A_break_ending_is_announced_too()
+    {
+        var t = new FakeTimeProvider(); var q = new Quiet();
+        var vm = new MainViewModel(t, new Store { S = new Settings(1, 1) }, new NoQuotes(), q);
+        vm.StartCommand.Execute(null); Tick(t, 60);
+        vm.StartCommand.Execute(null); Tick(t, 60);
+        Assert.Equal(2, q.N);
+    }
+
+    [AvaloniaFact]
+    public void Focus_minutes_below_one_become_one()
+    {
+        var vm = new MainViewModel(new FakeTimeProvider(), new Store(), new NoQuotes(), new Quiet()) { FocusMinutes = 0 };
+        Assert.Equal(1, vm.FocusMinutes);
+    }
+
+    [AvaloniaFact]
+    public async Task A_failed_quote_leaves_no_quote()
+    {
+        var vm = new MainViewModel(new FakeTimeProvider(), new Store(), new NoQuotes(), new Quiet());
+        await vm.LoadQuoteCommand.ExecuteAsync(null);
+        Assert.Null(vm.Quote);
+    }
+
+    [Fact]
+    public async Task The_service_reads_the_json() =>
+        Assert.Equal("Hi", (await new HttpQuoteService(new HttpClient(new Answer(HttpStatusCode.OK, """{"text":"Hi","author":"Me"}""")) { BaseAddress = HttpQuoteService.Api }).TodayAsync()).Text);
+
+    [Fact]
+    public void Settings_survive_a_round_trip()
+    {
+        string f = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
+        new JsonSettingsStore(f).Save(new Settings(10, 2));
+        Assert.Equal(new Settings(10, 2), new JsonSettingsStore(f).Load());
+        File.Delete(f);
+    }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "Focus timer"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "timer solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/timer-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Focus/MainViewModel.cs"); const t = fs.readFileSync(f, "utf8"); if (!t.includes("await Task.Delay(TimeSpan.FromSeconds(1), Time, ct);")) throw new Error("edit anchor missing in src/Focus/MainViewModel.cs"); fs.writeFileSync(f, t.replace("await Task.Delay(TimeSpan.FromSeconds(1), Time, ct);", "await Task.Delay(TimeSpan.FromSeconds(1), ct);")); }
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m1").ok && !at("m2").ok, "timer on the real clock instead of the injected one: m2 fails (" + at("m2").checks.map((c) => c.note).join(" · ") + ")"); }
+
+/* ---------------- T2E: the capstone, The Planner on the desktop ---------------- */
+files = await window.KOS.codeProject.files("rp-ct2-planner");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "planner-desktop fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+d = fresh();
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+put("src/Planner.Desktop/App.axaml", String.raw`<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Planner.Desktop"
+             x:Class="Planner.Desktop.App"
+             RequestedThemeVariant="Default">
+    <Application.DataTemplates>
+        <DataTemplate DataType="local:TopicsViewModel"><local:TopicsView /></DataTemplate>
+        <DataTemplate DataType="local:TopicEditorViewModel"><local:TopicEditorView /></DataTemplate>
+        <DataTemplate DataType="local:NextViewModel"><local:NextView /></DataTemplate>
+    </Application.DataTemplates>
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
+`);
+put("src/Planner.Desktop/ViewModels/ShellViewModel.cs", String.raw`using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Planner.Core;
+
+namespace Planner.Desktop;
+
+/// <summary>The window's view model: which page is showing, and the way back.</summary>
+public partial class ShellViewModel : ViewModelBase, INavigator
+{
+    readonly Stack<ViewModelBase> history = new();
+
+    public ShellViewModel(ITopicStore store, TimeProvider time)
+    {
+        Store = store;
+        Time = time;
+        Current = new TopicsViewModel(store, this);
+        _ = Current.ActivateAsync();
+    }
+
+    public ITopicStore Store { get; }
+    public TimeProvider Time { get; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoBack))]
+    [NotifyCanExecuteChangedFor(nameof(BackCommand))]
+    public partial ViewModelBase Current { get; private set; }
+
+    public bool CanGoBack => history.Count > 0;
+
+    public void GoTo(ViewModelBase page)
+    {
+        history.Push(Current);
+        Current = page;
+        _ = page.ActivateAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanGoBack))]
+    public void Back()
+    {
+        if (history.Count == 0) return;
+        Current = history.Pop();
+        _ = Current.ActivateAsync();
+    }
+
+    [RelayCommand] void ShowTopics() => GoTo(new TopicsViewModel(Store, this));
+    [RelayCommand] void ShowNext() => GoTo(new NextViewModel(Store, Time));
+}
+`);
+put("src/Planner.Desktop/ViewModels/TopicsViewModel.cs", String.raw`using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Planner.Core;
+
+namespace Planner.Desktop;
+
+/// <summary>The list of topics, the chosen one's details, and the ways to add and edit.</summary>
+public partial class TopicsViewModel(ITopicStore store, INavigator nav) : ViewModelBase
+{
+    public ITopicStore Store { get; } = store;
+    public INavigator Nav { get; } = nav;
+
+    public ObservableCollection<Topic> Topics { get; } = new();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Detail))]
+    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
+    public partial Topic? Selected { get; set; }
+
+    public string Detail => Selected is { } t
+        ? $"{t.Name} · {t.Subject} · confidence {t.Confidence} · last studied {(t.LastStudied is { } d ? d.ToString("yyyy-MM-dd") : "never")}"
+        : "";
+
+    public override async Task ActivateAsync()
+    {
+        int? keep = Selected?.Id;
+        var all = await Store.LoadAsync();
+        Topics.Clear();
+        foreach (var t in all) Topics.Add(t);
+        Selected = Topics.FirstOrDefault(t => t.Id == keep);
+    }
+
+    bool HasSelection => Selected is not null;
+
+    [RelayCommand] void Add() => Nav.GoTo(new TopicEditorViewModel(Store, Nav, null));
+    [RelayCommand(CanExecute = nameof(HasSelection))] void Edit() => Nav.GoTo(new TopicEditorViewModel(Store, Nav, Selected));
+}
+`);
+put("src/Planner.Desktop/ViewModels/TopicEditorViewModel.cs", String.raw`using System.ComponentModel.DataAnnotations;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Planner.Core;
+
+namespace Planner.Desktop;
+
+/// <summary>Adding or editing one topic, validated as it is typed.</summary>
+public partial class TopicEditorViewModel : ViewModelBase
+{
+    public TopicEditorViewModel(ITopicStore store, INavigator nav, Topic? editing)
+    {
+        Store = store; Nav = nav; Editing = editing;
+        name = editing?.Name ?? "";
+        subject = editing?.Subject ?? "";
+        confidence = editing?.Confidence ?? 1;
+        ErrorsChanged += (_, _) => SaveCommand.NotifyCanExecuteChanged();
+    }
+
+    public ITopicStore Store { get; }
+    public INavigator Nav { get; }
+    public Topic? Editing { get; }
+
+    string name, subject;
+    int confidence;
+
+    [Required(ErrorMessage = "Give the topic a name.")]
+    [MaxLength(60, ErrorMessage = "At most 60 characters.")]
+    public string Name { get => name; set { SetProperty(ref name, value, true); SaveCommand.NotifyCanExecuteChanged(); } }
+
+    [Required(ErrorMessage = "Choose a subject.")]
+    public string Subject { get => subject; set { SetProperty(ref subject, value, true); SaveCommand.NotifyCanExecuteChanged(); } }
+
+    [Range(1, 5, ErrorMessage = "Confidence is 1 to 5.")]
+    public int Confidence { get => confidence; set { SetProperty(ref confidence, value, true); SaveCommand.NotifyCanExecuteChanged(); } }
+
+    bool CanSave => !HasErrors && !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Subject);
+
+    [RelayCommand(CanExecute = nameof(CanSave))]
+    async Task Save()
+    {
+        var topics = await Store.LoadAsync();
+        string n = Name.Trim(), s = Subject.Trim().ToLowerInvariant();
+        if (Editing is null) topics.Add(new Topic(topics.Count == 0 ? 1 : topics.Max(t => t.Id) + 1, s, n, Confidence));
+        else
+        {
+            int at = topics.FindIndex(t => t.Id == Editing.Id);
+            var changed = Editing with { Name = n, Subject = s, Confidence = Confidence };
+            if (at >= 0) topics[at] = changed; else topics.Add(changed);
+        }
+        await Store.SaveAsync(topics);
+        Nav.Back();
+    }
+
+    [RelayCommand] void Cancel() => Nav.Back();
+}
+`);
+put("src/Planner.Desktop/ViewModels/NextViewModel.cs", String.raw`using CommunityToolkit.Mvvm.ComponentModel;
+using Planner.Core;
+
+namespace Planner.Desktop;
+
+/// <summary>What to study next: the five lowest scores today.</summary>
+public partial class NextViewModel(ITopicStore store, TimeProvider time) : ViewModelBase
+{
+    public ITopicStore Store { get; } = store;
+    public TimeProvider Time { get; } = time;
+
+    [ObservableProperty] public partial IReadOnlyList<string> Lines { get; private set; } = Array.Empty<string>();
+
+    public override async Task ActivateAsync()
+    {
+        var today = DateOnly.FromDateTime(Time.GetLocalNow().DateTime);
+        Lines = Priority.Next(await Store.LoadAsync(), today, 5).Select((t, i) => $"{i + 1}. {t.Name} ({t.Subject})").ToList();
+    }
+}
+`);
+put("src/Planner.Desktop/Views/MainWindow.axaml", String.raw`<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Planner.Desktop"
+        x:Class="Planner.Desktop.MainWindow"
+        x:DataType="local:ShellViewModel"
+        Title="Planner" Width="1000" Height="640" MinWidth="420">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="12">
+            <Button x:Name="BackButton" Content="‹ Back" AutomationProperties.Name="Back" Command="{Binding BackCommand}" />
+            <Button x:Name="TopicsTab" Content="Topics" Command="{Binding ShowTopicsCommand}" />
+            <Button x:Name="NextTab" Content="Next" Command="{Binding ShowNextCommand}" />
+        </StackPanel>
+        <ContentControl x:Name="Page" Content="{Binding Current}" Margin="12,0,12,12" />
+    </DockPanel>
+</Window>
+`);
+put("src/Planner.Desktop/Views/TopicsView.axaml", String.raw`<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Planner.Desktop"
+             xmlns:core="using:Planner.Core"
+             x:Class="Planner.Desktop.TopicsView"
+             x:DataType="local:TopicsViewModel">
+    <Grid x:Name="Layout" ColumnDefinitions="*,*" RowDefinitions="*" ColumnSpacing="16" RowSpacing="12">
+        <ListBox x:Name="TopicList" ItemsSource="{Binding Topics}" SelectedItem="{Binding Selected}"
+                 AutomationProperties.Name="Topics" MinHeight="160">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="core:Topic">
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel x:Name="TopicDetail" Grid.Column="1" Spacing="12">
+            <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button x:Name="AddButton" Content="Add topic" Command="{Binding AddCommand}" />
+                <Button x:Name="EditButton" Content="Edit" Command="{Binding EditCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
+`);
+put("src/Planner.Desktop/Views/TopicEditorView.axaml", String.raw`<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Planner.Desktop"
+             x:Class="Planner.Desktop.TopicEditorView"
+             x:DataType="local:TopicEditorViewModel">
+    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="10" MaxWidth="560" HorizontalAlignment="Left">
+        <Label Content="_Name" Target="{Binding #NameBox}" VerticalAlignment="Center" />
+        <TextBox Grid.Column="1" x:Name="NameBox" Text="{Binding Name}" />
+        <Label Grid.Row="1" Content="_Subject" Target="{Binding #SubjectBox}" VerticalAlignment="Center" />
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="SubjectBox" Text="{Binding Subject}" />
+        <Label Grid.Row="2" Content="_Confidence (1–5)" Target="{Binding #ConfidenceBox}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="2" Grid.Column="1" x:Name="ConfidenceBox" Value="{Binding Confidence}" Minimum="1" Maximum="5" Increment="1" FormatString="0" />
+        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <Button x:Name="SaveButton" Content="Save" IsDefault="True" Command="{Binding SaveCommand}" />
+            <Button x:Name="CancelButton" Content="Cancel" IsCancel="True" Command="{Binding CancelCommand}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
+`);
+put("src/Planner.Desktop/Views/NextView.axaml", String.raw`<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Planner.Desktop"
+             x:Class="Planner.Desktop.NextView"
+             x:DataType="local:NextViewModel">
+    <StackPanel Spacing="8">
+        <TextBlock Text="Study next" FontSize="20" FontWeight="SemiBold" />
+        <ItemsControl x:Name="NextList" ItemsSource="{Binding Lines}" />
+    </StackPanel>
+</UserControl>
+`);
+put("src/Planner.Desktop/Views/TopicsView.axaml.cs", String.raw`using Avalonia.Controls;
+
+namespace Planner.Desktop;
+
+public partial class TopicsView : UserControl
+{
+    public TopicsView()
+    {
+        InitializeComponent();
+        SizeChanged += (_, e) => Arrange(e.NewSize.Width < 800);
+    }
+
+    /// <summary>Side by side when there is room; the detail under the list when narrow.</summary>
+    void Arrange(bool narrow)
+    {
+        Layout.ColumnDefinitions = new ColumnDefinitions(narrow ? "*" : "*,*");
+        Layout.RowDefinitions = new RowDefinitions(narrow ? "*,Auto" : "*");
+        Grid.SetColumn(TopicDetail, narrow ? 0 : 1);
+        Grid.SetRow(TopicDetail, narrow ? 1 : 0);
+    }
+}
+`);
+put("src/Planner.Desktop/Views/TopicEditorView.axaml.cs", String.raw`using Avalonia.Controls;
+
+namespace Planner.Desktop;
+
+public partial class TopicEditorView : UserControl
+{
+    public TopicEditorView()
+    {
+        InitializeComponent();
+        Loaded += (_, _) => NameBox.Focus();
+    }
+}
+`);
+put("src/Planner.Desktop/Properties/PublishProfiles/release.pubxml", String.raw`<Project>
+  <PropertyGroup>
+    <Configuration>Release</Configuration>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishDir>../../publish/osx-arm64/</PublishDir>
+  </PropertyGroup>
+</Project>
+`);
+put("tests/Planner.Tests/PlannerTests.cs", String.raw`using Avalonia.Controls;
+using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
+using Microsoft.Extensions.Time.Testing;
+using Planner.Core;
+using Planner.Desktop;
+
+namespace Planner.Tests;
+
+class Mem(params Topic[] t) : ITopicStore
+{
+    public List<Topic> S = t.ToList();
+    public Task<List<Topic>> LoadAsync(CancellationToken ct = default) => Task.FromResult(S.ToList());
+    public Task SaveAsync(IReadOnlyList<Topic> topics, CancellationToken ct = default) { S = topics.ToList(); return Task.CompletedTask; }
+}
+class Nav : INavigator { public int Backs; public void GoTo(ViewModelBase p) { } public void Back() => Backs++; }
+
+public class PlannerTests
+{
+    static FakeTimeProvider Clock() => new(new DateTimeOffset(2026, 10, 23, 9, 0, 0, TimeSpan.Zero));
+
+    [AvaloniaFact]
+    public async Task The_first_topic_gets_id_1()
+    {
+        var store = new Mem();
+        var vm = new TopicEditorViewModel(store, new Nav(), null) { Name = "A", Subject = "cs" };
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.Equal(1, store.S[0].Id);
+    }
+
+    [AvaloniaFact]
+    public async Task Saving_goes_back_once()
+    {
+        var nav = new Nav();
+        var vm = new TopicEditorViewModel(new Mem(), nav, null) { Name = "A", Subject = "cs" };
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.Equal(1, nav.Backs);
+    }
+
+    [AvaloniaFact]
+    public void Cancel_saves_nothing()
+    {
+        var store = new Mem();
+        new TopicEditorViewModel(store, new Nav(), null) { Name = "A", Subject = "cs" }.CancelCommand.Execute(null);
+        Assert.Empty(store.S);
+    }
+
+    [AvaloniaFact]
+    public void Confidence_zero_is_an_error()
+    {
+        var vm = new TopicEditorViewModel(new Mem(), new Nav(), null) { Confidence = 0 };
+        Assert.True(vm.HasErrors);
+    }
+
+    [AvaloniaFact]
+    public void Back_at_the_start_does_nothing()
+    {
+        var shell = new ShellViewModel(new Mem(), Clock());
+        var first = shell.Current;
+        shell.Back();
+        Assert.Same(first, shell.Current);
+    }
+
+    [AvaloniaFact]
+    public void Coming_back_from_the_editor_reloads_the_list()
+    {
+        var store = new Mem();
+        var shell = new ShellViewModel(store, Clock());
+        ((TopicsViewModel)shell.Current).AddCommand.Execute(null);
+        store.S.Add(new Topic(1, "cs", "New"));
+        shell.Back();
+        Assert.Single(((TopicsViewModel)shell.Current).Topics);
+    }
+
+    [AvaloniaFact]
+    public void Next_is_empty_with_no_topics()
+    {
+        var shell = new ShellViewModel(new Mem(), Clock());
+        shell.ShowNextCommand.Execute(null);
+        Assert.Empty(((NextViewModel)shell.Current).Lines);
+    }
+
+    [AvaloniaFact]
+    public void The_window_opens_on_the_topics_page()
+    {
+        var w = new MainWindow { DataContext = new ShellViewModel(new Mem(new Topic(1, "cs", "Big O")), Clock()) };
+        w.Show();
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(1, w.FindControl<ContentControl>("Page")!.Content is TopicsViewModel t ? t.Topics.Count : 0);
+    }
+}
+`);
+{ const f = path.join(d, "src/Planner.Desktop/Planner.Desktop.csproj"); const t = fs.readFileSync(f, "utf8"); if (!t.includes("  <PropertyGroup>\n")) throw new Error("edit anchor missing in src/Planner.Desktop/Planner.Desktop.csproj"); fs.writeFileSync(f, t.replace("  <PropertyGroup>\n", "  <PropertyGroup>\n    <Product>Planner</Product>\n    <Version>1.0.0</Version>\n")); }
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "The Planner on the desktop"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "planner-desktop solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/planner-desktop-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Planner.Desktop/Views/TopicsView.axaml.cs"); const t = fs.readFileSync(f, "utf8"); if (!t.includes("        SizeChanged += (_, e) => Arrange(e.NewSize.Width < 800);\n")) throw new Error("edit anchor missing in src/Planner.Desktop/Views/TopicsView.axaml.cs"); fs.writeFileSync(f, t.replace("        SizeChanged += (_, e) => Arrange(e.NewSize.Width < 800);\n", "")); }
+fs.rmSync(path.join(d, "src/Planner.Desktop/Properties"), { recursive: true });
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m3").ok && !at("m4").ok && !at("m5").ok, "planner-desktop with a fixed layout and no publish profile: m4 and m5 fail (" + at("m4").checks.map((c) => c.note).join(" · ") + " / " + at("m5").checks.map((c) => c.note).join(" · ") + ")"); }
 
 console.log(bad ? "✗ " + bad + " check(s) failed" : "✓ the validator behaves on every scenario");
 process.exit(bad ? 1 : 0);

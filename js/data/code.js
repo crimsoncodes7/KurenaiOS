@@ -299,7 +299,9 @@
       C1: { title: "Text adventure engine", where: "app" },
       C2: { title: "Gradebook from a CSV", where: "app" },
       C3: { title: "A shop with plugins and LINQ reports", where: "sandbox" },
-      C4: { title: "A small service, tested", where: "rider" }
+      C4: { title: "A small service, tested", where: "rider" },
+      /* a track's capstone: no stage; the last part's Rider project is its build */
+      CT2: { title: "The Planner on the desktop", where: "rider", track: "T2" }
     },
     /* optional modules that go further into a core unit (plan §3.2) */
     DEEPENING: [

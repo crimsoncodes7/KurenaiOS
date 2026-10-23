@@ -1,0 +1,6 @@
+bin/
+obj/
+.kurenai/out/
+.idea/
+*.user
+focus-data/

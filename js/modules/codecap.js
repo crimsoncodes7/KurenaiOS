@@ -29,13 +29,15 @@
   var el = KOS.ui.el;
   var SID = "code";
   /* what each stage may use, for the Kurenai review's brief */
-  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet", 3: "stage 3: classes, interfaces, inheritance, records, generics, delegates, events and LINQ; nullable reference types on", 4: "stage 4: a multi-project solution built in Rider — xUnit tests, test doubles and SOLID, async/await with cancellation, System.Text.Json, and data structures such as PriorityQueue" };
+  var STAGE_WORDS = { 1: "stage 1: variables, decisions, loops, methods, scope; no arrays or classes yet", 2: "stage 2: arrays, List, Dictionary, text, files and exceptions; no classes or LINQ yet", 3: "stage 3: classes, interfaces, inheritance, records, generics, delegates, events and LINQ; nullable reference types on", 4: "stage 4: a multi-project solution built in Rider — xUnit tests, test doubles and SOLID, async/await with cancellation, System.Text.Json, and data structures such as PriorityQueue", T2: "Track T2: an Avalonia desktop app in MVVM with CommunityToolkit.Mvvm — navigation, validation, accessibility, a responsive layout, a publish profile and headless UI tests — built in Rider" };
   function C() { return KOS.code; }
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function plural(n, one, many) { return KOS.ui.num(n) + " " + (n === 1 ? one : (many || one + "s")); }
   function dateLabel(ts) { return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short" }); }
   function timeLabel(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
   function capNo(id) { return String(id).slice(1); }
+  /* "Capstone 3", or "Track T2 capstone" for a track's own */
+  function capName(spec, id) { return spec.track ? "Track " + spec.track + " capstone" : "Capstone " + capNo(id); }
 
   function page(main, id) {
     var v = C().capView(id);
@@ -49,7 +51,7 @@
     var stg = (window.KOS_CODE.STAGES || []).filter(function (s) { return s.capstone === id; })[0];
     var nextStage = stg ? window.KOS_CODE.STAGES[window.KOS_CODE.STAGES.indexOf(stg) + 1] : null;
 
-    main.appendChild(KOS.ui.pageHeader({ kicker: "Code · Capstone " + capNo(id) + (stg ? " · end of stage " + stg.id : ""), title: spec.title, sub: spec.summary }));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Code · " + capName(spec, id) + (stg ? " · end of stage " + stg.id : ""), title: spec.title, sub: spec.summary }));
     var wrap = el("div", { class: "k-cx-cap", "data-ui": "code.capstone" });
     main.appendChild(wrap);
     var live = el("p", { class: "sr-only", "aria-live": "polite", "data-ui": "code.cap-live" });
@@ -57,7 +59,7 @@
     var body = el("section", { class: "k-cx-capbody", "data-ui": "code.cap-step", role: "tabpanel" });
     /* on a phone the page header gives way to the section title; the
        capstone keeps its name above the stepper */
-    wrap.appendChild(el("p", { class: "k-cx-capmini", "aria-hidden": "true" }, [el("span", { class: "k-mono", text: "Capstone " + capNo(id) + " · " }), el("b", { text: spec.title })]));
+    wrap.appendChild(el("p", { class: "k-cx-capmini", "aria-hidden": "true" }, [el("span", { class: "k-mono", text: capName(spec, id) + " · " }), el("b", { text: spec.title })]));
     wrap.appendChild(stepper); wrap.appendChild(live); wrap.appendChild(body);
     function say(m) { live.textContent = m; announce(m); }
 
@@ -140,7 +142,7 @@
         } });
       }
       body.appendChild(grid(mainCol, [
-        sideCard("What it covers", "stage " + spec.stage + " · closed book", [
+        sideCard("What it covers", (spec.track ? "Track " + spec.track : "stage " + spec.stage) + " · closed book", [
           el("ol", { class: "k-cx-capcover" }, spec.quiz.map(function (qq, i) {
             var st = q ? (q.answers[i] === qq.ans ? "right" : "wrong") : null;
             return el("li", { "data-state": st }, [el("span", { class: "k-cx-capcover-m", "aria-hidden": "true", text: st === "right" ? "✓" : st === "wrong" ? "✗" : String(i + 1) }), lessonLink(qq.lesson)]);
@@ -489,7 +491,7 @@
       body.removeAttribute("data-err");
       var sentList = Object.keys(on).filter(function (k) { return on[k]; });
       reviewReq = KOS.ai.chat("tutor", {
-        system: "You are Kurenai, the study companion in KurenaiOS, reviewing a student's C# capstone (" + (STAGE_WORDS[spec.stage] || "stage " + spec.stage) + "). " +
+        system: "You are Kurenai, the study companion in KurenaiOS, reviewing a student's C# capstone (" + (STAGE_WORDS[spec.track || spec.stage] || "stage " + spec.stage) + "). " +
           "Write a short review in British English: what works, two or three specific improvements with line-level pointers, and one thing to try next. Plain prose in short paragraphs, no headings, no code longer than a line, no marks or grades.",
         messages: [{ role: "user", content: parts.join("\n\n") }],
         temperature: 0.4, maxTokens: 900
