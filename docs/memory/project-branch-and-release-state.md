@@ -37,3 +37,4 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-23: kos-code-22 (T2) and kos-code-23 (spine split) released from feat/code-t2; main fast-forwarded. The rest of T1 is on feat/code-t1-rest (not deployed).
 2026-10-23: released the rest of T1 from feat/code-t1-rest (sw kos-code-24, https://f6ddf42e.kurenai-os.pages.dev); main fast-forwarded.
 2026-10-23: main fast-forwarded to feat/japanese-s1; released Japanese F1, sw kos-japanese-3, https://40739699.kurenai-os.pages.dev.
+2026-10-24: main fast-forwarded to feat/japanese-f2; released Japanese F2, sw kos-japanese-4, https://e424163d.kurenai-os.pages.dev.
