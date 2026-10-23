@@ -142,15 +142,18 @@ capstone 3 offers an Avalonia front end.
 - **Checked by:** headless xUnit tests in the validator. Look and feel is a
   rubric item, marked by hand.
 
-**T3 · AI, machine learning and LLMs** (about 26 lessons; S E). Four layers,
-each marked with where it runs:
-
-| Layer | Topics | Where it runs |
-|---|---|---|
-| **A · Foundations** | What AI, ML and deep learning are and how they differ · datasets, features, labels, training/validation/test splits · supervised, unsupervised and reinforcement learning · **linear regression and gradient descent written from scratch in C#** · k-NN, k-means, decision trees, naive Bayes · evaluation (confusion matrix, precision/recall, ROC as an idea) · over- and underfitting, regularisation, data leakage · the perceptron and **a small neural network with backpropagation in C#** · the maths (vectors, matrices, derivatives, probability), cross-linked to the Maths subject | **In-app** (WebAssembly for the network); charts through the lab system's plots |
-| **B · Language and LLMs** | Tokenisation (**a toy BPE in C#**) · embeddings and cosine similarity (shipped small vectors) · attention and transformers at a high level (**a toy attention matrix**) · how LLMs are trained and served · prompting · structured outputs · tool calling · RAG (chunking, embedding, retrieval, grounding) · **a case study: KurenaiOS's own Assistant** (its tools, approval cards, "What is sent") | Concepts and toys **in-app**. Calling a real model needs a key, so it is **Rider**, through `Microsoft.Extensions.AI` or a provider's C# SDK; the key stays in user secrets and never enters a repository. |
-| **C · Practice and responsibility** | Local models (Ollama, ONNX Runtime) · evaluating LLM apps · cost and latency · privacy · hallucination · bias · safety · responsible deployment | Concepts in-app; local models in Rider plus external installs |
-| **D · The Python bridge (optional)** | NumPy, pandas, scikit-learn, PyTorch; real datasets; GPUs | **External**: notes in-app; projects in Jupyter (PyCharm or VS Code), with GPUs on a hosted notebook. A pytest-based validator writes the **same report format** (§9). |
+**T3 · AI in .NET apps** (about 12 lessons; E S; decided 23 October
+2026). The product side of AI, in C#: calling models through
+`Microsoft.Extensions.AI` or a provider's C# SDK, embeddings and cosine
+similarity, structured output, tool calling with an approval step (a case
+study: KurenaiOS's own Assistant), RAG, evaluating an LLM app, ONNX Runtime
+inference (loading the model trained in PB), local models (Ollama), cost,
+privacy and responsible use. A key stays in user secrets and never enters a
+repository. **Runs in:** concepts in-app; anything that calls a model in
+Rider. **Recommended way in:** PB (§3.6), not required. The from-scratch
+ML maths (regression, gradient descent, a neural network, a toy BPE and
+attention) lives in **PB**, where NumPy makes it clearer; the Python bridge
+of revision 1 is now the Python path itself.
 
 **Other tracks, in a suggested order after T1–T3** (T5 and T8 swapped places on 23 October 2026: Games is T5, Computer systems T8):
 
@@ -169,9 +172,9 @@ each marked with where it runs:
 |---|---|---|
 | Core path (stages 1–4 plus Bridge B) | ~131 | **Yes, released in four stages (§12)** |
 | Deepening D1–D6 | ~72 | No: after the core |
-| Tracks T1–T9 | ~156 (≈150 if T3 becomes "AI in .NET apps", §3.6) | No: one track per release, in an order you choose |
-| The Python path, proposed (§3.6): core PY1–PY3 and tracks PA, PB | ~80 | No: after the core, when chosen |
-| **Total** | **~350** (≈425 with Python) | |
+| Tracks T1–T9 (T3 now AI in .NET apps, ~12) | ~154 | No: one track per release, in the order of §3.7 |
+| The Python path (§3.6): core PY1–PY3 and tracks PA, PB | ~80 | No: after D1–D3 and T5 (§3.7) |
+| **Total** | **~430** | |
 
 With the notes contract in §4, a core lesson is roughly 3,000–6,000 words,
 with 10–20 runnable examples. **Content is the long pole, not code.** Spike N
@@ -209,7 +212,7 @@ Lending Library come back — so a later project changes something you know.
 |---|---|---|---|
 | **T1** Connectivity and persistence | Contacts on SQLite | **The Case of the Missing Mug** (a SQL mystery in the in-app SQLite sandbox: joins, grouping, a timeline from a café's database) · **The Lending Library on EF Core** (entities, migrations, relationships, N+1 found and fixed; tests on SQLite in-memory) · **Weather client** (`HttpClient`, retries, timeouts, against a fake server) · **Loopback chat** (`TcpListener`) | **The Planner goes online**: an ASP.NET Core minimal API over the Revision Planner — EF Core persistence, API-key/JWT auth, validation, configuration and user secrets, integration tests with `WebApplicationFactory` |
 | **T2** Desktop apps (Avalonia) | Your first window (a tip calculator) | **Markdown notes** (MVVM, binding, files, commands) · **Focus timer** (async UI that never blocks, notifications, settings) | **The Planner on the desktop**: a full MVVM front end over the planner (local JSON, or T1's API when it exists) — navigation, validation, accessibility, headless UI tests |
-| **T3** AI (see §3.6: becomes **AI in .NET apps** if the Python path is chosen) | Ask a model from C# | **Semantic search over your notes** (embeddings, cosine similarity, a local ONNX model or an API) · **A tool-calling assistant** with an approval step (the Assistant's own design) | **A RAG study helper** in .NET: chunking, retrieval, grounded answers with citations, an evaluation set; optionally the model trained in PB |
+| **T3** AI in .NET apps | Ask a model from C# | **Semantic search over your notes** (embeddings, cosine similarity, a local ONNX model or an API) · **A tool-calling assistant** with an approval step (the Assistant's own design) | **A RAG study helper** in .NET: chunking, retrieval, grounded answers with citations, an evaluation set; optionally the model trained in PB |
 | **T4** Web development | A page in a sandbox | **A portfolio site** (semantic HTML, responsive CSS, accessibility audit) · **A TypeScript flashcards app** (DOM, `fetch`, local storage, tests) | **The Planner on the web**: ASP.NET Core backend (T1's, or a new one) and a TypeScript front end, end-to-end tests |
 | **T5** Game development and graphics (MonoGame + **Unity**) | Bouncing ball (in-app lab stage) | **Breakout in MonoGame** (the loop, collisions, game states, all written by you) · **Roll-a-ball, then an obstacle course in Unity** (scenes, components, prefabs, physics, input, UI) · **The Gacha Lab** (below) | **A small complete Unity game** of your choice from a short list (a 2D arena roguelite, a puzzle platformer, a tower defence): menus, a save system, audio, a macOS build; its rules in a tested .NET library; a playthrough write-up |
 | **T6** Security | Threat-model a login | **Break it, then fix it** (a deliberately vulnerable minimal API: injection, XSS, IDOR, weak hashing — each exploit a failing test, then fixed) · **Passwords done right** (PBKDF2/Argon2, salts, secrets out of the repository) | **Harden your T1 API**: a written threat model and a test per OWASP item that applies |
@@ -241,26 +244,36 @@ to use every core stage, small enough to finish in a weekend or two.
    exported history into pandas, plot the pity distribution, test the RNG's
    fairness with a chi-squared test.
 
-#### How Unity is checked
+#### How Unity is checked (decided 23 October 2026)
 
 Unity projects cannot be built by the `dotnet` CLI, so a Unity project has:
-- its rules in a .NET class library, checked by the usual validator (own
-  tests, planted bugs, warnings);
+- **its rules in a plain .NET class library** — every game rule and all of
+  the Gacha Lab's maths — checked by the usual validator (own tests,
+  planted bugs, warnings). These library checks are the **primary
+  automated gate**: a milestone is completed by them, never blocked by
+  Unity;
 - the Unity Test Framework's EditMode tests, run in batch mode
   (`Unity -batchmode -runTests -testPlatform EditMode`) by validator 1.2's
-  new `unitytests` check, which reads the NUnit XML it writes — the check
-  is skipped (and says so) when the Unity Editor is not installed;
+  new `unitytests` check, which reads the NUnit XML it writes. Batch mode
+  fails while the project is open in the interactive Editor (the project
+  lockfile), so the check looks for `Temp/UnityLockfile` FIRST: when the
+  Editor is open, or not installed, it does not run and the report says
+  so in plain words — "Unity Editor is currently open; close it to run
+  EditMode batch tests, or rely on library checks" — as a notice, never a
+  failed build or a cryptic exit code. A `unitytests` check is therefore
+  never a milestone's only check;
 - look and feel as self-marked rubric rows, as in every capstone.
 
-### 3.6 A Python path (proposed 23 October 2026; awaiting your decision)
+### 3.6 The Python path (decided 23 October 2026)
 
-**Recommendation: yes — a short Python core, then two Python tracks**, and
-T3 narrowed to what C# is good at. Python is where data and ML work happens;
+**A short Python core, then two Python tracks**, and T3 narrowed to what
+C# is good at (§3.3). Python is where data and ML work happens;
 you would already know how to program, so its core can be compact
 ("Python for a C# programmer") and every lesson can compare the two.
 
 It runs like Code's full runtime: **Pyodide** (CPython in WebAssembly, an
-optional download offered like the .NET one), which also carries NumPy,
+optional download offered like the .NET one, and **strictly lazy**: nothing
+of it is fetched until you enter PY1 and accept the download — §11), which also carries NumPy,
 pandas and matplotlib, so most data lessons run in the app. Every listing is
 held to native `python3` by a `py_diff` like `cs_diff`. PyTorch and real
 LLM work need a local install (PyCharm or VS Code), checked by a
@@ -291,7 +304,7 @@ on a small text on the CPU). Capstone: **from data to model** — one dataset
 of your choice taken through cleaning, a baseline, a model, an evaluation
 report, an ONNX export and a model card.
 
-**What happens to T3.** It becomes **T3 · AI in .NET apps** (~12 lessons):
+**T3.** It is now **T3 · AI in .NET apps** (~12 lessons, §3.3):
 calling models from C# (`Microsoft.Extensions.AI`), embeddings, tool
 calling, RAG and ONNX inference — the product side, with PB as the
 recommended (not required) way in. Its capstone (the RAG study helper, §3.5)
@@ -303,20 +316,22 @@ one), `py_diff`, a pytest validator, Python in the lesson renderer and
 error decoder, and the subject showing two languages. About one platform
 release before PY1's first lesson.
 
-### 3.7 A revised order (proposed 23 October 2026)
+### 3.7 The order of the expansions (decided 23 October 2026)
 
-If the Python path is chosen:
+D1–D3 come straight after the desktop track, so the C# momentum of the core
+carries on and D3's dynamic programming is taught before the Gacha Lab's
+Markov-chain DP needs it:
 1. **T1** Connectivity and persistence (with Spike S, the SQLite sandbox);
-2. **T2** Desktop apps;
-3. **T5** Games and graphics (MonoGame, Unity, the Gacha Lab);
-4. **PY1–PY3** and the Python capstone (with the Pyodide platform release);
-5. **PA** Data analytics (the Gacha Lab's sequel);
-6. **PB** AI, ML and LLMs;
-7. **T3** AI in .NET apps;
-8. **D1–D2**, then **D3**, then **D4–D6**;
-9. **T4** Web, **T6** Security, **T7** Cloud, **T8** Systems, **T9** Theory.
-
-Without it, §12.3's order stands (with Games as T5).
+2. **T2** Desktop apps (Avalonia);
+3. **D1–D3** Advanced C#, Concurrency, Algorithms;
+4. **T5** Games and graphics (MonoGame, Unity, the Gacha Lab);
+5. **PY1–PY3** and the Python capstone (with the Pyodide platform release);
+6. **PA** Data analytics (the Gacha Lab's sequel);
+7. **PB** AI, ML and LLMs;
+8. **T3** AI in .NET apps;
+9. **D4–D6** Design, Testing in depth, Tooling;
+10. **T4** Web (with Spike H), **T6** Security, **T7** Cloud, **T8** Systems,
+    **T9** Theory.
 
 ---
 
@@ -824,6 +839,8 @@ setup recommends turning it on.
 | The concept graph, with strands, prerequisites, alternatives and tracks | `js/data/code.js` | Authored and validated |
 | The interpreter and its worker | `js/labs/cs-interp.js`, `cs-worker.js` | Pure; precached through `EXTRA_PRECACHE` |
 | The WebAssembly runtime adapter | `js/labs/cs-wasm.js` | Lazy; the same protocol |
+| The Python runtime (Pyodide with NumPy, pandas, matplotlib; ~25–40 MB compressed) | `js/labs/py-worker.js`, a `kos-python-<id>` cache | **Strictly lazy**: nothing is fetched until the device enters PY1 and accepts the download (as the .NET runtime, ~11 MB, is offered at unit 7); sealed like the .NET worker |
+| Runtime storage control | Code settings | Lists every downloaded runtime (.NET, Pyodide, SQLite) with its size, and **evicts each one independently**; an evicted runtime is offered again when a lesson needs it, and nothing else is touched |
 | SQL sandbox v2 (SQLite in WebAssembly) and web sandbox (iframe) | `js/labs/sql-wasm.js`, `web-sandbox.js` | For T1 and T4 only (spikes S and H) |
 | The checker | `js/core/codecheck.js` | Pure |
 | The model: attempts, evidence, projects, the day's plan, the outbox | `js/core/code.js` | `normalise` and `normaliseEvidence` are the gates |
@@ -879,24 +896,10 @@ setup recommends turning it on.
 | **R3 · Object-oriented C# and the full runtime** | WebAssembly runtime · units 7–9 (with the nullable lesson) · capstone 3 (console or Avalonia) · reference in search · Assistant read tools · Reports section · `kos_code` replication · **GitHub integration v1** | Spikes W and G done; the full-runtime download tested offline and on a phone; the GitHub threat checklist (§10.4) reviewed |
 | **R4 · Professional practice** | Units 10–12 · capstone 4 (Rider, CI-verified) · portfolio page · CI evidence | The core path complete; a cross-device sync and outbox test |
 
-### 12.3 Later expansions (each its own release, in the order you choose)
+### 12.3 Later expansions (each its own release)
 
-Suggested order:
-1. **T1** Connectivity and persistence (with Spike S);
-2. **T2** UI and desktop (its taster is already in R2);
-3. **T3** AI, ML and LLMs;
-4. **D1–D2** Advanced C# and concurrency;
-5. **D3** Algorithms;
-6. **D4–D6** Engineering;
-7. **T4** Web (with Spike H);
-8. **T5** Games (Unity; swapped with Systems 23 October 2026);
-9. **T6** Security;
-10. **T7** Cloud;
-11. **T8** Systems;
-12. **T9** Theory.
-
-The revised order proposed on 23 October 2026, with the Python path, is in
-§3.7; this list stands until it is chosen.
+In the order decided on 23 October 2026 (§3.7): T1 → T2 → D1–D3 → T5 →
+PY1–PY3 → PA → PB → T3 → D4–D6 → T4, T6, T7, T8, T9.
 
 **Gate for every track:**
 - its notes meet the depth contract;
