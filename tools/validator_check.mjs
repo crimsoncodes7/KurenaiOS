@@ -15,7 +15,9 @@
    caught, Renew test-first, an IClock, an INotifier, no warnings, a commit:
    m1–m6 pass), saved as tools/fixtures/library-report-solved.json; then
    capstone 4's project (rp-c4-planner) fresh and solved (m1–m5), saved as
-   tools/fixtures/planner-report-solved.json. Needs the .NET 10 SDK, NuGet and git; outside
+   tools/fixtures/planner-report-solved.json; then T1B's project
+   (rp-t1b-contacts) fresh, solved (m1–m4, contacts-report-solved.json)
+   and with its search glued together (m2 fails). Needs the .NET 10 SDK, NuGet and git; outside
    the jsdom gate. macOS here; Windows and Linux are still to be run.
      node tools/validator_check.mjs                                          */
 import { createRequire } from "module";
@@ -29,7 +31,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 global.window = global;
 window.KOS_CONTENT = {}; window.KOS_DATA = {}; window.KOS = {};
-for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
+for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
 const K = window.KOS_CODE;
 window.KOS.code = { project: (id) => K.PROJECTS[id] || null };
 window.KOS.codeProject._setValidator(fs.readFileSync(path.join(ROOT, "assets/code/validator/validate.cs"), "utf8"));
@@ -449,6 +451,197 @@ v = validate(d);
 expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "planner solved: every milestone passes, exit 0 (" + ms(v.rep) + "; m1 " + v.rep.milestones[0].checks.map((c) => c.note).join(" · ") + ")");
 if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
 fs.writeFileSync(path.join(ROOT, "tools/fixtures/planner-report-solved.json"), v.text);
+
+/* ---------------- T1B: Contacts on SQLite ---------------- */
+files = await window.KOS.codeProject.files("rp-t1b-contacts");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "contacts fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put("src/Contacts/SqliteContactRepository.cs", String.raw`using Microsoft.Data.Sqlite;
+
+namespace Contacts;
+
+/// <summary>The contacts in one SQLite file.</summary>
+public class SqliteContactRepository : IContactRepository
+{
+    private readonly string connectionString;
+
+    public SqliteContactRepository(string databasePath)
+    {
+        connectionString = new SqliteConnectionStringBuilder { DataSource = databasePath, Pooling = false }.ToString();
+        using var connection = Open();
+        var create = connection.CreateCommand();
+        create.CommandText = "CREATE TABLE IF NOT EXISTS contacts (id INTEGER PRIMARY KEY, name TEXT NOT NULL CHECK (name <> ''), email TEXT UNIQUE)";
+        create.ExecuteNonQuery();
+    }
+
+    public Contact Add(string name, string? email)
+    {
+        name = name.Trim();
+        if (name.Length == 0) throw new ArgumentException("A contact needs a name.", nameof(name));
+        using var connection = Open();
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "INSERT INTO contacts (name, email) VALUES ($name, $email) RETURNING id";
+        cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$email", (object?)email ?? DBNull.Value);
+        long id = (long)cmd.ExecuteScalar()!;
+        return new Contact(id, name, email);
+    }
+
+    public IReadOnlyList<Contact> All() => Query("SELECT id, name, email FROM contacts ORDER BY id", null);
+
+    public IReadOnlyList<Contact> FindByName(string text) =>
+        Query("SELECT id, name, email FROM contacts WHERE lower(name) LIKE '%' || lower($text) || '%' ORDER BY name", text);
+
+    public int Import(IEnumerable<(string Name, string? Email)> contacts)
+    {
+        using var connection = Open();
+        using var tx = connection.BeginTransaction();
+        var cmd = connection.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = "INSERT INTO contacts (name, email) VALUES ($name, $email)";
+        var pName = cmd.Parameters.Add("$name", SqliteType.Text);
+        var pEmail = cmd.Parameters.Add("$email", SqliteType.Text);
+        int added = 0;
+        foreach (var (name, email) in contacts)
+        {
+            pName.Value = name.Trim();
+            pEmail.Value = (object?)email ?? DBNull.Value;
+            added += cmd.ExecuteNonQuery();
+        }
+        tx.Commit();
+        return added;
+    }
+
+    public void Clear()
+    {
+        using var connection = Open();
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "DELETE FROM contacts";
+        cmd.ExecuteNonQuery();
+    }
+
+    private IReadOnlyList<Contact> Query(string sql, string? text)
+    {
+        using var connection = Open();
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = sql;
+        if (text is not null) cmd.Parameters.AddWithValue("$text", text);
+        var list = new List<Contact>();
+        using var r = cmd.ExecuteReader();
+        while (r.Read()) list.Add(new Contact(r.GetInt64(0), r.GetString(1), r.IsDBNull(2) ? null : r.GetString(2)));
+        return list;
+    }
+
+    private SqliteConnection Open()
+    {
+        var connection = new SqliteConnection(connectionString);
+        connection.Open();
+        return connection;
+    }
+}
+`);
+put("src/Contacts.Cli/Program.cs", String.raw`using Contacts;
+
+Directory.CreateDirectory("contacts-data");
+IContactRepository contacts = new SqliteContactRepository(Path.Combine("contacts-data", "contacts.db"));
+
+static string Line(Contact c) => c.Email is null ? $"#{c.Id} {c.Name}" : $"#{c.Id} {c.Name} <{c.Email}>";
+
+string? line;
+while ((line = Console.ReadLine()) is not null)
+{
+    string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    if (words.Length == 0) continue;
+    try
+    {
+        switch (words[0].ToLowerInvariant())
+        {
+            case "clear":
+                contacts.Clear();
+                Console.WriteLine("Cleared.");
+                break;
+            case "add" when words.Length >= 3:
+                var added = contacts.Add(string.Join(' ', words[2..]), words[1] == "-" ? null : words[1]);
+                Console.WriteLine($"Added #{added.Id} {added.Name}");
+                break;
+            case "list":
+                var all = contacts.All();
+                if (all.Count == 0) Console.WriteLine("No contacts.");
+                foreach (var c in all) Console.WriteLine(Line(c));
+                break;
+            case "find" when words.Length >= 2:
+                var found = contacts.FindByName(string.Join(' ', words[1..]));
+                if (found.Count == 0) Console.WriteLine("No match.");
+                foreach (var c in found) Console.WriteLine(Line(c));
+                break;
+            case "help":
+                Console.WriteLine("Commands: clear, add <email|-> <name>, list, find <text>, help, quit");
+                break;
+            case "quit":
+                Console.WriteLine("Bye.");
+                return;
+            default:
+                Console.WriteLine($"Unknown command: {words[0]}");
+                break;
+        }
+    }
+    catch (Exception e) when (e is ArgumentException or Microsoft.Data.Sqlite.SqliteException)
+    {
+        Console.WriteLine("Error: " + e.Message);
+    }
+}
+`);
+put("src/Contacts.Cli/Contacts.Cli.csproj", fs.readFileSync(path.join(d, "src/Contacts.Cli/Contacts.Cli.csproj"), "utf8").replace("</Project>", "  <ItemGroup>\n    <PackageReference Include=\"Microsoft.Data.Sqlite\" Version=\"10.0.5\" />\n    <PackageReference Include=\"SQLitePCLRaw.bundle_e_sqlite3\" Version=\"2.1.13\" />\n  </ItemGroup>\n</Project>"));
+put("tests/Contacts.Tests/RepositoryTests.cs", String.raw`namespace Contacts.Tests;
+
+public class RepositoryTests : IDisposable
+{
+    readonly string file = Path.Combine(Path.GetTempPath(), "kos-ct-" + Guid.NewGuid().ToString("N") + ".db");
+    public void Dispose() { if (File.Exists(file)) File.Delete(file); }
+    SqliteContactRepository Repo() => new(file);
+
+    [Fact]
+    public void Add_trims_the_name() => Assert.Equal("Ann", Repo().Add("  Ann ", null).Name);
+
+    [Fact]
+    public void Find_ignores_case() => Assert.Single(With("Ann Lee", "Bob").FindByName("LEE"));
+
+    [Fact]
+    public void Find_with_nothing_matching_is_empty() => Assert.Empty(With("Ann").FindByName("zz"));
+
+    [Fact]
+    public void Import_with_a_repeated_email_keeps_nothing()
+    {
+        var r = Repo();
+        Assert.ThrowsAny<Exception>(() => r.Import(new (string, string?)[] { ("A", "a@x"), ("B", "a@x") }));
+        Assert.Empty(r.All());
+    }
+
+    [Fact]
+    public void Clear_removes_everything()
+    {
+        var r = With("A", "B");
+        r.Clear();
+        Assert.Empty(r.All());
+    }
+
+    SqliteContactRepository With(params string[] names) { var r = Repo(); foreach (var n in names) r.Add(n, null); return r; }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "Contacts on SQLite"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4" && v.rep.protected.ok, "contacts solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/contacts-report-solved.json"), v.text);
+
+const repo = path.join(d, "src/Contacts/SqliteContactRepository.cs");
+fs.writeFileSync(repo, fs.readFileSync(repo, "utf8").replace(`"SELECT id, name, email FROM contacts WHERE lower(name) LIKE '%' || lower($text) || '%' ORDER BY name", text`, `"SELECT id, name, email FROM contacts WHERE lower(name) LIKE '%" + text.ToLowerInvariant() + "%' ORDER BY name", null`));
+v = validate(d);
+const m2c = v.rep.milestones.find((m) => m.id === "m2");
+expect(!m2c.ok, "contacts glued SQL: m2 fails (" + m2c.checks.map((c) => c.note).join(" · ") + ")");
 
 console.log(bad ? "✗ " + bad + " check(s) failed" : "✓ the validator behaves on every scenario");
 process.exit(bad ? 1 : 0);

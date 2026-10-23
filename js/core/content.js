@@ -89,13 +89,17 @@
     } catch (e) { return null; }
   }
   function inline(s) {
-    var math = [];
-    var src = String(s == null ? "" : s).replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+?\$/g, function (m) {
+    /* code spans first: a `$` inside backticks (a C# $"…" string, an SQL
+       $name parameter) is code, never the start of maths */
+    var codes = [], math = [];
+    var src = String(s == null ? "" : s).replace(/`([^`]+)`/g, function (m, c) {
+      codes.push(c);
+      return "\u0005" + (codes.length - 1) + "\u0006";
+    }).replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+?\$/g, function (m) {
       math.push(m);
       return "\u0003" + (math.length - 1) + "\u0004";
     });
     var out = esc(src)
-      .replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
       .replace(/(?<![A-Za-z0-9)*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![A-Za-z0-9(*])/g, "<em>$1</em>")
       .replace(/~~([^~]+)~~/g, "<s>$1</s>")
@@ -104,7 +108,8 @@
         var href = safeHref(h.replace(/&amp;/g, "&").replace(/&quot;/g, '"'));
         return href ? '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + t + "</a>" : m;
       });
-    return out.replace(/\u0003(\d+)\u0004/g, function (_, i) { return esc(math[+i]); });
+    return out.replace(/\u0003(\d+)\u0004/g, function (_, i) { return esc(math[+i]); })
+      .replace(/\u0005(\d+)\u0006/g, function (_, i) { return "<code>" + esc(codes[+i]) + "</code>"; });
   }
 
   /* paragraph text: inline markup, and a typed new line is a line break */

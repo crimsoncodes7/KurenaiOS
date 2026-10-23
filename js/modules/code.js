@@ -319,8 +319,9 @@
     var begun = function (u) { return C().lessons().some(function (l) { return l.unit === u && C().studied(l.ref); }); };
     ps.forEach(function (p) {
       var v = C().projectView(p.id), bridge = p.unit === "B";
-      var reached = begun(bridge ? "B" : p.unit) || (bridge ? C().unitState("U6").state === "done" : C().unitState("U9").state === "done");
-      var sub = v.payAt ? "✓ Complete" : v.done ? v.done + " of " + v.total + " milestones" : reached ? "Ready to start" : bridge ? "Starts at Bridge B, after unit 6" : "Starts with unit " + p.unit.slice(1);
+      var track = /^T\d/.test(p.unit);
+      var reached = begun(bridge ? "B" : p.unit) || (bridge ? C().unitState("U6").state === "done" : track ? C().unitState("B").state === "done" : C().unitState("U9").state === "done");
+      var sub = v.payAt ? "✓ Complete" : v.done ? v.done + " of " + v.total + " milestones" : reached ? "Ready to start" : bridge ? "Starts at Bridge B, after unit 6" : "Starts with " + C().unitName(p.unit).replace(/^Unit /, "unit ");
       box.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "code.project-row",
         onclick: function () { KOS.show("code", { page: "project", id: p.id }); } }, [
         el("span", { class: "k-day-bar", style: "--row-c: var(--code)", "aria-hidden": "true" }),
@@ -531,6 +532,18 @@
               onclick: function () { KOS.show("code", { page: "task", id: next.id }); } }) : null
           ].filter(Boolean));
         })() : null,
+        /* a part built in Rider: its project's hub */
+        (function () {
+          var rp = rel && C().projects().filter(function (x) { return x.unit === u.ref; })[0];
+          if (!rp) return null;
+          var pv = C().projectView(rp.id);
+          return el("div", { class: "k-cx-partproj", "data-ui": "code.track-project" }, [
+            el("span", { class: "k-kicker", text: "Project · in Rider" }),
+            el("b", { text: rp.title }),
+            el("span", { class: "k-muted", text: pv.payAt ? "Complete." : pv.done + " of " + pv.total + " milestones passed." }),
+            el("button", { type: "button", class: "k-btn k-btn--sm", text: "Open the project ›", onclick: function () { KOS.show("code", { page: "project", id: rp.id }); } })
+          ]);
+        })(),
         el("ol", { class: "k-cx-partlist" }, u.children.map(function (l) {
           var p = KOS.store.peekProgress(SID, l.ref);
           var st = p && p.status === "done" ? "done" : p && p.status && p.status !== "none" ? "started" : null;

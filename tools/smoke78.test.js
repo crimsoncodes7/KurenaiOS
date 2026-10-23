@@ -17,6 +17,8 @@
          failing report takes nothing back.
      D · THE PAGES. The hub's four tabs, a Bridge lesson and a command
          card draw without writing to the store.
+     F · T1B. Contacts on SQLite's real report passes its four milestones
+         and pays once; the hub names Track T1 · T1B.
      E · UNIT 10. The Lending Library's real report (validator 1.1.0: own
          tests, planted bugs, warnings, source checks) passes all six
          milestones and pays once; a Bridge report from validator 1.0.0 is
@@ -32,7 +34,7 @@ const { boot } = require("./lib/app-harness");
 const ROOT = path.join(__dirname, "..");
 const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 /* the harness keeps its own clock: each real report is dated an hour before it */
-let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY;
+let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY, CONTACTS;
 function dated(file, app, minutes) {
   const j = JSON.parse(read(file)), now = app.window.Date.now();
   j.startedAt = new Date(now - minutes * 60000 - 30000).toISOString().slice(0, 19) + "Z";
@@ -141,6 +143,20 @@ step("E · the unit 10 project: six milestones, own tests and planted bugs, paid
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("F · T1B's project: Contacts on SQLite, under its track", async (app) => {
+  const K = app.KOS, P = K.codeProject, g = K.store.state.governor, id = "rp-t1b-contacts";
+  const files = await P.files(id);
+  assert(files["ContactsSqlite.sln"] && /SQLitePCLRaw\.bundle_e_sqlite3" Version="2\.1\.13"/.test(files["src/Contacts/Contacts.csproj"]), "the scaffold, with the native SQLite pinned past the advisory");
+  const res = await P.check(CONTACTS);
+  assert(res.outcome === "accepted" && res.completes && res.reward.xp === 120, "accepted with its reward: " + (res.msg || JSON.stringify(res.mismatched)));
+  const xp0 = g.xp, r = P.apply(res);
+  assert(r.ok && r.newly.join() === "m1,m2,m3,m4" && g.xp - xp0 === 120, "four milestones, paid once");
+  ["T1.9", "T1.10", "T1.11"].forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
+  K.show("code", { page: "project", id }); await app.settle();
+  assert(/Track T1 · T1B/.test(app.document.querySelector("#main").textContent), "the hub names its track and part");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();
@@ -150,6 +166,7 @@ step("E · the unit 10 project: six milestones, own tests and planted bugs, paid
   BROKEN = dated("tools/fixtures/bridge-report-broken.json", app, 40);
   LEGACY = dated("tools/fixtures/bridge-report-solved-1.0.0.json", app, 55);
   LIBRARY = dated("tools/fixtures/library-report-solved.json", app, 30);
+  CONTACTS = dated("tools/fixtures/contacts-report-solved.json", app, 20);
   for (const [name, fn] of steps) {
     try { await fn(app); console.log("  ok  " + name); }
     catch (e) { failed++; console.log("  FAIL " + name + "\n       " + e.message); }
