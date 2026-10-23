@@ -22,6 +22,7 @@
   var CAST = {
     akari: { name: "Akari", full: "白石 灯", initial: "灯", pitch: 1.12, rate: 0.95 },
     yota: { name: "Yōta", full: "朝日 陽太", initial: "陽", pitch: 0.85, rate: 1 },
+    makoto: { name: "Makoto", full: "小林 誠", initial: "誠", pitch: 0.7, rate: 0.92 },
     narrator: { name: "Narrator", full: "", initial: "N", pitch: 1, rate: 0.95 }
   };
   function reduced() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
@@ -40,7 +41,8 @@
     String(t || "").split(/(\{[^}]+\})/).forEach(function (part) {
       var m = /^\{([^|}]+)\|([^}]+)\}$/.exec(part);
       if (!m) { if (part) out.appendChild(document.createTextNode(part)); return; }
-      var show = mode === "all" || (mode === "unknown" && !(o.known && o.known(m[1])));
+      var known = o.known || (KOS.ja && KOS.ja.knows);
+      var show = mode === "all" || (mode === "unknown" && !(known && known(m[1])));
       out.appendChild(show ? el("ruby", {}, [m[1], el("rt", { text: m[2] })]) : document.createTextNode(m[1]));
     });
     return out;
@@ -112,8 +114,12 @@
       el("span", { class: "k-ja-who-i", lang: "ja", "aria-hidden": "true", text: c.initial }),
       el("span", { class: "k-ja-who-t" }, [el("b", { text: c.name }), c.full ? el("small", { lang: "ja", text: c.full }) : null].filter(Boolean))
     ]));
-    row.appendChild(el("span", { class: "k-ja-line-t" }, [furi(o.ja, { known: o.known }), o.en ? el("small", { class: "k-ja-line-en", text: o.en }) : null].filter(Boolean)));
-    row.appendChild(el("span", { class: "k-ja-line-btns" }, [hear, slow,
+    /* enHidden: a reading line keeps its English behind a press (the graded passage, §6) */
+    var enNode = o.en ? el("small", { class: "k-ja-line-en", text: o.en, hidden: o.enHidden ? true : null }) : null;
+    var enBtn = o.en && o.enHidden ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "ja.line-english", "aria-pressed": "false", text: "EN",
+      "aria-label": "Show the English", onclick: function (e) { enNode.hidden = !enNode.hidden; e.currentTarget.setAttribute("aria-pressed", String(!enNode.hidden)); } }) : null;
+    row.appendChild(el("span", { class: "k-ja-line-t" }, [furi(o.ja, { known: o.known }), enNode].filter(Boolean)));
+    row.appendChild(el("span", { class: "k-ja-line-btns" }, [hear, slow, enBtn,
       synthetic(o.ja, who) ? el("small", { class: "k-ja-synth", "data-ui": "ja.synthetic", text: "synthetic voice" }) : null].filter(Boolean)));
     return row;
   }
@@ -355,9 +361,131 @@
     };
   }
 
+  /* ---------------- the media moment: a VN scene and a manga panel (§12) ---------------- */
+  /* Raster art under LIVE text: the art never carries words (§12.1), so every line is real
+     Japanese with furigana by mastery, heard in its speaker's voice, its English one press away. */
+  var IMG = "assets/ja/img/";
+  var FACES = ["neutral", "happy", "surprised", "troubled", "thinking"];
+  function faceSrc(who, face) { return IMG + (face && face !== "neutral" ? "ja.face." + who + "." + face : "ja.base." + who + ".a") + ".webp"; }
+  /* scene({ title, bg, left, right, lines: [{ who, face, ja, en, other }] }) → node.
+     A click, Enter or Space moves on; a reaction cross-fades the face only (the importer keeps the
+     body's pixels), so nothing but the face moves. */
+  function scene(sc, o) {
+    o = o || {};
+    var i = -1;
+    var stage = el("div", { class: "k-ja-vn", "data-ui": "ja.scene", role: "group", "aria-label": "Scene: " + (sc.title || "") });
+    stage.appendChild(el("img", { class: "k-ja-vn-bg", src: IMG + sc.bg + ".webp", alt: sc.alt || "" }));
+    var slots = {};
+    [["left", sc.left], ["right", sc.right]].forEach(function (p) {
+      if (!p[1]) return;
+      var a = el("img", { src: faceSrc(p[1]), alt: "", "data-state": "on" }), b = el("img", { src: faceSrc(p[1]), alt: "" });
+      var wrap = el("div", { class: "k-ja-vn-chara", "data-side": p[0], "data-who": p[1] }, [a, b]);
+      stage.appendChild(wrap);
+      slots[p[1]] = { wrap: wrap, imgs: [a, b], face: "neutral" };
+      FACES.forEach(function (f) { var pre = new Image(); pre.src = faceSrc(p[1], f); });
+    });
+    var plate = el("div", { class: "k-ja-vn-name", lang: "ja" });
+    var text = el("div", { class: "k-ja-vn-text", "aria-live": "polite" });
+    var en = el("div", { class: "k-ja-vn-en", hidden: true });
+    var voiceBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.scene-voice", text: "▶ Voice", onclick: function (e) { e.stopPropagation(); speak(); } });
+    var enBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.scene-english", "aria-pressed": "false", text: "English",
+      onclick: function (e) { e.stopPropagation(); en.hidden = !en.hidden; e.currentTarget.setAttribute("aria-pressed", String(!en.hidden)); } });
+    var againBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.scene-again", text: "↺ From the start", onclick: function (e) { e.stopPropagation(); show(0); } });
+    var box = el("div", { class: "k-ja-vn-box", tabindex: "0", role: "button", "aria-label": "Next line (click, Enter or Space)" }, [
+      plate, text, en, el("div", { class: "k-ja-vn-tools" }, [voiceBtn, enBtn, againBtn]), el("span", { class: "k-ja-vn-more", "aria-hidden": "true", text: "▼" })]);
+    stage.appendChild(box);
+    function face(who, f) {
+      var sl = slots[who]; if (!sl || !f || sl.face === f) return;
+      var nx = sl.imgs[0].getAttribute("data-state") === "on" ? 1 : 0;
+      sl.imgs[nx].src = faceSrc(who, f);
+      var swap = function () { sl.imgs[nx].setAttribute("data-state", "on"); sl.imgs[1 - nx].removeAttribute("data-state"); };
+      if (sl.imgs[nx].complete) swap(); else sl.imgs[nx].onload = swap;
+      sl.face = f;
+    }
+    function speak() { var ln = sc.lines[i]; if (ln) say(ln.ja, { who: ln.who, node: voiceBtn }); }
+    function show(k) {
+      i = k; var ln = sc.lines[i];
+      KOS.ui.state(box, "ended", false);
+      Object.keys(slots).forEach(function (w) { KOS.ui.state(slots[w].wrap, "dim", w !== ln.who); });
+      face(ln.who, ln.face);
+      if (ln.other) Object.keys(ln.other).forEach(function (w) { face(w, ln.other[w]); });
+      plate.textContent = (CAST[ln.who] || {}).full || (CAST[ln.who] || {}).name || ln.who;
+      en.textContent = ln.en || "";
+      text.innerHTML = ""; text.appendChild(furi(ln.ja, { known: o.known }));
+      speak();
+      if (o.onLine) o.onLine(i, ln);
+    }
+    function next() {
+      if (i + 1 < sc.lines.length) show(i + 1);
+      else { KOS.ui.state(box, "ended", true); announce("End of the scene."); if (o.onEnd) o.onEnd(); }
+    }
+    box.addEventListener("click", next);
+    box.addEventListener("keydown", function (e) { if (e.target === box && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); } });
+    /* the first line shows without speaking: a page that opens never talks on its own */
+    (function first() {
+      i = 0; var ln = sc.lines[0];
+      Object.keys(slots).forEach(function (w) { KOS.ui.state(slots[w].wrap, "dim", w !== ln.who); });
+      face(ln.who, ln.face);
+      plate.textContent = (CAST[ln.who] || {}).full || ln.who;
+      en.textContent = ln.en || "";
+      text.appendChild(furi(ln.ja, { known: o.known }));
+    })();
+    return stage;
+  }
+  /* panel({ img, w, h, alt, bubbles: [{ who, ja, en, x, y, rx, ry, tail: [x, y], size }], sfx }) →
+     node. Positions are % of the panel; "\n" breaks a vertical column; manga reads right to left,
+     so the authored order is the reading order. */
+  function tailPath(b) {
+    var dx = b.tail[0] - b.x, dy = b.tail[1] - b.y, len = Math.hypot(dx, dy) || 1, r = Math.min(b.rx, b.ry);
+    var nx = -dy / len, ny = dx / len, w = r * 0.35, bx = b.x + dx / len * r * 0.5, by = b.y + dy / len * r * 0.5;
+    return "M" + (bx + nx * w) + " " + (by + ny * w) + " L" + b.tail[0] + " " + b.tail[1] + " L" + (bx - nx * w) + " " + (by - ny * w) + " Z";
+  }
+  function panel(pn, o) {
+    o = o || {};
+    var fig = el("figure", { class: "k-ja-manga", "data-ui": "ja.panel", style: "--ar: " + pn.w + " / " + pn.h });
+    fig.appendChild(el("img", { class: "k-ja-manga-art", src: IMG + pn.img + ".webp", alt: pn.alt || "", draggable: "false" }));
+    var g = svg("svg", { class: "k-ja-manga-balloons", viewBox: "0 0 100 100", preserveAspectRatio: "none", "aria-hidden": "true" });
+    var strokes = svg("g", { class: "k-ja-manga-stroke" }), fills = svg("g", { class: "k-ja-manga-fill" });
+    pn.bubbles.forEach(function (b) {
+      [strokes, fills].forEach(function (layer) {
+        layer.appendChild(svg("ellipse", { cx: b.x, cy: b.y, rx: b.rx, ry: b.ry, "vector-effect": "non-scaling-stroke" }));
+        if (b.tail) layer.appendChild(svg("path", { d: tailPath(b), "vector-effect": "non-scaling-stroke" }));
+      });
+    });
+    g.appendChild(strokes); g.appendChild(fills); fig.appendChild(g);
+    var nodes = pn.bubbles.map(function (b) {
+      var t = el("p", { class: "k-ja-manga-text", style: "--fs: " + (b.size || 2.6) }, []);
+      b.ja.split("\n").forEach(function (col, ci) { if (ci) t.appendChild(el("br")); t.appendChild(furi(col, { known: o.known })); });
+      var bub = el("button", { type: "button", class: "k-ja-manga-bubble", "data-ui": "ja.panel-bubble", style: "--x: " + b.x + "%; --y: " + b.y + "%",
+        "aria-label": ((CAST[b.who] || {}).name || b.who) + ": " + plain(b.ja).replace(/\n/g, "") + (b.en ? " (" + b.en + ")" : ""), title: b.en || "",
+        onclick: function () { say(b.ja.replace(/\n/g, ""), { who: b.who, node: bub }); } }, [t]);
+      fig.appendChild(bub);
+      return bub;
+    });
+    (pn.sfx || []).forEach(function (x) {
+      fig.appendChild(el("span", { class: "k-ja-manga-sfx", lang: "ja", "aria-hidden": "true", text: x.ja, style: "--x: " + x.x + "%; --y: " + x.y + "%; --fs: " + (x.size || 9) + "; --rot: " + (x.rot || 0) + "deg" }));
+    });
+    var enList = el("ol", { class: "k-ja-manga-en", hidden: true }, pn.bubbles.map(function (b) { return el("li", {}, [el("b", { text: ((CAST[b.who] || {}).name || b.who) + " " }), b.en || ""]); }));
+    function playAll(btn) {
+      var k = 0;
+      (function next() {
+        if (k >= pn.bubbles.length) return;
+        var b = pn.bubbles[k], node = nodes[k]; k++;
+        say(b.ja.replace(/\n/g, ""), { who: b.who, node: node, onEnd: function () { setTimeout(next, 300); } });
+      })();
+    }
+    var tools = el("div", { class: "k-ja-manga-tools" }, [
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.panel-hear", text: "▶ Hear the panel", onclick: function () { playAll(); } }),
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.panel-english", "aria-pressed": "false", text: "English",
+        onclick: function (e) { enList.hidden = !enList.hidden; e.currentTarget.setAttribute("aria-pressed", String(!enList.hidden)); } }),
+      el("small", { class: "k-muted", text: "Tap a balloon to hear it. Manga reads right to left." })
+    ]);
+    return el("div", { class: "k-ja-manga-wrap" }, [fig, tools, enList]);
+  }
+
   KOS.jaUI = {
     CAST: CAST, SKILL: SKILL, plain: plain, furi: furi, skill: skill, say: say, stop: stop, synthetic: synthetic, line: line,
     verdict: verdict, verdictWords: verdictWords, stagePath: stagePath, mediaPath: mediaPath, range: range, radar: radar,
-    meter: meter, seal: seal, pad: pad
+    meter: meter, seal: seal, pad: pad, scene: scene, panel: panel, IMG: IMG
   };
 })();

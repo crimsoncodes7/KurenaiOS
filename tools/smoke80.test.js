@@ -32,7 +32,9 @@ step("A · five subjects; Japanese is not an exam subject", async (app) => {
   assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja"]), "ids: " + S.ids());
   assert(S.ids("exam").indexOf("ja") < 0, "Japanese is not an exam subject");
   assert(S.hue("ja") === "var(--ja)", "Japanese's hue is the --ja role");
-  assert(app.KOS.hub.LEAVES.ja.length === 16, "Stage 0's sixteen lessons are leaves, got " + app.KOS.hub.LEAVES.ja.length);
+  const lessons = Object.keys(app.window.KOS_JA.LESSONS).length;
+  assert(lessons >= 22 && app.KOS.hub.LEAVES.ja.length === lessons, "every released lesson (Stage 0's sixteen and each Stage 1 unit's) is a leaf, got " + app.KOS.hub.LEAVES.ja.length + " of " + lessons);
+  assert(app.KOS.spec.node("ja", "1.1") && app.KOS.spec.level("ja", "1.1") === "leaf", "the spec index knows Stage 1's lessons");
   assert(app.KOS.spec.node("ja", "H1") && app.KOS.spec.level("ja", "H1") === "leaf", "the spec index knows Japanese's lessons");
 });
 step("A · the --ja hue is a token in Graphite and every theme", () => {
@@ -47,7 +49,8 @@ step("A · the --ja hue is a token in Graphite and every theme", () => {
 });
 step("B · routes: the desk, a lesson and every Japanese page", async (app) => {
   const K = app.KOS;
-  for (const [v, a, id] of [["subject", "ja", "ja.hero"], ["ref", { subject: "ja", ref: "H1" }, "ja.checks"],
+  for (const [v, a, id] of [["subject", "ja", "ja.hero"], ["ref", { subject: "ja", ref: "H1" }, "ja.checks"], ["ref", { subject: "ja", ref: "1.1" }, "ja.media-moment"],
+    ["japanese", { page: "session", id: "learn-1.2" }, "ja.meet"],
     ["japanese", { page: "path" }, "ja.media-path"], ["japanese", { page: "skills" }, "ja.skill-units"],
     ["japanese", { page: "kana" }, "ja.kana-chart"], ["japanese", { page: "reviews" }, "ui.page-head"],
     ["japanese", { page: "checkpoints" }, "ja.checkpoint"], ["japanese", { page: "settings" }, "ja.settings"],

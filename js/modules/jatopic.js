@@ -60,7 +60,11 @@
     var ui = U();
     var refMode = function () { return ui.mode === "reference" && pages.length > 0; };
     var ctx = {};
-    var skills = L ? (L.items.some(function (k) { return k.length === 3; }) ? ["R", "W"] : []).concat(L.items.some(function (k) { return /^s:/.test(k); }) ? ["L"] : []) : [];
+    /* the skills the lesson trains: kana read and write; words and grammar read, listen, and write
+       once held; a sound pair listens */
+    var skills = !L ? [] : ["R", "W", "L"].filter(function (sk) {
+      return L.items.some(function (k) { return sk === "L" ? /^[swg]:/.test(k) : sk === "W" ? /^(k:.$|g:)/.test(k) || (L.produce || []).length : /^[kwjg]:/.test(k); });
+    });
 
     ctx.decoratePath = function (pathLine) {
       pathLine.innerHTML = "";
@@ -111,10 +115,7 @@
     };
 
     /* ---- notes ---- */
-    function known(word) {
-      var j = KOS.ja.peek(), f = j.facets["w:" + word + "|R"];
-      return !!(f && f.reps && f.s >= 3);
-    }
+    function known(word) { return KOS.ja.knows(word); }
     function block(b, i) {
       if (b.h) return el("h3", { class: "k-ja-h" }, [b.n ? el("span", { class: "k-mono", text: b.n + " " }) : null, UI().furi(b.h, { known: known })].filter(Boolean));
       if (b.p) return el("p", { class: "k-ja-p" }, [UI().furi(b.p, { known: known })]);
@@ -150,6 +151,45 @@
         ]);
         return KOS.ui.scroller(t, { label: "Table", tabWhenScrolls: true });
       }
+      if (b.scene) return el("div", { class: "k-ja-media", "data-ui": "ja.media-moment" }, [el("span", { class: "k-kicker", text: "Media moment · " + (b.scene.title || "a scene") }), UI().scene(b.scene, { known: known })]);
+      if (b.panel) return el("div", { class: "k-ja-media", "data-ui": "ja.media-moment" }, [el("span", { class: "k-kicker", text: "Media moment · a manga panel" }), UI().panel(b.panel, { known: known })]);
+      /* a pattern: the formula, what it means, and one example said aloud */
+      if (b.pattern) {
+        var pt = b.pattern;
+        var hp = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.hear", "aria-label": "Hear the example", text: "▶",
+          onclick: function () { UI().say(pt.eg, { node: hp }); KOS.ja.markHeard(ref, pt.eg); evidenceChanged(ref); } });
+        return el("div", { class: "k-ja-pattern", "data-ui": "ja.pattern" }, [
+          el("div", { class: "k-ja-pattern-f" }, [UI().furi(pt.f, { mode: "all" })]),
+          el("p", { class: "k-ja-pattern-en", text: pt.en }),
+          el("div", { class: "k-ja-pattern-eg" }, [hp, UI().furi(pt.eg, { known: known }), el("small", { class: "k-muted", text: pt.egEn })])
+        ]);
+      }
+      /* the graded passage (§2.5): read it first, English per line on request, one question */
+      if (b.passage) {
+        var ps = b.passage, qOut = el("p", { class: "k-ja-passage-v", "aria-live": "polite" });
+        return el("section", { class: "k-ja-passage", "data-ui": "ja.passage", "aria-label": "Reading: " + ps.title }, [
+          el("div", { class: "k-ja-passage-h" }, [el("span", { class: "k-kicker", text: "Read · " + ps.title }), el("small", { class: "k-muted", text: "Read it before you open the English" })]),
+          el("div", { class: "k-ja-passage-lines" }, ps.lines.map(function (ln) { return UI().line({ who: ln.who, ja: ln.ja, en: ln.en, known: known, enHidden: true }); })),
+          ps.q ? el("div", { class: "k-ja-passage-q" }, [el("b", { text: ps.q.q }), el("div", { class: "k-ja-opts", role: "group", "aria-label": ps.q.q }, ps.q.options.map(function (opt, oi) {
+            return el("button", { type: "button", class: "k-ja-opt", "data-ui": "ja.option", onclick: function (e) {
+              [].forEach.call(e.currentTarget.parentNode.children, function (x) { KOS.ui.state(x, "right", false); KOS.ui.state(x, "wrong", false); });
+              KOS.ui.state(e.currentTarget, oi === ps.q.a ? "right" : "wrong", true);
+              qOut.textContent = oi === ps.q.a ? "✓ Right. " + (ps.q.why || "") : "✗ Not quite — read it again.";
+            } }, [opt]);
+          })), qOut]) : null
+        ].filter(Boolean));
+      }
+      /* the shadowing set: hear a line, say it with the voice. Self-paced, never graded (speech is
+         a later release, §13) */
+      if (b.shadow) return el("section", { class: "k-ja-shadow", "data-ui": "ja.shadow", "aria-label": "Shadowing" }, [
+        el("div", { class: "k-ja-passage-h" }, [el("span", { class: "k-kicker", text: "Shadow · say it with the voice" }), el("small", { class: "k-muted", text: "Hear it, then say it along — slow first. Nothing is recorded." })])
+      ].concat(b.shadow.map(function (ln) {
+        var row = UI().line({ who: ln.who, ja: ln.ja, en: ln.en, known: known });
+        [].forEach.call(row.querySelectorAll("[data-ui~='ja.hear'], [data-ui~='ja.slow']"), function (btn) {
+          btn.addEventListener("click", function () { KOS.ja.markHeard(ref, ln.ja); evidenceChanged(ref); });
+        });
+        return row;
+      })));
       if (b.go) return el("div", { class: "k-ja-go" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.practice-start",
         text: "▶ Start the practice", onclick: function () { KOS.show("japanese", { page: "session", id: "learn-" + ref }); } }), el("small", { class: "k-muted", text: b.go })]);
       return el("span");
@@ -301,7 +341,7 @@
       if (!L) return;
       var j = KOS.ja.peek(), by = {};
       L.items.forEach(function (k) {
-        KOS.jaSrs.facetsFor(k, j.facets, { produces: KOS.ja.produces }).forEach(function (s) {
+        KOS.jaSrs.facetsFor(k, j.facets, { produces: KOS.ja.produces, speech: false }).forEach(function (s) {
           var f = j.facets[k + "|" + s], b = by[s] = by[s] || { n: 0, held: 0 };
           b.n++; if (f && f.reps && f.s >= KOS.jaSrs.HOLD) b.held++;
         });
@@ -312,14 +352,16 @@
           return el("li", {}, [UI().skill(s, { label: false }), el("span", { text: by[s].held + " of " + by[s].n + " items hold" }), el("small", { class: "k-muted", text: "Validator" })]);
         }))
       ]));
-      var kana = L.items.filter(function (k) { return /^k:/.test(k); });
-      var held = kana.filter(function (k) { var f = j.facets[k + "|R"]; return f && f.reps && f.s >= KOS.jaSrs.STABLE; }).length;
-      body.appendChild(el("section", { class: "k-insp-sec", "aria-label": "Kana" }, [
-        el("h2", { class: "k-kicker", text: "Kana · " + held + " of " + kana.length + " stable" }),
-        el("ul", { class: "k-ja-insp-items" }, kana.slice(0, 12).map(function (k) {
+      /* the lesson's own items: kana in Stage 0, words in Stage 1 (with their meaning) */
+      var kana = L.items.filter(function (k) { return /^k:/.test(k); }), isKana = kana.length > 0;
+      var shown = isKana ? kana : L.items.filter(function (k) { return /^w:/.test(k); });
+      var held = shown.filter(function (k) { var f = j.facets[k + "|R"]; return f && f.reps && f.s >= KOS.jaSrs.STABLE; }).length;
+      body.appendChild(el("section", { class: "k-insp-sec", "aria-label": isKana ? "Kana" : "Words" }, [
+        el("h2", { class: "k-kicker", text: (isKana ? "Kana · " : "Words · ") + held + " of " + shown.length + " stable" }),
+        el("ul", { class: "k-ja-insp-items", "data-state": isKana ? null : "words" }, shown.slice(0, 12).map(function (k) {
           var it = KOS.ja.item(k), f = j.facets[k + "|R"];
           var st = f && f.reps ? (f.s >= KOS.jaSrs.STABLE ? "stable" : "learning") : "new";
-          return el("li", { "data-state": st }, [el("b", { lang: "ja", text: it.w }), el("span", { text: it.r }), el("small", { text: st })]);
+          return el("li", { "data-state": st }, [el("b", { lang: "ja", text: it.w }), el("span", { text: isKana ? it.r : it.en[0] }), el("small", { text: st })]);
         }))
       ]));
       var due = Object.keys(j.facets).filter(function (k) { var f = j.facets[k]; return L.items.indexOf(KOS.jaSrs.split(k).item) >= 0 && f.due && f.due <= KOS.srs.todayISO(); }).length;

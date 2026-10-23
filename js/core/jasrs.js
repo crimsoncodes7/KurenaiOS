@@ -61,7 +61,8 @@
   }
 
   /* Which facets an item has now. opts.produces(item) says whether a word is in a production
-     set; deep(item) whether the Kanji deep track is on. */
+     set; deep(item) whether the Kanji deep track is on; speech === false leaves out S (a word
+     is never asked to be spoken while there is nothing to speak to). */
   function facetsFor(item, facets, opts) {
     opts = opts || {};
     var kind = item.slice(0, item.indexOf(":"));
@@ -70,7 +71,7 @@
     if (kind === "j") return opts.deep && opts.deep(item) ? ["R", "H"] : ["R"];
     if (kind === "s" || kind === "x") return ["L"];
     if (kind === "g") return held ? ["R", "L", "W"] : ["R", "L"];
-    if (kind === "w") return held && opts.produces && opts.produces(item) ? ["R", "L", "W", "S"] : ["R", "L"];
+    if (kind === "w") return held && opts.produces && opts.produces(item) ? (opts.speech === false ? ["R", "L", "W"] : ["R", "L", "W", "S"]) : ["R", "L"];
     return ["R"];
   }
 

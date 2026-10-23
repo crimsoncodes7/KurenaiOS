@@ -156,7 +156,7 @@
           "aria-label": u.name + ": " + (later ? "recommended later" : us.done + " of " + us.total + " done"),
           onclick: function () { openUnit(u.id); } }, [
           el("span", { class: "k-ja-unit-top" }, [el("span", { class: "k-unit-ref", text: u.id }), el("span", { class: "k-ja-unit-sk" },
-            (u.id === "H" || u.id === "K" ? ["R", "W"] : ["R", "L", "W", "S"]).map(function (s) { return el("b", { text: s }); }))]),
+            (u.id === "H" || u.id === "K" ? ["R", "W"] : ["R", "L", "W"].concat(J().peek().settings.speech ? ["S"] : [])).map(function (s) { return el("b", { text: s }); }))]),
           el("span", { class: "k-unit-title", text: u.name }),
           el("span", { class: "k-unit-segs", "aria-hidden": "true" }, u.lessons.map(function (id) {
             var p = KOS.store.peekProgress(SID, id);
@@ -560,7 +560,7 @@
       var cp = cps[id], state = J().checkpointState(id), rec = J().peek().checkpoints[id] || {}, isNext = state === "next";
       list.appendChild(el("section", { class: "k-card k-ja-cp-card", "data-ui": "ja.checkpoint", "data-state": state }, [
         el("div", { class: "k-ja-cp-h" }, [
-          el("div", {}, [el("span", { class: "k-kicker", text: "Stage 0 checkpoint" }), el("h2", { text: cp.title })]),
+          el("div", {}, [el("span", { class: "k-kicker", text: (stageOf(cp.unit) ? "Stage " + stageOf(cp.unit).index + " · " + stageOf(cp.unit).name : "Checkpoint") + " checkpoint" }), el("h2", { text: cp.title })]),
           state === "passed" ? UI().seal({ label: cp.title + " passed" }) : null
         ].filter(Boolean)),
         rec.scores ? el("div", { class: "k-ja-cp-rows" }, cp.skills.map(function (s) { return skillRow(s, rec.scores[s] || 0); })) : el("p", { class: "k-muted", text: cp.skills.map(function (s) { return UI().SKILL[s]; }).join(", ") + " · about 10 minutes" }),
@@ -587,13 +587,24 @@
     var cp = (window.KOS_JA.CHECKPOINTS || {})[id]; if (!cp) { KOS.show("japanese", { page: "checkpoints" }); return; }
     var unit = null; (window.KOS_JA.STAGES || []).forEach(function (st) { st.units.forEach(function (u) { if (u.id === cp.unit) unit = u; }); });
     var items = []; unit.lessons.forEach(function (l) { items = items.concat(J().lesson(l).items); });
-    var single = items.filter(function (k) { return k.length === 3; }), sounds = items.filter(function (k) { return /^s:/.test(k); });
+    var single = items.filter(function (k) { return /^k:.$/.test(k); }), sounds = items.filter(function (k) { return /^s:/.test(k); });
     function pick(list, n, seed) { var a = list.slice(); for (var i = a.length - 1; i > 0; i--) { var j = (seed * (i + 7)) % (i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; } return a.slice(0, n); }
     var seed = Date.parse(today()) / 864e5 | 0;
     var sections = [];
-    if (cp.skills.indexOf("R") >= 0) sections.push({ s: "R", keys: pick(single, 12, seed).map(function (k) { return k + "|R"; }) });
-    if (cp.skills.indexOf("W") >= 0) sections.push({ s: "W", keys: pick(single, 8, seed + 3).map(function (k) { return k + "|W"; }) });
-    if (cp.skills.indexOf("L") >= 0) sections.push({ s: "L", keys: (sounds.length ? sounds.concat(sounds) : pick(["s:long", "s:sokuon", "s:voicing"], 3, seed)).slice(0, 6).map(function (k) { return k + "|L"; }) });
+    if (single.length) {
+      if (cp.skills.indexOf("R") >= 0) sections.push({ s: "R", keys: pick(single, 12, seed).map(function (k) { return k + "|R"; }) });
+      if (cp.skills.indexOf("W") >= 0) sections.push({ s: "W", keys: pick(single, 8, seed + 3).map(function (k) { return k + "|W"; }) });
+      if (cp.skills.indexOf("L") >= 0) sections.push({ s: "L", keys: (sounds.length ? sounds.concat(sounds) : pick(["s:long", "s:sokuon", "s:voicing"], 3, seed)).slice(0, 6).map(function (k) { return k + "|L"; }) });
+    } else {
+      /* a Stage 1 unit: reading from its words, kanji and grammar; writing from its production
+         sets and grammar; listening from its words and grammar */
+      var words = items.filter(function (k) { return /^w:/.test(k); }), gram = items.filter(function (k) { return /^g:/.test(k); });
+      var prod = []; unit.lessons.forEach(function (l) { prod = prod.concat(J().lesson(l).produce || []); });
+      var R = pick(words, 7, seed).concat(pick(items.filter(function (k) { return /^j:/.test(k); }), 2, seed + 1)).concat(pick(gram, 3, seed + 2));
+      if (cp.skills.indexOf("R") >= 0) sections.push({ s: "R", keys: R.map(function (k) { return k + "|R"; }) });
+      if (cp.skills.indexOf("W") >= 0) sections.push({ s: "W", keys: pick(prod, 5, seed + 3).concat(pick(gram, 3, seed + 4)).map(function (k) { return k + "|W"; }) });
+      if (cp.skills.indexOf("L") >= 0) sections.push({ s: "L", keys: pick(words, 5, seed + 5).concat(pick(gram, 3, seed + 6)).map(function (k) { return k + "|L"; }) });
+    }
     var scores = {}, si = 0, qi = 0, right = 0;
     var box = el("section", { class: "k-card k-ja-run", "data-ui": "ja.checkpoint-run", "aria-label": cp.title });
     var head = el("div", { class: "k-ja-run-head" }, [el("button", { type: "button", class: "k-iconbtn", "aria-label": "Leave the checkpoint", text: "✕", onclick: function () { KOS.show("japanese", { page: "checkpoints" }); } }),

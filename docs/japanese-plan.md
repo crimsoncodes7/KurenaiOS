@@ -191,6 +191,27 @@ it is released one unit at a time.
 self-introduction at natural speed", "S: order and ask for the bill".
 Checkpoints test these.
 
+
+### 3.1 Stage 1 (基 Foundations): the units
+
+Six units, released one at a time (§17). Each is six lessons on the eight-page
+contract (§4.2), its can-do lines, and a checkpoint testing R, W and L (S joins
+when speech ships). Word items are keyed by their written form (`w:本`), kanji
+by the character (`j:本`), grammar by a slug (`g:kosoa`). Data:
+`js/data/ja-s1.js` (items, lessons, units); pages:
+`js/data/content/ja-<unit>.js`.
+
+| Unit | Name | Lessons | Grammar | Media moments |
+|---|---|---|---|---|
+| **F1** | First conversations | 1.1 これ・それ・あれ · 1.2 Nice to meet you · 1.3 Yes, no and too · 1.4 Numbers to 100 and ages · 1.5 Where is it? · 1.6 At the café | は…です, か, の, じゃないです, も, ここ・そこ・あそこ, をください, いくら | kosoa panels; classroom, café and station scenes; Makoto the café owner (new) |
+| F2 | Days and times | time, days of the week, dates, schedules, いつ, から・まで | numbers + counters 時・分・曜日, に (time) | a timetable, a phone call |
+| F3 | Things and places | あります・います, positions (上・下・中・となり), に (place), adjectives い/な (present) | existence, location, adjective + noun | Akari's room, a convenience store |
+| F4 | Doing things | ます verbs, を・で・へ・に, past ました, ませんか invitations | verb groups, ます forms, particles of action | a weekend plan (VN), a manga page |
+| F5 | Describing | adjectives past and negative, とても・あまり, が好き, counters つ・個・人 | adjective conjugation, が (likes), counters | shopping, a festival |
+| F6 | The て-form | て-form, てください, ています, てもいいですか | て-form rules (the conjugation engine's diagnoses) | a classroom request, a recipe |
+
+F2–F6 are an outline; each is fixed when it is written. F1 counts 57 words, 11
+kanji and 17 grammar points.
 ---
 
 ## 4. Content model and sources

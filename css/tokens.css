@@ -77,6 +77,13 @@ color-scheme: dark;
    restates it clear of its own accent and Code hue. Never pass or fail. */
 --ja: oklch(0.73 0.14 30);
 --ja-ink: oklch(0.2 0.04 30);
+/* the media moment's fixed surfaces: a manga page is paper and ink in every theme, and a VN text
+   box is dark glass over the art in every theme (the art does not change with the theme) */
+--ja-paper: oklch(1 0 0);
+--ja-paper-ink: oklch(0.16 0 0);
+--ja-vn-glass: oklch(0.16 0.01 265 / 0.86);
+--ja-vn-ink: oklch(0.98 0 0);
+--ja-vn-ruby: oklch(0.88 0.07 50);
 --anime: oklch(0.72 0.13 250);
 --books: oklch(0.78 0.11 70);
 --vn: oklch(0.72 0.14 330);
@@ -372,6 +379,10 @@ color-scheme: dark;
 --ja-seal-sm: 64px;
 --ja-scene-w: 820px;
 --ja-opt-h: 50px;
+--ja-tile-h: 44px;
+--ja-word-big: 56px;
+--ja-manga-stroke: 5px;
+--ja-manga-border: 3px;
 --subj-ring: 132px;
 --subj-ring-hole: 114px;
 --subj-go: 34px;

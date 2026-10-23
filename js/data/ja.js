@@ -87,24 +87,30 @@
       "cp-K": { id: "cp-K", unit: "K", title: "Katakana checkpoint", skills: ["R", "W", "L"] }
   };
 
-  window.KOS_JA = { STAGES: STAGES, LESSONS: LESSONS, ITEMS: ITEMS, CHECKPOINTS: CHECKPOINTS };
+  /* a unit's own file (js/data/ja-s1.js …) adds its items, lessons and checkpoint and calls
+     KOS_JA.spine() again, so the spine below always lists every released unit */
+  window.KOS_JA = { STAGES: STAGES, LESSONS: LESSONS, ITEMS: ITEMS, CHECKPOINTS: CHECKPOINTS, SENTENCES: {}, spine: spine };
 
   /* the spine every Study surface reads (units → lessons), like KOS_DATA.code. Loading it is what
      makes Japanese a live subject (invariant 112). */
-  window.KOS_DATA = window.KOS_DATA || {};
   // the lesson's one-line can-do (§3): what the leaf shows where a subject shows its specification
   function canDo(l) {
+    if (l.can) return l.can;
     var kana = l.items.filter(function (k) { return k.indexOf("k:") === 0; }).map(function (k) { return k.slice(2); });
     return (l.produce.length >= kana.length ? "Read and write " : "Read ") + (kana.length > 12 ? kana.length + " kana" : kana.join(" ")) + " by sight and by ear.";
   }
-  window.KOS_DATA.ja = {
-    id: "ja", name: "Japanese", board: "Kana to native media",
-    labelL: "What this lesson teaches", labelR: "Where it leads",
-    sections: [].concat.apply([], STAGES.map(function (st, si) {
-      return st.units.map(function (u) {
-        return { ref: u.id, title: u.name, stage: si, kanji: st.kanji,
-          children: u.lessons.map(function (id) { return { ref: id, title: LESSONS[id].title, content: [canDo(LESSONS[id])] }; }) };
-      });
-    }))
-  };
+  function spine() {
+    window.KOS_DATA = window.KOS_DATA || {};
+    window.KOS_DATA.ja = {
+      id: "ja", name: "Japanese", board: "Kana to native media",
+      labelL: "What this lesson teaches", labelR: "Where it leads",
+      sections: [].concat.apply([], STAGES.map(function (st, si) {
+        return st.units.map(function (u) {
+          return { ref: u.id, title: u.name, stage: si, kanji: st.kanji,
+            children: u.lessons.map(function (id) { return { ref: id, title: LESSONS[id].title, content: [canDo(LESSONS[id])] }; }) };
+        });
+      }))
+    };
+  }
+  spine();
 })();

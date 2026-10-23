@@ -70,6 +70,7 @@ step("C · facets unlock in order", () => {
   eq(S.facetsFor("w:kore", {}, prod), ["R", "L"], "a new word: R and L");
   const held = { "w:kore|R": { reps: 3, s: 8, d: 5 } };
   eq(S.facetsFor("w:kore", held, prod), ["R", "L", "W", "S"], "R holds a week and it is produced: W and S");
+  eq(S.facetsFor("w:kore", held, Object.assign({ speech: false }, prod)), ["R", "L", "W"], "speaking off: no S facet");
   eq(S.facetsFor("w:kore", held, notProd), ["R", "L"], "not in a production set: still R and L");
   eq(S.facetsFor("w:kore", { "w:kore|R": { reps: 2, s: 5 } }, prod), ["R", "L"], "R not yet held");
   eq(S.facetsFor("k:あ", {}), ["R", "W"], "kana: reading and handwriting");

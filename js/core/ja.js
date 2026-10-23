@@ -84,7 +84,8 @@
     return !!PRODUCE[key];
   }
   function opts(key) {
-    return { produces: produces, deep: function () { return false; }, w: KOS.srs.weights(), retention: KOS.srs.retention(), seed: "ja:" + key + "|" + today() };
+    /* speech: false until the Speech release (plan §17 step 4) brings an S exercise to answer */
+    return { produces: produces, deep: function () { return false; }, speech: false, w: KOS.srs.weights(), retention: KOS.srs.retention(), seed: "ja:" + key + "|" + today() };
   }
 
   /* ---------------- learning and reviewing ---------------- */
@@ -117,7 +118,12 @@
   function pagesOf(id) { var c = content(id); return c && c.pages ? c.pages : []; }
   function linesOf(id) {
     var out = [];
-    pagesOf(id).forEach(function (pg) { (pg.blocks || []).forEach(function (b) { if (b.line) out.push(b.line.ja); }); });
+    /* every example line a lesson voices: its lines, its patterns' examples and its shadowing set */
+    pagesOf(id).forEach(function (pg) { (pg.blocks || []).forEach(function (b) {
+      if (b.line) out.push(b.line.ja);
+      if (b.pattern) out.push(b.pattern.eg);
+      if (b.shadow) b.shadow.forEach(function (ln) { out.push(ln.ja); });
+    }); });
     return out;
   }
   /* evidence(id) → { checks[4], read, pages, heard, lines, practised, held, items } — a read */
@@ -380,8 +386,17 @@
     };
   }
 
+  /* knows(text) → whether furigana can fade over a written form (§6): the word itself reads
+     reliably, or every kanji in it does. A read. */
+  function knows(text) {
+    var j = peek(), firm = function (f) { return !!(f && f.reps && f.s >= 3); };
+    if (firm(j.facets["w:" + text + "|R"])) return true;
+    var ks = String(text).match(/[\u4e00-\u9fff]/g);
+    return !!ks && ks.every(function (c) { return firm(j.facets["j:" + c + "|R"]); });
+  }
+
   KOS.ja = {
-    SID: SID, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces,
+    SID: SID, knows: knows, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces,
     startLesson: startLesson, markPage: markPage, markHeard: markHeard, evidence: evidence, syncChecks: syncChecks,
     unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson,
     recordCheckpoint: recordCheckpoint, award: award, paidToday: paidToday,

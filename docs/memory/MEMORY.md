@@ -6,7 +6,7 @@
 - [CS Paper 1 + NEA](cs-paper1-nea.md) — branch feat/cs-p1-nea; NEA companion done (a06b106); Paper 1 + NEA + Paper 2 RELEASED 2026-10-02 (87ee60c, kos-cs-depth-1)
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
-- [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); next Stage 1, reader/media pages, audio packs
+- [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); Stage 1 unit F1 built on feat/japanese-s1, waiting on Makoto art
 - [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/code-t1 2026-10-23; last release kos-code-24 (rest of T1, feat/code-t1-rest); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
@@ -17,3 +17,4 @@
 - [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–6 (CS Paper 2) RELEASED 2026-10-21 (3b39ae1, kos-exams-1); next CS Paper 1; ask before each deploy
 - [After-FSRS release](after-fsrs-branch.md) — Focus switch, FSRS3, closed-app runner, GitHub App; RELEASED 2026-10-22 (13cef94, kos-runner-2); env.local.js is deferred
 - [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); Creatives rev 2 approved; prompts 14–15 written
+- [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins

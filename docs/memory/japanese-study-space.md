@@ -37,3 +37,5 @@ Integration started 2026-10-22 on branch feat/japanese (from main): BACKEND comm
 
 
 Review fixes 2026-10-22 (ee1a746, sw kos-japanese-2): the user wants NO Japanese rail item (a Study subject), subject pills grouped (A-levels alone on their pages; Code + Japanese together; one switch pill), ONE nav (no second tab bar), the core path inside the desk hero like Code, aligned rows everywhere.
+
+Stage 1 started 2026-10-23 on branch feat/japanese-s1: unit F1 "First conversations" (lessons 1.1–1.6, js/data/ja-s1.js + js/data/content/ja-f1.js, 8-page contract, VN scenes + manga panels via KOS.jaUI.scene/panel, Makoto the café owner added to the cast). Syllabus F1–F6 in docs/japanese-plan.md §3.1. F1 is NOT released until the user's Makoto art (manifest batch 6) and panels (batch 7) arrive; smoke82 AWAITED_ART lists what is missing. Audio not baked yet (VOICEVOX must be open).
