@@ -1,0 +1,7 @@
+bin/
+obj/
+.kurenai/out/
+.idea/
+*.user
+library-data/
+*.db

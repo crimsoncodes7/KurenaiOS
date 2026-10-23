@@ -19,6 +19,9 @@
          card draw without writing to the store.
      F · T1B. Contacts on SQLite's real report passes its four milestones
          and pays once; the hub names Track T1 · T1B.
+     G · T1C. The Lending Library on EF Core's real report (a real dotnet ef
+         migration, acceptance tests on SQLite in memory) passes all seven
+         milestones and pays once, under Track T1 · T1C.
      E · UNIT 10. The Lending Library's real report (validator 1.1.0: own
          tests, planted bugs, warnings, source checks) passes all six
          milestones and pays once; a Bridge report from validator 1.0.0 is
@@ -34,7 +37,7 @@ const { boot } = require("./lib/app-harness");
 const ROOT = path.join(__dirname, "..");
 const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 /* the harness keeps its own clock: each real report is dated an hour before it */
-let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY, CONTACTS;
+let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY, CONTACTS, EFCORE;
 function dated(file, app, minutes) {
   const j = JSON.parse(read(file)), now = app.window.Date.now();
   j.startedAt = new Date(now - minutes * 60000 - 30000).toISOString().slice(0, 19) + "Z";
@@ -157,6 +160,21 @@ step("F · T1B's project: Contacts on SQLite, under its track", async (app) => {
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("G · T1C's project: The Lending Library on EF Core", async (app) => {
+  const K = app.KOS, P = K.codeProject, g = K.store.state.governor, id = "rp-t1c-library";
+  const files = await P.files(id);
+  assert(files["LibraryEf.sln"] && /dotnet-ef/.test(files[".config/dotnet-tools.json"]) && /SQLitePCLRaw\.bundle_e_sqlite3" Version="2\.1\.13"/.test(files["src/Library.Data/Library.Data.csproj"]), "the scaffold: the solution, the pinned dotnet-ef and the patched native SQLite");
+  assert(/foreach \(var m in db\.Members/.test(files["src/Library.Data/LibraryService.cs"]), "Members() ships as the N+1 milestone 6 fixes");
+  const res = await P.check(EFCORE);
+  assert(res.outcome === "accepted" && res.completes && res.reward.xp === 150, "accepted with its reward: " + (res.msg || JSON.stringify(res.mismatched)));
+  const xp0 = g.xp, r = P.apply(res);
+  assert(r.ok && r.newly.join() === "m1,m2,m3,m4,m5,m6,m7" && g.xp - xp0 === 150, "seven milestones, paid once");
+  ["T1.12", "T1.13", "T1.14", "T1.15", "T1.16", "T1.17"].forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
+  K.show("code", { page: "project", id }); await app.settle();
+  assert(app.document.querySelectorAll("[data-ui~='code.project-badge']").length === 7 && /Track T1 · T1C/.test(app.document.querySelector("#main").textContent), "the hub draws seven milestones under Track T1 · T1C");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();
@@ -167,6 +185,7 @@ step("F · T1B's project: Contacts on SQLite, under its track", async (app) => {
   LEGACY = dated("tools/fixtures/bridge-report-solved-1.0.0.json", app, 55);
   LIBRARY = dated("tools/fixtures/library-report-solved.json", app, 30);
   CONTACTS = dated("tools/fixtures/contacts-report-solved.json", app, 20);
+  EFCORE = dated("tools/fixtures/efcore-report-solved.json", app, 10);
   for (const [name, fn] of steps) {
     try { await fn(app); console.log("  ok  " + name); }
     catch (e) { failed++; console.log("  FAIL " + name + "\n       " + e.message); }

@@ -1,0 +1,182 @@
+{
+  "schema": "kurenai.validation/1",
+  "project": {
+    "id": "rp-t1c-library",
+    "scaffoldVersion": 1
+  },
+  "validator": {
+    "version": "1.1.0",
+    "sha256": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+  },
+  "env": {
+    "sdk": "10.0.302",
+    "os": "macOS 27.0.1",
+    "arch": "arm64"
+  },
+  "source": {
+    "treeSha256": "5573fe58a8f564cdf268a41d0b22f5c567066e24a755b7055b9b860ac9cfdea5",
+    "gitCommit": "865480bbd373197b4d8b427b9ee3c711b249826c",
+    "dirty": false
+  },
+  "protected": {
+    "ok": true,
+    "mismatched": [],
+    "files": {
+      "Directory.Build.props": "20ba05de9808e2347b49b7fec883a9847080f2f7a7a85d95151b7f839711968e",
+      "tests/Library.Acceptance/Library.Acceptance.csproj": "c06da72a715eeb185b1cd3bd6b03a0633bd27de2ba554d9aa613f448af8a04cc",
+      "tests/Library.Acceptance/TestDb.cs": "6584f82c0ce8eeb64ef72a67768ef8aca752db1cbd2eec5c49e18de1170bfe02",
+      "tests/Library.Acceptance/Milestone1.cs": "fc9507f3b72922e68c667934e92a00474a14f1d665c7db31b149cddfcf066f5d",
+      "tests/Library.Acceptance/Milestone2.cs": "a74757259fd2b3186f1a8c7e35ff429a33d7b3c09dee2489673ea71fa8c57afe",
+      "tests/Library.Acceptance/Milestone3.cs": "934df80cfb185f7e8e6567d10e727c37cb24170a2a20dcc8a6c731158d270ba4",
+      "tests/Library.Acceptance/Milestone4.cs": "e6029b333f6bf66b55781757509926bb8e445b9a143ef15a2257b43cb23f8687",
+      "tests/Library.Acceptance/Milestone5.cs": "dedbe723d22dc52fa08ce611d3a98dbc59e393c0e947981eb7db9c562334f1ca",
+      "tests/Library.Acceptance/Milestone6.cs": "78fbf7263a05238ca1a5e46c3344719dd5e0b2bdfc5395d87eae35c0c2592bd2",
+      ".kurenai/validate.cs": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
+    }
+  },
+  "steps": [
+    {
+      "id": "preflight",
+      "ran": true,
+      "exit": 0,
+      "ms": 77,
+      "sdk": "10.0.302"
+    },
+    {
+      "id": "restore",
+      "ran": true,
+      "exit": 0,
+      "ms": 353
+    },
+    {
+      "id": "build",
+      "ran": true,
+      "exit": 0,
+      "ms": 558,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "id": "test",
+      "ran": true,
+      "exit": 0,
+      "ms": 1684,
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "5 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "4 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "3 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "4 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m6",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "3 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m7",
+      "ok": true,
+      "checks": [
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        },
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        },
+        {
+          "type": "owntests",
+          "ok": true,
+          "note": "6 of your tests pass, 0 fail (at least 5 needed)"
+        },
+        {
+          "type": "warnings",
+          "ok": true,
+          "note": "0 warning(s), at most 0"
+        },
+        {
+          "type": "git",
+          "ok": true,
+          "note": "committed, clean"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "startedAt": "2026-10-23T10:09:57Z",
+  "finishedAt": "2026-10-23T10:10:01Z",
+  "reportSha256": "54d0a9c0bcfa8d0b0b9a004f2c57429520bdedc35c7dde9de4eb4b5854b9a04a"
+}

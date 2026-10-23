@@ -17,7 +17,10 @@
    capstone 4's project (rp-c4-planner) fresh and solved (m1–m5), saved as
    tools/fixtures/planner-report-solved.json; then T1B's project
    (rp-t1b-contacts) fresh, solved (m1–m4, contacts-report-solved.json)
-   and with its search glued together (m2 fails). Needs the .NET 10 SDK, NuGet and git; outside
+   and with its search glued together (m2 fails); then T1C's project
+   (rp-t1c-library) fresh, solved with a real dotnet ef migration (m1–m7,
+   efcore-report-solved.json), with its N+1 put back (m6 fails) and with a
+   model change left unmigrated (m3 fails). Needs the .NET 10 SDK, NuGet and git; outside
    the jsdom gate. macOS here; Windows and Linux are still to be run.
      node tools/validator_check.mjs                                          */
 import { createRequire } from "module";
@@ -31,7 +34,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 global.window = global;
 window.KOS_CONTENT = {}; window.KOS_DATA = {}; window.KOS = {};
-for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
+for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
 const K = window.KOS_CODE;
 window.KOS.code = { project: (id) => K.PROJECTS[id] || null };
 window.KOS.codeProject._setValidator(fs.readFileSync(path.join(ROOT, "assets/code/validator/validate.cs"), "utf8"));
@@ -642,6 +645,195 @@ fs.writeFileSync(repo, fs.readFileSync(repo, "utf8").replace(`"SELECT id, name, 
 v = validate(d);
 const m2c = v.rep.milestones.find((m) => m.id === "m2");
 expect(!m2c.ok, "contacts glued SQL: m2 fails (" + m2c.checks.map((c) => c.note).join(" · ") + ")");
+
+/* ---------------- T1C: The Lending Library on EF Core ---------------- */
+files = await window.KOS.codeProject.files("rp-t1c-library");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "efcore fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+const slowMembers = fs.readFileSync(path.join(d, "src/Library.Data/LibraryService.cs"), "utf8").match(/    public IReadOnlyList<MemberSummary> Members\(\)\n    \{[\s\S]*?\n    \}\n/)[0];
+put("src/Library.Data/LibraryService.cs", String.raw`using Microsoft.EntityFrameworkCore;
+
+namespace Library;
+
+/// <summary>Everything the library does, over one LibraryContext.</summary>
+public class LibraryService(LibraryContext db)
+{
+    public Book AddBook(string title, string author, int year)
+    {
+        if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("A book needs a title.", nameof(title));
+        var book = new Book { Title = title.Trim(), Author = author.Trim(), Year = year };
+        db.Books.Add(book);
+        db.SaveChanges();
+        return book;
+    }
+
+    public Member AddMember(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A member needs a name.", nameof(name));
+        var member = new Member { Name = name.Trim() };
+        db.Members.Add(member);
+        db.SaveChanges();
+        return member;
+    }
+
+    public IReadOnlyList<Book> Shelf() => db.Books.AsNoTracking().OrderBy(b => b.Title).ThenBy(b => b.Year).ToList();
+
+    public IReadOnlyList<Book> ByAuthor(string author) =>
+        db.Books.AsNoTracking().Where(b => b.Author == author).OrderBy(b => b.Year).ToList();
+
+    public IReadOnlyList<Book> Search(string text) =>
+        db.Books.AsNoTracking().Where(b => EF.Functions.Like(b.Title, "%" + text + "%")).OrderBy(b => b.Title).ToList();
+
+    public int CountOnLoan() => db.Loans.Count(l => l.Returned == null);
+
+    public IReadOnlyList<(string Author, int Books)> BooksPerAuthor() =>
+        db.Books.GroupBy(b => b.Author)
+            .Select(g => new { Author = g.Key, Books = g.Count() })
+            .OrderByDescending(r => r.Books).ThenBy(r => r.Author)
+            .ToList()
+            .Select(r => (r.Author, r.Books)).ToList();
+
+    public Loan Lend(int bookId, int memberId, DateOnly today)
+    {
+        if (!db.Books.Any(b => b.Id == bookId)) throw new InvalidOperationException($"There is no book #{bookId}.");
+        if (!db.Members.Any(m => m.Id == memberId)) throw new InvalidOperationException($"There is no member #{memberId}.");
+        if (db.Loans.Any(l => l.BookId == bookId && l.Returned == null)) throw new InvalidOperationException($"Book #{bookId} is already out.");
+        var loan = new Loan { BookId = bookId, MemberId = memberId, Out = today, Due = today.AddDays(14) };
+        db.Loans.Add(loan);
+        db.SaveChanges();
+        return loan;
+    }
+
+    public void Return(int loanId, DateOnly today)
+    {
+        var loan = db.Loans.SingleOrDefault(l => l.Id == loanId) ?? throw new InvalidOperationException($"There is no loan #{loanId}.");
+        loan.Returned = today;
+        db.SaveChanges();
+    }
+
+    public IReadOnlyList<OverdueLoan> Overdue(DateOnly today) =>
+        db.Loans.Where(l => l.Returned == null && l.Due < today)
+            .OrderBy(l => l.Due)
+            .Select(l => new { l.Book.Title, l.Member.Name, l.Due })
+            .ToList()
+            .Select(l => new OverdueLoan(l.Title, l.Name, l.Due, today.DayNumber - l.Due.DayNumber)).ToList();
+
+    public void Rename(int bookId, string title)
+    {
+        if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("A book needs a title.", nameof(title));
+        var book = db.Books.SingleOrDefault(b => b.Id == bookId) ?? throw new InvalidOperationException($"There is no book #{bookId}.");
+        book.Title = title.Trim();
+        db.SaveChanges();
+    }
+
+    public IReadOnlyList<MemberSummary> Members() =>
+        db.Members.OrderBy(m => m.Name)
+            .Select(m => new MemberSummary(m.Name, m.Loans.Count, m.Loans.Count(l => l.Returned == null)))
+            .ToList();
+}
+`);
+put("src/Library.Data/LibraryContext.cs", String.raw`using Microsoft.EntityFrameworkCore;
+
+namespace Library;
+
+/// <summary>The session with the database: one DbSet per table.</summary>
+public class LibraryContext(DbContextOptions<LibraryContext> options) : DbContext(options)
+{
+    public DbSet<Book> Books => Set<Book>();
+    public DbSet<Member> Members => Set<Member>();
+    public DbSet<Loan> Loans => Set<Loan>();
+
+    protected override void OnModelCreating(ModelBuilder model)
+    {
+        model.Entity<Book>().Property(b => b.Title).IsRequired().HasMaxLength(200);
+        model.Entity<Loan>().HasOne(l => l.Book).WithMany(b => b.Loans).HasForeignKey(l => l.BookId).OnDelete(DeleteBehavior.Restrict);
+        model.Entity<Loan>().HasOne(l => l.Member).WithMany(m => m.Loans).HasForeignKey(l => l.MemberId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+`);
+put("tests/Library.Tests/ServiceTests.cs", String.raw`using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+
+namespace Library.Tests;
+
+public class ServiceTests : IDisposable
+{
+    readonly SqliteConnection connection = new("Data Source=:memory:");
+    readonly DbContextOptions<LibraryContext> options;
+
+    public ServiceTests()
+    {
+        connection.Open();
+        options = new DbContextOptionsBuilder<LibraryContext>().UseSqlite(connection).Options;
+        using var c = new LibraryContext(options);
+        c.Database.EnsureCreated();
+    }
+
+    public void Dispose() => connection.Dispose();
+    LibraryService Service() => new(new LibraryContext(options));
+
+    [Fact]
+    public void A_book_keeps_its_author_and_year()
+    {
+        var b = Service().AddBook("Dune", " Frank Herbert ", 1965);
+        Assert.Equal(("Frank Herbert", 1965), (b.Author, b.Year));
+    }
+
+    [Fact]
+    public void Search_with_nothing_matching_is_empty()
+    {
+        Service().AddBook("Dune", "Frank Herbert", 1965);
+        Assert.Empty(Service().Search("emma"));
+    }
+
+    [Fact]
+    public void A_returned_loan_is_not_on_loan()
+    {
+        var s = Service();
+        s.AddBook("Dune", "Frank Herbert", 1965);
+        s.AddMember("Ann");
+        var loan = s.Lend(1, 1, new DateOnly(2026, 9, 1));
+        s.Return(loan.Id, new DateOnly(2026, 9, 2));
+        Assert.Equal(0, Service().CountOnLoan());
+    }
+
+    [Fact]
+    public void Nothing_is_overdue_on_the_due_date()
+    {
+        var s = Service();
+        s.AddBook("Dune", "Frank Herbert", 1965);
+        s.AddMember("Ann");
+        s.Lend(1, 1, new DateOnly(2026, 9, 1));
+        Assert.Empty(Service().Overdue(new DateOnly(2026, 9, 15)));
+    }
+
+    [Fact]
+    public void Renaming_a_missing_book_is_refused() =>
+        Assert.Throws<InvalidOperationException>(() => Service().Rename(42, "Nothing"));
+}
+`);
+sh("dotnet", ["tool", "restore"], d);
+sh("dotnet", ["build", "-nologo", "-v", "q"], d);
+const mig = sh("dotnet", ["ef", "migrations", "add", "Initial", "--project", "src/Library.Data"], d);
+expect(mig.status === 0 && fs.readdirSync(path.join(d, "src/Library.Data/Migrations")).some((f) => /_Initial\.cs$/.test(f)), "efcore: dotnet ef (restored from the manifest) adds the first migration");
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "The Lending Library on EF Core"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5,m6,m7" && v.rep.protected.ok, "efcore solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/efcore-report-solved.json"), v.text);
+
+const svc = path.join(d, "src/Library.Data/LibraryService.cs"), ctx = path.join(d, "src/Library.Data/LibraryContext.cs");
+const fast = fs.readFileSync(svc, "utf8");
+fs.writeFileSync(svc, fast.replace(/    public IReadOnlyList<MemberSummary> Members\(\) =>[\s\S]*?\.ToList\(\);\n/, slowMembers));
+fs.writeFileSync(ctx, fs.readFileSync(ctx, "utf8").replace("OnDelete(DeleteBehavior.Restrict);\n    }", "OnDelete(DeleteBehavior.Restrict);\n        model.Entity<Loan>().HasIndex(l => l.Due);\n    }"));
+v = validate(d);
+const byId = (id) => v.rep.milestones.find((m) => m.id === id);
+expect(!byId("m6").ok && byId("m5").ok, "efcore N+1 put back: m6 fails, m5 still passes (" + byId("m6").checks.map((c) => c.note).join(" · ") + ")");
+expect(!byId("m3").ok, "efcore model changed with no migration: m3 fails (" + byId("m3").checks.map((c) => c.note).join(" · ") + ")");
 
 console.log(bad ? "✗ " + bad + " check(s) failed" : "✓ the validator behaves on every scenario");
 process.exit(bad ? 1 : 0);
