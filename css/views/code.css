@@ -504,7 +504,7 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 /* a step: the work and a side panel, filling the width */
 .k-cx-capgrid { display: grid; grid-template-columns: minmax(0, 1fr) var(--cx-cap-side-w); gap: var(--sp-18); align-items: stretch; }
 .k-cx-capmain { display: flex; flex-direction: column; gap: var(--sp-14); min-inline-size: 0; }
-.k-cx-capside { display: flex; flex-direction: column; gap: var(--sp-14); min-inline-size: 0; }
+.k-cx-capside { display: flex; flex-direction: column; gap: var(--sp-14); min-inline-size: 0; position: sticky; inset-block-start: var(--sp-14); align-self: start; }
 .k-cx-capcard { display: flex; flex-direction: column; gap: var(--sp-10); }
 .k-cx-capcover { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-8); font-size: var(--fs-13); }
 .k-cx-capcover li { display: flex; align-items: center; gap: var(--sp-10); }
@@ -735,6 +735,8 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 /* the two columns end together: the shorter column's last card grows */
 .k-cx-rp .k-cx-capmain, .k-cx-rp .k-cx-capside { display: flex; flex-direction: column; gap: var(--sp-14); }
 .k-cx-rp .k-cx-capmain > :last-child, .k-cx-rp .k-cx-capside > :last-child { flex: 1 1 auto; }
+/* the project hub's columns stretch and fill instead of riding along */
+.k-cx-rp .k-cx-capside { position: static; align-self: stretch; }
 .k-cx-rp-ms { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--cx-cap-side-w)), 1fr)); gap: var(--sp-10); }
 .k-cx-rp-ms > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 .k-cx-rp-m { display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-12); background: var(--s2); box-shadow: inset var(--rail-mark) 0 0 var(--line); }

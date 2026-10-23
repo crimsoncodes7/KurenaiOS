@@ -11,7 +11,7 @@
    It also checks each task answer's output against the case's expected
    output. Results are cached by a hash of (source, stdin) in the OS temp
    folder, so a second run only compiles what changed. A program from a
-   sandbox unit (7–9, 11) runs under the full C# runner that ships to the
+   sandbox unit (7–9, 11, 12) runs under the full C# runner that ships to the
    browser (.NET WebAssembly, tools/lib/cs-wasm-node.js) instead of the
    interpreter, with nullable reference types on, against native .NET with
    the same settings.

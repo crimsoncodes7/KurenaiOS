@@ -1201,7 +1201,7 @@
       box.innerHTML = "";
       box.setAttribute("data-state", rt.state === "ready" ? "on" : rt.state);
       var words = {
-        absent: ["Not downloaded", "Units 7–9 and 11 run on it: real .NET and the C# compiler, downloaded once."],
+        absent: ["Not downloaded", "Units 7–9, 11 and 12 run on it: real .NET and the C# compiler, downloaded once."],
         idle: ["On this device", "Starts when a lesson needs it; works offline."],
         downloading: ["Downloading · " + (rt.total ? Math.round(100 * rt.loaded / rt.total) : 0) + "%", "Units 1–6 still run meanwhile."],
         ready: ["● Ready · works offline", "Started in " + (rt.ms / 1000).toFixed(1) + " s; compiles a program in about a second."],
@@ -1215,7 +1215,7 @@
       var acts = [];
       if (rt.state === "absent" || rt.state === "failed") acts.push(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "code.runtime-offer", text: rt.state === "failed" ? "Try again" : "Download…", onclick: function () { KOS.codeUI.runtimeOffer(); } }));
       if (rt.wanted && rt.state !== "file") acts.push(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "code.runtime-remove", text: "Remove from this device",
-        onclick: function () { KOS.ui.confirm({ title: "Remove the full runtime?", body: "Its files leave this device; units 7–9 and 11 offer the download again. Your code and progress are not affected.", danger: true, confirm: "Remove" }, function () { R.removeRuntime().then(function () { announce("Full runtime removed."); KOS.rerender(); }); }); } }));
+        onclick: function () { KOS.ui.confirm({ title: "Remove the full runtime?", body: "Its files leave this device; units 7–9, 11 and 12 offer the download again. Your code and progress are not affected.", danger: true, confirm: "Remove" }, function () { R.removeRuntime().then(function () { announce("Full runtime removed."); KOS.rerender(); }); }); } }));
       if (acts.length) box.appendChild(el("div", { class: "k-cx-runstate-acts" }, acts));
     }
     var off = KOS.codeRun.onRuntime(function () { if (!box.isConnected) { off(); return; } draw(); });

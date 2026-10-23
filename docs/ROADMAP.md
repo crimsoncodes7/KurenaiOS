@@ -528,6 +528,15 @@ Claude Design and comes back as a handoff, the way Graphite did.
 
 ### 5.3 Code: a C# study space ◆ (asked for 13 October 2026)
 
+> **Status (23 October 2026): the core path is complete.** Stage 4 —
+> unit 10 (testing and design, in Rider, with its project *The Lending
+> Library*), unit 11 (async, events and I/O) and unit 12 (data structures
+> and algorithms), both on the full runtime — and capstone 4, *The Revision
+> Planner*, a four-project service built in Rider whose build is its
+> validator milestones. The validator is 1.1.0 (own tests, source checks, a
+> warnings ceiling and planted bugs); reports from 1.0.0 are still
+> accepted for Bridge B. Left: the deepening modules and the tracks.
+>
 > **Status (15 October 2026): the platform and unit 1 are built** from the
 > Claude Design handoff (turn 26). In the app:
 > - Code is the fourth subject (`KOS.subjects`, the Sky `--code` hue in
@@ -1218,8 +1227,10 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    20–30 minutes a day, paused in Exam Season. First release: the
    platform, the Writing Desk and the design drills, then Art units 1–3
    on the ink engine. Next: [design prompt 15](design-prompts.md).
-4. **Code content** (units 10–12, capstone 4) when usage allows. Its new
-   retrieval cards start on FSRS.
+4. **Code content** — DONE 23 October 2026: units 10–12 and capstone 4
+   complete the core path (unit 10 and capstone 4 in Rider, validator
+   1.1.0; units 11–12 on the full runtime). What remains is the deepening
+   modules and the tracks (parked below).
 
 ---
 
@@ -1288,7 +1299,7 @@ ink engine.
 | Automation engine | never existed; Category 6 refused a placeholder | a concrete use case |
 | Syncing media kv (hero picks, per-season scenery, other view picks) | kv also holds provider credentials, so it needs a whitelist of syncable keys, and an uploaded hero is a data URL too large for the state document (it would ride the attachment path instead). The Shrine's tie order already syncs, in the state document | you schedule it (asked for as a nice-to-have, 27 Sep) |
 | Alternate mascots and logo families (Fallen Crown / Faded Oath), re-polished overlays | art work, not code | art exists (◆ for their presentation) |
-| Code units 10–12, capstone 4, the deepening modules and the tracks | paused on 17 October 2026 to save weekly usage (stage 3 — units 7–9 and capstone 3 — shipped that day on the full runtime); the desk shows the rest "Coming later" | you resume Code content |
+| Code's deepening modules and the tracks | the core path is complete (units 1–12, Bridge B and capstones 1–4, 23 October 2026); the desk shows the tracks "Coming later" | you resume Code content |
 | Code's full runtime on a phone | Code is studied on a Mac, not a phone (17 October 2026). The M4 iPad may run it; checking that is part of 6.9 | you want to code on a phone |
 | The Rider validator on Windows and Linux | macOS is the only machine in use; it is verified there (17 October 2026) | another operating system is used |
 | CI-verified evidence for Code (the GitHub App is built, 5.7) | needs a workflow in the repository that runs the validator and the App's Checks: read permission (docs/github-app-plan.md §7) | CI evidence is wanted |

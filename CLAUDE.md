@@ -9,7 +9,7 @@ chronological diary here.
 ## Current baseline
 
 - Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
-  Code (platform, stages 1–3 and Bridge B; stage 3 on the full runtime) are integrated and deployed. What is still to do is kept in one place:
+  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
@@ -35,7 +35,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-japanese-2`
+- Service-worker version: `kos-code-19`
 - Required smoke gate: 98 / 98 suites (`""` and 2–98; 80–83 are Japanese's).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
@@ -237,9 +237,9 @@ non-navigation redraw path.
 | What reaches a closed app (roadmap 5.7) | `js/core/outlook.js` (`KOS.outlook`: the week's notices and the brief, a pure read), the owners' `forecast`/`notice` (`KOS.calendar`, `KOS.reminders`, `KOS.assignments`), `js/core/push.js` (`KOS.push`: subscribe, publish, presence, pull), the `push` handler in `sw.js`, the "When the app is closed" card in `js/modules/notifications.js`; `supabase/functions/runner/` (`index.ts`, `logic.ts`, `webpush.ts`, `model.ts`); `tools/gen_vapid.mjs`; smoke97 |
 | Reports (roadmap 5.1, `docs/reports-plan.md`): periods and facts, words, saved reports and snapshots, the pages | `js/core/report.js` (`KOS.report`: periods, the pure `compute`), `js/core/reportwords.js` (`KOS.reportWords`: template and section words, `hm`, `compare`), `js/core/reportstore.js` (`KOS.reportStore`, IndexedDB `kurenai-os-reports`), `js/modules/reports.js` (`KOS.views.reports`, the Home card, `css/views/reports.css`), `js/modules/reportlong.js` (`KOS.reportsLong`: the month, term and year pages), `js/modules/reportstory.js` (`KOS.reportStory`: the story player), `js/modules/reportshare.js` (`KOS.reportShare`: the share card and export); the media activity journal in `mediadb.js`; the replicated copy in Supabase `kos_reports` |
 | The subject list (CS, Maths, IT, Code; which are exam subjects), names and hues | `js/core/subjects.js` (`KOS.subjects`) |
-| Code (roadmap 5.3, `docs/code-plan.md`): curriculum, model, runner, primitives, pages | `js/data/code.js` (the authored spine `KOS_DATA.code` and `KOS_CODE`: stages, tracks, concepts, tasks, cards, the error decoder), `js/data/content/code-u*.js` (one file per released unit; units 1–9 and Bridge B), `js/data/content/code-c*.js` (one per capstone, through `KOS_CODE.capstone`), `js/core/code.js` (`KOS.code`: evidence, pay, retrieval, the day's plan), `js/core/coderun.js` (`KOS.codeRun`: the worker and the checker), `js/labs/cs-interp.js` (the in-app C# runner, pure, also in Node), `js/core/codeui.js` (`KOS.codeUI`: editor, results, error card, hints, stage path, listings, key bar), `js/modules/codetopic.js` (`KOS.codeTopic`: the lesson on the shared topic page), `js/modules/code.js` (`KOS.codeDesk` and `#/code/<page>`), `js/modules/codecap.js` (`KOS.codeCapstone`: the capstone checkpoint, `#/code/capstone/<id>`), `css/views/code.css`; `tools/cs_diff.mjs` (the .NET differential) |
+| Code (roadmap 5.3, `docs/code-plan.md`): curriculum, model, runner, primitives, pages | `js/data/code.js` (the authored spine `KOS_DATA.code` and `KOS_CODE`: stages, tracks, concepts, tasks, cards, the error decoder), `js/data/content/code-u*.js` (one file per released unit; units 1–12 and Bridge B), `js/data/content/code-c*.js` (one per capstone, through `KOS_CODE.capstone`), `js/core/code.js` (`KOS.code`: evidence, pay, retrieval, the day's plan), `js/core/coderun.js` (`KOS.codeRun`: the worker and the checker), `js/labs/cs-interp.js` (the in-app C# runner, pure, also in Node), `js/core/codeui.js` (`KOS.codeUI`: editor, results, error card, hints, stage path, listings, key bar), `js/modules/codetopic.js` (`KOS.codeTopic`: the lesson on the shared topic page), `js/modules/code.js` (`KOS.codeDesk` and `#/code/<page>`), `js/modules/codecap.js` (`KOS.codeCapstone`: the capstone checkpoint, `#/code/capstone/<id>`), `css/views/code.css`; `tools/cs_diff.mjs` (the .NET differential) |
 | Code's full C# runtime (units 7+; decision A, Spike W) | `tools/cs-wasm/` (Roslyn and the learner's program inside .NET WebAssembly; `Instrument.cs` marks each statement for lines, the step budget and the clock), built by `tools/build_cs_wasm.sh` into `assets/code/runtime/<id>/` (generated, gitignored, built by the deploy when missing); `js/labs/cs-wasm-worker.js` (the module worker that seals the network); the runtime half of `js/core/coderun.js` (`runtime`, `startRuntime`, `removeRuntime`); the offer and download dialog and the warnings list in `js/core/codeui.js`; `tools/lib/cs-wasm-node.js`, `tools/cs_wasm_check.mjs` |
-| Code's Rider workflow (Bridge B; docs/code-plan.md §9, frames 26m–26n) | `js/data/content/code-ub.js` (Bridge B's lessons, command cards and the project's brief and milestones); `tools/code-projects/<folder>/` (each project's real scaffold) → `js/data/content/code-projects-files.js` (generated by `tools/gen_code_projects.mjs`); `assets/code/validator/validate.cs` (the validator, zipped into every export); `js/core/codezip.js` (`KOS.codeZip`: zip and SHA-256), `js/core/codeproj.js` (`KOS.codeProject`: export and the report check), the project model in `js/core/code.js` (`recordReport`, `projectView`), `js/modules/coderider.js` (`KOS.codeRider`: the hub, `#/code/project/<id>`); `tools/validator_check.mjs`, `tools/fixtures/bridge-report-*.json` |
+| Code's Rider workflow (Bridge B, unit 10, capstone 4; docs/code-plan.md §9, frames 26m–26n) | `js/data/content/code-ub.js` (Bridge B's lessons, command cards and the project's brief and milestones), `code-u10.js` (unit 10's project, The Lending Library), `code-c4.js` (capstone 4 and its project, The Revision Planner); `tools/code-projects/<folder>/` (each project's real scaffold) → `js/data/content/code-projects-files.js` (generated by `tools/gen_code_projects.mjs`); `assets/code/validator/validate.cs` (the validator, zipped into every export); `js/core/codezip.js` (`KOS.codeZip`: zip and SHA-256), `js/core/codeproj.js` (`KOS.codeProject`: export and the report check), the project model in `js/core/code.js` (`recordReport`, `projectView`), `js/modules/coderider.js` (`KOS.codeRider`: the hub, `#/code/project/<id>`); `tools/validator_check.mjs`, `tools/fixtures/{bridge,library,planner}-report-*.json` |
 | Code → GitHub (docs/code-plan.md §10, v1: a fine-grained token; v2: the GitHub App, docs/github-app-plan.md) | `js/core/codegit.js` (`KOS.codeGit`: connect, `connectApp`/`completeApp`/`disconnectApp`, `tokenFor`, the outbox, one-commit pushes, the guard); the GitHub card in Code settings (`js/modules/code.js`); `supabase/functions/github-token/` (`index.ts`, `jwt.ts`), `kos_github`; `tools/smoke79.test.js`, `tools/smoke98.test.js` |
 | Japanese (roadmap 5.5, `docs/japanese-plan.md`): the model, the facet scheduler, kana, conjugation, validators, strokes, the curriculum | `js/core/ja.js` (`KOS.ja`: the gate, lessons, record, sessions, pay, mining, input, the day's plan, skills, the timeline), `js/core/jasrs.js` (`KOS.jaSrs`, pure, on `KOS.fsrs`), `js/core/jakana.js`, `jaconj.js`, `javalid.js`, `jastroke.js` (pure, also in Node); `js/data/ja.js` (`KOS_JA`, AUTHORED: stages, lessons, items, checkpoints), `js/data/ja-strokes.js` (GENERATED by `tools/gen_ja_strokes.mjs` from KanjiVG); `tools/ja_valid_check.mjs`, smoke81, smoke83. The pages (design turn 28): `js/core/jaui.js` (`KOS.jaUI`: furigana, skill chips, voiced lines, the verdict, the stage and media paths, radar, meter, seal, the genkō square), `js/modules/japanese.js` (`KOS.jaDesk`, `KOS.views.japanese`: `#/japanese/<path|skills|kana|reviews|checkpoints|settings|licences|session/<reviews|learn-REF>>`), `js/modules/jatopic.js` (`KOS.jaTopic`: the lesson on the shared topic page, the spine), `js/modules/jarun.js` (`KOS.jaRun`: exercises and the session), `css/views/japanese.css`; Stage 0's lessons `js/data/content/ja-s0.js` (`{pages:[{t, blocks}]}`, six pages); no rail item of its own: it is a Study subject, and the subject pills show one group at a time (`KOS.subjects.group`: CS, Maths and IT on their pages; Code and Japanese on theirs; one pill reaches the other group); smoke80, smoke82 |
 | Shared image placement | `js/core/imagecrop.js` |
@@ -896,16 +896,21 @@ source comments and audit notes refer to it.
     full runtime with no compiler warnings) using only its stage's
     language (stage 1: no arrays, lists or classes; stage 2: no classes
     or LINQ; stage 3 shows its design: an interface, classes, an event
-    and LINQ). A program may read and write FILES: a listing,
+    and LINQ). A stage 4 capstone is built in RIDER (`project`): its
+    build is its Rider project's validator milestones, passed only by an
+    accepted report (`KOS.code.buildView` reads `projectView`), the
+    project carries no reward of its own, and its scaffold is validated
+    fresh and solved by `tools/validator_check.mjs`; the review sends a
+    file the learner pastes. A program may read and write FILES: a listing,
     task, card or capstone carries `fs` (`{name: text}`), the in-memory
     disk the runner starts from (`req.fs`, returned as the final `fs`),
     and `tools/cs_diff.mjs` runs that program in a fresh folder holding
     the same files, so both runners read exactly the same text.
 105. THE SANDBOX. Learner code runs only on the device, in one of two
-    runners. Units 1–6 and 12: `js/labs/cs-interp.js`, in a Worker with
+    runners. Units 1–6: `js/labs/cs-interp.js`, in a Worker with
     fetch, XMLHttpRequest, importScripts and WebSocket removed, no DOM and
     no app data; the page's watchdog terminates it after 4 s; only file://
-    and the test harness run it in the page. The sandbox units (7–9, 11,
+    and the test harness run it in the page. The sandbox units (7–9, 11, 12,
     `KOS.code.runnerFor`): the FULL RUNTIME, Roslyn and .NET in WebAssembly,
     in a module worker (`cs-wasm-worker.js`) that removes fetch,
     XMLHttpRequest, WebSocket, EventSource, IndexedDB, Cache Storage and
@@ -928,8 +933,10 @@ source comments and audit notes refer to it.
     ledger; past the cap the card still moves. Every no-reward case shows
     "No reward · why". HP gates nothing (invariant 2). A capstone pays its
     `reward` (stage 1: 150 XP, 40 gold, +10 HP; stage 2: 200 XP, 50 gold,
-    +10 HP; stage 3: 250 XP, 60 gold, +10 HP) once ever — and a Rider project pays its own (Bridge B: 120 XP,
-    30 gold, +8 HP) once, when every milestone has passed at any evidence
+    +10 HP; stage 3: 250 XP, 60 gold, +10 HP; stage 4: 300 XP, 75 gold,
+    +10 HP) once ever — and a Rider project pays its own (Bridge B: 120 XP,
+    30 gold, +8 HP; unit 10: 150 XP, 40 gold, +8 HP; a capstone's project
+    nothing: its capstone pays) once, when every milestone has passed at any evidence
     level (invariant 109) —, on the first
     submission that holds: every milestone passing, the self-marked rubric
     rows marked (correctness is derived from the acceptance runs, never
@@ -968,8 +975,14 @@ source comments and audit notes refer to it.
 
 109. RIDER EVIDENCE. Work done in Rider comes back only as a validator
     report (`assets/code/validator/validate.cs`: real build, SARIF, TRX,
-    scripted runs, a Git check; a step that did not run is a failure;
-    protected files hashed). `KOS.codeProject.check(text)` is pure and runs
+    scripted runs, a Git check; since 1.1.0 also the learner's own tests
+    by name prefix, source patterns a file must or must not hold, a
+    warnings ceiling, and PLANTED BUGS — each mutant applied alone in a
+    throw-away copy, the learner's tests run against it, an unchanged run
+    passing first; a step that did not run is a failure; protected files
+    hashed). A report from an earlier validator is still accepted while its
+    version meets the project's `minValidator`: its own validate.cs hash
+    (`EARLIER` in `codeproj.js`) stands in for this app's. `KOS.codeProject.check(text)` is pure and runs
     docs/code-plan.md §9.4 in order — 256 KB, JSON and a strict shape
     (unknown fields dropped), one of these projects, a known scaffold, a
     validator new enough, a sane date, then the file's SHA-256 (the same

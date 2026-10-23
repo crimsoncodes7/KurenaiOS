@@ -5,8 +5,8 @@
    tools/cs_wasm_check.mjs and tools/cs_diff.mjs; this suite holds the
    wiring around it.
 
-     A · WHICH RUNNER. The sandbox units (7–9, 11) and their capstone use
-         the full runtime; units 1–6, 12 and Bridge B do not.
+     A · WHICH RUNNER. The sandbox units (7–9, 11, 12) and capstone 3 use
+         the full runtime; units 1–6, Bridge B and capstones 1–2 do not.
      B · OPT-IN. Until the device has asked for it, a run that needs the
          runtime answers "needs the full runtime" at once and makes no
          worker; the error card offers the download, and the dialog opens
@@ -36,8 +36,8 @@ function assert(c, m) { if (!c) throw new Error(m); }
 
 step("A · the sandbox units use the full runtime, the rest the interpreter", async (app) => {
   const C = app.KOS.code;
-  ["7.1", "8.9", "9.5", "11.2", "C3"].forEach((r) => assert(C.runnerFor(r) === "wasm", r + " should use the full runtime"));
-  ["1.1", "4.6", "5.9", "6.2", "6.10", "12.2", "B.2", "C1", "C2"].forEach((r) => assert(C.runnerFor(r) === "interp", r + " should use the interpreter"));
+  ["7.1", "8.9", "9.5", "11.2", "12.2", "12.13", "C3"].forEach((r) => assert(C.runnerFor(r) === "wasm", r + " should use the full runtime"));
+  ["1.1", "4.6", "5.9", "6.2", "6.10", "B.2", "C1", "C2"].forEach((r) => assert(C.runnerFor(r) === "interp", r + " should use the interpreter"));
 });
 
 step("B · without the opt-in, a sandbox run asks for the runtime and makes no worker", async (app) => {

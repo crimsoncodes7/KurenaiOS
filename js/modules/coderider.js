@@ -16,7 +16,7 @@
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function day(ts) { return new Date(ts).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); }
   function levelText(l) { return l === "ci" ? "◆ CI-verified" : l === "app" ? "✓ In-app" : "◐ Self-run"; }
-  var CHECK = { build: "builds", tests: "tests", run: "scripted run", package: "package", git: "committed" };
+  var CHECK = { build: "builds", tests: "tests", run: "scripted run", package: "package", git: "committed", owntests: "your own tests", source: "source check", warnings: "no warnings", mutants: "planted bugs caught" };
 
   function page(main, id, arg) {
     var v = C().projectView(id);

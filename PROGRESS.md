@@ -33,6 +33,26 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Released 23 October 2026 — Code stage 4: the core path complete
+
+- **Unit 10, testing and design (in Rider):** ten lessons in the Rider
+  form with typed command cards, and the project *The Lending Library*: pin
+  a legacy late-fees module down with your own tests, prove they catch
+  planted bugs, then give it a clock and a notifier under their
+  protection. Six milestones; 150 XP, 40 gold, +8 HP once.
+- **Unit 11, async, events and I/O** and **unit 12, data structures and
+  algorithms:** 9 and 14 lessons on the full runtime (unit 12 moved there:
+  its lists, trees and graphs are classes).
+- **Capstone 4, *The Revision Planner*:** a four-project service built in
+  Rider — a planner over interfaces, async JSON storage, a priority queue,
+  a command line and the learner's tests. Its build is its validator
+  milestones; the capstone pays 300 XP, 75 gold, +10 HP once.
+- **Validator 1.1.0:** the learner's own tests, source checks, a warnings
+  ceiling and planted bugs (each mutant in a throw-away copy). Bridge B
+  reports from 1.0.0 are still accepted. Run end to end on macOS for all
+  three projects (`tools/validator_check.mjs`).
+- 3,623 of 3,623 Code programs identical to .NET; 98/98 suites.
+
 ## Released 16 October 2026 — Bridge B, binary files and the full C# runtime
 
 - **Lesson 6.10, binary files:** bytes and encodings, `File.WriteAllBytes`,
