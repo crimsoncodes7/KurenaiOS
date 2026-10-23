@@ -1,0 +1,142 @@
+{
+  "schema": "kurenai.validation/1",
+  "project": {
+    "id": "rp-t1e-chat",
+    "scaffoldVersion": 1
+  },
+  "validator": {
+    "version": "1.1.1",
+    "sha256": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
+  },
+  "env": {
+    "sdk": "10.0.302",
+    "os": "macOS 27.0.1",
+    "arch": "arm64"
+  },
+  "source": {
+    "treeSha256": "2f41d294daa76dab57dd836a22fb8183f7df196435d6eb9788d5ef74bbf1f201",
+    "gitCommit": "1e752eb71174a7bdec614c2ecc70ae4b5f057f7d",
+    "dirty": false
+  },
+  "protected": {
+    "ok": true,
+    "mismatched": [],
+    "files": {
+      "Directory.Build.props": "20ba05de9808e2347b49b7fec883a9847080f2f7a7a85d95151b7f839711968e",
+      "tests/Chat.Acceptance/Chat.Acceptance.csproj": "423efbef6218bb5066d35439e6384b5b169489044ed36f05e36846f413abc12b",
+      "tests/Chat.Acceptance/TestClient.cs": "93c9908c77abd058d712781fff185fb8a32879147e4032bcb3f52ac006b8053a",
+      "tests/Chat.Acceptance/Milestone1.cs": "c6f48a792756e3c4b260fc39abef929a50acb329859bde4a6df58b7181e7e3a9",
+      "tests/Chat.Acceptance/Milestone2.cs": "717bf889c73dd1a12be6e85eafa10d72657783cfa5f7799957a51d86f99e2a84",
+      "tests/Chat.Acceptance/Milestone3.cs": "00218604da85fce065cb0b54833ffb57c03754e1a81c756c496483f33cd30145",
+      "tests/Chat.Acceptance/Milestone4.cs": "6b10d2221c6586b6bd01d61c05cb712c2b511b884f3fa26befd47189edb66cdc",
+      ".kurenai/validate.cs": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
+    }
+  },
+  "steps": [
+    {
+      "id": "preflight",
+      "ran": true,
+      "exit": 0,
+      "ms": 88,
+      "sdk": "10.0.302"
+    },
+    {
+      "id": "restore",
+      "ran": true,
+      "exit": 0,
+      "ms": 481
+    },
+    {
+      "id": "build",
+      "ran": true,
+      "exit": 0,
+      "ms": 545,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "id": "test",
+      "ran": true,
+      "exit": 0,
+      "ms": 1323,
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "8 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "10 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "4 passed, 0 failed"
+        },
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        },
+        {
+          "type": "owntests",
+          "ok": true,
+          "note": "6 of your tests pass, 0 fail (at least 5 needed)"
+        },
+        {
+          "type": "warnings",
+          "ok": true,
+          "note": "0 warning(s), at most 0"
+        },
+        {
+          "type": "git",
+          "ok": true,
+          "note": "committed, clean"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "startedAt": "2026-10-23T15:36:59Z",
+  "finishedAt": "2026-10-23T15:37:02Z",
+  "reportSha256": "068ccdbe6d66b5a007710535e5908a3e2ab4081a8c1dbcec5949229f74c438b5"
+}

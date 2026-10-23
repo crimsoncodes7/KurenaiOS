@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The weather client: HttpClient, JSON, retries, timeouts and a key. Yours to build. -->
+</Project>

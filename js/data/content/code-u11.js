@@ -773,7 +773,7 @@
       ] },
       page("Variations"),
       { h: "The async lambda in ForEach" },
-      run("foreach", "ForEach returns at once: the async lambdas finish later, unwatched", 'var names = new List<string> { "a", "b" };\nnames.ForEach(async n => { await Task.Delay(n == "a" ? 150 : 60); Console.WriteLine($"  {n} done"); });\nConsole.WriteLine("ForEach has returned");\nawait Task.Delay(300);\nawait Task.WhenAll(names.Select(async n => { await Task.Delay(30); Console.WriteLine($"  {n} done properly"); }));\nConsole.WriteLine("WhenAll has returned, after both");'),
+      run("foreach", "ForEach returns at once: the async lambdas finish later, unwatched", 'var names = new List<string> { "a", "b" };\nnames.ForEach(async n => { await Task.Delay(n == "a" ? 150 : 60); Console.WriteLine($"  {n} done"); });\nConsole.WriteLine("ForEach has returned");\nawait Task.Delay(300);\nawait Task.WhenAll(names.Select(async n => { await Task.Delay(n == "a" ? 30 : 130); Console.WriteLine($"  {n} done properly"); }));\nConsole.WriteLine("WhenAll has returned, after both");'),
       { h: "Await in a loop, or together" },
       run("together", "the same three waits: one after another, then all at once", 'var order = new List<string>();\nforeach (var (n, ms) in new[] { ("x", 200), ("y", 60) }) { await Task.Delay(ms); order.Add(n); }\nConsole.WriteLine("in a loop:  " + string.Join(" ", order));\norder.Clear();\nawait Task.WhenAll(new[] { ("x", 200), ("y", 60) }.Select(async j => { await Task.Delay(j.Item2); lock (order) order.Add(j.Item1); }));\nConsole.WriteLine("together:   " + string.Join(" ", order));'),
       { h: "Event handlers are the exception" },

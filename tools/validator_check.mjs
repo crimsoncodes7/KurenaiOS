@@ -42,7 +42,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 global.window = global;
 window.KOS_CONTENT = {}; window.KOS_DATA = {}; window.KOS = {};
-for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-t2a.js", "js/data/content/code-t2b.js", "js/data/content/code-t2c.js", "js/data/content/code-t2d.js", "js/data/content/code-t2e.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
+for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-t1d.js", "js/data/content/code-t1e.js", "js/data/content/code-t1f.js", "js/data/content/code-t2a.js", "js/data/content/code-t2b.js", "js/data/content/code-t2c.js", "js/data/content/code-t2d.js", "js/data/content/code-t2e.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
 const K = window.KOS_CODE;
 window.KOS.code = { project: (id) => K.PROJECTS[id] || null };
 window.KOS.codeProject._setValidator(fs.readFileSync(path.join(ROOT, "assets/code/validator/validate.cs"), "utf8"));
@@ -55,8 +55,11 @@ function fresh() {
 }
 const sh = (cmd, args, cwd) => spawnSync(cmd, args, { cwd, encoding: "utf8", timeout: 600000, env: Object.assign({}, process.env, { DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1" }) });
 function validate(dir) {
+  const rd = path.join(dir, ".kurenai/reports"), before = fs.existsSync(rd) ? fs.readdirSync(rd).length : 0;
   const r = sh("dotnet", ["run", ".kurenai/validate.cs"], dir);
-  const reps = fs.readdirSync(path.join(dir, ".kurenai/reports")).sort();
+  /* a run killed before it wrote its report must not be read as the last one */
+  if (!fs.existsSync(rd) || fs.readdirSync(rd).length <= before) throw new Error("the validator wrote no report (" + (r.error ? r.error.message : "exit " + r.status) + ") in " + dir);
+  const reps = fs.readdirSync(rd).sort();
   const text = fs.readFileSync(path.join(dir, ".kurenai/reports", reps[reps.length - 1]), "utf8");
   return { exit: r.status, out: r.stdout, text, rep: JSON.parse(text) };
 }
@@ -2140,6 +2143,704 @@ fs.rmSync(path.join(d, "src/Planner.Desktop/Properties"), { recursive: true });
 v = validate(d);
 { const at = (id) => v.rep.milestones.find((m) => m.id === id);
   expect(at("m3").ok && !at("m4").ok && !at("m5").ok, "planner-desktop with a fixed layout and no publish profile: m4 and m5 fail (" + at("m4").checks.map((c) => c.note).join(" · ") + " / " + at("m5").checks.map((c) => c.note).join(" · ") + ")"); }
+
+/* ---------------- T1D: the Weather client ---------------- */
+files = await window.KOS.codeProject.files("rp-t1d-weather");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "weather fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put("src/Weather/WeatherClient.cs", String.raw`using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+
+namespace Weather;
+
+/// <summary>Looks up forecasts from the weather API through the HttpClient it is given
+/// (its BaseAddress already set). Milestones 1–4 in BRIEF.md.</summary>
+public class WeatherClient(HttpClient http, WeatherOptions options)
+{
+    private readonly HttpClient http = http;
+    private readonly WeatherOptions options = options;
+
+    /// <summary>The forecast for a city, or null when the API does not know it.</summary>
+    public async Task<Forecast?> GetAsync(string city, CancellationToken token = default)
+    {
+        if (string.IsNullOrWhiteSpace(options.ApiKey)) throw new WeatherException("No API key: set Weather:ApiKey with dotnet user-secrets.");
+        string path = "forecast/" + Uri.EscapeDataString(city.Trim().ToLowerInvariant());
+        string last = "";
+        for (int attempt = 1; attempt <= options.Attempts; attempt++)
+        {
+            if (attempt > 1) await Task.Delay(options.Backoff * Math.Pow(2, attempt - 2), token);
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+            deadline.CancelAfter(options.Timeout);
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.Add("X-Api-Key", options.ApiKey);
+            try
+            {
+                using var response = await http.SendAsync(request, deadline.Token);
+                if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<Forecast>(deadline.Token);
+                int code = (int)response.StatusCode;
+                if (response.StatusCode == HttpStatusCode.NotFound) return null;
+                if (response.StatusCode == HttpStatusCode.Unauthorized) throw new WeatherException("The API key was refused.");
+                if (!(code is 408 or 429 || code >= 500)) throw new WeatherException($"The weather service said {code} {response.ReasonPhrase}.");
+                last = $"{code} {response.ReasonPhrase}";
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested)
+            {
+                last = "timed out";
+            }
+            catch (HttpRequestException e)
+            {
+                last = e.Message;
+            }
+        }
+        throw new WeatherException($"No forecast after {options.Attempts} attempts: {last}.");
+    }
+}
+`);
+put("src/Weather.Cli/Program.cs", String.raw`using System.Globalization;
+using Microsoft.Extensions.Configuration;
+using Weather;
+using Weather.Cli;
+
+var config = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json")
+    .AddUserSecrets<Program>(optional: true)
+    .AddEnvironmentVariables()
+    .Build();
+var options = config.GetSection("Weather").Get<WeatherOptions>() ?? new WeatherOptions();
+bool demo = options.BaseUrl == "demo";
+var http = new HttpClient(demo ? new DemoServer() : new HttpClientHandler())
+{
+    BaseAddress = new Uri(demo ? "https://demo.weather/v1/" : options.BaseUrl)
+};
+var weather = new WeatherClient(http, options);
+
+string? line;
+while ((line = Console.ReadLine()) is not null)
+{
+    string city = line.Trim();
+    if (city == "quit") break;
+    if (city.Length == 0) continue;
+    try
+    {
+        var f = await weather.GetAsync(city);
+        Console.WriteLine(f is null ? $"{city}: not found" : $"{f.City}: {f.TempC.ToString(CultureInfo.InvariantCulture)} C, {f.Summary}");
+    }
+    catch (WeatherException e)
+    {
+        Console.WriteLine("Error: " + e.Message);
+    }
+}
+Console.WriteLine("Bye.");
+`);
+put("tests/Weather.Tests/ClientTests.cs", String.raw`using System.Net;
+using System.Text;
+
+namespace Weather.Tests;
+
+public class ClientTests
+{
+    class Fake(Func<int, HttpResponseMessage> answer) : HttpMessageHandler
+    {
+        public int Calls;
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token) => Task.FromResult(answer(++Calls));
+    }
+
+    static WeatherClient On(Fake fake) => new(new HttpClient(fake) { BaseAddress = new Uri("https://w.test/") }, new WeatherOptions { ApiKey = "k", Backoff = TimeSpan.Zero });
+    static HttpResponseMessage Hull() => new(HttpStatusCode.OK) { Content = new StringContent("""{"city":"Hull","tempC":12,"summary":"wind"}""", Encoding.UTF8, "application/json") };
+
+    [Fact]
+    public async Task Reads_a_forecast() => Assert.Equal("Hull", (await On(new Fake(_ => Hull())).GetAsync("hull"))!.City);
+
+    [Fact]
+    public async Task Not_found_is_null() => Assert.Null(await On(new Fake(_ => new HttpResponseMessage(HttpStatusCode.NotFound))).GetAsync("x"));
+
+    [Fact]
+    public async Task Retries_a_504()
+    {
+        var fake = new Fake(n => n == 1 ? new HttpResponseMessage(HttpStatusCode.GatewayTimeout) : Hull());
+        Assert.NotNull(await On(fake).GetAsync("hull"));
+        Assert.Equal(2, fake.Calls);
+    }
+
+    [Fact]
+    public async Task A_403_is_not_retried()
+    {
+        var fake = new Fake(_ => new HttpResponseMessage(HttpStatusCode.Forbidden));
+        await Assert.ThrowsAsync<WeatherException>(() => On(fake).GetAsync("hull"));
+        Assert.Equal(1, fake.Calls);
+    }
+
+    [Fact]
+    public async Task Gives_up_on_a_server_that_is_always_down()
+    {
+        var fake = new Fake(_ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
+        var e = await Assert.ThrowsAsync<WeatherException>(() => On(fake).GetAsync("hull"));
+        Assert.Contains("503", e.Message);
+    }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "The weather client"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "weather solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/weather-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Weather/WeatherClient.cs"); const t = fs.readFileSync(f, "utf8");
+  const a = "if (!(code is 408 or 429 || code >= 500)) throw new WeatherException", b = "request.Headers.Add(\"X-Api-Key\", options.ApiKey);";
+  if (!t.includes(a) || !t.includes(b)) throw new Error("edit anchor missing in src/Weather/WeatherClient.cs");
+  fs.writeFileSync(f, t.replace(a, "if (code == 418) throw new WeatherException").replace(b, "request.RequestUri = new Uri(path + \"?key=\" + options.ApiKey, UriKind.Relative);")); }
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m3").ok && !at("m2").ok && !at("m4").ok, "weather retrying a 400 and its key in the URL: m2 and m4 fail (" + at("m2").checks.map((c) => c.note).join(" · ") + " / " + at("m4").checks.map((c) => c.note).join(" · ") + ")"); }
+
+/* ---------------- T1E: Loopback chat ---------------- */
+files = await window.KOS.codeProject.files("rp-t1e-chat");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "chat fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put("src/Chat/ChatServer.cs", String.raw`using System.Net;
+using System.Net.Sockets;
+using System.Text.RegularExpressions;
+
+namespace Chat;
+
+/// <summary>A chat server on one address and port (0 = any free one). It speaks the line
+/// protocol in BRIEF.md to every client at once. Milestones 1–4.</summary>
+public sealed partial class ChatServer(IPAddress address, int port = 0) : IAsyncDisposable
+{
+    private readonly TcpListener listener = new(address, port);
+    private readonly CancellationTokenSource stop = new();
+    private readonly Dictionary<TcpClient, Member> members = new();
+    private readonly object gate = new();
+    private Task loop = Task.CompletedTask;
+    private bool stopped;
+
+    private sealed class Member(StreamWriter writer)
+    {
+        public StreamWriter Writer { get; } = writer;
+        public string? Name { get; set; }
+        public SemaphoreSlim Sending { get; } = new(1, 1);
+    }
+
+    /// <summary>The port it listens on, once started.</summary>
+    public int Port => ((IPEndPoint)listener.LocalEndpoint).Port;
+
+    /// <summary>Starts listening, and accepts clients in the background; returns at once.</summary>
+    public void Start()
+    {
+        listener.Start();
+        loop = AcceptLoop(stop.Token);
+    }
+
+    private async Task AcceptLoop(CancellationToken token)
+    {
+        var serving = new List<Task>();
+        while (!token.IsCancellationRequested)
+        {
+            TcpClient client;
+            try { client = await listener.AcceptTcpClientAsync(token); }
+            catch (Exception e) when (e is OperationCanceledException or SocketException or ObjectDisposedException) { break; }
+            serving.Add(Serve(client, token));
+            serving.RemoveAll(t => t.IsCompleted);
+        }
+        await Task.WhenAll(serving);
+    }
+
+    private async Task Serve(TcpClient client, CancellationToken token)
+    {
+        using (client)
+        {
+            var reader = new StreamReader(client.GetStream());
+            var me = new Member(new StreamWriter(client.GetStream()) { AutoFlush = true });
+            lock (gate) members[client] = me;
+            try
+            {
+                await Send(me, "WELCOME KurenaiChat");
+                string? line;
+                while ((line = await reader.ReadLineAsync(token)) is not null)
+                {
+                    if (!await Handle(me, line)) break;
+                }
+            }
+            catch (Exception e) when (e is IOException or OperationCanceledException or ObjectDisposedException) { }
+            finally
+            {
+                string? name;
+                lock (gate)
+                {
+                    members.Remove(client);
+                    name = me.Name;
+                }
+                if (name is not null && !token.IsCancellationRequested) await Broadcast($"LEAVE {name}", except: me);
+            }
+        }
+    }
+
+    /// <summary>Answers one line; false once the client has quit.</summary>
+    private async Task<bool> Handle(Member me, string line)
+    {
+        string command = line.Split(' ', 2)[0];
+        string rest = line.Length > command.Length ? line[(command.Length + 1)..] : "";
+        switch (command)
+        {
+            case "PING":
+                await Send(me, "PONG");
+                return true;
+            case "QUIT":
+                await Send(me, "BYE");
+                return false;
+            case "WHO":
+                string[] names;
+                lock (gate) names = members.Values.Select(m => m.Name).OfType<string>().Order(StringComparer.Ordinal).ToArray();
+                await Send(me, names.Length == 0 ? "USERS" : "USERS " + string.Join(", ", names));
+                return true;
+            case "NICK":
+                await Send(me, Nick(me, rest));
+                if (me.Name == rest) await Broadcast($"JOIN {rest}", except: me);
+                return true;
+            case "SAY":
+                if (me.Name is null) await Send(me, "ERR NICK first");
+                else await Broadcast($"MSG {me.Name}: {rest}");
+                return true;
+            default:
+                await Send(me, "ERR unknown command");
+                return true;
+        }
+    }
+
+    private string Nick(Member me, string name)
+    {
+        if (!NameRule().IsMatch(name)) return "ERR bad name";
+        lock (gate)
+        {
+            if (me.Name is not null) return "ERR already named";
+            if (members.Values.Any(m => m.Name == name)) return "ERR name taken";
+            me.Name = name;
+        }
+        return "OK " + name;
+    }
+
+    [GeneratedRegex("^[A-Za-z0-9_-]{1,16}$")]
+    private static partial Regex NameRule();
+
+    private static async Task Send(Member to, string line)
+    {
+        await to.Sending.WaitAsync();
+        try { await to.Writer.WriteLineAsync(line); }
+        finally { to.Sending.Release(); }
+    }
+
+    /// <summary>Sends a line to every named client; one that has gone is skipped.</summary>
+    private async Task Broadcast(string line, Member? except = null)
+    {
+        Member[] all;
+        lock (gate) all = members.Values.Where(m => m.Name is not null && m != except).ToArray();
+        foreach (var m in all)
+        {
+            try { await Send(m, line); }
+            catch (Exception e) when (e is IOException or ObjectDisposedException) { }
+        }
+    }
+
+    /// <summary>Stops accepting, closes every client, and returns once the port is free.</summary>
+    public async Task StopAsync()
+    {
+        lock (gate)
+        {
+            if (stopped) return;
+            stopped = true;
+        }
+        stop.Cancel();
+        listener.Stop();
+        TcpClient[] open;
+        lock (gate) open = members.Keys.ToArray();
+        foreach (var c in open) c.Close();
+        await loop;
+    }
+
+    public async ValueTask DisposeAsync() => await StopAsync();
+}
+`);
+put("src/Chat.Cli/Program.cs", String.raw`using System.Net;
+using System.Net.Sockets;
+using Chat;
+
+await using var server = new ChatServer(IPAddress.Loopback);
+server.Start();
+using var client = new TcpClient();
+await client.ConnectAsync(IPAddress.Loopback, server.Port);
+var reader = new StreamReader(client.GetStream());
+var writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
+
+var printer = Task.Run(async () =>
+{
+    string? line;
+    while ((line = await reader.ReadLineAsync()) is not null) Console.WriteLine(line);
+});
+string? typed;
+while (!printer.IsCompleted && (typed = Console.ReadLine()) is not null)
+{
+    try { await writer.WriteLineAsync(typed); }
+    catch (IOException) { break; }
+}
+await printer;
+`);
+put("tests/Chat.Tests/ProtocolTests.cs", String.raw`namespace Chat.Tests;
+
+public class ProtocolTests
+{
+    static async Task<(TcpClient, Reader, StreamWriter)> Connect(int port)
+    {
+        var c = new TcpClient();
+        await c.ConnectAsync(IPAddress.Loopback, port);
+        var r = new Reader(new StreamReader(c.GetStream()));
+        await r.ReadLineAsync();
+        return (c, r, new StreamWriter(c.GetStream()) { AutoFlush = true });
+    }
+
+    /// <summary>Every read has a deadline, so a server that never answers fails the test instead of hanging it.</summary>
+    sealed class Reader(StreamReader inner)
+    {
+        public async Task<string?> ReadLineAsync()
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            return await inner.ReadLineAsync(cts.Token);
+        }
+    }
+
+    [Fact]
+    public async Task Ping_pong()
+    {
+        await using var s = new ChatServer(IPAddress.Loopback);
+        s.Start();
+        var (c, r, w) = await Connect(s.Port);
+        using (c) { await w.WriteLineAsync("PING"); Assert.Equal("PONG", await r.ReadLineAsync()); }
+    }
+
+    [Fact]
+    public async Task Sixteen_characters_is_a_good_name()
+    {
+        await using var s = new ChatServer(IPAddress.Loopback);
+        s.Start();
+        var (c, r, w) = await Connect(s.Port);
+        using (c) { await w.WriteLineAsync("NICK abcdefghijklmnop"); Assert.Equal("OK abcdefghijklmnop", await r.ReadLineAsync()); }
+    }
+
+    [Fact]
+    public async Task Names_are_case_sensitive()
+    {
+        await using var s = new ChatServer(IPAddress.Loopback);
+        s.Start();
+        var (a, ra, wa) = await Connect(s.Port);
+        var (b, rb, wb) = await Connect(s.Port);
+        using (a) using (b)
+        {
+            await wa.WriteLineAsync("NICK ana"); await ra.ReadLineAsync();
+            await wb.WriteLineAsync("NICK Ana"); Assert.Equal("OK Ana", await rb.ReadLineAsync());
+        }
+    }
+
+    [Fact]
+    public async Task Say_keeps_the_text_as_typed()
+    {
+        await using var s = new ChatServer(IPAddress.Loopback);
+        s.Start();
+        var (c, r, w) = await Connect(s.Port);
+        using (c)
+        {
+            await w.WriteLineAsync("NICK ana"); await r.ReadLineAsync();
+            await w.WriteLineAsync("SAY  two  spaces "); Assert.Equal("MSG ana:  two  spaces ", await r.ReadLineAsync());
+        }
+    }
+
+    [Fact]
+    public async Task Stop_twice_is_fine()
+    {
+        var s = new ChatServer(IPAddress.Loopback);
+        s.Start();
+        await s.StopAsync();
+        await s.StopAsync();
+    }
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "Loopback chat"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4" && v.rep.protected.ok, "chat solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/chat-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Chat/ChatServer.cs"); const t = fs.readFileSync(f, "utf8");
+  const a = "serving.Add(Serve(client, token));";
+  if (!t.includes(a)) throw new Error("edit anchor missing in src/Chat/ChatServer.cs");
+  fs.writeFileSync(f, t.replace(a, "await Serve(client, token);")); }
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m1").ok && !at("m2").ok && !at("m3").ok, "chat serving one client at a time: m2 and m3 fail (" + at("m2").checks.map((c) => c.note).join(" · ") + ")"); }
+
+/* ---------------- T1F: the Track T1 capstone, The Planner goes online ---------------- */
+files = await window.KOS.codeProject.files("rp-ct1-planner");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "planner-api fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put("src/Planner.Api/Data.cs", String.raw`using Microsoft.EntityFrameworkCore;
+
+namespace Planner.Api;
+
+public class Topic
+{
+    public int Id { get; set; }
+    public string Subject { get; set; } = "";
+    public string Title { get; set; } = "";
+    public int Confidence { get; set; }
+    public DateOnly? LastStudied { get; set; }
+    public List<StudySession> Sessions { get; } = new();
+}
+
+public class StudySession
+{
+    public int Id { get; set; }
+    public int TopicId { get; set; }
+    public DateOnly Date { get; set; }
+    public int Minutes { get; set; }
+}
+
+public class PlannerDb(DbContextOptions<PlannerDb> options) : DbContext(options)
+{
+    public DbSet<Topic> Topics => Set<Topic>();
+    public DbSet<StudySession> Sessions => Set<StudySession>();
+
+    protected override void OnModelCreating(ModelBuilder model)
+    {
+        model.Entity<Topic>().Property(t => t.Title).HasMaxLength(60);
+        model.Entity<Topic>().HasMany(t => t.Sessions).WithOne().HasForeignKey(s => s.TopicId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+`);
+put("src/Planner.Api/Contracts.cs", String.raw`namespace Planner.Api;
+
+/// <summary>What the API reads and writes: never the entities themselves.</summary>
+public record TopicIn(string? Subject, string? Title, int Confidence)
+{
+    public Dictionary<string, string[]> Errors()
+    {
+        var errors = new Dictionary<string, string[]>();
+        if (string.IsNullOrWhiteSpace(Subject)) errors["subject"] = new[] { "Choose a subject." };
+        if (string.IsNullOrWhiteSpace(Title)) errors["title"] = new[] { "Give the topic a title." };
+        else if (Title.Trim().Length > 60) errors["title"] = new[] { "At most 60 characters." };
+        if (Confidence is < 1 or > 5) errors["confidence"] = new[] { "Confidence is 1 to 5." };
+        return errors;
+    }
+
+    public void CopyTo(Topic t)
+    {
+        t.Subject = Subject!.Trim().ToLowerInvariant();
+        t.Title = Title!.Trim();
+        t.Confidence = Confidence;
+    }
+}
+
+public record TopicOut(int Id, string Subject, string Title, int Confidence, DateOnly? LastStudied)
+{
+    public static TopicOut Of(Topic t) => new(t.Id, t.Subject, t.Title, t.Confidence, t.LastStudied);
+}
+
+public record SessionIn(DateOnly Date, int Minutes);
+
+public record SessionOut(int Id, int TopicId, DateOnly Date, int Minutes)
+{
+    public static SessionOut Of(StudySession s) => new(s.Id, s.TopicId, s.Date, s.Minutes);
+}
+`);
+put("src/Planner.Api/Program.cs", String.raw`using System.Security.Cryptography;
+using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Planner.Api;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<PlannerDb>(o => o.UseSqlite(builder.Configuration.GetConnectionString("Planner")));
+builder.Services.AddProblemDetails();
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+    scope.ServiceProvider.GetRequiredService<PlannerDb>().Database.Migrate();
+
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
+var topics = app.MapGroup("/topics").AddEndpointFilter(async (context, next) =>
+{
+    string expected = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>()["Planner:ApiKey"] ?? "";
+    string given = context.HttpContext.Request.Headers["X-Api-Key"].ToString();
+    bool ok = expected.Length > 0 && CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(given), Encoding.UTF8.GetBytes(expected));
+    return ok ? await next(context) : Results.Unauthorized();
+});
+
+topics.MapGet("", async (string? subject, PlannerDb db) =>
+{
+    var query = db.Topics.AsNoTracking();
+    if (!string.IsNullOrWhiteSpace(subject))
+    {
+        string s = subject.Trim().ToLowerInvariant();
+        query = query.Where(t => t.Subject == s);
+    }
+    return await query.OrderBy(t => t.Id).Select(t => new TopicOut(t.Id, t.Subject, t.Title, t.Confidence, t.LastStudied)).ToListAsync();
+});
+
+topics.MapGet("{id:int}", async (int id, PlannerDb db) =>
+    await db.Topics.FindAsync(id) is { } t ? Results.Ok(TopicOut.Of(t)) : Results.NotFound());
+
+topics.MapPost("", async (TopicIn input, PlannerDb db) =>
+{
+    var errors = input.Errors();
+    if (errors.Count > 0) return Results.ValidationProblem(errors);
+    var t = new Topic();
+    input.CopyTo(t);
+    db.Topics.Add(t);
+    await db.SaveChangesAsync();
+    return Results.Created($"/topics/{t.Id}", TopicOut.Of(t));
+});
+
+topics.MapPut("{id:int}", async (int id, TopicIn input, PlannerDb db) =>
+{
+    if (await db.Topics.FindAsync(id) is not { } t) return Results.NotFound();
+    var errors = input.Errors();
+    if (errors.Count > 0) return Results.ValidationProblem(errors);
+    input.CopyTo(t);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+topics.MapDelete("{id:int}", async (int id, PlannerDb db) =>
+    await db.Topics.Where(t => t.Id == id).ExecuteDeleteAsync() == 1 ? Results.NoContent() : Results.NotFound());
+
+topics.MapGet("{id:int}/sessions", async (int id, PlannerDb db) =>
+    await db.Topics.AnyAsync(t => t.Id == id)
+        ? Results.Ok(await db.Sessions.Where(s => s.TopicId == id).OrderBy(s => s.Date).ThenBy(s => s.Id).Select(s => new SessionOut(s.Id, s.TopicId, s.Date, s.Minutes)).ToListAsync())
+        : Results.NotFound());
+
+topics.MapPost("{id:int}/sessions", async (int id, SessionIn input, PlannerDb db) =>
+{
+    if (await db.Topics.FindAsync(id) is not { } t) return Results.NotFound();
+    if (input.Minutes is < 1 or > 600)
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["minutes"] = new[] { "Minutes are 1 to 600." } });
+    var s = new StudySession { TopicId = id, Date = input.Date, Minutes = input.Minutes };
+    db.Sessions.Add(s);
+    if (t.LastStudied is null || input.Date > t.LastStudied) t.LastStudied = input.Date;
+    await db.SaveChangesAsync();
+    return Results.Created($"/topics/{id}/sessions/{s.Id}", SessionOut.Of(s));
+});
+
+app.Run();
+`);
+put("tests/Planner.Tests/ApiTests.cs", String.raw`using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+
+namespace Planner.Tests;
+
+public class ApiTests : IAsyncLifetime
+{
+    sealed class App(string db) : WebApplicationFactory<Program>
+    {
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            builder.UseEnvironment("Testing");
+            builder.UseSetting("ConnectionStrings:Planner", $"Data Source={db}");
+            builder.UseSetting("Planner:ApiKey", "mine");
+        }
+    }
+
+    readonly string db = Path.Combine(Path.GetTempPath(), $"planner-mine-{Guid.NewGuid():N}.db");
+    App app = null!;
+    HttpClient c = null!;
+
+    public Task InitializeAsync()
+    {
+        app = new App(db);
+        c = app.CreateClient();
+        c.DefaultRequestHeaders.Add("X-Api-Key", "mine");
+        return Task.CompletedTask;
+    }
+
+    public async Task DisposeAsync()
+    {
+        await app.DisposeAsync();
+        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+        File.Delete(db);
+    }
+
+    Task<HttpResponseMessage> Add(string title, int confidence = 3) => c.PostAsJsonAsync("/topics", new { subject = "cs", title, confidence });
+
+    [Fact]
+    public async Task Ids_count_up() { await Add("A"); Assert.Equal("/topics/2", (await Add("B")).Headers.Location!.OriginalString); }
+
+    [Fact]
+    public async Task Sixty_characters_is_allowed() => Assert.Equal(HttpStatusCode.Created, (await Add(new string('x', 60))).StatusCode);
+
+    [Fact]
+    public async Task Confidence_five_is_allowed_six_is_not()
+    {
+        Assert.Equal(HttpStatusCode.Created, (await Add("A", 5)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Add("B", 6)).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_lowercase_header_name_still_counts()
+    {
+        var other = app.CreateClient();
+        other.DefaultRequestHeaders.Add("x-api-key", "mine");
+        Assert.Equal(HttpStatusCode.OK, (await other.GetAsync("/topics")).StatusCode);
+    }
+
+    [Fact]
+    public async Task An_earlier_session_does_not_move_last_studied_back()
+    {
+        await Add("A");
+        await c.PostAsJsonAsync("/topics/1/sessions", new { date = "2026-10-10", minutes = 5 });
+        await c.PostAsJsonAsync("/topics/1/sessions", new { date = "2026-09-01", minutes = 5 });
+        var json = await c.GetStringAsync("/topics/1");
+        Assert.Contains("\"lastStudied\":\"2026-10-10\"", json);
+    }
+
+    [Fact]
+    public async Task Minutes_over_600_are_refused()
+    {
+        await Add("A");
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsJsonAsync("/topics/1/sessions", new { date = "2026-10-10", minutes = 601 })).StatusCode);
+    }
+
+    [Fact]
+    public async Task Put_keeps_last_studied()
+    {
+        await Add("A");
+        await c.PostAsJsonAsync("/topics/1/sessions", new { date = "2026-10-10", minutes = 5 });
+        await c.PutAsJsonAsync("/topics/1", new { subject = "cs", title = "A2", confidence = 4 });
+        Assert.Contains("\"lastStudied\":\"2026-10-10\"", await c.GetStringAsync("/topics/1"));
+    }
+}
+`);
+sh("dotnet", ["tool", "restore"], d);
+sh("dotnet", ["build", "-nologo", "-v", "q"], d);
+{ const mig = sh("dotnet", ["ef", "migrations", "add", "Initial", "--project", "src/Planner.Api"], d);
+  expect(mig.status === 0 && fs.readdirSync(path.join(d, "src/Planner.Api/Migrations")).some((f) => /_Initial\.cs$/.test(f)), "planner-api: dotnet ef (restored from the manifest) adds the first migration"); }
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "The Planner goes online"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4,m5" && v.rep.protected.ok, "planner-api solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/planner-api-report-solved.json"), v.text);
+{ const f = path.join(d, "src/Planner.Api/Program.cs"); const t = fs.readFileSync(f, "utf8");
+  const a = "    scope.ServiceProvider.GetRequiredService<PlannerDb>().Database.Migrate();", b = "    return ok ? await next(context) : Results.Unauthorized();";
+  if (!t.includes(a) || !t.includes(b)) throw new Error("edit anchor missing in src/Planner.Api/Program.cs");
+  fs.writeFileSync(f, t.replace(a, "    scope.ServiceProvider.GetRequiredService<PlannerDb>().Database.EnsureCreated();").replace(b, "    return ok || expected.Length == 0 ? await next(context) : Results.Unauthorized();")); }
+v = validate(d);
+{ const at = (id) => v.rep.milestones.find((m) => m.id === id);
+  expect(at("m1").ok && at("m2").ok && !at("m3").ok && !at("m4").ok, "planner-api with EnsureCreated and open when no key is set: m3 and m4 fail (" + at("m3").checks.map((c) => c.note).join(" · ") + " / " + at("m4").checks.map((c) => c.note).join(" · ") + ")"); }
 
 console.log(bad ? "✗ " + bad + " check(s) failed" : "✓ the validator behaves on every scenario");
 process.exit(bad ? 1 : 0);

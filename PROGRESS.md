@@ -33,6 +33,34 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Built 23 October 2026 — Code Track T1 complete (not deployed yet)
+
+Branch `feat/code-t1-rest`, from `main` at the `kos-code-23` release.
+
+- **T1D, HTTP and REST**: five lessons in the app on the full runtime
+  (methods, status codes and headers; HttpClient and JSON; retries,
+  timeouts and cancellation; REST design; API keys, OAuth and JWTs), with
+  10 tasks and 6 cards. Each program ends with its own fake server (an
+  `HttpMessageHandler`), so HttpClient runs unchanged with the network
+  sealed. Every program agrees with .NET (`cs_diff`).
+- The full runtime is now `csw-1.1`: it roots `System.Private.Uri`, because
+  trimming had removed `Uri.Query`, `Segments` and `Authority`. A device
+  that downloaded `csw-1.0` downloads the new one once, and the old cache
+  is cleared.
+- **The Weather client** (T1D's project, in Rider): HttpClient with
+  retries and backoff, a deadline per attempt, an API key from user
+  secrets; tested against a fake server; 140 XP, 35 gold, +8 HP.
+- **T1E, Networking**: three Rider lessons (IP, DNS and ports; TCP and
+  UDP; sockets) and **Loopback chat**, a `TcpListener` chat server tested
+  with real TcpClients over loopback; 120 XP, 30 gold, +8 HP.
+- **T1F, Building an API**: three Rider lessons (minimal APIs; persistence,
+  configuration and secrets; testing with WebApplicationFactory) and
+  Track T1's capstone **CT1, The Planner goes online**: an ASP.NET Core API
+  over EF Core with migrations and an API key, with five milestones;
+  250 XP, 60 gold, +10 HP.
+- A unit 11 listing with two equal delays (it printed in either order) now
+  waits 30 and 130 ms.
+
 ## Released 23 October 2026 — Code's spine: Core or Tracks
 
 sw `kos-code-23`, immutable https://b0ccc028.kurenai-os.pages.dev.

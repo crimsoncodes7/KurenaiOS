@@ -104,6 +104,8 @@
     <TrimmerRootAssembly Include="System.IO.Compression" />
     <TrimmerRootAssembly Include="System.Xml.ReaderWriter" />
     <TrimmerRootAssembly Include="System.Private.CoreLib" />
+    <!-- Uri lives here: Query, Segments and Authority were trimmed away (T1D) -->
+    <TrimmerRootAssembly Include="System.Private.Uri" />
     <TrimmerRootAssembly Include="Microsoft.CodeAnalysis" />
     <TrimmerRootAssembly Include="Microsoft.CodeAnalysis.CSharp" />
     <TrimmerRootAssembly Include="System.Runtime.InteropServices.JavaScript" />

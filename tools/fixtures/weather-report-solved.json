@@ -1,0 +1,158 @@
+{
+  "schema": "kurenai.validation/1",
+  "project": {
+    "id": "rp-t1d-weather",
+    "scaffoldVersion": 1
+  },
+  "validator": {
+    "version": "1.1.1",
+    "sha256": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
+  },
+  "env": {
+    "sdk": "10.0.302",
+    "os": "macOS 27.0.1",
+    "arch": "arm64"
+  },
+  "source": {
+    "treeSha256": "98f16f7c2b43832fecccbd3c652cec1c5e5968208f6c3f923d6889953815ab33",
+    "gitCommit": "0e89070e1a84fd053f5a556de8cb609975139200",
+    "dirty": false
+  },
+  "protected": {
+    "ok": true,
+    "mismatched": [],
+    "files": {
+      "Directory.Build.props": "20ba05de9808e2347b49b7fec883a9847080f2f7a7a85d95151b7f839711968e",
+      "tests/Weather.Acceptance/Weather.Acceptance.csproj": "f7d1789d22707a8825bf3eb1a08ada3a82e0a9fd16e960433511111243d86ce9",
+      "tests/Weather.Acceptance/FakeServer.cs": "f3c90c836b3a9876142f4ccb8999c73ba33ccd0acfcacfdff80eaa7c749324f3",
+      "tests/Weather.Acceptance/Milestone1.cs": "02595144149ac5b282fd60017c4dba59f7ca778b37511c1d772d6f0a78669d62",
+      "tests/Weather.Acceptance/Milestone2.cs": "493355c3681630687cb1ecd21cf2acf8a55501b29d73e8056f7c770d76c0ea3d",
+      "tests/Weather.Acceptance/Milestone3.cs": "060c0dc9aa1fb7abadc859512c9c3dba4e970a76b9b363847f3d1be82e1cfc69",
+      "tests/Weather.Acceptance/Milestone4.cs": "f96f0dc4d4b71a2235dfe2a7ac87a59a322a122710547113c726ac1ccc167c34",
+      ".kurenai/validate.cs": "798684e32fb474a06501a50598144a7da854632273b26faed635964eef36a2b6"
+    }
+  },
+  "steps": [
+    {
+      "id": "preflight",
+      "ran": true,
+      "exit": 0,
+      "ms": 87,
+      "sdk": "10.0.302"
+    },
+    {
+      "id": "restore",
+      "ran": true,
+      "exit": 0,
+      "ms": 480
+    },
+    {
+      "id": "build",
+      "ran": true,
+      "exit": 0,
+      "ms": 477,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "id": "test",
+      "ran": true,
+      "exit": 0,
+      "ms": 1393,
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "7 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "4 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        },
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "ok": true,
+      "checks": [
+        {
+          "type": "source",
+          "ok": true,
+          "note": "as asked"
+        },
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        },
+        {
+          "type": "owntests",
+          "ok": true,
+          "note": "6 of your tests pass, 0 fail (at least 5 needed)"
+        },
+        {
+          "type": "warnings",
+          "ok": true,
+          "note": "0 warning(s), at most 0"
+        },
+        {
+          "type": "git",
+          "ok": true,
+          "note": "committed, clean"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "startedAt": "2026-10-23T15:36:48Z",
+  "finishedAt": "2026-10-23T15:36:52Z",
+  "reportSha256": "0b55a7b53e910a5dad199b624c22925edfab31efa0babd44cc443ddbe709ac88"
+}

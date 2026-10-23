@@ -22,7 +22,7 @@ Console.WriteLine("cs-wasm " + Runner.Version);
 
 public static partial class Runner
 {
-    public const string Version = "csw-1.0";
+    public const string Version = "csw-1.1";
     const string GlobalUsings = "global using System;\nglobal using System.IO;\nglobal using System.Collections.Generic;\nglobal using System.Linq;\nglobal using System.Net.Http;\nglobal using System.Threading;\nglobal using System.Threading.Tasks;\n";
     static List<MetadataReference>? refs;
     static readonly Dictionary<string, Built> cache = new();

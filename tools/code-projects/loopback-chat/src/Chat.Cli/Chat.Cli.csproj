@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A chat client (milestone 4): it starts its own server on loopback and talks to it. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Chat/Chat.csproj" />
+  </ItemGroup>
+</Project>

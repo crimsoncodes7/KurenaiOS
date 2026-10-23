@@ -61,7 +61,7 @@
      handler below copies the box's text minus this button. */
   var COPY_BTN = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy to clipboard">Copy</button>';
   var CODE_COPY = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy code to clipboard">Copy</button>';
-  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript", xaml: "XAML", xml: "XML" };
+  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript", xaml: "XAML", xml: "XML", json: "JSON" };
   /* a code block's head: the language, its caption, and Copy (frame 8j) */
   function codeFigure(src, lang, cap) {
     return '<figure class="k-n-code" data-ui="content.code"><div class="k-n-code-head">' +

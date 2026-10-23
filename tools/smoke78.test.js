@@ -26,6 +26,9 @@
          passes its four milestones and pays once, under Track T2 · T2A.
      I · T2B–T2D. The Reading List, Markdown notes and Focus timer: each
          real report passes every milestone and pays once, under its part.
+     J · T1D–T1E. The Weather client (HttpClient against a fake server) and
+         Loopback chat (real TcpClients over loopback): each real report
+         passes every milestone and pays once, under Track T1.
      E · UNIT 10. The Lending Library's real report (validator 1.1.0: own
          tests, planted bugs, warnings, source checks) passes all six
          milestones and pays once; a Bridge report from validator 1.0.0 is
@@ -207,6 +210,25 @@ step("I · T2B–T2D: The Reading List, Markdown notes and Focus timer", async (
     lessons.forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
     K.show("code", { page: "project", id }); await app.settle();
     assert(new RegExp("Track T2 · " + unit).test(app.document.querySelector("#main").textContent), id + ": the hub names Track T2 · " + unit);
+  }
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
+step("J · T1D–T1E: the Weather client and Loopback chat, under Track T1", async (app) => {
+  const K = app.KOS, P = K.codeProject, g = K.store.state.governor;
+  for (const [id, fixture, unit, ms, xp, lessons] of [
+    ["rp-t1d-weather", "weather", "T1D", "m1,m2,m3,m4,m5", 140, []],
+    ["rp-t1e-chat", "chat", "T1E", "m1,m2,m3,m4", 120, ["T1.23", "T1.24", "T1.25"]]
+  ]) {
+    const files = await P.files(id);
+    assert(files[K.code.project(id).solution] && files["tests/" + (unit === "T1D" ? "Weather" : "Chat") + ".Acceptance/Milestone1.cs"], id + ": the scaffold");
+    const res = await P.check(dated("tools/fixtures/" + fixture + "-report-solved.json", app, 2));
+    assert(res.outcome === "accepted" && res.completes && res.reward.xp === xp, id + ": accepted with its reward: " + (res.msg || JSON.stringify(res.mismatched)));
+    const xp0 = g.xp, r = P.apply(res);
+    assert(r.ok && r.newly.join() === ms && g.xp - xp0 === xp, id + ": every milestone, paid once");
+    lessons.forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
+    K.show("code", { page: "project", id }); await app.settle();
+    assert(new RegExp("Track T1 · " + unit).test(app.document.querySelector("#main").textContent), id + ": the hub names Track T1 · " + unit);
   }
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });

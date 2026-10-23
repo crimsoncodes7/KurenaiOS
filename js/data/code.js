@@ -217,7 +217,7 @@
       ["T1.21", "REST design", "Design resources, URLs and status codes an API's users can guess."],
       ["T1.22", "Authentication: API keys, OAuth and JWT", "Prove who is calling, and keep the secret out of the code."]
     ] },
-    { ref: "T1E", track: "T1", title: "Networking", strands: ["S"], where: "app", lessons: [
+    { ref: "T1E", track: "T1", title: "Networking", strands: ["S"], where: "rider", lessons: [
       ["T1.23", "IP, DNS and ports", "Follow a request from a name to an address to a program listening on a port."],
       ["T1.24", "TCP and UDP", "Compare a reliable stream with fire-and-forget datagrams, and know which an app wants."],
       ["T1.25", "Sockets: a client and a server", "Write a TCP server and client that talk over your own machine."]
@@ -301,6 +301,7 @@
       C3: { title: "A shop with plugins and LINQ reports", where: "sandbox" },
       C4: { title: "A small service, tested", where: "rider" },
       /* a track's capstone: no stage; the last part's Rider project is its build */
+      CT1: { title: "The Planner goes online", where: "rider", track: "T1" },
       CT2: { title: "The Planner on the desktop", where: "rider", track: "T2" }
     },
     /* optional modules that go further into a core unit (plan §3.2) */

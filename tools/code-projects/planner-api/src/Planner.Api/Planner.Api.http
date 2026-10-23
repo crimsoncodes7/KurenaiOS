@@ -1,0 +1,15 @@
+### Rider runs these against the API (start it first). The key is your own, from user secrets.
+@key = put-your-development-key-here
+
+GET http://localhost:5080/health
+
+###
+GET http://localhost:5080/topics
+X-Api-Key: {{key}}
+
+###
+POST http://localhost:5080/topics
+X-Api-Key: {{key}}
+Content-Type: application/json
+
+{ "subject": "cs", "title": "Big O", "confidence": 3 }

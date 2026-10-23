@@ -28,6 +28,9 @@
          capstone", the T2 page links to it, and a real report
          (tools/fixtures/planner-desktop-report-solved.json) lets it pay
          once (250 XP, 60 gold, +10 HP).
+     G · Track T1's (CT1), The Planner goes online, the same way: T1F's
+         Rider project (an ASP.NET Core API tested with
+         WebApplicationFactory), tools/fixtures/planner-api-report-solved.json.
    tools/cs_diff.mjs additionally runs the reference against .NET.
 
    Run:
@@ -142,7 +145,7 @@ step("D · every step draws without writing; the path and map open it", async ()
 });
 
 step("E · capstone 4 is built in Rider: validator milestones, the capstone pays once", async () => {
-  assert(riderCaps.join() === "C4,CT2", "capstone 4 and Track T2's are the Rider capstones: " + riderCaps.join());
+  assert(riderCaps.join() === "C4,CT1,CT2", "capstone 4 and Tracks T1 and T2's are the Rider capstones: " + riderCaps.join());
   const c = K.CAPSTONES.C4, p = K.PROJECTS[c.project];
   assert(c.where === "rider" && c.stage === 4 && p && p.capstone === "C4" && !p.reward && p.files && p.files["RevisionPlanner.sln"], "C4's project: its scaffold, linked back, no reward of its own");
   assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]), "the quiz (5, each linked to a written lesson)");
@@ -184,46 +187,52 @@ step("E · capstone 4 is built in Rider: validator milestones, the capstone pays
   app.window.close();
 });
 
-step("F · a track's capstone: Track T2's, built in Rider, on the track page", async () => {
-  const c = K.CAPSTONES.CT2, p = K.PROJECTS[c.project];
-  assert(c.where === "rider" && c.track === "T2" && !c.stage && p && p.capstone === "CT2" && p.unit === "T2E" && !p.reward && p.files && p.files["PlannerDesktop.sln"], "CT2: a track, no stage, its project linked back with no reward of its own");
-  assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]) && c.quiz.every((q) => /^T2\./.test(q.lesson)), "the quiz (5, each linked to a written T2 lesson)");
-  assert(c.rubric.filter((r) => r.auto).length === 1 && c.reward.xp === 250 && c.writeupMin >= 80, "one automatic rubric row, the reward");
-  assert(p.milestones.length === 5 && p.milestones.every((m) => m.lessons.length), "five milestones, each proving a T2E lesson");
+/* a track's capstone: no stage, its build the track's last part's Rider
+   project, named "Track Tn capstone" and linked from that part's card */
+async function trackCapstone(id, track, unit, sln, fixture, xp, gold) {
+  const c = K.CAPSTONES[id], p = K.PROJECTS[c.project];
+  assert(c.where === "rider" && c.track === track && !c.stage && p && p.capstone === id && p.unit === unit && !p.reward && p.files && p.files[sln], id + ": a track, no stage, its project linked back with no reward of its own");
+  assert(c.quiz.length === 5 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why && content["code:" + q.lesson]) && c.quiz.every((q) => new RegExp("^" + track + "\\.").test(q.lesson)), id + ": the quiz (5, each linked to a written " + track + " lesson)");
+  assert(c.rubric.filter((r) => r.auto).length === 1 && c.reward.xp === xp && c.writeupMin >= 80, id + ": one automatic rubric row, the reward");
+  assert(p.milestones.length === 5 && p.milestones.every((m) => m.lessons.length), id + ": five milestones, each proving a lesson");
   const fsx = require("fs"), path = require("path");
   const app = await boot(), KOS = app.KOS, g = KOS.store.state.governor, doc = app.document;
   KOS.codeProject._setValidator(fsx.readFileSync(path.join(__dirname, "..", "assets/code/validator/validate.cs"), "utf8"));
-  const j = JSON.parse(fsx.readFileSync(path.join(__dirname, "fixtures/planner-desktop-report-solved.json"), "utf8")), now = app.window.Date.now();
+  const j = JSON.parse(fsx.readFileSync(path.join(__dirname, "fixtures/" + fixture), "utf8")), now = app.window.Date.now();
   j.startedAt = new Date(now - 3600000).toISOString().slice(0, 19) + "Z"; j.finishedAt = new Date(now - 3500000).toISOString().slice(0, 19) + "Z";
   const snap = () => JSON.stringify(KOS.store.state.code) + JSON.stringify(KOS.store.state.governor) + JSON.stringify(KOS.store.state.progress);
   for (const s of KOS.code.CAP_STEPS.map((x) => x[0])) {
-    KOS.store.state.ui.code.capStep = { CT2: s };
+    KOS.store.state.ui.code.capStep = { [id]: s };
     const before = snap();
-    KOS.show("code", { page: "capstone", id: "CT2" }); await app.settle();
-    assert(doc.querySelector('[data-step="' + s + '"][aria-selected="true"]'), s + ": the stepper marks it");
-    assert(snap() === before, "CT2 " + s + " wrote to the store while drawing");
+    KOS.show("code", { page: "capstone", id }); await app.settle();
+    assert(doc.querySelector('[data-step="' + s + '"][aria-selected="true"]'), id + " " + s + ": the stepper marks it");
+    assert(snap() === before, id + " " + s + " wrote to the store while drawing");
   }
-  assert(/Track T2 capstone/.test(doc.querySelector("#main").textContent) && !/Capstone T2/.test(doc.querySelector("#main").textContent), "the page names it the Track T2 capstone");
-  KOS.show("code", { page: "track", id: "T2" }); await app.settle();
+  assert(new RegExp("Track " + track + " capstone").test(doc.querySelector("#main").textContent) && !new RegExp("Capstone " + track).test(doc.querySelector("#main").textContent), "the page names it the Track " + track + " capstone");
+  KOS.show("code", { page: "track", id: track }); await app.settle();
   const link = doc.querySelector("[data-ui~='code.track-capstone'] button");
-  assert(link, "the T2 page offers the capstone in T2E's card");
+  assert(link, "the " + track + " page offers the capstone in " + unit + "'s card");
   link.click(); await app.settle();
   assert(doc.querySelector("[data-ui~='code.capstone']"), "and opens it");
   const xp0 = g.xp, gold0 = g.gold;
   const res = await KOS.codeProject.check(JSON.stringify(j));
-  assert(res.outcome === "accepted" && !res.completes && !res.reward, "accepted; the project itself shows no reward: " + (res.msg || JSON.stringify(res.mismatched)));
+  assert(res.outcome === "accepted" && !res.completes && !res.reward, id + ": accepted; the project itself shows no reward: " + (res.msg || JSON.stringify(res.mismatched)));
   const r = KOS.codeProject.apply(res);
-  assert(r.ok && r.all && !r.pay && g.xp === xp0 && g.gold === gold0, "every milestone passes and the project pays nothing");
-  assert(KOS.code.capView("CT2").build.all, "the capstone's build reads the project");
-  c.rubric.filter((x) => !x.auto).forEach((x) => KOS.code.setRubric("CT2", x.id, 3));
-  KOS.code.setWriteup("CT2", Array(c.writeupMin + 5).fill("word").join(" "));
-  const sub = KOS.code.submitCapstone("CT2");
-  assert(sub.passed && sub.paid && g.xp - xp0 === 250 && g.gold - gold0 === 60, "the capstone pays once: " + JSON.stringify(sub.pay));
+  assert(r.ok && r.all && !r.pay && g.xp === xp0 && g.gold === gold0, id + ": every milestone passes and the project pays nothing");
+  assert(KOS.code.capView(id).build.all, id + ": the capstone's build reads the project");
+  c.rubric.filter((x) => !x.auto).forEach((x) => KOS.code.setRubric(id, x.id, 3));
+  KOS.code.setWriteup(id, Array(c.writeupMin + 5).fill("word").join(" "));
+  const sub = KOS.code.submitCapstone(id);
+  assert(sub.passed && sub.paid && g.xp - xp0 === xp && g.gold - gold0 === gold, id + ": the capstone pays once: " + JSON.stringify(sub.pay));
   KOS.show("code", { page: "project", id: c.project }); await app.settle();
-  assert(/Track T2 capstone/.test(doc.querySelector("#main").textContent) && doc.querySelector("[data-ui~='code.project-capstone']"), "the project's page names its capstone and links back");
+  assert(new RegExp("Track " + track + " capstone").test(doc.querySelector("#main").textContent) && doc.querySelector("[data-ui~='code.project-capstone']"), id + ": the project's page names its capstone and links back");
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
   app.window.close();
-});
+}
+step("F · a track's capstone: Track T2's, built in Rider, on the track page", () =>
+  trackCapstone("CT2", "T2", "T2E", "PlannerDesktop.sln", "planner-desktop-report-solved.json", 250, 60));
+step("G · Track T1's capstone: The Planner goes online, an API built in Rider", () =>
+  trackCapstone("CT1", "T1", "T1F", "PlannerApi.sln", "planner-api-report-solved.json", 250, 60));
 
 (async () => {
   let failed = 0;

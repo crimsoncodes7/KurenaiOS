@@ -79,7 +79,7 @@
   }
 
   /* ---------------- the full runtime ---------------- */
-  var RUNTIME_ID = "csw-1.0";
+  var RUNTIME_ID = "csw-1.1";
   var RUNTIME_DIR = "assets/code/runtime/" + RUNTIME_ID + "/";
   var WASM_BOOT = 60000, WASM_WATCHDOG = 9000;
   var rtw = null, rtSeq = 0, rtPending = {}, rtState = null, rtInfo = { loaded: 0, total: 0, ms: 0, warm: 0, size: null, error: null }, rtListeners = [];

@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The chat server: TcpListener, a task per client, a line protocol. Yours to build. -->
+</Project>
