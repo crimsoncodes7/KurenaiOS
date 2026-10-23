@@ -9,7 +9,7 @@ chronological diary here.
 ## Current baseline
 
 - Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
-  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
+  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; Track T1's parts A–C; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
@@ -17,8 +17,11 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `07b3520` — immutable deployment
-  https://4eef907a.kurenai-os.pages.dev (23 October 2026; `feat/code-t1`:
+- Latest release: `2db0b4f` — immutable deployment
+  https://2c5de69f.kurenai-os.pages.dev (23 October 2026; `feat/code-t1b`:
+  Code T1B, SQL from C#, and T1C, Entity Framework Core — nine Rider
+  lessons, Contacts on SQLite and The Lending Library on EF Core). Before
+  it `07b3520`, https://4eef907a.kurenai-os.pages.dev (23 October 2026; `feat/code-t1`:
   Code's SQL sandbox (Spike S) and T1A, Databases — eight SQL lessons and
   The Case of the Missing Mug). Before it `a1bc5c5`,
   https://a53c4f26.kurenai-os.pages.dev (23 October 2026; `feat/code-stage4`:
