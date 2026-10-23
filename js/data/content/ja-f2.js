@@ -47,10 +47,10 @@
       img: "ja.panel.clock.1", w: 1800, h: 1344,
       alt: "Manga panel in the classroom: Yōta bursts in through the door, out of breath, pointing up at the wall clock; Akari, at her desk, turns to him with one finger raised, amused.",
       bubbles: [
-        { who: Y, ja: "{今|いま}、\n{何時|なんじ}\nですか！？", en: "What time is it now!?", x: 85, y: 16, rx: 10, ry: 14, tail: [77, 27], size: 2.7 },
-        { who: A, ja: "{八時|はちじ}\n{五十五分|ごじゅうごふん}\nです。", en: "It's 8:55.", x: 14, y: 18, rx: 10, ry: 15, tail: [24, 30], size: 2.7 }
+        { who: Y, ja: "{今|いま}、\n{何時|なんじ}\nですか！？", en: "What time is it now!?", x: 85, y: 17, rx: 10, ry: 14, tail: [77, 35], size: 2.7 },
+        { who: A, ja: "{八時|はちじ}\n{五十五分|ごじゅうごふん}\nです。", en: "It's 8:55.", x: 15, y: 18, rx: 10, ry: 15, tail: [20, 39], size: 2.7 }
       ] } },
-    hook: [{ p: "Five minutes to class. Tap a balloon to hear it — manga reads right to left." }],
+    hook: [{ p: "Five minutes to class, and Yōta has only just arrived." }],
     core: [
       { p: "The hour is the number plus 時 (じ); the minutes are the number plus 分 (ふん or ぷん)." },
       { table: { head: ["", "o'clock", "minutes"], rows: [["1", "いちじ", "いっぷん"], ["2", "にじ", "にふん"], ["3", "さんじ", "さんぷん"], ["4", "よじ", "よんぷん"], ["5", "ごじ", "ごふん"],
@@ -295,12 +295,12 @@
   lesson("2.6", {
     media: { panel: {
       img: "ja.panel.phone.1", w: 1800, h: 1344,
-      alt: "Manga panel split down the middle: on the right, Akari at home holds a phone to her ear; on the left, Yōta answers his phone outside the station, surprised.",
+      alt: "Manga panel split down the middle: on the right, Akari at home holds a phone to her ear; on the left, Yōta answers his phone on the station platform, delighted.",
       bubbles: [
-        { who: A, ja: "もしもし、\nようたさん\nですか。", en: "Hello, is that Yōta?", x: 86, y: 16, rx: 10, ry: 14, tail: [78, 28], size: 2.7 },
-        { who: Y, ja: "はい、\nようたです！", en: "Yes, it's Yōta!", x: 14, y: 16, rx: 9, ry: 13, tail: [24, 28], size: 2.7 }
+        { who: A, ja: "もしもし、\nようたさん\nですか。", en: "Hello, is that Yōta?", x: 84, y: 19, rx: 10, ry: 14, tail: [77, 37], size: 2.7 },
+        { who: Y, ja: "はい、\nようたです！", en: "Yes, it's Yōta!", x: 11, y: 15, rx: 8, ry: 12, tail: [19, 28], size: 2.7 }
       ] } },
-    hook: [{ p: "Every call opens the same way. Tap a balloon to hear it — manga reads right to left." }],
+    hook: [{ p: "Every call opens the same way: もしもし." }],
     core: [
       { p: "もしもし opens a call — and checks the line is still there." },
       { p: "A phone number is read digit by digit, and each dash is read の:" },
