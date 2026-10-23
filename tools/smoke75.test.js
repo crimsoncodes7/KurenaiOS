@@ -92,7 +92,7 @@ step("B · every written lesson meets the notes contract", async () => {
       assert((c.flashcards || []).length >= 5, ref + ": flashcards");
       assert((c.quiz || []).length >= 3 && c.quiz.every((q) => q.opts && q.ans >= 0 && q.ans < q.opts.length && q.why), ref + ": quiz");
       assert(Object.values(K.PROJECTS).some((p) => p.milestones.some((m) => (m.lessons || []).includes(ref))), ref + ": no project milestone proves it");
-      return;
+      continue;
     }
     assert(runs.length >= 6, ref + ": " + runs.length + " listings (≥ 6)");
     const ids = runs.map((r) => r.id);
