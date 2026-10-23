@@ -1,6 +1,6 @@
 ---
 name: code-study-space
-description: Code (roadmap 5.3) live; stages 1–3 complete (stage 3 = units 7–9 + capstone 3 on the full C# runtime, 17 Oct 2026, kos-code-18); next would be unit 10 (Rider), only when asked
+description: Code (roadmap 5.3) core path COMPLETE — stages 1–4, Bridge B, capstones 1–4; released 2026-10-23 (a1bc5c5, kos-code-19); only deepening modules and tracks remain, when asked
 metadata:
   node_type: memory
   type: project
@@ -38,3 +38,6 @@ Code, the fourth study space, shipped 15 October 2026: platform from design turn
 
 - Units 8–9 workflow (17 Oct): author each unit in parts in the scratchpad, concatenate into js/data/content/code-uN.js, and run a scratch checker (loads code via tools/lib/code-content.js, runs every listing/practice/task/card on loadWasm()) before smoke75 and cs_diff. Full-runtime gotchas: a listing with only type declarations fails with CS5001 (add a top-level statement); local functions cannot be overloaded; `-=` on a delegate makes it nullable (warnings). The error decoder (KOS_CODE.ERRORS) now covers the unit 7–9 codes.
 - Capstone 3 (shop with plugins, where "sandbox"): authored as a real answer.cs + a template whose expected outputs come from running the reviewed reference on the runtime. smoke76 routes sandbox capstones to loadWasm() and refuses compiler warnings; codecap.js offers the runtime download and skips recording when nothing ran.
+
+- Stage 4 (released 2026-10-23, a1bc5c5, kos-code-19): units 11–12 on the full runtime (U12 moved to where:"sandbox"); unit 10 in Rider (Rider form lessons, command cards) with project rp-u10-library (tools/code-projects/library-legacy); capstone 4 is a RIDER capstone: `K.capstone("C4", {project: "rp-c4-planner"})` — buildView reads the project's validator milestones, the project has reward:null and the capstone pays (300/75/+10). Validator 1.1.0 adds owntests/source/warnings/mutants checks; codeproj.js `EARLIER` maps old validator versions to their validate.cs hash so Bridge B 1.0.0 reports still import. `node tools/validator_check.mjs` runs all three projects (fresh/solved/weak) and refreshes tools/fixtures/{bridge,library,planner}-report-*.json. `node tools/code_unit_check.js 12.` checks one unit fast (skips Rider-form lessons).
+- Browser pane gotcha: localhost:8123's service worker got stuck after clearing caches; open 127.0.0.1:8123 instead (a fresh origin).

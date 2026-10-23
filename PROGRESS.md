@@ -22,7 +22,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-code-18` |
 | Smoke gate | 79 suites (smoke79: Code → GitHub against a fake GitHub); 78 suites (smoke77–78: the full C# runtime's wiring, Bridge B and the Rider workflow); 76 suites (smoke73–76: Code's runner and checker, pay and evidence, the content gate, capstones; plus `tools/cs_diff.mjs` against .NET); 72 at `406cf55` (smoke68–72: the Reports history, model, pages, longer periods and replication); 70 at `fb2cb60`; 67 at `55c19b2` (smoke67 guards the merged CS leaves); 66 suites at the Computer Science release (smoke65: CS Paper 2; smoke66: CS Paper 1 and the NEA); 64 at `9eac539` and `fdc954a`. smoke39 needs a working `git`/`node` toolchain on the host |
-| Latest release date | 17 October 2026 (Code stage 3; Reports: 13 October; Computer Science: 2 October; Category 7: 9 August 2026) |
+| Latest release date | 23 October 2026 (Code stage 4, the core path complete); 17 October 2026 (Code stage 3; Reports: 13 October; Computer Science: 2 October; Category 7: 9 August 2026) |
 | Branch | `main` is the line: on 20 October 2026 it was fast-forwarded to `feat/money-goals` for the Money and Goals release (`claude/roadmap-code-study-space` stays at `771e967`, behind it with nothing of its own). Docs baseline commits mark each release |
 | In flight | Japanese study space (roadmap 5.5): plan revision 3.1 ([japanese-plan.md](docs/japanese-plan.md)); the vertical slice in `prototypes/japanese-space/` is closed on real data (`03505a9`; voice bake-off `bc75349`). Nothing in the app changed; the platform release (plan §17) is next, when asked. Money and Goals (roadmap 5.4) RELEASED 20 October 2026 (`084a628`, sw `kos-money-1`), held by smoke84–87; gate `for i in "" {2..79} 84 85 86 87` (83 suites) |
 | Working across accounts | [docs/HANDOFF.md](docs/HANDOFF.md); shared memory in [docs/memory/](docs/memory/MEMORY.md) |
@@ -34,6 +34,9 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Released 23 October 2026 — Code stage 4: the core path complete
+
+Release `a1bc5c5`, sw `kos-code-19`, immutable https://a53c4f26.kurenai-os.pages.dev.
+
 
 - **Unit 10, testing and design (in Rider):** ten lessons in the Rider
   form with typed command cards, and the project *The Lending Library*: pin
