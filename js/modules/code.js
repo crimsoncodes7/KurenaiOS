@@ -311,16 +311,25 @@
   }
   function weekendCard() {
     /* the Rider projects (Bridge B, unit 10); in-app weekend projects are not built */
-    var box = el("section", { class: "k-card k-cx-weekend", "data-ui": "code.weekend", "aria-label": "Projects" }, [cardHead("Projects", "in Rider")]);
     /* a capstone's project is reached from its capstone, not listed here */
     var ps = C().projects().filter(function (p) { return !p.capstone; });
-    if (!ps.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "No projects yet." })); return box; }
     /* a project is ready once its unit is begun (Bridge B also after unit 6) */
     var begun = function (u) { return C().lessons().some(function (l) { return l.unit === u && C().studied(l.ref); }); };
-    ps.forEach(function (p) {
+    var reachedOf = function (p) {
+      var bridge = p.unit === "B", track = /^T\d/.test(p.unit);
+      return begun(bridge ? "B" : p.unit) || (bridge ? C().unitState("U6").state === "done" : track ? C().unitState("B").state === "done" : C().unitState("U9").state === "done");
+    };
+    /* the two that matter now: under way, then ready, then the next in the
+       course's order; finished ones last */
+    var rank = function (p) { var v = C().projectView(p.id); return v.payAt ? 3 : v.done ? 0 : reachedOf(p) ? 1 : 2; };
+    var shown = ps.map(function (p, i) { return { p: p, i: i, r: rank(p) }; })
+      .sort(function (a, b) { return a.r - b.r || a.i - b.i; }).slice(0, 2).map(function (x) { return x.p; });
+    var box = el("section", { class: "k-card k-cx-weekend", "data-ui": "code.weekend", "aria-label": "Projects" },
+      [cardHead("Projects", "in Rider" + (ps.length > shown.length ? " · " + shown.length + " of " + ps.length : ""))]);
+    if (!ps.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "No projects yet." })); return box; }
+    shown.forEach(function (p) {
       var v = C().projectView(p.id), bridge = p.unit === "B";
-      var track = /^T\d/.test(p.unit);
-      var reached = begun(bridge ? "B" : p.unit) || (bridge ? C().unitState("U6").state === "done" : track ? C().unitState("B").state === "done" : C().unitState("U9").state === "done");
+      var reached = reachedOf(p);
       var sub = v.payAt ? "✓ Complete" : v.done ? v.done + " of " + v.total + " milestones" : reached ? "Ready to start" : bridge ? "Starts at Bridge B, after unit 6" : "Starts with " + C().unitName(p.unit).replace(/^Unit /, "unit ");
       box.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "code.project-row",
         onclick: function () { KOS.show("code", { page: "project", id: p.id }); } }, [
@@ -461,11 +470,18 @@
     draw();
   }
   function needMet(u) { var us = C().unitState(u); return us.state === "done"; }
+  /* a track's state, from its parts in the spine: written whole, part
+     written, or not started */
+  function trackState(t) {
+    var parts = (KOS_DATA.code.sections || []).filter(function (s) { return s.track === t.id; });
+    var rel = parts.filter(function (s) { return C().unitState(s.ref).released; }).length;
+    return !rel ? "Coming later" : rel === parts.length ? "All " + parts.length + " parts" : rel + " of " + parts.length + " parts";
+  }
   function branchCard(t) {
     var met = (t.needs || []).filter(needMet).length;
-    return el("button", { type: "button", class: "k-cx-branch", "data-ui": "code.branch", "data-state": "later",
+    return el("button", { type: "button", class: "k-cx-branch", "data-ui": "code.branch", "data-state": trackState(t) === "Coming later" ? "later" : null,
       onclick: function () { KOS.show("code", { page: "track", id: t.id }); } }, [
-      el("span", { class: "k-cx-branch-h" }, [el("span", { class: "k-mono", text: t.id }), el("b", { text: t.title }), el("small", { text: "Coming later" })]),
+      el("span", { class: "k-cx-branch-h" }, [el("span", { class: "k-mono", text: t.id }), el("b", { text: t.title }), el("small", { text: trackState(t) })]),
       el("span", { class: "k-cx-needs" }, ["needs:"].concat((t.needs || []).map(function (u) {
         var ok = needMet(u);
         return el("span", { class: "k-cx-need", "data-state": ok ? "met" : null, text: (ok ? "✓ " : "") + unitName(u) });

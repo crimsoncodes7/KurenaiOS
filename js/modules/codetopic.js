@@ -36,25 +36,37 @@
   }
 
   /* ================= the spine ================= */
-  function spine(tree, list, activeRef) {
+  /* which group the spine shows: the group of the lesson on screen, unless
+     the switch was pressed on this lesson; elsewhere, the last choice */
+  function spineMode(activeRef) {
     var ui = U();
-    var mode = ui.spine === "tracks" ? "tracks" : "core";
+    var l = activeRef ? KOS.code.lesson(activeRef) : null;
+    var here = l ? (/^T\d/.test(String(l.unit)) ? "tracks" : "core") : null;
+    if (here && ui.spineRef !== activeRef) return here;
+    return ui.spine === "tracks" ? "tracks" : "core";
+  }
+  function spine(tree, list, activeRef, mode) {
+    var ui = U();
+    mode = mode || spineMode(activeRef);
     var seg = el("div", { class: "k-seg k-seg--fill k-cx-spineseg", "data-ui": "code.spine-mode", role: "group", "aria-label": "Curriculum" },
       [["core", "Core"], ["tracks", "Tracks"]].map(function (m) {
         return el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(mode === m[0]), text: m[1],
-          onclick: function () { ui.spine = m[0]; KOS.store.save(); KOS.rerender(); } });
+          onclick: function () { ui.spine = m[0]; ui.spineRef = activeRef || null; KOS.store.save(); KOS.rerender(); } });
       }));
     tree.insertBefore(seg, tree.querySelector(".k-spine-filter-wrap"));
-    if (mode === "tracks") {
-      var K = window.KOS_CODE;
-      list.appendChild(el("div", { class: "k-spine-stage", text: "Tracks" }));
-      K.TRACKS.forEach(function (t) { list.appendChild(trackRow(t)); });
-      list.appendChild(el("div", { class: "k-spine-stage", text: "Deepening" }));
-      K.DEEPENING.forEach(function (t) { list.appendChild(trackRow(t)); });
-      return { tracks: true };
-    }
+    var K = window.KOS_CODE;
     return {
-      tracks: false,
+      tracks: mode === "tracks",
+      /* tracks with no part in the spine yet, then the deepening modules */
+      after: mode !== "tracks" ? null : function (into) {
+        var later = K.TRACKS.filter(function (t) { return !(KOS_DATA.code.sections || []).some(function (s) { return s.track === t.id; }); });
+        if (later.length) {
+          into.appendChild(el("div", { class: "k-spine-stage", text: "Tracks to come" }));
+          later.forEach(function (t) { into.appendChild(trackRow(t)); });
+        }
+        into.appendChild(el("div", { class: "k-spine-stage", text: "Deepening" }));
+        K.DEEPENING.forEach(function (t) { into.appendChild(trackRow(t)); });
+      },
       stageHead: function (stage) {
         var st = (window.KOS_CODE.STAGES || []).filter(function (x) { return x.id === stage; })[0];
         var tr = /^T\d/.test(String(stage)) ? (window.KOS_CODE.TRACKS || []).filter(function (x) { return x.id === stage; })[0] : null;
@@ -702,5 +714,5 @@
     else if (kind === "fill") fillCard(card, ref, item, done);
     else bugCard(card, ref, item, done);
   }
-  KOS.codeTopic = { begin: begin, spine: spine, quickRef: quickRef, practiceCard: practiceCard, KIND_LABEL: KIND_LABEL };
+  KOS.codeTopic = { begin: begin, spine: spine, spineMode: spineMode, quickRef: quickRef, practiceCard: practiceCard, KIND_LABEL: KIND_LABEL };
 })();

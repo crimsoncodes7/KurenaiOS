@@ -213,7 +213,7 @@
 .k-cx-live { display: inline-block; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--green); }
 
 /* ================= the spine and the topic page (26c–26e) ================= */
-.k-cx-spineseg { margin: 0 var(--sp-14) var(--sp-10); }
+.k-cx-spineseg { margin: 0 0 var(--sp-10); }
 .k-spine-stage { padding: var(--sp-14) var(--sp-14) var(--sp-4); font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
 .k-cx-aqa { font-size: var(--fs-12-5); }
 .k-topic-tabrow > .k-cx-mode { flex: 0 0 auto; margin-inline-start: auto; margin-block-end: var(--sp-6); }

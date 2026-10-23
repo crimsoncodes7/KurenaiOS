@@ -405,6 +405,11 @@
     tree.innerHTML = "";
     var data = KOS_DATA[sid];
     var st = subjectStats(sid);
+    /* Code's spine shows one group at a time — the core path or the tracks —
+       and the count, the filter and the list follow the group shown */
+    var codeMode = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spineMode(activeRef) : null;
+    var sections = !codeMode ? data.sections : data.sections.filter(function (sec) { return codeMode === "tracks" ? !!sec.track : !sec.track; });
+    if (codeMode) st = sections.reduce(function (a, sec) { var x = sectionStats(sid, sec); a.done += x.done; a.total += x.total; a.pct = a.total ? Math.round(100 * a.done / a.total) : 0; return a; }, { done: 0, total: 0, pct: 0 });
     tree.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var open = store.state.ui.openSections[sid] = store.state.ui.openSections[sid] || {};
 
@@ -439,7 +444,7 @@
     tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [KOS.ui.icon("search"), filter]));
     tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
       el("div", { class: "k-spine-board-row" }, [
-        el("span", { text: data.board }),
+        el("span", { text: codeMode === "tracks" ? "Tracks" : data.board }),
         el("span", { class: "k-mono", text: ratioText(st.done, st.total) + " completed" })
       ]),
       el("span", { class: "k-bar", role: "img", "aria-label": st.pct + "% complete", style: "--p: " + st.pct + "%" }, [el("i")]),
@@ -461,13 +466,12 @@
     var list = el("div", { class: "k-spine-list", "data-ui": "study.spine-list" });
     /* Code's spine (frame 26c): Core | Tracks, and stage headings above
        the units; Tracks lists the tracks and deepening modules instead */
-    var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef)
+    var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef, codeMode)
       /* Japanese (frame 28e): Core | Media, and stage headings with their emblem kanji */
       : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef) : null;
     tree.appendChild(list);
-    if (codeSpine && codeSpine.tracks) return;
     var lastStage = null;
-    data.sections.forEach(function (sec) {
+    sections.forEach(function (sec) {
       if (codeSpine && sec.stage !== lastStage) {
         lastStage = sec.stage;
         list.appendChild(codeSpine.stageHead(sec.stage));
@@ -548,6 +552,9 @@
         parentEl.appendChild(btn);
       }
     });
+    /* Code's tracks: the ones with no part in the spine yet, then deepening */
+    if (codeSpine && codeSpine.after) codeSpine.after(list);
+
 
     /* the filter narrows the entries in place: a section with a match opens,
        one without hides; clearing it restores the stored disclosure */
