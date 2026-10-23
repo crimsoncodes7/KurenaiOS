@@ -17,7 +17,13 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the rest of Code's Track T1 (sw `kos-code-24`) —
+- Latest release: Japanese Stage 1 unit F1, First conversations (sw
+  `kos-japanese-3`) — immutable deployment https://40739699.kurenai-os.pages.dev
+  (23 October 2026; `feat/japanese-s1`: lessons 1.1–1.6 on the eight-page
+  contract, VN scenes and manga panels over the user's art, Makoto joins the
+  cast, and the audio pack — the cast on ElevenLabs, the narrator on
+  VOICEVOX:No.7, `tools/bake_ja_audio.mjs`). Before it the rest of Code's
+  Track T1 (sw `kos-code-24`) —
   immutable deployment https://f6ddf42e.kurenai-os.pages.dev (23 October
   2026; `feat/code-t1-rest`: T1D HTTP and REST in the app with fake
   servers, T1E Networking and T1F Building an API in Rider, the Weather
@@ -56,13 +62,13 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-24`
+- Service-worker version: `kos-japanese-3`
 - Required smoke gate: 99 / 99 suites (`""` and 2–99; 80–83 are Japanese's, 99 is Code's SQL runner).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
   `feat/after-fsrs`, then to `feat/ipad`, then to `feat/japanese`, and on
-  23 October to `feat/code-stage4`, then to `feat/code-t1`, so
+  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
@@ -77,10 +83,12 @@ chronological diary here.
   `css/views/japanese.css`; the desk, the lesson, the session, Kana, Skills,
   the path, checkpoints, settings and licences; smoke80) and Stage 0's
   sixteen lessons (`js/data/content/ja-s0.js`, six pages each; smoke82).
-  Stage 1 is built one unit at a time on `feat/japanese-s1`: unit F1, First
-  conversations (`js/data/ja-s1.js`, `js/data/content/ja-f1.js`, eight pages
-  each, VN scenes and manga panels through `KOS.jaUI.scene`/`panel`), waits
-  for its Makoto art (smoke82 `AWAITED_ART`) before it ships.
+  Stage 1 is released one unit at a time: unit F1, First conversations
+  (`js/data/ja-s1.js`, `js/data/content/ja-f1.js`, eight pages each, VN scenes
+  and manga panels through `KOS.jaUI.scene`/`panel`), RELEASED 23 October 2026
+  (sw `kos-japanese-3`); F2–F6 are outlined in docs/japanese-plan.md §3.1.
+  ElevenLabs' free tier holds three designed voices (Akari, Yōta, Makoto):
+  ask the user before a fourth voiced character.
   The reader, media and immersion pages (28h, 28i, 28l) come later.
 - Released 20 October 2026: FSRS (roadmap 5.6, [`docs/fsrs-plan.md`](docs/fsrs-plan.md)),
   phases 1–2. It is one FSRS-6 core for flashcards and Code's retrieval
