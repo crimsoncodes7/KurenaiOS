@@ -17,6 +17,10 @@
          failing report takes nothing back.
      D · THE PAGES. The hub's four tabs, a Bridge lesson and a command
          card draw without writing to the store.
+     E · UNIT 10. The Lending Library's real report (validator 1.1.0: own
+         tests, planted bugs, warnings, source checks) passes all six
+         milestones and pays once; a Bridge report from validator 1.0.0 is
+         still accepted, and the unit 10 project refuses 1.0.0.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -28,7 +32,7 @@ const { boot } = require("./lib/app-harness");
 const ROOT = path.join(__dirname, "..");
 const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 /* the harness keeps its own clock: each real report is dated an hour before it */
-let SOLVED, TAMPERED, BROKEN;
+let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY;
 function dated(file, app, minutes) {
   const j = JSON.parse(read(file)), now = app.window.Date.now();
   j.startedAt = new Date(now - minutes * 60000 - 30000).toISOString().slice(0, 19) + "Z";
@@ -47,7 +51,7 @@ step("A · the export: files, hashes and the zip", async (app) => {
   const files = await P.files(ID), spec = K.code.project(ID);
   assert(files[".kurenai/validate.cs"] && files["kurenai.project.json"] && files["HelloKurenai.sln"] && files["tests/Hello.Acceptance/Milestone2.cs"], "the scaffold, the validator and the manifest");
   const man = JSON.parse(files["kurenai.project.json"]);
-  assert(man.id === ID && man.validator === "1.0.0" && man.milestones.length === spec.milestones.length, "the manifest names the project, the validator and the milestones");
+  assert(man.id === ID && man.validator === "1.1.0" && man.milestones.length === spec.milestones.length, "the manifest names the project, the validator and the milestones");
   spec.protected.forEach((p) => assert(man.protected[p] === K.codeZip.sha256(files[p]), "protected hash for " + p));
   const sol = JSON.parse(SOLVED);
   Object.keys(man.protected).forEach((p) => assert(sol.protected.files[p] === man.protected[p], "the validator computed the same hash for " + p));
@@ -70,6 +74,10 @@ step("B · the import matrix: every outcome, and a check writes nothing", async 
   assert(old.code === "validator" && /Export the project again/.test(old.msg), "a validator too old");
   const fut = new Date(app.window.Date.now() + 3 * 86400000).toISOString().slice(0, 19) + "Z";
   assert((await out(edit(SOLVED, (j) => { j.finishedAt = fut; }))).code === "future", "dated in the future");
+  const legacy = await out(LEGACY);
+  assert(legacy.outcome === "accepted" && !legacy.mismatched.length, "a report from validator 1.0.0 (an earlier export) is still accepted: " + JSON.stringify(legacy.mismatched || legacy.msg));
+  const lib10 = await out(edit(LIBRARY, (j) => { j.validator.version = "1.0.0"; }));
+  assert(lib10.code === "validator", "the unit 10 project needs validator 1.1.0");
   const pr = await out(TAMPERED);
   assert(pr.outcome === "practice" && pr.mismatched.includes("tests/Hello.Acceptance/Milestone2.cs") && !pr.changes.some((c) => c.becomes), "practice only: the changed file named, nothing will pass");
   const ok = await out(SOLVED);
@@ -117,6 +125,22 @@ step("D · the hub, a Bridge lesson and a command card draw without writing", as
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("E · the unit 10 project: six milestones, own tests and planted bugs, paid once", async (app) => {
+  const K = app.KOS, P = K.codeProject, g = K.store.state.governor, L = "rp-u10-library";
+  const files = await P.files(L);
+  const man = JSON.parse(files["kurenai.project.json"]);
+  assert(man.milestones.length === 6 && man.milestones[1].checks[0].type === "mutants" && files["tests/Library.Acceptance/Milestone4.cs"], "the scaffold carries the mutants check and the acceptance tests");
+  const res = await P.check(LIBRARY);
+  assert(res.outcome === "accepted" && res.changes.every((c) => c.becomes) && res.completes && res.reward.xp === 150, "accepted, every milestone, the reward shown: " + JSON.stringify(res.mismatched || res.msg));
+  const xp0 = g.xp, gold0 = g.gold;
+  const r = P.apply(res);
+  assert(r.ok && r.newly.join() === "m1,m2,m3,m4,m5,m6" && r.pay && g.xp - xp0 === 150 && g.gold - gold0 === 40, "paid 150 XP and 40 gold once");
+  ["10.1", "10.3", "10.4", "10.5", "10.6", "10.7", "10.10"].forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
+  K.show("code", { page: "project", id: L }); await app.settle();
+  assert(app.document.querySelectorAll("[data-ui~='code.project-badge']").length === 6 && /Unit 10/.test(app.document.querySelector("#main").textContent), "the hub draws six milestones under Unit 10");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();
@@ -124,6 +148,8 @@ step("D · the hub, a Bridge lesson and a command card draw without writing", as
   SOLVED = dated("tools/fixtures/bridge-report-solved.json", app, 60);
   TAMPERED = dated("tools/fixtures/bridge-report-tampered.json", app, 50);
   BROKEN = dated("tools/fixtures/bridge-report-broken.json", app, 40);
+  LEGACY = dated("tools/fixtures/bridge-report-solved-1.0.0.json", app, 55);
+  LIBRARY = dated("tools/fixtures/library-report-solved.json", app, 30);
   for (const [name, fn] of steps) {
     try { await fn(app); console.log("  ok  " + name); }
     catch (e) { failed++; console.log("  FAIL " + name + "\n       " + e.message); }

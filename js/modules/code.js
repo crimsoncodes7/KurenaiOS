@@ -310,14 +310,16 @@
     return box;
   }
   function weekendCard() {
-    /* the Rider projects (Bridge B); in-app weekend projects are not built */
+    /* the Rider projects (Bridge B, unit 10); in-app weekend projects are not built */
     var box = el("section", { class: "k-card k-cx-weekend", "data-ui": "code.weekend", "aria-label": "Projects" }, [cardHead("Projects", "in Rider")]);
     var ps = C().projects();
     if (!ps.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "No projects yet." })); return box; }
-    var reached = C().lessons().some(function (l) { return l.unit === "B" && C().studied(l.ref); }) || C().unitState("U6").state === "done";
+    /* a project is ready once its unit is begun (Bridge B also after unit 6) */
+    var begun = function (u) { return C().lessons().some(function (l) { return l.unit === u && C().studied(l.ref); }); };
     ps.forEach(function (p) {
-      var v = C().projectView(p.id);
-      var sub = v.payAt ? "✓ Complete" : v.done ? v.done + " of " + v.total + " milestones" : reached ? "Ready to start" : "Starts at Bridge B, after unit 6";
+      var v = C().projectView(p.id), bridge = p.unit === "B";
+      var reached = begun(bridge ? "B" : p.unit) || (bridge ? C().unitState("U6").state === "done" : C().unitState("U9").state === "done");
+      var sub = v.payAt ? "✓ Complete" : v.done ? v.done + " of " + v.total + " milestones" : reached ? "Ready to start" : bridge ? "Starts at Bridge B, after unit 6" : "Starts with unit " + p.unit.slice(1);
       box.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "code.project-row",
         onclick: function () { KOS.show("code", { page: "project", id: p.id }); } }, [
         el("span", { class: "k-day-bar", style: "--row-c: var(--code)", "aria-hidden": "true" }),

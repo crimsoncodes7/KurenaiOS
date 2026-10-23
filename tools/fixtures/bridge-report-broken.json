@@ -5,8 +5,8 @@
     "scaffoldVersion": 1
   },
   "validator": {
-    "version": "1.0.0",
-    "sha256": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0"
+    "version": "1.1.0",
+    "sha256": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
   },
   "env": {
     "sdk": "10.0.302",
@@ -15,7 +15,7 @@
   },
   "source": {
     "treeSha256": "0bcba8d547353f0c81941fc06266a213bdef86efa672dd9d595f05df8641719a",
-    "gitCommit": "62da2eb34bb7ec047a3073f0657d3ea8b6545106",
+    "gitCommit": "12835ac62cce8c40649e24b05e514dc2c388d4e8",
     "dirty": true
   },
   "protected": {
@@ -26,7 +26,7 @@
       "tests/Hello.Acceptance/Hello.Acceptance.csproj": "9006110b94a86e3ee90e94b4142d583628855b3b96ff150472060ee216a2b7a5",
       "tests/Hello.Acceptance/Milestone2.cs": "8f58c7e8152328f3707a374d4819aa6ba3ee7109ab231186a18ff363ca657c85",
       "tests/Hello.Acceptance/Milestone4.cs": "7b4f630e46463f3d322610d35706d712ddbb1c6e1bda04697d9c97bc511c8705",
-      ".kurenai/validate.cs": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0"
+      ".kurenai/validate.cs": "25ad35f2ac0d4af121db09c99dfbaff23f475d7c9ffad4af8953facb886bb4e4"
     }
   },
   "steps": [
@@ -34,20 +34,20 @@
       "id": "preflight",
       "ran": true,
       "exit": 0,
-      "ms": 87,
+      "ms": 82,
       "sdk": "10.0.302"
     },
     {
       "id": "restore",
       "ran": true,
       "exit": 0,
-      "ms": 363
+      "ms": 340
     },
     {
       "id": "build",
       "ran": true,
       "exit": 1,
-      "ms": 370,
+      "ms": 374,
       "errors": 1,
       "warnings": 0
     },
@@ -135,7 +135,7 @@
       "message": "The name \u0027nam\u0027 does not exist in the current context"
     }
   ],
-  "startedAt": "2026-10-16T15:16:49Z",
-  "finishedAt": "2026-10-16T15:16:50Z",
-  "reportSha256": "375b0ff1c4838bbfc21c228df3856b2307fc3f3e4cf3e77d1294f5ed1adc29e6"
+  "startedAt": "2026-10-23T05:00:07Z",
+  "finishedAt": "2026-10-23T05:00:07Z",
+  "reportSha256": "ea45864b7c8cc61e2ca55b4572097e23e65021d2174f4ff5b5d9a0528a0f366b"
 }

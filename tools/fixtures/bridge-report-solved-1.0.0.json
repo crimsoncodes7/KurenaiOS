@@ -1,0 +1,135 @@
+{
+  "schema": "kurenai.validation/1",
+  "project": {
+    "id": "rp-bridge-hello",
+    "scaffoldVersion": 1
+  },
+  "validator": {
+    "version": "1.0.0",
+    "sha256": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0"
+  },
+  "env": {
+    "sdk": "10.0.302",
+    "os": "macOS 27.0.1",
+    "arch": "arm64"
+  },
+  "source": {
+    "treeSha256": "16bcbfa79b1e8db9f95435d40e7c7867008fbe0b7b4f73309cdb5125217b9553",
+    "gitCommit": "62da2eb34bb7ec047a3073f0657d3ea8b6545106",
+    "dirty": false
+  },
+  "protected": {
+    "ok": true,
+    "mismatched": [],
+    "files": {
+      "Directory.Build.props": "c6658bd689388d518e2644e6a0b4edaa9e7efe114a9c8f640a4d63d25f5353ac",
+      "tests/Hello.Acceptance/Hello.Acceptance.csproj": "9006110b94a86e3ee90e94b4142d583628855b3b96ff150472060ee216a2b7a5",
+      "tests/Hello.Acceptance/Milestone2.cs": "8f58c7e8152328f3707a374d4819aa6ba3ee7109ab231186a18ff363ca657c85",
+      "tests/Hello.Acceptance/Milestone4.cs": "7b4f630e46463f3d322610d35706d712ddbb1c6e1bda04697d9c97bc511c8705",
+      ".kurenai/validate.cs": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0"
+    }
+  },
+  "steps": [
+    {
+      "id": "preflight",
+      "ran": true,
+      "exit": 0,
+      "ms": 88,
+      "sdk": "10.0.302"
+    },
+    {
+      "id": "restore",
+      "ran": true,
+      "exit": 0,
+      "ms": 439
+    },
+    {
+      "id": "build",
+      "ran": true,
+      "exit": 0,
+      "ms": 503,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "id": "test",
+      "ran": true,
+      "exit": 0,
+      "ms": 888,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "ok": true,
+      "checks": [
+        {
+          "type": "build",
+          "ok": true,
+          "note": "builds"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "ok": true,
+      "checks": [
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "6 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "ok": true,
+      "checks": [
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        },
+        {
+          "type": "run",
+          "ok": true,
+          "note": "output as expected"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "ok": true,
+      "checks": [
+        {
+          "type": "package",
+          "ok": true,
+          "note": "references Humanizer.Core"
+        },
+        {
+          "type": "tests",
+          "ok": true,
+          "note": "5 passed, 0 failed"
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "ok": true,
+      "checks": [
+        {
+          "type": "git",
+          "ok": true,
+          "note": "committed, clean"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "startedAt": "2026-10-16T15:16:44Z",
+  "finishedAt": "2026-10-16T15:16:46Z",
+  "reportSha256": "1f977c03e206bab7c22c00357c19fc323a11c26b4ab066e4a8bd577f97b446e1"
+}

@@ -36,6 +36,9 @@ const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n
   for (const key of Object.keys(content).filter((k) => k.indexOf("code:" + prefix) === 0)) {
     const ref = key.slice(5), c = content[key];
     console.log(ref);
+    /* a Rider lesson (Bridge B, unit 10) holds the Rider form; smoke75 checks it */
+    const unit = (data.sections || []).find((u) => u.children.some((l) => l.ref === ref));
+    if (unit && unit.where === "rider") { console.log("  (Rider form: checked by smoke75)"); continue; }
     let page = null, pitCompile = false, nRun = 0;
     for (const b of c.notes) {
       if (b && b.page) { page = b.page; continue; }

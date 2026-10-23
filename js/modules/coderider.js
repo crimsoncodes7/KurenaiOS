@@ -23,7 +23,7 @@
     if (!v) { KOS.show("code", { page: "map" }); return; }
     var p = v.spec, tab = (arg && arg.tab) || "overview", flash = null;
     var body = el("div", { class: "k-cx-rp", "data-ui": "code.project" });
-    main.appendChild(KOS.ui.pageHeader({ kicker: "Code · Bridge " + p.unit + " · Rider project", title: p.title, sub: p.summary,
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Code · " + (/^U\d+$/.test(p.unit) ? "Unit " + p.unit.slice(1) : "Bridge " + p.unit) + " · Rider project", title: p.title, sub: p.summary,
       actions: [el("span", { class: "k-cx-chip", text: "⌘ Rider" }),
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.project-bring", text: "Bring in a report", onclick: function () { tab = "validation"; draw(); pick(); } })] }));
     main.appendChild(body);

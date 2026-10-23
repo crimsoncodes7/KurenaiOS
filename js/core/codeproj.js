@@ -20,6 +20,10 @@
   "use strict";
   window.KOS = window.KOS || {};
   var MAX = 256 * 1024;
+  /* earlier validators' own hashes: a project exported before a validator
+     release still reports with the one it shipped, and is accepted while
+     that version meets the project's minValidator */
+  var EARLIER = { "1.0.0": "b9dc809ca8e5e6008e3b82ff371468f3e7f0946b59fa63156a8b164a5e5f12e0" };
   var validatorText = null;
   function C() { return KOS.code; }
   function Z() { return KOS.codeZip; }
@@ -126,6 +130,8 @@
     if (had) return Promise.resolve({ outcome: "duplicate", sha: sha, at: had.importedAt, msg: "This report was brought in on " + new Date(had.importedAt).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) + ". Nothing changed." });
     return validator().then(function (v) {
       var want = manifest(p, v).protected;
+      var vv = rep.validator.version;
+      if (want[".kurenai/validate.cs"] && vv !== versionOf(v) && EARLIER[vv]) want[".kurenai/validate.cs"] = EARLIER[vv];
       var mismatched = Object.keys(want).filter(function (k) { return rep.protected.files[k] !== want[k]; });
       var practice = !rep.protected.ok || mismatched.length > 0;
       var passed = view.milestones.reduce(function (o2, m) { o2[m.id] = !!m.passedAt; return o2; }, {});
