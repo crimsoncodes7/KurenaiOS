@@ -1,6 +1,6 @@
 ---
 name: code-study-space
-description: Code (roadmap 5.3) core path COMPLETE — stages 1–4, Bridge B, capstones 1–4; released 2026-10-23 (a1bc5c5, kos-code-19); only deepening modules and tracks remain, when asked
+description: Code (roadmap 5.3) core path COMPLETE (a1bc5c5); T1A released 07b3520; T1B+T1C RELEASED 2026-10-23 (2db0b4f, kos-code-21); T1D+ only when asked
 metadata:
   node_type: memory
   type: project
@@ -45,3 +45,6 @@ Code, the fourth study space, shipped 15 October 2026: platform from design turn
 - 2026-10-23: Python path DECIDED (plan §3.6), order decided (§3.7: T1 → T2 → D1–D3 → T5 → PY → PA → PB → T3 → D4–D6 → rest). Spike S DONE on branch feat/code-t1 (92a494d): sql.js 1.14.2 vendored in assets/code/sqlite (user approved the download), js/labs/sql-run.js + sql-worker.js, coderun lang "sql", tools/sql_diff.mjs vs Python sqlite3 (58/58), smoke99 (gate now 99). T1 outlined lesson by lesson (§3.3): parts T1A–T1F, refs T1.1–T1.28, each part released whole; café dataset js/data/content/code-t1-data.js (not loaded by index.html yet). Next: T1 platform (track sections in the spine with coreUnits/coreLessons for core surfaces, SQL listings/tasks in lessons, the track page) then T1A lessons.
 - 2026-10-23: T1A Databases WRITTEN on feat/code-t1 (cc1e8f4), not deployed: tracks join the spine (sections with track, stage = track id; KOS.code.coreUnits/coreLessons for core surfaces), SQL lessons via where "sql" + db datasets (cafe, cafe2 for hidden cases, mug), predict answers by value (KOS.codeRun.sameAnswer), card outputs from their answer (check() runs spec.answer when a case has no out). Missing Mug = five stretch clue tasks T1.8-mug1..5. Authoring aid: «task:id:n» markers filled by running answers (scratch script). 99/99 gate. Next: deploy when asked, then T1B (Rider).
 - T1A RELEASED 2026-10-23 (07b3520, sw kos-code-20, https://4eef907a.kurenai-os.pages.dev). deploy_pages.sh refuses any .md in dist — vendored notes ship as .txt.
+- 2026-10-23: T1B (SQL from C#, Contacts on SQLite, 120/30/8) and T1C (EF Core, rp-t1c-library "The Lending Library on EF Core", tools/code-projects/library-efcore, 150/40/8) written on feat/code-t1b. EF scaffold pattern: acceptance tests on SQLite :memory: through a TestDb with a DbCommandInterceptor that records SQL (tests assert WHERE/COUNT/GROUP BY, a one-column UPDATE, ≤2 queries for N+1); HasPendingModelChanges() checks migrations; dotnet-ef 10.0.11 pinned in .config/dotnet-tools.json and the IDesignTimeDbContextFactory lets `dotnet ef migrations add X --project src/Library.Data` work (build first). EF Core 10.0.11 + SQLitePCLRaw 2.1.13 pin. Notes' SQL taken from ToQueryString, not memory.
+- smoke97 bug fixed 23 Oct: tests must read the harness clock (app.window.Date), never Node's Date.now().
+- T1B+T1C RELEASED 2026-10-23 (2db0b4f, sw kos-code-21, https://2c5de69f.kurenai-os.pages.dev).
