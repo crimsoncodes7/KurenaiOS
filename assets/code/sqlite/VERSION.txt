@@ -1,4 +1,4 @@
-# SQLite in WebAssembly (sql.js 1.14.2)
+SQLite in WebAssembly (sql.js 1.14.2)
 
 Vendored, unchanged, from the npm package `sql.js` 1.14.2 (MIT licence,
 `LICENSE` here; it bundles SQLite 3.49.1, public domain). Integrity of the

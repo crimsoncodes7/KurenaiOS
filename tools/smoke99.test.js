@@ -95,7 +95,7 @@ step("D · offline and lazy in the service worker; the licence ships", async () 
   assert(/var SQLITE_CACHE = "kos-sqlite-1\.14\.2"/.test(sw) && /caches\.open\(sq \? SQLITE_CACHE/.test(sw), "cache-first in kos-sqlite-<version>");
   assert(/n !== SQLITE_CACHE\) return caches\.delete\(n\)/.test(sw), "a deploy's clean-up keeps it");
   assert(/MIT/.test(read("assets/code/sqlite/LICENSE")) && fs.statSync(path.join(ROOT, "assets/code/sqlite/sql-wasm.wasm")).size > 500000, "the vendored build and its licence");
-  assert(/sql\.js@?\s*1\.14\.2|sql\.js\) 1\.14\.2|sql\.js 1\.14\.2/.test(read("assets/code/sqlite/README.md")) && /var SQLITE_CACHE = "kos-sqlite-1\.14\.2"/.test(sw), "the cache name follows the vendored version");
+  assert(/sql\.js@?\s*1\.14\.2|sql\.js\) 1\.14\.2|sql\.js 1\.14\.2/.test(read("assets/code/sqlite/VERSION.txt")) && /var SQLITE_CACHE = "kos-sqlite-1\.14\.2"/.test(sw), "the cache name follows the vendored version");
 });
 
 (async () => {
