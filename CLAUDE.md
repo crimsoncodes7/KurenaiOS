@@ -9,7 +9,7 @@ chronological diary here.
 ## Current baseline
 
 - Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
-  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; Track T1's parts A–C; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
+  Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; Track T1's parts A–C and the whole of Track T2; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
@@ -17,7 +17,11 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `2db0b4f` — immutable deployment
+- Latest release: `8ff3751` — immutable deployment
+  https://b7cc2382.kurenai-os.pages.dev (23 October 2026; `feat/code-t2`:
+  the whole of Code's Track T2 — 20 Rider lessons in Avalonia, four
+  projects tested headless and the first track capstone, The Planner on
+  the desktop; validator 1.1.1). Before it `2db0b4f`,
   https://2c5de69f.kurenai-os.pages.dev (23 October 2026; `feat/code-t1b`:
   Code T1B, SQL from C#, and T1C, Entity Framework Core — nine Rider
   lessons, Contacts on SQLite and The Lending Library on EF Core). Before
