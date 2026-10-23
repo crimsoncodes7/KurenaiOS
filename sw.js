@@ -22,6 +22,10 @@
      kos-csharp-<id>. Its folder is versioned by the runner's id, so its
      files never change in place; a deploy does not clear it (it is not a
      VERSION cache) and the page prunes an older id's cache itself.
+   - SQLITE IN WEBASSEMBLY (assets/code/sqlite/, Code's T1 SQL lessons):
+     fetched only when a lesson first runs SQL, then CACHE-FIRST in its own
+     cache, kos-sqlite-<SQLITE_ID>, kept across deploys; a new SQLite build
+     bumps SQLITE_ID and the old cache is cleared.
    - EVERYTHING ELSE — Supabase, AniList, VNDB, Open Library, Google Books,
      any non-GET — is NOT intercepted at all. Authenticated and personalised
      responses must never sit in Cache Storage.
@@ -37,6 +41,7 @@
 var VERSION = "kos-code-19";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
+var SQLITE_CACHE = "kos-sqlite-1.14.2";
 
 var CDN_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"];
 /* local development: navigations stay network-first (see header) */
@@ -49,6 +54,8 @@ var EXTRA_PRECACHE = [
   /* Code's in-app runner: a worker script, never a <script> tag (roadmap 5.3) */
   "js/labs/cs-interp.js",
   "js/labs/cs-wasm-worker.js",
+  "js/labs/sql-worker.js",
+  "js/labs/sql-run.js",
   /* the Rider validator, zipped into every exported project (offline export) */
   "assets/code/validator/validate.cs",
   "assets/brand/kurenai-bloom.png",
@@ -113,7 +120,7 @@ self.addEventListener("activate", function (e) {
   e.waitUntil((async function () {
     var names = await caches.keys();
     await Promise.all(names.map(function (n) {
-      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE) return caches.delete(n);
+      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE && n !== SQLITE_CACHE) return caches.delete(n);
       return null;
     }));
     await self.clients.claim();
@@ -197,9 +204,10 @@ self.addEventListener("fetch", function (e) {
   }
 
   var rt = /\/assets\/code\/runtime\/([^/]+)\//.exec(url.pathname);
-  if (rt) {
+  var sq = /\/assets\/code\/sqlite\//.test(url.pathname);
+  if (rt || sq) {
     e.respondWith((async function () {
-      var cache = await caches.open("kos-csharp-" + rt[1]);
+      var cache = await caches.open(sq ? SQLITE_CACHE : "kos-csharp-" + rt[1]);
       var hit = await cache.match(req);
       if (hit) return hit;
       var res = await fetch(req);

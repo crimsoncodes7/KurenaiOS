@@ -126,6 +126,35 @@ and U11). Taster: "a contacts app on SQLite" after Bridge B.
 | Building an API with ASP.NET Core minimal APIs (**the web-API elective**), persistence design, configuration, environment variables, user secrets | 3 | Rider; checked with `WebApplicationFactory` |
 | Security fundamentals: validation, injection, parameterisation, secrets management, OWASP top 10 in .NET | inside the parts above, plus T6 | — |
 
+**T1, lesson by lesson (outlined 23 October 2026).** Each part is released
+WHOLE, like a core unit (smoke75 A); its refs are `T1.<n>`. Every lesson
+holds the notes contract (§4.3) — SQL lessons with their runnable listings
+in the SQL sandbox, Rider lessons in the Rider form — and its practice,
+flashcards, quiz and retrieval cards.
+
+| Part (section) | Lessons | Runs | Project at the end |
+|---|---|---|---|
+| **T1A · Databases** | T1.1 Tables, rows and keys · T1.2 Reading: `SELECT`, `WHERE`, `ORDER BY`, `LIMIT` · T1.3 Expressions, `NULL` and three-valued logic · T1.4 Aggregates: `GROUP BY` and `HAVING` · T1.5 Joins: inner, left, self, many-to-many · T1.6 Subqueries, sets and CTEs (with window functions) · T1.7 Designing tables: relationships and normalisation (1NF–3NF), constraints · T1.8 Changing data safely: `INSERT`/`UPDATE`/`DELETE`, transactions and ACID, indexes and query plans | SQL sandbox (café dataset, `js/data/content/code-t1-data.js`) | **The Case of the Missing Mug** (in-app: acceptance cases are queries whose result tables must match) |
+| **T1B · SQL from C#** | T1.9 `Microsoft.Data.Sqlite`: connections and readers · T1.10 Parameters, never concatenation (injection shown and stopped) · T1.11 Transactions and a small repository | Rider | the **taster**, *Contacts on SQLite* (also open from Bridge B) |
+| **T1C · Entity Framework Core** | T1.12 Entities and `DbContext` · T1.13 LINQ to SQL: what gets translated · T1.14 Migrations · T1.15 Relationships and loading · T1.16 Change tracking · T1.17 N+1 and performance | Rider (tests on SQLite in-memory) | **The Lending Library on EF Core** |
+| **T1D · HTTP and REST** | T1.18 HTTP: methods, status codes, headers · T1.19 `HttpClient` and JSON · T1.20 Retries, timeouts and cancellation · T1.21 REST design · T1.22 Authentication: API keys, OAuth and JWT | full runtime in-app against a fake server (a shipped `HttpMessageHandler`, no network); real APIs in Rider | **Weather client** |
+| **T1E · Networking** | T1.23 IP, DNS and ports · T1.24 TCP and UDP · T1.25 Sockets: a client and a server | concepts in-app (links to AQA Paper 2); sockets in Rider over loopback | **Loopback chat** |
+| **T1F · Building an API** | T1.26 ASP.NET Core minimal APIs · T1.27 Persistence design, configuration and user secrets · T1.28 Testing an API with `WebApplicationFactory` | Rider | the capstone: **The Planner goes online** (§3.5) |
+
+**How a track joins the curriculum (T1's platform release).** The spine
+(`KOS_DATA.code.sections`) gains each part as a section with `track: "T1"`
+and its own `where` (`"sql"` for T1A). Core surfaces read the core only —
+`KOS.code.coreUnits()`/`coreLessons()` for the desk's units, the stage path,
+the skill map's stages, the lesson counts and "Coming later" — while the
+Study spine, search, the inspector, retrieval and the Daily 20 (once a
+track lesson is covered) read every lesson. The track's page (`#/code/track/T1`)
+turns from an outline into its parts, lessons, projects and capstone. A
+`{run}` listing with `lang: "sql"` and a `db` (a dataset name) renders as
+SQL and runs in the SQL sandbox; a task with `lang: "sql"` is checked by
+the same program-mode checker (its output is the result tables, as text);
+cards vary SQL as they vary C#. `tools/sql_diff.mjs` holds every SQL
+program to native SQLite, as `cs_diff` holds C# to .NET.
+
 **T2 · User interfaces and desktop apps with Avalonia** (about 20 lessons; L E;
 after stage 3, since it needs events and delegates from U9). Taster: "your
 first window", a GUI tip calculator in code-behind with no MVVM. It is
@@ -862,7 +891,7 @@ setup recommends turning it on.
 | **N · Notes depth** | What does one full-contract lesson cost? | **4.3 Dictionary written in full**, approved by you as the depth reference; hours per lesson measured, and the schedule set from it | R1 |
 | **V · Rider validator** | Can `validate.cs` produce a trustworthy report? | One project end to end on macOS and Windows: SARIF and TRX parsed, protected-file hashes, an import with every rejection case, a CI run | R2 |
 | **G · GitHub** | App or PAT, the token Edge Function, atomic commits, conflicts | An end-to-end test repository: consent, batched commit, a Rider push in between, the conflict branch, the secret-scan block, offline replay | R3 |
-| **S · SQL sandbox** | SQLite in WebAssembly in a worker: size and offline | `JOIN`, `GROUP BY` and transactions in-app | T1 |
+| **S · SQL sandbox** ✓ | SQLite in WebAssembly in a worker: size and offline | `JOIN`, `GROUP BY` and transactions in-app — **done 23 October 2026** (verdict below) | T1 |
 | **H · Web sandbox** | A sandboxed iframe with no network (CSP) for HTML/CSS/JS | Isolation proven | T4 |
 
 **Verdicts (16 October 2026).**
@@ -880,6 +909,24 @@ setup recommends turning it on.
   clock); and setting `self.onmessage` in the worker stops .NET starting.
   **Not measured yet: a phone** — the first test on a real phone is still
   owed before units 7+ ship.
+- **Spike S: SQLite in WebAssembly works in a sealed worker (23 October
+  2026).** sql.js 1.14.2 (MIT; SQLite 3.49.1) vendored in
+  `assets/code/sqlite/` — about 46 KB of JavaScript and 660 KB of
+  WebAssembly — fetched only on the first SQL run and then kept offline,
+  cache-first in `kos-sqlite-1.14.2`. The worker (`js/labs/sql-worker.js`)
+  removes the network before the first statement; each run is a fresh
+  in-memory database seeded with the lesson's dataset. A run printed its
+  first result in 55 ms in Chrome (SQLite's load included) and about 1 ms
+  after; a runaway recursive query is stopped by the watchdog and the next
+  run gets a fresh worker. The runner (`js/labs/sql-run.js`) writes results
+  as text tables, so the checker, predict items and tasks work unchanged.
+  `JOIN`, `GROUP BY`/`HAVING`, windows, CTEs, transactions and savepoints,
+  `STRICT`, `RETURNING`, upserts, views, indexes, query plans, JSON and the
+  constraint errors: **58 of 58 programs identical to native SQLite 3.50.4**
+  (`tools/sql_diff.mjs`, Python's `sqlite3` as the reference). One
+  difference is a rule, not a bug: sql.js hands a REAL `2.0` back as `2`,
+  so numbers print as JavaScript writes them (`typeof()` tells the types
+  apart), and the reference prints the same way. Held by smoke99.
 - **Spike V: the validator is trustworthy on macOS.** A real build (SARIF),
   real tests (TRX), scripted runs, a Git check and protected-file hashes,
   run end to end on the Bridge project in four scenarios

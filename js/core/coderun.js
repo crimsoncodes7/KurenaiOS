@@ -165,10 +165,57 @@
     window.caches.keys().then(function (ks) { ks.forEach(function (k) { if (k.indexOf("kos-csharp-") === 0 && k !== "kos-csharp-" + RUNTIME_ID) window.caches.delete(k); }); }).catch(function () { /* no caches */ });
   }
 
+  /* ---------------- SQL (Spike S; T1's Databases part) ----------------
+     SQLite in WebAssembly in its own sealed worker (js/labs/sql-worker.js),
+     created on the first SQL run, so nothing of it is fetched before a
+     lesson asks; each run is a fresh in-memory database seeded with the
+     lesson's dataset (req.seed). The same watchdog as the interpreter. */
+  var sqlw = null, sqlPending = {}, sqlBroken = false;
+  function sqlKill() {
+    if (sqlw) { try { sqlw.terminate(); } catch (e) { /* gone */ } }
+    sqlw = null;
+  }
+  function sqlMake() {
+    try {
+      var w = new window.Worker("js/labs/sql-worker.js");
+      w.onmessage = function (ev) {
+        var p = sqlPending[ev.data && ev.data.id];
+        if (!p) return;
+        clearTimeout(p.t); delete sqlPending[ev.data.id];
+        p.res(ev.data.res);
+      };
+      w.onerror = function () { sqlBroken = true; sqlKill(); };
+      return w;
+    } catch (e) { sqlBroken = true; return null; }
+  }
+  function sqlRun(req) {
+    var src = req.src != null ? req.src : (req.files || []).map(function (f) { return f.src; }).join("\n");
+    var fresh = !sqlw;
+    if (sqlBroken || typeof window.Worker !== "function" || !/^https?:$/.test(location.protocol) || !(sqlw = sqlw || sqlMake())) {
+      return Promise.resolve({ ok: false, stdout: "", steps: 0, ms: 0, error: { code: "SQL_UNAVAILABLE", kind: "runner", line: 0,
+        msg: "SQL runs in a worker, which needs the app served over http(s)." } });
+    }
+    var id = ++seq;
+    return new Promise(function (res) {
+      var t = setTimeout(function () {
+        sqlKill(); delete sqlPending[id];
+        res({ ok: false, stdout: "", steps: 0, ms: WATCHDOG, error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (WATCHDOG / 1000) + " seconds.", line: 0 } });
+      }, fresh ? WATCHDOG + 4000 : WATCHDOG);  /* a new worker also loads SQLite (~700 KB) */
+      sqlPending[id] = { res: res, t: t };
+      sqlw.postMessage({ id: id, req: { src: src, seed: req.seed || "" } });
+    }).then(function (r) {
+      /* the checker's shape: SQL errors read as a runtime stop, with SQLite's words */
+      if (r && r.error && r.error.kind === "sql") r.error = { code: "SQL", kind: "sql", msg: r.error.msg, line: 0 };
+      return r;
+    });
+  }
+
   /* run(req) → Promise of the interpreter's result (see cs-interp.js);
-     req.runner "wasm", or req.lesson in a sandbox unit, uses the full runtime */
+     req.runner "wasm", or req.lesson in a sandbox unit, uses the full
+     runtime; req.runner "sql" (or req.lang "sql") runs SQLite */
   function run(req) {
     req = Object.assign({ budget: 3e6, ms: 2500 }, req);
+    if (req.lang === "sql" || req.runner === "sql") return sqlRun(req);
     var which = req.runner || (req.lesson && KOS.code && KOS.code.runnerFor ? KOS.code.runnerFor(req.lesson) : "interp");
     if (which === "wasm") return rtRun(Object.assign({}, req, { budget: 5e6, ms: 3000, nullable: req.nullable !== false }));
     if (canWork()) {
@@ -220,7 +267,7 @@
       var c = cases[i];
       var req = spec.mode === "method"
         ? { files: files, mode: "method", call: { name: spec.method, args: c.args || [] }, stdin: c.stdin || "", fs: c.fs || spec.fs, lesson: spec.lesson, runner: spec.runner }
-        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs, lesson: spec.lesson, runner: spec.runner };
+        : { files: files, stdin: c.stdin || "", fs: c.fs || spec.fs, seed: c.seed || spec.seed, lang: spec.lang, lesson: spec.lesson, runner: spec.runner };
       return run(req).then(function (r) {
         out.ms += r.ms || 0;
         if (!r.ok && r.error && (r.error.kind === "compile" || r.error.kind === "unsupported" || r.error.kind === "runtime")) {
@@ -271,7 +318,8 @@
       : err.kind === "exception" ? "Runtime exception"
       : err.kind === "timeout" ? "Did not finish"
       : err.kind === "unsupported" ? "Beyond the in-app runner"
-      : err.kind === "runtime" ? "Needs the full C# runtime" : "Runner problem";
+      : err.kind === "runtime" ? "Needs the full C# runtime"
+      : err.kind === "sql" ? "SQLite error" : "Runner problem";
     return { kind: kind, code: err.code, line: err.line || 0, msg: err.msg,
       plain: d ? d.plain : null, usually: d ? d.usually : null };
   }
@@ -292,6 +340,6 @@
     pruneRuntimes: rtPrune,
     onRuntime: function (f) { rtListeners.push(f); return function () { rtListeners = rtListeners.filter(function (g) { return g !== f; }); }; },
     /* tests: forget the workers so the next run starts fresh ones */
-    _reset: function () { kill(); broken = false; loading = null; rtKill(); rtState = null; }
+    _reset: function () { kill(); broken = false; loading = null; rtKill(); rtState = null; sqlKill(); sqlBroken = false; }
   };
 })();
