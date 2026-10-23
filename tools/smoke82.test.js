@@ -49,7 +49,7 @@ const PAGES1 = ["Hook", "Core idea", "Patterns", "Listen & notice", "Pitfalls", 
 const BLOCKS1 = ["p", "line", "callout", "table", "go", "scene", "panel", "pattern", "passage", "shadow"];
 /* art asked for and not delivered yet (art-source/ja/manifest.json): listed, so the gate says what
    it is waiting for; a unit that uses one is not released until it arrives and leaves this list */
-const AWAITED_ART = [];
+const AWAITED_ART = ["ja.panel.clock.1", "ja.panel.phone.1"];
 const BLOCKS = ["h", "p", "line", "kana", "pair", "callout", "table", "go"];
 /* typed as listed and accepted as typed: the homophones, and the loanword sounds whose usual
    romaji is already a native kana's (ti is ち, di ぢ, tu つ, du づ, wo を) */
