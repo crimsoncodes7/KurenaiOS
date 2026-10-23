@@ -6,6 +6,9 @@
     },
     "yota": {
       "about": "16-year-old boy, same-year classmate: energetic, friendly, casual, a bit goofy"
+    },
+    "makoto": {
+      "about": "late forties, owner of the café: calm, unhurried, kindly, polite customer-service Japanese"
     }
   },
   "voicevox": {
@@ -22,7 +25,7 @@
     }
   },
   "elevenlabs": {
-    "about": "Voices designed on the website from design.mjs's v2 prompts (KOS Akari 2, KOS Yota 2), chosen 22 October 2026. The free plan's API refuses library voices and API voice design.",
+    "about": "Voices designed on the website from design.mjs's v2 prompts (KOS Akari 2, KOS Yota 2, KOS Makoto), chosen 22 October 2026. The free plan's API refuses library voices and API voice design.",
     "model": "eleven_multilingual_v2",
     "akari": {
       "voice_id": "3KtjE2QgL64SGINQfppp",
@@ -35,6 +38,12 @@
       "stability": 0.4,
       "similarity_boost": 0.8,
       "style": 0.4
+    },
+    "makoto": {
+      "voice_id": "dd2tTLty6z8x4iHQsDVH",
+      "stability": 0.55,
+      "similarity_boost": 0.8,
+      "style": 0.2
     }
   },
   "gemini": {

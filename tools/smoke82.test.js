@@ -49,7 +49,7 @@ const PAGES1 = ["Hook", "Core idea", "Patterns", "Listen & notice", "Pitfalls", 
 const BLOCKS1 = ["p", "line", "callout", "table", "go", "scene", "panel", "pattern", "passage", "shadow"];
 /* art asked for and not delivered yet (art-source/ja/manifest.json): listed, so the gate says what
    it is waiting for; a unit that uses one is not released until it arrives and leaves this list */
-const AWAITED_ART = ["ja.base.makoto.a", "ja.face.makoto.happy", "ja.face.makoto.surprised", "ja.face.makoto.thinking", "ja.face.makoto.troubled"];
+const AWAITED_ART = [];
 const BLOCKS = ["h", "p", "line", "kana", "pair", "callout", "table", "go"];
 /* typed as listed and accepted as typed: the homophones, and the loanword sounds whose usual
    romaji is already a native kana's (ti is ち, di ぢ, tu つ, du づ, wo を) */
@@ -212,7 +212,7 @@ step("F · every Stage 1 answer checks against its own validator", (app) => {
 
 /* voices not designed yet (prototypes/japanese-space/voice/voices.json): their lines keep the
    browser's voice; a unit voiced by one is not released until its audio is baked */
-const AWAITED_VOICE = ["makoto"];
+const AWAITED_VOICE = [];
 step("G · the audio pack: every file exists and every voiced line has one", (app) => {
   const A = app.window.KOS_JA_AUDIO, J = app.window.KOS_JA, C = app.window.KOS_CONTENT;
   assert(A && Object.keys(A).length > 0, "js/data/ja-audio.js is not loaded (node tools/bake_ja_audio.mjs)");

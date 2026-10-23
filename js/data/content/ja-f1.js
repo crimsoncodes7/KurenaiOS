@@ -133,6 +133,13 @@
       L(A, "{先生|せんせい}の{本|ほん}です。", "It's the teacher's book."),
       L(Y, "ともだちのペンです。", "It's my friend's pen.")
     ],
+    listenMore: [{ panel: {
+      img: "ja.panel.intro.1", w: 1800, h: 1345,
+      alt: "Manga panel in an empty classroom: Yōta scratches his head with an embarrassed grin; Akari, hands pressed together, bows a little and smiles.",
+      bubbles: [
+        { who: Y, ja: "はじめまして、\nようたです。", en: "Nice to meet you, I'm Yōta.", x: 85, y: 15, rx: 10, ry: 13, tail: [76, 24], size: 2.7 },
+        { who: A, ja: "よろしく\nおねがい\nします。", en: "Pleased to meet you.", x: 14, y: 18, rx: 10, ry: 15, tail: [25, 28], size: 2.7 }
+      ] } }],
     pitfalls: [
       ["Never さん for yourself", "わたしはようたさんです sounds like you're honouring yourself. Just ようたです."],
       ["の goes between", "わたしの{名前|なまえ}: owner, の, thing. {名前|なまえ}のわたし means something else entirely."],
@@ -287,6 +294,13 @@
       L(A, "そこです！", "It's right there, by you!"),
       L(Y, "ありがとうございます。", "Thank you.")
     ],
+    listenMore: [{ panel: {
+      img: "ja.panel.where.1", w: 1800, h: 1344,
+      alt: "Manga panel on a country station platform: Akari points down the platform towards the stairs; Yōta, holding an open map, looks where she points, puzzled.",
+      bubbles: [
+        { who: A, ja: "{出口|でぐち}は\nあそこです。", en: "The exit is over there.", x: 69, y: 21, rx: 9, ry: 15, tail: [56, 37], size: 2.7 },
+        { who: Y, ja: "あそこ\nですか？", en: "Over there?", x: 11, y: 19, rx: 8, ry: 13, tail: [21, 29], size: 2.7 }
+      ] } }],
     pitfalls: [
       ["ここ is a place, これ is a thing", "ここはなんですか asks “what is this place?”, not “what is this?”"],
       ["どこ, not どれ", "どこ asks where; どれ asks which one."],
