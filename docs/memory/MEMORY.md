@@ -4,10 +4,10 @@
 - [IT units sitting](it-units-sitting.md) — sitting F201/F204/F206; done F200/F202; never F203/F205
 - [CS Paper 2 depth](cs-paper2-depth.md) — worktree feat/cs-p2-depth; all 88 Paper 2 leaves; released with Paper 1 (87ee60c); per-section pipeline
 - [CS Paper 1 + NEA](cs-paper1-nea.md) — branch feat/cs-p1-nea; NEA companion done (a06b106); Paper 1 + NEA + Paper 2 RELEASED 2026-10-02 (87ee60c, kos-cs-depth-1)
-- [Code study space](code-study-space.md) — core path complete; T1A released (07b3520); T1 paused after T1C (released 2db0b4f); T2 started — T2A written on feat/code-t2
+- [Code study space](code-study-space.md) — core path complete; T1A released (07b3520); T1 paused after T1C; Track T2 RELEASED 2026-10-23 (8ff3751, kos-code-22)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); next Stage 1, reader/media pages, audio packs
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/code-t1 2026-10-23; last release 2db0b4f (kos-code-21, branch feat/code-t1b); fetch first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/code-t1 2026-10-23; last release 8ff3751 (kos-code-22, branch feat/code-t2); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
