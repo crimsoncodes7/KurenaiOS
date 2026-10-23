@@ -15,7 +15,7 @@
   },
   "source": {
     "treeSha256": "0bcba8d547353f0c81941fc06266a213bdef86efa672dd9d595f05df8641719a",
-    "gitCommit": "36da75cfb7fc7069c9cb0368a8a46937042e546d",
+    "gitCommit": "48c21905e1cb681875d05f2a76b3aeb4d8050c83",
     "dirty": true
   },
   "protected": {
@@ -34,20 +34,20 @@
       "id": "preflight",
       "ran": true,
       "exit": 0,
-      "ms": 88,
+      "ms": 76,
       "sdk": "10.0.302"
     },
     {
       "id": "restore",
       "ran": true,
       "exit": 0,
-      "ms": 368
+      "ms": 344
     },
     {
       "id": "build",
       "ran": true,
       "exit": 1,
-      "ms": 375,
+      "ms": 359,
       "errors": 1,
       "warnings": 0
     },
@@ -135,7 +135,7 @@
       "message": "The name \u0027nam\u0027 does not exist in the current context"
     }
   ],
-  "startedAt": "2026-10-23T10:08:50Z",
-  "finishedAt": "2026-10-23T10:08:51Z",
-  "reportSha256": "b764d8c79903cef3e068f3396d4650ba4bdb762c8fdf5d2feb71a11ecdfa9dbb"
+  "startedAt": "2026-10-23T10:40:14Z",
+  "finishedAt": "2026-10-23T10:40:15Z",
+  "reportSha256": "6dbc0a809c6483d15f22db4dc4b0d5f4d21683a2167647050e59c810f8afb84f"
 }

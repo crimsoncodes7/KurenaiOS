@@ -171,6 +171,22 @@ capstone 3 offers an Avalonia front end.
 - **Checked by:** headless xUnit tests in the validator. Look and feel is a
   rubric item, marked by hand.
 
+**T2, lesson by lesson (outlined 23 October 2026).** Five parts, each
+released WHOLE like T1's (refs `T2.<n>`), every lesson in the Rider form
+(§9) with its command cards, and every part ending in a project whose
+acceptance tests drive the real window on **Avalonia.Headless** (xunit v3):
+the tests find controls by name, type and click as a user would, and read
+what the window shows. Avalonia 12.1.4 (`Watermark` is `PlaceholderText`
+now); CommunityToolkit.Mvvm 8.4.2 from T2C.
+
+| Part (section) | Lessons | Project at the end |
+|---|---|---|
+| **T2A · Your first window** — WRITTEN 23 October 2026 (`js/data/content/code-t2a.js`: 3 Rider lessons, 3 command cards; the scaffold in `tools/code-projects/first-window/`; 100 XP, 25 gold, +6 HP) | T2.1 GUI fundamentals: the event loop, windows and controls · T2.2 Layout: panels, grids and sizing · T2.3 Events and code-behind | the **taster**, *Your first window*: a tip calculator in code-behind — named controls, a layout tested at 320, 420 and 800 px for overlaps and labels, live updates as the user types, the sums in a tested `TipMath` |
+| **T2B · XAML, styles and binding** | T2.4 XAML in depth: markup, resources and templates · T2.5 Styles and themes · T2.6 Data binding · T2.7 Change notification and lists | **The Reading List**: books in an `ObservableCollection` shown through a data template, bound editing, styles by class, light and dark |
+| **T2C · MVVM** | T2.8 Commands · T2.9 MVVM with CommunityToolkit.Mvvm · T2.10 Files and dialogs · T2.11 Testing the UI headless | **Markdown notes**: MVVM, commands that know when they can run, open and save through the storage provider, your own headless tests |
+| **T2D · Async apps and services** | T2.12 Dependency injection in a desktop app · T2.13 Async UI that never freezes · T2.14 Calling an API, with errors · T2.15 Settings and notifications | **Focus timer**: a timer that never blocks the UI, settings remembered, a notification, a quote from a fake API with loading and error states |
+| **T2E · A complete app** | T2.16 Navigation · T2.17 Validation · T2.18 Accessibility · T2.19 Responsive layouts · T2.20 Packaging and publishing | the capstone: **The Planner on the desktop** (§3.5) |
+
 **T3 · AI in .NET apps** (about 12 lessons; E S; decided 23 October
 2026). The product side of AI, in C#: calling models through
 `Microsoft.Extensions.AI` or a provider's C# SDK, embeddings and cosine

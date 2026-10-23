@@ -61,7 +61,7 @@
      handler below copies the box's text minus this button. */
   var COPY_BTN = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy to clipboard">Copy</button>';
   var CODE_COPY = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy code to clipboard">Copy</button>';
-  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript" };
+  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript", xaml: "XAML", xml: "XML" };
   /* a code block's head: the language, its caption, and Copy (frame 8j) */
   function codeFigure(src, lang, cap) {
     return '<figure class="k-n-code" data-ui="content.code"><div class="k-n-code-head">' +
@@ -230,9 +230,26 @@
   };
   var LANG = { py: "python", python: "python", cs: "csharp", csharp: "csharp", sql: "sql", pseudo: "pseudo", js: "javascript", javascript: "javascript" };
   var COMMENT = { python: "#", pseudo: "#", csharp: "//", javascript: "//", sql: "--" };
+  /* XAML (and XML): comments, element names, attribute names, values */
+  function highlightXml(src) {
+    var re = /(<!--[\s\S]*?(?:-->|$))|(<\/?)([\w.:]+)|("[^"]*"?)|([\w.:]+)(?=\s*=)|(\/?>)/g, out = "", at = 0, m;
+    function tok(t, text) { return '<span class="k-t" data-t="' + t + '">' + esc(text) + "</span>"; }
+    while ((m = re.exec(src))) {
+      out += esc(src.slice(at, m.index));
+      if (m[1]) out += tok("com", m[1]);
+      else if (m[2]) out += tok("op", m[2]) + tok("kw", m[3]);
+      else if (m[4]) out += tok("str", m[4]);
+      else if (m[5]) out += tok("fn", m[5]);
+      else out += tok("op", m[6]);
+      at = re.lastIndex;
+    }
+    return out + esc(src.slice(at));
+  }
+
   function highlightCode(src, lang) {
     var L = LANG[lang];
     src = String(src == null ? "" : src);
+    if (lang === "xaml" || lang === "xml") return highlightXml(src);
     if (!L) return esc(src);
     var kw = {};
     KW[L].split(" ").forEach(function (w) { kw[L === "sql" || L === "pseudo" ? w.toUpperCase() : w] = true; });

@@ -22,6 +22,8 @@
      G · T1C. The Lending Library on EF Core's real report (a real dotnet ef
          migration, acceptance tests on SQLite in memory) passes all seven
          milestones and pays once, under Track T1 · T1C.
+     H · T2A. Your first window's real report (Avalonia driven headless)
+         passes its four milestones and pays once, under Track T2 · T2A.
      E · UNIT 10. The Lending Library's real report (validator 1.1.0: own
          tests, planted bugs, warnings, source checks) passes all six
          milestones and pays once; a Bridge report from validator 1.0.0 is
@@ -37,7 +39,7 @@ const { boot } = require("./lib/app-harness");
 const ROOT = path.join(__dirname, "..");
 const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 /* the harness keeps its own clock: each real report is dated an hour before it */
-let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY, CONTACTS, EFCORE;
+let SOLVED, TAMPERED, BROKEN, LEGACY, LIBRARY, CONTACTS, EFCORE, WINDOW;
 function dated(file, app, minutes) {
   const j = JSON.parse(read(file)), now = app.window.Date.now();
   j.startedAt = new Date(now - minutes * 60000 - 30000).toISOString().slice(0, 19) + "Z";
@@ -175,6 +177,20 @@ step("G · T1C's project: The Lending Library on EF Core", async (app) => {
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("H · T2A's taster: Your first window, under Track T2", async (app) => {
+  const K = app.KOS, P = K.codeProject, g = K.store.state.governor, id = "rp-t2a-window";
+  const files = await P.files(id);
+  assert(files["FirstWindow.sln"] && /Avalonia\.Headless\.XUnit" Version="12\.1\.4"/.test(files["tests/Tips.Acceptance/Tips.Acceptance.csproj"]) && /AvaloniaTestApplication/.test(files["tests/Tips.Acceptance/Headless.cs"]), "the scaffold: the solution and the headless test app");
+  const res = await P.check(WINDOW);
+  assert(res.outcome === "accepted" && res.completes && res.reward.xp === 100, "accepted with its reward: " + (res.msg || JSON.stringify(res.mismatched)));
+  const xp0 = g.xp, r = P.apply(res);
+  assert(r.ok && r.newly.join() === "m1,m2,m3,m4" && g.xp - xp0 === 100, "four milestones, paid once");
+  ["T2.1", "T2.2", "T2.3"].forEach((l) => assert(K.code.evidence(l).checks[2], l + ": the task check is ticked by its milestone"));
+  K.show("code", { page: "project", id }); await app.settle();
+  assert(app.document.querySelectorAll("[data-ui~='code.project-badge']").length === 4 && /Track T2 · T2A/.test(app.document.querySelector("#main").textContent), "the hub draws four milestones under Track T2 · T2A");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();
@@ -186,6 +202,7 @@ step("G · T1C's project: The Lending Library on EF Core", async (app) => {
   LIBRARY = dated("tools/fixtures/library-report-solved.json", app, 30);
   CONTACTS = dated("tools/fixtures/contacts-report-solved.json", app, 20);
   EFCORE = dated("tools/fixtures/efcore-report-solved.json", app, 10);
+  WINDOW = dated("tools/fixtures/window-report-solved.json", app, 5);
   for (const [name, fn] of steps) {
     try { await fn(app); console.log("  ok  " + name); }
     catch (e) { failed++; console.log("  FAIL " + name + "\n       " + e.message); }

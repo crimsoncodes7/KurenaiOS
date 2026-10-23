@@ -20,7 +20,10 @@
    and with its search glued together (m2 fails); then T1C's project
    (rp-t1c-library) fresh, solved with a real dotnet ef migration (m1–m7,
    efcore-report-solved.json), with its N+1 put back (m6 fails) and with a
-   model change left unmigrated (m3 fails). Needs the .NET 10 SDK, NuGet and git; outside
+   model change left unmigrated (m3 fails); then T2A's taster
+   (rp-t2a-window, Avalonia driven headless) fresh, solved (m1–m4,
+   window-report-solved.json), and with the bill box unwired and fixed at
+   500px (m3 and m2 fail). Needs the .NET 10 SDK, NuGet and git; outside
    the jsdom gate. macOS here; Windows and Linux are still to be run.
      node tools/validator_check.mjs                                          */
 import { createRequire } from "module";
@@ -34,7 +37,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 global.window = global;
 window.KOS_CONTENT = {}; window.KOS_DATA = {}; window.KOS = {};
-for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
+for (const f of ["js/data/code.js", "js/data/content/code-ub.js", "js/data/content/code-u10.js", "js/data/content/code-c4.js", "js/data/content/code-t1b.js", "js/data/content/code-t1c.js", "js/data/content/code-t2a.js", "js/data/content/code-projects-files.js", "js/core/codezip.js", "js/core/codeproj.js"]) require(path.join(ROOT, f));
 const K = window.KOS_CODE;
 window.KOS.code = { project: (id) => K.PROJECTS[id] || null };
 window.KOS.codeProject._setValidator(fs.readFileSync(path.join(ROOT, "assets/code/validator/validate.cs"), "utf8"));
@@ -834,6 +837,137 @@ v = validate(d);
 const byId = (id) => v.rep.milestones.find((m) => m.id === id);
 expect(!byId("m6").ok && byId("m5").ok, "efcore N+1 put back: m6 fails, m5 still passes (" + byId("m6").checks.map((c) => c.note).join(" · ") + ")");
 expect(!byId("m3").ok, "efcore model changed with no migration: m3 fails (" + byId("m3").checks.map((c) => c.note).join(" · ") + ")");
+
+/* ---------------- T2A: Your first window (Avalonia, headless) ---------------- */
+files = await window.KOS.codeProject.files("rp-t2a-window");
+d = fresh(); v = validate(d);
+expect(v.exit === 1 && ms(v.rep) === "" && v.rep.protected.ok, "window fresh: builds, no milestone passes, protected files match (" + ms(v.rep) + ")");
+
+d = fresh();
+put = (p, t) => { fs.mkdirSync(path.dirname(path.join(d, p)), { recursive: true }); fs.writeFileSync(path.join(d, p), t); };
+put("src/Tips/MainWindow.axaml", String.raw`<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Tips.MainWindow"
+        Title="Tip calculator" Width="420" Height="360">
+    <Grid Margin="16" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+          ColumnSpacing="12" RowSpacing="8">
+        <Label Grid.Row="0" Content="_Bill (£)" Target="{Binding #BillBox}" VerticalAlignment="Center" />
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="BillBox" PlaceholderText="42.50" />
+
+        <Label Grid.Row="1" Content="_People" Target="{Binding #PeopleBox}" VerticalAlignment="Center" />
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="PeopleBox" Text="1" />
+
+        <TextBlock Grid.Row="2" Text="Tip" VerticalAlignment="Center" />
+        <WrapPanel Grid.Row="2" Grid.Column="1">
+            <RadioButton x:Name="Tip10" GroupName="Tip" Content="10%" Margin="0,0,12,0" />
+            <RadioButton x:Name="Tip15" GroupName="Tip" Content="15%" IsChecked="True" Margin="0,0,12,0" />
+            <RadioButton x:Name="Tip20" GroupName="Tip" Content="20%" />
+        </WrapPanel>
+
+        <TextBlock Grid.Row="3" Text="Tip" />
+        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="TipText" Text="—" />
+        <TextBlock Grid.Row="4" Text="Total" />
+        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="TotalText" Text="—" FontWeight="SemiBold" />
+        <TextBlock Grid.Row="5" Text="Each" />
+        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="EachText" Text="—" />
+        <TextBlock Grid.Row="6" Grid.ColumnSpan="2" x:Name="Message" Foreground="OrangeRed" TextWrapping="Wrap" />
+    </Grid>
+</Window>
+`);
+put("src/Tips/MainWindow.axaml.cs", String.raw`using Avalonia.Controls;
+using Avalonia.Interactivity;
+
+namespace Tips;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        BillBox.TextChanged += (_, _) => Update();
+        PeopleBox.TextChanged += (_, _) => Update();
+        foreach (var tip in new[] { Tip10, Tip15, Tip20 }) tip.IsCheckedChanged += (_, _) => Update();
+    }
+
+    int Percent => Tip10.IsChecked == true ? 10 : Tip20.IsChecked == true ? 20 : 15;
+
+    void Update()
+    {
+        string message = "";
+        if (!decimal.TryParse(BillBox.Text, out decimal bill) || bill < 0) message = "Enter the bill as a number, like 42.50.";
+        else if (!int.TryParse(PeopleBox.Text, out int people) || people < 1) message = "Enter how many people, 1 or more.";
+        else
+        {
+            var (tip, total, each) = TipMath.Split(bill, Percent, people);
+            Show($"£{tip:0.00}", $"£{total:0.00}", $"£{each:0.00}", "");
+            return;
+        }
+        Show("—", "—", "—", string.IsNullOrEmpty(BillBox.Text) ? "" : message);
+    }
+
+    void Show(string tip, string total, string each, string message)
+    {
+        TipText.Text = tip;
+        TotalText.Text = total;
+        EachText.Text = each;
+        Message.Text = message;
+    }
+}
+`);
+put("src/Tips/TipMath.cs", String.raw`namespace Tips;
+
+/// <summary>The sums behind the window, kept apart from it so they can be tested on their own.</summary>
+public static class TipMath
+{
+    /// <summary>The tip (to the nearest penny, halves up), the total, and each person's share
+    /// (rounded UP to the penny, so the bill is always covered).</summary>
+    public static (decimal Tip, decimal Total, decimal Each) Split(decimal bill, int percent, int people)
+    {
+        if (bill < 0) throw new ArgumentOutOfRangeException(nameof(bill));
+        if (people < 1) throw new ArgumentOutOfRangeException(nameof(people));
+        decimal tip = Math.Round(bill * percent / 100m, 2, MidpointRounding.AwayFromZero);
+        decimal total = bill + tip;
+        decimal each = Math.Ceiling(total * 100m / people) / 100m;
+        return (tip, total, each);
+    }
+}
+`);
+put("tests/Tips.Tests/TipMathTests.cs", String.raw`namespace Tips.Tests;
+
+public class TipMathTests
+{
+    [Theory]
+    [InlineData(42.50, 15, 3, 6.38, 48.88, 16.30)]
+    [InlineData(80, 20, 2, 16.00, 96.00, 48.00)]
+    [InlineData(10, 10, 1, 1.00, 11.00, 11.00)]
+    public void Splits_the_bill(decimal bill, int percent, int people, decimal tip, decimal total, decimal each) =>
+        Assert.Equal((tip, total, each), TipMath.Split(bill, percent, people));
+
+    [Fact]
+    public void Halves_of_a_penny_round_up() => Assert.Equal(0.38m, TipMath.Split(2.50m, 15, 1).Tip);
+
+    [Fact]
+    public void Each_share_covers_the_bill() => Assert.True(TipMath.Split(10m, 0, 3).Each * 3 >= 10m);
+
+    [Fact]
+    public void Nobody_cannot_pay() => Assert.Throws<ArgumentOutOfRangeException>(() => TipMath.Split(10m, 15, 0));
+}
+`);
+sh("git", ["init", "-q"], d); sh("git", ["add", "-A"], d);
+sh("git", ["-c", "user.email=kurenai@example.com", "-c", "user.name=Kurenai", "commit", "-qm", "Your first window"], d);
+v = validate(d);
+expect(v.exit === 0 && ms(v.rep) === "m1,m2,m3,m4" && v.rep.protected.ok, "window solved: every milestone passes, exit 0 (" + ms(v.rep) + ")");
+if (v.exit !== 0) console.log(v.out.split("\n").slice(-30).join("\n") + "\n(folder " + d + ")");
+fs.writeFileSync(path.join(ROOT, "tools/fixtures/window-report-solved.json"), v.text);
+
+const cb = path.join(d, "src/Tips/MainWindow.axaml.cs");
+fs.writeFileSync(cb, fs.readFileSync(cb, "utf8").replace("BillBox.TextChanged += (_, _) => Update();", ""));
+const mw = path.join(d, "src/Tips/MainWindow.axaml");
+fs.writeFileSync(mw, fs.readFileSync(mw, "utf8").replace('x:Name="BillBox"', 'x:Name="BillBox" Width="500"'));
+v = validate(d);
+const wid = (id) => v.rep.milestones.find((m) => m.id === id);
+expect(wid("m1").ok && !wid("m3").ok, "window not listening to the bill: m3 fails (" + wid("m3").checks.map((c) => c.note).join(" · ") + ")");
+expect(!wid("m2").ok, "window with a fixed 500px bill box: m2 fails (" + wid("m2").checks.map((c) => c.note).join(" · ") + ")");
 
 console.log(bad ? "✗ " + bad + " check(s) failed" : "✓ the validator behaves on every scenario");
 process.exit(bad ? 1 : 0);

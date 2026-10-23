@@ -226,6 +226,36 @@
       ["T1.26", "ASP.NET Core minimal APIs", "Serve your own endpoints with a few lines of ASP.NET Core."],
       ["T1.27", "Persistence, configuration and secrets", "Give the API a database, settings per environment and secrets that never reach Git."],
       ["T1.28", "Testing an API", "Test every endpoint end to end with WebApplicationFactory."]
+    ] },
+    { ref: "T2A", track: "T2", title: "Your first window", strands: ["L", "E"], where: "rider", lessons: [
+      ["T2.1", "GUI fundamentals: the event loop, windows and controls", "See how a desktop app waits for events instead of running top to bottom, and put controls in a window."],
+      ["T2.2", "Layout: panels, grids and sizing", "Arrange controls with StackPanel, Grid and DockPanel so the window still works narrow or wide."],
+      ["T2.3", "Events and code-behind", "Answer clicks, typing and choices in C#, and keep the sums apart from the window."]
+    ] },
+    { ref: "T2B", track: "T2", title: "XAML, styles and binding", strands: ["L", "E"], where: "rider", lessons: [
+      ["T2.4", "XAML in depth: markup, resources and templates", "Read and write XAML as objects and properties, share resources, and shape controls with templates."],
+      ["T2.5", "Styles and themes", "Style controls with selectors and classes, and follow light and dark themes."],
+      ["T2.6", "Data binding", "Bind a control to a property instead of copying values in and out by hand."],
+      ["T2.7", "Change notification and lists", "Tell the UI a value changed with INotifyPropertyChanged, and show lists with ObservableCollection and data templates."]
+    ] },
+    { ref: "T2C", track: "T2", title: "MVVM", strands: ["L", "E"], where: "rider", lessons: [
+      ["T2.8", "Commands", "Turn buttons and keys into commands that know when they can run."],
+      ["T2.9", "MVVM with CommunityToolkit.Mvvm", "Split the app into views, view models and a model, with source generators doing the plumbing."],
+      ["T2.10", "Files and dialogs", "Open and save files through the storage provider, and ask the user with dialogs."],
+      ["T2.11", "Testing the UI headless", "Test view models directly and whole windows with Avalonia.Headless: bindings, commands, focus."]
+    ] },
+    { ref: "T2D", track: "T2", title: "Async apps and services", strands: ["E"], where: "rider", lessons: [
+      ["T2.12", "Dependency injection in a desktop app", "Build the app from services with Microsoft.Extensions.DependencyInjection."],
+      ["T2.13", "Async UI that never freezes", "Keep the UI thread free with async and await, timers and the dispatcher."],
+      ["T2.14", "Calling an API, with errors", "Load data from the network with loading, empty and error states, and cancel what is no longer wanted."],
+      ["T2.15", "Settings and notifications", "Remember the user's choices between runs and tell them when something happens."]
+    ] },
+    { ref: "T2E", track: "T2", title: "A complete app", strands: ["L", "E"], where: "rider", lessons: [
+      ["T2.16", "Navigation", "Move between pages with view models in charge of where the app goes."],
+      ["T2.17", "Validation", "Check input as it is typed and show errors beside the field that caused them."],
+      ["T2.18", "Accessibility", "Make every control reachable by keyboard and named for a screen reader."],
+      ["T2.19", "Responsive layouts", "Adapt the layout to the window's size without a second copy of the UI."],
+      ["T2.20", "Packaging and publishing", "Publish a self-contained app for macOS and Windows, with an icon and a version."]
     ] }
   ];
 
