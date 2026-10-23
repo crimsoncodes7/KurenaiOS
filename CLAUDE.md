@@ -48,7 +48,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-code-22`
+- Service-worker version: `kos-code-23`
 - Required smoke gate: 99 / 99 suites (`""` and 2–99; 80–83 are Japanese's, 99 is Code's SQL runner).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
