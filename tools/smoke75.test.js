@@ -51,7 +51,9 @@ const run = async (src, stdin, fs, lesson, db) => isSql(lesson)
 async function passes(spec, src, lesson) {
   for (const c of spec.cases) {
     const r = await run(src, c.stdin, c.fs || spec.fs, lesson, c.db || spec.db);
-    if (!r.ok || norm(r.stdout) !== norm(c.out)) return false;
+    /* no written output: what the item's answer prints (KOS.codeRun.check) */
+    const want = c.out != null ? c.out : spec.answer != null ? (await run(spec.answer, c.stdin, c.fs || spec.fs, lesson, c.db || spec.db)).stdout : null;
+    if (!r.ok || want == null || norm(r.stdout) !== norm(want)) return false;
   }
   return (spec.rules || []).every((rl) => rl.test(src));
 }
@@ -160,8 +162,8 @@ step("E · retrieval cards: 20 variations each, all solvable", async () => {
       }
       else {
         assert(v.answer && v.cases && v.cases.length, id + " v" + n + ": write card without answer/cases");
-        assert(await passes({ cases: v.cases, rules: v.rules, fs: v.fs, db: v.db }, v.answer, cd.lesson), id + " v" + n + ": its answer fails");
-        assert(!(await passes({ cases: v.cases, rules: v.rules, fs: v.fs, db: v.db }, v.starter || "", cd.lesson)), id + " v" + n + ": its starter passes");
+        assert(await passes({ cases: v.cases, rules: v.rules, fs: v.fs, db: v.db, answer: v.answer }, v.answer, cd.lesson), id + " v" + n + ": its answer fails");
+        assert(!(await passes({ cases: v.cases, rules: v.rules, fs: v.fs, db: v.db, answer: v.answer }, v.starter || "", cd.lesson)), id + " v" + n + ": its starter passes");
       }
     }
   }

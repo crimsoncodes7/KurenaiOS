@@ -282,6 +282,15 @@
        { compile: error|null, results: [case], pass, total, stopped, rule }
      spec: { mode, method, cases: [{stdin, out, args, hidden}], rules } */
   function check(spec, files) {
+    /* a case with no written output (an SQL card's variation) expects what
+       the item's own answer prints on the same data: run that first */
+    if (spec.answer && (spec.cases || []).some(function (c) { return c.out == null; })) {
+      return Promise.all(spec.cases.map(function (c) {
+        if (c.out != null) return c;
+        return run({ files: [{ name: "answer", src: spec.answer }], stdin: c.stdin || "", fs: c.fs || spec.fs, seed: c.seed || spec.seed, db: c.db || spec.db, lang: spec.lang, lesson: spec.lesson, runner: spec.runner })
+          .then(function (r) { return Object.assign({}, c, { out: r.ok ? r.stdout : "(the answer did not run)" }); });
+      })).then(function (cs) { return check(Object.assign({}, spec, { cases: cs, answer: null }), files); });
+    }
     var cases = spec.cases || [];
     var results = [];
     var out = { compile: null, results: results, pass: 0, total: cases.length, stopped: null, rule: null, ms: 0 };

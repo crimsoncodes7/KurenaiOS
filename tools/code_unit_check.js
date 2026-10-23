@@ -62,7 +62,8 @@ const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n
     for (const it of p.bug || []) { const r = await passes([{ stdin: it.stdin || "", out: it.out }], [], it.src, it.fs, ref); if (r.ok) say("bug " + it.id + " already passes"); }
     for (const it of p.fill || []) {
       if (it.answer == null) { console.log("    (fill " + it.id + " has no answer to try)"); continue; }
-      const r = await passes([{ stdin: it.stdin || "", out: it.out }], [], it.src.replace("@@", it.answer), it.fs, ref);
+      const ans = [].concat(it.answer); let g = 0;
+      const r = await passes([{ stdin: it.stdin || "", out: it.out, db: it.db }], [], it.src.replace(/@@/g, () => ans[g++] || ""), it.fs, ref);
       if (!r.ok) say("fill " + it.id + " with " + it.answer + " → " + r.got);
     }
     if ((c.flashcards || []).length < 5) say("flashcards");

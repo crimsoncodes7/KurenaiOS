@@ -473,6 +473,9 @@ button.k-cx-maprow:hover { background: var(--s2); }
 .k-cx-partlist { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); font-size: var(--fs-13); }
 .k-cx-partlesson { display: inline; text-align: start; }
 .k-cx-partlesson .k-mono { color: var(--text-2); }
+.k-cx-partproj { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-10); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s2); font-size: var(--fs-13); }
+.k-cx-partproj .k-kicker { flex: 0 0 100%; }
+.k-cx-partproj .k-btn { margin-inline-start: auto; }
 .k-cx-track .k-card { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-16) var(--sp-18); }
 .k-cx-track-about { margin: 0; font-size: var(--fs-14); }
 

@@ -57,8 +57,9 @@
       tracks: false,
       stageHead: function (stage) {
         var st = (window.KOS_CODE.STAGES || []).filter(function (x) { return x.id === stage; })[0];
+        var tr = /^T\d/.test(String(stage)) ? (window.KOS_CODE.TRACKS || []).filter(function (x) { return x.id === stage; })[0] : null;
         return el("div", { class: "k-spine-stage", "data-ui": "code.spine-stage",
-          text: stage === "B" ? "Bridge" : "Stage " + stage + " · " + (st ? st.title : "") });
+          text: stage === "B" ? "Bridge" : tr ? "Track " + tr.id + " · " + tr.title : "Stage " + stage + " · " + (st ? st.title : "") });
       }
     };
   }
@@ -84,7 +85,7 @@
     ctx.decoratePath = function (pathLine) {
       /* "Code / Stage 2 / U4 Collections · L S ↔ AQA 4.2.6" */
       pathLine.innerHTML = "";
-      var stage = L ? (L.stage === "B" ? "Bridge B" : "Stage " + L.stage) : "";
+      var stage = L ? (L.stage === "B" ? "Bridge B" : L.track ? "Track " + L.track : "Stage " + L.stage) : "";
       ["Code", stage, L ? L.unit + " " + L.unitTitle : ""].filter(Boolean).forEach(function (bit, i) {
         if (i) pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "/" }));
         pathLine.appendChild(document.createTextNode(bit));

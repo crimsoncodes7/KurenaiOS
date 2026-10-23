@@ -186,7 +186,8 @@
      core surfaces (the desk's units, the stage path, the lesson counts)
      read the core only (KOS.code.coreUnits / coreLessons) */
   var TRACK_PARTS = [
-    { ref: "T1A", track: "T1", title: "Databases", strands: ["S", "E"], where: "sql", db: "cafe", lessons: [
+    { ref: "T1A", track: "T1", title: "Databases", strands: ["S", "E"], where: "sql", db: "cafe",
+      project: { title: "The Case of the Missing Mug", about: "Five clues, one query each, in the café's records.", tasks: ["T1.8-mug1", "T1.8-mug2", "T1.8-mug3", "T1.8-mug4", "T1.8-mug5"] }, lessons: [
       ["T1.1", "Tables, rows and keys", "Read a database as tables of rows, name the primary and foreign keys, and see why a database beats a CSV file."],
       ["T1.2", "Reading: SELECT, WHERE, ORDER BY, LIMIT", "Ask a table for the columns and rows you want, filtered, sorted and cut to size."],
       ["T1.3", "Expressions, NULL and three-valued logic", "Compute new columns, use SQL's functions, and handle NULL — the value that is neither true nor false."],
@@ -236,7 +237,7 @@
     labelR: "Where it leads",
     sections: UNITS.concat(TRACK_PARTS).map(function (u) {
       return {
-        ref: u.ref, title: u.title, stage: u.stage || null, strands: u.strands, where: u.where, track: u.track || null, db: u.db || null,
+        ref: u.ref, title: u.title, stage: u.stage || u.track || null, strands: u.strands, where: u.where, track: u.track || null, db: u.db || null, project: u.project || null,
         children: u.lessons.map(function (l) { return { ref: l[0], title: l[1], content: [l[2]] }; })
       };
     })

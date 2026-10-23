@@ -518,6 +518,19 @@
           el("span", { class: "k-card-meta", text: rel ? us.done + " of " + us.total + " done" : "coming later" })
         ]),
         el("div", { class: "k-cx-branch-f" }, [KOS.codeUI.strands(u.strands), KOS.codeUI.where(u.where)]),
+        u.project && rel ? (function () {
+          /* the part's project: its clue tasks in order, the next one to do */
+          var ts = u.project.tasks.map(function (id) { return C().task(id); }).filter(Boolean);
+          var done = ts.filter(function (t) { return C().taskState(t.id).passAt; }).length;
+          var next = ts.filter(function (t) { return !C().taskState(t.id).passAt; })[0] || ts[0];
+          return el("div", { class: "k-cx-partproj", "data-ui": "code.track-project" }, [
+            el("span", { class: "k-kicker", text: "Project" }),
+            el("b", { text: u.project.title }),
+            el("span", { class: "k-muted", text: u.project.about + " " + done + " of " + ts.length + " solved." }),
+            next ? el("button", { type: "button", class: "k-btn k-btn--sm", text: done === ts.length ? "Look again ›" : done ? "Next clue ›" : "Start the case ›",
+              onclick: function () { KOS.show("code", { page: "task", id: next.id }); } }) : null
+          ].filter(Boolean));
+        })() : null,
         el("ol", { class: "k-cx-partlist" }, u.children.map(function (l) {
           var p = KOS.store.peekProgress(SID, l.ref);
           var st = p && p.status === "done" ? "done" : p && p.status && p.status !== "none" ? "started" : null;
@@ -1026,7 +1039,7 @@
           : ed.files();
         go.disabled = true;
         if (ed) ed.running(true);
-        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs, db: v.db, lesson: cd.lesson }, files).then(function (c) {
+        KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs, db: v.db, answer: v.answer, lesson: cd.lesson }, files).then(function (c) {
           go.disabled = false;
           if (ed) ed.running(false);
           if (c.passed) return finish(true);
