@@ -15,7 +15,7 @@
   },
   "source": {
     "treeSha256": "98f16f7c2b43832fecccbd3c652cec1c5e5968208f6c3f923d6889953815ab33",
-    "gitCommit": "0e89070e1a84fd053f5a556de8cb609975139200",
+    "gitCommit": "a30f94ac0534d7ce30ba21d729f558d25102a3e8",
     "dirty": false
   },
   "protected": {
@@ -37,20 +37,20 @@
       "id": "preflight",
       "ran": true,
       "exit": 0,
-      "ms": 87,
+      "ms": 79,
       "sdk": "10.0.302"
     },
     {
       "id": "restore",
       "ran": true,
       "exit": 0,
-      "ms": 480
+      "ms": 418
     },
     {
       "id": "build",
       "ran": true,
       "exit": 0,
-      "ms": 477,
+      "ms": 449,
       "errors": 0,
       "warnings": 0
     },
@@ -58,7 +58,7 @@
       "id": "test",
       "ran": true,
       "exit": 0,
-      "ms": 1393,
+      "ms": 1360,
       "passed": 29,
       "failed": 0,
       "skipped": 0
@@ -152,7 +152,7 @@
     }
   ],
   "failures": [],
-  "startedAt": "2026-10-23T15:36:48Z",
-  "finishedAt": "2026-10-23T15:36:52Z",
-  "reportSha256": "0b55a7b53e910a5dad199b624c22925edfab31efa0babd44cc443ddbe709ac88"
+  "startedAt": "2026-10-23T16:16:17Z",
+  "finishedAt": "2026-10-23T16:16:20Z",
+  "reportSha256": "d8236fd2ff3a645dacfa5cede56fb9668c7e193ae51a0d8234a2374cdc1d57c6"
 }
