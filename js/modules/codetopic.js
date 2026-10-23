@@ -552,8 +552,8 @@
     panel.appendChild(card);
     draw();
   }
-  function codeBlock(src) {
-    return el("pre", { class: "k-cx-q-code k-mono", html: KOS.codeUI.highlight(src) });
+  function codeBlock(src, ref) {
+    return el("pre", { class: "k-cx-q-code k-mono", html: KOS.codeUI.highlight(src, ref && KOS.code.runnerFor(ref) === "sql" ? "sql" : null) });
   }
   function verdict(ok, text) {
     return el("p", { class: "k-cx-verdict", "data-state": ok ? "right" : "wrong", role: "status" }, [el("b", { text: (ok ? "✓ " : "✗ ") + text })]);
@@ -561,8 +561,9 @@
   function predictCard(card, ref, item, done) {
     card.appendChild(el("h3", { class: "k-cx-q-t", text: item.q || "What does this print?" }));
     if (item.fs) card.appendChild(KOS.codeUI.filesPanel(item.fs, { open: true }));
-    card.appendChild(codeBlock(item.src));
-    var ans = el("textarea", { class: "k-input k-cx-q-in", rows: "2", "aria-label": "What it prints", placeholder: "Type what it prints" });
+    var sqlQ = KOS.code.runnerFor(ref) === "sql";
+    card.appendChild(codeBlock(item.src, ref));
+    var ans = el("textarea", { class: "k-input k-cx-q-in", rows: "2", "aria-label": "What it prints", placeholder: sqlQ ? "Type the values it returns, one row a line" : "Type what it prints" });
     var out = el("div", { class: "k-cx-q-out" });
     var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "Check",
       onclick: function () {
@@ -571,7 +572,7 @@
           check.disabled = false;
           out.innerHTML = "";
           var real = r.ok ? KOS.codeRun.norm(r.stdout) : null;
-          var ok = r.ok && KOS.codeRun.norm(ans.value) === real;
+          var ok = r.ok && KOS.codeRun.sameAnswer(ans.value, r.stdout, sqlQ ? "sql" : null);
           if (!r.ok) { out.appendChild(KOS.codeUI.errorCard(r.error)); return; }
           out.appendChild(verdict(ok, ok ? "Right · prints " + KOS.codeRun.firstLine(real) : "Not yet · it prints " + KOS.codeRun.firstLine(real)));
           if (item.why) out.appendChild(el("p", { class: "k-cx-why" }, [el("b", { text: "Why · " }), el("span", { html: KOS.content.inline(item.why) })]));
@@ -589,7 +590,7 @@
     var inputs = [];
     var pre = el("pre", { class: "k-cx-q-code k-cx-fill k-mono" });
     parts.forEach(function (part, i) {
-      pre.appendChild(el("span", { html: KOS.codeUI.highlight(part) }));
+      pre.appendChild(el("span", { html: KOS.codeUI.highlight(part, KOS.code.runnerFor(ref) === "sql" ? "sql" : null) }));
       if (i < parts.length - 1) {
         var inp = el("input", { type: "text", class: "k-cx-gap", "data-ui": "code.gap", spellcheck: "false", autocapitalize: "off",
           "aria-label": "Gap " + (i + 1), size: String(Math.max(4, (item.size && item.size[i]) || 8)) });

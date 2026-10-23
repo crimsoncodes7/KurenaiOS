@@ -934,7 +934,7 @@
         onclick: function () { hinted = true; hintBtn.disabled = true; out.insertBefore(el("p", { class: "k-cx-why", text: "Hint · " + v.hint }), out.firstChild); announce("Hint shown. This card will grade Hard."); } });
       var ed = null, ans = null, inputs = null, parts = null;
       if (kind === "predict") {
-        card.appendChild(el("pre", { class: "k-cx-q-code k-mono", html: KOS.codeUI.highlight(v.src) }));
+        card.appendChild(el("pre", { class: "k-cx-q-code k-mono", html: KOS.codeUI.highlight(v.src, C().runnerFor(cd.lesson) === "sql" ? "sql" : null) }));
         ans = el("textarea", { class: "k-input k-cx-q-in k-mono", rows: "2", spellcheck: "false", "aria-label": "What it prints, one line per line of output", placeholder: "What it prints" });
         card.appendChild(ans);
       } else if (kind === "command") {
@@ -946,7 +946,7 @@
         parts = String(v.src).split("@@"); inputs = [];
         var pre = el("pre", { class: "k-cx-q-code k-cx-fill k-mono" });
         parts.forEach(function (part, i) {
-          pre.appendChild(el("span", { html: KOS.codeUI.highlight(part) }));
+          pre.appendChild(el("span", { html: KOS.codeUI.highlight(part, C().runnerFor(cd.lesson) === "sql" ? "sql" : null) }));
           if (i < parts.length - 1) { var inp = el("input", { type: "text", class: "k-cx-gap", "aria-label": "Gap " + (i + 1), size: "10", spellcheck: "false" }); inputs.push(inp); pre.appendChild(inp); }
         });
         card.appendChild(pre);
@@ -1016,13 +1016,13 @@
           KOS.codeRun.run({ files: [{ name: C().fileFor(cd.lesson), src: v.src }], stdin: v.stdin || "", fs: v.fs, db: v.db, lesson: cd.lesson }).then(function (r) {
             go.disabled = false;
             var real = r.ok ? KOS.codeRun.norm(r.stdout) : "";
-            if (KOS.codeRun.norm(ans.value) === real) return finish(true);
+            if (r.ok && KOS.codeRun.sameAnswer(ans.value, r.stdout, C().runnerFor(cd.lesson) === "sql" ? "sql" : null)) return finish(true);
             tryAgain("Not yet. " + (tries >= 3 ? "" : "Try again."));
           });
           return;
         }
         var files = kind === "fill"
-          ? [{ name: "Program.cs", src: parts.map(function (p, i) { return p + (i < inputs.length ? inputs[i].value : ""); }).join("") }]
+          ? [{ name: C().fileFor(cd.lesson), src: parts.map(function (p, i) { return p + (i < inputs.length ? inputs[i].value : ""); }).join("") }]
           : ed.files();
         go.disabled = true;
         if (ed) ed.running(true);

@@ -257,6 +257,25 @@
     for (var i = 0; i < n; i++) rows.push({ exp: e[i], got: g[i], same: e[i] === g[i] });
     return rows;
   }
+  /* a predicted answer against what ran: the whole output, or — for SQL,
+     whose output is tables — just the values, each row's cells on a line
+     (the header and the rule under it left out) */
+  function sqlValues(s) {
+    var lines = norm(s).split("\n"), out = [];
+    for (var i = 0; i < lines.length; i++) {
+      if (/^-+(-\+-+)*$/.test(lines[i]) && i > 0) { out.pop(); continue; }
+      if (lines[i] === "" || lines[i] === "(no rows)") continue;
+      out.push(lines[i].split(" | ").map(function (c) { return c.trim(); }).join(" "));
+    }
+    return out.join("\n");
+  }
+  function sameAnswer(typed, stdout, lang) {
+    var a = norm(typed), real = norm(stdout);
+    if (a === real) return true;
+    if (lang !== "sql") return false;
+    var vals = function (t) { return t.split("\n").map(function (l) { return l.split(/\s*[|,]\s*|\s+/).filter(Boolean).join(" "); }).filter(Boolean).join("\n"); };
+    return vals(a) === vals(sqlValues(real));
+  }
   function firstLine(s) { var t = String(s == null ? "" : s); var i = t.indexOf("\n"); return i < 0 ? t : t.slice(0, i) + "…"; }
 
   /* check(spec, files) → Promise of
@@ -329,7 +348,7 @@
   }
 
   KOS.codeRun = {
-    run: run,
+    run: run, sameAnswer: sameAnswer, sqlValues: sqlValues,
     check: check,
     norm: norm,
     diff: diff,

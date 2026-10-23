@@ -95,7 +95,7 @@
       return out;
     });
   }
-  function highlight(src) { return highlightLines(src).join("\n"); }
+  function highlight(src, lang) { return highlightLines(src, 0, null, lang).join("\n"); }
 
   /* ---------------- the editor ---------------- */
   var edSeq = 0;
