@@ -33,6 +33,17 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Released 23 October 2026 — Code's spine: Core or Tracks
+
+sw `kos-code-23`, immutable https://b0ccc028.kurenai-os.pages.dev.
+
+- The lesson list shows the core path OR the tracks (their written parts as
+  sections, then tracks to come and deepening), with the count and filter
+  for the group shown; the open lesson's group is selected; the switch
+  spans the list.
+- The desk's Projects card shows the two that matter now ("2 of 8");
+  tracks with written parts say "3 of 6 parts" / "All 5 parts".
+
 ## Released 23 October 2026 — Code Track T2: desktop apps with Avalonia
 
 Release `8ff3751`, sw `kos-code-22`, immutable https://b7cc2382.kurenai-os.pages.dev.

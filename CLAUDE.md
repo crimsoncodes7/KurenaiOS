@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: `8ff3751` — immutable deployment
+- Latest release: the Code spine's Core/Tracks split (sw `kos-code-23`) —
+  immutable deployment https://b0ccc028.kurenai-os.pages.dev (23 October
+  2026; `feat/code-t2`: Core or Tracks, never both; Projects shows two;
+  real track states). Before it `8ff3751`,
   https://b7cc2382.kurenai-os.pages.dev (23 October 2026; `feat/code-t2`:
   the whole of Code's Track T2 — 20 Rider lessons in Avalonia, four
   projects tested headless and the first track capstone, The Planner on
