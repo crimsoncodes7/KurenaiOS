@@ -1065,6 +1065,14 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.5 Japanese: a study space for the four skills ◆ (asked for 17 October 2026)
 
+> **Status (24 October 2026): Stage 1 is under way.** Unit F1, First
+> conversations (lessons 1.1–1.6, sw `kos-japanese-3`, 23 October), and unit
+> F2, Days and times (2.1–2.6 and cp-F2, sw `kos-japanese-4`, 24 October),
+> are RELEASED, with the audio pack (the cast on ElevenLabs, the narrator on
+> VOICEVOX). Next: F3, Things and places; F4–F6 are outlined in
+> [japanese-plan.md](japanese-plan.md) §3.1. Still to come: the reader,
+> media and immersion pages (28h, 28i, 28l).
+>
 > **Status (22 October 2026): PLATFORM RELEASED** (`d061169`, sw
 > `kos-japanese-1`, https://6a6bcfa7.kurenai-os.pages.dev). Plan §17 step 1:
 > the backend (model, facet scheduler, kana, conjugation, validators,
@@ -1154,8 +1162,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.8 Exams & Deadlines Hub ◆ (asked for 20 October 2026)
 
-> **Status (21 October 2026): phases 1–5 built on `feat/exams-hub`, not
-> deployed.** The plan is [exams-plan.md](exams-plan.md), revision 2
+> **Status (21 October 2026): phases 1–6 RELEASED** (`3b39ae1`, sw
+> `kos-exams-1`; CS Paper 2 is the first full Companion). The plan is [exams-plan.md](exams-plan.md), revision 2
 > (decisions A–N approved with refinements R1–R5). Built: the assessment
 > record and migration, the Scope Builder, the cap by scope, the widened
 > attempt with redo items, start-by dates (smoke89); the past-paper index,

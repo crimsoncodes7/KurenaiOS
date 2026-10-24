@@ -19,10 +19,10 @@ accounts to talk to each other.
    git fetch && git log --oneline HEAD..@{u}      # anything new from the other account?
    ```
 
-3. Pick the branch. On 19 October 2026 `main` and
-   **`claude/roadmap-code-study-space`** (where every release since Reports was
-   built) are identical and both pushed, so either is current; run
-   `git log --oneline main..origin/<branch>` to see if one has moved on.
+3. Pick the branch. `main` is the line (24 October 2026: fast-forwarded to
+   `feat/japanese-f2`); new work branches from it. The older
+   `claude/roadmap-code-study-space` is behind it with nothing of its own.
+   Run `git log --oneline main..origin/<branch>` to see if anything moved.
 4. Read the shared memory: `docs/memory/MEMORY.md`, then the notes relevant to
    the task. Then load it into this account's own memory:
 
@@ -41,7 +41,8 @@ accounts to talk to each other.
 | Execution rules | `AGENTS.md` | Short; read it first |
 | What is released / in flight | `PROGRESS.md` | One current snapshot, no diary |
 | What is still to build, in order | `docs/ROADMAP.md` | |
-| Per-feature plans | `docs/code-plan.md`, `reports-plan.md`, `japanese-plan.md`, `design-prompts.md` | |
+| Per-feature plans | `docs/code-plan.md`, `reports-plan.md`, `japanese-plan.md`, `exams-plan.md`, `fsrs-plan.md`, `ipad-plan.md`, `design-prompts.md` |
+| A plain-language tour of the app, for people | `docs/GUIDE.md` | | |
 | Preferences, decisions, gotchas, project state | `docs/memory/` | Mirrors each account's private memory |
 | History | Git | Commit messages and the `docs: baseline at <hash>` commits |
 
@@ -95,7 +96,7 @@ Before stopping (a usage limit, switching account, end of day):
 
 A good first message to the other account:
 
-> Continue KurenaiOS on branch `claude/roadmap-code-study-space`. Read
+> Continue KurenaiOS from `main` (branch from it for new work). Read
 > `docs/HANDOFF.md`, run `tools/sync_memory.sh pull`, and read `PROGRESS.md`.
 > Last session: <what was done>. Next: <what to do>.
 
@@ -123,7 +124,7 @@ A good first message to the other account:
 
 ```sh
 python3 tools/dev_server.py 8765                          # local server
-for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done   # the gate (79 suites)
+for i in "" {2..99}; do node "tools/smoke${i}.test.js"; done   # the gate (99 suites)
 node tools/cs_diff.mjs                                    # Code content vs real .NET
 tools/sync_memory.sh status|pull|push                     # shared memory
 ```

@@ -6,32 +6,95 @@ architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
 
 ## Current state
 
-**Category 7 Phases A–G is complete, integrated, deployed and
-production-verified. The cloud three-way merge and the editable curriculum /
-study editor are deployed on top of it (17 September 2026); the Collection
-AniList mirror and the notification centre followed on 19 September 2026
-(`b482f68`, `8dfe2d1`). The Graphite UI rebuild replaced the whole
-presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
+**Everything through Japanese Stage 1 unit F2 is integrated, deployed and
+production-verified (24 October 2026).** The foundations are Category 7
+(Phases A–G, 9 August 2026), the cloud three-way merge and the editable
+curriculum (17 September), the AniList mirror and notification centre
+(19 September) and the Graphite UI rebuild (27 September); since then
+Reports, Code, Money and Goals, FSRS, the Exams hub, the closed-app runner,
+the iPad layout and Japanese have shipped (sections below).
 
 | Item | Current value |
 |---|---|
 | Production | https://kurenai-os.pages.dev |
-| Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `084a628` (Money and Goals, roadmap 5.4, built whole to design 27a–27s), immutable https://d8bccd88.kurenai-os.pages.dev — deployed 20 October 2026; before it `ff7a8e3` (Code capstone 3: a shop with plugins and LINQ reports — stage 3 complete), immutable https://6c888d02.kurenai-os.pages.dev — deployed 17 October 2026; before it `2fe14b4` (Code units 8 and 9: interfaces and inheritance, LINQ and generics, on the full runtime), immutable https://549e4efa.kurenai-os.pages.dev — deployed 17 October 2026; before it `04be041` (Code unit 7: classes and objects, on the full runtime), immutable https://2b2c8f4d.kurenai-os.pages.dev — deployed 17 October 2026; before it `19f1c27` (Code in Reports and the Assistant), immutable https://dd88bfe1.kurenai-os.pages.dev — deployed 17 October 2026; before it `4ec25bc` (katas, Code → GitHub v1, "Coming later" for units 7–12, Home's desks in one row), immutable https://d5ae99db.kurenai-os.pages.dev — deployed 16 October 2026; before it `0a4b471` (Code in Focus and the pickers, the spread stage path, Study until laid out), immutable https://685eec63.kurenai-os.pages.dev — deployed 16 October 2026; before it `aa19532` (Pacing under Study, the folding skill map, Code progress from covered lessons), immutable https://3df72dfb.kurenai-os.pages.dev — deployed 16 October 2026; before it `b4b4a25` (Code Bridge B, the Rider workflow, binary files and the full C# runtime), immutable https://59471e17.kurenai-os.pages.dev — deployed 16 October 2026; before it `efaf9b1` (Code capstone 2 and the topic gaps), immutable https://ef5cbf9d.kurenai-os.pages.dev — deployed 16 October 2026; before it `d2477d1` (Code unit 6: files, exceptions and debugging), immutable https://9d7e3d9b.kurenai-os.pages.dev — deployed 16 October 2026; before it `0a35674` (Code unit 5: text), immutable https://7a5ea20f.kurenai-os.pages.dev — deployed 16 October 2026; before it `b33d2ab` (Code unit 4: collections), immutable https://baee7dfc.kurenai-os.pages.dev — deployed 16 October 2026; before it `1b6d4de` (capstone review: the brief & build workspace, the study quiz, full-width steps), immutable https://243503b2.kurenai-os.pages.dev — deployed 16 October 2026; before it `6be96f1` (Code capstone 1: the capstone checkpoint and the text adventure engine), immutable https://d66c19bc.kurenai-os.pages.dev — deployed 16 October 2026; before it `ad8fce8` (Code unit 3: methods and scope; the inspector's status menu), immutable https://e89ae424.kurenai-os.pages.dev — deployed 15 October 2026; before it `4b74156` (Code unit 2: decisions and loops; tidier note pages; the Topic status component in the inspector), immutable https://e30bd0f2.kurenai-os.pages.dev — deployed 15 October 2026; before it `9e2a3b7` (Code review fixes: the path in the hero, no strand letters, the map reflowed, the inspector's reading count), immutable https://f239971c.kurenai-os.pages.dev — deployed 15 October 2026; before it `d8f90be` (Code: the fourth study space, platform and unit 1), immutable https://792e267a.kurenai-os.pages.dev — deployed 15 October 2026; before it `406cf55` (the Reports pages rebuilt to the design, the Home card in the middle row), immutable https://fea75f93.kurenai-os.pages.dev — deployed 13 October 2026; before it `345273e` (Reports phases 6–7: months, terms, years, replication), immutable https://8913f1e2.kurenai-os.pages.dev — deployed 13 October 2026; before it `fb2cb60` (Reports, roadmap 5.1 phases 1–5), immutable https://ecbddb95.kurenai-os.pages.dev — deployed 12 October 2026; before that `55c19b2` (scheduled messages and the text labs), https://633db8f0.kurenai-os.pages.dev; before that `6442704` (flashcard clean-up and merged CS leaves, capped at about 30 cards each), immutable https://eaf09f62.kurenai-os.pages.dev — deployed 9 October 2026; before it `232769b` (personal plan re-laid out, class plan extended to Easter), https://26ba91af.kurenai-os.pages.dev; before that `87ee60c` (Computer Science at depth, with the UI review fixes), https://bfb13afc.kurenai-os.pages.dev; before that `9eac539` (Mechanics M6–M9 at depth), https://32db7dba.kurenai-os.pages.dev; before that `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
-| Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
+| Latest release | Japanese Stage 1 unit F2, Days and times (`5bffba6`, sw `kos-japanese-4`), immutable https://e424163d.kurenai-os.pages.dev, 24 October 2026 |
+| Service-worker cache | `kos-japanese-4` |
+| Smoke gate | 99 / 99 suites (`""` and 2–99; 80–83 are Japanese's, 99 is Code's SQL runner), plus `tools/cs_diff.mjs`, `sql_diff.mjs`, `ja_valid_check.mjs`, `fsrs_check.mjs`, `validator_check.mjs` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-code-18` |
-| Smoke gate | 79 suites (smoke79: Code → GitHub against a fake GitHub); 78 suites (smoke77–78: the full C# runtime's wiring, Bridge B and the Rider workflow); 76 suites (smoke73–76: Code's runner and checker, pay and evidence, the content gate, capstones; plus `tools/cs_diff.mjs` against .NET); 72 at `406cf55` (smoke68–72: the Reports history, model, pages, longer periods and replication); 70 at `fb2cb60`; 67 at `55c19b2` (smoke67 guards the merged CS leaves); 66 suites at the Computer Science release (smoke65: CS Paper 2; smoke66: CS Paper 1 and the NEA); 64 at `9eac539` and `fdc954a`. smoke39 needs a working `git`/`node` toolchain on the host |
-| Latest release date | 23 October 2026 (Code Track T2, desktop apps with Avalonia; T1B and T1C, SQL from C# and EF Core; T1A Databases and the SQL sandbox; Code stage 4 earlier that day); 17 October 2026 (Code stage 3; Reports: 13 October; Computer Science: 2 October; Category 7: 9 August 2026) |
-| Branch | `main` is the line: on 20 October 2026 it was fast-forwarded to `feat/money-goals` for the Money and Goals release (`claude/roadmap-code-study-space` stays at `771e967`, behind it with nothing of its own). Docs baseline commits mark each release |
-| In flight | Japanese study space (roadmap 5.5): plan revision 3.1 ([japanese-plan.md](docs/japanese-plan.md)); the vertical slice in `prototypes/japanese-space/` is closed on real data (`03505a9`; voice bake-off `bc75349`). Nothing in the app changed; the platform release (plan §17) is next, when asked. Money and Goals (roadmap 5.4) RELEASED 20 October 2026 (`084a628`, sw `kos-money-1`), held by smoke84–87; gate `for i in "" {2..79} 84 85 86 87` (83 suites) |
+| Branch | `main` is the line; each release is fast-forwarded to it from its `feat/...` branch (last: `feat/japanese-f2`). `claude/roadmap-code-study-space` is behind it with nothing of its own |
+| In flight | Japanese Stage 1: F3 (Things and places) next, F4–F6 outlined in [japanese-plan.md](docs/japanese-plan.md) §3.1; the reader, media and immersion pages later. Exams hub: the full Companion for CS Paper 1, then Maths Papers 1–3 and F201, one paper per release. iPad and Pencil (Phase 6) and Creatives: planned |
 | Working across accounts | [docs/HANDOFF.md](docs/HANDOFF.md); shared memory in [docs/memory/](docs/memory/MEMORY.md) |
-| Latest delivery | The Reports pages rebuilt to the design after review: the words in full on the Reports page and the headline in each report's story hero; design measures for cards, tiles, charts (drawn at their card's width) and the overviews; no dead space (rows close themselves, uneven cards in measured masonry columns, the shorter column rides along); Home's middle row as Study hours · the latest report · the week's plan under Up next · Today · Upcoming, the card staying full after reading; drawn, centred icons (story controls, Assistant and Habits plus buttons, the IDE tab close); the app frame no longer scrolls on a chapter jump; the phone story full screen. 72/72 suites, the responsive audit 0 findings over 108 cells; service worker `kos-reports-3`, deployed 13 October 2026. Before it, Reports completed (phases 6–7): monthly, termly and yearly reports (terms from the school weeks; the year as seven chapters), their stories, and a copy of every saved report and snapshot in the owner-only `kos_reports` table (migration applied); the responsive audit over every report page at five widths in Graphite and Dawn reports 0 findings; service worker `kos-reports-2`, deployed 13 October 2026. Before it, Reports (roadmap 5.1, phases 1–5 of [docs/reports-plan.md](docs/reports-plan.md)): the history reports need now collected (a media activity journal, AniList tags/country/length and VNDB language, awards on session entries, an Assistant tally, boundary snapshots), weekly reports saved each Monday 07:00 with a marked backfill since 1 September, the Reports page under Home with one week's dashboard and its Study, Focus and plan, and Collection overviews, Kurenai's words from totals only, the story player, the share card and export, the `reports` bell kind, a Home card and search; service worker `kos-reports-1`, deployed 12 October 2026. Before it, scheduled messages (the Assistant's Scheduled tab: a prompt sent at a time while the app is open, read-only, the reply as a notification), the eight text labs rebuilt on the lab system's text kind (BNF derivations, the SQL plan, LMC on the transport; the last lab canvas retired), and `gemini-3.6-flash` as the default with one retry on a busy provider; service worker `kos-schedule-1`, deployed 12 October 2026. Before it, the Assistant repaired: every online request had failed since late September (115 tools against `ai-chat`'s limit of 96; now 128, mirrored and ranked by the client), the retired `gemini-3.5-flash` replaced by `gemini-3.8-flash`, live model listing in Settings, the labs in its tools and feature map, and the no-change and Markdown follow-ups; `ai-chat` v5 and service worker `kos-assistant-2`, deployed 12 October 2026. Before it, the phone batch: notes tables wider than a phone in the shared scroller, the OOP IDE's phone layout, labs cropped to their drawing on a phone (floating point and subnetting with phone layouts) and the Trace Lab's structure column restored below 700px; the responsive audit at 390/360 reports 0 findings; service worker `kos-phone-1`, deployed 12 October 2026. Before it, every simulation rebuilt on the lab system (design part 2, frame 20): one SVG stage with the overflow rule, the transport and the readout, by archetype — diagrams, graph, plots, bits, machines and the three-column Trace Lab ([ROADMAP](docs/ROADMAP.md) 3.3); service worker `kos-labs-1`, deployed 12 October 2026. Before it, flashcard clean-up (4,969 → 4,468) and twelve groups of tiny Computer Science sub-points merged into one leaf each (157 → 131); service worker `kos-cs-merge-2`, deployed 9 October 2026. Before it, the weekly plan re-laid out: the personal CS and Maths plan from w/c 12 Oct and the class plan extended to Easter (Christmas, Feb half term and Easter are breaks); service worker `kos-plan-reflow-1`, deployed 7 October 2026. Before it, Computer Science at full depth — both AQA papers in C# and the NEA as a project companion — with the UI review fixes (below); service worker `kos-cs-depth-1`. Before it, Mechanics M6–M9 at full depth (below), completing Roadmap Phase 4 content; deployed 1 October 2026 (service worker `kos-mech-notes-1`). Before it, Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
+Release history is in the sections below (newest first) and in Git: every
+release commit is titled `release: …` and names its service-worker version.
 Production deployment is separate from Git push and is performed only through
-`tools/deploy_pages.sh`. The immutable Category 7 deployment is
-https://bb17097f.kurenai-os.pages.dev.
+`tools/deploy_pages.sh`.
+
+## Released 24 October 2026 — Japanese Stage 1 unit F2: Days and times
+
+`5bffba6`, sw `kos-japanese-4`, immutable https://e424163d.kurenai-os.pages.dev.
+
+- Lessons 2.1–2.6 (the time, the days and でした, から・まで, dates, the next
+  train, phone numbers) on the eight-page contract, with checkpoint cp-F2
+  and the clock and phone panels; every line voiced.
+
+## Released 23 October 2026 — Japanese Stage 1 unit F1: First conversations
+
+`7aeaa5d`, sw `kos-japanese-3`, immutable https://40739699.kurenai-os.pages.dev.
+
+- Lessons 1.1–1.6 on the eight-page contract (Hook … Quick reference), VN
+  scenes and manga panels over the user's own art, Makoto joins the cast.
+- The audio pack: the cast on ElevenLabs, the narrator on VOICEVOX:No.7,
+  baked by `tools/bake_ja_audio.mjs` into `js/data/ja-audio.js`.
+
+## Released 22 October 2026 — Japanese platform and review fixes
+
+`d061169` (sw `kos-japanese-1`), then `ee1a746` (sw `kos-japanese-2`).
+
+- Japanese as the fifth subject: the backend (facet scheduler on FSRS, kana,
+  conjugation, validators, strokes from KanjiVG; invariants 112–118,
+  smoke81, smoke83), the pages drawn to design turn 28 (desk, lesson,
+  session, Kana, Skills, path, checkpoints, settings, licences; smoke80) and
+  Stage 0's sixteen kana lessons (smoke82).
+- Review fixes: no rail item (a Study subject), one navigation, the path in
+  the desk's hero, aligned rows.
+
+## Released 22 October 2026 — the iPad layout (roadmap 6.0)
+
+`87f9437`, sw `kos-ipad-1`. The rail opens over the page at 701–1080px and
+topic pages no longer collapse at 1081–1240px
+([ipad-plan.md](docs/ipad-plan.md)).
+
+## Released 22 October 2026 — after FSRS
+
+`13cef94`, sw `kos-runner-2`.
+
+- Switching a Focus session's subject, topic or assignment mid-way
+  (invariant 4a, smoke95).
+- FSRS phase 3: the optimiser and the replicated review log (migration
+  `20261022000001`; smoke96).
+- What reaches a closed app: the outlook, Web Push and the `runner` Edge
+  Function with a five-minute cron (invariant 131; smoke97; migration
+  `20261022000002`).
+- Code → GitHub as a GitHub App (invariant 110; smoke98; `github-token`
+  deployed, migration `20261022000003`; the App itself is not created yet).
+
+## Released 21 October 2026 — the Exams & Deadlines hub
+
+`3b39ae1`, sw `kos-exams-1`. Phases 1–6 of [exams-plan.md](docs/exams-plan.md):
+the assessment record, Scope Builder, readiness, planner, Exam Room, Paper
+library, goals, the archetype catalogue and Companion, and the exhaustive
+Companion for CS Paper 2 (smoke89–94). Next paper: CS Paper 1.
+
+## Released 20 October 2026 — FSRS and Money and Goals
+
+- FSRS phases 1–2 (`fbea5d5`, sw `kos-fsrs-1`): one FSRS-6 scheduler for
+  flashcards and Code's cards, the SM-2 switch, the review log, the
+  exam-aware cap, leeches and Rework (smoke88).
+- Money and Goals (`084a628`, sw `kos-money-1`): the Money core, the Goals
+  engine, the joins and the pages (smoke84–87; migration `20261019000001`).
+
 
 ## Released 23 October 2026 — Code Track T1 complete
 
@@ -112,42 +175,7 @@ Release `2db0b4f`, sw `kos-code-21`, immutable https://2c5de69f.kurenai-os.pages
 - Both scaffolds pin the native SQLite past advisory GHSA-2m69-gcr7-jv3q;
   `tools/validator_check.mjs` runs both fresh, solved (a real
   `dotnet ef` migration for T1C) and broken.
-- Code spans no longer pair `# KurenaiOS delivery status
-
-This file is the current delivery snapshot, not a turn-by-turn work diary. The
-previous 4,000-line chronological record was consolidated on 9 August 2026; durable
-architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
-
-## Current state
-
-**Category 7 Phases A–G is complete, integrated, deployed and
-production-verified. The cloud three-way merge and the editable curriculum /
-study editor are deployed on top of it (17 September 2026); the Collection
-AniList mirror and the notification centre followed on 19 September 2026
-(`b482f68`, `8dfe2d1`). The Graphite UI rebuild replaced the whole
-presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
-
-| Item | Current value |
-|---|---|
-| Production | https://kurenai-os.pages.dev |
-| Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `084a628` (Money and Goals, roadmap 5.4, built whole to design 27a–27s), immutable https://d8bccd88.kurenai-os.pages.dev — deployed 20 October 2026; before it `ff7a8e3` (Code capstone 3: a shop with plugins and LINQ reports — stage 3 complete), immutable https://6c888d02.kurenai-os.pages.dev — deployed 17 October 2026; before it `2fe14b4` (Code units 8 and 9: interfaces and inheritance, LINQ and generics, on the full runtime), immutable https://549e4efa.kurenai-os.pages.dev — deployed 17 October 2026; before it `04be041` (Code unit 7: classes and objects, on the full runtime), immutable https://2b2c8f4d.kurenai-os.pages.dev — deployed 17 October 2026; before it `19f1c27` (Code in Reports and the Assistant), immutable https://dd88bfe1.kurenai-os.pages.dev — deployed 17 October 2026; before it `4ec25bc` (katas, Code → GitHub v1, "Coming later" for units 7–12, Home's desks in one row), immutable https://d5ae99db.kurenai-os.pages.dev — deployed 16 October 2026; before it `0a4b471` (Code in Focus and the pickers, the spread stage path, Study until laid out), immutable https://685eec63.kurenai-os.pages.dev — deployed 16 October 2026; before it `aa19532` (Pacing under Study, the folding skill map, Code progress from covered lessons), immutable https://3df72dfb.kurenai-os.pages.dev — deployed 16 October 2026; before it `b4b4a25` (Code Bridge B, the Rider workflow, binary files and the full C# runtime), immutable https://59471e17.kurenai-os.pages.dev — deployed 16 October 2026; before it `efaf9b1` (Code capstone 2 and the topic gaps), immutable https://ef5cbf9d.kurenai-os.pages.dev — deployed 16 October 2026; before it `d2477d1` (Code unit 6: files, exceptions and debugging), immutable https://9d7e3d9b.kurenai-os.pages.dev — deployed 16 October 2026; before it `0a35674` (Code unit 5: text), immutable https://7a5ea20f.kurenai-os.pages.dev — deployed 16 October 2026; before it `b33d2ab` (Code unit 4: collections), immutable https://baee7dfc.kurenai-os.pages.dev — deployed 16 October 2026; before it `1b6d4de` (capstone review: the brief & build workspace, the study quiz, full-width steps), immutable https://243503b2.kurenai-os.pages.dev — deployed 16 October 2026; before it `6be96f1` (Code capstone 1: the capstone checkpoint and the text adventure engine), immutable https://d66c19bc.kurenai-os.pages.dev — deployed 16 October 2026; before it `ad8fce8` (Code unit 3: methods and scope; the inspector's status menu), immutable https://e89ae424.kurenai-os.pages.dev — deployed 15 October 2026; before it `4b74156` (Code unit 2: decisions and loops; tidier note pages; the Topic status component in the inspector), immutable https://e30bd0f2.kurenai-os.pages.dev — deployed 15 October 2026; before it `9e2a3b7` (Code review fixes: the path in the hero, no strand letters, the map reflowed, the inspector's reading count), immutable https://f239971c.kurenai-os.pages.dev — deployed 15 October 2026; before it `d8f90be` (Code: the fourth study space, platform and unit 1), immutable https://792e267a.kurenai-os.pages.dev — deployed 15 October 2026; before it `406cf55` (the Reports pages rebuilt to the design, the Home card in the middle row), immutable https://fea75f93.kurenai-os.pages.dev — deployed 13 October 2026; before it `345273e` (Reports phases 6–7: months, terms, years, replication), immutable https://8913f1e2.kurenai-os.pages.dev — deployed 13 October 2026; before it `fb2cb60` (Reports, roadmap 5.1 phases 1–5), immutable https://ecbddb95.kurenai-os.pages.dev — deployed 12 October 2026; before that `55c19b2` (scheduled messages and the text labs), https://633db8f0.kurenai-os.pages.dev; before that `6442704` (flashcard clean-up and merged CS leaves, capped at about 30 cards each), immutable https://eaf09f62.kurenai-os.pages.dev — deployed 9 October 2026; before it `232769b` (personal plan re-laid out, class plan extended to Easter), https://26ba91af.kurenai-os.pages.dev; before that `87ee60c` (Computer Science at depth, with the UI review fixes), https://bfb13afc.kurenai-os.pages.dev; before that `9eac539` (Mechanics M6–M9 at depth), https://32db7dba.kurenai-os.pages.dev; before that `fdc954a` (Statistics S1–S5, Home/Pacing/picker), https://2022f878.kurenai-os.pages.dev |
-| Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
-| Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-code-18` |
-| Smoke gate | 79 suites (smoke79: Code → GitHub against a fake GitHub); 78 suites (smoke77–78: the full C# runtime's wiring, Bridge B and the Rider workflow); 76 suites (smoke73–76: Code's runner and checker, pay and evidence, the content gate, capstones; plus `tools/cs_diff.mjs` against .NET); 72 at `406cf55` (smoke68–72: the Reports history, model, pages, longer periods and replication); 70 at `fb2cb60`; 67 at `55c19b2` (smoke67 guards the merged CS leaves); 66 suites at the Computer Science release (smoke65: CS Paper 2; smoke66: CS Paper 1 and the NEA); 64 at `9eac539` and `fdc954a`. smoke39 needs a working `git`/`node` toolchain on the host |
-| Latest release date | 23 October 2026 (Code Track T2, desktop apps with Avalonia; T1B and T1C, SQL from C# and EF Core; T1A Databases and the SQL sandbox; Code stage 4 earlier that day); 17 October 2026 (Code stage 3; Reports: 13 October; Computer Science: 2 October; Category 7: 9 August 2026) |
-| Branch | `main` is the line: on 20 October 2026 it was fast-forwarded to `feat/money-goals` for the Money and Goals release (`claude/roadmap-code-study-space` stays at `771e967`, behind it with nothing of its own). Docs baseline commits mark each release |
-| In flight | Japanese study space (roadmap 5.5): plan revision 3.1 ([japanese-plan.md](docs/japanese-plan.md)); the vertical slice in `prototypes/japanese-space/` is closed on real data (`03505a9`; voice bake-off `bc75349`). Nothing in the app changed; the platform release (plan §17) is next, when asked. Money and Goals (roadmap 5.4) RELEASED 20 October 2026 (`084a628`, sw `kos-money-1`), held by smoke84–87; gate `for i in "" {2..79} 84 85 86 87` (83 suites) |
-| Working across accounts | [docs/HANDOFF.md](docs/HANDOFF.md); shared memory in [docs/memory/](docs/memory/MEMORY.md) |
-| Latest delivery | The Reports pages rebuilt to the design after review: the words in full on the Reports page and the headline in each report's story hero; design measures for cards, tiles, charts (drawn at their card's width) and the overviews; no dead space (rows close themselves, uneven cards in measured masonry columns, the shorter column rides along); Home's middle row as Study hours · the latest report · the week's plan under Up next · Today · Upcoming, the card staying full after reading; drawn, centred icons (story controls, Assistant and Habits plus buttons, the IDE tab close); the app frame no longer scrolls on a chapter jump; the phone story full screen. 72/72 suites, the responsive audit 0 findings over 108 cells; service worker `kos-reports-3`, deployed 13 October 2026. Before it, Reports completed (phases 6–7): monthly, termly and yearly reports (terms from the school weeks; the year as seven chapters), their stories, and a copy of every saved report and snapshot in the owner-only `kos_reports` table (migration applied); the responsive audit over every report page at five widths in Graphite and Dawn reports 0 findings; service worker `kos-reports-2`, deployed 13 October 2026. Before it, Reports (roadmap 5.1, phases 1–5 of [docs/reports-plan.md](docs/reports-plan.md)): the history reports need now collected (a media activity journal, AniList tags/country/length and VNDB language, awards on session entries, an Assistant tally, boundary snapshots), weekly reports saved each Monday 07:00 with a marked backfill since 1 September, the Reports page under Home with one week's dashboard and its Study, Focus and plan, and Collection overviews, Kurenai's words from totals only, the story player, the share card and export, the `reports` bell kind, a Home card and search; service worker `kos-reports-1`, deployed 12 October 2026. Before it, scheduled messages (the Assistant's Scheduled tab: a prompt sent at a time while the app is open, read-only, the reply as a notification), the eight text labs rebuilt on the lab system's text kind (BNF derivations, the SQL plan, LMC on the transport; the last lab canvas retired), and `gemini-3.6-flash` as the default with one retry on a busy provider; service worker `kos-schedule-1`, deployed 12 October 2026. Before it, the Assistant repaired: every online request had failed since late September (115 tools against `ai-chat`'s limit of 96; now 128, mirrored and ranked by the client), the retired `gemini-3.5-flash` replaced by `gemini-3.8-flash`, live model listing in Settings, the labs in its tools and feature map, and the no-change and Markdown follow-ups; `ai-chat` v5 and service worker `kos-assistant-2`, deployed 12 October 2026. Before it, the phone batch: notes tables wider than a phone in the shared scroller, the OOP IDE's phone layout, labs cropped to their drawing on a phone (floating point and subnetting with phone layouts) and the Trace Lab's structure column restored below 700px; the responsive audit at 390/360 reports 0 findings; service worker `kos-phone-1`, deployed 12 October 2026. Before it, every simulation rebuilt on the lab system (design part 2, frame 20): one SVG stage with the overflow rule, the transport and the readout, by archetype — diagrams, graph, plots, bits, machines and the three-column Trace Lab ([ROADMAP](docs/ROADMAP.md) 3.3); service worker `kos-labs-1`, deployed 12 October 2026. Before it, flashcard clean-up (4,969 → 4,468) and twelve groups of tiny Computer Science sub-points merged into one leaf each (157 → 131); service worker `kos-cs-merge-2`, deployed 9 October 2026. Before it, the weekly plan re-laid out: the personal CS and Maths plan from w/c 12 Oct and the class plan extended to Easter (Christmas, Feb half term and Easter are breaks); service worker `kos-plan-reflow-1`, deployed 7 October 2026. Before it, Computer Science at full depth — both AQA papers in C# and the NEA as a project companion — with the UI review fixes (below); service worker `kos-cs-depth-1`. Before it, Mechanics M6–M9 at full depth (below), completing Roadmap Phase 4 content; deployed 1 October 2026 (service worker `kos-mech-notes-1`). Before it, Statistics S1–S5 at full depth and the Mechanics M6–M9 rename (below), with the Home Focus ladder, class lesson dating, the paper-level topic picker and status tones; deployed 1 October 2026 (service worker `kos-stats-notes-1`). Before it, design part 2 (frames 15–23) built on the Phase 1 backend and the Phase 2 clean-up: phone views, Focus modes, the topic picker, the IT units panel, the OOP IDE, the lab system, Dawn and the 23 themes, cosmetics and the drag pattern. Merged to `main` and deployed on 28 September 2026 (service worker `kos-graphite-4`, immutable https://ade0184c.kurenai-os.pages.dev) ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
-| Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
-
-Production deployment is separate from Git push and is performed only through
-`tools/deploy_pages.sh`. The immutable Category 7 deployment is
-https://bb17097f.kurenai-os.pages.dev.
-
- signs as maths; smoke97 reads the app's
+- Code spans no longer pair `$` signs as maths; smoke97 reads the app's
   clock. 99/99 suites.
 
 ## Released 23 October 2026 — Code's SQL sandbox and T1A, Databases
@@ -831,7 +859,7 @@ Full engineering detail is in `CLAUDE.md` invariants 47–79.
 
 ### Automated gates
 
-- All 47 jsdom smoke suites passed after the final integration.
+- The Category 7 release passed all 47 jsdom smoke suites; the gate is now 99 (see Current state).
 - Pre-deployment responsive matrix: **1,192 cells**, zero overflow, amputated text
   or tab-bar overlap.
 - Breakpoint-edge matrix: **912 cells**, zero findings.
@@ -889,10 +917,15 @@ The numbered suites form one release gate:
   generated tree, the labs, the plan seed, and the stored-state migration
   at boot, on import/pull, and for attachments.
 
+- `smoke64.test.js`–`smoke99.test.js`: CS depth, Reports (68–72), Code
+  (73–79, 99), Money and Goals (84–87), FSRS (88, 96), the Exams hub
+  (89–94), Focus switching (95), the closed-app runner (97), the GitHub App
+  (98) and Japanese (80–83). Each suite's header says what it holds.
+
 Run all suites with:
 
 ```sh
-for i in "" {2..72}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..99}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates
@@ -900,7 +933,9 @@ for i in "" {2..72}; do node "tools/smoke${i}.test.js"; done
 Everything still to build or deliberately deferred — Tier C, the design
 work waiting on Claude Design (phone, Dawn and the shop themes, the labs),
 the Statistics/Mechanics notes, the IT unit grades and the M14 clean-up —
-is ordered in [docs/ROADMAP.md](docs/ROADMAP.md). External gates that no
+is ordered in [docs/ROADMAP.md](docs/ROADMAP.md) (as of 24 October 2026: the
+rest of Japanese Stage 1, the Exams Companion paper by paper, the iPad and
+Pencil, Creatives, and Code's remaining tracks). External gates that no
 code change resolves:
 
 - Live2D remains development-only. No Cubism runtime/model is deployable until
@@ -924,6 +959,7 @@ code change resolves:
 | Category 7 | Complete responsive, accessible, visually consistent UI/UX release. |
 | Sept 2026 | Pacing, past-paper banks, the editable curriculum, three-way cloud merge, the AniList mirror, notifications, Pure maths at full depth. |
 | Graphite | The presentation layer rebuilt from the Graphite design handoff, guarded by smoke55/56. |
+| Oct 2026 | Reports, Code (core path and Tracks T1–T2), Money and Goals, FSRS, the Exams hub, the closed-app runner, the iPad layout, Japanese (platform, Stage 0, units F1–F2). |
 
 Historical implementation detail remains recoverable from Git history and the
 Category 7 audit (`KURENAIOS_FULL_UI_UX_AUDIT.md`); it is intentionally not
