@@ -1232,6 +1232,32 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    1.1.0; units 11–12 on the full runtime). What remains is the deepening
    modules and the tracks (parked below).
 
+### 5.9 Psychology & Philosophy: a study space for the mind ◆ (asked for 24 October 2026)
+
+> **Status (24 October 2026): plan revision 1, for review.**
+> [mind-plan.md](mind-plan.md); your answers to its §15 come first, then
+> revision 2 and design prompt 16.
+
+- **What:** one non-exam subject with two disciplines and crossing units.
+  Paths → units → lessons → **concepts**, and the concept is what FSRS
+  schedules, the knowledge graph links and mastery measures (Recall →
+  Explain → Apply → Evaluate).
+- **The day:** the Daily 15, made of reviews, one lesson sitting and one
+  question. It is a Focus session and shrinks to reviews only in Exam
+  Season.
+- **The pieces:**
+  - versioned positions with confidence, revisits and a belief timeline;
+  - authored Socratic dialogue trees, with Ask Kurenai in four modes on
+    request;
+  - the Journal (insights, quotes, questions, positions, reflections) in
+    its own store, replicated to `kos_mind`;
+  - the knowledge graph across CS, Maths, Code, Japanese and the
+    Collection;
+  - self-experiments in the lab;
+  - "KurenaiOS explains itself".
+- **Invariants it would add:** 137–141 (plan §14).
+- **Design first:** [prompt 16](design-prompts.md), still to write.
+
 ---
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
