@@ -1,4 +1,4 @@
-# Mind — a study space for psychology and philosophy (plan, revision 2, approved)
+# Mind — a study space for psychology and philosophy (plan, revision 2.1, approved; design received)
 
 Roadmap 5.9, asked for on 24 October 2026. It follows the shape of Code,
 Japanese and Creatives: a plan first, then Claude Design
@@ -787,3 +787,131 @@ Backend that needs no design can start any time:
   and never assess you.
 - **Spoilers.** Media hooks name ideas, not plots; a title's ideas are
   shown only for titles in your own Collection.
+
+## 18. The design (turn 32, received 24 October 2026)
+
+The handoff package is `~/Downloads/design_handoff_kurenaios_mind/` on
+the Mac that made it: `KurenaiOS Mind.dc.html` (open it with `support.js`
+and `assets/` beside it), `README.md`, `mind-tokens.css`, and the plan.
+It is not committed, as with earlier handoffs. **The notes under each
+frame are the spec:** States, Focus order, Live region, Empty/offline/
+errors, and breakpoints. The blue ◇ tags name the shared components.
+
+**What it settles:**
+- **Hue: 藤 Fuji.** `--mind` is `oklch(0.78 0.1 302)` in Dusk and
+  `oklch(0.5 0.14 302)` in Dawn. `--mind-ink` (ink on a fill) is
+  `oklch(0.2 0.04 302)` in Dusk and the page white in Dawn. It goes beside
+  `--code` and `--ja` in `css/themes.css` and shifts in the shop themes
+  like the other subject hues. It sits between Maths (270) and IT (325),
+  and is never used for right or wrong.
+- **Type:** Onest, JetBrains Mono, Shippori Mincho (the 心 emblem), and
+  **Newsreader** for reading (hooks, passages, "For your stories", quotes,
+  dialogue lines). Newsreader is already loaded and is `--font-read` in
+  `tokens.css`, so no font change is needed.
+- **Fidelity:** high. Colours, type, spacing, radii and copy are final,
+  in British English. The sample learner is five weeks in (F1 and F2
+  done, at Y1.6). All counts are samples.
+- **Match the siblings.** The desk follows Code's and Japanese's (26a,
+  28a). A lesson is the shared topic page. The dialogue and the theatre
+  are `KOS.jaUI.scene`. The labs are the lab system. The Argument Mapper
+  is `KOS.ui.reorder`.
+- **The subject group** shows Code · Japanese · Mind until Creatives has
+  its hue.
+
+**The frames:**
+
+| Frames | What they are |
+|---|---|
+| 32·hue, 32·kit | The hue and the shared parts: ladder, path ladder, evidence tag, Daily 15 strip, Journal kinds, "For your stories", confidence slider |
+| 32a–32b | The desk and its states (first visit, skipped week, Exam Season, offline); iPad and Dawn |
+| 32c | The path page, with a phone version |
+| 32d–32f | Lesson Y1.6, every page; iPad and Dawn |
+| 32g–32h | The explain-back and the position card |
+| 32i–32j | The Socratic dialogue in the VN scene, with a phone version |
+| 32k–32l | Versions, the belief timeline, the revisit and the tension pair |
+| 32m | Ask Kurenai |
+| 32n–32o | The Journal, with phone quick capture |
+| 32p–32q | Neighbours, the media lens and the Atlas |
+| 32r | The Argument Mapper |
+| 32s | The Fallacy Field Guide |
+| 32t–32u | Thought-experiment theatre and its results |
+| 32v–32w | The serial-position lab, the Bayes box and Axelrod's standings |
+| 32x | The reading room (Meditations II.1, tr. Long) |
+| 32y | A checkpoint |
+| 32z–32ab | The phone Daily 15 |
+| 32ac | Philosopher cards and the yearly "What I believe" |
+
+**To do before or while building:**
+- **Check the sample figures by program** (invariant 141): the Loftus &
+  Palmer figures in 32e, the published serial-position curve in 32v, and
+  the Axelrod scores in 32w. The Bayes box values are computed already.
+- **Scene layers.** Kurenai's body and face are separate layers in the
+  scene: only the face swaps, as with Japanese's cast (that plan's §12.1).
+  Until the faces arrive, her neutral pose shows and the slots are
+  marked. The background is a calm Fuji wash until its art arrives.
+- **The art slots** in the design (§19): Kurenai's faces (thinking,
+  pleased, curious), the dialogue and theatre backgrounds, and the
+  philosopher portraits.
+- **A second character** is now wanted (24 October 2026), and the design
+  shows none yet. Their frames are a small follow-up turn once the
+  character sheet exists: the scene with two speakers, the theatre with
+  them as a participant, and their Push back line.
+
+## 19. The second character and the voices
+
+The art prompts are in [mind-art.md](mind-art.md). The images go into
+`art-source/mind/inbox/<id>.png`, by hand in the Gemini app. They become
+`art-source/mind/manifest.json` when the platform is built, run through
+the same pipeline as Japanese's (chroma key, face-only composites,
+WebP/AVIF, and a contact sheet).
+
+**The character (proposed, open to change): 藤宮 蓮 Fujimiya Ren.**
+- **Role:** Kurenai's colleague across the hall, and the space's
+  **sceptic**. He takes the other side in a dialogue, is the one whose
+  view Kurenai examines, plays your opponent in the Prisoner's Dilemma,
+  and stands in the thought experiments.
+- **Why he helps:** he **changes his mind out loud** when an argument
+  beats him. That models the milestone the space cares most about (§6).
+  He is sometimes right against Kurenai, so the dialogues are not a
+  teacher always winning.
+- **Personality:** dry, amused, contrarian on principle, but honest. He
+  reads mystery novels and plays board games. He likes strategy, puzzles
+  and paradoxes.
+- **Look:** a late-twenties scholar who matches Kurenai's world: the
+  Fuji hue to her crimson (mind-art.md has the full description).
+
+**Voices: ElevenLabs library voices cannot be used on the free plan.**
+I tested this on 24 October 2026 with the project key:
+- the API refuses every library voice with HTTP 402 `paid_plan_required`
+  ("Free users cannot use library voices via the API");
+- that includes the two library voices already saved to your account
+  (Akira and Yuki);
+- the **21 built-in ("premade") voices work** (HTTP 200). They take no
+  voice slot, so the three designed Japanese voices are untouched.
+
+The options, in order of preference:
+1. **A built-in voice (recommended, free, scripted).** For Ren, in British
+   English to match the copy:
+   - **George** (warm, captivating storyteller; British; middle-aged),
+     with stability lowered for a dry delivery: recommended;
+   - **Daniel** (steady, formal; British);
+   - **Charlie** (young, confident; Australian), if you want Ren younger.
+
+   Listen on the website (Voices → Default) and pick one; it is a single
+   `voice_id` in the bake script.
+2. **A library voice through the API.** It needs the Creator plan or $5
+   of credits. That is a purchase, so it is your call; nothing here
+   assumes it.
+3. **A library voice by hand on the website.** Generate each line and
+   download it. It is slow for dozens of lines. I could not check from
+   the API whether the free website allows it.
+
+**Kurenai's voice:** her Assistant cues are already ElevenLabs renders
+(`assets/assistant/voice/`). Her Mind lines should use the same voice.
+Which voice made those renders is not recorded in the repo. Name it when
+the audio pack is built; if it is a library voice, the same free-plan
+limit applies, and a built-in voice (Alice or Lily, both British) is the
+fallback.
+
+**The narrator** of the thought experiments is Kurenai (32t).
+

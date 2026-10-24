@@ -17,6 +17,10 @@ Key choices made by the user:
 - authored Socratic trees in the VN scene UI by default, with Ask Kurenai on request;
 - the goal is curiosity, thinking and feeding their own VN/story writing, not a university degree.
 
+Design turn 32 was received on 24 October 2026 at /Users/fj/Downloads/design_handoff_kurenaios_mind/ (frames 32a–32ac). The hue is Fuji, oklch 302. The frame notes are the spec. Its sample figures (Loftus & Palmer, serial position, Axelrod) must be checked by program. It is recorded in plan §18. The user said not to start building until asked.
+
+The second character is Ren (proposed, plan §19); the art prompts are in docs/mind-art.md and the images go to art-source/mind/inbox/. A free-plan ElevenLabs API key refuses ALL library voices (402 paid_plan_required, even ones saved to the account), but the 21 premade voices work and take no slot. For Ren, George (British) is recommended. Kurenai's existing cue voice is unrecorded.
+
 **Why:** the user wants low friction and story-writing links.
 
 **How to apply:** keep sittings short and phone-friendly, and never ask for two writing tasks in one lesson. Related: [[japanese-study-space]], [[user-made-assets]].

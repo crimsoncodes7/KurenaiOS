@@ -1236,7 +1236,11 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 > **Status (24 October 2026): plan revision 2, APPROVED.**
 > [mind-plan.md](mind-plan.md) (decisions A–J, invariants 137–141).
-> Next: [design prompt 16](design-prompts.md), frames 32a onwards.
+> **Design received (24 October 2026):** turn 32, frames 32a–32ac, hue
+> 藤 Fuji (plan §18). A second character, Ren, is wanted: the art prompts
+> are in [mind-art.md](mind-art.md) and the voices are in plan §19 (the free
+> ElevenLabs API refuses library voices, so a built-in voice is used). Not
+> started: the platform waits for your go-ahead.
 
 - **What:** one non-exam subject, "Mind", with Foundation, Psychology,
   Philosophy and Crossings as headers. Paths → units → lessons →
