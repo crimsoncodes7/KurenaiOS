@@ -23,6 +23,7 @@ handoff maps back to the roadmap.
 | 13 | Exams & Deadlines Hub | 5.8 | after FSRS (released) |
 | 14 | The iPad and the Pencil | 6 | now (layout released) |
 | 15 | Creatives: art, design, editing, writing | 5.7 item 3 | with 14 |
+| 16 | Mind: psychology and philosophy | 5.9 | after 15 |
 
 ---
 
@@ -655,3 +656,42 @@ STATES: first visit (an encouraging start, not a wall of 13 units), a skipped we
 RULES: no locks for good (a project says "Try it anyway"); no streaks, badges or counts that shame; zero-value facts suppressed (invariant 77); Kurenai never generates or rewrites work; status is never colour alone; the Practice Log never appears in Reports, a share or the Home page.
 ```
 
+
+---
+
+## 16 · Mind: psychology and philosophy
+
+The agreed scope is [mind-plan.md](mind-plan.md) revision 2 (decisions
+A–J approved). Unlike Creatives, the phone is a first-class device here:
+the Daily 15 is meant to be done on a bus.
+
+```text
+Design Mind for KurenaiOS, a new non-exam study space for psychology and philosophy, beside CS, Maths, IT, Code, Japanese and Creatives, continuing the approved design. The earlier handover packages are attached to this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23 with the lab system 20a–20i and the topic picker 17a–17e, Reports 24–25, Code 26a–26x, Money and Goals 27a–27s, Japanese 28 onwards with its VN scene and manga panel components, the Exams hub 29a–29ac, the iPad 30a onwards, Creatives 31a onwards). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth, and read docs/mind-plan.md (the agreed scope) and the invariants in CLAUDE.md. Code's desk and lesson frames (26a–26f) and Japanese's desk and scenes are the closest models: Mind is a sibling, not a new app. Number the new frames 32a onwards. Draw at desktop 1280 and phone 390 × 844 for EVERY main flow (the phone is primary for the daily session), plus iPad 1180 × 796 for the desk and a lesson. Propose ONE new subject hue distinct from CS, Maths, IT, Code (Sky), Japanese (vermilion), Creatives and every status colour, with its Dawn variant.
+
+WHO IT IS FOR. A sixth-form student with no formal psychology or philosophy, but who knows many of the themes from visual novels, psychological mysteries, light novels, and CS and AI. It is for curiosity, sharper thinking, understanding people and strategy, and analysing the stories they read and write (their own VN and story writing lives in Creatives). It is 15 minutes a day, ADDED to the other spaces, mostly on a phone on the bus: one hand, patchy signal, interruptions. It must feel quick, calm and intellectually alive, never like homework or an essay.
+
+THE MODEL. One subject, "Mind", everywhere. Inside, the curriculum sits under four headers: Foundation (F1 arguments, F2 evidence and Bayes), Psychology (Y1 learning and memory, Y2 social, Y3 decisions and strategy: biases, game theory, decision paradoxes, Y4 emotion, motivation and habit, Y5 development and personality, Y6 research methods), Philosophy (P1 ethics, P2 mind and self, P3 knowledge and reality, P4 how to live, P5 society) and Crossings (X1 free will, X2 morality, X3 happiness, X4 the self, X5 machine minds, X6 cooperation). Paths contain units, units contain lessons, lessons teach CONCEPTS. A concept's mastery is a four-step ladder: Recall, Explain, Apply, Evaluate, derived from evidence.
+
+WHAT IS WANTED:
+1. THE DESK (32a–32b): the Daily 15 as the hero (three parts: Reviews ~4 min, One sitting ~8 min, One question ~3 min, with "Just reviews · 5 min"); the current unit and the one suggested next unit; the four headers' paths with mastery ladders; recent Journal entries (titles only); milestones. Its Exam Season state: "Reviews only until your exams end", one calm line.
+2. THE PATH PAGE (32c): Foundation, Psychology, Philosophy and Crossings as headed sections; each path's units with their lesson counts and ladders; a Crossing whose two sides are not done says so with "Start anyway". Nothing is locked.
+3. A LESSON (32d–32f) on the shared topic page: Hook (a vote or a story-style setup, the answer kept), The idea (short lines, an annotated diagram), The case (a study, a payoff matrix or a close-read passage), The pushback, Check (quiz with an apply scenario), Close. Psychology findings carry an EVIDENCE TAG: Robust, Debated or Failed to replicate; design it to be honest and unalarming. Show the "For your stories" note (two or three lines on how a writer uses the idea, with "Save to Journal").
+4. THE ONE WRITTEN PROMPT (32g–32h), in its two forms; a lesson has only one. EXPLAIN-BACK: a bullet box ("Bullets are fine"), then tick which key points you covered. POSITION CARD: options or a scale, a confidence slider 50–99%, one line of reason, and an optional "Strongest objection + your reply" that unlocks Evaluate. Both have a quiet "Later" that parks it without guilt.
+5. THE SOCRATIC DIALOGUE (32i–32j) in Japanese's VN scene component with Kurenai's existing art: her question, 2–4 answer choices plus "Type your own", follow-ups, and the closing summary with "Save to Journal". Thumb-reachable on the phone.
+6. POSITIONS OVER TIME (32k–32l): a position's version history and the BELIEF TIMELINE across all positions ("What changed my mind" on each revision; a changed mind is a milestone, celebrated quietly); a REVISIT card ("In October you said X because Y. Still true?" Keep · Revise · Retire); a TENSION PAIR prompt ("You pulled the lever but didn't push. What's the difference?") that opens a dialogue, never a verdict.
+7. ASK KURENAI (32m): the four modes (Socratic, Explain it differently, Push back, Make it mine), the "What is sent" dialog with tickable extras, offline ("Saved to ask when you're online"), and a reply saved to the Journal.
+8. THE JOURNAL (32n–32o): five kinds (Insight, Quote, Question, Position, Reflection), filters by kind and concept, the Big Question of the week as a thread with its Sunday synthesis, the commonplace-book export, and QUICK CAPTURE on the phone (kind, text, done).
+9. THE KNOWLEDGE GRAPH (32p–32q): a concept page's Neighbours panel (typed links: is a kind of, objects to, supports, is evidence for, same idea as, applies in; links out to CS/Maths topics, Code, Japanese and Collection titles; the user's own links distinguished from authored ones) and THE ATLAS, an SVG map of one path or a concept's two-step neighbourhood on the lab stage, with the list beneath it as the real control. Show the MEDIA LENS: "You've seen this in…" on a concept, and "Ideas in this" on a Collection title.
+10. THE ARGUMENT MAPPER (32r): premises and a conclusion as an indented tree joined by because / but / therefore; drag on desktop, tap-to-move on the phone; export.
+11. THE FALLACY FIELD GUIDE (32s): a daily item (a quote, fake ad or line of dialogue; name the fallacy) and the guide page (every fallacy and bias, a one-line definition, an example, your "Spotted in the wild" sightings).
+12. THOUGHT-EXPERIMENT THEATRE (32t–32u): one scene (the trolley, then the footbridge) as a VN scene with choices, and the results page ("you answered like a consequentialist 4 times out of 6"), a description, never a score, with its tension pairs.
+13. LABS (32v–32w): one self-experiment (Stroop or serial position: run, then your result beside the published one, kept on the device) and one strategy lab (Axelrod's tournament: pick strategies, watch the round-robin, the standings; or the Bayes box: base rate and accuracy sliders driving a frequency tree), all on the lab system's bar, stage and readout.
+14. THE READING ROOM (32x): a short public-domain passage with margin notes and two or three questions, its translation cited.
+15. A CHECKPOINT (32y): cards, apply scenarios and one short synthesis marked against a rubric; retake any time.
+16. THE PHONE DAILY 15 (32z–32ab): one vertical flow with a three-part progress strip; reviews and choices in the thumb zone; resume mid-sitting after an interruption; offline banner; the done state.
+17. LIGHT EXTRAS (32ac): a philosopher card (thinker, the one idea, an objection; earned at Apply, display only) and the yearly "what I believe" panel in Reports' year view.
+
+STATES: first visit (a welcoming start that suggests F1, not a wall of paths), a skipped week (no guilt, "pick up here"), Exam Season, no network, an empty Journal, a concept with no neighbours yet, Dawn for the desk and a lesson.
+
+RULES: nothing locked; no streak of its own and no counts that shame; zero-value facts suppressed (invariant 77); one written prompt per lesson, bullets welcome; Kurenai discusses but never grades; the Journal is private (Reports count entries, never quote them); no therapy framing, nothing diagnoses; status is never colour alone; evidence tags never rely on colour; no text in any generated image (all text is a live layer); new characters need the user's own art, so use only Kurenai.
+```

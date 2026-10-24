@@ -1232,31 +1232,38 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    1.1.0; units 11–12 on the full runtime). What remains is the deepening
    modules and the tracks (parked below).
 
-### 5.9 Psychology & Philosophy: a study space for the mind ◆ (asked for 24 October 2026)
+### 5.9 Mind: psychology and philosophy ◆ (asked for 24 October 2026)
 
-> **Status (24 October 2026): plan revision 1, for review.**
-> [mind-plan.md](mind-plan.md); your answers to its §15 come first, then
-> revision 2 and design prompt 16.
+> **Status (24 October 2026): plan revision 2, APPROVED.**
+> [mind-plan.md](mind-plan.md) (decisions A–J, invariants 137–141).
+> Next: [design prompt 16](design-prompts.md), frames 32a onwards.
 
-- **What:** one non-exam subject with two disciplines and crossing units.
-  Paths → units → lessons → **concepts**, and the concept is what FSRS
-  schedules, the knowledge graph links and mastery measures (Recall →
-  Explain → Apply → Evaluate).
+- **What:** one non-exam subject, "Mind", with Foundation, Psychology,
+  Philosophy and Crossings as headers. Paths → units → lessons →
+  **concepts**, and the concept is what FSRS schedules, the knowledge
+  graph links and mastery measures (Recall → Explain → Apply →
+  Evaluate).
 - **The day:** the Daily 15, made of reviews, one lesson sitting and one
-  question. It is a Focus session and shrinks to reviews only in Exam
+  question. It is added to the other spaces, built for a phone on the bus
+  (one hand, offline, resumable), and shrinks to reviews only in Exam
   Season.
+- **First paths:** F (arguments, then Bayes) → Y1 (memory) → P1 (ethics)
+  → X3 (happiness). Y3 is Decisions and strategy: biases, game theory and
+  the decision paradoxes.
 - **The pieces:**
-  - versioned positions with confidence, revisits and a belief timeline;
-  - authored Socratic dialogue trees, with Ask Kurenai in four modes on
-    request;
-  - the Journal (insights, quotes, questions, positions, reflections) in
-    its own store, replicated to `kos_mind`;
-  - the knowledge graph across CS, Maths, Code, Japanese and the
-    Collection;
-  - self-experiments in the lab;
-  - "KurenaiOS explains itself".
-- **Invariants it would add:** 137–141 (plan §14).
-- **Design first:** [prompt 16](design-prompts.md), still to write.
+  - one written prompt per lesson (an explain-back or a position);
+  - versioned positions, revisits, tension pairs and a belief timeline;
+  - authored Socratic trees in the VN scene UI, with Ask Kurenai in four
+    modes on request;
+  - the Journal in its own store, replicated to `kos_mind`;
+  - the knowledge graph and the media lens;
+  - self-experiments and strategy labs;
+  - "KurenaiOS explains itself";
+  - "For your stories" notes into Creatives' Writing Desk.
+- **Year 1 features:** the Argument Mapper, the Fallacy Field Guide,
+  thought-experiment theatre, the reading room, philosopher cards and
+  the yearly "what I believe".
+- **Invariants it adds:** 137–141 (plan §14).
 
 ---
 
