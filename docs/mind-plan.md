@@ -859,11 +859,13 @@ errors, and breakpoints. The blue ◇ tags name the shared components.
 
 ## 19. The second character and the voices
 
-The art prompts are in [mind-art.md](mind-art.md). The images go into
-`art-source/mind/inbox/<id>.png`, by hand in the Gemini app. They become
-`art-source/mind/manifest.json` when the platform is built, run through
-the same pipeline as Japanese's (chroma key, face-only composites,
-WebP/AVIF, and a contact sheet).
+The art is listed in `art-source/mind/manifest.json` (30 assets, 7
+batches), and its sheet is `prototypes/mind-space/art.html`: Japanese's
+prompt and contact sheet, pointed at Mind's manifest through
+`window.ART_CFG`. [mind-art.md](mind-art.md) explains it. The images go
+into `art-source/mind/inbox/<id>.png`, by hand in the Gemini app. When the
+platform is built they run through the same import as Japanese's (chroma
+key, face-only composites, WebP/AVIF) into `assets/mind/img/`.
 
 **The character (proposed, open to change): 藤宮 蓮 Fujimiya Ren.**
 - **Role:** Kurenai's colleague across the hall, and the space's

@@ -3,9 +3,12 @@
    attach, and checks art-source/ja/inbox/ for what has been made. Review marks are per browser. */
 (function () {
   "use strict";
-  var ART = "../../art-source/ja/";
-  var KEY = "ja-art-review";
-  var M = null, have = {}, report = {}, view = localStorage.getItem("ja-art-view") || "todo", compare = null;
+  // another space's sheet sets window.ART_CFG before loading this script (prototypes/mind-space/art.html)
+  var CFG = window.ART_CFG || {};
+  var DIR = CFG.dir || "art-source/ja/";
+  var ART = "../../" + DIR;
+  var KEY = CFG.key || "ja-art-review", VIEW = KEY.replace(/review$/, "view");
+  var M = null, have = {}, report = {}, view = localStorage.getItem(VIEW) || "todo", compare = null;
   var app = document.getElementById("app"), live = document.getElementById("live");
 
   function el(tag, attrs, kids) {
@@ -106,7 +109,7 @@
           el("ol", {}, [
             el("li", {}, [a.edit ? "Upload the image below to Gemini and ask it to edit it:" : "Attach these to a new Gemini chat:"]),
             el("li", {}, ["Paste the prompt, generate, and keep the best result."]),
-            el("li", {}, ["Save it into ", el("code", { class: "mono", text: "art-source/ja/inbox/" }), " as ",
+            el("li", {}, ["Save it into ", el("code", { class: "mono", text: DIR + "inbox/" }), " as ",
               el("button", { class: "btn mini", type: "button", onclick: function () { copy(file(a), "File name"); }, "aria-label": "Copy file name " + file(a) }, [el("span", { class: "mono", text: file(a) }), " ⧉"])])
           ]),
           el("div", { class: "atts" }, a.attach.map(function (p) { return thumb(p, p); })),
@@ -181,7 +184,7 @@
     app.appendChild(el("header", { class: "ph" }, [
       el("div", {}, [
         el("h1", {}, [el("span", { class: "seal", lang: "ja", "aria-hidden": "true", text: "絵" }), "Art prompt sheet"]),
-        el("div", { class: "sub", text: "The vertical slice's art: " + made + " of " + total + " made. Generate in the Gemini app, save into art-source/ja/inbox/, then Refresh." })
+        el("div", { class: "sub", text: (CFG.what || "The vertical slice's art") + ": " + made + " of " + total + " made. Generate in the Gemini app, save into " + DIR + "inbox/, then Refresh." })
       ]),
       el("div", { class: "ph-act" }, [
         next ? el("a", { class: "btn primary", href: "#" + next.id, text: "Next: " + next.id }) : null,
@@ -202,7 +205,7 @@
 
     var tabs = [["todo", "To do"], ["all", "All"], ["done", "Made"]];
     app.appendChild(el("div", { class: "tabs", role: "group", "aria-label": "Show" }, tabs.map(function (t) {
-      return el("button", { class: "btn", type: "button", "aria-pressed": String(view === t[0]), onclick: function () { view = t[0]; try { localStorage.setItem("ja-art-view", view); } catch (e) {} render(); } }, [t[1]]);
+      return el("button", { class: "btn", type: "button", "aria-pressed": String(view === t[0]), onclick: function () { view = t[0]; try { localStorage.setItem(VIEW, view); } catch (e) {} render(); } }, [t[1]]);
     })));
 
     M.batches.forEach(function (b) {
@@ -225,6 +228,6 @@
     return fetch("art/report.json?t=" + Date.now()).then(function (r) { return r.ok ? r.json() : { assets: {} }; }, function () { return { assets: {} }; })
       .then(function (r) { report = r.assets || {}; return probeAll(); });
   }).then(render).catch(function (e) {
-    app.textContent = "Could not read art-source/ja/manifest.json — open this page through the dev server (" + e.message + ").";
+    app.textContent = "Could not read " + DIR + "manifest.json — open this page through the dev server (" + e.message + ").";
   });
 })();

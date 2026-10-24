@@ -1,6 +1,12 @@
 # Mind — the art prompt sheet
 
-For [mind-plan.md](mind-plan.md) §19. Make these by hand in the Gemini
+For [mind-plan.md](mind-plan.md) §19. **Work from the sheet page, not this
+file:** start the dev server (`python3 tools/dev_server.py 8123`) and open
+http://localhost:8123/prototypes/mind-space/art.html. It is Japanese's
+prompt and contact sheet pointed at `art-source/mind/manifest.json`. It
+shows each prompt in full, with a copy button and the files to attach,
+ticks off what is saved in the inbox, and lets you compare each face with
+its base pose. If this file and the manifest disagree, the manifest wins. Make these by hand in the Gemini
 app (never through an API), one batch at a time, in order. Each batch
 needs the previous one.
 
@@ -9,13 +15,15 @@ needs the previous one.
   into `art-source/mind/inbox/` under the exact id shown (for example
   `art-source/mind/inbox/mind.sheet.ren.png`).
 - **Attach the files listed** with each prompt:
-  - `STYLE` is `art-source/ja/refs/style-anchor.png`, the Kurenai master
-    art, used for its style only;
+  - `STYLE` is `art-source/mind/refs/style-anchor.png` (a copy of
+    Japanese's style anchor), used for its style only;
+  - Kurenai's base uses `art-source/mind/refs/kurenai.png`, her production
+    art;
   - inbox files are the ones you saved in an earlier batch.
 - **Fill in `{look:ren}`** with the description under "Ren" below,
   pasted in full.
-- **When the platform is built**, this sheet becomes
-  `art-source/mind/manifest.json` and runs through Japanese's pipeline:
+- **When the platform is built**, `art-source/mind/manifest.json` runs
+  through Japanese's pipeline:
   chroma key, face-only composites onto the base pose, WebP/AVIF, and a
   contact sheet to catch drift. Reject anything that drifts, and make it
   again.

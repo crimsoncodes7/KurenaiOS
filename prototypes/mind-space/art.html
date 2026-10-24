@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mind art sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../japanese-space/styles.css">
+<link rel="stylesheet" href="../japanese-space/art.css">
+<style>
+  /* Mind's 藤 Fuji (design turn 32) in place of Japanese's hue: the sheet is Japanese's own tool */
+  :root { --ja: oklch(0.78 0.1 302); --ja-soft: oklch(0.78 0.1 302 / 0.14); --ja-ink: oklch(0.2 0.04 302); }
+</style>
+</head>
+<body>
+<main id="app" aria-live="off"></main>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+  // the shared prompt and contact sheet (prototypes/japanese-space/art.js), pointed at Mind's manifest
+  window.ART_CFG = { dir: "art-source/mind/", key: "mind-art-review", what: "Mind's art (docs/mind-art.md)" };
+</script>
+<script src="../japanese-space/art.js"></script>
+</body>
+</html>
