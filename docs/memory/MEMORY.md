@@ -18,4 +18,4 @@
 - [After-FSRS release](after-fsrs-branch.md) — Focus switch, FSRS3, closed-app runner, GitHub App; RELEASED 2026-10-22 (13cef94, kos-runner-2); env.local.js is deferred
 - [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); Creatives rev 2 approved; prompts 14–15 written
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
-- [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 received 2026-10-24 (Fuji hue); second character Ren; free ElevenLabs API refuses library voices; build waits for go-ahead
+- [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 (Fuji); Ren + Kurenai redesign on the Mind art sheet; library voices refused on free API; build waits for go-ahead

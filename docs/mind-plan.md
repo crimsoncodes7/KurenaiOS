@@ -917,3 +917,53 @@ fallback.
 
 **The narrator** of the thought experiments is Kurenai (32t).
 
+### 19.1 Kurenai's redesign (asked for 24 October 2026)
+
+Her production art did not match the cast:
+- it is a different rendering (thin painterly lines and gradients against
+  the cast's clean outlines and flat cel shading);
+- it has dense ornament (circuit-pattern lining, belts, harness, chains,
+  tassels, a badge) that turns to noise at sprite size, and that each
+  Gemini edit drifts on;
+- the coat and badge carry glyph-like pseudo-text, which breaks the
+  no-text rule;
+- she has fashion proportions and heels beside the cast's natural ones.
+
+Ren, drawn at the cast's level, fits. So Kurenai is **simplified, not
+replaced**.
+- **Kept:** long black hair with the violet underlayer, one small crimson
+  flower ornament, rose-crimson eyes, a white coat over a black dress,
+  crimson as her accent (against Ren's wisteria), and the tablet.
+- **Dropped:** patterns, glyphs, belts, chains, the badge, tassels, the
+  slit, and the heels (low ankle boots instead).
+- **The art:** a new sheet, base pose and three faces in the Mind art
+  manifest (`mind.sheet.kurenai`, `mind.base.kurenai.a`,
+  `mind.face.kurenai.*`). They are drawn in a new `cast` style, whose
+  references are Ren's base pose and Akari's sprite rather than her old
+  art. The earlier green-background edit of the old art
+  (`inbox/mind.base.kurenai.png`) is no longer used.
+
+**What else it affects (none of it done yet):**
+1. **The Assistant's state images.** `assets/assistant/mascot/states/`
+   (idle, thinking, working, success, error, confirmation),
+   `mascot/full/kurenai-production.png` and anything cropped from them
+   (the avatar, the header) are her old art. They are redone as edits of
+   the new base once it is approved: one more batch, then a small asset
+   release. Until then the app shows the old Kurenai and Mind shows the
+   new one, so the Assistant's batch should follow soon after.
+2. **The Live2D work.** `art-source/assistant/live2d/` holds a master you
+   are editing (`kurenai-neutral-master-2048-v2.png`). Its layer split
+   follows the old design, so the rig would restart from the new art.
+   Decide this before putting more hours into the old master. The licence
+   gate (`LICENSE_REQUEST.md`) is unchanged.
+3. **The style anchor.** `art-source/ja/refs/style-anchor.png` (and its
+   copy in `art-source/mind/refs/`) is the old art, and every prompt in
+   the "colour" and "bg" styles says to match it. New characters should
+   use the `cast` style. Japanese's later batches can switch to it too.
+   Art already made is unaffected.
+4. **The design.** Turn 32 drew the old Kurenai in the scene slots. The
+   follow-up design turn for two speakers (§18) uses the new art.
+5. **Her voice clips** (`assets/assistant/voice/`) are unchanged: only her
+   look changes.
+
+

@@ -135,26 +135,15 @@ else; the aspect stays the same). Every prompt begins:
 | `mind.face.ren.serious` | serious: a steady, level gaze straight at the viewer, mouth closed and neutral, eyebrows slightly lowered. Do not move the head. |
 | `mind.face.ren.pleased` | pleased: a genuine warm smile, eyes softened. Do not move the head. |
 
-## Kurenai's faces (the design's slots)
+## Kurenai (redesigned, mind-plan.md §19.1)
 
-### Batch 4: Kurenai on green, then three faces
-
-**`mind.base.kurenai`** (2:3; edit; attach `assets/assistant/mascot/full/kurenai-production.png`)
-> Edit this image. Keep the woman exactly as she is, pixel for pixel: pose,
-> body, hands, tablet, coat, hair, face, framing, size and position. Change
-> ONLY the background: make it one flat solid pure green colour (#00FF00),
-> completely even, no floor, no shadow, no gradient, no green on her.
-
-Then one edit each on `inbox/mind.base.kurenai.png`. Every prompt begins:
-> Edit this image. Keep the exact same pose, body, hands, tablet, clothing,
-> hair, hair ornament, framing, size, position and the flat green
-> background, pixel for pixel. Change ONLY the facial expression to:
-
-| id | ending |
-|---|---|
-| `mind.face.kurenai.thinking` | thinking: eyes lowered slightly to one side, a calm, considering look, lips gently closed. Do not move the head. |
-| `mind.face.kurenai.pleased` | pleased: a soft, warm closed-mouth smile, eyes gently curved. Do not move the head. |
-| `mind.face.kurenai.curious` | curious: eyebrows slightly raised, eyes bright and attentive, head still, a faint interested smile. Do not move the head. |
+Her production art is too intricate for the cast, so she is redrawn
+simpler. She keeps her hair, flower, eyes, white coat over black, crimson
+accent and tablet, and loses the patterns, belts, chains, badge, tassels
+and heels. **Her prompts are in the sheet page** (batches 1–3:
+`mind.sheet.kurenai`, then `mind.base.kurenai.a`, then three faces). They
+use the `cast` style, with Ren's base pose and Akari's sprite attached as
+the style references, not her old art.
 
 ## Batch 5: the scene backgrounds (16:9; BG; attach STYLE)
 
