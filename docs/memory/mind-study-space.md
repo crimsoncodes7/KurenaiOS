@@ -21,7 +21,7 @@ Design turn 32 was received on 24 October 2026 at /Users/fj/Downloads/design_han
 
 The second character is Ren (proposed, plan §19); the art prompts are in docs/mind-art.md and the images go to art-source/mind/inbox/. A free-plan ElevenLabs API key refuses ALL library voices (402 paid_plan_required, even ones saved to the account), but the 21 premade voices work and take no slot. For Ren, George (British) is recommended. Kurenai's existing cue voice is unrecorded.
 
-Kurenai is being REDESIGNED (24 October 2026, plan §19.1): simplified to match the cast, in a new `cast` style (Ren's base pose and Akari's sprite are the style references). It knocks on to the Assistant's state images, the Live2D master (restart) and the style anchor. None of that is done yet.
+Kurenai is being REDESIGNED (24 October 2026, plan §19.1): simplified to match the cast, in a new `cast` style (Ren's base pose and Akari's sprite are the style references). It knocks on to the Assistant's state images, the Live2D master (restart) and the style anchor. None of that is done yet. ALL 31 Mind art images were made by 24 October 2026 (in art-source/mind/inbox, not imported). mind.card.beauvoir came from ChatGPT because Gemini refused it, so the credits must name both. The user still says not to start implementation.
 
 **Why:** the user wants low friction and story-writing links.
 

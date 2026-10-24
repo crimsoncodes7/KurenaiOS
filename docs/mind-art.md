@@ -214,5 +214,28 @@ portraits or busts, not caricatures. Every prompt is:
 
 ## Credits
 
-The credits page says the art is AI-assisted (Gemini) and original to
-this app, as Japanese's does.
+The credits page says the art is AI-assisted and original to this app, as
+Japanese's does. It names **Gemini and ChatGPT**: one image,
+`mind.card.beauvoir`, was made in ChatGPT after Gemini refused it twice.
+The manifest marks it with `madeWith`.
+
+## Status (24 October 2026)
+
+**All 31 are made** and saved in `art-source/mind/inbox/`. Checked
+side by side with the cast:
+- **Kurenai's redesign matches the cast**, and her three faces hold the
+  body.
+- **Ren's seven faces** are consistent with his base pose.
+- **The backgrounds** are clean, with one exception: two "later" scenes
+  carry tiny marks that read as pseudo-text at full size (the console
+  screens in `mind.bg.machine` and the open manual in `mind.bg.room`).
+  They are unreadable at scene size. The import can soften them, or they
+  can be remade when those scenes are written.
+- **`mind.card.beauvoir`** is 4:3 and a little more realistic than the
+  other seven cards. It centre-crops to a square cleanly. It is good
+  enough for a small card; remake it only if it stands out once the
+  cards are drawn.
+
+The old green-background edit of Kurenai's previous art
+(`inbox/mind.base.kurenai.png`) is unused. Nothing is imported yet: the
+import runs with the platform build.

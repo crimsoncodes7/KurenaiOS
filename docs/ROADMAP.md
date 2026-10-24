@@ -1241,6 +1241,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > are in [mind-art.md](mind-art.md) and the voices are in plan §19 (the free
 > ElevenLabs API refuses library voices, so a built-in voice is used). Not
 > started: the platform waits for your go-ahead.
+> **Art complete (24 October 2026):** all 31 images, with Kurenai
+> redesigned to match the cast ([mind-art.md](mind-art.md), plan §19.1).
 
 - **What:** one non-exam subject, "Mind", with Foundation, Psychology,
   Philosophy and Crossings as headers. Paths → units → lessons →
