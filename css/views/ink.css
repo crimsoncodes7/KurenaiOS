@@ -78,6 +78,22 @@ background-image: linear-gradient(to right, transparent calc(var(--ink-margin) -
   linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
 background-size: 100% 100%, 100% var(--ink-rule); background-repeat: no-repeat, repeat-y; background-position: 0 0, 0 calc(var(--ink-rule) * 2); }
 
+/* ---------- side by side (30e) ----------
+   Two panes under the topic header, each its own scroll region; the pair
+   sticks once the header has scrolled away, so both fill the screen. */
+.k-topic-col > .k-topic-panel:has(> .k-ink-tab[data-state~="side"]) { max-inline-size: none; }
+.k-ink-side { position: sticky; inset-block-start: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-20); block-size: calc(100dvh - var(--topbar-h) - var(--sp-16)); }
+.k-ink-side-notes, .k-ink-side-page { min-inline-size: 0; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.k-ink-side-notes { padding-inline-end: var(--sp-12); }
+.k-ink-side-head { display: flex; align-items: baseline; gap: var(--sp-8); margin-block-end: var(--sp-12); }
+.k-ink-side-hint { margin-inline-start: auto; font-size: var(--fs-12); color: var(--muted); }
+.k-ink-side-page { display: flex; flex-direction: column; gap: var(--sp-12); }
+.k-ink-side-notes .k-notes :is(.k-n-fig, .k-n-diagram, .k-n-math, .k-n-kv, .k-n-tablewrap, .k-n-worked, .k-n-step, .k-callout, .k-n-code) { position: relative; cursor: pointer; }
+.k-ink-side-notes [data-state~="clip-sel"] { border-radius: var(--r-14); box-shadow: 0 0 0 var(--sp-2) var(--focus-ring); }
+.k-ink-clip-chips { position: absolute; inset-block-start: var(--sp-10); inset-inline-end: var(--sp-10); z-index: var(--z-sticky); display: flex; gap: var(--sp-6); }
+.k-ink-clip-chips .k-btn { box-shadow: var(--elev-2); }
+.k-ink-clip-chips .k-ink-glyph { inline-size: var(--sp-16); block-size: var(--sp-16); }
+
 /* ---------- the tab (30c–30d) ---------- */
 .k-topic-inkmode:empty { display: none; }
 .k-ink-tab { position: relative; display: flex; flex-direction: column; gap: var(--sp-14); }

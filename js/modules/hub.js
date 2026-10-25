@@ -2534,7 +2534,7 @@
     var FLOAT_AT = 844;
     function floatCheck() {
       if (!studyGrid.isConnected) { if (floatRO) floatRO.disconnect(); return; }
-      var on = !editing && window.innerWidth > 1080 && studyGrid.clientWidth > 0 && studyGrid.clientWidth < FLOAT_AT;
+      var on = !editing && (KOS.ui.hasState(studyGrid, "ink-side") || (window.innerWidth > 1080 && studyGrid.clientWidth > 0 && studyGrid.clientWidth < FLOAT_AT));
       if (on === KOS.ui.hasState(studyGrid, "insp-float")) return;
       KOS.ui.state(studyGrid, "insp-float", on);
       KOS.ui.state(studyGrid, "insp-closed", on || KOS.ui.hasState(studyGrid, "files-tab") || store.state.ui.inspectorOpen === false);
@@ -2543,6 +2543,20 @@
     var floatRO = window.ResizeObserver ? new ResizeObserver(floatCheck) : null;
     if (floatRO) floatRO.observe(studyGrid);
     floatCheck();
+    /* Handwritten's side by side (30e) takes the width: the spine folds to
+       its strip and the inspector to its spine, opening over the panes —
+       for the view only, so neither saved choice changes */
+    function inkSide(on) {
+      KOS.ui.state(studyGrid, "ink-side", on);
+      if (on && KOS.shell.tree() === "open") KOS.shell.tree("closed");
+      if (!on) applyTreeCollapsed();
+      KOS.ui.state(studyGrid, "insp-float", false);
+      floatCheck();
+      if (!KOS.ui.hasState(studyGrid, "insp-float")) {
+        KOS.ui.state(studyGrid, "insp-closed", KOS.ui.hasState(studyGrid, "files-tab") || store.state.ui.inspectorOpen === false);
+        inspector.paintToggle(KOS.ui.hasState(studyGrid, "insp-closed"));
+      }
+    }
     studyCol.addEventListener("pointerdown", function () {
       if (!KOS.ui.hasState(studyGrid, "insp-float") || KOS.ui.hasState(studyGrid, "insp-closed")) return;
       KOS.ui.state(studyGrid, "insp-closed", true);
@@ -2657,7 +2671,7 @@
       if (inkCtl) { inkCtl.destroy(); inkCtl = null; }
       panel.innerHTML = "";
       if (curTab === "ink" && KOS.inkTab) {
-        inkCtl = KOS.inkTab.mount(panel, sid, ref, { modeSlot: inkSlot });
+        inkCtl = KOS.inkTab.mount(panel, sid, ref, { modeSlot: inkSlot, onSide: inkSide });
       }
       else if (curTab === "spec") {
         var specFork = KOS.edits.has(sid, ref, "spec") || editing ? KOS.edits.material(sid, ref, "spec") : null;

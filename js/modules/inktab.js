@@ -5,6 +5,13 @@
    "create a notebook" step, the first pen stroke makes page 1, and the tab
    writes nothing until the pen does. Its doc key is "topic:<sid>:<ref>".
 
+   Side by side (30e) is a third view, offered in landscape (above 1080):
+   the topic's notes on the left, exactly as the Notes tab renders them
+   and read-only, the notebook on the right, each scrolling on its own.
+   A tap on a figure, a formula, a table, a worked step or a callout offers
+   "Clip to page": the block is copied as a PICTURE onto the page in view
+   (an image item), never as text into the curriculum (invariant 86).
+
    Pages are fixed A4 sheets scrolled like a document (decision C). Only
    the pages near the view are drawn; the rest are outlines with their
    number (30s). "Pages written" is a count, printed only when there is
@@ -36,11 +43,69 @@
     return { wrap: wrap, paper: paper, page: page, surface: null };
   }
 
+  /* side by side needs the width of a landscape iPad or a desktop */
+  var SIDE_Q = "(min-width: 1081px)";
+  function sideOK() { return !!(window.matchMedia && window.matchMedia(SIDE_Q).matches); }
+
+  /* the blocks a tap can clip, and what each is called in the announcement */
+  var CLIPS = [[".k-n-fig", "figure"], [".k-n-diagram", "diagram"], [".k-n-math", "formula"], [".k-n-kv", "table"],
+    [".k-n-tablewrap", "table"], [".k-n-worked", "worked example"], [".k-n-step", "worked step"], [".k-callout", "callout"], [".k-n-code", "code"]];
+  var CLIP_SEL = CLIPS.map(function (c) { return c[0]; }).join(", ");
+  function clipName(node) {
+    var c = CLIPS.filter(function (x) { return node.matches(x[0]); })[0];
+    var cap = node.querySelector("figcaption, .k-n-worked-title, .k-callout-head, .k-n-code-cap");
+    var t = cap ? cap.textContent.replace(/\s+/g, " ").replace(/^[^0-9A-Za-z(]+/, "").trim() : "";
+    return t ? t.slice(0, 60) : "the " + (c ? c[1] : "block");
+  }
+  /* the styles a picture of a block needs: an image is its own document,
+     so the theme's variables and classes do not reach it */
+  var PROPS = ["display", "box-sizing", "width", "flex-direction", "flex-wrap", "align-items", "justify-content", "gap",
+    "grid-template-columns", "grid-column", "padding-top", "padding-right", "padding-bottom", "padding-left",
+    "margin-top", "margin-right", "margin-bottom", "margin-left", "border-top", "border-right", "border-bottom", "border-left",
+    "border-radius", "background-color", "background-image", "color", "font-family", "font-size", "font-weight", "font-style",
+    "line-height", "letter-spacing", "text-align", "text-transform", "white-space", "list-style-type", "vertical-align",
+    "border-collapse", "border-spacing", "opacity", "fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap",
+    "stroke-linejoin", "fill-opacity", "stroke-opacity", "text-anchor", "dominant-baseline", "font-variant-numeric"];
+  function picture(node, cb) {
+    var r = node.getBoundingClientRect(), w = Math.ceil(r.width), h = Math.ceil(r.height);
+    var clone = node.cloneNode(true);
+    var from = [node].concat([].slice.call(node.querySelectorAll("*"))), to = [clone].concat([].slice.call(clone.querySelectorAll("*")));
+    from.forEach(function (n, i) {
+      var cs = getComputedStyle(n), st = "";
+      PROPS.forEach(function (pr) { var v = cs.getPropertyValue(pr); if (v) st += pr + ":" + v + ";"; });
+      if (cs.display === "none") st = "display:none;";
+      /* the picture's own root: no outer margin, the width it had */
+      if (!i) st += "margin:0;width:" + w + "px;";
+      to[i].setAttribute("style", st);
+      to[i].removeAttribute("class");
+    });
+    [].forEach.call(clone.querySelectorAll("button, .k-n-copy, [data-ui~='ink.clip-chips']"), function (b) { b.remove(); });
+    var xml = new XMLSerializer().serializeToString(clone);
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '"><foreignObject x="0" y="0" width="100%" height="100%">' +
+      '<div xmlns="http://www.w3.org/1999/xhtml">' + xml + "</div></foreignObject></svg>";
+    var src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    /* a PNG where the browser allows reading the picture back; Safari
+       taints a canvas that drew a foreignObject, so there it stays SVG */
+    var im = new Image();
+    im.onload = function () {
+      try {
+        var k = Math.min(2, 1400 / Math.max(w, h)), c = document.createElement("canvas");
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        var x = c.getContext("2d");
+        x.drawImage(im, 0, 0, c.width, c.height);
+        cb(c.toDataURL("image/png"), w, h);
+      } catch (e) { cb(src, w, h); }
+    };
+    im.onerror = function () { cb(null); };
+    im.src = src;
+  }
+
   function mount(panel, sid, ref, opts) {
     opts = opts || {};
     var key = I.topicDoc(sid, ref);
     var ui = KOS.store.state.ui;
-    var view = ui.inkView === "all" ? "all" : "page";
+    var view = ui.inkView === "all" || ui.inkView === "side" ? ui.inkView : "page";
+    var sideOn = false;
     var root = el("div", { class: "k-ink-tab", "data-ui": "ink.tab" });
     panel.appendChild(root);
     var dk = KOS.inkUI.desk();
@@ -53,11 +118,20 @@
     function paintMode() {
       if (!opts.modeSlot) return;
       opts.modeSlot.innerHTML = "";
-      if (!written()) return;
+      var shown = shownView(), w = written();
+      if (!w && !sideOK()) return;
       opts.modeSlot.appendChild(KOS.ui.tabs([
-        { label: "Page", active: view === "page", hook: "ink.view-page", onSelect: function () { setView("page"); } },
-        { label: "All pages", active: view === "all", hook: "ink.view-all", onSelect: function () { setView("all"); } }
-      ], { variant: "workspace", label: "Handwritten view", className: "k-ink-mode" }));
+        { label: "Page", active: shown === "page", hook: "ink.view-page", onSelect: function () { setView("page"); } },
+        sideOK() ? { label: "Side by side", active: shown === "side", hook: "ink.view-side", onSelect: function () { setView("side"); } } : null,
+        w ? { label: "All pages", active: shown === "all", hook: "ink.view-all", onSelect: function () { setView("all"); } } : null
+      ].filter(Boolean), { variant: "workspace", label: "Handwritten view", className: "k-ink-mode" }));
+    }
+    /* the view on screen: side by side folds to Page in portrait, and All
+       pages to Page while nothing is written; the choice itself is kept */
+    function shownView() {
+      if (view === "side") return sideOK() ? "side" : "page";
+      if (view === "all") return written() ? "all" : "page";
+      return "page";
     }
     function setView(v, focusPage) {
       if (view === v) return;
@@ -157,7 +231,8 @@
     var announceT = null;
     function onScroll() { if (view === "page") updatePill(); }
 
-    function paintPage(focusPage) {
+    function paintPage(focusPage, host) {
+      host = host || root;
       var w = written();
       var bar = KOS.inkUI.toolbar(dk, {
         paper: {
@@ -178,18 +253,18 @@
           s.addItems([{ id: I.uid(), k: "img", x: 80, y: y, w: wdt, h: hgt, src: src }]);
         }
       });
-      root.appendChild(KOS.ui.scroller(bar, { keepRole: true, className: "k-ink-barwrap", prevLabel: "Earlier tools", nextLabel: "More tools" }));
+      host.appendChild(KOS.ui.scroller(bar, { keepRole: true, className: "k-ink-barwrap", prevLabel: "Earlier tools", nextLabel: "More tools" }));
       list = el("div", { class: "k-ink-pages", "data-ui": "ink.pages" });
       pill = el("div", { class: "k-ink-pill", "data-ui": "ink.page-pill", "aria-hidden": "true", hidden: true });
       if (!w) {
         var blank = I.blankPage(key, ui.inkPaper);
-        root.appendChild(band(blank));
+        host.appendChild(band(blank));
         var sh = sheet(blank, 1);
         sh.paper.appendChild(el("div", { class: "k-ink-start", "aria-hidden": "true" }, [
           KOS.inkUI.glyph("pen"), el("span", { class: "k-ink-start-t", text: "Start writing" }), el("span", { class: "k-ink-start-s", text: "Page 1 is made by your first stroke" })]));
         sheets = [sh];
         list.appendChild(sh.wrap);
-        root.appendChild(list);
+        host.appendChild(list);
         mountSurface(sh);
         /* the first stroke folds the band away and gives the tab its count */
         dk.onChange(function () {
@@ -199,8 +274,8 @@
         });
         return;
       }
-      root.appendChild(list);
-      root.appendChild(pill);
+      host.appendChild(list);
+      host.appendChild(pill);
       I.listPages(key, function (err, pages) {
         if (destroyed || err) return;
         if (!pages.length) pages = [I.blankPage(key)];
@@ -277,16 +352,130 @@
       (window.requestAnimationFrame || setTimeout)(paint1);
     }
 
+    /* ---------- Side by side (30e) ---------- */
+    var clipSel = null;
+    function unclip() {
+      if (!clipSel) return;
+      KOS.ui.state(clipSel, "clip-sel", false);
+      var chips = clipSel.querySelector("[data-ui~='ink.clip-chips']");
+      if (chips) chips.remove();
+      clipSel = null;
+    }
+    function targetSurface() {
+      if (dk.active && dk.active.host.isConnected) return dk.active;
+      /* the page most in view of the right pane */
+      var best = null, most = -Infinity;
+      sheets.forEach(function (sh) {
+        if (!sh.surface) return;
+        var r = sh.paper.getBoundingClientRect(), vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+        if (vis > most) { most = vis; best = sh.surface; }
+      });
+      return best;
+    }
+    function clip(block) {
+      var name = clipName(block);
+      unclip();
+      picture(block, function (src, w, h) {
+        var s = targetSurface();
+        if (!src || !s || destroyed) { announce("That block could not be clipped."); return; }
+        /* the picture lands at the size it had on screen, page units for pixels */
+        var k = I.W / (s.host.clientWidth || I.W);
+        var wdt = Math.min(I.W * 0.86, w * k), hgt = wdt * h / Math.max(1, w);
+        if (hgt > I.H * 0.6) { hgt = I.H * 0.6; wdt = hgt * w / Math.max(1, h); }
+        var place = function (sf) {
+          var y = Math.max(60, sf.lastInkBottom() + 30);
+          sf.addItems([{ id: I.uid(), k: "img", x: 60, y: Math.round(y), w: Math.round(wdt), h: Math.round(hgt), src: src, clip: { sid: sid, ref: ref } }]);
+          dk.active = sf;
+          var n = sheets.map(function (sh) { return sh.surface; }).indexOf(sf) + 1;
+          announce("Clipped " + name + " to page " + (n || 1) + ".");
+        };
+        if (s.lastInkBottom() + 30 + hgt <= I.H - 40) { place(s); return; }
+        /* no room under the last ink: the next page, made if there is none */
+        var at = sheets.map(function (sh) { return sh.surface; }).indexOf(s);
+        var next = sheets[at + 1];
+        var land = function (sh) {
+          var tries = 0;
+          (function wait() {
+            if (destroyed) return;
+            if (sh.surface) { if (sh.wrap.scrollIntoView) sh.wrap.scrollIntoView({ block: "nearest" }); place(sh.surface); return; }
+            if (++tries > 40) { announce("That block could not be clipped."); return; }
+            mountSurface(sh);
+            setTimeout(wait, 50);
+          })();
+        };
+        if (next) { land(next); return; }
+        var count = sheets.length;
+        addPage(false);
+        (function waitPage(tries) {
+          if (destroyed) return;
+          if (sheets.length > count) { land(sheets[sheets.length - 1]); return; }
+          if (tries < 40) setTimeout(function () { waitPage(tries + 1); }, 50);
+        })(0);
+      });
+    }
+    function notesPane() {
+      var c = KOS.content.get(sid, ref), blocks = (c && c.notes) || [];
+      var pane = el("section", { class: "k-ink-side-notes", "data-ui": "ink.side-notes", "aria-label": "Notes", tabindex: "0" }, [
+        el("div", { class: "k-ink-side-head" }, [el("span", { class: "k-kicker", text: "Notes" }), el("span", { class: "k-ink-side-hint", text: "tap a figure, formula or step to clip it" })])
+      ]);
+      if (!blocks.length) {
+        pane.appendChild(KOS.ui.emptyState({ compact: true, mark: "註", title: "No notes for this topic", body: "The Spec tab has what the board asks for." }));
+        return pane;
+      }
+      var art = el("article", { class: "k-prose k-notes", "data-ui": "ink.side-article" });
+      art.innerHTML = KOS.content.renderBlocks(blocks);
+      if (KOS.ui.hookify) KOS.ui.hookify(art);
+      pane.appendChild(art);
+      KOS.content.typeset(art);
+      art.addEventListener("click", function (e) {
+        if (e.target.closest("[data-ui~='ink.clip-chips']")) return;
+        if (e.target.closest("a, button, input, select, textarea, summary")) return;
+        var b = e.target.closest(CLIP_SEL);
+        if (!b || !art.contains(b)) { unclip(); return; }
+        if (b === clipSel) { unclip(); return; }
+        unclip();
+        clipSel = b;
+        KOS.ui.state(b, "clip-sel", true);
+        b.appendChild(el("div", { class: "k-ink-clip-chips", "data-ui": "ink.clip-chips" }, [
+          el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "ink.clip", onclick: function (ev) { ev.stopPropagation(); clip(b); } }, [
+            KOS.inkUI.glyph("image"), el("span", { text: "Clip to page" })])
+        ]));
+      });
+      return pane;
+    }
+    function paintSide(focusPage) {
+      var grid = el("div", { class: "k-ink-side", "data-ui": "ink.side" });
+      var right = el("section", { class: "k-ink-side-page", "data-ui": "ink.side-page", "aria-label": "Your pages" });
+      grid.appendChild(notesPane());
+      grid.appendChild(right);
+      root.appendChild(grid);
+      paintPage(focusPage, right);
+    }
+    function setSide(on) {
+      if (on === sideOn) return;
+      sideOn = on;
+      if (opts.onSide) opts.onSide(on);
+    }
+
     function paint(focusPage) {
       sheets.forEach(unmountSurface);
       sheets = [];
       if (io) io.disconnect();
+      clipSel = null;
       root.innerHTML = "";
-      KOS.ui.state(root, "all", view === "all");
+      var shown = shownView();
+      KOS.ui.state(root, "all", shown === "all");
+      KOS.ui.state(root, "side", shown === "side");
+      setSide(shown === "side");
       paintMode();
-      if (view === "all" && written()) paintAll();
+      if (shown === "all") paintAll();
+      else if (shown === "side") paintSide(focusPage);
       else paintPage(focusPage);
     }
+    /* turning the iPad: side by side comes and goes with landscape */
+    var sideMQ = window.matchMedia ? window.matchMedia(SIDE_Q) : null;
+    function onTurn() { if (!destroyed && view === "side") paint(); else paintMode(); }
+    if (sideMQ) { if (sideMQ.addEventListener) sideMQ.addEventListener("change", onTurn); else if (sideMQ.addListener) sideMQ.addListener(onTurn); }
 
     /* surfaces only near the view (30s: 200 pages scroll like 3) */
     if (typeof window.IntersectionObserver === "function") {
@@ -317,6 +506,8 @@
     return {
       destroy: function () {
         destroyed = true;
+        setSide(false);
+        if (sideMQ) { if (sideMQ.removeEventListener) sideMQ.removeEventListener("change", onTurn); else if (sideMQ.removeListener) sideMQ.removeListener(onTurn); }
         sheets.forEach(unmountSurface);
         if (io) io.disconnect();
         if (unkey) unkey();

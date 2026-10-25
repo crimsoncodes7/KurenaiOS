@@ -1244,6 +1244,15 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
+> **Built 25 October 2026, not released yet** (`feat/ipad-polish`): every
+> view checked on the iPad at 1180 × 796 and 820 × 1156 with touch and
+> fixed (the topic inspector opens over the notes when the reading column
+> would be narrow, the tree drawer is per visit in portrait, the running
+> Focus stage matches desktop, and smaller fixes), and 30e — Side by side
+> and Clip to page (smoke100 G). Next: the floating palette and the ruler
+> (30b), sync and the Pen and ink settings (30p, 30s), export, then the
+> answer pad (30f) and the PDF viewer (30h).
+
 > **Status (25 October 2026): 6.1 and 6.2 RELEASED** (`052b27c`, sw
 > `kos-ink-1`, https://f47cbd39.kurenai-os.pages.dev). From design turn 30 (frames 30a–30d): the ink engine
 > (`KOS.ink`, `KOS.inkUI`: pen only with palm rejection, pen, highlighter,

@@ -23,6 +23,11 @@
          pages with ink, not pages.
      F · STORAGE: ink is never in the state document; the full backup
          carries it and a restore brings it back; writing pays nothing.
+     G · SIDE BY SIDE (30e): offered in landscape only; the notes pane is
+         the topic's notes, the page pane the notebook; the inspector folds
+         over them; Clip to page lands a picture on the page in view that
+         remembers its topic and writes nothing to the curriculum; portrait
+         shows Page and keeps the choice.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -200,6 +205,52 @@ step("E · All pages", async () => {
   eq(I.written(DOC).n, 2, "the copy has ink");
   await new Promise((r) => I.deletePage(DOC, I.doc(DOC).pages[2], r));
   eq([I.doc(DOC).pages.length, I.written(DOC).n], [2, 1], "a page deletes");
+});
+
+step("G · side by side and Clip to page (30e)", async () => {
+  const W = app.window, mm = W.matchMedia;
+  const wide = (on) => { W.matchMedia = (q) => ({ matches: on && /min-width: 1081px/.test(q), media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }); };
+  /* an image "loads" at once; jsdom has no picture to read back, so the
+     clip keeps its SVG */
+  const Img = W.Image;
+  W.Image = function () { const im = {}; Object.defineProperty(im, "src", { set(v) { im._s = v; setTimeout(() => im.onload && im.onload()); }, get() { return im._s; } }); return im; };
+  try {
+    wide(true);
+    K.show("ref", { subject: SID, ref: REF });
+    $("[data-tab='ink']").click();
+    for (let i = 0; i < 4; i++) await app.settle();
+    assert($("[data-ui~='ink.view-side']"), "landscape offers Side by side");
+    $("[data-ui~='ink.view-side']").click();
+    for (let i = 0; i < 4; i++) await app.settle();
+    assert($("[data-ui~='ink.side-notes'] [data-ui~='ink.side-article']"), "the notes pane renders the topic's notes");
+    assert($("[data-ui~='ink.side-page'] [data-ui~='ink.page']"), "the page pane holds the notebook");
+    const grid = $("[data-ui~='study.grid']");
+    assert(grid.matches("[data-state~='insp-closed'][data-state~='insp-float']"), "the inspector folds to its spine and opens over the panes");
+    eq(K.store.state.ui.inkView, "side", "the view is remembered");
+    const edits = JSON.stringify(K.store.state.edits || {});
+    const before = await new Promise((r) => I.getPage(I.doc(DOC).pages[0], (e, p) => r(p.items.length)));
+    const block = $("[data-ui~='ink.side-article'] .k-callout") || $("[data-ui~='ink.side-article'] .k-n-tablewrap");
+    assert(block, "a clippable block in the notes");
+    block.dispatchEvent(new W.MouseEvent("click", { bubbles: true }));
+    assert(block.matches("[data-state~='clip-sel']") && $("[data-ui~='ink.clip']"), "a tap marks the block and offers Clip to page");
+    $("[data-ui~='ink.clip']").click();
+    for (let i = 0; i < 6; i++) await app.settle();
+    await new Promise((r) => setTimeout(r, 400));
+    const items = await new Promise((r) => I.getPage(I.doc(DOC).pages[0], (e, p) => r(p.items)));
+    eq(items.length, before + 1, "the clip lands on the page in view");
+    const clip = items[items.length - 1];
+    assert(clip.k === "img" && /^data:image\//.test(clip.src) && clip.clip && clip.clip.ref === REF, "the clip is a picture that remembers its topic");
+    eq(JSON.stringify(K.store.state.edits || {}), edits, "a clip never writes the curriculum or a fork (invariant 86)");
+    /* portrait: the switch hides, Page shows, the choice is kept */
+    wide(false);
+    $("[data-tab='notes']").click();
+    $("[data-tab='ink']").click();
+    for (let i = 0; i < 4; i++) await app.settle();
+    assert(!$("[data-ui~='ink.view-side']") && !$("[data-ui~='ink.side']"), "portrait has no side by side");
+    eq(K.store.state.ui.inkView, "side", "portrait keeps the choice");
+    assert(!$("[data-ui~='study.grid']").matches("[data-state~='ink-side']"), "leaving side by side gives the inspector back");
+    K.store.state.ui.inkView = "page";
+  } finally { W.matchMedia = mm; W.Image = Img; }
 });
 
 step("F · storage, backup and pay", async () => {

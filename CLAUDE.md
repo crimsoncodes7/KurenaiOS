@@ -1401,6 +1401,15 @@ source comments and audit notes refer to it.
     (invariant 89) and its empty state IS the page: opening it writes
     nothing, the first stroke saves page 1 (`KOS.ink.savePage` makes the
     notebook), a stroke past a page's bottom margin adds the next page.
+    SIDE BY SIDE (30e) is a view of the tab offered above 1080 (landscape;
+    portrait shows Page and keeps the choice, `state.ui.inkView`): the
+    topic's effective notes, read-only, beside the notebook, each its own
+    scroll region; it folds the spine and the inspector (which then opens
+    over the panes) for the view only, never their saved choices. "Clip to
+    page" copies a tapped figure, formula, table, worked step, callout or
+    code block onto the page in view as a PICTURE (an image item with
+    `clip: {sid, ref}`, PNG where the browser can read it back, else the
+    SVG) — never text into the curriculum or a fork (invariant 86).
 135. HANDWRITING IS READ ONLY WHEN ASKED (decision E; nothing reads it
     yet). When "Mark with Kurenai", "Check my working" or Compare arrive,
     each shows what is sent, sends one metered request and returns

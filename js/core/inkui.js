@@ -325,7 +325,8 @@
     };
     s.canUndo = function () { return past.length > 0; };
     s.canRedo = function () { return future.length > 0; };
-    s.addItems = function (items) { commit(page.items.concat(items)); sel = items.map(function (x) { return x.id; }); dk.setTool("lasso", true); redraw(); };
+    /* the lasso first: switching tools clears every selection */
+    s.addItems = function (items) { commit(page.items.concat(items)); dk.setTool("lasso", true); sel = items.map(function (x) { return x.id; }); paintLive(); };
     s.lastInkBottom = function () {
       var b = G.boxOf(page.items, page.items.map(function (x) { return x.id; }));
       return b ? b.y + b.h : 0;
