@@ -117,6 +117,18 @@
      record logged before 1.6 carries no rule and reads as "pomodoro"
      (Custom used that rule then), so an old entry never re-prices. */
   var BLOCK_SECS = 600, BLOCK_XP = 12, BLOCK_GOLD = 1, BLOCK_HP = 2, BLOCK_HP_CAP = 6;
+  /* A routine kept (roadmap 5.10, invariant 143): one step pays what a
+     habit tick always paid; more required steps pay more, to a ceiling; a
+     day kept at its minimum pays a habit's tick; past the daily cap
+     (metrics.capped) nothing. The one definition, for previews and pay. */
+  function routineAward(m) {
+    m = m || {};
+    if (m.capped) return { xp: 0, gold: 0, hp: 0 };
+    var req = Math.max(1, +m.req || 1);
+    if (m.min || req === 1) return { xp: 5, gold: 1, hp: 2 };
+    if (req <= 4) return { xp: Math.min(14, 5 + 3 * (req - 1)), gold: 1, hp: 3 };
+    return { xp: Math.min(25, 5 + 3 * (req - 1)), gold: 2, hp: 4 };
+  }
   function focusRule(mode) {
     return mode === "custom" || mode === "stopwatch" || mode === "until" ? "blocks" : "pomodoro";
   }
@@ -215,6 +227,17 @@
         return;
       }
       xp = ja.xp; gold = ja.gold; hp = ja.hp;
+    }
+    else if (e.type === "todo" && m.routine) {
+      var ra = routineAward(m);
+      if (!ra.xp && !ra.gold && !ra.hp) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: ["past today's routine cap"], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
+        store.save();
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
+      xp = ra.xp; gold = ra.gold; hp = ra.hp;
     }
     else if (e.type === "todo") { xp = 5; gold = 1; hp = 2; }
     else if (e.type === "tracker") { xp = 8; gold = 1; hp = 2; }
@@ -989,6 +1012,7 @@
     onSession: onSession,
     /* Build 6.5: the focus deal, quotable without paying it */
     focusAward: focusAward,
+    routineAward: routineAward,
     focusRule: focusRule,
     FOCUS_BLOCK: FOCUS_BLOCK,
     lastAward: function () { return lastAward; },

@@ -1903,9 +1903,10 @@
       done: { type: "boolean", required: true }
     },
     run: function (args, cb) {
-      var h = KOS.todo.habits().find(function (x) { return x.id === args.id; });
+      var h = KOS.todo.habits().find(function (x) { return String(x.id) === String(args.id); });
       if (!h) { cb(fail("No habit with id " + args.id + ".")); return; }
       KOS.todo.tickHabit(args.id, args.done);
+      h = KOS.todo.habits().find(function (x) { return String(x.id) === String(args.id); }) || h;
       cb(null, { id: args.id, doneToday: args.done, streak: KOS.todo.habitStreak(h) });
     }
   });
@@ -3713,6 +3714,9 @@
         });
     },
     validate: validate,
+    /* a domain that switches on later (Routines, the Daily Review: roadmap
+       5.10) registers its own tools then, under the same contract */
+    define: function (name, spec) { if (!TOOLS[name]) def(name, spec); },
     /* execute = validate again + run. cb(err, result, undo|null).
        Tier GATING is the orchestrator's job (Phase C) — execute is the
        mechanism, never the policy. */

@@ -129,7 +129,14 @@
       return isNaN(n) || n < 0 ? 0 : Math.min(n, 100000);
     }
 
-    return {
+    /* work-on days (roadmap 5.10, plan §10.1): the days you mean to work
+       on it, set from a review's triage — its deadline is not yours to
+       move. Kept only while it has some. */
+    var workOn = (patch.workOn !== undefined ? patch.workOn : b.workOn) || [];
+    workOn = (Array.isArray(workOn) ? workOn : []).filter(isDate)
+      .filter(function (d, i, arr) { return arr.indexOf(d) === i; }).sort().slice(-14);
+
+    var rec = {
       id: b.id,
       title: String(patch.title != null ? patch.title : b.title || "").trim(),
       subject: (patch.subject !== undefined ? patch.subject : b.subject) || null,
@@ -159,6 +166,12 @@
       submittedAt: patch.submittedAt !== undefined ? patch.submittedAt : (b.submittedAt || null),
       completedAt: patch.completedAt !== undefined ? patch.completedAt : (b.completedAt || null)
     };
+    if (workOn.length) rec.workOn = workOn;
+    /* the countdown, derived (roadmap 5.10, invariant 147): "pin" or
+       "hide" only when you said so on the assignment itself */
+    var cd = patch.countdown !== undefined ? patch.countdown : b.countdown;
+    if (cd === "pin" || cd === "hide") rec.countdown = cd;
+    return rec;
   }
 
   /* ---------------- CRUD ---------------- */
@@ -414,6 +427,39 @@
       .map(function (a) { return { assignment: a, days: KOS.srs.daysBetween(t, a.due) }; })
       .sort(function (x, y) { return x.days - y.days; });
   }
+  /* WHERE IT SHOWS IS DERIVED (roadmap 5.10, docs/routines-plan.md §10.1,
+     decision J). An open assignment with a date is on the Calendar, in
+     Today and the reviews; it counts down when it is major — coursework,
+     NEA or a project, High priority, an estimate of 3 h or more, or due
+     within 3 days — unless you pinned or unpinned it. The derived readers
+     take over from the two form checkboxes when the redesigned form
+     ships; until then these are read by the day model only. */
+  var MAJOR_TYPES = ["coursework", "project"], MAJOR_MINS = 180, MAJOR_DAYS = 3;
+  function isMajor(a) {
+    if (!a) return false;
+    if (a.countdown === "pin") return true;
+    if (a.countdown === "hide") return false;
+    if (MAJOR_TYPES.indexOf(a.type) !== -1 || a.priority === 3 || (a.estimateMins || 0) >= MAJOR_MINS) return true;
+    var d = a.due ? KOS.srs.daysBetween(today(), a.due) : null;
+    return d != null && d >= 0 && d <= MAJOR_DAYS;
+  }
+  /* Pin to countdowns / Unpin: an action on the record, not a form field;
+     back to the rule when it agrees with it */
+  function pinCountdown(id, on) {
+    var rec = get(id);
+    if (!rec) return null;
+    var rule = isMajor(Object.assign({}, rec, { countdown: null }));
+    return update(id, { countdown: on === rule ? null : on ? "pin" : "hide" });
+  }
+  /* the one-time switch from the checkbox: what you marked major stays pinned */
+  function migrateCountdown() {
+    var n = 0;
+    all().forEach(function (a) {
+      if (a.showInCountdown && !a.countdown && !isMajor(a)) { a.countdown = "pin"; n++; }
+    });
+    if (n) store.save();
+    return n;
+  }
   /* Home: what actually needs attention now. */
   function urgent(limit) {
     var t = today();
@@ -516,6 +562,7 @@
     isOpen: isOpen, isOverdue: isOverdue, daysLeft: daysLeft,
     statusLabel: statusLabel, typeLabel: typeLabel, subtaskProgress: subtaskProgress,
     forDate: forDate, countdownItems: countdownItems, urgent: urgent, linkable: linkable,
+    isMajor: isMajor, pinCountdown: pinCountdown, migrateCountdown: migrateCountdown,
     attachRef: attachRef, attachmentsFor: attachmentsFor,
     checkAlerts: checkAlerts, dueMoment: dueMoment,
     normalise: normalise,

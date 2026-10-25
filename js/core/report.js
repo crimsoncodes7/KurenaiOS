@@ -1091,7 +1091,7 @@
       ledger: (S.sessions || []).slice(),
       tally: (S.assistant && S.assistant.tally) || {},
       reminders: ((S.reminders || {}).items || []).slice(),
-      habits: ((S.todo || {}).habits || []).slice(),
+      habits: KOS.routines ? KOS.routines.habitsView() : ((S.todo || {}).habits || []).slice(),
       rebuilt: !!opts.rebuilt,
       prev: opts.prev ? totals(opts.prev) : null
     };

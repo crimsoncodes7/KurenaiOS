@@ -77,6 +77,9 @@
     { path: "money.pots", id: "id" },
     { path: "todo.manual", id: "id", counter: "todo.nextId" },
     { path: "todo.habits", id: "id", counter: "todo.nextId" },
+    /* Routines (roadmap 5.10): random string ids, never re-keyed; the log
+       (routines.log) is a keyed map and merges per day and per step */
+    { path: "routines.items", id: "id" },
     { path: "oop.classes", id: "id", counter: "oop.nextId",
       refs: [{ kind: "field", path: "oop.links", field: "child" },
              { kind: "field", path: "oop.links", field: "parent" }] }
@@ -94,7 +97,8 @@
      spec keys, not record ids, so they need no entry in RECORDS[].refs —
      re-keying a record never rewrites them. An assessment's scope picks
      (`include`, `exclude`, roadmap 5.8) are the same kind of link. */
-  var SET_FIELDS = { refs: true, include: true, exclude: true };
+  /* an assignment's work-on days (roadmap 5.10) are a set the same way */
+  var SET_FIELDS = { refs: true, include: true, exclude: true, workOn: true };
   /* ORDERED lists merge whole: a changed list on both sides is one leaf
      (the enclosing record's rule decides, else local), never element-wise —
      merging an ordering position by position can double one item and lose

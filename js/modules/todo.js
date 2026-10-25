@@ -106,23 +106,34 @@
      Reminders with checkable sub-tasks, plus daily habit trackers.
      Rewards flow ONLY through the existing sessions.log "todo" path —
      the same sanctioned trickle every tick has always used. */
+  /* once Habits has moved into Routines (roadmap 5.10, plan §5) these
+     are shims over KOS.routines, so every older caller keeps working */
+  function moved() { return !!(KOS.routines && KOS.routines.migrated()); }
   function habits() {
+    if (moved()) return KOS.routines.habitsView();
     var t = T();
     t.habits = t.habits || [];
     return t.habits;
   }
   function addHabit(text) {
+    if (moved()) { KOS.routines.addHabit(text); return; }
     var t = T();
     t.habits = t.habits || [];
     t.habits.push({ id: t.nextId++, text: text, days: {}, created: KOS.srs.todayISO() });
     store.save();
   }
   function deleteHabit(id) {
+    if (moved()) { var r = KOS.routines.resolve(id); if (r) KOS.routines.remove(r.id); return; }
     var hs = habits();
     var i = hs.findIndex(function (h) { return h.id === id; });
     if (i !== -1) { hs.splice(i, 1); store.save(); }
   }
   function tickHabit(id, val) {
+    if (moved()) {
+      var r = KOS.routines.resolve(id);
+      if (r && r.steps[0]) KOS.routines.tick(r.id, r.steps[0].id, !!val);
+      return;
+    }
     var h = habits().find(function (x) { return x.id === id; });
     if (!h) return;
     var today = KOS.srs.todayISO();
@@ -135,6 +146,7 @@
     }
   }
   function habitStreak(h) {
+    if (moved() && h && h.routine) return KOS.routines.streak(h.routine);
     var d = KOS.srs.todayISO(), n = 0;
     if (!h.days[d]) d = KOS.srs.addDays(d, -1);   // an unticked today doesn't break it yet
     while (h.days[d]) { n++; d = KOS.srs.addDays(d, -1); }
@@ -162,6 +174,7 @@
 
   /* the longest run of kept days a habit has ever had */
   function habitBest(h) {
+    if (moved() && h && h.routine) return KOS.routines.best(h.routine);
     var keys = Object.keys(h.days || {}).filter(function (k) { return h.days[k]; }).sort();
     var best = 0, run = 0, prev = null;
     keys.forEach(function (d) {

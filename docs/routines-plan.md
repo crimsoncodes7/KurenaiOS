@@ -156,7 +156,7 @@ KOS.today.build(dateISO, {now}) → {
 - **`KOS.todo.autoItems` becomes a thin view of `KOS.today.due`.** The
   directive ticks keep their storage, so Home's "Daily goal" does not
   change until §6.6 replaces it.
-- **The day boundary** is `state.review.dayStart` (default **04:00**). An
+- **The day boundary** is `state.dayReview.dayStart` (default **04:00**). An
   evening routine finished at 00:40 counts for the day before. Routine
   logs and review days use this "routine day". The session ledger,
   streaks and the Governor keep the calendar day they always used
@@ -381,10 +381,10 @@ Done once at boot, by `KOS.routines.migrate()`, held by smoke100.
 
 ### 6.1 Configuration
 
-`state.review` is synced:
+`state.dayReview` is synced:
 
 ```js
-state.review = {
+state.dayReview = {
   v: 1,
   dayStart: "04:00",
   slots: {
@@ -394,6 +394,7 @@ state.review = {
   },
   weekendDays: [0, 6],            // which days use the weekend times
   holidays: "auto",               // school holidays (Pacing's term weeks) use weekend times
+  school: { from: "08:30", to: "15:30" },   // a lesson day's busy hours (the timetable has no times)
   words: "kurenai" | "template",  // the default words (§8; Kurenai by default, decision D)
   autoOpen: true,                 // open the review when the app opens
   routines: { morning: "r_…", evening: "r_…" },   // which routine each review runs
@@ -470,8 +471,11 @@ time remaining?"**
 **Evening: "What happened today, what remains important, and how should
 I prepare for tomorrow?"**
 
-1. **Today in numbers.** A small Reports card from `KOS.review.dayFacts`,
-   which is the same pure `KOS.report.compute` over a one-day period:
+1. **Today in numbers.** A small Reports card from `KOS.dayReview.dayFacts`,
+   a pure read of the day's ledger under Reports' rules (Focus by
+   stretch, cards from `metrics.cards`, zeros absent). Reports' own
+   `compute` is built for weeks and longer and reads IndexedDB, so it is
+   not reused:
    - Focus time and sessions;
    - cards reviewed;
    - tasks and reminders completed;
@@ -518,7 +522,7 @@ timetable step when there are no lessons, and says "No lessons today".
 
 ### 6.4 What a review stores
 
-Only its own state, in `state.review.days[routineDay]`:
+Only its own state, in `state.dayReview.days[routineDay]`:
 
 ```js
 {
@@ -580,7 +584,7 @@ else. Kept for 60 days. Reports count reviews done; they never read
 
 ## 7. Smart consolidation
 
-`KOS.review.due(now)` is pure and returns **at most one** review to
+`KOS.dayReview.due(now)` is pure and returns **at most one** review to
 offer, plus what folds into it.
 
 1. **The current slot** is the latest enabled slot whose time has
@@ -617,7 +621,7 @@ nor skipped in Reports. No review has a streak (invariant 145).
 Each review opens with a short paragraph (two or three sentences) and
 Kurenai's one-liner in the header.
 
-- **The template words (`KOS.review.words.template(slot, facts)`)** are
+- **The template words (`KOS.dayReview.words.template(slot, facts)`)** are
   deterministic, built from `KOS.today` and `dayFacts`:
   - "Three lessons, then a free afternoon. Your NEA draft is due
     Thursday, so it's the best first task."
@@ -628,7 +632,7 @@ Kurenai's one-liner in the header.
 - **✦ Kurenai (the default, decision D; `words: "template"` or a review's
   switch turns her off):**
   - one `KOS.ai.chat("generation")` request carrying
-    `KOS.review.payload(slot)`. It holds totals, times, counts and the
+    `KOS.dayReview.payload(slot)`. It holds totals, times, counts and the
     TITLES of today's items. It never holds notes, card text, the
     evening note, money, or chat history;
   - "What is sent" prints exactly that, as Reports does (invariant
@@ -667,12 +671,12 @@ Kurenai's one-liner in the header.
   Both can be muted (invariant 98) and are held in Exam Season's "quiet
   the rest" only if you choose (they are planning help, so not by
   default).
-- **Open app:** a `KOS.review.tick()` every 30 s, alongside the other
+- **Open app:** a `KOS.dayReview.tick()` every 30 s, alongside the other
   tickers, pushes the slot's notice once at its time. Its body is the
   template's first line ("Morning review · 3 lessons, NEA due Thursday").
   Clicking it opens the review (through `kos-open` → `KOS.show("routines",
   {review: slot})`).
-- **Closed app:** `KOS.review.forecast(from, to)` and
+- **Closed app:** `KOS.dayReview.forecast(from, to)` and
   `KOS.routines.forecast(from, to)` join `KOS.outlook.build`'s week of
   notices (invariant 131), with the ledger's own ids, so the runner
   pushes each once and never while a device is open.
@@ -814,9 +818,11 @@ habit earned and closes the farm.
 - **Steps pay nothing.** As with reminder sub-tasks, a step is progress
   inside one thing.
 - **A routine's completion pays once per routine day** (`paid` in the
-  log; unticking never refunds and re-completing never pays). It is a
-  new session type, **`routine`**, priced by `KOS.governor.routineAward`
-  (pure, beside `focusAward`). The figures are for decision B:
+  log; unticking never refunds and re-completing never pays). It logs
+  as a **`todo`** session carrying `metrics.routine`, so every existing
+  reader (the study streak's exclusion, the HP day test, Goals' ticks,
+  Reports) treats it as it treated a habit. The Governor prices it with
+  `KOS.governor.routineAward` (pure, beside `focusAward`). The figures are for decision B:
 
   | Routine | XP | Gold | HP |
   |---|---|---|---|
@@ -847,9 +853,9 @@ habit earned and closes the farm.
 |---|---|
 | The day model: one pure read of the day across modules | `js/core/today.js` (`KOS.today`: `build`, `free`, `next`) |
 | Routines: the record, templates, schedule, log, snapshot, streaks, completion, award hook, migration, forecast | `js/core/routines.js` (`KOS.routines`); templates `js/data/routine-templates.js` (AUTHORED) |
-| The Daily Review: config, `due` (consolidation, pure), `dayFacts`, words (template, payload, Kurenai), actions through owners, notices, forecast, ticker | `js/core/review.js` (`KOS.review`) |
+| The Daily Review: config, `due` (consolidation, pure), `dayFacts`, words (template, payload, Kurenai), actions through owners, notices, forecast, ticker | `js/core/dayreview.js` (`KOS.dayReview`) |
 | The Routines page: today, routines, the editor and templates, history, schedules and notifications | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/today\|edit/<id>\|templates\|history\|settings]`; `#/tasks` aliases) |
-| The review sheet and the routine player | `js/modules/review.js` (`KOS.reviewUI`: `open(slot)`, the chip, the steps), `js/modules/routineplayer.js` (`KOS.routinePlayer`) |
+| The review sheet and the routine player | `js/modules/dayreview.js` (`KOS.reviewUI`: `open(slot)`, the chip, the steps), `js/modules/routineplayer.js` (`KOS.routinePlayer`) |
 | The pre-flight before Focus | `KOS.routinePlayer.preflight(ctx, cb)`, called by `KOS.focus` entry points |
 | Styles | `css/views/routines.css` (the page, the player), the review sheet in `css/components.css` if the design makes it a primitive (`k-sheet--review`) |
 | Directives (kept) | `js/modules/todo.js` shrinks to `KOS.todo` directives over `KOS.today`; the Habits view is removed |
@@ -864,7 +870,7 @@ habit earned and closes the farm.
 - `KOS.routines.migrate()` runs after the first pull;
 - `KOS.routines.seedTemplates()` offers the templates, it does not
   create them (§17);
-- `KOS.review.tick` starts with the other tickers.
+- `KOS.dayReview.tick` starts with the other tickers.
 
 **The Routines page** (frames 33j–33s):
 - **Today:** the status of the three reviews (done, skipped, next at
@@ -883,6 +889,30 @@ habit earned and closes the farm.
 ## 13. Releases and tests
 
 Four releases, each whole, each on the 99-suite gate plus its own suite.
+
+**Built ahead of the design (25 October 2026, `feat/routines`).** The
+backend of all four releases is in place, switched off:
+- `KOS.routines`, `KOS.today` and `KOS.dayReview`, with the templates;
+- the Governor's `routineAward`;
+- the habit shims in `KOS.todo`, Goals, Reports and the Assistant;
+- pinned goals, assignments' `workOn`, `isMajor`, `pinCountdown` and
+  `migrateCountdown`;
+- the merge's records and sets;
+- the outlook's forecasts;
+- smoke100–102.
+
+`KOS.routines.enable(true)` (R1) and `KOS.dayReview.enable(true)` (R3)
+turn them on with their pages, which wait for design turn 33. Until then
+the app behaves exactly as before: the Habits page reads the habits, and
+no kind, goal type or tool appears. Still to build after the design:
+- the pages and the overlay;
+- switching the Calendar and countdown readers to `isMajor` with the
+  form's Pin/Unpin;
+- Pacing's derived "From your plan" rows in Reminders;
+- the system prompt's feature map;
+- Reports' `f.routines` and `f.reviews`;
+- the review tools;
+- the runner writing Kurenai's words ahead (R4).
 
 **R1 · Routines (replaces Habits).** smoke100.
 - `routines.js` and its migration; the Routines page, editor, player,
@@ -953,18 +983,18 @@ Numbered after Mind's 137–141.
 - **143. ROUTINES PAY ONCE.**
   - A routine's completion (every required step, or its minimum) pays
     `KOS.governor.routineAward` once per routine day, through
-    `sessions.log({type: "routine"})`.
+    `sessions.log({type: "todo", metrics: {routine, …}})`.
   - Steps, rest days, About to Study and unticking pay nothing.
   - At most 8 rewarded completions a day.
   - A completion is activity for the day, never study.
 - **144. REVIEWS READ, OWNERS WRITE.**
-  - A review stores only its own state (`state.review.days`).
+  - A review stores only its own state (`state.dayReview.days`).
   - Everything else it changes, it changes through that record's owner,
     at the moment you act.
   - It keeps refs, never copies.
   - Zero Governor traffic of its own; no review has a streak.
 - **145. ONE REVIEW ON SCREEN.**
-  - `KOS.review.due(now)` is pure and offers at most one review. Missed
+  - `KOS.dayReview.due(now)` is pure and offers at most one review. Missed
     earlier slots fold into it, and a passed slot is never offered.
   - It opens by itself only on the first open inside its slot, never
     over Focus, a dialog, the Exam Room or a deep link.
@@ -972,7 +1002,7 @@ Numbered after Mind's 137–141.
 - **146. TEMPLATE FIRST.**
   - A review's template words render at once; Kurenai's (the default)
     replace them when they arrive.
-  - ✦ Kurenai is one request with `KOS.review.payload` (no notes, card
+  - ✦ Kurenai is one request with `KOS.dayReview.payload` (no notes, card
     text, amounts, mood, energy or chat), printed exactly by "What is
     sent". Written ahead by the runner, it is claimed in `kos_runs` and
     lands once (invariant 131).

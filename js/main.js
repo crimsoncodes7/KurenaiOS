@@ -120,6 +120,10 @@
      events are kept, hidden); a past assessment's "Covered in Pacing" rule
      freezes into a fixed leaf list. Both idempotent. */
   if (KOS.exams) { KOS.exams.migrate(); KOS.exams.freezePass(); }
+  /* roadmap 5.10: Habits moves into Routines once (deterministic ids, so
+     two devices agree; the habits are kept, frozen, for a rollback) and
+     old routine days compact. A no-op until the Routines page ships. */
+  if (KOS.routines) KOS.routines.boot();
   /* roadmap 5.6: the switch from SM-2 to FSRS — every rated flashcard and
      Code retrieval card gets its stability and difficulty, converted from
      its ease and interval (no due date moves). Idempotent, and it converts
@@ -162,6 +166,9 @@
      goals' notices (a period ending, a deadline tomorrow) */
   if (KOS.money) KOS.money.start();
   if (KOS.goals && KOS.goals.start) KOS.goals.start();
+  /* the Daily Review's ticker: a review's notice at its time, Kurenai's
+     words written ahead, routine windows (off until the overlay ships) */
+  if (KOS.dayReview) KOS.dayReview.start();
   /* the Exams hub (5.8, phase 3): the predicted range kept just before
      each real exam (results day reads it), then its notices — once after
      boot and every 30 minutes */

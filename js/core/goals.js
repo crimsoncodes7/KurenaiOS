@@ -168,7 +168,7 @@
       .filter(function (m, i, a) { return isFinite(m) && m > 0 && m < target && a.indexOf(m) === i; })
       .sort(function (a, b) { return a - b; }).slice(0, 8);
     var params = raw.params && typeof raw.params === "object" ? JSON.parse(JSON.stringify(raw.params)) : {};
-    return {
+    var rec = {
       id: raw.id,
       title: String(raw.title || "Untitled goal").trim().slice(0, 160),
       description: description,
@@ -205,7 +205,24 @@
       failedManual: !!raw.failedManual,
       completionRecordedAt: raw.completionRecordedAt || null
     };
+    /* pinned (roadmap 5.10, plan §10.6): one of up to PIN_MAX goals the
+       Morning Review and Home show; absent unless set */
+    if (raw.pinned) rec.pinned = true;
+    return rec;
   }
+  var PIN_MAX = 3;
+  /* pin(id, on) → {ok, why}; at most three, archived goals never */
+  function pin(id, on) {
+    var g = get(id);
+    if (!g) return { ok: false, why: "No goal with that id." };
+    if (on !== false) {
+      if (g.archived) return { ok: false, why: "An archived goal can't be pinned." };
+      if (!g.pinned && pinned().length >= PIN_MAX) return { ok: false, why: "Three goals are pinned already." };
+    }
+    update(g.id, { pinned: on !== false });
+    return { ok: true };
+  }
+  function pinned() { return all().filter(function (g) { return g.pinned && !g.archived; }); }
 
   function data() {
     var s = store.state.goals = store.state.goals || { v: 3, nextId: 1, items: [], completionLedger: {} };
@@ -619,6 +636,14 @@
     } });
   register({ id: "habit-streak", domain: "productivity", label: "A habit's streak", icon: "習", unit: "days",
     measure: function (g, ctx, cb) {
+      /* once Habits has moved into Routines (roadmap 5.10, plan §5) the
+         habit is the routine it became, and its streak is the routine's */
+      if (KOS.routines && KOS.routines.migrated()) {
+        var rt = KOS.routines.resolve(g.params.routine || g.params.habit);
+        if (!rt) { cb({ current: null, meta: g.params.habit || g.params.routine ? "The linked habit was removed" : "No habit linked" }); return; }
+        cb({ current: KOS.routines.streak(rt.id), unit: "days", meta: rt.name });
+        return;
+      }
       var hs = (store.state.todo && store.state.todo.habits) || [];
       var h = hs.filter(function (x) { return String(x.id) === String(g.params.habit); })[0] || null;
       if (!h) { cb({ current: null, meta: g.params.habit ? "The linked habit was removed" : "No habit linked" }); return; }
@@ -838,6 +863,7 @@
     types: function (opts) { return types(opts); },
     metrics: function () { return TYPES.filter(function (d) { return d.auto; }).map(function (d) { return { id: d.id, label: d.label }; }); },
     all: all, get: get, add: add, update: update, remove: remove, nudge: nudge, reopen: reopen,
+    pin: pin, pinned: pinned, PIN_MAX: PIN_MAX,
     archive: archive, restart: restart,
     byExam: byExam, unlinkExam: unlinkExam, linkExam: linkExam, judgeUnlinked: judgeUnlinked, unlinked: unlinked,
     compute: compute, normalise: normalise, metricLabel: metricLabel,

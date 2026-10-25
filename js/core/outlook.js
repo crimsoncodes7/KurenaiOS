@@ -59,6 +59,10 @@
     out = out.concat(safe(function () { return KOS.calendar.forecast(now, to, m); }, []));
     out = out.concat(safe(function () { return KOS.reminders.forecast(now, to); }, []));
     out = out.concat(safe(function () { return KOS.assignments.forecast(now, to); }, []));
+    /* roadmap 5.10: a routine's window and a Daily Review's time (each
+       empty until its page ships) */
+    out = out.concat(safe(function () { return KOS.routines.forecast(now, to); }, []));
+    out = out.concat(safe(function () { return KOS.dayReview.forecast(now, to); }, []));
     for (var d = 0; d <= DAYS; d++) {
       var day = KOS.srs.addDays(iso(now), d), when = at(day, m);
       if (when < now || when >= to) continue;
