@@ -1,6 +1,6 @@
 ---
 name: ipad-phase
-description: iPad Air 11" M4 (bought 2026-10-22) — roadmap Phase 6 (ink/Pencil) planned; 6.0 iPad layout RELEASED 87f9437 kos-ipad-1; Creatives plan rev 2 approved
+description: iPad Air 11" M4 — Phase 6; 6.0 layout + 6.1–6.2 ink RELEASED; kos-ink-2 (iPad fixes + 30e side by side) RELEASED; match desktop on iPad
 metadata:
   type: project
 ---
@@ -15,3 +15,10 @@ On 2026-10-22 the user got an iPad Air 11" (M4) and a Metapen A8 stylus (an Appl
 **Feedback from this work:** the user caught the main rail's toggle (hidden in portrait, a squashed oval in landscape) that the audit missed, so check shell controls by eye at iPad sizes, not just spill numbers. On touch, keep controls looking like the desktop ones (the toggle stays an edge-hung circle); do not move them into their own row.
 
 Related: [[project-branch-and-release-state]], [[japanese-study-space]], [[code-study-space]].
+
+- 2026-10-25: design turn 30 (frames 30a–30t) is in ~/Downloads/design_handoff_kurenaios_ipad_pencil. 6.1 ink engine + 6.2 Handwritten tab RELEASED 2026-10-25 (052b27c, sw kos-ink-1, https://f47cbd39.kurenai-os.pages.dev), built in its own worktree /Users/fj/Developer/KurenaiOS-ink (server "kurenai-ink", port 8132), Ink invariants are 132–136 (design said 130–134); Creatives moved to 142–144; Mind holds 137–141. smoke100. Next: 30e side by side + Clip to page, 30b floating palette + ruler, 30p sync (kos_ink table) + 30s settings, export; then 30f answer pad, 30h PDF viewer.
+- The Metapen was cancelled; an Apple Pencil (USB-C or Pro, unknown) arrives 2026-10-26.
+- Testing in the built-in browser: the service worker serves stale scripts, so unregister it and clear caches before each reload.
+- 2026-10-25 (later): branch `feat/ipad-polish` (worktree /Users/fj/Developer/KurenaiOS-ink, pushed): every view fixed at 1180×796 / 820×1156 with touch (83849cd) and 30e side by side + Clip to page (fda5436, smoke100 G). RELEASED 2026-10-25 as 8a092b7, sw kos-ink-2, https://caffcf65.kurenai-os.pages.dev; main fast-forwarded. Next: 30b floating palette + ruler, 30p sync + 30s settings, export, 30f, 30h.
+- The user wants iPad views to MATCH DESKTOP (e.g. the running Focus stage: same three-column layout and clock size, clock dead centre), not a reflowed tablet variant.
+- Touch checks: drive headless Chrome (port 9222) over CDP with Emulation.setTouchEmulationEnabled + pointer:coarse/hover:none media and Input.dispatchTouchEvent; a Node CDP script must call process.exit or a pending timer keeps it alive.
