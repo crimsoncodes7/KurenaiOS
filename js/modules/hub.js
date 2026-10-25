@@ -2376,12 +2376,16 @@
       ["cards", "Flashcards", true, mats.cards || null],
       ["quiz", "Quiz", true, mats.quiz || null],
       ["exam", "Exam questions", true, mats.exam || null],
+      /* the one ink surface among the tabs (design turn 30c): always
+         present, its count the pages with ink (invariant 77) */
+      ["ink", "Handwritten", !!(KOS.ink && KOS.inkTab), inkCount()],
       ["worked", "Worked examples", mats.worked, mats.worked],
       ["sim", "Simulations", mats.sim, mats.sim],
       ["files", "Files", true, null]
     ].filter(function (t) { return t[2]; });
     if (cx) TABDEFS = cx.tabs(mats);
 
+    function inkCount() { var w = KOS.ink && KOS.ink.written(KOS.ink.topicDoc(sid, ref)); return w ? w.n : null; }
     var tabBar = el("div", { class: "k-topic-tabs", "data-ui": "ui.tabs topic.tabs", role: "tablist", "aria-label": "Study material" });
     var panel = el("div", { class: "k-topic-panel", "data-ui": "study.panel", role: "tabpanel" });
     var curTab = cx ? cx.firstTab() : (content && content.notes && content.notes.length) ? "notes" : "spec";
@@ -2397,8 +2401,9 @@
     }
     TABDEFS.forEach(function (t) {
       tabBar.appendChild(el("button", { type: "button", class: "k-topic-tab", "data-ui": "ui.tab", role: "tab",
-        "data-tab": t[0], onclick: function () { selectTab(t[0]); } },
-        [t[1], t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
+        "data-tab": t[0], "data-label": t[1], onclick: function () { selectTab(t[0]); } },
+        [t[0] === "ink" && KOS.inkUI ? KOS.inkUI.glyph("pen") : null, t[1],
+          t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
     });
     /* tabs that do not fit fold behind "+N ▾", last first — the open one
        always shows. With the inspector folded (the Files tab) there is room
@@ -2433,7 +2438,7 @@
         moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material",
           items: hidden.map(function (b) {
             var n = b.querySelector("[data-ui~='ui.tab-count']");
-            return { label: b.firstChild.textContent + (n ? " · " + n.textContent : ""),
+            return { label: (b.getAttribute("data-label") || b.firstChild.textContent) + (n ? " · " + n.textContent : ""),
               onSelect: function () { selectTab(b.dataset.tab); } };
           }) }));
       }
@@ -2459,8 +2464,24 @@
       onclick: function () { editing ? closeEditor() : openEditor(); } }, [
       el("span", { "aria-hidden": "true", text: "✎" }), el("span", { "data-ui": "topic.edit", text: "Edit" })]);
     var pagerSlot = el("div", { class: "k-topic-pages" });
+    /* the Handwritten tab's Page · All pages switch rides the tab row */
+    var inkSlot = el("span", { class: "k-topic-inkmode" });
+    var inkCtl = null;
+    /* the tab's count follows the notebook (the first stroke makes it) */
+    function onInk(e) {
+      if (!tabBar.isConnected) { window.removeEventListener("kos-ink", onInk); return; }
+      var doc = e.detail && e.detail.doc;
+      if (doc && doc !== KOS.ink.topicDoc(sid, ref)) return;
+      var b = tabBar.querySelector('[data-tab="ink"]');
+      if (!b) return;
+      var n = inkCount(), c = b.querySelector("[data-ui~='ui.tab-count']");
+      if (!n) { if (c) c.remove(); return; }
+      if (!c) { c = el("span", { class: "k-mono", "data-ui": "ui.tab-count" }); b.appendChild(c); }
+      c.textContent = String(n);
+    }
+    if (KOS.ink) window.addEventListener("kos-ink", onInk);
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
-      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, editBtn,
+      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, inkSlot, editBtn,
         cx ? cx.modeSwitch() : null]),
       pagerSlot
     ]);
@@ -2598,8 +2619,12 @@
       /* the page control lives in the nav, outside the panel, so a tab
          change clears it too */
       pagerSlot.innerHTML = "";
+      if (inkCtl) { inkCtl.destroy(); inkCtl = null; }
       panel.innerHTML = "";
-      if (curTab === "spec") {
+      if (curTab === "ink" && KOS.inkTab) {
+        inkCtl = KOS.inkTab.mount(panel, sid, ref, { modeSlot: inkSlot });
+      }
+      else if (curTab === "spec") {
         var specFork = KOS.edits.has(sid, ref, "spec") || editing ? KOS.edits.material(sid, ref, "spec") : null;
         /* frame 23c: a break moved by hand splits the reading order there;
            with none the lists keep their own columns */
@@ -2833,6 +2858,33 @@
      recall record, the next review and the assistant's topic actions.
      Every figure comes from topicStats(), the call the status component
      makes, so nothing here can drift (invariant 26d). */
+  /* "Pages written" (design turn 30d): pages with ink and when the last
+     was written, printed only when there is one (invariant 77); writing is
+     evidence of its own, never a status check */
+  function inkRow(sid, ref) {
+    if (!KOS.ink) return null;
+    var key = KOS.ink.topicDoc(sid, ref);
+    var val = el("strong", { "data-ui": "topic.pages-written" });
+    var row = el("li", {}, [el("span", { text: "Pages written" }), val]);
+    function paint() {
+      var w = KOS.ink.written(key);
+      row.hidden = !w;
+      if (w) val.textContent = w.n + " · " + inkWhen(w.at);
+    }
+    function onInk(e) {
+      if (!row.isConnected) { window.removeEventListener("kos-ink", onInk); return; }
+      var doc = e.detail && e.detail.doc;
+      if (!doc || doc === key) paint();
+    }
+    window.addEventListener("kos-ink", onInk);
+    paint();
+    return row;
+  }
+  function inkWhen(ts) {
+    if (!ts) return "";
+    var d = new Date(ts), hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    return d.toDateString() === new Date().toDateString() ? "today " + hm : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  }
   function buildInspector(grid, sid, ref, statusComponent, asstStrip, cx) {
     var body = el("div", { class: "k-insp-body", "data-ui": "topic.inspector-body" });
     if (statusComponent) body.appendChild(statusComponent);
@@ -2862,7 +2914,8 @@
       t.memory.leeches ? count("In Rework", t.memory.leeches) : null,
       li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
       count("Quiz attempts", qz ? qz.attempts || 0 : 0),
-      count("Exam questions logged", t.examLogged)
+      count("Exam questions logged", t.examLogged),
+      inkRow(sid, ref)
     ].filter(Boolean)));
     var nextTxt = t.due ? t.due + " due now" : t.next ? t.next : t.reviewed ? "all scheduled" : "";
     if (!cx) body.appendChild(sec("Next review", [

@@ -96,7 +96,11 @@
     "js/modules/examroom.js",
     "js/modules/examguide.js",
     "js/modules/exampaperview.js",
-    "js/modules/examdeep.js"
+    "js/modules/examdeep.js",
+    "css/views/ink.css",
+    "js/core/ink.js",
+    "js/core/inkui.js",
+    "js/modules/inktab.js"
   ],
   "views": {
     "home": {},

@@ -1244,6 +1244,17 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
+> **Status (25 October 2026): 6.1 and 6.2 built on `feat/ink`, not
+> deployed.** From design turn 30 (frames 30a–30d): the ink engine
+> (`KOS.ink`, `KOS.inkUI`: pen only with palm rejection, pen, highlighter,
+> eraser partial or whole, lasso with Move, Resize, Recolour, Copy and
+> Delete, shape snap, text and images, undo by ⌘Z and a two-finger tap,
+> six papers) and a topic's Handwritten tab (the empty page, A4 sheets,
+> All pages with reorder, the inspector's "Pages written"); invariants
+> 132–136, smoke100. Next: Side by side and Clip to page (30e), the
+> floating palette and the ruler (30b), sync and the Pen and ink settings
+> (30p, 30s), export, then the answer pad (30f) and the PDF viewer (30h).
+
 > **Status (22 October 2026): 6.0 RELEASED** (`87f9437`, sw `kos-ipad-1`,
 > https://982f307b.kurenai-os.pages.dev); the rest is
 > planned in [ipad-plan.md](ipad-plan.md) revision 1. Next come its three
@@ -1290,8 +1301,9 @@ ink engine.
   - Stage Manager and Split View;
   - Focus with the screen kept on;
   - a check of Code's full runtime on the M4.
-- **Invariants it would add:** 132 (ink is vector and local first) and 133
-  (handwriting is read only when asked). Those it touches: 89, 102b, 111,
+- **Invariants:** 132–136 (one engine, roles not colours, writing is
+  evidence never pay, handwriting read only when asked, ink in its own
+  store), from design turn 30's draft 130–134. Those it touches: 89, 102b, 111,
   124, 125 and 127.
 - **Design first:** the toolbar, the Handwritten tab, the answer pad, the
   PDF viewer, the drills and the Split View compositions (prompt 14).

@@ -143,7 +143,8 @@ step("plain ref (no content) shows the five editable tabs + files, no worked/sim
   // appear only when something is wired to the ref.
   KOS.show("ref", { subject: "it", ref: "F200.1.1" });
   const tabs = $$("[data-ui~='ui.tab']").map(t => t.dataset.tab);
-  if (tabs.join(",") !== "spec,notes,cards,quiz,exam,files")
+  /* …and Handwritten (design turn 30c), always there like the five */
+  if (tabs.join(",") !== "spec,notes,cards,quiz,exam,ink,files")
     throw new Error("unexpected tabs on plain ref: " + tabs.join(","));
   if (!$("[data-ui~='topic.spec']")) throw new Error("spec missing");
   if ($$("[data-ui~='ui.tab'] [data-ui~='ui.tab-count']").length) throw new Error("an empty tab printed a zero count");
