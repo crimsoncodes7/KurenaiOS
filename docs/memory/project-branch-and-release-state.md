@@ -38,3 +38,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-23: released the rest of T1 from feat/code-t1-rest (sw kos-code-24, https://f6ddf42e.kurenai-os.pages.dev); main fast-forwarded.
 2026-10-23: main fast-forwarded to feat/japanese-s1; released Japanese F1, sw kos-japanese-3, https://40739699.kurenai-os.pages.dev.
 2026-10-24: main fast-forwarded to feat/japanese-f2; released Japanese F2, sw kos-japanese-4, https://e424163d.kurenai-os.pages.dev.
+
+- 2026-10-25: production is `8a092b7` (sw `kos-ink-2`, https://caffcf65.kurenai-os.pages.dev): iPad fixes + Handwritten side by side, from `feat/ipad-polish` in the worktree /Users/fj/Developer/KurenaiOS-ink; origin/main fast-forwarded to it.

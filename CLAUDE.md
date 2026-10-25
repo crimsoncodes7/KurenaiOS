@@ -17,7 +17,11 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the ink engine and a topic's Handwritten tab (sw
+- Latest release: the iPad fixes on every view and the Handwritten tab's
+  Side by side with Clip to page (sw `kos-ink-2`, `8a092b7`) — immutable
+  deployment https://caffcf65.kurenai-os.pages.dev (25 October 2026;
+  `feat/ipad-polish`: design 30e, smoke100 G, smoke43's per-visit drawer).
+  Before it the ink engine and a topic's Handwritten tab (sw
   `kos-ink-1`, `052b27c`) — immutable deployment https://f47cbd39.kurenai-os.pages.dev
   (25 October 2026; `feat/ink`: roadmap 6.1–6.2 from design turn 30a–30d,
   invariants 132–136, smoke100). Before it Japanese Stage 1 unit F2, Days and times (sw

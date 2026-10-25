@@ -1244,7 +1244,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
-> **Built 25 October 2026, not released yet** (`feat/ipad-polish`): every
+> **RELEASED 25 October 2026** (`8a092b7`, sw `kos-ink-2`, https://caffcf65.kurenai-os.pages.dev; `feat/ipad-polish`): every
 > view checked on the iPad at 1180 × 796 and 820 × 1156 with touch and
 > fixed (the topic inspector opens over the notes when the reading column
 > would be narrow, the tree drawer is per visit in portrait, the running
