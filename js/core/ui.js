@@ -652,6 +652,12 @@
      names it, and the memory lasts while the page stays on that view —
      leaving for another view forgets it, so a return opens on `reveal` */
   var scrollMemo = {};
+  /* read every kept strip as the page is torn down: a scroll event may not
+     have fired yet (a background tab paints no frames) */
+  function noteScrolls(root) {
+    if (!root || !root.querySelectorAll) return;
+    [].forEach.call(root.querySelectorAll("[data-scroll-keep]"), function (n) { scrollMemo[n.getAttribute("data-scroll-keep")] = n.scrollLeft; });
+  }
   function scroller(node, opts) {
     opts = opts || {};
     var wrap = el("div", { class: "k-scroller" + (opts.className ? " " + opts.className : ""),
@@ -690,6 +696,7 @@
     node.addEventListener("scroll", sync, { passive: true });
     if (typeof window.ResizeObserver === "function") { try { new window.ResizeObserver(sync).observe(node); } catch (e) { /* jsdom */ } }
     if (opts.keep) {
+      node.setAttribute("data-scroll-keep", opts.keep);
       node.addEventListener("scroll", function () { scrollMemo[opts.keep] = node.scrollLeft; }, { passive: true });
       var place = function () {
         if (scrollMemo[opts.keep] != null) node.scrollLeft = scrollMemo[opts.keep];
@@ -1442,6 +1449,7 @@
     /* a fresh navigation (not Back/Forward) records history and abandons any
        forward trail — exactly like a browser address bar */
     if (!navCur || navCur.viewId !== viewId) scrollMemo = {};
+    else noteScrolls(document.getElementById("main"));
     if (navCur && !opts._nav) {
       if (navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
         navHist.push(navCur);
