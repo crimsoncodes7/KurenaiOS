@@ -98,7 +98,7 @@
 .k-fx-col { display: flex; flex-direction: column; gap: var(--sp-12); min-inline-size: 0; }
 .k-fx-left { align-items: flex-end; text-align: end; }
 .k-fx-left > * { max-inline-size: var(--fx-stage-side); }
-.k-fx-notes { max-inline-size: var(--fx-stage-side); }
+.k-fx-notes { inline-size: 100%; max-inline-size: var(--fx-stage-side); }
 .k-fx-objective { font-size: var(--fs-20); font-weight: var(--weight-semibold); line-height: var(--lh-snug); text-align: inherit; color: var(--text); background: none; border: 0; padding: 0; cursor: pointer; }
 .k-fx-objective:hover { color: var(--crimson-soft); }
 .k-fx-objective[data-state~="empty"] { font-size: var(--fs-14); font-weight: var(--weight-regular); color: var(--muted); }
@@ -777,8 +777,6 @@
 .k-fx-setup { grid-template-columns: minmax(0, 1fr); }
 .k-fx-side { flex-direction: row; }
 .k-fx-side > * { flex: 1 1 0; }
-.k-fx-body { grid-template-columns: minmax(0, 1fr) var(--fx-stage-mid); }
-.k-fx-body > .k-fx-notes { grid-column: 1 / -1; justify-self: center; }
 }
 
 @media (max-width: 1080px) {
@@ -804,11 +802,10 @@
 .k-rem-insp { grid-column: auto; }
 :root[data-shell="ready"] .k-rem > .k-rem-side { display: none; }
 .k-fx-side { flex-direction: column; }
-.k-fx-body { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.k-fx-body { grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: center; }
+.k-fx-body > .k-fx-centre { order: -1; }
 .k-fx-left { align-items: center; text-align: center; }
 .k-fx-ctx > .k-cluster { justify-content: center; }
-.k-fx-centre > .k-fx-ring { --ring: var(--fx-dial); --ring-w: var(--fx-ring-w); }
-.k-fx-clock { font-size: var(--fs-58); }
 .k-fx-row { grid-template-columns: var(--fx-row-bar-w) minmax(0, 1fr) var(--fx-dur-w); }
 .k-fx-row > :first-child, .k-fx-row > .k-chip { display: none; }
 }
@@ -882,6 +879,10 @@
 .k-cal-cell { padding: var(--sp-4); }
 .k-cal-add { display: none; }
 .k-fx-stage { padding: var(--sp-16); gap: var(--sp-14); }
+/* the desktop ring and clock hold down to 701 (an iPad in portrait); a
+   phone takes the setup dial's size */
+.k-fx-centre > .k-fx-ring { --ring: var(--fx-dial); --ring-w: var(--fx-ring-w); }
+.k-fx-clock { font-size: var(--fs-58); }
 /* frame 15f: the running session stacks — the objective card, the ring,
    the counts, the controls, then the notes — and the tab note goes */
 .k-fx-top-t { flex: 1 1 auto; min-inline-size: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

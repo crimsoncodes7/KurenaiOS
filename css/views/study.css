@@ -204,11 +204,16 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-topic-tab .k-mono { font-size: var(--fs-11); opacity: 0.8; }
 .k-topic-more .k-btn { padding: 0 0 var(--sp-10); box-shadow: none; background: none; font-size: var(--fs-13-5); color: var(--muted); }
 .k-topic-more .k-btn:hover { color: var(--text); }
+/* the fold sits on the tabs' baseline whatever height touch gives the
+   button, and its menu drops from it at the width of its labels */
+.k-topic-more { align-self: stretch; display: flex; }
+.k-topic-more .k-btn { align-items: flex-end; }
+.k-topic-more-pop { inline-size: max-content; min-inline-size: calc(var(--sp-48) * 4); }
 .k-topic-edit { margin-block-end: var(--sp-6); }
 .k-topic-edit[aria-pressed="true"] { background: var(--s2); }
 .k-topic-reader { display: flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-12-5); }
 .k-topic-page-select { min-block-size: 0; padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); background: var(--s1); font-size: var(--fs-12-5); max-inline-size: 100%; }
-.k-topic-dots { margin-inline-start: auto; display: flex; gap: var(--sp-4); }
+.k-topic-dots { margin-inline-start: auto; display: flex; gap: var(--sp-4); min-inline-size: 0; overflow: hidden; }
 .k-topic-dots span { inline-size: var(--dot-narrow); block-size: var(--bar-6); border-radius: var(--r-2); background: var(--s2); }
 .k-topic-dots span[data-state~="on"] { inline-size: var(--dot-wide); background: var(--subj-c); }
 .k-topic-panel { display: flex; flex-direction: column; gap: var(--sp-16); min-inline-size: 0; }
@@ -375,6 +380,10 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-topic[data-state~="insp-closed"] .k-insp-head { flex-direction: column; gap: var(--sp-12); }
 .k-topic[data-state~="insp-closed"] .k-insp-head .k-iconbtn { margin: 0; }
 .k-topic[data-state~="insp-closed"] .k-insp-spine { display: block; writing-mode: vertical-rl; font-size: var(--fs-12); color: var(--muted); }
+/* iPad landscape, rail and tree open: the inspector opens over the page
+   (hub.js FLOAT_AT) and the reading column keeps the width */
+.k-topic[data-state~="insp-float"] { position: relative; grid-template-columns: minmax(0, 1fr) var(--sp-48); }
+.k-topic[data-state~="insp-float"]:not([data-state~="insp-closed"]) .k-insp { position: absolute; inset-block: 0; inset-inline-end: 0; z-index: var(--z-drawer); inline-size: var(--inspector-w); background: var(--bg); box-shadow: var(--elev-3); }
 .k-insp-sec .k-kicker { display: block; margin-block-end: var(--sp-4); }
 .k-insp-list { list-style: none; padding: 0; }
 .k-insp-list li { display: flex; padding-block: var(--sp-7); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-14); }
@@ -396,8 +405,10 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-ts-checks { margin-inline-start: auto; font-size: var(--fs-11-5); color: var(--muted); }
 .k-ts-pct { font-size: var(--fs-22); font-weight: var(--weight-semibold); }
 .k-ts > .k-bar { --bar-c: var(--ts-c); margin-block: var(--sp-8) var(--sp-12); }
-.k-ts-row { display: flex; gap: var(--sp-8); margin-block-end: var(--sp-12); }
-.k-ts-row > .k-ts-field:first-child { flex: 1 1 0; min-inline-size: 0; }
+.k-ts-row { display: flex; flex-wrap: wrap; gap: var(--sp-8); margin-block-end: var(--sp-12); }
+/* the status keeps a readable width: with touch-sized RAG picks it takes
+   its own line rather than reading "Not st" */
+.k-ts-row > .k-ts-field:first-child { flex: 1 1 calc(var(--sp-48) * 2.5); min-inline-size: 0; }
 .k-ts-select { inline-size: 100%; min-block-size: var(--rag-pick); padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); background: var(--s1); font-size: var(--fs-13); }
 .k-ts-checkgrid { display: flex; flex-direction: column; }
 .k-ts-check { display: flex; align-items: center; gap: var(--sp-10); padding-block: var(--sp-6); font-size: var(--fs-14); color: var(--text-2); cursor: pointer; }
@@ -1035,6 +1046,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-spec-split { columns: 1; }
 .k-subj-row, .k-subj-row--even { grid-template-columns: minmax(0, 1fr); }
 .k-subj-side { flex-direction: row; }
+.k-subj-side > * { flex: 1 1 0; min-inline-size: 0; }
 }
 
 @media (max-width: 860px) {
@@ -1051,7 +1063,8 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-cmp-foot > .k-btn { flex: 1 1 auto; }
 .k-cmp > .k-cmp-foot { position: static; }
 .k-spine-open { display: grid; }
-.k-trk-grid { grid-template-columns: var(--sp-4) minmax(0, 1fr) auto var(--icon-btn-sm); }
+/* five cells stay on the row: bar, name, score, reviewed, edit */
+.k-trk-grid { grid-template-columns: var(--sp-4) minmax(0, 1fr) auto auto var(--icon-btn-sm); }
 .k-trk-grid > :nth-child(2), .k-trk-grid > :nth-child(5), .k-trk-grid > :nth-child(6), .k-trk-headrow { display: none; }
 .k-trk-detail, .k-trk-reflect, .k-trk-form { grid-template-columns: minmax(0, 1fr); padding-inline-start: var(--sp-16); }
 .k-trk-half { grid-column: auto; }

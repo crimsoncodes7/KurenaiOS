@@ -67,7 +67,10 @@ font-size: var(--fs-14);
 .k-search-results {
 position: absolute;
 inset-block-start: calc(100% + var(--sp-8));
-inset-inline: 0;
+inset-inline: 0 auto;
+/* never narrower than a readable result row, though the box narrows on
+   an iPad in portrait */
+inline-size: max(100%, min(var(--search-results-min), 60vw));
 z-index: var(--z-menu);
 max-block-size: min(70vh, var(--menu-max-h));
 overflow-y: auto;

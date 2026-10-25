@@ -522,8 +522,12 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 .k-asst-brand { padding: 0; }
 .k-asst-nav-acts { margin: 0; }
 .k-asst-new { flex: none; padding-inline: var(--sp-14); }
-.k-asst-tabs { flex-direction: row; flex-wrap: wrap; }
-.k-asst-tab { inline-size: auto; }
+/* one row on an iPad in portrait: the actions, then the seven tabs across
+   the rest, the tile kept only on the open one */
+.k-asst-nav, .k-asst-nav[data-state~="is-collapsed"] { flex-wrap: nowrap; gap: var(--sp-10); }
+.k-asst-tabs { flex: 1 1 auto; min-inline-size: 0; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; }
+.k-asst-tab { inline-size: auto; padding-inline: var(--sp-6); }
+.k-asst-tab:not([aria-selected="true"]) .k-asst-tab-tile { display: none; }
 .k-asst-routes-head { display: none; }
 .k-asst-route { grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
 .k-asst-audit { grid-template-columns: var(--asst-audit-when) minmax(0, 1fr) var(--asst-audit-out); }
@@ -541,6 +545,7 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 .k-msheet-slot > .k-asst-nav .k-asst-nav-label { display: flex; }
 .k-msheet-slot > .k-asst-nav .k-asst-nav-sec { display: block; }
 .k-msheet-slot > .k-asst-nav .k-asst-tab-l { display: inline; }
+.k-msheet-slot > .k-asst-nav .k-asst-tab-tile { display: grid; }
 .k-msheet-slot > .k-asst-nav :is(.k-asst-brand, .k-asst-nav-acts) { display: none; }
 .k-msheet-slot > .k-asst-nav .k-asst-tabs { flex-direction: column; flex-wrap: nowrap; }
 .k-msheet-slot > .k-asst-nav .k-asst-tab { inline-size: 100%; min-block-size: var(--hit-coarse); }

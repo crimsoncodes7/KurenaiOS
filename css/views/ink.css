@@ -8,7 +8,7 @@
 @layer views {
 
 /* ---------- the toolbar (30a) ---------- */
-.k-ink-barwrap { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); padding-block: var(--sp-6); background: var(--bg); }
+.k-ink-barwrap { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); padding-block: var(--sp-6); background: var(--bg); container-type: inline-size; }
 .k-ink-bar { display: flex; align-items: center; gap: var(--sp-6); padding: var(--sp-6); border-radius: var(--ink-bar-r); background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); overflow-x: auto; scrollbar-width: none; }
 .k-ink-group { display: flex; align-items: center; gap: var(--sp-2); flex: 0 0 auto; }
 .k-ink-group + .k-ink-group { padding-inline-start: var(--sp-6); border-inline-start: var(--hairline) solid var(--line); }
@@ -42,6 +42,13 @@
 .k-ink-width[data-w="1"] .k-ink-width-dot { inline-size: var(--sp-8); block-size: var(--sp-8); }
 .k-ink-width[data-w="2"] .k-ink-width-dot { inline-size: var(--sp-12); block-size: var(--sp-12); }
 .k-ink-width[aria-checked="true"] { box-shadow: inset 0 0 0 var(--sp-2) var(--text); }
+/* an iPad's page column: the tools close up so the paper picker stays on
+   the bar instead of behind its scroll arrow (labels kept) */
+@container (max-width: 48rem) {
+.k-ink-tool { min-inline-size: var(--hit-coarse); padding-inline: var(--sp-3); }
+.k-ink-group + .k-ink-group { padding-inline-start: var(--sp-4); }
+.k-ink-bar { gap: var(--sp-4); }
+}
 .k-ink-pop { inline-size: var(--ink-pop-w); max-inline-size: 92vw; padding: var(--sp-14); border-radius: var(--r-22); display: flex; flex-direction: column; gap: var(--sp-10); }
 .k-ink-pop-note { margin: 0; font-size: var(--fs-12); color: var(--muted); line-height: 1.45; }
 
@@ -49,7 +56,9 @@
 .k-ink-papers { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
 .k-ink-paper-chip { display: inline-flex; align-items: center; gap: var(--sp-6); min-block-size: var(--hit); padding-inline: var(--sp-10); cursor: pointer; }
 .k-ink-paper-chip[data-state~="on"] { background: var(--text); color: var(--bg); }
-.k-ink-paper-swatch { inline-size: var(--sp-14); block-size: var(--sp-16); border-radius: var(--r-2); background-color: var(--s3); container-type: inline-size; }
+/* a chip's swatch is too small for page widths: its paper is drawn at a
+   fixed few pixels, in the page's own ink (cqw here would read the band) */
+.k-ink-paper-swatch { --paper-ink: var(--muted); --ink-rule: var(--sp-4); --ink-square: var(--sp-4); --ink-cue: var(--sp-5); --ink-margin: var(--sp-3); --ink-marks: calc(var(--sp-14) - var(--sp-3)); inline-size: var(--sp-14); block-size: var(--sp-16); border-radius: var(--r-2); background-color: var(--s3); }
 .k-ink-page, .k-ink-thumb { --paper-ink: var(--line); container-type: inline-size; background-color: var(--s1); }
 .k-ink-page[data-paper="lined"], .k-ink-thumb[data-paper="lined"], .k-ink-paper-swatch[data-paper="lined"] {
 background-image: linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
@@ -59,6 +68,7 @@ background-image: linear-gradient(to bottom, var(--paper-ink) var(--hairline), t
 background-size: var(--ink-square) var(--ink-square); }
 .k-ink-page[data-paper="dotted"], .k-ink-thumb[data-paper="dotted"], .k-ink-paper-swatch[data-paper="dotted"] {
 background-image: radial-gradient(circle, var(--muted) 0.18cqw, transparent 0.24cqw); background-size: var(--ink-rule) var(--ink-rule); }
+.k-ink-paper-swatch[data-paper="dotted"] { background-image: radial-gradient(circle, var(--muted) var(--hairline), transparent calc(var(--hairline) * 1.5)); }
 .k-ink-page[data-paper="cornell"], .k-ink-thumb[data-paper="cornell"], .k-ink-paper-swatch[data-paper="cornell"] {
 background-image: linear-gradient(to right, transparent calc(var(--ink-cue) - var(--hairline)), var(--crimson) calc(var(--ink-cue) - var(--hairline)), var(--crimson) var(--ink-cue), transparent var(--ink-cue)),
   linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));

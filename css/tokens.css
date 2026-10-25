@@ -227,6 +227,7 @@ color-scheme: dark;
 --brand-w: 194px;
 --brand-logo: 34px;
 --search-w: 480px;
+--search-results-min: 480px;
 --search-h: 34px;
 --rail-w: var(--rail-w-full);
 --rail-w-full: 212px;

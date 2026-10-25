@@ -577,7 +577,14 @@
     function onTouchStart(e) {
       var ts = e.touches, stylus = [].some.call(e.changedTouches || [], function (t) { return t.touchType === "stylus"; });
       if (stylus || (dk.prefs.finger && ts.length === 1)) { e.preventDefault(); return; }
-      if (ts.length === 2) two = { at: Date.now(), pts: [].map.call(ts, function (t) { return { id: t.identifier, x: t.clientX, y: t.clientY }; }), moved: 0 };
+      if (ts.length === 2) {
+        two = { at: Date.now(), pts: [].map.call(ts, function (t) { return { id: t.identifier, x: t.clientX, y: t.clientY }; }), moved: 0 };
+        /* in finger mode the first finger of the pair began a stroke: it is
+           the gesture, not ink, so the undo reaches the stroke before it.
+           A pen's stroke is never cancelled by a resting hand. */
+        var penDown = [].some.call(ts, function (t) { return t.touchType === "stylus"; });
+        if (stroke && !penDown) onCancel();
+      }
       else if (ts.length > 2) two = null;
     }
     function onTouchMove(e) {

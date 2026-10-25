@@ -350,20 +350,31 @@
   function treeIsOverlay() {
     return typeof window.matchMedia === "function" && window.matchMedia(TREE_OVERLAY_Q).matches;
   }
+  /* The drawer (≤860: an iPad in portrait, a phone) is opened for one visit
+     and never saved: the remembered choice belongs to the column, so turning
+     an iPad from landscape to portrait never lays the drawer over the page.
+     Navigating or crossing the tier closes it. */
+  var drawerOpen = false;
   function applyTreeCollapsed() {
-    /* Build 4b: with no saved preference, the overlay tiers start CLOSED
-       (the tree is a drawer over the content there); wider viewports keep
-       their open-by-default spine. An explicit choice wins on both. */
-    var pref = store.state.ui.treeClosed;
-    var closed = pref === true || (pref == null && treeIsOverlay());
+    var closed = treeIsOverlay() ? !drawerOpen : store.state.ui.treeClosed === true;
     /* a view with no spine only remembers the preference; it never shows one */
     if (KOS.shell.tree() === "none") return;
     KOS.shell.tree(closed ? "closed" : "open");
   }
   function setTreeClosed(closed) {
-    store.state.ui.treeClosed = !!closed;
-    store.save();
+    if (treeIsOverlay()) drawerOpen = !closed;
+    else {
+      store.state.ui.treeClosed = !!closed;
+      store.save();
+    }
     applyTreeCollapsed();
+  }
+  window.addEventListener("hashchange", function () { drawerOpen = false; });
+  if (typeof window.matchMedia === "function") {
+    var treeMQ = window.matchMedia(TREE_OVERLAY_Q);
+    var onTier = function () { drawerOpen = false; applyTreeCollapsed(); };
+    if (treeMQ.addEventListener) treeMQ.addEventListener("change", onTier);
+    else if (treeMQ.addListener) treeMQ.addListener(onTier);
   }
   KOS.setTreeClosed = setTreeClosed;
 
@@ -2435,7 +2446,7 @@
       }
       moreSlot.innerHTML = "";
       if (hidden.length) {
-        moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material",
+        moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material", align: "start", panelClass: "k-topic-more-pop",
           items: hidden.map(function (b) {
             var n = b.querySelector("[data-ui~='ui.tab-count']");
             return { label: (b.getAttribute("data-label") || b.firstChild.textContent) + (n ? " · " + n.textContent : ""),
@@ -2515,6 +2526,28 @@
     var editorHost = el("div", { class: "k-topic-editor", hidden: "" });
     studyGrid.appendChild(editorHost);
     main.appendChild(studyGrid);
+    /* iPad landscape with the rail and the tree open leaves the reading
+       column a phone's width beside the inspector. Below FLOAT_AT the
+       inspector folds to its spine and opens OVER the page instead (state
+       insp-float); opening it there is for this visit only, so the saved
+       preference never covers the notes on the next topic. */
+    var FLOAT_AT = 844;
+    function floatCheck() {
+      if (!studyGrid.isConnected) { if (floatRO) floatRO.disconnect(); return; }
+      var on = !editing && window.innerWidth > 1080 && studyGrid.clientWidth > 0 && studyGrid.clientWidth < FLOAT_AT;
+      if (on === KOS.ui.hasState(studyGrid, "insp-float")) return;
+      KOS.ui.state(studyGrid, "insp-float", on);
+      KOS.ui.state(studyGrid, "insp-closed", on || KOS.ui.hasState(studyGrid, "files-tab") || store.state.ui.inspectorOpen === false);
+      inspector.paintToggle(KOS.ui.hasState(studyGrid, "insp-closed"));
+    }
+    var floatRO = window.ResizeObserver ? new ResizeObserver(floatCheck) : null;
+    if (floatRO) floatRO.observe(studyGrid);
+    floatCheck();
+    studyCol.addEventListener("pointerdown", function () {
+      if (!KOS.ui.hasState(studyGrid, "insp-float") || KOS.ui.hasState(studyGrid, "insp-closed")) return;
+      KOS.ui.state(studyGrid, "insp-closed", true);
+      inspector.paintToggle(true);
+    });
 
     /* ---------- the study editor ---------- */
     var editorCtl = null;
@@ -2534,6 +2567,7 @@
       store.state.ui.editing = editing;
       store.save();
       KOS.ui.state(studyGrid, "editing", true);
+      KOS.ui.state(studyGrid, "insp-float", false);
       KOS.ui.state(studyGrid, "insp-closed", false);
       paintTabs();
       inspector.hidden = true;
@@ -2566,7 +2600,8 @@
       editorHost.hidden = true;
       inspector.hidden = false;
       KOS.ui.state(studyGrid, "editing", false);
-      KOS.ui.state(studyGrid, "insp-closed", store.state.ui.inspectorOpen === false);
+      KOS.ui.state(studyGrid, "insp-closed", KOS.ui.hasState(studyGrid, "insp-float") || store.state.ui.inspectorOpen === false);
+      floatCheck();
       paintTabs();
       paintEditBtn();
       editBtn.focus();
@@ -2614,7 +2649,7 @@
         KOS.ui.state(studyGrid, "insp-closed", true);
       } else if (KOS.ui.hasState(studyGrid, "files-tab")) {
         KOS.ui.state(studyGrid, "files-tab", false);
-        KOS.ui.state(studyGrid, "insp-closed", store.state.ui.inspectorOpen === false);
+        KOS.ui.state(studyGrid, "insp-closed", KOS.ui.hasState(studyGrid, "insp-float") || store.state.ui.inspectorOpen === false);
       }
       /* the page control lives in the nav, outside the panel, so a tab
          change clears it too */
@@ -2953,8 +2988,10 @@
     var toggle = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.inspector-toggle",
       onclick: function () {
         var closed = KOS.ui.state(grid, "insp-closed");
-        store.state.ui.inspectorOpen = !closed;
-        store.save();
+        if (!KOS.ui.hasState(grid, "insp-float")) {
+          store.state.ui.inspectorOpen = !closed;
+          store.save();
+        }
         paintToggle(closed);
       } });
     function paintToggle(closed) {
@@ -2966,7 +3003,7 @@
 
     /* Reference mode: the inspector becomes "On this page" (frame 26d) */
     if (cx && cx.reference()) { body.innerHTML = ""; cx.onThisPage(body); }
-    return el("aside", { class: "k-insp", "data-ui": "topic.inspector", "aria-label": "Study inspector" }, [
+    var aside = el("aside", { class: "k-insp", "data-ui": "topic.inspector", "aria-label": "Study inspector" }, [
       el("div", { class: "k-insp-head" }, [
         el("span", { class: "k-insp-title", text: "Inspector" }),
         /* the collapsed panel keeps a readable spine so it can be found */
@@ -2975,6 +3012,8 @@
       ]),
       body
     ]);
+    aside.paintToggle = paintToggle;
+    return aside;
   }
 
   function paperLabel(sid, p) {
