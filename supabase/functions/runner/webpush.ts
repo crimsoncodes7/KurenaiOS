@@ -73,8 +73,17 @@ export async function vapidHeader(endpoint: string, publicKey: string, privateKe
 export type Sub = { endpoint: string; p256dh: string; auth: string };
 export type Vapid = { publicKey: string; privateKey: string; subject: string };
 
+export async function topicOf(id: string): Promise<string> {
+  return b64u(new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(id))).slice(0, 24));
+}
+
 /* send one notification; resolves to the push service's status */
 export async function send(sub: Sub, message: unknown, vapid: Vapid, opts: { ttl?: number; topic?: string } = {}): Promise<number> {
+  return (await deliver(sub, message, vapid, opts)).status;
+}
+/* the same, with the push service's reason (Apple and Google say why they
+   refused in the body: BadJwtToken, VapidPkHashMismatch, …) */
+export async function deliver(sub: Sub, message: unknown, vapid: Vapid, opts: { ttl?: number; topic?: string } = {}): Promise<{ status: number; reason: string }> {
   const body = await encrypt(enc.encode(JSON.stringify(message)), sub.p256dh, sub.auth);
   const headers: Record<string, string> = {
     "Content-Encoding": "aes128gcm",
@@ -83,9 +92,13 @@ export async function send(sub: Sub, message: unknown, vapid: Vapid, opts: { ttl
     "Urgency": "normal",
     "Authorization": await vapidHeader(sub.endpoint, vapid.publicKey, vapid.privateKey, vapid.subject),
   };
-  /* a topic replaces an undelivered push with the same one (≤ 32 url-safe chars) */
-  if (opts.topic) headers["Topic"] = opts.topic.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32);
+  /* a topic replaces an undelivered push with the same one. Apple refuses
+     anything but exactly base64url (BadWebPushTopic: every push to Safari
+     failed until 25 October 2026 with the item id stripped to its letters),
+     so it is 24 bytes of the id's SHA-256: 32 base64url characters */
+  if (opts.topic) headers["Topic"] = await topicOf(opts.topic);
   const res = await fetch(sub.endpoint, { method: "POST", headers, body });
-  try { await res.arrayBuffer(); } catch { /* the body is never needed */ }
-  return res.status;
+  let reason = "";
+  try { reason = (await res.text()).slice(0, 200); } catch { /* no body */ }
+  return { status: res.status, reason };
 }

@@ -172,6 +172,9 @@ step("D · the hand-over to the server", async () => {
 step("E · the runner's logic and crypto", async () => {
   const L = await import(path.join(ROOT, "supabase/functions/runner/logic.ts"));
   const W = await import(path.join(ROOT, "supabase/functions/runner/webpush.ts"));
+  /* Apple answers BadWebPushTopic to anything but exact base64url */
+  const tp = await W.topicOf("cal:7:2026-10-26:60");
+  assert(/^[A-Za-z0-9_-]{32}$/.test(tp) && tp === await W.topicOf("cal:7:2026-10-26:60"), "a push topic is 32 base64url characters, the same for the same item");
   const now = Date.UTC(2026, 9, 22, 7, 2);
   const items = [{ id: "a", at: now - 60000 }, { id: "b", at: now + 60000 }, { id: "c", at: now - 3600000 }, { id: "d", at: now - 120000 }];
   eq(L.dueItems(items, new Set(["d"]), now).map((x) => x.id), ["a"], "due, not stale, not sent");

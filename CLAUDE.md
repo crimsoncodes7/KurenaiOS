@@ -1465,7 +1465,10 @@ source comments and audit notes refer to it.
     but a `test` while a device was seen in the last 5 minutes, drops an item 30
     minutes late, sends each item once (`kos_push_sent`) as an RFC 8291
     payload signed with VAPID (WebCrypto, no library; the private key is a
-    function secret), deletes a subscription a push service calls gone,
+    function secret), with a Topic of 32 base64url characters (24 bytes of
+    the item id's SHA-256 — Apple refuses any other shape with
+    BadWebPushTopic, which blocked every Safari push until 25 October
+    2026), returns each device's status and reason in its reply, deletes a subscription a push service calls gone,
     and claims each due schedule in `kos_runs` before its one request.
     `sw.js` shows a push under its id as the tag. Zero Governor traffic.
 
