@@ -696,7 +696,7 @@
         else if (typeof opts.reveal === "function") { var x = opts.reveal(node); if (x != null) node.scrollLeft = Math.max(0, x); }
         sync();
       };
-      (window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); })(place);
+      setTimeout(place, 0);   /* once mounted; before the tabs' reveal frame, and in a background tab too */
     }
     sync();
     setTimeout(sync, 60);   /* after images and lazy rows land */

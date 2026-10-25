@@ -17,7 +17,7 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: polish (sw `kos-polish-1`, 25 October 2026,
+- Latest release: polish (sw `kos-polish-2`, 25 October 2026,
   `feat/polish-1025`): strips redrawn by their page keep their scroll
   (`KOS.ui.scroller({keep, reveal})`; the term ribbon, the braid, the
   edge-marked tabs; the ink bar holds its own), Home's Today drops a
@@ -81,7 +81,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-polish-1`
+- Service-worker version: `kos-polish-2`
 - Required smoke gate: 100 / 100 suites (`""` and 2–100; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
