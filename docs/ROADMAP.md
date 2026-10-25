@@ -1244,8 +1244,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
-> **Status (25 October 2026): 6.1 and 6.2 built on `feat/ink`, not
-> deployed.** From design turn 30 (frames 30a–30d): the ink engine
+> **Status (25 October 2026): 6.1 and 6.2 RELEASED** (`052b27c`, sw
+> `kos-ink-1`, https://f47cbd39.kurenai-os.pages.dev). From design turn 30 (frames 30a–30d): the ink engine
 > (`KOS.ink`, `KOS.inkUI`: pen only with palm rejection, pen, highlighter,
 > eraser partial or whole, lasso with Move, Resize, Recolour, Copy and
 > Delete, shape snap, text and images, undo by ⌘Z and a two-finger tap,

@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/japanese-f2 2026-10-24; last release kos-japanese-4 (F2); fetch first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; fast-forwarded to feat/ink 2026-10-25; last release kos-ink-1 (ink engine); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
@@ -16,5 +16,6 @@
 - [FSRS scheduler](fsrs-scheduler.md) — roadmap 5.6 phases 1–2 RELEASED 2026-10-20 (fbea5d5, kos-fsrs-1); phase 3 optimiser built on feat/after-fsrs
 - [Exams hub](exams-hub.md) — roadmap 5.8 rev 2; phases 1–6 (CS Paper 2) RELEASED 2026-10-21 (3b39ae1, kos-exams-1); next CS Paper 1; ask before each deploy
 - [After-FSRS release](after-fsrs-branch.md) — Focus switch, FSRS3, closed-app runner, GitHub App; RELEASED 2026-10-22 (13cef94, kos-runner-2); env.local.js is deferred
-- [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); Creatives rev 2 approved; prompts 14–15 written
+- [iPad and Pencil](ipad-phase.md) — Phase 6 planned, 6.0 layout RELEASED 87f9437 (kos-ipad-1); 6.1–6.2 ink RELEASED 052b27c (kos-ink-1); Creatives rev 2 approved
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
+- [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 (Fuji); Ren + Kurenai redesign on the Mind art sheet; library voices refused on free API; build waits for go-ahead

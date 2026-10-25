@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: Japanese Stage 1 unit F2, Days and times (sw
+- Latest release: the ink engine and a topic's Handwritten tab (sw
+  `kos-ink-1`, `052b27c`) — immutable deployment https://f47cbd39.kurenai-os.pages.dev
+  (25 October 2026; `feat/ink`: roadmap 6.1–6.2 from design turn 30a–30d,
+  invariants 132–136, smoke100). Before it Japanese Stage 1 unit F2, Days and times (sw
   `kos-japanese-4`) — immutable deployment https://e424163d.kurenai-os.pages.dev
   (24 October 2026; `feat/japanese-f2`: lessons 2.1–2.6 — the time, the days
   and でした, から・まで, dates, the next train, phone numbers — with checkpoint
@@ -72,7 +75,7 @@ chronological diary here.
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
   `feat/after-fsrs`, then to `feat/ipad`, then to `feat/japanese`, and on
-  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, then to `feat/japanese-f2`, so
+  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, then to `feat/japanese-f2`, and on 25 October to `feat/ink`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.

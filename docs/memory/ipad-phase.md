@@ -15,3 +15,7 @@ On 2026-10-22 the user got an iPad Air 11" (M4) and a Metapen A8 stylus (an Appl
 **Feedback from this work:** the user caught the main rail's toggle (hidden in portrait, a squashed oval in landscape) that the audit missed, so check shell controls by eye at iPad sizes, not just spill numbers. On touch, keep controls looking like the desktop ones (the toggle stays an edge-hung circle); do not move them into their own row.
 
 Related: [[project-branch-and-release-state]], [[japanese-study-space]], [[code-study-space]].
+
+- 2026-10-25: design turn 30 (frames 30a–30t) is in ~/Downloads/design_handoff_kurenaios_ipad_pencil. 6.1 ink engine + 6.2 Handwritten tab RELEASED 2026-10-25 (052b27c, sw kos-ink-1, https://f47cbd39.kurenai-os.pages.dev), built in its own worktree /Users/fj/Developer/KurenaiOS-ink (server "kurenai-ink", port 8132), Ink invariants are 132–136 (design said 130–134); Creatives moved to 142–144; Mind holds 137–141. smoke100. Next: 30e side by side + Clip to page, 30b floating palette + ruler, 30p sync (kos_ink table) + 30s settings, export; then 30f answer pad, 30h PDF viewer.
+- The Metapen was cancelled; an Apple Pencil (USB-C or Pro, unknown) arrives 2026-10-26.
+- Testing in the built-in browser: the service worker serves stale scripts, so unregister it and clear caches before each reload.
