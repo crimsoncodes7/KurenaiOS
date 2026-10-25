@@ -872,6 +872,13 @@
       var wrap = KOS.ui.scroller(track, {
         className: "k-pace-ribbon-wrap",
         label: "The term, week by week",
+        /* picking a week redraws the page: the ribbon stays where it was
+           scrolled, and a first visit opens on the week shown */
+        keep: "pace.ribbon",
+        reveal: function (node) {
+          var on = node.querySelector("[aria-current='true']");
+          return on ? on.offsetLeft - node.offsetLeft - (node.clientWidth - on.offsetWidth) / 2 : null;
+        },
         prevLabel: "Earlier weeks", nextLabel: "Later weeks"
       });
       wrap.setAttribute("data-ui", (wrap.getAttribute("data-ui") || "") + " pace.ribbon-wrap");
@@ -1180,16 +1187,16 @@
       var scroll = KOS.ui.scroller(track, {
         className: "k-pace-braid-wrap",
         label: "Branch diagram of the term",
-        prevLabel: "Earlier weeks", nextLabel: "Later weeks"
+        prevLabel: "Earlier weeks", nextLabel: "Later weeks",
+        /* open on the week we are in, not on September; a subject toggle
+           keeps where it was scrolled */
+        keep: "pace.braid",
+        reveal: function (node) {
+          return todayWeek && node.scrollWidth > node.clientWidth ? parts.x(todayWeek.wb) - node.clientWidth / 2 : null;
+        }
       });
       scroll.setAttribute("data-ui", (scroll.getAttribute("data-ui") || "") + " pace.braid-wrap");
       card.appendChild(el("div", { class: "k-pace-braid-frame" }, [el("div", { class: "k-pace-braid-keycol" }, [parts.keys]), scroll]));
-      /* open on the week we are in, not on September */
-      if (todayWeek) {
-        requestAnimationFrame(function () {
-          if (track.scrollWidth > track.clientWidth) track.scrollLeft = Math.max(0, parts.x(todayWeek.wb) - track.clientWidth / 2);
-        });
-      }
 
       /* The table is not a caption. It is the keyboard and screen-reader
          route through the same arcs, one row per plan row (review B: the

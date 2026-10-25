@@ -257,7 +257,7 @@ async function main() {
     if (menus().length > before.menus) eff.menu = true;
     const sp = uniq(diffPaths(before.st.data, after.data));
     if (sp.length) eff.state = sp;
-    const up = uniq(diffPaths(before.st.ui, after.ui)).filter((p) => p !== "view" && !/^lastView/.test(p));
+    const up = uniq(diffPaths(before.st.ui, after.ui)).filter((p) => p !== "view" && !/^lastProd/.test(p) && !/^lastView/.test(p));   /* navigation bookkeeping: KOS.show writes them */
     if (up.length) eff.ui = up;
     const md = mediaDiff(before.media, media);
     if (md.length) eff.media = md;

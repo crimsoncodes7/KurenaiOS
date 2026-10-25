@@ -136,7 +136,13 @@ step("C · publishing", async () => {
   await p((cb) => K.push.publish(false, cb));
   eq(table.outlooks.length, 2, "a change publishes");
   K.push.beat();
-  eq(table.beats, 1, "presence beats while open");
+  eq(table.beats, 0, "a page left open but untouched is not presence");
+  app.window.document.dispatchEvent(new app.window.Event("pointerdown"));
+  K.push.beat();
+  eq(table.beats, 0, "nor is one touched in a window without focus");
+  app.window.document.hasFocus = () => true;
+  K.push.beat();
+  eq(table.beats, 1, "presence beats while in use");
 });
 
 let sch;
@@ -170,6 +176,9 @@ step("E · the runner's logic and crypto", async () => {
   const items = [{ id: "a", at: now - 60000 }, { id: "b", at: now + 60000 }, { id: "c", at: now - 3600000 }, { id: "d", at: now - 120000 }];
   eq(L.dueItems(items, new Set(["d"]), now).map((x) => x.id), ["a"], "due, not stale, not sent");
   eq([L.present(new Date(now - 60000).toISOString(), now), L.present(new Date(now - 600000).toISOString(), now), L.present(null, now)], [true, false, false], "presence");
+  /* a device in front holds everything but a test ("Send a test") */
+  const its = [{ id: "a", kind: "calendar" }, { id: "test:1", kind: "test" }];
+  eq([L.sendable(its, true).map((x) => x.id), L.sendable(its, false).length], [["test:1"], 2], "the hold lets a test through");
   const S = [{ id: "m", prompt: "x", time: "07:00", days: [4], enabled: true }, { id: "n", prompt: "y", time: "09:00", days: [4], enabled: true }];
   eq(L.dueSchedules(S, new Set(), now, "Europe/London").map((x) => [x.s.id, x.day]), [["m", "2026-10-22"]], "07:00 London is due at 08:02 London");
   eq(L.dueSchedules(S, new Set(["m|2026-10-22"]), now, "Europe/London").length, 0, "once a local day");

@@ -20,7 +20,7 @@
    VAPID_PRIVATE_KEY, VAPID_SUBJECT, the provider keys. */
 import { json, serviceRest } from "../_shared/cors.ts";
 import { send, type Sub, type Vapid } from "./webpush.ts";
-import { dueItems, dueSchedules, present, pushMessage, runPrompt, type Item, type Schedule } from "./logic.ts";
+import { dueItems, dueSchedules, present, pushMessage, runPrompt, sendable, type Item, type Schedule } from "./logic.ts";
 import { answer } from "./model.ts";
 
 const RUNS_PER_TICK = 3;
@@ -88,12 +88,12 @@ Deno.serve(async (req) => {
     try { subs = await rows<Sub>(`kos_push_subs?user_id=eq.${uid}&select=endpoint,p256dh,auth`); } catch { subs = []; }
 
     /* 1. the outlook's due items */
-    if (!hold && vapid && subs.length && Array.isArray(d.items)) {
+    if (vapid && subs.length && Array.isArray(d.items)) {
       const since = new Date(now - 2 * 864e5).toISOString();
       let sent = new Set<string>();
       try { sent = new Set((await rows<{ item_id: string }>(`kos_push_sent?user_id=eq.${uid}&sent_at=gte.${enc(since)}&select=item_id`)).map((r) => r.item_id)); }
       catch { continue; }
-      const due = dueItems(d.items, sent, now);
+      const due = sendable(dueItems(d.items, sent, now), hold);
       const done: string[] = [];
       for (const it of due) {
         if (await pushAll(uid, subs, pushMessage(it), vapid, it.id)) out.pushed++;

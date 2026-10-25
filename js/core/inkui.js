@@ -769,8 +769,13 @@
       });
       undoB.disabled = !dk.canUndo();
       redoB.disabled = !dk.canRedo();
+      /* the colour and paper groups are rebuilt: emptied, the bar's scroll
+         width shrinks and the browser clamps it back to the start, so a
+         tap on Undo at the far end jumped the bar to Pen. Hold it. */
+      var left = bar.scrollLeft;
       paintColour();
       paintPaper();
+      bar.scrollLeft = left;
     }
     dk.onChange(paint);
 
@@ -778,7 +783,7 @@
        folded in landscape) */
     function measure() {
       var wide = (bar.clientWidth || 0) >= 900;
-      if (wide !== KOS.ui.hasState(bar, "wide")) { KOS.ui.state(bar, "wide", wide); paintColour(); }
+      if (wide !== KOS.ui.hasState(bar, "wide")) { var left = bar.scrollLeft; KOS.ui.state(bar, "wide", wide); paintColour(); bar.scrollLeft = left; }
     }
     if (typeof window.ResizeObserver === "function") {
       try { new window.ResizeObserver(measure).observe(bar); } catch (e) { /* no layout */ }

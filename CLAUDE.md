@@ -17,7 +17,15 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the iPad fixes on every view and the Handwritten tab's
+- Latest release: polish (sw `kos-polish-1`, 25 October 2026,
+  `feat/polish-1025`): strips redrawn by their page keep their scroll
+  (`KOS.ui.scroller({keep, reveal})`; the term ribbon, the braid, the
+  edge-marked tabs; the ink bar holds its own), Home's Today drops a
+  timed event once it is over, Study hours' daily goal follows a
+  repeating study-hours goal (`KOS.homeDailyGoalMins`), Productivity
+  opens on its last page (`state.ui.lastProd`), and closed-app pushes
+  were fixed (invariant 131: presence means in use; Send a test).
+  Before it the iPad fixes on every view and the Handwritten tab's
   Side by side with Clip to page (sw `kos-ink-2`, `8a092b7`) — immutable
   deployment https://caffcf65.kurenai-os.pages.dev (25 October 2026;
   `feat/ipad-polish`: design 30e, smoke100 G, smoke43's per-visit drawer).
@@ -73,7 +81,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-ink-2`
+- Service-worker version: `kos-polish-1`
 - Required smoke gate: 100 / 100 suites (`""` and 2–100; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
@@ -1445,12 +1453,16 @@ source comments and audit notes refer to it.
     chat). `KOS.push` publishes it to `kos_outlook` when its hash changes
     (at most every 5 minutes, at least every 6 hours) with the schedules
     and model route only when the server owns runs, beats presence
-    (`seen_at`) every 2 minutes while a page is visible, and pulls
-    `kos_runs`. The `runner` Edge Function (pg_cron every 5 minutes,
+    (`seen_at`) every 2 minutes only while a page is IN USE (visible,
+    focused and touched in the last 2.5 minutes — a window merely left
+    open held every push for days until 25 October 2026), heals this
+    device's subscription at start (one the browser dropped clears the
+    switch; a live one is saved again), and pulls `kos_runs`. "Send a
+    test" publishes one item of kind `test` due now. The `runner` Edge Function (pg_cron every 5 minutes,
     `CRON_SECRET` compared in constant time, `verify_jwt = false`) reads
     only `kos_outlook`, `kos_push_subs`, `kos_push_sent` and `kos_runs`,
     never `kos_state`, media, files or a credential: it holds every push
-    while a device was seen in the last 5 minutes, drops an item 30
+    but a `test` while a device was seen in the last 5 minutes, drops an item 30
     minutes late, sends each item once (`kos_push_sent`) as an RFC 8291
     payload signed with VAPID (WebCrypto, no library; the private key is a
     function secret), deletes a subscription a push service calls gone,

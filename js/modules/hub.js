@@ -724,6 +724,21 @@
        5  the personal plan's carried rows, then where the reading stopped,
           then a clear board — each with the 2-hour daily goal. */
   var FOCUS_LEAD_MIN = 30, FOCUS_GOAL_MIN = 120;
+  /* the daily goal follows a repeating "Study for a number of hours" goal
+     when there is one (21 hours a week → 3 hours a day; a month's goal by
+     that month's days), to one decimal place of an hour; a goal for the
+     whole of study wins, else the subjects' goals add up. None: 2 hours. */
+  function dailyGoalMins() {
+    var gs = KOS.goals ? KOS.goals.all().filter(function (g) {
+      return g.type === "study-hours" && !g.archived && g.status === "active" && (g.repeat === "week" || g.repeat === "month") && g.target > 0;
+    }) : [];
+    if (!gs.length) return FOCUS_GOAL_MIN;
+    var whole = gs.filter(function (g) { return !g.links || !g.links.subject; });
+    var now = new Date(), monthDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    var perDay = (whole.length ? whole.slice(0, 1) : gs).reduce(function (n, g) { return n + g.target / (g.repeat === "week" ? 7 : monthDays); }, 0);
+    return Math.max(6, Math.round(Math.round(perDay * 10) / 10 * 60));
+  }
+  KOS.homeDailyGoalMins = dailyGoalMins;
   function hmMins(t) { var p = String(t || "").split(":"); return +p[0] * 60 + +p[1]; }
   function minsText(m) {
     m = Math.max(0, Math.round(m));
@@ -846,7 +861,7 @@
 
     /* 4 — the next exam of any kind, further out */
     var later = exams.filter(function (d) { return d.days <= 42; })[0];
-    if (later) return examPlan(later, FOCUS_GOAL_MIN);
+    if (later) return examPlan(later, dailyGoalMins());
 
     /* 5 — the personal plan, the reading, or a clear board */
     var rest = null;
@@ -867,7 +882,7 @@
         subject: sid, ref: last, go: (function (s2, r2) { return function () { KOS.show("ref", { subject: s2, ref: r2 }); }; })(sid, last) };
     }
     if (!rest) rest = { kicker: "Clear", label: "Nothing is waiting", why: "No study block, exam or assignment inside a week.", go: function () { KOS.show("focus"); } };
-    return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(FOCUS_GOAL_MIN) });
+    return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(dailyGoalMins()) });
   }
   KOS.homeFocusPlan = focusPlan;
 
@@ -1159,7 +1174,15 @@
     /* Today and Upcoming — one row; a pair with nothing in it collapses to
        one quiet line, and a lone populated card takes the full width */
     var todayItems = [];
-    (KOS.calendar.eventsOn ? KOS.calendar.eventsOn(today) : []).forEach(function (e) {
+    /* a timed event leaves the card once it is over: its end time, else its
+       start plus its length, else its start (all-day events stay the day) */
+    var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    (KOS.calendar.eventsOn ? KOS.calendar.eventsOn(today) : []).filter(function (e) {
+      if (!e.time) return true;
+      var end = e.endTime ? hmMins(e.endTime) : hmMins(e.time) + (e.durationMins || 0);
+      if (e.endTime && end < hmMins(e.time)) return true;   /* runs past midnight */
+      return end > nowMin;
+    }).forEach(function (e) {
       todayItems.push({ title: e.title, sub: (e.type ? e.type.charAt(0).toUpperCase() + e.type.slice(1) : "") + (e.subject ? " · " + SUBJ_SHORT[e.subject] : "") + (e.ref ? " · " + e.ref : ""),
         hue: SUBJ_HUE[e.subject] || "var(--muted)", when: e.time ? (e.time >= "18:00" ? "Tonight" : e.time) : "Today",
         now: e.type === "exam" || e.type === "deadline", go: function () { KOS.show("calendar"); } });
@@ -1314,14 +1337,15 @@
     var lastWeekH = 0, daysIn = weekIsos.filter(function (iso) { return iso <= today; }).length;
     for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += hoursOn(isoOf(ld)); }
     var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && weekIsos.indexOf(s.date) !== -1; }).length;
-    var peak = Math.max(2, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
+    var goalH = dailyGoalMins() / 60, goalT = fmtH(goalH) + "h";
+    var peak = Math.max(goalH, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
     /* every bar and the goal line are measured in ONE track per column
        (a bar is h% of it, the goal 2/peak of it), and the goal's label has
        its own column at the end, clear of the bars (after release: the
        label sat on Sunday's bar and the line missed the bars' scale) */
-    var goalPct = Math.round(100 * 2 / peak);
+    var goalPct = Math.round(100 * goalH / peak);
     var chart = el("div", { class: "k-hours-chart", "data-ui": "home.week", role: "img",
-      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") + ". Goal 2 hours a day." },
+      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") + ". Goal " + fmtH(goalH) + " hour" + (goalH === 1 ? "" : "s") + " a day." },
       days.map(function (d, i) {
         var future = d.iso > today, isToday = d.iso === today;
         var pct = Math.round(100 * d.h / peak);
@@ -1336,7 +1360,7 @@
         ]);
       }).concat([
         el("div", { class: "k-hours-day k-hours-goalcol", "aria-hidden": "true" }, [
-          el("div", { class: "k-hours-track" }, [el("span", { class: "k-hours-goal-l", style: "--goal-y: " + goalPct + "%", text: "goal 2h" })]),
+          el("div", { class: "k-hours-track" }, [el("span", { class: "k-hours-goal-l", style: "--goal-y: " + goalPct + "%", text: "goal " + goalT })]),
           el("span", { class: "k-hours-l", text: "\u00a0" })
         ])
       ]));

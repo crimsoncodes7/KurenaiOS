@@ -292,6 +292,12 @@
       runs.addEventListener("change", function () { P.setServerRuns(runs.checked); paintClosed(); });
       closed.appendChild(el("label", { class: "k-nt-switch-row" }, [el("span", { text: "Scheduled messages from the server" }), runs]));
       if (c.on && !why) {
+        closed.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "notify.closed-test", text: "Send a test", onclick: function () {
+          P.test(function (err, r) {
+            if (err || !r || !r.published) { KOS.ui.toast("The test couldn't be sent — " + (err ? err.message : "sync is off."), true); return; }
+            KOS.ui.toast("A test is on its way to every device switched on here. It arrives within five minutes.");
+          });
+        } }));
         closed.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "notify.closed-off", text: "Turn off on every device…", onclick: function () {
           KOS.ui.confirm({ title: "Turn off closed-app notifications?", confirm: "Turn off",
             body: "The server stops sending them to every device, and scheduled messages run in the app again." },

@@ -19,6 +19,12 @@ export function dueItems(items: Item[], sent: Set<string>, now: number): Item[] 
     it.at <= now && now - it.at <= STALE_MS && !sent.has(it.id));
 }
 
+/* what may go out this tick: everything due, or while a device is in front
+   of the app only a test ("Send a test" asks for it there) */
+export function sendable(items: Item[], hold: boolean): Item[] {
+  return hold ? items.filter((it) => it.kind === "test") : items;
+}
+
 /* is any device in front of the app? */
 export function present(seenAt: string | null | undefined, now: number): boolean {
   if (!seenAt) return false;
