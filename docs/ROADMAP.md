@@ -1271,6 +1271,30 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
   the yearly "what I believe".
 - **Invariants it adds:** 137–141 (plan §14).
 
+### 5.10 Daily Review and Routines ◆ (asked for 25 October 2026)
+
+> **Status (25 October 2026): plan revision 1, for approval**
+> ([routines-plan.md](routines-plan.md), decisions A–J in §16). Design
+> prompt 17 (frames 33a onwards) and the art
+> ([routines-art.md](routines-art.md), 18 images) are written.
+
+- **What:**
+  - Habits becomes **Routines**: ordered steps, windows, days and
+    templates (Morning, Evening Prep, About to Study). A habit is a
+    one-step routine, and its history and streaks move across.
+  - The **Daily Review**: Morning, Afternoon and Evening check-ins over
+    the whole day, with one on screen at a time, missed ones folding
+    into the next, and nothing punitive.
+  - Words from a template, or Kurenai's when online.
+  - Reminders is unchanged.
+- **The joins:** one pure day model (`KOS.today`). "Where does it show?"
+  becomes derived: the assignment and event checkboxes go, Pacing stops
+  copying rows into reminders. Pinned goals, linked reminders,
+  assignment work-on days and the pre-flight before Focus are added.
+- **Releases:** R1 Routines, R2 the day model and clean-up, R3 the
+  reviews, R4 Kurenai and the joins (smoke100–103).
+- **Invariants it adds:** 142–149 (plan §14).
+
 ---
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
