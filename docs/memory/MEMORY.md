@@ -19,4 +19,4 @@
 - [iPad and Pencil](ipad-phase.md) — 6.0 + 6.1–6.2 RELEASED (kos-ink-1); kos-ink-2 = iPad fixes + 30e side by side RELEASED; iPad must match desktop
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
 - [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 (Fuji); Ren + Kurenai redesign on the Mind art sheet; library voices refused on free API; build waits for go-ahead
-- [Daily Review and Routines](routines-review.md) — roadmap 5.10; plan rev 1 awaiting decisions A–J; replaces Habits; branch feat/routines-plan
+- [Daily Review and Routines](routines-review.md) — roadmap 5.10; plan rev 2 approved 2026-10-25; replaces Habits; branch feat/routines-plan

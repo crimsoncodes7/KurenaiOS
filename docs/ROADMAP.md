@@ -1273,7 +1273,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.10 Daily Review and Routines ◆ (asked for 25 October 2026)
 
-> **Status (25 October 2026): plan revision 1, for approval**
+> **Status (25 October 2026): plan revision 2, APPROVED**
 > ([routines-plan.md](routines-plan.md), decisions A–J in §16). Design
 > prompt 17 (frames 33a onwards) and the art
 > ([routines-art.md](routines-art.md), 18 images) are written.

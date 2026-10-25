@@ -1,4 +1,4 @@
-# Daily Review and Routines (plan, revision 1, for approval)
+# Daily Review and Routines (plan, revision 2, approved)
 
 Roadmap 5.10, asked for on 25 October 2026. It replaces the **Habits**
 page with **Routines** and adds the **Daily Review**: three check-ins a
@@ -9,7 +9,11 @@ Exams, Pacing, Reminders, Calendar, Goals and Focus feed each other.
 It follows the usual shape: this plan, then Claude Design
 ([prompt 17](design-prompts.md), frames 33a onwards), then four releases
 (§13). The art is asked for in [routines-art.md](routines-art.md).
-Decisions waiting on you are in §16.
+**Revision 2 (25 October 2026)** records your answers to decisions A–J
+(§16). They change §4 and §6.2 (an Evening Prep step ticked in the
+morning counts for the night before; steps checked in the morning),
+§6.2 (mood and energy), §8 (Kurenai's words on by default, written
+ahead by the server) and §10.6 (no reviews-done goal).
 
 ## Contents
 
@@ -174,6 +178,7 @@ state.routines = {
     kind: "morning" | "evening" | "study" | "custom" | "habit",
     mark: "朝",               // one glyph; the art cover is chosen by kind (§ art)
     steps: [{ id: "s_…", text: "Shower", mins: 10, optional: false,
+              checkMorning: false,   // asked the next morning (§4.2)
               note: "", link: null | {kind: "view"|"url"|"focus", to} }],
     days: [1,2,3,4,5],        // 0 = Sunday; empty = every day
     window: { from: "06:45", to: "07:45" } | null,
@@ -218,6 +223,22 @@ state.routines = {
   as its "minimum", for example Read for 10 minutes. On a bad day,
   ticking only that step is a **kept** day, drawn differently, and it
   counts for the streak. It is off unless you set it.
+- **Late ticks count for the night before (decision F).** You fall
+  asleep having done most of Evening Prep without ticking it, or a step
+  can only be known afterwards. So until the Morning Review closes (or
+  noon, whichever is first), last night's evening routine stays open:
+  - a step ticked then counts for **last night's** routine day, and if
+    it completes the routine, last night is kept and pays once
+    (invariant 143), into today's ledger, because that is when you
+    ticked it;
+  - the log keeps each tick's real time, so history can show "confirmed
+    in the morning" with no extra field.
+- **Steps checked in the morning** (`checkMorning`): a step such as
+  "Asleep by 00:00" cannot be ticked at night. It is asked in the
+  Morning Review's first step as **Yes · No**, written into last night's
+  log, and never shown in the evening checklist. "No" leaves the step
+  unticked, so it still counts against the routine only if it is
+  required. It is optional by default.
 
 ### 4.3 Schedule and window
 
@@ -284,6 +305,7 @@ correct.
 6. Put devices away · 1
 7. Read a light novel · 20 (optional; link: the Books vault, "currently reading")
 8. Bedtime plan · 1 (the time you mean to sleep)
+9. Asleep by 00:00 · checked the next morning (`checkMorning`, optional)
 
 **About to Study** (始, kind `study`, no schedule, anchor `focus`)
 1. Select the task · picked from `KOS.today.next` and the open assignments
@@ -372,7 +394,7 @@ state.review = {
   },
   weekendDays: [0, 6],            // which days use the weekend times
   holidays: "auto",               // school holidays (Pacing's term weeks) use weekend times
-  words: "template" | "kurenai",  // the default words (§8)
+  words: "kurenai" | "template",  // the default words (§8; Kurenai by default, decision D)
   autoOpen: true,                 // open the review when the app opens
   routines: { morning: "r_…", evening: "r_…" },   // which routine each review runs
   days: { "2026-10-25": { … } }   // §6.4, kept 60 days
@@ -394,9 +416,9 @@ with nothing to show is left out (invariant 77: no "0 overdue").
    - tomorrow's first task;
    - each Evening Prep step ticked ("Bag packed ✓, Clothes ready ✓"),
      read from that routine's log;
-   - any step left, offered as "Do it now" (it ticks into yesterday's
-     log only if before the day boundary, otherwise into a one-off
-     reminder; decision F).
+   - any step left unticked, offered as **"Did it last night"** (it ticks
+     into last night's log, §4.2, decision F);
+   - each step checked in the morning ("Asleep by 00:00?"), as Yes · No.
 
    Shown only if an Evening Review or Evening Prep happened.
 2. **Morning Routine.** The routine's checklist inline, with Start
@@ -479,7 +501,10 @@ I prepare for tomorrow?"**
 5. **Wind down.**
    - an optional one-line note on the day (private, kept in the review
      day, never sent);
-   - an optional mood or energy tap (1–5; decision G);
+   - optional **mood** and **energy** taps, 1–5 each (decision G). They
+     stay in the review day (synced, private), are never in Kurenai's
+     payload, and are read back only as a week's averages in Reports and
+     by the Afternoon Review's suggestion (§17.10);
    - **Good night**, which ends the review and, if you allow it, holds
      device alerts until the morning review (`notifyQuiet` for tonight
      only).
@@ -501,7 +526,7 @@ Only its own state, in `state.review.days[routineDay]`:
                three: [ {kind, id} ],          // refs, never copies
                first: {kind, id, action: "Draft the NEA analysis intro"} },
   afternoon: { state, seenAt, doneAt },
-  evening:   { state, seenAt, doneAt, note, mood,
+  evening:   { state, seenAt, doneAt, note, mood, energy,   // 1–5 each, optional
                tomorrow: { first: {kind, id, action} },
                triaged: { "<kind>:<id>": "tomorrow"|"week"|"someday"|"done"|"leave" } },
   words:     { morning: {text, by: "kurenai", at}, … }    // §8, optional
@@ -600,7 +625,8 @@ Kurenai's one-liner in the header.
     reminder about the mock can wait."
 
   These always render first and instantly, with no network.
-- **✦ Kurenai (optional, `words: "kurenai"` or per review):**
+- **✦ Kurenai (the default, decision D; `words: "template"` or a review's
+  switch turns her off):**
   - one `KOS.ai.chat("generation")` request carrying
     `KOS.review.payload(slot)`. It holds totals, times, counts and the
     TITLES of today's items. It never holds notes, card text, the
@@ -614,16 +640,20 @@ Kurenai's one-liner in the header.
     "Kurenai's words aren't available right now";
   - the reply is cached in `days[d].words[slot]`, so reopening doesn't
     ask again.
-- **Written ahead:**
-  - With the app open at the slot's time, the words are requested then,
-    so they are ready when the review opens.
-  - With the server owning scheduled runs
-    (`state.notifyCloud.serverRuns`, invariant 71b), the runner can
-    write them from the published brief and send them in the push. This
-    reuses the scheduled-message route (`aischedule`'s
-    `applyServerRun`), so a closed-app notification can carry Kurenai's
-    line. It runs only when you turn it on (decision D); otherwise the
-    push carries the template line.
+- **Written ahead, by the server (decision D):**
+  - With closed-app delivery on (`state.notifyCloud.on`, invariant 131),
+    the device publishes each review's payload and the model route with
+    the outlook. At the slot's time the `runner` claims the review in
+    `kos_runs` (as it does a schedule), makes the one request, and sends
+    the push with Kurenai's line in it. The device takes the reply in
+    through `KOS.push.pull` (as `applyServerRun` does), so the review
+    opens with her words ready and never asks twice.
+  - About three metered requests a day, made whether or not you open
+    the app. A day with the review slot turned off makes none.
+  - An Ollama route cannot run on the server: those reviews' words are
+    written on the device when it opens.
+  - Without closed-app delivery, the open app asks at the slot's time,
+    and otherwise when the review opens.
 - **Kurenai never decides anything.** Her words describe and suggest;
   picks, triage and ticks are yours.
 
@@ -735,8 +765,6 @@ record, never asked for in a form.**
   the log, repeat by week or month):
   - **`routine-days`**: keep a routine N days a week;
   - **`routine-streak`**: replaces `habit-streak` (§5);
-  - **`reviews-done`**: do N evening reviews a week. It counts, never
-    shames; display only, so it pays nothing (decision E).
 - Goal notices (`goal` kind) about tomorrow fold into the Evening
   Review's Tomorrow step when it runs that night, so the notice isn't
   sent twice.
@@ -866,6 +894,7 @@ Four releases, each whole, each on the 99-suite gate plus its own suite.
   - migration (ids, days, frozen `todo.habits`, two-device idempotence);
   - the snapshot (editing steps never changes a past day);
   - streaks (scheduled days, rest days, today);
+  - late ticks into last night's routine and morning-checked steps;
   - pay once and the cap;
   - render purity;
   - the merge of the log per key and per step.
@@ -896,8 +925,8 @@ Four releases, each whole, each on the 99-suite gate plus its own suite.
   - zero Governor traffic from reviews.
 
 **R4 · Kurenai and the joins.** smoke103.
-- ✦ Kurenai words with "What is sent"; written ahead (open app, and the
-  runner when on); Reports' `f.routines` and `f.reviews`; the
+- ✦ Kurenai words with "What is sent"; written ahead by the runner
+  (claimed in `kos_runs`) or the open app; mood and energy in Reports; Reports' `f.routines` and `f.reviews`; the
   Assistant's review tools; Exams' and Goals' folds; Focus's "Next in
   today's three".
 - **Held by smoke103:**
@@ -941,9 +970,12 @@ Numbered after Mind's 137–141.
     over Focus, a dialog, the Exam Room or a deep link.
   - Skip, Later and Esc never penalise.
 - **146. TEMPLATE FIRST.**
-  - A review's words are the template's, rendered at once.
+  - A review's template words render at once; Kurenai's (the default)
+    replace them when they arrive.
   - ✦ Kurenai is one request with `KOS.review.payload` (no notes, card
-    text, amounts or chat), printed exactly by "What is sent".
+    text, amounts, mood, energy or chat), printed exactly by "What is
+    sent". Written ahead by the runner, it is claimed in `kos_runs` and
+    lands once (invariant 131).
   - Any failure keeps the template.
   - Kurenai never picks, triages or ticks.
 - **147. WHERE IT SHOWS IS DERIVED.**
@@ -954,6 +986,10 @@ Numbered after Mind's 137–141.
 - **148. THE ROUTINE DAY.**
   - Routines and reviews use the routine day (`dayStart`, default
     04:00).
+  - Last night's evening routine stays open until the Morning Review
+    closes or noon: a late tick, or a step checked in the morning,
+    counts for that night (decision F), and pays once, into the day it
+    was ticked.
   - The session ledger, streaks and the Governor keep the calendar day
     (invariant 4).
 - **149. TODAY IS A READ.** `KOS.today.build` is pure: it calls the
@@ -989,33 +1025,20 @@ Numbered after Mind's 137–141.
   yesterday's routine day, while its activity counts for today's HP.
   This is said once in Help & Guide.
 
-## 16. Decisions for you
+## 16. Decisions (approved 25 October 2026)
 
-- **A. The name.** "Routines" for the page and the strip, and "Daily
-  Review" for the check-ins. (Alternatives: "Rhythm", "Day".)
-- **B. Rewards.** The table in §11: one-step equals a habit today
-  (5/1/+2); multi-step routines up to 25 XP, 2 gold, +4 HP; a cap of 8 a
-  day; steps and reviews pay nothing.
-- **C. Rest days.** One planned rest day per routine in any 7 days
-  keeps the streak. More generous, or none?
-- **D. Kurenai's words.** Off by default, with the template shown? Or
-  on by default with the template as fallback? And should the server
-  write them ahead for closed-app notifications (one metered request
-  per review)?
-- **E. Reviews and goals.** Is a "reviews-done" goal type wanted at
-  all, or is it a quiet form of pressure?
-- **F. "Do it now" after the day boundary.** Does an Evening Prep step
-  ticked the next morning count for last night (more forgiving) or
-  become a one-off reminder (more honest)?
-- **G. Mood and energy.** Include the optional 1–5 tap in the Evening
-  Review, used later for Focus suggestions? Or leave it out (privacy,
-  less to do)?
-- **H. Holidays.** Use weekend times automatically in weeks with no
-  class rows in Pacing?
-- **I. The pre-flight.** On by default before every Focus, or only when
-  started from Home or a review?
-- **J. The countdown rule.** `isMajor` as in §10.1 (coursework/project,
-  High, 3 h+ or within 3 days), plus Pin/Unpin.
+| | Decision | Your answer |
+|---|---|---|
+| A | The name | **Routines** (the page, replacing Habits) and **Daily Review** (the check-ins) |
+| B | Rewards | As §11: one-step pays a habit's 5 XP, 1 gold, +2 HP; multi-step scales to 25 XP, 2 gold, +4 HP; once per routine day; at most 8 a day; steps and reviews pay nothing |
+| C | Rest days | One planned rest day per routine in any 7 days keeps the streak |
+| D | Kurenai's words | **On by default**, the template rendered first and kept on any failure; **written ahead by the server** when closed-app delivery is on, so notifications carry her line (§8) |
+| E | A reviews-done goal | **Left out**: reviews stay free of pressure |
+| F | A step ticked in the morning | **Counts for the night before** ("I fell asleep but I did these"), until the Morning Review closes or noon; and steps such as "Asleep by 00:00" are **checked in the morning** (§4.2) |
+| G | Mood and energy | **Both**, optional 1–5 taps in the Evening Review; private, never sent to Kurenai (§6.2) |
+| H | Holidays | Weekend times automatically in weeks with no class rows in Pacing |
+| I | The pre-flight | Before **every** Focus, with "Just start" and "Don't ask before Focus" |
+| J | Countdowns | `isMajor` (coursework/NEA/project, High, 3 h+ or due within 3 days) plus Pin/Unpin; anything already marked major stays pinned |
 
 ## 17. Suggestions beyond the brief
 
@@ -1066,7 +1089,7 @@ The ones I would build first:
 9. **Home screen on a phone.** The PWA's shortcuts (manifest
    `shortcuts`) for "Morning routine", "Evening review" and "Start
    Focus". Two taps from the phone's home screen.
-10. **Focus suggestions from energy.** If G is approved, the Afternoon
+10. **Focus suggestions from energy** (in R4, decision G). The Afternoon
     Review suggests lighter work (cards, reading) on low-energy days and
     harder work (past papers) on high ones.
 11. **Week review on Sunday evening.** The Sunday Evening Review gains
