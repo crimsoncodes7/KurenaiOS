@@ -19,7 +19,7 @@ release" keeps each one's deployment).
 | Item | Current value |
 |---|---|
 | Production | https://kurenai-os.pages.dev |
-| Latest release | Files R1–R4, airing on a closed app, CI-verified Rider evidence, habits several times a day (sw `kos-files-1`), immutable DEPLOY_URL, 26 October 2026 |
+| Latest release | Files R1–R4, airing on a closed app, CI-verified Rider evidence, habits several times a day (sw `kos-files-1`), immutable https://445e2aae.kurenai-os.pages.dev, 26 October 2026 |
 | Service-worker cache | `kos-files-1` |
 | Smoke gate | 106 / 106 suites (`""` and 2–106; 80–83 are Japanese's, 99 is Code's SQL runner, 100 and 105 the ink engine and the iPad build, 101–104 Routines, 106 Files), plus `tools/cs_diff.mjs`, `sql_diff.mjs`, `ja_valid_check.mjs`, `fsrs_check.mjs`, `validator_check.mjs` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |

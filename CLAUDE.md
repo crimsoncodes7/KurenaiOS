@@ -17,7 +17,12 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the rest of the iPad build and Files R0 (sw `kos-pen-1`,
+- Latest release: Files R1–R4, airing on a closed app, CI-verified Rider
+  evidence and habits several times a day (sw `kos-files-1`, 26 October
+  2026, `feat/files`) — immutable deployment
+  https://445e2aae.kurenai-os.pages.dev, with the `runner` Edge Function
+  version 7 and `github-token` version 4 (invariants 36, 37, 39, 109, 125,
+  131, 142, 150–153; smoke106). Before it the rest of the iPad build and Files R0 (sw `kos-pen-1`,
   26 October 2026, `feat/ipad-files`) — immutable deployment
   https://f73adfd3.kurenai-os.pages.dev: the floating palette and ruler,
   paste and export, ink sync (`kos_ink`), Pen and ink, answer pads,

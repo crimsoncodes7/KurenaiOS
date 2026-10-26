@@ -18,7 +18,7 @@ or at the production site:
 As of **26 October 2026** production runs **Files** — one file layer for the
 whole app — with airing and release-day pushes to a closed app, CI-verified
 Rider evidence and habits several times a day (service worker `kos-files-1`,
-immutable deployment DEPLOY_URL). `main` is the line; every release is
+immutable deployment https://445e2aae.kurenai-os.pages.dev). `main` is the line; every release is
 fast-forwarded to it from its feature branch.
 
 - Foundations: Category 7 (responsive, accessible UI, August 2026) and the
