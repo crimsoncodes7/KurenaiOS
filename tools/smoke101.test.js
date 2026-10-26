@@ -33,6 +33,11 @@
      I · GOALS AND TOOLS (when on): routine-days and routine-streak read
          the log; habit-streak follows the habit into its routine; the
          Assistant lists, adds from a template, ticks with an undo.
+     J · HABITS' OWN SCHEDULES AND AUTO-TRACKING: every N days counts from
+         its start; an auto-tracked habit ticks itself once the day's own
+         record (read through the Goals engine) reaches its target — only
+         its subject counts — and pays once; a habit's tick by hand still
+         works; the gate drops a bad rule and keeps rules to habits.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -242,6 +247,35 @@ step("I · goals and tools", async () => {
   eq(R.stateOn(R.get("h:7"), R.routineDay()), "open", "undone");
   await new Promise((res) => made.undo.run(res));
   assert(!R.get(made.result.id), "the add undone");
+  eq(app.errors, [], "no errors");
+});
+
+step("J · habits' own schedules and auto-tracking", () => {
+  const run = R.add({ name: "Run", kind: "habit", steps: [{ text: "Run" }], every: 3, from: TODAY });
+  eq([0, 1, 2, 3, 6, -1, -3].map((n) => R.scheduledOn(run, day(n))), [true, false, false, true, true, false, false], "every three days from its start");
+  eq(R.update(run.id, { every: null }).every, undefined, "back to every day");
+  assert(R.scheduledOn(R.get(run.id), day(1)), "and every day it is");
+  R.remove(run.id);
+  eq(R.normalise({ name: "x", kind: "habit", steps: [{ text: "x" }], auto: { src: "nope", n: 3 } }).auto, undefined, "a bad rule is dropped");
+  eq(R.normalise({ name: "x", kind: "custom", steps: [{ text: "a" }, { text: "b" }], auto: { src: "study", n: 3 } }).auto, undefined, "only a habit ticks itself");
+  const h = R.add({ name: "Study CS", kind: "habit", steps: [{ text: "Study CS" }], auto: { src: "study", subject: "compsci", n: 30 } });
+  eq(R.autoText(h.auto), "30 min of study on Computer Science", "its words");
+  const n0 = routineSessions().length;
+  const focus = (sid, mins) => K.sessions.log({ type: "focus", subject: sid, ref: null, refs: [], dur: mins * 60, complete: true, ts: at(TODAY, "07:20") });
+  focus("compsci", 20); focus("maths", 40);
+  eq(R.autoSync(at(TODAY, "07:40")), 0, "20 minutes on CS (and 40 on Maths) is not 30 on CS");
+  let v = null; R.autoMeasure(h.auto, TODAY, (x) => { v = x; });
+  eq(v, 20, "the day so far, read as the Goals engine reads it");
+  focus("compsci", 15);
+  eq(R.autoSync(at(TODAY, "07:45")), 1, "35 minutes ticks it");
+  eq(R.stateOn(R.get(h.id), TODAY), "done", "kept");
+  assert(R.entry(h.id, TODAY).auto, "marked as ticked by itself");
+  eq(routineSessions().length, n0 + 1, "paid once");
+  eq(R.autoSync(at(TODAY, "07:50")), 0, "a second pass does nothing");
+  eq(routineSessions().length, n0 + 1, "and pays nothing");
+  const hand = R.add({ name: "Cards", kind: "habit", steps: [{ text: "Cards" }], auto: { src: "cards", n: 50 } });
+  eq(R.tick(hand.id, hand.steps[0].id, true, { now: at(TODAY, "07:55") }).state, "done", "a tick by hand still works");
+  R.remove(h.id); R.remove(hand.id);
   eq(app.errors, [], "no errors");
 });
 

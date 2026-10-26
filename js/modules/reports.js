@@ -838,6 +838,7 @@
       fo.persona ? personaChip(fo.persona) : null
     ].filter(Boolean));
   }
+  var PLAN_MAX = 6;
   function planRow(r) {
     var d = r.doneAt ? dayName(r.doneAt) : null;
     return el("li", { class: "k-rp-plan-row", "data-state": r.done ? "done" : "carried" }, [
@@ -854,9 +855,16 @@
     var meta = [pl.ticked + " of " + pl.planned + " personal rows"];
     if (tk && tk.reminders) meta.push(W.plural(tk.reminders, "reminder"));
     if (tk && tk.habits) meta.push(W.plural(tk.habits.length, "habit"));
+    /* the card stays the height of its row: ticked rows first, then what
+       carried, PLAN_MAX in all; the rest is one line, in full on the overview */
+    var rows = pl.rows.filter(function (r) { return r.done; }).concat(pl.rows.filter(function (r) { return !r.done; }));
+    var shown = rows.slice(0, PLAN_MAX), more = rows.slice(PLAN_MAX);
+    var moreCarried = more.filter(function (r) { return !r.done; }).length;
     return card("The plan", { go: function () { open(rep, "focus"); } }, [
       el("p", { class: "k-rp-card-sub", text: meta.join(" · ") }),
-      el("ul", { class: "k-rp-plan" }, pl.rows.map(planRow))
+      el("ul", { class: "k-rp-plan" }, shown.map(planRow).concat(more.length ? [el("li", { class: "k-rp-plan-more" }, [
+        el("button", { type: "button", class: "k-link", text: "+ " + more.length + " more" + (moreCarried === more.length ? " carried over" : ""), onclick: function () { open(rep, "focus"); } })
+      ])] : []))
     ]);
   }
   function unitText(c, m) {

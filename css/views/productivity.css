@@ -28,7 +28,9 @@
 .k-fx-wide { grid-column: 1 / -1; }
 .k-fx-form .k-input { background: var(--s3); }
 .k-fx-check { display: flex; align-items: center; gap: var(--sp-10); font-size: var(--fs-13); color: var(--text-2); cursor: pointer; }
-.k-fx-go { margin-block-start: var(--sp-4); }
+.k-fx-go { margin-block-start: var(--sp-4); flex-wrap: nowrap; --cluster-gap: var(--sp-12) var(--sp-14); }
+.k-fx-go > .k-fx-check { flex: 0 1 auto; min-inline-size: 0; }
+.k-fx-go > .k-btn { flex: 0 0 auto; }
 .k-fx-start { padding: var(--sp-12) var(--sp-26); font-size: var(--fs-15); }
 
 /* frames 16a/16b — the time-paid modes: the stopwatch's two settings,
@@ -489,6 +491,10 @@
 .k-ev--derived[data-state~="skipped"] .k-ev-t { color: var(--muted); text-decoration: line-through; }
 .k-cal-toggle { cursor: pointer; }
 .k-cal-toggle-t { flex: 1 1 auto; font-size: var(--fs-13); }
+.k-cal-show { inline-size: var(--menu-w-wide); }
+.k-cal-show .k-cal-toggle { padding-inline: var(--sp-12); }
+.k-cal-show .k-cal-toggle > .k-kanji { inline-size: var(--sp-16); text-align: center; }
+.k-cal-show .k-menu-heading + .k-cal-toggle { border-block-start: 0; }
 .k-cal-derived-fig { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-10); }
 .k-cal-more { align-self: flex-start; min-block-size: var(--hit-dense); padding: 0 var(--sp-6); border: 0; background: none; font: inherit; font-size: var(--fs-11); color: var(--muted); cursor: pointer; }
 .k-cal-more:hover { color: var(--text); }
@@ -919,6 +925,7 @@
 }
 
 @media (max-width: 560px) {
+.k-fx-go { flex-wrap: wrap; }
 .k-fx-form > .k-fx-modes { grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: var(--r-20); }
 .k-fx-until { grid-template-columns: minmax(0, 1fr); }
 /* a phone fits two figures a row, not four: four 26px mono figures in

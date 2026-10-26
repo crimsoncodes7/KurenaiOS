@@ -141,7 +141,12 @@ step("D · the Calendar draws a bill by derivation and writes no event; the togg
   await tick(40);
   assert(await waitFor(() => main().querySelector("[data-ui~='cal.derived']")), "no derived chip for today's bill");
   assert(JSON.stringify(K.store.state.calendar && K.store.state.calendar.events) === events, "a derived item was written as an event");
-  const toggle = [...main().querySelectorAll("[data-ui~='cal.derived-toggle']")][0];
+  /* the switches live in the Show menu beside Today (roadmap 5.10 review) */
+  const show = [...main().querySelectorAll("[data-ui~='ui.menu-button']")].find((b) => /Show/.test(b.textContent));
+  assert(show, "the Show menu is missing");
+  show.dispatchEvent(new app.window.MouseEvent("click", { bubbles: true }));
+  await tick(20);
+  const toggle = [...app.document.querySelectorAll("[data-ui~='cal.derived-toggle']")][0];
   assert(toggle, "the derived toggles are missing");
   toggle.checked = false;
   toggle.dispatchEvent(new app.window.Event("change"));

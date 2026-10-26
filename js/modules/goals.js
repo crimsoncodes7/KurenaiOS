@@ -324,7 +324,11 @@
       var grid = el("div", { class: "k-gl-grid", "data-ui": "goal.grid" });
       if (!rest.length && !lead) grid.appendChild(U.emptyState({ compact: true, title: "No " + (visit.domain ? DOMAIN[visit.domain].label + " " : "") + "goals " + (tab === "week" ? "this week" : tab === "month" ? "this month" : "yet") }));
       rest.forEach(function (g) { grid.appendChild(goalCard(g)); });
-      grid.appendChild(newGoalTile());
+      /* where the tile lands in three columns and in two: it fills the
+         rest of that row (the stylesheet reads data-at3 / data-at2) */
+      var tileN = rest.length + (!rest.length && !lead ? 1 : 0), tile = newGoalTile();
+      tile.setAttribute("data-at3", String(tileN % 3)); tile.setAttribute("data-at2", String(tileN % 2));
+      grid.appendChild(tile);
       page.appendChild(grid);
       var repeating = rows.filter(function (g) { return g.repeat && !g.archived && Object.keys(g.outcomes || {}).length; });
       var missed = rows.filter(function (g) { return g._status === "failed" && !g.archived; });

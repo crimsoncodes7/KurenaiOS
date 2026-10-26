@@ -73,6 +73,8 @@
     /* the governor feeds on the same event — awards XP/gold/HP */
     if (KOS.governor) KOS.governor.onSession(e);
     if (KOS.refreshHUD) KOS.refreshHUD();
+    /* an auto-tracked habit reads what was just logged (KOS.routines) */
+    if (KOS.routines && KOS.routines.onSession) KOS.routines.onSession(e);
     return e;
   }
 

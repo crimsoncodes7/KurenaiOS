@@ -26,6 +26,10 @@
          the week view but not the month grid; Reminders' Today lists the
          plan's rows as "From your plan" and ticks them in the plan; a goal
          pins from its page; a week's report carries the Routines card.
+     I · HABITS: Routines has no week grid (History has it, read-only, with
+         no tick or add); a habit's name opens its editor, which saves a
+         schedule and an auto-tracking rule; the Calendar's derived
+         switches sit in its Show menu, not a card.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -232,6 +236,36 @@ step("H · derived surfaces", async () => {
   eq([f.routines.kept, f.routines.of, f.routines.rows[0].rest, f.routines.reviews.evening, f.routines.mood], [3, 4, 1, 2, 3.5], "the Routines facts");
   const pay = JSON.stringify(K.reportWords.payload({ facts: Object.assign({ study: { bySubject: {}, sessions: 0, days: 0, of: 7 } }, f) }));
   assert(pay.indexOf("mood") === -1 && pay.indexOf("energy") === -1 && /routines_kept/.test(pay), "the payload: totals, never mood or energy");
+  eq(app.errors, [], "no errors");
+});
+
+step("I · habits", async () => {
+  const R = K.routines;
+  K.show("routines", "routines"); await app.settle();
+  assert(!$("[data-ui~='routine.habit-grid']"), "no week grid on Routines");
+  K.show("routines", "history"); await app.settle();
+  const grid = $("[data-ui~='routine.habit-grid']");
+  assert(grid, "History has the week");
+  assert(!grid.querySelector("button[data-ui~='routine.grid-tick']") && !grid.querySelector("input"), "read-only: no tick, no add");
+  assert($$("[data-ui~='routine.history-row']").length >= 2, "a card per routine");
+  K.show("routines"); await app.settle();
+  const water = R.all({ kind: "habit" }).find((h) => h.name === "Water");
+  click($$("[data-ui~='routine.habit-edit']").find((b) => /Water/.test(b.textContent))); await app.settle();
+  const ed = $("[data-ui~='habit.editor']");
+  assert(ed, "the editor opens");
+  click([...ed.querySelectorAll("[data-ui~='habit.repeat']")].find((b) => /Weekdays/.test(b.textContent)));
+  const src = ed.querySelector("[data-ui~='habit.auto-src']");
+  src.value = "cards"; src.dispatchEvent(new app.window.Event("change", { bubbles: true }));
+  const n = ed.querySelector("[data-ui~='habit.auto-n']");
+  n.value = "15"; n.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  click(ed.querySelector("[data-ui~='habit.save']")); await app.settle();
+  const w = R.get(water.id);
+  eq([w.days, w.auto], [[1, 2, 3, 4, 5], { src: "cards", n: 15 }], "the schedule and the rule saved");
+  K.show("calendar"); await app.settle();
+  assert(!$("[data-ui~='cal.derived-toggle']"), "no derived card on the page");
+  click($$("[data-ui~='ui.menu-button']").find((b) => /Show/.test(b.textContent))); await app.settle();
+  assert(doc.querySelectorAll("[data-ui~='cal.derived-toggle']").length >= 2, "the switches are in the Show menu");
+  K.ui.closeMenu();
   eq(app.errors, [], "no errors");
 });
 

@@ -652,7 +652,7 @@
     var d = due(now);
     if (d && KOS.notify && KOS.notify.push) KOS.notify.push(notice(d.slot, d.day, now));
     if (d && cfg().words === "kurenai") ensureWords(d.slot, { now: now });
-    if (KOS.routines) KOS.routines.checkAlerts(now);
+    if (KOS.routines) { KOS.routines.checkAlerts(now); KOS.routines.autoSync(now); }
   }
   function start() {
     if (!enabled || timer) return;

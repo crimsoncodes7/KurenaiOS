@@ -2201,7 +2201,6 @@
     var penField = el("label", { class: "k-fx-check", for: "fxpen" }, [
       penIn, el("span", { text: "Penalise tab-switches away from the app" })
     ]);
-    form.appendChild(penField);
 
     /* "From today's plan": today's first unticked study block fills the
        form — its subject, topic, assignment and title — and starts nothing */
@@ -2255,7 +2254,8 @@
           if (!objIn.value) objIn.value = todayBlock.title || "";
           sync();
           objIn.focus();
-        } }) : null
+        } }) : null,
+      penField
     ].filter(Boolean)));
 
     hero.appendChild(dial);

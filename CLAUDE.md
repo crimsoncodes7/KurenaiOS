@@ -1456,13 +1456,22 @@ source comments and audit notes refer to it.
     editing a routine never rewrites a past day. Habits moved in once at
     boot under deterministic ids (`h:<id>`); `state.todo.habits` is kept,
     frozen, for a rollback, and every older reader goes through
-    `KOS.routines.habitsView`.
+    `KOS.routines.habitsView`. A habit's schedule is days of the week or
+    every N days (`every` 2–14 from `from`); it is edited in its own
+    dialog from Today (name, repeats, a time and reminder, auto-tracking).
+    History only READS: its week grid has no tick and no add.
 143. ROUTINES PAY ONCE. A routine's completion (every required step, or
     its minimum) pays `KOS.governor.routineAward` once per routine day,
     logged as a `todo` session carrying `metrics.routine`; steps, rest
     days, on-demand routines (About to Study) and unticking pay nothing; at
     most 8 rewarded completions a calendar day. A completion is activity
-    for the day, never study.
+    for the day, never study. An AUTO-TRACKED habit (`auto` {src, subject,
+    n}) ticks itself through `KOS.routines.autoSync` — after each session
+    the ledger logs and on the review ticker — once the day's own record
+    meets n: Focus minutes by stretch (`KOS.sessions.parts`), or the Goals
+    engine's own measure for cards, plan rows, Code tasks and retrievals,
+    or a Japanese review session. It only ever ticks, pays once like any
+    tick, and a tick by hand still works.
 144. REVIEWS READ, OWNERS WRITE. A review stores only its own state
     (`state.dayReview.days`); everything else it changes, it changes
     through that record's owner at the moment you act, with Undo. It keeps

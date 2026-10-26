@@ -2329,6 +2329,20 @@
      "key": {
       "ctx": "topic.tabs",
       "hooks": "ui.tab",
+      "name": "Handwritten",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "ink"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "topic.tabs",
+      "hooks": "ui.tab",
       "name": "Simulations1",
       "tag": "button"
      },
@@ -2719,6 +2733,20 @@
      "key": {
       "ctx": "topic.tabs",
       "hooks": "ui.tab",
+      "name": "Handwritten",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "ink"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "topic.tabs",
+      "hooks": "ui.tab",
       "name": "Worked examples1",
       "tag": "button"
      },
@@ -3047,6 +3075,20 @@
      },
      "occurrence": 0,
      "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "topic.tabs",
+      "hooks": "ui.tab",
+      "name": "Handwritten",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "ink"
+      ]
+     }
     },
     {
      "key": {
@@ -5288,20 +5330,6 @@
     {
      "key": {
       "ctx": "focus.setup",
-      "hooks": "focus.penalty",
-      "name": "on",
-      "tag": "input"
-     },
-     "occurrence": 0,
-     "effects": {
-      "state": [
-       "focus.penalizeDistractions"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "focus.setup",
       "hooks": "focus.start",
       "name": "▶ Start focus",
       "tag": "button"
@@ -5322,6 +5350,20 @@
      },
      "occurrence": 0,
      "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "focus.setup",
+      "hooks": "focus.penalty",
+      "name": "on",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "focus.penalizeDistractions"
+      ]
+     }
     },
     {
      "key": {
@@ -6290,6 +6332,16 @@
     },
     {
      "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll left",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Today",
@@ -6345,6 +6397,16 @@
      "effects": {
       "nav": "#/routines/settings"
      }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll right",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
     },
     {
      "key": {
@@ -6441,6 +6503,20 @@
       ],
       "announce": [
        "Morning review. 3 steps."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.habit-card",
+      "hooks": "routine.habit-options",
+      "name": "Options…",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "New habit"
       ]
      }
     }
@@ -6554,6 +6630,16 @@
     },
     {
      "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll left",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Today",
@@ -6609,6 +6695,16 @@
      "effects": {
       "nav": "#/routines/settings"
      }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll right",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
     },
     {
      "key": {
@@ -6682,16 +6778,6 @@
        "routinesOffer"
       ]
      }
-    },
-    {
-     "key": {
-      "ctx": "routine.habit-grid",
-      "hooks": "",
-      "name": "Previous week",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {}
     }
    ]
   },
@@ -6801,6 +6887,16 @@
     },
     {
      "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll left",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Today",
@@ -6856,6 +6952,16 @@
      "effects": {
       "nav": "#/routines/settings"
      }
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll right",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
     },
     {
      "key": {
@@ -6939,7 +7045,7 @@
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/routines/edit/r_rwcncu92w",
+      "nav": "#/routines/edit/r_mu4rcr9yk",
       "state": [
        "routines"
       ],
@@ -7069,6 +7175,16 @@
     },
     {
      "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll left",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Today",
@@ -7127,9 +7243,9 @@
     },
     {
      "key": {
-      "ctx": "routine.habit-grid",
-      "hooks": "",
-      "name": "Previous week",
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll right",
       "tag": "button"
      },
      "occurrence": 0,
@@ -7139,7 +7255,7 @@
      "key": {
       "ctx": "routine.habit-grid",
       "hooks": "",
-      "name": "Next week",
+      "name": "Previous week",
       "tag": "button"
      },
      "occurrence": 0,
@@ -7255,6 +7371,16 @@
     },
     {
      "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll left",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Today",
@@ -7306,6 +7432,16 @@
       "ctx": "ui.tabs",
       "hooks": "ui.tab",
       "name": "Settings",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Scroll right",
       "tag": "button"
      },
      "occurrence": 0,
@@ -7604,6 +7740,18 @@
      },
      "occurrence": 0,
      "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "ui.menu-button",
+      "name": "Show▾",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "menu": true
+     }
     },
     {
      "key": {
@@ -8658,76 +8806,6 @@
      "effects": {
       "dialog": [
        "Revision block 21"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.derived-card",
-      "hooks": "cal.derived-toggle",
-      "name": "Bills and income from Money",
-      "tag": "input"
-     },
-     "occurrence": 0,
-     "effects": {
-      "ui": [
-       "calDerived"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.derived-card",
-      "hooks": "cal.derived-toggle",
-      "name": "Goal deadlines and period ends",
-      "tag": "input"
-     },
-     "occurrence": 0,
-     "effects": {
-      "ui": [
-       "calDerived"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.derived-card",
-      "hooks": "cal.derived-toggle",
-      "name": "Start-by dates from Exams",
-      "tag": "input"
-     },
-     "occurrence": 0,
-     "effects": {
-      "ui": [
-       "calDerived"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.derived-card",
-      "hooks": "cal.derived-toggle",
-      "name": "Routines and their windows",
-      "tag": "input"
-     },
-     "occurrence": 0,
-     "effects": {
-      "ui": [
-       "calDerived"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.derived-card",
-      "hooks": "cal.derived-toggle",
-      "name": "Daily Review times",
-      "tag": "input"
-     },
-     "occurrence": 0,
-     "effects": {
-      "ui": [
-       "calDerived"
       ]
      }
     }
@@ -13010,6 +13088,66 @@
       "dialog": [
        "Hall note"
       ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "shrine.feature-actions",
+      "hooks": "shrine.card-button",
+      "name": "Create share card",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "missing": true
+     }
+    },
+    {
+     "key": {
+      "ctx": "shrine.feature-actions",
+      "hooks": "",
+      "name": "Edit entry",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "missing": true
+     }
+    },
+    {
+     "key": {
+      "ctx": "shrine.rank-card",
+      "hooks": "",
+      "name": "Open the share card for Collection entry 23",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "missing": true
+     }
+    },
+    {
+     "key": {
+      "ctx": "shrine.rank-card",
+      "hooks": "",
+      "name": "Open the share card for Collection entry 12",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "missing": true
+     }
+    },
+    {
+     "key": {
+      "ctx": "shrine.rank-card",
+      "hooks": "",
+      "name": "Open the share card for The Extraordinarily Long Light-Novel Title That Explains",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "missing": true
      }
     }
    ]

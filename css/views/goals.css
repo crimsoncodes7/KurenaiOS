@@ -110,7 +110,13 @@
 .k-gl-tplrow:hover { background: var(--s2); }
 .k-gl-newtile > .k-btn { align-self: flex-start; }
 /* the tile closes its row: it stretches from where it lands to the last column (no dead cell) */
-.k-gl-grid > .k-gl-newtile { grid-column: auto / -1; }
+.k-gl-grid > .k-gl-newtile[data-at3="0"] { grid-column: 1 / -1; }
+.k-gl-grid > .k-gl-newtile[data-at3="1"] { grid-column: 2 / -1; }
+.k-gl-grid > .k-gl-newtile[data-at3="2"] { grid-column: 3 / -1; }
+/* a whole row: the templates run across it */
+.k-gl-newtile[data-at3="0"] { min-block-size: 0; }
+.k-gl-newtile[data-at3="0"] > .k-gl-tpllist { flex-direction: row; flex-wrap: wrap; }
+.k-gl-newtile[data-at3="0"] .k-gl-tplrow { flex: 1 1 var(--gl-tpl-min); }
 .k-gl-runcard { grid-column: span 2; }
 .k-gl-runcard:only-child { grid-column: 1 / -1; }
 .k-gl-runrow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sp-16); align-items: center; padding-block: var(--sp-12); border-block-start: var(--hairline) solid var(--line); }
@@ -192,6 +198,12 @@
 
 @media (max-width: 860px) {
 .k-gl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-gl-grid > .k-gl-newtile[data-at2="0"] { grid-column: 1 / -1; }
+.k-gl-grid > .k-gl-newtile[data-at2="1"] { grid-column: 2 / -1; }
+.k-gl-newtile[data-at3="0"] { min-block-size: var(--gl-card-min); }
+.k-gl-newtile[data-at3="0"] > .k-gl-tpllist { flex-direction: column; }
+.k-gl-newtile[data-at2="0"] { min-block-size: 0; }
+.k-gl-newtile[data-at2="0"] > .k-gl-tpllist { flex-direction: row; flex-wrap: wrap; }
 .k-gl-runcard { grid-column: 1 / -1; }
 .k-gl-types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-gl-figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -207,6 +219,8 @@
 .k-gl-hero > .k-gl-run { padding: 0; background: none; }
 .k-gl-hero-mid > .k-gl-actions > .k-btn--primary { flex: 1 1 auto; }
 .k-gl-grid { grid-template-columns: minmax(0, 1fr); }
+.k-gl-grid > .k-gl-newtile[data-at2] { grid-column: 1 / -1; }
+.k-gl-newtile[data-at2] > .k-gl-tpllist { flex-direction: column; }
 .k-gl-card { flex-direction: row; min-block-size: var(--gl-band); }
 .k-gl-cardband { inline-size: var(--gl-band-phone); block-size: auto; }
 .k-gl-bandtop { display: none; }

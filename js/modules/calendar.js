@@ -628,6 +628,8 @@
     overlay = dialog("cal.derived-panel", d.kind === "money" ? "From Money" : "From Goals", d.kind === "money" ? d.rule.name : d.goal.title, [body], foot(acts));
     KOS.ui.openDialog(overlay, { label: d.title });
   }
+  /* what the calendar draws besides its own events: a menu beside Today
+     (state.ui.calDerived, per device), never a card of its own */
   function derivedToggles(rerender) {
     function sw(kind, glyph, label) {
       var box = el("input", { type: "checkbox", class: "k-switch", "data-ui": "cal.derived-toggle", "aria-label": label });
@@ -638,12 +640,15 @@
       });
       return el("label", { class: "k-card-row k-cal-toggle" }, [el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: glyph }), el("span", { class: "k-cal-toggle-t", text: label }), box]);
     }
-    return el("section", { class: "k-card", "data-ui": "cal.derived-card" }, [
-      el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Shown on the calendar" })]),
-      sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends"),
-      KOS.exams ? sw("exams", "⚐", "Start-by dates from Exams") : null,
-      KOS.routines && KOS.routines.enabled() ? sw("routines", "習", "Routines and their windows") : null,
-      KOS.dayReview && KOS.dayReview.enabled() ? sw("reviews", "審", "Daily Review times") : null].filter(Boolean));
+    return KOS.ui.menu({ label: "Show", hint: "What the calendar shows besides your events", className: "k-btn--sm", panelClass: "k-cal-show",
+      render: function (panel) {
+        panel.setAttribute("data-ui", "ui.menu-panel cal.derived-card");
+        panel.appendChild(el("div", { class: "k-menu-heading", text: "Shown on the calendar" }));
+        [sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends"),
+          KOS.exams ? sw("exams", "⚐", "Start-by dates from Exams") : null,
+          KOS.routines && KOS.routines.enabled() ? sw("routines", "習", "Routines and their windows") : null,
+          KOS.dayReview && KOS.dayReview.enabled() ? sw("reviews", "審", "Daily Review times") : null].filter(Boolean).forEach(function (n) { panel.appendChild(n); });
+      } });
   }
 
   /* ---------------- sample data ---------------- */
@@ -1535,6 +1540,7 @@
         } })
       ]));
       head.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: "Today", onclick: function () { setFocus(new Date()); } }));
+      head.appendChild(derivedToggles(render));
       head.appendChild(el("div", { class: "k-seg k-seg--quiet k-spacer", role: "group", "aria-label": "Calendar view" }, [
         el("button", { type: "button", class: "k-seg-item", "data-ui": "cal.mode", text: "Month",
           "aria-pressed": mode === "month" ? "true" : "false", onclick: function () { setMode("month"); } }),
@@ -1551,7 +1557,7 @@
       board.appendChild(legend());
 
       body.appendChild(board);
-      body.appendChild(el("div", { class: "k-cal-side" }, [todayCard(render), countdownWidget(null), derivedToggles(render)]));
+      body.appendChild(el("div", { class: "k-cal-side" }, [todayCard(render), countdownWidget(null)]));
     }
 
     /* Frame 15g: the phone composition. Agenda (the stored "week" mode) is
@@ -1584,6 +1590,7 @@
             : weekStart.getDate() + " " + MONTHS[weekStart.getMonth()].slice(0, 3) + " – " + weekEnd.getDate() + " " + MONTHS[weekEnd.getMonth()].slice(0, 3))
           : MONTHS[mo] + " " + y }),
         inView ? null : el("button", { type: "button", class: "k-btn k-btn--sm", text: "Today", onclick: function () { setFocus(new Date()); } }),
+        derivedToggles(render),
         el("button", { type: "button", class: "k-iconbtn", text: "‹", "aria-label": "Previous " + unit, onclick: function () { setFocus(step(-1)); } }),
         el("button", { type: "button", class: "k-iconbtn", text: "›", "aria-label": "Next " + unit, onclick: function () { setFocus(step(1)); } })
       ].filter(Boolean)));
@@ -1651,7 +1658,6 @@
       });
       body.appendChild(list);
       body.appendChild(countdownWidget(null));
-      body.appendChild(derivedToggles(render));
     }
     render();
   };

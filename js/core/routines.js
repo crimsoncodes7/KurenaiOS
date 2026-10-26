@@ -8,8 +8,10 @@
      items  [{id (random string), name, kind, mark, steps [{id, text, mins,
             optional, minimum, checkMorning, note, link}], days ([] every
             day, [0..6] those days, null on demand), window {from, to}|null,
-            weekend {days, window}|null, anchor, remind, archived, order,
-            legacyHabit, createdAt, updatedAt}]
+            weekend {days, window}|null, every (2–14: every N days, counted
+            from `from`), from (ISO day), auto {src, subject, n} (a habit
+            ticked by what the app already records), anchor, remind,
+            archived, order, legacyHabit, createdAt, updatedAt}]
      log    {"<routine>|<routine day>": {steps {stepId: ts}, no {stepId: ts},
             done ts|null, min bool, rest bool, snap [[id, text, optional,
             minimum, checkMorning]], paid bool, startedAt, mins}}
@@ -38,6 +40,15 @@
    runs at boot, ticks or notifies, and habitsView() reads the habits as
    they are. The R1 release turns it on (enable(true)), and boot migrates.
 
+   AUTO-TRACKED HABITS. A habit may carry `auto` ({src, subject, n}): its
+   one step ticks itself once the day's own record reaches n — Focus
+   minutes (on a subject or any, by stretch through KOS.sessions.parts as
+   the Goals engine reads them), flashcards reviewed, plan rows ticked,
+   Code tasks passed or retrievals proven (the Goals engine's own measures,
+   KOS.goals.typeDef, over the day) or a Japanese review session. autoSync runs after each session the ledger
+   logs and on the review ticker; it only ever ticks (a tick by hand still
+   works, and pays once like any tick).
+
    Reads (all, get, entry, stateOn, streak, history, habitsView, due …)
    write nothing.                                                          */
 (function () {
@@ -52,6 +63,18 @@
   var KINDS = ["morning", "evening", "study", "custom", "habit"];
   var ANCHORS = ["review:morning", "review:afternoon", "review:evening", "focus"];
   var HM = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  /* what an auto-tracked habit reads: the Goals type that measures it, a
+     scale from that type's unit (hours → minutes), and whether a subject
+     narrows it */
+  var AUTO = {
+    study: { label: "Study on a subject", unit: "min", subject: true, def: 30 },
+    focus: { label: "Focus", unit: "min", subject: true, def: 25 },
+    cards: { label: "Review flashcards", unit: "cards", goal: "cards-reviewed", subject: true, def: 20 },
+    plan: { label: "Tick plan rows", unit: "rows", goal: "plan-ticked", def: 1 },
+    code: { label: "Pass Code tasks", unit: "tasks", goal: "code-tasks", def: 1 },
+    retrieval: { label: "Prove Code retrievals", unit: "retrievals", goal: "code-retrievals", def: 3 },
+    ja: { label: "A Japanese review session", unit: "sessions", def: 1 }
+  };
   var enabled = false;
 
   /* ---------------- small helpers ---------------- */
@@ -108,6 +131,12 @@
     if (kind === "url" && !/^https:\/\//.test(to)) return null;
     return { kind: kind, to: to };
   }
+  function normaliseAuto(a) {
+    if (!a || typeof a !== "object" || !AUTO[a.src]) return null;
+    var out = { src: a.src, n: Math.max(1, Math.min(1000, Math.round(+a.n || AUTO[a.src].def))) };
+    if (AUTO[a.src].subject && typeof a.subject === "string" && a.subject) out.subject = a.subject.slice(0, 20);
+    return out;
+  }
   function normaliseStep(s, i) {
     s = s || {};
     var out = {
@@ -155,6 +184,13 @@
     if (pick("legacyHabit") != null) out.legacyHabit = String(pick("legacyHabit"));
     if (typeof pick("template") === "string" && pick("template")) out.template = pick("template").slice(0, 30);
     if (out.weekend && !out.weekend.window && !out.weekend.days.length) out.weekend = null;
+    var every = Math.round(+pick("every") || 0);
+    if (every >= 2 && every <= 14 && out.days !== null) {
+      out.every = every;
+      out.from = typeof pick("from") === "string" && /^\d{4}-\d{2}-\d{2}$/.test(pick("from")) ? pick("from") : isoOf(new Date(out.createdAt));
+    }
+    var auto = out.kind === "habit" ? normaliseAuto(pick("auto")) : null;
+    if (auto) out.auto = auto;
     return out;
   }
 
@@ -217,8 +253,16 @@
   }
 
   /* ---------------- the schedule ---------------- */
+  function daysBetween(a, b) {
+    var p = a.split("-"), q = b.split("-");
+    return Math.round((Date.UTC(+q[0], +q[1] - 1, +q[2]) - Date.UTC(+p[0], +p[1] - 1, +p[2])) / 864e5);
+  }
   function scheduleOn(r, day) {
     if (!r || r.days === null) return null;
+    if (r.every) {
+      var gap = daysBetween(r.from, day);
+      return gap >= 0 && gap % r.every === 0 ? { window: r.window } : null;
+    }
     var w = r.weekend && weekendDays().indexOf(dow(day)) !== -1 ? r.weekend : null;
     var days = w && w.days.length ? w.days : r.days;
     var on = !days.length || days.indexOf(dow(day)) !== -1;
@@ -543,6 +587,83 @@
     return n;
   }
 
+  /* ---------------- auto-tracked habits ---------------- */
+  /* the day's figure for one rule, read through the Goals engine's measure
+     over [day, day] (the ledger's calendar day); cb(n|null) */
+  function autoMeasure(a, day, cb) {
+    var src = AUTO[a.src];
+    if (!src) { cb(null); return; }
+    var L = store.state.sessions || [];
+    /* minutes exactly, by stretch, as goals.js focusSecs reads them (its
+       hours round to a tenth): study counts only time for a subject */
+    if (a.src === "study" || a.src === "focus") {
+      var secs = 0;
+      L.forEach(function (e) {
+        if (e.date !== day || e.type !== "focus") return;
+        KOS.sessions.parts(e).forEach(function (p) {
+          if (a.src === "study" && (!p.subject || p.subject === "media")) return;
+          if (!a.subject || p.subject === a.subject) secs += p.secs;
+        });
+      });
+      cb(Math.floor(secs / 60));
+      return;
+    }
+    if (a.src === "ja") {
+      cb(L.filter(function (e) { return e.date === day && e.type === "ja" && e.metrics && e.metrics.kind === "session"; }).length);
+      return;
+    }
+    var G = KOS.goals, def = G && G.typeDef ? G.typeDef(src.goal) : null;
+    if (!def || def.id !== src.goal || !def.measure) { cb(null); return; }
+    var g = { type: src.goal, links: { subject: a.subject || null }, params: {} };
+    var done = false;
+    try {
+      def.measure(g, { from: day, to: day, today: day }, function (m) {
+        if (done) return; done = true;
+        cb(m && m.current != null ? m.current : null);
+      });
+    } catch (e) { if (!done) { done = true; cb(null); } }
+  }
+  function autoText(a) {
+    if (!a || !AUTO[a.src]) return "";
+    var subj = a.subject && KOS.subjects && KOS.subjects.meta(a.subject);
+    var on = subj ? " on " + subj.name : "";
+    function pl(n, w, ws) { return n + " " + (n === 1 ? w : ws || w + "s"); }
+    return {
+      study: a.n + " min of study" + on, focus: a.n + " min of Focus" + on,
+      cards: pl(a.n, "card") + " reviewed" + (subj ? " in " + subj.name : ""),
+      plan: pl(a.n, "plan row") + " ticked", code: pl(a.n, "Code task") + " passed",
+      retrieval: pl(a.n, "retrieval") + " proven", ja: pl(a.n, "Japanese review session")
+    }[a.src];
+  }
+  /* tick every auto habit whose rule today's record meets; ticks only */
+  var syncing = false;
+  function autoSync(now) {
+    if (!enabled || syncing) return 0;
+    now = now || Date.now();
+    var day = routineDay(now), n = 0;
+    syncing = true;
+    try {
+      all({ kind: "habit" }).forEach(function (h) {
+        if (!h.auto || !h.steps[0] || !scheduledOn(h, day)) return;
+        var st = stateOn(h, day, now);
+        if (kept(st) || st === "rest") return;
+        autoMeasure(h.auto, day, function (v) {
+          if (v != null && v >= h.auto.n && tick(h.id, h.steps[0].id, true, { now: now, day: day }).ok) {
+            var e = entry(h.id, day);
+            if (e) { e.auto = now; store.save(); }
+            n++;
+          }
+        });
+      });
+    } finally { syncing = false; }
+    return n;
+  }
+  /* after the ledger logs: a routine's own pay entry never re-enters */
+  function onSession(e) {
+    if (!enabled || !e || (e.type === "todo" && e.metrics && e.metrics.routine)) return;
+    setTimeout(function () { if (autoSync() && KOS.rerender && !document.querySelector("[role=dialog]")) KOS.rerender(); }, 0);
+  }
+
   /* ---------------- moving Habits in (plan §5) ---------------- */
   function migrate() {
     var t = store.state.todo, hs = t && Array.isArray(t.habits) ? t.habits : [];
@@ -688,6 +809,7 @@
     if (!enabled) return;
     migrate();
     compact();
+    autoSync();
   }
   /* the notification kind joins the bell, the feed and its filters only
      once routines are on (until then the filters would show a switch for
@@ -703,7 +825,8 @@
 
   KOS.routines = {
     CAP: CAP, REST_EVERY: REST_EVERY, KINDS: KINDS, ANCHORS: ANCHORS, LATE_UNTIL: LATE_UNTIL,
-    enable: enable, enabled: isEnabled, boot: boot,
+    AUTO: AUTO, enable: enable, enabled: isEnabled, boot: boot,
+    autoMeasure: autoMeasure, autoText: autoText, autoSync: autoSync, onSession: onSession,
     normalise: normalise, all: all, get: get, add: add, update: update, remove: remove, archive: archive,
     addHabit: addHabit, templates: templates, template: template, fromTemplate: fromTemplate,
     dayStart: dayStart, routineDay: routineDay, scheduledOn: scheduledOn, windowOn: windowOn,

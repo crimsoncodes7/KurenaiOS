@@ -35,8 +35,8 @@
     var e0 = R().entry(r.id, day), ticked = (e0 && e0.steps) || {};
     var i = steps.findIndex(function (s) { return !ticked[s.id]; });
     var st = { r: r, day: day, steps: steps, i: i === -1 ? 0 : i, started: Date.now(), stepStart: Date.now(), skipped: {}, done: false, award: null, timer: null, lock: null };
-    var main = el("div", { class: "k-pl-main" });
-    var side = el("aside", { class: "k-pl-side", "aria-label": "The routine" });
+    var main = el("div", { class: "k-rpl-main" });
+    var side = el("aside", { class: "k-rpl-side", "aria-label": "The routine" });
     var overlay = dialog("k-pl", r.name + ", the player", [main, side]);
     overlay.close = function () { finish(); };
     st.main = main; st.side = side; st.overlay = overlay;
@@ -69,29 +69,29 @@
     var left = st.steps.slice(st.i + 1).filter(function (x) { return !ticked[x.id]; });
     var leftMins = left.reduce(function (m, x) { return m + (x.mins || 0); }, 0);
     st.ring = ring();
-    st.clockT = el("b", { class: "k-mono k-pl-clock-t" });
+    st.clockT = el("b", { class: "k-mono k-rpl-clock-t" });
     st.clockS = el("span", { class: "k-muted k-rt-small" });
-    st.main.appendChild(el("div", { class: "k-pl-top" }, [
+    st.main.appendChild(el("div", { class: "k-rpl-top" }, [
       el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close (your ticks are kept)", "data-ui": "player.close", text: "✕", onclick: st.finish }),
-      el("div", { class: "k-pl-top-t" }, [el("b", { text: r.name }), w && r.anchor === "review:morning" ? el("span", { class: "k-mono k-rt-small k-rt-text2", text: "Leave by " + w.to }) : null]),
+      el("div", { class: "k-rpl-top-t" }, [el("b", { text: r.name }), w && r.anchor === "review:morning" ? el("span", { class: "k-mono k-rt-small k-rt-text2", text: "Leave by " + w.to }) : null]),
       el("span", { class: "k-mono k-rt-small k-muted", text: (st.i + 1) + "/" + st.steps.length })
     ]));
     st.main.appendChild(el("div", { class: "k-rt-progress", "aria-hidden": "true" }, st.steps.map(function (x, j) { var p = el("span"); if (ticked[x.id]) KOS.ui.state(p, "on", true); else if (j === st.i) KOS.ui.state(p, "now", true); return p; })));
     var linkFocus = s.link && s.link.kind === "focus";
-    st.main.appendChild(el("div", { class: "k-pl-step", "data-ui": "player.step" }, [
+    st.main.appendChild(el("div", { class: "k-rpl-step", "data-ui": "player.step" }, [
       el("span", { class: "k-kicker", text: "Step " + (st.i + 1) + " of " + st.steps.length + (s.optional ? " · optional" : "") }),
-      el("h2", { class: "k-pl-name", text: s.text }),
-      s.mins ? el("div", { class: "k-pl-clock", role: "timer", "aria-live": "off" }, [st.ring.svg, el("div", { class: "k-pl-clock-in" }, [st.clockT, st.clockS])])
-        : el("div", { class: "k-pl-clock k-pl-clock--plain" }, [st.clockT, st.clockS]),
+      el("h2", { class: "k-rpl-name", text: s.text }),
+      s.mins ? el("div", { class: "k-rpl-clock", role: "timer", "aria-live": "off" }, [st.ring.svg, el("div", { class: "k-rpl-clock-in" }, [st.clockT, st.clockS])])
+        : el("div", { class: "k-rpl-clock k-rpl-clock--plain" }, [st.clockT, st.clockS]),
       s.link && !linkFocus ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "player.link", text: "↗ " + U().linkLabel(s.link), onclick: function () { U().openLink(s.link, r, s); } }) : null,
-      el("div", { class: "k-pl-left k-rt-small k-muted", text: left.length ? "Still to do · " + left.length + (leftMins ? " · about " + leftMins + " min" : "") : "The last step" })
+      el("div", { class: "k-rpl-left k-rt-small k-muted", text: left.length ? "Still to do · " + left.length + (leftMins ? " · about " + leftMins + " min" : "") : "The last step" })
     ]));
     var nextStep = st.steps[st.i + 1];
-    st.main.appendChild(el("div", { class: "k-pl-go" }, [
-      el("button", { type: "button", class: "k-btn k-btn--primary k-pl-done", "data-ui": "player.done",
+    st.main.appendChild(el("div", { class: "k-rpl-go" }, [
+      el("button", { type: "button", class: "k-btn k-btn--primary k-rpl-done", "data-ui": "player.done",
         text: linkFocus ? "▶ Start Focus" : nextStep ? "Done · next: " + nextStep.text : "Done",
         onclick: function () { if (linkFocus) { tickHere(st); st.finish(); preflight({}); return; } next(st, true); } }),
-      el("div", { class: "k-cluster k-pl-sub" }, [
+      el("div", { class: "k-cluster k-rpl-sub" }, [
         el("button", { type: "button", class: "k-btn", "data-ui": "player.back", text: "← Back", disabled: st.i === 0 ? true : null, onclick: function () { back(st); } }),
         el("button", { type: "button", class: "k-btn", "data-ui": "player.skip", text: "Skip step", onclick: function () { next(st, false); } })
       ])
@@ -105,7 +105,7 @@
       el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Close", onclick: st.finish })]));
     st.steps.forEach(function (x, j) {
       var on = !!ticked[x.id];
-      var row = el("div", { class: "k-rt-step" + (j === st.i && !st.done ? " k-pl-now" : "") }, [
+      var row = el("div", { class: "k-rt-step" + (j === st.i && !st.done ? " k-rpl-now" : "") }, [
         U().check(on, (on ? "Untick " : "Tick ") + x.text, function () { R().tick(st.r.id, x.id, !on, { day: st.day }); paint(st); }),
         el("span", { class: "k-rt-step-t k-ellipsis", text: x.text }),
         st.skipped[x.id] && !on ? el("span", { class: "k-muted", text: "–" }) : null,
@@ -114,18 +114,18 @@
       if (on) KOS.ui.state(row, "done", true);
       st.side.appendChild(row);
     });
-    st.side.appendChild(el("p", { class: "k-muted k-rt-small k-pl-side-f", text: "Started " + new Date(st.started).toTimeString().slice(0, 5) + " · the clock is a guide, not a limit." }));
+    st.side.appendChild(el("p", { class: "k-muted k-rt-small k-rpl-side-f", text: "Started " + new Date(st.started).toTimeString().slice(0, 5) + " · the clock is a guide, not a limit." }));
   }
   function ring() {
     var size = 100, sw = 6, rr = (size - sw) / 2, c = 2 * Math.PI * rr;
     var svg = document.createElementNS(NS, "svg");
     svg.setAttribute("viewBox", "0 0 " + size + " " + size);
-    svg.setAttribute("class", "k-pl-ring");
+    svg.setAttribute("class", "k-rpl-ring");
     svg.setAttribute("aria-hidden", "true");
     var track = document.createElementNS(NS, "circle"), fill = document.createElementNS(NS, "circle");
     [track, fill].forEach(function (n) { n.setAttribute("cx", 50); n.setAttribute("cy", 50); n.setAttribute("r", rr); n.setAttribute("fill", "none"); n.setAttribute("stroke-width", sw); });
-    track.setAttribute("class", "k-pl-ring-track");
-    fill.setAttribute("class", "k-pl-ring-fill");
+    track.setAttribute("class", "k-rpl-ring-track");
+    fill.setAttribute("class", "k-rpl-ring-fill");
     fill.setAttribute("stroke-linecap", "round");
     fill.setAttribute("stroke-dasharray", "0 " + c);
     svg.appendChild(track); svg.appendChild(fill);
@@ -174,9 +174,9 @@
     var mins = Math.round((Date.now() - st.started) / 60000);
     var kept = v.done || v.min;
     var award = st.award || (kept ? null : null);
-    st.main.appendChild(el("div", { class: "k-pl-step k-pl-fin", "data-ui": "player.finished" }, [
-      el("img", { class: "k-pl-spot", src: U().img(kept ? "spot.alldone" : "face.kurenai.attentive"), alt: "" }),
-      el("h2", { class: "k-pl-name", text: kept ? st.r.name + " kept" : st.r.name }),
+    st.main.appendChild(el("div", { class: "k-rpl-step k-rpl-fin", "data-ui": "player.finished" }, [
+      el("img", { class: "k-rpl-spot", src: U().img(kept ? "spot.alldone" : "face.kurenai.attentive"), alt: "" }),
+      el("h2", { class: "k-rpl-name", text: kept ? st.r.name + " kept" : st.r.name }),
       el("p", { class: "k-rt-text2", text: v.n + " of " + v.of + (mins ? " · " + mins + " min" : "") + (kept ? "" : " · partial") }),
       award ? U().reward(award) : null,
       kept && st.r.days !== null && R().streak(st.r.id) ? el("span", { class: "k-muted k-rt-small", text: "炎 " + R().streak(st.r.id) + " days" }) : null,
@@ -190,7 +190,7 @@
     var T = KOS.today.build(day), bag = KOS.today.bag(day);
     var title = el("h2", { class: "k-dialog-title", text: (offset ? "Tomorrow's" : "Today's") + " timetable and bag" });
     var rows = T.timeline.filter(function (x) { return x.kind !== "review" && x.kind !== "routine"; }).map(function (x) { return U().tlRow(x, { kinds: false }); });
-    var box = el("div", { class: "k-dialog k-pl-sheet", "data-ui": "player.day-sheet" }, [
+    var box = el("div", { class: "k-dialog k-rpl-sheet", "data-ui": "player.day-sheet" }, [
       el("div", { class: "k-dialog-head" }, [title]),
       el("div", { class: "k-dialog-body" }, [
         rows.length ? el("div", {}, rows) : el("p", { class: "k-muted", text: T.holiday ? "A holiday: no lessons." : "No lessons." }),
@@ -219,7 +219,7 @@
     if ((store.state.ui || {}).focusPreflight === false) { startFocus(ctx, ctx.objective || ""); return; }
     var task = taskOf(ctx);
     var title = el("h2", { class: "k-dialog-title", text: "About to Study" });
-    var taskBox = el("div", { class: "k-pl-task" });
+    var taskBox = el("div", { class: "k-rpl-task" });
     var action = el("input", { type: "text", class: "k-input", value: ctx.objective || "", maxlength: 200, placeholder: suggestAction(task), "aria-label": "First concrete action, two minutes", "data-ui": "preflight.action" });
     var clear = { on: false };
     var mode = el("select", { class: "k-input", "aria-label": "Mode" }, [["pomodoro", "Pomodoro"], ["custom", "Custom"], ["stopwatch", "Stopwatch"]].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
@@ -256,9 +256,9 @@
       }
       startFocus(Object.assign({}, ctx, task, { cfg: cfg }), skip ? (ctx.objective || "") : action.value || "");
     }
-    var box = el("div", { class: "k-dialog k-pl-pre", "data-ui": "preflight.sheet" }, [
+    var box = el("div", { class: "k-dialog k-rpl-pre", "data-ui": "preflight.sheet" }, [
       el("div", { class: "k-dialog-head" }, [el("span", { class: "k-dialog-mark", lang: "ja", "aria-hidden": "true", text: "始" }), el("div", {}, [title, el("span", { class: "k-muted k-rt-small", text: "four quick things, already filled in" })])]),
-      el("div", { class: "k-dialog-body k-pl-pre-b" }, [
+      el("div", { class: "k-dialog-body k-rpl-pre-b" }, [
         taskBox,
         el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "First concrete action · two minutes" }), action, el("span", { class: "k-field-hint", text: "becomes the session's objective" })]),
         el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Open materials" }), mats]),
