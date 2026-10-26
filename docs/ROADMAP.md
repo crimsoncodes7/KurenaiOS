@@ -1282,7 +1282,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 ### 5.10 Daily Review and Routines ◆ (asked for 25 October 2026)
 
 > **Status (26 October 2026): BUILT on `feat/routines`** to design turn 33
-> (frames 33a–33v) with the art; the gate is 103/103. Not yet released:
+> (frames 33a–33v) with the art; the gate is 104/104. Not yet released:
 > the deploy waits for a go-ahead. The runner writing Kurenai's words
 > ahead on the server is still to do.
 > **Plan revision 2, APPROVED**
@@ -1304,7 +1304,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
   copying rows into reminders. Pinned goals, linked reminders,
   assignment work-on days and the pre-flight before Focus are added.
 - **Releases:** R1 Routines, R2 the day model and clean-up, R3 the
-  reviews, R4 Kurenai and the joins (smoke100–103).
+  reviews, R4 Kurenai and the joins (smoke101–104).
 - **Invariants it adds:** 142–149 (plan §14).
 
 ---
