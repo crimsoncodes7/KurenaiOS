@@ -42,3 +42,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 - 2026-10-25: production is `8a092b7` (sw `kos-ink-2`, https://caffcf65.kurenai-os.pages.dev): iPad fixes + Handwritten side by side, from `feat/ipad-polish` in the worktree /Users/fj/Developer/KurenaiOS-ink; origin/main fast-forwarded to it.
 
 2026-10-25 (later): `main` fast-forwarded to `feat/polish-1025` (1a3ad73), deployed as sw `kos-polish-3` (https://517b9344.kurenai-os.pages.dev): scroll-keeping strips, Home Today/goal, Productivity last page, closed-app push fix. Push presence now means in use; the runner (deployed) lets kind `test` through the hold.
+
+2026-10-26: `feat/routines` (cut from feat/mind-plan, so it also carries the Mind plan docs) merged main in, deployed as sw `kos-routines-1` (https://5598f36e.kurenai-os.pages.dev), and `main` was fast-forwarded to it (ec95d06). Gate 104/104.

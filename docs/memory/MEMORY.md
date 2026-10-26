@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; ff to feat/polish-1025 2026-10-25; last release kos-polish-3; fetch first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; ff to feat/routines 2026-10-26; last release kos-routines-1; fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
@@ -19,4 +19,4 @@
 - [iPad and Pencil](ipad-phase.md) — 6.0 + 6.1–6.2 RELEASED (kos-ink-1); kos-ink-2 = iPad fixes + 30e side by side RELEASED; iPad must match desktop
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
 - [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 (Fuji); Ren + Kurenai redesign on the Mind art sheet; library voices refused on free API; build waits for go-ahead
-- [Daily Review and Routines](routines-review.md) — roadmap 5.10; BUILT 2026-10-26 (feat/routines ebffec1), gate 103/103, not deployed; replaces Habits; branch feat/routines-plan
+- [Daily Review and Routines](routines-review.md) — roadmap 5.10; RELEASED 2026-10-26 (kos-routines-1, 5598f36e); next: runner writes Kurenai's words ahead; replaces Habits; branch feat/routines-plan
