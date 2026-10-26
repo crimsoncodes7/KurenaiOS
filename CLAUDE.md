@@ -17,14 +17,23 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: Routines and the Daily Review (roadmap 5.10, sw
+- Latest release: the Routines follow-up (sw `kos-routines-2`, 26 October
+  2026, `feat/routines` at the release commit) — immutable deployment
+  https://ff0df878.kurenai-os.pages.dev: Daily habits as one fixed routine
+  with its own editor (repeats, time, auto-tracking), History two cards a
+  line and read-only, switched Focus sessions shown by stretch, the
+  Review and Wishlist class collisions fixed, the Calendar's Show menu;
+  and the `runner` Edge Function (version 6) writing Kurenai's review
+  words ahead (decision D, invariant 146). Planned beside it: Files
+  (roadmap 5.11, docs/files-plan.md). Before it Routines and the Daily
+  Review (roadmap 5.10, sw
   `kos-routines-1`, 26 October 2026, `feat/routines` at `3c471b2`) —
   immutable deployment https://5598f36e.kurenai-os.pages.dev. Routines
   replace Habits (habits moved in with their days and streaks), the three
   reviews with the header chip, About to Study before Focus, Today's three
   on Home, and the derived surfaces (countdown Pin/Unpin, "From your plan"
   in Reminders, routine chips in the Calendar's week); invariants 142–149,
-  smoke101–104. Still to do: the runner writing Kurenai's words ahead.
+  smoke101–104.
   Before it polish (sw `kos-polish-3`, 25 October 2026,
   `feat/polish-1025`): strips redrawn by their page keep their scroll
   (`KOS.ui.scroller({keep, reveal})`; the term ribbon, the braid, the
@@ -89,7 +98,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-routines-1`
+- Service-worker version: `kos-routines-2`
 - Required smoke gate: 104 / 104 suites (`""` and 2–104; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21

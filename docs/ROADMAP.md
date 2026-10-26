@@ -1281,6 +1281,12 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.10 Daily Review and Routines ◆ (asked for 25 October 2026)
 
+> **Follow-up RELEASED 26 October 2026** (sw `kos-routines-2`,
+> https://ff0df878.kurenai-os.pages.dev): Daily habits as one fixed
+> routine with auto-tracking, History redrawn, switched Focus sessions
+> shown, and the runner writing Kurenai's words ahead (decision D, the
+> `runner` function version 6). Nothing of 5.10 is left to build.
+
 > **Status (26 October 2026): RELEASED** as sw `kos-routines-1`
 > (`3c471b2`, https://5598f36e.kurenai-os.pages.dev), built to design turn
 > 33 (frames 33a–33v) with the art; the gate is 104/104. Still to do: the
