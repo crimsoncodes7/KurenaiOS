@@ -1942,6 +1942,13 @@
     return s.date || "";
   }
   function sessionLabel(s) {
+    var st = KOS.sessions.stretches(s);
+    if (st) {
+      if (s.metrics && s.metrics.objective) return s.metrics.objective;
+      var subs = [];
+      st.forEach(function (x) { if (subs.indexOf(x.label.split(" ")[0]) === -1) subs.push(x.label.split(" ")[0]); });
+      return subs.join(" + ") + " · " + st.length + " stretches";
+    }
     if (s.subject && s.ref && KOS.hub.BYREF[s.subject] && KOS.hub.BYREF[s.subject][s.ref]) {
       return s.ref + " " + KOS.hub.BYREF[s.subject][s.ref].title;
     }
@@ -2368,10 +2375,19 @@
           var r = sessionResult(s);
           var bar = el("span", { class: "k-fx-row-bar", "aria-hidden": "true" });
           if (s.subject) bar.style.setProperty("--row-hue", hue(s.subject));
-          return el("li", { class: "k-fx-row" }, [
+          /* a switched session names every stretch, and its bar splits */
+          var st = KOS.sessions.stretches(s);
+          if (st) {
+            bar.classList.add("k-fx-row-bar--split");
+            st.forEach(function (x) { var p = el("span", { style: "--f: " + x.mins + "; --row-hue: " + (x.subject && x.subject !== "media" ? hue(x.subject) : "var(--muted)") }); bar.appendChild(p); });
+          }
+          return el("li", { class: "k-fx-row", "data-ui": "focus.recent-row" }, [
             el("span", { class: "k-mono k-muted", text: sessionWhen(s) }),
             bar,
-            el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
+            st ? el("span", { class: "k-fx-row-t", title: st.map(function (x) { return x.label + (x.title ? " " + x.title : "") + " · " + x.mins + " min"; }).join("\n") }, [
+              el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
+              el("span", { class: "k-ellipsis k-muted k-fx-row-sub", "data-ui": "focus.recent-stretches", text: "Switched · " + KOS.sessions.stretchText(s) })])
+              : el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
             el("span", { class: "k-mono", text: Math.max(1, Math.round((s.dur || 0) / 60)) + " min" }),
             chip(r[0], r[1])
           ]);

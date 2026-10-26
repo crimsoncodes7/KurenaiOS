@@ -336,7 +336,13 @@
         if (hr >= HEAT_FROM && hr < HEAT_TO) heat[wd][hr - HEAT_FROM] += seg;
         t = next;
       }
-      if (wk) blocks.push({ ts: start, end: e.ts, mins: round(mins), sid: e.subject || null, mode: (e.metrics && e.metrics.mode) || null });
+      if (wk) {
+        var b = { ts: start, end: e.ts, mins: round(mins), sid: e.subject || null, mode: (e.metrics && e.metrics.mode) || null };
+        /* a switched session keeps its stretches: [[subject, minutes], …] */
+        var pts = e.metrics && Array.isArray(e.metrics.segments) && e.metrics.segments.length > 1 && KOS.sessions ? KOS.sessions.parts(e) : null;
+        if (pts) b.parts = pts.map(function (pt) { return [pt.subject || null, round(pt.secs / 60)]; });
+        blocks.push(b);
+      }
     });
     var total = sum(hourMins);
     var out = { blocks: F.length };

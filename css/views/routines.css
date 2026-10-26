@@ -123,6 +123,15 @@
 .k-rt-offer-row b { font-weight: var(--weight-medium); }
 /* Routines (33k): cards that fill the row, then the week grid */
 .k-rt-cards { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: var(--sp-20); }
+.k-rt-cards > :last-child { grid-column: span var(--last, 1); }
+/* the Daily habits editor: a habit's options open under its row */
+.k-rt-ehabit { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.k-rt-ehabit[data-state~="open"] { background: var(--s2); }
+.k-rt-ehabit-opts { grid-column: 2 / -1; padding-block: var(--sp-8) var(--sp-4); }
+.k-rt-fixedname { margin: 0; font-size: var(--fs-20); }
+/* the shorter column rides along beside the habit list */
+.k-rt-editor--habits { align-items: start; }
+.k-rt-editor--habits > .k-rt-col { position: sticky; inset-block-start: var(--sp-16); }
 .k-rt-rcard { gap: var(--sp-4); }
 .k-rt-cover { position: relative; block-size: var(--rt-cover-h); margin: calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4)) var(--sp-10); border-radius: var(--r-14); overflow: hidden; background: var(--s2); }
 .k-rt-cover--lg { block-size: var(--rt-cover-h-lg); }
@@ -135,6 +144,7 @@
 .k-rt-strip { display: flex; gap: var(--sp-2); }
 .k-rt-strip > span { flex: 0 1 var(--rt-strip-cell); min-inline-size: var(--sp-3); inline-size: var(--rt-strip-cell); block-size: var(--rt-strip-cell); border-radius: var(--r-2); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-rt-strip > span[data-state="kept"] { background: var(--text-2); box-shadow: none; }
+.k-rt-strip > span[data-state="partial"] { background: linear-gradient(135deg, var(--text-2) 50%, transparent 50%); box-shadow: inset 0 0 0 var(--hairline) var(--text-2); }
 .k-rt-strip > span[data-state="rest"] { background: repeating-linear-gradient(135deg, var(--muted) 0 var(--sp-2), transparent var(--sp-2) var(--sp-4)); box-shadow: none; }
 .k-rt-grid { flex: 1 1 auto; display: flex; flex-direction: column; }
 .k-rt-grid-head { flex: 0 0 auto; }
@@ -401,6 +411,7 @@ button.k-rt-cell { cursor: pointer; }
 .k-rt-today > .k-rt-habitcard { grid-column: 1 / -1; }
 .k-rt-tpls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-rt-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-rt-cards > :last-child { grid-column: auto; }
 .k-rt-cards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 @media (max-width: 1080px) {

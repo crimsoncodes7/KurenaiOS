@@ -1253,8 +1253,18 @@
       return el("li", { class: "k-rp-tl-row", "data-state": i === busiest ? "hi" : null }, [el("span", { class: "k-rp-tl-d", text: r.d }), el("span", { class: "k-rp-tl-track" }, r.mine.map(function (b) {
         var st = new Date(b.ts), m = st.getHours() * 60 + st.getMinutes();
         var left = Math.max(0, Math.min(100, 100 * (m - from) / span)), w = Math.max(1.4, Math.min(100 - left, 100 * b.mins / span));
-        return el("span", { class: "k-rp-tl-b", style: "--l: " + left.toFixed(2) + "%; --w: " + w.toFixed(2) + "%; --c: " + (SUBJ_HUE[b.sid] || "var(--teal)"),
-          title: r.d + " " + clock(b.ts) + " · " + W.hm(b.mins) + (b.sid ? " · " + W.SUBJECT_SHORT[b.sid] : "") }, [b.mins >= 60 ? el("span", { class: "k-mono", text: b.mins + "m" }) : null].filter(Boolean));
+        /* a switched session is drawn in its stretches' hues, in order */
+        var c = SUBJ_HUE[b.sid] || "var(--teal)", what = b.sid ? " · " + W.SUBJECT_SHORT[b.sid] : "";
+        if (b.parts && b.parts.length > 1) {
+          var tot = b.parts.reduce(function (a2, x) { return a2 + x[1]; }, 0) || 1, at = 0;
+          c = "linear-gradient(90deg, " + b.parts.map(function (x) {
+            var a0 = at; at += 100 * x[1] / tot;
+            return (SUBJ_HUE[x[0]] || "var(--teal)") + " " + a0.toFixed(1) + "% " + at.toFixed(1) + "%";
+          }).join(", ") + ")";
+          what = " · switched: " + b.parts.map(function (x) { return (W.SUBJECT_SHORT[x[0]] || "General") + " " + x[1] + "m"; }).join(" → ");
+        }
+        return el("span", { class: "k-rp-tl-b", style: "--l: " + left.toFixed(2) + "%; --w: " + w.toFixed(2) + "%; --c: " + c,
+          title: r.d + " " + clock(b.ts) + " · " + W.hm(b.mins) + what }, [b.mins >= 60 ? el("span", { class: "k-mono", text: b.mins + "m" }) : null].filter(Boolean));
       }))]);
     });
     var axis = el("li", { class: "k-rp-tl-row k-rp-tl-axis", "aria-hidden": "true" }, [el("span", {}), el("span", { class: "k-rp-tl-track" },

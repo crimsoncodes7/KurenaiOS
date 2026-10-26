@@ -140,7 +140,8 @@
       case "focus":
         info.label = "Focus";
         info.title = m.complete ? "Focus session completed" : "Focus session ended early";
-        info.detail = (topic ? topic + " · " : "") + (m.mins || Math.round((s.dur || 0) / 60)) + " min";
+        info.detail = KOS.sessions.stretchText(s) ? "Switched · " + KOS.sessions.stretchText(s)
+          : (topic ? topic + " · " : "") + (m.mins || Math.round((s.dur || 0) / 60)) + " min";
         info.category = "focus"; info.meaningful = !!m.complete; break;
       case "todo":
         info.label = "Task"; info.title = m.item || "Task completed";
@@ -1189,7 +1190,9 @@
         })));
         /* the words the record carries */
         var rows = [];
-        if (e.subject) rows.push(["Linked", subjName(e.subject) + (e.ref ? " · " + e.ref : "")]);
+        var st = KOS.sessions.stretches(e);
+        if (st) st.forEach(function (x, i) { rows.push([i ? "Then" : "Stretches", x.label + (x.title ? " " + x.title : "") + " · " + x.mins + " min"]); });
+        else if (e.subject) rows.push(["Linked", subjName(e.subject) + (e.ref ? " · " + e.ref : "")]);
         if (m.title) rows.push(["Title", m.title]);
         if (m.objective) rows.push(["Objective", m.objective]);
         if (m.objectiveResult) rows.push(["Objective result", { met: "Met", partly: "Partly met", missed: "Missed" }[m.objectiveResult] || m.objectiveResult]);

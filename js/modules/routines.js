@@ -184,8 +184,8 @@
     if (KOS.views[view]) KOS.show(view);
   }
 
-  /* the day's habits as one-tap ticks (33j) and the one-line add; a
-     habit's name opens its editor (schedule, time, auto-tracking) */
+  /* the day's habits as one-tap ticks (33j). Ticking is all Today does:
+     the habits are set up in the Daily habits routine's own editor */
   function habitTicks(opts) {
     opts = opts || {};
     var day = R().routineDay();
@@ -203,8 +203,7 @@
       var row = el("div", { class: "k-rt-habit", "data-ui": "routine.habit" }, [
         st === "rest" ? el("span", { class: "k-rt-check k-rt-check--rest", lang: "ja", "aria-label": h.name + ": rest day", text: "休" })
           : check(on, (on ? "Untick " : "Tick ") + h.name, function () { if (s0) tickStep(h, s0.id, !on, {}, opts.after); }, { hook: "routine.habit-tick", disabled: !today0 }),
-        el("button", { type: "button", class: "k-rt-habit-t", "data-ui": "routine.habit-edit", "aria-label": "Edit " + h.name, onclick: function () { habitEditor(h.id, null, opts.after); } }, [
-          el("span", { class: "k-ellipsis", text: h.name }), subEl]),
+        el("span", { class: "k-rt-habit-t" }, [el("span", { class: "k-ellipsis", text: h.name }), subEl]),
         st === "rest" ? muted("休 rest day") : streak ? muted("炎 " + streak) : null
       ]);
       if (on) KOS.ui.state(row, "done", true);
@@ -212,21 +211,19 @@
       list.appendChild(row);
     });
     return card([
-      head("Habits", hs.length ? kept + " of " + due.length + " today" : "a habit is a routine with one step"),
-      hs.length ? list : el("p", { class: "k-muted k-rt-small", text: "Anything you want to keep up. One can tick itself from what you already do — 30 minutes on CS, twenty cards, a plan row." }),
-      habitAdd(opts.after)
+      head("Daily habits", hs.length ? kept + " of " + due.length + " today" : "a habit is a routine with one step",
+        el("button", { type: "button", class: "k-link k-rt-small", "data-ui": "routine.habits-edit", text: hs.length ? "Edit ›" : "Add habits ›", onclick: function () { KOS.show("routines", { edit: "habits" }); } })),
+      hs.length ? list : el("p", { class: "k-muted k-rt-small", text: "Anything you want to keep up. One can tick itself from what you already do — 30 minutes on CS, twenty cards, a plan row." })
     ], "k-rt-habitcard", "routine.habit-card");
   }
 
-  /* the habit editor: name, when it repeats, a time, and whether it ticks
-     itself (KOS.routines.AUTO, read through the Goals engine) */
+  /* one habit's options, edited in place on a draft `d` (repeats, a time
+     and its reminder, auto-tracking through KOS.routines.AUTO); read()
+     gives the patch or {error} */
   var DAYN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  function habitEditor(id, name, after) {
-    var cur = id ? R().get(id) : null;
-    var d = cur ? JSON.parse(JSON.stringify(cur)) : { name: name || "", kind: "habit", days: [], window: null, remind: false, auto: null };
+  function habitFields(d) {
+    d.days = d.days || [];
     var mode = d.every ? "every" : !d.days.length ? "daily" : d.days.join() === "1,2,3,4,5" ? "weekdays" : d.days.join() === "0,6" ? "weekends" : "days";
-    var title = el("h2", { class: "k-dialog-title", text: cur ? "Edit habit" : "New habit" });
-    var nameIn = el("input", { type: "text", class: "k-input", "data-ui": "habit.name", "aria-label": "Habit", placeholder: "e.g. Study CS", value: d.name });
     var when = el("div", { class: "k-rt-hab-when" });
     var MODES = [["daily", "Every day"], ["weekdays", "Weekdays"], ["weekends", "Weekends"], ["days", "Chosen days"], ["every", "Every few days"]];
     function paintWhen() {
@@ -247,31 +244,30 @@
         })));
       }
       if (mode === "every") {
+        d.from = d.from || R().routineDay();
         var n = el("input", { type: "number", class: "k-input k-mono k-rt-num", min: 2, max: 14, value: d.every, "aria-label": "Every how many days", "data-ui": "habit.every" });
         n.addEventListener("change", function () { d.every = Math.max(2, Math.min(14, Math.round(+n.value || 2))); n.value = d.every; });
-        var from = el("input", { type: "date", class: "k-input k-mono", value: d.from || R().routineDay(), "aria-label": "Starting" });
+        var from = el("input", { type: "date", class: "k-input k-mono", value: d.from, "aria-label": "Starting" });
         from.addEventListener("change", function () { if (from.value) d.from = from.value; });
-        d.from = d.from || R().routineDay();
         when.appendChild(el("div", { class: "k-cluster" }, [muted("Every"), n, muted("days, starting"), from]));
       }
     }
     paintWhen();
-    /* a time of day, and a reminder at its start */
     var w = d.window || {};
     var fromIn = el("input", { type: "time", class: "k-input k-mono k-rt-time", value: w.from || "", "aria-label": "From" });
     var toIn = el("input", { type: "time", class: "k-input k-mono k-rt-time", value: w.to || "", "aria-label": "Until" });
     var remind = el("input", { type: "checkbox", role: "switch", class: "k-switch", "aria-label": "Remind me when it starts" });
     remind.checked = !!d.remind;
-    /* auto-tracking */
-    var A = R().AUTO, auto = d.auto ? Object.assign({}, d.auto) : null;
+    var A = R().AUTO;
     var autoBox = el("div", { class: "k-rt-hab-auto" });
     function paintAuto() {
       autoBox.innerHTML = "";
+      var auto = d.auto;
       var src = el("select", { class: "k-select", "data-ui": "habit.auto-src", "aria-label": "Ticks itself when" },
         [el("option", { value: "", text: "No — I tick it" })].concat(Object.keys(A).map(function (k) { return el("option", { value: k, text: A[k].label }); })));
       src.value = auto ? auto.src : "";
       src.addEventListener("change", function () {
-        auto = src.value ? { src: src.value, n: A[src.value].def, subject: auto && A[src.value].subject ? auto.subject : null } : null;
+        d.auto = src.value ? { src: src.value, n: A[src.value].def, subject: auto && A[src.value].subject ? auto.subject : null } : null;
         paintAuto();
       });
       autoBox.appendChild(src);
@@ -295,38 +291,128 @@
     }
     paintAuto();
     function field(label, ctl, note) { return el("div", { class: "k-rt-hab-f" }, [el("div", { class: "k-rt-hab-l", text: label }), el("div", { class: "k-rt-hab-c" }, [ctl, note ? muted(note) : null])]); }
-    var err = el("p", { class: "k-rt-small", "data-tone": "danger", role: "alert", hidden: true });
-    var body = el("div", { class: "k-dialog-body k-rt-hab" }, [
-      field("Habit", nameIn),
-      field("Repeats", when),
-      field("Time", el("div", { class: "k-cluster" }, [fromIn, muted("to"), toIn, el("label", { class: "k-cluster" }, [remind, muted("remind me")])]), "optional · a reminder at its start"),
-      field("Ticks itself", autoBox, "read from your own record, the way Goals read it; you can still tick it by hand"),
-      err
-    ]);
-    function close() { overlay.remove(); if (after) after(); else KOS.rerender(); }
-    var foot = el("div", { class: "k-dialog-foot" }, [
-      cur ? el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", "data-ui": "habit.delete", text: "Delete", onclick: function () {
-        KOS.ui.confirm({ title: "Delete “" + cur.name + "”?", body: "Its past days stay in Reports; Archive keeps it in History too.", danger: true, confirm: "Delete" },
-          function () { R().remove(cur.id); close(); });
-      } }) : null,
-      cur ? el("button", { type: "button", class: "k-btn k-btn--quiet", text: "Archive", onclick: function () { R().archive(cur.id, true); close(); } }) : null,
+    return {
+      el: el("div", { class: "k-rt-hab" }, [
+        field("Repeats", when),
+        field("Time", el("div", { class: "k-cluster" }, [fromIn, muted("to"), toIn, el("label", { class: "k-cluster" }, [remind, muted("remind me")])]), "optional · a reminder at its start"),
+        field("Ticks itself", autoBox, "read from your own record, the way Goals read it; you can still tick it by hand")
+      ]),
+      read: function () {
+        if ((fromIn.value || toIn.value) && !(fromIn.value && toIn.value && fromIn.value < toIn.value)) return { error: "The time needs a start before its end." };
+        var win = fromIn.value && toIn.value ? { from: fromIn.value, to: toIn.value } : null;
+        return { days: mode === "every" ? [] : d.days, every: mode === "every" ? d.every : null, from: mode === "every" ? d.from : null,
+          window: win, remind: remind.checked && !!win, auto: d.auto || null };
+      }
+    };
+  }
+  function habitSummary(h) {
+    return [schedText(h), h.auto ? "自 " + R().autoText(h.auto) : null, h.remind && h.window ? "reminds at " + h.window.from : null].filter(Boolean).join(" · ");
+  }
+
+  /* the Daily habits routine's editor (#/routines/edit/habits): fixed name
+     and mark, a row per habit like a routine's steps, each opening its own
+     options in place; nothing is written until Save */
+  function habitsEditor(main) {
+    var draft = R().all({ kind: "habit" }).map(function (h) {
+      var d = JSON.parse(JSON.stringify(h)); d._key = h.id; return d;
+    });
+    var gone = [], openKey = null, fields = {};
+    main.appendChild(el("div", { class: "k-rt-crumb" }, [
+      el("button", { type: "button", class: "k-link", text: "Routines ›", onclick: function () { KOS.show("routines", "routines"); } }),
+      el("span", { text: "Daily habits" }),
       el("span", { class: "k-rt-fill" }),
-      el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.remove(); } }),
-      el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "habit.save", text: cur ? "Save" : "Add habit", onclick: function () {
-        var nm = nameIn.value.trim();
-        if (!nm) { err.textContent = "Give the habit a name."; err.hidden = false; nameIn.focus(); return; }
-        if ((fromIn.value || toIn.value) && !(fromIn.value && toIn.value && fromIn.value < toIn.value)) { err.textContent = "The time needs a start before its end."; err.hidden = false; return; }
-        var patch = { name: nm, kind: "habit", days: mode === "every" ? [] : d.days, every: mode === "every" ? d.every : null, from: mode === "every" ? d.from : null,
-          window: fromIn.value && toIn.value ? { from: fromIn.value, to: toIn.value } : null, remind: remind.checked && !!(fromIn.value && toIn.value), auto: auto };
-        if (cur) R().update(cur.id, Object.assign(patch, { steps: [Object.assign({}, cur.steps[0] || {}, { text: nm })] }));
+      muted("Each habit keeps its own streak; changes apply from the next day")
+    ]));
+    var wrap = el("div", { class: "k-rt-editor k-rt-editor--habits", "data-ui": "routine.editor routine.habits-editor" });
+    main.appendChild(wrap);
+    var list = el("div", { class: "k-rt-esteps", "data-ui": "routine.editor-steps" });
+    function paint(focusKey) {
+      list.innerHTML = "";
+      fields = {};
+      draft.forEach(function (d, i) {
+        var t = el("input", { type: "text", class: "k-rt-step-in", value: d.name || "", placeholder: "Habit " + (i + 1), "aria-label": "Habit " + (i + 1), "data-ui": "habit.name" });
+        t.addEventListener("input", function () { d.name = t.value; });
+        var open = openKey === d._key;
+        var f = open ? habitFields(d) : null;
+        if (f) fields[d._key] = f;
+        var more = KOS.ui.menu({ label: "⋯", className: "k-btn--quiet k-btn--sm", hint: "More for this habit", items: [
+          d.id ? { label: "Archive (keeps its history)", onSelect: function () { d.archived = true; draft.splice(draft.indexOf(d), 1); gone.push({ id: d.id, archive: true }); paint(); } } : null,
+          { label: "Delete this habit", onSelect: function () {
+            if (!d.id) { draft.splice(draft.indexOf(d), 1); paint(); return; }
+            KOS.ui.confirm({ title: "Delete “" + (d.name || "this habit") + "”?", body: "Its past days stay in Reports; Archive keeps it in History too. Nothing changes until you save.", danger: true, confirm: "Delete" },
+              function () { draft.splice(draft.indexOf(d), 1); gone.push({ id: d.id }); paint(); });
+          } }
+        ].filter(Boolean) });
+        var row = el("div", { class: "k-rt-estep k-rt-ehabit", "data-rid": d._key, "data-ui": "routine.editor-step habit.row" }, [
+          el("button", { type: "button", class: "k-grip", "data-reorder": "", "aria-label": "Move " + (d.name || "habit " + (i + 1)), title: "Drag to move · Space lifts it", text: "⠿" }),
+          el("div", { class: "k-rt-estep-t" }, [t, el("div", { class: "k-cluster k-rt-estep-tags" }, [muted(habitSummary(d))])]),
+          el("button", { type: "button", class: "k-btn k-btn--sm" + (open ? "" : " k-btn--quiet"), "aria-expanded": String(open), "data-ui": "habit.options", text: open ? "Done" : "Options",
+            onclick: function () { if (open) { var p0 = f.read(); if (p0.error) { KOS.ui.toast(p0.error, true); return; } Object.assign(d, p0); } openKey = open ? null : d._key; paint(); } }),
+          more,
+          f ? el("div", { class: "k-rt-ehabit-opts" }, [f.el]) : null
+        ]);
+        if (open) KOS.ui.state(row, "open", true);
+        list.appendChild(row);
+        if (focusKey === d._key) setTimeout(function () { t.focus(); }, 0);
+      });
+    }
+    KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { var d = draft.filter(function (x) { return x._key === row.getAttribute("data-rid"); })[0]; return d ? d.name || "habit" : "habit"; },
+      onDrop: function (row, l, index) {
+        var from = draft.findIndex(function (x) { return x._key === row.getAttribute("data-rid"); });
+        var d = draft.splice(from, 1)[0];
+        draft.splice(index, 0, d);
+        paint();
+      } });
+    var addIn = el("input", { type: "text", class: "k-rt-add-in", placeholder: "Add a habit…", "aria-label": "Add a habit", "data-ui": "routine.habit-add",
+      onkeydown: function (e) {
+        if (e.key !== "Enter" || !addIn.value.trim()) return;
+        var d = { _key: "n" + Date.now().toString(36), name: addIn.value.trim(), days: [], window: null, remind: false, auto: null };
+        draft.push(d); addIn.value = ""; openKey = d._key; paint();
+      } });
+    paint();
+    function save() {
+      if (openKey && fields[openKey]) {
+        var p0 = fields[openKey].read();
+        if (p0.error) { KOS.ui.toast(p0.error, true); return; }
+        Object.assign(draft.filter(function (x) { return x._key === openKey; })[0] || {}, p0);
+      }
+      gone.forEach(function (g) { if (g.archive) R().archive(g.id, true); else R().remove(g.id); });
+      draft.forEach(function (d, i) {
+        var nm = String(d.name || "").trim();
+        if (!nm) { if (d.id) R().remove(d.id); return; }
+        var patch = { name: nm, kind: "habit", days: d.days || [], every: d.every || null, from: d.from || null, window: d.window || null,
+          remind: !!d.remind, auto: d.auto || null, order: 100 + i };
+        if (d.id) { var cur = R().get(d.id); R().update(d.id, Object.assign(patch, { steps: [Object.assign({}, (cur && cur.steps[0]) || {}, { text: nm })] })); }
         else R().add(Object.assign(patch, { steps: [{ text: nm }] }));
-        R().autoSync();
-        close();
-      } })
-    ].filter(Boolean));
-    var box = el("div", { class: "k-dialog k-rt-hab-dlg", "data-ui": "habit.editor" }, [el("div", { class: "k-dialog-head" }, [title]), body, foot]);
-    var overlay = el("div", { class: "k-dialog-overlay" }, [box]);
-    KOS.ui.openDialog(overlay, { labelledBy: title, initialFocus: nameIn });
+      });
+      R().autoSync();
+      KOS.ui.toast("Saved. Applies from the next day.");
+      KOS.show("routines", "routines");
+    }
+    var day = R().routineDay(), hs = R().all({ kind: "habit" });
+    var keptToday = hs.filter(function (h) { var st = R().stateOn(h, day); return st === "done" || st === "min"; }).length;
+    var dueToday = hs.filter(function (h) { return R().scheduledOn(h, day); }).length;
+    var autoN = hs.filter(function (h) { return h.auto; }).length;
+    wrap.appendChild(card([
+      el("div", { class: "k-rt-ehead" }, [tile("習"), el("div", {}, [el("h2", { class: "k-rt-hd-t k-rt-fixedname", text: "Daily habits" }), muted("a routine of its own, always there: each habit is one step with its own days")])]),
+      el("div", { class: "k-rt-hd" }, [el("h3", { class: "k-rt-hd-t", text: "Habits" }), muted("drag ⠿ or Space then ↑↓ to reorder · Options for days, a time and ticking itself")]),
+      list,
+      el("div", { class: "k-rt-add" }, [el("span", { "aria-hidden": "true", text: "＋" }), addIn, muted("Enter adds it, then set its options")])
+    ], "k-rt-ecard"));
+    wrap.appendChild(el("div", { class: "k-rt-col" }, [
+      card([head("Today"),
+        el("div", { class: "k-rt-rcard-n" }, [el("b", { class: "k-rt-big", text: dueToday ? keptToday + " of " + dueToday : "—" }), muted(dueToday ? "kept so far" : "none due today")]),
+        habitsStrip(hs),
+        autoN ? muted(plural(autoN, "habit") + " tick themselves from your record") : null
+      ].filter(Boolean)),
+      card([head("How habits work"),
+        el("p", { class: "k-rt-small k-rt-text2", text: "Tick a habit on Today, on Home or in the reviews. Each keeps its own streak and pays the small trickle once a day; a habit that ticks itself pays the same, once. The routine itself can't be renamed or removed — it's where every habit lives." }),
+        el("div", { class: "k-cluster" }, [
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "routine.save", text: "Save", onclick: save }),
+          el("button", { type: "button", class: "k-btn k-btn--quiet", text: "Cancel", onclick: function () { KOS.show("routines", "routines"); } })
+        ])
+      ])
+    ]));
   }
 
   /* ================= the page ================= */
@@ -334,6 +420,7 @@
 
   KOS.views.routines = function (main, arg) {
     KOS.shell.tree("none");
+    if (arg && arg.edit === "habits") { habitsEditor(main); return; }
     if (arg && arg.edit) { editor(main, arg.edit); return; }
     var tab = typeof arg === "string" && TABS.some(function (t) { return t[0] === arg; }) ? arg : "today";
     main.appendChild(KOS.ui.pageHeader({ kicker: "習 · Routines", title: "Routines",
@@ -461,6 +548,54 @@
     return el("div", { class: "k-rt-strip", role: "img", "aria-label": cells.filter(function (c) { return c.state === "done" || c.state === "min"; }).length + " kept of " + cells.length + " scheduled days" },
       cells.map(function (c) { return el("span", { "data-state": c.state === "done" || c.state === "min" ? "kept" : c.state === "rest" ? "rest" : "not", title: dayLabel(c.day) + " · " + c.state }); }));
   }
+  /* the Daily habits routine's 28 days: kept when every habit due that day
+     was kept, partial when some were */
+  function habitsDay(hs, d) {
+    var kept = 0, sched = 0, part = 0, rest = 0;
+    hs.forEach(function (h) {
+      var st = R().stateOn(h, d);
+      if (st === "off") return;
+      if (st === "rest") { rest++; return; }
+      sched++;
+      if (st === "done" || st === "min") kept++; else if (st === "partial") part++;
+    });
+    return { kept: kept, sched: sched, state: !sched ? (rest ? "rest" : "off") : kept === sched ? "kept" : kept || part ? "partial" : "not" };
+  }
+  function habitsStrip(hs) {
+    var day = R().routineDay(), cells = [];
+    for (var d = KOS.srs.addDays(day, -27); d <= day; d = KOS.srs.addDays(d, 1)) {
+      var x = habitsDay(hs, d);
+      if (x.state === "off" || (d === day && x.state !== "kept")) continue;
+      cells.push(el("span", { "data-state": x.state === "partial" ? "partial" : x.state, title: dayLabel(d) + " · " + x.kept + " of " + x.sched }));
+    }
+    return el("div", { class: "k-rt-strip", role: "img", "aria-label": "Daily habits, the last four weeks" }, cells);
+  }
+  /* the fixed routine every habit lives in, drawn like any routine card */
+  function habitsCard() {
+    var hs = R().all({ kind: "habit" }), day = R().routineDay();
+    var k = 0, sc = 0;
+    for (var d = KOS.srs.addDays(day, -27); d < day; d = KOS.srs.addDays(d, 1)) hs.forEach(function (h) {
+      var st = R().stateOn(h, d);
+      if (st === "off" || st === "rest") return;
+      sc++; if (st === "done" || st === "min") k++;
+    });
+    var pct = sc >= 14 ? Math.round(100 * k / sc) : null, t = habitsDay(hs, day);
+    var autoN = hs.filter(function (h) { return h.auto; }).length;
+    function edit() { KOS.show("routines", { edit: "habits" }); }
+    return el("article", { class: "k-card k-rt-card k-rt-rcard", "data-ui": "routine.card routine.habits-card" }, [
+      el("div", { class: "k-rt-cover" }, [el("img", { src: img("cover.habit"), alt: "", loading: "lazy" }), tile("習")]),
+      el("button", { type: "button", class: "k-rt-rcard-t", "data-ui": "routine.edit", text: "Daily habits", onclick: edit }),
+      muted(hs.length ? plural(hs.length, "habit") + (autoN ? " · " + autoN + " tick themselves" : "") + " · each its own days" : "no habits yet"),
+      el("div", { class: "k-rt-rcard-n" }, [el("b", { class: "k-rt-big", text: pct == null ? "—" : pct + "%" }), muted(pct == null ? "too early to call" : "kept · last 4 weeks")]),
+      habitsStrip(hs),
+      el("div", { class: "k-cluster k-rt-rcard-f" }, [
+        el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "routine.habits-today", text: "▶ Today", onclick: function () { KOS.show("routines"); } }),
+        el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Edit", onclick: edit }),
+        el("span", { class: "k-rt-fill" }),
+        t.sched ? muted(t.kept + " of " + t.sched + " today") : null
+      ])
+    ]);
+  }
   function share(r) {
     var day = R().routineDay(), s = R().summary(r.id, KOS.srs.addDays(day, -27), day);
     return s.scheduled ? Math.round(100 * s.kept / s.scheduled) : null;
@@ -517,24 +652,14 @@
       hs.length ? grid : el("p", { class: "k-muted k-rt-small", text: "Add a habit on Today and its week fills in here." })
     ], "k-rt-gridcard", "routine.habit-grid");
   }
-  /* one line: Enter adds a daily habit; Options… opens the editor */
-  function habitAdd(after) {
-    var input = el("input", { type: "text", class: "k-rt-add-in", placeholder: "Add a habit…", "aria-label": "New habit", "data-ui": "routine.habit-add",
-      onkeydown: function (e) {
-        if (e.key !== "Enter" || !input.value.trim()) return;
-        var t = input.value.trim();
-        R().addHabit(t);
-        KOS.a11y && KOS.a11y.announce("Added " + t);
-        if (after) after(); else KOS.rerender();
-      } });
-    return el("div", { class: "k-rt-add" }, [el("span", { "aria-hidden": "true", text: "＋" }), input,
-      el("button", { type: "button", class: "k-link k-rt-small", "data-ui": "routine.habit-options", text: "Options…", onclick: function () { habitEditor(null, input.value.trim(), after); } })]);
-  }
   function routinesTab(body) {
     var rs = R().all().filter(function (r) { return r.kind !== "habit"; });
     if (firstVisit()) body.appendChild(offerCard());
     /* as many columns as cards, up to four, so no row ends in a gap */
-    if (rs.length) body.appendChild(el("div", { class: "k-rt-cards", "data-ui": "routine.cards", style: "--n: " + Math.min(4, rs.length) }, rs.map(routineCard)));
+    /* up to four columns; the last card widens to close its row */
+    var cards = rs.map(routineCard).concat([habitsCard()]), nc = cards.length;
+    var cols = nc <= 4 ? nc : nc % 4 === 0 || nc % 4 === 3 ? 4 : 3, rem = nc % cols;
+    body.appendChild(el("div", { class: "k-rt-cards", "data-ui": "routine.cards", style: "--n: " + cols + (rem ? "; --last: " + (cols - rem + 1) : "") }, cards));
     var arch = R().all({ archived: true }).filter(function (r) { return r.archived; });
     if (arch.length) body.appendChild(card([head("Archived", plural(arch.length, "routine")), el("div", { class: "k-rt-rows" }, arch.map(function (r) {
       return el("div", { class: "k-rt-row" }, [tile(markOf(r), toneOf(r), true), el("span", { class: "k-rt-grow", text: r.name }),

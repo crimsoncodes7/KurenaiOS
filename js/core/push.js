@@ -24,7 +24,14 @@
      test         "Send a test": one outlook item due now, kind `test`,
                   which the runner sends even while a device is present.
      pull         the server's scheduled replies (kos_runs) folded into
-                  their schedules through KOS.ai.schedule.applyServerRun.
+                  their schedules through KOS.ai.schedule.applyServerRun,
+                  and the Daily Review's words it wrote ahead ("review:
+                  <slot>") through KOS.dayReview.applyServerWords.
+     reviews      with Kurenai's words on, the coming reviews (today's and
+                  tomorrow's, KOS.dayReview.ahead: the two messages this
+                  device would send) and the generation route ride the
+                  outlook, so the runner writes them before the slot and
+                  the notification carries her line (decision D).
 
    Synced: state.notifyCloud = {on, serverRuns} — closed-app delivery for
    the account, and whether the server runs the schedules. Per device: the
@@ -182,6 +189,11 @@
     var r = a && a.routing && a.routing.complex ? a.routing.complex : (KOS.ai && KOS.ai.DEFAULT_ROUTING ? KOS.ai.DEFAULT_ROUTING.complex : null);
     return r ? { provider: r.provider, model: r.model || "" } : null;
   }
+  function genRoute() {
+    var a = KOS.ai && KOS.ai.config ? KOS.ai.config() : null;
+    var r = a && a.routing && a.routing.generation ? a.routing.generation : (KOS.ai && KOS.ai.DEFAULT_ROUTING ? KOS.ai.DEFAULT_ROUTING.generation : null);
+    return r ? { provider: r.provider, model: r.model || "" } : null;
+  }
   function schedules() {
     return (KOS.ai && KOS.ai.schedule ? KOS.ai.schedule.list() : []).map(function (s) {
       return { id: s.id, name: s.name || "", prompt: s.prompt, time: s.time, days: s.days, enabled: !!s.enabled };
@@ -190,7 +202,7 @@
   /* a stable fingerprint of what the server would act on */
   function hashOf(o) {
     var b = Object.assign({}, o.brief, { asOf: null });
-    return KOS.fsrs.unit(JSON.stringify([o.items, b, o.schedules, o.serverRuns, o.route, o.tz])).toString(36);
+    return KOS.fsrs.unit(JSON.stringify([o.items, b, o.schedules, o.serverRuns, o.route, o.tz, o.reviews, o.reviewRoute])).toString(36);
   }
   function publish(force, cb) {
     cb = cb || function () {};
@@ -201,6 +213,8 @@
       o.serverRuns = !!cfg().serverRuns;
       o.schedules = o.serverRuns ? schedules() : [];
       o.route = o.serverRuns ? route() : null;
+      o.reviews = KOS.dayReview && KOS.dayReview.ahead ? KOS.dayReview.ahead() : [];
+      o.reviewRoute = o.reviews.length ? genRoute() : null;
       if (testAt && Date.now() - testAt < TEST_FOR) {
         o.items = o.items.concat([{ id: "test:" + testAt, kind: "test", at: testAt, title: "Kurenai · test notification",
           body: "Closed-app notifications reach this device.", view: "notifications", arg: null }]);
@@ -225,14 +239,15 @@
   }
   function pull(cb) {
     cb = cb || function () {};
-    if (!cfg().serverRuns || !signedIn() || (KOS.dataMode && KOS.dataMode.mode)) { cb(null, 0); return; }
+    if (!cfg().on || !signedIn() || (KOS.dataMode && KOS.dataMode.mode)) { cb(null, 0); return; }
     var key = "push.runs." + uid();
     kv(key).then(function (cursor) {
       cloud().runsSince(cursor || null, function (e, rows) {
         if (e) { cb(e); return; }
         var n = 0, max = cursor || null;
         (rows || []).forEach(function (r) {
-          if (KOS.ai.schedule.applyServerRun(r)) n++;
+          if (/^review:/.test(r.schedule_id || "")) { if (KOS.dayReview && KOS.dayReview.applyServerWords(r)) n++; }
+          else if (cfg().serverRuns && KOS.ai.schedule.applyServerRun(r)) n++;
           if (!max || r.updated_at > max) max = r.updated_at;
         });
         setKv(key, max).then(function () { cb(null, n); });

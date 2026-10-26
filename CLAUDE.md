@@ -1457,9 +1457,12 @@ source comments and audit notes refer to it.
     boot under deterministic ids (`h:<id>`); `state.todo.habits` is kept,
     frozen, for a rollback, and every older reader goes through
     `KOS.routines.habitsView`. A habit's schedule is days of the week or
-    every N days (`every` 2–14 from `from`); it is edited in its own
-    dialog from Today (name, repeats, a time and reminder, auto-tracking).
-    History only READS: its week grid has no tick and no add.
+    every N days (`every` 2–14 from `from`). Every habit lives in ONE
+    fixed routine, Daily habits: a routine card like the others and its
+    own editor (`#/routines/edit/habits`: a row per habit, each opening
+    its repeats, time and reminder, and auto-tracking in place; it can't
+    be renamed or removed). Today only ticks; History only READS (its week
+    grid has no tick and no add).
 143. ROUTINES PAY ONCE. A routine's completion (every required step, or
     its minimum) pays `KOS.governor.routineAward` once per routine day,
     logged as a `todo` session carrying `metrics.routine`; steps, rest
@@ -1487,7 +1490,14 @@ source comments and audit notes refer to it.
     `KOS.dayReview.payload` (titles, times and counts; never a note, card
     text, an amount, mood, energy or chat), printed exactly by "What is
     sent". Any failure keeps the template. Kurenai never picks, triages or
-    ticks.
+    ticks. With closed-app delivery on, the coming reviews (today's and
+    tomorrow's with no words yet, `KOS.dayReview.ahead`: the exact two
+    messages the device would send) ride the outlook with the generation
+    route; the `runner` writes each within ten minutes of its slot while no
+    device is open, claimed once in `kos_runs` as `review:<slot>` on its
+    day, read by the device's own rule (`parseWords`), and its push carries
+    her line; `KOS.push.pull` keeps them on the day
+    (`applyServerWords`) unless the device wrote its own.
 147. WHERE IT SHOWS IS DERIVED. A record's surfaces (Calendar, Countdowns,
     Today, the reviews, Home) follow from its own fields; no form asks
     where something appears. An assignment counts down by

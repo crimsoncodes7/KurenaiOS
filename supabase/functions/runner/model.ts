@@ -1,5 +1,6 @@
 /* Kurenai OS — runner/model.ts
-   One text-only request for a scheduled message answered on the server
+   One text-only request for a scheduled message (or a Daily Review's
+   words, category "review") answered on the server
    (docs/server-runner-plan.md §4, decision B). No tools: the brief is the
    message. Metered exactly like ai-chat: the atomic kos_ai_consume cap
    BEFORE the provider is called, a kos_ai_usage row after (metadata only,
@@ -26,18 +27,18 @@ async function consume(userId: string, provider: string): Promise<boolean> {
   const row = Array.isArray(rows) ? rows[0] : rows;
   return !!row?.allowed;
 }
-async function record(userId: string, provider: string, model: string, outcome: string, p: number | null, c: number | null) {
+async function record(userId: string, provider: string, model: string, outcome: string, p: number | null, c: number | null, category = "scheduled") {
   try {
     await serviceRest("kos_ai_usage", {
       method: "POST", headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ user_id: userId, provider, model, category: "scheduled", outcome,
+      body: JSON.stringify({ user_id: userId, provider, model, category, outcome,
         prompt_tokens: p, completion_tokens: c, rate_limited: outcome === "rate_limited", correlation_id: null }),
     });
   } catch { /* a metering write failure never breaks the run */ }
 }
 
 /* → {ok, text}; text is the reply, or a short, key-free reason */
-export async function answer(userId: string, route: { provider?: string; model?: string } | null, system: string, user: string): Promise<{ ok: boolean; text: string }> {
+export async function answer(userId: string, route: { provider?: string; model?: string } | null, system: string, user: string, category = "scheduled", maxTokens = 1200): Promise<{ ok: boolean; text: string }> {
   const provider = route?.provider === "deepseek" ? "deepseek" : route?.provider === "gemini" ? "gemini" : null;
   if (!provider) return { ok: false, text: "This schedule's model runs on your device (Ollama), so the server cannot answer it." };
   const model = String(route?.model || (provider === "gemini" ? "gemini-3.6-flash" : "deepseek-v4-flash"));
@@ -45,7 +46,7 @@ export async function answer(userId: string, route: { provider?: string; model?:
   if (!key) return { ok: false, text: `The ${provider} key isn't configured on the server.` };
   let allowed = false;
   try { allowed = await consume(userId, provider); } catch { return { ok: false, text: "Metering was unavailable; it will try again." }; }
-  if (!allowed) { await record(userId, provider, model, "rate_limited", null, null); return { ok: false, text: `The daily limit for ${provider} is reached.` }; }
+  if (!allowed) { await record(userId, provider, model, "rate_limited", null, null, category); return { ok: false, text: `The daily limit for ${provider} is reached.` }; }
 
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS);
@@ -57,29 +58,29 @@ export async function answer(userId: string, route: { provider?: string; model?:
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: system }] },
           contents: [{ role: "user", parts: [{ text: user }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 1200 },
+          generationConfig: { temperature: 0.4, maxOutputTokens: maxTokens },
         }),
       });
-      if (!res.ok) { await record(userId, provider, model, "provider_error", null, null); return { ok: false, text: `${provider} returned HTTP ${res.status}.` }; }
+      if (!res.ok) { await record(userId, provider, model, "provider_error", null, null, category); return { ok: false, text: `${provider} returned HTTP ${res.status}.` }; }
       const j = await res.json();
       const text = (j?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("").trim();
-      await record(userId, provider, model, "ok", j?.usageMetadata?.promptTokenCount ?? null, j?.usageMetadata?.candidatesTokenCount ?? null);
+      await record(userId, provider, model, "ok", j?.usageMetadata?.promptTokenCount ?? null, j?.usageMetadata?.candidatesTokenCount ?? null, category);
       return text ? { ok: true, text } : { ok: false, text: "No reply came back." };
     }
     const res = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST", signal: ctl.signal,
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model, temperature: 0.4, max_tokens: 1200,
+      body: JSON.stringify({ model, temperature: 0.4, max_tokens: maxTokens,
         messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
     });
-    if (!res.ok) { await record(userId, provider, model, "provider_error", null, null); return { ok: false, text: `${provider} returned HTTP ${res.status}.` }; }
+    if (!res.ok) { await record(userId, provider, model, "provider_error", null, null, category); return { ok: false, text: `${provider} returned HTTP ${res.status}.` }; }
     const j = await res.json();
     const text = String(j?.choices?.[0]?.message?.content ?? "").trim();
-    await record(userId, provider, model, "ok", j?.usage?.prompt_tokens ?? null, j?.usage?.completion_tokens ?? null);
+    await record(userId, provider, model, "ok", j?.usage?.prompt_tokens ?? null, j?.usage?.completion_tokens ?? null, category);
     return text ? { ok: true, text } : { ok: false, text: "No reply came back." };
   } catch (e) {
     const abort = e instanceof DOMException && e.name === "AbortError";
-    await record(userId, provider, model, abort ? "timeout" : "provider_error", null, null);
+    await record(userId, provider, model, abort ? "timeout" : "provider_error", null, null, category);
     return { ok: false, text: abort ? `${provider} took too long to answer.` : "The provider request failed." };
   } finally {
     clearTimeout(timer);

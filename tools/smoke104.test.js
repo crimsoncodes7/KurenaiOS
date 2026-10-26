@@ -27,8 +27,9 @@
          plan's rows as "From your plan" and ticks them in the plan; a goal
          pins from its page; a week's report carries the Routines card.
      I · HABITS: Routines has no week grid (History has it, read-only, with
-         no tick or add); a habit's name opens its editor, which saves a
-         schedule and an auto-tracking rule; the Calendar's derived
+         no tick or add); Daily habits is a routine card with its own fixed
+         editor, which saves a habit's schedule and auto-tracking rule;
+         Today only ticks; the Calendar's derived
          switches sit in its Show menu, not a card.
 
    Run:
@@ -248,17 +249,22 @@ step("I · habits", async () => {
   assert(grid, "History has the week");
   assert(!grid.querySelector("button[data-ui~='routine.grid-tick']") && !grid.querySelector("input"), "read-only: no tick, no add");
   assert($$("[data-ui~='routine.history-row']").length >= 2, "a card per routine");
+  K.show("routines", "routines"); await app.settle();
+  assert($("[data-ui~='routine.habits-card']"), "Daily habits is a routine card");
   K.show("routines"); await app.settle();
+  assert(!$("[data-ui~='routine.habit-add']"), "Today only ticks: no add");
+  click($("[data-ui~='routine.habits-edit']")); await app.settle();
   const water = R.all({ kind: "habit" }).find((h) => h.name === "Water");
-  click($$("[data-ui~='routine.habit-edit']").find((b) => /Water/.test(b.textContent))); await app.settle();
-  const ed = $("[data-ui~='habit.editor']");
-  assert(ed, "the editor opens");
+  let ed = $("[data-ui~='routine.habits-editor']");
+  assert(ed, "the Daily habits editor opens");
+  click($$("[data-ui~='habit.row']").find((r) => r.querySelector("input").value === "Water").querySelector("[data-ui~='habit.options']")); await app.settle();
+  ed = $("[data-ui~='routine.habits-editor']");
   click([...ed.querySelectorAll("[data-ui~='habit.repeat']")].find((b) => /Weekdays/.test(b.textContent)));
   const src = ed.querySelector("[data-ui~='habit.auto-src']");
   src.value = "cards"; src.dispatchEvent(new app.window.Event("change", { bubbles: true }));
   const n = ed.querySelector("[data-ui~='habit.auto-n']");
   n.value = "15"; n.dispatchEvent(new app.window.Event("input", { bubbles: true }));
-  click(ed.querySelector("[data-ui~='habit.save']")); await app.settle();
+  click($("[data-ui~='routine.save']")); await app.settle();
   const w = R.get(water.id);
   eq([w.days, w.auto], [[1, 2, 3, 4, 5], { src: "cards", n: 15 }], "the schedule and the rule saved");
   K.show("calendar"); await app.settle();

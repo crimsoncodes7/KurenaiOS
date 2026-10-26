@@ -85,6 +85,10 @@
 .k-fx-row > .k-mono { font-size: var(--fs-12); }
 .k-fx-row > .k-chip { justify-self: start; }
 .k-fx-row-bar { block-size: var(--fx-row-bar-h); border-radius: var(--r-2); background: var(--row-hue, var(--line)); }
+.k-fx-row-bar--split { display: flex; flex-direction: column; gap: var(--sp-2); overflow: hidden; background: none; }
+.k-fx-row-bar--split > span { flex: var(--f) 1 0; min-block-size: var(--sp-2); background: var(--row-hue); }
+.k-fx-row-t { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
+.k-fx-row-sub { font-size: var(--fs-12); }
 .k-fx-live { display: flex; align-items: center; gap: var(--sp-16); flex-wrap: wrap; }
 .k-fx-live > .k-btn { margin-inline-start: auto; }
 

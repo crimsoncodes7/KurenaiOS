@@ -22,6 +22,13 @@
          and drop when stale; schedules are due by the user's own clock;
          the payload decrypts with the browser's keys (RFC 8291) and the
          VAPID signature verifies (RFC 8292).
+     G · THE REVIEW'S WORDS, WRITTEN AHEAD (roadmap 5.10, decision D): with
+         Kurenai's words on, the coming reviews ride the outlook with the
+         exact two messages the device would send (never mood, energy or a
+         note) and the generation route; the runner writes each within ten
+         minutes of its slot, once, by the device's own rule, and its push
+         carries her line; pull() keeps them on the day unless the device
+         wrote its own.
      F · THE PAGE: "When the app is closed" says why it is off here; with a
          key and a signed-in session its switches are live. The service
          worker shows a push under the ledger id.
@@ -211,6 +218,36 @@ step("E · the runner's logic and crypto", async () => {
   assert(/sameSecret\(auth\.slice\(7\), secret\)/.test(src) && !/kos_state/.test(src.replace(/\/\*[\s\S]*?\*\//g, "")), "cron secret checked; kos_state never read");
   assert(!/console\.(log|warn|error|info|debug)/.test(src + fs.readFileSync(path.join(ROOT, "supabase/functions/runner/model.ts"), "utf8")), "no logging");
   assert(/\[functions\.runner\]\s*\nverify_jwt = false/.test(fs.readFileSync(path.join(ROOT, "supabase/config.toml"), "utf8")), "the runner is cron-only");
+});
+
+step("G · the review's words, written ahead", async () => {
+  const V = K.dayReview;
+  V.setConfig({ words: "kurenai" });
+  await p((cb) => K.push.publish(true, cb));
+  const o = table.outlooks[table.outlooks.length - 1].data_json;
+  assert(o.reviews.length >= 1 && o.reviews.every((r) => /^review:(morning|afternoon|evening):\d{4}-\d{2}-\d{2}$/.test(r.id) && r.system && /check-in's facts/.test(r.user)), "the coming reviews, with the device's own two messages");
+  assert(!o.reviews.some((r) => /mood|energy|"note"/i.test(r.user)), "never mood, energy or a note");
+  assert(o.reviewRoute && o.reviewRoute.provider, "and the generation route");
+  const L = await import(path.join(ROOT, "supabase/functions/runner/logic.ts"));
+  const rv = o.reviews[0], t0 = rv.at;
+  eq([L.dueReviews([rv], new Set(), t0 - 11 * 60000).length, L.dueReviews([rv], new Set(), t0 - 9 * 60000).length], [0, 1], "written ten minutes ahead of the slot");
+  eq(L.dueReviews([rv], new Set(["review:" + rv.slot + "|" + rv.day]), t0).length, 0, "once");
+  eq(L.dueReviews([rv], new Set(), t0 + 31 * 60000).length, 0, "never stale");
+  const good = '```json\n{"line":"Evening, Crimson.","text":"A steady day: two lessons and the stats homework done. Tomorrow opens with Maths at nine."}\n```';
+  eq(L.reviewWords(good).line, "Evening, Crimson.", "a reply in a code fence still reads");
+  eq([L.reviewWords("not json"), L.reviewWords('{"line":"Hi","text":"short"}')], [null, null], "anything else is refused, as on the device");
+  const w = new Map([[rv.id, L.reviewWords(good)]]);
+  const pushed = L.withWords({ id: rv.id, kind: "review", title: "Evening review", body: "template", view: null, arg: null }, w);
+  eq([pushed.title, pushed.body.slice(0, 13)], ["Evening review · Evening, Crimson.", "A steady day:"], "the push carries her line");
+  eq(V.parseWords(good), L.reviewWords(good), "the device reads a reply exactly as the server does");
+  table.runs.push({ schedule_id: "review:" + rv.slot, day: rv.day, ok: true, text: JSON.stringify(L.reviewWords(good)), updated_at: "2026-10-22T09:59:00Z" });
+  eq(await p((cb) => K.push.pull(cb)), 1, "pulled");
+  const kept = V.day(rv.day).words[rv.slot];
+  eq([kept.line, kept.server], ["Evening, Crimson.", true], "kept on the day, marked as the server's");
+  eq(V.words(rv.slot, V.content(rv.slot, { now: rv.at })).byKurenai, true, "the review opens with her words");
+  const o2 = (await p((cb) => K.push.publish(true, cb)), table.outlooks[table.outlooks.length - 1].data_json);
+  assert(!o2.reviews.some((r) => r.id === rv.id), "a review with words is not published again");
+  eq(app.errors, [], "no errors");
 });
 
 step("F · the page and the service worker", async () => {

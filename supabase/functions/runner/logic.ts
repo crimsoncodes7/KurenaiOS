@@ -71,3 +71,42 @@ export function pushMessage(it: { id: string; kind: string; title: string; body:
   return { id: it.id, kind: it.kind, title: String(it.title || "").slice(0, 200), body: String(it.body || "").slice(0, 300),
     view: it.view ?? null, arg: it.arg ?? null };
 }
+
+/* ---------------- the Daily Review's words, written ahead ----------------
+   (roadmap 5.10, decision D, invariant 146). The device publishes each
+   coming review it has no words for — its id, its time and the exact two
+   messages it would send itself (the system prompt and the facts, from
+   KOS.dayReview.payload: titles, times and counts, never a note, an
+   amount, mood, energy or chat). The runner writes them LEAD before the
+   slot, claims each in kos_runs ("review:<slot>", its routine day) so it
+   runs once, and the review's push carries her line. */
+export const REVIEW_LEAD_MS = 10 * 60 * 1000;
+
+export type Review = { id: string; slot: string; day: string; at: number; system: string; user: string };
+
+/* the reviews to write now: within LEAD of their time, not stale, not run */
+export function dueReviews(list: Review[], ran: Set<string>, now: number): Review[] {
+  return (list || []).filter((r) => r && typeof r.id === "string" && typeof r.at === "number" &&
+    /^(morning|afternoon|evening)$/.test(r.slot) && /^\d{4}-\d{2}-\d{2}$/.test(r.day) &&
+    now >= r.at - REVIEW_LEAD_MS && now - r.at <= STALE_MS && !ran.has("review:" + r.slot + "|" + r.day) &&
+    typeof r.system === "string" && typeof r.user === "string");
+}
+
+/* the model's reply as words: {line, text} by the device's own rule (a
+   greeting of at most 80 characters, 20–600 of text), else null */
+export function reviewWords(raw: string): { line: string; text: string } | null {
+  let j: unknown = null;
+  const s = String(raw || "").replace(/^\s*```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "");
+  try { j = JSON.parse(s); } catch { return null; }
+  const o = j as { line?: unknown; text?: unknown };
+  const line = typeof o?.line === "string" ? o.line.replace(/\s+/g, " ").trim() : "";
+  const text = typeof o?.text === "string" ? o.text.replace(/\s+/g, " ").trim() : "";
+  if (!line || !text || line.length > 80 || text.length < 20 || text.length > 600) return null;
+  return { line, text };
+}
+
+/* a review notice carries her words when they were written */
+export function withWords(it: Item, words: Map<string, { line: string; text: string }>): Item {
+  const w = it.kind === "review" ? words.get(it.id) : undefined;
+  return w ? { ...it, title: it.title + " · " + w.line, body: w.text } : it;
+}

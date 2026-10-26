@@ -479,7 +479,7 @@
     var ticked = (store.state.todo && store.state.todo.autoChecked) || {};
     T.timeline.filter(function (x) { return x.kind === "study" && x.end && x.end <= hmNow(now) && x.ref.kind === "event"; }).forEach(function (x) {
       var ran = ticked[day + "|blk" + x.ref.id] || (store.state.sessions || []).some(function (e) {
-        return e.date === day && e.type === "focus" && (!x.subject || e.subject === x.subject);
+        return e.date === day && e.type === "focus" && (!x.subject || KOS.sessions.parts(e).some(function (p) { return p.subject === x.subject; }));
       });
       if (!ran) push(x.ref, x.title, "block");
     });
@@ -563,9 +563,54 @@
     return JSON.parse(JSON.stringify(p));
   }
   var SYSTEM = "You are Kurenai, a calm, warm study companion inside KurenaiOS. You write the opening words of one of the user's three daily check-ins (morning, afternoon or evening) from the facts given. " +
-    "Return JSON: {\"line\": a greeting of at most 8 words, \"text\": two or three short sentences}. British English. Describe and suggest; never decide, never guilt, never invent a fact, a time or a title that is not in the facts. No lists, no emoji.";
+    "Return only a JSON object: {\"line\": a greeting of at most 8 words, \"text\": two or three short sentences}. British English. Describe and suggest; never decide, never guilt, never invent a fact, a time or a title that is not in the facts. No lists, no emoji.";
   var SCHEMA = { type: "object", properties: { line: { type: "string" }, text: { type: "string" } }, required: ["line", "text"], additionalProperties: false };
   function clean(s) { return typeof s === "string" ? s.replace(/\s+/g, " ").trim() : ""; }
+  function userMessage(slot, c) { return "The " + slot + " check-in's facts:\n" + JSON.stringify(payload(slot, c)); }
+  /* a reply as words, or null: the same rule here and on the server */
+  function parseWords(raw) {
+    var j = null;
+    try { j = JSON.parse(String(raw || "").replace(/^\s*```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "")); } catch (e) { j = null; }
+    var l = j && clean(j.line), t = j && clean(j.text);
+    return l && t && l.length <= 80 && t.length >= 20 && t.length <= 600 ? { line: l, text: t } : null;
+  }
+  /* written ahead by the server (decision D): the coming reviews with no
+     words yet, each with the exact two messages this device would send —
+     published with the outlook (KOS.push) only when closed-app delivery is
+     on and the words are Kurenai's. Today's and tomorrow's. */
+  function ahead(now) {
+    if (!enabled || cfg().words !== "kurenai") return [];
+    now = now || Date.now();
+    var out = [], d0 = rday(now);
+    [d0, addDays(d0, 1)].forEach(function (d) {
+      SLOTS.forEach(function (s) {
+        var t = slotTime(s, d);
+        if (!t || closed(slotState(d, s))) return;
+        var have = (dayRec(d).words || {})[s];
+        if (have && have.text) return;
+        var when = at(d, t);
+        if (mins(t) < mins(cfg().dayStart)) when += 864e5;
+        if (when < now - 30 * 60000) return;
+        var msg = safe(function () { return userMessage(s, content(s, { now: when })); }, null);
+        if (msg) out.push({ id: "review:" + s + ":" + d, slot: s, day: d, at: when, system: SYSTEM, user: msg });
+      });
+    });
+    return out;
+  }
+  /* a kos_runs row the runner wrote ("review:<slot>", its day) → the day's
+     words, kept unless this device already wrote its own; true if taken */
+  function applyServerWords(row) {
+    var m = row && /^review:(morning|afternoon|evening)$/.exec(row.schedule_id || "");
+    if (!m || !row.ok || !/^\d{4}-\d{2}-\d{2}$/.test(row.day || "")) return false;
+    var w = parseWords(row.text);
+    if (!w) return false;
+    var s = data(), d = s.days[row.day] = s.days[row.day] || {};
+    d.words = d.words || {};
+    if (d.words[m[1]] && d.words[m[1]].text) return false;
+    d.words[m[1]] = { line: w.line, text: w.text, at: Date.now(), server: true };
+    store.save();
+    return true;
+  }
   /* write(slot, c, cb): one request; cb(err, {line, text}) */
   function write(slot, c, cb) {
     if (!KOS.ai || !KOS.ai.chat) { cb({ kind: "config", message: "The Assistant is not available." }); return null; }
@@ -578,18 +623,16 @@
     }, TIMEOUT_MS);
     req = KOS.ai.chat("generation", {
       system: SYSTEM,
-      messages: [{ role: "user", content: "The " + slot + " check-in's facts:\n" + JSON.stringify(payload(slot, c)) }],
+      messages: [{ role: "user", content: userMessage(slot, c) }],
       structured: { schema: SCHEMA }, temperature: 0.7, maxTokens: 300
     }, function (err, res) {
       if (done) return;
       done = true;
       clearTimeout(timer2);
       if (err) { cb(err); return; }
-      var raw = null;
-      try { raw = JSON.parse(res.text); } catch (e) { raw = null; }
-      var l = raw && clean(raw.line), t = raw && clean(raw.text);
-      if (!l || !t || l.length > 80 || t.length < 20 || t.length > 600) { cb({ kind: "invalid", message: "The reply was not usable words." }); return; }
-      cb(null, { line: l, text: t });
+      var w = parseWords(res.text);
+      if (!w) { cb({ kind: "invalid", message: "The reply was not usable words." }); return; }
+      cb(null, w);
     });
     return req;
   }
@@ -735,6 +778,6 @@
     markShown: markShown, finish: finish, setThree: setThree, setFirst: setFirst, firstFor: firstFor, setWindDown: setWindDown,
     resolve: resolve, triage: triage, dayFacts: dayFacts, content: content,
     template: template, payload: payload, write: write, words: words, ensureWords: ensureWords,
-    notice: notice, forecast: forecast
+    notice: notice, forecast: forecast, ahead: ahead, applyServerWords: applyServerWords, parseWords: parseWords
   };
 })();

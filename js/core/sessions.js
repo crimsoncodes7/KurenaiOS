@@ -92,6 +92,23 @@
       refs: e.refs && e.refs.length ? e.refs : e.subject && e.ref ? [e.subject + ":" + e.ref] : [],
       assignmentId: e.metrics && e.metrics.assignmentId != null ? e.metrics.assignmentId : null, secs: e.dur || 0 }];
   }
+  /* a switched Focus session's stretches for display, in order: null
+     when the entry is one part. Each {subject, ref, label, title, mins}:
+     `label` the short form ("CS 4.1.1"), `title` the topic's name. */
+  function stretches(e) {
+    var segs = e && e.type === "focus" && e.metrics && Array.isArray(e.metrics.segments) ? e.metrics.segments : null;
+    if (!segs || segs.length < 2) return null;
+    return parts(e).map(function (p) {
+      var S = KOS.subjects, short = p.subject && S && S.meta(p.subject) ? S.short(p.subject) : p.subject === "media" ? "Reading" : "General";
+      var leaf = p.subject && p.ref && KOS.hub && KOS.hub.BYREF && KOS.hub.BYREF[p.subject] ? KOS.hub.BYREF[p.subject][p.ref] : null;
+      return { subject: p.subject, ref: p.ref, label: short + (p.ref ? " " + p.ref : ""), title: leaf ? leaf.title : null,
+        mins: Math.max(1, Math.round(p.secs / 60)) };
+    });
+  }
+  function stretchText(e) {
+    var st = stretches(e);
+    return st ? st.map(function (x) { return x.label + " " + x.mins + "m"; }).join(" → ") : null;
+  }
   /* the seconds of an entry spent on one subject (null: on any) */
   function secsFor(e, sid) {
     return parts(e).reduce(function (n, p) { return !sid || p.subject === sid ? n + p.secs : n; }, 0);
@@ -206,7 +223,7 @@
     streak: streak,
     streaks: streaks,
     restStreak: restStreak,
-    parts: parts,
+    parts: parts, stretches: stretches, stretchText: stretchText,
     secsFor: secsFor,
     hasSubject: hasSubject
   };

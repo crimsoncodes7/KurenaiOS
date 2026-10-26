@@ -15,12 +15,17 @@
         text-only model request (runner/model.ts, metered), stored, and
         pushed unless a device is open.
 
+   Before 1, while no device is open: each Daily Review the device
+   published (`reviews`, decision D) is written ahead — claimed in kos_runs
+   as "review:<slot>" on its day, ONE request with the device's own two
+   messages, stored — and its push carries Kurenai's line.
+
    It never re-derives a notice (invariant 131) and never reads kos_state,
    media, files or any credential. Secrets: CRON_SECRET, VAPID_PUBLIC_KEY,
    VAPID_PRIVATE_KEY, VAPID_SUBJECT, the provider keys. */
 import { json, serviceRest } from "../_shared/cors.ts";
 import { deliver, type Sub, type Vapid } from "./webpush.ts";
-import { dueItems, dueSchedules, present, pushMessage, runPrompt, sendable, type Item, type Schedule } from "./logic.ts";
+import { dueItems, dueReviews, dueSchedules, present, pushMessage, reviewWords, runPrompt, sendable, withWords, type Item, type Review, type Schedule } from "./logic.ts";
 import { answer } from "./model.ts";
 
 const RUNS_PER_TICK = 3;
@@ -41,6 +46,7 @@ function enc(v: string): string { return encodeURIComponent(v); }
 type Outlook = { user_id: string; data_json: {
   tz?: string; builtAt?: number; items?: Item[]; brief?: unknown;
   serverRuns?: boolean; schedules?: Schedule[]; route?: { provider?: string; model?: string } | null;
+  reviews?: Review[]; reviewRoute?: { provider?: string; model?: string } | null;
 }; seen_at: string | null };
 
 /* each device's answer to the last push, returned in the tick's reply (it
@@ -78,7 +84,7 @@ Deno.serve(async (req) => {
         subject: Deno.env.get("VAPID_SUBJECT") ?? "mailto:kurenai@example.invalid" }
     : null;
   const now = Date.now();
-  const out = { users: 0, pushed: 0, runs: 0, held: 0 };
+  const out = { users: 0, pushed: 0, runs: 0, held: 0, words: 0 };
 
   let outlooks: Outlook[] = [];
   try { outlooks = await rows<Outlook>("kos_outlook?select=user_id,data_json,seen_at"); }
@@ -92,6 +98,41 @@ Deno.serve(async (req) => {
     let subs: Sub[] = [];
     try { subs = await rows<Sub>(`kos_push_subs?user_id=eq.${uid}&select=endpoint,p256dh,auth,label`); } catch { subs = []; }
 
+    /* 0. the Daily Review's words, written ahead (never while a device is
+       open: it writes its own); every review word found recently rides its
+       push below */
+    const words = new Map<string, { line: string; text: string }>();
+    if (Array.isArray(d.reviews) && d.reviews.length) {
+      let ran = new Set<string>();
+      try {
+        const recent = await rows<{ schedule_id: string; day: string; ok: boolean; text: string }>(`kos_runs?user_id=eq.${uid}&schedule_id=like.review:*&updated_at=gte.${enc(new Date(now - 2 * 864e5).toISOString())}&select=schedule_id,day,ok,text`);
+        recent.forEach((r) => {
+          ran.add(r.schedule_id + "|" + r.day);
+          const w = r.ok ? reviewWords(r.text) : null;
+          if (w) words.set(r.schedule_id + ":" + r.day, w);
+        });
+      } catch { ran = new Set(["*"]); }
+      if (!hold && !ran.has("*")) {
+        for (const rv of dueReviews(d.reviews, ran, now).slice(0, RUNS_PER_TICK)) {
+          const sid = "review:" + rv.slot;
+          const claim = await serviceRest("kos_runs", {
+            method: "POST",
+            headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
+            body: JSON.stringify([{ user_id: uid, schedule_id: sid, day: rv.day, ok: false, text: "" }]),
+          });
+          const claimed = claim.ok ? await claim.json() : [];
+          if (!Array.isArray(claimed) || !claimed.length) continue;
+          const r = await answer(uid, d.reviewRoute ?? d.route ?? null, rv.system.slice(0, 4000), rv.user.slice(0, 20000), "review", 300);
+          const w = r.ok ? reviewWords(r.text) : null;
+          await serviceRest(`kos_runs?user_id=eq.${uid}&schedule_id=eq.${enc(sid)}&day=eq.${rv.day}`, {
+            method: "PATCH", headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ ok: !!w, text: w ? JSON.stringify(w) : r.text.slice(0, 400) }),
+          });
+          if (w) { words.set(sid + ":" + rv.day, w); out.words++; }
+        }
+      }
+    }
+
     /* 1. the outlook's due items */
     if (vapid && subs.length && Array.isArray(d.items)) {
       const since = new Date(now - 2 * 864e5).toISOString();
@@ -101,7 +142,7 @@ Deno.serve(async (req) => {
       const due = sendable(dueItems(d.items, sent, now), hold);
       const done: string[] = [];
       for (const it of due) {
-        if (await pushAll(uid, subs, pushMessage(it), vapid, it.id)) out.pushed++;
+        if (await pushAll(uid, subs, pushMessage(withWords(it, words)), vapid, it.id)) out.pushed++;
         done.push(it.id);
       }
       await markSent(uid, done);

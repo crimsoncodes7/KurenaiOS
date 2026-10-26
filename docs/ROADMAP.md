@@ -1307,6 +1307,35 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
   reviews, R4 Kurenai and the joins (smoke101–104).
 - **Invariants it adds:** 142–149 (plan §14).
 
+
+### 5.11 Files: one file layer for the whole app ◆ (asked for 26 October 2026)
+
+> **Planned 26 October 2026:** [files-plan.md](files-plan.md) revision 1.
+> Decisions A–H wait for you.
+
+Files grew up in three places (a topic's Files tab, an assignment's
+attachments and Exams & Papers' library). Today an assignment's file
+only shows its name, a topic's PDF opens in the browser's viewer where
+nothing can be written on it, and the folder import skips files (mocks
+included) without saying why.
+
+- **One record** (`KOS.files`, an index over both stores): a file is
+  stored once and linked to as many places as needed.
+- **One in-app viewer** (pdf.js), with side by side for a paper and its
+  scheme.
+- **Writing on any PDF or image:** the ink engine's layer, kept for
+  good, the original untouched, with a flattened export.
+- **Getting files in:** drop, paste, camera scan and Share Target, and
+  an import that reports each file.
+- **Storage:** binaries sync automatically under a size limit; there's a
+  storage page.
+- **A Files page** with search inside files.
+- **The Assistant:** opt-in file tools.
+- **Releases:** R0 quick fixes (assignment files open, the import
+  report); R1 the core and viewer; R2 ink on files (with 6.4); R3
+  capture and sync; R4 the Assistant and the exam loop.
+- **Invariants it would add:** 150–153 (plan §12).
+
 ---
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)

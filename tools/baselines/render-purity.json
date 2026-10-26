@@ -6509,15 +6509,13 @@
     {
      "key": {
       "ctx": "routine.habit-card",
-      "hooks": "routine.habit-options",
-      "name": "Options…",
+      "hooks": "routine.habits-edit",
+      "name": "Add habits ›",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "dialog": [
-       "New habit"
-      ]
+      "nav": "#/routines/edit/habits"
      }
     }
    ]
@@ -6777,6 +6775,42 @@
       "ui": [
        "routinesOffer"
       ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.card",
+      "hooks": "routine.edit",
+      "name": "Daily habits",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/habits"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.card",
+      "hooks": "routine.habits-today",
+      "name": "▶ Today",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.card",
+      "hooks": "",
+      "name": "Edit",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/habits"
      }
     }
    ]
@@ -7045,7 +7079,7 @@
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/routines/edit/r_mu4rcr9yk",
+      "nav": "#/routines/edit/r_mu4rcralw",
       "state": [
        "routines"
       ],
