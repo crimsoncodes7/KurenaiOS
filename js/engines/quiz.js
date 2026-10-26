@@ -259,7 +259,14 @@
          indicative content for a banded answer — derives its award from
          the ticks and lets the − / + stepper settle the band. */
       var ticksBy = typeof WeakMap === "function" ? new WeakMap() : null;
-      function partBlock(part, label, marks, onMark) {
+      var pads = [];   /* the answer pads on screen, destroyed on a redraw */
+      /* an A mark needs its M (30f): the nearest M point above it */
+      function needsM(points, i) {
+        if (!/^\s*A\d/.test(String(points[i] || ""))) return -1;
+        for (var k = i - 1; k >= 0; k--) if (/^\s*M\d/.test(String(points[k] || ""))) return k;
+        return -1;
+      }
+      function partBlock(part, label, marks, onMark, item, title) {
         var wrap = el("section", { class: "k-qz-part", "data-ui": "quiz.part" });
         wrap.appendChild(el("div", { class: "k-qz-part-q" }, [
           label ? el("span", { class: "k-mono k-muted", "data-ui": "quiz.part-l", text: label }) : null,
@@ -271,7 +278,9 @@
         var ta = el("textarea", { class: "k-input k-qz-answer", "data-ui": "ui.note-area", rows: part.marks >= 6 ? 7 : part.marks >= 3 ? 4 : 2,
           "aria-label": "Your answer" + (label ? " to " + label : ""),
           placeholder: part.marks >= 6 ? "Plan the points first, then write it as a paragraph the way the mark scheme is banded…" : "Your answer…" });
-        wrap.appendChild(ta);
+        /* Type · Write · On paper (30f); Write is the answer pad */
+        var ans = KOS.inkPad ? KOS.inkPad.answer(wrap, { textarea: ta, marks: Number(part.marks) || 0, item: item, title: title, q: item }) : null;
+        if (ans) pads.push(ans); else wrap.appendChild(ta);
         var ms = el("div", { class: "k-qz-ms", "data-ui": "quiz.ms", hidden: "" });
         wrap.appendChild(ms);
         var points = part.ms || [];
@@ -291,17 +300,58 @@
           var self = el("div", { class: "k-qz-self", "data-ui": "quiz.selfmark" });
           var figure = el("span", { class: "k-qz-award-n", "data-ui": "quiz.award" });
           function show() { figure.textContent = String(award == null ? fromTicks() : award); }
+          var boxes = [], sugSlots = [];
+          function setTick(i, on) {
+            var mi = needsM(points, i);
+            if (on && mi >= 0 && !ticks[mi]) {
+              boxes[i].checked = false;
+              KOS.ui.toast("Tick the M mark above first: an A mark needs its M.");
+              KOS.a11y.announce("Needs " + (String(points[mi]).match(/M\d/) || ["the M mark"])[0] + " first.");
+              return false;
+            }
+            ticks[i] = on; boxes[i].checked = on;
+            /* unticking an M unticks the A marks that hang on it */
+            if (!on) points.forEach(function (_, j) { if (needsM(points, j) === i && ticks[j]) { ticks[j] = false; boxes[j].checked = false; } });
+            award = fromTicks();
+            show();
+            onMark(award);
+            KOS.a11y.announce((on ? "Ticked. " : "Unticked. ") + fromTicks() + " of " + total + ".");
+            return true;
+          }
           points.forEach(function (m, i) {
-            var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
-              ticks[i] = cb.checked;
-              award = fromTicks();
-              show();
-              onMark(award);
-            } });
+            var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () { setTick(i, cb.checked); } });
             cb.checked = !!ticks[i];
-            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t", html: KOS.content.inline(m) }),
+            boxes.push(cb);
+            var mi = needsM(points, i);
+            var sug = el("span", { class: "k-qz-point-sug" });
+            sugSlots.push(sug);
+            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t" }, [el("span", { html: KOS.content.inline(m) }),
+              mi >= 0 && !ticks[mi] ? el("span", { class: "k-qz-needs", text: "needs " + ((String(points[mi]).match(/M\d/) || ["M"])[0]) }) : null, sug].filter(Boolean)),
               perMark ? el("span", { class: "k-mono k-muted", text: "1" }) : null].filter(Boolean)));
           });
+          /* Mark with Kurenai (30g): only with the setting on, only on ink */
+          if (ans && points.length && KOS.inkAI && KOS.inkAI.reads() && ans.mode() === "write") {
+            var mk = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "quiz.mark-kurenai", text: KOS.inkAI.online() ? "Mark with Kurenai" : "Mark with Kurenai · needs a connection" });
+            mk.disabled = !ans.hasInk() || !KOS.inkAI.online();
+            if (!ans.hasInk()) mk.title = "Write an answer first";
+            ans.onInk(function () { mk.disabled = !KOS.inkAI.online(); mk.title = ""; });
+            mk.addEventListener("click", function () {
+              KOS.inkAI.markWithKurenai({ pad: ans.pad(), question: part.q, scheme: points, marks: total, onSuggest: function (r) {
+                var chips = [];
+                r.points.forEach(function (p) {
+                  var slot = sugSlots[p.i - 1];
+                  if (!slot) return;
+                  slot.innerHTML = "";
+                  var c = KOS.inkAI.suggestionChip(p, function () { setTick(p.i - 1, true); });
+                  chips.push(c); slot.appendChild(c);
+                });
+                if (r.unreadable && r.unreadable.length) ms.insertBefore(el("p", { class: "k-qz-note", text: "Kurenai couldn't read line" + (r.unreadable.length > 1 ? "s " : " ") + r.unreadable.join(" and ") + ". Tick those yourself." }), self.nextSibling);
+                var all = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "quiz.confirm-all", text: "Confirm all suggested", onclick: function () { chips.forEach(function (c) { c.confirm(); }); all.remove(); } });
+                mk.replaceWith(all);
+              } });
+            });
+            self.appendChild(el("div", { class: "k-qz-kurenai" }, [mk]));
+          }
           function step(d) {
             award = Math.max(0, Math.min(total, (award == null ? fromTicks() : award) + d));
             show();
@@ -327,6 +377,7 @@
         if (shuffled) shown = shuffle(shown.slice());
         at = Math.max(0, Math.min(shown.length - 1, at));
         chips.querySelectorAll("[data-f]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.f === filter)); });
+        pads.splice(0).forEach(function (p) { p.destroy(); });
         stage.innerHTML = "";
         if (!shown.length) { stage.appendChild(KOS.ui.emptyState({ compact: true, body: "No questions at that tariff." })); counter.textContent = ""; return; }
         counter.textContent = "Question " + (at + 1) + " of " + shown.length;
@@ -351,7 +402,7 @@
         var revealed = false;
         var blocks = n.parts.map(function (p, pi) {
           var label = n.parts.length > 1 ? "(" + String.fromCharCode(97 + pi) + ")" : "";
-          var b = partBlock(p, label, marks[pi], function (v) { marks[pi] = v; paintSum(); });
+          var b = partBlock(p, label, marks[pi], function (v) { marks[pi] = v; paintSum(); }, "exam:" + sid + ":" + ref + ":" + n.i + ":" + pi, "Q" + (n.i + 1) + label);
           card.appendChild(b.node);
           return b;
         });
@@ -375,6 +426,8 @@
           store.save();
           /* FR-3.2 — self-marked exam questions are sessions too */
           KOS.sessions.log({ type: "exam", subject: sid, ref: ref, metrics: { marks: got, max: n.total } });
+          /* the pads are kept with what they answered (30f) */
+          pads.forEach(function (p) { p.logged({ marks: got, max: n.total }); });
           logged[n.i] = { got: got, max: n.total };
           updateTally();
           done.textContent = "Logged " + got + "/" + n.total;

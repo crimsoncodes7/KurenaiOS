@@ -275,12 +275,23 @@
         } });
         attWrap.appendChild(fileIn);
         A().attachmentsFor(a, function (err, rows) {
+          /* files plan R0: an attachment opens in the app's viewer, with
+             download, instead of being a name you cannot open */
           (rows || []).forEach(function (r) {
-            attWrap.appendChild(el("div", { class: "k-asg-sub" }, [
-              el("span", { class: "k-asg-sub-t", text: r.name }),
+            var kind = r.mime === "application/pdf" ? "PDF" : /^image\//.test(r.mime || "") ? "Image" : (r.name.split(".").pop() || "File").toUpperCase();
+            var size = r.size >= 1048576 ? (r.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round((r.size || 0) / 1024)) + " KB";
+            attWrap.appendChild(el("div", { class: "k-asg-sub k-asg-file", "data-ui": "asg.file" }, [
+              el("button", { type: "button", class: "k-asg-file-open", "data-ui": "asg.file-open", "aria-label": "Open " + r.name,
+                onclick: function () { KOS.attach.openViewer(r); } }, [
+                el("span", { class: "k-asg-file-kind", "aria-hidden": "true", text: kind }),
+                el("span", { class: "k-asg-sub-t", text: r.name }),
+                el("span", { class: "k-asg-file-size k-mono", text: r.blob && r.blob.size ? size : "on another device" })]),
+              r.blob && r.blob.size ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "aria-label": "Download " + r.name, text: "⤓", onclick: function () {
+                var u = URL.createObjectURL(r.blob), dl = el("a", { href: u, download: r.name }); document.body.appendChild(dl); dl.click(); dl.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+              } }) : null,
               el("button", { type: "button", class: "k-asg-x", "aria-label": "Remove attachment", text: "✕",
                 onclick: function () { KOS.attach.remove(r.id, function () { repaint(); }); } })
-            ]));
+            ].filter(Boolean)));
           });
           attWrap.appendChild(el("button", { type: "button", class: "k-link", text: "⇪ Attach a file…", onclick: function () { fileIn.click(); } }));
         });

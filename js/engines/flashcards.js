@@ -172,7 +172,44 @@
       foot, infoWrap
     ]);
 
-    [meter, deckEdge, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
+    /* 30o: answer the back before you see it — Type, Write (a strip under
+       the card) or Think (the flip as it always was). Per device. The
+       writing is kept with the review (an ink doc "review:…" whose item is
+       the card), never with the card, and never changes its text. */
+    var FC_MODES = [["type", "Type"], ["write", "Write"], ["think", "Think"]];
+    var ui = KOS.store.state.ui;
+    var mode = FC_MODES.some(function (m) { return m[0] === ui.fcMode; }) ? ui.fcMode : "think";
+    var modeRow = el("div", { class: "k-fc-modes", "data-ui": "fc.modes" });
+    var answerBox = el("div", { class: "k-fc-answer", "data-ui": "fc.answer" });
+    var pad = null, typed = null, showBtn = null;
+    function paintModes() {
+      modeRow.innerHTML = "";
+      if (!KOS.inkPad) return;
+      modeRow.appendChild(KOS.ui.tabs(FC_MODES.map(function (m) {
+        return { label: m[1], active: mode === m[0], hook: "fc.mode-" + m[0], onSelect: function () { mode = m[0]; ui.fcMode = mode; KOS.store.save(); paintModes(); if (!finished && !flipped) answerFor(cur()); } };
+      }), { variant: "workspace", label: "Answer mode", className: "k-fc-modeseg" }));
+    }
+    function answerFor(c) {
+      if (pad) { pad.destroy(); pad = null; }
+      answerBox.innerHTML = "";
+      typed = null; showBtn = null;
+      if (mode === "think" || finished || !c) { answerBox.hidden = true; return; }
+      answerBox.hidden = false;
+      showBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "fc.show", text: "Show answer", disabled: "", onclick: function () { if (!flipped) flip(); } });
+      if (mode === "write") {
+        pad = KOS.inkPad.mount(answerBox, { kind: "strip", prefix: "review", item: "card:" + c.key, title: "Card", q: c.key });
+        pad.onInk(function () { if (showBtn) showBtn.disabled = false; });
+      } else {
+        typed = el("textarea", { class: "k-input k-fc-typed", "data-ui": "fc.typed", rows: "2", "aria-label": "Your answer", placeholder: "Your answer, before you look…" });
+        typed.addEventListener("input", function () { if (showBtn) showBtn.disabled = !typed.value.trim(); });
+        answerBox.appendChild(typed);
+      }
+      answerBox.appendChild(el("div", { class: "k-fc-answer-foot" }, [showBtn]));
+    }
+    function answered() { return mode === "think" || (mode === "write" ? !!(pad && pad.hasInk()) : !!(typed && typed.value.trim())); }
+
+    [meter, modeRow, deckEdge, answerBox, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
+    paintModes();
     bindKeys();
 
     function cur() { return cards[queue[0]]; }
@@ -230,9 +267,14 @@
         ? "This session: " + counts.again + " again · " + counts.hard + " hard · " + counts.good + " good · " + counts.easy + " easy" : "";
       paintDeck();
       renderInfo();
+      answerFor(c);
     }
     function flip() {
       if (finished) return;
+      if (!flipped && !answered()) {
+        KOS.ui.toast(mode === "write" ? "Write your answer first, or switch to Think." : "Type your answer first, or switch to Think.");
+        return;
+      }
       flipped = !flipped;
       KOS.ui.state(stage, "flipped", flipped);
       faces();
@@ -250,6 +292,7 @@
          The in-session requeue below is a separate mechanism. */
       var wasLeech = !!(KOS.srs.peek(c.key) || {}).leech;
       var rated = KOS.srs.rate(c.key, r);
+      if (pad) pad.logged({ grade: r, card: c.key });
       if (rated.leech && !wasLeech) {
         /* phase 2: lapsed too often to keep drilling — it finishes this
            session, then waits in Rework with its topic's notes */
@@ -272,6 +315,7 @@
     }
     function finish() {
       finished = true;
+      answerFor(null);
       KOS.ui.state(stage, "flipped", false);
       KOS.ui.state(rateRow, "concealed", true);
       infoWrap.hidden = true;

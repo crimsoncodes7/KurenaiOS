@@ -1,8 +1,22 @@
 # Files: one file layer for the whole app (roadmap 5.11)
 
-Revision 1 — drafted 26 October 2026, from your notes after the Routines
-release. Nothing here is built. Decisions are proposed in §10 and wait
-for you, as with the Routines plan.
+Revision 2 — 26 October 2026. Decisions A–H (§10) are APPROVED as
+proposed, with six adjustments locked into the spec below (marked
+**Adjusted**): attempts as ink layers (§5), canvas memory on iPad Safari
+(§4), aliases and kind promotion on a hash match (§3), background text
+indexing (§3), eviction that keeps the index and the ink (§7) and a
+lightweight scan crop (§6). R0 is built first. Revision 1 was drafted the
+same day from your notes after the Routines release.
+
+> **Status (26 October 2026, `feat/ipad-files`):** R0 BUILT (an
+> assignment's attachments open in the viewer with download, the import
+> report file by file with mocks added, Share in full screen). From R1–R2,
+> built with the iPad's PDF viewer: pdf.js vendored with the memory
+> guardrails, ink layers per attempt, Clip to notes (a region to a
+> topic's notebook) and Save a copy with my writing. Still to come: the
+> `KOS.files` index and Files page, hash links and aliases, text search,
+> the storage page and binary sync (R1, R3), and the Assistant's tools
+> (R4).
 
 ## 1. Why
 
@@ -40,10 +54,24 @@ kept for good, as its own layer, so the original is never altered.
   device-only (§7).
 - **One copy:** a file added twice (same hash) is linked again, not
   stored again.
+- **Adjusted — a match never overwrites.** When an upload or an import
+  matches an existing file's SHA-256 under another name or in another
+  context, the record keeps its `name` and `kind`: the new filename is
+  added to `aliases: []` (search finds every alias), and the new link is
+  added. `kind` only ever moves UP, by a fixed order (other < photo <
+  handout < notes < worksheet < scheme < paper): an `other` or `handout`
+  file matched as a `paper` by a folder import is promoted, keeping every
+  link it had, and a `paper` is never demoted.
 - **Links, not copies:** "Attach to…" on any file adds a link. Removing
   a link never deletes the file while another link uses it.
 - **Text inside files:** pdf.js reads each PDF's text layer once, on the
   device, into a small search index (no OCR in v1; scans have no text).
+- **Adjusted — indexing never blocks.** Text extraction runs in a
+  background queue: one file at a time, a page per idle slice
+  (`requestIdleCallback`, else a short timeout), inside pdf.js's own Web
+  Worker. A folder import of 50 or more papers returns its report at once;
+  each file's text arrives later, and the import UI never waits on it. A
+  file whose text is still queued says "Indexing…" in search.
 
 ## 4. The viewer (one, everywhere)
 
@@ -57,6 +85,16 @@ kept for good, as its own layer, so the original is never altered.
 - **Two side by side:** a question paper and its mark scheme, or a
   handout and your notes. This reuses the Handwritten tab's Side by side
   (30e).
+- **Adjusted — canvas memory on iPad Safari.** WebKit caps the total
+  canvas memory of a tab (about 256–384 MB) and blanks canvases or reloads
+  the tab past it. So the viewer virtualises strictly: a page's canvases
+  exist only while the page is within about one screen of the view; off
+  screen they are destroyed AND unmounted, with their width and height set
+  to 0 first so WebKit frees the backing store at once (hiding is not
+  enough). The device pixel ratio is capped: 2 with one pane, 1.5 with two
+  panes open, and a page's backing store never exceeds 4096 px on a side
+  (the cap lowers the ratio, never the page). The ink layers follow the
+  same rule.
 - **Always there:** Download, Share (the share sheet on iPad and phone),
   Open in a tab, and "Where it's linked".
 - **Assignments get it at once:** the name becomes a card that opens the
@@ -68,6 +106,14 @@ kept for good, as its own layer, so the original is never altered.
   (`paper:<fileId>` as already reserved for past papers): pen,
   highlighter, eraser, lasso, shapes and text boxes on each page, at the
   PDF's own page size (ipad-plan decision C).
+- **Adjusted — more than one layer, as attempts.** A file has layers, each
+  its own ink doc: `file:<fileId>:default` for handouts and notes (one
+  layer, as before), and `paper:<fileId>:<attemptId>` for a past paper, so
+  a paper sat in January and sat again blank in April keeps both. The
+  viewer's toolbar has a layer switcher: the layer in use, the earlier
+  ones by date (viewable, read-only unless reopened), and "Start a fresh
+  attempt", which makes a new empty layer and never copies ink. An
+  attempt's layer is linked to the attempt it logs (invariant 124).
 - **Kept for good:** the ink lives in `kurenai-os-ink` and is in the full
   backup. When ink sync ships (6.1, 30p), it syncs per stroke, as
   planned. The PDF itself is never changed.
@@ -87,7 +133,11 @@ kept for good, as its own layer, so the original is never altered.
 - **Paste** a screenshot or image straight from the clipboard.
 - **Scan with the camera** (iPad and phone): photograph a page and the
   app straightens it (perspective crop) and builds a multi-page PDF from
-  the shots. Teacher feedback photos (§16.6 of the exams plan) use the
+  the shots. **Adjusted — kept light:** the capture is the native camera
+  or file picker (`<input type=file accept=image/* capture>`), and the
+  straightening is four corner handles you drag, an extension of
+  `KOS.imageCrop`, then a projective warp on a canvas. No edge-detection
+  library is bundled. Teacher feedback photos (§16.6 of the exams plan) use the
   same capture.
 - **Share to KurenaiOS** from other apps, through the Web Share Target
   API (Chrome on Android and desktop; iOS Safari doesn't offer it, so the
@@ -113,6 +163,12 @@ kept for good, as its own layer, so the original is never altered.
 - **A storage page in Settings:** use per store, the biggest files,
   duplicates, unlinked files, and "Free up space" (removes the local copy
   of a file that is safe in the cloud; it downloads again when opened).
+- **Adjusted — eviction keeps the index and the ink.** "Free up space"
+  removes the local BINARY only. The `KOS.files` record, its extracted
+  text index and every `kurenai-os-ink` layer on it stay on the device, so
+  offline search still matches the file's text; opening an evicted file
+  says it is in the cloud and offers to download it (or, offline, that it
+  needs a connection), with its ink listed.
 - **Persistent storage** is requested once a library passes a size
   (invariant 39 still holds: asked sparingly, never promised).
 
@@ -153,8 +209,8 @@ kept for good, as its own layer, so the original is never altered.
 | | Question | Proposal |
 |---|---|---|
 | A | One store or an index over the two? | **An index** (`KOS.files`) over both stores; no blob migration |
-| B | Viewer engine | **pdf.js** (vendored, like sql.js), images and text native |
-| C | Writing on PDFs | **The ink engine**, one layer per file, original untouched, flattened export with pdf-lib |
+| B | Viewer engine | **pdf.js** (vendored, like sql.js), images and text native; strict virtualisation and a capped pixel ratio on iPad (§4) |
+| C | Writing on PDFs | **The ink engine**, original untouched, flattened export with pdf-lib; one layer per file, or one per ATTEMPT on a past paper (§5) |
 | D | Binary sync | **Automatic for attachments under 25 MB** to your private bucket; past papers device-only unless you opt a file in |
 | E | Mocks and other skipped kinds | **Add them all;** the report says what each file became |
 | F | Where the Files page lives | **Archive › Files**, with each record's own files where they belong |
@@ -180,11 +236,16 @@ kept for good, as its own layer, so the original is never altered.
 ## 12. Invariants it would add (draft)
 
 - **150. ONE FILE, MANY LINKS.** A file is stored once (by hash) and
-  linked. A link's removal never deletes a file another link uses, and
-  only an explicit Delete removes the file and its remote object
-  (extends invariant 36).
+  linked. A hash match never overwrites `name` or `kind`: the new name
+  joins `aliases`, and `kind` only moves up. A link's removal never
+  deletes a file another link uses, and only an explicit Delete removes
+  the file and its remote object (extends invariant 36). Freeing space
+  removes a binary only, never the record, its text index or its ink.
 - **151. THE ORIGINAL IS NEVER CHANGED.** Writing on a file is an ink
-  layer under `file:<fileId>` (invariant 132). Export makes a new file.
+  layer (invariant 132): `file:<fileId>:default`, or one layer per
+  attempt on a past paper, `paper:<fileId>:<attemptId>`. A fresh attempt
+  makes a new empty layer; earlier layers are kept and viewable. Export
+  makes a new file.
 - **152. ONE VIEWER.** Every surface opens a file through `KOS.files.open`.
   No surface builds its own iframe or object URL.
 - **153. NOTHING IS SKIPPED SILENTLY.** An import reports each file's

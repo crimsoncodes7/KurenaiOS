@@ -593,6 +593,7 @@
         bar.appendChild(act(previewOpen ? "▾ Collapse" : "▸ Expand", function () { previewOpen = !previewOpen; renderStage(); },
           { title: previewOpen ? "Hide the preview" : "Show the preview" }));
         bar.appendChild(act("⤢ Full screen", function () { openFullscreen(rec); }));
+        if (rec.mime === "application/pdf" && KOS.pdfView) bar.appendChild(act("✎ Write on it", function () { openViewer(rec); }, { "data-ui": "attach.write", title: "Open in the viewer with ink; the file itself never changes" }));
       }
       bar.appendChild(el("span", { class: "k-spacer" }));
       if (st === "ok") {
@@ -708,9 +709,10 @@
         el("b", { class: "k-att-title", text: rec.name }),
         el("span", { class: "k-spacer" }),
         act("↗ Open", function () { openExternally(rec); }),
+        canShare() ? act("⇪ Share", function () { shareFile(rec); }, { "data-ui": "attach.share" }) : null,
         act("⤓ Download", function () { download(rec); }),
         act("✕ Close", close)
-      ]));
+      ].filter(Boolean)));
       overlay.appendChild(node);
       overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
       KOS.ui.openDialog(overlay);
@@ -806,7 +808,57 @@
     render();
   }
 
+  /* ONE VIEWER (files plan R0 and invariant 152, as far as R0 goes): any
+     attachment opens here — a PDF in the app's own viewer with ink
+     (`file:<fileId>:default`), anything else full screen — with Share
+     (the share sheet on the iPad and the phone), Download and Open. */
+  function shareFile(rec) {
+    var f = null;
+    try { f = new File([rec.blob], rec.name, { type: rec.mime || rec.blob.type }); } catch (e) { f = null; }
+    if (f && navigator.canShare && navigator.canShare({ files: [f] }) && navigator.share) {
+      navigator.share({ files: [f], title: rec.name }).catch(function (e) { if (e && e.name !== "AbortError") KOS.ui.toast("Sharing didn't work here — download it instead.", true); });
+      return;
+    }
+    KOS.ui.toast("This browser can't share files — download it instead.");
+  }
+  function canShare() { return !!(navigator.share && navigator.canShare); }
+  function saveCopy(rec) {
+    var u = URL.createObjectURL(rec.blob), a = KOS.ui.el("a", { href: u, download: rec.name });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+  }
+  function openViewer(rec, opts) {
+    opts = opts || {};
+    if (!rec || !rec.blob || !rec.blob.size) { KOS.ui.toast(rec && rec.fileId ? "This file's content is on another device — download it from the topic's Files tab." : "This file is empty.", true); return; }
+    var el = KOS.ui.el;
+    if (rec.mime === "application/pdf" && KOS.pdfView && opts.ink !== false) {
+      KOS.pdfView.open({ title: rec.name, kind: "file", fileId: rec.fileId || ("att" + rec.id), refs: rec.subject && rec.subject !== "_" && rec.ref && !/^asg:/.test(rec.ref) ? [rec.subject + ":" + rec.ref] : [],
+        getBlob: function (cb) { cb(null, rec.blob); } });
+      return;
+    }
+    var url = URL.createObjectURL(rec.blob);
+    var overlay = el("div", { class: "k-att-fs", "data-ui": "attach.fs", role: "dialog", "aria-label": rec.name + " preview" });
+    var node;
+    if (/^image\//.test(rec.mime)) node = el("img", { class: "k-att-img", src: url, alt: rec.name });
+    else if (rec.mime === "application/pdf") node = el("iframe", { class: "k-att-pdf", src: url + "#view=FitH", title: rec.name });
+    else if (/^text\/|json|markdown/.test(rec.mime || "")) { node = el("pre", { class: "k-att-text" }); readText(rec.blob, function (err, t) { node.textContent = err ? "This text file could not be read." : t.slice(0, 200000); }); }
+    else node = el("div", { class: "k-att-unusable" }, [el("b", { text: rec.name }), el("p", { text: "No in-app preview for this kind of file. Download it, or share it to an app that opens it." })]);
+    function close() { URL.revokeObjectURL(url); document.removeEventListener("keydown", onKey, true); overlay.remove(); }
+    function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); close(); } }
+    document.addEventListener("keydown", onKey, true);
+    overlay.appendChild(el("div", { class: "k-att-bar", "data-ui": "attach.fs-bar" }, [
+      el("b", { class: "k-att-title", text: rec.name }), el("span", { class: "k-spacer" }),
+      canShare() ? el("button", { type: "button", class: "k-att-act", "data-ui": "attach.share", text: "⇪ Share", onclick: function () { shareFile(rec); } }) : null,
+      el("button", { type: "button", class: "k-att-act", text: "⤓ Download", onclick: function () { saveCopy(rec); } }),
+      el("button", { type: "button", class: "k-att-act", text: "✕ Close", onclick: close })
+    ].filter(Boolean)));
+    overlay.appendChild(el("div", { class: "k-att-preview", "data-state": "is-full" }, [node]));
+    KOS.ui.openDialog(overlay);
+  }
+
   KOS.attach = {
+    openViewer: openViewer,
+    share: shareFile,
     available: available,
     add: add,
     list: list,

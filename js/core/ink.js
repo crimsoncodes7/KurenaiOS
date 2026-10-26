@@ -9,8 +9,10 @@
    keeps its own ink. The surface, the toolbar and the gestures are
    js/core/inkui.js; the Handwritten tab is js/modules/inktab.js.
 
-   A page is W × H units (an A4 sheet, 1000 × 1414), whatever size it is
-   drawn at. An item:
+   A page is W units wide (1000) and H tall: an A4 sheet is 1000 × 1414,
+   whatever size it is drawn at; a page with its own `h` is another shape
+   (an answer strip, a PDF page at the PDF's own proportions, a pad that
+   grows). An item:
      stroke {id, k:"pen"|"hl", role, w (0 Fine · 1 Medium · 2 Bold),
              p: [x, y, pr, dt, …] — x and y in tenths of a unit, pr the
              pen's pressure 1–255 (0 = it reported none), dt the ms since
@@ -23,8 +25,13 @@
    invariant 133), so a page reads in Dawn, Graphite and every shop theme.
 
    Storage is its own IndexedDB, `kurenai-os-ink` (draft invariant 136):
-   `docs` {key, pages: [pageId…], paper, inked: {pageId: n}, at} and `pages`
-   {id, doc, paper, items, at, created}. It is never in the synced state
+   `docs` {key, pages: [pageId…], paper, inked: {pageId: n}, at, title?,
+   local?} and `pages` {id, doc, paper, h?, items, at, created}; since v2
+   also `base` (each page as cloud and device last agreed, for the
+   per-stroke three-way merge of js/core/inksync.js) and `dead`
+   (tombstones of deleted pages and docs, so a deletion replicates). A doc
+   marked `local` (a past paper kept "this device only", decision D) never
+   leaves the device. It is never in the synced state
    document; it rides the full backup. Writing moves no XP, gold or HP and
    logs no session (draft invariant 134).                                  */
 (function () {
@@ -262,7 +269,7 @@
   }
 
   /* ================= the store ================= */
-  var DB_NAME = "kurenai-os-ink" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), DB_VER = 1;
+  var DB_NAME = "kurenai-os-ink" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), DB_VER = 2;
   var db = null, index = {}, loaded = false, loading = false, waiting = [];
   function available() { return !!window.indexedDB; }
   function open(cb) {
@@ -273,6 +280,8 @@
       var d = e.target.result;
       if (!d.objectStoreNames.contains("docs")) d.createObjectStore("docs", { keyPath: "key" });
       if (!d.objectStoreNames.contains("pages")) d.createObjectStore("pages", { keyPath: "id" }).createIndex("doc", "doc", { unique: false });
+      if (!d.objectStoreNames.contains("base")) d.createObjectStore("base", { keyPath: "id" });
+      if (!d.objectStoreNames.contains("dead")) d.createObjectStore("dead", { keyPath: "id" });
     };
     rq.onsuccess = function () {
       db = rq.result;
@@ -315,7 +324,12 @@
   /* "Pages written": pages with ink, and when the last was written (null
      with none, so nothing prints a zero; invariant 77) */
   /* a page not saved yet: a blank sheet the first stroke turns into page 1 */
-  function blankPage(key, paper) { return { id: uid(), doc: key, paper: paper || (index[key] && index[key].paper) || "lined", items: [], at: 0, created: 0 }; }
+  function blankPage(key, paper, h) {
+    var p = { id: uid(), doc: key, paper: paper || (index[key] && index[key].paper) || "lined", items: [], at: 0, created: 0 };
+    if (h) p.h = h;
+    return p;
+  }
+  function pageH(p) { return (p && p.h > 0) ? p.h : H; }
   function written(key) {
     var d = index[key];
     if (!d) return null;
@@ -342,6 +356,8 @@
     opts = opts || {};
     var d = index[key] ? JSON.parse(JSON.stringify(index[key])) : { key: key, pages: [], paper: opts.paper || "lined", inked: {}, at: 0 };
     var now = Date.now(), page = { id: uid(), doc: key, paper: opts.paper || d.paper || "lined", items: opts.items || [], at: now, created: now };
+    if (opts.h) page.h = opts.h;
+    if (opts.title && !d.title) d.title = opts.title;
     var at = opts.at == null ? d.pages.length : Math.max(0, Math.min(d.pages.length, opts.at));
     d.pages.splice(at, 0, page.id);
     if (page.items.length) { d.inked[page.id] = page.items.length; d.at = now; }
@@ -361,7 +377,11 @@
     if (n !== was || n) d.at = page.at;
     if (page.paper) d.paper = d.paper || page.paper;
     tx(["docs", "pages"], "readwrite", function (t) { t.objectStore("pages").put(page); putDoc(t, d); },
-      function (err) { if (!err && (n > 0) !== (was > 0)) notify(page.doc); if (cb) cb(err); });
+      function (err) {
+        if (!err && (n > 0) !== (was > 0)) notify(page.doc);
+        if (!err && KOS.inkSync) KOS.inkSync.soon();
+        if (cb) cb(err);
+      });
   }
   function setDocPaper(key, paper) {
     if (!index[key]) return;
@@ -382,15 +402,67 @@
     d = JSON.parse(JSON.stringify(d));
     d.pages = d.pages.filter(function (x) { return x !== id; });
     delete d.inked[id];
-    tx(["docs", "pages"], "readwrite", function (t) { t.objectStore("pages").delete(id); putDoc(t, d); },
-      function (err) { if (!err) notify(key); if (cb) cb(err); });
+    tx(["docs", "pages", "dead"], "readwrite", function (t) {
+      t.objectStore("pages").delete(id); putDoc(t, d);
+      t.objectStore("dead").put({ id: id, kind: "page", doc: key, at: Date.now() });
+    }, function (err) { if (!err) notify(key); if (cb) cb(err); });
   }
+  /* a whole doc and its pages (an answer pad abandoned, a working page
+     deleted); its tombstones replicate the deletion */
+  function deleteDoc(key, cb) {
+    var d = index[key];
+    if (!d) { if (cb) cb(null); return; }
+    delete index[key];
+    tx(["docs", "pages", "dead"], "readwrite", function (t) {
+      var now = Date.now();
+      d.pages.forEach(function (id) { t.objectStore("pages").delete(id); t.objectStore("dead").put({ id: id, kind: "page", doc: key, at: now }); });
+      t.objectStore("docs").delete(key);
+      t.objectStore("dead").put({ id: "doc:" + key, kind: "doc", doc: key, at: now });
+    }, function (err) { if (!err) notify(key); if (cb) cb(err); });
+  }
+  /* a doc's own words: a title ("Blurt", "Working · Q3"), `local` for a
+     paper kept on this device, `meta` for the surface that owns it */
+  function setDocMeta(key, patch, cb) {
+    var d = index[key] ? JSON.parse(JSON.stringify(index[key])) : { key: key, pages: [], paper: "lined", inked: {}, at: 0 };
+    Object.keys(patch || {}).forEach(function (k) { if (patch[k] == null) delete d[k]; else d[k] = patch[k]; });
+    tx(["docs"], "readwrite", function (t) { putDoc(t, d); }, function (err) { if (!err) notify(key); if (cb) cb(err); });
+  }
+  /* every doc whose key starts with `prefix`, newest first: an item's
+     earlier working, a paper's attempts */
+  function docsWith(prefix) {
+    return Object.keys(index).filter(function (k) { return k.indexOf(prefix) === 0; })
+      .map(function (k) { return index[k]; }).sort(function (a, b) { return (b.at || b.created || 0) - (a.at || a.created || 0); });
+  }
+  function allDocs() { return Object.keys(index).map(function (k) { return index[k]; }); }
   function duplicatePage(key, id, cb) {
     var d = index[key];
     if (!d) { if (cb) cb(null); return; }
     getPage(id, function (err, p) {
       if (err || !p) { if (cb) cb(err); return; }
       addPage(key, { paper: p.paper, at: d.pages.indexOf(id) + 1, items: p.items.map(function (it) { return Object.assign({}, it, { id: uid() }); }) }, cb);
+    });
+  }
+
+  /* a picture added to a notebook without a surface open (a region of a
+     file clipped to a topic, asked for 26 October 2026): under the last
+     ink of the last page, or on a new page when it does not fit */
+  function appendImage(key, item, cb) {
+    ready(function () {
+      listPages(key, function (err, pages) {
+        if (err) { if (cb) cb(err); return; }
+        var last = pages[pages.length - 1];
+        var box = last && last.items.length ? boxOf(last.items, last.items.map(function (x) { return x.id; })) : null;
+        var y = box ? box.y + box.h + 30 : 60;
+        var it = Object.assign({ id: uid(), k: "img", x: 60 }, item);
+        if (!last || y + it.h > pageH(last) - 40) {
+          it.y = 60;
+          addPage(key, { paper: (index[key] && index[key].paper) || "lined", items: [it] }, function (e2, page) { if (cb) cb(e2, page, 0); });
+          return;
+        }
+        it.y = Math.round(y);
+        last.items = last.items.concat([it]);
+        savePage(last, function (e3) { notify(key); if (cb) cb(e3, last, pages.length - 1); });
+      });
     });
   }
 
@@ -403,6 +475,37 @@
       req(t.objectStore("pages").getAll(), function (r) { out.pages = r; });
       return out;
     }, cb);
+  }
+  /* the sync engine's own reads and writes (js/core/inksync.js): the base
+     copies and tombstones, and a page put from the cloud */
+  function syncRead(cb) {
+    if (!available()) { cb(null, { docs: [], pages: [], base: [], dead: [] }); return; }
+    tx(["docs", "pages", "base", "dead"], "readonly", function (t) {
+      var out = {};
+      ["docs", "pages", "base", "dead"].forEach(function (n) { req(t.objectStore(n).getAll(), function (r) { out[n] = r || []; }); });
+      return out;
+    }, cb);
+  }
+  function syncWrite(w, cb) {
+    tx(["docs", "pages", "base", "dead"], "readwrite", function (t) {
+      (w.pages || []).forEach(function (p) { t.objectStore("pages").put(p); });
+      (w.dropPages || []).forEach(function (id) { t.objectStore("pages").delete(id); });
+      (w.base || []).forEach(function (b) { t.objectStore("base").put(b); });
+      (w.dropBase || []).forEach(function (id) { t.objectStore("base").delete(id); });
+      (w.docs || []).forEach(function (d) { putDoc(t, d); });
+      (w.dropDocs || []).forEach(function (k) { delete index[k]; t.objectStore("docs").delete(k); });
+      (w.dead || []).forEach(function (x) { t.objectStore("dead").put(x); });
+    }, function (err) {
+      if (!err) {
+        var keys = {};
+        (w.docs || []).forEach(function (d) { keys[d.key] = 1; });
+        (w.pages || []).forEach(function (p) { keys[p.doc] = 1; });
+        (w.dropDocs || []).forEach(function (k) { keys[k] = 1; });
+        Object.keys(keys).forEach(notify);
+        try { window.dispatchEvent(new CustomEvent("kos-ink-sync", { detail: { pages: (w.pages || []).map(function (p) { return p.id; }) } })); } catch (e) { /* no events */ }
+      }
+      if (cb) cb(err);
+    });
   }
   function importAll(dump, cb) {
     if (!dump || !Array.isArray(dump.docs) || !Array.isArray(dump.pages)) { cb(null, { docs: 0, pages: 0 }); return; }
@@ -417,7 +520,7 @@
 
   /* the page's own units for the surfaces */
   KOS.ink = {
-    W: W, H: H, MM: MM, PAPERS: PAPERS, PEN_ROLES: PEN_ROLES, HL_ROLES: HL_ROLES, WIDTHS: WIDTHS,
+    W: W, H: H, MM: MM, pageH: pageH, PAPERS: PAPERS, PEN_ROLES: PEN_ROLES, HL_ROLES: HL_ROLES, WIDTHS: WIDTHS,
     HL_WIDTH: HL_WIDTH, HL_ALPHA: HL_ALPHA, TEXT_SIZE: TEXT_SIZE,
     uid: uid,
     topicDoc: function (sid, ref) { return "topic:" + sid + ":" + ref; },
@@ -426,7 +529,8 @@
     available: available, ready: ready, doc: doc, written: written,
     listPages: listPages, getPage: getPage, blankPage: blankPage, addPage: addPage, savePage: savePage, setDocPaper: setDocPaper,
     movePage: movePage, deletePage: deletePage, duplicatePage: duplicatePage,
-    exportAll: exportAll, importAll: importAll,
+    deleteDoc: deleteDoc, setDocMeta: setDocMeta, docsWith: docsWith, allDocs: allDocs, appendImage: appendImage,
+    exportAll: exportAll, importAll: importAll, syncRead: syncRead, syncWrite: syncWrite, notify: notify,
     _reset: function () { if (db) { try { db.close(); } catch (e) { /* closed */ } } db = null; index = {}; loaded = false; loading = false; waiting = []; }
   };
 })();

@@ -168,6 +168,13 @@
       } else {
         ctrl.appendChild(u.btn("Try it blind first", "primary sm", function () { blind = true; shown = 0; draw(); u.announce("Blind: the steps are hidden. Work it, then show one step at a time."); }, { "data-ui": "exams.deep-blind" }));
       }
+      /* 30l: the variation as a Write it out drill (not for levels of response) */
+      if (KOS.inkDrills && !v.levels && v.steps.length > 1) ctrl.appendChild(u.btn("Write it out", "sm", function () {
+        KOS.inkDrills.writeOut({ title: "Variation " + v.v + " · " + v.t, given: [(v.ctx ? v.ctx + " " : "") + v.q], result: null,
+          badge: "Written by KurenaiOS, not a board paper",
+          steps: v.steps.map(function (s) { return { m: s.text, mk: Array.isArray(s.marks) ? s.marks.join(" ") : s.marks || "", n: s.why || "" }; }),
+          item: "writeout:" + pid + ":" + A.id + ":" + v.v, paper: board === "Edexcel" ? "squared" : "lined" });
+      }, { "data-ui": "exams.deep-writeout" }));
       var i = vs.indexOf(v), nx = vs[i + 1];
       if (nx) ctrl.appendChild(u.btn("Next: Variation " + nx.v, "sm", function () { setOpenVar(A.id, nx.v); KOS.rerender(); }, { "data-ui": "exams.deep-next" }));
       ctrl.appendChild(u.btn(done ? "✓ Worked" : "Mark as worked", "quiet sm", function () { done = !done; DD().setWorked(pid, A.id, v.v, done); u.announce(done ? "Variation " + v.v + " marked worked." : "Variation " + v.v + " unmarked."); KOS.rerender(); }, { "aria-pressed": done ? "true" : "false", "data-ui": "exams.deep-worked" }));

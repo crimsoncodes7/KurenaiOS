@@ -94,7 +94,7 @@
   /* ---------------- the store ---------------- */
   function meta(r) {
     return { id: r.id, name: r.name, path: r.path, size: r.size || 0, paper: r.paper || null, sitting: r.sitting || null, kind: r.kind || null,
-      part: r.part || null, subject: r.subject || null, added: r.added, linked: !!r.fh, attempt: r.attempt || null, photo: !!r.photo };
+      part: r.part || null, subject: r.subject || null, added: r.added, linked: !!r.fh, attempt: r.attempt || null, photo: !!r.photo, mock: !!r.mock };
   }
   function list(cb) {
     tx(FILES, "readonly", function (os) { return os.getAll(); }, function (err, rows) {
@@ -102,25 +102,42 @@
       cb(null, (rows || []).filter(function (r) { return !r.photo; }).map(meta));
     });
   }
-  /* add copied files: [{file, path}] → how many were added and matched */
+  /* NOTHING IS SKIPPED SILENTLY (files plan R0, invariant 153): every file
+     gets an outcome and a reason in `report` — added and matched to a
+     sitting, added for matching by hand (a school mock, a name with no
+     sitting), added as its own kind (a model answer, an examiner's report),
+     or skipped and why (not a PDF, over 40 MB, already here). */
+  var KIND_NAME = { qp: "question paper", ms: "mark scheme", ma: "model answers", er: "examiner's report" };
+  function outcomeOf(r) {
+    if (r.mock) return { outcome: "added", why: "a school mock: match it to an assessment from the list" };
+    if (matched(r)) return { outcome: "matched", why: KIND_NAME[r.kind] + " · " + r.sitting };
+    return { outcome: "added", why: r.paper ? "no sitting in its name: match it by hand" : "no paper in its path or name: match it by hand" };
+  }
+  function rowFor(path, m, extra) {
+    return Object.assign({ id: genId(), name: path.split("/").pop(), path: path, paper: m.paper || null, sitting: m.sitting || null,
+      kind: m.kind || (m.mock ? "qp" : null), part: m.part || null, subject: m.subject || null, mock: !!m.mock, added: Date.now() }, extra);
+  }
+  /* add copied files: [{file, path}] → {added, matched, skipped, report} */
   function add(items, cb) {
     list(function (e0, have) {
       var seen = {};
       (have || []).forEach(function (h) { seen[h.path + "|" + h.size] = true; });
-      var rows = [], skipped = 0;
+      var rows = [], skipped = 0, report = [];
       (items || []).forEach(function (it) {
         var f = it.file, path = it.path || (f && (f.webkitRelativePath || f.name)) || "";
-        if (!f || !/\.pdf$/i.test(path) || f.size > MAX_BYTES) { skipped++; return; }
-        if (seen[path + "|" + f.size]) { skipped++; return; }
-        var m = match(path) || {};
-        if (m.mock || (m.kind && m.kind !== "qp" && m.kind !== "ms")) { skipped++; return; }
-        rows.push({ id: genId(), name: f.name, path: path, size: f.size, blob: f, paper: m.paper || null, sitting: m.sitting || null,
-          kind: m.kind || null, part: m.part || null, subject: m.subject || null, added: Date.now() });
+        if (!f) return;
+        if (!/\.pdf$/i.test(path)) { skipped++; report.push({ path: path, outcome: "skipped", why: "not a PDF" }); return; }
+        if (f.size > MAX_BYTES) { skipped++; report.push({ path: path, outcome: "skipped", why: "over 40 MB" }); return; }
+        if (seen[path + "|" + f.size]) { skipped++; report.push({ path: path, outcome: "skipped", why: "already in the library" }); return; }
+        seen[path + "|" + f.size] = true;
+        var r = rowFor(path, match(path) || {}, { name: f.name, size: f.size, blob: f });
+        rows.push(r);
+        report.push(Object.assign({ path: path }, outcomeOf(r)));
       });
-      if (!rows.length) { cb && cb(null, { added: 0, matched: 0, skipped: skipped }); return; }
+      if (!rows.length) { cb && cb(null, { added: 0, matched: 0, skipped: skipped, report: report }); return; }
       tx(FILES, "readwrite", function (os) { rows.forEach(function (r) { os.put(r); }); }, function (err) {
         emit();
-        cb && cb(err, { added: rows.length, matched: rows.filter(function (r) { return matched(r); }).length, skipped: skipped });
+        cb && cb(err, { added: rows.length, matched: rows.filter(function (r) { return matched(r); }).length, skipped: skipped, report: report });
       });
     });
   }
@@ -195,18 +212,17 @@
         list(function (e0, have) {
           var seen = {};
           (have || []).forEach(function (h) { seen[h.path] = true; });
-          var rows = [];
+          var rows = [], report = [];
           found.forEach(function (f) {
-            if (seen[f.path]) return;
-            var m = match(f.path);
-            if (!m || m.mock || !m.kind || (m.kind !== "qp" && m.kind !== "ms")) return;
-            rows.push({ id: genId(), name: f.path.split("/").pop(), path: f.path, size: 0, fh: f.fh, paper: m.paper, sitting: m.sitting,
-              kind: m.kind, part: m.part, subject: m.subject, added: Date.now() });
+            if (seen[f.path]) { report.push({ path: f.path, outcome: "skipped", why: "already in the library" }); return; }
+            var r = rowFor(f.path, match(f.path) || {}, { size: 0, fh: f.fh });
+            rows.push(r);
+            report.push(Object.assign({ path: f.path }, outcomeOf(r)));
           });
           tx(KV, "readwrite", function (os) { os.put(dir, "folder"); }, function () {
             tx(FILES, "readwrite", function (os) { rows.forEach(function (r) { os.put(r); }); }, function (err) {
               emit();
-              cb(err, { added: rows.length, matched: rows.filter(matched).length, folder: dir.name });
+              cb(err, { added: rows.length, matched: rows.filter(matched).length, folder: dir.name, report: report });
             });
           });
         });
@@ -227,7 +243,7 @@
   }
 
   KOS.examPapers = {
-    DB_NAME: DB_NAME, available: available, match: match, matched: matched,
+    DB_NAME: DB_NAME, available: available, match: match, matched: matched, outcomeOf: outcomeOf, KIND_NAME: KIND_NAME,
     list: list, add: add, get: get, setMatch: setMatch, remove: remove, usage: usage, bySitting: bySitting,
     canConnect: canConnect, connect: connect, folder: folder,
     putPhoto: putPhoto, getPhoto: getPhoto,

@@ -1,5 +1,8 @@
 # The iPad and the Pencil (plan, revision 1, approved)
 
+> **26 October 2026:** the rest of design turn 30 is BUILT on `feat/ipad-files`
+> (see the roadmap's Phase 6 note); only the sketchbook (6.8) waits, for Creatives.
+
 > **25 October 2026:** design turn 30 (frames 30a–30t) is drawn, and 6.1
 > (the ink engine) and 6.2 (a topic's Handwritten tab) are RELEASED
 > (`052b27c`, sw `kos-ink-1`). The stylus is now an Apple

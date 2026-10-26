@@ -177,11 +177,12 @@
     var picker = el("input", { type: "file", accept: "application/pdf,.pdf", multiple: "", class: "k-ex-file", "aria-label": "Add PDFs", onchange: function () { addFiles(picker.files); picker.value = ""; } });
     var folderIn = el("input", { type: "file", multiple: "", class: "k-ex-file", "aria-label": "Add a folder", webkitdirectory: "", onchange: function () { addFiles(folderIn.files); folderIn.value = ""; } });
     function addFiles(files) {
-      var items = Array.prototype.slice.call(files || []).filter(function (f) { return /\.pdf$/i.test(f.name); }).map(function (f) { return { file: f, path: f.webkitRelativePath || f.name }; });
-      if (!items.length) { KOS.ui.toast("No PDFs in that pick.", true); return; }
+      /* every file goes to the report, a non-PDF as "skipped: not a PDF" */
+      var items = Array.prototype.slice.call(files || []).filter(function (f) { return !/^\./.test(f.name); }).map(function (f) { return { file: f, path: f.webkitRelativePath || f.name }; });
+      if (!items.length) { KOS.ui.toast("No files in that pick.", true); return; }
       P.add(items, function (err, res) {
-        var msg = err ? "Could not add those files." : "Added " + u.plural(res.added, "file") + ", " + res.matched + " matched" + (res.skipped ? " · " + res.skipped + " skipped (already here, not a paper or scheme, or too big)" : "") + ".";
-        KOS.ui.toast(msg, !!err); u.announce(msg); KOS.rerender();
+        if (err) { KOS.ui.toast("Could not add those files.", true); return; }
+        importReport(res, "Added " + u.plural(res.added, "file") + ", " + res.matched + " matched" + (res.skipped ? ", " + res.skipped + " skipped" : ""));
       });
     }
     function attemptFor(paper, sitting) {
@@ -221,9 +222,9 @@
         var title = (pp ? pp.title : pid.toUpperCase()) + " · " + KOS.examIndex.sittingLabel(sit);
         listCard.appendChild(el("div", { class: "k-ex-librow", style: "--s: " + (u.HUE[sid] || "var(--muted)") }, [el("span", { class: "k-ex-vbar", "aria-hidden": "true" }),
           el("span", { class: "k-ex-ell k-ex-strong", text: title }),
-          o.qp ? el("button", { type: "button", class: "k-ex-ok k-ex-okbtn", text: "✓ Paper", onclick: function () { open(o.qp); } }) : u.muted("— paper"),
-          o.ms ? el("button", { type: "button", class: "k-ex-ok k-ex-okbtn", text: "✓ Mark scheme", onclick: function () { open(o.ms); } }) : u.muted("— scheme"),
-          att ? u.btn("Open beside attempt", "quiet sm", function () { if (o.qp) open(o.qp); KOS.show("exams", { attempt: att.uid, page: "marks" }); })
+          o.qp ? el("button", { type: "button", class: "k-ex-ok k-ex-okbtn", "data-ui": "exams.lib-paper", text: "✓ Paper", onclick: function () { openPaper(pid, sit, o); } }) : u.muted("— paper"),
+          o.ms ? el("button", { type: "button", class: "k-ex-ok k-ex-okbtn", text: "✓ Mark scheme", onclick: function () { openScheme(pid, sit, o.ms); } }) : u.muted("— scheme"),
+          att ? u.btn("Open beside attempt", "quiet sm", function () { KOS.show("exams", { attempt: att.uid, page: "marks" }); if (o.qp) setTimeout(function () { openPaper(pid, sit, o); }, 0); })
             : o.qp ? u.btn("Log it", "quiet sm", function () { KOS.trackerLog({ index: { paper: pid, sitting: sit } }, function () { KOS.rerender(); }); }) : u.muted("not attempted")]));
       });
       if (un.length) {
@@ -241,10 +242,29 @@
         el("p", { class: "k-ex-body", text: "Pick the folder you keep papers in (Past Papers/…/Question Papers/2023-06 QP.pdf matches by itself). Files are copied into this browser." }),
         el("div", { class: "k-ex-actions" }, [el("label", { class: "k-btn k-btn--sm k-ex-filebtn" }, ["Choose folder", folderIn]),
           P.canConnect() ? u.btn("Connect instead", "quiet sm", function () {
-            P.connect(function (err, res) { if (err) { KOS.ui.toast("Could not read that folder.", true); return; } if (!res) return; var msg = "Connected " + res.folder + ": " + u.plural(res.added, "file") + ", " + res.matched + " matched."; KOS.ui.toast(msg); u.announce(msg); KOS.rerender(); });
+            P.connect(function (err, res) { if (err) { KOS.ui.toast("Could not read that folder.", true); return; } if (!res) return; importReport(res, "Connected " + res.folder + ": " + u.plural(res.added, "file") + ", " + res.matched + " matched"); });
           }, { title: "Chrome and Edge: read the folder in place, no copy" }) : null].filter(Boolean))], "", "exams.lib-folder");
       side.appendChild(con);
     });
+  }
+  /* the import, file by file (files plan R0): what each became, and why */
+  function importReport(res, headline) {
+    var rep = res.report || [];
+    U().announce(headline + ".");
+    if (!rep.length) { KOS.ui.toast(headline + "."); KOS.rerender(); return; }
+    var groups = [["matched", "Matched to a sitting"], ["added", "Added · match by hand"], ["skipped", "Skipped"]];
+    KOS.inkUI.dialog({ title: headline, className: "k-ex-report", wide: true, hook: "exams.import-report", onClose: function () { KOS.rerender(); }, render: function (body, close, foot) {
+      groups.forEach(function (g) {
+        var rows = rep.filter(function (r) { return r.outcome === g[0]; });
+        if (!rows.length) return;
+        body.appendChild(el("h3", { class: "k-kicker", text: g[1] + " · " + rows.length }));
+        body.appendChild(el("ul", { class: "k-ex-replist" }, rows.slice(0, 200).map(function (r) {
+          return el("li", { class: "k-ex-reprow", "data-outcome": r.outcome }, [el("span", { class: "k-ex-ell k-ex-small", text: r.path, title: r.path }), el("span", { class: "k-ex-muted k-ex-small", text: r.why })]);
+        })));
+      });
+      foot.appendChild(el("span"));
+      foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", text: "Done", onclick: close }));
+    } });
   }
   function matchDialog(rows) {
     var u = U(), ix = window.KOS_EXAMS && KOS_EXAMS.index, overlay = el("div", { class: "k-dialog-overlay" });
@@ -384,7 +404,7 @@
     if (KOS.examPapers && e.source && e.source.kind === "past-paper") {
       KOS.examPapers.list(function (err, files) {
         var o = KOS.examPapers.bySitting(files)[e.source.ref];
-        if (o && (o.qp || o.ms)) side.insertBefore(u.card([u.chead("Your copy", "on this device"), el("div", { class: "k-ex-actions" }, [o.qp ? u.btn("Open the paper", "sm", function () { openFile(o.qp); }) : null, o.ms ? u.btn("Open the mark scheme", "quiet sm", function () { openFile(o.ms); }) : null].filter(Boolean))], "", "exams.marks-copy"), side.children[1]);
+        if (o && (o.qp || o.ms)) side.insertBefore(u.card([u.chead("Your copy", "on this device"), el("div", { class: "k-ex-actions" }, [o.qp ? u.btn("Open the paper", "sm", function () { var src = String(e.source.ref).split(":"); openPaper(src[0], src[1], o); }) : null, o.ms ? u.btn("Open the mark scheme", "quiet sm", function () { var src = String(e.source.ref).split(":"); openScheme(src[0], src[1], o.ms); }) : null].filter(Boolean))], "", "exams.marks-copy"), side.children[1]);
       });
     }
     function addRow() { rows.push({ q: "Q" + (rows.length + 1), max: null, got: null, refs: [], tags: [], redo: false, note: "" }); draw(); }
@@ -478,6 +498,25 @@
     draw();
     var first = table.querySelector("[data-ui~='exams.got']");
     if (first) first.focus();
+  }
+  /* a past paper in the app's own viewer (roadmap 6.4, 30h): ink per
+     attempt, the clock, the scheme beside it, marking that logs one
+     attempt. The browser's own viewer stays the fallback. */
+  function paperTitle(pid, sit) {
+    var ix = window.KOS_EXAMS && KOS_EXAMS.index, pp = ix && ix.papers[pid];
+    return (pp ? pp.title : pid.toUpperCase()) + " · " + KOS.examIndex.sittingLabel(sit);
+  }
+  function openPaper(pid, sit, o) {
+    if (!KOS.pdfView) { openFile(o.qp); return; }
+    var ix = window.KOS_EXAMS && KOS_EXAMS.index, pp = ix && ix.papers[pid];
+    KOS.pdfView.open({ title: paperTitle(pid, sit), kind: "paper", fileId: o.qp,
+      getBlob: function (cb) { KOS.examPapers.get(o.qp, cb); },
+      paper: { pid: pid, sitting: sit, subject: pp ? pp.subject : null, title: pp ? pp.title : pid.toUpperCase() },
+      scheme: o.ms ? { title: "Mark scheme · " + KOS.examIndex.sittingLabel(sit), getBlob: function (cb) { KOS.examPapers.get(o.ms, cb); } } : null });
+  }
+  function openScheme(pid, sit, id) {
+    if (!KOS.pdfView) { openFile(id); return; }
+    KOS.pdfView.open({ title: "Mark scheme · " + paperTitle(pid, sit), kind: "scheme", fileId: id, getBlob: function (cb) { KOS.examPapers.get(id, cb); } });
   }
   function openFile(id) {
     KOS.examPapers.get(id, function (err, blob) {

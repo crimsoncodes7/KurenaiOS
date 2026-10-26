@@ -23,7 +23,11 @@
      · 502 provider failure · 503 provider key not configured
    Normalised message shape (client → here):
      { role:"user"|"assistant"|"tool", content?, toolCalls?[{id,name,args}],
-       toolCallId?, name? }                                                */
+       toolCallId?, name?, images?[{mime,data}] }
+   images (roadmap 6.3, "Mark with Kurenai"): on a USER message only, at
+   most two, PNG or JPEG, base64 without a data: prefix, each under
+   MAX_IMAGE_CHARS. Gemini takes them as inlineData parts; DeepSeek cannot
+   read pictures and the request is refused (400) rather than sent blind. */
 import { json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
 
 const DAILY_CAP = clampInt(Deno.env.get("AI_DAILY_CAP"), 1, 5000, 200);
@@ -35,6 +39,8 @@ const MAX_CONTENT_CHARS = 60_000;
    LIMITS.cloudTools) and ranks its tools to fit — smoke27 holds the two
    equal, so a growing registry can never again fail every request. */
 const MAX_TOOLS = 128;
+const MAX_IMAGES = 2;
+const MAX_IMAGE_CHARS = 6_000_000;
 
 function clampInt(v: string | undefined, min: number, max: number, dflt: number): number {
   const n = parseInt(v ?? "", 10);
@@ -51,6 +57,7 @@ type NormMessage = {
   toolCalls?: { id: string; name: string; args: Record<string, unknown>; thoughtSignature?: string }[];
   toolCallId?: string;
   name?: string;
+  images?: { mime: string; data: string }[];
 };
 type NormTool = { name: string; description: string; parameters: Record<string, unknown> };
 
@@ -137,7 +144,9 @@ function toGemini(body: {
       }
       return { role: "model", parts: parts.length ? parts : [{ text: "" }] };
     }
-    return { role: "user", parts: [{ text: m.content ?? "" }] };
+    const parts: Record<string, unknown>[] = [{ text: m.content ?? "" }];
+    for (const im of m.images ?? []) parts.push({ inlineData: { mimeType: im.mime, data: im.data } });
+    return { role: "user", parts };
   });
   const out: Record<string, unknown> = { contents };
   if (body.system) out.systemInstruction = { parts: [{ text: body.system }] };
@@ -375,6 +384,20 @@ function validate(input: Record<string, unknown>): { error?: string; body?: {
     if (role === "tool") {
       m.toolCallId = typeof raw.toolCallId === "string" ? raw.toolCallId.slice(0, 64) : undefined;
       m.name = typeof raw.name === "string" ? raw.name.slice(0, 80) : undefined;
+    }
+    if (raw.images != null) {
+      if (role !== "user" || !Array.isArray(raw.images)) return { error: "Images ride a user message only." };
+      if (raw.images.length > MAX_IMAGES) return { error: "Too many images." };
+      const imgs: { mime: string; data: string }[] = [];
+      for (const im of raw.images as Record<string, unknown>[]) {
+        const mime = String(im?.mime ?? "");
+        const data = typeof im?.data === "string" ? im.data : "";
+        if (mime !== "image/png" && mime !== "image/jpeg") return { error: "An image must be PNG or JPEG." };
+        if (!data || data.length > MAX_IMAGE_CHARS || !/^[A-Za-z0-9+/=]+$/.test(data)) return { error: "An image is too large or malformed." };
+        imgs.push({ mime, data });
+      }
+      if (provider !== "gemini") return { error: "This provider cannot read pictures; route the request to Gemini." };
+      m.images = imgs;
     }
     if (role === "assistant" && Array.isArray(raw.toolCalls)) {
       m.toolCalls = (raw.toolCalls as Record<string, unknown>[]).slice(0, 16).map((tc) => ({

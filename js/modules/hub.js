@@ -2602,6 +2602,59 @@
       onclick: function () { editing ? closeEditor() : openEditor(); } }, [
       el("span", { "aria-hidden": "true", text: "✎" }), el("span", { "data-ui": "topic.edit", text: "Edit" })]);
     var pagerSlot = el("div", { class: "k-topic-pages" });
+    /* WORKING BESIDE ANY TAB (asked for 26 October 2026): a page beside the
+       flashcards, the quiz, an exam question or the notes, for the working a
+       question needs. It is for this visit and this tab only: every tab
+       opens without it and every opening is a blank page, so a revision tool
+       started again never shows the working from last time. Earlier working
+       is kept (its doc's item is "work:<sid>:<ref>:<tab>") and linked from
+       the pane and from the Handwritten tab. */
+    var workBtn = el("button", { type: "button", class: "k-btn k-btn--sm k-topic-work", "data-ui": "topic.work", "aria-pressed": "false",
+      onclick: function () { setWork(!workPad); } }, [el("span", { "aria-hidden": "true", text: "✎" }), el("span", { text: "Working" })]);
+    var workPane = el("aside", { class: "k-topic-workpane", "data-ui": "topic.workpane", "aria-label": "Your working", hidden: "" });
+    var workPad = null;
+    var TAB_NAME = {};
+    function setWork(on) {
+      if (workPad) { workPad.destroy(); workPad = null; }
+      workPane.innerHTML = "";
+      workPane.hidden = !on;
+      workBtn.setAttribute("aria-pressed", String(!!on));
+      KOS.ui.state(workBtn, "on", !!on);
+      KOS.ui.state(studyCol, "work", !!on);
+      if (on) {
+        var item = "work:" + sid + ":" + ref + ":" + curTab, name = TAB_NAME[curTab] || "this tab";
+        var early = KOS.inkPad.earlierLink(item, null, "Earlier working");
+        workPane.appendChild(el("div", { class: "k-topic-workhead" }, [
+          el("span", { class: "k-kicker", text: "Working · " + name }), early,
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.work-close", "aria-label": "Close the working page", text: "✕", onclick: function () { setWork(false); } })
+        ].filter(Boolean)));
+        workPad = KOS.inkPad.mount(workPane, { kind: "page", prefix: "work", item: item, title: "Working · " + name, q: curTab,
+          paper: sid === "maths" ? "squared" : "lined" });
+        /* the question in view, for Check my working (30k): an exam
+           question's part, a card's front, else the topic */
+        var qNow = function () {
+          var n = panel.querySelector("[data-ui~='quiz.exam'] .k-qz-part-t, [data-ui~='fc.front'] .k-fc-text, [data-ui~='quiz.card'] .k-qz-q");
+          return n ? n.textContent.replace(/\s+/g, " ").trim() : leaf.ref + " " + leaf.title;
+        };
+        var tools = el("div", { class: "k-topic-worktools" });
+        if (sid === "maths" && KOS.inkDrills) {
+          var mp = null;
+          tools.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "topic.work-maths", "aria-pressed": "false", text: "Calculator · booklet", onclick: function (e) {
+            var b = e.currentTarget;
+            if (mp) { mp.remove(); mp = null; b.setAttribute("aria-pressed", "false"); return; }
+            mp = KOS.inkDrills.mathsPanel(sid, ref);
+            workPane.insertBefore(mp, workPad.node);
+            b.setAttribute("aria-pressed", "true");
+          } }));
+        }
+        var chk = KOS.inkDrills ? KOS.inkDrills.checkButton(workPad, qNow, workPane) : null;
+        if (chk) tools.appendChild(chk);
+        if (tools.childNodes.length) workPane.insertBefore(tools, workPad.node);
+        KOS.a11y.announce("A blank working page beside " + name + ".");
+      }
+      if (window.innerWidth > 1080) inkSide(!!on);
+    }
+    function paintWorkBtn() { workBtn.hidden = !KOS.inkPad || curTab === "ink" || curTab === "files" || !!editing; }
     /* the Handwritten tab's Page · All pages switch rides the tab row */
     var inkSlot = el("span", { class: "k-topic-inkmode" });
     var inkCtl = null;
@@ -2619,14 +2672,15 @@
     }
     if (KOS.ink) window.addEventListener("kos-ink", onInk);
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
-      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, inkSlot, editBtn,
+      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, inkSlot, workBtn, editBtn,
         cx ? cx.modeSwitch() : null]),
       pagerSlot
     ]);
 
     var studyGrid = el("div", { class: "k-topic", "data-ui": "study.grid" });
     if (store.state.ui.inspectorOpen === false) KOS.ui.state(studyGrid, "insp-closed", true);
-    var studyCol = el("div", { class: "k-topic-col", "data-ui": "study.col" }, [head, studyNav, panel]);
+    var studyCol = el("div", { class: "k-topic-col", "data-ui": "study.col" }, [head, studyNav, el("div", { class: "k-topic-workgrid", "data-ui": "topic.workgrid" }, [panel, workPane])]);
+    TABDEFS.forEach(function (t) { TAB_NAME[t[0]] = t[1]; });
     studyGrid.appendChild(studyCol);
     var asstStrip = KOS.assistant && KOS.assistant.contextActions
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
@@ -2706,6 +2760,8 @@
       if (!kind || !KOS.editor) return;
       editing = { sid: sid, ref: ref, tab: curTab };
       store.state.ui.editing = editing;
+      if (workPad) setWork(false);
+      paintWorkBtn();
       store.save();
       KOS.ui.state(studyGrid, "editing", true);
       KOS.ui.state(studyGrid, "insp-float", false);
@@ -2735,6 +2791,7 @@
     function closeEditor() {
       editing = null;
       store.state.ui.editing = null;
+      paintWorkBtn();
       store.save();
       if (editorCtl) editorCtl.destroy();
       editorCtl = null;
@@ -2796,6 +2853,8 @@
          change clears it too */
       pagerSlot.innerHTML = "";
       if (inkCtl) { inkCtl.destroy(); inkCtl = null; }
+      if (workPad && !o.keep) setWork(false);
+      paintWorkBtn();
       panel.innerHTML = "";
       if (curTab === "ink" && KOS.inkTab) {
         inkCtl = KOS.inkTab.mount(panel, sid, ref, { modeSlot: inkSlot, onSide: inkSide });
@@ -2846,7 +2905,7 @@
           }));
         } else {
           var pages = KOS.content.splitPages(noteBlocks);
-          var article = el("article", { class: "k-prose k-notes", "data-ui": "topic.notes" });
+          var article = el("article", { class: "k-prose k-notes", "data-ui": "topic.notes", "data-topic": sid + ":" + ref });
           var cur = Math.max(0, Math.min(pages.length - 1, o.keep ? notePage : 0));
           if (o.reveal) {
             pages.forEach(function (pg, i) { if (pg.blocks.some(function (b) { return b && b.id === o.reveal; })) cur = i; });

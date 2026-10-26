@@ -314,6 +314,11 @@
       var q = p.matrixTransform(m.inverse()); return [Math.round(q.x * 10) / 10, Math.round(q.y * 10) / 10];
     }
     function d(points) { return points.map(function (p, i) { return (i ? "L" : "M") + p[0] + " " + p[1]; }).join(""); }
+    /* a pen's first touch must not wait while iPadOS checks for Scribble
+       handwriting (roadmap 6.7, as the ink engine does) */
+    box.addEventListener("touchstart", function (e) {
+      if ([].some.call(e.changedTouches || [], function (t) { return t.touchType === "stylus"; })) e.preventDefault();
+    }, { passive: false });
     box.addEventListener("pointerdown", function (e) {
       if (locked || (e.pointerType === "touch" && e.width > 40)) return; // a palm is ignored
       e.preventDefault(); if (box.setPointerCapture) box.setPointerCapture(e.pointerId);

@@ -60,6 +60,12 @@
   /* shared copy affordance — injected into every content box; the delegated
      handler below copies the box's text minus this button. */
   var COPY_BTN = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy to clipboard">Copy</button>';
+  /* a worked example's fingerprint: the same block always gives the same key */
+  function wkey(w) {
+    var s = JSON.stringify([w.title || "", w.q || "", (w.steps || []).length]), h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36);
+  }
   var CODE_COPY = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy code to clipboard">Copy</button>';
   var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript", xaml: "XAML", xml: "XML", json: "JSON" };
   /* a code block's head: the language, its caption, and Copy (frame 8j) */
@@ -361,7 +367,10 @@
         var w = b.worked;
         var tag = w.tag || "example";
         var tagLabel = { example: "Worked example", exam: "Exam-style", variation: "Variation", check: "Check" }[tag] || "Worked example";
-        html += '<figure class="k-n-worked" data-ui="content.worked" data-kind="' + esc(tag) + '">' + COPY_BTN +
+        /* "Write it out" (roadmap 6.5, 30l): the example's own fingerprint
+           finds it again in the topic's notes when the button is pressed */
+        html += '<figure class="k-n-worked" data-ui="content.worked" data-kind="' + esc(tag) + '" data-w="' + wkey(w) + '">' + COPY_BTN +
+          ((w.steps || []).length > 1 ? '<button class="k-n-writeout" data-ui="content.writeout" type="button">Write it out</button>' : "") +
           '<figcaption class="k-n-worked-head"><span class="k-chip" data-tone="teal">' + esc(tagLabel) + "</span>" +
           (w.title ? '<span class="k-n-worked-title">' + inline(w.title) + "</span>" : "") +
           (w.src ? '<span class="k-n-worked-src">' + inline(w.src) + "</span>" : "") + "</figcaption>" +
@@ -551,6 +560,7 @@
   }
 
   KOS.content = {
+    workedKey: wkey,
     get: function (sid, ref) { return window.KOS_CONTENT[sid + ":" + ref] || null; },
     extend: extend,
     examFromWorked: examFromWorked,

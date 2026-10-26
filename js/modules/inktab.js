@@ -108,10 +108,19 @@
     var sideOn = false;
     var root = el("div", { class: "k-ink-tab", "data-ui": "ink.tab" });
     panel.appendChild(root);
-    var dk = KOS.inkUI.desk();
+    /* a picture (pasted, dropped, picked or clipped) lands under the last
+       ink of the page in use, or on the next page when it does not fit */
+    var dk = KOS.inkUI.desk({ placeImage: function (sf, src, iw, ih, extra) { placeOn(sf, src, iw, ih, extra, "the picture"); return true; } });
     var sheets = [], io = null, unkey = null, destroyed = false;
 
     function written() { return I.written(key); }
+    function related() {
+      var pre = [":" + sid + ":" + ref + ":"];
+      return I.allDocs().filter(function (d) {
+        var it = String(d.item || "");
+        return /^(work|exam|card):/.test(it) && it.indexOf(pre[0]) === it.indexOf(":") && (d.pages || []).some(function (id) { return (d.inked || {})[id]; });
+      }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    }
     function docPaper() { var d = I.doc(key); return (d && d.paper) || ui.inkPaper || "lined"; }
 
     /* ---------- the view switch (Page · All pages), in the tab row ---------- */
@@ -119,6 +128,14 @@
       if (!opts.modeSlot) return;
       opts.modeSlot.innerHTML = "";
       var shown = shownView(), w = written();
+      if (w && KOS.inkSync) opts.modeSlot.appendChild(KOS.inkSync.chip(key));
+      /* this topic's working and answers, written beside its other tabs */
+      var rel = related();
+      if (rel.length) opts.modeSlot.appendChild(KOS.ui.menu({ label: "Working and answers · " + rel.length, className: "k-btn--quiet k-btn--sm", align: "end",
+        hint: "Written beside Flashcards, the Quiz and Exam questions", items: rel.slice(0, 20).map(function (d) {
+          return { label: (d.title || "Working") + " · " + when(d.at), onSelect: function () { KOS.inkPad.viewDoc(d.key, (d.title || "Working") + " · " + when(d.at)); } };
+        }) }));
+      if (KOS.inkDrills) opts.modeSlot.appendChild(KOS.ui.menu({ label: "Drills", className: "k-btn--quiet k-btn--sm", align: "end", hint: "Blurt, diagram drills and Write it out", items: KOS.inkDrills.menuItems(sid, ref, KOS.spec.node ? ((KOS.spec.node(sid + ":" + ref) || {}).title || ref) : ref) }));
       if (!w && !sideOK()) return;
       opts.modeSlot.appendChild(KOS.ui.tabs([
         { label: "Page", active: shown === "page", hook: "ink.view-page", onSelect: function () { setView("page"); } },
@@ -234,7 +251,7 @@
     function paintPage(focusPage, host) {
       host = host || root;
       var w = written();
-      var bar = KOS.inkUI.toolbar(dk, {
+      var barWrap = KOS.inkUI.dockable(dk, {
         paper: {
           get: function () { var s = dk.active || (sheets[0] && sheets[0].surface); return (s && s.page.paper) || docPaper(); },
           set: function (p) {
@@ -244,17 +261,11 @@
             if (s) { s.page.paper = p; s.host.setAttribute("data-paper", p); if (s.page.created || s.page.items.length) I.savePage(s.page); }
             announce(paperName(p) + " paper.");
           }
-        },
-        onImage: function (src, iw, ih) {
-          var s = dk.active || (sheets[0] && sheets[0].surface);
-          if (!s) return;
-          var wdt = Math.min(600, iw), hgt = wdt * ih / Math.max(1, iw);
-          var y = Math.min(I.H - hgt - 40, Math.max(60, s.lastInkBottom() + 30));
-          s.addItems([{ id: I.uid(), k: "img", x: 80, y: y, w: wdt, h: hgt, src: src }]);
         }
       });
-      host.appendChild(KOS.ui.scroller(bar, { keepRole: true, className: "k-ink-barwrap", prevLabel: "Earlier tools", nextLabel: "More tools" }));
+      host.appendChild(barWrap);
       list = el("div", { class: "k-ink-pages", "data-ui": "ink.pages" });
+      dk.dropOn(list);
       pill = el("div", { class: "k-ink-pill", "data-ui": "ink.page-pill", "aria-hidden": "true", hidden: true });
       if (!w) {
         var blank = I.blankPage(key, ui.inkPaper);
@@ -291,7 +302,13 @@
       var head = el("div", { class: "k-ink-all-head" }, [
         el("h2", { class: "k-ink-all-title" }, [el("span", { text: "Notebook · " }), el("span", { class: "k-mono", text: ref })]),
         el("span", { class: "k-ink-all-meta", text: (d ? d.pages.length : 0) + (d && d.pages.length === 1 ? " page" : " pages") + " · A4 · " + paperName(docPaper()).toLowerCase() }),
-        el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm k-spacer", "data-ui": "ink.add-page", text: "＋ Page",
+        el("button", { type: "button", class: "k-btn k-btn--sm k-spacer", "data-ui": "ink.export-pdf", text: "Export as PDF",
+          onclick: function (e) {
+            var b = e.currentTarget; b.disabled = true;
+            KOS.inkExport.exportDoc(key, "Notebook " + ref).then(function () { b.disabled = false; announce("Notebook exported."); },
+              function (err) { b.disabled = false; KOS.ui.toast("The PDF could not be made — " + err.message, true); });
+          } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "ink.add-page", text: "＋ Page",
           onclick: function () { I.addPage(key, { paper: docPaper() }, function () { paint(); announce("Page added."); }); } })
       ]);
       root.appendChild(head);
@@ -305,6 +322,7 @@
             "aria-label": "Open page " + (i + 1), onclick: function () { setView("page", i); } }, [c]);
           var menu = KOS.ui.menu({ label: "⋯", className: "k-btn--quiet k-btn--sm k-ink-thumb-menu", hint: "Page " + (i + 1),
             items: [
+              { label: "Export as PNG", onSelect: function () { KOS.inkExport.exportPNG(p, ref + " page " + (i + 1)).catch(function (err) { KOS.ui.toast("The picture could not be made — " + err.message, true); }); } },
               { label: "Duplicate", onSelect: function () { I.duplicatePage(key, p.id, function () { paint(); announce("Page " + (i + 1) + " duplicated."); }); } },
               { label: "Delete", className: "k-menu-item--danger", onSelect: function () {
                 KOS.ui.confirm({ danger: true, title: "Delete page " + (i + 1) + "?", body: "Its ink is removed from this device. This cannot be undone." },
@@ -380,14 +398,21 @@
         if (!src || !s || destroyed) { announce("That block could not be clipped."); return; }
         /* the picture lands at the size it had on screen, page units for pixels */
         var k = I.W / (s.host.clientWidth || I.W);
-        var wdt = Math.min(I.W * 0.86, w * k), hgt = wdt * h / Math.max(1, w);
-        if (hgt > I.H * 0.6) { hgt = I.H * 0.6; wdt = hgt * w / Math.max(1, h); }
+        placeOn(s, src, w * k, h * k, { clip: { sid: sid, ref: ref } }, name, true);
+      });
+    }
+    /* a picture under the last ink of `s`, else on the next page (made
+       when there is none); `exact` keeps its size, else it fits 600 wide */
+    function placeOn(s, src, iw, ih, extra, name, exact) {
+      var wdt = exact ? Math.min(I.W * 0.86, iw) : Math.min(600, iw), hgt = wdt * ih / Math.max(1, iw);
+      if (hgt > I.H * 0.6) { hgt = I.H * 0.6; wdt = hgt * iw / Math.max(1, ih); }
+      (function () {
         var place = function (sf) {
           var y = Math.max(60, sf.lastInkBottom() + 30);
-          sf.addItems([{ id: I.uid(), k: "img", x: 60, y: Math.round(y), w: Math.round(wdt), h: Math.round(hgt), src: src, clip: { sid: sid, ref: ref } }]);
+          sf.addItems([Object.assign({ id: I.uid(), k: "img", x: 60, y: Math.round(y), w: Math.round(wdt), h: Math.round(hgt), src: src }, extra || {})]);
           dk.active = sf;
           var n = sheets.map(function (sh) { return sh.surface; }).indexOf(sf) + 1;
-          announce("Clipped " + name + " to page " + (n || 1) + ".");
+          announce((exact ? "Clipped " : "Added ") + name + " to page " + (n || 1) + ".");
         };
         if (s.lastInkBottom() + 30 + hgt <= I.H - 40) { place(s); return; }
         /* no room under the last ink: the next page, made if there is none */
@@ -411,7 +436,7 @@
           if (sheets.length > count) { land(sheets[sheets.length - 1]); return; }
           if (tries < 40) setTimeout(function () { waitPage(tries + 1); }, 50);
         })(0);
-      });
+      })();
     }
     function notesPane() {
       var c = KOS.content.get(sid, ref), blocks = (c && c.notes) || [];
@@ -422,7 +447,7 @@
         pane.appendChild(KOS.ui.emptyState({ compact: true, mark: "註", title: "No notes for this topic", body: "The Spec tab has what the board asks for." }));
         return pane;
       }
-      var art = el("article", { class: "k-prose k-notes", "data-ui": "ink.side-article" });
+      var art = el("article", { class: "k-prose k-notes", "data-ui": "ink.side-article", "data-topic": sid + ":" + ref });
       art.innerHTML = KOS.content.renderBlocks(blocks);
       if (KOS.ui.hookify) KOS.ui.hookify(art);
       pane.appendChild(art);

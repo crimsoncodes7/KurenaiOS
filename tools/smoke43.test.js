@@ -296,7 +296,11 @@ step("nothing between the header and the content but that one bar", () => {
   assert(kids.length === 3, "the column has " + kids.length + " blocks: " + kids.join(" | "));
   assert(/(^| )topic\.head( |$)/.test(kids[0]), "first block is " + kids[0]);
   assert(/(^| )topic\.nav( |$)/.test(kids[1]), "second block is " + kids[1]);
-  assert(/(^| )study\.panel( |$)/.test(kids[2]), "third block is " + kids[2]);
+  /* the third block is the content: the panel itself, or the grid that
+     holds it beside the Working page (26 October 2026), closed by default */
+  const third = /(^| )topic\.workgrid( |$)/.test(kids[2]) ? col.children[2].firstElementChild : col.children[2];
+  assert(/(^| )study\.panel( |$)/.test(third.getAttribute("data-ui") || ""), "third block is " + kids[2]);
+  assert(!/(^| )topic\.workgrid( |$)/.test(kids[2]) || col.children[2].children[1].hidden, "the Working page is closed when the topic opens");
   /* the 170px Topic Status band that used to sit here is in the inspector */
   assert(!col.querySelector("[data-ui~='topic.status']"), "the status band is back between the header and the content");
 });

@@ -26,6 +26,9 @@
      fetched only when a lesson first runs SQL, then CACHE-FIRST in its own
      cache, kos-sqlite-<SQLITE_ID>, kept across deploys; a new SQLite build
      bumps SQLITE_ID and the old cache is cleared.
+   - PDF.JS AND PDF-LIB (assets/pdf/, the file viewer and flattened
+     export): fetched the first time a PDF opens or exports, then
+     CACHE-FIRST in kos-pdf-<PDF_ID>, kept across deploys like SQLite.
    - EVERYTHING ELSE — Supabase, AniList, VNDB, Open Library, Google Books,
      any non-GET — is NOT intercepted at all. Authenticated and personalised
      responses must never sit in Cache Storage.
@@ -38,10 +41,11 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-routines-2";
+var VERSION = "kos-pen-1";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 var SQLITE_CACHE = "kos-sqlite-1.14.2";
+var PDF_CACHE = "kos-pdf-6.3.289-1.17.1";
 
 var CDN_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"];
 /* local development: navigations stay network-first (see header) */
@@ -120,7 +124,7 @@ self.addEventListener("activate", function (e) {
   e.waitUntil((async function () {
     var names = await caches.keys();
     await Promise.all(names.map(function (n) {
-      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE && n !== SQLITE_CACHE) return caches.delete(n);
+      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE && n !== PDF_CACHE && n !== SQLITE_CACHE) return caches.delete(n);
       return null;
     }));
     await self.clients.claim();
@@ -205,6 +209,17 @@ self.addEventListener("fetch", function (e) {
 
   var rt = /\/assets\/code\/runtime\/([^/]+)\//.exec(url.pathname);
   var sq = /\/assets\/code\/sqlite\//.test(url.pathname);
+  if (/\/assets\/pdf\//.test(url.pathname)) {
+    e.respondWith((async function () {
+      var cache = await caches.open(PDF_CACHE);
+      var hit = await cache.match(req);
+      if (hit) return hit;
+      var res = await fetch(req);
+      if (res && res.ok) cache.put(req, res.clone());
+      return res;
+    })());
+    return;
+  }
   if (rt || sq) {
     e.respondWith((async function () {
       var cache = await caches.open(sq ? SQLITE_CACHE : "kos-csharp-" + rt[1]);

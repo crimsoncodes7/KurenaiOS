@@ -1346,6 +1346,20 @@ included) without saying why.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
+> **BUILT 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`, not
+> deployed yet): the rest of design turn 30 — the floating palette, long
+> press names and the ruler (30b), paste and drop pictures, export (PNG,
+> PDF), ink sync per stroke (30p, `kos_ink`, migration
+> `20261026000001` applied), Settings › Pen and ink (30s), the answer pad
+> and the A-needs-M tally (30f), Mark with Kurenai, Check my working and
+> Compare with Kurenai behind an off-by-default switch (30g, 30k, 30m;
+> Spike H not run, so it says it only suggests), the flashcard Write
+> strip (30o), Write it out (30l), blurt (30m), diagram drills (30n), the
+> PDF viewer for papers with attempts as layers, the clock, the scheme
+> pane and marking (30h–30j), the desk niceties (6.9: the Focus wake lock,
+> hold ⌘), the kana square without the Scribble delay (6.7), and working
+> beside any topic tab. The sketchbook (6.8) waits for Creatives. smoke105.
+
 > **RELEASED 25 October 2026** (`8a092b7`, sw `kos-ink-2`, https://caffcf65.kurenai-os.pages.dev; `feat/ipad-polish`): every
 > view checked on the iPad at 1180 × 796 and 820 × 1156 with touch and
 > fixed (the topic inspector opens over the notes when the reading column
