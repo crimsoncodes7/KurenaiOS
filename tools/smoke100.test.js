@@ -4,13 +4,13 @@
 
    The claims:
 
-     A · OFF UNTIL ITS PAGE SHIPS: nothing migrates at boot, the habits
-         read as they are, no notification kind, no forecast, no goal
-         types, no tools.
+     A · ON AT BOOT: routines are on, with their notification kind, goal
+         types and tools; Habits moved in at boot.
      B · HABITS MOVE IN WHOLE: each habit becomes a one-step routine with
          a deterministic id ("h:<id>") and every kept day; the habits stay,
          frozen; a second pass adds nothing; KOS.todo, the habits view and
-         the streak read the same as before.
+         the streak read the same as before; a habit made later on an older
+         copy of the app is picked up by the next pass.
      C · THE GATE AND THE TEMPLATES: a template copies with fresh ids and
          its flags (optional, minimum, checked in the morning, on demand);
          one minimum at most; a bad link is dropped.
@@ -64,42 +64,34 @@ step("boot", async () => {
     { id: 9, text: "Stretch", created: day(-30), days: { [day(-10)]: true } }
   ];
   const stored = { todo: { nextId: 12, manual: [], autoChecked: {}, habits } };
-  app = await boot({ clock: TODAY + "T07:30:00", storage: { "kurenai-os-state": JSON.stringify(stored) } });
+  app = await boot({ clock: TODAY + "T07:30:00", storage: { "kurenai-os-v1": JSON.stringify(stored) } });
   K = app.KOS; R = K.routines;
   eq(app.errors, [], "boot errors");
 });
 
-step("A · off until its page ships", () => {
-  eq(R.enabled(), false, "off");
-  eq(R.migrated(), false, "nothing migrated at boot");
-  const hs = (K.store.state.todo && K.store.state.todo.habits) || [];
-  assert(hs.length === 2 || hs.length === 0, "the habits as stored");
-  eq(R.habitsView().length, hs.length, "the habits view reads them as they are");
-  assert(!K.notify.KINDS.routine, "no notification kind yet");
-  eq(R.forecast(Date.now(), Date.now() + 7 * 864e5), [], "no forecast");
-  assert(K.goals.typeDef("routine-days").id !== "routine-days", "no goal types yet");
-  assert(!K.ai.tools.get("routines_list"), "no tools yet");
+step("A · on at boot", () => {
+  eq(R.enabled(), true, "on");
+  eq(R.migrated(), true, "Habits moved in at boot");
+  assert(K.notify.KINDS.routine, "the notification kind");
+  assert(K.goals.typeDef("routine-days").id === "routine-days", "the goal types");
+  assert(K.ai.tools.get("routines_list"), "the tools");
 });
 
 step("B · habits move in whole", () => {
-  /* the harness may load its own state key: put the habits in place */
-  K.store.state.todo.habits = [
-    { id: 7, text: "Drink water", created: day(-30), days: { [day(-3)]: true, [day(-2)]: true, [day(-1)]: true } },
-    { id: 9, text: "Stretch", created: day(-30), days: { [day(-10)]: true } }
-  ];
-  const before = K.todo.habits().map((h) => [h.id, h.text, Object.keys(h.days).sort(), K.todo.habitStreak(h)]);
-  R.enable(true);
-  eq(R.migrate(), 2, "two habits moved");
-  eq(R.migrate(), 0, "a second pass adds nothing");
   const w = R.get("h:7");
   assert(w && w.kind === "habit" && w.steps.length === 1 && w.legacyHabit === "7", "a one-step routine with its legacy id");
   eq(K.store.state.todo.habits.length, 2, "the habits are kept, frozen");
   eq(K.store.state.todo.habitsMovedTo, "routines", "and marked moved");
-  const after = K.todo.habits().map((h) => [h.id, h.text, Object.keys(h.days).sort(), K.todo.habitStreak(h)]);
-  eq(after, before, "KOS.todo reads the same habits, days and streaks");
+  eq(R.migrate(), 0, "a second pass adds nothing");
+  const view = K.todo.habits().map((h) => [h.id, h.text, Object.keys(h.days).sort(), K.todo.habitStreak(h)]);
+  eq(view, [[7, "Drink water", [day(-3), day(-2), day(-1)], 3], [9, "Stretch", [day(-10)], 0]], "KOS.todo reads the same habits, days and streaks");
   eq(R.streak("h:7"), 3, "the streak: three days to yesterday, today not yet broken");
   eq(R.best("h:9"), 1, "best");
-  assert(K.notify.KINDS.routine, "the kind joins once on");
+  /* an older copy of the app adds a habit after the move */
+  K.store.state.todo.habits.push({ id: 11, text: "Floss", created: TODAY, days: {} });
+  eq(R.migrate(), 1, "picked up by the next pass");
+  assert(R.get("h:11"), "as h:11");
+  R.remove("h:11");
 });
 
 step("C · the gate and the templates", () => {

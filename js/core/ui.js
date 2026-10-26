@@ -369,7 +369,7 @@
     subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study", japanese: "study",
     tracker: "study", exams: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
-    focus: "productivity", calendar: "productivity", tasks: "productivity",
+    focus: "productivity", calendar: "productivity", tasks: "productivity", routines: "productivity",
     reminders: "productivity", money: "productivity", goals: "productivity",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
@@ -400,7 +400,7 @@
     productivity: [
       { label: "Focus Timer", view: "focus" },
       { label: "Reminders", view: "reminders", count: "pc-rem", tone: "neutral" },
-      { label: "Habits", view: "tasks" },
+      { label: "Routines", view: "routines" },
       { label: "Calendar", view: "calendar" },
       /* 27a: Money and Goals join the strip; the rail keeps seven sections */
       { label: "Money", view: "money" },

@@ -411,17 +411,18 @@
      which is why deleting an assignment cleans all of them up at once. */
 
   /* Calendar grid: what is due on this day. */
+  /* every assignment with a date shows on its day (invariant 147) */
   function forDate(dateISO) {
     return all().filter(function (a) {
-      return a.showInCalendar && a.due === dateISO && a.status !== "complete";
+      return a.due === dateISO && a.status !== "complete";
     });
   }
-  /* Countdown rail: only assignments explicitly marked major. */
+  /* Countdown rail: the major ones, by the rule or a pin (isMajor). */
   function countdownItems(subject) {
     var t = today();
     return all()
       .filter(function (a) {
-        return a.showInCountdown && isOpen(a) && a.due && a.due >= t &&
+        return isMajor(a) && isOpen(a) && a.due && a.due >= t &&
           (!subject || a.subject === subject || !a.subject);
       })
       .map(function (a) { return { assignment: a, days: KOS.srs.daysBetween(t, a.due) }; })

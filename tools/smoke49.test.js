@@ -806,7 +806,7 @@ step("the week page: a tick beside every one of my rows, a carried band marked b
   KOS.pacing.removeEntry(older.id);
 });
 
-step("class milestones stand in the Countdown rail and open the week; the dialog offers the tick and a reminder", () => {
+step("class milestones stand in the Countdown rail and open the week; the dialog offers the tick and copies no reminder", () => {
   const mock = KOS.pacing.addEntry({ source: "school", subject: "maths", wb: "2026-11-09", title: "Maths mock", kind: "Mock" });
   const cds = KOS.calendar.countdowns(null);
   const hit = cds.find(r => r.kind === "pacing" && r.entry.id === mock.id);
@@ -818,12 +818,11 @@ step("class milestones stand in the Countdown rail and open the week; the dialog
   $$("#main [data-ui~='pace.row']").find(b => b.textContent.includes("Remind me row")).click();
   const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
   assert(dlg.querySelector("[data-ui~='pace.dlg-done'] input[type=checkbox]"), "the dialog has no tick");
-  const before = KOS.reminders.all().length;
-  [...dlg.querySelectorAll("button")].find(b => /Remind me/.test(b.textContent)).click();
-  const r = KOS.reminders.all().find(x => x.title === "Plan: Remind me row");
-  assert(r && KOS.reminders.all().length === before + 1 && r.due === "2026-11-08" && r.tags.indexOf("pacing") !== -1, "the reminder handoff is wrong: " + JSON.stringify(r));
+  /* roadmap 5.10 (plan §10.3): no "Remind me" copy any more — the row shows
+     in Reminders' Today and the reviews by itself, derived */
+  assert(![...dlg.querySelectorAll("button")].some(b => /Remind me/.test(b.textContent)), "the dialog still copies the row into a reminder");
+  assert(dlg.querySelector("[data-ui~='pace.dlg-where']"), "the dialog says where the row shows");
   $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.dialog-head'] button").click();
-  KOS.reminders.remove(r.id);
   KOS.pacing.removeEntry(mock.id); KOS.pacing.removeEntry(mine.id);
 });
 

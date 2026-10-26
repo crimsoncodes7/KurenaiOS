@@ -186,7 +186,7 @@ console.log("== derived surfaces (one record, many views) ==");
 step("the deadline appears on the Calendar without ever becoming an event", async () => {
   reset();
   const evsBefore = KOS.store.state.calendar.events.length;
-  const a = A().add({ title: "Calendar visible", subject: "compsci", due: T(), showInCalendar: true });
+  const a = A().add({ title: "Calendar visible", subject: "compsci", due: T() });
   if (KOS.store.state.calendar.events.length !== evsBefore)
     throw new Error("an assignment wrote a calendar event — the deadline must stay derived");
   if (!A().forDate(T()).some(x => x.id === a.id)) throw new Error("forDate did not surface it");
@@ -194,20 +194,25 @@ step("the deadline appears on the Calendar without ever becoming an event", asyn
   await tick(70);
   if (!$$("[data-ui~='cal.event'][data-ui~='cal.asg']").some(n => /Calendar visible/.test(n.textContent)))
     throw new Error("the deadline did not render on the grid");
-  /* and an assignment hidden from the calendar stays off it */
-  A().update(a.id, { showInCalendar: false });
+  /* where it shows is derived (roadmap 5.10, invariant 147): with no date
+     it leaves the calendar; there is no "show on the calendar" switch */
+  A().update(a.id, { due: null });
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
   if ($$("[data-ui~='cal.event'][data-ui~='cal.asg']").some(n => /Calendar visible/.test(n.textContent)))
-    throw new Error("calendar visibility is not honoured");
+    throw new Error("an undated assignment stayed on the calendar");
 });
 
-step("only assignments marked major reach the Countdown rail", () => {
+step("only major assignments reach the Countdown rail: the rule, or a pin", () => {
   reset();
-  A().add({ title: "Ordinary work", subject: "compsci", due: KOS.srs.addDays(T(), 4), showInCountdown: false });
-  const major = A().add({ title: "Major deadline", subject: "compsci", due: KOS.srs.addDays(T(), 6), showInCountdown: true });
+  A().add({ title: "Ordinary work", subject: "compsci", due: KOS.srs.addDays(T(), 4) });
+  const major = A().add({ title: "Major deadline", subject: "compsci", type: "coursework", due: KOS.srs.addDays(T(), 6) });
+  const pinned = A().add({ title: "Pinned homework", subject: "compsci", due: KOS.srs.addDays(T(), 8) });
+  A().pinCountdown(pinned.id, true);
+  const hidden = A().add({ title: "Unpinned project", subject: "compsci", type: "project", due: KOS.srs.addDays(T(), 9) });
+  A().pinCountdown(hidden.id, false);
   const rail = A().countdownItems().map(x => x.assignment.title);
-  if (rail.join() !== "Major deadline") throw new Error("countdown rail: " + rail.join());
+  if (rail.join() !== "Major deadline,Pinned homework") throw new Error("countdown rail: " + rail.join());
   /* The widget shows the four NEAREST countdowns, and the seeded weekly plan
      contributes its class milestones (invariant 82b). In a week that holds
      four of them they take every slot and this check fails on the calendar
@@ -221,7 +226,7 @@ step("only assignments marked major reach the Countdown rail", () => {
   if (/Ordinary work/.test(widget.textContent)) throw new Error("ordinary work must not become a major countdown");
   /* completing it retires it from the rail */
   A().setStatus(major.id, "complete");
-  if (A().countdownItems().length) throw new Error("a completed assignment stayed in the countdown");
+  if (A().countdownItems().some(x => x.assignment.id === major.id)) throw new Error("a completed assignment stayed in the countdown");
 });
 
 step("urgent assignments surface on Home, overdue first", async () => {

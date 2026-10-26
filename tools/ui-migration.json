@@ -96,7 +96,11 @@
     "js/modules/examroom.js",
     "js/modules/examguide.js",
     "js/modules/exampaperview.js",
-    "js/modules/examdeep.js"
+    "js/modules/examdeep.js",
+    "css/views/routines.css",
+    "js/modules/routines.js",
+    "js/modules/dayreview.js",
+    "js/modules/routineplayer.js"
   ],
   "views": {
     "home": {},
@@ -116,7 +120,6 @@
     "personaldeck": {},
     "focus": {},
     "reminders": {},
-    "tasks": {},
     "calendar": {},
     "pacing": {},
     "anime": {},
@@ -153,6 +156,7 @@
       "arg": {
         "page": "kana"
       }
-    }
+    },
+    "routines": {}
   }
 }

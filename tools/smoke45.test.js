@@ -132,7 +132,7 @@ function reallyFocusable(n) {
 const FOCUSABLE = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]';
 
 const VIEWS = ["home", "subject", "review", "due", "cardstats", "tracker", "personaldeck", "assignments",
-  "focus", "calendar", "tasks", "reminders", "matrix", "anime", "books", "vn", "game", "seasonal",
+  "focus", "calendar", "routines", "reminders", "matrix", "anime", "books", "vn", "game", "seasonal",
   "mangaka", "wishlist", "shrine", "goals", "aniprofile", "vndbprofile", "mediasync",
   "governor", "assistant", "data", "help"];
 

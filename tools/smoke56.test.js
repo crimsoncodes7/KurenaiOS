@@ -80,7 +80,7 @@ const SURFACES = [
   ["ref", { subject: "maths", ref: "5.7" }],
   ["ref", { subject: "it", ref: "F200.1.1" }],
   ["review"], ["due"], ["cardstats"], ["personaldeck"], ["assignments"], ["tracker"],
-  ["focus"], ["reminders"], ["tasks"], ["calendar"], ["pacing"], ["pacing", { tab: "braid" }],
+  ["focus"], ["reminders"], ["routines"], ["routines", "routines"], ["routines", "templates"], ["routines", "history"], ["routines", "settings"], ["calendar"], ["pacing"], ["pacing", { tab: "braid" }],
   ["matrix"], ["anime"], ["seasonal"], ["books"], ["mangaka"], ["vn"], ["game"],
   ["shrine"], ["wishlist"], ["goals"], ["mediasync"], ["aniprofile"], ["vndbprofile"],
   ["money"], ["money", "transactions"], ["money", "budgets"], ["money", "recurring"], ["money", "pots"], ["money", "month"],

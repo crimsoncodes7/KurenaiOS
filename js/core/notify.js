@@ -116,9 +116,13 @@
   }
   /* inside the window, which may run past midnight (23:00–07:00) */
   function inQuiet(d) {
+    d = d || new Date();
+    /* a one-off hold (the Evening Review's Good night, roadmap 5.10): device
+       alerts wait until the morning review, tonight only */
+    var hold = +ui().notifyHoldUntil || 0;
+    if (hold && d.getTime() < hold) return true;
     var q = quiet();
     if (!q.on) return false;
-    d = d || new Date();
     var now = d.getHours() * 60 + d.getMinutes();
     var f = q.from.split(":"), t = q.to.split(":");
     var a = +f[0] * 60 + +f[1], b = +t[0] * 60 + +t[1];

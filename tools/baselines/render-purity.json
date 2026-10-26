@@ -92,12 +92,36 @@
      "key": {
       "ctx": "home.routines",
       "hooks": "",
-      "name": "Habits →",
+      "name": "All routines →",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "home.routines",
+      "hooks": "home.review-line",
+      "name": "朝Morning review · readyOpen ›",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "朝Morning reviewThu 24 Sept · 10:001 lesson today and 1 study"
+      ],
+      "state": [
+       "assistant",
+       "dayReview"
+      ],
+      "ui": [
+       "review"
+      ],
+      "announce": [
+       "Morning review. 3 steps."
+      ]
      }
     },
     {
@@ -287,13 +311,15 @@
     {
      "key": {
       "ctx": "cal.countdowns",
-      "hooks": "cal.countdown-item",
-      "name": "1SQL DDL, Record Locks + DATABASE TESTin 1 day · Assessment in class · compsci ·",
+      "hooks": "asg.urgent cal.countdown-item",
+      "name": "1NEA — Analysis section: stakeholder interviews and success criteriain 1 day · A",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/pacing/2026-09-21"
+      "dialog": [
+       "Assignment"
+      ]
      }
     },
     {
@@ -530,7 +556,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -679,6 +705,20 @@
      "key": {
       "ctx": "cal.countdowns",
       "hooks": "cal.countdown-item",
+      "name": "1NEA — Analysis section: stakeholder interviews and success criteriaAssignment ·",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Assignment"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.countdowns",
+      "hooks": "cal.countdown-item",
       "name": "1SQL DDL, Record Locks + DATABASE TESTAssessment in class · Fri 25 Sep",
       "tag": "button"
      },
@@ -697,18 +737,6 @@
      "occurrence": 0,
      "effects": {
       "nav": "#/pacing/2026-09-28"
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.countdowns",
-      "hooks": "cal.countdown-item",
-      "name": "43Binary Trees & Graph Traversal (BFS/DFS)NEA milestone in class · Fri 6 Nov",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "nav": "#/pacing/2026-11-02"
      }
     },
     {
@@ -1141,7 +1169,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -1274,6 +1302,20 @@
      "key": {
       "ctx": "cal.countdowns",
       "hooks": "cal.countdown-item",
+      "name": "2Assignment 6Assignment · Sat 26 Sep",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Assignment"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.countdowns",
+      "hooks": "cal.countdown-item",
       "name": "15Modulus Transformations, Projectiles, KinematicsAssessment in class · Fri 9 Oc",
       "tag": "button"
      },
@@ -1292,18 +1334,6 @@
      "occurrence": 0,
      "effects": {
       "nav": "#/pacing/2026-10-19"
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.countdowns",
-      "hooks": "cal.countdown-item",
-      "name": "71Normal Approximation, Hypothesis Testing + ASSESSMENTAssessment in class · Fri",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "nav": "#/pacing/2026-11-30"
      }
     },
     {
@@ -1765,7 +1795,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -3254,7 +3284,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -3833,7 +3863,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4066,7 +4096,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4180,6 +4210,16 @@
     },
     {
      "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Japanese",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "review.tabs",
       "hooks": "ui.tab",
       "name": "Due today",
@@ -4267,7 +4307,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4428,7 +4468,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4605,6 +4645,23 @@
     },
     {
      "key": {
+      "ctx": "asg.pin-row",
+      "hooks": "asg.pin",
+      "name": "Unpin",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "assignments.items[]"
+      ],
+      "announce": [
+       "Unpinned from countdowns."
+      ]
+     }
+    },
+    {
+     "key": {
       "ctx": "asg.detail",
       "hooks": "",
       "name": "⇪ Attach a file…",
@@ -4744,7 +4801,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -5110,12 +5167,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -5252,16 +5309,8 @@
      "occurrence": 0,
      "effects": {
       "dialog": [
-       "Focus session"
-      ],
-      "state": [
-       "focus.active",
-       "focus.nextId"
-      ],
-      "announce": [
-       "Focus session started — 25 min / 5 min break. 集中."
-      ],
-      "toast": "Focus session started — 25 min / 5 min break. 集中."
+       "About to Study"
+      ]
      }
     },
     {
@@ -5272,9 +5321,7 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {
-      "missing": true
-     }
+     "effects": {}
     },
     {
      "key": {
@@ -5285,7 +5332,7 @@
      },
      "occurrence": 0,
      "effects": {
-      "missing": true
+      "nav": "#/governor/history"
      }
     }
    ]
@@ -5323,12 +5370,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -5675,8 +5722,7 @@
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ],
-      "toast": "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+      ]
      }
     },
     {
@@ -6138,7 +6184,7 @@
     }
    ]
   },
-  "tasks": {
+  "routines": {
    "render": {
     "first": [],
     "second": [],
@@ -6176,7 +6222,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
@@ -6220,8 +6266,869 @@
     },
     {
      "key": {
-      "ctx": "habit.list",
-      "hooks": "habit.week-prev",
+      "ctx": "ui.page-actions",
+      "hooks": "routine.templates",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.new",
+      "name": "＋ New routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Today",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "History",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/history"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Settings",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/settings"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Leave out Morning Routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Leave out Evening Prep",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Add About to Study",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-add",
+      "name": "Add these two",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "routines"
+      ],
+      "announce": [
+       "Morning Routine and Evening Prep added"
+      ],
+      "toast": "Morning Routine and Evening Prep added"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "",
+      "name": "Start from blank",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-dismiss",
+      "name": "Not now",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "routinesOffer"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "review.status",
+      "hooks": "review.open",
+      "name": "Open",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "朝Morning reviewThu 24 Sept · 10:011 lesson today and 1 study"
+      ],
+      "state": [
+       "assistant",
+       "dayReview"
+      ],
+      "ui": [
+       "review"
+      ],
+      "announce": [
+       "Morning review. 3 steps."
+      ]
+     }
+    }
+   ]
+  },
+  "routines:\"routines\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.templates",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.new",
+      "name": "＋ New routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Today",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "History",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/history"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Settings",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/settings"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Leave out Morning Routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Leave out Evening Prep",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Add About to Study",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-add",
+      "name": "Add these two",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "routines"
+      ],
+      "announce": [
+       "Morning Routine and Evening Prep added"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "",
+      "name": "Start from blank",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-dismiss",
+      "name": "Not now",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "routinesOffer"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.habit-grid",
+      "hooks": "",
+      "name": "Previous week",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    }
+   ]
+  },
+  "routines:\"templates\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.templates",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.new",
+      "name": "＋ New routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Today",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "History",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/history"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Settings",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/settings"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Leave out Morning Routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Leave out Evening Prep",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-pick",
+      "name": "Add About to Study",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-add",
+      "name": "Add these two",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "routines"
+      ],
+      "announce": [
+       "Morning Routine and Evening Prep added"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "",
+      "name": "Start from blank",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.offer",
+      "hooks": "routine.offer-dismiss",
+      "name": "Not now",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "routinesOffer"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.template",
+      "hooks": "routine.use-template",
+      "name": "Use this",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/r_rwcncu92w",
+      "state": [
+       "routines"
+      ],
+      "announce": [
+       "Morning Routine added"
+      ],
+      "toast": "Morning Routine added"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.template",
+      "hooks": "",
+      "name": "Preview steps",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    }
+   ]
+  },
+  "routines:\"history\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.templates",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.new",
+      "name": "＋ New routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Today",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "History",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Settings",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/settings"
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.habit-grid",
+      "hooks": "",
       "name": "Previous week",
       "tag": "button"
      },
@@ -6230,85 +7137,67 @@
     },
     {
      "key": {
-      "ctx": "habit.list",
-      "hooks": "habit.add",
-      "name": "Add the habit",
+      "ctx": "routine.habit-grid",
+      "hooks": "",
+      "name": "Next week",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {}
-    },
+    }
+   ]
+  },
+  "routines:\"settings\"": {
+   "render": {
+    "first": [],
+    "second": [],
+    "errors": []
+   },
+   "controls": [
     {
      "key": {
-      "ctx": "habit.directives",
-      "hooks": "habit.directives-open",
-      "name": "Today's directives3 left · from exams & deadlines›",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {}
-    },
-    {
-     "key": {
-      "ctx": "habit.directive-list",
-      "hooks": "habit.seal",
-      "name": "Seal directive: Clear 198 due flashcards (154 overdue)",
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Focus Timer",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "state": [
-       "governor.gold",
-       "governor.hp",
-       "governor.milestones",
-       "governor.xp",
-       "sessions[]",
-       "todo.autoChecked.2026-09-24|due"
-      ],
-      "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+      "nav": "#/focus"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Reminders",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/reminders",
+      "ui": [
+       "reminders"
       ]
      }
     },
     {
      "key": {
-      "ctx": "habit.directive-list",
-      "hooks": "",
-      "name": "Clear 198 due flashcards (154 overdue)",
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/due"
+      "nav": "#/routines"
      }
     },
     {
      "key": {
-      "ctx": "habit.directive-list",
-      "hooks": "habit.seal",
-      "name": "Seal directive: Revise for: Revision block 18 — 3d away",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "state": [
-       "governor.gold",
-       "governor.hp",
-       "governor.milestones",
-       "governor.xp",
-       "sessions[]",
-       "todo.autoChecked.2026-09-24|ev18"
-      ],
-      "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "habit.directive-list",
-      "hooks": "",
-      "name": "Revise for: Revision block 18 — 3d away",
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Calendar",
       "tag": "button"
      },
      "occurrence": 0,
@@ -6318,36 +7207,290 @@
     },
     {
      "key": {
-      "ctx": "habit.directive-list",
-      "hooks": "habit.seal",
-      "name": "Seal directive: 11:30 · AQA 7517 Paper 2 — Data structures and algorithms mock",
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Money",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
+      "nav": "#/money"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Goals",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/goals"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.templates",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "routine.new",
+      "name": "＋ New routine",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/edit/new"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Today",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Routines",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/routines"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Templates",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/templates"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "History",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/routines/history"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Settings",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "review.slot-setting",
+      "hooks": "",
+      "name": "morning review on",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
       "state": [
-       "governor.gold",
-       "governor.hp",
-       "governor.milestones",
-       "governor.xp",
-       "sessions[]",
-       "todo.autoChecked.2026-09-24|blk19"
-      ],
-      "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+       "dayReview"
       ]
      }
     },
     {
      "key": {
-      "ctx": "habit.directive-list",
+      "ctx": "review.slot-setting",
       "hooks": "",
-      "name": "11:30 · AQA 7517 Paper 2 — Data structures and algorithms mock",
+      "name": "afternoon review on",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "review.slot-setting",
+      "hooks": "",
+      "name": "evening review on",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "",
+      "name": "Open the review by itself",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "",
+      "name": "Ask before Focus",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "focusPreflight"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "review.easy",
+      "hooks": "",
+      "name": "Easy week",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "review.words-choice",
+      "name": "● ✦ Kurenai",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/calendar"
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "review.words-choice",
+      "name": "Template",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "review.what-sent",
+      "name": "What is sent",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "What is sent · Morning review"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "",
+      "name": "Kurenai's portrait",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "dayReview"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "",
+      "name": "Review notices",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "notifyMuted"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "",
+      "name": "Routine reminders",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "notifyMuted"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "routine.settings",
+      "hooks": "",
+      "name": "Hold alerts after Good night",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "reviewGoodNightQuiet"
+      ]
      }
     }
    ]
@@ -6390,12 +7533,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -7456,12 +8599,40 @@
      "key": {
       "ctx": "cal.countdowns",
       "hooks": "cal.countdown-item",
+      "name": "NEA — Analysis section: stakeholder interviews and success criteria, in 1 day, A",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Assignment"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.countdowns",
+      "hooks": "cal.countdown-item",
       "name": "SQL DDL, Record Locks + DATABASE TEST, in 1 day, Assessment in class · compsci ·",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
       "nav": "#/pacing/2026-09-21"
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.countdowns",
+      "hooks": "cal.countdown-item",
+      "name": "Assignment 6, in 2 days, Assignment · maths · Sat 26 Sep",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Assignment"
+      ]
      }
     },
     {
@@ -7488,30 +8659,6 @@
       "dialog": [
        "Revision block 21"
       ]
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.countdowns",
-      "hooks": "cal.countdown-item",
-      "name": "Legislation & Consequences + NEA Analysis Hand-In, in 8 days, NEA milestone in c",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "nav": "#/pacing/2026-09-28"
-     }
-    },
-    {
-     "key": {
-      "ctx": "cal.countdowns",
-      "hooks": "cal.countdown-item",
-      "name": "F204 Live NEA Assessment, in 12 days, NEA milestone in class · it · Tue 6 Oct",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "nav": "#/pacing/2026-10-05"
      }
     },
     {
@@ -7547,6 +8694,34 @@
       "ctx": "cal.derived-card",
       "hooks": "cal.derived-toggle",
       "name": "Start-by dates from Exams",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "calDerived"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.derived-card",
+      "hooks": "cal.derived-toggle",
+      "name": "Routines and their windows",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "calDerived"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "cal.derived-card",
+      "hooks": "cal.derived-toggle",
+      "name": "Daily Review times",
       "tag": "input"
      },
      "occurrence": 0,
@@ -7611,7 +8786,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -8549,7 +9724,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -10439,10 +11614,9 @@
      },
      "occurrence": 0,
      "effects": {
-      "announce": [
-       "A session is already on the clock — finish it first."
-      ],
-      "toast": "A session is already on the clock — finish it first."
+      "dialog": [
+       "読書 Reading session"
+      ]
      }
     },
     {
@@ -12183,12 +13357,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -12894,12 +14068,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -13145,12 +14319,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -13438,12 +14612,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -13748,12 +14922,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -13983,12 +15157,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -14194,12 +15368,12 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Habits",
+      "name": "Routines",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/tasks"
+      "nav": "#/routines"
      }
     },
     {
@@ -14950,6 +16124,16 @@
     },
     {
      "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Earlier notification filters",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "notify.tabs",
       "hooks": "ui.tab",
       "name": "All1",
@@ -15058,6 +16242,16 @@
       "ctx": "notify.tabs",
       "hooks": "ui.tab",
       "name": "Reports",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.scroller",
+      "hooks": "ui.scroller-arrow",
+      "name": "Later notification filters",
       "tag": "button"
      },
      "occurrence": 0,
@@ -15251,6 +16445,34 @@
       "ctx": "notify.filters",
       "hooks": "notify.filter",
       "name": "Exams: start-by, milestones, tests notifications",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "notifyMuted"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "notify.filters",
+      "hooks": "notify.filter",
+      "name": "Routines notifications",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "notifyMuted"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "notify.filters",
+      "hooks": "notify.filter",
+      "name": "Daily Review notifications",
       "tag": "input"
      },
      "occurrence": 0,
@@ -15641,7 +16863,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -16522,7 +17744,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -17033,7 +18255,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -17296,7 +18518,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code",
+      "name": "Code & Japanese",
       "tag": "button"
      },
      "occurrence": 0,
@@ -17792,6 +19014,18 @@
      },
      "occurrence": 0,
      "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "review.chip-mount",
+      "hooks": "review.chip ui.menu-button",
+      "name": "朝Morning review · 3 steps left▾",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "menu": true
+     }
     },
     {
      "key": {

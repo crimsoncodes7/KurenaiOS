@@ -528,7 +528,15 @@
         } }] });
       more.setAttribute("aria-label", "More for this goal");
       headHost.appendChild(U.pageHeader({ kicker: "標 · " + pillText(g).replace(" · weekly", " · repeats every week").replace(" · monthly", " · repeats every month"), title: g.title, sub: sub,
-        className: "k-gl-head", actions: [U.paceChip(paceKind(g)), btn("Edit", "", function () { goalDialog(G.get(id)); }, "goal.edit"), more].filter(Boolean) }));
+        className: "k-gl-head", actions: [U.paceChip(paceKind(g)),
+          /* roadmap 5.10 (frame 33v): up to three goals pinned to the Morning Review and Home */
+          g.archived ? null : btn(g.pinned ? "📌 Pinned · Unpin" : "📌 Pin to the morning", "", function () {
+            var r = G.pin(g.id, !g.pinned);
+            if (!r.ok) { U.toast(r.why, true); return; }
+            announce(g.pinned ? "Unpinned" : "Pinned to the morning review");
+            redraw();
+          }, "goal.pin"),
+          btn("Edit", "", function () { goalDialog(G.get(id)); }, "goal.edit"), more].filter(Boolean) }));
       var mainCol = el("div", { class: "k-mn-stack" }), side = el("div", { class: "k-mn-side" });
       page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [mainCol, side]));
       /* the three figures and the pace chart */

@@ -197,7 +197,7 @@ step("Study Review and Productivity own the intended navigation", () => {
      registering itself. Money and Goals joined it with roadmap 5.4 (design
      27a, 20 October 2026): the Budget Planner's money moved to Money and
      Goals left the Collection's workspace. */
-  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar|Money|Goals") throw new Error("productivity tabs: " + productivityTabs.join("|"));
+  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Routines|Calendar|Money|Goals") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
   /* Graphite (frame 9d): the record switch leads the row of filters under the header */
   if (!$("[data-ui~='tracker.tools'] [data-ui~='tracker.kinds']")) throw new Error("the record switch is missing");

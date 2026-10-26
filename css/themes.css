@@ -57,6 +57,10 @@ color-scheme: dark;
 /* Atelier Dawn · warm paper, near-white cards, the accents darkened to 4.5 : 1 */
 :root[data-theme="atelier-dawn"], [data-theme="atelier-dawn"] {
 color-scheme: light;
+--rv-morning: color-mix(in oklch, var(--gold) 22%, var(--s1));
+--rv-evening: oklch(from var(--s1) calc(l - 0.07) calc(c * 4) h);
+--rv-evening-2: oklch(from var(--s1) calc(l - 0.03) calc(c * 2) h);
+--rv-night: oklch(from var(--s1) calc(l - 0.12) calc(c * 4) h);
 --bg: oklch(0.955 0.008 80);
 --s1: oklch(0.992 0.003 80);
 --s2: oklch(0.93 0.01 80);

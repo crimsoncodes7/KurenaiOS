@@ -109,6 +109,9 @@
      view never writes while it draws. Idempotent; readers stay tolerant of
      the old shape because a pull or a restore can still carry it. */
   KOS.assignments.migrate();
+  /* roadmap 5.10: the countdown checkbox became a derived rule; what was
+     marked major before stays pinned (once, idempotent) */
+  if (KOS.assignments.migrateCountdown) KOS.assignments.migrateCountdown();
   KOS.tracker.migrate();
   KOS.calendar.migrateRefs();
   /* roadmap 1.2: the IT unit record is seeded once (a no-op afterwards, like
@@ -122,8 +125,9 @@
   if (KOS.exams) { KOS.exams.migrate(); KOS.exams.freezePass(); }
   /* roadmap 5.10: Habits moves into Routines once (deterministic ids, so
      two devices agree; the habits are kept, frozen, for a rollback) and
-     old routine days compact. A no-op until the Routines page ships. */
-  if (KOS.routines) KOS.routines.boot();
+     old routine days compact. */
+  if (KOS.routines) { KOS.routines.enable(true); KOS.routines.boot(); }
+  if (KOS.dayReview) KOS.dayReview.enable(true);
   /* roadmap 5.6: the switch from SM-2 to FSRS — every rated flashcard and
      Code retrieval card gets its stability and difficulty, converted from
      its ease and interval (no due date moves). Idempotent, and it converts
@@ -169,6 +173,9 @@
   /* the Daily Review's ticker: a review's notice at its time, Kurenai's
      words written ahead, routine windows (off until the overlay ships) */
   if (KOS.dayReview) KOS.dayReview.start();
+  /* the review overlay: its chip, and opening by itself on the first open
+     inside a slot (never over Focus, a dialog or a deep link) */
+  if (KOS.reviewSheet) KOS.reviewSheet.start();
   /* the Exams hub (5.8, phase 3): the predicted range kept just before
      each real exam (results day reads it), then its notices — once after
      boot and every 30 minutes */

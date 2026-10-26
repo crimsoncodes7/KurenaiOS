@@ -228,6 +228,31 @@
       mins: p.mins || null };
   }
 
+  /* ---------------- tomorrow's bag (plan §17.1) ----------------
+     Each subject's kit is set once (state.dayReview.kit, synced); a day's
+     bag is the kit of every subject taught that day, plus anything due
+     that day to hand in. A read. */
+  function kit() { var k = reviewCfg().kit; return k && typeof k === "object" ? k : {}; }
+  function bag(day) {
+    var K = kit(), out = [], seen = {};
+    function add(text, why) { var key = text.toLowerCase(); if (seen[key]) { seen[key].why += ", " + why; return; } seen[key] = { text: text, why: why }; out.push(seen[key]); }
+    var subjects = [];
+    safe(function () { return KOS.pacing.lessonsOn(day); }, []).forEach(function (l) {
+      if (subjects.indexOf(l.entry.subject) === -1) subjects.push(l.entry.subject);
+    });
+    safe(function () { return KOS.calendar.eventsOn(day); }, []).forEach(function (e) {
+      if (e.type === "lesson" && e.subject && subjects.indexOf(e.subject) === -1) subjects.push(e.subject);
+    });
+    subjects.forEach(function (sid) {
+      var short = safe(function () { return KOS.subjects.meta(sid).short; }, sid);
+      (Array.isArray(K[sid]) ? K[sid] : []).forEach(function (t) { if (t) add(String(t), short); });
+    });
+    safe(function () { return KOS.assignments.all(); }, []).forEach(function (a) {
+      if (KOS.assignments.isOpen(a) && a.due === day) add(a.title + " · to hand in", safe(function () { return KOS.subjects.meta(a.subject).short; }, "due"));
+    });
+    return out;
+  }
+
   /* ---------------- the whole day ---------------- */
   function isHoliday(day) {
     var w = safe(function () { return KOS.pacing.weekFor(day); }, null);
@@ -264,5 +289,5 @@
     } catch (e) { cb(null, build(day, opts)); }
   }
 
-  KOS.today = { build: build, load: load, free: free, schoolHours: schoolHours, isHoliday: isHoliday, day: today, MIN_FREE: MIN_FREE };
+  KOS.today = { build: build, load: load, free: free, bag: bag, kit: kit, schoolHours: schoolHours, isHoliday: isHoliday, day: today, MIN_FREE: MIN_FREE };
 })();

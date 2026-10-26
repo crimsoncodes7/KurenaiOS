@@ -1186,7 +1186,26 @@
     if (pair.length) main.appendChild(masonry(pair, 2));
     if (fo.persona) side.appendChild(personaCard("Your Focus style this " + rep.period, fo.persona, "var(--amber)"));
     if (fo.lengths && fo.lengths.length >= 3) side.appendChild(card("How long", {}, [lengths(fo.lengths)]));
-    if (tk && tk.habits) {
+    /* roadmap 5.10 (frame 33v): the Routines card, in place of the habit
+       table for any report saved with routines; older reports keep theirs */
+    var rtf = rep.facts.routines;
+    if (rtf && (rtf.rows || rtf.reviews)) {
+      var rtKids = (rtf.rows || []).map(function (r) {
+        var pct = r.of ? Math.round(100 * r.kept / r.of) : 0;
+        return el("div", { class: "k-rp-rt-row" }, [
+          el("span", { class: "k-rt-tile k-rt-tile--sm", lang: "ja", "aria-hidden": "true", text: r.mark || "習" }),
+          el("span", { class: "k-rp-rt-n" }, [el("b", { text: r.name }), r.rest || r.n ? el("span", { class: "k-muted k-rt-small", text: [r.n ? W.plural(r.n, "habit") : null, r.rest ? W.plural(r.rest, "rest day") : null].filter(Boolean).join(" · ") }) : null]),
+          el("span", { class: "k-bar", role: "img", "aria-label": r.kept + " of " + r.of + " kept", style: "--p: " + pct + "%" }, [el("i")]),
+          mono(r.kept + " of " + r.of, "k-rp-rt-v")
+        ]);
+      });
+      var foot = [];
+      if (rtf.reviews) foot.push(el("div", {}, [el("span", { class: "k-muted k-rt-small", text: "Reviews done" }), el("div", { text: "Morning " + rtf.reviews.morning + " · Afternoon " + rtf.reviews.afternoon + " · Evening " + rtf.reviews.evening })]));
+      if (rtf.mood != null || rtf.energy != null) foot.push(el("div", {}, [el("span", { class: "k-muted k-rt-small", text: "Mood · energy, average" }),
+        el("div", { text: (rtf.mood != null ? rtf.mood : "—") + " · " + (rtf.energy != null ? rtf.energy : "—") }), el("span", { class: "k-muted k-rt-small", text: "private · never in Kurenai's words" })]));
+      if (foot.length) rtKids.push(el("div", { class: "k-rp-rt-foot" }, foot));
+      side.appendChild(card("Routines" + (rtf.kept ? " · " + rtf.kept + " kept" : ""), { more: "History", go: function () { KOS.show("routines", "history"); } }, rtKids));
+    } else if (tk && tk.habits) {
       side.appendChild(card("Habits · " + tk.habits.length + " kept", {}, [el("table", { class: "k-rp-habits" }, [
         el("thead", {}, [el("tr", {}, [el("th", { scope: "col", class: "sr-only", text: "Habit" })].concat(DOW.map(function (d) { return el("th", { scope: "col", "aria-label": d, text: d.charAt(0) }); })))]),
         el("tbody", {}, tk.habits.map(function (h) {

@@ -302,6 +302,8 @@
       var sortLabel = (R().SORTS.find(function (x) { return x.v === (p.sort || "due"); }) || R().SORTS[0]).label.toLowerCase();
       sortBtn.textContent = "Sort: " + sortLabel + (p.priority ? " · " + R().PRIORITIES[+p.priority].label : "") + " ▾";
 
+      var plan = planRows();
+      if (!rows.length && plan) { listHolder.appendChild(plan); return; }
       if (!rows.length) {
         listHolder.appendChild(KOS.ui.emptyState({ mark: "祝", compact: true,
           title: filtered ? "Nothing matches this filter."
@@ -322,6 +324,34 @@
         }
         listHolder.appendChild(row(item));
       });
+      if (plan) listHolder.appendChild(plan);
+    }
+
+    /* roadmap 5.10 (frame 33v): this week's unticked rows of the personal
+       plan, DERIVED here — never copied into a reminder. Ticking one ticks
+       the plan row through its owner (logistics: it pays nothing). */
+    function planRows() {
+      if ((p.section !== "today" && p.section !== "scheduled") || p.listId != null || p.tag || p.priority || !KOS.pacing || !KOS.pacing.dueThisWeek) return null;
+      var wk = KOS.pacing.dueThisWeek();
+      var items = wk.carried.map(function (c) { return { e: c.entry, sub: "carried over · " + c.weeksLate + " wk" }; })
+        .concat(wk.rows.map(function (e) { return { e: e, sub: "this week" }; }));
+      if (!items.length) return null;
+      var box = el("div", { class: "k-rem-plan", "data-ui": "rem.from-plan" }, [el("h3", { class: "k-kicker k-rem-when", text: "From your plan" })]);
+      items.forEach(function (x) {
+        box.appendChild(el("div", { class: "k-rem-row", "data-ui": "rem.plan-row" }, [
+          el("button", { type: "button", class: "k-rem-check", "data-ui": "rem.plan-check", "aria-label": "Tick in your plan: " + x.e.title, onclick: function () {
+            KOS.pacing.setDone(x.e.id, true);
+            KOS.ui.toast(x.e.title + " · ticked in your plan", false, { label: "Undo", run: function () { KOS.pacing.setDone(x.e.id, false); draw(); } });
+            draw();
+          } }),
+          el("span", { class: "k-rem-row-body" }, [
+            el("span", { class: "k-rem-title", text: x.e.title }),
+            el("span", { class: "k-rem-meta" }, [el("span", { class: "k-chip", "data-tone": "muted", text: "↻ From your plan" }), el("span", { text: x.sub })])
+          ]),
+          el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Open plan", onclick: function () { KOS.show("pacing"); } })
+        ]));
+      });
+      return box;
     }
 
     function row(item) {

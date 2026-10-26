@@ -4,8 +4,8 @@
 
    The claims:
 
-     A · OFF UNTIL ITS OVERLAY SHIPS: no notification kind, no forecast,
-         a tick does nothing.
+     A · ON AT BOOT, WITH ITS KIND: the notification kind is known; a
+         tick before the morning time pushes nothing.
      B · SETTINGS through one gate: defaults, bad times refused, weekday
          and weekend times.
      C · ONE ON SCREEN (invariant 145): due(now) offers at most one review
@@ -63,13 +63,12 @@ step("boot", async () => {
   eq(app.errors, [], "boot errors");
 });
 
-step("A · off until its overlay ships", () => {
-  eq(V.enabled(), false, "off");
-  assert(!K.notify.KINDS.review, "no kind");
-  eq(V.forecast(Date.now(), Date.now() + 7 * 864e5), [], "no forecast");
-  const n = K.store.state.notify ? (K.store.state.notify.items || []).length : 0;
-  V.tick(at(TODAY, "07:30"));
-  eq(K.store.state.notify ? (K.store.state.notify.items || []).length : 0, n, "a tick does nothing");
+step("A · on at boot, with its kind", () => {
+  eq(V.enabled(), true, "on");
+  assert(K.notify.KINDS.review, "the kind");
+  const n = (K.store.state.notify.items || []).length;
+  V.tick(at(TODAY, "06:30"));
+  eq((K.store.state.notify.items || []).length, n, "nothing before the morning time");
 });
 
 step("B · settings", () => {
@@ -110,8 +109,9 @@ step("D · shown folds", () => {
   V.markShown("afternoon", at(TODAY, "17:00"));
   eq(K.store.state.dayReview.days[TODAY].morning.state, "folded", "the morning folded");
   const c = V.content("afternoon", { now: at(TODAY, "17:00") });
-  const still = c.steps.find((s) => s.id === "still");
-  assert(still && still.folded, "the afternoon carries the morning");
+  const ids = c.steps.map((s) => s.id);
+  eq(ids.slice(0, 2), ["sofar", "three"], "the afternoon gains the morning's Three, after So far");
+  assert(c.steps[1].folded, "marked as from this morning");
   K.store.state.dayReview.days = {};
 });
 
@@ -198,9 +198,7 @@ step("G · the words", async () => {
   K.ai.chat = realChat;
 });
 
-step("H · notices when on", async () => {
-  V.enable(true);
-  assert(K.notify.KINDS.review, "the kind");
+step("H · notices", async () => {
   const items = V.forecast(at(TODAY, "06:00"), at(day(2), "06:00"));
   const ids2 = items.map((x) => x.id);
   assert(ids2.indexOf("review:morning:" + TODAY) === -1, "a done morning is not forecast");
@@ -208,7 +206,6 @@ step("H · notices when on", async () => {
   eq(items.find((x) => x.id === "review:evening:" + TODAY).at, at(TODAY, "22:00"), "at its time");
   const out = await new Promise((res) => K.outlook.build((e, o) => res(o), { now: at(TODAY, "10:00") }));
   assert(out.items.some((x) => x.kind === "review"), "the outlook carries them");
-  V.enable(false);
   eq(app.errors, [], "no errors");
 });
 

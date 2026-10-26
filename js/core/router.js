@@ -91,6 +91,12 @@
       if (a.tab) return [a.tab].concat(a.sub ? [a.sub] : []);
       return null;
     },
+    /* Routines (roadmap 5.10): a tab (`#/routines/history`; Today is bare)
+       or a routine's editor (`#/routines/edit/<id>`, `…/edit/new`) */
+    routines: function (a) {
+      if (a && a.edit) return ["edit", String(a.edit)];
+      return typeof a === "string" && a && a !== "today" ? [a] : null;
+    },
     /* Money's views (`#/money/transactions`; Overview is bare) */
     money: function (a) { return typeof a === "string" && a && a !== "overview" ? [a] : null; },
     /* Goals: a tab (`#/goals/week`) or one goal (`#/goals/12`) */
@@ -114,6 +120,7 @@
     japanese: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
     money: function (p) { return p[0] || null; },
+    routines: function (p) { return p[0] === "edit" ? { edit: p[1] || "new" } : p[0] || null; },
     exams: function (p) {
       if (!p[0]) return null;
       if (p[0] === "attempt") return p[1] ? { attempt: p[1], page: p[2] || null } : null;
@@ -154,6 +161,8 @@
     var viewId = parts[0];
     /* routes that moved (27a): the Planner is the Wishlist now */
     if (viewId === "planner") viewId = "wishlist";
+    /* roadmap 5.10: Habits became Routines */
+    if (viewId === "tasks") viewId = "routines";
     if (!KOS.views[viewId]) return null;
     var dec = DECODE[viewId];
     var arg;

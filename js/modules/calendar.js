@@ -558,6 +558,25 @@
         out.push({ kind: "startby", glyph: "⚐", title: "Start by · " + a.title, assessment: a, date: dateISO });
       });
     }
+    /* roadmap 5.10 (frame 33u): a routine's window and the three review
+       marks, dashed so they never look like events; read each time */
+    if (KOS.routines && KOS.routines.enabled() && derivedShown("routines")) {
+      KOS.routines.all().forEach(function (r) {
+        if (r.kind === "habit" || !KOS.routines.scheduledOn(r, dateISO)) return;
+        var w = KOS.routines.windowOn(r, dateISO);
+        if (!w) return;
+        var st = KOS.routines.stateOn(r, dateISO);
+        out.push({ kind: "routine", glyph: r.mark || "習", title: r.name, sub: w.from + "–" + w.to, routine: r, date: dateISO, time: w.from,
+          state: st === "done" || st === "min" ? "done" : null });
+      });
+    }
+    if (KOS.dayReview && KOS.dayReview.enabled() && derivedShown("reviews")) {
+      var mk = { morning: "朝", afternoon: "昼", evening: "夜" };
+      KOS.dayReview.slots(dateISO).forEach(function (sl) {
+        out.push({ kind: "review", glyph: mk[sl.slot], title: KOS.dayReview.LABEL[sl.slot] + " · " + sl.time, slot: sl.slot, date: dateISO, time: sl.time,
+          state: sl.state === "done" ? "done" : null });
+      });
+    }
     if (KOS.goals && derivedShown("goals")) {
       KOS.goals.all().forEach(function (g) {
         if (g.archived || g.status !== "active") return;
@@ -568,17 +587,23 @@
     }
     return out;
   }
+  function openDerived(d) {
+    if (d.kind === "startby") KOS.show("exams", d.assessment.id);
+    else if (d.kind === "routine") KOS.show("routines", { edit: d.routine.id });
+    else if (d.kind === "review") { var due = KOS.dayReview.due(); if (due && due.slot === d.slot && d.date === KOS.routines.routineDay()) KOS.reviewSheet.open(d.slot); else KOS.show("routines"); }
+    else derivedPanel(d);
+  }
   function derivedChip(d) {
     var M = KOS.money, hidden = M && M.isHidden();
     var fig = d.minor && !hidden ? (d.income ? "+" : "") + M.format(d.minor) : null;
     var chip = el("button", {
       class: "k-ev k-ev--derived", "data-ui": "cal.event cal.derived", "data-type": "derived", "data-kind": d.kind, type: "button",
       "data-state": d.state === "skip" ? "skipped" : d.state === "done" ? "confirmed" : null,
-      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", " + (d.kind === "startby" ? "derived from Exams" : "from " + (d.kind === "money" ? "Money" : "Goals")),
-      onclick: function (e) { e.stopPropagation(); if (d.kind === "startby") KOS.show("exams", d.assessment.id); else derivedPanel(d); }
+      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", " + (d.kind === "startby" ? "derived from Exams" : d.kind === "routine" || d.kind === "review" ? "from Routines" : "from " + (d.kind === "money" ? "Money" : "Goals")),
+      onclick: function (e) { e.stopPropagation(); openDerived(d); }
     }, [
       el("span", { class: "k-ev-glyph", lang: "ja", "aria-hidden": "true", text: d.state === "done" ? "✓" : d.glyph }),
-      el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: d.title + (fig ? " · " + fig : "") })
+      el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: d.title + (fig ? " · " + fig : "") + (d.sub ? " · " + d.sub : "") })
     ]);
     if (d.tone && TONE_HUE[d.tone]) chip.style.setProperty("--ev-hue", "var(--cal-" + d.tone + ")");
     return chip;
@@ -616,7 +641,9 @@
     return el("section", { class: "k-card", "data-ui": "cal.derived-card" }, [
       el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Shown on the calendar" })]),
       sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends"),
-      KOS.exams ? sw("exams", "⚐", "Start-by dates from Exams") : null].filter(Boolean));
+      KOS.exams ? sw("exams", "⚐", "Start-by dates from Exams") : null,
+      KOS.routines && KOS.routines.enabled() ? sw("routines", "習", "Routines and their windows") : null,
+      KOS.dayReview && KOS.dayReview.enabled() ? sw("reviews", "審", "Daily Review times") : null].filter(Boolean));
   }
 
   /* ---------------- sample data ---------------- */
@@ -890,9 +917,11 @@
       body.appendChild(dayRow({ type: "reminder" }, r.dueTime || "Any time", r.title, "Reminder — manage in Reminders",
         function () { overlay.close(); KOS.show("reminders"); }));
     });
-    d0.derived.forEach(function (d) {
-      body.appendChild(dayRow({ type: "reminder" }, "All day", d.title, d.kind === "money" ? "From Money" : "From Goals",
-        function () { overlay.close(); derivedPanel(d); }));
+    /* opened from the month grid, it lists what the cell's "+N more" counted */
+    d0.derived.filter(function (d) { return d.kind !== "routine" && d.kind !== "review"; }).forEach(function (d) {
+      body.appendChild(dayRow({ type: "reminder" }, d.time || "All day", d.title + (d.sub ? " · " + d.sub : ""),
+        d.kind === "routine" || d.kind === "review" ? "From Routines" : d.kind === "startby" ? "From Exams" : d.kind === "money" ? "From Money" : "From Goals",
+        function () { overlay.close(); openDerived(d); }));
     });
     var d = parseISO(dateISO);
     overlay = dialog("cal.day-modal", DOW_LONG[(d.getDay() + 6) % 7], d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
@@ -952,7 +981,18 @@
     if (ev.type === "deadline") {
       rows.appendChild(detailRow("Priority", (PRIORITIES.find(function (p) { return p.v === ev.priority; }) || PRIORITIES[0]).label));
       rows.appendChild(detailRow("Status", statusLabel(ev.status)));
-      rows.appendChild(detailRow("Countdown", ev.showInCountdown ? "Shown on the Countdown rail" : "Hidden from the Countdown rail"));
+    }
+    /* Pin and Unpin: the one manual choice about where it shows (frame 33u) */
+    if (COUNTDOWN_TYPES.indexOf(ev.type) !== -1 && !ev.assessmentId && typeof ev.id === "number") {
+      var onRail = ev.showInCountdown !== false;
+      rows.appendChild(detailRow("Countdown", el("span", { class: "k-cluster" }, [
+        el("span", { text: onRail ? "Counts down" : "Unpinned from countdowns" }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cal.pin", text: onRail ? "Unpin" : "◆ Pin to countdowns", onclick: function () {
+          updateEvent(ev.id, { showInCountdown: !onRail });
+          KOS.a11y.announce(onRail ? "Unpinned from countdowns." : "Pinned to countdowns.");
+          overlay.close(); KOS.rerender();
+        } })
+      ])));
     }
     if (ev.type === "study") {
       if (ev.durationMins) rows.appendChild(detailRow("Intended", durationLabel(ev.durationMins)));
@@ -1123,9 +1163,8 @@
       if (on) KOS.ui.state(b, "on", true);
       return b;
     }));
-    var countdownBox = el("input", { type: "checkbox", class: "k-box" });
-    countdownBox.checked = d.showInCountdown;
-    var countdownRow = check(countdownBox, "Show on the Countdown rail");
+    /* where it shows is derived (roadmap 5.10, invariant 147): exams and
+       deadlines count down; Pin and Unpin live on the event's detail */
 
     /* ---- conditional: exam ---- */
     var paper = input("text", { placeholder: "e.g. Paper 1", maxlength: 60 });
@@ -1215,8 +1254,7 @@
       el("div", { class: "k-cal-sec" }, [
         el("div", { class: "k-cal-fgrid" }, [field("Repeats", recur), field("Until (optional)", until)]),
         el("div", { class: "k-field", "data-ui": "cal.field ui.field" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertRow]),
-        countdownRow,
-        el("p", { class: "k-field-hint", text: "Alerts are set on this event, not globally — they fire while the app is open." })
+        el("p", { class: "k-field-hint", text: "Alerts are set on this event, not globally — they fire while the app is open. Exams and deadlines count down by themselves." })
       ]),
       !!(existing && ((existing.recur && existing.recur !== "none") || (existing.alerts || []).length)));
 
@@ -1226,7 +1264,6 @@
     function condSection() {
       condHost.innerHTML = "";
       var t = type.value;
-      countdownRow.hidden = COUNTDOWN_TYPES.indexOf(t) === -1;
       if (t === "exam") {
         condHost.appendChild(disclosure("Exam details", "Kind, paper, duration, room, related topics",
           el("div", { class: "k-cal-fgrid" }, [
@@ -1301,7 +1338,7 @@
         description: description.value, location: location.value.trim(),
         colour: d.colour, recur: recur.value, recurUntil: until.value || null,
         alerts: d.alerts.slice(),
-        showInCountdown: COUNTDOWN_TYPES.indexOf(t) !== -1 ? countdownBox.checked : false
+        showInCountdown: COUNTDOWN_TYPES.indexOf(t) !== -1 ? d.showInCountdown !== false : false
       };
       /* conditional data is written only for the type it belongs to, so
          switching a record's type cannot leave stale exam fields behind */
@@ -1625,7 +1662,7 @@
     return items.events.map(function (ev) { return { type: ev.type, colour: ev.colour }; })
       .concat(items.assignments.map(function () { return { type: "assignment" }; }))
       .concat(items.reminders.map(function () { return { type: "reminder" }; }))
-      .concat(items.derived.map(function () { return { type: "reminder" }; }));
+      .concat(items.derived.filter(function (d) { return d.kind !== "routine" && d.kind !== "review"; }).map(function () { return { type: "reminder" }; }));
   }
   function dotOf(h) { return hueAttrs(el("i", { class: "k-cal-dot" }), h); }
 
@@ -1665,8 +1702,9 @@
         "Reminder: " + r.title, function () { KOS.show("reminders"); }));
     });
     items.derived.forEach(function (d) {
-      out.push(row("cal.event cal.derived", { type: "reminder" }, "All day", d.glyph + " " + d.title, d.kind === "money" ? "From Money" : "From Goals",
-        d.title, function () { derivedPanel(d); }));
+      out.push(row("cal.event cal.derived", { type: "reminder" }, d.time || "All day", d.glyph + " " + d.title + (d.sub ? " · " + d.sub : ""),
+        d.kind === "routine" || d.kind === "review" ? "From Routines" : d.kind === "startby" ? "From Exams" : d.kind === "money" ? "From Money" : "From Goals",
+        d.title, function () { openDerived(d); }));
     });
     return out;
   }
@@ -1709,7 +1747,9 @@
       items.events.forEach(function (ev) { chips.push(eventChip(ev, dISO, onChanged)); });
       items.assignments.forEach(function (a) { chips.push(assignmentChip(a, onChanged)); });
       items.reminders.forEach(function (r) { chips.push(reminderChip(r)); });
-      items.derived.forEach(function (d) { chips.push(derivedChip(d)); });
+      /* routines and review marks belong to the week and the day, not the
+         month grid, where they would push every real event under "+N more" */
+      items.derived.filter(function (d) { return d.kind !== "routine" && d.kind !== "review"; }).forEach(function (d) { chips.push(derivedChip(d)); });
 
       /* a "+1 more" costs exactly as much room as the chip it hides, so the
          cap only bites from the second hidden item onwards */

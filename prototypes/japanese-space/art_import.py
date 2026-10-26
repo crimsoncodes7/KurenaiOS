@@ -9,7 +9,9 @@ For every asset in manifest.json whose draft is in inbox/:
     the body drifted, and keep only the head from the expression — the body pixels stay the
     base's, so a reaction changes the face alone;
   - backgrounds: resize;
-  - manga panels: trim any flat strip along an edge (a white band Gemini leaves under the art), resize.
+  - manga panels: trim any flat strip along an edge (a white band Gemini leaves under the art), resize;
+  - covers (Routines' card art): resize;
+  - spots (small empty-state art on green): key out the green, trim to the art, resize.
 Writes WebP to the output folder and report.json (drift per face) for the contact sheet.
 Drafts arrive as JPEG under a .png name (Gemini's download), which is handled.
 """
@@ -21,6 +23,8 @@ SRC, OUT = sys.argv[1], sys.argv[2]
 SPRITE_H = 1400          # exported sprite height (px)
 BG_W = 1920              # exported background width (px)
 PANEL_LONG = 1800        # exported manga panel, long side (px)
+COVER_W = 960            # exported card cover width (px)
+SPOT_LONG = 640          # exported spot illustration, long side (px)
 HEAD = 0.20              # share of the figure's height treated as the head (top of hair to the chin/neck)
 FEATHER = 28             # px of blend under the head box
 
@@ -200,6 +204,30 @@ def main():
         im.save(os.path.join(OUT, a["id"] + ".webp"), "WEBP", quality=88, method=6)
         report["assets"][a["id"]] = {"kind": "panel", "out": im.size, "trimmed": trimmed,
                                      "note": ("trimmed a flat strip: " + ", ".join("%s %dpx" % t for t in trimmed.items())) if trimmed else None}
+
+    for a in man["assets"]:
+        if a["kind"] != "cover" or not have(a):
+            continue
+        im = Image.open(os.path.join(inbox, a["id"] + ".png")).convert("RGB")
+        if im.width > COVER_W:
+            im = im.resize((COVER_W, round(im.height * COVER_W / im.width)), Image.LANCZOS)
+        im.save(os.path.join(OUT, a["id"] + ".webp"), "WEBP", quality=84, method=6)
+        report["assets"][a["id"]] = {"kind": "cover", "out": im.size}
+
+    for a in man["assets"]:
+        if a["kind"] != "spot" or not have(a):
+            continue
+        rgb, al = key_green(load(os.path.join(inbox, a["id"] + ".png")))
+        y0, y1, x0, x1 = bbox(al)
+        pad = 16
+        y0, x0 = max(0, y0 - pad), max(0, x0 - pad)
+        y1, x1 = min(rgb.shape[0], y1 + pad), min(rgb.shape[1], x1 + pad)
+        im = to_image(rgb[y0:y1, x0:x1], al[y0:y1, x0:x1])
+        if max(im.size) > SPOT_LONG:
+            k = SPOT_LONG / max(im.size)
+            im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
+        im.save(os.path.join(OUT, a["id"] + ".webp"), "WEBP", quality=88, method=6)
+        report["assets"][a["id"]] = {"kind": "spot", "out": im.size}
 
     json.dump(report, open(os.path.join(OUT, "report.json"), "w"), indent=1, ensure_ascii=False)
     for k, v in report["assets"].items():

@@ -181,14 +181,10 @@
     doneBox.checked = !!e.done;
     var doneField = field("Ticked off", el("span", { class: "k-check", "data-ui": "pace.dlg-done" }, [doneBox, el("span", { text: e.source === "school" ? "I sat this" : "I did this" })]),
       creating ? null : (e.done && e.doneAt ? "ticked " + new Date(e.doneAt).toLocaleDateString() : e.source === "school" ? null : "an unticked row carries over once its week has ended"));
-    var remindBtn = creating ? null : el("button", { type: "button", class: "k-btn", text: "🔔 Remind me by the week's end",
-      onclick: function () {
-        if (!KOS.reminders) return;
-        var r = KOS.reminders.add({ title: "Plan: " + e.title, due: KOS.pacing.weekEnd(e.wb), dueTime: "18:00",
-          tags: ["pacing", e.subject], alerts: [1440],
-          notes: "From the weekly plan — " + ((KOS.pacing.weekAt(e.wb) || {}).label || e.wb) + " · Pacing #" + e.id });
-        KOS.ui.toast(r ? "Reminder set for " + KOS.pacing.weekEnd(e.wb) + "." : "Could not add the reminder.", !r);
-      } });
+    /* roadmap 5.10 (plan §10.3): an unticked personal row shows in
+       Reminders' Today and the Daily Review by itself (derived, never a
+       copied reminder), so the old "Remind me" button is a note now */
+    var remindBtn = creating ? null : el("span", { class: "k-muted k-rt-small", "data-ui": "pace.dlg-where", text: "Until it's ticked, this row shows in Reminders › Today and the Daily Review." });
 
     var kindField = field("Type", kindSel);
     var areaField = field("Area or strand", area);

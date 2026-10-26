@@ -239,6 +239,9 @@
       bd.forEach(function (m, i) { if (m > bd[best]) best = i; });
       out.peak = (f.period === "week" ? DAY3[best] + " " : "") + (fo.peakHour < 10 ? "0" : "") + fo.peakHour;
     }
+    /* routines and reviews (5.10): totals only; mood and energy never */
+    if (f.routines && f.routines.kept) out.routines_kept = f.routines.kept + "/" + f.routines.of;
+    if (f.routines && f.routines.reviews) out.reviews_done = f.routines.reviews.morning + f.routines.reviews.afternoon + f.routines.reviews.evening;
     if (f.code) {
       if (f.code.tasks) out.code_tasks_passed = f.code.tasks;
       if (f.code.skills) out.code_skills_proven = f.code.skills;

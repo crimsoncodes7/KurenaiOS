@@ -993,6 +993,7 @@
     f.focus = focus(input, p);
     var pl = plan(input, p); if (pl) f.plan = pl;
     var tk = tasks(input, p); if (tk) f.tasks = tk;
+    var rtf = routineFacts(input, p); if (rtf) f.routines = rtf;
     var co = collection(input, p); if (co) f.collection = co;
     var pg = programming(input, p); if (pg) f.code = pg;
     f.gov = governor(input, p);
@@ -1082,8 +1083,64 @@
       dayAvg: f.study.of ? Math.round(f.study.mins / f.study.of) : null };
   }
 
+  /* ---------------- routines and reviews (roadmap 5.10) ----------------
+     Kept of scheduled per routine (rest days apart), reviews done as
+     COUNTS only (no review streak, no "missed", invariant 145), and mood
+     and energy as averages that stay on the page and never reach the
+     words' payload (invariant 146). */
+  function routineFacts(input, p) {
+    var rows = (input.routineDays || []).map(function (r) {
+      var kept = 0, of = 0, rest = 0;
+      (r.states || []).forEach(function (st) {
+        if (st === "rest") { rest++; return; }
+        if (st === "off" || st === "open") return;
+        of++;
+        if (st === "done" || st === "min") kept++;
+      });
+      return { name: r.name, mark: r.mark || null, kind: r.kind, kept: kept, of: of, rest: rest };
+    }).filter(function (r) { return r.of || r.rest; });
+    var out = {};
+    var habits = rows.filter(function (r) { return r.kind === "habit"; }), named = rows.filter(function (r) { return r.kind !== "habit"; });
+    if (habits.length > 2) {
+      named.push({ name: "Daily habits", mark: "習", kind: "habit", n: habits.length,
+        kept: habits.reduce(function (m, r) { return m + r.kept; }, 0), of: habits.reduce(function (m, r) { return m + r.of; }, 0), rest: habits.reduce(function (m, r) { return m + r.rest; }, 0) });
+    } else named = named.concat(habits);
+    if (named.some(function (r) { return r.kept; })) {
+      out.rows = named;
+      out.kept = named.reduce(function (m, r) { return m + r.kept; }, 0);
+      out.of = named.reduce(function (m, r) { return m + r.of; }, 0);
+    }
+    var rv = { morning: 0, afternoon: 0, evening: 0 }, moods = [], energies = [];
+    Object.keys(input.reviewDays || {}).forEach(function (d) {
+      if (d < p.start || d > p.end) return;
+      var x = input.reviewDays[d] || {};
+      ["morning", "afternoon", "evening"].forEach(function (sl) { if (x[sl] && x[sl].state === "done") rv[sl]++; });
+      if (x.evening && x.evening.mood) moods.push(x.evening.mood);
+      if (x.evening && x.evening.energy) energies.push(x.evening.energy);
+    });
+    var done = rv.morning + rv.afternoon + rv.evening;
+    if (done) out.reviews = rv;
+    if (moods.length >= 2) out.mood = Math.round(10 * moods.reduce(function (a, b) { return a + b; }, 0) / moods.length) / 10;
+    if (energies.length >= 2) out.energy = Math.round(10 * energies.reduce(function (a, b) { return a + b; }, 0) / energies.length) / 10;
+    return Object.keys(out).length ? out : null;
+  }
+
   /* ---------------- gather: the single sources ---------------- */
   /* opts: {rebuilt, prev (a saved report's facts), now} */
+  /* each routine's state on each day of the period, read once here so
+     compute stays pure over its input */
+  function routineDaysOf(p) {
+    var Rt = KOS.routines;
+    if (!Rt || !Rt.enabled || !Rt.enabled()) return [];
+    var out = [];
+    Rt.all({ archived: true }).forEach(function (r) {
+      if (r.days === null) return;
+      var states = [];
+      for (var d = p.start; d <= p.end; d = addDays(d, 1)) states.push(Rt.stateOn(r, d));
+      out.push({ id: r.id, name: r.name, mark: r.mark, kind: r.kind, states: states });
+    });
+    return out;
+  }
   function gather(p, opts, cb) {
     opts = opts || {};
     var S = KOS.store.state;
@@ -1092,6 +1149,8 @@
       tally: (S.assistant && S.assistant.tally) || {},
       reminders: ((S.reminders || {}).items || []).slice(),
       habits: KOS.routines ? KOS.routines.habitsView() : ((S.todo || {}).habits || []).slice(),
+      routineDays: routineDaysOf(p),
+      reviewDays: (S.dayReview && S.dayReview.days) || {},
       rebuilt: !!opts.rebuilt,
       prev: opts.prev ? totals(opts.prev) : null
     };

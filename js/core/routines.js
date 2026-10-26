@@ -255,6 +255,8 @@
   /* a day's state: done · min · partial · rest · open · missed · off */
   function stateOn(r, day, now) {
     var e = entry(r.id, day);
+    /* a day before the routine existed was never scheduled */
+    if (!e && r.createdAt && day < isoOf(new Date(r.createdAt))) return "off";
     if (e && e.rest) return "rest";
     var v = verdict(r, e);
     if (v.done) return "done";
@@ -331,6 +333,17 @@
     var res = null;
     r.steps.filter(function (s) { return !s.optional && !s.checkMorning; }).forEach(function (s) { res = tick(id, s.id, true, opts); });
     return res;
+  }
+
+  /* the player's clock (plan §4.4): minutes the run took, kept on the day */
+  function setMins(id, m, opts) {
+    opts = opts || {};
+    var r = get(id), day = opts.day || routineDay(opts.now);
+    if (!r || !canTick(r, day, opts.now)) return false;
+    var e = writeEntry(r, day);
+    e.mins = Math.max(0, Math.min(600, Math.round(+m || 0)));
+    store.save();
+    return true;
   }
 
   /* ---------------- pay once (invariant 143) ---------------- */
@@ -493,6 +506,7 @@
     for (var d = routineDay(from); at(d, "00:00") < to + 864e5; d = addDays(d, 1)) {
       all().forEach(function (r) {
         if (!r.remind || !scheduledOn(r, d) || reviewNear(r, d)) return;
+        if (KOS.dayReview && KOS.dayReview.easy && KOS.dayReview.easy(d)) return;   // Easy week: no routine reminders
         var w = windowOn(r, d);
         if (!w) return;
         var when = at(d, w.from);
@@ -694,7 +708,7 @@
     addHabit: addHabit, templates: templates, template: template, fromTemplate: fromTemplate,
     dayStart: dayStart, routineDay: routineDay, scheduledOn: scheduledOn, windowOn: windowOn,
     entry: entry, verdict: verdict, stateOn: stateOn, canTick: canTick,
-    tick: tick, tickAll: tickAll, answerNo: answerNo, setRest: setRest, restAllowed: restAllowed,
+    tick: tick, tickAll: tickAll, answerNo: answerNo, setMins: setMins, setRest: setRest, restAllowed: restAllowed,
     streak: streak, best: best, history: history, summary: summary, today: today, lastNight: lastNight,
     notice: notice, forecast: forecast, checkAlerts: checkAlerts, compact: compact,
     migrate: migrate, migrated: migrated, habitsView: habitsView, resolve: resolve

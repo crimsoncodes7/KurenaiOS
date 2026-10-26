@@ -89,6 +89,15 @@
     if (raw.words === "template") out.words = "template";
     if (raw.autoOpen === false) out.autoOpen = false;
     if (raw.portrait === false) out.portrait = false;
+    /* each subject's kit, for tomorrow's bag: up to 12 short lines a subject */
+    if (raw.kit && typeof raw.kit === "object") {
+      out.kit = {};
+      Object.keys(raw.kit).slice(0, 12).forEach(function (sid) {
+        var l = (Array.isArray(raw.kit[sid]) ? raw.kit[sid] : []).map(function (t) { return String(t || "").trim().slice(0, 60); }).filter(Boolean).slice(0, 12);
+        if (l.length) out.kit[sid] = l;
+      });
+    }
+    if (raw.easyUntil && /^\d{4}-\d{2}-\d{2}$/.test(raw.easyUntil)) out.easyUntil = raw.easyUntil;
     if (raw.school && HM.test(raw.school.from) && HM.test(raw.school.to) && raw.school.from < raw.school.to) out.school = { from: raw.school.from, to: raw.school.to };
     return out;
   }
@@ -104,6 +113,7 @@
     var s = data(), next = normalise(Object.assign({}, cfg(), patch || {}, {
       slots: Object.assign({}, cfg().slots, (patch && patch.slots) || {})
     }));
+    Object.keys(s).forEach(function (k) { if (k !== "days" && k !== "v" && !(k in next)) delete s[k]; });
     Object.keys(next).forEach(function (k) { s[k] = next[k]; });
     store.save();
     return next;
@@ -115,9 +125,12 @@
     if (c.weekendDays.indexOf(dow(day)) !== -1) return true;
     return c.holidays === "auto" && !!(KOS.today && KOS.today.isHoliday && safe(function () { return KOS.today.isHoliday(day); }, false));
   }
+  /* Easy week (plan §17.5): only the Morning Review, until its end date */
+  function easy(day) { var u = cfg().easyUntil; return !!u && (day || rday()) <= u; }
   function slotTime(slot, day) {
     var s = cfg().slots[slot];
     if (!s || !s.on) return null;
+    if (slot !== "morning" && easy(day)) return null;
     return weekendLike(day || rday()) ? s.weekend : s.weekday;
   }
   /* minutes since the day started, so 00:30 sorts after 22:00 */
@@ -362,27 +375,42 @@
       if (mr.length) steps.push({ id: "routine", routines: mr });
       if (T.timeline.length || T.due.length || T.warnings.length || T.goals.length)
         steps.push({ id: "today", timeline: T.timeline, due: T.due, warnings: T.warnings, goals: T.goals, isSchoolDay: T.isSchoolDay });
-      var sugg = suggestions(T, three);
+      var sugg = suggestions(T, three, first);
       if (sugg.length || three.length) steps.push({ id: "three", picked: three, suggestions: sugg });
       steps.push({ id: "start", first: first || three.filter(open)[0] || null, next: T.next });
     } else if (slot === "afternoon") {
       var morningRoutine = T.routines.filter(function (r) { var f = KOS.routines.get(r.id); return f && f.anchor === "review:morning"; })[0] || null;
-      steps.push({ id: "sofar", focus: T.focus, three: three, ticks: dayFacts(day).ticks || 0, morningRoutine: morningRoutine });
+      var foldedMorning = folded.indexOf("morning") !== -1;
+      steps.push({ id: "sofar", focus: T.focus, three: three, ticks: dayFacts(day).ticks || 0, habits: habitsKept(day), morningRoutine: morningRoutine });
+      /* a folded morning brings its Three here (frame 33e): "for the rest of today" */
+      if (foldedMorning) {
+        var fs = suggestions(T, three, first);
+        if (fs.length || three.length || first) steps.push({ id: "three", picked: three, suggestions: fs, folded: true, first: first });
+      }
       var rest = T.timeline.filter(function (x) { return x.start && offset(x.start) >= offset(nowHm) && x.kind !== "review"; });
       var still = T.due.filter(function (x) { return x.overdue || !x.due || x.due <= addDays(day, 1); });
-      var foldedMorning = folded.indexOf("morning") !== -1;
-      if (rest.length || still.length || foldedMorning)
-        steps.push({ id: "still", timeline: rest, due: still, folded: foldedMorning, three: foldedMorning ? suggestions(T, three) : null });
-      if (T.free.length) steps.push({ id: "time", free: T.free, place: T.due.filter(function (x) { return x.kind === "assignment" || x.kind === "plan"; }).slice(0, 6) });
+      if (rest.length || still.length)
+        steps.push({ id: "still", timeline: rest, due: still, now: nowHm });
+      /* what can be placed: the open three first, then assignments, then at most two plan rows */
+      var placeable = three.filter(function (x) { return !x.done && (x.ref.kind === "assignment" || x.ref.kind === "plan"); })
+        .map(function (x) { return T.due.filter(function (d) { return d.ref.kind === x.ref.kind && String(d.ref.id) === String(x.ref.id); })[0] || { kind: x.ref.kind, ref: x.ref, title: x.title, subject: x.subject }; });
+      var seenP = {};
+      placeable.forEach(function (x) { seenP[x.ref.kind + ":" + x.ref.id] = 1; });
+      T.due.filter(function (x) { return x.kind === "assignment" && !seenP["assignment:" + x.ref.id]; }).forEach(function (x) { placeable.push(x); });
+      T.due.filter(function (x) { return x.kind === "plan" && !seenP["plan:" + x.ref.id]; }).slice(0, 2).forEach(function (x) { placeable.push(x); });
+      if (T.free.length) steps.push({ id: "time", free: T.free, place: placeable.slice(0, 6) });
       steps.push({ id: "next", first: three.filter(open)[0] || first, next: T.next });
     } else if (slot === "evening") {
-      var facts = dayFacts(day);
-      if (Object.keys(facts).length) steps.push({ id: "numbers", facts: facts });
-      var unfinished = unfinishedOf(T, three, day, now);
+      /* after midnight (still this evening until dayStart, invariant 148) a
+         late open keeps only what helps tomorrow (frame 33h) */
+      var late = day !== KOS.srs.todayISO();
+      var facts = late ? {} : dayFacts(day);
+      if (Object.keys(facts).length) steps.push({ id: "numbers", facts: facts, three: three });
+      var unfinished = late ? [] : unfinishedOf(T, three, day, now);
       if (unfinished.length) steps.push({ id: "unfinished", items: unfinished });
       var tomorrow = addDays(day, 1), TT = KOS.today.build(tomorrow, { now: now });
       var ev = rec.evening || {};
-      steps.push({ id: "tomorrow", date: tomorrow, timeline: TT.timeline, isSchoolDay: TT.isSchoolDay,
+      steps.push({ id: "tomorrow", date: tomorrow, timeline: TT.timeline, isSchoolDay: TT.isSchoolDay, exam: examTomorrow(tomorrow), bag: KOS.today.bag(tomorrow),
         due: TT.due.filter(function (x) { return x.due && x.due <= addDays(tomorrow, 2); }), warnings: TT.warnings,
         first: picks(ev.tomorrow && ev.tomorrow.first ? [ev.tomorrow.first] : [])[0] || null,
         suggestions: suggestions(TT, []) });
@@ -392,20 +420,45 @@
     }
     return { slot: slot, day: day, label: LABEL[slot], folded: folded, steps: steps };
   }
+  /* the habits kept today (one-step routines), by name */
+  function habitsKept(day) {
+    if (!KOS.routines.enabled()) return [];
+    return KOS.routines.all({ kind: "habit" }).filter(function (r) {
+      var st = KOS.routines.stateOn(r, day);
+      return st === "done" || st === "min";
+    }).map(function (r) { return r.name; });
+  }
+  /* an exam tomorrow (frame 33h): a real exam or a mock in the hub */
+  function examTomorrow(day) {
+    var x = safe(function () {
+      return KOS.exams.upcoming(day).filter(function (a) { return a.date === day && (a.tier === "real_exam" || a.tier === "mock"); })[0];
+    }, null);
+    if (!x) return null;
+    /* the checklist's open items (invariant 128 owns them; the app ticks its own) */
+    var open = safe(function () { return KOS.exams.checklist(x).filter(function (c) { return !c.done && !c.auto; }); }, []);
+    return { id: x.id, title: x.title, time: x.time || null, room: x.location || null, seat: x.seat || null, subject: x.subject || null,
+      open: open.slice(0, 6).map(function (c) { return { id: c.id, text: c.text }; }) };
+  }
   /* suggestions for today's three: the ladder's next, then what is due */
-  function suggestions(T, picked) {
-    var have = {}, out = [];
+  /* last night's first task, the ladder's next, then assignments and
+     reminders by date, then at most two of the plan's rows */
+  function suggestions(T, picked, first) {
+    var have = {}, out = [], plans = 0;
     (picked || []).forEach(function (p) { have[p.ref.kind + ":" + p.ref.id] = true; });
-    function push(ref, title, why) {
+    function push(ref, title, why, subject) {
       var k = ref.kind + ":" + ref.id;
       if (have[k] || out.length >= 6) return;
+      if (ref.kind === "plan" && plans++ >= 2) return;
       have[k] = true;
-      out.push({ ref: ref, title: title, why: why || "" });
+      out.push({ ref: ref, title: title, why: why || "", subject: subject || null });
     }
+    if (first && first.ref) push(first.ref, first.title, "your first task, from last night", first.subject);
     var n = T.next;
-    if (n && n.assignmentId != null) push({ kind: "assignment", id: n.assignmentId }, n.title, n.kicker);
-    else if (n && n.subject && n.ref) push({ kind: "topic", id: n.subject + ":" + n.ref }, n.title, n.kicker);
-    T.due.forEach(function (x) { if (x.ref) push(x.ref, x.title, x.overdue ? "overdue" : x.why || ""); });
+    if (n && n.assignmentId != null) push({ kind: "assignment", id: n.assignmentId }, n.title, n.kicker, n.subject);
+    else if (n && n.subject && n.ref) push({ kind: "topic", id: n.subject + ":" + n.ref }, n.title, n.kicker, n.subject);
+    var WHY = { overdue: "overdue", soon: "due soon", started: "started", workOn: "a day to work on it", carried: "carried over", week: "this week's plan" };
+    T.due.filter(function (x) { return x.kind !== "plan"; }).forEach(function (x) { if (x.ref) push(x.ref, x.title, x.overdue ? "overdue" : WHY[x.why] || x.why || "", x.subject); });
+    T.due.filter(function (x) { return x.kind === "plan"; }).forEach(function (x) { if (x.ref) push(x.ref, x.title, WHY[x.why] || "", x.subject); });
     return out;
   }
   function unfinishedOf(T, three, day, now) {
@@ -450,7 +503,7 @@
       line = lessons ? plural(lessons, "lesson") + " today" : t.isSchoolDay === false ? "No lessons today" : "Good morning";
       if (lessons) bits.push(plural(lessons, "lesson") + " today" + (blocks ? " and " + plural(blocks, "study block") : "") + ".");
       else if (blocks) bits.push(plural(blocks, "study block") + " planned.");
-      var late = t.due.filter(function (x) { return x.overdue; }).length;
+      var late = t.due.filter(function (x) { return x.overdue && (x.kind === "reminder" || x.kind === "assignment"); }).length;
       if (late) bits.push(plural(late, "thing is", "things are") + " overdue.");
       if (t.warnings.length) bits.push(t.warnings[0].title + ": " + t.warnings[0].body.toLowerCase() + ".");
       var f = st.start && (st.start.first || st.start.next);
@@ -606,8 +659,69 @@
     setTimeout(function () { tick(); }, 7000);
     timer = setInterval(tick, 30000);
   }
+  /* the Assistant's tools (plan §10.8; registered when on). Reads never
+     carry the evening note, mood or energy. */
+  function registerTools() {
+    var T = KOS.ai && KOS.ai.tools;
+    if (!T || !T.define) return;
+    function fail(m) { return new Error(m); }
+    function refOf(a) {
+      if (!a || !a.kind || a.id == null) return null;
+      var id = /^(reminder|assignment|plan|event)$/.test(a.kind) && /^\d+$/.test(String(a.id)) ? +a.id : String(a.id);
+      return { kind: a.kind, id: id };
+    }
+    T.define("today_overview", {
+      desc: "The day in one read: the timeline (lessons, events, study blocks, routines, reviews), what is due, exam warnings, pinned goals, free time, Focus so far and the suggested next task.",
+      category: "planner", tier: "read", read: true,
+      params: { day: { type: "string", enum: ["today", "tomorrow"] } },
+      run: function (args, cb) {
+        var day = args.day === "tomorrow" ? addDays(rday(), 1) : rday();
+        KOS.today.load(day, {}, function (e, t) {
+          cb(null, { date: t.date, schoolDay: t.isSchoolDay, holiday: t.holiday,
+            timeline: t.timeline.map(function (x) { return { kind: x.kind, start: x.start, end: x.end, title: x.title, done: x.done || undefined }; }),
+            due: t.due.map(function (x) { return { kind: x.kind, ref: x.ref, title: x.title, due: x.due, overdue: x.overdue || undefined, why: x.why }; }),
+            warnings: t.warnings.map(function (w) { return w.title + ": " + w.body; }),
+            pinnedGoals: t.goals.map(function (g) { return { title: g.title, pace: g.pace }; }),
+            freeMins: t.free.reduce(function (m, b) { return m + b.mins; }, 0), focusMins: t.focus.mins,
+            next: t.next ? { title: t.next.title, why: t.next.kicker } : null });
+        });
+      } });
+    T.define("review_today", {
+      desc: "Today's Daily Review: each review's state (done, skipped, folded, waiting), the one due now, today's three, and the first task with its two-minute action. Never the evening note, mood or energy.",
+      category: "planner", tier: "read", read: true, params: {},
+      run: function (args, cb) {
+        var day = rday(), rec = dayRec(day), d = due();
+        cb(null, { day: day, dueNow: d ? d.slot : null,
+          reviews: slots(day).map(function (s) { return { slot: s.slot, time: s.time, state: s.state || "waiting" }; }),
+          three: picks((rec.morning || {}).three), first: picks(firstFor(day) ? [firstFor(day)] : [])[0] || null,
+          tomorrowFirst: picks(rec.evening && rec.evening.tomorrow && rec.evening.tomorrow.first ? [rec.evening.tomorrow.first] : [])[0] || null });
+      } });
+    T.define("review_set_three", {
+      desc: "Set today's three (up to three refs from today_overview's due list or next: {kind, id}). Home shows them all day.",
+      category: "planner", tier: "reversible", read: false,
+      params: { refs: { type: "array", maxLen: 3, items: { type: "object", props: { kind: { type: "string", enum: ["reminder", "assignment", "plan", "event", "assessment", "topic"] }, id: { type: "string", maxLen: 80 } } } } },
+      run: function (args, cb) {
+        var before = ((dayRec(rday()).morning || {}).three || []).slice();
+        var set = setThree((args.refs || []).map(refOf).filter(Boolean));
+        cb(null, { three: picks(set) }, { label: "undo: put the three back", run: function (ucb) { setThree(before); ucb(null); } });
+      } });
+    T.define("review_set_first", {
+      desc: "Set the first task and its two-minute first action, for today or (tomorrow: true) for tomorrow morning.",
+      category: "planner", tier: "reversible", read: false,
+      params: { kind: { type: "string", required: true, enum: ["reminder", "assignment", "plan", "event", "assessment", "topic"] }, id: { type: "string", required: true, maxLen: 80 },
+        action: { type: "string", maxLen: 160 }, tomorrow: { type: "boolean" } },
+      run: function (args, cb) {
+        var ref = refOf(args);
+        if (!resolve(ref)) { cb(fail("Nothing with that kind and id.")); return; }
+        var day = rday(), rec = dayRec(day);
+        var before = args.tomorrow ? (rec.evening && rec.evening.tomorrow && rec.evening.tomorrow.first) || null : (rec.morning && rec.morning.first) || null;
+        var f = setFirst(ref, args.action || "", null, !!args.tomorrow);
+        cb(null, { first: picks([f])[0] }, { label: "undo the first task", run: function (ucb) { setFirst(before, before ? before.action : "", null, !!args.tomorrow); ucb(null); } });
+      } });
+  }
   function enable(on) {
     enabled = on !== false;
+    if (enabled) registerTools();
     if (enabled && KOS.notify && KOS.notify.KINDS && !KOS.notify.KINDS.review) {
       KOS.notify.KINDS.review = { label: "Daily Review", glyph: "審", section: "productivity", view: "routines" };
     }
@@ -615,7 +729,7 @@
 
   KOS.dayReview = {
     SLOTS: SLOTS, LABEL: LABEL, DEFAULTS: DEFAULTS, CHOICES: CHOICES,
-    enable: enable, enabled: function () { return enabled; }, start: start, tick: tick,
+    enable: enable, enabled: function () { return enabled; }, start: start, tick: tick, easy: easy,
     normalise: normalise, cfg: cfg, setConfig: setConfig,
     slotTime: slotTime, slots: slots, due: due, day: dayRec,
     markShown: markShown, finish: finish, setThree: setThree, setFirst: setFirst, firstFor: firstFor, setWindDown: setWindDown,

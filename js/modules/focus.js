@@ -2220,7 +2220,7 @@
         return;
       }
       if (mode === "until" && !untilTs()) return;
-      start({
+      var cfg = {
         mode: mode,
         workMin: mode === "pomodoro" ? 25 : w,
         breakMin: mode === "pomodoro" ? 5 : b,
@@ -2231,7 +2231,16 @@
         refs: subjSel.value ? topicPick.value() : [],
         assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null,
         objective: objIn.value
-      });
+      };
+      /* roadmap 5.10 (frame 33q): About to Study first, unless turned off on
+         this device — or unless this form already holds the first action,
+         since the form is then the pre-flight; it hands back the same cfg */
+      if (KOS.routinePlayer && (store.state.ui || {}).focusPreflight !== false && !String(cfg.objective || "").trim()) {
+        KOS.routinePlayer.preflight({ subject: cfg.subject, refs: cfg.refs, assignmentId: cfg.assignmentId, objective: cfg.objective, cfg: cfg,
+          onStart: function (c) { start(c); } });
+        return;
+      }
+      start(cfg);
     } });
     form.appendChild(el("div", { class: "k-cluster k-fx-go" }, [
       startBtn,

@@ -397,9 +397,11 @@ step("each type discloses ONLY its own conditional section", async () => {
   set("deadline");
   if (!labelled("Priority") || !labelled("Status")) throw new Error("deadline fields missing");
   if (labelled("Paper")) throw new Error("exam fields survived a type change");
+  /* where it shows is derived (roadmap 5.10, invariant 147): the form asks
+     nothing about countdowns; Pin and Unpin live on the event's detail */
   const countdown = [...$("[data-ui~='cal.ev-modal']").querySelectorAll("[data-ui~='cal.check']")]
     .find(l => /Countdown/.test(l.textContent));
-  if (!countdown || countdown.hidden) throw new Error("no countdown-visibility control on a deadline");
+  if (countdown) throw new Error("the form still asks where a deadline shows");
 
   set("study");
   if (!labelled("Intended duration (min)")) throw new Error("no intended duration");
@@ -411,7 +413,7 @@ step("each type discloses ONLY its own conditional section", async () => {
   if (labelled("Paper") || labelled("Priority") || labelled("Intended duration (min)"))
     throw new Error("a plain event still shows a conditional section");
   const cdRow = [...$("[data-ui~='cal.ev-modal']").querySelectorAll("[data-ui~='cal.check']")].find(l => /Countdown/.test(l.textContent));
-  if (cdRow && !cdRow.hidden) throw new Error("countdown visibility offered on a type that never counts down");
+  if (cdRow) throw new Error("countdown visibility offered in the form");
   closeModals();
 });
 

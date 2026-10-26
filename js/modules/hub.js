@@ -902,6 +902,102 @@
     ].filter(Boolean));
   }
 
+  /* Today's three, read from the Morning Review (roadmap 5.10) */
+  function homeThree() {
+    var V = KOS.dayReview;
+    if (!V || !V.enabled()) return [];
+    var day = KOS.routines.routineDay();
+    var m = V.day(day).morning || {}, first = V.firstFor(day);
+    return (m.three || []).map(function (ref) {
+      var x = V.resolve(ref);
+      if (!x) return null;
+      var out = Object.assign({ ref: ref }, x);
+      if (first && first.kind === ref.kind && String(first.id) === String(ref.id)) out.action = first.action;
+      return out;
+    }).filter(Boolean);
+  }
+  /* ticked through the owner, with Undo; a topic opens instead */
+  function tickThree(p) {
+    var id = p.ref.id, undo = null;
+    if (p.ref.kind === "reminder") { KOS.reminders.complete(id, !p.done); undo = function () { KOS.reminders.complete(id, !!p.done); }; }
+    else if (p.ref.kind === "assignment") {
+      var a = KOS.assignments.get(id), was = a ? a.status : null;
+      if (!a) return;
+      KOS.assignments.setStatus(id, p.done ? "inProgress" : "complete");
+      undo = function () { KOS.assignments.setStatus(id, was); };
+    } else if (p.ref.kind === "plan") { KOS.pacing.setDone(id, !p.done); undo = function () { KOS.pacing.setDone(id, !!p.done); }; }
+    else if (p.ref.kind === "topic") { var i = String(id).indexOf(":"); KOS.show("ref", { subject: id.slice(0, i), ref: id.slice(i + 1) }); return; }
+    else return;
+    KOS.ui.toast(p.title + (p.done ? " · reopened" : " · done"), false, { label: "Undo", run: function () { undo(); KOS.rerender(); } });
+    KOS.rerender();
+  }
+  function homeRoutines(today) {
+    var card = el("section", { class: "k-card", "data-ui": "home.routines", "aria-label": "Routines" });
+    var Rt = KOS.routines;
+    if (!Rt || !Rt.enabled()) {
+      card.appendChild(cardHead("Routines", null, "Routines →", function () { KOS.show("routines"); }));
+      card.appendChild(KOS.ui.emptyState({ compact: true, body: "No routines yet." }));
+      return card;
+    }
+    var day = Rt.routineDay(), now = new Date(), hm = (now.getHours() < 10 ? "0" : "") + now.getHours() + ":" + (now.getMinutes() < 10 ? "0" : "") + now.getMinutes();
+    var list = Rt.today();
+    var routines = list.filter(function (x) { return x.kind !== "habit"; });
+    var dueNow = routines.filter(function (x) { return x.window && x.window.from <= hm && hm < x.window.to && x.state !== "done" && x.state !== "min" && x.state !== "rest"; })[0];
+    var nextR = routines.filter(function (x) { return x.window && x.window.from > hm && x.state !== "done"; }).sort(function (a, b) { return a.window.from < b.window.from ? -1 : 1; })[0];
+    var habits = Rt.all({ kind: "habit" }).filter(function (h) { return Rt.scheduledOn(h, day); });
+    var kept = habits.filter(function (h) { var st = Rt.stateOn(h, day); return st === "done" || st === "min"; }).length;
+    card.appendChild(cardHead("Routines", dueNow ? dueNow.name + " due now" : habits.length ? kept + " of " + habits.length + " habits today" : null,
+      "All routines →", function () { KOS.show("routines"); }));
+    if (dueNow) {
+      var r = Rt.get(dueNow.id);
+      card.appendChild(el("div", { class: "k-home-rt-now", "data-ui": "home.routine-now" }, [
+        KOS.rtUI.tile(KOS.rtUI.markOf(r), KOS.rtUI.toneOf(r)),
+        el("div", { class: "k-home-rt-t" }, [el("b", { text: dueNow.name + " · " + dueNow.n + " of " + dueNow.of }),
+          el("span", { class: "k-rt-progress", "aria-hidden": "true" }, dueNow.steps.filter(function (s) { return !s.optional; }).map(function (s) { var p = el("span"); if (s.done) KOS.ui.state(p, "on", true); return p; }))]),
+        el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "home.routine-start", text: "▶ Start", onclick: function () { KOS.routinePlayer.open(r.id); } })
+      ]));
+    }
+    if (!habits.length && !dueNow) {
+      card.appendChild(KOS.ui.emptyState({ compact: true, body: nextR ? "Nothing due now. " + nextR.name + " at " + nextR.window.from + "." : routines.length ? "Every routine for today is kept." : "No routines yet — a habit is a routine with one step." }));
+    }
+    var rgrid = el("div", { class: "k-routines" });
+    var weekStart = (function () { var d = new Date(today + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
+    /* an even count, so the two-column grid never ends in a gap */
+    var nH = Math.min(habits.length, dueNow ? 2 : 4);
+    if (nH > 1 && nH % 2) nH--;
+    habits.slice(0, nH).forEach(function (h) {
+      var st = Rt.stateOn(h, day), on = st === "done" || st === "min";
+      var weekKept = 0;
+      for (var i = 0; i < 7; i++) { var d = new Date(weekStart); d.setDate(weekStart.getDate() + i); var iso = isoOf(d); if (iso <= today) { var s2 = Rt.stateOn(h, iso); if (s2 === "done" || s2 === "min") weekKept++; } }
+      var row = el("button", { type: "button", class: "k-check-row", "data-ui": "home.routine-tick", "aria-pressed": String(on),
+        "aria-label": (on ? "Untick " : "Tick ") + h.name + " for today",
+        onclick: function () { if (h.steps[0]) KOS.rtUI.tickStep(h, h.steps[0].id, !on); } }, [
+        el("span", { class: "k-dotcheck", "aria-hidden": "true", text: on ? "✓" : st === "rest" ? "休" : "" }),
+        el("span", { class: "k-check-row-text", text: h.name }),
+        el("span", { class: "k-check-row-meta", text: weekKept + " of 7" + (on ? " this week" : "") })
+      ]);
+      if (on) KOS.ui.state(row, "done", true);
+      rgrid.appendChild(row);
+    });
+    if (rgrid.children.length) card.appendChild(rgrid);
+    /* the next review, or the one waiting */
+    var V = KOS.dayReview;
+    if (V && V.enabled()) {
+      var due = V.due(), mk = { morning: "朝", afternoon: "昼", evening: "夜" };
+      var nextSlot = due ? due.slot : V.SLOTS.filter(function (sl) { var t = V.slotTime(sl, day); return t && t > hm; })[0];
+      if (nextSlot) {
+        var line = el("button", { type: "button", class: "k-home-rt-review", "data-ui": "home.review-line",
+          onclick: function () { if (due) KOS.reviewSheet.open(due.slot); else KOS.show("routines"); } }, [
+          el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: mk[nextSlot] }),
+          el("span", { class: "k-check-row-text", text: V.LABEL[nextSlot] + (due ? " · ready" : " · at " + V.slotTime(nextSlot, day)) }),
+          el("span", { class: "k-check-row-meta", text: due ? "Open ›" : "" })
+        ]);
+        card.appendChild(line);
+      }
+    }
+    return card;
+  }
+
   KOS.views.home = function (main) {
     hideTree();
     var stks = KOS.sessions.streaks();
@@ -968,6 +1064,37 @@
       });
       goal.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary",
         text: "Open Recovery →", onclick: function () { KOS.show("governor"); } }));
+    } else if (homeThree().length) {
+      /* roadmap 5.10 (frame 33t): Today's three from the Morning Review, in
+         place of the daily goal, with the first one's Start */
+      var picks = homeThree();
+      goal.appendChild(el("div", { class: "k-home-goal-head" }, [
+        el("span", { class: "k-kicker", text: "Today's three" }),
+        el("span", { class: "k-mono", text: picks.filter(function (p) { return p.done; }).length + " / " + picks.length })
+      ]));
+      picks.forEach(function (p) {
+        var tickable = ["reminder", "assignment", "plan"].indexOf(p.ref.kind) !== -1;
+        var row = el("button", { type: "button", class: "k-goal-item", "data-ui": "habit.tick home.three", "aria-pressed": String(!!p.done),
+          "aria-label": tickable ? (p.done ? "Reopen: " : "Done: ") + p.title : "Open " + p.title,
+          onclick: function () { tickThree(p); } }, [
+          el("span", { class: "k-goal-mark", "aria-hidden": "true", text: p.done ? "✓" : "" }),
+          el("span", { class: "k-goal-text", text: p.title })
+        ]);
+        if (p.done) KOS.ui.state(row, "done", true);
+        goal.appendChild(row);
+      });
+      var firstOpen = picks.filter(function (p) { return !p.done; })[0];
+      goal.appendChild(el("div", { class: "k-cluster k-home-goal-go" }, [
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "home.three-start",
+          text: firstOpen ? "▶ Start: " + firstOpen.title : "Start focus →", onclick: function () {
+            if (!firstOpen) { KOS.show("focus"); return; }
+            var ctx = { title: firstOpen.title, subject: firstOpen.subject, objective: firstOpen.action || "" };
+            if (firstOpen.ref.kind === "assignment") ctx.assignmentId = firstOpen.ref.id;
+            if (firstOpen.ref.kind === "topic") ctx.refs = [firstOpen.ref.id];
+            if (KOS.routinePlayer) KOS.routinePlayer.preflight(ctx); else KOS.show("focus");
+          } }),
+        el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "home.three-edit", text: "Edit", onclick: function () { if (KOS.reviewSheet) KOS.reviewSheet.open("morning", { step: 3 }); } })
+      ]));
     } else {
       var autos = (KOS.todo.autoItems() || []);
       var shown = autos.slice(0, 3);
@@ -992,36 +1119,12 @@
     main.appendChild(band);
 
     /* ================= Routines · Reminders ================= */
-    /* a pure read: todo.habits() materialises the array, and a render
-       never writes (smoke56 render purity) */
-    var habits = (store.state.todo && store.state.todo.habits) || [];
+    /* roadmap 5.10 (frame 33t): the routine due now with its progress and
+       Start, the day's habits as one-tap ticks, and the next review. A pure
+       read; every tick goes through KOS.routines (smoke56 render purity). */
+    var routines = homeRoutines(today);
     var weekStart = (function () { var d = new Date(today + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
     var weekIsos = []; for (var wi = 0; wi < 7; wi++) { var wd = new Date(weekStart); wd.setDate(weekStart.getDate() + wi); weekIsos.push(isoOf(wd)); }
-    var routines = el("section", { class: "k-card", "data-ui": "home.routines", "aria-label": "Routines" }, [
-      cardHead("Routines", habits.length ? habits.slice(0, 4).filter(function (h) { return h.days[today]; }).length + " of " + Math.min(4, habits.length) + " today" : null,
-        "Habits →", function () { KOS.show("tasks"); })
-    ]);
-    if (!habits.length) {
-      routines.appendChild(KOS.ui.emptyState({ compact: true, body: "No routines yet — a habit is anything you want to keep daily." }));
-    } else {
-      var rgrid = el("div", { class: "k-routines" });
-      habits.slice(0, 4).forEach(function (h) {
-        var kept = weekIsos.filter(function (d) { return h.days[d]; }).length;
-        /* ticked in place through the habit's own owner (todo.tickHabit →
-           sessions.log), exactly as the Habits page does */
-        var on = !!h.days[today];
-        var row = el("button", { type: "button", class: "k-check-row", "data-ui": "home.routine-tick", "aria-pressed": String(on),
-          "aria-label": (on ? "Untick " : "Tick ") + h.text + " for today",
-          onclick: function () { KOS.todo.tickHabit(h.id, !on); KOS.rerender(); } }, [
-          el("span", { class: "k-dotcheck", "aria-hidden": "true", text: on ? "✓" : "" }),
-          el("span", { class: "k-check-row-text", text: h.text }),
-          el("span", { class: "k-check-row-meta", text: kept + " of 7" + (on ? " this week" : "") })
-        ]);
-        if (h.days[today]) KOS.ui.state(row, "done", true);
-        rgrid.appendChild(row);
-      });
-      routines.appendChild(rgrid);
-    }
     /* Reminders: a read-only digest (Build 6.2) — management is its own page */
     var remOpen = ((store.state.reminders && store.state.reminders.items) || []).filter(function (r) { return !r.done; })
       .sort(function (a, b) { return (a.due || "9999") < (b.due || "9999") ? -1 : (a.due || "9999") > (b.due || "9999") ? 1 : 0; });

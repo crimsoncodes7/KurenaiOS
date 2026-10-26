@@ -63,7 +63,7 @@ const WIDTHS = SIZES.map(s => s.width);
 const TOUCH = IPAD || argv.includes("--touch");
 const THEMES = String(flag("themes", "atelier-dawn,atelier-dusk")).split(",");
 const VIEWS = String(flag("views",
-  "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks,pacing,pacing-braid," +
+  "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,routines,routines-routines,routines-templates,routines-history,routines-settings,pacing,pacing-braid," +
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
   "governor,assistant,data,help,money,exams,notifications," +
   "reports,reports-week,reports-week-study,reports-week-focus,reports-week-collection,reports-month,reports-term,reports-year," +
@@ -74,6 +74,9 @@ const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 /* pseudo-views: an id in VIEWS that resolves to a real view plus the
    argument that selects a genuinely different page to measure */
 const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'],
+  /* Routines (roadmap 5.10) */
+  "routines-routines": ["routines", '"routines"'], "routines-templates": ["routines", '"templates"'],
+  "routines-history": ["routines", '"history"'], "routines-settings": ["routines", '"settings"'],
   /* Code (roadmap 5.3) */
   "code-desk": ["subject", '"code"'],
   "code-lesson": ["ref", '{ subject: "code", ref: "6.10" }'],

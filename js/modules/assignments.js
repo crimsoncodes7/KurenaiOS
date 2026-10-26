@@ -153,7 +153,7 @@
               text: A().PRIORITIES[a.priority].short }) : null,
             el("button", { type: "button", class: "k-asg-title", "data-ui": "asg.title", text: a.title, title: a.title,
               "aria-pressed": String(a.id === selectedId), onclick: function () { select(a.id); } }),
-            a.showInCountdown ? el("span", { class: "k-asg-major", title: "A major deadline — shows in Countdowns", text: "◈" }) : null
+            A().isMajor(a) ? el("span", { class: "k-asg-major", title: "Counts down", text: "◈" }) : null
           ].filter(Boolean)),
           el("div", { class: "k-asg-sub" }, [shortSubj(a.subject) + " · " + A().typeLabel(a.type).replace(" / NEA", "") +
             (next ? " · Next: " + next.text : "")])
@@ -204,10 +204,24 @@
           el("span", { class: "k-chip", style: "--chip-c: " + HUE(a.subject), text: subjName(a.subject) }),
           el("span", { class: "k-chip", "data-tone": "muted", text: A().typeLabel(a.type) }),
           a.priority ? el("span", { class: "k-chip", "data-tone": "amber", text: "Priority · " + A().PRIORITIES[a.priority].label }) : null,
-          a.showInCountdown ? el("span", { class: "k-chip", "data-tone": "crimson", text: "◈ major" }) : null,
+          A().isMajor(a) ? el("span", { class: "k-chip", "data-tone": "crimson", text: a.countdown === "pin" ? "◆ pinned" : "◈ counts down" }) : null,
           el("span", { class: "k-chip", "data-tone": d.late ? "danger" : "muted", title: "Deadline: " + fmtDue(a), text: d.late ? d.text : "Deadline · " + fmtDue(a) })
         ].filter(Boolean))
       ]));
+      /* Pin to countdowns / Unpin: an action on the record (frame 33u) */
+      if (a.due) {
+        var major = A().isMajor(a);
+        host.appendChild(el("div", { class: "k-cluster k-asg-pin", "data-ui": "asg.pin-row" }, [
+          el("span", { class: "k-muted k-rt-small", text: major ? (a.countdown === "pin" ? "In countdowns · pinned" : "In countdowns · derived") : (a.countdown === "hide" ? "Not in countdowns · unpinned" : "Not in countdowns") }),
+          el("span", { class: "k-spacer" }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "asg.pin", text: major ? "Unpin" : "◆ Pin to countdowns", onclick: function () {
+            A().pinCountdown(id, !major);
+            KOS.a11y.announce(major ? "Unpinned from countdowns." : "Pinned to countdowns.");
+            repaint(); o.onChange && o.onChange();
+          } }),
+          (a.workOn || []).length ? el("span", { class: "k-muted k-rt-small", text: "Work on: " + a.workOn.map(function (d0) { return new Date(d0 + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }); }).join(", ") }) : null
+        ].filter(Boolean)));
+      }
       host.appendChild(el("div", { class: "k-asg-stats" }, [
         stat("Progress", a.progress + "%"),
         stat("Estimated", fmtMins(a.estimateMins)),
@@ -338,8 +352,21 @@
     var actual = input("number", a.actualMins || 0, { min: "0", step: "15", title: "Minutes" });
     var notes = el("textarea", { class: "k-input", rows: "3", placeholder: "Notes, feedback, what to fix…" });
     notes.value = a.notes || "";
-    var inCal = el("input", { type: "checkbox", class: "k-box" }); inCal.checked = a.showInCalendar !== false;
-    var inCd = el("input", { type: "checkbox", class: "k-box" }); inCd.checked = !!a.showInCountdown;
+    /* where it shows is derived (roadmap 5.10, invariant 147): a note,
+       re-read as the fields change, in place of the two old checkboxes */
+    var whereNote = el("p", { class: "k-rt-where", "data-ui": "asg.where" });
+    function paintWhere() {
+      var probe = { type: type.value, priority: +priority.value, estimateMins: +estimate.value || 0, due: due.value || null, countdown: a.countdown || null };
+      var major = A().isMajor(probe);
+      var why = probe.countdown === "pin" ? "you pinned it" : probe.countdown === "hide" ? "" : ["coursework", "project"].indexOf(probe.type) !== -1 ? "it is " + A().typeLabel(probe.type).toLowerCase() : probe.priority === 3 ? "it is High priority" : probe.estimateMins >= 180 ? "it is 3 h or more" : "it is due within 3 days";
+      whereNote.innerHTML = "";
+      whereNote.appendChild(el("b", { text: "Where it shows · " }));
+      whereNote.appendChild(document.createTextNode(probe.due
+        ? "on the Calendar, in Today, the reviews, Home and search, because it has a due date." + (major ? " In Countdowns too: " + why + "." : " Not in Countdowns" + (probe.countdown === "hide" ? " (you unpinned it)." : "; pin it from its page if you want it there."))
+        : "in Assignments and search; give it a due date and it joins the Calendar, Today and the reviews."));
+    }
+    [type, priority, estimate, due].forEach(function (x) { x.addEventListener("change", paintWhere); x.addEventListener("input", paintWhere); });
+    paintWhere();
 
     var alertBox = el("div", { class: "k-asg-chips", role: "group", "aria-label": "Alerts" });
     var chosenAlerts = (a.alerts || []).slice();
@@ -374,8 +401,7 @@
         due: due.value || null, dueTime: dueTime.value || null,
         status: status.value, priority: priority.value, progress: progress.value,
         estimateMins: estimate.value, actualMins: actual.value,
-        notes: notes.value, refs: topics.value(), alerts: chosenAlerts,
-        showInCalendar: inCal.checked, showInCountdown: inCd.checked
+        notes: notes.value, refs: topics.value(), alerts: chosenAlerts
       };
       var rec;
       if (existing) {
@@ -408,11 +434,7 @@
         f("Estimated effort (min)", estimate), f("Actual effort (min)", actual),
         topics.el,
         el("div", { class: "k-field k-field--wide" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertBox]),
-        el("div", { class: "k-field k-field--wide" }, [
-          el("span", { class: "k-field-label", text: "Where it shows" }),
-          el("label", { class: "k-check" }, [inCal, el("span", { text: "Show the deadline on the Calendar" })]),
-          el("label", { class: "k-check" }, [inCd, el("span", { text: "Treat as a major deadline (shows in Countdowns)" })])
-        ]),
+        el("div", { class: "k-field k-field--wide" }, [whereNote]),
         f("Notes", notes, true)
       ]),
       el("div", { class: "k-dialog-foot" }, [

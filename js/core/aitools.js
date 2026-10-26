@@ -3296,7 +3296,8 @@
       estimateMins: a.estimateMins || 0, actualMins: a.actualMins || 0,
       refs: KOS.assignments.refsOf(a), topics: refsLabel(KOS.assignments.refsOf(a)),
       subtasks: (a.subtasks || []).map(function (s) { return { id: s.id, text: s.text, done: !!s.done }; }),
-      showInCountdown: !!a.showInCountdown };
+      countdown: KOS.assignments.isMajor(a) ? (a.countdown === "pin" ? "pinned" : "derived") : (a.countdown === "hide" ? "unpinned" : "no"),
+      workOn: a.workOn && a.workOn.length ? a.workOn.slice() : undefined };
   }
   var ASG_FIELDS = {
     title: { type: "string", minLen: 1, maxLen: 200 },
@@ -3310,10 +3311,15 @@
     estimateMins: { type: "integer", min: 0, max: 100000 },
     notes: { type: "string", maxLen: 4000 },
     refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60, pattern: SPEC_KEY }, desc: "related topics as \"subject:ref\" (unit, parent or leaf)" },
-    showInCalendar: { type: "boolean" },
-    showInCountdown: { type: "boolean", desc: "a MAJOR deadline — shows in Countdowns" }
+    /* where it shows is derived (roadmap 5.10): "pin" or "hide" override the
+       countdown rule (coursework/project, High, 3 h+ or due within 3 days);
+       null returns it to the rule */
+    countdown: { type: "string", enum: ["pin", "hide", "rule"], desc: "Countdowns: pin, hide, or back to the rule" },
+    workOn: { type: "array", maxLen: 14, items: { type: "string", maxLen: 10 }, desc: "days you mean to work on it (YYYY-MM-DD); never moves the deadline" }
   };
   function checkAsgPatch(p) {
+    if (p.countdown === "rule") p.countdown = null;
+    if (p.workOn && p.workOn.some(function (d) { return !validDate(d); })) return fail("workOn must be real YYYY-MM-DD dates.");
     if (p.due && !validDate(p.due)) return fail("due must be a real YYYY-MM-DD date.");
     if (p.dueTime && !TIME_RE.test(p.dueTime)) return fail("dueTime must be HH:MM.");
     return checkRefs(p.refs);

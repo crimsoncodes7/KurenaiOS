@@ -1,4 +1,4 @@
-# Daily Review and Routines (plan, revision 2, approved)
+# Daily Review and Routines (plan, revision 2, approved; built 26 October 2026)
 
 Roadmap 5.10, asked for on 25 October 2026. It replaces the **Habits**
 page with **Routines** and adds the **Daily Review**: three check-ins a
@@ -890,29 +890,31 @@ habit earned and closes the farm.
 
 Four releases, each whole, each on the 99-suite gate plus its own suite.
 
-**Built ahead of the design (25 October 2026, `feat/routines`).** The
-backend of all four releases is in place, switched off:
-- `KOS.routines`, `KOS.today` and `KOS.dayReview`, with the templates;
-- the Governor's `routineAward`;
-- the habit shims in `KOS.todo`, Goals, Reports and the Assistant;
-- pinned goals, assignments' `workOn`, `isMajor`, `pinCountdown` and
-  `migrateCountdown`;
-- the merge's records and sets;
-- the outlook's forecasts;
-- smoke100–102.
+**Built (25–26 October 2026, `feat/routines`), all four releases at
+once, to design turn 33.** What the build decided beyond this plan:
+- **No new session type.** A completion logs as a `todo` session with
+  `metrics.routine`, so every existing reader treats it as a habit tick.
+- **The review is `KOS.dayReview`** (`state.dayReview`): `KOS.review`
+  was already the flashcard Review.
+- **The first time, it waits.** A review opens by itself only after one
+  has been opened once; until then it waits in the header chip.
+- **The Focus page's own form is the pre-flight** when it already holds
+  an objective; About to Study opens only when that field is empty.
+- **The evening's numbers** read the day's ledger under Reports' rules
+  (Reports' `compute` serves weeks and longer).
+- **School hours** are a review setting (the timetable has no times),
+  and each subject's **kit** for tomorrow's bag is set in Settings.
+- **Calendar:** routine windows and review marks are in the week view
+  and the day's list, not the month grid, where they would push real
+  events under "+N more".
+- **Home keeps its layout** (the design's Home moved cards); the hero's
+  daily goal becomes Today's three, and the Routines card became real.
+- **Good night** holds device alerts with a one-off `notifyHoldUntil`,
+  so the user's own quiet hours are untouched.
 
-`KOS.routines.enable(true)` (R1) and `KOS.dayReview.enable(true)` (R3)
-turn them on with their pages, which wait for design turn 33. Until then
-the app behaves exactly as before: the Habits page reads the habits, and
-no kind, goal type or tool appears. Still to build after the design:
-- the pages and the overlay;
-- switching the Calendar and countdown readers to `isMajor` with the
-  form's Pin/Unpin;
-- Pacing's derived "From your plan" rows in Reminders;
-- the system prompt's feature map;
-- Reports' `f.routines` and `f.reviews`;
-- the review tools;
-- the runner writing Kurenai's words ahead (R4).
+Still to do: the runner writing Kurenai's words ahead on the server
+(the device writes them when it is open; without a model, the template
+shows).
 
 **R1 · Routines (replaces Habits).** smoke100.
 - `routines.js` and its migration; the Routines page, editor, player,
