@@ -8,7 +8,7 @@ metadata:
   modified: 2026-10-25T18:06:46.185Z
 ---
 
-Asked for 2026-10-25. Plan docs/routines-plan.md rev 2, decisions A–J approved 2026-10-25 (D: Kurenai words default + server writes ahead; F: morning ticks count for last night, checkMorning steps; G: mood AND energy; E: no reviews-done goal; rest recommended), design prompt 17 (frames 33a+), art docs/routines-art.md + art-source/routines/manifest.json (18 images; Kurenai base drawn from the Mind redesign). Branch feat/routines-plan (cut from feat/mind-plan). Invariants 142–149; releases R1–R4 with smoke100–103.
+Asked for 2026-10-25. BUILT 2026-10-26 on branch feat/routines (ebffec1), to design turn 33 with all 18 Gemini images; gate 103/103 (smoke100–103); NOT deployed — needs the user's go-ahead (bump sw.js VERSION). Plan docs/routines-plan.md rev 2 (decisions A–J approved). Invariants 142–149 now in CLAUDE.md. Still to do: the runner writing Kurenai's words ahead on the server.
 
-**Why:** Habits → multi-step Routines; three daily check-ins; "where does it show" made derived (assignment/event checkboxes removed).
-**How to apply:** next is Claude Design prompt 17 and the art; build R1 on go-ahead; Reminders stays untouched. See [[mind-study-space]] for the art pipeline and [[user-made-assets]].
+**Why:** Habits → multi-step Routines; three daily check-ins; "where does it show" made derived.
+**How to apply:** user said the design's layouts (esp. Home) need not be followed blindly — keep existing layouts, take the visual design, never leave dead space. Review is KOS.dayReview (KOS.review is the flashcard page). Screenshots: headless Chrome + scratchpad shot.mjs with fixed clock; clear the SW (Storage.clearDataForOrigin) and reload ignoreCache or shots are stale. See [[mind-study-space]], [[user-made-assets]].
