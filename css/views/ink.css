@@ -1,0 +1,156 @@
+/* KurenaiOS — css/views/ink.css · @layer views
+   The ink engine (roadmap 6.1–6.2, design turn 30): the docked toolbar
+   (30a), its popovers (30b), the Handwritten tab with its band, sheets
+   and All pages (30c–30d). Paper is drawn in CSS from the theme's own
+   --line, in page widths (cqw), so lines, squares and dots scale with the
+   page and the ink on it. Ink colours are roles the canvas reads live
+   (js/core/inkui.js); nothing here names a colour. */
+@layer views {
+
+/* ---------- the toolbar (30a) ---------- */
+.k-ink-barwrap { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); padding-block: var(--sp-6); background: var(--bg); container-type: inline-size; }
+.k-ink-bar { display: flex; align-items: center; gap: var(--sp-6); padding: var(--sp-6); border-radius: var(--ink-bar-r); background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); overflow-x: auto; scrollbar-width: none; }
+.k-ink-group { display: flex; align-items: center; gap: var(--sp-2); flex: 0 0 auto; }
+.k-ink-group + .k-ink-group { padding-inline-start: var(--sp-6); border-inline-start: var(--hairline) solid var(--line); }
+.k-ink-group[data-state~="off"] { display: none; }
+.k-ink-extra { margin-inline-start: auto; }
+.k-ink-tool { min-inline-size: var(--ink-tool-w); min-block-size: var(--ink-tool-h); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-2); padding: var(--sp-4) var(--sp-6); border-radius: var(--r-12); background: none; box-shadow: none; color: var(--text-2); font-size: var(--fs-11); line-height: 1.1; }
+.k-ink-tool:hover { background: var(--s3); color: var(--text); }
+.k-ink-tool[data-state~="on"] { background: var(--text); color: var(--bg); }
+.k-ink-tool:disabled { opacity: 0.4; }
+.k-ink-tool-l { white-space: nowrap; }
+.k-ink-glyph { inline-size: var(--ink-glyph); block-size: var(--ink-glyph); flex: 0 0 auto; }
+.k-ink-plus { font-size: var(--fs-18); line-height: 1; }
+.k-ink-file { display: none; }
+/* a menu button built as a tool: icon over label, the caret beside it */
+.k-ink-colour-btn, .k-ink-paper-btn { flex-direction: row; flex-wrap: wrap; justify-content: center; column-gap: var(--sp-4); }
+.k-ink-colour-btn .k-btn-caret, .k-ink-paper-btn .k-btn-caret { font-size: var(--fs-11); }
+.k-ink-paper-btn .k-ink-glyph { flex-basis: 100%; }
+.k-ink-dot { inline-size: var(--sp-14); block-size: var(--sp-14); border-radius: 50%; background: var(--ink-c, var(--text)); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-ink-dot[data-role="ink"], .k-ink-swatch[data-role="ink"], .k-ink-probe[data-role="ink"] { --ink-c: var(--text); }
+.k-ink-dot[data-role="accent"], .k-ink-swatch[data-role="accent"], .k-ink-probe[data-role="accent"] { --ink-c: var(--crimson); }
+.k-ink-dot[data-role="teal"], .k-ink-swatch[data-role="teal"], .k-ink-probe[data-role="teal"] { --ink-c: var(--teal); }
+.k-ink-dot[data-role="amber"], .k-ink-swatch[data-role="amber"], .k-ink-probe[data-role="amber"] { --ink-c: var(--amber); }
+.k-ink-dot[data-role="green"], .k-ink-swatch[data-role="green"], .k-ink-probe[data-role="green"] { --ink-c: var(--green); }
+.k-ink-dot[data-role="bloom"], .k-ink-swatch[data-role="bloom"], .k-ink-probe[data-role="bloom"] { --ink-c: var(--bloom); }
+.k-ink-swatches, .k-ink-widths { display: flex; align-items: center; gap: var(--sp-6); }
+.k-ink-swatch { inline-size: var(--ink-swatch); block-size: var(--ink-swatch); min-inline-size: var(--ink-swatch); min-block-size: var(--ink-swatch); padding: 0; border-radius: 50%; background: var(--ink-c); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-ink-swatch[data-state~="hl"] { opacity: 0.6; }
+.k-ink-swatch[aria-checked="true"] { box-shadow: 0 0 0 var(--sp-2) var(--s2), 0 0 0 var(--sp-4) var(--text); }
+.k-ink-width { inline-size: var(--hit); block-size: var(--hit); min-inline-size: var(--hit); padding: 0; display: grid; place-items: center; border-radius: 50%; background: none; box-shadow: none; }
+.k-ink-width-dot { border-radius: 50%; background: var(--text); inline-size: var(--sp-5); block-size: var(--sp-5); }
+.k-ink-width[data-w="1"] .k-ink-width-dot { inline-size: var(--sp-8); block-size: var(--sp-8); }
+.k-ink-width[data-w="2"] .k-ink-width-dot { inline-size: var(--sp-12); block-size: var(--sp-12); }
+.k-ink-width[aria-checked="true"] { box-shadow: inset 0 0 0 var(--sp-2) var(--text); }
+/* an iPad's page column: the tools close up so the paper picker stays on
+   the bar instead of behind its scroll arrow (labels kept) */
+@container (max-width: 48rem) {
+.k-ink-tool { min-inline-size: var(--hit-coarse); padding-inline: var(--sp-3); }
+.k-ink-group + .k-ink-group { padding-inline-start: var(--sp-4); }
+.k-ink-bar { gap: var(--sp-4); }
+}
+.k-ink-pop { inline-size: var(--ink-pop-w); max-inline-size: 92vw; padding: var(--sp-14); border-radius: var(--r-22); display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-ink-pop-note { margin: 0; font-size: var(--fs-12); color: var(--muted); line-height: 1.45; }
+
+/* ---------- papers (the chips and the sheets) ---------- */
+.k-ink-papers { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
+.k-ink-paper-chip { display: inline-flex; align-items: center; gap: var(--sp-6); min-block-size: var(--hit); padding-inline: var(--sp-10); cursor: pointer; }
+.k-ink-paper-chip[data-state~="on"] { background: var(--text); color: var(--bg); }
+/* a chip's swatch is too small for page widths: its paper is drawn at a
+   fixed few pixels, in the page's own ink (cqw here would read the band) */
+.k-ink-paper-swatch { --paper-ink: var(--muted); --ink-rule: var(--sp-4); --ink-square: var(--sp-4); --ink-cue: var(--sp-5); --ink-margin: var(--sp-3); --ink-marks: calc(var(--sp-14) - var(--sp-3)); inline-size: var(--sp-14); block-size: var(--sp-16); border-radius: var(--r-2); background-color: var(--s3); }
+.k-ink-page, .k-ink-thumb { --paper-ink: var(--line); container-type: inline-size; background-color: var(--s1); }
+.k-ink-page[data-paper="lined"], .k-ink-thumb[data-paper="lined"], .k-ink-paper-swatch[data-paper="lined"] {
+background-image: linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
+background-size: 100% var(--ink-rule); background-position: 0 calc(var(--ink-rule) * 2); background-repeat: repeat-y; }
+.k-ink-page[data-paper="squared"], .k-ink-thumb[data-paper="squared"], .k-ink-paper-swatch[data-paper="squared"] {
+background-image: linear-gradient(to bottom, var(--paper-ink) var(--hairline), transparent var(--hairline)), linear-gradient(to right, var(--paper-ink) var(--hairline), transparent var(--hairline));
+background-size: var(--ink-square) var(--ink-square); }
+.k-ink-page[data-paper="dotted"], .k-ink-thumb[data-paper="dotted"], .k-ink-paper-swatch[data-paper="dotted"] {
+background-image: radial-gradient(circle, var(--muted) 0.18cqw, transparent 0.24cqw); background-size: var(--ink-rule) var(--ink-rule); }
+.k-ink-paper-swatch[data-paper="dotted"] { background-image: radial-gradient(circle, var(--muted) var(--hairline), transparent calc(var(--hairline) * 1.5)); }
+.k-ink-page[data-paper="cornell"], .k-ink-thumb[data-paper="cornell"], .k-ink-paper-swatch[data-paper="cornell"] {
+background-image: linear-gradient(to right, transparent calc(var(--ink-cue) - var(--hairline)), var(--crimson) calc(var(--ink-cue) - var(--hairline)), var(--crimson) var(--ink-cue), transparent var(--ink-cue)),
+  linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
+background-size: 100% 80%, 100% var(--ink-rule); background-repeat: no-repeat, repeat-y; background-position: 0 0, 0 calc(var(--ink-rule) * 2); }
+.k-ink-page[data-paper="booklet"], .k-ink-thumb[data-paper="booklet"], .k-ink-paper-swatch[data-paper="booklet"] {
+background-image: linear-gradient(to right, transparent calc(var(--ink-margin) - var(--hairline)), var(--paper-ink) calc(var(--ink-margin) - var(--hairline)), var(--paper-ink) var(--ink-margin), transparent var(--ink-margin), transparent var(--ink-marks), var(--paper-ink) var(--ink-marks), var(--paper-ink) calc(var(--ink-marks) + var(--hairline)), transparent calc(var(--ink-marks) + var(--hairline))),
+  linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
+background-size: 100% 100%, 100% var(--ink-rule); background-repeat: no-repeat, repeat-y; background-position: 0 0, 0 calc(var(--ink-rule) * 2); }
+
+/* ---------- side by side (30e) ----------
+   Two panes under the topic header, each its own scroll region; the pair
+   sticks once the header has scrolled away, so both fill the screen. */
+.k-topic-col > .k-topic-panel:has(> .k-ink-tab[data-state~="side"]) { max-inline-size: none; }
+.k-ink-side { position: sticky; inset-block-start: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-20); block-size: calc(100dvh - var(--topbar-h) - var(--sp-16)); }
+.k-ink-side-notes, .k-ink-side-page { min-inline-size: 0; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.k-ink-side-notes { padding-inline-end: var(--sp-12); }
+.k-ink-side-head { display: flex; align-items: baseline; gap: var(--sp-8); margin-block-end: var(--sp-12); }
+.k-ink-side-hint { margin-inline-start: auto; font-size: var(--fs-12); color: var(--muted); }
+.k-ink-side-page { display: flex; flex-direction: column; gap: var(--sp-12); }
+.k-ink-side-notes .k-notes :is(.k-n-fig, .k-n-diagram, .k-n-math, .k-n-kv, .k-n-tablewrap, .k-n-worked, .k-n-step, .k-callout, .k-n-code) { position: relative; cursor: pointer; }
+.k-ink-side-notes [data-state~="clip-sel"] { border-radius: var(--r-14); box-shadow: 0 0 0 var(--sp-2) var(--focus-ring); }
+.k-ink-clip-chips { position: absolute; inset-block-start: var(--sp-10); inset-inline-end: var(--sp-10); z-index: var(--z-sticky); display: flex; gap: var(--sp-6); }
+.k-ink-clip-chips .k-btn { box-shadow: var(--elev-2); }
+.k-ink-clip-chips .k-ink-glyph { inline-size: var(--sp-16); block-size: var(--sp-16); }
+
+/* ---------- the tab (30c–30d) ---------- */
+.k-topic-inkmode:empty { display: none; }
+.k-ink-tab { position: relative; display: flex; flex-direction: column; gap: var(--sp-14); }
+.k-ink-band { display: flex; gap: var(--sp-14); align-items: flex-start; }
+.k-ink-band-mark { flex: 0 0 auto; inline-size: var(--hit-coarse); block-size: var(--hit-coarse); display: grid; place-items: center; border-radius: var(--r-12); background: var(--wash-teal); color: var(--teal); font: var(--fs-20) var(--font-kanji); }
+.k-ink-band-body { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
+.k-ink-band-title { margin: 0; font-size: var(--fs-16); }
+.k-ink-band-p { margin: 0; color: var(--text-2); font-size: var(--fs-14); line-height: 1.5; }
+.k-ink-band-pen { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-12); font-size: var(--fs-13); color: var(--muted); }
+.k-ink-pages { display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); }
+.k-ink-sheet { inline-size: 100%; max-inline-size: var(--ink-page-max); display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-6); }
+.k-ink-gap { text-align: center; font: var(--fs-11) var(--font-mono); color: var(--muted); padding-block: var(--sp-6); }
+.k-ink-page { position: relative; inline-size: 100%; aspect-ratio: 1000 / 1414; border-radius: var(--r-12); box-shadow: inset 0 0 0 var(--hairline) var(--line); overflow: hidden; }
+.k-ink-canvas, .k-ink-live { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+.k-ink-live { touch-action: pan-x pan-y pinch-zoom; cursor: crosshair; }
+.k-ink-page[data-state~="finger"] .k-ink-live { touch-action: none; }
+.k-ink-page[data-tool="text"] .k-ink-live { cursor: text; }
+.k-ink-page[data-tool="lasso"] .k-ink-live { cursor: default; }
+.k-ink-layer { position: absolute; inset: 0; pointer-events: none; }
+.k-ink-layer > * { pointer-events: auto; }
+.k-ink-chips { position: absolute; inset-inline-start: var(--ink-chip-x); inset-block-start: var(--ink-chip-y); display: flex; gap: var(--sp-4); padding: var(--sp-4); border-radius: var(--r-pill); background: var(--s3); box-shadow: var(--elev-2); }
+.k-ink-chip { min-block-size: var(--hit); }
+.k-ink-chip[data-state~="on"] { background: var(--text); color: var(--bg); }
+.k-ink-text { position: absolute; inset-inline-start: var(--ink-chip-x); inset-block-start: var(--ink-chip-y); min-inline-size: 40%; padding: var(--sp-2) var(--sp-4); border: var(--hairline) dashed var(--teal); border-radius: var(--r-6); background: transparent; color: var(--text); font: var(--ink-text-size) / 1.3 var(--font-ui); resize: both; }
+.k-ink-start { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); color: var(--muted); pointer-events: none; }
+.k-ink-start .k-ink-glyph { inline-size: var(--sp-24); block-size: var(--sp-24); }
+.k-ink-start-t { font-size: var(--fs-16); color: var(--text-2); }
+.k-ink-start-s { font-size: var(--fs-12-5); }
+.k-ink-pill { position: sticky; inset-block-end: var(--sp-16); align-self: flex-end; margin-block-start: calc(var(--sp-40) * -1); padding: var(--sp-4) var(--sp-12); border-radius: var(--r-pill); background: var(--s3); box-shadow: var(--elev-2); font: var(--weight-semibold) var(--fs-13) var(--font-mono); opacity: 0; transition: opacity var(--dur-fast) var(--ease); pointer-events: none; }
+.k-ink-pill[data-state~="shown"] { opacity: 1; }
+.k-ink-probe { position: absolute; inline-size: 0; block-size: 0; overflow: hidden; color: var(--ink-c); }
+
+/* ---------- All pages (30d) ---------- */
+.k-ink-all-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-10); }
+.k-ink-all-title { margin: 0; font-size: var(--fs-16); }
+.k-ink-all-meta { font-size: var(--fs-13); color: var(--muted); }
+.k-ink-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-16); grid-template-columns: repeat(auto-fill, minmax(var(--ink-thumb-min), 1fr)); }
+.k-ink-tile { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
+.k-ink-thumb { position: relative; display: block; inline-size: 100%; aspect-ratio: 1000 / 1414; padding: 0; border-radius: var(--r-10); box-shadow: inset 0 0 0 var(--hairline) var(--line); overflow: hidden; }
+.k-ink-thumb:hover { box-shadow: inset 0 0 0 var(--sp-2) var(--text-2); }
+.k-ink-thumb-ink { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+.k-ink-tile-foot { display: flex; align-items: center; gap: var(--sp-4); }
+.k-ink-tile-t { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; font-size: var(--fs-12); color: var(--muted); }
+.k-ink-tile-t strong { color: var(--text); font-size: var(--fs-13); }
+.k-ink-handle { min-inline-size: var(--hit-dense); padding: 0; background: none; box-shadow: none; color: var(--muted); cursor: grab; }
+.k-ink-newpage { inline-size: 100%; aspect-ratio: 1000 / 1414; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); border-radius: var(--r-10); background: none; box-shadow: inset 0 0 0 var(--hairline) var(--line); border: var(--hairline) dashed var(--line); color: var(--text-2); }
+.k-ink-hint { margin: 0; padding: var(--sp-10) var(--sp-14); border-radius: var(--r-14); background: var(--s1); font-size: var(--fs-13); color: var(--text-2); }
+
+/* the phone tier (Split View 590, Slide Over 375): the bar scrolls in
+   one row; labels stay (30r) */
+@media (max-width: 700px) {
+.k-ink-barwrap { inset-block-start: 0; }
+.k-ink-tool { min-inline-size: var(--hit-coarse); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+.k-ink-pill { transition: none; }
+}
+
+}

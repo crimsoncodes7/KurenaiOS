@@ -1,31 +1,36 @@
 /* Kurenai OS — smoke103.test.js
-   Routines and the Daily Review on screen (roadmap 5.10, design turn 33,
-   frames 33a–33v; invariants 142–149).
+   The Daily Review's core (roadmap 5.10, docs/routines-plan.md §6–9;
+   invariants 144–146), before its overlay ships.
 
    The claims:
 
-     A · THE PAGE READS: every Routines tab and the editor render with no
-         error and write nothing; #/tasks still lands on Routines.
-     B · THE REVIEW SHEET: it opens on the slot that is due with its steps;
-         Next moves; Later minimises it to the header chip and keeps the
-         place; Skip review marks it skipped and nothing else.
-     C · THE FIRST TIME IT WAITS: a review never opens by itself until one
-         has been opened once, then it does, once per slot.
-     D · TRIAGE THROUGH THE OWNER: a choice in Unfinished moves the
-         reminder; "Use these three" sets today's three, written only on
-         the click.
-     E · THE PLAYER PAYS ONCE: Done through every step keeps the routine,
-         one session; the routine's habit-ticks on Home go through
-         KOS.routines.
-     F · ABOUT TO STUDY: the Focus page's Start with no objective opens the
-         sheet; its Start hands the first action to the session as its
-         objective; with an objective on the form it starts straight away.
-     G · HOME: Today's three in the hero with Start, the real Routines card.
-     H · DERIVED SURFACES: the assignment form asks nothing about where it
-         shows; Pin to countdowns works from the page; routine chips are in
-         the week view but not the month grid; Reminders' Today lists the
-         plan's rows as "From your plan" and ticks them in the plan; a goal
-         pins from its page; a week's report carries the Routines card.
+     A · ON AT BOOT, WITH ITS KIND: the notification kind is known; a
+         tick before the morning time pushes nothing.
+     B · SETTINGS through one gate: defaults, bad times refused, weekday
+         and weekend times.
+     C · ONE ON SCREEN (invariant 145): due(now) offers at most one review
+         — none before the morning time, the latest slot passed, never a
+         done or skipped one; earlier slots fold into it; 00:30 is still
+         that evening; yesterday's evening is never offered the next
+         morning, which says "Yesterday, quickly" instead; a slot turned
+         off is passed over.
+     D · SHOWN FOLDS: showing a review marks the earlier open slots
+         folded; the afternoon then carries the morning's still-relevant
+         part.
+     E · REVIEWS READ, OWNERS WRITE (invariant 144): triage moves a
+         reminder's date, adds an assignment's work-on day (never its
+         deadline), leaves a plan row in its week, completes through the
+         owner; Undo puts both back; the review keeps only refs and its
+         own choices; nothing it does itself pays.
+     F · THE STEPS: last night's first task opens the morning; today's
+         three resolve live; a step with nothing to show is left out; the
+         evening lists what is unfinished and tomorrow.
+     G · THE WORDS (invariant 146): the template at once and the same
+         twice; Kurenai's when written, once, cached; a failure keeps the
+         template; the payload holds titles and counts and never the note,
+         mood or energy.
+     H · NOTICES (when on): review:<slot>:<day>, a closed slot never; the
+         outlook carries them.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -39,199 +44,168 @@ function assert(c, m) { if (!c) throw new Error(m); }
 function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(m + ": got " + JSON.stringify(a) + ", want " + JSON.stringify(b)); }
 
 const TODAY = "2026-10-21";               // a Wednesday
-let app, K, doc;
-const $ = (s) => doc.querySelector(s);
-const $$ = (s) => [...doc.querySelectorAll(s)];
-function click(n) { assert(n, "nothing to click"); n.dispatchEvent(new app.window.MouseEvent("click", { bubbles: true })); }
-/* the state without ui (navigating records the view there) */
-function snap() { const c = Object.assign({}, K.store.state); delete c.ui; return JSON.stringify(c); }
-function govSessions() { return K.store.state.sessions.length; }
+function day(n, from) {
+  const [y, m, d] = (from || TODAY).split("-").map(Number);
+  const x = new Date(y, m - 1, d + n);
+  return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
+}
+function at(d, hm) { const [y, m, dd] = d.split("-").map(Number); const [h, mi] = hm.split(":").map(Number); return new Date(y, m - 1, dd, h, mi).getTime(); }
+
+let app, K, V;
+function gov() { const g = K.store.state.governor; return [g.xp, g.gold, g.hp, K.store.state.sessions.length]; }
 
 step("boot", async () => {
-  app = await boot({ clock: TODAY + "T16:40:00" });
-  K = app.KOS; doc = app.document;
-  const R = K.routines;
-  R.fromTemplate("morning", { remind: true });
-  R.fromTemplate("evening", { remind: true });
-  R.fromTemplate("afterschool", { remind: true });
-  R.fromTemplate("study");
-  ["Water", "Stretch"].forEach((t) => R.addHabit(t));
-  K.reminders.add({ title: "Email Mr Hart", due: TODAY, dueTime: "15:00" });
-  K.assignments.add({ title: "Stats homework", subject: "maths", due: K.srs.addDays(TODAY, 1), estimateMins: 45 });
-  K.store.save();
+  app = await boot({ clock: TODAY + "T10:00:00" });
+  K = app.KOS; V = K.dayReview;
+  K.store.state.calendar.events = [];
+  K.store.state.reminders.items = [];
+  K.store.state.assignments.items = [];
   eq(app.errors, [], "boot errors");
 });
 
-step("A · the page reads", async () => {
-  const before = snap();
-  for (const tab of [undefined, "routines", "templates", "history", "settings"]) {
-    K.show("routines", tab); await app.settle();
-    assert($("[data-ui~='routine.page']"), "the page for " + (tab || "today"));
+step("A · on at boot, with its kind", () => {
+  eq(V.enabled(), true, "on");
+  assert(K.notify.KINDS.review, "the kind");
+  const n = (K.store.state.notify.items || []).length;
+  V.tick(at(TODAY, "06:30"));
+  eq((K.store.state.notify.items || []).length, n, "nothing before the morning time");
+});
+
+step("B · settings", () => {
+  const c = V.cfg();
+  eq([c.slots.morning.weekday, c.slots.afternoon.weekday, c.slots.evening.weekday, c.words, c.dayStart], ["07:00", "16:30", "22:00", "kurenai", "04:00"], "defaults");
+  V.setConfig({ slots: { morning: { on: true, weekday: "25:00", weekend: "08:30" } }, dayStart: "11:00" });
+  eq([V.cfg().slots.morning.weekday, V.cfg().slots.morning.weekend, V.cfg().dayStart], ["07:00", "08:30", "04:00"], "bad times refused, good ones kept");
+  eq(V.slotTime("morning", TODAY), "07:00", "a weekday");
+  eq(V.slotTime("morning", "2026-10-24"), "08:30", "a Saturday");
+  V.setConfig({ slots: { morning: { on: true, weekday: "07:00", weekend: "09:00" } } });
+});
+
+step("C · one on screen", () => {
+  const d = (hm, on) => V.due(at(on || TODAY, hm));
+  eq(d("06:30"), null, "before the morning time");
+  eq([d("07:30").slot, d("07:30").folded], ["morning", []], "the morning");
+  eq([d("17:00").slot, d("17:00").folded], ["afternoon", ["morning"]], "an open morning folds into the afternoon");
+  eq([d("23:00").slot, d("23:00").folded], ["evening", ["morning", "afternoon"]], "both into the evening");
+  eq([d("00:30", day(1)).slot, d("00:30", day(1)).day], ["evening", TODAY], "00:30 is still that evening");
+  eq(d("07:30", day(1)).yesterday, true, "a missed evening: Yesterday, quickly");
+  K.store.state.dayReview.days[TODAY] = { morning: { state: "skipped" } };
+  eq(d("17:00").folded, [], "a skipped morning folds nothing");
+  K.store.state.dayReview.days[TODAY].afternoon = { state: "done" };
+  eq(d("17:00"), null, "a done slot is never offered");
+  eq(d("22:30").slot, "evening", "the next one is");
+  V.setConfig({ slots: { afternoon: { on: false } } });
+  eq(d("17:00"), null, "the afternoon off: the done morning... nothing");
+  K.store.state.dayReview.days[TODAY] = {};
+  eq(d("17:00").slot, "morning", "with the afternoon off, 17:00 is still the morning's");
+  V.setConfig({ slots: { afternoon: { on: true, weekday: "16:30", weekend: "15:00" } } });
+  K.store.state.dayReview.days[day(1)] = {};
+  K.store.state.dayReview.days[TODAY] = { evening: { state: "done" } };
+  eq(d("07:30", day(1)).yesterday, false, "an evening done: nothing from yesterday");
+  K.store.state.dayReview.days = {};
+});
+
+step("D · shown folds", () => {
+  V.markShown("afternoon", at(TODAY, "17:00"));
+  eq(K.store.state.dayReview.days[TODAY].morning.state, "folded", "the morning folded");
+  const c = V.content("afternoon", { now: at(TODAY, "17:00") });
+  const ids = c.steps.map((s) => s.id);
+  eq(ids.slice(0, 2), ["sofar", "three"], "the afternoon gains the morning's Three, after So far");
+  assert(c.steps[1].folded, "marked as from this morning");
+  K.store.state.dayReview.days = {};
+});
+
+let ids = {};
+step("E · reviews read, owners write", () => {
+  ids.rem = K.reminders.add({ title: "Email Mr Hart", due: TODAY, dueTime: "16:00" }).id;
+  ids.asg = K.assignments.add({ title: "Stats homework", due: day(2), subject: "maths" }).id;
+  const g0 = gov();
+  let r = V.triage({ kind: "reminder", id: ids.rem }, "tomorrow", { now: at(TODAY, "22:10") });
+  assert(r.ok, "triaged");
+  eq([K.reminders.get(ids.rem).due, K.reminders.get(ids.rem).dueTime], [day(1), "16:00"], "the reminder moved by its owner");
+  eq(K.store.state.dayReview.days[TODAY].evening.triaged["reminder:" + ids.rem], "tomorrow", "the review keeps its choice");
+  r.undo();
+  eq(K.reminders.get(ids.rem).due, TODAY, "Undo puts it back");
+  assert(!K.store.state.dayReview.days[TODAY].evening.triaged["reminder:" + ids.rem], "and the choice");
+  r = V.triage({ kind: "assignment", id: ids.asg }, "tomorrow", { now: at(TODAY, "22:10") });
+  eq([K.assignments.get(ids.asg).due, K.assignments.get(ids.asg).workOn], [day(2), [day(1)]], "a work-on day, never the deadline");
+  r.undo();
+  eq("workOn" in K.assignments.get(ids.asg), false, "undone");
+  eq(V.triage({ kind: "assignment", id: ids.asg }, "week", { now: at(TODAY, "22:10") }).ok, false, "a week choice needs its day");
+  V.triage({ kind: "assignment", id: ids.asg }, "leave", { now: at(TODAY, "22:10") });
+  eq(gov(), g0, "moving and leaving pay nothing and log nothing");
+  const plan = K.pacing.entries().find((e) => e.source === "personal" && !e.done);
+  if (plan) {
+    const p = V.triage({ kind: "plan", id: plan.id }, "tomorrow", { now: at(TODAY, "22:10") });
+    assert(p.ok && /stay in their week/.test(p.note), "a plan row stays in its week");
+    eq(K.pacing.entryById(plan.id).wb, plan.wb, "unmoved");
   }
-  K.show("routines", { edit: K.routines.all()[0].id }); await app.settle();
-  assert($("[data-ui~='routine.editor']"), "the editor");
-  eq(snap(), before, "drawing every tab wrote nothing");
-  K.show("tasks"); await app.settle();
-  assert($("[data-ui~='routine.page']"), "#/tasks lands on Routines");
-  eq(app.errors, [], "no errors");
+  V.setThree([{ kind: "assignment", id: ids.asg }, { kind: "reminder", id: ids.rem }, { kind: "bogus", id: 1 }], at(TODAY, "07:20"));
+  eq(K.store.state.dayReview.days[TODAY].morning.three, [{ kind: "assignment", id: ids.asg }, { kind: "reminder", id: ids.rem }], "refs only, and only real kinds");
+  V.markShown("morning", at(TODAY, "07:20"));
+  V.finish("morning", "done", at(TODAY, "07:25"));
+  V.setWindDown({ note: "A good day.", mood: 4, energy: 9 }, at(TODAY, "22:20"));
+  eq([K.store.state.dayReview.days[TODAY].evening.mood, "energy" in K.store.state.dayReview.days[TODAY].evening], [4, false], "1–5 only");
+  eq(gov(), g0, "nothing the review does itself pays");
 });
 
-step("B · the review sheet", async () => {
-  K.show("home"); await app.settle();
-  K.reviewSheet.open(); await app.settle();
-  const sheet = $("[data-ui~='review.sheet']");
-  assert(sheet && sheet.getAttribute("data-slot") === "afternoon", "the afternoon is due at 16:40");
-  const tabs = $$("[data-ui~='review.step-tab']");
-  assert(tabs.length >= 2, "its steps: " + tabs.length);
-  click($("[data-ui~='review.next']")); await app.settle();
-  eq($("[data-ui~='review.body']").getAttribute("data-step") !== tabs[0].textContent, true, "Next moves");
-  click($("[data-ui~='review.later']")); await app.settle();
-  assert(!$("[data-ui~='review.sheet']"), "Later closes it");
-  eq(K.store.state.ui.review.minimised.slot, "afternoon", "minimised, with its place");
-  assert($("[data-ui~='review.chip']"), "the chip carries it");
-  const n = govSessions(), before = JSON.stringify(K.store.state.governor);
-  K.reviewSheet.open("afternoon"); await app.settle();
-  click($("[data-ui~='review.skip']")); await app.settle();
-  eq(K.dayReview.day(K.routines.routineDay()).afternoon.state, "skipped", "skipped");
-  eq([govSessions(), JSON.stringify(K.store.state.governor)], [n, before], "a skip pays and logs nothing");
+step("F · the steps", () => {
+  /* the evening sets tomorrow's first task; the next morning opens with it */
+  V.setFirst({ kind: "assignment", id: ids.asg }, "Open the stats sheet and do Q1", at(TODAY, "22:15"), true);
+  const m = V.content("morning", { now: at(day(1), "07:10") });
+  const ln = m.steps.find((s) => s.id === "lastNight");
+  eq([ln.first.title, ln.first.action], ["Stats homework", "Open the stats sheet and do Q1"], "last night's first task");
+  eq(m.steps.find((s) => s.id === "start").first.title, "Stats homework", "and it is the start");
+  assert(!m.steps.find((s) => s.id === "routine"), "no routines on: no routine step");
+  const ev = V.content("evening", { now: at(TODAY, "22:00") });
+  const un = ev.steps.find((s) => s.id === "unfinished");
+  assert(un && un.items.some((x) => x.ref.kind === "assignment" && x.ref.id === ids.asg && x.why === "three"), "an open pick is unfinished");
+  const tm = ev.steps.find((s) => s.id === "tomorrow");
+  eq(tm.date, day(1), "tomorrow");
+  eq(tm.first.title, "Stats homework", "tomorrow's first task");
+  K.reminders.complete(ids.rem, true);
+  const three = V.content("afternoon", { now: at(TODAY, "16:40") }).steps.find((s) => s.id === "sofar").three;
+  eq(three.map((x) => [x.title, x.done]), [["Stats homework", false], ["Email Mr Hart", true]], "the three resolve live");
 });
 
-step("C · the first time it waits", async () => {
-  const fresh = await boot({ clock: TODAY + "T07:05:00" });
-  fresh.KOS.reviewSheet.maybeOpen(); await fresh.settle();
-  assert(!fresh.document.querySelector("[data-ui~='review.sheet']"), "never opened before: it waits in the chip");
-  assert(fresh.document.querySelector("[data-ui~='review.chip']"), "the chip shows it");
-  fresh.KOS.reviewSheet.open("morning"); await fresh.settle();
-  fresh.KOS.reviewSheet.close(); await fresh.settle();
-  delete fresh.KOS.store.state.ui.review.minimised;
-  delete fresh.KOS.store.state.ui.review.lastShown;
-  fresh.KOS.reviewSheet.maybeOpen(); await fresh.settle();
-  assert(fresh.document.querySelector("[data-ui~='review.sheet']"), "once opened before, it opens by itself");
-  fresh.KOS.reviewSheet.close(); await fresh.settle();
-  fresh.KOS.reviewSheet.maybeOpen(); await fresh.settle();
-  assert(!fresh.document.querySelector("[data-ui~='review.sheet']"), "but once per slot");
-  eq(fresh.errors, [], "no errors");
+step("G · the words", async () => {
+  const c = V.content("evening", { now: at(TODAY, "22:00") });
+  const t1 = V.template("evening", c), t2 = V.template("evening", c);
+  eq(t1, t2, "deterministic");
+  assert(t1.text.length > 10 && t1.line, "words");
+  const p = JSON.stringify(V.payload("evening", c));
+  assert(p.indexOf("A good day.") === -1 && p.indexOf("mood") === -1 && p.indexOf("energy") === -1, "never the note, mood or energy");
+  assert(p.indexOf("Stats homework") !== -1, "titles are sent");
+  eq(V.words("evening", c).byKurenai, false, "the template until she writes");
+  /* Kurenai answers once */
+  let calls = 0;
+  const realChat = K.ai.chat;
+  K.ai.chat = (cat, opts, cb) => { calls++; setTimeout(() => cb(null, { text: JSON.stringify({ line: "Good evening.", text: "A steady day: some Focus, one thing still open. Tomorrow starts with stats." }) }), 0); return {}; };
+  await new Promise((res) => V.ensureWords("evening", { now: at(TODAY, "22:00") }, res));
+  await new Promise((res) => V.ensureWords("evening", { now: at(TODAY, "22:00") }, res));
+  eq(calls, 1, "written once");
+  const w = V.words("evening", V.content("evening", { now: at(TODAY, "22:00") }));
+  eq([w.byKurenai, w.line], [true, "Good evening."], "hers when written");
+  /* a failure keeps the template */
+  K.ai.chat = (cat, opts, cb) => { calls++; setTimeout(() => cb({ kind: "rate" }), 0); return {}; };
+  let err = null;
+  await new Promise((res) => V.ensureWords("afternoon", { now: at(TODAY, "16:40") }, (e) => { err = e; res(); }));
+  assert(err, "the error comes back");
+  eq(V.words("afternoon", V.content("afternoon", { now: at(TODAY, "16:40") })).byKurenai, false, "the template stays");
+  V.setConfig({ words: "template" });
+  eq(V.words("evening", V.content("evening", { now: at(TODAY, "22:00") })).byKurenai, false, "the setting picks the template");
+  V.setConfig({ words: "kurenai" });
+  K.ai.chat = realChat;
 });
 
-step("D · triage through the owner, and Use these three", async () => {
-  const rem = K.reminders.all().find((r) => r.title === "Email Mr Hart");
-  K.reviewSheet.open("evening"); await app.settle();
-  const tabs = $$("[data-ui~='review.step-tab']");
-  const i = tabs.findIndex((t) => /Unfinished/.test(t.textContent));
-  assert(i >= 0, "an Unfinished step");
-  click(tabs[i]); await app.settle();
-  const row = $$("[data-ui~='review.triage']").find((r) => /Email Mr Hart/.test(r.textContent));
-  assert(row, "the overdue reminder is in it");
-  const before = snap();
-  const tomorrow = [...row.querySelectorAll("[role=radio]")].find((b) => /Tomorrow/.test(b.textContent));
-  click(tomorrow); await app.settle();
-  eq(K.reminders.get(rem.id).due, K.srs.addDays(TODAY, 1), "moved by its owner");
-  assert(snap() !== before, "and written");
-  K.reviewSheet.close(true);
-  K.reviewSheet.open("morning", { step: 0 }); await app.settle();
-  const tabs2 = $$("[data-ui~='review.step-tab']");
-  const j = tabs2.findIndex((t) => /Three/.test(t.textContent));
-  click(tabs2[j]); await app.settle();
-  const three0 = JSON.stringify((K.dayReview.day(K.routines.routineDay()).morning || {}).three || []);
-  assert($$("[data-ui~='review.three-offer']").length > 0, "suggestions offered");
-  eq(JSON.stringify((K.dayReview.day(K.routines.routineDay()).morning || {}).three || []), three0, "nothing written by showing them");
-  click($("[data-ui~='review.three-use']")); await app.settle();
-  assert(K.dayReview.day(K.routines.routineDay()).morning.three.length > 0, "set on the click");
-  K.reviewSheet.close(true);
-});
-
-step("E · the player pays once", async () => {
-  /* plain steps (a step linked to Focus would hand over to About to Study instead) */
-  const r = K.routines.add({ name: "Tidy desk", kind: "custom", days: [], steps: [{ text: "Clear" }, { text: "Wipe" }, { text: "Stack books" }] });
-  const n = K.store.state.sessions.filter((e) => e.metrics && e.metrics.routine === r.id).length;
-  K.routinePlayer.open(r.id); await app.settle();
-  for (let k = 0; k < 6 && $("[data-ui~='player.done']"); k++) { click($("[data-ui~='player.done']")); await app.settle(); }
-  assert($("[data-ui~='player.finished']"), "the done screen");
-  eq(K.routines.stateOn(r, K.routines.routineDay()), "done", "kept");
-  eq(K.store.state.sessions.filter((e) => e.metrics && e.metrics.routine === r.id).length, n + 1, "one session");
-  click($("[data-ui~='player.close-done']")); await app.settle();
-});
-
-step("F · About to Study", async () => {
-  K.store.state.ui.focusPreflight = true;
-  K.show("focus"); await app.settle();
-  click($("[data-ui~='focus.start']")); await app.settle();
-  assert($("[data-ui~='preflight.sheet']"), "no objective on the form: the sheet opens");
-  const act = $("[data-ui~='preflight.action']");
-  act.value = "Open the stats sheet and do Q1";
-  click($("[data-ui~='preflight.start']")); await app.settle();
-  const s = K.focus.session();
-  assert(s && s.objective === "Open the stats sheet and do Q1", "the first action is the objective: " + (s && s.objective));
-  K.focus.endEarly(); await app.settle();
-  [...doc.querySelectorAll(".k-dialog-overlay")].forEach((o) => o.remove());
-  /* the form already holding the first action is the pre-flight */
-  const f2 = await boot({ clock: TODAY + "T16:40:00" });
-  f2.KOS.show("focus"); await f2.settle();
-  f2.document.querySelector("[data-ui~='focus.obj-in']").value = "Already planned";
-  f2.document.querySelector("[data-ui~='focus.start']").dispatchEvent(new f2.window.MouseEvent("click", { bubbles: true })); await f2.settle();
-  assert(!f2.document.querySelector("[data-ui~='preflight.sheet']") && f2.KOS.focus.session(), "an objective on the form starts straight away");
-  eq(f2.KOS.focus.session().objective, "Already planned", "with it as the objective");
-});
-
-step("G · Home", async () => {
-  K.show("home"); await app.settle();
-  assert($("[data-ui~='home.three-start']"), "Today's three with its Start in the hero");
-  assert($("[data-ui~='habit.panel']"), "the hero's goal panel is still there");
-  const card = $("[data-ui~='home.routines']");
-  assert(card && /All routines/.test(card.textContent), "the Routines card");
-  const tick = card.querySelector("[data-ui~='home.routine-tick']");
-  assert(tick, "a habit tick");
-  const h = K.routines.all({ kind: "habit" })[0];
-  const was = K.routines.stateOn(h, K.routines.routineDay());
-  click(tick); await app.settle();
-  assert(K.routines.stateOn(h, K.routines.routineDay()) !== was, "ticked through KOS.routines");
-});
-
-step("H · derived surfaces", async () => {
-  /* the assignment form */
-  K.show("assignments"); await app.settle();
-  const a = K.assignments.all()[0];
-  const form = (() => { const btn = $$("button").find((b) => /New assignment|Add assignment|＋/.test(b.textContent)); return btn; })();
-  if (form) { click(form); await app.settle(); }
-  const modal = $("[data-ui~='asg.modal']");
-  if (modal) {
-    assert(!/Show the deadline on the Calendar|major deadline/i.test(modal.textContent), "the form asks nothing about where it shows");
-    assert(modal.querySelector("[data-ui~='asg.where']"), "it says where it shows");
-    modal.parentNode.remove();
-  }
-  eq(K.assignments.isMajor(a), true, "due tomorrow: it counts down");
-  K.assignments.pinCountdown(a.id, false);
-  eq(K.assignments.isMajor(K.assignments.get(a.id)), false, "unpinned");
-  K.assignments.pinCountdown(a.id, true);
-  /* the calendar: routines in the week, not in the month grid */
-  K.store.state.ui.calendar = Object.assign({}, K.store.state.ui.calendar || {}, { mode: "month" });
-  K.show("calendar"); await app.settle();
-  const today = $("[data-ui~='cal.cell'][data-state~='today']");
-  assert(today && !today.querySelector("[data-kind='routine']"), "no routine chips in the month grid");
-  /* reminders: the plan's rows, derived */
-  const wk = K.pacing.dueThisWeek();
-  if (wk.rows.length || wk.carried.length) {
-    K.store.state.ui.reminders = Object.assign({}, K.store.state.ui.reminders || {}, { section: "today", listId: null, tag: null, priority: "" });
-    K.show("reminders"); await app.settle();
-    const pr = $("[data-ui~='rem.plan-row']");
-    assert(pr && /From your plan/.test(pr.textContent), "From your plan rows");
-    const id = (wk.carried[0] || {}).entry ? wk.carried[0].entry.id : wk.rows[0].id;
-    click(pr.querySelector("[data-ui~='rem.plan-check']")); await app.settle();
-    eq(K.pacing.entryById(id).done, true, "ticked in the plan");
-  }
-  /* a goal pinned from its page */
-  const g = K.goals.add({ type: "custom-manual", title: "Pin me", target: 5 });
-  K.show("goals", { id: g.id }); await app.settle();
-  click($("[data-ui~='goal.pin']")); await app.settle();
-  eq(K.goals.get(g.id).pinned, true, "pinned");
-  /* a week's report with routines */
-  const p = { period: "week", start: "2026-10-12", end: "2026-10-18", id: "w" };
-  const f = K.report.compute({ ledger: [], rows: [], tally: {}, reminders: [], habits: [],
-    routineDays: [{ id: "r", name: "Morning Routine", mark: "朝", kind: "morning", states: ["done", "done", "missed", "done", "rest", "off", "off"] }],
-    reviewDays: { "2026-10-13": { morning: { state: "done" }, evening: { state: "done", mood: 4, energy: 2 } }, "2026-10-14": { evening: { state: "done", mood: 3, energy: 3 } } } }, p);
-  eq([f.routines.kept, f.routines.of, f.routines.rows[0].rest, f.routines.reviews.evening, f.routines.mood], [3, 4, 1, 2, 3.5], "the Routines facts");
-  const pay = JSON.stringify(K.reportWords.payload({ facts: Object.assign({ study: { bySubject: {}, sessions: 0, days: 0, of: 7 } }, f) }));
-  assert(pay.indexOf("mood") === -1 && pay.indexOf("energy") === -1 && /routines_kept/.test(pay), "the payload: totals, never mood or energy");
+step("H · notices", async () => {
+  const items = V.forecast(at(TODAY, "06:00"), at(day(2), "06:00"));
+  const ids2 = items.map((x) => x.id);
+  assert(ids2.indexOf("review:morning:" + TODAY) === -1, "a done morning is not forecast");
+  assert(ids2.indexOf("review:evening:" + TODAY) !== -1 && ids2.indexOf("review:morning:" + day(1)) !== -1, "the rest are");
+  eq(items.find((x) => x.id === "review:evening:" + TODAY).at, at(TODAY, "22:00"), "at its time");
+  const out = await new Promise((res) => K.outlook.build((e, o) => res(o), { now: at(TODAY, "10:00") }));
+  assert(out.items.some((x) => x.kind === "review"), "the outlook carries them");
   eq(app.errors, [], "no errors");
 });
 

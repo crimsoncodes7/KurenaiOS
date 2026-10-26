@@ -1065,6 +1065,14 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.5 Japanese: a study space for the four skills ◆ (asked for 17 October 2026)
 
+> **Status (24 October 2026): Stage 1 is under way.** Unit F1, First
+> conversations (lessons 1.1–1.6, sw `kos-japanese-3`, 23 October), and unit
+> F2, Days and times (2.1–2.6 and cp-F2, sw `kos-japanese-4`, 24 October),
+> are RELEASED, with the audio pack (the cast on ElevenLabs, the narrator on
+> VOICEVOX). Next: F3, Things and places; F4–F6 are outlined in
+> [japanese-plan.md](japanese-plan.md) §3.1. Still to come: the reader,
+> media and immersion pages (28h, 28i, 28l).
+>
 > **Status (22 October 2026): PLATFORM RELEASED** (`d061169`, sw
 > `kos-japanese-1`, https://6a6bcfa7.kurenai-os.pages.dev). Plan §17 step 1:
 > the backend (model, facet scheduler, kana, conjugation, validators,
@@ -1154,8 +1162,8 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.8 Exams & Deadlines Hub ◆ (asked for 20 October 2026)
 
-> **Status (21 October 2026): phases 1–5 built on `feat/exams-hub`, not
-> deployed.** The plan is [exams-plan.md](exams-plan.md), revision 2
+> **Status (21 October 2026): phases 1–6 RELEASED** (`3b39ae1`, sw
+> `kos-exams-1`; CS Paper 2 is the first full Companion). The plan is [exams-plan.md](exams-plan.md), revision 2
 > (decisions A–N approved with refinements R1–R5). Built: the assessment
 > record and migration, the Scope Builder, the cap by scope, the widened
 > attempt with redo items, start-by dates (smoke89); the past-paper index,
@@ -1303,6 +1311,26 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
+> **RELEASED 25 October 2026** (`8a092b7`, sw `kos-ink-2`, https://caffcf65.kurenai-os.pages.dev; `feat/ipad-polish`): every
+> view checked on the iPad at 1180 × 796 and 820 × 1156 with touch and
+> fixed (the topic inspector opens over the notes when the reading column
+> would be narrow, the tree drawer is per visit in portrait, the running
+> Focus stage matches desktop, and smaller fixes), and 30e — Side by side
+> and Clip to page (smoke100 G). Next: the floating palette and the ruler
+> (30b), sync and the Pen and ink settings (30p, 30s), export, then the
+> answer pad (30f) and the PDF viewer (30h).
+
+> **Status (25 October 2026): 6.1 and 6.2 RELEASED** (`052b27c`, sw
+> `kos-ink-1`, https://f47cbd39.kurenai-os.pages.dev). From design turn 30 (frames 30a–30d): the ink engine
+> (`KOS.ink`, `KOS.inkUI`: pen only with palm rejection, pen, highlighter,
+> eraser partial or whole, lasso with Move, Resize, Recolour, Copy and
+> Delete, shape snap, text and images, undo by ⌘Z and a two-finger tap,
+> six papers) and a topic's Handwritten tab (the empty page, A4 sheets,
+> All pages with reorder, the inspector's "Pages written"); invariants
+> 132–136, smoke100. Next: Side by side and Clip to page (30e), the
+> floating palette and the ruler (30b), sync and the Pen and ink settings
+> (30p, 30s), export, then the answer pad (30f) and the PDF viewer (30h).
+
 > **Status (22 October 2026): 6.0 RELEASED** (`87f9437`, sw `kos-ipad-1`,
 > https://982f307b.kurenai-os.pages.dev); the rest is
 > planned in [ipad-plan.md](ipad-plan.md) revision 1. Next come its three
@@ -1349,8 +1377,9 @@ ink engine.
   - Stage Manager and Split View;
   - Focus with the screen kept on;
   - a check of Code's full runtime on the M4.
-- **Invariants it would add:** 132 (ink is vector and local first) and 133
-  (handwriting is read only when asked). Those it touches: 89, 102b, 111,
+- **Invariants:** 132–136 (one engine, roles not colours, writing is
+  evidence never pay, handwriting read only when asked, ink in its own
+  store), from design turn 30's draft 130–134. Those it touches: 89, 102b, 111,
   124, 125 and 127.
 - **Design first:** the toolbar, the Handwritten tab, the answer pad, the
   PDF viewer, the drills and the Split View compositions (prompt 14).

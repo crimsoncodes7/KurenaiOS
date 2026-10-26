@@ -223,7 +223,7 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 @media (max-width: 860px) {
 .k-home-pair-top, .k-home-pair { grid-template-columns: minmax(0, 1fr); }
 .k-home-mid { grid-template-columns: minmax(0, 1fr); }
-.k-home-mid > * { grid-column: 1 / -1; }
+.k-home-mid > *, .k-home-mid > .k-home-pair { grid-column: 1 / -1; }
 .k-home-hero-body { flex-wrap: wrap; }
 }
 

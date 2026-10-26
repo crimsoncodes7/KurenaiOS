@@ -142,6 +142,9 @@ button.k-rp-crumb:hover { background: none; color: var(--text); }
 
 /* ---------- the Reports page (24a) ---------- */
 .k-rp-two { display: grid; grid-template-columns: minmax(0, 1fr) var(--rp-side-w); gap: var(--sp-14); align-items: start; }
+/* a week with nothing for the main column leaves no dead column beside its side cards */
+.k-rp-two:has(> .k-rp-main:empty) { grid-template-columns: minmax(0, 1fr); }
+.k-rp-two > .k-rp-main:empty { display: none; }
 .k-rp-index { gap: var(--sp-16); }
 .k-rp-two > [data-state~="ride"] { position: sticky; inset-block-start: var(--rp-ride, var(--rp-ride-gap)); }
 .k-rp-index-main, .k-rp-sum { display: flex; flex-direction: column; gap: var(--sp-14); min-inline-size: 0; }

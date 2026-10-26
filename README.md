@@ -1,10 +1,11 @@
 # 紅 KurenaiOS
 
 KurenaiOS is a local-first study and personal-organisation workspace for A-level
-Computer Science, Mathematics and IT, plus Code, a C# programming course. It combines the official specification
-spine, deep revision material and interactive labs with spaced repetition,
-planning, focus sessions, progress analytics, a media Collection, cloud sync and
-an optional AI assistant.
+Computer Science, Mathematics and IT, plus Code (a C# programming course) and
+Japanese (from zero). It combines the official specification spine, deep
+revision material and interactive labs with spaced repetition, exam planning,
+focus sessions, money and goals, progress reports, a media Collection, cloud
+sync and an optional AI assistant.
 
 The application is plain HTML, CSS and JavaScript: there is no bundler and no
 compile step. It runs directly from `index.html`, as an installable PWA on HTTPS,
@@ -14,34 +15,28 @@ or at the production site:
 
 ## Current release
 
-The **Graphite UI rebuild** is live as of **27 September 2026**: the whole
-presentation layer redrawn from the Graphite design handoff (a dark,
-desktop-first interface), with every surface reviewed twice and the
-behaviour, data and invariants of the earlier releases unchanged.
+As of **24 October 2026** production runs **Japanese Stage 1 unit F2, Days
+and times** (service worker `kos-japanese-4`, immutable deployment
+https://e424163d.kurenai-os.pages.dev). `main` is the line; every release is
+fast-forwarded to it from its feature branch.
 
-- Runtime release commit: `ff7a8e3` (17 October 2026: Code capstone 3, a shop
-  with plugins and LINQ reports, which completes Code's stage 3 on the full
-  C# runtime) — immutable deployment https://6c888d02.kurenai-os.pages.dev.
-  Before it: Reports for weeks, months, terms and years (13 October) and the
-  Code platform and units 1–9 (15–17 October).
-- Milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker cache: `kos-code-18`
-- Verification: all **79 smoke suites**, including the rebuild guards
-  (smoke55: presentation vocabulary; smoke56: render purity and control
-  parity) and Code's gates (smoke73–79, plus `tools/cs_diff.mjs`).
-- **Branch:** `main` is current (19 October 2026); it equals the working
-  branch `claude/roadmap-code-study-space`. Check `git log` before relying on
-  that. See [docs/HANDOFF.md](docs/HANDOFF.md).
-- In flight, not deployed: the Japanese study space (roadmap 5.5). Its
-  vertical slice in `prototypes/japanese-space/` is closed; the platform
-  release is next, when asked.
+- Foundations: Category 7 (responsive, accessible UI, August 2026) and the
+  Graphite UI rebuild (27 September 2026, milestone tag
+  `milestone/graphite-ui-rebuild`). Graphite is the default theme; Dawn (its
+  light twin) and 23 shop themes are colour overrides.
+- Since then: Reports, Code (core path and Tracks T1 and T2), Money and
+  Goals, FSRS, the Exams & Deadlines hub, a closed-app runner with Web Push,
+  the iPad layout and Japanese (platform, Stage 0 and units F1–F2).
+- Verification: **99 smoke suites** plus the differential checks against real
+  .NET, SQLite, py-fsrs and the Japanese validators (see Tests and audits).
+- In flight and planned: the rest of Japanese Stage 1 (F3–F6), the Exams
+  Companion for the remaining papers, the iPad and Pencil, and Creatives. The
+  full list is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
-Graphite is currently the only theme; phone layouts keep working on the new
-shell but have not been designed yet. What comes next is in
-[docs/ROADMAP.md](docs/ROADMAP.md).
-
-The concise delivery record is in [PROGRESS.md](PROGRESS.md). Engineering contracts
-live in [CLAUDE.md](CLAUDE.md), with the shorter execution rules in
+For a plain-language tour of everything the app does, read
+[docs/GUIDE.md](docs/GUIDE.md). The concise delivery record is in
+[PROGRESS.md](PROGRESS.md). Engineering contracts live in
+[CLAUDE.md](CLAUDE.md), with the shorter execution rules in
 [AGENTS.md](AGENTS.md). Picking the project up on another machine or Claude
 account: [docs/HANDOFF.md](docs/HANDOFF.md).
 
@@ -79,41 +74,57 @@ fonts.
   F204, F206; F203 and F205 are left out): **331 leaf specification points**.
 - Deep structured notes, flashcards, quizzes, exam questions, mark schemes and
   examiner guidance across all of Computer Science and Mathematics plus IT F201.
-- Inline simulations, worked-example generators, trace labs and SQL, regex,
-  number-base, Little Man Computer and C# OOP sandboxes.
-- Topic progress, RAG evidence, assignment tracking, Review (SM-2 due cards and
-  card statistics), attachments and cross-subject topic comparison.
+- Inline simulations on one lab system, worked-example generators, trace labs
+  and SQL, regex, number-base, Little Man Computer and C# OOP sandboxes.
+- Review: every card is scheduled by FSRS-6 (with an optional per-learner fit
+  from your own review log), capped before an exam, with leech handling and
+  Card stats.
+- Exams & Deadlines hub: every exam, mock, test and deadline as one record
+  with a scope, readiness from four signals, a planner, past-paper index,
+  timed papers, a post-mortem and, for CS Paper 2, an exhaustive Companion.
 
 ### Code
 
-- A fourth study space for learning C#: a staged path (units 1–9 and the
-  Rider "Bridge B" workflow are written; units 10–12 and capstone 4 show
-  "Coming later"), lessons on the shared topic page, tasks proven by a runner
-  and paid once, katas, three capstones and a Daily 20 computed from evidence.
-- Learner code runs only on the device: an in-app interpreter for units 1–6,
-  and an optional offline download of Roslyn and .NET in WebAssembly for
-  units 7+. Work can go to a GitHub repository you create (a fine-grained
-  token you type), and Code appears in Reports and the Assistant.
+- A study space for learning C#: a core path of twelve units plus the Rider
+  workflow and four capstones, and optional Tracks (T1 databases, HTTP and
+  APIs; T2 desktop apps with Avalonia). Tasks are proven by a runner and paid
+  once; katas, a Daily 20 and skill map are computed from evidence.
+- Learner code runs only on the device: an in-app interpreter (units 1–6), an
+  optional offline download of Roslyn and .NET in WebAssembly (units 7+), and
+  SQLite in WebAssembly for the SQL lessons. Rider projects come back as a
+  validator report. Work can go to a GitHub repository you create (a token you
+  type, or the GitHub App).
 - Contracts: invariants 103–110 in [CLAUDE.md](CLAUDE.md), plan in
   [docs/code-plan.md](docs/code-plan.md).
+
+### Japanese
+
+- The fifth subject, from absolute zero: kana with stroke checking, then
+  Stage 1 lessons (units F1–F2 released) built from visual-novel scenes and
+  manga panels, with voiced lines. Each word or grammar point is practised
+  by reading, listening, writing and speaking, scheduled per skill.
+  Validators are rule-based, never AI-graded. Plan in
+  [docs/japanese-plan.md](docs/japanese-plan.md).
 
 ### Productivity and Governor
 
 - Calendar, recurring events, reminders, assignments, countdowns, habits and
   daily recommendations share canonical records instead of copying data.
+- Money (budgets, recurring bills, pots, transactions, CSV) and Goals (a
+  registry of goal types measured by reading the data that owns them).
 - Pacing is the integrated weekly plan: the school scheme of work beside the
   personal curriculum, per-lesson ticks, carry-over of unfinished rows, and a
   per-subject branch graph ("braid") of where the two plans meet.
-- Focus Timer supports Pomodoro/custom sessions, reload recovery, distraction and
-  pause accounting, assignment links and a post-session review.
+- Focus Timer supports Pomodoro, custom, stopwatch and study-until sessions,
+  switching subject mid-way, reload recovery, an idle watch and a post-session
+  review.
 - The Behavioural Governor derives streaks, HP, gold, XP and rewards from the
   session ledger. Only labs, simulations and the shop can be gated; revision and
   Focus are always available.
-- Reports (under Home) save each week when it ends: study time and topics,
-  Focus blocks, the plan, what moved in the Collection, earnings and streaks,
-  with full overview pages, words by template or by Kurenai (from totals
-  only), a tap-through story and a share card; months, terms and years
-  too, the year as seven chapters. Signed in, reports sync between devices.
+- Reports (under Home) save each week, month, term and year: study time and
+  topics, Focus blocks, the plan, Money, Goals, Code, the Collection, earnings
+  and streaks, with words by template or by Kurenai (from totals only), a
+  tap-through story and a share card. Signed in, reports sync between devices.
 
 ### Collection
 
@@ -122,19 +133,20 @@ fonts.
 - AniList and VNDB pull sync, narrowly scoped write-back, profiles, provider
   history and autonomous sync. Games retain manual-first operation with optional
   server-backed IGDB search and reviewed Steam import.
-- Budget Planner, Collection Goals and the Shrine Hall of Fame remain local-first
-  and cannot duplicate Governor rewards.
+- The Wishlist (the old Budget Planner), Collection Goals and the Shrine Hall of
+  Fame remain local-first and cannot duplicate Governor rewards.
 
 ### Archive
 
-- A notification centre (bell and full feed, per-device filters, quiet hours
-  and opt-in device alerts), Backup & Restore, and a searchable Help & Guide.
+- A notification centre (bell and full feed, per-device filters, quiet hours,
+  opt-in device alerts, and Web Push to a closed app through the `runner` Edge
+  Function), Backup & Restore, and a searchable Help & Guide.
 
 ### Assistant, cloud and PWA
 
 - Kurenai Assistant supports Gemini, Ollama and compatible provider seams,
   conversation/project organisation, streaming, explicit-consent memory and a
-  constrained tool layer.
+  constrained tool layer covering every domain, and scheduled messages.
 - Supabase adds optional sign-in, multi-device state/media/attachment replication
   and server-side integrations. Local persistence remains authoritative and the
   app is fully usable signed out.
@@ -164,7 +176,7 @@ KurenaiOS uses classic script tags and one global `KOS` namespace. Load order in
 | Page and workspace views | `js/modules/` |
 | Flashcard and quiz engines | `js/engines/` |
 | Simulations, worked examples and sandboxes | `js/labs/` |
-| Hand-authored revision content | `js/data/content/` |
+| Hand-authored revision content | `js/data/content/` (Code and Japanese units too) |
 | Generated specification trees | `js/data/compsci.js`, `maths.js`, `it.js` |
 | Visual system: Graphite tokens, base, layout, components, per-domain views, themes | `css/tokens.css`, `css/*.css`, `css/views/*.css` |
 | Data pipeline, audits, deployment and tests | `tools/` |
@@ -185,11 +197,14 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..99}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Code content also runs against real .NET (`node tools/cs_diff.mjs`, needs the
-.NET 10 SDK).
+.NET 10 SDK) and native SQLite (`node tools/sql_diff.mjs`); the FSRS core
+against py-fsrs (`node tools/fsrs_check.mjs`); Japanese against its validators
+(`node tools/ja_valid_check.mjs`); and Rider projects end to end
+(`node tools/validator_check.mjs`). CLAUDE.md lists every command.
 
 Responsive or shared-component changes also require a dense responsive audit and
 screenshots. Image, hero, chart or broad visual changes require the specialised

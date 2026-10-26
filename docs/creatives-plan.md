@@ -482,19 +482,19 @@ Frames 31a onwards:
 | G | References | the procedural generator, then your own, then Collection covers privately; nothing bundled or hot-linked |
 | H | Beginner mechanics | micro-studies before pieces, Momentum mode, best-of-five, "Good for this unit" in every rubric |
 
-## 14. Invariants this would add (draft, numbered after the iPad's)
+## 14. Invariants this would add (draft; 132–136 are the ink engine's and 137–141 Mind's, so these are 142–144)
 
-- **134. CREATIVE EVIDENCE IS MADE, NOT CLAIMED.**
+- **142. CREATIVE EVIDENCE IS MADE, NOT CLAIMED.**
   - A lesson's checks come from saved work, its single-skill check and
     proven theory cards, written only by the Creatives core.
   - Each proof pays once.
   - Volume pays nothing beyond Focus.
-- **135. KURENAI CRITIQUES, NEVER CREATES.**
+- **143. KURENAI CRITIQUES, NEVER CREATES.**
   - No tool generates or rewrites a piece.
   - A critique sends only what "What is sent" shows, once per press.
   - It is judged against the unit's one skill and its "Good for this
     unit" text.
-- **136. PRACTICE IS PRIVATE, THE PORTFOLIO IS CHOSEN.**
+- **144. PRACTICE IS PRIVATE, THE PORTFOLIO IS CHOSEN.**
   - The Practice Log is hidden unless opened, and is never shown by
     Reports, a share or Kurenai.
   - Only a deliberate promotion puts work in the Portfolio.

@@ -350,20 +350,31 @@
   function treeIsOverlay() {
     return typeof window.matchMedia === "function" && window.matchMedia(TREE_OVERLAY_Q).matches;
   }
+  /* The drawer (≤860: an iPad in portrait, a phone) is opened for one visit
+     and never saved: the remembered choice belongs to the column, so turning
+     an iPad from landscape to portrait never lays the drawer over the page.
+     Navigating or crossing the tier closes it. */
+  var drawerOpen = false;
   function applyTreeCollapsed() {
-    /* Build 4b: with no saved preference, the overlay tiers start CLOSED
-       (the tree is a drawer over the content there); wider viewports keep
-       their open-by-default spine. An explicit choice wins on both. */
-    var pref = store.state.ui.treeClosed;
-    var closed = pref === true || (pref == null && treeIsOverlay());
+    var closed = treeIsOverlay() ? !drawerOpen : store.state.ui.treeClosed === true;
     /* a view with no spine only remembers the preference; it never shows one */
     if (KOS.shell.tree() === "none") return;
     KOS.shell.tree(closed ? "closed" : "open");
   }
   function setTreeClosed(closed) {
-    store.state.ui.treeClosed = !!closed;
-    store.save();
+    if (treeIsOverlay()) drawerOpen = !closed;
+    else {
+      store.state.ui.treeClosed = !!closed;
+      store.save();
+    }
     applyTreeCollapsed();
+  }
+  window.addEventListener("hashchange", function () { drawerOpen = false; });
+  if (typeof window.matchMedia === "function") {
+    var treeMQ = window.matchMedia(TREE_OVERLAY_Q);
+    var onTier = function () { drawerOpen = false; applyTreeCollapsed(); };
+    if (treeMQ.addEventListener) treeMQ.addEventListener("change", onTier);
+    else if (treeMQ.addListener) treeMQ.addListener(onTier);
   }
   KOS.setTreeClosed = setTreeClosed;
 
@@ -713,6 +724,21 @@
        5  the personal plan's carried rows, then where the reading stopped,
           then a clear board — each with the 2-hour daily goal. */
   var FOCUS_LEAD_MIN = 30, FOCUS_GOAL_MIN = 120;
+  /* the daily goal follows a repeating "Study for a number of hours" goal
+     when there is one (21 hours a week → 3 hours a day; a month's goal by
+     that month's days), to one decimal place of an hour; a goal for the
+     whole of study wins, else the subjects' goals add up. None: 2 hours. */
+  function dailyGoalMins() {
+    var gs = KOS.goals ? KOS.goals.all().filter(function (g) {
+      return g.type === "study-hours" && !g.archived && g.status === "active" && (g.repeat === "week" || g.repeat === "month") && g.target > 0;
+    }) : [];
+    if (!gs.length) return FOCUS_GOAL_MIN;
+    var whole = gs.filter(function (g) { return !g.links || !g.links.subject; });
+    var now = new Date(), monthDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    var perDay = (whole.length ? whole.slice(0, 1) : gs).reduce(function (n, g) { return n + g.target / (g.repeat === "week" ? 7 : monthDays); }, 0);
+    return Math.max(6, Math.round(Math.round(perDay * 10) / 10 * 60));
+  }
+  KOS.homeDailyGoalMins = dailyGoalMins;
   function hmMins(t) { var p = String(t || "").split(":"); return +p[0] * 60 + +p[1]; }
   function minsText(m) {
     m = Math.max(0, Math.round(m));
@@ -835,7 +861,7 @@
 
     /* 4 — the next exam of any kind, further out */
     var later = exams.filter(function (d) { return d.days <= 42; })[0];
-    if (later) return examPlan(later, FOCUS_GOAL_MIN);
+    if (later) return examPlan(later, dailyGoalMins());
 
     /* 5 — the personal plan, the reading, or a clear board */
     var rest = null;
@@ -856,7 +882,7 @@
         subject: sid, ref: last, go: (function (s2, r2) { return function () { KOS.show("ref", { subject: s2, ref: r2 }); }; })(sid, last) };
     }
     if (!rest) rest = { kicker: "Clear", label: "Nothing is waiting", why: "No study block, exam or assignment inside a week.", go: function () { KOS.show("focus"); } };
-    return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(FOCUS_GOAL_MIN) });
+    return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(dailyGoalMins()) });
   }
   KOS.homeFocusPlan = focusPlan;
 
@@ -1251,7 +1277,15 @@
     /* Today and Upcoming — one row; a pair with nothing in it collapses to
        one quiet line, and a lone populated card takes the full width */
     var todayItems = [];
-    (KOS.calendar.eventsOn ? KOS.calendar.eventsOn(today) : []).forEach(function (e) {
+    /* a timed event leaves the card once it is over: its end time, else its
+       start plus its length, else its start (all-day events stay the day) */
+    var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    (KOS.calendar.eventsOn ? KOS.calendar.eventsOn(today) : []).filter(function (e) {
+      if (!e.time) return true;
+      var end = e.endTime ? hmMins(e.endTime) : hmMins(e.time) + (e.durationMins || 0);
+      if (e.endTime && end < hmMins(e.time)) return true;   /* runs past midnight */
+      return end > nowMin;
+    }).forEach(function (e) {
       todayItems.push({ title: e.title, sub: (e.type ? e.type.charAt(0).toUpperCase() + e.type.slice(1) : "") + (e.subject ? " · " + SUBJ_SHORT[e.subject] : "") + (e.ref ? " · " + e.ref : ""),
         hue: SUBJ_HUE[e.subject] || "var(--muted)", when: e.time ? (e.time >= "18:00" ? "Tonight" : e.time) : "Today",
         now: e.type === "exam" || e.type === "deadline", go: function () { KOS.show("calendar"); } });
@@ -1406,14 +1440,15 @@
     var lastWeekH = 0, daysIn = weekIsos.filter(function (iso) { return iso <= today; }).length;
     for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += hoursOn(isoOf(ld)); }
     var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && weekIsos.indexOf(s.date) !== -1; }).length;
-    var peak = Math.max(2, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
+    var goalH = dailyGoalMins() / 60, goalT = fmtH(goalH) + "h";
+    var peak = Math.max(goalH, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
     /* every bar and the goal line are measured in ONE track per column
        (a bar is h% of it, the goal 2/peak of it), and the goal's label has
        its own column at the end, clear of the bars (after release: the
        label sat on Sunday's bar and the line missed the bars' scale) */
-    var goalPct = Math.round(100 * 2 / peak);
+    var goalPct = Math.round(100 * goalH / peak);
     var chart = el("div", { class: "k-hours-chart", "data-ui": "home.week", role: "img",
-      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") + ". Goal 2 hours a day." },
+      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") + ". Goal " + fmtH(goalH) + " hour" + (goalH === 1 ? "" : "s") + " a day." },
       days.map(function (d, i) {
         var future = d.iso > today, isToday = d.iso === today;
         var pct = Math.round(100 * d.h / peak);
@@ -1428,7 +1463,7 @@
         ]);
       }).concat([
         el("div", { class: "k-hours-day k-hours-goalcol", "aria-hidden": "true" }, [
-          el("div", { class: "k-hours-track" }, [el("span", { class: "k-hours-goal-l", style: "--goal-y: " + goalPct + "%", text: "goal 2h" })]),
+          el("div", { class: "k-hours-track" }, [el("span", { class: "k-hours-goal-l", style: "--goal-y: " + goalPct + "%", text: "goal " + goalT })]),
           el("span", { class: "k-hours-l", text: "\u00a0" })
         ])
       ]));
@@ -2479,12 +2514,16 @@
       ["cards", "Flashcards", true, mats.cards || null],
       ["quiz", "Quiz", true, mats.quiz || null],
       ["exam", "Exam questions", true, mats.exam || null],
+      /* the one ink surface among the tabs (design turn 30c): always
+         present, its count the pages with ink (invariant 77) */
+      ["ink", "Handwritten", !!(KOS.ink && KOS.inkTab), inkCount()],
       ["worked", "Worked examples", mats.worked, mats.worked],
       ["sim", "Simulations", mats.sim, mats.sim],
       ["files", "Files", true, null]
     ].filter(function (t) { return t[2]; });
     if (cx) TABDEFS = cx.tabs(mats);
 
+    function inkCount() { var w = KOS.ink && KOS.ink.written(KOS.ink.topicDoc(sid, ref)); return w ? w.n : null; }
     var tabBar = el("div", { class: "k-topic-tabs", "data-ui": "ui.tabs topic.tabs", role: "tablist", "aria-label": "Study material" });
     var panel = el("div", { class: "k-topic-panel", "data-ui": "study.panel", role: "tabpanel" });
     var curTab = cx ? cx.firstTab() : (content && content.notes && content.notes.length) ? "notes" : "spec";
@@ -2500,8 +2539,9 @@
     }
     TABDEFS.forEach(function (t) {
       tabBar.appendChild(el("button", { type: "button", class: "k-topic-tab", "data-ui": "ui.tab", role: "tab",
-        "data-tab": t[0], onclick: function () { selectTab(t[0]); } },
-        [t[1], t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
+        "data-tab": t[0], "data-label": t[1], onclick: function () { selectTab(t[0]); } },
+        [t[0] === "ink" && KOS.inkUI ? KOS.inkUI.glyph("pen") : null, t[1],
+          t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
     });
     /* tabs that do not fit fold behind "+N ▾", last first — the open one
        always shows. With the inspector folded (the Files tab) there is room
@@ -2533,10 +2573,10 @@
       }
       moreSlot.innerHTML = "";
       if (hidden.length) {
-        moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material",
+        moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material", align: "start", panelClass: "k-topic-more-pop",
           items: hidden.map(function (b) {
             var n = b.querySelector("[data-ui~='ui.tab-count']");
-            return { label: b.firstChild.textContent + (n ? " · " + n.textContent : ""),
+            return { label: (b.getAttribute("data-label") || b.firstChild.textContent) + (n ? " · " + n.textContent : ""),
               onSelect: function () { selectTab(b.dataset.tab); } };
           }) }));
       }
@@ -2562,8 +2602,24 @@
       onclick: function () { editing ? closeEditor() : openEditor(); } }, [
       el("span", { "aria-hidden": "true", text: "✎" }), el("span", { "data-ui": "topic.edit", text: "Edit" })]);
     var pagerSlot = el("div", { class: "k-topic-pages" });
+    /* the Handwritten tab's Page · All pages switch rides the tab row */
+    var inkSlot = el("span", { class: "k-topic-inkmode" });
+    var inkCtl = null;
+    /* the tab's count follows the notebook (the first stroke makes it) */
+    function onInk(e) {
+      if (!tabBar.isConnected) { window.removeEventListener("kos-ink", onInk); return; }
+      var doc = e.detail && e.detail.doc;
+      if (doc && doc !== KOS.ink.topicDoc(sid, ref)) return;
+      var b = tabBar.querySelector('[data-tab="ink"]');
+      if (!b) return;
+      var n = inkCount(), c = b.querySelector("[data-ui~='ui.tab-count']");
+      if (!n) { if (c) c.remove(); return; }
+      if (!c) { c = el("span", { class: "k-mono", "data-ui": "ui.tab-count" }); b.appendChild(c); }
+      c.textContent = String(n);
+    }
+    if (KOS.ink) window.addEventListener("kos-ink", onInk);
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
-      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, editBtn,
+      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, inkSlot, editBtn,
         cx ? cx.modeSwitch() : null]),
       pagerSlot
     ]);
@@ -2597,6 +2653,42 @@
     var editorHost = el("div", { class: "k-topic-editor", hidden: "" });
     studyGrid.appendChild(editorHost);
     main.appendChild(studyGrid);
+    /* iPad landscape with the rail and the tree open leaves the reading
+       column a phone's width beside the inspector. Below FLOAT_AT the
+       inspector folds to its spine and opens OVER the page instead (state
+       insp-float); opening it there is for this visit only, so the saved
+       preference never covers the notes on the next topic. */
+    var FLOAT_AT = 844;
+    function floatCheck() {
+      if (!studyGrid.isConnected) { if (floatRO) floatRO.disconnect(); return; }
+      var on = !editing && (KOS.ui.hasState(studyGrid, "ink-side") || (window.innerWidth > 1080 && studyGrid.clientWidth > 0 && studyGrid.clientWidth < FLOAT_AT));
+      if (on === KOS.ui.hasState(studyGrid, "insp-float")) return;
+      KOS.ui.state(studyGrid, "insp-float", on);
+      KOS.ui.state(studyGrid, "insp-closed", on || KOS.ui.hasState(studyGrid, "files-tab") || store.state.ui.inspectorOpen === false);
+      inspector.paintToggle(KOS.ui.hasState(studyGrid, "insp-closed"));
+    }
+    var floatRO = window.ResizeObserver ? new ResizeObserver(floatCheck) : null;
+    if (floatRO) floatRO.observe(studyGrid);
+    floatCheck();
+    /* Handwritten's side by side (30e) takes the width: the spine folds to
+       its strip and the inspector to its spine, opening over the panes —
+       for the view only, so neither saved choice changes */
+    function inkSide(on) {
+      KOS.ui.state(studyGrid, "ink-side", on);
+      if (on && KOS.shell.tree() === "open") KOS.shell.tree("closed");
+      if (!on) applyTreeCollapsed();
+      KOS.ui.state(studyGrid, "insp-float", false);
+      floatCheck();
+      if (!KOS.ui.hasState(studyGrid, "insp-float")) {
+        KOS.ui.state(studyGrid, "insp-closed", KOS.ui.hasState(studyGrid, "files-tab") || store.state.ui.inspectorOpen === false);
+        inspector.paintToggle(KOS.ui.hasState(studyGrid, "insp-closed"));
+      }
+    }
+    studyCol.addEventListener("pointerdown", function () {
+      if (!KOS.ui.hasState(studyGrid, "insp-float") || KOS.ui.hasState(studyGrid, "insp-closed")) return;
+      KOS.ui.state(studyGrid, "insp-closed", true);
+      inspector.paintToggle(true);
+    });
 
     /* ---------- the study editor ---------- */
     var editorCtl = null;
@@ -2616,6 +2708,7 @@
       store.state.ui.editing = editing;
       store.save();
       KOS.ui.state(studyGrid, "editing", true);
+      KOS.ui.state(studyGrid, "insp-float", false);
       KOS.ui.state(studyGrid, "insp-closed", false);
       paintTabs();
       inspector.hidden = true;
@@ -2648,7 +2741,8 @@
       editorHost.hidden = true;
       inspector.hidden = false;
       KOS.ui.state(studyGrid, "editing", false);
-      KOS.ui.state(studyGrid, "insp-closed", store.state.ui.inspectorOpen === false);
+      KOS.ui.state(studyGrid, "insp-closed", KOS.ui.hasState(studyGrid, "insp-float") || store.state.ui.inspectorOpen === false);
+      floatCheck();
       paintTabs();
       paintEditBtn();
       editBtn.focus();
@@ -2696,13 +2790,17 @@
         KOS.ui.state(studyGrid, "insp-closed", true);
       } else if (KOS.ui.hasState(studyGrid, "files-tab")) {
         KOS.ui.state(studyGrid, "files-tab", false);
-        KOS.ui.state(studyGrid, "insp-closed", store.state.ui.inspectorOpen === false);
+        KOS.ui.state(studyGrid, "insp-closed", KOS.ui.hasState(studyGrid, "insp-float") || store.state.ui.inspectorOpen === false);
       }
       /* the page control lives in the nav, outside the panel, so a tab
          change clears it too */
       pagerSlot.innerHTML = "";
+      if (inkCtl) { inkCtl.destroy(); inkCtl = null; }
       panel.innerHTML = "";
-      if (curTab === "spec") {
+      if (curTab === "ink" && KOS.inkTab) {
+        inkCtl = KOS.inkTab.mount(panel, sid, ref, { modeSlot: inkSlot, onSide: inkSide });
+      }
+      else if (curTab === "spec") {
         var specFork = KOS.edits.has(sid, ref, "spec") || editing ? KOS.edits.material(sid, ref, "spec") : null;
         /* frame 23c: a break moved by hand splits the reading order there;
            with none the lists keep their own columns */
@@ -2936,6 +3034,33 @@
      recall record, the next review and the assistant's topic actions.
      Every figure comes from topicStats(), the call the status component
      makes, so nothing here can drift (invariant 26d). */
+  /* "Pages written" (design turn 30d): pages with ink and when the last
+     was written, printed only when there is one (invariant 77); writing is
+     evidence of its own, never a status check */
+  function inkRow(sid, ref) {
+    if (!KOS.ink) return null;
+    var key = KOS.ink.topicDoc(sid, ref);
+    var val = el("strong", { "data-ui": "topic.pages-written" });
+    var row = el("li", {}, [el("span", { text: "Pages written" }), val]);
+    function paint() {
+      var w = KOS.ink.written(key);
+      row.hidden = !w;
+      if (w) val.textContent = w.n + " · " + inkWhen(w.at);
+    }
+    function onInk(e) {
+      if (!row.isConnected) { window.removeEventListener("kos-ink", onInk); return; }
+      var doc = e.detail && e.detail.doc;
+      if (!doc || doc === key) paint();
+    }
+    window.addEventListener("kos-ink", onInk);
+    paint();
+    return row;
+  }
+  function inkWhen(ts) {
+    if (!ts) return "";
+    var d = new Date(ts), hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    return d.toDateString() === new Date().toDateString() ? "today " + hm : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  }
   function buildInspector(grid, sid, ref, statusComponent, asstStrip, cx) {
     var body = el("div", { class: "k-insp-body", "data-ui": "topic.inspector-body" });
     if (statusComponent) body.appendChild(statusComponent);
@@ -2965,7 +3090,8 @@
       t.memory.leeches ? count("In Rework", t.memory.leeches) : null,
       li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
       count("Quiz attempts", qz ? qz.attempts || 0 : 0),
-      count("Exam questions logged", t.examLogged)
+      count("Exam questions logged", t.examLogged),
+      inkRow(sid, ref)
     ].filter(Boolean)));
     var nextTxt = t.due ? t.due + " due now" : t.next ? t.next : t.reviewed ? "all scheduled" : "";
     if (!cx) body.appendChild(sec("Next review", [
@@ -3003,8 +3129,10 @@
     var toggle = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.inspector-toggle",
       onclick: function () {
         var closed = KOS.ui.state(grid, "insp-closed");
-        store.state.ui.inspectorOpen = !closed;
-        store.save();
+        if (!KOS.ui.hasState(grid, "insp-float")) {
+          store.state.ui.inspectorOpen = !closed;
+          store.save();
+        }
         paintToggle(closed);
       } });
     function paintToggle(closed) {
@@ -3016,7 +3144,7 @@
 
     /* Reference mode: the inspector becomes "On this page" (frame 26d) */
     if (cx && cx.reference()) { body.innerHTML = ""; cx.onThisPage(body); }
-    return el("aside", { class: "k-insp", "data-ui": "topic.inspector", "aria-label": "Study inspector" }, [
+    var aside = el("aside", { class: "k-insp", "data-ui": "topic.inspector", "aria-label": "Study inspector" }, [
       el("div", { class: "k-insp-head" }, [
         el("span", { class: "k-insp-title", text: "Inspector" }),
         /* the collapsed panel keeps a readable spine so it can be found */
@@ -3025,6 +3153,8 @@
       ]),
       body
     ]);
+    aside.paintToggle = paintToggle;
+    return aside;
   }
 
   function paperLabel(sid, p) {

@@ -11,9 +11,18 @@
                   hours, with the schedules the server owns and the model
                   route. The server delivers only what was published here
                   (invariant 131).
-     presence     while a page is visible, a beat every two minutes
-                  (kos_outlook.seen_at), so the runner holds pushes while you
-                  are in front of the app: the open device raises them.
+     presence     while you are USING a page — it has focus and was touched
+                  in the last two and a half minutes — a beat every two
+                  minutes (kos_outlook.seen_at), so the runner holds pushes
+                  while you are in front of the app: the open device raises
+                  them. A window merely left open (a Mac's browser behind
+                  other windows is still "visible") is not presence: before
+                  25 October 2026 it was, and it held every push for days.
+     heal         at start, this device's subscription is checked against
+                  the browser's: one the browser dropped (iOS does) clears
+                  the switch, and a live one is saved to the server again.
+     test         "Send a test": one outlook item due now, kind `test`,
+                  which the runner sends even while a device is present.
      pull         the server's scheduled replies (kos_runs) folded into
                   their schedules through KOS.ai.schedule.applyServerRun.
 
@@ -28,6 +37,12 @@
   var store = KOS.store;
   var PUBLISH_EVERY = 5 * 60 * 1000, REPUBLISH = 6 * 3600 * 1000, BEAT = 2 * 60 * 1000, PULL = 10 * 60 * 1000;
   var cloudApi = null, last = { hash: null, at: 0 }, timers = [], publishing = false;
+  var touchedAt = 0, testAt = 0, TEST_FOR = 30 * 60 * 1000;
+  if (typeof document !== "undefined" && document.addEventListener) {
+    ["pointerdown", "keydown", "touchstart", "wheel"].forEach(function (t) {
+      document.addEventListener(t, function () { touchedAt = Date.now(); }, { capture: true, passive: true });
+    });
+  }
 
   function cfg() { var c = store.state.notifyCloud; return c && typeof c === "object" ? c : {}; }
   function setCfg(patch) {
@@ -131,6 +146,35 @@
       .then(function () { cb(null); }, function (e) { cb(e); });
   }
   function subscribed(cb) { kv("push.endpoint").then(function (e) { cb(!!e); }); }
+  /* the switch says what the browser holds: a subscription it dropped
+     clears it (Safari cannot subscribe again without a tap), and a live one
+     is saved again, replacing an endpoint that moved */
+  function heal(cb) {
+    cb = cb || function () {};
+    if (blocked()) { cb(null, "blocked"); return; }
+    kv("push.endpoint").then(function (endpoint) {
+      if (!endpoint) { cb(null, "off"); return; }
+      return registration().then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
+        if (!sub || Notification.permission !== "granted") {
+          return new Promise(function (res) { cloud().dropSub(endpoint, function () { res(); }); })
+            .then(function () { return setKv("push.endpoint", null); }).then(function () { cb(null, "dropped"); });
+        }
+        var j = sub.toJSON();
+        return new Promise(function (res) {
+          cloud().saveSub({ user_id: uid(), endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, label: label() }, function () { res(); });
+        }).then(function () {
+          if (j.endpoint === endpoint) return null;
+          return new Promise(function (res) { cloud().dropSub(endpoint, function () { res(); }); }).then(function () { return setKv("push.endpoint", j.endpoint); });
+        }).then(function () { cb(null, "saved"); });
+      });
+    }).catch(function (e) { cb(e instanceof Error ? e : new Error(String(e))); });
+  }
+  /* "Send a test": the next runner tick (within five minutes) pushes it to
+     every subscribed device, open or not */
+  function test(cb) {
+    testAt = Date.now();
+    publish(true, cb || function () {});
+  }
 
   /* ---------------- the outlook ---------------- */
   function route() {
@@ -157,6 +201,10 @@
       o.serverRuns = !!cfg().serverRuns;
       o.schedules = o.serverRuns ? schedules() : [];
       o.route = o.serverRuns ? route() : null;
+      if (testAt && Date.now() - testAt < TEST_FOR) {
+        o.items = o.items.concat([{ id: "test:" + testAt, kind: "test", at: testAt, title: "Kurenai · test notification",
+          body: "Closed-app notifications reach this device.", view: "notifications", arg: null }]);
+      }
       var h = hashOf(o), now = Date.now();
       if (!force && h === last.hash && now - last.at < REPUBLISH) { publishing = false; cb(null, { skipped: true, same: true }); return; }
       cloud().saveOutlook({ user_id: uid(), data_json: o, hash: h }, function (e) {
@@ -168,7 +216,11 @@
   }
   function beat() {
     if (!cfg().on || !signedIn() || (KOS.dataMode && KOS.dataMode.mode)) return;
-    if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+    if (typeof document !== "undefined") {
+      if (document.visibilityState === "hidden") return;
+      if (document.hasFocus && !document.hasFocus()) return;
+      if (Date.now() - touchedAt > BEAT + 30000) return;
+    }
     cloud().beat(function () {});
   }
   function pull(cb) {
@@ -209,12 +261,12 @@
         beat(); pull();
       });
     }
-    setTimeout(function () { beat(); pull(); publish(false); }, 11000);
+    setTimeout(function () { heal(); beat(); pull(); publish(false); }, 11000);
   }
 
   KOS.push = {
     blocked: blocked, supported: supported, config: cfg,
-    subscribe: subscribe, unsubscribe: unsubscribe, subscribed: subscribed,
+    subscribe: subscribe, unsubscribe: unsubscribe, subscribed: subscribed, heal: heal, test: test,
     publish: publish, beat: beat, pull: pull, turnOff: turnOff, setServerRuns: setServerRuns,
     lastPublished: function () { return last.at || null; },
     start: start,

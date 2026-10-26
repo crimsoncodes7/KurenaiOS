@@ -19,8 +19,8 @@
    media, files or any credential. Secrets: CRON_SECRET, VAPID_PUBLIC_KEY,
    VAPID_PRIVATE_KEY, VAPID_SUBJECT, the provider keys. */
 import { json, serviceRest } from "../_shared/cors.ts";
-import { send, type Sub, type Vapid } from "./webpush.ts";
-import { dueItems, dueSchedules, present, pushMessage, runPrompt, type Item, type Schedule } from "./logic.ts";
+import { deliver, type Sub, type Vapid } from "./webpush.ts";
+import { dueItems, dueSchedules, present, pushMessage, runPrompt, sendable, type Item, type Schedule } from "./logic.ts";
 import { answer } from "./model.ts";
 
 const RUNS_PER_TICK = 3;
@@ -43,11 +43,16 @@ type Outlook = { user_id: string; data_json: {
   serverRuns?: boolean; schedules?: Schedule[]; route?: { provider?: string; model?: string } | null;
 }; seen_at: string | null };
 
+/* each device's answer to the last push, returned in the tick's reply (it
+   lands in net._http_response, readable only by the project's owner): the
+   label, the push service's host, its status and its reason — never a key */
+const results: { label: string; host: string; status: number; reason: string }[] = [];
 async function pushAll(userId: string, subs: Sub[], msg: unknown, vapid: Vapid, topic: string): Promise<number> {
   let ok = 0;
   for (const s of subs) {
-    let status = 0;
-    try { status = await send(s, msg, vapid, { topic }); } catch { status = 0; }
+    let status = 0, reason = "";
+    try { ({ status, reason } = await deliver(s, msg, vapid, { topic })); } catch (e) { status = 0; reason = String((e as Error)?.message ?? e).slice(0, 200); }
+    results.push({ label: (s as Sub & { label?: string }).label ?? "", host: new URL(s.endpoint).host, status, reason });
     if (status === 404 || status === 410) {
       await serviceRest(`kos_push_subs?user_id=eq.${userId}&endpoint=eq.${enc(s.endpoint)}`, { method: "DELETE" });
     } else if (status >= 200 && status < 300) ok++;
@@ -85,15 +90,15 @@ Deno.serve(async (req) => {
     const hold = present(o.seen_at, now);
     if (hold) out.held++;
     let subs: Sub[] = [];
-    try { subs = await rows<Sub>(`kos_push_subs?user_id=eq.${uid}&select=endpoint,p256dh,auth`); } catch { subs = []; }
+    try { subs = await rows<Sub>(`kos_push_subs?user_id=eq.${uid}&select=endpoint,p256dh,auth,label`); } catch { subs = []; }
 
     /* 1. the outlook's due items */
-    if (!hold && vapid && subs.length && Array.isArray(d.items)) {
+    if (vapid && subs.length && Array.isArray(d.items)) {
       const since = new Date(now - 2 * 864e5).toISOString();
       let sent = new Set<string>();
       try { sent = new Set((await rows<{ item_id: string }>(`kos_push_sent?user_id=eq.${uid}&sent_at=gte.${enc(since)}&select=item_id`)).map((r) => r.item_id)); }
       catch { continue; }
-      const due = dueItems(d.items, sent, now);
+      const due = sendable(dueItems(d.items, sent, now), hold);
       const done: string[] = [];
       for (const it of due) {
         if (await pushAll(uid, subs, pushMessage(it), vapid, it.id)) out.pushed++;
@@ -138,5 +143,5 @@ Deno.serve(async (req) => {
       }
     }
   }
-  return json(out);
+  return json(results.length ? { ...out, results: results.splice(0) } : out);
 });

@@ -202,6 +202,26 @@ step("the spine is a dismissible drawer on the tiers where it is an overlay", ()
   KOS.store.state.ui.treeClosed = false;
 });
 
+step("the drawer is per visit: turning an iPad to portrait never lays the spine over the page", () => {
+  /* the column's open spine was the drawer's saved choice too, so a topic
+     read in landscape opened in portrait under its own drawer (25 October 2026) */
+  mediaWidth = 1440;
+  KOS.store.state.ui.treeClosed = false;
+  KOS.show("ref", { subject: SID, ref: REF });
+  assert(document.getElementById("cols").getAttribute("data-tree") === "open", "1440: the column is not open");
+  mediaWidth = 820;
+  KOS.show("ref", { subject: SID, ref: REF });
+  assert(document.getElementById("cols").getAttribute("data-tree") === "closed", "820: the column's choice opened the drawer");
+  click($("#main [data-ui~='study.spine-open']"));
+  assert(document.getElementById("cols").getAttribute("data-tree") === "open", "the opener did not open the drawer");
+  assert(KOS.store.state.ui.treeClosed === false, "opening the drawer wrote the column's choice");
+  click(document.getElementById("tree-scrim"));
+  assert(KOS.store.state.ui.treeClosed === false, "closing the drawer wrote the column's choice");
+  mediaWidth = 1440;
+  KOS.show("ref", { subject: SID, ref: REF });
+  assert(document.getElementById("cols").getAttribute("data-tree") === "open", "back in landscape the column did not reopen");
+});
+
 step("an iPad in portrait: the rail is tiles, opens over the page and closes on a destination", () => {
   /* 701–1080 forced the tiles and hid the toggle, so the rail could not be
      opened at all on an iPad in portrait (22 October 2026) */

@@ -246,7 +246,7 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 
 /* ================= skills (28d) ================= */
 .k-ja-skilltab { display: flex; flex-direction: column; }
-.k-ja-skilltab-r { display: grid; grid-template-columns: minmax(var(--cx-skname-w, var(--sp-64)), 2fr) repeat(4, minmax(0, 1fr)); gap: var(--sp-10); align-items: center; padding-block: var(--sp-8); border-block-end: var(--hairline) solid var(--line); font-size: var(--fs-13); }
+.k-ja-skilltab-r { display: grid; grid-template-columns: minmax(0, 2fr) repeat(4, minmax(max-content, 1fr)); gap: var(--sp-10); align-items: center; padding-block: var(--sp-8); border-block-end: var(--hairline) solid var(--line); font-size: var(--fs-13); }
 .k-ja-skilltab-h { font-size: var(--fs-11-5); color: var(--muted); text-transform: uppercase; letter-spacing: var(--track-kicker); }
 .k-ja-skilltab-u { display: flex; align-items: center; gap: var(--sp-8); min-inline-size: 0; }
 .k-ja-skilltab-c { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-8); }

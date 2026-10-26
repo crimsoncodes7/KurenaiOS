@@ -17,7 +17,22 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: Japanese Stage 1 unit F2, Days and times (sw
+- Latest release: polish (sw `kos-polish-3`, 25 October 2026,
+  `feat/polish-1025`): strips redrawn by their page keep their scroll
+  (`KOS.ui.scroller({keep, reveal})`; the term ribbon, the braid, the
+  edge-marked tabs; the ink bar holds its own), Home's Today drops a
+  timed event once it is over, Study hours' daily goal follows a
+  repeating study-hours goal (`KOS.homeDailyGoalMins`), Productivity
+  opens on its last page (`state.ui.lastProd`), and closed-app pushes
+  were fixed (invariant 131: presence means in use; Send a test).
+  Before it the iPad fixes on every view and the Handwritten tab's
+  Side by side with Clip to page (sw `kos-ink-2`, `8a092b7`) — immutable
+  deployment https://caffcf65.kurenai-os.pages.dev (25 October 2026;
+  `feat/ipad-polish`: design 30e, smoke100 G, smoke43's per-visit drawer).
+  Before it the ink engine and a topic's Handwritten tab (sw
+  `kos-ink-1`, `052b27c`) — immutable deployment https://f47cbd39.kurenai-os.pages.dev
+  (25 October 2026; `feat/ink`: roadmap 6.1–6.2 from design turn 30a–30d,
+  invariants 132–136, smoke100). Before it Japanese Stage 1 unit F2, Days and times (sw
   `kos-japanese-4`) — immutable deployment https://e424163d.kurenai-os.pages.dev
   (24 October 2026; `feat/japanese-f2`: lessons 2.1–2.6 — the time, the days
   and でした, から・まで, dates, the next train, phone numbers — with checkpoint
@@ -66,13 +81,13 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-japanese-4`
-- Required smoke gate: 103 / 103 suites (`""` and 2–103; 80–83 are Japanese's, 99 is Code's SQL runner, 100–103 are Routines and the Daily Review).
+- Service-worker version: `kos-routines-1`
+- Required smoke gate: 104 / 104 suites (`""` and 2–104; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
   `feat/after-fsrs`, then to `feat/ipad`, then to `feat/japanese`, and on
-  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, then to `feat/japanese-f2`, so
+  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, then to `feat/japanese-f2`, and on 25 October to `feat/ink`, so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
@@ -156,7 +171,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..99}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..100}; do node "tools/smoke${i}.test.js"; done
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -255,6 +270,8 @@ non-navigation redraw path.
   (invariant 5a).
 - `kurenai-os-reviews` IndexedDB: the review log, one row per rating
   (invariant 111).
+- `kurenai-os-ink` IndexedDB: handwriting — notebooks (`docs`) and their
+  A4 pages of strokes (`pages`), invariant 136; in the full backup.
 - `kurenai-os-papers` IndexedDB: the Paper library's own PDFs and photos
   (`KOS.examPapers`); never synced and not in the full backup.
 - Supabase: optional replication layer; never the only successful write path.
@@ -301,8 +318,9 @@ non-navigation redraw path.
 | Code's SQL runner (Spike S; T1's Databases part, docs/code-plan.md §3.3) | `assets/code/sqlite/` (sql.js 1.14.2, VENDORED unchanged, MIT), `js/labs/sql-run.js` (`KOSQL`: pure, also in Node — results as text tables), `js/labs/sql-worker.js` (the sealed worker), the SQL half of `js/core/coderun.js` (`lang: "sql"`, made on the first run); `js/data/content/code-t1-data.js` (`KOS_CODE.DATASETS`, authored); `tools/lib/sql-node.js`, `tools/lib/sql_ref.py`, `tools/sql_diff.mjs`, `tools/sql_spike_corpus.js`; smoke99 |
 | Code → GitHub (docs/code-plan.md §10, v1: a fine-grained token; v2: the GitHub App, docs/github-app-plan.md) | `js/core/codegit.js` (`KOS.codeGit`: connect, `connectApp`/`completeApp`/`disconnectApp`, `tokenFor`, the outbox, one-commit pushes, the guard); the GitHub card in Code settings (`js/modules/code.js`); `supabase/functions/github-token/` (`index.ts`, `jwt.ts`), `kos_github`; `tools/smoke79.test.js`, `tools/smoke98.test.js` |
 | Japanese (roadmap 5.5, `docs/japanese-plan.md`): the model, the facet scheduler, kana, conjugation, validators, strokes, the curriculum | `js/core/ja.js` (`KOS.ja`: the gate, lessons, record, sessions, pay, mining, input, the day's plan, skills, the timeline), `js/core/jasrs.js` (`KOS.jaSrs`, pure, on `KOS.fsrs`), `js/core/jakana.js`, `jaconj.js`, `javalid.js`, `jastroke.js` (pure, also in Node); `js/data/ja.js` (`KOS_JA`, AUTHORED: stages, lessons, items, checkpoints), `js/data/ja-strokes.js` (GENERATED by `tools/gen_ja_strokes.mjs` from KanjiVG); `tools/ja_valid_check.mjs`, smoke81, smoke83. The pages (design turn 28): `js/core/jaui.js` (`KOS.jaUI`: furigana, skill chips, voiced lines, the verdict, the stage and media paths, radar, meter, seal, the genkō square), `js/modules/japanese.js` (`KOS.jaDesk`, `KOS.views.japanese`: `#/japanese/<path|skills|kana|reviews|checkpoints|settings|licences|session/<reviews|learn-REF>>`), `js/modules/jatopic.js` (`KOS.jaTopic`: the lesson on the shared topic page, the spine), `js/modules/jarun.js` (`KOS.jaRun`: exercises and the session), `css/views/japanese.css`; Stage 0's lessons `js/data/content/ja-s0.js` (`{pages:[{t, blocks}]}`, six pages); Stage 1's items, lessons and units `js/data/ja-s1.js`, one content file per unit (`ja-f1.js`, `ja-f2.js`, eight pages: Hook … Quick reference, the reference built from the lesson's items), the art in `assets/ja/img/`; the audio pack `js/data/ja-audio.js` (GENERATED by `tools/bake_ja_audio.mjs`: `KOS_JA_AUDIO["<who>|<text>"]` → `assets/ja/audio/<who>/<hash>`, a voice not designed yet stays the browser's, smoke82 `AWAITED_VOICE`); no rail item of its own: it is a Study subject, and the subject pills show one group at a time (`KOS.subjects.group`: CS, Maths and IT on their pages; Code and Japanese on theirs; one pill reaches the other group); smoke80, smoke82 |
-| Routines and the Daily Review (roadmap 5.10, `docs/routines-plan.md`, design turn 33): the record, the day model, the review core | `js/core/routines.js` (`KOS.routines`: the record, log, snapshot, streaks, rest days, late ticks, pay through `KOS.governor.routineAward`, the Habits migration, `habitsView`, goal types and tools), `js/data/routine-templates.js` (AUTHORED), `js/core/today.js` (`KOS.today`: the day model, a pure read; the bag), `js/core/dayreview.js` (`KOS.dayReview`: settings, `due` and the folds, steps, triage through the owners, the words, notices, tools); smoke100–102 |
-| Routines and the Daily Review: the pages | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/routines\|templates\|history\|settings]`, `#/routines/edit/<id>`; `#/tasks` aliases; `KOS.rtUI`, the shared parts), `js/modules/dayreview.js` (`KOS.reviewSheet`: the overlay, the steps, the header chip, auto-open), `js/modules/routineplayer.js` (`KOS.routinePlayer`: the player, About to Study, the timetable sheet), `css/views/routines.css`; the art in `assets/routines/img/` (imported by `prototypes/japanese-space/art_import.py` from `art-source/routines/`); Home's three and Routines card in `hub.js`; smoke103 |
+| The ink engine (roadmap 6.1, design turn 30, `docs/ipad-plan.md`): the model, geometry and store; the surfaces, gestures and toolbar; a topic's Handwritten tab | `js/core/ink.js` (`KOS.ink`: doc keys, pages, items, `written`, the pure `geo` — outlines, shape snap, eraser, lasso, transforms — and IndexedDB `kurenai-os-ink`), `js/core/inkui.js` (`KOS.inkUI`: `desk`, `surface`, `toolbar`, `shortcuts`, the role palette read from the theme), `js/modules/inktab.js` (`KOS.inkTab`: the Handwritten tab, 30c–30d), `css/views/ink.css`; the tab, its count and "Pages written" in `js/modules/hub.js`; smoke100 |
+| Routines and the Daily Review (roadmap 5.10, `docs/routines-plan.md`, design turn 33): the record, the day model, the review core | `js/core/routines.js` (`KOS.routines`: the record, log, snapshot, streaks, rest days, late ticks, pay through `KOS.governor.routineAward`, the Habits migration, `habitsView`, goal types and tools), `js/data/routine-templates.js` (AUTHORED), `js/core/today.js` (`KOS.today`: the day model, a pure read; the bag), `js/core/dayreview.js` (`KOS.dayReview`: settings, `due` and the folds, steps, triage through the owners, the words, notices, tools); smoke101–103 |
+| Routines and the Daily Review: the pages | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/routines\|templates\|history\|settings]`, `#/routines/edit/<id>`; `#/tasks` aliases; `KOS.rtUI`, the shared parts), `js/modules/dayreview.js` (`KOS.reviewSheet`: the overlay, the steps, the header chip, auto-open), `js/modules/routineplayer.js` (`KOS.routinePlayer`: the player, About to Study, the timetable sheet), `css/views/routines.css`; the art in `assets/routines/img/` (imported by `prototypes/japanese-space/art_import.py` from `art-source/routines/`); Home's three and Routines card in `hub.js`; smoke104 |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -1360,6 +1378,67 @@ source comments and audit notes refer to it.
 118. Generated data carries its attribution: `js/data/ja-strokes.js` from KanjiVG (CC BY-SA 3.0),
     regenerated by `tools/gen_ja_strokes.mjs`, never hand-edited.
 
+### The ink engine (132–136)
+
+132. ONE ENGINE (design turn 30, decision B). `KOS.ink` owns strokes,
+    pages, tools, paper and undo; every place a pen writes is a mount of
+    it (`KOS.inkUI.surface`) under a DOC KEY — `topic:<sid>:<ref>` today
+    (a topic's Handwritten tab), later `answer:<uid>:<q>`,
+    `paper:<fileId>`, `review:<rowId>` — and no surface keeps its own ink.
+    A page is 1000 × 1414 units (A4) whatever size it is drawn at; a
+    stroke stores its points packed (`[x, y, pressure, dt…]`, tenths of a
+    unit) and its outline is DERIVED on every draw (width from pressure
+    only once the pen has reported pressure, else from speed), so a page
+    redraws the same everywhere. INPUT: the pen and a mouse draw; a
+    finger scrolls and pinches and never draws unless "Draw with a
+    finger" is on (per device, `state.ui.ink.finger`), so the palm never
+    draws; a pen's touchstart and pointerdown are prevented, so iPadOS
+    neither scrolls under it nor holds the stroke for Scribble; a
+    two-finger TAP undoes only when both fingers go down and up within
+    200 ms and move under 10 px. Undo is per page and per session. The
+    tool, colour, width, eraser mode, Pen only and what the app saw of
+    the pen are per device (`state.ui.ink`, normalised in place by
+    `KOS.inkUI.prefs`); nothing about the pen syncs. Squeeze, barrel roll
+    and hover are not used (decision F).
+133. ROLES, NOT COLOURS. A stroke's colour is a ROLE — pen ink, accent,
+    teal, amber, green; highlighter amber, teal, bloom (36%, drawn under
+    the ink) — read live from the theme (`KOS.inkUI.palette`, through a
+    probe so `oklch(from …)` tokens reach the canvas as rgb), never a hex.
+    Paper (blank, lined, squared 5 mm, dotted, Cornell, answer booklet)
+    is CSS from the theme's `--line`, in page widths (cqw).
+134. WRITING IS EVIDENCE, NEVER PAY. Pages, strokes and drills move no
+    XP, gold or HP and log no session. "Pages written" (pages with ink
+    and when the last was written, `KOS.ink.written`) is a line in the
+    topic inspector printed only when there is one (invariant 77), and
+    the Handwritten tab's count is the same number; neither is a Topic
+    status check or moves RAG. The Handwritten tab is always present
+    (invariant 89) and its empty state IS the page: opening it writes
+    nothing, the first stroke saves page 1 (`KOS.ink.savePage` makes the
+    notebook), a stroke past a page's bottom margin adds the next page.
+    SIDE BY SIDE (30e) is a view of the tab offered above 1080 (landscape;
+    portrait shows Page and keeps the choice, `state.ui.inkView`): the
+    topic's effective notes, read-only, beside the notebook, each its own
+    scroll region; it folds the spine and the inspector (which then opens
+    over the panes) for the view only, never their saved choices. "Clip to
+    page" copies a tapped figure, formula, table, worked step, callout or
+    code block onto the page in view as a PICTURE (an image item with
+    `clip: {sid, ref}`, PNG where the browser can read it back, else the
+    SVG) — never text into the curriculum or a fork (invariant 86).
+135. HANDWRITING IS READ ONLY WHEN ASKED (decision E; nothing reads it
+    yet). When "Mark with Kurenai", "Check my working" or Compare arrive,
+    each shows what is sent, sends one metered request and returns
+    suggestions the user confirms; an A is never suggested without its M,
+    and a reply writes nothing.
+136. INK LIVES IN ITS OWN STORE. `kurenai-os-ink` (`docs` {key, pages
+    in order, paper, inked counts, at}, `pages` {id, doc, paper, items})
+    is never in the synced state document; it rides the full backup
+    (`store.snapshotFull`/`importFull`). The notebook index is small and
+    kept in memory (`KOS.ink.ready`) so the tab and the inspector read it
+    synchronously; a change dispatches `kos-ink` {doc}. Only the pages
+    near the view are drawn (an IntersectionObserver; the first two at
+    once). Replication to an owner-only table, merged per stroke, comes
+    with sync (roadmap 6.1, 30p); until then ink stays on the device.
+
 ### Routines and the Daily Review (142–149)
 
 142. ONE ROUTINE RECORD. A habit is a one-step routine. `state.routines`
@@ -1426,15 +1505,22 @@ source comments and audit notes refer to it.
     chat). `KOS.push` publishes it to `kos_outlook` when its hash changes
     (at most every 5 minutes, at least every 6 hours) with the schedules
     and model route only when the server owns runs, beats presence
-    (`seen_at`) every 2 minutes while a page is visible, and pulls
-    `kos_runs`. The `runner` Edge Function (pg_cron every 5 minutes,
+    (`seen_at`) every 2 minutes only while a page is IN USE (visible,
+    focused and touched in the last 2.5 minutes — a window merely left
+    open held every push for days until 25 October 2026), heals this
+    device's subscription at start (one the browser dropped clears the
+    switch; a live one is saved again), and pulls `kos_runs`. "Send a
+    test" publishes one item of kind `test` due now. The `runner` Edge Function (pg_cron every 5 minutes,
     `CRON_SECRET` compared in constant time, `verify_jwt = false`) reads
     only `kos_outlook`, `kos_push_subs`, `kos_push_sent` and `kos_runs`,
     never `kos_state`, media, files or a credential: it holds every push
-    while a device was seen in the last 5 minutes, drops an item 30
+    but a `test` while a device was seen in the last 5 minutes, drops an item 30
     minutes late, sends each item once (`kos_push_sent`) as an RFC 8291
     payload signed with VAPID (WebCrypto, no library; the private key is a
-    function secret), deletes a subscription a push service calls gone,
+    function secret), with a Topic of 32 base64url characters (24 bytes of
+    the item id's SHA-256 — Apple refuses any other shape with
+    BadWebPushTopic, which blocked every Safari push until 25 October
+    2026), returns each device's status and reason in its reply, deletes a subscription a push service calls gone,
     and claims each due schedule in `kos_runs` before its one request.
     `sw.js` shows a push under its id as the tag. Zero Governor traffic.
 

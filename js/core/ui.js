@@ -428,6 +428,13 @@
   /* the landing view when a rail section button is pressed */
   KOS.sectionLanding = function (sec) {
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
+    /* Productivity opens on the page last used in it, as Study opens on its
+       last subject — Focus while a session is running */
+    if (sec === "productivity") {
+      var st = KOS.store.state, lp = st.ui.lastProd;
+      if (st.focus && st.focus.active) return ["focus", undefined];
+      if (lp && KOS.views[lp.view] && SECTION_OF[lp.view] === "productivity") return [lp.view, lp.arg == null ? undefined : lp.arg];
+    }
     return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor",
       assistant: "assistant", system: "data" }[sec] || "home", undefined];
   };
@@ -511,7 +518,11 @@
      and the active tab is scrolled into view when it mounts */
   function edgeTrack(list, label) {
     var wrap = scroller(list, { keepRole: true, className: "k-scroller--track",
-      prevLabel: "Earlier " + (label || "tabs").toLowerCase(), nextLabel: "Later " + (label || "tabs").toLowerCase() });
+      prevLabel: "Earlier " + (label || "tabs").toLowerCase(), nextLabel: "Later " + (label || "tabs").toLowerCase(),
+      /* a tab picked redraws the page: the strip keeps its scroll, and
+         reveals the active tab only when it is out of sight */
+      keep: "tabs:" + (label || ""),
+      reveal: function () { return null; } });
     var later = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
     later(function () {
       var on = list.querySelector("[aria-selected='true'], [aria-current='page']");
@@ -636,6 +647,17 @@
      data-scroller on the wrapper, which is the marker the probe honours —
      so an undeclared sideways scroll still fails the audit.
      ============================================================ */
+  /* a strip redrawn by its own page (a week picked on the term ribbon, a
+     subject toggled under the braid) keeps where it was scrolled: `keep`
+     names it, and the memory lasts while the page stays on that view —
+     leaving for another view forgets it, so a return opens on `reveal` */
+  var scrollMemo = {};
+  /* read every kept strip as the page is torn down: a scroll event may not
+     have fired yet (a background tab paints no frames) */
+  function noteScrolls(root) {
+    if (!root || !root.querySelectorAll) return;
+    [].forEach.call(root.querySelectorAll("[data-scroll-keep]"), function (n) { scrollMemo[n.getAttribute("data-scroll-keep")] = n.scrollLeft; });
+  }
   function scroller(node, opts) {
     opts = opts || {};
     var wrap = el("div", { class: "k-scroller" + (opts.className ? " " + opts.className : ""),
@@ -673,6 +695,16 @@
     }
     node.addEventListener("scroll", sync, { passive: true });
     if (typeof window.ResizeObserver === "function") { try { new window.ResizeObserver(sync).observe(node); } catch (e) { /* jsdom */ } }
+    if (opts.keep) {
+      node.setAttribute("data-scroll-keep", opts.keep);
+      node.addEventListener("scroll", function () { scrollMemo[opts.keep] = node.scrollLeft; }, { passive: true });
+      var place = function () {
+        if (scrollMemo[opts.keep] != null) node.scrollLeft = scrollMemo[opts.keep];
+        else if (typeof opts.reveal === "function") { var x = opts.reveal(node); if (x != null) node.scrollLeft = Math.max(0, x); }
+        sync();
+      };
+      setTimeout(place, 0);   /* once mounted; before the tabs' reveal frame, and in a background tab too */
+    }
     sync();
     setTimeout(sync, 60);   /* after images and lazy rows land */
     wrap.sync = sync;
@@ -1416,6 +1448,8 @@
     }
     /* a fresh navigation (not Back/Forward) records history and abandons any
        forward trail — exactly like a browser address bar */
+    if (!navCur || navCur.viewId !== viewId) scrollMemo = {};
+    else noteScrolls(document.getElementById("main"));
     if (navCur && !opts._nav) {
       if (navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
         navHist.push(navCur);
@@ -1455,6 +1489,7 @@
     if (KOS.views[viewId]) KOS.views[viewId](main, arg);
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;
+    if (sec === "productivity") KOS.store.state.ui.lastProd = { view: viewId, arg: typeof arg === "string" ? arg : null };
     KOS.store.save();
     updateNavBtns();
   };

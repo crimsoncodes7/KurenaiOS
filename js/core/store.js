@@ -542,6 +542,14 @@
           stepDone(err);
         });
       }
+      /* handwriting (roadmap 6.1) lives in its own IndexedDB */
+      if (window.KOS && KOS.ink && KOS.ink.available()) {
+        steps++;
+        KOS.ink.exportAll(function (err, dump) {
+          if (!err && dump) result.ink = dump;
+          stepDone(err);
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -647,14 +655,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () {
+        function restoreInk(next) {
+          if (!backup.ink) return next();
+          if (!window.KOS || !KOS.ink || !KOS.ink.available()) {
+            report.missingSections.push("handwriting (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.ink.importAll(backup.ink, function (err, out) {
+            if (err) report.missingSections.push("handwriting (error: " + err.message + ")");
+            else report.restoredSections.push("handwriting (" + out.pages + " pages)");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); }); });
+        }); }); }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

@@ -60,8 +60,9 @@ classification in writing. Do not touch unrelated `art-source/`/Krita work.
   the Graphite tokens in `css/tokens.css`; one `@layer` per stylesheet, in the
   order `tokens.css` declares. smoke55 guards the vocabulary and smoke56 the
   render purity and control parity.
-- Graphite is the only designed theme; until Dawn and the shop themes are
-  designed every theme id renders it. A new theme is token overrides only.
+- Graphite is the default theme; Dawn (its light twin) and the shop themes are
+  colour-role overrides only (CLAUDE.md invariant 26a). A new theme is token
+  overrides only.
 - Five breakpoints only: 1240, 1080, 860, 700 and 560 pixels. Write a component's
   media tiers widest-first and solve other collapse needs intrinsically.
 - `KOS.a11y.announce()` is the only live-region route. Prefer native elements,
@@ -141,10 +142,10 @@ Install test-only dependencies once:
 npm install jsdom fake-indexeddb
 ```
 
-All 79 smoke suites are the release gate:
+All 99 smoke suites are the release gate:
 
 ```sh
-for i in "" {2..79}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..99}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Also run:
@@ -178,7 +179,7 @@ first) and how to hand work over. In short:
 
 ## Documentation ownership
 
-- `README.md`: product overview and onboarding.
+- `README.md`: product overview and onboarding (technical).
 - `PROGRESS.md`: concise current delivery/release snapshot.
 - `CLAUDE.md`: canonical engineering architecture and numbered invariants.
 - `AGENTS.md`: short execution contract (this file).
@@ -187,7 +188,11 @@ first) and how to hand work over. In short:
 - `docs/HANDOFF.md` and `docs/memory/`: working across accounts and machines,
   and the shared project memory.
 - `docs/code-plan.md`, `docs/reports-plan.md`, `docs/japanese-plan.md`,
+  `docs/exams-plan.md`, `docs/fsrs-plan.md`, `docs/server-runner-plan.md`,
+  `docs/github-app-plan.md`, `docs/ipad-plan.md`, `docs/creatives-plan.md`,
   `docs/design-prompts.md`: the per-feature plans and Claude Design prompts.
+- `docs/GUIDE.md`: the plain-language tour of the whole app, for showing
+  people. Update it when a feature ships or changes what a user sees.
 - `docs/ui-rebuild/`: the Graphite rebuild — plan and delivery record
   (`PLAN.md`), view contracts, the review script (`REVIEW-PLAN.md`).
 - `KURENAIOS_FULL_UI_UX_AUDIT.md`, `CATEGORY6_*.md`, `CATEGORY7_PHASE_G_FINDINGS.md`:

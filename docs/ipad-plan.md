@@ -1,5 +1,11 @@
 # The iPad and the Pencil (plan, revision 1, approved)
 
+> **25 October 2026:** design turn 30 (frames 30a–30t) is drawn, and 6.1
+> (the ink engine) and 6.2 (a topic's Handwritten tab) are RELEASED
+> (`052b27c`, sw `kos-ink-1`). The stylus is now an Apple
+> Pencil (USB-C or Pro, to be seen): the engine reads pressure only once
+> the pen reports it.
+
 Asked for on 22 October 2026: the iPad Air 11" (M4) becomes a first-class
 device, and then the study notes device, written with a stylus. For now
 that is a Metapen A8; an Apple Pencil Pro comes later.
@@ -355,17 +361,13 @@ Frames needed:
 - **AI marking is wrong with confidence.** It only suggests: you confirm
   every mark, and Spike H sets the bar.
 
-## 11. Invariants this would add (draft)
+## 11. Invariants (adopted 25 October 2026, from design turn 30)
 
-- **132. INK IS VECTOR AND LOCAL FIRST.**
-  - Strokes live in `kurenai-os-ink`, keyed by doc and page, and are never
-    in the state document.
-  - Every surface mounts `KOS.ink`, with pen only unless the device's
-    switch says otherwise.
-  - A page replicates owner-only, and a conflict keeps both copies.
-  - Ink moves no XP, gold or HP.
-- **133. HANDWRITING IS READ ONLY WHEN ASKED.**
-  - Nothing leaves the device for marking, checking or search without the
-    action or the switch.
-  - "What is sent" prints exactly the image and the text sent.
-  - A suggested mark is never logged until you confirm it.
+Design turn 30 drafted these as 130–134. Exams already holds 130 and the
+closed app 131, so they are numbered 132–136 in `CLAUDE.md`:
+- **132. One engine:** strokes, tools, paper and undo, with every surface
+  a mount under a doc key.
+- **133. Roles, not colours.**
+- **134. Writing is evidence, never pay.**
+- **135. Handwriting is read only when asked.**
+- **136. Ink lives in its own store.**
