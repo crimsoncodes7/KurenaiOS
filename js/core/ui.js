@@ -377,7 +377,7 @@
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
     governor: "governor",
     assistant: "assistant",
-    data: "system", help: "system", notifications: "system", pen: "system"
+    data: "system", help: "system", notifications: "system", pen: "system", files: "system", storage: "system"
   };
   /* subnav entries per section — null is the divider. The first group sits
      in the pill track; the groups after a divider are loose pills.
@@ -422,6 +422,8 @@
       { label: "Backup & Restore", view: "data", mark: "蔵" },
       { label: "Help & Guide", view: "help", mark: "導" },
       { label: "Notifications", view: "notifications", mark: "通", count: "pc-notify", tone: "urgent" },
+      { label: "Files", view: "files", mark: "紙" },
+      { label: "Storage", view: "storage", mark: "庫" },
       { label: "Pen and ink", view: "pen", mark: "筆" }
     ]
   };

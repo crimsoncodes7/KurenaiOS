@@ -7,6 +7,7 @@
      exercises/unit-NN/<task>/Program.cs + README.md   a task's first pass
      capstones/<id>/Program.cs + WRITEUP.md            a submitted capstone
      .kurenai/reports/<project>/<date>-<sha>.json      an imported Rider report
+     .github/workflows/kurenai-validate.yml           the CI workflow, on request
      README.md                                         generated progress
 
    — and every push is ONE commit built with the Git Data API (a tree on
@@ -39,7 +40,7 @@
   var TOKEN = "github.token", OUTBOX = "code.github.outbox", STATUS = "code.github.status";
   var MODES = ["off", "checkpoint", "auto"];
   var FILE_MAX = 1024 * 1024, PUSH_MAX = 5 * 1024 * 1024;
-  var ALLOW = /^(README\.md|exercises\/unit-[0-9a-z]+\/[A-Za-z0-9._-]+\/(Program\.cs|README\.md)|capstones\/[A-Za-z0-9._-]+\/(Program\.cs|WRITEUP\.md)|\.kurenai\/reports\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+\.json|\.kurenai\/manifest\.json)$/;
+  var ALLOW = /^(README\.md|exercises\/unit-[0-9a-z]+\/[A-Za-z0-9._-]+\/(Program\.cs|README\.md)|capstones\/[A-Za-z0-9._-]+\/(Program\.cs|WRITEUP\.md)|\.kurenai\/reports\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+\.json|\.kurenai\/manifest\.json|\.github\/workflows\/kurenai-validate\.yml)$/;
   var SECRETS = [
     [/gh[pousr]_[A-Za-z0-9]{30,}/, "a GitHub token"],
     [/github_pat_[A-Za-z0-9_]{40,}/, "a GitHub token"],
@@ -346,7 +347,102 @@
     kv(OUTBOX).then(function (box) { if (Array.isArray(box) && box.length) schedule(); });
   }
 
+  /* ---------------- CI-verified evidence (docs/github-app-plan.md §7) ----------------
+     A workflow in YOUR repository runs the same Rider validator on every
+     push, in GitHub Actions, for each project it finds (a folder holding
+     kurenai.project.json — keep each under projects/<project>/), and posts
+     its report as a check run named "Kurenai · <project>". The app reads
+     the latest one on your branch (Checks: read) and the report goes
+     through the very same check as one you bring in (invariant 109); an
+     accepted one counts as ◆ CI-verified. Nothing is accepted on the
+     check's say-so: the report itself is checked here. */
+  var WORKFLOW = ".github/workflows/kurenai-validate.yml";
+  function workflow() {
+    return [
+      "# Written by KurenaiOS (Code → a Rider project → Validation). It runs the",
+      "# Kurenai validator for every project in this repository on each push and",
+      "# posts the report as a check run, \"Kurenai · <project>\", which the app",
+      "# reads back as CI-verified evidence. Safe to edit; the app rewrites it only",
+      "# when you press Add the workflow again.",
+      "name: Kurenai validate",
+      "on:",
+      "  push:",
+      "    # the app's own commits (exercises, capstones, reports, the README) don't run it",
+      "    paths-ignore: [\"exercises/**\", \"capstones/**\", \".kurenai/**\", \"README.md\"]",
+      "  workflow_dispatch:",
+      "permissions:",
+      "  contents: read",
+      "  checks: write",
+      "jobs:",
+      "  validate:",
+      "    runs-on: ubuntu-latest",
+      "    steps:",
+      "      - uses: actions/checkout@v4",
+      "        with:",
+      "          fetch-depth: 0",
+      "      - uses: actions/setup-dotnet@v4",
+      "        with:",
+      "          dotnet-version: \"10.0.x\"",
+      "      - name: Validate every Kurenai project",
+      "        shell: bash",
+      "        env:",
+      "          GH_TOKEN: ${{ github.token }}",
+      "        run: |",
+      "          find . -name kurenai.project.json -not -path './.git/*' -not -path '*/bin/*' -not -path '*/obj/*' | while read -r f; do",
+      "            dir=$(dirname \"$f\")",
+      "            ( cd \"$dir\" && dotnet run .kurenai/validate.cs ); code=$?",
+      "            report=$(ls -t \"$dir\"/.kurenai/reports/*.json 2>/dev/null | head -1)",
+      "            python3 - \"$f\" \"$code\" \"$report\" > payload.json <<'PY'",
+      "          import json, os, sys",
+      "          manifest, code, rep = sys.argv[1], int(sys.argv[2]), sys.argv[3]",
+      "          pid = json.load(open(manifest))['id']",
+      "          text = open(rep).read() if rep and os.path.exists(rep) else ''",
+      "          print(json.dumps({'name': 'Kurenai · ' + pid, 'head_sha': os.environ['GITHUB_SHA'], 'status': 'completed',",
+      "            'conclusion': 'success' if code == 0 and text else 'failure',",
+      "            'output': {'title': 'Kurenai validator', 'summary': ('exit %d' % code) if text else 'The validator wrote no report.', 'text': text[:65000]}}))",
+      "          PY",
+      "            gh api \"repos/$GITHUB_REPOSITORY/check-runs\" --input payload.json > /dev/null || true",
+      "          done",
+      ""
+    ].join("\n");
+  }
+  /* add (or rewrite) the workflow: one commit with just that file */
+  function installWorkflow() {
+    var c = cfg();
+    if (!c.repo) return Promise.resolve({ ok: false, why: "Connect a repository first." });
+    return kv(OUTBOX).then(function (box) {
+      box = (Array.isArray(box) ? box : []).filter(function (x) { return x.path !== WORKFLOW; });
+      box.push({ path: WORKFLOW, content: workflow(), label: "the validator workflow", at: Date.now() });
+      return setKv(OUTBOX, box.slice(-200));
+    }).then(function () { return push("Add the Kurenai validator workflow"); }).then(function (r) {
+      if (r.ok) return r;
+      /* GitHub refuses a workflow file without Workflows: write */
+      return { ok: false, why: (r.why || "") + " A workflow file needs Workflows: read and write on the token (or the App). Or copy the file into .github/workflows/ yourself.", copy: true };
+    });
+  }
+  /* the latest check run for one project on your branch */
+  function ciReport(projectId) {
+    var c = cfg();
+    if (!c.repo) return Promise.resolve({ ok: false, why: "Connect a repository first." });
+    return tokenFor().then(function (token) {
+      if (!token) return { ok: false, why: c.via === "app" ? "Sign in to cloud sync to read GitHub through the App." : "GitHub is not connected on this device." };
+      var q = "/repos/" + c.repo + "/commits/" + encodeURIComponent(c.branch) + "/check-runs?filter=latest&check_name=" + encodeURIComponent("Kurenai · " + projectId);
+      return gh(token, "GET", q).then(function (r) {
+        if (r.status === 403) return { ok: false, why: "GitHub won't show the checks: the token (or the App) needs Checks: read." };
+        if (r.status === 404 || r.status === 422) return { ok: false, why: "No commit on " + c.branch + " yet." };
+        if (!r.ok) return { ok: false, why: why(r) };
+        var runs = (r.json && r.json.check_runs) || [];
+        var run = runs.filter(function (x) { return x.status === "completed"; }).sort(function (a, b) { return Date.parse(b.completed_at || 0) - Date.parse(a.completed_at || 0); })[0];
+        if (!run) return { ok: false, why: runs.length ? "The workflow is still running. Try again in a minute." : "No Kurenai check on the latest commit of " + c.branch + ". Push the project (under projects/" + projectId + "/), with the workflow added." };
+        var text = run.output && run.output.text;
+        if (!text) return { ok: false, why: "The check ran but wrote no report: " + ((run.output && run.output.summary) || run.conclusion) + "." , url: run.html_url };
+        return { ok: true, text: String(text), conclusion: run.conclusion, url: run.html_url, sha: run.head_sha, at: run.completed_at };
+      });
+    }, function () { return { ok: false, why: "GitHub could not be reached." }; });
+  }
+
   KOS.codeGit = {
+    workflow: workflow, installWorkflow: installWorkflow, ciReport: ciReport, WORKFLOW: WORKFLOW,
     MODES: MODES, cfg: cfg, setMode: function (m) { if (MODES.indexOf(m) >= 0) { setCfg({ mode: m }); changed(); } },
     setPublicOk: function (v) { setCfg({ publicOk: !!v }); },
     connect: connect, disconnect: disconnect, hasToken: hasToken, status: status, onChange: onChange,

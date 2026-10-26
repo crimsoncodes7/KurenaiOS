@@ -20,12 +20,16 @@
    as "review:<slot>" on its day, ONE request with the device's own two
    messages, stored — and its push carries Kurenai's line.
 
+   Airing (phase C): with the watched titles' AniList ids published, one
+   request a tick to AniList's PUBLIC schedule finds an episode that aired
+   in the last half hour, sent as the ledger's own "air:<id>:<ep>".
+
    It never re-derives a notice (invariant 131) and never reads kos_state,
    media, files or any credential. Secrets: CRON_SECRET, VAPID_PUBLIC_KEY,
    VAPID_PRIVATE_KEY, VAPID_SUBJECT, the provider keys. */
 import { json, serviceRest } from "../_shared/cors.ts";
 import { deliver, type Sub, type Vapid } from "./webpush.ts";
-import { dueItems, dueReviews, dueSchedules, present, pushMessage, reviewWords, runPrompt, sendable, withWords, type Item, type Review, type Schedule } from "./logic.ts";
+import { AIRING_QUERY, airingItems, dueItems, dueReviews, dueSchedules, present, pushMessage, reviewWords, runPrompt, sendable, withWords, type Aired, type Airing, type Item, type Review, type Schedule } from "./logic.ts";
 import { answer } from "./model.ts";
 
 const RUNS_PER_TICK = 3;
@@ -47,7 +51,22 @@ type Outlook = { user_id: string; data_json: {
   tz?: string; builtAt?: number; items?: Item[]; brief?: unknown;
   serverRuns?: boolean; schedules?: Schedule[]; route?: { provider?: string; model?: string } | null;
   reviews?: Review[]; reviewRoute?: { provider?: string; model?: string } | null;
+  airing?: Airing | null;
 }; seen_at: string | null };
+
+/* AniList's public airing schedule (phase C): no token, nothing of the
+   user's sent but the show ids; a failure sends nothing this tick */
+async function aired(ids: number[], now: number): Promise<Aired[]> {
+  try {
+    const res = await fetch("https://graphql.anilist.co", {
+      method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ query: AIRING_QUERY, variables: { ids: ids.slice(0, 50), from: Math.floor((now - 30 * 60 * 1000) / 1000), to: Math.floor(now / 1000) } }),
+    });
+    if (!res.ok) return [];
+    const j = await res.json();
+    return (j?.data?.Page?.airingSchedules ?? []) as Aired[];
+  } catch { return []; }
+}
 
 /* each device's answer to the last push, returned in the tick's reply (it
    lands in net._http_response, readable only by the project's owner): the
@@ -133,13 +152,19 @@ Deno.serve(async (req) => {
       }
     }
 
-    /* 1. the outlook's due items */
-    if (vapid && subs.length && Array.isArray(d.items)) {
+    /* 1. the outlook's due items, and any episode AniList says aired that
+       the device's cache didn't know (while no device is open) */
+    let extra: Item[] = [];
+    if (!hold && vapid && subs.length && d.airing && Array.isArray(d.airing.ids) && d.airing.ids.length) {
+      extra = airingItems(d.airing, await aired(d.airing.ids, now), now, d.tz || "UTC");
+    }
+    if (vapid && subs.length && (Array.isArray(d.items) || extra.length)) {
       const since = new Date(now - 2 * 864e5).toISOString();
       let sent = new Set<string>();
       try { sent = new Set((await rows<{ item_id: string }>(`kos_push_sent?user_id=eq.${uid}&sent_at=gte.${enc(since)}&select=item_id`)).map((r) => r.item_id)); }
       catch { continue; }
-      const due = sendable(dueItems(d.items, sent, now), hold);
+      const known = new Set((d.items || []).map((it) => it.id));
+      const due = sendable(dueItems((d.items || []).concat(extra.filter((it) => !known.has(it.id))), sent, now), hold);
       const done: string[] = [];
       for (const it of due) {
         if (await pushAll(uid, subs, pushMessage(withWords(it, words)), vapid, it.id)) out.pushed++;

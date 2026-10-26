@@ -15,9 +15,10 @@ or at the production site:
 
 ## Current release
 
-As of **24 October 2026** production runs **Japanese Stage 1 unit F2, Days
-and times** (service worker `kos-japanese-4`, immutable deployment
-https://e424163d.kurenai-os.pages.dev). `main` is the line; every release is
+As of **26 October 2026** production runs **Files** — one file layer for the
+whole app — with airing and release-day pushes to a closed app, CI-verified
+Rider evidence and habits several times a day (service worker `kos-files-1`,
+immutable deployment DEPLOY_URL). `main` is the line; every release is
 fast-forwarded to it from its feature branch.
 
 - Foundations: Category 7 (responsive, accessible UI, August 2026) and the
@@ -26,11 +27,14 @@ fast-forwarded to it from its feature branch.
   light twin) and 23 shop themes are colour overrides.
 - Since then: Reports, Code (core path and Tracks T1 and T2), Money and
   Goals, FSRS, the Exams & Deadlines hub, a closed-app runner with Web Push,
-  the iPad layout and Japanese (platform, Stage 0 and units F1–F2).
-- Verification: **99 smoke suites** plus the differential checks against real
+  the iPad layout and Japanese (platform, Stage 0 and units F1–F2),
+  Routines and the Daily Review, the ink engine and the whole iPad and
+  Pencil build, and Files.
+- Verification: **106 smoke suites** plus the differential checks against real
   .NET, SQLite, py-fsrs and the Japanese validators (see Tests and audits).
 - In flight and planned: the rest of Japanese Stage 1 (F3–F6), the Exams
-  Companion for the remaining papers, the iPad and Pencil, and Creatives. The
+  Companion for the remaining papers, Creatives, Mind, and an art and gold
+  shop audit. The
   full list is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 For a plain-language tour of everything the app does, read
@@ -108,7 +112,8 @@ fonts.
 
 ### Productivity and Governor
 
-- Calendar, recurring events, reminders, assignments, countdowns, habits and
+- Calendar, recurring events, reminders, assignments, countdowns, routines
+  and habits (once a day or several times a day, each time its own tick) and
   daily recommendations share canonical records instead of copying data.
 - Money (budgets, recurring bills, pots, transactions, CSV) and Goals (a
   registry of goal types measured by reading the data that owns them).
@@ -138,9 +143,20 @@ fonts.
 
 ### Archive
 
-- A notification centre (bell and full feed, per-device filters, quiet hours,
-  opt-in device alerts, and Web Push to a closed app through the `runner` Edge
-  Function), Backup & Restore, and a searchable Help & Guide.
+- **Files:** every file you add — to a topic, an assignment, an assessment,
+  the Paper library, by drop, paste, a camera scan or a share — in one list,
+  stored once and linked to as many places as you like, searched by name and
+  by the text inside PDFs. One viewer opens everything; you can write on any
+  PDF or picture (the original never changes), pin notes to a page, clip a
+  region to a topic's notebook, and save a copy with your writing.
+- **Storage:** what the device holds, duplicates, files linked nowhere, and
+  Free up space for files safe in your private cloud (binaries now upload by
+  themselves under 25 MB).
+- **Pen and ink** settings, a notification centre (bell and full feed,
+  per-device filters, quiet hours, opt-in device alerts, and Web Push to a
+  closed app through the `runner` Edge Function — now including new episodes
+  of the shows you watch and Wishlist release days), Backup & Restore, and a
+  searchable Help & Guide.
 
 ### Assistant, cloud and PWA
 
@@ -197,7 +213,7 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..99}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..106}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Code content also runs against real .NET (`node tools/cs_diff.mjs`, needs the

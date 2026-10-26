@@ -94,12 +94,57 @@
   /* ---------------- the store ---------------- */
   function meta(r) {
     return { id: r.id, name: r.name, path: r.path, size: r.size || 0, paper: r.paper || null, sitting: r.sitting || null, kind: r.kind || null,
-      part: r.part || null, subject: r.subject || null, added: r.added, linked: !!r.fh, attempt: r.attempt || null, photo: !!r.photo, mock: !!r.mock };
+      part: r.part || null, subject: r.subject || null, added: r.added, linked: !!r.fh, attempt: r.attempt || null, photo: !!r.photo, mock: !!r.mock,
+      hash: r.hash || null, cloud: !!r.cloud, hasBlob: !!(r.blob || r.fh) };
   }
   function list(cb) {
     tx(FILES, "readonly", function (os) { return os.getAll(); }, function (err, rows) {
       if (err) { cb(err, []); return; }
-      cb(null, (rows || []).filter(function (r) { return !r.photo; }).map(meta));
+      var own = (rows || []).filter(function (r) { return !r.photo; }).map(meta);
+      withCloudCopies(own, function (all) { cb(null, all); });
+    });
+  }
+  /* A PAPER YOU OPTED INTO YOUR CLOUD (files plan §7): "Keep in my cloud"
+     copies it into the synced file store (kind paper or scheme, linked to
+     its sitting, origin papers:<id>), so its binary reaches your private
+     bucket and your other devices. Those copies join the library here as
+     ids "f:<fileId>" — unless this device holds the paper itself. Never
+     the deploy (invariant 125). */
+  function withCloudCopies(own, cb) {
+    if (!KOS.attach || !KOS.attach.available || !KOS.attach.available()) { cb(own); return; }
+    KOS.attach.listMeta(function (err, items) {
+      if (err) { cb(own); return; }
+      var have = {};
+      own.forEach(function (r) { have[r.id] = true; if (r.hash) have["h:" + r.hash] = true; if (r.paper && r.sitting) have[r.paper + "|" + r.sitting + "|" + r.kind + "|" + (r.part || "")] = true; });
+      (items || []).forEach(function (m) {
+        var o = /^papers:(.+)$/.exec(m.origin || "");
+        if (!o || have[o[1]] || (m.hash && have["h:" + m.hash])) return;
+        var pl = (m.links || []).filter(function (l) { return l.kind === "paper"; })[0];
+        if (!pl) return;
+        var j = pl.id.lastIndexOf(":"), paper = pl.id.slice(0, j), sitting = pl.id.slice(j + 1);
+        var kind = m.kind === "scheme" ? "ms" : "qp", part = (/\|([SM])$/.exec(m.note || "") || [])[1] || null;
+        if (have[paper + "|" + sitting + "|" + kind + "|" + (part || "")]) return;
+        own.push({ id: "f:" + m.fileId, name: m.name, path: m.name, size: m.size || 0, paper: paper, sitting: sitting, kind: kind, part: part,
+          subject: /^aqa/.test(paper) ? "compsci" : /^edexcel/.test(paper) ? "maths" : /^ocr/.test(paper) ? "it" : null,
+          added: m.added, linked: false, attempt: null, photo: false, mock: false, cloud: true, fileId: m.fileId, hasBlob: m.hasBlob });
+      });
+      cb(own);
+    });
+  }
+  /* copy one paper into the synced store: cb(err, fileId) */
+  function keepInCloud(id, cb) {
+    get(id, function (err, blob, m) {
+      if (err || !blob) { cb && cb(err || new Error("unreadable")); return; }
+      var file;
+      try { file = new File([blob], m.name || "paper.pdf", { type: "application/pdf" }); } catch (e) { file = blob; }
+      var links = m.paper && m.sitting ? [{ kind: "paper", id: m.paper + ":" + m.sitting }] : [];
+      KOS.attach.add("_", "_", file, function (e2, aid, info) {
+        if (e2) { cb && cb(e2); return; }
+        tx(FILES, "readwrite", function (os) {
+          var rq = os.get(id);
+          rq.onsuccess = function () { var r = rq.result; if (r) { r.cloud = true; os.put(r); } };
+        }, function () { emit(); cb && cb(null, info && info.fileId); });
+      }, { kind: m.kind === "ms" ? "scheme" : m.kind === "qp" ? "paper" : m.kind === "ma" ? "notes" : "handout", links: links, origin: "papers:" + id });
     });
   }
   /* NOTHING IS SKIPPED SILENTLY (files plan R0, invariant 153): every file
@@ -138,10 +183,35 @@
       tx(FILES, "readwrite", function (os) { rows.forEach(function (r) { os.put(r); }); }, function (err) {
         emit();
         cb && cb(err, { added: rows.length, matched: rows.filter(function (r) { return matched(r); }).length, skipped: skipped, report: report });
+        /* each copy's SHA-256, in the background: the report never waits
+           (files plan §3), and a paper already attached elsewhere is then
+           shown as one file and its kind promoted (invariant 150) */
+        if (!err) hashRows(rows.map(function (r) { return r.id; }));
+      });
+    });
+  }
+  function hashRows(ids) {
+    if (!KOS.attach || !KOS.attach.hashOf || !ids.length) return;
+    var id = ids.shift();
+    tx(FILES, "readonly", function (os) { return os.get(id); }, function (err, r) {
+      if (err || !r || !r.blob || r.hash) { setTimeout(function () { hashRows(ids); }, 30); return; }
+      KOS.attach.hashOf(r.blob, function (h) {
+        if (!h) { hashRows(ids); return; }
+        tx(FILES, "readwrite", function (os) { var q = os.get(id); q.onsuccess = function () { if (q.result) { q.result.hash = h; os.put(q.result); } }; },
+          function () { setTimeout(function () { hashRows(ids); }, 30); if (!ids.length) emit(); });
       });
     });
   }
   function get(id, cb) {
+    var f = /^f:(.+)$/.exec(String(id || ""));
+    if (f) {
+      KOS.attach.getByFileId(f[1], function (err, rec) {
+        if (err || !rec) { cb(err || new Error("not found")); return; }
+        if (!rec.blob) { cb(new Error("cloud")); return; }
+        cb(null, rec.blob, { id: id, name: rec.name, size: rec.size, cloud: true, fileId: rec.fileId });
+      });
+      return;
+    }
     tx(FILES, "readonly", function (os) { return os.get(id); }, function (err, r) {
       if (err || !r) { cb(err || new Error("not found")); return; }
       if (r.blob) { cb(null, r.blob, meta(r)); return; }
@@ -246,7 +316,7 @@
     DB_NAME: DB_NAME, available: available, match: match, matched: matched, outcomeOf: outcomeOf, KIND_NAME: KIND_NAME,
     list: list, add: add, get: get, setMatch: setMatch, remove: remove, usage: usage, bySitting: bySitting,
     canConnect: canConnect, connect: connect, folder: folder,
-    putPhoto: putPhoto, getPhoto: getPhoto,
+    putPhoto: putPhoto, getPhoto: getPhoto, keepInCloud: keepInCloud, hashRows: hashRows,
     onChange: function (fn) { listeners.push(fn); }
   };
 })();

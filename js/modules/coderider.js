@@ -146,8 +146,46 @@
         card("What the script checks", "on your machine", [el("ul", { class: "k-cx-rp-zip" }, [
           ["Build", "compiler diagnostics, from SARIF"], ["Tests", "the xUnit results, from TRX"], ["Scripted runs", "input in, output compared"], ["Protected files", "tests/, the settings and the validator unchanged"]
         ].map(function (x) { return el("li", {}, [el("b", { text: x[0] }), el("span", { text: x[1] })]); })),
-          el("p", { class: "k-cx-note", text: "A report from your machine counts as ◐ Self-run. The same script run by GitHub Actions on a pushed commit will count as ◆ CI-verified." })])],
+          el("p", { class: "k-cx-note", text: "A report from your machine counts as ◐ Self-run. The same script run by GitHub Actions on a pushed commit counts as ◆ CI-verified." })]),
+        ciCard()],
       [facts(), lessons()]));
+    }
+    /* ◆ CI-VERIFIED (docs/github-app-plan.md §7): the workflow in your
+       repository runs the validator on each push; the report it posts as
+       a check run is read back here and checked exactly like one you bring
+       in. Nothing changes until Import. */
+    function ciCard() {
+      var G = KOS.codeGit, c = G ? G.cfg() : null;
+      if (!G || !c.repo) return card("From GitHub Actions", "◆ CI-verified", [el("p", { class: "k-cx-note", text: "Connect your repository in Code › Settings › GitHub, and the validator can run on GitHub for every push you make from Rider." })]);
+      var out = el("p", { class: "k-cx-note", "aria-live": "polite", "data-ui": "code.ci-status" });
+      var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.ci-check", text: "Check GitHub", onclick: function () {
+        check.disabled = true; out.textContent = "Reading the latest check on " + c.branch + "…";
+        G.ciReport(id).then(function (r) {
+          check.disabled = false;
+          if (!r.ok) { out.textContent = r.why; return; }
+          out.textContent = "Found a " + (r.conclusion === "success" ? "passing" : "failing") + " run on " + String(r.sha || "").slice(0, 7) + ".";
+          show(KOS.codeProject.check(r.text, { expectId: id }), "ci");
+        });
+      } });
+      var add = el("button", { type: "button", class: "k-btn", "data-ui": "code.ci-workflow", text: "Add the workflow", onclick: function () {
+        add.disabled = true; out.textContent = "Committing " + G.WORKFLOW + "…";
+        G.installWorkflow().then(function (r) {
+          add.disabled = false;
+          out.textContent = r.ok ? "Added. Each push that touches a project now runs the validator on GitHub." : r.why;
+        });
+      } });
+      var copy = el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "code.ci-copy", text: "Copy the workflow", onclick: function () {
+        (navigator.clipboard ? navigator.clipboard.writeText(G.workflow()) : Promise.reject()).then(function () { out.textContent = "Copied. Save it as " + G.WORKFLOW + " in your repository."; }, function () { out.textContent = "Copying isn't allowed here."; });
+      } });
+      return card("From GitHub Actions", "◆ CI-verified", [
+        el("ol", { class: "k-cx-rp-steps k-cx-ci-steps" }, [
+          el("li", {}, [el("span", { class: "k-cx-rp-n", text: "1" }), el("div", {}, [el("p", { text: "Add the workflow to " + c.repo + " (once)." }), el("div", { class: "k-cluster" }, [add, copy])])]),
+          el("li", {}, [el("span", { class: "k-cx-rp-n", text: "2" }), el("div", {}, [el("p", {}, ["Keep this project in that repository under ", el("code", { text: "projects/" + id + "/" }), " and push from Rider."])])]),
+          el("li", {}, [el("span", { class: "k-cx-rp-n", text: "3" }), el("div", {}, [el("p", { text: "When the run has finished, bring its report in." }), check])])
+        ]),
+        out,
+        el("p", { class: "k-cx-note", text: "Needs Checks: read (and Workflows: read and write to add the file) on your token, or on the KurenaiOS App's permissions." })
+      ]);
     }
     function readFile(f) {
       if (f.size > 256 * 1024) { show(KOS.codeProject.check("x".repeat(256 * 1024 + 1))); return; }
@@ -156,33 +194,34 @@
       r.onerror = function () { banner("bad", "✕ Rejected · not a valid report", "The file could not be read."); };
       r.readAsText(f);
     }
-    function show(promise) {
+    function show(promise, level) {
       Promise.resolve(promise).then(function (res) {
         if (res.outcome === "rejected") { banner("bad", "✕ Rejected · " + ({ size: "too large", json: "not a valid report", shape: "not a valid report", project: "not one of your projects", scaffold: "unknown scaffold version", validator: "validator too old", future: "dated in the future", before: "older than the export" }[res.code] || "not accepted"), res.msg); announce("Rejected: " + res.msg); return; }
         if (res.outcome === "duplicate") { banner("mute", "= Already imported", res.msg); announce("Already imported. Nothing changed."); return; }
         announce("Report read. Preview open.");
-        preview(res);
+        preview(res, level);
       });
     }
     function banner(tone, title, msg, extra) {
       flash = el("div", { class: "k-cx-rp-banner", "data-tone": tone, role: "status", "data-ui": "code.project-outcome" }, [el("b", { text: title }), el("p", { text: msg })].concat(extra || []));
       draw();
     }
-    function preview(res) {
+    function preview(res, level) {
+      var lv = level === "ci" ? "ci" : "self";
       var rep = res.report, st = function (sid) { return rep.steps.filter(function (s) { return s.id === sid; })[0] || {}; };
       var b = st("build"), t = st("test");
       var overlay = el("div", { class: "k-dialog-overlay" });
       var cancel = el("button", { type: "button", class: "k-btn", "data-ui": "ui.dialog-close", text: "Cancel", onclick: function () { overlay.remove(); } });
       var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.project-import", text: "Import", onclick: function () {
         overlay.remove();
-        var out = KOS.codeProject.apply(res);
+        var out = KOS.codeProject.apply(res, { level: lv });
         if (!out || out.duplicate) { banner("mute", "= Already imported", "Nothing changed."); return; }
         if (res.practice) { banner("warn", "◐ Practice only", "The shipped tests were changed (" + res.mismatched.length + " file" + (res.mismatched.length === 1 ? "" : "s") + "), so milestones are not marked.", [el("p", { class: "k-mono", text: res.mismatched.join(" · ") })]); announce("Practice only."); return; }
-        var said = out.newly.length ? out.newly.map(function (m) { return "Milestone " + m.slice(1); }).join(", ") + " passed · Self-run." : "No new milestone passed this time.";
+        var said = out.newly.length ? out.newly.map(function (m) { return "Milestone " + m.slice(1); }).join(", ") + " passed · " + levelText(lv).slice(2) + "." : lv === "ci" ? "Recorded as CI-verified; no new milestone passed this time." : "No new milestone passed this time.";
         banner("ok", "✓ Accepted", said, out.pay ? [KOS.codeUI.reward({ pay: out.pay }, "the project is complete")] : [el("p", { class: "k-cx-note", text: p.capstone && out.all ? "Every milestone passes: finish " + capRef(p.capstone) + " on its page." : v.payAt || out.all ? "" : (v.total - C().projectView(id).done) + " milestone(s) to go." })]);
         announce("Accepted. " + said);
       } });
-      var rows = [["Project", p.title], ["Scaffold", "v" + rep.project.scaffoldVersion], ["Validator", rep.validator.version], ["Machine", [rep.env.os, rep.env.arch].filter(Boolean).join(" · ")], ["SDK", ".NET " + (rep.env.sdk || "?")]];
+      var rows = [["Evidence", levelText(lv)], ["Project", p.title], ["Scaffold", "v" + rep.project.scaffoldVersion], ["Validator", rep.validator.version], ["Machine", [rep.env.os, rep.env.arch].filter(Boolean).join(" · ")], ["SDK", ".NET " + (rep.env.sdk || "?")]];
       var stepRows = [
         ["Build", b.ran ? (b.exit === 0 ? "✓ exit 0" : "✗ " + b.errors + " error(s)") : "not run"],
         ["Tests", t.ran ? "✓ " + t.passed + " passed" + (t.failed ? " ✗ " + t.failed + " failed" : "") : "not run"],
@@ -194,7 +233,7 @@
           el("dl", { class: "k-cx-rp-dl" }, rows.concat(stepRows).reduce(function (a, r) { return a.concat([el("dt", { text: r[0] }), el("dd", { text: r[1] })]); }, [])),
           el("h3", { class: "k-kicker", text: "Will change" }),
           el("ul", { class: "k-cx-rp-will", "data-ui": "code.project-will" }, res.changes.map(function (c) {
-            return el("li", { "data-state": c.becomes ? "pass" : null }, [el("b", { class: "k-mono", text: c.id.toUpperCase() + " " }), c.title + " → " + (c.was ? "already passed" : c.becomes ? "passed · ◐ Self-run" : res.practice && c.now ? "passes · practice only" : "stays open" + (c.why ? " · " + c.why : ""))]);
+            return el("li", { "data-state": c.becomes ? "pass" : null }, [el("b", { class: "k-mono", text: c.id.toUpperCase() + " " }), c.title + " → " + (c.was ? "already passed" : c.becomes ? "passed · " + levelText(lv) : res.practice && c.now ? "passes · practice only" : "stays open" + (c.why ? " · " + c.why : ""))]);
           })),
           res.completes ? el("p", { class: "k-cx-note", text: "This completes the project: +" + res.reward.xp + " XP · +" + res.reward.gold + " gold · +" + res.reward.hp + " HP, once." }) : null
         ].filter(Boolean)),

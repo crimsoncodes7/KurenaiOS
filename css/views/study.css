@@ -588,8 +588,8 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-att-file-meta { font-size: var(--fs-12); color: var(--muted); }
 .k-att-lead, .k-att-empty { font-size: var(--fs-12); color: var(--muted); padding-inline: var(--sp-4); }
 .k-att-stage { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-16) var(--sp-18); }
-.k-att-head { display: flex; align-items: flex-start; gap: var(--sp-12); }
-.k-att-title { flex: 1 1 0; min-inline-size: 0; font-size: var(--fs-15); font-weight: var(--weight-semibold); overflow-wrap: anywhere; }
+.k-att-head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--sp-8) var(--sp-12); }
+.k-att-title { flex: 1 1 var(--sp-64); min-inline-size: min(100%, calc(var(--sp-64) * 3)); font-size: var(--fs-15); font-weight: var(--weight-semibold); overflow-wrap: anywhere; }
 .k-att-actions, .k-att-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6); }
 .k-att-act { padding: var(--sp-4) var(--sp-10); border-radius: var(--r-pill); background: var(--s2); font-size: var(--fs-12); color: var(--text-2); white-space: nowrap; }
 .k-att-act:hover { color: var(--text); background: var(--s3); }

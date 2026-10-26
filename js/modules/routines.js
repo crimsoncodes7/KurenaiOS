@@ -200,10 +200,20 @@
       var sub = !today0 ? "not today · " + schedText(h) : h.auto ? (on && e && e.auto ? "自 ticked itself · " : "自 ") + R().autoText(h.auto) : h.window ? h.window.from + "–" + h.window.to : "";
       var subEl = sub ? muted(sub) : null;
       if (h.auto && today0 && !on && subEl) R().autoMeasure(h.auto, day, function (v) { if (v != null) subEl.textContent = "自 " + Math.min(v, h.auto.n) + " of " + R().autoText(h.auto); });
+      /* several times a day: a tick per time, the day kept with the last */
+      var times = h.times && today0 && st !== "rest" ? el("span", { class: "k-rt-times", role: "group", "aria-label": h.name + ", today's times" }, R().stepsFor(h, e).map(function (sx) {
+        var done = !!(e && e.steps && e.steps[sx.id]);
+        return el("button", { type: "button", class: "k-rt-time-tick", role: "checkbox", "aria-checked": String(done), "data-ui": "routine.habit-time",
+          "aria-label": (done ? "Untick " : "Tick ") + h.name + " at " + (sx.at || ""), text: (done ? "✓ " : "") + (sx.at || ""), onclick: function () { tickStep(h, sx.id, !done, {}, opts.after); } });
+      })) : null;
+      if (h.times && today0) subEl = muted((e && e.steps ? Object.keys(e.steps).length : 0) + " of " + h.times.length + " today");
       var row = el("div", { class: "k-rt-habit", "data-ui": "routine.habit" }, [
         st === "rest" ? el("span", { class: "k-rt-check k-rt-check--rest", lang: "ja", "aria-label": h.name + ": rest day", text: "休" })
-          : check(on, (on ? "Untick " : "Tick ") + h.name, function () { if (s0) tickStep(h, s0.id, !on, {}, opts.after); }, { hook: "routine.habit-tick", disabled: !today0 }),
-        el("span", { class: "k-rt-habit-t" }, [el("span", { class: "k-ellipsis", text: h.name }), subEl]),
+          : check(h.times && !on && e && e.steps && Object.keys(e.steps).length ? "half" : on, (on ? "Untick " : "Tick ") + h.name, function () {
+            if (h.times) { var nx = R().stepsFor(h, e).filter(function (sx) { return !(e && e.steps && e.steps[sx.id]); })[0]; if (nx) tickStep(h, nx.id, true, {}, opts.after); else if (s0) tickStep(h, R().stepsFor(h, e).slice(-1)[0].id, false, {}, opts.after); return; }
+            if (s0) tickStep(h, s0.id, !on, {}, opts.after);
+          }, { hook: "routine.habit-tick", disabled: !today0 }),
+        el("span", { class: "k-rt-habit-t" }, [el("span", { class: "k-ellipsis", text: h.name }), subEl, times].filter(Boolean)),
         st === "rest" ? muted("休 rest day") : streak ? muted("炎 " + streak) : null
       ]);
       if (on) KOS.ui.state(row, "done", true);
@@ -253,6 +263,30 @@
       }
     }
     paintWhen();
+    /* once a day, or several times (2–6), each with its own time */
+    var times = Array.isArray(d.times) && d.times.length >= 2 ? d.times.slice() : null;
+    var timesBox = el("div", { class: "k-rt-hab-times" });
+    function paintTimes() {
+      timesBox.innerHTML = "";
+      timesBox.appendChild(choice(["Once", "Several times"], times ? 1 : 0, function (i) {
+        times = i ? (times || ["08:00", "20:00"]) : null;
+        paintTimes(); paintMode();
+      }, { label: "Times a day", hook: "habit.times-mode" }));
+      if (!times) return;
+      var row = el("div", { class: "k-cluster k-rt-hab-tlist" });
+      times.forEach(function (t, i) {
+        var tin = el("input", { type: "time", class: "k-input k-mono k-rt-time", value: t, "aria-label": "Time " + (i + 1), "data-ui": "habit.time" });
+        tin.addEventListener("change", function () { if (tin.value) times[i] = tin.value; });
+        row.appendChild(tin);
+        if (times.length > 2) row.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "aria-label": "Remove time " + (i + 1), text: "✕", onclick: function () { times.splice(i, 1); paintTimes(); } }));
+      });
+      if (times.length < 6) row.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "habit.time-add", text: "＋ a time", onclick: function () {
+        var last = times[times.length - 1] || "12:00", h = Math.min(23, +last.slice(0, 2) + 2);
+        times.push((h < 10 ? "0" : "") + h + last.slice(2)); paintTimes();
+      } }));
+      timesBox.appendChild(row);
+    }
+    paintTimes();
     var w = d.window || {};
     var fromIn = el("input", { type: "time", class: "k-input k-mono k-rt-time", value: w.from || "", "aria-label": "From" });
     var toIn = el("input", { type: "time", class: "k-input k-mono k-rt-time", value: w.to || "", "aria-label": "Until" });
@@ -291,22 +325,36 @@
     }
     paintAuto();
     function field(label, ctl, note) { return el("div", { class: "k-rt-hab-f" }, [el("div", { class: "k-rt-hab-l", text: label }), el("div", { class: "k-rt-hab-c" }, [ctl, note ? muted(note) : null])]); }
+    var timeField = field("Time", el("div", { class: "k-cluster" }, [fromIn, muted("to"), toIn, el("label", { class: "k-cluster" }, [remind, muted("remind me")])]), "optional · a reminder at its start");
+    var remind2 = el("input", { type: "checkbox", role: "switch", class: "k-switch", "aria-label": "Remind me at each time" });
+    remind2.checked = !!d.remind;
+    var remindField = field("Reminders", el("label", { class: "k-cluster" }, [remind2, muted("remind me at each time")]), "a reminder at each time not yet ticked");
+    var autoField = field("Ticks itself", autoBox, "read from your own record, the way Goals read it; you can still tick it by hand");
+    function paintMode() { timeField.hidden = !!times; autoField.hidden = !!times; remindField.hidden = !times; }
+    paintMode();
     return {
       el: el("div", { class: "k-rt-hab" }, [
         field("Repeats", when),
-        field("Time", el("div", { class: "k-cluster" }, [fromIn, muted("to"), toIn, el("label", { class: "k-cluster" }, [remind, muted("remind me")])]), "optional · a reminder at its start"),
-        field("Ticks itself", autoBox, "read from your own record, the way Goals read it; you can still tick it by hand")
+        field("Times a day", timesBox, "taking medicine, say: a tick for each time; the day counts once they're all ticked"),
+        timeField, remindField, autoField
       ]),
       read: function () {
+        if (times) {
+          var clean = times.filter(function (t, i) { return t && times.indexOf(t) === i; });
+          if (clean.length < 2) return { error: "Several times a day needs two different times." };
+          return { days: mode === "every" ? [] : d.days, every: mode === "every" ? d.every : null, from: mode === "every" ? d.from : null,
+            window: null, remind: remind2.checked, auto: null, times: clean.sort() };
+        }
         if ((fromIn.value || toIn.value) && !(fromIn.value && toIn.value && fromIn.value < toIn.value)) return { error: "The time needs a start before its end." };
         var win = fromIn.value && toIn.value ? { from: fromIn.value, to: toIn.value } : null;
         return { days: mode === "every" ? [] : d.days, every: mode === "every" ? d.every : null, from: mode === "every" ? d.from : null,
-          window: win, remind: remind.checked && !!win, auto: d.auto || null };
+          window: win, remind: remind.checked && !!win, auto: d.auto || null, times: null };
       }
     };
   }
   function habitSummary(h) {
-    return [schedText(h), h.auto ? "自 " + R().autoText(h.auto) : null, h.remind && h.window ? "reminds at " + h.window.from : null].filter(Boolean).join(" · ");
+    return [schedText(h), h.times && h.times.length > 1 ? h.times.length + " times a day · " + h.times.join(", ") : null, h.auto ? "自 " + R().autoText(h.auto) : null,
+      h.remind && h.times ? "reminds at each" : h.remind && h.window ? "reminds at " + h.window.from : null].filter(Boolean).join(" · ");
   }
 
   /* the Daily habits routine's editor (#/routines/edit/habits): fixed name
@@ -381,8 +429,8 @@
         var nm = String(d.name || "").trim();
         if (!nm) { if (d.id) R().remove(d.id); return; }
         var patch = { name: nm, kind: "habit", days: d.days || [], every: d.every || null, from: d.from || null, window: d.window || null,
-          remind: !!d.remind, auto: d.auto || null, order: 100 + i };
-        if (d.id) { var cur = R().get(d.id); R().update(d.id, Object.assign(patch, { steps: [Object.assign({}, (cur && cur.steps[0]) || {}, { text: nm })] })); }
+          remind: !!d.remind, auto: d.auto || null, times: d.times || null, order: 100 + i };
+        if (d.id) { var cur = R().get(d.id), st0 = Object.assign({}, (cur && cur.steps[0]) || {}, { text: nm }); if (!d.times) delete st0.at; R().update(d.id, Object.assign(patch, { steps: [st0] })); }
         else R().add(Object.assign(patch, { steps: [{ text: nm }] }));
       });
       R().autoSync();

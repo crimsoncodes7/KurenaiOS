@@ -105,11 +105,19 @@ Deno.serve(async (req) => {
     if (!l) return json({ error: "GitHub isn't connected for this account." }, 404);
     const jwt = await appJwt(c.id, c.pem);
     const name = l.repo.split("/")[1];
-    const r = await gh("POST", `/app/installations/${l.installation_id}/access_tokens`, `Bearer ${jwt}`,
-      { repositories: [name], permissions: { contents: "write" } });
+    /* CI-verified evidence (docs/github-app-plan.md §7) wants Checks: read
+       and Workflows: write as well; an App not yet given them answers 422,
+       and the token falls back to Contents only (ci: false says so) */
+    const url = `/app/installations/${l.installation_id}/access_tokens`;
+    let ci = true;
+    let r = await gh("POST", url, `Bearer ${jwt}`, { repositories: [name], permissions: { contents: "write", checks: "read", workflows: "write" } });
+    if (r.status === 422) {
+      ci = false;
+      r = await gh("POST", url, `Bearer ${jwt}`, { repositories: [name], permissions: { contents: "write" } });
+    }
     if (r.status === 404) return json({ error: "The App was uninstalled on GitHub. Connect it again." }, 404);
     if (!r.ok || typeof r.json?.token !== "string") return json({ error: `GitHub answered ${r.status}.` }, 502);
-    return json({ token: r.json.token, expires_at: r.json.expires_at, repo: l.repo });
+    return json({ token: r.json.token, expires_at: r.json.expires_at, repo: l.repo, ci });
   }
   return json({ error: "Unknown action." }, 400);
 });

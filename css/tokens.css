@@ -257,6 +257,16 @@ color-scheme: dark;
 --ink-side-w: 430px;
 --ink-thumbs-w: 132px;
 --ink-dlg-w: 920px;
+/* files plan R1–R3: the Files page, Storage, the scan, pinned notes */
+--files-side-w: 320px;
+--files-card-min: 260px;
+--st-card-min: 320px;
+--scan-handle: 30px;
+--scan-thumb: 84px;
+--pv-pin: 26px;
+--pv-pins-w: 300px;
+--fc-pic-max-h: 260px;
+--att-pdfcard-max: 900px;
 --aside-w: 400px;
 --menu-w: 300px;
 --menu-w-wide: 340px;

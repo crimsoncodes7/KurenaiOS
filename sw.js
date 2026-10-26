@@ -41,7 +41,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-pen-1";
+var VERSION = "kos-files-1";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 var SQLITE_CACHE = "kos-sqlite-1.14.2";
@@ -124,7 +124,7 @@ self.addEventListener("activate", function (e) {
   e.waitUntil((async function () {
     var names = await caches.keys();
     await Promise.all(names.map(function (n) {
-      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE && n !== PDF_CACHE && n !== SQLITE_CACHE) return caches.delete(n);
+      if (n.indexOf("kos-") === 0 && n.indexOf("kos-csharp-") !== 0 && n !== STATIC_CACHE && n !== RUNTIME_CACHE && n !== PDF_CACHE && n !== SHARE_INBOX && n !== SQLITE_CACHE) return caches.delete(n);
       return null;
     }));
     await self.clients.claim();
@@ -195,6 +195,27 @@ function staleWhileRevalidate(e, cacheName) {
   })());
 }
 
+/* SHARE TO KURENAIOS (files plan §6, the Web Share Target API: Chrome on
+   Android and desktop; iOS Safari has none). The one POST the worker
+   answers: the shared files are filed under the `kos-share-inbox` cache —
+   a hand-off, never a cached request (invariant 37) — and the page opens
+   Files, which takes them in once (KOS.files.takeShared). */
+var SHARE_INBOX = "kos-share-inbox";
+self.addEventListener("fetch", function (e) {
+  var req = e.request;
+  if (req.method !== "POST" || !/\/share-target$/.test(new URL(req.url).pathname)) return;
+  e.respondWith((async function () {
+    try {
+      var form = await req.formData(), cache = await caches.open(SHARE_INBOX), files = form.getAll("files"), n = 0;
+      for (var i = 0; i < files.length; i++) {
+        var f = files[i];
+        if (!f || typeof f === "string" || !f.size) continue;
+        await cache.put(new Request("./share-inbox/" + Date.now() + "-" + (n++)), new Response(f, { headers: { "content-type": f.type || "application/octet-stream", "x-name": encodeURIComponent(f.name || "Shared file") } }));
+      }
+    } catch (err) { /* nothing shared survives a bad form */ }
+    return Response.redirect("./index.html#/files", 303);
+  })());
+});
 self.addEventListener("fetch", function (e) {
   var req = e.request;
   if (req.method !== "GET") return;                       // mutations: untouched

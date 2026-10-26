@@ -1316,8 +1316,20 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.11 Files: one file layer for the whole app ◆ (asked for 26 October 2026)
 
-> **Planned 26 October 2026:** [files-plan.md](files-plan.md) revision 1.
-> Decisions A–H wait for you.
+> **RELEASED 26 October 2026** (sw `kos-files-1`): the rest of the plan,
+> R1–R4 — the `KOS.files` index over both stores (one file, many links,
+> aliases, kind only up), the Files page and Storage under Archive, one
+> viewer (pictures take ink as a one-page PDF), pinned notes, drop and
+> paste anywhere, Scan pages (four corners, a projective warp, one PDF),
+> Share to KurenaiOS, text search inside PDFs (indexed in the background),
+> automatic upload under 25 MB with Free up space, papers opted into your
+> cloud, an assessment's own files, the Assistant's `files_list` and
+> `file_text`, Ask Kurenai about this page, and redo items clipped from a
+> marked paper (smoke106). R0 and most of R2 were released with
+> `kos-pen-1`. Still open from §9 (later): suggesting a handout's topic,
+> versions kept 30 days, Office files rendered in the app, OCR for scans.
+> **Planned 26 October 2026:** [files-plan.md](files-plan.md) revision 2,
+> decisions A–H approved with six adjustments.
 
 Files grew up in three places (a topic's Files tab, an assignment's
 attachments and Exams & Papers' library). Today an assignment's file
@@ -1343,6 +1355,65 @@ included) without saying why.
 - **Invariants it would add:** 150–153 (plan §12).
 
 ---
+
+### 5.12 Smaller asks released with Files (26 October 2026)
+
+> **RELEASED** with sw `kos-files-1`.
+
+- **Airing and release days on a closed app** (phase C of 5.7 item 1):
+  the outlook forecasts the next episode and a Wishlist release day under
+  the ledger's own ids, and publishes the watched shows' AniList ids, so
+  the `runner` (version 7) asks AniList's public airing schedule for
+  episodes the device didn't know yet (invariant 131).
+- **CI-verified Rider evidence** (docs/github-app-plan.md §7): Add the
+  workflow commits a GitHub Actions file that runs the validator on every
+  push; Check GitHub reads the check run's report back through the same
+  check, counted ◆ CI-verified (invariant 109). The KurenaiOS GitHub App
+  needs Checks: read and Workflows: read and write added to its
+  permissions on GitHub (your account), then accepted on the installation;
+  until then a fine-grained token with those permissions works, or copy
+  the file in by hand.
+- **Habits several times a day** (medicine, say): 2–6 times, a tick and a
+  reminder per time, the day kept once every time is ticked (invariant
+  142).
+
+### 5.13 An art and shop audit ◆ (asked for 26 October 2026)
+
+**What:** I (the coding agent) walk every area of the app and write a
+proposal, not code, of where art and new design would lift it, and what to
+add to the gold shop — it has had nothing new for months, the user holds
+over 43,000 gold and owns everything in it.
+
+- **The walk:** every page at 1440, on the iPad (1180 × 796, 820 × 1156)
+  and at 390, in Graphite and Dawn: Home, every Study page (subject desks,
+  a topic's tabs, Review, Assignments, Exams & Papers and the Companion,
+  Pacing), Code and Japanese, Productivity (Focus and its running stage,
+  Reminders, Routines and the reviews, Calendar, Money, Goals), the
+  Collection and its four vaults, the Shrine and the Wishlist, the
+  Governor and its shop, the Assistant, Reports, Archive (Files, Storage,
+  Pen and ink, Notifications, Help) and the empty states.
+- **Gemini art (by hand, through the manifests — never SVG stand-ins):**
+  name each spot that would carry a picture (a hero, an empty state, a
+  card cover, a background, a character beat), with the full prompt, the
+  reference images to attach, the size and where it lands, grouped by
+  priority, as Japanese's and Routines' art sheets are.
+- **Native design:** where a page is plain or uneven enough to need a
+  Claude Design pass, with a prompt per page, as design-prompts.md does.
+- **The gold shop:** new things worth buying, with prices against what a
+  week of study earns:
+  - Kurenai skins — outfits and seasonal looks for the Assistant's
+    character and her mascot poses (art made by hand in Gemini; Live2D
+    stays parked);
+  - more themes, profile frames, shelf skins and Shrine styles;
+  - share-card finishes; Focus stage scenes and ambient backdrops;
+  - Routines and review covers; Home hero art; Calendar and Reports
+    skins; notebook paper styles and pen colours for ink;
+  - Japanese and Mind cast variants;
+  - retiring or bringing back the 4 banners and 6 seals still defined.
+  - Gold stays cosmetic and lab unlocks only: nothing a study page needs
+    is ever sold (invariant 2).
+- **Out:** a written report (an artifact) and new manifest entries, for
+  the user to approve before any art is made or anything is built.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
@@ -1447,8 +1518,6 @@ ink engine.
 | Code's deepening modules and the tracks | the core path is complete (units 1–12, Bridge B and capstones 1–4, 23 October 2026). Every module's project and every track's taster, projects and capstone are planned in [code-plan.md](code-plan.md) §3.5 (Games is now T5, with Unity; the Gacha Lab); the Python path (PY1–PY3, Data analytics, AI/ML/LLMs; T3 narrowed to AI in .NET apps) is decided in §3.6, and the order in §3.7: T1 → T2 → D1–D3 → T5 → Python → PA → PB → T3 → D4–D6 → the rest. **T1 started 23 October 2026**: Spike S done; T1A, Databases, RELEASED (8 lessons in the SQL sandbox and The Case of the Missing Mug); T1B, SQL from C# (3 Rider lessons and Contacts on SQLite), and T1C, Entity Framework Core (6 Rider lessons and The Lending Library on EF Core), RELEASED 23 October 2026 (`2db0b4f`, sw `kos-code-21`); T1D, HTTP and REST (5 lessons in the app against fake servers, and the Weather client in Rider), T1E, Networking (3 Rider lessons and Loopback chat), and T1F, Building an API (3 Rider lessons and the track's capstone, The Planner goes online), RELEASED 23 October 2026 (sw `kos-code-24`) — the whole of T1 is live. **T2 started 23 October 2026** (five parts outlined in code-plan §3.3): the whole of T2 RELEASED 23 October 2026 (`8ff3751`, sw `kos-code-22`) — five parts, 20 Rider lessons, four projects and the track's capstone (The Planner on the desktop), every acceptance suite on Avalonia.Headless | — |
 | Code's full runtime on a phone | Code is studied on a Mac, not a phone (17 October 2026). The M4 iPad may run it; checking that is part of 6.9 | you want to code on a phone |
 | The Rider validator on Windows and Linux | macOS is the only machine in use; it is verified there (17 October 2026) | another operating system is used |
-| CI-verified evidence for Code (the GitHub App is built, 5.7) | needs a workflow in the repository that runs the validator and the App's Checks: read permission (docs/github-app-plan.md §7) | CI evidence is wanted |
-| Airing and release-day pushes to a closed app (phase C of 5.7 item 1) | airing needs AniList's schedule on the server; release days need the Wishlist in the outlook | you want them |
 
 ---
 

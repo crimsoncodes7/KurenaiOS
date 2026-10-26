@@ -271,10 +271,27 @@
     return items.length ? { id: "reports", label: "Reports", items: items } : null;
   }
 
+  /* Files (roadmap 5.11, invariant 150): names and aliases at once, and
+     the text inside PDFs once the index has loaded (the first search loads
+     it; the next keystroke reads it). A file is opened in the app's own
+     viewer (invariant 152). */
+  function filesDomain(q, ts) {
+    if (!KOS.files || !KOS.files.search) return null;
+    if (KOS.files.loadText) KOS.files.loadText();
+    var items = [];
+    if (hits("files file documents pdf worksheet handout scan", ts)) items.push({ title: "Files", sub: "Archive", meta: "every file you've added", open: function () { KOS.show("files"); } });
+    KOS.files.search(q, PER_DOMAIN).forEach(function (h) {
+      if (items.length >= PER_DOMAIN) return;
+      items.push({ title: h.rec.name, sub: h.where === "text" ? "p." + h.page + " · " + clip(h.snippet, 80) : (KOS.files.KIND_NAME[h.rec.kind] || "File"),
+        meta: h.where === "text" ? "inside a file" : "file", open: function () { KOS.files.open(h.rec); } });
+    });
+    return items.length ? { id: "files", label: "Files", items: items } : null;
+  }
+
   /* the synchronous domains, in the order a result list should read them:
      what you are studying, then what you owe, then what you own */
   var SYNC_DOMAINS = [specDomain, notesDomain, remindersDomain, assignmentsDomain,
-    calendarDomain, personalCardsDomain, reportsDomain, plannerDomain, goalsDomain];
+    calendarDomain, personalCardsDomain, filesDomain, reportsDomain, plannerDomain, goalsDomain];
 
   /* run(q, cb) — cb(groups, done) may be called TWICE: once immediately
      with everything readable from memory, once more when IndexedDB has

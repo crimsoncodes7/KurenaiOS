@@ -145,11 +145,14 @@
         changes: changes, completes: completes, reward: completes ? C().award({ kind: "project", id: p.id, first: true }) : null };
     });
   }
-  function apply(res) {
+  /* apply(res, {level}) — "ci" only for a report read back from a check
+     run on GitHub (KOS.codeGit.ciReport), which already lives there */
+  function apply(res, o) {
     if (!res || (res.outcome !== "accepted" && res.outcome !== "practice")) return null;
-    var out = C().recordReport(res.project.id, res.report, { sha: res.sha, practice: res.practice, mismatched: res.mismatched, level: "self" });
+    var ci = !!(o && o.level === "ci");
+    var out = C().recordReport(res.project.id, res.report, { sha: res.sha, practice: res.practice, mismatched: res.mismatched, level: ci ? "ci" : "self" });
     /* the report joins the next GitHub push when it is connected */
-    if (!res.practice && KOS.codeGit) KOS.codeGit.queueReport(res.project.id, res.sha, JSON.stringify(res.report, null, 2));
+    if (!res.practice && !ci && KOS.codeGit) KOS.codeGit.queueReport(res.project.id, res.sha, JSON.stringify(res.report, null, 2));
     return out;
   }
 

@@ -127,13 +127,28 @@ device ─ keeps it in memory until 5 minutes before it expires, then asks again
 5. Put `GITHUB_APP_SLUG` in `js/env.local.js`, so the page can build the
    install link.
 
-## 7. Later: CI-verified evidence
+## 7. CI-verified evidence (built 26 October 2026)
 
-A workflow in the repository can run the Rider validator on each push and
-write its report as a check run. The app could then accept a report whose
-SHA-256 matches a passing check. That needs the App's Checks: read
-permission and a workflow file the app would commit. It is not in this
-release.
+- **The workflow:** Code › a Rider project › Validation › "Add the
+  workflow" commits `.github/workflows/kurenai-validate.yml` (on the
+  app's allowlist) in one commit. On every push that is not the app's own
+  (exercises, capstones, reports, the README are ignored) it checks out
+  the repository, installs .NET 10, runs `dotnet run .kurenai/validate.cs`
+  in every folder holding `kurenai.project.json` (keep each project under
+  `projects/<project>/`), and posts the report as a check run named
+  "Kurenai · <project>" (`checks: write` for the workflow's own token).
+- **Reading it back:** "Check GitHub" calls `KOS.codeGit.ciReport`, which
+  reads the latest completed check run of that name on the branch's head
+  and hands its report text to the same `KOS.codeProject.check` as a file
+  brought in; Import records it `level: "ci"`, ◆ CI-verified. The check's
+  conclusion is never taken on trust: the report itself is checked.
+- **Permissions — what you do once on GitHub:** add **Checks: read** and
+  **Workflows: read and write** to the KurenaiOS App (GitHub → Settings →
+  Developer settings → GitHub Apps → KurenaiOS → Permissions), then accept
+  the new permissions on your installation. `github-token` asks for them
+  and, until they are granted, falls back to Contents only (`ci: false`).
+  A fine-grained token needs the same two. Or copy the workflow file into
+  the repository by hand ("Copy the workflow").
 
 ## 8. Decisions (proposed)
 

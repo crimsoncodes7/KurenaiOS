@@ -995,11 +995,18 @@
       var st = Rt.stateOn(h, day), on = st === "done" || st === "min";
       var weekKept = 0;
       for (var i = 0; i < 7; i++) { var d = new Date(weekStart); d.setDate(weekStart.getDate() + i); var iso = isoOf(d); if (iso <= today) { var s2 = Rt.stateOn(h, iso); if (s2 === "done" || s2 === "min") weekKept++; } }
+      /* a habit several times a day ticks its next time (roadmap 5.10) */
+      var he = Rt.entry(h.id, day), hs0 = h.times ? Rt.stepsFor(h, he) : null;
+      var nextT = hs0 ? hs0.filter(function (x) { return !(he && he.steps && he.steps[x.id]); })[0] : null;
+      var doneN = hs0 ? hs0.length - hs0.filter(function (x) { return !(he && he.steps && he.steps[x.id]); }).length : 0;
       var row = el("button", { type: "button", class: "k-check-row", "data-ui": "home.routine-tick", "aria-pressed": String(on),
-        "aria-label": (on ? "Untick " : "Tick ") + h.name + " for today",
-        onclick: function () { if (h.steps[0]) KOS.rtUI.tickStep(h, h.steps[0].id, !on); } }, [
-        el("span", { class: "k-dotcheck", "aria-hidden": "true", text: on ? "✓" : st === "rest" ? "休" : "" }),
-        el("span", { class: "k-check-row-text", text: h.name }),
+        "aria-label": hs0 ? (nextT ? "Tick " + h.name + " at " + nextT.at : "Untick " + h.name + " at " + hs0[hs0.length - 1].at) : (on ? "Untick " : "Tick ") + h.name + " for today",
+        onclick: function () {
+          if (hs0) { if (nextT) KOS.rtUI.tickStep(h, nextT.id, true); else KOS.rtUI.tickStep(h, hs0[hs0.length - 1].id, false); return; }
+          if (h.steps[0]) KOS.rtUI.tickStep(h, h.steps[0].id, !on);
+        } }, [
+        el("span", { class: "k-dotcheck", "aria-hidden": "true", text: on ? "✓" : st === "rest" ? "休" : hs0 && doneN ? doneN + "/" + hs0.length : "" }),
+        el("span", { class: "k-check-row-text", text: h.name + (nextT ? " · " + nextT.at : "") }),
         el("span", { class: "k-check-row-meta", text: weekKept + " of 7" + (on ? " this week" : "") })
       ]);
       if (on) KOS.ui.state(row, "done", true);
@@ -2531,6 +2538,8 @@
     var editing = store.state.ui.editing;
     if (editing && editing.sid === sid && editing.ref === ref && editing.tab && EDIT_KIND[editing.tab]) curTab = editing.tab;
     else editing = null;
+    /* a file's "Where it's linked" opens the topic on its Files tab */
+    if (!editing && arg && arg.tab === "files") curTab = "files";
 
     function selectTab(id) {
       curTab = id;

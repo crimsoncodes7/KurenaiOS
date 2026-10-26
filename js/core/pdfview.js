@@ -51,7 +51,12 @@
     return libP;
   }
   function load(blob) {
-    return Promise.all([lib(), blob.arrayBuffer()]).then(function (r) {
+    /* inside the promise: a blob without arrayBuffer (an older engine)
+       rejects instead of throwing at the caller */
+    return Promise.resolve().then(function () {
+      if (!blob || typeof blob.arrayBuffer !== "function") throw new Error("This file can't be read here.");
+      return Promise.all([lib(), blob.arrayBuffer()]);
+    }).then(function (r) {
       return r[0].getDocument({ data: new Uint8Array(r[1]), cMapUrl: base() + "cmaps/", cMapPacked: true,
         standardFontDataUrl: base() + "standard_fonts/", wasmUrl: base() + "wasm/", isEvalSupported: false }).promise;
     });
@@ -127,7 +132,9 @@
   }
 
   /* ================= the viewer =================
-     o: {title, getBlob(cb), fileId, kind: "paper" | "file" | "scheme",
+     o: {title, getBlob(cb) (the original), getPdf(cb) (what is drawn, when
+         that differs: a picture made into a one-page PDF), record (the
+         KOS.files record), fileId, kind: "paper" | "file" | "scheme",
          paper: {pid, sitting, subject, title} (a past paper's index entry),
          scheme: {title, getBlob(cb)}, refs: ["sid:ref"] (where clips go) } */
   function open(o) {
@@ -140,7 +147,8 @@
       else docKey = prefix + "default";
     }
     var pdf = null, sizes = [], boxes = [], mounted = {}, layerPages = {}, text = null, qPage = {};
-    var schemeOn = false, follow = true, cur = 0, destroyed = false, clipMode = false;
+    var schemeOn = false, follow = true, cur = 0, destroyed = false, clipMode = false, pinMode = false, pinsOn = false;
+    var source = o.getPdf || o.getBlob;
     var dk = KOS.inkUI.desk({ dprCap: 2 });
     var overlay = el("div", { class: "k-pv", "data-ui": "pv.viewer", role: "dialog", "aria-label": (o.title || "Document") + " viewer" });
     var head = el("div", { class: "k-pv-head", "data-ui": "pv.head" });
@@ -150,7 +158,8 @@
     var pagesEl = el("div", { class: "k-pv-pages" });
     stage.appendChild(pagesEl);
     var schemePane = el("aside", { class: "k-pv-scheme", "data-ui": "pv.scheme", "aria-label": "Mark scheme", hidden: "" });
-    var body = el("div", { class: "k-pv-body" }, [thumbs, stage, schemePane]);
+    var pinPane = el("aside", { class: "k-pv-pins", "data-ui": "pv.pins", "aria-label": "Notes pinned to pages", hidden: "" });
+    var body = el("div", { class: "k-pv-body" }, [thumbs, stage, schemePane, pinPane]);
     overlay.appendChild(head); overlay.appendChild(barSlot); overlay.appendChild(body);
     var status = el("p", { class: "k-pv-status", "aria-live": "polite" });
     pagesEl.appendChild(status);
@@ -201,10 +210,17 @@
         text: clock && clock.running ? "Mark scheme · after you end" : schemeOn ? "Hide mark scheme" : "Mark scheme", disabled: clock && clock.running ? "" : null,
         title: clock && clock.running ? "Opens when you end and mark" : "", onclick: function () { setScheme(!schemeOn); } }));
       if (ink) head.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pv.clip", "aria-pressed": String(clipMode), text: clipMode ? "Clipping · drag a box" : "Clip to notes",
-        onclick: function () { clipMode = !clipMode; KOS.ui.state(stage, "clip", clipMode); paintHead(); if (clipMode) announce("Drag a box over the part of a page to clip."); } }));
+        onclick: function () { clipMode = !clipMode; if (clipMode) setPinMode(false); KOS.ui.state(stage, "clip", clipMode); paintHead(); if (clipMode) announce("Drag a box over the part of a page to clip."); } }));
+      if (ink) head.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pv.pins-btn", "aria-pressed": String(pinsOn), text: "Notes" + (pins().length ? " · " + pins().length : ""),
+        onclick: function () { setPins(!pinsOn); } }));
       var more = [];
       if (ink) more.push({ label: "Save a copy with my writing", onSelect: exportCopy });
-      more.push({ label: "Download the original", onSelect: function () { o.getBlob(function (err, b) { if (b) KOS.inkExport.deliver(b, safe(o.title) + ".pdf"); }); } });
+      more.push({ label: "Download the original", onSelect: function () { o.getBlob(function (err, b) { if (b) KOS.inkExport.deliver(b, o.record && o.record.name ? o.record.name : safe(o.title) + ".pdf"); }); } });
+      if (ink && KOS.assistant && KOS.assistant.ask) more.push({ label: "Ask Kurenai about this page", onSelect: askPage });
+      if (o.record && KOS.filesUI) {
+        more.push({ label: "Where it's linked", onSelect: function () { KOS.filesUI.where(o.record); } });
+        if (o.record.store === "files") more.push({ label: "Attach to…", onSelect: function () { KOS.filesUI.attachTo(o.record.fileId); } });
+      }
       if (o.kind === "paper") more.push({ label: localDoc() ? "Sync this paper's writing" : "Keep this paper's writing on this device", onSelect: toggleLocal });
       head.appendChild(KOS.ui.menu({ label: "⋯", className: "k-btn--sm k-btn--quiet", align: "end", hint: "More", items: more }));
       head.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "pv.close", "aria-label": "Close the viewer", text: "✕", onclick: close }));
@@ -235,7 +251,7 @@
     }
     function setLayer(key, ro) {
       docKey = key; readOnly = !!ro;
-      repaintInk(); paintHead();
+      repaintInk(); paintHead(); paintPins();
       announce(readOnly ? "An earlier attempt, read-only." : "Your latest attempt.");
     }
     var metaDone = {};
@@ -361,13 +377,15 @@
         var host = el("div", { class: "k-ink-page k-pv-ink", "data-paper": "none", "data-theme": "atelier-dawn" });
         b.appendChild(host);
         m.host = host;
-        m.sf = KOS.inkUI.surface(host, inkPage(i), dk, { readOnly: readOnly || clipMode, dprCap: dpr() });
+        m.sf = KOS.inkUI.surface(host, inkPage(i), dk, { readOnly: readOnly || clipMode || pinMode, dprCap: dpr() });
       }
+      pinMarks(i);
     }
     function unmount(i) {
       var m = mounted[i];
       if (!m) return;
       delete mounted[i];
+      [].slice.call(boxes[i] ? boxes[i].querySelectorAll(".k-pv-pin") : []).forEach(function (x) { x.remove(); });
       if (m.task) { try { m.task.cancel(); } catch (e) { /* done */ } }
       m.canvas.width = 0; m.canvas.height = 0;
       m.canvas.remove();
@@ -529,6 +547,14 @@
     /* ---------- Clip to notes: a region of a page → a topic's notebook ---------- */
     var drag = null, rectEl = null;
     stage.addEventListener("pointerdown", function (e) {
+      if (pinMode && !clipMode) {
+        var pb = e.target.closest(".k-pv-page");
+        if (!pb || e.target.closest(".k-pv-pin")) return;
+        e.preventDefault(); e.stopPropagation();
+        var pr = pb.getBoundingClientRect();
+        addPin(+pb.getAttribute("data-n"), (e.clientX - pr.left) / pr.width, (e.clientY - pr.top) / pr.height);
+        return;
+      }
       if (!clipMode) return;
       var b = e.target.closest(".k-pv-page");
       if (!b || b.closest(".k-pv-scheme")) return;
@@ -585,24 +611,42 @@
         full.width = 0; full.height = 0;
         var src = cut.toDataURL("image/png");
         var wUnits = Math.min(I.W * 0.86, f.w * I.W * 1.1), hUnits = wUnits * ch / cw;
+        var item = { w: Math.round(wUnits), h: Math.round(Math.min(hUnits, I.H * 0.7)), src: src, clip: { file: o.fileId, page: i + 1 } };
         chooseTopic(i, function (key, label) {
-          I.appendImage(I.topicDoc(key.split(":")[0], key.slice(key.indexOf(":") + 1)), { w: Math.round(wUnits), h: Math.round(Math.min(hUnits, I.H * 0.7)), src: src, clip: { file: o.fileId, page: i + 1 } },
+          I.appendImage(I.topicDoc(key.split(":")[0], key.slice(key.indexOf(":") + 1)), item,
             function (err) {
               KOS.ui.toast(err ? "The clip could not be saved — " + err.message : "Clipped to " + label + "'s notebook.", !!err);
               announce(err ? "The clip could not be saved." : "Clipped to " + label + "'s Handwritten tab.");
             });
+        }, function (ent, qq) {
+          /* the picture lives in ink under the redo item's own key, so it
+             syncs with your ink and shows on the card (invariant 124) */
+          I.appendImage("redo:" + ent.uid + ":" + qq.q, item, function (err) {
+            if (err) { KOS.ui.toast("The picture could not be saved — " + err.message, true); return; }
+            if (!qq.redo) KOS.tracker.update(ent.id, { questions: ent.questions.map(function (x) { return x.q === qq.q ? Object.assign({}, x, { redo: true }) : x; }) });
+            KOS.ui.toast(qq.q + " is a redo item, due tomorrow, with the picture.");
+            announce(qq.q + " is a redo item with the picture.");
+          });
         });
       }).catch(function (e) { KOS.ui.toast("That part could not be clipped — " + e.message, true); });
     }
     /* where a clip goes: the topics of the question on that page, the
        file's own topics, or any topic you pick */
-    function chooseTopic(i, cb) {
+    function chooseTopic(i, cb, onRedo) {
       var keys = [];
       var q = questionOn(i);
       if (q) questions().forEach(function (x) { if (x.label === q) keys = keys.concat(x.leaves); });
       (o.refs || []).forEach(function (r) { if (keys.indexOf(r) < 0) keys.push(r); });
       keys = keys.filter(function (k, j) { return keys.indexOf(k) === j; });
       KOS.inkUI.dialog({ title: "Clip to which topic?", className: "k-pv-clipdlg", render: function (body, closeIt) {
+        /* REDO ITEMS FROM A PAGE (files plan R4): on a logged attempt, the
+           question on this page becomes a redo item with the picture */
+        var d = docKey && I.doc(docKey), ent = d && d.attemptUid && KOS.tracker ? (KOS.tracker.all() || []).filter(function (x) { return x.uid === d.attemptUid; })[0] : null;
+        if (ent && q && onRedo) {
+          var qq = (ent.questions || []).filter(function (x) { return x.q === q; })[0];
+          if (qq) body.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary k-pv-topicbtn", "data-ui": "pv.clip-redo", text: (qq.redo ? "Add this picture to the redo item for " : "Make ") + q + (qq.redo ? "" : " a redo item, with this picture"),
+            onclick: function () { closeIt(); onRedo(ent, qq); } }));
+        }
         if (keys.length) body.appendChild(el("p", { class: "k-drill-p", text: q ? "The topics " + q + " is about:" : "This file's topics:" }));
         keys.forEach(function (k) {
           var n = KOS.spec.node ? KOS.spec.node(k) : null;
@@ -616,12 +660,118 @@
       } });
     }
 
+    /* ---------- notes pinned to a page (files plan §5) ----------
+       A sticky note at a spot, listed in the side panel; clicking one
+       jumps to it. Kept on the layer's ink doc (`meta.pins`), so it syncs
+       with your ink; an earlier attempt's notes are read-only with it. */
+    function pins() { var d = docKey && I.doc(docKey); return (d && d.meta && Array.isArray(d.meta.pins)) ? d.meta.pins : []; }
+    function savePins(list) {
+      var d = I.doc(docKey), meta = Object.assign({}, d && d.meta || {}, { pins: list });
+      var patch = { meta: meta };
+      if (!d || !d.title) Object.assign(patch, { title: (o.kind === "paper" ? "Attempt · " : "My writing · ") + stamp(), file: o.fileId, kind: o.kind, created: Date.now() });
+      I.setDocMeta(docKey, patch, function () { layers = layersOf(prefix); paintPins(); paintHead(); });
+    }
+    function setPins(on) {
+      pinsOn = on; pinPane.hidden = !on;
+      KOS.ui.state(overlay, "pins", on);
+      if (!on) setPinMode(false);
+      paintPins(); paintHead();
+    }
+    function setPinMode(on) {
+      pinMode = on && !readOnly;
+      KOS.ui.state(stage, "pin", pinMode);
+      /* the ink surfaces go read-only while a tap places a note */
+      Object.keys(mounted).forEach(function (i) { unmount(+i); mount(+i); });
+      if (pinMode) announce("Tap a spot on a page to pin a note there.");
+      paintPins();
+    }
+    function addPin(n, x, y) {
+      noteDialog("", function (t) {
+        if (!t) return;
+        savePins(pins().concat([{ id: I.uid(), n: n, x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)), text: t.slice(0, 600), at: Date.now() }]));
+        setPinMode(false);
+        announce("Note pinned to page " + (n + 1) + ".");
+      });
+    }
+    function noteDialog(val, done, onDelete) {
+      KOS.inkUI.dialog({ title: val ? "Edit the note" : "Pin a note", className: "k-pv-pindlg", hook: "pv.pin-dialog", render: function (body, closeIt, foot) {
+        var ta = el("textarea", { class: "k-input", rows: 4, "aria-label": "Note", maxlength: "600", placeholder: "What to remember about this spot…" });
+        ta.value = val || "";
+        body.appendChild(ta);
+        if (onDelete) foot.appendChild(el("button", { type: "button", class: "k-btn", "data-intent": "danger", text: "Delete", onclick: function () { closeIt(); onDelete(); } }));
+        foot.appendChild(el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: closeIt }));
+        foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "pv.pin-save", text: "Save", onclick: function () { var v = ta.value.trim(); closeIt(); done(v); } }));
+        setTimeout(function () { ta.focus(); }, 30);
+      } });
+    }
+    function editPin(p) {
+      if (readOnly) { go(p.n); return; }
+      noteDialog(p.text, function (t) {
+        if (!t) return;
+        savePins(pins().map(function (x) { return x.id === p.id ? Object.assign({}, x, { text: t.slice(0, 600) }) : x; }));
+      }, function () { savePins(pins().filter(function (x) { return x.id !== p.id; })); announce("Note deleted."); });
+    }
+    function pinMarks(i) {
+      var b = boxes[i];
+      if (!b) return;
+      [].slice.call(b.querySelectorAll(".k-pv-pin")).forEach(function (x) { x.remove(); });
+      pins().forEach(function (p, k) {
+        if (p.n !== i) return;
+        var m = el("button", { type: "button", class: "k-pv-pin", "data-ui": "pv.pin", "data-pin": p.id, "aria-label": "Note " + (k + 1) + ": " + p.text, title: p.text, text: String(k + 1),
+          onclick: function (e) { e.stopPropagation(); editPin(p); } });
+        m.style.setProperty("--px", (p.x * 100).toFixed(2) + "%"); m.style.setProperty("--py", (p.y * 100).toFixed(2) + "%");
+        b.appendChild(m);
+      });
+    }
+    function paintPins() {
+      boxes.forEach(function (_, i) { if (mounted[i]) pinMarks(i); });
+      if (!pinsOn) return;
+      pinPane.innerHTML = "";
+      var list = pins();
+      pinPane.appendChild(el("div", { class: "k-pv-pinhead" }, [el("b", { text: "Notes on this " + (o.kind === "paper" ? "attempt" : "file") }),
+        readOnly ? el("span", { class: "k-muted", text: "read-only" }) : el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pv.pin-add", "aria-pressed": String(pinMode),
+          text: pinMode ? "Tap a page…" : "＋ Pin a note", onclick: function () { setPinMode(!pinMode); } })]));
+      if (!list.length) { pinPane.appendChild(el("p", { class: "k-muted k-pv-pinempty", text: "No notes yet. Pin one to a spot on a page: it stays with your writing." })); return; }
+      pinPane.appendChild(el("ol", { class: "k-pv-pinlist" }, list.slice().sort(function (a, b) { return a.n - b.n || a.y - b.y; }).map(function (p) {
+        return el("li", {}, [el("button", { type: "button", class: "k-pv-pinrow", "data-ui": "pv.pin-row", onclick: function () {
+          go(p.n);
+          setTimeout(function () { var mk = boxes[p.n] && boxes[p.n].querySelector("[data-pin='" + p.id + "']"); if (mk) mk.focus(); }, 300);
+        } }, [el("span", { class: "k-mono k-muted", text: "p." + (p.n + 1) }), el("span", { text: p.text })])]);
+      })));
+    }
+
+    /* ---------- Ask Kurenai about this page (files plan R4, decision G) ----------
+       The page's own text, shown first in "What is sent", in ONE request
+       on your press; flashcards she proposes wait for your approval
+       (invariants 71a, 86). A scan has no text and says so. */
+    function askPage() {
+      if (!pdf) return;
+      var n = cur;
+      pdf.getPage(n + 1).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
+        var t = tc.items.map(function (it) { return it.str; }).join(" ").replace(/\s+/g, " ").trim().slice(0, 6000);
+        if (!t) { KOS.ui.toast("Page " + (n + 1) + " has no text layer (a scan or a picture), so there is nothing to send."); return; }
+        var refs = o.refs || [], topic = refs[0] ? refs[0] : null;
+        KOS.inkUI.dialog({ title: "Ask Kurenai about page " + (n + 1), className: "k-pv-askdlg", wide: true, hook: "pv.ask", render: function (body, closeIt, foot) {
+          body.appendChild(el("h3", { class: "k-kicker", text: "What is sent" }));
+          body.appendChild(el("pre", { class: "k-pv-asktext", "data-ui": "pv.ask-text", text: t }));
+          body.appendChild(el("p", { class: "k-muted", text: "This page's text and your request, in one message. Nothing else from the file, and none of your writing." }));
+          function go2(prompt) { closeIt(); KOS.assistant.ask(prompt + "\n\nFrom \"" + (o.title || "a file") + "\", page " + (n + 1) + ":\n\"\"\"\n" + t + "\n\"\"\"", "tutor"); }
+          foot.appendChild(el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: closeIt }));
+          foot.appendChild(el("button", { type: "button", class: "k-btn", "data-ui": "pv.ask-explain", text: "Explain it", onclick: function () { go2("Explain this page simply, exam-focused, in British English."); } }));
+          foot.appendChild(el("button", { type: "button", class: "k-btn", "data-ui": "pv.ask-summary", text: "Summarise it", onclick: function () { go2("Summarise this page as short revision bullet points."); } }));
+          foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "pv.ask-cards", text: "Make flashcards", onclick: function () {
+            go2("Make 6–10 flashcards from this page" + (topic ? " for topic " + topic + ", and propose adding them to that topic's flashcards (they wait for my approval)" : "; ask me which topic they belong to before proposing to add them") + ".");
+          } }));
+        } });
+      }, function () { KOS.ui.toast("That page's text could not be read.", true); });
+    }
+
     /* ---------- Save a copy with my writing (pdf-lib) ---------- */
     function exportCopy() {
       var pages = Object.keys(layerPages).filter(function (n) { return layerPages[n].items.length; });
       if (!pages.length) { KOS.ui.toast("Nothing written on this layer yet."); return; }
       KOS.ui.toast("Making the copy…");
-      Promise.all([KOS.inkExport.pdfLib(), new Promise(function (res, rej) { o.getBlob(function (err, b) { if (err || !b) rej(err || new Error("unreadable")); else res(b); }); })])
+      Promise.all([KOS.inkExport.pdfLib(), new Promise(function (res, rej) { source(function (err, b) { if (err || !b) rej(err || new Error("unreadable")); else res(b); }); })])
         .then(function (r) { return r[1].arrayBuffer().then(function (buf) { return r[0].PDFDocument.load(buf).then(function (doc) { return { L: r[0], doc: doc }; }); }); })
         .then(function (x) {
           var host = el("div", { class: "k-ink-exporthost", "data-theme": "atelier-dawn" });
@@ -654,7 +804,7 @@
       barSlot.appendChild(barWrap);
     }
     paintHead();
-    o.getBlob(function (err, blob) {
+    source(function (err, blob) {
       if (err || !blob) { status.textContent = "This file is not readable here" + (err && err.message === "permission" ? ": the browser needs your permission to read that folder again." : "."); return; }
       load(blob).then(function (doc) {
         if (destroyed) { doc.destroy(); return; }

@@ -9,8 +9,15 @@
      items  [{id, kind, at (ms), title, body, view, arg}] — the ledger's own
             ids (cal:/rem:/asg: from the alert tickers' forecasts; exam:,
             money:, goal: from each owner's notices(day) at the morning
-            time), with this device's filters, quiet hours and Exam
-            Season's hold applied before anything leaves it
+            time; air: for the next episode of each watched title the
+            airing cache knew, wish: for a Wishlist release day at 09:00 —
+            the notification centre's own ids, invariant 96), with this
+            device's filters, quiet hours and Exam Season's hold applied
+            before anything leaves it
+     airing {ids, titles, quiet} — the watched titles' AniList ids (the
+            phase C of roadmap 5.7 item 1): the runner asks AniList's public
+            schedule for episodes the cache did not know yet. Left out when
+            airing notices are muted or held
      brief  the read tools' answers for the week: Pacing, events and
             reminders by day, open assignments, assessments with their band,
             bills by name (never amounts), goals ending, cards due, the
@@ -63,6 +70,8 @@
        empty until its page ships) */
     out = out.concat(safe(function () { return KOS.routines.forecast(now, to); }, []));
     out = out.concat(safe(function () { return KOS.dayReview.forecast(now, to); }, []));
+    out = out.concat(safe(function () { return airingForecast(now, to); }, []));
+    out = out.concat(safe(function () { return wishlistForecast(now, to); }, []));
     for (var d = 0; d <= DAYS; d++) {
       var day = KOS.srs.addDays(iso(now), d), when = at(day, m);
       if (when < now || when >= to) continue;
@@ -86,6 +95,39 @@
         return { id: String(it.id), kind: it.kind, at: it.at, title: String(it.title || "").slice(0, 200),
           body: String(it.body || "").slice(0, 300), view: it.view || null, arg: it.arg === undefined ? null : it.arg };
       });
+  }
+
+  /* the next episode of every watched title, as the ledger will announce
+     it (KOS.notify's tickAiring: the same id, title and time) */
+  function airingForecast(now, to) {
+    var n = store.state.notify, out = [];
+    Object.keys((n && n.airing) || {}).forEach(function (key) {
+      var a = n.airing[key];
+      if (!a || !a.at || a.at * 1000 < now || a.at * 1000 >= to) return;
+      out.push({ id: "air:" + key + ":" + a.ep, kind: "airing", at: a.at * 1000, title: "Episode " + a.ep + " of " + a.title + " aired",
+        body: "Airing schedule from AniList", view: "anime", arg: null });
+    });
+    return out;
+  }
+  /* a Wishlist item waiting for release, on its day at 09:00 (tickWishlist) */
+  function wishlistForecast(now, to) {
+    if (!KOS.wishlist || !KOS.wishlist.byStatus) return [];
+    return KOS.wishlist.byStatus("waitingForRelease").filter(function (it) { return it.releaseDate; }).map(function (it) {
+      var p = it.releaseDate.split("-");
+      return { id: "wish:" + it.id + ":" + it.releaseDate, kind: "wishlist", at: new Date(+p[0], +p[1] - 1, +p[2], 9, 0, 0, 0).getTime(),
+        title: it.title + " is out", body: "Release day — it was waiting on your Budget Planner", view: "wishlist", arg: null };
+    }).filter(function (it) { return it.at >= now && it.at < to; });
+  }
+  /* the watched titles the runner may look up on AniList's public schedule */
+  function airing() {
+    var N = KOS.notify, n = store.state.notify;
+    if (N && ((N.isMuted && N.isMuted("airing")) || (N.isHeld && N.isHeld("airing")))) return null;
+    var keys = Object.keys((n && n.airing) || {}).filter(function (k) { return /^\d+$/.test(k); }).slice(0, 50);
+    if (!keys.length) return null;
+    var titles = {};
+    keys.forEach(function (k) { titles[k] = String(n.airing[k].title || "").slice(0, 120); });
+    var q = N && N.quiet ? N.quiet() : null;
+    return { ids: keys.map(Number), titles: titles, quiet: q && q.on ? { from: q.from, to: q.to } : null };
   }
 
   /* ---- the brief: what a scheduled message on the server may read ---- */
@@ -136,7 +178,7 @@
   /* build(cb, {now}) → {v, builtAt, tz, morning, items, brief} */
   function build(cb, opts) {
     var now = (opts && opts.now) || Date.now();
-    function done(rows) { cb(null, { v: 1, builtAt: now, tz: tz(), morning: morning(), items: items(now, rows), brief: brief(now, rows) }); }
+    function done(rows) { cb(null, { v: 1, builtAt: now, tz: tz(), morning: morning(), items: items(now, rows), brief: brief(now, rows), airing: safe(airing, null) }); }
     if (KOS.goals && KOS.goals.compute) {
       try { KOS.goals.compute(function (err, rows) { done(err ? [] : rows || []); }, { archived: false }); }
       catch (e) { done([]); }

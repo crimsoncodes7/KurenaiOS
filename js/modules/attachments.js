@@ -49,7 +49,7 @@
   function open(cb) {
     if (!available()) { cb(new Error("IndexedDB unavailable")); return; }
     if (db) { cb(null, db); return; }
-    var rq = window.indexedDB.open(DB_NAME, 2);
+    var rq = window.indexedDB.open(DB_NAME, 3);
     rq.onupgradeneeded = function (e) {
       var d = e.target.result, os;
       if (!d.objectStoreNames.contains(STORE)) {
@@ -64,7 +64,13 @@
       if (!os.indexNames.contains("fileId")) {
         os.createIndex("fileId", "fileId", { unique: false });
       }
-      if (e.oldVersion > 0 && e.oldVersion < 2) {
+      /* v3 (files plan R1, invariant 150): ONE FILE, MANY LINKS. `hash`
+         (SHA-256 of the content) finds a file added twice; `linkKeys`
+         (multiEntry) lists every place it is linked — the home topic or
+         assignment it was added to, then every "Attach to…". */
+      if (!os.indexNames.contains("hash")) os.createIndex("hash", "hash", { unique: false });
+      if (!os.indexNames.contains("links")) os.createIndex("links", "linkKeys", { unique: false, multiEntry: true });
+      if (e.oldVersion > 0 && e.oldVersion < 3) {
         var cur = os.openCursor();
         cur.onsuccess = function (ev) {
           var c = ev.target.result;
@@ -73,14 +79,74 @@
           if (!v.fileId) {
             v.fileId = genId();
             v.updatedAt = v.updatedAt || v.added || Date.now();
-            c.update(v);
           }
+          v.linkKeys = keysOf(v);
+          c.update(v);
           c.continue();
         };
       }
     };
     rq.onsuccess = function () { db = rq.result; cb(null, db); };
     rq.onerror = function () { cb(rq.error || new Error("Could not open the file store")); };
+  }
+
+  /* ---------------- links (files plan §3, invariant 150) ----------------
+     A link is {kind, id}: topic ("sid:ref"), assignment, exam (an
+     assessment), event, goal, paper ("<paper>:<sitting>"). The record's
+     subject/ref is its HOME link (the place it was first added, read by
+     the older readers); `links` holds the rest. */
+  var LINK_KINDS = ["topic", "assignment", "exam", "event", "goal", "paper"];
+  function homeLink(rec) {
+    if (!rec || !rec.ref || rec.ref === "_") return null;
+    var m = /^assignment:(.+)$/.exec(rec.ref);
+    if (m) return { kind: "assignment", id: m[1] };
+    if (rec.subject && rec.subject !== "_") return { kind: "topic", id: rec.subject + ":" + rec.ref };
+    return null;
+  }
+  function cleanLinks(list) {
+    var out = [], seen = {};
+    (Array.isArray(list) ? list : []).forEach(function (l) {
+      if (!l || LINK_KINDS.indexOf(l.kind) < 0 || l.id == null || l.id === "") return;
+      var k = l.kind + ":" + String(l.id).slice(0, 120);
+      if (seen[k]) return;
+      seen[k] = true;
+      out.push({ kind: l.kind, id: String(l.id).slice(0, 120) });
+    });
+    return out.slice(0, 60);
+  }
+  function linksOf(rec) {
+    var h = homeLink(rec), all = (h ? [h] : []).concat(rec && rec.links || []);
+    return cleanLinks(all);
+  }
+  function keysOf(rec) { return linksOf(rec).map(function (l) { return l.kind + ":" + l.id; }); }
+  /* kind only ever moves UP, by this order (files plan §3, adjusted) */
+  var KIND_ORDER = ["other", "photo", "handout", "notes", "worksheet", "scheme", "paper"];
+  function promote(cur, next) {
+    var a = KIND_ORDER.indexOf(cur), b = KIND_ORDER.indexOf(next);
+    return b > a ? next : (a >= 0 ? cur : (b >= 0 ? next : "other"));
+  }
+  function guessKind(name, mime) {
+    var n = String(name || "").toLowerCase();
+    if (/\b(qp|question paper)\b/.test(n)) return "paper";
+    if (/\b(ms|mark scheme)\b/.test(n)) return "scheme";
+    if (/worksheet|homework|exercise/.test(n)) return "worksheet";
+    if (/notes?\b|revision|summary/.test(n)) return "notes";
+    if (/^image\//.test(mime || "")) return "photo";
+    if (/handout|slides?|lesson|pdf$/.test(n) || mime === "application/pdf") return "handout";
+    return "other";
+  }
+  /* SHA-256 of a blob, hex; null where the browser has no WebCrypto */
+  function hashOf(blob, cb) {
+    var subtle = window.crypto && window.crypto.subtle;
+    if (!subtle || !blob || typeof blob.arrayBuffer !== "function") { cb(null); return; }
+    blob.arrayBuffer().then(function (buf) { return subtle.digest("SHA-256", buf); }).then(function (h) {
+      var b = new Uint8Array(h), s = "";
+      for (var i = 0; i < b.length; i++) s += (b[i] < 16 ? "0" : "") + b[i].toString(16);
+      cb(s);
+    }, function () { cb(null); });
+  }
+  function notifyFiles() {
+    try { window.dispatchEvent(new window.CustomEvent("kos-files")); } catch (e) { /* old engine */ }
   }
   function tx(mode, cb) {
     open(function (err, d) {
@@ -89,25 +155,138 @@
     });
   }
 
-  function add(sid, ref, file, cb) {
+  /* add(sid, ref, file, cb, opts) — cb(err, id, {linked, matched})
+     ONE COPY (invariant 150): a file whose SHA-256 is already stored is
+     linked again, not stored again; its name and kind are kept, the new
+     filename joins `aliases`, and `kind` only moves up. opts: {kind,
+     origin, links, local} */
+  function add(sid, ref, file, cb, opts) {
+    opts = opts || {};
     if (file.size > MAX_BYTES) { cb(new Error("Over the 25 MB per-file limit — link it as a resource instead")); return; }
-    tx("readwrite", function (err, os) {
-      if (err) { cb(err); return; }
-      var rq = os.add({
-        subject: sid, ref: ref, name: file.name,
-        mime: file.type || "application/octet-stream",
-        size: file.size, blob: file, note: "", added: Date.now(),
-        fileId: genId(), updatedAt: Date.now()
+    hashOf(file, function (hash) {
+      var want = cleanLinks((homeLink({ subject: sid, ref: ref }) ? [homeLink({ subject: sid, ref: ref })] : []).concat(opts.links || []));
+      function fresh() {
+        tx("readwrite", function (err, os) {
+          if (err) { cb(err); return; }
+          var rec = {
+            subject: sid, ref: ref, name: file.name || "file",
+            mime: file.type || "application/octet-stream",
+            size: file.size, blob: file, note: "", added: Date.now(),
+            fileId: genId(), updatedAt: Date.now(),
+            hash: hash, kind: opts.kind || guessKind(file.name, file.type), aliases: [],
+            links: cleanLinks(opts.links || []), origin: opts.origin || null
+          };
+          if (opts.local) rec.local = true;
+          rec.linkKeys = keysOf(rec);
+          var rq = os.add(rec);
+          rq.onsuccess = function () { noteCloud(); notifyFiles(); cb(null, rq.result, { linked: false }); };
+          rq.onerror = function () { cb(rq.error); };
+        });
+      }
+      if (!hash) { fresh(); return; }
+      tx("readwrite", function (err, os) {
+        if (err) { cb(err); return; }
+        var q = os.index("hash").get(window.IDBKeyRange.only(hash));
+        q.onsuccess = function () {
+          var rec = q.result;
+          if (!rec) { fresh(); return; }
+          var have = keysOf(rec), added = want.filter(function (l) { return have.indexOf(l.kind + ":" + l.id) < 0; });
+          var nm = file.name || "";
+          if (nm && nm !== rec.name && (rec.aliases || []).indexOf(nm) < 0) rec.aliases = (rec.aliases || []).concat([nm]).slice(-20);
+          if (opts.kind) rec.kind = promote(rec.kind || "other", opts.kind);
+          if (!rec.blob && file) { rec.blob = file; rec.evicted = false; }
+          if (!homeLink(rec) && added.length && added[0].kind === "topic") {
+            var i = added[0].id.indexOf(":");
+            rec.subject = added[0].id.slice(0, i); rec.ref = added[0].id.slice(i + 1);
+            added = added.slice(1);
+          } else if (!homeLink(rec) && added.length && added[0].kind === "assignment") {
+            rec.subject = sid; rec.ref = "assignment:" + added[0].id; added = added.slice(1);
+          }
+          rec.links = cleanLinks((rec.links || []).concat(added));
+          rec.linkKeys = keysOf(rec);
+          rec.updatedAt = Date.now();
+          var p = os.put(rec);
+          p.onsuccess = function () { noteCloud(); notifyFiles(); cb(null, rec.id, { linked: true, matched: true, fileId: rec.fileId }); };
+          p.onerror = function () { cb(p.error); };
+        };
+        q.onerror = function () { fresh(); };
       });
-      rq.onsuccess = function () { noteCloud(); cb(null, rq.result); };
-      rq.onerror = function () { cb(rq.error); };
     });
   }
+  /* a patch to the file's own record: links, kind (only up), refs, note */
+  function updateFile(fileId, fn, cb) {
+    getByFileId(fileId, function (err, rec) {
+      if (err || !rec) { cb && cb(err || new Error("That file is no longer in the store.")); return; }
+      tx("readwrite", function (e2, os) {
+        if (e2) { cb && cb(e2); return; }
+        fn(rec);
+        rec.links = cleanLinks(rec.links);
+        rec.linkKeys = keysOf(rec);
+        rec.updatedAt = Date.now();
+        var p = os.put(rec);
+        p.onsuccess = function () { noteCloud(); notifyFiles(); cb && cb(null, rec); };
+        p.onerror = function () { cb && cb(p.error); };
+      });
+    });
+  }
+  function addLink(fileId, link, cb) {
+    updateFile(fileId, function (rec) {
+      if (!homeLink(rec) && link.kind === "topic") { var i = link.id.indexOf(":"); rec.subject = link.id.slice(0, i); rec.ref = link.id.slice(i + 1); return; }
+      rec.links = (rec.links || []).concat([link]);
+    }, cb);
+  }
+  /* removing a link never deletes the file (invariant 150) */
+  function removeLink(fileId, link, cb) {
+    updateFile(fileId, function (rec) {
+      var h = homeLink(rec);
+      if (h && h.kind === link.kind && h.id === String(link.id)) {
+        var next = (rec.links || []).filter(function (l) { return l.kind === "topic" || l.kind === "assignment"; })[0];
+        if (next && next.kind === "topic") { var i = next.id.indexOf(":"); rec.subject = next.id.slice(0, i); rec.ref = next.id.slice(i + 1); }
+        else if (next) { rec.ref = "assignment:" + next.id; }
+        else { rec.subject = "_"; rec.ref = "_"; }
+        if (next) rec.links = rec.links.filter(function (l) { return l !== next; });
+        return;
+      }
+      rec.links = (rec.links || []).filter(function (l) { return !(l.kind === link.kind && l.id === String(link.id)); });
+    }, cb);
+  }
+  function setKind(fileId, kind, cb) {
+    if (KIND_ORDER.indexOf(kind) < 0) { cb && cb(new Error("Unknown kind")); return; }
+    /* a hand-picked kind may go down too: only a MATCH never demotes */
+    updateFile(fileId, function (rec) { rec.kind = kind; }, cb);
+  }
+  /* "Free up space" (files plan §7, adjusted): the local BINARY goes; the
+     record, its text index and its ink stay. Only for a file safe in the
+     cloud — the caller checks that it was uploaded. */
+  function evict(fileId, cb) {
+    getByFileId(fileId, function (err, rec) {
+      if (err || !rec) { cb && cb(err || new Error("gone")); return; }
+      tx("readwrite", function (e2, os) {
+        if (e2) { cb && cb(e2); return; }
+        rec.blob = null; rec.evicted = true;
+        var p = os.put(rec);
+        p.onsuccess = function () { notifyFiles(); cb && cb(null); };
+        p.onerror = function () { cb && cb(p.error); };
+      });
+    });
+  }
+  /* a topic's (or an assignment's) files: those added there, and those
+     linked there since (invariant 150) */
   function list(sid, ref, cb) {
+    var key = /^assignment:/.test(ref) ? ref : "topic:" + sid + ":" + ref;
     tx("readonly", function (err, os) {
       if (err) { cb(err, []); return; }
       var rq = os.index("topic").getAll(window.IDBKeyRange.only([sid, ref]));
-      rq.onsuccess = function () { cb(null, rq.result || []); };
+      rq.onsuccess = function () {
+        var rows = rq.result || [], seen = {};
+        rows.forEach(function (r) { seen[r.id] = true; });
+        var lq = os.index("links").getAll(window.IDBKeyRange.only(key));
+        lq.onsuccess = function () {
+          (lq.result || []).forEach(function (r) { if (!seen[r.id]) { seen[r.id] = true; rows.push(r); } });
+          cb(null, rows);
+        };
+        lq.onerror = function () { cb(null, rows); };
+      };
       rq.onerror = function () { cb(rq.error, []); };
     });
   }
@@ -139,8 +318,15 @@
       cur.onsuccess = function (ev) {
         var c = ev.target.result;
         if (!c) { if (moved) noteCloud(); cb && cb(null, moved); return; }
-        var rec = c.value, to = KOS.store.renamedRef(rec.subject, rec.ref);
-        if (to != null) { rec.ref = to; rec.updatedAt = Date.now(); c.update(rec); moved++; }
+        var rec = c.value, to = KOS.store.renamedRef(rec.subject, rec.ref), hit = to != null;
+        if (hit) rec.ref = to;
+        /* its other topic links follow too, and the link index with them */
+        (rec.links || []).forEach(function (l) {
+          if (l.kind !== "topic") return;
+          var i = l.id.indexOf(":"), t2 = KOS.store.renamedRef(l.id.slice(0, i), l.id.slice(i + 1));
+          if (t2 != null) { l.id = l.id.slice(0, i) + ":" + t2; hit = true; }
+        });
+        if (hit) { rec.links = cleanLinks(rec.links); rec.linkKeys = keysOf(rec); rec.updatedAt = Date.now(); c.update(rec); moved++; }
         c.continue();
       };
       cur.onerror = function () { cb && cb(cur.error, moved); };
@@ -189,8 +375,15 @@
         rec.size = file.size;
         rec.replacedAt = Date.now();
         rec.updatedAt = Date.now();
+        rec.evicted = false;
+        rec.hash = null;
         var p = os.put(rec);
-        p.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
+        p.onsuccess = function () {
+          noteCloud(); notifyFiles();
+          /* the new content's hash, written after: a replace is never held up */
+          hashOf(file, function (h) { if (h) updateFile(rec.fileId, function (r) { r.hash = h; }); });
+          cb && cb(null, rec);
+        };
         p.onerror = function () { cb && cb(p.error); };
       };
       rq.onerror = function () { cb && cb(rq.error); };
@@ -204,6 +397,7 @@
         var victim = gq.result || null;
         var rq = os.delete(id);
         rq.onsuccess = function () {
+          notifyFiles();
           if (victim && !(opts && opts.skipTombstone)) {
             recordFileTombstone(victim, function () { noteCloud(); cb && cb(null); });
           } else {
@@ -272,7 +466,9 @@
               name: rec.name, mime: rec.mime, size: rec.size,
               note: rec.note || "", added: rec.added, blobBase64: b64,
               fileId: rec.fileId || null,
-              updatedAt: rec.updatedAt || rec.added || null };
+              updatedAt: rec.updatedAt || rec.added || null,
+              hash: rec.hash || null, kind: rec.kind || null, aliases: rec.aliases || [], links: rec.links || [],
+              origin: rec.origin || null, local: !!rec.local, evicted: !!rec.evicted };
             if (!--pending) { fired = true; cb(null, result); }
           }
           /* a cloud-metadata-only record has no local blob yet (Build 4a) —
@@ -306,7 +502,12 @@
             name: item.name, mime: item.mime, size: item.size,
             blob: blob, note: item.note || "", added: item.added,
             fileId: item.fileId || genId(),
-            updatedAt: item.updatedAt || item.added || Date.now() };
+            updatedAt: item.updatedAt || item.added || Date.now(),
+            hash: item.hash || null, kind: item.kind || guessKind(item.name, item.mime), aliases: Array.isArray(item.aliases) ? item.aliases : [],
+            links: cleanLinks(item.links), origin: item.origin || null };
+          if (item.local) rec.local = true;
+          if (!blob && item.evicted) rec.evicted = true;
+          rec.linkKeys = keysOf(rec);
           var putRq = os.put(rec);
           putRq.onsuccess = function () { if (!fired && !--pending) { fired = true; cb(null); } };
           putRq.onerror = function () { if (!fired) { fired = true; cb(putRq.error); } };
@@ -329,7 +530,9 @@
           return { id: rec.id, fileId: rec.fileId || null, subject: rec.subject,
             ref: rec.ref, name: rec.name, mime: rec.mime, size: rec.size,
             note: rec.note || "", added: rec.added,
-            updatedAt: rec.updatedAt || rec.added || null, hasBlob: !!rec.blob };
+            updatedAt: rec.updatedAt || rec.added || null, hasBlob: !!rec.blob,
+            hash: rec.hash || null, kind: rec.kind || guessKind(rec.name, rec.mime), aliases: rec.aliases || [],
+            links: linksOf(rec), origin: rec.origin || null, local: !!rec.local, evicted: !!rec.evicted, replacedAt: rec.replacedAt || null };
         }));
       };
       rq.onerror = function () { cb(rq.error, []); };
@@ -361,6 +564,13 @@
         rec.size = meta.size || 0;
         rec.note = meta.note || "";
         rec.updatedAt = meta.updatedAt || Date.now();
+        /* the file layer's fields ride meta_json (files plan R1) */
+        if (meta.kind) rec.kind = meta.kind;
+        if (Array.isArray(meta.aliases)) rec.aliases = meta.aliases.slice(0, 20);
+        if (Array.isArray(meta.links)) rec.links = cleanLinks(meta.links);
+        if (meta.hash) rec.hash = meta.hash;
+        if (meta.origin) rec.origin = meta.origin;
+        rec.linkKeys = keysOf(rec);
         var rq = os.put(rec);
         rq.onsuccess = function () { rec.id = rec.id != null ? rec.id : rq.result; cb && cb(null, rec); };
         rq.onerror = function () { cb && cb(rq.error); };
@@ -373,9 +583,10 @@
       tx("readwrite", function (e2, os) {
         if (e2) { cb && cb(e2); return; }
         rec.blob = blob;
+        rec.evicted = false;
         if (blob && blob.size != null) rec.size = blob.size;
         var rq = os.put(rec);
-        rq.onsuccess = function () { cb && cb(null, rec); };
+        rq.onsuccess = function () { notifyFiles(); cb && cb(null, rec); };
         rq.onerror = function () { cb && cb(rq.error); };
       });
     });
@@ -487,12 +698,14 @@
       return items.find(function (x) { return x.id === selectedId; }) || null;
     }
 
-    var fileIn = el("input", { type: "file", class: "sr-only", tabindex: "-1", "aria-hidden": "true", onchange: function () {
-      if (!fileIn.files[0]) return;
-      add(sid, ref, fileIn.files[0], function (err, id) {
+    var fileIn = el("input", { type: "file", multiple: "", class: "sr-only", tabindex: "-1", "aria-hidden": "true", onchange: function () {
+      var fs = [].slice.call(fileIn.files || []);
+      fileIn.value = "";
+      if (!fs.length) return;
+      if (KOS.files) { KOS.files.add(fs, { link: { kind: "topic", id: sid + ":" + ref } }, function (err, res) { KOS.files.report(res); selectedId = null; render(); }); return; }
+      add(sid, ref, fs[0], function (err, id) {
         if (err) KOS.ui.toast("Upload failed: " + err.message, true);
         else { KOS.ui.toast("Attached to " + ref + "."); selectedId = id; render(); }
-        fileIn.value = "";
       });
     } });
     var replaceIn = el("input", { type: "file", class: "sr-only", tabindex: "-1", "aria-hidden": "true", onchange: function () {
@@ -509,10 +722,27 @@
 
     var listEl = el("div", { class: "k-att-files", "data-ui": "attach.files", role: "listbox", "aria-label": "Attached files" });
     var side = el("div", { class: "k-att-side" }, [
-      el("button", { type: "button", class: "k-btn k-att-add", "data-intent": "primary", "data-ui": "attach.add", text: "⇪ Attach a file…", onclick: function () { fileIn.click(); } }),
+      el("button", { type: "button", class: "k-btn k-att-add", "data-intent": "primary", "data-ui": "attach.add", text: "⇪ Attach files…", onclick: function () { fileIn.click(); } }),
+      KOS.fileScan ? el("button", { type: "button", class: "k-btn k-att-add", "data-ui": "attach.scan", text: "◫ Scan pages", onclick: function () {
+        KOS.fileScan.open({ onDone: function (file) { KOS.files.add([file], { link: { kind: "topic", id: sid + ":" + ref }, kind: "worksheet" }, function (err, res) { KOS.files.report(res); render(); }); } });
+      } }) : null,
       listEl,
-      el("p", { class: "k-att-lead", text: "Stored in this browser and included in the full backup. The inspector folds on this tab so the preview gets the width." })
-    ]);
+      el("p", { class: "k-att-lead", text: "Drop files here, or paste a picture. Stored in this browser, in the full backup, and in your private cloud when signed in. A file already in Files is linked, not stored twice." })
+    ].filter(Boolean));
+    /* drop anywhere and paste (files plan §6) */
+    if (KOS.files) {
+      KOS.files.dropTarget(wrap, { kind: "topic", id: sid + ":" + ref }, function () { selectedId = null; render(); });
+      var onPaste = function (e) {
+        if (!wrap.isConnected) { document.removeEventListener("paste", onPaste); return; }
+        var t = e.target;
+        if (t && (t.isContentEditable || /^(INPUT|TEXTAREA)$/.test(t.tagName))) return;
+        var fs = [].slice.call((e.clipboardData && e.clipboardData.files) || []);
+        if (!fs.length) return;
+        e.preventDefault();
+        KOS.files.add(fs.map(function (f) { return KOS.files.named(f); }), { link: { kind: "topic", id: sid + ":" + ref } }, function (err, res) { KOS.files.report(res); render(); });
+      };
+      document.addEventListener("paste", onPaste);
+    }
     var stage = el("section", { class: "k-card k-att-stage", "data-ui": "attach.stage", "aria-label": "Document preview" });
     wrap.appendChild(side);
     wrap.appendChild(stage);
@@ -565,8 +795,9 @@
       var actions = el("div", { class: "k-att-actions", "data-ui": "attach.actions" }, [
         act("✎ Rename", function () { renameFlow(rec); }),
         act("⇄ Replace", function () { replaceIn.click(); }, { title: "Swap the file, keep the notes and links" }),
+        KOS.filesUI ? act("⊕ Attach to…", function () { KOS.filesUI.attachTo(rec.fileId, render); }, { "data-ui": "attach.attach-to", title: "Link it to another topic, assignment or assessment" }) : null,
         act("✕ Remove", function () { removeFlow(rec); }, { "data-intent": "danger" })
-      ]);
+      ].filter(Boolean));
       stage.appendChild(el("div", { class: "k-att-head" }, [
         el("h2", { class: "k-att-title", "data-ui": "attach.stage-name", text: rec.name, title: rec.name }),
         actions
@@ -592,8 +823,8 @@
         ]));
         bar.appendChild(act(previewOpen ? "▾ Collapse" : "▸ Expand", function () { previewOpen = !previewOpen; renderStage(); },
           { title: previewOpen ? "Hide the preview" : "Show the preview" }));
-        bar.appendChild(act("⤢ Full screen", function () { openFullscreen(rec); }));
-        if (rec.mime === "application/pdf" && KOS.pdfView) bar.appendChild(act("✎ Write on it", function () { openViewer(rec); }, { "data-ui": "attach.write", title: "Open in the viewer with ink; the file itself never changes" }));
+        bar.appendChild(act("⤢ Full screen", function () { if (rec.mime === "application/pdf" && KOS.files) KOS.files.openRec(rec); else openFullscreen(rec); }));
+        if ((rec.mime === "application/pdf" || /^image\//.test(rec.mime)) && KOS.pdfView) bar.appendChild(act("✎ Write on it", function () { if (KOS.files) KOS.files.openRec(rec); else openViewer(rec); }, { "data-ui": "attach.write", title: "Open in the viewer with ink; the file itself never changes" }));
       }
       bar.appendChild(el("span", { class: "k-spacer" }));
       if (st === "ok") {
@@ -675,11 +906,25 @@
         });
         host.appendChild(img);
       } else if (rec.mime === "application/pdf") {
-        /* PDF viewer fragment params. The toolbar is NEVER suppressed —
-           the embedded viewer's own controls stay available, and the frame
-           is given real height so they can't be clipped. */
-        var frag = fit === FIT.PAGE ? "#view=Fit" : fit === FIT.ZOOM ? "#zoom=" + zoom : "#view=FitH";
-        host.appendChild(el("iframe", { class: "k-att-pdf", "data-ui": "attach.pdf", src: url + frag, title: rec.name, allow: "fullscreen" }));
+        /* ONE VIEWER (invariant 152): a PDF previews as its first page,
+           drawn by pdf.js; it opens in the app's viewer, never the
+           browser's */
+        var openBtn = el("button", { type: "button", class: "k-att-pdfcard", "data-ui": "attach.pdf", "aria-label": "Open " + rec.name + " in the viewer",
+          onclick: function () { if (KOS.files) KOS.files.openRec(rec); else openViewer(rec); } }, [el("span", { class: "k-att-pdfpage" }), el("span", { class: "k-att-pdfcta", text: "Open in the viewer ›" })]);
+        host.appendChild(openBtn);
+        if (KOS.pdfView) KOS.pdfView.load(rec.blob).then(function (pdf) {
+          return pdf.getPage(1).then(function (pg) {
+            if (!openBtn.isConnected) { pdf.destroy(); return; }
+            var v1 = pg.getViewport({ scale: 1 }), w = Math.min(900, openBtn.clientWidth || 600), vp = pg.getViewport({ scale: w / v1.width * Math.min(2, window.devicePixelRatio || 1) });
+            var c = el("canvas", { class: "k-att-pdfcanvas", "aria-hidden": "true" });
+            c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+            openBtn.querySelector(".k-att-pdfpage").appendChild(c);
+            return pg.render({ canvasContext: c.getContext("2d"), viewport: vp, intent: "print" }).promise.then(function () {
+              host.addEventListener("kos-release", function () { c.width = 0; c.height = 0; });
+              pdf.destroy();
+            });
+          });
+        }).catch(function () { /* the card still opens it */ });
       } else {
         var pre = el("pre", { class: "k-att-text" });
         if (fit === FIT.ZOOM) pre.style.setProperty("--att-zoom", String(zoom / 100));
@@ -779,6 +1024,7 @@
       input.focus();
     }
     function removeFlow(rec) {
+      if (KOS.files) { releaseUrl(); KOS.files.detach(rec, { kind: "topic", id: sid + ":" + ref }, function () { selectedId = null; render(); }); return; }
       KOS.ui.confirm({ title: "Delete file?", body: "Delete “" + rec.name + "” and its notes?", danger: true, confirm: "Delete" },
         function () {
           releaseUrl();
@@ -869,6 +1115,10 @@
     remove: remove,
     renameRefs: renameRefs,
     mountTab: mountTab,
+    /* the file layer (files plan R1, invariant 150) */
+    addLink: addLink, removeLink: removeLink, setKind: setKind, evict: evict, updateFile: updateFile,
+    linksOf: linksOf, homeLink: homeLink, cleanLinks: cleanLinks, keysOf: keysOf, hashOf: hashOf,
+    guessKind: guessKind, promote: promote, KIND_ORDER: KIND_ORDER, MAX_BYTES: MAX_BYTES,
     exportAll: exportAll,
     importAll: importAll,
     /* Build 4a — cloud sync surface */

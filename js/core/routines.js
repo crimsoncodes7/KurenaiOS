@@ -10,7 +10,9 @@
             day, [0..6] those days, null on demand), window {from, to}|null,
             weekend {days, window}|null, every (2–14: every N days, counted
             from `from`), from (ISO day), auto {src, subject, n} (a habit
-            ticked by what the app already records), anchor, remind,
+            ticked by what the app already records), times ["HH:MM", …]
+            (a habit done SEVERAL TIMES A DAY, 2–6: a step per time, `at`,
+            the day kept once every time is ticked), anchor, remind,
             archived, order, legacyHabit, createdAt, updatedAt}]
      log    {"<routine>|<routine day>": {steps {stepId: ts}, no {stepId: ts},
             done ts|null, min bool, rest bool, snap [[id, text, optional,
@@ -149,8 +151,18 @@
     if (s.checkMorning) out.checkMorning = true;
     var note = str(s.note, 400); if (note) out.note = note;
     var link = normaliseLink(s.link); if (link) out.link = link;
+    if (HM.test(s.at)) out.at = s.at;
     return out;
   }
+  /* a habit's times of day: 2–6 distinct HH:MM, in order; else null */
+  function normaliseTimes(t) {
+    if (!Array.isArray(t)) return null;
+    var out = [];
+    t.forEach(function (x) { if (HM.test(x) && out.indexOf(x) < 0) out.push(x); });
+    out.sort();
+    return out.length >= 2 ? out.slice(0, 6) : null;
+  }
+  function timeStepId(t) { return "t" + t.replace(":", ""); }
   function normalise(rec, base) {
     rec = rec || {}; base = base || {};
     function pick(k) { return rec[k] !== undefined ? rec[k] : base[k]; }
@@ -189,7 +201,17 @@
       out.every = every;
       out.from = typeof pick("from") === "string" && /^\d{4}-\d{2}-\d{2}$/.test(pick("from")) ? pick("from") : isoOf(new Date(out.createdAt));
     }
-    var auto = out.kind === "habit" ? normaliseAuto(pick("auto")) : null;
+    /* SEVERAL TIMES A DAY (asked for 26 October 2026: medicine, say): the
+       habit's one step becomes a step per time, each ticked on its own;
+       the day is kept, and pays once, when every time is ticked */
+    var times = out.kind === "habit" ? normaliseTimes(pick("times")) : null;
+    if (times) {
+      out.times = times;
+      out.steps = times.map(function (t) { return { id: timeStepId(t), text: out.name, mins: 0, at: t }; });
+    } else if (out.kind === "habit" && out.steps.length > 1 && out.steps.every(function (x) { return x.at; })) {
+      out.steps = [{ id: rid("s"), text: out.name, mins: 0 }];
+    }
+    var auto = out.kind === "habit" && !times ? normaliseAuto(pick("auto")) : null;
     if (auto) out.auto = auto;
     return out;
   }
@@ -278,11 +300,11 @@
     return s && s.log ? s.log[key(id, day)] || null : null;
   }
   function snapOf(r) {
-    return r.steps.map(function (s) { return [s.id, s.text, s.optional ? 1 : 0, s.minimum ? 1 : 0, s.checkMorning ? 1 : 0]; });
+    return r.steps.map(function (s) { var x = [s.id, s.text, s.optional ? 1 : 0, s.minimum ? 1 : 0, s.checkMorning ? 1 : 0]; if (s.at) x.push(s.at); return x; });
   }
   /* the steps a day is judged against: its snapshot, else the routine now */
   function stepsFor(r, e) {
-    if (e && Array.isArray(e.snap)) return e.snap.map(function (x) { return { id: x[0], text: x[1], optional: !!x[2], minimum: !!x[3], checkMorning: !!x[4] }; });
+    if (e && Array.isArray(e.snap)) return e.snap.map(function (x) { var o = { id: x[0], text: x[1], optional: !!x[2], minimum: !!x[3], checkMorning: !!x[4] }; if (x[5]) o.at = x[5]; return o; });
     return r ? r.steps : [];
   }
   function required(steps) { return steps.filter(function (s) { return !s.optional; }); }
@@ -507,7 +529,7 @@
       var e = entry(r.id, day), v = verdict(r, e), w = windowOn(r, day);
       var steps = stepsFor(r, e).filter(function (s) { return !s.checkMorning; });
       return { id: r.id, name: r.name, kind: r.kind, mark: r.mark, window: w, state: stateOn(r, day, now),
-        steps: steps.map(function (s) { return { id: s.id, text: s.text, mins: s.mins || 0, optional: !!s.optional, minimum: !!s.minimum, done: !!(e && e.steps && e.steps[s.id]) }; }),
+        steps: steps.map(function (s) { return { id: s.id, text: s.text, mins: s.mins || 0, optional: !!s.optional, minimum: !!s.minimum, at: s.at || null, done: !!(e && e.steps && e.steps[s.id]) }; }),
         left: steps.filter(function (s) { return !s.optional && !(e && e.steps && e.steps[s.id]); }).length,
         n: v.n, of: v.of };
     });
@@ -551,6 +573,19 @@
       all().forEach(function (r) {
         if (!r.remind || !scheduledOn(r, d) || reviewNear(r, d)) return;
         if (KOS.dayReview && KOS.dayReview.easy && KOS.dayReview.easy(d)) return;   // Easy week: no routine reminders
+        /* a habit several times a day: a reminder at each time not yet ticked */
+        if (r.times) {
+          var e0 = entry(r.id, d), ticked = (e0 && e0.steps) || {};
+          if (e0 && e0.rest) return;
+          r.steps.forEach(function (st, si) {
+            if (!st.at) return;
+            var when0 = at(d, st.at);
+            if (ticked[st.id] || when0 < from || when0 >= to) return;
+            out.push({ id: "routine:" + r.id + ":" + d + ":" + st.at.replace(":", ""), kind: "routine", title: r.name, body: st.at + " · " + (si + 1) + " of " + r.steps.length + " today",
+              view: "routines", arg: { routine: r.id }, at: when0 });
+          });
+          return;
+        }
         var w = windowOn(r, d);
         if (!w) return;
         var when = at(d, w.from);
@@ -738,11 +773,11 @@
       var e = entry(r.id, day), v = verdict(r, e);
       return { id: r.id, name: r.name, kind: r.kind, days: r.days, window: windowOn(r, day) || r.window,
         state: stateOn(r, day), streak: r.days === null ? undefined : streak(r.id),
-        steps: stepsFor(r, e).map(function (st) { return { id: st.id, text: st.text, mins: st.mins || 0, optional: !!st.optional || undefined,
+        steps: stepsFor(r, e).map(function (st) { return { id: st.id, text: st.text, mins: st.mins || 0, optional: !!st.optional || undefined, at: st.at || undefined,
           done: !!(e && e.steps && e.steps[st.id]) }; }), kept: v.done || v.min };
     }
     T.define("routines_list", {
-      desc: "Routines and habits (a habit is a one-step routine): today's state, steps ticked, schedule and streak. Templates on request.",
+      desc: "Routines and habits (a habit is a one-step routine; one done several times a day has a step per time, `at`): today's state, steps ticked, schedule and streak. Templates on request.",
       category: "planner", tier: "read", read: true,
       params: { templates: { type: "boolean", desc: "also list the templates a routine can be made from" } },
       run: function (args, cb) {
@@ -760,10 +795,12 @@
         steps: { type: "array", maxLen: 40, items: { type: "string", maxLen: 160 } },
         days: { type: "array", maxLen: 7, items: { type: "integer", min: 0, max: 6 } },
         from: { type: "string", maxLen: 5, desc: "window start HH:MM" },
-        to: { type: "string", maxLen: 5, desc: "window end HH:MM" }
+        to: { type: "string", maxLen: 5, desc: "window end HH:MM" },
+        times: { type: "array", maxLen: 6, items: { type: "string", maxLen: 5 }, desc: "a HABIT done several times a day (2–6 HH:MM, e.g. medicine): a tick per time; give one step, its name" }
       },
       run: function (args, cb) {
         var over = {};
+        if (args.times && args.times.length >= 2) { over.kind = "habit"; over.times = args.times; over.remind = true; }
         if (args.name) over.name = args.name;
         if (args.days) over.days = args.days;
         if (args.from && args.to) over.window = { from: args.from, to: args.to };
@@ -834,6 +871,6 @@
     tick: tick, tickAll: tickAll, answerNo: answerNo, setMins: setMins, setRest: setRest, restAllowed: restAllowed,
     streak: streak, best: best, history: history, summary: summary, today: today, lastNight: lastNight,
     notice: notice, forecast: forecast, checkAlerts: checkAlerts, compact: compact,
-    migrate: migrate, migrated: migrated, habitsView: habitsView, resolve: resolve
+    migrate: migrate, migrated: migrated, habitsView: habitsView, resolve: resolve, stepsFor: stepsFor
   };
 })();

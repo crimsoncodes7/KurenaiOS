@@ -110,3 +110,28 @@ export function withWords(it: Item, words: Map<string, { line: string; text: str
   const w = it.kind === "review" ? words.get(it.id) : undefined;
   return w ? { ...it, title: it.title + " · " + w.line, body: w.text } : it;
 }
+
+/* ---------------- airing on a closed app (phase C) ----------------
+   The device publishes the watched titles' AniList ids (`airing`): the
+   runner asks AniList's PUBLIC schedule — no token, one request a tick —
+   for episodes that aired in the last half hour, and each becomes the
+   notification centre's own item ("air:<id>:<episode>", the id the device's
+   ledger uses, so a push and the bell never disagree). A quiet-hours
+   window the device published drops them (a short alert, invariant 131). */
+export type Airing = { ids: number[]; titles: Record<string, string>; quiet?: { from: string; to: string } | null };
+export type Aired = { mediaId: number; episode: number; airingAt: number };
+
+export const AIRING_QUERY = "query($ids:[Int],$from:Int,$to:Int){Page(perPage:50){airingSchedules(mediaId_in:$ids,airingAt_greater:$from,airingAt_lesser:$to){mediaId episode airingAt}}}";
+
+function inQuiet(hm: string, q: { from: string; to: string }): boolean {
+  return q.from <= q.to ? hm >= q.from && hm < q.to : hm >= q.from || hm < q.to;
+}
+export function airingItems(a: Airing | null | undefined, aired: Aired[], now: number, tz: string): Item[] {
+  if (!a || !Array.isArray(a.ids) || !a.ids.length) return [];
+  const want = new Set(a.ids.map(Number));
+  return (aired || []).filter((x) => x && want.has(Number(x.mediaId)) && typeof x.airingAt === "number" && typeof x.episode === "number")
+    .map((x) => ({ id: `air:${x.mediaId}:${x.episode}`, kind: "airing", at: x.airingAt * 1000,
+      title: `Episode ${x.episode} of ${(a.titles || {})[String(x.mediaId)] || "a show you watch"} aired`,
+      body: "Airing schedule from AniList", view: "anime", arg: null }))
+    .filter((it) => !(a.quiet && inQuiet(localParts(it.at, tz).hm, a.quiet)) && it.at <= now);
+}

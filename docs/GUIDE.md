@@ -1,7 +1,7 @@
 # KurenaiOS: the whole app, in plain words
 
 *A tour for anyone who wants to know what KurenaiOS is, what it does and how it
-works. No technical knowledge needed. Last updated 24 October 2026.*
+works. No technical knowledge needed. Last updated 26 October 2026.*
 
 ---
 
@@ -140,8 +140,20 @@ went.
 appear on it too, but as read-only reminders drawn from their real home, not
 copies. Each event can have its own alerts.
 
-**Reminders and Habits.** Quick tasks with due times, and daily or weekly habits
-with streaks.
+**Reminders.** Quick tasks with due times.
+
+**Routines and habits.** A routine is a short list of steps you do on
+certain days — a morning routine, an evening prep, "about to study". A habit
+is a routine with one step, and each keeps its own streak. A habit can also
+be done **several times a day** — taking medicine at 8 in the morning and 8
+at night, say: each time gets its own tick and its own reminder, and the day
+counts once they are all ticked. Some habits tick themselves from what you
+already do ("30 minutes on Maths").
+
+**The Daily Review.** Three short check-ins — morning, afternoon, evening —
+that look over the whole day: what is next, what slipped, what to move. Only
+one shows at a time, a missed one folds into the next, and skipping is
+never punished.
 
 **Money.** A personal budget that stays on your device:
 
@@ -160,6 +172,41 @@ a savings pot, a Code lesson, a Collection target. Goals can repeat weekly
 or monthly. A completed goal is recorded once and never pays out twice.
 
 ---
+
+### Writing by hand (iPad and pen)
+
+On an iPad with a stylus, KurenaiOS becomes a notebook:
+
+- Every topic has a **Handwritten** tab: pages of paper (lined, squared,
+  dotted, Cornell…) you write on, side by side with the notes if you like.
+  Only the pen writes; your palm and fingers scroll.
+- A floating set of tools: pen, highlighter, eraser, lasso, shapes, a ruler,
+  text boxes and pictures. Colours follow the theme.
+- **Answer by hand:** a writing pad under exam questions and flashcards;
+  "Write it out" for worked examples, blurting, and diagram drills.
+- **Working beside any tab**, with the calculator for Maths.
+- Your writing syncs between devices a stroke at a time. Kurenai never reads
+  your handwriting unless you switch that on and press a button.
+
+### Files
+
+Every file you add, wherever you add it, lives in **one place** (Archive →
+Files):
+
+- A worksheet attached to a topic, a mark scheme in the Paper library, a
+  photo you pasted, a scan from the camera, something shared from another
+  app — all in one list, searchable by name **and by the words inside a
+  PDF**.
+- **Stored once, linked anywhere.** Attach the same file to a topic and an
+  assignment and it is one file in two places, not two copies.
+- **One viewer for everything.** Open any PDF or picture and write on it —
+  the original never changes, your writing is a layer on top. Pin a note to
+  a spot on a page, clip a region into a topic's notebook, or save a copy
+  with your writing to print or send.
+- **Scan pages** with the camera: drag four corners onto the page and it
+  straightens it into a clean PDF.
+- **Storage** shows what your device holds and lets you free space for
+  files that are safely in your cloud — they come back when you open them.
 
 ### The reward system (the "Governor")
 
@@ -217,6 +264,8 @@ A complete programming course, treated as another study subject.
   gives you the starter files and a checker. You run the checker on your
   computer and bring the result back; the app confirms it is genuine before
   counting it. The checker even plants bugs to prove your tests catch them.
+  Push a project to your GitHub and the same checker can run there on
+  every push, so the result comes back marked **CI-verified**.
 - **Honest progress.** A lesson counts as done only when you have read every
   page, run every example and passed a task. Reading alone never completes a
   lesson. Each task pays once. Looking at the answer pays nothing and proves
@@ -299,10 +348,13 @@ award XP or mark Code work as done: progress is earned in the app.
 
 ### Archive
 
+- **Files and Storage:** see above.
+- **Pen and ink:** what the device saw of your pen and how ink behaves.
 - **Notifications:** one feed of things that happened to you (an alert, a bill,
   a deadline, a new report, an episode airing). You can mute whole kinds, set
   quiet hours and choose device alerts. With an account, important ones can
-  reach you even when the app is closed.
+  reach you even when the app is closed — including a new episode of a show
+  you watch and the day something on your Wishlist comes out.
 - **Backup & Restore:** one file holds your whole workspace. Passwords and
   sign-in details are never included.
 - **Help & Guide:** searchable instructions inside the app.
@@ -326,8 +378,10 @@ keep, and an empty device can never wipe a full one.
 sign-ins, logs or assistant history. Nothing is uploaded unless you turn on a
 feature that needs it (sync, the Assistant, a Kurenai-written report, a
 GitHub push). Learner code runs in a sealed sandbox. Past exam papers are never
-stored on the website; the app keeps only references to files on your own
-computer.
+stored on the website: your copies stay on the device that added them,
+unless you choose to keep one in your own private cloud. Other files you add
+are copied to your private cloud when you are signed in, so they open on
+your other devices.
 
 **It works like an app.** It can be installed on a phone, tablet or computer
 and runs offline. Updates arrive only after you confirm them, so the app never
@@ -367,8 +421,11 @@ else. Every screen is built to be read with a keyboard and a screen reader.
   tools for learning from real media.
 - The full **exam Companion** for the remaining papers, one at a time: Computer
   Science Paper 1, then Maths Papers 1 to 3 and IT.
-- **iPad and Apple Pencil** features, such as handwritten notes on topics, and
-  a **Creatives** study space for art, design, editing and writing, built for beginners.
+- A **Creatives** study space for art, design, editing and writing, built for
+  beginners (with a sketchbook on the iPad), and **Mind**, for psychology and
+  philosophy.
+- A look over every page for where artwork would help, and new things for
+  the gold shop — such as outfits for Kurenai.
 - Further **Code tracks** and a Python path.
 
 The detailed plan lives in `docs/ROADMAP.md`.

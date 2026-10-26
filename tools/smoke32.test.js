@@ -5,8 +5,8 @@
          PDF, image and unsupported-type handling each render correctly
      B · preview controls: fit width, fit page, zoom, expand/full screen,
          collapse, open externally, download
-     C · notes live BENEATH the preview; the PDF frame carries no fixed
-         pixel height (that is what clipped the embedded toolbar)
+     C · notes live BENEATH the preview; a PDF previews as its first page
+         and opens in the app's viewer (invariant 152), never a frame
      D · metadata (name, type, size, added, topic, notes) and the actions
          view / open / rename / remove / replace
      E · IndexedDB persistence, backup/restore fidelity, missing and
@@ -99,12 +99,12 @@ step("selecting a file opens THAT file's preview", async () => {
   if (!$$("[data-ui~='attach.file']").find(f => /markscheme\.pdf/.test(f.textContent)).matches('[data-state~="selected"]')) throw new Error("clicking did not select");
   if ($$("[data-ui~='attach.file'][data-state~='selected']").length !== 1) throw new Error("selection is not exclusive");
   if (!/markscheme\.pdf/.test($("[data-ui~='attach.stage-name']").textContent)) throw new Error("the stage shows a different file");
-  if (!$("[data-ui~='attach.preview'] [data-ui~='attach.pdf']")) throw new Error("no PDF frame for a PDF");
+  if (!$("[data-ui~='attach.preview'] [data-ui~='attach.pdf']")) throw new Error("no PDF preview for a PDF");
 
   click($$("[data-ui~='attach.file']").find(f => /diagram\.png/.test(f.textContent)));
   await tick();
   if (!$("[data-ui~='attach.preview'] [data-ui~='attach.img']")) throw new Error("no image element for an image");
-  if ($("[data-ui~='attach.preview'] [data-ui~='attach.pdf']")) throw new Error("the previous PDF frame survived the switch");
+  if ($("[data-ui~='attach.preview'] [data-ui~='attach.pdf']")) throw new Error("the previous PDF preview survived the switch");
 });
 
 step("an unsupported type shows metadata plus Open/Download, not a broken frame", async () => {
@@ -140,20 +140,23 @@ step("fit width / fit page / zoom each change how the document is laid out", asy
   if ($("[data-ui~='attach.zoom']").textContent !== "100%") throw new Error("zoom out did not step back: " + $("[data-ui~='attach.zoom']").textContent);
 });
 
-step("a PDF's fit mode rides the viewer fragment, and the toolbar is never suppressed", async () => {
+/* ONE VIEWER (files plan, invariant 152, 26 October 2026): a topic's PDF
+   is no longer the browser's own viewer in a frame. It previews as its
+   first page and opens in the app's viewer, where it takes ink; the fit
+   and zoom controls stay for pictures and text. */
+step("a PDF previews as its first page and opens in the app's viewer", async () => {
   click($$("[data-ui~='attach.file']").find(f => /markscheme\.pdf/.test(f.textContent)));
   await tick();
-  const src = () => $("[data-ui~='attach.pdf']").getAttribute("src");
-  click(btn(/Fit width/));                       // the previous step left zoom mode on
-  await tick();
-  if (!/#view=FitH$/.test(src())) throw new Error("fit width should request FitH, got " + src());
-  click(btn(/Fit page/));
-  await tick();
-  if (!/#view=Fit$/.test(src())) throw new Error("fit page should request Fit, got " + src());
-  click($$("[data-ui~='attach.bar'] button").find(b => b.textContent === "+"));
-  await tick();
-  if (!/#zoom=\d+$/.test(src())) throw new Error("zoom should request a zoom fragment, got " + src());
-  if (/toolbar=0/.test(src())) throw new Error("the embedded PDF toolbar must never be suppressed");
+  const card = $("[data-ui~='attach.pdf']");
+  if (!card || card.tagName !== "BUTTON") throw new Error("the PDF preview should be a card that opens the viewer");
+  if ($("[data-ui~='attach.preview'] iframe")) throw new Error("no surface builds its own PDF frame");
+  const seen = [];
+  const prev = window.KOS.files.openRec;
+  window.KOS.files.openRec = (rec) => seen.push(rec.name);
+  click(card);
+  click(btn(/Full screen/));
+  window.KOS.files.openRec = prev;
+  if (seen.join() !== "markscheme.pdf,markscheme.pdf") throw new Error("the card and Full screen open the app's viewer: " + seen.join());
 });
 
 step("collapse hides the preview and keeps everything else; expand restores it", async () => {
@@ -171,6 +174,9 @@ step("collapse hides the preview and keeps everything else; expand restores it",
 });
 
 step("full screen opens an overlay with its own preview and closes cleanly", async () => {
+  /* a picture: a PDF's full screen is the app's viewer (above) */
+  click($$("[data-ui~='attach.file']").find(f => /diagram\.png/.test(f.textContent)));
+  await tick();
   click(btn(/Full screen/));
   await tick();
   const fs2 = $("[data-ui~='attach.fs']");

@@ -647,7 +647,9 @@
       user_id: uid(), file_id: m.fileId,
       entry_id: m.subject + ":" + m.ref,
       name: m.name, mime_type: m.mime || null, size: m.size || 0,
-      meta_json: { subject: m.subject, ref: m.ref, note: m.note || "", added: m.added || null },
+      meta_json: { subject: m.subject, ref: m.ref, note: m.note || "", added: m.added || null,
+        /* the file layer (files plan R1): links, kind, aliases, hash */
+        kind: m.kind || null, aliases: m.aliases || [], links: m.links || [], hash: m.hash || null, origin: m.origin || null },
       deleted: false
       /* binary_uploaded deliberately absent — metadata pushes must never
          reset another device's upload flag */
@@ -659,7 +661,8 @@
       if (err) { done(err); return; }
       var byId = {};
       var dirty = items.filter(function (m) {
-        if (!m.fileId) return false;
+        /* a file kept on this device only never leaves it (files plan §7) */
+        if (!m.fileId || m.local) return false;
         byId[m.fileId] = m;
         var f = meta.files[m.fileId];
         return !f || f.cleanLocal !== m.updatedAt;
@@ -934,7 +937,8 @@
       ref: mj.ref || (row.entry_id ? String(row.entry_id).split(":").slice(1).join(":") : ""),
       name: row.name, mime: row.mime_type, size: row.size,
       note: mj.note || "", added: mj.added || null,
-      updatedAt: tsMs(row.updated_at)
+      updatedAt: tsMs(row.updated_at),
+      kind: mj.kind || null, aliases: mj.aliases || null, links: mj.links || null, hash: mj.hash || null, origin: mj.origin || null
     }, function (err, rec) {
       if (!err && rec) {
         meta.files[row.file_id] = { remoteTs: row.updated_at, cleanLocal: rec.updatedAt,
@@ -1200,6 +1204,7 @@
         }
       }
       if (queuedCycle) { queuedCycle = false; setTimeout(function () { cycle("queued"); }, 250); }
+      else if (!err) setTimeout(autoUpload, 1500);
       cb(err || null, summary || null);
     }
 
@@ -1322,7 +1327,7 @@
           if (err) { cb(err); return; }
           var todo = (items || []).filter(function (m) {
             var f = meta.files[m.fileId];
-            return m.fileId && m.hasBlob && !(f && f.uploaded);
+            return m.fileId && m.hasBlob && !m.local && !(f && f.uploaded);
           });
           var report = { uploaded: 0, skipped: (items || []).length - todo.length, failed: [] };
           var i = 0;
@@ -1361,6 +1366,61 @@
           })();
         });
       });
+    });
+  }
+
+  /* AUTOMATIC BINARY SYNC (files plan §7, decision D): after a good
+     cycle, a few files not yet in your private bucket go up — under the
+     25 MB cap, never one kept on this device only, a handful a cycle so a
+     big library trickles rather than floods. Per device, on by default
+     (state.ui.filesAutoUpload); "Sync files now" still sends the rest. */
+  var AUTO_PER_CYCLE = 4, autoBusy = false;
+  function autoUpload() {
+    if (autoBusy || running || !uid() || !online() || !KOS.attach || !KOS.attach.available()) return;
+    var ui = KOS.store.state.ui || {};
+    if (ui.filesAutoUpload === false) return;
+    autoBusy = true;
+    loadMeta(function (e0, meta) {
+      if (e0) { autoBusy = false; return; }
+      KOS.attach.listMeta(function (err, items) {
+        var todo = (items || []).filter(function (m) {
+          var f = meta.files[m.fileId];
+          return m.fileId && m.hasBlob && !m.local && (m.size || 0) <= 25 * 1024 * 1024 && f && f.remoteTs && !f.uploaded && !f.deleted;
+        }).slice(0, AUTO_PER_CYCLE);
+        if (err || !todo.length) { autoBusy = false; return; }
+        var i = 0;
+        (function step() {
+          if (i >= todo.length) { saveMeta(meta, function () { autoBusy = false; notifyFiles(); }); return; }
+          var m = todo[i++];
+          KOS.attach.getByFileId(m.fileId, function (e1, rec) {
+            if (e1 || !rec || !rec.blob) { step(); return; }
+            api().uploadBinary(storagePath(m.fileId, m.name), rec.blob, m.mime, function (e2) {
+              if (e2) { step(); return; }
+              api().markUploaded(m.fileId, function (e3, rows) {
+                if (!e3) {
+                  var f = meta.files[m.fileId] || {};
+                  f.uploaded = true;
+                  if (rows && rows[0] && rows[0].updated_at) f.remoteTs = rows[0].updated_at;
+                  meta.files[m.fileId] = f;
+                }
+                step();
+              });
+            });
+          });
+        })();
+      });
+    });
+  }
+  function notifyFiles() { try { window.dispatchEvent(new window.CustomEvent("kos-files")); } catch (e) { /* old engine */ } }
+  /* which files are safe in the cloud: {fileId: true} — the storage page
+     and "Free up space" read it */
+  function uploadedFiles(cb) {
+    if (!uid()) { cb(null, {}); return; }
+    loadMeta(function (err, meta) {
+      if (err) { cb(err, {}); return; }
+      var out = {};
+      Object.keys(meta.files || {}).forEach(function (k) { if (meta.files[k] && meta.files[k].uploaded && !meta.files[k].deleted) out[k] = true; });
+      cb(null, out);
     });
   }
 
@@ -1510,6 +1570,8 @@
     migrateUp: migrateUp,
     uploadBinaries: uploadBinaries,
     downloadFile: downloadFile,
+    autoUpload: autoUpload,
+    uploadedFiles: uploadedFiles,
     onStatus: onStatus,
     getStatus: function () { return status; },
     /* Linking is automatic now; nothing is ever pending. Kept so callers

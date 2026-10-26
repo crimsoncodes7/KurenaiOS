@@ -94,6 +94,11 @@
 .k-rt-habit-t { flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-6) 0; border: 0; background: none; font: inherit; font-size: var(--fs-14); color: var(--text); text-align: start; cursor: pointer; }
 .k-rt-habit-t:hover > .k-ellipsis { color: var(--crimson-soft); }
 .k-rt-habit[data-state~="done"] .k-rt-habit-t { color: var(--text-2); }
+/* a habit several times a day: a tick per time (asked for 26 October 2026) */
+.k-rt-times { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+.k-rt-time-tick { padding: var(--sp-2) var(--sp-8); border-radius: var(--r-pill); background: var(--s2); color: var(--text-2); font-family: var(--font-mono); font-size: var(--fs-12); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-rt-time-tick[aria-checked="true"] { background: var(--wash-teal); color: var(--teal); box-shadow: none; }
+.k-rt-hab-tlist { margin-block-start: var(--sp-6); }
 .k-rt-habit[data-state~="off"] { opacity: 0.6; }
 /* the habit editor */
 .k-rt-hab-dlg { inline-size: min(100%, var(--rt-hab-w)); }

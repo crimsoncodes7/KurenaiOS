@@ -358,4 +358,25 @@ background-size: 100% 100%, 100% var(--ink-rule); background-repeat: no-repeat, 
 .k-ink-pill { transition: none; }
 }
 
+
+/* ---------- notes pinned to a page, Ask about this page (files plan §5, R4) ---------- */
+.k-pv[data-state~="pins"] .k-pv-body { grid-template-columns: var(--ink-thumbs-w) minmax(0, 1fr) var(--pv-pins-w); }
+.k-pv[data-state~="pins"][data-state~="scheme"] .k-pv-body { grid-template-columns: var(--ink-thumbs-w) minmax(0, 1fr) minmax(0, 1fr) var(--pv-pins-w); }
+.k-pv-pins { overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-16); border-inline-start: var(--hairline) solid var(--line); background: var(--s1); display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-pv-pins[hidden] { display: none; }
+.k-pv-pinhead { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
+.k-pv-pinempty { font-size: var(--fs-13); }
+.k-pv-pinlist { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); }
+.k-pv-pinrow { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-8); inline-size: 100%; text-align: start; padding: var(--sp-8) var(--sp-10); border-radius: var(--r-10); background: var(--s2); color: var(--text); font-size: var(--fs-13); }
+.k-pv-pin { position: absolute; z-index: 2; inset-inline-start: var(--px); inset-block-start: var(--py); translate: -50% -50%; display: grid; place-items: center; inline-size: var(--pv-pin); block-size: var(--pv-pin); min-inline-size: 0; min-block-size: 0; padding: 0; border-radius: 50% 50% 50% var(--r-2); background: var(--amber); color: var(--bg); font-size: var(--fs-12); font-weight: var(--weight-semibold); box-shadow: var(--elev-2); }
+.k-pv-stage[data-state~="pin"] .k-pv-page { cursor: copy; }
+.k-pv-asktext { max-block-size: 40vh; overflow-y: auto; white-space: pre-wrap; padding: var(--sp-12); border-radius: var(--r-10); background: var(--s2); font-size: var(--fs-13); }
+.k-fc-pic { display: block; max-inline-size: 100%; max-block-size: var(--fc-pic-max-h); margin: var(--sp-8) auto; border-radius: var(--r-8); background: var(--ex-paper); }
+@media (max-width: 1080px) {
+.k-pv[data-state~="pins"] .k-pv-body { grid-template-columns: minmax(0, 1fr) var(--pv-pins-w); }
+.k-pv[data-state~="pins"] .k-pv-thumbs { display: none; }
+}
+@media (max-width: 700px) {
+.k-pv[data-state~="pins"] .k-pv-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 0.6fr); }
+}
 }

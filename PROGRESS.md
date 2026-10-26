@@ -6,23 +6,25 @@ architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
 
 ## Current state
 
-**Everything through Japanese Stage 1 unit F2 is integrated, deployed and
-production-verified (24 October 2026).** The foundations are Category 7
-(Phases A–G, 9 August 2026), the cloud three-way merge and the editable
-curriculum (17 September), the AniList mirror and notification centre
-(19 September) and the Graphite UI rebuild (27 September); since then
-Reports, Code, Money and Goals, FSRS, the Exams hub, the closed-app runner,
-the iPad layout and Japanese have shipped (sections below).
+**Everything through Files is integrated, deployed and production-verified
+(26 October 2026).** The foundations are Category 7 (Phases A–G, 9 August
+2026), the cloud three-way merge and the editable curriculum (17
+September), the AniList mirror and notification centre (19 September) and
+the Graphite UI rebuild (27 September); since then Reports, Code, Money and
+Goals, FSRS, the Exams hub, the closed-app runner, the iPad layout,
+Japanese, Routines and the Daily Review, the ink engine and the iPad and
+Pencil build, and Files have shipped (sections below; CLAUDE.md's "Latest
+release" keeps each one's deployment).
 
 | Item | Current value |
 |---|---|
 | Production | https://kurenai-os.pages.dev |
-| Latest release | Japanese Stage 1 unit F2, Days and times (`5bffba6`, sw `kos-japanese-4`), immutable https://e424163d.kurenai-os.pages.dev, 24 October 2026 |
-| Service-worker cache | `kos-japanese-4` |
-| Smoke gate | 99 / 99 suites (`""` and 2–99; 80–83 are Japanese's, 99 is Code's SQL runner), plus `tools/cs_diff.mjs`, `sql_diff.mjs`, `ja_valid_check.mjs`, `fsrs_check.mjs`, `validator_check.mjs` |
+| Latest release | Files R1–R4, airing on a closed app, CI-verified Rider evidence, habits several times a day (sw `kos-files-1`), immutable DEPLOY_URL, 26 October 2026 |
+| Service-worker cache | `kos-files-1` |
+| Smoke gate | 106 / 106 suites (`""` and 2–106; 80–83 are Japanese's, 99 is Code's SQL runner, 100 and 105 the ink engine and the iPad build, 101–104 Routines, 106 Files), plus `tools/cs_diff.mjs`, `sql_diff.mjs`, `ja_valid_check.mjs`, `fsrs_check.mjs`, `validator_check.mjs` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
-| Branch | `main` is the line; each release is fast-forwarded to it from its `feat/...` branch (last: `feat/japanese-f2`). `claude/roadmap-code-study-space` is behind it with nothing of its own |
-| In flight | Japanese Stage 1: F3 (Things and places) next, F4–F6 outlined in [japanese-plan.md](docs/japanese-plan.md) §3.1; the reader, media and immersion pages later. Exams hub: the full Companion for CS Paper 1, then Maths Papers 1–3 and F201, one paper per release. iPad and Pencil (Phase 6) and Creatives: planned |
+| Branch | `main` is the line; each release is fast-forwarded to it from its `feat/...` branch (last: `feat/files`). `claude/roadmap-code-study-space` is behind it with nothing of its own |
+| In flight | Japanese Stage 1: F3 (Things and places) next, F4–F6 outlined in [japanese-plan.md](docs/japanese-plan.md) §3.1; the reader, media and immersion pages later. Exams hub: the full Companion for CS Paper 1, then Maths Papers 1–3 and F201, one paper per release. Creatives and Mind: planned, waiting for a go-ahead. The art and gold-shop audit (roadmap 5.13) |
 | Working across accounts | [docs/HANDOFF.md](docs/HANDOFF.md); shared memory in [docs/memory/](docs/memory/MEMORY.md) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
@@ -30,6 +32,27 @@ Release history is in the sections below (newest first) and in Git: every
 release commit is titled `release: …` and names its service-worker version.
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`.
+
+## Released 26 October 2026 — Files, airing on a closed app, CI evidence, habits several times a day
+
+- Files (roadmap 5.11, R1–R4): the `KOS.files` index over the file store and
+  the Paper library — one file stored once and linked many times, aliases,
+  kind only up — the Files page and Storage under Archive, one viewer
+  (pictures take ink as a one-page PDF), pinned notes, drop and paste
+  anywhere, Scan pages, Share to KurenaiOS, text search inside PDFs,
+  automatic upload under 25 MB with Free up space, papers kept in your
+  cloud, an assessment's files, the Assistant's file tools, Ask Kurenai about
+  this page and redo items clipped from a marked paper. Invariants 150–153;
+  smoke106.
+- The runner (version 7) sends new episodes of the shows you watch from
+  AniList's public schedule, and Wishlist release days (invariant 131).
+- Rider projects: a GitHub Actions workflow runs the validator on every push;
+  its report comes back ◆ CI-verified (invariant 109).
+- Habits several times a day (invariant 142).
+
+## Released 26 October 2026 — the rest of the iPad build, Files R0 (sw `kos-pen-1`) and Routines (sw `kos-routines-1`, `-2`)
+
+See CLAUDE.md's "Latest release" and docs/ROADMAP.md 5.10 and Phase 6.
 
 ## Released 24 October 2026 — Japanese Stage 1 unit F2: Days and times
 

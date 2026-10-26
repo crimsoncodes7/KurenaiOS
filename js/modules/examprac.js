@@ -509,7 +509,11 @@
   function openPaper(pid, sit, o) {
     if (!KOS.pdfView) { openFile(o.qp); return; }
     var ix = window.KOS_EXAMS && KOS_EXAMS.index, pp = ix && ix.papers[pid];
-    KOS.pdfView.open({ title: paperTitle(pid, sit), kind: "paper", fileId: o.qp,
+    /* a paper opted into your cloud opens on another device as "f:<fileId>";
+       its writing stays under the paper it was copied from */
+    var inkId = o.qp, fr = /^f:(.+)$/.exec(o.qp || ""), fx = fr && KOS.files ? KOS.files.get(fr[1]) : null, og = fx && /^papers:(.+)$/.exec(fx.origin || "");
+    if (og) inkId = og[1];
+    KOS.pdfView.open({ title: paperTitle(pid, sit), kind: "paper", fileId: inkId,
       getBlob: function (cb) { KOS.examPapers.get(o.qp, cb); },
       paper: { pid: pid, sitting: sit, subject: pp ? pp.subject : null, title: pp ? pp.title : pid.toUpperCase() },
       scheme: o.ms ? { title: "Mark scheme · " + KOS.examIndex.sittingLabel(sit), getBlob: function (cb) { KOS.examPapers.get(o.ms, cb); } } : null });
@@ -620,5 +624,5 @@
     note.focus();
   }
 
-  KOS.examPractice = { practice: practice, attempt: attempt, feedbackDialog: feedbackDialog, tagChip: tagChip, ramp: ramp };
+  KOS.examPractice = { practice: practice, attempt: attempt, feedbackDialog: feedbackDialog, tagChip: tagChip, ramp: ramp, openPaper: openPaper, openScheme: openScheme, paperTitle: paperTitle };
 })();

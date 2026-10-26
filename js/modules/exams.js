@@ -661,9 +661,36 @@
     var gl = goalsCard(a);
     if (gl) right.appendChild(gl);
     right.appendChild(dayCard(a));
+    if (KOS.files) right.appendChild(filesCard(a));
     if (a.notes) right.appendChild(card([chead("Notes", ""), el("p", { class: "k-ex-pre", text: a.notes })], "", "exams.notes"));
     wrap.appendChild(el("div", { class: "k-ex-grid2" }, [left, right]));
     balance(left, right, gl);
+  }
+  /* the assessment's own files (files plan §8): those linked to it —
+     dropped here, attached with "Attach to…" — opened in the one viewer.
+     Drawn from the index (a read); attaching is a click or a drop. */
+  function filesCard(a) {
+    var list = el("ul", { class: "k-ex-files", "data-ui": "exams.files" });
+    var fileIn = el("input", { type: "file", multiple: "", class: "sr-only", tabindex: "-1", "aria-hidden": "true", onchange: function () {
+      var fs = [].slice.call(fileIn.files || []); fileIn.value = "";
+      if (fs.length) KOS.files.add(fs, { link: { kind: "exam", id: String(a.id) } }, function (err, res) { KOS.files.report(res); paint(); });
+    } });
+    var c = card([chead("Files", ""), list, fileIn,
+      el("button", { type: "button", class: "k-link", "data-ui": "exams.files-add", text: "⇪ Attach a file… or drop it here", onclick: function () { fileIn.click(); } })], "", "exams.files-card");
+    function paint() {
+      KOS.files.ready(function () {
+        list.innerHTML = "";
+        var fs = KOS.files.linkedTo("exam", String(a.id));
+        if (!fs.length) { list.appendChild(el("li", { class: "k-muted", text: "Revision sheets, a mock's paper or your teacher's feedback: drop them here." })); return; }
+        fs.forEach(function (r) {
+          list.appendChild(el("li", {}, [el("button", { type: "button", class: "k-link", text: r.name, onclick: function () { KOS.files.open(r); } }),
+            el("span", { class: "k-muted k-mono", text: " " + (KOS.files.KIND_NAME[r.kind] || "") })]));
+        });
+      });
+    }
+    paint();
+    KOS.files.dropTarget(c, { kind: "exam", id: String(a.id) }, paint);
+    return c;
   }
   /* no dead column (the standing layout rule): the Goals card sits on the
      side (29e) unless the other column is so much shorter that it fits

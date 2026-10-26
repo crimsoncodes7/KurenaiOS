@@ -599,7 +599,9 @@
     var reps = Object.keys(r.reports).map(function (k) { return r.reports[k]; }).sort(function (a, b) { return b.importedAt - a.importedAt; });
     var last = reps[0] || null;
     var ms = p.milestones.map(function (m) {
-      var by = r.passed[m.id] ? reps.filter(function (e) { return !e.practice && e.milestones.some(function (x) { return x.id === m.id && x.ok; }); }).pop() || null : null;
+      /* the strongest evidence that passed it: a CI run beats a self-run */
+      var passing = r.passed[m.id] ? reps.filter(function (e) { return !e.practice && e.milestones.some(function (x) { return x.id === m.id && x.ok; }); }) : [];
+      var by = passing.filter(function (e) { return e.level === "ci"; }).pop() || passing.pop() || null;
       var cur = last ? (last.milestones.filter(function (x) { return x.id === m.id; })[0] || null) : null;
       return { id: m.id, title: m.title, passedAt: r.passed[m.id] || null, level: by ? by.level : null, last: cur, state: r.passed[m.id] ? "passed" : cur ? (cur.ok ? "passed-practice" : "failing") : "open" };
     });

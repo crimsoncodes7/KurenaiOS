@@ -40,7 +40,7 @@ Short answer:
 | money (trial, bill, late income) | `KOS.money.notices(now)` | yes: it takes the day |
 | goal (period ending, deadline, reached, missed) | `KOS.goals.notices(rows, today)` | ending and deadline yes; reached and missed need a measurement on the day, so no |
 | assistant (a scheduled reply) | `aischedule.js` | only by running the model (§4) |
-| airing, wishlist | `notify.js` | airing needs AniList's schedule; wishlist release days yes (phase C) |
+| airing, wishlist | `notify.js` | yes (phase C, built 26 October 2026): the next episode and release days forecast by the device; the runner asks AniList's public schedule for the watched ids |
 | reports, pacing, focus | device-only facts | no: they describe what the device did |
 
 ## 2. The shape
@@ -77,7 +77,11 @@ device (next open) ◄── kos_runs pulled: the reply lands on its schedule an
     WOULD fire, with the ticker's own id and the moment it fires;
   - exam, money and goal notices for each of the next 7 days, at a morning
     time (`ui.notifyMorning`, default 08:00), from their own `notices(day)`;
-  - wishlist release days (phase C).
+  - wishlist release days (phase C) — built 26 October 2026, with airing:
+    the device publishes the watched shows' AniList ids (never when airing
+    is muted) and the runner reads AniList's public airing schedule, one
+    request a tick, sending each episode under the ledger's own
+    `air:<id>:<ep>`.
 - **Each item:** `{id, kind, at (ms), title, body, view, arg}`. The id is
   the ledger id, so the push, the toast and the bell can never disagree.
 - **Filters and quiet hours apply before publishing.** A kind muted in

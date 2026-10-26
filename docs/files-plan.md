@@ -8,38 +8,17 @@ indexing (§3), eviction that keeps the index and the ink (§7) and a
 lightweight scan crop (§6). R0 is built first. Revision 1 was drafted the
 same day from your notes after the Routines release.
 
-> **Status (26 October 2026, `feat/ipad-files`):** R0 BUILT (an
-> assignment's attachments open in the viewer with download, the import
-> report file by file with mocks added, Share in full screen). From R1–R2,
-> built with the iPad's PDF viewer: pdf.js vendored with the memory
-> guardrails, ink layers per attempt, Clip to notes (a region to a
-> topic's notebook) and Save a copy with my writing. Still to come: the
-> `KOS.files` index and Files page, hash links and aliases, text search,
-> the storage page and binary sync (R1, R3), and the Assistant's tools
-> (R4).
-
-## 1. Why
-
-Files grew up in three places, each on its own:
-
-| Where | Store | What you can do today | What goes wrong |
-|---|---|---|---|
-| A topic's **Files** tab | `kurenai-os-files` (25 MB a file); metadata syncs, the binary uploads only when asked (invariant 36) | upload, preview inline, full screen, open in a tab, download, a notes field per file | a PDF opens in the browser's own viewer: you can't write on it, highlight it or keep anything you change |
-| An **assignment's** attachments | the same store, under the assignment's ref | attach, see the name, remove | the name is all you get. It doesn't open, preview or download |
-| **Exams & Papers' library** | `kurenai-os-papers` (40 MB); never synced or backed up (invariant 125) | add PDFs or a folder, matched to a sitting by path or name; connect a folder (Chrome and Edge) | files are **skipped** silently: anything whose path says "mock" (a "Mocks" folder too), a model answer or examiner report, a non-PDF, over 40 MB, or a repeat. The message lumps all four reasons together, so you can't tell which applied |
-
-There's no single place to see every file, find one, link one file to
-more than one thing, or write on a PDF. Roadmap 6.4 ("Past papers and
-PDFs") already plans an in-app viewer with ink for the Paper library.
-This plan widens that to every file and puts it on one core.
-
-## 2. The idea
-
-**One file record, one viewer, one ink layer.** A file is stored once and
-linked to as many places as you like: a topic, an assignment, an
-assessment, a calendar event, a reminder, a goal, a routine step. Every
-place opens the same in-app viewer, and anything you write on a file is
-kept for good, as its own layer, so the original is never altered.
+> **Status (26 October 2026): R0–R4 BUILT and released** — R0 and most
+> of R2 with `kos-pen-1` (`feat/ipad-files`), the rest with `kos-files-1`
+> (`feat/files`): the `KOS.files` index (`js/core/files.js`), links,
+> hashes and aliases in the file store, the Files page and Storage, one
+> viewer (pictures as a one-page PDF), pinned notes, drop and paste, Scan
+> pages (`js/core/filescan.js`), Share to KurenaiOS, text search, automatic
+> upload and Free up space, papers kept in your cloud, an assessment's
+> files, the Assistant's tools, Ask Kurenai about this page and redo
+> items from a clip (smoke106; invariants 150–153 in CLAUDE.md). §9's
+> handout → topic suggestion, versions, Office rendering and OCR stay for
+> later.
 
 ## 3. The core (`KOS.files`)
 

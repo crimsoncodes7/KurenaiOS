@@ -282,7 +282,7 @@
             var size = r.size >= 1048576 ? (r.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round((r.size || 0) / 1024)) + " KB";
             attWrap.appendChild(el("div", { class: "k-asg-sub k-asg-file", "data-ui": "asg.file" }, [
               el("button", { type: "button", class: "k-asg-file-open", "data-ui": "asg.file-open", "aria-label": "Open " + r.name,
-                onclick: function () { KOS.attach.openViewer(r); } }, [
+                onclick: function () { if (KOS.files) KOS.files.openRec(r); else KOS.attach.openViewer(r); } }, [
                 el("span", { class: "k-asg-file-kind", "aria-hidden": "true", text: kind }),
                 el("span", { class: "k-asg-sub-t", text: r.name }),
                 el("span", { class: "k-asg-file-size k-mono", text: r.blob && r.blob.size ? size : "on another device" })]),
@@ -290,11 +290,13 @@
                 var u = URL.createObjectURL(r.blob), dl = el("a", { href: u, download: r.name }); document.body.appendChild(dl); dl.click(); dl.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
               } }) : null,
               el("button", { type: "button", class: "k-asg-x", "aria-label": "Remove attachment", text: "✕",
-                onclick: function () { KOS.attach.remove(r.id, function () { repaint(); }); } })
+                onclick: function () { if (KOS.files) KOS.files.detach(r, { kind: "assignment", id: String(a.id) }, function () { repaint(); }); else KOS.attach.remove(r.id, function () { repaint(); }); } })
             ].filter(Boolean)));
           });
-          attWrap.appendChild(el("button", { type: "button", class: "k-link", text: "⇪ Attach a file…", onclick: function () { fileIn.click(); } }));
+          attWrap.appendChild(el("button", { type: "button", class: "k-link", text: "⇪ Attach a file…", title: "Or drop files here", onclick: function () { fileIn.click(); } }));
         });
+        /* drop anywhere (files plan §6): files dropped here attach here */
+        if (KOS.files) KOS.files.dropTarget(attWrap, { kind: "assignment", id: String(a.id) }, function () { repaint(); });
       } else {
         attWrap.appendChild(el("p", { class: "k-muted", text: "File attachments need IndexedDB, which this context doesn't provide." }));
       }

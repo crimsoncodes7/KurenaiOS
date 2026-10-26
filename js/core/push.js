@@ -202,7 +202,7 @@
   /* a stable fingerprint of what the server would act on */
   function hashOf(o) {
     var b = Object.assign({}, o.brief, { asOf: null });
-    return KOS.fsrs.unit(JSON.stringify([o.items, b, o.schedules, o.serverRuns, o.route, o.tz, o.reviews, o.reviewRoute])).toString(36);
+    return KOS.fsrs.unit(JSON.stringify([o.items, b, o.schedules, o.serverRuns, o.route, o.tz, o.reviews, o.reviewRoute, o.airing])).toString(36);
   }
   function publish(force, cb) {
     cb = cb || function () {};

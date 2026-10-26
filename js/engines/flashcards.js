@@ -253,6 +253,15 @@
         '<div class="k-fc-text">' + KOS.content.inline(c.a) + "</div>" +
         '<span class="k-fc-q">Q · ' + KOS.content.inline(c.q) + "</span>";
       badges.innerHTML = badgeHtml(c);
+      /* a redo item clipped from a paper carries its picture (files plan
+         R4), kept in ink under "redo:<attempt>:<question>" */
+      if (c.redo && KOS.ink && KOS.ink.doc && KOS.ink.doc("redo:" + c.key.slice(2))) {
+        KOS.ink.listPages("redo:" + c.key.slice(2), function (err, pages) {
+          var pic = null;
+          (pages || []).forEach(function (pg) { (pg.items || []).forEach(function (it) { if (!pic && it.k === "img" && it.src) pic = it.src; }); });
+          if (pic && cur() === c) front.insertBefore(el("img", { class: "k-fc-pic", "data-ui": "fc.redo-pic", src: pic, alt: "The question, clipped from the paper" }), front.querySelector(".k-fc-hint"));
+        });
+      }
       KOS.content.typeset(stage);
       KOS.ui.state(rateRow, "concealed", true);
       RATE_META.forEach(function (r, i) {
