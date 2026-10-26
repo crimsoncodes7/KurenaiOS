@@ -74,7 +74,7 @@
   function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
   /* the width of each point: pressure when the pen reports it, else speed
-     (faster is thinner) — the Metapen and the USB-C Pencil send none.
+     (faster is thinner) — the USB-C Pencil sends none.
      Deterministic from the stored points, so a page always redraws the
      same. Ends taper over a few points. */
   function widths(list, base) {

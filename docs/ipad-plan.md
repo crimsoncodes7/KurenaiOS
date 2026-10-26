@@ -10,8 +10,8 @@
 > the pen reports it.
 
 Asked for on 22 October 2026: the iPad Air 11" (M4) becomes a first-class
-device, and then the study notes device, written with a stylus. For now
-that is a Metapen A8; an Apple Pencil Pro comes later.
+device, and then the study notes device, written with an Apple Pencil
+Pro (it arrived on 26 October 2026).
 
 Short answer:
 - **The layout work is done** (roadmap 6.0). It covers both orientations,
@@ -30,7 +30,7 @@ Short answer:
   barrel roll and haptics are native-only, and nothing here depends on
   them (decision A).
 - **Three spikes come first**, on your iPad, before any feature:
-  - what the Metapen actually reports;
+  - what the Pencil Pro reports to Safari;
   - how pdf.js copes with a whole paper;
   - how well Kurenai reads your handwritten Maths.
 
@@ -48,18 +48,19 @@ Short answer:
 
 ### 1.1 What the stylus gives a web page
 
-| | Apple Pencil Pro | Metapen A8 (to measure, Spike P) |
-|---|---|---|
-| `pointerType` | `"pen"` | probably `"pen"`: these pens use the Pencil's own protocol |
-| Pressure | 0–1 | likely none (the spec reports a constant 0.5 while down) |
-| Tilt (`tiltX/Y`, `altitudeAngle`) | yes | likely yes |
-| Palm rejection | the OS separates pen from touch | the same, if it reports as a pen |
-| Hover | on supported iPads, as pen `pointermove` with no buttons | no |
-| Squeeze, barrel roll, double-tap, haptics | native apps only; the web never sees them | n/a |
-| Scribble (handwriting → text in any text field) | yes, free in every `<input>` and `<textarea>` | yes |
+| | Apple Pencil Pro |
+|---|---|
+| `pointerType` | `"pen"` |
+| Pressure | 0–1 |
+| Tilt (`tiltX/Y`, `altitudeAngle`) | yes |
+| Palm rejection | the OS separates pen from touch |
+| Hover | on supported iPads, as pen `pointermove` with no buttons |
+| Squeeze, barrel roll, double-tap, haptics | native apps only; the web never sees them |
+| Scribble (handwriting → text in any text field) | yes, free in every `<input>` and `<textarea>` |
 
-So the design must work with no pressure: stroke width from speed and
-tilt, and pressure only when the device sends it.
+The engine still works with no pressure (width from speed), so a
+USB-C Pencil or a mouse writes too; with the Pencil Pro the width
+follows pressure.
 
 ## 2. What is already done (roadmap 6.0, 22 October 2026)
 
@@ -305,7 +306,7 @@ and finished pieces come in as evidence (that plan's decision C).
 
 | | Question | Pass when |
 |---|---|---|
-| **P (pen)** | What does the Metapen report? Check `pointerType`, pressure, tilt, coalesced events and the sample rate. How long from pen to pixel, with and without `preventDefault()` on `pointerdown` and `touchstart` (the Scribble buffer)? Does palm rejection hold while writing a page? Does the two-finger-tap Undo threshold ever fire during a pinch? | It reports as `"pen"`, writing a paragraph never draws from a palm, and the stroke keeps up at normal writing speed |
+| **P (pen)** | What does the Pencil Pro report? Check `pointerType`, pressure, tilt, coalesced events and the sample rate. How long from pen to pixel, with and without `preventDefault()` on `pointerdown` and `touchstart` (the Scribble buffer)? Does palm rejection hold while writing a page? Does the two-finger-tap Undo threshold ever fire during a pinch? | It reports as `"pen"`, writing a paragraph never draws from a palm, and the stroke keeps up at normal writing speed |
 | **D (documents)** | Can pdf.js in Safari open a 30-page paper with an ink layer and keep scrolling smooth? How much memory does it use? Can the Paper library's PDFs be imported from Files? | First page under a second, no tab reload on a whole paper |
 | **H (handwriting)** | Does Kurenai read your Maths working well enough to mark it? Test 10 real answers, marked by hand first. | It agrees on at least 9 of 10 mark-point decisions, and never awards an A without its M |
 
@@ -353,9 +354,6 @@ Frames needed:
 
 ## 10. Risks
 
-- **The Metapen reports as touch, not pen.** Pen-only would then mean no
-  drawing. The finger switch covers it until the Pencil Pro, and Spike P
-  finds out on day one.
 - **Safari memory on big PDFs.** Render only the pages near the viewport,
   and drop the bitmaps of pages out of view.
 - **Ink volume in sync.** Pages are small as vectors, but a year of daily

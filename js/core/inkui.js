@@ -21,7 +21,7 @@
      while it checks for Scribble handwriting;
    - the palm never draws, because a finger never does.
    Width follows pressure only once the pen has reported pressure (the
-   Pencil Pro does; the USB-C Pencil and the Metapen do not), else speed.
+   Pencil Pro does; the USB-C Pencil does not), else speed.
    Tool settings, Pen only and what the app saw of the pen are per device
    (state.ui.ink, like state.ui); nothing about the pen syncs.           */
 (function () {

@@ -1454,12 +1454,12 @@ over 43,000 gold and owns everything in it.
 > **Status (22 October 2026): 6.0 RELEASED** (`87f9437`, sw `kos-ipad-1`,
 > https://982f307b.kurenai-os.pages.dev); the rest is
 > planned in [ipad-plan.md](ipad-plan.md) revision 1. Next come its three
-> spikes on the device: P (what the Metapen A8 reports), D (pdf.js on a
+> spikes on the device: P (what the Apple Pencil Pro reports), D (pdf.js on a
 > whole paper) and H (how well Kurenai reads your Maths working).
 
 The iPad Air 11" (M4) becomes a first-class device and then the study
-notes device, written with a stylus: the Metapen A8 now, an Apple Pencil
-Pro later. It stays a web app. Everything Pencil-related is built on one
+notes device, written with an Apple Pencil Pro (it arrived on 26 October
+2026). It stays a web app. Everything Pencil-related is built on one
 ink engine.
 
 - **6.0 Layout for the iPad** (done):

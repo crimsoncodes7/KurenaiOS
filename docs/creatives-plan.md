@@ -392,8 +392,8 @@ The sketchbook is built on the iPad plan's ink engine (6.1) and adds:
 - **Layers-lite:** a sketch layer at 30%, ink and colour. Three layers,
   opacity, hide, and merge down.
 - **A few brushes:** pencil, ink (tapering), marker, flat colour and
-  eraser. Width comes from speed and tilt (Metapen) or pressure (Pencil
-  Pro).
+  eraser. Width comes from the Pencil Pro's pressure (speed and tilt on a
+  pen without it).
 - **Drill tools:**
   - a rep timer that saves and clears between reps;
   - Momentum mode (§4);
