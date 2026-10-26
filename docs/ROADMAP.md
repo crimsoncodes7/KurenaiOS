@@ -1346,8 +1346,8 @@ included) without saying why.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
-> **BUILT 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`, not
-> deployed yet): the rest of design turn 30 — the floating palette, long
+> **RELEASED 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`,
+> https://f73adfd3.kurenai-os.pages.dev): the rest of design turn 30 — the floating palette, long
 > press names and the ruler (30b), paste and drop pictures, export (PNG,
 > PDF), ink sync per stroke (30p, `kos_ink`, migration
 > `20261026000001` applied), Settings › Pen and ink (30s), the answer pad

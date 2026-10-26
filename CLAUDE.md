@@ -14,10 +14,16 @@ chronological diary here.
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `f83148c` (Code, the fourth study space: the
   platform from design turn 26 and unit 1; on top of the Reports rebuild
-  `5bece3e`). `ai-chat` is deployed as version 5; the
+  `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the Routines follow-up (sw `kos-routines-2`, 26 October
+- Latest release: the rest of the iPad build and Files R0 (sw `kos-pen-1`,
+  26 October 2026, `feat/ipad-files`) — immutable deployment
+  https://f73adfd3.kurenai-os.pages.dev: the floating palette and ruler,
+  paste and export, ink sync (`kos_ink`), Pen and ink, answer pads,
+  Kurenai reading handwriting when asked (off by default), flashcards by
+  hand, the drills, working beside any tab, the PDF viewer for papers, and
+  Files R0 (invariants 132–136 widened, 150–153). Before it the Routines follow-up (sw `kos-routines-2`, 26 October
   2026, `feat/routines` at the release commit) — immutable deployment
   https://ff0df878.kurenai-os.pages.dev: Daily habits as one fixed routine
   with its own editor (repeats, time, auto-tracking), History two cards a
