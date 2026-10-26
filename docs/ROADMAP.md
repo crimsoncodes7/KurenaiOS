@@ -1281,10 +1281,10 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 
 ### 5.10 Daily Review and Routines ◆ (asked for 25 October 2026)
 
-> **Status (26 October 2026): BUILT on `feat/routines`** to design turn 33
-> (frames 33a–33v) with the art; the gate is 104/104. Not yet released:
-> the deploy waits for a go-ahead. The runner writing Kurenai's words
-> ahead on the server is still to do.
+> **Status (26 October 2026): RELEASED** as sw `kos-routines-1`
+> (`3c471b2`, https://5598f36e.kurenai-os.pages.dev), built to design turn
+> 33 (frames 33a–33v) with the art; the gate is 104/104. Still to do: the
+> runner writing Kurenai's words ahead on the server.
 > **Plan revision 2, APPROVED**
 > ([routines-plan.md](routines-plan.md), decisions A–J in §16). Design
 > prompt 17 (frames 33a onwards) and the art

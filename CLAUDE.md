@@ -17,7 +17,15 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 5; the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: polish (sw `kos-polish-3`, 25 October 2026,
+- Latest release: Routines and the Daily Review (roadmap 5.10, sw
+  `kos-routines-1`, 26 October 2026, `feat/routines` at `3c471b2`) —
+  immutable deployment https://5598f36e.kurenai-os.pages.dev. Routines
+  replace Habits (habits moved in with their days and streaks), the three
+  reviews with the header chip, About to Study before Focus, Today's three
+  on Home, and the derived surfaces (countdown Pin/Unpin, "From your plan"
+  in Reminders, routine chips in the Calendar's week); invariants 142–149,
+  smoke101–104. Still to do: the runner writing Kurenai's words ahead.
+  Before it polish (sw `kos-polish-3`, 25 October 2026,
   `feat/polish-1025`): strips redrawn by their page keep their scroll
   (`KOS.ui.scroller({keep, reveal})`; the term ribbon, the braid, the
   edge-marked tabs; the ink bar holds its own), Home's Today drops a
@@ -87,7 +95,7 @@ chronological diary here.
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
   `feat/after-fsrs`, then to `feat/ipad`, then to `feat/japanese`, and on
-  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, then to `feat/japanese-f2`, and on 25 October to `feat/ink`, so
+  23 October to `feat/code-stage4`, then to `feat/code-t1`, then to `feat/japanese-s1`, then to `feat/japanese-f2`, on 25 October to `feat/ink`, and on 26 October to `feat/routines` (Routines and the Daily Review), so
   `claude/roadmap-code-study-space` (at `771e967`) is behind it with
   nothing of its own. Check `git log` for later drift; branch new work from
   `main`.
