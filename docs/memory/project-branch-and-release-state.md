@@ -50,3 +50,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-27: `feat/pencil-fixes` released as sw `kos-pencil-1`, https://4e6dd91c.kurenai-os.pages.dev — the Pencil Pro day fixes (smoke107), review words back off, finished review kept on the chip (still usable, not read-only: the user wants to tick routine steps late), AI_DAILY_CAP 300 (ai-chat redeployed). Gate 107/107. main fast-forwarded (d629117).
 
 2026-10-27 (later): kos-pencil-2 released, https://e2203d56.kurenai-os.pages.dev — marking reply fix (ai-chat think room), maths in What is sent, Paper on pads, Dock in palette menu; ai-chat redeployed. Spike D now loads instantly (user). Spike H still to run.
+
+2026-10-27 (09:30): kos-pencil-3 released, https://f054551b.kurenai-os.pages.dev — busy-Gemini retries for marking, Start button ellipsis.

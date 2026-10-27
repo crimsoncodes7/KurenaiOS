@@ -17,7 +17,11 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: the Pencil follow-up (sw `kos-pencil-2`, 27 October
+- Latest release: sw `kos-pencil-3` (27 October 2026, `feat/pencil-fixes`)
+  — https://f054551b.kurenai-os.pages.dev: Mark with Kurenai waits out
+  Gemini's "high demand" (three patient retries, 3/8/15 s, shown; `busyRetries`
+  on `KOS.ai.chatWith`), and a long Start button ends in … inside its card
+  (`.k-fit-btn`). Before it the Pencil follow-up (sw `kos-pencil-2`, 27 October
   2026, `feat/pencil-fixes`) — immutable deployment https://e2203d56.kurenai-os.pages.dev:
   Mark with Kurenai's reply no longer cut off (`ai-chat` gives Gemini's
   thinking its own 8192 tokens on top of the answer's), maths in "What is
