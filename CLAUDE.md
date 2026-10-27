@@ -17,7 +17,13 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: Files R1–R4, airing on a closed app, CI-verified Rider
+- Latest release: the Pencil fixes (sw `kos-pencil-1`, 27 October 2026,
+  `feat/pencil-fixes`) — immutable deployment https://4e6dd91c.kurenai-os.pages.dev:
+  the first day with the Apple Pencil Pro (lasso chips, colours after a
+  redraw, the kept tab, options and sizes for every tool, finger scroll,
+  stray samples, a faster PDF open), the review's words backing off, a
+  finished review kept on the chip, and the Assistant's daily cap at 300
+  (`ai-chat` redeployed); smoke107. Before it Files R1–R4, airing on a closed app, CI-verified Rider
   evidence and habits several times a day (sw `kos-files-1`, 26 October
   2026, `feat/files`) — immutable deployment
   https://445e2aae.kurenai-os.pages.dev, with the `runner` Edge Function
@@ -109,7 +115,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-pencil-1` (built; kos-files-1 is live)
+- Service-worker version: `kos-pencil-1`
 - Required smoke gate: 107 / 107 suites (`""` and 2–107; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
