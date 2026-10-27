@@ -159,7 +159,11 @@ function toGemini(body: {
   }
   const gen: Record<string, unknown> = {};
   if (typeof body.temperature === "number") gen.temperature = body.temperature;
-  if (typeof body.maxTokens === "number") gen.maxOutputTokens = body.maxTokens;
+  /* Gemini 2.5+/3.x think first, and the thinking counts against
+     maxOutputTokens: a 2000-token marking reply came back cut off mid-JSON
+     after 62 visible tokens (27 October 2026). The caller's maxTokens is the
+     ANSWER's budget; the thinking gets its own room on top. */
+  if (typeof body.maxTokens === "number") gen.maxOutputTokens = body.maxTokens + GEMINI_THINK_ROOM;
   if (body.structured) {
     gen.responseMimeType = "application/json";
     gen.responseJsonSchema = geminiSchema(body.structured.schema);
@@ -175,6 +179,8 @@ function toGemini(body: {
    recursively strips the keywords Gemini rejects, adapting per-provider
    without weakening the schema anywhere else. Whitelist is safer than a
    blocklist — unknown keywords are dropped. */
+const GEMINI_THINK_ROOM = 8192;
+
 const GEMINI_SCHEMA_KEYS = new Set([
   "type", "format", "title", "description", "nullable", "enum", "default",
   "items", "properties", "required", "minItems", "maxItems", "minLength",

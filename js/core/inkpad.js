@@ -75,10 +75,26 @@
     var dk = KOS.inkUI.desk({ dprCap: 2 });
     var box = el("div", { class: "k-pad", "data-ui": "pad", "data-kind": strip ? "strip" : "page" });
     host.appendChild(box);
-    var bar = KOS.inkUI.dockable(dk, { tools: strip ? STRIP_TOOLS : PAGE_TOOLS, image: !strip });
+    /* the paper: the caller's, else the last one picked for this kind of
+       pad on this device (state.ui.padPaper), else lined strips and booklet
+       pages; Paper on the bar changes it for this pad and the next */
+    var ui = KOS.store.state.ui, kindKey = strip ? "strip" : "page";
+    var known = I.PAPERS.map(function (x) { return x[0]; });
+    var remembered = ui.padPaper && known.indexOf(ui.padPaper[kindKey]) >= 0 ? ui.padPaper[kindKey] : null;
+    var paper = opts.paper || remembered || (strip ? "lined" : "booklet");
+    var bar = KOS.inkUI.dockable(dk, { tools: strip ? STRIP_TOOLS : PAGE_TOOLS, image: !strip, paper: {
+      get: function () { return (page && page.paper) || paper; },
+      set: function (pp) {
+        if (known.indexOf(pp) < 0) return;
+        page.paper = pp; paper = pp;
+        sheet.setAttribute("data-paper", pp);
+        ui.padPaper = Object.assign({}, ui.padPaper || {}); ui.padPaper[kindKey] = pp;
+        KOS.store.save();
+        if (page.items.length) I.savePage(page);
+        announce((I.PAPERS.filter(function (x) { return x[0] === pp; })[0] || [0, pp])[1] + " paper.");
+      } } });
     KOS.ui.state(bar, "pad", true);
     box.appendChild(bar);
-    var paper = opts.paper || (strip ? "lined" : "booklet");
     var page = I.blankPage(key, paper, strip ? STRIP_H : I.H);
     var sheet = el("div", { class: "k-ink-page k-pad-sheet", "data-paper": paper, "data-ui": "pad.sheet", role: "img", "aria-label": opts.title ? "Your answer to " + opts.title : "Your answer" });
     box.appendChild(sheet);
@@ -168,6 +184,15 @@
     var r = KOS.ai.config && KOS.ai.config().routing && KOS.ai.config().routing.tutor;
     return r && r.provider === "gemini" ? r.model : KOS.ai.DEFAULT_MODEL.gemini;
   }
+  /* the reply's JSON: bare, in a ``` fence, or with a line of words
+     around it (the outermost {…}) */
+  function readJson(text) {
+    var t = String(text || "").replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, "").trim();
+    try { return JSON.parse(t); } catch (e) { /* look inside */ }
+    var i = t.indexOf("{"), j = t.lastIndexOf("}");
+    if (i < 0 || j <= i) return null;
+    try { return JSON.parse(t.slice(i, j + 1)); } catch (e) { return null; }
+  }
   /* one request: "What is sent" first, then the reply (parsed JSON).
      o: {title, kicker, imageUrl, image (base64), sections: [{h, lines|text}],
          instruction, notSent, schema, system, onReply(json)} */
@@ -178,12 +203,15 @@
       body.appendChild(el("figure", { class: "k-pad-sent-img" }, [el("img", { src: o.imageUrl, alt: "The picture of your writing that is sent" }), el("figcaption", { text: "The picture of your page" })]));
       (o.sections || []).forEach(function (sx) {
         var sec = el("section", { class: "k-pad-sent-sec" }, [el("h3", { class: "k-kicker", text: sx.h })]);
-        if (sx.lines) sec.appendChild(el("ol", { class: "k-pad-sent-list" }, sx.lines.map(function (l) { return el("li", { text: l }); })));
+        /* the list numbers itself: the "1. " the prompt carries is not shown twice */
+        if (sx.lines) sec.appendChild(el("ol", { class: "k-pad-sent-list" }, sx.lines.map(function (l) { return el("li", { text: String(l).replace(/^\d+\.\s+/, "") }); })));
         else sec.appendChild(el("p", { text: sx.text }));
         body.appendChild(sec);
       });
       body.appendChild(el("section", { class: "k-pad-sent-sec" }, [el("h3", { class: "k-kicker", text: "Instruction" }), el("p", { class: "k-pad-sent-ins", text: o.instruction })]));
       body.appendChild(el("p", { class: "k-pad-sent-not", text: "Not sent: " + (o.notSent || "your name, your other answers, your notes, your marks so far, and any chat.") }));
+      /* the question and its scheme read as maths, as on the page ($…$) */
+      if (KOS.content && KOS.content.typeset) KOS.content.typeset(body);
       var status = el("p", { class: "k-pad-sent-status", "aria-live": "polite" });
       body.appendChild(status);
       cancel = el("button", { type: "button", class: "k-btn", "data-ui": "pad.sent-cancel", text: "Cancel", onclick: function () { close(); } });
@@ -196,9 +224,12 @@
           messages: [{ role: "user", content: o.prompt, images: [{ mime: "image/jpeg", data: o.image }] }]
         }, function (err, res) {
           if (err) { send.disabled = false; status.textContent = "Kurenai couldn't read it — " + (err.message || "try again") + ". Tick the marks yourself."; return; }
-          var json = null;
-          try { json = JSON.parse(String(res.text || "").replace(/^```(json)?|```$/g, "").trim()); } catch (e) { json = null; }
-          if (!json) { send.disabled = false; status.textContent = "Kurenai's reply couldn't be read. Tick the marks yourself."; return; }
+          var json = readJson(res.text);
+          if (!json) {
+            send.disabled = false;
+            status.textContent = /max|length/i.test(res.finishReason || "") ? "Kurenai's reply was cut short. Send again, or tick the marks yourself." : "Kurenai's reply couldn't be read. Send again, or tick the marks yourself.";
+            return;
+          }
           close();
           o.onReply(json);
         });
@@ -306,6 +337,6 @@
   }
 
   KOS.inkPad = { mount: mount, answer: answer, earlier: earlier, earlierLink: earlierLink, viewDoc: viewDoc, STRIP_H: STRIP_H };
-  KOS.inkAI = { reads: reads, ready: ready, online: online, ask: ask, markWithKurenai: markWithKurenai, checkWorking: checkWorking,
+  KOS.inkAI = { readJson: readJson, reads: reads, ready: ready, online: online, ask: ask, markWithKurenai: markWithKurenai, checkWorking: checkWorking,
     compareBlurt: compareBlurt, suggestionChip: suggestionChip, plain: plain };
 })();

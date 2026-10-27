@@ -1212,6 +1212,7 @@
         { label: "Image…", onSelect: function () { imgInput.click(); } }
       ];
       if (opts.paper) items.push({ label: "Paper…", onSelect: function () { paperDialog(dk, opts.paper); } });
+      if (!phone()) items.push({ label: "Dock the tools", onSelect: function () { dk.setDock("dock"); } });
       var m = KOS.ui.menu({ label: "More tools", className: "k-ink-pal-more", items: items });
       root.appendChild(m);
       m.click();

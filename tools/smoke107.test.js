@@ -31,6 +31,11 @@
          chip until the next review starts or 8 hours pass, and opened
          again it is the whole review — its routine still ticks — with
          only Skip gone; Done turns a skipped one done.
+     J · ANSWER PADS: a pad's bar has Paper; picking one changes the pad
+         and is remembered for the next pad of that kind on this device;
+         the floating palette's ⠿ menu can dock the tools; "What is sent"
+         numbers the scheme once and a reply in a fence or with words
+         around it is still read.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -330,6 +335,36 @@ step("I · a finished review stays on the chip", async () => {
   if (fin) { click(fin); await b.settle(); eq(V.day(R.routineDay()).morning.state, "done", "Done turns a skipped review done"); }
   else assert(done.length >= 0, "a Done button");
   eq(b.errors, [], "no errors");
+});
+
+step("J · answer pads: paper and docking", async () => {
+  const host = app.document.createElement("div");
+  app.document.getElementById("main").appendChild(host);
+  const pad = K.inkPad.mount(host, { marks: 6, title: "Q1", item: "test:q1" });
+  await settle(2);
+  const btn = host.querySelector("[data-ui~='ink.paper']");
+  assert(btn, "the pad's bar has Paper");
+  eq(host.querySelector("[data-ui~='pad.sheet']").getAttribute("data-paper"), "booklet", "a page pad starts on the booklet");
+  btn.click(); await settle(1);
+  const sq = app.document.querySelector("[data-ui~='ink.paper-chip'][data-paper='squared']");
+  assert(sq, "the papers are offered");
+  sq.click(); await settle(1);
+  eq(host.querySelector("[data-ui~='pad.sheet']").getAttribute("data-paper"), "squared", "the pad is squared now");
+  eq(K.store.state.ui.padPaper.page, "squared", "remembered on this device");
+  pad.destroy();
+  const pad2 = K.inkPad.mount(host, { marks: 6 });
+  eq(host.querySelector("[data-ui~='pad.sheet']").getAttribute("data-paper"), "squared", "the next page pad starts squared");
+  pad2.destroy();
+  const strip = K.inkPad.mount(host, { marks: 2 });
+  eq(host.querySelector("[data-ui~='pad.sheet']").getAttribute("data-paper"), "lined", "a strip keeps its own (lined)");
+  strip.destroy();
+  host.remove();
+  const rj = K.inkAI.readJson;
+  eq(rj('{"a":1}'), { a: 1 }, "bare JSON");
+  eq(rj('```json\n{"a":1}\n```'), { a: 1 }, "in a fence");
+  eq(rj('Here are the marks: {"a":1} — done'), { a: 1 }, "with words around it");
+  eq(rj('{"a":1, "b": [1,'), null, "a cut-off reply is not read");
+  eq(app.errors, [], "no errors");
 });
 
 (async () => {
