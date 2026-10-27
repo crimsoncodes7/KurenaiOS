@@ -25,6 +25,7 @@ handoff maps back to the roadmap.
 | 15 | Creatives: art, design, editing, writing | 5.7 item 3 | with 14 |
 | 16 | Mind: psychology and philosophy | 5.9 | after 15 |
 | 17 | Daily Review and Routines | 5.10 | next |
+| 18 | Art slots, empty pages and the new shop (eight passes) | 5.13 | on approval |
 
 ---
 
@@ -726,4 +727,72 @@ WHAT IS WANTED:
 STATES: first visit (no routines, no reviews done), a weekend with no lessons, a school holiday, Exam Season, a review done on another device (not offered), late at night after midnight (still that evening), Easy week on, Critical HP (recovery still owns Home's hero slot), Dawn.
 
 RULES: never stack reviews; skip/Later/Esc everywhere, without guilt or warning copy; no review streak and no counts that shame; zero-value facts suppressed (invariant 77); status is never colour alone; reviews pay nothing and show no rewards, while a routine's completion shows its reward chip once ("+14 XP · 1 gold · +3 HP", or "No reward · why"); 44px touch targets and thumb-zone actions on the phone; no text in any generated image (all text is a live layer); use only Kurenai as a character.
+```
+
+## 18 · Art slots, empty pages and the new shop
+
+From the art and shop audit (roadmap 5.13, 27 October 2026). Eight separate passes; send them in the order you approve. Each prompt starts with the same preamble.
+
+### 18.1 · Money's first run (34a–34b)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+MONEY WITH NOTHING IN IT. Today the page is one row ("Nothing here yet", Add your first income, Import a CSV) on an empty page. Design the first run as a full page: the empty-state spot (app.empty.money, 1:1) beside a three-step start (set your currency and month start; add income or import a CSV; set one budget), a preview of what the Overview will show once there are entries (ghosted, labelled as a preview), and the six view tabs still present. 34b: the same page after the first entry, before a budget exists. Rules: invariant 5a (logistics, no rewards), invariant 76 (no figure without evidence), Hide amounts still masks every amount.
+```
+
+### 18.2 · Files when empty (34c)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+FILES WITH NO FILES. Today a small "No files yet" card sits in the corner of a wide empty grid. Design the empty page so it fills the width: the spot (app.empty.files) and the ways files arrive (drop, paste, scan pages, share, a topic's Files tab, an assignment, Exams' Library) as large drop-target cards, the search and filters kept but quiet, and the "Your files" side card. Phone and iPad (the camera scan is the iPad's main route).
+```
+
+### 18.3 · The Assistant's empty thread with the redesign (34d–34e)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE ASSISTANT. The panel still shows Kurenai's first design; she is being redrawn from her redesign (app.base.kurenai, 2:3, and five expressions). Design the empty thread so the large blank column above "What are we working on?" is used: the full figure in its slot (state image swaps for thinking, working, success, concerned, asking), the four suggestions as a proper grid, recent threads, and the voice and familiar controls. 34e: the phone, where the portrait crop replaces the figure. Show how an outfit (a shop skin) appears and how she can be hidden.
+```
+
+### 18.4 · The Japanese path at phone and iPad width (34f)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE JAPANESE DESK'S MEDIA PATH. At 390 wide the stepping stones' "Calibrating" labels overlap and the strip spills. Redesign the stones for the phone (a vertical path, or a horizontal scroller whose labels never collide) and the iPad portrait, keeping invariant 117: the date is a range or "calibrating", never one date.
+```
+
+### 18.5 · The Gold Shop, with new departments (34g–34i)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE GOLD SHOP. It sells 55 items, all owned; new departments are coming: Kurenai outfits (a full figure, 2:3), Focus scenes (16:9), Shrine halls (21:9), painted banners (21:9), share-card finishes (3:4), more themes, frames, shelf skins, seals, notebook papers and pen sets. Design the departments rail and a card per kind with its live preview (a scene behind a small clock, an outfit on the Assistant panel, a banner on the identity card), "Try on" as themes have it (transient, never saved, ends on leaving the shop), owned and equipped states, and a balance header that reads well at 43,000 gold. 34h: an item's preview sheet. 34i: phone. Rule: everything is cosmetic; labs are the only functional unlocks (invariant 2).
+```
+
+### 18.6 · Exams & Papers › Practice attempts (34j)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE ATTEMPTS TABLE. Logged attempts without a paper name read "(untitled)" on every row and the table is plain. Design the list so each row names what it was (the paper, or the leaf and its subject for a quick log), the score as marks and a grade where boundaries exist, timed or not, and the review tick, grouped by month, with the two summary tiles kept. Phone as cards.
+```
+
+### 18.7 · Where the art sits (34k–34n)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE ART SLOTS. Show, in Graphite and Dawn, how painted art sits behind live content without hurting legibility: Home's hero with a seasonal painting at low opacity behind the greeting and the daily goal (app.hero.home.*, 21:9); a subject desk's hero (app.hero.desk.*, 21:9) behind the mastery ring; a vault's Spotlight (app.spotlight.*, 21:9) behind the cover; the running Focus stage over a scene (app.focus.*, 16:9); the Shrine's rank 01 over a hall; and one empty state with its spot (1:1, keyed). Give the rule for each: opacity or scrim per theme, focal side, the crop at 390 and 1180, and reduced data (a setting that turns decorative art off). Critical HP still owns Home's hero slot.
+```
+
+### 18.8 · Specimen boards for the new cosmetics (34o–34p)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE NEW COSMETICS. 34o: four new OS themes as colour-role overrides (invariant 26a: roles only, derived tokens follow, status stays --alarm), each shown on the same three surfaces (Home's hero, a card, a chart). 34p: four avatar frames, three shelf skins (paulownia, steel and glass, library oak), six seals (雪 花 夢 刀 鶴 光), six notebook papers from the theme's --line (kraft, dark slate grid, isometric dots, manuscript ruling, music staff, 2 mm graph; invariant 133) and three pen sets as roles.
 ```

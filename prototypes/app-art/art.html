@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App art sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../japanese-space/styles.css">
+<link rel="stylesheet" href="../japanese-space/art.css">
+<style>
+  /* app-wide art has no subject hue: the sheet uses the app crimson */
+  :root { --ja: oklch(0.66 0.17 20); --ja-soft: oklch(0.66 0.17 20 / 0.14); --ja-ink: oklch(0.2 0.04 20); }
+</style>
+</head>
+<body>
+<main id="app" aria-live="off"></main>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+  // the shared prompt and contact sheet (prototypes/japanese-space/art.js), pointed at the audit's manifest (roadmap 5.13)
+  window.ART_CFG = { dir: "art-source/app/", key: "app-art-review", what: "the app-wide art proposed by the art and shop audit (docs/app-art.md)" };
+</script>
+<script src="../japanese-space/art.js"></script>
+</body>
+</html>

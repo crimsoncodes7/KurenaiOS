@@ -100,7 +100,9 @@
           el("div", { class: "a-meta" }, [
             el("span", { text: a.kind + (a.who ? " · " + a.who : "") + " · " + (a.aspect === "same" ? "same size as the base" : a.aspect) }),
             a.edit ? el("span", { class: "chip", text: "Edit an image" }) : null
-          ])
+          ]),
+          // a manifest may say where the image lands (the app-wide sheet, roadmap 5.13)
+          a.where ? el("p", { class: "a-meta", text: "Where it goes: " + a.where + (a.size ? " · " + a.size : "") }) : null
         ]),
         chip
       ]),

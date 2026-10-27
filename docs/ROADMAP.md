@@ -339,8 +339,9 @@ Claude Design and comes back as a handoff, the way Graphite did.
   overrides in `css/themes.css`, with swatches synced to `governor.js`.
 - **Cosmetics:** the 4 profile frames, 3 Books shelf skins, 3 shrine styles, and
   the share-card finish.
-- **Retire leftover item kinds:** 4 banners and 6 seals are still defined
-  but are no longer sold or shown.
+- **Retire leftover item kinds:** the 4 banners are still defined but are
+  no longer sold or shown; the 6 seals ARE still sold (the shop's Profile
+  seals). The art audit (5.13) proposes painted banners in their place.
 - **What to ask Claude Design for:**
   - Dawn as a complete token table, like Graphite's.
   - One specimen board showing all 23 themes against the same three
@@ -1378,6 +1379,16 @@ included) without saying why.
   142).
 
 ### 5.13 An art and shop audit ◆ (asked for 26 October 2026)
+
+> **PROPOSED 27 October 2026** (`feat/art-audit`), waiting for approval:
+> the report is an artifact (https://claude.ai/artifact/6u9Wg3fQ6ugEN9w41zy5Ck);
+> 65 Gemini prompts in 12 batches are in `art-source/app/manifest.json`
+> (sheet `prototypes/app-art/art.html`, notes in [app-art.md](app-art.md)),
+> eight Claude Design passes are section 18 of
+> [design-prompts.md](design-prompts.md) (frames 34a–34p), and the shop
+> proposal adds 49 items (about 21,000 gold). Mind and Routines are left
+> out. Top finding: the Assistant still draws Kurenai's first design while
+> Routines and Mind draw her redesign (batches 1–2).
 
 **What:** I (the coding agent) walk every area of the app and write a
 proposal, not code, of where art and new design would lift it, and what to

@@ -247,6 +247,11 @@
       var j = Math.max(0, Math.min(b.length - 1, i + (e.key === "ArrowRight" ? 1 : -1)));
       if (b[j]) { e.preventDefault(); b[j].focus(); o.onSelect(b[j].getAttribute("data-id")); }
     });
+    /* a declared scroller (invariant 50): the stones are as wide as their
+       longest word, so a phone scrolls them; a pick redraws the page and
+       keeps the strip where it was, first showing the chosen stone */
+    if (KOS.ui && KOS.ui.scroller) return KOS.ui.scroller(row, { keepRole: !!o.onSelect, label: "Media path", keep: "ja-path",
+      reveal: function (n) { var s = n.querySelector("[aria-checked=true]") || n.querySelector("[data-state=next]"); return s ? s.offsetLeft - n.clientWidth / 2 + s.offsetWidth / 2 : null; } });
     return row;
   }
 

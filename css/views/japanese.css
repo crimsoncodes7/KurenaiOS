@@ -83,7 +83,7 @@
 
 /* ================= the media path: stepping stones ================= */
 .k-ja-stones { display: flex; align-items: stretch; gap: var(--sp-6); overflow-x: auto; padding-block: var(--sp-8); list-style: none; margin: 0; padding-inline: 0; }
-.k-ja-stone { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--sp-6); flex: 1 0 var(--sp-64); min-inline-size: var(--sp-64); padding: var(--sp-4); border: 0; background: none; color: inherit; font: inherit; text-align: center; cursor: default; }
+.k-ja-stone { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--sp-6); flex: 1 0 var(--sp-64); min-inline-size: max(var(--sp-64), min-content); padding: var(--sp-4); border: 0; background: none; color: inherit; font: inherit; text-align: center; cursor: default; }
 button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 .k-ja-stone::before { content: ""; position: absolute; inset-block-start: calc(var(--ja-stone) / 2 + var(--sp-4)); inset-inline: 50% -50%; block-size: var(--hairline); border-block-start: var(--hairline) dashed var(--line); z-index: 0; }
 .k-ja-stone:last-child::before { display: none; }
