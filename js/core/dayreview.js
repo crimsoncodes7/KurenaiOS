@@ -58,6 +58,20 @@
   var CHOICES = ["tomorrow", "week", "someday", "done", "leave"];
   var HM = /^([01]\d|2[0-3]):([0-5]\d)$/;
   var enabled = false, timer = null, writing = {};
+  /* a failed write waits before the next try (26 October 2026: the ticker
+     asked again every 30 s after a failure, about 470 requests in a day,
+     and spent the whole day's Assistant quota before anything was asked).
+     A spent quota ("rate") stops automatic tries until the next UTC day,
+     when the quota resets; any other failure waits 20 minutes, or 2 when
+     the review is opened by hand. In memory: a reload may try once. */
+  var failed = {}, rateDay = null;
+  var RETRY_AUTO = 20 * 60000, RETRY_OPEN = 2 * 60000;
+  function utcDay(ms) { return new Date(ms).toISOString().slice(0, 10); }
+  function mayWrite(k, now, byHand) {
+    if (rateDay && rateDay === utcDay(now)) return false;
+    var f = failed[k];
+    return !f || now - f >= (byHand ? RETRY_OPEN : RETRY_AUTO);
+  }
 
   /* ---------------- helpers ---------------- */
   function safe(fn, d) { try { var v = fn(); return v == null ? d : v; } catch (e) { return d; } }
@@ -654,11 +668,18 @@
     if (have && have.text) { cb(null, have); return; }
     var k = day + "|" + slot;
     if (writing[k]) { cb(null, null); return; }
+    if (!mayWrite(k, now, !!opts.byHand)) { cb({ kind: rateDay ? "rate" : "later", message: "Kurenai's words wait for now; the template stands." }, null); return; }
     writing[k] = true;
     var c = content(slot, { now: now });
     write(slot, c, function (err, out) {
       delete writing[k];
-      if (err) { cb(err, null); return; }
+      if (err) {
+        failed[k] = now;
+        if (err.kind === "rate") rateDay = utcDay(now);
+        cb(err, null);
+        return;
+      }
+      delete failed[k];
       var s = data(), d = s.days[day] = s.days[day] || {};
       d.words = d.words || {};
       d.words[slot] = { line: out.line, text: out.text, at: Date.now() };

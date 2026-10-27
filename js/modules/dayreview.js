@@ -62,7 +62,7 @@
     if (V().cfg().words === "kurenai") {
       st.generating = !(V().day(R().routineDay()).words || {})[slot];
       if (st.generating) paintHead();
-      V().ensureWords(slot, {}, function (err) {
+      V().ensureWords(slot, { byHand: true }, function (err) {
         if (open !== st) return;
         st.generating = false;
         st.offline = !!err;

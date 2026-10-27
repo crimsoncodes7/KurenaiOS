@@ -62,8 +62,13 @@
       dock: p.dock === "float" ? "float" : "dock",
       at: p.at && typeof p.at === "object" ? { land: p.at.land || null, port: p.at.port || null } : { land: null, port: null },
       pen: { role: p.pen && roles.indexOf(p.pen.role) >= 0 ? p.pen.role : "ink", w: p.pen && p.pen.w >= 0 && p.pen.w <= 2 ? p.pen.w : 1 },
-      hl: { role: p.hl && hls.indexOf(p.hl.role) >= 0 ? p.hl.role : "amber" },
+      hl: { role: p.hl && hls.indexOf(p.hl.role) >= 0 ? p.hl.role : "amber", w: p.hl && p.hl.w >= 0 && p.hl.w <= 2 ? p.hl.w : 1 },
       eraser: p.eraser === "stroke" ? "stroke" : "partial",
+      /* each tool's size, a step of three (I.ERASER_SIZES, I.TEXT_SIZES),
+         and the lasso's shape */
+      eraserW: p.eraserW >= 0 && p.eraserW <= 2 ? p.eraserW : 0,
+      textW: p.textW >= 0 && p.textW <= 2 ? p.textW : 1,
+      lasso: p.lasso === "box" ? "box" : "free",
       finger: p.finger === true,
       penSeen: +p.penSeen || 0,
       pressure: p.pressure === true
@@ -82,7 +87,10 @@
   function resolve(host, role) {
     /* a token may be oklch(from …): let the browser compute it on an
        element, then paint it on a 1px canvas and read back rgb, which
-       every canvas takes */
+       every canvas takes. A host not in the document has no computed
+       style, so the probe goes on the body instead (every colour read
+       black on the iPad when a page was drawn before it was placed). */
+    if (!host || !host.isConnected) host = document.body;
     try {
       if (!probeEl) { probeEl = document.createElement("span"); probeEl.setAttribute("aria-hidden", "true"); probeEl.className = "k-ink-probe"; }
       /* the role's colour comes from ink.css (.k-ink-probe[data-role]) */
@@ -103,9 +111,11 @@
     var themed = host.closest && host.closest("[data-theme]");
     var key = (themed && themed.getAttribute("data-theme")) || document.documentElement.getAttribute("data-theme") || "";
     if (palCache[key]) return palCache[key];
-    var out = {};
-    ROLES.forEach(function (r) { out[r] = resolve(host, r); });
-    palCache[key] = out;
+    var out = {}, sure = !!(host && host.isConnected);
+    ROLES.forEach(function (r) { out[r] = resolve(host, r); if (!/^rgb/.test(out[r])) sure = false; });
+    /* only a reading from the page itself is kept; a host still being
+       built reads again once it is placed */
+    if (sure) palCache[key] = out;
     return out;
   }
   try {
@@ -152,7 +162,7 @@
       ctx.save();
       ctx.globalAlpha = I.HL_ALPHA;
       ctx.strokeStyle = pal[it.role] || pal.amber;
-      ctx.lineWidth = I.HL_WIDTH; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.lineWidth = G.baseWidth(it); ctx.lineCap = "round"; ctx.lineJoin = "round";
       ctx.beginPath();
       hl.forEach(function (q, i) { if (i) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); });
       if (hl.length === 1) ctx.lineTo(hl[0].x + 0.1, hl[0].y);
@@ -177,9 +187,10 @@
     }
     if (it.k === "text") {
       ctx.fillStyle = pal[it.role] || pal.ink;
-      ctx.font = I.TEXT_SIZE + "px " + (getComputedStyle(document.documentElement).getPropertyValue("--font-ui") || "sans-serif");
+      var tsz = G.textSize(it);
+      ctx.font = tsz + "px " + (getComputedStyle(document.documentElement).getPropertyValue("--font-ui") || "sans-serif");
       ctx.textBaseline = "top";
-      String(it.s || "").split("\n").forEach(function (line, i) { ctx.fillText(line, it.x, it.y + i * I.TEXT_SIZE * 1.3); });
+      String(it.s || "").split("\n").forEach(function (line, i) { ctx.fillText(line, it.x, it.y + i * tsz * 1.3); });
       return;
     }
     if (it.k === "img" && it.src) {
@@ -222,14 +233,26 @@
         if (d.prefs.tool === "hl") d.prefs.hl.role = role; else d.prefs.pen.role = role;
         savePrefs(); d.changed(); announce(d.describe());
       },
-      setWidth: function (w) { d.prefs.pen.w = w; savePrefs(); d.changed(); announce(d.describe()); },
+      /* the size step of the tool in hand */
+      setWidth: function (w) {
+        var t = d.prefs.tool;
+        if (t === "hl") d.prefs.hl.w = w;
+        else if (t === "eraser") d.prefs.eraserW = w;
+        else if (t === "text") d.prefs.textW = w;
+        else d.prefs.pen.w = w;
+        savePrefs(); d.changed(); announce(d.describe());
+      },
+      setEraser: function (mode) { d.prefs.eraser = mode === "stroke" ? "stroke" : "partial"; savePrefs(); d.changed(); announce(d.describe()); },
+      setLasso: function (mode) { d.prefs.lasso = mode === "box" ? "box" : "free"; savePrefs(); d.changed(); announce(d.describe()); },
       dprCap: opts.dprCap || 2,
       describe: function () {
         var p = d.prefs, t = p.tool;
-        if (t === "eraser") return p.eraser === "partial" ? "Eraser, partial." : "Eraser, whole stroke.";
-        if (t === "hl") return "Highlighter, " + roleName(I.HL_ROLES, p.hl.role).toLowerCase() + ".";
+        if (t === "eraser") return (p.eraser === "partial" ? "Eraser, partial, " : "Eraser, whole stroke, ") + I.ERASER_SIZES[p.eraserW][0].toLowerCase() + ".";
+        if (t === "hl") return "Highlighter, " + roleName(I.HL_ROLES, p.hl.role).toLowerCase() + ", " + I.HL_WIDTHS[p.hl.w][0].toLowerCase() + ".";
+        if (t === "text") return "Text, " + roleName(I.PEN_ROLES, p.pen.role).toLowerCase() + ", " + I.TEXT_SIZES[p.textW][0].toLowerCase() + ".";
+        if (t === "lasso") return p.lasso === "box" ? "Lasso, box." : "Lasso, freehand.";
         var name = (TOOLS.filter(function (x) { return x[0] === t; })[0] || TOOLS[0])[1];
-        if (t === "pen" || t === "shape") return name + ", " + roleName(I.PEN_ROLES, p.pen.role).toLowerCase() + ", " + I.WIDTHS[p.pen.w][0].toLowerCase() + ".";
+        if (t === "pen" || t === "shape" || t === "ruler") return name + ", " + roleName(I.PEN_ROLES, p.pen.role).toLowerCase() + ", " + I.WIDTHS[p.pen.w][0].toLowerCase() + ".";
         return name + ".";
       },
       undo: function () { var s = d.active; if (s && s.undo()) announce("Undid a stroke."); },
@@ -313,6 +336,13 @@
      memory): a ratio of 2 with one pane, 1.5 with two, and no side over
      4096 px. The cap lowers the ratio, never the page. */
   var MAX_SIDE = 4096;
+  /* every surface on screen, and when a pen last touched one: a page is
+     not redrawn under writing in progress (KOS.rerender asks busy()) */
+  var allSurfaces = [], lastInk = 0;
+  function busy() {
+    if (Date.now() - lastInk < 1500) return true;
+    return allSurfaces.some(function (x) { return x.host.isConnected && x.busy(); });
+  }
   function surface(host, page, dk, opts) {
     opts = opts || {};
     var cap = opts.dprCap || dk.dprCap || 2;
@@ -369,7 +399,7 @@
       }
       if (liveState && liveState.ring) {
         ctx.save(); ctx.strokeStyle = pal.ink; ctx.globalAlpha = 0.6; ctx.lineWidth = 1 / scale;
-        ctx.beginPath(); ctx.arc(liveState.ring.x, liveState.ring.y, ERASE_R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        ctx.beginPath(); ctx.arc(liveState.ring.x, liveState.ring.y, eraseR(), 0, Math.PI * 2); ctx.stroke(); ctx.restore();
       }
       if (dk.prefs.tool === "ruler") drawRuler(ctx, pal);
       var box = sel.length ? G.boxOf(page.items, sel) : null;
@@ -528,9 +558,10 @@
       ta.value = existing ? existing.s : "";
       ta.style.setProperty("--ink-chip-x", Math.round(at.x * scale) + "px");
       ta.style.setProperty("--ink-chip-y", Math.round(at.y * scale) + "px");
-      ta.style.setProperty("--ink-text-size", (I.TEXT_SIZE * scale).toFixed(1) + "px");
+      var tsz = existing ? G.textSize(existing) : I.TEXT_SIZES[dk.prefs.textW][1];
+      ta.style.setProperty("--ink-text-size", (tsz * scale).toFixed(1) + "px");
       layer.appendChild(ta);
-      textBox = { ta: ta, at: at, id: existing ? existing.id : null };
+      textBox = { ta: ta, at: at, id: existing ? existing.id : null, sz: tsz };
       if (existing) { page.items = page.items.filter(function (x) { return x.id !== existing.id; }); textBox.was = existing; redraw(); }
       ta.addEventListener("keydown", function (e) {
         if (e.key === "Escape") { e.preventDefault(); closeText(false); }
@@ -547,7 +578,7 @@
       var rest = page.items.filter(function (x) { return !tb.was || x.id !== tb.was.id; });
       if (tb.was) page.items = rest.concat([tb.was]); /* put it back before deciding */
       if (keep && txt) {
-        var item = { id: tb.was ? tb.was.id : I.uid(), k: "text", role: tb.was ? tb.was.role : dk.prefs.pen.role, x: tb.at.x, y: tb.at.y, s: txt };
+        var item = { id: tb.was ? tb.was.id : I.uid(), k: "text", role: tb.was ? tb.was.role : dk.prefs.pen.role, x: tb.at.x, y: tb.at.y, s: txt, sz: tb.sz };
         commit(rest.concat([item]));
       } else if (keep && tb.was) {
         commit(rest);
@@ -555,7 +586,7 @@
     }
 
     /* ---- input ---- */
-    var ERASE_R = 9;
+    function eraseR() { return I.ERASER_SIZES[dk.prefs.eraserW][1]; }
     function toPage(e) {
       var r = live.getBoundingClientRect();
       return { x: (e.clientX - r.left) / (r.width || 1) * I.W, y: (e.clientY - r.top) / (r.height || 1) * ph() };
@@ -584,6 +615,7 @@
     }
     function onDown(e) {
       if (!draws(e)) return;
+      lastInk = Date.now();
       if (e.pointerType === "pen") dk.penSeen(e.pressure > 0 && e.pressure !== 0.5);
       if (dk.claim) dk.claim();
       e.preventDefault();
@@ -611,7 +643,7 @@
           }
           sel = [];
         }
-        stroke = { kind: "lasso", list: [q] };
+        stroke = { kind: "lasso", list: [q], o: q, box: dk.prefs.lasso === "box" };
         liveState = { lasso: stroke.list };
         paintLive();
         return;
@@ -633,18 +665,18 @@
       var p = dk.prefs, k = p.tool === "hl" ? "hl" : "pen";
       var l = list || stroke.list;
       if (stroke && stroke.ruled && l.length > 1) l = alongRuler([l[0], l[l.length - 1]]);
-      var it = { id: "live", k: k, role: k === "hl" ? p.hl.role : p.pen.role, w: p.pen.w, p: G.pack(l) };
+      var it = { id: "live", k: k, role: k === "hl" ? p.hl.role : p.pen.role, w: k === "hl" ? p.hl.w : p.pen.w, p: G.pack(l) };
       if (stroke && stroke.ruled) it.sh = "line";
       return it;
     }
     function eraseAt(q) {
       /* a fast swipe samples sparsely: erase along the path between
          samples too, so nothing it crossed is skipped */
-      var from = stroke.at || q, n = Math.max(1, Math.ceil(Math.hypot(q.x - from.x, q.y - from.y) / (ERASE_R * 0.8)));
+      var from = stroke.at || q, n = Math.max(1, Math.ceil(Math.hypot(q.x - from.x, q.y - from.y) / (eraseR() * 0.8)));
       var changed = false;
       for (var i = 1; i <= n; i++) {
         var x = from.x + (q.x - from.x) * i / n, y = from.y + (q.y - from.y) * i / n;
-        var out = G.erase(stroke.items, x, y, ERASE_R, dk.prefs.eraser);
+        var out = G.erase(stroke.items, x, y, eraseR(), dk.prefs.eraser);
         if (out) { stroke.items = out; changed = true; }
       }
       stroke.at = q;
@@ -659,7 +691,16 @@
       var evs = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
       if (!evs || !evs.length) evs = [e];
       if (stroke.kind === "erase") { evs.forEach(function (x) { eraseAt(toPage(x)); }); liveState = { ring: toPage(e) }; paintLive(); return; }
-      if (stroke.kind === "lasso") { evs.forEach(function (x) { stroke.list.push(toPage(x)); }); paintLive(); return; }
+      if (stroke.kind === "lasso") {
+        if (stroke.box) {
+          /* the box lasso: a rectangle from where it started */
+          var o = stroke.o, c = toPage(e);
+          stroke.list = [o, { x: c.x, y: o.y }, c, { x: o.x, y: c.y }, o];
+          liveState.lasso = stroke.list;
+        } else evs.forEach(function (x) { stroke.list.push(toPage(x)); });
+        requestPaint();
+        return;
+      }
       if (stroke.kind === "ruler-move") {
         var qm = toPage(e), rr = ruler();
         rr.x = stroke.x + qm.x - stroke.from.x; rr.y = stroke.y + qm.y - stroke.from.y;
@@ -680,19 +721,42 @@
         return;
       }
       evs.forEach(function (x) {
+        /* a pen sample with no pressure mid-stroke is the pen lifting, not
+           a point; one out of order is a repeat */
+        if (x.pointerType === "pen" && x.pressure === 0) return;
         var q = pointOf(x, stroke.last);
-        if (Math.hypot(q.x - stroke.last.x, q.y - stroke.last.y) < 0.6) return;
+        if (q.at < stroke.last.at) return;
+        var jump = Math.hypot(q.x - stroke.last.x, q.y - stroke.last.y);
+        if (jump < 0.6) return;
+        /* the occasional stray sample far from the nib (the "spike" seen on
+           the iPad): faster than a hand moves, and alone. Two in a row are
+           the pen really moving, and the stroke follows. */
+        if (jump > 60 && q.dt < 12 && !stroke.strayed) { stroke.strayed = true; return; }
+        stroke.strayed = false;
         stroke.list.push(q); stroke.last = q;
         if (Math.hypot(q.x - stroke.list[Math.max(0, stroke.list.length - 4)].x, q.y - stroke.list[Math.max(0, stroke.list.length - 4)].y) > 2) {
           if (liveState.snapped) { liveState.snapped = null; }
           startHold();
         }
       });
-      liveState.item = liveItem();
-      paintLive();
+      /* where the pen is about to be (Chrome predicts; Safari does not),
+         drawn on the live stroke only, so the ink keeps up with the nib */
+      var pred = e.getPredictedEvents ? e.getPredictedEvents() : null;
+      var ahead = pred && pred.length && stroke.list.length > 2 ? pred.slice(0, 2).map(function (x) { return pointOf(x, stroke.last); }) : null;
+      liveState.item = liveItem(ahead ? stroke.list.concat(ahead) : null);
+      requestPaint();
+    }
+    /* one paint a frame: a Pencil reports 240 points a second */
+    var paintRaf = 0;
+    function requestPaint() {
+      if (paintRaf) return;
+      if (typeof window.requestAnimationFrame !== "function") { paintLive(); return; }
+      paintRaf = window.requestAnimationFrame(function () { paintRaf = 0; paintLive(); });
     }
     function onUp(e) {
       clearTimeout(holdT);
+      if (stroke) lastInk = Date.now();
+      if (paintRaf) { window.cancelAnimationFrame(paintRaf); paintRaf = 0; }
       if (!stroke) return;
       var st = stroke;
       stroke = null;
@@ -751,8 +815,17 @@
        scrolls unless finger drawing is on; a quick two-finger tap undoes */
     var two = null;
     function onTouchStart(e) {
+      /* the selection's chips and a text box take their own taps: a
+         preventDefault here would swallow the click (the lasso's Resize,
+         Recolour, Copy and Delete did nothing with the pen) */
+      if (e.target !== live && layer.contains(e.target)) return;
       var ts = e.touches, stylus = [].some.call(e.changedTouches || [], function (t) { return t.touchType === "stylus"; });
-      if (stylus || (dk.prefs.finger && ts.length === 1)) { e.preventDefault(); return; }
+      if (stylus) { e.preventDefault(); return; }
+      /* finger drawing: one finger draws (touch-action keeps the browser
+         off it), two scroll and pinch */
+      if (dk.prefs.finger && ts.length === 2) {
+        pan = { x: (ts[0].clientX + ts[1].clientX) / 2, y: (ts[0].clientY + ts[1].clientY) / 2, el: scrollerOf(host) };
+      }
       if (ts.length === 2 && dk.prefs.tool === "ruler") {
         e.preventDefault();
         placeRuler(ts);
@@ -769,7 +842,14 @@
       }
       else if (ts.length > 2) two = null;
     }
-    var rulerTouch = false;
+    var rulerTouch = false, pan = null;
+    function scrollerOf(n) {
+      for (var p = n.parentElement; p && p !== document.body; p = p.parentElement) {
+        var oy = getComputedStyle(p).overflowY;
+        if ((oy === "auto" || oy === "scroll") && p.scrollHeight > p.clientHeight) return p;
+      }
+      return document.scrollingElement || document.documentElement;
+    }
     function placeRuler(ts) {
       var r = live.getBoundingClientRect(), a = ts[0], b = ts[1];
       var pa = { x: (a.clientX - r.left) / (r.width || 1) * I.W, y: (a.clientY - r.top) / (r.height || 1) * ph() };
@@ -784,6 +864,11 @@
     }
     function onTouchMove(e) {
       if (rulerTouch && e.touches.length === 2) { e.preventDefault(); placeRuler(e.touches); return; }
+      if (pan && e.touches.length === 2) {
+        var mx = (e.touches[0].clientX + e.touches[1].clientX) / 2, my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        pan.el.scrollBy(pan.x - mx, pan.y - my);
+        pan.x = mx; pan.y = my;
+      }
       if (!two) return;
       [].forEach.call(e.touches, function (t) {
         var p = two.pts.filter(function (q) { return q.id === t.identifier; })[0];
@@ -791,6 +876,7 @@
       });
     }
     function onTouchEnd(e) {
+      if (e.touches.length < 2) pan = null;
       if (rulerTouch && e.touches.length < 2) { rulerTouch = false; return; }
       if (!two || e.touches.length) return;
       var t = two;
@@ -813,6 +899,7 @@
       try { ro = new window.ResizeObserver(function () { if ((host.clientWidth || 0) !== w) { size(); redraw(); } }); ro.observe(host); } catch (e) { ro = null; }
     }
     s.redraw = function () { size(); redraw(); };
+    s.busy = function () { return !!stroke || !!textBox; };
     s.destroy = function () {
       s.flush();
       closeText(true);
@@ -825,11 +912,12 @@
       [ink, live].forEach(function (c) { c.width = 0; c.height = 0; });
       [ink, live, layer].forEach(function (n) { n.remove(); });
       dk.surfaces = dk.surfaces.filter(function (x) { return x !== s; });
+      allSurfaces = allSurfaces.filter(function (x) { return x !== s; });
       if (dk.active === s) dk.active = null;
     };
     /* for tests: draw a stroke without pointer events */
     s._stroke = function (points, kind) {
-      var it = { id: I.uid(), k: kind === "hl" ? "hl" : "pen", role: kind === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, w: dk.prefs.pen.w, p: G.pack(points) };
+      var it = { id: I.uid(), k: kind === "hl" ? "hl" : "pen", role: kind === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, w: kind === "hl" ? dk.prefs.hl.w : dk.prefs.pen.w, p: G.pack(points) };
       commit(page.items.concat([it]));
       return it;
     };
@@ -838,6 +926,7 @@
     size();
     redraw();
     dk.surfaces.push(s);
+    allSurfaces.push(s);
     return s;
   }
 
@@ -914,45 +1003,14 @@
     if (opts.paper === undefined && opts.tools) paperSlot.remove();
     longPress(bar, dk);
 
-    function swatches() {
-      var hl = dk.prefs.tool === "hl", roles = hl ? I.HL_ROLES : I.PEN_ROLES, cur = hl ? dk.prefs.hl.role : dk.prefs.pen.role;
-      return el("div", { class: "k-ink-swatches", role: "radiogroup", "aria-label": hl ? "Highlighter colour" : "Pen colour" }, roles.map(function (r) {
-        var b = el("button", { type: "button", class: "k-ink-swatch", role: "radio", "aria-checked": String(r[0] === cur), "aria-label": r[1], title: r[1],
-          "data-role": r[0], "data-ui": "ink.swatch", onclick: function () { dk.setRole(r[0]); } });
-        if (hl) KOS.ui.state(b, "hl", true);
-        return b;
-      }));
-    }
-    function widthsGroup() {
-      return el("div", { class: "k-ink-widths", role: "radiogroup", "aria-label": "Width" }, I.WIDTHS.map(function (wd, i) {
-        return el("button", { type: "button", class: "k-ink-width", role: "radio", "aria-checked": String(dk.prefs.pen.w === i), "aria-label": wd[0], title: wd[0] + " · " + wd[1] + " mm",
-          "data-w": String(i), "data-ui": "ink.width", onclick: function () { dk.setWidth(i); } }, [el("span", { class: "k-ink-width-dot", "aria-hidden": "true" })]);
-      }));
-    }
-    function colourLabel() {
-      var hl = dk.prefs.tool === "hl";
-      return hl ? roleName(I.HL_ROLES, dk.prefs.hl.role) : roleName(I.PEN_ROLES, dk.prefs.pen.role) + " · " + I.WIDTHS[dk.prefs.pen.w][0];
-    }
     function paintColour() {
       colour.innerHTML = "";
-      var t = dk.prefs.tool, applies = t === "pen" || t === "hl" || t === "shape" || t === "text";
-      KOS.ui.state(colour, "off", !applies);
-      if (!applies) return;
+      KOS.ui.state(colour, "off", false);
       if (KOS.ui.hasState(bar, "wide")) {
-        colour.appendChild(swatches());
-        if (t !== "hl") colour.appendChild(widthsGroup());
+        optionParts(dk).forEach(function (pt) { colour.appendChild(pt[1]); });
         return;
       }
-      var m = KOS.ui.menu({ label: colourLabel(), className: "k-ink-tool k-ink-colour-btn", align: "start", panelClass: "k-ink-pop",
-        render: function (panel) {
-          panel.appendChild(el("div", { class: "k-kicker", text: t === "hl" ? "Highlighter" : "Pen" }));
-          panel.appendChild(swatches());
-          if (t !== "hl") { panel.appendChild(el("div", { class: "k-kicker", text: "Width" })); panel.appendChild(widthsGroup()); }
-          panel.appendChild(el("p", { class: "k-ink-pop-note", text: dk.prefs.pressure ? "Width follows your pressure." : "This pen reports no pressure, so the width follows your speed." }));
-        } });
-      m.setAttribute("data-ui", "ui.menu-button ink.colour-btn");
-      m.insertBefore(el("span", { class: "k-ink-dot", "data-role": t === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, "aria-hidden": "true" }), m.firstChild);
-      colour.appendChild(m);
+      colour.appendChild(optionsMenu(dk, "k-ink-tool k-ink-colour-btn"));
     }
     function paintPaper() {
       paperSlot.innerHTML = "";
@@ -974,10 +1032,8 @@
         b.setAttribute("aria-checked", String(on));
         b.tabIndex = on ? 0 : -1;
         KOS.ui.state(b, "on", on);
-        if (b.getAttribute("data-tool") === "eraser") {
-          b.querySelector(".k-ink-tool-l").textContent = dk.prefs.eraser === "partial" ? "Eraser" : "Whole";
+        if (b.getAttribute("data-tool") === "eraser")
           b.title = dk.prefs.eraser === "partial" ? "Eraser · erases only what it touches (tap again for whole strokes)" : "Eraser · whole strokes (tap again to erase only what it touches)";
-        }
       });
       undoB.disabled = !dk.canUndo();
       redoB.disabled = !dk.canRedo();
@@ -1108,15 +1164,7 @@
       });
       undoB.disabled = !dk.canUndo(); redoB.disabled = !dk.canRedo();
       colourSlot.innerHTML = "";
-      var t = dk.prefs.tool, hl = t === "hl", role = hl ? dk.prefs.hl.role : dk.prefs.pen.role;
-      var m = KOS.ui.menu({ label: roleName(hl ? I.HL_ROLES : I.PEN_ROLES, role), className: "k-ink-tool k-ink-pal-colour", align: "start", panelClass: "k-ink-pop",
-        render: function (panel) {
-          panel.appendChild(el("div", { class: "k-kicker", text: hl ? "Highlighter" : "Pen" }));
-          panel.appendChild(swatchGroup(dk));
-          if (!hl) panel.appendChild(widthGroup(dk));
-        } });
-      m.setAttribute("data-ui", "ui.menu-button ink.colour-btn");
-      m.insertBefore(el("span", { class: "k-ink-dot", "data-role": role, "aria-hidden": "true" }), m.firstChild);
+      var m = optionsMenu(dk, "k-ink-tool k-ink-pal-colour");
       colourSlot.appendChild(m);
       KOS.ui.state(root, "row", phone() || orient() === "port");
       KOS.ui.state(root, "icons", phone() && window.innerWidth < 420);
@@ -1197,6 +1245,19 @@
     paint();
     return root;
   }
+  /* ---------- each tool's options (asked for 26 October 2026) ----------
+     Colour where the tool leaves colour, a size of three steps, and the
+     eraser's and the lasso's mode. Every tool has some, so the bar's slot
+     never empties into a gap when the tool changes. */
+  function hasColour(t) { return t !== "eraser" && t !== "lasso"; }
+  function sizesOf(dk) {
+    var p = dk.prefs, t = p.tool;
+    if (t === "lasso") return null;
+    if (t === "hl") return { list: I.HL_WIDTHS, cur: p.hl.w, label: "Width", mm: true };
+    if (t === "eraser") return { list: I.ERASER_SIZES, cur: p.eraserW, label: "Size" };
+    if (t === "text") return { list: I.TEXT_SIZES, cur: p.textW, label: "Size" };
+    return { list: I.WIDTHS, cur: p.pen.w, label: "Width", mm: true };
+  }
   function swatchGroup(dk) {
     var hl = dk.prefs.tool === "hl", roles = hl ? I.HL_ROLES : I.PEN_ROLES, cur = hl ? dk.prefs.hl.role : dk.prefs.pen.role;
     return el("div", { class: "k-ink-swatches", role: "radiogroup", "aria-label": hl ? "Highlighter colour" : "Pen colour" }, roles.map(function (r) {
@@ -1207,10 +1268,48 @@
     }));
   }
   function widthGroup(dk) {
-    return el("div", { class: "k-ink-widths", role: "radiogroup", "aria-label": "Width" }, I.WIDTHS.map(function (wd, i) {
-      return el("button", { type: "button", class: "k-ink-width", role: "radio", "aria-checked": String(dk.prefs.pen.w === i), "aria-label": wd[0], title: wd[0] + " · " + wd[1] + " mm",
+    var sz = sizesOf(dk);
+    if (!sz) return null;
+    return el("div", { class: "k-ink-widths", role: "radiogroup", "aria-label": sz.label }, sz.list.map(function (wd, i) {
+      return el("button", { type: "button", class: "k-ink-width", role: "radio", "aria-checked": String(sz.cur === i), "aria-label": wd[0], title: wd[0] + (sz.mm ? " · " + wd[1] + " mm" : ""),
         "data-w": String(i), "data-ui": "ink.width", onclick: function () { dk.setWidth(i); } }, [el("span", { class: "k-ink-width-dot", "aria-hidden": "true" })]);
     }));
+  }
+  function choiceGroup(label, list, cur, onPick) {
+    return el("div", { class: "k-ink-choices", role: "radiogroup", "aria-label": label }, list.map(function (c) {
+      var b = el("button", { type: "button", class: "k-chip k-ink-choice", role: "radio", "aria-checked": String(c[0] === cur), "data-ui": "ink.choice", "data-choice": c[0],
+        onclick: function () { onPick(c[0]); } }, [el("span", { text: c[1] })]);
+      KOS.ui.state(b, "on", c[0] === cur);
+      return b;
+    }));
+  }
+  function optionParts(dk) {
+    var p = dk.prefs, t = p.tool, out = [];
+    if (hasColour(t)) out.push([t === "hl" ? "Highlighter" : "Colour", swatchGroup(dk)]);
+    if (t === "eraser") out.push(["Erases", choiceGroup("Eraser", [["partial", "Partial"], ["stroke", "Whole stroke"]], p.eraser, dk.setEraser)]);
+    if (t === "lasso") out.push(["Selects", choiceGroup("Lasso", [["free", "Freehand"], ["box", "Box"]], p.lasso, dk.setLasso)]);
+    var sz = sizesOf(dk);
+    if (sz) out.push([sz.label, widthGroup(dk)]);
+    return out;
+  }
+  function optionLabel(dk) {
+    var p = dk.prefs, t = p.tool, sz = sizesOf(dk);
+    var first = t === "eraser" ? (p.eraser === "partial" ? "Partial" : "Whole stroke")
+      : t === "lasso" ? (p.lasso === "box" ? "Box" : "Freehand")
+      : roleName(t === "hl" ? I.HL_ROLES : I.PEN_ROLES, t === "hl" ? p.hl.role : p.pen.role);
+    return sz ? first + " · " + sz.list[sz.cur][0] : first;
+  }
+  function optionsMenu(dk, className) {
+    var t = dk.prefs.tool;
+    var m = KOS.ui.menu({ label: optionLabel(dk), className: className, align: "start", panelClass: "k-ink-pop",
+      render: function (panel) {
+        optionParts(dk).forEach(function (pt) { panel.appendChild(el("div", { class: "k-kicker", text: pt[0] })); panel.appendChild(pt[1]); });
+        if (t === "pen" || t === "shape" || t === "ruler")
+          panel.appendChild(el("p", { class: "k-ink-pop-note", text: dk.prefs.pressure ? "Width follows your pressure." : "This pen reports no pressure, so the width follows your speed." }));
+      } });
+    m.setAttribute("data-ui", "ui.menu-button ink.colour-btn");
+    m.insertBefore(hasColour(t) ? el("span", { class: "k-ink-dot", "data-role": t === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, "aria-hidden": "true" }) : glyph(t), m.firstChild);
+    return m;
   }
   /* a dialog the ink surfaces open (a paper, a clash, what is sent, a
      drill): head with its title and ✕, a body the caller fills, through
@@ -1333,7 +1432,7 @@
     return function () { document.removeEventListener("keydown", onKey); };
   }
 
-  KOS.inkUI = { prefs: prefs, palette: palette, desk: desk, surface: surface, toolbar: toolbar, shortcuts: shortcuts,
+  KOS.inkUI = { busy: busy, prefs: prefs, palette: palette, desk: desk, surface: surface, toolbar: toolbar, shortcuts: shortcuts,
     papersPicker: papersPicker, glyph: glyph, drawItems: drawItems, TOOLS: TOOLS, dockable: dockable, floatPalette: floatPalette, readImage: readImage,
     swatchGroup: swatchGroup, widthGroup: widthGroup, phone: phone, dialog: dialog };
 })();

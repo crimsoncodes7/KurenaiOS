@@ -137,8 +137,12 @@
          KOS.files record), fileId, kind: "paper" | "file" | "scheme",
          paper: {pid, sitting, subject, title} (a past paper's index entry),
          scheme: {title, getBlob(cb)}, refs: ["sid:ref"] (where clips go) } */
+  /* how many viewers are open: the Files index waits while one is, so it
+     never competes with the page being read */
+  var viewing = 0;
   function open(o) {
     o = o || {};
+    viewing++;
     var ink = o.kind !== "scheme";
     var prefix = (o.kind === "paper" ? "paper:" : "file:") + o.fileId + ":";
     var layers = ink ? layersOf(prefix) : [], docKey = null, readOnly = false;
@@ -168,6 +172,7 @@
     function close() {
       if (destroyed) return;
       destroyed = true;
+      viewing = Math.max(0, viewing - 1);
       stopClock();
       Object.keys(mounted).forEach(function (i) { unmount(+i); });
       if (io) io.disconnect();
@@ -344,7 +349,25 @@
     }
 
     /* ---------- pages ---------- */
-    var io = null, tio = null;
+    var io = null, tio = null, inkReady = false;
+    /* ONE render at a time (the iPad took ~10 s to show a paper's first
+       page while every nearby page and thumbnail rendered at once): the
+       pages nearest the one in view first, thumbnails only when no page
+       waits */
+    var pageQ = [], thumbQ = [], rendering = false;
+    function queue(list, job) { list.push(job); pump(); }
+    function pump() {
+      if (rendering || destroyed) return;
+      var pick = null;
+      if (pageQ.length) {
+        pageQ.sort(function (a, b) { return Math.abs(a.i - cur) - Math.abs(b.i - cur); });
+        pick = pageQ.shift();
+      } else if (thumbQ.length) pick = thumbQ.shift();
+      if (!pick) return;
+      rendering = true;
+      var next = function () { rendering = false; pump(); };
+      Promise.resolve().then(pick.run).then(next, next);
+    }
     function dpr() { return schemeOn ? 1.5 : 2; }
     function pageBox(i) {
       var s = sizes[i];
@@ -364,15 +387,18 @@
       if (mounted[i] || destroyed || !pdf) return;
       var b = boxes[i], m = mounted[i] = { canvas: el("canvas", { class: "k-pv-canvas", "aria-hidden": "true" }), task: null, sf: null };
       b.appendChild(m.canvas);
-      pdf.getPage(i + 1).then(function (pg) {
-        if (mounted[i] !== m) return;
-        var vp1 = pg.getViewport({ scale: 1 }), cssW = b.clientWidth || 600, cssH = cssW * vp1.height / vp1.width;
-        var k = Math.min(dpr(), 4096 / cssW, 4096 / cssH);
-        var vp = pg.getViewport({ scale: cssW / vp1.width * k });
-        m.canvas.width = Math.round(vp.width); m.canvas.height = Math.round(vp.height);
-        m.task = pg.render({ canvasContext: m.canvas.getContext("2d"), viewport: vp });
-        m.task.promise.catch(function () { /* cancelled */ });
-      });
+      queue(pageQ, { i: i, run: function () {
+        if (mounted[i] !== m) return null;
+        return pdf.getPage(i + 1).then(function (pg) {
+          if (mounted[i] !== m) return null;
+          var vp1 = pg.getViewport({ scale: 1 }), cssW = b.clientWidth || 600, cssH = cssW * vp1.height / vp1.width;
+          var k = Math.min(dpr(), 4096 / cssW, 4096 / cssH);
+          var vp = pg.getViewport({ scale: cssW / vp1.width * k });
+          m.canvas.width = Math.round(vp.width); m.canvas.height = Math.round(vp.height);
+          m.task = pg.render({ canvasContext: m.canvas.getContext("2d"), viewport: vp });
+          return m.task.promise.catch(function () { /* cancelled */ });
+        });
+      } });
       if (ink && docKey) {
         var host = el("div", { class: "k-ink-page k-pv-ink", "data-paper": "none", "data-theme": "atelier-dawn" });
         b.appendChild(host);
@@ -397,6 +423,7 @@
       layerPages = {};
       Object.keys(mounted).forEach(function (i) { unmount(+i); });
       var doIt = function () {
+        inkReady = true;
         boxes.forEach(function (b, i) { var r = b.getBoundingClientRect(); if (r.bottom > -window.innerHeight && r.top < window.innerHeight * 2) mount(i); });
         paintThumbDots();
       };
@@ -438,12 +465,16 @@
             var i = +e.target.getAttribute("data-n"), slot = e.target.querySelector(".k-pv-thumb-paper"), c = slot.querySelector("canvas");
             if (e.isIntersecting && !c) {
               c = el("canvas", { "aria-hidden": "true" }); slot.appendChild(c);
-              pdf.getPage(i + 1).then(function (pg) {
-                if (!c.isConnected) return;
-                var v1 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: 110 / v1.width });
-                c.width = Math.round(vp.width); c.height = Math.round(vp.height);
-                pg.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise.catch(function () {});
-              });
+              var tc = c;
+              queue(thumbQ, { i: i, run: function () {
+                if (!tc.isConnected) return null;
+                return pdf.getPage(i + 1).then(function (pg) {
+                  if (!tc.isConnected) return null;
+                  var v1 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: 110 / v1.width });
+                  tc.width = Math.round(vp.width); tc.height = Math.round(vp.height);
+                  return pg.render({ canvasContext: tc.getContext("2d"), viewport: vp }).promise.catch(function () {});
+                });
+              } });
             } else if (!e.isIntersecting && c) { c.width = 0; c.height = 0; c.remove(); }
           });
         }, { root: thumbs, rootMargin: "400px 0px" });
@@ -809,21 +840,43 @@
       load(blob).then(function (doc) {
         if (destroyed) { doc.destroy(); return; }
         pdf = doc;
-        var all = [];
-        for (var i = 1; i <= doc.numPages; i++) all.push(doc.getPage(i).then(function (pg) { var v = pg.getViewport({ scale: 1 }); return { w: v.width, h: v.height }; }));
-        return Promise.all(all).then(function (sz) {
+        /* every page takes page 1's size at once (a paper's pages are one
+           size), so the first page shows without waiting for the rest;
+           the others are checked behind it and a different one is set */
+        return doc.getPage(1).then(function (pg1) {
+          var v = pg1.getViewport({ scale: 1 }), sz = [];
+          for (var i = 0; i < doc.numPages; i++) sz.push({ w: v.width, h: v.height });
           sizes = sz;
           status.remove();
           boxes = sizes.map(function (_, i) { var b = pageBox(i); pagesEl.appendChild(b); return b; });
           buildThumbs();
           if (typeof IntersectionObserver === "function") {
             io = new IntersectionObserver(function (en) {
+              /* nothing mounts before the ink layer is read, so a page is
+                 never drawn first with no ink and then left that way */
+              if (!inkReady) return;
               en.forEach(function (e) { var i = +e.target.getAttribute("data-n"); if (e.isIntersecting) mount(i); else unmount(i); });
             }, { root: stage, rootMargin: "100% 0px" });
             boxes.forEach(function (b) { io.observe(b); });
           } else boxes.slice(0, 3).forEach(function (b, i) { mount(i); });
           repaintInk();
           paintCurrent();
+          (function check(n) {
+            if (destroyed || n > doc.numPages) return;
+            doc.getPage(n).then(function (pg) {
+              var w = pg.getViewport({ scale: 1 });
+              if (Math.abs(w.width - sizes[n - 1].w) > 0.5 || Math.abs(w.height - sizes[n - 1].h) > 0.5) {
+                sizes[n - 1] = { w: w.width, h: w.height };
+                if (boxes[n - 1]) boxes[n - 1].style.setProperty("--pv-ar", (w.width / w.height).toFixed(5));
+                var tp = thumbs.children[n - 1] && thumbs.children[n - 1].querySelector(".k-pv-thumb-paper");
+                if (tp) tp.style.setProperty("--pv-ar", (w.width / w.height).toFixed(5));
+                var lp = layerPages[n - 1];
+                if (lp && !lp.items.length) delete layerPages[n - 1];
+                if (mounted[n - 1]) { unmount(n - 1); mount(n - 1); }
+              }
+              setTimeout(function () { check(n + 1); }, 0);
+            }, function () { check(n + 1); });
+          })(2);
           if (o.kind === "paper" && o.paper) {
             text = textOf(pdf);
             text.ready(function () {
@@ -853,9 +906,10 @@
       load(blob).then(function (doc) {
         if (gone) { doc.destroy(); return; }
         pdf = doc;
-        var all = [];
-        for (var i = 1; i <= doc.numPages; i++) all.push(doc.getPage(i).then(function (pg) { var v = pg.getViewport({ scale: 1 }); return { w: v.width, h: v.height }; }));
-        Promise.all(all).then(function (sz) {
+        /* page 1's size for every page, as the viewer does */
+        doc.getPage(1).then(function (pg1) {
+          var v = pg1.getViewport({ scale: 1 }), sz = [];
+          for (var i = 0; i < doc.numPages; i++) sz.push({ w: v.width, h: v.height });
           boxes = sz.map(function (s, i) {
             var b = el("div", { class: "k-pv-page", "data-n": String(i), role: "img", "aria-label": "Mark scheme page " + (i + 1) });
             b.style.setProperty("--pv-ar", (s.w / s.h).toFixed(5));
@@ -911,5 +965,5 @@
     };
   }
 
-  KOS.pdfView = { open: open, load: load, lib: lib, textOf: textOf, findQuestion: findQuestion, mapQuestions: mapQuestions };
+  KOS.pdfView = { viewing: function () { return viewing > 0; }, open: open, load: load, lib: lib, textOf: textOf, findQuestion: findQuestion, mapQuestions: mapQuestions };
 })();

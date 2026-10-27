@@ -392,6 +392,8 @@
   /* one file at a time, a page per idle slice, inside pdf.js's worker */
   function nextIndex() {
     if (indexing || !queue.length) return;
+    /* a document open in the viewer comes first */
+    if (KOS.pdfView && KOS.pdfView.viewing && KOS.pdfView.viewing()) { setTimeout(nextIndex, 5000); return; }
     var fid = queue.shift(), r = get(fid);
     if (!r) { nextIndex(); return; }
     indexing = fid;
@@ -415,6 +417,7 @@
         (function page(i) {
           if (i > n) { try { pdf.destroy(); } catch (e) { /* gone */ } finish(pages); return; }
           idle(function () {
+            if (KOS.pdfView.viewing && KOS.pdfView.viewing()) { setTimeout(function () { page(i); }, 3000); return; }
             pdf.getPage(i).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
               pages.push(tc.items.map(function (it) { return it.str; }).join(" ").replace(/\s+/g, " ").trim().slice(0, 20000));
               page(i + 1);

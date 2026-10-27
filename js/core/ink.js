@@ -49,6 +49,12 @@
   /* a millimetre of an A4 page in units; a pen width in mm becomes units */
   var MM = W / 210;
   var HL_WIDTH = 5 * MM, HL_ALPHA = 0.36;
+  /* every tool's sizes (asked for 26 October 2026): three steps each, the
+     middle one what the tool always drew before. A highlighter stroke and
+     a text box carry their size (`w`, `sz`); one without reads the middle. */
+  var HL_WIDTHS = [["Thin", 3], ["Medium", 5], ["Wide", 8]];
+  var ERASER_SIZES = [["Small", 9], ["Medium", 18], ["Large", 34]];
+  var TEXT_SIZES = [["Small", 16], ["Medium", 22], ["Large", 32]];
 
   function uid() {
     var a = new Uint8Array(8);
@@ -109,7 +115,7 @@
     return a;
   }
   function baseWidth(s) {
-    if (s.k === "hl") return HL_WIDTH;
+    if (s.k === "hl") return s.w == null || !HL_WIDTHS[s.w] ? HL_WIDTH : HL_WIDTHS[s.w][1] * MM;
     return (WIDTHS[s.w == null ? 1 : s.w] || WIDTHS[1])[1] * MM;
   }
 
@@ -212,11 +218,13 @@
     if (it.k === "text") {
       var lines = String(it.s || "").split("\n");
       var wide = Math.max.apply(null, lines.map(function (l) { return l.length; }));
-      return { x: it.x, y: it.y, w: Math.max(20, wide * TEXT_SIZE * 0.52), h: lines.length * TEXT_SIZE * 1.3 };
+      var sz = textSize(it);
+      return { x: it.x, y: it.y, w: Math.max(20, wide * sz * 0.52), h: lines.length * sz * 1.3 };
     }
     return { x: it.x, y: it.y, w: it.w, h: it.h };
   }
   var TEXT_SIZE = 22;
+  function textSize(it) { return +it.sz > 0 ? +it.sz : TEXT_SIZE; }
   function hitItem(it, x, y, r) {
     var b = itemBox(it);
     return x >= b.x - r && x <= b.x + b.w + r && y >= b.y - r && y <= b.y + b.h + r;
@@ -254,6 +262,8 @@
       }
       var a = fn(it.x, it.y), copy = Object.assign({}, it, { x: a.x, y: a.y });
       if (it.k === "img") { var b = fn(it.x + it.w, it.y + it.h); copy.w = Math.max(8, b.x - a.x); copy.h = Math.max(8, b.y - a.y); }
+      /* Resize scales a text box's lettering with it */
+      if (it.k === "text") { var t = fn(it.x + 100, it.y), k = (t.x - a.x) / 100; if (Math.abs(k - 1) > 0.001) copy.sz = Math.max(8, Math.min(120, Math.round(textSize(it) * k * 10) / 10)); }
       return copy;
     });
   }
@@ -522,9 +532,10 @@
   KOS.ink = {
     W: W, H: H, MM: MM, pageH: pageH, PAPERS: PAPERS, PEN_ROLES: PEN_ROLES, HL_ROLES: HL_ROLES, WIDTHS: WIDTHS,
     HL_WIDTH: HL_WIDTH, HL_ALPHA: HL_ALPHA, TEXT_SIZE: TEXT_SIZE,
+    HL_WIDTHS: HL_WIDTHS, ERASER_SIZES: ERASER_SIZES, TEXT_SIZES: TEXT_SIZES,
     uid: uid,
     topicDoc: function (sid, ref) { return "topic:" + sid + ":" + ref; },
-    geo: { pts: pts, pack: pack, widths: widths, smooth: smooth, baseWidth: baseWidth, rdp: rdp, bbox: bbox, snap: snap,
+    geo: { pts: pts, pack: pack, widths: widths, smooth: smooth, baseWidth: baseWidth, textSize: textSize, rdp: rdp, bbox: bbox, snap: snap,
       erase: erase, lassoPick: lassoPick, inPoly: inPoly, transform: transform, boxOf: boxOf, itemBox: itemBox, hitItem: hitItem },
     available: available, ready: ready, doc: doc, written: written,
     listPages: listPages, getPage: getPage, blankPage: blankPage, addPage: addPage, savePage: savePage, setDocPaper: setDocPaper,

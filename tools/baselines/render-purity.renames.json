@@ -818,6 +818,25 @@
    "reachable": true,
    "from": "^Code$",
    "why": "Japanese (roadmap 5.5): the subject pills show one group — the A-level subjects on their pages, Code and Japanese on theirs. From an A-level page Code is one press away through the \"Code & Japanese\" pill, which opens the study space last opened (Code on a fresh account)."
+  },
+  {
+   "surface": "routines.*",
+   "hooks": "review.open",
+   "dropEffects": {
+    "state": "^assistant$"
+   },
+   "why": "Pencil fixes (27 October 2026): a failed request for a review's words now waits 20 minutes (2 when opened by hand) instead of being sent again every 30 seconds, which spent a whole day's Assistant quota. Opening the review just after the ticker's own failed try sends no second request, so the Assistant's tally is not written."
+  },
+  {
+   "surface": "routines.*",
+   "hooks": "routine.use-template",
+   "rewriteEffects": {
+    "nav": [
+     "^#/routines/edit/r_[a-z0-9]+$",
+     "#/routines/edit/<new>"
+    ]
+   },
+   "why": "Pencil fixes (27 October 2026): a new routine's id is random; with one Assistant request fewer before it (the review's back-off) the harness's random sequence gives another id. The page it opens is the same."
   }
   ]
 }

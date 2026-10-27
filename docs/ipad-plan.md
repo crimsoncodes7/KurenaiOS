@@ -313,6 +313,23 @@ and finished pieces come in as evidence (that plan's decision C).
 Spike H decides whether "Mark with Kurenai" and "Check my working" ship,
 or wait for a better model.
 
+**Results on the device (26 October 2026, Apple Pencil Pro,
+[pencil-tests.md](pencil-tests.md)):**
+- **P: passed.** It reports as a pen with pressure; no palm marks;
+  a pinch never undid; the ink trails a little behind fast writing. The
+  day found the fixes in smoke107: lasso chips that ignored the pen,
+  colours stuck on black after a redraw, a redraw throwing the reader off
+  the tab, the toolbar's gap, the tab row folded to "+7", sizes for every
+  tool, two-finger scroll with finger drawing on, and the occasional
+  spike (a stray sample). The live stroke now paints once a frame.
+- **D: passed, but slow.** No stutter or reload and the ink stayed put,
+  but the first page took about 10 s. Page 1 now shows before the other
+  pages are measured, pages render one at a time nearest first, and the
+  Files index waits while a viewer is open. To measure again.
+- **H: not run yet.** The Daily Review's words were retried every 30 s
+  after a failure and spent the day's Assistant quota (50) before the
+  test; a failure now backs off. Run it once the quota resets.
+
 ## 7. Releases
 
 1. **Spikes P, D, H** on the device, with no app files touched.

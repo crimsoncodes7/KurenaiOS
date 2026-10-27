@@ -4,6 +4,8 @@
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
+  /* the topic tab on screen, kept in memory so a redraw reopens it */
+  var openTabMemo = { key: null, tab: null };
 
   /* the subject list and hues come from the one registry (core/subjects.js) */
   var SUBJECTS = KOS.subjects.ids();
@@ -2540,9 +2542,15 @@
     else editing = null;
     /* a file's "Where it's linked" opens the topic on its Files tab */
     if (!editing && arg && arg.tab === "files") curTab = "files";
+    /* a redraw (a cloud pull, a habit ticking itself) keeps the tab that
+       was open; it used to drop the reader back on Notes mid-question */
+    var topicKey = sid + ":" + ref;
+    if (!editing && KOS.ui.redrawing && openTabMemo.key === topicKey && TABDEFS.some(function (t) { return t[0] === openTabMemo.tab; })) curTab = openTabMemo.tab;
+    openTabMemo = { key: topicKey, tab: curTab };
 
     function selectTab(id) {
       curTab = id;
+      openTabMemo = { key: topicKey, tab: id };
       paintTabs();
       openTab();
     }
@@ -2664,8 +2672,10 @@
       if (window.innerWidth > 1080) inkSide(!!on);
     }
     function paintWorkBtn() { workBtn.hidden = !KOS.inkPad || curTab === "ink" || curTab === "files" || !!editing; }
-    /* the Handwritten tab's Page · All pages switch rides the tab row */
-    var inkSlot = el("span", { class: "k-topic-inkmode" });
+    /* the Handwritten tab's Page · All pages switch and its menus: a line
+       of their own under the tabs (in the tab row they squeezed the tabs
+       down to "Handwritten +7" on the iPad) */
+    var inkSlot = el("div", { class: "k-topic-inkmode", "data-ui": "topic.inkmode" });
     var inkCtl = null;
     /* the tab's count follows the notebook (the first stroke makes it) */
     function onInk(e) {
@@ -2681,8 +2691,9 @@
     }
     if (KOS.ink) window.addEventListener("kos-ink", onInk);
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
-      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, inkSlot, workBtn, editBtn,
+      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, workBtn, editBtn,
         cx ? cx.modeSwitch() : null]),
+      inkSlot,
       pagerSlot
     ]);
 

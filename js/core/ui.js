@@ -340,8 +340,16 @@
   KOS.currentNav = function () { return navCur ? { viewId: navCur.viewId, arg: navCur.arg } : null; };
   /* redraw the current page in place: no history entry, no forward-trail
      reset, and the reader keeps their scroll position. */
+  var redrawLater = null;
   KOS.rerender = function () {
     if (!navCur || !KOS.views[navCur.viewId]) return false;
+    /* never under a pen: a background pull or a habit ticking itself
+       redrew the page mid-stroke on the iPad. It waits for the pen to lift. */
+    if (KOS.inkUI && KOS.inkUI.busy && KOS.inkUI.busy()) {
+      clearTimeout(redrawLater);
+      redrawLater = setTimeout(function () { redrawLater = null; KOS.rerender(); }, 1200);
+      return true;
+    }
     var main = document.getElementById("main");
     var top = main ? main.scrollTop : 0;
     KOS.show(navCur.viewId, navCur.arg, { _nav: true });
@@ -1453,6 +1461,9 @@
        forward trail — exactly like a browser address bar */
     if (!navCur || navCur.viewId !== viewId) scrollMemo = {};
     else noteScrolls(document.getElementById("main"));
+    /* a redraw of the page already on screen (KOS.rerender, a cloud pull):
+       a view keeps what the reader had open, such as a topic's tab */
+    KOS.ui.redrawing = !!opts._nav && !!navCur && navKey(navCur) === navKey({ viewId: viewId, arg: arg });
     if (navCur && !opts._nav) {
       if (navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
         navHist.push(navCur);
@@ -1489,7 +1500,8 @@
     KOS.shell.bleed(false);
     renderSubnav(sec, viewId, arg);
     KOS.shell.actions(null);
-    if (KOS.views[viewId]) KOS.views[viewId](main, arg);
+    try { if (KOS.views[viewId]) KOS.views[viewId](main, arg); }
+    finally { KOS.ui.redrawing = false; }
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;
     if (sec === "productivity") KOS.store.state.ui.lastProd = { view: viewId, arg: typeof arg === "string" ? arg : null };

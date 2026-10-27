@@ -109,8 +109,8 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-files-1`
-- Required smoke gate: 106 / 106 suites (`""` and 2–106; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day).
+- Service-worker version: `kos-pencil-1` (built; kos-files-1 is live)
+- Required smoke gate: 107 / 107 suites (`""` and 2–107; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -199,7 +199,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..106}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..107}; do node "tools/smoke${i}.test.js"; done
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -1459,12 +1459,26 @@ source comments and audit notes refer to it.
     only once the pen has reported pressure, else from speed), so a page
     redraws the same everywhere. INPUT: the pen and a mouse draw; a
     finger scrolls and pinches and never draws unless "Draw with a
-    finger" is on (per device, `state.ui.ink.finger`), so the palm never
-    draws; a pen's touchstart and pointerdown are prevented, so iPadOS
-    neither scrolls under it nor holds the stroke for Scribble; a
-    two-finger TAP undoes only when both fingers go down and up within
-    200 ms and move under 10 px. Undo is per page and per session. The
-    tool, colour, width, eraser mode, Pen only and what the app saw of
+    finger" is on (per device, `state.ui.ink.finger`; then one finger
+    draws and two scroll and pinch), so the palm never draws; a pen's
+    touchstart and pointerdown on the page are prevented, so iPadOS
+    neither scrolls under it nor holds the stroke for Scribble — never on
+    the selection's chips or a text box, whose taps must become clicks; a
+    pen sample with no pressure mid-stroke, or one far from the nib and
+    alone, is dropped (the "spike"); the live stroke paints once a frame;
+    a two-finger TAP undoes only when both fingers go down and up within
+    200 ms and move under 10 px. Undo is per page and per session. A page
+    is never redrawn under the pen: `KOS.rerender` waits while
+    `KOS.inkUI.busy()` (a stroke or text box open, or ink in the last
+    1.5 s), and a redraw keeps a topic's open tab (`KOS.ui.redrawing`).
+    Theme colours are read with the host in the document, and a reading
+    from a detached host is never cached (it read every role as black).
+    Every tool has OPTIONS in the bar's slot, so it never empties into a
+    gap: colour where it leaves colour, three sizes (pen widths;
+    `I.HL_WIDTHS`, `ERASER_SIZES`, `TEXT_SIZES`, the middle the old fixed
+    size), and the eraser's and lasso's mode (`lasso`: free or box); a
+    highlighter stroke keeps its `w` and a text box its `sz`. The
+    tool, colour, sizes, eraser and lasso modes, Pen only and what the app saw of
     the pen are per device (`state.ui.ink`, normalised in place by
     `KOS.inkUI.prefs`); nothing about the pen syncs. Squeeze, barrel roll
     and hover are not used (decision F). THE TOOLBAR (30a–30b, 30r) docks
@@ -1633,7 +1647,11 @@ source comments and audit notes refer to it.
     (the default) replace them when they arrive, from one request with
     `KOS.dayReview.payload` (titles, times and counts; never a note, card
     text, an amount, mood, energy or chat), printed exactly by "What is
-    sent". Any failure keeps the template. Kurenai never picks, triages or
+    sent". Any failure keeps the template, and the next try waits: 20
+    minutes for the ticker (2 when the review is opened by hand), and a
+    spent quota (`rate`) stops automatic tries until the next UTC day
+    (asked again every 30 s, a failure spent a whole day's quota on 26
+    October 2026). Kurenai never picks, triages or
     ticks. With closed-app delivery on, the coming reviews (today's and
     tomorrow's with no words yet, `KOS.dayReview.ahead`: the exact two
     messages the device would send) ride the outlook with the generation

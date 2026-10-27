@@ -26,6 +26,7 @@
 .k-ink-colour-btn, .k-ink-paper-btn { flex-direction: row; flex-wrap: wrap; justify-content: center; column-gap: var(--sp-4); }
 .k-ink-colour-btn .k-btn-caret, .k-ink-paper-btn .k-btn-caret { font-size: var(--fs-11); }
 .k-ink-paper-btn .k-ink-glyph { flex-basis: 100%; }
+.k-ink-colour-btn .k-ink-glyph, .k-ink-pal-colour .k-ink-glyph { inline-size: var(--sp-16); block-size: var(--sp-16); }
 .k-ink-dot { inline-size: var(--sp-14); block-size: var(--sp-14); border-radius: 50%; background: var(--ink-c, var(--text)); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-ink-dot[data-role="ink"], .k-ink-swatch[data-role="ink"], .k-ink-probe[data-role="ink"] { --ink-c: var(--text); }
 .k-ink-dot[data-role="accent"], .k-ink-swatch[data-role="accent"], .k-ink-probe[data-role="accent"] { --ink-c: var(--crimson); }
@@ -42,6 +43,10 @@
 .k-ink-width[data-w="1"] .k-ink-width-dot { inline-size: var(--sp-8); block-size: var(--sp-8); }
 .k-ink-width[data-w="2"] .k-ink-width-dot { inline-size: var(--sp-12); block-size: var(--sp-12); }
 .k-ink-width[aria-checked="true"] { box-shadow: inset 0 0 0 var(--sp-2) var(--text); }
+/* the eraser's and the lasso's mode: two chips */
+.k-ink-choices { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6); }
+.k-ink-choice { min-block-size: var(--hit); padding-inline: var(--sp-10); cursor: pointer; white-space: nowrap; }
+.k-ink-choice[data-state~="on"] { background: var(--text); color: var(--bg); }
 /* an iPad's page column: the tools close up so the paper picker stays on
    the bar instead of behind its scroll arrow (labels kept) */
 @container (max-width: 48rem) {
@@ -95,7 +100,9 @@ background-size: 100% 100%, 100% var(--ink-rule); background-repeat: no-repeat, 
 .k-ink-clip-chips .k-ink-glyph { inline-size: var(--sp-16); block-size: var(--sp-16); }
 
 /* ---------- the tab (30c–30d) ---------- */
+.k-topic-inkmode { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-14); }
 .k-topic-inkmode:empty { display: none; }
+.k-topic-inkmenus { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6); margin-inline-start: auto; }
 .k-ink-tab { position: relative; display: flex; flex-direction: column; gap: var(--sp-14); }
 .k-ink-band { display: flex; gap: var(--sp-14); align-items: flex-start; }
 .k-ink-band-mark { flex: 0 0 auto; inline-size: var(--hit-coarse); block-size: var(--hit-coarse); display: grid; place-items: center; border-radius: var(--r-12); background: var(--wash-teal); color: var(--teal); font: var(--fs-20) var(--font-kanji); }
@@ -109,7 +116,9 @@ background-size: 100% 100%, 100% var(--ink-rule); background-repeat: no-repeat, 
 .k-ink-page { position: relative; inline-size: 100%; aspect-ratio: 1000 / var(--ink-h, 1414); border-radius: var(--r-12); box-shadow: inset 0 0 0 var(--hairline) var(--line); overflow: hidden; }
 .k-ink-canvas, .k-ink-live { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
 .k-ink-live { touch-action: pan-x pan-y pinch-zoom; cursor: crosshair; }
-.k-ink-page[data-state~="finger"] .k-ink-live { touch-action: none; }
+/* finger drawing: one finger draws; the browser keeps the pinch, and two
+   fingers scroll (inkui.js pans for them) */
+.k-ink-page[data-state~="finger"] .k-ink-live { touch-action: none; touch-action: pinch-zoom; }
 .k-ink-page[data-tool="text"] .k-ink-live { cursor: text; }
 .k-ink-page[data-tool="lasso"] .k-ink-live { cursor: default; }
 .k-ink-layer { position: absolute; inset: 0; pointer-events: none; }

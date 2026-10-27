@@ -256,7 +256,7 @@ step("G · side by side and Clip to page (30e)", async () => {
 step("F · storage, backup and pay", async () => {
   const st = JSON.stringify(K.store.state);
   assert(st.indexOf("\"k\":\"pen\"") < 0 && st.indexOf(DOC) < 0, "no ink in the state document");
-  eq(Object.keys(K.store.state.ui.ink).sort(), ["at", "dock", "eraser", "finger", "hl", "pen", "penSeen", "pressure", "tool"], "only device prefs in state.ui");
+  eq(Object.keys(K.store.state.ui.ink).sort(), ["at", "dock", "eraser", "eraserW", "finger", "hl", "lasso", "pen", "penSeen", "pressure", "textW", "tool"], "only device prefs in state.ui");
   const snap = await new Promise((r) => K.store.snapshotFull((e, d) => r(d)));
   assert(snap.ink && snap.ink.pages.length === 2 && snap.ink.docs.length === 1, "the full backup carries the notebook");
   await new Promise((r) => I.deletePage(DOC, I.doc(DOC).pages[0], r));

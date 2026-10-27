@@ -123,25 +123,27 @@
     }
     function docPaper() { var d = I.doc(key); return (d && d.paper) || ui.inkPaper || "lined"; }
 
-    /* ---------- the view switch (Page · All pages), in the tab row ---------- */
+    /* ---------- the view switch (Page · All pages) and the tab's menus,
+       on their own line under the tab row ---------- */
     function paintMode() {
       if (!opts.modeSlot) return;
       opts.modeSlot.innerHTML = "";
       var shown = shownView(), w = written();
-      if (w && KOS.inkSync) opts.modeSlot.appendChild(KOS.inkSync.chip(key));
-      /* this topic's working and answers, written beside its other tabs */
-      var rel = related();
-      if (rel.length) opts.modeSlot.appendChild(KOS.ui.menu({ label: "Working and answers · " + rel.length, className: "k-btn--quiet k-btn--sm", align: "end",
-        hint: "Written beside Flashcards, the Quiz and Exam questions", items: rel.slice(0, 20).map(function (d) {
-          return { label: (d.title || "Working") + " · " + when(d.at), onSelect: function () { KOS.inkPad.viewDoc(d.key, (d.title || "Working") + " · " + when(d.at)); } };
-        }) }));
-      if (KOS.inkDrills) opts.modeSlot.appendChild(KOS.ui.menu({ label: "Drills", className: "k-btn--quiet k-btn--sm", align: "end", hint: "Blurt, diagram drills and Write it out", items: KOS.inkDrills.menuItems(sid, ref, KOS.spec.node ? ((KOS.spec.node(sid + ":" + ref) || {}).title || ref) : ref) }));
-      if (!w && !sideOK()) return;
-      opts.modeSlot.appendChild(KOS.ui.tabs([
+      if (w || sideOK()) opts.modeSlot.appendChild(KOS.ui.tabs([
         { label: "Page", active: shown === "page", hook: "ink.view-page", onSelect: function () { setView("page"); } },
         sideOK() ? { label: "Side by side", active: shown === "side", hook: "ink.view-side", onSelect: function () { setView("side"); } } : null,
         w ? { label: "All pages", active: shown === "all", hook: "ink.view-all", onSelect: function () { setView("all"); } } : null
       ].filter(Boolean), { variant: "workspace", label: "Handwritten view", className: "k-ink-mode" }));
+      var side = el("div", { class: "k-topic-inkmenus" });
+      if (w && KOS.inkSync) side.appendChild(KOS.inkSync.chip(key));
+      /* this topic's working and answers, written beside its other tabs */
+      var rel = related();
+      if (rel.length) side.appendChild(KOS.ui.menu({ label: "Working and answers · " + rel.length, className: "k-btn--quiet k-btn--sm", align: "end",
+        hint: "Written beside Flashcards, the Quiz and Exam questions", items: rel.slice(0, 20).map(function (d) {
+          return { label: (d.title || "Working") + " · " + when(d.at), onSelect: function () { KOS.inkPad.viewDoc(d.key, (d.title || "Working") + " · " + when(d.at)); } };
+        }) }));
+      if (KOS.inkDrills) side.appendChild(KOS.ui.menu({ label: "Drills", className: "k-btn--quiet k-btn--sm", align: "end", hint: "Blurt, diagram drills and Write it out", items: KOS.inkDrills.menuItems(sid, ref, KOS.spec.node ? ((KOS.spec.node(sid + ":" + ref) || {}).title || ref) : ref) }));
+      if (side.childNodes.length) opts.modeSlot.appendChild(side);
     }
     /* the view on screen: side by side folds to Page in portrait, and All
        pages to Page while nothing is written; the choice itself is kept */

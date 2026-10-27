@@ -213,7 +213,7 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..106}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..107}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Code content also runs against real .NET (`node tools/cs_diff.mjs`, needs the
