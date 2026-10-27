@@ -340,8 +340,8 @@ Claude Design and comes back as a handoff, the way Graphite did.
 - **Cosmetics:** the 4 profile frames, 3 Books shelf skins, 3 shrine styles, and
   the share-card finish.
 - **Retire leftover item kinds:** the 4 banners are still defined but are
-  no longer sold or shown; the 6 seals ARE still sold (the shop's Profile
-  seals). The art audit (5.13) proposes painted banners in their place.
+  no longer sold or shown, and are RETIRED for good (5.13): painted banners
+  replace them; the 6 seals stay on sale.
 - **What to ask Claude Design for:**
   - Dawn as a complete token table, like Graphite's.
   - One specimen board showing all 23 themes against the same three
@@ -1380,15 +1380,16 @@ included) without saying why.
 
 ### 5.13 An art and shop audit ◆ (asked for 26 October 2026)
 
-> **PROPOSED 27 October 2026** (`feat/art-audit`), waiting for approval:
-> the report is an artifact (https://claude.ai/artifact/6u9Wg3fQ6ugEN9w41zy5Ck);
-> 65 Gemini prompts in 12 batches are in `art-source/app/manifest.json`
-> (sheet `prototypes/app-art/art.html`, notes in [app-art.md](app-art.md)),
-> eight Claude Design passes are section 18 of
-> [design-prompts.md](design-prompts.md) (frames 34a–34p), and the shop
-> proposal adds 49 items (about 21,000 gold). Mind and Routines are left
-> out. Top finding: the Assistant still draws Kurenai's first design while
-> Routines and Mind draw her redesign (batches 1–2).
+> **APPROVED 27 October 2026** (`feat/art-audit`, merged to main); the
+> build plan, decisions, prices and art waves are [app-art.md](app-art.md).
+> Report: https://claude.ai/artifact/6u9Wg3fQ6ugEN9w41zy5Ck. Every art batch
+> approved (101 Gemini images in eight waves of ~15, `art-source/app/`,
+> sheet `prototypes/app-art/art.html`); the shop repriced to 79,600 gold of
+> new items (all seven outfits, prestige gala 10,000); design passes in the
+> order 18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1/18.2
+> ([design-prompts.md](design-prompts.md) §18); CSS banners retired, seals
+> kept. Nothing is built yet: next is release 1, the Assistant's redesign,
+> once wave 1's images are in the inbox.
 
 **What:** I (the coding agent) walk every area of the app and write a
 proposal, not code, of where art and new design would lift it, and what to

@@ -25,7 +25,7 @@ handoff maps back to the roadmap.
 | 15 | Creatives: art, design, editing, writing | 5.7 item 3 | with 14 |
 | 16 | Mind: psychology and philosophy | 5.9 | after 15 |
 | 17 | Daily Review and Routines | 5.10 | next |
-| 18 | Art slots, empty pages and the new shop (eight passes) | 5.13 | on approval |
+| 18 | Art slots, empty pages and the new shop (eight passes) | 5.13 | approved: 18.4, 18.6, 18.3, 18.7, 18.5, 18.8, then 18.1/18.2 |
 
 ---
 
@@ -731,7 +731,7 @@ RULES: never stack reviews; skip/Later/Esc everywhere, without guilt or warning 
 
 ## 18 · Art slots, empty pages and the new shop
 
-From the art and shop audit (roadmap 5.13, 27 October 2026). Eight separate passes; send them in the order you approve. Each prompt starts with the same preamble.
+From the art and shop audit (roadmap 5.13, 27 October 2026). Eight separate passes, APPROVED 27 October 2026. Send them in this order: 18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1 and 18.2 (docs/app-art.md has the build that follows each). Each prompt starts with the same preamble.
 
 ### 18.1 · Money's first run (34a–34b)
 
@@ -770,7 +770,7 @@ THE JAPANESE DESK'S MEDIA PATH. At 390 wide the stepping stones' "Calibrating" l
 ```text
 Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue. Generated art arrives later from Gemini (docs/app-art.md, art-source/app/manifest.json): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
 
-THE GOLD SHOP. It sells 55 items, all owned; new departments are coming: Kurenai outfits (a full figure, 2:3), Focus scenes (16:9), Shrine halls (21:9), painted banners (21:9), share-card finishes (3:4), more themes, frames, shelf skins, seals, notebook papers and pen sets. Design the departments rail and a card per kind with its live preview (a scene behind a small clock, an outfit on the Assistant panel, a banner on the identity card), "Try on" as themes have it (transient, never saved, ends on leaving the shop), owned and equipped states, and a balance header that reads well at 43,000 gold. 34h: an item's preview sheet. 34i: phone. Rule: everything is cosmetic; labs are the only functional unlocks (invariant 2).
+THE GOLD SHOP. It sells 55 items, all owned; new departments are coming, priced for a long grind (79,600 gold of new items; outfits 4,500, the prestige gala outfit 10,000, halls 2,500, scenes 1,800, banners 1,200; docs/app-art.md): Kurenai outfits (a full figure, 2:3, seven), Focus scenes (16:9), Shrine halls (21:9), painted banners (21:9), share-card finishes (3:4), more themes, frames, shelf skins, seals, notebook papers and pen sets. Design the departments rail and a card per kind with its live preview (a scene behind a small clock, an outfit on the Assistant panel, a banner on the identity card), "Try on" as themes have it (transient, never saved, ends on leaving the shop), owned and equipped states, a balance header that reads well at 43,000 gold, and a goal line for an item still out of reach (how much more, never a nag). The four CSS banners are retired; the six seals stay. 34h: an item's preview sheet. 34i: phone. Rule: everything is cosmetic; labs are the only functional unlocks (invariant 2).
 ```
 
 ### 18.6 · Exams & Papers › Practice attempts (34j)

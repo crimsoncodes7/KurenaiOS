@@ -7,6 +7,29 @@ the only things both can rely on are **Git** and the **files in the repo**.
 This page is the protocol that keeps them seamless. Nothing in it needs the
 accounts to talk to each other.
 
+## 0. The current handover (27 October 2026)
+
+The first account is near its weekly limit (it resets on Sunday 1 November),
+so the art and shop work continues on the other account.
+
+- **Done:** the art and shop audit (roadmap 5.13) and the user's decisions.
+  Everything needed is in [app-art.md](app-art.md): the decisions, the shop
+  at 79,600 gold, the 101 Gemini images in eight waves, and the build order.
+  The prompts are `art-source/app/manifest.json` (sheet:
+  `prototypes/app-art/art.html`); the Claude Design passes are
+  [design-prompts.md](design-prompts.md) §18, sent in the order
+  18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1/18.2.
+- **Live:** sw `kos-japanese-5` (https://fc302f55.kurenai-os.pages.dev),
+  which includes the Japanese path fix and kos-pencil-4.
+- **Nothing is built yet.** The user makes the art by hand in Gemini, one
+  wave a usage window (~15 images), and saves it to `art-source/app/inbox/`.
+- **Next:** release 1 in app-art.md, the Assistant's redesign, as soon as
+  wave 1's six Assistant images are in the inbox (check with the sheet or
+  `ls art-source/app/inbox`). Then Home's seasons. Ask before any deploy.
+- Another Claude session may be releasing Pencil fixes on
+  `feat/pencil-fixes` (worktree `../KurenaiOS-ink`): always fetch and branch
+  from the latest `main`.
+
 ## 1. Start of every session (either account)
 
 1. Open the repo and read `CLAUDE.md` (architecture and invariants),
@@ -19,8 +42,8 @@ accounts to talk to each other.
    git fetch && git log --oneline HEAD..@{u}      # anything new from the other account?
    ```
 
-3. Pick the branch. `main` is the line (24 October 2026: fast-forwarded to
-   `feat/japanese-f2`); new work branches from it. The older
+3. Pick the branch. `main` is the line (27 October 2026: at the kos-japanese-5
+   release, with the art audit merged); new work branches from it. The older
    `claude/roadmap-code-study-space` is behind it with nothing of its own.
    Run `git log --oneline main..origin/<branch>` to see if anything moved.
 4. Read the shared memory: `docs/memory/MEMORY.md`, then the notes relevant to
