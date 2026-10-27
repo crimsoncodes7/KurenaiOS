@@ -57,7 +57,7 @@ C["maths:8.2"] = {
   notes: [
     { h: "Standard integrals — the whole topic on one page" },
     { callout: { t: "memorise", h: "The table (mostly in the booklet, but know it)", body: [
-      "$$\\int x^n\\,dx = \\dfrac{x^{n+1}}{n + 1} + c \;(n \\ne -1) \\qquad \\int \\dfrac1x\\,dx = \\ln|x| + c \\qquad \\int e^{kx}\\,dx = \\dfrac1k e^{kx} + c$$",
+      "$$\\int x^n\\,dx = \\dfrac{x^{n+1}}{n + 1} + c \\;(n \\ne -1) \\qquad \\int \\dfrac1x\\,dx = \\ln|x| + c \\qquad \\int e^{kx}\\,dx = \\dfrac1k e^{kx} + c$$",
       "$$\\int \\sin kx\\,dx = -\\dfrac1k\\cos kx + c \\qquad \\int \\cos kx\\,dx = \\dfrac1k\\sin kx + c \\qquad \\int \\sec^2 kx\\,dx = \\dfrac1k\\tan kx + c$$",
       "In the booklet: $\\int \\tan x = \\ln|\\sec x|$, $\\int \\sec x = \\ln|\\sec x + \\tan x|$, $\\int \\cot x = \\ln|\\sin x|$, $\\int \\text{cosec}\\,x = -\\ln|\\text{cosec}\\,x + \\cot x|$, $\\int \\sec^2 x = \\tan x$, $\\int \\sec x\\tan x = \\sec x$, $\\int \\text{cosec}^2 x = -\\cot x$.",
       "**Reverse chain rule** (linear inside): $\\int f(ax + b)\\,dx = \\frac1a F(ax + b) + c$ — e.g. $\\int (2x + 5)^4 dx = \\frac{(2x + 5)^5}{10}$, $\\int \\frac{2}{3x - k}dx = \\frac23\\ln|3x - k|$, $\\int \\frac{2}{(2x - k)^2}dx = -\\frac{1}{2x - k}$."
@@ -97,7 +97,7 @@ C["maths:8.2"] = {
     { worked: { tag: "exam", title: "A limit giving a quadratic in $\\sqrt k$", src: "AS June 2020 · P1 Q7 · 8 marks",
       q: "$k > 0$ and $\\displaystyle\\int_1^k\\left(\\frac{5}{2\\sqrt x} + 3\\right)dx = 4$. **(a)** Show that $3k + 5\\sqrt k - 12 = 0$. **(b)** Hence, using algebra, find $k$.",
       steps: [
-        { h: "(a)", m: "$\\int \\left(\\dfrac52 x^{-1/2} + 3\\right)dx = 5x^{1/2} + 3x$; $\; \\left[5\\sqrt x + 3x\\right]_1^k = 5\\sqrt k + 3k - 8 = 4$", mk: "M1 A1 M1 A1*" },
+        { h: "(a)", m: "$\\int \\left(\\dfrac52 x^{-1/2} + 3\\right)dx = 5x^{1/2} + 3x$; $\\; \\left[5\\sqrt x + 3x\\right]_1^k = 5\\sqrt k + 3k - 8 = 4$", mk: "M1 A1 M1 A1*" },
         { h: "(b) Quadratic in $u = \\sqrt k$", m: "$3u^2 + 5u - 12 = (3u - 4)(u + 3) = 0 \\Rightarrow u = \\dfrac43$ ($u > 0$) $\\Rightarrow k = \\dfrac{16}{9}$", mk: "M1 A1 M1 A1" }
       ], result: "$k = \\frac{16}{9}$" } },
     { worked: { tag: "exam", title: "Two integrals in $k$: independent of $k$; inversely proportional to $k$", src: "A-level June 2018 · P1 Q7 · 7 marks",
@@ -333,7 +333,7 @@ C["maths:8.5"] = {
     ] } },
     { callout: { t: "memorise", h: "Parts — the routine", body: [
       "Choose $u$ to be the factor that gets **simpler** when differentiated: $\\ln x$ always; then polynomials ($x$, $x^2$); $e^{kx}$ and trig last (they never simplify — L-A-T-E order).",
-      "$\\int x^3\\ln x$: $u = \\ln x$, $dv = x^3$. $\; \\int x^2 e^{-3x}$: $u = x^2$, $dv = e^{-3x}$, and apply parts **twice**.",
+      "$\\int x^3\\ln x$: $u = \\ln x$, $dv = x^3$. $\\; \\int x^2 e^{-3x}$: $u = x^2$, $dv = e^{-3x}$, and apply parts **twice**.",
       "For definite integrals evaluate $[uv]$ at the limits as you go."
     ] } },
 

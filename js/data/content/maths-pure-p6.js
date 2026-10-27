@@ -132,7 +132,7 @@ C["maths:6.3"] = {
     { callout: { t: "def", h: "The definition", body: [
       "$$\\log_a x = y \\iff a^y = x \\qquad (a > 0, a \\ne 1, x > 0)$$",
       "\"$\\log_a x$ is the power you raise $a$ to, to get $x$.\" $\\log_2 8 = 3$ because $2^3 = 8$; $\\log_{10} 0.01 = -2$; $\\log_a a = 1$; $\\log_a 1 = 0$.",
-      "$\\ln x = \\log_e x$, the inverse of $e^x$: $\; e^{\\ln x} = x$ and $\\ln(e^x) = x$. $\\log x$ with no base means $\\log_{10}$ on this course."
+      "$\\ln x = \\log_e x$, the inverse of $e^x$: $\\; e^{\\ln x} = x$ and $\\ln(e^x) = x$. $\\log x$ with no base means $\\log_{10}$ on this course."
     ] } },
     { fig: { x: [-2, 7], y: [-3, 5], aspect: "equal", axes: { xt: [1, 2, 4, 6], yt: [-2, 2, 4] }, items: [
       { fn: "exp(x)", from: -2, to: 1.6, c: "accent3", label: "y = eˣ", at: 1.35, pos: "w" },
@@ -307,7 +307,7 @@ C["maths:6.5"] = {
   notes: [
     { h: "Solving $a^x = b$ — the whole topic on one page" },
     { callout: { t: "memorise", h: "Take logs of both sides", body: [
-      "$$a^x = b \;\\Rightarrow\; x\\log a = \\log b \;\\Rightarrow\; x = \\dfrac{\\log b}{\\log a} \;(= \\log_a b)$$",
+      "$$a^x = b \\;\\Rightarrow\\; x\\log a = \\log b \\;\\Rightarrow\\; x = \\dfrac{\\log b}{\\log a} \\;(= \\log_a b)$$",
       "Any base of log works ($\\ln$ or $\\log_{10}$). The **change of base** formula $\\log_a b = \\frac{\\log_c b}{\\log_c a}$ is the same fact.",
       "With an expression in the power: $2^{3x - 1} = 3 \\Rightarrow (3x - 1)\\log 2 = \\log 3 \\Rightarrow x = \\frac13\\left(\\frac{\\log 3}{\\log 2} + 1\\right)$.",
       "**Same base possible?** Then do not use logs: $4^{3x - 2} = \\frac{1}{2\\sqrt2}$ is $2^{6x - 4} = 2^{-3/2}$ (topic 2.1)."
@@ -385,8 +385,8 @@ C["maths:6.6"] = {
     { h: "Reduction to linear form — the whole topic on one page" },
     "Data that follows $y = ax^n$ or $y = kb^x$ does not plot as a straight line — but its **logarithm** does. Taking logs turns a power or an exponential into a linear relationship whose gradient and intercept give the constants. Every AS paper and most A-level papers have one.",
     { callout: { t: "memorise", h: "The two reductions", body: [
-      "$$y = ax^n \;\\Rightarrow\; \\log y = n\\log x + \\log a \\qquad \\text{plot } \\log y \\text{ against } \\log x: \\text{ gradient } n, \\text{ intercept } \\log a$$",
-      "$$y = kb^x \;\\Rightarrow\; \\log y = x\\log b + \\log k \\qquad \\text{plot } \\log y \\text{ against } x: \\text{ gradient } \\log b, \\text{ intercept } \\log k$$",
+      "$$y = ax^n \\;\\Rightarrow\\; \\log y = n\\log x + \\log a \\qquad \\text{plot } \\log y \\text{ against } \\log x: \\text{ gradient } n, \\text{ intercept } \\log a$$",
+      "$$y = kb^x \\;\\Rightarrow\\; \\log y = x\\log b + \\log k \\qquad \\text{plot } \\log y \\text{ against } x: \\text{ gradient } \\log b, \\text{ intercept } \\log k$$",
       "**Which one?** A log–log plot ($\\log y$ vs $\\log x$) means a power law; a log–linear plot ($\\log y$ vs $x$) means an exponential. Then $a = 10^{\\text{intercept}}$ (or $e^{\\ldots}$ for $\\ln$), $n = $ gradient; or $k = 10^{\\text{intercept}}$, $b = 10^{\\text{gradient}}$."
     ] } },
     { fig: { x: [-0.5, 12], y: [-0.5, 4], axes: { x: "t", y: "log₁₀ V", xt: [2, 4, 6, 8, 10], yt: [1, 2, 3] }, items: [
@@ -433,7 +433,7 @@ C["maths:6.6"] = {
     { worked: { tag: "exam", title: "A non-log linearisation: $h^2 = at + b$", src: "A-level June 2022 · P1 Q5 · 6 marks",
       q: "A tree's height $h$ m, $t$ years after planting, is modelled by $h^2 = at + b$. It was 2.60 m after 2 years and 5.10 m after 10 years. **(a)** Find a complete equation, $a$ and $b$ to 3 s.f. It was 7 m after 20 years. **(b)** Evaluate the model.",
       steps: [
-        { h: "(a) Two points on the line $h^2$ vs $t$", m: "$6.76 = 2a + b$, $\; 26.01 = 10a + b \\Rightarrow 8a = 19.25 \\Rightarrow a = 2.41$, $b = 1.95$\n$h^2 = 2.41t + 1.95$", mk: "M1 A1 A1 A1", n: "Square the heights first — the linear variable is $h^2$." },
+        { h: "(a) Two points on the line $h^2$ vs $t$", m: "$6.76 = 2a + b$, $\\; 26.01 = 10a + b \\Rightarrow 8a = 19.25 \\Rightarrow a = 2.41$, $b = 1.95$\n$h^2 = 2.41t + 1.95$", mk: "M1 A1 A1 A1", n: "Square the heights first — the linear variable is $h^2$." },
         { h: "(b) $t = 20$", m: "$h^2 = 50.07 \\Rightarrow h = 7.08$ m, against the actual 7 m: a good fit, the model is reliable at 20 years.", mk: "M1 A1" }
       ], result: "(a) $h^2 = 2.41t + 1.95$ (b) predicts 7.08 vs 7: good" } },
 

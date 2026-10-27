@@ -248,7 +248,7 @@ C["maths:5.2"] = {
       q: "**(a)** Given $x$ is small and in radians, use the approximation for $\\cos\\theta$ to show that $1 - \\cos^2(2x) \\approx 4x^2 - 4x^4$. **(b)** Hence show that $\\frac{1 - \\cos^2(2x)}{\\sin\\left(\\frac{x}{3}\\right)\\tan\\left(\\frac{x}{2}\\right)} \\approx a + bx^2$. **(c)** Hence, given $x$ is **very** small, deduce an approximate value for the expression in (b), giving a reason.",
       steps: [
         { h: "(a)", m: "$\\cos 2x \\approx 1 - 2x^2$, so $\\cos^2 2x \\approx 1 - 4x^2 + 4x^4$ and $1 - \\cos^2 2x \\approx 4x^2 - 4x^4$", mk: "M1 A1*", n: "Here the $x^4$ term is **kept** because the question prints it." },
-        { h: "(b)", m: "$\\sin\\dfrac{x}{3}\\tan\\dfrac{x}{2} \\approx \\dfrac{x}{3} \\cdot \\dfrac{x}{2} = \\dfrac{x^2}{6}$; $\; \\dfrac{4x^2 - 4x^4}{x^2/6} = 24 - 24x^2$: $a = 24$, $b = -24$", mk: "M1 A1" },
+        { h: "(b)", m: "$\\sin\\dfrac{x}{3}\\tan\\dfrac{x}{2} \\approx \\dfrac{x}{3} \\cdot \\dfrac{x}{2} = \\dfrac{x^2}{6}$; $\\; \\dfrac{4x^2 - 4x^4}{x^2/6} = 24 - 24x^2$: $a = 24$, $b = -24$", mk: "M1 A1" },
         { h: "(c)", m: "For very small $x$, $24x^2$ is negligible, so the expression $\\approx 24$.", mk: "M1 A1", n: "\"Giving a reason\": the $x^2$ term is negligible compared with the constant." }
       ], result: "(b) $24 - 24x^2$ (c) $\\approx 24$" } },
 
@@ -342,7 +342,7 @@ C["maths:5.3"] = {
         { m: "$\\sin\\dfrac{5\\pi}{6} = \\sin\\left(\\pi - \\dfrac{\\pi}{6}\\right) = \\sin\\dfrac{\\pi}{6} = \\dfrac12$", n: "Second quadrant: sine positive." },
         { m: "$\\cos\\dfrac{4\\pi}{3} = \\cos\\left(\\pi + \\dfrac{\\pi}{3}\\right) = -\\cos\\dfrac{\\pi}{3} = -\\dfrac12$", n: "Third quadrant: only tan positive." },
         { m: "$\\tan\\dfrac{7\\pi}{4} = \\tan\\left(2\\pi - \\dfrac{\\pi}{4}\\right) = -\\tan\\dfrac{\\pi}{4} = -1$", n: "Fourth quadrant: only cos positive." },
-        { m: "$\\cos150° = -\\cos30° = -\\dfrac{\\sqrt3}{2}$; $\; \\sin(-60°) = -\\dfrac{\\sqrt3}{2}$" }
+        { m: "$\\cos150° = -\\cos30° = -\\dfrac{\\sqrt3}{2}$; $\\; \\sin(-60°) = -\\dfrac{\\sqrt3}{2}$" }
       ] } },
 
     { page: "Transformed trig graphs" },
@@ -360,7 +360,7 @@ C["maths:5.3"] = {
         { h: "(a)", m: "$c = -180$, $d = -3$", mk: "B1" },
         { h: "(b)", m: "(i) $x$ stretched by 4: $(-720, -3)$. (ii) down 5: $(-180, -8)$", mk: "B1 B1" },
         { h: "(c) Write $\\tan$ as $\\frac{\\sin}{\\cos}$ and clear", m: "$3\\cos\\theta = \\dfrac{8\\sin\\theta}{\\cos\\theta} \\Rightarrow 3\\cos^2\\theta = 8\\sin\\theta \\Rightarrow 3(1 - \\sin^2\\theta) = 8\\sin\\theta \\Rightarrow 3\\sin^2\\theta + 8\\sin\\theta - 3 = 0$", mk: "M1 M1 A1" },
-        { m: "$(3\\sin\\theta - 1)(\\sin\\theta + 3) = 0 \\Rightarrow \\sin\\theta = \\dfrac13$ ($\\sin\\theta = -3$ impossible)\n$\\theta = 19.5°, \; 160.5°$", mk: "M1 A1", n: "Second solution from $180° - 19.47°$." }
+        { m: "$(3\\sin\\theta - 1)(\\sin\\theta + 3) = 0 \\Rightarrow \\sin\\theta = \\dfrac13$ ($\\sin\\theta = -3$ impossible)\n$\\theta = 19.5°, \\; 160.5°$", mk: "M1 A1", n: "Second solution from $180° - 19.47°$." }
       ], result: "(a) $c = -180$, $d = -3$ (c) $19.5°$, $160.5°$" } },
     { worked: { tag: "exam", title: "Counting solutions of $\\sin(nx) = k$ from the graph", src: "A-level June 2025 · P2 Q13 · 3 marks",
       q: "For all $k$ with $0 < |k| < 1$, the equation $\\sin(nx) = k$, $n \\in \\mathbb{N}$, has exactly 6 solutions in $0 \\le x < 2\\pi$. **(i)** Deduce $n$. **(ii)** Deduce the number of solutions of $\\sin^2(nx) = k^2$ in $0 \\le x < 5\\pi$, justifying your answer.",
@@ -445,7 +445,7 @@ C["maths:5.4"] = {
     { worked: { tag: "example", title: "Exact values of reciprocal and inverse functions", src: "routine",
       steps: [
         { m: "$\\sec 60° = \\dfrac{1}{\\cos60°} = 2; \\qquad \\text{cosec}\\,\\dfrac{\\pi}{4} = \\dfrac{1}{\\sin\\frac{\\pi}{4}} = \\sqrt2; \\qquad \\cot 150° = \\dfrac{1}{\\tan150°} = \\dfrac{1}{-1/\\sqrt3} = -\\sqrt3$" },
-        { m: "$\\arcsin\\left(-\\dfrac12\\right) = -\\dfrac{\\pi}{6}$ (not $\\dfrac{7\\pi}{6}$ — outside the range); $\; \\arccos\\left(-\\dfrac12\\right) = \\dfrac{2\\pi}{3}$; $\; \\arctan\\sqrt3 = \\dfrac{\\pi}{3}$", n: "Answers must be in the principal range." },
+        { m: "$\\arcsin\\left(-\\dfrac12\\right) = -\\dfrac{\\pi}{6}$ (not $\\dfrac{7\\pi}{6}$ — outside the range); $\\; \\arccos\\left(-\\dfrac12\\right) = \\dfrac{2\\pi}{3}$; $\\; \\arctan\\sqrt3 = \\dfrac{\\pi}{3}$", n: "Answers must be in the principal range." },
         { m: "$\\sin(\\arccos x) = \\sqrt{1 - x^2}$: draw a right triangle with adjacent $x$, hypotenuse 1.", n: "A composite of a function and a different inverse is a right-triangle problem." }
       ] } },
     { worked: { tag: "exam", title: "Gradient on a curve with $\\text{cosec}^3\\theta$", src: "A-level Oct 2021 · P2 Q13 · 6 marks",
@@ -586,10 +586,10 @@ C["maths:5.6"] = {
     { h: "Addition, double angle and $R$-form — the whole topic on one page" },
     { callout: { t: "formula", h: "In the booklet", body: [
       "$$\\sin(A \\pm B) = \\sin A\\cos B \\pm \\cos A\\sin B \\qquad \\cos(A \\pm B) = \\cos A\\cos B \\mp \\sin A\\sin B \\qquad \\tan(A \\pm B) = \\dfrac{\\tan A \\pm \\tan B}{1 \\mp \\tan A\\tan B}$$",
-      "**Not in the booklet** (derive by putting $B = A$): $\\sin 2A = 2\\sin A\\cos A$, $\; \\cos 2A = \\cos^2 A - \\sin^2 A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A$, $\; \\tan 2A = \\frac{2\\tan A}{1 - \\tan^2 A}$.",
+      "**Not in the booklet** (derive by putting $B = A$): $\\sin 2A = 2\\sin A\\cos A$, $\\; \\cos 2A = \\cos^2 A - \\sin^2 A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A$, $\\; \\tan 2A = \\frac{2\\tan A}{1 - \\tan^2 A}$.",
       "**$R$-form**: $a\\cos\\theta + b\\sin\\theta = R\\cos(\\theta - \\alpha)$ with $R = \\sqrt{a^2 + b^2}$, $\\tan\\alpha = \\frac{b}{a}$ (for $a, b > 0$). Also $R\\sin(\\theta + \\alpha)$ etc. — match the signs by expanding."
     ] } },
-    { callout: { t: "tip", h: "Where the addition formulae come from (a geometric proof the spec says you should understand)", body: "Rotate the unit-circle point $(\\cos B, \\sin B)$ by angle $A$: rotating $(1, 0)$ gives $(\\cos A, \\sin A)$ and rotating $(0, 1)$ gives $(-\\sin A, \\cos A)$, so the image is $\\cos B(\\cos A, \\sin A) + \\sin B(-\\sin A, \\cos A)$. Its coordinates are $(\\cos A\\cos B - \\sin A\\sin B, \; \\sin A\\cos B + \\cos A\\sin B)$ — and it is the point at angle $A + B$, so these are $\\cos(A + B)$ and $\\sin(A + B)$. Replace $B$ by $-B$ for the difference formulae." } },
+    { callout: { t: "tip", h: "Where the addition formulae come from (a geometric proof the spec says you should understand)", body: "Rotate the unit-circle point $(\\cos B, \\sin B)$ by angle $A$: rotating $(1, 0)$ gives $(\\cos A, \\sin A)$ and rotating $(0, 1)$ gives $(-\\sin A, \\cos A)$, so the image is $\\cos B(\\cos A, \\sin A) + \\sin B(-\\sin A, \\cos A)$. Its coordinates are $(\\cos A\\cos B - \\sin A\\sin B, \\; \\sin A\\cos B + \\cos A\\sin B)$ — and it is the point at angle $A + B$, so these are $\\cos(A + B)$ and $\\sin(A + B)$. Replace $B$ by $-B$ for the difference formulae." } },
 
     { page: "Addition and double angles" },
     { worked: { tag: "exam", title: "Expand both sides to reach $\\tan x = 3\\sqrt3$; then solve a disguised version", src: "A-level June 2022 · P1 Q14 · 8 marks",
@@ -682,9 +682,9 @@ C["maths:5.7"] = {
     "Every trig equation ends the same way: a value of $\\sin$, $\\cos$ or $\\tan$ of **something**, and a list of all the angles in an interval that give it. The skill is finding *all* of them and *only* them.",
     { callout: { t: "memorise", h: "From one solution to all of them", body: [
       "Calculator gives the **principal value** $\\theta_0$. Then:",
-      "$\\sin\\theta = k$: $\;\\theta_0$ and $180° - \\theta_0$, then $\\pm360°$.",
-      "$\\cos\\theta = k$: $\;\\theta_0$ and $-\\theta_0$ (i.e. $360° - \\theta_0$), then $\\pm360°$.",
-      "$\\tan\\theta = k$: $\;\\theta_0$, then $\\pm180°$.",
+      "$\\sin\\theta = k$: $\\;\\theta_0$ and $180° - \\theta_0$, then $\\pm360°$.",
+      "$\\cos\\theta = k$: $\\;\\theta_0$ and $-\\theta_0$ (i.e. $360° - \\theta_0$), then $\\pm360°$.",
+      "$\\tan\\theta = k$: $\\;\\theta_0$, then $\\pm180°$.",
       "In radians replace $180°$ by $\\pi$ and $360°$ by $2\\pi$. A sketch of the relevant graph with the horizontal line $y = k$ shows how many to expect."
     ] } },
     { fig: { x: [-0.3, 2 * Math.PI + 0.3], y: [-1.4, 1.4], axes: { pi: true, yt: [-1, 1] }, items: [

@@ -352,11 +352,12 @@
         if (json.ok) card.appendChild(el("p", { text: "Every line checks out." + (json.look ? " " + json.look : "") }));
         else {
           card.appendChild(el("p", {}, [el("b", { text: "Line " + (json.line || "?") + " is the first to look at. " }), el("span", { text: json.look || "" })]));
-          if (json.why) card.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "Show why", onclick: function (e) { e.currentTarget.replaceWith(el("p", { class: "k-drill-p", text: json.why })); } }));
+          if (json.why) card.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "Show why", onclick: function (e) { var w = el("p", { class: "k-drill-p", text: json.why }); e.currentTarget.replaceWith(w); KOS.inkAI.typeset(w); } }));
         }
         if (json.unreadable && json.unreadable.length) card.appendChild(el("p", { class: "k-drill-p", text: "Kurenai couldn't read line" + (json.unreadable.length > 1 ? "s " : " ") + json.unreadable.join(" and ") + "." }));
         card.appendChild(el("p", { class: "k-drill-badge", text: "A suggestion from Kurenai. It wrote nothing on your page." }));
         host.insertBefore(card, host.firstChild);
+        KOS.inkAI.typeset(card);
         announce(json.ok ? "Check: every line checks out." : "Check: line " + (json.line || "") + " is the first to look at.");
       } });
     });

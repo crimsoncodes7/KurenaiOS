@@ -184,6 +184,23 @@
     var r = KOS.ai.config && KOS.ai.config().routing && KOS.ai.config().routing.tutor;
     return r && r.provider === "gemini" ? r.model : KOS.ai.DEFAULT_MODEL.gemini;
   }
+  /* Kurenai's words carry maths: asked for as $…$, and any LaTeX she still
+     leaves bare (\sqrt{18}, a^{1/2}, a^2) is wrapped, so it draws as maths
+     beside the scheme instead of as code (27 October 2026) */
+  var BARE_TEX = /([0-9.]*\\[a-zA-Z]+(?:\{[^{}]*\})*|[A-Za-z0-9.]*\^\{[^{}]*\}|[A-Za-z0-9.]+\^-?[A-Za-z0-9]+|[A-Za-z]_\{?[A-Za-z0-9]+\}?)/g;
+  function mathText(t) {
+    t = String(t == null ? "" : t);
+    if (t.indexOf("$") >= 0) return t;
+    return t.replace(BARE_TEX, function (m) { return "$" + m + "$"; }).replace(/\$\s*\$/g, " ");
+  }
+  function mathAll(v, key) {
+    if (typeof v === "string") return /^(reason|look|why|text)$/.test(key || "") ? mathText(v) : v;
+    if (Array.isArray(v)) return v.map(function (x) { return mathAll(x, key); });
+    if (v && typeof v === "object") { var o = {}; Object.keys(v).forEach(function (k) { o[k] = mathAll(v[k], k); }); return o; }
+    return v;
+  }
+  function typeset(node) { if (KOS.content && KOS.content.typeset) KOS.content.typeset(node); }
+
   /* the reply's JSON: bare, in a ``` fence, or with a line of words
      around it (the outermost {…}) */
   function readJson(text) {
@@ -219,7 +236,7 @@
         if (!online()) { status.textContent = "This needs a connection."; return; }
         send.disabled = true; status.textContent = "Kurenai is reading your page…";
         KOS.ai.chatWith("gemini", route(), {
-          category: "tutor", system: o.system, temperature: 0.1, maxTokens: 2000, noRetry: false,
+          category: "tutor", system: o.system + " Write any maths in your words as LaTeX between $ signs, such as $\\sqrt{18} = 3\\sqrt{2}$.", temperature: 0.1, maxTokens: 2000, noRetry: false,
           /* Gemini's "high demand" spikes outlast one 2 s retry (27 October
              2026): this one deliberate request waits patiently, and says so */
           busyRetries: 3, onBusy: function (n, of) { status.textContent = "Gemini is busy right now — trying again (" + n + " of " + of + ")…"; },
@@ -240,7 +257,7 @@
             return;
           }
           close();
-          o.onReply(json);
+          o.onReply(mathAll(json));
         });
       } });
       foot.appendChild(el("span"));
@@ -334,7 +351,9 @@
       KOS.ui.state(chip, "confirmed", state === "yes");
       KOS.ui.state(chip, "declined", state === "no");
       chip.appendChild(el("span", { class: "k-pad-sug-mark", "aria-hidden": "true", text: state === "yes" ? "✓" : state === "no" ? "✕" : "◇" }));
-      chip.appendChild(el("span", { class: "k-pad-sug-t", text: (p.award ? "Kurenai: award" : "Kurenai: not yet") + (p.line ? " · line " + p.line : "") + " — " + (p.reason || "") }));
+      var words = el("span", { class: "k-pad-sug-t", text: (p.award ? "Kurenai: award" : "Kurenai: not yet") + (p.line ? " · line " + p.line : "") + " — " + (p.reason || "") });
+      chip.appendChild(words);
+      typeset(words);
       if (!state) {
         chip.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pad.sug-confirm", text: p.award ? "Confirm" : "Agree", onclick: function () { if (p.award) tick(true); paint("yes"); onDecide && onDecide(); } }));
         chip.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "pad.sug-decline", text: p.award ? "Decline" : "Award anyway", onclick: function () { if (!p.award) tick(true); paint("no"); onDecide && onDecide(); } }));
@@ -346,6 +365,6 @@
   }
 
   KOS.inkPad = { mount: mount, answer: answer, earlier: earlier, earlierLink: earlierLink, viewDoc: viewDoc, STRIP_H: STRIP_H };
-  KOS.inkAI = { readJson: readJson, reads: reads, ready: ready, online: online, ask: ask, markWithKurenai: markWithKurenai, checkWorking: checkWorking,
+  KOS.inkAI = { readJson: readJson, mathText: mathText, typeset: typeset, reads: reads, ready: ready, online: online, ask: ask, markWithKurenai: markWithKurenai, checkWorking: checkWorking,
     compareBlurt: compareBlurt, suggestionChip: suggestionChip, plain: plain };
 })();

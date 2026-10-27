@@ -282,11 +282,11 @@ C["maths:4.1"] = {
         { m: "$(8 + 3x)^{\\frac13} = 8^{\\frac13}\\left(1 + \\dfrac{3x}{8}\\right)^{\\frac13} = 2\\left(1 + \\dfrac{3}{8}x\\right)^{\\frac13}$", mk: "B1", n: "$8^{\\frac13} = 2$. Any $a$ that is a perfect power of the denominator of $n$ is chosen so this comes out whole." },
         { m: "$= 2\\left[1 + \\tfrac13\\left(\\dfrac{3x}{8}\\right) + \\dfrac{\\tfrac13\\left(-\\tfrac23\\right)}{2!}\\left(\\dfrac{3x}{8}\\right)^2 + \\ldots\\right] = 2\\left[1 + \\dfrac{x}{8} - \\dfrac19 \\cdot \\dfrac{9x^2}{64} + \\ldots\\right]$", mk: "M1 A1", n: "$n - 1 = \\frac13 - 1 = -\\frac23$; $\\frac{\\frac13 \\cdot \\left(-\\frac23\\right)}{2} = -\\frac19$." },
         { m: "$= 2 + \\dfrac14 x - \\dfrac{1}{32}x^2 + \\ldots$, valid for $\\left|\\dfrac{3x}{8}\\right| < 1$, i.e. $|x| < \\dfrac83$", mk: "A1 B1" }
-      ], result: "$2 + \\dfrac14 x - \\dfrac{1}{32}x^2 + \\ldots$, $\; |x| < \\dfrac83$" } },
+      ], result: "$2 + \\dfrac14 x - \\dfrac{1}{32}x^2 + \\ldots$, $\\; |x| < \\dfrac83$" } },
     { h: "2.3  The validity condition $\\left|\\frac{b}{a}x\\right| < 1$" },
     "The series for $(1 + X)^n$ is valid for $|X| < 1$. After the rearrangement, $X = \\frac{b}{a}x$, so",
     { callout: { t: "formula", h: "Validity of the expansion of $(a + bx)^n$", body: [
-      "$$\\left|\\dfrac{b}{a}x\\right| < 1 \;\\iff\; |x| < \\left|\\dfrac{a}{b}\\right| \;\\iff\; -\\left|\\dfrac{a}{b}\\right| < x < \\left|\\dfrac{a}{b}\\right|$$",
+      "$$\\left|\\dfrac{b}{a}x\\right| < 1 \\;\\iff\\; |x| < \\left|\\dfrac{a}{b}\\right| \\;\\iff\\; -\\left|\\dfrac{a}{b}\\right| < x < \\left|\\dfrac{a}{b}\\right|$$",
       { ul: [
         "The sign of $b$ makes no difference — $|{-9x}| = 9|x|$ — so $(4 - 9x)^{\\frac12}$ and $(4 + 9x)^{\\frac12}$ share the range $|x| < \\frac49$.",
         "The size of $n$ makes no difference either: the range depends only on the bracket.",
@@ -313,9 +313,9 @@ C["maths:4.1"] = {
     ] },
     { worked: { tag: "check", title: "Validity for three brackets, done in one line each", src: "routine",
       steps: [
-        { m: "$(1 - 6x)^{-\\frac12}$: $\; |{-6x}| < 1 \\Rightarrow |x| < \\dfrac16$", mk: "B1" },
-        { m: "$(9 - 2x)^{\\frac12} = 3\\left(1 - \\dfrac{2x}{9}\\right)^{\\frac12}$: $\; \\left|\\dfrac{2x}{9}\\right| < 1 \\Rightarrow |x| < \\dfrac92$", mk: "B1", n: "It is $\\frac{a}{b} = \\frac92$, not $\\frac{b}{a} = \\frac29$. If in doubt: the bracket must stay positive-ish, and $9 - 2x$ is fine up to $x = 4.5$." },
-        { m: "$\\dfrac{1}{(2 + x)^2(1 - 3x)}$: $\; |x| < 2$ and $|x| < \\dfrac13$, so $|x| < \\dfrac13$", mk: "B1", n: "Two factors, two conditions, the tighter one wins." }
+        { m: "$(1 - 6x)^{-\\frac12}$: $\\; |{-6x}| < 1 \\Rightarrow |x| < \\dfrac16$", mk: "B1" },
+        { m: "$(9 - 2x)^{\\frac12} = 3\\left(1 - \\dfrac{2x}{9}\\right)^{\\frac12}$: $\\; \\left|\\dfrac{2x}{9}\\right| < 1 \\Rightarrow |x| < \\dfrac92$", mk: "B1", n: "It is $\\frac{a}{b} = \\frac92$, not $\\frac{b}{a} = \\frac29$. If in doubt: the bracket must stay positive-ish, and $9 - 2x$ is fine up to $x = 4.5$." },
+        { m: "$\\dfrac{1}{(2 + x)^2(1 - 3x)}$: $\\; |x| < 2$ and $|x| < \\dfrac13$, so $|x| < \\dfrac13$", mk: "B1", n: "Two factors, two conditions, the tighter one wins." }
       ] } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -334,13 +334,13 @@ C["maths:4.1"] = {
       steps: [
         { h: "(i) What does the bracket become?", m: "$x = \\dfrac{1}{10}$: $\\quad (4 + 5x)^{\\frac12} = \\left(4 + \\dfrac12\\right)^{\\frac12} = \\sqrt{\\dfrac92} = \\dfrac{3}{\\sqrt2} = \\dfrac{3\\sqrt2}{2}$", mk: "M1", n: "Write the exact surd form *before* touching the series, so you know what to solve for at the end." },
         { h: "Evaluate the series at $x = \\frac{1}{10}$ — in fractions", m: "$2 + \\dfrac54 \\cdot \\dfrac{1}{10} - \\dfrac{25}{64} \\cdot \\dfrac{1}{100} = 2 + \\dfrac18 - \\dfrac{1}{256} = \\dfrac{512 + 32 - 1}{256} = \\dfrac{543}{256}$", mk: "M1", n: "The question wants $\\frac{p}{q}$, so decimals here would have to be converted back — stay in fractions from the start." },
-        { h: "Solve for $\\sqrt2$", m: "$\\dfrac{3\\sqrt2}{2} \\approx \\dfrac{543}{256} \;\\Rightarrow\; \\sqrt2 \\approx \\dfrac{543}{256} \\times \\dfrac23 = \\dfrac{181}{128}$", mk: "A1", n: "$\\frac{181}{128} = 1.41406$; true value $1.41421$. Three terms and $x = 0.1$ already give 4 significant figures." },
+        { h: "Solve for $\\sqrt2$", m: "$\\dfrac{3\\sqrt2}{2} \\approx \\dfrac{543}{256} \\;\\Rightarrow\\; \\sqrt2 \\approx \\dfrac{543}{256} \\times \\dfrac23 = \\dfrac{181}{128}$", mk: "A1", n: "$\\frac{181}{128} = 1.41406$; true value $1.41421$. Three terms and $x = 0.1$ already give 4 significant figures." },
         { h: "(ii) Validity", m: "The expansion is valid for $\\left|\\dfrac{5x}{4}\\right| < 1$, i.e. $|x| < \\dfrac45$, and $\\dfrac{1}{10} < \\dfrac45$, so the approximation is valid.", mk: "B1", n: "Quote the range **and** place the value inside it. Just writing \"$|x| < \\frac45$\" is not an explanation." }
       ], result: "(i) $\\sqrt2 \\approx \\dfrac{181}{128}$ (ii) $\\dfrac{1}{10}$ lies within $|x| < \\dfrac45$" } },
     { worked: { tag: "exam", title: "Choosing between offered values of $x$ — without any calculation", src: "A-level June 2019 · P1 Q4(b) · 2 marks",
-      q: "The expansion of $\\frac{1}{\\sqrt{4 - x}}$ can be used to find an approximation to $\\sqrt2$. Possible values of $x$ that could be substituted are: $x = -14$ because $\\frac{1}{\\sqrt{18}} = \\frac{\\sqrt2}{6}$; $\; x = 2$ because $\\frac{1}{\\sqrt2} = \\frac{\\sqrt2}{2}$; $\; x = -\\frac12$ because $\\frac{1}{\\sqrt{9/2}} = \\frac{\\sqrt2}{3}$. Without evaluating your expansion, **(i)** state, giving a reason, which of the three values of $x$ should not be used; **(ii)** state, giving a reason, which would lead to the most accurate approximation to $\\sqrt2$.",
+      q: "The expansion of $\\frac{1}{\\sqrt{4 - x}}$ can be used to find an approximation to $\\sqrt2$. Possible values of $x$ that could be substituted are: $x = -14$ because $\\frac{1}{\\sqrt{18}} = \\frac{\\sqrt2}{6}$; $\\; x = 2$ because $\\frac{1}{\\sqrt2} = \\frac{\\sqrt2}{2}$; $\\; x = -\\frac12$ because $\\frac{1}{\\sqrt{9/2}} = \\frac{\\sqrt2}{3}$. Without evaluating your expansion, **(i)** state, giving a reason, which of the three values of $x$ should not be used; **(ii)** state, giving a reason, which would lead to the most accurate approximation to $\\sqrt2$.",
       steps: [
-        { h: "(i) Test each value against the range", m: "The expansion of $(4 - x)^{-\\frac12}$ is valid for $|x| < 4$. $\; x = -14$ is outside this range, so $x = -14$ should not be used.", mk: "B1", n: "All three values genuinely produce $\\sqrt2$ — the question is testing whether you know that being *algebraically* right is not enough; the series has to converge there." },
+        { h: "(i) Test each value against the range", m: "The expansion of $(4 - x)^{-\\frac12}$ is valid for $|x| < 4$. $\\; x = -14$ is outside this range, so $x = -14$ should not be used.", mk: "B1", n: "All three values genuinely produce $\\sqrt2$ — the question is testing whether you know that being *algebraically* right is not enough; the series has to converge there." },
         { h: "(ii) Of the valid values, the smallest $|x|$ wins", m: "$x = 2$ and $x = -\\dfrac12$ are both valid; $\\left|-\\dfrac12\\right| < |2|$, so $x = -\\dfrac12$ gives the most accurate approximation, because the terms in $x^n$ decrease fastest when $|x|$ is smallest.", mk: "B1", n: "Say *why*: smaller $|x|$ → later (omitted) terms are smaller → truncation error is smaller." }
       ], result: "(i) $x = -14$, outside $|x| < 4$ (ii) $x = -\\dfrac12$, the smallest $|x|$" } },
     { worked: { tag: "exam", title: "\"Explain how you could use $x = \\frac{1}{32}$ to approximate $\\sqrt5$\"", src: "A-level Oct 2020 · P1 Q1(b) · 2 marks",
@@ -403,7 +403,7 @@ C["maths:4.1"] = {
         { h: "Expand the first to $x^2$", m: "$(1 + 4x)^{\\frac12} = 1 + \\tfrac12(4x) + \\dfrac{\\tfrac12\\left(-\\tfrac12\\right)}{2}(4x)^2 + \\ldots = 1 + 2x - 2x^2 + \\ldots$", mk: "M1 A1" },
         { h: "Expand the second to $x^2$", m: "$(1 - x)^{-\\frac12} = 1 + \\left(-\\tfrac12\\right)(-x) + \\dfrac{\\left(-\\tfrac12\\right)\\left(-\\tfrac32\\right)}{2}(-x)^2 + \\ldots = 1 + \\dfrac12 x + \\dfrac38 x^2 + \\ldots$", mk: "M1 A1", n: "$n = -\\frac12$, $X = -x$: two negatives in term 2, and $(-x)^2 = x^2$ in term 3 — all positive." },
         { h: "Multiply, keeping up to $x^2$", m: "$(1 + 2x - 2x^2)(1 + \\tfrac12 x + \\tfrac38 x^2)$\n$= 1 + \\left(\\tfrac12 + 2\\right)x + \\left(\\tfrac38 + 2 \\cdot \\tfrac12 - 2\\right)x^2 + \\ldots = 1 + \\dfrac52 x - \\dfrac58 x^2 + \\ldots$", mk: "M1 A1*", n: "Three pieces in the $x^2$ bracket: $\\frac38$ (from $1 \\cdot x^2$), $1$ (from $x \\cdot x$), $-2$ (from $x^2 \\cdot 1$). A1* — the printed answer, so every step must be visible." },
-        { h: "(b) Validity of the product", m: "$(1 + 4x)^{\\frac12}$ needs $|x| < \\dfrac14$ and $(1 - x)^{-\\frac12}$ needs $|x| < 1$; the product is valid only for $|x| < \\dfrac14$. $\; x = \\dfrac12 > \\dfrac14$, so the expansion is not valid there.", mk: "B1", n: "It is the **tighter** range that matters. Students who quote only $|x| < 1$ conclude $\\frac12$ is fine — and lose the mark." },
+        { h: "(b) Validity of the product", m: "$(1 + 4x)^{\\frac12}$ needs $|x| < \\dfrac14$ and $(1 - x)^{-\\frac12}$ needs $|x| < 1$; the product is valid only for $|x| < \\dfrac14$. $\\; x = \\dfrac12 > \\dfrac14$, so the expansion is not valid there.", mk: "B1", n: "It is the **tighter** range that matters. Students who quote only $|x| < 1$ conclude $\\frac12$ is fine — and lose the mark." },
         { h: "(c) Evaluate at $x = \\frac{1}{11}$ — first the exact left side", m: "$\\dfrac{1 + \\frac{4}{11}}{1 - \\frac{1}{11}} = \\dfrac{15/11}{10/11} = \\dfrac32$, so the left side is $\\sqrt{\\dfrac32} = \\dfrac{\\sqrt6}{2}$", mk: "M1", n: "Now you know the series is approximating $\\frac{\\sqrt6}{2}$: the final answer will be twice the series value." },
         { m: "$1 + \\dfrac52 \\cdot \\dfrac{1}{11} - \\dfrac58 \\cdot \\dfrac{1}{121} = \\dfrac{968 + 220 - 5}{968} = \\dfrac{1183}{968}$\n$\\sqrt6 \\approx 2 \\times \\dfrac{1183}{968} = \\dfrac{1183}{484}$", mk: "M1 A1", n: "$\\frac{1183}{484} = 2.4442$ against $\\sqrt6 = 2.4495$: two terms of $x$ and a rather large $x = 0.09$; fine for 3 s.f." }
       ], result: "(a) shown (b) $\\dfrac12$ lies outside $|x| < \\dfrac14$ (c) $\\sqrt6 \\approx \\dfrac{1183}{484}$" } },
@@ -411,7 +411,7 @@ C["maths:4.1"] = {
       q: "$f(x) = \\left(\\frac{x - 1}{2x}\\right)\\left(3 - \\frac{2x}{9}\\right)^8$. Using $\\left(3 - \\frac{2x}{9}\\right)^8 = 6561 - 3888x + 1008x^2 - \\frac{448}{3}x^3 + \\ldots$, find the coefficient of $x^2$ in the series expansion of $f(x)$, giving your answer as a simplified fraction.",
       steps: [
         { h: "Rewrite the front bracket as separate powers of $x$", m: "$\\dfrac{x - 1}{2x} = \\dfrac12 - \\dfrac{1}{2x}$", n: "Only now can you see which terms of the expansion each piece will reach." },
-        { h: "Pair each piece with the term that lands on $x^2$", m: "$\\dfrac12 \\times 1008x^2 \;+\; \\left(-\\dfrac{1}{2x}\\right) \\times \\left(-\\dfrac{448}{3}x^3\\right)$", mk: "M1", n: "$\\frac{1}{x} \\times x^3 = x^2$ — the $\\frac{1}{2x}$ reaches one term *further* into the expansion. This is why part (a) asked for four terms although the product only needs $x^2$." },
+        { h: "Pair each piece with the term that lands on $x^2$", m: "$\\dfrac12 \\times 1008x^2 \\;+\\; \\left(-\\dfrac{1}{2x}\\right) \\times \\left(-\\dfrac{448}{3}x^3\\right)$", mk: "M1", n: "$\\frac{1}{x} \\times x^3 = x^2$ — the $\\frac{1}{2x}$ reaches one term *further* into the expansion. This is why part (a) asked for four terms although the product only needs $x^2$." },
         { m: "$= 504 + \\dfrac{224}{3} = \\dfrac{1512 + 224}{3} = \\dfrac{1736}{3}$", mk: "A1" }
       ], result: "$\\dfrac{1736}{3}$" } },
     { worked: { tag: "exam", title: "Negative powers on the left: coefficient of $x$ in $\\left(1 + \\frac3x\\right)^2\\left(1 + \\frac{3x}{4}\\right)^6$", src: "AS Specimen · P1 Q7 · 8 marks",
@@ -419,7 +419,7 @@ C["maths:4.1"] = {
       steps: [
         { h: "(a)", m: "$\\left(1 + \\dfrac3x\\right)^2 = 1 + \\dfrac6x + \\dfrac{9}{x^2}$", mk: "M1 A1" },
         { h: "(b)", m: "$1 + 6\\left(\\dfrac{3x}{4}\\right) + 15\\left(\\dfrac{3x}{4}\\right)^2 + 20\\left(\\dfrac{3x}{4}\\right)^3 = 1 + \\dfrac92 x + \\dfrac{135}{16}x^2 + \\dfrac{135}{16}x^3 + \\ldots$", mk: "B1 M1 A1 A1" },
-        { h: "(c) Which pairs make $x^1$?", m: "$1 \\times \\dfrac92 x \;+\; \\dfrac6x \\times \\dfrac{135}{16}x^2 \;+\; \\dfrac{9}{x^2} \\times \\dfrac{135}{16}x^3$", mk: "M1", n: "$x^{-1} \\cdot x^2$ and $x^{-2} \\cdot x^3$ both give $x^1$ — three contributions, which is why (b) needed the $x^3$ term." },
+        { h: "(c) Which pairs make $x^1$?", m: "$1 \\times \\dfrac92 x \\;+\\; \\dfrac6x \\times \\dfrac{135}{16}x^2 \\;+\\; \\dfrac{9}{x^2} \\times \\dfrac{135}{16}x^3$", mk: "M1", n: "$x^{-1} \\cdot x^2$ and $x^{-2} \\cdot x^3$ both give $x^1$ — three contributions, which is why (b) needed the $x^3$ term." },
         { m: "$= \\dfrac92 + \\dfrac{810}{16} + \\dfrac{1215}{16} = \\dfrac{72 + 810 + 1215}{16} = \\dfrac{2097}{16}$", mk: "A1" }
       ], result: "$\\dfrac{2097}{16}$" } },
     { h: "2.7  Partial fractions, then binomial expansion" },
@@ -441,8 +441,8 @@ C["maths:4.1"] = {
       q: "$f(x) = \\frac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)}$, $x \\neq -\\frac25$, $x \\neq \\frac12$. Given that $f(x)$ can be expressed in the form $\\frac{A}{5x + 2} + \\frac{B}{(5x + 2)^2} + \\frac{C}{1 - 2x}$, **(a)(i)** find the value of $B$ and the value of $C$, **(ii)** show that $A = 0$. **(b)(i)** Use binomial expansions to show that, in ascending powers of $x$, $f(x) = p + qx + rx^2 + \\ldots$ where $p$, $q$ and $r$ are simplified fractions to be found. **(ii)** Find the range of values of $x$ for which this expansion is valid.",
       steps: [
         { h: "(a)(i) Clear the denominators", m: "$50x^2 + 38x + 9 \\equiv A(5x + 2)(1 - 2x) + B(1 - 2x) + C(5x + 2)^2$", mk: "M1", n: "An identity — true for every $x$ — so you may substitute any value." },
-        { h: "Substitute the roots", m: "$x = \\dfrac12$: $\; \\dfrac{50}{4} + 19 + 9 = C \\cdot \\left(\\dfrac92\\right)^2 \;\\Rightarrow\; \\dfrac{81}{2} = \\dfrac{81}{4}C \;\\Rightarrow\; C = 2$\n$x = -\\dfrac25$: $\; 8 - \\dfrac{76}{5} + 9 = B\\left(1 + \\dfrac45\\right) \;\\Rightarrow\; \\dfrac95 = \\dfrac95 B \;\\Rightarrow\; B = 1$", mk: "A1", n: "$x = -\\frac25$ kills both the $A$ and the $C$ terms, isolating $B$; $x = \\frac12$ isolates $C$. This is the \"cover-up\" idea made explicit." },
-        { h: "(a)(ii) A third equation for $A$ — compare a coefficient or substitute $x = 0$", m: "$x = 0$: $\; 9 = 2A + B + 4C = 2A + 1 + 8 \;\\Rightarrow\; 2A = 0 \;\\Rightarrow\; A = 0$", mk: "M1 A1*", n: "Or compare $x^2$: $50 = -10A + 25C$ gives $50 = -10A + 50$. Either way the argument must be **shown** — this is a proof, and three answers written down with no working score M1 A1 M0 A0." },
+        { h: "Substitute the roots", m: "$x = \\dfrac12$: $\\; \\dfrac{50}{4} + 19 + 9 = C \\cdot \\left(\\dfrac92\\right)^2 \\;\\Rightarrow\\; \\dfrac{81}{2} = \\dfrac{81}{4}C \\;\\Rightarrow\\; C = 2$\n$x = -\\dfrac25$: $\\; 8 - \\dfrac{76}{5} + 9 = B\\left(1 + \\dfrac45\\right) \\;\\Rightarrow\\; \\dfrac95 = \\dfrac95 B \\;\\Rightarrow\\; B = 1$", mk: "A1", n: "$x = -\\frac25$ kills both the $A$ and the $C$ terms, isolating $B$; $x = \\frac12$ isolates $C$. This is the \"cover-up\" idea made explicit." },
+        { h: "(a)(ii) A third equation for $A$ — compare a coefficient or substitute $x = 0$", m: "$x = 0$: $\\; 9 = 2A + B + 4C = 2A + 1 + 8 \\;\\Rightarrow\\; 2A = 0 \\;\\Rightarrow\\; A = 0$", mk: "M1 A1*", n: "Or compare $x^2$: $50 = -10A + 25C$ gives $50 = -10A + 50$. Either way the argument must be **shown** — this is a proof, and three answers written down with no working score M1 A1 M0 A0." },
         { h: "(b)(i) Expand $\\frac{1}{(5x + 2)^2}$", m: "$(2 + 5x)^{-2} = 2^{-2}\\left(1 + \\dfrac{5x}{2}\\right)^{-2} = \\dfrac14\\left[1 + (-2)\\left(\\dfrac{5x}{2}\\right) + \\dfrac{(-2)(-3)}{2}\\left(\\dfrac{5x}{2}\\right)^2 + \\ldots\\right]$\n$= \\dfrac14\\left[1 - 5x + \\dfrac{75}{4}x^2 + \\ldots\\right] = \\dfrac14 - \\dfrac54 x + \\dfrac{75}{16}x^2 + \\ldots$", mk: "M1 M1 A1", n: "First M1 for taking out the $2^{-2}$, second for the expansion structure. Note $(5x + 2)$ must be read as $(2 + 5x)$ — the constant goes first." },
         { h: "Expand $\\frac{2}{1 - 2x}$", m: "$2(1 - 2x)^{-1} = 2\\left[1 + (-1)(-2x) + \\dfrac{(-1)(-2)}{2}(-2x)^2 + \\ldots\\right] = 2 + 4x + 8x^2 + \\ldots$", mk: "M1", n: "Or recognise the geometric series $1 + 2x + 4x^2 + \\ldots$ directly." },
         { h: "Add (the $A$ term contributes nothing)", m: "$f(x) = \\left(\\dfrac14 + 2\\right) + \\left(-\\dfrac54 + 4\\right)x + \\left(\\dfrac{75}{16} + 8\\right)x^2 + \\ldots = \\dfrac94 + \\dfrac{11}{4}x + \\dfrac{203}{16}x^2 + \\ldots$", mk: "dM1 A1", n: "Check $p$ quickly: $f(0) = \\frac{9}{4 \\cdot 1} = \\frac94$. Always test the constant term against $f(0)$ — it is free." },
@@ -451,19 +451,19 @@ C["maths:4.1"] = {
     { worked: { tag: "variation", title: "Two distinct linear factors", src: "practice variant",
       q: "Express $f(x) = \\frac{4 + x}{(1 + x)(2 - x)}$ in partial fractions, hence find the expansion of $f(x)$ in ascending powers of $x$ up to and including the term in $x^3$, and state the range of $x$ for which it is valid.",
       steps: [
-        { h: "Decompose", m: "$\\dfrac{4 + x}{(1 + x)(2 - x)} \\equiv \\dfrac{A}{1 + x} + \\dfrac{B}{2 - x} \;\\Rightarrow\; 4 + x \\equiv A(2 - x) + B(1 + x)$\n$x = -1$: $3 = 3A \\Rightarrow A = 1$; $\\quad x = 2$: $6 = 3B \\Rightarrow B = 2$", mk: "M1 A1" },
+        { h: "Decompose", m: "$\\dfrac{4 + x}{(1 + x)(2 - x)} \\equiv \\dfrac{A}{1 + x} + \\dfrac{B}{2 - x} \\;\\Rightarrow\\; 4 + x \\equiv A(2 - x) + B(1 + x)$\n$x = -1$: $3 = 3A \\Rightarrow A = 1$; $\\quad x = 2$: $6 = 3B \\Rightarrow B = 2$", mk: "M1 A1" },
         { h: "Expand each fraction", m: "$\\dfrac{1}{1 + x} = (1 + x)^{-1} = 1 - x + x^2 - x^3 + \\ldots$\n$\\dfrac{2}{2 - x} = 2 \\cdot \\dfrac12\\left(1 - \\dfrac{x}{2}\\right)^{-1} = 1 + \\dfrac{x}{2} + \\dfrac{x^2}{4} + \\dfrac{x^3}{8} + \\ldots$", mk: "M1 A1", n: "Both are geometric series; the second needed the 2 taken out (and it cancelled the numerator's 2 — check that with $f(0) = 2$)." },
         { h: "Add", m: "$f(x) = 2 - \\dfrac12 x + \\dfrac54 x^2 - \\dfrac78 x^3 + \\ldots$", mk: "A1" },
         { h: "Validity", m: "$|x| < 1$ and $\\left|\\dfrac{x}{2}\\right| < 1$ (i.e. $|x| < 2$): so $|x| < 1$.", mk: "B1" }
-      ], result: "$2 - \\dfrac12 x + \\dfrac54 x^2 - \\dfrac78 x^3 + \\ldots$, $\; |x| < 1$" } },
+      ], result: "$2 - \\dfrac12 x + \\dfrac54 x^2 - \\dfrac78 x^3 + \\ldots$, $\\; |x| < 1$" } },
     { worked: { tag: "variation", title: "An improper fraction — divide before you decompose", src: "practice variant (2025 P2 Q7 shape + expansion)",
       q: "Given that $\\frac{x^2 + 3x + 3}{(1 + x)(2 + x)} \\equiv A + \\frac{B}{1 + x} + \\frac{C}{2 + x}$, find $A$, $B$ and $C$, and hence expand the expression in ascending powers of $x$ up to the term in $x^2$.",
       steps: [
         { h: "Degree of the top = degree of the bottom, so there is a constant $A$", m: "$x^2 + 3x + 3 \\equiv A(1 + x)(2 + x) + B(2 + x) + C(1 + x)$", mk: "M1", n: "Compare $x^2$: $1 = A$. (Polynomial division gives the same: $(x^2 + 3x + 3) \\div (x^2 + 3x + 2) = 1$ remainder $1$.)" },
-        { m: "$x = -1$: $\; 1 = B \\cdot 1 \\Rightarrow B = 1$; $\\qquad x = -2$: $\; 1 = C \\cdot (-1) \\Rightarrow C = -1$", mk: "A1 A1", n: "Substituting the roots still works for $B$ and $C$ because the $A$ term vanishes at both." },
-        { h: "Expand each piece", m: "$1 \;+\; (1 - x + x^2 - \\ldots) \;-\; \\dfrac12\\left(1 + \\dfrac{x}{2}\\right)^{-1}$\n$= 1 + 1 - x + x^2 - \\dfrac12\\left(1 - \\dfrac{x}{2} + \\dfrac{x^2}{4} - \\ldots\\right)$", mk: "M1 A1", n: "$\\frac{1}{2 + x} = \\frac12\\left(1 + \\frac x2\\right)^{-1}$: the $2^{-1}$ again." },
+        { m: "$x = -1$: $\\; 1 = B \\cdot 1 \\Rightarrow B = 1$; $\\qquad x = -2$: $\\; 1 = C \\cdot (-1) \\Rightarrow C = -1$", mk: "A1 A1", n: "Substituting the roots still works for $B$ and $C$ because the $A$ term vanishes at both." },
+        { h: "Expand each piece", m: "$1 \\;+\\; (1 - x + x^2 - \\ldots) \\;-\\; \\dfrac12\\left(1 + \\dfrac{x}{2}\\right)^{-1}$\n$= 1 + 1 - x + x^2 - \\dfrac12\\left(1 - \\dfrac{x}{2} + \\dfrac{x^2}{4} - \\ldots\\right)$", mk: "M1 A1", n: "$\\frac{1}{2 + x} = \\frac12\\left(1 + \\frac x2\\right)^{-1}$: the $2^{-1}$ again." },
         { h: "Collect", m: "$= \\dfrac32 - \\dfrac34 x + \\dfrac78 x^2 + \\ldots$, valid for $|x| < 1$", mk: "A1 B1", n: "Check: at $x = 0$ the original is $\\frac{3}{2}$. The constant $A$ shifts $p$ but nothing else." }
-      ], result: "$A = 1$, $B = 1$, $C = -1$; $\; \\dfrac32 - \\dfrac34 x + \\dfrac78 x^2 + \\ldots$" } },
+      ], result: "$A = 1$, $B = 1$, $C = -1$; $\\; \\dfrac32 - \\dfrac34 x + \\dfrac78 x^2 + \\ldots$" } },
     { callout: { t: "miscon", h: "The three combined-question errors", body: [
       "**Expanding before decomposing.** Multiplying $(2 + 5x)^{-2}$ by $(1 - 2x)^{-1}$ by the numerator polynomial is three series and a dozen cross-terms; the intended route is one line per fraction. The M marks for the expansion are only available for expansions *of the partial fractions*.",
       "**Substituting into the wrong fraction.** After finding $A$, $B$, $C$, students expand the original $f(x)$'s denominator factors and forget the constants entirely, or attach $B$ to the wrong bracket. Write each fraction with its constant in front — $2(1 - 2x)^{-1}$ — before expanding.",
@@ -623,7 +623,7 @@ C["maths:4.2"] = {
       q: "$a_1 = 3$, $a_{n+1} = \\frac{a_n - 3}{a_n - 2}$. **(a)** Find $\\displaystyle\\sum_{r=1}^{100} a_r$. **(b)** Hence find $\\displaystyle\\sum_{r=1}^{100} a_r + \\sum_{r=1}^{99} a_r$.",
       steps: [
         { h: "(a) Terms", m: "$a_2 = \\dfrac{0}{1} = 0, \\quad a_3 = \\dfrac{-3}{-2} = \\dfrac32, \\quad a_4 = \\dfrac{-\\frac32}{-\\frac12} = 3$: order 3, cycle sum $3 + 0 + \\dfrac32 = \\dfrac92$", mk: "M1 A1" },
-        { m: "$100 = 33 \\times 3 + 1$: $\; 33 \\times \\dfrac92 + a_1 = \\dfrac{297}{2} + 3 = \\dfrac{303}{2}$", mk: "A1", n: "The one leftover term is $a_{100} = a_1$ (position 1 of the cycle, since $100 = 99 + 1$)." },
+        { m: "$100 = 33 \\times 3 + 1$: $\\; 33 \\times \\dfrac92 + a_1 = \\dfrac{297}{2} + 3 = \\dfrac{303}{2}$", mk: "A1", n: "The one leftover term is $a_{100} = a_1$ (position 1 of the cycle, since $100 = 99 + 1$)." },
         { h: "(b) The 99-term sum is exactly 33 cycles", m: "$\\dfrac{303}{2} + \\dfrac{297}{2} = 300$", mk: "B1" }
       ], result: "(a) $\\frac{303}{2}$ (b) $300$" } },
     { worked: { tag: "exam", title: "A trig-driven recurrence: order 4, then $\\sum_{r=1}^{25}$", src: "A-level June 2023 · P2 Q2 · 6 marks",
@@ -645,9 +645,9 @@ C["maths:4.2"] = {
     { worked: { tag: "exam", title: "$u_{n+1} = ku_n - 5$ with $u_3 = -1$", src: "A-level June 2024 · P2 Q4 · 5 marks",
       q: "$u_{n+1} = ku_n - 5$, $u_1 = 6$, $k > 0$. Given $u_3 = -1$, **(a)** show that $6k^2 - 5k - 4 = 0$. **(b)** Hence **(i)** find $k$; **(ii)** find $\\displaystyle\\sum_{r=1}^{3} u_r$.",
       steps: [
-        { h: "(a)", m: "$u_2 = 6k - 5; \\qquad u_3 = k(6k - 5) - 5 = 6k^2 - 5k - 5 = -1 \;\\Rightarrow\; 6k^2 - 5k - 4 = 0$", mk: "M1 A1*" },
+        { h: "(a)", m: "$u_2 = 6k - 5; \\qquad u_3 = k(6k - 5) - 5 = 6k^2 - 5k - 5 = -1 \\;\\Rightarrow\\; 6k^2 - 5k - 4 = 0$", mk: "M1 A1*" },
         { h: "(b)(i)", m: "$(3k - 4)(2k + 1) = 0$; $k > 0 \\Rightarrow k = \\dfrac43$", mk: "M1 A1" },
-        { h: "(ii)", m: "$u_2 = 8 - 5 = 3$: $\; 6 + 3 + (-1) = 8$", mk: "A1" }
+        { h: "(ii)", m: "$u_2 = 8 - 5 = 3$: $\\; 6 + 3 + (-1) = 8$", mk: "A1" }
       ], result: "$k = \\frac43$; sum $8$" } },
     { worked: { tag: "exam", title: "$u_{n+1} = k - \\frac{24}{u_n}$ with a linear condition; $k$ an integer", src: "A-level Oct 2021 · P1 Q3 · 6 marks",
       q: "$u_{n+1} = k - \\frac{24}{u_n}$, $u_1 = 2$, $k$ an integer. Given $u_1 + 2u_2 + u_3 = 0$, **(a)** show that $3k^2 - 58k + 240 = 0$. **(b)** Find $k$, giving a reason. **(c)** Find $u_3$.",
@@ -662,7 +662,7 @@ C["maths:4.2"] = {
         { h: "(a) Order 3 means $a_4 = a_1$", m: "$a_2 = \\dfrac{4k}{2} = 2k; \\qquad a_3 = \\dfrac{k(2k + 2)}{2k} = k + 1; \\qquad a_4 = \\dfrac{k(k + 3)}{k + 1}$", mk: "M1 A1" },
         { m: "$\\dfrac{k(k + 3)}{k + 1} = 2 \\Rightarrow k^2 + 3k = 2k + 2 \\Rightarrow k^2 + k - 2 = 0$", mk: "A1*" },
         { h: "(b)", m: "If $k = 1$ then $a_2 = 2$, $a_3 = 2$, … — every term is 2, so the sequence has order 1, not 3.", mk: "B1", n: "A periodic sequence's order is the *smallest* repeat length. Constant sequences are the trap." },
-        { h: "(c) $k = -2$", m: "$a_1 = 2, \; a_2 = -4, \; a_3 = -1$; cycle sum $-3$. $80 = 26 \\times 3 + 2$: $\; 26(-3) + 2 + (-4) = -80$", mk: "M1 M1 A1" }
+        { h: "(c) $k = -2$", m: "$a_1 = 2, \\; a_2 = -4, \\; a_3 = -1$; cycle sum $-3$. $80 = 26 \\times 3 + 2$: $\\; 26(-3) + 2 + (-4) = -80$", mk: "M1 M1 A1" }
       ], result: "$k = -2$; sum $-80$" } },
 
     { page: "Exam toolkit" },
@@ -736,7 +736,7 @@ C["maths:4.3"] = {
       steps: [
         { h: "(i) Three sums", m: "$\\displaystyle\\sum_{r=1}^{16} 3 = 48; \\qquad \\sum_{r=1}^{16} 5r = 5 \\cdot \\dfrac{16 \\times 17}{2} = 680; \\qquad \\sum_{r=1}^{16} 2^r = \\dfrac{2(2^{16} - 1)}{2 - 1} = 131\\,070$", mk: "B1 M1 M1", n: "Constant, arithmetic, geometric. The geometric has $a = 2$, $r = 2$, 16 terms." },
         { m: "$48 + 680 + 131\\,070 = 131\\,798$", mk: "A1*" },
-        { h: "(ii)", m: "$u_1 = \\dfrac23, \; u_2 = \\dfrac32, \; u_3 = \\dfrac23, \\ldots$ order 2; 100 terms = 50 cycles: $50\\left(\\dfrac23 + \\dfrac32\\right) = 50 \\times \\dfrac{13}{6} = \\dfrac{325}{3}$", mk: "M1 M1 A1" }
+        { h: "(ii)", m: "$u_1 = \\dfrac23, \\; u_2 = \\dfrac32, \\; u_3 = \\dfrac23, \\ldots$ order 2; 100 terms = 50 cycles: $50\\left(\\dfrac23 + \\dfrac32\\right) = 50 \\times \\dfrac{13}{6} = \\dfrac{325}{3}$", mk: "M1 M1 A1" }
       ], result: "(i) shown (ii) $\\frac{325}{3}$" } },
     { worked: { tag: "exam", title: "Geometric sum from $r = 4$ to infinity; a telescoping log sum", src: "A-level June 2019 · P2 Q8 · 6 marks",
       q: "**(i)** Find the value of $\\displaystyle\\sum_{r=4}^{\\infty} 20\\left(\\frac12\\right)^r$. **(ii)** Show that $\\displaystyle\\sum_{n=1}^{48} \\log_5\\left(\\frac{n + 2}{n + 1}\\right) = 2$.",
@@ -797,7 +797,7 @@ C["maths:4.4"] = {
       "$$S_n = a + (a + d) + \\cdots + (a + (n - 1)d)$$",
       "$$S_n = (a + (n - 1)d) + (a + (n - 2)d) + \\cdots + a$$",
       "Add the two lines term by term: every pair is $2a + (n - 1)d$, and there are $n$ pairs:",
-      "$$2S_n = n\\left[2a + (n - 1)d\\right] \;\\Rightarrow\; S_n = \\dfrac{n}{2}\\left[2a + (n - 1)d\\right]$$",
+      "$$2S_n = n\\left[2a + (n - 1)d\\right] \\;\\Rightarrow\\; S_n = \\dfrac{n}{2}\\left[2a + (n - 1)d\\right]$$",
       "Three marks: the two rows (one reversed), the adding to $n$ equal pairs, the division by 2 to the printed result."
     ] } },
     { worked: { tag: "exam", title: "Common difference from two terms; sum of 500 terms", src: "A-level Oct 2021 · P2 Q1 · 4 marks",

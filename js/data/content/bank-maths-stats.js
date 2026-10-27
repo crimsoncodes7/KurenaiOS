@@ -503,7 +503,7 @@ X("maths:S4.2", {
 X("maths:S4.3", {
   notes: [
     { page: "Past-paper patterns" },
-    "**Choosing a model** and **justifying it**: binomial needs a fixed $n$, constant $p$, independent trials, two outcomes; normal needs a continuous, symmetric, bell-shaped variable. **Normal approximation to $B(n, p)$** (A-level only): valid when $n$ is large and $p$ is close to 0.5; $Y \\sim N(np,\; np(1 - p))$ with a **continuity correction**: $P(X \\ge 70) \\approx P(Y > 69.5)$, $P(X \\le 70) \\approx P(Y < 70.5)$, $P(X < 70) \\approx P(Y < 69.5)$. State \"$np = 60$, $np(1 - p) = 42$\" and the $\\pm 0.5$ explicitly.",
+    "**Choosing a model** and **justifying it**: binomial needs a fixed $n$, constant $p$, independent trials, two outcomes; normal needs a continuous, symmetric, bell-shaped variable. **Normal approximation to $B(n, p)$** (A-level only): valid when $n$ is large and $p$ is close to 0.5; $Y \\sim N(np,\\; np(1 - p))$ with a **continuity correction**: $P(X \\ge 70) \\approx P(Y > 69.5)$, $P(X \\le 70) \\approx P(Y < 70.5)$, $P(X < 70) \\approx P(Y < 69.5)$. State \"$np = 60$, $np(1 - p) = 42$\" and the $\\pm 0.5$ explicitly.",
     { callout: { t: "warn", h: "Which way does the 0.5 go?", body: "Draw the bars: $X \\ge 70$ starts at the *left edge* of the 70 bar, i.e. 69.5. $X > 70$ starts at 70.5. If in doubt write the equivalent integer inequality first ($X > 70 \\Leftrightarrow X \\ge 71$)." } }
   ],
   flashcards: [

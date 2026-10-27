@@ -36,6 +36,9 @@
          the floating palette's ⠿ menu can dock the tools; "What is sent"
          numbers the scheme once and a reply in a fence or with words
          around it is still read.
+     K · MATHS IN KURENAI'S WORDS: bare LaTeX in a reason is wrapped as
+         maths; and no authored file loses a LaTeX "\;" to a single
+         backslash in a JS string (274 did: the scheme read "⇒;").
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -365,6 +368,32 @@ step("J · answer pads: paper and docking", async () => {
   eq(rj('Here are the marks: {"a":1} — done'), { a: 1 }, "with words around it");
   eq(rj('{"a":1, "b": [1,'), null, "a cut-off reply is not read");
   eq(app.errors, [], "no errors");
+});
+
+step("K · maths in Kurenai's words, and the notes' LaTeX", async () => {
+  const mt = K.inkAI.mathText;
+  eq(mt("simplified \\sqrt{18} to 3\\sqrt{2}."), "simplified $\\sqrt{18}$ to $3\\sqrt{2}$.", "bare roots are maths");
+  eq(mt("rewrote \\sqrt{a} as a^{1/2}, but divided by a^2"), "rewrote $\\sqrt{a}$ as $a^{1/2}$, but divided by $a^2$", "powers are maths");
+  eq(mt("already $x^2$"), "already $x^2$", "words with $ are left alone");
+  eq(mt("Correct final answer."), "Correct final answer.", "plain words stay plain");
+  const fs = require("fs"), path = require("path");
+  const BS = String.fromCharCode(92), lone = new RegExp("(?<!" + BS + BS + ")" + BS + BS + "[;]");
+  const bad = [];
+  (function walk(dir) {
+    for (const f of fs.readdirSync(dir)) {
+      const p = path.join(dir, f);
+      if (fs.statSync(p).isDirectory()) walk(p);
+      else if (/\.js$/.test(f)) {
+        const src = fs.readFileSync(p, "utf8");
+        let m; const re = new RegExp(lone.source, "g");
+        while ((m = re.exec(src))) {
+          let k = 0; while (src[m.index - 1 - k] === BS) k++;
+          if (k % 2 === 0) { bad.push(path.relative(process.cwd(), p)); break; }
+        }
+      }
+    }
+  })(path.join(__dirname, "..", "js", "data"));
+  eq(bad, [], "no lone \\; in authored data");
 });
 
 (async () => {

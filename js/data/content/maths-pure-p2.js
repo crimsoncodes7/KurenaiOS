@@ -34,9 +34,9 @@ C["maths:2.1"] = {
     { h: "The four conventions" },
     { kv: [
       ["$a^0 = 1$", "From $a^m \\div a^m = a^0$ and $a^m \\div a^m = 1$. (For $a \\neq 0$.)"],
-      ["$a^{-n} = \\frac{1}{a^n}$", "From $a^0 \\div a^n = a^{-n}$. So $x^{-1} = \\frac1x$, $\; 2^{-3} = \\frac18$, $\; \\left(\\frac{2}{3}\\right)^{-2} = \\left(\\frac{3}{2}\\right)^2 = \\frac94$ — a negative power **flips** the fraction."],
-      ["$a^{1/n} = \\sqrt[n]{a}$", "Because $\\left(a^{1/n}\\right)^n = a^1$. So $x^{1/2} = \\sqrt{x}$, $\; 8^{1/3} = 2$, $\; 16^{1/4} = 2$."],
-      ["$a^{m/n} = \\left(\\sqrt[n]{a}\\right)^m = \\sqrt[n]{a^m}$", "Root first, then power — the numbers stay small. $8^{2/3} = (\\sqrt[3]{8})^2 = 2^2 = 4$; $\; 27^{-2/3} = \\frac{1}{(\\sqrt[3]{27})^2} = \\frac19$; $\; 16^{3/4} = 2^3 = 8$."]
+      ["$a^{-n} = \\frac{1}{a^n}$", "From $a^0 \\div a^n = a^{-n}$. So $x^{-1} = \\frac1x$, $\\; 2^{-3} = \\frac18$, $\\; \\left(\\frac{2}{3}\\right)^{-2} = \\left(\\frac{3}{2}\\right)^2 = \\frac94$ — a negative power **flips** the fraction."],
+      ["$a^{1/n} = \\sqrt[n]{a}$", "Because $\\left(a^{1/n}\\right)^n = a^1$. So $x^{1/2} = \\sqrt{x}$, $\\; 8^{1/3} = 2$, $\\; 16^{1/4} = 2$."],
+      ["$a^{m/n} = \\left(\\sqrt[n]{a}\\right)^m = \\sqrt[n]{a^m}$", "Root first, then power — the numbers stay small. $8^{2/3} = (\\sqrt[3]{8})^2 = 2^2 = 4$; $\\; 27^{-2/3} = \\frac{1}{(\\sqrt[3]{27})^2} = \\frac19$; $\\; 16^{3/4} = 2^3 = 8$."]
     ] },
     { callout: { t: "tip", h: "Why root first?", body: "$8^{2/3}$ as $\\sqrt[3]{8^2} = \\sqrt[3]{64} = 4$ works but needs you to know $\\sqrt[3]{64}$. As $(\\sqrt[3]{8})^2 = 2^2$ it needs only $\\sqrt[3]{8}$. Same answer; the second is the one you can do under pressure." } },
     { h: "Powers of $x$ in calculus form" },
@@ -72,34 +72,34 @@ C["maths:2.1"] = {
       steps: [
         { h: "Left side as a power of 2", m: "$4^{3x-2} = \\left(2^2\\right)^{3x-2} = 2^{6x-4}$", mk: "M1", n: "The M is for writing **both** sides as powers of the same base with the index laws applied." },
         { h: "Right side as a power of 2", m: "$2\\sqrt2 = 2^1 \\times 2^{\\frac12} = 2^{\\frac32}$, so $\\dfrac{1}{2\\sqrt2} = 2^{-\\frac32}$", n: "$\\sqrt2 = 2^{1/2}$; the reciprocal makes the index negative." },
-        { h: "Equate the indices", m: "$6x - 4 = -\\dfrac32 \;\\Rightarrow\; 6x = \\dfrac52 \;\\Rightarrow\; x = \\dfrac{5}{12}$", mk: "M1 A1", n: "A linear equation. Leave the answer as an exact fraction." }
+        { h: "Equate the indices", m: "$6x - 4 = -\\dfrac32 \\;\\Rightarrow\\; 6x = \\dfrac52 \\;\\Rightarrow\\; x = \\dfrac{5}{12}$", mk: "M1 A1", n: "A linear equation. Leave the answer as an exact fraction." }
       ], result: "$x = \\dfrac{5}{12}$" } },
     { worked: { tag: "exam", title: "Express $y$ in terms of $x$: $\\frac{9^{x-1}}{3^{y+2}} = 81$", src: "AS Nov 2021 · P1 Q2 · 3 marks",
       q: "Given $\\frac{9^{x-1}}{3^{y+2}} = 81$, express $y$ in terms of $x$, writing your answer in simplest form.",
       steps: [
         { h: "Everything as a power of 3", m: "$9^{x-1} = 3^{2(x-1)} = 3^{2x-2}, \\qquad 81 = 3^4$", mk: "M1" },
-        { h: "Combine the quotient with $a^m \\div a^n = a^{m-n}$", m: "$3^{(2x-2) - (y+2)} = 3^4 \;\\Rightarrow\; 3^{2x - y - 4} = 3^4$", mk: "M1", n: "Subtract the **whole** index $(y + 2)$ — the bracket is where the sign error lives." },
-        { h: "Equate and rearrange", m: "$2x - y - 4 = 4 \;\\Rightarrow\; y = 2x - 8$", mk: "A1" }
+        { h: "Combine the quotient with $a^m \\div a^n = a^{m-n}$", m: "$3^{(2x-2) - (y+2)} = 3^4 \\;\\Rightarrow\\; 3^{2x - y - 4} = 3^4$", mk: "M1", n: "Subtract the **whole** index $(y + 2)$ — the bracket is where the sign error lives." },
+        { h: "Equate and rearrange", m: "$2x - y - 4 = 4 \\;\\Rightarrow\\; y = 2x - 8$", mk: "A1" }
       ], result: "$y = 2x - 8$" } },
     { worked: { tag: "exam", title: "Two bases in the same equation: $2^x \\times 4^y = \\frac{1}{2\\sqrt2}$", src: "A-level June 2019 · P2 Q1 · 3 marks",
       q: "Given $2^x \\times 4^y = \\frac{1}{2\\sqrt2}$, express $y$ as a function of $x$.",
       steps: [
-        { m: "$2^x \\times 2^{2y} = 2^{-\\frac32} \;\\Rightarrow\; 2^{x + 2y} = 2^{-\\frac32}$", mk: "M1 M1", n: "First M for $4^y = 2^{2y}$ (or $\\frac{1}{2\\sqrt2} = 2^{-3/2}$); second for combining into one power." },
-        { m: "$x + 2y = -\\dfrac32 \;\\Rightarrow\; y = -\\dfrac{x}{2} - \\dfrac34$", mk: "A1", n: "\"As a function of $x$\": $y = \\ldots$ with $x$ on the right, simplified." }
+        { m: "$2^x \\times 2^{2y} = 2^{-\\frac32} \\;\\Rightarrow\\; 2^{x + 2y} = 2^{-\\frac32}$", mk: "M1 M1", n: "First M for $4^y = 2^{2y}$ (or $\\frac{1}{2\\sqrt2} = 2^{-3/2}$); second for combining into one power." },
+        { m: "$x + 2y = -\\dfrac32 \\;\\Rightarrow\\; y = -\\dfrac{x}{2} - \\dfrac34$", mk: "A1", n: "\"As a function of $x$\": $y = \\ldots$ with $x$ on the right, simplified." }
       ], result: "$y = -\\dfrac{1}{2}x - \\dfrac{3}{4}$" } },
     { worked: { tag: "exam", title: "Different bases that cannot be matched: $3^x = 7^y$", src: "A-level June 2025 · P2 Q3 · 2 marks",
       q: "Given that $3^x = 7^y$, find the exact value of $\\frac{x}{y}$.",
       steps: [
-        { h: "No common base — take logs of both sides", m: "$\\ln(3^x) = \\ln(7^y) \;\\Rightarrow\; x\\ln3 = y\\ln7$", mk: "M1", n: "When the bases are different primes, indices cannot be equated. Logs turn the powers into multipliers (topic 6.4)." },
-        { m: "$\\dfrac{x}{y} = \\dfrac{\\ln7}{\\ln3} \;\\left(= \\log_3 7\\right)$", mk: "A1", n: "\"Exact\" means leave it in logs. $1.77$ scores nothing." }
+        { h: "No common base — take logs of both sides", m: "$\\ln(3^x) = \\ln(7^y) \\;\\Rightarrow\\; x\\ln3 = y\\ln7$", mk: "M1", n: "When the bases are different primes, indices cannot be equated. Logs turn the powers into multipliers (topic 6.4)." },
+        { m: "$\\dfrac{x}{y} = \\dfrac{\\ln7}{\\ln3} \\;\\left(= \\log_3 7\\right)$", mk: "A1", n: "\"Exact\" means leave it in logs. $1.77$ scores nothing." }
       ], result: "$\\dfrac{x}{y} = \\dfrac{\\ln 7}{\\ln 3} = \\log_3 7$" } },
     { worked: { tag: "exam", title: "Indices inside a geometric sequence", src: "A-level June 2024 · P1 Q9 · 6 marks",
       q: "The first 3 terms of a geometric sequence are $3^{4k-5}, \\quad 9^{7-2k}, \\quad 3^{2(k-1)}$ where $k$ is a constant. **(a)** Using algebra and making your reasoning clear, prove that $k = \\frac52$. **(b)** Hence find the sum to infinity of the geometric sequence.",
       steps: [
         { h: "(a) Geometric ⇒ common ratio ⇒ $(\\text{term }2)^2 = \\text{term }1 \\times \\text{term }3$", m: "$\\left(9^{7-2k}\\right)^2 = 3^{4k-5} \\times 3^{2k-2}$", mk: "M1", n: "State the property you are using — \"making your reasoning clear\" is the examiner telling you the equation alone is not enough." },
-        { h: "Same base", m: "$3^{4(7-2k)} = 3^{6k-7} \;\\Rightarrow\; 28 - 8k = 6k - 7$", mk: "M1", n: "$9^{7-2k} = 3^{2(7-2k)}$, squared gives $3^{4(7-2k)} = 3^{28 - 8k}$." },
-        { m: "$35 = 14k \;\\Rightarrow\; k = \\dfrac52$", mk: "A1*" },
-        { h: "(b) Evaluate the terms with $k = \\frac52$", m: "$3^{5} = 243, \\quad 9^{2} = 81, \\quad 3^{3} = 27 \;\\Rightarrow\; r = \\dfrac{81}{243} = \\dfrac13$", mk: "M1", n: "$|r| < 1$, so the sum to infinity exists — say so." },
+        { h: "Same base", m: "$3^{4(7-2k)} = 3^{6k-7} \\;\\Rightarrow\\; 28 - 8k = 6k - 7$", mk: "M1", n: "$9^{7-2k} = 3^{2(7-2k)}$, squared gives $3^{4(7-2k)} = 3^{28 - 8k}$." },
+        { m: "$35 = 14k \\;\\Rightarrow\\; k = \\dfrac52$", mk: "A1*" },
+        { h: "(b) Evaluate the terms with $k = \\frac52$", m: "$3^{5} = 243, \\quad 9^{2} = 81, \\quad 3^{3} = 27 \\;\\Rightarrow\\; r = \\dfrac{81}{243} = \\dfrac13$", mk: "M1", n: "$|r| < 1$, so the sum to infinity exists — say so." },
         { m: "$S_\\infty = \\dfrac{a}{1 - r} = \\dfrac{243}{1 - \\frac13} = \\dfrac{243 \\times 3}{2} = \\dfrac{729}{2}$", mk: "M1 A1" }
       ], result: "(a) $k = \\dfrac52$ (b) $S_\\infty = 364.5$" } },
 
@@ -208,22 +208,22 @@ C["maths:2.2"] = {
     { worked: { tag: "exam", title: "Solve $x\\sqrt2 - \\sqrt{18} = x$, answer as a surd in simplest form", src: "AS June 2020 · P1 Q3(i) · 3 marks",
       q: "Solve the equation $x\\sqrt2 - \\sqrt{18} = x$, writing the answer as a surd in simplest form. (Solutions relying on calculator technology are not acceptable.)",
       steps: [
-        { h: "Simplify the surd and collect the $x$ terms", m: "$\\sqrt{18} = 3\\sqrt2$, so $x\\sqrt2 - x = 3\\sqrt2 \;\\Rightarrow\; x(\\sqrt2 - 1) = 3\\sqrt2$", mk: "M1", n: "Treat $\\sqrt2$ as a coefficient — it is just a number. Factorising the $x$ is the method mark." },
+        { h: "Simplify the surd and collect the $x$ terms", m: "$\\sqrt{18} = 3\\sqrt2$, so $x\\sqrt2 - x = 3\\sqrt2 \\;\\Rightarrow\\; x(\\sqrt2 - 1) = 3\\sqrt2$", mk: "M1", n: "Treat $\\sqrt2$ as a coefficient — it is just a number. Factorising the $x$ is the method mark." },
         { h: "Divide, then rationalise", m: "$x = \\dfrac{3\\sqrt2}{\\sqrt2 - 1} = \\dfrac{3\\sqrt2(\\sqrt2 + 1)}{(\\sqrt2 - 1)(\\sqrt2 + 1)} = \\dfrac{6 + 3\\sqrt2}{2 - 1}$", mk: "M1", n: "$3\\sqrt2 \\times \\sqrt2 = 3 \\times 2 = 6$." },
         { m: "$x = 6 + 3\\sqrt2$", mk: "A1", n: "\"Simplest form\" = rationalised, like surds collected, no brackets left." }
       ], result: "$x = 6 + 3\\sqrt2$" } },
     { worked: { tag: "exam", title: "$16a^2 = 2\\sqrt a$ — an equation mixing a power and a root", src: "AS June 2019 · P1 Q2(i) · 4 marks",
       q: "Find, using algebra, all real solutions to the equation $16a^2 = 2\\sqrt a$.",
       steps: [
-        { h: "Write the root as a power and collect", m: "$16a^2 = 2a^{\\frac12} \;\\Rightarrow\; 16a^2 - 2a^{\\frac12} = 0 \;\\Rightarrow\; 2a^{\\frac12}\\left(8a^{\\frac32} - 1\\right) = 0$", mk: "M1 A1", n: "Do **not** divide both sides by $\\sqrt a$: that throws away the solution $a = 0$, and \"all real solutions\" is a hint that there is more than one." },
-        { h: "Two factors, two solutions", m: "$a^{\\frac12} = 0 \;\\Rightarrow\; a = 0 \\qquad \\text{or} \\qquad a^{\\frac32} = \\dfrac18 \;\\Rightarrow\; a = \\left(\\dfrac18\\right)^{\\frac23} = \\dfrac14$", mk: "M1 A1", n: "$(\\frac18)^{2/3} = (\\sqrt[3]{1/8})^2 = (\\frac12)^2$. Alternative: square both sides first — $256a^4 = 4a$ — and factorise the quartic; squaring can create false roots, so check them." }
+        { h: "Write the root as a power and collect", m: "$16a^2 = 2a^{\\frac12} \\;\\Rightarrow\\; 16a^2 - 2a^{\\frac12} = 0 \\;\\Rightarrow\\; 2a^{\\frac12}\\left(8a^{\\frac32} - 1\\right) = 0$", mk: "M1 A1", n: "Do **not** divide both sides by $\\sqrt a$: that throws away the solution $a = 0$, and \"all real solutions\" is a hint that there is more than one." },
+        { h: "Two factors, two solutions", m: "$a^{\\frac12} = 0 \\;\\Rightarrow\\; a = 0 \\qquad \\text{or} \\qquad a^{\\frac32} = \\dfrac18 \\;\\Rightarrow\\; a = \\left(\\dfrac18\\right)^{\\frac23} = \\dfrac14$", mk: "M1 A1", n: "$(\\frac18)^{2/3} = (\\sqrt[3]{1/8})^2 = (\\frac12)^2$. Alternative: square both sides first — $256a^4 = 4a$ — and factorise the quartic; squaring can create false roots, so check them." }
       ], result: "$a = 0$ or $a = \\dfrac14$" } },
     { worked: { tag: "exam", title: "A surd equation with the variable under the root", src: "AS June 2023 · P1 Q2 · 4 marks",
       q: "Using the substitution $u = \\sqrt x$ or otherwise, solve $6x - 7\\sqrt x - 20 = 0$.",
       steps: [
         { h: "Substitute $u = \\sqrt x$, so $x = u^2$", m: "$6u^2 - 7u - 20 = 0$", mk: "M1", n: "A quadratic in disguise (2.3). The substitution turns the surd into an ordinary variable." },
-        { h: "Factorise", m: "$(3u + 4)(2u - 5) = 0 \;\\Rightarrow\; u = -\\dfrac43 \\text{ or } u = \\dfrac52$", mk: "M1 A1" },
-        { h: "Reject and convert back", m: "$u = \\sqrt x \\ge 0$, so $u = -\\frac43$ is impossible. $\\sqrt x = \\dfrac52 \;\\Rightarrow\; x = \\dfrac{25}{4}$", mk: "A1", n: "The final A1 needs the rejection stated **and** the square. Giving $x = \\frac52$ is the classic loss." }
+        { h: "Factorise", m: "$(3u + 4)(2u - 5) = 0 \\;\\Rightarrow\\; u = -\\dfrac43 \\text{ or } u = \\dfrac52$", mk: "M1 A1" },
+        { h: "Reject and convert back", m: "$u = \\sqrt x \\ge 0$, so $u = -\\frac43$ is impossible. $\\sqrt x = \\dfrac52 \\;\\Rightarrow\\; x = \\dfrac{25}{4}$", mk: "A1", n: "The final A1 needs the rejection stated **and** the square. Giving $x = \\frac52$ is the classic loss." }
       ], result: "$x = \\dfrac{25}{4}$" } },
     { h: "Surds elsewhere in the paper" },
     { ul: [
@@ -323,7 +323,7 @@ C["maths:2.3"] = {
       q: "$f(x) = x^2 - 4x + 5$. **(a)** Express $f(x)$ in the form $(x + a)^2 + b$ where $a$, $b$ are integers. The curve $y = f(x)$ meets the $y$-axis at $P$ and has a minimum turning point at $Q$. **(b)** Write down the coordinates of $P$ and of $Q$.",
       steps: [
         { m: "$(x - 2)^2 - 4 + 5 = (x - 2)^2 + 1$, so $a = -2$, $b = 1$", mk: "M1 A1" },
-        { m: "$P = (0, 5)$ (put $x = 0$); $\; Q = (2, 1)$ (the bracket is zero at $x = 2$, leaving $1$)", mk: "B1 B1", n: "Sign of $a$: the bracket $(x - 2)$ means $a = -2$, and the vertex is at $x = +2$. Students give $Q = (-2, 1)$." }
+        { m: "$P = (0, 5)$ (put $x = 0$); $\\; Q = (2, 1)$ (the bracket is zero at $x = 2$, leaving $1$)", mk: "B1 B1", n: "Sign of $a$: the bracket $(x - 2)$ means $a = -2$, and the vertex is at $x = +2$. Students give $Q = (-2, 1)$." }
       ], result: "$(x - 2)^2 + 1$; $P(0, 5)$, $Q(2, 1)$" } },
     { h: "Quadratics in disguise" },
     "Spec 2.3 says the unknown may be a *function* of $x$: powers, roots, trig, exponentials, logs. Substitute a letter for the repeated piece, solve the quadratic, then undo the substitution — **and reject impossible values**.",
@@ -337,14 +337,14 @@ C["maths:2.3"] = {
     { worked: { tag: "exam", title: "Solve a cubic, then a disguised version of it", src: "AS Nov 2021 · P1 Q6 · 6 marks",
       q: "**(a)** Using algebra, find all solutions of $3x^3 - 17x^2 - 6x = 0$. **(b)** Hence find all real solutions of $3(y - 2)^6 - 17(y - 2)^4 - 6(y - 2)^2 = 0$.",
       steps: [
-        { h: "(a) Common factor first, then the quadratic", m: "$x(3x^2 - 17x - 6) = 0 \;\\Rightarrow\; x(3x + 1)(x - 6) = 0$", mk: "M1 A1", n: "Product $3 \\times (-6) = -18$, sum $-17$: numbers $-18$ and $1$. Never divide by $x$ — that loses $x = 0$." },
+        { h: "(a) Common factor first, then the quadratic", m: "$x(3x^2 - 17x - 6) = 0 \\;\\Rightarrow\\; x(3x + 1)(x - 6) = 0$", mk: "M1 A1", n: "Product $3 \\times (-6) = -18$, sum $-17$: numbers $-18$ and $1$. Never divide by $x$ — that loses $x = 0$." },
         { m: "$x = 0, \\quad x = -\\dfrac13, \\quad x = 6$", mk: "A1" },
         { h: "(b) The new equation is (a) with $x = (y - 2)^2$", m: "$(y - 2)^2 = 0 \\Rightarrow y = 2; \\qquad (y - 2)^2 = 6 \\Rightarrow y = 2 \\pm \\sqrt6; \\qquad (y - 2)^2 = -\\dfrac13$ has no real solutions", mk: "M1 A1 A1", n: "\"Hence\" means reuse (a). The A marks need the $\\pm$ **and** the rejection of the negative value. Five solutions in total is wrong; three is right." }
       ], result: "(a) $x = -\\frac13, 0, 6$ (b) $y = 2$, $y = 2 + \\sqrt6$, $y = 2 - \\sqrt6$" } },
 
     { page: "The discriminant" },
     { callout: { t: "memorise", h: "$b^2 - 4ac$ and the number of real roots", body: [
-      "$$b^2 - 4ac > 0 \;\\text{two distinct real roots} \\qquad b^2 - 4ac = 0 \;\\text{one repeated root} \\qquad b^2 - 4ac < 0 \;\\text{no real roots}$$",
+      "$$b^2 - 4ac > 0 \\;\\text{two distinct real roots} \\qquad b^2 - 4ac = 0 \\;\\text{one repeated root} \\qquad b^2 - 4ac < 0 \\;\\text{no real roots}$$",
       "Why: the formula has $\\sqrt{b^2 - 4ac}$ in it. Positive → two values ($\\pm$), zero → the $\\pm$ collapses, negative → no real square root.",
       "\"Real roots\" (allowing repeated) is $b^2 - 4ac \\ge 0$. Read the wording: *distinct* excludes the equals sign."
     ] } },
@@ -370,21 +370,21 @@ C["maths:2.3"] = {
     { worked: { tag: "exam", title: "Line meets curve at two distinct points — range of $k$", src: "A-level Specimen · P2 Q5 · 5 marks",
       q: "The line $l$ has equation $3x - 2y = k$ where $k$ is a real constant. Given that $l$ intersects the curve $y = 2x^2 - 5$ at two distinct points, find the range of possible values for $k$.",
       steps: [
-        { h: "Substitute the curve into the line", m: "$3x - 2(2x^2 - 5) = k \;\\Rightarrow\; 4x^2 - 3x + (k - 10) = 0$", mk: "M1 A1", n: "Collect into $Ax^2 + Bx + C = 0$ **with the $k$ inside $C$** before you touch the discriminant." },
-        { h: "Two distinct points ⇒ discriminant $> 0$", m: "$(-3)^2 - 4(4)(k - 10) > 0 \;\\Rightarrow\; 9 - 16k + 160 > 0$", mk: "M1", n: "$B = -3$, $A = 4$, $C = k - 10$. Brackets round $C$ — the sign of $-4AC$ depends on it." },
-        { m: "$169 > 16k \;\\Rightarrow\; k < \\dfrac{169}{16}$", mk: "A1 A1", n: "Strict inequality (distinct). $k = \\frac{169}{16}$ would be the tangent." }
+        { h: "Substitute the curve into the line", m: "$3x - 2(2x^2 - 5) = k \\;\\Rightarrow\\; 4x^2 - 3x + (k - 10) = 0$", mk: "M1 A1", n: "Collect into $Ax^2 + Bx + C = 0$ **with the $k$ inside $C$** before you touch the discriminant." },
+        { h: "Two distinct points ⇒ discriminant $> 0$", m: "$(-3)^2 - 4(4)(k - 10) > 0 \\;\\Rightarrow\\; 9 - 16k + 160 > 0$", mk: "M1", n: "$B = -3$, $A = 4$, $C = k - 10$. Brackets round $C$ — the sign of $-4AC$ depends on it." },
+        { m: "$169 > 16k \\;\\Rightarrow\\; k < \\dfrac{169}{16}$", mk: "A1 A1", n: "Strict inequality (distinct). $k = \\frac{169}{16}$ would be the tangent." }
       ], result: "$k < \\dfrac{169}{16}$" } },
     { worked: { tag: "exam", title: "Equal roots — show a relation between two constants", src: "AS June 2025 · P1 Q9 · 3 marks",
       q: "An equation $x^2 - 3px + 5q + 4 = 0$, where $p$ and $q$ are constants, has equal roots. Show that $q = \\frac{1}{20}(3p + 4)(3p - 4)$.",
       steps: [
-        { h: "Equal roots ⇒ $b^2 - 4ac = 0$", m: "$(-3p)^2 - 4(1)(5q + 4) = 0 \;\\Rightarrow\; 9p^2 - 20q - 16 = 0$", mk: "M1 A1", n: "$c$ is the **whole** constant $5q + 4$. Squaring $-3p$ gives $9p^2$, not $-9p^2$." },
-        { m: "$20q = 9p^2 - 16 = (3p + 4)(3p - 4) \;\\Rightarrow\; q = \\dfrac{1}{20}(3p + 4)(3p - 4)$", mk: "A1*", n: "Difference of two squares gives the printed factorised form. Show the factorising — it is what the * mark is watching for." }
+        { h: "Equal roots ⇒ $b^2 - 4ac = 0$", m: "$(-3p)^2 - 4(1)(5q + 4) = 0 \\;\\Rightarrow\\; 9p^2 - 20q - 16 = 0$", mk: "M1 A1", n: "$c$ is the **whole** constant $5q + 4$. Squaring $-3p$ gives $9p^2$, not $-9p^2$." },
+        { m: "$20q = 9p^2 - 16 = (3p + 4)(3p - 4) \\;\\Rightarrow\\; q = \\dfrac{1}{20}(3p + 4)(3p - 4)$", mk: "A1*", n: "Difference of two squares gives the printed factorised form. Show the factorising — it is what the * mark is watching for." }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Tangent to a curve via the discriminant", src: "AS June 2019 · P1 Q7(b)(c) · 5 marks",
       q: "The curve $C$ has equation $y = \\frac{k^2}{x} + 1$, $x \\neq 0$, and the line $l$ has equation $y = -2x + 5$. **(b)** Show that the $x$-coordinate of any point of intersection of $l$ with $C$ satisfies $2x^2 - 4x + k^2 = 0$. **(c)** Hence find the exact values of $k$ for which $l$ is a tangent to $C$.",
       steps: [
-        { h: "(b) Equate and clear the fraction", m: "$\\dfrac{k^2}{x} + 1 = -2x + 5 \;\\Rightarrow\; k^2 + x = -2x^2 + 5x \;\\Rightarrow\; 2x^2 - 4x + k^2 = 0$", mk: "M1 A1*", n: "Multiply every term by $x$ (allowed since $x \\neq 0$)." },
-        { h: "(c) Tangent ⇒ one repeated root ⇒ $b^2 - 4ac = 0$", m: "$16 - 8k^2 = 0 \;\\Rightarrow\; k^2 = 2 \;\\Rightarrow\; k = \\pm\\sqrt2$", mk: "M1 A1 A1", n: "\"Exact values\" plural: both signs. \"Hence\" = use the quadratic from (b)." }
+        { h: "(b) Equate and clear the fraction", m: "$\\dfrac{k^2}{x} + 1 = -2x + 5 \\;\\Rightarrow\\; k^2 + x = -2x^2 + 5x \\;\\Rightarrow\\; 2x^2 - 4x + k^2 = 0$", mk: "M1 A1*", n: "Multiply every term by $x$ (allowed since $x \\neq 0$)." },
+        { h: "(c) Tangent ⇒ one repeated root ⇒ $b^2 - 4ac = 0$", m: "$16 - 8k^2 = 0 \\;\\Rightarrow\\; k^2 = 2 \\;\\Rightarrow\\; k = \\pm\\sqrt2$", mk: "M1 A1 A1", n: "\"Exact values\" plural: both signs. \"Hence\" = use the quadratic from (b)." }
       ], result: "$k = \\pm\\sqrt2$" } },
 
     { page: "Quadratic models" },
@@ -399,7 +399,7 @@ C["maths:2.3"] = {
       steps: [
         { h: "(a) Symmetry about $x = 9$ ⇒ completed-square form", m: "$H = a - b(x - 9)^2$", mk: "M1", n: "The maximum at $x = 9$ is the vertex, so the bracket is $(x - 9)$. Starting from $H = px^2 + qx + r$ works too but needs three equations." },
         { h: "Substitute $A(0, 2)$ and $B(20, 0.8)$", m: "$2 = a - 81b \\qquad 0.8 = a - 121b$", mk: "M1 A1" },
-        { h: "Subtract", m: "$1.2 = 40b \;\\Rightarrow\; b = 0.03; \\qquad a = 2 + 81(0.03) = 4.43$", mk: "M1 A1", n: "$H = 4.43 - 0.03(x - 9)^2$." },
+        { h: "Subtract", m: "$1.2 = 40b \\;\\Rightarrow\\; b = 0.03; \\qquad a = 2 + 81(0.03) = 4.43$", mk: "M1 A1", n: "$H = 4.43 - 0.03(x - 9)^2$." },
         { h: "(b) Limitation", m: "Any one of: air resistance ignored; the ball is treated as a particle; wind/spin ignored; the path may not be exactly parabolic.", mk: "B1", n: "A limitation must be about the **model**, in context — not \"the answer is rounded\"." },
         { h: "(c) Height at $x = 16$", m: "$H = 4.43 - 0.03(16 - 9)^2 = 4.43 - 0.03 \\times 49 = 4.43 - 1.47 = 2.96$ m\n$2.96 > 2.5$, so Chandra **cannot** catch the ball.", mk: "M1 A1", n: "Substitute into *your* model, compare with 2.5, and write the conclusion in words." }
       ], result: "(a) $H = 4.43 - 0.03(x - 9)^2$ (c) $H(16) = 2.96 > 2.5$: cannot catch it" } },
@@ -407,7 +407,7 @@ C["maths:2.3"] = {
       q: "A company's annual profit (thousands of pounds) is modelled by $P = 100 - 6.25(x - 9)^2$, where $x$ is the selling price of a toy in pounds. **(a)** Explain why £15 is not a sensible selling price. **(b)** Given that the profit was more than £80 000, find the least possible selling price. **(c)** State the maximum possible annual profit and the selling price that gives it.",
       steps: [
         { h: "(a) Evaluate at $x = 15$", m: "$P = 100 - 6.25 \\times 36 = 100 - 225 = -125$: a **loss** of £125 000, so not sensible.", mk: "M1 A1", n: "Show the number. \"Because it's too expensive\" scores nothing." },
-        { h: "(b) Set up the inequality", m: "$100 - 6.25(x - 9)^2 > 80 \;\\Rightarrow\; (x - 9)^2 < 3.2 \;\\Rightarrow\; -\\sqrt{3.2} < x - 9 < \\sqrt{3.2}$", mk: "M1 A1", n: "Solving a quadratic inequality by isolating the square. Both bounds." },
+        { h: "(b) Set up the inequality", m: "$100 - 6.25(x - 9)^2 > 80 \\;\\Rightarrow\\; (x - 9)^2 < 3.2 \\;\\Rightarrow\\; -\\sqrt{3.2} < x - 9 < \\sqrt{3.2}$", mk: "M1 A1", n: "Solving a quadratic inequality by isolating the square. Both bounds." },
         { m: "$x > 9 - \\sqrt{3.2} = 7.21\\ldots$, so the least possible price is **£7.22**", mk: "A1", n: "Least price → the lower bound; round *up* so the profit is still above £80 000." },
         { h: "(c) Read the vertex", m: "Maximum profit £100 000, at $x = 9$: a selling price of **£9**", mk: "B1 B1" }
       ], result: "(a) $P < 0$ at £15 (b) £7.22 (c) £100 000 at £9" } },
@@ -506,15 +506,15 @@ C["maths:2.4"] = {
       steps: [
         { h: "Make $x$ the subject (it has the smaller coefficient)", m: "$x = \\dfrac{6 + 3y}{2}$", mk: "M1", n: "Making $y$ the subject gives fractions with 3 — either works, but pick the tidier one." },
         { h: "Substitute", m: "$\\left(\\dfrac{6 + 3y}{2}\\right)^2 - y^2 + 3\\left(\\dfrac{6 + 3y}{2}\\right) = 50$\n$\\dfrac{36 + 36y + 9y^2}{4} - y^2 + \\dfrac{18 + 9y}{2} = 50$", mk: "M1", n: "$(6 + 3y)^2 = 36 + 36y + 9y^2$ — three terms." },
-        { h: "Clear fractions (×4) and collect", m: "$36 + 36y + 9y^2 - 4y^2 + 36 + 18y = 200 \;\\Rightarrow\; 5y^2 + 54y - 128 = 0$", mk: "A1" },
-        { h: "Solve", m: "$(5y + 64)(y - 2) = 0 \;\\Rightarrow\; y = 2 \\text{ or } y = -\\dfrac{64}{5}$", mk: "M1 A1", n: "Product $-640$, sum $54$: $64$ and $-10$." },
+        { h: "Clear fractions (×4) and collect", m: "$36 + 36y + 9y^2 - 4y^2 + 36 + 18y = 200 \\;\\Rightarrow\\; 5y^2 + 54y - 128 = 0$", mk: "A1" },
+        { h: "Solve", m: "$(5y + 64)(y - 2) = 0 \\;\\Rightarrow\\; y = 2 \\text{ or } y = -\\dfrac{64}{5}$", mk: "M1 A1", n: "Product $-640$, sum $54$: $64$ and $-10$." },
         { h: "Back into the linear equation", m: "$y = 2: x = 6; \\qquad y = -\\dfrac{64}{5}: x = \\dfrac{6 - \\frac{192}{5}}{2} = -\\dfrac{81}{5}$", mk: "A1", n: "Use the **linear** equation for $y$ — substituting into the quadratic one can produce extra false pairs." }
       ], result: "$(6, 2)$ and $\\left(-\\dfrac{81}{5}, -\\dfrac{64}{5}\\right)$" } },
     { worked: { tag: "exam", title: "A curve with a surd meets a line", src: "AS Specimen · P1 Q12(a) · 5 marks",
       q: "The curve $C$ has equation $y = 3x - 2\\sqrt x$, $x \\ge 0$, and the line $l$ has equation $y = 8x - 16$. The line cuts the curve at the point $A$. Using algebra, find the $x$-coordinate of $A$.",
       steps: [
-        { h: "Equate", m: "$3x - 2\\sqrt x = 8x - 16 \;\\Rightarrow\; 5x + 2\\sqrt x - 16 = 0$", mk: "M1" },
-        { h: "A quadratic in $\\sqrt x$", m: "Let $u = \\sqrt x$: $\; 5u^2 + 2u - 16 = 0 \;\\Rightarrow\; (5u - 8)(u + 2) = 0$", mk: "M1 A1", n: "Product $-80$, sum $2$: $10$ and $-8$." },
+        { h: "Equate", m: "$3x - 2\\sqrt x = 8x - 16 \\;\\Rightarrow\\; 5x + 2\\sqrt x - 16 = 0$", mk: "M1" },
+        { h: "A quadratic in $\\sqrt x$", m: "Let $u = \\sqrt x$: $\\; 5u^2 + 2u - 16 = 0 \\;\\Rightarrow\\; (5u - 8)(u + 2) = 0$", mk: "M1 A1", n: "Product $-80$, sum $2$: $10$ and $-8$." },
         { m: "$u = \\dfrac85$ (reject $u = -2$ since $\\sqrt x \\ge 0$), so $x = \\dfrac{64}{25}$", mk: "M1 A1", n: "Square to get $x$; state the rejection." }
       ], result: "$x = \\dfrac{64}{25}$" } },
     { fig: { x: [-0.5, 5], y: [-4, 12], axes: { xt: [1, 2, 3, 4], yt: [-4, 4, 8, 12] }, items: [
@@ -534,7 +534,7 @@ C["maths:2.4"] = {
       q: "$C_1$: $y = 2x^3 + 10$, $x > 0$ and $C_2$: $y = 42x - 15x^2 - 7$, $x > 0$. **(a)** Verify that the curves intersect at $x = \\frac12$. **(b)** The curves intersect again at $P$. Using algebra and showing all stages of working, find the exact $x$-coordinate of $P$.",
       steps: [
         { h: "(a) Both curves at $x = \\frac12$", m: "$C_1: 2 \\times \\dfrac18 + 10 = 10.25 \\qquad C_2: 21 - \\dfrac{15}{4} - 7 = 10.25$ — equal, so they intersect there.", mk: "M1 A1" },
-        { h: "(b) Equate and collect", m: "$2x^3 + 10 = 42x - 15x^2 - 7 \;\\Rightarrow\; 2x^3 + 15x^2 - 42x + 17 = 0$", mk: "M1" },
+        { h: "(b) Equate and collect", m: "$2x^3 + 10 = 42x - 15x^2 - 7 \\;\\Rightarrow\\; 2x^3 + 15x^2 - 42x + 17 = 0$", mk: "M1" },
         { h: "$x = \\frac12$ is a root, so $(2x - 1)$ is a factor", m: "$2x^3 + 15x^2 - 42x + 17 = (2x - 1)(x^2 + 8x - 17)$", mk: "M1 A1", n: "Inspection: $2x \\cdot x^2$ gives $2x^3$; $(-1)(-17) = 17$; the middle term $8x^2$ is fixed by $15x^2 = 16x^2 - x^2$. Check the $x$ term: $-34x - 8x = -42x$ ✓" },
         { h: "Quadratic factor by the formula", m: "$x = \\dfrac{-8 \\pm \\sqrt{64 + 68}}{2} = \\dfrac{-8 \\pm \\sqrt{132}}{2} = -4 \\pm \\sqrt{33}$", mk: "M1" },
         { m: "$x > 0$, so $x = \\sqrt{33} - 4$", mk: "A1", n: "$\\sqrt{132} = 2\\sqrt{33}$ simplified *before* halving. Reject $-4 - \\sqrt{33}$ using the domain." }
@@ -544,7 +544,7 @@ C["maths:2.4"] = {
       steps: [
         { h: "(a)", m: "$C: \\dfrac{90}{15 \\times 3} = 2 \\qquad l: 12 - 10 = 2$ ✓", mk: "M1 A1" },
         { h: "(b) Clear the denominator", m: "$15x = (2x - 10)(2x + 3)(x - 3) = (2x - 10)(2x^2 - 3x - 9)$\n$= 4x^3 - 6x^2 - 18x - 20x^2 + 30x + 90 = 4x^3 - 26x^2 + 12x + 90$", mk: "M1" },
-        { m: "$4x^3 - 26x^2 + 12x + 90 - 15x = 0 \;\\Rightarrow\; 4x^3 - 26x^2 - 3x + 90 = 0$", mk: "A1*" },
+        { m: "$4x^3 - 26x^2 + 12x + 90 - 15x = 0 \\;\\Rightarrow\\; 4x^3 - 26x^2 - 3x + 90 = 0$", mk: "A1*" },
         { h: "(c) Divide out $(x - 6)$", m: "$4x^3 - 26x^2 - 3x + 90 = (x - 6)(4x^2 - 2x - 15)$", mk: "M1 A1", n: "$4x^2$ to match the cube, $-15$ to match $+90$; middle: $-24x^2 - 2x^2 = -26x^2$ ✓; $x$: $12x - 15x = -3x$ ✓" },
         { m: "$x = \\dfrac{2 \\pm \\sqrt{4 + 240}}{8} = \\dfrac{2 \\pm 2\\sqrt{61}}{8} = \\dfrac{1 \\pm \\sqrt{61}}{4}$; $Q$ has $x < 0$, so $x_Q = \\dfrac{1 - \\sqrt{61}}{4}$", mk: "M1 A1", n: "The sketch shows $Q$ in the third quadrant — that is the information that picks the sign." }
       ], result: "$x_Q = \\dfrac{1 - \\sqrt{61}}{4}$" } },
@@ -552,17 +552,17 @@ C["maths:2.4"] = {
       q: "$C_1$: $y = 8 - 10x + 6x^2 - x^3$ and $C_2$: $y = x^2 - 12x + 14$. **(a)** Verify that when $x = 1$ the curves intersect. **(b)** The curves also intersect when $x = k$, $k < 0$. Use algebra to find the exact value of $k$.",
       steps: [
         { h: "(a)", m: "$C_1(1) = 8 - 10 + 6 - 1 = 3, \\qquad C_2(1) = 1 - 12 + 14 = 3$ ✓", mk: "M1 A1" },
-        { h: "(b) Equate", m: "$8 - 10x + 6x^2 - x^3 = x^2 - 12x + 14 \;\\Rightarrow\; x^3 - 5x^2 - 2x + 6 = 0$", mk: "M1 A1", n: "Move everything to the side that makes $x^3$ positive — fewer sign errors in the division." },
-        { m: "$(x - 1)(x^2 - 4x - 6) = 0 \;\\Rightarrow\; x = \\dfrac{4 \\pm \\sqrt{16 + 24}}{2} = 2 \\pm \\sqrt{10}$", mk: "M1 A1" },
+        { h: "(b) Equate", m: "$8 - 10x + 6x^2 - x^3 = x^2 - 12x + 14 \\;\\Rightarrow\\; x^3 - 5x^2 - 2x + 6 = 0$", mk: "M1 A1", n: "Move everything to the side that makes $x^3$ positive — fewer sign errors in the division." },
+        { m: "$(x - 1)(x^2 - 4x - 6) = 0 \\;\\Rightarrow\\; x = \\dfrac{4 \\pm \\sqrt{16 + 24}}{2} = 2 \\pm \\sqrt{10}$", mk: "M1 A1" },
         { m: "$k < 0 \\Rightarrow k = 2 - \\sqrt{10}$", mk: "A1" }
       ], result: "$k = 2 - \\sqrt{10}$" } },
     { worked: { tag: "exam", title: "Reciprocal curve meets a quadratic — sketch, show the cubic, solve", src: "AS June 2024 · P1 Q5 · 9 marks",
       q: "$C_1$: $y = \\frac{6}{x} + 3$. **(a)(i)** Sketch $C_1$, stating the coordinates of any points where it cuts the axes. **(ii)** State the equations of any asymptotes to $C_1$. $C_2$: $y = 3x^2 - 4x - 10$. **(b)** Show that $C_1$ and $C_2$ intersect when $3x^3 - 4x^2 - 13x - 6 = 0$. **(c)** Given that the $x$-coordinate of one of the points of intersection is $-\\frac23$, use algebra to find the $x$-coordinates of the other points of intersection.",
       steps: [
         { h: "(a) Translate $y = \\frac6x$ up by 3", m: "Cuts the $x$-axis where $\\dfrac6x = -3$: $x = -2$, i.e. $(-2, 0)$. Never cuts the $y$-axis. Asymptotes $x = 0$ and $y = 3$.", mk: "B1 B1 B1", fig: { x: [-6, 6], y: [-6, 12], axes: { xt: [-4, -2, 2, 4], yt: [-4, 4, 8, 12] }, items: [ { fn: "6/x+3", from: -6, to: -0.3, label: "y = 6/x + 3", at: -5.5, pos: "s" }, { fn: "6/x+3", from: 0.3, to: 6 }, { hline: 3, label: "y = 3" }, { pt: [-2, 0], label: "(−2, 0)", pos: "sw" } ], cap: "Both branches, the horizontal asymptote $y = 3$ drawn and labelled, the $y$-axis as the vertical asymptote." }, n: "Two branches in the right quadrants, the asymptote **drawn as a dashed line and labelled**." },
-        { h: "(b) Equate and multiply by $x$", m: "$\\dfrac6x + 3 = 3x^2 - 4x - 10 \;\\Rightarrow\; 6 + 3x = 3x^3 - 4x^2 - 10x \;\\Rightarrow\; 3x^3 - 4x^2 - 13x - 6 = 0$", mk: "M1 A1*" },
+        { h: "(b) Equate and multiply by $x$", m: "$\\dfrac6x + 3 = 3x^2 - 4x - 10 \\;\\Rightarrow\\; 6 + 3x = 3x^3 - 4x^2 - 10x \\;\\Rightarrow\\; 3x^3 - 4x^2 - 13x - 6 = 0$", mk: "M1 A1*" },
         { h: "(c) $x = -\\frac23$ is a root, so $(3x + 2)$ is a factor", m: "$3x^3 - 4x^2 - 13x - 6 = (3x + 2)(x^2 - 2x - 3)$", mk: "M1 A1", n: "$3x \\cdot x^2 = 3x^3$ and $2 \\times (-3) = -6$ fix the ends; check the middle: $x^2$: $-6x^2 + 2x^2 = -4x^2$ ✓, $x$: $-9x - 4x = -13x$ ✓." },
-        { m: "$x^2 - 2x - 3 = (x - 3)(x + 1) = 0 \;\\Rightarrow\; x = 3 \\text{ or } x = -1$", mk: "M1 A1", n: "A root of $-\\frac{2}{3}$ means the factor is $(3x + 2)$, not $(x + \\frac23)$ — keeping integer coefficients makes the division clean." }
+        { m: "$x^2 - 2x - 3 = (x - 3)(x + 1) = 0 \\;\\Rightarrow\\; x = 3 \\text{ or } x = -1$", mk: "M1 A1", n: "A root of $-\\frac{2}{3}$ means the factor is $(3x + 2)$, not $(x + \\frac23)$ — keeping integer coefficients makes the division clean." }
       ], result: "(a) $(-2, 0)$; asymptotes $x = 0$, $y = 3$ (c) $x = 3$ and $x = -1$" } },
 
     { page: "Exam toolkit" },
@@ -629,7 +629,7 @@ C["maths:2.5"] = {
     { h: "Linear" },
     { worked: { tag: "example", title: "$3(2 - x) \\ge 5x - 10$", src: "routine",
       steps: [
-        { m: "$6 - 3x \\ge 5x - 10 \;\\Rightarrow\; 16 \\ge 8x \;\\Rightarrow\; x \\le 2$", n: "Moving the $x$ terms to the side where they stay positive avoids ever dividing by a negative. If you do divide by a negative — flip the sign." }
+        { m: "$6 - 3x \\ge 5x - 10 \\;\\Rightarrow\\; 16 \\ge 8x \\;\\Rightarrow\\; x \\le 2$", n: "Moving the $x$ terms to the side where they stay positive avoids ever dividing by a negative. If you do divide by a negative — flip the sign." }
       ], result: "$x \\le 2$" } },
     { h: "Quadratic — the sketch method" },
     { callout: { t: "memorise", h: "Quadratic inequality in four moves", body: [
@@ -647,15 +647,15 @@ C["maths:2.5"] = {
     { worked: { tag: "exam", title: "$x^2 - x > 20$ in set notation", src: "AS Nov 2021 · P1 Q1 · 3 marks",
       q: "Using algebra, solve the inequality $x^2 - x > 20$, writing your answer in set notation.",
       steps: [
-        { m: "$x^2 - x - 20 > 0 \;\\Rightarrow\; (x - 5)(x + 4) > 0$; critical values $x = 5$, $x = -4$", mk: "M1 A1", n: "\"Using algebra\": factorise on the page." },
+        { m: "$x^2 - x - 20 > 0 \\;\\Rightarrow\\; (x - 5)(x + 4) > 0$; critical values $x = 5$, $x = -4$", mk: "M1 A1", n: "\"Using algebra\": factorise on the page." },
         { m: "U-shaped parabola, positive outside the roots: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$", mk: "A1", n: "Two separate sets joined by $\\cup$. Writing $\\{x : -4 > x > 5\\}$ is meaningless and scores 0; \"$x < -4$ or $x > 5$\" is right but not in set notation as asked." }
       ], result: "$\\{x : x < -4\\} \\cup \\{x : x > 5\\}$" } },
     { worked: { tag: "exam", title: "Sketch $y = \\frac{k}{x}$, then solve $\\frac{16}{x} \\le 2$", src: "AS June 2023 · P1 Q4 · 5 marks",
       q: "**(a)** Sketch the curve with equation $y = \\frac{k}{x}$, $x \\neq 0$, where $k$ is a positive constant. **(b)** Hence or otherwise, solve $\\frac{16}{x} \\le 2$.",
       steps: [
         { h: "(a)", m: "Two branches in the first and third quadrants; both axes are asymptotes.", mk: "B1 B1", fig: { x: [-12, 12], y: [-10, 10], axes: { grid: false, xt: [-8, -4, 4, 8], yt: [-8, -4, 4, 8] }, items: [ { fn: "16/x", from: -12, to: -1.2, label: "y = 16/x", at: -10, pos: "s" }, { fn: "16/x", from: 1.2, to: 12 }, { hline: 2, c: "accent3", label: "y = 2" }, { pt: [8, 2], c: "accent3", label: "(8, 2)", pos: "ne" }, { shade: { fn: "2", fn2: "16/x", from: 8, to: 12 }, c: "accent3", alpha: 0.2 } ], cap: "The branch in the first quadrant is below $y = 2$ to the right of the crossing; the whole third-quadrant branch is below it." }, n: "Draw the axes as asymptotes (dashed is not needed — they *are* the axes) and get the quadrants right for positive $k$." },
-        { h: "(b) Critical value where the curve meets $y = 2$", m: "$\\dfrac{16}{x} = 2 \;\\Rightarrow\; x = 8$", mk: "M1" },
-        { h: "Read off from the sketch", m: "$\\dfrac{16}{x} \\le 2$ where the curve is on or below the line: the whole negative branch, and the positive branch from $x = 8$ onwards.\n$x < 0 \;\\text{ or }\; x \\ge 8$", mk: "A1 A1", n: "The commonest error is $x \\ge 8$ alone — multiplying by $x$ as if $x > 0$. Negative $x$ makes $\\frac{16}{x}$ negative, which is certainly $\\le 2$. Note $x = 0$ is excluded and $x = 8$ included." }
+        { h: "(b) Critical value where the curve meets $y = 2$", m: "$\\dfrac{16}{x} = 2 \\;\\Rightarrow\\; x = 8$", mk: "M1" },
+        { h: "Read off from the sketch", m: "$\\dfrac{16}{x} \\le 2$ where the curve is on or below the line: the whole negative branch, and the positive branch from $x = 8$ onwards.\n$x < 0 \\;\\text{ or }\\; x \\ge 8$", mk: "A1 A1", n: "The commonest error is $x \\ge 8$ alone — multiplying by $x$ as if $x > 0$. Negative $x$ makes $\\frac{16}{x}$ negative, which is certainly $\\le 2$. Note $x = 0$ is excluded and $x = 8$ included." }
       ], result: "$x < 0$ or $x \\ge 8$" } },
     { callout: { t: "warn", h: "Inequalities with the variable in a denominator", body: [
       "Never multiply by $x$ unless you know its sign. Two safe routes:",
@@ -666,7 +666,7 @@ C["maths:2.5"] = {
     { page: "Regions" },
     "A shaded region $R$ bounded by a line and a curve is defined by inequalities. Each boundary contributes one inequality; the direction is decided by a test point or by \"above/below\".",
     { callout: { t: "memorise", h: "Describing a region", body: [
-      "$y \\le mx + c$: on or **below** the line. $\; y \\ge f(x)$: on or **above** the curve.",
+      "$y \\le mx + c$: on or **below** the line. $\\; y \\ge f(x)$: on or **above** the curve.",
       "Solid boundary ⇒ $\\le$ / $\\ge$ (included). Dotted boundary ⇒ $<$ / $>$ (excluded). When the figure does not say, use $\\le$/$\\ge$ and be consistent.",
       "A region that stops at the $y$-axis needs $x \\ge 0$ (or $x \\le 0$) as a third inequality. If the region is bounded by an axis, say so.",
       "You will usually have to **find the equations first** — that is where most of the marks are."
@@ -677,7 +677,7 @@ C["maths:2.5"] = {
         { h: "The curve from its roots and a point", m: "$y = ax(x - 6)$; at $(10, 80)$: $80 = 40a \\Rightarrow a = 2$\n$y = 2x(x - 6) = 2x^2 - 12x$", mk: "M1 A1", n: "Roots at 0 and 6 mean the factors $x$ and $(x - 6)$; the third point fixes the stretch $a$." },
         { h: "The line from two points", m: "gradient $= \\dfrac{80 - 60}{10 - 0} = 2$, so $y = 2x + 60$", mk: "B1" },
         { h: "The inequalities", m: "$y \\le 2x + 60, \\qquad y \\ge 2x^2 - 12x, \\qquad x \\ge 0$", mk: "M1 A1", fig: { x: [-3, 12], y: [-25, 100], axes: { xt: [6, 10], yt: [60, 80] }, items: [ { shade: { fn: "2*x+60", fn2: "2*x*x-12*x", from: 0, to: 10 }, c: "accent", alpha: 0.18 }, { fn: "2*x*x-12*x", label: "C", at: 11, pos: "w" }, { fn: "2*x+60", c: "accent3", label: "l", at: -2, pos: "n" }, { pt: [10, 80], label: "(10, 80)", pos: "se" }, { pt: [0, 60], label: "60", pos: "w" } ], cap: "$R$: below $l$, above $C$, to the right of the $y$-axis." }, n: "Three boundaries, three inequalities. Missing $x \\ge 0$ loses the last mark — without it the region would extend left of the axis." }
-      ], result: "$y \\le 2x + 60$, $\; y \\ge 2x^2 - 12x$, $\; x \\ge 0$" } },
+      ], result: "$y \\le 2x + 60$, $\\; y \\ge 2x^2 - 12x$, $\\; x \\ge 0$" } },
     { worked: { tag: "exam", title: "Region between a line through two points and a given parabola", src: "AS June 2025 · P1 Q2 · 5 marks",
       q: "The line $l$ passes through $A(-3, 0)$ and $B\\left(\\frac52, 22\\right)$. **(a)** Find the equation of $l$ in the form $y = mx + c$. $C$ has equation $y = 2x^2 + 5x - 3$, and $l$ and $C$ intersect at $A$ and $B$; the region $R$ is bounded by $l$ and $C$. **(b)** Use inequalities to define $R$.",
       steps: [
@@ -690,7 +690,7 @@ C["maths:2.5"] = {
         { h: "Completed-square form from the vertex", m: "$y = a(x + 2)^2 + 13$; at $(0, 25)$: $4a + 13 = 25 \\Rightarrow a = 3$\n$y = 3(x + 2)^2 + 13 = 3x^2 + 12x + 25$", mk: "M1 A1", n: "A minimum at $(-2, 13)$ *is* the completed square: bracket $(x + 2)$, constant 13." },
         { h: "The line through the two points", m: "gradient $\\dfrac{25 - 13}{0 - (-2)} = 6$, so $y = 6x + 25$", mk: "B1" },
         { h: "Region", m: "$y \\le 6x + 25, \\qquad y \\ge 3x^2 + 12x + 25$", mk: "M1 A1", n: "Between the two intersection points the line is above the curve, so $R$ is under the line and over the parabola." }
-      ], result: "$y \\le 6x + 25$, $\; y \\ge 3x^2 + 12x + 25$" } },
+      ], result: "$y \\le 6x + 25$, $\\; y \\ge 3x^2 + 12x + 25$" } },
 
     { page: "Exam toolkit" },
     { h: "Command words" },
@@ -772,28 +772,28 @@ C["maths:2.6"] = {
       q: "$f(x) = 3x^3 + 2ax^2 - 4x + 5a$. Given that $(x + 3)$ is a factor of $f(x)$, find the value of the constant $a$.",
       steps: [
         { h: "Factor $(x + 3)$ ⇒ $f(-3) = 0$", m: "$3(-27) + 2a(9) - 4(-3) + 5a = 0$", mk: "M1", n: "Substitute $-3$, not $+3$." },
-        { m: "$-81 + 18a + 12 + 5a = 0 \;\\Rightarrow\; 23a = 69 \;\\Rightarrow\; a = 3$", mk: "A1 A1" }
+        { m: "$-81 + 18a + 12 + 5a = 0 \\;\\Rightarrow\\; 23a = 69 \\;\\Rightarrow\\; a = 3$", mk: "A1 A1" }
       ], result: "$a = 3$" } },
     { worked: { tag: "exam", title: "A product form with a constant subtracted", src: "A-level June 2022 · P1 Q2 · 3 marks",
       q: "$f(x) = (x - 4)(x^2 - 3x + k) - 42$ where $k$ is a constant. Given that $(x + 2)$ is a factor of $f(x)$, find the value of $k$.",
       steps: [
         { m: "$f(-2) = (-6)(4 + 6 + k) - 42 = 0$", mk: "M1", n: "No need to expand: substitute straight into the given form." },
-        { m: "$-6(10 + k) = 42 \;\\Rightarrow\; 10 + k = -7 \;\\Rightarrow\; k = -17$", mk: "M1 A1" }
+        { m: "$-6(10 + k) = 42 \\;\\Rightarrow\\; 10 + k = -7 \\;\\Rightarrow\\; k = -17$", mk: "M1 A1" }
       ], result: "$k = -17$" } },
     { worked: { tag: "exam", title: "Two factors, two unknowns — then a transformed equation", src: "AS June 2024 · P1 Q2 · 8 marks",
       q: "$f(x) = 2x^3 - 3ax^2 + bx + 8a$. **(a)** Given $(x - 4)$ is a factor, use the factor theorem to show that $10a = 32 + b$. **(b)** Given also that $(x - 2)$ is a factor, express $f(x)$ in the form $(2x + k)(x - 4)(x - 2)$. **(c)** Hence **(i)** state the number of real roots of $f(x) = 0$; **(ii)** write down the largest root of $f\\left(\\frac13 x\\right) = 0$.",
       steps: [
-        { h: "(a)", m: "$f(4) = 128 - 48a + 4b + 8a = 0 \;\\Rightarrow\; 40a - 4b = 128 \;\\Rightarrow\; 10a = 32 + b$", mk: "M1 A1*" },
-        { h: "(b) Second factor gives a second equation", m: "$f(2) = 16 - 12a + 2b + 8a = 0 \;\\Rightarrow\; b = 2a - 8$\nWith (a): $10a = 32 + 2a - 8 \\Rightarrow a = 3, \; b = -2$", mk: "M1 A1", n: "So $f(x) = 2x^3 - 9x^2 - 2x + 24$." },
+        { h: "(a)", m: "$f(4) = 128 - 48a + 4b + 8a = 0 \\;\\Rightarrow\\; 40a - 4b = 128 \\;\\Rightarrow\\; 10a = 32 + b$", mk: "M1 A1*" },
+        { h: "(b) Second factor gives a second equation", m: "$f(2) = 16 - 12a + 2b + 8a = 0 \\;\\Rightarrow\\; b = 2a - 8$\nWith (a): $10a = 32 + 2a - 8 \\Rightarrow a = 3, \\; b = -2$", mk: "M1 A1", n: "So $f(x) = 2x^3 - 9x^2 - 2x + 24$." },
         { m: "$(2x + k)(x - 4)(x - 2)$: the constant term is $k \\times (-4)(-2) = 8k = 24 \\Rightarrow k = 3$\n$f(x) = (2x + 3)(x - 4)(x - 2)$", mk: "M1 A1", n: "Check the $x^2$ term: $(2x+3)(x^2 - 6x + 8) \\to -12x^2 + 3x^2 = -9x^2$ ✓" },
-        { h: "(c)(i)", m: "Three distinct real roots: $-\\dfrac32, \; 2, \; 4$", mk: "B1" },
-        { h: "(ii) $f\\left(\\frac13 x\\right) = 0$ when $\\frac13 x$ is a root of $f$", m: "$\\dfrac13 x = 4 \;\\Rightarrow\; x = 12$", mk: "B1", n: "Replacing $x$ by $\\frac13 x$ stretches the roots by 3: $-\\frac92, 6, 12$. Largest is 12." }
+        { h: "(c)(i)", m: "Three distinct real roots: $-\\dfrac32, \\; 2, \\; 4$", mk: "B1" },
+        { h: "(ii) $f\\left(\\frac13 x\\right) = 0$ when $\\frac13 x$ is a root of $f$", m: "$\\dfrac13 x = 4 \\;\\Rightarrow\\; x = 12$", mk: "B1", n: "Replacing $x$ by $\\frac13 x$ stretches the roots by 3: $-\\frac92, 6, 12$. Largest is 12." }
       ], result: "(a) shown (b) $(2x + 3)(x - 4)(x - 2)$ (c)(i) 3 (ii) 12" } },
     { worked: { tag: "exam", title: "Factor theorem plus a gradient condition", src: "AS June 2025 · P1 Q6 · 7 marks",
       q: "$f(x) = ax^3 + bx^2 + 18x + 9$. **(a)** Given $(x + 3)$ is a factor of $f(x)$, show that $-3a + b = 5$. **(b)** Given also that $f'(2) = 14$, find the value of $a$ and the value of $b$.",
       steps: [
-        { h: "(a)", m: "$f(-3) = -27a + 9b - 54 + 9 = 0 \;\\Rightarrow\; -27a + 9b = 45 \;\\Rightarrow\; -3a + b = 5$", mk: "M1 A1*", n: "Divide through by 9 to reach the printed form." },
-        { h: "(b) Differentiate, then use $x = 2$", m: "$f'(x) = 3ax^2 + 2bx + 18; \\quad f'(2) = 12a + 4b + 18 = 14 \;\\Rightarrow\; 3a + b = -1$", mk: "M1 A1" },
+        { h: "(a)", m: "$f(-3) = -27a + 9b - 54 + 9 = 0 \\;\\Rightarrow\\; -27a + 9b = 45 \\;\\Rightarrow\\; -3a + b = 5$", mk: "M1 A1*", n: "Divide through by 9 to reach the printed form." },
+        { h: "(b) Differentiate, then use $x = 2$", m: "$f'(x) = 3ax^2 + 2bx + 18; \\quad f'(2) = 12a + 4b + 18 = 14 \\;\\Rightarrow\\; 3a + b = -1$", mk: "M1 A1" },
         { h: "Solve with (a)", m: "Add: $2b = 4 \\Rightarrow b = 2$; then $-3a + 2 = 5 \\Rightarrow a = -1$", mk: "M1 A1 A1" }
       ], result: "$a = -1$, $b = 2$" } },
     { worked: { tag: "exam", title: "Reconstruct $f$ from $f'$, an intercept and a factor", src: "A-level Oct 2020 · P2 Q8 · 6 marks",
@@ -801,7 +801,7 @@ C["maths:2.6"] = {
       steps: [
         { h: "Integrate $f'$", m: "$f(x) = 2x^3 + \\dfrac{a}{2}x^2 - 23x + c$", mk: "M1 A1" },
         { h: "$y$-intercept gives $c$", m: "$f(0) = -12 \\Rightarrow c = -12$", mk: "B1" },
-        { h: "Factor gives $a$", m: "$f(-4) = -128 + 8a + 92 - 12 = 0 \;\\Rightarrow\; 8a = 48 \;\\Rightarrow\; a = 6$", mk: "M1 A1" },
+        { h: "Factor gives $a$", m: "$f(-4) = -128 + 8a + 92 - 12 = 0 \\;\\Rightarrow\\; 8a = 48 \\;\\Rightarrow\\; a = 6$", mk: "M1 A1" },
         { m: "$f(x) = 2x^3 + 3x^2 - 23x - 12$", mk: "A1", n: "Three pieces of information, three unknowns ($a$, $c$ and the integration itself). Use each once." }
       ], result: "$f(x) = 2x^3 + 3x^2 - 23x - 12$" } },
 
@@ -851,11 +851,11 @@ C["maths:2.6"] = {
     { worked: { tag: "exam", title: "Unknown root $a$ appears in the equation itself", src: "A-level June 2023 · P1 Q2 · 6 marks",
       q: "$f(x) = 4x^3 + 5x^2 - 10x + 4a$, where $a$ is a positive constant. Given $(x - a)$ is a factor of $f(x)$, **(a)** show that $a(4a^2 + 5a - 6) = 0$. **(b)** Hence **(i)** find the value of $a$; **(ii)** use algebra to find the exact solutions of $f(x) = 3$.",
       steps: [
-        { h: "(a) $f(a) = 0$", m: "$4a^3 + 5a^2 - 10a + 4a = 0 \;\\Rightarrow\; 4a^3 + 5a^2 - 6a = 0 \;\\Rightarrow\; a(4a^2 + 5a - 6) = 0$", mk: "M1 A1*" },
+        { h: "(a) $f(a) = 0$", m: "$4a^3 + 5a^2 - 10a + 4a = 0 \\;\\Rightarrow\\; 4a^3 + 5a^2 - 6a = 0 \\;\\Rightarrow\\; a(4a^2 + 5a - 6) = 0$", mk: "M1 A1*" },
         { h: "(b)(i)", m: "$4a^2 + 5a - 6 = (4a - 3)(a + 2) = 0$; $a > 0$ so $a = \\dfrac34$", mk: "M1 A1", n: "Reject $a = 0$ and $a = -2$ using \"positive\"." },
-        { h: "(ii) $f(x) = 3$ with $4a = 3$", m: "$4x^3 + 5x^2 - 10x + 3 = 3 \;\\Rightarrow\; x(4x^2 + 5x - 10) = 0$", mk: "M1" },
-        { m: "$x = 0 \;\\text{ or }\; x = \\dfrac{-5 \\pm \\sqrt{25 + 160}}{8} = \\dfrac{-5 \\pm \\sqrt{185}}{8}$", mk: "A1", n: "Three exact solutions. Do not divide by $x$." }
-      ], result: "$a = \\frac34$; $x = 0, \; \\dfrac{-5 \\pm \\sqrt{185}}{8}$" } },
+        { h: "(ii) $f(x) = 3$ with $4a = 3$", m: "$4x^3 + 5x^2 - 10x + 3 = 3 \\;\\Rightarrow\\; x(4x^2 + 5x - 10) = 0$", mk: "M1" },
+        { m: "$x = 0 \\;\\text{ or }\\; x = \\dfrac{-5 \\pm \\sqrt{25 + 160}}{8} = \\dfrac{-5 \\pm \\sqrt{185}}{8}$", mk: "A1", n: "Three exact solutions. Do not divide by $x$." }
+      ], result: "$a = \\frac34$; $x = 0, \\; \\dfrac{-5 \\pm \\sqrt{185}}{8}$" } },
     { worked: { tag: "exam", title: "Factorise, sketch, and count intersections with $y = k$", src: "AS June 2022 · P1 Q7 · 7 marks",
       q: "**(a)** Factorise completely $9x - x^3$. The curve $C$ has equation $y = 9x - x^3$. **(b)** Sketch $C$ showing the coordinates of the points where it cuts the $x$-axis. The line $l$ has equation $y = k$. Given that $C$ and $l$ intersect at 3 distinct points, **(c)** find the range of values for $k$, in set notation.",
       steps: [
@@ -1185,7 +1185,7 @@ C["maths:2.8"] = {
       steps: [
         { h: "(a) Solve $f(x) = 7$", m: "$\\dfrac{3x - 7}{x - 2} = 7 \\Rightarrow 3x - 7 = 7x - 14 \\Rightarrow x = \\dfrac74$", mk: "M1 A1", n: "$f^{-1}(7)$ is the input that gives 7. Faster and safer than deriving $f^{-1}$." },
         { h: "(b) Substitute $f$ into itself and clear the inner fraction", m: "$ff(x) = \\dfrac{3f(x) - 7}{f(x) - 2} = \\dfrac{3(3x - 7) - 7(x - 2)}{(3x - 7) - 2(x - 2)}$", mk: "M1", n: "Multiply top and bottom by $(x - 2)$ to remove the nested fraction — write that step." },
-        { m: "$= \\dfrac{9x - 21 - 7x + 14}{3x - 7 - 2x + 4} = \\dfrac{2x - 7}{x - 3}$; $\; a = 2$, $b = -7$", mk: "A1 A1" }
+        { m: "$= \\dfrac{9x - 21 - 7x + 14}{3x - 7 - 2x + 4} = \\dfrac{2x - 7}{x - 3}$; $\\; a = 2$, $b = -7$", mk: "A1 A1" }
       ], result: "(a) $\\frac74$ (b) $ff(x) = \\frac{2x - 7}{x - 3}$" } },
     { worked: { tag: "exam", title: "$f^{-1}$ of a value; $A + \\frac{B}{2x + 3}$ form; range of $g^{-1}$; range of $fg^{-1}$", src: "A-level June 2022 · P2 Q10 · 8 marks",
       q: "$f(x) = \\frac{8x + 5}{2x + 3}$, $x > -\\frac32$. **(a)** Find $f^{-1}\\left(\\frac32\\right)$. **(b)** Show that $f(x) = A + \\frac{B}{2x + 3}$. $g(x) = 16 - x^2$, $0 \\le x \\le 4$. **(c)** State the range of $g^{-1}$. **(d)** Find the range of $fg^{-1}$.",
@@ -1273,9 +1273,9 @@ C["maths:2.9"] = {
     { h: "Transformations — the whole topic on one page" },
     "Four moves, applied to any graph on the specification. Questions come in two flavours: **\"find the image of the point $P$\"** (4 marks, every A-level paper 2022–2025) and **\"sketch the transformed curve\"** with its key points and asymptotes.",
     { callout: { t: "memorise", h: "The four transformations of $y = f(x)$", body: [
-      "$$y = f(x) + a \;\\text{ translation } \\begin{pmatrix} 0 \\\\ a \\end{pmatrix} \\qquad y = f(x + a) \;\\text{ translation } \\begin{pmatrix} -a \\\\ 0 \\end{pmatrix}$$",
-      "$$y = af(x) \;\\text{ stretch, scale factor } a, \\text{ parallel to the } y\\text{-axis} \\qquad y = f(ax) \;\\text{ stretch, scale factor } \\tfrac1a, \\text{ parallel to the } x\\text{-axis}$$",
-      "$y = -f(x)$: reflection in the $x$-axis. $\; y = f(-x)$: reflection in the $y$-axis.",
+      "$$y = f(x) + a \\;\\text{ translation } \\begin{pmatrix} 0 \\\\ a \\end{pmatrix} \\qquad y = f(x + a) \\;\\text{ translation } \\begin{pmatrix} -a \\\\ 0 \\end{pmatrix}$$",
+      "$$y = af(x) \\;\\text{ stretch, scale factor } a, \\text{ parallel to the } y\\text{-axis} \\qquad y = f(ax) \\;\\text{ stretch, scale factor } \\tfrac1a, \\text{ parallel to the } x\\text{-axis}$$",
+      "$y = -f(x)$: reflection in the $x$-axis. $\\; y = f(-x)$: reflection in the $y$-axis.",
       "**Inside the bracket → acts on $x$, and does the opposite of what it says.** Outside → acts on $y$, and does what it says."
     ] } },
 
@@ -1330,8 +1330,8 @@ C["maths:2.9"] = {
     { worked: { tag: "exam", title: "Sketch $y = f(x + 2)$ and $y = -f(x)$ from a curve with an asymptote", src: "AS June 2025 · P1 Q1 · 6 marks",
       q: "A curve $y = f(x)$ passes through $A(-1, 0)$, has a maximum turning point at $B(2, 7)$ and a horizontal asymptote $y = 3$. On separate diagrams sketch **(i)** $y = f(x + 2)$; **(ii)** $y = -f(x)$, in each case showing the images of $A$ and $B$ and the equation of the asymptote.",
       steps: [
-        { h: "(i) Everything moves 2 to the left; the horizontal asymptote is unchanged", m: "$A \\to (-3, 0)$, $\; B \\to (0, 7)$, asymptote still $y = 3$", mk: "B1 B1 B1", fig: { x: [-5, 8], y: [-2, 9], axes: { xt: [-3, 2], yt: [3, 7] }, items: [ { fn: "3+4*exp(-((x-2)/2.2)^2)-3*exp(-((x+1)*1.8)^2)", from: -1.6, to: 8, c: "muted", dash: true, label: "f(x)", at: 6.5, pos: "n" }, { fn: "3+4*exp(-((x)/2.2)^2)-3*exp(-((x+3)*1.8)^2)", from: -3.6, to: 8, label: "f(x + 2)", at: 4.5, pos: "n" }, { hline: 3, c: "accent3", label: "y = 3" }, { pt: [-3, 0], label: "(−3, 0)", pos: "s" }, { pt: [0, 7], label: "(0, 7)", pos: "ne" } ], cap: "A translation parallel to the $x$-axis leaves a horizontal asymptote where it is." }, n: "The asymptote's equation must be written on the sketch." },
-        { h: "(ii) Reflect in the $x$-axis: signs of $y$ flip, including the asymptote", m: "$A \\to (-1, 0)$ (unchanged), $\; B \\to (2, -7)$ now a minimum, asymptote $y = -3$", mk: "B1 B1 B1", n: "The asymptote moves to $y = -3$ — the most-missed mark." }
+        { h: "(i) Everything moves 2 to the left; the horizontal asymptote is unchanged", m: "$A \\to (-3, 0)$, $\\; B \\to (0, 7)$, asymptote still $y = 3$", mk: "B1 B1 B1", fig: { x: [-5, 8], y: [-2, 9], axes: { xt: [-3, 2], yt: [3, 7] }, items: [ { fn: "3+4*exp(-((x-2)/2.2)^2)-3*exp(-((x+1)*1.8)^2)", from: -1.6, to: 8, c: "muted", dash: true, label: "f(x)", at: 6.5, pos: "n" }, { fn: "3+4*exp(-((x)/2.2)^2)-3*exp(-((x+3)*1.8)^2)", from: -3.6, to: 8, label: "f(x + 2)", at: 4.5, pos: "n" }, { hline: 3, c: "accent3", label: "y = 3" }, { pt: [-3, 0], label: "(−3, 0)", pos: "s" }, { pt: [0, 7], label: "(0, 7)", pos: "ne" } ], cap: "A translation parallel to the $x$-axis leaves a horizontal asymptote where it is." }, n: "The asymptote's equation must be written on the sketch." },
+        { h: "(ii) Reflect in the $x$-axis: signs of $y$ flip, including the asymptote", m: "$A \\to (-1, 0)$ (unchanged), $\\; B \\to (2, -7)$ now a minimum, asymptote $y = -3$", mk: "B1 B1 B1", n: "The asymptote moves to $y = -3$ — the most-missed mark." }
       ], result: "(i) $(-3, 0)$, $(0, 7)$, $y = 3$ (ii) $(-1, 0)$, $(2, -7)$, $y = -3$" } },
     { worked: { tag: "exam", title: "Read transformations off a given sketch", src: "AS Specimen · P1 Q4 · 4 marks",
       q: "$y = g(x)$ has a single minimum turning point $M(4, -1.5)$, crosses the $x$-axis at $P(2, 0)$ and $Q(7, 0)$, and the $y$-axis at $R(0, 5)$. **(a)** State the turning point of $y = 2g(x)$. **(b)** State the largest root of $g(x + 1) = 0$. **(c)** State the smallest root of $g(2x) = 0$. **(d)** State the range of values of $x$ for which $g'(x) < 0$.",
@@ -1412,7 +1412,7 @@ C["maths:2.10"] = {
     { worked: { tag: "example", title: "Two distinct linear factors", src: "routine",
       q: "Express $\\frac{5x + 7}{(x + 1)(x + 3)}$ in partial fractions.",
       steps: [
-        { m: "$\\dfrac{5x + 7}{(x + 1)(x + 3)} \\equiv \\dfrac{A}{x + 1} + \\dfrac{B}{x + 3} \;\\Rightarrow\; 5x + 7 \\equiv A(x + 3) + B(x + 1)$", mk: "M1" },
+        { m: "$\\dfrac{5x + 7}{(x + 1)(x + 3)} \\equiv \\dfrac{A}{x + 1} + \\dfrac{B}{x + 3} \\;\\Rightarrow\\; 5x + 7 \\equiv A(x + 3) + B(x + 1)$", mk: "M1" },
         { m: "$x = -1$: $2 = 2A \\Rightarrow A = 1$; $\\qquad x = -3$: $-8 = -2B \\Rightarrow B = 4$", mk: "A1 A1", n: "Cover-up rule: to find $A$, cover $(x + 1)$ in the original and evaluate the rest at $x = -1$: $\\frac{-5 + 7}{2} = 1$." }
       ], result: "$\\dfrac{1}{x + 1} + \\dfrac{4}{x + 3}$" } },
     { worked: { tag: "exam", title: "An improper fraction with a constant part; then prove $f$ is decreasing", src: "A-level June 2018 · P2 Q11 · 7 marks",
@@ -1427,7 +1427,7 @@ C["maths:2.10"] = {
     { worked: { tag: "exam", title: "Improper: $Ax + B + \\frac{C}{x + 2}$, then an exact integral", src: "A-level Oct 2020 · P2 Q6 · 7 marks",
       q: "**(a)** Given $\\frac{x^2 + 8x - 3}{x + 2} \\equiv Ax + B + \\frac{C}{x + 2}$, find $A$, $B$ and $C$. **(b)** Hence, using algebraic integration, find the exact value of $\\displaystyle\\int_0^6 \\frac{x^2 + 8x - 3}{x + 2}\\,\\mathrm{d}x$, in the form $a + b\\ln2$.",
       steps: [
-        { h: "(a)", m: "$x^2 + 8x - 3 \\equiv (Ax + B)(x + 2) + C$\n$x^2$: $A = 1$; $\; x = -2$: $4 - 16 - 3 = -15 = C$; $\; x$: $8 = 2A + B \\Rightarrow B = 6$", mk: "M1 A1 A1", n: "Or divide: $(x^2 + 8x - 3) \\div (x + 2) = x + 6$ remainder $-15$." },
+        { h: "(a)", m: "$x^2 + 8x - 3 \\equiv (Ax + B)(x + 2) + C$\n$x^2$: $A = 1$; $\\; x = -2$: $4 - 16 - 3 = -15 = C$; $\\; x$: $8 = 2A + B \\Rightarrow B = 6$", mk: "M1 A1 A1", n: "Or divide: $(x^2 + 8x - 3) \\div (x + 2) = x + 6$ remainder $-15$." },
         { h: "(b)", m: "$\\displaystyle\\int_0^6 \\left(x + 6 - \\dfrac{15}{x + 2}\\right)\\mathrm{d}x = \\left[\\dfrac{x^2}{2} + 6x - 15\\ln(x + 2)\\right]_0^6$", mk: "M1 A1" },
         { m: "$= (18 + 36 - 15\\ln8) - (0 - 15\\ln2) = 54 - 45\\ln2 + 15\\ln2 = 54 - 30\\ln2$", mk: "M1 A1", n: "$\\ln 8 = 3\\ln2$ — the log law that gets it into the required form." }
       ], result: "(a) $A = 1$, $B = 6$, $C = -15$ (b) $54 - 30\\ln2$" } },
@@ -1437,7 +1437,7 @@ C["maths:2.10"] = {
         { h: "(a)", m: "$3kx - 18 \\equiv A(x - 2) + B(x + 4)$\n$x = -4$: $-12k - 18 = -6A \\Rightarrow A = 2k + 3$; $\\quad x = 2$: $6k - 18 = 6B \\Rightarrow B = k - 3$", mk: "M1 A1 A1", n: "The constants are expressions in $k$; the method is unchanged." },
         { h: "(b)", m: "$\\displaystyle\\int_{-3}^{1}\\left(\\dfrac{2k + 3}{x + 4} + \\dfrac{k - 3}{x - 2}\\right)\\mathrm{d}x = \\Big[(2k + 3)\\ln|x + 4| + (k - 3)\\ln|x - 2|\\Big]_{-3}^{1}$", mk: "M1" },
         { m: "$= (2k + 3)(\\ln5 - \\ln1) + (k - 3)(\\ln1 - \\ln5) = (2k + 3 - k + 3)\\ln5 = (k + 6)\\ln5$", mk: "A1", n: "Modulus signs matter: $\\ln|{-3} - 2| = \\ln5$ and $\\ln|1 - 2| = \\ln1 = 0$." },
-        { m: "$(k + 6)\\ln5 = 21 \;\\Rightarrow\; k = \\dfrac{21}{\\ln5} - 6$", mk: "M1 A1" }
+        { m: "$(k + 6)\\ln5 = 21 \\;\\Rightarrow\\; k = \\dfrac{21}{\\ln5} - 6$", mk: "M1 A1" }
       ], result: "(a) $\\dfrac{2k + 3}{x + 4} + \\dfrac{k - 3}{x - 2}$ (b) $k = \\dfrac{21}{\\ln5} - 6$" } },
     { worked: { tag: "exam", title: "A cubic over a quadratic: $Ax + B + \\frac{C}{x + 1} + \\frac{D}{x - 3}$", src: "A-level June 2025 · P2 Q7 · 4 marks",
       q: "Given $\\frac{3x^3 - 8x^2 - 6x - 11}{(x + 1)(x - 3)} \\equiv Ax + B + \\frac{C}{x + 1} + \\frac{D}{x - 3}$, find the values of $A$, $B$, $C$ and $D$.",
@@ -1529,7 +1529,7 @@ C["maths:2.11"] = {
       steps: [
         { h: "(a)", m: "$y = ax + b$ (or $y = mx + c$)", mk: "B1" },
         { h: "(b) Profit = income − cost", m: "$1600 - y_{800} = 500 \\Rightarrow y_{800} = 1100; \\qquad 600 - y_{300} = -80 \\Rightarrow y_{300} = 680$", mk: "M1", n: "Translate each sentence into a cost value first." },
-        { m: "$800a + b = 1100, \\quad 300a + b = 680 \;\\Rightarrow\; 500a = 420 \\Rightarrow a = 0.84, \; b = 428$", mk: "M1 A1*" },
+        { m: "$800a + b = 1100, \\quad 300a + b = 680 \\;\\Rightarrow\\; 500a = 420 \\Rightarrow a = 0.84, \\; b = 428$", mk: "M1 A1*" },
         { h: "(c)", m: "0.84 is the cost, in pounds, of making each additional bar of soap (the variable cost per bar).", mk: "B1", n: "Context and units. \"The gradient\" is not an interpretation." },
         { h: "(d) Profit $> 0$", m: "$2x - (0.84x + 428) > 0 \\Rightarrow 1.16x > 428 \\Rightarrow x > 368.9\\ldots$, so **369** bars", mk: "M1 A1", n: "Round **up** — 368 bars still makes a loss." }
       ], result: "(b) shown (c) cost per extra bar (d) 369" } },

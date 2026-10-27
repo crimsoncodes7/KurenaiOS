@@ -83,7 +83,7 @@ C["maths:7.1"] = {
     { worked: { tag: "exam", title: "Solve $f''(x) = 0$; where is $f$ concave?", src: "A-level June 2023 · P2 Q1 · 4 marks",
       q: "$f(x) = x^3 + 2x^2 - 8x + 5$. **(a)** Find $f''(x)$. **(b)(i)** Solve $f''(x) = 0$. **(ii)** Hence find the range of $x$ for which $f$ is concave.",
       steps: [
-        { h: "(a)", m: "$f'(x) = 3x^2 + 4x - 8$, $\; f''(x) = 6x + 4$", mk: "M1 A1" },
+        { h: "(a)", m: "$f'(x) = 3x^2 + 4x - 8$, $\\; f''(x) = 6x + 4$", mk: "M1 A1" },
         { h: "(b)", m: "(i) $x = -\\dfrac23$. (ii) Concave where $f'' < 0$: $6x + 4 < 0 \\Rightarrow x < -\\dfrac23$", mk: "A1 A1" }
       ], result: "(a) $6x + 4$ (b) $x = -\\frac23$; concave for $x < -\\frac23$" } },
     { worked: { tag: "exam", title: "A stationary point that is a point of inflection", src: "A-level Oct 2021 · P2 Q5 · 7 marks",
@@ -244,7 +244,7 @@ C["maths:7.3"] = {
     { worked: { tag: "exam", title: "Tangent to a cubic, where it meets the curve again, and the area between", src: "A-level Oct 2021 · P2 Q7 · 9 marks",
       q: "$C$: $y = x^3 - 10x^2 + 27x - 23$; $P(5, -13)$ lies on $C$ and $l$ is the tangent at $P$. **(a)** Find the equation of $l$ in the form $y = mx + c$. **(b)** Find the $x$-coordinate of the point where $l$ meets $C$ again. **(c)** Find the area of the region $R$ between $C$ and $l$.",
       steps: [
-        { h: "(a)", m: "$\\dfrac{dy}{dx} = 3x^2 - 20x + 27 = 2$ at $x = 5$; $\; y + 13 = 2(x - 5) \\Rightarrow y = 2x - 23$", mk: "M1 A1 M1 A1" },
+        { h: "(a)", m: "$\\dfrac{dy}{dx} = 3x^2 - 20x + 27 = 2$ at $x = 5$; $\\; y + 13 = 2(x - 5) \\Rightarrow y = 2x - 23$", mk: "M1 A1 M1 A1" },
         { h: "(b) Equate; the tangent point is a double root", m: "$x^3 - 10x^2 + 27x - 23 = 2x - 23 \\Rightarrow x^3 - 10x^2 + 25x = 0 \\Rightarrow x(x - 5)^2 = 0$: meets again at $x = 0$, the point $(0, -23)$", mk: "M1 A1", n: "A tangent touches at a **repeated** root — $(x - 5)^2$ — which is the algebraic check that $l$ really is the tangent." },
         { h: "(c) Area between curve and line from 0 to 5", m: "$\\displaystyle\\int_0^5 \\left[(x^3 - 10x^2 + 27x - 23) - (2x - 23)\\right]dx = \\int_0^5 (x^3 - 10x^2 + 25x)\\,dx = \\left[\\dfrac{x^4}{4} - \\dfrac{10x^3}{3} + \\dfrac{25x^2}{2}\\right]_0^5 = \\dfrac{625}{12}$", mk: "M1 A1 A1", n: "Curve minus line (the curve is above the tangent here) — integrate the difference, not the two separately." }
       ], result: "(a) $y = 2x - 23$ (b) $(0, -23)$ (c) $\\frac{625}{12}$" } },
@@ -275,7 +275,7 @@ C["maths:7.3"] = {
     { worked: { tag: "exam", title: "A cubic from three conditions; prove the stationary point is a maximum", src: "AS June 2020 · P1 Q14 · 9 marks",
       q: "$g(x)$ is a cubic in which the coefficient of $x^3$ equals the coefficient of $x$; $y = g(x)$ passes through the origin and has a stationary point at $(2, 9)$. **(a)** Find $g(x)$. **(b)** Prove that the stationary point at $(2, 9)$ is a maximum.",
       steps: [
-        { h: "(a) Translate the conditions", m: "$g(x) = ax^3 + bx^2 + ax$ (through the origin: no constant; equal coefficients)\n$g(2) = 10a + 4b = 9$; $\; g'(x) = 3ax^2 + 2bx + a \\Rightarrow g'(2) = 13a + 4b = 0$", mk: "B1 M1 A1 M1" },
+        { h: "(a) Translate the conditions", m: "$g(x) = ax^3 + bx^2 + ax$ (through the origin: no constant; equal coefficients)\n$g(2) = 10a + 4b = 9$; $\\; g'(x) = 3ax^2 + 2bx + a \\Rightarrow g'(2) = 13a + 4b = 0$", mk: "B1 M1 A1 M1" },
         { m: "Subtract: $3a = -9 \\Rightarrow a = -3$, $b = \\dfrac{39}{4}$: $g(x) = -3x^3 + \\dfrac{39}{4}x^2 - 3x$", mk: "A1 A1 A1" },
         { h: "(b)", m: "$g''(x) = -18x + \\dfrac{39}{2}$; $g''(2) = -36 + 19.5 < 0$: maximum", mk: "M1 A1" }
       ], result: "$g(x) = -3x^3 + \\frac{39}{4}x^2 - 3x$; maximum" } },
