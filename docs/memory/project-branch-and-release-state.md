@@ -54,3 +54,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-27 (09:30): kos-pencil-3 released, https://f054551b.kurenai-os.pages.dev — busy-Gemini retries for marking, Start button ellipsis.
 
 2026-10-27 (10:00): kos-pencil-4 released, https://0f3ac3cd.kurenai-os.pages.dev — marking reasons as maths, 274 lost LaTeX \; fixed in Pure notes. Spike H: first marks agree with the user (caught lost a=0 and dividing by a^2).
+
+2026-10-27 (later): kos-japanese-5 released from main (40c375a + the Japanese path fix), https://fc302f55.kurenai-os.pages.dev — the media path labels at phone width; carries kos-pencil-4.
