@@ -46,3 +46,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-26: `feat/routines` (cut from feat/mind-plan, so it also carries the Mind plan docs) merged main in, deployed as sw `kos-routines-1` (https://5598f36e.kurenai-os.pages.dev), and `main` was fast-forwarded to it (ec95d06). Gate 104/104.
 2026-10-26 (later): kos-routines-2 deployed from feat/routines (https://ff0df878.kurenai-os.pages.dev) with the runner Edge Function v6; main fast-forwarded again.
 2026-10-26 (later): `feat/files` (worktree /Users/fj/Developer/KurenaiOS-ink) released as sw `kos-files-1`, https://445e2aae.kurenai-os.pages.dev — Files R1–R4, airing/release-day closed-app pushes (runner v7), CI-verified Rider evidence (github-token v4), habits several times a day. Gate 106/106. main fast-forwarded.
+
+2026-10-27: `feat/pencil-fixes` released as sw `kos-pencil-1`, https://4e6dd91c.kurenai-os.pages.dev — the Pencil Pro day fixes (smoke107), review words back off, finished review kept on the chip (still usable, not read-only: the user wants to tick routine steps late), AI_DAILY_CAP 300 (ai-chat redeployed). Gate 107/107. main fast-forwarded (d629117).
