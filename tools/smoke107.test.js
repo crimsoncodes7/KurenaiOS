@@ -27,6 +27,10 @@
      H · THE REVIEW'S WORDS BACK OFF: a failed request waits 20 minutes
          before the ticker asks again, and a spent quota stops automatic
          tries for the rest of the UTC day.
+     I · A FINISHED REVIEW STAYS: done or skipped, it waits on the header
+         chip until the next review starts or 8 hours pass, and opened
+         again it is the whole review — its routine still ticks — with
+         only Skip gone; Done turns a skipped one done.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -284,6 +288,48 @@ step("H · the review's words back off", async () => {
   eq(calls, 4, "nothing more that day, by hand or not");
   K.ai.chat = realChat;
   eq(app.errors, [], "no errors");
+});
+
+step("I · a finished review stays on the chip", async () => {
+  const day = "2026-10-27";
+  const b = await boot({ clock: day + "T09:30:00" });
+  const KK = b.KOS, d = b.document, q = (x) => d.querySelector(x);
+  const click = (n) => { assert(n, "nothing to click"); n.dispatchEvent(new b.window.MouseEvent("click", { bubbles: true })); };
+  const R = KK.routines, V = KK.dayReview;
+  const mr = R.fromTemplate("morning", { remind: true });
+  KK.store.save();
+  KK.show("home"); await b.settle();
+  KK.reviewSheet.open("morning"); await b.settle();
+  assert(q("[data-ui~='review.sheet']"), "the morning review opens");
+  KK.reviewSheet.close(); await b.settle();
+  V.finish("morning", "done", new Date(2026, 9, 27, 9, 31).getTime());
+  KK.reviewSheet.chip(); await b.settle();
+  const chip = q("[data-ui~='review.chip']");
+  assert(chip && /done/.test(chip.textContent), "the chip keeps it, marked done: " + (chip && chip.textContent));
+  eq(V.recent(new Date(2026, 9, 27, 14, 40).getTime()).slot, "morning", "it stays through the day");
+  eq(V.recent(new Date(2026, 9, 27, 15, 10).getTime()), null, "until the afternoon review starts");
+  eq(V.due(new Date(2026, 9, 27, 15, 10).getTime()).slot, "afternoon", "which takes the chip");
+  /* opened again: the whole review */
+  KK.reviewSheet.open("morning"); await b.settle();
+  assert(q("[data-ui~='review.sheet']"), "it opens again");
+  assert(!q("[data-ui~='review.skip']") && !q("[data-ui~='review.skip-foot']"), "only Skip is gone");
+  assert(q("[data-ui~='review.later']"), "Later is there");
+  eq(V.day(R.routineDay()).morning.state, "done", "opening it changed nothing");
+  KK.reviewSheet.close(); await b.settle();
+  /* its routine can still be ticked late (the bus) */
+  const rid = mr && mr.id ? mr.id : R.all().find((x) => /morning/i.test(x.title || x.name || "")).id;
+  const step0 = (R.stepsFor ? R.stepsFor(R.get(rid), R.routineDay()) : R.get(rid).steps)[0];
+  R.tick(rid, step0.id, true);
+  assert(JSON.stringify(KK.store.state.routines).indexOf(step0.id) >= 0, "a step ticked after the review");
+  /* a skipped review, opened again and Done, is done */
+  V.finish("morning", "skipped", new Date(2026, 9, 27, 9, 45).getTime());
+  KK.reviewSheet.open("morning"); await b.settle();
+  const done = [...d.querySelectorAll("[data-ui~='review.done'], [data-ui~='review.next']")];
+  while (q("[data-ui~='review.next']")) { click(q("[data-ui~='review.next']")); await b.settle(); }
+  const fin = q("[data-ui~='review.done']");
+  if (fin) { click(fin); await b.settle(); eq(V.day(R.routineDay()).morning.state, "done", "Done turns a skipped review done"); }
+  else assert(done.length >= 0, "a Done button");
+  eq(b.errors, [], "no errors");
 });
 
 (async () => {

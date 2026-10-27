@@ -1642,7 +1642,10 @@ source comments and audit notes refer to it.
     is never offered. It opens by itself only once a review has been
     opened at least once, only on the first open inside its slot, and
     never over Focus, a dialog, the Exam Room or a deep link — otherwise
-    it waits as the header chip. Skip, Later and Esc never penalise.
+    it waits as the header chip. Skip, Later and Esc never penalise. A review FINISHED
+    or skipped stays on the chip (`KOS.dayReview.recent`, pure) until the
+    next review starts or 8 hours pass, and opened again it is the whole
+    review — steps tick, the three can be picked — with only Skip gone.
 146. TEMPLATE FIRST. A review's template words render at once; Kurenai's
     (the default) replace them when they arrive, from one request with
     `KOS.dayReview.payload` (titles, times and counts; never a note, card

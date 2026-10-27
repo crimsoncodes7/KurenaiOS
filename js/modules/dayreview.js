@@ -38,18 +38,21 @@
   function openSheet(slot, opts) {
     opts = opts || {};
     if (!V().enabled()) return;
-    var due = V().due();
-    slot = slot || (due && due.slot);
+    var due = V().due(), past = !due && V().recent();
+    slot = slot || (due && due.slot) || (past && past.slot);
     if (!slot) { KOS.ui.toast("No review is waiting right now."); return; }
     if (open) close(true);
-    V().markShown(slot);
+    /* a finished review opened again from the chip: still the whole review
+       (tick steps on the bus, pick today's three late); only Skip goes */
+    var again = !!(past && past.slot === slot && !(due && due.slot === slot));
+    if (!again) V().markShown(slot);
     var u = ui();
     u.lastShown = u.lastShown || {};
     u.lastShown[R().routineDay() + "|" + slot] = Date.now();
     var resume = (u.minimised && u.minimised.slot === slot && u.minimised.day === R().routineDay()) ? u.minimised.step : 0;
     delete u.minimised;
     store.save();
-    var st = { slot: slot, cur: opts.step != null ? opts.step : resume, skipped: {}, overlay: null };
+    var st = { slot: slot, cur: opts.step != null ? opts.step : resume, skipped: {}, overlay: null, again: again };
     open = st;
     var panel = el("div", { class: "k-rv", "data-ui": "review.sheet", "data-slot": slot, "data-dialog-box": "" });
     var overlay = el("div", { class: "k-dialog-overlay k-dr-overlay" }, [panel]);
@@ -91,7 +94,9 @@
   function finish(how) {
     var st = open;
     if (!st) return;
-    V().finish(st.slot, how);
+    /* opened again: Done marks it done (a skipped one too); a done one
+       is never skipped after the fact */
+    if (!(st.again && how === "skipped")) V().finish(st.slot, how);
     open = null;
     if (st.overlay && st.overlay.parentNode) st.overlay.remove();
     paintChip();
@@ -117,6 +122,7 @@
     renderStep(st, st.steps[st.cur], body);
     p.appendChild(foot(st));
   }
+  function rvState(st) { return (V().day(R().routineDay())[st.slot] || {}).state; }
   function isEmpty(st) {
     var real = st.steps.filter(function (s) { return ["start", "next", "winddown"].indexOf(s.id) === -1; });
     var end = st.steps.filter(function (s) { return s.id === "start" || s.id === "next"; })[0];
@@ -151,8 +157,9 @@
     ]));
     if (cfg.portrait) h.appendChild(el("div", { class: "k-dr-portrait", "aria-hidden": "true" }, [el("img", { src: U().img("face.kurenai." + face), alt: "" })]));
     h.appendChild(el("div", { class: "k-dr-actions" }, [
+      st.again ? el("span", { class: "k-dr-quiet", "data-ui": "review.again", text: rvState(st) === "skipped" ? "Skipped earlier · still open" : "Done earlier · still open" }) : null,
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "review.later", text: "Later", onclick: function () { close(false); } }),
-      el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm k-dr-skipbtn", "data-ui": "review.skip", text: "Skip review", onclick: function () { finish("skipped"); KOS.ui.toast(V().LABEL[st.slot] + " skipped"); } }),
+      st.again ? null : el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm k-dr-skipbtn", "data-ui": "review.skip", text: "Skip review", onclick: function () { finish("skipped"); KOS.ui.toast(V().LABEL[st.slot] + " skipped"); } }),
       el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close (Later)", text: "✕", onclick: function () { close(false); } })
     ]));
   }
@@ -191,7 +198,7 @@
     var f = el("footer", { class: "k-dr-foot" });
     if (st.cur > 0) f.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "review.back", text: "← Back", onclick: function () { go(st.cur - 1); } }));
     /* on a phone, Skip review sits here, in the thumb zone (the header keeps Later and ✕) */
-    f.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet k-dr-skipfoot", "data-ui": "review.skip-foot", text: "Skip review", onclick: function () { finish("skipped"); KOS.ui.toast(V().LABEL[st.slot] + " skipped"); } }));
+    if (!st.again) f.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet k-dr-skipfoot", "data-ui": "review.skip-foot", text: "Skip review", onclick: function () { finish("skipped"); KOS.ui.toast(V().LABEL[st.slot] + " skipped"); } }));
     f.appendChild(el("span", { class: "k-dr-note", text: st.cur === 0 ? "Esc closes · Later keeps your place" : last ? "This is the last step." : "" }));
     if (!last) {
       f.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "review.skip-step", text: "Skip this step", onclick: function () { st.skipped[st.cur] = true; go(st.cur + 1); } }));
@@ -675,7 +682,10 @@
   function chipState() {
     if (!V().enabled()) return null;
     var d = V().due();
-    if (!d) return null;
+    if (!d) {
+      var p = V().recent();
+      return p ? { slot: p.slot, sub: p.state === "done" ? "· done" : "· skipped", past: true } : null;
+    }
     var mini = peekUi().minimised;
     var sub = mini && mini.slot === d.slot && mini.day === d.day ? "· " + Math.max(1, (open ? open.steps.length : 3) - mini.step) + " steps left"
       : KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle" ? "· after Focus" : "· ready";
@@ -692,10 +702,13 @@
     chipMount.innerHTML = "";
     var c = chipState();
     if (!c || open) return;
-    var btn = KOS.ui.menu({ label: V().LABEL[c.slot] + " " + c.sub, className: "k-dr-chip", hint: V().LABEL[c.slot], items: [
+    var btn = KOS.ui.menu({ label: V().LABEL[c.slot] + " " + c.sub, className: "k-dr-chip", hint: V().LABEL[c.slot], items: c.past ? [
+      { label: "Open again", hint: "tick, pick or change anything in it", onSelect: function () { openSheet(c.slot); } }
+    ] : [
       { label: peekUi().minimised ? "Resume" : "Open", hint: c.sub.replace("· ", ""), onSelect: function () { openSheet(c.slot); } },
       { label: "Skip review", hint: "nothing else changes", onSelect: function () { V().finish(c.slot, "skipped"); delete ui().minimised; store.save(); paintChip(); KOS.rerender(); } }
     ] });
+    if (c.past) KOS.ui.state(btn, "past", true);
     btn.setAttribute("data-ui", (btn.getAttribute("data-ui") || "") + " review.chip");
     btn.setAttribute("data-slot", c.slot);
     btn.insertBefore(el("span", { class: "k-dr-chip-k", lang: "ja", "aria-hidden": "true", text: MARK[c.slot] }), btn.firstChild);

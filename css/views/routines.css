@@ -351,6 +351,8 @@ button.k-rt-cell { cursor: pointer; }
 .k-dr-chipmount { display: inline-flex; }
 .k-dr-chipmount:empty { display: none; }
 .k-dr-chip { gap: var(--sp-8); min-block-size: var(--sp-32); padding-inline: var(--sp-8) var(--sp-12); border-radius: var(--r-pill); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); font-size: var(--fs-13); white-space: nowrap; }
+/* a review already finished, kept on the chip to read again */
+.k-dr-chip[data-state~="past"] { color: var(--muted); background: none; }
 .k-dr-chip-k { inline-size: var(--sp-24); block-size: var(--sp-24); display: grid; place-items: center; border-radius: 50%; background: var(--s3); font: var(--weight-semibold) var(--fs-12) / 1 var(--font-kanji); }
 
 /* ================= the player (33o–33p) ================= */

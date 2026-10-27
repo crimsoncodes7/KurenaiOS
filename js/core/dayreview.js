@@ -176,6 +176,24 @@
     return { slot: cur.slot, day: day, label: LABEL[cur.slot], time: cur.time, folded: folded, yesterday: yesterday };
   }
 
+  /* recent(now) → {slot, day, label, state} — the review just finished or
+     skipped, still on the header chip for a while so it can be opened and used again
+     (asked for 27 October 2026: "you see it once and it's gone"). It
+     stays until the next review starts or HOLD has passed since it closed,
+     whichever is first; due() wins while a review waits. Pure, like due(). */
+  var HOLD = 8 * 3600000;
+  function recent(now) {
+    now = now == null ? Date.now() : now;
+    if (due(now)) return null;
+    var day = rday(now), t = offset(hmNow(now)), last = null;
+    slots(day, now).forEach(function (x) { if (offset(x.time) <= t) last = x; });
+    if (!last || !closed(last.state)) return null;
+    var rec = dayRec(day)[last.slot] || {};
+    var from = (last.state === "done" ? rec.doneAt : rec.skippedAt) || rec.seenAt || at(day, last.time);
+    if (now - from > HOLD) return null;
+    return { slot: last.slot, day: day, label: LABEL[last.slot], state: last.state };
+  }
+
   /* ---------------- its own state (the writes) ---------------- */
   function slotWrite(day, slot) {
     var s = data(), d = s.days[day] = s.days[day] || {};
@@ -200,7 +218,7 @@
     now = now || Date.now();
     var day = rday(now), r = slotWrite(day, slot);
     r.state = how === "skipped" ? "skipped" : "done";
-    if (r.state === "done") r.doneAt = now;
+    if (r.state === "done") r.doneAt = now; else r.skippedAt = now;
     store.save();
     return r.state;
   }
@@ -795,7 +813,7 @@
     SLOTS: SLOTS, LABEL: LABEL, DEFAULTS: DEFAULTS, CHOICES: CHOICES,
     enable: enable, enabled: function () { return enabled; }, start: start, tick: tick, easy: easy,
     normalise: normalise, cfg: cfg, setConfig: setConfig,
-    slotTime: slotTime, slots: slots, due: due, day: dayRec,
+    slotTime: slotTime, slots: slots, due: due, recent: recent, day: dayRec,
     markShown: markShown, finish: finish, setThree: setThree, setFirst: setFirst, firstFor: firstFor, setWindDown: setWindDown,
     resolve: resolve, triage: triage, dayFacts: dayFacts, content: content,
     template: template, payload: payload, write: write, words: words, ensureWords: ensureWords,
