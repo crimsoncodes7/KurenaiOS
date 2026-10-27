@@ -52,3 +52,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-27 (later): kos-pencil-2 released, https://e2203d56.kurenai-os.pages.dev — marking reply fix (ai-chat think room), maths in What is sent, Paper on pads, Dock in palette menu; ai-chat redeployed. Spike D now loads instantly (user). Spike H still to run.
 
 2026-10-27 (09:30): kos-pencil-3 released, https://f054551b.kurenai-os.pages.dev — busy-Gemini retries for marking, Start button ellipsis.
+
+2026-10-27 (10:00): kos-pencil-4 released, https://0f3ac3cd.kurenai-os.pages.dev — marking reasons as maths, 274 lost LaTeX \; fixed in Pure notes. Spike H: first marks agree with the user (caught lost a=0 and dividing by a^2).
