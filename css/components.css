@@ -23,6 +23,9 @@
 .k-link { color: var(--muted); font-size: var(--fs-12); text-decoration: none; white-space: nowrap; }
 .k-link:hover { color: var(--text); }
 .k-ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-inline-size: 0; }
+/* a button whose label may be long (a task's title): it never outgrows its
+   row, and its label ends in … instead */
+.k-fit-btn { max-inline-size: 100%; min-inline-size: 0; flex-shrink: 1; }
 
 /* ---------- page head: kicker → H1 → subline; controls on the same row ---------- */
 /* the actions wrap under the title before the title is squeezed: a long

@@ -220,10 +220,19 @@
         send.disabled = true; status.textContent = "Kurenai is reading your page…";
         KOS.ai.chatWith("gemini", route(), {
           category: "tutor", system: o.system, temperature: 0.1, maxTokens: 2000, noRetry: false,
+          /* Gemini's "high demand" spikes outlast one 2 s retry (27 October
+             2026): this one deliberate request waits patiently, and says so */
+          busyRetries: 3, onBusy: function (n, of) { status.textContent = "Gemini is busy right now — trying again (" + n + " of " + of + ")…"; },
           structured: o.schema ? { schema: o.schema } : undefined,
           messages: [{ role: "user", content: o.prompt, images: [{ mime: "image/jpeg", data: o.image }] }]
         }, function (err, res) {
-          if (err) { send.disabled = false; status.textContent = "Kurenai couldn't read it — " + (err.message || "try again") + ". Tick the marks yourself."; return; }
+          if (err) {
+            send.disabled = false;
+            status.textContent = /HTTP 503|overloaded|UNAVAILABLE|high demand/i.test(err.message || "")
+              ? "Gemini is still too busy (high demand on Google's side). Try Send again in a minute, or tick the marks yourself."
+              : "Kurenai couldn't read it — " + (err.message || "try again") + ". Tick the marks yourself.";
+            return;
+          }
           var json = readJson(res.text);
           if (!json) {
             send.disabled = false;

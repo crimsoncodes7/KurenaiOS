@@ -66,7 +66,7 @@
   }
   var DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434";
   var REQUEST_TIMEOUT = 120000;
-  var BUSY_RX = /HTTP 503|overloaded|UNAVAILABLE|high demand/i, BUSY_RETRY_MS = 2000;   // whole-call ceiling, ms
+  var BUSY_RX = /HTTP 503|overloaded|UNAVAILABLE|high demand/i, BUSY_RETRY_MS = 2000, BUSY_WAITS = [3000, 8000, 15000];   // whole-call ceiling, ms
   var OLLAMA_HEALTH_TIMEOUT = 2500;
 
   /* capability flags per provider. Ollama's real tool/structured support
@@ -426,10 +426,12 @@
   /* ---------------- the normalized chat entry points ---------------- */
   /* chatWith: one provider, one attempt policy (single network-kind retry
      unless noRetry). request: {messages, system?, tools?, structured?,
-     temperature?, maxTokens?, category?, timeoutMs?, noRetry?}            */
+     temperature?, maxTokens?, category?, timeoutMs?, noRetry?,
+     busyRetries? (how many patient retries an "overloaded" provider gets,
+     default 1; each waits longer, BUSY_WAITS), onBusy?(n, of) before each} */
   function chatWith(provider, model, request, cb) {
     var correlationId = newCorrelationId();
-    var attempts = 0;
+    var attempts = 0, busyTries = 0;
     function attempt() {
       attempts++;
       var done = function (err, res) {
@@ -439,8 +441,11 @@
         }
         /* a provider that answered "overloaded" (HTTP 503 / UNAVAILABLE)
            ran nothing, so one patient retry cannot double-run a tool */
-        if (err && err.kind === "provider" && BUSY_RX.test(err.message || "") && attempts < 2 && !request.noRetry) {
-          setTimeout(attempt, BUSY_RETRY_MS);
+        var busyOf = request.busyRetries == null ? 1 : Math.max(0, Math.min(3, request.busyRetries | 0));
+        if (err && err.kind === "provider" && BUSY_RX.test(err.message || "") && busyTries < busyOf && !request.noRetry) {
+          busyTries++;
+          if (request.onBusy) { try { request.onBusy(busyTries, busyOf); } catch (e) { /* the caller's */ } }
+          setTimeout(attempt, busyOf === 1 ? BUSY_RETRY_MS : BUSY_WAITS[busyTries - 1]);
           return;
         }
         cb(err, res);

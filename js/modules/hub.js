@@ -1120,14 +1120,16 @@
       });
       var firstOpen = picks.filter(function (p) { return !p.done; })[0];
       goal.appendChild(el("div", { class: "k-cluster k-home-goal-go" }, [
-        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "home.three-start",
-          text: firstOpen ? "▶ Start: " + firstOpen.title : "Start focus →", onclick: function () {
+        /* a long title ends in … inside the card (it ran off the Home card's
+           edge on the iPad); the whole title is its tooltip */
+        el("button", { type: "button", class: "k-btn k-btn--primary k-fit-btn", "data-intent": "primary", "data-ui": "home.three-start",
+          title: firstOpen ? "Start: " + firstOpen.title : null, onclick: function () {
             if (!firstOpen) { KOS.show("focus"); return; }
             var ctx = { title: firstOpen.title, subject: firstOpen.subject, objective: firstOpen.action || "" };
             if (firstOpen.ref.kind === "assignment") ctx.assignmentId = firstOpen.ref.id;
             if (firstOpen.ref.kind === "topic") ctx.refs = [firstOpen.ref.id];
             if (KOS.routinePlayer) KOS.routinePlayer.preflight(ctx); else KOS.show("focus");
-          } }),
+          } }, [el("span", { class: "k-ellipsis", text: firstOpen ? "▶ Start: " + firstOpen.title : "Start focus →" })]),
         el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "home.three-edit", text: "Edit", onclick: function () { if (KOS.reviewSheet) KOS.reviewSheet.open("morning", { step: 3 }); } })
       ]));
     } else {

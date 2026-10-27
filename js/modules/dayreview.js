@@ -325,10 +325,10 @@
         el("div", { class: "k-dr-start-t", text: title || "Nothing pressing" }),
         f && f.action ? el("div", { class: "k-dr-action" }, [el("span", { class: "k-kicker", text: "First concrete action" }), el("div", { text: f.action })]) : n && n.why ? muted(n.kicker + (n.why ? " · " + n.why : "")) : null,
         el("div", { class: "k-cluster k-dr-start-go" }, [
-          title ? el("button", { type: "button", class: "k-btn k-btn--primary k-dr-big", "data-ui": "review.start", text: "▶ Start: " + title, onclick: function () {
+          title ? el("button", { type: "button", class: "k-btn k-btn--primary k-dr-big k-fit-btn", "data-ui": "review.start", title: "Start: " + title, onclick: function () {
             finish("done");
             startFocus(f, n);
-          } }) : null,
+          } }, [el("span", { class: "k-ellipsis", text: "▶ Start: " + title })]) : null,
           el("button", { type: "button", class: "k-btn", "data-ui": "review.not-yet", text: "Not yet", onclick: function () { finish("done"); } })
         ]),
         el("p", { class: "k-dr-soft", text: "Start opens About to Study with this filled in. Not yet closes the review; Home keeps this Start all day." })
@@ -377,7 +377,7 @@
         el("div", { class: "k-dr-start-t", text: title || "The rest of the day is yours" }),
         n && !f ? muted(n.kicker + (n.why ? " · " + n.why : "")) : null,
         el("div", { class: "k-cluster k-dr-start-go" }, [
-          title ? el("button", { type: "button", class: "k-btn k-btn--primary k-dr-big", "data-ui": "review.start", text: "▶ Start: " + title, onclick: function () { finish("done"); startFocus(f, n); } }) : null,
+          title ? el("button", { type: "button", class: "k-btn k-btn--primary k-dr-big k-fit-btn", "data-ui": "review.start", title: "Start: " + title, onclick: function () { finish("done"); startFocus(f, n); } }, [el("span", { class: "k-ellipsis", text: "▶ Start: " + title })]) : null,
           el("button", { type: "button", class: "k-btn", "data-ui": "review.done", text: "Done for now", onclick: function () { finish("done"); } })
         ]),
         el("p", { class: "k-dr-soft", text: "The evening review still comes at " + (V().slotTime("evening", R().routineDay()) || "its time") + "." })
