@@ -55,7 +55,7 @@ image, ever; sprites, spots and badges on flat #00FF00; Kurenai identical to
 her redesign sheet (`art-source/app/refs/kurenai-sheet.png`,
 `kurenai-base.png`).
 
-328 images. Gemini fills its usage window after about 15, so they go in
+322 images. Gemini fills its usage window after about 15, so they go in
 23 waves, one window each; a wave's images only need earlier waves.
 
 | Wave | Images | What |
@@ -67,11 +67,11 @@ her redesign sheet (`art-source/app/refs/kurenai-sheet.png`,
 | 5 | 13 | Batch 10: the seven outfit bases (needs wave 1's base); batch 11: six Code badges |
 | 6–8 | 15 · 15 · 5 | Batch 13: each outfit's five faces (35; needs wave 5) |
 | 8 | 15 | The last 5 outfit faces; 10 of batch 14 (the Japanese, Mind and Creatives desks, page headers) |
-| 9–10 | 15 · 15 | The rest of batch 14; batch 15 (Exams covers); batch 16 (avatars) |
+| 9–10 | 15 · 15 | The rest of batch 14; batch 15 (Exams covers; IT only F201 and the F206 NEA); batch 16 (avatars) |
 | 10–13 | 15 each | Batches 17–20: frames, shelf skins, Shrine card styles, seal stamps |
 | 13–16 | 15 each | Batch 21 (Code badges, 30) and batch 22 (Japanese, 19) |
 | 16–20 | 15 each | Batch 23 (Mind, 22) and batch 24 (Creatives, 42) |
-| 21–23 | 15 · 15 · 7 | Batch 25 (CS 13, Maths 19, IT 5) |
+| 21–23 | 15 · 15 · 7 | Batch 25 (CS 13, Maths 19, IT 2: F201 and the F206 NEA) |
 
 The sheet shows each image's wave; work down it in order.
 

@@ -9,7 +9,7 @@ metadata:
 ---
 
 IT (F-units) status as told on 2026-09-26:
-- Sitting this year (Year 2): F201, F204, F206.
+- Sitting this year (Year 2): F201, F204, F206. Update 2026-10-28: F204 is done; still to do are F201 and F206 (F206 is the NEA).
 - Completed last year (Year 1, exam already sat, marks/grades known): F200, F202.
 - Not sitting at all: F203, F205 — should not count toward any stats.
 

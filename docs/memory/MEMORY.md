@@ -1,7 +1,7 @@
 - [Maths notes depth rewrite](maths-notes-depth-rewrite.md) — Pure, Stats and Mechanics all deployed (Mechanics 9eac539); per-section pipeline
 - [Notes layout and diagrams](notes-layout-and-diagrams.md) — short lines/bullets, not paragraphs; annotated inline `{fig}` diagrams wherever a picture helps, including worked examples
 - [Graphite review feedback](graphite-review-feedback.md) — review notes live in the checklist artifact db; deferred work now lives in docs/ROADMAP.md
-- [IT units sitting](it-units-sitting.md) — sitting F201/F204/F206; done F200/F202; never F203/F205
+- [IT units sitting](it-units-sitting.md) — still to do F201 and F206 (NEA); done F200/F202/F204 (F204 by 2026-10-28); never F203/F205
 - [CS Paper 2 depth](cs-paper2-depth.md) — worktree feat/cs-p2-depth; all 88 Paper 2 leaves; released with Paper 1 (87ee60c); per-section pipeline
 - [CS Paper 1 + NEA](cs-paper1-nea.md) — branch feat/cs-p1-nea; NEA companion done (a06b106); Paper 1 + NEA + Paper 2 RELEASED 2026-10-02 (87ee60c, kos-cs-depth-1)
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)

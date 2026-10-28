@@ -1391,7 +1391,7 @@ included) without saying why.
 > kept. 28 October: waves 1-5 are made; batches 14-25 added (the missing
 > desks, page headers, Exams covers, avatars, frames, shelves, Shrine cards,
 > seal stamps, and badges for every Code, Japanese, Mind, Creatives and
-> A-level unit): 328 images in 23 waves. Rotation and your own pictures are
+> A-level unit): 322 images in 23 waves. Rotation and your own pictures are
 > 5.14. Nothing is built yet: next is release 1, the Assistant's redesign.
 
 **What:** I (the coding agent) walk every area of the app and write a

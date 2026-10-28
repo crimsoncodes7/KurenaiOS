@@ -15,7 +15,7 @@ so the art and shop work continues on the other account.
 - **Done:** the art and shop audit (roadmap 5.13), the user's two rounds of
   decisions, and roadmap 5.14 (rotating art and your own pictures).
   Everything needed is in [app-art.md](app-art.md): the decisions, the shop
-  at 116,700 gold, the 328 Gemini images in 23 waves, and the build order.
+  at 116,700 gold, the 322 Gemini images in 23 waves, and the build order.
   The prompts are `art-source/app/manifest.json` (sheet:
   `prototypes/app-art/art.html`); the Claude Design passes are
   [design-prompts.md](design-prompts.md) §18, sent in the order

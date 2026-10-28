@@ -92,7 +92,7 @@
   {
    "n": 15,
    "title": "Exams & Papers covers",
-   "why": "A card illustration for each paper and unit you sit."
+   "why": "A card illustration for each paper and unit still to sit (IT: F201 and the F206 NEA only)."
   },
   {
    "n": 16,
@@ -142,7 +142,7 @@
   {
    "n": 25,
    "title": "A-level badges",
-   "why": "CS's 13 units, Maths' 19 sections and the five IT units."
+   "why": "CS's 13 units, Maths' 19 sections and IT's F201 and F206 (the NEA)."
   }
  ],
  "assets": [
@@ -1965,20 +1965,6 @@
    "wave": 9
   },
   {
-   "id": "app.cover.exam.it-f200",
-   "batch": 15,
-   "kind": "cover",
-   "style": "bg",
-   "aspect": "3:2",
-   "attach": [
-    "refs/style-anchor.png"
-   ],
-   "prompt": "A small painted card illustration, a still life in the subject's colour: a laptop, a phone and a small router arranged neatly, sage green light. Simple, three to five objects, shallow depth of field, a plain softly lit backdrop. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT F200: its assessment cards and paper page in Exams & Papers.",
-   "size": "wave 9 · exported 960 px wide",
-   "wave": 9
-  },
-  {
    "id": "app.cover.exam.it-f201",
    "batch": 15,
    "kind": "cover",
@@ -1993,34 +1979,6 @@
    "wave": 9
   },
   {
-   "id": "app.cover.exam.it-f202",
-   "batch": 15,
-   "kind": "cover",
-   "style": "bg",
-   "aspect": "3:2",
-   "attach": [
-    "refs/style-anchor.png"
-   ],
-   "prompt": "A small painted card illustration, a still life in the subject's colour: a padlock, a keycard on a lanyard and a small server box, sage green light. Simple, three to five objects, shallow depth of field, a plain softly lit backdrop. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT F202: its assessment cards and paper page in Exams & Papers.",
-   "size": "wave 9 · exported 960 px wide",
-   "wave": 9
-  },
-  {
-   "id": "app.cover.exam.it-f204",
-   "batch": 15,
-   "kind": "cover",
-   "style": "bg",
-   "aspect": "3:2",
-   "attach": [
-    "refs/style-anchor.png"
-   ],
-   "prompt": "A small painted card illustration, a still life in the subject's colour: a web browser window drawn as plain shapes on a tablet, a stylus, sage green light. Simple, three to five objects, shallow depth of field, a plain softly lit backdrop. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT F204: its assessment cards and paper page in Exams & Papers.",
-   "size": "wave 10 · exported 960 px wide",
-   "wave": 10
-  },
-  {
    "id": "app.cover.exam.it-f206",
    "batch": 15,
    "kind": "cover",
@@ -2030,7 +1988,7 @@
     "refs/style-anchor.png"
    ],
    "prompt": "A small painted card illustration, a still life in the subject's colour: a small robot arm toy and a microcontroller board, sage green light. Simple, three to five objects, shallow depth of field, a plain softly lit backdrop. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT F206: its assessment cards and paper page in Exams & Papers.",
+   "where": "IT F206 (the NEA): its assessment cards and paper page in Exams & Papers.",
    "size": "wave 10 · exported 960 px wide",
    "wave": 10
   },
@@ -4765,20 +4723,6 @@
    "wave": 23
   },
   {
-   "id": "app.badge.it.f200",
-   "batch": 25,
-   "kind": "spot",
-   "style": "bg",
-   "aspect": "1:1",
-   "attach": [
-    "refs/style-anchor.png"
-   ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a laptop, phone and router Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT: a unit passed",
-   "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
-  },
-  {
    "id": "app.badge.it.f201",
    "batch": 25,
    "kind": "spot",
@@ -4788,35 +4732,7 @@
     "refs/style-anchor.png"
    ],
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a bar chart of blocks Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT: a unit passed",
-   "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
-  },
-  {
-   "id": "app.badge.it.f202",
-   "batch": 25,
-   "kind": "spot",
-   "style": "bg",
-   "aspect": "1:1",
-   "attach": [
-    "refs/style-anchor.png"
-   ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a padlock Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT: a unit passed",
-   "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
-  },
-  {
-   "id": "app.badge.it.f204",
-   "batch": 25,
-   "kind": "spot",
-   "style": "bg",
-   "aspect": "1:1",
-   "attach": [
-    "refs/style-anchor.png"
-   ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a web page of shapes Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT: a unit passed",
+   "where": "IT: F201 passed",
    "size": "wave 23 · exported 640 px, keyed",
    "wave": 23
   },
@@ -4830,7 +4746,7 @@
     "refs/style-anchor.png"
    ],
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a robot arm Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
-   "where": "IT: a unit passed",
+   "where": "IT: F206, the NEA, submitted",
    "size": "wave 23 · exported 640 px, keyed",
    "wave": 23
   }
