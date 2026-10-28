@@ -136,20 +136,31 @@
 
   /* Contact sheet: each character's base with its expressions, plus a compare viewer that
      lays a face over the base so any drift in the body shows up before import. */
+  /* an outfit is a base of its own ("kurenai-winter"), compared with its character's base */
+  function baseOf(a) {
+    var who = a.kind === "base" && !M.cast[a.who] ? a.who.split("-")[0] : a.who;
+    return M.assets.filter(function (b) { return b.kind === "base" && b.who === who; })[0];
+  }
   function contact() {
-    var rows = Object.keys(M.cast).map(function (who) {
+    var whos = Object.keys(M.cast);
+    M.assets.forEach(function (a) { if (a.kind === "base" && whos.indexOf(a.who) === -1) whos.push(a.who); });
+    var rows = whos.map(function (who) {
       var base = M.assets.filter(function (a) { return a.kind === "base" && a.who === who; })[0];
       var faces = M.assets.filter(function (a) { return a.kind === "face" && a.who === who; });
-      var items = [base].concat(faces).filter(function (a) { return a && have["inbox/" + file(a)]; });
-      if (!items.length) return null;
+      // a character's row also carries its outfits; an outfit's own row appears once its faces do
+      var outfits = M.cast[who] ? M.assets.filter(function (a) { return a.kind === "base" && a.who.split("-")[0] === who && a.who !== who; }) : [];
+      var items = [base].concat(faces, outfits).filter(function (a) { return a && have["inbox/" + file(a)]; });
+      if (!items.length || (!M.cast[who] && items.length < 2)) return null;
+      var c = M.cast[who] || M.cast[who.split("-")[0]];
+      var name = c ? c.name.split(" (") : [who, ""];
       return el("div", { class: "cs-row" }, [
-        el("h4", {}, [el("span", { lang: "ja", text: M.cast[who].name.split(" (")[0] }), " ", el("span", { class: "muted", text: "(" + M.cast[who].name.split(" (")[1] })]),
+        el("h4", {}, [el("span", { lang: "ja", text: name[0] }), " ", el("span", { class: "muted", text: M.cast[who] ? "(" + name[1] : "(" + who.split("-").slice(1).join(" ") + " outfit)" })]),
         el("div", { class: "cs-strip" }, items.map(function (a) {
-          var isBase = a === base;
-          return el("button", { class: "cs-item", type: "button", "aria-pressed": String(compare === a.id), disabled: isBase || !have["inbox/" + file(base)] ? true : null,
+          var isBase = a === base, against = baseOf(a);
+          return el("button", { class: "cs-item", type: "button", "aria-pressed": String(compare === a.id), disabled: isBase || !against || !have["inbox/" + file(against)] ? true : null,
             onclick: function () { compare = compare === a.id ? null : a.id; render(); } }, [
             el("img", { src: ART + "inbox/" + file(a), alt: "" }),
-            el("span", { text: isBase ? "base" : a.id.split(".").pop() })
+            el("span", { text: isBase ? "base" : a.kind === "base" ? a.id.split(".").pop() + " outfit" : a.id.split(".").pop() })
           ]);
         }))
       ]);
@@ -158,13 +169,13 @@
     var cmp = null;
     if (compare) {
       var f = M.assets.filter(function (a) { return a.id === compare; })[0];
-      var b = M.assets.filter(function (a) { return a.kind === "base" && a.who === f.who; })[0];
+      var b = baseOf(f), what = f.kind === "base" ? "the " + f.id.split(".").pop() + " outfit" : f.id.split(".").pop();
       var top = el("img", { class: "cmp-top", src: ART + "inbox/" + file(f), alt: "" });
       var flick = null;
       cmp = el("div", { class: "cmp card" }, [
         el("div", { class: "cmp-stage" }, [el("img", { src: ART + "inbox/" + file(b), alt: "Base pose" }), top]),
         el("div", { class: "cmp-ctl" }, [
-          el("p", { text: "Slide between the base and " + f.id.split(".").pop() + ". Only the face should change; if the hair, hands or outline move, the import keeps the base body and swaps the head alone, but a big drift is worth a redo." }),
+          el("p", { text: f.kind === "base" ? "Slide between the base and " + what + ". Only the clothes should change; if the face, hair or pose move, the outfit's faces will drift with it, so a big change is worth a redo." : "Slide between the base and " + what + ". Only the face should change; if the hair, hands or outline move, the import keeps the base body and swaps the head alone, but a big drift is worth a redo." }),
           el("label", {}, ["Face opacity ", el("input", { type: "range", min: "0", max: "100", value: "100", oninput: function (e) { top.style.opacity = e.target.value / 100; } })]),
           el("button", { class: "btn", type: "button", onclick: function (e) {
             if (flick) { clearInterval(flick); flick = null; top.style.opacity = 1; e.target.textContent = "Flicker"; return; }
