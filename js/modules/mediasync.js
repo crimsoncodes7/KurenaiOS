@@ -249,8 +249,12 @@
         var connectBtn = el("button", { type: "button", class: "k-btn", text: "Connect ↗", "aria-label": "Connect AniList ↗", onclick: function () {
           var id = idIn.value.trim();
           if (!id) { KOS.ui.toast("Paste your Client ID first — from anilist.co/settings/developer.", true); return; }
+          /* open inside the tap itself: Safari (iPad) blocks a window opened
+             from the IndexedDB write's callback as a popup */
+          var url = KOS.anilist.authorizeUrl(id);
+          var win = window.open(url, "_blank");
           KOS.anilist.setClientId(id, function () {
-            window.open(KOS.anilist.authorizeUrl(id), "_blank");
+            if (!win) { window.location.href = url; return; }
             KOS.ui.toast("Approve on AniList, then copy the token it shows into the field below.");
           });
         } });
