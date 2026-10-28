@@ -20,4 +20,4 @@
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
 - [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 (Fuji); Ren + Kurenai redesign on the Mind art sheet; library voices refused on free API; build waits for go-ahead
 - [Daily Review and Routines](routines-review.md) — 5.10 RELEASED kos-routines-1, follow-up kos-routines-2 + runner v6; next: Files plan 5.11 (decisions await)
-- [Art and shop audit](art-shop-audit.md) — 5.13 APPROVED 2026-10-27; plan docs/app-art.md (101 images in 8 waves, shop 79.6k); next release 1 Assistant redesign; handover HANDOFF §0
+- [Art and shop audit](art-shop-audit.md) — 5.13/5.14 approved; plan docs/app-art.md (328 images, 23 waves, waves 1-5 made; shop 116.7k); next release 1 Assistant redesign; handover HANDOFF §0

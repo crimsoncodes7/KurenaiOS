@@ -7,25 +7,28 @@ the only things both can rely on are **Git** and the **files in the repo**.
 This page is the protocol that keeps them seamless. Nothing in it needs the
 accounts to talk to each other.
 
-## 0. The current handover (27 October 2026)
+## 0. The current handover (28 October 2026)
 
 The first account is near its weekly limit (it resets on Sunday 1 November),
 so the art and shop work continues on the other account.
 
-- **Done:** the art and shop audit (roadmap 5.13) and the user's decisions.
+- **Done:** the art and shop audit (roadmap 5.13), the user's two rounds of
+  decisions, and roadmap 5.14 (rotating art and your own pictures).
   Everything needed is in [app-art.md](app-art.md): the decisions, the shop
-  at 79,600 gold, the 101 Gemini images in eight waves, and the build order.
+  at 116,700 gold, the 328 Gemini images in 23 waves, and the build order.
   The prompts are `art-source/app/manifest.json` (sheet:
   `prototypes/app-art/art.html`); the Claude Design passes are
   [design-prompts.md](design-prompts.md) §18, sent in the order
   18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1/18.2.
-- **Live:** sw `kos-japanese-5` (https://fc302f55.kurenai-os.pages.dev),
-  which includes the Japanese path fix and kos-pencil-4.
-- **Nothing is built yet.** The user makes the art by hand in Gemini, one
-  wave a usage window (~15 images), and saves it to `art-source/app/inbox/`.
-- **Next:** release 1 in app-art.md, the Assistant's redesign, as soon as
-  wave 1's six Assistant images are in the inbox (check with the sheet or
-  `ls art-source/app/inbox`). Then Home's seasons. Ask before any deploy.
+- **Art made:** waves 1–5 (the Assistant, Home's seasons, the subject desks,
+  Focus scenes, spotlights, halls, empty states, story covers, finishes,
+  banners, the seven outfit bases, Code's capstone badges, the Exam Room),
+  saved in `art-source/app/inbox/`, NOT imported yet. Next for the user:
+  waves 6–8 (the outfits' faces), then 8 onwards.
+- **Live:** sw `kos-japanese-5` (https://fc302f55.kurenai-os.pages.dev).
+- **Nothing is built yet.** Next: release 1 in app-art.md, the
+  Assistant's redesign (its six images are in the inbox), then Home's
+  seasons. Ask before any deploy.
 - Another Claude session may be releasing Pencil fixes on
   `feat/pencil-fixes` (worktree `../KurenaiOS-ink`): always fetch and branch
   from the latest `main`.

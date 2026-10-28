@@ -1388,8 +1388,11 @@ included) without saying why.
 > new items (all seven outfits, prestige gala 10,000); design passes in the
 > order 18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1/18.2
 > ([design-prompts.md](design-prompts.md) §18); CSS banners retired, seals
-> kept. Nothing is built yet: next is release 1, the Assistant's redesign,
-> once wave 1's images are in the inbox.
+> kept. 28 October: waves 1-5 are made; batches 14-25 added (the missing
+> desks, page headers, Exams covers, avatars, frames, shelves, Shrine cards,
+> seal stamps, and badges for every Code, Japanese, Mind, Creatives and
+> A-level unit): 328 images in 23 waves. Rotation and your own pictures are
+> 5.14. Nothing is built yet: next is release 1, the Assistant's redesign.
 
 **What:** I (the coding agent) walk every area of the app and write a
 proposal, not code, of where art and new design would lift it, and what to
@@ -1426,6 +1429,41 @@ over 43,000 gold and owns everything in it.
     is ever sold (invariant 2).
 - **Out:** a written report (an artifact) and new manifest entries, for
   the user to approve before any art is made or anything is built.
+
+### 5.14 Rotating art and your own pictures ◆ (asked for 28 October 2026)
+
+**What:** two options on every art slot (Home's hero, the subject and page
+headers, the Focus stage, the profile banner, the avatar and its frame,
+Kurenai's outfit, the vault spotlights, the Shrine hall, the share card).
+Planned with 5.13; nothing is built.
+
+- **Rotation (free, an option per slot).** Instead of one pick, a slot can
+  rotate among the items you own (and the free ones):
+  - by TIME — each day, each week, the season, or the time of day
+    (morning, afternoon, evening, night);
+  - by CONDITION — Exam Season, a streak milestone, Critical HP (a calmer
+    scene, never a scolding one), a goal reached today, a weekend, your
+    birthday;
+  - or shuffled on each open.
+  The rule is per slot and syncs like the theme; the choice of the moment is
+  a pure read of the date and the app's state, never stored, so two devices
+  agree. Reduced data and "Decorative art" off still turn it all off.
+- **Your own pictures (a purchase per area).** Uploading your own image for
+  a slot becomes a shop unlock, priced moderately: **3,000 gold per area**
+  (Profile banner, Home's hero, subject and page headers, Focus stage,
+  vault heroes and the Seasonal hero, Shrine hall, share card, and a new
+  app WALLPAPER behind the whole page), or **20,000 for every area**. Areas
+  that allow an upload FREE today (the profile banner's "custom image",
+  the vault heroes, invariant 30, and the Seasonal hero, invariant 94) move
+  behind that purchase: a picture already set keeps showing, but changing
+  it or adding a new one needs the unlock. Pictures stay on the device as
+  today (per device, through `KOS.imageCrop`, invariant 26c).
+- **Invariants to rewrite when built:** 2 (gold gates labs, simulations and
+  cosmetics, the upload unlocks included; nothing a study page needs), 30
+  and 94 (the upload is the unlock's), and the Governor's catalogue comment
+  ("a custom image upload is always free").
+- **Design:** part of pass 18.5 (the shop) and 18.7 (the slots) in
+  design-prompts.md; the build plan is [app-art.md](app-art.md).
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
