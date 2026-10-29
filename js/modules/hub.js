@@ -2715,7 +2715,8 @@
     var studyCol = el("div", { class: "k-topic-col", "data-ui": "study.col" }, [head, studyNav, el("div", { class: "k-topic-workgrid", "data-ui": "topic.workgrid" }, [panel, workPane])]);
     TABDEFS.forEach(function (t) { TAB_NAME[t[0]] = t[1]; });
     studyGrid.appendChild(studyCol);
-    var asstStrip = KOS.assistant && KOS.assistant.contextActions
+    /* a subject with its own Ask Kurenai in the inspector (Mind's four modes) opts out: cx.assistStrip === false */
+    var asstStrip = KOS.assistant && KOS.assistant.contextActions && !(cx && cx.assistStrip === false)
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
       : null;
     var inspector = buildInspector(studyGrid, sid, ref, cx ? cx.status() : ctl, asstStrip, cx);

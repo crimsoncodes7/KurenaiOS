@@ -18,6 +18,6 @@
 - [After-FSRS release](after-fsrs-branch.md) — Focus switch, FSRS3, closed-app runner, GitHub App; RELEASED 2026-10-22 (13cef94, kos-runner-2); env.local.js is deferred
 - [iPad and Pencil](ipad-phase.md) — Phase 6 + Files plan R0–R4 RELEASED (kos-files-1, 445e2aae); next: art/shop audit 5.13 on request; match desktop on iPad
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
-- [Mind study space](mind-study-space.md) — roadmap 5.9; design turn 32 (Fuji); Ren + Kurenai redesign on the Mind art sheet; library voices refused on free API; build waits for go-ahead
+- [Mind study space](mind-study-space.md) — roadmap 5.9; platform + F1 BUILT on feat/mind (../KurenaiOS-mind), smokes 109–111, kos_mind applied; adapt the design to the app, no Mind streak
 - [Daily Review and Routines](routines-review.md) — 5.10 RELEASED kos-routines-1, follow-up kos-routines-2 + runner v6; next: Files plan 5.11 (decisions await)
 - [Art and shop audit](art-shop-audit.md) — 5.13/5.14 approved; plan docs/app-art.md (328 images, 23 waves, waves 1-5 made; shop 116.7k); next release 1 Assistant redesign; handover HANDOFF §0

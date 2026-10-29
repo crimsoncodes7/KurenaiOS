@@ -85,13 +85,15 @@
   function strip(plan, o) {
     o = o || {};
     var done = o.done || {};
-    var parts = plan.exam ? [["reviews", "Reviews", 5]] : [["reviews", "Reviews", 4], ["sitting", "One sitting", 8], ["question", "One question", 3]];
+    /* each part's width and minutes are the plan's own; a part with nothing in it says so */
+    function m(k, d) { var x = plan[k]; return x && x.min != null ? x.min : x === null ? 0 : d; }
+    var parts = plan.exam ? [["reviews", "Reviews", m("reviews", 5)]] : [["reviews", "Reviews", m("reviews", 4)], ["sitting", "One sitting", m("sitting", 8)], ["question", "One question", m("question", 3)]];
     return el("div", { class: "k-mind-strip", "data-ui": "mind.daily-strip", role: "img",
-      "aria-label": parts.map(function (p) { return p[1] + " " + p[2] + " minutes" + (done[p[0]] ? ", done" : o.now === p[0] ? ", now" : ""); }).join("; ") },
+      "aria-label": parts.map(function (p) { return p[1] + (p[2] ? " " + p[2] + " minutes" : ", none today") + (done[p[0]] ? ", done" : o.now === p[0] ? ", now" : ""); }).join("; ") },
       parts.map(function (p) {
-        var st = done[p[0]] ? "done" : o.now === p[0] ? "now" : null;
-        return el("span", { class: "k-mind-strip-p", "data-part": p[0], "data-state": st, style: "--w: " + p[2] }, [
-          el("i"), el("span", { class: "k-mind-strip-t" }, [st === "done" ? "✓ " : "", p[1], " ", el("span", { class: "k-mono", text: p[2] + "′" })])
+        var st = done[p[0]] ? "done" : o.now === p[0] ? "now" : !p[2] ? "empty" : null;
+        return el("span", { class: "k-mind-strip-p", "data-part": p[0], "data-state": st, style: "--w: " + Math.max(1, p[2]) }, [
+          el("i"), el("span", { class: "k-mind-strip-t" }, [st === "done" ? "✓ " : "", p[1], " ", el("span", { class: "k-mono", text: p[2] ? p[2] + "′" : "—" })])
         ]);
       }));
   }
@@ -141,7 +143,7 @@
     var list = el("ul", { class: "k-mind-bullets", "data-ui": "mind.bullets", role: "list", "aria-label": o.label || "Bullets" });
     function rows() { return [].map.call(list.querySelectorAll("textarea"), function (t) { return t.value; }); }
     function emit() { if (o.onChange) o.onChange(rows().map(function (x) { return x.trim(); }).filter(Boolean)); }
-    function fit(t) { t.style.blockSize = "auto"; t.style.blockSize = t.scrollHeight + "px"; }
+    function fit(t) { t.style.setProperty("--fit", "auto"); t.style.setProperty("--fit", t.scrollHeight + "px"); }   // grows with its text
     function add(text, after, focus) {
       var t = el("textarea", { class: "k-mind-bullet-in", rows: "1", "aria-label": "Bullet", placeholder: after || list.children.length ? "" : (o.placeholder || "Start with one bullet"),
         oninput: function () { fit(t); emit(); },

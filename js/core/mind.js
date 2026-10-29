@@ -470,10 +470,17 @@
     var changed = 0;
     ps.forEach(function (p) { p.versions.forEach(function (v, i) { if (i && v.answer !== p.versions[i - 1].answer) changed++; }); });
     var t = today(), dow = (new Date(t + "T12:00:00").getDay() + 6) % 7;
+    /* mastery as every subject reads it: the mean of each released lesson's evidence checks
+       (a lesson without a prompt has three) */
+    var mastery = ls.length ? Math.round(ls.reduce(function (a, l) {
+      var cs = evidence(l.id).checks.filter(function (c) { return c != null; });
+      return a + 100 * cs.filter(Boolean).length / Math.max(1, cs.length);
+    }, 0) / ls.length) : 0;
     return {
-      concepts: met.length, conceptsAll: concepts().length, rungs: rungCounts(met),
-      lessons: plannedLessons(), released: ls.length, done: done,
-      checkpoints: plannedUnits(), passed: Object.keys(st.checkpoints).filter(function (u) { return st.checkpoints[u].doneAt; }).length,
+      mastery: mastery, concepts: met.length, conceptsAll: concepts().length, rungs: rungCounts(met),
+      /* counts of what is released, as Japanese's desk counts "so far"; the path page names the plan */
+      lessons: ls.length, planned: plannedLessons(), done: done,
+      checkpoints: Object.keys(M().CHECKPOINTS).filter(function (u) { return M().released && M().released(u).length; }).length, passed: Object.keys(st.checkpoints).filter(function (u) { return st.checkpoints[u].doneAt; }).length,
       due: due(t, true).length, positions: ps.length, changed: changed, weekMins: focusMins(addDays(t, -dow))
     };
   }

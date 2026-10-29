@@ -1252,6 +1252,15 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > started: the platform waits for your go-ahead.
 > **Art complete (24 October 2026):** all 31 images, with Kurenai
 > redesigned to match the cast ([mind-art.md](mind-art.md), plan §19.1).
+> **Built (29 October 2026, branch `feat/mind`, not merged or deployed):**
+> the platform and unit F1, What makes an argument good (eight lessons,
+> sixteen concepts, seven dialogues, the checkpoint): the desk (the shared
+> mastery ring, no streak of its own), the lesson on the shared topic page,
+> the Daily 15, the path, the Journal (`kurenai-os-mind`, `kos_mind`
+> applied), positions with the belief timeline, the checkpoint with the
+> Argument Mapper, Ask Kurenai's four modes and two Assistant read tools
+> (invariants 137–141, smoke109–111). Next: F2 (Bayes), then Y1. The
+> Atlas, the Theatre, the labs and the Field Guide come with later units.
 
 - **What:** one non-exam subject, "Mind", with Foundation, Psychology,
   Philosophy and Crossings as headers. Paths → units → lessons →

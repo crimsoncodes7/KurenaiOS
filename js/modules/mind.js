@@ -51,20 +51,20 @@
   KOS.mindDesk = function (main) {
     if (!J().loaded()) J().ready(function () { if (main.isConnected && KOS.store.state.ui.view === "subject") KOS.rerender(); });
     shellActions();
-    var st = M().stats(), first = !M().started(), next = M().nextLesson(), cur = M().currentUnit(), fur = M().furthest();
+    var st = M().stats(), first = !M().started(), next = M().nextLesson(), cur = M().currentUnit();
     var curPath = next ? M().pathOf(next.unit) : null, H = (window.KOS_MIND.HEADERS || []).filter(function (h) { return curPath && h.id === curPath.header; })[0];
     var startISO = (function () { var fl = Object.keys(M().peek().lessons).map(function (k) { return M().peek().lessons[k].startAt || Infinity; }); var m = Math.min.apply(null, fl.concat([Infinity])); return isFinite(m) ? m : null; })();
     var week = startISO ? Math.floor((Date.now() - startISO) / (7 * 864e5)) + 1 : null;
     var met = M().metConcepts().length;
     var hero = el("section", { class: "k-subj-hero k-mind-hero", "data-ui": "study.subject-hero mind.hero", "aria-label": "Mind" }, [
-      el("span", { class: "k-subj-ring k-mind-ring", role: "img", "aria-label": fur ? "Furthest rung for most of your concepts: " + fur : "No concepts started yet" }, [
-        el("span", { class: "k-subj-ring-in" }, [UI().ladderBars(fur ? UI().RUNG.indexOf(fur) + 1 : 0, { size: "lg" }), el("small", { text: fur ? "furthest rung" : "not started" }), fur ? el("small", {}, ["for most: ", el("b", { text: fur })]) : null].filter(Boolean))
+      el("span", { class: "k-subj-ring", role: "img", "aria-label": st.mastery + "% mastery", style: "--p: " + st.mastery + "%" }, [
+        el("span", { class: "k-subj-ring-in" }, [el("b", { text: st.mastery + "%" }), el("small", { text: "mastery" })])
       ]),
       el("div", { class: "k-subj-id" }, [
         el("div", { class: "k-kicker", text: "Subject desk" }),
         el("h1", { class: "k-subj-name" }, ["Mind ", el("span", { class: "k-mind-emblem", lang: "ja", "aria-hidden": "true", text: "心" })]),
-        el("div", { class: "k-subj-board" }, [el("span", { text: KOS_DATA.mind.board })]),
-        el("p", { class: "k-mind-hero-where", text: [H ? H.name : null, cur ? cur.id + " " + cur.title : null, st.done + " of " + st.lessons + " lessons", week ? "week " + week : null].filter(Boolean).join(" · ") })
+        el("div", { class: "k-subj-board" }, [el("span", { text: KOS_DATA.mind.board })]),   // no streak of its own (decision C)
+        el("p", { class: "k-mind-hero-where", text: [H ? H.name : null, cur ? cur.id + " " + cur.title : null, st.done + " of " + st.lessons + " lessons so far", week ? "week " + week : null].filter(Boolean).join(" · ") })
       ]),
       el("div", { class: "k-subj-papers k-mind-rungbars", "data-ui": "mind.rung-bars" }, UI().RUNG.map(function (r, i) {
         var n = st.rungs[i];
@@ -82,17 +82,18 @@
       el("div", { class: "k-card-head" }, [
         el("span", { class: "k-card-title", text: "Subject analytics" }), el("span", { class: "k-card-meta", text: "this subject only" }),
         el("details", { class: "k-sa-help" }, [el("summary", { class: "k-link", text: "What do these mean?" }), el("div", { class: "k-sa-help-body" }, [
+          el("p", { text: "Mastery averages each lesson's evidence checks: every page read, the check passed, its written prompt done and its cards held." }),
           el("p", { text: "A concept climbs a ladder: Recall (its cards hold), Explain (an explain-back covers its key points), Apply (a scenario answered right) and Evaluate (a position with an objection answered). Every rung comes from evidence, never from a box you tick." }),
           el("p", { text: "A changed mind is a position you revised to a different answer, with a reason. It is a milestone, not a mistake." })])])
       ]),
       el("div", { class: "k-sa-grid", "data-ui": "study.analytics-grid" }, [
-        tile("Concepts", String(met), !met),
+        tile("Mastery", st.mastery + "%", false, st.mastery, "var(--subj-c)"),
         tile("Lessons", st.done + " / " + st.lessons, false, Math.round(100 * st.done / Math.max(1, st.lessons)), "var(--green)"),
         tile("Checkpoints", st.passed + " / " + st.checkpoints, !st.passed, st.passed ? Math.round(100 * st.passed / st.checkpoints) : null, "var(--mind)"),
         tile("Reviews due", String(st.due), first),
         tile("Positions", String(st.positions), !st.positions),
+        tile("Concepts", String(met), !met),
         tile("Changed minds", String(st.changed), !st.changed),
-        tile("Journal", String(J().counts().all + st.positions), !(J().counts().all + st.positions)),
         tile("This week", hm(st.weekMins), !st.weekMins, Math.min(100, Math.round(100 * st.weekMins / 105)), "var(--green)")
       ])
     ]);
@@ -133,9 +134,9 @@
       UI().strip(p, { done: d && d.parts || {}, now: resume ? d.step : null }),
       p.exam ? el("p", { class: "k-muted", text: "Exam Season. Your sitting keeps its place." }) : null,
       el("div", { class: "k-mind-row" }, [
-        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.daily-start",
+        doneToday && !p.reviews.n ? null : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.daily-start",
           text: doneToday ? "One more card set" : resume ? "▶ Resume" : p.exam ? "▶ Reviews · 5 min" : "▶ Start", onclick: function () { KOS.show("mind", { page: "daily", mode: doneToday ? "cards" : null }); } }),
-        !p.exam && !doneToday ? el("button", { type: "button", class: "k-btn", "data-ui": "mind.daily-reviews", text: "Just reviews · 5′", onclick: function () { KOS.show("mind", { page: "daily", mode: "reviews" }); } }) : null
+        !p.exam && !doneToday && p.reviews.n ? el("button", { type: "button", class: "k-btn", "data-ui": "mind.daily-reviews", text: "Just reviews · 5′", onclick: function () { KOS.show("mind", { page: "daily", mode: "reviews" }); } }) : null
       ].filter(Boolean)),
       navigator.onLine === false ? el("p", { class: "k-mind-offline", text: "Offline. Lessons, cards and dialogues work; Ask Kurenai waits for a connection." }) : null
     ].filter(Boolean));
@@ -327,6 +328,9 @@
         grid
       ]));
     });
+    /* credits, as Japanese's licences page gives them: original art, made with AI image tools */
+    main.appendChild(el("p", { class: "k-mind-credits k-muted", "data-ui": "mind.credits" }, [el("b", { text: "Credits · " }),
+      "Kurenai, Ren, the backgrounds and the philosopher cards are original to this app and AI-assisted: made with Gemini, and one card (Simone de Beauvoir) with ChatGPT. Every research finding names its study on its lesson's Sources tab."]));
   }
 
   /* ---------------- 32n · the Journal ---------------- */
@@ -363,7 +367,7 @@
       list.innerHTML = "";
       if (!rows.length) {
         list.appendChild(KOS.ui.emptyState({ mark: "✦", title: "Nothing here yet.", body: "Save an insight from any lesson, keep a quote, or capture a question on the bus. It is private: only you read it.",
-          action: { label: "+ New entry", onClick: function () { capture(); } } }));
+          action: el("button", { type: "button", class: "k-btn", text: "+ New entry", onclick: function () { capture(); } }) }));
         return;
       }
       if (!shown.length) { list.appendChild(el("p", { class: "k-muted", text: "No entries match." })); return; }
@@ -463,7 +467,7 @@
     if (!ps.length) {
       var nx = M().lessons().filter(function (l) { return l.kind === "contested" && !M().promptDone(l.id); })[0];
       col.appendChild(KOS.ui.emptyState({ mark: "◆", title: "No positions yet", body: "Your positions appear here after a contested lesson." + (nx ? " " + nx.id + " is the next one." : ""),
-        action: nx ? { label: "Open " + nx.id, onClick: function () { KOS.show("ref", { subject: SID, ref: nx.id }); } } : null }));
+        action: nx ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open " + nx.id, onclick: function () { KOS.show("ref", { subject: SID, ref: nx.id }); } }) : null }));
       main.appendChild(col);
       return;
     }
@@ -510,7 +514,7 @@
     var changed = 0; ps.forEach(function (p) { p.versions.forEach(function (v, j) { if (j && v.answer !== p.versions[j - 1].answer) changed++; }); });
     return el("section", { class: "k-card k-mind-tl", "data-ui": "mind.timeline", "aria-label": "Belief timeline" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Belief timeline" }), el("span", { class: "k-card-meta", text: "every position, every version · dot size is your confidence · a ring is a changed answer" })]),
-      el("div", { class: "k-mind-tl-wrap" }, [svg]),
+      KOS.ui.scroller(el("div", { class: "k-mind-tl-wrap" }, [svg]), { label: "Belief timeline", prevLabel: "Scroll to earlier versions", nextLabel: "Scroll to later versions" }),
       el("p", { class: "k-mind-tl-facts" }, [el("b", { text: ps.length + (ps.length === 1 ? " position" : " positions") + " · " + all.length + (all.length === 1 ? " version" : " versions") }),
         changed ? el("span", { class: "k-muted", text: " · " + changed + (changed === 1 ? " changed mind, with a reason" : " changed minds, each with a reason") }) : null].filter(Boolean))
     ]);
@@ -713,7 +717,7 @@
       body.appendChild(el("div", { class: "k-mind-thumb" }, [
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.daily-go", text: plan.exam ? "▶ Reviews · 5 min" : "▶ Start Daily 15", onclick: function () {
           startFocus(); go(plan.reviews.n ? "reviews" : plan.sitting && !plan.exam && d.only !== "reviews" ? "sitting" : plan.question && !plan.exam && d.only !== "reviews" ? "question" : "done"); } }),
-        !plan.exam && d.only !== "reviews" ? el("button", { type: "button", class: "k-btn", text: "Just reviews · 5 min", onclick: function () { d.only = "reviews"; startFocus(); go(plan.reviews.n ? "reviews" : "done"); } }) : null
+        !plan.exam && d.only !== "reviews" && plan.reviews.n ? el("button", { type: "button", class: "k-btn", text: "Just reviews · 5 min", onclick: function () { d.only = "reviews"; startFocus(); go(plan.reviews.n ? "reviews" : "done"); } }) : null
       ].filter(Boolean)));
     }
     function qLabel(q) {
@@ -822,7 +826,7 @@
           el("p", { class: "k-muted", text: qs.length ? "Make one of your Questions the week's Big Question, then add a line most days." : "Capture a question that's been on your mind; it can become this week's Big Question." }),
           el("div", { class: "k-mind-thumb" }, [qs.length ? el("button", { type: "button", class: "k-btn k-btn--primary", text: "Use: " + qs[0].title.slice(0, 40), onclick: function () { M().setBq(qs[0].title, qs[0].id); draw(); } })
             : el("button", { type: "button", class: "k-btn k-btn--primary", text: "+ Capture a question", onclick: function () { KOS.mindRun.capture({ kind: "question", onDone: fin }); } }),
-            el("button", { type: "button", class: "k-btn", text: "Skip today", onclick: fin })])]));
+            el("button", { type: "button", class: "k-btn", text: "Skip today", onclick: function () { d.qSkipped = true; fin(); } })])]));
         return;
       }
       if (q.sunday && !b.closedAt) { body.appendChild(bqCard()); body.appendChild(el("button", { type: "button", class: "k-btn", text: "Done ›", onclick: fin })); return; }
@@ -830,18 +834,18 @@
       inp.value = (b.lines || {})[t] || "";
       body.appendChild(el("section", { class: "k-card k-mind-bq" }, [el("b", { class: "k-mind-entry-t", text: b.q }), inp,
         el("div", { class: "k-mind-thumb" }, [el("button", { type: "button", class: "k-btn k-btn--primary", text: "Add today's line", onclick: function () { if (inp.value.trim()) M().addBqLine(inp.value); fin(); } }),
-          el("button", { type: "button", class: "k-btn", text: "Skip today", onclick: fin })])]));
+          el("button", { type: "button", class: "k-btn", text: "Skip today", onclick: function () { d.qSkipped = true; fin(); } })])]));
     }
     function done() {
       if (!d.doneAt) { stopFocus(); d.doneAt = Date.now(); save(); announce("Daily 15 done." + (d.mins >= 10 ? " One Focus block banked." : "")); }
       var bits = [];
       if (d.results.length) bits.push(d.results.length + (d.results.length === 1 ? " card" : " cards"));
       if (d.parts.sitting && d.sitLesson) bits.push("a sitting of " + d.sitLesson);
-      if (d.parts.question) bits.push("one question");
+      if (d.parts.question && !d.qSkipped) bits.push("one question");
       var tm = new Date(t + "T12:00:00"); tm.setDate(tm.getDate() + 1); var next = M().planDay(tm.getFullYear() + "-" + ("0" + (tm.getMonth() + 1)).slice(-2) + "-" + ("0" + tm.getDate()).slice(-2));
       body.appendChild(el("div", { class: "k-mind-done", "data-ui": "mind.daily-done" }, [el("span", { class: "k-mind-emblem", lang: "ja", "aria-hidden": "true", text: "心" }), el("div", {}, [
         el("b", { text: "Done for today." }),
-        el("p", { class: "k-mind-read", text: (d.mins ? d.mins + " minutes" : "Done") + (bits.length ? ": " + bits.join(", ") + "." : ".") })])]));
+        el("p", { class: "k-mind-read", text: (d.mins ? d.mins + (d.mins === 1 ? " minute" : " minutes") : "Done") + (bits.length ? ": " + bits.join(", ") + "." : ".") })])]));
       var rows = [];
       if (next.sitting) rows.push(["Tomorrow", next.sitting.lesson + " " + M().lesson(next.sitting.lesson).pages[next.sitting.from].t]);
       if (d.mins >= 10) rows.push(["Banked", "one Focus block · study"]);

@@ -383,6 +383,7 @@
       document.addEventListener("kos:mind-evidence", onEv);
       return node;
     };
+    ctx.assistStrip = false;   // the inspector carries Ask Kurenai's four modes; the generic exam strip is not Mind's
     ctx.inspectorBody = function (outer) {
       var body = el("div", { class: "k-mind-insp-live" });
       outer.appendChild(body);
