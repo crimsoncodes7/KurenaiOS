@@ -17,7 +17,12 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-japanese-5` (27 October 2026, `feat/art-audit`) —
+- Latest release: sw `kos-mind-1` (29 October 2026, `feat/mind` at
+  `cc2bc15`, main fast-forwarded to it) — https://2f7e2aa8.kurenai-os.pages.dev:
+  Mind, the fifth study space (roadmap 5.9, design turn 32; invariants
+  137–141, smoke109–111; migration `20261029000001` `kos_mind` applied):
+  the platform and unit F1, What makes an argument good, with the desks
+  and lesson tab row cleaned up across subjects. Before it sw `kos-japanese-5` (27 October 2026, `feat/art-audit`) —
   https://fc302f55.kurenai-os.pages.dev: the Japanese media path's labels
   no longer overlap at phone width (a stone is as wide as its longest word;
   the strip is a declared `KOS.ui.scroller`), on top of kos-pencil-4; with
@@ -131,7 +136,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-mind-1` (on `feat/mind`, not deployed; production is still `kos-anilist-1`)
+- Service-worker version: `kos-mind-1`
 - Required smoke gate: 110 suites (`""`, 2–107 and 109–111 — 108 is Creatives', on `feat/creatives`; 109–111 are Mind's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21

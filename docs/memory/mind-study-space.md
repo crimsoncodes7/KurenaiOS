@@ -1,6 +1,6 @@
 ---
 name: mind-study-space
-description: "Mind (psychology & philosophy) study space — roadmap 5.9; platform + unit F1 BUILT 2026-10-29 on feat/mind (worktree ../KurenaiOS-mind), not merged or deployed"
+description: "Mind (psychology & philosophy) study space — roadmap 5.9; platform + unit F1 RELEASED 2026-10-29 (sw kos-mind-1, cc2bc15); next F2"
 metadata:
   node_type: memory
   type: project
@@ -23,7 +23,7 @@ The second character is Ren (proposed, plan §19); the art prompts are in docs/m
 
 Kurenai is being REDESIGNED (24 October 2026, plan §19.1): simplified to match the cast, in a new `cast` style (Ren's base pose and Akari's sprite are the style references). It knocks on to the Assistant's state images, the Live2D master (restart) and the style anchor. None of that is done yet. ALL 31 Mind art images were made by 24 October 2026 (the 15 F1 needs are imported to assets/mind/img). mind.card.beauvoir came from ChatGPT because Gemini refused it, so the credits must name both.
 
-BUILD (started 2026-10-28, continued 2026-10-29): branch `feat/mind` in the worktree /Users/fj/Developer/KurenaiOS-mind, branched from main at 70def76. Platform + unit F1 built; smokes are 109–111 (108 is Creatives' on feat/creatives, so the numbers don't clash at merge); the kos_mind migration 20261029000001 is APPLIED. Not merged, not deployed.
+BUILD (started 2026-10-28, continued 2026-10-29): branch `feat/mind` in the worktree /Users/fj/Developer/KurenaiOS-mind, branched from main at 70def76. Platform + unit F1 RELEASED 2026-10-29 as sw kos-mind-1 (https://2f7e2aa8.kurenai-os.pages.dev, main fast-forwarded to cc2bc15). Smokes 109–111 (feat/integrations also uses 109: renumber when it merges); kos_mind migration applied. Lessons count by the shared four-check Completed status; finishing (read + check) pays and moves on. Edit on a Mind lesson adds the user's own notes as a last "Your notes" page.
 
 The user's standing direction for the build (2026-10-29): don't match the Claude Design frames 1:1 where they don't fit the app, because Claude Design doesn't see every area. Example: the desk uses the shared mastery ring like every other subject, not the design's ladder ring. Also Mind has NO streak of its own (decision C).
 

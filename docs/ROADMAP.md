@@ -1252,7 +1252,7 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
 > started: the platform waits for your go-ahead.
 > **Art complete (24 October 2026):** all 31 images, with Kurenai
 > redesigned to match the cast ([mind-art.md](mind-art.md), plan §19.1).
-> **Built (29 October 2026, branch `feat/mind`, not merged or deployed):**
+> **RELEASED (29 October 2026, sw `kos-mind-1`, `cc2bc15`, https://2f7e2aa8.kurenai-os.pages.dev):**
 > the platform and unit F1, What makes an argument good (eight lessons,
 > sixteen concepts, seven dialogues, the checkpoint): the desk (the shared
 > mastery ring, no streak of its own), the lesson on the shared topic page,
