@@ -344,7 +344,10 @@
      a prompt has three checks, and the fourth slot carries retrieval */
   function syncChecks(id) {
     if (!lesson(id) || !store.setCheck) return;
-    var ev = evidence(id), want = [ev.checks[0], ev.checks[1], ev.checks[2] == null ? ev.checks[3] : ev.checks[2], ev.checks[2] == null ? false : ev.checks[3]];
+    /* a lesson with no written prompt has three checks: its fourth slot holds once the three do, so
+       it can reach Completed like any lesson */
+    var ev = evidence(id), three = ev.checks[2] == null;
+    var want = [ev.checks[0], ev.checks[1], three ? ev.checks[3] : ev.checks[2], three ? !!(ev.checks[0] && ev.checks[1] && ev.checks[3]) : ev.checks[3]];
     var p = store.peekProgress ? store.peekProgress(SID, id) : null, cur = p && p.check ? p.check : [false, false, false, false];
     want.forEach(function (on, i) { if (!!cur[i] !== !!on) store.setCheck(SID, id, i, !!on); });
   }
@@ -352,6 +355,9 @@
 
   /* ---------------- finishing, paying once ---------------- */
   function finished(id) { return !!obj(peek().lessons[id]).doneAt; }
+  /* COMPLETED is the shared status every subject counts by (all of a lesson's checks, invariant 107):
+     the desk, the spine and the unit cards print it; finishing (read + check) is what pays and moves on */
+  function completed(id) { var p = store.peekProgress ? store.peekProgress(SID, id) : null; return !!(p && p.status === "done"); }
   /* maybeFinish(id): every page read and the check passed → the lesson's first finish pays once
      and its concepts' cards join the schedule (due tomorrow: "cards from tomorrow") */
   function maybeFinish(id) {
@@ -426,7 +432,7 @@
     var next = ls.filter(function (l) { return !finished(l.id); })[0] || null;
     var cur = currentUnit();
     var state = !ls.length ? "later" : done >= u.n ? "done" : cur && cur.id === unitId ? "current" : done ? "started" : "open";
-    return { state: state, done: done, total: u.n, released: ls.length, next: next };
+    return { state: state, done: done, completed: ls.filter(function (l) { return completed(l.id); }).length, total: u.n, released: ls.length, next: next };
   }
   /* the next lesson: the first unfinished one in the agreed order, then anything released */
   function nextLesson() {
@@ -465,7 +471,7 @@
     }, 0));
   }
   function stats() {
-    var st = peek(), ls = lessons(), done = ls.filter(function (l) { return finished(l.id); }).length;
+    var st = peek(), ls = lessons(), done = ls.filter(function (l) { return completed(l.id); }).length;
     var met = metConcepts(), ps = positions();
     var changed = 0;
     ps.forEach(function (p) { p.versions.forEach(function (v, i) { if (i && v.answer !== p.versions[i - 1].answer) changed++; }); });
@@ -617,7 +623,7 @@
     keepPosition: keepPosition, retirePosition: retirePosition, revisitsDue: revisitsDue, park: park, promptDone: promptDone, parkedList: parkedList,
     introduce: introduce, preview: preview, rateCard: rateCard, due: due, finishReviews: finishReviews, paidToday: paidToday,
     ladder: ladder, rung: rung, metConcepts: metConcepts, rungCounts: rungCounts, furthest: furthest,
-    evidence: evidence, syncChecks: syncChecks, finished: finished, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, award: award,
+    evidence: evidence, syncChecks: syncChecks, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, award: award,
     started: started, unitState: unitState, nextLesson: nextLesson, currentUnit: currentUnit, suggestedNext: suggestedNext, stats: stats,
     milestones: milestones, tensionsDue: tensionsDue, setTension: setTension, answerOf: answerOf,
     weekOf: weekOf, bq: bq, setBq: setBq, addBqLine: addBqLine, closeBq: closeBq,

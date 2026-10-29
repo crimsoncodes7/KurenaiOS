@@ -163,6 +163,15 @@ step("F · a checkpoint pays once and can be retaken", () => {
   eq([gov().xp - x0, mindEntries().length - n0], [50, 1], "still once");
 });
 
+/* ---------------- I ---------------- */
+step("I · the desk counts Completed lessons, as the spine does", () => {
+  const done = M.lessons().filter((l) => { const p = K.store.peekProgress("mind", l.id); return p && p.status === "done"; }).length;
+  eq(M.stats().done, done, "stats().done is the shared Completed count");
+  assert(M.finished("F1.1"), "F1.1 is finished (it paid)");
+  const p = K.store.peekProgress("mind", "F1.1");
+  eq(p.status === "done", p.check.every(Boolean), "and Completed means every check");
+});
+
 /* ---------------- H ---------------- */
 step("H · the Assistant reads Mind as counts, writes nothing, and never quotes the private text", async () => {
   const ex = (name, args) => new Promise((res) => K.ai.tools.execute(name, args, (err, result) => res({ err, result })));

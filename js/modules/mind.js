@@ -175,13 +175,13 @@
         n++;
         var us = M().unitState(u.id), ls = M().unitLessons(u.id), isCur = cur && cur.id === u.id;
         var card = el("button", { type: "button", class: "k-unit k-mind-unit", "data-ui": "study.unit mind.unit", "data-state": !us.released ? "later" : isCur ? "current" : null,
-          "aria-label": u.id + " " + u.title + ": " + (us.released ? us.done + " of " + u.n + " done" : "coming later"),
+          "aria-label": u.id + " " + u.title + ": " + (us.released ? us.completed + " of " + u.n + " completed" : "coming later"),
           onclick: function () { if (ls.length) KOS.show("ref", { subject: SID, ref: (us.next || ls[0]).id }); else KOS.show("mind", { page: "path" }); } }, [
           el("span", { class: "k-unit-ref", text: u.id }),
           el("span", { class: "k-unit-title", text: u.title }),
-          el("span", { class: "k-unit-segs", "aria-hidden": "true" }, ls.map(function (l) { return el("span", { "data-state": M().finished(l.id) ? "done" : us.next && l.id === us.next.id && M().peek().lessons[l.id] ? "started" : null }); })),
+          el("span", { class: "k-unit-segs", "aria-hidden": "true" }, ls.map(function (l) { return el("span", { "data-state": M().completed(l.id) ? "done" : M().peek().lessons[l.id] ? "started" : null }); })),
           el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, !us.released ? ["Coming later"]
-            : [el("b", { text: us.done + " / " + u.n }), isCur && us.next ? " · " + us.next.id + " now" : " done"])
+            : [el("b", { text: us.completed + " / " + u.n }), isCur && us.next ? " · " + us.next.id + " now" : " completed"])
         ]);
         if (isCur) KOS.ui.state(card, "current", true);
         units.appendChild(card);
@@ -234,7 +234,7 @@
         onclick: function () { if (ls.length) KOS.show("ref", { subject: SID, ref: (us.next || ls[0]).id }); else KOS.ui.toast(u.id + " " + u.title + " comes in a later release."); } }, [
         el("span", { class: "k-mono", text: u.id }),
         el("b", { class: "k-mind-urow-t", text: u.title }),
-        ls.length ? el("small", { class: "k-mono", text: us.done + " / " + u.n }) : null
+        ls.length ? el("small", { class: "k-mono", text: us.completed + " / " + u.n }) : null
       ]);
     }
     function pathCard(p) {
