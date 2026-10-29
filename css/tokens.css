@@ -424,7 +424,7 @@ color-scheme: dark;
 --mind-sheet-w: 640px;
 --mind-sheet-wide: 760px;
 --mind-scene-w: 900px;
---mind-run-w: 560px;
+--mind-run-w: 640px;   /* as --ja-runner-w */
 --mind-opt-h: 48px;
 --mind-grade-h: 60px;
 --mind-avatar: 40px;

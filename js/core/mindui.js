@@ -87,15 +87,17 @@
     var done = o.done || {};
     /* each part's width and minutes are the plan's own; a part with nothing in it says so */
     function m(k, d) { var x = plan[k]; return x && x.min != null ? x.min : x === null ? 0 : d; }
-    var parts = plan.exam ? [["reviews", "Reviews", m("reviews", 5)]] : [["reviews", "Reviews", m("reviews", 4)], ["sitting", "One sitting", m("sitting", 8)], ["question", "One question", m("question", 3)]];
+    var parts = plan.exam ? [["reviews", "Reviews", m("reviews", 5)]] : [["reviews", "Reviews", m("reviews", 4)], ["sitting", "Sitting", m("sitting", 8)], ["question", "Question", m("question", 3)]];
+    function stOf(p) { return done[p[0]] ? "done" : o.now === p[0] ? "now" : !p[2] ? "empty" : null; }
+    /* the bar is weighted by minutes; the labels sit under it in equal columns, so none is clipped */
     return el("div", { class: "k-mind-strip", "data-ui": "mind.daily-strip", role: "img",
-      "aria-label": parts.map(function (p) { return p[1] + (p[2] ? " " + p[2] + " minutes" : ", none today") + (done[p[0]] ? ", done" : o.now === p[0] ? ", now" : ""); }).join("; ") },
-      parts.map(function (p) {
-        var st = done[p[0]] ? "done" : o.now === p[0] ? "now" : !p[2] ? "empty" : null;
-        return el("span", { class: "k-mind-strip-p", "data-part": p[0], "data-state": st, style: "--w: " + Math.max(1, p[2]) }, [
-          el("i"), el("span", { class: "k-mind-strip-t" }, [st === "done" ? "✓ " : "", p[1], " ", el("span", { class: "k-mono", text: p[2] ? p[2] + "′" : "—" })])
-        ]);
-      }));
+      "aria-label": parts.map(function (p) { return p[1] + (p[2] ? " " + p[2] + " minutes" : ", none today") + (done[p[0]] ? ", done" : o.now === p[0] ? ", now" : ""); }).join("; ") }, [
+      el("div", { class: "k-mind-strip-bar" }, parts.map(function (p) { return el("i", { "data-part": p[0], "data-state": stOf(p), style: "--w: " + Math.max(1, p[2]) }); })),
+      el("div", { class: "k-mind-strip-l", "data-n": String(parts.length) }, parts.map(function (p) {
+        var st = stOf(p);
+        return el("span", { "data-state": st }, [st === "done" ? "✓ " : "", p[1]]);
+      }))
+    ]);
   }
 
   /* ---------------- Journal kinds ---------------- */
@@ -160,7 +162,7 @@
     }
     (o.value && o.value.length ? o.value : [""]).forEach(function (b) { add(b); });
     var node = el("div", { class: "k-mind-bulletbox" }, [list,
-      el("div", { class: "k-mind-bulletbox-f" }, [el("small", { class: "k-muted", text: "Bullets are fine. No word count." }),
+      el("div", { class: "k-mind-bulletbox-f" }, [el("small", { class: "k-muted", text: "Bullets are fine." }),
         el("button", { type: "button", class: "k-link", text: "Enter new bullet", onclick: function () { add("", list.lastElementChild, true); } })])]);
     return { node: node, value: function () { return rows().map(function (x) { return x.trim(); }).filter(Boolean); }, focus: function () { var t = list.querySelector("textarea"); if (t) t.focus(); } };
   }

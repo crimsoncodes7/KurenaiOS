@@ -21,7 +21,6 @@
   function UI() { return KOS.mindUI; }
   function announce(m) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(m); }
   function changed(ref) { document.dispatchEvent(new window.CustomEvent("kos:mind-evidence", { detail: { ref: ref } })); }
-  var KIND_LABEL = { explain: "explain-back lesson", contested: "position lesson", checkpoint: "checkpoint" };
 
   /* ================= the spine: the four headers over the units ================= */
   function spine() {
@@ -75,8 +74,7 @@
       box.appendChild(el("div", { class: "k-mind-row" }, [
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.vote-keep", disabled: pick == null ? "" : null,
           text: kept && kept.i === pick ? "✓ Kept" : "Keep my answer ›",
-          onclick: function () { M().setVote(ref, pick); announce("Kept: " + v.options[pick] + "."); draw(); } }),
-        el("small", { class: "k-muted", text: "Change it any time before Close." })
+          onclick: function () { M().setVote(ref, pick); announce("Kept: " + v.options[pick] + "."); draw(); } })
       ]));
     }
     draw();
@@ -129,8 +127,7 @@
       var back = el("section", { class: "k-card k-mind-back", "data-ui": "mind.vote-back" }, [
         el("span", { class: "k-kicker", text: "On page 1 you said" }),
         el("p", { class: "k-mind-read", text: "\"" + hook.options[v.i] + "\"" }),
-        el("p", { class: "k-muted", text: "Now that you have the idea, keep your answer, or change it: both are fine." }),
-        el("div", { class: "k-mind-row" }, [el("button", { type: "button", class: "k-btn", text: "Keep it", onclick: function () { announce("Kept."); back.replaceWith(el("p", { class: "k-muted", text: "Kept: \"" + hook.options[v.i] + "\"." })); } }),
+                el("div", { class: "k-mind-row" }, [el("button", { type: "button", class: "k-btn", text: "Keep it", onclick: function () { announce("Kept."); back.replaceWith(el("p", { class: "k-muted", text: "Kept: \"" + hook.options[v.i] + "\"." })); } }),
           el("button", { type: "button", class: "k-btn", text: "Change it", onclick: function () { back.replaceWith(vote(hook, ref)); } })])
       ]);
       box.appendChild(back);
@@ -145,7 +142,7 @@
     if (l.dialogue) {
       var dl = el("section", { class: "k-card k-mind-talk", "data-ui": "mind.talk" }, [
         UI().avatar("kurenai", "curious"),
-        el("div", {}, [el("b", { text: "Talk it through with Kurenai" }), el("small", { class: "k-muted", text: "\"" + l.dialogue.title + "\" · about " + 3 + " turns · offline" })]),
+        el("div", {}, [el("b", { text: "Talk it through with Kurenai" }), el("small", { class: "k-muted", text: l.dialogue.title })]),
         el("button", { type: "button", class: "k-btn", "data-ui": "mind.talk-open", text: "Open", onclick: function () { dl.replaceWith(KOS.mindRun.dialogue(ref)); } })
       ]);
       box.appendChild(dl);
@@ -157,7 +154,7 @@
   function promptCard(ref, l) {
     var ev = M().evidence(ref), contested = l.kind === "contested";
     var card = el("section", { class: "k-card k-mind-prompt", "data-ui": "mind.prompt", "data-state": ev.promptDone ? "done" : ev.parked ? "parked" : null }, [
-      el("div", { class: "k-mind-prompt-h" }, [el("span", { class: "k-kicker", text: "The one prompt · " + (contested ? "position" : "explain-back") }), el("span", { class: "k-chip", text: "≈ 3 min" })]),
+      el("div", { class: "k-mind-prompt-h" }, [el("span", { class: "k-kicker", text: contested ? "Where you stand" : "Explain it back" })]),
       el("h3", { class: "k-mind-vote-q", text: l.prompt.q })
     ]);
     if (ev.promptDone) {
@@ -166,13 +163,12 @@
       card.appendChild(el("button", { type: "button", class: "k-btn", text: contested ? "Revise" : "Write it again", onclick: open }));
       return card;
     }
-    card.appendChild(el("p", { class: "k-muted", text: contested ? "Where you stand, how sure you are, and one line of reason. Bullets are fine." : "Three bullets or three sentences. Bullets are fine." }));
+    card.appendChild(el("p", { class: "k-muted", text: contested ? "Your answer, how sure you are, and one line of reason." : "Three bullets or three sentences." }));
     card.appendChild(el("div", { class: "k-mind-row" }, [
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.prompt-open", text: contested ? "Take a position" : "Write it", onclick: open }),
       el("button", { type: "button", class: "k-btn", "data-ui": "mind.later", text: ev.parked ? "⏸ Parked" : "Later", disabled: ev.parked ? "" : null,
         onclick: function () { M().park(ref); changed(ref); announce("Parked for a coming Daily 15."); card.replaceWith(promptCard(ref, l)); } })
     ]));
-    card.appendChild(el("small", { class: "k-muted", text: "Later puts it in a coming Daily 15. Nothing else waits on it." }));
     function open() {
       var done = function () { if (card.isConnected) card.replaceWith(promptCard(ref, l)); };
       if (contested) KOS.mindRun.position(ref, { revise: ev.promptDone, onDone: done });
@@ -197,15 +193,11 @@
     var ctx = {};
     ctx.decoratePath = function (pathLine) {
       pathLine.innerHTML = "";
-      var p = l ? M().pathOf(l.unit) : null, H = (window.KOS_MIND.HEADERS || []).filter(function (h) { return p && h.id === p.header; })[0];
-      ["Mind", H ? H.name : "", l ? l.unit : ""].filter(Boolean).forEach(function (bit, i) {
+      var u = l ? M().unit(l.unit) : null;
+      ["Mind", u ? u.id + " " + u.title : ""].filter(Boolean).forEach(function (bit, i) {
         if (i) pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "/" }));
         pathLine.appendChild(document.createTextNode(bit));
       });
-      if (l && KIND_LABEL[l.kind]) {
-        pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
-        pathLine.appendChild(el("span", { class: "k-mind-pathkind", text: l.prompt || l.kind === "checkpoint" ? KIND_LABEL[l.kind] : "no written prompt" }));
-      }
     };
     ctx.modeSwitch = function () {
       var bits = [];
@@ -217,7 +209,6 @@
               onclick: function () { if (mode === m[0]) return; ui.mode = m[0]; KOS.store.save(); KOS.rerender(); announce(m[1] + " mode."); } });
           })));
       }
-      if (l && l.main) bits.push(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "mind.ask-open", text: "Ask Kurenai", onclick: function () { KOS.mindRun.ask({ lesson: ref }); } }));
       return el("span", { class: "k-mind-headtools" }, bits);
     };
     function sources() {
@@ -264,20 +255,20 @@
     function renderLearn(panel, pagerSlot) {
       var cur = Math.max(0, Math.min(pages.length - 1, (ui.page || {})[ref] || 0));
       var article = el("article", { class: "k-prose k-notes k-mind-notes", "data-ui": "topic.notes mind.lesson" });
-      var picker = el("div", { class: "k-mind-picker", role: "tablist", "aria-label": "Lesson pages" });
+      var pageSelect = el("select", { class: "k-topic-page-select", "data-ui": "topic.reader-page-select", "aria-label": "Choose a page", onchange: function () { show(Number(pageSelect.value), true); } });
+      pages.forEach(function (pg, i) { pageSelect.appendChild(el("option", { value: String(i), text: "Page " + (i + 1) + " of " + pages.length + " — " + pg.t })); });
+      var dots = el("span", { class: "k-topic-dots", "aria-hidden": "true" }, pages.map(function () { return el("span"); }));
       var foot = el("nav", { class: "k-note-foot", "data-ui": "topic.note-foot", "aria-label": "Lesson pages" });
       var stepPrev = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.reader-step", "aria-label": "Previous page", text: "‹", onclick: function () { show(cur - 1, true); } });
       var stepNext = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.reader-step", "aria-label": "Next page", text: "›", onclick: function () { show(cur + 1, true); } });
-      pagerSlot.appendChild(el("div", { class: "k-topic-reader k-mind-reader", "data-ui": "topic.pager" }, [stepPrev, KOS.ui.scroller(picker, { label: "Lesson pages", keepRole: true }), stepNext]));
+      /* the pager as Code's and Japanese's: ‹ the page list › and a dot a page, filled once read */
+      pagerSlot.appendChild(el("div", { class: "k-topic-reader", "data-ui": "topic.pager" }, [el("span", { class: "k-kicker", text: "Lesson pages" }), stepPrev, pageSelect, stepNext, dots]));
       var dwell = null, shownAt = 0;
       function markRead(i) { if (M().markPage(ref, i)) { paintPicker(); changed(ref); } }
       function paintPicker() {
         var rd = (M().peek().lessons[ref] || {}).pages || {};
-        picker.innerHTML = "";
-        pages.forEach(function (pg, i) {
-          picker.appendChild(el("button", { type: "button", class: "k-mind-pick", role: "tab", "aria-selected": String(i === cur), "data-state": rd[i] ? "read" : null,
-            onclick: function () { show(i, true); } }, [rd[i] ? el("span", { "aria-hidden": "true", text: "✓ " }) : null, pg.t, rd[i] ? el("span", { class: "sr-only", text: ", read" }) : null].filter(Boolean)));
-        });
+        [].forEach.call(dots.children, function (dt, j) { KOS.ui.state(dt, "on", j === cur); KOS.ui.state(dt, "read", !!rd[j]); });
+        pageSelect.value = String(cur);
       }
       function show(i, moved) {
         if (moved && i > cur && shownAt && Date.now() - shownAt >= LEAVE) markRead(cur);
@@ -285,7 +276,7 @@
         shownAt = Date.now();
         if (moved && (ui.page || {})[ref] !== cur) { ui.page = ui.page || {}; ui.page[ref] = cur; KOS.store.save(); announce("Page " + (cur + 1) + " of " + pages.length + ", " + pages[cur].t + "."); }
         article.innerHTML = "";
-        article.appendChild(el("p", { class: "k-kicker k-mind-pagekick", text: "Page " + (cur + 1) + " · " + pages[cur].t }));
+        article.appendChild(el("h2", { class: "k-mind-page-t", text: pages[cur].t }));
         article.appendChild(pageBody(l, cur, ref, { onPassed: function () { markRead(cur); } }));
         if (moved && article.scrollIntoView) article.scrollIntoView({ block: "start", behavior: "smooth" });
         stepPrev.disabled = cur === 0; stepNext.disabled = cur === pages.length - 1;
@@ -360,9 +351,9 @@
       var ev = M().evidence(ref);
       var rows = [
         ["Pages read", ev.read + " of " + ev.pages, ev.checks[0]],
-        [l && l.kind === "checkpoint" ? "Checkpoint finished" : "Check passed", l && l.kind === "checkpoint" ? "cards, apply, synthesis" : ev.right + " of " + ev.items + (ev.checks[1] ? " · passed" : " · page 5"), ev.checks[1]]
+        [l && l.kind === "checkpoint" ? "Checkpoint finished" : "Check passed", l && l.kind === "checkpoint" ? "cards, apply, synthesis" : ev.right + " of " + ev.items, ev.checks[1]]
       ];
-      if (ev.prompt) rows.push([l.kind === "contested" ? "Position taken" : "Explain-back done", ev.promptDone ? "the one prompt" : ev.parked ? "parked for a Daily 15" : "the one prompt · page 6", ev.checks[2]]);
+      if (ev.prompt) rows.push([l.kind === "contested" ? "Position taken" : "Explain-back done", ev.parked && !ev.promptDone ? "parked for a Daily 15" : "the lesson's one prompt", ev.checks[2]]);
       rows.push(["First retrieval passed", ev.retrieval ? "a card held" : "cards from tomorrow", ev.checks[3]]);
       var n = rows.filter(function (r) { return r[2]; }).length;
       var node = el("section", { class: "k-ts k-mind-ts", "data-ui": "topic.status mind.status", "aria-label": "Topic status" }, [
@@ -413,14 +404,13 @@
         el("button", { type: "button", class: "k-mind-talkrow", "data-ui": "mind.talk-insp", onclick: function () {
           ui.page = ui.page || {}; ui.page[ref] = pages.length - 1; KOS.store.save(); KOS.rerender();
           setTimeout(function () { var b = document.querySelector("[data-ui~='mind.talk-open']"); if (b) b.click(); }, 60);
-        } }, [UI().avatar("kurenai", "curious"), el("span", {}, [el("b", { text: "\"" + l.dialogue.title + "\"" }), el("small", { class: "k-muted", text: "Socratic dialogue · offline" })])])
+        } }, [UI().avatar("kurenai", "curious"), el("b", { text: l.dialogue.title })])
       ]));
       if (l.main) body.appendChild(el("section", { class: "k-insp-sec", "aria-label": "Ask Kurenai" }, [
-        el("h2", { class: "k-kicker", text: "Ask Kurenai · four modes" }),
-        el("div", { class: "k-mind-chips" }, KOS.mindRun.MODES.map(function (m) {
-          return el("button", { type: "button", class: "k-chip k-chip--btn", text: m[1], onclick: function () { KOS.mindRun.ask({ lesson: ref, mode: m[0] }); } });
-        })),
-        el("small", { class: "k-muted", text: "Shows what is sent before anything goes." })
+        el("h2", { class: "k-kicker", text: "Ask Kurenai" }),
+        el("div", { class: "k-mind-askgrid" }, KOS.mindRun.MODES.map(function (m) {
+          return el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "mind.ask-open", text: m[1], onclick: function () { KOS.mindRun.ask({ lesson: ref, mode: m[0] }); } });
+        }))
       ]));
     }
     ctx.onThisPage = function (body) {

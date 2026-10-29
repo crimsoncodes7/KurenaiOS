@@ -99,8 +99,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "Two characters argue across a café table in the visual novel you are playing. One says, \"You always do this.\" The other says, \"Because you never listen.\" Three choices appear on screen, and all three are just louder versions of the same line." },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "Is \"You always do this\" an argument?", options: ["Yes: it is a strong point", "Not yet: it is a claim with no reason", "No: arguments have to be polite"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "Is \"You always do this\" an argument?", options: ["Yes: it is a strong point", "Not yet: it is a claim with no reason", "No: arguments have to be polite"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "An argument is reasons for a claim" },
@@ -166,8 +165,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "In the light novel you are reading, the detective gathers everyone in the library and talks for eleven pages. By the end you are sure the butler did it, but if someone asked you why, you could not say which part of the speech actually proved it." },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "After a long, convincing speech, how often can you say exactly what it proved and how?", options: ["Usually: I follow it", "Sometimes", "Rarely: I just feel convinced"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "After a long, convincing speech, how often can you say exactly what it proved and how?", options: ["Usually: I follow it", "Sometimes", "Rarely: I just feel convinced"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "Strip it down to the claims" },
@@ -229,8 +227,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "A character in a mystery reasons: \"All the guests who knew the code were in the ballroom. Mika was in the ballroom. So Mika knew the code.\" The reader nods. Two chapters later it turns out half the ballroom never knew the code at all." },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "Did Mika's conclusion follow from what the character said?", options: ["Yes, it follows", "No, it doesn't follow", "I'm not sure"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "Did Mika's conclusion follow from what the character said?", options: ["Yes, it follows", "No, it doesn't follow", "I'm not sure"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "Two questions, asked separately" },
@@ -296,8 +293,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "A character in the game you play has died every time she trusted the stranger in the red coat. On her fifth run she meets him again. The player shouts at the screen: \"Don't trust him!\"" },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "Does the player KNOW the stranger will betray her this time?", options: ["Yes, after four times", "No, but it's very likely", "No, it tells us nothing"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "Does the player KNOW the stranger will betray her this time?", options: ["Yes, after four times", "No, but it's very likely", "No, it tells us nothing"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "Two ways to support a conclusion" },
@@ -359,8 +355,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "In the group chat, someone suggests the class tries a new revision app. Within a minute: \"So you think teachers are useless now?\", \"Says the person who failed the mock\", and \"Everyone's using the old one anyway.\"" },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "Did any of those three replies actually answer the suggestion?", options: ["Yes, all of them", "One of them did", "None of them did"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "Did any of those three replies actually answer the suggestion?", options: ["Yes, all of them", "One of them did", "None of them did"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "A fallacy is a bad move that looks like a good one" },
@@ -433,8 +428,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "Your friend texts: \"Honestly, social media is ruining everyone.\" You could reply that you use it and you're fine, and that she's on it all day. Or you could ask what she actually means." },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "What does she most likely mean?", options: ["Literally everyone is ruined", "It's doing more harm than good for many people", "She's just annoyed today"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "What does she most likely mean?", options: ["Literally everyone is ruined", "It's doing more harm than good for many people", "She's just annoyed today"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "Answer what they meant" },
@@ -494,8 +488,7 @@
     pages: [
       { t: "Hook", kind: "hook", blocks: [
         { story: "Before the final debate in the drama you're watching, the captain doesn't practise her own speech. She spends the night writing her opponent's speech, better than he could. Her friends think she's wasting time." },
-        { note: "A kind of story you know · no title named, nothing spoiled" },
-        { vote: { q: "Is she wasting her time?", options: ["Yes, she should practise her own side", "No, it's the best preparation", "Only if she has time left over"], note: "Quick vote. Your answer is kept, and the last page comes back to it." } }
+        { vote: { q: "Is she wasting her time?", options: ["Yes, she should practise her own side", "No, it's the best preparation", "Only if she has time left over"] } }
       ] },
       { t: "The idea", blocks: [
         { h: "Charity, then a step further" },
@@ -557,7 +550,7 @@
       { t: "The argument", blocks: [
         { h: "Something you can disagree with" },
         { story: "\"The app should not add a Mind streak. Streaks do raise how often people show up at first. But a broken streak makes many people quit altogether, because losing a streak feels worse than gaining a day feels good. And Mind is for curiosity: quitting it costs more than skipping a day.\"" },
-        { list: ["Map it: the conclusion, its reasons, and the objection it answers.", "Then answer a few cards and scenarios, and write a short judgement.", "Never locked. Retake it any time; it pays once."] }
+        { p: "Map it: the conclusion, its reasons, and the objection it answers." }
       ] }
     ]
   });

@@ -82,7 +82,7 @@
     window.KOS_DATA = window.KOS_DATA || {};
     if (!sections.length) { delete window.KOS_DATA.mind; return; }
     window.KOS_DATA.mind = {
-      id: "mind", name: "Mind", board: "Psychology and philosophy · for curiosity, not exams",
+      id: "mind", name: "Mind", board: "Psychology and philosophy",
       labelL: "What this lesson teaches", labelR: "Where it leads",
       sections: sections
     };

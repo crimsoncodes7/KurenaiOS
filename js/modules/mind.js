@@ -51,29 +51,26 @@
   KOS.mindDesk = function (main) {
     if (!J().loaded()) J().ready(function () { if (main.isConnected && KOS.store.state.ui.view === "subject") KOS.rerender(); });
     shellActions();
-    var st = M().stats(), first = !M().started(), next = M().nextLesson(), cur = M().currentUnit();
-    var curPath = next ? M().pathOf(next.unit) : null, H = (window.KOS_MIND.HEADERS || []).filter(function (h) { return curPath && h.id === curPath.header; })[0];
-    var startISO = (function () { var fl = Object.keys(M().peek().lessons).map(function (k) { return M().peek().lessons[k].startAt || Infinity; }); var m = Math.min.apply(null, fl.concat([Infinity])); return isFinite(m) ? m : null; })();
-    var week = startISO ? Math.floor((Date.now() - startISO) / (7 * 864e5)) + 1 : null;
+    var st = M().stats(), first = !M().started(), next = M().nextLesson();
     var met = M().metConcepts().length;
+    /* the hero, as Code's: ring, name, the four rungs as bars, and the agreed order as its path row */
     var hero = el("section", { class: "k-subj-hero k-mind-hero", "data-ui": "study.subject-hero mind.hero", "aria-label": "Mind" }, [
       el("span", { class: "k-subj-ring", role: "img", "aria-label": st.mastery + "% mastery", style: "--p: " + st.mastery + "%" }, [
         el("span", { class: "k-subj-ring-in" }, [el("b", { text: st.mastery + "%" }), el("small", { text: "mastery" })])
       ]),
       el("div", { class: "k-subj-id" }, [
         el("div", { class: "k-kicker", text: "Subject desk" }),
-        el("h1", { class: "k-subj-name" }, ["Mind ", el("span", { class: "k-mind-emblem", lang: "ja", "aria-hidden": "true", text: "心" })]),
-        el("div", { class: "k-subj-board" }, [el("span", { text: KOS_DATA.mind.board })]),   // no streak of its own (decision C)
-        el("p", { class: "k-mind-hero-where", text: [H ? H.name : null, cur ? cur.id + " " + cur.title : null, st.done + " of " + st.lessons + " lessons so far", week ? "week " + week : null].filter(Boolean).join(" · ") })
+        el("h1", { class: "k-subj-name", text: "Mind" }),
+        el("div", { class: "k-subj-board" }, [el("span", { text: KOS_DATA.mind.board })])   // no streak of its own (decision C)
       ]),
-      el("div", { class: "k-subj-papers k-mind-rungbars", "data-ui": "mind.rung-bars" }, UI().RUNG.map(function (r, i) {
-        var n = st.rungs[i];
+      el("div", { class: "k-subj-papers", "data-ui": "mind.rung-bars" }, UI().RUNG.map(function (r, i) {
+        var pct = met ? Math.round(100 * st.rungs[i] / met) : 0;
         return el("div", { class: "k-subj-paper" }, [
-          el("div", { class: "k-subj-paper-top" }, [el("span", { class: "k-mind-rungkey", "aria-hidden": "true", text: UI().RUNG_S[i] }), el("span", { class: "k-subj-paper-note", text: r }),
-            el("span", { class: "k-mono", text: met ? n + " of " + met : "—" })]),
-          el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": r + ": " + (met ? n + " of " + met + " concepts" : "no concepts yet"), style: "--p: " + (met ? Math.round(100 * n / met) : 0) + "%; --bar-c: var(--mind)" }, [el("i")])
+          el("div", { class: "k-subj-paper-top" }, [el("b", { text: r }), el("span", { class: "k-subj-paper-note" }), el("span", { class: "k-mono", text: pct + "%" })]),
+          el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": r + ": " + pct + "% of your concepts", style: "--p: " + pct + "%" }, [el("i")])
         ]);
-      }))
+      })),
+      el("div", { class: "k-mind-hero-path" }, [orderPath()])
     ]);
     var side = el("div", { class: "k-subj-side k-mind-deskside" }, [first ? welcomeCard() : dailyCard(), !first && next ? continueCard(next) : null].filter(Boolean));
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
@@ -83,8 +80,7 @@
         el("span", { class: "k-card-title", text: "Subject analytics" }), el("span", { class: "k-card-meta", text: "this subject only" }),
         el("details", { class: "k-sa-help" }, [el("summary", { class: "k-link", text: "What do these mean?" }), el("div", { class: "k-sa-help-body" }, [
           el("p", { text: "Mastery averages each lesson's evidence checks: every page read, the check passed, its written prompt done and its cards held." }),
-          el("p", { text: "A concept climbs a ladder: Recall (its cards hold), Explain (an explain-back covers its key points), Apply (a scenario answered right) and Evaluate (a position with an objection answered). Every rung comes from evidence, never from a box you tick." }),
-          el("p", { text: "A changed mind is a position you revised to a different answer, with a reason. It is a milestone, not a mistake." })])])
+          el("p", { text: "A concept climbs a ladder: Recall (its cards hold), Explain (an explain-back covers its key points), Apply (a scenario answered right) and Evaluate (a position with an objection answered). Every rung comes from evidence, never from a box you tick." })])])
       ]),
       el("div", { class: "k-sa-grid", "data-ui": "study.analytics-grid" }, [
         tile("Mastery", st.mastery + "%", false, st.mastery, "var(--subj-c)"),
@@ -99,8 +95,7 @@
     ]);
     main.appendChild(el("div", { class: "k-subj-row" }, [analytics, journalCard()]));
     main.appendChild(corePath());
-    var close = [headersCard(), milestonesCard(), suggestedCard()].filter(Boolean);
-    main.appendChild(el("div", { class: "k-mind-close-row", "data-count": String(close.length) }, close));
+    main.appendChild(milestonesCard());
   };
   function tile(k, v, empty, pct, c) {
     var bar = pct != null && !empty;
@@ -158,83 +153,59 @@
         el("button", { type: "button", class: "k-link", text: "Open →", onclick: function () { KOS.show("mind", { page: "journal" }); } })]),
       rows.length ? el("div", { class: "k-mind-jlist" }, rows.map(function (r) {
         return journalRow({ kind: r.kind, title: r.title, meta: r.p ? "v" + r.p.current.n + " · " + when(r.at) : when(r.at), go: function () { KOS.show("mind", { page: r.p ? "positions" : "journal" }); } });
-      })) : el("p", { class: "k-muted", text: "Nothing yet. Save an insight from any lesson, or capture one." }),
-      el("button", { type: "button", class: "k-btn k-btn--sm", text: "+ Capture", onclick: function () { capture(); } })
+      })) : el("p", { class: "k-muted", text: "Nothing yet. Save an insight from any lesson, or capture one." })
     ]);
   }
-  function corePath() {
-    var order = window.KOS_MIND.ORDER, paths = window.KOS_MIND.PATHS;
-    var units = el("div", { class: "k-units k-mind-units", "data-ui": "study.units mind.units" });
-    var cur = M().currentUnit(), sug = M().suggestedNext();
-    var seq = [];
-    order.forEach(function (pid) { var p = paths.filter(function (x) { return x.id === pid; })[0]; if (p) p.units.forEach(function (u) { seq.push({ p: p, u: u }); }); });
-    paths.forEach(function (p) { if (order.indexOf(p.id) < 0 && p.units.length && !p.later) p.units.slice(0, 1).forEach(function (u) { if (seq.length < 8 && p.id === "Y3") seq.push({ p: p, u: p.units[1] || u }); }); });
-    seq.forEach(function (x) {
-      var us = M().unitState(x.u.id), H = window.KOS_MIND.HEADERS.filter(function (h) { return h.id === x.p.header; })[0];
-      var isCur = cur && cur.id === x.u.id, isSug = sug && sug.unit.id === x.u.id;
-      var card = el("button", { type: "button", class: "k-unit k-mind-unit", "data-ui": "study.unit mind.unit", "data-state": us.state === "later" ? "later" : isCur ? "current" : us.state === "done" ? "done" : null,
-        "aria-label": x.u.id + " " + x.u.title + ": " + (us.released ? us.done + " of " + x.u.n + " done" : "arrives later"),
-        onclick: function () { if (us.next) KOS.show("ref", { subject: SID, ref: us.next.id }); else if (us.released) KOS.show("ref", { subject: SID, ref: M().unitLessons(x.u.id)[0].id }); else KOS.show("mind", { page: "path" }); } }, [
-        el("span", { class: "k-mind-unit-top" }, [el("span", { class: "k-unit-ref", text: x.u.id }), el("span", { class: "k-muted", text: H ? H.name : "" })]),
-        el("span", { class: "k-unit-title", text: x.u.title }),
-        us.released ? el("span", { class: "k-unit-segs", "aria-hidden": "true" }, M().unitLessons(x.u.id).map(function (l) { return el("span", { "data-state": M().finished(l.id) ? "done" : l.id === (us.next || {}).id ? "started" : null }); })) : null,
-        el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, !us.released ? [isSug ? "Suggested next" : "In your order"] : us.state === "done" ? [el("b", { text: us.done + " / " + x.u.n }), " done"] : [el("b", { text: us.done + " / " + x.u.n }), isCur && us.next ? " · " + us.next.id + " now" : ""])
-      ].filter(Boolean));
-      if (isCur) KOS.ui.state(card, "current", true);
-      units.appendChild(card);
-    });
-    var strip = el("ol", { class: "k-mind-order", "aria-label": "The order you agreed" }, order.map(function (pid) {
+  /* the agreed order as the hero's path row (Code's stage path): one stop a path, the current one lit */
+  function orderPath() {
+    var paths = window.KOS_MIND.PATHS, cur = M().currentUnit(), curP = cur ? M().pathOf(cur.id) : null;
+    return el("ol", { class: "k-mind-order", "aria-label": "Your order" }, window.KOS_MIND.ORDER.map(function (pid) {
       var p = paths.filter(function (x) { return x.id === pid; })[0];
-      var done = p.units.every(function (u) { var us = M().unitState(u.id); return us.state === "done"; });
-      var here = cur && M().pathOf(cur.id) === p;
-      return el("li", { "data-state": done ? "done" : here ? "current" : null }, [el("b", { text: pid }), " · " + p.title]);
-    }).concat([el("li", { "data-state": "later" }, ["Then your choice"])]));
+      var done = p.units.every(function (u) { return M().unitState(u.id).state === "done"; });
+      return el("li", { "data-state": done ? "done" : curP === p ? "current" : null }, [el("span", { class: "k-mind-order-id", text: pid }), el("span", { text: p.title })]);
+    }));
+  }
+  /* the core path: the units of the agreed order as Code's unit cards (ref, title, lessons, foot) */
+  function corePath() {
+    var units = el("div", { class: "k-units k-mind-units", "data-ui": "study.units mind.units" });
+    var cur = M().currentUnit(), n = 0;
+    window.KOS_MIND.ORDER.forEach(function (pid) {
+      var p = window.KOS_MIND.PATHS.filter(function (x) { return x.id === pid; })[0]; if (!p) return;
+      p.units.forEach(function (u) {
+        n++;
+        var us = M().unitState(u.id), ls = M().unitLessons(u.id), isCur = cur && cur.id === u.id;
+        var card = el("button", { type: "button", class: "k-unit k-mind-unit", "data-ui": "study.unit mind.unit", "data-state": !us.released ? "later" : isCur ? "current" : null,
+          "aria-label": u.id + " " + u.title + ": " + (us.released ? us.done + " of " + u.n + " done" : "coming later"),
+          onclick: function () { if (ls.length) KOS.show("ref", { subject: SID, ref: (us.next || ls[0]).id }); else KOS.show("mind", { page: "path" }); } }, [
+          el("span", { class: "k-unit-ref", text: u.id }),
+          el("span", { class: "k-unit-title", text: u.title }),
+          el("span", { class: "k-unit-segs", "aria-hidden": "true" }, ls.map(function (l) { return el("span", { "data-state": M().finished(l.id) ? "done" : us.next && l.id === us.next.id && M().peek().lessons[l.id] ? "started" : null }); })),
+          el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, !us.released ? ["Coming later"]
+            : [el("b", { text: us.done + " / " + u.n }), isCur && us.next ? " · " + us.next.id + " now" : " done"])
+        ]);
+        if (isCur) KOS.ui.state(card, "current", true);
+        units.appendChild(card);
+      });
+    });
     return el("section", { class: "k-subj-units k-mind-core", "aria-labelledby": "k-mind-core-h" }, [
-      el("div", { class: "k-sectionhead" }, [el("h2", { id: "k-mind-core-h", text: "Core path" }), el("span", { class: "k-sectionhead-sub", text: "the order you agreed · nothing locked" }),
+      el("div", { class: "k-sectionhead" }, [el("h2", { id: "k-mind-core-h", text: "Core path" }), el("span", { class: "k-sectionhead-sub", text: window.KOS_MIND.ORDER.length + " paths · " + n + " units" }),
         el("div", { class: "k-sectionhead-actions" }, [el("button", { type: "button", class: "k-link", text: "All paths ›", onclick: function () { KOS.show("mind", { page: "path" }); } })])]),
-      strip,
       KOS.ui.scroller(units, { label: "Units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
     ]);
   }
-  function headerCounts(hid) {
-    var cs = [];
-    window.KOS_MIND.PATHS.forEach(function (p) { if (p.header !== hid) return; p.units.forEach(function (u) { M().unitLessons(u.id).forEach(function (l) { cs = cs.concat(l.concepts || []); }); }); });
-    cs = cs.filter(function (c, i, a) { return a.indexOf(c) === i && M().concept(c); });
-    var met = M().metConcepts(), mine = cs.filter(function (c) { return met.indexOf(c) >= 0; });
-    return { counts: M().rungCounts(mine), n: mine.length };
-  }
-  function headersCard() {
-    return el("section", { class: "k-card k-mind-headers", "data-ui": "mind.headers", "aria-label": "The four headers" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "The four headers" }), el("button", { type: "button", class: "k-link", text: "Path →", onclick: function () { KOS.show("mind", { page: "path" }); } })]),
-      el("ul", { class: "k-mind-hlist" }, window.KOS_MIND.HEADERS.map(function (h) {
-        var paths = window.KOS_MIND.PATHS.filter(function (p) { return p.header === h.id; }), hc = headerCounts(h.id);
-        var started = hc.n > 0;
-        return el("li", {}, [el("span", {}, [el("b", { text: h.name }), el("small", { class: "k-muted", text: paths.length + (paths.length === 1 ? " path" : " paths") + (h.id === "crossings" ? " · each builds on two sides" : "") })]),
-          started ? UI().pathLadder(hc.counts, hc.n, { labels: false }) : null].filter(Boolean));
-      }))
-    ]);
-  }
+
   function milestonesCard() {
-    var ms = M().milestones(), any = ms.some(function (m) { return m.at; });
-    if (!any) return null;
+    var ms = M().milestones();
     return el("section", { class: "k-card k-mind-miles", "data-ui": "mind.milestones", "aria-label": "Milestones" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Milestones" })]),
-      el("ul", { class: "k-mind-mlist" }, ms.map(function (m) {
+      el("ul", { class: "k-mind-mlist k-mind-mrow" }, ms.map(function (m) {
         return el("li", { "data-state": m.at ? "done" : null }, [el("span", { "aria-hidden": "true", text: m.at ? "✓" : "○" }), el("span", { text: m.title }),
-          el("small", { class: "k-mono k-muted", text: m.at ? when(m.at) : m.of ? m.of[0] + " of " + m.of[1] : "" })]);
+          el("small", { class: "k-mono", text: m.at ? when(m.at) : m.of ? m.of[0] + " of " + m.of[1] : "" })]);
       }))
     ]);
   }
-  function suggestedCard() {
-    var s = M().suggestedNext(); if (!s) return null;
-    return el("section", { class: "k-card k-mind-suggest", "data-ui": "mind.suggested", "aria-label": "Suggested next" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Suggested next" }), el("span", { class: "k-card-meta", text: "one unit" })]),
-      el("div", { class: "k-mind-unitline" }, [el("span", { class: "k-mono", text: s.unit.id }), el("b", { text: s.path.title + " · " + s.unit.title })]),
-      el("p", { class: "k-muted", text: s.unit.n + " lessons. Next in the order you chose." + (s.released ? "" : " It arrives in a coming release.") }),
-      el("button", { type: "button", class: "k-btn k-btn--sm", text: s.released ? "Open" : "See it on the path", onclick: function () {
-        var ls = M().unitLessons(s.unit.id); if (ls.length) KOS.show("ref", { subject: SID, ref: ls[0].id }); else KOS.show("mind", { page: "path" }); } })
-    ]);
-  }
+
+
 
   /* ======================================================================
      the pages: #/mind/<page>
@@ -253,97 +224,61 @@
     return pathPage(main);
   };
 
-  /* ---------------- 32c · the path ---------------- */
+  /* ---------------- 32c · the path: every header, its paths as equal cards ---------------- */
   function pathPage(main) {
-    main.appendChild(KOS.ui.pageHeader({ kicker: "Mind", title: "Path", sub: "Paths hold units, units hold lessons, lessons teach concepts. Open anything." }));
-    var ui = M().ui(), by = ui.pathBy === "ladder" ? "ladder" : "header";
-    var seg = el("div", { class: "k-seg", role: "group", "aria-label": "Group by" }, [["header", "By header"], ["ladder", "By ladder"]].map(function (m) {
-      return el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(by === m[0]), text: m[1], onclick: function () { ui.pathBy = m[0]; KOS.store.save(); KOS.rerender(); } });
-    }));
-    main.appendChild(el("div", { class: "k-mind-pathtools" }, [seg]));
-    var cur = M().currentUnit(), sug = M().suggestedNext();
-    function unitRow(u, p) {
-      var us = M().unitState(u.id), ls = M().unitLessons(u.id);
-      var cs = []; ls.forEach(function (l) { cs = cs.concat(l.concepts || []); });
-      cs = cs.filter(function (c, i, a) { return a.indexOf(c) === i; });
-      var met = M().metConcepts(), mine = cs.filter(function (c) { return met.indexOf(c) >= 0; });
-      var isCur = cur && cur.id === u.id, isSug = sug && sug.unit.id === u.id;
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Mind", title: "Path" }));
+    var cur = M().currentUnit();
+    function unitRow(u) {
+      var us = M().unitState(u.id), ls = M().unitLessons(u.id), isCur = cur && cur.id === u.id;
       return el("button", { type: "button", class: "k-mind-urow", "data-ui": "mind.path-unit", "data-state": isCur ? "current" : us.state === "done" ? "done" : !ls.length ? "later" : null,
-        onclick: function () { if (ls.length) KOS.show("ref", { subject: SID, ref: (us.next || ls[0]).id }); else KOS.ui.toast(u.id + " " + u.title + " arrives in a coming release."); } }, [
+        onclick: function () { if (ls.length) KOS.show("ref", { subject: SID, ref: (us.next || ls[0]).id }); else KOS.ui.toast(u.id + " " + u.title + " comes in a later release."); } }, [
         el("span", { class: "k-mono", text: u.id }),
-        el("span", { class: "k-mind-urow-t" }, [el("b", { text: u.title }), el("small", { class: "k-muted", text: u.n + " lessons" + (us.state === "done" ? " · done" : isCur ? " · " + us.done + " of " + u.n : isSug ? " · suggested next" : !ls.length ? " · arrives later" : "") })]),
-        mine.length ? UI().pathLadder(M().rungCounts(mine), mine.length, { labels: false }) : null
-      ].filter(Boolean));
+        el("b", { class: "k-mind-urow-t", text: u.title }),
+        ls.length ? el("small", { class: "k-mono", text: us.done + " / " + u.n }) : null
+      ]);
     }
     function pathCard(p) {
-      var crossing = p.header === "crossings";
-      var card = el("section", { class: "k-card k-mind-pcard", "data-ui": "mind.path-card", "data-state": p.later ? "later" : null, "aria-label": p.id + " " + p.title }, [
-        el("div", { class: "k-mind-pcard-h" }, [el("span", { class: "k-mind-pid", text: p.id }), el("b", { text: p.title }), el("small", { class: "k-muted", text: p.later ? "written later" : crossing ? p.units[0].n + " lessons" : p.units.length + (p.units.length === 1 ? " unit" : " units") })])
-      ]);
+      var crossing = p.header === "crossings", body = [];
       if (crossing) {
-        card.appendChild(el("p", { class: "k-muted", text: p.gist }));
-        var sides = (p.sides || []).map(function (sid) {
+        var ls = M().unitLessons(p.units[0].id);
+        body.push(el("p", { class: "k-mind-pgist", text: p.gist }));
+        body.push(el("ul", { class: "k-mind-sides" }, (p.sides || []).map(function (sid) {
           var sp = window.KOS_MIND.PATHS.filter(function (x) { return x.id === sid; })[0];
           var done = sp ? sp.units.length && sp.units.every(function (u) { return M().unitState(u.id).state === "done"; }) : false;
-          return el("li", { "data-state": done ? "done" : null }, [el("span", { "aria-hidden": "true", text: done ? "✓ " : "○ " }), sp ? sp.id + " " + sp.title : sid === "compsci" ? "CS Computer Science" : sid]);
-        });
-        card.appendChild(el("ul", { class: "k-mind-sides" }, sides));
-        var ls = M().unitLessons(p.units[0].id);
-        card.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "mind.start-anyway", text: ls.length ? "Start anyway" : "Arrives later", disabled: ls.length ? null : "",
+          return el("li", { "data-state": done ? "done" : null }, [el("span", { "aria-hidden": "true", text: done ? "✓" : "○" }), sp ? sp.id + " " + sp.title : "CS Computer Science"]);
+        })));
+        if (ls.length) body.push(el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "mind.start-anyway", text: "Start anyway",
           onclick: function () { announce("Starting " + p.id + ". It builds on " + (p.sides || []).join(" and ") + "."); KOS.show("ref", { subject: SID, ref: ls[0].id }); } }));
-        if (p.id === "X3") card.appendChild(el("small", { class: "k-muted", text: "The first crossing in your order" }));
-        return card;
-      }
-      p.units.forEach(function (u) { card.appendChild(unitRow(u, p)); });
-      return card;
+      } else body = p.units.map(unitRow);
+      return el("section", { class: "k-card k-mind-pcard", "data-ui": "mind.path-card", "aria-label": p.id + " " + p.title }, [
+        el("div", { class: "k-mind-pcard-h" }, [el("span", { class: "k-mind-pid", text: p.id }), el("b", { text: p.title })])
+      ].concat(body));
     }
-    if (by === "ladder") {
-      var groups = [["Started", []], ["Not started", []], ["Written later", []]];
-      window.KOS_MIND.PATHS.forEach(function (p) {
-        var started = p.units.some(function (u) { return M().unitState(u.id).done > 0; });
-        groups[p.later ? 2 : started ? 0 : 1][1].push(p);
-      });
-      groups.forEach(function (g) {
-        if (!g[1].length) return;
-        main.appendChild(el("section", { class: "k-mind-hsec" }, [el("div", { class: "k-sectionhead" }, [el("h2", { text: g[0] })]), el("div", { class: "k-mind-pgrid" }, g[1].map(pathCard))]));
-      });
-      announce("By ladder: " + groups.filter(function (g) { return g[1].length; }).length + " groups.");
-      return;
-    }
-    window.KOS_MIND.HEADERS.forEach(function (h, hi) {
-      var ps = window.KOS_MIND.PATHS.filter(function (p) { return p.header === h.id; }), hc = headerCounts(h.id);
-      var grid = el("div", { class: "k-mind-pgrid" }, ps.map(pathCard));
-      if (hi === 0) {
-        var n = M().nextLesson();
-        grid.appendChild(el("section", { class: "k-card k-mind-where", "data-ui": "mind.where", "aria-label": "Where you are" }, [
-          el("span", { class: "k-kicker", text: "Where you are" }),
-          el("b", { text: M().started() ? (n ? "Now: " + n.id + " " + n.title + "." : "Everything released is done.") : "Start here: F1, What makes an argument good." }),
-          el("p", { class: "k-muted", text: "The agreed order: F, then Y1 Learning and memory, then P1 Ethics, then X3 Happiness, the first crossing. After that the order is yours; Y3.2 Games and strategy is the usual next step." }),
-          el("ol", { class: "k-mind-order" }, window.KOS_MIND.ORDER.map(function (pid) { return el("li", { text: pid }); }))
-        ]));
-      }
+    (window.KOS_MIND.HEADERS || []).forEach(function (h) {
+      var all = window.KOS_MIND.PATHS.filter(function (p) { return p.header === h.id; });
+      /* a path with no units written yet is named on the section line, not drawn as an empty card */
+      var ps = all.filter(function (p) { return p.units.length; }), later = all.filter(function (p) { return !p.units.length; });
       main.appendChild(el("section", { class: "k-mind-hsec", "aria-labelledby": "mind-h-" + h.id }, [
-        el("div", { class: "k-sectionhead" }, [el("h2", { id: "mind-h-" + h.id, text: h.name }), el("span", { class: "k-sectionhead-sub", text: h.purpose }),
-          hc.n ? el("div", { class: "k-sectionhead-actions" }, [UI().pathLadder(hc.counts, hc.n)]) : null].filter(Boolean)),
-        grid
+        el("div", { class: "k-sectionhead" }, [el("h2", { id: "mind-h-" + h.id, text: h.name }), el("span", { class: "k-sectionhead-sub",
+          text: all.length + (all.length === 1 ? " path" : " paths") + (later.length ? " · " + later.map(function (p) { return p.id + " " + p.title; }).join(", ") + " later" : "") })]),
+        el("div", { class: "k-mind-pgrid" }, ps.map(pathCard))
       ]));
     });
-    /* credits, as Japanese's licences page gives them: original art, made with AI image tools */
+    /* credits, as Japanese's licences page gives them */
     main.appendChild(el("p", { class: "k-mind-credits k-muted", "data-ui": "mind.credits" }, [el("b", { text: "Credits · " }),
-      "Kurenai, Ren, the backgrounds and the philosopher cards are original to this app and AI-assisted: made with Gemini, and one card (Simone de Beauvoir) with ChatGPT. Every research finding names its study on its lesson's Sources tab."]));
+      "Kurenai, Ren, the backgrounds and the philosopher cards are original to this app and AI-assisted: made with Gemini, and one card (Simone de Beauvoir) with ChatGPT."]));
   }
 
   /* ---------------- 32n · the Journal ---------------- */
   function journal(main, arg) {
     var ui = M().ui(), f = ui.jf = ui.jf && typeof ui.jf === "object" ? ui.jf : {};
     var q = f.q || "";
-    main.appendChild(KOS.ui.pageHeader({ kicker: "Mind", title: "Journal", sub: "Private. Reports count entries and never quote them.",
-      actions: [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.journal-new", text: "+ New entry", onclick: function () { capture(); } })] }));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Mind", title: "Journal" }));   // + Capture rides the header's actions
     var rows = allEntries(), counts = { all: rows.length };
     rows.forEach(function (r) { counts[r.kind] = (counts[r.kind] || 0) + 1; });
     var kinds = el("div", { class: "k-mind-kinds", role: "group", "aria-label": "Kind" }, [["all", "All"]].concat(Object.keys(UI().KINDS).map(function (k) { return [k, UI().KINDS[k][1]]; })).map(function (k) {
       return el("button", { type: "button", class: "k-mind-kindpick", "aria-pressed": String((f.kind || "all") === k[0]), onclick: function () { f.kind = k[0]; KOS.store.save(); KOS.rerender(); announce((counts[k[0]] || 0) + " entries, " + k[1] + "."); } },
-        [k[0] === "all" ? "All" : UI().kind(k[0]), el("span", { class: "k-mono", text: " · " + (counts[k[0]] || 0) })]);
+        [k[0] === "all" ? "All" : UI().kind(k[0]), counts[k[0]] ? el("span", { class: "k-mono", text: " · " + counts[k[0]] }) : null].filter(Boolean));
     }));
     var concepts = M().metConcepts();
     var csel = el("select", { class: "k-mind-select", "aria-label": "Concept", onchange: function () { f.concept = csel.value || null; KOS.store.save(); KOS.rerender(); } },
@@ -385,7 +320,7 @@
       return el("article", { class: "k-card k-mind-entry", "data-id": r.id, tabindex: "-1", "data-kind": "position" }, [
         el("div", { class: "k-mind-entry-h" }, [UI().kind("position"), el("small", { class: "k-mono k-muted", text: "v" + v.n + " · " + v.conf + "% · " + when(v.at) })]),
         el("b", { class: "k-mind-entry-t", text: p.q }),
-        el("p", { class: "k-mind-read", text: p.options[v.answer] + (v.reason ? ": \"" + v.reason + "\"" : "") }),
+        el("p", { class: "k-mind-entry-x", text: p.options[v.answer] + (v.reason ? ": \"" + v.reason + "\"" : "") }),
         el("div", { class: "k-mind-row" }, [el("button", { type: "button", class: "k-btn k-btn--sm", text: "Versions", onclick: function () { KOS.show("mind", { page: "positions" }); } })])
       ]);
     }
@@ -398,7 +333,7 @@
       el("div", { class: "k-mind-row" }, [
         e.kind === "question" ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "Make it the Big Question", onclick: function () { M().setBq(e.title, e.id); announce("This week's Big Question is set."); KOS.rerender(); } }) : null,
         el("button", { type: "button", class: "k-btn k-btn--sm", text: "Ask Kurenai", onclick: function () { KOS.mindRun.ask({ concept: e.concepts[0], lesson: e.lesson, typed: e.title }); } }),
-        el("button", { type: "button", class: "k-btn k-btn--sm", "data-intent": "danger", text: "Delete", onclick: function () {
+        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "Delete", onclick: function () {
           KOS.ui.confirm({ title: "Delete this entry?", body: "It leaves this device and your other devices. This can't be undone.", danger: true, confirm: "Delete" }, function () { J().remove(e.id, function () { KOS.rerender(); }); });
         } })
       ].filter(Boolean))
@@ -406,10 +341,11 @@
   }
   function bqCard() {
     var b = M().bq(), day = new Date(today() + "T12:00:00").getDay();
-    var box = el("section", { class: "k-card k-mind-bq", "data-ui": "mind.big-question", "aria-label": "Big Question" }, [el("span", { class: "k-kicker", text: "Big Question · this week" })]);
+    var box = el("section", { class: "k-card k-mind-bq", "data-ui": "mind.big-question", "aria-label": "Big Question" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Big Question" }), el("span", { class: "k-card-meta", text: "this week" })])]);
     if (!b || !b.q) {
       var qs = J().list().filter(function (e) { return e.kind === "question"; });
-      box.appendChild(el("p", { class: "k-muted", text: qs.length ? "Pick one of your Questions to think about all week: a line most days, a few bullets on Sunday." : "Capture a Question and it can become this week's Big Question." }));
+      box.appendChild(el("p", { class: "k-muted", text: qs.length ? "Pick one of your Questions for the week." : "Capture a Question to start one." }));
       if (qs.length) box.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: "Use: " + qs[0].title.slice(0, 50), onclick: function () { M().setBq(qs[0].title, qs[0].id); KOS.rerender(); } }));
       return box;
     }
@@ -440,15 +376,13 @@
   }
   function exportCard() {
     var concepts = M().metConcepts();
-    var sel = el("select", { class: "k-mind-select", "aria-label": "One concept" }, concepts.map(function (c) { return el("option", { value: c, text: M().concept(c).name }); }));
+    var sel = el("select", { class: "k-mind-select", "aria-label": "What to export" }, [el("option", { value: "", text: "Everything" })]
+      .concat(concepts.map(function (c) { return el("option", { value: c, text: M().concept(c).name }); })));
     return el("section", { class: "k-card k-mind-export", "data-ui": "mind.export", "aria-label": "Commonplace book" }, [
-      el("b", { text: "Commonplace book" }),
-      el("p", { class: "k-muted", text: "Everything, or one concept's entries, as Markdown. It stays on this device until you save it somewhere." }),
-      el("div", { class: "k-mind-row" }, [
-        el("button", { type: "button", class: "k-btn k-btn--sm", text: "↓ Everything", onclick: function () { download(J().markdown(), "commonplace-book.md"); } }),
-        concepts.length ? sel : null,
-        concepts.length ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "↓ One concept", onclick: function () { download(J().markdown({ concept: sel.value }), "commonplace-" + sel.value + ".md"); } }) : null
-      ].filter(Boolean))
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Commonplace book" }), el("span", { class: "k-card-meta", text: "Markdown" })]),
+      el("div", { class: "k-mind-exportrow" }, [sel,
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "↓ Export", onclick: function () {
+          download(sel.value ? J().markdown({ concept: sel.value }) : J().markdown(), sel.value ? "commonplace-" + sel.value + ".md" : "commonplace-book.md"); } })])
     ]);
   }
   function download(text, name) {
@@ -459,7 +393,7 @@
 
   /* ---------------- 32k–32l · positions ---------------- */
   function positionsPage(main) {
-    main.appendChild(KOS.ui.pageHeader({ kicker: "Mind", title: "Positions", sub: "Every position, every version. Nothing is overwritten." }));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Mind", title: "Positions" }));
     var ps = M().positions(), rv = M().revisitsDue(), tn = M().tensionsDue();
     var col = el("div", { class: "k-mind-poscol" });
     rv.forEach(function (p) { col.appendChild(KOS.mindRun.revisitCard(p.lesson, { onDone: function () { KOS.rerender(); } })); });
@@ -471,21 +405,20 @@
       main.appendChild(col);
       return;
     }
-    col.appendChild(timeline(ps));
+    var days = {}; ps.forEach(function (p) { p.versions.forEach(function (v) { days[v.day] = 1; }); });
+    if (Object.keys(days).length >= 2) col.appendChild(timeline(ps));   // a timeline needs time to show (invariant 76)
     ps.forEach(function (p) { col.appendChild(versionsCard(p)); });
     main.appendChild(col);
   }
   function versionsCard(p) {
-    var l = M().lesson(p.lesson);
     return el("section", { class: "k-card k-mind-versions", "data-ui": "mind.versions", "aria-label": p.q, "data-state": p.retiredAt ? "retired" : null }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-kicker", text: "Position · " + p.lesson + " " + l.title }),
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: p.q }), el("span", { class: "k-card-meta k-mono", text: p.lesson }),
         el("button", { type: "button", class: "k-btn k-btn--sm", text: "Revise", onclick: function () { KOS.mindRun.position(p.lesson, { revise: true, onDone: function () { KOS.rerender(); } }); } })]),
-      el("b", { class: "k-mind-entry-t", text: p.q }),
       el("ol", { class: "k-mind-vlist", reversed: "" }, p.versions.slice().reverse().map(function (v, i) {
         return el("li", { "data-state": i === 0 ? (p.retiredAt ? "retired" : "current") : null }, [
           el("div", { class: "k-mind-vrow" }, [el("span", { class: "k-mono", text: "v" + v.n }), el("span", { class: "k-mono k-muted", text: when(v.at) }), el("b", { text: p.options[v.answer] }), el("span", { class: "k-mono", text: v.conf + "%" }),
             i === 0 ? el("small", { class: "k-chip", text: p.retiredAt ? "retired" : "current" }) : null].filter(Boolean)),
-          v.reason ? el("p", { class: "k-mind-read", text: "\"" + v.reason + "\"" }) : null,
+          v.reason ? el("p", { class: "k-mind-entry-x", text: v.reason }) : null,
           v.changed ? el("p", { class: "k-muted" }, [el("b", { text: "What changed my mind · " }), v.changed]) : null,
           v.objection ? el("p", { class: "k-muted" }, [el("b", { text: "Objection · " }), v.objection, v.reply ? el("span", {}, [el("br"), el("b", { text: "Reply · " }), v.reply]) : null].filter(Boolean)) : null
         ].filter(Boolean));
@@ -511,12 +444,9 @@
         svg.appendChild(s("circle", { cx: x.toFixed(1), cy: y, r: r.toFixed(1), class: changedAns ? "k-mind-tl-ring" : "k-mind-tl-dot" }));
       });
     });
-    var changed = 0; ps.forEach(function (p) { p.versions.forEach(function (v, j) { if (j && v.answer !== p.versions[j - 1].answer) changed++; }); });
     return el("section", { class: "k-card k-mind-tl", "data-ui": "mind.timeline", "aria-label": "Belief timeline" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Belief timeline" }), el("span", { class: "k-card-meta", text: "every position, every version · dot size is your confidence · a ring is a changed answer" })]),
-      KOS.ui.scroller(el("div", { class: "k-mind-tl-wrap" }, [svg]), { label: "Belief timeline", prevLabel: "Scroll to earlier versions", nextLabel: "Scroll to later versions" }),
-      el("p", { class: "k-mind-tl-facts" }, [el("b", { text: ps.length + (ps.length === 1 ? " position" : " positions") + " · " + all.length + (all.length === 1 ? " version" : " versions") }),
-        changed ? el("span", { class: "k-muted", text: " · " + changed + (changed === 1 ? " changed mind, with a reason" : " changed minds, each with a reason") }) : null].filter(Boolean))
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Belief timeline" }), el("span", { class: "k-card-meta", text: "dot size is confidence · a ring is a changed answer" })]),
+      KOS.ui.scroller(el("div", { class: "k-mind-tl-wrap" }, [svg]), { label: "Belief timeline", prevLabel: "Scroll to earlier versions", nextLabel: "Scroll to later versions" })
     ]);
   }
   function tensionCard(t) {
@@ -545,6 +475,8 @@
     var box = el("section", { class: "k-card k-mind-cp", "data-ui": "mind.checkpoint", "aria-label": cp.title });
     panel.appendChild(KOS.mindTopic.pageBody(l, 0, l.id));
     panel.appendChild(box);
+    /* its one page counts as read after the same dwell as any lesson page (invariant 107's rule) */
+    setTimeout(function () { if (box.isConnected && M().markPage(l.id, 0)) document.dispatchEvent(new window.CustomEvent("kos:mind-evidence", { detail: { ref: l.id } })); }, 2500);
     function save() { KOS.store.save(); }
     function stepStrip() {
       var steps = [["cards", "Cards · " + cp.cards.length], ["apply", "Apply · " + cp.apply.length], ["map", "Map"], ["synth", "Synthesis"]];
@@ -553,10 +485,9 @@
     }
     function draw() {
       box.innerHTML = "";
-      box.appendChild(el("div", { class: "k-mind-cp-h" }, [el("span", { class: "k-kicker", text: cp.title }), el("small", { class: "k-muted", text: "never locked · retake any time" })]));
       box.appendChild(stepStrip());
       if (run.step === "intro") {
-        box.appendChild(el("p", { text: rec && rec.doneAt ? "Done on " + when(rec.doneAt) + " (" + Object.keys(rec.synth.ticks || {}).length + " of " + cp.synthesis.rubric.length + " rubric points). Retake it any time; it never pays twice." : "Cards first, then three scenarios, then the map, then a short judgement you mark yourself against a rubric." }));
+        box.appendChild(el("p", { text: rec && rec.doneAt ? "Done: " + when(rec.doneAt) + " · " + Object.keys(rec.synth.ticks || {}).length + " of " + cp.synthesis.rubric.length + " rubric points." : "Cards, three scenarios, the map, then a short judgement." }));
         box.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.cp-start", text: rec && rec.doneAt ? "Retake" : "Start the checkpoint",
           onclick: function () { run = ui.cp[l.unit] = { step: "cards", i: 0, cards: 0, apply: {}, map: null, synth: [], ticks: {} }; save(); draw(); } }));
         return;
