@@ -77,6 +77,9 @@ color-scheme: dark;
    restates it clear of its own accent and Code hue. Never pass or fail. */
 --ja: oklch(0.73 0.14 30);
 --ja-ink: oklch(0.2 0.04 30);
+/* Mind (roadmap 5.9, design 32·hue): 藤 Fuji, wisteria — between Maths and IT, lighter and greyer */
+--mind: oklch(0.78 0.1 302);
+--mind-ink: oklch(0.2 0.04 302);
 /* the media moment's fixed surfaces: a manga page is paper and ink in every theme, and a VN text
    box is dark glass over the art in every theme (the art does not change with the theme) */
 --ja-paper: oklch(1 0 0);
@@ -417,6 +420,25 @@ color-scheme: dark;
 --ja-word-big: 56px;
 --ja-manga-stroke: 5px;
 --ja-manga-border: 3px;
+/* Mind (design turn 32) */
+--mind-sheet-w: 640px;
+--mind-sheet-wide: 760px;
+--mind-scene-w: 900px;
+--mind-run-w: 560px;
+--mind-opt-h: 48px;
+--mind-grade-h: 60px;
+--mind-avatar: 40px;
+--mind-bar-w: 5px;
+--mind-bar-h: 22px;
+--mind-bar-lg: 36px;
+--mind-pladder-h: 26px;
+--mind-indent: 26px;
+--mind-tl-h: 220px;
+--mind-col-w: 340px;
+--mind-unit-w: 196px;
+--mind-pcard-min: 270px;
+--mind-tl-min: 520px;
+--mind-search-w: 220px;
 --subj-ring: 132px;
 --subj-ring-hole: 114px;
 --subj-go: 34px;

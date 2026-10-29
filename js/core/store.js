@@ -39,7 +39,9 @@
           /* Code (roadmap 5.3): per-device choices and unsaved drafts */
           code: { drafts: {} },
           /* Japanese (roadmap 5.5): per-device view choices */
-          japanese: {} },
+          japanese: {},
+          /* Mind (roadmap 5.9): the reading mode and place, a dialogue's turn, the Daily 15 */
+          mind: {} },
     oop: { classes: [], links: [], nextId: 1 },
     /* Code (roadmap 5.3, core/code.js): evidence, task passes, proofs and
        the retrieval schedule — keyed maps throughout, so the cloud merge
@@ -49,6 +51,9 @@
        checkpoint evidence, mined lines, input tallies and settings — keyed maps throughout */
     japanese: { v: 1, facets: {}, lessons: {}, checkpoints: {}, mined: {}, input: {},
       settings: { furigana: "unknown", dailyMin: 40, speech: false }, fluency: {} },
+    /* Mind (roadmap 5.9, core/mind.js): concept cards (on KOS.fsrs), lesson evidence, the one
+       written prompt, versioned positions, checkpoints — keyed maps throughout */
+    mind: { v: 1, cards: {}, lessons: {}, explains: {}, positions: {}, parked: {}, checkpoints: {}, tensions: {}, bq: {}, paths: {} },
     worked: { last: null },
     trace: {},
 
@@ -542,6 +547,14 @@
           stepDone(err);
         });
       }
+      /* Mind's Journal (roadmap 5.9, invariant 139) lives in its own IndexedDB */
+      if (window.KOS && KOS.mindJournal && KOS.mindJournal.available()) {
+        steps++;
+        KOS.mindJournal.exportAll(function (err, dump) {
+          if (!err && dump) result.mind = dump;
+          stepDone(err);
+        });
+      }
       /* handwriting (roadmap 6.1) lives in its own IndexedDB */
       if (window.KOS && KOS.ink && KOS.ink.available()) {
         steps++;
@@ -668,14 +681,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () {
+        function restoreMind(next) {
+          if (!backup.mind) return next();
+          if (!window.KOS || !KOS.mindJournal || !KOS.mindJournal.available()) {
+            report.missingSections.push("Mind's Journal (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.mindJournal.importAll(backup.mind, function (err, out) {
+            if (err) report.missingSections.push("Mind's Journal (error: " + err.message + ")");
+            else report.restoredSections.push("Mind's Journal (" + out.entries + " entries)");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreMind(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); }); }); });
+        }); }); }); }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

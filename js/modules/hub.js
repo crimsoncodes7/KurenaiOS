@@ -452,7 +452,7 @@
         onclick: function () { setTreeClosed(true); } })
     ]));
     var filter = el("input", { type: "search", class: "k-spine-filter", "data-ui": "study.spine-filter",
-      placeholder: "Filter " + st.total + (sid === "code" || sid === "ja" ? " lessons" : " topics"), "aria-label": sid === "code" || sid === "ja" ? "Filter lessons" : "Filter topics" });
+      placeholder: "Filter " + st.total + (sid === "code" || sid === "ja" || sid === "mind" ? " lessons" : " topics"), "aria-label": sid === "code" || sid === "ja" || sid === "mind" ? "Filter lessons" : "Filter topics" });
     filter.value = spineQuery;
     tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [KOS.ui.icon("search"), filter]));
     tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
@@ -481,7 +481,9 @@
        the units; Tracks lists the tracks and deepening modules instead */
     var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef, codeMode)
       /* Japanese (frame 28e): Core | Media, and stage headings with their emblem kanji */
-      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef) : null;
+      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef)
+      /* Mind (frame 32d): the four headers over the units */
+      : sid === "mind" && KOS.mindTopic ? KOS.mindTopic.spine(tree, list, activeRef) : null;
     tree.appendChild(list);
     var lastStage = null;
     sections.forEach(function (sec) {
@@ -1540,6 +1542,7 @@
     /* Code joins Home's desks once it has been started (roadmap 5.3) */
     SUBJECTS.filter(function (sid) {
       if (sid === "ja") return !!(KOS.ja && KOS.ja.started());
+      if (sid === "mind") return !!(KOS.mind && KOS.mind.started());
       return sid !== "code" || (KOS.code && !KOS.code.firstVisit());
     }).forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
@@ -1562,7 +1565,7 @@
         ]),
         el("div", { class: "k-bar", "data-ui": "media.bar", title: st.done + " of " + st.total + " spec points completed",
           style: "--p: " + Math.max(st.pct, st.done ? 1 : 0) + "%" }, [el("i", { "data-ui": "media.bar-fill" })]),
-        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: sid === "code" || sid === "ja" ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
+        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: sid === "code" || sid === "ja" || sid === "mind" ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
         el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Weakest" }),
           weak ? el("button", { type: "button", class: "k-desk-row-v", "data-ui": "rag.item", text: weak.ref + " " + weak.title,
             onclick: function () { KOS.show("ref", { subject: sid, ref: weak.ref }); } })
@@ -1938,6 +1941,12 @@
     if (sid === "code" && KOS.codeDesk) {
       main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
       KOS.codeDesk(main);
+      return;
+    }
+    /* …and Mind's (frame 32a) */
+    if (sid === "mind" && KOS.mindDesk) {
+      main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
+      KOS.mindDesk(main);
       return;
     }
     /* …and so is Japanese's (frame 28a) */
@@ -2342,7 +2351,9 @@
        runnable listings, Practice and Tasks, and an evidence inspector */
     var cx = sid === "code" && KOS.codeTopic ? KOS.codeTopic.begin(ref)
       /* Japanese lessons (frame 28e): voiced examples, the page picker, evidence by skill */
-      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref) : null;
+      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref)
+      /* Mind lessons (frames 32d–32f): six named pages, the one prompt, the dialogue, the ladder */
+      : sid === "mind" && KOS.mindTopic ? KOS.mindTopic.begin(ref) : null;
 
     /* ---------- the Topic Status component ----------
        Status, the four progress checks and the RAG confidence rating are one
