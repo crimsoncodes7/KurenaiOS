@@ -131,8 +131,8 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-anilist-1`
-- Required smoke gate: 107 / 107 suites (`""` and 2–107; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes).
+- Service-worker version: `kos-connect-1`
+- Required smoke gate: 108 / 108 suites (`""`, 2–107 and 109 — 108 is Creatives', on `feat/creatives`; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 109 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -221,7 +221,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..107}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..107} 109; do node "tools/smoke${i}.test.js"; done
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -381,6 +381,7 @@ non-navigation redraw path.
 | Files (`docs/files-plan.md` rev 2): R0 | `KOS.attach.openViewer`/`share` (`js/modules/attachments.js`), an assignment's attachment cards (`js/modules/assignments.js`), the import report (`KOS.examPapers.add`/`connect` → `report`, shown by `js/modules/examprac.js`); smoke105 H |
 | Routines and the Daily Review (roadmap 5.10, `docs/routines-plan.md`, design turn 33): the record, the day model, the review core | `js/core/routines.js` (`KOS.routines`: the record, log, snapshot, streaks, rest days, late ticks, pay through `KOS.governor.routineAward`, the Habits migration, `habitsView`, goal types and tools), `js/data/routine-templates.js` (AUTHORED), `js/core/today.js` (`KOS.today`: the day model, a pure read; the bag), `js/core/dayreview.js` (`KOS.dayReview`: settings, `due` and the folds, steps, triage through the owners, the words, notices, tools); smoke101–103 |
 | Routines and the Daily Review: the pages | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/routines\|templates\|history\|settings]`, `#/routines/edit/<id>`; `#/tasks` aliases; `KOS.rtUI`, the shared parts), `js/modules/dayreview.js` (`KOS.reviewSheet`: the overlay, the steps, the header chip, auto-open), `js/modules/routineplayer.js` (`KOS.routinePlayer`: the player, About to Study, the timetable sheet), `css/views/routines.css`; the art in `assets/routines/img/` (imported by `prototypes/japanese-space/art_import.py` from `art-source/routines/`); Home's three and Routines card in `hub.js`; smoke104 |
+| Google Calendar, Google Tasks and Todoist (roadmap 5.15, `docs/integrations-plan.md`, invariants 157–160): sign-in, ids, the three-way rule, the lease, the cycle; the two calendars; Reminders lists | `js/core/ext.js` (`KOS.ext`: settings `state.ext`, `inbound`/`noteLocal`, `merge3`, `gcalId`/`uidOf`, `connect`/`complete`/`token`, `lease`, `syncAll`, the delete queue, `logActivity`), `js/core/extgcal.js` (`KOS.extGcal`: the mapping, the two-way cycle with the primary calendar, the read-only copy `roOn`, the one-way "KurenaiOS" calendar `exportItems`), `js/core/exttasks.js` (`KOS.extTasks`: list links, Todoist's Sync API, Google Tasks); the owners' `uid`/`ext` fields and change notes in `js/modules/calendar.js` and `js/core/reminders.js`; page `js/modules/connections.js` (`#/connections`); `supabase/functions/ext-token/` (`index.ts`, `logic.ts`), `kos_ext` (migration `20261030000001`); smoke109 |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -1702,6 +1703,63 @@ source comments and audit notes refer to it.
     reads, writes nothing, and is the one source for the reviews, Home's
     three and the Assistant's day; its `next` is Home's Focus ladder
     (invariant 53a), never re-derived.
+
+### Google Calendar, Google Tasks and Todoist (157–160; docs/integrations-plan.md)
+
+157. SIGN-IN LIKE THE GITHUB APP. Google (Calendar and Tasks, one
+    sign-in) and Todoist connect through the `ext-token` Edge Function:
+    the refresh token is kept in `kos_ext` (RLS on, no policy), and a
+    device asks for a one-hour access token and holds it in MEMORY only
+    (`KOS.ext.token`) — never the media kv, the state document, a backup
+    or a log. A connect needs cloud sign-in and an http(s) address; the
+    code comes back only to the app's own URL or a local dev host, with a
+    one-time state `ext-<provider>-<nonce>` (sessionStorage) that GitHub's
+    return handler leaves alone. One device syncs a provider at a time: a
+    cycle takes the lease (`kos_ext_lease`, the database's clock, two
+    minutes) or waits. The switches and links (`state.ext`) sync; sync
+    tokens, mirrors, the read-only copy and the last status are per
+    device in the media kv (`ext.<p>.*.<uid>`).
+158. LINKED, NEVER ECHOED. A synced Calendar event or reminder carries
+    `uid` (32 hex: random at birth, derived from its id and `created` for
+    one made before, so every device agrees) and `ext` — the link and
+    `base`, the mapped fields both sides last agreed on. A field changed on
+    one side takes that side; on both, this app's (`KOS.ext.merge3`; no
+    clock is compared). Every write a PULL makes runs inside
+    `KOS.ext.inbound`, which sets the base to what it wrote, and the
+    owners' change note (`KOS.ext.noteLocal`, called by `addEvent`,
+    `updateEvent`, `deleteEvent` and every Reminders write) is silent
+    there — so a pulled change is never pushed back. A Google event id is
+    `KOS.ext.gcalId(uid)` (base32hex: a–v, 0–9, 5–1024), so two devices
+    inserting one event make one (a 409 links). A deletion goes through
+    an explicit queue (`state.ext.deletes`, a keyed map), written by the
+    owner's delete of a LINKED record and never inferred from absence, so
+    restoring a backup deletes nothing remotely.
+159. TWO CALENDARS. The Calendar's own events sync two-way with the
+    PRIMARY Google calendar: one day (all-day or timed), the five repeats
+    with an end date or a count, alerts as popup reminders (none =
+    Google's default). What it can't hold as one event (another rule,
+    several days, past midnight) is READ-ONLY: this device's copy of its
+    showings for six months (`KOS.extGcal.roOn`), drawn as derived chips
+    (kind `google`), never stored (invariants 43, 44); a showing Google
+    cancelled or moved is a date the record skips (`ext.g.skip`, read by
+    `occursOn`). Events ended over 30 days ago are neither imported nor
+    sent. What the Calendar DERIVES (assessments, assignments due,
+    start-by dates, class milestones, bills without amounts, goal
+    deadlines; the next 120 days) goes ONE WAY to the app's own
+    "KurenaiOS" calendar (scope `calendar.app.created`), read through
+    `derivedOn(date, {all: true})` so no device's Show menu changes it,
+    each item named by a hash of its key; edits made there are replaced.
+160. REMINDERS LINK BY LIST, AND A PULLED TICK PAYS NOTHING. A Reminders
+    list (or "no list", `state.ext.noList`) links to ONE Todoist project or
+    ONE Google Tasks list (`list.ext`), never both. Todoist carries title,
+    notes, date and time, the four repeats (another Todoist rule is kept
+    as written, `ext.rs`, and sent back unchanged), priority (0–3 ↔ 1–4),
+    labels and sub-tasks; Google Tasks title, notes, the date, done and
+    sub-tasks, the rest staying here. Completed remote tasks are not
+    imported. A completion pulled in ticks the reminder without
+    `KOS.reminders.complete` (which pays) and the cycle logs ONE `todo`
+    session with `metrics.external`, which the Governor prices at nothing
+    (decision A): activity for the day, never study, never pay.
 
 ### What reaches a closed app (131)
 

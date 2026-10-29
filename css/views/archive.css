@@ -302,6 +302,18 @@
 .k-st-file-open { display: flex; align-items: center; gap: var(--sp-10); flex: 1 1 auto; min-inline-size: 0; padding: 0; background: none; box-shadow: none; text-align: start; color: var(--text); }
 .k-st-file-t { display: flex; flex-direction: column; min-inline-size: 0; }
 
+/* ---------- Connections (roadmap 5.15): on Storage's card grid ---------- */
+.k-cx-toggle { display: flex; align-items: center; gap: var(--sp-10); justify-content: space-between; font-size: var(--fs-13); }
+.k-cx-toggle-t { flex: 1 1 auto; color: var(--text); }
+.k-cx-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cx-kind-min), 1fr)); gap: var(--sp-6) var(--sp-14); padding-inline-start: var(--sp-4); }
+.k-cx-kind { display: flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-12-5); color: var(--text-2); }
+.k-cx-btns { display: flex; flex-wrap: wrap; gap: var(--sp-8); margin-block-start: auto; padding-block-start: var(--sp-4); }
+.k-cx-facts { margin: 0; padding-inline-start: var(--sp-18); display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-13); color: var(--text-2); }
+.k-cx-wide { grid-column: 1 / -1; }
+.k-cx-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.k-cx-link { display: flex; align-items: center; gap: var(--sp-10); justify-content: space-between; padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); }
+.k-cx-link-t { flex: 1 1 auto; min-inline-size: 0; font-size: var(--fs-13-5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* ---------- the camera scan (files plan §6, kept light) ---------- */
 .k-scan-add { gap: var(--sp-8); margin-block-end: var(--sp-12); }
 .k-scan-body { display: grid; grid-template-columns: minmax(0, 1fr) calc(var(--scan-thumb) + var(--sp-24)); gap: var(--sp-14); align-items: start; }

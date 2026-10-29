@@ -108,12 +108,25 @@
       alerts: alerts,
       alerted: b.alerted || {},
       lastRewardedOn: b.lastRewardedOn || null,
+      /* roadmap 5.15 (invariant 158): the identity a Todoist or Google
+         Tasks copy is named by, and the link ({p, id, list, base}) —
+         written by KOS.extTasks, kept whole through every edit here */
+      uid: uidOf(patch.uid !== undefined ? patch.uid : b.uid, b),
+      ext: extOf(patch.ext !== undefined ? patch.ext : b.ext),
       created: b.created || today(),
       updatedAt: Date.now()
     };
   }
 
   /* ---------------- CRUD ---------------- */
+  function uidOf(u, b) {
+    if (KOS.ext ? KOS.ext.uidOk(u) : /^[0-9a-f]{32}$/.test(u || "")) return u;
+    if (!KOS.ext) return null;
+    return b && b.id != null && b.created ? KOS.ext.legacyUid("rem", b) : KOS.ext.newUid();
+  }
+  function extOf(x) { return x && typeof x === "object" && !Array.isArray(x) ? x : null; }
+  /* tell the sync (roadmap 5.15); a write a pull makes is ignored there */
+  function noteExt() { if (KOS.ext) KOS.ext.noteLocal("reminders"); }
   function all() { return R().items; }
   function get(id) { return R().items.find(function (x) { return x.id === id; }) || null; }
   function add(patch) {
@@ -123,6 +136,7 @@
     item.id = s.nextId++;
     s.items.push(item);
     store.save();
+    noteExt();
     return item;
   }
   function update(id, patch) {
@@ -132,13 +146,19 @@
     next.id = item.id;
     s.items[s.items.indexOf(item)] = next;
     store.save();
+    noteExt();
     return next;
   }
   function remove(id) {
     var s = R(), i = s.items.findIndex(function (x) { return x.id === id; });
     if (i === -1) return false;
+    var gone = s.items[i];
+    /* a linked reminder's remote copy goes too: an explicit queue, never
+       inferred from absence (invariant 158) */
+    if (KOS.ext && gone.ext && gone.ext.p && gone.ext.id) KOS.ext.queueDelete(gone.ext.p, "task", { id: gone.ext.id, list: gone.ext.list || null });
     s.items.splice(i, 1);
     store.save();
+    noteExt();
     return true;
   }
 
@@ -200,6 +220,7 @@
       item.completedAt = null;
       item.updatedAt = Date.now();
       store.save();
+      noteExt();
       return item;
     }
 
@@ -227,6 +248,7 @@
     } else {
       store.save();
     }
+    noteExt();
     return item;
   }
 
@@ -239,6 +261,7 @@
     item.subs.push({ id: s.nextId++, text: String(text).trim(), done: false });
     item.updatedAt = Date.now();
     store.save();
+    noteExt();
     return item;
   }
   function subToggle(id, subId, val) {
@@ -249,13 +272,14 @@
     sub.done = !!val;
     item.updatedAt = Date.now();
     store.save();          // deliberately no sessions.log — see the header
+    noteExt();
     return item;
   }
   function subRemove(id, subId) {
     var item = get(id);
     if (!item) return null;
     var i = (item.subs || []).findIndex(function (x) { return x.id === subId; });
-    if (i !== -1) { item.subs.splice(i, 1); item.updatedAt = Date.now(); store.save(); }
+    if (i !== -1) { item.subs.splice(i, 1); item.updatedAt = Date.now(); store.save(); noteExt(); }
     return item;
   }
 

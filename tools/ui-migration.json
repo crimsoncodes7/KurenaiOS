@@ -104,7 +104,8 @@
     "css/views/routines.css",
     "js/modules/routines.js",
     "js/modules/dayreview.js",
-    "js/modules/routineplayer.js"
+    "js/modules/routineplayer.js",
+    "js/modules/connections.js"
   ],
   "views": {
     "home": {},
@@ -161,6 +162,7 @@
         "page": "kana"
       }
     },
-    "routines": {}
+    "routines": {},
+    "connections": {}
   }
 }

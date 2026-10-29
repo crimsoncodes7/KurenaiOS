@@ -1465,6 +1465,18 @@ Planned with 5.13; nothing is built.
 - **Design:** part of pass 18.5 (the shop) and 18.7 (the slots) in
   design-prompts.md; the build plan is [app-art.md](app-art.md).
 
+### 5.15 Google Calendar, Google Tasks and Todoist ◆ (asked for 29 October 2026)
+
+**What:** the Calendar's own events two-way with the primary Google
+calendar; what the Calendar derives (assessments, assignments, start-by
+dates, class milestones, bills, goal deadlines) one way to a "KurenaiOS"
+calendar; Reminders lists linked to Todoist projects or Google Tasks lists.
+Sign-in like the GitHub App (the `ext-token` Edge Function, `kos_ext`);
+pulled completions are activity, never pay. Built on `feat/integrations`
+(smoke109, invariants 157–160); the plan and the one-time set-up are
+[integrations-plan.md](integrations-plan.md). Waiting on the Google Cloud
+and Todoist apps and their secrets before it can be used.
+
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
 > **RELEASED 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`,

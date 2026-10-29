@@ -228,6 +228,15 @@
       }
       xp = ja.xp; gold = ja.gold; hp = ja.hp;
     }
+    else if (e.type === "todo" && m.external) {
+      /* roadmap 5.15 (invariant 160): reminders ticked in Todoist or
+         Google Tasks are activity for the day and pay nothing */
+      lastAward = { xp: 0, gold: 0, hp: 0, notes: ["ticked elsewhere"], levelUp: false };
+      e.award = { xp: 0, gold: 0 };
+      store.save();
+      if (KOS.refreshHUD) KOS.refreshHUD();
+      return;
+    }
     else if (e.type === "todo" && m.routine) {
       var ra = routineAward(m);
       if (!ra.xp && !ra.gold && !ra.hp) {

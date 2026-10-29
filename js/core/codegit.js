@@ -331,7 +331,8 @@
   function boot() {
     /* back from GitHub's install page: take the query off the address at
        once, then link when the cloud session is ready (it restores async) */
-    if (typeof location !== "undefined" && /[?&]code=/.test(location.search)) {
+    /* a Google or Todoist return is KOS.ext's (roadmap 5.15) */
+    if (typeof location !== "undefined" && /[?&]code=/.test(location.search) && !/[?&]state=ext-/.test(location.search)) {
       var params = new URLSearchParams(location.search);
       try { history.replaceState(null, "", location.pathname + (location.hash || "")); } catch (e) { /* file:// */ }
       var tries = 0;

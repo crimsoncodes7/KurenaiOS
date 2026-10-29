@@ -141,6 +141,9 @@
   if (KOS.code && KOS.code.repairStarted) KOS.code.repairStarted();
   /* Code → GitHub: a device with pushes waiting tries again (automatic mode) */
   if (KOS.codeGit) KOS.codeGit.boot();
+  /* Google Calendar, Google Tasks and Todoist (roadmap 5.15): a sign-in
+     coming back, the read-only copy, and the 15-minute cycle */
+  if (KOS.ext) KOS.ext.boot();
   KOS.itUnits.pruneDropped();
   /* Phase 4: Mechanics refs became M6–M9 (was S6–S9). The state document
      is renamed at the store's own gate; topic attachments live in
