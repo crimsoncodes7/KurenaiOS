@@ -482,7 +482,7 @@ Frames 31a onwards:
 | G | References | the procedural generator, then your own, then Collection covers privately; nothing bundled or hot-linked |
 | H | Beginner mechanics | micro-studies before pieces, Momentum mode, best-of-five, "Good for this unit" in every rubric |
 
-## 14. Invariants this would add (draft; 132–136 are the ink engine's and 137–141 Mind's, so these are 142–144)
+## 14. Invariants this would add (released as 154–156: Routines took 142–149 and Files 150–153 first)
 
 - **142. CREATIVE EVIDENCE IS MADE, NOT CLAIMED.**
   - A lesson's checks come from saved work, its single-skill check and

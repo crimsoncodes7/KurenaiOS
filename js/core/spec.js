@@ -254,7 +254,7 @@
              when exactly one subject has it — never a guess */
           /* bare refs predate Code, and its lesson refs ("4.1") would make
              every CS unit ambiguous, so Code never claims one */
-          var owners = SUBJECTS.filter(function (x) { return x !== "code" && x !== "ja" && raw(x, s); });
+          var owners = SUBJECTS.filter(function (x) { return x !== "code" && x !== "ja" && x !== "creatives" && raw(x, s); });
           if (owners.length === 1) { sid = owners[0]; ref = s; }
         }
       } else if (item && typeof item === "object" && item.subject && item.ref != null) {

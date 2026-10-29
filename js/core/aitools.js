@@ -890,6 +890,39 @@
   });
 
   /* ======================================================================
+     CREATIVES (art, design, editing and writing; read only — evidence is
+     made in the app, never written by a tool, and the Practice Log is read
+     only when asked: invariants 154–156)
+     ====================================================================== */
+  function crReady(cb) { if (!KOS.creatives || !KOS.creatives.lessons) { cb({ error: "Creatives is not loaded." }); return false; } return true; }
+  def("creatives_overview", {
+    desc: "Creatives (art, graphic design, editing and writing): where each track is, lessons done, today's Daily Creative (or why it rests or is paused), theory cards due, checks passed, projects and the Portfolio's size. Never the Practice Log's contents.",
+    category: "study", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      if (!crReady(cb)) return;
+      var CR = KOS.creatives, st = CR.stats(), p = CR.planDay();
+      cb(null, {
+        lessonsDone: st.done, lessonsReleased: st.lessons, checksPassed: st.checks, cardsDue: st.due, portfolio: st.portfolio, minutesThisWeek: st.week,
+        projects: st.projectsDone + "/" + st.projects,
+        tracks: CR.tracks().map(function (t) { var pl = CR.trackPlace(t.id); return { track: t.name, released: CR.lessons(t.id).length, unit: pl ? pl.index + 1 : null, lesson: pl ? pl.lesson : null }; }),
+        today: { state: p.state, study: p.study ? p.study.lesson + "·" + p.study.study + " " + p.study.t : null, cards: p.cards, minutes: p.total || 0, backAfter: p.back || null }
+      });
+    }
+  });
+  def("creatives_portfolio", {
+    desc: "The Creatives Portfolio: only the pieces the user chose to promote (title, track, made from, date). Add includeLog: true ONLY when the user explicitly asks about their Practice Log; it then lists titles and check results, never the work itself.",
+    category: "study", tier: "read", read: true,
+    params: { includeLog: { type: "boolean" } },
+    run: function (args, cb) {
+      if (!crReady(cb)) return;
+      var CR = KOS.creatives, row = function (w) { return { title: w.title, track: (CR.track(w.track) || {}).name || null, lesson: w.lesson, madeFrom: w.madeFrom || null, date: new Date(w.portfolio || w.at).toISOString().slice(0, 10) }; };
+      var out = { portfolio: CR.portfolio().map(row) };
+      if (args.includeLog) out.practiceLog = CR.works().slice(0, 40).map(function (w) { return Object.assign(row(w), { check: w.check ? (w.check.pass ? "passed" : "not yet") : "not checked", inPortfolio: !!w.portfolio }); });
+      cb(null, out);
+    }
+  });
+
+  /* ======================================================================
      CODE (the C# study space; read only — evidence is earned in the app,
      never written by a tool: invariants 106–110)
      ====================================================================== */

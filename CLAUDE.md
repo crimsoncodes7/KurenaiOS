@@ -132,7 +132,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-anilist-1`
-- Required smoke gate: 107 / 107 suites (`""` and 2–107; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes).
+- Required smoke gate: 108 / 108 suites (`""` and 2–108; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives' platform).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -221,7 +221,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..107}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..108}; do node "tools/smoke${i}.test.js"; done
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -379,6 +379,7 @@ non-navigation redraw path.
 | Files (roadmap 5.11, docs/files-plan.md R1–R4, invariants 150–153): the index, links, text search, one viewer, the pages | `js/core/files.js` (`KOS.files`: the index over both stores, `add`/`dropTarget`/`named`, `open` (pictures as a one-page PDF), `linkedTo`, `detach`, the text queue and `kurenai-os-filetext`, `search`, `takeShared`, the Assistant's `files_list`/`file_text`), the store's links, hashes, aliases and `evict` in `js/modules/attachments.js` (`KOS.attach`), `js/core/filescan.js` (`KOS.fileScan`: four corners, the homography warp, the PDF), `js/modules/files.js` (`KOS.views.files`, `#/files`; `KOS.filesUI`: Attach to…, Where it's linked), `js/modules/storage.js` (`KOS.views.storage`, `#/storage`), pinned notes, Ask Kurenai about this page and redo clips in `js/core/pdfview.js`; automatic upload in `js/core/cloudsync.js`; the share target in `manifest.webmanifest` and `sw.js`; smoke106 |
 | The rest of the iPad build (roadmap 6.1–6.9, 30b, 30f–30t): sync, export, pads, drills, the PDF viewer, settings | `js/core/inksync.js` (`KOS.inkSync`: the per-stroke merge, pure; `kos_ink` replication, the clash dialog, the chip), `js/core/inkexport.js` (`KOS.inkExport`: PNG and PDF on Dawn, `pdfLib`, `deliver` to the share sheet), `js/core/inkpad.js` (`KOS.inkPad`: the answer pad, Type · Write · On paper, Earlier answers; `KOS.inkAI`: What is sent, Mark with Kurenai, Check my working, Compare), `js/core/pdfview.js` (`KOS.pdfView`: the viewer, layers per attempt, the clock, the scheme pane, marking, Clip to notes, Save a copy), `js/core/desk.js` (`KOS.desk`: the Focus wake lock, hold ⌘), `js/modules/inkdrills.js` (`KOS.inkDrills`: Write it out, blurt, diagram drills, the Maths panel), `js/data/ink-drills.js` (AUTHORED drill models), `js/modules/inkset.js` (`KOS.views.pen`, Archive › Pen and ink); the Working pane in `js/modules/hub.js`; the pads in `js/engines/quiz.js` and `flashcards.js`; `assets/pdf/` (pdf.js, pdf-lib, vendored unchanged); smoke105 |
 | Files (`docs/files-plan.md` rev 2): R0 | `KOS.attach.openViewer`/`share` (`js/modules/attachments.js`), an assignment's attachment cards (`js/modules/assignments.js`), the import report (`KOS.examPapers.add`/`connect` → `report`, shown by `js/modules/examprac.js`); smoke105 H |
+| Creatives (roadmap 5.7 item 3, `docs/creatives-plan.md`, design turn 31): the curriculum, the model, the pages | `js/data/creatives.js` (`KOS_CR`, AUTHORED: four tracks, every unit outlined, released lessons with micro-studies and "Good for this unit", a unit's project; the spine `KOS_DATA.creatives`), `js/data/content/cr-<unit>.js` (notes pages with an expected beginner output, theory cards), `js/core/creatives.js` (`KOS.creatives`: evidence, works, checks, projects, pay, the Daily Creative, `files` over IndexedDB `kurenai-os-creatives`), `js/modules/creatives.js` (`KOS.crDesk`, `KOS.views.creatives`: `#/creatives/<tracks|write|check|log|portfolio|project|add|settings>`), `js/modules/crtopic.js` (`KOS.crTopic`: the lesson on the shared topic page), `js/modules/crwrite.js` (`KOS.crWrite`: the Writing Desk, versions, the word diff, sprints), `css/views/creatives.css`; smoke108 |
 | Routines and the Daily Review (roadmap 5.10, `docs/routines-plan.md`, design turn 33): the record, the day model, the review core | `js/core/routines.js` (`KOS.routines`: the record, log, snapshot, streaks, rest days, late ticks, pay through `KOS.governor.routineAward`, the Habits migration, `habitsView`, goal types and tools), `js/data/routine-templates.js` (AUTHORED), `js/core/today.js` (`KOS.today`: the day model, a pure read; the bag), `js/core/dayreview.js` (`KOS.dayReview`: settings, `due` and the folds, steps, triage through the owners, the words, notices, tools); smoke101–103 |
 | Routines and the Daily Review: the pages | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/routines\|templates\|history\|settings]`, `#/routines/edit/<id>`; `#/tasks` aliases; `KOS.rtUI`, the shared parts), `js/modules/dayreview.js` (`KOS.reviewSheet`: the overlay, the steps, the header chip, auto-open), `js/modules/routineplayer.js` (`KOS.routinePlayer`: the player, About to Study, the timetable sheet), `css/views/routines.css`; the art in `assets/routines/img/` (imported by `prototypes/japanese-space/art_import.py` from `art-source/routines/`); Home's three and Routines card in `hub.js`; smoke104 |
 | Shared image placement | `js/core/imagecrop.js` |
@@ -1623,6 +1624,50 @@ source comments and audit notes refer to it.
     assessment or Files, paste, Scan pages (the device's camera, four
     corner handles, a projective warp, one PDF; no library), Share to
     KurenaiOS (the Web Share Target) and the folder import.
+
+### Creatives (154–156; docs/creatives-plan.md revision 2, design turn 31)
+
+154. CREATIVE EVIDENCE IS MADE, NOT CLAIMED. `state.creatives` (synced,
+    keyed maps, `KOS.creatives.normalise`) holds evidence and records
+    only: pages read, WORKS (a small record each — lesson, study, kind,
+    title, words, the self-marked check, `portfolio`), projects by
+    milestone, `paid` keys and Firsts. A lesson's four checks — every
+    notes page read, every micro-study saved, every study's check passed,
+    one theory card held — are derived (`evidence`) and written to the
+    shared progress record only by `KOS.creatives.syncChecks`; reading
+    alone never completes a lesson. The check is self-marked against the
+    unit's "Good for this unit" (one or two rows, the unit's ONE skill,
+    the later skills struck through): every row "Yes, mostly" passes,
+    "Not yet" is a normal answer that ticks and pays nothing. PAY ONCE
+    (`KOS.creatives.award`, type `creatives`): a study's first pass 8 XP
+    and 1 gold (`study:<lesson>.<s>`), a drill batch 6 XP once a day per
+    type (`drill:<type>:<day>`), a unit's project 150 XP, 40 gold, +10 HP
+    when every milestone is reached (`project:<unit>`). Volume (words,
+    reps, strokes), re-saving, redoing, promoting and critiques pay
+    nothing; Creatives Focus time pays by the Focus rules (it is study,
+    never leisure); theory cards are ordinary flashcards keyed
+    `creatives:<lesson>:<i>` (invariant 111). There is no Creatives
+    streak, and nothing is locked: a project is OFFERED after its
+    studies, with "Try it anyway". The Daily Creative (`planDay`) is
+    computed from the date and the evidence, never stored: one study (or
+    a project milestone) and the due cards, only on the chosen days
+    (per device, `state.ui.creatives.settings`), paused in Exam Season
+    (on by default). Pages write nothing when drawn (smoke108 C).
+155. KURENAI CRITIQUES, NEVER CREATES. No tool generates, rewrites or
+    finishes a piece. A critique (31r, not built yet) sends only what its
+    "What is sent" dialog shows, once per press, judged against the
+    unit's one skill and its "Good for this unit" text; the Assistant
+    gets read tools and no write tool for evidence.
+156. PRACTICE IS PRIVATE, THE PORTFOLIO IS CHOSEN. The Practice Log
+    (`#/creatives/log`) is drawn only when opened: never on the desk (one
+    private link), Home, Reports, a share or Kurenai's context. Only a
+    deliberate "Promote" puts work in the Portfolio, and it pays nothing.
+    A work's text or picture and every Writing Desk draft (`doc:<id>`,
+    with its versions) live in their own IndexedDB, `kurenai-os-creatives`
+    (`KOS.creatives.files`), never in the state document; they ride the
+    full backup and stay on the device (upload on request comes later).
+    References are generated or the user's own; nothing is bundled or
+    hot-linked.
 
 ### Routines and the Daily Review (142–149)
 

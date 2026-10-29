@@ -9,6 +9,8 @@
 
   /* the subject list and hues come from the one registry (core/subjects.js) */
   var SUBJECTS = KOS.subjects.ids();
+  /* the study spaces count lessons, the A-levels topics */
+  var LESSONISH = { code: 1, ja: 1, creatives: 1 };
   var COLORS = KOS.subjects.map("hue");
   var HEX = KOS.subjects.map("hex");
   var STATUS = [
@@ -452,7 +454,7 @@
         onclick: function () { setTreeClosed(true); } })
     ]));
     var filter = el("input", { type: "search", class: "k-spine-filter", "data-ui": "study.spine-filter",
-      placeholder: "Filter " + st.total + (sid === "code" || sid === "ja" ? " lessons" : " topics"), "aria-label": sid === "code" || sid === "ja" ? "Filter lessons" : "Filter topics" });
+      placeholder: "Filter " + st.total + (LESSONISH[sid] ? " lessons" : " topics"), "aria-label": LESSONISH[sid] ? "Filter lessons" : "Filter topics" });
     filter.value = spineQuery;
     tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [KOS.ui.icon("search"), filter]));
     tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
@@ -481,7 +483,8 @@
        the units; Tracks lists the tracks and deepening modules instead */
     var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef, codeMode)
       /* Japanese (frame 28e): Core | Media, and stage headings with their emblem kanji */
-      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef) : null;
+      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef)
+      : sid === "creatives" && KOS.crTopic ? KOS.crTopic.spine(tree, list, activeRef) : null;
     tree.appendChild(list);
     var lastStage = null;
     sections.forEach(function (sec) {
@@ -1540,6 +1543,7 @@
     /* Code joins Home's desks once it has been started (roadmap 5.3) */
     SUBJECTS.filter(function (sid) {
       if (sid === "ja") return !!(KOS.ja && KOS.ja.started());
+      if (sid === "creatives") return !!(KOS.creatives && KOS.creatives.started());
       return sid !== "code" || (KOS.code && !KOS.code.firstVisit());
     }).forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
@@ -1562,7 +1566,7 @@
         ]),
         el("div", { class: "k-bar", "data-ui": "media.bar", title: st.done + " of " + st.total + " spec points completed",
           style: "--p: " + Math.max(st.pct, st.done ? 1 : 0) + "%" }, [el("i", { "data-ui": "media.bar-fill" })]),
-        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: sid === "code" || sid === "ja" ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
+        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: LESSONISH[sid] ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
         el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Weakest" }),
           weak ? el("button", { type: "button", class: "k-desk-row-v", "data-ui": "rag.item", text: weak.ref + " " + weak.title,
             onclick: function () { KOS.show("ref", { subject: sid, ref: weak.ref }); } })
@@ -1944,6 +1948,12 @@
     if (sid === "ja" && KOS.jaDesk) {
       main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
       KOS.jaDesk(main);
+      return;
+    }
+    /* …and Creatives' (frame 31a) */
+    if (sid === "creatives" && KOS.crDesk) {
+      main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
+      KOS.crDesk(main);
       return;
     }
     var d = KOS_DATA[sid], s = subjectStats(sid);
@@ -2342,7 +2352,9 @@
        runnable listings, Practice and Tasks, and an evidence inspector */
     var cx = sid === "code" && KOS.codeTopic ? KOS.codeTopic.begin(ref)
       /* Japanese lessons (frame 28e): voiced examples, the page picker, evidence by skill */
-      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref) : null;
+      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref)
+      /* Creatives lessons (frames 31c–31e): micro-studies, "Good for this unit", the project */
+      : sid === "creatives" && KOS.crTopic ? KOS.crTopic.begin(ref) : null;
 
     /* ---------- the Topic Status component ----------
        Status, the four progress checks and the RAG confidence rating are one
@@ -3186,12 +3198,12 @@
        it as one dated block at the end of the Spec tab (invariant 89) */
     if (KOS.edits && KOS.spec && KOS.spec.level(sid, ref) === "leaf") {
       var qn = el("textarea", { class: "k-input k-insp-qn", "data-ui": "topic.quick-note", rows: "3", placeholder: "Quick note…",
-        "aria-label": sid === "code" || sid === "ja" ? "Quick note. It files to the lesson's notes when you leave this lesson." : "Quick note. It files to the Specification tab when you leave this topic." });
+        "aria-label": LESSONISH[sid] ? "Quick note. It files to the lesson's notes when you leave this lesson." : "Quick note. It files to the Specification tab when you leave this topic." });
       qn.value = KOS.edits.draft(sid, ref);
       var qnHint = el("p", { class: "k-insp-qn-hint", "data-ui": "topic.quick-note-hint" });
       var paintQn = function () {
         var n = qn.value.trim().length;
-        var whereTo = sid === "code" || sid === "ja" ? "Notes when you leave this lesson." : "Spec when you leave this topic.";
+        var whereTo = LESSONISH[sid] ? "Notes when you leave this lesson." : "Spec when you leave this topic.";
         qnHint.textContent = n ? "Draft · " + n + (n === 1 ? " character" : " characters") + ". Files to " + whereTo : "Files to " + whereTo;
         KOS.ui.state(qn, "draft", n > 0);
       };

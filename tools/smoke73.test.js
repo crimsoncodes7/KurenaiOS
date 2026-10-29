@@ -33,7 +33,7 @@ const err = (src) => { const r = run(src); return r.ok ? null : r.error.code; };
 
 step("A · the subjects; Code is not an exam subject", async (app) => {
   const S = app.KOS.subjects;
-  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja"]), "ids (Japanese is the fifth, smoke80): " + S.ids());
+  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja", "creatives"]), "ids (Japanese the fifth, smoke80; Creatives the sixth, smoke108): " + S.ids());
   assert(JSON.stringify(S.ids("exam")) === JSON.stringify(["compsci", "maths", "it"]), "exam ids: " + S.ids("exam"));
   assert(S.hue("code") === "var(--code)" && S.short("code") === "Code", "Code's hue and short name");
   assert(app.KOS.code.coreLessons().length === 131 && app.KOS.hub.LEAVES.code.length === 131 + 28 + 20, "131 core lessons, T1's 28 and T2's 20 on the spine, got " + app.KOS.code.coreLessons().length + " / " + app.KOS.hub.LEAVES.code.length);

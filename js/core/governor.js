@@ -228,6 +228,20 @@
       }
       xp = ja.xp; gold = ja.gold; hp = ja.hp;
     }
+    else if (e.type === "creatives") {
+      /* Creatives (roadmap 5.7 item 3): KOS.creatives.award() is the one definition — a
+         micro-study's first passed check, a drill batch once a day per type, a project once.
+         Everything else (a re-save, a promotion, a critique) logs activity and pays nothing. */
+      var cr = KOS.creatives && KOS.creatives.award ? KOS.creatives.award(m) : { xp: 0, gold: 0, hp: 0 };
+      if (!cr.xp && !cr.gold && !cr.hp) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: [], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
+        store.save();
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
+      xp = cr.xp; gold = cr.gold; hp = cr.hp;
+    }
     else if (e.type === "todo" && m.routine) {
       var ra = routineAward(m);
       if (!ra.xp && !ra.gold && !ra.hp) {

@@ -43,6 +43,7 @@ const LAYERS = {
   "views/reports": "css/views/reports.css",
   "views/code": "css/views/code.css",
   "views/japanese": "css/views/japanese.css",
+  "views/creatives": "css/views/creatives.css",
   "views/money": "css/views/money.css",
   "views/goals": "css/views/goals.css",
   "views/exams": "css/views/exams.css",

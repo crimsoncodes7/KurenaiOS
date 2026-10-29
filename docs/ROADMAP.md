@@ -1235,7 +1235,19 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    every rubric, and a procedural reference generator. Free apps first.
    20–30 minutes a day, paused in Exam Season. First release: the
    platform, the Writing Desk and the design drills, then Art units 1–3
-   on the ink engine. Next: [design prompt 15](design-prompts.md).
+   on the ink engine. Designed (turn 31, frames 31·hue and 31a–31t, the
+   hue 萌黄 Moegi). **Platform 1 begun 29 October 2026** on
+   `feat/creatives` (invariants 154–156, smoke108): the subject and hue,
+   the model (evidence, pay once, the Daily Creative with its Exam
+   Season pause), `kurenai-os-creatives`, the desk, a lesson on the topic
+   page, "Good for this unit", the Practice Log and the Portfolio, a
+   unit's project, the Writing Desk (versions, the diff, sprints in Focus)
+   and Writing units 1–3. Still to do for Platform 1: Graphic design's
+   drills with Design units 1–2, the procedural reference generator, the
+   critique dialog (31r), the Assistant's read tools, the Goals and
+   Reports joins, the phone desk (31s), and art for the steps and the
+   beginner outputs (Gemini, via the manifest). Then Art units 1–3 with
+   the sketchbook (31f–31i).
 4. **Code content** — DONE 23 October 2026: units 10–12 and capstone 4
    complete the core path (unit 10 and capstone 4 in Rider, validator
    1.1.0; units 11–12 on the full runtime). What remains is the deepening

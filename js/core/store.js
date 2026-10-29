@@ -39,7 +39,9 @@
           /* Code (roadmap 5.3): per-device choices and unsaved drafts */
           code: { drafts: {} },
           /* Japanese (roadmap 5.5): per-device view choices */
-          japanese: {} },
+          japanese: {},
+          /* Creatives (roadmap 5.7 item 3): the Daily Creative's days, Momentum, the open draft */
+          creatives: {} },
     oop: { classes: [], links: [], nextId: 1 },
     /* Code (roadmap 5.3, core/code.js): evidence, task passes, proofs and
        the retrieval schedule — keyed maps throughout, so the cloud merge
@@ -49,6 +51,9 @@
        checkpoint evidence, mined lines, input tallies and settings — keyed maps throughout */
     japanese: { v: 1, facets: {}, lessons: {}, checkpoints: {}, mined: {}, input: {},
       settings: { furigana: "unknown", dailyMin: 40, speech: false }, fluency: {} },
+    /* Creatives (core/creatives.js): reading evidence, works (records only; their files are in
+       kurenai-os-creatives), projects, pay-once keys and Firsts — keyed maps throughout */
+    creatives: { v: 1, lessons: {}, works: {}, projects: {}, paid: {}, firsts: {} },
     worked: { last: null },
     trace: {},
 
@@ -550,6 +555,14 @@
           stepDone(err);
         });
       }
+      /* Creatives' files (roadmap 5.7 item 3) live in their own IndexedDB */
+      if (window.KOS && KOS.creatives && KOS.creatives.files.available()) {
+        steps++;
+        KOS.creatives.files.exportAll(function (err, dump) {
+          if (!err && dump) result.creatives = dump;
+          stepDone(err);
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -668,14 +681,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () {
+        function restoreCreatives(next) {
+          if (!backup.creatives) return next();
+          if (!window.KOS || !KOS.creatives || !KOS.creatives.files.available()) {
+            report.missingSections.push("creative work (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.creatives.files.importAll(backup.creatives, function (err, out) {
+            if (err) report.missingSections.push("creative work (error: " + err.message + ")");
+            else report.restoredSections.push("creative work (" + out.files + " files)");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); }); }); });
+        }); }); }); }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

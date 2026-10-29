@@ -77,6 +77,12 @@ color-scheme: dark;
    restates it clear of its own accent and Code hue. Never pass or fail. */
 --ja: oklch(0.73 0.14 30);
 --ja-ink: oklch(0.2 0.04 30);
+/* Creatives, the sixth study space: 萌黄 Moegi, the colour of new shoots (design turn 31·hue).
+   It sits in the one open gap on the wheel, between amber and green, lighter and yellower than
+   the done green so a Moegi chip never reads as "done". Like Code and Japanese it marks place,
+   never pass or fail; each shop theme restates it clear of its own accent and Code hue. */
+--cr: oklch(0.85 0.135 118);
+--cr-ink: oklch(0.22 0.045 118);
 /* the media moment's fixed surfaces: a manga page is paper and ink in every theme, and a VN text
    box is dark glass over the art in every theme (the art does not change with the theme) */
 --ja-paper: oklch(1 0 0);
@@ -399,6 +405,16 @@ color-scheme: dark;
 --subj-side-w: 290px;
 /* Japanese (design turn 28) */
 --ja-insp-w: 300px;
+/* Creatives (design turn 31) */
+--cr-emblem: 132px;
+--cr-emblem-sm: 104px;
+--cr-unit-w: 196px;
+--cr-paper-h: 420px;
+--cr-paper-measure: 68ch;
+--cr-side-w: 300px;
+--cr-thumb-h: 160px;
+--cr-day: 40px;
+--cr-num-w: 88px;
 --ja-unit-w: 196px;
 --ja-runner-w: 640px;
 --ja-genko: 300px;
