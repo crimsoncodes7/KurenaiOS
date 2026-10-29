@@ -170,10 +170,11 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-sides li[data-state="done"] { color: var(--text); }
 
 /* ================= 32d–32f · a lesson ================= */
-.k-mind-headtools { display: inline-flex; align-items: center; gap: var(--sp-8); flex: none; }
+.k-mind-headtools { display: inline-flex; align-items: center; gap: var(--sp-8); }
 .k-mind-notes { max-inline-size: var(--measure, 72ch); }
 .k-mind-page { display: grid; gap: var(--sp-12); }
 .k-mind-page-t { margin: var(--sp-24) 0 var(--sp-8); font-size: var(--fs-18); }
+.k-mind-notes > .k-mind-page-t:first-child { margin-block-start: 0; }   /* the page opens right under the pager, as Code's notes do */
 .k-mind-story { margin: 0; padding: var(--sp-16) var(--sp-20); border-radius: var(--r-14); background: var(--s2); font-size: var(--fs-18); }
 .k-mind-note { margin: 0; color: var(--muted); font-size: var(--fs-12-5); }
 .k-mind-h { margin: var(--sp-8) 0 0; font-size: var(--fs-18); }
@@ -216,7 +217,10 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-qref { padding: var(--sp-12) var(--sp-16); border-radius: var(--r-12); border: var(--hairline) solid var(--line); display: grid; gap: var(--sp-4); }
 .k-mind-qref p { margin: 0; }
 .k-mind-avatar { display: inline-block; inline-size: var(--mind-avatar); block-size: var(--mind-avatar); border-radius: 50%; overflow: hidden; background: var(--s2); flex: none; }
-.k-mind-avatar img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: 50% 0; transform: scale(2.7); transform-origin: 50% 9%; }
+/* the sprite drawn 2.7 times the circle's width; a position p puts the face centre (fx, fy) in the
+   middle: p = (2.7·fx − 0.5) / 1.7 across, and the same against the sprite's height down */
+.k-mind-avatar { background-image: var(--face); background-repeat: no-repeat; background-size: 270% auto; background-position: var(--fx, 39%) var(--fy, 4.6%); }
+.k-mind-avatar[data-who="ren"] { --fx: 43.6%; }
 .k-mind-concepts { display: grid; gap: var(--sp-14); }
 .k-mind-concept { display: grid; gap: var(--sp-10); }
 .k-mind-concept-h { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-10); }
@@ -233,7 +237,10 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-check-t { display: grid; }
 .k-mind-check-t small { color: var(--muted); font-size: var(--fs-12); }
 .k-mind-insp-concepts, .k-mind-insp-ev { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-8); }
-.k-mind-insp-concepts li { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); font-size: var(--fs-13-5); }
+/* name · bars · rung, the bars and the rung each in a column of their own so every row lines up */
+.k-mind-insp-concepts li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-8); font-size: var(--fs-13-5); }
+.k-mind-insp-concepts li > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-mind-insp-concepts .k-mind-ladder { display: grid; grid-template-columns: auto 11ch; }
 .k-mind-insp-ev li { display: flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-13); }
 .k-mind-talkrow { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-10); align-items: center; inline-size: 100%; padding: var(--sp-8); border-radius: var(--r-10); border: var(--hairline) solid var(--line); background: var(--s2); color: inherit; font: inherit; text-align: start; cursor: pointer; }
 .k-mind-talkrow > span { display: grid; }

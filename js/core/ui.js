@@ -1425,7 +1425,7 @@
       if (other.length) {
         var to = other.indexOf(KOS.store.state.ui.subject) >= 0 ? KOS.store.state.ui.subject : other[0];
         var at = items.indexOf(null);
-        items.splice(at < 0 ? items.length : at, 0, { label: exam ? "Code, Japanese & Mind" : "A-levels", view: "subject", arg: to, switchGroup: true });
+        items.splice(at < 0 ? items.length : at, 0, { label: exam ? "Study spaces" : "A-levels", view: "subject", arg: to, switchGroup: true });
       }
     }
     nav.innerHTML = "";

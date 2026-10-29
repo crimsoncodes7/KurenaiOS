@@ -252,8 +252,13 @@
         onclick: function () { KOS.show("ref", { subject: SID, ref: n.id }); } }, [
         el("span", { class: "k-kicker", text: "Next lesson ›" }), el("span", { class: "k-note-step-t", text: n.id + " " + n.title })]);
     }
+    /* your own notes on a lesson: the shared editor's notes fork (Edit), read as one last page,
+       "Your notes", which is never a lesson page and never counts as read (invariant 107) */
+    function yours() { var c = KOS.content.get(SID, ref); return c && c.notes ? c.notes.filter(function (b) { return b && !b.page; }) : []; }
     function renderLearn(panel, pagerSlot) {
-      var cur = Math.max(0, Math.min(pages.length - 1, (ui.page || {})[ref] || 0));
+      var mine = yours(), ed = KOS.store.state.ui.editing;
+      var pages = l.pages.concat(mine.length || (ed && ed.ref === ref) ? [{ t: "Your notes", yours: true }] : []);
+      var cur = ed && ed.ref === ref ? pages.length - 1 : Math.max(0, Math.min(pages.length - 1, (ui.page || {})[ref] || 0));
       var article = el("article", { class: "k-prose k-notes k-mind-notes", "data-ui": "topic.notes mind.lesson" });
       var pageSelect = el("select", { class: "k-topic-page-select", "data-ui": "topic.reader-page-select", "aria-label": "Choose a page", onchange: function () { show(Number(pageSelect.value), true); } });
       pages.forEach(function (pg, i) { pageSelect.appendChild(el("option", { value: String(i), text: "Page " + (i + 1) + " of " + pages.length + " — " + pg.t })); });
@@ -264,7 +269,7 @@
       /* the pager as Code's and Japanese's: ‹ the page list › and a dot a page, filled once read */
       pagerSlot.appendChild(el("div", { class: "k-topic-reader", "data-ui": "topic.pager" }, [el("span", { class: "k-kicker", text: "Lesson pages" }), stepPrev, pageSelect, stepNext, dots]));
       var dwell = null, shownAt = 0;
-      function markRead(i) { if (M().markPage(ref, i)) { paintPicker(); changed(ref); } }
+      function markRead(i) { if (!pages[i].yours && M().markPage(ref, i)) { paintPicker(); changed(ref); } }
       function paintPicker() {
         var rd = (M().peek().lessons[ref] || {}).pages || {};
         [].forEach.call(dots.children, function (dt, j) { KOS.ui.state(dt, "on", j === cur); KOS.ui.state(dt, "read", !!rd[j]); });
@@ -277,7 +282,13 @@
         if (moved && (ui.page || {})[ref] !== cur) { ui.page = ui.page || {}; ui.page[ref] = cur; KOS.store.save(); announce("Page " + (cur + 1) + " of " + pages.length + ", " + pages[cur].t + "."); }
         article.innerHTML = "";
         article.appendChild(el("h2", { class: "k-mind-page-t", text: pages[cur].t }));
-        article.appendChild(pageBody(l, cur, ref, { onPassed: function () { markRead(cur); } }));
+        if (pages[cur].yours) {
+          var box = el("div", { class: "k-mind-yours", "data-ui": "mind.your-notes" });
+          box.innerHTML = mine.length ? KOS.content.renderBlocks(mine) : "";
+          if (!mine.length) box.appendChild(el("p", { class: "k-muted", text: "Add a block in the editor and it shows here." }));
+          KOS.content.typeset(box);
+          article.appendChild(box);
+        } else article.appendChild(pageBody(l, cur, ref, { onPassed: function () { markRead(cur); } }));
         if (moved && article.scrollIntoView) article.scrollIntoView({ block: "start", behavior: "smooth" });
         stepPrev.disabled = cur === 0; stepNext.disabled = cur === pages.length - 1;
         foot.innerHTML = "";
@@ -374,6 +385,7 @@
       document.addEventListener("kos:mind-evidence", onEv);
       return node;
     };
+    if (l && l.kind !== "checkpoint") ctx.editKinds = { lesson: "notes" };   // Edit adds your own notes (the Your notes page)
     ctx.assistStrip = false;   // the inspector carries Ask Kurenai's four modes; the generic exam strip is not Mind's
     ctx.inspectorBody = function (outer) {
       var body = el("div", { class: "k-mind-insp-live" });

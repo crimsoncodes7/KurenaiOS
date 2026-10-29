@@ -253,7 +253,9 @@
     ren: { name: "Ren", full: "藤宮 蓮", faces: ["neutral", "amused", "thinking", "sceptical", "surprised", "conceding", "serious", "pleased"] } };
   function faceSrc(who, face) { return IMG + (face && face !== "neutral" && CAST[who] && CAST[who].faces.indexOf(face) > 0 ? "mind.face." + who + "." + face : "mind.base." + who + ".a") + ".webp"; }
   function avatar(who, face) {
-    return el("span", { class: "k-mind-avatar", "data-who": who, "aria-hidden": "true" }, [el("img", { src: faceSrc(who, face), alt: "", loading: "lazy" })]);
+    /* the face is a background crop centred on where each character's face sits in the sprite
+       (measured: Kurenai's at 43% across, Ren's at 46%), so neither looks off-centre */
+    return el("span", { class: "k-mind-avatar", "data-who": who, "aria-hidden": "true", style: "--face: url(\"" + new URL(faceSrc(who, face), document.baseURI).href + "\")" });   // absolute: a url() in a property resolves against the stylesheet
   }
 
   /* ---------------- the Socratic dialogue in the VN scene (32i–32j) ----------------
