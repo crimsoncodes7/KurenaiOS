@@ -17,7 +17,15 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-mind-1` (29 October 2026, `feat/mind` at
+- Latest release: sw `kos-connect-1` (30 October 2026, `feat/integrations`
+  at `5adc978`, main fast-forwarded to it) — https://d47701df.kurenai-os.pages.dev:
+  Google Calendar, Google Tasks and Todoist (roadmap 5.15,
+  docs/integrations-plan.md; invariants 157–160, smoke112): the Calendar's
+  own events two-way with the primary Google calendar, what it derives one
+  way to a "KurenaiOS" calendar, Reminders lists linked to Todoist projects
+  or Google Tasks lists, Archive › Connections; the `ext-token` Edge Function
+  (version 1, its GOOGLE_* and TODOIST_* secrets set) and migration
+  `20261030000001` `kos_ext` applied. Before it sw `kos-mind-1` (29 October 2026, `feat/mind` at
   `cc2bc15`, main fast-forwarded to it) — https://2f7e2aa8.kurenai-os.pages.dev:
   Mind, the fifth study space (roadmap 5.9, design turn 32; invariants
   137–141, smoke109–111; migration `20261029000001` `kos_mind` applied):

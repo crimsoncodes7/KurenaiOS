@@ -1483,8 +1483,9 @@ calendar; Reminders lists linked to Todoist projects or Google Tasks lists.
 Sign-in like the GitHub App (the `ext-token` Edge Function, `kos_ext`);
 pulled completions are activity, never pay. Built on `feat/integrations`
 (smoke112, invariants 157–160); the plan and the one-time set-up are
-[integrations-plan.md](integrations-plan.md). Waiting on the Google Cloud
-and Todoist apps and their secrets before it can be used.
+[integrations-plan.md](integrations-plan.md). RELEASED 30 October 2026
+(sw `kos-connect-1`, https://d47701df.kurenai-os.pages.dev); the Google and
+Todoist apps and their secrets are set.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
