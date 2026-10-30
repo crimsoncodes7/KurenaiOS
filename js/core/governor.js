@@ -242,6 +242,15 @@
       }
       xp = cr.xp; gold = cr.gold; hp = cr.hp;
     }
+    else if (e.type === "todo" && m.external) {
+      /* roadmap 5.15 (invariant 160): reminders ticked in Todoist or
+         Google Tasks are activity for the day and pay nothing */
+      lastAward = { xp: 0, gold: 0, hp: 0, notes: ["ticked elsewhere"], levelUp: false };
+      e.award = { xp: 0, gold: 0 };
+      store.save();
+      if (KOS.refreshHUD) KOS.refreshHUD();
+      return;
+    }
     else if (e.type === "mind") {
       /* Mind (roadmap 5.9): KOS.mind.award() is the one definition — a review block's capped
          XP, a lesson, checkpoint or path once. Writing pays nothing; the Daily 15 pays as Focus. */

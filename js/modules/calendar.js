@@ -323,10 +323,24 @@
          event is kept, hidden, so a rollback finds it; the calendar draws
          the assessment instead */
       migratedTo: pick("migratedTo", null) || null,
+      /* roadmap 5.15 (invariant 158): the identity a synced copy is named
+         by, and the link to it ({g: {id, etag, base, skip, rx}}) — written
+         by KOS.extGcal, kept whole through every edit here */
+      uid: uidOf(pick("uid", null), b),
+      ext: extOf(pick("ext", null)),
       created: b.created || Date.now(),
       updatedAt: Date.now()
     };
   }
+
+  function uidOf(u, b) {
+    if (KOS.ext ? KOS.ext.uidOk(u) : /^[0-9a-f]{32}$/.test(u || "")) return u;
+    if (!KOS.ext) return null;
+    return b && b.id != null && b.created ? KOS.ext.legacyUid("ev", b) : KOS.ext.newUid();
+  }
+  function extOf(x) { return x && typeof x === "object" && !Array.isArray(x) ? x : null; }
+  /* tell the sync (roadmap 5.15); a write a pull makes is ignored there */
+  function noteExt() { if (KOS.ext) KOS.ext.noteLocal("calendar"); }
 
   /* a real exam saved: cards scheduled past it come forward into the
      week or two before it (KOS.srs.examPass, FSRS phase 2) */
@@ -346,6 +360,7 @@
     c.events.push(rec);
     store.save();
     examSaved(rec);
+    noteExt();
     return rec;
   }
   function updateEvent(id, patch) {
@@ -357,12 +372,17 @@
     c.events[i] = next;
     store.save();
     examSaved(next);
+    noteExt();
     return next;
   }
   function deleteEvent(id) {
     var c = cal();
     var i = c.events.findIndex(function (e) { return e.id === id; });
     if (i !== -1) {
+      var gone = c.events[i];
+      /* a linked event's remote copy goes too: an explicit queue, never
+         inferred from absence (invariant 158) */
+      if (KOS.ext && gone.ext && gone.ext.g && gone.ext.g.id) KOS.ext.queueDelete("google", "gcal", { id: gone.ext.g.id });
       c.events.splice(i, 1);
       /* an event that no longer exists must not keep alert bookkeeping alive */
       Object.keys(c.notified).forEach(function (k) {
@@ -389,6 +409,9 @@
   function occursOn(ev, dateISO) {
     if (!ev || !ev.date || dateISO < ev.date) return false;
     if (ev.recurUntil && dateISO > ev.recurUntil) return false;
+    /* a showing Google Calendar cancelled or moved (roadmap 5.15): the one
+       record keeps the dates it skips; a moved one is drawn from Google */
+    if (ev.ext && ev.ext.g && Array.isArray(ev.ext.g.skip) && ev.ext.g.skip.indexOf(dateISO) !== -1) return false;
     var r = ev.recur || "none";
     if (r === "none") return dateISO === ev.date;
     if (r === "daily") return true;
@@ -532,10 +555,14 @@
      DERIVATION (invariants 44, 82b) — drawn from the Money rule or the goal
      each time, never written as events. Per device, each source can be
      hidden (state.ui.calDerived). */
-  function derivedShown(kind) { var d = KOS.store.state.ui.calDerived || {}; return d[kind] !== false; }
+  function shownHere(kind) { var d = KOS.store.state.ui.calDerived || {}; return d[kind] !== false; }
+  var derivedShown = shownHere;
   var TONE_HUE = { sage: 1, sky: 1, iris: 1, slate: 1, plum: 1, jade: 1, brass: 1, clay: 1 };
-  function derivedOn(dateISO) {
-    var out = [];
+  /* opts.all: every source whatever this device hides (the export to
+     Google Calendar must not differ by device, roadmap 5.15) */
+  function derivedOn(dateISO, opts) {
+    var out = [], all = !!(opts && opts.all);
+    function derivedShown(kind) { return all || shownHere(kind); }
     if (KOS.money && derivedShown("money")) {
       var M = KOS.money;
       M.rules().forEach(function (r) {
@@ -585,6 +612,16 @@
         out.push({ kind: "goal", glyph: "標", title: (g.repeat ? (g.repeat === "week" ? "Week ends · " : "Month ends · ") : "Deadline · ") + g.title, goal: g, date: dateISO });
       });
     }
+    /* roadmap 5.15: Google Calendar events this app can't hold as one
+       record (a rule it has no word for, several days) — read from this
+       device's copy, never written as events (invariants 43, 44). Never
+       exported back (`all`). */
+    if (!all && KOS.extGcal && derivedShown("google")) {
+      KOS.extGcal.roOn(dateISO).forEach(function (x) {
+        out.push({ kind: "google", glyph: "◷", title: x.title || "(No title)", sub: x.time ? x.time + (x.endTime ? "–" + x.endTime : "") : null,
+          date: dateISO, time: x.time || null, gev: x });
+      });
+    }
     return out;
   }
   function openDerived(d) {
@@ -599,7 +636,7 @@
     var chip = el("button", {
       class: "k-ev k-ev--derived", "data-ui": "cal.event cal.derived", "data-type": "derived", "data-kind": d.kind, type: "button",
       "data-state": d.state === "skip" ? "skipped" : d.state === "done" ? "confirmed" : null,
-      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", " + (d.kind === "startby" ? "derived from Exams" : d.kind === "routine" || d.kind === "review" ? "from Routines" : "from " + (d.kind === "money" ? "Money" : "Goals")),
+      "aria-label": d.title + (fig ? ", " + fig : "") + ", " + prettyDate(d.date) + ", " + (d.kind === "startby" ? "derived from Exams" : d.kind === "routine" || d.kind === "review" ? "from Routines" : "from " + (d.kind === "money" ? "Money" : d.kind === "google" ? "Google Calendar" : "Goals")),
       onclick: function (e) { e.stopPropagation(); openDerived(d); }
     }, [
       el("span", { class: "k-ev-glyph", lang: "ja", "aria-hidden": "true", text: d.state === "done" ? "✓" : d.glyph }),
@@ -615,6 +652,9 @@
       if (d.minor) body.appendChild(el("div", { class: "k-cal-derived-fig" }, [KOS.ui.amount(d.minor, { size: "20", plus: d.income, tone: d.income ? "in" : null }),
         el("span", { class: "k-muted", text: prettyDate(d.date) + " · " + (d.rule.sub ? "subscription" : d.rule.kind === "in" ? "income" : d.rule.kind === "transfer" ? "set-aside" : "a rule") })]));
       body.appendChild(el("p", { class: "k-muted", text: "A derived chip: it is read from the rule each time and is never written as an event. Editing happens in Money." }));
+    } else if (d.kind === "google") {
+      body.appendChild(el("p", { class: "k-muted", text: prettyDate(d.date) + (d.sub ? " · " + d.sub : "") + (d.gev.location ? " · " + d.gev.location : "") }));
+      body.appendChild(el("p", { class: "k-muted", text: "From Google Calendar. It repeats or runs in a way this calendar can't hold as one event, so it's shown here and edited there." }));
     } else {
       body.appendChild(el("p", { class: "k-muted", text: "Read from the goal each time; never written as an event." }));
     }
@@ -622,10 +662,12 @@
     if (d.kind === "money" && !d.trial && d.state !== "done" && d.state !== "skip") acts.push(el("button", { type: "button", class: "k-btn", "data-ui": "cal.derived-skip", text: "Skip this one", onclick: function () {
       M.skip(d.rule.id, d.date, function () { overlay.close(); KOS.a11y.announce("Skipped · " + d.rule.name + ", " + prettyDate(d.date)); KOS.rerender(); });
     } }));
-    acts.push(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "cal.derived-open", text: d.kind === "money" ? "Open in Money" : "Open goal", onclick: function () {
+    if (d.kind === "google") acts.push(d.gev.link ? el("a", { class: "k-btn k-btn--primary", "data-ui": "cal.derived-open", href: d.gev.link, target: "_blank", rel: "noopener", text: "Open in Google Calendar" }) : null);
+    else acts.push(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "cal.derived-open", text: d.kind === "money" ? "Open in Money" : "Open goal", onclick: function () {
       overlay.close(); if (d.kind === "money") KOS.show("money", "recurring"); else KOS.show("goals", { id: d.goal.id });
     } }));
-    overlay = dialog("cal.derived-panel", d.kind === "money" ? "From Money" : "From Goals", d.kind === "money" ? d.rule.name : d.goal.title, [body], foot(acts));
+    acts = acts.filter(Boolean);
+    overlay = dialog("cal.derived-panel", d.kind === "money" ? "From Money" : d.kind === "google" ? "From Google Calendar" : "From Goals", d.kind === "money" ? d.rule.name : d.kind === "google" ? d.title : d.goal.title, [body], foot(acts));
     KOS.ui.openDialog(overlay, { label: d.title });
   }
   /* what the calendar draws besides its own events: a menu beside Today
@@ -647,7 +689,8 @@
         [sw("money", "円", "Bills and income from Money"), sw("goals", "標", "Goal deadlines and period ends"),
           KOS.exams ? sw("exams", "⚐", "Start-by dates from Exams") : null,
           KOS.routines && KOS.routines.enabled() ? sw("routines", "習", "Routines and their windows") : null,
-          KOS.dayReview && KOS.dayReview.enabled() ? sw("reviews", "審", "Daily Review times") : null].filter(Boolean).forEach(function (n) { panel.appendChild(n); });
+          KOS.dayReview && KOS.dayReview.enabled() ? sw("reviews", "審", "Daily Review times") : null,
+          KOS.extGcal && KOS.extGcal.hasRo() ? sw("google", "◷", "Google events shown read-only") : null].filter(Boolean).forEach(function (n) { panel.appendChild(n); });
       } });
   }
 
@@ -1947,6 +1990,7 @@
     deadlines: deadlines,
     countdowns: countdowns,
     dayItems: dayItems,
+    derivedOn: derivedOn,
     seedSamples: seedSamples,
     checkReminders: checkReminders,
     forecast: forecast,
