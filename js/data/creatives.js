@@ -383,14 +383,21 @@
     "cr.spot.portfolio",
     "cr.spot.rest",
     "cr.step.A1.1.1",
+    "cr.step.A1.1.2",
+    "cr.step.A1.1.3",
     "cr.step.A1.1.4",
     "cr.step.A1.2.1",
     "cr.step.A1.2.2",
     "cr.step.A1.2.3",
     "cr.step.A1.2.4",
+    "cr.step.A1.3.1",
     "cr.step.A1.3.2",
     "cr.step.A1.3.3",
     "cr.step.A1.3.4",
+    "cr.step.A2.1.1",
+    "cr.step.A2.1.2",
+    "cr.step.A2.1.3",
+    "cr.step.A2.1.4",
     "cr.step.A2.2.1",
     "cr.step.A2.2.2",
     "cr.step.A2.2.3",
@@ -404,8 +411,13 @@
     "cr.step.A3.1.3",
     "cr.step.A3.1.4",
     "cr.step.A3.2.1",
+    "cr.step.A3.2.2",
+    "cr.step.A3.2.3",
+    "cr.step.A3.2.4",
     "cr.step.A3.3.1",
-    "cr.step.A3.3.2"
+    "cr.step.A3.3.2",
+    "cr.step.A3.3.3",
+    "cr.step.A3.3.4"
   ];
 
   window.KOS_CR = { TRACKS: TRACKS, UNITS: UNITS, LESSONS: LESSONS, ART: ART };
