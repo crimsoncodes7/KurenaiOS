@@ -1550,7 +1550,7 @@ art is in the app.
 > **The catalogue is registered and measuring** (101 badges in fifteen sets,
 > each reading a record the app keeps; eight badges with no evidence are
 > documented as blocked). It draws each set's enamel disc and glyph until its
-> art arrives: batches 26 (26 panoramas) and 27 (101 badges), waves 24–32 in
+> art arrives: batches 26 (26 panoramas, IMPORTED 30 October) and 27 (101 badges), waves 24–32 in
 > `art-source/app/manifest.json`, prompts written.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
