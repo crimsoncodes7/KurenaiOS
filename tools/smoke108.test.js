@@ -228,6 +228,43 @@ step("H · the Writing Desk: a study opens its setup; the diff is exact", async 
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("I · Design's drills: each renders and checks; a batch pays once a day; a study's batch saves to it", async (app) => {
+  const K = app.KOS, CR = K.creatives, D = K.crDrills, doc = app.document;
+  assert(Math.abs(D.contrast({ l: 0, c: 0, h: 0 }, { l: 1, c: 0, h: 0 }) - 21) < 0.05, "black on white is 21 : 1");
+  assert(D.contrast({ l: 0.6, c: 0.03, h: 20 }, { l: 0.6, c: 0.03, h: 200 }) < 1.3, "two colours of one lightness barely contrast");
+  K.show("creatives", { page: "drills" }); await app.settle();
+  assert(doc.querySelectorAll('[data-ui~="cr.drill-tile"]').length === 6, "six drills");
+  for (const T of D.TYPES) {
+    K.show("creatives", { page: "drills", id: T.id }); await app.settle();
+    const c = doc.querySelector('[data-ui~="cr.drill-check"]');
+    assert(c, T.id + " has a Check");
+    c.click(); await app.settle();
+    assert(doc.querySelector('[data-ui~="cr.drill-next"]') && doc.querySelector(".k-crd-verdict b"), T.id + " gives a verdict");
+    if (T.id === "kerning") assert(/Still uneven/.test(doc.querySelector(".k-crd-verdict b").textContent), "an untouched kerning word never passes");
+  }
+  const g = K.store.state.governor, xp0 = g.xp;
+  async function batch(id) {
+    K.show("creatives", { page: "drills", id }); await app.settle();
+    for (let i = 0; i < 6 && !doc.querySelector('[data-ui~="cr.drill-summary"]'); i++) {
+      doc.querySelector('[data-ui~="cr.drill-check"]').click(); await app.settle();
+      doc.querySelector('[data-ui~="cr.drill-next"]').click(); await app.settle();
+    }
+    assert(doc.querySelector('[data-ui~="cr.drill-summary"]'), id + ": the batch ends in a summary");
+  }
+  await batch("hierarchy");
+  assert(g.xp === xp0 + 6 && CR.peek().paid["drill:hierarchy:" + K.srs.todayISO()], "a finished batch pays 6 XP");
+  await batch("hierarchy");
+  assert(g.xp === xp0 + 6, "the same drill again today pays nothing");
+  K.show("creatives", { page: "drills", id: "measure@D2.3.a" }); await app.settle();
+  doc.querySelector('[data-ui~="cr.drill-check"]').click(); await app.settle();
+  doc.querySelector('[data-ui~="cr.drill-next"]').click(); await app.settle();
+  doc.querySelector('[data-ui~="cr.drill-save"]').click(); await app.settle(); await app.settle();
+  const w = CR.studyWorks("D2.3", "a")[0];
+  assert(w && w.track === "design", "the batch is saved as D2.3·a's work");
+  assert(/#\/creatives\/check\//.test(app.window.location.hash), "and its check opens: " + app.window.location.hash);
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();

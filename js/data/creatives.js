@@ -176,6 +176,79 @@
     brief: "A scene of about 400 words, mostly dialogue, between two people who each want something different. Finish it as prose or as a VN script.",
     milestones: ["The wants and the place, in two lines each", "The first draft of the exchange", "A tag-and-want pass, saved as a second version"] } });
 
+  /* ================= Graphic design · Unit 1 · The principles ================= */
+  var D1_IGNORE = [["Choosing typefaces", "Design 2"], ["Grids in depth", "Design 3"], ["Whether it looks professional", "later units"]];
+  var FREE = "Canva or Figma (free)";
+  lesson({ id: "D1.1", unit: "D1", title: "Contrast and hierarchy", min: 25, skill: "the most important thing reads first",
+    studies: [
+      { id: "a", t: "Fix a flat flyer", min: 10, tool: "drill:hierarchy",
+        give: "The flyer's words, all one size", vary: "Size and weight only, until the title reads first" },
+      { id: "b", t: "Three sizes only", min: 15, tool: "outside",
+        give: "An event's details: a title, a date, a place, two lines of detail", vary: "A poster in " + FREE + " using exactly three text sizes and nothing else" }
+    ],
+    check: { skill: "One thing reads first, then the next", rows: ["Does the eye land on one thing first?", "Is the order after that the order you meant?"],
+      good: "It may look plain and empty, and that is fine. Pass if someone glancing at it reads the title first and the key detail second. Ignore fonts and colour: they come later.",
+      ignore: D1_IGNORE } });
+  lesson({ id: "D1.2", unit: "D1", title: "Alignment and proximity", min: 25, skill: "things line up and related things sit together",
+    studies: [
+      { id: "a", t: "Back on the grid", min: 10, tool: "drill:grid",
+        give: "Four blocks already made", vary: "Where they sit: every edge on a column line" },
+      { id: "b", t: "Group it", min: 15, tool: "outside",
+        give: "A business card's seven lines of text, written for you", vary: "Only spacing and alignment, in " + FREE + ": related lines together, one shared left edge" }
+    ],
+    check: { skill: "Edges line up, groups read as groups", rows: ["Do most things share a few edges?", "Are related things closer to each other than to the rest?"],
+      good: "Your spacing may feel too big or too tight. Pass if you can see one or two strong edges and the groups are obvious at a glance. Ignore type choice and colour.",
+      ignore: D1_IGNORE } });
+  lesson({ id: "D1.3", unit: "D1", title: "Repetition and colour contrast", min: 25, skill: "a small set of colours with enough contrast, repeated",
+    studies: [
+      { id: "a", t: "A palette that passes", min: 10, tool: "drill:palette",
+        give: "Three swatches and a live contrast check", vary: "Lightness and hue until text and accent pass" },
+      { id: "b", t: "Repeat one thing", min: 15, tool: "outside",
+        give: "Three post ideas for a club account", vary: "Three square tiles in " + FREE + " that share one colour and one shape" }
+    ],
+    check: { skill: "Few colours, enough contrast, something repeated", rows: ["Does the text pass the contrast check?", "Does one colour or shape repeat so the pieces belong together?"],
+      good: "Your colours may feel safe or a little dull. That is fine. Pass if the text is easy to read and the set looks related. Ignore whether the colours are fashionable.",
+      ignore: D1_IGNORE } });
+  unit("D1", { project: { t: "A flyer for your club", after: "D1.3",
+    brief: "One A5 flyer for a real or made-up club, in " + FREE + ": a clear hierarchy, things on a grid, two or three colours that pass the check.",
+    milestones: ["The words, and a rough thumbnail sketch", "A first layout on a grid", "A hierarchy and colour pass, saved as a second version"] } });
+
+  /* ================= Graphic design · Unit 2 · Typography ================= */
+  var D2_IGNORE = [["Layout and grids", "Design 3"], ["Colour", "Design 4"], ["Logos and lettering", "Design 5"]];
+  lesson({ id: "D2.1", unit: "D2", title: "Letters and spacing", min: 25, skill: "even spacing between letters",
+    studies: [
+      { id: "a", t: "Kerning by eye", min: 10, tool: "drill:kerning",
+        give: "A word with its spacing knocked out", vary: "The gaps between letters, until they look even" },
+      { id: "b", t: "Kern a title", min: 10, tool: "outside",
+        give: "The title of a book you love, typed for you at a large size", vary: "Only the letter spacing, by hand, in " + FREE }
+    ],
+    check: { skill: "The spaces between letters look even", rows: ["Squinting, do the gaps look about the same?", "Did the worst pair (often A, V, W, Y, T) get fixed?"],
+      good: "Kerning is fiddly and your eye will improve for years. Pass if nothing jumps out as a hole or a collision. Ignore the choice of font: that is the next lesson.",
+      ignore: D2_IGNORE } });
+  lesson({ id: "D2.2", unit: "D2", title: "Pairing typefaces", min: 25, skill: "two faces with different jobs",
+    studies: [
+      { id: "a", t: "Pair for a brief", min: 8, tool: "drill:pairing",
+        give: "A brief and five typefaces", vary: "Which face is the heading and which is the body" },
+      { id: "b", t: "Two faces, one card", min: 15, tool: "outside",
+        give: "A short recipe, written for you", vary: "A recipe card in " + FREE + " in exactly two typefaces" }
+    ],
+    check: { skill: "One face leads, one face reads", rows: ["Is it clear which face is the heading?", "Is the body face easy to read at its size?"],
+      good: "Your pairs may be safe ones, and safe is good here. Pass if the two faces do different jobs and the body reads easily. Ignore layout and colour.",
+      ignore: D2_IGNORE } });
+  lesson({ id: "D2.3", unit: "D2", title: "Leading and the measure", min: 20, skill: "a comfortable line length and line spacing",
+    studies: [
+      { id: "a", t: "A comfortable paragraph", min: 6, tool: "drill:measure",
+        give: "A paragraph set badly", vary: "Line length and leading only" },
+      { id: "b", t: "A readable page", min: 15, tool: "outside",
+        give: "A page of a short story, written for you", vary: "Set it in " + FREE + " with 45–75 characters a line and comfortable leading" }
+    ],
+    check: { skill: "Long text is comfortable to read", rows: ["Is the line length roughly 45–75 characters?", "Is there enough space between lines that the eye finds the next one?"],
+      good: "It may look like a plain page, which is the point. Pass if a paragraph is easy to read to the end. Ignore the page's decoration.",
+      ignore: D2_IGNORE } });
+  unit("D2", { project: { t: "A title for a book you love", after: "D2.3",
+    brief: "First recreate one real cover's title type as a study (not your own design), then design your own title for the same book: one display face, one supporting face, kerned by hand.",
+    milestones: ["The study: the real title recreated", "Your own title, first draft", "A kerning and pairing pass, saved as a second version"] } });
+
   /* every unit not released yet still says what it will teach (the desk's path reads these) */
   var SKILLS = {
     A1: "a confident line", A2: "boxes drawn through", A3: "vanishing points that agree", A4: "light and shadow on a form", A5: "hue, value and saturation", A6: "the line of action",

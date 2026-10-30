@@ -38,7 +38,7 @@
   function startStudy(lid, sid) {
     var s = CR().study(lid, sid); if (!s) return;
     if (s.tool === "desk" && KOS.crWrite) { KOS.crWrite.openStudy(lid, sid); return; }
-    if (s.tool && s.tool.indexOf("drill:") === 0) { KOS.show("creatives", { page: "drills", id: s.tool.slice(6) }); return; }
+    if (s.tool && s.tool.indexOf("drill:") === 0) { KOS.show("creatives", { page: "drills", id: s.tool.slice(6) + "@" + lid + "." + sid }); return; }
     KOS.show("creatives", { page: "add", id: lid + "." + sid });
   }
   function studyCard(L, s, o) {
