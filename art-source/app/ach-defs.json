@@ -1,0 +1,1488 @@
+{
+ "defs": [
+  {
+   "id": "regular",
+   "set": "app",
+   "name": "Regular",
+   "what": "Days you did anything in the app — a session, a review, a tick",
+   "tiers": [
+    7,
+    30,
+    100,
+    365
+   ],
+   "hidden": false,
+   "glyph": "日"
+  },
+  {
+   "id": "year-one",
+   "set": "app",
+   "name": "One year in",
+   "what": "A year since your first day in KurenaiOS",
+   "tiers": [
+    365
+   ],
+   "hidden": false,
+   "glyph": "年"
+  },
+  {
+   "id": "early-bird",
+   "set": "app",
+   "name": "Early bird",
+   "what": "Study sessions started between 04:00 and 07:00",
+   "tiers": [
+    1,
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "朝"
+  },
+  {
+   "id": "night-owl",
+   "set": "app",
+   "name": "Night owl",
+   "what": "Study sessions finished between 23:00 and 03:00",
+   "tiers": [
+    1,
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "夜"
+  },
+  {
+   "id": "witching",
+   "set": "app",
+   "name": "The witching hour",
+   "what": "Something done in the app between 03:00 and 04:00",
+   "tiers": [
+    1
+   ],
+   "hidden": true,
+   "glyph": "丑"
+  },
+  {
+   "id": "first-light",
+   "set": "app",
+   "name": "First light of the year",
+   "what": "A Focus session finished on 1 January",
+   "tiers": [
+    1
+   ],
+   "hidden": true,
+   "glyph": "初"
+  },
+  {
+   "id": "in-the-zone",
+   "set": "focus",
+   "name": "In the zone",
+   "what": "Completed Focus sessions",
+   "tiers": [
+    10,
+    100,
+    500,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "集"
+  },
+  {
+   "id": "deep-hours",
+   "set": "focus",
+   "name": "Deep hours",
+   "what": "Hours of focus, in all",
+   "tiers": [
+    10,
+    100,
+    500,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "時"
+  },
+  {
+   "id": "marathon",
+   "set": "focus",
+   "name": "Marathon",
+   "what": "One Focus session of this many hours",
+   "tiers": [
+    2,
+    3,
+    4
+   ],
+   "hidden": false,
+   "glyph": "長"
+  },
+  {
+   "id": "unbroken",
+   "set": "focus",
+   "name": "Unbroken",
+   "what": "Focus sessions completed without a pause",
+   "tiers": [
+    10,
+    50,
+    200
+   ],
+   "hidden": false,
+   "glyph": "貫"
+  },
+  {
+   "id": "full-day",
+   "set": "focus",
+   "name": "Full day",
+   "what": "Hours of focus in one day",
+   "tiers": [
+    4,
+    6,
+    8
+   ],
+   "hidden": false,
+   "glyph": "満"
+  },
+  {
+   "id": "change-of-subject",
+   "set": "focus",
+   "name": "Change of subject",
+   "what": "A Focus session switched to another subject mid-way",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "転"
+  },
+  {
+   "id": "kept-going",
+   "set": "streaks",
+   "name": "Kept going",
+   "what": "Your study streak at its longest",
+   "tiers": [
+    7,
+    30,
+    100,
+    365
+   ],
+   "hidden": false,
+   "glyph": "連"
+  },
+  {
+   "id": "rest-is-work",
+   "set": "streaks",
+   "name": "Rest is work too",
+   "what": "A rest streak (a day of leisure logged) this long",
+   "tiers": [
+    7,
+    30
+   ],
+   "hidden": false,
+   "glyph": "休"
+  },
+  {
+   "id": "perfect-week",
+   "set": "streaks",
+   "name": "Perfect week",
+   "what": "Weeks with study and a completed routine every day",
+   "tiers": [
+    1,
+    4,
+    12
+   ],
+   "hidden": false,
+   "glyph": "週"
+  },
+  {
+   "id": "into-the-green",
+   "set": "study",
+   "name": "Into the green",
+   "what": "Topics at Green across CS, Maths and IT",
+   "tiers": [
+    10,
+    50,
+    100,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "緑"
+  },
+  {
+   "id": "card-sharp",
+   "set": "study",
+   "name": "Card sharp",
+   "what": "Flashcard reviews",
+   "tiers": [
+    100,
+    1000,
+    10000,
+    50000
+   ],
+   "hidden": false,
+   "glyph": "札"
+  },
+  {
+   "id": "steady-memory",
+   "set": "study",
+   "name": "Steady memory",
+   "what": "Months at 90% recall or better, over 200 reviews",
+   "tiers": [
+    1,
+    3,
+    6
+   ],
+   "hidden": false,
+   "glyph": "憶"
+  },
+  {
+   "id": "leech-hunter",
+   "set": "study",
+   "name": "Leech hunter",
+   "what": "Cards set aside by lapses and brought back from Rework",
+   "tiers": [
+    5,
+    25
+   ],
+   "hidden": false,
+   "glyph": "蛭"
+  },
+  {
+   "id": "quiz-runner",
+   "set": "study",
+   "name": "Quiz runner",
+   "what": "Quiz questions answered",
+   "tiers": [
+    100,
+    500,
+    2000
+   ],
+   "hidden": false,
+   "glyph": "問"
+  },
+  {
+   "id": "paper-trail",
+   "set": "study",
+   "name": "Paper trail",
+   "what": "Papers and exams logged in Exams & Papers",
+   "tiers": [
+    1,
+    10,
+    30,
+    60
+   ],
+   "hidden": false,
+   "glyph": "紙"
+  },
+  {
+   "id": "second-attempt",
+   "set": "study",
+   "name": "Second attempt",
+   "what": "Redo items you got right on review",
+   "tiers": [
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "再"
+  },
+  {
+   "id": "margin-notes",
+   "set": "study",
+   "name": "Notes in the margin",
+   "what": "Quick notes filed on topics",
+   "tiers": [
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "記"
+  },
+  {
+   "id": "lab-keys",
+   "set": "study",
+   "name": "Lab keys",
+   "what": "Labs and simulations unlocked",
+   "tiers": [
+    5,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "鍵"
+  },
+  {
+   "id": "companion-complete",
+   "set": "study",
+   "name": "Companion complete",
+   "what": "An Exam Companion with every topic's practice set logged",
+   "tiers": [
+    1,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "伴"
+  },
+  {
+   "id": "tuned-to-you",
+   "set": "study",
+   "name": "Tuned to you",
+   "what": "1,000 reviews in the log: enough to fit FSRS to your memory",
+   "tiers": [
+    1000
+   ],
+   "hidden": false,
+   "glyph": "調"
+  },
+  {
+   "id": "dress-rehearsal",
+   "set": "exams",
+   "name": "Dress rehearsal",
+   "what": "Mocks sat with a result logged",
+   "tiers": [
+    1,
+    5,
+    10
+   ],
+   "hidden": false,
+   "glyph": "演"
+  },
+  {
+   "id": "on-target",
+   "set": "exams",
+   "name": "On target",
+   "what": "Results at or above their target",
+   "tiers": [
+    1,
+    5
+   ],
+   "hidden": false,
+   "glyph": "的"
+  },
+  {
+   "id": "ready",
+   "set": "exams",
+   "name": "Ready",
+   "what": "An assessment reading Ready before its day",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "備"
+  },
+  {
+   "id": "survived-season",
+   "set": "exams",
+   "name": "Survived the season",
+   "what": "An exam season over, with every exam's result logged",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "越"
+  },
+  {
+   "id": "ahead-of-time",
+   "set": "exams",
+   "name": "Ahead of time",
+   "what": "Assignments finished a day or more before they were due",
+   "tiers": [
+    5,
+    20
+   ],
+   "hidden": false,
+   "glyph": "早"
+  },
+  {
+   "id": "under-the-clock",
+   "set": "exams",
+   "name": "Under the clock",
+   "what": "Papers logged as timed attempts",
+   "tiers": [
+    1,
+    10,
+    30
+   ],
+   "hidden": false,
+   "glyph": "刻"
+  },
+  {
+   "id": "know-thyself",
+   "set": "exams",
+   "name": "Know thyself",
+   "what": "Papers where your prediction was within 5 points of the mark",
+   "tiers": [
+    1,
+    5,
+    15
+   ],
+   "hidden": false,
+   "glyph": "己"
+  },
+  {
+   "id": "green-tests",
+   "set": "code",
+   "name": "Green tests",
+   "what": "Code tasks passed",
+   "tiers": [
+    20,
+    100,
+    300
+   ],
+   "hidden": false,
+   "glyph": "緑"
+  },
+  {
+   "id": "recall",
+   "set": "code",
+   "name": "Recall",
+   "what": "Retrievals proven",
+   "tiers": [
+    25,
+    100,
+    500
+   ],
+   "hidden": false,
+   "glyph": "復"
+  },
+  {
+   "id": "kata",
+   "set": "code",
+   "name": "Kata",
+   "what": "Katas done",
+   "tiers": [
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "型"
+  },
+  {
+   "id": "shipped",
+   "set": "code",
+   "name": "Shipped",
+   "what": "Rider projects with every milestone passed",
+   "tiers": [
+    1,
+    5,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "船"
+  },
+  {
+   "id": "verified",
+   "set": "code",
+   "name": "Verified",
+   "what": "Reports checked in GitHub Actions (◆ CI-verified)",
+   "tiers": [
+    1,
+    10
+   ],
+   "hidden": false,
+   "glyph": "証"
+  },
+  {
+   "id": "no-hints",
+   "set": "code",
+   "name": "No hints",
+   "what": "Tasks passed with no hint and no answer seen",
+   "tiers": [
+    25,
+    100
+   ],
+   "hidden": false,
+   "glyph": "独"
+  },
+  {
+   "id": "bug-catcher",
+   "set": "code",
+   "name": "Bug catcher",
+   "what": "Projects whose tests caught every planted bug",
+   "tiers": [
+    1,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "虫"
+  },
+  {
+   "id": "daily-20",
+   "set": "code",
+   "name": "Daily 20",
+   "what": "Days you passed a new Code task",
+   "tiers": [
+    7,
+    30,
+    100
+   ],
+   "hidden": false,
+   "glyph": "廿"
+  },
+  {
+   "id": "hiragana",
+   "set": "ja",
+   "name": "Hiragana",
+   "what": "All 46 hiragana read and held three weeks",
+   "tiers": [
+    46
+   ],
+   "hidden": false,
+   "glyph": "ひ"
+  },
+  {
+   "id": "katakana",
+   "set": "ja",
+   "name": "Katakana",
+   "what": "All 46 katakana read and held three weeks",
+   "tiers": [
+    46
+   ],
+   "hidden": false,
+   "glyph": "カ"
+  },
+  {
+   "id": "words",
+   "set": "ja",
+   "name": "Words",
+   "what": "Words you read, held three weeks",
+   "tiers": [
+    100,
+    500,
+    1000,
+    2000
+   ],
+   "hidden": false,
+   "glyph": "語"
+  },
+  {
+   "id": "ear",
+   "set": "ja",
+   "name": "Ear",
+   "what": "Listening facets holding a week",
+   "tiers": [
+    100,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "耳"
+  },
+  {
+   "id": "brush",
+   "set": "ja",
+   "name": "Brush",
+   "what": "Kana written by hand, holding a week",
+   "tiers": [
+    50,
+    500
+   ],
+   "hidden": false,
+   "glyph": "書"
+  },
+  {
+   "id": "voice",
+   "set": "ja",
+   "name": "Voice",
+   "what": "Speaking facets holding a week",
+   "tiers": [
+    50,
+    500
+   ],
+   "hidden": false,
+   "glyph": "声"
+  },
+  {
+   "id": "checkpoint",
+   "set": "ja",
+   "name": "Checkpoint",
+   "what": "Japanese checkpoints passed",
+   "tiers": [
+    1,
+    5,
+    10
+   ],
+   "hidden": false,
+   "glyph": "関"
+  },
+  {
+   "id": "immersion",
+   "set": "ja",
+   "name": "Immersion",
+   "what": "Hours of Japanese reading and listening logged",
+   "tiers": [
+    10,
+    50,
+    200
+   ],
+   "hidden": false,
+   "glyph": "浸"
+  },
+  {
+   "id": "sentence-miner",
+   "set": "ja",
+   "name": "Sentence miner",
+   "what": "Lines saved from your own media",
+   "tiers": [
+    10,
+    50,
+    200
+   ],
+   "hidden": false,
+   "glyph": "掘"
+  },
+  {
+   "id": "evaluated",
+   "set": "mind",
+   "name": "Evaluated",
+   "what": "Concepts at the ladder's last rung, Evaluate",
+   "tiers": [
+    5,
+    25,
+    75
+   ],
+   "hidden": false,
+   "glyph": "評"
+  },
+  {
+   "id": "changed-my-mind",
+   "set": "mind",
+   "name": "Changed my mind",
+   "what": "Positions revised to a new answer",
+   "tiers": [
+    1,
+    5,
+    20
+   ],
+   "hidden": false,
+   "glyph": "翻"
+  },
+  {
+   "id": "journal",
+   "set": "mind",
+   "name": "Journal",
+   "what": "Entries in the Mind Journal",
+   "tiers": [
+    10,
+    100,
+    365
+   ],
+   "hidden": false,
+   "glyph": "誌"
+  },
+  {
+   "id": "big-questions",
+   "set": "mind",
+   "name": "Big Questions",
+   "what": "Weeks of a Big Question closed with your answer",
+   "tiers": [
+    4,
+    12,
+    26
+   ],
+   "hidden": false,
+   "glyph": "問"
+  },
+  {
+   "id": "studies",
+   "set": "creatives",
+   "name": "Studies",
+   "what": "Micro-studies passed",
+   "tiers": [
+    10,
+    50,
+    200
+   ],
+   "hidden": false,
+   "glyph": "創"
+  },
+  {
+   "id": "wordsmith",
+   "set": "creatives",
+   "name": "Wordsmith",
+   "what": "Words written at the Writing Desk",
+   "tiers": [
+    10000,
+    50000,
+    100000,
+    250000
+   ],
+   "hidden": false,
+   "glyph": "文"
+  },
+  {
+   "id": "sketchbook",
+   "set": "creatives",
+   "name": "Sketchbook",
+   "what": "Pages saved from the sketchbook",
+   "tiers": [
+    10,
+    100,
+    500
+   ],
+   "hidden": false,
+   "glyph": "画"
+  },
+  {
+   "id": "drills",
+   "set": "creatives",
+   "name": "Drills",
+   "what": "Days with a Graphic design drill",
+   "tiers": [
+    10,
+    50,
+    150
+   ],
+   "hidden": false,
+   "glyph": "練"
+  },
+  {
+   "id": "portfolio",
+   "set": "creatives",
+   "name": "Portfolio",
+   "what": "Pieces promoted to the Portfolio",
+   "tiers": [
+    1,
+    10,
+    30
+   ],
+   "hidden": false,
+   "glyph": "選"
+  },
+  {
+   "id": "momentum",
+   "set": "creatives",
+   "name": "Momentum",
+   "what": "Studies done with Momentum on",
+   "tiers": [
+    5,
+    25
+   ],
+   "hidden": false,
+   "glyph": "勢"
+  },
+  {
+   "id": "projects",
+   "set": "creatives",
+   "name": "Projects",
+   "what": "Unit projects finished",
+   "tiers": [
+    1,
+    5,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "作"
+  },
+  {
+   "id": "routine",
+   "set": "routines",
+   "name": "Routine",
+   "what": "Routines completed",
+   "tiers": [
+    30,
+    100,
+    365,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "習"
+  },
+  {
+   "id": "morning-person",
+   "set": "routines",
+   "name": "Morning person",
+   "what": "Morning Reviews finished in the last 60 days",
+   "tiers": [
+    7,
+    21,
+    45
+   ],
+   "hidden": false,
+   "glyph": "暁"
+  },
+  {
+   "id": "wind-down",
+   "set": "routines",
+   "name": "Wind down",
+   "what": "Evening Reviews finished in the last 60 days",
+   "tiers": [
+    7,
+    21,
+    45
+   ],
+   "hidden": false,
+   "glyph": "宵"
+  },
+  {
+   "id": "habit-former",
+   "set": "routines",
+   "name": "Habit former",
+   "what": "Habits kept 30 days in a row",
+   "tiers": [
+    1,
+    5
+   ],
+   "hidden": false,
+   "glyph": "慣"
+  },
+  {
+   "id": "every-time",
+   "set": "routines",
+   "name": "Every time",
+   "what": "A several-times-a-day habit kept a whole week",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "毎"
+  },
+  {
+   "id": "done-and-dusted",
+   "set": "organised",
+   "name": "Done and dusted",
+   "what": "Reminders ticked off",
+   "tiers": [
+    50,
+    250,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "済"
+  },
+  {
+   "id": "handed-in",
+   "set": "organised",
+   "name": "Handed in",
+   "what": "Assignments completed",
+   "tiers": [
+    5,
+    25,
+    100
+   ],
+   "hidden": false,
+   "glyph": "提"
+  },
+  {
+   "id": "on-the-plan",
+   "set": "organised",
+   "name": "On the plan",
+   "what": "Plan rows ticked",
+   "tiers": [
+    25,
+    100,
+    300
+   ],
+   "hidden": false,
+   "glyph": "計"
+  },
+  {
+   "id": "caught-up",
+   "set": "organised",
+   "name": "Caught up",
+   "what": "Plan weeks with every personal row ticked by the week's end",
+   "tiers": [
+    1,
+    10
+   ],
+   "hidden": false,
+   "glyph": "追"
+  },
+  {
+   "id": "in-step",
+   "set": "organised",
+   "name": "In step",
+   "what": "A whole half-term with your plan and class aligned, and no week unplanned",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "歩"
+  },
+  {
+   "id": "synced",
+   "set": "organised",
+   "name": "Synced",
+   "what": "Google Calendar, Google Tasks or Todoist switched on",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "繋"
+  },
+  {
+   "id": "goal-getter",
+   "set": "goals",
+   "name": "Goal getter",
+   "what": "Goals reached",
+   "tiers": [
+    1,
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "標"
+  },
+  {
+   "id": "every-period",
+   "set": "goals",
+   "name": "Every week",
+   "what": "Repeating goals met four periods in a row",
+   "tiers": [
+    1,
+    5
+   ],
+   "hidden": false,
+   "glyph": "毎"
+  },
+  {
+   "id": "bookkeeper",
+   "set": "goals",
+   "name": "Bookkeeper",
+   "what": "Transactions logged in Money",
+   "tiers": [
+    50,
+    250,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "帳"
+  },
+  {
+   "id": "under-budget",
+   "set": "goals",
+   "name": "Under budget",
+   "what": "Months with every budget kept",
+   "tiers": [
+    1,
+    3,
+    6,
+    12
+   ],
+   "hidden": false,
+   "glyph": "倹"
+  },
+  {
+   "id": "saver",
+   "set": "goals",
+   "name": "Saver",
+   "what": "Pots filled to their target",
+   "tiers": [
+    1,
+    5
+   ],
+   "hidden": false,
+   "glyph": "貯"
+  },
+  {
+   "id": "wish-granted",
+   "set": "goals",
+   "name": "Wish granted",
+   "what": "Wishlist items bought through the planner",
+   "tiers": [
+    1,
+    10
+   ],
+   "hidden": false,
+   "glyph": "願"
+  },
+  {
+   "id": "binge",
+   "set": "collection",
+   "name": "Binge",
+   "what": "Anime completed",
+   "tiers": [
+    10,
+    50,
+    100,
+    250
+   ],
+   "hidden": false,
+   "glyph": "映"
+  },
+  {
+   "id": "episodes",
+   "set": "collection",
+   "name": "Episodes",
+   "what": "Episodes watched",
+   "tiers": [
+    500,
+    2000,
+    5000
+   ],
+   "hidden": false,
+   "glyph": "話"
+  },
+  {
+   "id": "bookshelf",
+   "set": "collection",
+   "name": "Bookshelf",
+   "what": "Physical volumes on your shelf",
+   "tiers": [
+    10,
+    50,
+    100,
+    250
+   ],
+   "hidden": false,
+   "glyph": "棚"
+  },
+  {
+   "id": "reader",
+   "set": "collection",
+   "name": "Reader",
+   "what": "Books and manga completed",
+   "tiers": [
+    10,
+    50,
+    100
+   ],
+   "hidden": false,
+   "glyph": "読"
+  },
+  {
+   "id": "route-master",
+   "set": "collection",
+   "name": "Route master",
+   "what": "Visual-novel routes cleared",
+   "tiers": [
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "路"
+  },
+  {
+   "id": "visual-novels",
+   "set": "collection",
+   "name": "Visual novels",
+   "what": "Visual novels completed",
+   "tiers": [
+    5,
+    25,
+    50
+   ],
+   "hidden": false,
+   "glyph": "綴"
+  },
+  {
+   "id": "player",
+   "set": "collection",
+   "name": "Player",
+   "what": "Hours of games played",
+   "tiers": [
+    100,
+    500,
+    1000
+   ],
+   "hidden": false,
+   "glyph": "遊"
+  },
+  {
+   "id": "the-shrine",
+   "set": "collection",
+   "name": "The Shrine",
+   "what": "Titles enshrined as favourites",
+   "tiers": [
+    10,
+    25,
+    50
+   ],
+   "hidden": false,
+   "glyph": "祠"
+  },
+  {
+   "id": "mirror",
+   "set": "collection",
+   "name": "Mirror",
+   "what": "Your AniList lists mirrored into the Collection",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "鏡"
+  },
+  {
+   "id": "backlog-clearer",
+   "set": "collection",
+   "name": "Backlog clearer",
+   "what": "Your Steam library imported or VNDB connected",
+   "tiers": [
+    1
+   ],
+   "hidden": false,
+   "glyph": "積"
+  },
+  {
+   "id": "airing",
+   "set": "collection",
+   "name": "In season",
+   "what": "Shows finished in the season they aired",
+   "tiers": [
+    1,
+    10
+   ],
+   "hidden": false,
+   "glyph": "季"
+  },
+  {
+   "id": "handwritten",
+   "set": "ink",
+   "name": "Handwritten",
+   "what": "Pages written by hand",
+   "tiers": [
+    10,
+    100,
+    500
+   ],
+   "hidden": false,
+   "glyph": "筆"
+  },
+  {
+   "id": "marked",
+   "set": "ink",
+   "name": "Marked",
+   "what": "Past papers written and marked in the PDF viewer",
+   "tiers": [
+    1,
+    10,
+    30
+   ],
+   "hidden": false,
+   "glyph": "採"
+  },
+  {
+   "id": "write-it-out",
+   "set": "ink",
+   "name": "Write it out",
+   "what": "Blurts, worked examples and diagrams drilled by hand",
+   "tiers": [
+    10,
+    50,
+    200
+   ],
+   "hidden": false,
+   "glyph": "練"
+  },
+  {
+   "id": "clipper",
+   "set": "ink",
+   "name": "Clipper",
+   "what": "Figures and PDF regions clipped into topic notebooks",
+   "tiers": [
+    10,
+    50
+   ],
+   "hidden": false,
+   "glyph": "切"
+  },
+  {
+   "id": "library",
+   "set": "ink",
+   "name": "Library",
+   "what": "Files in Files",
+   "tiers": [
+    25,
+    100,
+    500
+   ],
+   "hidden": false,
+   "glyph": "庫"
+  },
+  {
+   "id": "conversations",
+   "set": "kurenai",
+   "name": "Conversations",
+   "what": "Days you talked with Kurenai (the last 400 days)",
+   "tiers": [
+    10,
+    50,
+    200
+   ],
+   "hidden": false,
+   "glyph": "話"
+  },
+  {
+   "id": "on-a-schedule",
+   "set": "kurenai",
+   "name": "On a schedule",
+   "what": "Scheduled messages Kurenai sent",
+   "tiers": [
+    10,
+    100
+   ],
+   "hidden": false,
+   "glyph": "定"
+  },
+  {
+   "id": "week-by-week",
+   "set": "kurenai",
+   "name": "Week by week",
+   "what": "Weekly reports saved",
+   "tiers": [
+    4,
+    26,
+    52
+   ],
+   "hidden": false,
+   "glyph": "録"
+  },
+  {
+   "id": "gold",
+   "set": "kurenai",
+   "name": "Gold",
+   "what": "Gold earned, in all",
+   "tiers": [
+    10000,
+    50000,
+    100000,
+    250000
+   ],
+   "hidden": false,
+   "glyph": "金"
+  },
+  {
+   "id": "level",
+   "set": "kurenai",
+   "name": "Level",
+   "what": "Your Governor level",
+   "tiers": [
+    10,
+    25,
+    50
+   ],
+   "hidden": false,
+   "glyph": "級"
+  },
+  {
+   "id": "collector",
+   "set": "kurenai",
+   "name": "Collector",
+   "what": "Items owned from the shop",
+   "tiers": [
+    10,
+    50,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "蔵"
+  },
+  {
+   "id": "wardrobe",
+   "set": "kurenai",
+   "name": "Wardrobe",
+   "what": "Kurenai's outfits owned",
+   "tiers": [
+    1,
+    4,
+    "all"
+   ],
+   "hidden": false,
+   "glyph": "衣"
+  }
+ ],
+ "sets": [
+  {
+   "id": "app",
+   "name": "Time with KurenaiOS",
+   "hue": "--crimson",
+   "glyph": "日",
+   "kicker": "The long view",
+   "units": false
+  },
+  {
+   "id": "focus",
+   "name": "Focus",
+   "hue": "--amber",
+   "glyph": "集",
+   "kicker": "Deep work",
+   "units": false
+  },
+  {
+   "id": "streaks",
+   "name": "Streaks",
+   "hue": "--gold",
+   "glyph": "連",
+   "kicker": "Day after day",
+   "units": false
+  },
+  {
+   "id": "study",
+   "name": "Study",
+   "hue": "--cs",
+   "glyph": "学",
+   "kicker": "CS, Maths and IT",
+   "units": false
+  },
+  {
+   "id": "exams",
+   "name": "Exams & Deadlines",
+   "hue": "--maths",
+   "glyph": "試",
+   "kicker": "Under the clock",
+   "units": false
+  },
+  {
+   "id": "code",
+   "name": "Code",
+   "hue": "--code",
+   "glyph": "碼",
+   "kicker": "C# and beyond",
+   "units": false
+  },
+  {
+   "id": "ja",
+   "name": "Japanese",
+   "hue": "--ja",
+   "glyph": "語",
+   "kicker": "Four skills",
+   "units": false
+  },
+  {
+   "id": "mind",
+   "name": "Mind",
+   "hue": "--mind",
+   "glyph": "心",
+   "kicker": "Ideas that last",
+   "units": false
+  },
+  {
+   "id": "creatives",
+   "name": "Creatives",
+   "hue": "--cr",
+   "glyph": "創",
+   "kicker": "Made, not claimed",
+   "units": false
+  },
+  {
+   "id": "routines",
+   "name": "Routines and reviews",
+   "hue": "--teal",
+   "glyph": "習",
+   "kicker": "The shape of a day",
+   "units": false
+  },
+  {
+   "id": "organised",
+   "name": "Organised",
+   "hue": "--teal",
+   "glyph": "整",
+   "kicker": "Plans kept",
+   "units": false
+  },
+  {
+   "id": "goals",
+   "name": "Goals and Money",
+   "hue": "--green",
+   "glyph": "標",
+   "kicker": "Targets met",
+   "units": false
+  },
+  {
+   "id": "collection",
+   "name": "The Collection",
+   "hue": "--anime",
+   "glyph": "蒐",
+   "kicker": "Watched, read, played",
+   "units": false
+  },
+  {
+   "id": "ink",
+   "name": "Pen, ink and files",
+   "hue": "--bloom",
+   "glyph": "筆",
+   "kicker": "By hand",
+   "units": false
+  },
+  {
+   "id": "kurenai",
+   "name": "Kurenai and the Governor",
+   "hue": "--crimson",
+   "glyph": "紅",
+   "kicker": "Your seat",
+   "units": false
+  },
+  {
+   "id": "u-cs",
+   "name": "Computer Science units",
+   "hue": "--cs",
+   "glyph": "算",
+   "kicker": "Each unit to Green",
+   "units": true
+  },
+  {
+   "id": "u-maths",
+   "name": "Maths sections",
+   "hue": "--maths",
+   "glyph": "数",
+   "kicker": "Each section to Green",
+   "units": true
+  },
+  {
+   "id": "u-it",
+   "name": "IT units",
+   "hue": "--it",
+   "glyph": "情",
+   "kicker": "Passed and submitted",
+   "units": true
+  },
+  {
+   "id": "u-code",
+   "name": "Code: the core path",
+   "hue": "--code",
+   "glyph": "碼",
+   "kicker": "Units, stages, capstones",
+   "units": true
+  },
+  {
+   "id": "u-code-t",
+   "name": "Code: the tracks",
+   "hue": "--code",
+   "glyph": "軌",
+   "kicker": "Parts, tracks, capstones",
+   "units": true
+  },
+  {
+   "id": "u-ja",
+   "name": "Japanese: the path",
+   "hue": "--ja",
+   "glyph": "道",
+   "kicker": "At each checkpoint",
+   "units": true
+  },
+  {
+   "id": "u-mind",
+   "name": "Mind: the paths",
+   "hue": "--mind",
+   "glyph": "径",
+   "kicker": "Units, paths, crossings",
+   "units": true
+  },
+  {
+   "id": "u-cr-art",
+   "name": "Creatives: Art",
+   "hue": "--cr",
+   "glyph": "絵",
+   "kicker": "Each unit, the track",
+   "units": true
+  },
+  {
+   "id": "u-cr-design",
+   "name": "Creatives: Design",
+   "hue": "--cr",
+   "glyph": "意",
+   "kicker": "Each unit, the track",
+   "units": true
+  },
+  {
+   "id": "u-cr-edit",
+   "name": "Creatives: Editing",
+   "hue": "--cr",
+   "glyph": "編",
+   "kicker": "Each unit, the track",
+   "units": true
+  },
+  {
+   "id": "u-cr-write",
+   "name": "Creatives: Writing",
+   "hue": "--cr",
+   "glyph": "文",
+   "kicker": "Each unit, the track",
+   "units": true
+  }
+ ]
+}

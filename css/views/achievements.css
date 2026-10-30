@@ -1,0 +1,231 @@
+/* KurenaiOS — css/views/achievements.css · @layer views
+   The Badge Wall (roadmap 5.16, docs/achievements-plan.md; design prompt 19,
+   frames 34a–34g): the record, the set panels, a set opened, the list, the
+   showcase, the unlock overlay and the progress ping.
+
+   THE LIGHT is one picture and five looks, driven by --p (0–1, the progress
+   inside the current tier) on the medal: locked is grey and dim; in progress
+   gains colour and brightness with --p while the rim ring fills to --p;
+   nearly (p ≥ 0.9) breathes; earned is full colour with one sweep of light;
+   hidden is a silhouette. --set-hue is the set's colour token. Gold and
+   silver are the theme's --gold and --text-2; nothing names a colour.
+
+   Convention for every layer file: its rules sit inside ONE @layer block,
+   and the block's contents are not indented. */
+@layer views {
+
+/* ================= the medal ================= */
+.k-ach-medal { --m: var(--ach-medal); position: relative; display: inline-grid; place-items: center; inline-size: var(--m); block-size: var(--m); flex: none; }
+.k-ach-medal[data-size="xs"] { --m: var(--ach-medal-xs); }
+.k-ach-medal[data-size="sm"] { --m: var(--ach-medal-sm); }
+.k-ach-medal[data-size="row"] { --m: var(--ach-row-medal); }
+.k-ach-medal[data-size="md"] { --m: var(--ach-medal-md); }
+.k-ach-medal[data-size="lg"] { --m: var(--ach-medal-lg); }
+.k-ach-disc { position: absolute; inset: calc(var(--ach-ring) + var(--sp-2)); display: grid; place-items: center; border-radius: 50%; overflow: hidden;
+  filter: grayscale(calc(1 - var(--lp, var(--p)))) brightness(calc(0.38 + 0.52 * var(--lp, var(--p))));
+  transition: filter var(--dur) var(--ease); }
+.k-ach-disc img { inline-size: 100%; block-size: 100%; object-fit: contain; }
+/* no art yet: the set's own enamel disc and its glyph */
+.k-ach-medal[data-state~="uncast"] .k-ach-disc { background:
+  radial-gradient(circle at 35% 30%, color-mix(in oklch, var(--set-hue) 70%, var(--text)) 0%, var(--set-hue) 45%, color-mix(in oklch, var(--set-hue) 55%, var(--bg)) 100%);
+  box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--text) 30%, transparent); }
+.k-ach-glyph { font: var(--weight-bold) calc(var(--m) * 0.36) / 1 var(--font-kanji); color: color-mix(in oklch, var(--set-hue) 20%, var(--bg)); }
+/* the rim ring: the track, filled to --p in the set's hue */
+.k-ach-ring { position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--set-hue) calc(var(--p) * 360deg), color-mix(in oklch, var(--muted) 30%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--ach-ring)), var(--bg) calc(100% - var(--ach-ring) + var(--hairline)));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--ach-ring)), var(--bg) calc(100% - var(--ach-ring) + var(--hairline)));
+  transition: background var(--dur) var(--ease); }
+.k-ach-medal[data-gold] .k-ach-ring { --set-hue: var(--gold); }
+.k-ach-sweep { position: absolute; inset: calc(var(--ach-ring) + var(--sp-2)); border-radius: 50%; overflow: hidden; pointer-events: none; }
+.k-ach-sweep::after { content: ""; position: absolute; inset-block: 0; inline-size: 40%; inset-inline-start: -60%; transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--text) 45%, transparent), transparent); opacity: 0; }
+
+/* the five looks */
+.k-ach-medal[data-state="locked"] { --p: 0; }
+.k-ach-medal[data-state="earned"] .k-ach-disc { filter: none; }
+.k-ach-medal[data-state="earned"] .k-ach-ring { background: var(--set-hue); }
+.k-ach-medal[data-state="earned"]:not([data-gold]) .k-ach-ring { background: color-mix(in oklch, var(--set-hue) 60%, var(--text-2)); }
+.k-ach-medal[data-state="earned"][data-gold] .k-ach-ring { background: conic-gradient(var(--gold), color-mix(in oklch, var(--gold) 55%, var(--text)), var(--gold)); }
+.k-ach-medal[data-state="earned"] .k-ach-sweep::after { animation: k-ach-sweep calc(var(--dur) * 6) var(--ease) 1 both; }
+.k-ach-medal[data-state="nearly"] .k-ach-ring { animation: k-ach-breathe 2.4s var(--ease) infinite; }
+.k-ach-medal[data-state="hidden"] .k-ach-disc { filter: brightness(0.16); background: var(--s3); }
+.k-ach-medal[data-state="hidden"] .k-ach-glyph { color: var(--muted); font-family: var(--font-ui); }
+.k-ach-medal[data-state="hidden"] .k-ach-ring { background: color-mix(in oklch, var(--muted) 25%, transparent); }
+.k-ach-medal[data-state="soon"] .k-ach-disc { filter: grayscale(1) brightness(0.28); }
+.k-ach-medal[data-state="soon"] .k-ach-ring { background: repeating-conic-gradient(color-mix(in oklch, var(--muted) 40%, transparent) 0 6deg, transparent 6deg 12deg); }
+@keyframes k-ach-sweep { 0% { inset-inline-start: -60%; opacity: 0; } 20% { opacity: 1; } 100% { inset-inline-start: 120%; opacity: 0; } }
+@keyframes k-ach-breathe { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 var(--sp-6) color-mix(in oklch, var(--set-hue) 70%, transparent)); } }
+
+/* tier pips: bronze, silver, gold — lit when earned */
+.k-ach-pips { position: absolute; inset-block-end: calc(var(--ach-pip) * -1.6); inset-inline: 0; display: flex; justify-content: center; gap: var(--sp-3); }
+.k-ach-pips i { inline-size: var(--ach-pip); block-size: var(--ach-pip); border-radius: 50%; background: color-mix(in oklch, var(--muted) 35%, transparent); }
+.k-ach-pips i[data-on][data-metal="bronze"] { background: color-mix(in oklch, var(--amber) 70%, var(--red)); }
+.k-ach-pips i[data-on][data-metal="silver"] { background: var(--text-2); }
+.k-ach-pips i[data-on][data-metal="gold"] { background: var(--gold); }
+
+/* ================= the page ================= */
+.k-ach { display: grid; gap: var(--sp-20); min-inline-size: 0; }
+.k-ach-wait { padding: var(--sp-16); }
+.k-ach-body { display: grid; gap: var(--sp-16); min-inline-size: 0; }
+
+/* the record (after R1999's career overview: the identity, the figures and
+   the showcase tray along the bottom) */
+.k-ach-dossier { display: grid; grid-template-columns: minmax(0, var(--ach-dossier-side)) minmax(0, 1fr); gap: var(--sp-20); padding: var(--sp-20);
+  background: linear-gradient(135deg, color-mix(in oklch, var(--crimson) 10%, var(--s1)), var(--s1) 55%); }
+.k-ach-id { display: flex; align-items: center; gap: var(--sp-16); min-inline-size: 0; }
+.k-ach-avatar { display: grid; place-items: center; padding: var(--sp-4); border-radius: 50%; box-shadow: 0 0 0 var(--hairline) var(--line); flex: none; }
+.k-ach-id-txt { display: grid; gap: var(--sp-4); min-inline-size: 0; }
+.k-ach-id-name { margin: 0; font-size: var(--fs-26); letter-spacing: var(--track-head); }
+.k-ach-id-title { font: var(--weight-semibold) var(--fs-15) var(--font-read); font-style: italic; color: var(--gold); }
+.k-ach-id-since { font-size: var(--fs-12-5); }
+.k-ach-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-10); align-content: center; }
+.k-ach-tray-row { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--sp-16); padding: var(--sp-12) var(--sp-16); border-radius: var(--r-16);
+  background: color-mix(in oklch, var(--bg) 70%, var(--s2)); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-ach-tray { display: flex; flex-wrap: wrap; gap: var(--sp-12); flex: 1; min-inline-size: 0; align-items: center; }
+.k-ach-slot { display: grid; place-items: center; flex: none; inline-size: var(--ach-medal-sm); block-size: var(--ach-medal-sm); padding: 0; border: 0; background: none; border-radius: 50%; cursor: pointer; }
+.k-ach-slot[data-empty] { box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--muted) 45%, transparent); cursor: default; }
+.k-ach-tray-count { display: grid; justify-items: end; line-height: var(--lh-tight); }
+.k-ach-tray-count b { font-size: var(--fs-32); color: var(--text); }
+
+/* the toolbar: owned, list view, the filter */
+.k-ach-toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-12); flex-wrap: wrap; }
+.k-ach-tools { display: flex; align-items: center; gap: var(--sp-12); flex-wrap: wrap; }
+.k-ach-switch { display: inline-flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-13); color: var(--text-2); }
+.k-ach-owned b { font-size: var(--fs-15); }
+
+/* ================= the wall: one 21:9 panel per set ================= */
+.k-ach-wall { display: grid; gap: var(--sp-16); }
+.k-ach-panel { position: relative; display: grid; grid-template-columns: minmax(0, var(--ach-panel-name)) minmax(0, 1fr); align-items: center; gap: var(--sp-16);
+  min-block-size: var(--ach-panel-min-h); padding: var(--sp-24) var(--sp-28);
+  border: 0; border-radius: var(--r-16); overflow: hidden; text-align: start; color: var(--text); cursor: pointer;
+  background: linear-gradient(100deg, color-mix(in oklch, var(--set-hue) 26%, var(--s1)) 0%, color-mix(in oklch, var(--set-hue) 9%, var(--bg)) 45%, var(--s1) 100%);
+  box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--set-hue) 35%, var(--line)); transition: box-shadow var(--dur-fast) var(--ease); }
+.k-ach-panel:hover { box-shadow: inset 0 0 0 var(--hairline) var(--set-hue), var(--elev-1); }
+.k-ach-panel:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+.k-ach-pano { position: absolute; inset: 0; pointer-events: none; }
+.k-ach-pano img { inline-size: 100%; block-size: 100%; object-fit: cover; opacity: 0.55; }
+.k-ach-pano-mark { position: absolute; inset-inline-start: var(--sp-16); inset-block-end: calc(var(--sp-24) * -1); font: var(--weight-bold) calc(var(--ach-panel-min-h) * 0.7) / 1 var(--font-kanji);
+  color: color-mix(in oklch, var(--set-hue) 14%, transparent); }
+.k-ach-panel-name { position: relative; display: grid; gap: var(--sp-4); align-self: start; }
+.k-ach-panel-name b { font: var(--weight-bold) var(--fs-27) / var(--lh-tight) var(--font-ui); letter-spacing: var(--track-head); }
+.k-ach-panel-count { font-size: var(--fs-13); color: var(--text-2); }
+.k-ach-panel-medals { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: var(--sp-12) var(--sp-16); padding-block-end: var(--sp-12); }
+.k-ach-panel[data-size="row"] .k-ach-panel-medals { gap: var(--sp-10) var(--sp-8); }
+/* the staggered lay of R1999's panels: every second medal sits lower */
+.k-ach-panel-medals .k-ach-medal[data-state~="low"] { transform: translateY(var(--sp-14)); }
+
+/* ================= the list ================= */
+.k-ach-list { list-style: none; margin: 0; padding: var(--sp-6) var(--sp-12); display: grid; }
+.k-ach-row { display: grid; grid-template-columns: auto minmax(0, 1.4fr) minmax(0, 1fr) auto; align-items: center; gap: var(--sp-16); padding-block: var(--sp-10); border-block-end: var(--hairline) solid var(--line); }
+.k-ach-row:last-child { border-block-end: 0; }
+.k-ach-row-btn { padding: 0; border: 0; background: none; border-radius: 50%; cursor: pointer; padding-block-end: var(--sp-8); }
+.k-ach-row-txt { display: grid; gap: var(--sp-2); min-inline-size: 0; }
+.k-ach-row-txt span { font-size: var(--fs-12-5); overflow: hidden; text-overflow: ellipsis; }
+.k-ach-row-prog { display: grid; gap: var(--sp-4); }
+.k-ach-bar { --bar-c: var(--set-hue); }
+.k-ach-bar > i { transition: inline-size calc(var(--dur) * 3) var(--ease); }
+.k-ach-row-num { font-size: var(--fs-12); color: var(--text-2); }
+.k-ach-row-date { font-size: var(--fs-12); white-space: nowrap; }
+
+/* ================= the showcase and titles ================= */
+.k-ach-pickgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--ach-medal-md), 1fr)); gap: var(--sp-12); }
+.k-ach-pick { display: grid; justify-items: center; gap: var(--sp-12); padding: var(--sp-14) var(--sp-8) var(--sp-12); border: 0; border-radius: var(--r-14); background: var(--s1); color: var(--text-2); font-size: var(--fs-12-5); text-align: center; cursor: pointer; box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-ach-pick[aria-pressed="true"] { color: var(--text); box-shadow: inset 0 0 0 calc(var(--hairline) * 2) var(--gold); background: color-mix(in oklch, var(--gold) 10%, var(--s1)); }
+.k-ach-titles { display: grid; padding: var(--sp-6); }
+.k-ach-title { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-12); padding: var(--sp-12) var(--sp-14); border: 0; border-radius: var(--r-10); background: none; color: var(--text); text-align: start; cursor: pointer; }
+.k-ach-title[aria-checked="true"] { background: color-mix(in oklch, var(--gold) 12%, var(--s1)); }
+.k-ach-title[aria-checked="true"] b { color: var(--gold); }
+.k-ach-title:disabled { cursor: default; color: var(--muted); }
+
+/* ================= a set opened ================= */
+.k-ach-dlg { inline-size: min(100%, var(--dialog-w-lg)); }
+.k-ach-dlg-body { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-12); }
+.k-ach-dlg-stage { display: grid; justify-items: center; gap: var(--sp-12); text-align: center; min-inline-size: 0; padding-block: var(--sp-8) var(--sp-16);
+  background: radial-gradient(ellipse at 50% 70%, color-mix(in oklch, var(--set-hue) 16%, transparent), transparent 70%); }
+.k-ach-dlg-name { margin: 0; font: var(--weight-semibold) var(--fs-24) var(--font-read); }
+.k-ach-dlg-what { margin: 0; color: var(--text-2); }
+.k-ach-dlg-tiers { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-24); padding-block-start: var(--sp-8); }
+.k-ach-dlg-tier { display: grid; justify-items: center; gap: var(--sp-10); }
+.k-ach-dlg-tier-t { display: grid; gap: var(--sp-2); font-size: var(--fs-13); }
+.k-ach-dlg-nav { inline-size: var(--hit); font-size: var(--fs-22); }
+.k-ach-dlg-foot { display: flex; align-items: center; gap: var(--sp-12); justify-content: space-between; }
+.k-ach-dlg-strip { display: flex; flex-wrap: wrap; gap: var(--sp-6); min-inline-size: 0; }
+.k-ach-dlg-chip { padding: var(--sp-2); border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.k-ach-dlg-chip[aria-current="true"] { box-shadow: 0 0 0 calc(var(--hairline) * 2) var(--set-hue); }
+.k-ach-dlg-titlenote { margin: 0; font-size: var(--fs-12-5); }
+
+/* ================= the unlock overlay: four beats ================= */
+.k-ach-unlock-overlay { background: color-mix(in oklch, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(var(--sp-6)); backdrop-filter: blur(var(--sp-6)); animation: k-ach-dim var(--dur) var(--ease) both; }
+.k-ach-unlock { display: grid; justify-items: center; gap: var(--sp-20); padding: var(--sp-32) var(--sp-24); background: none; box-shadow: none; text-align: center; }
+.k-ach-unlock-stage { position: relative; display: grid; justify-items: center; gap: var(--sp-16); }
+/* 2–3: the medal drops in at its dim look, then light rises through it */
+.k-ach-medal[data-state~="rising"] { animation: k-ach-drop calc(var(--dur) * 2) var(--ease) both; }
+.k-ach-medal[data-state~="rising"] .k-ach-disc { animation: k-ach-rise calc(var(--dur) * 4) var(--ease) calc(var(--dur) * 2) both; }
+.k-ach-medal[data-state~="rising"] .k-ach-ring { animation: k-ach-flash calc(var(--dur) * 3) var(--ease) calc(var(--dur) * 5) both; }
+.k-ach-medal[data-state~="rising"] .k-ach-sweep::after { animation-delay: calc(var(--dur) * 5); }
+.k-ach-medal[data-state~="rising"] .k-ach-disc::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(0deg, transparent 0%, color-mix(in oklch, var(--text) 40%, transparent) 50%, transparent 100%); background-size: 100% 240%;
+  animation: k-ach-light calc(var(--dur) * 4) var(--ease) calc(var(--dur) * 2) both; }
+@keyframes k-ach-light { from { background-position: 0 -100%; opacity: 1; } to { background-position: 0 200%; opacity: 0; } }
+/* 3: a ring of the set's colour bursts outward and fades */
+.k-ach-unlock-burst { position: absolute; inset-block-start: calc(var(--ach-medal-lg) / 2); inset-inline-start: 50%; inline-size: var(--ach-burst); block-size: var(--ach-burst);
+  margin: calc(var(--ach-burst) / -2) 0 0 calc(var(--ach-burst) / -2); border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 calc(var(--hairline) * 3) var(--set-hue, var(--gold)); opacity: 0; animation: k-ach-burst calc(var(--dur) * 5) var(--ease) calc(var(--dur) * 5) both; }
+/* 4: the name, the tier, the set and the line fade up */
+.k-ach-unlock-txt { display: grid; justify-items: center; gap: var(--sp-6); animation: k-ach-up calc(var(--dur) * 3) var(--ease) calc(var(--dur) * 6) both; }
+.k-ach-unlock-name { margin: 0; font: var(--weight-semibold) var(--fs-32) var(--font-read); }
+.k-ach-unlock-what { margin: 0; color: var(--text-2); max-inline-size: var(--prose-w); }
+.k-ach-unlock-row { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-10); }
+.k-ach-unlock-foot { display: flex; gap: var(--sp-12); animation: k-ach-up calc(var(--dur) * 3) var(--ease) calc(var(--dur) * 7) both; }
+.k-ach-unlock[data-reduce] *, .k-ach-unlock[data-reduce] .k-ach-medal { animation: none !important; }
+@keyframes k-ach-dim { from { opacity: 0; } to { opacity: 1; } }
+@keyframes k-ach-drop { from { opacity: 0; transform: translateY(calc(var(--sp-40) * -1)) scale(0.8); } to { opacity: 1; transform: none; } }
+@keyframes k-ach-rise { 0% { filter: grayscale(1) brightness(0.38); clip-path: inset(0 0 0 0); } 100% { filter: none; } }
+@keyframes k-ach-flash { 0% { filter: none; } 40% { filter: brightness(1.8) drop-shadow(0 0 var(--sp-16) var(--set-hue)); } 100% { filter: none; } }
+@keyframes k-ach-burst { 0% { opacity: 0.9; transform: scale(0.45); } 100% { opacity: 0; transform: scale(1.15); } }
+@keyframes k-ach-up { from { opacity: 0; transform: translateY(var(--sp-12)); } to { opacity: 1; transform: none; } }
+
+/* ================= the progress ping (top left, under the header) ================= */
+.k-ach-pings { position: fixed; inset-block-start: calc(var(--topbar-h) + var(--sp-12)); inset-inline-start: calc(var(--rail-w) + var(--sp-16)); z-index: var(--z-toast); display: grid; gap: var(--sp-8); pointer-events: none; }
+.k-ach-ping { display: flex; align-items: center; gap: var(--sp-12); inline-size: var(--ach-ping-w); max-inline-size: calc(100vw - var(--sp-32)); padding: var(--sp-10) var(--sp-14);
+  border-radius: var(--r-14); background: var(--s2); box-shadow: var(--elev-3), inset 0 0 0 var(--hairline) var(--line);
+  opacity: 0; transform: translateX(calc(var(--sp-16) * -1)); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.k-ach-ping[data-state~="in"] { opacity: 1; transform: none; }
+.k-ach-ping .k-ach-medal { --set-hue: inherit; }
+.k-ach-ping-txt { display: grid; gap: var(--sp-4); flex: 1; min-inline-size: 0; font-size: var(--fs-13); }
+.k-ach-ping-txt .k-mono { font-size: var(--fs-12); color: var(--text-2); }
+.k-ach-ping .k-ach-disc { transition: filter calc(var(--dur) * 3) var(--ease); }
+
+/* ================= the Governor's card ================= */
+.k-ach-gov { display: grid; gap: var(--sp-12); }
+.k-ach-gov .k-ach-tray { padding-block-end: var(--sp-4); }
+
+@media (prefers-reduced-motion: reduce) {
+.k-ach-medal[data-state="nearly"] .k-ach-ring, .k-ach-medal[data-state="earned"] .k-ach-sweep::after { animation: none; }
+.k-ach-ping, .k-ach-disc, .k-ach-bar > i { transition: none; }
+}
+
+@media (max-width: 1080px) {
+.k-ach-pings { inset-inline-start: var(--sp-16); }
+.k-ach-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+.k-ach-dossier { grid-template-columns: minmax(0, 1fr); }
+.k-ach-panel { grid-template-columns: minmax(0, 1fr); }
+.k-ach-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+.k-ach-row-prog { grid-column: 2 / -1; }
+}
+@media (max-width: 700px) {
+.k-ach-pings { inset-block-start: calc(var(--topbar-h) + var(--sp-8)); }
+.k-ach-tray-row { flex-wrap: wrap; justify-content: space-between; }
+.k-ach-tray-row .k-ach-tray { flex: 1 0 100%; flex-wrap: nowrap; justify-content: space-between; gap: var(--sp-6); }
+.k-ach-dlg-body { grid-template-columns: minmax(0, 1fr); }
+.k-ach-dlg-nav { display: none; }
+}
+@media (max-width: 560px) {
+.k-ach-panel { padding: var(--sp-16); }
+.k-ach-panel-name b { font-size: var(--fs-20); }
+}
+
+}

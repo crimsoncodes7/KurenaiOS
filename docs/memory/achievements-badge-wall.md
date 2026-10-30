@@ -8,4 +8,4 @@ Asked 30 October 2026: a badge page like Reverse: 1999's "Fourth Wall" brochure 
 
 **Why:** the existing badges were only unit/section completion; the user wants variety like game achievements.
 
-**How to apply:** build only after 5.13's art releases (user's order: new assets and designs first); decisions 1–4 in the plan await the user (recommended: no pay, silent retroactive earn, ping throttling). See [[art-shop-audit]].
+**How to apply:** decisions taken (recommended four). The engine and catalogue are done; the page is functional on shared components and the user expects Claude Design (prompt 19, frames 35a-35h) to own the look — don't polish visuals by hand, restyle from the handoff (as a guide). Gemini art (batches 26-27, waves 24-32) comes later; tools/gen_ach_art.py lists imported art. Blocked badges (no evidence) are documented in the plan; never invent tracking. See [[art-shop-audit]], [[design-handoff-not-1to1]].

@@ -460,6 +460,8 @@
     return G().owned.indexOf(id) !== -1;
   }
   function buy(id) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("governor");
     var g = G(), it = item(id);
     if (!it) return { ok: false, msg: "Unknown item." };
     if (owns(id)) return { ok: false, msg: "Already owned." };

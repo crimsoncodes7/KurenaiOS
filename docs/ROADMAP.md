@@ -1523,9 +1523,16 @@ nears done (greyscale and brightness from progress, a filling rim ring),
 earns full colour with an unlock overlay, and progress shows as a small
 notice at the top left ("8 / 10 physical books"). A registry read from the
 owners' records, like Goals; only what was earned is stored; badges pay
-nothing. Starts with the 153 unit badges of 5.13; built after 5.13's
-releases 1–7a, in place of its step 7b. Plan and decisions:
-[achievements-plan.md](achievements-plan.md).
+nothing. Plan and decisions: [achievements-plan.md](achievements-plan.md).
+
+> **BUILT 30 October 2026** on `feat/art-review` (not released), the four
+> recommended decisions taken: the engine (`KOS.achievements`: owner-scoped
+> evaluation, the ledger's monthly rollup, monotonic earned tiers), the
+> page `#/achievements`, the five-look light, the unlock overlay, the
+> top-left ping, titles, the showcase, the Governor's card, the term/year
+> story and the share card's showcase; the 153 unit badges imported.
+> Invariants 161–163, smoke113. Waiting: design prompt 19 (frames 35a–35h)
+> to refine the page.
 
 ### 5.17 More achievements, across the whole app ◆ (asked for 30 October 2026)
 
@@ -1537,6 +1544,12 @@ hidden, a few with titles. The catalogue is in
 [achievements-plan.md](achievements-plan.md); its badge art (about 120,
 eight Gemini waves) and set panoramas are added to the manifest once 5.13's
 art is in the app.
+
+> **The catalogue is registered and measuring** (101 badges in fifteen sets,
+> each reading a record the app keeps; eight badges with no evidence are
+> documented as blocked). It draws each set's enamel disc and glyph until its
+> art arrives: batches 26 (26 panoramas) and 27 (101 badges), waves 24–32 in
+> `art-source/app/manifest.json`, prompts written.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 

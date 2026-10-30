@@ -43,6 +43,7 @@
 <link rel="stylesheet" href="css/views/exams.css">
 <link rel="stylesheet" href="css/views/ink.css">
 <link rel="stylesheet" href="css/views/routines.css">
+<link rel="stylesheet" href="css/views/achievements.css">
 <link rel="stylesheet" href="css/themes.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -277,6 +278,8 @@
 <script src="js/core/routines.js"></script>
 <script src="js/core/today.js"></script>
 <script src="js/core/dayreview.js"></script>
+<!-- the Badge Wall's engine (roadmap 5.16); its catalogue loads after the pages it reads -->
+<script src="js/core/achievements.js"></script>
 <!-- deep revision content (wave 1) -->
 <script src="js/data/content/cs-p2-45a.js"></script>
 <script src="js/data/content/cs-p2-45b.js"></script>
@@ -512,6 +515,11 @@
 <script src="js/modules/reportlong.js"></script>
 <script src="js/modules/reportstory.js"></script>
 <script src="js/modules/reportshare.js"></script>
+<!-- the Badge Wall (roadmap 5.16): the art that has arrived, the catalogue (it reads every
+     owner, so it loads after them) and the page, the overlay and the ping -->
+<script src="js/data/achievements-art.js"></script>
+<script src="js/core/achcatalogue.js"></script>
+<script src="js/modules/achievements.js"></script>
 <!-- the Sample review namespace's one-time account (store.js KOS.dataMode) -->
 <script src="js/core/sample.js"></script>
 <script src="js/modules/mobile-shell.js"></script>

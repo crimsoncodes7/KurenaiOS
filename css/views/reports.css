@@ -818,4 +818,9 @@ button.k-rp-crumb:hover { background: none; color: var(--text); }
 .k-rp-extiles > div { display: flex; flex-direction: column; gap: var(--sp-3); min-inline-size: 0; }
 .k-rp-extiles .k-mono { font-size: var(--fs-26); font-weight: var(--weight-semibold); letter-spacing: var(--track-head); }
 
+/* the Badge Wall's story (roadmap 5.16): the tiers earned in a term or a year */
+.k-rp-st-medals { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-16) var(--sp-20); padding-block: var(--sp-12); }
+.k-rp-st-medal { display: grid; justify-items: center; gap: var(--sp-12); max-inline-size: var(--ach-medal-md); text-align: center; }
+.k-rp-st-medal-name { font-size: var(--fs-12-5); color: var(--text-2); }
+
 }

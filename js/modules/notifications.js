@@ -18,10 +18,10 @@
   var el = KOS.ui.el;
 
   /* the section a kind belongs to, marked like the main rail */
-  var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐", assistant: "助", reports: "録" };
-  var KIND_MARK = { wishlist: "願", focus: "集", goal: "標", money: "円" };
-  var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber", reports: "teal", goal: "teal", money: "amber" };
-  var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection", assistant: "Assistant", reports: "Reports" };
+  var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐", assistant: "助", reports: "録", governor: "守" };
+  var KIND_MARK = { wishlist: "願", focus: "集", goal: "標", money: "円", achievement: "章" };
+  var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber", reports: "teal", goal: "teal", money: "amber", achievement: "amber" };
+  var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection", assistant: "Assistant", reports: "Reports", governor: "Badges" };
 
   function clock(ts) {
     return new Date(ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -124,11 +124,11 @@
   /* ---------------- the page (frame 14b) ---------------- */
   /* frame 16k: the Focus kind has its own chip, between Productivity and
      Collection */
-  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["exam", "Exams"], ["productivity", "Productivity"], ["focus", "Focus"], ["goal", "Goals"], ["money", "Money"], ["collection", "Collection"], ["assistant", "Assistant"], ["reports", "Reports"]];
+  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["exam", "Exams"], ["productivity", "Productivity"], ["focus", "Focus"], ["goal", "Goals"], ["money", "Money"], ["collection", "Collection"], ["assistant", "Assistant"], ["reports", "Reports"], ["achievement", "Badges"]];
   function matches(filter, it) {
     if (filter === "all") return true;
     if (filter === "unread") return !KOS.notify.isRead(it);
-    if (filter === "focus" || filter === "goal" || filter === "money" || filter === "exam") return it.kind === filter;
+    if (filter === "focus" || filter === "goal" || filter === "money" || filter === "exam" || filter === "achievement") return it.kind === filter;
     return (KOS.notify.KINDS[it.kind] || {}).section === filter;
   }
   KOS.views.notifications = function (main, arg) {
@@ -159,6 +159,8 @@
       var items = KOS.notify.all();
       return KOS.ui.tabs(FILTERS.filter(function (f) {
         /* no assessments and no exam notice: no Exams chip (29w) */
+        /* Badges, like Exams, only once there is one to show */
+        if (f[0] === "achievement") return filter === "achievement" || items.some(function (it) { return it.kind === "achievement"; });
         return f[0] !== "exam" || filter === "exam" || items.some(function (it) { return it.kind === "exam"; }) || (KOS.exams && KOS.exams.all().length);
       }).map(function (f) {
         var n = items.filter(function (it) { return matches(f[0], it); }).length;
@@ -190,7 +192,7 @@
       if (!items.length) {
         list.appendChild(KOS.ui.emptyState({
           compact: true, mark: "通",
-          title: filter === "all" ? "Nothing yet" : filter === "unread" ? "All caught up" : "Nothing in " + SECTION_LABEL[filter].toLowerCase(),
+          title: filter === "all" ? "Nothing yet" : filter === "unread" ? "All caught up" : "Nothing in " + (SECTION_LABEL[filter] || filter).toLowerCase(),
           body: "Calendar and assignment alerts, reminders, an episode airing for a title you're watching and a Planner release day all land here as they happen."
         }));
         return;
@@ -306,7 +308,7 @@
       }
     }
     /* the frame's filters: one switch per kind */
-    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan", focus: "Focus idle watch", exam: "Exams: start-by, milestones, tests" };
+    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan", focus: "Focus idle watch", exam: "Exams: start-by, milestones, tests", achievement: "Badges earned" };
     var lands = el("section", { class: "k-card k-nt-card", "aria-label": "Notification filters", "data-ui": "notify.filters" });
     function paintLands() {
       lands.innerHTML = "";

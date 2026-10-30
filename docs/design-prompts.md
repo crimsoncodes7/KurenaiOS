@@ -796,3 +796,60 @@ Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–1
 
 THE NEW COSMETICS. 34o: four new OS themes as colour-role overrides (invariant 26a: roles only, derived tokens follow, status stays --alarm), each shown on the same three surfaces (Home's hero, a card, a chart). 34p: four avatar frames, three shelf skins (paulownia, steel and glass, library oak), six seals (雪 花 夢 刀 鶴 光), six notebook papers from the theme's --line (kraft, dark slate grid, isometric dots, manuscript ruling, music staff, 2 mm graph; invariant 133) and three pen sets as roles.
 ```
+
+## 19 · The Badge Wall (roadmap 5.16)
+
+Asked for 30 October 2026, after Reverse: 1999's "Fourth Wall" brochure and its career overview (the user's screenshots: sets as painted panels with round medallions laid over them, "Owned 199/202", List view and a filter, a set opened as a carousel of its tiers with "Not obtained" under each, an unlock card with the set's panorama and "View Achievements", and a profile overview with the showcase in a tray along the bottom). The page is BUILT on the shared components (js/modules/achievements.js, css/views/achievements.css; docs/achievements-plan.md): this pass refines it. Frames 35a–35h.
+
+### 19.1 · The Wall, a set, the list, the overlay and the ping (35a–35h)
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Mind 32 with Kurenai's redesigned sprite, Routines 33, the art slots and shop 34). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md (161–163 for this page). Number the new frames as given. Draw desktop 1440 and phone 390 × 844, iPad 1180 × 820 where named, and Dawn for one frame of each. Use only existing tokens, type, cards, chips and tabs; no new hue — each set paints with its own subject or role token (--cs, --maths, --it, --code, --ja, --mind, --cr, --anime, --teal, --amber, --gold, --green, --bloom, --crimson). Generated art arrives later from Gemini (docs/achievements-plan.md, art-source/app/manifest.json batches 26–27): draw its slot with a neutral painted placeholder at its real aspect, never invent the art, and never put text in an image (all text is a live layer). The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment.
+
+THE BADGE WALL, after Reverse: 1999's "Fourth Wall" but in our Graphite language, under Governor (#/achievements, no rail item; tabs Sets · Recent · Showcase · Titles in the page header's action slot, invariant 50b). Badges pay nothing (invariant 161): never show a reward, a gold figure or a "claim" button.
+
+35a THE RECORD (the top of the page; take the idea of R1999's career-overview suitcase, not its look): your avatar in its ring, "Level 34", the chosen title in italic gold under it, "First day 12 Sep 2026"; four stat tiles (Days journeyed · Badges 34 / 254 · Tiers 80 / 417 · Hours of focus); and along the bottom the SHOWCASE TRAY: six medal slots (empty slots a hairline circle), the achievement count large on the right, "Edit showcase". It must read as a dossier you are proud of, not a dashboard; one card, filled edge to edge.
+
+35b SETS: the toolbar (Owned 34 / 254, a List view switch, a filter pill: All · Earned · In progress · Locked · Study · Productivity · Collection · The app) and then one PANEL per set: a 21:9 painted panorama (batch 26, a quiet left third) with the set's kicker, name and "3 / 9" over the left, and its medallions laid on the right in a staggered lay (every second one lower, as R1999 lays them). Show at least: a domain set of 6 (Focus), one of 11 (Study), a unit set of 19 (Maths sections, smaller medals in a tidy staggered grid), and a set whose panorama has not arrived (its colour wash and a large faint glyph instead). 26 panels in all: design the rhythm of a long page (two columns at 1440? judge it: a panel must stay legible and its medals at least 44 px).
+
+THE MEDAL, one picture and FIVE LOOKS driven by p (0–1, the progress inside the current tier): LOCKED grey and dim; IN PROGRESS gaining colour and brightness with p while a thin rim ring fills to p in the set's hue; NEARLY (p ≥ 0.9) the rim breathing; EARNED full colour, the rim in the set's metal (gold for a stage, track or path) with one sweep of light; HIDDEN a dark silhouette with "?"; and SOON (content not released) dim with a dashed rim. Tier pips under it (bronze, silver, gold for the last), never numerals on the art. A medal with no art yet is the set's enamel disc with the badge's kanji glyph: design it so it sits happily beside painted badges. Draw a specimen board of all six looks at 44, 88, 120 and 208 px, in Graphite and Dawn.
+
+35c A SET OPENED: a dialog over the Wall (the shared dialog), the set's name, a carousel — the badge's name (Newsreader), what counts, and one medallion per tier side by side like R1999's "Dissemination of Ideas" card: each with "II · 100 sessions" and either "Earned 30 Oct 2026", "64 / 100 sessions" or "Not yet"; ‹ › at the sides (and ←/→), a strip of the set's medals along the foot to jump, "3 / 9". A hidden badge reads "Hidden badge — it shows itself once it is earned" with silhouettes. If tier III unlocks a title, one quiet line says so.
+
+35d LIST VIEW: one card of rows — medal (52 px), name and what counts with the set's name, a bar in the set's hue with "8 / 10 volumes", the date earned; sorted By set · Nearest to done · Recently earned. Hidden badges are masked and always last whatever the sort.
+
+35e SHOWCASE AND TITLES: the showcase picker (earned medals as toggle cards, "4 of 6", Save) and the titles list (a radio list: unlocked in gold when chosen, locked ones naming their badge and tier, e.g. "Bookshelf III"). Where the title shows: under your level on the Governor's seat and on the Record.
+
+35f THE UNLOCK OVERLAY, in four beats on a darkened scrim, no card: (1) the scrim darkens; (2) the medal drops in at its dim locked look, 208 px; (3) light rises through it from the bottom to full colour, the rim flashes and a ring of the set's colour bursts outward and fades; (4) the set's name (kicker), "Bookshelf II" (Newsreader, large), "50 volumes · physical volumes on your shelf", "1 of 3" when several, and "View on the Wall" · "Next". Past five at once the rest are one "And 4 more" card of small medals. Reduced motion: the finished frame. Draw the four beats as a strip plus the final frame at 1440 and 390. Take R1999's "Insulated Seats" unlock card for mood only.
+
+35g THE PROGRESS PING: a small chip at the top left under the header for three seconds — the medal brightening from the old value to the new, the name, "8 / 10 physical books", a thin bar moving. One at a time; never over Focus, the Exam Room or a dialog (invariant 163). At 390 it sits under the top bar, full width minus the gutters.
+
+35h THE JOINS: the Governor seat's "The Wall" card (count, title, the six showcase medals, Open the Wall); a term report's story "Badges & tiers unlocked" (the story frame of 25, medals in place of bars); and the share card with "Showcase badges" on (six medals in a row above the KURENAIOS line; off by default).
+
+Phone 390 for 35a, 35b, 35c and 35f; iPad 1180 for 35b. Dawn for 35a and the specimen board.
+```
+
+### 19.2 · The badge art (Gemini, batches 26–27)
+
+Not a Claude Design pass: the pictures are made by hand in the Gemini app from art-source/app/manifest.json (waves 24–32; the prompt sheet is prototypes/app-art/art.html). Every badge prompt holds the same rules, so the 101 new badges sit beside the 153 made: an enamel pin, one clear subject readable at 64 px, a thin rim in the set's metal and enamel in the set's palette (below), strong value contrast because the app greys and dims it until it is earned, no tiers, numbers, ranks or text in the picture (the app draws the pips), keyed on flat #00FF00 as a solid disc, exported at 384 px. Hidden badges are drawn in full; the app makes the silhouette. Panoramas: 21:9, painterly anime background, the left third quiet for the set's name, the right calm for the medals, no people, no text.
+
+| Set | Enamel | Rim | Panorama |
+|---|---|---|---|
+| Time with KurenaiOS | deep crimson and gold | gold | a study room at dawn, one lamp |
+| Focus | warm amber and bronze | bronze | a reading hall at golden hour |
+| Streaks | ember orange and gold | gold | stone steps with lanterns at sunrise |
+| Study | teal and silver | silver | a library mezzanine under a skylight |
+| Exams & Deadlines | indigo and silver | silver | an empty exam hall in early light |
+| Code | sky blue and silver | silver | a night desk over a city in rain |
+| Japanese | vermilion and gold | gold | a Kyoto side street with lanterns |
+| Mind | lavender violet and gold | gold | a moonlit courtyard with an old tree |
+| Creatives | moegi and gold | gold | a sunlit atelier with easels |
+| Routines and reviews | sea-green teal and brass | brass | a morning kitchen table by a window |
+| Organised | slate blue and brass | brass | a tidy desk from above, a corkboard |
+| Goals and Money | jade green and gold | gold | a summit above a sea of cloud |
+| The Collection | cobalt blue and rose gold | rose gold | a cosy den of shelves at night |
+| Pen, ink and files | ink black and sakura pink | silver | a calligraphy desk, petals drifting |
+| Kurenai and the Governor | crimson and platinum | platinum | an observatory office full of stars |
+| The eleven unit sets | their subject's existing palette | as made | one scene each (the manifest) |
+
+Each badge's subject is in its manifest prompt (tools/gen_ach_manifest.py `MOTIF`), e.g. Bookshelf "a short shelf of books with blank spines, a bookend", Know thyself "a hand mirror reflecting a small star", Bug catcher "a butterfly net with a tiny beetle caught inside".

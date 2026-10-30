@@ -120,6 +120,7 @@
   /* addWork(rec, payload, cb) — save a piece: the record syncs, the payload (text or a picture's
      data URL) stays on this device in kurenai-os-creatives (invariant 156) */
   function addWork(rec, payload, cb) {
+    if (KOS.achievements) KOS.achievements.touch("creatives");   // the Badge Wall (roadmap 5.16)
     var id = rec.id || "w" + rid(), st = S();
     var l = rec.lesson ? lesson(rec.lesson) : null;
     st.works[id] = normalise({ works: { x: Object.assign({}, rec, { at: Date.now(), track: rec.track || (l ? trackOf(l.id) : null) }) } }).works.x;
@@ -148,6 +149,7 @@
   }
   /* promotion is a separate, deliberate tap, never automatic (invariant 156) */
   function promote(id, on) {
+    if (KOS.achievements) KOS.achievements.touch("creatives");   // the Badge Wall (roadmap 5.16)
     var w = S().works[id]; if (!w) return;
     w.portfolio = on ? Date.now() : null;
     if (on) first("promoted");
@@ -198,6 +200,7 @@
   /* a milestone is reached by saving its work (addWork with unit + ms) or by hand; the project pays
      once, when every milestone is reached */
   function markMilestone(uid, i, off) {
+    if (KOS.achievements) KOS.achievements.touch("creatives");   // the Badge Wall (roadmap 5.16)
     var p = project(uid); if (!p || i < 0 || i >= p.milestones.length) return null;
     var st = S(), rec = st.projects[uid] = obj(st.projects[uid]);
     rec.ms = obj(rec.ms);

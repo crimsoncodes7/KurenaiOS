@@ -178,6 +178,8 @@
   function all() { return T().entries; }
   function get(id) { return T().entries.find(function (x) { return x.id === id; }) || null; }
   function add(data) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("exams");
     var t = T();
     var e = normalise(data || {});
     e.id = t.nextId++;
@@ -194,6 +196,8 @@
     return e;
   }
   function update(id, patch) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("exams");
     var t = T(), e = get(id);
     if (!e) return null;
     var next = normalise(patch || {}, e);

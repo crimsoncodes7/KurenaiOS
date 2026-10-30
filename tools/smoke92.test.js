@@ -279,6 +279,9 @@ step("J · the Assistant's read tools for the hub", async () => {
 step("K · Goals, a goal, the assessment and the dialogs draw without writing", async () => {
   rows();
   const snap = () => { const s = JSON.parse(JSON.stringify(K.store.state)); delete s.ui; return s; };
+  /* the Badge Wall's evaluation after the setup's own writes lands first:
+     it is not the page's write (roadmap 5.16, invariant 163) */
+  for (let i = 0; i < 600 && K.achievements && K.achievements._busy(); i++) await app.settle();
   const before = snap();
   const pages = [["goals"], ["goals", "all"], ["goals", { id: chk.id }], ["goals", { id: papers.id }], ["exams", real.id]];
   for (const [v, a] of pages) {

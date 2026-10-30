@@ -142,16 +142,61 @@
       ctx.fillStyle = ivory;
       ctx.font = "500 28px " + UI;
       var ty = after + (foot.length ? 84 : 28);
-      f.collection.titles.slice(0, Math.max(0, Math.floor((CARD_H - 150 - ty) / 40))).forEach(function (t) {
+      f.collection.titles.slice(0, Math.max(0, Math.floor((CARD_H - (opts.badges && showcaseDefs().length ? 290 : 150) - ty) / 40))).forEach(function (t) {
         var txt = t.title + (t.range ? " · " + t.range : "");
         while (txt.length > 4 && ctx.measureText(txt).width > R - L) txt = txt.slice(0, -2);
         ctx.fillText(txt, L, ty); ty += 40;
       });
     }
+    /* the Badge Wall's showcase (roadmap 5.16): off by default, up to six */
+    if (opts.badges) drawShowcase(ctx, L, R, CARD_H - 250, gold, bg, ivory);
     ctx.fillStyle = faint;
     ctx.font = "500 24px " + MONO;
     ctx.fillText("KURENAIOS", L, CARD_H - 96);
     return canvas;
+  }
+
+  /* the showcase's pictures, loaded once; a medal with no art yet (or not
+     loaded) is drawn as a gold-rimmed disc with its glyph */
+  var showImgs = {};
+  function showcaseDefs() {
+    var A = KOS.achievements;
+    return A ? A.showcase().map(function (id) { return A.def(id); }).filter(Boolean) : [];
+  }
+  function loadShowcase(done) {
+    var defs = showcaseDefs(), left = 0;
+    defs.forEach(function (d) {
+      var src = KOS.achUI && KOS.achUI.artSrc(d);
+      if (!src || showImgs[d.id]) return;
+      left++;
+      var im = new window.Image();
+      im.onload = im.onerror = function () { if (--left === 0 && done) done(); };
+      im.src = src;
+      showImgs[d.id] = im;
+    });
+    if (!left && done) done();
+  }
+  function drawShowcase(ctx, L, R, y, gold, bg, ivory) {
+    var defs = showcaseDefs();
+    if (!defs.length) return;
+    var size = 120, gap = (R - L - size * 6) / 5, A = KOS.achievements;
+    defs.forEach(function (d, i) {
+      var x = L + i * (size + gap), cx = x + size / 2, cy = y + size / 2, im = showImgs[d.id];
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, size / 2, 0, Math.PI * 2); ctx.fillStyle = gold; ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, size / 2 - 5, 0, Math.PI * 2); ctx.fillStyle = bg; ctx.fill();
+      if (im && im.complete && im.naturalWidth) {
+        ctx.beginPath(); ctx.arc(cx, cy, size / 2 - 7, 0, Math.PI * 2); ctx.clip();
+        ctx.drawImage(im, x + 7, y + 7, size - 14, size - 14);
+      } else {
+        var set = A && A.set(d.set);
+        ctx.fillStyle = ivory; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.font = "700 52px " + MINCHO;
+        ctx.fillText(d.glyph || (set && set.glyph) || "章", cx, cy + 2);
+        ctx.textAlign = "left"; ctx.textBaseline = "top";
+      }
+      ctx.restore();
+    });
   }
 
   /* ---------------- text and CSV ---------------- */
@@ -239,7 +284,7 @@
     { id: "csv", label: "CSV", hint: "for a spreadsheet", action: "Save as CSV" }
   ];
   function dialog(rep, o) {
-    var state = { format: (o && o.format) || "png", titles: false, words: true, level: true };
+    var state = { format: (o && o.format) || "png", titles: false, words: true, level: true, badges: false };
     var overlay = el("div", { class: "k-dialog-overlay" });
     var box = el("div", { class: "k-dialog k-rp-export", "data-ui": "ui.dialog reports.export-dialog" });
     overlay.appendChild(box);
@@ -287,8 +332,10 @@
       el("div", { class: "k-rp-export-checks" }, [
         check("titles", "Collection titles", "off by default: a title list is yours to share"),
         check("words", "Kurenai's words", "when Kurenai wrote them; otherwise the template's"),
-        check("level", "Level and streak", null)
-      ]),
+        check("level", "Level and streak", null),
+        /* the Badge Wall's showcase (5.16): only with one picked */
+        KOS.achievements && KOS.achievements.showcase().length ? check("badges", "Showcase badges", "off by default: up to six from your Wall") : null
+      ].filter(Boolean)),
       preview
     ]));
     box.appendChild(el("div", { class: "k-dialog-foot" }, [
@@ -296,6 +343,7 @@
       primary
     ]));
     paint();
+    loadShowcase(function () { if (state.badges) paint(); });
     KOS.ui.openDialog(overlay, { label: "Share or export", initialFocus: primary });
     return overlay;
   }

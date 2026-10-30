@@ -50,6 +50,7 @@ const LAYERS = {
   "views/exams": "css/views/exams.css",
   "views/ink": "css/views/ink.css",
   "views/routines": "css/views/routines.css",
+  "views/achievements": "css/views/achievements.css",
   themes: "css/themes.css"
 };
 

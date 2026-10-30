@@ -128,6 +128,8 @@
     return r;
   }
   function setUnit(code, patch, opts) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("study");
     if (!table().units[code]) return null;
     var r = branch();
     var next = normaliseUnit(code, patch || {}, r.units[code] || {});

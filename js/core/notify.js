@@ -63,7 +63,10 @@
     /* the Exams & Deadlines hub (roadmap 5.8, core/exams.js notices): a
        start-by that is today, an overdue milestone, a test tomorrow, exam
        season starting — id exam:<assessment>:<event> */
-    exam:       { label: "Exams",      glyph: "試", section: "study", view: "exams" }
+    exam:       { label: "Exams",      glyph: "試", section: "study", view: "exams" },
+    /* a badge's tier earned (core/achievements.js, roadmap 5.16) — id
+       ach:<badge>:<tier>, once; progress pings are never in the ledger */
+    achievement: { label: "Badges",    glyph: "章", section: "governor", view: "achievements" }
   };
 
   function N() {

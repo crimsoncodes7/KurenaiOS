@@ -282,6 +282,13 @@
           segs: [["finished", "Completed", "var(--green)"], ["continued", "Watching or reading", "var(--cs)"], ["paused", "Paused", "var(--amber)"], ["dropped", "Dropped", "var(--red)"]]
             .filter(function (x) { return st[x[0]]; }).map(function (x) { return { label: x[1], value: st[x[0]], text: W.num(st[x[0]]), hue: x[2] }; }), foot: null };
       },
+      /* the Badge Wall (roadmap 5.16): the tiers earned in the term or year */
+      badges: function () {
+        var b = f.badges;
+        return { t: "medals", hue: "var(--gold)", hue2: "var(--crimson)", ch: "Badges", eyebrow: "Badges & tiers unlocked",
+          title: W.plural(b.n, "tier") + " earned " + thisN, medals: b.list,
+          foot: b.badges > 1 ? "Across " + b.badges + " badges · the Wall has them all" : "On the Wall in Governor" };
+      },
       level: function () {
         return { t: "big", hue: "var(--gold)", hue2: "var(--crimson)", ch: "Level", eyebrow: "Governor", title: "You went from Level " + g.levelFrom + " to",
           value: g.level, fmt: "int", unit: g.xp ? "+" + W.num(g.xp) + " XP earned" : "", segs: [], foot: g.gold ? "Earned " + thisN + ": +" + W.num(g.gold) + " ◆" : null };
@@ -451,6 +458,16 @@
           el("b", { class: "k-mono k-rp-st-cards-v", text: k.v })]), 150 + i * 150);
       })), 0);
       if (sl.foot) add(el("p", { class: "k-rp-st-foot", text: sl.foot }), 800);
+    } else if (sl.t === "medals") {
+      var AC = KOS.achievements;
+      add(el("div", { class: "k-rp-st-medals" }, sl.medals.map(function (m, i) {
+        var d = AC && AC.def(m.id);
+        if (!d || !KOS.achUI) return el("span", { class: "k-rp-st-medal-name", text: m.name });
+        var v = { id: m.id, def: d, set: d.set, state: "earned", p: 1, tier: m.tier, tiers: d.tiers.length, masked: false, earned: null };
+        return inn(el("div", { class: "k-rp-st-medal" }, [KOS.achUI.medal(v, { size: i < 2 ? "md" : "base", label: d.name + (d.tiers.length > 1 ? " " + AC.roman(m.tier) : "") }),
+          el("span", { class: "k-rp-st-medal-name", text: d.name + (d.tiers.length > 1 ? " " + AC.roman(m.tier) : "") })]), 150 + i * 120);
+      })), 0);
+      if (sl.foot) add(el("p", { class: "k-rp-st-foot", text: sl.foot }), 900);
     } else if (sl.t === "summary") {
       add(el("div", { class: "k-rp-st-rim" }, [el("div", { class: "k-rp-st-recap" }, [
         el("div", { class: "k-rp-st-recap-grid" }, sl.rows.map(function (r) { return el("div", {}, [el("b", { class: "k-mono", text: r[0] }), el("span", { text: r[1] })]); })),

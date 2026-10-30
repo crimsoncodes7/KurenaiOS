@@ -117,7 +117,9 @@
     "js/modules/routines.js",
     "js/modules/dayreview.js",
     "js/modules/routineplayer.js",
-    "js/modules/connections.js"
+    "js/modules/connections.js",
+    "css/views/achievements.css",
+    "js/modules/achievements.js"
   ],
   "views": {
     "home": {},
@@ -175,6 +177,7 @@
       }
     },
     "routines": {},
-    "connections": {}
+    "connections": {},
+    "achievements": {}
   }
 }

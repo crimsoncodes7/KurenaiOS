@@ -59,6 +59,9 @@
     /* Mind (roadmap 5.9, core/mind.js): concept cards (on KOS.fsrs), lesson evidence, the one
        written prompt, versioned positions, checkpoints — keyed maps throughout */
     mind: { v: 1, cards: {}, lessons: {}, explains: {}, positions: {}, parked: {}, checkpoints: {}, tensions: {}, bq: {}, paths: {} },
+    /* Achievements (roadmap 5.16, core/achievements.js): the tiers earned (never taken back), the
+       ledger's monthly rollup, the showcase and the title — progress itself is never stored */
+    achievements: { v: 1, earned: {}, months: {}, showcase: [], title: null },
     worked: { last: null },
     trace: {},
 
@@ -446,6 +449,7 @@
     setStatus: function (subjectId, ref, status) {
       this.getProgress(subjectId, ref).status = status;
       save();
+      if (KOS.achievements) KOS.achievements.onProgress(subjectId);
     },
 
     setCheck: function (subjectId, ref, i, val) {
@@ -459,6 +463,7 @@
       // mastery side by side, and the two must never contradict each other.
       else if (p.status === "none" && p.check.some(Boolean)) p.status = "started";
       save();
+      if (KOS.achievements) KOS.achievements.onProgress(subjectId);
     },
 
     setNote: function (subjectId, ref, text) {

@@ -184,6 +184,9 @@
   /* the review overlay: its chip, and opening by itself on the first open
      inside a slot (never over Focus, a dialog or a deep link) */
   if (KOS.reviewSheet) KOS.reviewSheet.start();
+  /* the Badge Wall (5.16): the first sweep a moment after boot (silent the
+     first time on a device), owner events after, a full sweep every 30 min */
+  if (KOS.achUI) KOS.achUI.boot();
   /* the Exams hub (5.8, phase 3): the predicted range kept just before
      each real exam (results day reads it), then its notices — once after
      boot and every 30 minutes */

@@ -970,6 +970,7 @@
       if (out.length < 4) keep("study", true);
     } else if (f.period === "term") {
       keep("study", true);
+      keep("badges", f.badges && f.badges.n >= 1);
       keep("vsclass", f.vsClass && f.vsClass.rows.length);
       keep("results", f.results && f.results.list.length >= 2);
       keep("strongest", f.strongest && f.strongest.length >= 3);
@@ -996,6 +997,7 @@
       keep("scores", c && c.hi);
       keep("finishing", c && c.status && (c.status.finished || 0) >= 3);
       keep("level", f.gov.levelFrom && f.gov.level);
+      keep("badges", f.badges && f.badges.n >= 1);
     }
     out.push("recap");
     return out;
@@ -1041,6 +1043,7 @@
       var re = results(input, p); if (re) f.results = re;
       var sp = studyPersona(f); if (sp) f.studyPersona = sp;
       if (p.period === "term" || p.period === "year") {
+        var bd = badgeFacts(input); if (bd) f.badges = bd;
         var vc = vsClass(p); if (vc) f.vsClass = vc;
         var st = strip(input, p); if (st) { f.strip = st; rollUp(f, input, p, st); }
         var ranked = f.study.topics.filter(function (t) { return t.reviews >= 20 && t.recall != null; });
@@ -1067,6 +1070,18 @@
     }
     f.stories = stories(f);
     return f;
+  }
+  /* the Badge Wall's tiers earned in the period (roadmap 5.16): the count,
+     the badges reached, and up to eight to show — names are the app's own,
+     never the user's text; gather hands them in (`input.badges`) */
+  function badgeFacts(input) {
+    var rows = input.badges || [];
+    if (!rows.length) return null;
+    var ids = {};
+    rows.forEach(function (r) { ids[r.id] = true; });
+    return { n: rows.length, badges: Object.keys(ids).length,
+      list: rows.slice().sort(function (a, b) { return b.tier - a.tier || a.at - b.at; }).slice(0, 8)
+        .map(function (r) { return { id: r.id, tier: r.tier, tiers: r.tiers || 1, name: r.name, set: r.set || null }; }) };
   }
   /* titles touched per month (25e), stacked by medium */
   function monthTitles(input, p) {
@@ -1202,6 +1217,13 @@
        results */
     input.tracker = (KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : ((S.tracker || {}).entries || [])).slice();
     if (p.period !== "week") input.itUnits = KOS.itUnits && KOS.itUnits.all ? KOS.itUnits.all() : [];
+    /* the tiers earned on the Badge Wall in the period (a term's or a year's story) */
+    if ((p.period === "term" || p.period === "year") && KOS.achievements) {
+      input.badges = KOS.achievements.earnedIn(p.start, p.end).map(function (r) {
+        var d = KOS.achievements.def(r.id);
+        return d ? { id: r.id, tier: r.tier, tiers: d.tiers.length, name: d.name, set: d.set, at: r.at } : null;
+      }).filter(Boolean);
+    }
     var rs = KOS.reportStore;
     function snaps(next) {
       if (!rs) { next(); return; }

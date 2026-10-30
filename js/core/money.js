@@ -654,6 +654,8 @@
   function allTx(cb) { range("0000-01-01", "9999-12-31", cb); }
 
   function addTx(fields, cb) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("money");
     var t = normaliseTx(Object.assign({}, fields, { syncId: null, src: fields && fields.src === "csv" ? "csv" : "manual",
       createdAt: Date.now(), updatedAt: Date.now() }));
     if (!t) { cb && cb(new Error("A transaction needs a date and an amount above zero")); return; }

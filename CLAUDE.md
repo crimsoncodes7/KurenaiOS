@@ -157,7 +157,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-creatives-1`
-- Required smoke gate: 112 / 112 suites (`""` and 2–112; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 113 / 113 suites (`""` and 2–113; 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -235,6 +235,14 @@ chronological diary here.
   [`docs/creatives-plan.md`](docs/creatives-plan.md) revision 2, decisions
   A–H approved; design prompts 14 and 15 are written, frames 30a and 31a
   onwards).
+- Built 30 October 2026 on `feat/art-review`, not released: Achievements, the
+  Badge Wall (roadmap 5.16–5.17, [`docs/achievements-plan.md`](docs/achievements-plan.md);
+  invariants 161–163, smoke113): the engine and its 254-badge catalogue, the
+  page (#/achievements), the light, the unlock overlay, the progress ping,
+  the Governor's card, the term/year story and the share card's showcase;
+  the 153 unit badges imported to `assets/app/img/`. Waiting: art batches
+  26–27 (waves 24–32) and design prompt 19. With it the review of all 322
+  app images (nine redos marked in the manifest) and the importer's fixes.
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
@@ -246,7 +254,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..112}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..113}; do node "tools/smoke${i}.test.js"; done
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -414,6 +422,7 @@ non-navigation redraw path.
 | Routines and the Daily Review (roadmap 5.10, `docs/routines-plan.md`, design turn 33): the record, the day model, the review core | `js/core/routines.js` (`KOS.routines`: the record, log, snapshot, streaks, rest days, late ticks, pay through `KOS.governor.routineAward`, the Habits migration, `habitsView`, goal types and tools), `js/data/routine-templates.js` (AUTHORED), `js/core/today.js` (`KOS.today`: the day model, a pure read; the bag), `js/core/dayreview.js` (`KOS.dayReview`: settings, `due` and the folds, steps, triage through the owners, the words, notices, tools); smoke101–103 |
 | Routines and the Daily Review: the pages | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/routines\|templates\|history\|settings]`, `#/routines/edit/<id>`; `#/tasks` aliases; `KOS.rtUI`, the shared parts), `js/modules/dayreview.js` (`KOS.reviewSheet`: the overlay, the steps, the header chip, auto-open), `js/modules/routineplayer.js` (`KOS.routinePlayer`: the player, About to Study, the timetable sheet), `css/views/routines.css`; the art in `assets/routines/img/` (imported by `prototypes/japanese-space/art_import.py` from `art-source/routines/`); Home's three and Routines card in `hub.js`; smoke104 |
 | Google Calendar, Google Tasks and Todoist (roadmap 5.15, `docs/integrations-plan.md`, invariants 157–160): sign-in, ids, the three-way rule, the lease, the cycle; the two calendars; Reminders lists | `js/core/ext.js` (`KOS.ext`: settings `state.ext`, `inbound`/`noteLocal`, `merge3`, `gcalId`/`uidOf`, `connect`/`complete`/`token`, `lease`, `syncAll`, the delete queue, `logActivity`), `js/core/extgcal.js` (`KOS.extGcal`: the mapping, the two-way cycle with the primary calendar, the read-only copy `roOn`, the one-way "KurenaiOS" calendar `exportItems`), `js/core/exttasks.js` (`KOS.extTasks`: list links, Todoist's Sync API, Google Tasks); the owners' `uid`/`ext` fields and change notes in `js/modules/calendar.js` and `js/core/reminders.js`; page `js/modules/connections.js` (`#/connections`); `supabase/functions/ext-token/` (`index.ts`, `logic.ts`), `kos_ext` (migration `20261030000001`); smoke112 |
+| Achievements, the Badge Wall (roadmap 5.16–5.17, `docs/achievements-plan.md`, invariants 161–163): the registry, the evaluation, the ledger's rollup, titles, the showcase; the catalogue; the pages | `js/core/achievements.js` (`KOS.achievements`: `register`, `evaluate(domains)`, `touch`, `list`, `counts`, `lifetime`/`rollup`, `progressOf`, `pingRule`, `earnedIn`, `quiet`), `js/core/achcatalogue.js` (the sets, every badge's `measure` over its owner's record, the titles), `js/data/achievements-art.js` (GENERATED by `tools/gen_ach_art.py` from `assets/app/img/`), `js/modules/achievements.js` (`KOS.views.achievements`, `#/achievements[/sets\|recent\|showcase\|titles\|set/<id>]`; `KOS.achUI`: the medal, the overlay, the ping, the Governor's card), `css/views/achievements.css`; the monotonic merge in `js/core/cloudmerge.js` (`MONO_PATH`); the owners' `touch` calls; the term/year story in `js/core/report.js` and `js/modules/reportstory.js`; the share card's showcase in `js/modules/reportshare.js`; art briefs `tools/gen_ach_defs.mjs` → `art-source/app/ach-defs.json` → `tools/gen_ach_manifest.py`; smoke113 |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure); the IDE view (tree, editor, C#, diagram) in the same file |
 | Lab system: areas, kinds, thumbnails, the sim header, locked state, embedded lab | `js/labs/sims.js` (`KOS.sims.embed`, `areaOf`, `kindOf`) |
@@ -1924,6 +1933,41 @@ source comments and audit notes refer to it.
     `KOS.reminders.complete` (which pays) and the cycle logs ONE `todo`
     session with `metrics.external`, which the Governor prices at nothing
     (decision A): activity for the day, never study, never pay.
+
+### Achievements, the Badge Wall (161–163; docs/achievements-plan.md)
+
+161. BADGES READ, NEVER PAY. Every badge is registered with the domains it
+    reads (`owners`) and its `measure` READS that owner's record — the
+    session ledger, the topic bands, Code's evidence, the vault, Money —
+    tracking nothing new (a badge the app has no evidence for is not
+    registered; the plan lists them). Progress is never stored: the one
+    record is `state.achievements.earned[id] = {tier, at, t}` (synced),
+    plus the ledger's monthly ROLLUP (`months`, max per field: the ledger
+    keeps 2,000 entries, so every month before this one — and this one,
+    when the ledger is about to cut — is folded in, and a lifetime count is
+    the sum over months of the larger of the stored and the live figure),
+    the showcase (six) and the title. A badge pays no XP, gold or HP and
+    logs no session; a title is cosmetic. Pages only read (smoke113 I).
+162. EARNED ONLY GOES UP. A tier once earned is never taken back — not by
+    deleting its evidence, not by a new unit or shop item raising an "all"
+    target (a fully earned badge draws at p = 1). The cloud merge treats
+    `achievements.earned.*` and `achievements.months.*` monotonically
+    (`MONO_PATH`: numbers by the larger, times by the earlier). Progress is
+    relative to the CURRENT tier interval, `(current − previous) / (next −
+    previous)`, for the rim ring and the pings alike; an unearned hidden
+    badge is p = 0, masked, never pinged, and listed last.
+163. QUIET, AND ONCE. Owner events re-measure only the badges that read
+    that domain (`touch`, 400 ms); the full sweep is the boot's (2.5 s) and
+    the 30-minute tick's. A device's first sweep and the two minutes after
+    it are SILENT (earned, no overlay or ping; one toast says how many tiers
+    you already had), and `state.ui.achSeen` is per device, so another
+    device's pull never pings. The unlock overlay and the ping never show
+    while Focus runs, a dialog is open or the Exam Room is on screen (the
+    overlay waits for a calm moment). Each tier earned is ONE notification
+    (kind `achievement`, id `ach:<badge>:<tier>`); pings are never in the
+    ledger and come at most once per badge per 10 seconds, every step for a
+    target of 20 or fewer, else each quarter of the tier's interval
+    (`state.ui.achPings`).
 
 ### What reaches a closed app (131)
 

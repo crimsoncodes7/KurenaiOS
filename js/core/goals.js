@@ -445,6 +445,7 @@
             g.status = "completed"; g.completedAt = Date.now(); g.failedAt = null;
             if (!data().completionLedger[g.id]) {
               data().completionLedger[g.id] = { recordedAt: g.completedAt, type: g.type, payout: def.displayOnly ? "none" : "activity-only" };
+              if (KOS.achievements) KOS.achievements.touch("goals");
             }
             g.completionRecordedAt = data().completionLedger[g.id].recordedAt;
             dirty = true;

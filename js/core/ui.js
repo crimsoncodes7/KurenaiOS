@@ -383,7 +383,7 @@
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
-    governor: "governor",
+    governor: "governor", achievements: "governor",
     assistant: "assistant",
     data: "system", help: "system", notifications: "system", pen: "system", files: "system", storage: "system", connections: "system"
   };

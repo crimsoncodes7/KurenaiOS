@@ -245,6 +245,7 @@
   /* recordCheckpoint(id, scores) — scores { R, W, L, S } as fractions; passes at 80% in every skill
      the checkpoint tests; pays once; retaken freely */
   function recordCheckpoint(id, scores) {
+    if (KOS.achievements) KOS.achievements.touch("ja");   // the Badge Wall (roadmap 5.16)
     var cp = (J().CHECKPOINTS || {})[id]; if (!cp) return null;
     var rec = S().checkpoints[id] = obj(S().checkpoints[id]);
     var skills = cp.skills || ["R", "W", "L", "S"], sc = {};
@@ -275,6 +276,7 @@
   function hash(s) { var x = 2166136261; s = String(s); for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
   /* mine(line) — keep a line to study; it becomes a reading facet (and listening with audio) */
   function mine(line) {
+    if (KOS.achievements) KOS.achievements.touch("ja");   // the Badge Wall (roadmap 5.16)
     var text = String((line && line.text) || "").trim(); if (!text) return null;
     var id = "m" + hash(text).toString(36), st = S();
     if (!st.mined[id]) {

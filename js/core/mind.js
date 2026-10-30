@@ -131,6 +131,7 @@
   /* saveExplain(id, bullets, ticks) — the explain-back: the bullets and which key points the
      learner says they covered. The ticks are the evidence for Explain. */
   function saveExplain(id, bullets, ticks) {
+    if (KOS.achievements) KOS.achievements.touch("mind");   // the Badge Wall (roadmap 5.16)
     var l = lesson(id); if (!l || l.kind !== "explain") return null;
     var st = S(), list = (bullets || []).map(function (b) { return String(b || "").trim().slice(0, 400); }).filter(Boolean).slice(0, 12);
     if (!list.length) return null;
@@ -145,6 +146,7 @@
   /* takePosition(id, v) — a new version, never an overwrite (invariant 138). v = { answer, conf
      (50–99), reason, objection, reply, changed } */
   function takePosition(id, v) {
+    if (KOS.achievements) KOS.achievements.touch("mind");   // the Badge Wall (roadmap 5.16)
     var l = lesson(id); if (!l || l.kind !== "contested" || !l.prompt) return null;
     v = obj(v);
     var opts = l.prompt.options || [], answer = +v.answer;
@@ -378,6 +380,7 @@
   }
   /* recordCheckpoint(unit, { cards, apply: {qi: ok}, synth: {bullets, ticks}, map }) → { paid } */
   function recordCheckpoint(u, o) {
+    if (KOS.achievements) KOS.achievements.touch("mind");   // the Badge Wall (roadmap 5.16)
     var cp = M().CHECKPOINTS[u]; if (!cp) return null;
     o = obj(o);
     var st = S(), r = st.checkpoints[u] = obj(st.checkpoints[u]);

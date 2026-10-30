@@ -397,4 +397,7 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 .k-gv-row .k-gv-reward { grid-column: 2; }
 .k-gv-day-rows { padding-inline: var(--sp-10); }
 }
+/* a title earned on the Wall (roadmap 5.16) */
+.k-gv-title { font: var(--weight-semibold) var(--fs-15) var(--font-read); font-style: italic; color: var(--gold); }
+
 }

@@ -284,6 +284,8 @@
       var txt = el("div", { class: "k-gv-hero-txt" }, [
         el("div", { class: "k-kicker k-gv-rank", text: p.rank + " · Behavioural Governor" }),
         el("h2", { class: "k-gv-name", text: "Level " + p.level }),
+        /* a title earned on the Wall (cosmetic, roadmap 5.16) */
+        KOS.achievements && KOS.achievements.title() ? el("div", { class: "k-gv-title", "data-ui": "gov.title", text: KOS.achievements.title().name }) : null,
         p.status ? el("div", { class: "k-gv-status-line", "data-ui": "gov.id-status", text: p.status }) : null,
         !p.status ? el("button", { type: "button", class: "k-gv-about-empty",
           text: "＋ Set a status for your command seat", onclick: openProfileEditor }) : null,
@@ -390,6 +392,9 @@
 
       /* — cadence and the ledger — */
       seat.appendChild(el("div", { class: "k-gv-mid" }, [cadence(realSessions, stks), ledger(meaningfulSessions, allSessions.length - realSessions.length)]));
+
+      /* — the Wall (roadmap 5.16): the showcase and the badge count — */
+      if (KOS.achUI) seat.appendChild(KOS.achUI.governorCard());
 
       /* — the three rules, always in view — */
       seat.appendChild(el("section", { class: "k-gv-rules", "data-ui": "gov.rules", "aria-label": "How HP works" }, [

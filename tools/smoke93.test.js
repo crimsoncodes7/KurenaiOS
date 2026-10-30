@@ -250,6 +250,9 @@ step("I · extra time, large print and rest breaks", () => {
 step("J · the Companion, trend, the paper and its dialogs draw without writing", async () => {
   const quiz = X.add({ tier: "retrieval_test", subject: "compsci", date: "2026-10-22", title: "Quiz", scope: { include: ["compsci:4.5.2.1"] } });
   const snap = () => { const s = JSON.parse(JSON.stringify(K.store.state)); delete s.ui; return JSON.stringify(s); };
+  /* the Badge Wall's evaluation after the setup's own writes lands first:
+     it is not the page's write (roadmap 5.16, invariant 163) */
+  for (let i = 0; i < 600 && K.achievements && K.achievements._busy(); i++) await app.settle();
   const before = snap();
   const pages = [["exams", "guide"], ["exams", { tab: "guide", sub: topic.id }], ["exams", { tab: "guide", sub: real.id }], ["exams", { tab: "guide", sub: mock.id }], ["exams", { tab: "guide", sub: quiz.id }],
     ["exams", { id: real.id, tab: "trend" }], ["exams", { id: topic.id, tab: "trend" }], ["exams", { id: real.id, tab: "paper", sub: "1" }], ["exams", real.id]];

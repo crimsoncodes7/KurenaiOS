@@ -68,6 +68,9 @@
       e.focusId = KOS.focus.activeId();
     }
     list.push(e);
+    /* the oldest entries are about to fall off: fold their months into the
+       Badge Wall's rollup first, so a lifetime count never falls (5.16) */
+    if (list.length > CAP && KOS.achievements) KOS.achievements.rollup(true);
     if (list.length > CAP) list.splice(0, list.length - CAP);
     store.save();
     /* the governor feeds on the same event — awards XP/gold/HP */
@@ -75,6 +78,8 @@
     if (KOS.refreshHUD) KOS.refreshHUD();
     /* an auto-tracked habit reads what was just logged (KOS.routines) */
     if (KOS.routines && KOS.routines.onSession) KOS.routines.onSession(e);
+    /* the badges that read this kind of entry (core/achievements.js) */
+    if (KOS.achievements) KOS.achievements.onSession(e);
     return e;
   }
 

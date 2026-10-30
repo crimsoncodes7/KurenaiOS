@@ -476,6 +476,8 @@
      "I did the week's item" (or "I sat that lesson" on a class row), the
      plan's own bookkeeping. */
   function setDone(id, val) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("organise");
     var e = entryById(id);
     if (!e) return null;
     e.done = !!val;

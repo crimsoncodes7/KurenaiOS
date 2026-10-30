@@ -682,6 +682,8 @@
     });
   }
   function put(entry, cb) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("collection");
     if (entry.id == null) { add(entry, cb); return; }
     tx(ENTRIES, "readwrite", function (err, os) {
       if (err) { cb && cb(err); return; }
@@ -1008,6 +1010,8 @@
 
      cb(err, {added, updated, removed, kept, rewards}).                   */
   function bulkUpsert(list, opts, cb) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("collection");
     opts = opts || {};
     tx(ENTRIES, "readwrite", function (err, os) {
       if (err) { cb && cb(err); return; }

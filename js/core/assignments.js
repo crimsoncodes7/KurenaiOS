@@ -232,6 +232,8 @@
 
   /* ---------------- status transitions ---------------- */
   function setStatus(id, status, opts) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("organise");
     var rec = get(id);
     if (!rec) return null;
     if (!STATUSES.some(function (s) { return s.v === status; })) return rec;

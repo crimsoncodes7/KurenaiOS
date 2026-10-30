@@ -113,6 +113,25 @@
      memory, merged whole by the later review. A position's versions are a keyed map, so two
      devices' revisions both survive (invariant 138). */
   var FACET_PATH = /^(japanese\.facets|mind\.cards)\.[^.]+$/;
+  /* an earned badge (state.achievements.earned[id], roadmap 5.16) and a month
+     of the ledger's rollup (state.achievements.months[m]) only ever go UP
+     (invariant 162): merged field by field, numbers by the larger — times
+     (`at` and a tier's time in `t`) by the EARLIER — so no device can take
+     back a tier the other earned, or shrink a month the other counted. */
+  var MONO_PATH = /^achievements\.(earned|months)\.[^.]+$/;
+  function monoMerge(l, r, earliest) {
+    var out = {};
+    Object.keys(l).concat(Object.keys(r)).forEach(function (k) {
+      if (Object.prototype.hasOwnProperty.call(out, k)) return;
+      var a = l[k], b = r[k];
+      if (a === undefined) { out[k] = b; return; }
+      if (b === undefined) { out[k] = a; return; }
+      if (isPlain(a) && isPlain(b)) { out[k] = monoMerge(a, b, k === "t" || earliest); return; }
+      if (typeof a === "number" && typeof b === "number") { out[k] = (earliest || k === "at") ? Math.min(a, b) : Math.max(a, b); return; }
+      out[k] = a;
+    });
+    return out;
+  }
   function isAtomic(path) {
     if (typeof path !== "string") return false;
     for (var i = 0; i < ATOMIC_PREFIX.length; i++) if (path.indexOf(ATOMIC_PREFIX[i]) === 0) return true;
@@ -396,6 +415,7 @@
       }
     }
 
+    if (typeof path === "string" && MONO_PATH.test(path) && isPlain(l) && isPlain(r)) return monoMerge(l, r, false);
     if (typeof path === "string" && FACET_PATH.test(path) && isPlain(l) && isPlain(r)) {
       ctx.stats.conflicts++;
       return String(r.last || "") > String(l.last || "") ? r : l;
@@ -475,6 +495,7 @@
     deepEqual: deepEqual,
     /* exposed for tests */
     _sameOrigin: sameOrigin,
+    _monoMerge: monoMerge,
     _records: RECORDS
   };
 })();

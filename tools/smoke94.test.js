@@ -181,6 +181,9 @@ step("F · worked is per device and counted", () => {
 step("G · the full Companion and every shape draw without writing", async () => {
   /* state.ui is the per-device view state every navigation moves */
   const snap = () => { const s = JSON.parse(JSON.stringify(K.store.state)); delete s.ui; return JSON.stringify(s); };
+  /* the Badge Wall's evaluation after the setup's own writes lands first:
+     it is not the page's write (roadmap 5.16, invariant 163) */
+  for (let i = 0; i < 600 && K.achievements && K.achievements._busy(); i++) await app.settle();
   const before = snap();
   K.show("exams", { id: real.id, tab: "deep" }); await app.settle();
   eq(app.document.querySelectorAll("[data-ui~='exams.deep-shape']").length, DD.index(real).archetypes, "a row for every shape in scope");

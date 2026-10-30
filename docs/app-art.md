@@ -97,6 +97,7 @@ her redesign sheet (`art-source/app/refs/kurenai-sheet.png`,
 | 13–16 | 15 each | Batch 21 (Code badges, 30) and batch 22 (Japanese, 19) |
 | 16–20 | 15 each | Batch 23 (Mind, 22) and batch 24 (Creatives, 42) |
 | 21–23 | 15 · 15 · 7 | Batch 25 (CS 13, Maths 19, IT 2: F201 and the F206 NEA) |
+| 24–32 | 15 each, 7 | Batch 26 (the Badge Wall's 26 set panoramas) and batch 27 (its 101 badges; roadmap 5.17, docs/achievements-plan.md) |
 
 The sheet shows each image's wave; work down it in order.
 
@@ -176,6 +177,9 @@ deploying. Art that has not arrived yet leaves its slot as it is today
    are now the first sets of the Achievements page, roadmap 5.16
    ([achievements-plan.md](achievements-plan.md)): the Wall, the light
    that grows with progress, the unlock overlay and the progress notice.
+   BUILT 30 October 2026 (`feat/art-review`): the 153 badges are imported
+   to `assets/app/img/` at 384 px and listed in `js/data/achievements-art.js`
+   (`python3 -I tools/gen_ach_art.py` after each import).
 8. **Passes 18.1 and 18.2**: Money's and Files' empty pages.
 
 When a release lands, update this file's status, ROADMAP 5.13 and

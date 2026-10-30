@@ -238,8 +238,9 @@ def main():
         y0, x0 = max(0, y0 - pad), max(0, x0 - pad)
         y1, x1 = min(rgb.shape[0], y1 + pad), min(rgb.shape[1], x1 + pad)
         im = to_image(rgb[y0:y1, x0:x1], al[y0:y1, x0:x1])
-        if max(im.size) > SPOT_LONG:
-            k = SPOT_LONG / max(im.size)
+        long_ = a.get("long", SPOT_LONG)       # a badge is exported smaller (the Wall draws it at 240 px at most)
+        if max(im.size) > long_:
+            k = long_ / max(im.size)
             im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
         im.save(os.path.join(OUT, a["id"] + ".webp"), "WEBP", quality=88, method=6)
         report["assets"][a["id"]] = {"kind": "spot", "out": im.size}

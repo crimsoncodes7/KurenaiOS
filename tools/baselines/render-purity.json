@@ -19,12 +19,41 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
        "governor.xp",
        "sessions[]",
        "todo.autoChecked.2026-09-24|due"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -42,12 +71,41 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
        "governor.xp",
        "sessions[]",
        "todo.autoChecked.2026-09-24|ev18"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -64,12 +122,41 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
        "governor.xp",
        "sessions[]",
        "todo.autoChecked.2026-09-24|blk19"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -149,6 +236,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -156,6 +248,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -172,6 +288,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -179,6 +300,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -556,7 +701,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -1169,7 +1314,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -1795,7 +1940,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -2372,6 +2517,23 @@
     {
      "key": {
       "ctx": "topic.nav",
+      "hooks": "topic.work",
+      "name": "✎Working",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "ink"
+      ],
+      "announce": [
+       "A blank working page beside Notes."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "topic.nav",
       "hooks": "topic.edit-bar",
       "name": "✎Edit",
       "tag": "button"
@@ -2512,7 +2674,54 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.into-the-green",
        "progress.compsci:4.2.3.1.check[]"
+      ],
+      "ui": [
+       "achSeen.card-sharp",
+       "achSeen.cs-4.1",
+       "achSeen.cs-4.10",
+       "achSeen.cs-4.11",
+       "achSeen.cs-4.12",
+       "achSeen.cs-4.13",
+       "achSeen.cs-4.2",
+       "achSeen.cs-4.3",
+       "achSeen.cs-4.4",
+       "achSeen.cs-4.5",
+       "achSeen.cs-4.6",
+       "achSeen.cs-4.7",
+       "achSeen.cs-4.8",
+       "achSeen.cs-4.9",
+       "achSeen.in-step",
+       "achSeen.into-the-green",
+       "achSeen.it-f201",
+       "achSeen.it-f206",
+       "achSeen.leech-hunter",
+       "achSeen.margin-notes",
+       "achSeen.maths-M6",
+       "achSeen.maths-M7",
+       "achSeen.maths-M8",
+       "achSeen.maths-M9",
+       "achSeen.maths-P1",
+       "achSeen.maths-P10",
+       "achSeen.maths-P2",
+       "achSeen.maths-P3",
+       "achSeen.maths-P4",
+       "achSeen.maths-P5",
+       "achSeen.maths-P6",
+       "achSeen.maths-P7",
+       "achSeen.maths-P8",
+       "achSeen.maths-P9",
+       "achSeen.maths-S1",
+       "achSeen.maths-S2",
+       "achSeen.maths-S3",
+       "achSeen.maths-S4",
+       "achSeen.maths-S5",
+       "achSeen.quiz-runner",
+       "achSeen.ready",
+       "achSeen.second-attempt",
+       "achSeen.steady-memory",
+       "achSeen.tuned-to-you"
       ]
      }
     },
@@ -2776,6 +2985,23 @@
     {
      "key": {
       "ctx": "topic.nav",
+      "hooks": "topic.work",
+      "name": "✎Working",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "ink"
+      ],
+      "announce": [
+       "A blank working page beside Notes."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "topic.nav",
       "hooks": "topic.edit-bar",
       "name": "✎Edit",
       "tag": "button"
@@ -2886,7 +3112,54 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.into-the-green",
        "progress.maths:5.7"
+      ],
+      "ui": [
+       "achSeen.card-sharp",
+       "achSeen.cs-4.1",
+       "achSeen.cs-4.10",
+       "achSeen.cs-4.11",
+       "achSeen.cs-4.12",
+       "achSeen.cs-4.13",
+       "achSeen.cs-4.2",
+       "achSeen.cs-4.3",
+       "achSeen.cs-4.4",
+       "achSeen.cs-4.5",
+       "achSeen.cs-4.6",
+       "achSeen.cs-4.7",
+       "achSeen.cs-4.8",
+       "achSeen.cs-4.9",
+       "achSeen.in-step",
+       "achSeen.into-the-green",
+       "achSeen.it-f201",
+       "achSeen.it-f206",
+       "achSeen.leech-hunter",
+       "achSeen.margin-notes",
+       "achSeen.maths-M6",
+       "achSeen.maths-M7",
+       "achSeen.maths-M8",
+       "achSeen.maths-M9",
+       "achSeen.maths-P1",
+       "achSeen.maths-P10",
+       "achSeen.maths-P2",
+       "achSeen.maths-P3",
+       "achSeen.maths-P4",
+       "achSeen.maths-P5",
+       "achSeen.maths-P6",
+       "achSeen.maths-P7",
+       "achSeen.maths-P8",
+       "achSeen.maths-P9",
+       "achSeen.maths-S1",
+       "achSeen.maths-S2",
+       "achSeen.maths-S3",
+       "achSeen.maths-S4",
+       "achSeen.maths-S5",
+       "achSeen.quiz-runner",
+       "achSeen.ready",
+       "achSeen.second-attempt",
+       "achSeen.steady-memory",
+       "achSeen.tuned-to-you"
       ]
      }
     },
@@ -3113,6 +3386,23 @@
     {
      "key": {
       "ctx": "topic.nav",
+      "hooks": "topic.work",
+      "name": "✎Working",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "ink"
+      ],
+      "announce": [
+       "A blank working page beside Specification."
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "topic.nav",
       "hooks": "topic.edit-bar",
       "name": "✎Edit",
       "tag": "button"
@@ -3193,7 +3483,54 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.into-the-green",
        "progress.it:F200.1.1"
+      ],
+      "ui": [
+       "achSeen.card-sharp",
+       "achSeen.cs-4.1",
+       "achSeen.cs-4.10",
+       "achSeen.cs-4.11",
+       "achSeen.cs-4.12",
+       "achSeen.cs-4.13",
+       "achSeen.cs-4.2",
+       "achSeen.cs-4.3",
+       "achSeen.cs-4.4",
+       "achSeen.cs-4.5",
+       "achSeen.cs-4.6",
+       "achSeen.cs-4.7",
+       "achSeen.cs-4.8",
+       "achSeen.cs-4.9",
+       "achSeen.in-step",
+       "achSeen.into-the-green",
+       "achSeen.it-f201",
+       "achSeen.it-f206",
+       "achSeen.leech-hunter",
+       "achSeen.margin-notes",
+       "achSeen.maths-M6",
+       "achSeen.maths-M7",
+       "achSeen.maths-M8",
+       "achSeen.maths-M9",
+       "achSeen.maths-P1",
+       "achSeen.maths-P10",
+       "achSeen.maths-P2",
+       "achSeen.maths-P3",
+       "achSeen.maths-P4",
+       "achSeen.maths-P5",
+       "achSeen.maths-P6",
+       "achSeen.maths-P7",
+       "achSeen.maths-P8",
+       "achSeen.maths-P9",
+       "achSeen.maths-S1",
+       "achSeen.maths-S2",
+       "achSeen.maths-S3",
+       "achSeen.maths-S4",
+       "achSeen.maths-S5",
+       "achSeen.quiz-runner",
+       "achSeen.ready",
+       "achSeen.second-attempt",
+       "achSeen.steady-memory",
+       "achSeen.tuned-to-you"
       ]
      }
     },
@@ -3326,7 +3663,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -3905,7 +4242,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4001,6 +4338,49 @@
      "occurrence": 0,
      "effects": {
       "nav": "#/review"
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "fc.mode-type ui.tab",
+      "name": "Type",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "fcMode"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "fc.mode-write ui.tab",
+      "name": "Write",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "fcMode",
+       "ink"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "fc.mode-think ui.tab",
+      "name": "Think",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "fcMode"
+      ]
      }
     },
     {
@@ -4138,7 +4518,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4262,6 +4642,26 @@
     },
     {
      "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Mind",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Creatives",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {}
+    },
+    {
+     "key": {
       "ctx": "review.tabs",
       "hooks": "ui.tab",
       "name": "Due today",
@@ -4349,7 +4749,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4510,7 +4910,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -4735,6 +5135,15 @@
      "effects": {
       "state": [
        "assignments.items[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.on-the-plan",
+       "achSeen.synced"
       ]
      }
     },
@@ -4749,6 +5158,15 @@
      "effects": {
       "state": [
        "assignments.items[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.on-the-plan",
+       "achSeen.synced"
       ]
      }
     },
@@ -4763,6 +5181,15 @@
      "effects": {
       "state": [
        "assignments.items[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.on-the-plan",
+       "achSeen.synced"
       ]
      }
     },
@@ -4776,12 +5203,41 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "assignments.items[]",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
        "governor.xp",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -4843,7 +5299,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -5133,7 +5589,19 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.paper-trail",
        "tracker.entries[]"
+      ],
+      "ui": [
+       "achSeen.companion-complete",
+       "achSeen.dress-rehearsal",
+       "achSeen.know-thyself",
+       "achSeen.on-target",
+       "achSeen.paper-trail",
+       "achSeen.ready",
+       "achSeen.second-attempt",
+       "achSeen.survived-season",
+       "achSeen.under-the-clock"
       ]
      }
     },
@@ -5754,6 +6222,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -5761,6 +6234,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -5801,6 +6298,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -5808,6 +6310,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -5848,6 +6374,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -5855,6 +6386,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -5895,6 +6450,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -5902,6 +6462,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -5942,6 +6526,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -5949,6 +6538,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -5989,6 +6602,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -5996,6 +6614,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -6036,6 +6678,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -6043,6 +6690,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -6083,6 +6754,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -6090,6 +6766,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -6130,6 +6830,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -6137,6 +6842,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -6187,6 +6916,11 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.hp",
        "governor.milestones",
@@ -6194,6 +6928,30 @@
        "reminders.items[]",
        "reminders.rewardLog.2026-09-24",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.early-bird",
+       "achSeen.every-time",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.habit-former",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.morning-person",
+       "achSeen.night-owl",
+       "achSeen.on-the-plan",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.routine",
+       "achSeen.synced",
+       "achSeen.wind-down",
+       "achSeen.witching"
       ],
       "announce": [
        "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
@@ -6495,7 +7253,6 @@
        "朝Morning reviewThu 24 Sept · 10:011 lesson today and 1 study"
       ],
       "state": [
-       "assistant",
        "dayReview"
       ],
       "ui": [
@@ -7079,7 +7836,7 @@
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/routines/edit/r_mu4rcralw",
+      "nav": "#/routines/edit/r_f2rmrfjcw",
       "state": [
        "routines"
       ],
@@ -8898,7 +9655,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -9599,6 +10356,15 @@
      "effects": {
       "state": [
        "pacing.entries[]"
+      ],
+      "ui": [
+       "achSeen.ahead-of-time",
+       "achSeen.caught-up",
+       "achSeen.done-and-dusted",
+       "achSeen.handed-in",
+       "achSeen.in-step",
+       "achSeen.on-the-plan",
+       "achSeen.synced"
       ]
      }
     },
@@ -9836,7 +10602,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -10886,10 +11652,27 @@
      "occurrence": 0,
      "effects": {
       "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
        "governor.gold",
        "governor.milestones",
        "governor.xp",
        "sessions[]"
+      ],
+      "ui": [
+       "achSeen.early-bird",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.night-owl",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.witching"
       ],
       "media": [
        "entry~journal[],progress,reward,updatedAt"
@@ -12856,6 +13639,29 @@
      },
      "occurrence": 0,
      "effects": {
+      "state": [
+       "achievements.earned.early-bird",
+       "achievements.earned.kept-going",
+       "achievements.earned.level",
+       "achievements.earned.regular",
+       "achievements.earned.witching",
+       "governor.gold",
+       "governor.milestones",
+       "governor.xp",
+       "sessions[]"
+      ],
+      "ui": [
+       "achSeen.early-bird",
+       "achSeen.first-light",
+       "achSeen.gold",
+       "achSeen.kept-going",
+       "achSeen.level",
+       "achSeen.night-owl",
+       "achSeen.perfect-week",
+       "achSeen.regular",
+       "achSeen.rest-is-work",
+       "achSeen.witching"
+      ],
       "media": [
        "entry~journal[],playtimeHours,progress,reward,updatedAt"
       ],
@@ -15949,6 +16755,18 @@
      "effects": {
       "nav": "#/governor/history"
      }
+    },
+    {
+     "key": {
+      "ctx": "gov.wall",
+      "hooks": "gov.wall-open",
+      "name": "Open the Wall",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
     }
    ]
   },
@@ -16282,6 +17100,61 @@
     },
     {
      "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Files",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/files",
+      "ui": [
+       "achSeen.library",
+       "files"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Storage",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/storage"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Pen and ink",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/pen",
+      "ui": [
+       "ink"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Connections",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/connections"
+     }
+    },
+    {
+     "key": {
       "ctx": "ui.page-actions",
       "hooks": "",
       "name": "✓ Mark all as read",
@@ -16352,12 +17225,7 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {
-      "errors": [
-       "window error: Cannot read properties of undefined (reading 'toLowerCase')",
-       "jsdom: Uncaught [TypeError: Cannot read properties of undefined (reading 'toLowerCase')]"
-      ]
-     }
+     "effects": {}
     },
     {
      "key": {
@@ -16367,12 +17235,7 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {
-      "errors": [
-       "jsdom: Uncaught [TypeError: Cannot read properties of undefined (reading 'toLowerCase')]",
-       "jsdom: Uncaught [TypeError: Cannot read properties of undefined (reading 'toLowerCase')]"
-      ]
-     }
+     "effects": {}
     },
     {
      "key": {
@@ -16382,12 +17245,7 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {
-      "errors": [
-       "jsdom: Uncaught [TypeError: Cannot read properties of undefined (reading 'toLowerCase')]",
-       "jsdom: Uncaught [TypeError: Cannot read properties of undefined (reading 'toLowerCase')]"
-      ]
-     }
+     "effects": {}
     },
     {
      "key": {
@@ -16630,6 +17488,20 @@
      "key": {
       "ctx": "notify.filters",
       "hooks": "notify.filter",
+      "name": "Badges earned notifications",
+      "tag": "input"
+     },
+     "occurrence": 0,
+     "effects": {
+      "ui": [
+       "notifyMuted"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "notify.filters",
+      "hooks": "notify.filter",
       "name": "Routines notifications",
       "tag": "input"
      },
@@ -16709,6 +17581,60 @@
      "occurrence": 0,
      "effects": {
       "nav": "#/notifications"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Files",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/files",
+      "ui": [
+       "files"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Storage",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/storage"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Pen and ink",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/pen",
+      "ui": [
+       "ink"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Connections",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/connections"
      }
     },
     {
@@ -16809,6 +17735,60 @@
     },
     {
      "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Files",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/files",
+      "ui": [
+       "files"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Storage",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/storage"
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Pen and ink",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/pen",
+      "ui": [
+       "ink"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "",
+      "hooks": "shell.subnav-item",
+      "name": "Connections",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/connections"
+     }
+    },
+    {
+     "key": {
       "ctx": "help.nav",
       "hooks": "help.nav-item help.section",
       "name": "Getting around",
@@ -16877,6 +17857,18 @@
      "occurrence": 0,
      "effects": {
       "nav": "#/help/the-collection-matrix"
+     }
+    },
+    {
+     "key": {
+      "ctx": "help.nav",
+      "hooks": "help.nav-item help.section",
+      "name": "Files & handwriting",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/help/files-handwriting"
      }
     },
     {
@@ -17035,7 +18027,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -17916,7 +18908,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -18427,7 +19419,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,
@@ -18690,7 +19682,7 @@
      "key": {
       "ctx": "",
       "hooks": "shell.subnav-item",
-      "name": "Code & Japanese",
+      "name": "Study spaces",
       "tag": "button"
      },
      "occurrence": 0,

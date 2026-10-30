@@ -358,6 +358,8 @@
      for an IT unit, writes the raw mark through KOS.itUnits.setUnit, which
      stays the owner of unit marks (invariant 26f). */
   function recordResult(id, entry) {
+    /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
+    if (KOS.achievements) KOS.achievements.touch("exams");
     var a = get(id);
     if (!a || !entry) return null;
     a.result = { attempt: entry.uid || null, marks: entry.marks, max: entry.max, grade: entry.grade || "", at: entry.date || today() };
