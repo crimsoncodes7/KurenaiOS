@@ -42,7 +42,7 @@ What the Calendar cannot hold as one event — another rule (BYDAY lists, the fi
 **Set-up you do once** (none of it can be done for you):
 
 1. Google Cloud console: a project, the Calendar API and the Tasks API enabled, an OAuth consent screen (External) set to **In production** — in Testing, Google ends refresh tokens after 7 days. It stays unverified; you'll see Google's "unverified app" screen when you connect. An OAuth client (Web application) with the redirect URIs `https://kurenai-os.pages.dev/` and `http://localhost:8765/`.
-2. Todoist App Management Console: an app with the redirect URI `https://kurenai-os.pages.dev/` (refresh tokens are on by default for new apps).
+2. Todoist App Management Console: an app with the redirect URI `https://kurenai-os.pages.dev` — WITHOUT the trailing slash: Todoist calls the bare domain with a slash an invalid URL, so the app sends Todoist the address without it (`KOS.ext.redirectUri`). Refresh tokens are on by default for new apps.
 3. `supabase secrets set GOOGLE_CLIENT_ID=… GOOGLE_CLIENT_SECRET=… TODOIST_CLIENT_ID=… TODOIST_CLIENT_SECRET=…`, then `supabase functions deploy ext-token` and `supabase db push`.
 
 ## 4. Google Calendar (`js/core/extgcal.js`)

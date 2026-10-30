@@ -503,6 +503,11 @@ step("I · sign-in and the server", async () => {
   assert(/!\/\[\?&\]state=ext-\/\.test\(location\.search\)/.test(cg), "GitHub's return handler leaves a Google or Todoist return alone");
   const L = await import(path.join(ROOT, "supabase/functions/ext-token/logic.ts"));
   assert(L.redirectAllowed("https://kurenai-os.pages.dev/", "https://kurenai-os.pages.dev"), "the app may receive a code");
+  assert(L.redirectAllowed("https://kurenai-os.pages.dev", "https://kurenai-os.pages.dev"), "so may the bare domain (Todoist's form)");
+  const prod = { origin: "https://kurenai-os.pages.dev", pathname: "/" };
+  eq([X.redirectUri("todoist", prod), X.redirectUri("google", prod)], ["https://kurenai-os.pages.dev", "https://kurenai-os.pages.dev/"], "Todoist gets the address without the trailing slash, Google with it");
+  eq(X.redirectUri("todoist", { origin: "http://localhost:8765", pathname: "/index.html" }), "http://localhost:8765/index.html", "a page with a path keeps it");
+  assert(L.redirectAllowed(X.redirectUri("todoist", prod), "https://kurenai-os.pages.dev"), "and the function accepts Todoist's form");
   assert(L.redirectAllowed("http://localhost:8765/", "https://kurenai-os.pages.dev"), "so may a dev host");
   assert(!L.redirectAllowed("https://evil.example/", "https://kurenai-os.pages.dev") && !L.redirectAllowed("https://kurenai-os.pages.dev/?x=1", "https://kurenai-os.pages.dev"), "nowhere else");
   const url = new URL(L.authorizeUrl("google", "cid", "https://kurenai-os.pages.dev/", "ext-google-abcdefabcdef12"));

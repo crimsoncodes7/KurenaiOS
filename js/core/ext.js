@@ -192,7 +192,16 @@
       });
     });
   }
-  function redirectUri() { return location.origin + location.pathname; }
+  /* where a sign-in comes back: this page. Todoist's console refuses a
+     bare domain with a trailing slash ("Invalid URL" on
+     https://kurenai-os.pages.dev/), so Todoist is sent the address without
+     it; Google is registered with it. The same string goes to the token
+     exchange, which must match exactly. */
+  function redirectUri(p, at) {
+    var loc = at || location, path = loc.pathname;
+    if (p === "todoist" && path === "/") path = "";
+    return loc.origin + path;
+  }
   function blocked() {
     if (typeof location === "undefined" || !/^https?:$/.test(location.protocol)) return "file";
     if (!signedIn()) return "signed-out";
@@ -203,7 +212,7 @@
     if (why) return Promise.resolve({ ok: false, why: why === "file" ? "Open the app from its web address to connect." : "Sign in to cloud sync first." });
     var state = "ext-" + p + "-" + rhex(24, true);
     try { sessionStorage.setItem("kos.ext.state", state); } catch (e) { /* the state check then fails safe */ }
-    return edge({ action: "start", provider: p, redirect: redirectUri(), state: state }).then(function (r) {
+    return edge({ action: "start", provider: p, redirect: redirectUri(p), state: state }).then(function (r) {
       nav(r.url);
       return { ok: true, leaving: true };
     }, function (e) { return { ok: false, why: e.message }; });
@@ -217,7 +226,7 @@
     var p = m[1];
     if (!want || state !== want) return Promise.resolve({ ok: false, p: p, why: "That sign-in did not come from this app. Connect again." });
     if (err || !code) return Promise.resolve({ ok: false, p: p, why: err === "access_denied" ? "You didn't allow access, so nothing was connected." : NAME[p] + " didn't send the sign-in back. Connect again." });
-    return edge({ action: "complete", provider: p, code: code, redirect: redirectUri() }).then(function (r) {
+    return edge({ action: "complete", provider: p, code: code, redirect: redirectUri(p) }).then(function (r) {
       var e = S();
       e[p].on = true;
       e[p].account = r.account || "";
@@ -372,7 +381,7 @@
     newUid: newUid, uidOk: uidOk, legacyUid: legacyUid, gcalId: gcalId, hashHex: hashHex, uuidOf: uuidOf,
     same: same, merge3: merge3,
     inbound: inbound, isInbound: isInbound, noteLocal: noteLocal, queueDelete: queueDelete,
-    connect: connect, complete: complete, disconnect: disconnect, token: token, blocked: blocked, serverStatus: serverStatus, isReturn: isReturn,
+    connect: connect, complete: complete, redirectUri: redirectUri, disconnect: disconnect, token: token, blocked: blocked, serverStatus: serverStatus, isReturn: isReturn,
     lease: lease, release: release, device: device,
     call: call, kv: kv, setKv: setKv, key: key,
     register: register, onChange: onChange, changed: changed, status: status, setStatus: setStatus,
