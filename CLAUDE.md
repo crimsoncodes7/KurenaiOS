@@ -17,7 +17,12 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-japanese-5` (27 October 2026, `feat/art-audit`) —
+- Latest release: sw `kos-mind-1` (29 October 2026, `feat/mind` at
+  `cc2bc15`, main fast-forwarded to it) — https://2f7e2aa8.kurenai-os.pages.dev:
+  Mind, the fifth study space (roadmap 5.9, design turn 32; invariants
+  137–141, smoke109–111; migration `20261029000001` `kos_mind` applied):
+  the platform and unit F1, What makes an argument good, with the desks
+  and lesson tab row cleaned up across subjects. Before it sw `kos-japanese-5` (27 October 2026, `feat/art-audit`) —
   https://fc302f55.kurenai-os.pages.dev: the Japanese media path's labels
   no longer overlap at phone width (a stone is as wide as its longest word;
   the strip is a declared `KOS.ui.scroller`), on top of kos-pencil-4; with
@@ -132,7 +137,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-connect-1`
-- Required smoke gate: 108 / 108 suites (`""`, 2–107 and 109 — 108 is Creatives', on `feat/creatives`; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 109 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 111 suites (`""`, 2–107 and 109–112 — 108 is Creatives', on `feat/creatives`; 109–111 are Mind's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -221,7 +226,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..107} 109; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..107} {109..112}; do node "tools/smoke${i}.test.js"; done
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -321,6 +326,8 @@ non-navigation redraw path.
   binaries to the private bucket.
 - `kurenai-os-filetext` IndexedDB: the text read from each PDF, for
   search (derived; kept when a binary is freed).
+- `kurenai-os-mind` IndexedDB: Mind's Journal entries and their tombstones
+  (invariant 139), replicated to `kos_mind`.
 - `kurenai-os-money` IndexedDB: Money's transactions and their tombstones
   (invariant 5a).
 - `kurenai-os-reviews` IndexedDB: the review log, one row per rating
@@ -379,6 +386,7 @@ non-navigation redraw path.
 | Files (roadmap 5.11, docs/files-plan.md R1–R4, invariants 150–153): the index, links, text search, one viewer, the pages | `js/core/files.js` (`KOS.files`: the index over both stores, `add`/`dropTarget`/`named`, `open` (pictures as a one-page PDF), `linkedTo`, `detach`, the text queue and `kurenai-os-filetext`, `search`, `takeShared`, the Assistant's `files_list`/`file_text`), the store's links, hashes, aliases and `evict` in `js/modules/attachments.js` (`KOS.attach`), `js/core/filescan.js` (`KOS.fileScan`: four corners, the homography warp, the PDF), `js/modules/files.js` (`KOS.views.files`, `#/files`; `KOS.filesUI`: Attach to…, Where it's linked), `js/modules/storage.js` (`KOS.views.storage`, `#/storage`), pinned notes, Ask Kurenai about this page and redo clips in `js/core/pdfview.js`; automatic upload in `js/core/cloudsync.js`; the share target in `manifest.webmanifest` and `sw.js`; smoke106 |
 | The rest of the iPad build (roadmap 6.1–6.9, 30b, 30f–30t): sync, export, pads, drills, the PDF viewer, settings | `js/core/inksync.js` (`KOS.inkSync`: the per-stroke merge, pure; `kos_ink` replication, the clash dialog, the chip), `js/core/inkexport.js` (`KOS.inkExport`: PNG and PDF on Dawn, `pdfLib`, `deliver` to the share sheet), `js/core/inkpad.js` (`KOS.inkPad`: the answer pad, Type · Write · On paper, Earlier answers; `KOS.inkAI`: What is sent, Mark with Kurenai, Check my working, Compare), `js/core/pdfview.js` (`KOS.pdfView`: the viewer, layers per attempt, the clock, the scheme pane, marking, Clip to notes, Save a copy), `js/core/desk.js` (`KOS.desk`: the Focus wake lock, hold ⌘), `js/modules/inkdrills.js` (`KOS.inkDrills`: Write it out, blurt, diagram drills, the Maths panel), `js/data/ink-drills.js` (AUTHORED drill models), `js/modules/inkset.js` (`KOS.views.pen`, Archive › Pen and ink); the Working pane in `js/modules/hub.js`; the pads in `js/engines/quiz.js` and `flashcards.js`; `assets/pdf/` (pdf.js, pdf-lib, vendored unchanged); smoke105 |
 | Files (`docs/files-plan.md` rev 2): R0 | `KOS.attach.openViewer`/`share` (`js/modules/attachments.js`), an assignment's attachment cards (`js/modules/assignments.js`), the import report (`KOS.examPapers.add`/`connect` → `report`, shown by `js/modules/examprac.js`); smoke105 H |
+| Mind (roadmap 5.9, `docs/mind-plan.md` revision 2, design turn 32): the curriculum, the model, the dialogues, the pages | `js/data/mind.js` (`KOS_MIND`, AUTHORED: headers, paths and every planned unit, `released`, the spine `KOS_DATA.mind`), `js/data/content/mind-<unit>.js` (concepts, lessons on the six-page contract, checks, dialogues, the checkpoint), `js/core/mind.js` (`KOS.mind`: evidence, the ladder, positions, cards, pay, the Daily 15, the Big Question), `js/core/mindtree.js` (`KOS.mindTree`, pure, also in Node), `js/core/mindjournal.js` (`KOS.mindJournal`, IndexedDB `kurenai-os-mind`, `kos_mind`), `js/core/mindui.js` (`KOS.mindUI`: ladders, evidence tags, the strip, the argument map, the VN scene), `js/modules/mindtopic.js` (`KOS.mindTopic`: the lesson on the shared topic page), `js/modules/mindrun.js` (`KOS.mindRun`: explain-back, position, revisit, dialogue, Ask Kurenai, capture), `js/modules/mind.js` (`KOS.mindDesk`, `KOS.views.mind`: `#/mind/<path\|journal\|positions\|daily>`, `KOS.mindPages`: the checkpoint), `css/views/mind.css`; the art in `assets/mind/img/` (from `art-source/mind/`); `tools/mind_tree_check.mjs`; smoke109–111 |
 | Routines and the Daily Review (roadmap 5.10, `docs/routines-plan.md`, design turn 33): the record, the day model, the review core | `js/core/routines.js` (`KOS.routines`: the record, log, snapshot, streaks, rest days, late ticks, pay through `KOS.governor.routineAward`, the Habits migration, `habitsView`, goal types and tools), `js/data/routine-templates.js` (AUTHORED), `js/core/today.js` (`KOS.today`: the day model, a pure read; the bag), `js/core/dayreview.js` (`KOS.dayReview`: settings, `due` and the folds, steps, triage through the owners, the words, notices, tools); smoke101–103 |
 | Routines and the Daily Review: the pages | `js/modules/routines.js` (`KOS.views.routines`, `#/routines[/routines\|templates\|history\|settings]`, `#/routines/edit/<id>`; `#/tasks` aliases; `KOS.rtUI`, the shared parts), `js/modules/dayreview.js` (`KOS.reviewSheet`: the overlay, the steps, the header chip, auto-open), `js/modules/routineplayer.js` (`KOS.routinePlayer`: the player, About to Study, the timetable sheet), `css/views/routines.css`; the art in `assets/routines/img/` (imported by `prototypes/japanese-space/art_import.py` from `art-source/routines/`); Home's three and Routines card in `hub.js`; smoke104 |
 | Google Calendar, Google Tasks and Todoist (roadmap 5.15, `docs/integrations-plan.md`, invariants 157–160): sign-in, ids, the three-way rule, the lease, the cycle; the two calendars; Reminders lists | `js/core/ext.js` (`KOS.ext`: settings `state.ext`, `inbound`/`noteLocal`, `merge3`, `gcalId`/`uidOf`, `connect`/`complete`/`token`, `lease`, `syncAll`, the delete queue, `logActivity`), `js/core/extgcal.js` (`KOS.extGcal`: the mapping, the two-way cycle with the primary calendar, the read-only copy `roOn`, the one-way "KurenaiOS" calendar `exportItems`), `js/core/exttasks.js` (`KOS.extTasks`: list links, Todoist's Sync API, Google Tasks); the owners' `uid`/`ext` fields and change notes in `js/modules/calendar.js` and `js/core/reminders.js`; page `js/modules/connections.js` (`#/connections`); `supabase/functions/ext-token/` (`index.ts`, `logic.ts`), `kos_ext` (migration `20261030000001`); smoke112 |
@@ -1624,6 +1632,63 @@ source comments and audit notes refer to it.
     assessment or Files, paste, Scan pages (the device's camera, four
     corner handles, a projective warp, one PDF; no library), Share to
     KurenaiOS (the Web Share Target) and the folder import.
+
+### Mind (137–141; docs/mind-plan.md revision 2, design turn 32)
+
+137. A CONCEPT IS THE UNIT OF RETENTION. Concepts (`KOS_MIND.CONCEPTS`,
+    authored in `js/data/content/mind-<unit>.js`) have stable ids; cards
+    (`state.mind.cards["<concept>:<i>"]`, on `KOS.fsrs` like every card,
+    invariant 111, review-log `src: "mind"`, merged WHOLE like a Japanese
+    facet), checks and Journal links point at the id. A concept's ladder —
+    Recall (every card rated Hard or better), Explain (an explain-back
+    ticking 60% of its key points, or a checkpoint rubric row), Apply (a
+    scenario answered right), Evaluate (a position with an objection
+    answered, or a rubric row) — is DERIVED from evidence by `KOS.mind`
+    and never stored or ticked. A lesson asks ONE written prompt by its
+    `kind` (an explain-back, or a position for a contested lesson);
+    "Later" parks it and never blocks the other checks. A lesson's checks
+    (pages read with the 2.5 s dwell, the check passed, the prompt, a
+    first retrieval) reach the shared progress record only through
+    `KOS.mind.syncChecks`; the desk's ring is mastery like every subject's
+    (the mean of the released lessons' checks). Mind is a study space, not
+    an exam subject (`KOS.subjects`, hue `--mind`, Fuji), and has NO
+    streak of its own: it feeds the study streak only. PAY ONCE
+    (`KOS.mind.award`, type `mind`): a review block is ONE entry paying +1
+    XP a passed card, at most 15 a day; a lesson's first finish 12 XP, 2
+    gold, +2 HP; a unit checkpoint 50/12/+4; a path 120/30/+8. Writing —
+    explain-backs, positions, the Journal, dialogues, Ask Kurenai — pays
+    nothing. The Daily 15 is computed from the date and the evidence
+    (`planDay`: reviews · one sitting · one question; 5 minutes of reviews
+    in Exam Season), run as a Focus stopwatch and paid by the Focus rule.
+    Reads write nothing (smoke109 A, smoke110 D).
+138. POSITIONS ARE VERSIONED, NEVER OVERWRITTEN. A revision appends a
+    dated version under its own random key (`positions[lesson].versions`,
+    so two devices' revisions both survive the merge) with its reason and,
+    on a revise, "what changed my mind". Revisits come at about 14, 60 and
+    180 days (Keep · Revise · Retire; retired is kept, struck). Tensions
+    are authored (`KOS_MIND.TENSIONS`), never inferred.
+139. THE JOURNAL IS PRIVATE AND LOCAL FIRST. Insights, quotes, questions
+    and reflections live in IndexedDB `kurenai-os-mind` (`entries`, `del`
+    tombstones; `KOS.mindJournal`), ride the full backup and replicate to
+    the owner-only `kos_mind` (migration `20261029000001`, applied 29
+    October 2026) on Money's pattern. Reports count entries and never
+    quote them; the Assistant's `mind_overview`/`mind_concept` read counts
+    and ladders, never an entry or a position's reasons.
+140. KURENAI DISCUSSES, NEVER GRADES. The Socratic dialogues are AUTHORED
+    trees (`KOS.mindTree`, pure: 2–4 choices and a way out at every
+    question, every path 3–5 turns, voiced by Kurenai or Ren, held by
+    `tools/mind_tree_check.mjs` and smoke111) and work offline. Ask
+    Kurenai (four modes, on request) sends only what "What is sent" shows,
+    once per press, and never sets mastery, a position or a checkpoint. A
+    Mind lesson's inspector carries it in place of the generic exam strip
+    (`cx.assistStrip = false`).
+141. CLAIMS CARRY THEIR EVIDENCE. Every psychology finding is marked
+    Robust, Debated or Failed to replicate (`KOS.mindUI.finding`) and names
+    its study on the lesson's Sources tab. Primary sources come from
+    public-domain translations only. Numbers (Bayes, payoffs, odds) are
+    checked by program before they are written. The art is original and
+    AI-assisted (Gemini; one philosopher card in ChatGPT), credited on the
+    Path page.
 
 ### Routines and the Daily Review (142–149)
 

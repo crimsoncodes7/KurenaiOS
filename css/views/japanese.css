@@ -170,8 +170,6 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 /* ================= the desk (28a) ================= */
 .k-ja-hero { grid-template-rows: minmax(0, 1fr) auto; row-gap: var(--sp-20); align-items: center; }
 .k-ja-hero .k-subj-name { display: flex; align-items: baseline; gap: var(--sp-10); flex-wrap: wrap; }
-.k-ja-hero-where { margin: var(--sp-6) 0 0; font-size: var(--fs-13); color: var(--text-2); }
-.k-ja-hero-where [lang="ja"] { font-family: var(--font-kanji); color: var(--ja); }
 .k-ja-skills .k-subj-paper-top { display: flex; align-items: center; gap: var(--sp-8); }
 .k-ja-today { display: flex; flex-direction: column; gap: var(--sp-10); }
 .k-ja-today-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
@@ -190,8 +188,6 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 .k-ja-firstlist span { color: var(--text-2); }
 .k-ja-firstlist small { color: var(--muted); font-size: var(--fs-12); }
 .k-ja-units > .k-unit { flex: 1 0 var(--ja-unit-w); inline-size: auto; }
-.k-ja-unit-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-6); }
-.k-ja-unit-sk { display: inline-flex; gap: var(--sp-3); }
 .k-ja-core { display: flex; flex-direction: column; gap: var(--sp-12); }
 .k-ja-close { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-16); }
 .k-ja-stonecard { display: flex; flex-direction: column; gap: var(--sp-10); }

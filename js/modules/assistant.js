@@ -53,6 +53,8 @@
     code_overview: "Checking your Code progress",
     code_lesson: "Reading a Code lesson",
     code_skills: "Reading your Code skill map",
+    mind_overview: "Checking your Mind progress",
+    mind_concept: "Reading a Mind concept",
     study_list_topics: "Reading your topics",
     study_read_notes: "Reading your topic notes",
     study_get_progress: "Checking your study progress",

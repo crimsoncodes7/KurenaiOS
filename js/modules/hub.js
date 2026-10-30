@@ -452,7 +452,7 @@
         onclick: function () { setTreeClosed(true); } })
     ]));
     var filter = el("input", { type: "search", class: "k-spine-filter", "data-ui": "study.spine-filter",
-      placeholder: "Filter " + st.total + (sid === "code" || sid === "ja" ? " lessons" : " topics"), "aria-label": sid === "code" || sid === "ja" ? "Filter lessons" : "Filter topics" });
+      placeholder: "Filter " + st.total + (sid === "code" || sid === "ja" || sid === "mind" ? " lessons" : " topics"), "aria-label": sid === "code" || sid === "ja" || sid === "mind" ? "Filter lessons" : "Filter topics" });
     filter.value = spineQuery;
     tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [KOS.ui.icon("search"), filter]));
     tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
@@ -481,7 +481,9 @@
        the units; Tracks lists the tracks and deepening modules instead */
     var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef, codeMode)
       /* Japanese (frame 28e): Core | Media, and stage headings with their emblem kanji */
-      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef) : null;
+      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef)
+      /* Mind (frame 32d): the four headers over the units */
+      : sid === "mind" && KOS.mindTopic ? KOS.mindTopic.spine(tree, list, activeRef) : null;
     tree.appendChild(list);
     var lastStage = null;
     sections.forEach(function (sec) {
@@ -1540,6 +1542,7 @@
     /* Code joins Home's desks once it has been started (roadmap 5.3) */
     SUBJECTS.filter(function (sid) {
       if (sid === "ja") return !!(KOS.ja && KOS.ja.started());
+      if (sid === "mind") return !!(KOS.mind && KOS.mind.started());
       return sid !== "code" || (KOS.code && !KOS.code.firstVisit());
     }).forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
@@ -1562,7 +1565,7 @@
         ]),
         el("div", { class: "k-bar", "data-ui": "media.bar", title: st.done + " of " + st.total + " spec points completed",
           style: "--p: " + Math.max(st.pct, st.done ? 1 : 0) + "%" }, [el("i", { "data-ui": "media.bar-fill" })]),
-        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: sid === "code" || sid === "ja" ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
+        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: sid === "code" || sid === "ja" || sid === "mind" ? "Lessons" : "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
         el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Weakest" }),
           weak ? el("button", { type: "button", class: "k-desk-row-v", "data-ui": "rag.item", text: weak.ref + " " + weak.title,
             onclick: function () { KOS.show("ref", { subject: sid, ref: weak.ref }); } })
@@ -1938,6 +1941,12 @@
     if (sid === "code" && KOS.codeDesk) {
       main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
       KOS.codeDesk(main);
+      return;
+    }
+    /* …and Mind's (frame 32a) */
+    if (sid === "mind" && KOS.mindDesk) {
+      main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
+      KOS.mindDesk(main);
       return;
     }
     /* …and so is Japanese's (frame 28a) */
@@ -2342,7 +2351,9 @@
        runnable listings, Practice and Tasks, and an evidence inspector */
     var cx = sid === "code" && KOS.codeTopic ? KOS.codeTopic.begin(ref)
       /* Japanese lessons (frame 28e): voiced examples, the page picker, evidence by skill */
-      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref) : null;
+      : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref)
+      /* Mind lessons (frames 32d–32f): six named pages, the one prompt, the dialogue, the ladder */
+      : sid === "mind" && KOS.mindTopic ? KOS.mindTopic.begin(ref) : null;
 
     /* ---------- the Topic Status component ----------
        Status, the four progress checks and the RAG confidence rating are one
@@ -2539,6 +2550,8 @@
     var panel = el("div", { class: "k-topic-panel", "data-ui": "study.panel", role: "tabpanel" });
     var curTab = cx ? cx.firstTab() : (content && content.notes && content.notes.length) ? "notes" : "spec";
     var EDIT_KIND = { spec: "spec", notes: "notes", cards: "flashcards", quiz: "quiz", exam: "exam" };
+    /* a study space whose tabs are its own names one the editor can edit (Mind's Lesson: your notes) */
+    if (cx && cx.editKinds) Object.keys(cx.editKinds).forEach(function (t) { EDIT_KIND[t] = cx.editKinds[t]; });
     var editing = store.state.ui.editing;
     if (editing && editing.sid === sid && editing.ref === ref && editing.tab && EDIT_KIND[editing.tab]) curTab = editing.tab;
     else editing = null;
@@ -2583,21 +2596,31 @@
       /* on a phone all eight tabs ride one scroller instead (15d) */
       var phoneTier = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
       if (tabBar.clientWidth > 0 && !phoneTier) {
+        /* the "+N" button takes room from the tabs (they share the row), so the fold is
+           measured with a probe of its size in place from the first fold on */
         for (var i = btns.length - 1; i >= 0 && tabBar.scrollWidth > tabBar.clientWidth; i--) {
           if (btns[i].dataset.tab === curTab || btns[i].hidden) continue;
+          if (!moreSlot.children.length) moreSlot.appendChild(el("span", { class: "k-btn k-btn--quiet k-topic-more-probe", text: "+8" }));
           btns[i].hidden = true;
           hidden.unshift(btns[i]);
-          if (i === btns.length - 1 && !moreSlot.children.length) moreSlot.appendChild(el("span", { class: "k-btn k-topic-more-probe", text: "+8" }));
         }
       }
-      moreSlot.innerHTML = "";
-      if (hidden.length) {
+      function moreMenu() {
+        moreSlot.innerHTML = "";
+        if (!hidden.length) return;
         moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material", align: "start", panelClass: "k-topic-more-pop",
           items: hidden.map(function (b) {
             var n = b.querySelector("[data-ui~='ui.tab-count']");
             return { label: (b.getAttribute("data-label") || b.firstChild.textContent) + (n ? " · " + n.textContent : ""),
               onSelect: function () { selectTab(b.dataset.tab); } };
           }) }));
+      }
+      moreMenu();
+      /* the real menu can be a few pixels wider than the probe: fold one more rather than
+         leave a clipped tab and a scroll arrow beside it */
+      if (hidden.length && tabBar.scrollWidth > tabBar.clientWidth) {
+        var last = btns.filter(function (b) { return !b.hidden && b.dataset.tab !== curTab; }).pop();
+        if (last) { last.hidden = true; hidden.unshift(last); moreMenu(); }
       }
     }
     if (typeof window.ResizeObserver === "function") {
@@ -2704,7 +2727,8 @@
     var studyCol = el("div", { class: "k-topic-col", "data-ui": "study.col" }, [head, studyNav, el("div", { class: "k-topic-workgrid", "data-ui": "topic.workgrid" }, [panel, workPane])]);
     TABDEFS.forEach(function (t) { TAB_NAME[t[0]] = t[1]; });
     studyGrid.appendChild(studyCol);
-    var asstStrip = KOS.assistant && KOS.assistant.contextActions
+    /* a subject with its own Ask Kurenai in the inspector (Mind's four modes) opts out: cx.assistStrip === false */
+    var asstStrip = KOS.assistant && KOS.assistant.contextActions && !(cx && cx.assistStrip === false)
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
       : null;
     var inspector = buildInspector(studyGrid, sid, ref, cx ? cx.status() : ctl, asstStrip, cx);
@@ -2808,6 +2832,7 @@
         onClose: closeEditor
       });
       paintEditBtn();
+      if (cx && cx.editKinds) openTab({ keep: true });   // a study space shows the page being edited (Mind: Your notes)
       KOS.a11y && KOS.a11y.announce && KOS.a11y.announce("Editing " + KOS.editor.KIND_LABEL[kind] + ".");
     }
     function closeEditor() {

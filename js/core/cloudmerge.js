@@ -109,7 +109,10 @@
   /* a Japanese facet (state.japanese.facets["<item>|<skill>"]) is one memory state — stability,
      difficulty and due belong together. Changed on both devices, the one reviewed more recently
      wins whole (a tie goes local), so two devices never mix one facet's numbers (invariant 113). */
-  var FACET_PATH = /^japanese\.facets\.[^.]+$/;
+  /* a Mind concept card (state.mind.cards["<concept>:<i>"], roadmap 5.9) is the same: one FSRS
+     memory, merged whole by the later review. A position's versions are a keyed map, so two
+     devices' revisions both survive (invariant 138). */
+  var FACET_PATH = /^(japanese\.facets|mind\.cards)\.[^.]+$/;
   function isAtomic(path) {
     if (typeof path !== "string") return false;
     for (var i = 0; i < ATOMIC_PREFIX.length; i++) if (path.indexOf(ATOMIC_PREFIX[i]) === 0) return true;

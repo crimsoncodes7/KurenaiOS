@@ -56,3 +56,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-27 (10:00): kos-pencil-4 released, https://0f3ac3cd.kurenai-os.pages.dev — marking reasons as maths, 274 lost LaTeX \; fixed in Pure notes. Spike H: first marks agree with the user (caught lost a=0 and dividing by a^2).
 
 2026-10-27 (later): kos-japanese-5 released from main (40c375a + the Japanese path fix), https://fc302f55.kurenai-os.pages.dev — the media path labels at phone width; carries kos-pencil-4.
+
+2026-10-29: `feat/mind` (worktree /Users/fj/Developer/KurenaiOS-mind) released as sw `kos-mind-1`, https://2f7e2aa8.kurenai-os.pages.dev — Mind platform + unit F1, plus the desk/tab-row clean-up across subjects; main fast-forwarded to cc2bc15. Gate 110 (2–107, 109–111). Not on main yet: feat/creatives (smoke108) and feat/integrations, whose smoke109 clashes with Mind's — renumber at merge.

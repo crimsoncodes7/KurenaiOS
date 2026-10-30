@@ -837,6 +837,7 @@
     ]
    },
    "why": "Pencil fixes (27 October 2026): a new routine's id is random; with one Assistant request fewer before it (the review's back-off) the harness's random sequence gives another id. The page it opens is the same."
-  }
+  },
+  {"hooks": "shell.subnav-item", "from": "^Code & Japanese$", "to": "Study spaces", "why": "Mind (roadmap 5.9): with Mind the study spaces are three and growing, so the pill on the A-level pages that reaches that group says Study spaces, as the other side says A-levels. It still opens the study space last opened."}
   ]
 }

@@ -951,6 +951,43 @@
   });
 
   /* ======================================================================
+     MIND (psychology and philosophy; read only, like Code's — evidence is earned in the app.
+     The Journal and a position's reasons are private: counts only, never their text)
+     ====================================================================== */
+  function mindReady(cb) { if (!KOS.mind || !KOS.mind.lessons) { cb({ error: "Mind is not loaded." }); return false; } return true; }
+  def("mind_overview", {
+    desc: "Mind (psychology and philosophy): progress so far — mastery, lessons done, the current lesson, today's Daily 15 (reviews, a sitting, a question), cards due, how many concepts reach each rung (Recall, Explain, Apply, Evaluate), checkpoints, positions, changed minds and Journal counts.",
+    category: "study", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      if (!mindReady(cb)) return;
+      var M = KOS.mind, st = M.stats(), p = M.planDay(), n = M.nextLesson();
+      cb(null, {
+        mastery: st.mastery, lessonsDone: st.done, lessonsReleased: st.lessons, lessonsPlanned: st.planned,
+        currentLesson: n ? { ref: n.id, title: n.title } : null,
+        daily15: { examSeason: p.exam, reviews: p.reviews.n, sitting: p.sitting ? { lesson: p.sitting.lesson, title: p.sitting.title } : null, question: p.question ? p.question.q.kind : null },
+        cardsDue: st.due, conceptsMet: st.concepts, rungs: { recall: st.rungs[0], explain: st.rungs[1], apply: st.rungs[2], evaluate: st.rungs[3] },
+        checkpointsPassed: st.passed, checkpoints: st.checkpoints, positions: st.positions, changedMinds: st.changed,
+        revisitsDue: M.revisitsDue().length, journalEntries: KOS.mindJournal && KOS.mindJournal.loaded() ? KOS.mindJournal.counts().all : null
+      });
+    }
+  });
+  def("mind_concept", {
+    desc: "One Mind concept by id or name (e.g. \"steelman\", \"Hidden premise\"): its gist, key points, and which rungs of its ladder hold and why.",
+    category: "study", tier: "read", read: true,
+    params: { concept: { type: "string", required: true, maxLen: 40 } },
+    run: function (args, cb) {
+      if (!mindReady(cb)) return;
+      var M = KOS.mind, q = String(args.concept || "").toLowerCase().trim();
+      var c = M.concept(q) || M.concepts().filter(function (x) { return x.name.toLowerCase() === q; })[0];
+      if (!c) { cb({ error: "No Mind concept " + args.concept + "." }); return; }
+      var l = M.ladder(c.id);
+      cb(null, { id: c.id, name: c.name, gist: c.gist, keyPoints: c.keyPoints || [],
+        rungs: M.RUNGS.map(function (r, i) { return { rung: r, holds: !!l.rungs[i] }; }),
+        cards: M.cardKeys(c.id).length });
+    }
+  });
+
+  /* ======================================================================
      GOVERNOR
      ====================================================================== */
   def("governor_get_status", {

@@ -176,6 +176,8 @@
      goals' notices (a period ending, a deadline tomorrow) */
   if (KOS.money) KOS.money.start();
   if (KOS.goals && KOS.goals.start) KOS.goals.start();
+  /* Mind's Journal (5.9): its entries' replicated copy in kos_mind */
+  if (KOS.mindJournal) KOS.mindJournal.start();
   /* the Daily Review's ticker: a review's notice at its time, Kurenai's
      words written ahead, routine windows (off until the overlay ships) */
   if (KOS.dayReview) KOS.dayReview.start();

@@ -52,6 +52,8 @@
     code: function (a) { return a && a.page ? [a.page].concat(a.id ? [a.id] : []) : null; },
     /* Japanese's own pages (roadmap 5.5): `#/japanese/path`, `#/japanese/kana`, `#/japanese/session/<kind>` … */
     japanese: function (a) { return a && a.page ? [a.page].concat(a.id ? [a.id] : []) : null; },
+    /* Mind's own pages (roadmap 5.9): `#/mind/path`, `#/mind/journal`, `#/mind/positions`, `#/mind/daily` */
+    mind: function (a) { return a && a.page ? [a.page].concat(a.id ? [a.id] : []) : null; },
     sims: function (a) { return typeof a === "string" && a ? [a] : null; },
     assistant: function (a) { return a && typeof a.tab === "string" && a.tab ? [a.tab] : null; },
     /* the guide section being read (`#/help/productivity`), and the one
@@ -118,6 +120,7 @@
     governor: function (p) { return p[0] || null; },
     code: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     japanese: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
+    mind: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
     money: function (p) { return p[0] || null; },
     routines: function (p) { return p[0] === "edit" ? { edit: p[1] || "new" } : p[0] || null; },
