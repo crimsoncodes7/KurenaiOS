@@ -22,7 +22,7 @@
   function dateShort(ts) { return new Date(ts).toLocaleDateString(undefined, { day: "numeric", month: "short" }); }
   function hm(mins) { mins = Math.round(mins || 0); var h = Math.floor(mins / 60), m = mins % 60; return h ? h + " h " + (m < 10 ? "0" : "") + m : m + " m"; }
 
-  KOS.crPages = [["tracks", "Tracks"], ["write", "Writing"], ["drills", "Drills"], ["portfolio", "Portfolio"]];
+  KOS.crPages = [["tracks", "Tracks"], ["write", "Writing"], ["drills", "Drills"], ["refs", "References"], ["portfolio", "Portfolio"]];
 
   /* a dialog through the one modal route (invariant 49) */
   function dialog(o) {
@@ -275,6 +275,7 @@
     var page = arg.page || "tracks";
     if (page === "write") { spaceHead(main, "write", { title: "Writing Desk", sub: null }); return arg.id ? KOS.crWrite.desk(main, arg.id) : KOS.crWrite.list(main); }
     if (page === "drills") { var dt = KOS.crDrills.type(String(arg.id || "").split("@")[0]); spaceHead(main, "drills", { title: dt ? dt.t : "Drills", sub: null }); return KOS.crDrills.page(main, arg.id); }
+    if (page === "refs") { spaceHead(main, "refs", { title: "References", sub: null }); return KOS.crRefsPage(main); }
     if (page === "check") { spaceHead(main, "check", { title: "The check", sub: null }); return checkPage(main, arg.id); }
     if (page === "log") { spaceHead(main, "log", { title: "Practice Log", sub: "Only you see this" }); return logPage(main, arg.id); }
     if (page === "portfolio") { spaceHead(main, "portfolio", { title: "Portfolio", sub: null }); return portfolioPage(main); }

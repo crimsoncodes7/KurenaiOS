@@ -265,6 +265,34 @@ step("I · Design's drills: each renders and checks; a batch pays once a day; a 
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("J · the reference generator: deterministic by seed, no file, construction on request", async (app) => {
+  const K = app.KOS, R = K.crRefs, doc = app.document;
+  for (const k of R.KINDS) {
+    for (const s of [1, 2, 77, 9001]) {
+      const a = R.build(k.id, s), b = R.build(k.id, s);
+      assert(JSON.stringify(a) === JSON.stringify(b), k.id + " seed " + s + " is not repeatable");
+      assert(!/NaN|Infinity/.test(JSON.stringify(a)), k.id + " seed " + s + " has a NaN");
+      assert(a.items.some((x) => x.role === "form") && a.facts.length, k.id + " draws a form and names it");
+    }
+    assert(JSON.stringify(R.build(k.id, 1)) !== JSON.stringify(R.build(k.id, 2)), k.id + ": two seeds, two drawings");
+  }
+  const before = JSON.stringify(K.store.state.ui.creatives || {});
+  K.show("creatives", { page: "refs" }); await app.settle();
+  assert(JSON.stringify(K.store.state.ui.creatives || {}) === before, "opening References writes nothing");
+  const stage = () => doc.querySelectorAll('[data-ui~="cr.refs"] .k-crg').length;
+  const kinds = doc.querySelectorAll('[data-ui~="cr.ref-kind"]');
+  assert(kinds.length === 4 && stage() > 0, "four kinds, and a drawing on the stage");
+  const withCons = doc.querySelectorAll('[data-ui~="cr.refs"] .k-crg-cons').length;
+  doc.querySelector('[data-ui~="cr.ref-cons"]').click(); await app.settle();
+  assert(withCons > 0 && doc.querySelectorAll('[data-ui~="cr.refs"] .k-crg-cons').length === 0, "Show construction toggles the teal lines");
+  for (const b of kinds) { b.click(); await app.settle(); assert(stage() > 0, "a kind draws nothing"); }
+  const s0 = K.store.state.ui.creatives.ref.seed;
+  doc.querySelector('[data-ui~="cr.ref-next"]').click(); await app.settle();
+  assert(K.store.state.ui.creatives.ref.seed !== s0, "Next draws a new seed");
+  assert(!app.fetches.some((f) => /cr-refs|reference/i.test(String(f))), "no reference is fetched");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();

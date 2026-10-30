@@ -290,6 +290,14 @@
 .k-crd-results { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); font-size: var(--fs-14); }
 .k-crd-results li { display: flex; gap: var(--sp-10); }
 
+/* ================= the reference generator (31i) ================= */
+.k-lab[data-subject="creatives"] { --sim-hue: var(--cr); }
+.k-cr-refs .k-lab-bar > .k-scroller { flex: 0 1 auto; min-inline-size: 0; }
+.k-sv-edge.k-crg { stroke-linejoin: round; }
+.k-sv-edge.k-crg-form { stroke: var(--text); stroke-width: 2.2; }
+.k-sv-edge.k-crg-hidden { stroke: var(--teal); stroke-width: 1.3; stroke-dasharray: 4 5; opacity: 0.75; }
+.k-sv-edge.k-crg-cons { stroke: var(--teal); stroke-width: 1.2; stroke-dasharray: 6 6; }
+
 /* ================= narrower ================= */
 @media (max-width: 1080px) {
 .k-cr-write-grid { grid-template-columns: minmax(0, 1fr); }
@@ -300,6 +308,7 @@
 .k-cr-check { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
+.k-cr-refs .k-lab-bar > .k-scroller { flex-basis: 100%; }
 .k-crd-index { grid-template-columns: minmax(0, 1fr); }
 .k-crd-word { font-size: var(--fs-38); }
 .k-cr-hpath, .k-cr-hstage, .k-cr-hstage-m { display: flex; gap: var(--sp-6); }
