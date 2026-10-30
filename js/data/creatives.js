@@ -259,7 +259,11 @@
   };
   Object.keys(SKILLS).forEach(function (id) { if (UNITS[id]) UNITS[id].skill = SKILLS[id]; });
 
-  window.KOS_CR = { TRACKS: TRACKS, UNITS: UNITS, LESSONS: LESSONS };
+  /* the pictures imported so far (art-source/creatives/manifest.json, imported into
+     assets/creatives/img/ as <id>.webp); a slot whose id is not listed draws nothing */
+  var ART = [];
+
+  window.KOS_CR = { TRACKS: TRACKS, UNITS: UNITS, LESSONS: LESSONS, ART: ART };
 
   /* the spine: released units only, staged by track */
   window.KOS_DATA = window.KOS_DATA || {};

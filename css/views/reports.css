@@ -696,6 +696,14 @@ button.k-rp-crumb:hover { background: none; color: var(--text); }
 .k-rp-export-img { display: block; inline-size: auto; max-inline-size: 100%; max-block-size: var(--rp-export-preview-h); border-radius: var(--r-14); }
 
 /* PDF: the browser's print of the report, without the app's chrome */
+/* Creatives' "Made this month" strip (opt-in, Portfolio pieces only) */
+.k-rp-crstrip { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cr-unit-w), 1fr)); gap: var(--sp-12); }
+.k-rp-crpiece { display: flex; flex-direction: column; gap: var(--sp-6); padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: start; cursor: pointer; min-inline-size: 0; }
+.k-rp-crthumb { display: block; block-size: var(--cr-thumb-h); border-radius: var(--r-12); background: var(--s2); overflow: hidden; }
+.k-rp-crthumb img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.k-rp-crthumb-text { display: block; padding: var(--sp-10); font-family: var(--font-read); font-size: var(--fs-12); line-height: var(--lh-body); color: var(--text-2); }
+.k-rp-crpiece-t { font-size: var(--fs-13); font-weight: var(--weight-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 @media print {
 :root[data-printing="report"] #rail, :root[data-printing="report"] #topbar, :root[data-printing="report"] #subnav,
 :root[data-printing="report"] #page-actions, :root[data-printing="report"] .k-dialog-overlay { display: none !important; }

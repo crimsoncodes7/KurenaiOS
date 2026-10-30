@@ -44,6 +44,7 @@
 .k-cr-daily-t { margin: 0; font-size: var(--fs-18); line-height: var(--lh-snug); }
 .k-cr-daily-why { margin: 0; font-size: var(--fs-13); color: var(--text-2); }
 .k-cr-daily-go { display: flex; align-items: center; gap: var(--sp-10); flex-wrap: wrap; }
+.k-cr-daily-phone { display: none; }
 .k-cr-port { display: flex; flex-direction: column; gap: var(--sp-8); }
 .k-cr-portlist { display: flex; flex-direction: column; }
 .k-cr-port > .k-btn { align-self: flex-start; margin-block-start: auto; }
@@ -62,6 +63,12 @@
 .k-cr-list { margin: 0; padding-inline-start: var(--sp-20); display: flex; flex-direction: column; gap: var(--sp-4); }
 .k-cr-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-8); counter-reset: none; }
 .k-cr-steps > li { display: flex; align-items: baseline; gap: var(--sp-10); }
+.k-cr-steps[data-art] { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-12); }
+.k-cr-steps[data-art] > li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; gap: var(--sp-6) var(--sp-8); }
+.k-cr-steps[data-art] > li > .k-cr-art { grid-column: 1 / -1; }
+.k-cr-art { display: block; inline-size: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-12); background: var(--s2); }
+.k-cr-beginner > .k-cr-art { aspect-ratio: auto; max-block-size: var(--cr-paper-h); object-fit: contain; }
+.k-cr-spot { display: block; inline-size: var(--cr-thumb-h); max-inline-size: 40%; }
 .k-cr-step-n { display: inline-grid; place-items: center; inline-size: var(--sp-24); block-size: var(--sp-24); flex: none; border-radius: 50%; font-size: var(--fs-12); background: color-mix(in oklch, var(--cr) 18%, transparent); color: var(--text); }
 .k-cr-callout { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-12); background: var(--s2); border-inline-start: var(--bar-4) solid var(--cr); font-family: var(--font-ui); }
 .k-cr-callout p { margin: 0; font-size: var(--fs-14); color: var(--text-2); }
@@ -163,6 +170,7 @@
 .k-cr-unitrow-t { min-inline-size: 0; font-size: var(--fs-14); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .k-cr-settings { display: flex; flex-direction: column; gap: var(--sp-16); }
 .k-cr-setrow { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-20); flex-wrap: wrap; padding-block-end: var(--sp-14); border-block-end: var(--hairline) solid var(--line); }
+.k-cr-setrow:last-child { padding-block-end: 0; border-block-end: 0; }
 .k-cr-setrow p { margin: var(--sp-2) 0 0; font-size: var(--fs-13); }
 .k-cr-days { display: flex; gap: var(--sp-6); }
 .k-cr-day { inline-size: var(--cr-day); block-size: var(--cr-day); border-radius: 50%; border: var(--hairline) solid var(--line); background: none; color: var(--text-2); font: inherit; font-weight: var(--weight-semibold); cursor: pointer; }
@@ -324,11 +332,17 @@
 }
 @media (max-width: 860px) {
 .k-crd-two { grid-template-columns: minmax(0, 1fr); }
+.k-cr-steps[data-art] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-crd-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-cr-check { grid-template-columns: minmax(0, 1fr); }
 .k-cr-sent-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
+/* the phone desk (31s): review and read here; the path is the Tracks page, the Practice Log the iPad's */
+.k-cr-hero-path, .k-cr-path, .k-cr-loglink, .k-cr-hero + .k-subj-side > .k-subj-next { display: none; }
+.k-cr-hero + .k-subj-side { grid-template-columns: minmax(0, 1fr); }
+.k-cr-daily[data-phone] > .k-cr-daily-main { display: none; }
+.k-cr-daily-phone { display: flex; flex-direction: column; gap: var(--sp-8); }
 .k-cr-refs .k-lab-bar > .k-scroller { flex-basis: 100%; }
 .k-crd-index { grid-template-columns: minmax(0, 1fr); }
 .k-crd-word { font-size: var(--fs-38); }

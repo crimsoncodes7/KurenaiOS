@@ -1,0 +1,646 @@
+{
+ "v": 1,
+ "about": "Every picture the Creatives space uses (docs/creatives-plan.md §9 and design turn 31's Assets note). Made by hand in the Gemini app, saved into inbox/ as <id>.png, then imported with python3 -I prototypes/japanese-space/art_import.py art-source/creatives assets/creatives/img, and each imported id listed in KOS_CR.ART (js/data/creatives.js). The prompt sheet is prototypes/creatives-space/art.html. Writing and Graphic design need no pictures: their examples are words and type, drawn live (no image ever holds text). These are Art units 1-3's: four step pictures a lesson, each showing EXACTLY the step its caption names, and one expected beginner output, which must look like a genuine beginner's pass, never polished.",
+ "styles": {
+  "step": "STYLE: A clean instructional drawing for a beginner's drawing course, on plain off-white paper seen flat from straight above; the paper fills the frame. Graphite pencil only: the lines this step adds in confident dark pencil, everything from earlier steps in a light, thin grey pencil. Construction and guide lines in a light blue pencil. No shading, no hands unless the step names one, no colour except the light blue. Generous empty paper around the drawing.",
+  "beginner": "STYLE: A real page from a complete beginner's sketchbook, photographed flat from straight above in soft daylight: graphite pencil on slightly textured cheap sketchbook paper. Honest beginner lines: a little wobbly, some overshoots, a few doubled strokes and smudges, but clearly attempting the exercise. Never polished, never professional. Match the paper and pencil of the attached step image.",
+  "spot": "STYLE: Match the rendering of the attached style reference (painterly modern anime illustration, soft cel shading, gentle lighting from the front-left, rich but slightly muted colours). Do NOT draw the woman from the style reference; use her only for the art style."
+ },
+ "rules": [
+  "Never any text: no letters, numbers, labels, arrows with words, captions, signatures or logos. Step numbers and captions are added in the app as live text.",
+  "A step picture shows EXACTLY the step its caption names: nothing from a later step.",
+  "A beginner page looks like a genuine first try that passes this unit's one skill, never polished art."
+ ],
+ "cast": {},
+ "batches": [
+  {
+   "n": 1,
+   "title": "The style anchor",
+   "why": "Step 3 of A3.1 (one-point perspective), chosen because it shows everything the style needs: the paper, dark and light pencil, and blue guide lines. Every other step and beginner page attaches it, so regenerate until it looks right."
+  },
+  {
+   "n": 2,
+   "title": "Step pictures, Art units 1-3",
+   "why": "Four a lesson for A1.1-A3.3. Attach the anchor; check each shows only its own step."
+  },
+  {
+   "n": 3,
+   "title": "Expected beginner outputs",
+   "why": "One a lesson: honest, wobbly, passing. If one looks too good, ask for it rougher."
+  },
+  {
+   "n": 4,
+   "title": "Empty-state spots",
+   "why": "Three small pictures for the empty Portfolio, the empty Practice Log and a rest day, on flat green (keyed out on import)."
+  }
+ ],
+ "assets": [
+  {
+   "id": "cr.step.A3.1.3",
+   "batch": 1,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.1",
+   "caption": "Lines from its corners to the point",
+   "attach": [],
+   "prompt": "Art lesson A3.1, \"One-point perspective\", step 3 of 4: \"Lines from its corners to the point\". Draw exactly this step and nothing beyond it: the same rectangle with light straight lines from each of its corners running to the vanishing point."
+  },
+  {
+   "id": "cr.step.A1.1.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "caption": "Two dots for the line's start and end",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 1 of 4: \"Two dots for the line's start and end\". Draw exactly this step and nothing beyond it: two small pencil dots on the page, about a hand's width apart, nothing else drawn yet."
+  },
+  {
+   "id": "cr.step.A1.1.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "caption": "Ghost the motion above the paper",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 2 of 4: \"Ghost the motion above the paper\". Draw exactly this step and nothing beyond it: the same two dots; a hand holding a pencil hovers just above the page, and a faint dotted trail in the air shows the motion repeated between the dots."
+  },
+  {
+   "id": "cr.step.A1.1.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "caption": "Draw it from the shoulder in one stroke",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 3 of 4: \"Draw it from the shoulder in one stroke\". Draw exactly this step and nothing beyond it: the two dots now joined by one straight, confident pencil line, slightly darker at both ends where the stroke started and stopped."
+  },
+  {
+   "id": "cr.step.A1.1.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "caption": "A page of lines in every direction",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 4 of 4: \"A page of lines in every direction\". Draw exactly this step and nothing beyond it: a whole page of straight ghosted lines between dot pairs, in many directions, all confident; the newest line is darkest."
+  },
+  {
+   "id": "cr.step.A1.2.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.2",
+   "caption": "A flat rectangle for the ellipse to sit in",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.2, \"Ellipses\", step 1 of 4: \"A flat rectangle for the ellipse to sit in\". Draw exactly this step and nothing beyond it: one long, flat pencil rectangle, lightly drawn."
+  },
+  {
+   "id": "cr.step.A1.2.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.2",
+   "caption": "Ghost the round motion inside it",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.2, \"Ellipses\", step 2 of 4: \"Ghost the round motion inside it\". Draw exactly this step and nothing beyond it: the same rectangle; a faint dotted oval trail inside it, touching the middle of each side, showing the motion rehearsed."
+  },
+  {
+   "id": "cr.step.A1.2.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.2",
+   "caption": "Go round two or three times in one go",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.2, \"Ellipses\", step 3 of 4: \"Go round two or three times in one go\". Draw exactly this step and nothing beyond it: a smooth ellipse inside the rectangle, drawn as two or three loose overlapping loops in one stroke, touching each side once."
+  },
+  {
+   "id": "cr.step.A1.2.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.2",
+   "caption": "A column of ellipses, thin to round",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.2, \"Ellipses\", step 4 of 4: \"A column of ellipses, thin to round\". Draw exactly this step and nothing beyond it: a vertical column of six ellipses from very thin at the top to nearly circular at the bottom, each with its long axis horizontal and a light straight line through its short axis."
+  },
+  {
+   "id": "cr.step.A1.3.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.3",
+   "caption": "Three dots for the start, the bend and the end",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.3, \"Curves that commit\", step 1 of 4: \"Three dots for the start, the bend and the end\". Draw exactly this step and nothing beyond it: three small pencil dots laid out on a gentle arc."
+  },
+  {
+   "id": "cr.step.A1.3.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.3",
+   "caption": "Ghost the curve through the dots",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.3, \"Curves that commit\", step 2 of 4: \"Ghost the curve through the dots\". Draw exactly this step and nothing beyond it: the three dots with a faint dotted curved trail rehearsing the motion through them."
+  },
+  {
+   "id": "cr.step.A1.3.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.3",
+   "caption": "One smooth C curve",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.3, \"Curves that commit\", step 3 of 4: \"One smooth C curve\". Draw exactly this step and nothing beyond it: the three dots joined by one smooth, confident C-shaped curve."
+  },
+  {
+   "id": "cr.step.A1.3.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.3",
+   "caption": "S curves: the bend changes side",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.3, \"Curves that commit\", step 4 of 4: \"S curves: the bend changes side\". Draw exactly this step and nothing beyond it: a row of four smooth S-shaped curves, each through its own set of dots, the curve changing direction once in the middle."
+  },
+  {
+   "id": "cr.step.A2.1.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The nearest corner as a Y",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 1 of 4: \"The nearest corner as a Y\". Draw exactly this step and nothing beyond it: three short straight pencil lines meeting at one point like a letter Y with a vertical stem: the nearest corner of a box."
+  },
+  {
+   "id": "cr.step.A2.1.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The top face's far edges",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 2 of 4: \"The top face's far edges\". Draw exactly this step and nothing beyond it: the Y now closed at the top into a flat four-sided top face, its opposite edges roughly parallel."
+  },
+  {
+   "id": "cr.step.A2.1.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The side edges down",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 3 of 4: \"The side edges down\". Draw exactly this step and nothing beyond it: the vertical edges dropped from the top face's outer corners and the two bottom edges added, making a solid-looking box."
+  },
+  {
+   "id": "cr.step.A2.1.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The hidden edges, drawn through",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 4 of 4: \"The hidden edges, drawn through\". Draw exactly this step and nothing beyond it: the same box with its three hidden back edges drawn through in a lighter pencil line, meeting at the hidden back corner."
+  },
+  {
+   "id": "cr.step.A2.2.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.2",
+   "caption": "A box seen straight from the front",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.2, \"Boxes that turn\", step 1 of 4: \"A box seen straight from the front\". Draw exactly this step and nothing beyond it: a single box drawn through, seen almost face on, mostly its front face with a thin top."
+  },
+  {
+   "id": "cr.step.A2.2.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.2",
+   "caption": "The same box turned a little",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.2, \"Boxes that turn\", step 2 of 4: \"The same box turned a little\". Draw exactly this step and nothing beyond it: the same box turned slightly to the right, a narrow side face now showing, hidden edges drawn through."
+  },
+  {
+   "id": "cr.step.A2.2.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.2",
+   "caption": "Turned further, both sides showing",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.2, \"Boxes that turn\", step 3 of 4: \"Turned further, both sides showing\". Draw exactly this step and nothing beyond it: the same box turned so both side faces show about equally, the nearest vertical edge in the middle, hidden edges drawn through."
+  },
+  {
+   "id": "cr.step.A2.2.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.2",
+   "caption": "Seen from above",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.2, \"Boxes that turn\", step 4 of 4: \"Seen from above\". Draw exactly this step and nothing beyond it: the same box seen from higher up, the top face large, hidden edges drawn through."
+  },
+  {
+   "id": "cr.step.A2.3.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.3",
+   "caption": "A tall box as the guide",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.3, \"Cylinders from boxes\", step 1 of 4: \"A tall box as the guide\". Draw exactly this step and nothing beyond it: one tall, narrow box drawn through in light pencil."
+  },
+  {
+   "id": "cr.step.A2.3.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.3",
+   "caption": "An ellipse in the top and bottom faces",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.3, \"Cylinders from boxes\", step 2 of 4: \"An ellipse in the top and bottom faces\". Draw exactly this step and nothing beyond it: the same light box with an ellipse drawn inside its top face and another inside its bottom face, each touching the middle of the face's sides."
+  },
+  {
+   "id": "cr.step.A2.3.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.3",
+   "caption": "The two side lines, touching both ellipses",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.3, \"Cylinders from boxes\", step 3 of 4: \"The two side lines, touching both ellipses\". Draw exactly this step and nothing beyond it: two straight vertical lines joining the outer edges of the two ellipses, making a cylinder inside the box."
+  },
+  {
+   "id": "cr.step.A2.3.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.3",
+   "caption": "The back of the base drawn through",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.3, \"Cylinders from boxes\", step 4 of 4: \"The back of the base drawn through\". Draw exactly this step and nothing beyond it: the finished cylinder with the hidden back half of the bottom ellipse drawn through, the guide box faint."
+  },
+  {
+   "id": "cr.step.A3.1.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.1",
+   "caption": "A horizon line and one vanishing point",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.1, \"One-point perspective\", step 1 of 4: \"A horizon line and one vanishing point\". Draw exactly this step and nothing beyond it: a long horizontal pencil line across the page with one small dot on it near the centre."
+  },
+  {
+   "id": "cr.step.A3.1.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.1",
+   "caption": "A rectangle facing you",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.1, \"One-point perspective\", step 2 of 4: \"A rectangle facing you\". Draw exactly this step and nothing beyond it: the same line and dot, with one flat rectangle drawn below and to the left of the dot, its sides perfectly horizontal and vertical."
+  },
+  {
+   "id": "cr.step.A3.1.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.1",
+   "caption": "The back edge cut: a box",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.1, \"One-point perspective\", step 4 of 4: \"The back edge cut: a box\". Draw exactly this step and nothing beyond it: the lines cut off by a smaller back rectangle parallel to the front one, making a box receding to the point, the rest of the guide lines faint."
+  },
+  {
+   "id": "cr.step.A3.2.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "A horizon with two points far apart",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 1 of 4: \"A horizon with two points far apart\". Draw exactly this step and nothing beyond it: a long horizontal pencil line with one dot near each end of the page, far apart."
+  },
+  {
+   "id": "cr.step.A3.2.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "The nearest vertical edge",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 2 of 4: \"The nearest vertical edge\". Draw exactly this step and nothing beyond it: the same line and dots with one short vertical line standing a little below the horizon between them."
+  },
+  {
+   "id": "cr.step.A3.2.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "Lines from its ends to both points",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 3 of 4: \"Lines from its ends to both points\". Draw exactly this step and nothing beyond it: light straight lines from the top and bottom of that vertical edge running to both vanishing points."
+  },
+  {
+   "id": "cr.step.A3.2.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "The back verticals: a box",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 4 of 4: \"The back verticals: a box\". Draw exactly this step and nothing beyond it: two more vertical edges cutting the guide lines on each side, and the box's top completed, the guide lines faint."
+  },
+  {
+   "id": "cr.step.A3.3.1",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "caption": "A horizon and one vanishing point",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\", step 1 of 4: \"A horizon and one vanishing point\". Draw exactly this step and nothing beyond it: a horizontal pencil line across the page with one dot in the middle."
+  },
+  {
+   "id": "cr.step.A3.3.2",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "caption": "The road's two edges to the point",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\", step 2 of 4: \"The road's two edges to the point\". Draw exactly this step and nothing beyond it: two straight lines from the bottom corners of the page running to the vanishing point, making a road."
+  },
+  {
+   "id": "cr.step.A3.3.3",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "caption": "Boxes along the road as buildings",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\", step 3 of 4: \"Boxes along the road as buildings\". Draw exactly this step and nothing beyond it: simple tall boxes standing on both sides of the road, their side edges running to the vanishing point, getting smaller as they recede."
+  },
+  {
+   "id": "cr.step.A3.3.4",
+   "batch": 2,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "caption": "Windows that follow the lines",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\", step 4 of 4: \"Windows that follow the lines\". Draw exactly this step and nothing beyond it: the same street with rows of simple rectangular windows on the buildings' sides, their top and bottom edges following lines to the vanishing point."
+  },
+  {
+   "id": "cr.beginner.A1.1",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\": a complete beginner's practice page for this lesson, the honest result of a first try: a page of about twenty ghosted lines between dot pairs, most straight but a few wobble at the end, two overshoot their dots, one is drawn twice."
+  },
+  {
+   "id": "cr.beginner.A1.2",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A1.2",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.2, \"Ellipses\": a complete beginner's practice page for this lesson, the honest result of a first try: a column of eight ellipses from thin to round; several are lopsided, one has a pointed end, most are traced round two or three times, the short-axis lines are slightly off centre."
+  },
+  {
+   "id": "cr.beginner.A1.3",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A1.3",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.3, \"Curves that commit\": a complete beginner's practice page for this lesson, the honest result of a first try: a page of C and S curves through dots; most are smooth, a few have a flat spot or a small kink where the stroke slowed, one is gone over twice."
+  },
+  {
+   "id": "cr.beginner.A2.1",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\": a complete beginner's practice page for this lesson, the honest result of a first try: three boxes drawn through on one page; their back edges meet a little off, one box looks slightly bent because its edges spread apart, the hidden lines are as dark as the front ones."
+  },
+  {
+   "id": "cr.beginner.A2.2",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A2.2",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.2, \"Boxes that turn\": a complete beginner's practice page for this lesson, the honest result of a first try: a row of five boxes turning step by step; the turn reads, but the third box's top face is too tall and the last box tips slightly forward."
+  },
+  {
+   "id": "cr.beginner.A2.3",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A2.3",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.3, \"Cylinders from boxes\": a complete beginner's practice page for this lesson, the honest result of a first try: four cylinders in their guide boxes; the bottom ellipses are a little too flat compared with the top, one cylinder leans, the side lines slightly miss the ellipses' edges."
+  },
+  {
+   "id": "cr.beginner.A3.1",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A3.1",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.1, \"One-point perspective\": a complete beginner's practice page for this lesson, the honest result of a first try: a horizon with one point and four boxes around it; most edges aim at the point but two miss it slightly, and one box's back face is not quite parallel to its front."
+  },
+  {
+   "id": "cr.beginner.A3.2",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\": a complete beginner's practice page for this lesson, the honest result of a first try: three boxes in two-point perspective on one horizon; one box looks stretched because its sides run too far, one back vertical leans slightly, the guide lines are left heavy."
+  },
+  {
+   "id": "cr.beginner.A3.3",
+   "batch": 3,
+   "kind": "cover",
+   "style": "beginner",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\": a complete beginner's practice page for this lesson, the honest result of a first try: a one-point street of simple box buildings; it reads as a street, but a few windows don't follow the perspective lines, one building's roof line points above the horizon."
+  },
+  {
+   "id": "cr.spot.portfolio",
+   "batch": 4,
+   "kind": "spot",
+   "style": "spot",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for an empty screen: an empty wooden easel with a blank canvas, a jar of pencils beside it. Centred, the object alone with a soft contact shadow, on a completely flat pure green (#00B140) background that touches every edge, nothing else in the frame."
+  },
+  {
+   "id": "cr.spot.log",
+   "batch": 4,
+   "kind": "spot",
+   "style": "spot",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for an empty screen: a closed sketchbook with a pencil and an eraser lying on it. Centred, the object alone with a soft contact shadow, on a completely flat pure green (#00B140) background that touches every edge, nothing else in the frame."
+  },
+  {
+   "id": "cr.spot.rest",
+   "batch": 4,
+   "kind": "spot",
+   "style": "spot",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for an empty screen: a sketchbook left open and blank beside a cup of tea, a quiet rest day. Centred, the object alone with a soft contact shadow, on a completely flat pure green (#00B140) background that touches every edge, nothing else in the frame."
+  }
+ ]
+}

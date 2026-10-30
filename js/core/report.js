@@ -646,7 +646,7 @@
     var a = p.start, b = p.end, inP = function (ts) { var d = ts ? iso(new Date(ts)) : null; return d && d >= a && d <= b; };
     var works = input.creatives || [];
     var out = { studies: 0, drills: 0, drillDays: 0, pieces: 0, words: 0, promoted: 0, projects: 0 };
-    var days = {};
+    var days = {}, ids = [];
     es.forEach(function (e) {
       var m = e.metrics;
       if (m.kind === "study" && m.first) out.studies++;
@@ -656,8 +656,11 @@
     out.drillDays = Object.keys(days).length;
     works.forEach(function (w) {
       if (inP(w.at)) { out.pieces++; if (w.track === "write") out.words += w.words || 0; }
-      if (inP(w.portfolio)) out.promoted++;
+      if (inP(w.portfolio)) { out.promoted++; if (p.period !== "week" && w.id) ids.push([w.portfolio, w.id]); }
     });
+    /* a month, term or year keeps WHICH pieces were promoted (ids, never titles) for the opt-in
+       "Made this month" strip; the page reads each one live and skips what has left the Portfolio */
+    if (ids.length) out.promotedIds = ids.sort(function (x, y) { return x[0] - y[0]; }).slice(-12).map(function (x) { return x[1]; });
     Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
     return Object.keys(out).length ? out : null;
   }
@@ -1182,9 +1185,9 @@
       habits: KOS.routines ? KOS.routines.habitsView() : ((S.todo || {}).habits || []).slice(),
       routineDays: routineDaysOf(p),
       reviewDays: (S.dayReview && S.dayReview.days) || {},
-      /* the works' dates, track, words and promotion only: never a title or its text */
+      /* the works' ids, dates, track, words and promotion only: never a title or its text */
       creatives: Object.keys((S.creatives && S.creatives.works) || {}).map(function (id) {
-        var w = S.creatives.works[id]; return { at: w.at, track: w.track, words: w.words || 0, portfolio: w.portfolio || null };
+        var w = S.creatives.works[id]; return { id: id, at: w.at, track: w.track, words: w.words || 0, portfolio: w.portfolio || null };
       }),
       rebuilt: !!opts.rebuilt,
       prev: opts.prev ? totals(opts.prev) : null

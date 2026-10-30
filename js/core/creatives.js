@@ -72,7 +72,7 @@
     s = obj(s);
     var days = Array.isArray(s.days) && s.days.length === 7 ? s.days.map(Boolean) : [true, true, true, true, true, true, true];
     return { days: days.some(Boolean) ? days : DAYS.map(function () { return true; }), minutes: [10, 20, 30].indexOf(+s.minutes) >= 0 ? +s.minutes : 20,
-      examPause: s.examPause !== false };
+      examPause: s.examPause !== false, reportStrip: s.reportStrip === true };
   }
   function U() {
     var ui = store.state.ui;

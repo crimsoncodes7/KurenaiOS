@@ -976,6 +976,26 @@
     if (!rows.length) return null;
     return card("Creatives", { className: "k-rp-card--creatives" }, [kvRows(rows)]);
   }
+  /* "Made this month" (plan §8): Portfolio pieces only, and only when you turn it on in Creatives'
+     settings (per device). The saved report keeps their ids; titles and pictures are read live, so a
+     piece taken out of the Portfolio or deleted since simply isn't shown. */
+  function creativesStrip(rep) {
+    var c = rep.facts.creatives, CRm = KOS.creatives;
+    if (!c || !c.promotedIds || !CRm || !CRm.prefs().reportStrip) return null;
+    var list = c.promotedIds.map(function (id) { return CRm.work(id); }).filter(function (w) { return w && w.portfolio; });
+    if (!list.length) return null;
+    return card("Made this " + (rep.period === "month" ? "month" : rep.period), { className: "k-rp-card--crstrip" }, [
+      el("div", { class: "k-rp-crstrip", "data-ui": "reports.cr-strip" }, list.map(function (w) {
+        var thumb = el("span", { class: "k-rp-crthumb", "aria-hidden": "true" });
+        CRm.files.get(w.id, function (err, f) {
+          if (!f) return;
+          if (f.dataUrl) thumb.appendChild(el("img", { src: f.dataUrl, alt: "" }));
+          else if (f.text) thumb.appendChild(el("span", { class: "k-rp-crthumb-text", text: f.text.slice(0, 160) }));
+        });
+        return el("button", { type: "button", class: "k-rp-crpiece", onclick: function () { if (KOS.crOpenWork) KOS.crOpenWork(w.id); } }, [thumb, el("span", { class: "k-rp-crpiece-t", text: w.title })]);
+      }))
+    ]);
+  }
   /* Money (f.money, 27o): totals, the three biggest categories, what went
      into pots, then one line of context. A balance is words, never a bar
      (invariant 78); a supporting zero is not printed (invariant 77). With
@@ -1567,7 +1587,7 @@
   KOS.reportsKit = {
     el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
     stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
-    bars: bars, kvRows: kvRows, codeCard: codeCard, creativesCard: creativesCard, examsCard: examsCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    bars: bars, kvRows: kvRows, codeCard: codeCard, creativesCard: creativesCard, creativesStrip: creativesStrip, examsCard: examsCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
     cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
     flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,
     open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip, reportTop: reportTop,

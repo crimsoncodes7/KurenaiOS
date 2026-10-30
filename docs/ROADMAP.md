@@ -1248,9 +1248,14 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    on request (31r: "What is sent", the unit's one skill, a stray reply
    refused, the tip pinned to the next rep) and the joins (three Goals
    types in a Creatives domain; Reports' `f.creatives`, totals only).
-   Still to do for Platform 1: the phone desk (31s), the Portfolio strip
-   in a month's report (opt-in), and art for the steps and the
-   beginner outputs (Gemini, via the manifest). Then Art units 1–3 with
+   Then (30 October) the phone desk (31s: review and read; cards first
+   when a study is made elsewhere), the opt-in "Made this month" strip
+   (Portfolio pieces only) and the art pipeline
+   (`art-source/creatives/manifest.json`, prompt sheet
+   `prototypes/creatives-space/art.html`: Art units 1–3's step pictures
+   and beginner pages, and three empty-state spots; the slots draw only
+   once imported and listed in `KOS_CR.ART`). Platform 1 is complete in
+   code; the 48 pictures wait for the user. Then Art units 1–3 with
    the sketchbook (31f–31i).
 4. **Code content** — DONE 23 October 2026: units 10–12 and capstone 4
    complete the core path (unit 10 and capstone 4 in Rider, validator

@@ -115,9 +115,14 @@
       if (b.h) return el("h3", { class: "k-cr-h", text: b.h });
       if (b.p) return el("p", { class: "k-cr-p", text: b.p });
       if (b.list) return el("ul", { class: "k-cr-list" }, b.list.map(function (x) { return el("li", { text: x }); }));
-      if (b.steps) return el("ol", { class: "k-cr-steps", "data-ui": "cr.steps" }, b.steps.map(function (x, i) {
-        return el("li", {}, [el("span", { class: "k-cr-step-n k-mono", "aria-hidden": "true", text: String(i + 1) }), el("span", { text: x })]);
-      }));
+      if (b.steps) {
+        /* a step list may name its pictures (art: "A1.1" → cr.step.A1.1.<n>); each draws once imported */
+        var pics = b.steps.map(function (_, i) { return b.art ? KOS.crArt("cr.step." + b.art + "." + (i + 1), "Step " + (i + 1) + ": " + b.steps[i]) : null; });
+        var any = pics.some(Boolean);
+        return el("ol", { class: "k-cr-steps", "data-ui": "cr.steps", "data-art": any ? "on" : null }, b.steps.map(function (x, i) {
+          return el("li", {}, [pics[i], el("span", { class: "k-cr-step-n k-mono", "aria-hidden": "true", text: String(i + 1) }), el("span", { text: x })].filter(Boolean));
+        }));
+      }
       if (b.callout) return el("aside", { class: "k-cr-callout", "data-ui": "cr.callout" }, [el("b", { text: b.callout.t }), el("p", { text: b.callout.body })]);
       if (b.pair) return el("figure", { class: "k-cr-pair", "data-ui": "cr.pair" }, [
         el("div", { class: "k-cr-pair-row", "data-state": "before" }, [el("span", { class: "k-kicker", text: "Before" }), el("p", { text: b.pair.before })]),
@@ -130,9 +135,10 @@
       ].filter(Boolean));
       if (b.beginner) return el("figure", { class: "k-cr-beginner", "data-ui": "cr.beginner" }, [
         el("div", { class: "k-cr-beginner-h" }, [el("span", { class: "k-kicker", text: "Expected beginner output" }), el("span", { class: "k-chip", text: "A rough first pass, on purpose" })]),
+        b.beginner.art ? KOS.crArt("cr.beginner." + b.beginner.art, "A beginner's attempt: " + b.beginner.text.split("\n")[0]) : null,
         el("blockquote", { class: "k-cr-beginner-text" }, b.beginner.text.split("\n").map(function (p) { return el("p", { text: p }); })),
         el("figcaption", { class: "k-cr-beginner-note", text: b.beginner.note })
-      ]);
+      ].filter(Boolean));
       return el("span");
     }
     function nextLesson() {

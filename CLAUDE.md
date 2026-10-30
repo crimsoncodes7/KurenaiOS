@@ -281,7 +281,10 @@ gitignored `prototypes/japanese-space/voice/.env.local`, never printed).
 When work needs an image (a background, a character, a panel, a hero, a
 Creatives reference) or audio, ASK for it rather than drawing it in SVG or
 going without: add the asset to a manifest with its full prompt and the
-files to attach, and point the user at the prompt sheet. Japanese's art
+files to attach, and point the user at the prompt sheet. Creatives' art runs through `art-source/creatives/manifest.json` (prompt
+sheet `prototypes/creatives-space/art.html`; import with
+`python3 -I prototypes/japanese-space/art_import.py art-source/creatives assets/creatives/img`,
+then list each id in `KOS_CR.ART`). Japanese's art
 runs through `art-source/ja/manifest.json` (prompt and contact sheet:
 `prototypes/japanese-space/art.html`; results saved into
 `art-source/ja/inbox/<id>.png`; style rules in docs/japanese-plan.md
@@ -1683,7 +1686,18 @@ source comments and audit notes refer to it.
     (`KOS.creatives.files`), never in the state document; they ride the
     full backup and stay on the device (upload on request comes later).
     References are generated or the user's own; nothing is bundled or
-    hot-linked. THE JOINS read, never write: Goals' Creatives domain
+    hot-linked. A month's, term's or year's report keeps the ids of the
+    pieces promoted in it (`promotedIds`, never in the words' payload);
+    its "Made this month" strip shows them only when "Portfolio in month
+    reports" is on (per device, off by default), reading each live, so a
+    piece taken out of the Portfolio leaves it. The phone desk (31s)
+    reviews and reads: no path strip, Continue card, unit path or Practice
+    Log link, and a study made elsewhere puts the cards first. THE
+    PICTURES come from `art-source/creatives/manifest.json` (Art units
+    1–3's step pictures and beginner pages, the empty-state spots), drawn
+    by `KOS.crArt` only once imported into `assets/creatives/img/` and
+    listed in `KOS_CR.ART` (smoke108 M); Writing's and Design's examples
+    are words and type and stay live. THE JOINS read, never write: Goals' Creatives domain
     (`cr-studies`, `cr-drill-days`, `cr-words`; Creatives hours are
     Study hours with the subject) reads the ledger and the works;
     Reports' `f.creatives` (`creativeFacts`) holds totals only — studies

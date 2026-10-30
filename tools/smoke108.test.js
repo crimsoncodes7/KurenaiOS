@@ -363,6 +363,50 @@ step("L · the joins: Goals read Creatives' ledger and works; Reports hold total
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
+step("M · the phone desk, the Portfolio strip (opt-in) and the art slots", async (app) => {
+  const K = app.KOS, CR = K.creatives, doc = app.document, fs = require("fs"), path = require("path");
+  /* the phone (31s): a study made elsewhere puts cards first and opens the lesson; CSS hides the rest */
+  const css = fs.readFileSync(path.join(__dirname, "..", "css", "views", "creatives.css"), "utf8");
+  const phone = css.slice(css.lastIndexOf("@media (max-width: 700px)"));
+  ["k-cr-hero-path", "k-cr-path", "k-cr-loglink", "k-subj-next", "k-cr-daily-phone"].forEach((c) => assert(phone.indexOf(c) >= 0, "the phone rules name ." + c));
+  K.show("subject", SID); await app.settle();
+  const p = CR.planDay();
+  if (p.state === "today" && p.study && p.study.tool !== "desk") {
+    assert(doc.querySelector('[data-ui~="cr.daily-phone"] [data-ui~="cr.daily-lesson"]'), "the phone's Daily card opens the lesson");
+  }
+  /* the strip: ids in a month's facts, never in a week's or the words' payload; drawn only when on */
+  const t = K.srs.todayISO(), month = K.report.month(t), week = K.report.week(t);
+  const works = Object.keys(K.store.state.creatives.works).map((id) => Object.assign({ id }, K.store.state.creatives.works[id]));
+  const pid = works[0].id; CR.promote(pid, true);
+  const input = () => ({ ledger: K.store.state.sessions.slice(), tally: {}, reminders: [], habits: [], routineDays: [], reviewDays: {},
+    creatives: Object.keys(K.store.state.creatives.works).map((id) => { const w = K.store.state.creatives.works[id]; return { id, at: w.at, track: w.track, words: w.words, portfolio: w.portfolio }; }) });
+  const fm = K.report.compute(input(), month), fw = K.report.compute(input(), week);
+  assert(fm.creatives.promotedIds && fm.creatives.promotedIds.indexOf(pid) >= 0 && !fw.creatives.promotedIds, "a month keeps the promoted ids; a week does not");
+  assert(JSON.stringify(K.reportWords.payload({ facts: Object.assign({ study: { bySubject: {}, sessions: 0, days: 0, of: 30 } }, fm) })).indexOf(pid) === -1, "the payload never carries an id");
+  const rep = { period: "month", facts: fm };
+  assert(K.reportsKit.creativesStrip(rep) === null, "the strip is off by default");
+  CR.setPrefs({ reportStrip: true });
+  const strip = K.reportsKit.creativesStrip(rep);
+  const shown = () => { const x = K.reportsKit.creativesStrip(rep); return x ? x.querySelectorAll('[data-ui~="reports.cr-strip"] > *').length : 0; };
+  const n1 = shown();
+  assert(n1 >= 1, "turned on, it shows the promoted pieces");
+  CR.promote(pid, false);
+  assert(shown() === n1 - 1, "a piece taken out of the Portfolio leaves the strip");
+  CR.setPrefs({ reportStrip: false });
+  /* the art: a manifest, a sheet, and nothing drawn until an id is imported */
+  const M = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "art-source", "creatives", "manifest.json"), "utf8"));
+  const ids = M.assets.map((a) => a.id);
+  assert(new Set(ids).size === ids.length && ids.length >= 40, "the manifest's ids are unique");
+  M.assets.forEach((a) => a.attach.forEach((f) => assert(/^inbox\//.test(f) ? ids.indexOf(f.slice(6, -4)) >= 0 : fs.existsSync(path.join(__dirname, "..", "art-source", "creatives", f)), a.id + " attaches a missing " + f)));
+  assert(K.crArt("cr.step.A1.1.1") === null, "an id not imported draws nothing");
+  (app.window.KOS_CR.ART || []).forEach((id) => {
+    assert(ids.indexOf(id) >= 0, id + " is in the manifest");
+    assert(fs.existsSync(path.join(__dirname, "..", "assets", "creatives", "img", id + ".webp")), id + " is listed but not imported");
+  });
+  assert(fs.existsSync(path.join(__dirname, "..", "prototypes", "creatives-space", "art.html")), "the prompt sheet exists");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
 (async () => {
   let failed = 0;
   const app = await boot();

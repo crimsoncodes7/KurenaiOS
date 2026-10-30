@@ -22,6 +22,19 @@
   function dateShort(ts) { return new Date(ts).toLocaleDateString(undefined, { day: "numeric", month: "short" }); }
   function hm(mins) { mins = Math.round(mins || 0); var h = Math.floor(mins / 60), m = mins % 60; return h ? h + " h " + (m < 10 ? "0" : "") + m : m + " m"; }
 
+  /* the space's pictures (art-source/creatives/manifest.json → assets/creatives/img/), drawn only
+     once imported and listed in KOS_CR.ART: never a stand-in drawing */
+  function art(id, alt, cls) {
+    if (((window.KOS_CR || {}).ART || []).indexOf(id) < 0) return null;
+    return el("img", { class: cls || "k-cr-art", src: "assets/creatives/img/" + id + ".webp", alt: alt || "", loading: "lazy", decoding: "async" });
+  }
+  KOS.crArt = art;
+  function spotEmpty(id, o) {
+    var pic = art(id, "", "k-cr-spot"), node = KOS.ui.emptyState(Object.assign({}, o, pic ? { mark: null } : {}));
+    if (pic) node.insertBefore(pic, node.firstChild);
+    return node;
+  }
+
   KOS.crPages = [["tracks", "Tracks"], ["write", "Writing"], ["drills", "Drills"], ["refs", "References"], ["portfolio", "Portfolio"]];
 
   /* a dialog through the one modal route (invariant 49) */
@@ -174,10 +187,22 @@
       t = p.cards + (p.cards === 1 ? " card due" : " cards due");
       go = ["▶ Start", function () { KOS.show("due"); }];
     }
+    /* the phone (31s): reviews here, making on the iPad or a computer. A study made elsewhere puts
+       the cards first and the lesson second; the Writing Desk works on a phone, so it keeps Start. */
+    var phone = p.study && p.study.tool !== "desk" && p.state === "today" ? el("div", { class: "k-cr-daily-phone", "data-ui": "cr.daily-phone" }, [
+      el("div", { class: "k-cr-daily-go" }, [
+        p.cards ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.daily-cards", text: "▶ Cards · " + p.cardMin + " min", onclick: function () { KOS.show("due"); } }) : null,
+        el("button", { type: "button", class: p.cards ? "k-btn" : "k-btn k-btn--primary", "data-ui": "cr.daily-lesson", text: "Open the lesson", onclick: function () { KOS.show("ref", { subject: SID, ref: p.study.lesson }); } })
+      ].filter(Boolean)),
+      el("p", { class: "k-cr-daily-why", text: "The study is best on the iPad or a computer." + (p.cards ? " Cards work here." : "") })
+    ]) : null;
+    if (phone) box.setAttribute("data-phone", "split");
     box.appendChild(head);
+    if (p.state === "rest" || p.state === "clear") { var spot = art("cr.spot.rest", "", "k-cr-spot"); if (spot) box.appendChild(spot); }
     box.appendChild(el("h2", { class: "k-cr-daily-t", text: t }));
     if (why) box.appendChild(el("p", { class: "k-cr-daily-why", text: why }));
-    if (go) box.appendChild(el("div", { class: "k-cr-daily-go" }, [
+    if (phone) box.appendChild(phone);
+    if (go) box.appendChild(el("div", { class: "k-cr-daily-go k-cr-daily-main" }, [
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.daily-start", text: go[0], onclick: go[1] }),
       p.total && p.state === "today" ? el("span", { class: "k-muted", text: "about " + p.total + " min" }) : null
     ].filter(Boolean)));
@@ -212,12 +237,12 @@
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Portfolio" }),
         el("button", { type: "button", class: "k-link", text: "Open →", onclick: function () { KOS.show("creatives", { page: "portfolio" }); } })]),
       list.length ? el("div", { class: "k-cr-portlist" }, list.map(function (w) {
-        return el("button", { type: "button", class: "k-day-row k-cr-portrow", onclick: function () { KOS.show("creatives", { page: "log", id: w.id }); } }, [
+        return el("button", { type: "button", class: "k-day-row k-cr-portrow", onclick: function () { openWork(w.id); } }, [
           el("span", { class: "k-cr-kind", lang: "ja", "aria-hidden": "true", text: kindMark(w) }),
           el("span", { class: "k-day-txt" }, [el("span", { class: "k-day-title", text: w.title }), el("span", { class: "k-day-sub", text: (CR().track(w.track) || {}).name + " · " + dateShort(w.portfolio) })])
         ]);
       })) : KOS.ui.emptyState({ compact: true, body: "Nothing promoted yet." }),
-      el("button", { type: "button", class: "k-btn", "data-ui": "cr.log-link", text: "Practice Log", onclick: function () { KOS.show("creatives", { page: "log" }); } })
+      el("button", { type: "button", class: "k-btn k-cr-loglink", "data-ui": "cr.log-link", text: "Practice Log", onclick: function () { KOS.show("creatives", { page: "log" }); } })
     ]);
   }
   /* the path: the track in view (‹ › moves between them), its unit cards as Code's */
@@ -483,6 +508,7 @@
     }
   }
   KOS.crCritique = critique;
+  KOS.crOpenWork = function (wid) { openWork(wid); };
 
   /* ---------------- the Practice Log (31j) and the Portfolio (31k) ---------------- */
   function workRow(w, o) {
@@ -532,7 +558,7 @@
   }
   function logPage(main, wid) {
     var all = CR().works();
-    if (!all.length) { main.appendChild(KOS.ui.emptyState({ mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time." })); return; }
+    if (!all.length) { main.appendChild(spotEmpty("cr.spot.log", { mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time." })); return; }
     main.appendChild(el("section", { class: "k-card k-cr-loglist", "data-ui": "cr.log", "aria-label": "Practice Log" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: all.length + (all.length === 1 ? " piece" : " pieces") }), el("span", { class: "k-card-meta", text: "newest first · prunable" })])
     ].concat(all.map(function (w) { return workRow(w, { open: w.id === wid }); }))));
@@ -540,7 +566,7 @@
   }
   function portfolioPage(main) {
     var list = CR().portfolio();
-    if (!list.length) { main.appendChild(KOS.ui.emptyState({ mark: "選", title: "Nothing promoted yet", body: "That's normal. When a piece makes you smile, open it in the Practice Log and choose “Promote”.",
+    if (!list.length) { main.appendChild(spotEmpty("cr.spot.portfolio", { mark: "選", title: "Nothing promoted yet", body: "That's normal. When a piece makes you smile, open it in the Practice Log and choose “Promote”.",
       action: el("button", { type: "button", class: "k-btn", text: "Open the Practice Log", onclick: function () { KOS.show("creatives", { page: "log" }); } }) })); return; }
     main.appendChild(el("div", { class: "k-cr-portgrid", "data-ui": "cr.portfolio" }, list.map(function (w) {
       var thumb = el("div", { class: "k-cr-thumb", "aria-hidden": "true" }, [el("span", { lang: "ja", text: kindMark(w) })]);
@@ -625,10 +651,14 @@
     var pause = el("input", { type: "checkbox", class: "k-box", "data-ui": "cr.exam-pause" });
     pause.checked = p.examPause;
     pause.onchange = function () { CR().setPrefs({ examPause: pause.checked }); };
+    var strip = el("input", { type: "checkbox", class: "k-box", "data-ui": "cr.report-strip" });
+    strip.checked = p.reportStrip;
+    strip.onchange = function () { CR().setPrefs({ reportStrip: strip.checked }); };
     main.appendChild(el("section", { class: "k-card k-cr-settings", "data-ui": "cr.settings" }, [
       el("div", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Your days" }), el("p", { class: "k-muted", text: "The Daily Creative shows on these days." })]), days]),
       el("div", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Minutes" }), el("p", { class: "k-muted", text: "How long a day's study runs." })]), mins]),
       el("label", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Pause in Exam Season" }), el("p", { class: "k-muted", text: "Rests while a real exam is close." })]), pause]),
+      el("label", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Portfolio in month reports" }), el("p", { class: "k-muted", text: "Shows pieces promoted that month. The Practice Log never appears." })]), strip]),
     ]));
   }
 })();
