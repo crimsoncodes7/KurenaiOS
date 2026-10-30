@@ -517,6 +517,9 @@ color-scheme: dark;
 --trk-score-w: 150px;
 --trk-marks-w: 70px;
 --trk-grade-w: 70px;
+--empty-art: 200px;      /* a first-run page's spot (34a, 34c) */
+--empty-art-sm: 120px;
+--mn-ghost-h: 72px;
 --trk-trend-h: 44px;
 --fs-64: 64px;
 --track-huge: -0.04em;

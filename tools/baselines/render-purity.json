@@ -5573,7 +5573,7 @@
      "key": {
       "ctx": "tracker.row",
       "hooks": "",
-      "name": "(untitled)Maths · 4.2.3.1",
+      "name": "Maths assessment · quick logMaths · 4.2.3.1",
       "tag": "button"
      },
      "occurrence": 0,
@@ -5623,7 +5623,7 @@
      "key": {
       "ctx": "tracker.row",
       "hooks": "",
-      "name": "(untitled)CS · 4.2.3.1",
+      "name": "StacksCS · 4.2.3.1",
       "tag": "button"
      },
      "occurrence": 0,
@@ -5633,7 +5633,7 @@
      "key": {
       "ctx": "tracker.row",
       "hooks": "",
-      "name": "(untitled)IT · 4.2.3.1",
+      "name": "IT assessment · quick logIT · 4.2.3.1",
       "tag": "button"
      },
      "occurrence": 0,
@@ -15231,7 +15231,38 @@
     },
     {
      "key": {
-      "ctx": "ui.empty-action",
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "The 1st",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "announce": [
+       "The month starts on the 1st"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "ui.tabs",
+      "hooks": "ui.tab",
+      "name": "Payday",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "state": [
+       "money.monthStart"
+      ],
+      "announce": [
+       "The month starts on payday, the 28th"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.first-step",
       "hooks": "money.first-income",
       "name": "Add your first income",
       "tag": "button"
@@ -15245,7 +15276,7 @@
     },
     {
      "key": {
-      "ctx": "ui.empty-action",
+      "ctx": "money.first-step",
       "hooks": "money.first-import",
       "name": "Import a CSV",
       "tag": "button"
@@ -15255,6 +15286,18 @@
       "dialog": [
        "Import a CSV"
       ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "money.first-step",
+      "hooks": "money.first-budget",
+      "name": "Set a budget",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/money/budgets"
      }
     }
    ]

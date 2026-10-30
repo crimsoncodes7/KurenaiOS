@@ -35,6 +35,45 @@
     if (/^(E|U|F|FAIL|NP|1)$/.test(t)) return "fail";
     return p == null ? "none" : p >= 80 ? "high" : p >= 70 ? "good" : p >= 60 ? "mid" : p >= 45 ? "low" : "fail";
   }
+  /* what a row was (frame 34j, built from the app's parts): the paper as
+     logged, else the past paper or the assessment it came from, else the
+     topic or its leaf's title, else the kind of quick log — never
+     "(untitled)" */
+  function nameOf(e) {
+    if (e.paper) return e.paper;
+    var src = e.source || {}, X = KOS.exams, m;
+    if (src.kind === "past-paper" && KOS.examPractice && (m = /^(.+):([^:]+)$/.exec(src.ref || ""))) {
+      try { return KOS.examPractice.paperTitle(m[1], m[2]); } catch (_) { /* an index without that paper */ }
+    }
+    var a = e.assessmentId && X ? X.get(e.assessmentId) : null;
+    if (src.kind === "custom-mock") return (a ? a.title + " · " : "") + "KurenaiOS practice paper";
+    if (e.topic) return e.topic;
+    if (a && a.title) return a.title;
+    var n = e.subject && e.ref && KOS.spec ? KOS.spec.node(e.subject, e.ref) : null;
+    if (n && n.title) return n.title;
+    return (SHORT[e.subject] ? SHORT[e.subject] + " " : "") + (e.kind === "exam" ? "assessment" : "practice") + " · quick log";
+  }
+  /* the grade: the one typed, else read from the boundaries where the
+     attempt's paper has them (its assessment's board paper, or the past
+     paper's), from the newest series and marked as an estimate */
+  function gradeOf(e, p) {
+    if (e.grade) return { g: e.grade };
+    var X = KOS.exams, S = KOS.examStats;
+    if (p == null || !X || !S || !X.boundsFor) return null;
+    var a = e.assessmentId ? X.get(e.assessmentId) : null, rows = a ? X.boundsFor(a) : [], m;
+    if (!rows.length && e.source && e.source.kind === "past-paper" && (m = /^(.+):[^:]+$/.exec(e.source.ref || "")) && X.presets) {
+      var pr = X.presets().filter(function (x) { return x.index === m[1]; })[0];
+      rows = pr ? S.boundaryRows(window.KOS_BOUNDARIES, pr.board, pr.qual, pr.paper) : [];
+    }
+    if (!rows || !rows.length) return null;
+    return { g: S.gradeAt(p, rows[0]), est: true, series: rows[0].series };
+  }
+  function mins(n) { return n >= 60 ? Math.floor(n / 60) + " h" + (n % 60 ? " " + (n % 60) : "") : n + " min"; }
+  function monthOf(iso) {
+    if (!iso) return "Undated";
+    var p = iso.split("-");
+    return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  }
   function shortDate(iso) {
     if (!iso) return "—";
     var p = iso.split("-");
@@ -452,8 +491,21 @@
           return el("span", { role: "columnheader", text: h });
         }))
       ]);
+      var month = null;
       rows.forEach(function (e) {
         var p = pct(e);
+        /* grouped by month: a heading row with the month's count and average */
+        var mo = monthOf(e.date);
+        if (mo !== month) {
+          month = mo;
+          var inMo = rows.filter(function (x) { return monthOf(x.date) === mo; });
+          var ps = inMo.map(pct).filter(function (v) { return v != null; });
+          table.appendChild(el("div", { class: "k-trk-month", role: "row", "data-ui": "tracker.month" }, [
+            el("span", { role: "rowheader", text: mo }),
+            el("span", { class: "k-muted", text: inMo.length + (inMo.length === 1 ? " entry" : " entries") + (ps.length ? " · average " + Math.round(ps.reduce(function (s, v) { return s + v; }, 0) / ps.length) + "%" : "") })
+          ]));
+        }
+        var gr = gradeOf(e, p);
         var isOpen = openRow === e.id;
         var revCb = el("input", { type: "checkbox", class: "k-box", "aria-label": "Reviewed", onchange: function () {
           update(e.id, { reviewed: revCb.checked });
@@ -467,11 +519,15 @@
           toggle.setAttribute("aria-expanded", String(openRow === e.id));
           KOS.ui.state(row, "open", openRow === e.id);
         } }, [
-          el("span", { class: "k-trk-name", text: e.paper || e.topic || "(untitled)" }),
+          el("span", { class: "k-trk-name", text: nameOf(e) }),
           el("span", { class: "k-trk-sub" }, [
             e.subject ? SHORT[e.subject] + " · " : "",
             e.ref ? el("span", { class: "k-mono", text: e.ref + " " }) : null,
-            e.paper && e.topic ? e.topic : ""
+            e.paper && e.topic ? e.topic : "",
+            e.role === "result" ? el("span", { class: "k-trk-tag", "data-ui": "tracker.result", text: "Result" }) : null,
+            e.timed ? el("span", { class: "k-trk-tag", "data-ui": "tracker.timed", text: "Timed" + (e.mins ? " · " + mins(e.mins) : "") }) : null,
+            /* the marks ride the sub-line where the phone hides their column */
+            e.marks != null && e.max || gr ? el("span", { class: "k-mono k-trk-subm", text: [e.marks != null && e.max ? e.marks + " / " + e.max : null, gr ? (gr.est ? "≈" : "") + gr.g : null].filter(Boolean).join(" · ") }) : null
           ].filter(Boolean))
         ]);
         var row = el("div", { class: "k-trk-row", "data-ui": "tracker.row", "data-state": [e.reviewed ? "reviewed" : null, isOpen ? "open" : null].filter(Boolean).join(" ") || null,
@@ -485,7 +541,8 @@
               el("b", { class: "k-mono", text: p + "%" })
             ]),
             el("span", { class: "k-mono", role: "cell", text: e.marks != null && e.max ? e.marks + " / " + e.max : "—" }),
-            el("span", { role: "cell" }, [e.grade ? el("span", { class: "k-trk-grade", "data-ui": "tracker.grade", "data-tier": gradeTier(e.grade, p, e.subject), title: "Grade " + e.grade, text: e.grade }) : null].filter(Boolean)),
+            el("span", { role: "cell" }, [gr ? el("span", { class: "k-trk-grade", "data-ui": "tracker.grade", "data-tier": gradeTier(gr.g, p, e.subject), "data-state": gr.est ? "estimate" : null,
+              title: gr.est ? "About " + gr.g + " on the " + gr.series + " boundaries" : "Grade " + gr.g, text: (gr.est ? "≈" : "") + gr.g }) : null].filter(Boolean)),
             el("span", { role: "cell" }, [revCb]),
             el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Edit this entry", text: "✎",
               onclick: function () { editorModal(kind, e, render); } })

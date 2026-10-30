@@ -537,7 +537,7 @@
       levers.appendChild(el("p", { class: "k-muted", text: "Nothing here changes your plan unless you choose it in Settings › Daily minutes." }));
     }
     main.appendChild(el("div", { class: "k-ja-twocol" }, [el("div", { class: "k-ja-col" }, [detail]), el("div", { class: "k-ja-side" }, [levers])]));
-    main.appendChild(el("section", { class: "k-card", "data-ui": "ja.stones-all" }, [cardHead("All stones", tl.perWeek ? "about " + tl.perWeek.mid + " new words a week" : null, null),
+    main.appendChild(el("section", { class: "k-card k-ja-stonesall", "data-ui": "ja.stones-all" }, [cardHead("All stones", tl.perWeek ? "about " + tl.perWeek.mid + " new words a week" : null, null),
       el("ul", { class: "k-ja-stonelist" }, [el("li", { class: "k-ja-stonelist-h", "aria-hidden": "true" }, [el("span", { text: "Stone" }), el("span", { text: "Requirements met" }), el("span", { text: "Likely" })])]
         .concat(tl.milestones.map(function (m) {
         var pct = Math.min(100, Math.round(100 * m.have / Math.max(1, m.need)));

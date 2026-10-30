@@ -228,6 +228,8 @@
 }
 
 @media (max-width: 700px) {
+.k-files-empty-hero { flex-direction: column; align-items: flex-start; gap: var(--sp-12); padding: var(--sp-16); }
+.k-files-empty-art { inline-size: var(--empty-art-sm); }
 /* frame 15m: the alert settings are ⋯'s sheet; a title wraps to two lines */
 .k-nt > .k-nt-side { display: none; }
 .k-msheet-tools > .k-nt-side { display: flex; flex-direction: column; gap: var(--sp-12); }
@@ -277,6 +279,21 @@
 .k-files-where { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-6); }
 .k-files-where li { display: flex; align-items: center; gap: var(--sp-8); }
 .k-files-where-t { flex: 1 1 auto; min-inline-size: 0; }
+.k-files[data-state~="empty"] { grid-template-columns: minmax(0, 1fr); }
+.k-files[data-state~="empty"] .k-files-side { display: none; }
+.k-files[data-state~="empty"] .k-files-bar { opacity: 0.55; }
+.k-files-empty { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--sp-16); }
+.k-files-empty-hero { display: flex; align-items: center; gap: var(--sp-24); padding: var(--sp-20) var(--sp-24); border-radius: var(--r-20); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-files-empty-art { inline-size: var(--empty-art); block-size: auto; flex: none; }
+.k-files-empty-title { margin: 0 0 var(--sp-8); font-family: var(--font-read); font-size: var(--fs-26); font-weight: var(--weight-semibold); }
+.k-files-empty-hero p { margin: 0; }
+.k-files-ways { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--files-card-min), 1fr)); gap: var(--sp-12); }
+.k-files-way { display: flex; align-items: flex-start; gap: var(--sp-12); padding: var(--sp-16); border: var(--hairline) dashed var(--line); border-radius: var(--r-16); background: none; color: var(--text); font: inherit; text-align: start; }
+button.k-files-way { cursor: pointer; border-style: solid; background: var(--s1); }
+button.k-files-way:hover { background: var(--s2); }
+.k-files-way-mark { display: grid; place-items: center; flex: none; inline-size: var(--sp-32); block-size: var(--sp-32); border-radius: var(--r-10); background: var(--s2); color: var(--teal); font-size: var(--fs-15); }
+.k-files-way-t { display: flex; flex-direction: column; gap: var(--sp-4); min-inline-size: 0; font-size: var(--fs-13); }
+.k-files-way-t b { font-size: var(--fs-14); }
 .k-files-kindbtn { justify-content: flex-start; inline-size: 100%; margin-block-end: var(--sp-4); }
 .k-files-kindbtn[aria-pressed="true"] { box-shadow: inset 0 0 0 var(--sp-2) var(--crimson); }
 /* a topic's PDF previews as its first page and opens in the viewer (invariant 152) */

@@ -172,6 +172,8 @@
       if (empty) { page.appendChild(firstVisit()); return; }
       page.appendChild(hero(s, ins, now));
       if (ins.late.length) page.appendChild(lateCard(ins.late[0]));
+      var nudge = s.count ? budgetNudge() : null;
+      if (nudge) page.appendChild(nudge);
       var grid = el("div", { class: "k-mn-cols", "data-ui": "money.overview" });
       grid.appendChild(categoriesCard(s, ins));
       var side = el("div", { class: "k-mn-side" });
@@ -188,14 +190,59 @@
     page.appendChild(U.emptyState({ mark: "✕", title: "Money could not be read on this device",
       body: "Your entries are safe; reload to try again.", action: btn("Reload", "", function () { location.reload(); }) }));
   }
-  /* 27l · first visit */
+  /* 27l · first visit, redrawn as a whole page (frame 34a, built from the
+     app's parts): the spot beside a three-step start, then what the
+     Overview will show, ghosted and labelled a preview — no figure is
+     drawn without its evidence (invariant 76) */
   function firstVisit() {
-    var node = U.emptyState({ mark: "円", title: "Nothing here yet",
-      body: "Money keeps what comes in and what goes out, typed by you or read from a CSV.",
-      action: el("div", { class: "k-mn-actions" }, [
-        btn("Add your first income", "k-btn--primary", function () { entryEditor(null, { kind: "in" }); }, "money.first-income"),
-        btn("Import a CSV", "", function () { importDialog(); }, "money.first-import")]) });
-    return node;
+    var d = M.data(), ms = d.monthStart, payday = ms === 1 ? 28 : ms;
+    var curSel = select([["£", "£ Pound"], ["€", "€ Euro"], ["$", "$ Dollar"], ["¥", "¥ Yen"]], d.currency, { "aria-label": "Currency", class: "k-input k-pill-select", "data-ui": "money.first-currency" });
+    curSel.addEventListener("change", function () { M.setCurrency(curSel.value); announce("Amounts in " + curSel.value); });
+    var startSeg = seg([["1", "The 1st"], ["pay", "Payday"]], ms === 1 ? "1" : "pay", function (v) {
+      M.setMonthStart(v === "1" ? 1 : payday); announce(v === "1" ? "The month starts on the 1st" : "The month starts on payday, the " + payday + ordinal(payday)); redraw();
+    }, "The month starts on", "k-seg--fill");
+    function step(n, title, body, kids) {
+      return el("li", { class: "k-mn-step", "data-ui": "money.first-step" }, [
+        el("span", { class: "k-mn-step-n", "aria-hidden": "true", text: String(n) }),
+        el("div", { class: "k-mn-step-b" }, [el("b", { text: title }), el("p", { class: "k-muted k-mn-small", text: body })].concat(kids || []))]);
+    }
+    var start = card([
+      el("div", { class: "k-mn-first-hero" }, [
+        el("img", { class: "k-mn-first-art", src: "assets/app/img/app.empty.money.webp", alt: "", loading: "lazy", "aria-hidden": "true" }),
+        el("div", {}, [kicker("円 · First run"), el("h2", { class: "k-mn-first-title", text: "Nothing here yet" }),
+          el("p", { class: "k-soft", text: "Money keeps what comes in and what goes out, typed by you or read from a CSV. It never moves gold or XP, and nothing leaves this device unless you sync." })])
+      ]),
+      el("ol", { class: "k-mn-steps" }, [
+        step(1, "Your month", "Amounts in, and when the month starts — on the 1st, or on payday.", [el("div", { class: "k-mn-actions" }, [curSel, startSeg])]),
+        step(2, "What comes in and goes out", "Type your first income or spend, or bring in a bank's CSV.", [el("div", { class: "k-mn-actions" }, [
+          btn("Add your first income", "k-btn--primary", function () { entryEditor(null, { kind: "in" }); }, "money.first-income"),
+          btn("Import a CSV", "", function () { importDialog(); }, "money.first-import")])]),
+        step(3, "One budget", "Pick a category you want to watch and give it a monthly amount.", [el("div", { class: "k-mn-actions" }, [
+          btn("Set a budget", "", function () { go("budgets"); }, "money.first-budget")])])
+      ])
+    ], "k-mn-first", "money.first");
+    /* the preview: the Overview's three parts with no numbers in them */
+    function ghost(title, body, kids) {
+      return el("div", { class: "k-mn-ghost" }, [kicker(title)].concat(kids, [el("p", { class: "k-muted k-mn-small", text: body })]));
+    }
+    var bars = function (n) { return el("div", { class: "k-mn-ghost-bars", "aria-hidden": "true" }, Array.from({ length: n }, function (_, i) { return el("span", { style: "--h: " + [40, 70, 25, 90, 55, 30, 65, 45, 80, 20, 60, 35, 75, 50][i % 14] + "%" }); })); };
+    var rows = el("div", { class: "k-mn-ghost-rows", "aria-hidden": "true" }, [72, 48, 30].map(function (w) { return el("span", { style: "--w: " + w + "%" }); }));
+    var preview = card([head("What the Overview will show", "Preview"),
+      el("div", { class: "k-mn-ghosts" }, [
+        ghost("Left to spend", "What is left of the month's income once your spending is in, with each day's spend beneath it.", [bars(14)]),
+        ghost("Safe to spend today", "A daily figure, after the bills and set-asides still to come. It appears after a week of entries.", [el("div", { class: "k-mn-ghost-fig", "aria-hidden": "true" })]),
+        ghost("Categories", "Where the money went, each against its budget when it has one.", [rows])
+      ])
+    ], "k-mn-preview", "money.first-preview");
+    return el("div", { class: "k-mn-firstrun" }, [start, preview]);
+  }
+  /* 34b · entries but no budget yet: one quiet card offering the third step */
+  function budgetNudge() {
+    var any = M.categories({ kind: "out" }).some(function (c) { return M.budgetOf(c) != null; });
+    if (any) return null;
+    return card([el("div", { class: "k-mn-nudge" }, [
+      el("div", {}, [el("b", { text: "Set one budget" }), el("p", { class: "k-muted k-mn-small", text: "Pick the category you most want to watch. Its bar then reads against a monthly amount, and the month shows what is left." })]),
+      btn("Set a budget", "", function () { go("budgets"); }, "money.nudge-budget")])], "", "money.budget-nudge");
   }
   /* the month's hero: what is left, safe today, and how the days went */
   function hero(s, ins, now) {

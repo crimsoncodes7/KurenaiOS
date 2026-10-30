@@ -237,14 +237,18 @@
         "aria-label": label, onclick: o.onSelect ? function () { o.onSelect(m.id); } : null }, [
         el("span", { class: "k-ja-stone-dot", "aria-hidden": "true", text: m.done ? "✓" : state === "next" ? pct + "%" : "" }),
         el("span", { class: "k-ja-stone-t", text: m.title }),
-        el("small", { class: "k-mono", text: stoneWhen(m, tl) })
-      ]);
+        el("small", { class: "k-mono", text: stoneWhen(m, tl) }),
+        /* drawn only when the path stands upright (the phone and iPad
+           portrait): each stone's requirements as a bar beside its title */
+        o.large ? el("span", { class: "k-bar k-ja-stone-bar", "aria-hidden": "true", style: "--p: " + pct + "%; --bar-c: var(--ja)" }, [el("i")]) : null
+      ].filter(Boolean));
       row.appendChild(stone);
     });
     if (o.onSelect) row.addEventListener("keydown", function (e) {
-      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!dir) return;
       var b = [].slice.call(row.querySelectorAll("[role=radio]")), i = b.indexOf(document.activeElement);
-      var j = Math.max(0, Math.min(b.length - 1, i + (e.key === "ArrowRight" ? 1 : -1)));
+      var j = Math.max(0, Math.min(b.length - 1, i + dir));
       if (b[j]) { e.preventDefault(); b[j].focus(); o.onSelect(b[j].getAttribute("data-id")); }
     });
     /* a declared scroller (invariant 50): the stones are as wide as their

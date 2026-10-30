@@ -1422,7 +1422,9 @@ included) without saying why.
 > sheet `prototypes/app-art/art.html`); the shop repriced to 79,600 gold of
 > new items (all seven outfits, prestige gala 10,000); design passes in the
 > order 18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1/18.2
-> ([design-prompts.md](design-prompts.md) §18); CSS banners retired, seals
+> ([design-prompts.md](design-prompts.md) §18; on 30 October merged into ONE
+> prompt for 18.3, 18.5, 18.7 and 18.8, and 18.1, 18.2, 18.4 and 18.6 BUILT
+> without a design pass on `feat/art-review`); CSS banners retired, seals
 > kept. 28 October: waves 1-5 are made; batches 14-25 added (the missing
 > desks, page headers, Exams covers, avatars, frames, shelves, Shrine cards,
 > seal stamps, and badges for every Code, Japanese, Mind, Creatives and

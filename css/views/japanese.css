@@ -93,6 +93,7 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 .k-ja-stone[aria-checked="true"] .k-ja-stone-dot { outline: var(--focus-width) solid var(--ja); outline-offset: var(--sp-2); }
 .k-ja-stone-t { flex: 1; font-size: var(--fs-11-5); color: var(--text-2); line-height: var(--lh-snug); max-inline-size: var(--sp-64); }
 .k-ja-stone[data-state="later"] .k-ja-stone-t { color: var(--muted); }
+.k-ja-stone-bar { display: none; }
 
 /* ================= radar, meter, range, seal ================= */
 .k-ja-radar { inline-size: var(--ja-radar); block-size: var(--ja-radar); overflow: visible; }
@@ -424,6 +425,19 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 }
 @media (max-width: 860px) {
 .k-ja-close, .k-ja-drills { grid-template-columns: minmax(0, 1fr); }
+/* the media path stands upright (iPad portrait and the phone): one stone a
+   row — the stone, its title and requirements, its range — joined by the
+   dashed line running down, so no label can meet another; the list below
+   it would repeat the same rows and steps aside */
+.k-ja-stones[data-state~="large"] { flex-direction: column; gap: 0; overflow: visible; }
+.k-ja-stones[data-state~="large"] > .k-ja-stone { display: grid; grid-template-columns: var(--ja-stone) minmax(0, 1fr) auto; grid-template-areas: "dot t when" "dot bar when"; align-items: center; column-gap: var(--sp-14); row-gap: var(--sp-6); flex: none; min-inline-size: 0; padding: var(--sp-10) var(--sp-8); text-align: start; }
+.k-ja-stones[data-state~="large"] > .k-ja-stone::before { inset-block: calc(50% + var(--ja-stone) / 2.4) calc(-50% + var(--ja-stone) / 2.4); inset-inline: calc(var(--sp-8) + var(--ja-stone) / 2) auto; inline-size: 0; block-size: auto; border-block-start: 0; border-inline-start: var(--hairline) dashed var(--line); }
+.k-ja-stones[data-state~="large"] .k-ja-stone-dot { grid-area: dot; }
+.k-ja-stones[data-state~="large"] .k-ja-stone-t { grid-area: t; max-inline-size: none; font-size: var(--fs-13-5); color: var(--text); }
+.k-ja-stones[data-state~="large"] .k-ja-stone > small { grid-area: when; text-align: end; color: var(--muted); }
+.k-ja-stones[data-state~="large"] .k-ja-stone-bar { display: block; grid-area: bar; }
+.k-ja-stones[data-state~="large"] .k-ja-stone[aria-checked="true"] { background: var(--s1); }
+.k-ja-stonesall { display: none; }
 .k-ja-pad { inline-size: var(--ja-genko-md); block-size: var(--ja-genko-md); }
 }
 @media (max-width: 700px) {

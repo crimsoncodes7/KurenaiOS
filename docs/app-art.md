@@ -15,10 +15,14 @@ yet. Mind and Routines are out of scope (the user's call).
    are meant to take months. Prices below.
 3. All six outfits are made, plus the prestige gala outfit proposed with
    the repricing.
-4. Claude Design passes, in this order: 18.4 (Japanese path) → 18.6
-   (Exams attempts table) → 18.3 (the Assistant) → 18.7 (art slots) →
-   18.5 (the shop) → 18.8 (cosmetics) → 18.1 and 18.2 (Money and Files
-   empty) last. Prompts: design-prompts.md section 18.
+4. Claude Design: ONE combined prompt (design-prompts.md §18, 30 October
+   2026) covering the art slots (18.7), the Assistant (18.3), the shop
+   (18.5) and the cosmetics (18.8). The four small passes were built
+   without a design pass on 30 October (`feat/art-review`): 18.1 Money's
+   first run, 18.2 Files when empty (both with their empty-state spots
+   imported), 18.4 the Japanese path upright at phone and iPad portrait,
+   18.6 the attempts table (named rows, month groups, timed and result
+   tags, a grade from the boundaries marked ≈).
 5. The four CSS banners are retired (owned copies keep working, never sold
    or shown again); painted banners replace them. The six seals stay on
    sale.
@@ -145,7 +149,7 @@ gate (107 suites today), the responsive audit at 1440/820/390 and
 deploying. Art that has not arrived yet leaves its slot as it is today
 (never an SVG stand-in).
 
-1. **The Assistant's redesign** (wave 1; pass 18.3 when it is back). Import
+1. **The Assistant's redesign** (wave 1; part 2 of prompt 18 when it is back). Import
    batch 1–2 to `assets/app/img/`; point `assets/assistant/manifest.json`'s
    six states (idle = the base, thinking, working, success, error =
    concerned, confirmation = asking) at them, the portrait and familiar
@@ -155,9 +159,9 @@ deploying. Art that has not arrived yet leaves its slot as it is today
    Mar–May spring, Jun–Aug summer, Sep–Nov autumn) and draws its painting
    at low opacity per theme; Critical HP still owns the slot; a per-device
    "Decorative art" switch turns all of it off.
-3. **Pass 18.4, the Japanese path** (the overlap is already fixed in
-   kos-japanese-5; this is the redesign for phone and iPad portrait).
-4. **Pass 18.6, the Exams attempts table** (no art).
+3. **18.4, the Japanese path** — BUILT 30 October 2026 (no design pass):
+   upright at ≤ 860, one stone a row with its bar and range.
+4. **18.6, the Exams attempts table** — BUILT 30 October 2026 (no design pass).
 5. **Pass 18.7, the art slots**: subject desks (Japanese's too), the page
    headers, Exams & Papers covers, vault spotlights, the
    Focus stage's default scene, the empty states, Reports' story covers,
@@ -180,7 +184,8 @@ deploying. Art that has not arrived yet leaves its slot as it is today
    BUILT 30 October 2026 (`feat/art-review`): the 153 badges are imported
    to `assets/app/img/` at 384 px and listed in `js/data/achievements-art.js`
    (`python3 -I tools/gen_ach_art.py` after each import).
-8. **Passes 18.1 and 18.2**: Money's and Files' empty pages.
+8. **18.1 and 18.2**: Money's and Files' empty pages — BUILT 30 October
+   2026 (no design pass); `app.empty.money` and `app.empty.files` imported.
 
 When a release lands, update this file's status, ROADMAP 5.13 and
 CLAUDE.md's baseline.

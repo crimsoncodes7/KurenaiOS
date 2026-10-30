@@ -1280,6 +1280,7 @@
     normalisePot: normalisePot, normaliseTx: normaliseTx,
     categories: categories, category: category, addCategory: addCategory, updateCategory: updateCategory,
     budgetOf: budgetOf, setBudget: setBudget,
+    setCurrency: function (c) { data().currency = str(c, 3) || "£"; store.save(); return data().currency; },
     setMonthStart: function (d) { data().monthStart = int(d, 1, 28, 1); store.save(); return data().monthStart; },
     periodKey: periodKey, periodRange: periodRange, shiftKey: shiftKey,
     rules: rules, rule: rule, addRule: addRule, updateRule: updateRule, removeRule: removeRule, occurrences: occurrences,

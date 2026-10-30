@@ -242,18 +242,45 @@
       listEl.innerHTML = "";
       listEl.setAttribute("data-view", p.view);
       var all = F().all();
-      if (!all.length) {
-        listEl.appendChild(KOS.ui.emptyState({ mark: "紙", title: "No files yet", body: "Add worksheets, handouts, mark schemes or photos — or drop them anywhere on this page. Files you attach to a topic or an assignment show here too." }));
-        return;
-      }
+      KOS.ui.state(layout, "empty", !all.length);
+      if (!all.length) { listEl.appendChild(emptyPage()); return; }
       var rows = filtered();
       if (!rows.length) { listEl.appendChild(KOS.ui.emptyState({ compact: true, title: "Nothing matches", body: q ? "No name or text matches “" + q + "”." + (indexingLeft() ? " Some files are still being indexed." : "") : "Try another filter." })); return; }
       rows.slice(0, 300).forEach(function (h) { listEl.appendChild(card(h)); });
+    }
+    /* no files yet (frame 34c, built from the app's parts): the spot, then
+       every way a file arrives as a card the width of the page — the ones
+       that act are buttons, the rest say where to go */
+    function emptyPage() {
+      function way(mark, title, body, act, hook) {
+        var kids = [el("span", { class: "k-files-way-mark", "aria-hidden": "true", text: mark }),
+          el("span", { class: "k-files-way-t" }, [el("b", { text: title }), el("span", { class: "k-muted", text: body })])];
+        return act ? el("button", { type: "button", class: "k-files-way", "data-ui": hook, onclick: act }, kids)
+          : el("div", { class: "k-files-way", "data-ui": hook }, kids);
+      }
+      return el("div", { class: "k-files-empty", "data-ui": "files.empty" }, [
+        el("div", { class: "k-files-empty-hero" }, [
+          el("img", { class: "k-files-empty-art", src: "assets/app/img/app.empty.files.webp", alt: "", loading: "lazy", "aria-hidden": "true" }),
+          el("div", {}, [el("h2", { class: "k-files-empty-title", text: "No files yet" }),
+            el("p", { class: "k-soft", text: "Worksheets, handouts, mark schemes, notes and photos, in one place. Every file you add is searched by its name and the text inside it, and can be linked to a topic, an assignment or an exam." })])
+        ]),
+        el("div", { class: "k-files-ways" }, [
+          way("⇪", "Add files", "Choose PDFs, pictures or documents from this device.", function () { fileIn.click(); }, "files.way-add"),
+          KOS.fileScan ? way("◫", "Scan pages", "Use the camera: drag the four corners, and the pages are straightened into one PDF.", function () { scanBtn.click(); }, "files.way-scan") : null,
+          way("⤓", "Drop here", "Drag files from anywhere onto this page.", null, "files.way-drop"),
+          way("⌘", "Paste", "Paste a screenshot or a copied file (⌘V) while this page is open.", null, "files.way-paste"),
+          way("❖", "A topic's Files tab", "Files dropped on a topic are linked to it and listed here too.", null, "files.way-topic"),
+          way("✎", "An assignment", "Briefs and drafts attached to an assignment.", function () { KOS.show("assignments"); }, "files.way-assignment"),
+          way("試", "Exams' Library", "Past papers and mark schemes, matched to their papers.", function () { KOS.show("exams", { tab: "practice", sub: "library" }); }, "files.way-library"),
+          way("↗", "Share to KurenaiOS", "From another app's share sheet (Chrome on Android and desktop).", null, "files.way-share")
+        ].filter(Boolean))
+      ]);
     }
     function indexingLeft() { return F().all().filter(function (r) { return F().textState(r) === "queued"; }).length; }
     function paintSide() {
       side.innerHTML = "";
       var all = F().all(), bytes = 0, kinds = {};
+      if (!all.length) return;     /* the empty page takes the width and shows every way in itself */
       all.forEach(function (r) { if (r.hasBlob) bytes += r.size || 0; kinds[r.kind] = (kinds[r.kind] || 0) + 1; });
       var inked = all.filter(function (r) { return F().writing(r); }).length, unlinked = all.filter(function (r) { return !r.links.length; }).length, left = indexingLeft();
       side.appendChild(el("section", { class: "k-card k-files-facts", "data-ui": "files.facts" }, [

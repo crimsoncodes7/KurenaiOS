@@ -18,8 +18,9 @@ so the art and shop work continues on the other account.
   at 116,700 gold, the 322 Gemini images in 23 waves, and the build order.
   The prompts are `art-source/app/manifest.json` (sheet:
   `prototypes/app-art/art.html`); the Claude Design passes are
-  [design-prompts.md](design-prompts.md) §18, sent in the order
-  18.4 → 18.6 → 18.3 → 18.7 → 18.5 → 18.8 → 18.1/18.2.
+  [design-prompts.md](design-prompts.md) §18, now ONE combined prompt
+  (art slots, the Assistant, the shop, the cosmetics); the small passes
+  18.1, 18.2, 18.4 and 18.6 were built directly on 30 October 2026.
 - **Art made:** waves 1–5 (the Assistant, Home's seasons, the subject desks,
   Focus scenes, spotlights, halls, empty states, story covers, finishes,
   banners, the seven outfit bases, Code's capstone badges, the Exam Room),

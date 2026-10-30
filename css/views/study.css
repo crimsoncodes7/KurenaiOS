@@ -890,7 +890,10 @@ button.k-subj-next:hover { background: var(--s2); }
 /* ================= Exams & Papers (frames 9d, 9e) ================= */
 .k-trk-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); }
 .k-trk { display: flex; flex-direction: column; gap: var(--sp-20); }
-.k-trk-figs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.6fr); gap: var(--sp-20); }
+/* the tiles share the row whatever their number, the trend a wider share (no gap at the end) */
+.k-trk-figs { display: flex; gap: var(--sp-20); }
+.k-trk-figs > .k-trk-fig { flex: 1 1 0; min-inline-size: 0; }
+.k-trk-figs > .k-trk-trend { flex: 1.6 1 0; min-inline-size: 0; }
 .k-trk-fig { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); text-align: center; padding: var(--sp-16) var(--sp-20); }
 .k-trk-fig-v { font-size: var(--fs-32); font-weight: var(--weight-semibold); letter-spacing: var(--track-figure); color: var(--c, var(--text)); }
 .k-trk-fig-l { font-size: var(--fs-12-5); color: var(--muted); }
@@ -917,6 +920,12 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-trk-name { font-size: var(--fs-14); font-weight: var(--weight-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-trk-title:hover .k-trk-name { text-decoration: underline; text-decoration-color: var(--line); }
 .k-trk-sub { font-size: var(--fs-12); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-trk-month { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-12); padding: var(--sp-14) var(--sp-16) var(--sp-4); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-12); }
+.k-trk-headrow + .k-trk-month { border-block-start: 0; }
+.k-trk-month > [role="rowheader"] { font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--text-2); }
+.k-trk-tag { display: inline-block; margin-inline-start: var(--sp-6); padding: 0 var(--sp-6); border-radius: var(--r-6); background: var(--s2); color: var(--text-2); font-size: var(--fs-11); }
+.k-trk-subm { display: none; margin-inline-start: var(--sp-6); }
+.k-trk-grade[data-state~="estimate"] { box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--g) 30%, transparent); background: transparent; }
 .k-trk-score { display: flex; align-items: center; gap: var(--sp-10); }
 .k-trk-scorebar { flex: 1 1 0; block-size: var(--bar-6); border-radius: var(--bar-6); background: var(--s2); overflow: hidden; }
 .k-trk-scorebar i { display: block; block-size: 100%; inline-size: var(--p); background: var(--c); border-radius: inherit; }
@@ -1048,7 +1057,8 @@ button.k-subj-next:hover { background: var(--s2); }
 }
 
 @media (max-width: 1080px) {
-.k-trk-figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-trk-figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.k-trk-figs > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 .k-trk-trend { grid-column: 1 / -1; }
 .k-rv-row, .k-cs-row { grid-template-columns: minmax(0, 1fr); }
 .k-topic, .k-topic[data-state~="insp-closed"], .k-topic[data-state~="editing"] { grid-template-columns: minmax(0, 1fr); }
@@ -1076,6 +1086,9 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-spine-open { display: grid; }
 /* five cells stay on the row: bar, name, score, reviewed, edit */
 .k-trk-grid { grid-template-columns: var(--sp-4) minmax(0, 1fr) auto auto var(--icon-btn-sm); }
+/* each entry reads as its own card on the phone, its marks on the sub-line */
+.k-trk-row { margin-block: var(--sp-4); background: var(--s1); }
+.k-trk-subm { display: inline; }
 .k-trk-grid > :nth-child(2), .k-trk-grid > :nth-child(5), .k-trk-grid > :nth-child(6), .k-trk-headrow { display: none; }
 .k-trk-detail, .k-trk-reflect, .k-trk-form { grid-template-columns: minmax(0, 1fr); padding-inline-start: var(--sp-16); }
 .k-trk-half { grid-column: auto; }

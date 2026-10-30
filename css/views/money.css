@@ -311,7 +311,29 @@ button.k-mn-cmp:hover { background: var(--s2); }
 /* the round add button on a phone (27q) */
 .k-mn-fab { display: none; }
 
+.k-mn-firstrun { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-20); }
+.k-mn-first { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--sp-28); align-items: center; padding: var(--sp-24) var(--sp-28); }
+.k-mn-first-hero { display: flex; align-items: center; gap: var(--sp-24); }
+.k-mn-first-art { inline-size: var(--empty-art); block-size: auto; flex: none; }
+.k-mn-first-title { margin: var(--sp-4) 0 var(--sp-8); font-family: var(--font-read); font-size: var(--fs-26); font-weight: var(--weight-semibold); }
+.k-mn-steps { display: flex; flex-direction: column; gap: var(--sp-16); margin: 0; padding: 0; list-style: none; }
+.k-mn-step { display: flex; gap: var(--sp-14); align-items: flex-start; }
+.k-mn-step-n { display: grid; place-items: center; flex: none; inline-size: var(--sp-28); block-size: var(--sp-28); border-radius: 50%; background: var(--s2); color: var(--crimson); font-size: var(--fs-13); font-weight: var(--weight-bold); }
+.k-mn-step-b { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
+.k-mn-step-b p { margin: 0; }
+.k-mn-ghosts { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--sp-16); }
+.k-mn-ghost { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-16); border-radius: var(--r-16); border: var(--hairline) dashed var(--line); }
+.k-mn-ghost p { margin: 0; }
+.k-mn-ghost-bars { display: flex; align-items: flex-end; gap: var(--sp-4); block-size: var(--mn-ghost-h); }
+.k-mn-ghost-bars span { flex: 1 1 0; block-size: var(--h); border-radius: var(--r-6) var(--r-6) var(--sp-2) var(--sp-2); background: var(--s3); }
+.k-mn-ghost-fig { block-size: var(--mn-ghost-h); border-radius: var(--r-14); background: linear-gradient(90deg, var(--s3), var(--s1)); }
+.k-mn-ghost-rows { display: flex; flex-direction: column; justify-content: space-around; gap: var(--sp-10); block-size: var(--mn-ghost-h); }
+.k-mn-ghost-rows span { block-size: var(--bar-6); inline-size: var(--w); border-radius: var(--bar-6); background: var(--s3); }
+.k-mn-nudge { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-16); }
+.k-mn-nudge p { margin: var(--sp-4) 0 0; }
+
 @media (max-width: 1080px) {
+.k-mn-first { grid-template-columns: minmax(0, 1fr); }
 .k-mn-hero { grid-template-columns: minmax(0, 1fr) var(--rp-coll-side); }
 .k-mn-pothero { grid-template-columns: var(--rp-chapter-d) minmax(0, 1fr); }
 .k-mn-pothero > .k-mn-plan { grid-column: 1 / -1; }
@@ -333,6 +355,11 @@ button.k-mn-cmp:hover { background: var(--s2); }
 }
 
 @media (max-width: 700px) {
+.k-mn-ghosts { grid-template-columns: minmax(0, 1fr); }
+.k-mn-first { padding: var(--sp-18) var(--sp-16); }
+.k-mn-first-hero { flex-direction: column; align-items: flex-start; gap: var(--sp-12); }
+.k-mn-first-art { inline-size: var(--empty-art-sm); }
+.k-mn-nudge { flex-direction: column; align-items: stretch; }
 .k-mn { gap: var(--sp-14); }
 .k-mn-hero { padding: var(--sp-16) var(--sp-18); border-radius: var(--r-22); gap: var(--sp-12); }
 .k-mn-hero-mark { font-size: var(--gl-hero-mark); inset-inline-end: calc(-1 * var(--sp-10)); inset-block-start: calc(-1 * var(--sp-40)); }
