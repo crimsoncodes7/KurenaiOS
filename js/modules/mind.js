@@ -109,8 +109,7 @@
     return el("section", { class: "k-card k-mind-welcome", "data-ui": "mind.welcome", "aria-label": "Welcome to Mind" }, [
       el("span", { class: "k-kicker", text: "Welcome to Mind" }),
       el("h2", { class: "k-mind-daily-t", text: "Start with how to tell a good argument from a bad one." }),
-      el("p", { class: "k-muted", text: "Every path uses it, from memory research to free will. Fifteen minutes a day, mostly on your phone: a few cards, one short sitting, one question." }),
-      l ? el("div", { class: "k-mind-unitline" }, [el("span", { class: "k-mono", text: l.unit }), el("span", {}, [el("b", { text: M().unit(l.unit).title }), el("small", { class: "k-muted", text: " · Foundation · " + M().unitLessons(l.unit).length + " lessons · first sitting ≈ 8 min" })])]) : null,
+      el("p", { class: "k-muted", text: "Fifteen minutes a day: a few cards, one sitting, one question." }),
       el("div", { class: "k-mind-row" }, [l ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.begin", text: "▶ Begin " + l.id, onclick: function () { KOS.show("ref", { subject: SID, ref: l.id }); } }) : null,
         el("button", { type: "button", class: "k-btn", text: "Look around first", onclick: function () { KOS.show("mind", { page: "path" }); } })].filter(Boolean))
     ].filter(Boolean));

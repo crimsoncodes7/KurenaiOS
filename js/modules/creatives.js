@@ -52,59 +52,51 @@
         style: bar ? "--p: " + Math.max(0, Math.min(100, o.pct)) + "%" + (o.c ? "; --bar-c: " + o.c : "") : null }, [el("i")])
     ].filter(Boolean));
   }
-  /* a track's units as a path: done, the current one, ahead (Moegi marks place, never pass) */
-  function unitPath(tid, o) {
-    o = o || {};
-    var t = CR().track(tid), place = CR().trackPlace(tid);
-    return el("span", { class: "k-cr-upath", "data-ui": "cr.unit-path", role: "img", "data-size": o.size || null,
-      "aria-label": t.name + ": " + (place ? "unit " + (place.index + 1) + " of " + t.units.length : "not started") },
-      t.units.map(function (uid, i) {
-        var st = CR().unitState(uid).state;
-        return el("i", { "data-state": st === "done" ? "done" : place && i === place.index && !place.finished ? "now" : null });
-      }));
-  }
-  function trackBar(t) {
-    var place = CR().trackPlace(t.id);
-    return el("div", { class: "k-cr-trackbar", "data-ui": "cr.track-bar" }, [
-      el("div", { class: "k-cr-trackbar-top" }, [
-        el("span", { class: "k-cr-tile", lang: "ja", "aria-hidden": "true", text: t.k }),
-        el("b", { text: t.name }),
-        el("span", { class: "k-mono k-muted", text: place ? "Unit " + (place.index + 1) + " of " + t.units.length : "Not started" })
-      ]),
-      place ? unitPath(t.id) : el("span", { class: "k-cr-upath-none", "aria-hidden": "true" })
-    ]);
-  }
   function settingsBtn(page) {
     return el("button", { type: "button", class: "k-iconbtn", "data-ui": "cr.settings-open", "aria-label": "Creatives settings", "aria-current": page === "settings" ? "page" : null, text: "⚙",
       onclick: function () { KOS.show("creatives", { page: "settings" }); } });
   }
   function startFocus(ref) { KOS.show("focus", { subject: SID, ref: ref || undefined }); }
+  /* a lesson's or a track's mastery: the shared four-check percentage, as every subject's ring */
+  function lessonPct(id) { return KOS.hub.leafPercent(SID, id); }
+  function trackPct(tid) {
+    var ls = CR().lessons(tid);
+    return ls.length ? Math.round(ls.reduce(function (a, l) { return a + lessonPct(l.id); }, 0) / ls.length) : null;
+  }
+  function kindMark(w) { var t = CR().track(w.track); return t ? t.k : "創"; }
 
   /* ======================================================================
-     31a · the desk
+     31a · the desk, on Code's skeleton (26a): the ring, the track bars, the
+     Daily Creative and Continue; analytics beside the Portfolio; the path
      ====================================================================== */
   KOS.crDesk = function (main) {
-    var st = CR().stats(), first = !CR().started(), tid = CR().currentTrack(), T = CR().track(tid);
-    var place = CR().trackPlace(tid), plan = CR().planDay();
+    var st = CR().stats(), first = !CR().started(), tid = CR().currentTrack();
+    var mastery = Math.round(CR().lessons().reduce(function (a, l) { return a + lessonPct(l.id); }, 0) / Math.max(1, st.lessons));
     KOS.shell.actions([
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.focus", text: "Start focus", onclick: function () { startFocus(); } }),
       settingsBtn()
     ]);
-    var curUnit = place ? CR().unit(place.unit) : CR().unit(T.units[0]);
     var hero = el("section", { class: "k-subj-hero k-cr-hero", "data-ui": "study.subject-hero cr.hero", "aria-label": "Creatives" }, [
-      el("span", { class: "k-cr-emblem-big", role: "img", "aria-label": "Now: " + T.name + ", unit " + curUnit.n + ", " + curUnit.name }, [
-        el("span", { class: "k-cr-emblem-k", lang: "ja", "aria-hidden": "true", text: T.k }),
-        el("small", { text: "this unit" }), el("b", { text: curUnit.skill || curUnit.name })
+      el("span", { class: "k-subj-ring", role: "img", "aria-label": mastery + "% mastery", style: "--p: " + mastery + "%" }, [
+        el("span", { class: "k-subj-ring-in" }, [el("b", { text: mastery + "%" }), el("small", { text: "mastery" })])
       ]),
       el("div", { class: "k-subj-id" }, [
         el("div", { class: "k-kicker", text: "Subject desk" }),
-        el("h1", { class: "k-subj-name" }, ["Creatives ", el("span", { class: "k-cr-name-ja", lang: "ja", "aria-hidden": "true", text: "創" })]),
-        el("div", { class: "k-subj-board" }, [el("span", { text: "Art, design, editing and writing · you against you only" })]),
-        el("p", { class: "k-cr-hero-where", text: T.name + " · Unit " + curUnit.n + " " + curUnit.name + (st.done ? " · " + st.done + (st.done === 1 ? " lesson" : " lessons") + " done" : "") })
+        el("h1", { class: "k-subj-name", text: "Creatives" }),
+        el("div", { class: "k-subj-board" }, [el("span", { text: KOS_DATA.creatives.board })])   // no streak of its own (plan §6)
       ]),
-      el("div", { class: "k-cr-trackbars", "data-ui": "cr.track-bars" }, CR().tracks().map(trackBar))
+      el("div", { class: "k-subj-papers", "data-ui": "cr.track-bars" }, CR().tracks().map(function (t) {
+        var pct = trackPct(t.id);
+        return el("div", { class: "k-subj-paper", "data-state": pct == null ? "later" : null }, [
+          el("div", { class: "k-subj-paper-top" }, [el("b", { text: t.name }), el("span", { class: "k-subj-paper-note" }),
+            el("span", { class: "k-mono", text: pct == null ? "later" : pct + "%" })]),
+          el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": t.name + ": " + (pct == null ? "not released yet" : pct + "%"), style: "--p: " + (pct || 0) + "%" }, [el("i")])
+        ]);
+      })),
+      /* the track in view as a path across the hero, as Code's stage path */
+      el("div", { class: "k-cr-hero-path" }, [heroPath(tid)])
     ]);
-    var side = el("div", { class: "k-subj-side k-cr-deskside" }, [first ? welcomeCard() : dailyCard(plan), first ? null : continueCard()].filter(Boolean));
+    var side = el("div", { class: "k-subj-side" }, first ? [welcomeCard()] : [dailyCard(CR().planDay()), continueCard()].filter(Boolean));
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
     var analytics = el("section", { class: "k-card k-sa", "data-ui": "study.analytics cr.analytics", "aria-label": "Subject analytics" }, [
@@ -114,195 +106,159 @@
         el("details", { class: "k-sa-help" }, [
           el("summary", { class: "k-link", text: "What do these mean?" }),
           el("div", { class: "k-sa-help-body" }, [
-            el("p", { text: "A lesson is done when its notes are read, its studies saved, their check passed and one theory card held. Reading alone never completes one." }),
-            el("p", { text: "Nothing here counts words, strokes or reps: volume is never the point. Hours come from Focus." })
+            el("p", { text: "Mastery averages each lesson's four evidence checks: notes read, its studies saved, their check passed and a theory card held. Reading alone never completes a lesson." })
           ])
         ])
       ]),
       el("div", { class: "k-sa-grid", "data-ui": "study.analytics-grid" }, [
+        statTile({ k: "Mastery", v: mastery + "%", pct: mastery, c: "var(--subj-c)" }),
         statTile({ k: "Lessons", v: st.done + " / " + st.lessons, pct: Math.round(100 * st.done / Math.max(1, st.lessons)), c: "var(--green)" }),
-        statTile({ k: "Checks passed", v: String(st.checks), empty: !st.checks }),
-        statTile({ k: "Projects", v: st.projectsDone + " / " + st.projects, empty: !st.projects, pct: st.projects ? Math.round(100 * st.projectsDone / st.projects) : null, c: "var(--subj-c)" }),
+        statTile({ k: "Projects", v: st.projectsDone + " / " + st.projects, empty: !st.projectsDone, pct: st.projectsDone ? Math.round(100 * st.projectsDone / st.projects) : null, c: "var(--green)" }),
         statTile({ k: "Cards due", v: String(st.due), empty: first }),
         statTile({ k: "Studies saved", v: String(st.studies), empty: !st.studies }),
+        statTile({ k: "Checks passed", v: String(st.checks), empty: !st.checks }),
         statTile({ k: "Portfolio", v: String(st.portfolio), empty: !st.portfolio }),
-        statTile({ k: "Words written", v: KOS.ui.num(st.words), empty: !st.words, sub: "in saved work, never paid" }),
-        statTile({ k: "This week", v: hm(st.week), empty: !st.week, pct: st.week ? Math.min(100, Math.round(100 * st.week / (CR().prefs().minutes * 3))) : null, c: "var(--green)" })
+        statTile({ k: "This week", v: hm(st.week), empty: !st.week })
       ])
     ]);
     main.appendChild(el("div", { class: "k-subj-row" }, [analytics, portfolioCard()]));
     main.appendChild(pathSection(tid));
-    main.appendChild(el("div", { class: "k-cr-close" }, [tracksCard(), firstsCard(), suggestCard(tid)].filter(Boolean)));
   };
 
-  /* the side column's card: the Daily Creative in three parts (cards, one study, its check) */
+  /* the units of a track in its stages, one stop each, a line joining them */
+  function heroPath(tid) {
+    var T = CR().track(tid), place = CR().trackPlace(tid);
+    var row = el("div", { class: "k-cr-hpath", "data-ui": "cr.hero-path", role: "group", "aria-label": T.name + " path", style: "--n: " + T.units.length });
+    T.stages.forEach(function (sg) {
+      var uids = T.units.slice(sg[1] - 1, sg[2]);
+      row.appendChild(el("div", { class: "k-cr-hstage", style: "--span: " + uids.length }, [
+        el("div", { class: "k-cr-hstage-h" }, [el("b", { text: sg[0] })]),
+        el("div", { class: "k-cr-hstage-m" }, uids.map(function (uid) {
+          var u = CR().unit(uid), us = CR().unitState(uid), now = place && place.unit === uid && !place.finished;
+          var state = us.state === "done" ? "done" : now ? "current" : us.state === "outline" ? "later" : null;
+          return el("span", { class: "k-cr-hnode", "data-state": uid === T.units[T.units.length - 1] ? "last" : null }, [
+            el("button", { type: "button", class: "k-cr-hsq", "data-state": state, "data-ui": "cr.path-unit", disabled: state === "later" ? "" : null,
+              "aria-label": "Unit " + u.n + " " + u.name + ": " + (state === "later" ? "coming later" : us.done + " of " + us.total + " done"), title: u.name,
+              text: state === "done" ? "✓" : T.letter + u.n, onclick: function () { openUnit(uid); } })
+          ]);
+        }))
+      ]));
+    });
+    return row;
+  }
+
+  /* the side column's card: one study (or a project) and the due cards */
   function dailyCard(p) {
     var box = el("section", { class: "k-card k-cr-daily", "data-ui": "cr.daily", "data-state": p.state, "aria-label": "Daily Creative" });
-    function head(eye, chip) {
-      return el("div", { class: "k-cr-daily-top" }, [el("span", { class: "k-kicker", text: eye }), chip ? el("span", { class: "k-chip k-cr-chip", "data-ui": "cr.daily-min", text: chip }) : null].filter(Boolean));
-    }
+    var head = el("div", { class: "k-cr-daily-top" }, [el("span", { class: "k-kicker", text: "Daily Creative · today" })]);
+    var t = null, why = null, go = null, alt = null;
     if (p.state === "paused") {
-      [head("Daily Creative", "Paused"), el("h2", { class: "k-cr-daily-t", text: "Paused for Exam Season." }),
-        el("p", { class: "k-muted", text: (p.back ? "Back after your last paper on " + dayLabel(p.back) + ". " : "") + "Cards stay open if you want them." }),
-        p.cards ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Cards · " + p.cardMin + " min", onclick: function () { KOS.show("due"); } }) : null,
-        el("small", { class: "k-muted", text: "Your study keeps its place. Every lesson still opens from the path." })].filter(Boolean).forEach(function (n) { box.appendChild(n); });
-      return box;
+      t = "Paused for Exam Season";
+      why = p.back ? "Back after " + dayLabel(p.back) + "." : null;
+      if (p.cards) go = ["Cards · " + p.cardMin + " min", function () { KOS.show("due"); }];
+    } else if (p.state === "rest") {
+      t = "Next on " + ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][p.nextDay];
+    } else if (p.state === "clear") {
+      t = "Nothing waiting today";
+    } else if (p.study) {
+      t = p.study.lesson + "·" + p.study.study + " " + p.study.t;
+      why = p.study.saved ? "Saved; its check is still to do." : p.cards ? "Then " + p.cards + (p.cards === 1 ? " card." : " cards.") : null;
+      go = ["▶ Start", function () {
+        var w = CR().studyWorks(p.study.lesson, p.study.study)[0];
+        if (w) KOS.show("creatives", { page: "check", id: w.id }); else KOS.crStartStudy(p.study.lesson, p.study.study);
+      }];
+    } else if (p.project) {
+      t = p.project.project.t;
+      go = ["▶ Open", function () { KOS.show("creatives", { page: "project", id: CR().lesson(p.project.project.after).unit }); }];
+    } else {
+      t = p.cards + (p.cards === 1 ? " card due" : " cards due");
+      go = ["▶ Start", function () { KOS.show("due"); }];
     }
-    if (p.state === "rest") {
-      [head("Daily Creative", DAYN[p.nextDay]), el("h2", { class: "k-cr-daily-t", text: "Next one on " + ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][p.nextDay] + "." }),
-        el("p", { class: "k-muted", text: "The desk stays open and nothing is waiting. Missing a day costs nothing." }),
-        el("button", { type: "button", class: "k-btn", text: "Open a lesson anyway", onclick: function () { var ns = CR().nextStudy(CR().currentTrack()); if (ns) KOS.show("ref", { subject: SID, ref: ns.lesson.id }); else KOS.show("creatives", { page: "tracks" }); } })
-      ].forEach(function (n) { box.appendChild(n); });
-      return box;
-    }
-    if (p.state === "clear") {
-      [head("Daily Creative · " + dayLabel(p.day)), el("h2", { class: "k-cr-daily-t", text: "Nothing waiting today." }),
-        el("p", { class: "k-muted", text: "Every released study is passed. Try another track, or a redo when one comes back." }),
-        el("button", { type: "button", class: "k-btn", text: "All tracks", onclick: function () { KOS.show("creatives", { page: "tracks" }); } })].forEach(function (n) { box.appendChild(n); });
-      return box;
-    }
-    var sMin = p.study ? p.study.min : p.project ? 20 : 0, checkMin = p.study ? 3 : 0;
-    var what = p.study ? (p.cards ? "Cards, then " : "") + p.study.lesson + "·" + p.study.study + " " + p.study.t : p.project ? (p.cards ? "Cards, then " : "") + p.project.project.t : "Cards";
-    box.appendChild(head("Daily Creative · " + dayLabel(p.day), "≈ " + (p.cardMin + sMin + checkMin) + " min"));
-    box.appendChild(el("h2", { class: "k-cr-daily-t", text: what }));
-    if (p.study && p.study.saved) box.appendChild(el("p", { class: "k-muted", text: "Pick up here: it is saved, and its check is still to do." }));
-    var parts = [["Cards", p.cardMin], ["Study", sMin], ["Check", checkMin]];
-    box.appendChild(el("div", { class: "k-cr-blocks", role: "img", "aria-label": parts.map(function (b) { return b[0] + " " + b[1] + " minutes"; }).join(", ") },
-      parts.map(function (b, i) { return b[1] ? el("span", { "data-block": String(i), style: "--w: " + b[1] }) : null; }).filter(Boolean)));
-    box.appendChild(el("div", { class: "k-cr-blocks-l k-mono" }, parts.filter(function (b) { return b[1]; }).map(function (b) { return el("span", { text: b[0] + " " + b[1] }); })));
-    box.appendChild(el("div", { class: "k-cr-daily-go" }, [
-      el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.daily-start", text: "▶ Start",
-        onclick: function () {
-          if (p.study) { var w = CR().studyWorks(p.study.lesson, p.study.study)[0]; if (w) KOS.show("creatives", { page: "check", id: w.id }); else KOS.crStartStudy(p.study.lesson, p.study.study); }
-          else if (p.project) KOS.show("creatives", { page: "project", id: p.project.project.after ? CR().lesson(p.project.project.after).unit : null });
-          else KOS.show("due");
-        } }),
-      p.cards && (p.study || p.project) ? el("button", { type: "button", class: "k-btn", text: "Just cards · " + p.cardMin + "′", onclick: function () { KOS.show("due"); } }) : null
+    box.appendChild(head);
+    box.appendChild(el("h2", { class: "k-cr-daily-t", text: t }));
+    if (why) box.appendChild(el("p", { class: "k-cr-daily-why", text: why }));
+    if (go) box.appendChild(el("div", { class: "k-cr-daily-go" }, [
+      el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.daily-start", text: go[0], onclick: go[1] }),
+      p.total && p.state === "today" ? el("span", { class: "k-muted", text: "about " + p.total + " min" }) : null
     ].filter(Boolean)));
     return box;
   }
   function welcomeCard() {
-    var ns = CR().nextStudy(CR().currentTrack()), L = ns ? ns.lesson : CR().lessons()[0], u = L ? CR().unit(L.unit) : null, T = u ? CR().track(u.track) : null;
-    return el("section", { class: "k-card k-cr-welcome", "data-ui": "cr.welcome", "aria-label": "Welcome to Creatives" }, [
-      el("span", { class: "k-kicker", text: "Welcome to Creatives" }),
-      el("h2", { class: "k-cr-daily-t", text: "Start with ten minutes. Nobody sees it but you." }),
-      el("p", { class: "k-muted", text: "Every lesson is one small skill with most of the work given. You compare yourself with you from last month, never with finished work." }),
-      L ? el("div", { class: "k-cr-welcome-u" }, [el("span", { class: "k-mono k-cr-place", text: T.name + " " + u.n }), el("b", { text: u.name }), el("small", { class: "k-muted", text: u.lessons.length + " lessons · first study ≈ " + L.studies[0].min + " min" })]) : null,
-      el("div", { class: "k-cr-daily-go" }, [
-        L ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.begin", text: "▶ Begin " + L.id, onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } }) : null,
-        el("button", { type: "button", class: "k-btn", text: "Look around first", onclick: function () { KOS.show("creatives", { page: "tracks" }); } })
-      ].filter(Boolean))
+    var L = CR().lessons()[0];
+    return el("section", { class: "k-card k-cr-daily", "data-ui": "cr.welcome", "aria-label": "Start here" }, [
+      el("span", { class: "k-kicker", text: "Start here" }),
+      el("h2", { class: "k-cr-daily-t", text: "One small skill a lesson, about 20 minutes." }),
+      L ? el("div", { class: "k-cr-daily-go" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.begin", text: "Start " + L.id,
+        onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } })]) : null
     ].filter(Boolean));
   }
   function continueCard() {
     var ns = CR().nextStudy(CR().currentTrack());
     if (!ns) return null;
-    var ev = CR().evidence(ns.lesson.id), pct = Math.round(25 * ev.checks.filter(Boolean).length);
-    return el("button", { type: "button", class: "k-card k-cr-continue", "data-ui": "cr.continue", onclick: function () { KOS.show("ref", { subject: SID, ref: ns.lesson.id }); } }, [
-      el("span", { class: "k-cr-continue-txt" }, [
+    var pct = lessonPct(ns.lesson.id);
+    return el("button", { type: "button", class: "k-subj-next", "data-ui": "study.continue cr.continue", onclick: function () { KOS.show("ref", { subject: SID, ref: ns.lesson.id }); } }, [
+      el("span", { class: "k-subj-next-txt" }, [
         el("span", { class: "k-kicker", text: "Continue" }),
-        el("span", { class: "k-cr-continue-t" }, [el("span", { class: "k-mono k-cr-place", text: ns.lesson.id }), " " + ns.lesson.title]),
-        el("span", { class: "k-bar k-bar--3", "aria-hidden": "true", style: "--p: " + pct + "%; --bar-c: var(--cr)" }, [el("i")])
+        el("span", { class: "k-subj-next-t" }, [el("span", { class: "k-mono", text: ns.lesson.id }), ns.lesson.title]),
+        el("span", { class: "k-bar", role: "img", "aria-label": pct + "% from evidence", style: "--p: " + pct + "%; --bar-c: var(--subj-c)" }, [el("i")])
       ]),
-      el("span", { class: "k-cr-go", "aria-hidden": "true", text: "→" })
+      el("span", { class: "k-subj-next-go", "data-state": "lit", "aria-hidden": "true", text: "→" })
     ]);
   }
-  function kindMark(w) { var t = CR().track(w.track); return t ? t.k : "創"; }
+  /* beside analytics, as Code's Retrieval due: what you chose to show, and the private log's link */
   function portfolioCard() {
     var list = CR().portfolio().slice(0, 4);
     return el("section", { class: "k-card k-cr-port", "data-ui": "cr.portfolio-side", "aria-label": "Portfolio" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Portfolio" }), el("span", { class: "k-card-meta", text: "what you chose to show" }),
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Portfolio" }),
         el("button", { type: "button", class: "k-link", text: "Open →", onclick: function () { KOS.show("creatives", { page: "portfolio" }); } })]),
-      list.length ? el("ul", { class: "k-cr-portlist" }, list.map(function (w) {
-        return el("li", {}, [el("button", { type: "button", class: "k-cr-portrow", onclick: function () { KOS.show("creatives", { page: "log", id: w.id }); } }, [
+      list.length ? el("div", { class: "k-cr-portlist" }, list.map(function (w) {
+        return el("button", { type: "button", class: "k-day-row k-cr-portrow", onclick: function () { KOS.show("creatives", { page: "log", id: w.id }); } }, [
           el("span", { class: "k-cr-kind", lang: "ja", "aria-hidden": "true", text: kindMark(w) }),
-          el("span", { class: "k-cr-portrow-t" }, [el("span", { text: w.title }), el("small", { class: "k-muted", text: (CR().track(w.track) || {}).name + " · " + dateShort(w.portfolio) })])
-        ])]);
-      })) : el("p", { class: "k-cr-port-empty", text: "Nothing promoted yet, and that's normal. When a piece makes you smile, open it and choose “Promote”." }),
-      el("button", { type: "button", class: "k-cr-privlink", "data-ui": "cr.log-link", onclick: function () { KOS.show("creatives", { page: "log" }); } }, [
-        el("span", { "aria-hidden": "true", text: "◔" }), el("span", { text: "Practice Log · only you see it" }), el("span", { "aria-hidden": "true", text: "›" })])
+          el("span", { class: "k-day-txt" }, [el("span", { class: "k-day-title", text: w.title }), el("span", { class: "k-day-sub", text: (CR().track(w.track) || {}).name + " · " + dateShort(w.portfolio) })])
+        ]);
+      })) : KOS.ui.emptyState({ compact: true, body: "Nothing promoted yet." }),
+      el("button", { type: "button", class: "k-btn", "data-ui": "cr.log-link", text: "Practice Log", onclick: function () { KOS.show("creatives", { page: "log" }); } })
     ]);
   }
+  /* the path: the track in view (‹ › moves between them), its unit cards as Code's */
   function pathSection(tid) {
     var T = CR().track(tid), ts = CR().tracks(), ti = ts.indexOf(T), place = CR().trackPlace(tid);
     function go(d) { var u = CR().ui(); u.track = ts[(ti + d + ts.length) % ts.length].id; KOS.store.save(); KOS.rerender(); announce(ts[(ti + d + ts.length) % ts.length].name + " path."); }
-    var strip = el("div", { class: "k-cr-strip", "data-ui": "cr.stage-strip", role: "list", "aria-label": T.name + ", " + T.units.length + " units" }, T.stages.map(function (sg) {
-      return el("div", { class: "k-cr-stage", role: "listitem" }, [el("span", { class: "k-kicker", text: sg[0] }),
-        el("span", { class: "k-cr-chips" }, T.units.slice(sg[1] - 1, sg[2]).map(function (uid) {
-          var us = CR().unitState(uid), u = CR().unit(uid), now = place && place.unit === uid && !place.finished;
-          return el("button", { type: "button", class: "k-cr-uchip", "data-state": us.state === "done" ? "done" : now ? "now" : null, "aria-label": "Unit " + u.n + " " + u.name + (us.state === "done" ? ", done" : now ? ", current" : us.state === "outline" ? ", coming later" : ""),
-            onclick: function () { openUnit(uid); } }, [(us.state === "done" ? "✓ " : "") + "U" + u.n]);
-        }))]);
-    }));
     var cards = el("div", { class: "k-units k-cr-units", "data-ui": "study.units cr.units" }, T.units.map(function (uid) { return unitCard(uid, place); }));
     return el("section", { class: "k-subj-units k-cr-path", "aria-labelledby": "k-cr-path-h" }, [
       el("div", { class: "k-sectionhead" }, [
         el("h2", { id: "k-cr-path-h", text: T.name + " path" }),
-        el("span", { class: "k-sectionhead-sub", text: T.units.length + " units · nothing locked" }),
+        el("span", { class: "k-sectionhead-sub", text: T.units.length + " units · " + T.stages.map(function (s) { return s[0]; }).join(" · ") }),
         el("div", { class: "k-sectionhead-actions" }, [
-          el("button", { type: "button", class: "k-link", text: "All tracks ›", onclick: function () { KOS.show("creatives", { page: "tracks" }); } }),
           el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "cr.track-prev", "aria-label": "Previous track", text: "‹", onclick: function () { go(-1); } }),
           el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "cr.track-next", "aria-label": "Next track", text: "›", onclick: function () { go(1); } })
         ])
       ]),
-      strip,
       KOS.ui.scroller(cards, { label: "Units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
     ]);
   }
   function openUnit(uid) {
     var us = CR().unitState(uid), u = CR().unit(uid);
-    if (us.state === "outline") { KOS.show("creatives", { page: "tracks", id: u.track }); return; }
+    if (us.state === "outline") return;
     KOS.show("ref", { subject: SID, ref: (us.next || CR().lesson(u.lessons[0])).id });
   }
   function unitCard(uid, place) {
     var u = CR().unit(uid), us = CR().unitState(uid), now = place && place.unit === uid && !place.finished, T = CR().track(u.track);
-    var foot = us.state === "outline" ? ["Coming in a later release"] : us.state === "done" ? [el("b", { text: us.done + " / " + us.total }), " done"]
-      : now ? [el("b", { text: us.done + " / " + us.total }), us.next ? " · " + us.next.id + " now" : ""] : [el("b", { text: us.done + " / " + us.total }), " · open any time"];
-    var card = el("button", { type: "button", class: "k-unit k-cr-unit", "data-ui": "study.unit cr.unit", "data-state": us.state === "outline" ? "later" : now ? "current" : us.state === "done" ? "done" : null,
-      "aria-label": T.name + " unit " + u.n + ", " + u.name + ": " + (us.state === "outline" ? "coming later" : us.done + " of " + us.total + " done"),
-      onclick: function () { openUnit(uid); } }, [
-      el("span", { class: "k-cr-unit-top" }, [el("span", { class: "k-unit-ref", text: T.name.split(" ")[0] + " " + u.n }), el("small", { class: "k-muted", text: u.stage })]),
+    var later = us.state === "outline";
+    var card = el("button", { type: "button", class: "k-unit k-cr-unit", "data-ui": "study.unit cr.unit", "data-state": later ? "later" : now ? "current" : null,
+      "aria-label": T.name + " unit " + u.n + ", " + u.name + ": " + (later ? "coming later" : us.done + " of " + us.total + " done"),
+      disabled: later ? "" : null, onclick: function () { openUnit(uid); } }, [
+      el("span", { class: "k-unit-ref", text: T.letter + u.n }),
       el("span", { class: "k-unit-title", text: u.name }),
-      us.total ? el("span", { class: "k-unit-segs", "aria-hidden": "true" }, u.lessons.map(function (id) {
-        return el("span", { "data-state": CR().done(id) ? "done" : now && us.next && us.next.id === id ? "started" : null });
-      })) : el("span", { class: "k-cr-unit-skill k-muted", text: "Teaches " + (u.skill || "") }),
-      el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, foot)
+      el("span", { class: "k-unit-segs", "aria-hidden": "true" }, (later ? [null] : u.lessons).map(function (id) {
+        var p = id ? KOS.store.peekProgress(SID, id) : null;
+        return el("span", { "data-state": p && p.status === "done" ? "done" : p && p.status && p.status !== "none" ? "started" : null });
+      })),
+      el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, later ? ["Coming later"]
+        : [el("b", { text: us.done + " / " + us.total }), now && us.next ? " · " + us.next.id + " now" : " done"])
     ]);
     if (now) KOS.ui.state(card, "current", true);
     return card;
-  }
-  function tracksCard() {
-    return el("section", { class: "k-card k-cr-tracks", "data-ui": "cr.tracks-card", "aria-label": "The four tracks" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "The four tracks" }), el("button", { type: "button", class: "k-link", text: "Tracks →", onclick: function () { KOS.show("creatives", { page: "tracks" }); } })]),
-      el("ul", { class: "k-cr-trackrows" }, CR().tracks().map(function (t) {
-        var place = CR().trackPlace(t.id), released = CR().lessons(t.id).length;
-        return el("li", {}, [
-          el("span", { class: "k-cr-trackrow-t" }, [el("b", { text: t.name }), el("small", { class: "k-muted", text: place ? "Unit " + (place.index + 1) + " · " + t.app : released ? t.app : "Not released yet · " + t.app })]),
-          place ? unitPath(t.id, { size: "sm" }) : released ? el("button", { type: "button", class: "k-link", text: "Begin", onclick: function () { KOS.show("ref", { subject: SID, ref: CR().lessons(t.id)[0].id }); } }) : el("span", { class: "k-muted k-cr-later", text: "Later" })
-        ]);
-      }))
-    ]);
-  }
-  function firstsCard() {
-    var f = CR().firsts();
-    if (!f.length) return null;
-    return el("section", { class: "k-card k-cr-firsts", "data-ui": "cr.firsts", "aria-label": "Firsts" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Firsts" }), el("span", { class: "k-card-meta", text: "kept, never counted" })]),
-      el("ul", { class: "k-cr-firstlist" }, f.map(function (x) {
-        return el("li", {}, [el("span", { class: "k-cr-tick", "aria-hidden": "true", text: "✓" }), el("span", { text: x.t }), el("span", { class: "k-mono k-muted", text: dateShort(x.at) })]);
-      }))
-    ]);
-  }
-  function suggestCard(tid) {
-    var other = CR().tracks().filter(function (t) { return t.id !== tid && CR().lessons(t.id).length; }).map(function (t) { return CR().nextStudy(t.id); }).filter(Boolean)[0];
-    var ns = other || CR().nextStudy(tid);
-    if (!ns) return null;
-    return el("section", { class: "k-card k-cr-suggest", "data-ui": "cr.suggest", "aria-label": "Suggested next" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Suggested next" }), el("span", { class: "k-card-meta", text: "one study" })]),
-      el("div", { class: "k-cr-suggest-t" }, [el("span", { class: "k-mono k-muted", text: ns.lesson.id + "·" + ns.study.id }), el("b", { text: ns.study.t })]),
-      el("p", { class: "k-muted", text: "≈ " + ns.study.min + " minutes. " + ns.study.give + "; you do one thing: " + ns.study.vary.charAt(0).toLowerCase() + ns.study.vary.slice(1) + "." }),
-      el("button", { type: "button", class: "k-btn", text: "Preview", onclick: function () { KOS.show("ref", { subject: SID, ref: ns.lesson.id }); } })
-    ]);
   }
 
   /* ======================================================================
@@ -317,36 +273,36 @@
     KOS.shell.tree("none");
     main.style.setProperty("--subj-c", "var(--cr)");
     var page = arg.page || "tracks";
-    if (page === "write") { spaceHead(main, "write", { title: "Writing Desk", sub: arg.id ? null : "Drafts, versions and sprints" }); return arg.id ? KOS.crWrite.desk(main, arg.id) : KOS.crWrite.list(main); }
-    if (page === "check") { spaceHead(main, "check", { title: "Good for this unit", sub: "The check on one skill, at a beginner's level" }); return checkPage(main, arg.id); }
-    if (page === "log") { spaceHead(main, "log", { title: "Practice Log", sub: "Private: only you see it, and nothing here is shown anywhere else" }); return logPage(main, arg.id); }
-    if (page === "portfolio") { spaceHead(main, "portfolio", { title: "Portfolio", sub: "Only what you chose to show" }); return portfolioPage(main); }
+    if (page === "write") { spaceHead(main, "write", { title: "Writing Desk", sub: null }); return arg.id ? KOS.crWrite.desk(main, arg.id) : KOS.crWrite.list(main); }
+    if (page === "check") { spaceHead(main, "check", { title: "The check", sub: null }); return checkPage(main, arg.id); }
+    if (page === "log") { spaceHead(main, "log", { title: "Practice Log", sub: "Only you see this" }); return logPage(main, arg.id); }
+    if (page === "portfolio") { spaceHead(main, "portfolio", { title: "Portfolio", sub: null }); return portfolioPage(main); }
     if (page === "project") { spaceHead(main, "project", { title: "Project", sub: null }); main.appendChild(projectView(arg.id)); return; }
-    if (page === "add") { spaceHead(main, "add", { title: "Add your work", sub: "From a free app: a picture, a text or a link" }); return addPage(main, arg.id); }
+    if (page === "add") { spaceHead(main, "add", { title: "Add your work", sub: null }); return addPage(main, arg.id); }
     if (page === "settings") { spaceHead(main, "settings", { title: "Creatives settings" }); return settingsPage(main); }
-    spaceHead(main, "tracks", { title: "Tracks", sub: "Four core paths of short units · nothing locked" });
+    spaceHead(main, "tracks", { title: "Tracks", sub: null });
     tracksPage(main, arg.id);
   };
 
   /* ---------------- tracks ---------------- */
   function tracksPage(main, focus) {
     main.appendChild(el("div", { class: "k-cr-trackgrid", "data-ui": "cr.tracks" }, CR().tracks().map(function (t) {
-      var place = CR().trackPlace(t.id);
+      var pct = trackPct(t.id);
       return el("section", { class: "k-card k-cr-trackcard", "data-ui": "cr.track", id: "cr-track-" + t.id, "data-state": focus === t.id ? "focus" : null, "aria-label": t.name }, [
-        el("div", { class: "k-cr-trackcard-h" }, [el("span", { class: "k-cr-tile k-cr-tile--lg", lang: "ja", "aria-hidden": "true", text: t.k }),
-          el("div", {}, [el("h2", { text: t.name }), el("small", { class: "k-muted", text: t.app })])]),
-        place ? unitPath(t.id) : null,
+        el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: t.name }), el("span", { class: "k-card-meta", text: t.units.length + " units" }),
+          el("span", { class: "k-mono k-cr-trackpct", text: pct == null ? "later" : pct + "%" })]),
+        el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": t.name + ": " + (pct == null ? "not released yet" : pct + "%"), style: "--p: " + (pct || 0) + "%" }, [el("i")]),
         el("ol", { class: "k-cr-unitlist" }, t.units.map(function (uid) {
           var u = CR().unit(uid), us = CR().unitState(uid);
           return el("li", { "data-state": us.state }, [
             el("button", { type: "button", class: "k-cr-unitrow", disabled: us.state === "outline" ? "" : null, onclick: function () { openUnit(uid); } }, [
-              el("span", { class: "k-mono", text: String(u.n) }),
-              el("span", { class: "k-cr-unitrow-t" }, [el("span", { text: u.name }), el("small", { class: "k-muted", text: u.skill || "" })]),
-              el("small", { class: "k-mono k-muted", text: us.state === "outline" ? "later" : us.state === "done" ? "✓ done" : us.done + " / " + us.total })
+              el("span", { class: "k-mono k-muted", text: t.letter + u.n }),
+              el("span", { class: "k-cr-unitrow-t", text: u.name }),
+              el("span", { class: "k-mono k-muted", text: us.state === "outline" ? "later" : us.done + " / " + us.total })
             ])
           ]);
         }))
-      ].filter(Boolean));
+      ]);
     })));
   }
 
@@ -367,7 +323,7 @@
     var beginner = null;
     (CR().pagesOf(L.id) || []).forEach(function (pg) { pg.blocks.forEach(function (b) { if (b.beginner && !beginner) beginner = b.beginner; }); });
     var answers = L.check.rows.map(function () { return null; });
-    var note = el("textarea", { class: "k-input k-cr-checknote", rows: "2", "aria-label": "One sentence about it (optional)", placeholder: "One sentence about it, if you like (optional)" });
+    var note = el("textarea", { class: "k-input k-cr-checknote", rows: "2", "aria-label": "One sentence about it (optional)", placeholder: "A note (optional)" });
     var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.check-save", text: "Save check", disabled: "" });
     var out = el("div", { class: "k-cr-checkout", "aria-live": "polite" });
     var rows = L.check.rows.map(function (q, i) {
@@ -383,39 +339,43 @@
       if (r.pass) {
         var pay = r.paid ? KOS.governor && KOS.governor.lastAward ? KOS.governor.lastAward() : null : null;
         out.appendChild(el("section", { class: "k-cr-band", "data-tone": "done", "data-ui": "cr.check-pass" }, [
-          el("b", { text: "✓ A pass for " + T.name + " " + u.n + "." }),
-          el("p", { text: r.paid ? "First pass on this study" + (pay && pay.xp ? ": +" + pay.xp + " XP, +" + pay.gold + " gold." : ".") : "No reward · this study's pass was paid before. Another rep is still worth it." }),
+          el("b", { text: "✓ Passed" }),
+          el("p", { class: "k-muted", text: r.paid ? (pay && pay.xp ? "+" + pay.xp + " XP · +" + pay.gold + " gold" : "Paid") : "No reward · paid on this study's first pass" }),
           el("div", { class: "k-cr-daily-go" }, [
             el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to the lesson", onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } }),
-            el("button", { type: "button", class: "k-btn", text: "Promote to Portfolio…", onclick: function () { promoteDialog(wid); } })
+            el("button", { type: "button", class: "k-btn", text: "Promote…", onclick: function () { promoteDialog(wid); } })
           ])
         ]));
         announce("Check saved: a pass.");
       } else {
         out.appendChild(el("section", { class: "k-cr-band", "data-tone": "next", "data-ui": "cr.check-notyet" }, [
-          el("b", { text: "Not yet is a normal answer." }),
-          el("p", { text: "Your work is saved either way. Next step, about five minutes: one more rep with only the one skill in mind." }),
+          el("b", { text: "Not yet" }),
+          el("p", { class: "k-muted", text: "Saved. One more short rep usually does it." }),
           el("div", { class: "k-cr-daily-go" }, [
             el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "One more rep", onclick: function () { KOS.crStartStudy(L.id, s.id); } }),
-            el("button", { type: "button", class: "k-btn", text: "Reread the lesson", onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } }),
-            el("button", { type: "button", class: "k-btn", text: "Keep it as it is", onclick: function () { KOS.show("creatives", { page: "log", id: wid }); } })
+            el("button", { type: "button", class: "k-btn", text: "Back to the lesson", onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } })
           ])
         ]));
         announce("Check saved: not yet.");
       }
     };
     main.appendChild(el("div", { class: "k-cr-check", "data-ui": "cr.check" }, [
-      el("section", { class: "k-card k-cr-checkcol" }, [el("span", { class: "k-kicker", text: "Your work · " + w.title }), mine]),
-      el("section", { class: "k-cr-calib", "data-ui": "cr.calibration", "aria-label": "Good for this unit" }, [
-        el("span", { class: "k-kicker", text: T.name + " " + u.n + " · " + L.check.skill }),
-        el("p", { class: "k-cr-calib-text", text: L.check.good }),
-        el("div", { class: "k-cr-ignore" }, [el("span", { class: "k-kicker", text: "Ignore for now" }), el("ul", {}, L.check.ignore.map(function (x) { return el("li", {}, [el("s", { text: x[0] }), el("small", { class: "k-muted", text: " · " + x[1] })]); }))])
-      ]),
-      beginner ? el("section", { class: "k-card k-cr-checkcol" }, [el("span", { class: "k-kicker", text: "Expected beginner output" }),
-        el("blockquote", { class: "k-cr-beginner-text" }, beginner.text.split("\n").map(function (p) { return el("p", { text: p }); })), el("small", { class: "k-muted", text: beginner.note })]) : null
-    ].filter(Boolean)));
-    main.appendChild(el("section", { class: "k-card k-cr-checkform", "data-ui": "cr.check-form", "aria-label": "The check" }, rows.concat([note,
-      el("div", { class: "k-cr-daily-go" }, [saveBtn, el("small", { class: "k-muted", text: "Self-marked: the app never grades your work. Only a pass ticks the lesson's check." })]), out])));
+      el("div", { class: "k-cr-checkcol" }, [
+        el("section", { class: "k-card k-cr-checkcard", "aria-label": "Your work" }, [el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: w.title }), el("span", { class: "k-card-meta", text: L.id + "·" + s.id })]), mine]),
+        beginner ? el("section", { class: "k-card k-cr-checkcard", "data-ui": "cr.beginner", "aria-label": "Expected beginner output" }, [
+          el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Expected beginner output" })]),
+          el("blockquote", { class: "k-cr-beginner-text" }, beginner.text.split("\n").map(function (p) { return el("p", { text: p }); })), el("p", { class: "k-cr-beginner-note", text: beginner.note })]) : null
+      ].filter(Boolean)),
+      el("div", { class: "k-cr-checkcol" }, [
+        el("section", { class: "k-card k-cr-calib", "data-ui": "cr.calibration", "aria-label": "Good for this unit" }, [
+          el("span", { class: "k-kicker", text: "Good for " + T.name + " " + u.n }),
+          el("h2", { class: "k-cr-calib-skill", text: L.check.skill }),
+          el("p", { class: "k-cr-calib-text", text: L.check.good }),
+          el("div", { class: "k-cr-ignore" }, [el("span", { class: "k-kicker", text: "Ignore for now" }), el("ul", {}, L.check.ignore.map(function (x) { return el("li", {}, [el("s", { text: x[0] })]); }))])
+        ]),
+        el("section", { class: "k-card k-cr-checkform", "data-ui": "cr.check-form", "aria-label": "The check" }, rows.concat([note, el("div", { class: "k-cr-daily-go" }, [saveBtn]), out]))
+      ])
+    ]));
   }
 
   /* ---------------- the Practice Log (31j) and the Portfolio (31k) ---------------- */
@@ -457,7 +417,7 @@
     var made = el("input", { class: "k-input", "aria-label": "Made from (optional)", placeholder: "Made from: the show, book or VN it's for (optional)", value: w.madeFrom || "" });
     var yes = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.promote-yes", text: "Promote" });
     var d = dialog({ title: "Promote to your Portfolio", mark: "選", body: el("div", { class: "k-cr-form" }, [
-      el("p", { class: "k-muted", text: "The Portfolio is the only place a share or a report can ever show. Promoting pays nothing; it is just a choice." }),
+      
       el("label", { class: "k-cr-field" }, [el("span", { text: "Title" }), title]), el("label", { class: "k-cr-field" }, [el("span", { text: "Made from" }), made])
     ]), foot: [yes], closeLabel: "Cancel" });
     yes.onclick = function () { CR().editWork(wid, { title: title.value.trim() || w.title, madeFrom: made.value.trim() || null }); CR().promote(wid, true); d.close(); KOS.rerender(); announce("Promoted to your Portfolio."); };
@@ -496,7 +456,7 @@
       el("span", { class: "k-kicker", text: T.name + " " + u.n + " · project" }),
       el("h2", { class: "k-cr-project-t", text: ps.project.t }),
       el("p", { text: ps.project.brief }),
-      ps.offered ? null : el("p", { class: "k-cr-band", "data-tone": "next", text: "Offered after " + ps.project.after + "'s studies. Try it anyway: nothing is locked." }),
+      ps.offered ? null : el("p", { class: "k-muted", text: "Best after " + ps.project.after + "'s studies." }),
       el("ol", { class: "k-cr-milestones", "data-ui": "cr.milestones" }, ps.project.milestones.map(function (m, i) {
         return el("li", { "data-state": ps.ms[i] ? "done" : null }, [
           el("span", { class: "k-cr-tick", "aria-hidden": "true", text: ps.ms[i] ? "✓" : String(i + 1) }),
@@ -506,7 +466,7 @@
           el("button", { type: "button", class: "k-link", "data-ui": "cr.ms-mark", text: ps.ms[i] ? "Undo" : "Mark done", onclick: function () { CR().markMilestone(uid, i, ps.ms[i]); KOS.rerender(); } })
         ].filter(Boolean));
       })),
-      el("p", { class: "k-muted", text: ps.done ? "Every milestone reached. " + (CR().peek().paid["project:" + uid] ? "Paid once: 150 XP, 40 gold, +10 HP." : "") : "The project pays once, when every milestone is reached (150 XP, 40 gold, +10 HP)." })
+      el("p", { class: "k-muted", text: ps.done ? "✓ Every milestone reached" : "Pays 150 XP, 40 gold and +10 HP when every milestone is reached." })
     ].filter(Boolean));
   }
   KOS.crProject = projectView;
@@ -540,7 +500,6 @@
       el("label", { class: "k-cr-field" }, [el("span", { text: "Title" }), title]),
       el("label", { class: "k-cr-field" }, [el("span", { text: "A picture or a text" }), file]),
       el("label", { class: "k-cr-field" }, [el("span", { text: "Or a link" }), link]),
-      el("p", { class: "k-muted", text: "It stays on this device, in your private Practice Log, until you choose otherwise." }),
       el("div", { class: "k-cr-daily-go" }, [go])
     ].filter(Boolean)));
   }
@@ -559,10 +518,9 @@
     pause.checked = p.examPause;
     pause.onchange = function () { CR().setPrefs({ examPause: pause.checked }); };
     main.appendChild(el("section", { class: "k-card k-cr-settings", "data-ui": "cr.settings" }, [
-      el("div", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Your days" }), el("p", { class: "k-muted", text: "The Daily Creative appears on these days only. Nothing counts against you on the others." })]), days]),
-      el("div", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Minutes" }), el("p", { class: "k-muted", text: "Roughly how long a day's study runs." })]), mins]),
-      el("label", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Pause in Exam Season" }), el("p", { class: "k-muted", text: "The Daily Creative rests while a real exam is close. Cards stay open." })]), pause]),
-      el("p", { class: "k-muted", text: "On this device. Free apps first: no lesson ever needs a paid one." })
+      el("div", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Your days" }), el("p", { class: "k-muted", text: "The Daily Creative shows on these days." })]), days]),
+      el("div", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Minutes" }), el("p", { class: "k-muted", text: "How long a day's study runs." })]), mins]),
+      el("label", { class: "k-cr-setrow" }, [el("div", {}, [el("b", { text: "Pause in Exam Season" }), el("p", { class: "k-muted", text: "Rests while a real exam is close." })]), pause]),
     ]));
   }
 })();

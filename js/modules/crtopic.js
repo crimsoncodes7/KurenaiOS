@@ -33,12 +33,6 @@
   }
 
   /* ================= shared pieces ================= */
-  function toolLabel(tool) {
-    if (tool === "desk") return "In the Writing Desk";
-    if (tool === "sketch") return "In the sketchbook";
-    if (tool && tool.indexOf("drill:") === 0) return "A drill in the app";
-    return "In a free app, then add it here";
-  }
   /* startStudy(lesson, study): open where the study is made; the Writing Desk starts a draft with
      the study's setup already written (the 80% given) */
   function startStudy(lid, sid) {
@@ -59,8 +53,7 @@
       ]),
       el("dl", { class: "k-cr-study-dl" }, [
         el("div", {}, [el("dt", { text: "Given" }), el("dd", { text: s.give })]),
-        el("div", {}, [el("dt", { text: "Your one variable" }), el("dd", { text: s.vary })]),
-        el("div", {}, [el("dt", { text: "Where" }), el("dd", { text: toolLabel(s.tool) })])
+        el("div", {}, [el("dt", { text: "Your one variable" }), el("dd", { text: s.vary })])
       ]),
       el("div", { class: "k-cr-study-foot" }, [
         state ? el("span", { class: "k-cr-done", "data-tone": passed ? "done" : "now" }, [passed ? "✓ Check passed" : "✓ Saved · check to do"]) : null,
@@ -85,12 +78,11 @@
         if (i) pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "/" }));
         pathLine.appendChild(document.createTextNode(bit));
       });
-      if (L) {
-        pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
-        pathLine.appendChild(el("span", { class: "k-cr-pathskill", text: "One skill: " + L.skill }));
-      }
     };
     ctx.modeSwitch = function () { return null; };
+    /* no quiz or exam here, so the generic Ask Kurenai strip (quiz, test me) stays off; the
+       critique is asked for on a study (invariant 155) */
+    ctx.assistStrip = false;
     ctx.tabs = function () {
       var nc = CR().cardKeys(ref).length;
       return [
@@ -187,10 +179,6 @@
     function renderStudies(panel) {
       if (!L) return;
       var ns = CR().nextStudy(u.track), nextKey = ns && ns.lesson.id === L.id ? ns.study.id : null;
-      panel.appendChild(el("section", { class: "k-card k-cr-intro", "data-ui": "cr.studies-intro" }, [
-        el("p", {}, ["Small, safe steps. Each study hands you most of the work and leaves ", el("b", { text: "one" }), " thing to you, then a check on that one thing only."]),
-        el("p", { class: "k-muted", text: "Your work goes to the Practice Log, which only you see. Nothing is shown anywhere unless you promote it." })
-      ]));
       panel.appendChild(el("div", { class: "k-cr-studies", "data-ui": "cr.studies" }, L.studies.map(function (s) { return studyCard(L, s, { next: s.id === nextKey }); })));
       if (u.project && u.project.after === L.id) panel.appendChild(projectTeaser());
     }
@@ -199,10 +187,10 @@
       return el("section", { class: "k-cr-projteaser", "data-ui": "cr.project-teaser", "data-state": ps.offered ? "offered" : "after" }, [
         el("span", { class: "k-kicker", text: "Unit " + u.n + " project" }),
         el("b", { text: u.project.t }),
-        el("p", { class: "k-muted", text: ps.offered ? "Your studies are saved. The project is ready when you are." : "Offered after " + u.project.after + "'s studies." }),
+        ps.offered ? null : el("p", { class: "k-muted", text: "After " + u.project.after + "'s studies" }),
         el("button", { type: "button", class: ps.offered ? "k-btn k-btn--primary" : "k-link", "data-ui": "cr.project-open",
           text: ps.offered ? "Open the project" : "Try it anyway", onclick: function () { KOS.show("creatives", { page: "project", id: u.id }); } })
-      ]);
+      ].filter(Boolean));
     }
     function renderProject(panel) {
       if (!u || !u.project) return;
@@ -251,17 +239,7 @@
       if (!L) return;
       outer.appendChild(el("section", { class: "k-insp-sec", "aria-label": "The one skill" }, [
         el("h2", { class: "k-kicker", text: "The one skill" }),
-        el("p", { class: "k-cr-insp-skill", text: L.check.skill }),
-        el("p", { class: "k-muted", text: "Reading alone never completes a lesson: the checks tick from saved work, a passed check and a held card." })
-      ]));
-      outer.appendChild(el("section", { class: "k-insp-sec", "aria-label": "Studies" }, [
-        el("h2", { class: "k-kicker", text: "Studies" }),
-        el("ul", { class: "k-cr-insp-studies" }, L.studies.map(function (s) {
-          var passed = CR().studyPassed(L.id, s.id), saved = CR().studyWorks(L.id, s.id).length;
-          return el("li", { "data-state": passed ? "passed" : saved ? "saved" : null }, [
-            el("span", { class: "k-mono", text: s.id }), el("span", { text: s.t }),
-            el("small", { text: passed ? "✓ passed" : saved ? "saved" : "≈ " + s.min + " min" })]);
-        }))
+        el("p", { class: "k-cr-insp-skill", text: L.check.skill })
       ]));
     };
     ctx.onThisPage = function () {};

@@ -70,19 +70,16 @@
   /* ---------------- the drafts page ---------------- */
   function listPage(main) {
     var box = el("section", { class: "k-card k-cr-drafts", "data-ui": "cr.drafts", "aria-label": "Your drafts" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Drafts" }), el("span", { class: "k-card-meta", text: "on this device" })])
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Drafts" }), el("span", { class: "k-card-meta", text: "on this device" }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.draft-new", text: "New draft",
+          onclick: function () { create({ title: "Untitled" }, function (id) { if (id) KOS.show("creatives", { page: "write", id: id }); }); } })])
     ]);
     var rows = el("div", { class: "k-cr-draftlist", role: "list" });
     box.appendChild(rows);
-    main.appendChild(el("div", { class: "k-cr-write-top" }, [
-      el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.draft-new", text: "＋ New draft",
-        onclick: function () { create({ title: "Untitled" }, function (id) { if (id) KOS.show("creatives", { page: "write", id: id }); }); } }),
-      el("p", { class: "k-muted", text: "Drafts stay on this device. Saving one to the Practice Log keeps a copy with its check." })
-    ]));
     main.appendChild(box);
     list(function (docs) {
       if (!rows.isConnected) return;
-      if (!docs.length) { rows.appendChild(KOS.ui.emptyState({ compact: true, mark: "文", title: "No drafts yet", body: "A study's Start opens one with its setup already written." })); return; }
+      if (!docs.length) { rows.appendChild(KOS.ui.emptyState({ compact: true, mark: "文", title: "No drafts yet" })); return; }
       docs.forEach(function (d) {
         rows.appendChild(el("button", { type: "button", class: "k-cr-draftrow", role: "listitem", "data-ui": "cr.draft-row", onclick: function () { KOS.show("creatives", { page: "write", id: d.id.slice(4) }); } }, [
           el("span", { class: "k-cr-draftrow-t", text: d.title }),
@@ -167,7 +164,6 @@
     var running = KOS.focus && KOS.focus.state() !== "idle";
     return el("section", { class: "k-card k-cr-sprint", "data-ui": "cr.sprint" }, [
       el("span", { class: "k-kicker", text: "Sprint" }),
-      el("p", { class: "k-muted", text: "A word target and a timer, run in Focus and linked to this lesson. Words pay nothing; the Focus time does." }),
       el("div", { class: "k-cr-sprint-row" }, [el("label", {}, ["Words ", tgt]), mins]),
       el("button", { type: "button", class: "k-btn", "data-ui": "cr.sprint-start", text: running ? "Focus is running" : "▶ Start a sprint", disabled: running ? "" : null,
         onclick: function () {
@@ -188,7 +184,7 @@
           var t = area.value; if (doc.versions.length && doc.versions[doc.versions.length - 1].text === t) { KOS.ui.toast("Nothing changed since the last version."); return; }
           doc.versions.push({ at: Date.now(), text: t, words: words(t) }); later(); paint(); KOS.a11y.announce("Version " + doc.versions.length + " kept.");
         } })]));
-      if (!doc.versions.length) { box.appendChild(el("p", { class: "k-muted", text: "Keep a version before a rewrite, and the diff shows what the revision changed." })); return; }
+      if (!doc.versions.length) { box.appendChild(el("p", { class: "k-muted", text: "None yet." })); return; }
       box.appendChild(el("ol", { class: "k-cr-verlist" }, doc.versions.map(function (v, i) {
         return el("li", {}, [el("span", { class: "k-mono", text: "v" + (i + 1) }), el("span", { class: "k-muted", text: fmtDate(v.at) + " · " + v.words + " words" }),
           el("button", { type: "button", class: "k-link", "data-ui": "cr.version-diff", text: "Compare with now", onclick: function () { openDiff(doc.versions[i].text, area.value, "v" + (i + 1), "now"); } })]);

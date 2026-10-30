@@ -75,6 +75,10 @@ step("A · every released lesson holds the lesson contract", (app) => {
   Object.keys(C.UNITS).forEach((u) => { const U = C.UNITS[u]; if (U.project) assert(U.project.milestones.length >= 2 && C.LESSONS[U.project.after], u + ": a project needs milestones and the lesson it follows"); });
 });
 
+step("A · beside the hero, a study space's side column never sets the row's height", () => {
+  const css = fs.readFileSync(path.join(ROOT, "css/views/study.css"), "utf8");
+  assert(/\.k-subj-hero:is\([^)]*\.k-mind-hero[^)]*\.k-cr-hero[^)]*\) \+ \.k-subj-side \{ contain: size;/.test(css), "the study spaces' side column is size-contained beside the hero (30 October 2026)");
+});
 step("B · routes: the desk, a lesson and every Creatives page", async (app) => {
   const K = app.KOS;
   for (const [v, a, id] of [["subject", SID, "cr.hero"], ["ref", { subject: SID, ref: "W1.1" }, "cr.checks"],
@@ -178,7 +182,7 @@ step("F · private by default; files in their own store and the full backup", as
   K.show("subject", SID); await app.settle();
   assert(doc.querySelector('[data-ui~="cr.log-link"]'), "the desk carries the private Practice Log link");
   assert(!doc.querySelector('[data-ui~="cr.work"]') && !doc.querySelector('[data-ui~="cr.log"]'), "the desk never draws the Practice Log");
-  const rows = [...doc.querySelectorAll('[data-ui~="cr.portfolio-side"] .k-cr-portrow-t > span')].map((n) => n.textContent);
+  const rows = [...doc.querySelectorAll('[data-ui~="cr.portfolio-side"] .k-cr-portrow .k-day-title')].map((n) => n.textContent);
   assert(JSON.stringify(rows) === JSON.stringify(CR.portfolio().map((w) => w.title)), "the desk's side list is the Portfolio only: " + rows.join(", "));
   assert(JSON.stringify(K.store.state.creatives).indexOf("The kettle hisses") < 0, "no work's text is in the state document");
   const snap = await new Promise((res, rej) => K.store.snapshotFull((e, r) => (e ? rej(e) : res(r))));

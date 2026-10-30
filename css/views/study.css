@@ -42,6 +42,11 @@ container-type: inline-size;
 .k-subj-side { display: flex; flex-direction: column; gap: var(--sp-12); }
 /* the first card grows, so the last one ends on the hero's bottom edge (no ragged foot) */
 .k-subj-side > :first-child { flex: 1 1 auto; }
+/* a study space's desk (Code, Japanese, Mind, Creatives: a hero with its path row): the side
+   column never sets the row's height — the hero does, and the daily card and Continue fit
+   inside it (asked for 30 October 2026) */
+.k-subj-hero:is(.k-cx-hero, .k-ja-hero, .k-mind-hero, .k-cr-hero) + .k-subj-side { contain: size; min-block-size: 0; }
+.k-subj-hero:is(.k-cx-hero, .k-ja-hero, .k-mind-hero, .k-cr-hero) + .k-subj-side > * { min-block-size: 0; overflow: hidden; }
 .k-subj-next { flex: 1 1 0; display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-16) var(--sp-18); border-radius: var(--r-24); background: var(--s1); text-align: start; min-inline-size: 0; }
 button.k-subj-next:hover { background: var(--s2); }
 .k-subj-next-txt { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; }
@@ -1051,6 +1056,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-spec-split { columns: 1; }
 .k-subj-row, .k-subj-row--even { grid-template-columns: minmax(0, 1fr); }
 .k-subj-side { flex-direction: row; }
+.k-subj-hero:is(.k-cx-hero, .k-ja-hero, .k-mind-hero, .k-cr-hero) + .k-subj-side { contain: none; }
 .k-subj-side > *, .k-subj-side > :first-child { flex: 1 1 0; min-inline-size: 0; }
 }
 

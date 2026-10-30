@@ -812,7 +812,6 @@
   {"surface": "^(wishlist|goals)$", "hooks": "ui.tab", "retire": true, "from": "^(Budget Planner|Goals)$", "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Planner/Goals workspace switch is gone — Goals is a Productivity page of its own and the Budget Planner is the Wishlist, so there is nothing left to switch between."},
   {"surface": "^goals$", "hooks": "shell.subnav-item", "retire": true, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Goals moved from the Collection to Productivity, so its page no longer draws the Collection strip."},
   {"surface": "^wishlist$", "from": "^(Mark purchased|Purchased)$", "expect": {"dialog": ["Mark purchased"]}, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Mark purchased first says what it will do (the Money entry, Purchased, the Books volume) in a dialog; confirming it does the handoff (smoke87 C)."},
-  {"hooks": "shell.subnav-item", "from": "^Code & Japanese$", "to": "Study spaces", "why": "Creatives (roadmap 5.7 item 3, 29 October 2026): a third study space joins Code and Japanese, so the pill that reaches them from an A-level page is named for the group, \"Study spaces\"; it still opens the space last opened (Code on a fresh account)."},
   {
    "hooks": "shell.subnav-item",
    "retire": true,
