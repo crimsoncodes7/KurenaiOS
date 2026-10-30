@@ -17,7 +17,16 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-connect-2` (30 October 2026, `1398282`) —
+- Latest release: sw `kos-creatives-1` (30 October 2026, `feat/creatives`,
+  main fast-forwarded to it) — https://1e058d00.kurenai-os.pages.dev:
+  Creatives, the sixth study space (roadmap 5.7 item 3, design turn 31;
+  invariants 154–156, smoke108): Platform 1 — the desk, the lesson, the
+  check, the Practice Log and Portfolio, projects, the Daily Creative, the
+  Writing Desk with Writing units 1–3, Graphic design's six drills with
+  Design units 1–2, the reference generator, Kurenai's critique on request,
+  the Goals and Reports joins, the phone desk — and Art units 1–3 on the
+  sketchbook with the user's 48 pictures; no migration or Edge Function.
+  Before it sw `kos-connect-2` (30 October 2026, `1398282`) —
   https://dc66d2aa.kurenai-os.pages.dev: Todoist is sent the app's address
   without a trailing slash (its console refuses the bare domain with one).
   Before it sw `kos-connect-1` (30 October 2026, `feat/integrations`

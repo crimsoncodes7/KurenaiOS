@@ -1258,7 +1258,9 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    code. On 30 October the user's 48 pictures came in: 36 imported, 12
    steps sent back for a redo with tighter prompts (manifest batch 5); and
    Art units 1–3 (A1.1–A3.3, three projects) were released on the new
-   sketchbook (`#/creatives/sketch`, Momentum, a generated reference). Then Art units 1–3 with
+   sketchbook (`#/creatives/sketch`, Momentum, a generated reference).
+   **RELEASED 30 October 2026** as sw `kos-creatives-1`
+   (https://1e058d00.kurenai-os.pages.dev), all 48 pictures in. Then Art units 1–3 with
    the sketchbook (31f–31i).
 4. **Code content** — DONE 23 October 2026: units 10–12 and capstone 4
    complete the core path (unit 10 and capstone 4 in Rider, validator
