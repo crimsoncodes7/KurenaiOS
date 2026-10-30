@@ -637,6 +637,30 @@
     Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
     return out;
   }
+  /* Creatives (plan §8, invariant 156): totals only, from the ledger the Governor paid by and the
+     works' small records gather() hands it — studies passed, drill batches and days, pieces saved,
+     words written, pieces promoted, projects finished. No title, no text and no Practice Log row
+     is ever read into a report. */
+  function creativeFacts(input, p) {
+    var es = input.inRange.filter(function (e) { return e.type === "creatives" && e.metrics; });
+    var a = p.start, b = p.end, inP = function (ts) { var d = ts ? iso(new Date(ts)) : null; return d && d >= a && d <= b; };
+    var works = input.creatives || [];
+    var out = { studies: 0, drills: 0, drillDays: 0, pieces: 0, words: 0, promoted: 0, projects: 0 };
+    var days = {};
+    es.forEach(function (e) {
+      var m = e.metrics;
+      if (m.kind === "study" && m.first) out.studies++;
+      else if (m.kind === "drill") { out.drills++; days[e.date] = true; }
+      else if (m.kind === "project") out.projects++;
+    });
+    out.drillDays = Object.keys(days).length;
+    works.forEach(function (w) {
+      if (inP(w.at)) { out.pieces++; if (w.track === "write") out.words += w.words || 0; }
+      if (inP(w.portfolio)) out.promoted++;
+    });
+    Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
+    return Object.keys(out).length ? out : null;
+  }
   /* Money (roadmap 5.4): the period's totals from the transactions gather()
      read, the three biggest categories, and — a month only, since budgets
      are monthly — the categories over budget. Category names are the
@@ -1002,6 +1026,7 @@
     var rtf = routineFacts(input, p); if (rtf) f.routines = rtf;
     var co = collection(input, p); if (co) f.collection = co;
     var pg = programming(input, p); if (pg) f.code = pg;
+    var cr = creativeFacts(input, p); if (cr) f.creatives = cr;
     f.gov = governor(input, p);
     var ku = kurenai(input, p); if (ku) f.kurenai = ku;
     var mo = moneyFacts(input, p); if (mo) f.money = mo;
@@ -1157,6 +1182,10 @@
       habits: KOS.routines ? KOS.routines.habitsView() : ((S.todo || {}).habits || []).slice(),
       routineDays: routineDaysOf(p),
       reviewDays: (S.dayReview && S.dayReview.days) || {},
+      /* the works' dates, track, words and promotion only: never a title or its text */
+      creatives: Object.keys((S.creatives && S.creatives.works) || {}).map(function (id) {
+        var w = S.creatives.works[id]; return { at: w.at, track: w.track, words: w.words || 0, portfolio: w.portfolio || null };
+      }),
       rebuilt: !!opts.rebuilt,
       prev: opts.prev ? totals(opts.prev) : null
     };

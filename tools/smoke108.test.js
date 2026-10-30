@@ -33,6 +33,8 @@ const { boot, ROOT } = require("./lib/app-harness");
 
 const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
+/* wait for a selector: IndexedDB reads and a stubbed reply land a few ticks later */
+async function until(app, sel, n) { for (let i = 0; i < (n || 40) && !app.document.querySelector(sel); i++) { await app.settle(); await new Promise((r) => setTimeout(r, 5)); } return app.document.querySelector(sel); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const SID = "creatives";
 
@@ -290,6 +292,74 @@ step("J · the reference generator: deterministic by seed, no file, construction
   doc.querySelector('[data-ui~="cr.ref-next"]').click(); await app.settle();
   assert(K.store.state.ui.creatives.ref.seed !== s0, "Next draws a new seed");
   assert(!app.fetches.some((f) => /cr-refs|reference/i.test(String(f))), "no reference is fetched");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
+step("K · a critique: What is sent is the request, one press one request, a stray reply refused, nothing paid", async (app) => {
+  const K = app.KOS, CR = K.creatives, doc = app.document, g = K.store.state.governor, L = CR.lesson("W1.1");
+  const w = await addText(app, { lesson: "W1.1", study: "a", kind: "text", title: "Secret title", words: 4 }, "The kettle hisses loudly.");
+  await app.settle();
+  const rq = CR.critiqueRequest(w, { text: "The kettle hisses loudly." });
+  assert(rq && rq.prompt.indexOf(L.check.skill) >= 0 && rq.prompt.indexOf(L.check.good) >= 0 && rq.prompt.indexOf("The kettle hisses loudly.") >= 0, "the request carries the piece, the one skill and the bar");
+  assert(rq.prompt.indexOf("Secret title") === -1 && /never rewrite/i.test(rq.system), "no title; the system says never rewrite");
+  assert(rq.sections.some((x) => x.text.indexOf(L.check.good) >= 0) && rq.sections.some((x) => x.text.indexOf(rq.instruction) >= 0), "the dialog's sections print the bar and the instruction");
+  const long = Array.from({ length: 700 }, (_, i) => "w" + i).join(" ");
+  const rl = CR.critiqueRequest(w, { text: long });
+  assert(rl.text.split(" ").length === CR.EXCERPT && /first 600 of its 700/.test(rl.sections[0].text), "a long piece is sent as an excerpt, and says so");
+  assert(CR.stray({ worked: "Your dialogue sparkles.", next: "" }, "W1.1"), "a later skill (Dialogue) strays");
+  assert(CR.stray({ worked: "Like a professional.", next: "" }, "W1.1"), "a professional comparison strays");
+  assert(!CR.stray({ worked: "Each sentence holds one clear idea.", next: "Cut one word from the longest." }, "W1.1"), "the unit's own skill does not stray");
+  const sent = [];
+  let replyText = JSON.stringify({ worked: "Each sentence does one thing.", next: "Swap one weak verb." });
+  const chat0 = K.ai.chat;
+  K.ai.chat = (cat, req, cb) => { sent.push(req); setTimeout(() => cb(null, { text: replyText }), 0); return "c" + sent.length; };
+  const xp0 = g.xp, gold0 = g.gold;
+  try {
+    K.show("creatives", { page: "check", id: w }); await app.settle();
+    doc.querySelector('[data-ui~="cr.critique-open"]').click(); await until(app, '[data-ui~="cr.critique-send"]');
+    assert(doc.querySelector('[data-ui~="cr.what-is-sent"]') && sent.length === 0, "What is sent shows first; nothing is sent");
+    assert(doc.activeElement && doc.activeElement.getAttribute("data-ui") === "cr.critique-cancel", "Cancel is focused first");
+    assert(doc.querySelector('[data-ui~="cr.not-sent"]'), "what is not sent is named");
+    doc.querySelector('[data-ui~="cr.critique-send"]').click(); await until(app, '[data-ui~="cr.critique-keep"]');
+    assert(sent.length === 1 && sent[0].messages[0].content.indexOf("The kettle hisses loudly.") >= 0, "one press, one request with the piece");
+    assert(doc.querySelector('[data-ui~="cr.critique"]'), "the reply shows: what worked, one thing");
+    doc.querySelector('[data-ui~="cr.critique-keep"]').click();
+    doc.querySelector('[data-ui~="cr.critique-pin"]').click(); await app.settle();
+    assert(CR.work(w).critique && CR.work(w).critique.worked === "Each sentence does one thing.", "Keep with this rep keeps it on the work");
+    assert(CR.tip("W1.1", "a") && CR.tip("W1.1", "a").text === "Swap one weak verb.", "Try it pins the tip to the study's next rep");
+    assert(g.xp === xp0 && g.gold === gold0, "a critique pays nothing");
+    doc.querySelectorAll(".k-dialog-overlay").forEach((o) => o.close ? o.close() : o.remove());
+    await app.settle();
+    K.show("ref", { subject: SID, ref: "W1.1", tab: "studies" }); await app.settle();
+    replyText = JSON.stringify({ worked: "Lovely dialogue.", next: "Add a voice." });
+    K.show("creatives", { page: "log" }); await app.settle();
+    K.crCritique(w); await until(app, '[data-ui~="cr.critique-send"]');
+    doc.querySelector('[data-ui~="cr.critique-send"]').click(); await until(app, '[data-ui~="cr.critique-stray"]');
+    assert(doc.querySelector('[data-ui~="cr.critique-stray"]') && !doc.querySelector('[data-ui~="cr.critique"]:not([data-ui~="cr.critique-kept"])'), "a reply past the unit's bar is refused");
+    assert(CR.work(w).critique.worked === "Each sentence does one thing.", "and keeps nothing");
+  } finally {
+    K.ai.chat = chat0;
+    doc.querySelectorAll(".k-dialog-overlay").forEach((o) => o.close ? o.close() : o.remove());
+  }
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
+step("L · the joins: Goals read Creatives' ledger and works; Reports hold totals only", async (app) => {
+  const K = app.KOS;
+  ["cr-studies", "cr-drill-days", "cr-words"].forEach((id) => assert(K.goals.typeDef(id).id === id && K.goals.typeDef(id).domain === "creatives", id + " is a Creatives goal"));
+  const t = K.srs.todayISO(), ctx = { from: K.srs.addDays(t, -6), to: t };
+  const m = (id) => new Promise((r) => K.goals.typeDef(id).measure({ links: {}, params: {} }, ctx, r));
+  assert((await m("cr-studies")).current >= 2, "studies passed are counted from the ledger");
+  assert((await m("cr-drill-days")).current >= 1, "drill days are counted");
+  assert((await m("cr-words")).current >= 60, "words are summed from the writing works");
+  const p = K.report.week(t);
+  const f = K.report.compute({ ledger: K.store.state.sessions.slice(), tally: {}, reminders: [], habits: [], routineDays: [], reviewDays: {},
+    creatives: Object.values(K.store.state.creatives.works).map((w) => ({ at: w.at, track: w.track, words: w.words, portfolio: w.portfolio })) }, p);
+  assert(f.creatives && f.creatives.studies >= 2 && f.creatives.pieces >= 1 && f.creatives.words >= 60, "f.creatives: " + JSON.stringify(f.creatives));
+  const json = JSON.stringify(f.creatives);
+  Object.values(K.store.state.creatives.works).forEach((w) => assert(json.indexOf(w.title) === -1, "a report never names a piece"));
+  const pay = JSON.stringify(K.reportWords.payload({ facts: Object.assign({ study: { bySubject: {}, sessions: 0, days: 0, of: 7 } }, f) }));
+  assert(/creatives_studies_passed/.test(pay) && pay.indexOf("Secret title") === -1, "the words' payload gets totals only");
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 

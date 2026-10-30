@@ -1662,10 +1662,18 @@ source comments and audit notes refer to it.
     (per device, `state.ui.creatives.settings`), paused in Exam Season
     (on by default). Pages write nothing when drawn (smoke108 C).
 155. KURENAI CRITIQUES, NEVER CREATES. No tool generates, rewrites or
-    finishes a piece. A critique (31r, not built yet) sends only what its
-    "What is sent" dialog shows, once per press, judged against the
-    unit's one skill and its "Good for this unit" text; the Assistant
-    gets read tools and no write tool for evidence.
+    finishes a piece. A critique (31r, `KOS.crCritique`) sends only what
+    its "What is sent" dialog shows (`KOS.creatives.critiqueRequest`,
+    pure: the picture, or the text's first 600 words — never its title —
+    the brief, the unit and its ONE skill, "Good for this unit" and the
+    instruction), once per press, Cancel first; Gemini for a picture,
+    the tutor route for text. The reply is two parts, what worked and ONE
+    thing to try; one that names a later skill of the lesson's "ignore"
+    list or compares with professionals is refused (`stray`). "Keep with
+    this rep" keeps it on the work (`critique`); "Try it on the next rep"
+    pins the tip to the study per device (`ui.creatives.tips`). It pays,
+    rates and ticks nothing. The Assistant gets read tools and no write
+    tool for evidence.
 156. PRACTICE IS PRIVATE, THE PORTFOLIO IS CHOSEN. The Practice Log
     (`#/creatives/log`) is drawn only when opened: never on the desk (one
     private link), Home, Reports, a share or Kurenai's context. Only a
@@ -1675,7 +1683,13 @@ source comments and audit notes refer to it.
     (`KOS.creatives.files`), never in the state document; they ride the
     full backup and stay on the device (upload on request comes later).
     References are generated or the user's own; nothing is bundled or
-    hot-linked.
+    hot-linked. THE JOINS read, never write: Goals' Creatives domain
+    (`cr-studies`, `cr-drill-days`, `cr-words`; Creatives hours are
+    Study hours with the subject) reads the ledger and the works;
+    Reports' `f.creatives` (`creativeFacts`) holds totals only — studies
+    passed, drill batches and days, pieces, words, promoted, projects —
+    from the works' dates, track, words and promotion (gather never reads
+    a title or a text), and the words' payload gets four of them.
 ### Mind (137–141; docs/mind-plan.md revision 2, design turn 32)
 
 137. A CONCEPT IS THE UNIT OF RETENTION. Concepts (`KOS_MIND.CONCEPTS`,

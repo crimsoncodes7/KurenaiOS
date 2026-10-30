@@ -41,6 +41,13 @@
     if (s.tool && s.tool.indexOf("drill:") === 0) { KOS.show("creatives", { page: "drills", id: s.tool.slice(6) + "@" + lid + "." + sid }); return; }
     KOS.show("creatives", { page: "add", id: lid + "." + sid });
   }
+  /* a critique's "one thing to try", pinned to this study's next rep (per device, 31r) */
+  function tipLine(lid, sid) {
+    var t = CR().tip(lid, sid); if (!t) return null;
+    return el("p", { class: "k-cr-tip", "data-ui": "cr.tip" }, [el("b", { text: "Try this rep" }), el("span", { text: t.text }),
+      el("button", { type: "button", class: "k-link", "data-ui": "cr.tip-clear", text: "Done with it", onclick: function () { CR().pinTip(lid, sid, null); KOS.rerender(); } })]);
+  }
+  KOS.crTip = tipLine;
   function studyCard(L, s, o) {
     o = o || {};
     var works = CR().studyWorks(L.id, s.id), passed = CR().studyPassed(L.id, s.id), last = works[0];
@@ -55,6 +62,7 @@
         el("div", {}, [el("dt", { text: "Given" }), el("dd", { text: s.give })]),
         el("div", {}, [el("dt", { text: "Your one variable" }), el("dd", { text: s.vary })])
       ]),
+      tipLine(L.id, s.id),
       el("div", { class: "k-cr-study-foot" }, [
         state ? el("span", { class: "k-cr-done", "data-tone": passed ? "done" : "now" }, [passed ? "✓ Check passed" : "✓ Saved · check to do"]) : null,
         el("span", { class: "k-cr-grow" }),

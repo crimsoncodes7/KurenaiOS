@@ -747,7 +747,7 @@
     var plan = planCard(rep), gov = governorCard(rep);
     holder.appendChild(el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, pack([
       { node: studyCard(rep) }, { node: focusCard(rep) }, { node: plan || gov },
-      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) },
+      { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) }, { node: creativesCard(rep) },
       { node: examsCard(rep) }, { node: moneyCard(rep) }, { node: goalsCard(rep) }, { node: kurenaiSees(rep) }
     ])));
   }
@@ -960,6 +960,21 @@
         ])]);
       })) : null
     ].filter(Boolean));
+  }
+  /* Creatives (f.creatives, plan §8): what was made, as totals. The Practice Log never appears
+     (invariant 156); nothing here names a piece. */
+  function creativesCard(rep) {
+    var c = rep.facts.creatives;
+    if (!c) return null;
+    var rows = [];
+    if (c.studies) rows.push({ k: "Studies passed", v: W.num(c.studies), tone: "teal" });
+    if (c.drills) rows.push({ k: "Drill batches", v: W.num(c.drills) + (c.drillDays ? " · " + W.plural(c.drillDays, "day") : "") });
+    if (c.pieces) rows.push({ k: "Pieces saved", v: W.num(c.pieces) });
+    if (c.words) rows.push({ k: "Words written", v: W.num(c.words) });
+    if (c.promoted) rows.push({ k: "Promoted to the Portfolio", v: W.num(c.promoted) });
+    if (c.projects) rows.push({ k: "Projects finished", v: W.num(c.projects), tone: "teal" });
+    if (!rows.length) return null;
+    return card("Creatives", { className: "k-rp-card--creatives" }, [kvRows(rows)]);
   }
   /* Money (f.money, 27o): totals, the three biggest categories, what went
      into pots, then one line of context. A balance is words, never a bar
@@ -1552,7 +1567,7 @@
   KOS.reportsKit = {
     el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
     stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
-    bars: bars, kvRows: kvRows, codeCard: codeCard, examsCard: examsCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
+    bars: bars, kvRows: kvRows, codeCard: codeCard, creativesCard: creativesCard, examsCard: examsCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
     cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
     flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,
     open: open, openTopic: openTopic, wordsBlock: wordsBlock, shareActions: shareActions, rebuiltChip: rebuiltChip, reportTop: reportTop,

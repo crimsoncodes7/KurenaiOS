@@ -1244,9 +1244,12 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    unit's project, the Writing Desk (versions, the diff, sprints in Focus)
    and Writing units 1–3; then (30 October) the desk rebuilt on Code's,
    and Graphic design's six drills with Design units 1–2, and the
-   procedural reference generator on the lab stage. Still to do for
-   Platform 1: the
-   critique dialog (31r), the Goals and Reports joins, the phone desk (31s), and art for the steps and the
+   procedural reference generator on the lab stage, Kurenai's critique
+   on request (31r: "What is sent", the unit's one skill, a stray reply
+   refused, the tip pinned to the next rep) and the joins (three Goals
+   types in a Creatives domain; Reports' `f.creatives`, totals only).
+   Still to do for Platform 1: the phone desk (31s), the Portfolio strip
+   in a month's report (opt-in), and art for the steps and the
    beginner outputs (Gemini, via the manifest). Then Art units 1–3 with
    the sketchbook (31f–31i).
 4. **Code content** — DONE 23 October 2026: units 10–12 and capstone 4

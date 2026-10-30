@@ -6,13 +6,15 @@
      lessons[id]      { pages: {i: ts}, startAt }               reading evidence only
      works[id]        a piece of work, small: { lesson, study, track, kind (text | image | link),
                       title, at, words, check: {pass, rows, note, at}, portfolio (ts | null),
-                      madeFrom, unit (a project's work), ms (its milestone) }. Its text or picture
+                      madeFrom, unit (a project's work), ms (its milestone), critique: {worked, next,
+                      at} when you chose "Keep with this rep" }. Its text or picture
                       is in IndexedDB (kurenai-os-creatives), never in the state document.
      projects[unit]   { ms: {i: ts}, startAt, doneAt }          a unit's project, milestone by milestone
      paid[key]        ts — "study:<lesson>.<s>", "drill:<type>:<day>", "project:<unit>": pay once
      firsts[key]      ts — the desk's Firsts, kept, never counted
    Per device (state.ui.creatives): the Daily Creative's days and minutes, the Exam Season pause,
-   Momentum per drill type, the Writing Desk's open draft, view choices (README §State and data).
+   Momentum per drill type, the Writing Desk's open draft, view choices (README §State and data),
+   and a critique's tip pinned to a study's next rep (tips["<lesson>.<study>"]).
 
    WHAT IS DERIVED, never stored: a lesson's four checks (notes read, its studies saved, its check
    passed, a theory card proven: invariant 154), the Daily Creative (from the date and the evidence),
@@ -50,8 +52,10 @@
         track: w.track || null, kind: ["text", "image", "link"].indexOf(w.kind) >= 0 ? w.kind : "text",
         title: String(w.title || "Untitled").slice(0, 120), at: +w.at, words: Math.max(0, +w.words || 0),
         check: w.check ? { pass: !!w.check.pass, rows: Array.isArray(w.check.rows) ? w.check.rows.map(Boolean) : [], note: String(w.check.note || "").slice(0, 400), at: +w.check.at || +w.at } : null,
-        portfolio: w.portfolio ? +w.portfolio : null, madeFrom: w.madeFrom || null, url: w.kind === "link" ? String(w.url || "") : undefined
+        portfolio: w.portfolio ? +w.portfolio : null, madeFrom: w.madeFrom || null, url: w.kind === "link" ? String(w.url || "") : undefined,
+        critique: w.critique && w.critique.worked ? { worked: String(w.critique.worked).slice(0, 600), next: String(w.critique.next || "").slice(0, 400), at: +w.critique.at || +w.at } : null
       };
+      if (!works[id].critique) delete works[id].critique;
       if (works[id].url === undefined) delete works[id].url;
     });
     return { v: 1, lessons: obj(c.lessons), works: works, projects: obj(c.projects), paid: obj(c.paid), firsts: obj(c.firsts) };
@@ -336,6 +340,83 @@
     };
   }
 
+  /* ---------------- a critique on request (31r, invariant 155) ----------------
+     Kurenai critiques, never creates. critiqueRequest(wid, file) is pure: the exact request one
+     press sends — the piece (a picture, or the text up to EXCERPT words), the study's brief, the
+     unit and its ONE skill, the "Good for this unit" text and the instruction — and the dialog
+     prints exactly its sections. The reply is two parts only (what worked, one thing to try); one
+     that strays into a later skill or a professional comparison is refused (stray). A critique
+     pays nothing, rates nothing and moves no check. */
+  var EXCERPT = 600;
+  var CRIT_SYSTEM = "You are Kurenai, a kind critic inside KurenaiOS, for a complete beginner learning a creative skill for fun. British English, plain prose, no markdown. You critique; you never rewrite, finish or produce any part of the piece. Reply with JSON only.";
+  function critiqueOf(wid) {
+    var w = work(wid); if (!w) return null;
+    var L = w.lesson ? lesson(w.lesson) : null, s = L ? study(L.id, w.study) : null, u = L ? unit(L.unit) : null, t = u ? track(u.track) : null;
+    if (!L || !s || !u || !t || !L.check) return null;
+    return { w: w, L: L, s: s, u: u, t: t };
+  }
+  /* the first EXCERPT words, cut at a word with the piece's own line breaks kept */
+  function excerpt(text) {
+    var t = String(text || "").trim(), re = /\S+/g, m, n = 0, end = t.length;
+    while ((m = re.exec(t))) { n++; if (n === EXCERPT) end = m.index + m[0].length; }
+    return { text: n > EXCERPT ? t.slice(0, end) : t, cut: n > EXCERPT, words: n };
+  }
+  function critiqueRequest(wid, file) {
+    var c = critiqueOf(wid); if (!c || !file || !(file.dataUrl || file.text)) return null;
+    var L = c.L, unitName = c.t.name + " " + c.u.n;
+    var later = (L.check.ignore || []).map(function (x) { return x[0] + " (" + x[1] + ")"; });
+    var image = file.dataUrl ? String(file.dataUrl).replace(/^data:[^,]*,/, "") : null;
+    var mime = file.dataUrl ? (String(file.dataUrl).match(/^data:([^;,]+)/) || [])[1] || "image/png" : null;
+    var ex = image ? null : excerpt(file.text);
+    var brief = c.s.t + (c.s.give ? " — given: " + c.s.give : "") + (c.s.vary ? "; your part: " + c.s.vary : "");
+    var skill = L.check.skill.charAt(0).toLowerCase() + L.check.skill.slice(1);
+    var instruction = "Judge only " + skill + " at this level. Ignore every later skill" + (later.length ? ": " + later.join(", ") : "") +
+      ". Never compare with professional work. Say what worked against this unit's bar, then ONE thing to try on the next rep.";
+    var sections = [
+      { h: "The piece", text: image ? "Your picture, as saved" : "Your text, " + (ex.cut ? "the first " + EXCERPT + " of its " + ex.words + " words" : ex.words + (ex.words === 1 ? " word" : " words")) + " (its title is not sent)" },
+      { h: "The brief", text: L.id + "·" + c.s.id + " " + brief },
+      { h: "The unit", text: unitName + " · " + c.u.name + " · the one skill: " + L.check.skill },
+      { h: "The bar", text: "“" + L.check.good + "”" },
+      { h: "The instruction", text: instruction }
+    ];
+    var prompt = "UNIT: " + unitName + " (" + c.u.name + ")\nTHE ONE SKILL: " + L.check.skill + "\nGOOD FOR THIS UNIT: " + L.check.good +
+      "\nTHE BRIEF: " + brief + "\n\n" + instruction +
+      (image ? "\n\nThe picture is the learner's piece." : "\n\nTHE PIECE:\n" + ex.text) +
+      "\n\nReturn {\"worked\": \"two or three sentences on what worked against this unit's bar\", \"next\": \"ONE thing to try on the next rep, one or two sentences\"}.";
+    return { sections: sections, instruction: instruction, system: CRIT_SYSTEM, prompt: prompt, image: image, mime: mime, imageUrl: file.dataUrl || null,
+      text: ex ? ex.text : null, notSent: "the piece's title, your other studies, your Practice Log, your Portfolio, your check and its note, and your name." };
+  }
+  var STRAY_STOP = /^(whether|about|their|which|later|units?|depth|looks?|point|view|story|things?|choosing|making|other)$/;
+  /* stray(reply, lesson) — true when a reply reaches past this unit: it names a later skill from
+     the lesson's "ignore" list (a word of it the unit's own bar does not use) or compares with
+     professionals. Pure. */
+  function stray(reply, lid) {
+    var L = lesson(lid); if (!L || !L.check) return false;
+    var text = String((reply && (reply.worked + " " + reply.next)) || reply || "").toLowerCase();
+    if (/\bprofessional|\bthe pros\b|\bexpert/.test(text)) return true;
+    var own = (L.check.skill + " " + L.check.good + " " + (L.skill || "")).toLowerCase();
+    return (L.check.ignore || []).some(function (x) {
+      return (String(x[0]).toLowerCase().match(/[a-z]{5,}/g) || []).some(function (wd) {
+        if (STRAY_STOP.test(wd) || own.indexOf(wd.slice(0, 5)) >= 0) return false;
+        return new RegExp("\\b" + wd.slice(0, Math.max(5, wd.length - 2))).test(text);
+      });
+    });
+  }
+  /* the reply: kept on the work only by "Keep with this rep"; pinned to the study's next rep only
+     by "Try it on the next rep" (per device). Neither pays (invariant 154). */
+  function keepCritique(wid, r) {
+    var w = S().works[wid]; if (!w || !r || !r.worked) return null;
+    w.critique = { worked: String(r.worked).slice(0, 600), next: String(r.next || "").slice(0, 400), at: Date.now() };
+    store.save();
+    return w.critique;
+  }
+  function pinTip(lid, sid, text) {
+    var u = U(); u.tips = obj(u.tips);
+    if (text) u.tips[lid + "." + sid] = { text: String(text).slice(0, 400), at: Date.now() }; else delete u.tips[lid + "." + sid];
+    store.save();
+  }
+  function tip(lid, sid) { var t = obj((store.state.ui.creatives || {}).tips)[lid + "." + sid]; return t && t.text ? t : null; }
+
   /* ---------------- pay (the Governor's one definition, invariant 154) ---------------- */
   function award(m) {
     m = m || {};
@@ -395,6 +476,7 @@
     project: project, projectState: projectState, markMilestone: markMilestone,
     evidence: evidence, done: done, syncChecks: syncChecks, syncAll: syncAll, cardKeys: cardKeys, cardHeld: cardHeld,
     firsts: firsts, started: started, unitState: unitState, trackPlace: trackPlace, nextStudy: nextStudy, currentTrack: currentTrack,
-    cardsDue: cardsDue, planDay: planDay, stats: stats, award: award, files: files, words: function (t) { return (String(t || "").match(/[A-Za-z0-9À-ɏ぀-ヿ一-鿿'’-]+/g) || []).length; }
+    cardsDue: cardsDue, planDay: planDay, stats: stats, award: award, files: files,
+    EXCERPT: EXCERPT, critiqueOf: critiqueOf, critiqueRequest: critiqueRequest, stray: stray, keepCritique: keepCritique, pinTip: pinTip, tip: tip, words: function (t) { return (String(t || "").match(/[A-Za-z0-9À-ɏ぀-ヿ一-鿿'’-]+/g) || []).length; }
   };
 })();

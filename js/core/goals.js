@@ -41,7 +41,7 @@
   window.KOS = window.KOS || {};
   var store = KOS.store;
   var TYPES = [], BY_ID = {};
-  var DOMAINS = ["study", "productivity", "money", "code", "collection", "governor"];
+  var DOMAINS = ["study", "productivity", "money", "code", "creatives", "collection", "governor"];
   var REPEATS = ["week", "month"];
   var MAX_OUTCOMES = 104;
 
@@ -740,6 +740,32 @@
       var id = g.links.capstone, st = store.state.code && store.state.code.capstones;
       if (!id) { cb({ current: null, meta: "No capstone linked" }); return; }
       cb({ current: st && st[id] && st[id].passAt ? 1 : 0, target: 1, unit: "capstone" });
+    } });
+
+  /* ---- Creatives (plan §8: reads the ledger the Governor paid by, and the works; Creatives
+     hours are Study hours with the subject Creatives). Volume pays nothing (invariant 154), but a
+     goal may count it. ---- */
+  function crEntries(ctx, kind) {
+    return ledger(ctx, function (e) { return e.type === "creatives" && e.metrics && e.metrics.kind === kind; });
+  }
+  register({ id: "cr-studies", domain: "creatives", label: "Pass Creatives micro-studies", icon: "創", unit: "studies",
+    repeat: true,
+    measure: function (g, ctx, cb) { cb({ current: crEntries(ctx, "study").filter(function (e) { return e.metrics.first; }).length, unit: "studies" }); } });
+  register({ id: "cr-drill-days", domain: "creatives", label: "Drill days", icon: "練", unit: "days",
+    repeat: true,
+    measure: function (g, ctx, cb) {
+      var days = {};
+      crEntries(ctx, "drill").forEach(function (e) { days[e.date] = 1; });
+      cb({ current: Object.keys(days).length, unit: "days" });
+    } });
+  register({ id: "cr-words", domain: "creatives", label: "Write words", icon: "筆", unit: "words",
+    repeat: true,
+    measure: function (g, ctx, cb) {
+      var works = (store.state.creatives && store.state.creatives.works) || {};
+      cb({ current: Object.keys(works).reduce(function (n, id) {
+        var w = works[id], d = w && w.at ? iso(new Date(w.at)) : null;
+        return d && d >= ctx.from && d <= ctx.to && w.track === "write" ? n + (+w.words || 0) : n;
+      }, 0), unit: "words" });
     } });
 
   /* ---- Governor: displayed, never a claim of reward ---- */

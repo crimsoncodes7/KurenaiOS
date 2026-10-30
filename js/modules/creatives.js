@@ -363,7 +363,9 @@
     };
     main.appendChild(el("div", { class: "k-cr-check", "data-ui": "cr.check" }, [
       el("div", { class: "k-cr-checkcol" }, [
-        el("section", { class: "k-card k-cr-checkcard", "aria-label": "Your work" }, [el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: w.title }), el("span", { class: "k-card-meta", text: L.id + "·" + s.id })]), mine]),
+        el("section", { class: "k-card k-cr-checkcard", "aria-label": "Your work" }, [el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: w.title }), el("span", { class: "k-card-meta", text: L.id + "·" + s.id })]), mine,
+          w.critique ? el("section", { class: "k-cr-kept", "data-ui": "cr.critique-kept" }, [el("span", { class: "k-kicker", text: "✦ Kurenai's critique" }), critiqueView(w.critique)]) : null,
+          w.critique ? null : el("div", { class: "k-cr-checkcard-foot" }, [critiqueBtn(wid, { sm: true })])].filter(Boolean)),
         beginner ? el("section", { class: "k-card k-cr-checkcard", "data-ui": "cr.beginner", "aria-label": "Expected beginner output" }, [
           el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Expected beginner output" })]),
           el("blockquote", { class: "k-cr-beginner-text" }, beginner.text.split("\n").map(function (p) { return el("p", { text: p }); })), el("p", { class: "k-cr-beginner-note", text: beginner.note })]) : null
@@ -379,6 +381,108 @@
       ])
     ]));
   }
+
+  /* ---------------- Ask Kurenai for a critique (31r, invariant 155) ----------------
+     "What is sent" prints exactly KOS.creatives.critiqueRequest's sections (Cancel first and
+     focused; Send is never the Enter default); one press sends one request. The reply is what
+     worked and ONE thing to try, judged against this unit's bar; a reply that strays is refused.
+     "Try it on the next rep" pins the tip to the study; "Keep with this rep" keeps it on the work.
+     Nothing pays, rates or ticks. */
+  var EMBLEM = "assets/assistant/logo/whispering-bloom-emblem-production.png";
+  function online() { return typeof navigator === "undefined" || navigator.onLine !== false; }
+  function geminiModel() {
+    var r = KOS.ai.config && KOS.ai.config().routing && KOS.ai.config().routing.tutor;
+    return r && r.provider === "gemini" ? r.model : KOS.ai.DEFAULT_MODEL.gemini;
+  }
+  function critiqueBtn(wid, o) {
+    if (!CR().critiqueOf(wid)) return null;
+    var off = !online();
+    return el("button", { type: "button", class: "k-btn" + (o && o.sm ? " k-btn--sm" : ""), "data-ui": "cr.critique-open", disabled: off ? "" : null,
+      text: off ? "Ask Kurenai · needs a connection" : "✦ Ask Kurenai for a critique", onclick: function () { if (o && o.before) o.before(); critique(wid); } });
+  }
+  function critiqueView(c) {
+    return el("div", { class: "k-cr-crit", "data-ui": "cr.critique" }, [
+      el("section", {}, [el("span", { class: "k-kicker", text: "What worked" }), el("p", { text: c.worked })]),
+      c.next ? el("section", {}, [el("span", { class: "k-kicker", text: "One thing to try on the next rep" }), el("p", { text: c.next })]) : null
+    ].filter(Boolean));
+  }
+  function critique(wid) {
+    var c = CR().critiqueOf(wid); if (!c) return;
+    var title = el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Ask Kurenai for a critique" });
+    var body = el("div", { class: "k-cr-sent" }, [el("p", { class: "k-muted", text: "Loading your piece…" })]);
+    var foot = el("div", { class: "k-dialog-foot" });
+    var box = el("div", { class: "k-dialog k-cr-dialog--wide", "data-ui": "cr.critique-dialog" }, [
+      el("div", { class: "k-dialog-mark", lang: "ja", "aria-hidden": "true", text: "評" }), title, body, foot]);
+    var overlay = el("div", { class: "k-dialog-overlay" }, [box]);
+    var closed = false, req = null, rq = null;
+    function close() { if (closed) return; closed = true; if (req && KOS.ai && KOS.ai.cancel) KOS.ai.cancel(req); req = null; overlay.remove(); }
+    overlay.close = close;
+    function btn(t, cls, fn, hook) { return el("button", { type: "button", class: "k-btn" + (cls ? " " + cls : ""), "data-ui": hook || null, "data-intent": /primary/.test(cls || "") ? "primary" : null, text: t, onclick: fn }); }
+    function setFoot(list) { foot.innerHTML = ""; foot.appendChild(el("span")); list.forEach(function (b) { if (b) foot.appendChild(b); }); }
+    var cancel = btn("Cancel", "", close, "cr.critique-cancel");
+    setFoot([cancel]);
+    KOS.ui.openDialog(overlay, { labelledBy: title, initialFocus: cancel });
+    CR().files.get(wid, function (err, f) {
+      if (closed) return;
+      rq = CR().critiqueRequest(wid, f);
+      if (!rq) { body.innerHTML = ""; body.appendChild(el("p", { class: "k-muted", text: "This piece's text or picture is on another device, so there is nothing to send from here." })); return; }
+      whatIsSent();
+    });
+    function whatIsSent() {
+      body.innerHTML = "";
+      title.textContent = "Ask Kurenai for a critique";
+      body.appendChild(el("p", { text: "One request, metered like any Assistant message. This is all of it:" }));
+      var piece = rq.imageUrl ? el("figure", { class: "k-cr-sent-piece" }, [el("img", { src: rq.imageUrl, alt: "The picture that is sent" })])
+        : el("blockquote", { class: "k-cr-sent-piece k-cr-mine-text" }, rq.text.split(/\n{2,}/).map(function (p) { return el("p", { text: p }); }));
+      body.appendChild(el("div", { class: "k-cr-sent-grid" }, [piece,
+        el("dl", { class: "k-cr-sent-list", "data-ui": "cr.what-is-sent" }, rq.sections.map(function (x) { return el("div", {}, [el("dt", { text: x.h }), el("dd", { text: x.text })]); }))]));
+      body.appendChild(el("p", { class: "k-muted", "data-ui": "cr.not-sent", text: "Not sent: " + rq.notSent }));
+      var status = el("p", { class: "k-muted", "aria-live": "polite" });
+      body.appendChild(status);
+      var send = btn("Send", "k-btn--primary", function () { go(send, status); }, "cr.critique-send");
+      setFoot([cancel, send]);
+      cancel.focus();
+    }
+    function go(send, status) {
+      if (!online()) { status.textContent = "Ask Kurenai needs a connection. Nothing is queued."; return; }
+      if (!KOS.ai || !KOS.ai.chat) { status.textContent = "Set up Kurenai in the Assistant's settings to ask for a critique."; return; }
+      send.disabled = true; status.textContent = "Kurenai is looking…"; announce("Sending one request.");
+      var request = { category: "tutor", system: rq.system, temperature: 0.4, maxTokens: 1200, busyRetries: 3,
+        onBusy: function (n, of) { status.textContent = "Kurenai is busy right now — trying again (" + n + " of " + of + ")…"; },
+        messages: [rq.image ? { role: "user", content: rq.prompt, images: [{ mime: rq.mime, data: rq.image }] } : { role: "user", content: rq.prompt }] };
+      var cb = function (err, res) {
+        if (closed || !req) return;
+        req = null;
+        if (err || !res || !res.text) { send.disabled = false; status.textContent = "Kurenai couldn't answer" + (err && err.message ? " — " + err.message : "") + ". Nothing was saved."; return; }
+        var json = KOS.inkAI && KOS.inkAI.readJson ? KOS.inkAI.readJson(res.text) : null;
+        if (!json || !json.worked) { send.disabled = false; status.textContent = "Kurenai's reply couldn't be read. Send again?"; return; }
+        reply({ worked: String(json.worked).trim(), next: String(json.next || "").trim() });
+      };
+      /* a picture needs a provider that reads images (Gemini); text goes by the tutor route */
+      req = rq.image ? (KOS.ai.chatWith("gemini", geminiModel(), request, cb) || true) : (KOS.ai.chat("tutor", request, cb) || true);
+    }
+    function reply(r) {
+      body.innerHTML = "";
+      if (CR().stray(r, c.L.id)) {
+        body.appendChild(el("p", { role: "alert", "data-ui": "cr.critique-stray", text: "Kurenai couldn't keep to this unit's bar. Try again?" }));
+        setFoot([btn("Close", "", close), btn("Try again", "k-btn--primary", whatIsSent)]);
+        announce("Kurenai couldn't keep to this unit's bar.");
+        return;
+      }
+      title.textContent = "Kurenai, on " + c.L.check.skill.charAt(0).toLowerCase() + c.L.check.skill.slice(1);
+      body.appendChild(el("div", { class: "k-cr-crit-head" }, [el("img", { class: "k-cr-crit-mark", src: EMBLEM, alt: "" }),
+        el("span", { class: "k-muted", text: c.w.title + " · " + c.t.name + " " + c.u.n + "'s bar only" })]));
+      body.appendChild(critiqueView(r));
+      var note = el("p", { class: "k-muted", "aria-live": "polite", text: "A suggestion, not a mark. Your check stays yours." });
+      body.appendChild(note);
+      var pin = btn("Try it on the next rep", "", function () { CR().pinTip(c.L.id, c.s.id, r.next || r.worked); pin.disabled = true; note.textContent = "Pinned to " + c.L.id + "·" + c.s.id + "'s next rep."; },"cr.critique-pin");
+      var keep = btn("Keep with this rep", "k-btn--primary", function () { CR().keepCritique(wid, r); keep.disabled = true; note.textContent = "Kept with this piece."; }, "cr.critique-keep");
+      if (!r.next) pin = null;
+      setFoot([btn("Close", "", function () { close(); KOS.rerender(); }), pin, keep]);
+      announce("Kurenai replied.");
+    }
+  }
+  KOS.crCritique = critique;
 
   /* ---------------- the Practice Log (31j) and the Portfolio (31k) ---------------- */
   function workRow(w, o) {
@@ -402,8 +506,10 @@
       else if (w.url) body.appendChild(el("p", {}, [el("a", { class: "k-link", href: w.url, target: "_blank", rel: "noopener", text: w.url })]));
       else body.appendChild(el("p", { class: "k-muted", text: "The file is on another device; the record is here." }));
       if (w.check && w.check.note) body.appendChild(el("p", { class: "k-muted", text: "Your note: " + w.check.note }));
+      if (w.critique) body.appendChild(el("section", { class: "k-cr-kept", "data-ui": "cr.critique-kept" }, [el("span", { class: "k-kicker", text: "✦ Kurenai's critique · " + dateShort(w.critique.at) }), critiqueView(w.critique)]));
     });
     var foot = [
+      critiqueBtn(wid, { before: function () { d.close(); } }),
       w.lesson && w.study ? el("button", { type: "button", class: "k-btn", text: "Check", onclick: function () { d.close(); KOS.show("creatives", { page: "check", id: wid }); } }) : null,
       el("button", { type: "button", class: "k-btn", "data-ui": "cr.promote", text: w.portfolio ? "Take out of Portfolio" : "Promote…", onclick: function () { d.close(); if (w.portfolio) { CR().promote(wid, false); KOS.rerender(); } else promoteDialog(wid); } }),
       el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", "data-ui": "cr.work-delete", text: "Delete", onclick: function () {

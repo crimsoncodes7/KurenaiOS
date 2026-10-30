@@ -21,10 +21,10 @@
   var TABS = [["week", "This week"], ["month", "This month"], ["all", "All"], ["done", "Done"]];
   var DOMAIN = {
     study: { k: "学", label: "Study" }, productivity: { k: "集", label: "Productivity" }, money: { k: "円", label: "Money" },
-    code: { k: "C#", label: "Code", mono: true }, collection: { k: "蒐", label: "Collection" }, governor: { k: "守", label: "Governor" }
+    code: { k: "C#", label: "Code", mono: true }, creatives: { k: "創", label: "Creatives" }, collection: { k: "蒐", label: "Collection" }, governor: { k: "守", label: "Governor" }
   };
-  var DOMAIN_ORDER = ["study", "productivity", "money", "code", "collection", "governor"];
-  var SUBJECT_TONE = { compsci: "cs", maths: "maths", it: "it", code: "code" };
+  var DOMAIN_ORDER = ["study", "productivity", "money", "code", "creatives", "collection", "governor"];
+  var SUBJECT_TONE = { compsci: "cs", maths: "maths", it: "it", code: "code", creatives: "creatives" };
   var MODULE_TONE = { anime: "anime", books: "books", vn: "vn", game: "games" };
   var MODULE_K = { anime: "映", books: "本", vn: "選", game: "遊" };
   /* per visit (never stored) */
@@ -157,6 +157,7 @@
     if (g._unlinked) return null;
     if (d === "study") return SUBJECT_TONE[g.links && g.links.subject] || null;
     if (d === "code") return "code";
+    if (d === "creatives") return "creatives";
     if (d === "money") return g.links && g.links.category === "collection" ? "collection" : g.type === "money-save" ? "jade" : null;
     if (d === "collection") return MODULE_TONE[g.module] || "collection";
     return null;
@@ -224,11 +225,14 @@
     if (t === "topics-green" || t === "study-finish-unit" || t === "cards-reviewed" || t === "recall-rate") {
       var sid = g.links && g.links.subject;
       if (t === "cards-reviewed" || t === "recall-rate") return ["Review", function () { KOS.show("review"); }];
-      return [sid ? "Open " + ({ compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[sid] || "the subject") : "Study", function () { KOS.show("subject", sid || (store.state.ui.subject || "compsci")); }];
+      return [sid ? "Open " + ({ compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[sid] || (KOS.subjects ? KOS.subjects.name(sid) : "the subject")) : "Study", function () { KOS.show("subject", sid || (store.state.ui.subject || "compsci")); }];
     }
     if (t === "code-tasks") return ["Today's Daily 20", function () { KOS.show("subject", "code"); }];
     if (t === "code-retrievals") return ["Retrieval", function () { KOS.show("code", { page: "retrieval" }); }];
     if (t === "code-capstone") return ["See capstones", function () { KOS.show("code", { page: "map" }); }];
+    if (t === "cr-drill-days") return ["Drills", function () { KOS.show("creatives", { page: "drills" }); }];
+    if (t === "cr-words") return ["Writing Desk", function () { KOS.show("creatives", { page: "write" }); }];
+    if (t === "cr-studies") return ["Creatives", function () { KOS.show("subject", "creatives"); }];
     if (t === "money-save") return ["Open pot", function () { KOS.show("money", "pots"); }];
     if (t === "money-spend-under") return g.links && g.links.category === "collection" ? ["Wishlist", function () { KOS.show("wishlist"); }] : ["Budgets", function () { KOS.show("money", "budgets"); }];
     if (/^money-/.test(t)) return ["Money", function () { KOS.show("money"); }];
@@ -268,7 +272,7 @@
       spent: Math.round((g._current || 0) * 100), budget: Math.round((g._target || 0) * 100), foot: false });
     if (isMoney(g) || g._current == null) return null;
     var t = g._target || g.target;
-    if (t <= 20 && t === Math.round(t) && g._unit !== "hours") return squares(t, Math.min(t, Math.floor(g._current || 0)), g._displayOnly ? "teal" : g._domain === "code" ? "code" : isExam(g) ? tone(g) || "green" : "green");
+    if (t <= 20 && t === Math.round(t) && g._unit !== "hours") return squares(t, Math.min(t, Math.floor(g._current || 0)), g._displayOnly ? "teal" : g._domain === "code" ? "code" : g._domain === "creatives" ? "creatives" : isExam(g) ? tone(g) || "green" : "green");
     var b = el("div", { class: "k-bar k-bar--6 k-gl-bar", "data-tone": tone(g) || null, role: "img", "aria-label": g._pct + "%" }, [el("i")]);
     b.style.setProperty("--p", Math.min(100, g._pct || 0) + "%");
     return b;
@@ -646,7 +650,7 @@
         el("div", { class: "k-gl-grow" }, [el("div", { class: "k-gl-strong k-gl-linktitle", text: g.params.examGone.title || "The exam" }), el("div", { class: "k-muted k-gl-small", text: "Exam removed · unlinked · nothing was lost" })]),
         btn("Link to an exam", "k-btn--sm", function () { linkDialog(g); }, "goal.relink")]));
     }
-    if (links.subject && !isExam(g)) row("学", { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[links.subject] || links.subject, "Counts sessions in this subject", true, function () { KOS.show("subject", links.subject); });
+    if (links.subject && !isExam(g)) row("学", { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[links.subject] || (KOS.subjects ? KOS.subjects.name(links.subject) : links.subject), "Counts sessions in this subject", true, function () { KOS.show("subject", links.subject); });
     (links.refs || []).slice(0, 6).forEach(function (k) {
       var i = k.indexOf(":"), lab = KOS.spec && KOS.spec.label ? KOS.spec.label(k.slice(0, i), k.slice(i + 1)) : k;
       row("学", lab || k, "Topic · from the topic picker", true, function () { KOS.show("ref", { subject: k.slice(0, i), ref: k.slice(i + 1) }); });
@@ -827,7 +831,7 @@
       if (def.exam) { drawExam(); autoTitle(); form.appendChild(hint); form.appendChild(err); examLine(); return; }
       /* the source: a subject, topics, a pot, a category, a capstone, a title */
       if (def.fields.subject) {
-        extra.subject = select([["", "All subjects"]].concat((KOS.subjects ? KOS.subjects.ids() : ["compsci", "maths", "it", "code"]).map(function (s) { return [s, { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[s] || s]; })), links.subject || "", { "aria-label": "Subject" });
+        extra.subject = select([["", "All subjects"]].concat((KOS.subjects ? KOS.subjects.ids() : ["compsci", "maths", "it", "code"]).map(function (s) { return [s, { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[s] || (KOS.subjects && KOS.subjects.name ? KOS.subjects.name(s) : s)]; })), links.subject || "", { "aria-label": "Subject" });
         extra.subject.addEventListener("change", function () { links.subject = extra.subject.value || undefined; if (picker) picker.refresh(); });
         form.appendChild(field("Subject", extra.subject));
       }

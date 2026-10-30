@@ -26,6 +26,7 @@
 .k-gl .k-tile[data-tone="cs"] { --tile-c: var(--cs); }
 .k-gl .k-tile[data-tone="it"] { --tile-c: var(--it); }
 .k-gl .k-tile[data-tone="code"] { --tile-c: var(--code); }
+.k-gl .k-tile[data-tone="creatives"] { --tile-c: var(--cr); }
 .k-gl .k-tile[data-tone="anime"] { --tile-c: var(--anime); }
 .k-gl .k-tile[data-tone="books"] { --tile-c: var(--books); }
 .k-gl .k-tile[data-tone="collection"] { --tile-c: var(--collection-hue); }
@@ -82,6 +83,7 @@
 .k-gl-cardfoot { display: flex; align-items: center; gap: var(--sp-8); padding-block-start: var(--sp-12); margin-block-start: var(--sp-2); border-block-start: var(--hairline) solid var(--line); }
 .k-gl-squares { --sq-c: var(--green); display: flex; flex-wrap: wrap; gap: var(--sp-4); }
 .k-gl-squares[data-tone="code"] { --sq-c: var(--code); }
+.k-gl-squares[data-tone="creatives"] { --sq-c: var(--cr); }
 .k-gl-squares[data-tone="teal"] { --sq-c: var(--teal); }
 .k-gl-squares[data-tone="cs"] { --sq-c: var(--cs); }
 .k-gl-squares[data-tone="maths"] { --sq-c: var(--maths); }
@@ -100,6 +102,7 @@
 .k-gl-bar[data-tone="maths"] { --bar-c: var(--maths); }
 .k-gl-bar[data-tone="cs"] { --bar-c: var(--cs); }
 .k-gl-bar[data-tone="code"] { --bar-c: var(--code); }
+.k-gl-bar[data-tone="creatives"] { --bar-c: var(--cr); }
 .k-gl-bar[data-tone="anime"] { --bar-c: var(--anime); }
 .k-gl-bar[data-tone="books"] { --bar-c: var(--books); }
 .k-gl-bar[data-tone="collection"] { --bar-c: var(--collection-hue); }

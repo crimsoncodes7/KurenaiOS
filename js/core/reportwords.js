@@ -248,6 +248,13 @@
       if (f.code.retrieval) out.code_retrievals = (f.code.retrievalOk || 0) + "/" + f.code.retrieval;
       if (f.code.katas) out.code_katas = f.code.katas;
     }
+    /* Creatives (invariant 156): totals only, never a title or a piece */
+    if (f.creatives) {
+      if (f.creatives.studies) out.creatives_studies_passed = f.creatives.studies;
+      if (f.creatives.drillDays) out.creatives_drill_days = f.creatives.drillDays;
+      if (f.creatives.words) out.creatives_words = f.creatives.words;
+      if (f.creatives.projects) out.creatives_projects = f.creatives.projects;
+    }
     /* Money and Goals (5.4, "What Kurenai sees", 27o): totals in and out,
        the three biggest categories by amount, the subscriptions total, and
        how many goals were met or missed with their names. Never payees,
