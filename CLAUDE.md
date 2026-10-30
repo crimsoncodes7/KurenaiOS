@@ -17,7 +17,10 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-connect-1` (30 October 2026, `feat/integrations`
+- Latest release: sw `kos-connect-2` (30 October 2026, `1398282`) —
+  https://dc66d2aa.kurenai-os.pages.dev: Todoist is sent the app's address
+  without a trailing slash (its console refuses the bare domain with one).
+  Before it sw `kos-connect-1` (30 October 2026, `feat/integrations`
   at `5adc978`, main fast-forwarded to it) — https://d47701df.kurenai-os.pages.dev:
   Google Calendar, Google Tasks and Todoist (roadmap 5.15,
   docs/integrations-plan.md; invariants 157–160, smoke112): the Calendar's
