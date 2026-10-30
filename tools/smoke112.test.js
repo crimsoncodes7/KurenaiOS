@@ -1,4 +1,4 @@
-/* Kurenai OS — smoke109.test.js
+/* Kurenai OS — smoke112.test.js
    Google Calendar, Google Tasks and Todoist (roadmap 5.15,
    docs/integrations-plan.md; invariants 157–160).
 
@@ -46,7 +46,7 @@
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
-     node tools/smoke109.test.js                                            */
+     node tools/smoke112.test.js                                            */
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -525,6 +525,6 @@ step("I · sign-in and the server", async () => {
     try { await fn(); console.log("  ok  " + name); }
     catch (e) { failed++; console.log("  FAIL " + name + "\n       " + e.message); }
   }
-  console.log(failed ? "smoke109: " + failed + " failed" : "smoke109: all " + steps.length + " passed");
+  console.log(failed ? "smoke112: " + failed + " failed" : "smoke112: all " + steps.length + " passed");
   process.exit(failed ? 1 : 0);
 })();

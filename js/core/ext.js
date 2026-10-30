@@ -45,7 +45,7 @@
     if (!st.ext || typeof st.ext !== "object") st.ext = {};
     return normalise(st.ext);
   }
-  /* the same settings for a page to READ: never writes (smoke109 C) */
+  /* the same settings for a page to READ: never writes (smoke112 C) */
   function view() {
     var e = store().state.ext;
     return normalise(e && typeof e === "object" ? JSON.parse(JSON.stringify(e)) : {});

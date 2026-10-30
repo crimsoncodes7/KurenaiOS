@@ -1,7 +1,7 @@
 # Google Calendar, Google Tasks and Todoist (roadmap 5.15)
 
 Asked for and approved on 29 October 2026. Built on `feat/integrations`.
-Invariants 157–160 in CLAUDE.md; held by `tools/smoke109.test.js`.
+Invariants 157–160 in CLAUDE.md; held by `tools/smoke112.test.js`.
 
 ## 1. Decisions (approved 29 October 2026)
 

@@ -1,6 +1,6 @@
 /* Kurenai OS — ext-token's pure half (docs/integrations-plan.md §3).
    No network, no Deno: the provider table, the redirect rule, the
-   authorize URL and the reading of a token reply, so smoke109 can hold
+   authorize URL and the reading of a token reply, so smoke112 can hold
    them from Node. */
 
 export type Provider = "google" | "todoist";
