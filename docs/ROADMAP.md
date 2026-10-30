@@ -1429,7 +1429,7 @@ included) without saying why.
 > desks, page headers, Exams covers, avatars, frames, shelves, Shrine cards,
 > seal stamps, and badges for every Code, Japanese, Mind, Creatives and
 > A-level unit): 322 images in 23 waves. Rotation and your own pictures are
-> 5.14. 30 October: all 322 made and reviewed, 9 to redo (app-art.md, "The
+> 5.14. 30 October: all 322 made and reviewed, 9 redone and passed the same day (app-art.md, "The
 > review"). Nothing is built yet: next is release 1, the Assistant's redesign.
 
 **What:** I (the coding agent) walk every area of the app and write a

@@ -20,7 +20,7 @@
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
 - [Mind study space](mind-study-space.md) — roadmap 5.9; platform + F1 RELEASED 2026-10-29 (kos-mind-1, cc2bc15); smokes 109–111; adapt the design to the app, no Mind streak
 - [Daily Review and Routines](routines-review.md) — 5.10 RELEASED kos-routines-1, follow-up kos-routines-2 + runner v6; next: Files plan 5.11 (decisions await)
-- [Art and shop audit](art-shop-audit.md) — 5.13/5.14 approved; all 322 images made + reviewed 2026-10-30, 9 redos in manifest; next release 1 Assistant redesign; handover HANDOFF §0
+- [Art and shop audit](art-shop-audit.md) — 5.13/5.14 approved; all 322 images made + reviewed 2026-10-30, 9 redos made + passed same day; next release 1 Assistant redesign; handover HANDOFF §0
 - [Creatives study space](creatives-study-space.md) — 5.7.3 on feat/creatives; Platform 1 + Art 1–3 RELEASED 2026-10-30 (kos-creatives-1, 1e058d00)
 - [Google/Todoist integrations](integrations-google-todoist.md) — 5.15 RELEASED 2026-10-30 (kos-connect-1, d47701df), smoke112; real sign-in not yet tried
 - [Design handoffs are a guide](design-handoff-not-1to1.md) — never 1:1; match Code's desk; minimal text; side column never taller than the hero

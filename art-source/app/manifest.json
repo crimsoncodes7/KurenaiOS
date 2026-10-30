@@ -1117,7 +1117,7 @@
    "where": "Exams & Papers' header while Exam Season is on.",
    "size": "wave 3 · exported 1920 px wide",
    "wave": 3,
-   "redo": "The timetable sheet has the word TIMETABLE and tiny lettering on it."
+   "redone": "2026-10-30"
   },
   {
    "id": "app.face.kurenai-winter.thinking",
@@ -1944,7 +1944,7 @@
    "where": "the CS NEA: its assessment cards and paper page in Exams & Papers.",
    "size": "wave 9 · exported 960 px wide",
    "wave": 9,
-   "redo": "The laptop shows a TV test card, which reads as a broken screen."
+   "redone": "2026-10-30"
   },
   {
    "id": "app.cover.exam.maths-pure",
@@ -2099,7 +2099,7 @@
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
    "wave": 10,
-   "redo": "The lamp's glow came out green and keeps a green halo after the key."
+   "redone": "2026-10-30"
   },
   {
    "id": "app.avatar.camellia",
@@ -2170,7 +2170,7 @@
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
    "wave": 10,
-   "redo": "The glow ring around the lantern is green after the key."
+   "redone": "2026-10-30"
   },
   {
    "id": "app.avatar.bloom",
@@ -2661,7 +2661,7 @@
    "where": "A seal's stamp art beside its glyph (the shop's Profile seals; the glyph stays live text).",
    "size": "wave 13 · exported 640 px, keyed",
    "wave": 13,
-   "redo": "It came out almost the same as seal.sakura (a five-petal blossom)."
+   "redone": "2026-10-30"
   },
   {
    "id": "app.seal.yume",
@@ -3213,8 +3213,8 @@
    "size": "wave 15 · exported 384 px, keyed",
    "wave": 15,
    "solid": true,
-   "redo": "The sprout's two strokes read as real kana (う and ち), and the rule is no text, ever.",
-   "long": 384
+   "long": 384,
+   "redone": "2026-10-30"
   },
   {
    "id": "app.badge.ja.s0h",
@@ -4158,8 +4158,8 @@
    "size": "wave 19 · exported 384 px, keyed",
    "wave": 19,
    "solid": true,
-   "redo": "The two shapes read as the letters A and e.",
-   "long": 384
+   "long": 384,
+   "redone": "2026-10-30"
   },
   {
    "id": "app.badge.cre.design3",
@@ -4607,8 +4607,8 @@
    "size": "wave 21 · exported 384 px, keyed",
    "wave": 21,
    "solid": true,
-   "redo": "Gemini drew the digits 01101001; numbers count as text.",
-   "long": 384
+   "long": 384,
+   "redone": "2026-10-30"
   },
   {
    "id": "app.badge.cs.46",
@@ -4928,8 +4928,8 @@
    "size": "wave 22 · exported 384 px, keyed",
    "wave": 22,
    "solid": true,
-   "redo": "It reads as pipes or a rack, not a box plot.",
-   "long": 384
+   "long": 384,
+   "redone": "2026-10-30"
   },
   {
    "id": "app.badge.maths.s3",

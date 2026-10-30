@@ -242,7 +242,7 @@ chronological diary here.
   the Governor's card, the term/year story and the share card's showcase;
   the 153 unit badges imported to `assets/app/img/`. Waiting: art batches
   26–27 (waves 24–32) and design prompt 19. With it the review of all 322
-  app images (nine redos marked in the manifest) and the importer's fixes,
+  app images (the nine redos made and passed the same day, marked `redone`) and the importer's fixes,
   and design prompt 18's four small passes built directly (Money's first
   run, Files when empty, the Japanese path upright at ≤ 860, the attempts
   table); prompt 18 is now ONE combined prompt for the rest.
