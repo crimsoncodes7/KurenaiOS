@@ -84,6 +84,8 @@
   // draft — unless you have approved it by hand
   function importRedo(a) {
     var rep = report[a.id];
+    // or the manifest's own review asks for it (`redo`: the reason, with the prompt rewritten)
+    if (a.redo && review()[a.id] !== "ok") return true;
     return !!rep && review()[a.id] !== "ok" && (rep.grade === "redo" || /low resolution/.test(rep.note || ""));
   }
   function assetCard(a) {
@@ -102,7 +104,8 @@
             a.edit ? el("span", { class: "chip", text: "Edit an image" }) : null
           ]),
           // a manifest may say where the image lands (the app-wide sheet, roadmap 5.13)
-          a.where ? el("p", { class: "a-meta", text: "Where it goes: " + a.where + (a.size ? " · " + a.size : "") }) : null
+          a.where ? el("p", { class: "a-meta", text: "Where it goes: " + a.where + (a.size ? " · " + a.size : "") }) : null,
+          a.redo ? el("p", { class: "a-meta", text: "Why it is redone: " + a.redo }) : null
         ]),
         chip
       ]),

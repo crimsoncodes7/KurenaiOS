@@ -11,13 +11,15 @@ For every asset in manifest.json whose draft is in inbox/:
   - backgrounds: resize;
   - manga panels: trim any flat strip along an edge (a white band Gemini leaves under the art), resize;
   - covers (Routines' card art): resize;
-  - spots (small empty-state art on green): key out the green, trim to the art, resize.
+  - spots (small empty-state art on green): key out the green, trim to the art, resize; a spot
+    marked "solid" (a badge disc) keys only the ground that touches the image's edge.
 Writes WebP to the output folder and report.json (drift per face) for the contact sheet.
 Drafts arrive as JPEG under a .png name (Gemini's download), which is handled.
 """
 import json, sys, os
 import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 SRC, OUT = sys.argv[1], sys.argv[2]
 SPRITE_H = 1400          # exported sprite height (px)
@@ -33,7 +35,7 @@ def load(path):
     return np.asarray(Image.open(path).convert("RGB"), dtype=np.float32) / 255.0
 
 
-def key_green(rgb):
+def key_green(rgb, solid=False):
     """Soft chroma key for a flat #00FF00 ground. Alpha from how much green dominates; then the
     green is UN-MIXED from every edge pixel (C = a·F + (1 − a)·G, solved for F), and whatever green
     still leans out is clamped — so hair and glasses keep no green fringe on any background."""
@@ -48,6 +50,19 @@ def key_green(rgb):
     ro, go, bo = out[..., 0], out[..., 1], out[..., 2]
     out[..., 1] = np.minimum(go, np.maximum(ro, bo) + 0.02)
     alpha = np.where(alpha < 0.08, 0, alpha)
+    # Only the GROUND is keyed: a pixel more than a few px from it keeps its own colour and full
+    # alpha, so a green subject (Creatives' moegi badges, leaves, jade) is never cut into or greyed.
+    # The ground is every keyed region, or — for a SOLID asset (a badge disc) — only what touches
+    # the image's edge, so an enclosed green patch inside the disc stays painted.
+    ground = alpha < 0.5
+    if solid:
+        lab, _ = ndimage.label(ground)
+        edge = np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))
+        ground = np.isin(lab, edge[edge > 0])
+    band = max(4, round(0.004 * max(rgb.shape[:2])))
+    near = ndimage.distance_transform_edt(~ground) <= band
+    out = np.where(near[..., None], out, rgb)
+    alpha = np.where(near, alpha, 1.0)
     return out, alpha
 
 
@@ -184,7 +199,7 @@ def main():
                                      "bodyOffPct": round(off, 1), "grade": grade, "out": size, "note": "; ".join(note) or None}
 
     for a in man["assets"]:
-        if a["kind"] != "background" or not have(a):
+        if a["kind"] not in ("background", "bg") or not have(a):
             continue
         im = Image.open(os.path.join(inbox, a["id"] + ".png")).convert("RGB")
         if im.width > BG_W:
@@ -217,7 +232,7 @@ def main():
     for a in man["assets"]:
         if a["kind"] != "spot" or not have(a):
             continue
-        rgb, al = key_green(load(os.path.join(inbox, a["id"] + ".png")))
+        rgb, al = key_green(load(os.path.join(inbox, a["id"] + ".png")), a.get("solid", False))
         y0, y1, x0, x1 = bbox(al)
         pad = 16
         y0, x0 = max(0, y0 - pad), max(0, x0 - pad)

@@ -1427,7 +1427,8 @@ included) without saying why.
 > desks, page headers, Exams covers, avatars, frames, shelves, Shrine cards,
 > seal stamps, and badges for every Code, Japanese, Mind, Creatives and
 > A-level unit): 322 images in 23 waves. Rotation and your own pictures are
-> 5.14. Nothing is built yet: next is release 1, the Assistant's redesign.
+> 5.14. 30 October: all 322 made and reviewed, 9 to redo (app-art.md, "The
+> review"). Nothing is built yet: next is release 1, the Assistant's redesign.
 
 **What:** I (the coding agent) walk every area of the app and write a
 proposal, not code, of where art and new design would lift it, and what to
@@ -1512,6 +1513,30 @@ pulled completions are activity, never pay. Built on `feat/integrations`
 [integrations-plan.md](integrations-plan.md). RELEASED 30 October 2026
 (sw `kos-connect-1`, https://d47701df.kurenai-os.pages.dev); the Google and
 Todoist apps and their secrets are set.
+
+### 5.16 Achievements: the Badge Wall ◆ (asked for 30 October 2026)
+
+**What:** a page of badges after Reverse: 1999's "Fourth Wall" brochure —
+sets as painted panoramas with their medallions, owned / total, a list
+view, a filter and a showcase. A badge starts dim and lights up as it
+nears done (greyscale and brightness from progress, a filling rim ring),
+earns full colour with an unlock overlay, and progress shows as a small
+notice at the top left ("8 / 10 physical books"). A registry read from the
+owners' records, like Goals; only what was earned is stored; badges pay
+nothing. Starts with the 153 unit badges of 5.13; built after 5.13's
+releases 1–7a, in place of its step 7b. Plan and decisions:
+[achievements-plan.md](achievements-plan.md).
+
+### 5.17 More achievements, across the whole app ◆ (asked for 30 October 2026)
+
+**What:** game-style achievements for every area, not only units: time in
+the app, Focus, streaks, study, exams, Code, Japanese, Mind, Creatives,
+Routines, the organisers, Goals and Money, the Collection, ink and files,
+Kurenai and the Governor — about 120 badges in fifteen sets, tiered, a few
+hidden, a few with titles. The catalogue is in
+[achievements-plan.md](achievements-plan.md); its badge art (about 120,
+eight Gemini waves) and set panoramas are added to the manifest once 5.13's
+art is in the app.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 

@@ -40,6 +40,31 @@ yet. Mind and Routines are out of scope (the user's call).
    3,000 gold an area or 20,000 for all; free uploads today move behind it
    (a picture already set keeps showing).
 
+### The review (30 October 2026)
+
+All 322 images are made. Reviewed on contact sheets, by the import's
+measures and by macOS text recognition: **313 pass and 9 are redone**, each
+marked `redo` in the manifest with the reason and a rewritten prompt (the
+sheet shows them as ✗ Redo):
+
+| Image | Why |
+|---|---|
+| `app.badge.ja.s0` | the sprout's strokes read as kana |
+| `app.badge.cs.45` | the digits 01101001 |
+| `app.badge.cre.design2` | the shapes read as the letters A and e |
+| `app.badge.maths.s2` | reads as pipes, not a box plot |
+| `app.avatar.lamp`, `app.avatar.lantern` | a green glow round the light |
+| `app.exam.season` | the word TIMETABLE on a sheet |
+| `app.cover.exam.cs-nea` | a TV test card on the laptop |
+| `app.seal.hana` | the same five-petal blossom as `seal.sakura` |
+
+The sprites are clean: all eight outfits keep the flower and the face, and
+all 40 faces import at "ok" or "slight" (rain and New Year drift 8–9, below
+the redo line). The import was fixed on the way: it skipped every `bg`
+image (45) and it keyed the yellow-green out of Creatives' moegi badges;
+now only the ground is keyed, and a badge (`solid`) keys only the ground
+round the disc.
+
 ## Making the art (the user, by hand, in waves)
 
 1. Start the dev server: `python3 tools/dev_server.py 8123`.
@@ -147,9 +172,10 @@ deploying. Art that has not arrived yet leaves its slot as it is today
 7a. **Roadmap 5.14**: rotation on every slot, and the "Your own picture"
    unlocks (rewrite invariants 2, 30 and 94 as 5.14 says).
 7b. **Badges** (batches 21–25): earned when a unit, stage, track or
-   module is complete (Green for an A-level unit, a passed IT unit), shown
-   on its page and as a set on the Governor's seat; Mind's and Creatives'
-   wait for those spaces.
+   module is complete (Green for an A-level unit, a passed IT unit). They
+   are now the first sets of the Achievements page, roadmap 5.16
+   ([achievements-plan.md](achievements-plan.md)): the Wall, the light
+   that grows with progress, the unlock overlay and the progress notice.
 8. **Passes 18.1 and 18.2**: Money's and Files' empty pages.
 
 When a release lands, update this file's status, ROADMAP 5.13 and

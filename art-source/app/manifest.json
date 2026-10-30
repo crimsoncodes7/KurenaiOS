@@ -996,7 +996,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a single small seedling sprouting from a block of stone, sky-blue and silver. Round, simple, readable at 64 pixels, a thin metal rim. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code's capstone C1 page and the hub once it is passed (today a tick).",
    "size": "wave 5 · exported 640 px, keyed",
-   "wave": 5
+   "wave": 5,
+   "solid": true
   },
   {
    "id": "app.badge.code.c2",
@@ -1010,7 +1011,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: three stacked wooden crates with a ribbon, sky-blue and silver. Round, simple, readable at 64 pixels, a thin metal rim. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code's capstone C2 page and the hub once it is passed (today a tick).",
    "size": "wave 5 · exported 640 px, keyed",
-   "wave": 5
+   "wave": 5,
+   "solid": true
   },
   {
    "id": "app.badge.code.c3",
@@ -1024,7 +1026,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small brass clockwork gear meshing with a second gear, sky-blue and gold. Round, simple, readable at 64 pixels, a thin metal rim. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code's capstone C3 page and the hub once it is passed (today a tick).",
    "size": "wave 5 · exported 640 px, keyed",
-   "wave": 5
+   "wave": 5,
+   "solid": true
   },
   {
    "id": "app.badge.code.c4",
@@ -1038,7 +1041,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a lighthouse with a beam of light, sky-blue and gold. Round, simple, readable at 64 pixels, a thin metal rim. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code's capstone C4 page and the hub once it is passed (today a tick).",
    "size": "wave 5 · exported 640 px, keyed",
-   "wave": 5
+   "wave": 5,
+   "solid": true
   },
   {
    "id": "app.badge.code.ct1",
@@ -1052,7 +1056,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two paper cups joined by a string telephone line, teal and gold. Round, simple, readable at 64 pixels, a thin metal rim. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code's capstone CT1 page and the hub once it is passed (today a tick).",
    "size": "wave 5 · exported 640 px, keyed",
-   "wave": 5
+   "wave": 5,
+   "solid": true
   },
   {
    "id": "app.badge.code.ct2",
@@ -1066,7 +1071,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small window frame with a sprig of flowers on its sill, violet and gold. Round, simple, readable at 64 pixels, a thin metal rim. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code's capstone CT2 page and the hub once it is passed (today a tick).",
    "size": "wave 5 · exported 640 px, keyed",
-   "wave": 5
+   "wave": 5,
+   "solid": true
   },
   {
    "id": "app.exam.room",
@@ -1091,10 +1097,11 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A wide painted still life of the night before an exam: a desk with highlighters, a stack of blank revision cards held by a clip, a timetable sheet face down, a clear pencil case, a glass of water, a desk lamp, a window with a calm night sky. The left half quiet and darker for a title. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A wide painted still life of the night before an exam: a desk with highlighters, a stack of blank revision cards held by a clip, a timetable sheet face down, a clear pencil case, a glass of water, a desk lamp, a window with a calm night sky. The left half quiet and darker for a title. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank. Every paper on the desk is completely blank or has only plain ruled lines and empty grid boxes: no headings, no words, no letters, no numbers, no scribbles that look like writing.",
    "where": "Exams & Papers' header while Exam Season is on.",
    "size": "wave 3 · exported 1920 px wide",
-   "wave": 3
+   "wave": 3,
+   "redo": "The timetable sheet has the word TIMETABLE and tiny lettering on it."
   },
   {
    "id": "app.face.kurenai-winter.thinking",
@@ -1917,10 +1924,11 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A small painted card illustration, a still life in the subject's colour: a laptop with abstract coloured bars on screen beside a spiral-bound project notebook, periwinkle light. Simple, three to five objects, shallow depth of field, a plain softly lit backdrop. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A small painted card illustration, a still life in the subject's colour: an open laptop whose screen shows a soft abstract layout of rounded periwinkle and violet blocks (like the shapes of a calm app window, no words), beside a closed spiral-bound project notebook and a pencil, periwinkle light. Simple, three to five objects, shallow depth of field, a plain softly lit backdrop. No people, no hands. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "the CS NEA: its assessment cards and paper page in Exams & Papers.",
    "size": "wave 9 · exported 960 px wide",
-   "wave": 9
+   "wave": 9,
+   "redo": "The laptop shows a TV test card, which reads as a broken screen."
   },
   {
    "id": "app.cover.exam.maths-pure",
@@ -2071,10 +2079,11 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a warm desk lamp over an open book Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a brass desk lamp bending over an open book, the lamp's light a WARM AMBER glow that stays tight around the bulb and on the book's pages only; no light haze, bloom or halo spreading into the background. Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "redo": "The lamp's glow came out green and keeps a green halo after the key."
   },
   {
    "id": "app.avatar.camellia",
@@ -2141,10 +2150,11 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a glowing paper lantern Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a glowing red-and-cream paper lantern with tassels, lit from inside; the light stays INSIDE the paper, with no glow, halo, sparks or haze outside its outline. Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "redo": "The glow ring around the lantern is green after the key."
   },
   {
    "id": "app.avatar.bloom",
@@ -2631,10 +2641,11 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A small round red hanko seal stamp impression on nothing, seen straight on, with a carved simple PICTURE instead of any character: a flower Ink-red with the slight texture of a stamp. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No letters, no kanji, no text anywhere.",
+   "prompt": "A small round red hanko seal stamp impression on nothing, seen straight on, with a carved simple PICTURE instead of any character: a single chrysanthemum seen from the front, many thin pointed petals radiating from a small round centre, clearly NOT a five-petal cherry blossom. Ink-red with the slight texture of a stamp. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No letters, no kanji, no text anywhere.",
    "where": "A seal's stamp art beside its glyph (the shop's Profile seals; the glyph stays live text).",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "redo": "It came out almost the same as seal.sakura (a five-petal blossom)."
   },
   {
    "id": "app.seal.yume",
@@ -2704,7 +2715,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: three small labelled jars of different shapes (no labels) Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u2",
@@ -2718,7 +2730,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a fork in a path with a signpost (blank) Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u3",
@@ -2732,7 +2745,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a toolbox with one tool lifted out Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u4",
@@ -2746,7 +2760,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a row of numbered-looking pigeonholes (blank) Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u5",
@@ -2760,7 +2775,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ribbon of letter-tiles turned face down Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u6",
@@ -2774,7 +2790,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a folder with a bug crawling out of it Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.b",
@@ -2788,7 +2805,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a set of keys on a ring Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u7",
@@ -2802,7 +2820,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a blueprint with a small house built from it Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 13 · exported 640 px, keyed",
-   "wave": 13
+   "wave": 13,
+   "solid": true
   },
   {
    "id": "app.badge.code.u8",
@@ -2816,7 +2835,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two puzzle pieces fitting together Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.u9",
@@ -2830,7 +2850,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a funnel pouring marbles into a neat line Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.u10",
@@ -2844,7 +2865,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a shield with a tick-shaped crest Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.u11",
@@ -2858,7 +2880,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two clocks with linked hands Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.u12",
@@ -2872,7 +2895,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small tree diagram of circles joined by lines Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1",
@@ -2886,7 +2910,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a server tower with a glowing cable Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1a",
@@ -2900,7 +2925,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a stack of three discs Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1b",
@@ -2914,7 +2940,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a disc stack with a plug Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1c",
@@ -2928,7 +2955,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a disc stack inside a gear Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1d",
@@ -2942,7 +2970,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an envelope with an arrow Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1e",
@@ -2956,7 +2985,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two radio towers Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t1f",
@@ -2970,7 +3000,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small gateway arch Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t2",
@@ -2984,7 +3015,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a desktop window with a sprig Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t2a",
@@ -2998,7 +3030,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an empty window frame Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t2b",
@@ -3012,7 +3045,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a paintbrush over a window Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 14 · exported 640 px, keyed",
-   "wave": 14
+   "wave": 14,
+   "solid": true
   },
   {
    "id": "app.badge.code.t2c",
@@ -3026,7 +3060,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: three linked rings Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.code.t2d",
@@ -3040,7 +3075,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an hourglass in a window Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.code.t2e",
@@ -3054,7 +3090,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a complete little house with lit windows Round, simple, readable at 64 pixels, a thin silver rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.code.s1",
@@ -3068,7 +3105,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a single stone step Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.code.s2",
@@ -3082,7 +3120,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a bundle of crates on a cart Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.code.s3",
@@ -3096,7 +3135,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a pagoda of stacked blocks Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.code.s4",
@@ -3110,7 +3150,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a lighthouse on a cliff Round, simple, readable at 64 pixels, a thin gold rim, in sky blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Code: a unit, the bridge, a track part, a track or a stage, earned when it is complete (a stage or track: gold rim)",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s0",
@@ -3121,10 +3162,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two kana-shaped brush strokes turned into a sprout (no real characters) Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a single young sprout with two leaves rising from a small round pool of vermilion ink, the stem drawn as ONE smooth calligraphy-brush stroke that curves like a hook; it must not resemble any letter, kana, kanji or number. A few gold flecks around it. Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint (a stage or track: gold rim)",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true,
+   "redo": "The sprout's two strokes read as real kana (う and ち), and the rule is no text, ever."
   },
   {
    "id": "app.badge.ja.s0h",
@@ -3138,7 +3181,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a round brush and a drop of ink Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s0k",
@@ -3152,7 +3196,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an angular brush stroke like a blade Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s1",
@@ -3166,7 +3211,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a torii gate Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint (a stage or track: gold rim)",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.f1",
@@ -3180,7 +3226,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two cups clinking Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.f2",
@@ -3194,7 +3241,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a clock with a train behind it Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.f3",
@@ -3208,7 +3256,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a convenience store front Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.f4",
@@ -3222,7 +3271,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a pair of walking shoes Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 15 · exported 640 px, keyed",
-   "wave": 15
+   "wave": 15,
+   "solid": true
   },
   {
    "id": "app.badge.ja.f5",
@@ -3236,7 +3286,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: festival lanterns Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.f6",
@@ -3250,7 +3301,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a bowl and chopsticks being handed over Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s2",
@@ -3264,7 +3316,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a bridge over a river Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint (a stage or track: gold rim)",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s3",
@@ -3278,7 +3331,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a manga page drawn as blank panels Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint (a stage or track: gold rim)",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s4",
@@ -3292,7 +3346,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a stack of light novels with blank covers Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint (a stage or track: gold rim)",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.s5",
@@ -3306,7 +3361,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: Mount Fuji at sunrise Round, simple, readable at 64 pixels, a thin gold rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint (a stage or track: gold rim)",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.t-kanji",
@@ -3320,7 +3376,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a brush resting on an inkstone Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.t-pitch",
@@ -3334,7 +3391,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a wavy line of sound Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.t-keigo",
@@ -3348,7 +3406,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two people bowing (silhouettes) Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.t-media",
@@ -3362,7 +3421,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a film clapper and a game controller Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.ja.t-onomato",
@@ -3376,7 +3436,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a burst of speech-bubble shapes with no text Round, simple, readable at 64 pixels, a thin silver rim, in vermilion and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Japanese: a stage, a unit, a kana set or a track, earned at its checkpoint",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.mind.f",
@@ -3390,7 +3451,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a lantern lighting a path Round, simple, readable at 64 pixels, a thin gold rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built (a stage or track: gold rim)",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y1",
@@ -3404,7 +3466,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a knot in a ribbon Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y2",
@@ -3418,7 +3481,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a crowd of small figures and one apart Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y3",
@@ -3432,7 +3496,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a chess knight Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 16 · exported 640 px, keyed",
-   "wave": 16
+   "wave": 16,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y4",
@@ -3446,7 +3511,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a heart with a small flame Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y5",
@@ -3460,7 +3526,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a seedling becoming a tree Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y6",
@@ -3474,7 +3541,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a magnifying glass over a beaker Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.y7",
@@ -3488,7 +3556,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a brain drawn as a garden Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.p1",
@@ -3502,7 +3571,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a balance scale Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.p2",
@@ -3516,7 +3586,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a mirror reflecting a moon Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.p3",
@@ -3530,7 +3601,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a cave mouth with light outside Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.p4",
@@ -3544,7 +3616,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small Stoic column with ivy Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.p5",
@@ -3558,7 +3631,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a town square with a single tree Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.x1",
@@ -3572,7 +3646,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a puppet with cut strings Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.x2",
@@ -3586,7 +3661,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a trolley at a fork in rails Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.x3",
@@ -3600,7 +3676,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a sun over a garden Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.x4",
@@ -3614,7 +3691,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ship of planks being replaced Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.x5",
@@ -3628,7 +3706,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small robot holding a book Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.x6",
@@ -3642,7 +3721,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two hands meeting Round, simple, readable at 64 pixels, a thin silver rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built",
    "size": "wave 17 · exported 640 px, keyed",
-   "wave": 17
+   "wave": 17,
+   "solid": true
   },
   {
    "id": "app.badge.mind.psych",
@@ -3656,7 +3736,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a wisteria spiral Round, simple, readable at 64 pixels, a thin gold rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.mind.phil",
@@ -3670,7 +3751,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an olive branch Round, simple, readable at 64 pixels, a thin gold rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.mind.cross",
@@ -3684,7 +3766,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two paths crossing Round, simple, readable at 64 pixels, a thin gold rim, in wisteria violet and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Mind (roadmap 5.9): a unit, a path or a crossing, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art",
@@ -3698,7 +3781,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a pencil crossed with a brush Round, simple, readable at 64 pixels, a thin gold rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design",
@@ -3712,7 +3796,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ruler and a colour swatch Round, simple, readable at 64 pixels, a thin gold rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit",
@@ -3726,7 +3811,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a film strip with scissors Round, simple, readable at 64 pixels, a thin gold rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write",
@@ -3740,7 +3826,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a fountain pen nib Round, simple, readable at 64 pixels, a thin gold rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built (a stage or track: gold rim)",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art1",
@@ -3754,7 +3841,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ruler-straight line and an ellipse Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art2",
@@ -3768,7 +3856,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a cube in two-point view Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art3",
@@ -3782,7 +3871,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: train tracks meeting the horizon Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art4",
@@ -3796,7 +3886,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a sphere with light and shadow Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art5",
@@ -3810,7 +3901,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a colour wheel Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art6",
@@ -3824,7 +3916,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a flowing curved line Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art7",
@@ -3838,7 +3931,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a wooden art mannequin Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art8",
@@ -3852,7 +3946,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an anime-style head outline Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 18 · exported 640 px, keyed",
-   "wave": 18
+   "wave": 18,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art9",
@@ -3866,7 +3961,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an open hand Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art10",
@@ -3880,7 +3976,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a folded cloth Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art11",
@@ -3894,7 +3991,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small landscape with sky Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art12",
@@ -3908,7 +4006,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a frame divided by thirds Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.art13",
@@ -3922,7 +4021,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: stacked transparent layers Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design1",
@@ -3936,7 +4036,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: four aligned blocks Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design2",
@@ -3947,10 +4048,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a giant and a tiny letter-shape (abstract, no letters) Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two smooth, rounded abstract stone shapes standing side by side, one tall and one very small, like a large and a small pebble sculpture, to suggest scale and hierarchy; they must not look like any letter, number or symbol. Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true,
+   "redo": "The two shapes read as the letters A and e."
   },
   {
    "id": "app.badge.cre.design3",
@@ -3964,7 +4067,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a twelve-column grid Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design4",
@@ -3978,7 +4082,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: three paint chips Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design5",
@@ -3992,7 +4097,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a simple geometric mark Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design6",
@@ -4006,7 +4112,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a poster with a blank frame Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design7",
@@ -4020,7 +4127,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a phone screen of blank cards Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.design8",
@@ -4034,7 +4142,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a box with an outward arrow Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit1",
@@ -4048,7 +4157,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a pair of scissors and a cut film Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit2",
@@ -4062,7 +4172,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a beating drum Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 19 · exported 640 px, keyed",
-   "wave": 19
+   "wave": 19,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit3",
@@ -4076,7 +4187,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a metronome Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit4",
@@ -4090,7 +4202,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a speaker with sound waves Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit5",
@@ -4104,7 +4217,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a tiny theatre stage Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit6",
@@ -4118,7 +4232,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a colour wheel with a dial Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit7",
@@ -4132,7 +4247,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a title card frame (blank) Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.edit8",
@@ -4146,7 +4262,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a phone and a monitor Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write1",
@@ -4160,7 +4277,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a single quill line Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write2",
@@ -4174,7 +4292,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an eye in a keyhole Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write3",
@@ -4188,7 +4307,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two speech bubbles (blank) Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write4",
@@ -4202,7 +4322,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a nose, an ear and a leaf Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write5",
@@ -4216,7 +4337,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a stage spotlight Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write6",
@@ -4230,7 +4352,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a face mask with a heart Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write7",
@@ -4244,7 +4367,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a three-step staircase Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write8",
@@ -4258,7 +4382,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an eraser and a pencil Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cre.write9",
@@ -4272,7 +4397,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a small stack of three books Round, simple, readable at 64 pixels, a thin silver rim, in moegi (a fresh, light yellow-green like new spring shoots) and gold. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Creatives (roadmap 5.7 item 3): a track or a unit of its core path, when it is built",
    "size": "wave 20 · exported 640 px, keyed",
-   "wave": 20
+   "wave": 20,
+   "solid": true
   },
   {
    "id": "app.badge.cs.41",
@@ -4286,7 +4412,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a loop arrow round a block Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.42",
@@ -4300,7 +4427,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a stack and a queue of boxes Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.43",
@@ -4314,7 +4442,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a maze with one path Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.44",
@@ -4328,7 +4457,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a state machine of three circles Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.45",
@@ -4339,10 +4469,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a row of glowing bits Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a straight row of eight small round glass beads set into a silver bar, some beads glowing bright periwinkle (lit) and some dark and empty (unlit), like indicator lamps; NO digits, no 0 or 1 shapes, no characters of any kind, only round beads. Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true,
+   "redo": "Gemini drew the digits 01101001; numbers count as text."
   },
   {
    "id": "app.badge.cs.46",
@@ -4356,7 +4488,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a chip on a board Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.47",
@@ -4370,7 +4503,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a CPU with a fan Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.48",
@@ -4384,7 +4518,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a balance between a laptop and a person Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.49",
@@ -4398,7 +4533,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two linked network nodes Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.410",
@@ -4412,7 +4548,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a filing cabinet Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.411",
@@ -4426,7 +4563,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a heap of data blocks with a crown Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.412",
@@ -4440,7 +4578,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a lambda-like shape made of a twig and stone, no letters Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.cs.413",
@@ -4454,7 +4593,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a project folder with a ribbon Round, simple, readable at 64 pixels, a thin silver rim, in periwinkle blue and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Computer Science: a specification unit (4.1-4.13) taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p1",
@@ -4468,7 +4608,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a proof scroll with a seal Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p2",
@@ -4482,7 +4623,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a parabola carved in wood Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 21 · exported 640 px, keyed",
-   "wave": 21
+   "wave": 21,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p3",
@@ -4496,7 +4638,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a coordinate grid with a circle Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p4",
@@ -4510,7 +4653,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a binomial triangle of pebbles Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p5",
@@ -4524,7 +4668,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a unit circle with a wave Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p6",
@@ -4538,7 +4683,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an exponential curve like a growing vine Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p7",
@@ -4552,7 +4698,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a tangent touching a hill Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p8",
@@ -4566,7 +4713,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: an area under a curve shaded Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p9",
@@ -4580,7 +4728,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a spiral of iterations Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.p10",
@@ -4594,7 +4743,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: two arrows as vectors Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.s1",
@@ -4608,7 +4758,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a sample of marbles in a jar Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.s2",
@@ -4619,10 +4770,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a box plot made of wooden pegs Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a box-and-whisker plot lying flat and horizontal, built from polished amber wood: one long thin horizontal rod (the whiskers) with a short upright peg at each end, and in the middle a hollow rectangular wooden box threaded on the rod, with one thin silver upright line inside the box off-centre (the median). Clean side-on view, nothing else. Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true,
+   "redo": "It reads as pipes or a rack, not a box plot."
   },
   {
    "id": "app.badge.maths.s3",
@@ -4636,7 +4789,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a probability tree branch Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.s4",
@@ -4650,7 +4804,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a bell curve as a hill Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.s5",
@@ -4664,7 +4819,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a test tube and a scale Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.m6",
@@ -4678,7 +4834,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ruler and a stopwatch Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.m7",
@@ -4692,7 +4849,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ball rolling down a slope Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 22 · exported 640 px, keyed",
-   "wave": 22
+   "wave": 22,
+   "solid": true
   },
   {
    "id": "app.badge.maths.m8",
@@ -4706,7 +4864,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a projectile arc Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
+   "wave": 23,
+   "solid": true
   },
   {
    "id": "app.badge.maths.m9",
@@ -4720,7 +4879,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a ladder against a wall Round, simple, readable at 64 pixels, a thin silver rim, in amber and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "Maths: a specification section taken to Green",
    "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
+   "wave": 23,
+   "solid": true
   },
   {
    "id": "app.badge.it.f201",
@@ -4734,7 +4894,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a bar chart of blocks Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "IT: F201 passed",
    "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
+   "wave": 23,
+   "solid": true
   },
   {
    "id": "app.badge.it.f206",
@@ -4748,7 +4909,8 @@
    "prompt": "A small emblem illustration, like an enamel pin, painted in the same style: a robot arm Round, simple, readable at 64 pixels, a thin silver rim, in sage green and silver. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
    "where": "IT: F206, the NEA, submitted",
    "size": "wave 23 · exported 640 px, keyed",
-   "wave": 23
+   "wave": 23,
+   "solid": true
   }
  ]
 }

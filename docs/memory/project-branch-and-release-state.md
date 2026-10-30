@@ -58,3 +58,6 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-27 (later): kos-japanese-5 released from main (40c375a + the Japanese path fix), https://fc302f55.kurenai-os.pages.dev — the media path labels at phone width; carries kos-pencil-4.
 
 2026-10-29: `feat/mind` (worktree /Users/fj/Developer/KurenaiOS-mind) released as sw `kos-mind-1`, https://2f7e2aa8.kurenai-os.pages.dev — Mind platform + unit F1, plus the desk/tab-row clean-up across subjects; main fast-forwarded to cc2bc15. Gate 110 (2–107, 109–111). Not on main yet: feat/creatives (smoke108) and feat/integrations, whose smoke109 clashes with Mind's — renumber at merge.
+
+2026-10-30: `feat/integrations` released as sw `kos-connect-1`, https://d47701df.kurenai-os.pages.dev — Google Calendar/Tasks + Todoist (5.15); its suite renumbered smoke112 and main merged in, main fast-forwarded to 5adc978, release note f38c14e. Gate 111 (2–107, 109–112). Still off main: feat/creatives (smoke108).
+2026-10-30: main merged into feat/creatives (Connections, kos-connect-2), then main fast-forwarded to feat/creatives at f4fa493; release sw kos-creatives-1, https://1e058d00.kurenai-os.pages.dev (Creatives Platform 1 + Art 1–3; gate is now 112 suites).
