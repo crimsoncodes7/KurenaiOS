@@ -255,7 +255,8 @@
         if (t === "pen" || t === "shape" || t === "ruler") return name + ", " + roleName(I.PEN_ROLES, p.pen.role).toLowerCase() + ", " + I.WIDTHS[p.pen.w][0].toLowerCase() + ".";
         return name + ".";
       },
-      undo: function () { var s = d.active; if (s && s.undo()) announce("Undid a stroke."); },
+      /* Momentum (Creatives' timed drills): every line is committed, so undo does nothing */
+      undo: function () { if (opts.noUndo) return; var s = d.active; if (s && s.undo()) announce("Undid a stroke."); },
       redo: function () { var s = d.active; if (s && s.redo()) announce("Redid a stroke."); },
       canUndo: function () { return !!(d.active && d.active.canUndo()); },
       canRedo: function () { return !!(d.active && d.active.canRedo()); },
@@ -997,7 +998,7 @@
     var hist = el("div", { class: "k-ink-group" }, [undoB, redoB]);
     var paperSlot = el("div", { class: "k-ink-group" });
     var extra = el("div", { class: "k-ink-group k-ink-extra" });
-    bar.appendChild(tools); bar.appendChild(colour); bar.appendChild(hist); bar.appendChild(paperSlot); bar.appendChild(extra);
+    bar.appendChild(tools); bar.appendChild(colour); if (opts.history !== false) bar.appendChild(hist); bar.appendChild(paperSlot); bar.appendChild(extra);
     if (opts.extra) opts.extra.forEach(function (n) { extra.appendChild(n); });
     if (opts.float !== false) extra.appendChild(toolBtn("float", "Float", { title: "Float the tools", "data-ui": "ink.tool ink.float", onclick: function () { dk.setDock("float"); } }));
     if (opts.paper === undefined && opts.tools) paperSlot.remove();
@@ -1150,7 +1151,7 @@
     root.appendChild(colourSlot);
     var undoB = toolBtn("undo", "Undo", { "data-ui": "ink.undo", onclick: function () { dk.undo(); } });
     var redoB = toolBtn("redo", "Redo", { "data-ui": "ink.redo", onclick: function () { dk.redo(); } });
-    root.appendChild(el("div", { class: "k-ink-pal-group" }, [undoB, redoB]));
+    if (opts.history !== false) root.appendChild(el("div", { class: "k-ink-pal-group" }, [undoB, redoB]));
     var dockB = toolBtn("dock", "Dock", { "data-ui": "ink.tool ink.dock", onclick: function () { dk.setDock("dock"); } });
     if (!phone()) root.appendChild(dockB);
     var imgInput = imageInput(dk, opts);

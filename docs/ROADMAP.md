@@ -1255,7 +1255,10 @@ current .NET before it ships (as CS Paper 1's 100 listings were).
    `prototypes/creatives-space/art.html`: Art units 1–3's step pictures
    and beginner pages, and three empty-state spots; the slots draw only
    once imported and listed in `KOS_CR.ART`). Platform 1 is complete in
-   code; the 48 pictures wait for the user. Then Art units 1–3 with
+   code. On 30 October the user's 48 pictures came in: 36 imported, 12
+   steps sent back for a redo with tighter prompts (manifest batch 5); and
+   Art units 1–3 (A1.1–A3.3, three projects) were released on the new
+   sketchbook (`#/creatives/sketch`, Momentum, a generated reference). Then Art units 1–3 with
    the sketchbook (31f–31i).
 4. **Code content** — DONE 23 October 2026: units 10–12 and capstone 4
    complete the core path (unit 10 and capstone 4 in Rider, validator

@@ -92,6 +92,7 @@
     "js/modules/crwrite.js",
     "js/modules/crdrills.js",
     "js/modules/crrefs.js",
+    "js/modules/crsketch.js",
     "css/views/mind.css",
     "js/core/mindui.js",
     "js/modules/mind.js",

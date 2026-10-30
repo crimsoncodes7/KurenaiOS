@@ -52,11 +52,12 @@
         track: w.track || null, kind: ["text", "image", "link"].indexOf(w.kind) >= 0 ? w.kind : "text",
         title: String(w.title || "Untitled").slice(0, 120), at: +w.at, words: Math.max(0, +w.words || 0),
         check: w.check ? { pass: !!w.check.pass, rows: Array.isArray(w.check.rows) ? w.check.rows.map(Boolean) : [], note: String(w.check.note || "").slice(0, 400), at: +w.check.at || +w.at } : null,
-        portfolio: w.portfolio ? +w.portfolio : null, madeFrom: w.madeFrom || null, url: w.kind === "link" ? String(w.url || "") : undefined,
+        portfolio: w.portfolio ? +w.portfolio : null, madeFrom: w.madeFrom || null, momentum: w.momentum ? true : undefined, url: w.kind === "link" ? String(w.url || "") : undefined,
         critique: w.critique && w.critique.worked ? { worked: String(w.critique.worked).slice(0, 600), next: String(w.critique.next || "").slice(0, 400), at: +w.critique.at || +w.at } : null
       };
       if (!works[id].critique) delete works[id].critique;
       if (works[id].url === undefined) delete works[id].url;
+      if (!works[id].momentum) delete works[id].momentum;
     });
     return { v: 1, lessons: obj(c.lessons), works: works, projects: obj(c.projects), paid: obj(c.paid), firsts: obj(c.firsts) };
   }

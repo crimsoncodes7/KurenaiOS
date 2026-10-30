@@ -50,6 +50,114 @@
   function unit(id, def) { Object.assign(UNITS[id], def); }
   function lesson(def) { LESSONS[def.id] = def; UNITS[def.unit].lessons.push(def.id); }
 
+  /* ================= Art · Units 1–3 (the sketchbook: "sketch" studies) =================
+     A sketch study may carry `timer` (minutes, a countdown the learner starts), `momentum` (the
+     no-undo, no-eraser switch is offered) and `ref` (a KOS.crRefs kind shown beside the page). */
+  var A1_IGNORE = [["Boxes and forms", "Art 2"], ["Perspective", "Art 3"], ["Shading", "Art 4"]];
+  lesson({ id: "A1.1", unit: "A1", title: "Ghosted lines", min: 20, skill: "a straight line drawn in one confident stroke",
+    studies: [
+      { id: "a", t: "Twenty ghosted lines", min: 8, tool: "sketch", timer: 8, momentum: true,
+        give: "A blank page and the ghosting routine", vary: "Twenty lines between dot pairs: ghost, then one stroke from the shoulder" },
+      { id: "b", t: "Edge to edge", min: 7, tool: "sketch", timer: 7, momentum: true,
+        give: "A blank page", vary: "Ten long lines that cross the whole page, each in one stroke" }
+    ],
+    check: { skill: "Lines are straight-ish and drawn in one go", rows: ["Are most lines one stroke, not several short ones?", "Do most of them land on or near their end dot?"],
+      good: "Your lines will wobble a little at the ends and some will miss their dot. That is right for now. Pass if most are one confident stroke rather than scratchy, stitched-together lines. Ignore what you could draw with them: that comes later.",
+      ignore: A1_IGNORE } });
+  lesson({ id: "A1.2", unit: "A1", title: "Ellipses", min: 20, skill: "a smooth ellipse drawn round in one go",
+    studies: [
+      { id: "a", t: "A column of ellipses", min: 8, tool: "sketch", timer: 8, momentum: true,
+        give: "A vertical line down the page", vary: "Eight ellipses on it, from thin to round, each gone round two or three times" },
+      { id: "b", t: "Ellipses in boxes", min: 8, tool: "sketch", timer: 8,
+        give: "Rectangles you draw first, long and flat to nearly square", vary: "An ellipse in each, touching the middle of every side" }
+    ],
+    check: { skill: "Ellipses are smooth and fill their space", rows: ["Are most ellipses smooth, with no flat sides or points?", "Do they touch the middle of each side of their box?"],
+      good: "Some will be lopsided and doubled up, which is exactly how ellipses are drawn. Pass if most are smooth loops rather than lumpy ones. Ignore how they would sit on a cylinder: that's Art 2.",
+      ignore: A1_IGNORE } });
+  lesson({ id: "A1.3", unit: "A1", title: "Curves that commit", min: 20, skill: "a curve drawn smoothly through its points",
+    studies: [
+      { id: "a", t: "C and S curves", min: 8, tool: "sketch", timer: 8, momentum: true,
+        give: "Three dots for each curve, placed by you", vary: "Ten C curves, then ten S curves, each in one stroke" },
+      { id: "b", t: "The same curve, ten times", min: 7, tool: "sketch", timer: 7,
+        give: "One curve you like from study a", vary: "Draw it ten more times, trying to match it" }
+    ],
+    check: { skill: "Curves are smooth and hit their points", rows: ["Are most curves smooth, without kinks or flat spots?", "Do they pass through or near their dots?"],
+      good: "Some will flatten where your hand slowed, and that's normal. Pass if most curves flow in one movement. Ignore whether they would make a good figure: gesture is Art 6.",
+      ignore: A1_IGNORE } });
+  unit("A1", { project: { t: "A still life in lines", after: "A1.3",
+    brief: "Three things from your kitchen (a mug, a bowl, a bottle) drawn only with ghosted lines, ellipses and curves: no shading, no sketchy fur.",
+    milestones: ["The three objects placed with light ellipses and lines", "Each one drawn over in confident strokes", "A second page, faster, saved as a second version"] } });
+
+  var A2_IGNORE = [["Perspective that agrees", "Art 3"], ["Shading", "Art 4"], ["Colour", "Art 5"]];
+  lesson({ id: "A2.1", unit: "A2", title: "A box drawn through", min: 25, skill: "a box with its hidden edges drawn through",
+    studies: [
+      { id: "a", t: "Three boxes drawn through", min: 10, tool: "sketch", timer: 10,
+        give: "The four steps: the Y, the top, the sides, the hidden edges", vary: "Three boxes at different sizes, every hidden edge drawn lightly" },
+      { id: "b", t: "Copy a box", min: 10, tool: "sketch", ref: "forms",
+        give: "A generated reference with a box in it", vary: "Draw just the box, its hidden edges included" }
+    ],
+    check: { skill: "Boxes look solid and their hidden edges are drawn", rows: ["Does each box look like a solid box, not a flat shape?", "Are the hidden edges drawn, meeting at a back corner?"],
+      good: "Your edges will spread or bend a little and the back corners will miss. That's fine. Pass if each box reads as solid and you drew through it. Ignore whether the boxes agree with one horizon: that's Art 3.",
+      ignore: A2_IGNORE } });
+  lesson({ id: "A2.2", unit: "A2", title: "Boxes that turn", min: 25, skill: "the same box turned to new angles",
+    studies: [
+      { id: "a", t: "A box in five turns", min: 10, tool: "sketch", timer: 10,
+        give: "One box, seen from the front", vary: "Draw it again four times, turning it a little more each time" },
+      { id: "b", t: "Turn the reference", min: 10, tool: "sketch", ref: "forms",
+        give: "A generated box", vary: "Draw it, then draw it turned the other way" }
+    ],
+    check: { skill: "The box keeps its size and shape as it turns", rows: ["Does it look like the same box in every drawing?", "Can you see the turn from one drawing to the next?"],
+      good: "One or two will tip or stretch. Pass if the row reads as one box turning. Ignore shading and exact perspective.",
+      ignore: A2_IGNORE } });
+  lesson({ id: "A2.3", unit: "A2", title: "Cylinders from boxes", min: 25, skill: "a cylinder built inside a box",
+    studies: [
+      { id: "a", t: "Four cylinders", min: 10, tool: "sketch", timer: 10,
+        give: "Tall and short boxes, drawn lightly first", vary: "A cylinder in each: two ellipses and two side lines" },
+      { id: "b", t: "Things that are cylinders", min: 10, tool: "sketch",
+        give: "A mug, a can and a bottle you can see", vary: "Each as a cylinder in its box, no detail" }
+    ],
+    check: { skill: "Cylinders sit in their boxes", rows: ["Do the ellipses sit in the box's top and bottom faces?", "Do the side lines touch both ellipses?"],
+      good: "Bottom ellipses often come out too flat, and that's the usual first mistake. Pass if each cylinder clearly comes from its box. Ignore shading and labels.",
+      ignore: A2_IGNORE } });
+  unit("A2", { project: { t: "Your desk in boxes", after: "A2.3",
+    brief: "Your desk and the things on it drawn as boxes and cylinders, every hidden edge drawn through. No detail, no shading.",
+    milestones: ["The desk as one big box", "Every object on it as a box or a cylinder", "A cleaner second page, saved as a second version"] } });
+
+  var A3_IGNORE = [["Shading and value", "Art 4"], ["Colour", "Art 5"], ["Figures", "Art 6"]];
+  lesson({ id: "A3.1", unit: "A3", title: "One-point perspective", min: 25, skill: "boxes whose depth lines meet at one point",
+    studies: [
+      { id: "a", t: "Four boxes, one point", min: 10, tool: "sketch", timer: 10,
+        give: "A horizon line with one point", vary: "Four boxes around it: above, below, left and right" },
+      { id: "b", t: "Copy a grid", min: 10, tool: "sketch", ref: "grid",
+        give: "A generated perspective grid with a box", vary: "Redraw the box on your own horizon" }
+    ],
+    check: { skill: "Depth lines aim at the point", rows: ["Do the depth lines of each box run to the vanishing point?", "Are the front and back faces parallel?"],
+      good: "Some lines will miss the point slightly, and that is normal. Pass if each box clearly recedes to the one point. Ignore shading and texture.",
+      ignore: A3_IGNORE } });
+  lesson({ id: "A3.2", unit: "A3", title: "Two-point perspective", min: 25, skill: "a box between two vanishing points",
+    studies: [
+      { id: "a", t: "Three boxes, two points", min: 10, tool: "sketch", timer: 10,
+        give: "A horizon with two points far apart", vary: "Three boxes: one above the horizon, one below, one across it" },
+      { id: "b", t: "Copy a two-point grid", min: 10, tool: "sketch", ref: "grid",
+        give: "A generated two-point grid", vary: "Draw its box on your own horizon" }
+    ],
+    check: { skill: "Each side runs to its own point", rows: ["Do the left edges run to one point and the right edges to the other?", "Are the vertical edges upright?"],
+      good: "Boxes may stretch if your points are too close; that's a lesson, not a fail. Pass if the edges clearly aim at the two points. Ignore shading.",
+      ignore: A3_IGNORE } });
+  lesson({ id: "A3.3", unit: "A3", title: "A street of boxes", min: 25, skill: "many boxes sharing one vanishing point",
+    studies: [
+      { id: "a", t: "A street of boxes", min: 15, tool: "sketch", timer: 15,
+        give: "A horizon, a point and a road", vary: "Box buildings on both sides, getting smaller" },
+      { id: "b", t: "Windows that follow", min: 10, tool: "sketch",
+        give: "Your street from study a", vary: "Rows of windows whose edges run to the point" }
+    ],
+    check: { skill: "Everything shares the one point", rows: ["Do the buildings and windows all aim at the same point?", "Do the buildings get smaller as they go back?"],
+      good: "A few windows will drift off their lines. Pass if the street reads as going away from you. Ignore texture, shading and people.",
+      ignore: A3_IGNORE } });
+  unit("A3", { project: { t: "Your room in one point", after: "A3.3",
+    brief: "The room you are in, drawn in one-point perspective: the back wall, the floor and ceiling lines to the point, and three pieces of furniture as boxes.",
+    milestones: ["The horizon, the point and the back wall", "The furniture as boxes aimed at the point", "A cleaner second page, saved as a second version"] } });
+
   /* ================= Writing · Unit 1 · The sentence and the paragraph ================= */
   var W1_IGNORE = [["Voice and point of view", "Writing 2"], ["Dialogue", "Writing 3"], ["Description and the senses", "Writing 4"], ["Whether the story is interesting", "Writing 5"]];
   lesson({ id: "W1.1", unit: "W1", title: "The clear sentence", min: 20, skill: "one clear idea a sentence",
@@ -261,7 +369,44 @@
 
   /* the pictures imported so far (art-source/creatives/manifest.json, imported into
      assets/creatives/img/ as <id>.webp); a slot whose id is not listed draws nothing */
-  var ART = [];
+  var ART = [
+    "cr.beginner.A1.1",
+    "cr.beginner.A1.2",
+    "cr.beginner.A1.3",
+    "cr.beginner.A2.1",
+    "cr.beginner.A2.2",
+    "cr.beginner.A2.3",
+    "cr.beginner.A3.1",
+    "cr.beginner.A3.2",
+    "cr.beginner.A3.3",
+    "cr.spot.log",
+    "cr.spot.portfolio",
+    "cr.spot.rest",
+    "cr.step.A1.1.1",
+    "cr.step.A1.1.4",
+    "cr.step.A1.2.1",
+    "cr.step.A1.2.2",
+    "cr.step.A1.2.3",
+    "cr.step.A1.2.4",
+    "cr.step.A1.3.2",
+    "cr.step.A1.3.3",
+    "cr.step.A1.3.4",
+    "cr.step.A2.2.1",
+    "cr.step.A2.2.2",
+    "cr.step.A2.2.3",
+    "cr.step.A2.2.4",
+    "cr.step.A2.3.1",
+    "cr.step.A2.3.2",
+    "cr.step.A2.3.3",
+    "cr.step.A2.3.4",
+    "cr.step.A3.1.1",
+    "cr.step.A3.1.2",
+    "cr.step.A3.1.3",
+    "cr.step.A3.1.4",
+    "cr.step.A3.2.1",
+    "cr.step.A3.3.1",
+    "cr.step.A3.3.2"
+  ];
 
   window.KOS_CR = { TRACKS: TRACKS, UNITS: UNITS, LESSONS: LESSONS, ART: ART };
 

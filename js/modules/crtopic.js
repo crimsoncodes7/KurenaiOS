@@ -38,6 +38,7 @@
   function startStudy(lid, sid) {
     var s = CR().study(lid, sid); if (!s) return;
     if (s.tool === "desk" && KOS.crWrite) { KOS.crWrite.openStudy(lid, sid); return; }
+    if (s.tool === "sketch" && KOS.crSketch) { KOS.show("creatives", { page: "sketch", id: lid + "." + sid }); return; }
     if (s.tool && s.tool.indexOf("drill:") === 0) { KOS.show("creatives", { page: "drills", id: s.tool.slice(6) + "@" + lid + "." + sid }); return; }
     KOS.show("creatives", { page: "add", id: lid + "." + sid });
   }
@@ -118,9 +119,10 @@
       if (b.steps) {
         /* a step list may name its pictures (art: "A1.1" → cr.step.A1.1.<n>); each draws once imported */
         var pics = b.steps.map(function (_, i) { return b.art ? KOS.crArt("cr.step." + b.art + "." + (i + 1), "Step " + (i + 1) + ": " + b.steps[i]) : null; });
-        var any = pics.some(Boolean);
-        return el("ol", { class: "k-cr-steps", "data-ui": "cr.steps", "data-art": any ? "on" : null }, b.steps.map(function (x, i) {
-          return el("li", {}, [pics[i], el("span", { class: "k-cr-step-n k-mono", "aria-hidden": "true", text: String(i + 1) }), el("span", { text: x })].filter(Boolean));
+        /* all four or none, so a lesson whose pictures are still being redone never shows a half grid */
+        var all = pics.length > 0 && pics.every(Boolean);
+        return el("ol", { class: "k-cr-steps", "data-ui": "cr.steps", "data-art": all ? "on" : null }, b.steps.map(function (x, i) {
+          return el("li", {}, [all ? pics[i] : null, el("span", { class: "k-cr-step-n k-mono", "aria-hidden": "true", text: String(i + 1) }), el("span", { text: x })].filter(Boolean));
         }));
       }
       if (b.callout) return el("aside", { class: "k-cr-callout", "data-ui": "cr.callout" }, [el("b", { text: b.callout.t }), el("p", { text: b.callout.body })]);

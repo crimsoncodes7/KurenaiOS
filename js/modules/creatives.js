@@ -300,6 +300,7 @@
     var page = arg.page || "tracks";
     if (page === "write") { spaceHead(main, "write", { title: "Writing Desk", sub: null }); return arg.id ? KOS.crWrite.desk(main, arg.id) : KOS.crWrite.list(main); }
     if (page === "drills") { var dt = KOS.crDrills.type(String(arg.id || "").split("@")[0]); spaceHead(main, "drills", { title: dt ? dt.t : "Drills", sub: null }); return KOS.crDrills.page(main, arg.id); }
+    if (page === "sketch") { var sk = String(arg.id || "").split("."), skl = CR().study(sk.slice(0, 2).join("."), sk[2]); spaceHead(main, "sketch", { title: skl ? skl.t : "Sketchbook", sub: null }); return KOS.crSketch.page(main, arg.id); }
     if (page === "refs") { spaceHead(main, "refs", { title: "References", sub: null }); return KOS.crRefsPage(main); }
     if (page === "check") { spaceHead(main, "check", { title: "The check", sub: null }); return checkPage(main, arg.id); }
     if (page === "log") { spaceHead(main, "log", { title: "Practice Log", sub: "Only you see this" }); return logPage(main, arg.id); }

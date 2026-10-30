@@ -19,6 +19,11 @@
    "why": "Step 3 of A3.1 (one-point perspective), chosen because it shows everything the style needs: the paper, dark and light pencil, and blue guide lines. Every other step and beginner page attaches it, so regenerate until it looks right."
   },
   {
+   "n": 5,
+   "title": "Redo (reviewed 30 October)",
+   "why": "Twelve steps to make again, each attaching the step before it so the sequence matches. A1.1 steps 2-3: the hand was a line drawing, the ghost strokes looped round the dots instead of running along the line, and step 3 had a smudge. A1.3 step 1: the curve was already drawn. A2.1 (all four): the cube was isometric, so its hidden corner sat exactly behind the front corner and drawing through showed nothing; this one is turned to one side. A3.2 steps 2-4: the nearest edge touched the horizon, so the box had no top face and step 4's top came out wrong. A3.3 steps 3-4: the buildings didn't stand on the road, and step 4 drew different buildings from step 3."
+  },
+  {
    "n": 2,
    "title": "Step pictures, Art units 1-3",
    "why": "Four a lesson for A1.1-A3.3. Attach the anchor; check each shows only its own step."
@@ -47,6 +52,173 @@
    "prompt": "Art lesson A3.1, \"One-point perspective\", step 3 of 4: \"Lines from its corners to the point\". Draw exactly this step and nothing beyond it: the same rectangle with light straight lines from each of its corners running to the vanishing point."
   },
   {
+   "id": "cr.step.A1.1.2",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "caption": "Ghost the motion above the paper",
+   "attach": [
+    "inbox/cr.step.A1.1.1.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 2 of 4: \"Ghost the motion above the paper\". Keep the paper and the two dots EXACTLY where they are in the attached step 1 image. Between the two dots add three or four very faint light-blue dashed strokes lying ALONG the straight path from one dot to the other, each the full distance between the dots and slightly offset from each other, like the trace of a pencil hovering back and forth along that line. There is still no solid line between the dots. No hand, no pencil, no oval or loop around the dots, no arrows, no smudges."
+  },
+  {
+   "id": "cr.step.A1.1.3",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.1",
+   "caption": "Draw it from the shoulder in one stroke",
+   "attach": [
+    "inbox/cr.step.A1.1.2.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 3 of 4: \"Draw it from the shoulder in one stroke\". Keep everything in the attached step 2 image exactly. Add ONE straight, confident dark graphite line that joins the two dots exactly, a touch darker at both ends where the stroke started and stopped; the light-blue dashed ghost strokes stay faintly visible beside it. Nothing else: no hand, no smudge, no shadow, no oval."
+  },
+  {
+   "id": "cr.step.A1.3.1",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A1.3",
+   "caption": "Three dots for the start, the bend and the end",
+   "attach": [
+    "inbox/cr.step.A1.3.2.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A1.3, \"Curves that commit\", step 1 of 4: \"Three dots for the start, the bend and the end\". Draw ONLY the three small dark pencil dots of the attached image, at exactly the same positions on the same paper. Nothing joins them: no curve, no blue guide line, no dashes, no other marks."
+  },
+  {
+   "id": "cr.step.A2.1.1",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The nearest corner as a Y",
+   "attach": [
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 1 of 4: \"The nearest corner as a Y\". Near the centre of the page, three short straight dark pencil lines meet at one point, the top-front corner of a box seen from slightly above and turned to one side: a stem going straight down; a LEFT arm, short, rising steeply to the upper left; a RIGHT arm, about twice as long as the left, rising gently to the upper right. Clearly NOT symmetrical: not an isometric cube. Nothing else on the page."
+  },
+  {
+   "id": "cr.step.A2.1.2",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The top face's far edges",
+   "attach": [
+    "inbox/cr.step.A2.1.1.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 2 of 4: \"The top face's far edges\". Keep the Y of the attached step 1 exactly, now in light grey pencil. Close the top face with two new dark lines: from the end of the left arm, a line parallel to the right arm; from the end of the right arm, a line parallel to the left arm; they meet at the top face's far corner. The top face is a flat, slightly squashed four-sided shape. Nothing else."
+  },
+  {
+   "id": "cr.step.A2.1.3",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The side edges down",
+   "attach": [
+    "inbox/cr.step.A2.1.2.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 3 of 4: \"The side edges down\". Keep everything in the attached step 2 exactly, in light grey. Add in dark pencil: a vertical edge straight down from the end of the left arm and another from the end of the right arm, each the same length as the stem; then join the bottom of each to the bottom of the stem with lines parallel to the arms above them. The result is a solid-looking box showing its top and two sides. No hidden edges yet."
+  },
+  {
+   "id": "cr.step.A2.1.4",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A2.1",
+   "caption": "The hidden edges, drawn through",
+   "attach": [
+    "inbox/cr.step.A2.1.3.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A2.1, \"A box drawn through\", step 4 of 4: \"The hidden edges, drawn through\". Keep the box of the attached step 3 exactly. Add its three hidden edges in a light, thin grey pencil: from the top face's far corner a vertical line straight down, the same length as the other verticals; from its bottom end, one line to the bottom of the left side edge and one to the bottom of the right side edge, each parallel to the visible bottom edge opposite it. They meet at the hidden back-bottom corner, which sits behind the box, clearly separate from the front-bottom corner and not on top of any visible line."
+  },
+  {
+   "id": "cr.step.A3.2.2",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "The nearest vertical edge",
+   "attach": [
+    "inbox/cr.step.A3.2.1.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 2 of 4: \"The nearest vertical edge\". Keep the horizon line and its two vanishing points from the attached step 1 exactly. Add ONE vertical dark pencil line, the box's nearest edge, standing between the two points slightly left of centre and entirely BELOW the horizon: its top end a clear gap below the horizon (about a fifth of the page height), its bottom end about a quarter of the page height lower still. It does not touch the horizon. Nothing else."
+  },
+  {
+   "id": "cr.step.A3.2.3",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "Lines from its ends to both points",
+   "attach": [
+    "inbox/cr.step.A3.2.2.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 3 of 4: \"Lines from its ends to both points\". Keep everything in the attached step 2 exactly. Add four straight light-blue guide lines: from the TOP end of the vertical edge, one to each vanishing point; from the BOTTOM end, one to each vanishing point. Because the edge is below the horizon, the lines from its top rise gently to the points and the lines from its bottom rise more steeply, making two thin wedges. Nothing else."
+  },
+  {
+   "id": "cr.step.A3.2.4",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.2",
+   "caption": "The back verticals: a box",
+   "attach": [
+    "inbox/cr.step.A3.2.3.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 4 of 4: \"The back verticals: a box\". Keep everything in the attached step 3 exactly. Add two more vertical dark edges, one on each side of the nearest edge (the left one closer to it than the right one), each running exactly between its own top and bottom guide lines. Then close the TOP FACE: from the top of the left vertical, a line to the RIGHT vanishing point; from the top of the right vertical, a line to the LEFT vanishing point; where they cross is the top face's far corner. The box is seen from above, its top face clearly visible as a four-sided shape. Visible box edges dark, guide lines faint blue."
+  },
+  {
+   "id": "cr.step.A3.3.3",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "caption": "Boxes along the road as buildings",
+   "attach": [
+    "inbox/cr.step.A3.3.2.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\", step 3 of 4: \"Boxes along the road as buildings\". Keep the horizon, the vanishing point and the road's two edge lines from the attached step 2 exactly. Add three simple tall box buildings on EACH side of the road, standing ON the road's edges: each building's near bottom corner sits exactly on a road edge line, its front face is an upright rectangle facing the viewer, and its side face runs toward the vanishing point; the buildings get smaller and closer together as they near the point. Buildings in dark pencil; light-blue guide lines from their corners to the vanishing point. No windows, doors or details yet."
+  },
+  {
+   "id": "cr.step.A3.3.4",
+   "batch": 5,
+   "kind": "cover",
+   "style": "step",
+   "aspect": "4:3",
+   "lesson": "A3.3",
+   "caption": "Windows that follow the lines",
+   "attach": [
+    "inbox/cr.step.A3.3.3.png",
+    "inbox/cr.step.A3.1.3.png"
+   ],
+   "prompt": "Art lesson A3.3, \"A street of boxes\", step 4 of 4: \"Windows that follow the lines\". Keep the road and every building of the attached step 3 EXACTLY as they are (same number, sizes and places). On each building's side face add rows of simple rectangular windows: their top and bottom edges follow light-blue guide lines to the vanishing point, their sides stay vertical, and they get smaller and closer together as the building recedes. Nothing else changes."
+  },
+  {
    "id": "cr.step.A1.1.1",
    "batch": 2,
    "kind": "cover",
@@ -58,32 +230,6 @@
     "inbox/cr.step.A3.1.3.png"
    ],
    "prompt": "Art lesson A1.1, \"Ghosted lines\", step 1 of 4: \"Two dots for the line's start and end\". Draw exactly this step and nothing beyond it: two small pencil dots on the page, about a hand's width apart, nothing else drawn yet."
-  },
-  {
-   "id": "cr.step.A1.1.2",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A1.1",
-   "caption": "Ghost the motion above the paper",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 2 of 4: \"Ghost the motion above the paper\". Draw exactly this step and nothing beyond it: the same two dots; a hand holding a pencil hovers just above the page, and a faint dotted trail in the air shows the motion repeated between the dots."
-  },
-  {
-   "id": "cr.step.A1.1.3",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A1.1",
-   "caption": "Draw it from the shoulder in one stroke",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A1.1, \"Ghosted lines\", step 3 of 4: \"Draw it from the shoulder in one stroke\". Draw exactly this step and nothing beyond it: the two dots now joined by one straight, confident pencil line, slightly darker at both ends where the stroke started and stopped."
   },
   {
    "id": "cr.step.A1.1.4",
@@ -151,19 +297,6 @@
    "prompt": "Art lesson A1.2, \"Ellipses\", step 4 of 4: \"A column of ellipses, thin to round\". Draw exactly this step and nothing beyond it: a vertical column of six ellipses from very thin at the top to nearly circular at the bottom, each with its long axis horizontal and a light straight line through its short axis."
   },
   {
-   "id": "cr.step.A1.3.1",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A1.3",
-   "caption": "Three dots for the start, the bend and the end",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A1.3, \"Curves that commit\", step 1 of 4: \"Three dots for the start, the bend and the end\". Draw exactly this step and nothing beyond it: three small pencil dots laid out on a gentle arc."
-  },
-  {
    "id": "cr.step.A1.3.2",
    "batch": 2,
    "kind": "cover",
@@ -201,58 +334,6 @@
     "inbox/cr.step.A3.1.3.png"
    ],
    "prompt": "Art lesson A1.3, \"Curves that commit\", step 4 of 4: \"S curves: the bend changes side\". Draw exactly this step and nothing beyond it: a row of four smooth S-shaped curves, each through its own set of dots, the curve changing direction once in the middle."
-  },
-  {
-   "id": "cr.step.A2.1.1",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A2.1",
-   "caption": "The nearest corner as a Y",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A2.1, \"A box drawn through\", step 1 of 4: \"The nearest corner as a Y\". Draw exactly this step and nothing beyond it: three short straight pencil lines meeting at one point like a letter Y with a vertical stem: the nearest corner of a box."
-  },
-  {
-   "id": "cr.step.A2.1.2",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A2.1",
-   "caption": "The top face's far edges",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A2.1, \"A box drawn through\", step 2 of 4: \"The top face's far edges\". Draw exactly this step and nothing beyond it: the Y now closed at the top into a flat four-sided top face, its opposite edges roughly parallel."
-  },
-  {
-   "id": "cr.step.A2.1.3",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A2.1",
-   "caption": "The side edges down",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A2.1, \"A box drawn through\", step 3 of 4: \"The side edges down\". Draw exactly this step and nothing beyond it: the vertical edges dropped from the top face's outer corners and the two bottom edges added, making a solid-looking box."
-  },
-  {
-   "id": "cr.step.A2.1.4",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A2.1",
-   "caption": "The hidden edges, drawn through",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A2.1, \"A box drawn through\", step 4 of 4: \"The hidden edges, drawn through\". Draw exactly this step and nothing beyond it: the same box with its three hidden back edges drawn through in a lighter pencil line, meeting at the hidden back corner."
   },
   {
    "id": "cr.step.A2.2.1",
@@ -411,45 +492,6 @@
    "prompt": "Art lesson A3.2, \"Two-point perspective\", step 1 of 4: \"A horizon with two points far apart\". Draw exactly this step and nothing beyond it: a long horizontal pencil line with one dot near each end of the page, far apart."
   },
   {
-   "id": "cr.step.A3.2.2",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A3.2",
-   "caption": "The nearest vertical edge",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 2 of 4: \"The nearest vertical edge\". Draw exactly this step and nothing beyond it: the same line and dots with one short vertical line standing a little below the horizon between them."
-  },
-  {
-   "id": "cr.step.A3.2.3",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A3.2",
-   "caption": "Lines from its ends to both points",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 3 of 4: \"Lines from its ends to both points\". Draw exactly this step and nothing beyond it: light straight lines from the top and bottom of that vertical edge running to both vanishing points."
-  },
-  {
-   "id": "cr.step.A3.2.4",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A3.2",
-   "caption": "The back verticals: a box",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A3.2, \"Two-point perspective\", step 4 of 4: \"The back verticals: a box\". Draw exactly this step and nothing beyond it: two more vertical edges cutting the guide lines on each side, and the box's top completed, the guide lines faint."
-  },
-  {
    "id": "cr.step.A3.3.1",
    "batch": 2,
    "kind": "cover",
@@ -474,32 +516,6 @@
     "inbox/cr.step.A3.1.3.png"
    ],
    "prompt": "Art lesson A3.3, \"A street of boxes\", step 2 of 4: \"The road's two edges to the point\". Draw exactly this step and nothing beyond it: two straight lines from the bottom corners of the page running to the vanishing point, making a road."
-  },
-  {
-   "id": "cr.step.A3.3.3",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A3.3",
-   "caption": "Boxes along the road as buildings",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A3.3, \"A street of boxes\", step 3 of 4: \"Boxes along the road as buildings\". Draw exactly this step and nothing beyond it: simple tall boxes standing on both sides of the road, their side edges running to the vanishing point, getting smaller as they recede."
-  },
-  {
-   "id": "cr.step.A3.3.4",
-   "batch": 2,
-   "kind": "cover",
-   "style": "step",
-   "aspect": "4:3",
-   "lesson": "A3.3",
-   "caption": "Windows that follow the lines",
-   "attach": [
-    "inbox/cr.step.A3.1.3.png"
-   ],
-   "prompt": "Art lesson A3.3, \"A street of boxes\", step 4 of 4: \"Windows that follow the lines\". Draw exactly this step and nothing beyond it: the same street with rows of simple rectangular windows on the buildings' sides, their top and bottom edges following lines to the vanishing point."
   },
   {
    "id": "cr.beginner.A1.1",

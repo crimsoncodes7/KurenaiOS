@@ -72,7 +72,8 @@
     opts = opts || {};
     var strip = opts.kind ? opts.kind === "strip" : (opts.marks || 0) <= 3;
     var key = (opts.prefix || "answer") + ":" + I.uid() + ":" + (opts.q || "1");
-    var dk = KOS.inkUI.desk({ dprCap: 2 });
+    /* opts.tools narrows the bar; opts.momentum takes undo away (Creatives' timed drills) */
+    var dk = KOS.inkUI.desk({ dprCap: 2, noUndo: !!opts.momentum });
     var box = el("div", { class: "k-pad", "data-ui": "pad", "data-kind": strip ? "strip" : "page" });
     host.appendChild(box);
     /* the paper: the caller's, else the last one picked for this kind of
@@ -82,7 +83,7 @@
     var known = I.PAPERS.map(function (x) { return x[0]; });
     var remembered = ui.padPaper && known.indexOf(ui.padPaper[kindKey]) >= 0 ? ui.padPaper[kindKey] : null;
     var paper = opts.paper || remembered || (strip ? "lined" : "booklet");
-    var bar = KOS.inkUI.dockable(dk, { tools: strip ? STRIP_TOOLS : PAGE_TOOLS, image: !strip, paper: {
+    var bar = KOS.inkUI.dockable(dk, { tools: opts.tools || (strip ? STRIP_TOOLS : PAGE_TOOLS), image: opts.image != null ? opts.image : !strip, history: !opts.momentum, paper: {
       get: function () { return (page && page.paper) || paper; },
       set: function (pp) {
         if (known.indexOf(pp) < 0) return;
@@ -111,7 +112,7 @@
       I.setDocMeta(key, { item: opts.item || null, title: opts.title || null });
       listeners.forEach(function (fn) { try { fn(); } catch (e) { /* one listener */ } });
     });
-    var unkey = KOS.inkUI.shortcuts(dk, box);
+    var unkey = opts.momentum ? null : KOS.inkUI.shortcuts(dk, box);
     var api = {
       key: key, desk: dk, page: page, node: box,
       hasInk: function () { return page.items.length > 0; },

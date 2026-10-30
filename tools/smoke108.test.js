@@ -398,12 +398,58 @@ step("M · the phone desk, the Portfolio strip (opt-in) and the art slots", asyn
   const ids = M.assets.map((a) => a.id);
   assert(new Set(ids).size === ids.length && ids.length >= 40, "the manifest's ids are unique");
   M.assets.forEach((a) => a.attach.forEach((f) => assert(/^inbox\//.test(f) ? ids.indexOf(f.slice(6, -4)) >= 0 : fs.existsSync(path.join(__dirname, "..", "art-source", "creatives", f)), a.id + " attaches a missing " + f)));
-  assert(K.crArt("cr.step.A1.1.1") === null, "an id not imported draws nothing");
+  assert(K.crArt("cr.step.Z9.9.9") === null, "an id not imported draws nothing");
   (app.window.KOS_CR.ART || []).forEach((id) => {
     assert(ids.indexOf(id) >= 0, id + " is in the manifest");
     assert(fs.existsSync(path.join(__dirname, "..", "assets", "creatives", "img", id + ".webp")), id + " is listed but not imported");
   });
   assert(fs.existsSync(path.join(__dirname, "..", "prototypes", "creatives-space", "art.html")), "the prompt sheet exists");
+  assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
+});
+
+step("N · Art units 1–3: the sketchbook, Momentum, and pictures that match their captions", async (app) => {
+  const K = app.KOS, CR = K.creatives, doc = app.document, fs = require("fs"), path = require("path");
+  const M = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "art-source", "creatives", "manifest.json"), "utf8"));
+  const byId = {}; M.assets.forEach((a) => { byId[a.id] = a; });
+  ["A1", "A2", "A3"].forEach((u) => assert(CR.unit(u).lessons.length === 3 && CR.unit(u).project, u + " is released whole with its project"));
+  /* every step list's caption is its picture's caption, word for word; every beginner page is in the manifest */
+  ["A1.1", "A1.2", "A1.3", "A2.1", "A2.2", "A2.3", "A3.1", "A3.2", "A3.3"].forEach((lid) => {
+    const c = CR.content(lid); let steps = 0, beg = 0;
+    c.pages.forEach((pg) => pg.blocks.forEach((b) => {
+      if (b.steps && b.art) { steps++; b.steps.forEach((t, i) => { const a = byId["cr.step." + b.art + "." + (i + 1)]; assert(a && a.caption === t, lid + " step " + (i + 1) + " caption: " + t + " ≠ " + (a && a.caption)); }); }
+      if (b.beginner && b.beginner.art) { beg++; assert(byId["cr.beginner." + b.beginner.art], lid + "'s beginner page is in the manifest"); }
+    }));
+    assert(steps === 1 && beg === 1, lid + " has its step pictures and its beginner page");
+    CR.study(lid, "a") && assert(CR.lesson(lid).studies.every((s) => s.tool === "sketch"), lid + "'s studies are drawn in the sketchbook");
+  });
+  /* the pictures draw all-or-none: A1.2 has all four, A2.1 is still being redone */
+  const ui = K.store.state.ui.creatives = K.store.state.ui.creatives || {};
+  const page0 = Object.assign({}, ui.page || {});
+  ui.page = Object.assign({}, ui.page || {}, { "A1.2": 1, "A2.1": 1 });   /* page 2 is "Step by step" */
+  K.show("ref", { subject: SID, ref: "A1.2" }); await app.settle();
+  const has = (ids) => ids.every((i) => (app.window.KOS_CR.ART || []).indexOf(i) >= 0);
+  if (has([1, 2, 3, 4].map((n) => "cr.step.A1.2." + n))) assert(doc.querySelectorAll('[data-ui~="cr.steps"] img').length === 4, "A1.2's four step pictures draw");
+  K.show("ref", { subject: SID, ref: "A2.1" }); await app.settle();
+  if (!has([1, 2, 3, 4].map((n) => "cr.step.A2.1." + n))) assert(doc.querySelectorAll('[data-ui~="cr.steps"] img').length === 0, "a step list with a picture missing draws none");
+  ui.page = page0;
+  /* the sketchbook: a study opens it; drawing nothing writes nothing */
+  const before = JSON.stringify(K.store.state.creatives);
+  K.crStartStudy("A1.1", "a"); await app.settle();
+  assert(/#\/creatives\/sketch\/A1\.1\.a/.test(app.window.location.hash), "a sketch study opens the sketchbook: " + app.window.location.hash);
+  assert(doc.querySelector('[data-ui~="cr.sketch"] [data-ui~="pad.sheet"]') && doc.querySelector('[data-ui~="cr.sketch-save"]').disabled, "a page, and Save waits for ink");
+  assert(doc.querySelector('[data-ui~="ink.undo"]') && doc.querySelectorAll('[data-ui~="ink.toolbar"] [data-ui~="ink.tool"]').length >= 1, "the bar has its tools and undo");
+  const mom = doc.querySelector('[data-ui~="cr.sketch-momentum"]');
+  assert(mom, "A1.1·a offers Momentum");
+  mom.checked = true; mom.dispatchEvent(new app.window.Event("change")); await app.settle();
+  assert(!doc.querySelector('[data-ui~="cr.sketch"] [data-ui~="ink.undo"]'), "Momentum takes undo away");
+  assert(K.store.state.ui.creatives.momentum === true, "Momentum is remembered on this device");
+  K.store.state.ui.creatives.momentum = false;
+  assert(JSON.stringify(K.store.state.creatives) === before, "opening the sketchbook writes nothing to the record");
+  K.show("creatives", { page: "sketch", id: "A2.1.b" }); await app.settle();
+  assert(doc.querySelector('[data-ui~="cr.sketch-ref"] svg path'), "a study with a reference draws one from the generator");
+  /* an image work keeps its Momentum mark through the gate */
+  const n = CR.normalise({ works: { x: { at: 1, kind: "image", title: "t", momentum: true }, y: { at: 1, title: "u" } } });
+  assert(n.works.x.momentum === true && !("momentum" in n.works.y), "momentum survives the gate, and only where set");
   assert(app.errors.length === 0, "errors: " + app.errors.join(" | "));
 });
 
