@@ -374,7 +374,7 @@
      carries the views inside it. ---- */
   var SECTION_OF = {
     home: "home",
-    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study", japanese: "study", creatives: "study",
+    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study", japanese: "study", mind: "study", creatives: "study",
     tracker: "study", exams: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity", routines: "productivity",
@@ -400,6 +400,7 @@
       { label: "Code", short: "Code", view: "subject", arg: "code", dot: "var(--code)", count: "pc-code", countHidden: true },
       { label: "Japanese", short: "Japanese", view: "subject", arg: "ja", dot: "var(--ja)", count: "pc-ja", countHidden: true },
       { label: "Creatives", short: "Creatives", view: "subject", arg: "creatives", dot: "var(--cr)", count: "pc-creatives", countHidden: true },
+      { label: "Mind", short: "Mind", view: "subject", arg: "mind", dot: "var(--mind)", count: "pc-mind", countHidden: true },
       null,
       { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
       { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
@@ -1388,6 +1389,15 @@
     /* inside Japanese the loose pills are its own pages: Reviews with its count, Kana, Skills,
        the path and the checkpoints (the desk is the subject pill itself) */
     var inJa = sec === "study" && (viewId === "japanese" || (viewId === "subject" && arg === "ja") || (viewId === "ref" && arg && arg.subject === "ja"));
+    /* inside Mind (design 32a): Path, Journal and Positions; the Daily 15 is the desk's own */
+    var inMind = sec === "study" && (viewId === "mind" || (viewId === "subject" && arg === "mind") || (viewId === "ref" && arg && arg.subject === "mind"));
+    if (inMind) {
+      var cutM = items.indexOf(null);
+      items = items.slice(0, cutM).concat([null,
+        { label: "Path", view: "mind", arg: { page: "path" }, page: "path" },
+        { label: "Journal", view: "mind", arg: { page: "journal" }, page: "journal" },
+        { label: "Positions", view: "mind", arg: { page: "positions" }, page: "positions" }]);
+    }
     if (inJa) {
       var cutJ = items.indexOf(null);
       items = items.slice(0, cutJ).concat([null,
@@ -1417,7 +1427,7 @@
     /* the subject pills show one group: the A-level subjects on their pages (and on Review,
        Assignments, Exams and Pacing), Code and Japanese on theirs */
     if (sec === "study" && items && KOS.subjects) {
-      var here = viewId === "subject" ? arg : viewId === "ref" && arg ? arg.subject : inCode ? "code" : inJa ? "ja" : inCr ? "creatives" : "compsci";
+      var here = viewId === "subject" ? arg : viewId === "ref" && arg ? arg.subject : inCode ? "code" : inJa ? "ja" : inMind ? "mind" : inCr ? "creatives" : "compsci";
       var grp = KOS.subjects.group(here), exam = KOS.subjects.isExam(here);
       var other = KOS.subjects.ids().filter(function (s) { return grp.indexOf(s) < 0; });
       items = items.filter(function (it) { return !it || it.view !== "subject" || grp.indexOf(it.arg) >= 0; });
@@ -1437,6 +1447,7 @@
     if (viewId === "code") { activeView = arg && (arg.page === "retrieval" || arg.page === "skills" || arg.page === "map") ? "code" : "subject"; activeArg = activeView === "code" ? arg.page : "code"; }
     if (viewId === "japanese") { activeView = arg && ["reviews", "kana", "skills", "path", "checkpoints"].indexOf(arg.page) >= 0 ? "japanese" : "subject"; activeArg = activeView === "japanese" ? arg.page : "ja"; }
     if (viewId === "creatives") { activeView = arg && (KOS.crPages || []).some(function (pg) { return pg[0] === arg.page; }) ? "creatives" : "subject"; activeArg = activeView === "creatives" ? arg.page : "creatives"; }
+    if (viewId === "mind") { activeView = arg && ["path", "journal", "positions"].indexOf(arg.page) >= 0 ? "mind" : "subject"; activeArg = activeView === "mind" ? arg.page : "mind"; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
     if (viewId === "due" || viewId === "cardstats") activeView = "review";
     if (viewId === "tracker") activeView = "exams";

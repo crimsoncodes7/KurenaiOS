@@ -36,12 +36,12 @@ function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const SID = "creatives";
 
-step("A · six subjects; Creatives is not an exam subject", async (app) => {
+step("A · seven subjects; Creatives is not an exam subject", async (app) => {
   const S = app.KOS.subjects;
-  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja", "creatives"]), "ids: " + S.ids());
+  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja", "mind", "creatives"]), "ids: " + S.ids());
   assert(S.ids("exam").indexOf(SID) < 0, "Creatives is not an exam subject");
   assert(S.hue(SID) === "var(--cr)", "Creatives' hue is the --cr role");
-  assert(JSON.stringify(S.group(SID)) === JSON.stringify(["code", "ja", "creatives"]), "the study spaces share one switch");
+  assert(JSON.stringify(S.group(SID)) === JSON.stringify(["code", "ja", "mind", "creatives"]), "the study spaces share one switch");
   const lessons = Object.keys(app.window.KOS_CR.LESSONS);
   assert(lessons.length >= 3 && app.KOS.hub.LEAVES.creatives.length === lessons.length, "every released lesson is a leaf");
   assert(app.KOS.spec.level(SID, "W1.1") === "leaf", "the spec index knows Creatives' lessons");

@@ -27,6 +27,8 @@
     { id: "code", name: "Code", short: "Code", hue: "var(--code)", hex: "#7AD0F0", exam: false },
     /* Japanese (roadmap 5.5): listed here, live once KOS_DATA.ja (its spine) is loaded */
     { id: "ja", name: "Japanese", short: "Japanese", hue: "var(--ja)", hex: "#F38372", exam: false },
+    /* Mind (roadmap 5.9): psychology and philosophy, 藤 Fuji; live once KOS_DATA.mind (its spine) loads */
+    { id: "mind", name: "Mind", short: "Mind", hue: "var(--mind)", hex: "#C3A7E6", exam: false },
     /* Creatives (roadmap 5.7 item 3): live once KOS_DATA.creatives (its spine) is loaded */
     { id: "creatives", name: "Creatives", short: "Creatives", hue: "var(--cr)", hex: "#C9DB7E", exam: false }
   ];
@@ -41,7 +43,7 @@
         .map(function (s) { return s.id; });
     },
     /* the subjects that share a switch with id: the A-level exam subjects together, and the
-       study spaces (Code, Japanese, Creatives) together — a page shows only its own group */
+       study spaces (Code, Japanese, Mind, Creatives) together — a page shows only its own group */
     group: function (id) {
       var exam = !!(BY[id] && BY[id].exam);
       return LIST.filter(function (s) { return loaded(s) && !!s.exam === exam; }).map(function (s) { return s.id; });

@@ -322,6 +322,8 @@
     }
     store.save();
     enterMode();
+    /* a session started by another page that keeps the screen (Mind's Daily 15) opens minimised */
+    if (cfg.minimised) setMinimised(true);
     timer = setInterval(tick, 1000);
     KOS.ui.toast(S.kind === "reading"
       ? "Reading session started — " + cfg.workMin + " min" + (cfg.book ? " with “" + cfg.book.title + "”" : "") + ". 読書."

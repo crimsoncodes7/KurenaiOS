@@ -242,6 +242,19 @@
       }
       xp = cr.xp; gold = cr.gold; hp = cr.hp;
     }
+    else if (e.type === "mind") {
+      /* Mind (roadmap 5.9): KOS.mind.award() is the one definition — a review block's capped
+         XP, a lesson, checkpoint or path once. Writing pays nothing; the Daily 15 pays as Focus. */
+      var mi = KOS.mind && KOS.mind.award ? KOS.mind.award(m) : { xp: 0, gold: 0, hp: 0 };
+      if (!mi.xp && !mi.gold && !mi.hp) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: [], levelUp: false };
+        e.award = { xp: 0, gold: 0 };
+        store.save();
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
+      xp = mi.xp; gold = mi.gold; hp = mi.hp;
+    }
     else if (e.type === "todo" && m.routine) {
       var ra = routineAward(m);
       if (!ra.xp && !ra.gold && !ra.hp) {

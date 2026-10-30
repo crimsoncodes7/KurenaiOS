@@ -93,7 +93,7 @@
       el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.settings-open", "aria-label": "Japanese settings", text: "⚙",
         onclick: function () { KOS.show("japanese", { page: "settings" }); } })
     ]);
-    var next = J().nextLesson(), stage = next ? stageOf(next.unit) : null;
+    var next = J().nextLesson();
     var hero = el("section", { class: "k-subj-hero k-ja-hero", "data-ui": "study.subject-hero ja.hero", "aria-label": "Japanese" }, [
       el("span", { class: "k-subj-ring", role: "img", "aria-label": st.mastery + "% mastery", style: "--p: " + st.mastery + "%" }, [
         el("span", { class: "k-subj-ring-in" }, [el("b", { text: st.mastery + "%" }), el("small", { text: "mastery" })])
@@ -104,14 +104,12 @@
         el("div", { class: "k-subj-board" }, [
           el("span", { text: KOS_DATA.ja.board }),
           run ? el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", title: run + "-day study streak in Japanese", text: "炎 " + run + "-day streak" }) : null
-        ].filter(Boolean)),
-        el("p", { class: "k-ja-hero-where" }, stage ? [stage.name === "Kana" ? "Stage 0 · " : "Stage " + stage.index + " · ",
-          el("span", { lang: "ja", text: stage.kanji }), " " + stage.name + " · " + st.done + " of " + st.lessons + " lessons"] : [st.done + " of " + st.lessons + " lessons"])
+        ].filter(Boolean))
       ]),
       el("div", { class: "k-subj-papers k-ja-skills", "data-ui": "ja.skill-bars" }, ["R", "L", "W", "S"].map(function (s) {
         var pct = sp.pct[s], off = s === "S" && !J().peek().settings.speech;
         return el("div", { class: "k-subj-paper" }, [
-          el("div", { class: "k-subj-paper-top" }, [UI().skill(s), el("span", { class: "k-subj-paper-note" }),
+          el("div", { class: "k-subj-paper-top" }, [el("b", { text: UI().SKILL[s] }), el("span", { class: "k-subj-paper-note" }),
             el("span", { class: "k-mono", text: off ? "off" : pct + "%" })]),
           el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": UI().SKILL[s] + ": " + (off ? "speaking is off" : pct + "%"), style: "--p: " + (off ? 0 : pct) + "%" }, [el("i")])
         ]);
@@ -155,8 +153,7 @@
         var card = el("button", { type: "button", class: "k-unit k-ja-unit", "data-ui": "study.unit ja.unit", "data-state": later ? "later" : us.state === "current" ? "current" : null,
           "aria-label": u.name + ": " + (later ? "recommended later" : us.done + " of " + us.total + " done"),
           onclick: function () { openUnit(u.id); } }, [
-          el("span", { class: "k-ja-unit-top" }, [el("span", { class: "k-unit-ref", text: u.id }), el("span", { class: "k-ja-unit-sk" },
-            (u.id === "H" || u.id === "K" ? ["R", "W"] : ["R", "L", "W"].concat(J().peek().settings.speech ? ["S"] : [])).map(function (s) { return el("b", { text: s }); }))]),
+          el("span", { class: "k-unit-ref", text: u.id }),
           el("span", { class: "k-unit-title", text: u.name }),
           el("span", { class: "k-unit-segs", "aria-hidden": "true" }, u.lessons.map(function (id) {
             var p = KOS.store.peekProgress(SID, id);
@@ -172,7 +169,7 @@
     main.appendChild(el("section", { class: "k-subj-units k-ja-core", "aria-labelledby": "k-ja-core-h" }, [
       el("div", { class: "k-sectionhead" }, [
         el("h2", { id: "k-ja-core-h", text: "Core path" }),
-        el("span", { class: "k-sectionhead-sub", text: "6 stages · " + st.lessons + " lessons so far · a checkpoint per unit" }),
+        el("span", { class: "k-sectionhead-sub", text: "6 stages · " + st.lessons + " lessons" }),
         el("div", { class: "k-sectionhead-actions" }, [el("button", { type: "button", class: "k-link", text: "Skill map ›", onclick: function () { KOS.show("japanese", { page: "skills" }); } })])
       ]),
       KOS.ui.scroller(units, { label: "Units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })

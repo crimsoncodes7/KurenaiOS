@@ -29,7 +29,7 @@ function assert(c, m) { if (!c) throw new Error(m); }
 
 step("A · six subjects; Japanese is not an exam subject", async (app) => {
   const S = app.KOS.subjects;
-  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja", "creatives"]), "ids (Creatives the sixth, smoke108): " + S.ids());
+  assert(JSON.stringify(S.ids()) === JSON.stringify(["compsci", "maths", "it", "code", "ja", "mind", "creatives"]), "ids (Mind the sixth, smoke110; Creatives the seventh, smoke108): " + S.ids());
   assert(S.ids("exam").indexOf("ja") < 0, "Japanese is not an exam subject");
   assert(S.hue("ja") === "var(--ja)", "Japanese's hue is the --ja role");
   const lessons = Object.keys(app.window.KOS_JA.LESSONS).length;

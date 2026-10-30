@@ -10,7 +10,7 @@
   /* the subject list and hues come from the one registry (core/subjects.js) */
   var SUBJECTS = KOS.subjects.ids();
   /* the study spaces count lessons, the A-levels topics */
-  var LESSONISH = { code: 1, ja: 1, creatives: 1 };
+  var LESSONISH = { code: 1, ja: 1, mind: 1, creatives: 1 };
   var COLORS = KOS.subjects.map("hue");
   var HEX = KOS.subjects.map("hex");
   var STATUS = [
@@ -484,6 +484,8 @@
     var codeSpine = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spine(tree, list, activeRef, codeMode)
       /* Japanese (frame 28e): Core | Media, and stage headings with their emblem kanji */
       : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.spine(tree, list, activeRef)
+      /* Mind (frame 32d): the four headers over the units */
+      : sid === "mind" && KOS.mindTopic ? KOS.mindTopic.spine(tree, list, activeRef)
       : sid === "creatives" && KOS.crTopic ? KOS.crTopic.spine(tree, list, activeRef) : null;
     tree.appendChild(list);
     var lastStage = null;
@@ -1544,6 +1546,7 @@
     SUBJECTS.filter(function (sid) {
       if (sid === "ja") return !!(KOS.ja && KOS.ja.started());
       if (sid === "creatives") return !!(KOS.creatives && KOS.creatives.started());
+      if (sid === "mind") return !!(KOS.mind && KOS.mind.started());
       return sid !== "code" || (KOS.code && !KOS.code.firstVisit());
     }).forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
@@ -1942,6 +1945,12 @@
     if (sid === "code" && KOS.codeDesk) {
       main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
       KOS.codeDesk(main);
+      return;
+    }
+    /* …and Mind's (frame 32a) */
+    if (sid === "mind" && KOS.mindDesk) {
+      main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
+      KOS.mindDesk(main);
       return;
     }
     /* …and so is Japanese's (frame 28a) */
@@ -2354,7 +2363,9 @@
       /* Japanese lessons (frame 28e): voiced examples, the page picker, evidence by skill */
       : sid === "ja" && KOS.jaTopic ? KOS.jaTopic.begin(ref)
       /* Creatives lessons (frames 31c–31e): micro-studies, "Good for this unit", the project */
-      : sid === "creatives" && KOS.crTopic ? KOS.crTopic.begin(ref) : null;
+      : sid === "creatives" && KOS.crTopic ? KOS.crTopic.begin(ref)
+      /* Mind lessons (frames 32d–32f): six named pages, the one prompt, the dialogue, the ladder */
+      : sid === "mind" && KOS.mindTopic ? KOS.mindTopic.begin(ref) : null;
 
     /* ---------- the Topic Status component ----------
        Status, the four progress checks and the RAG confidence rating are one
@@ -2551,6 +2562,8 @@
     var panel = el("div", { class: "k-topic-panel", "data-ui": "study.panel", role: "tabpanel" });
     var curTab = cx ? cx.firstTab() : (content && content.notes && content.notes.length) ? "notes" : "spec";
     var EDIT_KIND = { spec: "spec", notes: "notes", cards: "flashcards", quiz: "quiz", exam: "exam" };
+    /* a study space whose tabs are its own names one the editor can edit (Mind's Lesson: your notes) */
+    if (cx && cx.editKinds) Object.keys(cx.editKinds).forEach(function (t) { EDIT_KIND[t] = cx.editKinds[t]; });
     var editing = store.state.ui.editing;
     if (editing && editing.sid === sid && editing.ref === ref && editing.tab && EDIT_KIND[editing.tab]) curTab = editing.tab;
     else editing = null;
@@ -2595,21 +2608,31 @@
       /* on a phone all eight tabs ride one scroller instead (15d) */
       var phoneTier = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
       if (tabBar.clientWidth > 0 && !phoneTier) {
+        /* the "+N" button takes room from the tabs (they share the row), so the fold is
+           measured with a probe of its size in place from the first fold on */
         for (var i = btns.length - 1; i >= 0 && tabBar.scrollWidth > tabBar.clientWidth; i--) {
           if (btns[i].dataset.tab === curTab || btns[i].hidden) continue;
+          if (!moreSlot.children.length) moreSlot.appendChild(el("span", { class: "k-btn k-btn--quiet k-topic-more-probe", text: "+8" }));
           btns[i].hidden = true;
           hidden.unshift(btns[i]);
-          if (i === btns.length - 1 && !moreSlot.children.length) moreSlot.appendChild(el("span", { class: "k-btn k-topic-more-probe", text: "+8" }));
         }
       }
-      moreSlot.innerHTML = "";
-      if (hidden.length) {
+      function moreMenu() {
+        moreSlot.innerHTML = "";
+        if (!hidden.length) return;
         moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material", align: "start", panelClass: "k-topic-more-pop",
           items: hidden.map(function (b) {
             var n = b.querySelector("[data-ui~='ui.tab-count']");
             return { label: (b.getAttribute("data-label") || b.firstChild.textContent) + (n ? " · " + n.textContent : ""),
               onSelect: function () { selectTab(b.dataset.tab); } };
           }) }));
+      }
+      moreMenu();
+      /* the real menu can be a few pixels wider than the probe: fold one more rather than
+         leave a clipped tab and a scroll arrow beside it */
+      if (hidden.length && tabBar.scrollWidth > tabBar.clientWidth) {
+        var last = btns.filter(function (b) { return !b.hidden && b.dataset.tab !== curTab; }).pop();
+        if (last) { last.hidden = true; hidden.unshift(last); moreMenu(); }
       }
     }
     if (typeof window.ResizeObserver === "function") {
@@ -2716,7 +2739,8 @@
     var studyCol = el("div", { class: "k-topic-col", "data-ui": "study.col" }, [head, studyNav, el("div", { class: "k-topic-workgrid", "data-ui": "topic.workgrid" }, [panel, workPane])]);
     TABDEFS.forEach(function (t) { TAB_NAME[t[0]] = t[1]; });
     studyGrid.appendChild(studyCol);
-    var asstStrip = KOS.assistant && KOS.assistant.contextActions
+    /* a subject with its own Ask Kurenai in the inspector (Mind's four modes) opts out: cx.assistStrip === false */
+    var asstStrip = KOS.assistant && KOS.assistant.contextActions && !(cx && cx.assistStrip === false)
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
       : null;
     var inspector = buildInspector(studyGrid, sid, ref, cx ? cx.status() : ctl, asstStrip, cx);
@@ -2820,6 +2844,7 @@
         onClose: closeEditor
       });
       paintEditBtn();
+      if (cx && cx.editKinds) openTab({ keep: true });   // a study space shows the page being edited (Mind: Your notes)
       KOS.a11y && KOS.a11y.announce && KOS.a11y.announce("Editing " + KOS.editor.KIND_LABEL[kind] + ".");
     }
     function closeEditor() {
