@@ -62,3 +62,4 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-30: `feat/integrations` released as sw `kos-connect-1`, https://d47701df.kurenai-os.pages.dev — Google Calendar/Tasks + Todoist (5.15); its suite renumbered smoke112 and main merged in, main fast-forwarded to 5adc978, release note f38c14e. Gate 111 (2–107, 109–112). Still off main: feat/creatives (smoke108).
 2026-10-30: main merged into feat/creatives (Connections, kos-connect-2), then main fast-forwarded to feat/creatives at f4fa493; release sw kos-creatives-1, https://1e058d00.kurenai-os.pages.dev (Creatives Platform 1 + Art 1–3; gate is now 112 suites).
 2026-10-31: main fast-forwarded to feat/art-review; release sw kos-achievements-1, https://65c61e27.kurenai-os.pages.dev (Achievements, the Badge Wall; gate 113 suites).
+2026-10-31: sw kos-achievements-2, https://75433675.kurenai-os.pages.dev (the goal editor's Linked title label).
