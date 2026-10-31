@@ -17,7 +17,16 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-creatives-1` (30 October 2026, `feat/creatives`,
+- Latest release: sw `kos-achievements-1` (31 October 2026, `feat/art-review`,
+  main fast-forwarded to it) — https://65c61e27.kurenai-os.pages.dev:
+  Achievements, the Badge Wall (roadmap 5.16–5.17, design turn 35;
+  invariants 161–163, smoke113): the engine and its 254-badge catalogue,
+  the Wall (#/achievements) with every badge, panorama and set spot
+  imported, the unlock overlay and ping, the Governor's Seat as the Stage
+  with the five states and Edit your seat (#/governor/edit), the term/year
+  story and the share card's showcase; with it the review of all 322 app
+  images and prompt 18's four small passes; no migration or Edge Function.
+  Before it sw `kos-creatives-1` (30 October 2026, `feat/creatives`,
   main fast-forwarded to it) — https://1e058d00.kurenai-os.pages.dev:
   Creatives, the sixth study space (roadmap 5.7 item 3, design turn 31;
   invariants 154–156, smoke108): Platform 1 — the desk, the lesson, the
@@ -156,7 +165,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-creatives-1`
+- Service-worker version: `kos-achievements-1`
 - Required smoke gate: 113 / 113 suites (`""` and 2–113; 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
@@ -235,17 +244,11 @@ chronological diary here.
   [`docs/creatives-plan.md`](docs/creatives-plan.md) revision 2, decisions
   A–H approved; design prompts 14 and 15 are written, frames 30a and 31a
   onwards).
-- Built 30 October 2026 on `feat/art-review`, not released: Achievements, the
-  Badge Wall (roadmap 5.16–5.17, [`docs/achievements-plan.md`](docs/achievements-plan.md);
-  invariants 161–163, smoke113): the engine and its 254-badge catalogue, the
-  page (#/achievements), the light, the unlock overlay, the progress ping,
-  the Governor's card, the term/year story and the share card's showcase;
-  the 153 unit badges imported to `assets/app/img/`. Waiting: art batches
-  27's last 14 badges and batch 28's 19 set spots (batch 26's panoramas and 87 of batch 27's badges are imported); the page and the Governor's Seat (the Stage, `#/governor/edit`) are restyled from design turn 35. With it the review of all 322
-  app images (the nine redos made and passed the same day, marked `redone`) and the importer's fixes,
-  and design prompt 18's four small passes built directly (Money's first
-  run, Files when empty, the Japanese path upright at ≤ 860, the attempts
-  table); prompt 18 is now ONE combined prompt for the rest.
+- Released 31 October 2026 (`feat/art-review`, sw `kos-achievements-1`):
+  Achievements, the Badge Wall (roadmap 5.16–5.17, [`docs/achievements-plan.md`](docs/achievements-plan.md));
+  every achievement image is imported. Prompt 18 is ONE combined prompt
+  still to send to Claude Design; not built from design turn 35: dragging
+  to reorder the showcase and Edit seat's leave-with-changes prompt.
 - Working from another Claude account or machine: [`docs/HANDOFF.md`](docs/HANDOFF.md)
   and the shared project memory in [`docs/memory/`](docs/memory/MEMORY.md).
 
