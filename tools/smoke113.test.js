@@ -116,7 +116,9 @@ step("A · the catalogue", async () => {
   sets.forEach((s) => assert(briefs.has("app.ach.pano." + s.id), "a panorama brief for " + s.id));
   manifest.assets.filter((a) => /^app\.ach\./.test(a.id)).forEach((a) => {
     assert(/No text anywhere/.test(a.prompt), "a brief forbids text: " + a.id);
-    if (a.kind === "spot") assert(a.solid && a.long === 384 && /#00FF00/.test(a.prompt), "a badge brief is a keyed solid disc: " + a.id);
+    /* a set's spot (batch 28, design turn 35b) is a free-form keyed spot; every other spot is a badge disc */
+    if (/^app\.ach\.spot\./.test(a.id)) assert(a.kind === "spot" && !a.solid && /#00FF00/.test(a.prompt), "a set spot is a keyed spot: " + a.id);
+    else if (a.kind === "spot") assert(a.solid && a.long === 384 && /#00FF00/.test(a.prompt), "a badge brief is a keyed solid disc: " + a.id);
   });
   const titles = A.titles();
   const want = { scholar: ["into-the-green", 4], timekeeper: ["ahead-of-time", 2], treasurer: ["under-budget", 4], architect: ["shipped", 3] };

@@ -153,6 +153,11 @@
    "n": 27,
    "title": "The Badge Wall: badges",
    "why": "Roadmap 5.17: one enamel-pin badge per achievement that has no unit badge. Until one arrives the medal is the set's enamel disc with its glyph. Keyed as a solid disc and exported at 384 px."
+  },
+  {
+   "n": 28,
+   "title": "The Badge Wall: set spot art",
+   "why": "Design turn 35b: a small spot at the foot of each set panel's name column. Seven sets reuse an existing spot; these are the other nineteen. Until one arrives the panel shows none."
   }
  ],
  "assets": [
@@ -6800,6 +6805,272 @@
    "wave": 32,
    "solid": true,
    "long": 384
+  },
+  {
+   "id": "app.ach.spot.app",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small desk calendar block with its blank pages fanning open and a brass pocket watch lying beside it, for 'time spent here'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the app set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.focus",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a lit candle in a small brass holder beside a closed brass kitchen timer, for 'deep focus'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the focus set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.streaks",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small cairn of five smooth river stones balanced one on another, for 'day after day'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the streaks set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.exams",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a sharpened pencil, a white eraser and a closed exam booklet with a completely blank cover, with a small wristwatch, for 'under the clock'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the exams set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.code",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small cluster of keyboard keycaps with completely blank tops beside a brass gear, for 'code'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the code set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.ja",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a black inkstone with a calligraphy brush resting across it and a small ceramic water dropper, for 'Japanese'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the ja set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.collection",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a short stack of three paperback books with completely blank spines, a small film reel and a game cartridge with a blank label, for 'the Collection'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the collection set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.kurenai",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a crimson hanko seal standing upright beside a coiled crimson silk cord with a tassel, for 'Kurenai and the Governor'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the kurenai set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-cs",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small fragment of a green circuit board with one microchip and a few gold contacts, for 'computer science'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-cs set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-maths",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a brass drawing compass, a clear protractor and a small set square laid together, for 'mathematics'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-maths set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-it",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a neat coil of network cable ending in its plug, beside a small USB stick, for 'IT'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-it set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-code",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small yellow rubber duck beside a coiled charging cable, for 'debugging'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-code set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-code-t",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small railway signal lamp on a post beside a short section of track, for 'the tracks'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-code-t set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-ja",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small stone lantern with moss at its base, for 'the Japanese path'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-ja set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-mind",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a fragment of a white marble column with an olive sprig laid against it, for 'ideas'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-mind set's name column (35b).",
+   "size": "wave 33 · exported 640 px, keyed",
+   "wave": 33
+  },
+  {
+   "id": "app.ach.spot.u-cr-art",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a wooden paint palette with a few dabs of colour and two brushes, for 'art'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-cr-art set's name column (35b).",
+   "size": "wave 34 · exported 640 px, keyed",
+   "wave": 34
+  },
+  {
+   "id": "app.ach.spot.u-cr-design",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a fanned deck of colour swatch cards with no markings and a short metal ruler, for 'design'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-cr-design set's name column (35b).",
+   "size": "wave 34 · exported 640 px, keyed",
+   "wave": 34
+  },
+  {
+   "id": "app.ach.spot.u-cr-edit",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a small film clapperboard with a completely blank slate beside a reel of film, for 'editing'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-cr-edit set's name column (35b).",
+   "size": "wave 34 · exported 640 px, keyed",
+   "wave": 34
+  },
+  {
+   "id": "app.ach.spot.u-cr-write",
+   "batch": 28,
+   "kind": "spot",
+   "style": "bg",
+   "aspect": "1:1",
+   "attach": [
+    "refs/style-anchor.png"
+   ],
+   "prompt": "A small spot illustration for a badge set's panel, painted in the same background-art style: a fountain pen and a small glass inkwell beside a folded blank letter, for 'writing'. One compact cluster of objects centred with generous margin, no backdrop scenery. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No people. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "where": "The Wall: the foot of the u-cr-write set's name column (35b).",
+   "size": "wave 34 · exported 640 px, keyed",
+   "wave": 34
   }
  ]
 }

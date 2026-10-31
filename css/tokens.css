@@ -463,6 +463,49 @@ color-scheme: dark;
 --ach-medal-md: 120px;
 --ach-medal-lg: 208px;
 --ach-ring: 4px;
+--ach-ring-sm: 3px;      /* the rim: 3 px at 44, 4 at 88, 5 at 120, 6 at 208 (35·medal) */
+--ach-ring-md: 5px;
+--ach-ring-lg: 6px;
+--ach-seat: oklch(from var(--bg) calc(l - 0.035) c h);   /* the dark seat between rim and disc */
+--ach-b0: 0.38;          /* the dim: brightness(b0 + b1·p) opacity(o0 + o1·p); Dawn swaps to opacity */
+--ach-b1: 0.52;
+--ach-o0: 1;
+--ach-o1: 0;
+--ach-panel-h: 280px;    /* a two-column panel at 1440, a true 21:9 */
+--ach-panel-name-sm: 228px;
+--ach-panel-name-wide: 300px;
+--ach-plaque-h: 74px;
+--ach-title-side: 400px;
+--gv-stage-h: 700px;     /* the Governor's Seat, the Stage (35a) */
+--gv-stage-left: 560px;
+--gv-stage-right: 640px;
+--gv-stage-arc-h: 132px;
+--gv-ring-xl: 180px;
+--gv-area-h: 250px;
+--gv-edit-prev: 797px;
+--gv-arc-m: 72px;
+--gv-stage-pad: 36px;
+--gv-ring-zoom-ph: 0.6;  /* the Stage's 180 ring on a phone */
+--gv-stage-pad-start: 44px;        /* a showcase medal on the Stage's arc */
+--gv-stage-w: 1328px;    /* the Stage at 1440, the width Edit seat scales from */
+--ach-dlg-w: 760px;
+--ach-medal-ph: 104px;   /* a tier on the phone's sheet, 2 × 2 */
+--ach-medal-lg-ph: 184px; /* the overlay's medal under 700 */
+--ach-pick-cols: 10;
+--fs-ach-name: 44px;     /* the overlay's badge name */
+--fs-gv-level: 58px;     /* the Stage's level */
+--fs-plaque: 22px;
+--fs-micro: 11px;
+--ach-hit: 44px;         /* the dialog's round ‹ ›, a plaque's glyph */
+--ach-row-col: 60px;     /* the list's medal column */
+--ach-row-h: 74px;
+--ach-row-date: 120px;
+--ach-plaque-pad: 72px;
+--ach-mini-w: 92px;
+--ach-plaque-big: 120px;
+--ach-light: white;      /* the enamel's highlight and the light's glint */
+--ach-dark: black;       /* the enamel's depth and the medal's drop shadow */
+--ach-lay: fit;          /* how a panel lays its medals: fit (rows) or cols (the phone) */
 --ach-pip: 7px;
 --ach-panel-min-h: 300px;
 --ach-panel-name: 280px;

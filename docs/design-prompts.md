@@ -753,6 +753,8 @@ PART 4 · SPECIMEN BOARDS FOR THE NEW COSMETICS (34o–34p). 34o: four new OS th
 
 ## 19 · The Badge Wall (roadmap 5.16)
 
+DELIVERED 31 October 2026 as design turn 35 (with the Governor's Seat redesigned as the Stage, 35a and 35a·edit, and Titles as plaques) and BUILT on `feat/art-review`; docs/achievements-plan.md says what was taken and what was left.
+
 Asked for 30 October 2026, after Reverse: 1999's "Fourth Wall" brochure and its career overview (the user's screenshots: sets as painted panels with round medallions laid over them, "Owned 199/202", List view and a filter, a set opened as a carousel of its tiers with "Not obtained" under each, an unlock card with the set's panorama and "View Achievements", and a profile overview with the showcase in a tray along the bottom). The page is BUILT on the shared components (js/modules/achievements.js, css/views/achievements.css; docs/achievements-plan.md): this pass refines it. Frames 35a–35h.
 
 ### 19.1 · The Wall, a set, the list, the overlay and the ping (35a–35h)

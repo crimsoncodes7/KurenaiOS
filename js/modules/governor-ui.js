@@ -47,7 +47,7 @@
     status: {
       kicker: "Command centre",
       title: "The Governor's Seat",
-      copy: "Your identity, current access state, study rhythm, and recent milestones."
+      copy: "Your identity, current access state, study rhythm and what you have earned."
     },
     shop: {
       kicker: "Treasury",
@@ -193,6 +193,7 @@
     var hpPreview = "live";
     try { hpPreview = sessionStorage.getItem("kos-governor-hp-preview") || "live"; } catch (e) {}
     if (["live", "full", "critical"].indexOf(hpPreview) === -1) hpPreview = "live";
+    if (openTab === "edit") { editSeat(main); return; }
 
     var govTabs = addHook(KOS.workspaceTabs(TABS.map(function (t) { return [t[1], "governor", t[0], t[0]]; }),
       cur, "Governor pages"), "gov.tabs");
@@ -202,7 +203,8 @@
     /* keep the data-tab hook every consumer of this switcher has used */
     govTabs.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b, i) { b.dataset.tab = TABS[i][0]; });
     main.appendChild(addHook(KOS.ui.pageHeader({ kicker: pageMeta.kicker, title: pageMeta.title,
-      sub: pageMeta.copy, actions: [govTabs] }), "gov.head"));
+      sub: pageMeta.copy, actions: [cur === "status" ? el("button", { type: "button", class: "k-btn", "data-ui": "gov.edit-seat", text: "✎ Edit seat",
+        onclick: function () { KOS.show("governor", "edit"); } }) : null, govTabs].filter(Boolean) }), "gov.head"));
 
     var panel = el("div", { class: "k-gv", "data-ui": "study.panel gov.workspace", "data-page": cur });
     main.appendChild(panel);
@@ -257,116 +259,222 @@
       ].filter(Boolean));
     }
 
-    /* ================= STATUS — the Seat (12a / 12a2) ================= */
+    /* ================= STATUS — the Seat, the Stage (35a) =================
+       Your banner runs the full width as the stage. Left: the avatar in its
+       HP ring with the worn seal, the level, the title, the motto and XP;
+       the six showcase medals on a gold arc; one glass panel with the
+       Wall's count and the record. Right: one glass panel with the study
+       cadence over the milestone ledger and the four live figures. Along
+       the foot, Drains · Restores · Always open. Below: six area cards in
+       their set panoramas. Below Healthy the recovery dispatch follows the
+       stage. Pages only read (invariant 161). */
+    function seatBgSrc(gg) {
+      gg = gg || g;
+      var v = gg.seatBg;
+      if (v === "custom" || (!v && gg.banner === "custom" && gg.bannerImg)) return gg.bannerImg ? { src: gg.bannerImg, crop: gg.bannerCrop, custom: true } : null;
+      var set = /^pano:(.+)$/.exec(v || "") ? v.slice(5) : "kurenai";
+      return { src: "assets/app/img/app.ach.pano." + set + ".webp", set: set };
+    }
+    function stageBg(node, gg) {
+      var FOCUS_X = { left: "20%", centre: "50%", right: "80%" };
+      var bg = seatBgSrc(gg);
+      if (!bg) return;
+      var img = el("img", { class: "k-gv-stage-bg", src: bg.src, alt: "", decoding: "async", "aria-hidden": "true" });
+      var c = bg.custom && KOS.imageCrop ? KOS.imageCrop.value(bg.crop) : null;
+      img.style.setProperty("--obj-pos", c ? c.x + "% " + c.y + "%" : (FOCUS_X[(gg || g).seatFocus] || "50%") + " 40%");
+      img.addEventListener("error", function () { img.remove(); });
+      node.insertBefore(img, node.firstChild);
+    }
     function renderStatus() {
       var p = KOS.governor.profile();
       var displayHp = hpPreview === "full" ? 100 : hpPreview === "critical" ? 0 : p.hp;
       var hpCls = hpPreview === "full" ? "healthy" : hpPreview === "critical" ? "critical" : KOS.governor.hpState();
-      var hpLabel = { healthy: "Healthy", strained: "Strained", critical: "Critical" }[hpCls];
       var stks = KOS.sessions.streaks();
       var allSessions = KOS.sessions.all();
       var realSessions = allSessions.filter(function (s) { return !isRoutine(s); });
       var meaningfulSessions = realSessions.filter(isMeaningful);
-      var dueCount = KOS.srs.dueCount();
 
       var seat = el("div", { class: "k-gv-seat", "data-ui": "gov.bento gov.status", "data-hp": hpCls });
       panel.appendChild(seat);
+      var stage = buildStage(g, { p: p, displayHp: displayHp, hpCls: hpCls, stks: stks, realSessions: realSessions, meaningful: meaningfulSessions, routineN: allSessions.length - realSessions.length });
+      seat.appendChild(stage);
 
-      /* — the identity stage and the instrument stack — */
-      var hasBanner = !!KOS.governor.bannerCss();
-      var hero = el("section", { class: "k-gv-hero", "data-ui": "gov.bento-id gov.seat", "aria-label": "Your identity" });
-      if (hasBanner) {
-        KOS.ui.state(hero, "has-banner", true);
-        /* a painted preset has no scrim of its own; an upload carries it */
-        KOS.ui.state(hero, "preset-banner", g.banner !== "custom");
-        KOS.governor.applyBanner(hero, { scrim: "governor" });
-      }
-      var txt = el("div", { class: "k-gv-hero-txt" }, [
-        el("div", { class: "k-kicker k-gv-rank", text: p.rank + " · Behavioural Governor" }),
-        el("h2", { class: "k-gv-name", text: "Level " + p.level }),
-        /* a title earned on the Wall (cosmetic, roadmap 5.16) */
-        KOS.achievements && KOS.achievements.title() ? el("div", { class: "k-gv-title", "data-ui": "gov.title", text: KOS.achievements.title().name }) : null,
+      /* the recovery dispatch (12a2): below Healthy, the checklist that
+         climbs back. Nothing is locked; it says so. */
+      if (hpCls !== "healthy") seat.appendChild(recovery(hpCls, displayHp));
+      seat.appendChild(areaCards());
+    }
+
+    /* the stage, drawn for the page and, scaled, for Edit seat's preview */
+    function buildStage(gg, o) {
+      var p = o.p, A = KOS.achievements, aui = KOS.achUI;
+      var stage = el("section", { class: "k-gv-stage k-gv-stage-grid", "data-ui": "gov.bento-id gov.seat", "aria-label": "Your identity" });
+      stageBg(stage, gg);
+      var title = A && A.title();
+      if (o.titleId !== undefined) title = A && o.titleId ? A.titles().filter(function (t) { return t.id === o.titleId; })[0] : null;
+      var txt = el("div", { class: "k-gv-stage-txt" }, [
+        el("div", { class: "k-gv-stage-kick", text: "Behavioural Governor" }),
+        el("h2", { class: "k-gv-name", "data-ui": "gov.level", text: "Level " + p.level }),
+        title ? el("div", { class: "k-gv-title", "data-ui": "gov.title", text: title.name })
+          : o.preview ? null : el("button", { type: "button", class: "k-gv-title k-gv-title--pick", text: "Pick a title", onclick: function () { KOS.show("governor", "edit"); } }),
         p.status ? el("div", { class: "k-gv-status-line", "data-ui": "gov.id-status", text: p.status }) : null,
-        !p.status ? el("button", { type: "button", class: "k-gv-about-empty",
-          text: "＋ Set a status for your command seat", onclick: openProfileEditor }) : null,
+        !p.status && !o.preview ? el("button", { type: "button", class: "k-gv-about-empty", text: "＋ Set a motto for your seat", onclick: openProfileEditor }) : null,
         el("div", { class: "k-gv-xp", "data-ui": "gov.xp" }, [
           bar(p.xpPct, "ink"),
           el("span", { class: "k-mono", text: KOS.ui.num(p.xpToNext) + " XP to " + (p.level + 1) })
         ])
       ].filter(Boolean));
+      if (!o.preview) txt.appendChild(accessRow(o.hpCls));
+      var id = el("header", { class: "k-gv-stage-id" }, [
+        o.preview ? ring(180, o.displayHp, o.hpCls, "span", { "data-seal": o.seal || null })
+          : ring(180, o.displayHp, o.hpCls, "button", { type: "button", "data-ui": "gov.face",
+            "aria-label": "Edit your profile picture", title: "Edit your profile picture",
+            onclick: function () { KOS.show("governor", "avatar"); } }),
+        txt
+      ]);
+      if (o.seal) { var sg = id.querySelector(".k-gv-ring-seal"); var it = o.seal !== "kurenai" ? KOS.governor.item(o.seal) : null; if (sg) sg.textContent = (it && it.glyph) || "紅"; }
 
-      /* the access row: state chip (the dispatch replaces it in Critical),
-         profile edit, the HP preview, and the banner controls */
-      var access = el("div", { class: "k-gv-access", "data-ui": "gov.id-access", role: "group", "aria-label": "Governor access state" }, [
+      /* the showcase arc: six medals at 72, highest in the middle */
+      var arc = el("div", { class: "k-gv-arc", "data-ui": "gov.showcase", role: "group", "aria-label": "Your showcase" });
+      arc.innerHTML = '<svg class="k-gv-arc-lines" viewBox="0 0 560 132" preserveAspectRatio="none" aria-hidden="true"><path d="M 66 80 Q 291 -8 516 80" data-line="a"/><path d="M 30 112 Q 291 -40 552 112" data-line="b"/></svg>';
+      var AX = [30, 120, 210, 300, 390, 480], AY = [44, 16, 0, 0, 16, 44];
+      var ids = o.showcase || (A ? A.showcase() : []);
+      AX.forEach(function (x, i) {
+        var slot = el("span", { class: "k-gv-arc-slot", "data-empty": "" });
+        slot.style.setProperty("--ax", (100 * x / 560).toFixed(2) + "%");
+        slot.style.setProperty("--ay", (100 * AY[i] / 132).toFixed(2) + "%");
+        arc.appendChild(slot);
+      });
+      var note = el("div", { class: "k-gv-arc-note" });
+      arc.appendChild(note);
+      if (A && aui) A.list(function (views) {
+        var byId = {}; views.forEach(function (v) { byId[v.id] = v; });
+        var slots = arc.querySelectorAll(".k-gv-arc-slot");
+        ids.filter(function (x) { return byId[x]; }).slice(0, 6).forEach(function (bid, i) {
+          var v = byId[bid], s = slots[i];
+          s.removeAttribute("data-empty");
+          s.appendChild(o.preview ? aui.medal(v, { px: 72, pips: false, decorative: true })
+            : el("button", { type: "button", class: "k-gv-arc-btn", "aria-label": aui.badgeName(v) + ", open its set", onclick: function () { KOS.show("achievements", "set/" + v.set + "/" + v.id); } },
+              [aui.medal(v, { px: 72, pips: false, decorative: true })]));
+        });
+        if (!ids.length && !o.preview) {
+          var near = views.filter(function (v) { return !v.masked && !v.full && v.state !== "soon" && v.p > 0; }).sort(function (a, b) { return b.p - a.p; })[0];
+          var any = views.some(function (v) { return v.tier > 0; });
+          note.appendChild(any ? el("button", { type: "button", class: "k-link", text: "Pick your showcase →", onclick: function () { KOS.show("governor", "edit"); } })
+            : near ? el("span", { text: "Your first badge is close: " + near.def.name + ", " + aui.progressText(near) }) : null);
+        }
+      });
+
+      /* the Wall and the record, in glass */
+      var c = A ? A.counts() : { owned: 0, badges: 0, tiers: 0, tiersTotal: 0 }, life = A ? A.lifetime() : { days: 0, focusSecs: 0 };
+      var since = +store.state.created;
+      function rec(label, value, unit) {
+        return el("div", { class: "k-gv-rec" }, [el("span", { class: "k-gv-rec-k", text: label }), el("span", { class: "k-gv-rec-v k-mono" }, [value, unit ? el("small", { text: " " + unit }) : null].filter(Boolean))]);
+      }
+      var wall = el("section", { class: "k-gv-glass k-gv-wallg", "data-ui": "gov.wall", "aria-label": "The Wall and your record" }, [
+        el("div", { class: "k-gv-wallg-head" }, [
+          el("span", { class: "k-gv-glass-kick", text: "The Wall" }),
+          el("span", { class: "k-gv-wallg-n" }, [String(c.owned), el("small", { class: "k-mono", text: " / " + c.badges + " badges" })]),
+          el("span", { class: "k-spacer" }),
+          o.preview ? null : el("button", { type: "button", class: "k-link", "data-ui": "gov.wall-open", text: "Open the Wall →", onclick: function () { KOS.show("achievements"); } })
+        ].filter(Boolean)),
+        el("div", { class: "k-gv-recs" }, [
+          rec("Days journeyed", String(life.days || 0), "days"),
+          rec("First day", since > 0 ? new Date(since).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"),
+          rec("Hours of focus", String(Math.floor((life.focusSecs || 0) / 3600)), "h"),
+          rec("Tiers earned", String(c.tiers), "/ " + c.tiersTotal)
+        ])
+      ]);
+
+      /* the right panel: cadence over the ledger and the four live figures */
+      var cad = cadence(o.realSessions, o.stks), led = ledger(o.meaningful, o.routineN);
+      cad.classList.remove("k-card"); led.classList.remove("k-card");
+      var right = el("section", { class: "k-gv-glass k-gv-rightg", "aria-label": "Rhythm and figures" }, [cad, el("div", { class: "k-gv-rightg-low" }, [led, el("span", { class: "k-gv-vrule", "aria-hidden": "true" }), instruments(p, o)])]);
+
+      var rules = el("section", { class: "k-gv-glass k-gv-rules", "data-ui": "gov.rules", "aria-label": "How HP works" }, [
+        rule("red", "Drains", "A fully missed day costs 15 HP. A due backlog past " + (KOS.governor.BACKLOG_LIMIT || 30) + " cards costs 10 HP a day."),
+        rule("green", "Restores", "Completed sessions, due reviews and tasks restore HP. Recovery is slower while Critical."),
+        rule("teal", "Always open", "Specification, notes, flashcards, quizzes, exam questions and Focus never lock.")
+      ]);
+      [id, arc, wall, right, rules].forEach(function (n) { stage.appendChild(n); });
+      return stage;
+    }
+    function rule(tone, title, body) {
+      return el("div", { class: "k-gv-rule", "data-tone": tone }, [
+        el("b", { class: "k-gv-rule-h" }, [el("span", { class: "k-gv-dot", "aria-hidden": "true" }), title]),
+        el("p", { text: body })
+      ]);
+    }
+    /* the access row: state chip, the motto's edit, the HP preview and the
+       review aid that shows the app on an empty or sample account */
+    function accessRow(hpCls) {
+      return el("div", { class: "k-gv-access", "data-ui": "gov.id-access", role: "group", "aria-label": "Governor access state" }, [
         hpCls === "critical" ? null : el("span", { class: "k-chip", "data-tone": hpCls === "healthy" ? "green" : "amber",
           text: hpCls === "healthy" ? "● All systems open" : "● Strained · nothing locks" }),
-        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit status", onclick: openProfileEditor }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit motto", onclick: openProfileEditor }),
         el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.hp-preview", role: "group", "aria-label": "Preview HP state", "data-phone-more": "" }, [
           el("span", { class: "k-gv-preview-k", text: "Preview" }),
-          hpPreviewButton("live", "Live"),
-          hpPreviewButton("full", "Full"),
-          hpPreviewButton("critical", "Off")
+          hpPreviewButton("live", "Live"), hpPreviewButton("full", "Full"), hpPreviewButton("critical", "Off")
         ]),
-        hpPreview !== "live" ? el("small", { class: "k-gv-preview-note", text: "Preview only · actual HP " + p.hp + "/100" }) : null,
-        /* review aid: the whole app on an empty or a sample account, each a
-           separate namespace (store.js KOS.dataMode) — never this data */
+        hpPreview !== "live" ? el("small", { class: "k-gv-preview-note", text: "Preview only · actual HP " + KOS.governor.profile().hp + "/100" }) : null,
         el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.data-mode", role: "group", "aria-label": "Which account the app shows", "data-phone-more": "" }, [
           el("span", { class: "k-gv-preview-k", text: "Data" }),
-          dataModeButton("", "Mine"),
-          dataModeButton("empty", "Empty"),
-          dataModeButton("sample", "Sample")
+          dataModeButton("", "Mine"), dataModeButton("empty", "Empty"), dataModeButton("sample", "Sample")
         ])
-        /* the banner's Edit and × went (review B): Avatar owns the banner */
       ].filter(Boolean));
-      txt.appendChild(access);
-
-      hero.appendChild(el("div", { class: "k-gv-hero-body" }, [
-        ring(120, displayHp, hpCls, "button", { type: "button", "data-ui": "gov.face",
-          "aria-label": "Edit your profile picture", title: "Edit your profile picture",
-          onclick: function () { KOS.show("governor", "avatar"); } }),
-        txt
-      ]));
-
-      function dataModeButton(value, label) {
-        var cur = (KOS.dataMode && KOS.dataMode.mode) || "";
-        return el("button", { type: "button", class: "k-seg-item", "data-ui": "gov.data-mode-btn",
-          "aria-pressed": cur === value ? "true" : "false", text: label,
-          onclick: function () {
-            if (cur === value) return;
-            KOS.ui.confirm({
-              title: value === "sample" ? "Show the sample account?" : value === "empty" ? "Show an empty account?" : "Back to your data?",
-              body: value
-                ? "The app reloads into a separate " + (value === "sample" ? "sample account, filled in everywhere" : "account with nothing added") +
-                  ". Your own data is untouched, and cloud and provider sync stay off until you switch back to Mine."
-                : "The app reloads into your own account, with sync back on.",
-              confirm: value ? "Switch" : "Back to mine"
-            }, function () { KOS.dataMode.set(value); });
-          } });
-      }
-      function hpPreviewButton(value, label) {
-        return el("button", { type: "button", class: "k-seg-item", "data-ui": "gov.hp-preview-btn",
-          "aria-pressed": hpPreview === value ? "true" : "false", text: label,
-          onclick: function () {
-            hpPreview = value;
-            try { sessionStorage.setItem("kos-governor-hp-preview", value); } catch (e) {}
-            render();
-          } });
-      }
-
-      /* four instruments: HP, Gold (a balance — no bar, invariant 78), the
-         review queue against the backlog line, and the streak toward its
-         next bonus. XP is the hero's own bar. */
+    }
+    function dataModeButton(value, label) {
+      var cur = (KOS.dataMode && KOS.dataMode.mode) || "";
+      return el("button", { type: "button", class: "k-seg-item", "data-ui": "gov.data-mode-btn",
+        "aria-pressed": cur === value ? "true" : "false", text: label,
+        onclick: function () {
+          if (cur === value) return;
+          KOS.ui.confirm({
+            title: value === "sample" ? "Show the sample account?" : value === "empty" ? "Show an empty account?" : "Back to your data?",
+            body: value
+              ? "The app reloads into a separate " + (value === "sample" ? "sample account, filled in everywhere" : "account with nothing added") +
+                ". Your own data is untouched, and cloud and provider sync stay off until you switch back to Mine."
+              : "The app reloads into your own account, with sync back on.",
+            confirm: value ? "Switch" : "Back to mine"
+          }, function () { KOS.dataMode.set(value); });
+        } });
+    }
+    function hpPreviewButton(value, label) {
+      return el("button", { type: "button", class: "k-seg-item", "data-ui": "gov.hp-preview-btn",
+        "aria-pressed": hpPreview === value ? "true" : "false", text: label,
+        onclick: function () {
+          hpPreview = value;
+          try { sessionStorage.setItem("kos-governor-hp-preview", value); } catch (e) {}
+          render();
+        } });
+    }
+    /* the four live figures: HP, Gold (a balance — no bar, invariant 78),
+       the review queue against the backlog line, and the streak toward its
+       next bonus. XP is the hero's own bar. */
+    function instruments(p, o) {
+      var stks = o.stks, dueCount = KOS.srs.dueCount(), hpCls = o.hpCls, displayHp = o.displayHp;
+      var hpLabel = { healthy: "Healthy", strained: "Strained", critical: "Critical" }[hpCls];
       var cheapest = KOS.governor.catalog()
         .filter(function (c) { return c.kind !== "banner" && !KOS.governor.owns(c.id); })
         .sort(function (a, b) { return a.price - b.price; })[0];
       var limit = KOS.governor.BACKLOG_LIMIT || 30;
       var nextBonus = [3, 7, 14, 30, 60, 100].filter(function (m) { return m > stks.all; })[0];
       var prevBonus = [0, 3, 7, 14, 30, 60, 100].filter(function (m) { return m <= stks.all; }).pop();
-      var stack = el("div", { class: "k-gv-stack", "data-ui": "gov.b-vitals gov.instruments", "aria-label": "Instruments" }, [
+      function instrument(x) {
+        var node = el("div", { class: "k-gv-stat", "data-ui": "gov.vital gov.stat", "data-kind": x.kind, "data-tone": x.tone }, [
+          el("span", { class: "k-gv-stat-k", "data-ui": "gov.vital-label", text: x.label }),
+          el("span", { class: "k-gv-stat-v", "data-ui": "gov.vital-v", text: x.value }),
+          el("span", { class: "k-gv-stat-h", text: x.hint }),
+          x.bar === false ? null : bar(x.pct, x.tone, "gov.vital-bar")
+        ].filter(Boolean));
+        if (x.bar === false) KOS.ui.state(node, "no-meter", true);
+        return node;
+      }
+      return el("div", { class: "k-gv-stack", "data-ui": "gov.b-vitals gov.instruments", "aria-label": "Instruments" }, [
         instrument({ kind: "hp", label: hpPreview === "live" ? "Live HP" : "HP preview", value: displayHp + " / 100",
-          hint: hpLabel + (hpCls === "healthy" ? " · everything open" : " · nothing locks"), tone: hpCls, pct: displayHp }),
+          hint: hpLabel + (hpCls === "healthy" ? " · all open" : " · nothing locks"), tone: hpCls, pct: displayHp }),
         instrument({ kind: "gold", label: "Gold", value: "◆ " + KOS.ui.num(p.gold), tone: "gold", bar: false,
-          hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable" : KOS.ui.num(cheapest.price - p.gold) + " to " + cheapest.name) : "Catalogue complete" }),
+          hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable" : "For the Gold Shop") : "Catalogue complete" }),
         instrument({ kind: "due", label: "Review queue", value: KOS.ui.num(dueCount), tone: "teal",
           hint: dueCount ? (dueCount > limit ? (dueCount - limit) + " past the backlog line" : "Ready in Review") : "Queue clear",
           pct: 100 * Math.min(dueCount, limit) / limit }),
@@ -374,40 +482,36 @@
           hint: nextBonus ? (nextBonus - stks.all) + " to the " + nextBonus + "-day bonus" : "Every streak bonus earned",
           pct: nextBonus ? 100 * (stks.all - prevBonus) / (nextBonus - prevBonus) : 100 })
       ]);
-      function instrument(o) {
-        var node = el("div", { class: "k-gv-stat", "data-ui": "gov.vital gov.stat", "data-kind": o.kind, "data-tone": o.tone }, [
-          el("span", { class: "k-gv-stat-k", "data-ui": "gov.vital-label", text: o.label }),
-          el("span", { class: "k-gv-stat-v", "data-ui": "gov.vital-v", text: o.value }),
-          el("span", { class: "k-gv-stat-h", text: o.hint }),
-          o.bar === false ? null : bar(o.pct, o.tone, "gov.vital-bar")
-        ].filter(Boolean));
-        if (o.bar === false) KOS.ui.state(node, "no-meter", true);
-        return node;
-      }
-      seat.appendChild(el("div", { class: "k-gv-top" }, [hero, stack]));
-
-      /* — the recovery dispatch (12a2): below Healthy, the checklist that
-         climbs back. Nothing is locked; it says so. — */
-      if (hpCls !== "healthy") seat.appendChild(recovery(hpCls, displayHp));
-
-      /* — cadence and the ledger — */
-      seat.appendChild(el("div", { class: "k-gv-mid" }, [cadence(realSessions, stks), ledger(meaningfulSessions, allSessions.length - realSessions.length)]));
-
-      /* — the Wall (roadmap 5.16): the showcase and the badge count — */
-      if (KOS.achUI) seat.appendChild(KOS.achUI.governorCard());
-
-      /* — the three rules, always in view — */
-      seat.appendChild(el("section", { class: "k-gv-rules", "data-ui": "gov.rules", "aria-label": "How HP works" }, [
-        rule("red", "Drains", "A fully missed day costs 15 HP. A due backlog past " + limit + " cards costs 10 HP a day."),
-        rule("green", "Restores", "Completed sessions, due reviews and tasks restore HP. Recovery is slower while Critical."),
-        rule("teal", "Always open", "Specification, notes, flashcards, quizzes, exam questions and Focus never lock.")
-      ]));
-      function rule(tone, title, body) {
-        return el("div", { class: "k-gv-rule", "data-tone": tone }, [
-          el("b", { class: "k-gv-rule-h" }, [el("span", { class: "k-gv-dot", "aria-hidden": "true" }), title]),
-          el("p", { text: body })
+    }
+    /* six area cards under the stage, each in its set's panorama, its figure
+       read from the matching badge's own measure */
+    var AREAS = [["study", "Study", "into-the-green", "topics at Green"], ["code", "Code", "green-tests", "tasks passed"], ["ja", "Japanese", "words", "words held"],
+      ["mind", "Mind", "evaluated", "concepts at Evaluate"], ["creatives", "Creatives", "studies", "studies passed"], ["collection", "The Collection", "bookshelf", "volumes on the shelf"]];
+    function areaCards() {
+      var row = el("div", { class: "k-gv-areas", "data-ui": "gov.areas" });
+      var A = KOS.achievements;
+      AREAS.forEach(function (x) {
+        var s = A && A.set(x[0]);
+        var card = el("button", { type: "button", class: "k-gv-area", "data-area": x[0], "aria-label": x[1] + ", open its set on the Wall",
+          onclick: function () { KOS.show("achievements", "set/" + x[0] + "/" + x[2]); } }, [
+          el("img", { src: "assets/app/img/app.ach.pano." + x[0] + ".webp", alt: "", loading: "lazy", "aria-hidden": "true" }),
+          el("span", { class: "k-gv-area-t" }, [el("span", { class: "k-ach-kick", text: x[1] }), el("b", { class: "k-mono k-gv-area-n", text: "—" }),
+            el("span", { class: "k-gv-area-u" }), el("i", { class: "k-gv-area-s" })])
         ]);
-      }
+        if (s) card.style.setProperty("--set-hue", "var(" + s.hue + ")");
+        row.appendChild(card);
+      });
+      if (A) A.list(function (views) {
+        AREAS.forEach(function (x) {
+          var v = views.filter(function (y) { return y.id === x[2]; })[0], card = row.querySelector("[data-area='" + x[0] + "']");
+          if (!v || !card) return;
+          var soon = v.state === "soon";
+          card.querySelector(".k-gv-area-n").textContent = soon || v.value == null ? "—" : KOS.ui.num(Math.floor(v.value));
+          card.querySelector(".k-gv-area-u").textContent = soon ? "not started yet" : x[3];
+          card.querySelector(".k-gv-area-s").textContent = soon ? "Opens with its first lesson" : v.tier ? v.def.name + " " + A.roman(v.tier) : v.next != null ? "First tier at " + KOS.ui.num(v.next) : "";
+        });
+      }, { ids: AREAS.map(function (x) { return x[2]; }) });
+      return row;
     }
 
     function recovery(hpCls, hp) {
@@ -522,6 +626,167 @@
         ].filter(Boolean)));
       });
       return card;
+    }
+
+    /* ================= EDIT YOUR SEAT (35a·edit) =================
+       A live preview at 60% beside the editor: Showcase · Background ·
+       Title · Sigil. Nothing is written until Save; the showcase is the
+       Wall's own (editing either edits both). */
+    function editSeat(main) {
+      var A = KOS.achievements, aui = KOS.achUI;
+      var draft = { showcase: A ? A.showcase().slice() : [], seatBg: g.seatBg || null, seatFocus: g.seatFocus || "centre",
+        titleId: A && A.title() ? A.title().id : null, seal: g.seal || "kurenai" };
+      var saved = JSON.stringify(draft);
+      var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "gov.seat-save", "data-intent": "primary", text: "Save", onclick: save });
+      var head = KOS.ui.pageHeader({ kicker: "‹ The Governor's Seat", title: "Edit your seat", sub: "Your showcase, the stage's background, your title and the seal on your ring.",
+        actions: [el("button", { type: "button", class: "k-btn", "data-ui": "gov.seat-discard", text: "Discard", onclick: function () { KOS.show("governor"); } }), saveBtn] });
+      var kick = head.querySelector("[data-ui~='ui.page-kicker']");
+      if (kick) { kick.setAttribute("role", "link"); kick.setAttribute("tabindex", "0"); kick.classList.add("k-kicker--link"); KOS.a11y.activate(kick, function () { KOS.show("governor"); }); }
+      main.appendChild(addHook(head, "gov.head"));
+      var prevBox = el("div", { class: "k-gv-prev", "aria-hidden": "true" });
+      var sum = el("section", { class: "k-card k-gv-sum" });
+      var editor = el("section", { class: "k-card k-gv-editor", "data-ui": "gov.seat-editor" });
+      main.appendChild(el("div", { class: "k-gv-edit", "data-ui": "gov.seat-edit" }, [
+        el("div", { class: "k-gv-edit-left" }, [el("div", { class: "k-gv-edit-cap" }, [el("span", { class: "k-kicker", text: "Preview" }), el("span", { class: "k-muted", text: "Live preview · your data" })]), prevBox, sum]),
+        editor
+      ]));
+      function dirty() { var d = JSON.stringify(draft) !== saved; KOS.ui.state(saveBtn, "lit", d); return d; }
+      function paintPreview() {
+        prevBox.textContent = "";
+        var p = KOS.governor.profile(), stks = KOS.sessions.streaks(), all = KOS.sessions.all(), real = all.filter(function (x) { return !isRoutine(x); });
+        var gg = Object.assign({}, g, { seatBg: draft.seatBg, seatFocus: draft.seatFocus });
+        var inner = el("div", { class: "k-gv-prev-inner" }, [buildStage(gg, { preview: true, p: p, displayHp: p.hp, hpCls: KOS.governor.hpState(), stks: stks,
+          realSessions: real, meaningful: real.filter(isMeaningful), routineN: all.length - real.length, showcase: draft.showcase, titleId: draft.titleId, seal: draft.seal })]);
+        prevBox.appendChild(inner);
+        fitPreview();
+        paintSummary();
+        dirty();
+      }
+      /* the preview is the Stage at its 1440 width, scaled to the box */
+      function fitPreview() { var w = prevBox.clientWidth; if (w) prevBox.style.setProperty("--prev-s", String(w / 1328)); }
+      if (window.ResizeObserver) { var ro = new ResizeObserver(function () { if (!prevBox.isConnected) { ro.disconnect(); return; } fitPreview(); }); ro.observe(prevBox); }
+      function bgName() {
+        var bg = seatBgSrc(Object.assign({}, g, { seatBg: draft.seatBg }));
+        if (!bg) return "None";
+        if (bg.custom) return "Your banner";
+        var st = A && A.set(bg.set); return st ? st.name : "Kurenai and the Governor";
+      }
+      function paintSummary() {
+        sum.textContent = "";
+        var t = A && draft.titleId ? A.titles().filter(function (x) { return x.id === draft.titleId; })[0] : null;
+        var it = draft.seal !== "kurenai" ? KOS.governor.item(draft.seal) : null;
+        function cell(l, v) { return el("div", { class: "k-gv-sum-c" }, [el("span", { class: "k-kicker", text: l }), v]); }
+        sum.appendChild(el("div", { class: "k-gv-sum-row" }, [
+          cell("Background", el("span", { text: bgName() })),
+          cell("Title", t ? el("i", { class: "k-gv-sum-title", text: t.name }) : el("span", { class: "k-muted", text: "No title" })),
+          cell("Sigil", el("span", {}, [el("b", { class: "k-gv-sum-seal", lang: "ja", text: (it && it.glyph) || "紅" }), " " + (it ? it.name.replace(/^\S+\s/, "") : "Kurenai")])),
+          cell("Showcase", el("span", { class: "k-mono", text: draft.showcase.length + " of 6" }))
+        ]));
+        sum.appendChild(el("p", { class: "k-muted k-gv-sum-note", text: "The showcase is also the Wall's Showcase tab and, when switched on, the share card's." }));
+      }
+      var TABS_E = [["showcase", "Showcase"], ["bg", "Background"], ["title", "Title"], ["sigil", "Sigil"]], tab = "showcase";
+      function paintEditor() {
+        editor.textContent = "";
+        var seg = KOS.ui.tabs(TABS_E.map(function (x) { return { label: x[1], active: x[0] === tab, onSelect: function () { tab = x[0]; paintEditor(); } }; }),
+          { variant: "workspace", label: "Edit", className: "k-gv-edit-tabs" });
+        editor.appendChild(seg);
+        var body = el("div", { class: "k-gv-edit-body" });
+        editor.appendChild(body);
+        if (tab === "showcase") paintShowcase(body);
+        else if (tab === "bg") paintBg(body);
+        else if (tab === "title") paintTitle(body);
+        else paintSigil(body);
+      }
+      function paintShowcase(body) {
+        if (!A || !aui) return;
+        body.appendChild(el("p", { class: "k-muted", text: "Reading your badges…" }));
+        A.list(function (views) {
+          body.textContent = "";
+          var pk = aui.showcasePicker(views, { small: true, initial: draft.showcase, onChange: function (ids) { draft.showcase = ids; paintPreview(); } });
+          body.appendChild(el("div", { class: "k-gv-edit-h" }, [el("b", { text: "On display" }), pk.count, el("span", { class: "k-spacer" }),
+            el("button", { type: "button", class: "k-link", text: "Clear", onclick: pk.clear })]));
+          body.appendChild(el("div", { class: "k-gv-edit-tray" }, [pk.tray]));
+          body.appendChild(el("p", { class: "k-muted k-gv-edit-hint", text: "In the order picked; the first leads on the share card. Tap one on display to take it out." }));
+          body.appendChild(el("div", { class: "k-gv-edit-h" }, [el("b", { text: "Earned" }), el("span", { class: "k-muted", text: pk.earned.length + ", newest first" })]));
+          body.appendChild(pk.earned.length ? pk.grid : KOS.ui.emptyState({ compact: true, body: "Earn a badge to show it here." }));
+        });
+      }
+      function paintBg(body) {
+        var fileIn = el("input", { type: "file", accept: "image/jpeg,image/png,image/webp", class: "sr-only", tabindex: "-1", "aria-hidden": "true" });
+        fileIn.addEventListener("change", function () {
+          var f = fileIn.files && fileIn.files[0]; fileIn.value = "";
+          if (!f) return;
+          KOS.governor.setCustomBanner(f, function (err, res) {
+            if (err) { KOS.ui.toast("That picture could not be used: " + err.message, true); return; }
+            if (res && res.cancelled) return;
+            g = store.state.governor; draft.seatBg = "custom"; paintPreview(); paintEditor();
+            KOS.a11y.announce("Background set to your banner.");
+          });
+        });
+        body.appendChild(fileIn);
+        body.appendChild(el("b", { class: "k-gv-edit-h", text: "Your banner" }));
+        var tiles = el("div", { class: "k-gv-bg-own" }, [
+          el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-upload", onclick: function () { fileIn.click(); } }, [el("span", { text: "＋ Upload an image" }), el("small", { class: "k-mono", text: "JPG or PNG · 2400 × 1350 or larger" })])
+        ]);
+        if (g.bannerImg) {
+          var mine = el("button", { type: "button", class: "k-gv-bg-thumb", "aria-pressed": String(draft.seatBg === "custom"), "aria-label": "Your banner", onclick: function () { pick("custom", "your banner"); } }, [
+            el("img", { src: g.bannerImg, alt: "" }), el("span", { text: "Your banner" })]);
+          tiles.appendChild(mine);
+        }
+        body.appendChild(tiles);
+        body.appendChild(el("div", { class: "k-gv-edit-h" }, [el("b", { text: "Set panoramas" }), el("span", { class: "k-muted", text: "from the Wall" })]));
+        var grid = el("div", { class: "k-gv-bg-grid", role: "group", "aria-label": "Set panoramas" });
+        (A ? A.sets() : []).forEach(function (st) {
+          var val = "pano:" + st.id, on = draft.seatBg === val || (!draft.seatBg && !g.bannerImg && st.id === "kurenai");
+          var img = el("img", { src: "assets/app/img/app.ach.pano." + st.id + ".webp", alt: "", loading: "lazy" });
+          var b = el("button", { type: "button", class: "k-gv-bg-thumb", "aria-pressed": String(on), "aria-label": st.name, onclick: function () { pick(val, st.name); } }, [img, el("span", { text: st.name })]);
+          b.style.setProperty("--set-hue", "var(" + st.hue + ")");
+          img.addEventListener("error", function () { img.remove(); });
+          grid.appendChild(b);
+        });
+        body.appendChild(grid);
+        function pick(v, name) { draft.seatBg = v; paintPreview(); paintEditor(); KOS.a11y.announce("Background set to " + name + "."); }
+        body.appendChild(el("b", { class: "k-gv-edit-h", text: "Focus point" }));
+        var fseg = KOS.ui.tabs([["left", "Left"], ["centre", "Centre"], ["right", "Right"]].map(function (x) {
+          return { label: x[1], active: draft.seatFocus === x[0], onSelect: function () { draft.seatFocus = x[0]; paintPreview(); } };
+        }), { variant: "workspace", label: "Focus point", className: "k-seg--quiet" });
+        body.appendChild(el("div", { class: "k-gv-edit-h" }, [fseg, el("span", { class: "k-muted", text: "where narrow frames crop it" })]));
+      }
+      function paintTitle(body) {
+        var ts = A ? A.titles() : [];
+        var list = el("div", { class: "k-gv-titles", role: "radiogroup", "aria-label": "Your title" });
+        function opt(id, name, ok, need) {
+          var b = el("button", { type: "button", role: "radio", class: "k-gv-topt", "aria-checked": String(draft.titleId === id), disabled: ok ? null : "" }, [
+            el("span", { class: "k-gv-topt-r", "aria-hidden": "true" }), el("i", { text: name }), need ? el("span", { class: "k-muted", text: need }) : null].filter(Boolean));
+          if (ok) b.addEventListener("click", function () { draft.titleId = id; paintPreview(); paintEditor(); });
+          return b;
+        }
+        list.appendChild(opt(null, "No title", true, null));
+        ts.forEach(function (t) { var d = A.def(t.badge); list.appendChild(opt(t.id, t.name, t.unlocked, t.unlocked ? null : (d ? d.name + " " + A.roman(t.tier) : ""))); });
+        body.appendChild(list);
+        body.appendChild(el("button", { type: "button", class: "k-link", text: "All titles on the Wall →", onclick: function () { KOS.show("achievements", "titles"); } }));
+      }
+      function paintSigil(body) {
+        var owned = [{ id: "kurenai", glyph: "紅", name: "Kurenai" }].concat(KOS.governor.catalog().filter(function (c) { return c.kind === "seal" && KOS.governor.owns(c.id); })
+          .map(function (c) { return { id: c.id, glyph: c.glyph, name: c.name.replace(/^\S+\s/, "") }; }));
+        var grid = el("div", { class: "k-gv-sigils", role: "radiogroup", "aria-label": "The seal on your ring" });
+        owned.forEach(function (x) {
+          grid.appendChild(el("button", { type: "button", role: "radio", class: "k-gv-sigil", "aria-checked": String(draft.seal === x.id), onclick: function () { draft.seal = x.id; paintPreview(); paintEditor(); } }, [
+            el("b", { lang: "ja", text: x.glyph }), el("span", { text: x.name })]));
+        });
+        body.appendChild(grid);
+        body.appendChild(el("p", { class: "k-muted k-gv-edit-hint", text: "More seals are in the Gold Shop." }));
+      }
+      function save() {
+        if (A) { A.setShowcase(draft.showcase); A.setTitle(draft.titleId); }
+        g.seatBg = draft.seatBg; g.seatFocus = draft.seatFocus;
+        if (draft.seal !== (g.seal || "kurenai")) KOS.governor.setSeal(draft.seal);
+        store.save();
+        KOS.ui.toast("Seat saved."); KOS.a11y.announce("Seat saved.");
+        KOS.show("governor");
+      }
+      paintPreview();
+      paintEditor();
     }
 
     /* ================= SHOP — the Treasury (12b) =================

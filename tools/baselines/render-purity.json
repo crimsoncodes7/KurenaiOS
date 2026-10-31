@@ -16613,6 +16613,18 @@
    "controls": [
     {
      "key": {
+      "ctx": "ui.page-actions",
+      "hooks": "gov.edit-seat",
+      "name": "✎ Edit seat",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/governor/edit"
+     }
+    },
+    {
+     "key": {
       "ctx": "gov.tabs",
       "hooks": "ui.tab",
       "name": "Status",
@@ -16675,7 +16687,19 @@
      "key": {
       "ctx": "gov.bento-id",
       "hooks": "",
-      "name": "＋ Set a status for your command seat",
+      "name": "Pick a title",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/governor/edit"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.bento-id",
+      "hooks": "",
+      "name": "＋ Set a motto for your seat",
       "tag": "button"
      },
      "occurrence": 0,
@@ -16689,7 +16713,7 @@
      "key": {
       "ctx": "gov.id-access",
       "hooks": "",
-      "name": "Edit status",
+      "name": "Edit motto",
       "tag": "button"
      },
      "occurrence": 0,
@@ -16769,6 +16793,18 @@
     },
     {
      "key": {
+      "ctx": "gov.wall",
+      "hooks": "gov.wall-open",
+      "name": "Open the Wall →",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
+    },
+    {
+     "key": {
       "ctx": "ui.tabs",
       "hooks": "ui.tab-card",
       "name": "Study",
@@ -16801,9 +16837,69 @@
     },
     {
      "key": {
-      "ctx": "gov.wall",
-      "hooks": "gov.wall-open",
-      "name": "Open the Wall",
+      "ctx": "gov.areas",
+      "hooks": "",
+      "name": "Study, open its set on the Wall",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.areas",
+      "hooks": "",
+      "name": "Code, open its set on the Wall",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.areas",
+      "hooks": "",
+      "name": "Japanese, open its set on the Wall",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.areas",
+      "hooks": "",
+      "name": "Mind, open its set on the Wall",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.areas",
+      "hooks": "",
+      "name": "Creatives, open its set on the Wall",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/achievements"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.areas",
+      "hooks": "",
+      "name": "The Collection, open its set on the Wall",
       "tag": "button"
      },
      "occurrence": 0,

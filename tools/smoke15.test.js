@@ -407,8 +407,8 @@ step("Part B: hero carries a proportionate portrait, access preview and the stat
   const id = document.getElementById("main").querySelector("[data-ui~='gov.bento-id']");
   const face = id.querySelector("[data-ui~='gov.face'] [data-ui~='gov.avatar']");
   if (!face) throw new Error("hero portrait missing");
-  /* frame 12a: a 120px portrait inside the 132px HP ring */
-  if (!/120px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
+  /* frame 35a (the Stage, which replaced 12a): a 180px portrait in its HP ring */
+  if (!/180px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
   if (!id.querySelector("[data-ui~='gov.id-access'] [data-ui~='gov.hp-preview']")) throw new Error("the access-state preview is missing");
   if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
   if (!id.querySelector("[data-ui~='gov.id-status']")) throw new Error("status line missing from the hero");

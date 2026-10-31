@@ -2,8 +2,11 @@
 
 Asked for 30 October 2026, decisions taken the same day (the recommended
 four), and BUILT on `feat/art-review`: the engine, the catalogue, the page,
-the light, the overlay, the ping and the joins. What waits is art (batches
-26–27, Gemini; batch 26, the 26 set panoramas, made, checked and imported 30 October) and a Claude Design pass on the page (design prompt 19).
+the light, the overlay, the ping and the joins; restyled on 31 October from
+Claude Design's handoff (design turn 35, prompt 19), which also redesigned the
+Governor's Seat as "the Stage". What waits is art: batch 27's remaining 55
+badges and batch 28's 19 set spots (Gemini); batch 26 (the panoramas) and 46
+of batch 27 are imported.
 
 The model is Reverse: 1999's "Fourth Wall" (the user's screenshots): each SET
 is a painted 21:9 panel with its round medallions laid over it, a count of
@@ -69,32 +72,54 @@ along the bottom (R1999's "career overview" suitcase, made our own).
 
 ### The page (`js/modules/achievements.js`, `#/achievements`)
 
-Under Governor, no rail item; reached from the Governor's seat ("The Wall"
-card), the notification of a tier earned, and the overlay.
+Under Governor, no rail item; reached from the Governor's Seat (the Stage's
+Wall panel, its showcase medals and area cards), the notification of a tier
+earned, and the overlay. Built from design turn 35 (the handoff as a guide).
 
-- **The record** (35a): your avatar, level and title, your first day; four
-  figures (days journeyed, badges, tiers, hours of focus); the showcase tray
-  (six slots) with the achievement count and "Edit showcase".
-- **Sets** (35b): the toolbar (owned / total, List view, the filter: All ·
-  Earned · In progress · Locked · Study · Productivity · Collection · The
-  app), then one panel per set: its panorama (or its colour wash and a large
-  glyph), its name and count on the quiet left, its medals laid on the right,
-  every second one lower (R1999's staggered lay).
-- **A set opened** (35c): a carousel — the badge's name and what counts, one
-  medallion per tier (earned with its date, the next with its progress, the
-  rest dim), ‹ › and ←/→, a strip of the set's medals, "3 / 9".
-- **List view** (35d): medal, name and what counts, the bar and
-  "8 / 10 volumes", the date; sorted by set, nearest to done, or recently
-  earned. Hidden badges are masked and always last.
-- **Recent**, **Showcase** (pick up to six earned), **Titles** (a radio list).
+- **The record** moved to the Governor's Seat (35a, "the Stage"): your banner
+  full width, the avatar in its HP ring with the worn seal, the level, title,
+  motto and XP; the six showcase medals on a gold arc; a glass panel with the
+  Wall's count and the record (days journeyed, first day, hours of focus,
+  tiers); the cadence, ledger and four live figures in a second panel; Drains
+  · Restores · Always open along the foot; six area cards below in their set
+  panoramas (each figure read from a badge's own measure). **Edit your seat**
+  (`#/governor/edit`, 35a·edit): a live preview at 60% beside Showcase ·
+  Background (your banner or any set panorama, `governor.seatBg`, and a focus
+  point, `governor.seatFocus`, both synced) · Title · Sigil (the worn seal);
+  nothing is written until Save.
+- **Sets** (35b): the toolbar (owned / total, List view, the filter), then two
+  sections, Badges and Units and paths. From 1240 up the panels go two to a
+  row (656 × 280 at 1440, a true 21:9); the first of each section, and a last
+  one left alone, run the full width. THE LAY (`fit`/`layPanel`): the row
+  count, 1–4, that gives the largest medal (cap 88, never under 44), every
+  second column dropped half a medal; under 44, up to six to a row and the
+  panel grows (the phone's panel, under 860, the name on the painting's top).
+  Seven sets carry an existing spot at the foot of the name column; the other
+  19 wait for batch 28. A panorama that fails to load shows the colour wash
+  and the set's glyph.
+- **A set opened** (35c): the kicker over the set's name, the badge's name in
+  Newsreader, one medallion per tier at 120 (104 in a 2 × 2 on the phone's
+  sheet), "II · 50 volumes" over its date, progress or "Not yet", the title a
+  tier unlocks, ‹ › and ←/→ (and a swipe), the strip, "3 / 11"; focus
+  returns to the panel.
+- **List view** (35d): one card of rows, the set's name in its hue; the sort
+  is a segmented control. Soon badges list before the hidden ones, which are
+  always last.
+- **Showcase** (35e): the tray of six at 64, the count, Clear and Save; every
+  earned badge a toggle card in ten columns. A seventh shakes the counter.
+  Edit seat uses the same picker.
+- **Titles** (35e, after Wuthering Waves): plaques cut from their set's
+  panorama, Collected n / 16, All · Unlocked · Locked, nearest first; the
+  detail panel (the plaque large, the set and tier, what it means, the
+  requirement as the badge with its bar, Equip, and the next closest).
 
 ### The light: one picture, five looks (`css/views/achievements.css`)
 
 | State | Look |
 |---|---|
-| Locked | greyscale, brightness 38%, the rim's track only |
-| In progress | `filter: grayscale(1 − p) brightness(0.38 + 0.52p)`; the rim ring fills to p in the set's hue |
-| Nearly (p ≥ 0.9) | as above, the rim breathes |
+| Locked | greyscale, brightness 38% (opacity 38% on Dawn), the rim's track only |
+| In progress | `grayscale(1 − p) brightness(0.38 + 0.52p)`, on Dawn `opacity(0.38 + 0.62p)` (tokens `--ach-b0/b1/o0/o1`); the rim fills to p in the set's hue |
+| Nearly (p ≥ 0.9) | as above, a glow in the set's hue breathing at 2.4 s |
 | Earned | full colour, the rim in the set's metal (gold for a stage, track or path), one sweep of light on first view |
 | Hidden | a silhouette with "?" until earned |
 | Soon | the content is not released: dim, a dashed rim |
@@ -292,7 +317,8 @@ track.
 ## The art still to make (Gemini, by hand)
 
 - **Batch 26:** 26 set panoramas, 21:9 (`app.ach.pano.<set>`) — made, checked and imported 30 October 2026.
-- **Batch 27:** 101 badges (`app.ach.<badge>`), keyed solid discs, 384 px.
+- **Batch 27:** 101 badges (`app.ach.<badge>`), keyed solid discs, 384 px — 46 made, checked (OCR and by eye) and imported 31 October; 55 to come.
+- **Batch 28:** 19 set spots (`app.ach.spot.<set>`, 1:1, keyed), waves 33–34, from design turn 35b.
 - Waves 24–32 in `art-source/app/manifest.json`, each with its full prompt;
   generated by `node tools/gen_ach_defs.mjs && python3 -I
   tools/gen_ach_manifest.py`. After making them: the import, then
@@ -301,9 +327,11 @@ track.
 
 ## Claude Design
 
-Design prompt 19 in [design-prompts.md](design-prompts.md): the Wall (frames
-35a–35h). The page works today on the shared components; the pass refines
-it.
+Design prompt 19 in [design-prompts.md](design-prompts.md) came back on 31
+October as design turn 35 (frames 35a–35h, with the Governor's Seat redesigned
+as the Stage and the Titles redesigned as plaques) and is BUILT, as a guide
+rather than 1:1. Not built from it: dragging to reorder the showcase (the
+order is the order picked) and asking before leaving Edit seat with changes.
 
 ## Invariants (161–163, in CLAUDE.md)
 
