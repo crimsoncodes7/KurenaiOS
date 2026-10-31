@@ -111,7 +111,7 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
    milestone sits beside each state and the two headings share a line */
 .k-gv-rightg-low { flex: 1 1 auto; display: grid; grid-template-columns: minmax(0, 2fr) var(--hairline) minmax(0, 1fr); grid-template-rows: auto repeat(5, minmax(0, 1fr));
   column-gap: var(--sp-18); padding-block-start: var(--sp-14); border-block-start: var(--hairline) solid color-mix(in oklch, var(--text) 12%, transparent); min-block-size: 0; }
-.k-gv-rightg-low > .k-gv-ledger, .k-gv-rightg-low > .k-gv-stack { grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; }
+.k-gv-rightg-low > .k-gv-ledger, .k-gv-rightg-low > .k-gv-stack { grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); min-inline-size: 0; }
 .k-gv-rightg-low > .k-gv-ledger > .k-empty { grid-row: 2 / -1; }
 .k-gv-vrule { grid-row: 1 / -1; }
 .k-gv-vrule { background: color-mix(in oklch, var(--text) 14%, transparent); }
@@ -464,7 +464,9 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 /* the Stage keeps two columns; the right panel narrows and its live
    figures go under the ledger */
 .k-gv-stage-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "id right" "arc right" "wall right" "rules rules"; min-block-size: 0; padding: var(--sp-28); }
-.k-gv-stage-id { flex-direction: column; align-items: flex-start; gap: var(--sp-14); }
+.k-gv-stage-id { flex-direction: column; align-items: center; gap: var(--sp-14); }
+.k-gv-stage-txt { align-items: center; text-align: center; }
+.k-gv-stage-txt > * { align-self: center; }
 .k-gv-stage .k-gv-rules { margin-inline-start: 0; }
 .k-gv-rightg-low { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
 .k-gv-rightg-low > .k-gv-ledger, .k-gv-rightg-low > .k-gv-stack { grid-row: auto; display: flex; flex-direction: column; }
@@ -516,7 +518,9 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
    label; the departments one chip scroller; the balance stacked */
 /* the phone's Stage: a smaller ring and level, the six on one row */
 .k-gv-stage-grid { padding: var(--sp-18) var(--sp-16); gap: var(--sp-14); }
-.k-gv-stage-id { flex-direction: column; align-items: flex-start; gap: var(--sp-14); }
+.k-gv-stage-id { flex-direction: column; align-items: center; gap: var(--sp-14); }
+.k-gv-stage-txt { align-items: center; text-align: center; }
+.k-gv-stage-txt > * { align-self: center; }
 .k-gv-stage-id .k-gv-ring { zoom: var(--gv-ring-zoom-ph); }
 .k-gv-tools { display: none; }
 .k-gv-name { font-size: var(--fs-40, var(--fs-34)); }

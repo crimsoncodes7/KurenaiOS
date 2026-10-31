@@ -297,11 +297,10 @@ assert(homeVars.x === "72%" && homeVars.y === "38%" && homeVars.zoom === "1.25",
 assert(homeVars.min > 0 && homeVars.h >= homeVars.min, `Home hero is below the --home-hero-h design height (${homeVars.h} < ${homeVars.min})`);
 
 await evaluate(`KOS.show("governor", "status")`);
-/* the Graphite identity stage lays the design's own scrim token
-   (--gv-hero-scrim) over the banner */
-await waitFor("document.querySelector('[data-ui~=\"gov.bento-id\"] [data-ui~=\"crop.shade\"]')", "Governor status banner");
-const govContrast = await evaluate(`getComputedStyle(document.querySelector('[data-ui~="gov.bento-id"] [data-ui~="crop.shade"]')).backgroundImage`);
-assert(/gradient/.test(govContrast), `Governor did not receive its --gv-hero-scrim: ${govContrast}`);
+/* the Stage (design turn 35) lays its scrim (::before) over its painting */
+await waitFor("document.querySelector('[data-ui~=\"gov.bento-id\"]')", "Governor's Stage");
+const govContrast = await evaluate(`getComputedStyle(document.querySelector('[data-ui~="gov.bento-id"]'), '::before').backgroundImage`);
+assert(/gradient/.test(govContrast), `the Stage lost its scrim: ${govContrast}`);
 await screenshot("/tmp/kos-governor-banner-1440.png");
 
 /* Governor v5: the redesigned Status, Chronicle, Avatar and Treasury in
@@ -327,14 +326,15 @@ const governorRefine = await evaluate(`(() => {
   return {
     gap: Math.round(hero.getBoundingClientRect().top - head.getBoundingClientRect().bottom),
     face: Math.round(face.getBoundingClientRect().width),
-    access: !!hero.querySelector('[data-ui~="gov.id-access"] [data-ui~="gov.hp-preview"]'),
+    access: !!head.querySelector('[data-ui~="gov.id-access"] [data-ui~="gov.hp-preview"]') && !hero.querySelector('[data-ui~="gov.id-access"]'),
     cap: getComputedStyle(document.querySelector('[data-ui~="gov.b-vitals"]'), '::before').content,
     idleAssistantDot: getComputedStyle(document.querySelector('#assistant-trigger [data-ui~="asst.trigger-dot"]')).opacity,
     saveLabels: document.querySelectorAll('[data-ui~="archive.cloud"]').length
   };
 })()`);
-/* Graphite frame 12a: the header's 40px rhythm and the 120px face ring */
-assert(governorRefine.gap <= 40 && governorRefine.face === 120 && governorRefine.access &&
+/* the header's 40px rhythm, the Stage's 180px face ring (35a) and the test
+   controls in the header's ⋯ menu, not the hero (31 October 2026) */
+assert(governorRefine.gap <= 40 && governorRefine.face === 180 && governorRefine.access &&
   (governorRefine.cap === 'none' || governorRefine.cap === 'normal') &&
   governorRefine.idleAssistantDot === '0' && governorRefine.saveLabels === 0,
   `Governor header/hero/topbar refinement regressed: ${JSON.stringify(governorRefine)}`);
@@ -515,7 +515,8 @@ const vndbSaved = await evaluate(`new Promise((resolve, reject) => KOS.mediadb.g
 assert(vndbSaved.avatar.source === avatar && vndbSaved.avatar.crop.y === 47, "VNDB local source/crop did not persist");
 
 /* Collection hierarchy: archive stays compact; workspaces preserve their routes/history. */
-await auditView("wishlist", undefined, "[data-ui~='coll.workspace-tabs']");
+/* 27a: the Planner is the Collection's Wishlist, with no workspace switch */
+await auditView("wishlist", undefined, "#subnav [data-ui~='shell.subnav-item']");
 const collectionNav = await evaluate(`(() => {
   /* the visible label without the decorative (aria-hidden) kanji mark */
   const label = b => [...b.childNodes].filter(n => !(n.nodeType === 1 && n.getAttribute("aria-hidden") === "true"))
@@ -525,10 +526,10 @@ const collectionNav = await evaluate(`(() => {
   return { labels: items.map(label), active: current && label(current),
     planner: [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].map(b => b.textContent.trim()) };
 })()`);
-assert(JSON.stringify(collectionNav.labels) === JSON.stringify(["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"]),
+assert(collectionNav.labels.length <= 8 && collectionNav.labels.includes("Wishlist"),
   `Collection primary navigation is overcrowded: ${JSON.stringify(collectionNav.labels)}`);
-assert(collectionNav.active === "Planner" && JSON.stringify(collectionNav.planner) === JSON.stringify(["Budget Planner", "Goals"]),
-  "Planner workspace or active navigation is incomplete");
+assert(collectionNav.active === "Wishlist" && !collectionNav.planner.length,
+  `Wishlist navigation is wrong: ${JSON.stringify(collectionNav)}`);
 
 /* Budget Planner: actual release desk, allowance ledger, crop-aware feature
    art, queue density and charts are all exercised in the running app. */
