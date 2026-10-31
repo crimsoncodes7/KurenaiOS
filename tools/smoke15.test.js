@@ -306,7 +306,7 @@ step("status tab renders the seat: identity, vitals, cadence, ledger", async () 
   }
   if (!/Level \d/.test(bento.querySelector("[data-ui~='gov.bento-id']").textContent)) throw new Error("identity level missing");
   if (!bento.querySelector("[data-ui~='gov.bento-id'] [data-ui~='gov.xp']")) throw new Error("the hero carries no XP bar");
-  if (bento.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital']").length !== 4) throw new Error("four command instruments expected");
+  if (bento.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital']").length !== 5) throw new Error("five states expected");
   /* the overview's widgets (directives, countdowns, streak card) must NOT
      live here any more — they belong to Home */
   if (bento.querySelector(".b-edicts") || bento.querySelector(".b-exams") || bento.querySelector(".b-streak"))
@@ -409,7 +409,9 @@ step("Part B: hero carries a proportionate portrait, access preview and the stat
   if (!face) throw new Error("hero portrait missing");
   /* frame 35a (the Stage, which replaced 12a): a 180px portrait in its HP ring */
   if (!/180px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
-  if (!id.querySelector("[data-ui~='gov.id-access'] [data-ui~='gov.hp-preview']")) throw new Error("the access-state preview is missing");
+  /* the test controls fold into the header's quiet ⋯ menu (31 October 2026) */
+  if (!document.querySelector("[data-ui~='gov.head'] details[data-ui~='gov.id-access'] [data-ui~='gov.hp-preview']")) throw new Error("the HP preview is missing from the test menu");
+  if (id.querySelector("[data-ui~='gov.id-access']")) throw new Error("the test controls are back in the hero");
   if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
   if (!id.querySelector("[data-ui~='gov.id-status']")) throw new Error("status line missing from the hero");
   /* the profile is the status line alone (Graphite review retired "about") */
@@ -421,7 +423,7 @@ step("Part B5: every stat tile is the same shape; bounded instruments alone carr
   /* Graphite step 6 (frame 12a): the cadence facts are one line under the
      heatmap, so the tiles are the four instruments */
   const tiles = [...main.querySelectorAll("[data-ui~='gov.stat']")];
-  if (tiles.length !== 4) throw new Error("expected four instruments, got " + tiles.length);
+  if (tiles.length !== 5) throw new Error("expected the five states, got " + tiles.length);
   for (const t of tiles) {
     if (!t.querySelector("[data-ui~='gov.vital-label']")) throw new Error("a tile has no label");
     if (!t.querySelector("[data-ui~='gov.vital-v']")) throw new Error("a tile has no value");
@@ -429,7 +431,7 @@ step("Part B5: every stat tile is the same shape; bounded instruments alone carr
   /* HP/XP/queue/streak are bounded measures. Gold is a balance and Phase G
      removed its semantically false progress bar. */
   const vitals = [...main.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital'][data-ui~='gov.stat']")];
-  if (vitals.length !== 4) throw new Error("four instruments expected, got " + vitals.length);
+  if (vitals.length !== 5) throw new Error("five states expected, got " + vitals.length);
   const gold = vitals.find(v => v.getAttribute("data-kind") === "gold");
   if (!gold || !gold.matches('[data-state~="no-meter"]') || gold.querySelector("[data-ui~='gov.vital-bar']"))
     throw new Error("Gold is not the one balance-only instrument");

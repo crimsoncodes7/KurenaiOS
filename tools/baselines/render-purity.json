@@ -16673,55 +16673,13 @@
     },
     {
      "key": {
-      "ctx": "gov.bento-id",
-      "hooks": "gov.face",
-      "name": "Edit your profile picture",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "nav": "#/governor/avatar"
-     }
-    },
-    {
-     "key": {
-      "ctx": "gov.bento-id",
-      "hooks": "",
-      "name": "Pick a title",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "nav": "#/governor/edit"
-     }
-    },
-    {
-     "key": {
-      "ctx": "gov.bento-id",
-      "hooks": "",
-      "name": "＋ Set a motto for your seat",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "dialog": [
-       "Status"
-      ]
-     }
-    },
-    {
-     "key": {
       "ctx": "gov.id-access",
       "hooks": "",
-      "name": "Edit motto",
-      "tag": "button"
+      "name": "Test controls",
+      "tag": "summary"
      },
      "occurrence": 0,
-     "effects": {
-      "dialog": [
-       "Status"
-      ]
-     }
+     "effects": {}
     },
     {
      "key": {
@@ -16788,6 +16746,44 @@
      "effects": {
       "dialog": [
        "Show the sample account?"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.bento-id",
+      "hooks": "gov.face",
+      "name": "Edit your profile picture",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/governor/avatar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.bento-id",
+      "hooks": "",
+      "name": "Pick a title",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/governor/edit"
+     }
+    },
+    {
+     "key": {
+      "ctx": "gov.bento-id",
+      "hooks": "",
+      "name": "＋ Set a motto for your seat",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "dialog": [
+       "Status"
       ]
      }
     },

@@ -273,13 +273,20 @@
       H = L.r * (L.s + pipH(L.s) + L.gy) + L.off;
       box.style.setProperty("--lay-h", H + "px");
     }
-    var cw = W / L.c, rh = L.s + pipH(L.s) + L.gy, used = L.r * rh - L.gy + L.off, top = Math.max(0, (H - used) / 2);
+    /* filled a column at a time: a column holds L.r medals one row pitch
+       apart, so no two ever meet; every second column drops half a medal,
+       and a short last column is centred on its own. (Centring a short last
+       ROW by half a column broke the stagger and stacked medals on top of
+       each other.) Columns sit at most 1.75 medals apart, the group centred,
+       so a set of four does not scatter across the panel. */
+    var c = Math.ceil(n / L.r), cw = Math.min(W / c, L.s * 1.75), x0 = (W - c * cw) / 2, rh = L.s + pipH(L.s) + L.gy, used = L.r * rh - L.gy + (c > 1 ? L.off : 0), top = Math.max(0, (H - used) / 2);
     kids.forEach(function (m, i) {
-      var row = Math.floor(i / L.c), col = i % L.c, k = row === L.r - 1 ? n - row * L.c : L.c, shift = (L.c - k) * cw / 2;
+      var col = Math.floor(i / L.r), row = i % L.r, k = Math.min(L.r, n - col * L.r);
+      var dy = k < L.r ? (L.r - k) * rh / 2 + (c > 1 ? L.off / 2 : 0) : col % 2 ? L.off : 0;
       m.style.setProperty("--m", L.s + "px");
       m.setAttribute("data-rim", rimOf(L.s));
-      m.style.setProperty("--x", (col * cw + (cw - L.s) / 2 + shift).toFixed(1) + "px");
-      m.style.setProperty("--y", (top + row * rh + (col % 2 ? L.off : 0)).toFixed(1) + "px");
+      m.style.setProperty("--x", (x0 + col * cw + (cw - L.s) / 2).toFixed(1) + "px");
+      m.style.setProperty("--y", (top + row * rh + dy).toFixed(1) + "px");
     });
   }
   function layWall(body) {
@@ -363,7 +370,7 @@
   /* ---------------- the showcase (35e): the tray, then every earned badge ----------------
      The same six as the Governor's Seat; Save is the only commit. */
   function slot(v, i, onRemove) {
-    return v ? el("button", { type: "button", class: "k-ach-slot", "data-ui": "ach.slot", "aria-label": "Take " + badgeName(v) + " out of the showcase", onclick: onRemove }, [medal(v, { size: "tray", px: 64, pips: false, decorative: true })])
+    return v ? el("button", { type: "button", class: "k-ach-slot", "data-ui": "ach.slot", "aria-label": "Take " + badgeName(v) + " out of the showcase", onclick: onRemove }, [medal(v, { size: "sm", pips: false, decorative: true })])
       : el("span", { class: "k-ach-slot", "data-empty": "", "aria-hidden": "true" });
   }
   function showcasePicker(views, opts) {

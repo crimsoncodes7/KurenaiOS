@@ -39,12 +39,12 @@ step("Status uses one identity hero and four non-duplicated instruments", async 
   KOS.show("governor");
   await tick(40);
   const main = document.getElementById("main");
-  if (!main.querySelector("[data-ui~='gov.seat'] [data-ui~='gov.id-access']")) throw new Error("useful Governor access panel missing");
+  if (!document.querySelector("[data-ui~='gov.head'] [data-ui~='gov.id-access']")) throw new Error("the Governor's test menu is missing");
   if (main.querySelector("[data-ui~='gov.seat'] .id-side")) throw new Error("telemetry duplicated in hero");
   const vitals = main.querySelectorAll("[data-ui~='gov.instruments'] [data-ui~='gov.vital']");
-  if (vitals.length !== 4) throw new Error(`expected 4 instruments, got ${vitals.length}`);
+  if (vitals.length !== 5) throw new Error(`expected the five states, got ${vitals.length}`);
   const labels = [...vitals].map(v => v.querySelector("[data-ui~='gov.vital-label']").textContent);
-  for (const label of ["Live HP", "Gold", "Review queue", "Study streak"])
+  for (const label of ["Live HP", "Gold", "Review queue", "Study streak", "Rest streak"])
     if (!labels.includes(label)) throw new Error(`missing instrument ${label}`);
   if (!main.querySelector("[data-ui~='gov.seat'] [data-ui~='gov.xp']")) throw new Error("XP bar missing from the hero");
 });
@@ -53,7 +53,7 @@ step("Each Governor tab owns its page heading and Status can preview both HP sid
   const g = KOS.store.state.governor;
   const hp0 = g.hp;
   const main = document.getElementById("main");
-  const off = main.querySelector('[data-ui~="gov.hp-preview-btn"][aria-pressed="false"]:last-child') || [...main.querySelectorAll('[data-ui~="gov.hp-preview-btn"]')].find(b => b.textContent === "Off");
+  const off = [...document.querySelectorAll('[data-ui~="gov.hp-preview-btn"]')].find(b => b.textContent === "Off");
   off.click();
   if (KOS.store.state.governor.hp !== hp0) throw new Error("HP preview mutated the Governor economy");
   if (!document.querySelector("[data-ui~='gov.status'][data-hp='critical'] [data-ui~='gov.recovery']")) throw new Error("critical preview did not expose recovery UI");

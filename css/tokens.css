@@ -479,11 +479,11 @@ color-scheme: dark;
 --gv-stage-h: 700px;     /* the Governor's Seat, the Stage (35a) */
 --gv-stage-left: 560px;
 --gv-stage-right: 640px;
---gv-stage-arc-h: 132px;
+--gv-stage-arc-h: 196px;
 --gv-ring-xl: 180px;
 --gv-area-h: 250px;
 --gv-edit-prev: 797px;
---gv-arc-m: 72px;
+--gv-arc-m: 80px;
 --gv-stage-pad: 36px;
 --gv-ring-zoom-ph: 0.6;  /* the Stage's 180 ring on a phone */
 --gv-stage-pad-start: 44px;        /* a showcase medal on the Stage's arc */

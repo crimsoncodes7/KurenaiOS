@@ -204,7 +204,7 @@
     govTabs.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b, i) { b.dataset.tab = TABS[i][0]; });
     main.appendChild(addHook(KOS.ui.pageHeader({ kicker: pageMeta.kicker, title: pageMeta.title,
       sub: pageMeta.copy, actions: [cur === "status" ? el("button", { type: "button", class: "k-btn", "data-ui": "gov.edit-seat", text: "✎ Edit seat",
-        onclick: function () { KOS.show("governor", "edit"); } }) : null, govTabs].filter(Boolean) }), "gov.head"));
+        onclick: function () { KOS.show("governor", "edit"); } }) : null, govTabs, cur === "status" ? testMenu() : null].filter(Boolean) }), "gov.head"));
 
     var panel = el("div", { class: "k-gv", "data-ui": "study.panel gov.workspace", "data-page": cur });
     main.appendChild(panel);
@@ -317,14 +317,14 @@
         el("h2", { class: "k-gv-name", "data-ui": "gov.level", text: "Level " + p.level }),
         title ? el("div", { class: "k-gv-title", "data-ui": "gov.title", text: title.name })
           : o.preview ? null : el("button", { type: "button", class: "k-gv-title k-gv-title--pick", text: "Pick a title", onclick: function () { KOS.show("governor", "edit"); } }),
-        p.status ? el("div", { class: "k-gv-status-line", "data-ui": "gov.id-status", text: p.status }) : null,
+        p.status ? (o.preview ? el("div", { class: "k-gv-status-line", "data-ui": "gov.id-status", text: p.status })
+          : el("button", { type: "button", class: "k-gv-status-line", "data-ui": "gov.id-status", title: "Edit your motto", text: p.status, onclick: openProfileEditor })) : null,
         !p.status && !o.preview ? el("button", { type: "button", class: "k-gv-about-empty", text: "＋ Set a motto for your seat", onclick: openProfileEditor }) : null,
         el("div", { class: "k-gv-xp", "data-ui": "gov.xp" }, [
           bar(p.xpPct, "ink"),
           el("span", { class: "k-mono", text: KOS.ui.num(p.xpToNext) + " XP to " + (p.level + 1) })
         ])
       ].filter(Boolean));
-      if (!o.preview) txt.appendChild(accessRow(o.hpCls));
       var id = el("header", { class: "k-gv-stage-id" }, [
         o.preview ? ring(180, o.displayHp, o.hpCls, "span", { "data-seal": o.seal || null })
           : ring(180, o.displayHp, o.hpCls, "button", { type: "button", "data-ui": "gov.face",
@@ -334,15 +334,16 @@
       ]);
       if (o.seal) { var sg = id.querySelector(".k-gv-ring-seal"); var it = o.seal !== "kurenai" ? KOS.governor.item(o.seal) : null; if (sg) sg.textContent = (it && it.glyph) || "紅"; }
 
-      /* the showcase arc: six medals at 72, highest in the middle */
+      /* the showcase arc: six medals, highest in the middle, placed as
+         fractions of the room the medal leaves (--ax, --ay) */
       var arc = el("div", { class: "k-gv-arc", "data-ui": "gov.showcase", role: "group", "aria-label": "Your showcase" });
-      arc.innerHTML = '<svg class="k-gv-arc-lines" viewBox="0 0 560 132" preserveAspectRatio="none" aria-hidden="true"><path d="M 66 80 Q 291 -8 516 80" data-line="a"/><path d="M 30 112 Q 291 -40 552 112" data-line="b"/></svg>';
-      var AX = [30, 120, 210, 300, 390, 480], AY = [44, 16, 0, 0, 16, 44];
+      arc.innerHTML = '<svg class="k-gv-arc-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M 7.5 79.6 Q 50 -38.8 92.5 79.6" data-line="a"/><path d="M 2 98 Q 50 -62 98 98" data-line="b"/></svg>';
+      var AX = [0, 0.2, 0.4, 0.6, 0.8, 1], AY = [1, 0.36, 0.04, 0.04, 0.36, 1];
       var ids = o.showcase || (A ? A.showcase() : []);
       AX.forEach(function (x, i) {
         var slot = el("span", { class: "k-gv-arc-slot", "data-empty": "" });
-        slot.style.setProperty("--ax", (100 * x / 560).toFixed(2) + "%");
-        slot.style.setProperty("--ay", (100 * AY[i] / 132).toFixed(2) + "%");
+        slot.style.setProperty("--ax", String(x));
+        slot.style.setProperty("--ay", String(AY[i]));
         arc.appendChild(slot);
       });
       var note = el("div", { class: "k-gv-arc-note" });
@@ -353,9 +354,9 @@
         ids.filter(function (x) { return byId[x]; }).slice(0, 6).forEach(function (bid, i) {
           var v = byId[bid], s = slots[i];
           s.removeAttribute("data-empty");
-          s.appendChild(o.preview ? aui.medal(v, { px: 72, pips: false, decorative: true })
+          s.appendChild(o.preview ? aui.medal(v, { px: 80, pips: false, decorative: true })
             : el("button", { type: "button", class: "k-gv-arc-btn", "aria-label": aui.badgeName(v) + ", open its set", onclick: function () { KOS.show("achievements", "set/" + v.set + "/" + v.id); } },
-              [aui.medal(v, { px: 72, pips: false, decorative: true })]));
+              [aui.medal(v, { px: 80, pips: false, decorative: true })]));
         });
         if (!ids.length && !o.preview) {
           var near = views.filter(function (v) { return !v.masked && !v.full && v.state !== "soon" && v.p > 0; }).sort(function (a, b) { return b.p - a.p; })[0];
@@ -386,7 +387,7 @@
         ])
       ]);
 
-      /* the right panel: cadence over the ledger and the four live figures */
+      /* the right panel: cadence over the ledger and the five states, row for row */
       var cad = cadence(o.realSessions, o.stks), led = ledger(o.meaningful, o.routineN);
       cad.classList.remove("k-card"); led.classList.remove("k-card");
       var right = el("section", { class: "k-gv-glass k-gv-rightg", "aria-label": "Rhythm and figures" }, [cad, el("div", { class: "k-gv-rightg-low" }, [led, el("span", { class: "k-gv-vrule", "aria-hidden": "true" }), instruments(p, o)])]);
@@ -405,23 +406,32 @@
         el("p", { text: body })
       ]);
     }
-    /* the access row: state chip, the motto's edit, the HP preview and the
-       review aid that shows the app on an empty or sample account */
-    function accessRow(hpCls) {
-      return el("div", { class: "k-gv-access", "data-ui": "gov.id-access", role: "group", "aria-label": "Governor access state" }, [
-        hpCls === "critical" ? null : el("span", { class: "k-chip", "data-tone": hpCls === "healthy" ? "green" : "amber",
-          text: hpCls === "healthy" ? "● All systems open" : "● Strained · nothing locks" }),
-        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit motto", onclick: openProfileEditor }),
-        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.hp-preview", role: "group", "aria-label": "Preview HP state", "data-phone-more": "" }, [
-          el("span", { class: "k-gv-preview-k", text: "Preview" }),
-          hpPreviewButton("live", "Live"), hpPreviewButton("full", "Full"), hpPreviewButton("critical", "Off")
-        ]),
-        hpPreview !== "live" ? el("small", { class: "k-gv-preview-note", text: "Preview only · actual HP " + KOS.governor.profile().hp + "/100" }) : null,
-        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.data-mode", role: "group", "aria-label": "Which account the app shows", "data-phone-more": "" }, [
+    /* the test menu: the HP preview and the review aid that shows the app on
+       an empty or sample account, folded into a quiet ⋯ in the page header (on a phone the
+       title bar's own ⋯ sheet takes the two groups, data-phone-more) */
+    function testMenu() {
+      var menu = el("details", { class: "k-gv-tools", "data-ui": "gov.id-access" }, [
+        el("summary", { class: "k-gv-tools-btn", "aria-label": "Test controls", title: "Test controls" }, [el("span", { "aria-hidden": "true", text: "⋯" })]),
+        el("div", { class: "k-gv-tools-pop", role: "group", "aria-label": "Test controls" }, [
+          el("span", { class: "k-gv-preview-k", text: "HP preview" }),
+          el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.hp-preview", role: "group", "aria-label": "Preview HP state", "data-phone-more": "" }, [
+            hpPreviewButton("live", "Live"), hpPreviewButton("full", "Full"), hpPreviewButton("critical", "Off")
+          ]),
           el("span", { class: "k-gv-preview-k", text: "Data" }),
-          dataModeButton("", "Mine"), dataModeButton("empty", "Empty"), dataModeButton("sample", "Sample")
+          el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.data-mode", role: "group", "aria-label": "Which account the app shows", "data-phone-more": "" }, [
+            dataModeButton("", "Mine"), dataModeButton("empty", "Empty"), dataModeButton("sample", "Sample")
+          ])
         ])
-      ].filter(Boolean));
+      ]);
+      function away(e) { if (!menu.contains(e.target)) menu.open = false; }
+      menu.addEventListener("toggle", function () {
+        if (menu.open) document.addEventListener("pointerdown", away, true);
+        else document.removeEventListener("pointerdown", away, true);
+      });
+      menu.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && menu.open) { e.stopPropagation(); menu.open = false; menu.querySelector("summary").focus(); }
+      });
+      return menu;
     }
     function dataModeButton(value, label) {
       var cur = (KOS.dataMode && KOS.dataMode.mode) || "";
@@ -446,11 +456,13 @@
           hpPreview = value;
           try { sessionStorage.setItem("kos-governor-hp-preview", value); } catch (e) {}
           render();
+          document.querySelectorAll("[data-ui~='gov.hp-preview-btn']").forEach(function (b) { b.setAttribute("aria-pressed", b === this ? "true" : "false"); }, this);
         } });
     }
-    /* the four live figures: HP, Gold (a balance — no bar, invariant 78),
-       the review queue against the backlog line, and the streak toward its
-       next bonus. XP is the hero's own bar. */
+    /* the five states: HP, Gold (a balance — no bar, invariant 78), the
+       review queue against the backlog line, the study streak toward its
+       next bonus and the rest streak (the Collection's own, invariant 3)
+       toward a full week. XP is the hero's own bar. */
     function instruments(p, o) {
       var stks = o.stks, dueCount = KOS.srs.dueCount(), hpCls = o.hpCls, displayHp = o.displayHp;
       var hpLabel = { healthy: "Healthy", strained: "Strained", critical: "Critical" }[hpCls];
@@ -470,7 +482,8 @@
         if (x.bar === false) KOS.ui.state(node, "no-meter", true);
         return node;
       }
-      return el("div", { class: "k-gv-stack", "data-ui": "gov.b-vitals gov.instruments", "aria-label": "Instruments" }, [
+      return el("section", { class: "k-gv-stack", "data-ui": "gov.b-vitals gov.instruments", "aria-label": "The five states" }, [
+        cardHead("The five states"),
         instrument({ kind: "hp", label: hpPreview === "live" ? "Live HP" : "HP preview", value: displayHp + " / 100",
           hint: hpLabel + (hpCls === "healthy" ? " · all open" : " · nothing locks"), tone: hpCls, pct: displayHp }),
         instrument({ kind: "gold", label: "Gold", value: "◆ " + KOS.ui.num(p.gold), tone: "gold", bar: false,
@@ -480,7 +493,10 @@
           pct: 100 * Math.min(dueCount, limit) / limit }),
         instrument({ kind: "streak", label: "Study streak", value: stks.all + (stks.all === 1 ? " day" : " days"), tone: "crimson",
           hint: nextBonus ? (nextBonus - stks.all) + " to the " + nextBonus + "-day bonus" : "Every streak bonus earned",
-          pct: nextBonus ? 100 * (stks.all - prevBonus) / (nextBonus - prevBonus) : 100 })
+          pct: nextBonus ? 100 * (stks.all - prevBonus) / (nextBonus - prevBonus) : 100 }),
+        instrument({ kind: "rest", label: "Rest streak", value: stks.rest + (stks.rest === 1 ? " day" : " days"), tone: "bloom",
+          hint: stks.rest >= 7 ? "A full week of rest logged" : stks.rest ? (7 - stks.rest) + " to a full week" : "Log a title in the Collection",
+          pct: 100 * Math.min(stks.rest, 7) / 7 })
       ]);
     }
     /* six area cards under the stage, each in its set's panorama, its figure
@@ -609,8 +625,8 @@
       card.appendChild(cardHead("Milestone ledger", null, el("button", { type: "button", class: "k-link", "data-ui": "gov.ledger-more",
         text: "Open full log →", title: routineCount ? routineCount + " system event" + (routineCount === 1 ? "" : "s") + " filed under System" : null,
         onclick: function () { KOS.show("governor", "history"); } })));
-      /* four rows: the ledger's height matches the cadence card beside it (review A) */
-      var recent = meaningful.slice(-4).reverse();
+      /* five rows, one beside each of the five states */
+      var recent = meaningful.slice(-5).reverse();
       if (!recent.length) card.appendChild(KOS.ui.emptyState({ compact: true, mark: "◇",
         title: "Your first milestone is waiting",
         body: "Complete a focus session, review, task, paper, or collection title." }));
@@ -662,8 +678,14 @@
         paintSummary();
         dirty();
       }
-      /* the preview is the Stage at its 1440 width, scaled to the box */
-      function fitPreview() { var w = prevBox.clientWidth; if (w) prevBox.style.setProperty("--prev-s", String(w / 1328)); }
+      /* the preview is the Stage at its 1440 width, scaled to the box; the
+         box takes the scaled stage's own height, so nothing is cut off */
+      function fitPreview() {
+        var w = prevBox.clientWidth, inner = prevBox.firstChild;
+        if (!w) return;
+        prevBox.style.setProperty("--prev-s", String(w / 1328));
+        if (inner && inner.offsetHeight) prevBox.style.setProperty("--prev-h", Math.ceil(inner.offsetHeight * w / 1328) + "px");
+      }
       if (window.ResizeObserver) { var ro = new ResizeObserver(function () { if (!prevBox.isConnected) { ro.disconnect(); return; } fitPreview(); }); ro.observe(prevBox); }
       function bgName() {
         var bg = seatBgSrc(Object.assign({}, g, { seatBg: draft.seatBg }));

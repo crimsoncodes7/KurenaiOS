@@ -24,4 +24,4 @@
 - [Creatives study space](creatives-study-space.md) — 5.7.3 on feat/creatives; Platform 1 + Art 1–3 RELEASED 2026-10-30 (kos-creatives-1, 1e058d00)
 - [Google/Todoist integrations](integrations-google-todoist.md) — 5.15 RELEASED 2026-10-30 (kos-connect-1, d47701df), smoke112; real sign-in not yet tried
 - [Design handoffs are a guide](design-handoff-not-1to1.md) — never 1:1; match Code's desk; minimal text; side column never taller than the hero
-- [Achievements badge wall](achievements-badge-wall.md) — 5.16/5.17 BUILT 2026-10-30 on feat/art-review (unreleased); look comes from Claude Design prompt 19; restyled from design turn 35 + Seat as the Stage (31 Oct); 46/101 batch-27 badges in, batch 28 spots pending
+- [Achievements badge wall](achievements-badge-wall.md) — 5.16/5.17 BUILT 2026-10-30 on feat/art-review (unreleased); look comes from Claude Design prompt 19; restyled from design turn 35 + Seat as the Stage (31 Oct); 87/101 batch-27 badges in (14 left), batch 28 spots pending; Seat polish 31 Oct (five states, ⋯ test menu)

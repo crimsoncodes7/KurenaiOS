@@ -241,7 +241,7 @@ chronological diary here.
   page (#/achievements), the light, the unlock overlay, the progress ping,
   the Governor's card, the term/year story and the share card's showcase;
   the 153 unit badges imported to `assets/app/img/`. Waiting: art batches
-  27's last 55 badges and batch 28's 19 set spots (batch 26's panoramas and 46 badges are imported); the page and the Governor's Seat (the Stage, `#/governor/edit`) are restyled from design turn 35. With it the review of all 322
+  27's last 14 badges and batch 28's 19 set spots (batch 26's panoramas and 87 of batch 27's badges are imported); the page and the Governor's Seat (the Stage, `#/governor/edit`) are restyled from design turn 35. With it the review of all 322
   app images (the nine redos made and passed the same day, marked `redone`) and the importer's fixes,
   and design prompt 18's four small passes built directly (Money's first
   run, Files when empty, the Japanese path upright at ≤ 860, the attempts
