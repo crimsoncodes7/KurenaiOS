@@ -99,15 +99,25 @@ async function screenshot(path) {
   await writeFile(path, Buffer.from(shot.data, "base64"));
 }
 
+/* the Badge Wall's unlock overlay (invariant 163) arrives when seeded
+   activity earns a tier; the audit drives the page under it, which a person
+   cannot through a modal, so it is put away before each action */
+async function dismissUnlock() {
+  await evaluate(`document.querySelectorAll('[data-ui~="ach.unlock"]').forEach(box => box.parentElement.remove())`);
+}
+
 async function clickText(scope, text) {
+  await dismissUnlock();
   const ok = await evaluate(`(() => {
     const root = document.querySelector(${JSON.stringify(scope)}) || document;
     /* the visible label, or the accessible name of an icon button (✕ = "Close") */
     const b = [...root.querySelectorAll("button")].find(x => x.textContent.trim().includes(${JSON.stringify(text)}))
       || [...root.querySelectorAll("button[aria-label]")].find(x => x.getAttribute("aria-label") === ${JSON.stringify(text)});
-    if (!b) return false; b.click(); return true;
+    if (!b) return [...root.querySelectorAll("button")].map(x => x.textContent.trim() || x.getAttribute("aria-label")).filter(Boolean).slice(0, 40);
+    b.click(); return true;
   })()`);
-  assert(ok, `Button not found: ${scope} / ${text}`);
+  /* a miss names what WAS there, so a renamed control is found in one run */
+  assert(ok === true, `Button not found: ${scope} / ${text} — buttons there: ${JSON.stringify(ok)}`);
 }
 
 
@@ -143,6 +153,7 @@ async function setRange(label, value) {
 }
 
 async function auditView(view, arg, selector) {
+  await dismissUnlock();
   await evaluate(`KOS.show(${JSON.stringify(view)}, ${JSON.stringify(arg)})`);
   if (selector) await waitFor(`document.querySelector(${JSON.stringify(selector)})`, `${view} content`);
   await pause(180);
@@ -572,16 +583,21 @@ const selectionChanged = await evaluate(`(() => {
   return { before, after: document.querySelector('[data-ui~="plan.bn-rem"] b').textContent };
 })()`);
 assert(selectionChanged.before !== selectionChanged.after, `Planner selection did not update remaining allowance: ${JSON.stringify(selectionChanged)}`);
-await clickText("[data-ui~='plan.budget']", "Edit allowance");
-await waitFor("document.querySelector('[data-ui~=\"plan.budget-dialog\"]')", "Budget Planner budget editor");
-await clickText("[data-ui~='plan.budget-dialog']", "Cancel");
-await waitFor("!document.querySelector('[data-ui~=\"plan.budget-dialog\"]')", "Budget Planner budget editor cancel");
+/* 27a: the Collection's budget IS Money's Collection category (invariant
+   5a), so the allowance card links to Money › Budgets instead of editing */
+await clickText("[data-ui~='plan.budget']", "Money › Budgets");
+await waitFor("KOS.currentNav && KOS.currentNav().viewId === 'money'", "the allowance's link to Money › Budgets");
+await evaluate(`KOS.show("wishlist")`);
+await waitFor("document.querySelector('[data-ui~=\"plan.hero\"]')", "back to the Wishlist");
 await screenshot("/tmp/kos-planner-1440.png");
 await evaluate(`(() => { const main = document.getElementById('main'), queue = document.querySelector('[data-ui~="plan.queue"]'); main.scrollTo({ top: main.scrollTop + queue.getBoundingClientRect().top - 22, behavior: 'instant' }); })()`);
 await pause(160);
 await screenshot("/tmp/kos-planner-queue-1440.png");
 await evaluate(`document.getElementById('main').scrollTo({ top: 0, behavior: 'instant' })`);
 await clickText("[data-ui~='plan.hero']", "Mark purchased");
+/* 27n: Mark purchased first says what it will do, then its own button does it */
+await waitFor("document.querySelector('[data-ui~=\"plan.buy-go\"]')", "the Mark purchased dialog");
+await evaluate(`document.querySelector('[data-ui~="plan.buy-go"]').click()`);
 await waitFor(`KOS.wishlist.get(${plannerHeroId})?.status === 'purchased' && KOS.wishlist.get(${plannerHeroId})?.linkedEntryId != null`, "Planner purchase and Collection handoff", 7000);
 const plannerPurchase = await evaluate(`new Promise((resolve, reject) => {
   const item = KOS.wishlist.get(${plannerHeroId});
@@ -594,10 +610,11 @@ assert(plannerPurchase.item.status === "purchased" && plannerPurchase.spend >= 7
   plannerPurchase.entry?.module === "game" && plannerPurchase.entry?.status === "planned",
   `Planner purchase did not update history/Collection truth: ${JSON.stringify(plannerPurchase)}`);
 
-/* Collection Goals v2 + Shrine Hall of Fame: seed one deliberate campaign
+/* Goals (27i–27k) + Shrine Hall of Fame: seed one deliberate campaign
    and four favourites, then exercise both wide and phone compositions plus
-   the two new modal surfaces. */
+   the new-goal dialog and its editor. */
 await evaluate(`(async () => {
+  const today = KOS.srs.todayISO();
   const art = window.__cropAudit.cover, banner = window.__cropAudit.banner;
   const add = data => new Promise((resolve, reject) => KOS.mediadb.add(data, (err, row) => err ? reject(err) : resolve(row)));
   const remove = id => new Promise((resolve, reject) => KOS.mediadb.remove(id, err => err ? reject(err) : resolve(), { skipTombstone: true }));
@@ -624,10 +641,10 @@ await evaluate(`(async () => {
      (379 completed titles, 13k episodes) a 100-title goal auto-completes
      the moment it is created — correct behaviour from the goals engine,
      and it emptied the "active" tab this step is composing. */
-  KOS.goals.add({ title: "Finish a thousand-title season", description: "A compact campaign across every vault.", type: "titles-completed", target: 1000, deadline: "2026-09-30" });
+  KOS.goals.add({ title: "Finish a thousand-title season", description: "A compact campaign across every vault.", type: "titles-completed", target: 1000, deadline: KOS.srs.addDays(today, 60) });
   KOS.goals.add({ title: "Complete The Long Shelf", description: "Follow the linked reading progress automatically.", type: "finish-series", linkedEntryId: entries[1].id, notes: "Read with no deadline pressure." });
-  KOS.goals.add({ title: "Watch fifty thousand episodes", type: "episodes-watched", target: 50000, deadline: "2026-10-15" });
-  KOS.goals.add({ title: "Keep the month below £120", description: "A planner-aware ceiling, settled at month end.", type: "spend-below", target: 120, startDate: "2026-08-01", deadline: "2026-08-31" });
+  KOS.goals.add({ title: "Watch fifty thousand episodes", type: "episodes-watched", target: 50000, deadline: KOS.srs.addDays(today, 30) });
+  KOS.goals.add({ title: "Keep the month below £120", description: "A planner-aware ceiling, settled at month end.", type: "spend-below", target: 120, startDate: today, deadline: KOS.srs.addDays(today, 20) });
   KOS.goals.add({ title: "Write three short reflections", description: "A manual intention for the part data cannot measure.", type: "custom-manual", target: 3, current: 1 });
   KOS.store.state.media.goalsTab = "active";
   KOS.store.state.media.shrine = { module: "", sort: "score", description: "Only the works I would recommend without hesitation." };
@@ -638,83 +655,84 @@ await evaluate(`(async () => {
   window.__collectionAudit = { entries };
 })()`);
 
+/* 27i: the lead goal is the hero, the rest are cards in one grid with the
+   "aim at something new" tile closing it; four tabs (week, month, all, done) */
 await auditView("goals", undefined, "[data-ui~='goal.overview']");
-await waitFor("document.querySelectorAll('[data-ui~=\"goal.card\"]').length >= 4", "Collection Goals campaign");
+await clickText("#main [data-ui~='ui.page-actions']", "All");
+await waitFor("document.querySelector('[data-ui~=\"goal.hero\"]') && document.querySelectorAll('[data-ui~=\"goal.card\"]').length >= 3", "the Goals campaign");
 const goalComposition = await evaluate(`(() => {
-  const root = document.querySelector('[data-ui~="goal.workspace"]').getBoundingClientRect();
-  const overview = document.querySelector('[data-ui~="goal.overview"]').getBoundingClientRect();
-  const command = document.querySelector('[data-ui~="goal.commandbar"]').getBoundingClientRect();
-  const cards = [...document.querySelectorAll('[data-ui~="goal.card"]')].map(c => c.getBoundingClientRect());
+  const page = document.querySelector('[data-ui~="goal.page"]').getBoundingClientRect();
+  const hero = document.querySelector('[data-ui~="goal.hero"]').getBoundingClientRect();
+  const grid = document.querySelector('[data-ui~="goal.grid"]').getBoundingClientRect();
+  const cards = [...document.querySelectorAll('[data-ui~="goal.grid"] [data-ui~="goal.card"]')].map(c => c.getBoundingClientRect());
+  const widths = cards.map(r => Math.round(r.width));
   return {
-    overviewDelta: Math.round(Math.abs(root.width - overview.width)),
-    commandDelta: Math.round(Math.abs(root.width - command.width)),
-    summary: document.querySelectorAll('[data-ui~="goal.metric"]').length,
-    zeroSummary: [...document.querySelectorAll('[data-ui~="goal.metric"] b')].some(n => Number(n.textContent) === 0),
-    tabs: document.querySelectorAll('[data-ui~="goal.tabs"] [data-ui~="ui.tab"]').length,
-    alignedCards: cards.every(r => r.width >= 330)
+    heroDelta: Math.round(Math.abs(page.width - hero.width)),
+    gridDelta: Math.round(Math.abs(page.width - grid.width)),
+    cards: cards.length, sameWidth: Math.max(...widths) - Math.min(...widths) <= 2,
+    ring: !!document.querySelector('[data-ui~="goal.hero"] [data-ui~="goal.ring"]'),
+    newTile: !!document.querySelector('[data-ui~="goal.grid"] [data-ui~="goal.new-tile"]'),
+    tabs: document.querySelectorAll('#main [data-ui~="ui.page-actions"] [data-ui~="ui.tab"]').length,
+    overflow: document.getElementById('main').scrollWidth > document.getElementById('main').clientWidth
   };
 })()`);
-assert(goalComposition.overviewDelta <= 2 && goalComposition.commandDelta <= 2 &&
-  goalComposition.summary >= 1 && goalComposition.summary <= 4 && !goalComposition.zeroSummary &&
-  goalComposition.tabs === 3 && goalComposition.alignedCards,
-  `Collection Goals composition is incomplete: ${JSON.stringify(goalComposition)}`);
+assert(goalComposition.heroDelta <= 2 && goalComposition.gridDelta <= 2 && goalComposition.cards >= 3 && goalComposition.sameWidth &&
+  goalComposition.ring && goalComposition.newTile && goalComposition.tabs === 4 && !goalComposition.overflow,
+  `Goals composition is incomplete: ${JSON.stringify(goalComposition)}`);
 await screenshot("/tmp/kos-goals-1440.png");
-await clickText("[data-ui~='goal.commandbar']", "New goal");
-await waitFor("document.querySelector('[data-ui~=\"goal.editor\"] [data-ui~=\"goal.editor-body\"]')", "Collection Goal editor");
+
+/* 27j: New goal offers templates and every type; a type opens its editor,
+   which fits the screen and keeps Back · Cancel · Save goal together */
+await clickText("#main [data-ui~='ui.page-actions']", "New goal");
+await waitFor("document.querySelector('[data-ui~=\"goal.new-dialog\"] [data-ui~=\"goal.type\"]')", "the New goal dialog");
+const goalPicker = await evaluate(`(() => ({
+  templates: document.querySelectorAll('[data-ui~="goal.new-dialog"] [data-ui~="goal.template"]').length,
+  types: document.querySelectorAll('[data-ui~="goal.new-dialog"] [data-ui~="goal.type"]').length
+}))()`);
+assert(goalPicker.templates >= 3 && goalPicker.types >= 10, `the New goal dialog is thin: ${JSON.stringify(goalPicker)}`);
+await screenshot("/tmp/kos-goal-new-1440.png");
+await clickText("[data-ui~='goal.new-dialog']", "Finish a series");
+await waitFor("document.querySelector('[data-ui~=\"goal.editor\"] [data-ui~=\"goal.save\"]')", "the goal editor");
 const goalModal = await evaluate(`(() => {
-  const modal = document.querySelector('[data-ui~="goal.editor"]'), body = modal.querySelector('[data-ui~="goal.editor-body"]');
-  const sections = [...modal.querySelectorAll('[data-ui~="goal.form-group"]')];
-  const identity = sections[0].getBoundingClientRect();
-  const description = sections[0].querySelector('textarea').getBoundingClientRect();
-  const measure = sections[1].getBoundingClientRect();
-  const lastVisibleMeasureField = sections[1].querySelector('[data-ui~="goal.target-field"]').getBoundingClientRect();
-  return { sections: modal.querySelectorAll('[data-ui~="goal.form-group"]').length,
-    internalScroll: body.scrollHeight >= body.clientHeight,
-    sectionsUnclipped: sections.every(section => section.scrollHeight <= section.clientHeight + 1),
-    identityComplete: description.bottom <= identity.bottom + 1,
-    measureComplete: lastVisibleMeasureField.bottom <= measure.bottom + 1,
-    deleteSeparated: !modal.querySelector('[data-ui~="goal.delete"]'),
-    actions: modal.querySelectorAll('[data-ui~="goal.modal-actions"] button').length };
+  const ed = document.querySelector('[data-ui~="goal.editor"]'), box = ed.closest('[data-ui~="ui.dialog"]') || ed;
+  const r = box.getBoundingClientRect();
+  const fields = [...ed.querySelectorAll('[data-ui~="ui.field"]')];
+  return {
+    fields: fields.length,
+    inView: r.top >= 0 && r.bottom <= innerHeight + 1,
+    fieldsUnclipped: fields.every(f => f.scrollHeight <= f.clientHeight + 1),
+    actions: ['goal.back', 'goal.save'].every(h => ed.querySelector('[data-ui~="' + h + '"]')) &&
+      [...ed.querySelectorAll('button')].some(b => b.textContent.trim() === 'Cancel'),
+    deleteSeparated: !ed.querySelector('[data-ui~="goal.delete"]'),
+    /* every field says what it is: no two labelled alike (two "Title"s, 31 October 2026) */
+    labelsUnique: (l => new Set(l).size === l.length)([...ed.querySelectorAll('[data-ui~="ui.field-label"]')].map(n => n.textContent.trim()))
+  };
 })()`);
-assert(goalModal.sections === 4 && goalModal.internalScroll && goalModal.sectionsUnclipped &&
-  goalModal.identityComplete && goalModal.measureComplete && goalModal.deleteSeparated && goalModal.actions === 2,
+assert(goalModal.fields >= 4 && goalModal.inView && goalModal.fieldsUnclipped && goalModal.actions && goalModal.deleteSeparated && goalModal.labelsUnique,
   `Goal editor structure regressed: ${JSON.stringify(goalModal)}`);
 await pause(260);
 await screenshot("/tmp/kos-goal-editor-1440.png");
-await evaluate(`(() => {
-  const modal = document.querySelector('[data-ui~="goal.editor"]');
-  const select = modal.querySelector('[data-ui~="goal.type-field"] select');
-  select.value = 'specific-title';
-  select.dispatchEvent(new Event('change', { bubbles: true }));
-  const body = modal.querySelector('[data-ui~="goal.editor-body"]');
-  body.scrollTop = modal.querySelectorAll('[data-ui~="goal.form-group"]')[1].offsetTop - 12;
-})()`);
-await pause(120);
-const linkedMeasure = await evaluate(`(() => {
-  const section = document.querySelectorAll('[data-ui~="goal.form-group"]')[1];
-  const link = section.querySelector('[data-ui~="goal.link-wrap"]');
-  const sr = section.getBoundingClientRect(), lr = link.getBoundingClientRect();
-  return { visible: !link.hidden, unclipped: section.scrollHeight <= section.clientHeight + 1, linkInside: lr.bottom <= sr.bottom + 1 };
-})()`);
-assert(linkedMeasure.visible && linkedMeasure.unclipped && linkedMeasure.linkInside,
-  `Dynamic linked-title measure is clipped: ${JSON.stringify(linkedMeasure)}`);
-await screenshot("/tmp/kos-goal-editor-linked-1440.png");
-await clickText("[data-ui~='goal.modal-actions']", "Cancel");
-await waitFor("!document.querySelector('[data-ui~=\"goal.editor\"]')", "Collection Goal editor close");
+await clickText("[data-ui~='goal.editor']", "Cancel");
+await waitFor("!document.querySelector('[data-ui~=\"goal.editor\"]')", "Goal editor close");
 
+/* 27k: a goal's own page, with its pace chart */
+await evaluate(`document.querySelector('[data-ui~="goal.hero"] [data-ui~="goal.hero-open"], [data-ui~="goal.hero"] [data-ui~="goal.open"]').click()`);
+await waitFor("document.querySelector('[data-ui~=\"goal.detail\"]')", "a goal's own page");
+await screenshot("/tmp/kos-goal-detail-1440.png");
+
+/* one goal is the hero alone: no card stretched into an empty billboard */
 await evaluate(`(() => {
   window.__goalCampaignBackup = JSON.stringify(KOS.store.state.goals);
   const manual = KOS.store.state.goals.items.find(goal => goal.type === 'custom-manual');
   KOS.store.state.goals.items = [manual];
   KOS.show('goals', undefined, { _nav: true });
 })()`);
-await waitFor("document.querySelectorAll('[data-ui~=\"goal.card\"]').length === 1", "single-goal campaign");
+await waitFor("document.querySelector('[data-ui~=\"goal.hero\"]')", "single-goal campaign");
 const singleGoal = await evaluate(`(() => {
-  const grid = document.querySelector('[data-ui~="goal.grid"]').getBoundingClientRect();
-  const card = document.querySelector('[data-ui~="goal.card"]').getBoundingClientRect();
-  return { grid: Math.round(grid.width), card: Math.round(card.width), height: Math.round(card.height) };
+  const tall = [...document.querySelectorAll('[data-ui~="goal.grid"] > *')].map(n => Math.round(n.getBoundingClientRect().height));
+  return { cards: document.querySelectorAll('[data-ui~="goal.grid"] [data-ui~="goal.card"]').length, tallest: Math.max(0, ...tall) };
 })()`);
-assert(singleGoal.card < singleGoal.grid * .62 && singleGoal.height < 300,
+assert(singleGoal.cards === 0 && singleGoal.tallest < 360,
   `A single goal still expands into an empty billboard: ${JSON.stringify(singleGoal)}`);
 await pause(180);
 await screenshot("/tmp/kos-goals-single-dark-1440.png");
@@ -789,7 +807,7 @@ await evaluate("document.querySelector('[data-ui~=\"shrine.share-dialog\"]').clo
 
 await viewport(390, 844);
 await auditView("goals", undefined, "[data-ui~='goal.overview']");
-assert(await evaluate("document.querySelectorAll('[data-ui~=\"goal.grid\"] [data-ui~=\"goal.card\"]').length >= 4"), "Goal cards disappeared at phone width");
+assert(await evaluate("document.querySelector('[data-ui~=\"goal.hero\"]') && document.querySelectorAll('[data-ui~=\"goal.grid\"] [data-ui~=\"goal.card\"]').length >= 3"), "Goal cards disappeared at phone width");
 await evaluate("document.getElementById('toast')?.style.setProperty('display', 'none')");
 await screenshot("/tmp/kos-goals-mobile-390.png");
 await evaluate(`(() => {
@@ -899,7 +917,10 @@ await evaluate("document.querySelector('[data-ui~=\"study.compare\"]').click()")
 await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"]')", "comparison workspace for focus action");
 await clickText("[data-ui~='study.compare-actions']", "Focus Topic A");
 await waitFor("document.querySelector('[data-ui~=\"focus.link-row\"]')", "prefilled focus timer");
-assert(await evaluate(`(() => { const s = document.querySelectorAll('[data-ui~="focus.link-row"] select'); return s[0].value === 'compsci' && !!s[1].value; })()`),
+/* invariant 26e: the topic is the shared picker's chip, the subject its select */
+assert(await evaluate(`(() => { const row = document.querySelector('[data-ui~="focus.link-row"]'), s = row.querySelector('select');
+  const chip = row.querySelector('[data-ui~="topic-picker"] [data-ui~="tp.chip"]');
+  return s.value === 'compsci' && !!chip && /^compsci:/.test(chip.dataset.key); })()`),
   "Focus Topic A did not prefill the selected subject/topic");
 
 /* Matrix on-the-go card clipping (the cover strip became a grid of wide
@@ -1105,8 +1126,8 @@ const assistantPhone = await evaluate(`(() => {
   return result;
 })()`);
 assert(assistantPhone.columns === 1 && assistantPhone.doc <= assistantPhone.viewport + 1 && assistantPhone.characterHeight <= 100 &&
-  /* the phone drawer is a sheet inset 12px from each edge */
-  assistantPhone.drawerWidth === assistantPhone.viewport - 24 && assistantPhone.focused,
+  /* 15l–15m: the phone drawer is a bottom sheet the full width of the screen */
+  assistantPhone.drawerWidth === assistantPhone.viewport && assistantPhone.focused,
   `Assistant phone layout/focus failed: ${JSON.stringify(assistantPhone)}`);
 await screenshot("/tmp/kos-assistant-mobile-390.png");
 
@@ -1161,6 +1182,6 @@ await viewport(1440, 900);
 await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
-console.log("VISUAL AUDIT PASS — live crop workflows, Collection Goals, Shrine/share card, Budget Planner, Compare Topics, Assistant character workspace, its 28 offline assets, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-assistant-1440.png, /tmp/kos-assistant-collapsed-1440.png, /tmp/kos-assistant-mobile-390.png, /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-editor-linked-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-seals-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("VISUAL AUDIT PASS — live crop workflows, Goals (overview, New goal, editor, a goal's page), Shrine/share card, the Wishlist, Compare Topics, Assistant character workspace, its 28 offline assets, persistence, backup/restore and responsive adjacent pages verified");
+console.log("Screenshots: /tmp/kos-assistant-1440.png, /tmp/kos-assistant-collapsed-1440.png, /tmp/kos-assistant-mobile-390.png, /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-new-1440.png, /tmp/kos-goal-detail-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-seals-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

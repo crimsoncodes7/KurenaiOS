@@ -862,8 +862,8 @@
         form.appendChild(field("Media", extra.module));
       }
       if (def.fields.linked) {
-        extra.linked = select([["", "Searching your vault…"]], g.linkedEntryId || "", { "aria-label": "Title" });
-        form.appendChild(field("Title", extra.linked, "From what is in progress in your vault."));
+        extra.linked = select([["", "Searching your vault…"]], g.linkedEntryId || "", { "aria-label": "Linked title" });
+        form.appendChild(field("Linked title", extra.linked, "From what is in progress in your vault."));
         if (KOS.mediadb) KOS.mediadb.query({ status: "inProgress", sort: "title" }, function (e, rows) {
           extra.linked.textContent = "";
           (rows || []).slice(0, 60).forEach(function (r) { var o = el("option", { value: String(r.id), text: r.title }); if (String(r.id) === String(g.linkedEntryId)) o.selected = true; extra.linked.appendChild(o); });
