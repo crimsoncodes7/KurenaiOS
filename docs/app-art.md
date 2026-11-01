@@ -69,6 +69,15 @@ image (45) and it keyed the yellow-green out of Creatives' moegi badges;
 now only the ground is keyed, and a badge (`solid`) keys only the ground
 round the disc.
 
+### Imported (1 November 2026)
+
+Every image is in `assets/app/img/` (468 WebP, the 322 app images plus the
+Badge Wall's): the slots that are not built yet (Home's seasons, the desks,
+spotlights, Focus scenes, halls, empty states, Kurenai and her outfits,
+banners, finishes, avatars, frames, skins, card styles, seals) have their
+art in the repository for Claude Design's prompt 18 and the build. Nothing
+draws them until their pass lands.
+
 ## Making the art (the user, by hand, in waves)
 
 1. Start the dev server: `python3 tools/dev_server.py 8123`.
