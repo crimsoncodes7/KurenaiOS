@@ -2740,6 +2740,7 @@
     loadAudit: loadAudit,
     state: function () { return S; },
     MASCOT_STATES: MASCOT_STATES,
+    stateImage: stateImage,
     CHARACTER_REACTIONS: CHARACTER_REACTIONS,
     _config: function (o) {
       o = o || {};

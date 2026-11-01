@@ -150,6 +150,36 @@ default is the redesign (batch 1–2). The art (outfits, scenes, halls,
 banners, finishes) arrives through the manifest; themes, frames, skins,
 seals, papers and pens are CSS and tokens from pass 18.8.
 
+## Built from design turn 34 (1 November 2026, `feat/art-shop`, not deployed)
+
+The handoff is `~/Downloads/design_handoff_kurenaios_art_shop/` (frames
+34d–34p). It was read as a guide: where a frame only moved the app's own
+layout around (panels under the Home and Study heroes, the Assistant's
+header tabs), the app's layout was kept.
+
+- **Art slots (34k–34m)**: `js/core/art.js` (`KOS.art`: `pick`, `layer`,
+  `spot`, Decorative art per device `state.ui.art`, `:root[data-art=off]`);
+  Home's seasons (Critical and an uploaded banner keep the slot), every
+  subject desk, the vault Spotlights (an AniList or uploaded banner still
+  wins), the Focus scene, the Exam Room, an owned Shrine hall, and
+  empty-state spots through `emptyState({art})`. Tokens `--art-*` in
+  tokens.css, Dawn's dials in themes.css. The switch is on Avatar & profile.
+- **The Assistant (34d)**: the six states on her redesign
+  (`app.base.kurenai`, `app.face.kurenai.<face>`; an outfit swaps both),
+  the 2 × 2 suggestions, Hide (`state.ui.kurenaiHidden`).
+- **The Gold Shop (34g–34i)**: the Stage (balance, Try on panel, Kurenai as
+  the mannequin), departments by where an item goes, cards with state
+  (buy · try · owned · in use), the preview sheet with Pin as a goal
+  (`g.shopPin`, no notifications). Every item in the table below is in the
+  catalogue; Try on is transient (`KOS.governor.tryItem`). Worn: outfits
+  (the Assistant), scenes (Focus), halls (Shrine), painted banners (the
+  Seat's stage), avatars and painted frames (`avatarNode`), seals, shelf
+  skins and Shrine card styles (their pictures), the four themes.
+- **Still to build**: the rotation drawer and "Your own picture" unlocks
+  (34n, roadmap 5.14), share-card finishes on the share card, papers and
+  pen sets in the ink engine, page headers (`app.hero.page.*`), Exams
+  covers, Reports' story covers, the phone portrait crop (34e).
+
 ## The build, one release each (on the other account if this one is out)
 
 Branch from `main` (fetch first). Each release: its smoke suite, the full

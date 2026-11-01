@@ -283,14 +283,14 @@ step("theme inheritance and clean assets cover light and dark modes", async () =
     assert(/prefers-reduced-motion[\s\S]{0,300}assistant-trigger/.test(css), "reduced-motion trigger coverage missing");
   if (!pending("views/assistant", "the mascot's reduced-motion guard"))
     assert(/prefers-reduced-motion[\s\S]{0,300}asst-mascot-img/.test(css), "reduced-motion mascot coverage missing");
-  const stateFiles = Object.values(A.MASCOT_STATES).map(state => state.image);
+  const stateFiles = Object.keys(A.MASCOT_STATES).map(s => A.stateImage(s, ""));
   assert(new Set(stateFiles).size === 6, "each state needs its own approved full-body pose");
   const emblem = fs.readFileSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-emblem-production.png"));
   stateFiles.forEach(file => {
+    /* the redesign (34d): keyed WebP with alpha (a VP8X header with the alpha flag) */
     const mascot = fs.readFileSync(path.join(ROOT, "assets/assistant", file));
-    assert(mascot.readUInt32BE(16) === 1024 && mascot.readUInt32BE(20) === 1536,
-      `full-body asset must use the canonical canvas: ${file}`);
-    assert(mascot.readUInt8(25) === 6, `full-body asset must carry RGBA alpha: ${file}`);
+    assert(mascot.toString("ascii", 8, 12) === "WEBP", `full-body asset must be a WebP: ${file}`);
+    assert(mascot.toString("ascii", 12, 16) === "VP8X" && (mascot.readUInt8(20) & 0x10), `full-body asset must carry alpha: ${file}`);
   });
   assert(emblem.readUInt8(25) === 6, "production emblem must carry RGBA alpha");
   const zones = doc.querySelectorAll("[data-ui~='asst.mascot'] [data-ui~='asst.hit-zone']");

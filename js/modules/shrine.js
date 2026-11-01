@@ -949,6 +949,9 @@
       var skin = KOS.governor.shrineStyle && KOS.governor.shrineStyle();
       var hall = el("section", { class: "k-shr", "data-ui": "shrine.hall", "data-skin": skin || null,
         "data-single": total === 1 ? "" : null, "aria-label": "Ranked Hall of Fame" });
+      /* a painted card style (34g) frames every cover with its picture */
+      var styleIt = skin && KOS.governor.item(skin);
+      if (styleIt && styleIt.art) { hall.setAttribute("data-painted", ""); hall.style.setProperty("--skin-art", "url(assets/app/img/" + styleIt.art + ".webp)"); }
       hall.appendChild(feature(favourites[0], total));
 
       var podium = el("div", { class: "k-shr-podium", "data-ui": "shrine.stage" });

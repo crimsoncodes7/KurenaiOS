@@ -175,13 +175,16 @@ step("all six character states map to unique full-body RGBA assets and 22 local 
   states.forEach(s => {
     const st = A.MASCOT_STATES[s];
     assert(st && st.label, s + " needs a textual label");
-    const file = path.join(ROOT, "assets/assistant", st.image);
-    assert(fs.existsSync(file), "missing production asset: " + st.image);
-    const png = fs.readFileSync(file);
-    assert(png.readUInt32BE(16) === 1024 && png.readUInt32BE(20) === 1536,
-      s + " must use the canonical 1024x1536 canvas");
-    assert(png.readUInt8(25) === 6, s + " must be a true RGBA PNG");
-    stateFiles.push(st.image);
+    /* the redesign (design turn 34d): the base and her five faces, keyed
+       WebP on one canvas, and each outfit's own six */
+    const img = A.stateImage(s, "");
+    const file = path.join(ROOT, "assets/assistant", img);
+    assert(fs.existsSync(file), "missing production asset: " + img);
+    const webp = fs.readFileSync(file);
+    assert(webp.toString("ascii", 0, 4) === "RIFF" && webp.toString("ascii", 8, 12) === "WEBP", s + " must be a WebP");
+    ["winter", "yukata", "exam", "rain", "newyear", "dayoff", "gala"].forEach(o =>
+      assert(fs.existsSync(path.join(ROOT, "assets/assistant", A.stateImage(s, o))), "missing " + o + " outfit art for " + s));
+    stateFiles.push(img);
     assert(st.audio && fs.existsSync(path.join(ROOT, "assets/assistant", st.audio)), "missing state clip: " + st.audio);
   });
   assert(new Set(stateFiles).size === 6, "every lifecycle state needs distinct full-body art");

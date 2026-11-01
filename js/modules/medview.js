@@ -1351,7 +1351,7 @@
     } else if (KOS.art && KOS.art.on() && KOS.art.pick("spot:" + modId)) {
       /* the vault's painting (34l): the reading lamp right of the cover,
          under the hero's own four-stop scrim */
-      KOS.ui.state(hero, "vh-painted", true);
+      KOS.ui.state(hero, "vh-art", true);
       KOS.art.layer(hero, "spot:" + modId, { eager: true });
     } else {
       KOS.ui.state(hero, "vh-fallback", true);

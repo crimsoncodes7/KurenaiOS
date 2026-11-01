@@ -1280,6 +1280,10 @@
           var skin = lay === "shelf" && KOS.governor.shelfSkin && KOS.governor.shelfSkin();
           area.layout(lay, reorderMode ? null : LIST_COLS);
           if (skin) area.holder.setAttribute("data-skin", skin); else area.holder.removeAttribute("data-skin");
+          /* a painted skin (34g) is its picture behind the spines */
+          var skinIt = skin && KOS.governor.item(skin);
+          if (skinIt && skinIt.art) { area.holder.setAttribute("data-painted", ""); area.holder.style.setProperty("--skin-art", "url(assets/app/img/" + skinIt.art + ".webp)"); }
+          else { area.holder.removeAttribute("data-painted"); area.holder.style.removeProperty("--skin-art"); }
           area.holder.setAttribute("data-ui", lay === "shelf" ? "books.shelves" : "vault.grid");
           var filtered = rail.status() || rail.customList() || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;
           area.countLine.textContent = rowsOrdered.length + " series" +

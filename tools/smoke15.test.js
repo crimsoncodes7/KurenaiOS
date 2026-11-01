@@ -112,7 +112,7 @@ step("canonical tokens exist and the legacy names are gone", async () => {
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
-  if (themes.length !== 25) throw new Error("25 themes expected (23 paid + 2 free), got " + themes.length);
+  if (themes.length !== 29) throw new Error("29 themes expected (23 + 4 from design turn 34o + 2 free), got " + themes.length);
   /* Graphite is the default: it paints :root with a dark colour scheme
      before any script runs, so nothing flashes light. Dawn (frame 21a) is
      chosen, or followed from the device, by the Governor at boot. */
