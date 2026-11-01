@@ -1290,34 +1290,33 @@
     /* ================= AVATAR — the live identity (12c) ================= */
     function renderAvatar() {
       var p = KOS.governor.profile();
-      var grid = el("div", { class: "k-gv-studio", "data-ui": "gov.avatar-studio" });
+      /* the Stage (redesigned 1 November 2026, in the language of Status and
+         the Gold Shop): your banner as the ground, the live identity at its
+         own size on the left, the three things you set about it on glass */
+      var grid = el("section", { class: "k-gv-stage k-gv-studio", "data-ui": "gov.avatar-studio", "aria-label": "Profile" });
+      stageBg(grid);
       panel.appendChild(grid);
-
-      /* --- left: the live identity (the same record the topbar popover renders) --- */
-      var preview = el("aside", { class: "k-gv-id", "data-ui": "gov.identity-stage", "aria-label": "Live identity preview" });
-      var band = el("div", { class: "k-gv-id-band" }, [el("span", { class: "k-chip k-gv-id-live", text: "Live identity" })]);
-      if (KOS.governor.bannerCss()) KOS.governor.applyBanner(band, { scrim: "governor" });
-      preview.appendChild(band);
-      preview.appendChild(el("div", { class: "k-gv-id-body" }, [
+      var preview = el("div", { class: "k-gv-id", "data-ui": "gov.identity-stage", "aria-label": "Live identity preview" }, [
         ring(94, p.hp, p.hpState, "span", { "data-ui": "gov.avatar-preview-avatar" }),
-        el("div", { class: "k-gv-id-name" }, ["Level " + p.level + " ", el("span", { text: "· " + p.rank })]),
-        p.status ? el("div", { class: "k-gv-id-status", "data-ui": "gov.avatar-preview-status", text: p.status }) : null
-        /* the topbar seal preview went (review B): the card is the portrait,
-           banner and status, and its foot lines up with the Frames card */
-      ].filter(Boolean)));
+        el("div", { class: "k-gv-id-txt" }, [
+          el("div", { class: "k-gv-stage-kick", text: "Live identity" }),
+          el("div", { class: "k-gv-id-name" }, ["Level " + p.level + " ", el("span", { text: "· " + p.rank })]),
+          p.status ? el("div", { class: "k-gv-id-status", "data-ui": "gov.avatar-preview-status", text: p.status }) : null
+        ].filter(Boolean))
+      ]);
       grid.appendChild(preview);
       function bannerName(id) {
-        var found = KOS.governor.catalog().find(function (c) { return c.kind === "banner" && c.banner === id; });
+        var found = KOS.governor.catalog().find(function (c) { return c.kind === "banner" && (c.banner === id || c.id === id); });
         return found ? found.name : "Banner";
       }
 
-      /* --- right: the workshop --- */
-      var ctl = el("div", { class: "k-gv-controls", "data-ui": "gov.avatar-controls" });
+      var ctl = el("div", { class: "k-gv-glass k-gv-controls", "data-ui": "gov.avatar-controls" });
       grid.appendChild(ctl);
 
-      var hasPic = g.avatar.kind === "custom" && !!g.avatar.img, hasBanner = !!KOS.governor.bannerCss();
-      ctl.appendChild(el("section", { class: "k-card k-gv-media", "data-ui": "gov.avatar-section", "aria-label": "Profile" }, [
-        media({ label: "Profile picture", value: hasPic ? "Custom image" : "Default", hook: "gov.avatar-mc",
+      var hasPic = g.avatar.kind === "custom" && !!g.avatar.img, hasBanner = !!g.banner;
+      var artPic = g.avatar.kind === "art" && KOS.governor.item(g.avatar.art);
+      ctl.appendChild(el("div", { class: "k-gv-media", "data-ui": "gov.avatar-section", "aria-label": "Profile" }, [
+        media({ label: "Profile picture", value: hasPic ? "Custom image" : artPic ? artPic.name : "Default", hook: "gov.avatar-mc",
           action: hasPic ? "Reposition →" : "Add picture →",
           go: function () {
             KOS.governor.editAvatar(function (err, result) {
@@ -1325,7 +1324,7 @@
               else if (!(result && result.cancelled)) { KOS.ui.toast("Avatar positioned and saved."); render(); }
             });
           },
-          clear: hasPic ? function () {
+          clear: hasPic || artPic ? function () {
             g.avatar.kind = "seal"; g.avatar.img = null; g.avatar.crop = null;
             store.save(); KOS.refreshHUD(); render();
           } : null, clearLabel: "Remove profile picture" }),
@@ -1345,6 +1344,38 @@
           ].filter(Boolean))
         ]);
       }
+      /* the wardrobe: every kind you can wear, what you own of it as
+         pictures, the one in use ringed; the rest are a shop away */
+      var WARD = [["outfit", "Kurenai's outfit", "The Assistant panel"], ["avatar", "Avatar", "Your portrait"], ["scene", "Focus scene", "Behind the timer"],
+        ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "The topbar mark"],
+        ["finish", "Share-card finish", "Your shared cards"], ["paper", "Notebook paper", "New notebook pages"], ["penset", "Pen set", "The pen's colours"]];
+      var ward = el("div", { class: "k-gv-ward", "data-ui": "gov.wardrobe" });
+      WARD.forEach(function (w) {
+        var kind = w[0];
+        var items = KOS.governor.catalog().filter(function (c) { return c.kind === kind && KOS.governor.owns(c.id) && !(kind === "banner" && !c.painted); });
+        var all = KOS.governor.catalog().filter(function (c) { return c.kind === kind && !c.retired; }).length;
+        var chips = items.map(function (it) {
+          var on = wareActive(it);
+          var b = el("button", { type: "button", class: "k-gv-ward-chip", "aria-pressed": on ? "true" : "false", "aria-label": it.name + (on ? " — in use" : ""),
+            onclick: function () { wareUse(it, !on || it.price === 0 ? true : false); render(); } }, [
+            it.art ? el("img", { src: "assets/app/img/" + it.art + ".webp", alt: "", loading: "lazy", "data-kind": kind }) : el("span", { class: "k-gv-ward-k", lang: "ja", text: it.glyph || it.name.charAt(0) }),
+            el("span", { class: "k-gv-ward-n", text: it.name })
+          ]);
+          return b;
+        });
+        ward.appendChild(el("div", { class: "k-gv-ward-row", "data-kind": kind }, [
+          el("div", { class: "k-gv-ward-h" }, [el("b", { text: w[1] }), el("span", { class: "k-muted", text: w[2] + " · " + items.length + " of " + all })]),
+          el("div", { class: "k-gv-ward-chips" }, chips.length ? chips : [
+            el("button", { type: "button", class: "k-link", text: "In the Gold Shop →", onclick: function () { shopSel = { group: (SHOP_GROUPS.filter(function (x) { return x.match({ kind: kind }); })[0] || {}).id }; KOS.show("governor", "shop"); } })])
+        ]));
+      });
+      panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.wardrobe-section", "aria-label": "Wardrobe" }, [
+        cardHead("Wardrobe", "what you own, ready to wear", el("button", { type: "button", class: "k-link", text: "Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })),
+        ward
+      ]));
+      var ctl2 = el("div", { class: "k-gv-ward-pair" });
+      panel.appendChild(ctl2);
+      ctl = ctl2;
 
       /* no seal library (review A): with no picture the portrait is the
          default design */
@@ -1434,6 +1465,10 @@
         var id = fr ? fr.id : null, on = (g.avatar.frame || null) === id;
         var disc = KOS.governor.avatarNode(44);
         if (id) disc.setAttribute("data-frame", id); else disc.removeAttribute("data-frame");
+        /* a painted frame is its picture round the disc (avatarNode draws only the worn one) */
+        var oldArt = disc.querySelector(".k-avatar-frame-art");
+        if (oldArt) oldArt.remove();
+        if (fr && fr.painted) disc.appendChild(el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", loading: "lazy" }));
         var chip = el("button", { type: "button", class: "k-gv-frame", "data-ui": "gov.frame-chip", "aria-pressed": on ? "true" : "false",
           "aria-label": owned ? label : label + " — in the Gold Shop for ◈ " + fr.price,
           onclick: function () {

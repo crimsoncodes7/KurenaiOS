@@ -351,7 +351,10 @@ transition: opacity .16s ease, scale .35s cubic-bezier(.3,.9,.3,1);
 .k-asst-live-dot { inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--green); box-shadow: 0 0 0 var(--bar-3) var(--wash-green); }
 .k-asst-stage { flex: 1 1 0; min-block-size: 0; display: flex; justify-content: center; padding-inline: var(--sp-12); }
 .k-asst-stage .k-asst-mascot { flex: 1 1 0; min-block-size: 0; gap: 0; }
-.k-asst-stage .k-asst-mascot-frame { flex: 1 1 0; min-block-size: 0; aspect-ratio: 2 / 3; max-inline-size: 100%; }
+/* she stands at a set height in the middle of the panel, not the panel's full
+   height (asked for 1 November 2026: "way too big") */
+.k-asst-stage .k-asst-mascot { justify-content: flex-end; }
+.k-asst-stage .k-asst-mascot-frame { flex: 0 1 auto; min-block-size: 0; block-size: var(--asst-fig-h); max-block-size: 100%; aspect-ratio: 2 / 3; max-inline-size: 100%; }
 /* in the side panel she stands in the middle of the space, not on its
    floor with the top half empty (review B) */
 .k-asst-stage .k-asst-mascot-img { object-position: center; }

@@ -480,6 +480,9 @@ color-scheme: dark;
 --gv-stage-left: 560px;
 /* the Gold Shop (design turn 34g–34i) */
 --gv-shop-stage-h: 300px;
+--gv-studio-h: 220px;
+--gv-studio-ctl-w: 520px;
+--gv-media-k-w: 108px;
 --gv-try-w: 400px;
 --gv-shop-fig-w: 220px;
 --gv-sheet-w: 1060px;
@@ -909,6 +912,7 @@ color-scheme: dark;
 /* ---------- Assistant (frames 13a–13f) ---------- */
 --asst-nav-w: 236px;
 --asst-presence-w: 300px;
+--asst-fig-h: 440px;
 --asst-tile: 26px;
 --asst-tile-bg: linear-gradient(150deg, var(--bloom-hi), var(--bloom-lo));
 --asst-tile-ink: oklch(0.2 0.03 350);
