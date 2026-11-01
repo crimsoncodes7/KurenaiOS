@@ -1,44 +1,44 @@
 {
-  "version": 5,
+  "version": 6,
   "character": {
-    "id": "kurenai-static-character-phase-1",
+    "id": "kurenai-redesign-34",
     "displayName": "Kurenai",
     "recommendedSurface": "full",
     "canvas": {
-      "width": 1024,
-      "height": 1536
+      "width": 605,
+      "height": 1400
     }
   },
   "states": {
     "idle": {
-      "image": "./mascot/states/idle.png",
+      "image": "../app/img/app.base.kurenai.webp",
       "audio": "./voice/state/idle.mp3",
       "label": "Ready when you are"
     },
     "thinking": {
-      "image": "./mascot/states/thinking.png",
+      "image": "../app/img/app.face.kurenai.thinking.webp",
       "audio": "./voice/state/thinking.mp3",
       "label": "Thinking…"
     },
     "working": {
-      "image": "./mascot/states/working.png",
+      "image": "../app/img/app.face.kurenai.working.webp",
       "audio": "./voice/state/working.mp3",
       "label": "Working with your KurenaiOS data…"
     },
     "success": {
-      "image": "./mascot/states/success.png",
+      "image": "../app/img/app.face.kurenai.success.webp",
       "audio": "./voice/state/success.mp3",
       "label": "Complete and verified",
-      "autoReturnMs": 2200
+      "autoReturnMs": 4000
     },
     "error": {
-      "image": "./mascot/states/error.png",
+      "image": "../app/img/app.face.kurenai.concerned.webp",
       "audio": "./voice/state/error.mp3",
       "label": "Something needs attention",
       "autoReturnMs": 4000
     },
     "confirmation": {
-      "image": "./mascot/states/confirmation.png",
+      "image": "../app/img/app.face.kurenai.asking.webp",
       "audio": "./voice/state/confirmation.mp3",
       "label": "Waiting for your approval"
     }
@@ -47,19 +47,39 @@
     "hover": {
       "dwellMs": 800,
       "cooldownMs": 30000,
-      "audio": ["./voice/interaction/hover-01.mp3", "./voice/interaction/hover-02.mp3", "./voice/interaction/hover-03.mp3", "./voice/interaction/hover-04.mp3"]
+      "audio": [
+        "./voice/interaction/hover-01.mp3",
+        "./voice/interaction/hover-02.mp3",
+        "./voice/interaction/hover-03.mp3",
+        "./voice/interaction/hover-04.mp3"
+      ]
     },
     "head": {
       "cooldownMs": 8000,
-      "audio": ["./voice/interaction/head-01.mp3", "./voice/interaction/head-02.mp3", "./voice/interaction/head-03.mp3", "./voice/interaction/head-04.mp3"]
+      "audio": [
+        "./voice/interaction/head-01.mp3",
+        "./voice/interaction/head-02.mp3",
+        "./voice/interaction/head-03.mp3",
+        "./voice/interaction/head-04.mp3"
+      ]
     },
     "flower": {
       "cooldownMs": 8000,
-      "audio": ["./voice/interaction/flower-01.mp3", "./voice/interaction/flower-02.mp3", "./voice/interaction/flower-03.mp3", "./voice/interaction/flower-04.mp3"]
+      "audio": [
+        "./voice/interaction/flower-01.mp3",
+        "./voice/interaction/flower-02.mp3",
+        "./voice/interaction/flower-03.mp3",
+        "./voice/interaction/flower-04.mp3"
+      ]
     },
     "tablet": {
       "cooldownMs": 8000,
-      "audio": ["./voice/interaction/tablet-01.mp3", "./voice/interaction/tablet-02.mp3", "./voice/interaction/tablet-03.mp3", "./voice/interaction/tablet-04.mp3"]
+      "audio": [
+        "./voice/interaction/tablet-01.mp3",
+        "./voice/interaction/tablet-02.mp3",
+        "./voice/interaction/tablet-03.mp3",
+        "./voice/interaction/tablet-04.mp3"
+      ]
     }
   },
   "voice": {

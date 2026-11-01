@@ -29,14 +29,30 @@
 
   /* ================= mascot state map (mirrors manifest.json) ========== */
   var ASSET_BASE = "assets/assistant/";
+  /* Kurenai's redesign (design turn 34d, docs/app-art.md release 1): idle
+     is her base, every other state her face on that base; an outfit
+     (`KOS.governor.outfit()`) swaps both for its own. `face` names the
+     picture: app.face.kurenai[-<outfit>].<face>. */
   var MASCOT_STATES = {
-    idle:         { image: "mascot/states/idle.png", label: "Ready when you are", audio: "voice/state/idle.mp3" },
-    thinking:     { image: "mascot/states/thinking.png", label: "Thinking…", audio: "voice/state/thinking.mp3" },
-    working:      { image: "mascot/states/working.png", label: "Working with your KurenaiOS data…", audio: "voice/state/working.mp3" },
-    success:      { image: "mascot/states/success.png", label: "Complete and verified", audio: "voice/state/success.mp3", autoReturnMs: 2200 },
-    error:        { image: "mascot/states/error.png", label: "Something needs attention", audio: "voice/state/error.mp3", autoReturnMs: 4000 },
-    confirmation: { image: "mascot/states/confirmation.png", label: "Waiting for your approval", audio: "voice/state/confirmation.mp3" }
+    idle:         { face: null, label: "Ready when you are", audio: "voice/state/idle.mp3" },
+    thinking:     { face: "thinking", label: "Thinking…", audio: "voice/state/thinking.mp3" },
+    working:      { face: "working", label: "Working with your KurenaiOS data…", audio: "voice/state/working.mp3" },
+    success:      { face: "success", label: "Complete and verified", audio: "voice/state/success.mp3", autoReturnMs: 4000 },
+    error:        { face: "concerned", label: "Something needs attention", audio: "voice/state/error.mp3", autoReturnMs: 4000 },
+    confirmation: { face: "asking", label: "Waiting for your approval", audio: "voice/state/confirmation.mp3" }
   };
+  function outfitNow() {
+    var o = KOS.governor && KOS.governor.outfit && KOS.governor.outfit();
+    return o || "";
+  }
+  /* the picture for a state, relative to ASSET_BASE */
+  function stateImage(state, outfit) {
+    var st = MASCOT_STATES[state] || MASCOT_STATES.idle;
+    outfit = outfit === undefined ? outfitNow() : outfit;
+    var id = !st.face ? (outfit ? "app.skin.kurenai." + outfit : "app.base.kurenai")
+      : "app.face.kurenai" + (outfit ? "-" + outfit : "") + "." + st.face;
+    return "../app/img/" + id + ".webp";
+  }
   var CHARACTER_REACTIONS = {
     hover:  { cooldownMs: 30000, files: ["hover-01.mp3", "hover-02.mp3", "hover-03.mp3", "hover-04.mp3"] },
     head:   { cooldownMs: 8000, files: ["head-01.mp3", "head-02.mp3", "head-03.mp3", "head-04.mp3"] },
@@ -341,7 +357,7 @@
     if (!MASCOT_STATES[state] || preloadedStates[state] || typeof window.Image !== "function") return;
     preloadedStates[state] = true;
     var img = new window.Image();
-    img.src = ASSET_BASE + MASCOT_STATES[state].image;
+    img.src = ASSET_BASE + stateImage(state);
   }
   function preloadNext(state) { (NEXT_STATES[state] || []).forEach(preloadState); }
 
@@ -536,7 +552,7 @@
       var st = MASCOT_STATES[S.visual] || MASCOT_STATES.idle;
       mascotFlag(node, "img-failed", false);
       node.setAttribute("data-state", S.visual);
-      var nextSrc = ASSET_BASE + st.image;
+      var nextSrc = ASSET_BASE + stateImage(S.visual);
       if (img.getAttribute("src") !== nextSrc) { mascotFlag(node, "is-loading", true); img.src = nextSrc; }
       img.alt = size === "large" ? ("Kurenai, full-body assistant — " + st.label) : "";
       status.textContent = S.statusText;
@@ -1564,7 +1580,12 @@
     return out;
   }
 
-  var STARTERS = ["What should I revise next?", "Show today's study plan", "Summarise my study progress", "Help me plan this week"];
+  /* the four suggestions (34d): a kanji tile, the prompt and what it reads */
+  var STARTERS = [
+    ["次", "What should I revise next?", "From your weakest topics"],
+    ["今", "Show today's study plan", "Today's three and the plan"],
+    ["進", "Summarise my study progress", "This week, by subject"],
+    ["週", "Help me plan this week", "The week's plan and deadlines"]];
   function buildThreadArea(compact) {
     /* Phase F: the thread is tabbable so it can be SCROLLED from the
        keyboard, which is right — but a focus stop with no role announced
@@ -1577,9 +1598,11 @@
         el("div", { class: "k-asst-bloom-k", text: "Whispering Bloom" }),
         el("h2", { class: "k-asst-intro-h", text: "What are we working on?" }),
         el("p", { class: "k-asst-intro-p", text: "Begin with the part that feels tangled. Any consequential change pauses for your approval." }),
-        el("p", { class: "k-asst-starters", role: "group", "aria-label": "Suggested prompts" }, STARTERS.map(function (prompt) {
-          return el("button", { class: "k-asst-starter", "data-ui": "asst.starter", type: "button", text: prompt,
-            onclick: function () { submit(prompt, { category: "complex" }); } });
+        el("div", { class: "k-asst-starters", role: "group", "aria-label": "Suggested prompts" }, STARTERS.map(function (x) {
+          return el("button", { class: "k-asst-starter", "data-ui": "asst.starter", type: "button",
+            onclick: function () { submit(x[1], { category: "complex" }); } }, compact ? [x[1]] : [
+            el("span", { class: "k-asst-starter-k", lang: "ja", "aria-hidden": "true", text: x[0] }),
+            el("span", { class: "k-asst-starter-t" }, [el("b", { text: x[1] }), el("small", { text: x[2] })])]);
         }))
       ]);
     }
@@ -2006,10 +2029,22 @@
       ]),
       buildThreadArea(false)
     ]);
+    /* Hide (34d, per device): the thread takes the full width */
+    var hidden = !!(KOS.store.state.ui && KOS.store.state.ui.kurenaiHidden);
+    function setHidden(v) { var st = KOS.store.state; st.ui = st.ui || {}; st.ui.kurenaiHidden = v; KOS.store.save(); KOS.show("assistant", { tab: "chat" }); }
+    if (hidden) {
+      conversation.querySelector(".k-asst-toolbar-end").appendChild(el("button", { class: "k-asst-chip-btn", "data-ui": "asst.show-kurenai", type: "button",
+        text: "◐ Show Kurenai", onclick: function () { setHidden(false); } }));
+      KOS.ui.state(body, "kurenai-hidden", true);
+      body.appendChild(conversation);
+      return;
+    }
     var presence = el("aside", { class: "k-asst-presence", "data-ui": "asst.presence", "aria-label": "Kurenai status" }, [
       el("div", { class: "k-asst-presence-head" }, [
         el("span", { class: "k-asst-live-dot", "aria-hidden": "true" }),
         el("b", { text: "Kurenai is with you" }),
+        el("button", { class: "k-asst-chip-btn", "data-ui": "asst.hide-kurenai", type: "button", text: "Hide",
+          "aria-label": "Hide Kurenai", onclick: function () { setHidden(true); } }),
         el("button", { class: "k-asst-chip-btn", type: "button", text: ws.characterAudio.enabled ? "♪ Voice on" : "Voice off",
           "aria-pressed": ws.characterAudio.enabled ? "true" : "false", onclick: function () {
             var w = workspaceCfg(true);
