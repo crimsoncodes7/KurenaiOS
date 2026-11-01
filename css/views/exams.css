@@ -500,6 +500,9 @@ button.k-ex-tag { cursor: pointer; min-block-size: var(--hit-dense); }
 
 /* ---------- the Exam Room (29n): the Focus stage's composition, teal ---------- */
 .k-exr { position: fixed; inset: 0; z-index: var(--z-focus); display: flex; flex-direction: column; gap: var(--sp-16); padding: var(--sp-24) var(--sp-32) var(--sp-28); overflow-y: auto; color: var(--text); background: radial-gradient(60% 70% at 50% 42%, var(--fx-teal-glow), var(--bg) 70%); }
+/* the Exam Room's painting (34m), fixed behind the scrolling room */
+.k-exr > .k-art { position: fixed; border-radius: 0; }
+.k-exr { isolation: isolate; }
 .k-exr:focus { outline: none; }
 .k-exr-top { display: flex; align-items: center; gap: var(--sp-12); }
 .k-exr-logo { inline-size: var(--sp-32); block-size: var(--sp-32); object-fit: contain; }

@@ -118,6 +118,7 @@
       el("div", { class: "k-ja-hero-path" }, [UI().stagePath({ onUnit: openUnit, onCheckpoint: function () { KOS.show("japanese", { page: "checkpoints" }); } })])
     ]);
     var side = el("div", { class: "k-subj-side k-ja-deskside" }, [first ? firstDayCard() : todayCard(), continueCard(next)].filter(Boolean));
+    if (KOS.art) KOS.art.layer(hero, "desk:" + "ja", { eager: true });
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
     var fl = J().fluency(), wi = weekInput();

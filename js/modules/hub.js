@@ -1054,7 +1054,10 @@
     var band = el("section", { class: "k-home-hero", "data-ui": "home.hero home.id", "data-hp": hpS, "aria-label": "Today" });
     /* the banner is the user's; the scrim keeps the text legible whatever
        the artwork (audit HOME-2) */
-    if (KOS.governor.bannerCss && KOS.governor.bannerCss()) KOS.governor.applyBanner(band, { scrim: "hero" });
+    /* the user's own banner keeps showing (roadmap 5.14); otherwise the
+       season's painting (34k). Critical HP owns the slot: no picture. */
+    if (g.banner === "custom" && g.bannerImg) KOS.governor.applyBanner(band, { scrim: "hero" });
+    else if (hpS !== "critical" && KOS.art) KOS.art.layer(band, "home", { eager: true });
     var ring = el("span", { class: "k-home-ring", "data-hp": hpS, style: "--hp: " + Math.max(0, Math.min(100, g.hp)) + "%" },
       [KOS.governor.avatarNode(94)]);
     var greet = el("h1", { class: "k-home-greet" }, hpS === "critical" ? [] : [greeting() + " "]);
@@ -2017,6 +2020,7 @@
     ]);
 
     var side = el("div", { class: "k-subj-side" }, [continueCard(sid), weakestCard(sid)]);
+    if (KOS.art) KOS.art.layer(hero, "desk:" + sid, { eager: true });
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
     /* the IT desk's qualification and units (frames 18a–18c) */
     if (sid === "it" && KOS.itDesk) KOS.itDesk.render(main);

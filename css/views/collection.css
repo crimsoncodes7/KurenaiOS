@@ -21,6 +21,8 @@
 .k-vhero { position: relative; display: flex; align-items: center; gap: var(--sp-26); block-size: var(--vhero-h); padding: var(--sp-24) var(--sp-28); border-radius: var(--r-26); overflow: hidden; background: color-mix(in oklch, oklch(var(--ph-l) var(--ph-c) var(--vh-hue, 250)) 70%, var(--s1)); isolation: isolate; }
 .k-vhero-art { position: absolute; inset: 0; z-index: -3; }
 .k-vhero-art > img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+/* the vault's painting sits under the hero's own scrim (z -2), so the layer goes below it */
+.k-vhero > .k-art { z-index: -3; --art-scrim: none; --art-pos: 80% 50%; }
 .k-vhero[data-state~="vh-fromcover"] .k-vhero-art > img { filter: blur(var(--sp-18)) saturate(1.1); transform: scale(1.15); }
 .k-vhero-scrim { position: absolute; inset: 0; z-index: -2; background: linear-gradient(100deg, var(--vhero-scrim-0) 0%, var(--vhero-scrim-1) 42%, var(--vhero-scrim-2) 72%, var(--vhero-scrim-3)); }
 .k-vhero-cover { inline-size: var(--vhero-cover-w); block-size: var(--vhero-cover-h); flex: 0 0 auto; margin-inline: auto var(--sp-24); transform: rotate(var(--cover-tilt)); display: grid; place-items: center; border-radius: var(--r-16); overflow: hidden; background: var(--s2); box-shadow: 0 0 0 var(--hairline) var(--mcard-edge), var(--elev-3); font: var(--weight-bold) var(--fs-38) var(--font-kanji); color: var(--muted); }
@@ -525,6 +527,7 @@
 .k-shr-hero { position: relative; block-size: var(--shr-hero-h); border-radius: var(--r-30); overflow: hidden; isolation: isolate; cursor: pointer; background: color-mix(in oklch, var(--vh-accent, var(--shr-gold)) 20%, var(--s1)); box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--shr-gold) 45%, transparent), var(--elev-4); }
 .k-shr-hero::after { content: ""; position: absolute; inset-inline: 0; inset-block-start: 0; block-size: var(--sp-2); background: linear-gradient(90deg, transparent, var(--shr-gold), transparent); }
 .k-shr-hero-art { z-index: -3; }
+.k-shr-hero > .k-art { z-index: -3; --art-scrim: none; }
 .k-shr-hero-art > img { inline-size: 100%; block-size: 100%; object-fit: cover; filter: blur(var(--sp-4)) saturate(1.1); transform: scale(1.08); }
 /* lighter on the left so the banner reads through, and a second scrim on
    the right behind the score, which vanished over a pale banner (review A) */

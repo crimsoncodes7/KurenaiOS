@@ -122,6 +122,7 @@
       el("div", { class: "k-cx-hero-path" }, [KOS.codeUI.stagePath({ focusable: true, compact: true, spread: true, onUnit: openUnit })])
     ]);
     var side = el("div", { class: "k-subj-side" }, first ? [firstVisitCard()] : [daily20Card(), continueCard(cur)]);
+    if (KOS.art) KOS.art.layer(hero, "desk:" + "code", { eager: true });
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
     /* ---- analytics, beside retrieval due ---- */

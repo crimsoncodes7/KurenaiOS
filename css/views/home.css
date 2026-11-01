@@ -14,6 +14,8 @@
 /* the uploaded banner carries its own scrim (governor.applyBanner, "hero");
    a second one here doubled it */
 .k-home-hero-body { text-shadow: var(--hero-text-shadow); }
+/* the season's painting (34k): the lamp and window right, under the hero's own scrim */
+.k-home-hero > .k-art { --art-scrim: var(--home-hero-scrim); --art-pos: 78% 62%; }
 .k-home-hero-body { position: relative; z-index: 1; block-size: 100%; min-block-size: var(--home-hero-h); display: flex; align-items: center; gap: var(--sp-24); padding: var(--sp-24) var(--sp-28); }
 .k-home-ring { inline-size: var(--home-avatar-ring); block-size: var(--home-avatar-ring); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--ring, var(--teal)) 0 var(--hp, 100%), var(--home-ring-track) var(--hp, 100%) 100%); }
 .k-home-ring[data-hp="strained"] { --ring: var(--amber); }

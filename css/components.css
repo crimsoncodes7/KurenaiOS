@@ -293,6 +293,8 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-empty-txt { flex: 1 1 var(--empty-txt-min); min-inline-size: 0; }
 .k-empty-txt b { display: block; color: var(--text); font-size: var(--fs-15); }
 .k-empty-action { flex: 0 0 auto; }
+.k-empty[data-state~="has-spot"] { gap: var(--sp-28); padding: var(--sp-28) var(--sp-32); }
+.k-empty[data-state~="has-spot"] .k-empty-txt b { font-size: var(--fs-20); letter-spacing: var(--track-name); margin-block-end: var(--sp-6); }
 
 /* ---------- declared horizontal scroller (invariant 50) ---------- */
 /* the arrows float over the track's edges, so the first item lines up with
@@ -674,6 +676,21 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
    chevron large enough to read */
 .k-scroller-arrow { min-inline-size: var(--hit); min-block-size: var(--hit); font-size: var(--fs-20); line-height: 1; }
 .k-tp-x { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
+}
+
+/* ---------- painted art behind live content (KOS.art, design 34k–34n) ----------
+   The host is positioned and isolated; the layer sits behind its content
+   (z-index -1 inside the isolation), the picture at its slot's opacity and
+   focal point, then the slot's scrim. Decorative art off: nothing drawn. */
+.k-art { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; --art-op: var(--art-op-hero); --art-scrim: var(--art-scrim-l); --art-pos: 80% 50%; }
+.k-art > img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: var(--art-pos); opacity: var(--art-op); filter: var(--art-filter); }
+.k-art::after { content: ""; position: absolute; inset: 0; background: var(--art-scrim); }
+.k-art:is([data-slot="focus"], [data-slot="exam"]) { --art-op: var(--art-op-stage); --art-scrim: var(--art-scrim-stage); --art-pos: 50% 55%; }
+.k-art[data-slot="shrine"] { --art-op: var(--art-op-hall); --art-pos: 50% 50%; }
+:root[data-art="off"] .k-art, :root[data-art="off"] .k-art-spot { display: none; }
+.k-art-spot { inline-size: var(--art-spot); block-size: var(--art-spot); flex: none; object-fit: contain; }
+@media (max-width: 700px) {
+.k-art-spot { inline-size: var(--art-spot-ph); block-size: var(--art-spot-ph); }
 }
 
 }

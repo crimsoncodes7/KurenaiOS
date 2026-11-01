@@ -303,5 +303,7 @@
       KOS.rerender();
     }, 0);
   });
+  /* Decorative art per device (34n): set before the first page draws */
+  if (KOS.art) KOS.art.apply();
   KOS.router.boot();
 })();

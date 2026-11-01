@@ -310,7 +310,7 @@
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.hub exams.timetable" });
     main.appendChild(wrap);
     if (!all.length) {
-      wrap.appendChild(KOS.ui.emptyState({ mark: "試", title: "Add your first assessment",
+      wrap.appendChild(KOS.ui.emptyState({ mark: "試", art: "exams", title: "Add your first assessment",
         body: "A real exam, a mock, a topic test or a deadline. Exams on your calendar move here by themselves.",
         action: el("div", { class: "k-ex-actions" }, [btn("＋ New assessment", "primary", function () { editor(null, {}, function (a) { KOS.show("exams", a.id); }); }),
           btn("⇣ Import timetable", "", importDialog)]) }));

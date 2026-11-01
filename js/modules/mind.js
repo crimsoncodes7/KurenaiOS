@@ -73,6 +73,7 @@
       el("div", { class: "k-mind-hero-path" }, [orderPath()])
     ]);
     var side = el("div", { class: "k-subj-side k-mind-deskside" }, [first ? welcomeCard() : dailyCard(), !first && next ? continueCard(next) : null].filter(Boolean));
+    if (KOS.art) KOS.art.layer(hero, "desk:" + "mind", { eager: true });
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
     var analytics = el("section", { class: "k-card k-sa", "data-ui": "study.analytics mind.analytics", "aria-label": "Subject analytics" }, [

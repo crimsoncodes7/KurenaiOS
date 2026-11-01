@@ -1346,6 +1346,25 @@ color-scheme: dark;
 --hover: var(--s2);
 --selection: color-mix(in oklch, var(--crimson) 32%, transparent);
 
+/* painted art behind live content (design turn 34k–34n): the picture's
+   opacity per slot, scrims made from the ground itself so a theme's art
+   always fades into its own --bg, and the Seat's glass. Dawn restates the
+   dials (themes.css); Decorative art off zeroes them (:root[data-art=off]). */
+--art-op-hero: 0.62;
+--art-op-stage: 0.9;
+--art-op-hall: 0.8;
+--art-filter: none;
+--art-scrim-l: linear-gradient(90deg, oklch(from var(--bg) l c h / 0.94) 0%, oklch(from var(--bg) l c h / 0.82) 34%, oklch(from var(--bg) l c h / 0.32) 64%, oklch(from var(--bg) l c h / 0.12) 100%);
+--art-scrim-b: linear-gradient(0deg, oklch(from var(--bg) l c h / 0.92) 0%, oklch(from var(--bg) l c h / 0.5) 38%, transparent 70%);
+--art-scrim-stage: radial-gradient(60% 70% at 50% 50%, oklch(from var(--bg) l c h / 0.55), oklch(from var(--bg) l c h / 0.25) 70%, oklch(from var(--bg) l c h / 0.6));
+/* a desk carries words on both sides, so its scrim holds the right too */
+--art-scrim-desk: linear-gradient(90deg, oklch(from var(--s1) l c h / 0.92) 0%, oklch(from var(--s1) l c h / 0.7) 34%, oklch(from var(--s1) l c h / 0.38) 55%, oklch(from var(--s1) l c h / 0.74) 78%, oklch(from var(--s1) l c h / 0.8) 100%);
+--art-scrim-ph: linear-gradient(0deg, oklch(from var(--bg) l c h / 0.96) 0%, oklch(from var(--bg) l c h / 0.72) 45%, oklch(from var(--bg) l c h / 0.2) 100%);
+--art-glass: var(--gv-glass);
+--art-glass-edge: color-mix(in oklch, var(--gold) 22%, transparent);
+--art-spot: 160px;
+--art-spot-ph: 128px;
+--gold-ink: var(--shr-gold-ink);
 }
 
 /* ---------- the five tiers, widest first ---------- */

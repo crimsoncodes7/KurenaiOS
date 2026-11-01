@@ -730,7 +730,10 @@
       ])
     ]);
     hero.style.setProperty("--vh-accent", mod.accent);
-    if (first.coverUrl) KOS.imageCrop.background(hero, first.coverUrl, first.coverCrop, { className: "k-shr-hero-art" });
+    /* an owned hall (34m) is the room; without one, the cover's blur as before */
+    var hall = KOS.art && KOS.art.on() && KOS.art.pick("shrine");
+    if (hall) KOS.art.layer(hero, "shrine", { eager: true });
+    else if (first.coverUrl) KOS.imageCrop.background(hero, first.coverUrl, first.coverCrop, { className: "k-shr-hero-art" });
     return hero;
   }
   /* ranks two and three: the podium (review B — they were a plain row).

@@ -96,6 +96,8 @@
 :root[data-focus="stage"] body { overflow: hidden; }
 .k-fx-stage { position: fixed; inset: 0; z-index: var(--z-focus); display: flex; flex-direction: column; gap: var(--sp-16); padding: var(--sp-24) var(--sp-32); background: radial-gradient(var(--fx-glow-w) var(--fx-glow-h) at 50% 40%, var(--fx-stage-glow), var(--bg) 70%); color: var(--text); overflow-y: auto; }
 :root:not([data-focus="stage"]) .k-fx-stage { display: none; }
+/* the scene (34m): the room itself, fixed behind the scrolling stage */
+.k-fx-stage > .k-art { position: fixed; border-radius: 0; }
 .k-fx-top { display: flex; align-items: center; gap: var(--sp-12); }
 .k-fx-logo { inline-size: var(--sp-32); block-size: var(--sp-32); object-fit: contain; }
 .k-fx-top-t { font-size: var(--fs-13); color: var(--muted); }

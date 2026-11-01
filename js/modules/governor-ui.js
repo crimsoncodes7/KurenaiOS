@@ -1257,6 +1257,23 @@
           el("span", { class: "k-gv-theme-sync", text: "Synced to every device" })
         ])
       ]));
+      /* Decorative art (34n), per device: every painted slot falls back to
+         its ground and no word changes */
+      var artP = KOS.art ? KOS.art.prefs() : {};
+      function artSwitch(label, sub, hook, checked, onChange) {
+        var input = el("input", { type: "checkbox", class: "k-switch", "data-ui": hook, "aria-label": label });
+        input.checked = checked;
+        input.addEventListener("change", function () { onChange(input.checked); render(); });
+        return el("label", { class: "k-gv-theme-follow" }, [input,
+          el("span", { class: "k-gv-theme-follow-t" }, [label, el("small", { class: "k-muted", text: " · " + sub })])]);
+      }
+      if (KOS.art) panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.art-section", "aria-label": "Decorative art" }, [
+        cardHead("Decorative art", "this device"),
+        artSwitch("Show painted art", "heroes, desks, the Spotlight, the Focus scene, the Shrine's hall, empty-state spots", "gov.art-on",
+          !artP.off, function (v) { KOS.art.set("off", !v); }),
+        artSwitch("Turn it off with Reduced data", "Low Data Mode or Save-Data: no picture is fetched", "gov.art-reduced",
+          artP.reduced !== false, function (v) { KOS.art.set("reduced", v); })
+      ]));
       function frameChip(fr, label, owned) {
         var id = fr ? fr.id : null, on = (g.avatar.frame || null) === id;
         var disc = KOS.governor.avatarNode(44);

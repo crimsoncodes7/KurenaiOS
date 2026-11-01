@@ -1051,6 +1051,7 @@
   function isPhone() { return !!(phoneMQ && phoneMQ.matches); }
   if (phoneMQ && phoneMQ.addEventListener) phoneMQ.addEventListener("change", function () { if (S) render(); });
 
+  var stageArt = null;
   function enterMode() {
     /* the hook for "a session owns the screen": stage | minimised */
     document.documentElement.setAttribute("data-focus", "stage");
@@ -1065,6 +1066,7 @@
     document.documentElement.removeAttribute("data-focus");
     document.documentElement.removeAttribute("data-fx-drag");
     if (stageEl) { stageEl.remove(); stageEl = null; }
+    stageArt = null;
     if (dockEl) { dockEl.remove(); dockEl = null; }
     if (dragUi) { dragUi.remove(); dragUi = null; }
     document.title = "Kurenai OS — Study Atelier";
@@ -1189,6 +1191,10 @@
 
     /* ---- full stage ---- */
     stageEl.innerHTML = "";
+    /* the scene behind the stage (34m): one node kept across the ticks, so
+       the picture is never fetched or redrawn again; it never animates */
+    if (stageArt) stageEl.appendChild(stageArt);
+    else if (KOS.art) stageArt = KOS.art.layer(stageEl, "focus", { eager: true });
     stageEl.setAttribute("data-phase", phase);
     stageEl.setAttribute("data-kind", reading ? "reading" : "study");
     stageEl.setAttribute("data-rule", paid ? "blocks" : "cycle");

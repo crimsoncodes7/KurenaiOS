@@ -110,6 +110,7 @@
       el("div", { class: "k-cr-hero-path" }, [heroPath(tid)])
     ]);
     var side = el("div", { class: "k-subj-side" }, first ? [welcomeCard()] : [dailyCard(CR().planDay()), continueCard()].filter(Boolean));
+    if (KOS.art) KOS.art.layer(hero, "desk:" + "creatives", { eager: true });
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
     var analytics = el("section", { class: "k-card k-sa", "data-ui": "study.analytics cr.analytics", "aria-label": "Subject analytics" }, [

@@ -191,7 +191,7 @@
       markAll.disabled = !KOS.notify.unread();
       if (!items.length) {
         list.appendChild(KOS.ui.emptyState({
-          compact: true, mark: "通",
+          compact: true, mark: "通", art: filter === "unread" ? "quiet" : "bell",
           title: filter === "all" ? "Nothing yet" : filter === "unread" ? "All caught up" : "Nothing in " + (SECTION_LABEL[filter] || filter).toLowerCase(),
           body: "Calendar and assignment alerts, reminders, an episode airing for a title you're watching and a Planner release day all land here as they happen."
         }));

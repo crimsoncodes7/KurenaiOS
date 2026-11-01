@@ -326,7 +326,7 @@
         el("span", { class: "k-muted k-gl-small", text: "Sorted by what needs you first" })]));
       var rest = shown.filter(function (g) { return g !== lead; }).sort(order);
       var grid = el("div", { class: "k-gl-grid", "data-ui": "goal.grid" });
-      if (!rest.length && !lead) grid.appendChild(U.emptyState({ compact: true, title: "No " + (visit.domain ? DOMAIN[visit.domain].label + " " : "") + "goals " + (tab === "week" ? "this week" : tab === "month" ? "this month" : "yet") }));
+      if (!rest.length && !lead) grid.appendChild(U.emptyState({ compact: true, art: "goals", title: "No " + (visit.domain ? DOMAIN[visit.domain].label + " " : "") + "goals " + (tab === "week" ? "this week" : tab === "month" ? "this month" : "yet") }));
       rest.forEach(function (g) { grid.appendChild(goalCard(g)); });
       /* where the tile lands in three columns and in two: it fills the
          rest of that row (the stylesheet reads data-at3 / data-at2) */

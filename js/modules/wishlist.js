@@ -883,7 +883,7 @@
       listWrap.appendChild(queue);
       if (!rows.length) {
         var copy = needle ? ["No matching items", "Try a different title, creator, retailer or media type."] : EMPTY[tab];
-        queue.appendChild(KOS.ui.emptyState({ compact: true, title: copy[0], body: copy[1],
+        queue.appendChild(KOS.ui.emptyState({ compact: true, art: needle ? null : "wishlist", title: copy[0], body: copy[1],
           action: !needle && (tab === "wantToBuy" || tab === "waitingForRelease")
             ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "+ Add item", onclick: function () { itemEditor(null, renderPlanner); } })
             : null }));

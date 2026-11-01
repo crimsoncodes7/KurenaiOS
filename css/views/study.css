@@ -23,7 +23,13 @@ padding: var(--sp-24) var(--sp-28);
 border-radius: var(--r-24);
 background: linear-gradient(120deg, color-mix(in oklch, var(--subj-c) 14%, var(--s1)), var(--s1) 55%);
 container-type: inline-size;
+position: relative;
+isolation: isolate;
+overflow: hidden;
 }
+/* the desk's painting (34l): the focal side right, the hue on the ring only;
+   a desk carries words on both sides, so its scrim holds the right half too */
+.k-subj-hero > .k-art { --art-pos: 70% 50%; --art-scrim: var(--art-scrim-desk); }
 .k-subj-ring { inline-size: var(--subj-ring); block-size: var(--subj-ring); border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--subj-c) var(--p, 0%), var(--s2) 0); }
 .k-subj-ring-in { inline-size: var(--subj-ring-hole); block-size: var(--subj-ring-hole); border-radius: 50%; background: var(--s1); display: grid; place-content: center; text-align: center; line-height: 1.1; }
 .k-subj-ring-in b { font-size: var(--fs-32); font-weight: var(--weight-semibold); }

@@ -427,7 +427,7 @@
      through the shared KOS.ui.emptyState */
   function emptyState(message, buttons) {
     return el("div", { class: "k-mempty", "data-ui": "vault.empty" }, [
-      KOS.ui.emptyState({ mark: "蒐", body: message,
+      KOS.ui.emptyState({ mark: "蒐", art: "vault", body: message,
         action: (buttons || []).length ? el("div", { class: "k-cluster" }, buttons) : null })
     ]);
   }
@@ -1341,13 +1341,18 @@
     for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
     return h;
   }
-  function heroBackdrop(hero, e, mod, banner, crop) {
+  function heroBackdrop(hero, e, mod, banner, crop, modId) {
     hero.style.setProperty("--vh-accent", mod.accent || "var(--crimson)");
     hero.style.setProperty("--vh-hue", String(titleHue(e.title)));
     if (banner) {
       KOS.ui.state(hero, "has-banner", true);
       /* the banner goes through the one crop workflow (invariant 26c) */
       KOS.imageCrop.background(hero, banner, crop, { className: "k-vhero-art" });
+    } else if (KOS.art && KOS.art.on() && KOS.art.pick("spot:" + modId)) {
+      /* the vault's painting (34l): the reading lamp right of the cover,
+         under the hero's own four-stop scrim */
+      KOS.ui.state(hero, "vh-painted", true);
+      KOS.art.layer(hero, "spot:" + modId, { eager: true });
     } else {
       KOS.ui.state(hero, "vh-fallback", true);
       if (e.coverUrl) {
@@ -1372,7 +1377,7 @@
         var remoteBanner = (e.extra && e.extra.bannerImage) || null;
         var banner = pref.banner || remoteBanner;
         var hero = el("section", { class: "k-vhero", "data-ui": "vault.hero", role: "region", "aria-label": "Spotlight" });
-        heroBackdrop(hero, e, mod, banner, pref.crop);
+        heroBackdrop(hero, e, mod, banner, pref.crop, modId);
 
         function pickSpotlight() {
           heroPicker(modId, mod.kanji, function (picked) {

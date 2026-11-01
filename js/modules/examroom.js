@@ -129,6 +129,7 @@
         var lab = el("label", { class: "k-exr-tick", "data-state": it.done ? "done" : null }, [box, el("span", { text: it.text })]);
         return lab;
       }))]));
+    if (KOS.art) KOS.art.layer(room, "exam:room", { eager: true });
     main.appendChild(room);
     if (KOS.content.typeset) KOS.content.typeset(room);
     room.setAttribute("tabindex", "-1");

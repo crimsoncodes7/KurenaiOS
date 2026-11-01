@@ -612,15 +612,21 @@
      ============================================================ */
   function emptyState(opts) {
     opts = opts || {};
+    /* an empty state may carry its painted spot (34m, `art`: money, bell,
+       goals …): it takes the mark's place, beside the words; with
+       Decorative art off the mark comes back */
+    var spot = opts.art && KOS.art ? KOS.art.spot(opts.art, "k-empty-spot") : null;
     var node = el("div", { class: "k-empty" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.empty" }, [
-      opts.mark ? el("span", { class: "k-empty-mark", "data-ui": "ui.empty-mark", lang: "ja", "aria-hidden": "true", text: opts.mark }) : null,
+      spot,
+      opts.mark && !spot ? el("span", { class: "k-empty-mark", "data-ui": "ui.empty-mark", lang: "ja", "aria-hidden": "true", text: opts.mark }) : null,
       el("div", { class: "k-empty-txt" }, [
         opts.title ? el("b", { text: opts.title }) : null,
         opts.body ? el("p", { text: opts.body }) : null
       ].filter(Boolean)),
       opts.action ? el("div", { class: "k-empty-action", "data-ui": "ui.empty-action" }, [opts.action]) : null
     ].filter(Boolean));
-    if (opts.compact) KOS.ui.state(node, "compact", true);
+    if (opts.compact && !spot) KOS.ui.state(node, "compact", true);
+    if (spot) KOS.ui.state(node, "has-spot", true);
     return node;
   }
 
