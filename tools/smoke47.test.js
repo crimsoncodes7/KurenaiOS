@@ -132,9 +132,11 @@ step("Gold is a locale-formatted balance without a progress bar", () => {
 
 step("Gold Shop omits zero affordability and em-dash completion facts", () => {
   KOS.show("governor", "shop");
-  const copy = main().querySelector("[data-ui~='gov.treasury-facts']").textContent;
-  assert(!/0\s*affordable now|—/.test(copy), "Gold Shop restored a zero/em-dash treasury fact: " + copy);
-  assert(/next:|all wares owned/.test(copy), "Gold Shop gives no useful next state");
+  /* the Stage (design turn 34g): the balance, owned counts only above zero, Try on */
+  const copy = main().querySelector("[data-ui~='gov.treasury']").textContent;
+  assert(!/\b0 (outfits|scenes|halls|banners|themes|avatars|frames|seals)|affordable now|—/.test(copy), "Gold Shop restored a zero/em-dash treasury fact: " + copy);
+  assert(main().querySelector("[data-ui~='shop.balance']"), "Gold Shop shows no balance");
+  assert(main().querySelector("[data-ui~='shop.try-panel']"), "Gold Shop gives no Try on panel");
 });
 
 step("every shared chart label keeps the 11px floor", () => {

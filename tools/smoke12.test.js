@@ -458,13 +458,16 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
   const themes = cat.filter(c => c.kind === "theme");
   const paid = themes.filter(c => c.price === 140), free = themes.filter(c => c.price === 0);
   if (paid.length !== 23) throw new Error("23 paid lab themes expected, got " + paid.length);
+  /* design turn 34o: four more at 1,500 */
+  if (themes.filter(c => c.price === 1500).length !== 4) throw new Error("4 new themes at 1,500 expected");
   if (free.length !== 2) throw new Error("2 free themes expected, got " + free.length);
   ["theme-atelier-dawn", "theme-atelier-dusk"].forEach(id => {
     if (!KOS.governor.owns(id)) throw new Error(id + " must be owned without buying it");
   });
   if (!cat.filter(c => c.kind === "theme").every(c => Array.isArray(c.sw) && c.sw.length === 3)) throw new Error("theme swatches missing");
-  if (cat.filter(c => c.kind === "shelfskin").length !== 3) throw new Error("3 shelf skins expected");
-  if (cat.filter(c => c.kind === "shrinestyle").length !== 3) throw new Error("3 shrine styles expected");
+  /* the three CSS skins and styles, plus five painted of each (34g) */
+  if (cat.filter(c => c.kind === "shelfskin").length !== 8) throw new Error("8 shelf skins expected");
+  if (cat.filter(c => c.kind === "shrinestyle").length !== 8) throw new Error("8 shrine styles expected");
   const g = KOS.store.state.governor;
   g.gold = 500;
   let r = KOS.governor.buy("shelf-walnut");
@@ -514,8 +517,8 @@ step("boundaries hold: cosmetics AND labs buyable while strained, HP untouched",
   /* shop UI shows the new groups */
   KOS.show("governor", "shop");
   const main = document.getElementById("main");
-  await waitFor(() => /Bookshelf skins/.test(main.textContent), 4000);
-  if (!/Shrine card styles/.test(main.textContent)) throw new Error("shop group missing");
+  await waitFor(() => /Shelf skins/.test(main.textContent), 4000);
+  if (!/Shrine cards/.test(main.textContent)) throw new Error("shop group missing");
 });
 
 /* ============ 7 · season picker ============ */

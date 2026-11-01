@@ -478,6 +478,20 @@ color-scheme: dark;
 --ach-title-side: 400px;
 --gv-stage-h: 700px;     /* the Governor's Seat, the Stage (35a) */
 --gv-stage-left: 560px;
+/* the Gold Shop (design turn 34g–34i) */
+--gv-shop-stage-h: 300px;
+--gv-try-w: 400px;
+--gv-shop-fig-w: 220px;
+--gv-sheet-w: 1060px;
+--fs-56: 56px;
+--fs-36: 36px;
+--sp-30-5: 30.5px;
+--sp-15: 15px;
+--sp-11: 11px;
+--sp-17: 17px;
+--sp-23: 23px;
+--sp-29: 29px;
+--ring-2: 2px;
 --gv-stage-right: 640px;
 --gv-stage-arc-h: 196px;
 --gv-ring-xl: 180px;
@@ -1365,6 +1379,9 @@ color-scheme: dark;
 --art-spot: 160px;
 --art-spot-ph: 128px;
 --gold-ink: var(--shr-gold-ink);
+/* notebook papers (34p), from the theme's own line */
+--paper-kraft: oklch(from var(--s1) l calc(c + 0.035) 70);
+--paper-ink: color-mix(in oklch, var(--line) 70%, var(--text) 30%);
 }
 
 /* ---------- the five tiers, widest first ---------- */

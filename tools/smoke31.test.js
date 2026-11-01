@@ -160,11 +160,12 @@ step("Gold Shop separates tools, simulations and cosmetics with contextual previ
   KOS.show("governor", "shop", { _nav: true });
   await tick(40);
   const main = document.getElementById("main");
-  if (main.querySelectorAll("[data-ui~='shop.dept']").length !== 4) throw new Error("department filter incomplete");
-  if (main.querySelector('[data-ui~="shop.dept"][aria-selected="true"]')?.dataset.dept !== "all") throw new Error("Gold Shop should open on All wares");
-  if ([...main.querySelectorAll("[data-ui~='shop.section']")].some(s => s.hidden)) throw new Error("All wares should show every shop section by default");
-  if (main.querySelectorAll('#shop-sec-tools [data-ui~="shop.card"]').length !== 2) throw new Error("learning tools not separated");
-  if (main.querySelectorAll('#shop-sec-simulations [data-ui~="shop.card"]').length !== 6) throw new Error("simulations not separated");
+  /* design turn 34g: All, the four kinds of cosmetics by where they go, then Labs */
+  if (main.querySelectorAll("[data-ui~='shop.dept']").length !== 2) throw new Error("department filter incomplete (All and Labs)");
+  if (main.querySelectorAll("[data-ui~='shop.rail-item']").length < 12) throw new Error("the cosmetic departments are missing");
+  if (main.querySelector('[data-ui~="shop.dept"][aria-selected="true"]')?.dataset.dept !== "all") throw new Error("Gold Shop should open on All");
+  if ([...main.querySelectorAll("[data-ui~='shop.section']")].some(s => s.hidden)) throw new Error("All should show every shop section by default");
+  if (main.querySelectorAll('#shop-sec-labs [data-ui~="shop.card"]').length !== 8) throw new Error("labs not together");
   if (main.querySelectorAll("[data-ui~='shop.lab-scene']").length !== 8) throw new Error("functional mini-scenes missing");
   /* review B: every lab draws its own scene, not one shared chart */
   const scenes = new Set([...main.querySelectorAll("[data-ui~='shop.lab-scene']")].map(n => n.getAttribute("data-scene")));
@@ -172,11 +173,12 @@ step("Gold Shop separates tools, simulations and cosmetics with contextual previ
   if (!main.querySelector("[data-ui~='shop.preview-seal']") || !main.querySelector("[data-ui~='shop.preview-shelf']") || !main.querySelector("[data-ui~='shop.preview-shrine']")) throw new Error("cosmetic context previews missing");
   if (main.querySelector(".sp-theme-shell") || main.querySelector(".sp-banner-card")) throw new Error("meaningless preview overlays survived");
   if (main.querySelector(".shop-pv-glyph")) throw new Error("legacy isolated glyph preview survived");
-  /* review A retired the "Core revision stays free" note and the profile-banner department */
-  if (main.querySelector("#shop-sec-banners")) throw new Error("profile banners are no longer sold");
-  main.querySelector('[data-ui~="shop.dept"][data-dept="tools"]').click();
+  /* decision 5: the CSS banners are retired, the painted ones sold */
+  if (main.querySelector('#shop-sec-banners [data-kind="banner"]:not(.k-gv-apv) .k-gv-pv-band')) throw new Error("a retired CSS banner is on sale");
+  if (main.querySelectorAll('#shop-sec-banners [data-ui~="shop.card"]').length < 6) throw new Error("the painted banners are not sold");
+  main.querySelector('[data-ui~="shop.dept"][data-dept="labs"]').click();
   const visible = [...main.querySelectorAll("[data-ui~='shop.section']")].filter(s => !s.hidden);
-  if (visible.length !== 1 || visible[0].dataset.domain !== "tools") throw new Error("department filtering failed");
+  if (visible.length !== 1 || visible[0].dataset.group !== "labs") throw new Error("department filtering failed");
 });
 
 step("Avatar workshop uses the shared cropper and keeps the frame choices", async () => {

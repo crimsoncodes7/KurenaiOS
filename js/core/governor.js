@@ -437,8 +437,87 @@
     { id: "banner-dawn",    kind: "banner", name: "Dawn over the fields", price: 60, desc: "First light on wheat and mist.", banner: "dawn",    sw: ["#E9CE9E", "#CB9D62", "#9FB0C7"] },
     { id: "banner-lantern", kind: "banner", name: "Lantern dusk",         price: 60, desc: "Paper lanterns against a violet evening.", banner: "lantern", sw: ["#54487A", "#8B6FA8", "#D9A25F"] },
     { id: "banner-tide",    kind: "banner", name: "Tide glass",           price: 60, desc: "Cold green sea-glass and foam.", banner: "tide",    sw: ["#7FA294", "#B9CDC1", "#51707F"] },
-    { id: "banner-inknight", kind: "banner", name: "Ink night",           price: 60, desc: "Deep indigo with a thin gold horizon.", banner: "inknight", sw: ["#2A3050", "#4B5378", "#C09239"] }
+    { id: "banner-inknight", kind: "banner", name: "Ink night",           price: 60, desc: "Deep indigo with a thin gold horizon.", banner: "inknight", sw: ["#2A3050", "#4B5378", "#C09239"] },
+
+    /* ---- the art and shop audit (roadmap 5.13, docs/app-art.md; design
+       turn 34g): priced for a long grind. `art` is the picture in
+       assets/app/img/ (KOS.art.src). The four CSS banners above are
+       retired: owned copies keep working, never sold again (`retired`). */
+    { id: "outfit-winter",  kind: "outfit", name: "Winter",      price: 4500, art: "app.skin.kurenai.winter",  outfit: "winter",  desc: "A long coat and a knitted scarf, the flower still in her hair." },
+    { id: "outfit-yukata",  kind: "outfit", name: "Yukata",      price: 4500, art: "app.skin.kurenai.yukata",  outfit: "yukata",  desc: "A summer yukata for festival evenings." },
+    { id: "outfit-exam",    kind: "outfit", name: "Exam season", price: 4500, art: "app.skin.kurenai.exam",    outfit: "exam",    desc: "Blazer and lanyard: she means business." },
+    { id: "outfit-rain",    kind: "outfit", name: "Rain",        price: 4500, art: "app.skin.kurenai.rain",    outfit: "rain",    desc: "A raincoat and a clear umbrella." },
+    { id: "outfit-newyear", kind: "outfit", name: "New Year",    price: 4500, art: "app.skin.kurenai.newyear", outfit: "newyear", desc: "A furisode for the first shrine visit of the year." },
+    { id: "outfit-dayoff",  kind: "outfit", name: "Day off",     price: 4500, art: "app.skin.kurenai.dayoff",  outfit: "dayoff",  desc: "A soft cardigan for a slow Sunday." },
+    { id: "outfit-gala",    kind: "outfit", name: "Gala",        price: 10000, art: "app.skin.kurenai.gala",   outfit: "gala", prestige: true, desc: "The prestige gown. Months of gold, and she knows it." },
+    { id: "scene-library",  kind: "scene", name: "The library",    price: 0,    art: "app.focus.library", scene: "library", desc: "Late light between the stacks. The free default." },
+    { id: "scene-train",    kind: "scene", name: "The night train", price: 1800, art: "app.focus.train",   scene: "train",   desc: "A window seat and the city going by." },
+    { id: "scene-shrine",   kind: "scene", name: "The shrine",     price: 1800, art: "app.focus.shrine",  scene: "shrine",  desc: "A quiet shrine path under cedar." },
+    { id: "scene-cafe",     kind: "scene", name: "The café",       price: 1800, art: "app.focus.cafe",    scene: "cafe",    desc: "Rain on the glass, a cup going cold." },
+    { id: "scene-rooftop",  kind: "scene", name: "The rooftop",    price: 1800, art: "app.focus.rooftop", scene: "rooftop", desc: "The city at night from the roof." },
+    { id: "scene-snow",     kind: "scene", name: "First snow",     price: 1800, art: "app.focus.snow",    scene: "snow",    desc: "A warm room and snow at the window." },
+    { id: "hall-lantern", kind: "hall", name: "Lantern hall",   price: 2500, art: "app.shrine.lantern", hall: "lantern", desc: "Paper lanterns down a lacquered hall." },
+    { id: "hall-moon",    kind: "hall", name: "Moon hall",      price: 2500, art: "app.shrine.moon",    hall: "moon",    desc: "A moon window with an empty frame for your rank 01." },
+    { id: "hall-gold",    kind: "hall", name: "Gold-leaf hall", price: 2500, art: "app.shrine.gold",    hall: "gold",    desc: "Gold leaf on the screens, lit low." },
+    { id: "pbanner-dawn",     kind: "banner", painted: true, name: "Dawn",       price: 1200, art: "app.banner.dawn",     desc: "First light over mist and fields." },
+    { id: "pbanner-lantern",  kind: "banner", painted: true, name: "Lantern",    price: 1200, art: "app.banner.lantern",  desc: "Paper lanterns on a violet evening." },
+    { id: "pbanner-tide",     kind: "banner", painted: true, name: "Tide",       price: 1200, art: "app.banner.tide",     desc: "Sea glass and foam." },
+    { id: "pbanner-inknight", kind: "banner", painted: true, name: "Ink night",  price: 1200, art: "app.banner.inknight", desc: "Deep indigo and a thin gold horizon." },
+    { id: "pbanner-sakura",   kind: "banner", painted: true, name: "Sakura",     price: 1200, art: "app.banner.sakura",   desc: "Blossom over a river at dusk." },
+    { id: "pbanner-snow",     kind: "banner", painted: true, name: "First snow", price: 1200, art: "app.banner.snow",     desc: "A still town under new snow." },
+    { id: "finish-washi", kind: "finish", name: "Washi",  price: 800, art: "app.finish.washi", desc: "Your share card on kozo paper." },
+    { id: "finish-foil",  kind: "finish", name: "Foil",   price: 800, art: "app.finish.foil",  desc: "A gold-foil edge on your share card." },
+    { id: "finish-film",  kind: "finish", name: "Film",   price: 800, art: "app.finish.film",  desc: "A film-grain finish on your share card." },
+    { id: "theme-washi-morning", kind: "theme", name: "Washi Morning", price: 1500, desc: "Kozo paper, sumi-indigo ink and a vermilion seal: a light theme beside Dawn.", theme: "washi-morning", sw: ["#C2543A", "#3E5A88", "#B58A3C"] },
+    { id: "theme-lantern-hall",  kind: "theme", name: "Lantern Hall",  price: 1500, desc: "Smoked cedar, paper-lantern orange and warm gold.", theme: "lantern-hall", sw: ["#E58A4E", "#7DC5CF", "#E8C46A"] },
+    { id: "theme-first-snow",    kind: "theme", name: "First Snow",    price: 1500, desc: "Night snow-light, ice blue and a camellia accent.", theme: "first-snow", sw: ["#E07A8A", "#B6DDEB", "#E3D9A6"] },
+    { id: "theme-moss-garden",   kind: "theme", name: "Moss Garden",   price: 1500, desc: "Wet stone, moss and a fallen camellia.", theme: "moss-garden", sw: ["#D8604E", "#8CC08A", "#D6CB7A"] },
+    { id: "avatar-fox",      kind: "avatar", name: "Fox",      price: 500, art: "app.avatar.fox", desc: "A fox mask, red and white." },
+    { id: "avatar-cat",      kind: "avatar", name: "Cat",      price: 500, art: "app.avatar.cat", desc: "A sleepy cat on a cushion." },
+    { id: "avatar-crane",    kind: "avatar", name: "Crane",    price: 500, art: "app.avatar.crane", desc: "A paper crane." },
+    { id: "avatar-rabbit",   kind: "avatar", name: "Moon rabbit", price: 500, art: "app.avatar.rabbit", desc: "The rabbit in the moon." },
+    { id: "avatar-koi",      kind: "avatar", name: "Koi",      price: 500, art: "app.avatar.koi", desc: "A koi turning in dark water." },
+    { id: "avatar-lamp",     kind: "avatar", name: "Desk lamp", price: 500, art: "app.avatar.lamp", desc: "The lamp on a late night." },
+    { id: "avatar-camellia", kind: "avatar", name: "Camellia", price: 500, art: "app.avatar.camellia", desc: "One red camellia." },
+    { id: "avatar-dragon",   kind: "avatar", name: "Dragon",   price: 500, art: "app.avatar.dragon", desc: "A coiled ink dragon." },
+    { id: "avatar-owl",      kind: "avatar", name: "Owl",      price: 500, art: "app.avatar.owl", desc: "A night owl, naturally." },
+    { id: "avatar-sakura",   kind: "avatar", name: "Sakura",   price: 500, art: "app.avatar.sakura", desc: "A blossom branch." },
+    { id: "avatar-lantern",  kind: "avatar", name: "Lantern",  price: 500, art: "app.avatar.lantern", desc: "A paper lantern, lit." },
+    { id: "avatar-bloom",    kind: "avatar", name: "Bloom",    price: 500, art: "app.avatar.bloom", desc: "The Kurenai bloom." },
+    { id: "frame-sakura",   kind: "frame", painted: true, name: "Sakura ring",  price: 800, art: "app.frame.sakura", desc: "A painted ring of blossom." },
+    { id: "frame-ice",      kind: "frame", painted: true, name: "Ice ring",     price: 800, art: "app.frame.ice", desc: "Frost crystals round your avatar." },
+    { id: "frame-ember",    kind: "frame", painted: true, name: "Ember ring",   price: 800, art: "app.frame.ember", desc: "Embers drifting round the edge." },
+    { id: "frame-lacquer",  kind: "frame", painted: true, name: "Lacquer ring", price: 800, art: "app.frame.lacquer", desc: "Black lacquer and a gold line." },
+    { id: "frame-wisteria", kind: "frame", painted: true, name: "Wisteria",     price: 800, art: "app.frame.wisteria", desc: "Wisteria falling round the ring." },
+    { id: "frame-koi",      kind: "frame", painted: true, name: "Koi ring",     price: 800, art: "app.frame.koi", desc: "Two koi chasing round." },
+    { id: "shelf-paulownia", kind: "shelfskin", name: "Paulownia", price: 800, art: "app.shelf.paulownia", desc: "Pale kiri wood, the shelf of a good chest." },
+    { id: "shelf-steel",     kind: "shelfskin", name: "Steel and glass", price: 800, art: "app.shelf.steel", desc: "Brushed steel and glass." },
+    { id: "shelf-oak",       kind: "shelfskin", name: "Library oak", price: 800, art: "app.shelf.oak", desc: "Old oak from a reading room." },
+    { id: "shelf-bamboo",    kind: "shelfskin", name: "Bamboo",    price: 800, art: "app.shelf.bamboo", desc: "Split bamboo, light and green." },
+    { id: "shelf-sakura",    kind: "shelfskin", name: "Sakura wood", price: 800, art: "app.shelf.sakura", desc: "Cherry wood with a pink grain." },
+    { id: "shrine-moon",     kind: "shrinestyle", name: "Moon",     price: 900, art: "app.shrinecard.moon", desc: "Silver and night blue." },
+    { id: "shrine-moth",     kind: "shrinestyle", name: "Moth",     price: 900, art: "app.shrinecard.moth", desc: "Dusty wings and lamp light." },
+    { id: "shrine-camellia", kind: "shrinestyle", name: "Camellia", price: 900, art: "app.shrinecard.camellia", desc: "Red camellia and dark leaves." },
+    { id: "shrine-lacquer",  kind: "shrinestyle", name: "Lacquer",  price: 900, art: "app.shrinecard.lacquer", desc: "Black lacquer and maki-e gold." },
+    { id: "shrine-frost",    kind: "shrinestyle", name: "Frost",    price: 900, art: "app.shrinecard.frost", desc: "Frost on glass." },
+    { id: "seal-yuki",   kind: "seal", name: "雪 Yuki seal",   price: 400, art: "app.seal.yuki",   desc: "Snow variant of the OS mark.",   glyph: "雪" },
+    { id: "seal-hana",   kind: "seal", name: "花 Hana seal",   price: 400, art: "app.seal.hana",   desc: "Flower variant of the OS mark.", glyph: "花" },
+    { id: "seal-yume",   kind: "seal", name: "夢 Yume seal",   price: 400, art: "app.seal.yume",   desc: "Dream variant of the OS mark.",  glyph: "夢" },
+    { id: "seal-katana", kind: "seal", name: "刀 Katana seal", price: 400, art: "app.seal.katana", desc: "Blade variant of the OS mark.",  glyph: "刀" },
+    { id: "seal-tsuru",  kind: "seal", name: "鶴 Tsuru seal",  price: 400, art: "app.seal.tsuru",  desc: "Crane variant of the OS mark.",  glyph: "鶴" },
+    { id: "seal-hikari", kind: "seal", name: "光 Hikari seal", price: 400, art: "app.seal.hikari", desc: "Light variant of the OS mark.",  glyph: "光" },
+    { id: "paper-kraft",    kind: "paper", name: "Kraft",            price: 400, paper: "kraft",    desc: "Brown kraft paper, lined." },
+    { id: "paper-slate",    kind: "paper", name: "Dark slate grid",  price: 400, paper: "slate",    desc: "A dark grid for late nights." },
+    { id: "paper-iso",      kind: "paper", name: "Isometric dots",   price: 400, paper: "iso",      desc: "Dots on a 60° lattice, for 3D sketches." },
+    { id: "paper-manuscript", kind: "paper", name: "Manuscript",     price: 400, paper: "manuscript", desc: "Genkō squares for writing Japanese." },
+    { id: "paper-staff",    kind: "paper", name: "Music staff",      price: 400, paper: "staff",    desc: "Five-line staves." },
+    { id: "paper-graph",    kind: "paper", name: "2 mm graph",       price: 400, paper: "graph",    desc: "Fine graph paper for plots." },
+    { id: "penset-study",  kind: "penset", name: "Study set",  price: 500, penset: "study",  desc: "Ink, mark and note." },
+    { id: "penset-exam",   kind: "penset", name: "Exam set",   price: 500, penset: "exam",   desc: "Black pen, red pen and pencil." },
+    { id: "penset-sketch", kind: "penset", name: "Sketch set", price: 500, penset: "sketch", desc: "Graphite, wash and highlight." }
   ];
+  /* the four CSS banners are retired (decision 5): an owned copy keeps working */
+  CATALOG.forEach(function (c) { if (c.kind === "banner" && !c.painted) c.retired = true; });
   /* preset banner paints, keyed by the catalog `banner` field */
   var BANNER_CSS = {
     dawn: "background-image:radial-gradient(140% 160% at 8% 0%, rgba(233,206,158,.85), rgba(203,157,98,.55) 45%, rgba(159,176,199,.5) 100%);",
@@ -448,7 +527,7 @@
   };
   var BANNER_DARK = { lantern: true, inknight: true, tide: false, dawn: false };
   var SEAL_GLYPHS = { kurenai: "紅", "seal-homura": "焔", "seal-tsuki": "月", "seal-ryuu": "竜",
-                      "seal-sakura": "桜", "seal-rai": "雷", "seal-hoshi": "星" };
+                      "seal-sakura": "桜", "seal-rai": "雷", "seal-hoshi": "星", "seal-yuki": "雪", "seal-hana": "花", "seal-yume": "夢", "seal-katana": "刀", "seal-tsuru": "鶴", "seal-hikari": "光" };
 
   function catalog() { return CATALOG.slice(); }
   function item(id) { return CATALOG.find(function (c) { return c.id === id; }); }
@@ -604,14 +683,21 @@
   function avatarNode(size) {
     var el = KOS.ui.el, g = G();
     var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", style: "--avatar: " + size + "px" });
+    var pic = g.avatar.kind === "art" && owns(g.avatar.art) ? item(g.avatar.art) : null;
     if (g.avatar.kind === "custom" && g.avatar.img) {
       node.appendChild(KOS.imageCrop.image(g.avatar.img, { alt: "Your avatar" }, g.avatar.crop));
+    } else if (pic) {
+      /* a painted avatar from the shop (34g, batch 16) */
+      node.appendChild(el("img", { class: "k-avatar-art", src: "assets/app/img/" + pic.art + ".webp", alt: "Your avatar: " + pic.name, decoding: "async" }));
     } else {
       var s = sealById(g.avatar.id) || SEALS[0];
       node.innerHTML += sealSvg(s);
     }
+    /* a painted frame (34p) is a picture round the disc: the avatar sits in its inner 66% */
+    var fr = g.avatar.frame && item(g.avatar.frame);
+    var frameArt = fr && fr.painted && fr.art ? el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", decoding: "async" }) : null;
     return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": g.avatar.frame || null,
-      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node]);
+      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt].filter(Boolean));
   }
 
   function saveCustomAvatar(source, crop) {
@@ -698,6 +784,57 @@
   function setShelfSkin(id) { G().shelfSkin = id || null; store.save(); }
   function setShrineStyle(id) { G().shrineStyle = id || null; store.save(); }
   function shelfSkin() { return G().shelfSkin || null; }
+
+  /* ---- outfits, scenes, halls, finishes, papers, pen sets (34g) ----
+     The choice syncs like the theme (g.outfit, g.scene, g.hall, g.finish,
+     g.paper, g.penset: an item's own key, or null for the default). Try on
+     is TRANSIENT: memory only, never saved or synced, ended on leaving the
+     shop; several kinds can be tried at once. */
+  var tryKinds = {};
+  var WEAR = { outfit: "outfit", scene: "scene", hall: "hall", finish: "finish", paper: "paper", penset: "penset" };
+  function keyOf(it) { return it[it.kind] || it.id; }
+  function wearing(kind) {
+    var g = G(), id = g[WEAR[kind]];
+    return id && owns(id) ? id : null;
+  }
+  function worn(kind) {
+    var t = tryKinds[kind];
+    if (t) return t;
+    var id = wearing(kind), it = id && item(id);
+    return it ? keyOf(it) : null;
+  }
+  function wear(kind, id) {
+    if (!WEAR[kind]) return;
+    G()[WEAR[kind]] = id && owns(id) ? id : null;
+    delete tryKinds[kind];
+    store.save();
+    KOS.refreshHUD && KOS.refreshHUD();
+  }
+  /* try an item on (or null to stop); a theme goes through tryTheme */
+  function tryItem(id) {
+    var it = item(id);
+    if (!it) return;
+    if (it.kind === "theme") { tryTheme(tryOn === it.theme ? null : it.theme); return; }
+    if (!WEAR[it.kind]) return;
+    if (tryKinds[it.kind] === keyOf(it)) delete tryKinds[it.kind]; else tryKinds[it.kind] = keyOf(it);
+  }
+  function trying() {
+    var out = [];
+    Object.keys(tryKinds).forEach(function (k) {
+      var it = CATALOG.find(function (c) { return c.kind === k && keyOf(c) === tryKinds[k]; });
+      if (it) out.push(it);
+    });
+    if (tryOn) { var t = CATALOG.find(function (c) { return c.kind === "theme" && c.theme === tryOn; }); if (t) out.push(t); }
+    return out;
+  }
+  function isTrying(id) { return trying().some(function (c) { return c.id === id; }); }
+  function stopTrying() { tryKinds = {}; tryTheme(null); }
+  function outfit() { return worn("outfit"); }
+  function scene() { return worn("scene") || "library"; }
+  function hall() { return worn("hall"); }
+  /* a goal pinned on the Stage (34h): not a Goals goal, no notifications */
+  function pinned() { var g = G(); return g.shopPin && item(g.shopPin) && !owns(g.shopPin) ? item(g.shopPin) : null; }
+  function setPinned(id) { G().shopPin = id || null; store.save(); }
   function shrineStyle() { return G().shrineStyle || null; }
 
   /* ---- profile banner (identity card backdrop) ----
@@ -1083,6 +1220,17 @@
     setShelfSkin: setShelfSkin,
     setShrineStyle: setShrineStyle,
     shelfSkin: shelfSkin,
+    wear: wear,
+    wearing: wearing,
+    tryItem: tryItem,
+    trying: trying,
+    isTrying: isTrying,
+    stopTrying: stopTrying,
+    outfit: outfit,
+    scene: scene,
+    hall: hall,
+    pinned: pinned,
+    setPinned: setPinned,
     shrineStyle: shrineStyle,
     setBanner: setBanner,
     setCustomBanner: setCustomBanner,

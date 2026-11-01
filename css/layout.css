@@ -248,6 +248,11 @@ font-size: var(--fs-12);
 .k-profile-gold { margin-inline-start: auto; font-family: var(--font-mono); color: var(--amber); }
 .k-avatar { inline-size: var(--avatar, var(--sp-32)); block-size: var(--avatar, var(--sp-32)); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; overflow: hidden; background: var(--s2); }
 .k-avatar > img, .k-avatar > svg { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.k-avatar > .k-avatar-art { object-fit: contain; }
+/* a painted frame (34p): a keyed picture whose inner 66% holds the avatar,
+   drawn outside any HP ring round it like the CSS frames */
+.k-avatar-frame-art { position: absolute; inset-block-start: calc(-26% - var(--fo)); inset-inline-start: calc(-26% - var(--fo)); inline-size: calc(152% + 2 * var(--fo)); block-size: calc(152% + 2 * var(--fo)); max-inline-size: none; object-fit: contain; pointer-events: none; }
+.k-avatar-host:has(> .k-avatar-frame-art)::before, .k-avatar-host:has(> .k-avatar-frame-art)::after { display: none; }
 /* a worn frame (frame 22a): drawn by the host outside the portrait AND
    outside the HP ring around it (--frame-out, set by each ring), clear of
    the ring by a gap, so it never covers the arc. Two layers: ::before the

@@ -845,4 +845,49 @@ color-scheme: dark;
 --hero-tint: oklch(0.3 0.08 250);
 }
 
+/* ---------- design turn 34o · four themes for the new shop (◆ 1,500 each; roles only) ---------- */
+/* Washi Morning · kozo paper, sumi-indigo ink, vermilion seal, a light theme beside Dawn */
+:root[data-theme="washi-morning"], [data-theme="washi-morning"] {
+  color-scheme: light;
+  --art-op-hero: 0.34; --art-op-stage: 0.62; --art-op-hall: 0.5; --art-filter: saturate(0.85) brightness(1.18);
+  --art-glass-edge: color-mix(in oklch, var(--gold) 30%, transparent); --gold-ink: var(--s1);
+  --bg: oklch(0.948 0.014 78); --s1: oklch(0.986 0.006 78); --s2: oklch(0.922 0.016 78); --s3: oklch(0.902 0.018 78);
+  --line: oklch(0.86 0.018 78); --text: oklch(0.25 0.03 262); --text-2: oklch(0.4 0.03 258); --muted: oklch(0.5 0.024 254);
+  --crimson: oklch(0.55 0.17 35); --crimson-ink: oklch(0.986 0.006 78); --teal: oklch(0.46 0.09 250); --bloom: oklch(0.52 0.12 0);
+  --amber: oklch(0.52 0.13 70); --green: oklch(0.49 0.13 150); --gold: oklch(0.52 0.11 80);
+  --cs: oklch(0.47 0.09 205); --maths: oklch(0.5 0.14 275); --it: oklch(0.52 0.14 330); --code: oklch(0.5 0.09 235);
+  --hero-tint: oklch(0.93 0.03 70);
+  --crimson-hi: oklch(from var(--crimson) calc(l - 0.05) c h); --crimson-lo: oklch(from var(--crimson) calc(l - 0.1) c h);
+  --crimson-glow: oklch(from var(--crimson) l c h / 0.18);
+  --home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l c h / 0.85) 0%, oklch(from var(--hero-tint) l c h / 0.6) 30%, oklch(from var(--hero-tint) l c h / 0.15) 54%, transparent 64%);
+  --home-hero-ink: oklch(from var(--hero-tint) 0.42 0.08 h); --home-ring-track: oklch(from var(--hero-tint) calc(l - 0.1) c h);
+  --home-goal-ink: oklch(from var(--hero-tint) 0.42 0.07 calc(h + 150)); --home-xp-track: oklch(from var(--hero-tint) calc(l - 0.08) c h);
+  --gv-glass: oklch(from var(--s1) l c h / 0.8);
+  --shadow-ink: oklch(0.35 0.03 60 / 0.14);
+}
+/* Lantern Hall · smoked cedar, paper-lantern orange, warm gold */
+:root[data-theme="lantern-hall"], [data-theme="lantern-hall"] {
+  color-scheme: dark;
+  --bg: oklch(0.155 0.014 55); --s1: oklch(0.19 0.016 55); --s2: oklch(0.228 0.018 55); --s3: oklch(0.13 0.014 55);
+  --line: oklch(0.27 0.018 55); --text: oklch(0.95 0.012 80); --text-2: oklch(0.8 0.02 70); --muted: oklch(0.63 0.022 65);
+  --crimson: oklch(0.72 0.15 45); --crimson-ink: oklch(0.16 0.03 45); --teal: oklch(0.76 0.07 200); --bloom: oklch(0.82 0.11 80);
+  --gold: oklch(0.85 0.12 82); --hero-tint: oklch(0.27 0.05 55);
+}
+/* First Snow · night snow-light, ice blue, a camellia accent */
+:root[data-theme="first-snow"], [data-theme="first-snow"] {
+  color-scheme: dark;
+  --bg: oklch(0.17 0.02 245); --s1: oklch(0.205 0.022 245); --s2: oklch(0.24 0.024 245); --s3: oklch(0.145 0.02 245);
+  --line: oklch(0.29 0.024 245); --text: oklch(0.96 0.008 240); --text-2: oklch(0.82 0.015 240); --muted: oklch(0.65 0.02 240);
+  --crimson: oklch(0.72 0.13 5); --crimson-ink: oklch(0.16 0.03 5); --teal: oklch(0.86 0.05 215); --bloom: oklch(0.82 0.06 270);
+  --gold: oklch(0.86 0.06 90); --hero-tint: oklch(0.3 0.05 240);
+}
+/* Moss Garden · wet stone, moss, a fallen camellia */
+:root[data-theme="moss-garden"], [data-theme="moss-garden"] {
+  color-scheme: dark;
+  --bg: oklch(0.155 0.014 150); --s1: oklch(0.19 0.016 150); --s2: oklch(0.226 0.018 150); --s3: oklch(0.13 0.014 150);
+  --line: oklch(0.27 0.018 150); --text: oklch(0.95 0.01 120); --text-2: oklch(0.8 0.02 130); --muted: oklch(0.63 0.022 140);
+  --crimson: oklch(0.68 0.16 25); --crimson-ink: oklch(0.16 0.03 25); --teal: oklch(0.77 0.1 140); --bloom: oklch(0.85 0.08 95);
+  --gold: oklch(0.84 0.1 95); --hero-tint: oklch(0.27 0.04 150);
+}
+
 }

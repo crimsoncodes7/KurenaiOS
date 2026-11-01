@@ -338,7 +338,7 @@ step("every theme card is a live miniature in its own tokens, with the four-colo
   /* frame 21h: the preview carries data-theme, so css/themes.css draws it
      with that theme's tokens; the swatch is ground, tint, accent, second */
   const cards = [...main.querySelectorAll("[data-ui~='shop.card'][data-kind='theme']")];
-  if (cards.length !== 25) throw new Error("25 theme cards expected, got " + cards.length);
+  if (cards.length !== 29) throw new Error("29 theme cards expected (design turn 34o added four), got " + cards.length);
   for (const c of cards) {
     const mini = c.querySelector("[data-ui~='shop.theme-mini']");
     if (!mini || !mini.getAttribute("data-theme")) throw new Error("a theme card without its live miniature");
