@@ -537,9 +537,9 @@
       var cur = customArt[sel.season];
       KOS.imageCrop.open({
         title: "Picture for " + meta.label,
-        description: "A wide picture works best — it sits behind the season title on every " + meta.label + " page.",
+        description: "A wide picture works best — it sits behind the season title on every " + meta.label + " page." + (KOS.art && !KOS.art.canUpload("vault") ? " Uploading a new picture is an unlock in the Gold Shop (Your own picture)." : ""),
         source: cur ? cur.source : "", crop: cur ? cur.crop : null,
-        aspect: 16 / 6, allowUrl: true, allowUpload: true,
+        aspect: 16 / 6, allowUrl: !KOS.art || KOS.art.canUpload("vault"), allowUpload: !KOS.art || KOS.art.canUpload("vault"),
         fileOptions: { maxWidth: 1800, maxHeight: 700, maxBytes: 700 * 1024, quality: 0.84 },
         removeLabel: "Back to the shipped scenery",
         onRemove: cur ? function () { setCustomArt(null); } : null,

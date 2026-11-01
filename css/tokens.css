@@ -1382,6 +1382,7 @@ color-scheme: dark;
 --art-glass-edge: color-mix(in oklch, var(--gold) 22%, transparent);
 --art-spot: 160px;
 --art-spot-ph: 128px;
+--art-drawer-w: 560px;
 --gold-ink: var(--shr-gold-ink);
 /* notebook papers (34p), from the theme's own line */
 --paper-kraft: oklch(from var(--s1) l calc(c + 0.035) 70);

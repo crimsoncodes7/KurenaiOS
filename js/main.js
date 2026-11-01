@@ -304,6 +304,6 @@
     }, 0);
   });
   /* Decorative art per device (34n): set before the first page draws */
-  if (KOS.art) KOS.art.apply();
+  if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender(); }); }
   KOS.router.boot();
 })();

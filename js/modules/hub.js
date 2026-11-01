@@ -1057,7 +1057,18 @@
     /* the user's own banner keeps showing (roadmap 5.14); otherwise the
        season's painting (34k). Critical HP owns the slot: no picture. */
     if (g.banner === "custom" && g.bannerImg) KOS.governor.applyBanner(band, { scrim: "hero" });
-    else if (hpS !== "critical" && KOS.art) KOS.art.layer(band, "home", { eager: true });
+    else if (hpS !== "critical" && KOS.art) {
+      KOS.art.layer(band, "home", { eager: true });
+      /* the slot's chip (34k): on hover and keyboard focus, last in the focus order */
+      if (KOS.artSlot && KOS.art.on()) {
+        var hc = KOS.art.cfg("home"), hs = KOS.art.season();
+        band.appendChild(el("button", { type: "button", class: "k-art-chip", "data-ui": "art.chip",
+          "aria-label": "Home's picture: change or rotate",
+          onclick: function () { KOS.artSlot.open("home", function () { KOS.rerender(); }); } }, [
+          "◐ ", hc && hc.mode === "own" ? "Your picture" : hs.charAt(0).toUpperCase() + hs.slice(1),
+          el("span", { class: "k-muted", text: " · " + (!hc || (hc.mode === "rotate" && (hc.period || "season") === "season") ? "by season" : hc.mode === "one" ? "one picture" : hc.mode) + " ▾" })]));
+      }
+    }
     var ring = el("span", { class: "k-home-ring", "data-hp": hpS, style: "--hp: " + Math.max(0, Math.min(100, g.hp)) + "%" },
       [KOS.governor.avatarNode(94)]);
     var greet = el("h1", { class: "k-home-greet" }, hpS === "critical" ? [] : [greeting() + " "]);

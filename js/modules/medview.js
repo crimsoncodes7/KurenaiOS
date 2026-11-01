@@ -1405,7 +1405,7 @@
             description: "This preview matches the shared Collection hero. Drag the focal point so it stays useful at narrower widths. With no banner the cover art is used instead.",
             source: banner || "", originalSource: remoteBanner,
             originalLabel: "Use title banner", crop: pref.crop,
-            aspect: 3.2, allowUpload: true,
+            aspect: 3.2, allowUpload: !KOS.art || KOS.art.canUpload("vault"),
             fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
             removeLabel: remoteBanner ? "Use automatic banner" : "Use the cover art",
             onRemove: function () {

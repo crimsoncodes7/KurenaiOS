@@ -514,7 +514,15 @@
     { id: "paper-graph",    kind: "paper", name: "2 mm graph",       price: 400, paper: "graph",    desc: "Fine graph paper for plots." },
     { id: "penset-study",  kind: "penset", name: "Study set",  price: 500, penset: "study",  desc: "Ink, mark and note." },
     { id: "penset-exam",   kind: "penset", name: "Exam set",   price: 500, penset: "exam",   desc: "Black pen, red pen and pencil." },
-    { id: "penset-sketch", kind: "penset", name: "Sketch set", price: 500, penset: "sketch", desc: "Graphite, wash and highlight." }
+    { id: "penset-sketch", kind: "penset", name: "Sketch set", price: 500, penset: "sketch", desc: "Graphite, wash and highlight." },
+    /* "Your own picture" (roadmap 5.14): uploading is an unlock, an area at
+       a time or all of them; a picture set before keeps showing */
+    { id: "upload-home",   kind: "unlock", name: "Home's hero",       price: 3000, area: "home",   desc: "Your own picture behind the greeting." },
+    { id: "upload-focus",  kind: "unlock", name: "Focus stage",       price: 3000, area: "focus",  desc: "Your own picture behind the timer." },
+    { id: "upload-shrine", kind: "unlock", name: "Shrine hall",       price: 3000, area: "shrine", desc: "Your own picture behind rank 01." },
+    { id: "upload-banner", kind: "unlock", name: "Profile banner",    price: 3000, area: "banner", desc: "Upload your own profile banner." },
+    { id: "upload-vault",  kind: "unlock", name: "Vault heroes and Seasonal", price: 3000, area: "vault", desc: "Your own banner on a vault's Spotlight and the Seasonal hero." },
+    { id: "upload-all",    kind: "unlock", name: "Every area",        price: 12000, area: "all", desc: "Your own picture everywhere a picture can go (saves 3,000)." }
   ];
   /* the four CSS banners are retired (decision 5): an owned copy keeps working */
   CATALOG.forEach(function (c) { if (c.kind === "banner" && !c.painted) c.retired = true; });
@@ -905,8 +913,9 @@
   function bannerCropper(source, crop, done) {
     return KOS.imageCrop.open({
       title: "Position your profile banner",
-      description: "The preview uses the shared hero ratio. Governor Status keeps its special profile layout while using the same focal point.",
-      source: source || "", crop: crop, aspect: 3.2, allowUpload: true,
+      description: "The preview uses the shared hero ratio. Governor Status keeps its special profile layout while using the same focal point." + (KOS.art && !KOS.art.canUpload("banner") ? " Uploading a new picture is an unlock in the Gold Shop (Your own picture)." : ""),
+      /* roadmap 5.14: a new upload is the unlock's; the picture set before stays */
+      source: source || "", crop: crop, aspect: 3.2, allowUpload: !KOS.art || KOS.art.canUpload("banner"),
       fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 420 * 1024, quality: 0.82 },
       onSave: function (result) { setBanner("custom", result.source, result.crop); done && done(null, result); },
       onCancel: function () { done && done(null, { cancelled: true }); }

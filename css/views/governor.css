@@ -620,6 +620,9 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 .k-gv-apv-paper[data-paper="mm2"] { background-image: linear-gradient(var(--paper-ink) var(--hairline), transparent var(--hairline)), linear-gradient(90deg, var(--paper-ink) var(--hairline), transparent var(--hairline)), linear-gradient(var(--line) var(--hairline), transparent var(--hairline)), linear-gradient(90deg, var(--line) var(--hairline), transparent var(--hairline)); background-size: var(--sp-40) var(--sp-40), var(--sp-40) var(--sp-40), var(--sp-8) var(--sp-8), var(--sp-8) var(--sp-8); }
 .k-gv-apv-paper > i { position: absolute; inset-inline: 18%; block-size: var(--ring-2); border-radius: var(--r-pill); background: var(--text); inset-block-start: 40%; transform: rotate(-4deg); }
 .k-gv-apv-paper > i + i { background: var(--crimson); inset-block-start: 66%; inset-inline: 22% 30%; transform: rotate(2deg); }
+.k-gv-apv[data-kind="unlock"] { aspect-ratio: 16 / 9; }
+.k-gv-apv-lock { display: flex; flex-direction: column; align-items: center; gap: var(--sp-6); color: var(--text-2); font-size: var(--fs-12); }
+.k-gv-apv-lock b { inline-size: var(--sp-48); aspect-ratio: 1; border-radius: var(--r-14); display: grid; place-items: center; background: var(--s3); color: var(--gold); font: var(--weight-semibold) var(--fs-22) / 1 var(--font-kanji); }
 .k-gv-apv-pens { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: var(--sp-12); padding: var(--sp-16); background: var(--s1); --p1: var(--text); --p2: var(--crimson); --p3: var(--teal); }
 .k-gv-apv-pens[data-set="exam"] { --p2: var(--red); --p3: var(--muted); }
 .k-gv-apv-pens[data-set="sketch"] { --p1: var(--text-2); --p2: var(--bloom); --p3: var(--gold); }

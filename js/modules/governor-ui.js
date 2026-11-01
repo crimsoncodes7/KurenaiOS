@@ -273,6 +273,10 @@
       var v = gg.seatBg;
       if (v === "custom" || (!v && gg.banner === "custom" && gg.bannerImg)) return gg.bannerImg ? { src: gg.bannerImg, crop: gg.bannerCrop, custom: true } : null;
       /* a painted banner hung from the shop (34g) is the stage when no seat ground is picked */
+      /* the banner slot's rule (34n): rotating painted banners, or your own upload */
+      var rot = !v && KOS.art && KOS.art.cfg("banner") ? KOS.art.rotated("banner", new Date()) : undefined;
+      if (rot && rot.own) return { src: rot.own.src, crop: rot.own.crop, custom: true };
+      if (rot) return { src: "assets/app/img/" + rot + ".webp", set: null };
       var pb = !v && gg.banner && KOS.governor.item(gg.banner);
       if (pb && pb.painted && KOS.governor.owns(pb.id)) return { src: "assets/app/img/" + pb.art + ".webp", set: null };
       var set = /^pano:(.+)$/.exec(v || "") ? v.slice(5) : "kurenai";
@@ -839,6 +843,7 @@
       { id: "shrines",   dept: "app",     label: "Shrine cards",      match: function (c) { return c.kind === "shrinestyle"; } },
       { id: "papers",    dept: "app",     label: "Notebook papers",   match: function (c) { return c.kind === "paper"; } },
       { id: "pensets",   dept: "app",     label: "Pen sets",          match: function (c) { return c.kind === "penset"; } },
+      { id: "unlocks",   dept: "app",     label: "Your own picture",  match: function (c) { return c.kind === "unlock"; } },
       { id: "labs",      dept: "labs",    label: "Labs",              match: function (c) { return c.kind === "lab"; } }
     ];
     var DEPTS = [["kurenai", "For Kurenai"], ["rooms", "For your rooms"], ["profile", "For your profile"], ["app", "For the app"], ["labs", "Labs"]];
@@ -864,7 +869,7 @@
         case "banner": return it.painted ? g.banner === it.id : g.banner === it.banner;
         case "avatar": return g.avatar.kind === "art" && g.avatar.art === it.id;
         case "scene": return (W("scene") || "scene-library") === it.id;
-        case "lab": return false;
+        case "lab": case "unlock": return false;
         default: return W(it.kind) === it.id;
       }
     }
@@ -1031,7 +1036,7 @@
       var foot = el("div", { class: "k-gv-ware-foot", "data-ui": "shop.card-foot" });
       var CHIP = { on: ["✓ In use", "gold"], owned: ["Owned", "muted"], free: ["Free", "muted"], try: ["◐ Trying on", "gold"] };
       if (CHIP[st]) foot.appendChild(el("span", { class: "k-chip", "data-tone": CHIP[st][1], text: CHIP[st][0] }));
-      var canTry = it.kind !== "lab" && it.kind !== "paper" && it.kind !== "penset" && it.kind !== "avatar" && it.kind !== "frame" && it.kind !== "seal" && it.kind !== "shelfskin" && it.kind !== "shrinestyle" && it.kind !== "banner";
+      var canTry = it.kind !== "lab" && it.kind !== "unlock" && it.kind !== "paper" && it.kind !== "penset" && it.kind !== "avatar" && it.kind !== "frame" && it.kind !== "seal" && it.kind !== "shelfskin" && it.kind !== "shrinestyle" && it.kind !== "banner";
       if (st === "buy" && canTry) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-gv-try", "data-ui": "shop.try-on",
         text: "Try on", "aria-label": "Try on " + it.name, onclick: function () { KOS.governor.tryItem(it.id); render(); } }));
       foot.appendChild(el("span", { class: "k-gv-ware-gap" }));
@@ -1042,6 +1047,8 @@
           text: goldN(it.price - g.gold) + " more", onclick: function () { shopSheet(it); } }));
       } else if (it.kind === "lab") {
         foot.appendChild(el("span", { class: "k-gv-unlocked", text: "In its subject's Practice zone" }));
+      } else if (it.kind === "unlock") {
+        foot.appendChild(el("span", { class: "k-gv-unlocked", text: "Unlocked · upload from the slot's picture drawer" }));
       } else if (st === "on") {
         if (!(it.kind === "scene" && it.price === 0)) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet k-gv-apply", "data-ui": "shop.take-off",
           text: "Take off", onclick: function () { wareUse(it, false); render(); } }));
@@ -1229,13 +1236,15 @@
           pv.appendChild(el("span", { class: "k-gv-apv-seal" }, [img(it.art, "k-gv-apv-seal-art"), el("b", { lang: "ja", text: it.glyph })])); break;
         case "paper":
           pv.appendChild(el("span", { class: "k-gv-apv-paper", "data-paper": PAPER_LINES[it.paper] || it.paper }, [el("i"), el("i")])); break;
+        case "unlock":
+          pv.appendChild(el("span", { class: "k-gv-apv-lock" }, [el("b", { lang: "ja", text: KOS.governor.owns(it.id) ? "解" : "錠" }), el("small", { text: it.area === "all" ? "every area" : it.name })])); break;
         case "penset":
           pv.appendChild(el("span", { class: "k-gv-apv-pens", "data-set": it.penset }, [el("i"), el("i"), el("i")])); break;
       }
       return pv;
     }
     function shopPreview(it, big) {
-      if (it.art || it.kind === "paper" || it.kind === "penset") return artPreview(it, big);
+      if (it.art || it.kind === "paper" || it.kind === "penset" || it.kind === "unlock") return artPreview(it, big);
       var pv = el("div", { class: "k-gv-pv", "data-kind": it.kind, "aria-hidden": "true" });
       if (it.sw && it.kind !== "theme") it.sw.forEach(function (c, i) { pv.style.setProperty("--sw" + (i + 1), c); });
       if (it.kind === "banner") {
@@ -1364,7 +1373,9 @@
           return b;
         });
         ward.appendChild(el("div", { class: "k-gv-ward-row", "data-kind": kind }, [
-          el("div", { class: "k-gv-ward-h" }, [el("b", { text: w[1] }), el("span", { class: "k-muted", text: w[2] + " · " + items.length + " of " + all })]),
+          el("div", { class: "k-gv-ward-h" }, [el("b", { text: w[1] }), el("span", { class: "k-muted", text: w[2] + " · " + items.length + " of " + all }),
+            KOS.artSlot && ({ scene: "focus", hall: "shrine", banner: "banner" })[kind] ? el("button", { type: "button", class: "k-link k-gv-ward-rot", "data-ui": "art.open",
+              text: "Rotate or your own →", onclick: function () { KOS.artSlot.open(({ scene: "focus", hall: "shrine", banner: "banner" })[kind], render); } }) : null].filter(Boolean)),
           el("div", { class: "k-gv-ward-chips" }, chips.length ? chips : [
             el("button", { type: "button", class: "k-link", text: "In the Gold Shop →", onclick: function () { shopSel = { group: (SHOP_GROUPS.filter(function (x) { return x.match({ kind: kind }); })[0] || {}).id }; KOS.show("governor", "shop"); } })])
         ]));
