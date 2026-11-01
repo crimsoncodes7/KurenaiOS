@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; last release kos-achievements-2 (2026-10-31, 75433675, main = feat/art-review); fetch first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; last release kos-artshop-1 (2026-11-01, 87dad81e, main = feat/art-shop); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
@@ -20,7 +20,7 @@
 - [User-made assets](user-made-assets.md) — ask the user for Gemini images / VOICEVOX audio via the manifest; never SVG stand-ins
 - [Mind study space](mind-study-space.md) — roadmap 5.9; platform + F1 RELEASED 2026-10-29 (kos-mind-1, cc2bc15); smokes 109–111; adapt the design to the app, no Mind streak
 - [Daily Review and Routines](routines-review.md) — 5.10 RELEASED kos-routines-1, follow-up kos-routines-2 + runner v6; next: Files plan 5.11 (decisions await)
-- [Art and shop audit](art-shop-audit.md) — design turn 34 built on feat/art-shop 2026-11-01 (art slots, Assistant, Gold Shop); left: 5.14 rotation/unlocks, finishes, papers/pens, page headers
+- [Art and shop audit](art-shop-audit.md) — 5.13/5.14 RELEASED 2026-11-01 (kos-artshop-1, 87dad81e); left: Wallpaper area, desk/page-header rotation
 - [Creatives study space](creatives-study-space.md) — 5.7.3 on feat/creatives; Platform 1 + Art 1–3 RELEASED 2026-10-30 (kos-creatives-1, 1e058d00)
 - [Google/Todoist integrations](integrations-google-todoist.md) — 5.15 RELEASED 2026-10-30 (kos-connect-1, d47701df), smoke112; real sign-in not yet tried
 - [Design handoffs are a guide](design-handoff-not-1to1.md) — never 1:1; match Code's desk; minimal text; side column never taller than the hero
