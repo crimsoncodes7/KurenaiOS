@@ -776,6 +776,9 @@
     }
     document.documentElement.dataset.theme = tid;
     document.body.dataset.theme = tid;   /* legacy hook, harmless */
+    /* a worn pen set (34p) re-maps the pen's roles (ink.css) */
+    var ps = wearing("penset"), psIt = ps && item(ps);
+    if (psIt) document.documentElement.setAttribute("data-penset", psIt.penset); else document.documentElement.removeAttribute("data-penset");
     var mark = document.querySelector("#topbar [data-ui~='shell.brand'] [data-ui~='shell.brand-mark']");
     if (mark) mark.textContent = SEAL_GLYPHS[g.seal] || "紅";
   }
@@ -816,6 +819,7 @@
     G()[WEAR[kind]] = id && owns(id) ? id : null;
     delete tryKinds[kind];
     store.save();
+    applyCosmetics();
     KOS.refreshHUD && KOS.refreshHUD();
   }
   /* try an item on (or null to stop); a theme goes through tryTheme */

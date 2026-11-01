@@ -89,6 +89,18 @@
     glow.addColorStop(1, gold.replace(/\)\s*$/, " / 0)"));
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, CARD_W, CARD_H);
+    /* a finish lays its paper under the lacquer's words, then the lacquer
+       again at half strength so every line keeps its contrast */
+    var fin = finishItem(), fim = fin && finishImg[fin.id];
+    if (fim && fim.complete && fim.naturalWidth) {
+      var k = Math.max(CARD_W / fim.naturalWidth, CARD_H / fim.naturalHeight);
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(fim, (CARD_W - fim.naturalWidth * k) / 2, (CARD_H - fim.naturalHeight * k) / 2, fim.naturalWidth * k, fim.naturalHeight * k);
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, CARD_W, CARD_H);
+      ctx.globalAlpha = 1;
+    }
     ctx.restore();
     var L = 84, R = CARD_W - 84;
     ctx.textBaseline = "top";
@@ -163,8 +175,23 @@
     var A = KOS.achievements;
     return A ? A.showcase().map(function (id) { return A.def(id); }).filter(Boolean) : [];
   }
+  /* the share-card finish bought in the shop (34g): its paper under the words */
+  var finishImg = {};
+  function finishItem() {
+    var G = KOS.governor, id = G && G.wearing && G.wearing("finish");
+    var tried = G && G.trying ? G.trying().filter(function (c) { return c.kind === "finish"; })[0] : null;
+    return tried || (id && G.item(id)) || null;
+  }
   function loadShowcase(done) {
     var defs = showcaseDefs(), left = 0;
+    var fin = finishItem();
+    if (fin && !finishImg[fin.id]) {
+      left++;
+      var fim = new window.Image();
+      fim.onload = fim.onerror = function () { if (--left === 0 && done) done(); };
+      fim.src = "assets/app/img/" + fin.art + ".webp";
+      finishImg[fin.id] = fim;
+    }
     defs.forEach(function (d) {
       var src = KOS.achUI && KOS.achUI.artSrc(d);
       if (!src || showImgs[d.id]) return;
@@ -343,7 +370,7 @@
       primary
     ]));
     paint();
-    loadShowcase(function () { if (state.badges) paint(); });
+    loadShowcase(function () { paint(); });
     KOS.ui.openDialog(overlay, { label: "Share or export", initialFocus: primary });
     return overlay;
   }

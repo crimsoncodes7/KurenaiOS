@@ -109,7 +109,7 @@
   }
   function palette(host) {
     var themed = host.closest && host.closest("[data-theme]");
-    var key = (themed && themed.getAttribute("data-theme")) || document.documentElement.getAttribute("data-theme") || "";
+    var key = ((themed && themed.getAttribute("data-theme")) || document.documentElement.getAttribute("data-theme") || "") + "|" + (document.documentElement.getAttribute("data-penset") || "");
     if (palCache[key]) return palCache[key];
     var out = {}, sure = !!(host && host.isConnected);
     ROLES.forEach(function (r) { out[r] = resolve(host, r); if (!/^rgb/.test(out[r])) sure = false; });
@@ -120,7 +120,7 @@
   }
   try {
     if (window.MutationObserver) new MutationObserver(function () { palCache = {}; })
-      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-penset"] });
   } catch (e) { /* no observers */ }
 
   /* ---------- drawing ---------- */

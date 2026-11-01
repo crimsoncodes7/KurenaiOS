@@ -43,6 +43,17 @@
     ["blank", "Blank"], ["lined", "Lined"], ["squared", "Squared 5 mm"],
     ["dotted", "Dotted"], ["cornell", "Cornell"], ["booklet", "Answer booklet"]
   ];
+  /* the notebook papers bought in the Gold Shop (34p) join the list once owned */
+  var SHOP_PAPERS = [["kraft", "Kraft"], ["slate", "Dark slate grid"], ["iso", "Isometric dots"], ["manuscript", "Manuscript"], ["staff", "Music staff"], ["graph", "2 mm graph"]];
+  /* a new notebook takes the paper worn from the Gold Shop, else lined */
+  function defaultPaper() {
+    var G = KOS.governor, id = G && G.wearing && G.wearing("paper"), it = id && G.item(id);
+    return it ? it.paper : "lined";
+  }
+  function papers() {
+    var G = KOS.governor;
+    return PAPERS.concat(SHOP_PAPERS.filter(function (p) { return G && G.owns && G.owns("paper-" + p[0]); }));
+  }
   var PEN_ROLES = [["ink", "Ink"], ["accent", "Accent"], ["teal", "Teal"], ["amber", "Amber"], ["green", "Green"]];
   var HL_ROLES = [["amber", "Amber"], ["teal", "Teal"], ["bloom", "Bloom"]];
   var WIDTHS = [["Fine", 0.4], ["Medium", 0.6], ["Bold", 1.0]];
@@ -335,7 +346,7 @@
      with none, so nothing prints a zero; invariant 77) */
   /* a page not saved yet: a blank sheet the first stroke turns into page 1 */
   function blankPage(key, paper, h) {
-    var p = { id: uid(), doc: key, paper: paper || (index[key] && index[key].paper) || "lined", items: [], at: 0, created: 0 };
+    var p = { id: uid(), doc: key, paper: paper || (index[key] && index[key].paper) || defaultPaper(), items: [], at: 0, created: 0 };
     if (h) p.h = h;
     return p;
   }
@@ -364,7 +375,7 @@
   /* a new page at `at` (default the end), the doc made with it */
   function addPage(key, opts, cb) {
     opts = opts || {};
-    var d = index[key] ? JSON.parse(JSON.stringify(index[key])) : { key: key, pages: [], paper: opts.paper || "lined", inked: {}, at: 0 };
+    var d = index[key] ? JSON.parse(JSON.stringify(index[key])) : { key: key, pages: [], paper: opts.paper || defaultPaper(), inked: {}, at: 0 };
     var now = Date.now(), page = { id: uid(), doc: key, paper: opts.paper || d.paper || "lined", items: opts.items || [], at: now, created: now };
     if (opts.h) page.h = opts.h;
     if (opts.title && !d.title) d.title = opts.title;
@@ -530,7 +541,7 @@
 
   /* the page's own units for the surfaces */
   KOS.ink = {
-    W: W, H: H, MM: MM, pageH: pageH, PAPERS: PAPERS, PEN_ROLES: PEN_ROLES, HL_ROLES: HL_ROLES, WIDTHS: WIDTHS,
+    W: W, H: H, MM: MM, pageH: pageH, get PAPERS() { return papers(); }, PEN_ROLES: PEN_ROLES, HL_ROLES: HL_ROLES, WIDTHS: WIDTHS,
     HL_WIDTH: HL_WIDTH, HL_ALPHA: HL_ALPHA, TEXT_SIZE: TEXT_SIZE,
     HL_WIDTHS: HL_WIDTHS, ERASER_SIZES: ERASER_SIZES, TEXT_SIZES: TEXT_SIZES,
     uid: uid,

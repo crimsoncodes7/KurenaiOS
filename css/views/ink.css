@@ -34,6 +34,12 @@
 .k-ink-dot[data-role="amber"], .k-ink-swatch[data-role="amber"], .k-ink-probe[data-role="amber"] { --ink-c: var(--amber); }
 .k-ink-dot[data-role="green"], .k-ink-swatch[data-role="green"], .k-ink-probe[data-role="green"] { --ink-c: var(--green); }
 .k-ink-dot[data-role="bloom"], .k-ink-swatch[data-role="bloom"], .k-ink-probe[data-role="bloom"] { --ink-c: var(--bloom); }
+/* a pen set from the Gold Shop (34p, invariant 133) re-maps the first three roles */
+:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="accent"] { --ink-c: var(--red); }
+:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="teal"] { --ink-c: var(--muted); }
+:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="ink"] { --ink-c: var(--text-2); }
+:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="accent"] { --ink-c: var(--bloom); }
+:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="teal"] { --ink-c: var(--gold); }
 .k-ink-swatches, .k-ink-widths { display: flex; align-items: center; gap: var(--sp-6); }
 .k-ink-swatch { inline-size: var(--ink-swatch); block-size: var(--ink-swatch); min-inline-size: var(--ink-swatch); min-block-size: var(--ink-swatch); padding: 0; border-radius: 50%; background: var(--ink-c); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-ink-swatch[data-state~="hl"] { opacity: 0.6; }
@@ -82,6 +88,28 @@ background-size: 100% 80%, 100% var(--ink-rule); background-repeat: no-repeat, r
 background-image: linear-gradient(to right, transparent calc(var(--ink-margin) - var(--hairline)), var(--paper-ink) calc(var(--ink-margin) - var(--hairline)), var(--paper-ink) var(--ink-margin), transparent var(--ink-margin), transparent var(--ink-marks), var(--paper-ink) var(--ink-marks), var(--paper-ink) calc(var(--ink-marks) + var(--hairline)), transparent calc(var(--ink-marks) + var(--hairline))),
   linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
 background-size: 100% 100%, 100% var(--ink-rule); background-repeat: no-repeat, repeat-y; background-position: 0 0, 0 calc(var(--ink-rule) * 2); }
+
+/* the Gold Shop's papers (34p), from the theme's own line */
+.k-ink-page[data-paper="kraft"], .k-ink-thumb[data-paper="kraft"], .k-ink-paper-swatch[data-paper="kraft"] {
+background-color: var(--paper-kraft); background-image: linear-gradient(to bottom, transparent calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) calc(var(--ink-rule) - var(--hairline)), var(--paper-ink) var(--ink-rule));
+background-size: 100% var(--ink-rule); background-position: 0 calc(var(--ink-rule) * 2); }
+.k-ink-page[data-paper="slate"], .k-ink-thumb[data-paper="slate"], .k-ink-paper-swatch[data-paper="slate"] {
+background-color: var(--s3); background-image: linear-gradient(to bottom, var(--paper-ink) var(--hairline), transparent var(--hairline)), linear-gradient(to right, var(--paper-ink) var(--hairline), transparent var(--hairline));
+background-size: var(--ink-square) var(--ink-square); }
+.k-ink-page[data-paper="iso"], .k-ink-thumb[data-paper="iso"], .k-ink-paper-swatch[data-paper="iso"] {
+background-image: radial-gradient(circle, var(--muted) 0.18cqw, transparent 0.24cqw), radial-gradient(circle, var(--muted) 0.18cqw, transparent 0.24cqw);
+background-size: var(--ink-rule) calc(var(--ink-rule) * 1.732); background-position: 0 0, calc(var(--ink-rule) / 2) calc(var(--ink-rule) * 0.866); }
+.k-ink-paper-swatch[data-paper="iso"] { background-image: radial-gradient(circle, var(--muted) var(--hairline), transparent calc(var(--hairline) * 1.5)), radial-gradient(circle, var(--muted) var(--hairline), transparent calc(var(--hairline) * 1.5)); }
+.k-ink-page[data-paper="manuscript"], .k-ink-thumb[data-paper="manuscript"], .k-ink-paper-swatch[data-paper="manuscript"] {
+background-image: linear-gradient(to bottom, var(--paper-ink) var(--hairline), transparent var(--hairline)), linear-gradient(to right, var(--paper-ink) var(--hairline), transparent var(--hairline));
+background-size: calc(var(--ink-square) * 2) calc(var(--ink-square) * 2); }
+.k-ink-page[data-paper="staff"], .k-ink-thumb[data-paper="staff"], .k-ink-paper-swatch[data-paper="staff"] {
+background-image: repeating-linear-gradient(to bottom, var(--paper-ink) 0 var(--hairline), transparent var(--hairline) calc(var(--ink-rule) / 3));
+background-size: 100% calc(var(--ink-rule) * 3); background-position: 0 var(--ink-rule); }
+.k-ink-page[data-paper="graph"], .k-ink-thumb[data-paper="graph"], .k-ink-paper-swatch[data-paper="graph"] {
+background-image: linear-gradient(to bottom, var(--paper-ink) var(--hairline), transparent var(--hairline)), linear-gradient(to right, var(--paper-ink) var(--hairline), transparent var(--hairline)),
+  linear-gradient(to bottom, color-mix(in oklch, var(--paper-ink) 45%, transparent) var(--hairline), transparent var(--hairline)), linear-gradient(to right, color-mix(in oklch, var(--paper-ink) 45%, transparent) var(--hairline), transparent var(--hairline));
+background-size: calc(var(--ink-square) * 2) calc(var(--ink-square) * 2), calc(var(--ink-square) * 2) calc(var(--ink-square) * 2), calc(var(--ink-square) * 0.4) calc(var(--ink-square) * 0.4), calc(var(--ink-square) * 0.4) calc(var(--ink-square) * 0.4); }
 
 /* ---------- side by side (30e) ----------
    Two panes under the topic header, each its own scroll region; the pair
