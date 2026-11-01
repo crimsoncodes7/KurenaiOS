@@ -43,7 +43,10 @@
       ]));
       var body = el("div", { class: "k-dialog-body k-art-drawer-body" });
       box.appendChild(body);
-      body.appendChild(seg([["one", "One picture"], ["rotate", "Rotate"], ["shuffle", "Shuffle"], ["own", "Your own"]], c.mode, function (m) { save({ mode: m }); }, "Mode"));
+      body.appendChild(seg([["one", "One picture"], ["rotate", "Rotate"], ["shuffle", "Shuffle"], ["own", "Your own"]], c.mode, function (m) {
+        save({ mode: m });
+        if (m === "own") A.loadOwn(paint);
+      }, "Mode"));
       if (list.length < 2 && (c.mode === "rotate" || c.mode === "shuffle"))
         body.appendChild(el("p", { class: "k-muted", text: "Own one more to rotate: until then the one you have shows." }));
       if (c.mode === "one") {

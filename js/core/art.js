@@ -83,7 +83,10 @@
   function setCfg(slot, c) { cfgAll()[slot] = c; KOS.store.save(); }
   var own = {}, shuffleSeed = Math.floor(Math.random() * 1e6);
   function loadOwn(cb) {
-    var keys = Object.keys(SLOTS), left = keys.length;
+    /* only slots set to "own" read the store, so a boot with none opens nothing */
+    var all = cfgAll();
+    var keys = Object.keys(SLOTS).filter(function (k) { return all[k] && all[k].mode === "own"; }), left = keys.length;
+    if (!left) { cb && cb(); return; }
     if (!KOS.mediadb || !KOS.mediadb.getKV) { cb && cb(); return; }
     keys.forEach(function (k) {
       KOS.mediadb.getKV("art.own." + k, function (err, v) { if (!err && v && v.src) own[k] = v; if (!--left && cb) cb(); });
