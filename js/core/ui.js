@@ -581,9 +581,16 @@
      are unchanged so every existing .dh-* rule and every test that keys
      off them keeps working.
      ============================================================ */
+  /* the main pages' painted headers (app.hero.page.*, 34n rules): a quiet
+     band at the header's right, behind its words; nothing moves */
+  var PAGE_ART = { review: "review", due: "review", cardstats: "review", assignments: "assignments", exams: "exams", pacing: "pacing",
+    calendar: "calendar", reminders: "reminders", routines: "reminders", goals: "goals", money: "money", matrix: "collection",
+    wishlist: "wishlist", governor: "governor", reports: "reports", archive: "archive", files: "archive", storage: "archive", help: "archive" };
   function pageHeader(opts) {
     opts = opts || {};
-    return el("div", { class: "k-pagehead" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.page-head ui.page-header" }, [
+    var view = KOS.store && KOS.store.state && KOS.store.state.ui && KOS.store.state.ui.view;
+    var art = opts.art === false ? null : (opts.art || PAGE_ART[view]);
+    var head = el("div", { class: "k-pagehead" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.page-head ui.page-header" }, [
       el("div", { class: "k-pagehead-txt" }, [
         opts.kicker ? el("div", { class: "k-kicker", "data-ui": "ui.page-kicker", text: opts.kicker }) : null,
         el("h1", { text: opts.title || "" }),
@@ -593,6 +600,8 @@
       opts.actions && opts.actions.length
         ? el("div", { class: "k-pagehead-actions", "data-ui": "ui.page-actions" }, opts.actions.filter(Boolean)) : null
     ].filter(Boolean));
+    if (art && KOS.art && KOS.art.on()) KOS.art.layer(head, "page:" + art, { eager: true });
+    return head;
   }
   function sectionHeader(opts) {
     opts = opts || {};

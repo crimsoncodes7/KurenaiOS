@@ -166,6 +166,7 @@
     if (kind === "shrine") { var h = G && G.hall && G.hall(); return h ? "app.shrine." + h : null; }
     if (kind === "exam") return arg === "season" ? "app.exam.season" : "app.exam.room";
     if (kind === "empty") return "app.empty." + arg;
+    if (kind === "cover") return arg ? "app.cover.exam." + arg : null;
     return null;
   }
   function src(id) { return id ? DIR + id + ".webp" : null; }

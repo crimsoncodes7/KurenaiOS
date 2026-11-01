@@ -31,6 +31,12 @@
 /* the actions wrap under the title before the title is squeezed: a long
    action row beside it left the Shrine's title one word a line at 820px */
 .k-pagehead { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-16); }
+/* a main page's painted band (app.hero.page.*): the header's right, fading in from its words */
+.k-pagehead[data-state~="has-art"] { position: relative; isolation: isolate; }
+.k-pagehead > .k-art[data-slot="page"] { inset: calc(var(--sp-12) * -1) 0 calc(var(--sp-8) * -1) 40%; border-radius: var(--r-20); --art-pos: 60% 50%; --art-scrim: none;
+  -webkit-mask: linear-gradient(90deg, transparent, var(--text) 45%); mask: linear-gradient(90deg, transparent, var(--text) 45%); }
+.k-pagehead > .k-art[data-slot="page"] > img { opacity: calc(var(--art-op-hero) * 0.7); }
+@media (max-width: 700px) { .k-pagehead > .k-art[data-slot="page"] { display: none; } }
 .k-pagehead-txt { flex: 1 1 var(--pagehead-txt-min); min-inline-size: 0; }
 .k-pagehead h1 { margin-block: var(--sp-6) var(--sp-4); }
 .k-pagehead-sub { font-size: var(--fs-13-5); color: var(--text-2); }

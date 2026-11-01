@@ -603,6 +603,17 @@
     overview(main, a);
   }
   function backLink(text, go) { return el("button", { type: "button", class: "k-ex-back", "data-ui": "exams.back", onclick: go }, [el("span", { "aria-hidden": "true", text: "‹ " }), text]); }
+  /* the paper's painted cover (batch 15) behind an assessment's hero */
+  function coverOf(a) {
+    var pr = a.preset || "", unit = a.links && a.links.itUnit;
+    if (unit === "F201" || unit === "F206") return "it-" + unit.toLowerCase();
+    if (/nea/i.test(a.title || "") && a.subject === "compsci") return "cs-nea";
+    if (/^aqa-751[67]-1$/.test(pr)) return "cs-p1";
+    if (/^aqa-751[67]-2$/.test(pr)) return "cs-p2";
+    if (/^edexcel-9ma0-[12]$/.test(pr)) return "maths-pure";
+    if (/^edexcel-9ma0-3$/.test(pr)) return /mech/i.test(a.title || "") ? "maths-mech" : "maths-stats";
+    return null;
+  }
   function examHero(a, rd, o) {
     o = o || {};
     var days = E().daysTo(a);
@@ -610,7 +621,7 @@
     var eyebrowTxt = [a.subject ? SUBJ[a.subject] : null, pr ? pr.board + " " + pr.qual + " · " + pr.paper : [a.board, a.qual, a.paper].filter(Boolean).join(" ") || null].filter(Boolean).join(" · ");
     var meta = [a.date ? pretty(a.date, { year: true }) : "No date yet", a.time, a.durationMins ? mins(a.durationMins) + (a.extraTime ? " + " + a.extraTime + "%" : "") : null,
       a.marks ? a.marks + " marks" : null, a.calculator === "allowed" ? "calculator allowed" : a.calculator === "none" ? "no calculator" : null, a.location || null].filter(Boolean).join(" · ");
-    return el("section", { class: "k-ex-ahero", "data-ui": "exams.ahero", "data-size": o.mini ? "mini" : null, style: "--s: " + hueOf(a) }, [
+    var hero = el("section", { class: "k-ex-ahero", "data-ui": "exams.ahero", "data-size": o.mini ? "mini" : null, style: "--s: " + hueOf(a) }, [
       el("span", { class: "k-ex-hero-mark", "aria-hidden": "true", lang: "ja", text: "試" }),
       el("div", { class: "k-ex-ahero-mid" }, [
         el("div", { class: "k-ex-inline" }, [tierChip(a.tier), a.provisional ? prov() : null, eyebrowTxt ? muted(eyebrowTxt) : null].filter(Boolean)),
@@ -625,6 +636,9 @@
         o.actions ? el("div", { class: "k-ex-actions" }, o.actions) : null
       ].filter(Boolean))
     ]);
+    var cov = !o.mini && coverOf(a);
+    if (cov && KOS.art) KOS.art.layer(hero, "cover:" + cov, { eager: true });
+    return hero;
   }
   function overview(main, a) {
     var X = E(), rd = X.readiness(a), t = a.tier;

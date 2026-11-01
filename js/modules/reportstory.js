@@ -561,6 +561,11 @@
       stage.style.setProperty("--hue2", sl.hue2);
       holder.textContent = "";
       holder.appendChild(draw(sl, api));
+      /* the painted covers (batch 8): the opening, study time, the days and the close */
+      var cover = { intro: "app.story.week", big: "app.story.study", bars: "app.story.days", summary: "app.story.recap" }[sl.t];
+      var oldCover = stage.querySelector(":scope > .k-art");
+      if (!cover && oldCover) oldCover.remove();
+      else if (cover && KOS.art && (!oldCover || oldCover.dataset.artId !== cover)) KOS.art.layer(stage, "story", { id: cover, eager: true });
       paintChrome();
       tick(true);
     }

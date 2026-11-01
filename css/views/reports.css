@@ -526,6 +526,9 @@ button.k-rp-crumb:hover { background: none; color: var(--text); }
 .k-rp-st-navchip .k-mono { font-size: var(--fs-11); opacity: 0.7; }
 .k-rp-st-hint { grid-column: 1 / -1; margin: 0; text-align: center; font-size: var(--fs-12); color: var(--rp-stage-muted); }
 .k-rp-st-frame { position: relative; inline-size: calc(var(--rp-stage-w) * var(--s, 1)); block-size: calc(var(--rp-stage-h) * var(--s, 1)); }
+/* a story's painted cover, low behind the words */
+.k-rp-st-stage { isolation: isolate; }
+.k-rp-st-stage > .k-art { --art-op: calc(var(--art-op-hero) * 0.55); --art-pos: 50% 40%; --art-scrim: var(--art-scrim-b); }
 .k-rp-st-stage { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: var(--rp-stage-w); block-size: var(--rp-stage-h); transform: scale(var(--s, 1)); transform-origin: 0 0; overflow: hidden; border-radius: var(--r-30); box-shadow: var(--rp-stage-shadow), 0 0 0 var(--hairline) var(--line); color: var(--rp-stage-ink);
   background: radial-gradient(130% 62% at 50% -4%, color-mix(in oklch, var(--hue, var(--crimson)) 46%, transparent), transparent 72%),
     radial-gradient(90% 40% at 100% 100%, color-mix(in oklch, var(--hue2, var(--cs)) 26%, transparent), transparent 70%), var(--rp-stage-bg); }

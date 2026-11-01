@@ -262,6 +262,9 @@ b[data-tone="danger"] { color: var(--alarm); }
 .k-ex-improw[data-status="notyours"] { color: var(--muted); }
 
 /* ---------- an assessment (29e, 29f) ---------- */
+.k-ex-ahero { isolation: isolate; }
+/* the paper's cover (batch 15): right of the title, under the hero's scrim */
+.k-ex-ahero > .k-art { --art-pos: 75% 45%; }
 .k-ex-ahero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-24); align-items: center; padding: var(--sp-24) var(--sp-28); border-radius: var(--r-28); background: radial-gradient(80% 160% at 0% 0%, color-mix(in oklch, var(--s) 22%, transparent), transparent 70%), var(--s1); }
 .k-ex-ahero .k-ex-hero-mark { inset-inline-start: auto; inset-inline-end: var(--ex-mark); }
 .k-ex-ahero-mid { position: relative; display: flex; flex-direction: column; gap: var(--sp-8); min-inline-size: 0; }

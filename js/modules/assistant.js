@@ -1595,6 +1595,12 @@
     var composer = buildComposer(compact);
     function emptyState() {
       return el("header", { class: "k-asst-intro", "data-ui": "asst.empty" }, [
+        /* the phone's portrait crop (34e): her face from the same sprite, with
+           her state in words; an outfit gets a gold ring */
+        compact ? null : el("div", { class: "k-asst-portrait-row" }, [
+          el("span", { class: "k-asst-portrait", "data-outfit": outfitNow() ? "on" : null, "aria-hidden": "true" }, [
+            el("img", { src: ASSET_BASE + stateImage(S.visual || "idle"), alt: "", decoding: "async" })]),
+          el("div", {}, [el("b", { text: "Kurenai" }), el("small", { class: "k-asst-muted", text: (MASCOT_STATES[S.visual] || MASCOT_STATES.idle).label })])]),
         el("div", { class: "k-asst-bloom-k", text: "Whispering Bloom" }),
         el("h2", { class: "k-asst-intro-h", text: "What are we working on?" }),
         el("p", { class: "k-asst-intro-p", text: "Begin with the part that feels tangled. Any consequential change pauses for your approval." }),
@@ -1604,7 +1610,7 @@
             el("span", { class: "k-asst-starter-k", lang: "ja", "aria-hidden": "true", text: x[0] }),
             el("span", { class: "k-asst-starter-t" }, [el("b", { text: x[1] }), el("small", { text: x[2] })])]);
         }))
-      ]);
+      ].filter(Boolean));
     }
     function render() {
       var atBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 60;

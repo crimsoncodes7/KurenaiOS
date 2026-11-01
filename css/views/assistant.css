@@ -331,6 +331,16 @@ transition: opacity .16s ease, scale .35s cubic-bezier(.3,.9,.3,1);
 .k-asst-intro { display: flex; flex-direction: column; gap: var(--sp-8); margin-block-start: auto; }
 .k-asst-intro-h { margin: var(--sp-2) 0 0; font: var(--weight-medium) var(--fs-38) / 1.1 var(--font-read); letter-spacing: var(--track-figure); }
 .k-asst-intro-p { margin: 0; font-size: var(--fs-13); color: var(--muted); }
+/* the phone's portrait crop (34e): hidden beside the full figure */
+.k-asst-portrait { display: none; position: relative; inline-size: var(--sp-56, var(--sp-48)); block-size: var(--sp-56, var(--sp-48)); flex: none; border-radius: 50%; overflow: hidden; background: var(--s2); }
+.k-asst-portrait[data-outfit] { box-shadow: 0 0 0 var(--ring-2) var(--gold); }
+.k-asst-portrait > img { position: absolute; block-size: 830%; inline-size: auto; max-inline-size: none; inset-inline-start: 50%; inset-block-start: calc(var(--sp-48) * -0.4); transform: translateX(-56.7%); }
+.k-asst-portrait-row { display: none; align-items: center; gap: var(--sp-12); margin-block-end: var(--sp-8); }
+.k-asst-portrait-row > div { display: flex; flex-direction: column; gap: var(--sp-2); font-size: var(--fs-15); }
+@media (max-width: 700px) {
+.k-asst-portrait-row { display: flex; }
+.k-asst-portrait { display: block; }
+}
 /* the four suggestions, two by two (34d) */
 .k-asst-starters { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); margin-block-start: var(--sp-10); }
 .k-asst-starter { display: flex; align-items: center; gap: var(--sp-12); min-block-size: var(--hit); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-20); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); text-align: start; color: var(--text-2); transition: background var(--dur-fast) var(--ease); }
@@ -564,10 +574,10 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 /* the drawer is a bottom sheet over the page; she steps out of it */
 .k-asst-drawer { inset: var(--sp-48) 0 0; inline-size: auto; block-size: auto; border-radius: var(--r-28) var(--r-28) 0 0; padding-block-end: env(safe-area-inset-bottom); }
 .k-asst-drawer-stage { display: none; }
-.k-asst-starters { flex-direction: column; flex-wrap: nowrap; gap: 0; }
-.k-asst-starter { display: flex; justify-content: space-between; align-items: center; min-block-size: var(--hit-coarse); padding: var(--sp-10) 0; border-radius: 0; border-block-start: var(--hairline) solid var(--line); background: none; font-size: var(--fs-15); color: var(--text); text-align: start; }
-.k-asst-starter::after { content: "↗"; color: var(--muted); }
-.k-asst-starter:hover { background: none; color: var(--crimson-soft); }
+/* 34e: the four suggestions stay two by two, without their tiles */
+.k-asst-starters { gap: var(--sp-8); }
+.k-asst-starter { min-block-size: var(--hit-coarse); padding: var(--sp-12); }
+.k-asst-starter-k { display: none; }
 .k-asst-page { padding: var(--sp-18) var(--sp-16) var(--sp-24); }
 .k-asst-toolbar { flex-wrap: wrap; padding: var(--sp-12) var(--sp-16); }
 .k-asst-thread { padding: var(--sp-16); }
