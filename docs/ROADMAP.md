@@ -1413,7 +1413,7 @@ included) without saying why.
   reminder per time, the day kept once every time is ticked (invariant
   142).
 
-### 5.13 An art and shop audit ◆ (asked for 26 October 2026)
+### 5.13 An art and shop audit ◆ (asked for 26 October 2026) — RELEASED 1 November 2026 (sw `kos-artshop-1`, docs/app-art.md)
 
 > **APPROVED 27 October 2026** (`feat/art-audit`, merged to main); the
 > build plan, decisions, prices and art waves are [app-art.md](app-art.md).
@@ -1468,7 +1468,7 @@ over 43,000 gold and owns everything in it.
 - **Out:** a written report (an artifact) and new manifest entries, for
   the user to approve before any art is made or anything is built.
 
-### 5.14 Rotating art and your own pictures ◆ (asked for 28 October 2026)
+### 5.14 Rotating art and your own pictures ◆ (asked for 28 October 2026) — RELEASED 1 November 2026 (sw `kos-artshop-1`; Home, Focus, Shrine and the profile banner rotate; five upload areas)
 
 **What:** two options on every art slot (Home's hero, the subject and page
 headers, the Focus stage, the profile banner, the avatar and its frame,

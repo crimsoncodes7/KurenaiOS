@@ -175,10 +175,26 @@ header tabs), the app's layout was kept.
   (the Assistant), scenes (Focus), halls (Shrine), painted banners (the
   Seat's stage), avatars and painted frames (`avatarNode`), seals, shelf
   skins and Shrine card styles (their pictures), the four themes.
-- **Still to build**: the rotation drawer and "Your own picture" unlocks
-  (34n, roadmap 5.14), share-card finishes on the share card, papers and
-  pen sets in the ink engine, page headers (`app.hero.page.*`), Exams
-  covers, Reports' story covers, the phone portrait crop (34e).
+- **Then, the same day**: the picture drawer (34n, roadmap 5.14,
+  `js/modules/artslot.js`: One picture, Rotate by time or condition,
+  Shuffle, Your own; the rule synced in `state.artSlots`, the moment's
+  picture a pure read, `KOS.art.rotated`) on Home's hero (its chip), the
+  Focus scene, the Shrine hall and the profile banner (the Wardrobe's
+  "Rotate or your own"); "Your own picture" sold per area (◈ 3,000: Home,
+  Focus, Shrine, profile banner, vault heroes and Seasonal) or all
+  (◈ 12,000, not 20,000: five areas were built, not eight), the free
+  uploads (profile banner, vault heroes, Seasonal) gated behind it while a
+  picture set before keeps showing; share-card finishes on the card;
+  notebook papers in the paper menu and as the default for new notebooks;
+  pen sets re-mapping the pen's first three roles (`:root[data-penset]`);
+  the main pages' painted header bands (`pageHeader`, none on the phone);
+  the Exams covers behind an assessment's hero; Reports' story covers;
+  Kurenai's portrait at the head of the phone's empty thread (34e); Avatar
+  & profile redrawn on the Stage with a Wardrobe; Kurenai at a set height
+  (`--asst-fig-h`). Released as sw `kos-artshop-1`.
+- **Not built**: the Wallpaper area and a rotation for the desks and page
+  headers (one picture each). Invariants 2, 30 and 94 say what the unlocks
+  gate.
 
 ## The build, one release each (on the other account if this one is out)
 

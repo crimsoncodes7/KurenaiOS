@@ -391,18 +391,21 @@ assert(historyComposition.sameRow && historyComposition.leftDelta <= 2 && histor
 await screenshot("/tmp/kos-governor-history-dark-1440.png");
 await auditView("governor", "avatar", "[data-ui~='gov.avatar-studio']");
 const avatarAlignment = await evaluate(`(() => {
+  /* the Avatar page on the Stage (1 November 2026): the live identity and the
+     glass panel share the stage, centred on one line; the status reads beside
+     the portrait, under the name */
+  const stage = document.querySelector('[data-ui~="gov.avatar-studio"]').getBoundingClientRect();
   const preview = document.querySelector('[data-ui~="gov.identity-stage"]').getBoundingClientRect();
-  const profile = document.querySelector('[data-ui~="gov.avatar-controls"] [data-ui~="gov.avatar-section"]').getBoundingClientRect();
   const avatar = document.querySelector('[data-ui~="gov.avatar-preview-avatar"]').getBoundingClientRect();
   const status = document.querySelector('[data-ui~="gov.avatar-preview-status"]')?.getBoundingClientRect();
   const controls = document.querySelector('[data-ui~="gov.avatar-controls"]').getBoundingClientRect();
-  return { topDelta: Math.round(Math.abs(preview.top - profile.top)),
-    heightDelta: Math.round(Math.abs(preview.height - controls.height)),
-    /* Graphite frame 12c: the status line sits under the name, inside the stage */
-    statusBeside: !status || (status.top >= avatar.bottom - 2 && status.bottom <= preview.bottom),
+  const mid = r => r.top + r.height / 2;
+  return { centreDelta: Math.round(Math.abs(mid(preview) - mid(controls))),
+    inside: preview.top >= stage.top && controls.bottom <= stage.bottom + 1,
+    statusBeside: !status || (status.left >= avatar.right - 2 && status.bottom <= preview.bottom + 1),
     duplicateHead: !!document.querySelector('.av-workshop-head') };
 })()`);
-assert(avatarAlignment.topDelta <= 2 && avatarAlignment.heightDelta <= 2 && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
+assert(avatarAlignment.centreDelta <= 4 && avatarAlignment.inside && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
   `Avatar editor is not aligned like one profile workspace: ${JSON.stringify(avatarAlignment)}`);
 await screenshot("/tmp/kos-governor-avatar-dark-1440.png");
 await auditView("governor", "shop", "[data-ui~='shop.depts']");
@@ -421,7 +424,7 @@ assert(shopRefine.activeDepartment === 'all' && shopRefine.hiddenDepartments ===
   shopRefine.fakeThemeOverlays === 0 && shopRefine.fakeBannerOverlays === 0 && shopRefine.maxActionGap <= 18,
   `Shop previews/actions remain disconnected: ${JSON.stringify(shopRefine)}`);
 await screenshot("/tmp/kos-governor-shop-dark-1440.png");
-await clickText("[data-ui~='shop.depts']", "All wares");
+await clickText("[data-ui~='shop.depts']", "All");
 await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-themes').offsetTop - 90`);
 await pause(120);
 await screenshot("/tmp/kos-governor-themes-dark-1440.png");
@@ -557,7 +560,8 @@ const plannerHeroId = await evaluate(`(() => {
   const p3 = KOS.wishlist.add({ module: "game", title: "Planner Audit Purchase Three", price: 35 });
   KOS.wishlist.markPurchased(p1.id, Date.now() - 62 * 86400000);
   KOS.wishlist.markPurchased(p2.id, Date.now() - 31 * 86400000);
-  KOS.wishlist.markPurchased(p3.id, Date.now() - 4 * 86400000);
+  /* earlier today, so the month sum holds on the 1st too */
+  KOS.wishlist.markPurchased(p3.id, Date.now() - 60000);
   KOS.show("wishlist");
   return hero.id;
 })()`);
@@ -1069,7 +1073,7 @@ assert(reloadBanner[0] === "72%" && reloadBanner[1] === "38%", "Banner crop did 
    bounded composer and responsive character/conversation geometry. */
 await viewport(1440, 900);
 await evaluate(`KOS.show("assistant", { tab: "chat" })`);
-await waitFor("document.querySelector('[data-ui~=\"asst.presence\"] [data-ui~=\"asst.mascot-img\"]')?.naturalWidth === 1024", "Assistant full-body character");
+await waitFor("document.querySelector('[data-ui~=\"asst.presence\"] [data-ui~=\"asst.mascot-img\"]')?.naturalHeight === 1400", "Assistant full-body character");
 await pause(360);
 const assistantWasCollapsed = await evaluate(`document.querySelector('[data-ui~="asst.shell"]').matches('[data-state~="is-side-collapsed"]')`);
 if (assistantWasCollapsed) {
@@ -1090,7 +1094,7 @@ const assistantWide = await evaluate(`(() => {
   };
 })()`);
 assert(Math.abs(assistantWide.shellHeight - assistantWide.sideHeight) <= 1 && Math.abs(assistantWide.shellHeight - assistantWide.pageHeight) <= 1 &&
-  assistantWide.pairedHeights[0] === assistantWide.pairedHeights[1] && assistantWide.image[0] === 1024 && assistantWide.image[1] === 1536 &&
+  assistantWide.pairedHeights[0] === assistantWide.pairedHeights[1] && assistantWide.image[1] === 1400 && /* the redesign's sprite (34d) */
   assistantWide.hitAreas === 3 && assistantWide.composerMin <= 72 && assistantWide.composerMax <= 180 && assistantWide.overflow <= 1,
   `Assistant desktop composition failed: ${JSON.stringify(assistantWide)}`);
 await screenshot("/tmp/kos-assistant-1440.png");
@@ -1109,11 +1113,11 @@ const assistantStateSwap = await evaluate(`(() => {
   KOS.assistant.character.setLifecycle('idle', { requestId: 'visual-audit', releaseConfirmation: true, silentAudio: true });
   return src;
 })()`);
-assert(assistantStateSwap.endsWith("/mascot/states/success.png"), `Assistant state art did not swap: ${assistantStateSwap}`);
+assert(assistantStateSwap.endsWith("/app.face.kurenai.success.webp"), `Assistant state art did not swap: ${assistantStateSwap}`);
 
 await viewport(390, 844);
 await evaluate(`KOS.show("assistant", { tab: "chat" })`);
-await waitFor("document.querySelector('#asst-page-panel [data-ui~=\"asst.mascot-img\"]')?.naturalWidth === 1024", "mobile Assistant character");
+await waitFor("document.querySelector('#asst-page-panel [data-ui~=\"asst.mascot-img\"]')?.naturalHeight === 1400", "mobile Assistant character");
 await pause(360);
 const assistantPhone = await evaluate(`(() => {
   const layout = document.querySelector('[data-ui~="asst.page"][data-tab="chat"]'), presence = document.querySelector('[data-ui~="asst.presence"]');
@@ -1135,8 +1139,8 @@ await screenshot("/tmp/kos-assistant-mobile-390.png");
    clip must be present in the versioned static cache and served by the active
    worker while Chromium's network stack is offline. */
 const assistantOfflineAssets = [
-  ...["idle", "thinking", "working", "success", "error", "confirmation"]
-    .map(name => `assets/assistant/mascot/states/${name}.png`),
+  ...["app.base.kurenai", "app.face.kurenai.thinking", "app.face.kurenai.working", "app.face.kurenai.success", "app.face.kurenai.concerned", "app.face.kurenai.asking"]
+    .map(name => `assets/app/img/${name}.webp`),
   ...["idle", "thinking", "working", "success", "error", "confirmation"]
     .map(name => `assets/assistant/voice/state/${name}.mp3`),
   ...["hover", "head", "flower", "tablet"]

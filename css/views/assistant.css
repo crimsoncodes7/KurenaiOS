@@ -335,8 +335,8 @@ transition: opacity .16s ease, scale .35s cubic-bezier(.3,.9,.3,1);
 .k-asst-portrait { display: none; position: relative; inline-size: var(--sp-56, var(--sp-48)); block-size: var(--sp-56, var(--sp-48)); flex: none; border-radius: 50%; overflow: hidden; background: var(--s2); }
 .k-asst-portrait[data-outfit] { box-shadow: 0 0 0 var(--ring-2) var(--gold); }
 .k-asst-portrait > img { position: absolute; block-size: 830%; inline-size: auto; max-inline-size: none; inset-inline-start: 50%; inset-block-start: calc(var(--sp-48) * -0.4); transform: translateX(-56.7%); }
-.k-asst-portrait-row { display: none; align-items: center; gap: var(--sp-12); margin-block-end: var(--sp-8); }
-.k-asst-portrait-row > div { display: flex; flex-direction: column; gap: var(--sp-2); font-size: var(--fs-15); }
+.k-asst-portrait-row { display: none; align-items: center; gap: var(--sp-12); margin: 0 0 var(--sp-8); }
+.k-asst-portrait-t { display: flex; flex-direction: column; gap: var(--sp-2); font-size: var(--fs-15); }
 @media (max-width: 700px) {
 .k-asst-portrait-row { display: flex; }
 .k-asst-portrait { display: block; }

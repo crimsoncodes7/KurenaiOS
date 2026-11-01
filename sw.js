@@ -41,7 +41,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-achievements-2";
+var VERSION = "kos-artshop-1";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 var SQLITE_CACHE = "kos-sqlite-1.14.2";
@@ -68,12 +68,13 @@ var EXTRA_PRECACHE = [
   "icons/icon-maskable-512.png",
   "icons/apple-touch-icon.png",
   "assets/assistant/logo/whispering-bloom-emblem-production.png",
-  "assets/assistant/mascot/states/idle.png",
-  "assets/assistant/mascot/states/thinking.png",
-  "assets/assistant/mascot/states/working.png",
-  "assets/assistant/mascot/states/success.png",
-  "assets/assistant/mascot/states/error.png",
-  "assets/assistant/mascot/states/confirmation.png",
+  /* Kurenai's redesign (34d): her base and five faces, so she works offline */
+  "assets/app/img/app.base.kurenai.webp",
+  "assets/app/img/app.face.kurenai.thinking.webp",
+  "assets/app/img/app.face.kurenai.working.webp",
+  "assets/app/img/app.face.kurenai.success.webp",
+  "assets/app/img/app.face.kurenai.concerned.webp",
+  "assets/app/img/app.face.kurenai.asking.webp",
   "assets/assistant/voice/state/idle.mp3",
   "assets/assistant/voice/state/thinking.mp3",
   "assets/assistant/voice/state/working.mp3",
