@@ -63,10 +63,21 @@ of separate apps: everything interlinked, coherent).
    approaches) presented for approval** → 4. only after explicit approval:
    implementation (bug fixes, UX, reliability, perf, justified refactors),
    validated by tests + manual + regression checks → 5. a **new interactive
-   HTML review checklist** (modelled on the existing *Graphite Review*
-   checklist artifact — see memory `graphite-review-feedback`; it lives in a
-   claude.ai artifact with a db), far more comprehensive, for the user's own
-   acceptance review → 6. a **final technical report** (what was found,
+   HTML review checklist** for the user's own acceptance review, modelled on
+   the *Graphite Review* checklist — **the reference file is
+   [`reference/graphite-review.html`](reference/graphite-review.html)** (the
+   user supplied it on 2 Nov; it was a claude.ai artifact with a `db`). Keep
+   its concept and presentation: sections with a kanji mark and a done count,
+   items as title + "what to check" detail, per-item ticks for EACH account
+   (Full/Sample and Empty — for this programme add the three devices
+   Mac/iPad/iPhone), an Issue flag with a note box that opens on flag, a
+   sticky summary bar (checked counts, issues, a meter, All / To do / Issues
+   filter), "Copy issues and notes" for pasting into chat, local-first saving
+   with the artifact `db` (`claude.use("db")`, collection `checks`) when
+   available, light/dark tokens. It must be far more comprehensive than the
+   original (that one was desktop-only, one theme, ~60 items): cover every
+   area, device, theme, workflow, sync, data-integrity and regression check of
+   this programme, and link each item to the finding ids it verifies → 6. a **final technical report** (what was found,
    changed, verified, outstanding, overall state).
 - If something needs a **redesign**, write a **Claude Design prompt** (not for
   small changes; see `docs/design-prompts.md` for the existing ones). If
@@ -489,6 +500,7 @@ Open questions to ask the user when presenting the plan:
   `workflow-audit.js` (the auditor workflow), and the auditors' own probe
   scripts (`*-measure.js`, `*-run.sh`, `sd*.js` redraw experiments, `td.js`
   Todoist experiment, `mg-*.js` Money import experiments…).
+- `reference/graphite-review.html` — the user's original Graphite Review checklist: THE reference for the final review checklist (§1.2 step 5).
 - `data/` — `money-samples/` (six reconstructed Santander exports: midata
   comma/semicolon, Online Banking CSV and TXT, QIF, OFX — synthetic data),
   `content-maths/` and `content-cs-it/` metrics, duplicate lists and worklists,

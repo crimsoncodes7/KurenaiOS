@@ -1,0 +1,469 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Graphite Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@600;700&display=swap">
+<style>
+:root {
+  --bg: #f4f4f7;
+  --surface: #ffffff;
+  --surface-2: #ececf1;
+  --line: #dcdce3;
+  --ink: #1b1c21;
+  --ink-2: #464852;
+  --muted: #6d707a;
+  --crimson: #c23f4c;
+  --crimson-soft: #f7e3e5;
+  --teal: #16857c;
+  --teal-soft: #dcf0ee;
+  --amber: #a86a12;
+  --amber-soft: #f7ecd9;
+  --focus: #c23f4c;
+  --font-ui: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-kanji: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111216; --surface: #1a1b20; --surface-2: #23252b; --line: #2e3038;
+    --ink: #eceef2; --ink-2: #b9bcc5; --muted: #8b8e98;
+    --crimson: #e0636e; --crimson-soft: #3a2126; --teal: #46bfb4; --teal-soft: #173430;
+    --amber: #e3b85c; --amber-soft: #3a2f1a; --focus: #e0636e;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111216; --surface: #1a1b20; --surface-2: #23252b; --line: #2e3038;
+  --ink: #eceef2; --ink-2: #b9bcc5; --muted: #8b8e98;
+  --crimson: #e0636e; --crimson-soft: #3a2126; --teal: #46bfb4; --teal-soft: #173430;
+  --amber: #e3b85c; --amber-soft: #3a2f1a; --focus: #e0636e;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-ui); padding-inline: 16px; padding-block: 0 64px; }
+.wrap { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* head */
+.head { padding-top: 36px; display: flex; flex-direction: column; gap: 10px; }
+.kicker { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { margin: 0; font-size: 34px; line-height: 1.1; letter-spacing: -.02em; font-weight: 600; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); max-width: 62ch; }
+
+/* the summary bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
+.stat { display: flex; flex-direction: column; min-width: 84px; }
+.stat b { font: 500 18px var(--font-mono); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+.stat.issues b { color: var(--amber); }
+.meter { flex: 1 1 160px; height: 6px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.meter i { display: block; height: 100%; width: var(--p, 0%); background: var(--teal); transition: width .3s ease; }
+.seg { display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: var(--surface-2); }
+.seg button { border: 0; background: none; padding: 5px 12px; border-radius: 999px; font-size: 13px; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--line); }
+.copy { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 13px; }
+.copy:hover { border-color: var(--muted); }
+.save { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+/* the accounts note */
+.accounts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.acct { padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.acct b { font-size: 14px; }
+.acct p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.hint { margin: 0; font-size: 13px; color: var(--muted); max-width: 70ch; }
+
+/* sections */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.section-h { display: flex; align-items: baseline; gap: 12px; }
+.mark { font: 700 22px/1 var(--font-kanji); color: var(--crimson); width: 28px; flex: none; text-align: center; }
+.section-h h2 { margin: 0; font-size: 19px; font-weight: 600; }
+.section-h .count { margin-left: auto; font: 13px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.sub-h { margin: 6px 0 0 40px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px 12px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; }
+.item[data-issue="true"] { border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); }
+.item[data-done="true"] .title { color: var(--ink-2); }
+.txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.title { font-weight: 600; font-size: 14.5px; }
+.detail { font-size: 13.5px; color: var(--ink-2); }
+.controls { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; justify-content: flex-end; }
+.tick { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 11px 4px 8px; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.tick::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--muted); box-sizing: border-box; }
+.tick[aria-pressed="true"] { background: var(--teal-soft); border-color: transparent; color: var(--teal); font-weight: 600; }
+.tick[aria-pressed="true"]::before { border-color: var(--teal); background: var(--teal); box-shadow: inset 0 0 0 2px var(--teal-soft); }
+.flag { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 11px; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.flag[aria-pressed="true"] { background: var(--amber-soft); border-color: transparent; color: var(--amber); font-weight: 600; }
+.note-wrap { grid-column: 1 / -1; }
+.note-toggle { border: 0; background: none; padding: 0; font-size: 12.5px; color: var(--muted); }
+.note-toggle:hover { color: var(--ink); }
+textarea { width: 100%; min-height: 64px; margin-top: 6px; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: 14px/1.45 var(--font-ui); resize: vertical; }
+.empty-filter { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; }
+.foot { font-size: 13px; color: var(--muted); }
+.foot ul { margin: 6px 0 0; padding-left: 18px; }
+
+@media (max-width: 640px) {
+  h1 { font-size: 28px; }
+  .accounts { grid-template-columns: 1fr; }
+  .item { grid-template-columns: 1fr; }
+  .controls { justify-content: flex-start; }
+  .save { width: 100%; margin-left: 0; }
+  .sub-h { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <span class="kicker">KurenaiOS · UI rebuild · step 9</span>
+    <h1>Graphite review checklist</h1>
+    <p class="lede">Every surface of the rebuilt app, in the order you use it. Tick each item once in the full (Sample) account and once in the Empty one, flag anything that needs work, and write what you saw. Your ticks and notes save as you go.</p>
+  </header>
+
+  <div class="bar" role="region" aria-label="Progress">
+    <div class="stat"><b id="s-full">0/0</b><span>checked full</span></div>
+    <div class="stat"><b id="s-empty">0/0</b><span>checked empty</span></div>
+    <div class="stat issues"><b id="s-issues">0</b><span>issues flagged</span></div>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <div class="seg" role="group" aria-label="Show">
+      <button type="button" id="f-all" aria-pressed="true" data-filter="all">All</button>
+      <button type="button" id="f-open" aria-pressed="false" data-filter="open">To do</button>
+      <button type="button" id="f-issues" aria-pressed="false" data-filter="issues">Issues</button>
+    </div>
+    <button type="button" class="copy" id="copy">Copy issues and notes</button>
+    <span class="save" id="save" aria-live="polite">Loading…</span>
+  </div>
+
+  <section class="section" aria-labelledby="h-accounts">
+    <div class="section-h"><span class="mark" lang="ja" aria-hidden="true">替</span><h2 id="h-accounts">Before you start: the three accounts</h2></div>
+    <p class="hint">Governor → Status → the <b>Data</b> switch beside Preview. Switching reloads the app; an amber chip in the header names a review account and takes you back to Mine.</p>
+    <div class="accounts">
+      <div class="acct"><b>Mine</b><p>Your real account. Nothing here changes unless you act on a real record.</p></div>
+      <div class="acct"><b>Empty</b><p>A separate first run. It still shows the weekly plan and the calendar's two "SAMPLE — … (edit me)" starters.</p></div>
+      <div class="acct"><b>Sample</b><p>A separate lived-in account: 26 weeks of history, every domain filled, 31 titles, every lab unlocked.</p></div>
+    </div>
+    <p class="hint">Cloud and AniList/VNDB sync are off in Empty and Sample. Desktop only for this pass.</p>
+  </section>
+
+  <div id="list"></div>
+
+  <footer class="foot">
+    <b>Not in this pass</b>
+    <ul>
+      <li>Phone layouts (700px and below).</li>
+      <li>Dawn and the other themes.</li>
+      <li>Cover art in the Sample account (placeholder tiles).</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* the plan: docs/ui-rebuild/REVIEW-PLAN.md, one row per check */
+  var SECTIONS = [
+    { id: "setup", mark: "始", title: "The data switch", items: [
+      ["setup-sample", "Switch to Sample", "The amber chip appears in the header; Home fills in."],
+      ["setup-roundtrip", "Empty, then back to Mine", "Your own data is exactly as it was."]
+    ]},
+    { id: "shell", mark: "枠", title: "The shell", items: [
+      ["shell-header", "Header", "Brand (→ Home), a search pill shorter than the bar, clock, bell, Assistant emblem, sync dot. No back/forward arrows (Alt+← / Alt+→ still work)."],
+      ["shell-search", "Search", "Press /. Type a topic, a title, a reminder. Grouped results; arrows + Enter open one; Escape closes."],
+      ["shell-bell", "Bell", "Unread badge; popover with the five latest, Mark all as read, View all notifications →."],
+      ["shell-rail", "Rail", "Seven sections, the active one lit; collapse/expand survives a reload."],
+      ["shell-profile", "Profile card", "From the rail chip: banner, portrait in its HP ring, level and rank, status, HP/XP/Gold, Edit status, Open Governor →. Escape or outside click closes."],
+      ["shell-status", "Edit status", "One line with a count, Clear / Cancel / Save. No About field anywhere."],
+      ["shell-icons", "Icon sizes", "Bell, ✕, arrows and scroller arrows read comfortably across the app."]
+    ]},
+    { id: "home", mark: "灯", title: "Home", items: [
+      ["home-hero", "Hero", "Greeting and streak, status as a quote (press to edit), level bar, HP, daily goal list, Start focus. With a banner set, a light overlay."],
+      ["home-routines", "Routines and Reminders", "Tick a habit and a reminder."],
+      ["home-due", "Due today / Focus", "Focus ↔ Review switch, durations, the primary action."],
+      ["home-today", "Today and Upcoming", "Countdowns, including the weekly plan's class milestones."],
+      ["home-lower", "Lower cards", "Study hours, Week's plan (tick a personal row), the subject desks and the Collection desk."],
+      ["home-empty", "Empty states", "Every card collapses to one quiet line; nothing decorative fills the fold."]
+    ]},
+    { id: "study", mark: "学", title: "Study", items: [
+      ["study-desk", "Subject desk", "Subject card with the per-paper breakdown; Continue and Weakest; analytics + deadlines; stat strip.", "A subject desk (CS, Maths, IT)"],
+      ["study-units", "Course units", "The first card lines up with the cards above and below; arrows only when there is more to scroll."],
+      ["study-practice", "Practice zone and Resources", "Each lab row opens its page; add a resource through its dialog."],
+      ["study-spine", "Topic page: spine", "Subject switch, units, groups, the current topic marked; collapse it.", "A topic page"],
+      ["study-inspector", "Topic page: header and inspector", "The static study-nav row; status, confidence R/A/G, checklist, note."],
+      ["study-tabs", "Topic page: tabs", "Notes (callouts, code copy, tables, figures), Spec, Flashcards, Quiz, Exam, Worked, Simulate, Files."],
+      ["study-editor", "Study editor", "Edit notes, add a flashcard, reorder; the page previews beside it; Reset restores the shipped material."],
+      ["study-review", "Review", "Overview queue, a session, rating, the completion screen.", "Review"],
+      ["study-cardstats", "Card Stats and your deck", "Low-data state in Empty; add, edit and delete a personal card."],
+      ["study-assign", "Assignments", "Filters, list, side panel (brief, subtasks, progress); one \"+ New assignment\", also when empty.", "Assignments and Exams & Papers"],
+      ["study-papers", "Exams & Papers", "Add a paper, the reflections, the grade trend."]
+    ]},
+    { id: "prod", mark: "整", title: "Productivity", items: [
+      ["prod-focus", "Focus Timer", "Set up, start, pause, minimise, finish; the award screen; the review. Reload mid-session returns paused."],
+      ["prod-reminders", "Reminders", "Smart sections, lists, tags, priorities; due time + alert; subtasks; complete; recurring."],
+      ["prod-habits", "Habits", "Add, tick today, the twelve-week grid."],
+      ["prod-calendar", "Calendar", "Month and Week; add each event type (a study block linked to an assignment too); recurrence, alerts, countdown; Delete apart from Save."],
+      ["prod-pacing", "Pacing", "Week page (class vs personal, carry-over \"→ here\", notes, Remind me), week navigation, and the braid with its key column."]
+    ]},
+    { id: "coll", mark: "蒐", title: "Collection", items: [
+      ["coll-overview", "Overview", "Stat strip, Currently consuming, Airing soon, Where each medium stands."],
+      ["coll-analytics", "Overview → Analytics", "Stat strip, the four-panel status comparison with one legend, the donut + key, Top genres (readable labels), Score distribution (full width), Rest logged."],
+      ["coll-vaults", "Each vault", "Anime, Books, Visual Novels, Games: spotlight hero, filter rail, the control row, overlay cards (hover: status + \"+1\"), grid ↔ list."],
+      ["coll-editor", "Title editor", "AniList-owned rows: read-only facts, editable list state and your layer. Manual/VN/Game rows edit fully. Image position through the cropper."],
+      ["coll-actions", "Actions menu", "The numbers, This season (anime), Find new titles, the provider profile, Sync & Import."],
+      ["coll-books", "Books", "Digital vs Physical lens; the shelf; volumes."],
+      ["coll-vn", "Visual Novels", "Routes/chapters/hours progress, quotes, CG counter."],
+      ["coll-games", "Games", "Playtime, platform, completion tier."],
+      ["coll-shrine", "Shrine", "Favourites across vaults; the painter and export."],
+      ["coll-planner", "Planner", "Budget Planner (month budget, want/waiting/purchased, purchase hand-off) and Goals (one \"+ New goal\", also when a tab is empty)."],
+      ["coll-sync", "Sync & Import", "Provider cards, AniList XML import, the AniList and VNDB profiles (sync is off in Empty and Sample)."]
+    ]},
+    { id: "gov", mark: "守", title: "Governor", items: [
+      ["gov-status", "Status", "Hero (lighter overlay), Edit status, HP Preview, the Data switch, Edit banner (cropper), four instruments. Cadence and Milestone ledger share one height; the heatmap spans its card. The three rules."],
+      ["gov-shop", "Gold Shop", "Balance band, departments, previews; buy something (Sample has 640 gold)."],
+      ["gov-avatar", "Avatar", "Live identity preview, profile picture (cropper), banner, frames and seals."],
+      ["gov-log", "Session Log", "Categories and the entry panel."]
+    ]},
+    { id: "asst", mark: "助", title: "Assistant", items: [
+      ["asst-open", "Drawer and full page", "Open from the header emblem and as the page."],
+      ["asst-chat", "Chat", "A message, a tool confirmation card, Stop."],
+      ["asst-settings", "Settings pages", "Provider and routing, Memory, Permissions, Activity."]
+    ]},
+    { id: "arch", mark: "蔵", title: "Archive", items: [
+      ["arch-notify", "Notifications", "Filters, day groups, mark read, the device-alert switch, What lands here, Clear the feed…."],
+      ["arch-backup", "Backup & Restore", "Keep it safe, Export, Import, storage estimate, what a backup covers; Reset everything… (type RESET, only in Empty or Sample)."],
+      ["arch-help", "Help & Guide", "One section at a time, search across all, the pager, On this page, shortcuts."]
+    ]},
+    { id: "labs", mark: "験", title: "Labs", items: [
+      ["labs-sims", "Simulations", "Area pills, search, card grid; an opened sim with its header and More in this area. Try Logic Lab, Binary Register, FSM, Bitmap, Floating Point, Parity, Recursion and a maths sim."],
+      ["labs-worked", "Worked Examples", "Paper pills, generator tabs, New numbers, Generate working, Reveal next step / all."],
+      ["labs-trace", "Trace Lab", "Stack, queue, list, tree; the code panel lights the running line; the trace table."],
+      ["labs-oop", "OOP Sandbox", "Example classes on a first visit; drag, add class/field/method, set base, Copy C#, Clear sandbox (asks first)."],
+      ["labs-locked", "Locked state", "In Empty, a lab shows the lock card with Open the Gold Shop."]
+    ]},
+    { id: "all", mark: "全", title: "Across the app", items: [
+      ["all-dialogs", "Dialogs", "Named; Escape closes; focus returns to the opener; danger dialogs focus Cancel and never confirm on Enter."],
+      ["all-toasts", "Toasts", "Sit above any open dialog."],
+      ["all-history", "Browser history", "Back/Forward walk the pages you visited; a redraw never adds a step."],
+      ["all-layout", "Layout", "Nothing flashes unstyled; no sideways scroll at desktop widths."]
+    ]}
+  ];
+  var ALL = [];
+  SECTIONS.forEach(function (s) { s.items.forEach(function (it) { ALL.push(it[0]); }); });
+
+  /* ---- state: one record per item {full, empty, issue, note} ---- */
+  var state = {};
+  var filter = "all";
+  var db = null, col = null, mode = "local";
+  var LOCAL_KEY = "graphite-review-v1";
+  function rec(id) { return state[id] || (state[id] = { full: false, empty: false, issue: false, note: "" }); }
+
+  function loadLocal() {
+    try { var raw = localStorage.getItem(LOCAL_KEY); if (raw) state = JSON.parse(raw) || {}; } catch (e) { state = {}; }
+  }
+  function saveLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch (e) { /* no storage */ } }
+
+  var saveEl = document.getElementById("save");
+  function status(text) { saveEl.textContent = text; }
+
+  /* one write at a time per item; later changes wait for the one in flight */
+  var inflight = {}, queued = {};
+  function persist(id) {
+    if (mode !== "db") { saveLocal(); status("Saved in this browser"); return; }
+    if (inflight[id]) { queued[id] = true; return; }
+    var body = Object.assign({}, rec(id), { updatedAt: Date.now() });
+    inflight[id] = true; status("Saving…");
+    col.doc(id).set(body).then(function () {
+      status("Saved");
+    }, function (e) {
+      if (e && (e.code === "invalid_argument" || e.code === "not_granted" || e.code === "revoked")) {
+        mode = "local"; saveLocal(); status("Saved in this browser only");
+      } else { status("Couldn't save — your change is kept on this page"); }
+    }).then(function () {
+      inflight[id] = false;
+      if (queued[id]) { queued[id] = false; persist(id); }
+    });
+  }
+
+  /* ---- rendering ---- */
+  var listEl = document.getElementById("list");
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "text") n.textContent = attrs[k];
+      else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), attrs[k]);
+      else if (attrs[k] != null) n.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(c); });
+    return n;
+  }
+  function visible(id) {
+    var r = rec(id);
+    if (filter === "issues") return r.issue;
+    if (filter === "open") return !(r.full && r.empty);
+    return true;
+  }
+  var openNotes = {};
+  function render() {
+    var focusedId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.note : null;
+    var caret = focusedId ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
+    listEl.innerHTML = "";
+    var shown = 0;
+    SECTIONS.forEach(function (s) {
+      var rows = s.items.filter(function (it) { return visible(it[0]); });
+      if (!rows.length) return;
+      var done = s.items.filter(function (it) { var r = rec(it[0]); return r.full && r.empty; }).length;
+      var sec = el("section", { class: "section", "aria-labelledby": "h-" + s.id }, [
+        el("div", { class: "section-h" }, [
+          el("span", { class: "mark", lang: "ja", "aria-hidden": "true", text: s.mark }),
+          el("h2", { id: "h-" + s.id, text: s.title }),
+          el("span", { class: "count", text: done + " / " + s.items.length })
+        ])
+      ]);
+      var ul = null;
+      rows.forEach(function (it) {
+        if (it[3] || !ul) {
+          if (it[3]) sec.appendChild(el("h3", { class: "sub-h", text: it[3] }));
+          ul = el("ul", { class: "items" });
+          sec.appendChild(ul);
+        }
+        ul.appendChild(item(it));
+        shown++;
+      });
+      listEl.appendChild(sec);
+    });
+    if (!shown) listEl.appendChild(el("p", { class: "empty-filter", text: filter === "issues" ? "No issues flagged yet." : "Everything is checked in both accounts." }));
+    summary();
+    if (focusedId) {
+      var t = listEl.querySelector('textarea[data-note="' + focusedId + '"]');
+      if (t) { t.focus(); try { t.setSelectionRange(caret[0], caret[1]); } catch (e) {} }
+    }
+  }
+  var noteTimers = {};
+  function item(it) {
+    var id = it[0], r = rec(id);
+    var li = el("li", { class: "item", "data-issue": String(r.issue), "data-done": String(r.full && r.empty) });
+    li.appendChild(el("div", { class: "txt" }, [
+      el("span", { class: "title", text: it[1] }),
+      el("span", { class: "detail", text: it[2] })
+    ]));
+    function toggle(key, label, cls) {
+      return el("button", { type: "button", class: cls, id: "b-" + key + "-" + id, "aria-pressed": String(!!r[key]),
+        "aria-label": label + ": " + it[1], text: label,
+        onclick: function () { r[key] = !r[key]; persist(id); render(); } });
+    }
+    li.appendChild(el("div", { class: "controls" }, [
+      toggle("full", "Full", "tick"),
+      toggle("empty", "Empty", "tick"),
+      toggle("issue", "Issue", "flag")
+    ]));
+    var wrap = el("div", { class: "note-wrap" });
+    var open = openNotes[id] || !!r.note || r.issue;
+    if (open) {
+      var ta = el("textarea", { id: "n-" + id, "data-note": id, rows: "2", "aria-label": "Note on " + it[1],
+        placeholder: r.issue ? "What's wrong, where, and what you expected…" : "Anything you noticed…" });
+      ta.value = r.note || "";
+      ta.addEventListener("input", function () {
+        r.note = ta.value;
+        status("Typing…");
+        clearTimeout(noteTimers[id]);
+        noteTimers[id] = setTimeout(function () { persist(id); }, 800);
+      });
+      ta.addEventListener("blur", function () {
+        if (noteTimers[id]) { clearTimeout(noteTimers[id]); noteTimers[id] = null; persist(id); }
+      });
+      wrap.appendChild(ta);
+    } else {
+      wrap.appendChild(el("button", { type: "button", class: "note-toggle", text: "+ Add a note",
+        onclick: function () { openNotes[id] = true; render(); var t = document.getElementById("n-" + id); if (t) t.focus(); } }));
+    }
+    li.appendChild(wrap);
+    return li;
+  }
+  function summary() {
+    var full = 0, empty = 0, issues = 0;
+    ALL.forEach(function (id) { var r = rec(id); if (r.full) full++; if (r.empty) empty++; if (r.issue) issues++; });
+    document.getElementById("s-full").textContent = full + "/" + ALL.length;
+    document.getElementById("s-empty").textContent = empty + "/" + ALL.length;
+    document.getElementById("s-issues").textContent = issues;
+    document.getElementById("meter").style.setProperty("--p", Math.round(100 * (full + empty) / (2 * ALL.length)) + "%");
+  }
+
+  /* ---- filter ---- */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function (b) {
+    b.addEventListener("click", function () {
+      filter = b.getAttribute("data-filter");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      try { sessionStorage.setItem("graphite-review-filter", filter); } catch (e) {}
+      render();
+    });
+  });
+  try {
+    var f0 = sessionStorage.getItem("graphite-review-filter");
+    if (f0) { var fb = document.querySelector('[data-filter="' + f0 + '"]'); if (fb) fb.click(); }
+  } catch (e) {}
+
+  /* ---- copy flagged items and notes, ready to paste into the chat ---- */
+  document.getElementById("copy").addEventListener("click", function () {
+    var out = [];
+    SECTIONS.forEach(function (s) {
+      var lines = [];
+      s.items.forEach(function (it) {
+        var r = rec(it[0]);
+        if (!r.issue && !r.note) return;
+        lines.push("- " + (r.issue ? "[ISSUE] " : "") + it[1] + (r.note ? ": " + r.note.replace(/\s+/g, " ").trim() : ""));
+      });
+      if (lines.length) out.push(s.title + "\n" + lines.join("\n"));
+    });
+    var text = out.length ? out.join("\n\n") : "No issues or notes yet.";
+    var btn = this;
+    function done(msg) { var was = "Copy issues and notes"; btn.textContent = msg; setTimeout(function () { btn.textContent = was; }, 1800); }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done("Copied"); }, fallback);
+    } catch (e) { fallback(); }
+    function fallback() {
+      var ta = el("textarea", { "aria-label": "Issues and notes" });
+      ta.value = text; listEl.parentNode.insertBefore(ta, listEl); ta.select(); done("Selected below — copy it");
+      setTimeout(function () { ta.remove(); }, 15000);
+    }
+  });
+
+  /* ---- start: local first, then the shared store when it answers ---- */
+  loadLocal();
+  render();
+  status("Saved in this browser");
+  if (window.claude && window.claude.use) {
+    window.claude.use("db").then(function (d) {
+      if (!d) return;
+      db = d; col = db.collection("checks"); mode = "db";
+      status("Syncing…");
+      var first = true;
+      col.onSnapshot(function (snap) {
+        var focusedId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.note : null;
+        snap.docs.forEach(function (doc) {
+          if (ALL.indexOf(doc.id) === -1) return;
+          var data = doc.data() || {};
+          /* the note being typed here wins over an echo of an older one */
+          var keepNote = (doc.id === focusedId || noteTimers[doc.id] || inflight[doc.id]) ? rec(doc.id).note : null;
+          state[doc.id] = { full: !!data.full, empty: !!data.empty, issue: !!data.issue, note: String(data.note || "") };
+          if (keepNote !== null) state[doc.id].note = keepNote;
+        });
+        if (first) {
+          first = false;
+          /* anything ticked before the store answered, carried over once */
+          var local = {};
+          try { local = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}") || {}; } catch (e) {}
+          Object.keys(local).forEach(function (id) {
+            if (ALL.indexOf(id) === -1) return;
+            var inStore = snap.docs.some(function (d) { return d.id === id; });
+            if (!inStore) { state[id] = local[id]; persist(id); }
+          });
+          status("Saved");
+        }
+        render();
+      }, function () { mode = "local"; status("Saved in this browser only"); });
+    }, function () {});
+  }
+})();
+</script>
+
+</body></html>
