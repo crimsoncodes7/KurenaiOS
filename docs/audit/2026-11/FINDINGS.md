@@ -17,7 +17,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 4 | 5 | 13 |
 | CO | Code study space | partial | 0 | 4 | 7 | 5 | 16 |
 | JM | Japanese and Mind study spaces | partial | 0 | 0 | 3 | 2 | 5 |
-| CR | Creatives study space | not run | 0 | 0 | 0 | 0 | 0 |
+| CR | Creatives study space | complete | 0 | 2 | 18 | 4 | 24 |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 0 | 4 | 9 | 9 | 22 |
 | MG | Money (Santander import) and Goals | complete | 1 | 9 | 10 | 2 | 22 |
 | EX | Exams hub, Files, ink/Pencil surfaces | partial | 0 | 3 | 9 | 15 | 27 |
@@ -26,7 +26,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 8 | 3 | 12 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 7 | 13 | 21 |
-| | **All** | | 1 | 69 | 134 | 97 | 301 |
+| | **All** | | 1 | 71 | 152 | 101 | 325 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n).
 
@@ -77,6 +77,8 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **CO-02** [P1] iPhone desk: Daily 20 and Continue squeezed side by side; the Open-lesson button's label spills out of its pill
 - **CO-03** [P1] Desk side column: a real Daily 20 task crushes the Continue card to 41px and clips its 'CONTINUE' label (Mac, iPad landscape)
 - **CO-04** [P1] Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException
+- **CR-01** [P1] Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)
+- **CR-02** [P1] On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides
 - **PR-01** [P1] Afternoon review: 'Place in a free block' menu opens BEHIND the review dialog, so it does nothing
 - **PR-02** [P1] Every page header shows the PREVIOUS page's painted band after in-app navigation
 - **PR-03** [P1] Focus: 'General study — no link' is overridden by About to Study, which silently links the session to the first assignment (even with 'Just start')
@@ -1633,9 +1635,227 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## CR — Creatives study space (not run)
+## CR — Creatives study space (complete)
 
-_Not audited yet._
+**Auditor's summary.** Creatives is broadly complete and renders without console errors at every size, but its flows have several rough joins. The most important root causes are: render-time side effects (the Practice Log opens a work dialog from the route on every redraw, so the dialog bounces back after Promote/Take out, and app dialogs are never closed on navigation); the phone shell only carries page actions marked data-phone-action, so on iPhone Creatives settings are unreachable and every sub-page is titled 'Creatives'; hand-rolled controls that skip shared primitives (the 'Your days' circles are off-centre ovals, the inspector checklist collides with the check page's .k-cr-check grid, the subject pill strips use an undeclared .k-seg overflow that hides the active pill on iPad); and evidence rules that are looser than invariant 154 (a project pays 150 XP for three bare 'Mark done' taps, a Writing study saves with only its given setup, the Writing Desk saves twice on a double tap and makes a new draft on every Start). Layout polish issues remain on the desk (taller hero and stretched analytics vs other spaces, an empty paused Daily card), the check page (no beginner picture, blank re-check), the Add page and the iPad-portrait sketchbook.
+
+**Coverage.** Empty account and a seeded dense account with 28 planted works (art pictures, writing texts, design), promoted pieces, milestones and a drill batch. DOM measurement script (overflow, clipping, overlap, off-centre glyphs, ovals, small targets) over #/subject/creatives (desk), #/creatives (tracks), write, write/<draft>, drills and all six drill types, refs, portfolio, log, log/<id>, check/<id>, project/A1,W1,A2, settings, add/<study>, sketch/<study>, and lessons A1.1, W1.1, D1.1, A3.3, at mac 1470x832, ipad 820x1180 and iphone 402x874; ipadl 1180x820 spot-checked on the sketchbook and a lesson. Screenshots read: desk (mac/ipad/iphone, empty and dense, Dawn), analytics help, portfolio, log (mac, iphone, empty), work dialog, Writing Desk list and draft, lesson notes and Micro-studies tabs (mac), iPhone lesson, check page, project, drills index, Hierarchy (iphone), Palette (Dawn), References, sketchbook (ipad), Add page, Tracks (iphone), settings (ipad, shop theme azure-butterfly). Interactions exercised by eval: deep-link dialog and redraw, Take out of Portfolio, Writing Desk double save, study Start twice, project Mark done x3, invalid routes, phone section menu. Not examined: the Kurenai critique request/reply (needs a live AI route), sprint in Focus end to end, Momentum mode drawing with a real pen, the generated reference kinds other than Forms, iPhone Safari's 760 px viewport separately, and VoiceOver/keyboard traversal beyond names and target sizes.
+
+### CR-01 · P1 · bug — Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)
+
+- **Devices:** all
+- **Detail / repro:** Saving from the Writing Desk, a drill or Add your work lands on #/creatives/log/<id>, whose render schedules openWork(id). Any KOS.rerender() while that route is current (the dialog's own 'Take out of Portfolio', the Promote dialog's 'Promote', or any background redraw) draws the page again and opens the work dialog AGAIN. Repro: go to #/creatives, then #/creatives/log/<id>; click 'Take out of Portfolio' -> the dialog closes and immediately re-opens (now showing 'Promote…'). KOS.rerender() with it open -> two identical stacked dialogs (10 buttons). The route never drops the id, so the user cannot act on the work without it bouncing back.
+- **Evidence:** eval: after cr.promote click count of [data-ui="cr.dialog"] stays 1 with button now 'Promote…'; after KOS.rerender() count 1 -> 2; js/modules/creatives.js:567 'if (wid && CR().work(wid)) setTimeout(function () { openWork(wid); }, 0);' inside logPage; :542 and :559 call d.close(); KOS.rerender(); landing routes js/modules/crwrite.js:147, crdrills.js:85, creatives.js:620
+- **Root cause:** Render-time side effect: logPage opens a dialog from the route arg on every render, and the route keeps the id.
+- **Proposed fix:** Open the deep-linked dialog only on navigation, not on redraw (check KOS.ui.redrawing / a one-shot flag), and after opening replace the route with #/creatives/log (KOS.show with replace) or clear the id when the dialog closes; the row's open state can stay as a highlight.
+- **Flags:** effort S
+
+### CR-02 · P1 · ux — On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides
+
+- **Devices:** iphone
+- **Detail / repro:** The ⚙ 'Creatives settings' button and 'Start focus' are put in #page-actions by spaceHead/KOS.shell.actions. Under 700 px the stage head is display:none and only nodes marked data-phone-action are moved into the phone title bar; neither button is marked, and the section switch menu lists only Code, Japanese, Mind, Creatives, A-levels, Tracks, Writing, Drills, References, Portfolio. So on the iPhone there is no way to change Your days, Minutes or the Exam Season pause (which hides the Daily Creative for weeks) except by typing #/creatives/settings.
+- **Evidence:** eval --size iphone on #/subject/creatives: [data-ui="cr.settings-open"] height 0, hidden by DIV.k-stage-head; [data-ui="cr.focus"] height 0; section menu items as listed (no Settings); css/layout.css:445 ':root[data-shell="ready"] .k-stage-head { display: none; }'; js/modules/mobile-shell.js:559-562 (moves only [data-phone-action]); js/modules/creatives.js:69-70 settingsBtn and :295-296 spaceHead (no data-phone-action)
+- **Root cause:** Space page actions are not marked for the phone title bar.
+- **Proposed fix:** Mark the gear (and Start focus, or rely on the Focus tab) with data-phone-action so the phone title bar carries it, or add 'Settings' to KOS.crPages' phone menu.
+- **Flags:** effort S
+
+### CR-03 · P2 · ux — A work dialog stays open over other pages after navigation (Back, hash change), stacking duplicates
+
+- **Devices:** all
+- **Detail / repro:** With the work dialog open on #/creatives/log/<id>, navigating to #/creatives/portfolio or #/home leaves the dialog (and its scrim) covering the new page; returning to the deep link opens a second copy. During the measurement run three copies of a deleted work's dialog were stacked over Portfolio. Browser Back / iPad edge-swipe therefore does not dismiss the dialog the way a user expects (invariant 64: browser chrome and OS gestures are one stack).
+- **Evidence:** eval: [cr.dialog] count 1 after location.hash='#/creatives/portfolio', 2 after returning to log/<id>, still 2 on #/home; shots/creatives/n/dense-mac-portfolio.png (first capture: dialog of a removed work over Portfolio); js/core/ui.js:155 openDialog has no navigation hook; js/core/router.js:302 hashchange handler does not close open dialogs
+- **Root cause:** KOS.ui.openDialog dialogs are not tied to the route; the router never closes them.
+- **Proposed fix:** In router.js, before rendering a navigation (not a redraw), close every open KOS.ui dialog (or have openDialog register a close on the next route change); keep it out of KOS.rerender.
+- **Flags:** effort S
+
+### CR-04 · P2 · ui — Creatives desk hero is taller than the other study spaces' heroes (341 vs 292-339 px) and its analytics card is stretched with empty bands
+
+- **Devices:** mac, ipadl
+- **Detail / repro:** At 1470x832 the desk-top row is 341 px for Creatives vs Code 292, Mind 296, Japanese 339: four track bars in the hero push it taller than Code/Mind, so the study-space heroes are not one size. The second row is worse: the 'Subject analytics' card is 378 px tall (253 px on Code, Japanese and Mind) because it stretches to the Portfolio side card; its two tile rows are 163 px apart instead of 100, leaving a ~60 px empty band under each value.
+- **Evidence:** eval on #/subject/<code|ja|mind|creatives> at mac: study.desk-top heights 292/339/296/341; section.k-sa height 253/253/253/378; tile label tops 591 and 754 (Creatives) vs 511 and 611 (Code); shots/creatives/n/dense-mac-desk.png
+- **Root cause:** The desk skeleton lets each space's hero content set its height; the analytics row stretches to its side card.
+- **Proposed fix:** Give the four study-space heroes one fixed min/max height token (or cap the track-bar block to the ring's height with a compact bar layout), and align the analytics row with align-items:start plus a capped Portfolio list (3 items) so the stat grid keeps its natural 253 px height.
+- **Flags:** effort S
+
+### CR-05 · P2 · ux — Daily Creative card in Exam Season is a tall empty card with no way to do today's study anyway
+
+- **Devices:** all
+- **Detail / repro:** During Exam Season (on by default) the Daily Creative reads only 'Paused for Exam Season / Back after Sat 5 Dec.' in a 207 px card (mac) beside the hero: half of it empty, and no action ('Do one anyway', 'Change in settings'). The pause is a setting but the card offers no route to it, so the space's main daily entry point is a dead end for weeks.
+- **Evidence:** shots/creatives/n/dense-mac-desk.png, dense-ipad-desk.png, dense-iphone-desk.png; js/modules/creatives.js:160-200 (dailyCard)
+- **Proposed fix:** Add a quiet 'Do one anyway' (planDay ignoring the pause) and a 'Settings' link inside the paused state; shrink the card to content or let Continue take the freed height.
+- **Flags:** effort S
+
+### CR-06 · P2 · ui — Subject pill strip hides the active 'Creatives' pill off the right edge on iPad portrait
+
+- **Devices:** ipad
+- **Detail / repro:** At 820x1180 the subject group (Code · Japanese · Mind · Creatives · A-levels) is a .k-seg with overflow-x:auto and hidden scrollbars, 281 px wide for 456 px of pills, scrolled to 0. The current subject, Creatives, sits at x 355-457 while the strip ends at 369, so only a 14 px white sliver of the active pill shows and A-levels is unreachable without discovering a hidden horizontal scroll.
+- **Evidence:** eval --size ipad: active .k-seg-item 'Creatives' left 355 right 457, scroller .k-seg left 88 right 369 scrollLeft 0 scrollWidth 456 clientWidth 281; shots/creatives/n/dense-ipad-desk.png (white half-pill beside 'Mind'); css/components.css:52 .k-seg overflow-x:auto; scrollbar-width:none; strip built in js/core/ui.js:1445-1480
+- **Root cause:** Undeclared overflow on the shared .k-seg; no reveal of the active item.
+- **Proposed fix:** Build the subject group through KOS.ui.scroller({reveal}) so the active pill is scrolled into view and the overflow is declared with arrows/fade (invariant 50), or collapse the group to the active subject plus a menu below 1080 px.
+- **Flags:** effort S
+
+### CR-07 · P2 · ui — Settings 'Your days': the S M T W T F S letters sit at the left edge of their circles, and on touch the circles are 40x44 ovals
+
+- **Devices:** all; oval on ipad and iphone
+- **Detail / repro:** Every day button's letter is 12-15 px left of centre at all three sizes (text-align inherits 'start'). On iPad and iPhone (pointer: coarse) the shared touch rule raises only the height to 44 px, so each 40 px circle becomes a 40x44 oval, which invariant 69 forbids ('a round control must raise its width too').
+- **Evidence:** measure: button[cr.day] dx=-14.6/-13.0/-15.0/-12.3 px at mac, ipad and iphone; size 40.0x44.0 at ipad/iphone; computed text-align:start, min-height 44px; shots/creatives/n/dense-ipad-settings.png; css/views/creatives.css:179 (.k-cr-day: inline-size/block-size var(--cr-day)=40px, no text-align, no display:grid); css/base.css:24 ':where(button){text-align: inherit}'; css/base.css:115-120 coarse min-block-size; css/tokens.css:420 --cr-day: 40px
+- **Root cause:** A hand-rolled round button that does not centre its label nor follow the coarse-pointer circle rule.
+- **Proposed fix:** .k-cr-day { display:grid; place-items:center; } and under (pointer: coarse) set inline-size and block-size to var(--hit-coarse) (44px) together (or use the shared round icon-button primitive).
+- **Flags:** effort S
+
+### CR-08 · P2 · ux — A Writing study's '▶ Start' (and a project's 'Write it') makes a NEW draft every time instead of reopening the unfinished one
+
+- **Devices:** all
+- **Detail / repro:** Start a Writing study, type, leave without 'Save to Practice Log', come back to the lesson: the study card still says '▶ Start' and pressing it creates a second draft from the setup text, so the user lands on a fresh page and their writing seems gone (it is only in the drafts list). Same for 'Write it' on a Writing project milestone. Pressing Start twice produced two identical 'W1.1·a Ten things, ten sentences' drafts.
+- **Evidence:** eval: KOS.crWrite.openStudy('W1.1','a') twice -> #/creatives/write/mvzi1k0viya1 and #/creatives/write/mvzi1lmk5f7t; drafts list shows two identical rows; js/modules/crwrite.js:34-43 (openStudy/openMilestone always create()); js/modules/crtopic.js:40 and :71-72 (study card offers only '▶ Start'/'Another rep'); js/modules/creatives.js:601
+- **Root cause:** Draft creation is not keyed to its study; the study card does not read drafts.
+- **Proposed fix:** In openStudy/openMilestone look up the newest unsaved draft with the same lesson+study (or unit+ms) and open it; on the study card show 'Continue draft' when one exists, keeping 'Another rep' for a deliberate new one.
+- **Flags:** effort S
+
+### CR-09 · P2 · bug — Writing Desk 'Save to Practice Log' (and Add your work's Save) saves twice on a double tap
+
+- **Devices:** all
+- **Detail / repro:** The Writing Desk save button is never disabled while the IndexedDB write runs, so a double click/tap creates two identical works in the Practice Log (and two check records to manage). The sketchbook and drills already guard their save (disabled + 'Saving…'); the Writing Desk and the Add page do not.
+- **Evidence:** eval on #/creatives/write/<draft>: b.click(); b.click() -> works +2, two 'W1.1·a Ten things, ten sentences 49' records; js/modules/crwrite.js:136-148 (no disabled); js/modules/creatives.js:617-631 (addPage go.onclick, no guard) vs js/modules/crsketch.js:67 and crdrills.js:83 which disable
+- **Proposed fix:** Disable the button and show 'Saving…' on first press (as crsketch.js:67), re-enable on failure.
+- **Flags:** effort S
+
+### CR-10 · P2 · data — A Writing study can be 'saved' with only the given setup text: the untouched 80% counts as made work
+
+- **Devices:** all
+- **Detail / repro:** openStudy pre-fills the draft with the study's setup. Save only checks that the textarea is non-empty, so pressing ▶ Start then 'Save to Practice Log' without writing a word records a 49-word work, ticks 'studies saved' for the lesson and leads straight to the self-marked check that pays 8 XP/1 gold. That contradicts invariant 154 ('creative evidence is made, not claimed').
+- **Evidence:** eval: draft opened by KOS.crWrite.openStudy('W1.1','a') saved unchanged -> work 'W1.1·a Ten things, ten sentences' words 49; js/modules/crwrite.js:36-39 (text: s.setup) and :139 (only area.value.trim() checked)
+- **Proposed fix:** Refuse to save (toast 'Write your part first') while the text still equals the setup, or count only words beyond the setup (store setup length on the doc and use it for words/the guard).
+- **Flags:** effort S
+
+### CR-11 · P2 · ux — Writing Desk drafts cannot be deleted or tidied: every 'New draft' and every study Start adds a permanent row
+
+- **Devices:** all
+- **Detail / repro:** The drafts list (#/creatives/write) has rows that only open a draft; there is no Delete, archive or 'saved to log' status anywhere in crwrite.js. 'New draft' writes an empty 'Untitled' record immediately, and studies create a new draft on each Start, so abandoned and already-saved drafts pile up forever on the device with no way to remove them.
+- **Evidence:** grep -i 'delet|remove|.del(' js/modules/crwrite.js -> no match; js/modules/crwrite.js:75 (New draft creates immediately), :83-88 (row = open only); shots/creatives/n/dense-mac-write.png
+- **Proposed fix:** Add a row menu (Delete with confirm, through KOS.ui.confirm danger), mark drafts already saved to the Practice Log ('Saved · 2 Nov'), and create a 'New draft' record only on first input.
+- **Flags:** effort M
+
+### CR-12 · P2 · ui — Lesson inspector checklist: each label sits half a column away from its checkbox (.k-cr-check class collision)
+
+- **Devices:** all
+- **Detail / repro:** On every Creatives lesson the inspector's four evidence checks (Read the notes, Saved the studies, Passed the check, A theory card held) render the checkbox at the left and the label 132 px to the right in a second grid column, leaving an empty gap between them. The class .k-cr-check is used both for these labels and for the check page's two-column layout; the later rule (display:grid; repeat(2,1fr); gap 20px) wins.
+- **Evidence:** shots/creatives/n/dense-mac-lessonA11.png; eval on #/ref/creatives/A1.1 at mac: label.k-cr-check display grid, grid-template-columns 111.5px 111.5px, input left 1207, label span left 1339; css/views/creatives.css:107 (.k-cr-check flex, intended) overridden by :117 (.k-cr-check grid for 'Good for this unit') and :358; js/modules/crtopic.js:240 (label class 'k-ts-check k-cr-check') and js/modules/creatives.js:391 (check page 'k-cr-check')
+- **Root cause:** Two unrelated components share one class name in css/views/creatives.css.
+- **Proposed fix:** Rename one of the two (e.g. the check page's container to .k-cr-checkpage) and keep .k-cr-check flex for the inspector rows; smoke55 could flag duplicate class definitions in one view file.
+- **Flags:** effort S
+
+### CR-13 · P2 · ui — iPhone lesson page: the tab strip gets 181 px, so only 'Notes' and half of 'Micro-studies' show; Theory cards and Project are hidden behind an arrow
+
+- **Devices:** iphone
+- **Detail / repro:** At 402 px the topic tab row shares one line with the 'Working' and 'Edit' buttons (about 95 + 66 px). The tabs scroller is left 181 px for four tabs (Notes 16-67, Micro-studies 85-185, Theory cards 203-298, Project 316-361), so a Creatives lesson's own studies, cards and project are effectively off-screen; the user has to discover the › arrow. The Studies tab is where the lesson's work is started, so this hides the main action on the phone.
+- **Evidence:** shots/creatives/n/dense-iphone-lessonW11.png; eval --size iphone on #/ref/creatives/W1.1: tab strip left 16 width 181, tabs as listed, Edit at x 320 w 66; css/views/study.css:208-213 (.k-topic-tabrow one flex row; no rule under the 700 px tier at :1114 to wrap the actions); js/modules/hub.js:2670 (edit bar button in the row)
+- **Root cause:** Shared topic tab row has no phone composition for its action buttons.
+- **Proposed fix:** Under 700 px put Working/Edit on their own row (or fold them into a ⋯ menu / icon-only 44px buttons) so the tab scroller gets the full width, and reveal the active tab.
+- **Flags:** effort S
+
+### CR-14 · P2 · bug — The check page shows an Art study's 'Expected beginner output' as text only: the beginner picture is dropped
+
+- **Devices:** all
+- **Detail / repro:** The check (31e) exists to put your work beside the expected beginner output. For Art lessons the content's beginner block carries art: 'A2.1' and the imported picture cr.beginner.A2.1.webp exists (the lesson page draws it), but checkPage builds the card from beginner.text and beginner.note only, so an art student compares their drawing with two sentences. The card also sits under the work in the left column instead of beside it, leaving the right column empty below the form.
+- **Evidence:** shots/creatives/n/dense-mac-check.png, dense-mac-check2.png (#/creatives/check/<A2.1 work>); js/modules/creatives.js:352-353 and :396-398 (no beginner.art); js/modules/crtopic.js:140 draws KOS.crArt('cr.beginner.'+b.beginner.art) on the lesson; js/data/content/cr-a2.js:24 art:'A2.1'; assets/creatives/img/cr.beginner.A2.1.webp present
+- **Proposed fix:** Reuse the lesson's beginner figure (factor crtopic.js:138-142 into KOS.crBeginner(b) and call it from checkPage), and place it in the right column above the form or side by side with the work at >=1080 px.
+- **Flags:** effort S
+
+### CR-15 · P2 · ux — Reopening a study's check shows a blank form and silently overwrites the earlier result (a pass can become 'Not yet')
+
+- **Devices:** all
+- **Detail / repro:** 'Do the check' / 'Check' on a work that already has a check draws both questions unanswered with no sign of the earlier answer, note or date. Saving again replaces w.check entirely, so re-answering 'Not yet' on a passed work un-passes it and can untick the lesson's 'Passed the check' evidence, with no confirmation. The page also has no way back except the header nav until after Save.
+- **Evidence:** shots/creatives/n/dense-mac-check.png (work A2.1.a #0 whose check is pass, form blank); js/modules/creatives.js:354 'answers = L.check.rows.map(function () { return null; })' (never reads w.check), :364 setCheck overwrite; js/core/creatives.js:163-170 (w.check replaced)
+- **Proposed fix:** Prefill answers and note from w.check and show 'Checked 2 Nov · passed'; when a pass would turn into Not yet, say so on the button ('Change to Not yet') or keep the earlier pass on the record; add a 'Back to the lesson' link in the page header.
+- **Flags:** effort S
+
+### CR-16 · P2 · a11y — Hierarchy drill: five identical 'Bold' toggles with no line in their name, 32 px tall on touch; − M + read as plain text
+
+- **Devices:** all; target size on ipad/iphone
+- **Detail / repro:** Each line of the Hierarchy drill has −, a size letter, + and a 'Bold' toggle. The five Bold buttons are all named just 'Bold' (the −/+ buttons do name their line), so a screen reader hears 'Bold, toggle' five times. On iPad/iPhone each Bold is 57x32 px, under the 44 px touch minimum (invariant 69). The −/+ icon buttons have the card's own background and no border, so on the phone they look like loose glyphs beside an 'M' rather than controls, and the size letter (S/M/L/XL…) is unexplained. On mac the long fifth line truncates ('Very friendly, small whi…', 428>410 px; 428>133 on iPhone).
+- **Evidence:** shots/creatives/n/iphone-hierarchy.png; eval --size iphone: Bold 57x32, aria-label null x5; −/+ 44x44 bg oklch(0.2 0.009 265) border 0; measure clip span.k-crd-ctrl-t 428>410 (mac), 428>133 (iphone); js/modules/crdrills.js:220 (bold button, no aria-label), :223; css/views/creatives.css:259-262
+- **Proposed fix:** aria-label 'Bold: <line>' (keep aria-pressed); give .k-crd-opt the coarse 44 px height; draw −/+ with the bordered icon-button style and label the size readout ('Size M'); let the line name wrap to two lines instead of ellipsis.
+- **Flags:** effort S
+
+### CR-17 · P2 · ux — On iPhone, Creatives sub-pages lose their title: Practice Log, Settings, The check and Project all read 'Creatives'
+
+- **Devices:** iphone
+- **Detail / repro:** The phone title bar takes its title from the lit strip item, not the page's h1. Pages that are not in KOS.crPages (log, settings, check, project, add, sketch) light the 'Creatives' subject pill, so the bar says 'Study / Creatives' and the real page header ('Practice Log · Only you see this', 'Creatives settings', 'The check', 'Project') is hidden with the stage head. A drill page shows 'Drills' instead of the drill's name. The user cannot tell where they are, and the Practice Log's privacy line disappears.
+- **Evidence:** eval --size iphone: visible h1 = 'Creatives' on #/creatives/log, /settings, /check/x, /project/A1; 'Drills' on /drills/grid; shots/creatives/n/iphone-log.png; js/modules/mobile-shell.js:551 (title = data-phone-title-text || cur.label || h1); js/core/ui.js:1466 (creatives pages outside KOS.crPages light the subject pill); js/modules/creatives.js:295-296 pageHeader without data-phone-title-text
+- **Proposed fix:** Have spaceHead mark its page title with data-phone-title-text (as other views can), so the bar reads 'Practice Log' etc.; keep the sub-line under it on the phone.
+- **Flags:** effort S
+
+### CR-18 · P2 · ux — Sketchbook on iPad portrait: the brief, timer, reference and 'Save to Practice Log' are below a 1,078 px canvas, off screen
+
+- **Devices:** ipad portrait
+- **Detail / repro:** At 820x1180 the sketchbook collapses to one column: the page (k-crs-stage) runs 284-1362 px and the side column with the study brief, 'Start the timer' (y 1516) and 'Save to Practice Log' (y 1570) starts at y 1382, past the 1180 px viewport. On the device made for drawing, the timer you should start first and the save button are only found by finger-scrolling past a blank page; the Momentum choice, which must be made before the first stroke, is also below. Landscape (1180x820) and mac keep the side column beside the page.
+- **Evidence:** shots/creatives/n/ipad-sketch.png; eval --size ipad: .k-crs-stage top 284 h 1078, .k-crs-side top 1382, timer top 1516, save top 1570, innerHeight 1180; css/views/creatives.css:333-335 and the one-column rule at :359-360 (inside the 860 px tier)
+- **Proposed fix:** Below 1080 px put a compact bar above the page (timer, Momentum, Save, Reference toggle) and move the brief/steps into a collapsible drawer, or keep the two-column layout down to 700 px with a narrower side column.
+- **Flags:** effort M
+
+### CR-19 · P2 · ui — 'Add your work' is a bare 720 px form with a raw browser file button, a 490 px dead column beside it, no preview and no drop target
+
+- **Devices:** mac, ipadl
+- **Detail / repro:** The page that brings work in from another app is capped at --cr-paper-measure (236-956 of a 1446 px content area) with nothing beside it, so half the width is empty on mac. The file field is an unstyled native <input type=file> ('Choose file  No file chosen', system grey), there is no preview of the chosen picture, no drop/paste target (the app's Files flow supports drop, paste and Scan), no Cancel/back to the lesson, and the study line is plain text above the Title. It looks unfinished next to the rest of the space.
+- **Evidence:** shots/creatives/n/mac-add.png; eval: [cr.add] left 236 right 956, #main right 1446; js/modules/creatives.js:610-640 (addPage); css/views/creatives.css:181 (.k-cr-addform max-inline-size)
+- **Proposed fix:** Lay it out as two columns at >=1080 px: a drop zone + preview (reuse KOS.files' drop target styling, hide the native input behind a .k-btn 'Choose a picture or text') and the form with the study's brief and 'Good for this unit' beside it; add 'Back to the lesson'.
+- **Flags:** effort M
+
+### CR-20 · P2 · data — A unit project pays 150 XP, 40 gold and +10 HP for three 'Mark done' taps with no work saved
+
+- **Devices:** all
+- **Detail / repro:** On a fresh account, #/creatives/project/A2 offers 'Mark done' on every milestone even though no study or milestone work exists ('Best after A2.3's studies'). Three taps reached every milestone and paid the project (XP 0 -> 150, gold 0 -> 40, paid['project:A2'] set) with zero works in the Practice Log. Invariant 154 says creative evidence is made, not claimed, and every other Creatives reward needs a saved piece; projects are the largest reward in the space and need none. 'Undo' after the payout keeps the pay.
+- **Evidence:** eval on empty account: 3 x click 'Mark done' on #/creatives/project/A2 -> governor xp/gold [0,0] -> [150,40], creatives.paid {project:A2}, works 0; js/core/creatives.js:200-218 (markMilestone 'or by hand', pays when all reached); js/modules/creatives.js:~600 (Mark done button per milestone)
+- **Root cause:** markMilestone accepts a bare tick as evidence and pays on it.
+- **Proposed fix:** Let a hand-marked milestone count only when a work is attached (offer 'Attach a piece from the Practice Log' / 'Add your work' instead of a bare tick), or keep hand ticks for progress but pay the project only when each milestone has a saved work.
+- **Flags:** effort S
+
+### CR-21 · P3 · ui — Work dialog: the picture sits left with a 252 px empty strip beside it, the note is jammed under it, and nothing says when/where the piece was made
+
+- **Devices:** all
+- **Detail / repro:** Opening an Art work from the Practice Log shows the 560x420 picture flush left in an 840 px dialog (x 343-903 of 315-1155), 'Your note' starts on the image's bottom edge (top 595 = image bottom 595, no gap), and the dialog shows only the title: no track, lesson·study, date, words or check state, which the log row had. The header mark is the generic 創 rather than the track's mark used on the row.
+- **Evidence:** shots/creatives/n/dense-mac-workdlg.png; eval: img left 343 right 903 in dialog 315-1155; note top 595, img bottom 595; js/modules/creatives.js:527-537 (openWork body); css/views/creatives.css:120 (.k-cr-mine-img display:block, no margin-inline:auto), :144
+- **Proposed fix:** Centre the media (margin-inline:auto) with a gap token before the note, and add the row's meta line (track · lesson·study · date · words · check) under the title using kindMark(w) as the dialog mark.
+- **Flags:** effort S
+
+### CR-22 · P3 · ui — Lesson spine's subject switch clips the active 'Creatives' pill on iPad landscape
+
+- **Devices:** ipadl
+- **Detail / repro:** At 1180x820 the spine header's subject group (Code · Japanese · Mind · Creatives) is 209 px wide for 220 px of pills and is not scrolled to the active one, so the lit 'Creatives' pill (238-302) is cut at 293 by the strip edge and the spine's collapse button sits on its end. Same undeclared .k-seg overflow as the stage strip.
+- **Evidence:** shots/creatives/n/ipadl-lessonD11.png; eval --size ipadl: [study.spine-subjects] left 84 right 293 scrollWidth 220 clientWidth 209 scrollLeft 0; active 'Creatives' 238-302; js/modules/hub.js:439 (k-seg k-seg--fill k-spine-subjects); css/components.css:52
+- **Proposed fix:** Use the subject's short label in the spine (or a menu) when space is short, or build it as a KOS.ui.scroller with reveal of the active pill.
+- **Flags:** effort S
+
+### CR-23 · P3 · ui — Tracks page: a track's bar says 33% while every unit row beside it says 0 / 3; an unreleased track draws a full-width empty bar
+
+- **Devices:** all
+- **Detail / repro:** With every A1-A3 lesson at 3 of 4 checks, the Art card's bar reads 33% (mean of lesson check percentages) while its unit rows read 0 / 3 (lessons fully done), two different measures side by side with no label. Editing (no released units) still draws a 1,166 px empty bar and 'later' in mono, which reads as 0% progress rather than 'not yet released'.
+- **Evidence:** shots/creatives/n/dense-mac-desk.png (first capture, #/creatives Tracks page: Art 33% vs A1 0 / 3; Editing empty bar); js/modules/creatives.js:74-78 (trackPct = mean leafPercent) vs :327-329 (us.done + ' / ' + us.total); :323 bar drawn when pct == null
+- **Proposed fix:** Label the bar ('33% of checks') or show lessons done/total in the head to match the rows; omit the bar for a track with no released unit and show a 'Coming later' chip instead.
+- **Flags:** effort S
+
+### CR-24 · P3 · ux — Palette drill: the Hue sliders are plain accent bars with no spectrum and no value, so you pick a hue blind
+
+- **Devices:** all
+- **Detail / repro:** Each colour in 'Palette and contrast' has Lightness and Hue range inputs styled identically (accent fill on a grey track). The hue track shows no colour wheel/spectrum and neither slider prints its value, so moving Hue gives feedback only in the swatch; on a drill about colour this is the main control.
+- **Evidence:** shots/creatives/n/dawn-mac-palette.png; js/modules/crdrills.js:273-280 (k-crd-range, aria-label '… · Hue', 0-359)
+- **Proposed fix:** Paint the hue input's track with a linear-gradient over oklch hues at the colour's lightness/chroma and the lightness track from dark to light; show the numeric value beside each label.
+- **Flags:** effort S
+
+**QoL ideas from this auditor:**
+- Practice Log rows show the track glyph instead of a thumbnail for picture works; a small thumbnail would make the log scannable (js/modules/creatives.js workRow).
+- Practice Log has no filter by track or lesson and renders every work at once; add a track filter and 60-row lazy batches before it grows.
+- Empty Practice Log and Writing Desk empty states have no action ('Start A1.1', 'New draft').
+- Project page milestones that are done do not link to the work that reached them, and the page has no link back to its unit's lessons.
+- The desk's 'Start here' card (empty account) is 340 px tall for a sentence and a button.
+- Writing Desk drafts autosave on a 600 ms debounce only; flush on pagehide so a draft typed just before closing the iPad app is kept.
+- The subject strip lights 'Creatives' on every page outside KOS.crPages (log, settings, check, project); a lit 'Practice Log'/'Settings' state would orient the user.
+
+**Backlog ideas from this auditor:**
+- A Portfolio view per track with a lightbox and export/share of a chosen piece.
+- Attach saved Practice Log pieces to project milestones instead of bare ticks.
+- A phone composition for the sketchbook and Writing Desk on iPad portrait (toolbar-first, side panel as a drawer).
 
 
 ---

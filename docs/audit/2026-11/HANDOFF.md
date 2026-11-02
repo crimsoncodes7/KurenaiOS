@@ -104,7 +104,7 @@ of separate apps: everything interlinked, coherent).
 |---|---|---|
 | Governor "⋯" menu (HP preview) clipped behind the hero | **Confirmed**, root cause: stage overflow/z-index | SH-03, AG-01 |
 | Code Daily 20 card: chips one per line, CONTINUE clipped | **Confirmed** | CO-02, CO-03 |
-| Creatives settings: day letters not centred in circles | **Not yet audited** (Creatives not run) — still open | — |
+| Creatives settings: day letters not centred in circles | **Confirmed** (letters at the left edge; circles become ovals on touch) | CR-07 |
 | Money: midata CSV fails; data not useful; duplicates; no delete/overwrite of an import | **Confirmed, all root-caused** | MG-01 (P0) … MG-10 |
 | Gold shop (art release) lazy: avatars not centred | **Confirmed** | SC-01 |
 | Frame rings don't fit | **Confirmed** (55px avatar in 179px frame) | SC-06, SC-03, SC-07, SC-08 |
@@ -177,7 +177,7 @@ of separate apps: everything interlinked, coherent).
   AP-02 is deliberately unused.
 - A Creatives auditor started on the stale tree was stopped; its 2 lines
   are set aside as `audit-evidence/2026-11/qa/findings/creatives.OLD-BUILD-f4fa493.jsonl`
-  (do not use). **Creatives remains unaudited.**
+  (do not use). Creatives was then re-audited on main (24 findings).
 
 ### 2.1 Path mapping for evidence strings
 Findings cite paths from the auditors' scratch folder. Map them like this:
@@ -205,8 +205,8 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts:** 301 findings (+ 23 live-account notes): **P0 1 · P1 69 · P2 134 ·
-P3 97**. Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
+**Counts:** 325 findings (+ 23 live-account notes): **P0 1 · P1 71 · P2 152 ·
+P3 101**. Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
 
 **What "complete" means:** the auditor finished, wrote coverage notes and
@@ -228,7 +228,7 @@ before acting (see §7).
 | CC | CS + IT content | complete | 13 | Flashcard/Quiz UI (ST's), shop themes, every CS fact, IT F200/F202 (completed units) — per-leaf worklist in `data/content-cs-it/worklist.txt` (162 leaves) |
 | CO | Code space | **partial** | 16 | Interrupted. Track pages, capstones, Rider project pages, kata likely thin |
 | JM | Japanese + Mind | **partial (barely started)** | 5 | Almost everything: Japanese session/kana/skills/checkpoints/settings/audio; all of Mind |
-| CR | Creatives | **NOT RUN** (a stale-build attempt was discarded, §2.2) | 0 | Everything (incl. the user's "day letters not centred" report) |
+| CR | Creatives | complete (on main, after the stale-build attempt was discarded, §2.2) | 24 | Kurenai's critique request/reply (needs a live AI route), a sprint in Focus end to end, Momentum drawing with a real pen, reference kinds other than Forms, the iPhone Safari 760px viewport, VoiceOver/keyboard beyond names and target sizes |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 22 | Idle watch end to end, Stopwatch/Custom/Study-until running, Morning "pick three", Templates detail, routine step ⋯ menu, habit editor with real habits, Reminders edit inspector / sub-tasks / recurrence editor, Calendar event modal, Pacing edit dialogs, Dawn + shop theme, iPad standalone |
 | MG | Money + Goals | complete | 22 | iPad landscape, import dialog on iPhone/iPad, goal editor type forms + exam goals, Wishlist purchase handoff, kos_money cloud sync, PDF statements (no code path) |
 | EX | Exams hub, Files, ink | **partial** | 27 | Interrupted. Unknown remainder (companion/deep pages, paper viewer timed mode, scan, share target likely thin) |
@@ -284,7 +284,8 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 **Before any run, confirm the tree is production code** (§2.2).
 
 ### 5.4 Recommended order for the remaining work
-1. **CR** Creatives (never audited); **JM** Japanese + Mind (barely started).
+1. **JM** Japanese + Mind (barely started: 5 findings) — the only study space
+   still essentially unaudited.
 2. Re-check **AP** and **AX** on main and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
    rerun.
@@ -399,8 +400,9 @@ These explain many symptoms each. The plan should fix the cause once.
   live), the M7.3 stale fork (LA-23, live), the state-document size (LA-9,
   live), the AniList/VNDB page issues (LA-12…17, live screenshots), the
   Todoist round trip (LA-19…22), the toast/home/money first-run screenshots.
-- CR (Creatives) has zero findings because it was **not audited** — it has
-  not passed anything. AP and AX ran on an older build (§2.2).
+- Japanese + Mind (JM) has only 5 findings because its auditor was cut off
+  almost at once — it has **not** passed anything. AP and AX ran on an older
+  build (§2.2).
 
 ## 8. Draft remediation plan outline (NOT approved; for the next account to complete)
 
