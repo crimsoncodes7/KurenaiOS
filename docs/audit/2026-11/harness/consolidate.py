@@ -93,12 +93,24 @@ def load_area(area):
 
 def main():
     rows, md, status = [], [], {}
+    # ids are FROZEN once issued (the handoff and plan cite them): an earlier
+    # findings.json maps (area, title) -> id; new findings take the next number
+    prev = {}
+    pj = os.path.join(BASE, "findings.json")
+    if os.path.exists(pj):
+        for f in json.load(open(pj)):
+            prev[(f["area"], norm(f.get("title", "")))] = f["id"]
     for area, pre, label in AREAS:
         st, summary, cov, fs, qol, backlog = load_area(area)
         fs = sorted(fs, key=lambda f: SEV.get(f.get("severity"), 9))
-        for i, f in enumerate(fs, 1):
+        used = [int(v.split("-")[1]) for (a, t), v in prev.items() if a == area]
+        nxt = max(used) + 1 if used else 1
+        for f in fs:
             f = dict(f)
-            f["id"] = "%s-%02d" % (pre, i)
+            fid = prev.get((area, norm(f.get("title", ""))))
+            if not fid:
+                fid = "%s-%02d" % (pre, nxt); nxt += 1
+            f["id"] = fid
             f["area"] = area
             f["areaStatus"] = st
             rows.append(f)
