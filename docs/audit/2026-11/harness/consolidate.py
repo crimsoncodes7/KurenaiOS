@@ -133,7 +133,7 @@ def main():
         tot = [a + b for a, b in zip(tot, c)]
         md.append("| %s | %s | %s | %d | %d | %d | %d | %d |" % (pre, label, st, c[0], c[1], c[2], c[3], len(fs)))
     md.append("| | **All** | | %d | %d | %d | %d | %d |\n" % (tot[0], tot[1], tot[2], tot[3], sum(tot)))
-    md.append("Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n).\n")
+    md.append("Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).\n")
 
     md.append("\n## All P0 and P1 findings at a glance\n")
     for f in rows:

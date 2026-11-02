@@ -208,7 +208,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts:** 325 findings (+ 23 live-account notes): **P0 1 · P1 71 · P2 152 ·
+**Counts:** 325 findings (+ 29 live-account notes): **P0 1 · P1 71 · P2 152 ·
 P3 101**. Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
 
@@ -461,7 +461,7 @@ Open questions to ask the user when presenting the plan:
 - `findings/user-reports-2026-11-02.md` — the user's own reports of 2 Nov (UR-1…19), to verify and fold into the plan.
 - `findings/<area>.json` — finished auditors' full result (summary, coverage,
   findings, QoL, backlog); `findings/<area>.jsonl` — incremental saves;
-  `findings/live-account.md` — LA-1…23; `content-maths.audit1.json`.
+  `findings/live-account.md` — LA-1…29; `content-maths.audit1.json`.
 - `harness/` — `kos.mjs` (the CDP harness), `consolidate.py`,
   `workflow-audit.js` (the auditor workflow), and the auditors' own probe
   scripts (`*-measure.js`, `*-run.sh`, `sd*.js` redraw experiments, `td.js`

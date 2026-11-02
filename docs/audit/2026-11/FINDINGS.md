@@ -28,7 +28,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 7 | 13 | 21 |
 | | **All** | | 1 | 71 | 152 | 101 | 325 |
 
-Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n).
+Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
 
 ## All P0 and P1 findings at a glance
