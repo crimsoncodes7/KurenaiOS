@@ -1,0 +1,267 @@
+
+## 1.1 | Methods of proof | content 6 info 9
+structure of mathematical proof, proceeding from given assumptions through a series of logical steps to a conclusion; use methods of proof, including: | Proof by deduction | Proof by exhaustion | Disproof by counter example | Proof by contradiction | (including proof of the 2 irrationality of and the infinity of primes, and application to unfamiliar proofs). need to learn: | Examples of proofs: | Proof by deduction | e.g. using completion of the square, prove that n2 - 6n + 10 is positive for all values of n or, for example, differentiation from first principles for small positive integer powe
+
+## 2.1 | Laws of indices | content 1 info 2
+Understand and use the laws of indices for all rational exponents. | × = , ÷ = - , = m n n am | The equivalence ofa and should be known.
+
+## 2.2 | Surds | content 1 info 2
+Use and manipulate surds, including rationalising the denominator. | Students should be able to simplify algebraic surds using the results | ( )2 x = x, xy = x y and ( )( ) x + y x - y = x- y
+
+## 2.3 | Quadratic functions & discriminant | content 4 info 11
+Work with quadratic functions and their graphs. | The discriminant of a quadratic function, including the conditions for real and repeated roots. | Completing the square. | Solution of quadratic equations including solving quadratic equations in a function of the unknown. | The notation f(x) may be used | Need to know and to use b2 b2 | – 4ac > 0, – 4ac = 0 and b2 – 4ac < 0 | 2  b2  |  b  ax2 =ax+ | + bx + c  +  c-  |   |  2a 4a |  | Solution of quadratic equations by factorisation, use of the formula, use of a calculator or completing the square. | These functions could include 
+
+## 2.4 | Simultaneous equations | content 1 info 2
+Solve simultaneous equations in two variables by elimination and by substitution, including one linear and one quadratic equation. need to learn: | This may involve powers of in one unknown or in both unknowns, y = 2x + 3, y = x2 – 4x + 8 | e.g. solve or 2x – 3y = 6, x2 – y2 + 3x = 50
+
+## 2.5 | Linear & quadratic inequalities | content 3 info 5
+Solve linear and quadratic inequalities in a single variable and interpret such inequalities graphically, including inequalities with brackets and fractions. | Express solutions through correct use of ‘and’ and ‘or’, or through set notation. | Represent linear and quadratic inequalities such as y > x + 1 and y > ax2 + bx + c graphically. | e.g. solving ax + b > cx + d, px2 + qx + r ≥ 0, px2 + qx + r < ax + b and interpreting the third inequality as the range of x for which the curve y = px2 + qx + r is below the line with equation y = ax + b | These would be reducible to linear or quadratic in
+
+## 2.6 | Polynomials & factor theorem | content 2 info 7
+Manipulate polynomials algebraically, including expanding brackets and collecting like terms, factorisation and simple algebraic division; use of the factor theorem. | Simplify rational expressions, including by factorising and cancelling, and algebraic division (by linear expressions only). need to learn: | Only division by (ax + b) or (ax – b) will be required. | Students should know that if f(x) = 0 b x = (ax – b) when , then is a factor of a f(x). | Students may be required to factorise cubic expressions such as x3 3x2 6x3 11x2 | + – 4 and + – x – 6. | Denominators of rational expressions 
+
+## 2.7 | Graphs of functions & proportion | content 5 info 8
+Understand and use graphs of functions; sketch curves defined by simple equations including polynomials | The modulus of a linear function. a a y = and y = x2 x | (including their vertical and horizontal asymptotes) | Interpret algebraic solution of equations graphically; use intersection points of graphs to solve equations. | Understand and use proportional relationships and their graphs. need to learn: | Graph to include simple cubic and quartic functions, e.g. sketch the graph with equation y = x2(2x – 1)2 | Students should be able to sketch the graph of y =ax + b | They should be able to
+
+## 2.8 | Composite & inverse functions | content 1 info 7
+Understand and use composite functions; inverse functions and their graphs. | The concept of a function as a one-one or many-one mapping from (or a subset of  f : x f(x) | ) to . The notation and will | ℝ be used. Domain and range of functions. | ℝ ℝ fg | Students should know that will mean f-1 | ‘do g first, then f’ and that if exists, then f-1 -1(x) f(x) = ff = x | They should also know that the graph of y = f-1(x) is the image of the graph of y = f(x) after reflection in the line y = x
+
+## 2.9 | Graph transformations | content 2 info 6
+Understand the effect of simple transformations on y = f(x), the graph of including sketching associated graphs: y = af(x), y = f(x) + a, y = f(x + a), y = f(ax) and combinations of these transformations | Decompose rational functions | Students should be able to find the graphs y = f(x) y = f(–x), of and given the y = f(x). graph of Students should be able to apply a combination of these transformations to any of the functions in the A Level specification (quadratics, cubics, quartics, a x ex reciprocal, , , sin x, cos x, tan x, x2 ax and ) and sketch the resulting graph. | Given the grap
+
+## 2.10 | Partial fractions | content 2 info 2
+into partial fractions | (denominators not more complicated than squared linear terms and with no more than 3 terms, numerators constant or linear). need to learn: | such as (ax + b)(cx + d)(ex + f) and (ax + b)(cx + d)2. | Applications to integration, differentiation and series expansions.
+
+## 2.11 | Functions in modelling | content 1 info 1
+Use of functions in modelling, including consideration of limitations and refinements of the models. | For example, use of trigonometric functions for modelling tides, hours of sunlight, etc. Use of exponential functions for growth and decay (see Paper 1, Section 6.7). Use of reciprocal function for inverse proportion (e.g. pressure and volume).
+
+## 3.1 | Straight lines | content 2 info 5
+Understand and use the equation of a straight line, including the forms y – y = m(x – x ) and 1 1 ax + by + c = 0; Gradient conditions for two straight lines to be parallel or perpendicular. | Be able to use straight line models in a variety of contexts. | To include the equation of a line through two given points, and the equation of a line parallel (or perpendicular) to a given line through a given point. | 1 m′ m m′ - | = for parallel lines and = m for perpendicular lines | For example, the line for converting degrees Celsius to degrees | Fahrenheit, distance against time for constant speed
+
+## 3.2 | Circles | content 4 info 4
+Understand and use the coordinate geometry of the circle including using the equation of a circle in the (x – a)2 + (y – b)2 = r2 form | Completing the square to find the centre and radius of a circle; use of the following properties: the angle in a semicircle | ● is a right angle the perpendicular from ● the centre to a chord bisects the chord | ● the radius of a circle at a given point on its circumference is perpendicular to the tangent to the circle at that point. need to learn: | Students should be able to find the radius and the coordinates of the centre of the circle given the equation 
+
+## 3.3 | Parametric equations | content 2 info 8
+Understand and use the parametric equations of curves and conversion between Cartesian and parametric forms. | Use parametric equations in | For example: x = 3cos t, y = 3sin t describes a circle centre O radius 3 x = 2 + 5cos t, y = -4 + 5sin t describes a circle centre (2, -4) with radius 5 | 5 x = 5t, y = xy = 25 describes the curve t | 25 | (or y = ) x x = 5t, y = 3t2 describes the quadratic curve | 3x2 | 25y = and other familiar curves covered in the specification. | Students should pay particular attention to the domain of the parameter t, as a specific section of a curve may be describe
+
+## 3.4 | Parametric modelling | content 1 info 2
+modelling in a variety of contexts. | parametric equations or students may be asked to find parametric equations for a motion. For example, an object moves with constant velocity from (1, 8) at t 0 (6, 20) t 5. | = to at = This may also be tested in Paper 3, section 7 (kinematics).
+
+## 4.1 | Binomial expansion | content 5 info 9
+Understand and use the binomial expansion of bx)n | (a + for positive integer n; the notations n! nC and r link to binomial probabilities. | Extend to any rational n, including its use for approximation; be aware that the expansion is valid for bx | < 1 | (proof not required) a need to learn: | Use of Pascal’s triangle. | Relation between binomial coefficients. | Also be aware of alternative notations | n nC such as   and r | r | Considered further in Paper 3 | Section 4.1. | May be used with the expansion of rational functions by decomposition into partial fractions | May be asked to co
+
+## 4.2 | Sequences & recurrence | content 1 info 4
+Work with sequences including those given by a nth formula for the term and those generated by a simple relation of the form x = f(x ); n + 1 n increasing sequences; decreasing sequences; periodic sequences. | 1 | For example u = describes a n 3n+1 decreasing sequence as u < u for all n + 1 n integer n | 2n u = is an increasing sequence as n u > u for all integer n n + 1 n | 1 u = for n > 1 and u = 3 describes a n + 1 1 u n periodic sequence of order 2
+
+## 4.3 | Sigma notation | content 1 info 4
+Understand and use sigma notation for sums of series. | n | ∑1= n | Knowledge that is expected | 1
+
+## 4.4 | Arithmetic sequences & series | content 1 info 1
+Understand and work with arithmetic sequences and series, including the formulae for nth term and the sum to n terms | The proof of the sum formula for an arithmetic sequence should be known including the formula for the sum of the first n natural numbers.
+
+## 4.5 | Geometric sequences & series | content 1 info 2
+Understand and work with geometric sequences and series, including the formulae for the nth term and the sum of a finite geometric series; the sum to infinity of a convergent geometric series, including the use of |r| < 1; modulus notation | The proof of the sum formula should be known. | Given the sum of a series students should n. be able to use logs to find the value of The sum to infinity may be expressed as S ∞
+
+## 4.6 | Series in modelling | content 1 info 1
+Use sequences and series in modelling. need to learn: | Examples could include amounts paid into saving schemes, increasing by the same amount (arithmetic) or by the same percentage (geometric) or could include other series defined by a formula or a relation.
+
+## 5.1 | Sine/cosine rules, radians, arcs & sectors | content 3 info 3
+Understand and use the definitions of sine, cosine and tangent for all arguments; the sine and cosine rules; the area of a triangle in the 1 form ab sin C | 2 | Work with radian measure, including use for arc length and area of sector. | Use of x and y coordinates of points on the unit circle to give cosine and sine respectively, including the ambiguous case of the sine rule. | Use of the formulae s = rθ and 1 | A = r2θ for arc lengths and areas of 2 sectors of a circle.
+
+## 5.2 | Small angle approximations | content 3 info 2
+Understand and use the standard small angle approximations of sine, cosine and tangent sinθ≈θ, θ2 cosθ ≈1- tanθ ≈θ | , 2 | Where θ is in radians. | Students should be able to approximate, cos3x-1 9 x - | e.g. when is small, to xsin4x 8
+
+## 5.3 | Trig graphs & exact values | content 5 info 1
+Understand and use the sine, cosine and tangent functions; their graphs, symmetries and periodicity. | Know and use exact value s of sin cos and for π π π π | 0, , , , ,π and 6 4 3 2 multiples thereof, and exact values of tan for π π π | 0, , , ,πand multiples | 6 4 3 thereof. | Knowledge of graphs of curves with y x, equations such as = sin y = cos(x + 30°), y = tan 2x is expected.
+
+## 5.4 | Reciprocal & inverse trig functions | content 1 info 1
+Understand and use the definitions of secant, cosecant and cotangent and of arcsin, arccos and arctan; their sine, cosine relationships to tangent; and understanding of their graphs; their ranges and domains. need to learn: | Angles measured in both degrees and radians.
+
+## 5.5 | Trig identities | content 5 info 1
+Understand and use sinθ tanθ= cosθ | Understand and use sin2θ+ cos2θ | = 1 sec2θ= tan2θ | 1 + and cosec2θ= cot2θ | 1+ | These identities may be used to solve trigonometric equations and angles may be in degrees or radians. They may also be used to prove further identities.
+
+## 5.6 | Addition/double angle & R-form | content 3 info 4
+Understand and use double a n g le f o rm u l a e ; u s e o f s in ( A ± B ), fo r m u l a e fo r | ± ± cos (A B), and tan (A B), understand geometrical proofs of these formulae. | Understand and use expressions for cosθ+ sinθ a b in the equivalent forms of r cos (θ±α) or r sin (θ±α) | To include application to half angles. tan(1 θ) | Knowledge of the formulae will | 2 not be required. | Students should be able to solve a cos θ + b sin θ = c equations such as in a given interval.
+
+## 5.7 | Trig equations | content 1 info 4
+Solve simple trigonometric equations in a given interval, including quadratic equations in sin, cos and tan and equations involving multiples of the unknown angle. | Students should be able to solve equations such as sin (x + 70°) = 0.5 for 0 < x < 360°, 3 + 5 cos 2x = 1 for -180° < x < 180° | 6 cos2 x + sin x - 5 = 0, 0 x < 360° |  | These may be in degrees or radians and this will be specified in the question.
+
+## 5.8 | Trig proofs | content 1 info 1
+Construct proofs involving trigonometric functions and identities. | Students need to prove identities such as ≡ cos x cos 2x + sin x sin 2x cos x.
+
+## 5.9 | Trig in context | content 1 info 1
+Use trigonometric functions to solve problems in context, including problems involving vectors, kinematics and forces. need to learn: | Problems could involve (for example) wave motion, the height of a point on a vertical circular wheel, or the hours of sunlight throughout the year. Angles may be measured in degrees or in radians.
+
+## 6.1 | Exponential functions & e^x | content 2 info 2
+Know and use the function ax a and its graph, where is positive. | Know and use the function ex and its graph. | Understand the difference in shape a < 1 a > 1 between and y = eax + b + c | To include the graph of
+
+## 6.2 | Gradient of e^kx | content 1 info 2
+Know that the gradient of ekx kekx is equal to and hence understand why the exponential model is suitable in many applications. | Realise that when the rate of change is proportional to the y value, an exponential model should be used. | ≠
+
+## 6.3 | Logarithms & ln x | content 4 info 2
+Know and use the definition of loga x as the ax a inverse of , where is positive and x 0. |  | Know and use the function ln x and its graph. ln x | Know and use as the ex inverse function of | a 1 | Solution of equations of the form eax + b = p ln (ax + b) = q and is expected.
+
+## 6.4 | Laws of logarithms | content 6 info 1
+Understand and use the laws of logarithms: loga x + loga y = loga (xy) |  x |   loga x - loga y = loga  |  y k loga x = loga xk | (including, for example, 1 k = -1 and k = – ) | 2 | Includes log a = 1 a
+
+## 6.5 | Solving a^x = b | content 2 info 2
+Solve equations of the form ax=b | Use logarithmic graphs to | Students may use the change of base formula. Questions may be of the 23x – 1 = 3 form, e.g. | Plot log y against log x and obtain a
+
+## 6.6 | Logarithmic graphs & estimation | content 1 info 2
+estimate parameters in relationships of the form y = axn y = kbx and , given data for x and y need to learn: | straight line where the intercept is log a and the gradient is n y x | Plot log against and obtain a straight line where the intercept is log k and the gradient is log b
+
+## 6.7 | Exponential growth & decay | content 2 info 4
+Understand and use exponential growth and decay; use in modelling | (examples may include the use of e in continuous compound interest, radioactive decay, drug concentration decay, exponential growth as a model for population growth); consideration of limitations and refinements of exponential models. | Students may be asked to find the constants used in a model. | They need to be familiar with terms such as initial, meaning when t = 0. | They may need to explore the behaviour for large values of t or to consider whether the range of values predicted is appropriate. | Consideration of an impro
+
+## 7.1 | Derivative as gradient; first principles | content 2 info 9
+Understand and use the f( x) derivative of as the gradient of the tangent to the graph of y = f( x) at a general point (x, y); the gradient of the tangent as a limit; interpretation as a rate of change sketching the gradient function for a given curve second derivatives differentiation from first principles for small positive integer powers of x and for sin x and cos x need to learn: | Understand and use the second derivative as the rate of change of gradient; connection to convex and concave sections of curves and points of inflection. n | dy | Know that is the rate of change of dx y with res
+
+## 7.2 | Differentiating x^n, e^kx, trig, ln x | content 4 info 5
+x | Differentiate , for n, rational values of and related constant multiples, sums and differences. ekx akx | Differentiate and , sin kx, cos kx, tan kx and related sums, differences and constant multiples. | Understand and use the derivative of ln x | For example, the ability to differentiate expressions such as x2 +3x-5 | (2x + 5)(x – 1) and , x > 0, 1 | 4x2 is expected. | Knowledge and use of the result d | (akx)= kakx ln a is expected. dx
+
+## 7.3 | Tangents, normals, maxima & minima | content 2 info 3
+Apply differentiation to find gradients, tangents and normals maxima and minima and stationary points. points of inflection | Identify where functions are increasing or decreasing. need to learn: | Use of differentiation to find equations of tangents and normals at specific points on a curve. | To include applications to curve sketching. Maxima and minima problems may be set in the context of a practical problem. | To include applications to curve sketching.
+
+## 7.4 | Product, quotient & chain rules | content 1 info 9
+Differentiate using the product rule, the quotient rule and the chain rule, including problems involving connected rates of change and inverse functions. | Differentiation of cosec x, cot x and sec x. | Differentiation of functions of the form x = sin y, x = 3 tan 2y and the use of dy 1 | = dx dx |   | dy | Use of connected rates of change in dV dV dr | = × models, e.g. dt dr dt | Skill will be expected in the differentiation of functions generated from standard forms using products, quotients and composition, e3x | 2x4 sin x, , cos2 x and tan2 2x. such as x
+
+## 7.5 | Implicit & parametric differentiation | content 1 info 1
+Differentiate simple functions and relations defined implicitly or parametrically, for first derivative only. | The finding of equations of tangents and normals to curves given parametrically or implicitly is required.
+
+## 7.6 | Constructing differential equations | content 1 info 3
+Construct simple differential equations in pure mathematics and in context, (contexts may include kinematics, population growth and modelling the relationship between price and demand). | Set up a differential equation using given information. | For example: | In a simple model, the rate of decrease of the radius of the mint is inversely proportional to the square of the radius.
+
+## 8.1 | Fundamental Theorem of Calculus | content 1 info 1
+Know and use the Fundamental Theorem of Calculus xn | Integration as the reverse process of differentiation. Students should know that for indefinite integrals a constant of integration is required.
+
+## 8.2 | Integrating standard functions | content 2 info 10
+Integrate (excluding n = -1) and related sums, differences and constant multiples. | 1 ekx, Integrate , sin kx , x cos kx and related sums, differences and constant need to learn: | For example, the ability to integrate | 1 | 1 2 - x -3x 2 expressions such as and 2 | (x+2)2 is expected. | 1 x2 f ′(x) | Given and a point on the curve, students should be able to find an equation of the curve in the form y = f (x). | To include integration of standard functions | 1 such as sin 3x, sec2 2x, tan x, e5x, . | 2x | Students are expected to be able to use
+
+## 8.3 | Definite integrals & areas | content 1 info 3
+Evaluate definite integrals; use a definite integral to find the area under a curve and the area between two curves | Students will be expected to be able to evaluate the area of a region bounded by a curve and given straight lines, or between two curves. This includes curves defined parametrically. | For example, find the finite area bounded by the curve y = 6x – x2 and y = 2x the line | Or find the finite area bounded by the y = x2 – 5x + 6 curve and the curve x2. y = 4 –
+
+## 8.4 | Integration as limit of a sum | content 1 info 2
+Understand and use integration as the limit of a sum. | b b ∑ | Recognise ∫ f (x)dx= lim f(x)δx a δx→0 x=a
+
+## 8.5 | Substitution & by parts | content 2 info 6
+Carry out simple cases of integration by substitution and integration by parts; understand these methods as the inverse processes of the chain and product rules respectively | (Integration by substitution includes finding a suitable substitution and is limited to cases where one substitution will lead to a function which can be integrated; integration by parts includes more than one application of the method but excludes reduction formulae.) | Students should recognise integrals of the f′(x) | ⌠ |  ln f(x) + c. form dx= |  | ⌡ f(x) | The integral ∫lnxdx is required
+
+## 8.6 | Integration with partial fractions | content 1 info 4
+Integrate using partial fractions that are linear in the denominator. need to learn: | Integration of rational expressions such as those arising from partial fractions, 2 | e.g. | 3x+5 | Note that the integration of other rational x 2 expressions, such as and (2x-1)4 x2 +5 is also required (see previous paragraph).
+
+## 8.7 | Separable differential equations | content 2 info 1
+Evaluate the analytical solution of simple first order differential equations with separable variables, including finding particular solutions | (Separation of variables may require factorisation involving a common factor.) | Students may be asked to sketch members of the family of solution curves.
+
+## 8.8 | Interpreting DE solutions | content 1 info 1
+Interpret the solution of a differential equation in the context of solving a problem, including identifying limitations of the solution; includes links to kinematics. | The validity of the solution for large values should be considered.
+
+## 9.1 | Change of sign root location | content 2 info 4
+Locate roots of f( x) = 0 by considering changes of sign of f( x) in an interval of x on which f(x) is sufficiently well behaved. | Understand how change of sign methods can fail. | Students should know that sign change is appropriate for continuous functions in a small interval. | When the interval is too large sign may not change as there may be an even number of roots. | If the function is not continuous, sign may change but there may be an asymptote | (not a root).
+
+## 9.2 | Iterative methods; cobweb/staircase | content 1 info 2
+Solve equations approximately using simple iterative methods; be able to draw associated cobweb and staircase diagrams. | Understand that many mathematical problems cannot be solved analytically, but numerical methods permit solution to a required level of accuracy. x f (x ) | Use an iteration of the form n + 1 = n to find a root of the equation x = f (x) and show understanding of the convergence in geometrical terms by drawing cobweb and staircase diagrams.
+
+## 9.3 | Newton-Raphson | content 2 info 1
+Solve equations using the Newton-Raphson method and other recurrence relations of the form x = g(x ) n+1 n | Understand how such methods can fail. need to learn: | For the Newton-Raphson method, students should understand its working in geometrical terms, so that they understand its failure near to points where the gradient is small.
+
+## 9.4 | Trapezium rule | content 1 info 6
+Understand and use numerical integration of functions, including the use of the trapezium rule and estimating the approximate area under a curve and limits that it must lie between. | ⌠ 1 |  (2x+1) dx | For example, evaluate |  | ⌡0 | (2x+1) using the values of at x = 0, 0.25, 0.5, 0.75 1 and and use a sketch on a given graph to determine whether the trapezium rule gives an over-estimate or an under-estimate.
+
+## 9.5 | Numerical methods in context | content 1 info 1
+Use numerical methods to solve problems in context. | Iterations may be suggested for the solution of equations not soluble by analytic means.
+
+## 10.1 | Vectors in 2D & 3D | content 1 info 1
+Use vectors in two dimensions and in three dimensions | Students should be familiar with column vectors and with the use of i and j unit vectors in two dimensions i, j k and and unit vectors in three dimensions.
+
+## 10.2 | Magnitude & direction | content 1 info 1
+Calculate the magnitude and direction of a vector and convert between component form and magnitude/direction form. | Students should be able to find a unit vector in the direction of a, and be familiar with the notationa.
+
+## 10.3 | Vector addition & scalars | content 1 info 3
+Add vectors diagrammatically and perform the algebraic operations of vector addition and multiplication by scalars, and understand their geometrical interpretations. | The triangle and parallelogram laws of addition. | Parallel vectors. |   
+
+## 10.4 | Position vectors & distance | content 1 info 7
+Understand and use position vectors; calculate the distance between two points represented by position vectors. need to learn: | OB-OA= AB = b-a d | The distance between two points | (x , y ) and (x , y ) is given by 1 1 2 2 d 2 = (x – x )2 + (y – y )2 | 1 2 1 2 | In three dimensions, the distance d between two points (x , y , z ) and 1 1 1 | (x , y , z ) is given by 2 2 2 d 2 = (x – x )2 + (y – y )2 + (z – z )2 | 1 2 1 2 1 2
+
+## 10.5 | Vector problems | content 1 info 4
+Use vectors to solve problems in pure mathematics and in context (including forces). | For example, finding position vector of the fourth corner of a shape | (e.g. parallelogram) ABCD with three given position vectors for the corners | A, B C. and Contexts such as velocity, displacement, kinematics and forces will be covered in Paper 3, Sections | 6.1, 7.3 and 8.1 – 8.4
+
+## S1.1 | Understand and use the terms ‘population’ and ‘sample’. | content 4 info 2
+Understand and use the terms ‘population’ and ‘sample’. | Use samples to make informal inferences about the population. | Understand and use sampling techniques, including simple random sampling and opportunity sampling. | Select or critique sampling techniques in the context of solving a statistical problem, including understanding that different samples can lead to different conclusions about the population. | Students will be expected to comment on the advantages and disadvantages associated with a census and a sample. | Students will be expected to be familiar with: simple random sampling,
+
+## S2.1 | Interpret diagrams for single-variable data, including understanding that area i… | content 2 info 1
+Interpret diagrams for single-variable data, including understanding that area in a histogram represents frequency. | Connect to probability distributions. students need to learn: | Students should be familiar with histograms, frequency polygons, box and whisker plots (including outliers) and cumulative frequency diagrams.
+
+## S2.2 | Interpret scatter diagrams and regression lines for bivariate data, including re… | content 4 info 4
+Interpret scatter diagrams and regression lines for bivariate data, including recognition of scatter diagrams which include distinct sections of the population | (calculations involving regression lines are excluded). | Understand informal interpretation of correlation. | Understand that correlation does not imply causation. | Students should be familiar with the terms explanatory (independent) and response (dependent) variables. | Use of interpolation and the dangers of extrapolation. Variables other than x and y may be used. | Use to make predictions within the range of values of the explana
+
+## S2.3 | Interpret measures of central tendency and variation, extending to standard devi… | content 2 info 11
+Interpret measures of central tendency and variation, extending to standard deviation. | Be able to calculate standard deviation, including from summary statistics. students need to learn: | Data may be discrete, continuous, grouped or ungrouped. Understanding and use of coding. | Measures of central tendency: mean, median, mode. | Measures of variation: variance, standard deviation, range and interpercentile ranges. | Use of linear interpolation to calculate percentiles from grouped data is expected. | Students should be able to use the statistic x | ( ∑ x)2 | ∑ (x- 2 ∑ x2 - | S = x) = xx n |
+
+## S2.4 | Recognise and interpret possible outliers in data sets and statistical diagrams. | content 3 info 6
+Recognise and interpret possible outliers in data sets and statistical diagrams. | Select or critique data presentation techniques in the context of a statistical problem. | Be able to clean data, including dealing with missing data, errors and outliers. | Any rule needed to identify outliers will be specified in the question. | For example, use of Q – 1.5 × IQR and 1 | Q + 1.5 × IQR ± 3 × | 3 or mean standard deviation. | Students will be expected to draw simple inferences and give interpretations to measures of central tendency and variation. Significance tests, other than those mentioned in
+
+## S3.1 | Understand and use mutually exclusive and independent events when calculating pr… | content 2 info 3
+Understand and use mutually exclusive and independent events when calculating probabilities. | Link to discrete and continuous distributions. | Venn diagrams or tree diagrams may be used. Set notation to describe events may be used. | Use of P(B|A) = P(B), P(A|B) = P(A), P(A ∩ B) = P(A) P(B) in connection with independent events. | No formal knowledge of probability density functions is required but students should understand that area under the curve represents probability in the case of a continuous distribution.
+
+## S3.2 | Understand and use conditional probability, including the use of tree diagrams, … | content 4 info 2
+Understand and use conditional probability, including the use of tree diagrams, Venn diagrams, two-way tables. | Understand and use the conditional probability formula P(A∩B) | P(A|B) = | P(B) students need to learn: | Understanding and use of P(A′) = 1 - P(A), P(A ∪ B) = P(A) + P(B) - P(A ∩ B), ∩ | P(A B) = P(A) P(B|A).
+
+## S3.3 | Modelling with probability, including critiquing assumptions made and the likely… | content 2 info 2
+Modelling with probability, including critiquing assumptions made and the likely effect of more realistic assumptions. | Understand and use | For example, questioning the assumption that a die or coin is fair. | Students will be expected to use
+
+## S4.1 | simple, discrete probability distributions | content 2 info 5
+simple, discrete probability distributions | (calculation of mean and variance of discrete random variables is excluded), including the binomial distribution, as a model; calculate probabilities using the binomial distribution. | distributions to model a real-world situation and to comment critically on the appropriateness. | Students should know and be able to identify the discrete uniform distribution. | ∼ | The notation X B(n, p) may be used. | Use of a calculator to find individual or cumulative binomial probabilities.
+
+## S4.2 | Understand and use the Normal distribution as a model; find probabilities using … | content 2 info 10
+Understand and use the Normal distribution as a model; find probabilities using the Normal distribution | Link to histograms, mean, standard deviation, points of inflection and the binomial distribution. students need to learn: | The notation X ∼ N(µ, σ 2) may be used. | Knowledge of the shape and the symmetry of the distribution is required. | Knowledge of the probability density function is not required. Derivation of the mean, variance and cumulative distribution function is not required. | Questions may involve the solution of simultaneous equations. | Students will be expected to use thei
+
+## S4.3 | Select an appropriate probability distribution for a context, with appropriate r… | content 1 info 1
+Select an appropriate probability distribution for a context, with appropriate reasoning, including recognising when the binomial or Normal model may not be appropriate. | Students should know under what conditions a binomial distribution or a Normal distribution might be a suitable model.
+
+## S5.1 | Understand and apply the language of statistical hypothesis testing, developed t… | content 1 info 6
+Understand and apply the language of statistical hypothesis testing, developed through a binomial model: null hypothesis, alternative hypothesis, significance level, test statistic, 1-tail test, 2-tail test, critical value, critical region, acceptance region, p-value; extend to correlation coefficients as measures of how close data points lie to a straight line. and be able to interpret a given correlation coefficient using a given p-value or critical value (calculation of correlation coefficients is excluded). students need to learn: | An informal appreciation that the expected value of a bin
+
+## S5.2 | Conduct a statistical hypothesis test for the proportion in the binomial distrib… | content 2 info 2
+Conduct a statistical hypothesis test for the proportion in the binomial distribution and interpret the results in context. | Understand that a sample is being used to make an inference about the population and appreciate that the significance level is the probability of incorrectly rejecting the null hypothesis. | Hypotheses should be expressed in terms of the population parameter p | A formal understanding of Type I errors is not expected.
+
+## S5.3 | Conduct a statistical hypothesis test for the mean of a Normal distribution with… | content 1 info 9
+Conduct a statistical hypothesis test for the mean of a Normal distribution with known, given or assumed variance and interpret the results in context. | Students should know that: |  σ2  | N(µ, σ 2)  µ,  | If X ∼ then X ∼ N and   |  n  µ that a test for can be carried out using: | X -µ | ∼ N(0, 12). σ/ n | No proofs required. | Hypotheses should be stated in terms of µ. the population mean Knowledge of the Central Limit Theorem or other large sample approximations is not required.
+
+## M6.1 | Understand and use fundamental quantities and units in the S.I. system: length, … | content 2 info 1
+Understand and use fundamental quantities and units in the S.I. system: length, time, mass. | Understand and use derived quantities and units: velocity, acceleration, force, weight, moment. students need to learn: | Students may be required to convert one unit into another e.g. km h-1 into m s-1
+
+## M7.1 | Understand and use the language of kinematics: position; displacement; distance … | content 1 info 1
+Understand and use the language of kinematics: position; displacement; distance travelled; velocity; speed; acceleration. | Students should know that distance and speed must be positive.
+
+## M7.2 | Understand, use and interpret graphs in kinematics for motion in a straight line… | content 1 info 1
+Understand, use and interpret graphs in kinematics for motion in a straight line: displacement against time and interpretation of gradient; velocity against time and interpretation of gradient and area under the graph. | Graphical solutions to problems may be required.
+
+## M7.3 | Understand, use and derive the formulae for constant acceleration for motion in … | content 2 info 5
+Understand, use and derive the formulae for constant acceleration for motion in a straight line. | Extend to 2 dimensions using vectors. | Derivation may use knowledge of sections 7.2 and/or 7.4 | Understand and use suvat formulae for constant acceleration in 2-D, v = u + at r = ut +1at2 | e.g. , with vectors | 2 given in i - j or column vector form. | Use vectors to solve problems.
+
+## M7.4 | Use calculus in kinematics for motion in a straight line: d2r dr dv v = , a = = … | content 5 info 4
+Use calculus in kinematics for motion in a straight line: d2r dr dv v = , a = = dt dt dt2 | ⌠ ⌠ r = v dt, v = a dt |   | ⌡ ⌡ | Extend to 2 dimensions using vectors. | The level of calculus required will be consistent with that in Sections 7 and 8 in the Pure Mathematics content. | Differentiation and integration of a vector with respect to time. e.g. | 3 r =t2i+t2j, find r and r | Given at a given time.
+
+## M7.5 | Model motion under gravity in a vertical plane using vectors; projectiles. stude… | content 1 info 1
+Model motion under gravity in a vertical plane using vectors; projectiles. students need to learn: | Derivation of formulae for time of flight, range and greatest height and the derivation of the equation of the path of a
+
+## M8.1 | Understand the concept of a force; understand and use Newton’s first law. | content 1 info 1
+Understand the concept of a force; understand and use Newton’s first law. | Normal reaction, tension, thrust or compression, resistance.
+
+## M8.2 | Understand and use Newton’s second law for motion in a straight line | content 2 info 3
+Understand and use Newton’s second law for motion in a straight line | (restricted to forces in two perpendicular directions or simple cases of forces given as 2-D vectors); extend to situations where forces need to be resolved (restricted to 2 dimensions). | Problems will involve motion in a straight line with constant acceleration in scalar form, where the forces act either parallel or perpendicular to the motion. | Problems may involve motion in a straight line with constant acceleration in vector form, where the i - j forces are given in form or as column vectors. | Extend to problems wher
+
+## M8.3 | Understand and use weight and motion in a straight line under gravity; gravitati… | content 2 info 2
+Understand and use weight and motion in a straight line under gravity; gravitational acceleration, g, and its value in S.I. units to varying degrees of accuracy. | (The inverse square law for gravitation is not required and g may be assumed to be constant, but students should be g aware that is not a universal constant but depends on location.) students need to learn: | g | The default value of will be 9.8 m s-2 but some questions may specify another value, e.g. g = 10 m s-2
+
+## M8.4 | Understand and use Newton’s third law; equilibrium of forces on a particle and m… | content 1 info 2
+Understand and use Newton’s third law; equilibrium of forces on a particle and motion in a straight line (restricted to forces in two perpendicular directions or simple cases of forces given as 2-D vectors); application to problems involving smooth pulleys and connected particles; resolving forces in 2 dimensions; equilibrium of a particle under coplanar forces. | Connected particle problems could include problems with particles in contact e.g. lift problems. | Problems may be set where forces need to be resolved, e.g. at least one of the particles is moving on an inclined plane.
+
+## M8.5 | Understand and use addition of forces; resultant forces; dynamics for motion in … | content 1 info 1
+Understand and use addition of forces; resultant forces; dynamics for motion in a plane. | Students may be required to resolve a vector into two components or use a vector diagram, e.g. problems involving two or more forces, given in magnitude- direction form.
+
+## M8.6 | Understand and use the F ≤ µRmodel for friction; coefficient of friction; motion… | content 1 info 3
+Understand and use the F ≤ µRmodel for friction; coefficient of friction; motion of a body on a rough surface; limiting friction and statics. | An understanding of F = µR when a particle is moving. | ≤ µR | An understanding of F in a situation of equilibrium.
+
+## M9.1 | Understand and use moments in simple static contexts. | content 1 info 2
+Understand and use moments in simple static contexts. | Equilibrium of rigid bodies. | Problems involving parallel and non- parallel coplanar forces, e.g. ladder problems.

@@ -1,0 +1,481 @@
+compsci:4.1.1.1
+  - quiz answers skewed 7/2/1/1
+compsci:4.1.1.10
+  - duplicate exam items 2025-1-4-1#0/5, 2024-1-1-#3/4
+  - quiz answers skewed 4/6/0/0
+  - near-duplicate flashcards #0/#10
+compsci:4.1.1.11
+  - duplicate exam items 2025-1-4-3#0/1
+compsci:4.1.1.14
+  - thin notes 864w
+  - quiz answers skewed 4/6/0/0
+compsci:4.1.1.15
+  - duplicate exam items 2021-1-2-6#1/2
+compsci:4.1.1.16
+  - duplicate exam items 2022-1-4-5#4/12, 2025-2-11-3#8/11
+  - quiz answers skewed 7/4/0/0
+compsci:4.1.1.2
+  - duplicate exam items 2016-1-5-3#4/8, 2025-1-2-#5/7
+compsci:4.1.1.6
+  - no figure
+compsci:4.1.1.7
+  - duplicate exam items 2025-1-3-1#1/2
+compsci:4.1.1.8
+  - no figure
+  - duplicate exam items 2022-1-3-1#0/2
+  - quiz answers skewed 6/3/1/0
+compsci:4.1.2.1
+  - quiz answers skewed 6/3/1/0
+  - near-duplicate flashcards #0/#6
+compsci:4.1.2.3
+  - near-duplicate flashcards #4/#16
+compsci:4.10.1
+  - duplicate exam items 2019-2-6-1#2/6, 2025-2-6-2#4/8, 2017-2-10-7#5/7
+  - near-duplicate flashcards #1/#10
+compsci:4.10.2
+  - duplicate exam items 2021-2-5-1#2/6, 2025-2-6-1#4/8, 2023-2-5-3#5/7
+  - near-duplicate flashcards #1/#5
+compsci:4.10.3
+  - duplicate exam items 2021-2-5-2#2/10, 2022-2-7-5#4/11, 2024-2-8-5#5/9, 2023-2-5-1#7/8
+compsci:4.10.4
+  - duplicate exam items 2021-2-5-3#0/20, 2018-2-7-2#2/18, 2019-2-6-3#8/19
+compsci:4.10.5
+  - duplicate exam items 2019-2-6-4#0/4, 2024-2-8-4#2/5, 2025-2-6-5#3/6
+  - near-duplicate flashcards #0/#10
+  - near-duplicate flashcards #3/#11
+compsci:4.11.1
+  - duplicate exam items 2018-2-14-1#0/8, 2021-2-9-#6/9
+compsci:4.12.1.1
+  - duplicate exam items 2019-2-7-1#0/6, 2024-2-11-1#2/4, 2025-2-11-2#3/5
+compsci:4.12.1.2
+  - few exam items 3
+  - no figure
+  - duplicate exam items 2025-2-11-1#0/1
+  - quiz answers skewed 4/6/0/0
+compsci:4.12.1.3
+  - no figure
+compsci:4.12.1.4
+  - duplicate exam items 2019-2-7-3#0/2, 2025-2-11-4#1/3
+compsci:4.12.1.5
+  - quiz answers skewed 4/6/0/0
+  - near-duplicate flashcards #8/#9
+compsci:4.12.3.1
+  - duplicate exam items 2017-2-6-1#0/7
+compsci:4.13.1.1
+  - few exam items 3
+  - duplicate exam items 2020-1-1-#0/1
+  - quiz answers skewed 4/6/0/0
+compsci:4.13.1.2
+  - few exam items 3
+  - quiz answers skewed 4/6/0/0
+compsci:4.13.1.4
+  - duplicate exam items 2016-1-3-#0/4
+compsci:4.13.1.5
+  - thin notes 798w
+  - few exam items 2
+  - quiz answers skewed 4/6/0/0
+compsci:4.2.1.1
+  - duplicate exam items 2017-1-5-5#1/4
+  - quiz answers skewed 4/6/0/0
+compsci:4.2.1.2
+  - duplicate exam items 2016-1-4-1#0/4, 2018-2-9-2#2/3
+compsci:4.2.2.1
+  - duplicate exam items 2020-1-4-3#1/10, 2023-1-1-#3/7, 2024-1-2-1#4/9, 2024-1-2-2#5/8, 2022-1-2-5#6/11
+  - near-duplicate flashcards #2/#3
+compsci:4.2.3.1
+  - duplicate exam items 2017-1-6-1#0/7, 2021-1-5-2#3/8, 2022-1-2-3#4/9
+compsci:4.2.4.1
+  - duplicate exam items 2018-1-3-2#1/11, 2019-1-3-5#3/10, 2019-1-3-6#4/13, 2025-1-3-3#6/9
+  - near-duplicate flashcards #1/#8
+  - near-duplicate flashcards #2/#9
+compsci:4.2.5.1
+  - duplicate exam items 2023-1-3-1#1/7, 2024-1-6-3#6/9
+  - near-duplicate flashcards #2/#14
+compsci:4.2.6.1
+  - duplicate exam items 2021-1-4-#0/8, 2025-1-1-1#1/6, 2025-1-1-2#2/5, 2025-1-1-3#3/7
+compsci:4.2.7.1
+  - thin notes 776w
+  - few exam items 3
+  - quiz answers skewed 4/6/0/0
+compsci:4.2.8.1
+  - quiz answers skewed 7/4/0/0
+  - near-duplicate flashcards #13/#14
+compsci:4.3.1.1
+  - quiz answers skewed 4/6/0/0
+compsci:4.3.2.1
+  - duplicate exam items 2021-1-2-2#0/3, 2024-1-6-2#1/4
+  - quiz answers skewed 6/1/3/0
+compsci:4.3.3.1
+  - duplicate exam items 2021-1-5-1#3/8
+  - near-duplicate flashcards #0/#2
+  - near-duplicate flashcards #1/#3
+  - near-duplicate flashcards #2/#3
+compsci:4.3.4.1
+  - duplicate exam items 2025-1-1-4#1/3, 2025-1-1-6#2/4
+compsci:4.3.4.2
+  - duplicate exam items 2020-1-3-7#1/5, 2025-1-1-5#4/6
+  - quiz answers skewed 4/6/0/0
+compsci:4.3.4.3
+  - thin notes 779w
+  - quiz answers skewed 4/6/0/0
+compsci:4.3.5.1
+  - duplicate exam items 2021-1-1-#0/8, 2019-1-1-1#1/9, 2025-1-1-8#4/10
+compsci:4.3.5.2
+  - duplicate exam items 2022-1-1-#1/3
+  - near-duplicate flashcards #0/#7
+compsci:4.3.6.1
+  - duplicate exam items 2018-1-3-5#0/6, 2022-1-4-1#3/7, 2017-1-5-4#5/8
+compsci:4.4.1.1
+  - no figure
+  - duplicate exam items 2018-1-1-1#2/6
+compsci:4.4.1.2
+  - no figure
+  - duplicate exam items 2023-1-4-#0/9, 2018-1-2-1#1/8
+  - quiz answers skewed 6/4/0/0
+compsci:4.4.1.3
+  - quiz answers skewed 11/1/0/0
+compsci:4.4.1.9
+  - quiz answers skewed 7/1/2/0
+compsci:4.4.2.1
+  - duplicate exam items 2022-1-2-#2/5, 2021-1-6-1#4/7
+  - quiz answers skewed 6/3/1/0
+  - near-duplicate flashcards #4/#9
+compsci:4.4.2.2
+  - duplicate exam items 2023-1-4-3#0/5
+compsci:4.4.2.3
+  - no figure
+  - duplicate exam items 2017-1-2-4#3/10, 2021-1-6-2#4/11, 2024-1-4-6#7/12
+  - quiz answers skewed 7/3/0/1
+  - near-duplicate flashcards #0/#2
+compsci:4.4.2.4
+  - thin notes 837w
+  - few exam items 3
+  - duplicate exam items 2020-1-2-1#0/2
+compsci:4.4.3.1
+  - duplicate exam items 2017-1-1-2#1/7
+compsci:4.4.4.1
+  - few exam items 2
+  - no figure
+compsci:4.4.4.3
+  - no figure
+compsci:4.4.4.4
+  - quiz 8<10
+compsci:4.4.4.6
+  - quiz 7<10
+  - quiz answers skewed 5/2/0/0
+compsci:4.5.2.1
+  - duplicate exam items 2022-2-1-1#4/12, 2018-2-2-2#7/13
+  - quiz answers skewed 9/2/0/0
+compsci:4.5.3.1
+  - quiz 8<10
+  - quiz answers skewed 5/3/0/0
+  - near-duplicate flashcards #1/#14
+compsci:4.5.4.1
+  - quiz 8<10
+  - quiz answers skewed 5/3/0/0
+compsci:4.5.4.3
+  - duplicate exam items 2025-2-2-5#3/11, 2023-2-3-4#7/12, 2018-2-2-3#9/14
+  - near-duplicate flashcards #6/#9
+compsci:4.5.4.4
+  - duplicate exam items 2020-2-2-2#4/11/21
+  - quiz answers skewed 7/4/0/0
+compsci:4.5.4.5
+  - quiz answers skewed 7/4/0/0
+compsci:4.5.4.7
+  - duplicate exam items 2019-2-11-1#4/6, 2023-2-6-4#5/7
+compsci:4.5.4.8
+  - duplicate exam items 2022-2-5-2#0/10
+compsci:4.5.5.1
+  - quiz 8<10
+  - quiz answers skewed 6/2/0/0
+compsci:4.5.5.3
+  - duplicate exam items 2022-2-4-3#2/16, 2020-2-1-4#11/20, 2023-2-2-2#12/19, 2017-2-2-6#13/17
+compsci:4.5.6.1
+  - quiz answers skewed 9/2/0/1
+compsci:4.5.6.10
+  - duplicate exam items 2022-2-4-5#8/19, 2018-2-4-2#12/22, 2020-2-9-4#17/21
+compsci:4.5.6.4
+  - quiz answers skewed 8/2/0/0
+compsci:4.5.6.7
+  - duplicate exam items 2022-2-10-1#8/20, 2025-2-2-1#9/22, 2017-2-8-2#12/23, 2018-2-11-3#17/21
+compsci:4.5.6.8
+  - duplicate exam items 2024-2-3-6#0/5, 2025-2-2-4#3/7, 2022-2-10-2#4/6
+  - quiz answers skewed 4/6/0/0
+compsci:4.5.6.9
+  - duplicate exam items 2023-2-5-4#2/16, 2024-2-2-4#7/15
+compsci:4.6.1.1
+  - duplicate exam items 2025-2-6-1#3/5, 2020-2-3-7#4/6
+  - near-duplicate flashcards #1/#8
+compsci:4.6.1.2
+  - duplicate exam items 2019-2-5-4#2/12, 2025-2-1-1#7/11, 2025-2-6-2#8/9
+  - near-duplicate flashcards #0/#9
+compsci:4.6.1.3
+  - duplicate exam items 2022-2-6-2#0/5, 2023-2-6-1#1/4
+compsci:4.6.1.4
+  - duplicate exam items 2024-2-5-2#3/9, 2019-2-1-2#4/8, 2022-2-4-3#5/7
+compsci:4.6.2.1
+  - duplicate exam items 2024-2-10-4#3/15, 2017-2-4-2#5/14, 2024-2-10-3#7/13, 2025-2-1-3#10/12, 2023-2-6-2#11/16
+  - near-duplicate flashcards #0/#8
+compsci:4.6.3.1
+  - duplicate exam items 2017-2-4-1#1/10, 2025-2-6-5#7/12, 2019-2-5-#9/13
+compsci:4.6.4.1
+  - duplicate exam items 2024-2-6-2#10/27, 2019-2-6-2#12/32, 2020-2-5-2#15/31, 2017-2-4-4#25/30
+compsci:4.6.5.1
+  - duplicate exam items 2018-2-10-#16/23, 2025-2-13-#22/25
+  - quiz answers skewed 9/3/1/0
+  - near-duplicate flashcards #1/#2
+  - near-duplicate flashcards #11/#12
+  - near-duplicate flashcards #11/#16
+  - near-duplicate flashcards #11/#17
+  - near-duplicate flashcards #12/#17
+compsci:4.7.1.1
+  - duplicate exam items 2022-2-8-5#2/17, 2019-2-7-#5/16
+compsci:4.7.2.1
+  - no figure
+  - duplicate exam items 2025-2-7-1#3/7, 2022-2-8-2#6/8
+compsci:4.7.3.1
+  - duplicate exam items 2020-2-6-1#0/9, 2023-2-8-1#3/8, 2025-2-7-2#4/5
+  - near-duplicate flashcards #2/#10
+  - near-duplicate flashcards #3/#11
+compsci:4.7.3.2
+  - duplicate exam items 2022-2-8-1#0/14, 2025-2-9-2#4/12, 2017-2-1-1#5/11, 2020-2-6-5#8/10
+compsci:4.7.3.3
+  - duplicate exam items 2023-2-8-3#0/8
+compsci:4.7.3.4
+  - duplicate exam items 2017-2-7-3#1/8, 2022-2-9-1#3/5/11, 2025-2-7-4#7/10
+compsci:4.7.3.5
+  - no figure
+  - duplicate exam items 2016-2-4-2#2/26, 2019-2-10-1#7/14, 2022-2-9-2#9/19/24, 2023-2-9-#10/22, 2025-2-10-2#12/27, 2020-2-9-3#15/25, 2024-2-10-1#21/23
+compsci:4.7.3.6
+  - duplicate exam items 2020-2-3-5#0/3
+  - near-duplicate flashcards #5/#9
+compsci:4.7.3.7
+  - duplicate exam items 2016-2-5-6#0/6, 2018-2-6-3#1/8, 2024-2-7-4#2/9, 2021-2-14-3#3/7
+compsci:4.7.4.1
+  - duplicate exam items 2025-2-11-1#4/12, 2021-2-7-2#5/11
+  - near-duplicate flashcards #0/#9
+compsci:4.7.4.2
+  - duplicate exam items 2019-2-8-1#4/16, 2024-2-5-2#8/15
+  - near-duplicate flashcards #3/#13
+compsci:4.8.1
+  - duplicate exam items 2020-2-8-1#3/15, 2022-2-11-#4/13, 2024-2-9-#9/14, 2025-2-4-#11/12
+compsci:4.9.1.1
+  - duplicate exam items 2020-2-10-4#1/10, 2019-2-9-1#8/13
+  - quiz answers skewed 4/6/0/0
+  - near-duplicate flashcards #1/#7
+compsci:4.9.1.2
+  - duplicate exam items 2017-2-8-2#0/12, 2024-2-11-1#5/10
+  - near-duplicate flashcards #1/#8
+  - near-duplicate flashcards #2/#9
+compsci:4.9.2.1
+  - duplicate exam items 2020-2-10-1#2/8, 2025-2-13-3#3/7
+  - quiz answers skewed 4/6/0/0
+  - near-duplicate flashcards #1/#7
+  - near-duplicate flashcards #2/#8
+compsci:4.9.2.2
+  - duplicate exam items 2023-2-13-2#0/10, 2025-2-5-#6/9
+  - quiz answers skewed 4/6/0/0
+compsci:4.9.2.3
+  - duplicate exam items 2017-2-8-4#5/14, 2018-2-13-1#9/15, 2021-2-11-5#10/12
+  - quiz answers skewed 4/7/0/0
+compsci:4.9.3.1
+  - duplicate exam items 2023-2-11-2#2/11, 2022-2-8-3#6/8
+compsci:4.9.3.2
+  - duplicate exam items 2020-2-5-3#0/4, 2023-2-11-5#2/5, 2024-2-1-#3/6
+compsci:4.9.4.1
+  - duplicate exam items 2019-2-2-2#0/5, 2019-2-2-3#1/6, 2023-2-11-1#2/4
+compsci:4.9.4.10
+  - no figure
+  - duplicate exam items 2024-2-7-8#5/7
+compsci:4.9.4.11
+  - thin notes 881w
+  - no figure
+  - duplicate exam items 2021-2-2-#0/2, 2022-2-11-#1/3
+  - quiz answers skewed 4/6/0/0
+  - near-duplicate flashcards #2/#8
+  - near-duplicate flashcards #7/#10
+compsci:4.9.4.2
+  - duplicate exam items 2019-2-2-1#0/3
+compsci:4.9.4.3
+  - thin notes 765w
+  - few exam items 3
+  - duplicate exam items 2021-2-11-1#1/2
+compsci:4.9.4.4
+  - thin notes 864w
+  - no figure
+  - duplicate exam items 2021-2-11-2#2/4
+compsci:4.9.4.5
+  - no figure
+  - duplicate exam items 2021-2-11-3#0/3, 2024-2-7-7#1/4, 2025-2-8-#2/5
+compsci:4.9.4.6
+  - thin notes 584w
+  - few exam items 3
+  - duplicate exam items 2020-2-5-2#0/1
+  - near-duplicate flashcards #3/#9
+compsci:4.9.4.7
+  - thin notes 876w
+  - duplicate exam items 2018-2-5-3#0/3, 2020-2-5-1#1/5, 2024-2-7-5#2/4
+  - near-duplicate flashcards #3/#6
+compsci:4.9.4.8
+  - few exam items 3
+  - duplicate exam items 2024-2-7-6#0/1
+compsci:4.9.4.9
+  - thin notes 634w
+  - duplicate exam items 2018-2-5-4#0/3, 2024-2-7-4#1/2
+it:F201.1.1
+  - 0 worked, exam 3, quiz 6
+  - 3 bare paragraphs
+it:F201.1.2
+  - thin notes 643w
+  - 0 worked, exam 3, quiz 5
+  - 1 bare paragraphs
+it:F201.1.3
+  - thin notes 617w
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F201.1.4
+  - thin notes 693w
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F201.2.1
+  - thin notes 577w
+  - 0 worked, exam 3, quiz 5
+  - 4 bare paragraphs
+it:F201.2.2
+  - thin notes 493w
+  - 0 worked, exam 3, quiz 5
+  - 3 bare paragraphs
+it:F201.2.3
+  - thin notes 509w
+  - 0 worked, exam 3, quiz 5
+  - 5 bare paragraphs
+it:F201.2.4
+  - 0 worked, exam 3, quiz 6
+  - 7 bare paragraphs
+it:F201.2.5
+  - 0 worked, exam 3, quiz 5
+  - 5 bare paragraphs
+it:F201.2.6
+  - 0 worked, exam 3, quiz 6
+  - 3 bare paragraphs
+it:F201.3.1
+  - 0 worked, exam 3, quiz 6
+  - 3 bare paragraphs
+it:F201.4.1
+  - 0 worked, exam 3, quiz 5
+  - 2 bare paragraphs
+it:F201.4.2
+  - 0 worked, exam 3, quiz 5
+  - 4 bare paragraphs
+it:F201.5.1
+  - thin notes 517w
+  - 0 worked, exam 3, quiz 5
+  - 1 bare paragraphs
+it:F201.5.2
+  - thin notes 573w
+  - 0 worked, exam 3, quiz 5
+  - 2 bare paragraphs
+it:F204.1.1
+  - 0 worked, exam 3, quiz 6
+  - 2 bare paragraphs
+it:F204.1.2
+  - 0 worked, exam 3, quiz 6
+  - 3 bare paragraphs
+it:F204.2.1
+  - 0 worked, exam 3, quiz 6
+  - 3 bare paragraphs
+it:F204.2.2
+  - 0 worked, exam 3, quiz 6
+  - 3 bare paragraphs
+it:F204.2.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.2.4
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.3.1
+  - 0 worked, exam 3, quiz 5
+  - 1 bare paragraphs
+it:F204.3.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.3.3
+  - 0 worked, exam 3, quiz 6
+  - 5 bare paragraphs
+it:F204.4.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.4.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.4.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.5.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.5.2
+  - 0 worked, exam 3, quiz 6
+  - 2 bare paragraphs
+it:F204.5.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.6.1
+  - 0 worked, exam 3, quiz 5
+  - 1 bare paragraphs
+it:F204.6.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.6.3
+  - 0 worked, exam 3, quiz 5
+  - 1 bare paragraphs
+it:F204.6.4
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F204.6.5
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.1.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.1.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.1.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.2.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.2.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.2.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.3.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.3.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.3.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.4.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.4.2
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.4.3
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.5.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+it:F206.6.1
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs
+  - 0 worked, exam 3, quiz 6
+  - 1 bare paragraphs

@@ -1,0 +1,4 @@
+(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const acc={};const restore=[];let depth=0;
+for(const ns of ['ui','art','medview','media','governor','money','achievements','store','wishlist','imageCrop','hero','artslot','calendar','notify','sessions','search']){const o=KOS[ns];if(!o||typeof o!=='object')continue;for(const k of Object.keys(o)){const f=o[k];if(typeof f!=='function'||/^[A-Z]/.test(k))continue;o[k]=function(){depth++;const t=performance.now();try{return f.apply(this,arguments)}finally{depth--;const d=performance.now()-t;const key=ns+'.'+k;acc[key]=(acc[key]||0)+d}};Object.assign(o[k],f);restore.push(()=>o[k]=f)}}
+const res={};for(const v of ['wishlist','books']){KOS.show('help');await w(2000);for(const k in acc)delete acc[k];const t=performance.now();KOS.show(v);res[v]={total:Math.round(performance.now()-t),top:Object.entries(acc).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,d])=>k+':'+Math.round(d))}}
+restore.forEach(f=>f());return res})()

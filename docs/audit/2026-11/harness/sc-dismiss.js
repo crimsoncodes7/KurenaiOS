@@ -1,0 +1,1 @@
+(async()=>{let n=0;for(let i=0;i<30;i++){const w=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='View on the Wall');const b=w&&[...w.parentElement.querySelectorAll('button')].find(x=>x!==w);if(!b){if(n>0||i>8)break;await new Promise(r=>setTimeout(r,500));continue}b.click();n++;await new Promise(r=>setTimeout(r,500))}return n})()

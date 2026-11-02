@@ -1,0 +1,1 @@
+(function(){for(let i=0;i<12;i++){const o=document.querySelector('.k-ach-unlock-overlay');if(!o)break;o.remove();}document.querySelectorAll('.k-ach-ping,[data-ui="ach.ping"]').forEach(e=>e.remove());})()

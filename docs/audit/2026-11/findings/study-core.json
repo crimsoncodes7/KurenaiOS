@@ -1,0 +1,284 @@
+{
+ "area": "study-core",
+ "summary": "The study core works, but six problems would trip the user up on their own devices. On iPad and iPhone, tapping an assignment does nothing you can see: the detail opens at the bottom of the page. On the Mac its Focus and Complete buttons sit about 1,000px below the panel's content. On the iPhone, the Working and Edit buttons squeeze a topic's tab strip so far that the selected tab is often hidden. 'Quiz best' stores a count of correct answers, but the inspector and the subject tile print it as a percentage, so 6 of 11 reads '6%'. Flashcard batches are logged only when the whole batch is finished, so 100 cards rated out of a 308-card queue give no streak, no pay and 'Reviewed 0'. The IT desk's boundary chart is crushed on iPad portrait. The root causes are mostly master-detail and side-column layouts with no step between 1240px and 700px (the assignment panel, the inspector, the IT grids, the tool row beside the tabs), two readers that use different units for one field (quiz best), and surfaces that read the session list instead of the per-rating review log.",
+ "coverage": "Seeded and empty accounts. Measured topic pages (all 7 tabs) at mac/ipad/iphone; Review, Due today, Card stats, Assignments at mac/ipad/iphone (seeded) and mac/iphone (empty). Exercised the flashcard engine (click and keyboard ratings), the quiz engine to completion, notes paging (Next page, page select), the quick note (filed on leaving), the study editor (mac/iphone), the spine drawer (iphone/ipad), the new-assignment form (empty-save validation, save), the assignment detail (mac/ipadl/ipad/iphone), Atelier Dawn on flashcards. An earlier auditor's 7 findings were kept (desk heroes compared across all seven study spaces, iPad touch sizes, IT desk at iPad portrait, unit-card zeros, pill clipping, assignment row rule, phone next-card). Not examined: the Simulate tab beyond its locked state, the Files tab's preview with a real PDF, the Handwritten tab when drawing with a pen (no Pencil in the harness), a shop theme, landscape iPhone, the Maths/IT topic pages beyond a measurement pass.",
+ "findings": [
+  {
+   "title": "IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name",
+   "severity": "P1",
+   "category": "ui",
+   "detail": "At 820px (the user's iPad in portrait) the IT 'So far' card keeps its three-column desktop grid (220px | 1fr | 340px with 32px gaps) inside a 716px card, so the middle column is ~52px: the P M D D* ruler is 90px wide, its four boundary numbers print on top of each other ('120180240270' as one smear) and the caption 'Qualification boundaries \u00b7 out of 300 across the 5 units' wraps one word per line over eight lines. The IT units table below keeps its six fixed columns (44 + 180 + 120px + gaps), so unit names read 'F200 Funda\u2026', 'F201 Big dat\u2026', status wraps to three lines ('Sitting \u00b7 date not set') and the header 'AGAINST THE BOUNDARIES' wraps to three lines. Landscape (1180) is fine (middle column 252px).",
+   "evidence": "shots/study-core/s-it-ipad.png (full page), zoom shots/study-core/s-it-agg-ipad-crop.png; eval --size ipad: it.agg 716 wide, it.target at x442 w340; k-it-name ellipsised at 95px. css/views/study.css:996 (.k-it-agg three columns), :1031 (.k-it-tr six columns), the single-column/stacked rules only at study.css:1123-1125 (the <=700 tier); tokens.css:657-661 fixed widths; js/modules/itdesk.js:109 caption.",
+   "fix": "Add an 860px tier (invariant 47 breakpoints): .k-it-agg two columns (left+ruler stacked, target/need on the right) or one column; .k-it-tr switch to the stacked grid-template-areas layout already written for <=700. Give the ruler numbers a min width or drop them below the bar when narrow.",
+   "effort": "S",
+   "devices": "iPad portrait (and Split View)",
+   "rootCause": "desktop grid with fixed side columns has no tier between 1080 and 700"
+  },
+  {
+   "title": "iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab",
+   "severity": "P1",
+   "category": "ui",
+   "detail": "At 402px, on every topic tab that shows Working and Edit (Specification, Notes, Flashcards, Quiz, Exam questions), the tab row holds the tab scroller plus those two pill buttons in one flex row (flex: none on the buttons). The scroller shrinks to 181px: only 'Specification' and 'Notes' fit, the Notes count reads '1' instead of '13', and on Quiz the selected tab is not visible at all (strip shows 'Specification, Notes 8 \u203a'). On Files/Handwritten the strip is 328px, so its width jumps as you change tab. The phone user sees about two of seven tabs.",
+   "evidence": "shots/study-core/q-topic-notes-iphone.png (Notes), shots/study-core/q-quiz-result-iphone.png (Quiz selected but invisible); eval --size iphone on #/ref/compsci/4.1.1.1 Notes: .k-topic-tabs clientWidth 181, scrollWidth 621. css/views/study.css:208-213 (.k-topic-tabrow one flex row; :not(.k-scroller) flex:none); js/modules/hub.js:2746 (scroller, moreSlot, workBtn, editBtn in one row).",
+   "fix": "Under 700px wrap the tools onto their own line (.k-topic-tabrow {flex-wrap: wrap} with the scroller at flex-basis 100%, or move Working/Edit into the reader row beside the page picker / the \u22ef fold), so the tab strip always gets the full width.",
+   "effort": "S",
+   "devices": "iPhone (and iPad Slide Over)",
+   "rootCause": "tools share the tab row with no narrow-width tier"
+  },
+  {
+   "title": "'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "The quiz engine stores a topic's best as the number of correct answers (st.best = correct), but the topic inspector and the subject desk's 'Quiz best' tile print it through pctText as a percent. Reproduced on a fresh topic (#/ref/compsci/4.2.2.1): 6/11 (lastPct 55) is stored best 6 and the inspector shows 'Quiz best 6%'. The subject tile then takes the max of counts across topics of different lengths. The seeded account has percentages in best (57), so the quiz header reads 'best 57/10'. Either way one surface is wrong for every learner.",
+   "evidence": "eval: state.study.quiz['compsci:4.2.2.1'] = {attempts:1, best:6, lastPct:55}; inspector text 'Quiz best\\n6%'; quiz head 'score 0 \u00b7 best 6/11'. js/engines/quiz.js:159 (best = correct count), :77 (prints best + '/' + items.length); js/modules/hub.js:3224 and :2200 pctText(best); hub.js:126 max over topics.",
+   "fix": "Store best as a percent (bestPct) in the quiz engine, migrate existing records once at the store gate (best/len where the deck length is known, else keep), and print '/n' only from a stored count; or keep the count and make hub.js divide by the topic's quiz length. Add a smoke check that the inspector and the quiz header agree.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "two readers disagree on the unit of study.quiz[k].best"
+  },
+  {
+   "title": "Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far \u00b7 Reviewed 0'",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "The flashcard engine logs its session (and so the Governor's XP/gold/HP, the study streak and every ledger reader) only when the WHOLE batch is finished. Due today opens 'Start review \u00b7 all 308'; rating 7 cards and leaving (or rating 100 of 308) writes FSRS schedules and review-log rows but adds nothing to the ledger: Review's 'Today so far' still says Reviewed 0, Card stats' Reviews per day and Rating mix stay at zero, the day does not count for the streak (invariant 4) and nothing is paid. With a real backlog the user is punished for doing most of the work.",
+   "evidence": "eval: on #/due rated 5 cards Good, navigated to #/review: 0 new sessions, 'Today so far Reviewed 0 Accuracy \u2014', dueCount 308 -> 303. js/engines/flashcards.js:325-353 (sessions.log only in finish()); js/modules/due.js:222-230 and js/modules/cardstats.js:218-228 read only those session entries. shots/study-core/q-cardstats-mac.png (Total reviews 5,810 beside an empty Reviews per day and an all-zero Rating mix).",
+   "fix": "Log the batch when the view is left or hidden (the page-hide / KOS.show teardown the engine already notes at :373), paying for the cards rated so far, once (a session id held by the engine and updated, never logged twice); or cap a due batch at a size people finish (e.g. 20-50 with 'Next 50'). Read 'Reviewed today' and Reviews per day from KOS.reviewLog (one row per rating) instead of session metrics.",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "session logged only in finish(); review surfaces read session metrics rather than the review log"
+  },
+  {
+   "title": "Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen",
+   "severity": "P1",
+   "category": "ux",
+   "detail": "On the Mac, opening an assignment shows its facts, Subtasks and Attachments, then nothing: the panel is stretched to the full list height (min-block-size: 100%, 1569px on the seeded account) and its footer has margin-block-start: auto, so '\u25c9 Focus on this', '\u2713 Complete', '\u21ea Submitted', 'Blocked' and 'Reopen' land at y\u22481577, about 1,000px under the last block. The panel is position: sticky but taller than the viewport, so it never sticks. The primary actions of the page are invisible unless you scroll to the bottom of the whole list.",
+   "evidence": "shots/study-core/q-asg-open-mac.png (panel ends at ATTACHMENTS, no actions visible); eval: .k-asg-foot y 1577 (margin-top 984px), previous block bottom 577, .k-asg-panel height 1569 sticky. css/views/study.css:864 (min-block-size: 100%), :886 (.k-asg-foot margin-block-start: auto); js/modules/assignments.js:305-321.",
+   "fix": "Size the panel to the viewport: max-block-size: calc(100dvh - header) with overflow-y: auto and no min-block-size: 100% (align-self: start), so the sticky panel sticks and the foot sits at its bottom edge; or drop margin-block-start: auto and put the actions right under the stats.",
+   "effort": "S",
+   "devices": "Mac, iPad landscape",
+   "rootCause": "stretched sticky panel + auto margin footer"
+  },
+  {
+   "title": "On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight",
+   "severity": "P1",
+   "category": "ux",
+   "detail": "At 1240px and below the assignments layout becomes one column and the detail panel is appended after the whole list (position: static). Tapping a row only highlights it; the detail, with Edit, subtasks, attachments, Focus on this and Complete, renders 1,300-2,700px further down and nothing scrolls to it or opens it as a sheet. On the iPad (both orientations) and iPhone the page appears to do nothing.",
+   "evidence": "shots/study-core/q-asg-tap-ipadl.png (row highlighted, no detail); eval after tapping row 2: panel top y=2109 (ipadl, viewport 820), 2629 (ipad, 1180), 2729 (iphone, 874), not in a dialog. css/views/study.css:1057-1059 (@media max-width 1240: one column, panel static); js/modules/assignments.js has no scrollIntoView/openDialog for the detail.",
+   "fix": "Below 1240 open the detail in a KOS.ui.openDialog sheet (bottom sheet on the phone, side sheet on the iPad) or expand it inline under the tapped row; at minimum scrollIntoView the panel and move focus to its heading.",
+   "effort": "S",
+   "devices": "iPad portrait/landscape, iPhone, Mac windows under 1240",
+   "rootCause": "master-detail layout collapses to a stacked list with no navigation to the detail"
+  },
+  {
+   "title": "Topic inspector and Assignments controls stay 30-32px tall on iPad touch (below the 44px minimum)",
+   "severity": "P2",
+   "category": "a11y",
+   "detail": "On the iPad (820x1180 and 1180x820, pointer: coarse) the zero-specificity :where() touch rule in base.css loses to view-level class rules. On a topic page: the status select (k-ts-select) is 560x32, the page picker (k-topic-page-select) 304x30, the four 'Ask Kurenai / Make flashcards / Make a quiz / Test me' buttons 350x32, the progress-check rows 33px tall. On #/assignments the four filter selects are 30px tall. The phone layout (<700) is fine; only the iPad, the user's touch device, misses the target. Also on iPhone the four assignment filter selects measure 30px (148x30 etc.), Card stats retention selects 67x30, and the Handwritten tab paper chips 32px with the finger toggle 34x20 on touch.",
+   "evidence": "eval on #/ref/compsci/4.2.1.1 --size ipad: asst.ctx-btn minHeight 32px, ui.status-select 32px, topic.reader-page-select min-height 0 -> 30px, label.k-ts-check 33px; #/assignments ui.status-select 148x30. css/views/study.css:414 '.k-insp-asst button {min-block-size: var(--hit)}' (0,1,1) beats css/views/assistant.css:517 coarse rule (0,1,0); css/views/study.css:231 '.k-topic-page-select {min-block-size: 0}'; study.css:428 '.k-ts-select {min-block-size: var(--rag-pick)}' (32px) override css/base.css:115-119.",
+   "fix": "Add these to the study.css coarse block at :1184 (.k-insp-asst button, .k-ts-select, .k-topic-page-select, .k-ts-check, the assignment filter selects -> min-block-size: var(--hit-coarse)); or make the base touch rule a layered override that view rules can't silently undercut (e.g. a tools/smoke check that every control under pointer:coarse measures >=44).",
+   "effort": "S",
+   "devices": "iPad portrait and landscape",
+   "rootCause": "base.css touch rule is :where() zero specificity, so any class that sets min-block-size (even 0) wins"
+  },
+  {
+   "title": "Study-space heroes are seven different heights on one shared component",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "All seven desks use the same .k-subj-hero (same width, radius, padding, 132px ring, title size), but the height varies with what each space bolts on. Mac 1470: CS/Maths/IT 189px, Code 292, Mind 296, Japanese 339, Creatives 341. iPad portrait: CS 347, Maths/IT 297, Code 459, Mind 482, Japanese 507, Creatives 509. iPhone: CS 255, Maths/IT 205, Creatives 309, Code 379, Mind 402, Japanese 438. Switching subject with the pills makes the whole page below jump by up to 150px. The four path strips are also styled four slightly different ways (Code: 'Stage 1 Foundations' labels over boxed units; Japanese: kanji labels and ellipsised stage names 'Intermedi\u2026', 'Upper int\u2026'; Mind: a single row of unit chips; Creatives: unlabelled-stage section names centred over boxes), and the exam subjects have no path strip at all. The side column then stretches to the hero, so Code's 'Start here' (290px) and Creatives' 'Start here' (340px) cards carry ~120px of content over ~200px of empty card.",
+   "evidence": "shots/study-core/heroes-compare-mac.png (CS, Code, Japanese, Mind, Creatives cropped one above the other), shots/study-core/ipad-cs-vs-maths.png; eval scratchpad/qa/sc-hero.js at mac/ipad/iphone (numbers above). Duplicated per-space rules: css/views/code.css:162-163, css/views/japanese.css:82,172, css/views/mind.css:103-104, css/views/creatives.css:26-27 (identical grid-template-rows/path padding/border written four times); css/views/study.css:54-55 makes the side column follow the hero.",
+   "fix": "Promote the path strip to one shared part of the hero (.k-subj-hero-path in study.css with a fixed row height, one label style, shared ellipsis rule) and give the bar column a fixed number of rows (pad to 4 or set a fixed hero min-block-size per breakpoint) so every desk's hero is one height; give CS/Maths/IT a path strip too (their units, as Course units already lists) or a matching fixed height. Let the side 'Start here' cards size to content and fill the rest with the next card (Due/Deadlines) instead of stretching.",
+   "effort": "M",
+   "devices": "all",
+   "needsDesign": true,
+   "rootCause": "each study space extends the shared hero with its own path/bars markup and duplicated CSS; height is content-driven"
+  },
+  {
+   "title": "Subject pills clip 'Study spa\u2026' inside a nested scroller on iPad portrait",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "At 820px the Study section nav fits, but the CS / Maths / IT / Study spaces pill group (.k-seg, overflow-x:auto) is flex-shrunk from 330 to 288px inside .k-subnav, so 'Study spaces' is cut to 'Study spa' with no arrow or fade; the outer subnav scroller (which has the arrows) never overflows, so nothing tells the user the pill can scroll.",
+   "evidence": "shots/study-core/ipad-cs-vs-maths.png (top nav row); eval --size ipad: .k-seg x88 w288 scrollWidth 330 overflow auto, parent .k-subnav w716 sw716. css/components.css:52 (.k-seg overflow-x:auto, max-inline-size:100%), css/components.css:80 (.k-subnav flex).",
+   "fix": ".k-subnav > .k-seg { flex: none; } so the declared outer k-subnav-scroller owns overflow (it already has arrows), as invariant 50 requires.",
+   "effort": "S",
+   "devices": "iPad portrait (820)",
+   "rootCause": "nested shrinkable scroller inside the declared scroller"
+  },
+  {
+   "title": "Assignment list rows draw a rule through the middle: .k-asg-sub is two different things",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "Every row on #/assignments has a hairline between its title and its 'CS \u00b7 Coursework' line, and that line is 13.5px with 7px padding instead of the intended 12px muted caption. The class k-asg-sub names both the row subtitle and a subtask row in the detail panel; the subtask rule (display:flex, padding-block, border-block-start, font-size 13.5) lands on every list row too.",
+   "evidence": "shots/study-core/s-assign-mac.png, zoom shots/study-core/s-assign-row-crop.png; elementsFromPoint under the title hits .k-asg-sub. css/views/study.css:856 (.k-asg-sub as caption) vs css/views/study.css:879 (.k-asg-sub as subtask row with border-block-start).",
+   "fix": "Rename the subtask row (e.g. .k-asg-subtask, and its -t/-x parts) in js/modules/assignments.js and study.css:879-883; add the pair to smoke55's collision guard like the Review/Wishlist ones.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "class-name collision between two components in one stylesheet"
+  },
+  {
+   "title": "Weakest/Continue card ellipsises a word mid-title on the phone ('4.5.4.8 Norm\u2026 of floating point form')",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "Under 700px the side cards wrap (white-space: normal) but keep overflow:hidden + text-overflow:ellipsis, so a long first word that does not fit beside the ref is cut to 'Norm\u2026' and the rest wraps below. The title reads 'Norm\u2026 of floating point form'. The ref and the title also have no space between them in the text (the reader hears '4.5.4.8Normalisation').",
+   "evidence": "shots/study-core/s-compsci-iphone-next-crop.png (dpr2); .k-subj-next-t measured 110x65 on iphone. css/views/study.css:60 (nowrap/overflow/ellipsis), :1171 (white-space: normal only).",
+   "fix": "At <=700 set overflow: visible; text-overflow: clip; overflow-wrap: anywhere (or a -webkit-line-clamp: 3 box) on .k-subj-next-t; put the ref on its own line in the phone layout; add a space or aria-label between ref and title.",
+   "effort": "S",
+   "devices": "iPhone",
+   "rootCause": "ellipsis rules kept when wrapping is enabled"
+  },
+  {
+   "title": "A topic's tab strip forgets its scroll on every redraw, leaving the selected tab off-screen on the phone",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "On iPhone, scroll the topic tab strip to Handwritten and select it, then any redraw (KOS.rerender: a cloud pull, a rotation crossing a breakpoint, a store change) rebuilds the strip at scrollLeft 0: the selected tab sits at x=498 of a 402px screen and no visible tab is marked as current, while the panel below shows Handwritten (also seen with Files in shots/study-core/q-topic-spec-iphone.png: Files content, strip showing Specification\u2026Quiz). The topic tab strip is created without the scroller's keep/reveal options that the other redrawn strips use since kos-polish-3.",
+   "evidence": "eval --size iphone #/ref/compsci/4.1.1.4: after selecting Handwritten the tab is at x 223-330 (scrollLeft 275); after KOS.rerender() it is at x 498-605, scrollLeft 0. shots/study-core/q-topic-spec-iphone.png. js/modules/hub.js:2746 KOS.ui.scroller(tabBar, {keepRole, prevLabel, nextLabel}) with no keep/reveal.",
+   "fix": "Pass keep: 'topic-tabs' and reveal: the selected tab (KOS.ui.scroller({keep, reveal})) as the term ribbon and edge-marked tabs do, and reveal the selected tab on a tab change too.",
+   "effort": "S",
+   "devices": "iPhone, iPad Slide Over",
+   "rootCause": "scroller created without keep/reveal"
+  },
+  {
+   "title": "Due today's progress meter draws one pip per card: a 308-card queue is a 108px wall of 308 dashes",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "The flashcard session meter appends a span per card (flex-wrap), so a real backlog (308 due on the seeded account) renders 13 rows of tiny dashes above the card, 560x108px, pushing the card below the fold on the Mac (card top at y=460 of 832) and carrying no readable information. It is rebuilt (308 nodes) on every card.",
+   "evidence": "shots/study-core/q-due-mac.png; eval on #/due: [data-ui~=fc.pip] count 308, fc.meter 560x108. js/engines/flashcards.js:271-273, css/views/study.css:453-455.",
+   "fix": "Above ~30 cards draw one continuous bar (done/total, with the current position) instead of pips, e.g. KOS.ui progress bar with a 'n of N' label; keep pips for small topic decks.",
+   "effort": "S",
+   "devices": "all (worst on Mac and iPhone)",
+   "rootCause": "meter scales linearly with deck size"
+  },
+  {
+   "title": "Card stats' RAG column is always empty: the dot is a 0x0 inline span",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "The Per-topic breakdown table has a RAG header but every cell looks blank. Each cell holds <span class=k-spine-dot data-band=a>, whose size rules (inline-size/block-size) do not apply to an inline element outside the spine's flex row, so it measures 0x0. The 'charts \u2192' links sit in an unlabelled last column, which reads as if they belonged to RAG.",
+   "evidence": "shots/study-core/q-cardstats-mac.png (RAG column blank); eval: table td .k-spine-dot getBoundingClientRect 0x0, display inline, data-band 'a'. js/modules/cardstats.js:357, css/views/study.css:162.",
+   "fix": "Give .k-spine-dot display:inline-block (or render KOS.rag's chip with its label, 'Amber'), and label the last column ('Charts') or make the whole row the link.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "component rule assumes a flex parent"
+  },
+  {
+   "title": "The spec spine drawer (iPad portrait, iPhone) opens at the top of the subject, not at the topic you are on, and does not take focus",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "On a topic page at 820px or 402px, \u2630 'Show the spec spine' opens the overlay drawer scrolled to 4.1. The current topic (marked aria-current) is ~1,600px further down the drawer (y\u22482420 in an 822px drawer on iPhone, 2424 on iPad portrait), so finding the neighbouring topics means scrolling the whole tree every time. Focus stays on <body>, so a keyboard or VoiceOver user is not taken into the drawer (no dialog semantics, no focus move).",
+   "evidence": "shots/study-core/q-spine-iphone.png (drawer at 4.1 while on 4.4.1.3 Kinds of abstraction); eval --size iphone and --size ipad after clicking [data-ui~=study.spine-open]: current entry y 2416/2424, drawer scrollTop 0, activeElement BODY. js/modules/hub.js:368-375 setTreeClosed only toggles drawerOpen/applyTreeCollapsed; no scrollIntoView or focus.",
+   "fix": "When the drawer opens, scroll the aria-current entry into view (block: 'center') and focus it (or the filter); trap/restore focus as an overlay (or use KOS.ui.openDialog's focus handling) and return focus to \u2630 on close.",
+   "effort": "S",
+   "devices": "iPad portrait, iPhone",
+   "rootCause": "drawer open path does no reveal/focus management"
+  },
+  {
+   "title": "Card stats' Due forecast draws the coming days' bars in --s3, darker than the card they sit on (near invisible)",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "In Graphite the 13 future-day bars of Due forecast are filled var(--s3) = oklch(0.14 \u2026), below the card surface (~0.17-0.19), so they read as black holes rather than bars; only the red overdue bar and the numbers above show. The chart is the main reason to open the card.",
+   "evidence": "shots/study-core/q-cardstats-mac.png and shots/study-core/q-cardstats-dawn-ipadl.png (Due forecast); eval: rect fill oklch(0.14 0.008 265), body oklch(0.165 0.008 265). js/modules/cardstats.js:268 bars(forecast, {color: 'var(--s3)'}).",
+   "fix": "Use the scope hue (HUE[sid] / --teal, as Reviews per day does) or --muted for future days, keeping --alarm for overdue; check the result in Dawn and a shop theme.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "surface token used as a data colour"
+  },
+  {
+   "title": "On iPad portrait the topic inspector is stacked under the whole tab, ~1,700-2,600px down, behind a right-pointing collapse chevron",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "At 820px the inspector (topic status, the four checks, RAG, recall record, quick note, Ask Kurenai / Make flashcards / Test me) is laid out after the tab content at full width: the status select sits at y\u22481765 on Specification and the Ask Kurenai buttons at y\u22482591, below the end of a long notes page, so the state surface invariant 52 makes 'the sole state surface' is out of reach while studying. Its '\u203a' toggle still points right as if the panel were a side column. On iPad landscape and the Mac it is a side column.",
+   "evidence": "shots/study-core/empty-topic-ipad.png (Inspector heading under the notes, '\u203a' at right); measurement --size ipad on #/ref/compsci/4.1.1.1: ui.status-select y 1765, asst.ctx-btn y 2591 (Spec), 1227/2053 (Notes).",
+   "fix": "Between 700 and 1080 open the inspector as an overlay side sheet from a header button (as the spine drawer does), or as a compact strip of status + checks above the tabs with the rest in a sheet; give the stacked state a down/up chevron.",
+   "effort": "M",
+   "devices": "iPad portrait",
+   "needsDesign": true,
+   "rootCause": "no tier for the inspector between the side column and the phone layout"
+  },
+  {
+   "title": "Unit cards print 'completed \u00b7 0 started' (a supporting zero, invariant 77)",
+   "severity": "P3",
+   "category": "content",
+   "detail": "Every Course units card on CS/Maths/IT desks reads '0 / 17 completed \u00b7 0 started' on a fresh account and 'n completed \u00b7 0 started' whenever nothing is in progress. The started count is a supporting fact and should be suppressed at zero.",
+   "evidence": "shots/study-core/e-compsci-mac.png (Course units row); js/modules/hub.js:2065 always appends ' completed \u00b7 ' + started + ' started'.",
+   "fix": "Append ' \u00b7 n started' only when started > 0.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "hub.js:2065 unconditional string"
+  },
+  {
+   "title": "Inspector's Quiz best and attempts do not update when a quiz finishes",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "After finishing a quiz on a topic the inspector still shows the old 'Quiz best' (0% on a first attempt) until something redraws the page; the session has been logged and paid. The result card and the inspector disagree on screen.",
+   "evidence": "eval on #/ref/compsci/4.2.2.1: after the last 'See your score', record attempts 1 / best 6, inspector still 'Quiz best 0%'; after KOS.rerender() it reads 6%. js/engines/quiz.js:150-165 finish() saves and logs but does not refresh the inspector.",
+   "fix": "Have finish() trigger the topic page's inspector refresh (the same hook the flashcard engine uses after a rating), or KOS.rerender with keep.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "engine writes state without notifying the inspector"
+  },
+  {
+   "title": "Streak milestone note repeats '36-day streak' once per milestone, and missing milestone records pay every past milestone at once",
+   "severity": "P3",
+   "category": "bug",
+   "detail": "A quiz scored 40% paid 56 gold: 2 for the quiz plus 3+7+14+30 for streak milestones the run had already passed, and the award notes read '36-day streak' four times. The note text uses the current streak (stk) instead of the milestone (ms). The retro-payment happens whenever g.milestones lacks the run's dates (seen on the seeded account; also possible after the ledger's 2,000-entry cap shortens the computed streak, which moves the run's start date and re-pays every milestone).",
+   "evidence": "eval KOS.governor.lastAward(): {gold:56, notes:['36-day streak' x4]}; state.governor.milestones afterwards streak3..30 dated 09-30..10-27. js/core/governor.js:330-339.",
+   "fix": "Push ms + '-day streak' (and collapse to one note), pay only the highest newly reached milestone when several are pending, and key the run by its first ledger date that is not subject to the cap (or store the run start once).",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "note uses stk; milestone key derived from a recomputed streak length"
+  },
+  {
+   "title": "Quiz \"Next question\" shows a keyboard Enter hint (\u21b5) on touch devices",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "On iPhone the Next question button carries a \u21b5 key badge; there is no keyboard. The flashcard Keys panel likewise lists Space/1-4 on touch. The flashcard front also says \"press to flip\" on touch.",
+   "evidence": "shots/study-core/q-quiz-result-iphone.png",
+   "fix": "Hide key hints under (hover: none) and (pointer: coarse), as other kbd hints should be.",
+   "effort": "S",
+   "devices": "iPhone, iPad",
+   "rootCause": "kbd hint rendered regardless of input type"
+  },
+  {
+   "title": "Study editor card headers print raw ISO dates and wrap \"Card 1\" onto two lines on the phone",
+   "severity": "P3",
+   "category": "content",
+   "detail": "Each row in the flashcard editor reads e.g. \"10 reviews \u00b7 due 2026-10-29\" (an ISO date, and a date already past with no \"overdue\"). On iPhone the three 44px row buttons leave the header so little width that \"Card\" and \"1\" break onto separate lines and the due date splits as \"due 2026- / 10-29\".",
+   "evidence": "shots/study-core/q-editor-mac.png, shots/study-core/q-editor-iphone.png",
+   "fix": "Format with the app date helper (\"due 29 Oct\", \"4 days overdue\"), keep the label nowrap, and put the meta on its own line under the phone tier.",
+   "effort": "S",
+   "devices": "all; wrap on iPhone",
+   "rootCause": "raw card.due string in js/modules/editor.js row header"
+  },
+  {
+   "title": "Empty Review, Due today and Assignments are dead ends with zero rows and placeholder panels",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "On a new account: Review's 'Today so far' prints Reviewed 0 / Accuracy \u2014 / Time 0 min (supporting zeros, invariant 77) and 'Next 7 days \u00b7 nothing scheduled' keeps a 100px empty chart with seven grey ticks. Due today is one line ('Queue clear\u2026') under a lone '\u2190 Queue' button on an otherwise empty 1210px page, with no way forward (e.g. 'Study a new topic' / Continue from the plan). Assignments shows four filter selects with nothing to filter and a right column whose only content is 'Select an assignment to see its brief\u2026' although there are none.",
+   "evidence": "shots/study-core/q-empty-review-mac.png, q-empty-due-mac.png, q-empty-assignments-mac.png; js/modules/due.js:222-236 (Today so far always drawn).",
+   "fix": "Hide 'Today so far' until something was reviewed today and collapse the empty forecast to its sub-line; give Due today's empty state the next action from KOS.homeFocusPlan / Continue; hide the assignment filters and the detail column while the list is empty and let the empty state with its 'New assignment' button take the width.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "empty states render the populated layout's scaffolding"
+  },
+  {
+   "title": "New assignment: a missing title is reported only in a toast; the field is not marked or focused, and a subject-less assignment can never be focused on",
+   "severity": "P3",
+   "category": "a11y",
+   "detail": "Pressing Save with an empty title keeps the dialog open and shows the toast 'An assignment needs a title.', but the Title input gets no aria-invalid, no inline message and no focus (on the iPhone sheet the toast can sit under the keyboard). The form also allows 'No subject' (the default), and the detail panel then omits '\u25c9 Focus on this' (it requires a.subject), so that assignment can never receive Focus time. The sheet's inputs are 39-42px tall on touch.",
+   "evidence": "shots/study-core/q-asg-new-iphone.png; eval --size iphone: after Save, title aria-invalid null, activeElement not the title, #toast text 'An assignment needs a title.'; field heights 39-42. js/modules/assignments.js:316 (Focus button only when a.subject).",
+   "fix": "Mark the field (aria-invalid + aria-describedby to an inline error) and focus it; either require a subject or let Focus run on a subject-less assignment (Focus's own subject picker); raise sheet controls to --hit-coarse.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "validation via toast only; Focus link gated on subject"
+  }
+ ],
+ "qol": [
+  "Reveal the selected tab whenever a scroller's selection changes (topic tabs, flashcard modes).",
+  "Say 'tap to flip' on touch devices and hide keyboard badges (\u21b5, Space, 1-4) there.",
+  "Print relative dates in the study editor and assignment rows ('due 29 Oct', '4 days overdue').",
+  "Give the 'charts \u2192' column in Card stats a header, or make the whole row the link."
+ ],
+ "backlog": [
+  "Read every review count (Today so far, Reviews per day, Rating mix, Reports) from KOS.reviewLog instead of session metrics.",
+  "An iPad-portrait design for the topic page: the inspector and the spine as overlay sheets, the tools in the header.",
+  "A shared study-space hero with a path strip of one fixed height for CS/Maths/IT as well as Code, Japanese, Mind and Creatives."
+ ]
+}

@@ -1,0 +1,1 @@
+window.__r=e=>{const b=e.getBoundingClientRect();return [e.tagName,(e.className+'').slice(0,45),e.dataset.ui,e.getAttribute('role'),Math.round(b.x),Math.round(b.y),Math.round(b.width),Math.round(b.height)].join(' ')};

@@ -1,0 +1,801 @@
+4.6.5.1 [1 q1 a1] #1/#2
+  A: X + X·Y = ? => X (absorption).
+  B: X·(X + Y) = ? => X (absorption).
+4.6.5.1 [1 q0.5 a1] #4/#5
+  A: X·X̄ = ? and X + X̄ = ? => 0 and 1.
+  B: X + 1 = ? and X·0 = ? => 1 and 0.
+4.6.5.1 [1 q1 a0.75] #12/#17
+  A: Simplify (A + B) . (B + C.(D + ¬D)). => = (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.
+  B: Simplify ¬(A + B) . ¬(C.D). => ¬A . ¬B . (¬C + ¬D).
+4.10.5 [1 q0.5 a0.9] #4/#5
+  A: Timestamp rule for a write? => Abort if the record's read or write timestamp is later than the transaction's.
+  B: Timestamp rule for a read? => Abort if the record's write timestamp is later than the transaction's.
+4.2.4.1 [0.9 q0.17 a0.14] #2/#6
+  A: Directed graph? => A graph whose edges have a direction (one-way).
+  B: Which graph needs both halves of the matrix? => A directed graph.
+4.2.4.1 [0.9 q0.17 a0.11] #6/#9
+  A: Which graph needs both halves of the matrix? => A directed graph.
+  B: Define a directed graph. => A graph whose edges have a direction — an edge from A to B does not imply one from B to A.
+4.3.5.2 [0.9 q0.2 a0.07] #0/#4
+  A: Merge sort? => Divide and conquer: split the list into halves until single items, then merge sorted sublists in pairs.
+  B: Which of linear search, merge sort, binary search, post-order traversal is O(n log n)? => Merge sort.
+4.3.5.2 [0.9 q0.2 a0.06] #4/#7
+  A: Which of linear search, merge sort, binary search, post-order traversal is O(n log n)? => Merge sort.
+  B: Describe merge sort. => Split the list in half repeatedly until each sub-list has one item; then merge pairs of sub-lists into sorted lists by repeatedly taking the smaller front item, until one sorted list remains.
+4.4.4.6 [0.9 q0.25 a0] #0/#14
+  A: Example of a non-computable problem? => The Halting problem.
+  B: Describe the halting problem. => Determining, without running it, whether a given program will halt (terminate) for a particular input.
+4.6.1.1 [0.9 q0.33 a0] #0/#10
+  A: Define hardware. => The physical / electronic components of a computer system.
+  B: Which is the CPU: hardware or software? => Hardware.
+4.6.1.1 [0.9 q0.25 a0] #1/#5
+  A: Define software. => Programs / instructions that are executed (on the hardware).
+  B: Is a device driver hardware or software? => Software.
+4.6.1.1 [0.9 q0.25 a0] #5/#8
+  A: Is a device driver hardware or software? => Software.
+  B: Define software. => The programs (sequences of instructions) that execute on the hardware.
+4.6.2.1 [0.9 q0 a0] #1/#14
+  A: Describe machine code. => Binary instructions (opcode + operand) executed directly by the processor; processor-specific.
+  B: Name the low-level language other than assembly. => Machine code.
+4.6.5.1 [0.9 q1 a0.25] #1/#3
+  A: X + X·Y = ? => X (absorption).
+  B: X + X̄·Y = ? => X + Y.
+4.6.5.1 [0.9 q1 a0.25] #2/#3
+  A: X·(X + Y) = ? => X (absorption).
+  B: X + X̄·Y = ? => X + Y.
+4.9.4.2 [0.9 q0 a0] #6/#14
+  A: SSH? => Encrypted remote login and command execution (port 22).
+  B: Which protocol would a technician use to administer a remote server securely? => SSH.
+4.9.4.2 [0.9 q0 a0] #11/#14
+  A: What is SSH for? => Secure (encrypted) remote login to execute commands on another computer; can also tunnel other protocols.
+  B: Which protocol would a technician use to administer a remote server securely? => SSH.
+4.10.5 [0.9 q0 a0.09] #0/#7
+  A: Record locking? => A record is locked while one transaction edits it; others cannot edit it until the lock is released.
+  B: Which method can deadlock? => Record locking.
+4.10.5 [0.9 q0 a0.07] #7/#10
+  A: Which method can deadlock? => Record locking.
+  B: Describe record locking. => When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed.
+4.4.2.3 [0.84 q1 a0.6] #0/#2
+  A: * in a regex? => Zero or more of the preceding element.
+  B: ? in a regex? => Zero or one — the preceding element is optional.
+4.3.3.1 [0.83 q0.83 a0.8] #2/#3
+  A: RPN of (3 + 4) × 5? => 3 4 + 5 ×.
+  B: RPN of 5 + 2 × 3 + 4? => 5 2 3 × + 4 +.
+4.7.3.1 [0.83 q1 a0.57] #2/#10
+  A: MAR holds… => the address of the location to be read or written.
+  B: What does the MAR hold? => The address of the memory location currently being read from or written to.
+4.10.4 [0.83 q0 a0.33] #10/#21
+  A: Descending sort? => ORDER BY Field DESC.
+  B: What does ORDER BY … DESC do? => Sorts the results in descending order of the field.
+4.2.4.1 [0.82 q1 a0.56] #2/#9
+  A: Directed graph? => A graph whose edges have a direction (one-way).
+  B: Define a directed graph. => A graph whose edges have a direction — an edge from A to B does not imply one from B to A.
+4.3.2.1 [0.8 q0.33 a1] #4/#5
+  A: Define pre-order traversal. => Visit the node, then traverse the left subtree, then the right subtree.
+  B: Define in-order traversal. => Traverse the left subtree, visit the node, then traverse the right subtree.
+4.3.2.1 [0.8 q0.33 a1] #4/#6
+  A: Define pre-order traversal. => Visit the node, then traverse the left subtree, then the right subtree.
+  B: Define post-order traversal. => Traverse the left subtree, then the right subtree, then visit the node.
+4.3.2.1 [0.8 q0.33 a1] #5/#6
+  A: Define in-order traversal. => Traverse the left subtree, visit the node, then traverse the right subtree.
+  B: Define post-order traversal. => Traverse the left subtree, then the right subtree, then visit the node.
+4.4.2.1 [0.8 q1 a0.5] #4/#9
+  A: Mealy machine? => An FSM with output: each transition is labelled input/output.
+  B: What is a Mealy machine? => An FSM whose outputs are produced on transitions, written input | output.
+4.5.3.1 [0.8 q1 a0.5] #1/#14
+  A: Bits in a byte? => 8.
+  B: Bits → bytes? => Divide by 8.
+4.6.1.1 [0.8 q1 a0.5] #1/#8
+  A: Define software. => Programs / instructions that are executed (on the hardware).
+  B: Define software. => The programs (sequences of instructions) that execute on the hardware.
+4.7.3.1 [0.8 q1 a0.5] #3/#11
+  A: MBR holds… => the data/instruction just read from, or to be written to, memory.
+  B: What does the MBR hold? => The data just read from, or about to be written to, memory — including a fetched instruction before it moves to the CIR.
+4.9.1.1 [0.8 q1 a0.5] #1/#7
+  A: What is crosstalk? => Interference between signals on neighbouring wires.
+  B: What is crosstalk? => Interference between adjacent parallel wires, corrupting the signals.
+4.9.1.2 [0.8 q1 a0.5] #1/#8
+  A: Bandwidth? => The range of frequencies a medium can transmit.
+  B: Define bandwidth. => The range of frequencies that a medium can transmit — directly proportional to the maximum bit rate.
+4.10.5 [0.8 q1 a0.5] #0/#10
+  A: Record locking? => A record is locked while one transaction edits it; others cannot edit it until the lock is released.
+  B: Describe record locking. => When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed.
+4.2.4.1 [0.78 q1 a0.44] #1/#8
+  A: Weighted graph? => A graph whose edges each have a weight/value.
+  B: Define a weighted graph. => A graph in which each edge has a value (weight/cost) associated with it.
+4.7.4.2 [0.78 q1 a0.44] #3/#13
+  A: How is an optical disk read? => Low-power laser focused on the track; reflected light measured by a photodiode.
+  B: Describe how an optical disk is read. => A low-power laser is focused on a spiral track of pits and lands; reflected light is measured by a photodiode; a transition between pit and land scatters the light and represents a 1, continuation represents 0.
+4.9.1.2 [0.78 q1 a0.46] #2/#9
+  A: Latency? => The time delay between an action and its effect / data arriving.
+  B: Define latency. => The delay between an action being initiated and its effect being observed — the time taken for data to travel to the receiver.
+4.9.2.1 [0.78 q1 a0.44] #2/#8
+  A: Logical topology? => How data flows around the network.
+  B: Define logical topology. => How data flows around the network — the architecture of the communication mechanism, independent of the cabling.
+4.7.3.6 [0.77 q1 a0.42] #5/#9
+  A: Give three interrupt sources. => e.g. I/O device, timer, power failure, division by zero.
+  B: Give three sources of interrupt. => I/O device ready (key press, printer), timer, hardware fault (power failure), software (division by zero, system call).
+4.10.2 [0.77 q1 a0.43] #1/#5
+  A: Primary key? => An attribute that uniquely identifies each record in a relation.
+  B: Define a primary key. => The attribute or combination of attributes that uniquely identifies each tuple.
+4.12.1.5 [0.77 q1 a0.43] #8/#9
+  A: If g doubles and f adds 1, what is (f ∘ g)(5)? => f(g(5)) = f(10) = 11.
+  B: If g doubles and f adds 1, what is (g ∘ f)(5)? => g(f(5)) = g(6) = 12.
+4.1.2.3 [0.76 q1 a0.4] #4/#16
+  A: Inheritance? => A subclass takes on the attributes and methods of its base class and can add or override — an "is a" relationship.
+  B: Define inheritance. => A subclass acquires the attributes and methods of its superclass, and can add its own or override inherited ones.
+4.3.5.2 [0.76 q1 a0.41] #0/#7
+  A: Merge sort? => Divide and conquer: split the list into halves until single items, then merge sorted sublists in pairs.
+  B: Describe merge sort. => Split the list in half repeatedly until each sub-list has one item; then merge pairs of sub-lists into sorted lists by repeatedly taking the smaller front item, until one sorted list remains.
+4.6.5.1 [0.76 q1 a0.4] #11/#16
+  A: Simplify A + ¬A.B. => A + B.
+  B: Simplify A.B + A.¬B. => A (factor A out: A.(B + ¬B) = A.1).
+4.9.4.11 [0.76 q1 a0.4] #2/#8
+  A: Thin-client computing? => Applications run and processing happens on a server; clients mainly display and input.
+  B: What is thin-client computing? => Processing is carried out on the server — applications execute there — and the client only handles input and display.
+4.10.1 [0.76 q1 a0.4] #1/#10
+  A: Attribute? => A property or characteristic of an entity.
+  B: What is an attribute? => A property of an entity — a column/field.
+4.10.5 [0.76 q1 a0.4] #3/#11
+  A: Timestamp ordering? => Each transaction gets a timestamp; each record stores last read/write timestamps; transactions that would break the order are aborted.
+  B: Describe timestamp ordering. => Each transaction is given a timestamp; every record stores the timestamps of its last read and write; the DBMS aborts any transaction that would read or write a record already read or written by a later transaction.
+4.9.2.1 [0.75 q1 a0.38] #1/#7
+  A: Physical topology? => The layout of the cabling/connections.
+  B: Define physical topology. => The physical layout / arrangement of the cabling and connections between the devices on a network.
+4.9.4.11 [0.74 q1 a0.35] #7/#10
+  A: Two reasons to choose thin clients? => Cheaper clients; software installed/updated once on the server; more secure; less power.
+  B: Give three reasons to choose thin clients. => Clients are cheaper (lower specification); software is installed and updated only on the server; users cannot install unauthorised software; clients need less configuration, use less power and fail less often.
+4.1.2.1 [0.73 q1 a0.33] #0/#6
+  A: Programming paradigm? => A style/approach to programming — a way of organising a program.
+  B: What is a programming paradigm? => A style or approach to programming — the way a program is structured and its computation expressed, e.g. procedural, object-oriented, functional, declarative.
+4.7.4.1 [0.73 q1 a0.33] #0/#9
+  A: How does a barcode reader work? => Light shone on the code; dark bars reflect less than light ones; a sensor measures reflection; pattern decoded.
+  B: Describe how a barcode reader works. => A laser or LED illuminates the code; a mirror sweeps the beam (or the user moves the reader); black bars reflect less light than white spaces; a photodiode measures the reflections and the pattern is decoded to digits, often with a check digit.
+4.1.2.3 [0.72 q1 a0.29] #6/#17
+  A: Polymorphism? => Objects of different classes responding differently to the same method call/interface.
+  B: Define polymorphism. => The same method call producing different behaviour depending on the object's class — typically via overriding.
+4.4.4.3 [0.72 q1 a0.3] #0/#7
+  A: Big-O notation? => Describes how time/space grows with input size, keeping only the dominant term.
+  B: What does Big-O notation describe? => The upper bound (worst case) on how an algorithm's time or space grows with input size n, ignoring constants and lower-order terms.
+4.6.2.1 [0.72 q1 a0.31] #0/#8
+  A: Two low-level languages? => Machine code and assembly language.
+  B: What is a low-level language? => One close to the processor's instruction set — machine code (binary) or assembly language (mnemonics with a one-to-one mapping to machine code).
+4.9.4.7 [0.72 q1 a0.31] #3/#6
+  A: DHCP exchange? => Discover, Offer, Request, Acknowledge.
+  B: Describe the DHCP exchange. => The host broadcasts a discover message; DHCP servers offer a configuration; the host requests (accepts) one; the server acknowledges the allocation with a lease.
+4.11.1 [0.72 q1 a0.29] #8/#15
+  A: Fact-based model? => Data as atomic, immutable, timestamped facts; changes are new facts, never overwrites.
+  B: What is a fact-based model? => A model in which each immutable fact is stored separately — atomic, timestamped and never updated — suited to append-only distributed storage.
+4.1.1.9 [0.71 q1 a0.29] #0/#9
+  A: Exception? => A run-time error / unexpected event during execution that would normally crash the program.
+  B: What is an exception? => An error or unexpected event that occurs during program execution and disrupts the normal flow, e.g. division by zero, file not found.
+4.2.6.1 [0.71 q1 a0.27] #8/#14
+  A: Load factor? => Number of items ÷ number of slots.
+  B: What is the load factor? => Number of items ÷ number of slots; performance degrades as it approaches 1, so tables are resized/rehashed.
+4.3.3.1 [0.71 q0.71 a0.67] #1/#3
+  A: RPN of 3 + 4 × 2 − 1? => 3 4 2 × + 1 −.
+  B: RPN of 5 + 2 × 3 + 4? => 5 2 3 × + 4 +.
+4.6.2.1 [0.71 q0.4 a0.5] #0/#14
+  A: Two low-level languages? => Machine code and assembly language.
+  B: Name the low-level language other than assembly. => Machine code.
+4.11.1 [0.71 q1 a0.28] #0/#12
+  A: Big Data? => Data that won't fit the usual containers — it cannot be stored or processed with traditional tools.
+  B: Define Big Data. => Data that cannot be processed or analysed using traditional database tools because of its volume, velocity and variety.
+4.1.1.13 [0.7 q0.5 a0.8] #2/#8
+  A: Where are locals stored? => In the subroutine's stack frame.
+  B: Where are local variables stored during a call? => In the subroutine's stack frame on the call stack.
+4.1.1.15 [0.7 q1 a0.25] #0/#10
+  A: Return address? => Where execution continues in the caller after the subroutine finishes.
+  B: What is the return address? => The address of the instruction to execute after the subroutine finishes — the one following the call.
+4.3.4.3 [0.7 q1 a0.25] #2/#8
+  A: Worst case for binary tree search? => O(n) — a degenerate chain.
+  B: Worst case for a binary tree search? => An unbalanced (chain-like) tree degrades to O(n).
+4.4.4.2 [0.7 q0.5 a1] #1/#2
+  A: Linear function example? => y = 2x.
+  B: Polynomial function example? => y = 2x².
+4.6.1.1 [0.7 q1 a0.25] #3/#9
+  A: Relationship between hardware and software? => Software executes on the hardware; hardware allows software to execute.
+  B: State the relationship between hardware and software. => Software executes on the hardware; the hardware provides the physical resources the software controls — neither is useful without the other.
+4.6.4.1 [0.7 q0.5 a1] #1/#2
+  A: Truth table of NAND? => 1 1 1 0.
+  B: Truth table of NOR? => 1 0 0 0.
+4.9.3.1 [0.7 q1 a0.25] #4/#11
+  A: Gateway? => Connects networks with different protocols — performs protocol conversion.
+  B: What is a gateway? => A device connecting two networks that use different protocols, converting between them.
+4.9.3.2 [0.7 q1 a0.25] #0/#10
+  A: Packet filtering? => The firewall checks packet headers (IP, port, protocol) against rules to block or allow.
+  B: What is packet filtering? => Examining packet headers (addresses, ports) and blocking or allowing according to rules.
+4.9.4.2 [0.7 q1 a0.25] #6/#11
+  A: SSH? => Encrypted remote login and command execution (port 22).
+  B: What is SSH for? => Secure (encrypted) remote login to execute commands on another computer; can also tunnel other protocols.
+4.1.2.2 [0.69 q1 a0.23] #2/#13
+  A: Stepwise refinement? => Repeatedly adding detail to each part of a design until it can be coded.
+  B: What is stepwise refinement? => Successively adding detail to a high-level outline until it is executable code.
+4.3.4.2 [0.69 q0.29 a0.56] #4/#7
+  A: Why is binary search O(log n)? => Each comparison halves the remaining list; doubling n adds one comparison.
+  B: Time complexity of binary search? => O(log n) — each comparison halves the remaining list.
+4.3.4.3 [0.69 q0.83 a0.33] #1/#7
+  A: Time complexity of binary tree search on a balanced tree? => O(log n).
+  B: Time complexity of binary tree search? => O(log₂ n) for a balanced tree — each comparison halves the part of the tree to look at.
+4.3.6.1 [0.69 q1 a0.23] #4/#11
+  A: Heuristic? => A method that finds a good-enough (not necessarily optimal) solution quickly, e.g. using domain knowledge to prune the search.
+  B: What is a heuristic? => A method of finding a solution that might not be the best, used to cut down the search space — e.g. A* preferring nodes nearer the goal.
+4.5.4.4 [0.69 q0.56 a0.86] #10/#11
+  A: Convert mantissa 0.1010000, exponent 0011 to denary. => Mantissa 0.625, exponent 3 → 0.625 × 8 = 5.
+  B: Convert mantissa 1.0110000, exponent 0011 to denary. => Mantissa −0.625, exponent 3 → −5.
+4.6.3.1 [0.69 q1 a0.23] #8/#14
+  A: How is bytecode executed? => By a virtual machine: interpreted, or JIT-compiled to machine code for that processor.
+  B: How is bytecode executed? => A virtual machine interprets it instruction by instruction, or just-in-time compiles it to native machine code before running it.
+4.6.5.1 [0.69 q1 a0.22] #11/#13
+  A: Simplify A + ¬A.B. => A + B.
+  B: Simplify ¬(¬(¬B . A) . ¬B) + A.B. => De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem.
+4.7.3.3 [0.69 q1 a0.22] #2/#13
+  A: What is an operand? => The value, register or memory address the operation uses.
+  B: What is the operand? => The value / data that the instruction operates on (or its address).
+4.10.1 [0.69 q1 a0.23] #0/#9
+  A: Entity? => A category of object, person, event or thing about which data is recorded.
+  B: What is an entity? => A real-world thing about which data is stored — a table in the relational model.
+4.10.5 [0.69 q1 a0.21] #6/#13
+  A: Commitment ordering? => Transactions commit in an order consistent with their conflicts; avoids deadlock.
+  B: What is commitment ordering? => Transactions are ordered by their dependencies so that conflicting commits cannot interleave.
+4.13.1.4 [0.69 q1 a0.23] #0/#7
+  A: Three types of test data? => Normal, boundary, erroneous.
+  B: Name the three types of test data. => Normal (typical valid values), boundary (values at the limits of the valid range, and just outside), erroneous (invalid values that should be rejected).
+4.2.1.3 [0.68 q1 a0.19] #0/#7
+  A: Record? => A collection of related fields (which may have different types) about one entity.
+  B: What is a record? => A data structure holding a fixed number of fields, possibly of different types, describing one entity — e.g. a Student with Name, DOB and Grade.
+4.2.7.1 [0.68 q1 a0.19] #0/#7
+  A: Dictionary? => A collection of key–value pairs in which values are accessed via their keys.
+  B: What is a dictionary? => An abstract data type holding key–value pairs, where each key is unique and maps to one value; values are looked up by key.
+4.5.6.9 [0.68 q1 a0.2] #2/#12
+  A: Lossy compression? => Permanently removes data — cannot be reversed; greater reduction.
+  B: Define lossy compression. => Compression that permanently discards some (less important) data, so the original cannot be recovered.
+4.3.3.1 [0.67 q0.56 a0.83] #3/#10
+  A: RPN of 5 + 2 × 3 + 4? => 5 2 3 × + 4 +.
+  B: Convert `5 2 3 × + 4 +` back to infix. => 5 + 2 × 3 + 4 (= 15).
+4.4.2.3 [0.67 q0.5 a0.75] #0/#1
+  A: * in a regex? => Zero or more of the preceding element.
+  B: + in a regex? => One or more of the preceding element.
+4.5.6.9 [0.67 q1 a0.17] #1/#11
+  A: Lossless compression? => Removes redundancy only — the original can be reproduced exactly.
+  B: Define lossless compression. => Compression from which the original data can be fully recovered — it is reversible.
+4.5.6.9 [0.67 q1 a0.18] #6/#16
+  A: Dictionary-based compression? => Repeated strings mapped to tokens in a dictionary; tokens replace them.
+  B: Describe dictionary-based compression. => Build a dictionary mapping recurring substrings/words to short tokens; replace each occurrence in the text with its token; store the dictionary with the data.
+4.6.5.1 [0.67 q1 a0.17] #13/#16
+  A: Simplify ¬(¬(¬B . A) . ¬B) + A.B. => De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem.
+  B: Simplify A.B + A.¬B. => A (factor A out: A.(B + ¬B) = A.1).
+4.4.2.3 [0.66 q1 a0.14] #0/#3
+  A: * in a regex? => Zero or more of the preceding element.
+  B: | in a regex? => Alternation: the element before OR the element after.
+4.4.2.3 [0.66 q1 a0.14] #2/#3
+  A: ? in a regex? => Zero or one — the preceding element is optional.
+  B: | in a regex? => Alternation: the element before OR the element after.
+4.9.2.3 [0.66 q1 a0.15] #3/#9
+  A: Role of WPA2? => Strong encryption so intercepted data can't be understood without the key.
+  B: What is the role of WPA2? => It encrypts data transmitted over the wireless network so that intercepted transmissions cannot be read by unauthorised devices.
+4.9.3.1 [0.66 q1 a0.15] #5/#15
+  A: URL? => Full address of a resource: protocol + FQDN + path.
+  B: What is a URL? => Uniform Resource Locator — protocol, domain name (or IP) and path identifying a resource, e.g. http://www.example.org/index.html.
+4.9.4.11 [0.66 q1 a0.14] #3/#9
+  A: Thick-client computing? => Clients process and store data locally.
+  B: What is thick-client computing? => Processing is carried out on the client, which runs the applications locally; the server provides files and services.
+4.1.2.3 [0.65 q1 a0.13] #3/#15
+  A: Encapsulation? => Bundling attributes with the methods that act on them, hiding the attributes so they are only reached through the class's methods.
+  B: Define encapsulation. => Combining data and the methods that operate on it into an object, hiding the data behind public methods so it cannot be changed directly.
+4.9.3.2 [0.65 q1 a0.13] #5/#13
+  A: Digital certificate? => A CA-signed binding of an owner's identity to their public key.
+  B: What is a digital certificate? => A document issued by a certificate authority confirming that a public key belongs to a particular organisation.
+4.9.4.11 [0.65 q1 a0.13] #1/#12
+  A: A disadvantage of thin clients? => Server or network failure stops every client.
+  B: Give two disadvantages of thin clients. => Dependence on the server and network — if either fails nothing works; high bandwidth needed; server is expensive.
+4.10.3 [0.65 q1 a0.12] #6/#10
+  A: Update anomaly? => A change must be made in many rows; missing one leaves inconsistent data.
+  B: What is an update anomaly? => When data stored in several places must be changed in every place, risking inconsistency.
+4.7.3.4 [0.64 q1 a0.1] #0/#8
+  A: Immediate addressing? => The operand is the datum.
+  B: What is immediate addressing? => The operand is the actual value to be used, e.g. `MOV R1, #42`.
+4.9.4.6 [0.64 q0.67 a0.6] #3/#9
+  A: Three private ranges? => 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.
+  B: Name the three private IPv4 ranges. => 10.0.0.0–10.255.255.255; 172.16.0.0–172.31.255.255; 192.168.0.0–192.168.255.255.
+4.1.1.1 [0.63 q0.4 a0.46] #3/#11
+  A: Pointer / reference? => A variable that stores the memory address of an object created at run time.
+  B: What does a pointer/reference variable actually store? => The memory address of another data item or object, typically one created dynamically at run time.
+4.5.4.3 [0.63 q0.67 a0.5] #6/#9
+  A: Most negative 12-bit value? => −2048.
+  B: Most negative 12-bit two's complement value? => −2048 (100000000000).
+4.5.4.7 [0.63 q1 a0.08] #0/#1
+  A: Advantage of floating point over fixed? => Greater range in the same number of bits.
+  B: Advantages of fixed point over floating? => Faster calculation; constant precision; some numbers more precise.
+4.6.1.2 [0.63 q0.6 a0.67] #0/#9
+  A: Four types of system software? => Operating systems, utility programs, libraries, translators.
+  B: Name the four categories of system software. => Operating systems, utility programs, libraries, translators (compilers, interpreters, assemblers).
+4.6.5.1 [0.63 q0.6 a0.67] #11/#12
+  A: Simplify A + ¬A.B. => A + B.
+  B: Simplify (A + B) . (B + C.(D + ¬D)). => = (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.
+4.10.5 [0.63 q1 a0.07] #2/#12
+  A: Serialisation? => Conflicting transactions run one after another (or with an equivalent result).
+  B: What is serialisation? => Transactions are executed one at a time in sequence so they can never interfere.
+4.12.1.1 [0.63 q1 a0.08] #1/#8
+  A: Co-domain? => The set from which output values are chosen; not every member need be output.
+  B: What is the co-domain? => The set that the function's results belong to.
+F204.3.2 [0.63 q1 a0.08] #9/#10
+  A: Give two advantages of fibre over copper. => Far higher bandwidth over much longer distances, and immunity to electromagnetic interference; it is also harder to tap undetected.
+  B: Give two advantages of copper over fibre. => It is much cheaper and easier to install and terminate, and it can carry power as well as data through Power over Ethernet.
+4.5.4.4 [0.62 q1 a0.05] #17/#18
+  A: Advantages of floating point over fixed point? => Greater range in the same number of bits; can represent numbers much closer to zero and much larger.
+  B: Advantages of fixed point over floating point? => Faster/simpler arithmetic; some numbers represented more precisely; constant (guaranteed) absolute precision.
+4.6.1.3 [0.62 q1 a0.05] #0/#11
+  A: Define a utility program. => Software performing a non-core / ancillary management function — helps maintain or configure the computer.
+  B: Give three utility programs. => Disk defragmenter, virus scanner, backup software (also compression and encryption tools).
+4.9.4.2 [0.62 q1 a0.06] #0/#1
+  A: HTTP? => Hypertext Transfer Protocol — browser requests web pages from a web server (port 80).
+  B: HTTPS? => HTTP over an encrypted TLS connection with certificate authentication (port 443).
+4.2.2.1 [0.6 q0.6 a0.6] #2/#3
+  A: First step to add an item? => Check the queue is not full.
+  B: First step to remove an item? => Check the queue is not empty.
+4.2.5.1 [0.6 q0.6 a0.6] #2/#14
+  A: Binary search tree rule? => Left subtree smaller, right subtree larger than each node.
+  B: What makes a tree a binary *search* tree? => For every node, all values in the left subtree are smaller and all in the right subtree are larger.
+4.3.3.1 [0.6 q0.6 a0.5] #0/#2
+  A: RPN of 5 − 3? => 5 3 −.
+  B: RPN of (3 + 4) × 5? => 3 4 + 5 ×.
+4.4.3.1 [0.6 q1 a0] #0/#2
+  A: ::= in BNF? => "Is defined as" — introduces a production rule.
+  B: | in BNF? => Or — separates alternatives.
+4.4.4.6 [0.6 q0.2 a0.2] #0/#1
+  A: Example of a non-computable problem? => The Halting problem.
+  B: Importance of the Halting problem? => It demonstrates that non-computable problems exist.
+4.6.1.2 [0.6 q0.5 a0.14] #2/#8
+  A: Is a compiler system or application software? => System software (a translator).
+  B: Define system software. => Software used in the management of the computer system, providing a platform for other software and hiding the hardware's complexity from the user.
+4.6.1.2 [0.6 q0 a0.14] #3/#8
+  A: Category of a virus checker? => Utility (system software).
+  B: Define system software. => Software used in the management of the computer system, providing a platform for other software and hiding the hardware's complexity from the user.
+4.6.1.2 [0.6 q0.17 a0.06] #4/#7
+  A: Is a bitmap image editor system software? => No — application software.
+  B: Define application software. => Software that performs user-oriented tasks — tasks a user would want to do even without a computer, e.g. writing a letter.
+4.6.5.1 [0.6 q0.67 a0] #3/#4
+  A: X + X̄·Y = ? => X + Y.
+  B: X·X̄ = ? and X + X̄ = ? => 0 and 1.
+4.6.5.1 [0.6 q0 a1] #10/#11
+  A: State De Morgan's laws. => ¬(A + B) = ¬A . ¬B and ¬(A . B) = ¬A + ¬B.
+  B: Simplify A + ¬A.B. => A + B.
+4.6.5.1 [0.6 q0 a0.22] #10/#13
+  A: State De Morgan's laws. => ¬(A + B) = ¬A . ¬B and ¬(A . B) = ¬A + ¬B.
+  B: Simplify ¬(¬(¬B . A) . ¬B) + A.B. => De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem.
+4.6.5.1 [0.6 q0 a0.4] #10/#16
+  A: State De Morgan's laws. => ¬(A + B) = ¬A . ¬B and ¬(A . B) = ¬A + ¬B.
+  B: Simplify A.B + A.¬B. => A (factor A out: A.(B + ¬B) = A.1).
+4.6.5.1 [0.6 q0.6 a0.5] #11/#17
+  A: Simplify A + ¬A.B. => A + B.
+  B: Simplify ¬(A + B) . ¬(C.D). => ¬A . ¬B . (¬C + ¬D).
+4.7.4.2 [0.6 q1 a0] #8/#9
+  A: Two SSD advantages over HDD? => Faster access; lower power; shock-resistant; silent; smaller.
+  B: Two HDD advantages over SSD? => Cheaper per GB; higher capacities; no write-cycle wear.
+4.9.2.2 [0.6 q0 a0.63] #0/#1
+  A: What is a server? => A computer that provides services/resources to clients on request.
+  B: Client-server network? => Servers provide services/resources; clients request them.
+4.10.5 [0.6 q0 a0.06] #7/#14
+  A: Which method can deadlock? => Record locking.
+  B: Give one disadvantage of record locking. => A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock.
+4.4.5.1 [0.59 q0.75 a0.35] #0/#9
+  A: Components of a Turing machine? => Finite set of states, finite alphabet, infinite tape, read-write head, transition rules (start and halting states).
+  B: List the components of a Turing machine. => A finite set of states (including a start state and halting/accepting states), a set of transition rules, an infinitely long tape divided into cells, a read/write head that moves one cell at a time, and a state register holding the current state.
+4.2.1.1 [0.58 q0.75 a0.33] #5/#10
+  A: One disadvantage of a dynamic structure? => Extra memory for pointers (also: memory leaks, slower direct access).
+  B: State two disadvantages of a dynamic data structure. => Extra memory for pointers; risk of memory leaks if freed memory is not returned to the heap; direct access to an item can take longer.
+4.3.4.2 [0.58 q0.67 a0.44] #1/#2
+  A: Target bigger than List[Z]? => X ← Z + 1 — search the upper half.
+  B: Target smaller than List[Z]? => Y ← Z − 1 — search the lower half.
+4.3.5.2 [0.58 q0.29 a0.56] #1/#8
+  A: Why is merge sort O(n log n)? => log₂ n levels of splitting, and each level merges n items.
+  B: Time complexity of merge sort? => O(n log n) — log n levels of splitting, n work per level to merge.
+4.4.2.3 [0.58 q0.3 a1] #5/#12
+  A: UK postcode regex (2017)? => \a\a?\d(\a|\d)?\d\a\a.
+  B: Regex for a UK postcode: 1–2 letters, digit, optional letter-or-digit, digit, two letters? => `\a\a?\d(\a|\d)?\d\a\a`
+4.9.3.2 [0.58 q0.67 a0.44] #4/#12
+  A: How is a signature verified? => Decrypt it with the sender's public key; re-hash the message; compare digests.
+  B: Describe how a digital signature is verified. => The receiver decrypts with their private key, re-hashes the message, decrypts the signature with the sender's public key, and compares the two digests — a match authenticates the sender and confirms integrity.
+4.3.3.1 [0.57 q0.57 a0.5] #1/#2
+  A: RPN of 3 + 4 × 2 − 1? => 3 4 2 × + 1 −.
+  B: RPN of (3 + 4) × 5? => 3 4 + 5 ×.
+4.3.3.1 [0.57 q0.5 a0.67] #1/#7
+  A: RPN of 3 + 4 × 2 − 1? => 3 4 2 × + 1 −.
+  B: Infix of 6 2 − 1 3 + ×? => (6 − 2) × (1 + 3).
+4.5.5.3 [0.57 q0.67 a0.44] #3/#10
+  A: How does majority voting work? => Each bit sent an odd number (≥3) of times; receiver assumes the majority value.
+  B: Describe majority voting. => Each bit (or byte) is sent an odd number of times, at least three; the receiver takes the value received most often as the value sent.
+4.2.8.1 [0.56 q0.6 a0.5] #13/#14
+  A: Effect of multiplying a vector by 2? => Direction/angle unchanged; magnitude doubled.
+  B: Effect of multiplying a vector by −1? => Magnitude unchanged; direction reversed (angle 180° from the original).
+4.3.5.1 [0.56 q0.56 a0.43] #5/#15
+  A: 3 5 8 1 6 4 after one pass? => 3 5 1 6 4 8.
+  B: What is the state of [5, 1, 4, 2] after one pass? => [1, 4, 2, 5].
+4.4.2.3 [0.56 q0.27 a1] #6/#11
+  A: Regex for odd-length alternating a/b strings (2021)? => a(ba)*|b(ab)*.
+  B: Write a regex for strings of a's and b's that alternate, starting with either. => `a(ba)*|b(ab)*`
+4.4.4.3 [0.56 q0.5 a0.5] #2/#3
+  A: Logarithmic time example? => Binary search — O(log n).
+  B: Linear time example? => Linear search — O(n).
+4.7.3.2 [0.56 q0.67 a0.39] #4/#11
+  A: What happens at execute? => The operation is carried out (ALU etc.), data fetched/stored, result written, SR updated, PC changed by a branch.
+  B: What happens in the execute stage? => Data is fetched or stored if needed; the ALU performs the operation identified by the opcode; the result is stored; the status register is updated; a branch changes the PC.
+4.11.1 [0.56 q0.33 a0.54] #9/#16
+  A: Graph schema: node, edge, property? => Oval; solid labelled line; rectangle joined by a dashed line.
+  B: Describe the graph schema notation. => Nodes (entities) as ovals; relationships as solid labelled lines between nodes; properties as rectangles joined to their node by dashed lines.
+4.12.1.2 [0.56 q0.5 a0.14] #1/#13
+  A: Are functions first-class in a functional language? => Yes.
+  B: True or false: in a functional language every function is a first-class object? => Yes — in a functional language every function is a first-class object.
+4.2.1.1 [0.55 q0.25 a1] #2/#8
+  A: LIFO structure? => Stack.
+  B: Structure for an undo feature? => A stack.
+4.3.4.3 [0.55 q0.75 a0.26] #0/#6
+  A: Binary tree search step? => Equal → found; smaller → left; bigger → right; no child → not found.
+  B: Describe binary tree search. => Start at the root; if the target equals the node's value, found; if smaller, move to the left child; if larger, to the right child; repeat until found or a null pointer is reached.
+4.2.4.1 [0.54 q0.67 a0.35] #10/#11
+  A: When is an adjacency list better than an adjacency matrix? => When the graph is sparse (few edges relative to vertices), edges rarely change and specific edges are seldom tested for.
+  B: When is an adjacency matrix better? => When the graph is dense, edges change frequently, or the presence of a specific edge must be tested often.
+4.3.5.1 [0.54 q0.33 a0.44] #1/#9
+  A: Why is bubble sort O(n²)? => Up to n items examined per pass and up to n passes.
+  B: Time complexity of bubble sort? => O(n²) — up to n passes, each examining n items.
+4.6.4.1 [0.54 q0.25 a0.33] #13/#14
+  A: What does a half adder do and how is it built? => Adds two bits: Sum = A XOR B, Carry = A AND B.
+  B: What does a full adder do? => Adds three bits (A, B and carry-in), producing a sum and carry-out — built from two half adders and an OR.
+4.7.3.2 [0.54 q0 a0.09] #0/#5
+  A: Fetch step 1? => The contents of the PC are copied into the MAR.
+  B: Why is PC copied to MAR? => So the address can be put on the address bus and the PC can be incremented.
+4.3.3.1 [0.53 q0.44 a0.67] #2/#10
+  A: RPN of (3 + 4) × 5? => 3 4 + 5 ×.
+  B: Convert `5 2 3 × + 4 +` back to infix. => 5 + 2 × 3 + 4 (= 15).
+4.10.3 [0.53 q0 a0.5] #2/#3
+  A: 2NF? => 1NF and no partial dependencies — every non-key attribute depends on the whole key.
+  B: 3NF? => 2NF and no transitive dependencies — every non-key attribute depends on nothing but the key.
+4.12.2.1 [0.53 q0.22 a1] #4/#10
+  A: fold (*) 1 [2,3,2]? => 12.
+  B: Evaluate `fold (+) 0 [2, 4, 6]`. => 12.
+4.1.1.2 [0.52 q0.75 a0.19] #4/#12
+  A: Why use meaningful identifiers? => Self-documenting code — easier to read, debug and maintain.
+  B: Why use meaningful identifier names? => The program is easier to understand, debug and maintain, by the original programmer and by others; the purpose of each variable is clear without comments.
+4.4.3.1 [0.52 q0.6 a0.4] #3/#10
+  A: BNF for a natural number? => <natural> ::= <digit> | <digit><natural>.
+  B: Write a BNF rule for a natural number. => `<natural> ::= <digit> | <digit><natural>` with `<digit> ::= 0|1|…|9`.
+4.4.3.1 [0.52 q0.2 a1] #5/#13
+  A: Sentences from <sentence> ::= <sentence><c><sentence>? => Infinitely many.
+  B: How many sentences does a recursive rule define? => Infinitely many.
+4.4.4.3 [0.52 q0.43 a0.67] #6/#12
+  A: Loop that halves n each time? => O(log n).
+  B: What order is nested loops each running n times? => O(n²).
+4.7.3.5 [0.52 q0.5 a0.56] #14/#15
+  A: What does `LDR R1, 100` do? => Loads register R1 with the contents of memory location 100.
+  B: What does `STR R1, 100` do? => Stores the contents of R1 into memory location 100.
+4.3.3.1 [0.51 q0.38 a0.67] #3/#12
+  A: RPN of 5 + 2 × 3 + 4? => 5 2 3 × + 4 +.
+  B: Evaluate `4 6 + 2 /`. => (4 + 6) / 2 = 5.
+4.5.4.5 [0.51 q0.67 a0.29] #21/#22
+  A: Underflow happens because the exponent needed is…? => More negative than the most negative exponent.
+  B: Overflow happens because the exponent needed is…? => Larger than the largest exponent.
+4.5.5.3 [0.51 q0.6 a0.38] #4/#11
+  A: Advantage of majority voting? => It can correct errors.
+  B: Give two advantages of majority voting over parity. => It can correct errors, not just detect them; it can detect multi-bit errors.
+4.5.6.10 [0.51 q0.67 a0.29] #4/#11
+  A: Vernam cipher operation? => XOR each bit of plaintext with the key.
+  B: Describe the Vernam cipher. => Convert plaintext and a random key of equal length to binary; XOR them bit by bit; the result is the ciphertext; XOR with the key again recovers the plaintext.
+4.1.1.11 [0.5 q0.25 a0.5] #0/#7
+  A: Argument? => The actual value passed to a parameter in a call.
+  B: Difference between parameter and argument? => The parameter is the name in the definition; the argument is the actual value/expression supplied in the call.
+4.3.2.1 [0.5 q0 a0] #1/#7
+  A: Use of in-order? => Outputting a BST in ascending order.
+  B: Which traversal outputs a BST in ascending order? => In-order.
+4.3.3.1 [0.5 q0.5 a0.4] #0/#3
+  A: RPN of 5 − 3? => 5 3 −.
+  B: RPN of 5 + 2 × 3 + 4? => 5 2 3 × + 4 +.
+4.3.3.1 [0.5 q0.5 a0.5] #1/#9
+  A: RPN of 3 + 4 × 2 − 1? => 3 4 2 × + 1 −.
+  B: Convert `(7 + 2) × 3` to RPN. => 7 2 + 3 ×
+4.3.3.1 [0.5 q0.5 a0.5] #3/#9
+  A: RPN of 5 + 2 × 3 + 4? => 5 2 3 × + 4 +.
+  B: Convert `(7 + 2) × 3` to RPN. => 7 2 + 3 ×
+4.3.4.3 [0.5 q0.44 a0] #1/#5
+  A: Time complexity of binary tree search on a balanced tree? => O(log n).
+  B: Why is binary tree search on a balanced tree O(log n)? => Each comparison discards about half of the remaining tree.
+4.5.2.1 [0.5 q0.67 a0] #14/#15
+  A: How many bits does one hex digit represent? => Four (a nibble).
+  B: How many hex digits represent one byte? => Two.
+4.5.3.1 [0.5 q0.5 a0.5] #2/#3
+  A: Values representable with n bits? => 2ⁿ.
+  B: Largest unsigned value in n bits? => 2ⁿ − 1.
+4.7.3.5 [0.5 q0.5 a0.5] #3/#4
+  A: What does AND with a mask do? => Keeps bits where the mask is 1, clears the rest.
+  B: What does ORR with a mask do? => Sets bits where the mask is 1.
+4.7.3.5 [0.5 q0.5 a0.5] #3/#5
+  A: What does AND with a mask do? => Keeps bits where the mask is 1, clears the rest.
+  B: What does EOR with a mask do? => Toggles bits where the mask is 1.
+4.7.3.5 [0.5 q0.33 a0.67] #4/#5
+  A: What does ORR with a mask do? => Sets bits where the mask is 1.
+  B: What does EOR with a mask do? => Toggles bits where the mask is 1.
+4.9.1.1 [0.5 q0.4 a0.44] #3/#8
+  A: Why is the internal data bus parallel? => Short distance, fixed positions, huge volume — many bits at once.
+  B: Why are internal buses parallel? => Distances are short and fixed and large volumes of data move constantly, so sending many bits at once is worthwhile.
+4.9.4.4 [0.5 q0 a0] #3/#7
+  A: /20 mask? => 255.255.240.0.
+  B: Write 255.255.240.0 as a prefix length. => /20.
+4.10.3 [0.5 q0.25 a0.47] #1/#13
+  A: 1NF? => No repeating groups; every attribute atomic; has a primary key.
+  B: State the conditions for 1NF, 2NF and 3NF. => 1NF: atomic values, no repeating groups. 2NF: 1NF and every non-key attribute depends on the whole primary key. 3NF: 2NF and no non-key attribute depends on another non-key attribute.
+4.10.5 [0.5 q0.67 a0.25] #0/#14
+  A: Record locking? => A record is locked while one transaction edits it; others cannot edit it until the lock is released.
+  B: Give one disadvantage of record locking. => A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock.
+4.12.1.4 [0.5 q0.4 a0] #3/#12
+  A: (add 4) 6? => 10.
+  B: Evaluate `(add 6) 10`. => 16.
+4.12.3.1 [0.5 q0.33 a0.33] #0/#9
+  A: Head of a list? => Its first element — a single value.
+  B: What does head return? => The first element of a non-empty list.
+4.12.3.1 [0.5 q0 a1] #1/#11
+  A: tail [7]? => [] — the empty list.
+  B: What is `[]`? => The empty list.
+4.2.1.1 [0.49 q0.75 a0.09] #4/#10
+  A: Dynamic data structure? => Grows and shrinks at run time; nodes linked by pointers on the heap.
+  B: State two disadvantages of a dynamic data structure. => Extra memory for pointers; risk of memory leaks if freed memory is not returned to the heap; direct access to an item can take longer.
+4.6.5.1 [0.49 q0.6 a0.33] #12/#16
+  A: Simplify (A + B) . (B + C.(D + ¬D)). => = (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.
+  B: Simplify A.B + A.¬B. => A (factor A out: A.(B + ¬B) = A.1).
+4.7.4.1 [0.49 q0.8 a0.03] #7/#8
+  A: Give two advantages of RFID over barcodes for a warehouse. => Tags can be read without line of sight / while items stay on the pallet; many tags read at a distance and quickly without manual scanning; tags are less easily damaged.
+  B: Give two advantages of barcodes over RFID. => Much cheaper per item; readable with existing checkout scanners; human-readable digits as a backup; no radio interference.
+4.1.1.10 [0.48 q0.5 a0.46] #0/#10
+  A: Subroutine? => A named, out-of-line block of code that can be executed by writing its name in a program statement.
+  B: Define the term subroutine. => A named, out-of-line block of code that performs a task and can be called by name from elsewhere in the program.
+4.3.5.1 [0.48 q0.67 a0.21] #0/#8
+  A: Bubble sort? => Repeated passes comparing adjacent items and swapping them when out of order.
+  B: Describe one pass of bubble sort. => Compare each adjacent pair from the start; swap if out of order; the largest unsorted item 'bubbles' to the end.
+4.5.4.7 [0.48 q0.67 a0.2] #11/#12
+  A: Largest positive value with 8-bit mantissa and 4-bit exponent? => 0.1111111 × 2⁷ = 127/128 × 128 = 127.
+  B: Smallest positive normalised value with an 8-bit mantissa and 4-bit exponent? => 0.1000000 × 2⁻⁸ = 0.5 × 1/256 = 1/512.
+4.5.6.8 [0.48 q0.2 a0.47] #1/#6
+  A: Data in a MIDI message? => e.g. note on/off, pitch, velocity, channel, instrument.
+  B: How does MIDI represent music? => As a sequence of event messages (instructions) — e.g. note on, note off, pitch, velocity, duration, channel, instrument — rather than as sampled sound.
+4.5.6.9 [0.48 q0.6 a0.31] #8/#17
+  A: Why RLE suits images? => Adjacent pixels are often the same colour.
+  B: Why suit RLE to images and dictionaries to text? => Images often have adjacent pixels of the same colour; text repeats words spread throughout rather than adjacent identical characters.
+4.7.2.1 [0.48 q0.75 a0.08] #5/#6
+  A: State the stored program concept. => Machine code instructions are stored in main memory and are fetched and executed serially / in order by a processor that performs arithmetic and logical operations.
+  B: What does the stored program concept allow? => Programs can be loaded into and out of main memory, so the same hardware runs different programs.
+4.10.1 [0.48 q0.67 a0.21] #5/#12
+  A: How is a many-to-many implemented? => A linking entity with two one-to-many relationships; its identifier is usually the two foreign keys together.
+  B: How is a many-to-many relationship implemented? => With a linking (junction) relation whose primary key is the composite of the two entity identifiers, e.g. PetOwner(CustomerID, PetID).
+4.13.1.4 [0.48 q0.13 a1] #0/#4
+  A: Three types of test data? => Normal, boundary, erroneous.
+  B: sqrt test values 25, 1, −8? => Normal, boundary, erroneous.
+F204.1.2 [0.48 q0.67 a0.19] #8/#10
+  A: Give an example of the Things pillar affecting the Process pillar. => A battery-powered sensor has too little power to process data on-device, so analysis must be pushed to the edge or cloud.
+  B: Give an example of the Data pillar affecting the Process pillar. => A very high-rate data stream cannot all be transmitted to the cloud, so processing must happen at the edge to reduce volume and latency.
+4.2.6.1 [0.47 q0.63 a0.25] #7/#13
+  A: Why do hash tables slow down when nearly full? => More collisions, so fewer records are at their calculated index.
+  B: Why do collisions slow a nearly full hash table? => More items end up away from their calculated index, so direct access happens less often and a search from the calculated position is needed.
+4.3.3.1 [0.47 q0.4 a0.57] #1/#10
+  A: RPN of 3 + 4 × 2 − 1? => 3 4 2 × + 1 −.
+  B: Convert `5 2 3 × + 4 +` back to infix. => 5 + 2 × 3 + 4 (= 15).
+4.3.4.3 [0.47 q0.33 a0.15] #5/#7
+  A: Why is binary tree search on a balanced tree O(log n)? => Each comparison discards about half of the remaining tree.
+  B: Time complexity of binary tree search? => O(log₂ n) for a balanced tree — each comparison halves the part of the tree to look at.
+4.4.1.9 [0.47 q0.33 a0.5] #0/#4
+  A: Three mark points for decomposition? => Smaller sub-problems; each an identifiable task; each may be subdivided.
+  B: Define decomposition. => Breaking a problem into smaller sub-problems, each of which solves an identifiable task and may itself be further subdivided.
+4.4.2.4 [0.47 q0.67 a0.18] #5/#6
+  A: How to show a language is regular? => Write a regular expression (or FSM) for it.
+  B: Define a regular language. => A language that can be represented by a regular expression — equivalently, recognised by a finite state machine.
+4.4.4.6 [0.47 q0.67 a0.18] #0/#5
+  A: Example of a non-computable problem? => The Halting problem.
+  B: What is a non-computable problem? => One for which no algorithm can exist that solves every instance — e.g. the halting problem.
+4.5.6.4 [0.47 q0.33 a0.5] #12/#13
+  A: Three properties of a rectangle? => e.g. x/y of a corner, width, height, fill colour, line colour, line width.
+  B: Properties of a circle? => Centre x/y, radius, fill colour, line colour, line width.
+4.5.6.8 [0.47 q0.67 a0.17] #5/#11
+  A: How many MIDI channels? => 16.
+  B: What is a MIDI channel? => One of 16 logical streams, each usually assigned to an instrument.
+4.6.1.4 [0.47 q0.33 a0.46] #3/#9
+  A: Describe I/O management. => Allocates devices to processes and manages communication through device drivers.
+  B: Describe the OS's I/O-management role. => It allocates I/O devices to processes, manages communication with them via drivers, and installs drivers for new devices.
+4.6.5.1 [0.47 q0.6 a0.29] #16/#17
+  A: Simplify A.B + A.¬B. => A (factor A out: A.(B + ¬B) = A.1).
+  B: Simplify ¬(A + B) . ¬(C.D). => ¬A . ¬B . (¬C + ¬D).
+4.7.3.2 [0.47 q0.5 a0.43] #0/#3
+  A: Fetch step 1? => The contents of the PC are copied into the MAR.
+  B: Fetch final step? => The contents of the MBR are copied into the CIR.
+4.8.1 [0.47 q0.57 a0.31] #6/#12
+  A: Name four UK Acts relevant to computing. => Data Protection Act 2018/UK GDPR, Computer Misuse Act 1990, Copyright Designs and Patents Act 1988, RIPA 2000 (also Communications Act 2003).
+  B: Name four UK laws relevant to computing and what each covers. => Data Protection Act / GDPR (personal data); Computer Misuse Act (unauthorised access and modification); Copyright, Designs and Patents Act (intellectual property); Regulation of Investigatory Powers Act (interception and surveillance).
+4.9.2.1 [0.47 q0.67 a0.18] #3/#9
+  A: Physical star? => Every device connected to a central switch (or hub), sending data through it.
+  B: Describe a physical star topology. => Each device has its own cable to a central switch; the switch forwards each frame only to the port of the destination device.
+4.10.3 [0.47 q0.25 a0.44] #2/#13
+  A: 2NF? => 1NF and no partial dependencies — every non-key attribute depends on the whole key.
+  B: State the conditions for 1NF, 2NF and 3NF. => 1NF: atomic values, no repeating groups. 2NF: 1NF and every non-key attribute depends on the whole primary key. 3NF: 2NF and no non-key attribute depends on another non-key attribute.
+4.11.1 [0.47 q0.67 a0.18] #12/#13
+  A: Define Big Data. => Data that cannot be processed or analysed using traditional database tools because of its volume, velocity and variety.
+  B: State the three characteristics of Big Data. => Volume (too much for one server), velocity (must be processed at high speed), variety (many forms, often unstructured).
+4.12.1.3 [0.47 q0.67 a0.18] #4/#5
+  A: How is a function application evaluated? => substituting the argument into the function's body, innermost first.
+  B: What is function application? => Applying a function to its argument(s) to obtain a result, e.g. add 3 4 = 7.
+F204.4.1 [0.47 q0.67 a0.17] #2/#3
+  A: When is a screen the best output choice? => When the user needs detail, history or several values at once, or must make a judgement — visual output can be examined and compared at the user's own pace.
+  B: When is a speaker the best output choice? => When the message is urgent and must interrupt, when the user's eyes are busy or they are not looking at a device, or when the user has a visual impairment.
+4.2.8.1 [0.46 q0.33 a0.38] #9/#14
+  A: Effect of × −1 on the angle with b? => θ becomes 180° − θ; magnitude unchanged.
+  B: Effect of multiplying a vector by −1? => Magnitude unchanged; direction reversed (angle 180° from the original).
+4.4.2.3 [0.46 q0.5 a0.4] #1/#2
+  A: + in a regex? => One or more of the preceding element.
+  B: ? in a regex? => Zero or one — the preceding element is optional.
+4.5.4.3 [0.46 q0.43 a0.5] #0/#1
+  A: Place value of the MSB in 8-bit two's complement? => −128.
+  B: 8-bit two's complement range? => −128 to 127.
+4.5.5.3 [0.46 q0.67 a0.15] #0/#9
+  A: What is a parity bit? => An extra bit making the number of 1s even (or odd) as agreed.
+  B: State two limitations of parity bits. => Errors that change an even number of bits go undetected; errors can be detected but not corrected (their position is unknown).
+4.5.6.4 [0.46 q0.67 a0.14] #0/#1
+  A: Define colour depth. => The number of bits used to represent the colour of each pixel.
+  B: Colour depth for 5 colours? => 3 bits.
+4.5.6.7 [0.46 q0.67 a0.14] #8/#12
+  A: What is quantisation error? => The difference between the true amplitude and the stored level.
+  B: What is quantisation error and how is it reduced? => The rounding of each measured amplitude to the nearest available level; reduce it by increasing the sample resolution.
+4.6.4.1 [0.46 q0.5 a0.4] #0/#1
+  A: Truth table of XOR? => 0 1 1 0 — 1 when the inputs differ.
+  B: Truth table of NAND? => 1 1 1 0.
+4.6.4.1 [0.46 q0.5 a0.4] #0/#2
+  A: Truth table of XOR? => 0 1 1 0 — 1 when the inputs differ.
+  B: Truth table of NOR? => 1 0 0 0.
+4.6.4.1 [0.46 q0.67 a0.14] #9/#15
+  A: Inputs of a D-type flip-flop? => Data (D) and clock.
+  B: What is a D-type flip-flop? => A one-bit memory: on the clock pulse the output Q takes the value of the D input and holds it until the next pulse.
+4.7.3.3 [0.46 q0.4 a0.25] #4/#11
+  A: n operand bits in direct addressing address… => 2ⁿ memory locations.
+  B: A 10-bit operand with direct addressing can address how many locations? => 2¹⁰ = 1024.
+4.9.2.3 [0.46 q0.13 a0.56] #1/#14
+  A: Two components for wireless networking? => Wireless network adapter (in each device) and a wireless access point.
+  B: What hardware does a device need to join a wireless network? => A wireless network interface card (adapter); the network needs a wireless access point.
+4.10.5 [0.46 q0.67 a0.16] #10/#14
+  A: Describe record locking. => When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed.
+  B: Give one disadvantage of record locking. => A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock.
+4.1.2.2 [0.45 q0.67 a0.13] #3/#9
+  A: Hierarchy chart — a box? => A subroutine (procedure/function/method/module).
+  B: What is a hierarchy chart? => A diagram showing a program decomposed into modules/subroutines, top-down, with each level calling the ones below.
+4.1.2.3 [0.45 q0 a0] #0/#1
+  A: Class? => A blueprint defining the attributes and methods common to a type of object.
+  B: Object? => An instance of a class.
+4.2.4.1 [0.45 q0.2 a0] #0/#6
+  A: Graph? => A set of vertices/nodes connected by edges/arcs.
+  B: Which graph needs both halves of the matrix? => A directed graph.
+4.3.2.1 [0.45 q0 a0] #2/#8
+  A: Use of post-order? => Infix → RPN from an expression tree; emptying/deleting a tree.
+  B: Which traversal produces Reverse Polish from an expression tree? => Post-order.
+4.3.2.1 [0.45 q0.17 a0] #5/#7
+  A: Define in-order traversal. => Traverse the left subtree, visit the node, then traverse the right subtree.
+  B: Which traversal outputs a BST in ascending order? => In-order.
+4.3.2.1 [0.45 q0.14 a0] #6/#8
+  A: Define post-order traversal. => Traverse the left subtree, then the right subtree, then visit the node.
+  B: Which traversal produces Reverse Polish from an expression tree? => Post-order.
+4.3.5.2 [0.45 q0.17 a0] #4/#5
+  A: Which of linear search, merge sort, binary search, post-order traversal is O(n log n)? => Merge sort.
+  B: Why are bubble and merge sort tractable? => Polynomial (or better) time complexity.
+4.3.5.2 [0.45 q0.17 a0.11] #4/#8
+  A: Which of linear search, merge sort, binary search, post-order traversal is O(n log n)? => Merge sort.
+  B: Time complexity of merge sort? => O(n log n) — log n levels of splitting, n work per level to merge.
+4.3.5.2 [0.45 q0.17 a0.1] #4/#11
+  A: Which of linear search, merge sort, binary search, post-order traversal is O(n log n)? => Merge sort.
+  B: Space cost of merge sort? => O(n) extra memory for the merged lists (bubble sort is in place).
+4.4.1.9 [0.45 q0 a0.33] #9/#15
+  A: Procedural composition? => Combining procedures to form a compound procedure.
+  B: What is a compound procedure? => A procedure built by combining simpler procedures.
+4.4.3.1 [0.45 q0 a0] #6/#13
+  A: Syntax-diagram loop in BNF? => A recursive rule.
+  B: How many sentences does a recursive rule define? => Infinitely many.
+4.4.4.1 [0.45 q0 a0.67] #8/#13
+  A: Give the time complexity of linear search, binary search, bubble sort and merge sort. => O(n), O(log n), O(n²), O(n log n).
+  B: Between O(n log n) and O(n²), which grows faster? => O(n²).
+4.4.4.6 [0.45 q0.25 a0.15] #1/#5
+  A: Importance of the Halting problem? => It demonstrates that non-computable problems exist.
+  B: What is a non-computable problem? => One for which no algorithm can exist that solves every instance — e.g. the halting problem.
+4.4.4.6 [0.45 q0 a0] #10/#14
+  A: Is 'does this program ever print X for some input?' computable in general? => No — it reduces to the halting problem.
+  B: Describe the halting problem. => Determining, without running it, whether a given program will halt (terminate) for a particular input.
+4.5.1.1 [0.45 q0.11 a0.21] #5/#29
+  A: Name the five number sets in the spec. => Natural, integer, rational, irrational, real (plus ordinal numbers for position).
+  B: Symbols for the natural numbers, integers, rationals and reals? => ℕ, ℤ, ℚ, ℝ. The irrationals have no symbol of their own: ℝ is the rationals plus the irrationals.
+4.5.3.1 [0.45 q0 a0] #0/#1
+  A: Fundamental unit of information? => The bit.
+  B: Bits in a byte? => 8.
+4.5.3.1 [0.45 q0 a0] #0/#14
+  A: Fundamental unit of information? => The bit.
+  B: Bits → bytes? => Divide by 8.
+4.5.4.7 [0.45 q0.11 a0] #6/#10
+  A: How to get more precision without more bits? => Move bits from the exponent to the mantissa.
+  B: Effect of moving a bit from mantissa to exponent? => Range increases, precision decreases.
+4.5.6.1 [0.45 q0.17 a0] #9/#11
+  A: Analogue data? => Continuous — any value in a range.
+  B: Is a microphone's output analogue or digital? => Analogue.
+4.5.6.1 [0.45 q0.5 a0] #10/#12
+  A: Digital data? => Discrete — a finite set of values, stored as binary.
+  B: Is pixel data analogue or digital? => Digital.
+4.5.6.1 [0.45 q0 a0] #19/#22
+  A: Three steps of an ADC? => Sample at regular intervals; quantise the amplitude; encode in binary.
+  B: Component that digitises a microphone signal? => ADC.
+4.6.1.1 [0.45 q0.25 a0] #6/#10
+  A: Give two examples of hardware. => e.g. processor, RAM, SSD, keyboard, monitor, data bus.
+  B: Which is the CPU: hardware or software? => Hardware.
+4.6.1.2 [0.45 q0 a0] #3/#14
+  A: Category of a virus checker? => Utility (system software).
+  B: Give two examples of utility software. => Virus checker, disk defragmenter, backup tool, file compression, encryption tool.
+4.6.2.1 [0.45 q0 a0] #0/#1
+  A: Two low-level languages? => Machine code and assembly language.
+  B: Describe machine code. => Binary instructions (opcode + operand) executed directly by the processor; processor-specific.
+4.6.2.1 [0.45 q0.33 a0.22] #0/#2
+  A: Two low-level languages? => Machine code and assembly language.
+  B: Describe assembly language. => Mnemonics for machine code instructions; one-to-one with machine code; needs an assembler.
+4.6.5.1 [0.45 q0 a0.22] #4/#14
+  A: X·X̄ = ? and X + X̄ = ? => 0 and 1.
+  B: Why does A . ¬A = 0? => One of A and ¬A is always 0, and an AND gate outputs 1 only when both inputs are 1.
+4.6.5.1 [0.45 q0.25 a0.22] #5/#14
+  A: X + 1 = ? and X·0 = ? => 1 and 0.
+  B: Why does A . ¬A = 0? => One of A and ¬A is always 0, and an AND gate outputs 1 only when both inputs are 1.
+4.6.5.1 [0.45 q0.6 a0.2] #12/#13
+  A: Simplify (A + B) . (B + C.(D + ¬D)). => = (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.
+  B: Simplify ¬(¬(¬B . A) . ¬B) + A.B. => De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem.
+4.6.5.1 [0.45 q0 a0.75] #12/#15
+  A: Simplify (A + B) . (B + C.(D + ¬D)). => = (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.
+  B: What is the distributive law? => A . (B + C) = A.B + A.C, and dually A + B.C = (A + B).(A + C).
+4.6.5.1 [0.45 q0 a0.6] #15/#17
+  A: What is the distributive law? => A . (B + C) = A.B + A.C, and dually A + B.C = (A + B).(A + C).
+  B: Simplify ¬(A + B) . ¬(C.D). => ¬A . ¬B . (¬C + ¬D).
+4.7.3.1 [0.45 q0 a0] #2/#5
+  A: MAR holds… => the address of the location to be read or written.
+  B: Which register connects to the address bus? => MAR.
+4.7.3.1 [0.45 q0 a0] #3/#6
+  A: MBR holds… => the data/instruction just read from, or to be written to, memory.
+  B: Which register connects to the data bus? => MBR.
+4.7.3.1 [0.45 q0 a0] #5/#10
+  A: Which register connects to the address bus? => MAR.
+  B: What does the MAR hold? => The address of the memory location currently being read from or written to.
+4.7.3.1 [0.45 q0 a0] #6/#11
+  A: Which register connects to the data bus? => MBR.
+  B: What does the MBR hold? => The data just read from, or about to be written to, memory — including a fetched instruction before it moves to the CIR.
+4.7.3.3 [0.45 q0.25 a0] #1/#3
+  A: What is an opcode? => The part of an instruction giving the operation (and, in AQA's model, the addressing mode).
+  B: k opcode bits allow… => 2ᵏ opcodes.
+4.7.3.3 [0.45 q0 a0] #7/#9
+  A: Why won't a compiled program run on a different processor? => It is machine code for a different instruction set.
+  B: What are the two parts of a machine code instruction? => The opcode (the operation to perform, including addressing-mode bits) and the operand(s) (the data, register number or address to use).
+4.7.3.4 [0.45 q0 a0] #0/#1
+  A: Immediate addressing? => The operand is the datum.
+  B: Mode of MOV R2, #0? => Immediate.
+4.7.3.4 [0.45 q0 a0] #1/#8
+  A: Mode of MOV R2, #0? => Immediate.
+  B: What is immediate addressing? => The operand is the actual value to be used, e.g. `MOV R1, #42`.
+4.9.1.2 [0.45 q0.29 a0.13] #0/#4
+  A: Bit rate? => Number of bits transmitted per second.
+  B: 4 signals, 2 bits each → bit rate vs baud? => Bit rate = 2 × baud rate.
+4.9.1.2 [0.45 q0.29 a0] #4/#5
+  A: 4 signals, 2 bits each → bit rate vs baud? => Bit rate = 2 × baud rate.
+  B: Define baud rate. => The number of signal changes (symbols) per second on the medium.
+4.9.1.2 [0.45 q0.33 a0.24] #4/#6
+  A: 4 signals, 2 bits each → bit rate vs baud? => Bit rate = 2 × baud rate.
+  B: How can bit rate exceed baud rate? => By encoding more than one bit in each signal change — e.g. four voltage levels carry 2 bits per change, so bit rate = 2 × baud.
+4.9.2.1 [0.45 q0.67 a0.13] #3/#13
+  A: Physical star? => Every device connected to a central switch (or hub), sending data through it.
+  B: Give one disadvantage of a physical star. => More cabling and a central switch are needed; the switch is a single point of failure.
+4.9.4.3 [0.45 q0.18 a0.6] #0/#6
+  A: Network address of 192.168.200.5/20? => 192.168.192.0.
+  B: Valid host for 192.168.0.0/24? => 192.168.0.1 to 192.168.0.254.
+4.9.4.6 [0.45 q0.2 a0.42] #3/#6
+  A: Three private ranges? => 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.
+  B: What is a private (non-routable) IP address? => An address from a reserved range (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) that is used only inside a LAN and is never forwarded by Internet routers.
+4.9.4.9 [0.45 q0.22 a0.67] #5/#13
+  A: Which port would a web server's rule use? => 80 (HTTP) or 443 (HTTPS).
+  B: Which ports would be forwarded for HTTP and HTTPS? => 80 and 443.
+4.12.3.1 [0.45 q0 a0.1] #3/#12
+  A: Prepend in Haskell? => x : xs.
+  B: What does `x:xs` mean? => The list whose head is x and tail is xs — prepending x to xs; also used as a pattern to split a list.
+F204.6.2 [0.45 q0 a0.15] #0/#2
+  A: Name the two sources of feedback in the F204 spec. => Stakeholders and developers.
+  B: What question do stakeholders answer, and what question do developers answer? => Stakeholders answer 'is this the right thing?' — whether it solves the real problem. Developers answer 'is this thing right?' — whether the design is feasible and technically sound.

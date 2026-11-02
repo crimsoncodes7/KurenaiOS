@@ -1,0 +1,764 @@
+{
+ "res": [
+  {
+   "k": "maths:2.1",
+   "a": "qz0",
+   "b": "qz8b",
+   "s": 1,
+   "sq": 1,
+   "sameA": false,
+   "A": "$8^{2/3} =$ → 4",
+   "B": "$8^{2/3} =$ → 4"
+  },
+  {
+   "k": "maths:2.2",
+   "a": "qz0",
+   "b": "qz7b",
+   "s": 0.38,
+   "sq": 0.37,
+   "sameA": true,
+   "A": "$\\sqrt{48} =$ → $4\\sqrt3$",
+   "B": "$\\sqrt{48}$ simplifies to: → $4\\sqrt3$"
+  },
+  {
+   "k": "maths:2.3",
+   "a": "qz0",
+   "b": "qz9b",
+   "s": 0.77,
+   "sq": 0.78,
+   "sameA": false,
+   "A": "$x^2 - 6x + 2$ in completed-square form: → $(x - 3)^2 - 7$",
+   "B": "$x^2 - 6x + 13$ in completed-square form: → $(x-3)^2 + 4$"
+  },
+  {
+   "k": "maths:2.6",
+   "a": "qz0",
+   "b": "qz8b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$(x - 2)$ is a factor of $f(x)$ means → $f(2) = 0$",
+   "B": "$(x - 2)$ is a factor of $f(x)$ means: → $f(2) = 0$"
+  },
+  {
+   "k": "maths:2.6",
+   "a": "qz3",
+   "b": "qz11b",
+   "s": 0.61,
+   "sq": 0.59,
+   "sameA": false,
+   "A": "$f(x) = (x + 1)(x^2 + x + 1)$ has how many real roots? → 1",
+   "B": "$(x + 3)(x^2 + 1) = 0$ has how many real roots? → 1"
+  },
+  {
+   "k": "maths:2.8",
+   "a": "fc1",
+   "b": "qz8b",
+   "s": 0.79,
+   "sq": 0.82,
+   "sameA": true,
+   "A": "Domain of $f^{-1}$ equals… → the range of $f$.",
+   "B": "The domain of $f^{-1}$ equals: → the range of $f$"
+  },
+  {
+   "k": "maths:2.8",
+   "a": "qz3",
+   "b": "qz10b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "A function has an inverse only if it is → one-to-one",
+   "B": "A function has an inverse only if it is: → one-to-one"
+  },
+  {
+   "k": "maths:2.9",
+   "a": "qz3",
+   "b": "qz10b",
+   "s": 0.61,
+   "sq": 0.65,
+   "sameA": false,
+   "A": "$y = f(-x)$ is a reflection in → the $y$-axis",
+   "B": "$y = -f(x)$ is a reflection in: → the $x$-axis"
+  },
+  {
+   "k": "maths:2.10",
+   "a": "qz0",
+   "b": "qz9b",
+   "s": 0.69,
+   "sq": 0.71,
+   "sameA": false,
+   "A": "$\\frac{x + 5}{(x+1)(x+3)} = \\frac{A}{x+1} + \\frac{B}{x+3}$: $A =$ → 2",
+   "B": "In $\\dfrac{5x + 7}{(x+1)(x+3)} \\equiv \\dfrac{A}{x+1} + \\dfrac{B}{x+3}$, $A =$ → 1"
+  },
+  {
+   "k": "maths:2.10",
+   "a": "qz1",
+   "b": "qz7b",
+   "s": 0.58,
+   "sq": 0.38,
+   "sameA": true,
+   "A": "Form for $\\frac{3x}{(x-1)^2(x+2)}$: → $\\frac{A}{x-1} + \\frac{B}{(x-1)^2} + \\frac{C}{x+2}$",
+   "B": "Partial-fraction form of $\\dfrac{x + 5}{(x - 1)^2(x + 2)}$: → $\\dfrac{A}{x-1} + \\dfrac{B}{(x-1)^2} + \\dfrac{C}{x+2}$"
+  },
+  {
+   "k": "maths:3.3",
+   "a": "fc4",
+   "b": "qz7b",
+   "s": 0.79,
+   "sq": 0.83,
+   "sameA": true,
+   "A": "$\\frac{dy}{dx}$ for a parametric curve? → $\\frac{dy/dt}{dx/dt}$.",
+   "B": "$\\dfrac{dy}{dx}$ for a parametric curve equals: → $\\dfrac{dy/dt}{dx/dt}$"
+  },
+  {
+   "k": "maths:3.3",
+   "a": "qz0",
+   "b": "qz6b",
+   "s": 0.51,
+   "sq": 0.46,
+   "sameA": true,
+   "A": "$x = t + 1$, $y = t^2$ is the curve → $y = (x - 1)^2$",
+   "B": "$x = t + 1$, $y = t^2$ is the parabola: → $y = (x - 1)^2$"
+  },
+  {
+   "k": "maths:4.1",
+   "a": "qz0",
+   "b": "qz18b",
+   "s": 1,
+   "sq": 1,
+   "sameA": false,
+   "A": "$\\binom{9}{2} =$ → 36",
+   "B": "$\\binom{9}{2} =$ → 36"
+  },
+  {
+   "k": "maths:4.1",
+   "a": "qz3",
+   "b": "qz19b",
+   "s": 0.82,
+   "sq": 0.63,
+   "sameA": true,
+   "A": "The $x^2$ term of $(1 + 2x)^{\\frac12}$ is → $-\\tfrac12 x^2$",
+   "B": "The $x^2$ term of $(1 + 2x)^{1/2}$ is: → $-\\tfrac12 x^2$"
+  },
+  {
+   "k": "maths:4.1",
+   "a": "qz4",
+   "b": "qz20b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$(1 + 3x)^{-1}$ is valid for → $|x| < \\tfrac13$",
+   "B": "$(1 + 3x)^{-1}$ is valid for: → $|x| < \\tfrac13$"
+  },
+  {
+   "k": "maths:4.1",
+   "a": "qz6",
+   "b": "qz7",
+   "s": 0.62,
+   "sq": 0.57,
+   "sameA": false,
+   "A": "$(8 + x)^{\\frac13}$ begins with the constant → 2",
+   "B": "$(3 + x)^{-2}$ begins with the constant → $\\tfrac19$"
+  },
+  {
+   "k": "maths:4.1",
+   "a": "qz8",
+   "b": "qz22b",
+   "s": 1,
+   "sq": 1,
+   "sameA": false,
+   "A": "Coefficient of $x$ in $(2 + x)^5$: → 80",
+   "B": "Coefficient of $x$ in $(2 + x)^5$: → 80"
+  },
+  {
+   "k": "maths:4.1",
+   "a": "qz10",
+   "b": "qz24b",
+   "s": 1,
+   "sq": 1,
+   "sameA": false,
+   "A": "Coefficient of $x^2$ in $(1 + x)(1 + 4x + 6x^2)$: → 10",
+   "B": "Coefficient of $x^2$ in $(1 + x)(1 + 4x + 6x^2)$: → 10"
+  },
+  {
+   "k": "maths:4.2",
+   "a": "qz3",
+   "b": "qz10b",
+   "s": 0.43,
+   "sq": 0.39,
+   "sameA": true,
+   "A": "$u_{n+1} = u_n + 7\\cos\\frac{n\\pi}{2}$: $\\cos\\frac{n\\pi}{2}$ for $n = 1, 2, 3, 4$ is → $0, -1, 0, 1$",
+   "B": "$\\cos\\left(\\dfrac{n\\pi}{2}\\right)$ for $n = 1, 2, 3, 4$ gives: → $0, -1, 0, 1$"
+  },
+  {
+   "k": "maths:4.3",
+   "a": "fc0",
+   "b": "fc1",
+   "s": 0.34,
+   "sq": 0.85,
+   "sameA": false,
+   "A": "$\\sum_{r=1}^{n} 1 = $? → $n$.",
+   "B": "$\\sum_{r=1}^{n} r = $? → $\\frac{n(n+1)}{2}$."
+  },
+  {
+   "k": "maths:4.5",
+   "a": "qz1",
+   "b": "qz7b",
+   "s": 0.77,
+   "sq": 0.74,
+   "sameA": false,
+   "A": "$S_\\infty$ of $8 + 4 + 2 + \\cdots$: → 16",
+   "B": "$S_\\infty$ of $8 + 4 + 2 + \\ldots$: → 16"
+  },
+  {
+   "k": "maths:5.2",
+   "a": "fc0",
+   "b": "fc7b",
+   "s": 0.68,
+   "sq": 0.48,
+   "sameA": false,
+   "A": "Small angle approximations (radians)? → $\\sin\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$, $\\tan\\theta \\approx \\theta$.",
+   "B": "State the small-angle approximations. → $\\sin\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\dfrac{\\theta^2}{2}$, $\\tan\\theta \\approx \\theta$, for small $\\theta$ in radians."
+  },
+  {
+   "k": "maths:5.2",
+   "a": "qz0",
+   "b": "qz6b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$\\sin 3\\theta \\approx$ → $3\\theta$",
+   "B": "$\\sin 3\\theta \\approx$ → $3\\theta$"
+  },
+  {
+   "k": "maths:5.2",
+   "a": "qz1",
+   "b": "qz7b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$1 - \\cos 2\\theta \\approx$ → $2\\theta^2$",
+   "B": "$1 - \\cos 2\\theta \\approx$ → $2\\theta^2$"
+  },
+  {
+   "k": "maths:5.2",
+   "a": "qz2",
+   "b": "qz8b",
+   "s": 0.78,
+   "sq": 0.85,
+   "sameA": false,
+   "A": "$\\frac{\\sin 2\\theta}{\\tan 5\\theta} \\approx$ → $\\tfrac25$",
+   "B": "$\\dfrac{\\tan\\theta}{\\sin 2\\theta} \\approx$ → $\\tfrac12$"
+  },
+  {
+   "k": "maths:5.3",
+   "a": "qz1",
+   "b": "qz8b",
+   "s": 1,
+   "sq": 1,
+   "sameA": false,
+   "A": "$\\tan\\frac{3\\pi}{4} =$ → $-1$",
+   "B": "$\\tan\\tfrac{3\\pi}{4} =$ → $-1$"
+  },
+  {
+   "k": "maths:5.4",
+   "a": "fc1",
+   "b": "fc16b",
+   "s": 0.63,
+   "sq": 0.31,
+   "sameA": true,
+   "A": "Range of $\\sec x$? → $y \\le -1$ or $y \\ge 1$.",
+   "B": "Range of $y = \\csc x$? → $y \\le -1$ or $y \\ge 1$."
+  },
+  {
+   "k": "maths:5.5",
+   "a": "qz0",
+   "b": "qz9b",
+   "s": 0.5,
+   "sq": 0.38,
+   "sameA": true,
+   "A": "$1 - \\sin^2\\theta =$ → $\\cos^2\\theta$",
+   "B": "$(1 - \\sin\\theta)(1 + \\sin\\theta) =$ → $\\cos^2\\theta$"
+  },
+  {
+   "k": "maths:5.5",
+   "a": "qz1",
+   "b": "qz6b",
+   "s": 0.65,
+   "sq": 0.53,
+   "sameA": false,
+   "A": "$\\sec^2\\theta - \\tan^2\\theta =$ → 1",
+   "B": "$1 + \\tan^2\\theta \\equiv$ → $\\sec^2\\theta$"
+  },
+  {
+   "k": "maths:5.6",
+   "a": "qz0",
+   "b": "qz8b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$\\cos(A - B) =$ → $\\cos A\\cos B + \\sin A\\sin B$",
+   "B": "$\\cos(A - B) =$ → $\\cos A\\cos B + \\sin A\\sin B$"
+  },
+  {
+   "k": "maths:5.8",
+   "a": "fc1",
+   "b": "qz5b",
+   "s": 0.61,
+   "sq": 0.61,
+   "sameA": false,
+   "A": "$1 + \\cos 2\\theta$ and $1 - \\cos 2\\theta$? → $2\\cos^2\\theta$; $2\\sin^2\\theta$.",
+   "B": "$1 - \\cos 2\\theta \\equiv$ → $2\\sin^2\\theta$"
+  },
+  {
+   "k": "maths:5.8",
+   "a": "fc4",
+   "b": "qz5b",
+   "s": 0.67,
+   "sq": 0.24,
+   "sameA": false,
+   "A": "$\\tan\\theta\\sin 2\\theta \\equiv$? → $2\\sin^2\\theta = 1 - \\cos 2\\theta$.",
+   "B": "$1 - \\cos 2\\theta \\equiv$ → $2\\sin^2\\theta$"
+  },
+  {
+   "k": "maths:6.2",
+   "a": "fc6b",
+   "b": "qz8b",
+   "s": 0.65,
+   "sq": 0.73,
+   "sameA": false,
+   "A": "Gradient of $y = e^{3x}$ at $x = 0$? → 3.",
+   "B": "Gradient of $y = e^{-x}$ at $x = 0$: → $-1$"
+  },
+  {
+   "k": "maths:6.3",
+   "a": "qz2",
+   "b": "qz8b",
+   "s": 1,
+   "sq": 1,
+   "sameA": false,
+   "A": "$\\log_{10} 0.001 =$ → $-3$",
+   "B": "$\\log_{10} 0.001 =$ → $-3$"
+  },
+  {
+   "k": "maths:7.2",
+   "a": "qz0",
+   "b": "qz6b",
+   "s": 0.61,
+   "sq": 0.73,
+   "sameA": false,
+   "A": "$\\frac{d}{dx}(3x^{-2}) =$ → $-6x^{-3}$",
+   "B": "$\\dfrac{d}{dx}(5x^{-2}) =$ → $-10x^{-3}$"
+  },
+  {
+   "k": "maths:7.2",
+   "a": "qz1",
+   "b": "qz9b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$\\frac{d}{dx}(\\sqrt x) =$ → $\\tfrac{1}{2\\sqrt x}$",
+   "B": "$\\dfrac{d}{dx}(\\sqrt x) =$ → $\\dfrac{1}{2\\sqrt x}$"
+  },
+  {
+   "k": "maths:7.2",
+   "a": "qz2",
+   "b": "qz7b",
+   "s": 0.71,
+   "sq": 0.57,
+   "sameA": false,
+   "A": "$\\frac{d}{dx}(\\cos 3x) =$ → $-3\\sin 3x$",
+   "B": "$\\dfrac{d}{dx}(\\sin 3x) =$ → $3\\cos 3x$"
+  },
+  {
+   "k": "maths:7.4",
+   "a": "qz1",
+   "b": "qz8b",
+   "s": 0.67,
+   "sq": 0.57,
+   "sameA": false,
+   "A": "$\\frac{d}{dx}\\left(\\frac{x}{x+1}\\right) =$ → $\\tfrac{1}{(x+1)^2}$",
+   "B": "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2 + 1}\\right) =$ → $\\dfrac{-2x}{(x^2+1)^2}$"
+  },
+  {
+   "k": "maths:7.5",
+   "a": "fc7b",
+   "b": "qz0",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$\\dfrac{d}{dx}(3y^2) = ?$ → $6y\\dfrac{dy}{dx}$.",
+   "B": "$\\frac{d}{dx}(3y^2) =$ → $6y\\frac{dy}{dx}$"
+  },
+  {
+   "k": "maths:7.5",
+   "a": "qz1",
+   "b": "qz7b",
+   "s": 0.64,
+   "sq": 0.68,
+   "sameA": false,
+   "A": "For $x^2 + y^2 = 25$, $\\frac{dy}{dx} =$ → $-\\tfrac xy$",
+   "B": "For $x^2 + y^2 = 25$ at $(3, 4)$, $\\dfrac{dy}{dx} =$ → $-\\tfrac34$"
+  },
+  {
+   "k": "maths:7.6",
+   "a": "fc0",
+   "b": "qz1",
+   "s": 0.63,
+   "sq": 0.57,
+   "sameA": false,
+   "A": "\"Rate of decrease of $r$ is inversely proportional to $r^2$\" as a DE? → $\\frac{dr}{dt} = -\\frac{k}{r^2}$, $k > 0$.",
+   "B": "\"Decreases at a rate inversely proportional to $r^2$\": → $\\tfrac{dr}{dt} = -\\tfrac{k}{r^2}$"
+  },
+  {
+   "k": "maths:7.6",
+   "a": "fc0",
+   "b": "qz6b",
+   "s": 0.61,
+   "sq": 0.54,
+   "sameA": false,
+   "A": "\"Rate of decrease of $r$ is inversely proportional to $r^2$\" as a DE? → $\\frac{dr}{dt} = -\\frac{k}{r^2}$, $k > 0$.",
+   "B": "'Decreases at a rate inversely proportional to $r^2$': → $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$"
+  },
+  {
+   "k": "maths:7.6",
+   "a": "qz1",
+   "b": "qz6b",
+   "s": 0.88,
+   "sq": 0.91,
+   "sameA": true,
+   "A": "\"Decreases at a rate inversely proportional to $r^2$\": → $\\tfrac{dr}{dt} = -\\tfrac{k}{r^2}$",
+   "B": "'Decreases at a rate inversely proportional to $r^2$': → $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$"
+  },
+  {
+   "k": "maths:8.5",
+   "a": "fc1",
+   "b": "qz9b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "$\\int \\ln x\\,dx = $? → $x\\ln x - x + c$.",
+   "B": "$\\int \\ln x\\,dx =$ → $x\\ln x - x + c$"
+  },
+  {
+   "k": "maths:8.5",
+   "a": "qz0",
+   "b": "qz10b",
+   "s": 0.48,
+   "sq": 1,
+   "sameA": false,
+   "A": "$\\int x e^x\\,dx =$ → $xe^x - e^x + c$",
+   "B": "$\\int x e^x dx =$ → $(x - 1)e^x + c$"
+  },
+  {
+   "k": "maths:8.6",
+   "a": "qz4",
+   "b": "qz6b",
+   "s": 0.77,
+   "sq": 1,
+   "sameA": false,
+   "A": "Before integrating $\\frac{x^2}{x - 1}$ you should → divide",
+   "B": "Before integrating $\\dfrac{x^2}{x - 1}$ you should: → divide to get $x + 1 + \\dfrac{1}{x-1}$"
+  },
+  {
+   "k": "maths:10.3",
+   "a": "fc1",
+   "b": "qz0",
+   "s": 0.83,
+   "sq": 0.71,
+   "sameA": true,
+   "A": "Midpoint $M$ of $AB$: $\\overrightarrow{OM}$? → $\\frac12(\\mathbf{a} + \\mathbf{b})$.",
+   "B": "$M$ is the midpoint of $AB$. $\\overrightarrow{OM} =$ → $\\frac12(\\mathbf{a} + \\mathbf{b})$"
+  },
+  {
+   "k": "maths:S1.1",
+   "a": "qz0",
+   "b": "qz8b",
+   "s": 0.52,
+   "sq": 0.44,
+   "sameA": true,
+   "A": "Picking the first 40 students through the gate is: → opportunity",
+   "B": "A sample of 40 students is taken by picking the first 40 through the school gate. This is: → opportunity"
+  },
+  {
+   "k": "maths:S3.1",
+   "a": "qz1",
+   "b": "qz7b",
+   "s": 0.81,
+   "sq": 0.79,
+   "sameA": false,
+   "A": "$P(A) = 0.3$, $P(B) = 0.5$, mutually exclusive. $P(A \\cup B) =$ → 0.8",
+   "B": "$P(A) = 0.5$, $P(B) = 0.3$, mutually exclusive: $P(A \\cup B) =$ → 0.8"
+  },
+  {
+   "k": "maths:S4.1",
+   "a": "fc4",
+   "b": "fc5",
+   "s": 0.65,
+   "sq": 0.62,
+   "sameA": false,
+   "A": "$P(X \\ge 7)$ in cumulative form? → $1 - P(X \\le 6)$.",
+   "B": "$P(X > 5)$ in cumulative form? → $1 - P(X \\le 5)$."
+  },
+  {
+   "k": "maths:S4.2",
+   "a": "fc10",
+   "b": "fc11",
+   "s": 0.7,
+   "sq": 0.76,
+   "sameA": false,
+   "A": "Continuity correction for $P(X > 110)$? → $P(Y > 110.5)$.",
+   "B": "Continuity correction for $P(X \\ge 110)$? → $P(Y > 109.5)$."
+  },
+  {
+   "k": "maths:S4.2",
+   "a": "fc10",
+   "b": "qz4",
+   "s": 0.61,
+   "sq": 0.73,
+   "sameA": false,
+   "A": "Continuity correction for $P(X > 110)$? → $P(Y > 110.5)$.",
+   "B": "Continuity correction for $P(X < 30)$: → $P(Y < 29.5)$"
+  },
+  {
+   "k": "maths:S4.3",
+   "a": "fc11b",
+   "b": "fc12b",
+   "s": 0.69,
+   "sq": 0.76,
+   "sameA": false,
+   "A": "Continuity correction for $P(X \\ge 70)$? → $P(Y > 69.5)$.",
+   "B": "Continuity correction for $P(X < 70)$? → $P(Y < 69.5)$."
+  },
+  {
+   "k": "maths:S4.3",
+   "a": "qz1",
+   "b": "qz9b",
+   "s": 0.63,
+   "sq": 0.82,
+   "sameA": false,
+   "A": "The height of a randomly chosen adult is best modelled by → a Normal distribution",
+   "B": "'Height of a randomly chosen adult' is best modelled by: → normal"
+  },
+  {
+   "k": "maths:S5.1",
+   "a": "fc16b",
+   "b": "qz11b",
+   "s": 0.34,
+   "sq": 0.81,
+   "sameA": false,
+   "A": "Actual significance level? → The probability, under H₀, of the test statistic lying in the critical region.",
+   "B": "The actual significance level is: → $P(\\text{critical region} \\mid H_0)$"
+  },
+  {
+   "k": "maths:S5.3",
+   "a": "fc1",
+   "b": "qz8b",
+   "s": 0.62,
+   "sq": 0.93,
+   "sameA": false,
+   "A": "Test statistic for a Normal mean? → $z = \\frac{\\bar{x} - \\mu_0}{\\sigma/\\sqrt{n}}$.",
+   "B": "Test statistic for a normal mean test: → $\\dfrac{\\bar x - \\mu}{\\sigma/\\sqrt n}$"
+  },
+  {
+   "k": "maths:S5.3",
+   "a": "fc3",
+   "b": "qz6b",
+   "s": 0.66,
+   "sq": 0.57,
+   "sameA": true,
+   "A": "5% one-tail critical $z$? → 1.6449.",
+   "B": "One-tailed 5% critical $z$: → 1.6449"
+  },
+  {
+   "k": "maths:M7.2",
+   "a": "fc2",
+   "b": "qz0",
+   "s": 0.59,
+   "sq": 0.55,
+   "sameA": true,
+   "A": "Area under a velocity-time graph? → Displacement.",
+   "B": "On a velocity-time graph the area under the line gives → displacement"
+  },
+  {
+   "k": "maths:M7.2",
+   "a": "fc5",
+   "b": "qz9b",
+   "s": 0.46,
+   "sq": 0.44,
+   "sameA": true,
+   "A": "Horizontal line on a displacement-time graph? → At rest.",
+   "B": "A displacement–time graph with a horizontal section shows: → at rest"
+  },
+  {
+   "k": "maths:M7.3",
+   "a": "fc1",
+   "b": "fc2",
+   "s": 0.36,
+   "sq": 0.89,
+   "sameA": false,
+   "A": "Which equation has no $t$? → $v^2 = u^2 + 2as$.",
+   "B": "Which equation has no $u$? → $s = vt - \\frac12 at^2$."
+  },
+  {
+   "k": "maths:M7.3",
+   "a": "fc1",
+   "b": "qz10b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "Which equation has no $t$? → $v^2 = u^2 + 2as$.",
+   "B": "Which equation has no $t$? → $v^2 = u^2 + 2as$"
+  },
+  {
+   "k": "maths:M7.3",
+   "a": "fc2",
+   "b": "qz10b",
+   "s": 0.36,
+   "sq": 0.89,
+   "sameA": false,
+   "A": "Which equation has no $u$? → $s = vt - \\frac12 at^2$.",
+   "B": "Which equation has no $t$? → $v^2 = u^2 + 2as$"
+  },
+  {
+   "k": "maths:M7.5",
+   "a": "fc5",
+   "b": "qz6b",
+   "s": 1,
+   "sq": 1,
+   "sameA": true,
+   "A": "Time of flight on level ground? → $\\dfrac{2U\\sin\\alpha}{g}$.",
+   "B": "Time of flight on level ground: → $\\dfrac{2U\\sin\\alpha}{g}$"
+  },
+  {
+   "k": "maths:M8.1",
+   "a": "fc0",
+   "b": "qz0",
+   "s": 0.45,
+   "sq": 0.45,
+   "sameA": true,
+   "A": "Constant velocity means the resultant force is …? → Zero.",
+   "B": "A particle moves at constant velocity. The resultant force on it is → zero"
+  },
+  {
+   "k": "maths:M8.3",
+   "a": "fc5",
+   "b": "fc6",
+   "s": 0.74,
+   "sq": 0.8,
+   "sameA": false,
+   "A": "Reaction on a person of mass $m$ in a lift accelerating up at $a$? → $m(g + a)$.",
+   "B": "Reaction on a person of mass $m$ in a lift accelerating down at $a$? → $m(g - a)$."
+  },
+  {
+   "k": "maths:M8.3",
+   "a": "fc10b",
+   "b": "fc11b",
+   "s": 0.51,
+   "sq": 0.84,
+   "sameA": false,
+   "A": "60 kg person in a lift accelerating down at 1.2 m/s². Reaction from the floor? → $60g - R = 60 \\times 1.2 \\Rightarrow R = 588 - 72 = 516$ N.",
+   "B": "60 kg person in a lift accelerating up at 1.2 m/s². Reaction from the floor? → $R = 60(9.8 + 1.2) = 660$ N."
+  }
+ ],
+ "cross": [
+  {
+   "a": "maths:2.6 qz5",
+   "b": "maths:2.7 qz0",
+   "s": 0.61,
+   "A": "$y = (x - 1)^2(x + 3)$ meets the $x$-axis → touching at 1, crossing at −3",
+   "B": "$y = (x + 2)(x - 1)^2$ meets the $x$-axis → crossing at −2, touching at 1"
+  },
+  {
+   "a": "maths:2.10 qz3",
+   "b": "maths:8.6 qz9b",
+   "s": 0.66,
+   "A": "$\\int_0^1 \\frac{2}{x + 1}\\,dx =$ → $2\\ln2$",
+   "B": "$\\int_0^1\\dfrac{1}{x + 1}dx =$ → $\\ln 2$"
+  },
+  {
+   "a": "maths:5.4 qz5",
+   "b": "maths:7.2 qz10b",
+   "s": 0.67,
+   "A": "$\\frac{d}{dx}(\\sec x) =$ → $\\sec x\\tan x$",
+   "B": "$\\dfrac{d}{dx}(\\tan x) =$ → $\\sec^2 x$"
+  },
+  {
+   "a": "maths:5.6 qz5",
+   "b": "maths:5.8 qz8b",
+   "s": 0.77,
+   "A": "$\\cos\\theta\\cos 2\\theta + \\sin\\theta\\sin 2\\theta =$ → $\\cos\\theta$",
+   "B": "$\\cos 3\\theta\\cos\\theta + \\sin 3\\theta\\sin\\theta \\equiv$ → $\\cos 2\\theta$"
+  },
+  {
+   "a": "maths:7.2 qz2",
+   "b": "maths:7.4 qz7b",
+   "s": 0.61,
+   "A": "$\\frac{d}{dx}(\\cos 3x) =$ → $-3\\sin 3x$",
+   "B": "$\\dfrac{d}{dx}(\\cos^3 x) =$ → $-3\\cos^2 x\\sin x$"
+  },
+  {
+   "a": "maths:7.2 qz7b",
+   "b": "maths:7.4 qz2",
+   "s": 0.6,
+   "A": "$\\dfrac{d}{dx}(\\sin 3x) =$ → $3\\cos 3x$",
+   "B": "$\\frac{d}{dx}(\\sin^3 x) =$ → $3\\sin^2 x\\cos x$"
+  },
+  {
+   "a": "maths:8.2 qz12b",
+   "b": "maths:8.5 qz2",
+   "s": 0.71,
+   "A": "$\\int \\dfrac{2x}{x^2 + 1}dx =$ → $\\ln(x^2 + 1) + c$",
+   "B": "$\\int \\frac{2x}{x^2 + 3}dx =$ → $\\ln(x^2 + 3) + c$"
+  },
+  {
+   "a": "maths:S4.1 fc4",
+   "b": "maths:S5.2 fc3",
+   "s": 0.68,
+   "A": "$P(X \\ge 7)$ in cumulative form? → $1 - P(X \\le 6)$.",
+   "B": "$P(X \\ge 16)$ in cumulative form? → $1 - P(X \\le 15)$."
+  },
+  {
+   "a": "maths:S4.1 fc5",
+   "b": "maths:S5.2 fc3",
+   "s": 0.62,
+   "A": "$P(X > 5)$ in cumulative form? → $1 - P(X \\le 5)$.",
+   "B": "$P(X \\ge 16)$ in cumulative form? → $1 - P(X \\le 15)$."
+  },
+  {
+   "a": "maths:S4.2 fc10",
+   "b": "maths:S4.3 fc11b",
+   "s": 0.62,
+   "A": "Continuity correction for $P(X > 110)$? → $P(Y > 110.5)$.",
+   "B": "Continuity correction for $P(X \\ge 70)$? → $P(Y > 69.5)$."
+  },
+  {
+   "a": "maths:S4.2 fc10",
+   "b": "maths:S4.3 fc12b",
+   "s": 0.61,
+   "A": "Continuity correction for $P(X > 110)$? → $P(Y > 110.5)$.",
+   "B": "Continuity correction for $P(X < 70)$? → $P(Y < 69.5)$."
+  },
+  {
+   "a": "maths:S4.2 fc11",
+   "b": "maths:S4.3 fc11b",
+   "s": 0.7,
+   "A": "Continuity correction for $P(X \\ge 110)$? → $P(Y > 109.5)$.",
+   "B": "Continuity correction for $P(X \\ge 70)$? → $P(Y > 69.5)$."
+  },
+  {
+   "a": "maths:S4.2 qz4",
+   "b": "maths:S4.3 fc11b",
+   "s": 0.62,
+   "A": "Continuity correction for $P(X < 30)$: → $P(Y < 29.5)$",
+   "B": "Continuity correction for $P(X \\ge 70)$? → $P(Y > 69.5)$."
+  },
+  {
+   "a": "maths:S4.2 qz4",
+   "b": "maths:S4.3 fc12b",
+   "s": 0.72,
+   "A": "Continuity correction for $P(X < 30)$: → $P(Y < 29.5)$",
+   "B": "Continuity correction for $P(X < 70)$? → $P(Y < 69.5)$."
+  }
+ ]
+}

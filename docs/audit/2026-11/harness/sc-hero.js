@@ -1,0 +1,5 @@
+(async()=>{const out={};for(const s of ["compsci","maths","it","code","ja","mind","creatives"]){KOS.show("subject",s);await new Promise(r=>setTimeout(r,1200));const m=document.querySelector("#main");
+const h=[...m.querySelectorAll('[data-ui]')].find(e=>/(^| )(study\.hero|.*desk-hero|.*\.hero)( |$)/.test(e.dataset.ui))||m.querySelector('[class*="hero"]');
+if(!h){out[s]=location.hash+" nohero";continue}const r=h.getBoundingClientRect();const side=h.nextElementSibling||h.parentElement.nextElementSibling;const sr=side?side.getBoundingClientRect():null;
+const ttl=h.querySelector('h1,h2,[class*="title"]');const ring=h.querySelector('svg,[class*="ring"]');
+out[s]=[location.hash,h.dataset.ui,h.className.slice(0,40),"x"+Math.round(r.x)+" y"+Math.round(r.y)+" "+Math.round(r.width)+"x"+Math.round(r.height),ttl?getComputedStyle(ttl).fontSize+" "+ttl.textContent.slice(0,25):"",ring?Math.round(ring.getBoundingClientRect().width)+"x"+Math.round(ring.getBoundingClientRect().height):"",getComputedStyle(h).borderRadius,getComputedStyle(h).paddingTop+"/"+getComputedStyle(h).paddingLeft]}return out})()

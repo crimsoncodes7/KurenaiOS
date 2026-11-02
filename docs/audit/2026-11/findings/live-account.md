@@ -1,0 +1,30 @@
+# Live account checks (production, Chrome, read-only via KOS APIs) — 1 Nov 2026
+
+State: Google (Calendar + Tasks) and Todoist connected; Reminders lists NEA, School, Animanga, Academics + "no list" → Todoist (Inbox). 59 reminders (56 open), 91 calendar events (86 linked). Last cycles OK, all counts 0.
+
+1. P1 bug — reminders/events made before 5.15 and never edited since have NO `uid`; `tdPush` skips any item failing `uidOk(it.uid)` silently (js/core/exttasks.js ~258), and `uid` is only assigned in `normalise` on add/update (js/core/reminders.js:114). Evidence: open reminder "DO MES LESSONS" (id 5, no list → Inbox is linked) has no uid/ext and was never sent to Todoist. Fix: boot migration that stamps `uid` (legacyUid) on every reminder and event; and never skip silently — report in Connections.
+2. P2 — 3 calendar events unlinked from Google: "SAMPLE — Coursework deadline", "SAMPLE — CS study block", "School Starts" (likely same uid cause). Also: SAMPLE demo events exist in the REAL account (demo seed leaked into real data) — offer "Remove sample data".
+3. P2 — "DO MES LESSONS": lastRewardedOn 2026-10-22 but done=false/completedAt=null (ticked, paid, unticked) — check that untick/retick cannot double-pay and that reminders show overdue clearly.
+4. P2 integration gap — Todoist SECTIONS (8 in use) are dropped: section structure in Todoist (e.g. "Academics" sections) does not exist in Reminders, so items from different sections are one flat list. Subtasks are imported as plain text `subs` with `x` remote id — sub-tasks have no due/priority/notes locally.
+5. P3 — Google Tasks switch is on but no Reminders list is linked to Google Tasks; Connections should say "on, but no list linked".
+6. Observation — deep link #/connections opened under the full-screen paused Focus session; the Focus overlay owns the screen even when paused. Consider: paused Focus collapses to the mini player when navigating.
+7. Note — 2 done local reminders linked to Todoist items no longer in the mirror (completed remote tasks are not imported, OK) — fine.
+8. Not yet tested live: AniList/VNDB pages, a two-way edit round-trip (needs a marked test item; user allowed careful writes).
+9. P1 perf/sync — the synced state document (localStorage `kurenai-os-v1`) is 1.35 MB; `governor.bannerImg` (332 KB) and `governor.avatar` (106 KB) are data-URL images INSIDE the state, so every save serialises them and every cloud push/pull carries ~440 KB of pictures. Next biggest: calendar 96 KB, pacing 78 KB, reminders 45 KB, srs 39 KB, notify 36 KB. localStorage total 1.79 MB of ~5 MB. Fix: move pictures to the files store (IndexedDB + private bucket) referenced by id; measure save cost.
+10. P3 — `kurenai-os-sample-v1` (237 KB) still sits in localStorage on the real profile.
+11. Media DB: 1,945 entries, 37 kv rows.
+## AniList / VNDB profile pages (mac 1383x868 Chrome)
+12. P2 AniList Overview: "About me" card full width with text in ~45% of it; Anime/Manga overview stat tiles occupy ~45% of the card width, right half empty (dead space in width); page ends there — the Overview is thin.
+13. P2 AniList hero: stat labels (anime/manga/watched/mean) are low-contrast over the banner image (near illegible); "mean 9.8" in the hero vs "Mean score 97.73" below — two scales for one number; "100d" vs "Days watched 99.7".
+14. P1 AniList Favourites: cover tiles render as empty grey boxes (no images) and titles truncate to "Summer Time ..." — favourites unusable.
+15. P2 AniList Activity: every row has an empty ~30px left gutter (missing thumbnail/icon), and long titles run to the edge.
+16. P3 AniList Analytics: raw enum names shown ("TV_SHORT", "ONA", "OVA", "MOVIE") — humanise ("TV short", "Movie").
+17. P2 VNDB page: blank page with one line "Loading your profile from VNDB (two small requests)…" for ~3 s (no skeleton); List statistics grid leaves an empty cell (7 tiles in a 4-col grid); "Play-length contributions" shows zero-only facts "0 / 0 h" (invariant 77); Dropped/Wishlist/Blacklist 0 rows fine.
+18. P2 Focus overlay (live): objective-side text truncated ("Switch…", "Open 4.1.2.1 and stud…"), helper copy very low contrast on the photo ground.
+## Todoist round trip (live, test item created and deleted)
+19. Create → pushed and linked in 1 cycle (OK). Edit title → pushed (OK). Delete → queued, item_delete sent, local gone (OK); the mirror only forgets it 1–2 cycles later. Net: basic create/edit/delete works.
+20. P3 — the first cycle reported "pushed 14" for 14 untouched reminders with sub-tasks: their stored `ext.base.subs` ({t,d}) disagreed with the local subs, so `tdPush` counted them pushed and rewrote the base while sending no command (exttasks.js ~311: `after.push` with an empty `cs`). Misleading status counts; also "pulled 1" counts the echo of our own writes each cycle.
+21. P2 — recurrence: local `recur` accepts only the RECUR enum values; Todoist rules outside it become `ext.rs` "x:" and the reminder reads as NOT repeating locally (no repeat shown, Calendar/Today treat it as one-off). Completing such an item locally sends item_close (Todoist advances it) but locally it shows done until the next pull reopens it with a new date — visible flicker/"it came back" behaviour. Needs the user's own description of the Todoist problems to confirm which ones they hit.
+22. P2 — sub-tasks are text only locally (no due, priority, notes, or their own completion history), and Todoist sections are flattened.
+## Stale forks (confirmed live)
+23. P1 — "M7.3 is basically bare" ROOT CAUSE CONFIRMED: the live account has a 2,157-byte notes fork `state.edits.topics["maths:M7.3"]` (made before the Mechanics depth rewrite 4d791ca) that replaces the shipped ~1,770-word, 8-page notes. No staleness check exists (edits.js). Also forks: compsci:4.1.1.6 and 4.1.1.8 (flashcards). Fix: record the shipped content's hash on each fork; when the shipped material changes, show "The shipped notes were updated since you edited — Compare · Keep mine · Use new · Merge (append my additions)"; offer a one-time triage for these three.
