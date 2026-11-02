@@ -19,7 +19,8 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | JM | Japanese and Mind study spaces | partial | 0 | 0 | 3 | 2 | 5 |
 | CR | Creatives study space | complete | 0 | 2 | 18 | 4 | 24 |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 0 | 4 | 9 | 9 | 22 |
-| MG | Money (Santander import) and Goals | complete | 1 | 9 | 10 | 2 | 22 |
+| MG | Money (Santander import); Goals pages only | complete | 1 | 9 | 10 | 2 | 22 |
+| GO | Goals: every goal type's measurement, editor, notices, joins | not run | 0 | 0 | 0 | 0 | 0 |
 | EX | Exams hub, Files, ink/Pencil surfaces | partial | 0 | 3 | 9 | 15 | 27 |
 | CL | Collection vaults, Shrine, Wishlist, Sync | partial | 0 | 1 | 9 | 5 | 15 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | partial | 0 | 2 | 5 | 3 | 10 |
@@ -2067,7 +2068,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## MG — Money (Santander import) and Goals (complete)
+## MG — Money (Santander import); Goals pages only (complete)
 
 **Auditor's summary.** Money's import is the weak point and explains everything the user reported. The importer only reads a CSV whose FIRST line is a header with exact-match names. Santander midata ('Merchant/Description', 'Debit/Credit', a semicolon delimiter or a blank first line) and Online Banking's CSV with its 'Account:/From:' preamble are refused before the column mapper is shown, and .txt, QIF and OFX are not supported at all. All six reconstructed Santander samples failed through the real engine. The duplicates come from the de-dupe key date|amount|payee: importing the same statement again with the description mapped to Note (or Payee left unmapped) gives an empty payee, so nothing matches and every row is added again. That row then shows the category name 'Other' as its title and the bank text as its subtitle, exactly as in the user's screenshot. A second path to double counting: confirming a recurring rule makes its own transaction, which never matches the bank row. Imports can be undone only on the dialog's last step: no import history, no source filter, no select-all. Imported data is not useful because everything goes to Other, payees are raw bank strings, and the Type and Balance columns are thrown away. The import dialog's preview hides the payee and amount on the Mac. On iPhone, Money's sub-pages (including Transactions and Import) and Goals' period tabs cannot be reached, because the phone title bar lists the Productivity subnav instead of the page tabs. One cross-app bug was also found: page header art shows the previous page's picture. Proposed revamp: (1) Format sniffing (CSV with header search and delimiter voting, Santander .txt, QIF, OFX with FITID), plus a row-width check. (2) Store the raw bank text on every row. De-dupe on date+amount+normalised raw text, and on FITID or the balance chain when present. (3) Keep an import history (state.money.imports: file, range, count) with Undo, Delete and Replace this period. (4) Normalise merchant names ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026' -> 'Heron Foods'). Learn payee rules when the user sets a category, and ship a UK merchant table. (5) Match imported rows to due recurring occurrences instead of adding new ones; suggest rules from DD/SO types and repeating merchants. (6) Reconcile with the bank's Balance column. (7) Add spend by merchant and by week, a top-merchants card in Month and year (in place of the 'Never printed' designer note), and student-specific views (Student Finance instalment runway: weeks left per £ until the next payment). Goals pages are mostly sound. They have the stale header art, a sparse detail page that does not link to what it counts, a low-contrast status chip on the band, and small zero-count issues.
 
@@ -2286,6 +2287,13 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - Reconciliation against the bank's Balance column ('Matches your bank: £120.10')
 - Spend by merchant and by week; a top-merchants card; a Student Finance runway (money left per week until the next instalment)
 - Goal page: list the items a count goal is measuring, with links into the Collection, Study and Money
+
+
+---
+
+## GO — Goals: every goal type's measurement, editor, notices, joins (not run)
+
+_Not audited yet._
 
 
 ---

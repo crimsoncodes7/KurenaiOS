@@ -20,7 +20,9 @@ from their first account, unless the audit and plan are finished sooner).
 2. **First check the checkout is production code:** `git fetch && git status`
    — the branch must contain `origin/main` (`grep VERSION sw.js` →
    `kos-artshop-1` or later). See §2.2: two areas were audited on a stale tree.
-3. Finish the audit: run the areas in §4 marked **not run** / **partial** with
+3. Finish the audit EXHAUSTIVELY (§5.2b: a feature inventory + behaviour checks
+   for every area, not just its pages): run the areas in §4 marked **not run** /
+   **partial**, then the inventory pass over the rest, with
    the harness (§5), in batches of ≤ 3 auditors, each saving findings as it
    goes (the usage limit killed 3 earlier full runs — see §5.3).
 4. Re-run `python3 -I docs/audit/2026-11/harness/consolidate.py` after adding
@@ -273,6 +275,25 @@ repeating it, and writes `<area>.json` when finished. Then copy new files into
 **Before running, edit the `QA` constant** at the top of the script to your QA
 folder (it still points at the first account's session scratchpad).
 
+### 5.2b Exhaustiveness — the user's requirement for EVERY area
+The user reviewed the results and found Goals' audit far too thin: its
+auditor (shared with Money) only looked at the Goals pages, so a goal type
+that counts the whole vault (UR-20) and a RAG rule that rates one 0% quiz
+Green (UR-22) went unnoticed. **Every auditor must be completely exhaustive,
+behaviour as well as presentation.** `workflow-audit.js` now requires each
+auditor to (1) write a FEATURE INVENTORY of its area from the code (every
+type, option, setting, mode, route, dialog, state) to
+`findings/<area>.inventory.md`, (2) check every item's behaviour with
+fixtures against what its label/editor promises — boundaries, thin and
+contradictory evidence for any automatic judgement (auto-tracking, RAG,
+readiness, badges, rewards) — and (3) report a coverage matrix in which
+"no finding" means "exercised and verified OK", never "not looked at".
+The runs before 2 Nov evening did NOT have this instruction: treat every
+area, including the "complete" ones, as **presentation-checked but not
+behaviour-inventoried** until it has an inventory file. Plan for a second
+pass over every area with the new prompt (Goals has its own area, `goals`,
+id prefix GO).
+
 ### 5.3 Lessons about the usage limit
 19 auditors at once burned a whole 5-hour window in ~2 minutes of wall time
 (all failed); batches of 4 still exhausted it. What worked: batches of 3,
@@ -287,8 +308,10 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 **Before any run, confirm the tree is production code** (§2.2).
 
 ### 5.4 Recommended order for the remaining work
-1. **JM** Japanese + Mind (barely started: 5 findings) — the only study space
-   still essentially unaudited.
+1. **goals** (new area: every goal type's measurement) and **JM** Japanese +
+   Mind (barely started: 5 findings).
+1b. Then the **inventory pass (§5.2b) over every other area**, including the
+   "complete" ones — behaviour, not just pages.
 2. Re-check **AP** and **AX** on main and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
    rerun.
