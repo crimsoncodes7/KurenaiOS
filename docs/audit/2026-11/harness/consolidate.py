@@ -35,6 +35,12 @@ AREAS = [
     ("architecture-perf", "AP", "Architecture, maintainability, performance, docs drift"),
     ("a11y-hci", "AX", "Cross-cutting accessibility and HCI sweep"),
 ]
+# every area ran on 56b1a8c (= production, sw kos-artshop-1) EXCEPT these,
+# which ran after the audit branch was mistakenly based on a stale local main
+BUILD_NOTE = {
+    "architecture-perf": "f4fa493 (sw kos-creatives-1), 23 commits before production: no Achievements, no art/shop release. Structural findings (boot cost, hub.js, duplication, listeners, docs drift) almost certainly still hold; re-check sizes, counts and dead-CSS lists on main before acting.",
+    "a11y-hci": "f4fa493 (sw kos-creatives-1), 23 commits before production: the Badge Wall, the Seat as Stage and the art/shop pages were not swept. The shared root causes (16px input zoom, touch floor, chip contrast, keyboard) live in shared CSS/JS that the art release barely touched; re-check on main and sweep the missing pages.",
+}
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
 
 
@@ -140,6 +146,8 @@ def main():
             md.append("**Auditor's summary.** " + summary + "\n")
         if cov:
             md.append("**Coverage.** " + cov + "\n")
+        if area in BUILD_NOTE:
+            md.append("> **Build audited:** " + BUILD_NOTE[area] + "\n")
         if st == "partial":
             md.append("_Interrupted auditor: coverage notes were not written. Treat everything not listed below as unaudited._\n")
         if st == "not run":

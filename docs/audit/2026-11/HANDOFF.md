@@ -17,13 +17,17 @@ from their first account, unless the audit and plan are finished sooner).
 ## 0. TL;DR for the next account
 
 1. Read §1 (what the user asked for), §3 (where things stand), §6 (root causes).
-2. Finish the audit: run the areas in §4 marked **not run** / **partial** with
+2. **First check the checkout is production code:** `git fetch && git status`
+   — the branch must contain `origin/main` (`grep VERSION sw.js` →
+   `kos-artshop-1` or later). See §2.2: two areas were audited on a stale tree.
+3. Finish the audit: run the areas in §4 marked **not run** / **partial** with
    the harness (§5), in batches of ≤ 3 auditors, each saving findings as it
    goes (the usage limit killed 3 earlier full runs — see §5.3).
-3. Re-run `python3 -I docs/audit/2026-11/harness/consolidate.py` after adding
-   findings to `findings/`.
-4. Run a completeness critic + adversarial spot-verify of the P0/P1 list.
-5. Write the remediation plan (draft outline in §8) as the user's first
+4. Re-run `python3 -I docs/audit/2026-11/harness/consolidate.py` after adding
+   findings to `findings/` (ids are frozen once issued; new ones get the next
+   number).
+5. Run a completeness critic + adversarial spot-verify of the P0/P1 list.
+6. Write the remediation plan (draft outline in §8) as the user's first
    deliverable, then STOP and ask for approval.
 
 ---
@@ -115,10 +119,10 @@ of separate apps: everything interlinked, coherent).
 | Badge medal set overview: current-badge circle is an oval | **Confirmed** | AG-06 (also AG-15, AG-02) |
 | Mind & Creatives not in Home's Continue | **Confirmed**: fixed subject order, 4 visible, no scroll | HR-01 |
 | iPad: cloud sync resets flashcards to card 1, notes to page 1, etc. | **Confirmed and root-caused (systemic)** | SY-01…SY-08, SH-05 |
-| HCI 8 needs | **Partly** (findings scattered); the cross-cutting a11y/HCI sweep has **not run**; no audio/haptic review yet | — |
+| HCI 8 needs | **Swept on the stale build** (§2.2): accessibility, colour, messages, audio (only the Focus chime, silent on iOS, no setting), haptics (none) | AX-01…AX-21; plus SH/ST/PR touch and layout findings |
 | Assistant composer "Shift + Enter" hint misaligned | **Confirmed** | AA-03 |
 | Help & Guide lacks Money/Goals etc. | **Confirmed** | SH-10, SH-11 |
-| Docs out of sync | **Not yet audited** (architecture-perf not run) | — |
+| Docs out of sync | **Confirmed** (README, AGENTS, PROGRESS, HANDOFF disagree on the current release and gate; Help & Guide stale) — AP ran on the stale build, re-check | AP-05, AP-06, AX-20, SH-10, SH-11 |
 | Reminders ↔ Todoist problems | **Several confirmed** (live + code) | DI-01, DI-02, LA-1, LA-20…22 |
 | QoL: Agenda everywhere; anime "where I'm watching" hyperlinks; routines inside routines | Agenda PR-06; hyperlinks CL-11; routines-in-routines model sketched (productivity QoL list, `findings/productivity.json`) | — |
 
@@ -140,8 +144,10 @@ of separate apps: everything interlinked, coherent).
 
 ## 2. Repository state (2 Nov 2026)
 
-- `main` = `feat/art-shop` = `56b1a8c` (last release sw `kos-artshop-1`).
-- **Audit branch: `audit/quality-2026-11`** (from `main`), pushed to origin. It
+- `main` = `origin/main` = `feat/art-shop` = `56b1a8c` (last release sw
+  `kos-artshop-1`, production). Local `main` had been 23 commits behind
+  `origin/main` and was fast-forwarded on 2 Nov.
+- **Audit branch: `audit/quality-2026-11`**, rebased onto `56b1a8c`, pushed. It
   contains ONLY `docs/audit/2026-11/` (this folder). No app code changed.
 - Uncommitted files in the working tree that are **the user's, not ours —
   leave them alone**: `.claude/launch.json`, `.claude/settings.local.json`,
@@ -156,6 +162,22 @@ of separate apps: everything interlinked, coherent).
   **all screenshots (216 MB, `shots/<area>/…`)**, measurement JSON, the seeded
   backup used for the round-trip test (`aa-backup.json`), the CS/IT content
   dump. Tracked copies of everything small are in this folder.
+
+### 2.2 Which build each area was audited on (important)
+- Every area **except AP and AX**, and the live-account checks, ran on
+  `56b1a8c` = production (`kos-artshop-1`): the working tree was
+  `feat/art-shop` until 2 Nov ~11:15.
+- **AP (architecture/perf) and AX (a11y/HCI) ran on `f4fa493`
+  (`kos-creatives-1`)**, 23 commits older (no Achievements, no art/shop
+  release), because the audit branch was first created from a stale local
+  `main`. Their findings are kept, flagged "Build audited" in FINDINGS.md;
+  re-check counts/sizes on main and sweep the pages they could not see
+  (Badge Wall, Seat, shop). AP's finding "the checkout is 23 commits behind"
+  (AP-02) was this mistake, not an app defect, and was withdrawn — the id
+  AP-02 is deliberately unused.
+- A Creatives auditor started on the stale tree was stopped; its 2 lines
+  are set aside as `audit-evidence/2026-11/qa/findings/creatives.OLD-BUILD-f4fa493.jsonl`
+  (do not use). **Creatives remains unaudited.**
 
 ### 2.1 Path mapping for evidence strings
 Findings cite paths from the auditors' scratch folder. Map them like this:
@@ -183,8 +205,8 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts:** 268 findings (+ 23 live-account notes): **P0 1 · P1 67 · P2 119 ·
-P3 81**. Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
+**Counts:** 301 findings (+ 23 live-account notes): **P0 1 · P1 69 · P2 134 ·
+P3 97**. Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
 
 **What "complete" means:** the auditor finished, wrote coverage notes and
@@ -206,15 +228,15 @@ before acting (see §7).
 | CC | CS + IT content | complete | 13 | Flashcard/Quiz UI (ST's), shop themes, every CS fact, IT F200/F202 (completed units) — per-leaf worklist in `data/content-cs-it/worklist.txt` (162 leaves) |
 | CO | Code space | **partial** | 16 | Interrupted. Track pages, capstones, Rider project pages, kata likely thin |
 | JM | Japanese + Mind | **partial (barely started)** | 5 | Almost everything: Japanese session/kana/skills/checkpoints/settings/audio; all of Mind |
-| CR | Creatives | **NOT RUN** | 0 | Everything (incl. the user's "day letters not centred" report) |
+| CR | Creatives | **NOT RUN** (a stale-build attempt was discarded, §2.2) | 0 | Everything (incl. the user's "day letters not centred" report) |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 22 | Idle watch end to end, Stopwatch/Custom/Study-until running, Morning "pick three", Templates detail, routine step ⋯ menu, habit editor with real habits, Reminders edit inspector / sub-tasks / recurrence editor, Calendar event modal, Pacing edit dialogs, Dawn + shop theme, iPad standalone |
 | MG | Money + Goals | complete | 22 | iPad landscape, import dialog on iPhone/iPad, goal editor type forms + exam goals, Wishlist purchase handoff, kos_money cloud sync, PDF statements (no code path) |
 | EX | Exams hub, Files, ink | **partial** | 27 | Interrupted. Unknown remainder (companion/deep pages, paper viewer timed mode, scan, share target likely thin) |
 | CL | Collection | **partial** | 15 | Interrupted. Perf numbers on the dense vault, editors, Mangaka, Shrine tie-order, Sync page likely thin |
 | AA | Assistant, notifications, Archive | **partial** | 10 | Interrupted. Backup export→import round trip was started (`aa-*` files in evidence) — result not recorded as a finding; notifications page, Storage, Connections UI |
 | DI | Data integrity | complete | 15 | Google Calendar recurrence mapping in depth, ink per-stroke merge, mind/reports sync bodies, real provider servers, Dawn/shop visual pass |
-| AP | Architecture, perf, docs drift, repo clutter | **NOT RUN** | 0 | Everything: boot cost, long tasks, giant files, duplication across study spaces, dead code, root clutter (`fix_damage*.py`, `recovery/`, `Context/`, `CATEGORY*_PLAN.md`, `KURENAIOS_FULL_UI_UX_AUDIT.md`…), test-suite quality/runtime, docs drift, CLAUDE.md length |
-| AX | Cross-cutting a11y + HCI sweep | **NOT RUN** | 0 | Everything: responsive_audit at the 4 sizes over all views, keyboard-only, focus, names, contrast ratios on both themes, touch targets, reduced motion, **audio and haptics**, message/wording consistency |
+| AP | Architecture, perf, docs drift, repo clutter | complete **on the stale build f4fa493** (§2.2) | 12 | iPad/iPhone timing (desktop Chrome only, shared loaded machine — numbers indicative), Edge Functions/supabase code, Achievements and art/shop code (not in that tree); re-check on main |
+| AX | Cross-cutting a11y + HCI sweep | complete **on the stale build f4fa493** (§2.2) | 21 | Badge Wall/Seat/shop pages; 22 shop themes; screen-reader order inside labs, ink and the code editor; every dialog's focus order |
 | LA | Live account (production, Chrome) | done for integrations | 23 notes | Google Calendar/Tasks two-way edit round trip not done (only Todoist); AniList/VNDB pages viewed on Mac only |
 
 **Known harness limitation:** `kos.mjs shot --theme atelier-dawn` sets
@@ -254,20 +276,18 @@ folder (it still points at the first account's session scratchpad).
 "measure the DOM first, screenshot only what is flagged, aim for ~100 tool
 calls", and saving findings incrementally. Expect ~4 auditors per window.
 
-### 5.3b A run started at the end of the first account's window
-On 2 Nov, after this handoff was committed, the AP and AX auditors were
-started with `QA=audit-evidence/2026-11/qa`. If the first account ran out
-before folding them in, look for `audit-evidence/2026-11/qa/findings/
-architecture-perf.json[l]` and `a11y-hci.json[l]`: copy them into
-`docs/audit/2026-11/findings/`, re-run `consolidate.py`, and treat an area
-with only a `.jsonl` as partial (continue it — the auditor prompt resumes
-from the `.jsonl`).
+### 5.3b Folding in a run
+Auditors write to `$QA/findings/` (by default `audit-evidence/2026-11/qa/findings/`):
+copy `<area>.json` and `<area>.jsonl` into `docs/audit/2026-11/findings/`,
+re-run `consolidate.py`, commit. An area with only a `.jsonl` is partial —
+re-running its auditor continues from the `.jsonl` without repeating it.
+**Before any run, confirm the tree is production code** (§2.2).
 
 ### 5.4 Recommended order for the remaining work
-1. **AP** architecture/perf/docs-drift (needed for the refactoring half of
-   the plan and the CLAUDE.md rules) — highest value.
-2. **AX** a11y/HCI sweep (HCI 8 needs, incl. audio/haptic).
-3. **CR** Creatives; **JM** Japanese + Mind (continue).
+1. **CR** Creatives (never audited); **JM** Japanese + Mind (barely started).
+2. Re-check **AP** and **AX** on main and sweep what they could not see
+   (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
+   rerun.
 4. Continue the partial UI areas: SC (theme review!), SH, EX, CL, AA, CO, HR, AG.
 5. Live: Google Calendar two-way round trip with a marked test event (user
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
@@ -345,7 +365,30 @@ These explain many symptoms each. The plan should fix the cause once.
     HR-05 Home Study hours vs Reports Studied; AG "Owned" 8 vs 21). → One
     derivation per figure (invariant 26d), enforced.
 13. **Help, search and docs not part of "done"** (SH-07 search can't find
-    pages; SH-10/11 Help stale). → The CLAUDE.md rules in §1.2.
+    pages; SH-10/11 Help stale; AP: README, AGENTS, PROGRESS and HANDOFF each
+    name a different current release and gate). → The CLAUDE.md rules in §1.2.
+14. **Boot weight (AP).** ~16.6 MB of JS in 340 synchronous scripts + 1.2 MB
+    CSS, mostly curriculum content no first view needs (cold launch seconds
+    of compile/run; worst on the iPad). Derived reads have no memoisation
+    (first render of Exams/Code map/Calendar 0.5–2.8 s). → Lazy-load content
+    per subject/topic; memoise the heavy derived reads.
+15. **No view lifecycle (AP).** `KOS.show` empties `#main` with no unmount;
+    global listeners are removed only when they next fire, so visited pages
+    leak (~16,000 detached nodes after 30 topic pages); `KOS.rerender` drops
+    focus to `<body>` (breaks invariant 65; SY-08 is the user-visible side).
+    → A `view.dispose()` contract, which also gives §6.1 its hook.
+16. **Duplicated study-space machinery (AP).** Code, Japanese, Mind and
+    Creatives each re-implement the paged lesson reader with dwell, evidence,
+    `syncChecks` and award, and have drifted; hub.js is 3,899 lines (a
+    953-line topic-page function); date/format helpers copied per file.
+    → Extract one lesson-reader/evidence module; split hub.js by surface.
+17. **Shared CSS undoing accessibility (AX).** The phone 16px input guard is
+    in `@layer base`, so component font sizes override it and iOS zooms on
+    nearly every field (P1); `.k-pill-select`, `.k-switch`, checkboxes undo
+    the 44px touch floor; role-tinted status chips fail AA in both themes;
+    tab strips lack arrow keys; toast Undo unreachable by keyboard. Audio:
+    only the Focus chime exists, silent on iOS, no setting; no haptics; the
+    document title never changes.
 
 ## 7. Verification status — be honest about it
 - Every finding was saved with evidence by its auditor (screenshots,
@@ -356,8 +399,8 @@ These explain many symptoms each. The plan should fix the cause once.
   live), the M7.3 stale fork (LA-23, live), the state-document size (LA-9,
   live), the AniList/VNDB page issues (LA-12…17, live screenshots), the
   Todoist round trip (LA-19…22), the toast/home/money first-run screenshots.
-- Areas with zero findings (CR, AP, AX) were **not audited** — they have not
-  passed anything.
+- CR (Creatives) has zero findings because it was **not audited** — it has
+  not passed anything. AP and AX ran on an older build (§2.2).
 
 ## 8. Draft remediation plan outline (NOT approved; for the next account to complete)
 

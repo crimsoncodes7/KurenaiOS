@@ -3969,22 +3969,6 @@
   "areaStatus": "complete"
  },
  {
-  "title": "This audit's checkout is 23 commits behind origin/main: the harness serves sw kos-creatives-1, not production's kos-artshop-1",
-  "severity": "P1",
-  "category": "docs",
-  "detail": "The audited working tree is branch audit/quality-2026-11 at d1afbfa, whose base is local main f4fa493 (the Creatives release). origin/main is at 56b1a8c, 23 commits ahead, and holds Achievements/the Badge Wall (roadmap 5.16-5.17, smoke113, js/core/achievements.js) and the art and shop release (5.13-5.14, KOS.art). In this tree sw.js says VERSION = 'kos-creatives-1', tools/smoke113.test.js and js/core/achievements.js do not exist, and the on-disk CLAUDE.md says the gate is 112 suites. Every harness slot serves this tree, so findings about the Governor, the shop, page header art, Home's seasons/Spotlights and achievements describe an older build than the one the user runs, and anything fixed on main since will be re-reported.",
-  "evidence": "git rev-list --count HEAD..origin/main = 23; git log origin/main -1 = 56b1a8c 'docs(memory): the art and shop release'; sw.js:44 VERSION = 'kos-creatives-1'; ls js/core/achievements.js -> No such file; for i in '' 2..113: missing smoke113",
-  "fix": "Rebase or merge audit/quality-2026-11 onto origin/main (only docs/audit files are on it) before acting on findings, and re-run the harness checks for the Governor, shop, art slots and achievements against the current code. Add a check to the harness 'start' that warns when HEAD is behind origin/main.",
-  "effort": "S",
-  "rootCause": "The audit branch was cut from a local main that had not been fast-forwarded after the last three releases.",
-  "devices": "all",
-  "needsDesign": false,
-  "needsArt": false,
-  "id": "AP-02",
-  "area": "architecture-perf",
-  "areaStatus": "complete"
- },
- {
   "title": "Cold-path cost after boot: the first render of each heavy view takes 0.5-2.8 s on the dense account (Exams, Code map, Due, Pacing, Calendar), then 20-200 ms",
   "severity": "P2",
   "category": "perf",
