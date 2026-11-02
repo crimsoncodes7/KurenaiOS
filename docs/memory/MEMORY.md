@@ -25,3 +25,4 @@
 - [Google/Todoist integrations](integrations-google-todoist.md) — 5.15 RELEASED 2026-10-30 (kos-connect-1, d47701df), smoke112; real sign-in not yet tried
 - [Design handoffs are a guide](design-handoff-not-1to1.md) — never 1:1; match Code's desk; minimal text; side column never taller than the hero
 - [Achievements badge wall](achievements-badge-wall.md) — 5.16/5.17 RELEASED 2026-10-31 (kos-achievements-1, 65c61e27); all art imported; left: showcase drag-reorder, leave-with-changes prompt
+- [Quality audit 2026-11](quality-audit-2026-11.md) — AUDIT in progress (branch audit/quality-2026-11, docs/audit/2026-11/HANDOFF.md); no fixes until the user approves the plan

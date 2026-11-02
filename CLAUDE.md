@@ -8,6 +8,10 @@ chronological diary here.
 
 ## Current baseline
 
+- **In progress (2 November 2026): the quality programme's AUDIT** — read
+  [`docs/audit/2026-11/HANDOFF.md`](docs/audit/2026-11/HANDOFF.md) before any
+  work. Investigation only: no remediation until the user approves the plan.
+  Branch `audit/quality-2026-11`.
 - Category 7 A–G, the Graphite UI rebuild (review A and B), Reports and
   Code (platform, the whole core path — stages 1–4, Bridge B and four capstones; the whole of Tracks T1 and T2 with their capstones; units 7–9, 11 and 12 on the full runtime, unit 10 and capstone 4 in Rider) are integrated and deployed. What is still to do is kept in one place:
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
