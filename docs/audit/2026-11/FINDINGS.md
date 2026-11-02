@@ -24,9 +24,9 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | CL | Collection vaults, Shrine, Wishlist, Sync | partial | 0 | 1 | 9 | 5 | 15 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | partial | 0 | 2 | 5 | 3 | 10 |
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
-| AP | Architecture, maintainability, performance, docs drift | not run | 0 | 0 | 0 | 0 | 0 |
-| AX | Cross-cutting accessibility and HCI sweep | not run | 0 | 0 | 0 | 0 | 0 |
-| | **All** | | 1 | 67 | 119 | 81 | 268 |
+| AP | Architecture, maintainability, performance, docs drift | complete | 0 | 2 | 8 | 3 | 13 |
+| AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 7 | 13 | 21 |
+| | **All** | | 1 | 70 | 134 | 97 | 302 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n).
 
@@ -101,6 +101,9 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **DI-02** [P1] Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates
 - **DI-03** [P1] First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count
 - **DI-04** [P1] Two open tabs or windows overwrite each other's saves (last writer wins on the whole state)
+- **AP-01** [P1] Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs
+- **AP-02** [P1] This audit's checkout is 23 commits behind origin/main: the harness serves sw kos-creatives-1, not production's kos-artshop-1
+- **AX-01** [P1] iPhone: most text fields and selects are under 16px, so iOS Safari zooms the page on every focus
 
 ---
 
@@ -2685,14 +2688,350 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## AP — Architecture, maintainability, performance, docs drift (not run)
+## AP — Architecture, maintainability, performance, docs drift (complete)
 
-_Not audited yet._
+**Auditor's summary.** The codebase is a coherent script-tag app with strong written contracts (invariants, pure derive-on-read models, 112 passing smoke suites), but it has three structural costs. (1) Boot loads ~16.6 MB of JS in 340 synchronous scripts plus 1.2 MB of CSS, mostly curriculum content, so a cold launch spends seconds compiling and running content builders (15 s to domInteractive on the empty account, shell ready at 21 s on the dense one, on a loaded test machine). (2) The derived reads have no memoisation, so the first render of heavy views takes 0.5-2.8 s (Exams readiness, the Code map's unitState loop, the Calendar's per-cell derivedOn), settling to 20-350 ms. (3) There is no view lifecycle: KOS.show empties #main with no unmount, so 15 lazily removed global listeners keep detached pages alive (about 16,000 nodes after 30 topic pages), and KOS.rerender drops keyboard focus to <body>, breaking invariant 65. Maintainability: hub.js (3,899 lines, a 953-line topic-page function) and aitools.js are grab bags; the four study spaces copy the same lesson reader and evidence/award code and have already drifted; there is dead CSS (the retired Habits page). Docs disagree with each other about the current release and gate. Most important for the audit itself: this checkout is 23 commits behind origin/main (sw kos-creatives-1, not production's kos-artshop-1).
+
+**Coverage.** Measured in harness slot 18 at Mac size on the empty and seeded accounts: boot (Performance API, long tasks, CDP CPU profiles of reloads: arch/prof-boot-empty.txt, arch/prof-boot-dense.txt), first and warm render times of 25 views, CPU profiles of Home, Code and Calendar, an API-level timing wrapper, store.save per navigation, state size (368 KB) and stringify cost, memory and listener growth with forced GC (arch/mem.txt, arch/mem2.txt), rerender focus retention on 5 views, and idle rerender frequency (none in 65 s). Static: boot payload from index.html, file sizes, giant files, KOS namespace/guards, study-space duplication (diff of readers), unused CSS scan, unused KOS namespaces, duplicated helpers, repo root and tracked files (repo is public), docs drift across README/AGENTS/PROGRESS/HANDOFF/GUIDE/CLAUDE.md/in-app Help, and the whole smoke gate run (112 suites, all pass, 849 s). Not done: iPad/iPhone-specific timing (the harness is desktop Chrome; Safari/WebKit and real-device JIT differ, so absolute numbers are indicative only, and the test machine was shared with other slots at load ~5); Dawn/shop themes and visual screenshots (not relevant to this area; other auditors cover pages); Edge Functions and supabase code; Achievements and the art shop, which are not in this checkout.
+
+### AP-01 · P1 · perf — Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs
+
+- **Devices:** all; worst on iPhone 17 and iPad (cold launch of the Home Screen app)
+- **Detail / repro:** index.html lists 340 <script src> tags; only KaTeX, supabase.js and env.local.js are deferred. Summed on disk: 16.64 MB JS (js/data/content 8.28 MB in 126 files, js/modules 3.33 MB, js/core 2.50 MB, js/data 1.67 MB, js/labs 0.60 MB) plus 1.21 MB CSS in 24 sheets. Every topic's notes for every subject (CS, Maths, IT, Code units 1-12, tracks, Japanese, Mind, Creatives), the 567 KB past-paper index, and the 383 KB Rider project scaffolds (code-projects-files.js, needed only when exporting a Rider zip) are parsed and executed before Home renders. In the harness a cold reload of the EMPTY account took 15.0 s to domInteractive with 61 long tasks totalling 15.4 s (max 2.75 s); the CPU profile shows 11 s of (program) (parse/compile) and the top self-time scripts are content files executing their builders (cs-p2-46b.js 746 ms, code.js lesson() 316 ms, cs-p2-411.js 545 ms, cs-p2-410a.js 497 ms, maths-stats-s4 325 ms...). The machine was shared with other audit slots so absolute times are inflated, but the shape is unambiguous: the content payload dominates boot, and on an iPad/iPhone (slower JS, tighter memory, Safari evicting a backgrounded Home Screen app) every cold launch pays it. Heap after boot on the empty account: 68 MB.
+- **Evidence:** audit-evidence/2026-11/qa/arch/prof-boot-empty.txt; index.html lines 48-55 (only defer tags) and the 340-script list; sizes via stat: exam-index.js 566,954 B, code-projects-files.js 382,808 B, it-f204.js 299,469 B, hub.js 232,148 B, aitools.js 208,176 B; Performance API: domInteractive 14,993 ms, longtasks 61 / 15,441 ms; dense account warm reload (SW controlling, V8 code cache): data-shell=ready at 21,064 ms, 35 long tasks totalling 19,166 ms, heap 58 MB (machine shared with other audit slots, load avg ~5)
+- **Root cause:** Classic script-tag design (chosen so file:// works) with no lazy-loading layer; every new study space appended its whole content to index.html.
+- **Proposed fix:** Keep the script-tag architecture but split content into lazily loaded bundles: KOS.content.get(key) already funnels every read, so make content files register a loader per subject/unit (a tiny manifest listing keys -> file) and inject the script on first open of a topic, a desk or search (search can use a prebuilt title/keyword index). Load exam-index.js only on #/exams, code-projects-files.js only on export, ja/mind/creatives content only when their desk opens. Target: boot payload under ~4 MB. Also add performance.mark('kos-boot-start'/'kos-interactive') in main.js so the cost is tracked by a smoke test budget.
+- **Flags:** effort L
+
+### AP-02 · P1 · docs — This audit's checkout is 23 commits behind origin/main: the harness serves sw kos-creatives-1, not production's kos-artshop-1
+
+- **Devices:** all
+- **Detail / repro:** The audited working tree is branch audit/quality-2026-11 at d1afbfa, whose base is local main f4fa493 (the Creatives release). origin/main is at 56b1a8c, 23 commits ahead, and holds Achievements/the Badge Wall (roadmap 5.16-5.17, smoke113, js/core/achievements.js) and the art and shop release (5.13-5.14, KOS.art). In this tree sw.js says VERSION = 'kos-creatives-1', tools/smoke113.test.js and js/core/achievements.js do not exist, and the on-disk CLAUDE.md says the gate is 112 suites. Every harness slot serves this tree, so findings about the Governor, the shop, page header art, Home's seasons/Spotlights and achievements describe an older build than the one the user runs, and anything fixed on main since will be re-reported.
+- **Evidence:** git rev-list --count HEAD..origin/main = 23; git log origin/main -1 = 56b1a8c 'docs(memory): the art and shop release'; sw.js:44 VERSION = 'kos-creatives-1'; ls js/core/achievements.js -> No such file; for i in '' 2..113: missing smoke113
+- **Root cause:** The audit branch was cut from a local main that had not been fast-forwarded after the last three releases.
+- **Proposed fix:** Rebase or merge audit/quality-2026-11 onto origin/main (only docs/audit files are on it) before acting on findings, and re-run the harness checks for the Governor, shop, art slots and achievements against the current code. Add a check to the harness 'start' that warns when HEAD is behind origin/main.
+- **Flags:** effort S
+
+### AP-03 · P2 · perf — Cold-path cost after boot: the first render of each heavy view takes 0.5-2.8 s on the dense account (Exams, Code map, Due, Pacing, Calendar), then 20-200 ms
+
+- **Devices:** all; most felt on iPhone 17 and iPad cold launches
+- **Detail / repro:** Rendering each view three times in a row (via a cheap view in between) on the seeded account gave: exams 2750/589/179 ms, code map 1622/504/355, due 1623/263/22, pacing 1405/51/120, calendar 1015/168/189, japanese 825/59/311, routines 705/11/16, mind 670/171/126, home 205/175/63 (first ever Home after boot was 2.0-3.3 s). Steady state is acceptable; the first visit after a cold launch is not, and on an iPad/iPhone Home Screen app every relaunch after Safari evicts it is a cold launch. Two causes: (1) V8 lazily compiles functions from the 16.6 MB of eagerly loaded script on first use, and (2) the derived reads have no per-render snapshot, so first calls are expensive and repeated: KOS.exams.readiness over 17 assessments measured 3,247 ms then 696/78/55 ms on later runs; KOS.code.unitState (js/core/code.js:888) rescans every lesson and calls stats() (code.js:856) per call, and the Code map (js/modules/code.js:417-490) calls it per unit, per track need (needMet) and per track section (trackState); evidence() re-splits shipped notes with KOS.content.splitPages on every call (code.js:168, 66 ms/call measured). The Calendar month calls dayItems -> derivedOn (37 ms/call warm, calendar.js:563) for each of 35-42 cells, re-reading every Money rule, goal and exam start-by per cell.
+- **Evidence:** eval timings above (slot 18, seeded); audit-evidence/2026-11/qa/arch/prof-boot-dense.txt (readiness js/core/exams.js:635 1314 ms self in the boot profile, exams.js:945 predictPass 893 ms), arch/prof-code.txt, arch/prof-calendar.txt; js/core/code.js:166-190, 856-895; js/modules/code.js:417-490; js/modules/calendar.js:546-570, 1762-1800; js/core/exams.js:635-720, 943-960
+- **Root cause:** Pure derive-on-read design (a good contract) without any memoisation layer, so composite pages multiply the cost; plus eager loading of all code.
+- **Proposed fix:** Add a cheap per-tick memo: a KOS.store revision counter bumped by save(), and memoise the heavy pure reads (exams.readiness/leaves, code stats/unitState/pageCount, calendar derivedOn for a month range, srs.allCards) on (args, revision, day). Shipped content is immutable at runtime (invariant 86), so pageCount/listingsOf can be cached forever. For the calendar, compute derived items for the visible range once and bucket by date. Pair with lazy content loading (boot finding) to cut compile cost.
+- **Flags:** effort M
+
+### AP-04 · P2 · arch — The four study spaces each re-implement the same lesson machinery (paged reader with dwell, evidence, syncChecks, award, planDay), and the copies have already drifted
+
+- **Devices:** all
+- **Detail / repro:** Code, Japanese, Mind and Creatives each have their own core model (js/core/code.js 942 lines, ja.js 409, mind.js 633, creatives.js 483), topic module (codetopic.js 718, jatopic.js 387, mindtopic.js 442, crtopic.js 266), desk module and UI helper (codeui/jaui/mindui), 9,644 lines in all. Every core defines its own evidence(), syncChecks(), award(), planDay() and normalise(); every topic module carries its own copy of the paged notes reader with DWELL = 2500 / LEAVE = 1500, a page select, dots, markRead and paint (codetopic.js:26-27/354-397, jatopic.js:22/215-244, mindtopic.js:19/271-302, crtopic.js:16/163). A diff of the Japanese and Mind readers (48 lines each) shows 42 changed lines for the same behaviour, with drift a user can see: Japanese labels the pager 'Note pages' and hides it for one-page lessons, Mind labels it 'Lesson pages' and always shows it; Mind's markRead skips a 'Your notes' page, Japanese's has no such guard. The read-dwell rule is invariant 107's, so four copies mean four places to keep in step, and the next study space (roadmap) will add a fifth.
+- **Evidence:** grep 'var DWELL' in js/modules/{codetopic,jatopic,mindtopic,crtopic}.js; diff of jatopic.js:213-260 vs mindtopic.js:269-316 (42 differing lines); grep 'function syncChecks|function award|function planDay|function evidence' finds one per space in js/core/{code,ja,mind,creatives}.js
+- **Root cause:** Each study space was built in its own release branch by copying the previous one (comments say 'the pager as Code's and Japanese's'), with no shared component extracted afterwards.
+- **Proposed fix:** Extract a shared KOS.lessonReader({pages, peekRead, markPage, onChanged, label}) into js/core/ (the pager, dots, dwell/leave timing, 'Your notes' guard, Next/Prev) and have the four topic modules mount it; then a small KOS.studySpace helper for the checks-sync pattern (evidence -> want[] -> store.setCheck diff) that each core calls with its own evidence(). Do it before the next study space rather than as a rewrite: start with the reader, which has the visible drift.
+- **Flags:** effort M
+
+### AP-05 · P2 · docs — README, AGENTS, PROGRESS and HANDOFF each name a different 'current' release and smoke gate; Mind and Creatives are still listed as planned
+
+- **Devices:** n/a
+- **Detail / repro:** In this tree (sw.js kos-creatives-1, 112 smoke suites): README.md:19-21 and PROGRESS.md:22-23 say the current release is kos-files-1 (26 Oct); docs/HANDOFF.md:48 says 'Live: sw kos-japanese-5'; CLAUDE.md:163 says kos-creatives-1; origin/main is kos-artshop-1. README.md:33 and AGENTS.md:145 say the gate is 106 suites, PROGRESS.md:24 '106 / 106', CLAUDE.md:164 '112 / 112' (and the main-branch CLAUDE.md 113). README.md:35-37 lists 'Creatives, Mind, and an art and gold shop audit' as in flight/planned though Mind (kos-mind-1) and Creatives (kos-creatives-1) shipped; docs/GUIDE.md:424-425 puts both under '5. What is still on the way'. Google Calendar, Google Tasks and Todoist (kos-connect-1) are not mentioned in README, AGENTS, PROGRESS or GUIDE at all. CLAUDE.md itself is 2,337 lines, and its 'Current baseline' bullet is a ~150-line chronological release diary that CLAUDE.md's own first paragraph says belongs in Git; AGENTS.md (202 lines) is called 'the concise execution contract' but has none of invariants 137-163. Inside CLAUDE.md, the 'Branches' bullet stops at 26 October ('then to feat/routines') and 'In flight' still names branch feat/japanese and Stage 1 unit F2 as the latest; the ownership table has two separate 'Files' rows (R1-R4 and R0).
+- **Evidence:** grep -n 'kos-' README.md PROGRESS.md docs/HANDOFF.md AGENTS.md; grep -n 'suites' README.md AGENTS.md PROGRESS.md CLAUDE.md; README.md:30-38; docs/GUIDE.md:418-426; grep -c 'Todoist|Google Calendar' README.md AGENTS.md docs/GUIDE.md PROGRESS.md = 0
+- **Root cause:** Each release updates CLAUDE.md (and sometimes memory) but not the other status docs; the same facts are restated in five files with no check.
+- **Proposed fix:** Make one file the single source of 'current release, sw version, gate count' (PROGRESS.md's table) and have README/AGENTS/HANDOFF link to it instead of restating; add a smoke check that sw.js VERSION, the highest smoke number and PROGRESS.md's table agree. Move CLAUDE.md's release diary into PROGRESS.md (or git tags) and keep CLAUDE.md to architecture, ownership and invariants. Update GUIDE §5 and README's feature list for Mind, Creatives and the integrations.
+- **Flags:** effort S
+
+### AP-06 · P2 · content — In-app Help & Guide has no entry for Japanese, Mind, Creatives, Money, Goals or the Google/Todoist connections
+
+- **Devices:** all
+- **Detail / repro:** js/modules/help.js (335 lines) is the Help & Guide page that invariant 50a points readers to ('rules a reader needs once belong in Help & Guide'), and cloudui.js:101 defers to it. Counting mentions: Japanese 0, Mind 0, Creatives 0, Money 0, Todoist 0, Goals 1, Google 1, Routine 5, Files 6. So the study spaces and Money/Goals, which deliberately keep page sub-lines to one line, have no longer explanation anywhere in the app (docs/GUIDE.md covers Japanese and Code but is not shipped in the app).
+- **Evidence:** grep -c for each word in js/modules/help.js; js/modules/help.js:229 (the page header)
+- **Root cause:** Help content is hand-written per release and was not extended after the Files release.
+- **Proposed fix:** Add Help & Guide sections for each study space (how a lesson counts as done, what pays, the Daily plan), Money (Hide amounts, recurring rules, the planner mirror), Goals (repeating goals, pace) and Connections; reuse docs/GUIDE.md's plain-words text as the source.
+- **Flags:** effort M
+
+### AP-07 · P2 · arch — The public repository tracks personal data and one-off clutter at its root (an AniList/MAL export, local Claude settings, spec PDFs, repair scripts, old plans)
+
+- **Devices:** n/a
+- **Detail / repro:** gh reports crimsoncodes7/KurenaiOS as PUBLIC. Tracked in it: 'Phase 3 Context/scrape_anilistanime.xml' (the user's MyAnimeList export with user_name and the full 650-title list) and four app screenshots; .claude/settings.local.json and .claude/launch.json (per-machine Claude Code permissions; no secret found in it, but it is local configuration and shows as modified in every session); Context/ (12 files, 7.7 MB: AQA/Edexcel/OCR specification PDFs, a revision-guide .docx, 'Requirements1-5.png', a .gdoc stub); five root repair scripts from the pre-2.1 snapshot (fix_damage.py, fix_damage_2.py, fix_it_data.py, fix_it_data_2.py, fix_structural_corruption.py, last touched a29a716 2026-06-13, referenced by nothing); and four root planning/audit docs from earlier phases (CATEGORY6_PLAN.md, CATEGORY6_UI_PLAN.md, CATEGORY7_PHASE_G_FINDINGS.md, KURENAIOS_FULL_UI_UX_AUDIT.md). Untracked but sitting at the root: media_budget_planner.html, prompt.md, recovery/ (1.2 MB backup JSON + phone screenshots), artifacts/ (716 KB). The root has 9 markdown files, which makes the canonical four (README, CLAUDE, AGENTS, PROGRESS) harder to find.
+- **Evidence:** gh repo view --json visibility -> PUBLIC; git ls-files 'Phase 3 Context' Context .claude fix_*.py CATEGORY* KURENAIOS_FULL_UI_UX_AUDIT.md; head of scrape_anilistanime.xml shows <user_name> and <user_total_anime>650; git log -1 -- fix_damage.py = a29a716 2026-06-13
+- **Root cause:** Working material was committed during early phases and never cleaned; no root-level policy.
+- **Proposed fix:** git rm --cached the personal export and .claude/settings.local.json (add both to .gitignore); move Context/, 'Phase 3 Context/' and the CATEGORY*/KURENAIOS_* docs to docs/archive/ (or out of the repo, since the spec PDFs are the boards' documents); delete the fix_*.py scripts (history keeps them); move media_budget_planner.html/prompt.md/recovery/artifacts to prototypes/ or outside the repo. Consider purging the export from history if the repo stays public.
+- **Flags:** effort S
+
+### AP-08 · P2 · perf — Detached pages leak: global listeners are removed only when their event next fires, so every visited topic/Files/lesson page stays in memory
+
+- **Devices:** iPad (long-lived Home Screen app) and iPhone most; all
+- **Detail / repro:** 15 places add a window/document listener on each render and remove it lazily inside the handler ('if (!node.isConnected) { removeEventListener(...); return; }'): hub.js:2719 and 3169 (kos-ink on every topic page), files.js:283 (paste) and 292 (kos-files-index), attachments.js:736 (paste), inkui.js:1422 (keydown), inktab.js:518, codetopic.js:214/228, jatopic.js:321/334, mindtopic.js:380/395, crtopic.js:246, inksync.js:339. Rare events (kos-ink fires only when ink is written; paste only on a paste) never come, so each closure keeps its whole detached page alive. Measured with forced GC (CDP HeapProfiler.collectGarbage + Memory.getDOMCounters) on the seeded account: on Files, 9,003 DOM nodes / 886 listeners; after opening 30 CS topic pages and returning to Files, 24,954 nodes / 2,369 listeners (about 16,000 detached nodes retained); dispatching one kos-ink event dropped it to 11,027 / 1,096. Three rounds over 23 views grew nodes from 1,786 to 14,110 and listeners from 157 to 1,795. Opening Files 5 times adds 5 document paste listeners. On an iPad Home Screen app kept open for days this is unbounded growth until Safari kills the page (which then pays the full cold boot).
+- **Evidence:** audit-evidence/2026-11/qa/arch/mem.txt, arch/mem2.txt; eval: 5 paste listeners after 5 Files visits; grep 'isConnected[^;]*removeEventListener' = 15 sites listed
+- **Root cause:** No view lifecycle: KOS.show replaces #main with innerHTML='' and has no unmount step, so each module invented a lazy self-removal.
+- **Proposed fix:** Give KOS.show a teardown hook: views register cleanups via a KOS.ui.onLeave(fn) (or an AbortController per render, passing {signal} to addEventListener) that KOS.show calls before clearing #main; replace the 15 lazy removals with it. Add a smoke check that navigating 20 views leaves the listener count flat (jsdom can count via a wrapped addEventListener).
+- **Flags:** effort M
+
+### AP-09 · P2 · arch — hub.js is a 3,899-line grab bag: Home (~900 lines), the subject page, a 953-line KOS.views.ref topic function, Backup & Restore, the header search listbox and rail counters
+
+- **Devices:** n/a
+- **Detail / repro:** js/modules/hub.js (232 KB) holds the rail counters (KOS.refreshRailCounters :340), the spine toggle (:383), Home's next action/daily goal/Focus ladder (:713-894), KOS.views.home (:1041-1941), KOS.views.subject (:1942-2348), KOS.views.ref (:2349-3301, one 953-line function containing the tab row, ink count, Working pane, pager, inspector wiring), KOS.views.data (Backup, :3302), the topbar search listbox (:3552) and 'the ONE dismissal path' (:3670), plus KOS.hub's shared study statistics. Every study space plugs into KOS.views.ref through flags on cx (e.g. cx.assistStrip=false for Mind), so the topic page is the most coupled function in the app and the one every study-space release edits. Similar giants: js/core/aitools.js 3,811 lines (every Assistant tool for every domain in one file), assistant.js 2,719, focus.js 2,598. The window's KOS namespace has 209 top-level members and about 430 'KOS.x && ...' existence guards in core/modules, which hide load-order mistakes instead of failing.
+- **Evidence:** wc -l js/modules/hub.js = 3899; grep -n '^  KOS\.' js/modules/hub.js (lines 340-3888); awk 2349-3301 = 953 lines; grep -ho 'KOS\.[a-zA-Z]+' | sort -u = 209; guard count 430
+- **Root cause:** Home and the topic page grew in place across Categories 1-7 and every study-space release; the file was never split after the UI rebuild.
+- **Proposed fix:** Necessary (low risk, mechanical): move KOS.views.home and its helpers to js/modules/home.js, Backup & Restore to js/modules/backup.js, the search listbox to js/core/searchui.js; split KOS.views.ref into a topic shell plus per-tab renderers registered by subject (KOS.topicTabs.register), which is also where the study spaces' cx flags belong. Split aitools.js by domain (each owner registers its tools, as goals do). High value: replace silent 'KOS.x &&' guards for hard dependencies with a boot-time assertion of required modules so a load-order slip fails loudly in smoke.
+- **Flags:** effort L
+
+### AP-10 · P2 · a11y — KOS.rerender() drops keyboard focus to <body> on every redraw, including background ones (cloud pull, habit auto-tick)
+
+- **Devices:** Mac (keyboard), iPad with keyboard, VoiceOver on all
+- **Detail / repro:** Invariant 65 says a redraw changes no focus. KOS.rerender (js/core/ui.js:344-357) re-runs KOS.show(..., {_nav:true}), which empties #main (ui.js, main.innerHTML = '') and rebuilds it; it restores main.scrollTop but not the focused control. Measured on the seeded account: focusing a control and calling KOS.rerender() left document.activeElement = BODY on Home (was home.review-line), Calendar (cal.mode), Routines (ui.tab), Reminders (rem.side-item) and Money (ui.tab). Background callers make this hit keyboard and VoiceOver users without any action of theirs: cloudsync.js:731 rerenderCurrent after a pull, routines.js:699 after autoSync ticks a habit, plus 142 KOS.rerender() call sites in total (most after the user's own action, where the control they used vanishes). A redraw also costs a full view build (225 ms Home, 326 ms Calendar warm).
+- **Evidence:** eval on slot 18: {home:{ms:225,focusedBefore:'home.review-line',after:'BODY'}, calendar:{ms:326,after:'BODY'}, routines, reminders, money all BODY}; js/core/ui.js:344-357; js/core/cloudsync.js:723-731; js/core/routines.js:699
+- **Root cause:** Redraw is implemented as navigation (rebuild #main) with only scroll restoration.
+- **Proposed fix:** In KOS.rerender, before the redraw record the focused element's identity inside #main (closest [data-ui] plus data-key/data-id/aria-label and its index among matches) and after it focus the equivalent node with {preventScroll:true}, falling back to #main without announcing; skip background redraws while focus is inside #main and the user is typing (or defer them until blur).
+- **Flags:** effort S
+
+### AP-11 · P3 · arch — ~110 lines of dead CSS: the retired Habits page (79 lines of .k-hb-*) and canvas-era lab classes
+
+- **Devices:** all
+- **Detail / repro:** Of 5,312 .k- class names defined in css/, 66 appear nowhere in js/ or index.html and are not built from a prefix. 33 are the old Habits page in css/views/productivity.css (79 lines matching k-hb-, from line 378) which Routines replaced in kos-routines-1 (js/modules/routines.js:491 aliases #/tasks to Routines; no JS writes k-hb-). 23 are lab classes in css/views/labs.css (k-lab-rec-*, k-lab-bitmap-*, k-lab-fsm-*, k-lab-subnet-*, k-lab-reg-*...) left from the labs before every sim moved to the SVG stage. Others: k-gv-seal-n/-art (governor.css), k-cx-unit-top, k-cx-tile-k (code.css), k-mind-cp-h, k-rp-pairs--one, k-mlist-chips, k-mn-two--amt. smoke55 guards legacy class vocabulary but not CSS with no consumer.
+- **Evidence:** python scan of css/*.css + css/views/*.css vs js/**/*.js + index.html (66 unreferenced, list in this finding); grep -c 'k-hb-' css/views/productivity.css = 79
+- **Root cause:** Rebuilds remove views but not their stylesheet sections; no unused-CSS gate.
+- **Proposed fix:** Delete the k-hb-* block and the unreferenced lab rules after a quick visual audit; add a smoke check that every .k- class in css/ is referenced somewhere in js/ or index.html (allowing an explicit list of prefix-built names).
+- **Flags:** effort S
+
+### AP-12 · P3 · arch — The 112-suite smoke gate takes ~14 CPU-minutes with no runner, no npm script and no CI; two suites are 41% of it
+
+- **Devices:** n/a
+- **Detail / repro:** Running every suite (4 in parallel) in this tree: all 112 pass, summed runtime 849 s; smoke75 (Code content gate) 189 s and smoke56 (render purity) 163 s are 41%; next smoke44 25 s, smoke76 20 s, smoke45 20 s. The documented way to run it is a shell for-loop in CLAUDE.md; package.json has no scripts (not even 'test'), jsdom/fake-indexeddb are the only deps, there is no .github/workflows, so the gate runs only when an agent remembers to run it, sequentially (~14 min). The suites total 38,936 lines; 78 of 112 read source files with readFileSync (source-text assertions, e.g. smoke55's CSS vocabulary), which is useful for invariants but brittle to refactors such as the hub.js split.
+- **Evidence:** /tmp timing run: count 111 + smoke.test.js run separately (3 s), sum 849 s, no failures; package.json (no scripts); ls .github/workflows -> none; wc -l tools/smoke*.test.js = 38936
+- **Root cause:** Suites were added one per release without a harness.
+- **Proposed fix:** Add tools/run_smoke.mjs that runs suites in parallel (os.cpus()-1) with a summary and non-zero exit, and 'npm test' pointing to it; a GitHub Actions workflow on push to main for the fast suites (skip the .NET/SQLite differentials). Split smoke75 so the content check runs only when js/data/content/code-* changed.
+- **Flags:** effort S
+
+### AP-13 · P3 · arch — Date and formatting helpers are re-implemented per file (pad x18, addDays x14, iso/isoOf x16, hm x11, rid x8)
+
+- **Devices:** n/a
+- **Detail / repro:** Counting 'function <name>(' across js/core, js/modules, js/labs and js/engines: pad 18 files, addDays 14, iso 10 + isoOf 6, hm 11, rid 8, clamp 5. The copies are textually different (pad()+getMonth, ('0'+x).slice(-2), String().padStart, one Date.UTC variant), several just forward to KOS.srs.addDays, and the 'today' helpers differ (iso(new Date()), KOS.srs.todayISO(), G.todayISO()). They agree today, but this is where a routine-day vs calendar-day (invariant 148) or a local vs UTC slip would hide, and each new module copies one more.
+- **Evidence:** grep -l 'function pad(' etc. over js/{core,modules,labs,engines}/*.js; grep -h -A3 'function iso(|function isoOf(' shows 5 distinct implementations
+- **Root cause:** IIFE-per-file modules with no shared utility module for dates; copying a helper was the path of least resistance.
+- **Proposed fix:** Add KOS.date (iso, parse, addDays, daysBetween, weekStart, hm, pad) in js/core next to srs, make KOS.srs's date functions delegate to it, and replace local copies opportunistically when a file is touched; a smoke rule can refuse new local 'function addDays(' definitions.
+- **Flags:** effort S
+
+**QoL ideas from this auditor:**
+- Add performance.mark('kos-boot')/('kos-ready') in main.js and print them in Archive > Storage, so boot time is visible and testable
+- Ship js/core/sample.js (25 KB dev-only sample account) only to dev hosts or behind a lazy load
+- Content-hash or ETag-revalidate the precache so a sw VERSION bump does not re-download all ~18 MB of unchanged scripts
+- Add 'npm test' and a parallel smoke runner
+
+**Backlog ideas from this auditor:**
+- Lazy content loading: a per-subject/unit content manifest behind KOS.content.get, loading files on first open and a prebuilt search index
+- A view lifecycle in KOS.show (onLeave/AbortController) with focus restoration on rerender
+- A small memo layer keyed on a store revision for readiness, code unit state, calendar derived items and srs.allCards
+- Extract a shared lesson reader and checks-sync helper before the next study space
+- Split hub.js (home, topic page, backup, search listbox) and aitools.js (per-domain tool registration)
 
 
 ---
 
-## AX — Cross-cutting accessibility and HCI sweep (not run)
+## AX — Cross-cutting accessibility and HCI sweep (complete)
 
-_Not audited yet._
+**Auditor's summary.** The app has solid accessibility bones: every glyph-only control has an accessible name, every view has exactly one visible h1, a skip link, a focus ring (crimson, 5.8:1) that shows on all but a few custom fields, a global prefers-reduced-motion reset, alt on every image, and the responsive audit found 0 overflow and 0 clipped text across 424 view×size×theme cells. The main problems come from a few shared root causes. (1) Cascade layers: the phone's 16px input guard lives in @layer base, so component font sizes override it and iOS zooms on almost every text field and select on the iPhone (P1). (2) Shared primitives cancel the 44px touch floor: .k-pill-select sets min-block-size:0, .k-switch is a fixed 34x20, checkboxes are 18px. (3) Status chips paint role-coloured text on a wash of the same colour, which falls below 4.5:1 in both themes. (4) Keyboard and focus: bare Backspace navigates Back even under an open modal, toast Undo cannot be reached, and role=tab strips have no arrow-key support. (5) Feedback channels: the only sound, the Focus chime, is silent on iOS and has no setting; there are no haptics; the document title never changes. Help & Guide text is partly stale.
+
+**Coverage.** Ran tools/responsive_audit.mjs on slot 19 (seeded) at 1470x832, 820x1180, 1180x820 and 402x874 with touch: 53 views × 2 themes, 0 overflow and 0 amputated text, screenshots in shots/resp. Looked at contact sheets (shots/a11y-hci/sheets/mac1, mac2, ipad1, iphone1, empty-mac). DOM scan (a11y-scan.js: unnamed controls, touch targets, oval controls, computed text contrast with opacity and alpha grounds, fields under 16px) over 39 views at Mac (Graphite, then real Dawn via KOS.governor.setTheme), iPad portrait with touch, and iPhone with touch; outputs in a11y-mac*.jsonl, a11y-ipad.jsonl, a11y-iphone.jsonl. Also checked: a programmatic focus-indicator test on 8 views, symbol-only button names on 14 views, heading structure on 28 views, the Backspace/dialog repro, tab arrow keys, hover-only controls under hover:none, empty-account empty states and button labels on 26 views (a11y-empty-mac.txt), one shop theme (solar-manuscript) on 6 views, token contrast computed from the oklch values, and audio, haptic, reduced-motion and title code by grep. NOT examined: real VoiceOver or Safari on a device (all headless Chrome emulation, so iOS zoom and AudioContext behaviour were inferred from WebKit rules and the measured CSS); iPad landscape was only checked through the responsive-audit shots; the other 22 shop themes; screen-reader reading order inside complex widgets (labs, ink, the code editor); every dialog's internal focus order. Page-level instances already reported by other areas (vault/assignment/Japanese/Code touch targets, the iPhone tab-bar labels, toast width) were not repeated; the shared root causes are reported here.
+
+### AX-01 · P1 · bug — iPhone: most text fields and selects are under 16px, so iOS Safari zooms the page on every focus
+
+- **Devices:** iPhone
+- **Detail / repro:** Invariant 40 promises 16px inputs on the phone, and base.css sets input, select, textarea { font-size: max(16px, 1em) } under max-width 700px. That rule lives in @layer base, which the declared order (tokens, base, layout, components, views, themes) puts BELOW every component and view rule, so any class that sets a font size wins. Measured at 402x874: Assistant composer 14.5px, Reminders quick-add 14px, Focus topic/objective inputs 13.5px, Help search 13px, Files search 13.5px, Backup & Restore e-mail/password 13.5px, Routines settings times 13.5px, Media Sync inputs 13.5px, Assignments subtask input 13px, every .k-pill-select sort/filter (Assignments, Exams & Papers, Shrine, Wishlist, topic page reader select, Card stats retention) 12.5px, Pacing lesson-day selects 12px, vault score corners 14px. On the user's iPhone each of these zooms the viewport when tapped and leaves it zoomed (the layout then scrolls sideways until pinched back). Only the phone search sheet was special-cased (layout.css:457).
+- **Evidence:** css/base.css:156-160 (rule inside @layer base); css/tokens.css:35 (@layer tokens, base, layout, components, views, themes); overriding rules e.g. css/components.css:406 .k-input, :417 .k-pill-select font-size var(--fs-12-5), css/views/assistant.css:216 .k-asst-input font-size var(--fs-14-5); measurement audit-evidence/2026-11/qa/a11y-iphone.jsonl (font16 lists per view, script a11y-scan.js)
+- **Root cause:** Cascade-layer order: a base-layer guard cannot override component-layer declarations.
+- **Proposed fix:** Move the phone 16px rule to the last layer (themes, or an unlayered rule at the end of components.css) so it wins: @media (max-width:700px){ input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea, [contenteditable] { font-size: max(16px, 1em) !important } } — or set --fs-input tokens that components read. Add a smoke check that no visible field computes under 16px at 402px.
+- **Flags:** effort S
+
+### AX-02 · P2 · a11y — Undo in toasts cannot be reached by keyboard or screen reader
+
+- **Devices:** all
+- **Detail / repro:** The one Undo route for Daily Review triage (Tomorrow, Done, Study block) and Reminders' 'ticked in your plan' is a button inside #toast. #toast is aria-hidden="true" and the button is created with tabindex=-1, so it is out of the tab order and hidden from assistive tech; the announced sentence ('<title> · moved to tomorrow') never mentions Undo. The toast disappears after 8 s with no pause on hover/focus (WCAG 2.1.1 Keyboard, 2.2.1 Timing). A keyboard or VoiceOver user has no undo for these actions.
+- **Evidence:** js/core/ui.js:72-87 (tabindex '-1' at :76, 8000 ms timer :81, announce(msg) without the action); index.html:140 (#toast aria-hidden=true); callers js/modules/dayreview.js:534,615,621,622, js/modules/reminders.js:344
+- **Root cause:** #toast was made purely visual in Phase F; the later action variant reused it without restoring access.
+- **Proposed fix:** Give action toasts a focusable, named Undo: drop tabindex=-1 and aria-hidden on the action toast (or render action toasts in a non-hidden region), announce 'msg. Undo available (Ctrl/Cmd+Z)', pause the timer on hover/focus, and add a global Cmd/Ctrl+Z that runs the latest toast action.
+- **Flags:** effort S
+
+### AX-03 · P2 · ux — Focus chime is silent on iPhone/iPad and has no on/off or volume setting
+
+- **Devices:** iPhone, iPad (silent); all (no control)
+- **Detail / repro:** The only sound in the app (Pomodoro cycle end, break end, stopwatch break nudge) is a Web Audio oscillator whose AudioContext is created lazily inside the timer tick, never from a user gesture and never resume()d. WebKit starts such a context 'suspended', so on the user's iPhone and iPad the chime never plays; the cue is then only a 2.6 s toast that a user away from the screen will miss. There is also no setting anywhere to turn the chime off, choose a sound or set its volume (grep finds no Sound/Chime control). Japanese voice lines and the Assistant's speech are the only other audio.
+- **Evidence:** js/modules/focus.js:788-801 (chime(): new AC() on first call from tick, no ctx.resume()); call sites :496, :508, :522 inside the interval tick; grep -rniE '"(Sound|Chime)' js/modules js/core → none
+- **Root cause:** Audio unlock rules of iOS WebKit not handled; no audio preference model.
+- **Proposed fix:** Create/resume the AudioContext in Start's click handler (unlock it), call ctx.resume() before each chime, and add a Focus setting 'Sound at cycle end' (on/off + volume, per device in state.ui). Also send a device notification for cycle end when the page is hidden.
+- **Flags:** effort S
+
+### AX-04 · P2 · a11y — Status chips fail AA contrast app-wide (3.5–4.3:1 at 11.5px), worst in Atelier Dawn
+
+- **Devices:** all
+- **Detail / repro:** Every .k-chip paints its text in the role colour on an 18% wash of the same colour. The wash darkens/lightens the ground towards the text, so the role colours that pass on the page (4.5–5.8:1, computed from the tokens) drop below 4.5:1 on their own chip. Measured on the seeded account (Mac, real theme via KOS.governor.setTheme): Dawn — Assignments 'Overdue' 3.68, vault 'In progress' 3.52–3.62, Wishlist '◆ Priority purchase' 3.36, '#urgent' 4.02, 'Medium' 4.04, '23 behind' 4.04, Governor '● All systems open' 3.96; Graphite — 'Overdue' 3.93, 'Coursework / NEA' 4.28, 'Not enough evidence' 3.94, 'recall 94%' 3.94, 'Too early to call' 3.94. These are the app's most decision-relevant labels (overdue, at risk) and are 11.5px, regular weight.
+- **Evidence:** css/components.css:191-199 (.k-chip: color var(--chip-c); background color-mix(var(--chip-c) 18%, transparent)); scan output audit-evidence/2026-11/qa/a11y-mac-dawn2.jsonl and a11y-mac.jsonl (script audit-evidence/2026-11/qa/a11y-scan.js); token ratios computed: Dawn --red on --s1 5.78, on its own wash 3.68
+- **Root cause:** Chip ink is the same role token as its wash; tokens were tuned for page ground, not for the tinted chip.
+- **Proposed fix:** Give chips an ink variant per role: text = oklch(from var(--chip-c) calc(l - 0.12) c h) in Dawn (calc(l + 0.08) in dark themes), or keep the role colour for a dot and set the label in --text-2. Add a smoke check that every [data-tone] chip ≥ 4.5:1 in Graphite and Dawn.
+- **Flags:** effort S
+
+### AX-05 · P2 · a11y — Touch-size floor is undone by shared primitives: pill selects 30px, switches 34x20, checkboxes 18x18 on iPad and iPhone
+
+- **Devices:** iPad, iPhone
+- **Detail / repro:** base.css gives every button/select/text input a 44px min-height under (pointer: coarse), but with zero specificity, and several SHARED primitives cancel or bypass it, so the same defect shows up on every page (other areas reported page instances; this is the common root cause). Measured on iPad (820x1180, touch) and iPhone: .k-pill-select 30px tall everywhere it is used (Assignments filters, Exams & Papers, Shrine/Wishlist/vault sort, topic reader select, Card stats); .k-switch 34x20 (Notifications ×5, Pen and ink ×4, Storage, Routines settings ×10, Focus 'Penalise tab-switches', Media Sync auto, Exams season/quiet); native checkboxes 18x18 (Pacing lesson ticks, Wishlist plan.check, tracker k-box, Files ink filter, Home habit tick input); the rail collapse toggle 24x24; scroller arrows 32x32; Reports Share/Export 32px; Card stats retention inputs 30px.
+- **Evidence:** css/base.css:115-121 (:where(...) floor; no input[type=checkbox], no .k-switch); css/components.css:417 (.k-pill-select { min-block-size: 0 } cancels it); css/components.css:207 (.k-switch fixed --fx-switch-w/h, not in the coarse block at :669-677); css/layout.css:233-235 (.k-rail-toggle at --hit-dense); measurements audit-evidence/2026-11/qa/a11y-ipad.jsonl, a11y-iphone.jsonl
+- **Root cause:** The floor is a zero-specificity base rule; primitives set their own sizes after it.
+- **Proposed fix:** In the components coarse block add: .k-pill-select { min-block-size: var(--hit-coarse) }; .k-switch { scale or an inset ::before hit area to 44x44 } (keep the visual 34x20 but pad the label/row); input[type=checkbox]:not(.k-switch) { inline-size/block-size 24px plus a 44px label hit area }; remove min-block-size:0 from .k-pill-select. A smoke check over every view at pointer:coarse for interactive boxes < 44px would stop the regressions.
+- **Flags:** effort M
+
+### AX-06 · P2 · ux — iPad portrait rail is seven bare kanji with no label, tooltip or due count
+
+- **Devices:** iPad portrait
+- **Detail / repro:** At 701-1080px (the user's iPad in portrait) the rail collapses to tiles: 灯 学 整 蒐 守 助 蔵. The English labels and the Study count (308 due) are visually hidden (clip), and there is no title attribute, so with no hover on iPad nothing ever names a tile; the only way to learn which kanji is Productivity vs Collection is to tap. The landscape iPad and Mac show labels and the 308 badge, so the same person sees two different navigations. Each tile's button is 30px wide.
+- **Evidence:** shots/a11y-hci/ipad-rail-crop.png; eval: rail items 30x44 at x=21 (820x1180, touch); markup <span class=k-rail-tile aria-hidden>灯</span><span class=k-rail-label>Home</span>; css/layout.css:369-372 (#cols:not([data-rail=full]) .k-rail-label clipped)
+- **Root cause:** Compact-rail rule shared with the 'beside the spine' desktop case.
+- **Proposed fix:** Under the 701-1080 tier show a small label under each tile (as the phone tab bar is meant to) and keep a count dot on Study; widen the tiles to 44px. Alternatively keep the rail open (labels) on iPad portrait, which has the width.
+- **Flags:** effort S
+
+### AX-07 · P2 · bug — Backspace on any focused button navigates Back, even inside an open dialog, leaving the dialog over a different page
+
+- **Devices:** Mac, iPad with keyboard
+- **Detail / repro:** main.js treats a bare Backspace outside text fields as 'Back'. Keyboard users routinely have focus on a button (after clicking Cancel/Done/a rating, or tabbing), so a stray Backspace — e.g. meant to correct a field they thought was focused — leaves the page. The handler does not check for an open dialog: reproduced on the Calendar's New event modal with focus on Cancel; Backspace changed the route #/calendar → #/home and the modal stayed open, kicker 'Calendar', floating over Home. Browsers removed Backspace-as-Back for exactly this data-loss reason; Help & Guide does not list it (it lists Alt ← / →).
+- **Evidence:** js/main.js:20-29 (keydown: !typing && key === 'Backspace' → KOS.back(), no dialog/overlay check); repro via eval: before '#/calendar', after '#/home', dialogStill true; shots/a11y-hci/backspace-under-dialog-mac.png; js/modules/help.js:299 shortcut list
+- **Root cause:** Global shortcut written before dialogs were overlays rendered outside the router's control.
+- **Proposed fix:** Drop the bare Backspace binding (keep Alt+←/→ and the buttons), or at least ignore it when a [role=dialog][aria-modal=true], the Focus overlay, a review sheet or the Exam Room is open and when focus is inside #main controls.
+- **Flags:** effort S
+
+### AX-08 · P2 · a11y — The document title never changes: every page is 'Kurenai OS — Study Atelier'
+
+- **Devices:** all
+- **Detail / repro:** No view sets document.title; only Focus writes it (the countdown, then back to the default). So the browser tab, the history list (long-press Back, Mac History menu), Mac window/tab switcher, bookmarks, and screen-reader page announcements all read the same name on Home, a topic, Money or a vault (WCAG 2.4.2 Page Titled). The router already knows the view and its label (KOS.currentNav), and the phone title bar computes the page title.
+- **Evidence:** index.html:6; grep document.title → only js/modules/focus.js:1070,1488; eval on 9 routes: title='Kurenai OS — Study Atelier' for all
+- **Root cause:** Single-page shell with no title owner.
+- **Proposed fix:** In router.js after each KOS.show, set document.title = '<page h1 or nav label> · <section> — KurenaiOS' (topic: '<ref> <title> · CS'); Focus keeps prefixing the remaining time.
+- **Flags:** effort S
+
+### AX-09 · P3 · ux — No haptic or tactile-equivalent feedback anywhere on iPhone/iPad
+
+- **Devices:** iPhone, iPad
+- **Detail / repro:** Nothing in the app calls navigator.vibrate or offers any haptic substitute. On the user's touch devices the moments that would warrant one — a Focus cycle ending, the idle-watch warning, a flashcard rating, a routine completing, an unlock — rely on sound (silent on iOS, see the chime finding) or a short toast. iOS Safari does not support navigator.vibrate, so the practical substitute is a stronger, longer-lived visual cue plus a device notification for timer events while the page is hidden.
+- **Evidence:** grep -rn vibrate js css sw.js → no matches
+- **Root cause:** No feedback-channel policy beyond toasts.
+- **Proposed fix:** Add navigator.vibrate guarded calls for Android/desktop PWAs and, for iOS, make timer events post a local notification (already have the notify path) and keep the cue on screen until acknowledged.
+- **Flags:** effort S
+
+### AX-10 · P3 · content — Error toasts show raw exception text ('Save failed: <err.message>')
+
+- **Devices:** all
+- **Detail / repro:** Ten error toasts concatenate err.message directly (IndexedDB/DOMException or fetch messages such as 'QuotaExceededError' text or 'Failed to fetch'), with no explanation or next step; elsewhere the app uses calm sentences ('Couldn't save it on this device.'). Wording is also split between 'Couldn't' and 'Could not' across 16+ toasts.
+- **Evidence:** js/modules/medview.js:594,1031,1049,1245; js/core/files.js:310; js/modules/files.js:108; js/modules/assignments.js:271; js/modules/governor-ui.js:876; js/modules/attachments.js:707,993
+- **Root cause:** No shared error-message helper.
+- **Proposed fix:** Route errors through one helper (KOS.ui.failToast(action, err)) mapping known errors (quota, offline, permission) to a plain sentence with a next step; log the raw message to the console only. Pick one contraction style.
+- **Flags:** effort S
+
+### AX-11 · P3 · a11y — Danger and gold buttons in Atelier Dawn fall to ~3:1 contrast
+
+- **Devices:** all (Dawn)
+- **Detail / repro:** In Dawn, 'Reset everything…' (.k-btn--danger: text oklch(0.525 0.126 25) on a 30% red wash) measures 3.14:1, and the Shrine's 'Create share card' (.k-shr-gold: dark text oklch(0.2 0.03 70) on gold oklch(0.505 0.11 85)) 3.06:1, both 13px semibold (needs 4.5:1). The Shrine's '◆ Rank 03' label on its card measures 1.98:1.
+- **Evidence:** a11y-mac-dawn2.jsonl (data, shrine); computed styles via eval; shots/a11y-hci/shrine-dawn-real-mac.png (Rank 03 in orange on beige)
+- **Root cause:** Dawn restates role colours but not the button inks derived from them.
+- **Proposed fix:** In Dawn's block, give --gold a light ink (crimson-ink style) for .k-shr-gold, deepen the danger button's text (l − 0.1) or use a solid --alarm fill with --crimson-ink text; rank labels use the medal's -ink variant.
+- **Flags:** effort S
+
+### AX-12 · P3 · a11y — Some text fields show no usable focus indicator
+
+- **Devices:** Mac, iPad with keyboard
+- **Detail / repro:** Several inputs remove the outline and replace it with a hairline in --line (1.2:1 against --s1 in Graphite) or nothing: Reminders' quick-add field (the only change is box-shadow inset hairline var(--line)), Routines' add-a-step and step inputs (.k-rt-add-in has no focus rule beyond outline:none on .k-rt-add-in:focus; .k-rt-step-in:focus uses a --line underline), the Assistant composer (hairline in --bloom-lo), Exams' result row (.k-exr:focus outline none). Programmatic focus test: Reminders' quick-add computed style is identical focused and unfocused.
+- **Evidence:** css/views/productivity.css:299,303; css/views/routines.css:88-90,228; css/views/assistant.css:215,217; css/views/exams.css:503; focus test script audit-evidence/2026-11/qa/a11y-focus.js (reminders: k-rem-quick-in no indicator)
+- **Root cause:** Per-view focus overrides instead of the shared :focus-within ring.
+- **Proposed fix:** Use the shared ring on the container: .k-rem-quick:focus-within, .k-rt-add:focus-within, .k-asst-composer:focus-within { outline: var(--focus-width) solid var(--focus-ring) } as .k-search and .k-amount-field already do.
+- **Flags:** effort S
+
+### AX-13 · P3 · ui — Calendar dialogs float their Cancel/Close button in the middle of the footer
+
+- **Devices:** Mac, iPad
+- **Detail / repro:** In the New event modal the footer shows Cancel centred (x 643-717 of a 303-1167 footer) and Add event at the right, unlike every other dialog (Cancel beside the primary, or Delete at the far left). Cause: the button carries .k-spacer (margin-inline-start:auto) and, being the footer's first child, also gets .k-dialog-foot > :first-child { margin-inline-end:auto }, so both margins are auto and it centres.
+- **Evidence:** shots/a11y-hci/backspace-under-dialog-mac.png (footer); eval margins ml=340.297px mr=340.297px; js/modules/calendar.js:1446 (Cancel with k-spacer), also :977, :1070, :1094 (Close with k-spacer); css/layout.css:358; css/components.css:374
+- **Root cause:** Two layout rules from different layers both push one element.
+- **Proposed fix:** Drop .k-spacer from dialog footer buttons (the footer rule already places the first child) or scope .k-dialog-foot > :first-child to :not(.k-spacer).
+- **Flags:** effort S
+
+### AX-14 · P3 · a11y — Reduced motion is not honoured by JS smooth scrolling
+
+- **Devices:** all
+- **Detail / repro:** base.css forces scroll-behavior:auto under prefers-reduced-motion, but that only affects CSS-driven scrolling. Twelve call sites pass behavior:'smooth' explicitly to scrollIntoView/scrollBy/scrollTo, which the browser animates regardless: every topic page turn in CS/Maths/IT, Code, Japanese, Mind and Creatives lessons (the article scrolls to its top), the shared scroller's arrow paging, the phone section strip, the Exams guide's section jump, the ink tab and the long report pages. Only the Assistant, report story, Japanese/Mind scenes and Exam Room check the media query themselves (each with its own copy of the helper).
+- **Evidence:** js/core/ui.js:693; js/modules/hub.js:2874,2996; js/modules/codetopic.js:296,382; js/modules/jatopic.js:234; js/modules/mindtopic.js:292; js/modules/crtopic.js:176; js/modules/inktab.js:204; js/modules/examguide.js:109; js/modules/reportlong.js:441; js/modules/mobile-shell.js:120; css/base.css:163-169; duplicated reduced() helpers js/core/jaui.js:28, js/core/mindui.js:25, js/modules/assistant.js:250, js/modules/reportstory.js:474, js/modules/examroom.js:88
+- **Root cause:** No shared motion helper; CSS reset cannot reach explicit JS behaviour.
+- **Proposed fix:** Add KOS.ui.reducedMotion() and KOS.ui.scrollBehavior() ('auto' when reduced) in ui.js; replace the literal 'smooth' and the five private helpers with it.
+- **Flags:** effort S
+
+### AX-15 · P3 · ui — iPhone Assignments shows its title twice (phone title bar plus the page's own header)
+
+- **Devices:** iPhone
+- **Detail / repro:** On the phone the shell inserts a title bar with its own h1 and hides the page's .k-pagehead text, but only when the header is a DIRECT child of #main. Assignments renders its page header inside .k-asg-col, so both stay: 'STUDY Assignments ▾' and below it 'THE WORK QUEUE Assignments', two visible h1s and ~60px of repeated header above the filters.
+- **Evidence:** shots/resp/402x874-atelier-dawn-assignments.jpg (seen in shots/a11y-hci/sheets/iphone1.jpg); eval at 402x874: h1=['Assignments','Assignments']; parent chain k-pagehead → k-asg-col; css/components.css:643-646 (#main[data-phone-title] > .k-pagehead … child combinator)
+- **Root cause:** Child-combinator selector assumes every page header sits directly in #main.
+- **Proposed fix:** Hide by a hook instead of position: #main[data-phone-title] [data-ui~='ui.page-head'] > .k-pagehead-txt { display:none } (and the same for the actions rule), or have Assignments mark its header data-phone-hide.
+- **Flags:** effort S
+
+### AX-16 · P3 · content — Inconsistent button wording: two plus glyphs, an empty state naming a button that does not exist
+
+- **Devices:** all
+- **Detail / repro:** Add buttons use the full-width '＋' in some places ('＋ New assignment', '＋ New routine', '＋ New list' in Reminders, '＋ Log a result') and ASCII '+' in others ('+ New event', '+ Add item', '+ Add release', '+ Week', '+ Add row', '+ Capture', '+ New list' in vaults), with visibly different sizes and baselines; Reminders shows both on one screen. Exams & Papers' empty state says 'Use “+ Log entry” after your next assessment' while the button beside it reads '＋ Log a result'. Error toasts mix 'Couldn't' and 'Could not'.
+- **Evidence:** js/modules/tracker.js:421 ('+ Log entry') vs js/modules/exams.js:297 ('＋ Log a result'); empty-account label dump audit-evidence/2026-11/qa/a11y-empty-mac.txt (reminders: '＋' and '+'); grep text: "＋ …" (16 sites) vs "+ …" (30 sites); shots/a11y-hci/empty-tracker-mac.png
+- **Root cause:** Labels written ad hoc per module; no shared add-button helper.
+- **Proposed fix:** Pick one glyph (or an icon component) via a KOS.ui.addBtn(label) helper; fix the tracker empty-state text to name 'Log a result'.
+- **Flags:** effort S
+
+### AX-17 · P3 · a11y — Tab strips declare role=tablist/tab but ignore arrow keys and have no tabpanel
+
+- **Devices:** Mac, iPad with keyboard, VoiceOver
+- **Detail / repro:** KOS.ui.tabs (workspace and card variants) and ~11 hand-made strips mark their buttons role='tab' with aria-selected, so VoiceOver announces 'tab, 1 of 5' and the ARIA pattern promises Left/Right arrows. Nothing implements them: on Routines' strip, ArrowRight on the selected tab leaves focus on 'Today'; every tab stays tabindex 0 (no roving focus), and no tab has aria-controls / no region has role=tabpanel. Keyboard users must Tab through every tab, and screen-reader users are told to use keys that do nothing.
+- **Evidence:** js/core/ui.js:495 (role tab, aria-selected), :515 (role tablist); no Arrow handling in js/core/ui.js tabs or js/core/a11y.js; eval on #/routines: ArrowRight → focus stays 'Today', tabindexes [0,0,0,0,0], aria-controls all null; other role=tablist sites: js/engines/flashcards.js, js/modules/assistant.js, medview.js, code.js, dayreview.js, hub.js, coderider.js, codetopic.js, codecap.js, governor-ui.js, js/labs/oop.js
+- **Root cause:** ARIA roles added without the keyboard behaviour they imply; hand-made strips copy the roles.
+- **Proposed fix:** Either drop role=tab/tablist (these switch views, so plain buttons with aria-pressed or aria-current fit) or implement the pattern once in KOS.ui.tabs: roving tabindex, Left/Right/Home/End, aria-controls to the panel the page renders.
+- **Flags:** effort S
+
+### AX-18 · P3 · ux — iPad Calendar: every day cell carries an invisible '+' (New event) that a tap can hit
+
+- **Devices:** iPad
+- **Detail / repro:** The month grid's per-day '+' (.k-cal-add, aria-label 'New event on <day>') is opacity 0 until :hover or :focus-visible. Unlike Reminders' delete, Pacing's move and the topic's row buttons, it has no (hover: none) override, so on the iPad (touch, no hover, wider than the phone tier where it is display:none) it is never visible yet stays a live 24x24 target in each cell's top-right corner: the feature cannot be discovered, and a tap aimed at the cell's date lands on an invisible button and opens the New event dialog.
+- **Evidence:** css/views/productivity.css:470-471 (opacity 0; shown on .k-cal-cell:hover / :focus-visible), :890 (phone: display none), :961-963 (hover:none block lists .k-rem-del, .k-hb-del, .k-pace-move only); eval at 820x1180 touch: matchMedia('(hover: none)') true, .k-cal-add opacity '0', label 'New event on Mon 26 Oct'
+- **Root cause:** Hover-reveal pattern applied without the touch override used elsewhere.
+- **Proposed fix:** Add .k-cal-add to the productivity.css hover:none block (opacity 1, muted) or remove it on touch and rely on the header's '+ New event' with the tapped day preselected.
+- **Flags:** effort S
+
+### AX-19 · P3 · ux — Goals opens on a blank page (no loading state) until the async compute returns
+
+- **Devices:** iPad (seen), any cold load
+- **Detail / repro:** KOS.views.goals draws the header, appends an empty .k-gl container and fills it only in G.compute's callback (which reads the Collection vault for the Collection goal types). On the seeded account at iPad size the container was 0px high with no children for 0.8-1.2s after navigation (2.5s+ on a cold load: the responsive audit's iPad screenshot captured an empty Goals page). Nothing says it is loading, so the page reads as 'no goals' — the opposite of the truth (9 goals).
+- **Evidence:** js/modules/goals.js:306-309 (empty page then G.compute(callback)); eval sampling every 400ms after KOS.show('goals') at 820x1180: ['0/0','0/0','1085/3',…]; shots/a11y-hci/goals-ipad.png (blank, 2.5s after navigation) vs shots/a11y-hci/goals-ipad2.png (filled); shots/resp/820x1180-atelier-dawn-goals.jpg blank
+- **Root cause:** Async compute with no placeholder.
+- **Proposed fix:** Render skeleton cards (or the last computed rows from a memo) synchronously and replace them in the callback; set aria-busy on the container meanwhile.
+- **Flags:** effort S
+
+### AX-20 · P3 · docs — Help & Guide describes screens that no longer exist, and its last section has no mark
+
+- **Devices:** all
+- **Detail / repro:** The guide is where invariant 50a sends every rule the pages stop re-teaching, but entries are stale: 'Overview' (the first thing a reader opens) describes the old Home — 'overall completion ring … flagged topics … Click a subject card to open its dashboard' — Home has no subject cards; 'Planner' says 'The Planner workspace holds Budget Planner and Goals under one secondary tab bar', a switch removed when Goals moved to Productivity and the Planner became the Wishlist (invariant 27); 'Notifications' still says 'Budget Planner item'. The shortcut card omits Backspace-as-Back (see the Backspace finding). The eighth section, 'Data & housekeeping', shows a '·' where every other section has a kanji, because SECTION_MARK has seven entries for eight sections.
+- **Evidence:** js/modules/help.js:11 (Overview text), :79 (Planner), :78 (Budget Planner), :144 (SECTION_MARK, 7 marks), :255 (fallback '·'); shots/a11y-hci/help-mac.png
+- **Root cause:** Help text is hand-maintained and not checked against the shipped views.
+- **Proposed fix:** Rewrite Overview/Planner/Notifications against today's Home, Wishlist and Goals; add an eighth mark (e.g. 管) to SECTION_MARK; add a smoke check that every Help 'Open <page>' target and named route still exists.
+- **Flags:** effort S
+
+### AX-21 · P3 · a11y — Calendar's leading/trailing days fade their events to ~2.3-2.9:1 while they stay clickable
+
+- **Devices:** all
+- **Detail / repro:** Cells from the previous/next month put their event stack at opacity 0.4 (0.75 on hover/focus-within). Event chips there are still full buttons (they open the event), but their 11px titles measure 2.87:1 in Graphite and 2.28:1 in Dawn, and the day number 1.2-1.45:1. On the iPad there is no hover to raise them. A week that straddles months (e.g. 26 Oct-1 Nov on the November grid) shows half its week this way.
+- **Evidence:** eval on #/calendar: first cal.ev-t 'Revision block 28' 2.87 (Graphite) / 2.28 (Dawn) with ancestor k-cal-stack opacity 0.4; css/views/productivity.css:465 (other-month stack 0.75 on hover/focus-within); scan a11y-mac.jsonl, a11y-mac-dawn2.jsonl
+- **Root cause:** Opacity applied to the whole stack including interactive text.
+- **Proposed fix:** Dim the day number and cell ground instead of the events (e.g. date in --muted, events at full contrast with a muted dot), or keep opacity ≥ 0.7 so text stays ≥ 4.5:1.
+- **Flags:** effort S
+
+**QoL ideas from this auditor:**
+- Add one smoke check that, at pointer:coarse, fails on any visible interactive box under 44px and any field under 16px at 402px
+- Add KOS.ui.reducedMotion() and KOS.ui.scrollBehavior() helpers to replace five private matchMedia copies and twelve literal 'smooth' calls
+- Use one KOS.ui.addBtn(label) helper so '+'/'＋' and the 'New/Add' verbs stay consistent
+- Pause the toast timer while it is hovered or focused, and give Undo toasts a Cmd/Ctrl+Z shortcut
+- Set document.title per view from the router
+- Add an eighth Help section mark (Data & housekeeping shows '·')
+
+**Backlog ideas from this auditor:**
+- A feedback-channel setting (sound on/off and volume for the Focus chime and the idle warning, plus 'notify me when a cycle ends' for when the page is hidden) to replace the missing haptics on iOS
+- Implement the ARIA tabs pattern once in KOS.ui.tabs (roving tabindex, arrows, aria-controls/tabpanel), or move view switchers to aria-current buttons
+- A 'chip ink' token per role for Dawn and dark themes, with an automated contrast gate over chips and buttons in every shipped theme
 
