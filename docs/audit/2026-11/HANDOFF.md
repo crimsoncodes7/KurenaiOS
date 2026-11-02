@@ -254,6 +254,15 @@ folder (it still points at the first account's session scratchpad).
 "measure the DOM first, screenshot only what is flagged, aim for ~100 tool
 calls", and saving findings incrementally. Expect ~4 auditors per window.
 
+### 5.3b A run started at the end of the first account's window
+On 2 Nov, after this handoff was committed, the AP and AX auditors were
+started with `QA=audit-evidence/2026-11/qa`. If the first account ran out
+before folding them in, look for `audit-evidence/2026-11/qa/findings/
+architecture-perf.json[l]` and `a11y-hci.json[l]`: copy them into
+`docs/audit/2026-11/findings/`, re-run `consolidate.py`, and treat an area
+with only a `.jsonl` as partial (continue it — the auditor prompt resumes
+from the `.jsonl`).
+
 ### 5.4 Recommended order for the remaining work
 1. **AP** architecture/perf/docs-drift (needed for the refactoring half of
    the plan and the CLAUDE.md rules) — highest value.
