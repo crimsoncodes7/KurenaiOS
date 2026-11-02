@@ -123,7 +123,10 @@ of separate apps: everything interlinked, coherent).
 | Assistant composer "Shift + Enter" hint misaligned | **Confirmed** | AA-03 |
 | Help & Guide lacks Money/Goals etc. | **Confirmed** | SH-10, SH-11 |
 | Docs out of sync | **Confirmed** (README, AGENTS, PROGRESS, HANDOFF disagree on the current release and gate; Help & Guide stale) — AP ran on the stale build, re-check | AP-05, AP-06, AX-20, SH-10, SH-11 |
-| Reminders ↔ Todoist problems | **Several confirmed** (live + code) | DI-01, DI-02, LA-1, LA-20…22 |
+| Reminders ↔ Todoist problems | **Several confirmed** (live + code). Sections → Inbox **reproduced live and root-caused** (LA-24); moving to an unlinked project deletes locally (LA-25) | DI-01, DI-02, LA-1, LA-20…22, LA-24, LA-25 |
+| Google Calendar one-off edits not shown (2 Nov) | **Confirmed**: they arrive within a cycle but no page redraws after a pull (LA-26) | LA-26, UR-1 |
+| Focus session lost after closing the audit's tab (1 Nov) | **Explained**: two tabs, last-writer-wins (DI-04) | UR-4, LA-29, DI-04 |
+| The user's other reports of 2 Nov (ink clip duplicates, Side by side empty scroll, avatar HP ring half-shown, Kurenai off-centre/cut off, ovals, Pacing shift, device continuity, QoL for ink) | **Recorded, not verified** | `findings/user-reports-2026-11-02.md` (UR-1…19) |
 | QoL: Agenda everywhere; anime "where I'm watching" hyperlinks; routines inside routines | Agenda PR-06; hyperlinks CL-11; routines-in-routines model sketched (productivity QoL list, `findings/productivity.json`) | — |
 
 ### 1.6 Answers the user gave (decisions already made)
@@ -455,6 +458,7 @@ Open questions to ask the user when presenting the plan:
 - `HANDOFF.md` — this file.
 - `FINDINGS.md` / `findings.json` / `findings.csv` — consolidated, generated
   by `harness/consolidate.py` (ids like `MG-01`; stable for a given input).
+- `findings/user-reports-2026-11-02.md` — the user's own reports of 2 Nov (UR-1…19), to verify and fold into the plan.
 - `findings/<area>.json` — finished auditors' full result (summary, coverage,
   findings, QoL, backlog); `findings/<area>.jsonl` — incremental saves;
   `findings/live-account.md` — LA-1…23; `content-maths.audit1.json`.
