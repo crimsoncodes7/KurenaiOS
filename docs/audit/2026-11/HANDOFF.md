@@ -179,6 +179,26 @@ of separate apps: everything interlinked, coherent).
   backup used for the round-trip test (`aa-backup.json`), the CS/IT content
   dump. Tracked copies of everything small are in this folder.
 
+### 2.1b Shipped since the audit began (the only app change so far)
+- **3 Nov 2026 — sw `kos-redraw-1`** (`4c3fc33`, branch
+  `fix/background-redraw-stopgap`, main fast-forwarded to it, deployed:
+  https://8c7677a7.kurenai-os.pages.dev). At the user's request, a STOPGAP for
+  SY-01…SY-08: `KOS.rerender({background: "hard"|"soft"})` — a background
+  redraw (cloud pull = hard; habit auto-tick, picture loads, Google read-only
+  load, the Daily Review closing = soft) is held on study/work pages
+  (`TASK_VIEWS` in js/core/ui.js) until the user navigates, and elsewhere
+  while typing, under a dialog, or (hard) within 45 s of a touch, retried
+  every 15 s; every redraw restores the real scroller (`#stage`/the document).
+  Verified in the harness at iPad size (flashcard set and notes page 4 of 7
+  survive a pull; scroll kept on a topic and the Calendar), gate 113/113.
+  **Not covered by it:** redraws the user triggers on the same page still
+  reset the notes page/quiz (SY-02/SY-04 need per-view state); remote changes
+  on a task page appear only after navigating (no "Updated · Refresh" chip
+  yet); the flashcard batch is still logged only at its end (ST-04/SY-03).
+  W2 (the proper redraw policy) replaces this — re-check all of SY then.
+  Note: this audit branch is based on `56b1a8c`; rebase it onto main before
+  further audit runs so the harness serves the stopgap build.
+
 ### 2.2 Which build each area was audited on (important)
 - Every area **except AP and AX**, and the live-account checks, ran on
   `56b1a8c` = production (`kos-artshop-1`): the working tree was
