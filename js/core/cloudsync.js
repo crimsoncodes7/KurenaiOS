@@ -728,7 +728,7 @@
       if (KOS.governor && KOS.governor.applyCosmetics) KOS.governor.applyCosmetics();
       if (KOS.refreshHUD) KOS.refreshHUD();
       if (KOS.refreshRailCounters) KOS.refreshRailCounters();
-      if (KOS.rerender) KOS.rerender();
+      if (KOS.rerender) KOS.rerender({ background: "hard" });
     } catch (e) { console.warn("cloudsync: rerender after remote apply failed", e); }
   }
   /* Take a cloud document in. done(err, applied, merged): `merged` is

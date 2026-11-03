@@ -300,10 +300,10 @@
     setTimeout(function () {
       KOS.refreshRailCounters();
       if (KOS.refreshHUD) KOS.refreshHUD();
-      KOS.rerender();
+      KOS.rerender({ background: "soft" });
     }, 0);
   });
   /* Decorative art per device (34n): set before the first page draws */
-  if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender(); }); }
+  if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender({ background: "soft" }); }); }
   KOS.router.boot();
 })();

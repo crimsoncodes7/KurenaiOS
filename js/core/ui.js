@@ -341,19 +341,70 @@
   /* redraw the current page in place: no history entry, no forward-trail
      reset, and the reader keeps their scroll position. */
   var redrawLater = null;
-  KOS.rerender = function () {
+  /* STOPGAP (quality audit 2026-11, findings SY-01…SY-08; to be replaced
+     by a proper redraw policy): a BACKGROUND redraw — a cloud pull, a habit
+     ticking itself, a picture loading, the Daily Review closing — remounts
+     the page and loses what the user is in the middle of (the card in a
+     flashcard set, the notes page, a quiz, typed text, the keyboard). So a
+     background redraw is held back:
+       - on a page where work lives in the page itself (TASK_VIEWS), until
+         the user navigates — the next page draws from the fresh state;
+       - elsewhere, while typing, while a dialog is open, or ("hard" only:
+         a cloud pull) within 45 s of the last touch — retried every 15 s.
+     The header HUD and rail counters still refresh; the data is never held
+     back, only the repaint. Redraws the user asks for are unchanged. */
+  var TASK_VIEWS = { ref: 1, due: 1, review: 1, personaldeck: 1, code: 1, japanese: 1, mind: 1,
+    creatives: 1, exams: 1, tracker: 1, assistant: 1, worked: 1, trace: 1, oop: 1, sims: 1, files: 1 };
+  var lastTouch = 0, bgTimer = null, bgPendingFor = null;
+  ["pointerdown", "keydown", "wheel", "touchstart", "input"].forEach(function (ev) {
+    document.addEventListener(ev, function () { lastTouch = Date.now(); }, { capture: true, passive: true });
+  });
+  function typing() {
+    var a = document.activeElement;
+    return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+  }
+  function holdBackground(kind) {
+    if (TASK_VIEWS[navCur.viewId]) return "task";
+    if (typing()) return "typing";
+    if (topDialog()) return "dialog";
+    if (kind === "hard" && Date.now() - lastTouch < 45000) return "recent";
+    return null;
+  }
+  /* the element that actually scrolls the page: #stage on the desktop and
+     tablet shell, the document on the phone shell, #main as a fallback */
+  function scrollers() {
+    return [document.getElementById("stage"), document.getElementById("main"), document.scrollingElement].filter(Boolean);
+  }
+  KOS.rerender = function (opts) {
     if (!navCur || !KOS.views[navCur.viewId]) return false;
+    var bg = opts && opts.background ? (opts.background === "soft" ? "soft" : "hard") : null;
+    if (bg) {
+      var why = holdBackground(bg);
+      if (why) {
+        bgPendingFor = navKey(navCur);
+        clearTimeout(bgTimer);
+        /* a task page waits for the user to leave it; the others retry */
+        if (why !== "task") bgTimer = setTimeout(function () {
+          bgTimer = null;
+          if (navCur && bgPendingFor === navKey(navCur)) KOS.rerender({ background: bg });
+        }, 15000);
+        return true;
+      }
+    }
+    bgPendingFor = null;
     /* never under a pen: a background pull or a habit ticking itself
        redrew the page mid-stroke on the iPad. It waits for the pen to lift. */
     if (KOS.inkUI && KOS.inkUI.busy && KOS.inkUI.busy()) {
       clearTimeout(redrawLater);
-      redrawLater = setTimeout(function () { redrawLater = null; KOS.rerender(); }, 1200);
+      redrawLater = setTimeout(function () { redrawLater = null; KOS.rerender(opts); }, 1200);
       return true;
     }
-    var main = document.getElementById("main");
-    var top = main ? main.scrollTop : 0;
+    var sc = scrollers(), tops = sc.map(function (e) { return e.scrollTop; });
     KOS.show(navCur.viewId, navCur.arg, { _nav: true });
-    if (main) main.scrollTop = top;
+    function restore() { sc.forEach(function (e, i) { if (tops[i]) e.scrollTop = tops[i]; }); }
+    restore();
+    /* async content (lazy batches, images) can land a frame later */
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(restore);
     return true;
   };
   KOS.back = function () {

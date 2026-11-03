@@ -696,7 +696,7 @@
   /* after the ledger logs: a routine's own pay entry never re-enters */
   function onSession(e) {
     if (!enabled || !e || (e.type === "todo" && e.metrics && e.metrics.routine)) return;
-    setTimeout(function () { if (autoSync() && KOS.rerender && !document.querySelector("[role=dialog]")) KOS.rerender(); }, 0);
+    setTimeout(function () { if (autoSync() && KOS.rerender && !document.querySelector("[role=dialog]")) KOS.rerender({ background: "soft" }); }, 0);
   }
 
   /* ---------------- moving Habits in (plan §5) ---------------- */

@@ -89,7 +89,7 @@
     if (!silent) minimise(st);
     if (st.overlay && st.overlay.parentNode) st.overlay.remove();
     paintChip();
-    if (!silent && KOS.rerender) KOS.rerender();
+    if (!silent && KOS.rerender) KOS.rerender({ background: "soft" });
   }
   function finish(how) {
     var st = open;
@@ -100,7 +100,7 @@
     open = null;
     if (st.overlay && st.overlay.parentNode) st.overlay.remove();
     paintChip();
-    KOS.rerender();
+    KOS.rerender({ background: "soft" });
   }
 
   function paint() {
@@ -658,7 +658,7 @@
       V().cfg().portrait ? el("img", { class: "k-dr-gn-face", src: U().img("face.kurenai.evening"), alt: "" }) : null,
       el("h2", { class: "k-dr-gn-t", text: "Good night." }),
       el("p", { class: "k-dr-soft", text: (held ? "Alerts are held until the morning review at " + held + ". " : "") + (first ? "Tomorrow starts with " + (V().resolve(first) || {}).title + (first.action ? ": " + first.action : "") + "." : "") }),
-      el("button", { type: "button", class: "k-btn", "data-ui": "review.close", text: "Close", onclick: function () { open = null; st.overlay.remove(); paintChip(); KOS.rerender(); } })
+      el("button", { type: "button", class: "k-btn", "data-ui": "review.close", text: "Close", onclick: function () { open = null; st.overlay.remove(); paintChip(); KOS.rerender({ background: "soft" }); } })
     ]));
     KOS.a11y && KOS.a11y.announce("Good night." + (held ? " Alerts held until " + held + "." : ""));
   }
@@ -706,7 +706,7 @@
       { label: "Open again", hint: "tick, pick or change anything in it", onSelect: function () { openSheet(c.slot); } }
     ] : [
       { label: peekUi().minimised ? "Resume" : "Open", hint: c.sub.replace("· ", ""), onSelect: function () { openSheet(c.slot); } },
-      { label: "Skip review", hint: "nothing else changes", onSelect: function () { V().finish(c.slot, "skipped"); delete ui().minimised; store.save(); paintChip(); KOS.rerender(); } }
+      { label: "Skip review", hint: "nothing else changes", onSelect: function () { V().finish(c.slot, "skipped"); delete ui().minimised; store.save(); paintChip(); KOS.rerender({ background: "soft" }); } }
     ] });
     if (c.past) KOS.ui.state(btn, "past", true);
     btn.setAttribute("data-ui", (btn.getAttribute("data-ui") || "") + " review.chip");

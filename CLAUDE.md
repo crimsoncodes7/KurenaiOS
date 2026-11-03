@@ -17,7 +17,14 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-artshop-1` (1 November 2026, `feat/art-shop`,
+- Latest release: sw `kos-redraw-1` (3 November 2026,
+  `fix/background-redraw-stopgap`): a STOPGAP from the quality audit —
+  background redraws (cloud pull, habit auto-tick, picture loads, the Daily
+  Review closing) are held back on study/work pages until you navigate, and
+  elsewhere while typing, a dialog is open or within 45 s of a touch; every
+  redraw keeps the real scroller's position (`KOS.rerender({background})`
+  in js/core/ui.js; findings SY-01…SY-08). To be replaced by the proper
+  redraw policy. Before it sw `kos-artshop-1` (1 November 2026, `feat/art-shop`,
   main fast-forwarded to it) — https://87dad81e.kurenai-os.pages.dev: the
   art and shop audit (roadmap 5.13–5.14, design turn 34, docs/app-art.md):
   `KOS.art` (painted slots, Decorative art, the picture drawer with
@@ -179,7 +186,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-artshop-1`
+- Service-worker version: `kos-redraw-1`
 - Required smoke gate: 113 / 113 suites (`""` and 2–113; 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
