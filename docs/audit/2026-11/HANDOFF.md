@@ -247,7 +247,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts (5 Nov, after batch 1):** 405 findings (+ 29 live-account notes, 23
+**Counts (5 Nov, after batch 2 was stopped):** 435 findings (P0 2 · P1 84 · P2 207 · P3 142). After batch 1: 405 findings (+ 29 live-account notes, 23
 user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
 before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
@@ -261,7 +261,7 @@ before acting (see §7).
 
 | ID | Area | Status | Findings | Not covered (from the auditor, or unknown) |
 |---|---|---|---|---|
-| SH | Shell, nav, search, toasts, dialogs, Help | **partial** | 19 | Interrupted: no coverage notes. Unknown: dialogs broadly, router edge cases, offline, onboarding on an empty account, keyboard shortcuts beyond Backspace |
+| SH | Shell, nav, search, toasts, dialogs, Help | **partial** (5 Nov continuation stopped; no inventory yet) | 33 | Interrupted: no coverage notes. Unknown: dialogs broadly, router edge cases, offline, onboarding on an empty account, keyboard shortcuts beyond Backspace |
 | HR | Home + Reports | **partial** | 15 | Interrupted. Likely unchecked: story player fully, share export formats, month/term/year pages at all sizes |
 | AG | Achievements + Governor's Seat | **partial** | 16 | Interrupted. Titles, unlock overlay timing, Session Log likely thin |
 | SC | Gold Shop + cosmetics + themes | **partial** | 19 | Interrupted. **The 26-theme quality review (which to remove) not done**; not every item verified bought→applied |
@@ -359,6 +359,25 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 ### 5.4 Recommended order for the remaining work
 1. ~~**goals** (new area: every goal type's measurement) and **JM** Japanese +
    Mind (barely started: 5 findings).~~ **Done 5 Nov (batch 1).**
+1a. **Batch 2 (AP + AX top-up on main, and shell) was STOPPED on 5 Nov at
+   ~18:35 before the usage limit**, to end cleanly. Saved and folded in: AP
+   3 new findings, AX 13 (Badge Wall, Seat, shop — incl. the Wall's
+   'Owned 8' vs 21 earned, Buy with no confirm, Edit seat losing drafts,
+   7–12 s re-measures, Dawn plaque contrast), shell 14 (new P1s SH-20 Enter
+   on Cancel confirms, SH-21 Skip to content goes Home, SH-22 iPhone Money/
+   Goals tabs unreachable); inventories for AP and AX. **Lost:** the
+   re-check verdicts (`recheck`) of the 33 old AP/AX findings — they live
+   only in a final file the auditors never wrote — and the shell inventory
+   and coverage matrix. `consolidate.py` marks AP and AX "partial"
+   (`TOPUP_PARTIAL`) until a top-up finishes; remove them from that set
+   then. **To resume:** `Workflow({scriptPath:
+   "docs/audit/2026-11/harness/workflow-audit.js", args: {order:
+   ["architecture-perf", "a11y-hci", "shell"], batch: 3, topup:
+   ["architecture-perf", "a11y-hci"]}})` — each auditor reads its
+   `.jsonl` and continues without repeating; the top-ups still find their
+   old findings in `<area>.json` (backups `*.f4fa493.json`). Rebase the
+   audit branch onto main first (main gained the docs-only VN capstone
+   proposal, `0e4a781`).
 1b. Then the **inventory pass (§5.2b) over every other area**, including the
    "complete" ones — behaviour, not just pages.
 2. Re-check **AP** and **AX** on main and sweep what they could not see

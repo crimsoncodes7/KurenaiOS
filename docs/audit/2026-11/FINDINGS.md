@@ -7,7 +7,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 
 | ID | Area | Status | P0 | P1 | P2 | P3 | Total |
 |---|---|---|---|---|---|---|---|
-| SH | App shell, navigation, search, toasts, dialogs, Help & Guide | partial | 0 | 5 | 7 | 7 | 19 |
+| SH | App shell, navigation, search, toasts, dialogs, Help & Guide | partial | 0 | 8 | 15 | 10 | 33 |
 | HR | Home and Reports | partial | 0 | 5 | 6 | 4 | 15 |
 | AG | Achievements / Badge Wall and the Governor's Seat | partial | 0 | 2 | 9 | 5 | 16 |
 | SC | Gold Shop and every cosmetic, themes | partial | 0 | 8 | 11 | 0 | 19 |
@@ -26,9 +26,9 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | CL | Collection vaults, Shrine, Wishlist, Sync | partial | 0 | 1 | 9 | 5 | 15 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | partial | 0 | 2 | 5 | 3 | 10 |
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
-| AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 8 | 3 | 12 |
-| AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 7 | 13 | 21 |
-| | **All** | | 2 | 81 | 190 | 132 | 405 |
+| AP | Architecture, maintainability, performance, docs drift | partial | 0 | 1 | 10 | 4 | 15 |
+| AX | Cross-cutting accessibility and HCI sweep | partial | 0 | 1 | 14 | 19 | 34 |
+| | **All** | | 2 | 84 | 207 | 142 | 435 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -40,6 +40,9 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **SH-03** [P1] Governor ⋯ menu is cut off behind the Stage (only half of its first row shows)
 - **SH-04** [P1] iPhone bottom tab bar lost its labels: five bare kanji (灯 学 整 蒐 余) with no Home/Study/Productivity/Collection/More text
 - **SH-05** [P1] KOS.rerender() throws the page back to the top on every device: it saves/restores #main.scrollTop but #stage is the scroller
+- **SH-20** [P1] Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)
+- **SH-21** [P1] 'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route
+- **SH-22** [P1] On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its ▾ sheet lists the section's pages instead
 - **HR-01** [P1] Mind and Creatives are pushed off-screen in Home's Continue row (fixed subject order, 4 visible, no scroll affordance)
 - **HR-02** [P1] Weekly/monthly reports saved before the history arrives are frozen as 'A quiet week for study' forever
 - **HR-03** [P1] iPad portrait Home has no Daily goal, no Today's three, no Recovery list and no Start focus in the hero
@@ -170,6 +173,33 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Proposed fix:** Introduce one KOS.ui.scrollRoot() (the #stage on wide layouts, document.scrollingElement on the phone) and use it in rerender (save before, restore after the view drew, and again on the next frame for async content) and in show() (reset to 0 on a real navigation; restore a remembered position per history index on Back/Forward, like the router already keeps args per index). Add a smoke test.
 - **Flags:** effort M
 
+### SH-20 · P1 · bug — Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)
+
+- **Devices:** MacBook, iPad with keyboard
+- **Detail / repro:** KOS.ui.confirm adds a document keydown listener that calls close(true) on any Enter when !opts.danger, without looking at the event target. Keydown fires before the focused button's click, so Tab to Cancel (or 'Stay', 'Add a copy') and pressing Enter runs the affirmative action. Reproduced: confirm({title:'Replace?'}) -> focus Cancel -> Enter -> onYes ran. Affected non-danger confirms include Focus 'End early?' (ends and pays the session), 'Turn off closed-app notifications?', 'Disconnect the GitHub App?', 'Reset every permission?', 'Free up space', 'Keep in my cloud', 'Back to the defaults?' (FSRS), the sample/empty account switch, Japanese 'Leave the session?', the vault 'Already in the vault' (Enter on 'Add a copy' opens the existing entry instead) and the service-worker 'Update ready'. Keyboard and switch users on the Mac and iPad keyboard are affected.
+- **Evidence:** eval: {enterOnCancel:'YES'}; js/core/ui.js:291-292 (function onKey(e){ if (e.key==='Enter' && !opts.danger) close(true); } on document); 51 ui.confirm call sites, the non-danger ones listed by grep in js/modules/focus.js, notifications.js, code.js, cardstats.js, governor-ui.js:450, jarun.js, medview.js, pwa.js:53
+- **Root cause:** The affirmative Enter shortcut is bound at document level and ignores which control has focus.
+- **Proposed fix:** Only treat Enter as yes when the target is not a button/link (e.g. if (e.key==='Enter' && !opts.danger && !(e.target.closest && e.target.closest('button,a,[role=button]'))) close(true)); or drop the document listener and rely on the focused confirm button's native Enter.
+- **Flags:** effort S
+
+### SH-21 · P1 · a11y — 'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route
+
+- **Devices:** MacBook, iPad with keyboard
+- **Detail / repro:** The skip link (the first Tab stop on every page) is <a href="#main">. Activating it changes location.hash to '#main'; router.js's hashchange listener parses it, finds no such route and calls home(), so from #/calendar the keyboard user lands on #/home with a new history entry replaced. The one bypass mechanism for keyboard and switch users (WCAG 2.4.1) throws them off the page they were on.
+- **Evidence:** eval mac: {before:'#/calendar', after:'#/home', active:'main'}; index.html:61; js/core/router.js:302-306 (hashchange -> onPop -> parse fails -> home())
+- **Root cause:** An in-page fragment link in an app that uses the fragment for routing.
+- **Proposed fix:** Give the link a click handler that preventDefault()s and calls document.getElementById('main').focus({preventScroll:false}) (or make router.parse ignore hashes that do not start with '#/').
+- **Flags:** effort S
+
+### SH-22 · P1 · bug — On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its ▾ sheet lists the section's pages instead
+
+- **Devices:** iPhone (and any width ≤700, incl. iPad Slide Over)
+- **Detail / repro:** Money (Overview, Transactions, Budgets, Recurring, Pots, Month and year) and Goals (This week, This month, All, Done) mark their workspace tabs data-phone-tabs. At ≤700px components.css hides every [data-phone-tabs] because the phone title bar's ▾ is meant to offer them, but mobile-shell's destinations() only falls back to the page's tabs when the section has NO subnav. Productivity has a subnav (Focus, Reminders, Routines, Calendar, Money, Goals), so the ▾ sheet on Money lists Productivity's pages and the Money tabs are offered nowhere. Measured at 402px: all six Money tabs and all four Goals tabs have width 0, the sheet shows Focus Timer…Goals, and Money's Overview has no link to Transactions/Recurring/Pots/Month. Money's 'Add entry', Transactions list, recurring bills and pots can only be reached by typing a URL. Achievements and the Governor (no subnav) work because the fallback applies there.
+- **Evidence:** shots/shell/money-iphonesafari.png, shots/shell/money-sheet-iphonesafari.png, shots/shell/money-overview-iphone.png; eval: #/money tabs visible 0 of 6, subnavItems 6; #/goals visible 0 of 4; css/components.css:654 (#main[data-phone-title] [data-phone-tabs] {display:none}); js/modules/mobile-shell.js:457-468 (destinations: subnav first, page tabs only when no subnav); js/modules/money.js:128, js/modules/goals.js:303
+- **Root cause:** The phone title bar treats 'section strip' and 'page tabs' as alternatives, but Money and Goals have both; the CSS hides the tabs unconditionally.
+- **Proposed fix:** When the page carries [data-phone-tabs] and a subnav exists, show both in the sheet (section pages, then the page's own views under a sub-heading) or keep the page's tabs visible as a scroller under the title bar; add a smoke assertion that every [role=tab] in #main is visible or offered by the sheet at 402px.
+- **Flags:** effort S
+
 ### SH-06 · P2 · bug — Phone search chips file Goals under 'Collection' and Reports/Files under a fake 'Pages' section
 
 - **Devices:** iPhone (chips are phone-only)
@@ -231,6 +261,78 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Evidence:** shots/shell/reviewchip-iphone.png, shots/shell/reviewchip-mac.png; js/modules/dayreview.js:705-709
 - **Root cause:** Menu items assume the chip's text label is visible, which the phone header drops.
 - **Proposed fix:** Give the menu a heading row ('Evening review · 3 steps') or make the first item 'Open the evening review'; make the hint describe the action; after Skip show a toast with Undo. Consider primary click = open, ▾ = Skip.
+- **Flags:** effort S
+
+### SH-23 · P2 · bug — Navigating to the page you are already on pushes a duplicate history entry, so Back appears to do nothing
+
+- **Devices:** all
+- **Detail / repro:** KOS.show() always calls pushEntry() unless it is a _nav redraw; it never compares the new route with lastRendered. Clicking the rail item of the current section, the brand mark on Home, a subject pill for the open subject or a search result for the page in view each add an identical entry. Reproduced: on #/home, rail 'Home' + brand mark raised router depth 7 -> 9 and history.back() stayed on #/home; KOS.show('calendar') twice raised depth 3 -> 5 and history.back() left the user on #/calendar. On the installed app (no browser chrome) this makes Back/Alt+Left look broken.
+- **Evidence:** eval: {d0:2,d1:3,d2:5,h1:'#/calendar'} and {d0:7,d1:9,hash:'#/home'}; js/core/router.js:226-238 (pushEntry when !opts._nav, no route===lastRendered check)
+- **Root cause:** The router wrapper treats every non-redraw show as a new navigation even when the route is unchanged.
+- **Proposed fix:** In the KOS.show wrapper: if (!opts._nav && route === lastRendered) replaceEntry(route,arg) instead of pushEntry (still render, so a rail click on the current page refreshes/scrolls to top).
+- **Flags:** effort S
+
+### SH-24 · P2 · ux — The installed app has no Back control at all: the header's ‹ › were removed and iOS Home Screen apps have no browser Back
+
+- **Devices:** iPad installed app (primary), iPhone installed app
+- **Detail / repro:** index.html dropped #nav-back/#nav-fwd in 8fa52cb ('Back and Forward are the browser's own, plus Alt+Left/Right and the OS gestures in an installed app'). The manifest is display: standalone, and an iPad/iPhone Home Screen web app has no toolbar Back and no reliable edge-swipe Back, so the user's primary device (the installed iPad app) can only move by the rail or a page's own breadcrumb. Cross-links have no way home: open a goal, report week, exam or topic from Home, Search, the bell or a Calendar chip and there is no route back to where you were except re-finding it. main.js, ui.js:330 and router.js:212 still look up #nav-back/#nav-fwd (dead code). Help's 'Back / Forward' entry still promises arrows.
+- **Evidence:** shots/shell/standalone-goal-ipad.png (header: brand, search, clock, review chip, bell, avatar; no Back); eval: document.getElementById('nav-back') === null; git show 8fa52cb -- index.html; manifest.webmanifest display:standalone; js/main.js:16-19, js/core/router.js:211-216
+- **Root cause:** The header arrows were removed for the browser case without a replacement for the standalone (installed) case.
+- **Proposed fix:** Show a Back button in the header only when running standalone (matchMedia('(display-mode: standalone)') or navigator.standalone) or at phone width, enabled by KOS.canBack(); keep the browser's own Back elsewhere. Remove the dead lookups otherwise.
+- **Flags:** effort S
+
+### SH-25 · P2 · bug — A dialog survives navigation: Back (or a rail/route change) leaves the confirm open over the new page, still bound to the old page's record
+
+- **Devices:** all (iPad/iPhone swipe-back, Mac Back key)
+- **Detail / repro:** KOS.show closes an open menu (closeOpenMenu) but not dialogs. Reproduced: on #/calendar open a danger confirm, press browser Back / swipe: the route changes to #/home behind the scrim and the 'Delete event?' dialog stays on top; confirming would delete a record of a page no longer on screen. The same with Alt+Left, a notification click (kos-open from the service worker routes through KOS.show) or the router's popstate. An editor dialog left open over another page saves into a page that is not shown.
+- **Evidence:** eval: {dialogStillOpenAfterBack:true, hash:'#/home'}; js/core/ui.js:1566-1571 (closeOpenMenu only); js/core/router.js:284-300 (onPop renders without consulting the dialog stack)
+- **Root cause:** Dialogs are body-level overlays with no link to the route; navigation code only knows about menus.
+- **Proposed fix:** In onPop: if KOS.ui.topDialog() exists, close the top dialog instead of navigating (push the entry back with history.go(1) or pushState) - the mobile pattern 'Back closes the sheet'; in KOS.show for non-_nav navigations close every dialog in dialogStack (calling each overlay.close so editors can ask about unsaved changes).
+- **Flags:** effort S
+
+### SH-26 · P2 · ux — Opening the bell puts focus on 'Mark all as read': one Enter/Space after opening clears every unread notice on every device, with no undo
+
+- **Devices:** MacBook, iPad with keyboard
+- **Detail / repro:** The bell popover's first focusable is the '✓ Mark all as read' link, and the shared menu focuses the first control on open. Keyboard: Tab to the bell, Enter (open), Enter again = 42 notices marked read (synced), the popover closes, and nothing offers Undo. Reading state drives other surfaces (Home's report card stays 'New' until its notification is read, invariant 102c), so this also silently retires the 'New' report. The page version (#/notifications) has the same unguarded button.
+- **Evidence:** eval mac: bell focusOnOpen 'BUTTON:✓ Mark all as read'; js/modules/notifications.js:77-78 (markAllRead(); close()) and :140; KOS.notify.markAllRead has no undo path
+- **Root cause:** Menu default focus = first focusable, and the bulk action is rendered first.
+- **Proposed fix:** Focus the first notification row (or the panel heading) on open and put Mark all as read last; after marking, show a toast with Undo that restores the previous read map (the ids are known).
+- **Flags:** effort S
+
+### SH-27 · P2 · data — First run writes four fake 'SAMPLE — … (edit me)' events into the real calendar; the mock exam becomes a real assessment that drives Home, alerts and the bell
+
+- **Devices:** all
+- **Detail / repro:** On an empty account main.js calls KOS.calendar.seedSamples(), which addEvent()s a SAMPLE mock exam (alerts 7 days and 1 day), a coursework deadline, a study block and a weekly maths lesson. The mock is then migrated into the Exams hub as a real assessment (state.exams.assessments = ['SAMPLE — Mock exam (edit me)']), so on day one Home's Focus card says 'Revise for SAMPLE — Mock exam (edit me)', the daily goal reads 'Revise for: SAMPLE…', a toast and a bell notice fire ('⏰ SAMPLE — Mock exam (edit me) — 5 days away'), Upcoming lists both, and with Google Calendar connected they would be pushed two-way to the user's primary calendar. They are ordinary records: nothing marks them as samples or removes them, and the weekly lesson recurs forever. There is also no first-run welcome: the bell's other first notices are 'Afternoon review' and '23 plan topics carried over into this week' (the plan seed), and the Week's plan says '23 behind' on the first open. The app already has a proper separate Sample mode (KOS.dataMode 'sample').
+- **Evidence:** shots/shell/empty-first-iphone.png, shots/shell/empty-home-mac.png; eval on reset account: assess ['SAMPLE — Mock exam (edit me)'], notify ['Afternoon review','SAMPLE — Mock exam (edit me)','23 plan topics carried over into this week'], toast text; js/modules/calendar.js:698-712; js/main.js:102
+- **Root cause:** A pre-hub demo seed still writes real records, and later domains (Exams migration, notifications, Google sync) treat them as the user's own.
+- **Proposed fix:** Drop seedSamples (the Sample data mode covers demos) or mark seeded rows {sample:true} so the exam migration, alerts, notify, Home ladder and ext sync skip them, with one 'Remove the examples' action. Add a short first-run card on Home (connect cloud, pick subjects, import Collection) instead.
+- **Flags:** effort S
+
+### SH-28 · P2 · a11y — Toast 'Undo' is unreachable without a pointer: the button is tabindex=-1 inside the aria-hidden #toast, and the spoken message never says Undo exists
+
+- **Devices:** MacBook, iPad with keyboard, VoiceOver everywhere
+- **Detail / repro:** KOS.ui.toast(msg, bad, {label:'Undo', run}) appends the action button with tabindex '-1' into #toast, which carries aria-hidden='true'; the live region announces only msg. So keyboard users (Mac, iPad keyboard) cannot reach Undo, VoiceOver users never learn it exists, and there is no global ⌘Z outside the ink engine. The action toasts are the only Undo for: Home's plan tick (hub.js:964), Reminders' plan tick (reminders.js:344), the Daily Review's triage Tomorrow/Done/study block (dayreview.js:534,615,621,622). It also disappears after 8 s regardless of focus/hover (WCAG 2.2.1 timing).
+- **Evidence:** eval: {ariaHidden:'true', tabindex:'-1', hitIsBtn:true}; js/core/ui.js:73-87; 6 call sites with {label:'Undo'}
+- **Root cause:** The toast was made aria-hidden for the live-region split (Phase F) before toasts gained actions.
+- **Proposed fix:** Give action toasts their own non-hidden container (role=status) with a focusable button; announce 'msg. Undo available, press ⌘Z' and bind ⌘Z/Ctrl+Z (outside text fields) to the most recent toast action while it is shown; pause the timer while hovered/focused.
+- **Flags:** effort S
+
+### SH-29 · P2 · ux — Search ranks specification hits in syllabus order, not by relevance: 'binary' shows 'Fields, records and files' first and cuts 'Unsigned binary', 'Two's complement' and Code's 'Binary search trees' past the six shown
+
+- **Devices:** all
+- **Detail / repro:** The Specification domain takes KOS.hub.search's first six results without ranking: the hits come in SEARCH_INDEX order (CS 4.1… then Maths then Code), and search.js's rank() (title-starts-with first) is applied to every other domain but not to spec. For 'binary' 30 leaves match; title matches sit at positions 1,3,4,7,8,12,14,15 so 'Unsigned binary and binary arithmetic' (7), 'Signed binary using two's complement' (8) and all of Code's never appear, while 'Fields, records and files' (body text 'binary file') is first. 'integration' lists 'Partial fractions' above 'Integration as limit of a sum'; 'dijkstra' lists 'Kinds of abstraction' and 'Reverse Polish notation' (flashcard matches). There is no 'show all results' row, so a result past six cannot be reached.
+- **Evidence:** eval: search('binary') title hits at indexes [1,3,4,7,8,12,14,15] of 30; listbox options for 'binary','integration','dijkstra' (printed); js/core/search.js:31 (PER_DOMAIN 6), :42-49 (rank), :60-73 (specDomain: res.slice(0, PER_DOMAIN), no rank); js/modules/hub.js searchSpec (returns specHits in index order)
+- **Root cause:** Spec search is a filter, not a ranker, and the cross-domain layer truncates before ranking.
+- **Proposed fix:** Score spec hits: exact title > title word-start > title contains > spec text > flashcard, then subject order; rank before slicing; add a final 'See all N results' option that opens a results page (or expands the domain).
+- **Flags:** effort S
+
+### SH-30 · P2 · integration — Tapping a notification often lands on a generic page: Daily Review notices open Routines (not the review), routine-window notices ignore the routine, goal notices open the Goals list, and cold-start pushes drop object args
+
+- **Devices:** all; closed-app pushes on iPad/iPhone
+- **Detail / repro:** KOS.notify.open(item) does KOS.show(item.view, item.arg). Daily Review items carry {view:'routines', arg:{review:'afternoon'}} and routine windows {arg:{routine:id}}, but KOS.views.routines only reads arg.edit or a tab string, so both open Routines › Today and the review sheet never opens (verified: shots/shell/notify-review-open.png, no review dialog). Goal notices ('Goal reached — Goal 5') are pushed with {view:'goals', arg:null} and open the list (#/goals) instead of #/goals/<id>. The service worker builds its own cold-start hash ('#/'+view+'/'+arg, objects dropped, sw.js:147) instead of the router's routeFor, so a closed-app push for a review, a topic or a report week opens the section landing. One connected OS should take a notice straight to its record.
+- **Evidence:** shots/shell/notify-review-open.png; eval: notify kinds review:routines:object, goal:goals:null; goal open -> '#/goals'; js/core/notify.js:196-199; js/core/dayreview.js:713; js/core/routines.js:560; js/modules/routines.js:469-473; js/core/goals.js:807; sw.js:147,154
+- **Root cause:** Producers set view/arg shapes the target views never learned to read, and the SW re-implements routing.
+- **Proposed fix:** Routines view: if arg.review open KOS.reviewSheet for that slot; if arg.routine open the player/editor. Goals notices: link {view:'goals', arg:{id}}. In the push payload send the router hash (KOS.router.routeFor) and let sw.js open it verbatim; for in-app kos-open keep view+arg.
 - **Flags:** effort S
 
 ### SH-13 · P3 · bug — Nothing redraws the open page when the day changes: header clock says Mon 2 Nov, Home still says Sunday 1 November / Good evening
@@ -295,6 +397,33 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Root cause:** Raster emblem has no dark-theme variant; header controls size themselves from different tokens.
 - **Proposed fix:** Use a light/outlined variant of the emblem (or the bloom brand mark) on dark themes, or tint via a mask with --text; size every header control from one token (--icon-btn, 44 on coarse) and give the chip min-block-size var(--hit-coarse) on touch.
 - **Flags:** effort S, needs art (Gemini sheet)
+
+### SH-31 · P3 · arch — ui.js still keeps a second, dead navigation stack (navHist/navFwd, KOS.back/forward/canBack) that the router overwrites
+
+- **Devices:** all
+- **Detail / repro:** js/core/ui.js:325-336 and :409-420 define navHist/navFwd, KOS.back/forward/canBack/canForward and updateNavBtns, and KOS.show pushes to navHist on every navigation (:1556-1562). router.js then replaces KOS.back/forward/canBack/canForward with the history-based versions. The ui.js stack is still mutated on every show, and updateNavBtns/router.updateArrows both look up #nav-back/#nav-fwd, which no longer exist. The router's own header explains that two stacks that can disagree is how the arrows 'started lying'; keeping the dead one invites a future caller to read it.
+- **Evidence:** js/core/ui.js:325-336, :409-420, :1556-1562; js/core/router.js:248-251; document.getElementById('nav-back') === null
+- **Root cause:** The router was layered over ui.js's original stack without removing it.
+- **Proposed fix:** Delete navHist/navFwd and the ui.js back/forward functions; keep navCur only for the redraw key.
+- **Flags:** effort S
+
+### SH-32 · P3 · docs — docs/GUIDE.md (the plain-words guide) stops at 26 Oct: Creatives and Mind are listed as 'still on the way', and Achievements, Connections, the art/shop release and the Stage are absent
+
+- **Devices:** all
+- **Detail / repro:** GUIDE.md was last changed 26 Oct 2026. Since then Mind (29 Oct), Creatives (30 Oct), Google Calendar/Tasks/Todoist (30 Oct), Achievements and the Badge Wall (31 Oct) and the art and shop release (1 Nov) shipped. §5 'What is still on the way' still lists 'A Creatives study space…and Mind' and 'new things for the gold shop — such as outfits for Kurenai' as future. Counts: Achievement/Badge 0, Connections/Todoist 0, Wardrobe 0, Pencil 0, Creatives 1 (only in §5), FSRS 1; there is no Mind or Creatives tour section (§2 has Code and Japanese only), no Exams & Deadlines hub section (Exams: 3 passing mentions), no Routines/Daily Review section beyond one line. Money (6) and Goals (4) are covered in a paragraph each, so the in-app Help (which has none) and GUIDE.md disagree on what exists.
+- **Evidence:** docs/GUIDE.md headings (lines 45-418), :418-430; git log -1 docs/GUIDE.md = 26 Oct 2026; grep -ci counts
+- **Root cause:** Two hand-kept guides with no release checklist item or test.
+- **Proposed fix:** Add tour sections for Mind, Creatives, the Exams hub, Routines and the Daily Review, Achievements, the Stage and shop, Connections; move shipped items out of §5. Generate Help's sections and GUIDE.md from one source (or have a smoke test that every rail destination is named in both).
+- **Flags:** effort M
+
+### SH-33 · P3 · ux — iPad-portrait overlay rail: Escape does not close it, a tap on the page both closes it and activates what was under the finger, and its open state is persisted
+
+- **Devices:** iPad portrait, iPad Split View
+- **Detail / repro:** At 701-1080px the opened rail floats over the page. Escape leaves it open (s1 'full' -> after Escape 'full'); focus stays on the toggle rather than entering the rail. The only dismissals are a destination or a pointerdown on #stage, and that pointerdown does not cancel the tap, so tapping the page to dismiss also presses whatever control was under the finger (tap-through). ui.railOpenNarrow is saved, so an overlay left open comes back open over the page on the next launch of the installed app.
+- **Evidence:** eval at 820x1180: {s1:'full', focusIn:false, afterEsc:'full'}; js/main.js:71-81 (no Escape handler; stage pointerdown closes without preventing the click); :63-69 (setRail persists railOpenNarrow)
+- **Root cause:** The narrow rail reuses the persistent open/closed preference of the docked rail instead of being a transient drawer.
+- **Proposed fix:** Treat the narrow overlay like the spine drawer: add a scrim (or capture the first pointerdown and preventDefault/stopPropagation the following click), close on Escape (unless a dialog is open) and return focus to the toggle; don't persist the narrow overlay state (start closed).
+- **Flags:** effort S
 
 
 ---
@@ -3758,13 +3887,15 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## AP — Architecture, maintainability, performance, docs drift (complete)
+## AP — Architecture, maintainability, performance, docs drift (partial)
 
 **Auditor's summary.** The codebase is a coherent script-tag app with strong written contracts (invariants, pure derive-on-read models, 112 passing smoke suites), but it has three structural costs. (1) Boot loads ~16.6 MB of JS in 340 synchronous scripts plus 1.2 MB of CSS, mostly curriculum content, so a cold launch spends seconds compiling and running content builders (15 s to domInteractive on the empty account, shell ready at 21 s on the dense one, on a loaded test machine). (2) The derived reads have no memoisation, so the first render of heavy views takes 0.5-2.8 s (Exams readiness, the Code map's unitState loop, the Calendar's per-cell derivedOn), settling to 20-350 ms. (3) There is no view lifecycle: KOS.show empties #main with no unmount, so 15 lazily removed global listeners keep detached pages alive (about 16,000 nodes after 30 topic pages), and KOS.rerender drops keyboard focus to <body>, breaking invariant 65. Maintainability: hub.js (3,899 lines, a 953-line topic-page function) and aitools.js are grab bags; the four study spaces copy the same lesson reader and evidence/award code and have already drifted; there is dead CSS (the retired Habits page). Docs disagree with each other about the current release and gate.
 
 **Coverage.** Measured in harness slot 18 at Mac size on the empty and seeded accounts: boot (Performance API, long tasks, CDP CPU profiles of reloads: arch/prof-boot-empty.txt, arch/prof-boot-dense.txt), first and warm render times of 25 views, CPU profiles of Home, Code and Calendar, an API-level timing wrapper, store.save per navigation, state size (368 KB) and stringify cost, memory and listener growth with forced GC (arch/mem.txt, arch/mem2.txt), rerender focus retention on 5 views, and idle rerender frequency (none in 65 s). Static: boot payload from index.html, file sizes, giant files, KOS namespace/guards, study-space duplication (diff of readers), unused CSS scan, unused KOS namespaces, duplicated helpers, repo root and tracked files (repo is public), docs drift across README/AGENTS/PROGRESS/HANDOFF/GUIDE/CLAUDE.md/in-app Help, and the whole smoke gate run (112 suites, all pass, 849 s). Not done: iPad/iPhone-specific timing (the harness is desktop Chrome; Safari/WebKit and real-device JIT differ, so absolute numbers are indicative only, and the test machine was shared with other slots at load ~5); Dawn/shop themes and visual screenshots (not relevant to this area; other auditors cover pages); Edge Functions and supabase code; Achievements and the art shop, which are not in this checkout.
 
-> **Build audited:** f4fa493 (sw kos-creatives-1), 23 commits before production: no Achievements, no art/shop release. Structural findings (boot cost, hub.js, duplication, listeners, docs drift) almost certainly still hold; re-check sizes, counts and dead-CSS lists on main before acting.
+> **Build audited:** f4fa493 (sw kos-creatives-1), 23 commits before production: no Achievements, no art/shop release. Structural findings (boot cost, hub.js, duplication, listeners, docs drift) almost certainly still hold; re-check sizes, counts and dead-CSS lists on main before acting. TOP-UP ON MAIN (5 Nov, kos-redraw-1) INTERRUPTED at the usage limit: its new findings (Badge Wall, Seat, shop) are added, but the re-check verdicts of the findings above were not recorded — re-run the top-up.
+
+_Interrupted auditor: coverage notes were not written. Treat everything not listed below as unaudited._
 
 ### AP-01 · P1 · perf — Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs
 
@@ -3847,6 +3978,24 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Proposed fix:** In KOS.rerender, before the redraw record the focused element's identity inside #main (closest [data-ui] plus data-key/data-id/aria-label and its index among matches) and after it focus the equivalent node with {preventScroll:true}, falling back to #main without announcing; skip background redraws while focus is inside #main and the user is typing (or defer them until blur).
 - **Flags:** effort S
 
+### AP-14 · P2 · bug — Edit your seat loses its unsaved draft (and its tab) on any background redraw: governor is not a held view
+
+- **Devices:** all
+- **Detail / repro:** #/governor/edit keeps its draft (showcase, background, title, sigil) in a closure inside the view function (js/modules/governor-ui.js:660-686). The kos-redraw-1 stopgap holds background redraws only for TASK_VIEWS (js/core/ui.js:357-358), which does not list governor (nor achievements, money, goals, routines). So a soft background redraw (routines autoSync after a session or on the review ticker, js/core/routines.js:699; the Daily Review closing, js/modules/dayreview.js:92/103/661/709; the Google read-only copy loading, js/core/ext.js:364; own art loading at boot, js/main.js:307) remounts the page at once, and a cloud pull (hard) does so 45 s after the last touch. Repro on slot 20: open Edit your seat, Background tab, pick another background (Save lights up, data-state=lit), call KOS.rerender({background:'soft'}): the tab is back on Showcase, the picked background is gone and Save is no longer lit; nothing was saved. The page has a Discard/Save pair, so the user believes the draft is held until they press one.
+- **Evidence:** eval on slot 20 (seeded): before {tabSel:'Background', mid pressed '1000…', lit:'lit'} → after soft rerender {afterTab:'Showcase', lit2:null}; shots/architecture-perf/gov-edit-mac.png; js/core/ui.js:357-372 (TASK_VIEWS, holdBackground); js/modules/governor-ui.js:660-686
+- **Root cause:** The redraw stopgap's hold list is a hand-maintained set of view ids in ui.js; any page added later with transient in-page state is unprotected by default.
+- **Proposed fix:** Short term: add governor (the edit arg) and any page with an in-page draft to the held list, or let a view declare itself held (e.g. KOS.views.x.holdsDraft = arg => …) so the list is not a central guess. Proper fix: the view lifecycle in the backlog (a view can veto or persist its draft before a redraw); the Edit seat draft could also live in state.ui like other per-device drafts.
+- **Flags:** effort S
+
+### AP-15 · P2 · perf — Badge measuring runs synchronously on the main thread: the Governor's Seat measures all 254 badges twice per render, and every topic tick re-measures 44 study badges
+
+- **Devices:** all (worse on iPad/iPhone CPUs)
+- **Detail / repro:** KOS.achievements.list() builds a fresh context (makeCtx, js/core/achievements.js:239) and runs every badge's measure (measureOne, :296) each time it is called; nothing is memoised across calls or renders. The Governor's Seat status page calls it twice per render (js/modules/governor-ui.js:358 the arc of medals and :527 the area cards) and Edit your seat once more (:732); the Wall calls it on each tab (js/modules/achievements.js:126, 613, 747). Many measures are themselves the expensive derived reads the earlier audit found un-memoised — KOS.exams.readiness for every upcoming exam (achcatalogue.js:251-256, the 'Ready' badge), Code/Creatives/Mind evidence over every lesson, topic bands over every leaf for the ~30 unit badges (reg.unit, achcatalogue.js ~246). Owner events re-measure by domain (touch, 400 ms debounce), and the 'study' domain holds 44 badges, so every store.setCheck/setStatus (js/core/store.js:452/466 → onProgress) costs one main-thread long task some 400 ms after the tick. Measured on the dense account (machine shared, load 5-9, so absolute figures are inflated): a single onProgress('cs') produced one 541 ms long task; evaluate(['study']) took 1.3-13.5 s across runs; KOS.achievements.list() 2.4-3.9 s cold, 138 ms warm; KOS.show('governor') 0.7-22 s (3.1 s typical first render), with measureOne, reg.unit, readiness, code/creatives/mind evidence, code.stats and srs.dueCards at the top of its CPU profile.
+- **Evidence:** arch20/prof-governor.txt (CPU profile of KOS.show('governor')); eval on slot 20: {listCallsPerGovernorRender:2, list first 3929 ms / second 138 ms, evalStudy 13555 then 3112 then 1324 ms}, longtask observer after KOS.achievements.onProgress('cs') = [541]; js/core/achievements.js:239-262, 296-341, 446-466; js/modules/governor-ui.js:358, 527, 732
+- **Root cause:** list() and evaluate() both measure from scratch with a per-call context; measures reuse un-memoised derived reads; all of it runs synchronously.
+- **Proposed fix:** Keep the last evaluate's per-badge values (in memory, keyed by a store revision or the ledgerKey already computed at achievements.js:134) and let list() read them instead of re-measuring; measure only when the owning domain's revision moved. Run the domain re-measure in idle slices (requestIdleCallback, a few badges per slice) so a tick never blocks input. The memo layer for readiness/code evidence recommended in the backlog would cut the rest.
+- **Flags:** effort M
+
 ### AP-11 · P3 · arch — ~110 lines of dead CSS: the retired Habits page (79 lines of .k-hb-*) and canvas-era lab classes
 
 - **Devices:** all
@@ -3874,6 +4023,15 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Proposed fix:** Add KOS.date (iso, parse, addDays, daysBetween, weekStart, hm, pad) in js/core next to srs, make KOS.srs's date functions delegate to it, and replace local copies opportunistically when a file is touched; a smoke rule can refuse new local 'function addDays(' definitions.
 - **Flags:** effort S
 
+### AP-16 · P3 · arch — The smoke gate is not reliable under load: five suites fail when run three at a time and pass alone
+
+- **Devices:** n/a
+- **Detail / repro:** Running all 113 suites with three in parallel on the shared test machine (load ~10) failed smoke2, smoke4 (vault cards not rendered in jsdom), smoke16 (wishlist cover), smoke17 (applyCosmetics not called after a pull) and smoke45 (toast announcements). Each passed when re-run alone (2-16 s). The failures are timing assumptions (fixed waits in the tests) rather than product bugs, but they make a parallel runner — the obvious answer to the gate's 20-minute CPU cost — unusable, and they would read as regressions on a slow CI machine. The gate itself is now 1,227 CPU-seconds (450 s wall with three workers); smoke56 (242 s) and smoke75 (236 s) are 39% of it.
+- **Evidence:** arch20/gate-summary.txt (exit code, ms, suite; sorted by time); scratchpad logs: smoke4 'STEP anime vault renders + lazy fallback…: Error: no cards rendered' tools/smoke4.test.js:390; smoke17 'applyCosmetics was not called after a remote state applied'; smoke16 TypeError tools/smoke16.test.js:550; serial re-runs all exit 0
+- **Root cause:** Tests wait fixed times for async work (IndexedDB, timers) inside jsdom.
+- **Proposed fix:** Replace fixed sleeps in those five suites with waits on a condition (poll for the cards, the announcement, the applyCosmetics call); then add a parallel runner (npm test) with a per-suite timeout.
+- **Flags:** effort M
+
 **QoL ideas from this auditor:**
 - Add performance.mark('kos-boot')/('kos-ready') in main.js and print them in Archive > Storage, so boot time is visible and testable
 - Ship js/core/sample.js (25 KB dev-only sample account) only to dev hosts or behind a lazy load
@@ -3890,13 +4048,15 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## AX — Cross-cutting accessibility and HCI sweep (complete)
+## AX — Cross-cutting accessibility and HCI sweep (partial)
 
 **Auditor's summary.** The app has solid accessibility bones: every glyph-only control has an accessible name, every view has exactly one visible h1, a skip link, a focus ring (crimson, 5.8:1) that shows on all but a few custom fields, a global prefers-reduced-motion reset, alt on every image, and the responsive audit found 0 overflow and 0 clipped text across 424 view×size×theme cells. The main problems come from a few shared root causes. (1) Cascade layers: the phone's 16px input guard lives in @layer base, so component font sizes override it and iOS zooms on almost every text field and select on the iPhone (P1). (2) Shared primitives cancel the 44px touch floor: .k-pill-select sets min-block-size:0, .k-switch is a fixed 34x20, checkboxes are 18px. (3) Status chips paint role-coloured text on a wash of the same colour, which falls below 4.5:1 in both themes. (4) Keyboard and focus: bare Backspace navigates Back even under an open modal, toast Undo cannot be reached, and role=tab strips have no arrow-key support. (5) Feedback channels: the only sound, the Focus chime, is silent on iOS and has no setting; there are no haptics; the document title never changes. Help & Guide text is partly stale.
 
 **Coverage.** Ran tools/responsive_audit.mjs on slot 19 (seeded) at 1470x832, 820x1180, 1180x820 and 402x874 with touch: 53 views × 2 themes, 0 overflow and 0 amputated text, screenshots in shots/resp. Looked at contact sheets (shots/a11y-hci/sheets/mac1, mac2, ipad1, iphone1, empty-mac). DOM scan (a11y-scan.js: unnamed controls, touch targets, oval controls, computed text contrast with opacity and alpha grounds, fields under 16px) over 39 views at Mac (Graphite, then real Dawn via KOS.governor.setTheme), iPad portrait with touch, and iPhone with touch; outputs in a11y-mac*.jsonl, a11y-ipad.jsonl, a11y-iphone.jsonl. Also checked: a programmatic focus-indicator test on 8 views, symbol-only button names on 14 views, heading structure on 28 views, the Backspace/dialog repro, tab arrow keys, hover-only controls under hover:none, empty-account empty states and button labels on 26 views (a11y-empty-mac.txt), one shop theme (solar-manuscript) on 6 views, token contrast computed from the oklch values, and audio, haptic, reduced-motion and title code by grep. NOT examined: real VoiceOver or Safari on a device (all headless Chrome emulation, so iOS zoom and AudioContext behaviour were inferred from WebKit rules and the measured CSS); iPad landscape was only checked through the responsive-audit shots; the other 22 shop themes; screen-reader reading order inside complex widgets (labs, ink, the code editor); every dialog's internal focus order. Page-level instances already reported by other areas (vault/assignment/Japanese/Code touch targets, the iPhone tab-bar labels, toast width) were not repeated; the shared root causes are reported here.
 
-> **Build audited:** f4fa493 (sw kos-creatives-1), 23 commits before production: the Badge Wall, the Seat as Stage and the art/shop pages were not swept. The shared root causes (16px input zoom, touch floor, chip contrast, keyboard) live in shared CSS/JS that the art release barely touched; re-check on main and sweep the missing pages.
+> **Build audited:** f4fa493 (sw kos-creatives-1), 23 commits before production: the Badge Wall, the Seat as Stage and the art/shop pages were not swept. The shared root causes (16px input zoom, touch floor, chip contrast, keyboard) live in shared CSS/JS that the art release barely touched; re-check on main and sweep the missing pages. TOP-UP ON MAIN (5 Nov, kos-redraw-1) INTERRUPTED at the usage limit: its new findings (Badge Wall, Seat, shop) are added, but the re-check verdicts of the findings above were not recorded — re-run the top-up.
+
+_Interrupted auditor: coverage notes were not written. Treat everything not listed below as unaudited._
 
 ### AX-01 · P1 · bug — iPhone: most text fields and selects are under 16px, so iOS Safari zooms the page on every focus
 
@@ -3968,6 +4128,69 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Evidence:** index.html:6; grep document.title → only js/modules/focus.js:1070,1488; eval on 9 routes: title='Kurenai OS — Study Atelier' for all
 - **Root cause:** Single-page shell with no title owner.
 - **Proposed fix:** In router.js after each KOS.show, set document.title = '<page h1 or nav label> · <section> — KurenaiOS' (topic: '<ref> <title> · CS'); Focus keeps prefixing the remaining time.
+- **Flags:** effort S
+
+### AX-22 · P2 · ux — Edit your seat throws away unsaved changes on any navigation, with no prompt
+
+- **Devices:** all
+- **Detail / repro:** On #/governor/edit, picking showcase badges, a background, a title or a sigil marks Save as lit (dirty()), but leaving by the rail, Back, Backspace, the bell or search discards the draft silently. There is no leave guard anywhere in the router (no beforeLeave / canLeave hook), so the only protection is remembering to press Save. CLAUDE.md lists the 'leave-with-changes prompt' as not built; this records the user-visible effect.
+- **Evidence:** js/modules/governor-ui.js:658-680 (draft, dirty(), Discard → KOS.show('governor')); grep leaveGuard|beforeLeave|canLeave js/core/router.js js/core/ui.js js/main.js → none; CLAUDE.md 'not built from design turn 35: ... Edit seat's leave-with-changes prompt'
+- **Root cause:** No navigation-guard primitive exists; the editor keeps its draft in a closure.
+- **Proposed fix:** Add a small router hook (KOS.router.guard(fn)) that a view can set while dirty; on navigation ask 'Leave without saving? Keep editing / Discard' (Cancel-first, invariant 49), and clear it on Save/Discard.
+- **Flags:** effort M
+
+### AX-23 · P2 · ux — Buy in the Gold Shop spends gold on one tap with no confirm and no undo
+
+- **Devices:** iPad, iPhone especially
+- **Detail / repro:** A ware card's 'Buy' (and the preview sheet's) calls KOS.governor.buy immediately: items up to tens of thousands of gold are spent on a single tap, which on iPad/iPhone sits beside 'Try on' in the same 44px row. There is no confirm and the toast 'Bought X. N left.' has no Undo, so a mis-tap costs days of study gold irreversibly (gold is earned only by study).
+- **Evidence:** js/modules/governor-ui.js:1043-1044 (Buy onclick: buyWare(it)), :893-904 (buyWare: KOS.governor.buy then toast, no action); shots/a11y-hci/t-shop-mac.png
+- **Root cause:** buyWare treats a purchase as a plain toggle.
+- **Proposed fix:** Either a short confirm for items over a threshold ('Buy Celestial Duality for ◈ 9,000? You will have ◈ 3,476 left.' Cancel first) or an 8-second Undo in the toast that refunds through KOS.governor (one refund path).
+- **Flags:** effort S
+
+### AX-24 · P2 · bug — The Wall's tabs and set links have no URL: #/achievements/recent, /titles, /showcase and /set/<id> all open Sets
+
+- **Devices:** all
+- **Detail / repro:** CLAUDE.md documents #/achievements[/sets|recent|showcase|titles|set/<id>], and the view parses its arg (achievements.js:110-113), but js/core/router.js has no ENCODE/DECODE entry for 'achievements'. So KOS.show('achievements','titles') writes '#/achievements', a reload or a shared link to #/achievements/titles or #/achievements/set/streaks opens Sets with no dialog, and Back from a set dialog opened by 'View on the Wall' does not return to the tab you were on. Every tab switch is also not a history entry the way the Governor's tabs are.
+- **Evidence:** eval: KOS.show('achievements','titles') → location.hash '#/achievements'; KOS.show('achievements','set/streaks/x') → '#/achievements'; location.hash='#/achievements/set/streaks' → after 20 s no .k-dialog, page data-page='sets'; js/core/router.js:45-50 (ENCODE: governor yes, achievements absent), :122 (DECODE governor), :172-177 (no decoder → arg undefined); js/modules/achievements.js:110-113,134
+- **Root cause:** The view was added with an argument but not registered in the router's route table.
+- **Proposed fix:** Add achievements to ENCODE ([tab] or ['set', id, badge]) and DECODE (p.join('/')) like governor, and replace the entry when the set dialog closes.
+- **Flags:** effort S
+
+### AX-25 · P2 · perf — The Wall, the Seat's showcase and Edit your seat wait 7-12 s on a dense account because every open re-measures all 254 badges
+
+- **Devices:** all, worst on iPhone
+- **Detail / repro:** KOS.achievements.list() measures every badge afresh on each call (no cache between the boot/30-minute sweep and the pages). On the seeded account (1,880 media rows) one call took 6.9-7.9 s, the Collection set alone 5.1 s; the Wall body shows 'Reading your records…' for 12.5 s after navigation, the Seat's arc stays six empty rings with no label for ~12.9 s and Edit your seat says 'Reading your badges…'. Measured on a loaded machine (load average ~7.3 from parallel audit slots), so absolute times on the M4 will be lower, but the work is the same on every visit and on every phone tab switch.
+- **Evidence:** eval timings: list() 7867/920/7452 ms; per set: collection 5127, exams 1473, mind 1158, study 983, ALL 6954 ms; Wall body ready 12512 ms; Seat note after 12867 ms; js/core/achievements.js:329-341 (list → measureOne per DEF each call); shots/a11y-hci/t-wall-iphone.png ('Reading your records…'), t-seat-ipad.png (empty arc)
+- **Root cause:** list() and evaluate() share measureOne with no memo; Collection badges scan the vault.
+- **Proposed fix:** Cache the last sweep's views (value, p, tier) keyed by domain and invalidate on touch(domains); list() returns the cache at once and refreshes in the background. Make the Collection measures read counts from the media index instead of scanning rows.
+- **Flags:** effort M
+
+### AX-26 · P2 · ui — iPhone: the Seat's empty showcase draws six squashed ovals until (or unless) its note arrives
+
+- **Devices:** iPhone
+- **Detail / repro:** At 402px the arc becomes a nowrap flex row of six 44px slots plus the note div (flex-basis 100%). While the note is empty — the ~8-12 s before list() answers, and permanently when no badge is earned or near (a new account) — the note takes the row and the six empty slots shrink to ~26x50 ovals. Only once the note has text does :has(.k-gv-arc-note:not(:empty)) turn on wrapping and the rings become 44x44 circles.
+- **Evidence:** shots/a11y-hci/t-seat-iphone.png (six ovals under the XP bar); eval after the note loaded: slots 44x44, .k-gv-arc display flex height 92; css/views/governor.css:518-523 (flex, no wrap until :has(note:not(:empty)), slot without flex: none)
+- **Root cause:** Flex items shrink by default; wrap depends on the async note.
+- **Proposed fix:** Give .k-gv-arc-slot flex: none and wrap the row always (or keep the note out of the flex row), so empty rings stay circles.
+- **Flags:** effort S
+
+### AX-27 · P2 · bug — A badge set dialog opens over whatever page you moved to, seconds after leaving the Wall
+
+- **Devices:** all
+- **Detail / repro:** KOS.show('achievements', 'set/<id>/<badge>') — what the unlock overlay's 'View on the Wall' and a ping click do — renders the Wall and opens the set dialog only when list() answers (8-12 s on a dense account). If you leave in the meantime, the stale callback still runs: its guard `if (!body.isConnected && body.parentNode == null) return;` passes because the detached body still has its root as parent, so the Wall is drawn into a detached node and openSetDialog() appends a modal over the new page (Money in the repro), stealing focus.
+- **Evidence:** eval: KOS.show('achievements','set/focus'); after 1 s KOS.show('money') → .k-ach-dlg 'Focus' appeared over #/money 8022 ms later; shots/a11y-hci/t-setdlg-over-money-mac.png; js/modules/achievements.js:126-135 (guard and openSetDialog in the async callback), :647 and :715 (callers)
+- **Root cause:** Wrong staleness test in the async list() callback.
+- **Proposed fix:** Guard on body.isConnected alone (or a render token compared with KOS.current) before drawing and before openSetDialog.
+- **Flags:** effort S
+
+### AX-28 · P2 · a11y — Atelier Dawn: title plaques put gold names on pastel washes (~2.3:1) and grey 11px 'LOCKED · …' lines (~2:1)
+
+- **Devices:** all, Atelier Dawn
+- **Detail / repro:** On the Wall's Titles tab in Atelier Dawn, an unlocked plaque's name is --gold oklch(0.505 0.11 85) at 22px italic over the set-hue wash (oklch(0.71 0.08 173) at its ends, 20% ground in the middle over a photo) — about 2.3:1, not large text. Locked plaques print the name at 70% and 'LOCKED · KEPT GOING III' at 60% of --text, 11px mono with 0.08em tracking, over a greyscale photo lightened to the Dawn ground — about 2:1. The big plaque in the detail column repeats the gold-on-teal name. The scanner cannot see it (the photo is an <img>), so this was computed from the tokens and checked by eye.
+- **Evidence:** shots/a11y-hci/t-titles2-mac.png (Dawn, 1470x832); eval computed styles: on-name oklch(0.505 0.11 85) 22px, off-name oklch(0.235 0.014 55 / 0.7) 20px, lock oklch(0.235 0.014 55 / 0.6) 11px, wash linear-gradient(oklch(0.7075 0.0806 173.5) … oklch(0.955 0.008 80 / 0.2) 50% …); css/views/achievements.css:177-190
+- **Root cause:** Plaque colours tuned on Graphite's dark ground; Dawn restates neither the wash nor the text.
+- **Proposed fix:** In Dawn give plaque text a solid scrim (a ground-coloured band behind the name) or use --text for names with the gold as an underline/rule; raise the lock line to --text-2 at 12px without opacity.
 - **Flags:** effort S
 
 ### AX-09 · P3 · ux — No haptic or tactile-equivalent feedback anywhere on iPhone/iPad
@@ -4085,6 +4308,60 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Evidence:** eval on #/calendar: first cal.ev-t 'Revision block 28' 2.87 (Graphite) / 2.28 (Dawn) with ancestor k-cal-stack opacity 0.4; css/views/productivity.css:465 (other-month stack 0.75 on hover/focus-within); scan a11y-mac.jsonl, a11y-mac-dawn2.jsonl
 - **Root cause:** Opacity applied to the whole stack including interactive text.
 - **Proposed fix:** Dim the day number and cell ground instead of the events (e.g. date in --muted, events at full contrast with a muted dot), or keep opacity ≥ 0.7 so text stays ≥ 4.5:1.
+- **Flags:** effort S
+
+### AX-29 · P3 · content — The Wall says 'Owned 8 / 254' while its Earned filter and the showcase picker list 21 earned badges
+
+- **Devices:** all
+- **Detail / repro:** Seeded account: the Wall's toolbar and the Seat's glass card print 'Owned 8 / 254' (counts() counts a badge only once its LAST tier is earned), but the Wall's 'Earned' filter shows every badge with tier > 0 (21) and Edit your seat's Showcase tab says 'Earned · 21, newest first'. Three surfaces use two meanings of earned/owned for the same badges with no explanation, so a user who has 21 medals lit sees '8'.
+- **Evidence:** eval: KOS.achievements.counts() = {owned: 8, badges: 254, tiers: 44}; list() badges with tier>0 = 21; js/core/achievements.js:343-351 (owned only when e.tier >= d.tiers.length); js/modules/achievements.js:148 (filter earned = v.tier > 0), :176 ('Owned'); js/modules/governor-ui.js:384; shots/a11y-hci/t-wall-mac.png, t-edit-mac.png
+- **Root cause:** counts().owned means 'fully earned' but is labelled with the same word the filter uses for 'any tier'.
+- **Proposed fix:** Pick one word per meaning: 'Earned 21 · 8 complete' (or 'Badges earned 21 / 254 · tiers 44 / 417') on the Wall and the Seat, and keep 'Earned' for tier > 0 everywhere.
+- **Flags:** effort S
+
+### AX-30 · P3 · a11y — Shop actions (Try on, Use, Take off, Buy) drop keyboard focus to the page and announce nothing for Try on
+
+- **Devices:** all (keyboard, VoiceOver)
+- **Detail / repro:** Each ware action calls render(), which empties the panel and rebuilds every card, so the pressed button is destroyed and focus falls to MAIN/BODY; a keyboard or Switch Control user must tab from the top again after every Try on. Try on also announces nothing (the theme changes silently), while Buy does announce.
+- **Evidence:** eval on #/governor/shop: focus 'Try on Winter', click → document.activeElement BODY (mac) / MAIN (ipad); scroll position kept (card foot 598 → 590 px); js/modules/governor-ui.js:1041 (Try on → tryItem + render()), :212-218 (render empties panel), :1052-1056 (Use / Take off → render())
+- **Root cause:** Whole-panel re-render as the update path.
+- **Proposed fix:** After render(), refocus the same control by data-ui + item id (or update the card in place), and announce 'Trying on X — leave the shop to stop' through KOS.a11y.announce.
+- **Flags:** effort S
+
+### AX-31 · P3 · ui — Badge dialog lays a four-tier badge out 3 + 1, leaving the fourth medal alone on a second row
+
+- **Devices:** Mac, iPad
+- **Detail / repro:** In the 760px set dialog a badge with four tiers (Focus · In the zone: 10/100/500/1,000 sessions) shows three medals in a row and the fourth centred alone underneath, with empty space either side, although four 120px medals fit in one row of the 640px stage.
+- **Evidence:** shots/a11y-hci/t-setdlg-over-money-mac.png (IV · 1,000 sessions alone on row two); js/modules/achievements.js:547 (tiers list, data-n); css/views/achievements.css .k-ach-dlg-tiers
+- **Root cause:** A fixed 3-column grid for every tier count.
+- **Proposed fix:** Lay tiers by count: 4 in one row (or 2x2), 5 as 3+2 centred; drive the column count from data-n.
+- **Flags:** effort S
+
+### AX-32 · P3 · ux — Search cannot find a badge, a title, the Gold Shop or any page by name
+
+- **Devices:** all
+- **Detail / repro:** KOS.search.run covers spec, notes, reminders, assignments, calendar, planner, goals, cards, media, reports and files only. Typing 'Bookworm' (an earned title), 'Gold Shop' or a badge name returns nothing; 'badge' and 'Wall' return unrelated specification hits. In a one-OS app with ~60 pages and a Wall of 254 badges, the header search is the natural way to reach 'the shop' or 'Pen and ink'.
+- **Evidence:** eval KOS.search.run: 'Bookworm' → [], 'Gold Shop' → [], 'badge' → [spec F206.3.2], 'Wall' → [spec 4.9.3.2]; js/core/search.js:65-288 (domain list), grep achiev|badge js/core/search.js → 0
+- **Root cause:** Search domains were added per data store; navigation and the newer domains were never registered.
+- **Proposed fix:** Add a Pages domain (view titles, tabs and settings pages from the route table) and an Achievements domain (badge and title names → #/achievements/set/<id>/<badge>, once the router encodes it).
+- **Flags:** effort M
+
+### AX-33 · P3 · data — The Seat's 'First day' reads the state document's creation date, not your first record
+
+- **Devices:** all
+- **Detail / repro:** The Wall glass on the Seat prints 'Days journeyed 138 days' (from the ledger rollup) beside 'First day 5 Nov 2026' (today) on the seeded account, because First day is +store.state.created. Any account whose history predates its state document (sessions imported, a device restored without `created`, the review namespace) shows a first day after 138 days of journey.
+- **Evidence:** shots/a11y-hci/t-seat-mac.png, t-seat-ipad.png; js/modules/governor-ui.js:378 (since = +store.state.created), :390-391
+- **Root cause:** Two sources for one fact.
+- **Proposed fix:** First day = min(state.created, the ledger's first entry, the rollup's first month).
+- **Flags:** effort S
+
+### AX-34 · P3 · docs — Help & Guide says nothing about the Wall, titles, Try on or 'Your own picture', and still says gold buys only unlocks and cosmetics
+
+- **Devices:** all
+- **Detail / repro:** help.js has no entry for Achievements/the Badge Wall, titles, the showcase, Edit your seat, Try on or the picture drawer; its Gold entry says gold is spent 'on permanent lab/sim unlocks and cosmetics', which no longer covers the 'Your own picture' upload unlocks (invariant 2 since 5.14). The Seat's own header still calls it 'Your identity, current access state…' although HP gates nothing.
+- **Evidence:** grep -c 'Badge|achiev' js/modules/help.js → 0; js/modules/help.js:61 (Gold), :127 ('Open Gold Shop'); js/modules/governor-ui.js:50 ('current access state'); shots/a11y-hci/t-seat-mac.png
+- **Root cause:** Help is hand-written and was not part of the release checklist for 5.13-5.17.
+- **Proposed fix:** Add Help entries for the Wall (sets, tiers, titles, showcase), the Seat and Edit your seat, Try on, and the picture drawer; reword Gold and the Seat sub-line ('…your state, study rhythm and what you have earned').
 - **Flags:** effort S
 
 **QoL ideas from this auditor:**

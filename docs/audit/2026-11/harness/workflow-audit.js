@@ -61,6 +61,7 @@ const FINDINGS = {
       effort: { type: 'string', enum: ['S', 'M', 'L', 'XL'] },
       needsDesign: { type: 'boolean' },
       needsArt: { type: 'boolean' },
+      recheck: { type: 'string', description: 'top-up mode only, for a finding carried over from the earlier run: "holds" | "changed: <what>" | "no longer reproduces: <evidence>"' },
     }, required: ['title', 'severity', 'category', 'detail', 'evidence', 'fix', 'effort'] } },
     qol: { type: 'array', items: { type: 'string' }, description: 'small quality-of-life improvements (not major features)' },
     backlog: { type: 'array', items: { type: 'string' }, description: 'larger feature ideas for a later backlog' },
@@ -93,6 +94,14 @@ const AREAS = [
 ]
 
 
+const TOPUP = (id) => `
+
+TOP-UP MODE (this area was audited once before, on the STALE build f4fa493 = sw kos-creatives-1, 23 commits before production: no Achievements/Badge Wall, no Governor's Seat as the Stage, no art/shop release). Its result is ${QA}/findings/${id}.json (a backup is ${id}.f4fa493.json; do not modify the backup). Do three things:
+(a) RE-CHECK every finding in it on THIS build: re-measure its numbers, re-run its repro, re-read its file:line. Carry each one into your final result with its TITLE UNCHANGED WORD FOR WORD (finding ids are frozen by title), refreshed evidence/detail, and the field recheck = "holds" | "changed: <what>" | "no longer reproduces: <evidence>". Do not drop any; one that no longer reproduces stays, marked so. AP-02 was withdrawn (an artefact of the stale tree) — leave it out.
+(b) SWEEP WHAT IT COULD NOT SEE: the Badge Wall (#/achievements and every tab and set page), the Governor's Seat as the Stage (#/governor, #/governor/edit), the Gold Shop and Try on, KOS.art painted slots, and their code (js/core/achievements.js, achcatalogue.js, js/modules/achievements.js, governor-ui.js, artslot.js, css/views/achievements.css, the art in assets/app/img/) — plus anything else added since f4fa493 (git log f4fa493..HEAD --stat).
+(c) Write the feature inventory and coverage matrix as for any area, and add NEW findings for anything not already in the file (append each to ${QA}/findings/${id}.jsonl as you go).
+Your final ${QA}/findings/${id}.json must contain ALL the carried-over findings AND the new ones.`
+
 const SKIP = new Set(args && args.skip || [])
 const ORDER = (args && args.order) || AREAS.map(a => a.id)
 const todo = ORDER.map(id => { const i = AREAS.findIndex(a => a.id === id); return { ...AREAS[i], slot: i + 1 } }).filter(a => a.id && !SKIP.has(a.id))
@@ -104,7 +113,7 @@ for (let b = 0; b < todo.length; b += BATCH) {
   const rs = await parallel(chunk.map(a => () => agent(`${COMMON(a.slot)}
 
 YOUR AREA: ${a.id}
-${a.focus}
+${a.focus}${((args && args.topup) || []).includes(a.id) ? TOPUP(a.id) : ''}
 
 EFFICIENCY (usage is limited, so get maximum coverage per token): first run a DOM measurement script over every page/state of your area at the three device sizes (overflowing or clipped elements, text overlapping, elements not centred in their parent, non-square circles, large empty regions vs content width, tiny icons in big buttons, touch targets < 44px) and only screenshot + Read what the measurements flag or what needs a visual judgement; read code with targeted grep/sed, not whole files; aim to finish within about 150 tool calls; if you run long, save what you have and return with an explicit NOT checked list rather than stopping silently. If ${QA}/findings/${a.id}.jsonl already exists, an earlier auditor of this area was interrupted: read it first, do not repeat those findings, and continue with what it had not covered. The checkout is production code (sw kos-redraw-1: background redraws are held on study/work pages until navigation — KOS.rerender({background}) in js/core/ui.js); judge redraw behaviour against that build. Work through the whole area. SAVE AS YOU GO so nothing is lost if you are interrupted: append each finding, as soon as you have its evidence, as one JSON line (the finding object of the output schema) to ${QA}/findings/${a.id}.jsonl (use Bash: printf '%s\n' '<json>' >> file, or the Write/Edit tools). Screenshots go under ${QA}/shots/${a.id}/; use the default 1x pixel ratio (pass --dpr 2 only when you need to zoom into a detail). Before returning, re-check your P0/P1 findings once (skeptically: is it real, is the root cause right?) and drop any that do not hold. Finally write the whole result object to ${QA}/findings/${a.id}.json and return it.`,
     { label: `audit:${a.id}`, phase: 'Audit', schema: FINDINGS })))

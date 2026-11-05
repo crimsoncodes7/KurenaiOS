@@ -80,6 +80,54 @@
   "areaStatus": "partial"
  },
  {
+  "title": "Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)",
+  "severity": "P1",
+  "category": "bug",
+  "detail": "KOS.ui.confirm adds a document keydown listener that calls close(true) on any Enter when !opts.danger, without looking at the event target. Keydown fires before the focused button's click, so Tab to Cancel (or 'Stay', 'Add a copy') and pressing Enter runs the affirmative action. Reproduced: confirm({title:'Replace?'}) -> focus Cancel -> Enter -> onYes ran. Affected non-danger confirms include Focus 'End early?' (ends and pays the session), 'Turn off closed-app notifications?', 'Disconnect the GitHub App?', 'Reset every permission?', 'Free up space', 'Keep in my cloud', 'Back to the defaults?' (FSRS), the sample/empty account switch, Japanese 'Leave the session?', the vault 'Already in the vault' (Enter on 'Add a copy' opens the existing entry instead) and the service-worker 'Update ready'. Keyboard and switch users on the Mac and iPad keyboard are affected.",
+  "evidence": "eval: {enterOnCancel:'YES'}; js/core/ui.js:291-292 (function onKey(e){ if (e.key==='Enter' && !opts.danger) close(true); } on document); 51 ui.confirm call sites, the non-danger ones listed by grep in js/modules/focus.js, notifications.js, code.js, cardstats.js, governor-ui.js:450, jarun.js, medview.js, pwa.js:53",
+  "fix": "Only treat Enter as yes when the target is not a button/link (e.g. if (e.key==='Enter' && !opts.danger && !(e.target.closest && e.target.closest('button,a,[role=button]'))) close(true)); or drop the document listener and rely on the focused confirm button's native Enter.",
+  "effort": "S",
+  "rootCause": "The affirmative Enter shortcut is bound at document level and ignores which control has focus.",
+  "devices": "MacBook, iPad with keyboard",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-20",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route",
+  "severity": "P1",
+  "category": "a11y",
+  "detail": "The skip link (the first Tab stop on every page) is <a href=\"#main\">. Activating it changes location.hash to '#main'; router.js's hashchange listener parses it, finds no such route and calls home(), so from #/calendar the keyboard user lands on #/home with a new history entry replaced. The one bypass mechanism for keyboard and switch users (WCAG 2.4.1) throws them off the page they were on.",
+  "evidence": "eval mac: {before:'#/calendar', after:'#/home', active:'main'}; index.html:61; js/core/router.js:302-306 (hashchange -> onPop -> parse fails -> home())",
+  "fix": "Give the link a click handler that preventDefault()s and calls document.getElementById('main').focus({preventScroll:false}) (or make router.parse ignore hashes that do not start with '#/').",
+  "effort": "S",
+  "rootCause": "An in-page fragment link in an app that uses the fragment for routing.",
+  "devices": "MacBook, iPad with keyboard",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-21",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its \u25be sheet lists the section's pages instead",
+  "severity": "P1",
+  "category": "bug",
+  "detail": "Money (Overview, Transactions, Budgets, Recurring, Pots, Month and year) and Goals (This week, This month, All, Done) mark their workspace tabs data-phone-tabs. At \u2264700px components.css hides every [data-phone-tabs] because the phone title bar's \u25be is meant to offer them, but mobile-shell's destinations() only falls back to the page's tabs when the section has NO subnav. Productivity has a subnav (Focus, Reminders, Routines, Calendar, Money, Goals), so the \u25be sheet on Money lists Productivity's pages and the Money tabs are offered nowhere. Measured at 402px: all six Money tabs and all four Goals tabs have width 0, the sheet shows Focus Timer\u2026Goals, and Money's Overview has no link to Transactions/Recurring/Pots/Month. Money's 'Add entry', Transactions list, recurring bills and pots can only be reached by typing a URL. Achievements and the Governor (no subnav) work because the fallback applies there.",
+  "evidence": "shots/shell/money-iphonesafari.png, shots/shell/money-sheet-iphonesafari.png, shots/shell/money-overview-iphone.png; eval: #/money tabs visible 0 of 6, subnavItems 6; #/goals visible 0 of 4; css/components.css:654 (#main[data-phone-title] [data-phone-tabs] {display:none}); js/modules/mobile-shell.js:457-468 (destinations: subnav first, page tabs only when no subnav); js/modules/money.js:128, js/modules/goals.js:303",
+  "fix": "When the page carries [data-phone-tabs] and a subnav exists, show both in the sheet (section pages, then the page's own views under a sub-heading) or keep the page's tabs visible as a scroller under the title bar; add a smoke assertion that every [role=tab] in #main is visible or offered by the sheet at 402px.",
+  "effort": "S",
+  "rootCause": "The phone title bar treats 'section strip' and 'page tabs' as alternatives, but Money and Goals have both; the CSS hides the tabs unconditionally.",
+  "devices": "iPhone (and any width \u2264700, incl. iPad Slide Over)",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-22",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
   "title": "Phone search chips file Goals under 'Collection' and Reports/Files under a fake 'Pages' section",
   "severity": "P2",
   "category": "bug",
@@ -192,6 +240,134 @@
   "areaStatus": "partial"
  },
  {
+  "title": "Navigating to the page you are already on pushes a duplicate history entry, so Back appears to do nothing",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "KOS.show() always calls pushEntry() unless it is a _nav redraw; it never compares the new route with lastRendered. Clicking the rail item of the current section, the brand mark on Home, a subject pill for the open subject or a search result for the page in view each add an identical entry. Reproduced: on #/home, rail 'Home' + brand mark raised router depth 7 -> 9 and history.back() stayed on #/home; KOS.show('calendar') twice raised depth 3 -> 5 and history.back() left the user on #/calendar. On the installed app (no browser chrome) this makes Back/Alt+Left look broken.",
+  "evidence": "eval: {d0:2,d1:3,d2:5,h1:'#/calendar'} and {d0:7,d1:9,hash:'#/home'}; js/core/router.js:226-238 (pushEntry when !opts._nav, no route===lastRendered check)",
+  "fix": "In the KOS.show wrapper: if (!opts._nav && route === lastRendered) replaceEntry(route,arg) instead of pushEntry (still render, so a rail click on the current page refreshes/scrolls to top).",
+  "effort": "S",
+  "rootCause": "The router wrapper treats every non-redraw show as a new navigation even when the route is unchanged.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-23",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "The installed app has no Back control at all: the header's \u2039 \u203a were removed and iOS Home Screen apps have no browser Back",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "index.html dropped #nav-back/#nav-fwd in 8fa52cb ('Back and Forward are the browser's own, plus Alt+Left/Right and the OS gestures in an installed app'). The manifest is display: standalone, and an iPad/iPhone Home Screen web app has no toolbar Back and no reliable edge-swipe Back, so the user's primary device (the installed iPad app) can only move by the rail or a page's own breadcrumb. Cross-links have no way home: open a goal, report week, exam or topic from Home, Search, the bell or a Calendar chip and there is no route back to where you were except re-finding it. main.js, ui.js:330 and router.js:212 still look up #nav-back/#nav-fwd (dead code). Help's 'Back / Forward' entry still promises arrows.",
+  "evidence": "shots/shell/standalone-goal-ipad.png (header: brand, search, clock, review chip, bell, avatar; no Back); eval: document.getElementById('nav-back') === null; git show 8fa52cb -- index.html; manifest.webmanifest display:standalone; js/main.js:16-19, js/core/router.js:211-216",
+  "fix": "Show a Back button in the header only when running standalone (matchMedia('(display-mode: standalone)') or navigator.standalone) or at phone width, enabled by KOS.canBack(); keep the browser's own Back elsewhere. Remove the dead lookups otherwise.",
+  "effort": "S",
+  "rootCause": "The header arrows were removed for the browser case without a replacement for the standalone (installed) case.",
+  "devices": "iPad installed app (primary), iPhone installed app",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-24",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "A dialog survives navigation: Back (or a rail/route change) leaves the confirm open over the new page, still bound to the old page's record",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "KOS.show closes an open menu (closeOpenMenu) but not dialogs. Reproduced: on #/calendar open a danger confirm, press browser Back / swipe: the route changes to #/home behind the scrim and the 'Delete event?' dialog stays on top; confirming would delete a record of a page no longer on screen. The same with Alt+Left, a notification click (kos-open from the service worker routes through KOS.show) or the router's popstate. An editor dialog left open over another page saves into a page that is not shown.",
+  "evidence": "eval: {dialogStillOpenAfterBack:true, hash:'#/home'}; js/core/ui.js:1566-1571 (closeOpenMenu only); js/core/router.js:284-300 (onPop renders without consulting the dialog stack)",
+  "fix": "In onPop: if KOS.ui.topDialog() exists, close the top dialog instead of navigating (push the entry back with history.go(1) or pushState) - the mobile pattern 'Back closes the sheet'; in KOS.show for non-_nav navigations close every dialog in dialogStack (calling each overlay.close so editors can ask about unsaved changes).",
+  "effort": "S",
+  "rootCause": "Dialogs are body-level overlays with no link to the route; navigation code only knows about menus.",
+  "devices": "all (iPad/iPhone swipe-back, Mac Back key)",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-25",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Opening the bell puts focus on 'Mark all as read': one Enter/Space after opening clears every unread notice on every device, with no undo",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "The bell popover's first focusable is the '\u2713 Mark all as read' link, and the shared menu focuses the first control on open. Keyboard: Tab to the bell, Enter (open), Enter again = 42 notices marked read (synced), the popover closes, and nothing offers Undo. Reading state drives other surfaces (Home's report card stays 'New' until its notification is read, invariant 102c), so this also silently retires the 'New' report. The page version (#/notifications) has the same unguarded button.",
+  "evidence": "eval mac: bell focusOnOpen 'BUTTON:\u2713 Mark all as read'; js/modules/notifications.js:77-78 (markAllRead(); close()) and :140; KOS.notify.markAllRead has no undo path",
+  "fix": "Focus the first notification row (or the panel heading) on open and put Mark all as read last; after marking, show a toast with Undo that restores the previous read map (the ids are known).",
+  "effort": "S",
+  "rootCause": "Menu default focus = first focusable, and the bulk action is rendered first.",
+  "devices": "MacBook, iPad with keyboard",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-26",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "First run writes four fake 'SAMPLE \u2014 \u2026 (edit me)' events into the real calendar; the mock exam becomes a real assessment that drives Home, alerts and the bell",
+  "severity": "P2",
+  "category": "data",
+  "detail": "On an empty account main.js calls KOS.calendar.seedSamples(), which addEvent()s a SAMPLE mock exam (alerts 7 days and 1 day), a coursework deadline, a study block and a weekly maths lesson. The mock is then migrated into the Exams hub as a real assessment (state.exams.assessments = ['SAMPLE \u2014 Mock exam (edit me)']), so on day one Home's Focus card says 'Revise for SAMPLE \u2014 Mock exam (edit me)', the daily goal reads 'Revise for: SAMPLE\u2026', a toast and a bell notice fire ('\u23f0 SAMPLE \u2014 Mock exam (edit me) \u2014 5 days away'), Upcoming lists both, and with Google Calendar connected they would be pushed two-way to the user's primary calendar. They are ordinary records: nothing marks them as samples or removes them, and the weekly lesson recurs forever. There is also no first-run welcome: the bell's other first notices are 'Afternoon review' and '23 plan topics carried over into this week' (the plan seed), and the Week's plan says '23 behind' on the first open. The app already has a proper separate Sample mode (KOS.dataMode 'sample').",
+  "evidence": "shots/shell/empty-first-iphone.png, shots/shell/empty-home-mac.png; eval on reset account: assess ['SAMPLE \u2014 Mock exam (edit me)'], notify ['Afternoon review','SAMPLE \u2014 Mock exam (edit me)','23 plan topics carried over into this week'], toast text; js/modules/calendar.js:698-712; js/main.js:102",
+  "fix": "Drop seedSamples (the Sample data mode covers demos) or mark seeded rows {sample:true} so the exam migration, alerts, notify, Home ladder and ext sync skip them, with one 'Remove the examples' action. Add a short first-run card on Home (connect cloud, pick subjects, import Collection) instead.",
+  "effort": "S",
+  "rootCause": "A pre-hub demo seed still writes real records, and later domains (Exams migration, notifications, Google sync) treat them as the user's own.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-27",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Toast 'Undo' is unreachable without a pointer: the button is tabindex=-1 inside the aria-hidden #toast, and the spoken message never says Undo exists",
+  "severity": "P2",
+  "category": "a11y",
+  "detail": "KOS.ui.toast(msg, bad, {label:'Undo', run}) appends the action button with tabindex '-1' into #toast, which carries aria-hidden='true'; the live region announces only msg. So keyboard users (Mac, iPad keyboard) cannot reach Undo, VoiceOver users never learn it exists, and there is no global \u2318Z outside the ink engine. The action toasts are the only Undo for: Home's plan tick (hub.js:964), Reminders' plan tick (reminders.js:344), the Daily Review's triage Tomorrow/Done/study block (dayreview.js:534,615,621,622). It also disappears after 8 s regardless of focus/hover (WCAG 2.2.1 timing).",
+  "evidence": "eval: {ariaHidden:'true', tabindex:'-1', hitIsBtn:true}; js/core/ui.js:73-87; 6 call sites with {label:'Undo'}",
+  "fix": "Give action toasts their own non-hidden container (role=status) with a focusable button; announce 'msg. Undo available, press \u2318Z' and bind \u2318Z/Ctrl+Z (outside text fields) to the most recent toast action while it is shown; pause the timer while hovered/focused.",
+  "effort": "S",
+  "rootCause": "The toast was made aria-hidden for the live-region split (Phase F) before toasts gained actions.",
+  "devices": "MacBook, iPad with keyboard, VoiceOver everywhere",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-28",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Search ranks specification hits in syllabus order, not by relevance: 'binary' shows 'Fields, records and files' first and cuts 'Unsigned binary', 'Two's complement' and Code's 'Binary search trees' past the six shown",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "The Specification domain takes KOS.hub.search's first six results without ranking: the hits come in SEARCH_INDEX order (CS 4.1\u2026 then Maths then Code), and search.js's rank() (title-starts-with first) is applied to every other domain but not to spec. For 'binary' 30 leaves match; title matches sit at positions 1,3,4,7,8,12,14,15 so 'Unsigned binary and binary arithmetic' (7), 'Signed binary using two's complement' (8) and all of Code's never appear, while 'Fields, records and files' (body text 'binary file') is first. 'integration' lists 'Partial fractions' above 'Integration as limit of a sum'; 'dijkstra' lists 'Kinds of abstraction' and 'Reverse Polish notation' (flashcard matches). There is no 'show all results' row, so a result past six cannot be reached.",
+  "evidence": "eval: search('binary') title hits at indexes [1,3,4,7,8,12,14,15] of 30; listbox options for 'binary','integration','dijkstra' (printed); js/core/search.js:31 (PER_DOMAIN 6), :42-49 (rank), :60-73 (specDomain: res.slice(0, PER_DOMAIN), no rank); js/modules/hub.js searchSpec (returns specHits in index order)",
+  "fix": "Score spec hits: exact title > title word-start > title contains > spec text > flashcard, then subject order; rank before slicing; add a final 'See all N results' option that opens a results page (or expands the domain).",
+  "effort": "S",
+  "rootCause": "Spec search is a filter, not a ranker, and the cross-domain layer truncates before ranking.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-29",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Tapping a notification often lands on a generic page: Daily Review notices open Routines (not the review), routine-window notices ignore the routine, goal notices open the Goals list, and cold-start pushes drop object args",
+  "severity": "P2",
+  "category": "integration",
+  "detail": "KOS.notify.open(item) does KOS.show(item.view, item.arg). Daily Review items carry {view:'routines', arg:{review:'afternoon'}} and routine windows {arg:{routine:id}}, but KOS.views.routines only reads arg.edit or a tab string, so both open Routines \u203a Today and the review sheet never opens (verified: shots/shell/notify-review-open.png, no review dialog). Goal notices ('Goal reached \u2014 Goal 5') are pushed with {view:'goals', arg:null} and open the list (#/goals) instead of #/goals/<id>. The service worker builds its own cold-start hash ('#/'+view+'/'+arg, objects dropped, sw.js:147) instead of the router's routeFor, so a closed-app push for a review, a topic or a report week opens the section landing. One connected OS should take a notice straight to its record.",
+  "evidence": "shots/shell/notify-review-open.png; eval: notify kinds review:routines:object, goal:goals:null; goal open -> '#/goals'; js/core/notify.js:196-199; js/core/dayreview.js:713; js/core/routines.js:560; js/modules/routines.js:469-473; js/core/goals.js:807; sw.js:147,154",
+  "fix": "Routines view: if arg.review open KOS.reviewSheet for that slot; if arg.routine open the player/editor. Goals notices: link {view:'goals', arg:{id}}. In the push payload send the router hash (KOS.router.routeFor) and let sw.js open it verbatim; for in-app kos-open keep view+arg.",
+  "effort": "S",
+  "rootCause": "Producers set view/arg shapes the target views never learned to read, and the SW re-implements routing.",
+  "devices": "all; closed-app pushes on iPad/iPhone",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-30",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
   "title": "Nothing redraws the open page when the day changes: header clock says Mon 2 Nov, Home still says Sunday 1 November / Good evening",
   "severity": "P3",
   "category": "bug",
@@ -300,6 +476,54 @@
   "needsDesign": false,
   "needsArt": true,
   "id": "SH-19",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "ui.js still keeps a second, dead navigation stack (navHist/navFwd, KOS.back/forward/canBack) that the router overwrites",
+  "severity": "P3",
+  "category": "arch",
+  "detail": "js/core/ui.js:325-336 and :409-420 define navHist/navFwd, KOS.back/forward/canBack/canForward and updateNavBtns, and KOS.show pushes to navHist on every navigation (:1556-1562). router.js then replaces KOS.back/forward/canBack/canForward with the history-based versions. The ui.js stack is still mutated on every show, and updateNavBtns/router.updateArrows both look up #nav-back/#nav-fwd, which no longer exist. The router's own header explains that two stacks that can disagree is how the arrows 'started lying'; keeping the dead one invites a future caller to read it.",
+  "evidence": "js/core/ui.js:325-336, :409-420, :1556-1562; js/core/router.js:248-251; document.getElementById('nav-back') === null",
+  "fix": "Delete navHist/navFwd and the ui.js back/forward functions; keep navCur only for the redraw key.",
+  "effort": "S",
+  "rootCause": "The router was layered over ui.js's original stack without removing it.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-31",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "docs/GUIDE.md (the plain-words guide) stops at 26 Oct: Creatives and Mind are listed as 'still on the way', and Achievements, Connections, the art/shop release and the Stage are absent",
+  "severity": "P3",
+  "category": "docs",
+  "detail": "GUIDE.md was last changed 26 Oct 2026. Since then Mind (29 Oct), Creatives (30 Oct), Google Calendar/Tasks/Todoist (30 Oct), Achievements and the Badge Wall (31 Oct) and the art and shop release (1 Nov) shipped. \u00a75 'What is still on the way' still lists 'A Creatives study space\u2026and Mind' and 'new things for the gold shop \u2014 such as outfits for Kurenai' as future. Counts: Achievement/Badge 0, Connections/Todoist 0, Wardrobe 0, Pencil 0, Creatives 1 (only in \u00a75), FSRS 1; there is no Mind or Creatives tour section (\u00a72 has Code and Japanese only), no Exams & Deadlines hub section (Exams: 3 passing mentions), no Routines/Daily Review section beyond one line. Money (6) and Goals (4) are covered in a paragraph each, so the in-app Help (which has none) and GUIDE.md disagree on what exists.",
+  "evidence": "docs/GUIDE.md headings (lines 45-418), :418-430; git log -1 docs/GUIDE.md = 26 Oct 2026; grep -ci counts",
+  "fix": "Add tour sections for Mind, Creatives, the Exams hub, Routines and the Daily Review, Achievements, the Stage and shop, Connections; move shipped items out of \u00a75. Generate Help's sections and GUIDE.md from one source (or have a smoke test that every rail destination is named in both).",
+  "effort": "M",
+  "rootCause": "Two hand-kept guides with no release checklist item or test.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-32",
+  "area": "shell",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "iPad-portrait overlay rail: Escape does not close it, a tap on the page both closes it and activates what was under the finger, and its open state is persisted",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "At 701-1080px the opened rail floats over the page. Escape leaves it open (s1 'full' -> after Escape 'full'); focus stays on the toggle rather than entering the rail. The only dismissals are a destination or a pointerdown on #stage, and that pointerdown does not cancel the tap, so tapping the page to dismiss also presses whatever control was under the finger (tap-through). ui.railOpenNarrow is saved, so an overlay left open comes back open over the page on the next launch of the installed app.",
+  "evidence": "eval at 820x1180: {s1:'full', focusIn:false, afterEsc:'full'}; js/main.js:71-81 (no Escape handler; stage pointerdown closes without preventing the click); :63-69 (setRail persists railOpenNarrow)",
+  "fix": "Treat the narrow overlay like the spine drawer: add a scrim (or capture the first pointerdown and preventDefault/stopPropagation the following click), close on Escape (unless a dialog is open) and return focus to the toggle; don't persist the narrow overlay state (start closed).",
+  "effort": "S",
+  "rootCause": "The narrow rail reuses the persistent open/closed preference of the docked rail instead of being a transient drawer.",
+  "devices": "iPad portrait, iPad Split View",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "SH-33",
   "area": "shell",
   "areaStatus": "partial"
  },
@@ -5472,7 +5696,7 @@
   "needsArt": false,
   "id": "AP-01",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Cold-path cost after boot: the first render of each heavy view takes 0.5-2.8 s on the dense account (Exams, Code map, Due, Pacing, Calendar), then 20-200 ms",
@@ -5488,7 +5712,7 @@
   "needsArt": false,
   "id": "AP-03",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "The four study spaces each re-implement the same lesson machinery (paged reader with dwell, evidence, syncChecks, award, planDay), and the copies have already drifted",
@@ -5504,7 +5728,7 @@
   "needsArt": false,
   "id": "AP-04",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "README, AGENTS, PROGRESS and HANDOFF each name a different 'current' release and smoke gate; Mind and Creatives are still listed as planned",
@@ -5520,7 +5744,7 @@
   "needsArt": false,
   "id": "AP-05",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "In-app Help & Guide has no entry for Japanese, Mind, Creatives, Money, Goals or the Google/Todoist connections",
@@ -5536,7 +5760,7 @@
   "needsArt": false,
   "id": "AP-06",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "The public repository tracks personal data and one-off clutter at its root (an AniList/MAL export, local Claude settings, spec PDFs, repair scripts, old plans)",
@@ -5552,7 +5776,7 @@
   "needsArt": false,
   "id": "AP-07",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Detached pages leak: global listeners are removed only when their event next fires, so every visited topic/Files/lesson page stays in memory",
@@ -5568,7 +5792,7 @@
   "needsArt": false,
   "id": "AP-08",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "hub.js is a 3,899-line grab bag: Home (~900 lines), the subject page, a 953-line KOS.views.ref topic function, Backup & Restore, the header search listbox and rail counters",
@@ -5584,7 +5808,7 @@
   "needsArt": false,
   "id": "AP-09",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "KOS.rerender() drops keyboard focus to <body> on every redraw, including background ones (cloud pull, habit auto-tick)",
@@ -5600,7 +5824,35 @@
   "needsArt": false,
   "id": "AP-10",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Edit your seat loses its unsaved draft (and its tab) on any background redraw: governor is not a held view",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "#/governor/edit keeps its draft (showcase, background, title, sigil) in a closure inside the view function (js/modules/governor-ui.js:660-686). The kos-redraw-1 stopgap holds background redraws only for TASK_VIEWS (js/core/ui.js:357-358), which does not list governor (nor achievements, money, goals, routines). So a soft background redraw (routines autoSync after a session or on the review ticker, js/core/routines.js:699; the Daily Review closing, js/modules/dayreview.js:92/103/661/709; the Google read-only copy loading, js/core/ext.js:364; own art loading at boot, js/main.js:307) remounts the page at once, and a cloud pull (hard) does so 45 s after the last touch. Repro on slot 20: open Edit your seat, Background tab, pick another background (Save lights up, data-state=lit), call KOS.rerender({background:'soft'}): the tab is back on Showcase, the picked background is gone and Save is no longer lit; nothing was saved. The page has a Discard/Save pair, so the user believes the draft is held until they press one.",
+  "evidence": "eval on slot 20 (seeded): before {tabSel:'Background', mid pressed '1000\u2026', lit:'lit'} \u2192 after soft rerender {afterTab:'Showcase', lit2:null}; shots/architecture-perf/gov-edit-mac.png; js/core/ui.js:357-372 (TASK_VIEWS, holdBackground); js/modules/governor-ui.js:660-686",
+  "fix": "Short term: add governor (the edit arg) and any page with an in-page draft to the held list, or let a view declare itself held (e.g. KOS.views.x.holdsDraft = arg => \u2026) so the list is not a central guess. Proper fix: the view lifecycle in the backlog (a view can veto or persist its draft before a redraw); the Edit seat draft could also live in state.ui like other per-device drafts.",
+  "effort": "S",
+  "rootCause": "The redraw stopgap's hold list is a hand-maintained set of view ids in ui.js; any page added later with transient in-page state is unprotected by default.",
+  "devices": "all",
+  "id": "AP-14",
+  "area": "architecture-perf",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Badge measuring runs synchronously on the main thread: the Governor's Seat measures all 254 badges twice per render, and every topic tick re-measures 44 study badges",
+  "severity": "P2",
+  "category": "perf",
+  "detail": "KOS.achievements.list() builds a fresh context (makeCtx, js/core/achievements.js:239) and runs every badge's measure (measureOne, :296) each time it is called; nothing is memoised across calls or renders. The Governor's Seat status page calls it twice per render (js/modules/governor-ui.js:358 the arc of medals and :527 the area cards) and Edit your seat once more (:732); the Wall calls it on each tab (js/modules/achievements.js:126, 613, 747). Many measures are themselves the expensive derived reads the earlier audit found un-memoised \u2014 KOS.exams.readiness for every upcoming exam (achcatalogue.js:251-256, the 'Ready' badge), Code/Creatives/Mind evidence over every lesson, topic bands over every leaf for the ~30 unit badges (reg.unit, achcatalogue.js ~246). Owner events re-measure by domain (touch, 400 ms debounce), and the 'study' domain holds 44 badges, so every store.setCheck/setStatus (js/core/store.js:452/466 \u2192 onProgress) costs one main-thread long task some 400 ms after the tick. Measured on the dense account (machine shared, load 5-9, so absolute figures are inflated): a single onProgress('cs') produced one 541 ms long task; evaluate(['study']) took 1.3-13.5 s across runs; KOS.achievements.list() 2.4-3.9 s cold, 138 ms warm; KOS.show('governor') 0.7-22 s (3.1 s typical first render), with measureOne, reg.unit, readiness, code/creatives/mind evidence, code.stats and srs.dueCards at the top of its CPU profile.",
+  "evidence": "arch20/prof-governor.txt (CPU profile of KOS.show('governor')); eval on slot 20: {listCallsPerGovernorRender:2, list first 3929 ms / second 138 ms, evalStudy 13555 then 3112 then 1324 ms}, longtask observer after KOS.achievements.onProgress('cs') = [541]; js/core/achievements.js:239-262, 296-341, 446-466; js/modules/governor-ui.js:358, 527, 732",
+  "fix": "Keep the last evaluate's per-badge values (in memory, keyed by a store revision or the ledgerKey already computed at achievements.js:134) and let list() read them instead of re-measuring; measure only when the owning domain's revision moved. Run the domain re-measure in idle slices (requestIdleCallback, a few badges per slice) so a tick never blocks input. The memo layer for readiness/code evidence recommended in the backlog would cut the rest.",
+  "effort": "M",
+  "rootCause": "list() and evaluate() both measure from scratch with a per-call context; measures reuse un-memoised derived reads; all of it runs synchronously.",
+  "devices": "all (worse on iPad/iPhone CPUs)",
+  "id": "AP-15",
+  "area": "architecture-perf",
+  "areaStatus": "partial"
  },
  {
   "title": "~110 lines of dead CSS: the retired Habits page (79 lines of .k-hb-*) and canvas-era lab classes",
@@ -5616,7 +5868,7 @@
   "needsArt": false,
   "id": "AP-11",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "The 112-suite smoke gate takes ~14 CPU-minutes with no runner, no npm script and no CI; two suites are 41% of it",
@@ -5632,7 +5884,7 @@
   "needsArt": false,
   "id": "AP-12",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Date and formatting helpers are re-implemented per file (pad x18, addDays x14, iso/isoOf x16, hm x11, rid x8)",
@@ -5648,7 +5900,21 @@
   "needsArt": false,
   "id": "AP-13",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
+ },
+ {
+  "title": "The smoke gate is not reliable under load: five suites fail when run three at a time and pass alone",
+  "severity": "P3",
+  "category": "arch",
+  "detail": "Running all 113 suites with three in parallel on the shared test machine (load ~10) failed smoke2, smoke4 (vault cards not rendered in jsdom), smoke16 (wishlist cover), smoke17 (applyCosmetics not called after a pull) and smoke45 (toast announcements). Each passed when re-run alone (2-16 s). The failures are timing assumptions (fixed waits in the tests) rather than product bugs, but they make a parallel runner \u2014 the obvious answer to the gate's 20-minute CPU cost \u2014 unusable, and they would read as regressions on a slow CI machine. The gate itself is now 1,227 CPU-seconds (450 s wall with three workers); smoke56 (242 s) and smoke75 (236 s) are 39% of it.",
+  "evidence": "arch20/gate-summary.txt (exit code, ms, suite; sorted by time); scratchpad logs: smoke4 'STEP anime vault renders + lazy fallback\u2026: Error: no cards rendered' tools/smoke4.test.js:390; smoke17 'applyCosmetics was not called after a remote state applied'; smoke16 TypeError tools/smoke16.test.js:550; serial re-runs all exit 0",
+  "fix": "Replace fixed sleeps in those five suites with waits on a condition (poll for the cards, the announcement, the applyCosmetics call); then add a parallel runner (npm test) with a per-suite timeout.",
+  "effort": "M",
+  "rootCause": "Tests wait fixed times for async work (IndexedDB, timers) inside jsdom.",
+  "devices": "n/a",
+  "id": "AP-16",
+  "area": "architecture-perf",
+  "areaStatus": "partial"
  },
  {
   "title": "iPhone: most text fields and selects are under 16px, so iOS Safari zooms the page on every focus",
@@ -5664,7 +5930,7 @@
   "needsArt": false,
   "id": "AX-01",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Undo in toasts cannot be reached by keyboard or screen reader",
@@ -5680,7 +5946,7 @@
   "needsArt": false,
   "id": "AX-02",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Focus chime is silent on iPhone/iPad and has no on/off or volume setting",
@@ -5696,7 +5962,7 @@
   "needsArt": false,
   "id": "AX-03",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Status chips fail AA contrast app-wide (3.5\u20134.3:1 at 11.5px), worst in Atelier Dawn",
@@ -5712,7 +5978,7 @@
   "needsArt": false,
   "id": "AX-04",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Touch-size floor is undone by shared primitives: pill selects 30px, switches 34x20, checkboxes 18x18 on iPad and iPhone",
@@ -5728,7 +5994,7 @@
   "needsArt": false,
   "id": "AX-05",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "iPad portrait rail is seven bare kanji with no label, tooltip or due count",
@@ -5744,7 +6010,7 @@
   "needsArt": false,
   "id": "AX-06",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Backspace on any focused button navigates Back, even inside an open dialog, leaving the dialog over a different page",
@@ -5760,7 +6026,7 @@
   "needsArt": false,
   "id": "AX-07",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "The document title never changes: every page is 'Kurenai OS \u2014 Study Atelier'",
@@ -5776,7 +6042,119 @@
   "needsArt": false,
   "id": "AX-08",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Edit your seat throws away unsaved changes on any navigation, with no prompt",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "On #/governor/edit, picking showcase badges, a background, a title or a sigil marks Save as lit (dirty()), but leaving by the rail, Back, Backspace, the bell or search discards the draft silently. There is no leave guard anywhere in the router (no beforeLeave / canLeave hook), so the only protection is remembering to press Save. CLAUDE.md lists the 'leave-with-changes prompt' as not built; this records the user-visible effect.",
+  "evidence": "js/modules/governor-ui.js:658-680 (draft, dirty(), Discard \u2192 KOS.show('governor')); grep leaveGuard|beforeLeave|canLeave js/core/router.js js/core/ui.js js/main.js \u2192 none; CLAUDE.md 'not built from design turn 35: ... Edit seat's leave-with-changes prompt'",
+  "fix": "Add a small router hook (KOS.router.guard(fn)) that a view can set while dirty; on navigation ask 'Leave without saving? Keep editing / Discard' (Cancel-first, invariant 49), and clear it on Save/Discard.",
+  "effort": "M",
+  "devices": "all",
+  "rootCause": "No navigation-guard primitive exists; the editor keeps its draft in a closure.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-22",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Buy in the Gold Shop spends gold on one tap with no confirm and no undo",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "A ware card's 'Buy' (and the preview sheet's) calls KOS.governor.buy immediately: items up to tens of thousands of gold are spent on a single tap, which on iPad/iPhone sits beside 'Try on' in the same 44px row. There is no confirm and the toast 'Bought X. N left.' has no Undo, so a mis-tap costs days of study gold irreversibly (gold is earned only by study).",
+  "evidence": "js/modules/governor-ui.js:1043-1044 (Buy onclick: buyWare(it)), :893-904 (buyWare: KOS.governor.buy then toast, no action); shots/a11y-hci/t-shop-mac.png",
+  "fix": "Either a short confirm for items over a threshold ('Buy Celestial Duality for \u25c8 9,000? You will have \u25c8 3,476 left.' Cancel first) or an 8-second Undo in the toast that refunds through KOS.governor (one refund path).",
+  "effort": "S",
+  "devices": "iPad, iPhone especially",
+  "rootCause": "buyWare treats a purchase as a plain toggle.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-23",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "The Wall's tabs and set links have no URL: #/achievements/recent, /titles, /showcase and /set/<id> all open Sets",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "CLAUDE.md documents #/achievements[/sets|recent|showcase|titles|set/<id>], and the view parses its arg (achievements.js:110-113), but js/core/router.js has no ENCODE/DECODE entry for 'achievements'. So KOS.show('achievements','titles') writes '#/achievements', a reload or a shared link to #/achievements/titles or #/achievements/set/streaks opens Sets with no dialog, and Back from a set dialog opened by 'View on the Wall' does not return to the tab you were on. Every tab switch is also not a history entry the way the Governor's tabs are.",
+  "evidence": "eval: KOS.show('achievements','titles') \u2192 location.hash '#/achievements'; KOS.show('achievements','set/streaks/x') \u2192 '#/achievements'; location.hash='#/achievements/set/streaks' \u2192 after 20 s no .k-dialog, page data-page='sets'; js/core/router.js:45-50 (ENCODE: governor yes, achievements absent), :122 (DECODE governor), :172-177 (no decoder \u2192 arg undefined); js/modules/achievements.js:110-113,134",
+  "fix": "Add achievements to ENCODE ([tab] or ['set', id, badge]) and DECODE (p.join('/')) like governor, and replace the entry when the set dialog closes.",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "The view was added with an argument but not registered in the router's route table.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-24",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "The Wall, the Seat's showcase and Edit your seat wait 7-12 s on a dense account because every open re-measures all 254 badges",
+  "severity": "P2",
+  "category": "perf",
+  "detail": "KOS.achievements.list() measures every badge afresh on each call (no cache between the boot/30-minute sweep and the pages). On the seeded account (1,880 media rows) one call took 6.9-7.9 s, the Collection set alone 5.1 s; the Wall body shows 'Reading your records\u2026' for 12.5 s after navigation, the Seat's arc stays six empty rings with no label for ~12.9 s and Edit your seat says 'Reading your badges\u2026'. Measured on a loaded machine (load average ~7.3 from parallel audit slots), so absolute times on the M4 will be lower, but the work is the same on every visit and on every phone tab switch.",
+  "evidence": "eval timings: list() 7867/920/7452 ms; per set: collection 5127, exams 1473, mind 1158, study 983, ALL 6954 ms; Wall body ready 12512 ms; Seat note after 12867 ms; js/core/achievements.js:329-341 (list \u2192 measureOne per DEF each call); shots/a11y-hci/t-wall-iphone.png ('Reading your records\u2026'), t-seat-ipad.png (empty arc)",
+  "fix": "Cache the last sweep's views (value, p, tier) keyed by domain and invalidate on touch(domains); list() returns the cache at once and refreshes in the background. Make the Collection measures read counts from the media index instead of scanning rows.",
+  "effort": "M",
+  "devices": "all, worst on iPhone",
+  "rootCause": "list() and evaluate() share measureOne with no memo; Collection badges scan the vault.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-25",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "iPhone: the Seat's empty showcase draws six squashed ovals until (or unless) its note arrives",
+  "severity": "P2",
+  "category": "ui",
+  "detail": "At 402px the arc becomes a nowrap flex row of six 44px slots plus the note div (flex-basis 100%). While the note is empty \u2014 the ~8-12 s before list() answers, and permanently when no badge is earned or near (a new account) \u2014 the note takes the row and the six empty slots shrink to ~26x50 ovals. Only once the note has text does :has(.k-gv-arc-note:not(:empty)) turn on wrapping and the rings become 44x44 circles.",
+  "evidence": "shots/a11y-hci/t-seat-iphone.png (six ovals under the XP bar); eval after the note loaded: slots 44x44, .k-gv-arc display flex height 92; css/views/governor.css:518-523 (flex, no wrap until :has(note:not(:empty)), slot without flex: none)",
+  "fix": "Give .k-gv-arc-slot flex: none and wrap the row always (or keep the note out of the flex row), so empty rings stay circles.",
+  "effort": "S",
+  "devices": "iPhone",
+  "rootCause": "Flex items shrink by default; wrap depends on the async note.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-26",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "A badge set dialog opens over whatever page you moved to, seconds after leaving the Wall",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "KOS.show('achievements', 'set/<id>/<badge>') \u2014 what the unlock overlay's 'View on the Wall' and a ping click do \u2014 renders the Wall and opens the set dialog only when list() answers (8-12 s on a dense account). If you leave in the meantime, the stale callback still runs: its guard `if (!body.isConnected && body.parentNode == null) return;` passes because the detached body still has its root as parent, so the Wall is drawn into a detached node and openSetDialog() appends a modal over the new page (Money in the repro), stealing focus.",
+  "evidence": "eval: KOS.show('achievements','set/focus'); after 1 s KOS.show('money') \u2192 .k-ach-dlg 'Focus' appeared over #/money 8022 ms later; shots/a11y-hci/t-setdlg-over-money-mac.png; js/modules/achievements.js:126-135 (guard and openSetDialog in the async callback), :647 and :715 (callers)",
+  "fix": "Guard on body.isConnected alone (or a render token compared with KOS.current) before drawing and before openSetDialog.",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "Wrong staleness test in the async list() callback.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-27",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Atelier Dawn: title plaques put gold names on pastel washes (~2.3:1) and grey 11px 'LOCKED \u00b7 \u2026' lines (~2:1)",
+  "severity": "P2",
+  "category": "a11y",
+  "detail": "On the Wall's Titles tab in Atelier Dawn, an unlocked plaque's name is --gold oklch(0.505 0.11 85) at 22px italic over the set-hue wash (oklch(0.71 0.08 173) at its ends, 20% ground in the middle over a photo) \u2014 about 2.3:1, not large text. Locked plaques print the name at 70% and 'LOCKED \u00b7 KEPT GOING III' at 60% of --text, 11px mono with 0.08em tracking, over a greyscale photo lightened to the Dawn ground \u2014 about 2:1. The big plaque in the detail column repeats the gold-on-teal name. The scanner cannot see it (the photo is an <img>), so this was computed from the tokens and checked by eye.",
+  "evidence": "shots/a11y-hci/t-titles2-mac.png (Dawn, 1470x832); eval computed styles: on-name oklch(0.505 0.11 85) 22px, off-name oklch(0.235 0.014 55 / 0.7) 20px, lock oklch(0.235 0.014 55 / 0.6) 11px, wash linear-gradient(oklch(0.7075 0.0806 173.5) \u2026 oklch(0.955 0.008 80 / 0.2) 50% \u2026); css/views/achievements.css:177-190",
+  "fix": "In Dawn give plaque text a solid scrim (a ground-coloured band behind the name) or use --text for names with the gold as an underline/rule; raise the lock line to --text-2 at 12px without opacity.",
+  "effort": "S",
+  "devices": "all, Atelier Dawn",
+  "rootCause": "Plaque colours tuned on Graphite's dark ground; Dawn restates neither the wash nor the text.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-28",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
  },
  {
   "title": "No haptic or tactile-equivalent feedback anywhere on iPhone/iPad",
@@ -5792,7 +6170,7 @@
   "needsArt": false,
   "id": "AX-09",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Error toasts show raw exception text ('Save failed: <err.message>')",
@@ -5808,7 +6186,7 @@
   "needsArt": false,
   "id": "AX-10",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Danger and gold buttons in Atelier Dawn fall to ~3:1 contrast",
@@ -5824,7 +6202,7 @@
   "needsArt": false,
   "id": "AX-11",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Some text fields show no usable focus indicator",
@@ -5840,7 +6218,7 @@
   "needsArt": false,
   "id": "AX-12",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Calendar dialogs float their Cancel/Close button in the middle of the footer",
@@ -5856,7 +6234,7 @@
   "needsArt": false,
   "id": "AX-13",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Reduced motion is not honoured by JS smooth scrolling",
@@ -5872,7 +6250,7 @@
   "needsArt": false,
   "id": "AX-14",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "iPhone Assignments shows its title twice (phone title bar plus the page's own header)",
@@ -5888,7 +6266,7 @@
   "needsArt": false,
   "id": "AX-15",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Inconsistent button wording: two plus glyphs, an empty state naming a button that does not exist",
@@ -5904,7 +6282,7 @@
   "needsArt": false,
   "id": "AX-16",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Tab strips declare role=tablist/tab but ignore arrow keys and have no tabpanel",
@@ -5920,7 +6298,7 @@
   "needsArt": false,
   "id": "AX-17",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "iPad Calendar: every day cell carries an invisible '+' (New event) that a tap can hit",
@@ -5936,7 +6314,7 @@
   "needsArt": false,
   "id": "AX-18",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Goals opens on a blank page (no loading state) until the async compute returns",
@@ -5952,7 +6330,7 @@
   "needsArt": false,
   "id": "AX-19",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Help & Guide describes screens that no longer exist, and its last section has no mark",
@@ -5968,7 +6346,7 @@
   "needsArt": false,
   "id": "AX-20",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
  },
  {
   "title": "Calendar's leading/trailing days fade their events to ~2.3-2.9:1 while they stay clickable",
@@ -5984,6 +6362,102 @@
   "needsArt": false,
   "id": "AX-21",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "partial"
+ },
+ {
+  "title": "The Wall says 'Owned 8 / 254' while its Earned filter and the showcase picker list 21 earned badges",
+  "severity": "P3",
+  "category": "content",
+  "detail": "Seeded account: the Wall's toolbar and the Seat's glass card print 'Owned 8 / 254' (counts() counts a badge only once its LAST tier is earned), but the Wall's 'Earned' filter shows every badge with tier > 0 (21) and Edit your seat's Showcase tab says 'Earned \u00b7 21, newest first'. Three surfaces use two meanings of earned/owned for the same badges with no explanation, so a user who has 21 medals lit sees '8'.",
+  "evidence": "eval: KOS.achievements.counts() = {owned: 8, badges: 254, tiers: 44}; list() badges with tier>0 = 21; js/core/achievements.js:343-351 (owned only when e.tier >= d.tiers.length); js/modules/achievements.js:148 (filter earned = v.tier > 0), :176 ('Owned'); js/modules/governor-ui.js:384; shots/a11y-hci/t-wall-mac.png, t-edit-mac.png",
+  "fix": "Pick one word per meaning: 'Earned 21 \u00b7 8 complete' (or 'Badges earned 21 / 254 \u00b7 tiers 44 / 417') on the Wall and the Seat, and keep 'Earned' for tier > 0 everywhere.",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "counts().owned means 'fully earned' but is labelled with the same word the filter uses for 'any tier'.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-29",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Shop actions (Try on, Use, Take off, Buy) drop keyboard focus to the page and announce nothing for Try on",
+  "severity": "P3",
+  "category": "a11y",
+  "detail": "Each ware action calls render(), which empties the panel and rebuilds every card, so the pressed button is destroyed and focus falls to MAIN/BODY; a keyboard or Switch Control user must tab from the top again after every Try on. Try on also announces nothing (the theme changes silently), while Buy does announce.",
+  "evidence": "eval on #/governor/shop: focus 'Try on Winter', click \u2192 document.activeElement BODY (mac) / MAIN (ipad); scroll position kept (card foot 598 \u2192 590 px); js/modules/governor-ui.js:1041 (Try on \u2192 tryItem + render()), :212-218 (render empties panel), :1052-1056 (Use / Take off \u2192 render())",
+  "fix": "After render(), refocus the same control by data-ui + item id (or update the card in place), and announce 'Trying on X \u2014 leave the shop to stop' through KOS.a11y.announce.",
+  "effort": "S",
+  "devices": "all (keyboard, VoiceOver)",
+  "rootCause": "Whole-panel re-render as the update path.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-30",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Badge dialog lays a four-tier badge out 3 + 1, leaving the fourth medal alone on a second row",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "In the 760px set dialog a badge with four tiers (Focus \u00b7 In the zone: 10/100/500/1,000 sessions) shows three medals in a row and the fourth centred alone underneath, with empty space either side, although four 120px medals fit in one row of the 640px stage.",
+  "evidence": "shots/a11y-hci/t-setdlg-over-money-mac.png (IV \u00b7 1,000 sessions alone on row two); js/modules/achievements.js:547 (tiers list, data-n); css/views/achievements.css .k-ach-dlg-tiers",
+  "fix": "Lay tiers by count: 4 in one row (or 2x2), 5 as 3+2 centred; drive the column count from data-n.",
+  "effort": "S",
+  "devices": "Mac, iPad",
+  "rootCause": "A fixed 3-column grid for every tier count.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-31",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Search cannot find a badge, a title, the Gold Shop or any page by name",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "KOS.search.run covers spec, notes, reminders, assignments, calendar, planner, goals, cards, media, reports and files only. Typing 'Bookworm' (an earned title), 'Gold Shop' or a badge name returns nothing; 'badge' and 'Wall' return unrelated specification hits. In a one-OS app with ~60 pages and a Wall of 254 badges, the header search is the natural way to reach 'the shop' or 'Pen and ink'.",
+  "evidence": "eval KOS.search.run: 'Bookworm' \u2192 [], 'Gold Shop' \u2192 [], 'badge' \u2192 [spec F206.3.2], 'Wall' \u2192 [spec 4.9.3.2]; js/core/search.js:65-288 (domain list), grep achiev|badge js/core/search.js \u2192 0",
+  "fix": "Add a Pages domain (view titles, tabs and settings pages from the route table) and an Achievements domain (badge and title names \u2192 #/achievements/set/<id>/<badge>, once the router encodes it).",
+  "effort": "M",
+  "devices": "all",
+  "rootCause": "Search domains were added per data store; navigation and the newer domains were never registered.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-32",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "The Seat's 'First day' reads the state document's creation date, not your first record",
+  "severity": "P3",
+  "category": "data",
+  "detail": "The Wall glass on the Seat prints 'Days journeyed 138 days' (from the ledger rollup) beside 'First day 5 Nov 2026' (today) on the seeded account, because First day is +store.state.created. Any account whose history predates its state document (sessions imported, a device restored without `created`, the review namespace) shows a first day after 138 days of journey.",
+  "evidence": "shots/a11y-hci/t-seat-mac.png, t-seat-ipad.png; js/modules/governor-ui.js:378 (since = +store.state.created), :390-391",
+  "fix": "First day = min(state.created, the ledger's first entry, the rollup's first month).",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "Two sources for one fact.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-33",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
+ },
+ {
+  "title": "Help & Guide says nothing about the Wall, titles, Try on or 'Your own picture', and still says gold buys only unlocks and cosmetics",
+  "severity": "P3",
+  "category": "docs",
+  "detail": "help.js has no entry for Achievements/the Badge Wall, titles, the showcase, Edit your seat, Try on or the picture drawer; its Gold entry says gold is spent 'on permanent lab/sim unlocks and cosmetics', which no longer covers the 'Your own picture' upload unlocks (invariant 2 since 5.14). The Seat's own header still calls it 'Your identity, current access state\u2026' although HP gates nothing.",
+  "evidence": "grep -c 'Badge|achiev' js/modules/help.js \u2192 0; js/modules/help.js:61 (Gold), :127 ('Open Gold Shop'); js/modules/governor-ui.js:50 ('current access state'); shots/a11y-hci/t-seat-mac.png",
+  "fix": "Add Help entries for the Wall (sets, tiers, titles, showcase), the Seat and Edit your seat, Try on, and the picture drawer; reword Gold and the Seat sub-line ('\u2026your state, study rhythm and what you have earned').",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "Help is hand-written and was not part of the release checklist for 5.13-5.17.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "AX-34",
+  "area": "a11y-hci",
+  "areaStatus": "partial"
  }
 ]

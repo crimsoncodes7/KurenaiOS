@@ -40,9 +40,13 @@ AREAS = [
 # every area ran on 56b1a8c (= production, sw kos-artshop-1) EXCEPT these,
 # which ran after the audit branch was mistakenly based on a stale local main
 BUILD_NOTE = {
-    "architecture-perf": "f4fa493 (sw kos-creatives-1), 23 commits before production: no Achievements, no art/shop release. Structural findings (boot cost, hub.js, duplication, listeners, docs drift) almost certainly still hold; re-check sizes, counts and dead-CSS lists on main before acting.",
-    "a11y-hci": "f4fa493 (sw kos-creatives-1), 23 commits before production: the Badge Wall, the Seat as Stage and the art/shop pages were not swept. The shared root causes (16px input zoom, touch floor, chip contrast, keyboard) live in shared CSS/JS that the art release barely touched; re-check on main and sweep the missing pages.",
+    "architecture-perf": "f4fa493 (sw kos-creatives-1), 23 commits before production: no Achievements, no art/shop release. Structural findings (boot cost, hub.js, duplication, listeners, docs drift) almost certainly still hold; re-check sizes, counts and dead-CSS lists on main before acting. TOP-UP ON MAIN (5 Nov, kos-redraw-1) INTERRUPTED at the usage limit: its new findings (Badge Wall, Seat, shop) are added, but the re-check verdicts of the findings above were not recorded — re-run the top-up.",
+    "a11y-hci": "f4fa493 (sw kos-creatives-1), 23 commits before production: the Badge Wall, the Seat as Stage and the art/shop pages were not swept. The shared root causes (16px input zoom, touch floor, chip contrast, keyboard) live in shared CSS/JS that the art release barely touched; re-check on main and sweep the missing pages. TOP-UP ON MAIN (5 Nov, kos-redraw-1) INTERRUPTED at the usage limit: its new findings (Badge Wall, Seat, shop) are added, but the re-check verdicts of the findings above were not recorded — re-run the top-up.",
 }
+# a top-up (re-check on main) that was stopped before writing its final file:
+# the old final stands, the new incremental saves are added unflagged, and the
+# area reads "partial" until a top-up finishes
+TOPUP_PARTIAL = {"architecture-perf", "a11y-hci"}
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
 
 
@@ -87,7 +91,12 @@ def load_area(area):
         if os.path.exists(part):
             for f in read_jsonl(part):
                 if norm(f.get("title", "")) not in have:
-                    f = dict(f); f["notInFinal"] = True; fs.append(f); have.add(norm(f.get("title", "")))
+                    f = dict(f)
+                    if area not in TOPUP_PARTIAL:
+                        f["notInFinal"] = True
+                    fs.append(f); have.add(norm(f.get("title", "")))
+        if area in TOPUP_PARTIAL:
+            return "partial", o.get("summary", ""), o.get("coverage", ""), fs, o.get("qol", []), o.get("backlog", [])
         return "complete", o.get("summary", ""), o.get("coverage", ""), fs, o.get("qol", []), o.get("backlog", [])
     if os.path.exists(part):
         fs, seen = [], set()
@@ -182,7 +191,7 @@ def main():
             if f["area"] != area:
                 continue
             md.append("### %s · %s · %s — %s\n" % (f["id"], f.get("severity", "?"), f.get("category", "?"), f.get("title", "")))
-            for k, lab in (("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
+            for k, lab in (("recheck", "Re-checked on kos-redraw-1"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
                 if f.get(k):
                     md.append("- **%s:** %s" % (lab, str(f[k]).replace("\n", " ")))
             extra = []
@@ -206,7 +215,7 @@ def main():
     json.dump(rows, open(os.path.join(BASE, "findings.json"), "w"), indent=1)
     with open(os.path.join(BASE, "findings.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        cols = ["id", "area", "areaStatus", "notInFinal", "severity", "category", "title", "devices", "effort", "needsDesign", "needsArt", "evidence", "rootCause", "fix", "detail"]
+        cols = ["id", "area", "areaStatus", "notInFinal", "recheck", "severity", "category", "title", "devices", "effort", "needsDesign", "needsArt", "evidence", "rootCause", "fix", "detail"]
         w.writerow(cols)
         for f in rows:
             w.writerow([f.get(c, "") for c in cols])
