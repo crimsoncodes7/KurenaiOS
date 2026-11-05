@@ -1553,6 +1553,31 @@ art is in the app.
 > art arrives: batches 26 (26 panoramas, IMPORTED 30 October) and 27 (101 badges), waves 24–32 in
 > `art-source/app/manifest.json`, prompts written.
 
+### 5.18 The portfolio capstone: a visual novel ◆ (asked for 5 November 2026) — PROPOSED, not scheduled
+
+**What:** a playable visual novel of 30–60 minutes that you make with what
+Code, Creatives, Japanese and Mind teach — the engine and its mechanics,
+the story, art, title and trailer, a character who speaks Japanese at your
+level, and ideas that change decisions and endings. A personal portfolio
+piece, not a commercial release. Plan:
+[vn-capstone-plan.md](vn-capstone-plan.md) — the engine options (decision
+A open; recommended: a tested .NET story library with a Unity front end,
+or Avalonia to start sooner), mechanics, three premises, every component
+mapped to real units (mandatory vs recommended), readiness meters,
+milestones, evidence, and the mappings no unit covers yet.
+
+**How it fits:** nothing is locked (invariants 2, 106, 154): each component
+reads Ready or "Not yet — missing: …" from the spaces' own `unitState`, and
+can be started anyway. It reuses the Code capstone record, the Rider
+validator, Creatives' works and Portfolio, and Mind's and Japanese's
+checkpoints. No new scheduler or evidence store.
+
+**Waits for:** the quality programme; then, to start in earnest, T5 (or
+Avalonia via T2, released), Mind F2, Art A7–A8 and A11–A12, Editing
+E1–E5 and Japanese F3–F4. Milestones 1–6 (concept, story plan, characters,
+prototype, core systems, script) can begin on today's releases. Its page
+needs a Claude Design prompt when it is scheduled.
+
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
 > **RELEASED 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`,
