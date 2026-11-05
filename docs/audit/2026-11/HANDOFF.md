@@ -19,7 +19,7 @@ from their first account, unless the audit and plan are finished sooner).
 1. Read §1 (what the user asked for), §3 (where things stand), §6 (root causes).
 2. **First check the checkout is production code:** `git fetch && git status`
    — the branch must contain `origin/main` (`grep VERSION sw.js` →
-   `kos-artshop-1` or later). See §2.2: two areas were audited on a stale tree.
+   `kos-redraw-1` or later). See §2.2: two areas were audited on a stale tree.
 3. Finish the audit EXHAUSTIVELY (§5.2b: a feature inventory + behaviour checks
    for every area, not just its pages): run the areas in §4 marked **not run** /
    **partial**, then the inventory pass over the rest, with
@@ -140,6 +140,8 @@ of separate apps: everything interlinked, coherent).
 | Google Calendar one-off edits not shown (2 Nov) | **Confirmed**: they arrive within a cycle but no page redraws after a pull (LA-26) | LA-26, UR-1 |
 | Focus session lost after closing the audit's tab (1 Nov) | **Explained**: two tabs, last-writer-wins (DI-04) | UR-4, LA-29, DI-04 |
 | The user's other reports of 2 Nov (ink clip duplicates, Side by side empty scroll, avatar HP ring half-shown, Kurenai off-centre/cut off, ovals, Pacing shift, device continuity, QoL for ink) | **Recorded, not verified** | `findings/user-reports-2026-11-02.md` (UR-1…19) |
+| Goals: "Complete 3 titles" this week Met at once at 666/3, paid a badge (UR-20) | **Verified with fixtures** (every Collection type but spend-below reads the whole vault) | GO-02 |
+| RAG: one 0% quiz reads "Data says Green" (UR-22) | **Verified**, also completes "Move topics to Green" goals | GO-23 |
 | QoL: Agenda everywhere; anime "where I'm watching" hyperlinks; routines inside routines | Agenda PR-06; hyperlinks CL-11; routines-in-routines model sketched (productivity QoL list, `findings/productivity.json`) | — |
 
 ### 1.6 Answers the user gave (decisions already made)
@@ -196,8 +198,12 @@ of separate apps: everything interlinked, coherent).
   on a task page appear only after navigating (no "Updated · Refresh" chip
   yet); the flashcard batch is still logged only at its end (ST-04/SY-03).
   W2 (the proper redraw policy) replaces this — re-check all of SY then.
-  Note: this audit branch is based on `56b1a8c`; rebase it onto main before
-  further audit runs so the harness serves the stopgap build.
+- **5 Nov 2026 (second account):** the audit branch was rebased onto
+  `4c3fc33` and force-pushed. A plain rebase replays both sides of the
+  `d5ae5c0` merge (which superseded the stale first history and kept only its
+  first side's tree), so the 15 first-parent commits were cherry-picked onto
+  `origin/main`; the resulting tree equals the old branch plus the stopgap's
+  8 files exactly. Every run from batch 1 (5 Nov) on is on `kos-redraw-1`.
 
 ### 2.2 Which build each area was audited on (important)
 - Every area **except AP and AX**, and the live-account checks, ran on
@@ -241,8 +247,9 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts:** 325 findings (+ 29 live-account notes): **P0 1 · P1 71 · P2 152 ·
-P3 101**. Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
+**Counts (5 Nov, after batch 1):** 405 findings (+ 29 live-account notes, 23
+user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
+before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
 
 **What "complete" means:** the auditor finished, wrote coverage notes and
@@ -263,7 +270,9 @@ before acting (see §7).
 | CM | Maths content | complete | 13 | Every fact's correctness (spot reads only) |
 | CC | CS + IT content | complete | 13 | Flashcard/Quiz UI (ST's), shop themes, every CS fact, IT F200/F202 (completed units) — per-leaf worklist in `data/content-cs-it/worklist.txt` (162 leaves) |
 | CO | Code space | **partial** | 16 | Interrupted. Track pages, capstones, Rider project pages, kata likely thin |
-| JM | Japanese + Mind | **partial (barely started)** | 5 | Almost everything: Japanese session/kana/skills/checkpoints/settings/audio; all of Mind |
+| JM | Japanese (split from Mind on 5 Nov) | **complete, inventoried** (5 Nov, `kos-redraw-1`; `findings/ja-mind.inventory.md`) | 39 (P0 JM-06; P1 JM-07…09) | See the auditor's coverage matrix in FINDINGS.md. JM-02/JM-04 are the earlier Mind findings, kept |
+| MI | Mind | **complete, inventoried** (5 Nov; `findings/mind.inventory.md`) | 19 (P1 MI-01, MI-02) | Tensions (none authored, `TENSIONS=[]`); the 59/60% explain-back boundary (every concept has 4 key points, so only 50/75% are constructible); Ask Kurenai's live reply (no AI route in the harness) |
+| GO | Goals (every type's measurement) | **complete, inventoried** (5 Nov; `findings/goals.inventory.md`) | 27 (P1 GO-02 = UR-20, GO-06, GO-07, GO-23 = UR-22, GO-25) | Paper-score and finish-unit types and plan-ticked read in code only (no tracker/plan fixture); see the matrix in FINDINGS.md |
 | CR | Creatives | complete (on main, after the stale-build attempt was discarded, §2.2) | 24 | Kurenai's critique request/reply (needs a live AI route), a sprint in Focus end to end, Momentum drawing with a real pen, reference kinds other than Forms, the iPhone Safari 760px viewport, VoiceOver/keyboard beyond names and target sizes |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 22 | Idle watch end to end, Stopwatch/Custom/Study-until running, Morning "pick three", Templates detail, routine step ⋯ menu, habit editor with real habits, Reminders edit inspector / sub-tasks / recurrence editor, Calendar event modal, Pacing edit dialogs, Dawn + shop theme, iPad standalone |
 | MG | Money + Goals | complete | 22 | iPad landscape, import dialog on iPhone/iPad, goal editor type forms + exam goals, Wishlist purchase handoff, kos_money cloud sync, PDF statements (no code path) |
@@ -303,8 +312,17 @@ The auditor prompts (areas, focus text, common rules, output schema) are in
 `$QA/findings/<area>.jsonl` as it goes, continues an existing `.jsonl` without
 repeating it, and writes `<area>.json` when finished. Then copy new files into
 `docs/audit/2026-11/findings/` and run `consolidate.py`.
-**Before running, edit the `QA` constant** at the top of the script to your QA
-folder (it still points at the first account's session scratchpad).
+**Before running, check the `QA` constant** at the top of the script points at
+your QA folder (it is `audit-evidence/2026-11/qa` in this repo since 5 Nov).
+Since 5 Nov: `ja-mind` is Japanese only and `mind` (prefix MI) is its own
+area; inserting it moved every later area's slot up by one (a slot is just
+its ports and profile). Auditors may number their own titles (`GO-02 …`):
+`consolidate.py` keeps such an id when it is new to the area (so the
+auditor's cross-references stay right) and strips it from the title before
+matching the incremental saves; `UR-`/`LA-` prefixes are never stripped.
+The per-auditor budget is ~150 tool calls, with an explicit NOT checked list
+if it runs long. Batch 1 (3 auditors) used ~1.05 M subagent tokens, 403
+tool calls and 30 min.
 
 ### 5.2b Exhaustiveness — the user's requirement for EVERY area
 The user reviewed the results and found Goals' audit far too thin: its
@@ -339,8 +357,8 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 **Before any run, confirm the tree is production code** (§2.2).
 
 ### 5.4 Recommended order for the remaining work
-1. **goals** (new area: every goal type's measurement) and **JM** Japanese +
-   Mind (barely started: 5 findings).
+1. ~~**goals** (new area: every goal type's measurement) and **JM** Japanese +
+   Mind (barely started: 5 findings).~~ **Done 5 Nov (batch 1).**
 1b. Then the **inventory pass (§5.2b) over every other area**, including the
    "complete" ones — behaviour, not just pages.
 2. Re-check **AP** and **AX** on main and sweep what they could not see
@@ -447,6 +465,30 @@ These explain many symptoms each. The plan should fix the cause once.
     tab strips lack arrow keys; toast Undo unreachable by keyboard. Audio:
     only the Focus chime exists, silent on iOS, no setting; no haptics; the
     document title never changes.
+18. **Pay and activity are logged only on an explicit "end" (batch 1).** A
+    Japanese session (JM-08), a kana set switched mid-way, and an unfinished
+    flashcard batch (ST-04/SY-03) reschedule each answer at once but write
+    the ONE ledger entry only when the user reaches the end or confirms ✕;
+    navigating away, Back, an iPad edge swipe or closing the app loses the
+    XP, the streak day and everything that reads the ledger (goals,
+    auto-tracked habits, badges, Reports). → One "session in progress"
+    contract: log on teardown (`view.dispose`, §6.15) and on `pagehide`.
+19. **Evidence that changes off the page never reaches the progress record
+    (batch 1).** Japanese's "Held in reviews" (JM-07) and Mind's checkpoint
+    lesson (MI-01) are derived live for the inspector but `syncChecks` runs
+    only on page/line/finish events, so status, spine counts and mastery lag
+    or never complete; Japanese and Mind also have no Goals types, Reports
+    facts, Today/Home entries or Assistant tools (islands, cf. §6.16/W7).
+    → Sync checks after every scheduler write and once at boot; register
+    every study space with the joins.
+20. **Automatic judgements are too lenient (batch 1, cf. UR-22).** RAG
+    (GO-23), Mind's ladder (Apply after the answer is revealed, Explain from
+    one one-character bullet, a checkpoint that pays with nothing right),
+    Japanese's facet grading ("held a week" read from one Easy, `accepted`
+    upgraded to `correct`, an all-wrong learn session pays) and Collection
+    goals (GO-02) all reward thin or contrary evidence. → A shared rule:
+    every automatic judgement names its minimum evidence and is tested with
+    thin and contradictory fixtures.
 
 ## 7. Verification status — be honest about it
 - Every finding was saved with evidence by its auditor (screenshots,

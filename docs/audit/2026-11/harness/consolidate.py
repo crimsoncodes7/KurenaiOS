@@ -24,7 +24,8 @@ AREAS = [
     ("content-maths", "CM", "A-Level Maths content quality"),
     ("content-cs-it", "CC", "A-Level CS and OCR IT content quality"),
     ("code-space", "CO", "Code study space"),
-    ("ja-mind", "JM", "Japanese and Mind study spaces"),
+    ("ja-mind", "JM", "Japanese study space (JM-01…05 predate the split and include two Mind findings)"),
+    ("mind", "MI", "Mind study space"),
     ("creatives", "CR", "Creatives study space"),
     ("productivity", "PR", "Focus, Reminders, Routines, Daily Review, Calendar, Pacing"),
     ("money-goals", "MG", "Money (Santander import); Goals pages only"),
@@ -45,7 +46,16 @@ BUILD_NOTE = {
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
 
 
+SELF_ID = re.compile(r"^(?!UR-|LA-)([A-Z]{2})-(\d{2,3})\s+")
+
+
+def strip_id(t):
+    # an auditor may number its own titles ("GO-02 UR-20 verified: …")
+    return SELF_ID.sub("", t or "")
+
+
 def norm(t):
+    t = strip_id(t)
     return re.sub(r"[^a-z0-9]+", " ", t.lower()).strip()[:80]
 
 
@@ -112,11 +122,26 @@ def main():
         fs = sorted(fs, key=lambda f: SEV.get(f.get("severity"), 9))
         used = [int(v.split("-")[1]) for (a, t), v in prev.items() if a == area]
         nxt = max(used) + 1 if used else 1
+        taken = set(v for (a, t), v in prev.items() if a == area)
+        # an auditor's own id (title prefix) is kept when it is new to this area,
+        # so its cross-references in summaries and details stay right
+        for f in fs:
+            m = SELF_ID.match(f.get("title", ""))
+            if m and m.group(1) == pre and not prev.get((area, norm(f["title"]))):
+                own = "%s-%s" % (pre, m.group(2))
+                if own not in taken:
+                    taken.add(own); f["_own"] = own
+        nxt = max([nxt] + [int(v.split("-")[1]) + 1 for v in taken])
         for f in fs:
             f = dict(f)
-            fid = prev.get((area, norm(f.get("title", ""))))
+            fid = prev.get((area, norm(f.get("title", "")))) or f.pop("_own", None)
+            f.pop("_own", None)
             if not fid:
+                while "%s-%02d" % (pre, nxt) in taken:
+                    nxt += 1
                 fid = "%s-%02d" % (pre, nxt); nxt += 1
+                taken.add(fid)
+            f["title"] = strip_id(f.get("title", ""))
             f["id"] = fid
             f["area"] = area
             f["areaStatus"] = st

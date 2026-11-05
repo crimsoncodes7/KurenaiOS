@@ -16,18 +16,19 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | CM | A-Level Maths content quality | complete | 0 | 2 | 6 | 5 | 13 |
 | CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 4 | 5 | 13 |
 | CO | Code study space | partial | 0 | 4 | 7 | 5 | 16 |
-| JM | Japanese and Mind study spaces | partial | 0 | 0 | 3 | 2 | 5 |
+| JM | Japanese study space (JM-01…05 predate the split and include two Mind findings) | complete | 1 | 3 | 21 | 14 | 39 |
+| MI | Mind study space | complete | 0 | 2 | 9 | 8 | 19 |
 | CR | Creatives study space | complete | 0 | 2 | 18 | 4 | 24 |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 0 | 4 | 9 | 9 | 22 |
 | MG | Money (Santander import); Goals pages only | complete | 1 | 9 | 10 | 2 | 22 |
-| GO | Goals: every goal type's measurement, editor, notices, joins | not run | 0 | 0 | 0 | 0 | 0 |
+| GO | Goals: every goal type's measurement, editor, notices, joins | complete | 0 | 5 | 11 | 11 | 27 |
 | EX | Exams hub, Files, ink/Pencil surfaces | partial | 0 | 3 | 9 | 15 | 27 |
 | CL | Collection vaults, Shrine, Wishlist, Sync | partial | 0 | 1 | 9 | 5 | 15 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | partial | 0 | 2 | 5 | 3 | 10 |
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 8 | 3 | 12 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 7 | 13 | 21 |
-| | **All** | | 1 | 71 | 152 | 101 | 325 |
+| | **All** | | 2 | 81 | 190 | 132 | 405 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -78,6 +79,12 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **CO-02** [P1] iPhone desk: Daily 20 and Continue squeezed side by side; the Open-lesson button's label spills out of its pill
 - **CO-03** [P1] Desk side column: a real Daily 20 task crushes the Continue card to 41px and clips its 'CONTINUE' label (Mac, iPad landscape)
 - **CO-04** [P1] Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException
+- **JM-06** [P0] Choosing 'Media' in the Japanese spine locks the device out of every Japanese lesson: each lesson page throws 'codeSpine.stageHead is not a function' and bounces to Home, and the switch back is on the page that no longer opens
+- **JM-07** [P1] 'Held in reviews' (4th lesson check) is never written to the progress record by reviews, so the inspector shows 3/4 · 75% while the stored status, spine and unit counts stay behind
+- **JM-08** [P1] Leaving a Japanese session by navigation (rail, tab bar, Back, iPad edge swipe, reload) logs nothing: answers are rescheduled but the session's XP and the day's study activity are lost
+- **JM-09** [P1] iPhone: on a Japanese lesson the topic tab strip collapses to 5 px — Notes, Practice, Reviews and Files are invisible and the Practice session cannot be reached from the lesson
+- **MI-01** [P1] The F1 checkpoint lesson (F1.8) can never reach Completed: its fourth check reads retrieval over the lesson's concepts, and a checkpoint lesson has none
+- **MI-02** [P1] Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px — the Start button, the plan and the lesson title are cut off
 - **CR-01** [P1] Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)
 - **CR-02** [P1] On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides
 - **PR-01** [P1] Afternoon review: 'Place in a free block' menu opens BEHIND the review dialog, so it does nothing
@@ -94,6 +101,11 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **MG-08** [P1] Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded
 - **MG-09** [P1] iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable
 - **MG-10** [P1] Import preview hides the payee and amount, and the Import button is below the fold
+- **GO-02** [P1] UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge
+- **GO-06** [P1] 'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field
+- **GO-07** [P1] 'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked
+- **GO-23** [P1] UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once
+- **GO-25** [P1] Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked
 - **EX-01** [P1] Marks by question: a question added with '＋ Question' can't be given its Max or its topic
 - **EX-02** [P1] Exam Room on iPhone: the 'Before you go in' checklist is drawn on top of the rapid-recall list
 - **EX-03** [P1] On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen
@@ -1589,25 +1601,133 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## JM — Japanese and Mind study spaces (partial)
+## JM — Japanese study space (JM-01…05 predate the split and include two Mind findings) (complete)
 
-_Interrupted auditor: coverage notes were not written. Treat everything not listed below as unaudited._
+**Auditor's summary.** The Japanese space renders cleanly at all three device sizes and its audio pack is complete (759 baked lines, 0 missing files, 0 synthetic lines in 314 voiced lesson lines), but several core behaviours fail under exercise. One P0: choosing 'Media' in the lesson spine saves a mode whose spine object lacks stageHead, so every Japanese lesson throws in hub.js renderTree and bounces to Home, and the switch back lives on the page that no longer opens. Three P1s: the 4th lesson check ('Held in reviews') is never written to the progress record because syncChecks runs only on page/line/finish events; leaving a session or kana set by navigation reschedules the answers but never logs the ledger entry (XP, streak activity, habit auto-track lost); and on iPhone the lesson tab strip collapses to 5 px. The scheduler is markedly more lenient than invariant 113 says: the sibling tie-break buries every Reading facet so new words are asked by ear first, siblings reappear the same day, one fast answer unlocks Writing (stability ≥ 7 read as 'held a week'), retries can grade Easy, stroke 'accepted' is upgraded to correct, Writing reviews and checkpoints show the model to copy, and an all-wrong learn session still pays and ticks 'Passed the practice'. The space is also an island: no Goals type, no Reports facts, no Assistant tools, nothing in KOS.today, and several pages promise features that do not exist yet (Input, Speech, reader, three badges).
+
+**Coverage.** Continued from an interrupted earlier auditor (5 findings kept; their two Mind-only findings are left in ja-mind.jsonl for the Mind area and excluded here). Reused its DOM measurement sweep of every #/japanese route and lesson pages at mac/ipad/ipadl/iphone on empty and seeded accounts (jm-*.json), then exercised behaviour by fixtures in slot 10 (empty account + targeted facet/lesson/checkpoint fixtures): learn and review sessions through the real UI (read-meaning, kana-read, kana-write incl. Type instead, minimal-pair, meaning-word, finish screen) at mac/ipad/iphone; KOS.ja.record grading (wrong, hint, fast, slow), unlock/hold, sibling queue, leeches, finishSession/finishLesson/recordCheckpoint pay and caps, timeline with thin evidence, syncChecks vs evidence, navigation-away ledger, kana drill mode switch, furigana modes, VN scene keyboard/English, manga balloons, audio pack completeness, stroke validator tolerance (straight/shifted/scaled references), spine Core/Media and Learn/Reference, checkpoints page after pass+fail, Badge overlay; joins by code (goals registry, report.js, aitools, today.js, routines auto-track, achievements catalogue). Screenshots: Graphite at all sizes, Atelier Dawn desk, celestial-duality shop theme on Skill map. NOT checked: real pen/touch stroke input on the pad (synthetic pointer capture fails in headless Chrome), build and translate exercises through the UI (validators read only), stage gate pay (no gate:true checkpoint in data), cloud WHOLE-merge of facets, Home's Japanese listing beyond code. Full matrix:
+
+# Japanese study space — feature inventory and check matrix (audit 2026-11, slot 10)
+
+Sizes: mac 1470x832, ipad 820x1180, ipadl 1180x820, iphone 402x874. "F#" = finding title keyword in ja-mind.jsonl.
+Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/iphone, empty + seeded (jm-*.json) and mac screenshots (e-*/s-*).
+
+## Routes / pages
+| Item | Presentation | Behaviour | Result |
+|---|---|---|---|
+| #/subject/ja desk (hero, Today, Continue, Rework, analytics, core path, media path, input) | mac (dark, Dawn), iphone empty, ipad (sweep) | Today plan, Start routing, figures vs evidence | F: hero heights differ; Today Input/Output blocks; Input card dead; stage labels ellipsised (prior); checkpoint ovals; Rework inert |
+| #/japanese/path (media path) | mac with thin fixture | timeline() thin evidence | F: absurd projection ranges, kana 'Calibrating', 'Next stone' dead space |
+| #/japanese/skills | mac | Rework, radar calibrating, fluency | F: Rework inert/leech; fluency rows mono text (P3, noted in leech finding context) |
+| #/japanese/kana | iphone | drill, mode switch, chart | F: chart overflow hidden; mode switch loses results |
+| #/japanese/reviews | sweep only (prior) | due count, start | OK (sweep); not re-shot |
+| #/japanese/checkpoints, /cp-<id> | mac, iphone run | recordCheckpoint pass/pay/retake, question selection | F: passed + 10% contradiction; layout; duplicated listening; model shown |
+| #/japanese/settings | sweep (prior), code | furigana all/unknown/none (verified by eval), daily minutes (planDay), speech switch | furigana OK; speech switch no effect (F dead promises); slider touch (prior) |
+| #/japanese/licences | prior mac shot | content | F: JMdict/KANJIDIC2/Tatoeba 'arrives with Stage 1' |
+| #/japanese/session/reviews | mac, ipad, iphone end | every step, verdict, grade, Next, Finish, leave | F: navigation loses ledger; correct option not marked; family codes; empty card space |
+| #/japanese/session/learn-<id> | mac | order of facets, meet card, finish pay, practise again | F: listening-first; all-wrong pays; Practise again dead end |
+| #/ref/ja/<lesson> topic page (Stage 0 H1–K8, Stage 1 1.1–2.6) | mac, ipad, ipadl, iphone | page dwell, checks, inspector, tabs | F: held check never synced (P1); iPhone tabs 5 px (P1); Media spine lockout (P0); Reference inspector; Practice copy; '0 of 1 sessions' (prior) |
+| Spine Core / Media | mac | switching | F: P0 lockout |
+| Learn / Reference | mac | switching | F: inspector replaced |
+
+## Exercise kinds (js/modules/jarun.js)
+| Kind | Checked | Result |
+|---|---|---|
+| kana-read | UI (ipad), typed romaji | OK; Easy on first fast answer (F unlock/hold) |
+| kana-write (stroke pad, stroke order, undo, clear, type instead) | UI ipad; validator by eval (straight/shift/scale) | F: model shown; accepted→correct + lenient tolerance; Type instead passes W. Real pen input NOT checked (synthetic pointer events cannot take pointer capture in headless Chrome) |
+| minimal-pair | UI ipad | F: styling glued 'ケキ2 beats' |
+| meet (new item card) | code + session | OK |
+| word-meaning, meaning-word, kanji-reading | meaning-word UI (typed 'pen' → correct) | OK |
+| listen-pick, read-meaning, listen-meaning, particle-pick | read-meaning UI mac | F: correct option not marked |
+| build (order-graph) | code read | not exercised in UI (time); validator code read: no 'near' path, OK |
+| translate (dictation) | code read | not exercised in UI |
+| fallback 'not available yet' | code | unreachable for current data (eval: no null exercise in any checkpoint unit) |
+
+## Scheduler / invariants
+| Rule | Fixture | Result |
+|---|---|---|
+| 113 grade derived (verdict/hints/time) | record() wrong/slow, correct/fast, hint (type instead) | wrong→Again, hint→Hard, fast correct→Easy; retry after near can be Easy (F) |
+| 113 R/L first, W/S only once R holds a week | one fast R answer on a production word/pattern | F: W unlocked immediately (s 8.3 ≥ 7) |
+| 113 sibling rule | startLesson 1.1; review L then due() | F: R buried by alphabetical tie-break; sibling due same day after first review |
+| 113 leech at 8 lapses | lapses 8 vs 5 | leech excluded from queue (OK); no way back (F) |
+| 114 four verdicts | stroke/particle/order/reading code + eval | OK in validators; runner upgrades accepted (F) |
+| 116 pay once: review +1/passed, cap 30/day | 4-answer session +4 XP; cap logic code | OK; ledger written only on explicit end (F P1) |
+| 116 lesson first finish 15/2/+3 | all-wrong learn session | F: pays and ticks 'Passed' |
+| 116 checkpoint 80% every skill, once | 0.8/0.79/1 fail; 0.8/0.8/0.83 pass paid; retake no pay | OK; scores overwritten (F) |
+| 116 stage gate | code read (gate flag absent in data) | NOT exercised: no checkpoint carries gate:true in current data |
+| 117 timeline calibrating <2 weeks then range | 1 word met 10 d ago + kana 20 d ago | F: decades-wide ranges |
+| 118 stroke data attribution | licences page | OK |
+| 107-style checks → progress record | reviews holding all items | F P1: never synced |
+
+## Audio pack / art
+| Item | Check | Result |
+|---|---|---|
+| KOS_JA_AUDIO files exist | node over 759 entries | OK, 0 missing |
+| voiced lines without audio (synthetic) | 314 lines across all lessons | OK, 0 synthetic |
+| VN scene (advance by click/Enter/Space, English, From the start) | eval ipad | works; F: role=button with nested buttons |
+| manga panel balloons live text | DOM | OK (SVG + live bubbles) |
+| furigana modes | eval | OK |
+
+## Joins
+| Join | Check | Result |
+|---|---|---|
+| Goals | registry grep | F: no Japanese goal type |
+| Reports | report.js grep | F: no f.ja |
+| Assistant | aitools grep | F: no ja tools |
+| Today / reviews (KOS.today) | grep | F: no Japanese |
+| Routines auto-track ('A Japanese review session') | code | works off ledger, so affected by the navigation-loss P1 |
+| Achievements | catalogue + live unlock overlay | F: unearnable badges, no touch on reviews, overlay wording |
+| Home desk listing (started()) | code hub.js:1561 | OK by code; not screenshot |
+
+## NOT checked
+- Real Apple Pencil / touch stroke input on the pad (headless synthetic pointer capture fails).
+- build and translate exercises through the UI (validators read only).
+- Shop theme spot-check for Japanese pages (time); Dawn checked on the desk.
+- Cloud merge of facets (WHOLE merge) — not exercised.
+
+
+### JM-06 · P0 · bug — Choosing 'Media' in the Japanese spine locks the device out of every Japanese lesson: each lesson page throws 'codeSpine.stageHead is not a function' and bounces to Home, and the switch back is on the page that no longer opens
+
+- **Devices:** all
+- **Detail / repro:** The Japanese spine has a Core | Media segment (state.ui.japanese.spine, per device, saved). In Media mode KOS.jaTopic.spine() returns { tracks: true } with no stageHead. hub.js renderTree then calls codeSpine.stageHead(sec.stage) for the first section (it only checks that codeSpine is truthy), which throws; KOS.views.ref aborts, the router shows the toast 'A page could not be opened.' and replaces the route with #/home. Because the choice is saved, every later attempt to open ANY Japanese lesson — the desk's Continue, the path squares, the Practice links, search, Back — fails the same way, and the only control that resets the mode is the Core button inside that spine. The learner is locked out of Japanese lessons on that device until storage is edited.
+- **Evidence:** Repro (slot 10): open #/ref/ja/1.1, press 'Media' in the spine → console 'EXC TypeError: codeSpine.stageHead is not a function at hub.js:495'; then #/ref/ja/1.2, #/ref/ja/H1, #/ref/ja/2.1 all end on #/home with the toast; KOS.store.state.ui.japanese.spine === 'media'. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-spine-media2-mac.png (Home with 'A page could not be opened.'). Code: js/modules/jatopic.js:36-40 (media branch returns {tracks:true} only); js/modules/hub.js:491-495 (stageHead called whenever codeSpine is truthy).
+- **Root cause:** Spine contract (stageHead) not honoured by the Media branch; caller does not guard
+- **Proposed fix:** In jatopic.spine's media branch return a stageHead too (or have hub skip stage heads when codeSpine.tracks / when stageHead is missing: `if (codeSpine && codeSpine.stageHead && …)`), and render no sections under the Media note. Add a smoke test that opens a ja lesson with ui.japanese.spine = 'media'. Until the media release, consider hiding the Media segment.
+- **Flags:** effort S
+
+### JM-07 · P1 · data — 'Held in reviews' (4th lesson check) is never written to the progress record by reviews, so the inspector shows 3/4 · 75% while the stored status, spine and unit counts stay behind
+
+- **Devices:** all
+- **Detail / repro:** KOS.ja.syncChecks is called only from markPage, markHeard and finishLesson (js/core/ja.js:106,112,241) — never from record()/finishSession() or at boot. The 4th check (every item's R/L facet reps ≥ 2 and s ≥ 7) can only become true later, through review sessions, so it is never synced unless the learner happens to open an unread page or play an unheard line of that lesson afterwards. The inspector computes evidence live and shows the check ticked and '3 of 4 checks 75%', while the shared progress record (which drives the status select 'Started', the spine's 'F1 0 / 6', 'Kana to native media 0 / 28 completed', the subject's mastery in Home/Reports/Goals and the auto Completed status) keeps check[3] = false. A lesson can therefore never reach Completed through reviews.
+- **Evidence:** eval: after reading all 8 pages of 1.1, finishLesson, and holding every item's R facet (reps 3, s 30): KOS.ja.evidence('1.1').checks = [true,false,true,true] but KOS.store.peekProgress('ja','1.1').check = [true,false,true,false] (also after rendering the topic page). Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-1.1-heldmismatch-mac.png: inspector ticks 'Held in reviews 14 of 14 items held' and '3 of 4 checks 75%' beside status 'Started', spine 'F1 First conversations 0 / 6'.
+- **Root cause:** Evidence that changes through the scheduler has no write path into the progress record
+- **Proposed fix:** After KOS.ja.record()/finishSession(), call syncChecks for every lesson whose items were reviewed (map item → lesson), and run a one-pass syncChecks over all started lessons at boot (as Code's syncChecks is run), so the stored checks always equal evidence().
+- **Flags:** effort S
+
+### JM-08 · P1 · bug — Leaving a Japanese session by navigation (rail, tab bar, Back, iPad edge swipe, reload) logs nothing: answers are rescheduled but the session's XP and the day's study activity are lost
+
+- **Devices:** all (most likely on iPad/iPhone via the back swipe and tab bar)
+- **Detail / repro:** Each answer is written to the facet at once (KOS.ja.record), but the ONE ledger entry (finishSession → KOS.sessions.log) is written only by end(): reaching the last card or confirming the ✕ dialog. Any other exit — the rail, the phone tab bar, browser Back, the iPad's back swipe, closing the Home Screen app — discards results[]. The facets move (the work is 'done' and will not be asked again today) but no XP is paid, the session never counts toward the study streak or the day's activity, and Reports/Goals/Badges that read the ledger never see it. The ✕ dialog's promise ('What you have answered is kept and scheduled') is only half kept elsewhere.
+- **Evidence:** eval slot 10: two kana R facets due; open #/japanese/session/reviews, answer さ correctly (facet reps 0 → 1), KOS.show('home') → new ledger entries 0, governor XP +0. js/modules/jarun.js:400-406 (leave only on ✕), :431-447 end(); no hashchange/pagehide/KOS.show hook in run().
+- **Root cause:** Ledger write tied to an explicit end event; navigation tears the view down silently
+- **Proposed fix:** Log the session on teardown: register a one-shot on the next KOS.show / router leave and on pagehide (as Focus banks on page hide, invariant 4c) that calls end(true) when results.length && !done; or log incrementally (one entry per session id, updated) so nothing depends on the exit path.
+- **Flags:** effort S
+
+### JM-09 · P1 · ui — iPhone: on a Japanese lesson the topic tab strip collapses to 5 px — Notes, Practice, Reviews and Files are invisible and the Practice session cannot be reached from the lesson
+
+- **Devices:** iphone
+- **Detail / repro:** At 402 px a Japanese (also Code and Mind) lesson's tab row holds the tabs scroller, Working, Edit AND the Learn/Reference segment in one flex line. The non-scroller children are flex:none, so the scroller (flex 1 1 auto, min-inline-size 0) is left 5.5 px: the four tabs are laid out at x 16–293 but clipped to nothing, the 'Earlier material' and 'More material' arrows overlap at x 16 and x −10.5 (half off-screen, the '›' circle visible at the left edge). The lesson's Practice tab — the only place with '▶ Start the practice' besides the desk — is not reachable. The shared-topic version of this (tabs squeezed to ~181 px by Working/Edit) is reported in study-core; on the study spaces with a Learn/Reference segment it degenerates to zero.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-1.2-scene-iphone.png (no tab row; arrow at the left edge under the header). eval (iphone): #/ref/ja/1.2, #/ref/code/1.1, #/ref/mind/F1.1 → tabs scroller width 5 px inside .k-topic-tabrow 370 px; arrows {Earlier material x 16 w 32}, {More material x −10.5 w 32}. css/views/study.css:208-218; js/modules/jatopic.js:85-90 (Learn/Reference segment added to the row).
+- **Root cause:** Too many flex:none siblings beside a shrinkable scroller in one row
+- **Proposed fix:** Under 700 px let .k-topic-tabrow wrap: tabs scroller on its own full-width line (flex-basis 100%), Working/Edit/Learn·Reference on a second line or in the ⋯ menu; give the scroller a min-inline-size (e.g. 50%).
+- **Flags:** effort S
 
 ### JM-01 · P2 · ui — Japanese stage path labels truncate ('Intermedi...', 'Upper int...', 'Advanced' on iPad) on the desk hero and the Checkpoints page
 
 - **Devices:** mac, ipad portrait
 - **Detail / repro:** The six stage headers of the stage path (Kana, Foundations, Bridge, Intermediate, Upper intermediate, Advanced) get equal narrow slots after the stones; the later stages' names are ellipsised. Mac desk: 'Intermediate' and 'Upper intermediate' 69px wide, ellipsised; iPad portrait: 'Intermediate', 'Upper intermediate' and 'Advanced' 52px; Checkpoints page mac: 'Upper interme...'. Only a hover title (absent on the touch devices) reveals the full name. A future stage holds 2 grid columns (one dashed stop), while a built stage's columns are its units + checkpoints (js/core/jaui.js:169-176), so each future stage label gets ~2/n of the width.
-- **Evidence:** audit-evidence/2026-11/qa/shots/ja-mind/e-ja-desk-mac.png (hero bottom row), audit-evidence/2026-11/qa/shots/ja-mind/e-ja-checkpoints-mac.png; DOM measure: ELLIP b 'Intermediate' 828,396 69x19, 'Upper intermediate' 933,396 69x19 (mac); 559,612 52x19 / 642,612 / 724,612 (ipad)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/ja-mind/e-ja-desk-mac.png (hero bottom row), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/ja-mind/e-ja-checkpoints-mac.png; DOM measure: ELLIP b 'Intermediate' 828,396 69x19, 'Upper intermediate' 933,396 69x19 (mac); 559,612 52x19 / 642,612 / 724,612 (ipad)
 - **Root cause:** Stage label column width derived from the number of stones in the stage; empty future stages get the minimum slot
 - **Proposed fix:** Give the not-yet-built stages (which have no stones) a label-width minimum or let labels wrap to two lines; alternatively collapse the three future stages into one 'Later: Bridge → Advanced' group. jaui stage path in js/core/jaui.js.
-- **Flags:** effort S
-
-### JM-02 · P2 · ux — Mind lesson inspector has no status selector, confidence (RAG) or progress bar, unlike every other study space
-
-- **Detail / repro:** On a Code, Japanese or Creatives lesson the inspector carries the shared status row (Not started · Started · Paused · Completed select), the R/A/G confidence picker and a percent bar (invariant 107: the status 'may still be set by hand, as in a subject'). A Mind lesson's inspector shows only 'STATUS 0 of 4 checks' and the four read-only checks: no way to mark a lesson Paused or set confidence, and no percentage, although the desk and spine count Mind lessons by that same shared status.
-- **Evidence:** js/modules/mindtopic.js:361-386 ctx.status builds only the head and checkgrid; compare js/modules/jatopic.js:295-318, js/modules/crtopic.js:220-243, js/modules/codetopic.js:160-210 (status select + KOS.rag.picker). Screenshots audit-evidence/2026-11/qa/shots/ja-mind/e-mind-F1.1-mac.png vs audit-evidence/2026-11/qa/shots/ja-mind/e-ja-1.1-mac.png
-- **Root cause:** Each study space's topic module re-implements the inspector status block; Mind's copy omitted the row
-- **Proposed fix:** Reuse the same status/RAG block (ideally hoist it into one shared helper used by all four topic modules, since it is copy-pasted three times) and add it to ctx.status in mindtopic.js.
 - **Flags:** effort S
 
 ### JM-03 · P2 · a11y — Touch targets under 44px in Japanese and Mind: stage-path checkpoints 21px wide, Journal kind chips 32px tall, Daily-minutes slider 16px tall
@@ -1619,19 +1739,475 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Proposed fix:** Under (pointer: coarse) give .k-mind-kindpick min-block-size var(--hit-coarse); give .k-ja-cp an invisible-free hit area of 44px wide (pad the node, not a pseudo overlap — invariant 69) or make the circle 28px with 8px spacing within a 44px column; give .k-range a 44px tall track box on coarse pointers.
 - **Flags:** effort S
 
-### JM-04 · P3 · data — Mind path: Decisions and strategy units are numbered Y3.1/Y3.2/Y3.3 while every other unit is <path>.U<n>
+### JM-10 · P2 · bug — Japanese learn session asks Listening first and buries every Reading facet (sibling tie-break sorts 'L' before 'R')
 
-- **Detail / repro:** On #/mind/path every psychology/philosophy unit reads Y1.U1, Y2.U3, P1.U2..., but Y3's three units read Y3.1, Y3.2, Y3.3 — the same shape as a LESSON ref (F1.1). Once Y3 is released its lessons would be Y3.1.1 next to Y1.U1.1, and the bare 'Y3.1' looks like a lesson of a unit Y3 in search, chips and the spine.
-- **Evidence:** js/data/mind.js:33 u("Y3.1",...), u("Y3.2",...), u("Y3.3",...) vs :31-32,34-36 '.U<n>'; docs/mind-plan.md:113-119 uses the same Y3.1 naming; screenshot audit-evidence/2026-11/qa/shots/ja-mind/e-mind-path-mac.png
-- **Proposed fix:** Rename to Y3.U1–Y3.U3 in js/data/mind.js (nothing released references them yet) and the plan.
+- **Devices:** all
+- **Detail / repro:** Start lesson 1.1 on an empty account: KOS.ja.due() returns j:本|R and then only the |L facet of every word and pattern (w:これ|L, g:ka|L, …); every |R facet is buried as a sibling. jarun.run then sorts 'Reading before Listening', but the R facets were already removed, so a brand-new word is met and immediately asked by ear (listen-pick: hear it, pick the meaning) with no reading check at all on day one. The code's stated intent (jarun.js:369 'the lesson's own facets, Reading first') is not what happens.
+- **Evidence:** eval slot 10 after KOS.ja.startLesson('1.1'): due = [j:本|R, g:ka|L, g:kosoa|L, g:wa-desu|L, w:あれ|L, w:かさ|L, w:これ|L, …] (no word |R). Root: js/core/jasrs.js:105-107 sort tie-break (a.k < b.k) puts '|L' before '|R' when over and recall are equal (new facets: 0, 0), then :110-111 keeps only the first facet of each item.
+- **Root cause:** Alphabetical key tie-break in the sibling-burying queue
+- **Proposed fix:** In queue(), break ties by skill order (R, L, W, S, H) before the key string, or in jarun.run for a learn session take the lesson's facets from KOS.ja.peek().facets directly rather than the sibling-buried due() list.
 - **Flags:** effort S
+
+### JM-11 · P2 · bug — Sibling rule broken within a day: once one facet of an item is answered, its buried sibling becomes due the same day
+
+- **Devices:** all
+- **Detail / repro:** Invariant 113: 'Two facets of one item never share a day unless both are over two days overdue.' queue() only buries a sibling among facets that are due at the same moment; it keeps no memory of what was reviewed today. After answering w:これ|L (due moves to +10 days), w:これ|R is the item's only due facet, so the next session the same day (or 'Reviews' from the desk straight after the lesson) asks it.
+- **Evidence:** eval: KOS.ja.record('w:これ|L', {verdict:'correct',ms:2000}) then KOS.ja.due().indexOf('w:これ|R') >= 0 → true (same day 2026-11-05). js/core/jasrs.js:101-114 filters only by f.due <= today; no check of a sibling's f.last === today.
+- **Root cause:** Burying is computed over the current due set only, with no 'reviewed today' memory
+- **Proposed fix:** In queue(), skip a facet whose sibling has last === today (unless both are >2 days overdue), or push the buried sibling's due to tomorrow when its sibling is reviewed in record().
+- **Flags:** effort S
+
+### JM-12 · P2 · bug — One fast correct answer unlocks the Writing facet at once: 'R holds a week' is read as first-review stability ≥ 7 days, which a single Easy gives (s 8.3)
+
+- **Devices:** all
+- **Detail / repro:** Invariant 113: 'W (and S for a word) only once R holds a week.' facetsFor() treats held as r.reps && r.s >= HOLD (7). A first-ever answer inside the 4 s target grades Easy (gradeOf), and FSRS-6's initial Easy stability is 8.2956 days, so the very first correct reading of a production word or pattern unlocks W the same minute. The same single answer schedules the word 10 days out. Thin evidence (one multiple-choice tap or one typed answer) is treated as a held item.
+- **Evidence:** eval after startLesson('1.1'): KOS.ja.record('w:これ|R',{verdict:'correct',hints:0,ms:2000}).unlocked = ['w:これ|W']; KOS.ja.record('g:ka|R',{…ms:3000}).unlocked = ['g:ka|W']; facet after one answer {s: 8.2956, ivl: 10}. js/core/jasrs.js:62 held = r.reps && r.s >= HOLD; js/core/jasrs.js:45 a correct answer within target → 4 (Easy) regardless of tries; js/core/ja.js:35 TARGET R 4000 ms.
+- **Root cause:** Stability used as a proxy for elapsed holding time
+- **Proposed fix:** Define 'holds a week' as evidence over time: reps >= 2 and a successful review at least 7 days after firstAt (or last - firstAt >= 7 with the last grade >= Good). Also cap a first-ever answer at Good, so a brand-new item is not pushed 10 days out by one tap.
+- **Flags:** effort S
+
+### JM-13 · P2 · bug — 'Passed the practice' ticks and the lesson pays 15 XP · 2 gold · +3 HP even when every answer in the learn session is wrong
+
+- **Devices:** all
+- **Detail / repro:** A learn session that reaches the end calls KOS.ja.finishLesson whenever results.length > 0 (jarun.js end()), with no pass condition. finishLesson sets doneAt (which IS the 'Passed the practice' check, evidence() checks[2] = !!rec.doneAt) and pays LESSON_PAY on the first finish. Contradictory evidence test: 17 answers all wrong, slow (9 s) → fs {passed: 0, paid: 0} but fl {paid: true, pay {xp 15, gold 2, hp 3}}, the check reads 'Passed the practice · passed', the unit counts the lesson as done (unitState F1 done 1/6) and nextLesson() moves on. The inspector label promises a pass that never happened.
+- **Evidence:** eval slot 10: startLesson('1.2'), record every due lesson facet {verdict:'wrong', ms:9000}, finishSession, finishLesson → {paid:true, pay:{xp:15,gold:2,hp:3}}, evidence('1.2').checks = [false,false,true,false], governor xp 0 → 15. Code: js/modules/jarun.js:435 'if (lessonId && !early && results.length) paidLesson = KOS.ja.finishLesson(lessonId)'; js/core/ja.js:234-245 (no pass test); js/core/ja.js:136 checks[2] = !!rec.doneAt.
+- **Root cause:** Lesson completion is 'reached the end of the session', not 'passed'
+- **Proposed fix:** Require a pass to finish: e.g. at least 60–70% of the lesson's graded answers Hard or better (or each item answered right at least once, re-asking the misses at the end of the session as Code/flashcards do). Otherwise end with 'Not passed yet — try the misses again', no pay, no doneAt. Rename the check if it only means 'finished the practice'.
+- **Flags:** effort S
+
+### JM-14 · P2 · ux — A Japanese leech (8 lapses) leaves the schedule for good: Rework rows are inert text with no way to relearn or put the facet back, and a leech looks the same as a 5-lapse item
+
+- **Devices:** all
+- **Detail / repro:** jasrs.queue drops every facet with lapses ≥ 8 (invariant 113 'sets a facet aside'). Nothing ever un-sets it: there is no unleech in KOS.ja/jaSrs, and the Rework card (desk and Skill map) renders each row as a plain div — no button, link or 'Back in the schedule' — even though its footnote promises 'Rework teaches the item again from its own lesson'. Flashcards' equivalent (invariant 111b) offers the topic's notes and 'Back in the schedule'. The rows also do not say which items are set aside: ねこ at 8× (out of the queue) and ペン at 5× (still due) look identical.
+- **Evidence:** eval: w:ねこ|L lapses 8 → KOS.ja.due() excludes it, w:ペン|L lapses 5 → included; KOS.ja.rework() lists both. DOM: [data-ui~='ja.rework-row'] → DIV with 0 buttons/links. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-skills-rework-mac.png. Code: js/modules/japanese.js:238-247 (rows), :498 (the promise); js/core/jasrs.js:96,102 (leech filter); no unleech anywhere (grep).
+- **Root cause:** Rework was drawn as a report, the relearn path was never built
+- **Proposed fix:** Make each Rework row a button that opens the item's lesson at its Quick reference (or a mini learn session for that item), mark set-aside facets ('Set aside · 8 lapses'), and add KOS.ja.unleech(key) (lapses back to a base, as KOS.srs.unleech's leechBase) behind 'Back in the schedule'.
+- **Flags:** effort M
+
+### JM-15 · P2 · ux — Three promises the Japanese space cannot keep: 'Input this week' never fills (addInput has no caller), the Speaking switch changes nothing, and Licences say JMdict/KANJIDIC2/Tatoeba 'arrive with Stage 1' though Stage 1 shipped without them
+
+- **Devices:** all
+- **Detail / repro:** (1) The desk's 'Input this week' card says 'Watching and reading in Japanese counts here, through Focus', but KOS.ja.addInput is defined and exported and called nowhere (no Focus path, no reader), so the card is permanently empty. (2) Settings › Speech is a working switch with an opt-in dialog about sending audio to Google, but KOS.ja.opts() hard-codes speech:false (js/core/ja.js:87-89 'false until the Speech release') and no S exercise exists, so turning it on has no effect beyond un-dimming the S column on the desk. (3) Licences & credits list JMdict, KANJIDIC2 and Tatoeba with 'Arrives with Stage 1' — Stage 1 units F1 and F2 are released and use authored items, none from those sources.
+- **Evidence:** grep: 'addInput(' only at js/core/ja.js:291 (definition) and the export; js/modules/japanese.js:283-285 (empty-state promise), :656-657 (switch), :665 'row("Speech", …)', :674-676 (licence rows). js/core/ja.js:87-89 speech:false. No JMdict/Tatoeba reference in js/data/ja*.js or js/data/content/ja-*.js.
+- **Root cause:** Pages drawn for the full plan before their features shipped
+- **Proposed fix:** Hide the Input card (or wire a 'Japanese immersion' Focus choice that calls addInput) until it can be filled; hide or disable the Speech switch with 'arrives with the Speech release'; reword the licence rows to 'Arrives with the reader/dictionary' or drop them until used.
+- **Flags:** effort S
+
+### JM-16 · P2 · ux — Kana Writing reviews show the answer: the model glyph sits beside the pad on every review, so 'Write it' is a copying exercise graded as recall
+
+- **Devices:** all
+- **Detail / repro:** In a review session, a kana Writing facet (k:あ|W, reps > 0) draws the pad AND the model card ('あ · a · 3 strokes · copy the model') unconditionally. The learner can trace the visible model and the stroke check grades it like recall (correct inside 12 s → Easy, a 2–4× longer interval). Only the stroke animation is gated on the first attempt (jarun.js:168). Writing from memory is the whole point of the W facet once it has been met.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-sessk2-ipad.png (Reviews 2/4, Writing · A · write it, model あ shown beside the pad). js/modules/jarun.js:142-146 builds the model, :167 appends it always; :148 'first' only controls the animation.
+- **Root cause:** The learn-time layout is reused for reviews
+- **Proposed fix:** Show the model only on the first meeting (reps 0) and as a 'Show the model' hint that counts as a hint (grade Hard) afterwards; prompt with the romaji reading only ('Write: a').
+- **Flags:** effort S
+
+### JM-17 · P2 · bug — Grades are more lenient than the rules say: a retry after 'near' can still grade Easy, and a stroke check 'accepted' (a stroke 'a little off', even ね drawn as two straight lines) is upgraded to 'correct'
+
+- **Devices:** all
+- **Detail / repro:** (1) gradeOf gives Easy for any 'correct' within the target time (jasrs.js:45-46); the comment and plan say 'a first try inside the target', but jarun.finish only passes hints and ms — tries is never sent — so a near-miss followed by Retry and a quick correct answer is Easy. (2) jarun's kana-write maps the stroke validator's 'accepted' to 'correct' (jarun.js:150), dropping both the note and the Good cap that 'accepted' carries everywhere else (gradeOf: accepted → Good). The stroke tolerance is wide: a ね made of two straight lines from each reference stroke's start to its end returns 'accepted'; every reference shifted 11/109 units returns 'accepted' (あ, ぬ, め, ね, さ); a shape at 60% size returns 'correct'. With the mapping each of these can grade Easy.
+- **Evidence:** eval slot 10: KOS.jaStroke.check('ね', straight lines start→end of each KanjiVG stroke).verdict = 'accepted'; shift +11 → 'accepted' for あぬめねさ ('near' for き); scaled 0.6 → 'correct' (あぬめね). Code: js/modules/jarun.js:104-106 (finish passes hints, ms only), :150 ('accepted' → 'correct'); js/core/jasrs.js:40-47; js/core/jastroke.js:66 OK=13 / OFF=24 in a 109 box.
+- **Root cause:** Result object lacks tries; verdict upgrade in the runner
+- **Proposed fix:** Pass tries into the result and grade Easy only when tries === 1; keep the stroke verdict 'accepted' (Good, show its note); consider tightening OFF for long curved strokes (e.g. compare curvature/turning angle, not only mean point distance).
+- **Flags:** effort S
+
+### JM-18 · P2 · ux — '▶ Practise again' on a finished lesson opens an empty session ('Nothing due right now') and sends you to the desk, not back to the lesson
+
+- **Devices:** all
+- **Detail / repro:** A finished lesson's Practice tab offers '▶ Practise again' (jatopic.js:269). It opens #/japanese/session/learn-<id>, whose list is KOS.ja.due() filtered to the lesson's items (jarun.js:364-375) — so when none of them is due today (the normal case once a lesson is done) the runner shows a 460px card with 'Nothing due right now' and a single 'Back to the desk' button, which leaves the lesson the learner came from. The button promises practice that cannot happen; there is no cram/extra-practice mode (reviews are not moved by it, so one is easy to add).
+- **Evidence:** eval: lesson 1.1 done, all its facets due 2026-12-30 → #/japanese/session/learn-1.1 → 'Nothing due right now · Back to the desk'. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-practise-again-empty-mac.png.
+- **Root cause:** The learn session reuses the due queue, which is empty after the first finish
+- **Proposed fix:** For a finished lesson run an unscheduled practice over its items (self-contained, record nothing or record as practice that moves no facet), or hide 'Practise again' when nothing of the lesson is due and say when its items come back. 'Back to the desk' should return to the lesson when the session was opened from it.
+- **Flags:** effort M
+
+### JM-19 · P2 · data — Media path projects absurd ranges from thin evidence ('Graded reader Level 1 · 2032 – 2084', 'A light novel · 2180 – 3559') once two weeks pass with a single word met
+
+- **Devices:** all
+- **Detail / repro:** timeline() stops calibrating as soon as the first R facet is 14+ days old and the mean weekly rate is above 0. With one word met 10 days ago and one kana 20 days ago: perWeek {lo 0, mid 1, hi 1}; lo is floored at 0.1 words/week, so 'to' = (need − have)/0.1 × 7 days → every stone gets a range spanning decades to centuries, shown on the path, the stone detail and All stones. Related on the same page: the kana stone shows 'Calibrating' in All stones forever (it never gets a date because the rate is in words; js/modules/japanese.js:548 prints 'Calibrating' whenever m.from is null), 'about 1 new words a week' (plural), the kana requirement says 'Hiragana stable 1 / 46' counting kana held 7 days (HOLD) while the Skill map's 'stable' means 21 days (STABLE), and the 'Next stone' card is about twice as tall as its content beside the levers card.
+- **Evidence:** eval fixture: facets {k:あ|R firstAt −20d, w:これ|R firstAt −10d} → KOS.ja.timeline() {calibrating:false, perWeek:{lo:0,mid:1,hi:1}, Graded reader 2032-07-29 → 2084-02-24, Yotsuba 2049 → 2256}. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-path-thin-mac.png. Code: js/core/ja.js:376-388 (calibrating = span < 14 || mean <= 0; lo = max(0.1, mean − sd)); js/modules/japanese.js:524,548 (subhead, 'Calibrating' fallback).
+- **Root cause:** No minimum-evidence gate besides elapsed time; a floor of 0.1/week makes the upper bound explode
+- **Proposed fix:** Stay calibrating until there is a real rate (e.g. ≥ 2 weeks with words AND ≥ 20 words met), cap projections (e.g. beyond 3 years say 'more than 3 years at this pace'), give the kana stone its own rate (basic kana held per week) or a 'kana first' label instead of 'Calibrating', pluralise, and use one 'stable' threshold wording.
+- **Flags:** effort S
+
+### JM-20 · P2 · bug — Checkpoints are easier than '80% in every skill' suggests: the Hiragana checkpoint's 6 Listening questions are 3 two-choice items each asked twice identically, and the Writing section shows the model kana to copy
+
+- **Devices:** all
+- **Detail / repro:** checkpointRun builds cp-H's Listening section as sounds.concat(sounds).slice(0,6) — the unit's three minimal-pair items (s:voicing, s:sokuon, s:long) twice. exercise() seeds the pair and target from hash(key + today), so the repeat is the very same pair with the same answer, asked after the verdict revealed it; each is a 2-option guess. The Writing section mounts the same kana-write exercise as reviews, which always shows the model glyph beside the pad ('copy the model'), so the writing score measures tracing. The question selection is also fixed for the whole day (seed = the date), so a retake the same day repeats the same paper.
+- **Evidence:** js/modules/japanese.js:593 (sounds.concat(sounds)), :589-590 (pick seeded by the day); js/modules/jarun.js:31-34 (minimal pair seeded by key + today), :142-146/167 (model always shown). eval: cp-H unit has exactly 3 sound items ['s:voicing','s:sokuon','s:long'].
+- **Root cause:** Too few listening items padded by duplication; one exercise renderer for learn, review and test
+- **Proposed fix:** Draw 6 distinct pairs across the three items' pair lists (each item has several pairs) with a per-question seed; hide the model in checkpoint Writing; seed the selection per attempt (Date.now()) rather than per day.
+- **Flags:** effort S
+
+### JM-21 · P2 · integration — Japanese is missing from Goals and Reports: no goal type measures it and Reports has no Japanese facts, unlike Code (f.code, code-tasks/retrievals) and Creatives (f.creatives, cr-*)
+
+- **Devices:** all
+- **Detail / repro:** The Goals registry has study, productivity, money, code, creatives and governor types but nothing that reads KOS.ja (no 'Japanese review sessions', 'lessons finished', 'kana held', 'words stable'); 'Review flashcards' counts only flashcards/due-review entries, so Japanese facet reviews never count even with the subject set to Japanese. Reports' compute() builds f.code (programming(), report.js:614) and f.creatives (:645) from their ledger entries, but there is no counterpart for type 'ja' entries (sessions with n/passed/skills, lessons, checkpoints): a week of Japanese reviews appears at most as an untimed study session, never as reviews, lessons or checkpoints. The only joins are the routine auto-track (routines.js:646) and badges. 'KurenaiOS should be one connected personal OS' — the space is an island for planning and review.
+- **Evidence:** grep register({ id in js/core/goals.js → custom-manual, study-hours, cards-reviewed, recall-rate, topics-green, focus-*, todos-done, plan-ticked, study-paper-score, study-finish-unit, habit-streak, no-overdue, carryovers-cleared, money-*, code-tasks, code-retrievals, code-capstone, cr-studies, cr-drill-days, cr-words, gov-streak, gov-level (none for ja); js/core/goals.js:557-562 (cards-reviewed: flashcards only); js/core/report.js:614,645 (code/creatives facts), no 'ja' filter anywhere in report.js.
+- **Root cause:** Japanese shipped its platform before the cross-domain joins its sibling spaces got
+- **Proposed fix:** Register ja goal types (ja-reviews: passed facets or sessions; ja-lessons; ja-kana-held; ja-words-stable) reading KOS.ja/the ledger, and add f.ja (sessions, facets passed by skill, lessons finished, checkpoints) to Reports with a card, totals only in the words' payload, as Code's.
+- **Flags:** effort M, needs a design prompt
+
+### JM-22 · P2 · bug — Kana page: switching Mixed / Read / Write mid-set (or leaving without 'End set') throws the set's answers away unlogged
+
+- **Devices:** all
+- **Detail / repro:** The kana drill keeps its answers in a local results[] and logs them only from 'End set' (endSet → finishSession). The Mixed/Read/Write segment calls KOS.rerender() directly, which rebuilds the page with an empty results[]; navigation does the same. The facets were already moved by record(), so the kana is not asked again today, but no ledger entry is written: no XP, no day activity, no 'Japanese review session' for an auto-tracked habit (routines.js:646). Same root cause as the session runner's navigation loss.
+- **Evidence:** eval slot 10 on #/japanese/kana after startLesson('H1'): answer あ correctly → set '1 of 10', facet k:あ|R reps 1 (due +10 d); click 'Read' → '0 of 10', new ledger entries 0. js/modules/japanese.js:370-371 (segment → KOS.rerender), :375-380 (endSet the only logger).
+- **Root cause:** Session results held only in closure state across a rerender
+- **Proposed fix:** Log the pending results before the mode switch rerenders (call endSet first, or keep results in per-device UI state), and on navigation/pagehide as for the session runner.
+- **Flags:** effort S
+
+### JM-23 · P2 · ui — iPhone Kana chart hides the や, ら, わ and ん columns off the left edge with no cue: an undeclared overflow scroller
+
+- **Devices:** iphone
+- **Detail / repro:** At 402 px the chart's .k-ja-chart-cols (flex row-reverse, overflow-x auto) is 326 px for 524 px of columns, so the four leftmost columns (ya, ra, wa, n — including the dashes the caption explains) start at x −160 and are only reachable by an unseen horizontal swipe (scrollbars are hidden on iOS); there is no arrow, fade or 'scroll' hint, and it is not a KOS.ui.scroller (invariant 50: horizontal overflow must be declared). The caption under it ('A dash is a sound modern Japanese doesn't use (yi, ye, wu…)') refers to columns the learner cannot see.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-kana-iphone.png (chart shows ま…あ only). eval (iphone): .k-ja-chart-cols scrollWidth 524 / clientWidth 326, ん column left −160, scrollLeft can go to −198, not inside .k-scroller. css/views/japanese.css:225.
+- **Proposed fix:** Wrap the columns in KOS.ui.scroller (arrows + edge fade, starting at the あ end), or under 560 px drop the gap and shrink cells to fit 11 columns (11 × 30 px), or split the chart into two rows of columns.
+- **Flags:** effort S
+
+### JM-24 · P2 · ui — Study-space heroes are four different heights: the Japanese desk hero is 339 px on the Mac against Code's 292 and Mind's 296 (iPad 507 vs 459/482, iPhone 458 vs 379/402/309)
+
+- **Devices:** mac, ipad, iphone
+- **Detail / repro:** All four study spaces use the same .k-subj-hero at the same width (900 px mac, 716 iPad, 370 iPhone) but its height follows its content: Japanese has four skill rows (Reading, Listening, Writing, Speaking) on the right and the six-stage path underneath, so it is 47 px taller than Code on the Mac and 79 px taller on the iPhone. Switching between the space pills (Code · Japanese · Mind · Creatives) makes the whole page below jump. The user's standing rule names exactly this ('study-space heroes of different sizes').
+- **Evidence:** eval (seeded slot, after this audit's fixtures) .k-subj-hero height: mac {code 292, ja 339, mind 296, creatives 341}; ipad {459, 507, 482, 509}; iphone {379, 458, 402, 309}. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-desk-dawn-mac.png.
+- **Root cause:** Content-sized hero with per-space content of different heights
+- **Proposed fix:** Give the hero one shared block size per breakpoint (tokens), with the right column's rows compressed (Japanese: 4 thinner skill rows, Speaking dimmed in one line) and the stage path inside the same budget; or set the hero to a fixed aspect so art and content line up across spaces.
+- **Flags:** effort M, needs a design prompt
+
+### JM-25 · P2 · ui — Stage-path checkpoint circles render as 21×44 ovals on iPad and iPhone
+
+- **Devices:** ipad, iphone
+- **Detail / repro:** On touch devices the desk's and Checkpoints page's stage-path checkpoint stops (合 between the unit squares) get the coarse-pointer 44 px height but keep their ~21 px width with border-radius 50%, so each draws as a tall dark ellipse between the H / K / F1 / F2 squares — exactly the '28×44 oval' invariant 69 forbids ('a round control must raise its width too'). (The undersized touch target of the same element is the earlier entry in this file; this is the visual.)
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-desk-empty-iphone.png (stage row: ovals between H, K, F1, F2). eval (iphone): [data-ui~='ja.path-checkpoint'] 21×44, border-radius 50%, background oklch(0.2 0.009 265).
+- **Root cause:** Global coarse-pointer min-height applied to a round control without a matching width
+- **Proposed fix:** Draw the circle as an inner element of fixed size (e.g. 22 px) centred in a 44×44 transparent hit box, or set aspect-ratio: 1 with min-inline-size = min-block-size under (pointer: coarse) and rebalance the path columns.
+- **Flags:** effort S
+
+### JM-26 · P2 · integration — The Assistant and the day model know nothing about Japanese: no ja_* read tool, and KOS.today/the reviews never mention Japanese reviews due
+
+- **Devices:** all
+- **Detail / repro:** Invariant 71a: 'The Assistant has tools for every domain'. aitools.js defines code_overview/code_lesson/code_skills, mind_overview/mind_concept, creatives_overview/creatives_portfolio, but zero tools mention Japanese (grep count 0), so 'How is my Japanese going?' or 'What should I review today?' cannot be answered from data. KOS.today.build (the source for Home's three, the Morning/Evening reviews and the Assistant's day, invariant 149) reads no KOS.ja either, so a day with 40 Japanese facets due never surfaces outside the Japanese desk; only the evening review counts finished ja lessons (dayreview.js:355).
+- **Evidence:** grep -c '"ja\|japanese\|Japanese' js/core/aitools.js → 0; def('creatives_overview') at js/core/aitools.js:898 as the pattern; js/core/today.js has no KOS.ja reference; js/core/dayreview.js:355.
+- **Root cause:** Cross-domain joins not built for the Japanese release
+- **Proposed fix:** Add read tools ja_overview (stats, due by skill, today's plan, next lesson, timeline range) and ja_lesson (evidence, items held), and give KOS.today a 'Japanese reviews due / next lesson' entry when started().
+- **Flags:** effort M
+
+### JM-27 · P2 · bug — A passed checkpoint shows 'Passed · paid once' beside '10% ✗ Not yet' in every skill after a weaker retake — the last attempt's scores overwrite the passing ones
+
+- **Devices:** all
+- **Detail / repro:** recordCheckpoint stores rec.scores = the latest attempt's scores on every take, while passAt is kept. After passing (R 0.8 W 0.8 L 0.83) and retaking badly (0.1 each), the Checkpoints card draws the 合 seal and 'Passed on Thu 5 Nov · ◆ paid once' above three red '10% ✗ Not yet' rows — a self-contradicting card. The best (passing) attempt is lost.
+- **Evidence:** eval: recordCheckpoint('cp-H', {R:.8,W:.8,L:5/6}) → pass, paid; recordCheckpoint('cp-H', {R:.1,W:.1,L:.1}) → rec {scores 0.1×3, passAt set}. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-cps2-mac.png. js/core/ja.js:254 rec.scores = sc unconditionally.
+- **Proposed fix:** Keep best (or the passing) scores separately from the last attempt (rec.best, rec.last) and show 'Passed' with the passing scores, the last attempt as a secondary line.
+- **Flags:** effort S
+
+### JM-02 · P2 · ux — Mind lesson inspector has no status selector, confidence (RAG) or progress bar, unlike every other study space
+
+- **Detail / repro:** On a Code, Japanese or Creatives lesson the inspector carries the shared status row (Not started · Started · Paused · Completed select), the R/A/G confidence picker and a percent bar (invariant 107: the status 'may still be set by hand, as in a subject'). A Mind lesson's inspector shows only 'STATUS 0 of 4 checks' and the four read-only checks: no way to mark a lesson Paused or set confidence, and no percentage, although the desk and spine count Mind lessons by that same shared status.
+- **Evidence:** js/modules/mindtopic.js:361-386 ctx.status builds only the head and checkgrid; compare js/modules/jatopic.js:295-318, js/modules/crtopic.js:220-243, js/modules/codetopic.js:160-210 (status select + KOS.rag.picker). Screenshots /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/ja-mind/e-mind-F1.1-mac.png vs /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/ja-mind/e-ja-1.1-mac.png
+- **Root cause:** Each study space's topic module re-implements the inspector status block; Mind's copy omitted the row
+- **Proposed fix:** Reuse the same status/RAG block (ideally hoist it into one shared helper used by all four topic modules, since it is copy-pasted three times) and add it to ctx.status in mindtopic.js.
+- **Flags:** effort S, saved during the audit but NOT in the auditor's final re-checked list — re-verify before acting
 
 ### JM-05 · P3 · content — Japanese lesson inspector reads '0 of 1 sessions'
 
 - **Detail / repro:** On a Japanese Stage 1 lesson (e.g. #/ref/ja/1.1) the inspector's check 'Passed the practice' has the sub-line '0 of 1 sessions' — a hard-coded string with the wrong plural.
-- **Evidence:** js/modules/jatopic.js:297 ev.practised ? "passed" : "0 of 1 sessions"; screenshot audit-evidence/2026-11/qa/shots/ja-mind/e-ja-1.1-mac.png (inspector, third check)
+- **Evidence:** js/modules/jatopic.js:297 ev.practised ? "passed" : "0 of 1 sessions"; screenshot /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/ja-mind/e-ja-1.1-mac.png (inspector, third check)
 - **Proposed fix:** 'not yet' (or '0 of 1 session'); the count is always one, so say 'one session' / 'not passed yet'.
 - **Flags:** effort S
+
+### JM-28 · P3 · ui — Multiple-choice exercises never show which option was right after a wrong pick
+
+- **Devices:** all
+- **Detail / repro:** In listen-pick, particle-pick, read-meaning and listen-meaning, picks() disables every option and sets each one's state from the PICKED option (closure variable opt) instead of its own option, then marks the picked one. After a wrong pick only the chosen button turns red; the correct option stays neutral (data-state null). The verdict box below does print the answer, but the learner has to map it back to the options.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-sess2-mac.png; DOM after picking 'I'm a student.': [{"Nice to meet you, I'm Yōta.", state null}, {"I'm a student.", state 'wrong'}, {"It's a Japanese book.", state null}]. js/modules/jarun.js:211-214 (forEach uses opt, not the button's own option).
+- **Proposed fix:** Store each option on its button (b._opt) and in the forEach set KOS.ui.state(b, 'right', b._opt === ok); keep 'wrong' on the picked button only.
+- **Flags:** effort S
+
+### JM-29 · P3 · content — Session runner leaks internal exercise-family codes ('A · read it', 'C · read and understand', 'D · listen and pick') into the skill line
+
+- **Devices:** all
+- **Detail / repro:** The line above each exercise reads 'Reading  C · read and understand', 'Writing  A · write it'. The A–E letters are the plan's exercise families (docs/japanese-plan.md) and mean nothing to the learner.
+- **Evidence:** Screenshots /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-sess1-mac.png, q-sessk2-ipad.png. js/modules/jarun.js:29-49 family strings.
+- **Proposed fix:** Drop the letter prefix: 'Reading · read and understand'.
+- **Flags:** effort S
+
+### JM-30 · P3 · bug — 'Type instead' on a kana Writing review passes the Writing facet for typing its romaji (e.g. 'a' for あ)
+
+- **Devices:** all
+- **Detail / repro:** 'Type instead' swaps the stroke pad for the kana-READ exercise (type the reading of the glyph that is shown) but keeps the W facet key, then grades it Hard — a pass that pays +1 XP and advances the Writing schedule. Typing 'a' while あ is on screen shows nothing about writing it.
+- **Evidence:** eval on #/japanese/session/reviews (ipad): click [data-ui~='ja.type-instead'], type 'a', Check → 'Grade, from your answer · Hard · next tomorrow'; facet k:あ|W reps 1, s 1.29. js/modules/jarun.js:159-165.
+- **Proposed fix:** Make 'Type instead' an IME/kana-keyboard production (type あ in kana from the romaji prompt, glyph hidden), or record it self-marked (moves nothing) and say so.
+- **Flags:** effort S
+
+### JM-31 · P3 · ui — Minimal-pair options render the kana in the UI font at 15px with the beat count glued on ('ケキ2 beats')
+
+- **Devices:** all
+- **Detail / repro:** The minimal-pair option group has no data-state='ja', so css/views/japanese.css:356 (the English-options rule) overrides the 22px Japanese font of .k-ja-opt; the kana and its <small> beat count are inline with 0px gap, reading 'ケキ2 beats' / 'ケーキ3 beats', left-aligned, while every other Japanese option is centred-large Japanese type.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-sessk3-ipad.png; measured gap between span and small = 0, .k-ja-opt display block. js/modules/jarun.js:182-189 (no data-state on the group); css/views/japanese.css:154,356.
+- **Proposed fix:** Give the minimal-pair group data-state='ja' and lay the option out as a column (word large, '2 beats' small muted beneath), or a flex with a gap.
+- **Flags:** effort S
+
+### JM-32 · P3 · data — Three Japanese badges can never be earned (Voice, Immersion, Sentence miner) yet are registered as live badges, and Japanese reviews never re-measure the Badge Wall
+
+- **Devices:** all
+- **Detail / repro:** Invariant 161: 'a badge the app has no evidence for is not registered'. 'Voice' counts S facets (never created: KOS.ja.opts speech:false), 'Immersion' counts state.japanese.input minutes (addInput has no caller) and 'Sentence miner' counts state.japanese.mined (KOS.ja.mine has no caller) — all three sit on the Wall at 0 with tier targets (50/10 h/10 lines), unlike the Stage 2–5 and track badges that carry soon:true. Separately, KOS.achievements.touch('ja') is called only from recordCheckpoint and mine (js/core/ja.js:248,279), not from record()/finishSession(), so a review that makes the 46th hiragana stable is only noticed on the 30-minute sweep (invariant 163: owner events re-measure).
+- **Evidence:** js/core/achcatalogue.js:349-361 (registrations without soon), :645-646 (the soon pattern); grep: no caller of KOS.ja.addInput / KOS.ja.mine; js/core/ja.js:87-89 speech:false; touch calls only at js/core/ja.js:248,279.
+- **Proposed fix:** Mark voice/immersion/sentence-miner soon:true (or do not register them) until their features ship; call KOS.achievements.touch('ja') in finishSession (once per session).
+- **Flags:** effort S
+
+### JM-33 · P3 · a11y — VN scene text box is role=button yet contains the Voice, English and From the start buttons (nested interactive controls)
+
+- **Devices:** all
+- **Detail / repro:** The scene's .k-ja-vn-box is a focusable role='button' ('Next line (click, Enter or Space)') and its descendants are three real buttons. Invariant 67: a card with interactive descendants is not an ARIA button — screen readers flatten the inner buttons into the outer one's name, and Enter on an inner button may also bubble as 'next line'.
+- **Evidence:** eval (#/ref/ja/1.3, ipad): DIV.k-ja-vn-box role=button tabIndex 0 containing BUTTON[ja.scene-voice], BUTTON[ja.scene-english], BUTTON[ja.scene-again]; Enter/Space/click on the box advance lines correctly. js/core/jaui.js scene() (~line 400-430).
+- **Proposed fix:** Make 'Next line' its own button (the ▼ marker) and keep the box a plain region with aria-live='polite' for the line; keep the click-anywhere shortcut on the image for pointer users.
+- **Flags:** effort S
+
+### JM-34 · P3 · content — Lesson Practice tab promises 'reading, then writing and listening … read it, write it, hear the difference', and lists 本 twice as identical chips
+
+- **Devices:** all
+- **Detail / repro:** The Practice card of a Stage 1 lesson says '14 items · reading, then writing and listening' and 'Each item is introduced, then checked: read it, write it, hear the difference.' The session actually asks one facet per item — Listening first for every word and pattern (see the sibling tie-break entry) — and no Writing until an item has held (it can't on day one by design). The item chips also show the word 本 and the kanji 本 as two identical '本' chips with no kind label.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-1.1-practice2-ipadl.png; js/modules/jatopic.js Practice tab copy (~lines 185-195, 260-270).
+- **Proposed fix:** Describe what happens ('each new item is met, then checked once; writing and listening join in reviews'); mark kanji chips (e.g. a small 'kanji' tag or the 漢 glyph).
+- **Flags:** effort S
+
+### JM-35 · P3 · ui — Checkpoints page: cards in a row stretch to the tallest (two of three ~65% empty), each '✗ Not yet' wraps under its bar, and the subtitle says 'Four skill sections; each skill needs 80' for three-skill checkpoints
+
+- **Devices:** mac, ipad
+- **Detail / repro:** The grid row takes the Hiragana card's height (with its seal and three score rows), so Katakana and First conversations are 380 px cards holding a title, one line and a button. In a score row the verdict ('✗ Not yet' / '✓ Pass') does not fit beside the bar and wraps to its own line under the skill, making the rows ragged. The page sub-line promises 'Four skill sections' and '80' (no unit) although every checkpoint tests Reading, Writing, Listening (Speaking is not built).
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-cps2-mac.png (mac, 1470). js/modules/japanese.js:312 sub-line; :575-580 skillRow; checkpoint skills ['R','W','L'] in js/data/ja.js:86-87 and js/data/ja-s1.js:484,487.
+- **Proposed fix:** align-items: start on the card grid (or masonry as Reports' pack), let the row be a 4-column grid (skill · bar · % · verdict) with the verdict as a compact chip, and say 'Three skill sections; each needs 80%'.
+- **Flags:** effort S
+
+### JM-36 · P3 · content — Badge unlock overlay reads '1 checkpoints · japanese checkpoints passed'
+
+- **Devices:** all
+- **Detail / repro:** The Checkpoint badge's overlay sub-line combines the count with the plural unit and a lower-cased description: '1 checkpoints · japanese checkpoints passed' (wrong plural, 'japanese' lower case).
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-cps-passedthenfailed-mac.png (after passing cp-H). Badge registered at js/core/achcatalogue.js:351-353 {unit: 'checkpoints'}; overlay text built in js/modules/achievements.js.
+- **Proposed fix:** Singularise the unit for 1 and keep the description's own capitalisation (or show only the description).
+- **Flags:** effort S
+
+### JM-37 · P3 · ux — Reference mode replaces the lesson inspector with the notes' 'On this page' list on every tab — the status, checks and evidence disappear, and on Practice/Reviews the list points at pages that are not shown
+
+- **Devices:** mac, ipad
+- **Detail / repro:** Learn | Reference is a reading mode for the notes, but once Reference is chosen (per device, state.ui.japanese.mode) the inspector shows only 'ON THIS PAGE 1. Hook … 8. Quick reference' on every tab, including Practice and Reviews, where those entries do not correspond to anything on screen; the STATUS block, the four checks, the RAG picker and 'Evidence by skill' are gone until the learner switches back to Learn. The Reviews tab in that state is a single line ('Its reviews start after the practice.') above an empty page.
+- **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-1.1-reference-mac.png (#/ref/ja/1.1, Reviews tab, Reference on). js/modules/jatopic.js:85-90 (mode), inspector ctx built per mode.
+- **Proposed fix:** Show the page list only on the Notes tab in Reference mode and keep the status/checks block above it (collapsed if needed); on other tabs use the normal inspector.
+- **Flags:** effort S
+
+### JM-38 · P3 · ux — The desk's Today plan budgets 'Input 8 · Output 7' minutes (and 'Say it · optional · 2 min' on the first day) for blocks the app cannot run, inflating '≈ 40 min'
+
+- **Devices:** all
+- **Detail / repro:** planDay() always reserves input (5–8 min) and output (5–7 min) inside dailyMin, and the Today card draws them as two of four coloured blocks and adds them to '≈ N min'. '▶ Start' only ever opens reviews or the next lesson; there is no input block (addInput is never called) and no output/speaking exercise (speech:false). The first-day card lists 'Say it · optional · ≈ 2 min' likewise. The total overstates the session and the bar shows half its length as work that doesn't exist.
+- **Evidence:** Screenshots /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-desk-thin-mac.png (Reviews 0 · New 25 · Input 8 · Output 7, ≈ 40 min), q-desk-empty-iphone.png (Say it · optional). js/core/ja.js:312-327; js/modules/japanese.js:189-210, 217.
+- **Proposed fix:** Leave Input/Output out of the plan and the total until those blocks exist (or show them greyed as 'not in the app yet'), and drop 'Say it' from the first session.
+- **Flags:** effort S
+
+### JM-39 · P3 · ui — Skill map Fluency card sets prose in the monospace figure style ('Drill kana to time it', 'Time a reading in the reader (Stage 1)') and points at a reader that does not exist
+
+- **Devices:** mac, ipad
+- **Detail / repro:** The Fluency card's dd values use the right-aligned mono figure style meant for numbers, so placeholder sentences wrap ragged ('Time a reading in the / reader (Stage 1)'). 'Reading speed' promises a timing in 'the reader (Stage 1)' — Stage 1 is out and has no reader. The By unit card beside it is stretched ~70 px past its content to the radar's height.
+- **Evidence:** Screenshots /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-skills-shoptheme-mac.png (celestial-duality), q-skills-rework-mac.png. js/modules/japanese.js:505-509.
+- **Proposed fix:** Show the placeholders as muted body text (or an empty state) and drop 'Reading speed' until the reader ships; align-items:start for the two-column row.
+- **Flags:** effort S
+
+### JM-04 · P3 · data — Mind path: Decisions and strategy units are numbered Y3.1/Y3.2/Y3.3 while every other unit is <path>.U<n>
+
+- **Detail / repro:** On #/mind/path every psychology/philosophy unit reads Y1.U1, Y2.U3, P1.U2..., but Y3's three units read Y3.1, Y3.2, Y3.3 — the same shape as a LESSON ref (F1.1). Once Y3 is released its lessons would be Y3.1.1 next to Y1.U1.1, and the bare 'Y3.1' looks like a lesson of a unit Y3 in search, chips and the spine.
+- **Evidence:** js/data/mind.js:33 u("Y3.1",...), u("Y3.2",...), u("Y3.3",...) vs :31-32,34-36 '.U<n>'; docs/mind-plan.md:113-119 uses the same Y3.1 naming; screenshot /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/ja-mind/e-mind-path-mac.png
+- **Proposed fix:** Rename to Y3.U1–Y3.U3 in js/data/mind.js (nothing released references them yet) and the plan.
+- **Flags:** effort S, saved during the audit but NOT in the auditor's final re-checked list — re-verify before acting
+
+**QoL ideas from this auditor:**
+- 'Back to the desk' at the end of a learn session opened from a lesson should return to that lesson
+- Show which answers were missed on the session end card with a 'Try the misses again' (no pay)
+- Confirm before leaving a checkpoint mid-way (✕ discards it silently)
+- Name the two 'Hiragana' badges apart (all 46 held vs the Hiragana checkpoint)
+- Session runner card keeps a ~200 px empty bottom on iPad portrait and on the end/empty states; size it to content
+- Spine subject pills clip 'Creatives' at iPad landscape width
+
+**Backlog ideas from this auditor:**
+- Unscheduled 'practise this lesson again' mode that moves no facet
+- Japanese goal types and a Reports card (f.ja)
+- ja_overview / ja_lesson Assistant tools and a KOS.today entry
+- Leech recovery flow (relearn from the lesson, Back in the schedule)
+- Input logging through a Japanese immersion Focus choice
+
+
+---
+
+## MI — Mind study space (complete)
+
+**Auditor's summary.** Mind's platform works end to end on real interaction: lessons, checks, explain-backs, positions with versions and revisits, FSRS cards with review-log rows (src mind), the 7 authored dialogues (all pass mind_tree_check; ran F1.1 to the end), the Journal, the checkpoint and the Daily 15 as a Focus stopwatch; review pay caps at 15/day and the lesson pays 12/2/+2 once. The most important problems are in the derived evidence and in layout: the checkpoint lesson F1.8 can never reach Completed (its retrieval check reads an empty concepts list), so mastery and unit counts can never reach 100%; on iPhone and iPad portrait the desk's Daily 15 and Continue cards collapse to 40px and hide the Start button (Mind's flex-column side overrides the shared side grid). The ladder is lenient and leaky: Apply is earned after the answer has been revealed, Explain from one one-character bullet, the checkpoint pays with nothing right, a retake or a revision erases Explain/Evaluate already earned, and 5 of 16 concepts have no route above Recall at all. Mind is also weakly joined to the OS (no Reports facts, Goals card/recall types read 0, nothing on Home/Today) and has several half-built promises (offline Ask queue never read, 'Link a concept later' with no edit).
+
+**Coverage.** Inventory: /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/findings/mind.inventory.md. Accounts: empty (reset) and seeded (with my fixtures; the seeded account is in Exam Season). Sizes: mac 1470x832, ipad 820x1180, ipadl 1180x820 (DOM measurement only), iphone 402x874. Matrix: Path page — mac/ipad/iphone measured, mac screenshot; rows/toast read in code → F-polish, ladder/P1(F1.8 counts). Desk — mac (empty+seeded), iphone, ipad screenshots → P1 crushed Daily card, Exam-Season empty Daily, polish. Lesson page F1.1/F1.3/F1.6/F1.7/F1.8 — mac screenshots, ipad, iphone; page dwell/Next rules read in code and exercised via the Daily sitting (pages marked) → Ask grid overflow, neighbours, inspector (known). Check & Apply scenarios — fixture wrong-then-right → Apply leniency finding. Explain-back — fixture 2/4 vs 3/4 ticks (50% fails, 75% passes; 59/60% boundary not constructible: every main concept has 4 key points) and one-char bullet → leniency. Position — fixtures no objection / objection only / both / later revision without objection → Evaluate loss bug; versions and changed-answer counting OK, verified; revisit dates 14→60→180 verified (keepPosition from keep day). Retire/Keep — code + UI read → P3. Tensions — NOT checkable: none authored (TENSIONS=[]). Cards/FSRS — rateCard Hard on 1 of 2 cards (no Recall), both (Recall), then Again (Recall lost) OK verified; review log rows src 'mind' verified; due cap 15 code; review pay cap 15 verified with 18 passes. Lesson pay 12/2/+2 once verified (the extra +54 gold was the Governor's streak-milestone bonus, not Mind). Checkpoint pay — verified pays with 0 score; retake erases rungs. Path pay — not reachable (only F1 of F's 2 units released); code read OK. No Mind streak — verified on desk/governor code. Dialogues — mind_tree_check passes (7); F1.1 run to the end through UI; typed 'Use it' empty; Skip at turn 0 → finding. Journal — capture (question) via Daily, filters/search screenshot, delete confirm code, tombstones/sync/backup by code read (no cloud account available: kos_mind replication NOT exercised live). Commonplace export — code read only (download not triggered). Big Question — set/add line/close (empty refused, bullets accepted) verified via API; Sunday synthesis UI NOT exercised. Ask Kurenai — What is sent screenshots mac/ipad/iphone; Send NOT exercised (no AI provider configured, would be a metered request); offline queue by code (never consumed). Checkpoint UI — Retake → cards → apply → map exercised on ipad; synthesis finish via API. Daily 15 — Exam Season (empty) and non-Exam (stubbed) intro, sitting (pages 2–3 of F1.1, marked read), question (Big Question empty → capture), done; Focus stopwatch start/stop verified (ledger focus entries, under 10 min pays 0); revisit/parked/field question kinds by code read only. Joins — Achievements mind set read; Assistant tools read (counts only, OK; mind_concept promises 'why' but returns booleans); Goals/Reports/Today by code + Today eval → integration finding. Themes — Atelier Dawn NOT verified: the harness set data-theme=atelier-dawn but pages still rendered dark (likely the app re-applying the account's theme); shop theme NOT checked. Redraw behaviour: Mind keeps run state in state.ui.mind (checkpoint step, Daily step, dialogue place) and sheets live outside #main — judged by code, not provoked with a real background pull.
+
+### MI-01 · P1 · bug — The F1 checkpoint lesson (F1.8) can never reach Completed: its fourth check reads retrieval over the lesson's concepts, and a checkpoint lesson has none
+
+- **Devices:** all
+- **Detail / repro:** A lesson without a written prompt has three checks and its fourth slot is 'all three hold' (js/core/mind.js:347-355). For a checkpoint lesson the third evidence check is `retrieval`, computed over `l.concepts` (js/core/mind.js:338-340) — but F1.8 is registered with `concepts: []` (its concepts live on KOS_MIND.CHECKPOINTS.F1.concepts). So retrieval is always false and the shared progress record never gets checks 3–4: after the page is read, the checkpoint is passed and every one of the checkpoint's concepts' cards is rated Good, F1.8 stays 'started' with check [true,true,false,false]. Consequences: the unit can never show 8/8 completed, Mind mastery can never reach 100% (F1.8 caps at 2/3), the desk's 'Lessons' tile tops out at 7/8, and anything reading `completed` (unitState.completed, achievements, Reports) under-counts.
+- **Evidence:** eval (slot 11): after recordCheckpoint('F1'), markPage('F1.8',0) and rateCard(...,3) on argument and induction cards → evidence('F1.8').checks [true,true,null,false], peekProgress('mind','F1.8') {status:'started', check:[true,true,false,false]}, completed('F1.8') false, KOS_MIND.LESSONS['F1.8'].concepts []
+- **Root cause:** evidence() derives 'retrieval' from l.concepts, which the checkpoint lesson registration leaves empty (js/data/content/mind-f1.js checkpoint lesson)
+- **Proposed fix:** In evidence(), for a checkpoint lesson read the concepts from M().CHECKPOINTS[l.unit].concepts (or its cards) — or treat the checkpoint itself (cards step) as its retrieval; add a smoke110 case that a fully done checkpoint lesson reaches status done.
+- **Flags:** effort S
+
+### MI-02 · P1 · ui — Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px — the Start button, the plan and the lesson title are cut off
+
+- **Devices:** iphone, ipad portrait (all states); mac in Exam Season
+- **Detail / repro:** Below 1080px the shared desk rule gives every side card `flex: 1 1 0` (css/views/study.css:1076) and the study-space rule gives them `min-block-size: 0; overflow: hidden` (study.css:55). Japanese and Creatives turn their side column into a grid (japanese.css:449, creatives.css:366), but Mind's side is `display:flex; flex-direction:column` (css/views/mind.css:112), so in an auto-height column each card's basis is 0 and it collapses to its padding: the Daily 15 card is 40px tall with 189px of content, its '▶ Start' button sits 129px below the card's clipped bottom, and Continue shows only its kicker and half the → circle. The desk's main call to action is invisible on two of the user's three devices. On the Mac the same clipping cuts the Daily card's button in Exam Season (card 191px, content 254px: the '▶ Reviews · 5 min' button at y=340 is below the card's bottom at 333), because the side column is held to the hero's height.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-desk-iphone-daily.png; eval (seeded, Exam Season stubbed off): ipad cardH 40 scrollH 189, Start bottom 873 vs card bottom 744; iphone cardH 40 scrollH 189, Start bottom 747 vs card bottom 618; mac (Exam Season on) card 191.6px, scrollHeight 254, overflow hidden, button top 340
+- **Root cause:** Mind's side column overrides the shared side layout with a flex column that, combined with flex:1 1 0 and min-block-size:0/overflow:hidden, collapses its children
+- **Proposed fix:** Give .k-mind-deskside the same treatment as Japanese/Creatives under 1080px (grid, or flex-basis auto), and on the Mac let the Daily card's content set a minimum (min-block-size: min-content) or drop the strip/blurb before the button rather than clipping the button; add the Mind desk to smoke/visual audit at 820 and 402.
+- **Flags:** effort S
+
+### MI-03 · P2 · data — Mind ladder: most F1 concepts can never climb past Recall/Apply — 5 of 16 concepts have no route to any rung above Recall, only 3 can reach Evaluate
+
+- **Detail / repro:** The ladder (invariant 137) is derived from four evidence sources: Explain = an explain-back on a lesson whose `main` is the concept, or a checkpoint rubric row; Apply = a check/checkpoint item marked `apply` for the concept; Evaluate = a position on a contested lesson teaching the concept, or an Evaluate rubric row. Enumerating F1's authored content against those rules: premise, deduction, straw-man, false-dilemma and bandwagon have NO Explain, Apply or Evaluate source (they can only ever reach Recall); conclusion, soundness, ad-hominem, slippery-slope reach Recall+Apply only; standard-form has Explain but no Apply; steelman has no Explain (F1.7 is contested, so its prompt is a position). Only induction, charity and steelman can reach Evaluate. Yet every met concept is drawn with four rungs, the desk hero shows 'Evaluate 0%' bars computed over all met concepts and 'furthest' needs half the met concepts on a rung — so a learner who does every piece of F1 perfectly still sees Explain ≈ 38%, Evaluate ≈ 19% and four-rung ladders that cannot be completed, with no hint why.
+- **Evidence:** eval over KOS_MIND (slot 11): 'premise E[] A[] V[]', 'deduction E[] A[] V[]', 'straw-man E[] A[] V[]', 'false-dilemma E[] A[] V[]', 'bandwagon E[] A[] V[]', 'soundness E[] A[F1.3#2] V[]', 'standard-form E[F1.2] A[] V[]', 'steelman E[] A[F1.7#1] V[F1.7,cp]'; rules in js/core/mind.js:278-318 (ladder); hero bars js/modules/mind.js:66-72; furthest js/core/mind.js:497-503
+- **Root cause:** Ladder rules require per-concept evidence sources that the F1 content file only provides for the lesson 'main' concepts; nothing checks reachability.
+- **Proposed fix:** Either author a route for every rung of every concept (apply items for each fallacy/premise/deduction; explain-back key points or checkpoint rubric rows for the rest), or let a concept declare which rungs it has (`rungs: ['Recall','Apply']`) and draw/count only those, computing the hero bars and 'furthest' over reachable rungs. smoke110 should assert every concept has a source for every rung it shows.
+- **Flags:** effort M
+
+### MI-04 · P2 · bug — Evaluate is lost whenever a position is revised: the revise sheet starts with an empty objection/reply and the ladder reads only the latest version
+
+- **Detail / repro:** ladder() grants Evaluate from `latest(lid)` having both objection and reply (js/core/mind.js:308-312). The position sheet pre-fills answer, confidence and reason from the previous version but always starts objection and reply as '' (js/modules/mindrun.js:96 `objection: "", reply: ""`), and the objection <details> is closed. So a learner who answered an objection in v1 and later revises (e.g. a revisit's 'Revise', or nudging confidence) without retyping it drops the concept back below Evaluate — for every concept the contested lesson teaches (F1.7: steelman AND charity). The saved card then shows the ladder without Evaluate and no message says it was lost. An 'earned' rung going away on an unrelated edit contradicts 'every rung comes from evidence' (the earlier evidence still exists in version history).
+- **Evidence:** eval (slot 11): takePosition('F1.7',{answer:1,objection:'o',reply:'y'}) → ladder('steelman').rungs[3] true, ladder('charity').rungs[3] true; then takePosition('F1.7',{answer:1,conf:60,reason:'r2'}) (what the revise sheet sends when the objection is not retyped) → ladder('steelman').rungs[3] false
+- **Root cause:** ladder uses only the latest version; position() sheet does not carry the objection forward
+- **Proposed fix:** Evaluate should hold if ANY version (or any non-retired position) has an objection answered; and pre-fill the revise sheet's objection/reply from the previous version (open the details when present).
+- **Flags:** effort S
+
+### MI-05 · P2 · bug — Checkpoint pays 50 XP / 12 gold / +4 HP and marks itself passed with nothing right; a retake then erases the Explain/Evaluate rungs it gave
+
+- **Detail / repro:** recordCheckpoint() always sets doneAt and pays the first time (js/core/mind.js:382-405); the UI's only gate is one non-empty synthesis bullet (js/modules/mind.js:562). Cards are self-marked 'Had it/Not quite' and apply scenarios can all be wrong — 0 of 8 cards, 0 of 3 scenarios, 0 rubric points and a one-character bullet still pay the full checkpoint reward and tick F1.8's 'Check passed'. (Japanese's checkpoint requires 80% in every skill; the Mind plan's 'unit checkpoint 50/12/+4' reads as a passed checkpoint.) Separately, Retake overwrites `apply` and `synth.ticks` wholesale, so a retake with fewer rubric ticks removes Explain (argument, hidden-premise) and Evaluate (induction, steelman) that the first attempt earned.
+- **Evidence:** eval (slot 11): recordCheckpoint('F1',{cards:0,apply:{},synth:{bullets:['x'],ticks:{0:true,2:true}}}) → {paid:true}, governor 0/0 → 50/12; ledger [F1.8,{kind:'checkpoint',first:true},{xp:50,gold:12}]; ladder('argument').rungs[1] true, ladder('induction').rungs[3] true; retake recordCheckpoint('F1',{synth:{bullets:['y'],ticks:{}}}) → both false
+- **Root cause:** recordCheckpoint has no pass condition and replaces the record on every attempt
+- **Proposed fix:** Define a pass rule (e.g. ≥ 2 of 3 scenarios right and ≥ half the rubric) and pay only on the first PASS, saying what is missing otherwise; keep the best attempt (merge apply/ticks by OR, or store attempts and read the best) so a retake never lowers a rung.
+- **Flags:** effort S
+
+### MI-06 · P2 · ux — Apply and Explain rungs are earned without showing understanding: Apply after the check has revealed the answer, Explain from one one-character bullet
+
+- **Detail / repro:** Leniency of the derived ladder with thin evidence: (1) Apply = 'a scenario answered right'. A wrong answer immediately marks the right option '✓ Right' (js/modules/mindtopic.js:103-106) and offers 'Next, and come back to this'; coming back, clicking the option that was just revealed records ok:true (answerCheck keeps the first ok) and the concept reaches Apply — so every Apply rung (and the check pass that pays 12 XP) can be had by guessing once. (2) Explain = ≥60% of key points self-ticked; the text itself is not checked at all, so a single bullet 'x' with 3 of 4 ticks reaches Explain, and the explain-back can be written before a single page is read.
+- **Evidence:** eval (slot 11): answerCheck('F1.3',3,0) → ok:false, ladder('validity').apply 0; answerCheck('F1.3',3,1) → ok:true, apply 1, rungs [F,F,T,F]; saveExplain('F1.3',['x'],{0:1,1:1,2:1}) → {reached:true,ticked:3,of:4} with evidence('F1.3').read 0 of 6
+- **Root cause:** answerCheck records ok on any later right answer; saveExplain trusts ticks with no text threshold
+- **Proposed fix:** Count Apply only when the scenario is right at the FIRST attempt of a visit (or on a later day, with the answer not revealed in the same session); for a retried item show 'Right, but it counts next time'. For Explain require a minimum (e.g. ≥ 3 bullets or ~20 words) before ticks count, and order the prompt after the pages.
+- **Flags:** effort S
+
+### MI-07 · P2 · ux — Exam Season Daily 15 with no cards due still offers '▶ Reviews · 5 min', which ends instantly as 'Done for today. 1 minute.'
+
+- **Detail / repro:** In Exam Season planDay() returns reviews {n:0, min:0}, sitting null, question null, total 0 — but the desk card still says 'Reviews only until your exams end.' with an '≈ 5 min' chip, and the Daily page lists 'Reviews · No cards due · ~5′' with a primary '▶ Reviews · 5 min' button. Pressing it starts a Focus stopwatch and jumps straight to done: 'Done for today. 1 minute.', stamping today's Daily as done though nothing was done (and the 1 minute is invented: d.mins = max(1, …)). The '≈ 5 min' chip is hard-coded on p.exam rather than read from plan.total.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-mind-daily-mac.png; eval: planDay() {exam:true,reviews:{n:0,min:0},total:0}; after clicking: #main text 'Done for today. 1 minute.', ui.mind.daily {step:'done',mins:1,doneAt:…}; chip js/modules/mind.js:126 (p.exam ? '≈ 5 min'), intro js/modules/mind.js:640-647, stopFocus mins js/modules/mind.js:617
+- **Root cause:** The exam branch of the Daily UI ignores reviews.n === 0
+- **Proposed fix:** When plan.total is 0 show a quiet state ('Nothing due today — your sitting waits for after your exams') with no Start, or offer an optional 'Read anyway'; read the chip from plan.total; never write doneAt for an empty run.
+- **Flags:** effort S
+
+### MI-08 · P2 · bug — Ask Kurenai offline: 'Saved to ask when you're online. You will see "What is sent" again' — the queue is written and never read
+
+- **Detail / repro:** Pressing Send while offline pushes {lesson, concept, mode, typed} to state.ui.mind.askQueue and tells the learner it will be asked when they are back online, after showing What is sent again. Nothing in the codebase reads askQueue: the question is silently dropped (and the queue grows per device for ever). The Daily 15 card's offline line also promises 'Ask Kurenai waits for a connection'.
+- **Evidence:** grep -rn askQueue js/ → only js/modules/mindrun.js:299-300 (write); message text js/modules/mindrun.js:303; js/modules/mind.js:136
+- **Root cause:** Feature half-built: producer without consumer
+- **Proposed fix:** Either implement the queue (on 'online' or the next Mind open, show a 'You asked while offline' card that reopens the What is sent step for each queued item) or say plainly 'You're offline — try again when connected' and keep the typed words in the sheet.
+- **Flags:** effort S
+
+### MI-09 · P2 · ux — Journal entries cannot be edited or linked to a concept after capture, though capture says 'Link a concept later'
+
+- **Detail / repro:** Quick capture saves kind, text and source with no concept (unless opened from a lesson) and says 'Link a concept later. Private: only you read it.' The Journal's entry card offers only 'Make it the Big Question' (questions), 'Ask Kurenai' and 'Delete' — no edit, no change of kind, no 'Link a concept'. A typo or a missing concept can only be fixed by deleting and recapturing (losing its date). The 'Concept: any' filter and the concept-filtered commonplace export therefore never find captured entries. The source field 'Source, for a quote' is also shown for every kind.
+- **Evidence:** js/modules/mindrun.js:371 'Link a concept later'; entryCard js/modules/mind.js:316-341 (buttons); /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-journal2-mac.png
+- **Root cause:** No edit UI on top of the existing put()
+- **Proposed fix:** Add an Edit action on each entry that reopens the capture sheet pre-filled (kind, text, source, concept chips from metConcepts) and saves through KOS.mindJournal.put (it already keeps id and bumps updatedAt for sync); show the source field only for Quote.
+- **Flags:** effort M
+
+### MI-10 · P2 · integration — Mind is barely joined to the rest of the OS: no Reports facts or milestones, Goals' card/recall types silently read 0 for Mind, and Home/Today never mention the Daily 15 or Mind cards due
+
+- **Detail / repro:** (1) Reports: js/core/report.js has no Mind facts at all (grep 'mind' → nothing), although docs/mind-plan.md:332 says milestones 'show on the desk and in Reports' and invariant 139 describes Reports counting Journal entries; Creatives has creativeFacts (report.js:644), Code programming(). Mind work appears only as anonymous Focus minutes. (2) Goals: the subject picker offers every KOS.subjects id including Mind (js/modules/goals.js:834), but 'Review flashcards' and 'Keep recall at or above' count only ledger types flashcards/due-review (js/core/goals.js:557-572), so 'Review flashcards · Mind' never moves — Mind reviews are logged as type 'mind' (js/core/mind.js:273). There is no Mind goal domain (DOMAINS goals.js:44 has code and creatives, not mind). (3) Home / Today: KOS.today.build() carries nothing from Mind (no Daily 15, no cards due, no revisit due), so the Daily 15 lives only on the Mind desk; the Morning/Evening reviews and Home's 'Today's three' never surface it.
+- **Evidence:** grep -rln 'KOS.mind' js/ → only ui, aitools, achcatalogue, achievements, governor, art, subjects, hub, governor-ui (no report.js, goals.js, today.js, dayreview.js); eval: JSON of KOS.today.build() contains no 'mind'/'Mind' field (only 'reminder' substrings); goals.js:557-572 type filter
+- **Root cause:** Mind shipped as a self-contained space; the joins listed in the plan were not built
+- **Proposed fix:** Add mindFacts to report.js (reviews passed, lessons finished, checkpoints, positions taken/changed, Journal counts — totals only), let cards-reviewed/recall-rate read type 'mind' review entries when the subject is Mind (or hide Mind from those pickers), and give KOS.today a Mind item (Daily 15 not done / cards due / revisit due) through KOS.mind.planDay.
+- **Flags:** effort M
+
+### MI-11 · P2 · ui — iPhone: Ask Kurenai's 'What is sent' sheet is wider than the screen — its text and boxes are cut off on the right
+
+- **Devices:** iphone
+- **Detail / repro:** On the iPhone (402px) the What-is-sent step's body content lays out 449px wide inside a 362px body (scrollWidth 449 vs clientWidth 362, overflow auto): the intro sentence is cut mid-word ('Journal … go unless you add one by hand'), the Mode/Concept/Typed-words boxes and the explain-back extra run past the right edge with no padding, and the user has to pan sideways inside a bottom sheet. The widest child is the '+ Add a Journal entry by hand' <select>, whose intrinsic width is its longest option (Journal titles up to 60 characters), which stretches the grid track every sibling shares.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-F1.3-iphone.png; eval (iphone): .k-mind-sheet-body scrollWidth 449, clientWidth 362; children P/UL/H3/DIV/P all 20→469
+- **Root cause:** Select intrinsic width from long option labels with no max-inline-size in a grid sheet body
+- **Proposed fix:** Give .k-mind-select (and the sheet's grid children) min-inline-size: 0; max-inline-size: 100%, so a long option never sets the track width; add the Ask sheet to the responsive audit at 402px.
+- **Flags:** effort S
+
+### MI-12 · P3 · ui — Inspector 'Ask Kurenai' grid: 'Explain it differently' overflows its button's padding at mac width
+
+- **Devices:** mac
+- **Detail / repro:** On a Mind lesson at 1470px the inspector's Ask Kurenai grid is two 118.5px columns; the 'Explain it differently' label (nowrap) is 116px wide, so it spills over the 14px side paddings and touches the pill's border on both sides, unlike the other three chips.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/e-F1.1-mac.png (inspector, Ask Kurenai); eval: text width 116.25 in a 118.5px .k-btn--sm with padding 14px 14px; grid-template-columns 118.5px 118.5px
+- **Root cause:** Fixed two-column grid with nowrap labels in a 243px inspector
+- **Proposed fix:** Let the grid fall to one column when a label does not fit (grid-template-columns: repeat(auto-fit, minmax(max-content, 1fr))) or shorten the label to 'Differently' / 'Say it simpler'. css/views/mind.css:236, js/modules/mindrun.js:216
+- **Flags:** effort S
+
+### MI-13 · P3 · bug — Dialogue 'Skip to summary' on the first question gives an empty '0 turns' summary, and 'Save to Journal' saves an empty Reflection (counted by the Journal badge)
+
+- **Detail / repro:** In a Socratic dialogue, 'Skip to summary' is offered from the very first node. Pressed there, the summary card reads 'THE LINE YOU TOOK · 0 TURNS' with no line at all, and its primary '≋ Save to Journal' writes a reflection titled 'Dialogue: …' with text '' to the Journal; the Badge Wall immediately pinged 'Journal 2 / 10 entries' for it. Every authored path is 3–5 turns (invariant 140), so a 0-turn summary is never meaningful.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-dialogue-0turns-mac.png; eval: KOS.mindJournal.list() → ['reflection','Dialogue: Is every disagreement an argument?',''] after the save; js/modules/mindrun.js:186-205 (onEnd builds the save button whatever the path length)
+- **Root cause:** onEnd does not check path.length; journal add accepts empty text
+- **Proposed fix:** Hide 'Skip to summary' until at least one turn is taken (or make it 'Leave'), and when the path is empty show 'Nothing to sum up yet' with Run it again only; refuse an empty text in KOS.mindJournal.add.
+- **Flags:** effort S
+
+### MI-14 · P3 · ux — Ask Kurenai's 'What is sent' pre-ticks the explain-back under 'Extras · tick to include', summarises instead of printing the payload, and says '1 bullets'
+
+- **Detail / repro:** On a lesson with an explain-back, extras.explain defaults to true (`|| !!ex`, js/modules/mindrun.js:233), so the learner's own writing is included unless they untick it — opposite of 'tick to include'. The list shows labels ('The concept and the lesson: Validity · F1.3') but the request also carries the concept's gist (and key points in check mode) and the explain-back text itself, which are not printed (invariant 140: sends only what What is sent shows; Reports' 102b prints the exact payload). The extra's sub-line reads '1 bullets'.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-ask-sent-mac.png; eval: checkbox [true, 'Your explain-back for this lesson 1 bullets']; payload() js/modules/mindrun.js:251-261 vs whatIsSent list :265-269; tick sub-line :277
+- **Root cause:** Extras default derived from existence of an explain-back; summary list built separately from payload()
+- **Proposed fix:** Default extras off (or keep the default but say 'included · untick to leave out'); add a 'Show the exact text' disclosure printing payload(); pluralise ('1 bullet').
+- **Flags:** effort S
+
+### MI-15 · P3 · ux — Checkpoint Argument Mapper: every claim starts as 'conclusion', the warning says 'Two conclusions' for five, and an untouched map still earns 'First argument mapped'
+
+- **Detail / repro:** The map step seeds every claim at depth 0 with no joint, so all five rows are labelled 'conclusion'. The warning is hard-coded 'Two conclusions: is that right?' whatever the count (5 here). 'Next · the synthesis' accepts the map as it is, and milestones() counts any stored map as 'First argument mapped' (js/core/mind.js:509) — so pressing Next without moving anything earns the milestone. Nothing compares the learner's map with the model map (only an optional 'Compare' sheet).
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-cp-map-ipad.png; js/core/mindui.js:202 (fixed text); js/modules/mind.js:537 (rows seeded d:0, j:null) and :545 (Next stores mp.value())
+- **Root cause:** Static warning text; milestone reads presence of r.map
+- **Proposed fix:** Word the warning from the count ('5 conclusions — only one claim is the conclusion'); start rows unplaced (a neutral 'claim' label) and count the milestone only when the map has exactly one top row and every other row has a joint.
+- **Flags:** effort S
+
+### MI-16 · P3 · ux — Mind's sheets (Ask Kurenai, Quick capture, Explain-back, Position) stay open over the next page after Back or any navigation
+
+- **Detail / repro:** KOS.mindUI.sheet builds its own overlay and never closes on a route change, unlike the shared confirm. After browser Back (or an iPad edge swipe, or a link in the bell), the 'About F1.3 · validity' Ask sheet is still on screen over F1.8's checkpoint and then over the Mind desk; a Quick capture sheet likewise survived history.back(). The sheet's context (lesson, concept) no longer matches the page under it.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-F1.8-ipad.png and s-desk-dawn-mac.png (Ask sheet for F1.3 over other pages); eval: KOS.ui.confirm then history.back() → 0 dialogs; KOS.mindRun.capture({}) then history.back() → 1 dialog remains; js/core/mindui.js:344-359
+- **Root cause:** Custom sheet wrapper without the shared navigation close
+- **Proposed fix:** Close Mind sheets on navigation (listen for the router's nav event / popstate in sheet(), or route through the same close-on-navigate path the shared dialogs use), keeping the capture's 'Discard this?' guard for unsaved text.
+- **Flags:** effort S
+
+### MI-17 · P3 · ux — Concept neighbours ('the opposite of · Straw man', 'leads to · Steelmanning') are plain chips, not links to the concept or its lesson
+
+- **Detail / repro:** A concept card on the Concepts tab lists its authored links as chips with no action; the learner cannot jump to Straw man (F1.5) or Steelmanning (F1.7). The same card draws the ladder twice (small in the header, large below). Concept names elsewhere (Journal chips, inspector rows) are also inert.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-F1.6-concepts-mac.png; js/modules/mindtopic.js:323-327 (UI().ladder twice; chips as span.k-chip)
+- **Root cause:** Links rendered as static chips
+- **Proposed fix:** Make each neighbour a button to KOS.show('ref', {subject:'mind', ref: concept.lesson, tab:'concepts'}) scrolled to the concept; drop the small header ladder or the large one.
+- **Flags:** effort S
+
+### MI-18 · P3 · ux — Positions page never says when a position comes back, and Keep/Retire act instantly with no undo
+
+- **Detail / repro:** Each position stores revisit {stage, due} (14 → 60 → 180 days), but the Positions page and the lesson's prompt card show only versions; the learner cannot see 'Back on 19 Nov' or which revisit is next, and there is no way to retire a position except when a revisit is due. On a due revisit, 'Keep' and 'Retire' write immediately (keepPosition/retirePosition) with no confirm and no Undo toast, and the revisit card's kicker says 'two weeks on' at stage 0 and 'again' afterwards whatever the real gap. Rows on the 1210px page are full-width strips holding a few words each.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-mind-positions-mac.png; versionsCard js/modules/mind.js:413-428 (no revisit line); revisitCard js/modules/mindrun.js:159-170; eval: position('F1.7').revisit {stage:0, due:'2026-11-19'} not rendered
+- **Root cause:** Revisit state stored but not presented
+- **Proposed fix:** Add 'Comes back on <date> · revisit 1 of 3' (or 'Retired') to each versions card with a Retire action; give Keep/Retire an Undo toast; size the versions list to its content (two columns at 1470).
+- **Flags:** effort S
+
+### MI-19 · P3 · ui — Mind polish: Journal card and empty Foundation strip leave large dead areas; selects render larger than the chips beside them; search glyph tiny
+
+- **Detail / repro:** (1) Desk: the Journal card (beside Subject analytics, ~250px tall) holds one or two short lines on an empty or new account, leaving most of the card blank. (2) Path page: Foundation is one full-width card whose F1/F2 rows span 1166px for an id, a five-word title and '0 / 8' at the far right; Y1's card in the Psychology grid is ~60% empty because the row stretches to Y2's three units. (3) Journal: 'Concept: any' and the commonplace 'Everything' selects use 16px text in 40px boxes next to 13px chips and a 32px 'This month' button; the search placeholder's '⌕' glyph renders as a tiny superscript. (4) The checkpoint's 'Retake' and the position card's 'Revise' are full-width primary/secondary bars (716–730px) unlike every other button.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/e-subdesk-mac.png, e-desk-mac.png (path), s-journal2-mac.png, s-F1.8-ipad2.png, s-F1.7-close-mac.png
+- **Root cause:** Page-specific sizing in css/views/mind.css (e.g. .k-mind-text/.k-mind-select :258-259) rather than the shared control scale
+- **Proposed fix:** Let the Journal card shrink or show the Big Question / milestones under few entries; lay Foundation's units in the same 4-up grid as the other headers; size .k-mind-select to the 13–14px control scale; drop the ⌕ glyph (the input is already labelled); give Retake/Revise intrinsic widths.
+- **Flags:** effort S
+
+**QoL ideas from this auditor:**
+- Show the next revisit date on each position and in the Daily intro
+- Let the Journal's 'Make it the Big Question' also work from the Daily's capture step (capture a question and set it in one go)
+- Add a 'Just review my Mind cards' entry outside the Daily 15 (Review › Due today does not include Mind cards)
+- Pluralise '1 bullets' and other counts in Mind sheets
+- Show HEADERS[].purpose lines on the Path page section heads
+
+**Backlog ideas from this auditor:**
+- Author apply/explain/evaluate routes for every F1 concept (or per-concept rung sets) before F2
+- Mind facts in Reports (milestones, positions changed, Journal counts) and a Mind goal domain
+- Tension pairs content (TENSIONS is empty; the UI path is unreachable)
 
 
 ---
@@ -2291,9 +2867,276 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ---
 
-## GO — Goals: every goal type's measurement, editor, notices, joins (not run)
+## GO — Goals: every goal type's measurement, editor, notices, joins (complete)
 
-_Not audited yet._
+**Auditor's summary.** The Goals engine is well structured (one registry, one compute, pure notices) and the range-reading types (Study hours, Focus, cards, Code, Creatives, repeating Money) measure exactly the period with pre-start sessions excluded, and exam-linked goals follow, unlink and archive as invariant 128 says. The big problems are in what the editor promises versus what types can read: UR-20 is verified (every Collection type except spend-below reads the whole vault, so goals are Met at once, write receipts and farm the Goal getter badge), state types (streaks, no-overdue, subscriptions) get start dates and are judged at the moment of looking, and UR-22's lenient RAG completes 'Move topics to Green' from failing quizzes. Several types are unusable from the UI: routine goals have no routine picker, the habit picker reads the frozen pre-Routines list, and editing a title goal silently relinks it. Repeating goals count the days before their start and keep stale period history when their grid changes; completion is sticky through edits. Presentation is solid on mac and iPad; the phone list hides deadlines/pace/actions, the template rows balloon to 180px, and the chart labels shrink to ~6px.
+
+**Coverage.** Slot 15, build sw kos-redraw-1, today Thu 5 Nov 2026. Empty account and seeded account (and an empty account with a hand-made fixture). Sizes: mac 1470x832 (list all/week/done, goal pages weekly/collection-met/exam, editor), ipad 820x1180 (list), iphone 402x874 (list, goal page, editor, Home card). DOM measurement (overflow, clipping, small targets, ovals) run on the list at all three sizes.
+MATRIX (type -> presentation / behaviour -> result):
+study-hours: card+page mac/ipad/iphone / fixture (pre-start, untagged, media, incomplete Focus) -> OK except GO-03 (repeat first period);
+cards-reviewed, recall-rate: card / fixture (subject filter, 50-review floor) -> GO-11;
+topics-green: card ipad / fixture (one 0% quiz per leaf; subject edit) -> GO-23 (UR-22), GO-24;
+study-paper-score, study-finish-unit: card mac / code read only -> OK by reading, NOT exercised with tracker data;
+focus-hours, focus-blocks: card / fixture -> OK;
+todos-done: fixture (todo, external, routine) -> OK (external batch counts once: noted, no finding);
+plan-ticked, carryovers-cleared: code read only -> carryovers in GO-08; plan-ticked NOT exercised;
+habit-streak: editor mac / fixture -> GO-07; routine-days, routine-streak: editor / fixture -> GO-06;
+no-overdue: fixture (flip, deadline) -> GO-08; money-subs-under: default deadline checked -> GO-08;
+money-spend-under: card ipad, editor mac/iphone / seeded months -> GO-18, GO-22; money-income: code only, OK by reading; money-no-spend: code -> GO-18; money-save: editor code read (no pots in seed) -> NOT exercised;
+code-tasks, code-retrievals: fixture (seen/topup/again excluded) -> OK; code-capstone: code read -> OK by reading;
+cr-studies, cr-drill-days: fixture -> OK; cr-words: code read -> NOT exercised;
+gov-streak, gov-level: card / fixture (display only, receipt payout none) -> OK;
+titles-completed, library-size, episodes, chapters, game-hours, favourites, purchases, routes, volumes: seeded fixture -> GO-02 (UR-20 verified); filtered-completed, spend-below: code read (spend-below reads range: OK) -> filtered in GO-02;
+specific-title, finish-series: editor fixture -> GO-25;
+custom-manual: card / nudge, edit -> GO-05, GO-15;
+exam_grade, exam_recall, exam_papers_done, exam_checklist: templates, add, move exam (deadline follows), delete exam (unlink, kept, judged archived next day) -> OK; exam page -> GO-27; exam_topics_green: same RAG root as GO-23 (template off by default, scope empty in fixture: NOT exercised directly).
+Engine: repeat week/month + weekFrom + closePeriods + run -> GO-03, GO-04; sticky completion/edit -> GO-05; receipts + Achievements goal-getter -> GO-02; notices via real tick() (done, due tomorrow) -> GO-10 (code), GO-05 evidence; Reports f.goals -> GO-09 (code only); Home switch -> GO-20; pins/Morning Review -> GO-26; search -> GO-21; list/hero -> GO-01, GO-12, GO-13, GO-14, GO-19; goal page -> GO-16, GO-17.
+NOT checked: Atelier Dawn and a shop theme (the harness --theme and setting governor.theme did not change the rendered theme in time; screenshots stayed Graphite); iPad landscape and iPhone Safari 760 height; This month tab and Done at phone sizes; delete/archive/restore dialogs visually (code read only); keyboard focus order and screen-reader names beyond the measurement script; cloud merge of goals (outcomes, completionLedger) across devices; Assistant goal tools; milestone chart markers with real data; money-save with a pot; cr-words with works.
+
+### GO-02 · P1 · bug — UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge
+
+- **Devices:** all
+- **Detail / repro:** Fixture on the seeded account (today Thu 5 Nov): goals with startDate 2026-11-05 and deadline 2026-12-15 measured titles-completed 222/10 (completed), library-size 1880/100, episodes-watched 13326/100, chapters-read 21735/100, game-hours 3115/100 (all 'completed' on the day they were made); favourites 82, purchases 7 and routes-cleared 16 are all-time counts too. Six seeded goals were completed on first compute, wrote six completionLedger receipts and earned achievement goal-getter tier 1 at once (state.achievements.earned['goal-getter']). Because remove() leaves the ledger entry and the badge counts ledger rows, creating and deleting such goals farms Goal getter's 10 and 50 tiers, which invariant 162 never takes back. The editor still offers Starts and Deadline and draws a pace line for these types, promising a range. Of the 13 Collection types only spend-below reads the range (specific-title/finish-series read one title by design).
+- **Evidence:** eval fx1/seed compute: rows 'titles-completed | 222 | 10 | completed', 'library-size | 1880 | 100 | completed', 'episodes-watched | 13326 | 100 | completed'; completionLedger ids 1,2,4,5,6,9; achievements.earned goal-getter tier 1; js/core/goals-collection.js:49-53,54-57,87-94 (mods() reads mediadb.stats aggregate); js/core/goals.js:438-441 (receipt + achievements.touch); js/modules/goals.js:892 (Starts/Deadline offered for every non-repeat type); js/core/achcatalogue.js:461-462; after deleting and recreating fixture goals the ledger held 13 receipts for 2 live goals and Goal getter II (10 goals) unlocked (screenshot shots/goals/routine-days-saved-mac.png)
+- **Root cause:** goals-collection.js types were moved unchanged from Collection Goals v2, which measured vault state, while the v3 editor gives every type a start date and a pace line
+- **Proposed fix:** Measure the period from the media activity journal (mediadb journal [ts,kind,from,to], invariant 99): completions/status->completed, progress/volume/hour deltas and favourites added with ts in [start, deadline]; purchases by purchasedAt (as spend-below already does); library-size by createdAt. Then mark these types repeat-capable. Until then, record a baseline at creation (onCreate, as topics-green does) and measure the delta. Decide with the user whether goal-getter earned this way is revoked (needs an explicit exception to invariant 162).
+- **Flags:** effort M
+
+### GO-06 · P1 · bug — 'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field
+
+- **Devices:** all
+- **Detail / repro:** Both routine goal types are offered under Productivity in New goal, but goalDialog draws no routine picker (nothing in js/modules/goals.js reads or writes params.routine), so Save stores params {} and the goal measures 'No routine linked' forever (current null, status active). Reproduced: with two routines (Stretch habit, Evening wind-down) the routine-days editor shows Title, Target, Repeats, Starts, Deadline and Milestones only; the saved goal computes [null, 'No routine linked', 'active']. No other surface (Routines pages) creates these goals either (grep routine-days/routine-streak: only js/core/routines.js:752-764).
+- **Evidence:** eval: editor text 'Keep a routine on N days ... Title Target Repeats ... Starts Deadline · optional Milestones' and saved params '{}'; compute -> ['Keep a routine on N days', null, 'No routine linked', 'active']; js/core/routines.js:750-764; js/modules/goals.js:828-902 (no routine field)
+- **Root cause:** types registered by routines.js after the editor was built; the editor only knows fields it hard-codes
+- **Proposed fix:** Add a fields.routine flag to both types and a Routine select (KOS.routines.all(), including Daily habits) in goalDialog that writes params.routine; refuse Save without one. Offer 'Make this a goal' from a routine's page.
+- **Flags:** effort S
+
+### GO-07 · P1 · bug — 'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked
+
+- **Devices:** all
+- **Detail / repro:** The Habit select is filled from store.state.todo.habits (js/modules/goals.js:878-881), which invariant 142 freezes once Habits move into Routines. With a habit added through KOS.routines.addHabit('Stretch'), the select had zero options; saving stores params.habit undefined and the goal reads 'No habit linked'. For the user (migrated 26 Oct) the list shows only the habits frozen at migration, including ones since removed, while the measure resolves through KOS.routines (goals.js:641-646). habit-streak also duplicates routine-streak.
+- **Evidence:** eval: routines ['r_hf2bclf7m:habit:Stretch','r_zzd3e2f7u:evening:Evening wind-down'], todo.habits [], editor select 'Habit' options []; shots/goals/editor-habit-streak-mac.png; js/modules/goals.js:878-881; js/core/goals.js:638-655
+- **Root cause:** editor reads the legacy habit list; measure reads Routines
+- **Proposed fix:** Fill the select from KOS.routines.habitsView() (or all routines of kind habit) and store params.routine; better, retire habit-streak in favour of routine-streak with a routine picker (keep old records readable).
+- **Flags:** effort S
+
+### GO-23 · P1 · bug — UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once
+
+- **Devices:** all
+- **Detail / repro:** Empty account: a 'Move topics to Green' goal on five Maths leaves (baseline 0). Logging one quiz attempt at 0% on each leaf makes KOS.rag.effective return band 'g' for all five (auto() starts at 100 and the quiz penalty is capped at 25, so 0% -> 75 = Green), and the goal computes 5/5 'completed' with an activity-only receipt and an achievements touch. Exam goals 'Topics green or covered' (scopeCount) and Exams readiness coverage read the same band, so they are met by failing quizzes too.
+- **Evidence:** eval fx8: bands ['g','g','g','g','g'] after study.quiz[k]={attempts:1,lastPct:0}; goal '5|5|completed'; completionLedger receipt {type:'topics-green',payout:'activity-only'}; js/modules/rag.js:29-90 (score from 100, quiz cap 25, Green >= 70); js/core/goals.js:534-546, 574-581; js/core/goals-exams.js:58-66
+- **Root cause:** rag.js auto() subtracts capped penalties from 100 with no evidence floor
+- **Proposed fix:** Fix RAG as UR-22 proposes (evidence-weighted score, minimum evidence before any band, Green only when recall and practice both clear their bar). In Goals, count a leaf only when its band rests on enough evidence (e.g. rag.auto(...).evidence >= threshold) and judge topics-green on the deadline (hold) rather than on first touch.
+- **Flags:** effort M
+
+### GO-25 · P1 · bug — Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked
+
+- **Devices:** all
+- **Detail / repro:** The Linked title select of 'Complete a specific title' / 'Finish a series' lists only titles with status inProgress, alphabetically, capped at 60. Editing a goal whose title is now completed (or planned, on hold, or past the 60th) leaves its own title out of the list, so the browser selects the first option and Save rewrites linkedEntryId. Reproduced: goal 'Finish Zzz' linked to entry 2 (completed); Edit then Save without touching anything -> linkedEntryId 1 ('Aaa Watching'). It also means a planned title can't be a goal ('finish X before December') and a user with more than 60 titles in progress can't pick most of them.
+- **Evidence:** eval: options ['1:Aaa Watching'], selected '1', goal.linkedEntryId 2 -> 1 after Save; js/modules/goals.js:864-871, 955
+- **Root cause:** select filled from a filtered, capped query without the current value
+- **Proposed fix:** Always include the goal's current title as the selected option; replace the capped select with a search picker over the whole vault (any status), as the Collection's own pickers do.
+- **Flags:** effort S
+
+### GO-03 · P2 · bug — Repeating goals count activity from before the goal started in their first period (week and month)
+
+- **Devices:** all
+- **Detail / repro:** A weekly Study-hours goal (target 2 h, week Mon-Sun) started Wed 14 Oct: its first outcome is the week of Mon 12 Oct and it was judged MET from 2 h logged on Tue 13 Oct, the day before it existed. A monthly goal started 20 Oct judged October as 15 h, counting 10 h from 5 Oct and 2 h from 13 Oct. closePeriods begins at periodOf(g, g.startDate) and measures the whole period, and the live period's measure does the same. Same UR-20 class: things done before the start count.
+- **Evidence:** eval fx2: weekly outcomes {'2026-10-12':{met:true,value:2}} with startDate 2026-10-14 and the only Oct 12-18 session dated 2026-10-13; monthly outcomes {'2026-10':{met:true,value:15}} with startDate 2026-10-20; js/core/goals.js:379-397 (closePeriods), 418-419 (from = per.from)
+- **Root cause:** period ranges ignore startDate
+- **Proposed fix:** Clamp each period's from to max(per.from, g.startDate) when measuring (and prorate or mark the first partial period 'partial' so a 3-day first week is not judged against a 7-day target), or start the first period at the next boundary.
+- **Flags:** effort S
+
+### GO-04 · P2 · bug — Changing a repeating goal's 'week runs' or its repeat keeps the old periods: history fills with overlapping weeks and months
+
+- **Devices:** all
+- **Detail / repro:** Editing a weekly goal from Monday-weeks to 'From the day it starts' (Wednesday) kept the three Monday-keyed outcomes and added three Wednesday-keyed ones, so 'Every week so far' shows six periods for three weeks (2026-10-12, -14, -19, -21, -26, -28) and the run is computed across both. Switching the same goal from Every week to Every month kept all six week keys and added '2026-10'. update() only merges outcomes when repeat is unchanged, but normalise keeps raw.outcomes whatever the repeat, and weekFrom changes are not considered at all.
+- **Evidence:** eval fx2 wStart.outcomes (6 keys); eval fx3 after repeat:'month' -> keys ['2026-10-12','2026-10-14','2026-10-19','2026-10-21','2026-10-26','2026-10-28','2026-10'], run 2; js/core/goals.js:162-168 (normalise keeps outcomes), 266 (merge on same repeat)
+- **Root cause:** outcomes keyed by period start are carried across a change of period grid
+- **Proposed fix:** When repeat or weekFrom changes, drop (or archive under a separate key) outcomes whose keys do not match the new period grid, and re-judge from startDate; say so in the editor ('the history restarts').
+- **Flags:** effort S
+
+### GO-05 · P2 · bug — A met goal stays 'Met' after its target is raised or a manual count is lowered (10% shown as Met)
+
+- **Devices:** all
+- **Detail / repro:** A manual goal nudged to 3/3 completes; nudging to 1 keeps 'completed'; editing the target to 10 keeps 'completed' with _pct 10, so Done lists it as Met at 1 of 10. derive() returns 'completed' whenever g.status==='completed' && completedAt, and update() never clears it when the target, type link or dates change. The same holds for an auto goal edited after completion (e.g. a UR-20 goal whose target the user raises to fix it stays Met). There is also no -1 or undo for a manual goal's +1 (only '+1' in actionFor) and no Reopen in the UI (G.reopen is unused), so a mis-tap cannot be corrected except by Restart, which wipes the start date.
+- **Evidence:** eval fx2: man {st:'completed'} -> after nudge -2 {st:'completed',cur:1} -> after target 10 {st:'completed',cur:1,tgt:10,pct:10}; js/core/goals.js:305 (sticky completed), 259-272 (update), js/modules/goals.js:243 (+1 only); grep: reopen not referenced in js/modules/goals.js; tick(): notice 'goal:3:done | Goal reached — Finish Zzz | 0 of 1 title' after the goal's link changed
+- **Root cause:** completion is sticky by design for evidence types but edits are not treated as a new judgement
+- **Proposed fix:** In update(), if target/type/links/startDate/deadline change on a completed goal, re-derive (clear completedAt; keep the ledger receipt so nothing is paid twice). Give manual goals a stepper (-1/+1 or a 'Set count' field in Edit) and an Undo toast after +1.
+- **Flags:** effort S
+
+### GO-08 · P2 · bug — Stay-under goals on live state (No overdue assignment, Carry-overs cleared, Subscriptions below) flip between Missed and active and are judged only at the moment they are looked at
+
+- **Devices:** all
+- **Detail / repro:** Fixture: a 'No overdue assignment' goal for 1-30 Nov with 3 overdue assignments is 'failed' the moment it is made (before its deadline), then goes back to 'active' (failedAt cleared) once overdue reads 0, then, with the deadline moved to yesterday while overdue was 0 for one compute, becomes 'completed' and stays completed (sticky) after overdue returns to 3. So a month with overdue work every day except the last look is Met, and a breach early in the month is forgotten. The measure reads KOS.assignments.counts() / pacing.dueThisWeek() / subscriptions() NOW, not over [start, deadline]; derive() treats current<=target at the first compute after the deadline as success. add() also gives every such goal a deadline of month end silently.
+- **Evidence:** eval fx5: a '3|failed|failed|1' -> b (overdue 0) '0|active|active|0|under' -> c (deadline 2026-11-04) '0|completed' -> d (overdue 3 again) '3|completed'; js/core/goals.js:656-674 (live measures), 307-311 (under-direction derive), 251 (month-end default)
+- **Root cause:** state types are judged like range counts
+- **Proposed fix:** For live stay-under types, record a breach (first day current>target inside the range) into params and judge from it: failed once breached (or 'held N of M days'), completed only if never breached by the deadline. Alternatively derive from history: assignments' due/submitted dates give overdue days in the range.
+- **Flags:** effort M
+
+### GO-11 · P2 · bug — 'Review flashcards' and 'Keep recall' offer Japanese, Mind and Code but never count their reviews
+
+- **Devices:** all
+- **Detail / repro:** The subject select of cards-reviewed and recall-rate lists every subject (All, CS, Maths, IT, Code, Japanese, Mind, Creatives), but the measure reads only ledger entries of type 'flashcards' or 'due-review'. Japanese reviews are logged as type 'ja' and Mind's review blocks as type 'mind' (with metrics.cards), Code's retrievals as type 'code', so a 'Review 200 Japanese cards this week' goal stays at 0 forever, and 'All subjects' silently leaves those reviews out.
+- **Evidence:** eval: cards-reviewed editor subject options [':All subjects','compsci','maths','it','code','ja','mind','creatives']; js/core/goals.js:557-571 (type filter); js/core/ja.js:228, js/core/mind.js:272 (their session types)
+- **Root cause:** measure hard-codes two session types while the editor lists KOS.subjects.ids()
+- **Proposed fix:** Count review sessions by kind across owners (flashcards, due-review, ja reviews, mind reviews, Code retrievals) or restrict the select to subjects whose reviews the measure reads; the same review-log rows (KOS.reviewLog, src per owner) could be the single source.
+- **Flags:** effort S
+
+### GO-12 · P2 · ui — iPhone: 'Aim at something new' template rows are 180px tall for one line of text
+
+- **Devices:** iphone
+- **Detail / repro:** On the dense Goals page at 402px each of the three template rows in the 'Aim at something new' tile is 322x180 with a single 12.5px line, so the tile is ~650px of mostly empty boxes. The flex-basis var(--gl-tpl-min) meant as a row WIDTH becomes the row HEIGHT once the phone rule turns the list into a column.
+- **Evidence:** shots/goals/dense-all-iphone.png (bottom); eval: .k-gl-tplrow sizes ['322x180','322x180','322x180']; css/views/goals.css:122 (.k-gl-tplrow flex: 1 1 var(--gl-tpl-min)) with 207/226 (flex-direction: column)
+- **Root cause:** flex-basis applies on the main axis, which flips to vertical
+- **Proposed fix:** Reset flex: 0 0 auto on .k-gl-tplrow when the list is a column (phone rule), or set the basis only in the row layout.
+- **Flags:** effort S
+
+### GO-13 · P2 · ux — iPhone: goal cards hide the deadline, the pace chip and the action button
+
+- **Devices:** iphone
+- **Detail / repro:** Under 700px the card's band top (pace chip: Behind / Too early / Display only) and footer ('3 days left · by Sun 8 Nov', and the action: Start focus, Review, Today's Daily 20, +1 for a manual goal) are display:none. On the phone list a goal therefore shows neither when it ends nor whether it is behind, and a manual goal's +1 is only reachable by opening it. Only the hero keeps them.
+- **Evidence:** shots/goals/dense-all-iphone.png; eval (iphone): hidden ['k-gl-bandtop','k-gl-cardfoot'], card text 'Focus blocks by Sunday 5 of 30 blocks 25 to go.'; css/views/goals.css:229,233
+- **Root cause:** phone rule hides parts instead of recomposing them
+- **Proposed fix:** Keep a compact one-line foot on phone (pace chip + 'n days left') and the action as an icon button, instead of hiding both.
+- **Flags:** effort S
+
+### GO-16 · P2 · a11y — iPhone: the goal's pace chart labels shrink to about 6px
+
+- **Devices:** iphone
+- **Detail / repro:** On #/goals/<id> at 402px the pace chart SVG is scaled to the card width, so its axis labels (10 h, 5 h, Mon…Sun) render with an 8px box (≈6px glyphs), far under the 11px label floor of invariant 63 and unreadable on the phone.
+- **Evidence:** shots/goals/detail-weekly-iphone.png; eval (iphone): svg text heights [8,8,8,8]; js/modules/goals.js:583-611 (fixed viewBox scaled by width)
+- **Proposed fix:** Draw the chart at the container's pixel width (ResizeObserver or a phone viewBox) as the lab plots do, or render axis labels in HTML at a fixed size.
+- **Flags:** effort S
+
+### GO-22 · P2 · ui — Goal editor: 'Every month' is cut off in the Repeats control beside a money amount (mac)
+
+- **Devices:** mac, ipad
+- **Detail / repro:** In the New goal editor for a money type (Spend below an amount, Earn at least) at 1470x832, the Repeats segmented control shares a row with the amount field and is 210px wide for 281px of content; 'Every month' runs from x=968 to 1073 while the control ends at 1007, so it reads 'Ever' and is clipped by the dialog. The count stepper row of other types has the same two-column layout.
+- **Evidence:** shots/goals/dense-all-dawn-mac.png (dialog open); eval: seg [797,1007], 'Every month' button [968,1073], scrollWidth 281 vs clientWidth 210; js/modules/goals.js:888-889
+- **Proposed fix:** Put Repeats on its own row (or let the row wrap when the segment's min-content exceeds its track); k-seg--fill should never shrink below its content.
+- **Flags:** effort S
+
+### GO-24 · P2 · bug — Editing a 'Move topics to Green' goal's subject or topics keeps the old baseline, so it can be met instantly
+
+- **Devices:** all
+- **Detail / repro:** topics-green records params.baseline (green topics at creation) in onCreate, and update() only re-runs onCreate when the TYPE changes. A goal made for IT (baseline 0) and edited to Maths, where 5 leaves are already green, reads 5 new green topics and completes 5/3 on the spot; the reverse edit leaves it unreachable. Same for exam_recall/exam_topics_green baselines when relinked to another exam (linkExam does not re-baseline).
+- **Evidence:** eval fx8: g2 baseline 0 (IT) -> update links {subject:'maths'} -> '5|3|completed|5 green now|0'; js/core/goals.js:268 (onCreate only on type change), 574-576; js/core/goals.js:849-855 (linkExam)
+- **Proposed fix:** Re-run def.onCreate (re-baseline) in update()/linkExam whenever links, refs, subject or params that the measure reads change, before computing; tell the user 'counting from now'.
+- **Flags:** effort S
+
+### GO-27 · P2 · ux — Projected-recall goal with too little data shows '–' and a meaningless 'The line says 4.3%', without saying why
+
+- **Devices:** all
+- **Detail / repro:** A template-made 'CS Paper 1 mock recall ≥ 95%' goal on an account with no rated cards: recallNow() is thin, so onCreate stores baseline 0 and the page shows SO FAR '–' beside THE LINE SAYS '4.3 % by today' (a straight line from 0% to 95% across the weeks), which no recall figure can follow. The reason the measure is empty ('Appears after 20 rated cards in scope…', the measure's meta) appears nowhere on the goal page, and the page has no action (the list card's 'Review' button is not repeated here).
+- **Evidence:** shots/goals/detail-exam-mac.png; eval: page text has no 'Appears after'/'20 rated cards' and no 'Review'; js/core/goals-exams.js:111-121 (baseline 0 when thin), js/core/goals.js:474 (_expected drawn whenever reach + not noPace); js/modules/goals.js:548-560
+- **Proposed fix:** When the baseline is unknown (thin), store null and draw no line until the first measured figure becomes the baseline; print _meta under '–' on the goal page and add the type's action (examAction/actionFor) to the page header.
+- **Flags:** effort S
+
+### GO-01 · P3 · ui — First-goal template grid leaves an empty sixth column at 1470 (auto-fill)
+
+- **Devices:** mac
+- **Detail / repro:** On an empty account, #/goals at mac width shows the five templates in a grid of six 186px tracks, so a sixth empty track (~196px) sits at the right of the card: dead width the user standing rule forbids.
+- **Evidence:** shots/goals/empty-all-mac.png; eval: .k-gl-tpls gridTemplateColumns = 186px x6 with 5 children; css/views/goals.css:138 repeat(auto-fill, minmax(var(--gl-tpl-min),1fr))
+- **Root cause:** auto-fill keeps empty tracks; auto-fit collapses them
+- **Proposed fix:** Use repeat(auto-fit, minmax(...,1fr)) so the five tiles stretch across the card (or cap columns at the template count).
+- **Flags:** effort S
+
+### GO-09 · P3 · data — Reports drop repeating-goal periods that straddle a report boundary (weeks from a weekday, payday months)
+
+- **Devices:** all
+- **Detail / repro:** goalFacts counts an outcome in the report whose range holds the period's START key. A weekly goal whose week runs from its start day (e.g. Wed-Tue) has key Wed 4 Nov; the week report for 2-8 Nov is built on Mon 9 Nov, before that period ends (Tue 10), so it has no outcome yet, and the 9-15 Nov report skips the key because 4 Nov is outside it: that period is never reported. A Money goal's month follows Money's month start (periodOf uses KOS.money.periodRange), so a payday month starting the 25th has the same gap in month reports. Read from code; not reproduced in a saved report.
+- **Evidence:** js/core/report.js:698-711 (day = period key, kept only if p.start<=day<=p.end); js/core/goals.js:63-81 (weekFrom 'start' keys, money periods)
+- **Root cause:** outcome keyed by start, report built when the period may still be open
+- **Proposed fix:** Attribute an outcome to the report whose range holds the period's END (or the judgement date at), so every period lands exactly once after it has been judged.
+- **Flags:** effort S
+
+### GO-10 · P3 · bug — A stay-under goal breached early never sends its 'Goal missed' notice
+
+- **Devices:** all
+- **Detail / repro:** tick() only pushes ':missed' while now - failedAt < 2 days (NEWS_MS). A stay-under goal (spend below, no overdue) is marked failed the day it goes over, but notices() only emits ':missed' once the deadline has passed; by then failedAt is usually more than two days old, so the notice is dropped and the month-end miss is silent. Similarly, a goal restarted after completion reuses the id 'goal:<id>:done', so its second completion is deduped by the ledger within 45 days.
+- **Evidence:** js/core/goals.js:818-820 (missed only after deadline), 864-873 (at = failedAt, dropped when older than NEWS_MS); fx5 shows failedAt set on creation day for no-overdue
+- **Root cause:** news window measured from the status change, not from the event the notice reports
+- **Proposed fix:** Use the deadline (or max(failedAt, deadline)) as the news time for ':missed'; key ':done' by completedAt day or the restart's startDate.
+- **Flags:** effort S
+
+### GO-14 · P3 · ui — iPhone: Domain filter pills overflow the screen edge as an undeclared, scrollbar-less scroller
+
+- **Devices:** iphone, mac
+- **Detail / repro:** The Domain pills (All 13, Study 5, Productivity 1, Money 1, Code 1, Collection 4, Governor 1) run past the 402px viewport (pills at right=422, 522, 619) with overflow-x:auto and scrollbar-width:none on a plain div, so 'Code' is cut at the edge and nothing says the row scrolls. Invariant 50 asks for KOS.ui.scroller (edge cues, keyboard). Also: on mac these pills are 29px tall (<32) and counts print 'All13' to a screen reader.
+- **Evidence:** shots/goals/dense-all-iphone.png; eval iphone over: k-gl-domain r=422/522/619; mac small: goal.domain 58x29; css/views/goals.css:235; js/modules/goals.js:358-363
+- **Proposed fix:** Wrap the pills in KOS.ui.scroller (or let them wrap to two lines on phone); raise pill height to 32px (44 on touch).
+- **Flags:** effort S
+
+### GO-15 · P3 · ux — A custom manual goal is filed under Collection
+
+- **Devices:** all
+- **Detail / repro:** New goal offers 'Custom manual goal' as its own section, but the type registers with domain 'collection' (goals.js:548), so 'Read three papers on memory' wears the 蒐 Collection mark and pill, counts in the Collection domain filter and its action fallback is the Collection page.
+- **Evidence:** shots/goals/dense-all-mac.png (card 'Read three papers on memory', pill 'Collection'); js/core/goals.js:548; js/modules/goals.js:711-712, 244
+- **Proposed fix:** Give manual goals their own 'Personal' domain (or let the user pick the domain in the editor) and a neutral mark.
+- **Flags:** effort S
+
+### GO-17 · P3 · ui — 'Every week so far' history bars overflow and are cut off at the card edge on iPhone
+
+- **Devices:** iphone
+- **Detail / repro:** The history list (.k-gl-hist, 8 periods) is 728px wide in a 326px card; it scrolls horizontally with overflow:auto but is not a declared KOS.ui.scroller, has no edge cue, and the fourth bar ('2.5', '5') is sliced at the right edge.
+- **Evidence:** shots/goals/detail-weekly-iphone.png; eval: hist width 326, scrollWidth 728, overflowX auto; js/modules/goals.js:613-636
+- **Proposed fix:** Use KOS.ui.scroller with reveal of the open period (newest at the right), or compress the bars to fit (12 periods at 24px).
+- **Flags:** effort S
+
+### GO-18 · P3 · data — Spend-below goals are judged Met for months with no Money records at all
+
+- **Devices:** all
+- **Detail / repro:** A monthly 'Spend below £60' goal started 1 Sep on an account with no transactions shows two met periods (✓✓) and 'Under'. The measure returns 0 spent whenever the range has no rows, so months before Money was used, or when nothing was imported, count as kept; the 'Under budget' badge logic and Reports' periods met read the same outcomes. Invariant 76 asks for no claim without evidence. money-no-spend has the same flaw: every day without a recorded 'out' transaction counts as a no-spend day, so a user who does not log daily meets 'No-spend days' automatically (js/core/goals.js:700-710).
+- **Evidence:** shots/goals/dense-all-ipad.png (card 'Eating out under £60', ✓✓ and 'Under'); js/core/goals.js:680-689 (no-rows -> 0); closePeriods writes met:true
+- **Proposed fix:** Treat a period with no transactions (or before the first one) as 'no evidence' (current null) so it is not judged; say 'No spending recorded' instead.
+- **Flags:** effort S
+
+### GO-19 · P3 · data — Hero's 'behind / on track / met this week' counts every open goal, not this week's
+
+- **Devices:** all
+- **Detail / repro:** On This week (filter shows All 3) the hero says '4 behind this week · 4 on track this week · 1 met this week', i.e. nine goals, including goals that end in December and display-only ones. hero(lead, open) is passed every open goal instead of the tab's goals, so the counts disagree with the page they sit on and change nothing when the tab or domain filter changes.
+- **Evidence:** shots/goals/week-mac.png (All 3 vs 4/4/1); js/modules/goals.js:322 (hero(lead, open)), 388 (counts over open)
+- **Proposed fix:** Pass the tab's goals (shown) and label the counts by tab ('this week' / 'this month' / 'open'); skip display-only goals.
+- **Flags:** effort S
+
+### GO-20 · P3 · content — Home's Goals card: an unlabeled number in each ring and doubled units ('5 blocks of 30 blocks')
+
+- **Devices:** all
+- **Detail / repro:** Each Home goal row shows a ring with a bare number (3, 3, 25) that is the days left while the ring's fill is the progress; the number is aria-hidden and nothing on screen says 'days'. The sub-line repeats the unit: '5 blocks of 30 blocks', '0 cards of 400 cards'.
+- **Evidence:** shots/goals/home-goals-mac.png; eval (iphone) rows '3 / 10 hours of study a week / Behind / 1 h 6 m of 10 h · by 8 Nov', '25 / 400 cards this month / … 0 cards of 400 cards'; js/modules/hub.js:1414-1425
+- **Proposed fix:** Label the ring ('3d' / 'days left' under it) or put the percent in it; print the unit once ('5 of 30 blocks').
+- **Flags:** effort S
+
+### GO-21 · P3 · ux — Phone search sheet files Goals under Collection
+
+- **Devices:** iphone
+- **Detail / repro:** The phone search sheet's domain chips map the 'goals' result group to 'Collection' (SEARCH_SECTION.goals), though Goals is a Productivity page (rail and section strip) since roadmap 5.4; searching a study goal and tapping 'Productivity' hides it.
+- **Evidence:** js/modules/hub.js:3592-3593
+- **Proposed fix:** Map goals to 'Productivity'.
+- **Flags:** effort S
+
+### GO-26 · P3 · ux — Met and missed goals stay pinned to the Morning Review and Home, using up the three pin slots
+
+- **Devices:** all
+- **Detail / repro:** pin() refuses only archived goals, and nothing unpins a goal when it is met or missed; KOS.today's goals() lists every pinned goal for the reviews. The goal page even offers 'Pin to the morning' on a Met goal. A finished goal therefore keeps one of the three slots until the user notices, and pinning a new goal fails with 'Three goals are pinned already.'
+- **Evidence:** shots/goals/detail-collection-met-mac.png ('Met' chip beside 'Pin to the morning'); js/core/goals.js:215-225; js/core/today.js:169-178; js/modules/goals.js:541-546
+- **Proposed fix:** Exclude completed/failed goals from pinned() (keep the flag for history) and hide the Pin button on a finished goal; unpin on archive/complete.
+- **Flags:** effort S
+
+**QoL ideas from this auditor:**
+- Undo toast after a manual +1 and a -1 step
+- Show the measure's meta ('Needs 50 reviews to measure') on the goal page, not only on cards
+- Restart button says 'Restart for <Month>' but sets the old span from today; name the new dates
+- Label the Home ring's number ('days left')
+- Exam goal Save announces 'Goal added' on edit too (goals.js:942)
+- Domain pills 29px tall on mac; raise to 32px
+
+**Backlog ideas from this auditor:**
+- Measure Collection goals from the media activity journal so they can repeat weekly/monthly (completions, episodes, chapters per period)
+- A 'Make this a goal' entry point from routines, pots, exams' readiness, Collection titles and Money budgets so goals are created where the data lives
+- Japanese and Mind goal types (facets reviewed, lessons finished, Daily 15 days) to match the other study spaces
+- Goal page: list what counted (the sessions, titles or transactions inside the range) with links, so a goal is auditable
 
 
 ---

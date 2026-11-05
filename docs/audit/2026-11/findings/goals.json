@@ -1,0 +1,308 @@
+{
+ "area": "goals",
+ "summary": "The Goals engine is well structured (one registry, one compute, pure notices) and the range-reading types (Study hours, Focus, cards, Code, Creatives, repeating Money) measure exactly the period with pre-start sessions excluded, and exam-linked goals follow, unlink and archive as invariant 128 says. The big problems are in what the editor promises versus what types can read: UR-20 is verified (every Collection type except spend-below reads the whole vault, so goals are Met at once, write receipts and farm the Goal getter badge), state types (streaks, no-overdue, subscriptions) get start dates and are judged at the moment of looking, and UR-22's lenient RAG completes 'Move topics to Green' from failing quizzes. Several types are unusable from the UI: routine goals have no routine picker, the habit picker reads the frozen pre-Routines list, and editing a title goal silently relinks it. Repeating goals count the days before their start and keep stale period history when their grid changes; completion is sticky through edits. Presentation is solid on mac and iPad; the phone list hides deadlines/pace/actions, the template rows balloon to 180px, and the chart labels shrink to ~6px.",
+ "coverage": "Slot 15, build sw kos-redraw-1, today Thu 5 Nov 2026. Empty account and seeded account (and an empty account with a hand-made fixture). Sizes: mac 1470x832 (list all/week/done, goal pages weekly/collection-met/exam, editor), ipad 820x1180 (list), iphone 402x874 (list, goal page, editor, Home card). DOM measurement (overflow, clipping, small targets, ovals) run on the list at all three sizes.\nMATRIX (type -> presentation / behaviour -> result):\nstudy-hours: card+page mac/ipad/iphone / fixture (pre-start, untagged, media, incomplete Focus) -> OK except GO-03 (repeat first period);\ncards-reviewed, recall-rate: card / fixture (subject filter, 50-review floor) -> GO-11;\ntopics-green: card ipad / fixture (one 0% quiz per leaf; subject edit) -> GO-23 (UR-22), GO-24;\nstudy-paper-score, study-finish-unit: card mac / code read only -> OK by reading, NOT exercised with tracker data;\nfocus-hours, focus-blocks: card / fixture -> OK;\ntodos-done: fixture (todo, external, routine) -> OK (external batch counts once: noted, no finding);\nplan-ticked, carryovers-cleared: code read only -> carryovers in GO-08; plan-ticked NOT exercised;\nhabit-streak: editor mac / fixture -> GO-07; routine-days, routine-streak: editor / fixture -> GO-06;\nno-overdue: fixture (flip, deadline) -> GO-08; money-subs-under: default deadline checked -> GO-08;\nmoney-spend-under: card ipad, editor mac/iphone / seeded months -> GO-18, GO-22; money-income: code only, OK by reading; money-no-spend: code -> GO-18; money-save: editor code read (no pots in seed) -> NOT exercised;\ncode-tasks, code-retrievals: fixture (seen/topup/again excluded) -> OK; code-capstone: code read -> OK by reading;\ncr-studies, cr-drill-days: fixture -> OK; cr-words: code read -> NOT exercised;\ngov-streak, gov-level: card / fixture (display only, receipt payout none) -> OK;\ntitles-completed, library-size, episodes, chapters, game-hours, favourites, purchases, routes, volumes: seeded fixture -> GO-02 (UR-20 verified); filtered-completed, spend-below: code read (spend-below reads range: OK) -> filtered in GO-02;\nspecific-title, finish-series: editor fixture -> GO-25;\ncustom-manual: card / nudge, edit -> GO-05, GO-15;\nexam_grade, exam_recall, exam_papers_done, exam_checklist: templates, add, move exam (deadline follows), delete exam (unlink, kept, judged archived next day) -> OK; exam page -> GO-27; exam_topics_green: same RAG root as GO-23 (template off by default, scope empty in fixture: NOT exercised directly).\nEngine: repeat week/month + weekFrom + closePeriods + run -> GO-03, GO-04; sticky completion/edit -> GO-05; receipts + Achievements goal-getter -> GO-02; notices via real tick() (done, due tomorrow) -> GO-10 (code), GO-05 evidence; Reports f.goals -> GO-09 (code only); Home switch -> GO-20; pins/Morning Review -> GO-26; search -> GO-21; list/hero -> GO-01, GO-12, GO-13, GO-14, GO-19; goal page -> GO-16, GO-17.\nNOT checked: Atelier Dawn and a shop theme (the harness --theme and setting governor.theme did not change the rendered theme in time; screenshots stayed Graphite); iPad landscape and iPhone Safari 760 height; This month tab and Done at phone sizes; delete/archive/restore dialogs visually (code read only); keyboard focus order and screen-reader names beyond the measurement script; cloud merge of goals (outcomes, completionLedger) across devices; Assistant goal tools; milestone chart markers with real data; money-save with a pot; cr-words with works.",
+ "findings": [
+  {
+   "title": "GO-02 UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "Fixture on the seeded account (today Thu 5 Nov): goals with startDate 2026-11-05 and deadline 2026-12-15 measured titles-completed 222/10 (completed), library-size 1880/100, episodes-watched 13326/100, chapters-read 21735/100, game-hours 3115/100 (all 'completed' on the day they were made); favourites 82, purchases 7 and routes-cleared 16 are all-time counts too. Six seeded goals were completed on first compute, wrote six completionLedger receipts and earned achievement goal-getter tier 1 at once (state.achievements.earned['goal-getter']). Because remove() leaves the ledger entry and the badge counts ledger rows, creating and deleting such goals farms Goal getter's 10 and 50 tiers, which invariant 162 never takes back. The editor still offers Starts and Deadline and draws a pace line for these types, promising a range. Of the 13 Collection types only spend-below reads the range (specific-title/finish-series read one title by design).",
+   "evidence": "eval fx1/seed compute: rows 'titles-completed | 222 | 10 | completed', 'library-size | 1880 | 100 | completed', 'episodes-watched | 13326 | 100 | completed'; completionLedger ids 1,2,4,5,6,9; achievements.earned goal-getter tier 1; js/core/goals-collection.js:49-53,54-57,87-94 (mods() reads mediadb.stats aggregate); js/core/goals.js:438-441 (receipt + achievements.touch); js/modules/goals.js:892 (Starts/Deadline offered for every non-repeat type); js/core/achcatalogue.js:461-462; after deleting and recreating fixture goals the ledger held 13 receipts for 2 live goals and Goal getter II (10 goals) unlocked (screenshot shots/goals/routine-days-saved-mac.png)",
+   "fix": "Measure the period from the media activity journal (mediadb journal [ts,kind,from,to], invariant 99): completions/status->completed, progress/volume/hour deltas and favourites added with ts in [start, deadline]; purchases by purchasedAt (as spend-below already does); library-size by createdAt. Then mark these types repeat-capable. Until then, record a baseline at creation (onCreate, as topics-green does) and measure the delta. Decide with the user whether goal-getter earned this way is revoked (needs an explicit exception to invariant 162).",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "goals-collection.js types were moved unchanged from Collection Goals v2, which measured vault state, while the v3 editor gives every type a start date and a pace line",
+   "needsDesign": false
+  },
+  {
+   "title": "GO-06 'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "Both routine goal types are offered under Productivity in New goal, but goalDialog draws no routine picker (nothing in js/modules/goals.js reads or writes params.routine), so Save stores params {} and the goal measures 'No routine linked' forever (current null, status active). Reproduced: with two routines (Stretch habit, Evening wind-down) the routine-days editor shows Title, Target, Repeats, Starts, Deadline and Milestones only; the saved goal computes [null, 'No routine linked', 'active']. No other surface (Routines pages) creates these goals either (grep routine-days/routine-streak: only js/core/routines.js:752-764).",
+   "evidence": "eval: editor text 'Keep a routine on N days ... Title Target Repeats ... Starts Deadline \u00b7 optional Milestones' and saved params '{}'; compute -> ['Keep a routine on N days', null, 'No routine linked', 'active']; js/core/routines.js:750-764; js/modules/goals.js:828-902 (no routine field)",
+   "fix": "Add a fields.routine flag to both types and a Routine select (KOS.routines.all(), including Daily habits) in goalDialog that writes params.routine; refuse Save without one. Offer 'Make this a goal' from a routine's page.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "types registered by routines.js after the editor was built; the editor only knows fields it hard-codes"
+  },
+  {
+   "title": "GO-07 'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "The Habit select is filled from store.state.todo.habits (js/modules/goals.js:878-881), which invariant 142 freezes once Habits move into Routines. With a habit added through KOS.routines.addHabit('Stretch'), the select had zero options; saving stores params.habit undefined and the goal reads 'No habit linked'. For the user (migrated 26 Oct) the list shows only the habits frozen at migration, including ones since removed, while the measure resolves through KOS.routines (goals.js:641-646). habit-streak also duplicates routine-streak.",
+   "evidence": "eval: routines ['r_hf2bclf7m:habit:Stretch','r_zzd3e2f7u:evening:Evening wind-down'], todo.habits [], editor select 'Habit' options []; shots/goals/editor-habit-streak-mac.png; js/modules/goals.js:878-881; js/core/goals.js:638-655",
+   "fix": "Fill the select from KOS.routines.habitsView() (or all routines of kind habit) and store params.routine; better, retire habit-streak in favour of routine-streak with a routine picker (keep old records readable).",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "editor reads the legacy habit list; measure reads Routines"
+  },
+  {
+   "title": "GO-23 UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "Empty account: a 'Move topics to Green' goal on five Maths leaves (baseline 0). Logging one quiz attempt at 0% on each leaf makes KOS.rag.effective return band 'g' for all five (auto() starts at 100 and the quiz penalty is capped at 25, so 0% -> 75 = Green), and the goal computes 5/5 'completed' with an activity-only receipt and an achievements touch. Exam goals 'Topics green or covered' (scopeCount) and Exams readiness coverage read the same band, so they are met by failing quizzes too.",
+   "evidence": "eval fx8: bands ['g','g','g','g','g'] after study.quiz[k]={attempts:1,lastPct:0}; goal '5|5|completed'; completionLedger receipt {type:'topics-green',payout:'activity-only'}; js/modules/rag.js:29-90 (score from 100, quiz cap 25, Green >= 70); js/core/goals.js:534-546, 574-581; js/core/goals-exams.js:58-66",
+   "fix": "Fix RAG as UR-22 proposes (evidence-weighted score, minimum evidence before any band, Green only when recall and practice both clear their bar). In Goals, count a leaf only when its band rests on enough evidence (e.g. rag.auto(...).evidence >= threshold) and judge topics-green on the deadline (hold) rather than on first touch.",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "rag.js auto() subtracts capped penalties from 100 with no evidence floor"
+  },
+  {
+   "title": "GO-25 Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "The Linked title select of 'Complete a specific title' / 'Finish a series' lists only titles with status inProgress, alphabetically, capped at 60. Editing a goal whose title is now completed (or planned, on hold, or past the 60th) leaves its own title out of the list, so the browser selects the first option and Save rewrites linkedEntryId. Reproduced: goal 'Finish Zzz' linked to entry 2 (completed); Edit then Save without touching anything -> linkedEntryId 1 ('Aaa Watching'). It also means a planned title can't be a goal ('finish X before December') and a user with more than 60 titles in progress can't pick most of them.",
+   "evidence": "eval: options ['1:Aaa Watching'], selected '1', goal.linkedEntryId 2 -> 1 after Save; js/modules/goals.js:864-871, 955",
+   "fix": "Always include the goal's current title as the selected option; replace the capped select with a search picker over the whole vault (any status), as the Collection's own pickers do.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "select filled from a filtered, capped query without the current value"
+  },
+  {
+   "title": "GO-03 Repeating goals count activity from before the goal started in their first period (week and month)",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "A weekly Study-hours goal (target 2 h, week Mon-Sun) started Wed 14 Oct: its first outcome is the week of Mon 12 Oct and it was judged MET from 2 h logged on Tue 13 Oct, the day before it existed. A monthly goal started 20 Oct judged October as 15 h, counting 10 h from 5 Oct and 2 h from 13 Oct. closePeriods begins at periodOf(g, g.startDate) and measures the whole period, and the live period's measure does the same. Same UR-20 class: things done before the start count.",
+   "evidence": "eval fx2: weekly outcomes {'2026-10-12':{met:true,value:2}} with startDate 2026-10-14 and the only Oct 12-18 session dated 2026-10-13; monthly outcomes {'2026-10':{met:true,value:15}} with startDate 2026-10-20; js/core/goals.js:379-397 (closePeriods), 418-419 (from = per.from)",
+   "fix": "Clamp each period's from to max(per.from, g.startDate) when measuring (and prorate or mark the first partial period 'partial' so a 3-day first week is not judged against a 7-day target), or start the first period at the next boundary.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "period ranges ignore startDate"
+  },
+  {
+   "title": "GO-04 Changing a repeating goal's 'week runs' or its repeat keeps the old periods: history fills with overlapping weeks and months",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "Editing a weekly goal from Monday-weeks to 'From the day it starts' (Wednesday) kept the three Monday-keyed outcomes and added three Wednesday-keyed ones, so 'Every week so far' shows six periods for three weeks (2026-10-12, -14, -19, -21, -26, -28) and the run is computed across both. Switching the same goal from Every week to Every month kept all six week keys and added '2026-10'. update() only merges outcomes when repeat is unchanged, but normalise keeps raw.outcomes whatever the repeat, and weekFrom changes are not considered at all.",
+   "evidence": "eval fx2 wStart.outcomes (6 keys); eval fx3 after repeat:'month' -> keys ['2026-10-12','2026-10-14','2026-10-19','2026-10-21','2026-10-26','2026-10-28','2026-10'], run 2; js/core/goals.js:162-168 (normalise keeps outcomes), 266 (merge on same repeat)",
+   "fix": "When repeat or weekFrom changes, drop (or archive under a separate key) outcomes whose keys do not match the new period grid, and re-judge from startDate; say so in the editor ('the history restarts').",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "outcomes keyed by period start are carried across a change of period grid"
+  },
+  {
+   "title": "GO-05 A met goal stays 'Met' after its target is raised or a manual count is lowered (10% shown as Met)",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "A manual goal nudged to 3/3 completes; nudging to 1 keeps 'completed'; editing the target to 10 keeps 'completed' with _pct 10, so Done lists it as Met at 1 of 10. derive() returns 'completed' whenever g.status==='completed' && completedAt, and update() never clears it when the target, type link or dates change. The same holds for an auto goal edited after completion (e.g. a UR-20 goal whose target the user raises to fix it stays Met). There is also no -1 or undo for a manual goal's +1 (only '+1' in actionFor) and no Reopen in the UI (G.reopen is unused), so a mis-tap cannot be corrected except by Restart, which wipes the start date.",
+   "evidence": "eval fx2: man {st:'completed'} -> after nudge -2 {st:'completed',cur:1} -> after target 10 {st:'completed',cur:1,tgt:10,pct:10}; js/core/goals.js:305 (sticky completed), 259-272 (update), js/modules/goals.js:243 (+1 only); grep: reopen not referenced in js/modules/goals.js; tick(): notice 'goal:3:done | Goal reached \u2014 Finish Zzz | 0 of 1 title' after the goal's link changed",
+   "fix": "In update(), if target/type/links/startDate/deadline change on a completed goal, re-derive (clear completedAt; keep the ledger receipt so nothing is paid twice). Give manual goals a stepper (-1/+1 or a 'Set count' field in Edit) and an Undo toast after +1.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "completion is sticky by design for evidence types but edits are not treated as a new judgement"
+  },
+  {
+   "title": "GO-08 Stay-under goals on live state (No overdue assignment, Carry-overs cleared, Subscriptions below) flip between Missed and active and are judged only at the moment they are looked at",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "Fixture: a 'No overdue assignment' goal for 1-30 Nov with 3 overdue assignments is 'failed' the moment it is made (before its deadline), then goes back to 'active' (failedAt cleared) once overdue reads 0, then, with the deadline moved to yesterday while overdue was 0 for one compute, becomes 'completed' and stays completed (sticky) after overdue returns to 3. So a month with overdue work every day except the last look is Met, and a breach early in the month is forgotten. The measure reads KOS.assignments.counts() / pacing.dueThisWeek() / subscriptions() NOW, not over [start, deadline]; derive() treats current<=target at the first compute after the deadline as success. add() also gives every such goal a deadline of month end silently.",
+   "evidence": "eval fx5: a '3|failed|failed|1' -> b (overdue 0) '0|active|active|0|under' -> c (deadline 2026-11-04) '0|completed' -> d (overdue 3 again) '3|completed'; js/core/goals.js:656-674 (live measures), 307-311 (under-direction derive), 251 (month-end default)",
+   "fix": "For live stay-under types, record a breach (first day current>target inside the range) into params and judge from it: failed once breached (or 'held N of M days'), completed only if never breached by the deadline. Alternatively derive from history: assignments' due/submitted dates give overdue days in the range.",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "state types are judged like range counts"
+  },
+  {
+   "title": "GO-11 'Review flashcards' and 'Keep recall' offer Japanese, Mind and Code but never count their reviews",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "The subject select of cards-reviewed and recall-rate lists every subject (All, CS, Maths, IT, Code, Japanese, Mind, Creatives), but the measure reads only ledger entries of type 'flashcards' or 'due-review'. Japanese reviews are logged as type 'ja' and Mind's review blocks as type 'mind' (with metrics.cards), Code's retrievals as type 'code', so a 'Review 200 Japanese cards this week' goal stays at 0 forever, and 'All subjects' silently leaves those reviews out.",
+   "evidence": "eval: cards-reviewed editor subject options [':All subjects','compsci','maths','it','code','ja','mind','creatives']; js/core/goals.js:557-571 (type filter); js/core/ja.js:228, js/core/mind.js:272 (their session types)",
+   "fix": "Count review sessions by kind across owners (flashcards, due-review, ja reviews, mind reviews, Code retrievals) or restrict the select to subjects whose reviews the measure reads; the same review-log rows (KOS.reviewLog, src per owner) could be the single source.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "measure hard-codes two session types while the editor lists KOS.subjects.ids()"
+  },
+  {
+   "title": "GO-12 iPhone: 'Aim at something new' template rows are 180px tall for one line of text",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "On the dense Goals page at 402px each of the three template rows in the 'Aim at something new' tile is 322x180 with a single 12.5px line, so the tile is ~650px of mostly empty boxes. The flex-basis var(--gl-tpl-min) meant as a row WIDTH becomes the row HEIGHT once the phone rule turns the list into a column.",
+   "evidence": "shots/goals/dense-all-iphone.png (bottom); eval: .k-gl-tplrow sizes ['322x180','322x180','322x180']; css/views/goals.css:122 (.k-gl-tplrow flex: 1 1 var(--gl-tpl-min)) with 207/226 (flex-direction: column)",
+   "fix": "Reset flex: 0 0 auto on .k-gl-tplrow when the list is a column (phone rule), or set the basis only in the row layout.",
+   "effort": "S",
+   "devices": "iphone",
+   "rootCause": "flex-basis applies on the main axis, which flips to vertical"
+  },
+  {
+   "title": "GO-13 iPhone: goal cards hide the deadline, the pace chip and the action button",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "Under 700px the card's band top (pace chip: Behind / Too early / Display only) and footer ('3 days left \u00b7 by Sun 8 Nov', and the action: Start focus, Review, Today's Daily 20, +1 for a manual goal) are display:none. On the phone list a goal therefore shows neither when it ends nor whether it is behind, and a manual goal's +1 is only reachable by opening it. Only the hero keeps them.",
+   "evidence": "shots/goals/dense-all-iphone.png; eval (iphone): hidden ['k-gl-bandtop','k-gl-cardfoot'], card text 'Focus blocks by Sunday 5 of 30 blocks 25 to go.'; css/views/goals.css:229,233",
+   "fix": "Keep a compact one-line foot on phone (pace chip + 'n days left') and the action as an icon button, instead of hiding both.",
+   "effort": "S",
+   "devices": "iphone",
+   "rootCause": "phone rule hides parts instead of recomposing them",
+   "needsDesign": false
+  },
+  {
+   "title": "GO-16 iPhone: the goal's pace chart labels shrink to about 6px",
+   "severity": "P2",
+   "category": "a11y",
+   "detail": "On #/goals/<id> at 402px the pace chart SVG is scaled to the card width, so its axis labels (10 h, 5 h, Mon\u2026Sun) render with an 8px box (\u22486px glyphs), far under the 11px label floor of invariant 63 and unreadable on the phone.",
+   "evidence": "shots/goals/detail-weekly-iphone.png; eval (iphone): svg text heights [8,8,8,8]; js/modules/goals.js:583-611 (fixed viewBox scaled by width)",
+   "fix": "Draw the chart at the container's pixel width (ResizeObserver or a phone viewBox) as the lab plots do, or render axis labels in HTML at a fixed size.",
+   "effort": "S",
+   "devices": "iphone"
+  },
+  {
+   "title": "GO-22 Goal editor: 'Every month' is cut off in the Repeats control beside a money amount (mac)",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "In the New goal editor for a money type (Spend below an amount, Earn at least) at 1470x832, the Repeats segmented control shares a row with the amount field and is 210px wide for 281px of content; 'Every month' runs from x=968 to 1073 while the control ends at 1007, so it reads 'Ever' and is clipped by the dialog. The count stepper row of other types has the same two-column layout.",
+   "evidence": "shots/goals/dense-all-dawn-mac.png (dialog open); eval: seg [797,1007], 'Every month' button [968,1073], scrollWidth 281 vs clientWidth 210; js/modules/goals.js:888-889",
+   "fix": "Put Repeats on its own row (or let the row wrap when the segment's min-content exceeds its track); k-seg--fill should never shrink below its content.",
+   "effort": "S",
+   "devices": "mac, ipad"
+  },
+  {
+   "title": "GO-24 Editing a 'Move topics to Green' goal's subject or topics keeps the old baseline, so it can be met instantly",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "topics-green records params.baseline (green topics at creation) in onCreate, and update() only re-runs onCreate when the TYPE changes. A goal made for IT (baseline 0) and edited to Maths, where 5 leaves are already green, reads 5 new green topics and completes 5/3 on the spot; the reverse edit leaves it unreachable. Same for exam_recall/exam_topics_green baselines when relinked to another exam (linkExam does not re-baseline).",
+   "evidence": "eval fx8: g2 baseline 0 (IT) -> update links {subject:'maths'} -> '5|3|completed|5 green now|0'; js/core/goals.js:268 (onCreate only on type change), 574-576; js/core/goals.js:849-855 (linkExam)",
+   "fix": "Re-run def.onCreate (re-baseline) in update()/linkExam whenever links, refs, subject or params that the measure reads change, before computing; tell the user 'counting from now'.",
+   "effort": "S",
+   "devices": "all"
+  },
+  {
+   "title": "GO-27 Projected-recall goal with too little data shows '\u2013' and a meaningless 'The line says 4.3%', without saying why",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "A template-made 'CS Paper 1 mock recall \u2265 95%' goal on an account with no rated cards: recallNow() is thin, so onCreate stores baseline 0 and the page shows SO FAR '\u2013' beside THE LINE SAYS '4.3 % by today' (a straight line from 0% to 95% across the weeks), which no recall figure can follow. The reason the measure is empty ('Appears after 20 rated cards in scope\u2026', the measure's meta) appears nowhere on the goal page, and the page has no action (the list card's 'Review' button is not repeated here).",
+   "evidence": "shots/goals/detail-exam-mac.png; eval: page text has no 'Appears after'/'20 rated cards' and no 'Review'; js/core/goals-exams.js:111-121 (baseline 0 when thin), js/core/goals.js:474 (_expected drawn whenever reach + not noPace); js/modules/goals.js:548-560",
+   "fix": "When the baseline is unknown (thin), store null and draw no line until the first measured figure becomes the baseline; print _meta under '\u2013' on the goal page and add the type's action (examAction/actionFor) to the page header.",
+   "effort": "S",
+   "devices": "all"
+  },
+  {
+   "title": "GO-01 First-goal template grid leaves an empty sixth column at 1470 (auto-fill)",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "On an empty account, #/goals at mac width shows the five templates in a grid of six 186px tracks, so a sixth empty track (~196px) sits at the right of the card: dead width the user standing rule forbids.",
+   "evidence": "shots/goals/empty-all-mac.png; eval: .k-gl-tpls gridTemplateColumns = 186px x6 with 5 children; css/views/goals.css:138 repeat(auto-fill, minmax(var(--gl-tpl-min),1fr))",
+   "fix": "Use repeat(auto-fit, minmax(...,1fr)) so the five tiles stretch across the card (or cap columns at the template count).",
+   "effort": "S",
+   "devices": "mac",
+   "rootCause": "auto-fill keeps empty tracks; auto-fit collapses them"
+  },
+  {
+   "title": "GO-09 Reports drop repeating-goal periods that straddle a report boundary (weeks from a weekday, payday months)",
+   "severity": "P3",
+   "category": "data",
+   "detail": "goalFacts counts an outcome in the report whose range holds the period's START key. A weekly goal whose week runs from its start day (e.g. Wed-Tue) has key Wed 4 Nov; the week report for 2-8 Nov is built on Mon 9 Nov, before that period ends (Tue 10), so it has no outcome yet, and the 9-15 Nov report skips the key because 4 Nov is outside it: that period is never reported. A Money goal's month follows Money's month start (periodOf uses KOS.money.periodRange), so a payday month starting the 25th has the same gap in month reports. Read from code; not reproduced in a saved report.",
+   "evidence": "js/core/report.js:698-711 (day = period key, kept only if p.start<=day<=p.end); js/core/goals.js:63-81 (weekFrom 'start' keys, money periods)",
+   "fix": "Attribute an outcome to the report whose range holds the period's END (or the judgement date at), so every period lands exactly once after it has been judged.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "outcome keyed by start, report built when the period may still be open"
+  },
+  {
+   "title": "GO-10 A stay-under goal breached early never sends its 'Goal missed' notice",
+   "severity": "P3",
+   "category": "bug",
+   "detail": "tick() only pushes ':missed' while now - failedAt < 2 days (NEWS_MS). A stay-under goal (spend below, no overdue) is marked failed the day it goes over, but notices() only emits ':missed' once the deadline has passed; by then failedAt is usually more than two days old, so the notice is dropped and the month-end miss is silent. Similarly, a goal restarted after completion reuses the id 'goal:<id>:done', so its second completion is deduped by the ledger within 45 days.",
+   "evidence": "js/core/goals.js:818-820 (missed only after deadline), 864-873 (at = failedAt, dropped when older than NEWS_MS); fx5 shows failedAt set on creation day for no-overdue",
+   "fix": "Use the deadline (or max(failedAt, deadline)) as the news time for ':missed'; key ':done' by completedAt day or the restart's startDate.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "news window measured from the status change, not from the event the notice reports"
+  },
+  {
+   "title": "GO-14 iPhone: Domain filter pills overflow the screen edge as an undeclared, scrollbar-less scroller",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "The Domain pills (All 13, Study 5, Productivity 1, Money 1, Code 1, Collection 4, Governor 1) run past the 402px viewport (pills at right=422, 522, 619) with overflow-x:auto and scrollbar-width:none on a plain div, so 'Code' is cut at the edge and nothing says the row scrolls. Invariant 50 asks for KOS.ui.scroller (edge cues, keyboard). Also: on mac these pills are 29px tall (<32) and counts print 'All13' to a screen reader.",
+   "evidence": "shots/goals/dense-all-iphone.png; eval iphone over: k-gl-domain r=422/522/619; mac small: goal.domain 58x29; css/views/goals.css:235; js/modules/goals.js:358-363",
+   "fix": "Wrap the pills in KOS.ui.scroller (or let them wrap to two lines on phone); raise pill height to 32px (44 on touch).",
+   "effort": "S",
+   "devices": "iphone, mac"
+  },
+  {
+   "title": "GO-15 A custom manual goal is filed under Collection",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "New goal offers 'Custom manual goal' as its own section, but the type registers with domain 'collection' (goals.js:548), so 'Read three papers on memory' wears the \u8490 Collection mark and pill, counts in the Collection domain filter and its action fallback is the Collection page.",
+   "evidence": "shots/goals/dense-all-mac.png (card 'Read three papers on memory', pill 'Collection'); js/core/goals.js:548; js/modules/goals.js:711-712, 244",
+   "fix": "Give manual goals their own 'Personal' domain (or let the user pick the domain in the editor) and a neutral mark.",
+   "effort": "S",
+   "devices": "all"
+  },
+  {
+   "title": "GO-17 'Every week so far' history bars overflow and are cut off at the card edge on iPhone",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "The history list (.k-gl-hist, 8 periods) is 728px wide in a 326px card; it scrolls horizontally with overflow:auto but is not a declared KOS.ui.scroller, has no edge cue, and the fourth bar ('2.5', '5') is sliced at the right edge.",
+   "evidence": "shots/goals/detail-weekly-iphone.png; eval: hist width 326, scrollWidth 728, overflowX auto; js/modules/goals.js:613-636",
+   "fix": "Use KOS.ui.scroller with reveal of the open period (newest at the right), or compress the bars to fit (12 periods at 24px).",
+   "effort": "S",
+   "devices": "iphone"
+  },
+  {
+   "title": "GO-18 Spend-below goals are judged Met for months with no Money records at all",
+   "severity": "P3",
+   "category": "data",
+   "detail": "A monthly 'Spend below \u00a360' goal started 1 Sep on an account with no transactions shows two met periods (\u2713\u2713) and 'Under'. The measure returns 0 spent whenever the range has no rows, so months before Money was used, or when nothing was imported, count as kept; the 'Under budget' badge logic and Reports' periods met read the same outcomes. Invariant 76 asks for no claim without evidence. money-no-spend has the same flaw: every day without a recorded 'out' transaction counts as a no-spend day, so a user who does not log daily meets 'No-spend days' automatically (js/core/goals.js:700-710).",
+   "evidence": "shots/goals/dense-all-ipad.png (card 'Eating out under \u00a360', \u2713\u2713 and 'Under'); js/core/goals.js:680-689 (no-rows -> 0); closePeriods writes met:true",
+   "fix": "Treat a period with no transactions (or before the first one) as 'no evidence' (current null) so it is not judged; say 'No spending recorded' instead.",
+   "effort": "S",
+   "devices": "all"
+  },
+  {
+   "title": "GO-19 Hero's 'behind / on track / met this week' counts every open goal, not this week's",
+   "severity": "P3",
+   "category": "data",
+   "detail": "On This week (filter shows All 3) the hero says '4 behind this week \u00b7 4 on track this week \u00b7 1 met this week', i.e. nine goals, including goals that end in December and display-only ones. hero(lead, open) is passed every open goal instead of the tab's goals, so the counts disagree with the page they sit on and change nothing when the tab or domain filter changes.",
+   "evidence": "shots/goals/week-mac.png (All 3 vs 4/4/1); js/modules/goals.js:322 (hero(lead, open)), 388 (counts over open)",
+   "fix": "Pass the tab's goals (shown) and label the counts by tab ('this week' / 'this month' / 'open'); skip display-only goals.",
+   "effort": "S",
+   "devices": "all"
+  },
+  {
+   "title": "GO-20 Home's Goals card: an unlabeled number in each ring and doubled units ('5 blocks of 30 blocks')",
+   "severity": "P3",
+   "category": "content",
+   "detail": "Each Home goal row shows a ring with a bare number (3, 3, 25) that is the days left while the ring's fill is the progress; the number is aria-hidden and nothing on screen says 'days'. The sub-line repeats the unit: '5 blocks of 30 blocks', '0 cards of 400 cards'.",
+   "evidence": "shots/goals/home-goals-mac.png; eval (iphone) rows '3 / 10 hours of study a week / Behind / 1 h 6 m of 10 h \u00b7 by 8 Nov', '25 / 400 cards this month / \u2026 0 cards of 400 cards'; js/modules/hub.js:1414-1425",
+   "fix": "Label the ring ('3d' / 'days left' under it) or put the percent in it; print the unit once ('5 of 30 blocks').",
+   "effort": "S",
+   "devices": "all"
+  },
+  {
+   "title": "GO-21 Phone search sheet files Goals under Collection",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "The phone search sheet's domain chips map the 'goals' result group to 'Collection' (SEARCH_SECTION.goals), though Goals is a Productivity page (rail and section strip) since roadmap 5.4; searching a study goal and tapping 'Productivity' hides it.",
+   "evidence": "js/modules/hub.js:3592-3593",
+   "fix": "Map goals to 'Productivity'.",
+   "effort": "S",
+   "devices": "iphone"
+  },
+  {
+   "title": "GO-26 Met and missed goals stay pinned to the Morning Review and Home, using up the three pin slots",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "pin() refuses only archived goals, and nothing unpins a goal when it is met or missed; KOS.today's goals() lists every pinned goal for the reviews. The goal page even offers 'Pin to the morning' on a Met goal. A finished goal therefore keeps one of the three slots until the user notices, and pinning a new goal fails with 'Three goals are pinned already.'",
+   "evidence": "shots/goals/detail-collection-met-mac.png ('Met' chip beside 'Pin to the morning'); js/core/goals.js:215-225; js/core/today.js:169-178; js/modules/goals.js:541-546",
+   "fix": "Exclude completed/failed goals from pinned() (keep the flag for history) and hide the Pin button on a finished goal; unpin on archive/complete.",
+   "effort": "S",
+   "devices": "all"
+  }
+ ],
+ "backlog": [
+  "Measure Collection goals from the media activity journal so they can repeat weekly/monthly (completions, episodes, chapters per period)",
+  "A 'Make this a goal' entry point from routines, pots, exams' readiness, Collection titles and Money budgets so goals are created where the data lives",
+  "Japanese and Mind goal types (facets reviewed, lessons finished, Daily 15 days) to match the other study spaces",
+  "Goal page: list what counted (the sessions, titles or transactions inside the range) with links, so a goal is auditable"
+ ],
+ "qol": [
+  "Undo toast after a manual +1 and a -1 step",
+  "Show the measure's meta ('Needs 50 reviews to measure') on the goal page, not only on cards",
+  "Restart button says 'Restart for <Month>' but sets the old span from today; name the new dates",
+  "Label the Home ring's number ('days left')",
+  "Exam goal Save announces 'Goal added' on edit too (goals.js:942)",
+  "Domain pills 29px tall on mac; raise to 32px"
+ ]
+}
