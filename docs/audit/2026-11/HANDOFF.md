@@ -247,7 +247,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts (6 Nov, after batch 3):** 534 open findings (P0 2 · P1 86 · P2 252 · P3 194), plus SH-05 resolved by the stopgap. After batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
+**Counts (6 Nov, after batch 4):** 590 open findings (P0 2 · P1 90 · P2 274 · P3 224), plus SH-05 resolved by the stopgap. After batch 3: 534; after batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
 user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
 before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
@@ -262,14 +262,14 @@ before acting (see §7).
 | ID | Area | Status | Findings | Not covered (from the auditor, or unknown) |
 |---|---|---|---|---|
 | SH | Shell, nav, search, toasts, dialogs, Help | **complete, inventoried** (6 Nov, `kos-redraw-1`; `findings/shell.inventory.md`) | 44 open (+ SH-05 resolved) | Real offline behaviour (dev host always online, harness signed out), the iOS Home Screen status bar, the service-worker update prompt (needs two deploys) |
-| HR | Home + Reports | **partial** | 15 | Interrupted. Likely unchecked: story player fully, share export formats, month/term/year pages at all sizes |
+| HR | Home + Reports | **complete, inventoried** (6 Nov; `findings/home-reports.inventory.md`) | 30 (P1 ×8; new HR-16 streak bonus paid daily, HR-17 'undefined took the largest share', HR-18 Daily goal pays on every re-tick) | See the matrix in FINDINGS.md |
 | AG | Achievements + Governor's Seat | **partial** | 16 | Interrupted. Titles, unlock overlay timing, Session Log likely thin |
 | SC | Gold Shop + cosmetics + themes | **complete, inventoried** (6 Nov; all 131 items bought and checked where they render; all 29 themes measured; `findings/shop-cosmetics.inventory.md`) | 41 (P1 ×10) | Two-device merge of owned items; a real upload through the cropper (headless); every theme on every page |
 | ST | Study core (desks, topic page, Review, Assignments) | complete | 24 | Simulate tab beyond locked state, Files tab with a real PDF, Handwritten with a pen, shop theme, landscape iPhone |
 | SY | Sync/redraw disruption | complete | 17 | Routine auto-tick redraw, a Japanese session with due items, Creatives Writing Desk, Focus stage & exam tally (judged safe from code) |
 | CM | Maths content | complete | 13 | Every fact's correctness (spot reads only) |
 | CC | CS + IT content | complete | 13 | Flashcard/Quiz UI (ST's), shop themes, every CS fact, IT F200/F202 (completed units) — per-leaf worklist in `data/content-cs-it/worklist.txt` (162 leaves) |
-| CO | Code space | **partial** | 16 | Interrupted. Track pages, capstones, Rider project pages, kata likely thin |
+| CO | Code space | **complete, inventoried** (6 Nov; `findings/code-space.inventory.md`) | 38 (P1 ×4) | See the matrix in FINDINGS.md |
 | JM | Japanese (split from Mind on 5 Nov) | **complete, inventoried** (5 Nov, `kos-redraw-1`; `findings/ja-mind.inventory.md`) | 39 (P0 JM-06; P1 JM-07…09) | See the auditor's coverage matrix in FINDINGS.md. JM-02/JM-04 are the earlier Mind findings, kept |
 | MI | Mind | **complete, inventoried** (5 Nov; `findings/mind.inventory.md`) | 19 (P1 MI-01, MI-02) | Tensions (none authored, `TENSIONS=[]`); the 59/60% explain-back boundary (every concept has 4 key points, so only 50/75% are constructible); Ask Kurenai's live reply (no AI route in the harness) |
 | GO | Goals (every type's measurement) | **complete, inventoried** (5 Nov; `findings/goals.inventory.md`) | 27 (P1 GO-02 = UR-20, GO-06, GO-07, GO-23 = UR-22, GO-25) | Paper-score and finish-unit types and plan-ticked read in code only (no tracker/plan fixture); see the matrix in FINDINGS.md |
@@ -278,7 +278,7 @@ before acting (see §7).
 | MG | Money + Goals | complete | 22 | iPad landscape, import dialog on iPhone/iPad, goal editor type forms + exam goals, Wishlist purchase handoff, kos_money cloud sync, PDF statements (no code path) |
 | EX | Exams hub, Files, ink | **complete, inventoried** (6 Nov; `findings/exams-files-ink.inventory.md`) | 49 (P1 ×4, new EX-28 timed-paper navigator crushed on touch) | See the auditor's matrix in FINDINGS.md |
 | CL | Collection | **complete, inventoried** (6 Nov; dense account; `findings/collection.inventory.md`) | 44 | No provider was connected in the harness (no AniList/VNDB writes possible, by design); live provider pages are LA-12…17 |
-| AA | Assistant, notifications, Archive | **partial** | 10 | Interrupted. Backup export→import round trip was started (`aa-*` files in evidence) — result not recorded as a finding; notifications page, Storage, Connections UI |
+| AA | Assistant, notifications, Archive | **complete, inventoried** (6 Nov; backup round trip into an empty slot run: 11 saved reports came back as 5, ink merged not replaced; `findings/assistant-archive.inventory.md`) | 29 (P1 ×3; new AA-11 Import backup replaces everything with no confirm) | See the matrix in FINDINGS.md |
 | DI | Data integrity | complete | 15 | Google Calendar recurrence mapping in depth, ink per-stroke merge, mind/reports sync bodies, real provider servers, Dawn/shop visual pass |
 | AP | Architecture, perf, docs drift, repo clutter | **complete, re-checked on main** (6 Nov, top-up; every carried-over finding has a verdict; `findings/architecture-perf.inventory.md`) | 19 | iPad/iPhone timing (desktop Chrome, shared machine), Edge Function code; stale-build results kept in `architecture-perf.f4fa493.json` |
 | AX | Cross-cutting a11y + HCI sweep | **complete, re-checked on main** (6 Nov, top-up; Badge Wall, Seat, shop swept; `findings/a11y-hci.inventory.md`) | 45 | Screen-reader order inside labs, ink and the code editor; 22 shop themes spot-checked, not all; stale-build results in `a11y-hci.f4fa493.json` |
@@ -383,7 +383,7 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 2. ~~Re-check **AP** and **AX** on main~~ **Done 6 Nov (batch 2).** ~~and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
    rerun.~~
-4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), AA, CO, HR, AG.
+4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), ~~AA, CO, HR~~ (done 6 Nov, batch 4), AG. Then the inventory pass over the areas marked "complete" before 2 Nov: ST, SY, CM, CC, CR, PR, MG, DI.
 5. Live: Google Calendar two-way round trip with a marked test event (user
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
 6. Completeness critic ("what's missing?") over the whole of FINDINGS.md.
@@ -508,6 +508,16 @@ These explain many symptoms each. The plan should fix the cause once.
     goals (GO-02) all reward thin or contrary evidence. → A shared rule:
     every automatic judgement names its minimum evidence and is tested with
     thin and contradictory fixtures.
+21. **The economy pays from self-ticks and re-derived keys (batch 4).** Home's
+    Daily goal directives pay XP and gold on a self-tick with no evidence and
+    again on every untick/re-tick (HR-18); streak milestone bonuses are paid
+    again each day because their key is derived from a streak that can "end
+    yesterday" (HR-16); one-tap reminder/habit ticks pay with no Undo
+    (HR-21); Mind's checkpoint pays with nothing right (MI). Invariant 1 says
+    rewards flow only from `KOS.sessions.log()`, but nothing guarantees each
+    reward is idempotent. → Every award gets a stable, stored receipt key
+    (like goals' `payout` receipts and Code's `paid`), checked before paying,
+    and a smoke that ticks/unticks/re-ticks every rewarding control.
 
 ## 7. Verification status — be honest about it
 - Every finding was saved with evidence by its auditor (screenshots,
