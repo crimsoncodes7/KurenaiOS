@@ -10,7 +10,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | SH | App shell, navigation, search, toasts, dialogs, Help & Guide | complete | 0 | 7 | 19 | 18 | 44 |
 | HR | Home and Reports | partial | 0 | 5 | 6 | 4 | 15 |
 | AG | Achievements / Badge Wall and the Governor's Seat | partial | 0 | 2 | 9 | 5 | 16 |
-| SC | Gold Shop and every cosmetic, themes | partial | 0 | 8 | 11 | 0 | 19 |
+| SC | Gold Shop and every cosmetic, themes | partial | 0 | 10 | 17 | 1 | 28 |
 | ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 0 | 6 | 11 | 7 | 24 |
 | SY | Background redraws / cloud sync disrupting work | complete | 0 | 8 | 6 | 3 | 17 |
 | CM | A-Level Maths content quality | complete | 0 | 2 | 6 | 5 | 13 |
@@ -23,12 +23,12 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | MG | Money (Santander import); Goals pages only | complete | 1 | 9 | 10 | 2 | 22 |
 | GO | Goals: every goal type's measurement, editor, notices, joins | complete | 0 | 5 | 11 | 11 | 27 |
 | EX | Exams hub, Files, ink/Pencil surfaces | partial | 0 | 3 | 9 | 15 | 27 |
-| CL | Collection vaults, Shrine, Wishlist, Sync | partial | 0 | 1 | 9 | 5 | 15 |
+| CL | Collection vaults, Shrine, Wishlist, Sync | partial | 0 | 1 | 14 | 7 | 22 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | partial | 0 | 2 | 5 | 3 | 10 |
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 2 | 83 | 218 | 158 | 461 |
+| | **All** | | 2 | 85 | 229 | 161 | 477 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -57,6 +57,8 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **SC-06** [P1] Shop frame previews: the avatar is a small disc lost inside a big painted ring (55px avatar in a 179px frame)
 - **SC-07** [P1] With a painted frame worn, every CSS frame card in the shop previews the WORN frame instead of its own
 - **SC-08** [P1] A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge
+- **SC-20** [P1] Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)
+- **SC-21** [P1] Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)
 - **ST-01** [P1] IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name
 - **ST-02** [P1] iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab
 - **ST-03** [P1] 'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'
@@ -853,7 +855,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** Every one of the 12 avatar cards in the Gold Shop (and the preview sheet) draws the picture at the preview's top-left corner, overflowing the card's top edge (the fox's ears are clipped), while the dark backing disc sits centred and empty behind/below it, so the avatar reads off-centre and the disc looks like a stray shadow. Measured at mac 1470x832: preview box 235x235 at (458,3078); disc 179x179 at (486,3107); img 193x193 at (458,3078) - the image's top-left equals the preview's, not the disc's.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/ef-1.png and audit-evidence/2026-11/qa/shots/shop-cosmetics/ef-2.png (Avatars rows); eval getBoundingClientRect on .k-gv-ware[data-kind=avatar]; js/modules/governor-ui.js:1227-1228 (img(it.art) uses the default class k-gv-apv-img); css/views/governor.css:589 (.k-gv-apv-img position:absolute; inset:0) vs :602-603 (.k-gv-apv-disc has no position:relative)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-1.png and /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-2.png (Avatars rows); eval getBoundingClientRect on .k-gv-ware[data-kind=avatar]; js/modules/governor-ui.js:1227-1228 (img(it.art) uses the default class k-gv-apv-img); css/views/governor.css:589 (.k-gv-apv-img position:absolute; inset:0) vs :602-603 (.k-gv-apv-disc has no position:relative)
 - **Root cause:** Generic absolute-positioned image class reused inside a non-positioned disc
 - **Proposed fix:** Give the avatar img its own class (e.g. img(it.art,'k-gv-apv-disc-img')) instead of k-gv-apv-img, or make .k-gv-apv-disc position:relative and the img inset:9%; centre with object-fit:contain. Re-check the art itself: several avatar PNGs carry a baked dark disc (koi, lamp) so a second CSS disc doubles it.
 - **Flags:** effort S
@@ -862,7 +864,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** Trying any item on shows the Trying on panel on the Stage with its primary action 'Buy · ◈ n' - the purchase call to action of the whole try-on flow. It renders with color oklch(0.2 0.03 70) (gold-ink, meant for a gold fill) on background oklch(0.14 0.01 265 / .72) (the stage's glass), i.e. near-black on near-black; the button looks disabled although it is enabled.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-tryon-outfit.png (button left of 'Stop'); eval: getComputedStyle([data-ui~=shop.buy-tried]) color oklch(0.2 0.03 70), bg oklch(0.14 0.01 265/0.72); css/views/governor.css:57 '.k-gv-stage .k-btn { background: var(--gv-glass) }' (specificity 0,2,0) overrides css/views/governor.css:567 '.k-gv-buy { background: var(--gold) }' (0,1,0)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-tryon-outfit.png (button left of 'Stop'); eval: getComputedStyle([data-ui~=shop.buy-tried]) color oklch(0.2 0.03 70), bg oklch(0.14 0.01 265/0.72); css/views/governor.css:57 '.k-gv-stage .k-btn { background: var(--gv-glass) }' (specificity 0,2,0) overrides css/views/governor.css:567 '.k-gv-buy { background: var(--gold) }' (0,1,0)
 - **Root cause:** CSS specificity: stage glass-button rule beats the buy colour rule
 - **Proposed fix:** Raise the buy rule's specificity (.k-gv-stage .k-gv-buy, or :where() on the stage rule) so a gold buy button keeps its gold fill on the Stage.
 - **Flags:** effort S
@@ -871,7 +873,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, ipad (same stage)
 - **Detail / repro:** With a painted frame worn (Koi ring, bought in the shop), the Governor's Seat Status stage draws the frame picture 296x296 round a 180px avatar, outside the avatar's box with no space reserved: it overlaps the 'Level 53' heading by 24px (the L is under a koi's tail), hides the start of 'Pick a title' (reads 'k a title'), and is cut off by the stage's overflow:hidden on the left (frame x=228, stage x=236).
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-status-mac.png; eval: frame art [228,190,296,296], .k-gv-name [500,274,329,58], 'Pick a title' [500,340], stage [236,202] overflow hidden; css/layout.css:254 (.k-avatar-frame-art 152% + 2*--fo, absolutely positioned); js/core/governor.js avatarNode (frame drawn 'outside the box ... never changes layout')
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-status-mac.png; eval: frame art [228,190,296,296], .k-gv-name [500,274,329,58], 'Pick a title' [500,340], stage [236,202] overflow hidden; css/layout.css:254 (.k-avatar-frame-art 152% + 2*--fo, absolutely positioned); js/core/governor.js avatarNode (frame drawn 'outside the box ... never changes layout')
 - **Root cause:** Painted frames are absolutely positioned overflow with no layout space reserved
 - **Proposed fix:** Reserve the frame's bleed where a large framed avatar sits (padding/margin on the Seat's face column equal to (frame - avatar)/2, or a CSS var the host exposes, e.g. --frame-bleed), and scale painted frames so their inner hole meets the HP ring instead of a fixed 152%.
 - **Flags:** effort M
@@ -880,7 +882,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** Every seal says 'variant of the OS mark' and the Wardrobe row is labelled 'Seal · The topbar mark'. applyCosmetics() writes the glyph into '#topbar [data-ui~=shell.brand] [data-ui~=shell.brand-mark]', but the topbar brand is now <img class=k-brand-logo src=kurenai-bloom.png> + 'Kurenai' with no brand-mark element, so querySelector returns null and nothing changes. The only place a worn seal appears is the small glyph disc on the Seat's/profile ring (k-gv-ring-seal, text only). The six 400-gold seals' stamp pictures (app.seal.yuki...hikari) are drawn only in the shop card and the Wardrobe chip, never where the seal is worn.
-- **Evidence:** eval: document.querySelector('[data-ui~=shell.brand-mark']) -> null; brand outerHTML = img + 'Kurenai'; js/core/governor.js:782-783; js/modules/governor-ui.js:235-244 (ring seal glyph only); wardrobe label in governor-ui.js WARD ['seal','Seal','The topbar mark']; audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-assistant-gala.png (topbar shows the bloom logo with seal-hikari worn)
+- **Evidence:** eval: document.querySelector('[data-ui~=shell.brand-mark']) -> null; brand outerHTML = img + 'Kurenai'; js/core/governor.js:782-783; js/modules/governor-ui.js:235-244 (ring seal glyph only); wardrobe label in governor-ui.js WARD ['seal','Seal','The topbar mark']; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-assistant-gala.png (topbar shows the bloom logo with seal-hikari worn)
 - **Root cause:** Topbar markup changed (brand image) without updating applyCosmetics/the seal feature
 - **Proposed fix:** Decide where a seal shows and draw its stamp there: e.g. replace the topbar bloom with the worn seal's stamp (keep the bloom for 紅), and use the stamp art (not a crimson text disc) on the Seat ring and the Share card; fix the Wardrobe caption to match.
 - **Flags:** effort M, needs a design prompt
@@ -889,7 +891,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** The five new shelf skins (Paulownia, Steel and glass, Library oak, Bamboo, Sakura wood, ◈800 each) and five Shrine card styles (Moon, Moth, Camellia, Lacquer, Frost, ◈900 each), 8,500 gold in all, can be bought and worn but draw nothing. books.js and shrine.js set an inline custom property --skin-art: url(assets/app/img/<id>.webp); collection.css consumes it with background: var(--skin-art). A relative url() inside a custom property is resolved against the stylesheet that uses it, so the browser requests /css/views/assets/app/img/app.shelf.sakura.webp (404), and the same for app.shrinecard.*. Worse, the painted-skin rule also strips the default shelf's board, border and shadow (border:0; box-shadow:none), so a bought painted skin makes the Books shelf look emptier than the free default (covers floating on the page background), while the cheap CSS skins (Walnut) work.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/shelf-compare.png (top: default, middle: Walnut CSS skin, bottom: Sakura wood painted skin = nothing); audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-books-shelf-sakura.png; audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-shrine-gold-frost.png; eval: getComputedStyle(.k-bk-shelf).backgroundImage = url(http://127.0.0.1:9104/css/views/assets/app/img/app.shelf.sakura.webp); Shrine hero cover ::after = .../css/views/assets/app/img/app.shrinecard.frost.webp; curl 404 vs /assets/app/img/... 200; js/modules/books.js:1285; js/modules/shrine.js:954; css/views/collection.css:532-534
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/shelf-compare.png (top: default, middle: Walnut CSS skin, bottom: Sakura wood painted skin = nothing); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-books-shelf-sakura.png; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shrine-gold-frost.png; eval: getComputedStyle(.k-bk-shelf).backgroundImage = url(http://127.0.0.1:9104/css/views/assets/app/img/app.shelf.sakura.webp); Shrine hero cover ::after = .../css/views/assets/app/img/app.shrinecard.frost.webp; curl 404 vs /assets/app/img/... 200; js/modules/books.js:1285; js/modules/shrine.js:954; css/views/collection.css:532-534
 - **Root cause:** Relative url() inside an inline CSS custom property resolves against the consuming stylesheet's URL
 - **Proposed fix:** Set the variable to an absolute URL, as dayreview.js:142 already does: 'url("' + new URL('assets/app/img/' + art + '.webp', location.href).href + '")'. Then re-check each skin's look (keep a board under the painted back panel). Add a smoke check that every --skin-art resolves.
 - **Flags:** effort S
@@ -898,7 +900,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** Every painted frame card (Sakura, Ice, Ember, Lacquer, Wisteria, Koi; ◈800 each) previews the frame at 179x179 with the avatar at 55x55 in its middle, i.e. the avatar fills ~42% of the ring's inner hole (the art's measured inner-hole radius is 0.67-0.74 of the frame), leaving a wide empty dark gap between avatar and ring. Worn, the same art is sized at 152% of the avatar, so the shop shows a different (and much worse) fit than the real thing. The preview sheet does the same at 120px.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-shop-frames.png; eval: Sakura ring frame-art [486,4375,179,179], avatar [548,4433,55,55]; image analysis: inner hole radius/half-width app.frame.sakura 0.73, ice 0.74, koi 0.67; js/modules/governor-ui.js:1229-1230 (avatarNode(big ? 120 : 64) inside .k-gv-apv-frame 76%); css/views/governor.css:604-607 (avatar * 0.86)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shop-frames.png; eval: Sakura ring frame-art [486,4375,179,179], avatar [548,4433,55,55]; image analysis: inner hole radius/half-width app.frame.sakura 0.73, ice 0.74, koi 0.67; js/modules/governor-ui.js:1229-1230 (avatarNode(big ? 120 : 64) inside .k-gv-apv-frame 76%); css/views/governor.css:604-607 (avatar * 0.86)
 - **Root cause:** Preview avatar uses a fixed pixel size unrelated to the frame's box
 - **Proposed fix:** Size the preview avatar as a fraction of the frame box (e.g. inline-size: 66% of .k-gv-apv-frame, matching the worn 1/1.52 rule) instead of a fixed 64/120px; better, store each frame's measured hole ratio in the catalogue and use it both worn and in the shop so the ring hugs the HP ring.
 - **Flags:** effort S
@@ -907,7 +909,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** Wearing Koi ring, the Gilt ring, Kurenai bloom, Jade band and Amethyst orbit cards all show the Koi ring. shopPreview() builds the CSS-frame preview from KOS.governor.avatarNode(64), which already contains the worn painted frame's <img class=k-avatar-frame-art>, then only swaps data-frame to the previewed id; the rule '.k-avatar-host:has(> .k-avatar-frame-art)::before,::after {display:none}' then hides the CSS frame being sold, leaving the worn picture. The Avatar tab's frameChip removes that img (oldArt) but the shop does not.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-shop-frames.png (top row: four different CSS frames all drawn as the Koi ring); js/modules/governor-ui.js:1258-1265 (case 'frame' in shopPreview); css/layout.css:255
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shop-frames.png (top row: four different CSS frames all drawn as the Koi ring); js/modules/governor-ui.js:1258-1265 (case 'frame' in shopPreview); css/layout.css:255
 - **Root cause:** Preview reuses the live avatar node including the worn frame layer
 - **Proposed fix:** Strip .k-avatar-frame-art from the node (as frameChip does) before setting data-frame, or give avatarNode an option {frame: id|null} so previews never inherit the worn frame; the same applies to the banner preview's avatarNode.
 - **Flags:** effort S
@@ -916,10 +918,28 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, iphone, ipad
 - **Detail / repro:** Same root cause as the Seat: the worn Koi ring is drawn at 152% of the avatar outside its box. On Home (mac) the frame [235,102,163,163] runs 6px under the headline 'Working late…' (h1 x=392) and the date kicker, and is clipped 1px by the hero (x=236, overflow hidden). On iPhone (402x874) the frame on Home is cropped by the hero's top-left rounded corner and sits on 'MONDAY 2 NOVEMBER'; on the phone Seat (#/governor) the frame's top is cut off by the stage's top edge and the koi cover the 'BEHAVIOURAL GOVERNOR' kicker.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-home-mac.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-home-iphone.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-status-iphone.png; eval Home: frame [235,102,163,163], avatar [269,137,94,94], hero [236,80,1210,207] overflow hidden, h1 [392,161]; css/layout.css:254
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-home-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-home-iphone.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-status-iphone.png; eval Home: frame [235,102,163,163], avatar [269,137,94,94], hero [236,80,1210,207] overflow hidden, h1 [392,161]; css/layout.css:254
 - **Root cause:** Painted frame overflow with no reserved space
 - **Proposed fix:** Reserve the frame bleed in every host that shows a large framed avatar (Home ring, Seat face, Avatar stage, phone stage): pad the ring's container by (frame-avatar)/2 or shrink the painted frame to the HP ring (using each frame's hole ratio) so nothing spills.
 - **Flags:** effort M
+
+### SC-20 · P1 · ui — Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)
+
+- **Devices:** all
+- **Detail / repro:** All 12 painted avatars drawn by the real KOS.governor.avatarNode(120) (the component used in the sidebar pill, Home ring, Seat and Avatar stage): Fox's ears and tassels are cut by the circle; Crane's wing tips cut left and right; Desk lamp's shade cut at top-left and the book at bottom-left; Dragon's tail and Owl's books cut at the sides; meanwhile Cat sits low with an empty top third, Lantern leaves dark bands left and right, and Koi / Moon rabbit are painted discs of their own that don't match the CSS disc (a dark crescent rim shows round Koi). The set looks like twelve different sizes. The art files are transparent cut-outs of varying aspect (lantern 417x640, cat 640x510, fox 546x640, bloom 532x640, others ~640x640, bbox touching every edge) and the CSS fits each one's full box to the square with object-fit: contain inside a border-radius:50% overflow:hidden disc, so anything in the art's corners falls outside the inscribed circle and narrow art leaves bands.
+- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-montage.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-row1-2x.png; image sizes via PIL (assets/app/img/app.avatar.*.webp); css/layout.css:250-251 (.k-avatar overflow hidden, .k-avatar-art object-fit: contain); js/core/governor.js:697-699
+- **Root cause:** Art generated as rectangular cut-outs with content in the corners, displayed contain-fit in a circular clip.
+- **Proposed fix:** Recompose the art for a circle: each avatar keyed to fit inside an inscribed circle of ~88% of a square canvas, on a consistent ground (either all full painted discs or all cut-outs on --s2), then keep object-fit: contain. Short of new art, pad the img (inline-size/block-size ~78%) so cut-out corners clear the circle, and a per-item focal/scale in the catalogue for outliers (cat, lantern).
+- **Flags:** effort M, needs art (Gemini sheet)
+
+### SC-21 · P1 · ui — Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)
+
+- **Devices:** all
+- **Detail / repro:** On the real component (not just the shop preview reported earlier) every painted frame — Ice, Ember, Lacquer most visibly, Sakura, Wisteria and Koi too — shows a ring of bare background between the avatar and the painted band: at avatar 90px the art is drawn at 137px (152% + 2*--fo), but the art's transparent inner hole measures ~0.73-0.78 of the image (ice 239/320, ember 245/320, lacquer 239/320, gilt 248/319, amethyst 246/320) = ~103px, leaving ~6-7px of gap each side at 90px and ~13px at the Seat's 180px. Where an HP ring is present --fo adds the ring's frame-out, so the frame grows further and the gap widens. Wisteria and Koi holes are non-circular (wisteria L173/R193/T219/B237), so the avatar is visibly off-centre in them. This is exactly the user's 'avatar circle small inside a big ring'.
+- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/frames-2x.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-montage.png (bottom rows); hole radii measured with PIL on assets/app/img/app.frame.*.webp; css/layout.css:254 (152% fixed), :260-262 (--fo)
+- **Root cause:** A single fixed 152% scale assumed a 66% hole; the imported art's holes are 73-78% and some are off-centre.
+- **Proposed fix:** Store each frame's measured hole ratio and centre offset in the catalogue (e.g. hole:0.75, cx/cy) and size the art as avatarOuter / hole (≈133%, not 152%) positioned by its hole centre; let the art cover the HP ring instead of sitting outside it, or re-key the art so every hole is a centred circle of one fixed ratio.
+- **Flags:** effort S
 
 ### SC-09 · P2 · bug — Pen set 'Study set' (◈500) changes nothing: it maps the pen to exactly the default roles
 
@@ -934,7 +954,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** docs/app-art.md promises 'the four owned ones are repainted free' (frames), 'the three owned ones repainted free' (shelf skins, Shrine card styles) and stamp art 'for all twelve' seals. The pictures exist in assets/app/img (app.frame.gilt/bloom/jade/amethyst, app.shelf.walnut/lacquer/vermilion, app.shrinecard.gilded/ink/neon, app.seal.homura/tsuki/ryuu/sakura/rai/hoshi) but no code references them: the 16 older catalogue rows have no art field, so they still draw as the old CSS rings/skins and the old seals preview as a 'Kurenai 焔' pill. The shop therefore mixes two visual generations in one grid (old CSS frames with a black strip preview ~110px tall next to tall painted square previews; seal row 2 has two short cards stretched to the painted cards' height with ~200px of empty card).
-- **Evidence:** grep 'frame.gilt|shelf.walnut|shrinecard.gilded|app.seal.homura' js css -> no hits; js/core/governor.js:414-432 (no art); audit-evidence/2026-11/qa/shots/shop-cosmetics/ef-2.png (Frames rows), audit-evidence/2026-11/qa/shots/shop-cosmetics/ef-3.png (Seals rows, Rai/Hoshi cards half empty)
+- **Evidence:** grep 'frame.gilt|shelf.walnut|shrinecard.gilded|app.seal.homura' js css -> no hits; js/core/governor.js:414-432 (no art); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-2.png (Frames rows), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-3.png (Seals rows, Rai/Hoshi cards half empty)
 - **Root cause:** Catalogue rows not updated when the repaint batch was imported
 - **Proposed fix:** Add art: 'app.frame.gilt' etc. to the 16 legacy rows (frame-gold->app.frame.gilt, frame-crimson->app.frame.bloom, ...) with painted:true so avatarNode/the Books shelf/the Shrine/the seal preview take the painted path; keep ids so ownership is unchanged.
 - **Flags:** effort S
@@ -943,7 +963,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, ipad
 - **Detail / repro:** The Try on panel says 'Kurenai wears it here', and the code comment claims 'with none the panorama's own Kurenai stands there already', but the default panorama (app.ach.pano.kurenai) is an empty observatory with a chair: there is no Kurenai in it. With no outfit worn/tried the .k-gv-shop-fig column is an empty div, so the 300px-tall stage is a gold figure on the left, a glass card in the middle and nothing on the right.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/empty-shop-mac.png; assets/app/img/app.ach.pano.kurenai.webp (no figure); js/modules/governor-ui.js:1015-1019
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/empty-shop-mac.png; assets/app/img/app.ach.pano.kurenai.webp (no figure); js/modules/governor-ui.js:1015-1019
 - **Root cause:** Assumed the panorama contains Kurenai
 - **Proposed fix:** When no outfit is worn, draw the default redesign sprite (app.base.kurenai) as the mannequin; an outfit swaps it.
 - **Flags:** effort S
@@ -952,7 +972,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** In Avatar & profile > Wardrobe, every kind with art shows its picture, but Notebook paper and Pen set fall back to it.name.charAt(0) in a dark square: 'K D I M M 2' and 'S E S'. Manuscript and Music staff are both 'M', Study set and Sketch set both 'S'; nothing shows what the paper or pens look like. The old seals do the same with their glyph (fine), but papers/pens have no glyph. The shop already draws real paper and pen previews (artPreview 'paper'/'penset').
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/av-1.png (top rows); js/modules/governor-ui.js wardrobe chips: 'it.art ? img : el(span.k-gv-ward-k, text: it.glyph || it.name.charAt(0))'
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/av-1.png (top rows); js/modules/governor-ui.js wardrobe chips: 'it.art ? img : el(span.k-gv-ward-k, text: it.glyph || it.name.charAt(0))'
 - **Root cause:** Wardrobe chip only knows art or a glyph
 - **Proposed fix:** Reuse artPreview's paper swatch (.k-gv-apv-paper[data-paper]) and pen strokes (.k-gv-apv-pens[data-set]) as the chip picture for these kinds.
 - **Flags:** effort S
@@ -961,7 +981,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, ipad landscape
 - **Detail / repro:** On the Avatar tab's stage the worn Koi ring (frame art [239,230,165,165]) runs 8px into the text column (.k-gv-id-txt starts x=396), touching the L of 'LIVE IDENTITY' and 'Level 53', and sits 3px from the stage's left edge. The text column ends at x=577 and the glass controls start at x=894: ~317px of the 1210px stage is empty at 1470 wide.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/av-hero-zoom.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/av-0.png; eval rects: identity-stage [268,259,602,106], id-txt [396,284,181,55], controls [894,240,520,145]
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/av-hero-zoom.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/av-0.png; eval rects: identity-stage [268,259,602,106], id-txt [396,284,181,55], controls [894,240,520,145]
 - **Root cause:** Frame bleed not reserved; fixed-width controls column
 - **Proposed fix:** Same bleed reservation as the Seat; let the controls column take the remaining width (or move the status/next-step facts into the middle) so the stage has no dead band.
 - **Flags:** effort S
@@ -970,7 +990,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** mac, ipad
 - **Detail / repro:** With the First snow scene (1,800 gold) the running Focus stage keeps the muted/low-weight text directly on the painting: 'Finish this 25-min cycle and it banks in full', the footer 'Leaving the page ... costs nothing' and the 'Switch…' link sit on the lit snow window and are near-invisible; the scrim (--art-scrim-stage) is tuned for darker scenes. Separately the linked assignment's title chip is right-aligned in the left column and overflows past x=0 ('ion: stakeholder interviews, success criteria…').
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-focus-running.png (mac 1470x832, scene-snow, Pomodoro running on an NEA assignment); css/components.css:694 (focus art scrim/opacity tokens)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-focus-running.png (mac 1470x832, scene-snow, Pomodoro running on an NEA assignment); css/components.css:694 (focus art scrim/opacity tokens)
 - **Root cause:** One scrim strength for every scene; unconstrained chip width
 - **Proposed fix:** Put the side columns' text on a glass panel (as the clock has) or raise --art-scrim-stage per scene (a per-scene dial like Dawn's), and clamp the assignment chip (max-inline-size:100%; text-overflow:ellipsis).
 - **Flags:** effort S
@@ -979,7 +999,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** reportshare.js draws the finish picture at 55% and then the dark lacquer again at 50% on top, so Washi's cream kozo paper becomes a dirty grey-brown and Foil (a red paper with gold flakes, sold as 'a gold-foil edge') becomes a dark red wash with no gold edge. The shop card preview instead shows the raw picture under white 'THIS WEEK 20.3 h' text, which on Washi is white-on-cream and unreadable. The Wardrobe promises 'Your shared cards', but only the Reports share card reads the finish: the Shrine's 'Create share card' (shrine.js STYLES) neither uses the finish nor offers the five new painted Shrine card styles. The share dialog itself does not say which finish is on or let you pick one.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-share-washi.png (Reports share dialog with finish-washi worn); audit-evidence/2026-11/qa/shots/shop-cosmetics/ef-1.png (shop finish previews: Washi text invisible); js/modules/reportshare.js:92-104 (0.55 alpha picture then 0.5 lacquer); js/modules/shrine.js:127-135 (styles list: only gold/crimson/ink + 3 legacy); js/modules/governor-ui.js artPreview case 'finish'
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-share-washi.png (Reports share dialog with finish-washi worn); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-1.png (shop finish previews: Washi text invisible); js/modules/reportshare.js:92-104 (0.55 alpha picture then 0.5 lacquer); js/modules/shrine.js:127-135 (styles list: only gold/crimson/ink + 3 legacy); js/modules/governor-ui.js artPreview case 'finish'
 - **Root cause:** Finish implemented as a dimmed underlay; preview drawn separately from the real card
 - **Proposed fix:** Make each finish a real treatment designed for the card (paper as the ground with dark ink text for Washi; a foil rim gradient for Foil; grain overlay for Film), render the shop preview from the same card() function scaled down, add a finish row to the share dialog, and apply it to the Shrine card too.
 - **Flags:** effort M, needs a design prompt
@@ -988,7 +1008,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** With '2 mm graph' bought and worn, a new notebook correctly starts on graph paper (the picker highlights '2 mm graph' and .k-ink-page[data-paper=graph]), but the toolbar's Paper menu button reads 'Lined'. paintPaper() looks the label up in I.PAPERS (the six built-in papers only) and falls back to PAPERS[1] = Lined for any shop paper, so the toolbar always lies once a bought paper is in use.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-ink-graph-sketch.png (toolbar right end 'Lined' while the page is graph); eval: .k-ink-paper-btn text 'Lined▾', .k-ink-page data-paper 'graph'; js/core/inkui.js:1020; js/core/ink.js:42-56 (PAPERS vs SHOP_PAPERS / papers())
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-ink-graph-sketch.png (toolbar right end 'Lined' while the page is graph); eval: .k-ink-paper-btn text 'Lined▾', .k-ink-page data-paper 'graph'; js/core/inkui.js:1020; js/core/ink.js:42-56 (PAPERS vs SHOP_PAPERS / papers())
 - **Root cause:** Label lookup uses the built-in list only
 - **Proposed fix:** Look the label up in I.papers() (built-in + owned shop papers), or in PAPERS.concat(SHOP_PAPERS).
 - **Flags:** effort S
@@ -997,7 +1017,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** Scenes, halls and finishes get a Try on button (card and preview sheet). Pressing it only adds a line to the Stage's 'Trying on' list: the Stage keeps drawing the profile banner (stageBg -> seatBgSrc reads the banner only) and nothing on the shop page renders the tried scene/hall/finish. The places that would show it (Focus stage, Shrine hero, Reports share card) are on other pages, and KOS.show() calls stopTrying() on any navigation away from #/governor/shop (js/core/ui.js:1494-1497), so the try-on can never be seen. Only outfits (the mannequin) and themes (the whole app) are visibly tried on. Conversely avatars, frames, banners, seals, shelf skins and Shrine cards - things that could be shown on the Stage - have no Try on at all.
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-tryon-scene-hall.png (Trying on: The night train, Moon hall, Washi; stage images = app.banner.snow + the outfit only); js/modules/governor-ui.js:1039 (canTry list), 1092 (sheet Try on kinds), 271-294 (stageBg ignores tried kinds); js/core/ui.js:1494-1497
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-tryon-scene-hall.png (Trying on: The night train, Moon hall, Washi; stage images = app.banner.snow + the outfit only); js/modules/governor-ui.js:1039 (canTry list), 1092 (sheet Try on kinds), 271-294 (stageBg ignores tried kinds); js/core/ui.js:1494-1497
 - **Root cause:** Try on wired to state only; no renderer for most kinds on the shop page
 - **Proposed fix:** Make the Stage the fitting room: while a scene/hall/banner is tried, draw it as the Stage ground (with the 25:00 clock or the 01 rank over it); a finish as a mini share card; avatar/frame/seal on a live identity chip. Or remove Try on from kinds that cannot be shown.
 - **Flags:** effort M, needs a design prompt
@@ -1006,7 +1026,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** Opening an owned ware (e.g. Sakura ring) shows the picture, the kicker, the name and one line of description, and nothing else: shopSheet() only builds actions for the buy/try states, so the footer is omitted entirely - no way to wear it from the sheet, no sign that it is owned or in use, only the ✕. The right column holds three short lines in a ~1060x615 dialog (the text column is empty below y=290). The avatar inside the frame preview is again tiny (103px in a ~380px ring).
-- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-sheet-owned-frame.png; js/modules/governor-ui.js:1090-1098 (actions only when st is buy/try), 1104 (footer omitted when no actions)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-sheet-owned-frame.png; js/modules/governor-ui.js:1090-1098 (actions only when st is buy/try), 1104 (footer omitted when no actions)
 - **Root cause:** Sheet actions written for the purchase states only
 - **Proposed fix:** Add the card's own actions to the sheet for owned states (Use / Take off, Unlocked · where it shows), a status chip, and a 'Where it shows' line per kind (the Wardrobe's captions); size the dialog to its content.
 - **Flags:** effort S
@@ -1015,9 +1035,72 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** The shop and Wardrobe wear a scene with g.scene (KOS.governor.wear), while the picture drawer (KOS.artSlot) stores state.artSlots.focus = {mode, pick, ...}. Once the drawer has ever been used, KOS.art.pick('focus') returns the drawer's rule and ignores g.scene. Reproduced: drawer 'One picture' -> The library, then shop/Wardrobe 'Use' The night train: g.scene = scene-train and the shop card reads '✓ In use', but KOS.art.pick('focus') = app.focus.library and explain = 'Now: The library, always.' Nothing in the shop or Wardrobe says a rule is overriding the choice. Also, with no drawer rule yet, the drawer opens on 'One picture' with no thumbnail selected and says 'Now: First snow, by the season' although nothing rotates (explain() falls through to the season wording).
-- **Evidence:** eval after clicking the library thumb in KOS.artSlot.open('focus') then KOS.governor.wear('scene','scene-train'): {cfg:{mode:'one',pick:'app.focus.library'}, worn:'scene-train', pick:'app.focus.library'}; audit-evidence/2026-11/qa/shots/shop-cosmetics/seed-drawer-focus.png; js/core/art.js:118-126 (rotated: cfg wins), 168 (fallback to G.scene only without cfg), 143-152 (explain); js/modules/governor-ui.js wareActive/wareUse
+- **Evidence:** eval after clicking the library thumb in KOS.artSlot.open('focus') then KOS.governor.wear('scene','scene-train'): {cfg:{mode:'one',pick:'app.focus.library'}, worn:'scene-train', pick:'app.focus.library'}; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-drawer-focus.png; js/core/art.js:118-126 (rotated: cfg wins), 168 (fallback to G.scene only without cfg), 143-152 (explain); js/modules/governor-ui.js wareActive/wareUse
 - **Root cause:** Rotation rule added beside the existing worn-item field instead of replacing it
 - **Proposed fix:** Make one record: 'Use' in the shop/Wardrobe should write the drawer rule ({mode:'one', pick: art}) or clear it, and the drawer's One picture should mark/write g.scene; the drawer's initial state should select the worn item and explain should say 'always' for the implicit one-picture state.
+- **Flags:** effort S
+
+### SC-22 · P2 · ui — Ten of the 23 paid shop themes are near-copies of free Graphite (same near-black ground, accent within dE 2-6 of Graphite's crimson)
+
+- **Devices:** all
+- **Detail / repro:** Measured every theme's resolved --crimson and --bg (OKLab distance x100 vs Graphite; ~2 is a just-noticeable difference, <6 is 'the same colour' at a glance). Accent: moss-garden 1.9, rosarium 2.3, spectral-rose 3.3, azure-corset-noir 3.8, ember-wraith 4.1, scarlet-garden-night 4.2, porcelain-sky-night 5.0, crimson-moth 5.4, lycoris-radiata 5.5, first-snow 6.0. Ground: every dark theme sits within dE 1.5-4.6 of Graphite's #0D0E12 and every theme keeps s1-vs-bg contrast ~1.06, so cards, rail and header read identically. In the 29-theme contact sheet the only visible difference between these ten and the free default is a slightly different hero tint. The user pays 140-1,500 gold for what looks like Graphite. Recommendation: KEEP the distinct ones (Atelier Dawn, Washi Morning, Verdigris Duel, Clinic Noir, Midnight Lilies, Celestial Duality, Azure Butterfly, Solar Manuscript, Violet Requiem, Rain Cafe, Sakura Skyline, Lantern Hall, Gothic Camellia, Shattered Bloom); REMOVE or re-tint (give a real ground hue/lightness and an accent away from crimson) moss-garden, rosarium, spectral-rose, azure-corset-noir, ember-wraith, scarlet-garden-night, porcelain-sky-night, crimson-moth, lycoris-radiata, first-snow (an owned copy keeps working, as the retired CSS banners do).
+- **Evidence:** audit-evidence/2026-11/qa/themes4.json (resolved tokens per theme via themecontrast.js); scratchpad th.py output (dE table); shots/shop-cosmetics/theme-sheet-0.png, theme-sheet-1.png, theme-sheet-2.png and shots/shop-cosmetics/themes/*.png; css/themes.css e.g. :379 azure-corset-noir --crimson: oklch(0.66 0.19 22)
+- **Root cause:** themes.css overrides only the role colours but every dark theme copies Graphite's ground lightness/chroma and most red/pink themes pick an accent hue within ~10 degrees of Graphite's.
+- **Proposed fix:** Retire the ten (catalogue flag like retired banners, governor.js:529) or redesign each with a distinct ground (lightness 0.18-0.24 and real chroma, not 0.15/0.04) and an accent hue at least ~15 dE from Graphite.
+- **Flags:** effort M, needs a design prompt
+
+### SC-23 · P2 · ui — Theme cards' lead swatch promises a colour the theme never uses as its accent (Azure Corset Noir, Porcelain Sky Night, Jade Camellia: blue/green swatch, red/coral buttons)
+
+- **Devices:** all
+- **Detail / repro:** The shop card shows sw[0] first as the theme's colour. For azure-corset-noir sw[0] is #79BAD3 (ice blue) but every button, active tab and link is oklch(0.66 0.19 22) red (dE 27.8 from the swatch); porcelain-sky-night #6BB5D1 vs red (29.1); jade-camellia #4D8D67 jade vs coral (26.2); rain-cafe #42C6D0 vs peach (20.3); celestial-duality #3348C9 vs a periwinkle (20.6); sakura-skyline #9B8DFF vs pink (18.2). The buyer picks a blue/green theme and gets Graphite-red buttons.
+- **Evidence:** js/core/governor.js:397,403,406,402,405,392 (sw arrays) vs css/themes.css :379 (--crimson hue 22) and themes4.json accents; scratchpad th.py 'accent vs card swatch' column
+- **Root cause:** Swatches are hand-typed in the catalogue, separately from css/themes.css.
+- **Proposed fix:** Order sw so sw[0] is the resolved --crimson, or change --crimson to the advertised hue. Better: derive the swatches from the theme block itself (read --crimson/--teal/--gold off a data-theme probe) so they can never drift.
+- **Flags:** effort S
+
+### SC-24 · P2 · ui — Wardrobe chip names are cut off for 22 of the owned items (Exam se…, Moon ra…, The nigh…, every seal, most papers)
+
+- **Devices:** mac, ipad, iphone
+- **Detail / repro:** On #/governor/avatar (mac 1470x832, everything owned) 22 .k-gv-ward-n labels overflow their 64px chip: 'Exam season', 'Moon rabbit', 'The night train', 'The rooftop', 'Lantern hall', 'Gold-leaf hall', all 12 seals ('焔 Homura seal'…), 'Dark slate grid', 'Isometric dots', 'Manuscript', 'Music staff', '2 mm graph'. The seals and papers are the letter tiles already reported, so their only identification is a truncated name; there is no title/tooltip and the aria-label is the only full name.
+- **Evidence:** eval on #/governor/avatar: [...document.querySelectorAll('.k-gv-ward-n')].filter(e=>e.scrollWidth>e.clientWidth) -> 22 names; audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-pbanner-sakura.png; js/modules/governor-ui.js:1371
+- **Root cause:** Fixed-width chip with single-line ellipsis.
+- **Proposed fix:** Let the name wrap to two lines (line-clamp 2) and widen chips to ~84px, or drop the redundant word ('seal', 'The') from the short label; add title= the full name.
+- **Flags:** effort S
+
+### SC-25 · P2 · bug — Switching between two painted avatars loses your own photo: taking the second off falls back to the default seal, not your picture
+
+- **Devices:** all
+- **Detail / repro:** Repro (Wardrobe on #/governor/avatar, own photo set as the profile picture): click Cat (kind art, prevKind custom), click Fox (prevKind is overwritten with 'art'), click Fox again to take it off -> g.avatar.kind becomes 'seal'; the photo is still stored (g.avatar.img) but the portrait shows the default design everywhere and the Profile picture row says 'Default', so the user believes their photo was deleted and has to re-upload/re-crop it. Same via the shop's Use / Take off.
+- **Evidence:** eval log: [['Cat','art','custom'],['Fox','art','art'],['Fox','seal','art']], final kind 'seal', hasImg true; js/modules/governor-ui.js:885-887 (prevKind = g.avatar.kind unconditionally)
+- **Root cause:** prevKind overwritten on every art-to-art switch.
+- **Proposed fix:** Only record prevKind when leaving a non-art kind: if (g.avatar.kind !== 'art') g.avatar.prevKind = g.avatar.kind; and on take-off restore 'custom' whenever g.avatar.img exists.
+- **Flags:** effort S
+
+### SC-26 · P2 · ux — One click on a card's Buy spends up to 12,000 gold with no confirmation and no undo, and silently re-dresses the app
+
+- **Devices:** all
+- **Detail / repro:** The shop card's 'Buy' button (shop.buy) calls buyWare directly: KOS.governor.buy then wareUse(it,true). There is no confirm step, no Undo on the toast, and no refund path, for prices up to 10,000 (Gala) and 12,000 (Every area). Buying also immediately applies the item: a theme re-themes the whole app, a frame replaces the worn frame, an avatar replaces your photo (see the prevKind finding), a scene/hall replaces the current one — none of which the user asked for at purchase time. The preview sheet shows '12,476 → …' but the card button skips the sheet. Months of earned gold can be lost to a mis-tap on iPad/iPhone where cards are dense.
+- **Evidence:** js/modules/governor-ui.js:1045-1046 (card Buy -> buyWare), :893-903 (buy + wareUse + toast, no undo); js/core/governor.js:542-556 (buy has no inverse)
+- **Root cause:** buyWare couples purchase and equip, no reversible step.
+- **Proposed fix:** Route the card's Buy through the preview sheet (or KOS.ui.confirm) showing price and balance after, and offer 'Undo' on the toast for ~10 s (refund + remove from owned, restore what was worn). Ask 'Use it now?' instead of auto-applying, or apply only kinds with nothing currently worn.
+- **Flags:** effort S
+
+### SC-27 · P2 · ux — Owned 'Your own picture' unlocks: a 6-line green text block instead of a button, and no way to reach the picture drawer from the shop
+
+- **Devices:** iphone (layout), all (dead end)
+- **Detail / repro:** After buying an unlock (3,000-12,000 gold) its card says 'Owned' plus 'Unlocked · upload from the slot's picture drawer' as a static span. On iPhone (402x874) that span wraps to six lines in a tall green box beside the Owned chip, making every unlock card ~280px tall. It is a dead end: the user is told to find 'the slot's picture drawer' with no link — the drawer is KOS.artSlot.open(area) and is reachable only from the Wardrobe's 'Rotate or your own →' (banner/scene/hall) or the hero itself. The Home/Vault unlocks have no Wardrobe row at all. The preview tile also reads 'every area' (lower-case) under the name 'Every area', and 'Vault heroes and Seasonal' is truncated to 'Vault heroes and Se…'.
+- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/shop-unlocks-iphone.png; eval: .k-gv-ware-name 'Vault heroes…' clientWidth 149 < scrollWidth 177; js/modules/governor-ui.js:1050-1051 (static span), :1239-1243 (preview label)
+- **Root cause:** Unlock state rendered as prose rather than an action.
+- **Proposed fix:** Replace the span with a button 'Upload a picture' that opens KOS.artSlot.open(it.area) (for 'all', a small menu of areas); drop the redundant Owned chip; let names wrap to 2 lines.
+- **Flags:** effort S
+
+### SC-28 · P3 · ui — 'Kurenai bloom' frame (◈90) renders as eight blocky pink squares, not petals
+
+- **Devices:** all
+- **Detail / repro:** The CSS frame-crimson draws its 'crimson petals from the brand bloom' as a repeating-conic-gradient masked to a ring: at 90px it is eight hard-edged trapezoid squares floating round the avatar, which reads as a loading spinner rather than petals; next to the painted frames it looks unfinished. Same for the gold studs at small sizes (barely visible ticks).
+- **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/frames-2x.png (frame-crimson); css/layout.css:272-274
+- **Root cause:** Conic-gradient approximation of petals.
+- **Proposed fix:** Retire the four CSS frames (as the CSS banners were) now that painted frames exist, or redraw the bloom as an SVG petal mask.
 - **Flags:** effort S
 
 
@@ -3631,7 +3714,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** iPad portrait 820x1180 (any 701-860 width)
 - **Detail / repro:** On every Collection page at 820px the vault pill group (Overview, Anime, Books, Visual Novels, Games) is squeezed to 408px of its 484px and scrolls inside itself with its scrollbar hidden. Games is cut off at the right edge with no arrow or fade; the outer section scroller sees no overflow (sw 716 = cw 716) so its arrows never appear. A user on the iPad has no visible way to reach Games from the strip.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/empty-mediasync-ipad.png (strip shows Overview..Visual Novels, no Games); eval: .k-seg sw=484 cw=408 x=88, Games item x=483 w=85; shell.subnav-scroller sw=716 cw=716
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/empty-mediasync-ipad.png (strip shows Overview..Visual Novels, no Games); eval: .k-seg sw=484 cw=408 x=88, Games item x=483 w=85; shell.subnav-scroller sw=716 cw=716
 - **Root cause:** css/components.css:52 `.k-seg { max-inline-size:100%; overflow-x:auto; scrollbar-width:none }` makes the group's min-content 0, so as a flex child of `.k-subnav` (components.css:80) it shrinks and scrolls itself instead of overflowing the scroller mobile-shell.js:103-125 wraps around the subnav.
 - **Proposed fix:** Give the section's pill group `flex: none` inside `.k-subnav` (css/components.css:80-82) so the overflow moves to the outer `k-subnav-scroller`, which already has arrows; or drop overflow-x:auto from `.k-seg` when it is a child of `.k-subnav`.
 - **Flags:** effort S
@@ -3640,7 +3723,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all; truncation on Mac 1470
 - **Detail / repro:** Empty account: the four module cards read '0 entries · 0 watching · 0 completed', '0 series · 0 reading · 0 completed · 0 vols …', '0 tracked · 0 playing · 0 routes cleared · 0 …', '0 tracked · 0 playing · 0 hours logged · 0 c…'. Zero supporting facts should be suppressed (invariant 77), and three of the four lines end in an ellipsis at Mac width, so even with data the line is cut.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/empty-matrix-mac.png; measurement: ELLIP span.k-mrow-sub 247x18 x3 at 1470
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/empty-matrix-mac.png; measurement: ELLIP span.k-mrow-sub 247x18 x3 at 1470
 - **Proposed fix:** Build the sub-line from non-zero facts only (show one primary fact, e.g. 'Nothing tracked yet', when all are zero) and cap it at two facts so it fits 247px, or allow it to wrap to two lines.
 - **Flags:** effort S
 
@@ -3648,7 +3731,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** With no titles the Overview's 'Where each medium stands' card shows its title and the Completed/In progress/Planned/Dropped legend but no bars and no empty-state line, so it reads as a broken chart (invariant 76 asks for an honest low-data state).
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/empty-matrix-mac.png
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/empty-matrix-mac.png
 - **Proposed fix:** When every module total is 0, hide the legend and print one line ('Statuses appear once a vault has titles') or hide the card and let Airing soon take the row.
 - **Flags:** effort S
 
@@ -3656,7 +3739,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all; most visible on iPhone where the page title says Anime
 - **Detail / repro:** Mangaka is built from the Books vault ('Every author on your shelves', its Actions go to the Books vault) but the section strip highlights Anime as current, and the phone shell's section title above the page reads 'Anime ▾'. Current-location marking is wrong and confusing (you came from Books).
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-mangaka-mac.png (Anime pill current); audit-evidence/2026-11/qa/shots/collection/seed-mangaka-iphone.png (title 'Anime')
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-mangaka-mac.png (Anime pill current); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-mangaka-iphone.png (title 'Anime')
 - **Root cause:** js/core/ui.js:1467 `if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";`
 - **Proposed fix:** In js/core/ui.js:1467 map mangaka to 'books' (keep seasonal → anime).
 - **Flags:** effort S
@@ -3682,7 +3765,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** iPad portrait 820
 - **Detail / repro:** At 820px the Books/Anime/VN/Games controls block is 131px tall: the count ('738 series') sits on its own line, search/sort/filters/view/actions on a second, and the primary 'Find new' button alone on a third line at the left, under a separate 'Status & lists' row. The grid starts ~713px down the page. Ragged wrap with dead width on rows 1 and 3.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-anime-ipad.png; eval: vault.count @88,588; search @88,619 253x44 … Actions @721,619; 'Find new' @88,675 111x44; controls block 716x131
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-anime-ipad.png; eval: vault.count @88,588; search @88,619 253x44 … Actions @721,619; 'Find new' @88,675 111x44; controls block 716x131
 - **Root cause:** js/modules/medview.js toolbar() lays the count, the control row and the primary button out as separate flex items that wrap independently below the 1080 tier.
 - **Proposed fix:** In the medview toolbar, put the count inside the search row (as on Mac) and let the primary button take the Actions slot (or fold Find new into Actions) under 860px, so the toolbar is one row plus the Status & lists button; or make 'Status & lists' share that row.
 - **Flags:** effort S
@@ -3691,7 +3774,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** Mac browser (Back key/gesture), iPad Safari tab (edge swipe)
 - **Detail / repro:** Open an Anime title's editor, then press Back: the page behind changes to the previous route (Games) but the Anime editor drawer stays open on top of it. Navigating by hash with the editor open does the same — screenshots of #/books and #/vn still show 'Collection entry 686' (an anime) with Log episode. The modal no longer belongs to the page under it and its Save writes the anime row while the user is looking at Games/VN.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-books-mac.png and audit-evidence/2026-11/qa/shots/collection/seed-vn-mac.png (anime editor over Books/VN); eval: open=1 hash=#/anime → history.back() → afterBack=1 hash=#/game h1=Games
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-books-mac.png and /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-vn-mac.png (anime editor over Books/VN); eval: open=1 hash=#/anime → history.back() → afterBack=1 hash=#/game h1=Games
 - **Root cause:** js/core/router.js:283-297 onPop re-renders the view with KOS.show but nothing closes overlays opened by KOS.ui.openDialog (js/core/ui.js:155), which live outside #main.
 - **Proposed fix:** On a routed navigation (router.js onPop/renderRoute, and KOS.show without _redraw) close every open KOS.ui.openDialog overlay first (cancel semantics, or ask if dirty), or have openDialog push a history entry so Back closes the dialog instead of the page.
 - **Flags:** effort M
@@ -3709,16 +3792,61 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** With Money's Hide amounts on (state.ui.moneyHidden = true) the Money page shows no figures, but the Wishlist still prints 'GBP 10.00', 'GBP 60.00 left of GBP 60.00', 'GBP 105.00', and Mangaka prints '£755 spent' on every author card. Invariant 5a says Hide amounts masks every amount on every surface. The same values are also formatted inconsistently: Money/Wishlist 'GBP 10.00' (ISO code + space, mono), Books/Mangaka a hard-coded '£755' / '£12.50' that ignores the user's currency setting.
-- **Evidence:** eval with moneyHidden=true: money page matches [] ; wishlist ['GBP 10.00','GBP 60.00',…]; mangaka ['£755 spent',…]; audit-evidence/2026-11/qa/shots/collection/seed-wishlist-mac.png, audit-evidence/2026-11/qa/shots/collection/seed-mangaka-mac.png
+- **Evidence:** eval with moneyHidden=true: money page matches [] ; wishlist ['GBP 10.00','GBP 60.00',…]; mangaka ['£755 spent',…]; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-wishlist-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-mangaka-mac.png
 - **Root cause:** js/modules/wishlist.js:544-548 and js/modules/books.js:363,1531 format money with string concatenation instead of the shared KOS.ui.amount primitive that owns masking and currency.
 - **Proposed fix:** Route every Collection amount through KOS.ui.amount (minor units, currency from KOS.money): wishlist.js money() (544-548), books.js:363 (Shelf value), books.js:1531 (author 'spent'), books.js:454 placeholder, and the Overview/analytics 'spent' figures.
+- **Flags:** effort S
+
+### CL-16 · P2 · ui — AniList profile stat bands use a quarter of the card's width (auto-fill leaves empty tracks) and repeat the hero's figures on another scale
+
+- **Devices:** mac, ipad landscape
+- **Detail / repro:** On #/aniprofile (connected; reproduced with a stubbed bundle) the Overview tab's 'Anime overview' and 'Manga overview' bands put four ~120px tiles at the left of a ~1210px card, leaving ~700px empty. The same figures are in the hero directly above on a different scale: hero 'mean 7.8' / '875d watched' vs band 'Mean score 78' / 'Days watched 875.0'. A zero (e.g. Volumes 0, Mean score 0) prints as a figure (invariant 77).
+- **Evidence:** audit-evidence/2026-11/qa/shots/collection/b3-aniprofile-stub-mac.png; css/views/collection.css:859 (grid-template-columns: repeat(auto-fill, minmax(var(--pf-tile-min),1fr))); js/modules/aniprofile.js:252-259 (bands), 185-189 (hero figures /10)
+- **Root cause:** auto-fill keeps empty column tracks; hero and band were written independently
+- **Proposed fix:** Use repeat(auto-fit, …) (or a 4-column grid) so tiles share the width; pick one score scale (the hero's /10) and drop the band tiles the hero already shows (count, days) or replace them with figures the hero lacks (episodes, chapters, volumes); suppress zero-only tiles.
+- **Flags:** effort S
+
+### CL-17 · P2 · data — Ordering a tied tier while the Shrine is filtered to one medium erases the hand-set rank of every other medium's titles in that tier
+
+- **Devices:** all
+- **Detail / repro:** Shrine 'Set order' builds the dialog from the FILTERED favourites. On drop it stores only the visible titles' keys as the whole tier's order, so the other media's titles in the same score lose their rank and fall to the end in 'All media'. Reproduced: tier 10 ordered under All media (7 keys stored); switched to Anime (tier shows 3 titles), moved one title -> stored list for '10' is now 3 keys; the 4 non-anime titles' positions are gone. 'Reset to date enshrined' under a filter likewise wipes the whole tier for all media, with no confirm and no undo.
+- **Evidence:** eval repro on slot 17 (s1len 7 -> s2len 3); js/modules/shrine.js:809-813 (onDrop stores only list rows), 827-829 (reset, no confirm/undo), 972 (tiers from filtered favourites); js/core/media.js:580-596 setTierOrder replaces sh.order[k] whole
+- **Root cause:** tier order is one flat list per score, but the dialog edits a filtered subset and writes it back as the whole list
+- **Proposed fix:** On drop, merge: take the stored order for the tier, replace the visible titles' slots in place with the new sequence, keep the hidden titles where they were (or only offer Set order under All media). Make Reset confirm (or offer Undo via toast) and reset only the visible titles when filtered.
+- **Flags:** effort S
+
+### CL-18 · P2 · a11y — Wishlist priority can only be set by HTML5 mouse drag: no keyboard path, no grip in Want to buy, unreliable on iPad touch (bypasses KOS.ui.reorder)
+
+- **Devices:** ipad, keyboard, all
+- **Detail / repro:** The Wishlist's 'Priority order' is a hand-ranked list ('Drag a row to set its priority'), but it is implemented with native draggable rows (dragstart/dragover/dragend) instead of the shared KOS.ui.reorder (⠿ handle, Space/↑↓, announced) that invariant 89a requires for every hand-ranked list. In the Want to buy tab the row's lead is the simulate checkbox, so there is no visible handle at all; the item editor has no priority field. Keyboard and screen-reader users cannot reorder; on iPad (touch, installed app) native HTML drag needs a long-press and fights scrolling.
+- **Evidence:** js/modules/wishlist.js:892-903 (draggable + hint text), 997-1002 (checkbox lead / aria-hidden grip), 1124-1140 (enableDrag HTML5); editor fields 700-727 have no priority
+- **Root cause:** wishlist predates the shared reorder primitive
+- **Proposed fix:** Use KOS.ui.reorder on the list with a ⠿ grip button per row (beside the checkbox in Want to buy), committing through reorder(status, ids).
+- **Flags:** effort S
+
+### CL-19 · P2 · ui — Mark purchased dialog: the Paid amount field is 57px wide and clips the price ('£ l0.00'); the date is cut to '06/11/20'
+
+- **Devices:** mac, ipad
+- **Detail / repro:** Opening 'Purchased' on a Want to buy row (Mac 1470) shows the Paid field with its 22px mono amount clipped: the input is 57px wide for 64px of '10.00', so the leading digit is cut; a three-digit price loses more. The date input is 106px and shows '06/11/20'. The two fields share one half of a two-column .k-pl-form while the other half holds two short guidance lines, leaving the inputs starved.
+- **Evidence:** audit-evidence/2026-11/qa/shots/collection/b3-wishlist-buy-dialog-mac.png; eval: amount input w 57 / scrollWidth 64, date w 106; css/views/collection.css:756 (.k-pl-form 2 cols), 770 (.k-pl-two); js/modules/wishlist.js:1100-1103
+- **Root cause:** dialog body reuses the editor's two-column grid
+- **Proposed fix:** Give the purchase dialog a single-column body (fields row full width, guidance under it) or span .k-pl-two across both columns; set a min-width on the amount field from its digits.
+- **Flags:** effort S
+
+### CL-20 · P2 · ux — After Mark purchased, the Money confirmation and its 'View in Transactions' action are overwritten at once by the Collection handoff toast
+
+- **Devices:** all
+- **Detail / repro:** Confirming a purchase toasts 'Added to Money · Collection › Games · £10.00' with a 'View in Transactions' button, then afterPurchase's handoff callback immediately toasts 'Added to Collection as planned.' into the same single #toast element, replacing the text and the action. Reproduced: after the click #toast reads only 'Added to Collection as planned.' The user never sees what was added to Money or gets the link; there is also no Undo for a purchase that wrote to Money and the Collection.
+- **Evidence:** eval on slot 17 after plan.buy-go: toast 'Added to Collection as planned.'; js/modules/wishlist.js:1095-1098 then 1109-1120; js/core/ui.js:72-81 (toast replaces textContent, no queue)
+- **Root cause:** two sequential toasts on a single-slot toast primitive
+- **Proposed fix:** Compose one toast after the handoff ('Bought: £10 to Money · added to Games as planned') carrying both 'Undo' (setStatus back, which unarchives) and 'View in Transactions'; or give KOS.ui.toast a short queue.
 - **Flags:** effort S
 
 ### CL-11 · P3 · qol — No link out to the title's AniList/VNDB page, and nowhere to keep 'where I watch/read it' (QoL)
 
 - **Devices:** all
 - **Detail / repro:** The editor shows 'Linked to AniList' and knows anilistId/malId/vndbId, but only Games has an outbound link ('View on Steam ↗', games.js:333). Anime/Books/VN have no 'Open on AniList/VNDB' and no personal 'Where I'm watching/reading' URL. Proposal for the watch link: a manual-layer field `links: [{label, url}]` (or a single `watchUrl`) added in mediadb.normalise (js/core/mediadb.js:542, sanitised to http(s) only, no index so no DB version bump — like physical.seriesTotal), preserved in merge() beside notes/tags (mediadb.js ~1062: `inc.links = old.links.length ? old.links : inc.links`), unioned in foldLocal (mediadb.js:934) and covered by materialJSON automatically; never pushed (invariant 13 payloads stay status/progress/score) and excluded from search (71). UI: an input on 'Your layer' with a 'Use clipboard' helper; a '▶ Watch' / '📖 Read' button beside '+1 ep' on the card hover row, the Spotlight hero and the editor header, opening in a new tab (rel=noopener). The provider page link (AniList/VNDB) can be derived from the ids and shown on the Record tab.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-anime-editor-layer-mac.png, audit-evidence/2026-11/qa/shots/collection/seed-anime-editor-record-mac.png; grep: only js/modules/games.js:57,333 build an outbound title URL
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-anime-editor-layer-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-anime-editor-record-mac.png; grep: only js/modules/games.js:57,333 build an outbound title URL
 - **Proposed fix:** Add the field to normalise/merge/foldLocal as above, a URL input in the shared editor's personal layer (KOS.mediaEditors), and a Watch/Read action in medview's card and hero.
 - **Flags:** effort M
 
@@ -3734,7 +3862,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** all
 - **Detail / repro:** A VN in progress at 2/2 routes reads '2 routes in — the last one is next.' The branch fires when left === 0, i.e. nothing is left; 'the last one is next' describes left === 1. Same for an anime/book at its final episode/chapter count.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-vn-mac.png (hero: '2 routes in — the last one is next.', chip 2 / 2 routes)
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-vn-mac.png (hero: '2 routes in — the last one is next.', chip 2 / 2 routes)
 - **Root cause:** js/modules/medview.js:1318
 - **Proposed fix:** left === 0 → 'All N in — ready to mark it complete?' (offer a Complete action); left === 1 → 'the last one is next.'
 - **Flags:** effort S
@@ -3743,7 +3871,7 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** Mac, iPad landscape
 - **Detail / repro:** The credit 'art · kamo_nasus' is 11.5px muted grey (oklch 0.62) laid straight over bright foliage with no scrim, jammed against the Art menu button; at 1x it is close to invisible (on iPhone it sits on a darker patch and reads). The credit is a licensing obligation for hot-linked scenery (invariant 94).
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-seasonal-credit-zoom.png; eval: anime.season-credit 90x17 at 1269,300, colour oklch(0.62 0.012 265), next to Art button at 1369
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-seasonal-credit-zoom.png; eval: anime.season-credit 90x17 at 1269,300, colour oklch(0.62 0.012 265), next to Art button at 1369
 - **Proposed fix:** Put the credit on the same dark pill as the Art button (or a local gradient scrim) and use --text-2 colour; keep 8px from the button.
 - **Flags:** effort S
 
@@ -3751,8 +3879,26 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 - **Devices:** iPhone 402
 - **Detail / repro:** Season select and year field share row 1 (year field stops at 279 leaving 107px empty), the In progress/Everything switch sits alone right-aligned on row 2 with the left half empty, then Refresh airing/Anime vault on row 3. Three rows of controls and a dead half-row before the first title.
-- **Evidence:** audit-evidence/2026-11/qa/shots/collection/seed-seasonal2-iphone.png
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/seed-seasonal2-iphone.png
 - **Proposed fix:** Under 560px make season+year one row at full width and the In progress/Everything switch full width (k-seg--grid) on the next, or move Refresh airing/Anime vault into the page's ⋯ menu.
+- **Flags:** effort S
+
+### CL-21 · P3 · ui — AniList profile action row wraps 'Avatar' onto its own line on iPhone
+
+- **Devices:** iphone
+- **Detail / repro:** At 402px the row 'Refresh · Updated hh:mm:ss · Banner · Avatar' wraps so '✎ Avatar' sits alone on a second line at the left, under Refresh, ragged against 'Banner' at the right.
+- **Evidence:** audit-evidence/2026-11/qa/shots/collection/b3-aniprofile-analytics-iphone.png; js/modules/aniprofile.js:133-140 (actionRow)
+- **Root cause:** flex-wrap row with independent children
+- **Proposed fix:** Group Banner and Avatar in one nowrap cluster (or a ⋯ menu) so they wrap together; or drop the 'Updated' time to the second line on phones.
+- **Flags:** effort S
+
+### CL-22 · P3 · content — Want to buy rows label the purchase action 'Purchased' (reads as a status) while the hero and dialog say 'Mark purchased'
+
+- **Devices:** all
+- **Detail / repro:** Each queue row's action button says 'Purchased', beside a 'Link to vault' text and a ✎; it reads as the row's state, not an action. The hero button and the dialog title/confirm say 'Mark purchased'.
+- **Evidence:** audit-evidence/2026-11/qa/shots/collection/b3-wishlist-dawn-mac.png (row right edge); js/modules/wishlist.js:1019-1022
+- **Root cause:** label drift
+- **Proposed fix:** Label it 'Mark purchased' (or 'Bought…') like the hero.
 - **Flags:** effort S
 
 
