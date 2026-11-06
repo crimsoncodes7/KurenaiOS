@@ -122,7 +122,7 @@ of separate apps: everything interlinked, coherent).
 | Gold shop (art release) lazy: avatars not centred | **Confirmed** | SC-01 |
 | Frame rings don't fit | **Confirmed** (55px avatar in 179px frame) | SC-06, SC-03, SC-07, SC-08 |
 | Bought items never show (shelf skins, Shrine cards) | **Confirmed**: art URLs resolve to `/css/views/assets/…` → 404 | SC-05; also seals SC-04, unused repainted art SC (P2) |
-| Old low-quality CSS cosmetics/themes kept | **Not judged yet** (the theme review was not reached) | — |
+| Old low-quality CSS cosmetics/themes kept | **Judged 6 Nov**: 10 of the paid themes are near-copies of free Graphite (accent within dE 2–6, same ground). Remove or re-tint: moss-garden, rosarium, spectral-rose, azure-corset-noir, ember-wraith, scarlet-garden-night, porcelain-sky-night, crimson-moth, lycoris-radiata, first-snow. Keep 14 distinct ones (list in SC-22). Also SC-28 'Kurenai bloom' frame is blocky squares | SC-22, SC-23, SC-28, SC-30 |
 | Study spaces & A-Level content: Maths M7.3 "basically bare" | **Root cause confirmed live**: a 2 KB personal notes FORK on the user's account hides the shipped 8-page notes; no stale-fork warning | LA-23, CM (stale fork P2) |
 | Flashcards redundant / ill-fitting | **Confirmed** (bank files duplicate base cards; ~30 CS decks ask the same definition twice; wrong leaf) | CM, CC findings |
 | Agenda calendar on desktop and iPad | **Confirmed missing** (Agenda only < 700px) | PR-06 |
@@ -247,7 +247,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts (6 Nov, after batch 2):** 461 open findings (P0 2 · P1 83 · P2 218 · P3 158), plus SH-05 resolved by the stopgap. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
+**Counts (6 Nov, after batch 3):** 534 open findings (P0 2 · P1 86 · P2 252 · P3 194), plus SH-05 resolved by the stopgap. After batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
 user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
 before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
@@ -264,7 +264,7 @@ before acting (see §7).
 | SH | Shell, nav, search, toasts, dialogs, Help | **complete, inventoried** (6 Nov, `kos-redraw-1`; `findings/shell.inventory.md`) | 44 open (+ SH-05 resolved) | Real offline behaviour (dev host always online, harness signed out), the iOS Home Screen status bar, the service-worker update prompt (needs two deploys) |
 | HR | Home + Reports | **partial** | 15 | Interrupted. Likely unchecked: story player fully, share export formats, month/term/year pages at all sizes |
 | AG | Achievements + Governor's Seat | **partial** | 16 | Interrupted. Titles, unlock overlay timing, Session Log likely thin |
-| SC | Gold Shop + cosmetics + themes | **partial** | 19 | Interrupted. **The 26-theme quality review (which to remove) not done**; not every item verified bought→applied |
+| SC | Gold Shop + cosmetics + themes | **complete, inventoried** (6 Nov; all 131 items bought and checked where they render; all 29 themes measured; `findings/shop-cosmetics.inventory.md`) | 41 (P1 ×10) | Two-device merge of owned items; a real upload through the cropper (headless); every theme on every page |
 | ST | Study core (desks, topic page, Review, Assignments) | complete | 24 | Simulate tab beyond locked state, Files tab with a real PDF, Handwritten with a pen, shop theme, landscape iPhone |
 | SY | Sync/redraw disruption | complete | 17 | Routine auto-tick redraw, a Japanese session with due items, Creatives Writing Desk, Focus stage & exam tally (judged safe from code) |
 | CM | Maths content | complete | 13 | Every fact's correctness (spot reads only) |
@@ -276,8 +276,8 @@ before acting (see §7).
 | CR | Creatives | complete (on main, after the stale-build attempt was discarded, §2.2) | 24 | Kurenai's critique request/reply (needs a live AI route), a sprint in Focus end to end, Momentum drawing with a real pen, reference kinds other than Forms, the iPhone Safari 760px viewport, VoiceOver/keyboard beyond names and target sizes |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 22 | Idle watch end to end, Stopwatch/Custom/Study-until running, Morning "pick three", Templates detail, routine step ⋯ menu, habit editor with real habits, Reminders edit inspector / sub-tasks / recurrence editor, Calendar event modal, Pacing edit dialogs, Dawn + shop theme, iPad standalone |
 | MG | Money + Goals | complete | 22 | iPad landscape, import dialog on iPhone/iPad, goal editor type forms + exam goals, Wishlist purchase handoff, kos_money cloud sync, PDF statements (no code path) |
-| EX | Exams hub, Files, ink | **partial** | 27 | Interrupted. Unknown remainder (companion/deep pages, paper viewer timed mode, scan, share target likely thin) |
-| CL | Collection | **partial** | 15 | Interrupted. Perf numbers on the dense vault, editors, Mangaka, Shrine tie-order, Sync page likely thin |
+| EX | Exams hub, Files, ink | **complete, inventoried** (6 Nov; `findings/exams-files-ink.inventory.md`) | 49 (P1 ×4, new EX-28 timed-paper navigator crushed on touch) | See the auditor's matrix in FINDINGS.md |
+| CL | Collection | **complete, inventoried** (6 Nov; dense account; `findings/collection.inventory.md`) | 44 | No provider was connected in the harness (no AniList/VNDB writes possible, by design); live provider pages are LA-12…17 |
 | AA | Assistant, notifications, Archive | **partial** | 10 | Interrupted. Backup export→import round trip was started (`aa-*` files in evidence) — result not recorded as a finding; notifications page, Storage, Connections UI |
 | DI | Data integrity | complete | 15 | Google Calendar recurrence mapping in depth, ink per-stroke merge, mind/reports sync bodies, real provider servers, Dawn/shop visual pass |
 | AP | Architecture, perf, docs drift, repo clutter | **complete, re-checked on main** (6 Nov, top-up; every carried-over finding has a verdict; `findings/architecture-perf.inventory.md`) | 19 | iPad/iPhone timing (desktop Chrome, shared machine), Edge Function code; stale-build results kept in `architecture-perf.f4fa493.json` |
@@ -383,7 +383,7 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 2. ~~Re-check **AP** and **AX** on main~~ **Done 6 Nov (batch 2).** ~~and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
    rerun.~~
-4. Continue the partial UI areas: SC (theme review!), ~~SH~~ (done 6 Nov), EX, CL, AA, CO, HR, AG.
+4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), AA, CO, HR, AG.
 5. Live: Google Calendar two-way round trip with a marked test event (user
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
 6. Completeness critic ("what's missing?") over the whole of FINDINGS.md.
@@ -560,7 +560,7 @@ Open questions to ask the user when presenting the plan:
    text extraction is unreliable?
 2. Cosmetics that have no surface (seals): build the surface, or withdraw and
    refund the gold?
-3. Theme cull: confirm which themes to remove once SC's review lists them.
+3. Theme cull: confirm the ten SC-22 lists (remove, or re-tint each with a real ground and an accent away from crimson; owned copies keep working).
 4. Redraw policy: is "apply remote changes when you leave the page / finish
    the set" acceptable, with a small "Updated from another device · Refresh"
    chip?

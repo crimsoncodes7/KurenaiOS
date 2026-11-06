@@ -1198,7 +1198,7 @@
   "needsArt": false,
   "id": "SC-01",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Try on panel's 'Buy \u00b7 \u25c8 4,500' button is illegible (dark ink on dark glass)",
@@ -1214,7 +1214,7 @@
   "needsArt": false,
   "id": "SC-02",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "A painted frame on the Seat spills over 'Level 53', the title chip and past the stage edge",
@@ -1230,7 +1230,7 @@
   "needsArt": false,
   "id": "SC-03",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Seals are sold as 'the topbar mark' but the topbar has no mark any more; the painted stamp art is never shown in use",
@@ -1246,7 +1246,7 @@
   "needsArt": false,
   "id": "SC-04",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "All 10 painted shelf skins and Shrine card styles never show: their picture URL resolves to /css/views/assets/... (404)",
@@ -1262,7 +1262,7 @@
   "needsArt": false,
   "id": "SC-05",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Shop frame previews: the avatar is a small disc lost inside a big painted ring (55px avatar in a 179px frame)",
@@ -1278,7 +1278,7 @@
   "needsArt": false,
   "id": "SC-06",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "With a painted frame worn, every CSS frame card in the shop previews the WORN frame instead of its own",
@@ -1294,7 +1294,7 @@
   "needsArt": false,
   "id": "SC-07",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge",
@@ -1310,7 +1310,7 @@
   "needsArt": false,
   "id": "SC-08",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)",
@@ -1325,7 +1325,7 @@
   "devices": "all",
   "id": "SC-20",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)",
@@ -1339,7 +1339,7 @@
   "devices": "all",
   "id": "SC-21",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Pen set 'Study set' (\u25c8500) changes nothing: it maps the pen to exactly the default roles",
@@ -1355,7 +1355,7 @@
   "needsArt": false,
   "id": "SC-09",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Repainted art for the original 16 cosmetics is imported but never used (frames, shelf skins, Shrine cards, seals)",
@@ -1371,7 +1371,7 @@
   "needsArt": false,
   "id": "SC-10",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Shop Stage: no Kurenai mannequin unless an outfit is worn or tried; the third column is empty",
@@ -1387,7 +1387,7 @@
   "needsArt": false,
   "id": "SC-11",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Wardrobe: notebook papers and pen sets are shown as meaningless capital-letter tiles (K, D, I, M, M, 2 / S, E, S)",
@@ -1403,7 +1403,7 @@
   "needsArt": false,
   "id": "SC-12",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Avatar & profile stage: the painted frame clips into 'LIVE IDENTITY' / 'Level 53' and the stage's middle third is empty",
@@ -1419,7 +1419,7 @@
   "needsArt": false,
   "id": "SC-13",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Focus scene 'First snow': secondary text on the running stage is unreadable over the bright window; the assignment chip runs off the left edge",
@@ -1435,7 +1435,7 @@
   "needsArt": false,
   "id": "SC-14",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Share-card finishes: the card looks nothing like the shop preview (Washi turns muddy brown), the finish reaches only the Reports card, and the shop preview's text is illegible on Washi",
@@ -1451,7 +1451,7 @@
   "needsArt": false,
   "id": "SC-15",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Ink toolbar's Paper button says 'Lined' on every bought paper (Kraft, Slate, Iso, Manuscript, Staff, 2 mm graph)",
@@ -1467,7 +1467,7 @@
   "needsArt": false,
   "id": "SC-16",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "'Try on' for Focus scenes, Shrine halls and share-card finishes shows nothing: the try-on ends the moment you leave the shop",
@@ -1483,7 +1483,7 @@
   "needsArt": false,
   "id": "SC-17",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Preview sheet of an owned item is a dead end: no Use / Take off, no 'Owned' or 'In use' state, and half the dialog is empty",
@@ -1499,7 +1499,7 @@
   "needsArt": false,
   "id": "SC-18",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Two sources of truth for the Focus scene / Shrine hall / banner: the shop's 'Use' says 'In use' while the picture drawer's rule silently wins",
@@ -1515,7 +1515,7 @@
   "needsArt": false,
   "id": "SC-19",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Ten of the 23 paid shop themes are near-copies of free Graphite (same near-black ground, accent within dE 2-6 of Graphite's crimson)",
@@ -1530,7 +1530,7 @@
   "devices": "all",
   "id": "SC-22",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Theme cards' lead swatch promises a colour the theme never uses as its accent (Azure Corset Noir, Porcelain Sky Night, Jade Camellia: blue/green swatch, red/coral buttons)",
@@ -1544,7 +1544,7 @@
   "devices": "all",
   "id": "SC-23",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Wardrobe chip names are cut off for 22 of the owned items (Exam se\u2026, Moon ra\u2026, The nigh\u2026, every seal, most papers)",
@@ -1558,7 +1558,7 @@
   "devices": "mac, ipad, iphone",
   "id": "SC-24",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Switching between two painted avatars loses your own photo: taking the second off falls back to the default seal, not your picture",
@@ -1572,7 +1572,7 @@
   "devices": "all",
   "id": "SC-25",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "One click on a card's Buy spends up to 12,000 gold with no confirmation and no undo, and silently re-dresses the app",
@@ -1586,7 +1586,7 @@
   "devices": "all",
   "id": "SC-26",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Owned 'Your own picture' unlocks: a 6-line green text block instead of a button, and no way to reach the picture drawer from the shop",
@@ -1600,7 +1600,86 @@
   "devices": "iphone (layout), all (dead end)",
   "id": "SC-27",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "On iPad portrait (701-1080px) the Assistant shows no Kurenai at all, so a bought outfit (4,500-10,000 gold) is invisible there",
+  "severity": "P2",
+  "category": "ui",
+  "detail": "With the Gala outfit worn, #/assistant at 820x1180 renders neither the standing figure (.k-asst-presence is display:none below 1081px) nor the phone's portrait chip (.k-asst-portrait-row shows only at <=700px). Both skin <img> elements measure 0x0. The chat column instead has ~600px of empty dark space above 'What are we working on?'. On mac (277x443) and ipad landscape (218x443) the figure shows; on iPhone a 56px face crop with a gold ring. The outfit's only other surface is the shop's own stage, so on the user's iPad in portrait the purchase is never seen outside the shop.",
+  "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/assistant-gala-ipad.png (no figure, empty upper half), b4/assistant-gala-iphone.png; eval of skin imgs per size: mac 277x443, ipadl 218x443, ipad 0x0/0x0, iphone 205x398 inside the 56px portrait; css/views/assistant.css:530-532 (.k-asst-presence display:none at max-width 1080) and :338-343 (portrait row only at max-width 700)",
+  "fix": "Extend the portrait row (or a compact standing figure) to the 701-1080 band so every width shows Kurenai in her outfit; use the freed vertical space for her instead of blank.",
+  "effort": "S",
+  "devices": "iPad portrait, iPad Split View",
+  "rootCause": "Two breakpoint rules that do not meet: the presence is hidden from 1080 down, the substitute only appears from 700 down.",
+  "id": "SC-29",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Washi Morning (light shop theme, 1,500 gold) keeps the dark-ground red: every overdue/alarm text is 3.2:1 on its cards",
+  "severity": "P2",
+  "category": "a11y",
+  "detail": "Atelier Dawn restates --red for a light ground (oklch 0.525 0.18 25, 5.78:1 on --s1). Washi Morning, the other light theme, does not, so --red/--alarm stay Graphite's oklch(0.66 0.17 22) and measure 3.23:1 on Washi's near-white --s1. --alarm is the text colour of 61 rules (overdue counts, 'now' in day lists, over-budget amounts, Critical labels...). Every other role in Washi passes (amber 5.44, green 5.66, teal 6.81, gold 5.38, muted 5.77). This also breaks invariant 26a's intent that status reads the fixed red legibly in every theme.",
+  "evidence": "eval resolving each token inside a [data-theme] probe: washi-morning --red 3.23, --alarm 3.23 vs atelier-dawn 5.78; themes4.json washi-morning alarmOnS1 3.23; css/themes.css:850-866 (washi block, no --red) vs :93 (Dawn's --red); grep 'color: var(--alarm)' css -> 61 rules",
+  "fix": "Give washi-morning the same light-ground --red restatement as Dawn (and check --red-soft/--crit washes derive from it); add a smoke check that every theme's --alarm on --s1 is >= 4.5:1.",
+  "effort": "S",
+  "devices": "all (theme)",
+  "rootCause": "Only Dawn was treated as a light theme when the fixed status colours were tuned; the newer light theme copied the role overrides but not the light-ground status restatement.",
+  "id": "SC-30",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Picture drawer 'Rotate by season / time of day' ignores what the pictures are: First snow never shows in winter, the rooftop and First snow never show at all, the night train shows at 2 pm",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "KOS.art.rotated indexes the owned pool by position: season -> SEASONS.indexOf(season) % n, time of day -> 0..3 % n. With all six Focus scenes owned: Jan->library, Apr->train, Jul->shrine, Oct->cafe; 08h library, 14h night train, 19h shrine, 23h cafe. Scenes 5 and 6 (rooftop, First snow, 3,600 gold) are unreachable by either period, and the mapping is arbitrary (a 'night' scene by day, snow never in winter). Same for Shrine halls (Jan lantern, Jul gold). Also in 'By condition' mode the drawer hides the period control and says 'Otherwise the season decides', but the fallback uses whatever period was set before (eval: explain -> 'Now: The night train, by the day').",
+  "evidence": "eval: setCfg('focus',{mode:'rotate',period:'season'}) rotated for 15 Jan/Apr/Jul/Oct -> library/train/shrine/cafe; period 'tod' 8/14/19/23h -> library/train/shrine/cafe; condition mode with period 'day' -> 'by the day'; js/core/art.js:131-137 (index by position), js/modules/artslot.js:65 (period hidden in condition mode) and :73 ('Otherwise the season decides')",
+  "fix": "Give each scene/hall catalogue item its own season and time-of-day tags (snow: winter + evening, rooftop/train: night, library: afternoon...) and rotate among the owned pictures that match, falling back to all; set period 'season' when switching to condition mode (or show the period there).",
+  "effort": "M",
+  "rootCause": "Rotation treats the pool as an anonymous list; only Home's four seasonal heroes happen to line up with SEASONS order.",
+  "id": "SC-31",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Edit your seat > Background offers '+ Upload an image' with 0 gold and no unlock, bypassing the 3,000-gold 'Profile banner' unlock (invariant 2)",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "On an empty account (gold 0, owns('upload-banner') false, KOS.art.canUpload('banner') false) #/governor/edit > Background shows the upload tile. It calls KOS.governor.setCustomBanner(file), which prepares the file and opens bannerCropper with the picture already loaded; allowUpload:false there only hides the cropper's own upload button, so saving sets g.bannerImg (the profile banner the shop sells as 'Upload your own profile banner'). The Avatar & profile page and the picture drawer DO gate the same thing, so the shop item is pointless and the rules disagree. There are also two separate 'own banner' stores: g.bannerImg (synced state) from this path and art.own.banner (media kv, device-only) from the drawer's 'Your own' mode.",
+  "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/empty-edit-bg-upload.png; eval on empty account: {gold:0, ownsBanner:false, canUpload:false, uploadBtn:true}; js/modules/governor-ui.js:743-758 (no canUpload check), js/core/governor.js:930-934 (setCustomBanner -> bannerCropper(source)), :920-922 (allowUpload only hides the in-dialog button); js/core/art.js:60-63,85-99 (art.own.<slot> kv store)",
+  "fix": "Gate the tile on KOS.art.canUpload('banner') (show the lock with 'Open in the shop' otherwise, as the drawer does) and make the drawer's 'Your own' banner and g.bannerImg one store.",
+  "effort": "S",
+  "rootCause": "The unlock was added to the drawer and the banner cropper's own button, not to the older Edit-seat upload path that feeds the same banner.",
+  "id": "SC-32",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "'Try anything on before you buy' is not true for 65 of the items (avatars, frames, seals, banners, shelf skins, Shrine cards, papers, pen sets: 34,060 gold)",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "The shop stage's Try on panel promises 'Try anything on before you buy'. Cards and the preview sheet only offer Try on for outfits, scenes, halls, finishes and themes; canTry excludes avatar, frame, seal, shelfskin, shrinestyle, banner (and unlock/paper/penset), and KOS.governor.tryItem returns early for any kind outside WEAR. These are exactly the items whose real appearance differs most from the card preview (frames that don't fit, shelf skins that never render, seals with no surface), so the buyer cannot check them without spending.",
+  "evidence": "js/modules/governor-ui.js:1013 (promise text), :1039 (canTry exclusions), :1089-1090 (sheet Try on only for outfit/scene/hall/finish/theme); js/core/governor.js:826-831 (tryItem returns unless theme or WEAR kind), :805 (WEAR); eval: 65 non-retired items, 34,060 gold",
+  "fix": "Either extend the transient try-on to the profile kinds (frame/avatar/seal/banner on the stage's identity block; shelf/Shrine card on a sample row) or change the copy to name what can be tried.",
+  "effort": "M",
+  "id": "SC-33",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Exam and Sketch pen sets barely differ from the default, label their swatches wrongly, and silently recolour every stroke already written",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "Resolved ink palette (Graphite) per pen set: default accent rgb(234,105,114), teal (65,193,186). Exam set ('Black pen, red pen and pencil'): accent (232,95,97) - visually the same red - and teal -> grey (131,134,142); ink stays the theme's near-white. Sketch set ('Graphite, wash and highlight'): ink (180,183,190), accent -> bloom (230,169,197) which is identical to the bloom highlighter, teal -> (235,197,115) a near-twin of the amber swatch (230,181,93). The swatches keep their role names, so the gold swatch is announced and titled 'Teal' and the pink one 'Accent'. Because strokes store a ROLE and the palette is read live (invariant 133), wearing a pen set repaints every existing page in every notebook (all teal working turns grey under Exam set) - and 'Take off' changes it back - which a shop description never warns about.",
+  "evidence": "eval KOS.inkUI.palette(host) after KOS.governor.wear('penset', id): default/study identical; exam {accent:'rgb(232,95,97)',teal:'rgb(131,134,142)'}; sketch {ink:'rgb(180,183,190)',accent:'rgb(230,169,197)',teal:'rgb(235,197,115)',amber:'rgb(230,181,93)',bloom:'rgb(230,169,197)'}; css/views/ink.css:37-42; js/core/inkui.js:1265-1266 (aria-label/title from PEN_ROLES names); js/core/ink.js:56 (PEN_ROLES)",
+  "fix": "Give each set distinct colours and its own swatch names (Pen/Red pen/Pencil; Graphite/Wash/Highlight) and apply the set to NEW strokes only (store the resolved set on the stroke, or have the set add roles rather than remap existing ones).",
+  "effort": "M",
+  "rootCause": "Pen sets were implemented as CSS remaps of the shared roles on :root rather than as new roles.",
+  "id": "SC-34",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
  },
  {
   "title": "'Kurenai bloom' frame (\u25c890) renders as eight blocky pink squares, not petals",
@@ -1614,7 +1693,94 @@
   "devices": "all",
   "id": "SC-28",
   "area": "shop-cosmetics",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Two outfit descriptions do not match their art: 'Day off' promises a soft cardigan (art: a hoodie), 'Exam season' a blazer and lanyard (art: grey cardigan and glasses, no lanyard)",
+  "severity": "P3",
+  "category": "content",
+  "detail": "In the shop's Outfits grid the Day off card shows Kurenai in a cream pullover hoodie and the Exam season card a grey knit cardigan over a white shirt with glasses; neither matches the item's description shown in the preview sheet. The 7-item grid also leaves the 4th cell of row 2 empty at 1470px.",
+  "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/shop-outfits.png; js/core/governor.js:448 (outfit-exam desc 'Blazer and lanyard'), :451 (outfit-dayoff desc 'A soft cardigan'); assets/app/img/app.skin.kurenai.exam.webp, app.skin.kurenai.dayoff.webp",
+  "fix": "Reword the two descriptions to what is painted (or re-brief the art in art-source/app manifest).",
+  "effort": "S",
+  "id": "SC-35",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Edit your seat: the aria-hidden preview still holds three keyboard-focusable buttons (Study, Rest rhythm, 'Open full log ->'); Enter on the last leaves the editor and drops the draft",
+  "severity": "P3",
+  "category": "a11y",
+  "detail": "The live preview box is aria-hidden and pointer-events:none but not inert, so Tab walks into invisible-to-AT controls scaled to 18x12px on iPhone; 'Open full log ->' navigates to #/governor/history with no leave-with-changes prompt, discarding unsaved seat edits.",
+  "evidence": "eval on #/governor/edit: .k-gv-prev focusables n=3 ['Study','Rest rhythm','Open full log ->'], inert=false, pointer-events none; js/modules/governor-ui.js:669 (prevBox aria-hidden, no inert); css/views/governor.css:150",
+  "fix": "Set prevBox.inert = true (or build the stage with o.preview suppressing the cadence tabs and log link).",
+  "effort": "S",
+  "devices": "all (keyboard)",
+  "id": "SC-36",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Empty Wardrobe and Theme card waste most of the page: 12 cells of 'In the Gold Shop ->' with 120px gaps, a 2-card Theme row on a 1,200px card, and 'Rotate or your own' offered for kinds you own none of",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "On an empty account #/governor/avatar at 1470px: the Wardrobe is a 3x4 grid where each cell is a title, a count line and one link; the Focus scene thumb makes row 1 ~170px tall so the Outfit and Avatar cells have ~100px of nothing under their link; on iPhone it is a 1,000px single column of those links. Shrine hall (0 of 3) and Painted banner (0 of 6) still offer 'Rotate or your own ->', which opens a drawer with nothing to rotate. The Theme card shows two 180px theme tiles in a 1,190px card, ~80% empty width. 'In the Gold Shop ->' and the Collection cosmetics' unowned chips open the shop at the top, never at the matching department.",
+  "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/empty-avatar-mac.png, b4/empty-avatar-mac-top.png, b4/empty-avatar-iphone.png; js/modules/governor-ui.js:1415 (unowned chip -> KOS.show('governor','shop') with no department), :1450",
+  "fix": "Collapse unowned kinds into one 'Not yet owned: outfits, avatars, ... -> Gold Shop' line (each deep-linking to its department via shopSel), show 'Rotate or your own' only with 2+ owned or the unlock, and let the Theme row fill the width (theme grid with more columns or the theme toggle beside it).",
+  "effort": "S",
+  "devices": "mac, ipad, iphone",
+  "id": "SC-37",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "A locked lab sends you to the top of the shop with no Buy here, never says it unlocks the whole Trace Lab, and repeats '180' on four cards",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "With 3,500 gold, opening Stack push/pop/peek shows 'Locked by the Governor / 180 / Open the Gold Shop'. The button lands on #/governor/shop at the top of All (the 131-item list), not the Labs department, and there is no inline Unlock although the user can afford it. Nothing says the 180 buys 'Trace Lab' and opens all four Data-structures sims, each of which shows its own '180' badge, so it reads as 4 x 180. The lock's diamond is a ~10px glyph in a 48px disc. lockPanel also still carries the retired HP-suspension branch ('Labs and simulations reopen at 60 HP') although nothing produces why:'hp' any more (invariant 2).",
+  "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/empty-sims-locked.png, b4/empty-sim-locked-open.png; js/core/governor.js:596-626 (KOS.show('governor','shop') with no department; dead isHp branch; grep why:'hp' -> no producer); js/modules/governor-ui.js:849 (shopSel module var, no route arg)",
+  "fix": "Add an 'Unlock Trace Lab \u00b7 180' button on the lock when affordable (buy + rerender), name the lab and the sims it opens, deep-link 'Open the Gold Shop' to #/governor/shop with the labs department, and delete the HP branch.",
+  "effort": "S",
+  "id": "SC-38",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Gold is drawn with two different glyphs: \u25c8 in the Gold Shop, \u25c6 in the HUD, Seat, labs and rewards",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "The shop's balance, prices and drawer use \u25c8 (goldN) while the sidebar HUD, the Seat's Gold instrument, the session ledger rewards, lab locks and 30+ other files use \u25c6; on one screen the sidebar says '\u25c6 372,620' beside the shop's '\u25c8 372,620'.",
+  "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/shop-allowned-mac.png (\u25c8 hero vs \u25c6 sidebar); grep: \u25c8 17 uses in 9 files, \u25c6 70 uses in 34 files; js/modules/governor-ui.js:851 (goldN '\u25c8'), :496, js/core/governor.js:1176 ('\u25c6')",
+  "fix": "One gold formatter (e.g. KOS.ui.gold(n)) used everywhere, with one glyph.",
+  "effort": "S",
+  "id": "SC-39",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Every shop action (Buy, Use, Take off, Try on, Pin) rebuilds the whole shop and drops keyboard focus to <main>",
+  "severity": "P3",
+  "category": "a11y",
+  "detail": "Clicking 'Use Exam set' (or Buy/Try on) calls render(), which empties the panel and rebuilds 131 cards; scroll is kept (#stage stays at 9,285 / 15,438px) but document.activeElement becomes MAIN, so a keyboard or Switch Control user is thrown out of the card they just acted on and must Tab back through the department rail and every card above.",
+  "evidence": "eval mac and iphone: click [data-ui~=shop.use] -> scroll before/after stage=9285/9285 (mac), 15438/15438 (iphone); focus after: MAIN; js/modules/governor-ui.js:1041,1045,1053,1057 (each onclick ends in render())",
+  "fix": "After render(), restore focus to the same card's new primary control (find by data-ware id), or update the card in place instead of re-rendering the page.",
+  "effort": "S",
+  "devices": "all (keyboard)",
+  "id": "SC-40",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "The free default theme (Atelier Dusk) shows 'In use' with a 'Take off' button that does nothing; taking off any theme stores the legacy id 'kurenai'",
+  "severity": "P3",
+  "category": "bug",
+  "detail": "After 'Take off' on Lantern Hall, g.theme becomes 'kurenai' (an id that is not in the catalogue; chosenTheme() maps it to atelier-dusk). The Atelier Dusk card then reads '\u2713 In use' with a 'Take off' button; clicking it calls setTheme('kurenai') again: no visual change, no toast, the card stays 'on' - a dead control. The free Library scene is already excluded from Take off (governor-ui.js:1053) but the free default theme is not.",
+  "evidence": "eval: buy+use Lantern Hall, click its shop.take-off -> {theme:'kurenai', data-theme:'' , Atelier Dusk data-ware 'on', take-off present}; clicking Dusk's take-off -> unchanged state and no new toast; js/modules/governor-ui.js:878 (theme off -> setTheme('kurenai')), :1053 (exception only for free scene), :1117-1120 (chosenTheme)",
+  "fix": "Hide Take off on the default theme (it == 'Graphite, the default'); have taking off a theme set 'atelier-dusk' explicitly.",
+  "effort": "S",
+  "id": "SC-41",
+  "area": "shop-cosmetics",
+  "areaStatus": "complete"
  },
  {
   "title": "IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name",
@@ -5048,42 +5214,56 @@
   "severity": "P1",
   "category": "bug",
   "detail": "On #/exams/attempt/<uid>/marks the \uff0b Question button adds a row whose only controls are Got and Redo: Max prints '\u2014' and Topic is an empty read-only span. Only questions filled from the past-paper index carry max/refs. For a school mock, class paper or any paper not in the index (the common case) there is no way to record the out-of, so 'full marks', 'untagged \u00b7 n', the total check and the post-mortem can't work, and a Redo on such a question has no leaf to be scheduled on (invariant 124 says a redo item is due on its question's leaf). Reproduced: clicking \uff0b Question gave a row with inputs ['Got, question Q5', 'Redo question Q5'] and text 'Q5 | / | \u2014 | Redo'. The Topic column is therefore empty for every hand-logged attempt (dead column).",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-marks-addq-ipad.png, audit-evidence/2026-11/qa/shots/exams-files-ink/seed-marks-ipad.png; js/modules/examprac.js:410 addRow pushes {max:null, refs:[]}; :436-438 the row renders node title (read-only) and q.max as text; js/modules/tracker.js:192 questions only come from an index fill",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-addq-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png; js/modules/examprac.js:410 addRow pushes {max:null, refs:[]}; :436-438 the row renders node title (read-only) and q.max as text; js/modules/tracker.js:192 questions only come from an index fill",
   "fix": "Make Max a small number input on rows without an index max, and the Topic cell a KOS.topicPicker button (scoped to the assessment's leaves) on every row; keep index-filled values as defaults.",
   "effort": "M",
   "rootCause": "Marks page was built around index-filled questions; addRow never got editors for max/refs",
   "devices": "all",
   "id": "EX-01",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Exam Room on iPhone: the 'Before you go in' checklist is drawn on top of the rapid-recall list",
   "severity": "P1",
   "category": "ui",
   "detail": "At 402px the room's body (ring, plan, five recall facts, blacklist) is taller than the screen, but .k-exr-body is a shrinkable flex item with min-block-size 0 inside the fixed, scrolling .k-exr column. It is squeezed to the leftover height and its content overflows visibly, so the checklist chips ('Black pens', 'Candidate number', 'Phone off and away') sit over facts 3\u20135 and both are unreadable; the blacklist is pushed off below. This is the screen meant to be used minutes before an exam on the phone.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-room-iphone.png; css/views/exams.css:505 (.k-exr flex column, overflow-y auto) and :513 (.k-exr-body flex: 1 1 auto; min-block-size: 0); phone rules :933-937 don't change it",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-iphone.png; css/views/exams.css:505 (.k-exr flex column, overflow-y auto) and :513 (.k-exr-body flex: 1 1 auto; min-block-size: 0); phone rules :933-937 don't change it",
   "fix": "Give .k-exr-body flex-shrink: 0 (or min-block-size: auto) so the room scrolls instead of overlapping; at phone width also consider putting the checklist right under the ring.",
   "effort": "S",
   "rootCause": "flex item allowed to shrink below its content in a scroll container",
   "devices": "iPhone (also any short landscape window)",
   "id": "EX-02",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen",
   "severity": "P1",
   "category": "ui",
   "detail": "Under 700px the palette always floats in one row (the docked bar isn't offered). At 402px it measures 500px (x 20\u2192520): grip 32, six tools at 44, the colour button still showing its text 'Ink \u00b7 Mediu\u2026' at 76, Undo and Redo at 44, plus gaps. The colour menu is cut and Undo/Redo are unreachable; dragging can't help because place() clamps x to max(20, W\u2212w\u221220) = 20. Every pad, Handwritten tab, sketchbook and drill on the phone is affected.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-ink-iphone.png; eval at iphone: ink.palette rect [20,716,500,62], scrollWidth 500, buttons '32x32 44x48 \u00d76 76x50 44x48 44x48'; js/core/inkui.js:1146-1171 (six tools + colour + history), css/views/ink.css:201-203 ('icons' state hides tool labels only)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-iphone.png; eval at iphone: ink.palette rect [20,716,500,62], scrollWidth 500, buttons '32x32 44x48 \u00d76 76x50 44x48 44x48'; js/core/inkui.js:1146-1171 (six tools + colour + history), css/views/ink.css:201-203 ('icons' state hides tool labels only)",
   "fix": "In the 'icons' state also hide the colour button's text (dot + caret only), and when root.scrollWidth > innerWidth \u2212 40 move Shape and Ruler into the grip's More menu (or wrap to two rows). Clamp place() so a palette wider than the screen is centred and scrollable rather than clipped.",
   "effort": "S",
   "rootCause": "Palette content width not budgeted for the phone tier",
   "devices": "iPhone",
   "id": "EX-03",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Timed paper: the question navigator's squares are crushed to 7px slivers on iPad and iPhone (17px on Mac)",
+  "severity": "P1",
+  "category": "ui",
+  "detail": "Start timed on any predicted/practice paper (#/exams/<id>/paper/1 > Start timed). The navigator holds one 30px square per question (51 here) in a flex row inside a scroller, but the squares are allowed to shrink, so instead of scrolling they are squeezed: 1-9 measure 7x44 on touch (the touch min-height makes them tall slivers with the digits overflowing into each other), 10+ 14x44; on Mac 17x30. The numbers are unreadable and the targets far below 44px wide, on the primary iPad flow for timed practice.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-reload-ipadl.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-iphone.png; measured .k-ex-tnav-b: ipadl '1:7x44 \u2026 10:14x44', iphone same, mac '17x30' (n=51); css/views/exams.css:741-742 (.k-ex-tnav display:flex; .k-ex-tnav-b inline-size var(--ex-tnav-b) with no flex-shrink:0); css/tokens.css:1229 (--ex-tnav-b 30px)",
+  "fix": "flex: none on .k-ex-tnav-b (and on touch raise it to 44x44 per invariant 69, a square not an oval) so the declared scroller scrolls; reveal the current square on redraw (scroller({reveal})).",
+  "effort": "S",
+  "devices": "ipad, ipadl, iphone, mac",
+  "rootCause": "flex items without flex-shrink:0 inside a scroller",
+  "id": "EX-28",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
  },
  {
   "title": "A transparent PNG pasted or dropped onto an ink page gets a black background",
@@ -5097,35 +5277,35 @@
   "devices": "all",
   "id": "EX-04",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Readiness band line on iPhone squeezes the sentence into a ~80px column, one word per line",
   "severity": "P2",
   "category": "ui",
   "detail": "On #/exams/readiness at 402px the band chip and 'limiting: RAG' take the left of the bandline and the explanation ('SAMPLE \u2014 Mock exam (edit me) \u00b7 Sat 7 Nov \u00b7 5 days. RAG is holding it at Not enough evidence.') is crushed into a narrow right column running nine lines, beside empty space under the chip; 'Plan the gap' drops to its own row.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/empty-readiness-iphone.png (top card); js/modules/examviews.js:45-48 builds the line with .k-ex-grow; css/views/exams.css:20 .k-ex-grow { flex: 1 1 0; min-inline-size: 0 } inside .k-ex-bandline (exams.css:279, flex-wrap: wrap)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-readiness-iphone.png (top card); js/modules/examviews.js:45-48 builds the line with .k-ex-grow; css/views/exams.css:20 .k-ex-grow { flex: 1 1 0; min-inline-size: 0 } inside .k-ex-bandline (exams.css:279, flex-wrap: wrap)",
   "fix": "In .k-ex-bandline give the text a real basis (flex: 1 1 16rem) so it wraps to its own full-width line when narrow; or stack the bandline in a column under 560.",
   "effort": "S",
   "rootCause": "flex-basis 0 on a wrapping flex item never wraps, it shrinks",
   "devices": "iPhone",
   "id": "EX-05",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Planner rows on iPhone truncate every topic name to a few letters and wrap the group total",
   "severity": "P2",
   "category": "ui",
   "detail": "#/exams/plan at 402px: each priority row is a three-column grid (text, session squares, time). With a 'learn first' chip inside the same ellipsised line the topic shows as 'Methods o\u2026', 'Laws of indic\u2026', 'Quadratic function\u2026', so the user can't tell what to study. The group header's total '5 h 50' wraps onto two lines beside the Mock chip.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/empty-plan-iphone.png; js/modules/examviews.js:239-243 (chip and title inside one .k-ex-ell); css/views/exams.css:384 .k-ex-prow grid-template-columns: minmax(0,1fr) auto var(--sp-64)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-plan-iphone.png; js/modules/examviews.js:239-243 (chip and title inside one .k-ex-ell); css/views/exams.css:384 .k-ex-prow grid-template-columns: minmax(0,1fr) auto var(--sp-64)",
   "fix": "Under 560 put the session squares under the text (grid-template-areas) and let the title wrap to two lines (line-clamp 2) with the chip on the why line; give the header total white-space: nowrap.",
   "effort": "S",
   "rootCause": "Fixed three-column row with single-line ellipsis at phone width",
   "devices": "iPhone",
   "id": "EX-06",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Files list is one big aria-live region: every keystroke in search re-announces up to 300 cards",
@@ -5138,72 +5318,231 @@
   "devices": "all",
   "id": "EX-07",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Marks by question on touch: tag chips are 24px tall and the Got field 28px",
   "severity": "P2",
   "category": "a11y",
   "detail": "The ten 'Why marks went' tags are the main input of this page and sit in a dense 24px-tall wrap; the Got number field is 64x28. On the iPad (the device used for marking with a paper beside it) these are below the 44px touch minimum (invariant 69) and easy to mis-hit (adjacent chips 4px apart).",
-  "evidence": "measure on ipad #/exams/attempt/j3hkb7ji/marks: button.k-ex-tag 88x24, 60x24 \u2026; exams.got 64x28; audit-evidence/2026-11/qa/shots/exams-files-ink/seed-marks-ipad.png",
+  "evidence": "measure on ipad #/exams/attempt/j3hkb7ji/marks: button.k-ex-tag 88x24, 60x24 \u2026; exams.got 64x28; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png",
   "fix": "Under (pointer: coarse) raise .k-ex-tag and .k-ex-gotin to 44px min-block-size (the row can grow), or switch to a two-column tag grid on touch.",
   "effort": "S",
   "devices": "iPad, iPhone",
   "id": "EX-08",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Exam Room text over the classroom painting is low-contrast (blacklist on Mac, plan line on iPad)",
   "severity": "P2",
   "category": "a11y",
   "detail": "On the Mac the right column ('Your blacklist \u00b7 three most frequent tags' and each step's explanation) lies over the bright windows of the painting: the grey sub-lines and the eyebrow are barely visible, and the numbered circles fade into the window frames. 'The plan: About 1.5 min a mark\u2026' under the ring and 'Leave the Exam Room' are similarly faint on iPad and Mac.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-room-mac.png (right column), audit-evidence/2026-11/qa/shots/exams-files-ink/seed-room-ipad.png (plan line under 'Sports hall \u00b7 seat 14')",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-mac.png (right column), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-ipad.png (plan line under 'Sports hall \u00b7 seat 14')",
   "fix": "Put the side columns on the same frosted card the recall items use (with a darker scrim), or darken the painting layer behind text (a gradient scrim on the art layer 'exam:room'); raise muted text to --text-2 in the room.",
   "effort": "S",
   "devices": "Mac, iPad",
   "id": "EX-09",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Exam Season on iPhone: 'Highest-risk topics' shows each topic as 'Finite \u2026', 'Abstr\u2026' (51px)",
   "severity": "P2",
   "category": "ui",
   "detail": "The risk row is a fixed four-column grid (name, a fixed-width bar, %, Cram). At 402px the bar keeps its desktop width and the topic name gets 51px, so the card that tells you what to cram doesn't say which topics; the paper name under it wraps to two lines.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-hub-iphone.png (Highest-risk topics card); measure: div.k-ex-strong 51x20 at x=38; css/views/exams.css:408 grid-template-columns: minmax(0,1fr) var(--ex-bar-w) var(--sp-40) auto",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-hub-iphone.png (Highest-risk topics card); measure: div.k-ex-strong 51x20 at x=38; css/views/exams.css:408 grid-template-columns: minmax(0,1fr) var(--ex-bar-w) var(--sp-40) auto",
   "fix": "Under 560 drop the bar to its own row under the name (or shrink --ex-bar-w to ~48px) so the name gets the width.",
   "effort": "S",
   "devices": "iPhone",
   "id": "EX-10",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Planner's 'Next week' preview is one run-on paragraph of titles and times",
   "severity": "P2",
   "category": "ui",
   "detail": "With several assessments the preview prints every group as 'Title 1 h 40 \u00b7 Title 1 h \u00b7 \u2026' plus the 'leaves the plan' sentences in one paragraph; on the Mac it runs 12+ lines where names and durations blur together ('Revision block 32 1 h 40 \u00b7 Revision block 4 1 h 40 \u2026'). The same page shows this week as a legend of name/time pairs.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-plan-mac.png (right column 'Next week'); js/modules/examviews.js:216",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-plan-mac.png (right column 'Next week'); js/modules/examviews.js:216",
   "fix": "Render next week as compact rows (name \u00b7 mono time, top 5 + 'and N more'), with 'leaves the plan' as its own muted line.",
   "effort": "S",
   "devices": "all",
   "id": "EX-11",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Floating palette's grip (the only way to Text, Image and Paper while floating) is 32x32",
   "severity": "P2",
   "category": "a11y",
   "detail": "The \u283f grip both drags the palette and, on a tap, opens 'More tools' (Text, Image\u2026, Paper\u2026, Dock). It is 32x32 on the iPad and iPhone, below the 44px touch minimum, and nothing hints that it opens a menu; on the phone (always floating) Text and Paper are reachable only through it.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-ink-float-ipad.png; eval at ipad: grip 'Move the palette, or more tools' 32x32; css/views/ink.css:204 (min-inline-size: var(--hit))",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-float-ipad.png; eval at ipad: grip 'Move the palette, or more tools' 32x32; css/views/ink.css:204 (min-inline-size: var(--hit))",
   "fix": "Use --hit-coarse (44) under (pointer: coarse), and add a visible \u22ef More button to the palette rather than overloading the drag handle.",
   "effort": "S",
   "devices": "iPad, iPhone",
   "id": "EX-12",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Post-mortem headline reads '40 of null.' (and 'of null' under the big figure) for an attempt logged without 'Out of'",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "The quick log (tracker.js save) accepts Marks without Out of (max null). The attempt's post-mortem then prints the raw null: the h1 is '40 of null.' and the figure's caption 'of null'. Reproduce: Exams & Papers > Log, Marks 40, leave Out of empty, Save, open the attempt (#/exams/attempt/<uid>). Seed attempt 2j9jbmjg shows it.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-attempt-mac.png; eval: tracker entry 2j9jbmjg {marks:40,max:null}; h1 outerHTML '<h1 class=\"k-ex-pmtitle\">40 of null.</h1>'; js/modules/examprac.js:329 (title) and :334 (u.muted('of '+e.max...)); js/modules/tracker.js:340 allows x=null with m set",
+  "fix": "In examprac.js print 'You got 40' / just the figure when max is null (as tracker.js:530 already does with `e.marks != null && e.max`); or have the quick log ask for Out of when Marks is filled.",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "examprac.js formats e.max without the null guard used elsewhere",
+  "id": "EX-29",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Companion hero always says 'Start the rapid drill \u00b7 15', even when the scope has nothing to drill (it opens '0 of 0 right \u00b7 1 min')",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "The '\u00b7 15' is a literal. For an assessment whose scope has no cards or short items (seed: 'Retrieval quiz: stats', #/exams/guide) the hero offers a 15-question drill while the Rapid drill card below says '0 questions \u00b7 Nothing to drill yet' and its own Start is disabled. Pressing the hero button opens a drill that finishes at once with '0 of 0 right \u00b7 1 min \u00b7 Nothing missed.' (a minute claimed for zero seconds).",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-guide-mac.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-drill-empty-mac.png; js/modules/examguide.js:82 (literal 'Start the rapid drill \u00b7 15'), :286 (card's empty state), :368-377 (drillDialog runs with dr.items=[] and goes straight to finish)",
+  "fix": "Build the hero button from C().drill(a).items.length (hide or disable it at 0, matching the card), and have finish() say 'Nothing to drill' rather than a 0 of 0 score; round the time from seconds.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-30",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Full Companion's shape rows: two unlabeled number columns explained only in a footnote; on iPad portrait the shape title gets 108px and wraps to 4 lines",
+  "severity": "P2",
+  "category": "ui",
+  "detail": "Each shape row is title | frequency ('2 of 9') | variations ('4'), with fixed 92px and 64px columns. Neither column has a heading; what they mean is in one sentence at the very end of a ~10,500px page. At 820px the unit cards go two-up (min 340px), so the title column is 108px wide and every title wraps to 3-4 lines while ~100px of the row is empty space between the two short numbers.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-deep-ipad.png; measured #/exams/vwg6vybh/deep at ipad: row 304px, grid-template-columns '108px 92px 64px', title height 97px; css/tokens.css:1190-1191 (--ex-arow-f 92px, --ex-arow-v 64px); css/views/exams.css:819; js/modules/examdeep.js:92-100 (footnote at :100)",
+  "fix": "Give the unit card a header row ('Seen', 'Worked') or inline the figures under the title ('2 of 9 papers \u00b7 4 variations'); use auto-sized columns and a larger --ex-unit-min (one card per row under ~900px).",
+  "effort": "S",
+  "devices": "ipad, iphone, mac",
+  "id": "EX-31",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Timed paper with Rest breaks off: Pause hides the clock as 'Paused' while the paper's time keeps running, and time-up never fires while paused",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "With Exams settings > Rest breaks off (the default), Pause logs a pause and the paper's clock keeps running (used() = now - started), but the clock text changes to 'Paused' so the remaining time disappears, and tick() skips the time-up check while s.paused. A learner can sit 'paused' past the end of the paper; on Resume the tally opens at once as 'Time is up'. Either the clock should keep counting visibly ('Paused \u00b7 1:12:04 left, the clock keeps running') or time-up should fire.",
+  "evidence": "eval at mac after Pause: clock 'Paused', restBreaks undefined (off), elapsed still counting (usedSec 79); js/modules/exampaperview.js:40-44 (used()), :165 (clockEl shows 'Paused'), :169 (time-up gated on !s.paused), :188 (announce says the clock keeps running)",
+  "fix": "When restBreaks is off keep showing clock(left) with a 'paused' badge, and let time-up fire regardless of s.paused.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-32",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "'Mark it yourself' tally: rows show only a question number and anonymous '\u25cb \u2713' chips; 'Mark schemes \u203a' closes the dialog and throws away every tick",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "The tally (paper viewer > Mark an untimed attempt, or End and mark) lists 1, 2, 3 \u2026 each with chips labelled \u2713 / M1 / A1 and a 0 chip, but no question text and no mark-point text, so you can only mark by flipping to the mark scheme. The only route there is 'Mark schemes \u203a', which closes the dialog (ov.close) and navigates \u2014 the ticks live only in the dialog's closure and are lost; after a timed paper the dialog is also the only place the session's minutes are attached. On iPad the chips are 39x26 and 25x26 (touch minimum 44). The rows also leave ~500px of empty width between the chips and the score.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-tally-ipad.png; measured .k-ex-mchip at ipad 39x26, 25x26; js/modules/exampaperview.js:250-283 (row = number, chips, got), :287 ('Mark schemes \u203a' \u2192 ov.close(); KOS.show(...)); js/core/exampaper.js:154-181 (chip labels \u2713 or the code only)",
+  "fix": "Show each part's mark-scheme lines beside its chips inside the tally (the line index is already on every chip, c.line), so marking needs no navigation; if a link stays, open the scheme in place or keep the ticks in state.ui; 44px chips on coarse pointers.",
+  "effort": "M",
+  "devices": "ipad, iphone, mac",
+  "needsDesign": true,
+  "id": "EX-33",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Results \u203a IT units: the grade word ('Distinction') overflows a 24px column and runs off the card's right edge",
+  "severity": "P2",
+  "category": "ui",
+  "detail": "Each IT unit row's last grid column is var(--sp-24) (24px), sized for a letter, but KOS.hub.it returns the grade as a word. 'Distinction' (\u224890px) spills past the row and the card edge on iPad portrait (text from x=758 runs beyond the card's right at 804) and over the card padding on Mac.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-results-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-results-mac.png; measured at ipad: grade <b> box 758-782 holding 'Distinction'; css/views/exams.css:425 (.k-ex-unitum grid-template-columns: var(--ex-num-w) minmax(0,1fr) var(--ex-ums-w) var(--sp-24)); js/modules/examviews.js:454-456",
+  "fix": "Make the grade column auto (or a chip in the UMS cell), or print the short grade (D/M/P) with the word as its title.",
+  "effort": "S",
+  "devices": "ipad, mac, iphone",
+  "id": "EX-34",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Files' subject filter chips read inverted: the selected chip is the dark one, the unselected chip looks highlighted",
+  "severity": "P2",
+  "category": "ui",
+  "detail": "On #/files the All / CS chips are k-chip buttons with aria-pressed. The pressed rule sets background var(--s3), which in Graphite is oklch(0.14) \u2014 darker than the toolbar \u2014 while an unpressed k-chip keeps its 18% text wash. So 'All' (selected) looks like an empty hole and 'CS' (not selected) looks lit. The chips are also 31-34px wide on touch (invariant 69 floor 44) and carry no subject hue dot, unlike every other subject switch.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-files-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-files-chips-ipad.png; computed at ipad: All aria-pressed=true bg oklch(0.14 0.008 265); CS aria-pressed=false bg oklch(0.78 0.01 265 / 0.18); sizes 31x44, 34x44; css/views/archive.css:259; css/tokens.css:46 (--s3 0.14); js/modules/files.js:191",
+  "fix": "Use the shared segmented control (KOS.ui.tabs / the subject pill pattern with hue dots) or give the pressed chip --chip-c var(--text) with a lighter fill (e.g. --s4/--text wash); min-inline-size 44px on coarse pointers.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-35",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Scan pages: the four corner handles are 30px dots on iPad and iPhone, the device the camera flow is for",
+  "severity": "P2",
+  "category": "a11y",
+  "detail": "Scan pages (Files > Scan pages) is a touch flow \u2014 take a photo, drag four corners \u2014 but each corner handle is a 30x30 circle with min-size reset to 0, so on iPad/iPhone the finger covers the corner it is trying to place and the hit area is under the 44px floor (invariant 69). Verified the rest of the flow end to end: a chosen photo shows the stage, Straighten enables 'Make the PDF \u00b7 1 page', and a 34 KB 'Scan 06-11-2026.pdf' is added with the toast '1 file added.'.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-scan-photo-ipad.png; measured scan.handle 30x30 at ipad; css/tokens.css:274 (--scan-handle: 30px); css/views/archive.css:343 (min-inline-size:0; min-block-size:0)",
+  "fix": "On (pointer: coarse) give each handle a 44px hit area (a transparent ring around a smaller visible dot) and show a magnifier loupe while dragging.",
+  "effort": "S",
+  "devices": "ipad, iphone",
+  "id": "EX-36",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Answer pad (Write) inherits a tool its bar doesn't offer: pick Ruler on a Handwritten page and every answer pad opens with the ruler across it and no tool selected",
+  "severity": "P2",
+  "category": "bug",
+  "detail": "The current tool is one per-device pref (state.ui.ink.tool). A strip \u2014 the answer pad's Write mode, a flashcard's Write strip \u2014 offers only Pen, Highlight and Eraser (STRIP_TOOLS) but never clamps the tool to that set. Repro on iPad: Handwritten tab > Ruler; then Exam questions > Write. The pad draws the ruler over half its 210px height, none of the three tool buttons is checked (aria-checked=false on all), and there is no Ruler button to put it away \u2014 only tapping Pen clears it. With Lasso/Shape/Text left on, the strip would lasso or snap shapes with no visible tool.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-ink-ruler-ipadl.png then /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-pad-write-ipad.png; eval: pad bar tools Pen:false Highlight:false Eraser:false, ruler visible, gone after tapping Pen; js/core/inkpad.js:30 (STRIP_TOOLS) and :86 (tools passed to the bar); js/core/inkui.js:405 (drawRuler whenever dk.prefs.tool === 'ruler'), :626, :659, :984 (the bar's set is not applied to prefs.tool)",
+  "fix": "When a surface mounts with a tool set, use a surface-local tool (fall back to 'pen' if prefs.tool is not in opts.tools) without overwriting the page's choice.",
+  "effort": "S",
+  "devices": "ipad, iphone, mac",
+  "id": "EX-37",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Side by side on iPad landscape: the docked ink bar is 474px wide and scrolls, hiding Undo, Redo, Paper and Float behind a \u203a arrow",
+  "severity": "P2",
+  "category": "ui",
+  "detail": "Handwritten > Side by side at 1180x820 splits the width into two 474px panes; the docked toolbar keeps its full single row (8 tools + colour + undo/redo + paper + float, ~730px) inside a horizontal scroller, so everything after 'Ink \u00b7 M\u2026' \u2014 including Undo and Redo \u2014 is off the visible bar until you scroll it. Side by side is the iPad-landscape view the design gives for writing beside the notes.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-ink-side-ipadl.png; eval at ipadl: toolbar 636..1110 (474px), Undo x beyond the bar's right edge; js/modules/inktab.js (ink.side-page), js/core/inkui.js dockable bar",
+  "fix": "In a narrow pane put Undo/Redo first (or pin them outside the scroller) and fold Paper/Float into the \u283f menu, as the floating palette does; or default the palette to floating in Side by side.",
+  "effort": "S",
+  "devices": "ipadl",
+  "id": "EX-38",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "A brand-new account's Exams hub is built around the Calendar's 'SAMPLE \u2014 Mock exam (edit me)', migrated into a real assessment",
+  "severity": "P2",
+  "category": "data",
+  "detail": "Calendar's seedSamples() adds a sample Maths mock 5 days ahead on first boot; KOS.exams.migrate() then moves every one-off calendar exam into the hub. So an empty account opens Exams & Papers on '1 assessment ahead \u00b7 the next is SAMPLE \u2014 Mock exam (edit me) on Wednesday', with an 89-leaf Companion (11,400px), readiness, planner allocations, a Practice paper, a checklist and exam notices \u2014 all for an invented exam, and once migrated it is no longer flagged as a sample anywhere (the calendar event is hidden as migratedTo). The sample deadline is not migrated, so the samples split across two owners.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-empty-guide-ipad.png; after `kos reset`: KOS.exams.all() = [['SAMPLE \u2014 Mock exam (edit me)','mock','2026-11-11','maths']], sessions 0; js/modules/calendar.js:697-712 (seedSamples), js/core/exams.js:413-430 (fromEvent/migrate)",
+  "fix": "Drop the exam from the calendar samples (the hub has its own empty state and templates), or mark samples (sample:true) and have migrate() skip them; offer a one-tap 'Remove sample data'.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-39",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Start-by is too strict: a one-topic test 3 days away needing 30 minutes is born 'Start-by passed \u00b7 7 days ago' and lands in Needs attention",
+  "severity": "P2",
+  "category": "data",
+  "detail": "KOS.exams.startBy rounds the run-up up to whole weeks (weeks = ceil(hoursNeeded / share)) and then adds the tier's buffer, so any non-zero need costs at least 7 days + buffer. Fixture (empty account, scope = the single leaf compsci:4.10.1): topic test in 3 days \u2192 start-by 30 Oct (passed; 0.5 h needed at 2.3 h/week); retrieval quiz in 2 days \u2192 31 Oct (passed; 0.2 h); mock in 10 days \u2192 2 Nov (passed; 0.6 h). Only a real exam 30 days out is not already late. The red '\u25bc Start-by passed \u00b7 N days ago' chip and the Needs attention card therefore greet almost every short-notice assessment the moment it is created (the Calendar's sample mock shows '58 days ago' on a brand-new account), which trains the learner to ignore the alarm; the plan says start-by is advisory.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timetable-dawn-ipad.png; eval fixture {topic_test:{days:3,startBy:'2026-10-30',passed:true,why:'3 days of buffer + 0.5 h at about 2.3 h a week'}, retrieval_test:{days:2,passed:true}, mock:{days:10,passed:true}}; js/core/exams.js:543-544 (Math.ceil to weeks, then + buffer), :549 (passed); js/modules/exams.js:110, :458",
+  "fix": "Compute the run-up in days (hoursNeeded / (share/7)), never put start-by before the assessment's creation date, and say 'Start now \u00b7 30 min needed' instead of 'passed' when the need still fits before the date.",
+  "effort": "S",
+  "devices": "all",
+  "rootCause": "week-granular ceiling plus fixed buffer, and no floor at the creation date",
+  "id": "EX-40",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
  },
  {
   "title": "Pen and ink says a pen without pressure follows 'speed and tilt'; tilt is never read",
@@ -5216,20 +5555,20 @@
   "devices": "iPad",
   "id": "EX-13",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Readiness 'Coverage' rows on iPhone ellipsise topic names while the Pacing note keeps full width",
   "severity": "P3",
   "category": "ui",
   "detail": "Rows like 'Quadratic functions & \u2026', 'Graphs of functio\u2026', 'Parametric \u2026' are cut while 'Pacing: week of 18 Jan 2027' is shown whole. The topic name is the primary information.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/empty-readiness-iphone.png (Coverage list); measure: span.k-ex-ell widths 84-146px at 402px",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-readiness-iphone.png (Coverage list); measure: span.k-ex-ell widths 84-146px at 402px",
   "fix": "Let the note go under the title at phone width, or shorten it to the date ('18 Jan') with the word Pacing in the column header.",
   "effort": "S",
   "devices": "iPhone",
   "id": "EX-14",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Exam season and Quiet the rest switches: 20px tall hit area on touch, and no role=switch",
@@ -5242,7 +5581,7 @@
   "devices": "iPad, iPhone",
   "id": "EX-15",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Files list silently stops at 300 files",
@@ -5255,20 +5594,20 @@
   "devices": "all",
   "id": "EX-16",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Pen and ink page leaves a dead block under 'On this device' on iPad landscape and Mac",
   "severity": "P3",
   "category": "ui",
   "detail": "The four/five cards sit in a two-column grid with row-aligned heights: 'On this device' is ~180px tall beside 'Your pen' (~300px), leaving ~120px empty, and Ink sync is a short card beside the tall Kurenai card. The standing rule asks for no dead space; Reports uses masonry for uneven cards.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/empty-pen-ipadl.png (1180x820)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-pen-ipadl.png (1180x820)",
   "fix": "Use the masonry/column flow (columns: 2 or the Reports 'pack' helper) for .k-pen-grid so short cards stack.",
   "effort": "S",
   "devices": "iPad landscape, Mac",
   "id": "EX-17",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Exam Room's keep-awake is lost after the iPad is switched away and back",
@@ -5281,33 +5620,33 @@
   "devices": "iPad, iPhone",
   "id": "EX-18",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Marks page: 'Use 19 \u00b7 Keep 40' are unstyled text links that wrap apart, and a 'Keys \u00b7 no mouse needed' card shows on touch devices",
   "severity": "P3",
   "category": "ui",
   "detail": "When the questions don't add up to the total, the note ends with two k-link buttons 'Use 19' \u00b7 'Keep 40' that look like body text; on iPad 'Keep 40' wraps to its own line with a large gap, so the choice reads as a broken sentence. Below, a keyboard-shortcuts card ('no mouse needed': Tab, 1\u20130, R, arrows, Enter) is shown on an iPad with no keyboard.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-marks-ipad.png (TOTAL card and Keys card); js/modules/examprac.js:457-458, :400",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png (TOTAL card and Keys card); js/modules/examprac.js:457-458, :400",
   "fix": "Render Use/Keep as two small buttons on their own row; show the Keys card only when (hover: hover) or a keyboard has been used (KOS.desk's hold-\u2318 detection).",
   "effort": "S",
   "devices": "iPad, iPhone",
   "id": "EX-19",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Exam Room's countdown says 'until 09:00' when the exam is weeks away",
   "severity": "P3",
   "category": "content",
   "detail": "Opened 40 days before the exam (the route works at any time) the ring reads '40 days' over 'until 09:00', which reads as today at nine.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-room-mac.png; js/modules/examroom.js:107 (until = a.time ? 'until ' + a.time \u2026)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-mac.png; js/modules/examroom.js:107 (until = a.time ? 'until ' + a.time \u2026)",
   "fix": "When the exam is not today, say 'until Sat 12 Dec \u00b7 09:00'.",
   "effort": "S",
   "devices": "all",
   "id": "EX-20",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Small touch targets in the assessment page: Goals '\uff0b' is 12x44, 'Edit' 22x44, checklist boxes 18x18",
@@ -5320,85 +5659,202 @@
   "devices": "iPad, iPhone",
   "id": "EX-21",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Planner allocation legend: a long name wraps under its colour dot, leaving the dot alone on a line",
   "severity": "P3",
   "category": "ui",
   "detail": "In the allocation legend, entries whose title is long ('SAMPLE \u2014 Mock exam (edit me)', 'Graph traversal topic test with \u2026') put the dot on one line and the title on the next, so their rows sit 14px lower than neighbours and the dot looks orphaned.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-plan-mac.png (legend under the bar); js/modules/examviews.js:233 (dot + .k-ex-ell inside .k-ex-inline); css/views/exams.css:36 .k-ex-inline { flex-wrap: wrap }",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-plan-mac.png (legend under the bar); js/modules/examviews.js:233 (dot + .k-ex-ell inside .k-ex-inline); css/views/exams.css:36 .k-ex-inline { flex-wrap: wrap }",
   "fix": "Use a non-wrapping row for the legend entry (flex-wrap: nowrap, the name min-inline-size: 0 with ellipsis).",
   "effort": "S",
   "devices": "Mac, iPad",
   "id": "EX-22",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Practice attempts: an unlabeled checkbox on every row",
   "severity": "P3",
   "category": "ux",
   "detail": "Each attempt row ends with '\u2013'/score, a bare checkbox and a pencil. The checkbox (aria-label 'Reviewed') has no visible label or column header, so it's unclear that it marks the attempt as reviewed; the '12 Not yet reviewed' tile is the only hint.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-practice-ipad.png; measure: input.k-box 'Reviewed' 18x18 per row",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-practice-ipad.png; measure: input.k-box 'Reviewed' 18x18 per row",
   "fix": "Add a visible 'Reviewed' header over the column, or a small text toggle chip ('Reviewed \u2713'); raise to 44px on touch.",
   "effort": "S",
   "devices": "all",
   "id": "EX-23",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Analytics opens on the nearest assessment even when it has no evidence, while Calibration below counts every paper",
   "severity": "P3",
   "category": "ux",
   "detail": "#/exams/practice/analytics selects the first chip (a topic test with no papers): 'from 0 marked papers', 'Needs one marked paper\u2026', 'Pace needs one timed paper', 'None timed yet' \u2014 while CS Paper 2 has six logged papers, and the Calibration card on the same page says '6 papers'. The page looks empty despite data, and mixes per-assessment and global scopes without saying so.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-analytics-ipad.png",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-analytics-ipad.png",
   "fix": "Default to the assessment with the most marked papers (or remember the last pick per device), and label Calibration 'all papers'.",
   "effort": "S",
   "devices": "all",
   "id": "EX-24",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Predicted paper 1 for CS Paper 2 totals 99 marks and 2 h 29 min against a 100-mark, 2 h 30 board paper",
   "severity": "P3",
   "category": "content",
   "detail": "The paper's side card says Marks 99, Time 2 h 29 min, while its own note says 'Shaped like AQA CS Paper 2: 100 marks'. The blueprint fill stops one mark short and the time is derived from the marks, so a timed sitting is a minute short of the real exam.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-paper-ipadl.png (This paper card)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-paper-ipadl.png (This paper card)",
   "fix": "Let KOS.examPaper.build top up to the blueprint total (a 1-mark item or allow one item over) and take the time from the preset's durationMins.",
   "effort": "S",
   "devices": "all",
   "id": "EX-25",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Handwritten tab tells you pages 'stay on this device', but ink syncs to your account when signed in",
   "severity": "P3",
   "category": "content",
   "detail": "The empty band says 'Pages belong to 4.10.1 and stay on this device.' unconditionally. Since the ink sync release (invariant 136, kos_ink) pages replicate stroke by stroke to the user's own account when cloud sync is signed in; the Pen and ink page says so. The band's line misleads (and could put someone off writing on the iPad to read on the Mac).",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-ink-ipadl.png; js/modules/inktab.js:178",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-ipadl.png; js/modules/inktab.js:178",
   "fix": "Branch on KOS.cloud.signedIn(): 'and sync to your other devices' when signed in, 'stay on this device (and in the full backup)' when not.",
   "effort": "S",
   "devices": "all",
   "id": "EX-26",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Topic tab strip on iPhone doesn't reveal the selected tab (Handwritten is off-screen)",
   "severity": "P3",
   "category": "ui",
   "detail": "After opening Handwritten on a 402px phone the tab strip still shows Specification\u2026Quiz and the selected tab is scrolled out of view, so the page gives no sign which tab you're on.",
-  "evidence": "audit-evidence/2026-11/qa/shots/exams-files-ink/seed-ink-iphone.png (tab strip)",
+  "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-iphone.png (tab strip)",
   "fix": "Call the scroller's reveal on the active tab after openTab (KOS.ui.scroller({reveal})).",
   "effort": "S",
   "devices": "iPhone",
   "id": "EX-27",
   "area": "exams-files-ink",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Post-mortem's empty state stretches 'Marks by question' into a 1166px pill under one short sentence",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "With no per-question marks the post-mortem shows a card whose primary button spans the whole card width on Mac (a 1166x32 pill) and the page then ends; the hero above already says the same sentence ('Add marks by question to see where they went.'), so the card repeats it.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-attempt-mac.png (button 258..1424 px wide); js/modules/examprac.js:337 (u.card([u.quiet(...), u.btn('Marks by question','primary sm')]) \u2013 the card is a column flex so the button stretches)",
+  "fix": "Put the button inline (align-self:flex-start) or move the CTA into the hero and drop the duplicate sentence.",
+  "effort": "S",
+  "devices": "mac, ipad",
+  "id": "EX-41",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Timed paper: a reload does not come back paused, contrary to the module's documented contract",
+  "severity": "P3",
+  "category": "bug",
+  "detail": "exampaperview.js's header says the per-device timed session is kept 'so a reload comes back paused', and timed() contains a line meant to do it, but it is a no-op (`if (!s.paused && !s.resumedHere) { s.paused = s.paused || null; }`). After a reload the clock simply carries on running. Either the comment (and docs) or the code is wrong; for an exam simulation running on is defensible, but then a reload mid-paper should at least say the clock kept going.",
+  "evidence": "Started timed, reloaded: state.ui.examPaperSess.paused null, Pause button reads 'Pause', clock 2:28:15 still counting (/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-reload-ipadl.png); js/modules/exampaperview.js:16-17 (comment) vs :157 (no-op)",
+  "fix": "Decide the rule: set s.paused = Date.now() on a fresh page load (like Focus, invariant 4c) or remove the dead line and fix the comment.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-42",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Paper library says your PDFs 'never sync \u2026 and are never uploaded' while offering 'Keep in my cloud' and showing a 'Synced' row",
+  "severity": "P3",
+  "category": "content",
+  "detail": "The 'Kept on this device' card states the library's PDFs never sync and are never uploaded, yet the same card has a 'Synced' row and each paper can be copied to the private bucket with 'Keep in my cloud' (invariant 125/150). The sentence should say they stay on this device unless you choose Keep in my cloud.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-practice-library-ipad.png; CLAUDE.md invariant 125 ('A paper stays on the device \u2026 unless you press \"Keep in my cloud\"')",
+  "fix": "Reword: 'They stay in this browser unless you press Keep in my cloud on a paper; they are never in a backup.'",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-43",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Scan pages dialog: an emoji camera icon, instructions shown before any photo, and a 'Remove this page' button styled like a disabled primary",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "'\ud83d\udcf7 Take a photo' is the only emoji-iconed button in the app (others use the kanji/mono glyph set); 'Drag the four corners onto the page's corners, then Straighten.' is shown in the empty state when there is nothing to drag; and 'Remove this page' is a filled dim-crimson button that reads as a disabled primary rather than a destructive secondary.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-scan-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-scan-photo-ipad.png; js/core/filescan.js (scan.take label, scan.drop)",
+  "fix": "Use the app's glyph style for the camera, show the drag instruction only once a photo is on the stage, and style Remove as a quiet danger link.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-44",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Three different file-size formatters: the same 16-byte file is '1 KB' in Files, '0 KB' in Storage and '16 B' on a topic's Files tab; Storage lists '0 KB' rows",
+  "severity": "P3",
+  "category": "arch",
+  "detail": "files.js rounds up to at least 1 KB, storage.js rounds down to 0 KB, attachments.js prints bytes under 1 KB. notes.txt (16 bytes) therefore shows three sizes across the app. Storage's 'By kind of data' also prints Past papers 0 KB, Your ink 0 KB and Text index 0 KB (the PDFs had been indexed \u2014 its text is under 512 bytes), zero-only supporting facts (invariant 77). The 'Free up space' card is a tall card with two lines when signed out (dead space beside 'Files in your cloud').",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-storage-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-files-ipad.png; js/modules/storage.js:22, js/modules/files.js:20, js/modules/attachments.js:596-598",
+  "fix": "One size formatter in KOS.ui (or KOS.files) used by all three; hide zero rows or say 'none'; let the Free up space card shrink or merge with Files in your cloud while signed out.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-45",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "New assessment dialog: the two-column form leaves holes (Duration, Extra time, Target grade each alone on a row) and pre-fills the Title with 'Real exam'",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "At iPad portrait the editor is a 2-column grid but Duration, Extra time and Target grade sit alone with an empty right cell, so the 1250px dialog scrolls more than it needs. The Title field is pre-filled with the tier's name as a value (not a placeholder), so saving without typing creates an assessment literally titled 'Real exam'. Fields are 39-42px tall on touch and 13.5px text on iPhone (the 16px phone rule is lost to the components layer \u2014 already reported app-wide by the a11y-hci audit).",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-editor-ipad.png; measured dialog 760x1148 scrollHeight 1252; inputs 39-42px tall; iPhone computed font-size 13.5px on .k-input; js/modules/exams.js editor() (exams.title value), css/base.css:159 vs css/components.css:414",
+  "fix": "Pair the singles (Duration+Extra time, Target grade+Calculator) so the grid has no holes; use the tier name as a placeholder and derive the title on save only when empty.",
+  "effort": "S",
+  "devices": "ipad, iphone",
+  "id": "EX-46",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Readiness band prints 'limiting: RAG' under 'Not enough evidence' \u2014 a limiting signal named when there is no evidence at all",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "With thin evidence KOS.exams.readiness returns band 'thin' with limit = the first silent signal (rag). bandEl shows 'limiting: <name>' for every band except Ready, so every Season card and assessment hero reads 'Not enough evidence \u00b7 limiting: RAG', which tells the learner RAG is holding the exam back when nothing has been measured. The function's own comment says the limit shows 'At risk always, for On track only with one weak signal, never Ready'. Fixture: a new mock with a 4.10 scope and no reviews or papers \u2192 band {band:'thin', limit:'rag', silent:[rag,recall,practice]}.",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-season-dawn-mac.png (all five season cards); eval fixture output band.thin limit rag; js/modules/exams.js:93-103 (comment vs `var lim = b.band === 'ready' ? null : b.limitName`)",
+  "fix": "Show the limit only for at_risk, and for on_track only when one signal is weak; for Thin say which signals are silent ('needs: recall, a timed paper').",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-47",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Practice's empty state points to a '+ Log entry' button that does not exist (the button is '+ Log a result') and offers no action of its own",
+  "severity": "P3",
+  "category": "content",
+  "detail": "Exams & Papers \u203a Practice with nothing logged says 'Use \u201c+ Log entry\u201d after your next assessment.' The page's button is '\uff0b Log a result' (in the header, scrolled away on iPhone); there is no 'Log entry' anywhere, and the empty state has no button of its own. Same text for the Practice papers tab ('\u2026after your next practice paper').",
+  "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-empty-practice-iphone.png; js/modules/tracker.js:460",
+  "fix": "Give the empty state the action itself (KOS.ui.emptyState({action: Log a result})) and use the same label as the header.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-48",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "An open dialog survives Back/hash navigation: the 'Mark it yourself' tally stayed on screen over the next pages",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "With the tally dialog open on a paper, changing the route (browser Back, the app's \u2039 \u203a arrows, a hand-edited hash) renders the new page underneath while the modal stays open and focused \u2014 observed over #/exams/results, practice/library, scope and timetable/load. The router re-renders on popstate/hashchange without closing KOS.ui.openDialog layers, so a stale dialog (here one holding unsaved ticks for another page's paper) floats over an unrelated view.",
+  "evidence": "shots taken after navigating with the tally open showed it over each page (first attempt of b4-results-ipad.png); js/core/router.js:284-306 (onPop/hashchange render with no dialog handling)",
+  "fix": "On a navigation render, close (or ask about) open dialogs \u2014 or treat Back while a dialog is open as closing the dialog, as native sheets do.",
+  "effort": "S",
+  "devices": "all",
+  "id": "EX-49",
+  "area": "exams-files-ink",
+  "areaStatus": "complete"
  },
  {
   "title": "Collection section strip hides the Games vault on iPad portrait (inner pill group scrolls invisibly)",
@@ -5414,7 +5870,7 @@
   "needsArt": false,
   "id": "CL-01",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Collection Overview prints zero-only facts and truncates them on the module cards",
@@ -5429,7 +5885,7 @@
   "needsArt": false,
   "id": "CL-02",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "'Where each medium stands' card renders a legend over an empty body on an empty account",
@@ -5444,7 +5900,7 @@
   "needsArt": false,
   "id": "CL-03",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Mangaka is marked as the Anime page (strip lights Anime; phone header reads 'Anime')",
@@ -5460,7 +5916,7 @@
   "needsArt": false,
   "id": "CL-04",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Mangaka takes ~3 s to render on the dense account (reads and groups every book on each open)",
@@ -5476,7 +5932,7 @@
   "needsArt": false,
   "id": "CL-05",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Small touch targets across Collection controls on iPad/iPhone (sort selects 30px, Mangaka letters 32px, Wishlist checkboxes 18px, Sync radios 13px)",
@@ -5491,7 +5947,7 @@
   "needsArt": false,
   "id": "CL-06",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Vault toolbar wraps into three ragged rows on iPad portrait ('Find new' alone on a row, count alone above)",
@@ -5507,7 +5963,7 @@
   "needsArt": false,
   "id": "CL-07",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Back (or any route change) leaves a vault editor open over the next page; Save then edits a title from another vault",
@@ -5523,7 +5979,7 @@
   "needsArt": false,
   "id": "CL-08",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Books status rail counts the whole module while the grid shows one lens ('All 1107' beside '738 series')",
@@ -5539,7 +5995,7 @@
   "needsArt": false,
   "id": "CL-09",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "'Hide amounts' does not hide money on the Wishlist, Mangaka or the Books shelf; currency is formatted three different ways",
@@ -5555,7 +6011,7 @@
   "needsArt": false,
   "id": "CL-10",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "AniList profile stat bands use a quarter of the card's width (auto-fill leaves empty tracks) and repeat the hero's figures on another scale",
@@ -5571,7 +6027,7 @@
   "needsArt": false,
   "id": "CL-16",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Ordering a tied tier while the Shrine is filtered to one medium erases the hand-set rank of every other medium's titles in that tier",
@@ -5587,7 +6043,7 @@
   "needsArt": false,
   "id": "CL-17",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Wishlist priority can only be set by HTML5 mouse drag: no keyboard path, no grip in Want to buy, unreliable on iPad touch (bypasses KOS.ui.reorder)",
@@ -5603,7 +6059,7 @@
   "needsArt": false,
   "id": "CL-18",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Mark purchased dialog: the Paid amount field is 57px wide and clips the price ('\u00a3 l0.00'); the date is cut to '06/11/20'",
@@ -5619,7 +6075,7 @@
   "needsArt": false,
   "id": "CL-19",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "After Mark purchased, the Money confirmation and its 'View in Transactions' action are overwritten at once by the Collection handoff toast",
@@ -5635,7 +6091,87 @@
   "needsArt": false,
   "id": "CL-20",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "A filter that matches nothing offers 'Bulk add' and 'Add one game' but no 'Clear filters'",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "Games: rail 'Completed' + Filters \u203a Completion 'Platinum / 100%' gives '0 games (filtered)' and the empty card 'Nothing matches this filter.' with the two ADD buttons that belong to an empty vault. The way back (Clear filters, or clearing the status rail) lives in the Filters menu and the rail; the empty state itself is a dead end that pushes creation. The same pattern is in the other vaults' filtered empty states.",
+  "evidence": "shots/collection/c4-game-filtered-empty-mac.png; eval: count '0 games (filtered)', Filters button 'Filters 1'; js/modules/games.js:739-749 (same buttons for filtered and empty)",
+  "fix": "When `filtered` is true render 'Clear filters' (calling every facet.clear(), the rail's All and the search reset) as the primary action, and keep Add as secondary.",
+  "effort": "S",
+  "rootCause": "emptyState called with the empty-vault actions regardless of the filtered flag.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-23",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "'+1' on a card deep in the grid re-sorts it to the top under the default 'recently updated' sort, so it vanishes from under the pointer",
+  "severity": "P2",
+  "category": "ux",
+  "detail": "Anime vault, default sort 'Sort: recently updated', 240 cards loaded and scrolled ~10,600 px: pressing +1 on a card re-renders the grid and the card moves to position 1 (its top goes from on-screen to -9,892 px); the user sees the card they just logged disappear and a different card under the finger, with only the Governor toast as feedback. Logging several episodes in a row means hunting for the title again each time. Same in Books (+1 ch) and Games (+1 hr).",
+  "evidence": "eval on slot 17: n0 240 / n1 240 cards, scrollTop 10667 unchanged, bumped card top 0 -> -9891.8, first titles after bump ['Collection entry 457','QA XML Show']; js/modules/anime.js:281 (onBump -> bumpProgress(e, rerender)); js/modules/medview.js:576-600 (bumpUnit saves and calls done -> full rerender)",
+  "fix": "After a bump update the card in place (re-render that card only, keep the list order until the next deliberate refresh/navigation), or pin the bumped card in place for the visit; announce the new count through KOS.a11y.announce.",
+  "effort": "M",
+  "rootCause": "bumpUnit re-queries and repaints the whole sorted grid; the sort key (updatedAt) is the field the bump changes.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-24",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Deleting a vault entry has no undo and leaves its Wishlist purchase pointing at nothing ('\u21c4 Collection' still offered, then 'That collection entry no longer exists.')",
+  "severity": "P2",
+  "category": "data",
+  "detail": "Games \u203a open 'Wishlist title 3' (created by Mark purchased) \u203a Delete record \u203a Delete: the toast says 'Deleted.' with no Undo, and the confirm does not mention that a Wishlist purchase links to it. The Wishlist's Purchased row keeps linkedEntryId 1881 and still shows the '\u21c4 Collection' button; pressing it only toasts 'That collection entry no longer exists.' \u2014 a dead button with no way to relink from there. All of a title's personal layer (notes, quotes, routes, physical volumes) is lost in one tap.",
+  "evidence": "eval on slot 17: confirm text 'Delete \u201cWishlist title 3\u201d from the collection?', toast 'Deleted.', no toast action; state.wishlist.items[id 3].linkedEntryId 1881 after deletion; Purchased tab row text '\u2026 GBP 10.00 \u21c4 Collection'; click -> toast 'That collection entry no longer exists.'; js/modules/medview.js (record section Delete), js/modules/wishlist.js ('That collection entry no longer exists.')",
+  "fix": "Offer Undo on the delete toast (re-put the row with its syncId and drop the tombstone), mention linked Wishlist items in the confirm, and on delete clear linkedEntryId (or render the row's link as 'Link to vault' when the entry is gone).",
+  "effort": "M",
+  "rootCause": "Vault delete knows nothing about the Wishlist's linkedEntryId; Wishlist renders the link from the stored id without checking it exists.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-25",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "iPad landscape (1180): the vault toolbar overflows leftwards over the title count; search squeezed to 112px ('Search bc')",
+  "severity": "P2",
+  "category": "ui",
+  "devices": "iPad Air 11 landscape (1180x820); any width 1081-~1300 with the rail open",
+  "detail": "In every vault at 1180 px the toolbar's fixed controls (sort, Filters, layout, Actions, Find new/Add) plus the search's 7rem minimum are wider than the space beside the count. Because .k-mtoolbar is justify-content:flex-end with min-inline-size:0 and its children flex-shrink:0, the overflow spills to the LEFT and the search pill is painted over the count: '739 series' shows as '73', the search placeholder is cut to 'Search bc'.",
+  "evidence": "shots/collection/c4-books-ipadl.png; eval at ipadl: count 448-507 vs search 461-573 (Books), 448-503 vs 461-573 (Anime), 448-504 vs 499-611 (Games), 448-534 vs 451-563 (VN)",
+  "fix": "Let the toolbar wrap (flex-wrap: wrap with the search taking a full row) or move the count onto its own line from the 1240 breakpoint; never use flex-end on a row that can overflow (use margin-inline-start:auto on the first item instead so overflow goes right and wraps).",
+  "effort": "S",
+  "rootCause": "css/views/collection.css:62-65 (flex-end + no-shrink children + min 7rem search); the wrap rule at 975 only starts at 860px.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-26",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Find new (Anime/Books) without AniList connected lets you search and pick, then toasts a self-contradicting message: 'added locally only. Nothing was added'",
+  "severity": "P2",
+  "category": "content",
+  "detail": "Anime \u203a Actions \u203a Find new titles\u2026 searches AniList fine while signed out of AniList; choosing a status ('Plan to watch') then toasts 'AniList isn't connected \u2014 added locally only. Nothing was added \u2014 the vault mirrors your AniList list, so add it there or reconnect and retry.' The first sentence (from the shared VNDB/AniList connect check) says it was added, the second that it was not; nothing is added (invariant 92). The dialog never says up front that AniList must be connected, so the user does the whole flow before finding out.",
+  "evidence": "eval on slot 17: search 'Frieren' \u2192 6 results; + Add \u2192 'Plan to watch' \u2192 toast text as quoted, no new row; js/modules/mediasearch.js:93 (\"added locally only\" reason) concatenated with :139 (\"Nothing was added\u2026\")",
+  "fix": "Give the AniList path its own reason ('AniList isn't connected.') and, better, show a 'Connect AniList to add titles' banner with a Sync & Import link in the Find new dialog when there is no token, disabling + Add.",
+  "effort": "S",
+  "rootCause": "Reason string written for the VN fallback (which does add locally) reused for the mirror path that refuses.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-27",
+  "area": "collection",
+  "areaStatus": "complete"
  },
  {
   "title": "No link out to the title's AniList/VNDB page, and nowhere to keep 'where I watch/read it' (QoL)",
@@ -5650,7 +6186,7 @@
   "needsArt": false,
   "id": "CL-11",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Favourite heart on vault cards is a generic 'Toggle favourite' with no visible label and an easy mis-tap",
@@ -5665,7 +6201,7 @@
   "needsArt": false,
   "id": "CL-12",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Spotlight says 'the last one is next' when every route/episode is already done",
@@ -5681,7 +6217,7 @@
   "needsArt": false,
   "id": "CL-13",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Seasonal hero's art credit is unreadable on the painted scenery (Mac/iPad)",
@@ -5696,7 +6232,7 @@
   "needsArt": false,
   "id": "CL-14",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Seasonal controls on iPhone wrap into a ragged block (segmented control alone, right-aligned)",
@@ -5711,7 +6247,7 @@
   "needsArt": false,
   "id": "CL-15",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "AniList profile action row wraps 'Avatar' onto its own line on iPhone",
@@ -5727,7 +6263,7 @@
   "needsArt": false,
   "id": "CL-21",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
  },
  {
   "title": "Want to buy rows label the purchase action 'Purchased' (reads as a status) while the hero and dialog say 'Mark purchased'",
@@ -5743,7 +6279,280 @@
   "needsArt": false,
   "id": "CL-22",
   "area": "collection",
-  "areaStatus": "partial"
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Books card prints '0 ch' for a series read by the volume; long-form progress says '1 of 1 routes' / '1 hours'",
+  "severity": "P3",
+  "category": "content",
+  "detail": "Books overrides the shared progress grammar with its own progressText that falls back to the literal '0 ch' whenever the shared text is empty, so a light novel tracked by volumes reads '0 ch \u00b7 3 / 10 vol' (a zero-only supporting fact, invariant 77). Separately the shared long form always pluralises: a VN with one route cleared of one reads '1 of 1 routes', one hour reads '1 hours'.",
+  "evidence": "eval on slot 17: card text for fixture {books, progress {current 0, volumes 3, totalVolumes 10}} = 'QA Volume Novel | 0 ch \u00b7 3 / 10 vol'; KOS.media.progressText(vn 1/1 route,{long:true}) = '1 of 1 routes'; js/modules/books.js:195-201 (|| \"0 ch\"); js/core/media.js:489 (opts.long ignores the count); shots/collection/c4-books-volnovel-mac.png",
+  "fix": "Drop the '0 ch' fallback (show only the volume half when chapters are 0) and move the volume half into KOS.media.progressText so Books stops keeping a second grammar; in the long form pick singular when the count is 1.",
+  "effort": "S",
+  "rootCause": "Second progress formatter in books.js duplicating media.js (invariant 63 owner); LONG_UNIT has no singular.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-28",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Editor header shows the browser's broken-image glyph when a cover URL fails (cards fall back to the kanji placeholder)",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "Open any vault entry whose coverUrl no longer loads (a hot-linked AniList/VNDB cover that moved, or a dead URL): the card shows the placeholder kanji because medview.cover() listens for 'error', but the editor's header art is a bare KOS.imageCrop.image with no error handler, so an empty grey tile with the broken-image icon in its corner is drawn.",
+  "evidence": "shots/collection/c4-vn-editor-mac.png (top-left of the cover tile); eval: dialog img naturalWidth 0, display block; js/modules/medview.js:918-920 vs the card's handler at js/modules/medview.js:64-71",
+  "fix": "Reuse medview.cover() (or the same load/error settle) for the editor header so a failed cover falls back to the module kanji.",
+  "effort": "S",
+  "rootCause": "Two cover renderers; only the card one handles load errors.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-29",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "VN 'What counts as progress' offers no Percentage option, so the % mode the schema and editor support is unreachable for new titles",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "mediadb's VN_MODES include 'percent' and the editor builds a 'How far through (%)' field, but the radio list only offers Automatic / Routes / Chapters / Hours, and the % field is shown only when Automatic already resolves to percent (an old entry carrying progressPercent and nothing else). A new VN, or one that has any hours, can never be switched to a percentage, contradicting the comment above the control ('routes, chapters, or a percentage').",
+  "evidence": "js/modules/vn.js:261-273 (radio options, no percent), 317 (pctField.hidden unless src/mode is percent); js/core/mediadb.js:323 (VN_MODES includes percent); shots/collection/c4-vn-editor-mac.png (four options)",
+  "fix": "Add a 'Percentage through' radio (value percent) and show the % field whenever it is chosen; or retire percent from VN_MODES with a migration.",
+  "effort": "S",
+  "rootCause": "Radio list (11e) dropped the percent choice while the schema kept it.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-30",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Score lives in a different place in each vault editor: Books puts an unlabelled '\u2013 / 10' box in the header, the others a 'Score /10' field that shows 0 when unscored",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "Books' editor carries the score as a small unlabelled number input beside Favourite in the header (placeholder '\u2013'); Anime, VN and Games put 'Score /10' in the first tab's grid, and VN/Games print '0' for a title with no score while the card corner shows '\u2605' (unscored). Same concept, three treatments, and an unscored title reads as scored 0.",
+  "evidence": "shots/collection/c4-books-editor-phys-mac.png (header '\u2013 / 10'), c4-vn-editor-mac.png and c4-game-editor-mac.png ('Score /10' field = 0 / 2); eval: VN entry with no score -> editor score input value '0'; Books header input aria-label 'Score out of 10', data-ui vault.editor-score",
+  "fix": "Use one score control in the same place for every module (the header pattern with a visible label, or the field) and show an empty value/placeholder for unscored instead of 0.",
+  "effort": "S",
+  "rootCause": "Each module editor builds its own score control (books.js header vs vn.js/games.js/anime.js fields).",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-31",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Import and sync reports count every matched row as 'updated', even when nothing changed",
+  "severity": "P3",
+  "category": "data",
+  "detail": "Re-importing the same MAL XML (or any pull) reports 'N updated' for every matched row: bulkUpsert increments `updated` on every put, including the no-op merges whose updatedAt it deliberately keeps (invariant 36a). A user re-running an import or 'Sync now' sees e.g. '0 added, 1100 updated' and cannot tell whether anything moved.",
+  "evidence": "eval on slot 17: bulkUpsert of an unchanged XML row -> {added 0, updated 1}, updatedAt unchanged 1793940090274, journal 0; js/core/mediadb.js:1166-1170 (updated++ regardless of sameMaterial); js/modules/mediasync.js:55-59 (doneWording prints it)",
+  "fix": "Count `unchanged` separately when sameMaterial() holds and word the result '3 updated, 1,097 already up to date' (or skip the put entirely for an unchanged row).",
+  "effort": "S",
+  "rootCause": "Counter not tied to the sameMaterial branch.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-32",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Autonomous sync card says 'On' and runs cycles with no provider connected, and prints the last cycle twice",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "On an account with neither AniList nor VNDB connected the Autonomous sync card shows the switch On, 'Pulls every 15 minutes and on reconnect', a status line 'Last cycle 06/11/2026, 04:40:22 \u2014 nothing to reconcile' AND a separate 'Last cycle 04:40' figure beside it (two lines on iPhone). Nothing is being synced, so the card should say so and point to Connect; the time should appear once. The AniList token placeholder is also cut off ('The token AniList showe') at Mac width.",
+  "evidence": "shots/collection/c4-sync-mac.png, shots/collection/c4-sync-iphone.png; js/modules/mediasync.js:422 (status line) and 432 (k-sy-auto-last duplicate)",
+  "fix": "When no provider is connected render the card as 'Nothing to sync yet \u2014 connect AniList or VNDB' with the switch disabled; keep one 'Last cycle' (the right-hand figure) and drop it from the status sentence; shorten the placeholder to 'Access token'.",
+  "effort": "S",
+  "rootCause": "renderAuto() ignores connection state; two renderers of the same timestamp.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-33",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "XML-imported Anime rows can never be deleted without AniList, and a Completed show with no episode total still offers '+1 \u00b7 Log episode 31'",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "A MAL/AniList XML import lands anime rows with syncSource 'import'. The Anime editor follows the AniList-mirror rule (invariant 92: no Delete), so with AniList not connected a wrongly imported row has no way out except a 'Replace' re-import. In the same editor, a Completed title whose total is unknown (AniList total 0) still shows the primary '+1 \u00b7 Log episode 31' bump, because the cap only applies when max is known.",
+  "evidence": "eval on slot 17 after importing a 3-title XML fixture: editor buttons for 'QA XML & Done' = ['+1 \u00b7 Log episode 31','\u2665 Favourite',\u2026,'Cancel','Save'] (no Delete, Record tab read-only); js/modules/medview.js:943-947 (capped only with b.max); mirror rule js/modules/anime.js editorModal",
+  "fix": "Offer Delete for anime rows whose syncSource is not 'anilist' (they are outside the mirror); hide or demote the bump when status is Completed.",
+  "effort": "S",
+  "rootCause": "Mirror read-only rule keyed on module rather than on syncSource; bump ignores status.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-34",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Bar charts clip the value label of the tallest bar (Score distribution '168', medium charts '222')",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "KOS.charts.barChart reserves only padT = 12 above the plot and draws each value label at y - 5, so the tallest bar's label starts above the SVG's top edge (bbox y -3.8) and the SVG clips it; the tallest bars' labels look cut and crowd the card header (Books '222' under 'Books 1108 titles'). Every barChart and smallMultiples user (Collection Analytics, Reports, Money) inherits it.",
+  "evidence": "shots/collection/c4-matrix-analytics-mac.png (Score distribution '168' labels; Books small multiple); eval: getBBox of the '168' label y = -3.79, svg overflow hidden; js/core/charts.js:84 (padT 12), 122-124 (label at y - 5)",
+  "fix": "Raise padT to FONT + 8 when value labels are drawn (or compute the plot from max + label height) so the tallest label sits inside the viewBox.",
+  "effort": "S",
+  "rootCause": "Top padding does not account for the value label above a full-height bar.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-35",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Wishlist 'Purchased' tab is still laid out as a buy queue: priority ranks #1\u2013#8, 'AVAILABLE NOW' / 'PRE-ORDER \u00b7 IN 30 DAYS', sorted by priority",
+  "severity": "P3",
+  "category": "ux",
+  "detail": "Purchase history reuses the Want-to-buy row: every bought item keeps a Priority badge (#1\u2026#8), the Release column still says 'AVAILABLE NOW' or 'PRE-ORDER \u00b7 IN 45 DAYS' for things already bought, and the default sort is 'Priority order', while the purchase date is shrunk to a 'bought 2026-11' chip (month only). The questions a history answers (when, how much, in which vault) are de-emphasised; a wide empty gap sits between the Collection column and the \u270e button.",
+  "evidence": "shots/collection/c4-wishlist-purchased-mac.png; js/modules/wishlist.js:1015 (bought chip = monthKey), row builder ~990-1025 shared across tabs",
+  "fix": "On the Purchased tab drop the priority column and release countdown, show the full purchase date and paid amount as the leading facts and sort by purchasedAt (newest first).",
+  "effort": "S",
+  "rootCause": "One row renderer for every tab.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-36",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Renaming or deleting a custom list that came from AniList is undone by the next pull (and a rename leaves both names)",
+  "severity": "P3",
+  "category": "data",
+  "detail": "Manage custom lists offers Rename/Delete for every list, including Anime/Books lists that AniList owns. rewriteLists only rewrites local rows and the kv registry and pushes nothing (list membership is never pushed, invariant 13). On the next AniList pull, bulkUpsert treats every list name AniList passes as AniList-owned (mirrorOpts lists) and re-adds the original membership, while the renamed name is now 'only this app' and unions \u2014 so a rename yields two lists and a delete comes back. The dialog gives no hint that the list belongs to AniList.",
+  "evidence": "code read: js/core/media.js:434-456 (rewriteLists, local only), js/modules/medview.js:1755-1770 (Rename/Delete for every name), js/core/mediadb.js:1089-1093 (owned AniList list names re-applied from the pull, others unioned); not reproduced end-to-end (no AniList account in the harness)",
+  "fix": "Mark lists that AniList carries (the mirror's list names, kept per module) as read-only in Manage ('Rename it on AniList'), and only offer Rename/Delete for app-only lists.",
+  "effort": "S",
+  "rootCause": "Manage lists does not know which list names the AniList mirror owns.",
+  "verdict": "PLAUSIBLE",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-37",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Quote \u2192 flashcard writes the card at once while the quote itself waits for the editor's Save; Cancel keeps a card for a quote that no longer exists",
+  "severity": "P3",
+  "category": "data",
+  "detail": "In any vault editor's Quote log, a newly logged quote lives only in the editor draft (comment: 'The draft's quotes change only when the editor saves'), but '\u21e2 flashcard' \u203a '+ Add to Personal deck' calls KOS.srs.addCustom immediately. Pressing Cancel (or Back) discards the quote and keeps the card. The success toast also tells the user to go 'Due Today \u2192 Personal deck' instead of offering that route as a toast action.",
+  "evidence": "js/modules/medview.js:722-746 (addCustom on press), 789-793 (quote pushed to the draft e.quotes, saved only with the editor)",
+  "fix": "Either save the quote together with the card (put the row when the card is made), or queue the card until the editor saves; add a 'Open Personal deck' action on the toast.",
+  "effort": "S",
+  "rootCause": "Two write timings inside one editor.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-38",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Books 'Owned vs read' bars have no visible track (track colour = box colour) and the two 'one scale' bars get different lengths",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "In the Physical vault tab the bar track and the k-bk-box behind it are the same colour (both oklch(0.93 0.01 80) in Dawn), so each bar reads as a floating stub with no scale; on iPhone the two bars are 111 px and 103 px long because the track sits in an auto grid column sized by the detail text, so '1 of 10' and '3 of 10' are not drawn on the same scale the code comment promises.",
+  "evidence": "shots/collection/c4-books-editor-iphone.png; eval (Dawn): bar bg oklch(0.93 0.01 80) == .k-bk-compare.k-bk-box bg; bar widths iPhone [111,103], Mac [373,365]; js/modules/books.js:300-312",
+  "fix": "Give the k-bar track a token one step off the box (e.g. --s3/--line) inside .k-bk-box, and lay the rows out on a shared grid (label | 1fr bar | fixed-width detail) so both tracks are equal.",
+  "effort": "S",
+  "rootCause": "Box and track share the same surface token; the detail column is auto-sized per row.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-39",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Vault editor's section tabs overflow on iPhone with no scroller affordance: 'Quote lo\u2026' cut, 'Identity' off-screen",
+  "severity": "P3",
+  "category": "ui",
+  "devices": "iPhone 17 (402)",
+  "detail": "The editor's tab row (Reading state \u00b7 Physical vault \u00b7 Shelves & tags \u00b7 Quote log \u00b7 Identity for Books; VN has six) is a plain overflow-x:auto segmented control (scrollWidth 438 > 362). The last tab is clipped mid-word and nothing indicates more tabs; it is not a declared KOS.ui.scroller (invariant 50: horizontal overflow must be declared, with edge marks).",
+  "evidence": "shots/collection/c4-books-editor-iphone.png; eval iPhone: tablist .k-seg.k-medit-tabs scrollWidth 438 / clientWidth 362, overflow-x auto, no ui.scroller ancestor; tab right edges 104/208/316/393/458",
+  "fix": "Wrap the tab row in KOS.ui.scroller({keep, reveal}) so the active tab is revealed and the edge fade shows more, or shorten labels ('Shelf', 'Tags', 'Quotes') under 560px.",
+  "effort": "S",
+  "rootCause": "Editor tabs built as a bare k-seg instead of the shared scroller.",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-40",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Games copy contradicts itself about importing, and the Steam dialog signed out is a dead end with no button to sign in",
+  "severity": "P3",
+  "category": "content",
+  "detail": "The Games empty state says 'There's no import API a browser is allowed to use; this is the whole toolkit, honestly stated' and Bulk add's subtitle says 'no game API allows a browser import' \u2014 yet the same Actions menu offers 'Steam library\u2026 import what you own' and 'Find new titles\u2026 Search IGDB'. Signed out of cloud, 'Steam library\u2026' opens a dialog whose only content is 'sign in from Archive \u2192 Account & Cloud Sync first' with no button to get there (only \u2715).",
+  "evidence": "shots/collection/c4-steam-mac.png; js/modules/games.js:746 (empty-state copy), 479 (bulk add subtitle), 547-624 (Steam dialog)",
+  "fix": "Rewrite the empty state and bulk-add subtitle to name the three ways in (paste, IGDB search, Steam import); add an 'Open Account & Cloud Sync' primary button in the signed-out Steam dialog.",
+  "effort": "S",
+  "rootCause": "Copy predates the Steam/IGDB features.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-41",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "Dialogs opened from a vault's Actions menu return focus to the top of the page ('Skip to content') when closed",
+  "severity": "P3",
+  "category": "a11y",
+  "detail": "Games \u203a Actions \u203a The numbers (or Steam library\u2026, Paste a list\u2026) \u203a Close: focus lands on the document's first element, 'Skip to content', instead of the Actions button, because the dialog records the menu item as its return target and the menu has been torn down by then. A keyboard or VoiceOver user is thrown to the top of a long page after every Actions dialog (invariant 49: focus restore).",
+  "evidence": "eval on slot 17 after closing 'Games \u2014 the numbers': document.activeElement text 'Skip to content', Actions aria-expanded 'false'; shots/collection/c4-numbers-mac.png",
+  "fix": "In KOS.ui.menu, when an item runs, hand openDialog the menu's trigger as the restore target (or restore to the trigger when the remembered element is disconnected).",
+  "effort": "S",
+  "rootCause": "openDialog restores to document.activeElement captured at open time \u2014 a menu item that is removed when the menu closes.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-42",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "'Genres' charts list tags truncated to identical labels ('Protagonist with a Tra\u2026' \u00d77)",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "The Games numbers dialog's 'Genres \u2014 where your taste actually lives' and the Overview Analytics 'Top genres' rank tags as well as genres and cut every label at ~24 characters, so several distinct long tags render as the same 'Protagonist with a Tra\u2026' row distinguishable only by a hover title (none on iPad/iPhone touch). VNDB/AniList tags are routinely that long.",
+  "evidence": "shots/collection/c4-numbers-mac.png (7 identical rows), shots/collection/c4-matrix-analytics-mac.png ('Protagonist with a Tra\u2026'); js/core/charts.js:187 (row title on hover only; label cut by CSS ellipsis)",
+  "fix": "Wrap hbar labels to two lines (wrapLabel already exists) or widen the label column, add a <title> with the full name, and either rename the card 'Genres & tags' or keep genres only.",
+  "effort": "S",
+  "rootCause": "hbarChart truncates instead of wrapping; card mixes taxonomy fields.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-43",
+  "area": "collection",
+  "areaStatus": "complete"
+ },
+ {
+  "title": "An empty vault still draws the full status rail of zeros and every toolbar control (sort, Filters, layout, search) around the empty state",
+  "severity": "P3",
+  "category": "ui",
+  "detail": "Empty account, Games/Books/VN: the left rail lists All 0, In progress 0, Planned 0, On hold 0, Completed 0, Dropped 0 (zero-only supporting facts, invariant 77), and the toolbar offers '0 games', search, 'Sort: recently updated', Filters, grid/list and Actions over nothing. Books also shows 'Find new' twice (toolbar and empty state), and Find new cannot add anything until AniList is connected.",
+  "evidence": "shots/collection/c4-empty-game-mac.png, c4-empty-books-mac.png, c4-empty-vn-mac.png; js/modules/medview.js:1660-1675 (rail rows always drawn), games.js:739-749",
+  "fix": "While the vault has no rows hide the status counts (or the whole rail) and the sort/filter/layout controls, leaving the empty state's actions; in Books show one 'Sync & Import' primary and drop the duplicate Find new until AniList is connected.",
+  "effort": "S",
+  "rootCause": "Toolbar and rail are rendered before the count is known and never collapse for zero.",
+  "devices": "all",
+  "needsDesign": false,
+  "needsArt": false,
+  "id": "CL-44",
+  "area": "collection",
+  "areaStatus": "complete"
  },
  {
   "title": "'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered",
