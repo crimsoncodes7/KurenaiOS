@@ -1,0 +1,360 @@
+{
+ "area": "achievements-governor",
+ "summary": "The Badge Wall and the Governor's Seat are rich and mostly correct in their core rules (earned tiers stay earned when evidence disappears, titles and showcase save through Edit seat, a theme Try on ends on leaving the shop). The serious problems are layout bugs on the user's own devices: the Seat's \u22ef menu is still cut off by the stage, and the showcase arc on iPhone draws overlapping 80px medals. Both were re-checked in this run and still happen. This run found more problems in the Governor's own pages. The Gold Shop spends up to 10,000 gold on one tap with no confirm or Undo, and it puts the item on at once. On iPhone the shop's bottom sheet stops 32px short of the right edge. The Session Log ignores the award each entry records: only Focus shows a reward, and it is recomputed. The log also has no label for Code, Japanese, Mind or Creatives entries. Recovery dispatch promises HP for ticking plan items, which pay nothing. Edit seat's preview is not inert, and choosing a title or seal drops keyboard focus to the page body. On iPhone, Titles shows its detail and Equip button 1,600px below the plaque you tapped. Root causes repeat across the area: repaint-on-change without restoring focus, a desktop layout stacked on small screens without changing how it works, copy left over from when HP gated features, and readers written before the newer session types and the recorded award field existed.",
+ "coverage": "Continued an interrupted earlier run (its 16 findings kept in the .jsonl, not repeated). This run looked at these, seeded and empty: Gold Shop (mac full page, iPad and iPhone measured, empty account on iPhone, item sheet on iPhone, Buy and theme Try on exercised), Avatar & profile (mac full page, touch switch sizes), Session Log (mac, iPhone, empty mac; a focus, code and quiz fixture logged through KOS.sessions.log), Edit seat (3 sizes measured; showcase toggle, title choice, Save, focus after choosing), Wall tabs Sets, Recent, Showcase and Titles at iPad and iPhone (measured; Recent and Titles shot), the unlock overlay (a 6-badge fixture on mac and iPhone, through to the summary), the Wall and Seat in the shop theme spectral-rose, a dump of all 254 badge views with values, a monotonic-earned check (vault emptied, tiers kept), and re-checks of the two P1s (\u22ef menu hit test; iPhone arc geometry). Inventory matrix: findings/achievements-governor.inventory.md. NOT checked: progress pings and quiet() live with Focus running (code read only); Dawn in this run (the harness --theme flag was overridden by the saved theme, and the earlier run's dawn shots cover it); fixture tests of the Japanese, Mind, Creatives, Code, ink, Money and routines badge measures; iPad landscape of the shop and avatar pages; the cloud merge of achievements (MONO_PATH; smoke113 holds it).",
+ "findings": [
+  {
+   "title": "The Seat's \u22ef menu is cut off by the stage: its Data row (Mine / Empty / Sample) is hidden and unclickable",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "Opening \u22ef on #/governor (Status) shows a 280 x 100 popover at y=164-264; the stage starts at y=202 and paints over everything below it. Only the top of the 'HP preview' row shows; the 'Data' row (Mine / Empty / Sample) is entirely behind the hero. elementFromPoint across the popover: rows y>=204 hit .k-gv-stage (7/7 samples), rows y<=192 hit the popover. The controls cannot be reached by pointer.",
+   "evidence": "shots/achievements-governor/gov_menu_crop.png (2x: HP preview row sliced by the stage edge, Data row missing), gov_menu_dpr2.png; eval occlusion rows 204-252 '7/7 outside'; css/components.css:35 (.k-pagehead[data-state~=has-art] {position:relative; isolation:isolate}), css/views/governor.css:31 (.k-gv-stage isolation:isolate), :65 (.k-gv-tools-pop z-index var(--z-menu) trapped inside the header's stacking context)",
+   "fix": "Give the art page header a z-index above the page body (e.g. .k-pagehead[data-state~=has-art] { z-index: var(--z-raised) }) or, better, build the \u22ef menu with KOS.ui.menu so the popover is portalled to the top layer like the bell. Also raise the 32px \u22ef button to 44px on coarse pointers (iPad).",
+   "effort": "S",
+   "devices": "mac, ipad (landscape and portrait)",
+   "rootCause": "The header's isolation:isolate creates a stacking context with z-index auto, so the popover's z-index only competes inside the header; the later, isolated stage paints on top"
+  },
+  {
+   "title": "iPhone Seat: showcase medals draw at 80px over each other and the XP bar, and the empty slots are 17 x 44 ovals",
+   "severity": "P1",
+   "category": "ui",
+   "detail": "At 402px the arc becomes a flex row of 44px slots. (1) Filled slots carry the medal with an inline --m:80px (governor-ui.js passes px:80), which beats the phone rule `.k-gv-arc-slot .k-ach-medal { --m: var(--ach-medal-sm) }`, so three picked medals render 80 x 80 at x=32/80/128, overlapping one another and rising over the XP bar. (2) The empty .k-gv-arc-note keeps flex-basis:100% while the row does not wrap (the wrap rule only applies when the note has content), so it takes 131px and the empty slots shrink to 17 x 44 (ovals); before the list() call returns, all six are ovals.",
+   "evidence": "shots/achievements-governor/iphone_gov.png (six ovals), iphone_gov_ovals_crop.png (2x: 80px medals overlapping each other and the XP bar, two oval empties); eval: medals [32,580,80,80,'80px'], [80,580,80,80], [128,580,80,80]; slots [44,44]x3 + [17,44]x3; note width 131 while empty; js/modules/governor-ui.js:363-366, css/views/governor.css:518-523",
+   "fix": "Set the medal size through a class/attribute (data-size) or `--m` on the slot and read it with var() fallback, or override with `.k-gv-arc-slot .k-ach-medal { --m: var(--ach-medal-sm) !important }` at <=700; give slots flex: 0 0 auto (no shrink) and hide the empty note (`.k-gv-arc-note:empty { display:none }`).",
+   "effort": "S",
+   "devices": "iphone (402), anything under 700",
+   "rootCause": "Inline custom property beats the phone stylesheet; empty flex-basis:100% note squeezes the shrinkable slots"
+  },
+  {
+   "title": "Wall tabs and set deep links are not in the URL: #/achievements/<tab> and #/achievements/set/<id> open Sets",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "router.js has no ENCODE/DECODE entry for the achievements view, so KOS.show(\"achievements\",\"titles\") leaves the hash at #/achievements and a typed/bookmarked #/achievements/recent, #/achievements/showcase, #/achievements/titles or #/achievements/set/focus decodes to no arg and draws Sets. Reloading on Titles returns to Sets; a badge link shared or opened after reload loses its set dialog. CLAUDE.md documents these routes (#/achievements[/sets|recent|showcase|titles|set/<id>]).",
+   "evidence": "shots/achievements-governor/empty_achievements_recent.png, empty_achievements_titles.png (both show Sets selected); eval: KOS.show(\"achievements\",\"titles\") -> location.hash \"#/achievements\", data-page \"titles\"; js/core/router.js:45-104 (ENCODE) and 117-150 (DECODE) have no achievements entry",
+   "fix": "Add achievements: ENCODE a=>typeof a===\"string\"&&a&&a!==\"sets\"?a.split(\"/\"):null and DECODE p=>p.length?p.join(\"/\"):null, matching the view's own split in js/modules/achievements.js:112.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Route table in js/core/router.js omits the achievements view"
+  },
+  {
+   "title": "Progress ping overflows its card when the badge name is long",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "A ping for a long badge name (e.g. the unit badge 'Fundamentals of functional programming', 1 / 7 topics) draws the name, the count and the bar past the right edge of the 340px card: the card ends at x=568 while the text runs to ~656. The name never ellipsises although its CSS asks for it.",
+   "evidence": "shots/achievements-governor/seed_governor.png and ping_long_name.png (card 228-568, '1 / 7 topics' and the bar outside it); css/views/achievements.css:275-277",
+   "fix": "Give .k-ach-ping-txt grid-template-columns: minmax(0, 1fr) (a grid's auto track takes the nowrap row's max-content width, so the b's min-inline-size:0/ellipsis never applies).",
+   "effort": "S",
+   "devices": "mac, ipad, iphone",
+   "rootCause": ".k-ach-ping-txt is display:grid with an implicit auto column sized to the nowrap row's min-content, so the flex row cannot shrink"
+  },
+  {
+   "title": "A ping shows on top of the unlock overlay (and above any dialog) when a tier and a ping arrive in the same sweep",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "Invariant 163 says the ping never shows while a dialog is open. In boot()'s onChange, celebrate(r.earned) only queues the overlay (drain() waits for the async A().list), then r.pings.forEach(ping) runs immediately; quiet() sees no dialog yet, so the ping appears. It sits at z-index var(--z-toast) (130) above the overlay scrim (120), at the top-left over the dimmed page while the unlock overlay is up.",
+   "evidence": "shots/achievements-governor/seed_governor.png (ping at top left over the 'Regular III' unlock overlay); eval: .k-ach-pings z-index 130 vs .k-ach-unlock-overlay 120; js/modules/achievements.js:760-765, 684-689",
+   "fix": "In onChange, skip pings when r.earned.length (the overlay is about to open), or have ping() also check a module-level `showing`/queue.length; drainPing should re-check quiet() before each ping.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Overlay opening is async while ping is sync; quiet() only checks dialogs already in the DOM"
+  },
+  {
+   "title": "The current-badge ring in an opened set's strip is an oval, off-centre on its medal",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "In a set dialog (e.g. Focus) the strip of badge chips marks the badge on show with a box-shadow ring on the button. The button measures 36 x 42.3 px, so the ring is a tall oval and the 32px medal sits in its top part, not its centre.",
+   "evidence": "shots/achievements-governor/seed_set_focus.png, set_chip_oval_crop.png (2x zoom); eval: .k-ach-dlg-chip 36 x 42.3, inner .k-ach-medal 32 x 32; css/views/achievements.css:229-230",
+   "fix": "Make .k-ach-dlg-chip display:inline-grid; place-items:center; aspect-ratio:1; line-height:0 (the inline <span> medal inside the button adds a line box's descent). Raise it to 44px on coarse pointers (invariant 69) and draw the ring as a circle round the medal.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The chip button wraps an inline span medal, so its height includes line-height/descender space; border-radius:50% on a non-square box gives an ellipse"
+  },
+  {
+   "title": "'Owned' means two different things: the Wall header and the Seat say 8 badges while the set panels and the Showcase show 21",
+   "severity": "P2",
+   "category": "data",
+   "detail": "KOS.achievements.counts().owned counts only badges with EVERY tier earned (8 on the seeded account), and the Wall toolbar ('Owned 8 / 254'), the Seat's glass panel ('THE WALL 8 / 254 badges') and the Governor card print it. The set panels count a badge as owned at its first tier (Time with KurenaiOS 4/6, Focus 3/6, Streaks 1/3, Study 2/11, Goals and Money 2/6, The Collection 7/11, Kurenai and the Governor 2/7 = 21), the Showcase says 'Earned 21 badges'. The same page contradicts itself; a user who earned In the zone I sees it counted in Focus 3/6 but not in Owned.",
+   "evidence": "shots/achievements-governor/seed_ach.png ('Owned 8 / 254' over panels 4/6, 3/6, 1/3), seed_showcase2.png ('Earned 21 badges'); eval counts() {owned:8,tiers:44}, views with tier>0: 21, panel aria-labels sum 21; js/core/achievements.js:343-351 vs js/modules/achievements.js:220",
+   "fix": "Pick one meaning. Either print 'Earned 21 / 254 \u00b7 8 complete' everywhere (counts() returning earned and complete), or make the panels count complete badges; and label the Seat 'Tiers earned 44 / 417' consistently beside it.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "counts().owned = fully complete badges; panel() owned = tier > 0; no shared definition"
+  },
+  {
+   "title": "Every Wall tab (and the Seat's showcase arc) waits 1.6-6 s on 'Reading your records\u2026' because list() re-walks the whole vault each time",
+   "severity": "P2",
+   "category": "perf",
+   "detail": "Each Wall draw (Sets, Recent, Showcase, Titles, every tab switch since each is a KOS.show) calls KOS.achievements.list(), which makes a fresh context and re-measures all 254 badges; the Collection badges open an unbounded IndexedDB cursor over every vault entry (1,880 rows on the seeded account) and tally them. Timed on the seeded account: list() 1.6-4.7 s; per set sequentially: collection 6.5 s, exams 1.8 s, study 1.4 s, mind 1.3 s. Showcase still read 'Reading your records\u2026' after 1.5 s. It also conflicts with invariant 8 (never read an unbounded collection).",
+   "evidence": "shots/achievements-governor/seed_showcase.png (blank 'Reading your records\u2026' after 1.5 s); eval list() 4744 ms then 1623 ms; per-set timings above; js/core/achcatalogue.js:70-110 (openCursor over entries), js/core/achievements.js:329-341 (fresh makeCtx per list)",
+   "fix": "Cache the last evaluation's views (evaluate() already measures everything at boot and every 30 min and on owner touches) and draw the Wall from that cache immediately, refreshing in the background; for the vault, keep running tallies keyed on the vault's change notes or read counts through indexes (status/module) instead of a full cursor.",
+   "effort": "M",
+   "devices": "all (worse on iPad/iPhone)",
+   "rootCause": "Achievements are measured on read with no memo across calls; the Collection reader is a full-table cursor"
+  },
+  {
+   "title": "Edit seat's showcase picker: 21 badge buttons with no name, visible or accessible",
+   "severity": "P2",
+   "category": "a11y",
+   "detail": "In #/governor/edit > Showcase, the 'Earned' grid draws each earned badge as a bare medal button (showcasePicker with small:true drops the name span and the medal is aria-hidden). None of the 21 buttons has an accessible name, a title or visible text: a screen reader hears 'toggle button, not pressed' 21 times, and a sighted user must recognise badges by their art (several share a palette) with no tooltip.",
+   "evidence": "shots/achievements-governor/seed_edit.png; eval: 21 [data-ui~=ach.pick-item] buttons, 0 with aria-label/text/title; js/modules/achievements.js:397-401",
+   "fix": "Always set aria-label=badgeName(v) (and title) on .k-ach-pick; in the small variant add a tooltip or a name under the medal.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The small variant removes the only text and the medal is decorative"
+  },
+  {
+   "title": "Edit seat's '\uff0b Upload an image' uploads a new banner without the 'Your own picture' unlock",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "Invariant 2 / roadmap 5.14: uploading a picture of your own is a gold unlock (KOS.art.canUpload). The Avatar tab honours it (bannerCropper allowUpload:false hides upload), but #/governor/edit > Background always shows '\uff0b Upload an image'; it calls KOS.governor.setCustomBanner(file), which opens the same cropper with the NEW file already as its source, and 'Save image' stores it. Reproduced with canUpload('banner') === false and owns('upload-all') === false: governor.bannerImg went from 19 to 52,142 chars, banner 'custom'. The cropper even says 'Uploading a new picture is an unlock in the Gold Shop' while saving the upload.",
+   "evidence": "shots/achievements-governor/edit_Background.png (upload tile, no lock), upload_bypass_cropper.png (cropper with the new picture, Save image enabled); eval before/after above; js/modules/governor-ui.js:745-758, js/core/governor.js:917-935",
+   "fix": "In paintBg, when !KOS.art.canUpload('banner') draw the tile locked ('Your own picture \u00b7 Gold Shop \u2192', linking to the shop item) and make setCustomBanner refuse (done(new Error(...))) unless canUpload; keep picking an existing bannerImg allowed.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The unlock is enforced only by hiding the cropper's own upload button; the seat editor's file input feeds the cropper a new source directly"
+  },
+  {
+   "title": "Study cadence heatmap labels shrink to ~6px on iPhone (10px on the Mac)",
+   "severity": "P2",
+   "category": "a11y",
+   "detail": "The Seat's Study cadence chart is a 545-unit-wide SVG (KOS.charts.heatmap, cell 15, gap 4) with 11-unit month and weekday labels, scaled to its box. On the iPhone it renders at 298px (scale 0.55), so 'May', 'Mon', 'Wed', 'Fri' are ~6px; on the Mac 509px (10.3px); the cells shrink to ~8px. Invariant 63 sets an 11px label floor for charts.",
+   "evidence": "shots/achievements-governor/iphone_gov_y700.png (cadence labels unreadable); eval effective label size: iphone 6.0px, mac 10.3px, ipad 12.5px; js/modules/governor-ui.js:609-611, js/core/charts.js:339",
+   "fix": "On narrow widths show fewer weeks (e.g. 13 at <700, so the chart is drawn at ~1:1) or let the heatmap scroll horizontally inside a declared KOS.ui.scroller, keeping text at true 11px+.",
+   "effort": "S",
+   "devices": "iphone, mac (slightly under)",
+   "rootCause": "Fixed 26-week viewBox scaled to fit the container instead of choosing the week count from the width"
+  },
+  {
+   "title": "Gold Shop: one tap on Buy spends the gold (up to 10,000) with no confirm and no undo, and equips the item at once",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "Every shop card has a Buy button that calls KOS.governor.buy directly: the gold is deducted, the item is owned and (for anything but a lab) immediately put in use by wareUse(it, true) \u2014 a new avatar, frame, seal, theme or outfit replaces what you had. There is no confirmation step, no Undo on the toast and no refund API, so a mis-tap on iPad/iPhone (Buy sits 16px from Try on on the same row) is irreversible. \"Buy all\" in the Try-on panel buys several at once the same way. The toast is the only feedback.",
+   "evidence": "eval on #/governor/shop (mac, seeded): clicking [aria-label^=\"Buy Gilt ring\"] \u2192 gold 12476 \u2192 12386, no .k-dialog opened, toast \"Bought Gilt ring. \u25c8 12,386 left.\" with no action button; KOS.governor.refund/sell undefined. Code: js/modules/governor-ui.js:1046-1047 (Buy onclick \u2192 buyWare), 893-903 (buyWare \u2192 KOS.governor.buy + wareUse(it,true), toast without action), 1006-1007 (Buy all); js/core/governor.js:549-561.",
+   "fix": "Either confirm purchases above a threshold (e.g. \u2265 500 gold) through KOS.ui.confirm with the price and balance after, or keep one-tap but give the toast an Undo that refunds and restores the previously-used item within a few seconds. Consider not auto-equipping (or say \"Bought and put on\" so the swap is not a surprise).",
+   "effort": "S",
+   "devices": "all; worst on touch",
+   "rootCause": "buyWare treats purchase as instantly final and couples it with equip."
+  },
+  {
+   "title": "iPhone: the Gold Shop item sheet stops 32px short of the right edge, leaving a strip of the page showing beside the bottom sheet",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "On phone widths every shared dialog becomes a full-width bottom sheet (components.css .k-dialog inline-size:100%), but the shop sheet keeps its desktop width rule min(var(--gv-sheet-w), calc(100vw - 32px)), which (being in the view layer) wins. The sheet is 370px wide, pinned to the left edge, so the right 32px shows the shop page behind it and the sheet looks broken/off-centre.",
+   "evidence": "shots/achievements-governor/shop_sheet_iphone.png (Winter outfit sheet: right-hand dark strip). eval on iphone: .k-gv-sheet-dlg rect x=0 w=370 in a 402px overlay. Code: css/views/governor.css:633; css/components.css:660 (phone sheet rule overridden).",
+   "fix": "Scope the governor.css width rule to min-width 701px, or add inline-size:100% for .k-gv-sheet-dlg inside the max-width:700px tier.",
+   "effort": "S",
+   "devices": "iPhone",
+   "rootCause": "View-level width override not tiered for the phone sheet composition."
+  },
+  {
+   "title": "Session Log shows a reward only for Focus (and re-prices it), never what quizzes, exams, cards, Code, Japanese, Mind or Creatives were paid; those four study spaces read as \"Activity \u00b7 Code \u00b7 Code\"",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "Every session entry records what the Governor paid it (award {xp, gold}, invariant 100), but the Session Log's rewardOf() ignores it: Focus rows recompute the award through focusAward() from metrics (history is never to be re-priced, invariant 4a), Collection rows say \"rest\", and every other type shows no reward at all. A quiz logged in the fixture paid +18 XP +10 gold and its row shows only \"Quiz completed \u00b7 80%\". activityInfo() also has no case for the study spaces' own types (code, ja, mind, creatives), so their rows fall to the default: label \"Activity\", title = the capitalised type (\"Code\"), detail = the subject name (\"Code\") \u2014 a meaningless row. They also have category \"study\" by default so the Study filter works, but Japanese/Mind/Creatives get no distinguishing label. The header copy (\"Open an entry for its recorded detail\") promises the recorded record.",
+   "evidence": "Fixture via eval: KOS.sessions.log focus (25 min pomodoro, 2 pauses) \u2192 award {xp:30,gold:4}; code \u2192 {0,0}; quiz (pct 80) \u2192 {xp:18,gold:10}. KOS.show(governor,history) rows: \"18:52 | Quiz | Quiz completed | \u2026 \u00b7 80%\" (no reward), \"18:52 | Activity | Code | Code\", \"18:52 | Focus | Focus session completed | \u2026 \u00b7 25 min | +30 XP \u00b7 +4 \u25c6\". Code: js/modules/governor-ui.js:123-171 (activityInfo switch lacks code/ja/mind/creatives), 177-186 (rewardOf recomputes focus, null for everything else).",
+   "fix": "rewardOf: read s.award when present (any type; +0 shows nothing or No reward), fall back to focusAward only for pre-award entries. Add activityInfo cases for code (task/retrieval/capstone/project from metrics), ja (review session/lesson/checkpoint), mind and creatives with their own labels and details.",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "The log predates the recorded award field and the newer study spaces; it was never extended."
+  },
+  {
+   "title": "Recovery dispatch promises that ticking 2 plan items restores HP, but plan ticks move no HP at all",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "When HP is Strained or Critical the Seat shows \"Route to Healthy\": three tasks that \"restore HP today\" / \"climb back fastest\" \u2014 a 25-min Focus session, Tick 2 plan items, Clear an overdue task \u2014 with HP N \u2192 30/60. Ticking plan items is Pacing's own bookkeeping with zero Governor traffic and zero sessions (invariant 82; pacing.js logs nothing), so doing that task changes HP by 0 while the checklist marks it done and advances the segments. Only Focus (+6 HP) and a reminder/assignment completion (todo, +2 HP) pay HP. Also: \"Clear an overdue task\" counts overdue reminders too, but its Start \u2192 only opens Assignments; and the copy says \"these three\" whatever HP will actually do.",
+   "evidence": "js/core/governor.js:946-973 (recoveryTasks: planTicks from state.pacing.entries, go \u2192 pacing / assignments), js/core/governor.js:278 (only todo pays hp 2), js/core/pacing.js:17 (\"here calls KOS.sessions.log\" \u2014 never; Pacing is logistics), js/modules/governor-ui.js:540-571 (copy \"these three restore HP today\").",
+   "fix": "Replace the plan-ticks row with an HP-paying action (a quiz, a flashcard review, a completed reminder), or make the copy honest; route \"Clear an overdue task\" to whichever list holds the overdue item (Reminders Today when it is a reminder).",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Checklist written against intent, not against the Governor's actual payers."
+  },
+  {
+   "title": "iPhone Titles: tapping a plaque shows nothing \u2014 its detail and the Equip button sit ~1,600px further down, under all 16 plaques",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "On the Wall's Titles tab the plaques and the detail panel (name, requirement, progress, Equip / Take it off, Open the badge) are side by side on the Mac but stack on narrow screens, with the detail after the whole grid. Tapping a plaque only changes its aria-pressed outline and repaints the off-screen detail; there is no scroll, sheet or inline expansion, so on the phone the tap looks dead and Equip is unreachable without scrolling past every title. On iPad portrait the detail starts at y=978 of a 1180 viewport, mostly below the fold.",
+   "evidence": "eval (iphone): after clicking the 4th [data-ui~=ach.title-opt] the [data-ui~=ach.title-detail] panel is at page y=1635 (h=517), viewport 874, scrollY 0 \u2014 not in view. eval (ipad): grid 716x676 at y=286, detail 716x517 at y=978, position static. Screenshot shots/achievements-governor/recent_iphone.png (Titles tab, plaques only in view). Code: js/modules/achievements.js:451-478 (drawTitles: grid + side appended in one .k-ach-titlelay; click \u2192 paint() only).",
+   "fix": "Under 860px open the detail as a bottom sheet (KOS.ui.openDialog) on tap, or put Equip/Take it off on the plaque itself and scroll the detail into view (scrollIntoView({block:\"nearest\"})).",
+   "effort": "S",
+   "devices": "iPhone, iPad portrait",
+   "rootCause": "Master-detail layout collapses to a stack without changing the interaction."
+  },
+  {
+   "title": "Edit seat: choosing a title or a seal rebuilds the editor and drops keyboard focus to <body>; the radio groups have no arrow keys",
+   "severity": "P2",
+   "category": "a11y",
+   "detail": "In the Title and Sigil tabs every option click runs paintEditor(), which empties and rebuilds the whole editor card (tabs included), so the button that was pressed is destroyed and focus falls to document.body \u2014 a keyboard or Switch Control user is thrown to the top of the page after every choice. Both groups are role=radiogroup with role=radio buttons but implement no Arrow-key movement or roving tabindex, so every option is its own Tab stop (17 in Title). The Title tab's \"All titles on the Wall \u2192\" link also navigates away and silently discards the unsaved draft.",
+   "evidence": "eval (mac, #/governor/edit, Title tab): focus an unchecked .k-gv-topt, click \u2192 document.activeElement = BODY, not inside .k-gv-editor. Code: js/modules/governor-ui.js:784-808 (opt click \u2192 paintPreview(); paintEditor(); no keydown handler), 796 (link to #/achievements/titles).",
+   "fix": "Update aria-checked in place instead of repainting (or repaint and restore focus to the option with the same id); add roving tabindex with Arrow keys (one shared radio helper in ui.js); route the Wall link through the same unsaved-changes check as Save/Discard or open it in the set dialog.",
+   "effort": "S",
+   "devices": "all (keyboard, iPad with keyboard)",
+   "rootCause": "Repaint-on-change pattern without focus restoration."
+  },
+  {
+   "title": "A four-tier badge's tiers wrap 3 + 1 in the set dialog, leaving the fourth alone on a second row",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "The set dialog lays tiers with flex-wrap; for the 14 four-tier badges (e.g. Focus > In the zone: 10/100/500/1,000 sessions) the four items need 613px but the stage is 600px, so tier IV drops alone under the other three, with empty space either side and a 655px-tall dialog.",
+   "evidence": "shots/achievements-governor/seed_set_focus.png; eval .k-ach-dlg-tiers 600 x 379, items at y=228,228,228,422; css/views/achievements.css:218",
+   "fix": "Use a grid: repeat(min(n,4)) at desktop when it fits, else 2 x 2 for n=4 (the phone rule at :330 already does 2 columns); key off data-n which the markup already sets.",
+   "effort": "S",
+   "devices": "mac, ipadl",
+   "rootCause": "flex-wrap with content-sized tier captions instead of a column count chosen from data-n"
+  },
+  {
+   "title": "HP preview's 'Off' button actually previews Critical (0 HP)",
+   "severity": "P3",
+   "category": "content",
+   "detail": "The \u22ef menu's HP preview segment reads Live \u00b7 Full \u00b7 Off. 'Off' sets the preview to critical (0 / 100, 'Critical \u00b7 nothing locks'); it does not turn the preview off (Live does). The label reads as the opposite of what it does.",
+   "evidence": "shots/achievements-governor/gov_hp_off.png (after pressing Off: 'HP preview 0 / 100 Critical'); js/modules/governor-ui.js:425 hpPreviewButton(\"critical\", \"Off\")",
+   "fix": "Label the three 'Live \u00b7 Full \u00b7 Critical' (the HP state names used everywhere else).",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Label text out of step with the value"
+  },
+  {
+   "title": "'First day' on the Seat can be later than the history it sits beside (138 days journeyed, first day 1 Nov 2026)",
+   "severity": "P3",
+   "category": "data",
+   "detail": "The record reads 'Days journeyed 138' and 'First day 1 Nov 2026' side by side. First day is store.state.created, the install/reset moment, while days journeyed is the ledger's months rollup. An account whose history predates `created` (an imported backup, a sample account, a ledger older than the device's first boot) shows a first day after months of activity.",
+   "evidence": "shots/achievements-governor/seed_gov_s1b.png (138 days / 1 Nov 2026); js/modules/governor-ui.js:377 (since = +store.state.created), :391",
+   "fix": "Show the earliest of state.created, the first session ledger entry and the earliest achievements month row.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "First day reads the state document's creation stamp rather than the evidence"
+  },
+  {
+   "title": "Seat showcase medals: the focus ring is an oval (button 80 x 86.3)",
+   "severity": "P3",
+   "category": "a11y",
+   "detail": "Each showcase medal on the Seat's arc is a .k-gv-arc-btn wrapping an inline 80px medal span; the button is 80 x 86.3 px, so its border-radius:50% focus outline is a tall ellipse hanging below the medal. Same root cause as the set dialog's oval chip.",
+   "evidence": "shots/achievements-governor/arc_focus_crop.png (2x, keyboard focus on the first showcase medal); eval .k-gv-arc-btn 80.0x86.3; css/views/governor.css:88-89",
+   "fix": "display:grid; place-items:center; line-height:0 (or aspect-ratio:1) on .k-gv-arc-btn; ideally one shared 'medal button' rule in achievements.css used by the arc, the set strip and the picker.",
+   "effort": "S",
+   "devices": "mac, ipad with keyboard",
+   "rootCause": "Inline medal span inside a button adds line-box height"
+  },
+  {
+   "title": "A partial showcase fills the Seat's arc from the bottom-left, leaving the top and right of the arc empty",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "Slots are filled left to right along AX/AY (bottom-left first, then rising). With three badges picked, the leading badge sits at the lowest-left point and the crown and the whole right half stay empty rings, so the arc looks lopsided; the code comment says 'highest in the middle'. The first badge also 'leads on the share card' but is the least prominent on the Seat.",
+   "evidence": "shots/achievements-governor/after_save2.png (3 picked: bottom-left, left, upper-left filled; 3 empty rings to the right); js/modules/governor-ui.js:348-366",
+   "fix": "Map the pick order to slots centre-out (2,3,1,4,0,5) so the first picks take the crown and the arc stays symmetric.",
+   "effort": "S",
+   "devices": "mac, ipad",
+   "rootCause": "Showcase index used directly as the arc slot index"
+  },
+  {
+   "title": "Edit seat preview is aria-hidden but three of its controls stay in the Tab order",
+   "severity": "P3",
+   "category": "a11y",
+   "detail": "The Edit seat preview (#/governor/edit) is a scaled copy of the Stage wrapped in aria-hidden=\"true\" with pointer-events:none, but it is not inert: the Study cadence tabs (Study, Rest rhythm) and the ledger link \"Open full log \u2192\" inside it remain keyboard-focusable. Tabbing through the editor lands focus on invisible-to-AT, mouse-dead controls drawn at 0.25-0.5 scale (18x12 px on iPhone); pressing Enter on the ledger link navigates away from the editor without saving.",
+   "evidence": "eval on #/governor/edit (mac): .k-gv-prev inert=false, 3 focusable descendants: ui.tab-card Study, ui.tab-card Rest rhythm, gov.ledger-more. Measure on iphone: ui.tab-card 18x12 at 328,408. Code: js/modules/governor-ui.js:669 (prevBox aria-hidden only); buildStage preview mode still builds cadence() and ledger() controls (governor-ui.js:574-634); css/views/governor.css:150 pointer-events:none.",
+   "fix": "Set prevBox.inert = true (and keep aria-hidden), or build the preview with o.preview suppressing interactive controls in cadence()/ledger().",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Preview isolation done with aria-hidden + pointer-events only, not inert."
+  },
+  {
+   "title": "Four titles start with a lowercase \"the\" (\"the Early Riser\", \"the Unbroken\", \"the Clear-Eyed\", \"the Steadfast\") while the rest are bare nouns",
+   "severity": "P3",
+   "category": "content",
+   "detail": "Title names are inconsistent: four carry a lowercase article and twelve do not (\"Night Owl\", \"Debugger\", \"Bookworm\"\u2026). Wherever a title stands alone \u2014 the Titles plaques, the plaque detail heading, the Seat under \"Level N\", Edit seat's Title tab and summary \u2014 the lowercase ones read as a typo (a heading beginning \"the Early Riser\").",
+   "evidence": "js/core/achcatalogue.js title defs (grep name:): \"the Early Riser\" \"Night Owl\" \"the Unbroken\" \"Master of the Spine\" \"Timekeeper\" \"the Clear-Eyed\" \"Debugger\" \"Architect\" \"Polyglot\" \"Philosopher\" \"Wordsmith\" \"the Steadfast\" \"Treasurer\" \"Bookworm\" \"Archivist\" \"Collector\"; rendered as-is by plaque() js/modules/achievements.js:442 and the Seat js/modules/governor-ui.js:325.",
+   "fix": "Pick one convention (drop the articles: Early Riser, Unbroken, Clear-Eyed, Steadfast \u2014 ids stay so equipped titles survive).",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Catalogue authored without a naming rule."
+  },
+  {
+   "title": "Showcase changes on the Wall and in Edit seat are lost without a word when you leave before Save",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "The Wall's Showcase tab and Edit seat (#/governor/edit) both hold a draft that only Save writes. Leaving through the rail, a tab, the browser Back button or the bottom tabs discards it silently; on the Wall tab the Save button gives no dirty indication at all (Edit seat at least lights Save). CLAUDE.md already lists Edit seat's leave-with-changes prompt as not built; the Wall tab has the same gap and is not on that list.",
+   "evidence": "js/modules/achievements.js:410-425 (drawShowcase: picker draft, Save is the only write, no dirty state); js/modules/governor-ui.js:663-676 (Edit seat Save lit by dirty(), no navigation guard). CLAUDE.md \"not built from design turn 35: \u2026 Edit seat's leave-with-changes prompt\".",
+   "fix": "Either autosave the Wall tab's showcase on each toggle (it is cheap and reversible) or light Save and confirm on leave through the router, sharing one guard with Edit seat.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Draft-then-Save pattern without a leave guard."
+  },
+  {
+   "title": "Unlock overlay polish: the unit is said twice (\"1,000 hours \u00b7 hours of games played\"), the \"And N more\" frame is blank for 1.5 s, and its View on the Wall opens the previous badge's set",
+   "severity": "P3",
+   "category": "content",
+   "detail": "(1) tierLine() joins the threshold with its unit and then the badge's lower-cased description, which usually restates the unit: \"1,000 hours \u00b7 hours of games played\", \"10 sessions \u00b7 completed Focus sessions\", \"100 days \u00b7 days you did anything\u2026\". (2) With six or more badges the fifth frame (\"And 2 more\") replaces the stage with text whose entrance animation has a 1500 ms delay (k-ach-up \u2026 1500ms) and no medal to rise first, so for 1.5 s the dialog shows only the two buttons on the dimmed page; a tap skips it but nothing invites one. (3) summary() never reassigns viewBtn.onclick, so \"View on the Wall\" on the summary still opens the set of the last single badge shown (Reader) rather than the Wall or the remaining badges.",
+   "evidence": "Fixture: KOS.achUI.celebrate([player 3, regular 3, early-bird 3, reader 3, bookshelf 4, the-shrine 3]) on #/home. shots/achievements-governor/unlock_mac.png and unlock_iphone.png (\"1,000 hours \u00b7 hours of games played\", \"1 of 5\"); unlock_summary_mac.png (taken ~1 s after Next: only View on the Wall + Close visible; innerText already \"5 OF 5 And 2 more Bookshelf IV The Shrine III\"); unlock_summary_mac2.png after 2 s. Code: js/modules/achievements.js:674-679 (tierLine), 651-666 (summary keeps viewBtn.onclick from paint()), css/views/achievements.css:252 (1500ms delay).",
+   "fix": "tierLine: show threshold + unit, then the description only when it does not start with the unit (or author a short tier line per badge). In summary(): set data-state skip (no delay) or a shorter delay, and point View on the Wall at #/achievements/recent.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Overlay frames built for the single-badge case."
+  },
+  {
+   "title": "The Seat still speaks of access: \"current access state\" in the sub-line and \"Healthy \u00b7 all open\" under Live HP, though HP gates nothing",
+   "severity": "P3",
+   "category": "content",
+   "detail": "Since invariant 2 was rewritten HP gates nothing (it is a wellbeing signal), and the Strained/Critical hint already says \"nothing locks\". But the Status page sub-line reads \"Your identity, current access state, study rhythm\u2026\" and the Healthy hint reads \"Healthy \u00b7 all open\" \u2014 both imply that a lower HP closes something. The Gold Shop sub-line \"Core study tools remain free\" is accurate.",
+   "evidence": "shots/achievements-governor/theme_rose_gov.png (\"Healthy \u00b7 all open\" in The five states, sub-line \"Your identity, current access state\u2026\"). Code: js/modules/governor-ui.js:50 (copy), 495 (hint).",
+   "fix": "\"Your identity, your wellbeing, study rhythm and what you have earned.\" and \"Healthy\" alone (or \"Healthy \u00b7 nothing to recover\").",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Copy left from the HP-gating era."
+  },
+  {
+   "title": "Recent lists every tier of a badge as its own row, all dated the first sweep, and on iPhone the date drops to an orphan line under the medal",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "The first (silent) sweep earns every tier the history already supports at one moment, so Recent opens with runs such as Player III / Player II / Player I, Level III / II / I, all \"1 Nov 2026\" \u2014 three rows saying one thing, and a date that is the day the app first measured, not when the work was done. On iPhone each row's description is cut with an ellipsis (\"Kurenai and the Gove\u2026\", \"Study sessions finished betwee\u2026\") and the date wraps onto its own line at the medal's left edge, making each row three lines tall with a ragged left column.",
+   "evidence": "shots/achievements-governor/recent_iphone2.png (seeded; Player III/II/I and Level III/II each a row, date on its own line). Measure (iphone, Recent): 13 ELLIP span.k-ach-row-sub at 262px. Code: js/modules/achievements.js:347-370 (drawRecent: one row per earned tier).",
+   "fix": "Group tiers of one badge earned within the same sweep into one row (\"Player III \u00b7 tiers I\u2013III\"); mark retro-earned tiers (earned on the first sweep) as \"already yours\" rather than dating them; on phone put the date in the row's top-right like the Mac layout and let the description wrap to two lines.",
+   "effort": "S",
+   "devices": "iPhone (layout), all (grouping)",
+   "rootCause": "Recent iterates earned.t per tier; the row grid has no phone tier."
+  },
+  {
+   "title": "Wall toolbar on touch: the filter select is 30px tall and the List view switch row 20px \u2014 both under the 44px touch minimum",
+   "severity": "P3",
+   "category": "a11y",
+   "detail": "On iPad and iPhone (pointer: coarse) the Sets toolbar's \"All / Earned / In progress / Locked\" select stays 111x30 because .k-pill-select sets min-block-size:0, and the \"List view\" label wrapping the switch is only 20px tall, so the whole tappable row is 96x20. Invariant 69 asks for 44px on coarse pointers.",
+   "evidence": "eval (ipad, #/achievements): SELECT.k-pill-select.k-ach-filter height 30; LABEL.k-ach-switch 20x96; matchMedia(pointer:coarse) true. Same on iphone (measure: SMALL ach.filter 111x30, ach.list-view 34x20). Code: css/components.css:425 (.k-pill-select min-block-size:0), js/modules/achievements.js:164-178.",
+   "fix": "In the coarse-pointer tier give .k-pill-select min-block-size: var(--touch-min) and .k-ach-switch a 44px block size (padding), as other switch rows do (the Avatar tab's switch labels are 54-93px tall).",
+   "effort": "S",
+   "devices": "iPad, iPhone",
+   "rootCause": "Shared pill select opts out of the touch minimum."
+  },
+  {
+   "title": "Avatar tab: the Wardrobe is a 3x3 grid of near-empty cells and the Theme card holds two swatches in a full-width row",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "With little owned (the common case \u2014 the seeded account owns 3 of 127), eight of the Wardrobe's nine cells are a heading, a count line and \"In the Gold Shop \u2192\" with ~60-100px of blank below, because the row height is set by the one cell that has a thumbnail (Focus scene). The Theme card below is full width with two 180px swatches on the left and ~800px of empty card to their right. The Frames card's grid also leaves its second row half empty. This is the dead-space pattern the layout rule forbids.",
+   "evidence": "shots/achievements-governor/avatar_mac_full.png (Wardrobe rows 1-3 at y 490-890, Theme row at y 1300-1450); dawn_avatar.png shows the same in the current build. Code: js/modules/governor-ui.js:1370-1420 (wardrobe cells, one per kind, always rendered), 1440-1470 (theme row).",
+   "fix": "Collapse unowned wardrobe kinds into one compact \"Not owned yet: Outfits \u00b7 Avatars \u00b7 Seals \u2026 \u2192 Gold Shop\" line and show cells only for kinds with something to wear; put the Theme swatches and the Follow-the-system switch side by side, or merge Theme into the Wardrobe grid as one cell.",
+   "effort": "M",
+   "devices": "mac, iPad landscape",
+   "needsDesign": true,
+   "rootCause": "Wardrobe lays out every kind regardless of ownership."
+  },
+  {
+   "title": "Gold Shop Frames: the four drawn rings get short 112px tiles while the painted rings beside them get 235px squares",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "Within the Frames section the first row (Gilt ring, Kurenai bloom, Jade band, Amethyst orbit \u2014 CSS-drawn frames) uses a 112px-tall preview band with a 64px ring, and the following rows (Sakura, Ice, Ember, Lacquer, Wisteria, Koi \u2014 painted frames) use full 235px squares with a 55px avatar inside; the same section mixes two card heights and two ring scales, so the cheap frames look like a different product. Seals have the same split (wide name-plate tiles then square seal tiles).",
+   "evidence": "shots/achievements-governor/shop_frames_mac.png; shop_mac_full.png (Frames and Seals sections). Measure (mac): shop.open \"Preview Gilt ring\" 235x112 vs \"Preview Sakura ring\" 235x235.",
+   "fix": "Give every frame the same square preview (draw the CSS rings at the painted rings' scale on the same ground), and likewise one tile shape for seals.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "shopPreview() picks the preview shape by whether the item has art."
+  }
+ ],
+ "qol": [
+  "Undo on the purchase toast",
+  "Group a badge's tiers earned in one sweep in Recent",
+  "Autosave the Wall's showcase",
+  "Scroll the title detail into view on tap"
+ ],
+ "backlog": [
+  "Wardrobe redesign that shows only kinds you own",
+  "A refund or return window for shop items",
+  "Session Log rows for Code, Japanese, Mind and Creatives with their own details"
+ ]
+}

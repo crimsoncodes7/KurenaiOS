@@ -247,7 +247,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts (6 Nov, after batch 4):** 590 open findings (P0 2 · P1 90 · P2 274 · P3 224), plus SH-05 resolved by the stopgap. After batch 3: 534; after batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
+**Counts (6 Nov, after batch 5):** 645 open findings (P0 3 · P1 91 · P2 290 · P3 261), plus SH-05 resolved by the stopgap. After batch 4: 590; batch 3: 534; batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
 user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
 before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
@@ -263,9 +263,9 @@ before acting (see §7).
 |---|---|---|---|---|
 | SH | Shell, nav, search, toasts, dialogs, Help | **complete, inventoried** (6 Nov, `kos-redraw-1`; `findings/shell.inventory.md`) | 44 open (+ SH-05 resolved) | Real offline behaviour (dev host always online, harness signed out), the iOS Home Screen status bar, the service-worker update prompt (needs two deploys) |
 | HR | Home + Reports | **complete, inventoried** (6 Nov; `findings/home-reports.inventory.md`) | 30 (P1 ×8; new HR-16 streak bonus paid daily, HR-17 'undefined took the largest share', HR-18 Daily goal pays on every re-tick) | See the matrix in FINDINGS.md |
-| AG | Achievements + Governor's Seat | **partial** | 16 | Interrupted. Titles, unlock overlay timing, Session Log likely thin |
+| AG | Achievements + Governor's Seat | **complete, inventoried** (6 Nov; `findings/achievements-governor.inventory.md`) | 31 | See the matrix in FINDINGS.md |
 | SC | Gold Shop + cosmetics + themes | **complete, inventoried** (6 Nov; all 131 items bought and checked where they render; all 29 themes measured; `findings/shop-cosmetics.inventory.md`) | 41 (P1 ×10) | Two-device merge of owned items; a real upload through the cropper (headless); every theme on every page |
-| ST | Study core (desks, topic page, Review, Assignments) | complete | 24 | Simulate tab beyond locked state, Files tab with a real PDF, Handwritten with a pen, shop theme, landscape iPhone |
+| ST | Study core | **complete, inventoried** (6 Nov inventory top-up; all 24 earlier findings hold; backup `study-core.pre-inventory.json`) | 43 (**new P0 ST-25**: deleting an assignment deletes every file linked to it, topic files included, and tombstones them in the cloud; P1 ST-26 a typo over an IT mark erases it) | See the matrix in FINDINGS.md |
 | SY | Sync/redraw disruption | complete | 17 | Routine auto-tick redraw, a Japanese session with due items, Creatives Writing Desk, Focus stage & exam tally (judged safe from code) |
 | CM | Maths content | complete | 13 | Every fact's correctness (spot reads only) |
 | CC | CS + IT content | complete | 13 | Flashcard/Quiz UI (ST's), shop themes, every CS fact, IT F200/F202 (completed units) — per-leaf worklist in `data/content-cs-it/worklist.txt` (162 leaves) |
@@ -274,7 +274,7 @@ before acting (see §7).
 | MI | Mind | **complete, inventoried** (5 Nov; `findings/mind.inventory.md`) | 19 (P1 MI-01, MI-02) | Tensions (none authored, `TENSIONS=[]`); the 59/60% explain-back boundary (every concept has 4 key points, so only 50/75% are constructible); Ask Kurenai's live reply (no AI route in the harness) |
 | GO | Goals (every type's measurement) | **complete, inventoried** (5 Nov; `findings/goals.inventory.md`) | 27 (P1 GO-02 = UR-20, GO-06, GO-07, GO-23 = UR-22, GO-25) | Paper-score and finish-unit types and plan-ticked read in code only (no tracker/plan fixture); see the matrix in FINDINGS.md |
 | CR | Creatives | complete (on main, after the stale-build attempt was discarded, §2.2) | 24 | Kurenai's critique request/reply (needs a live AI route), a sprint in Focus end to end, Momentum drawing with a real pen, reference kinds other than Forms, the iPhone Safari 760px viewport, VoiceOver/keyboard beyond names and target sizes |
-| PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 22 | Idle watch end to end, Stopwatch/Custom/Study-until running, Morning "pick three", Templates detail, routine step ⋯ menu, habit editor with real habits, Reminders edit inspector / sub-tasks / recurrence editor, Calendar event modal, Pacing edit dialogs, Dawn + shop theme, iPad standalone |
+| PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | **complete, inventoried** (6 Nov inventory top-up; backup `productivity.pre-inventory.json`) | 43 | See the matrix in FINDINGS.md |
 | MG | Money + Goals | complete | 22 | iPad landscape, import dialog on iPhone/iPad, goal editor type forms + exam goals, Wishlist purchase handoff, kos_money cloud sync, PDF statements (no code path) |
 | EX | Exams hub, Files, ink | **complete, inventoried** (6 Nov; `findings/exams-files-ink.inventory.md`) | 49 (P1 ×4, new EX-28 timed-paper navigator crushed on touch) | See the auditor's matrix in FINDINGS.md |
 | CL | Collection | **complete, inventoried** (6 Nov; dense account; `findings/collection.inventory.md`) | 44 | No provider was connected in the harness (no AniList/VNDB writes possible, by design); live provider pages are LA-12…17 |
@@ -383,8 +383,8 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 2. ~~Re-check **AP** and **AX** on main~~ **Done 6 Nov (batch 2).** ~~and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
    rerun.~~
-4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), ~~AA, CO, HR~~ (done 6 Nov, batch 4), AG. Then the inventory pass over the areas marked "complete" before 2 Nov: ST, SY, CM, CC, CR, PR, MG, DI.
-5. Live: Google Calendar two-way round trip with a marked test event (user
+4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), ~~AA, CO, HR~~ (done 6 Nov, batch 4), ~~AG~~ (batch 5). Then the inventory pass over the areas marked "complete" before 2 Nov: ~~ST, PR~~ (batch 5, inventory top-up mode: `args.topup` with areas outside `STALE` in `workflow-audit.js`; back up `<area>.json` as `<area>.pre-inventory.json` first), SY, CM, CC, CR, MG, DI.
+5. Live: check whether ST-25 has already deleted any of the user's files (deleted assignments whose files were also linked to a topic: compare `kurenai-os-files` tombstones with assignment deletions), then the Google Calendar two-way round trip with a marked test event (user
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
 6. Completeness critic ("what's missing?") over the whole of FINDINGS.md.
 7. Adversarial spot-verify of every P0/P1 (≥ 2 skeptics each), drop or fix.

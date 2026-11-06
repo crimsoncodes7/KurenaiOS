@@ -9,9 +9,9 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 |---|---|---|---|---|---|---|---|
 | SH | App shell, navigation, search, toasts, dialogs, Help & Guide | complete | 0 | 7 | 19 | 18 | 44 |
 | HR | Home and Reports | complete | 0 | 8 | 13 | 9 | 30 |
-| AG | Achievements / Badge Wall and the Governor's Seat | partial | 0 | 2 | 9 | 5 | 16 |
+| AG | Achievements / Badge Wall and the Governor's Seat | complete | 0 | 2 | 15 | 14 | 31 |
 | SC | Gold Shop and every cosmetic, themes | complete | 0 | 10 | 23 | 8 | 41 |
-| ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 0 | 6 | 11 | 7 | 24 |
+| ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 1 | 7 | 15 | 20 | 43 |
 | SY | Background redraws / cloud sync disrupting work | complete | 0 | 8 | 6 | 3 | 17 |
 | CM | A-Level Maths content quality | complete | 0 | 2 | 6 | 5 | 13 |
 | CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 4 | 5 | 13 |
@@ -19,7 +19,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | JM | Japanese study space (JM-01…05 predate the split and include two Mind findings) | complete | 1 | 3 | 21 | 14 | 39 |
 | MI | Mind study space | complete | 0 | 2 | 9 | 8 | 19 |
 | CR | Creatives study space | complete | 0 | 2 | 18 | 4 | 24 |
-| PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 0 | 4 | 9 | 9 | 22 |
+| PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 0 | 4 | 15 | 24 | 43 |
 | MG | Money (Santander import); Goals pages only | complete | 1 | 9 | 10 | 2 | 22 |
 | GO | Goals: every goal type's measurement, editor, notices, joins | complete | 0 | 5 | 11 | 11 | 27 |
 | EX | Exams hub, Files, ink/Pencil surfaces | complete | 0 | 4 | 21 | 24 | 49 |
@@ -28,7 +28,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 2 | 90 | 274 | 224 | 590 |
+| | **All** | | 3 | 91 | 290 | 261 | 645 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -62,12 +62,14 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **SC-08** [P1] A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge
 - **SC-20** [P1] Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)
 - **SC-21** [P1] Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)
+- **ST-25** [P0] Deleting an assignment permanently deletes every file linked to it, including files that belong to a topic or another record
 - **ST-01** [P1] IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name
 - **ST-02** [P1] iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab
 - **ST-03** [P1] 'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'
 - **ST-04** [P1] Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far · Reviewed 0'
 - **ST-05** [P1] Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen
 - **ST-06** [P1] On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight
+- **ST-26** [P1] IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result
 - **SY-01** [P1] KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top
 - **SY-02** [P1] CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')
 - **SY-03** [P1] A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)
@@ -847,9 +849,11 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ---
 
-## AG — Achievements / Badge Wall and the Governor's Seat (partial)
+## AG — Achievements / Badge Wall and the Governor's Seat (complete)
 
-_Interrupted auditor: coverage notes were not written. Treat everything not listed below as unaudited._
+**Auditor's summary.** The Badge Wall and the Governor's Seat are rich and mostly correct in their core rules (earned tiers stay earned when evidence disappears, titles and showcase save through Edit seat, a theme Try on ends on leaving the shop). The serious problems are layout bugs on the user's own devices: the Seat's ⋯ menu is still cut off by the stage, and the showcase arc on iPhone draws overlapping 80px medals. Both were re-checked in this run and still happen. This run found more problems in the Governor's own pages. The Gold Shop spends up to 10,000 gold on one tap with no confirm or Undo, and it puts the item on at once. On iPhone the shop's bottom sheet stops 32px short of the right edge. The Session Log ignores the award each entry records: only Focus shows a reward, and it is recomputed. The log also has no label for Code, Japanese, Mind or Creatives entries. Recovery dispatch promises HP for ticking plan items, which pay nothing. Edit seat's preview is not inert, and choosing a title or seal drops keyboard focus to the page body. On iPhone, Titles shows its detail and Equip button 1,600px below the plaque you tapped. Root causes repeat across the area: repaint-on-change without restoring focus, a desktop layout stacked on small screens without changing how it works, copy left over from when HP gated features, and readers written before the newer session types and the recorded award field existed.
+
+**Coverage.** Continued an interrupted earlier run (its 16 findings kept in the .jsonl, not repeated). This run looked at these, seeded and empty: Gold Shop (mac full page, iPad and iPhone measured, empty account on iPhone, item sheet on iPhone, Buy and theme Try on exercised), Avatar & profile (mac full page, touch switch sizes), Session Log (mac, iPhone, empty mac; a focus, code and quiz fixture logged through KOS.sessions.log), Edit seat (3 sizes measured; showcase toggle, title choice, Save, focus after choosing), Wall tabs Sets, Recent, Showcase and Titles at iPad and iPhone (measured; Recent and Titles shot), the unlock overlay (a 6-badge fixture on mac and iPhone, through to the summary), the Wall and Seat in the shop theme spectral-rose, a dump of all 254 badge views with values, a monotonic-earned check (vault emptied, tiers kept), and re-checks of the two P1s (⋯ menu hit test; iPhone arc geometry). Inventory matrix: findings/achievements-governor.inventory.md. NOT checked: progress pings and quiet() live with Focus running (code read only); Dawn in this run (the harness --theme flag was overridden by the saved theme, and the earlier run's dawn shots cover it); fixture tests of the Japanese, Mind, Creatives, Code, ink, Money and routines badge measures; iPad landscape of the shop and avatar pages; the cloud merge of achievements (MONO_PATH; smoke113 holds it).
 
 ### AG-01 · P1 · bug — The Seat's ⋯ menu is cut off by the stage: its Data row (Mine / Empty / Sample) is hidden and unclickable
 
@@ -950,6 +954,60 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Proposed fix:** On narrow widths show fewer weeks (e.g. 13 at <700, so the chart is drawn at ~1:1) or let the heatmap scroll horizontally inside a declared KOS.ui.scroller, keeping text at true 11px+.
 - **Flags:** effort S
 
+### AG-17 · P2 · ux — Gold Shop: one tap on Buy spends the gold (up to 10,000) with no confirm and no undo, and equips the item at once
+
+- **Devices:** all; worst on touch
+- **Detail / repro:** Every shop card has a Buy button that calls KOS.governor.buy directly: the gold is deducted, the item is owned and (for anything but a lab) immediately put in use by wareUse(it, true) — a new avatar, frame, seal, theme or outfit replaces what you had. There is no confirmation step, no Undo on the toast and no refund API, so a mis-tap on iPad/iPhone (Buy sits 16px from Try on on the same row) is irreversible. "Buy all" in the Try-on panel buys several at once the same way. The toast is the only feedback.
+- **Evidence:** eval on #/governor/shop (mac, seeded): clicking [aria-label^="Buy Gilt ring"] → gold 12476 → 12386, no .k-dialog opened, toast "Bought Gilt ring. ◈ 12,386 left." with no action button; KOS.governor.refund/sell undefined. Code: js/modules/governor-ui.js:1046-1047 (Buy onclick → buyWare), 893-903 (buyWare → KOS.governor.buy + wareUse(it,true), toast without action), 1006-1007 (Buy all); js/core/governor.js:549-561.
+- **Root cause:** buyWare treats purchase as instantly final and couples it with equip.
+- **Proposed fix:** Either confirm purchases above a threshold (e.g. ≥ 500 gold) through KOS.ui.confirm with the price and balance after, or keep one-tap but give the toast an Undo that refunds and restores the previously-used item within a few seconds. Consider not auto-equipping (or say "Bought and put on" so the swap is not a surprise).
+- **Flags:** effort S
+
+### AG-18 · P2 · ui — iPhone: the Gold Shop item sheet stops 32px short of the right edge, leaving a strip of the page showing beside the bottom sheet
+
+- **Devices:** iPhone
+- **Detail / repro:** On phone widths every shared dialog becomes a full-width bottom sheet (components.css .k-dialog inline-size:100%), but the shop sheet keeps its desktop width rule min(var(--gv-sheet-w), calc(100vw - 32px)), which (being in the view layer) wins. The sheet is 370px wide, pinned to the left edge, so the right 32px shows the shop page behind it and the sheet looks broken/off-centre.
+- **Evidence:** shots/achievements-governor/shop_sheet_iphone.png (Winter outfit sheet: right-hand dark strip). eval on iphone: .k-gv-sheet-dlg rect x=0 w=370 in a 402px overlay. Code: css/views/governor.css:633; css/components.css:660 (phone sheet rule overridden).
+- **Root cause:** View-level width override not tiered for the phone sheet composition.
+- **Proposed fix:** Scope the governor.css width rule to min-width 701px, or add inline-size:100% for .k-gv-sheet-dlg inside the max-width:700px tier.
+- **Flags:** effort S
+
+### AG-19 · P2 · bug — Session Log shows a reward only for Focus (and re-prices it), never what quizzes, exams, cards, Code, Japanese, Mind or Creatives were paid; those four study spaces read as "Activity · Code · Code"
+
+- **Devices:** all
+- **Detail / repro:** Every session entry records what the Governor paid it (award {xp, gold}, invariant 100), but the Session Log's rewardOf() ignores it: Focus rows recompute the award through focusAward() from metrics (history is never to be re-priced, invariant 4a), Collection rows say "rest", and every other type shows no reward at all. A quiz logged in the fixture paid +18 XP +10 gold and its row shows only "Quiz completed · 80%". activityInfo() also has no case for the study spaces' own types (code, ja, mind, creatives), so their rows fall to the default: label "Activity", title = the capitalised type ("Code"), detail = the subject name ("Code") — a meaningless row. They also have category "study" by default so the Study filter works, but Japanese/Mind/Creatives get no distinguishing label. The header copy ("Open an entry for its recorded detail") promises the recorded record.
+- **Evidence:** Fixture via eval: KOS.sessions.log focus (25 min pomodoro, 2 pauses) → award {xp:30,gold:4}; code → {0,0}; quiz (pct 80) → {xp:18,gold:10}. KOS.show(governor,history) rows: "18:52 | Quiz | Quiz completed | … · 80%" (no reward), "18:52 | Activity | Code | Code", "18:52 | Focus | Focus session completed | … · 25 min | +30 XP · +4 ◆". Code: js/modules/governor-ui.js:123-171 (activityInfo switch lacks code/ja/mind/creatives), 177-186 (rewardOf recomputes focus, null for everything else).
+- **Root cause:** The log predates the recorded award field and the newer study spaces; it was never extended.
+- **Proposed fix:** rewardOf: read s.award when present (any type; +0 shows nothing or No reward), fall back to focusAward only for pre-award entries. Add activityInfo cases for code (task/retrieval/capstone/project from metrics), ja (review session/lesson/checkpoint), mind and creatives with their own labels and details.
+- **Flags:** effort M
+
+### AG-20 · P2 · bug — Recovery dispatch promises that ticking 2 plan items restores HP, but plan ticks move no HP at all
+
+- **Devices:** all
+- **Detail / repro:** When HP is Strained or Critical the Seat shows "Route to Healthy": three tasks that "restore HP today" / "climb back fastest" — a 25-min Focus session, Tick 2 plan items, Clear an overdue task — with HP N → 30/60. Ticking plan items is Pacing's own bookkeeping with zero Governor traffic and zero sessions (invariant 82; pacing.js logs nothing), so doing that task changes HP by 0 while the checklist marks it done and advances the segments. Only Focus (+6 HP) and a reminder/assignment completion (todo, +2 HP) pay HP. Also: "Clear an overdue task" counts overdue reminders too, but its Start → only opens Assignments; and the copy says "these three" whatever HP will actually do.
+- **Evidence:** js/core/governor.js:946-973 (recoveryTasks: planTicks from state.pacing.entries, go → pacing / assignments), js/core/governor.js:278 (only todo pays hp 2), js/core/pacing.js:17 ("here calls KOS.sessions.log" — never; Pacing is logistics), js/modules/governor-ui.js:540-571 (copy "these three restore HP today").
+- **Root cause:** Checklist written against intent, not against the Governor's actual payers.
+- **Proposed fix:** Replace the plan-ticks row with an HP-paying action (a quiz, a flashcard review, a completed reminder), or make the copy honest; route "Clear an overdue task" to whichever list holds the overdue item (Reminders Today when it is a reminder).
+- **Flags:** effort S
+
+### AG-21 · P2 · ux — iPhone Titles: tapping a plaque shows nothing — its detail and the Equip button sit ~1,600px further down, under all 16 plaques
+
+- **Devices:** iPhone, iPad portrait
+- **Detail / repro:** On the Wall's Titles tab the plaques and the detail panel (name, requirement, progress, Equip / Take it off, Open the badge) are side by side on the Mac but stack on narrow screens, with the detail after the whole grid. Tapping a plaque only changes its aria-pressed outline and repaints the off-screen detail; there is no scroll, sheet or inline expansion, so on the phone the tap looks dead and Equip is unreachable without scrolling past every title. On iPad portrait the detail starts at y=978 of a 1180 viewport, mostly below the fold.
+- **Evidence:** eval (iphone): after clicking the 4th [data-ui~=ach.title-opt] the [data-ui~=ach.title-detail] panel is at page y=1635 (h=517), viewport 874, scrollY 0 — not in view. eval (ipad): grid 716x676 at y=286, detail 716x517 at y=978, position static. Screenshot shots/achievements-governor/recent_iphone.png (Titles tab, plaques only in view). Code: js/modules/achievements.js:451-478 (drawTitles: grid + side appended in one .k-ach-titlelay; click → paint() only).
+- **Root cause:** Master-detail layout collapses to a stack without changing the interaction.
+- **Proposed fix:** Under 860px open the detail as a bottom sheet (KOS.ui.openDialog) on tap, or put Equip/Take it off on the plaque itself and scroll the detail into view (scrollIntoView({block:"nearest"})).
+- **Flags:** effort S
+
+### AG-22 · P2 · a11y — Edit seat: choosing a title or a seal rebuilds the editor and drops keyboard focus to <body>; the radio groups have no arrow keys
+
+- **Devices:** all (keyboard, iPad with keyboard)
+- **Detail / repro:** In the Title and Sigil tabs every option click runs paintEditor(), which empties and rebuilds the whole editor card (tabs included), so the button that was pressed is destroyed and focus falls to document.body — a keyboard or Switch Control user is thrown to the top of the page after every choice. Both groups are role=radiogroup with role=radio buttons but implement no Arrow-key movement or roving tabindex, so every option is its own Tab stop (17 in Title). The Title tab's "All titles on the Wall →" link also navigates away and silently discards the unsaved draft.
+- **Evidence:** eval (mac, #/governor/edit, Title tab): focus an unchecked .k-gv-topt, click → document.activeElement = BODY, not inside .k-gv-editor. Code: js/modules/governor-ui.js:784-808 (opt click → paintPreview(); paintEditor(); no keydown handler), 796 (link to #/achievements/titles).
+- **Root cause:** Repaint-on-change pattern without focus restoration.
+- **Proposed fix:** Update aria-checked in place instead of repainting (or repaint and restore focus to the option with the same id); add roving tabindex with Arrow keys (one shared radio helper in ui.js); route the Wall link through the same unsaved-changes check as Save/Discard or open it in the set dialog.
+- **Flags:** effort S
+
 ### AG-12 · P3 · ui — A four-tier badge's tiers wrap 3 + 1 in the set dialog, leaving the fourth alone on a second row
 
 - **Devices:** mac, ipadl
@@ -994,6 +1052,98 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - **Root cause:** Showcase index used directly as the arc slot index
 - **Proposed fix:** Map the pick order to slots centre-out (2,3,1,4,0,5) so the first picks take the crown and the arc stays symmetric.
 - **Flags:** effort S
+
+### AG-23 · P3 · a11y — Edit seat preview is aria-hidden but three of its controls stay in the Tab order
+
+- **Devices:** all
+- **Detail / repro:** The Edit seat preview (#/governor/edit) is a scaled copy of the Stage wrapped in aria-hidden="true" with pointer-events:none, but it is not inert: the Study cadence tabs (Study, Rest rhythm) and the ledger link "Open full log →" inside it remain keyboard-focusable. Tabbing through the editor lands focus on invisible-to-AT, mouse-dead controls drawn at 0.25-0.5 scale (18x12 px on iPhone); pressing Enter on the ledger link navigates away from the editor without saving.
+- **Evidence:** eval on #/governor/edit (mac): .k-gv-prev inert=false, 3 focusable descendants: ui.tab-card Study, ui.tab-card Rest rhythm, gov.ledger-more. Measure on iphone: ui.tab-card 18x12 at 328,408. Code: js/modules/governor-ui.js:669 (prevBox aria-hidden only); buildStage preview mode still builds cadence() and ledger() controls (governor-ui.js:574-634); css/views/governor.css:150 pointer-events:none.
+- **Root cause:** Preview isolation done with aria-hidden + pointer-events only, not inert.
+- **Proposed fix:** Set prevBox.inert = true (and keep aria-hidden), or build the preview with o.preview suppressing interactive controls in cadence()/ledger().
+- **Flags:** effort S
+
+### AG-24 · P3 · content — Four titles start with a lowercase "the" ("the Early Riser", "the Unbroken", "the Clear-Eyed", "the Steadfast") while the rest are bare nouns
+
+- **Devices:** all
+- **Detail / repro:** Title names are inconsistent: four carry a lowercase article and twelve do not ("Night Owl", "Debugger", "Bookworm"…). Wherever a title stands alone — the Titles plaques, the plaque detail heading, the Seat under "Level N", Edit seat's Title tab and summary — the lowercase ones read as a typo (a heading beginning "the Early Riser").
+- **Evidence:** js/core/achcatalogue.js title defs (grep name:): "the Early Riser" "Night Owl" "the Unbroken" "Master of the Spine" "Timekeeper" "the Clear-Eyed" "Debugger" "Architect" "Polyglot" "Philosopher" "Wordsmith" "the Steadfast" "Treasurer" "Bookworm" "Archivist" "Collector"; rendered as-is by plaque() js/modules/achievements.js:442 and the Seat js/modules/governor-ui.js:325.
+- **Root cause:** Catalogue authored without a naming rule.
+- **Proposed fix:** Pick one convention (drop the articles: Early Riser, Unbroken, Clear-Eyed, Steadfast — ids stay so equipped titles survive).
+- **Flags:** effort S
+
+### AG-25 · P3 · ux — Showcase changes on the Wall and in Edit seat are lost without a word when you leave before Save
+
+- **Devices:** all
+- **Detail / repro:** The Wall's Showcase tab and Edit seat (#/governor/edit) both hold a draft that only Save writes. Leaving through the rail, a tab, the browser Back button or the bottom tabs discards it silently; on the Wall tab the Save button gives no dirty indication at all (Edit seat at least lights Save). CLAUDE.md already lists Edit seat's leave-with-changes prompt as not built; the Wall tab has the same gap and is not on that list.
+- **Evidence:** js/modules/achievements.js:410-425 (drawShowcase: picker draft, Save is the only write, no dirty state); js/modules/governor-ui.js:663-676 (Edit seat Save lit by dirty(), no navigation guard). CLAUDE.md "not built from design turn 35: … Edit seat's leave-with-changes prompt".
+- **Root cause:** Draft-then-Save pattern without a leave guard.
+- **Proposed fix:** Either autosave the Wall tab's showcase on each toggle (it is cheap and reversible) or light Save and confirm on leave through the router, sharing one guard with Edit seat.
+- **Flags:** effort S
+
+### AG-26 · P3 · content — Unlock overlay polish: the unit is said twice ("1,000 hours · hours of games played"), the "And N more" frame is blank for 1.5 s, and its View on the Wall opens the previous badge's set
+
+- **Devices:** all
+- **Detail / repro:** (1) tierLine() joins the threshold with its unit and then the badge's lower-cased description, which usually restates the unit: "1,000 hours · hours of games played", "10 sessions · completed Focus sessions", "100 days · days you did anything…". (2) With six or more badges the fifth frame ("And 2 more") replaces the stage with text whose entrance animation has a 1500 ms delay (k-ach-up … 1500ms) and no medal to rise first, so for 1.5 s the dialog shows only the two buttons on the dimmed page; a tap skips it but nothing invites one. (3) summary() never reassigns viewBtn.onclick, so "View on the Wall" on the summary still opens the set of the last single badge shown (Reader) rather than the Wall or the remaining badges.
+- **Evidence:** Fixture: KOS.achUI.celebrate([player 3, regular 3, early-bird 3, reader 3, bookshelf 4, the-shrine 3]) on #/home. shots/achievements-governor/unlock_mac.png and unlock_iphone.png ("1,000 hours · hours of games played", "1 of 5"); unlock_summary_mac.png (taken ~1 s after Next: only View on the Wall + Close visible; innerText already "5 OF 5 And 2 more Bookshelf IV The Shrine III"); unlock_summary_mac2.png after 2 s. Code: js/modules/achievements.js:674-679 (tierLine), 651-666 (summary keeps viewBtn.onclick from paint()), css/views/achievements.css:252 (1500ms delay).
+- **Root cause:** Overlay frames built for the single-badge case.
+- **Proposed fix:** tierLine: show threshold + unit, then the description only when it does not start with the unit (or author a short tier line per badge). In summary(): set data-state skip (no delay) or a shorter delay, and point View on the Wall at #/achievements/recent.
+- **Flags:** effort S
+
+### AG-27 · P3 · content — The Seat still speaks of access: "current access state" in the sub-line and "Healthy · all open" under Live HP, though HP gates nothing
+
+- **Devices:** all
+- **Detail / repro:** Since invariant 2 was rewritten HP gates nothing (it is a wellbeing signal), and the Strained/Critical hint already says "nothing locks". But the Status page sub-line reads "Your identity, current access state, study rhythm…" and the Healthy hint reads "Healthy · all open" — both imply that a lower HP closes something. The Gold Shop sub-line "Core study tools remain free" is accurate.
+- **Evidence:** shots/achievements-governor/theme_rose_gov.png ("Healthy · all open" in The five states, sub-line "Your identity, current access state…"). Code: js/modules/governor-ui.js:50 (copy), 495 (hint).
+- **Root cause:** Copy left from the HP-gating era.
+- **Proposed fix:** "Your identity, your wellbeing, study rhythm and what you have earned." and "Healthy" alone (or "Healthy · nothing to recover").
+- **Flags:** effort S
+
+### AG-28 · P3 · ui — Recent lists every tier of a badge as its own row, all dated the first sweep, and on iPhone the date drops to an orphan line under the medal
+
+- **Devices:** iPhone (layout), all (grouping)
+- **Detail / repro:** The first (silent) sweep earns every tier the history already supports at one moment, so Recent opens with runs such as Player III / Player II / Player I, Level III / II / I, all "1 Nov 2026" — three rows saying one thing, and a date that is the day the app first measured, not when the work was done. On iPhone each row's description is cut with an ellipsis ("Kurenai and the Gove…", "Study sessions finished betwee…") and the date wraps onto its own line at the medal's left edge, making each row three lines tall with a ragged left column.
+- **Evidence:** shots/achievements-governor/recent_iphone2.png (seeded; Player III/II/I and Level III/II each a row, date on its own line). Measure (iphone, Recent): 13 ELLIP span.k-ach-row-sub at 262px. Code: js/modules/achievements.js:347-370 (drawRecent: one row per earned tier).
+- **Root cause:** Recent iterates earned.t per tier; the row grid has no phone tier.
+- **Proposed fix:** Group tiers of one badge earned within the same sweep into one row ("Player III · tiers I–III"); mark retro-earned tiers (earned on the first sweep) as "already yours" rather than dating them; on phone put the date in the row's top-right like the Mac layout and let the description wrap to two lines.
+- **Flags:** effort S
+
+### AG-29 · P3 · a11y — Wall toolbar on touch: the filter select is 30px tall and the List view switch row 20px — both under the 44px touch minimum
+
+- **Devices:** iPad, iPhone
+- **Detail / repro:** On iPad and iPhone (pointer: coarse) the Sets toolbar's "All / Earned / In progress / Locked" select stays 111x30 because .k-pill-select sets min-block-size:0, and the "List view" label wrapping the switch is only 20px tall, so the whole tappable row is 96x20. Invariant 69 asks for 44px on coarse pointers.
+- **Evidence:** eval (ipad, #/achievements): SELECT.k-pill-select.k-ach-filter height 30; LABEL.k-ach-switch 20x96; matchMedia(pointer:coarse) true. Same on iphone (measure: SMALL ach.filter 111x30, ach.list-view 34x20). Code: css/components.css:425 (.k-pill-select min-block-size:0), js/modules/achievements.js:164-178.
+- **Root cause:** Shared pill select opts out of the touch minimum.
+- **Proposed fix:** In the coarse-pointer tier give .k-pill-select min-block-size: var(--touch-min) and .k-ach-switch a 44px block size (padding), as other switch rows do (the Avatar tab's switch labels are 54-93px tall).
+- **Flags:** effort S
+
+### AG-30 · P3 · ui — Avatar tab: the Wardrobe is a 3x3 grid of near-empty cells and the Theme card holds two swatches in a full-width row
+
+- **Devices:** mac, iPad landscape
+- **Detail / repro:** With little owned (the common case — the seeded account owns 3 of 127), eight of the Wardrobe's nine cells are a heading, a count line and "In the Gold Shop →" with ~60-100px of blank below, because the row height is set by the one cell that has a thumbnail (Focus scene). The Theme card below is full width with two 180px swatches on the left and ~800px of empty card to their right. The Frames card's grid also leaves its second row half empty. This is the dead-space pattern the layout rule forbids.
+- **Evidence:** shots/achievements-governor/avatar_mac_full.png (Wardrobe rows 1-3 at y 490-890, Theme row at y 1300-1450); dawn_avatar.png shows the same in the current build. Code: js/modules/governor-ui.js:1370-1420 (wardrobe cells, one per kind, always rendered), 1440-1470 (theme row).
+- **Root cause:** Wardrobe lays out every kind regardless of ownership.
+- **Proposed fix:** Collapse unowned wardrobe kinds into one compact "Not owned yet: Outfits · Avatars · Seals … → Gold Shop" line and show cells only for kinds with something to wear; put the Theme swatches and the Follow-the-system switch side by side, or merge Theme into the Wardrobe grid as one cell.
+- **Flags:** effort M, needs a design prompt
+
+### AG-31 · P3 · ui — Gold Shop Frames: the four drawn rings get short 112px tiles while the painted rings beside them get 235px squares
+
+- **Devices:** all
+- **Detail / repro:** Within the Frames section the first row (Gilt ring, Kurenai bloom, Jade band, Amethyst orbit — CSS-drawn frames) uses a 112px-tall preview band with a 64px ring, and the following rows (Sakura, Ice, Ember, Lacquer, Wisteria, Koi — painted frames) use full 235px squares with a 55px avatar inside; the same section mixes two card heights and two ring scales, so the cheap frames look like a different product. Seals have the same split (wide name-plate tiles then square seal tiles).
+- **Evidence:** shots/achievements-governor/shop_frames_mac.png; shop_mac_full.png (Frames and Seals sections). Measure (mac): shop.open "Preview Gilt ring" 235x112 vs "Preview Sakura ring" 235x235.
+- **Root cause:** shopPreview() picks the preview shape by whether the item has art.
+- **Proposed fix:** Give every frame the same square preview (draw the CSS rings at the painted rings' scale on the same ground), and likewise one tile shape for seals.
+- **Flags:** effort S
+
+**QoL ideas from this auditor:**
+- Undo on the purchase toast
+- Group a badge's tiers earned in one sweep in Recent
+- Autosave the Wall's showcase
+- Scroll the title detail into view on tap
+
+**Backlog ideas from this auditor:**
+- Wardrobe redesign that shows only kinds you own
+- A refund or return window for shop items
+- Session Log rows for Code, Japanese, Mind and Creatives with their own details
 
 
 ---
@@ -1375,224 +1525,427 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 
 ## ST — Study desks (CS/Maths/IT), topic page, Review, Assignments (complete)
 
-**Auditor's summary.** The study core works, but six problems would trip the user up on their own devices. On iPad and iPhone, tapping an assignment does nothing you can see: the detail opens at the bottom of the page. On the Mac its Focus and Complete buttons sit about 1,000px below the panel's content. On the iPhone, the Working and Edit buttons squeeze a topic's tab strip so far that the selected tab is often hidden. 'Quiz best' stores a count of correct answers, but the inspector and the subject tile print it as a percentage, so 6 of 11 reads '6%'. Flashcard batches are logged only when the whole batch is finished, so 100 cards rated out of a 308-card queue give no streak, no pay and 'Reviewed 0'. The IT desk's boundary chart is crushed on iPad portrait. The root causes are mostly master-detail and side-column layouts with no step between 1240px and 700px (the assignment panel, the inspector, the IT grids, the tool row beside the tabs), two readers that use different units for one field (quiz best), and surfaces that read the session list instead of the per-rating review log.
+**Auditor's summary.** Study-core on kos-redraw-1: all 24 earlier findings still reproduce. The inventory-driven behaviour checks found 19 new problems, two serious: deleting an assignment permanently deletes every file linked to it, including a topic's own files (removeAttachments treats every listed file as owned; P0), and the IT desk wipes a saved unit mark when an out-of-range number is typed and Enter is pressed (invalid input is treated as 'emptied'; P1). The other systemic root causes: study evidence is logged only on full completion and without context (unfinished flashcard batches log nothing; Due today runs are logged with no subject/topic and no duration, so subject streaks, topic sessions and 'Time' miss the user's main daily study); read helpers that write (quiz qstats creates a record on render); per-view state not remembered (notes page, assignment selection has no URL, tab strip scroll); and stats computed from raw counts or stale renders (Quiz best %, inspector not refreshing under the held redraw). Presentation problems cluster on iPad portrait and iPhone (tab strip, inspector placement, touch targets, truncated names in the spine, Review's By topic and the IT table).
 
-**Coverage.** Seeded and empty accounts. Measured topic pages (all 7 tabs) at mac/ipad/iphone; Review, Due today, Card stats, Assignments at mac/ipad/iphone (seeded) and mac/iphone (empty). Exercised the flashcard engine (click and keyboard ratings), the quiz engine to completion, notes paging (Next page, page select), the quick note (filed on leaving), the study editor (mac/iphone), the spine drawer (iphone/ipad), the new-assignment form (empty-save validation, save), the assignment detail (mac/ipadl/ipad/iphone), Atelier Dawn on flashcards. An earlier auditor's 7 findings were kept (desk heroes compared across all seven study spaces, iPad touch sizes, IT desk at iPad portrait, unit-card zeros, pill clipping, assignment row rule, phone next-card). Not examined: the Simulate tab beyond its locked state, the Files tab's preview with a real PDF, the Handwritten tab when drawing with a pen (no Pencil in the harness), a shop theme, landscape iPhone, the Maths/IT topic pages beyond a measurement pass.
+**Coverage.** Build kos-redraw-1, slot 5, empty AND seeded accounts, mac 1470x832 / iPad 820x1180 / iPhone 402x874 (DOM sweep sc5-*.json and tabs5-*.json over every route and every topic tab of a CS, Maths and IT topic), Graphite + Dawn (topic page) + azure-butterfly (topic flashcards, sim). Inventory: findings/study-core.inventory.md.
+MATRIX (item -> presentation -> behaviour -> result):
+- Subject desk hero CS/Maths/IT + 4 spaces -> measured 3 sizes -> n/a -> "Study-space heroes…" holds.
+- Subject pills -> iPad -> n/a -> "Subject pills clip…" holds.
+- Weakest/Continue card -> 3 sizes -> n/a -> holds (ellipsis).
+- Subject analytics tiles -> mac shot, measured -> fixture (topic opened, 16 cards, quiz) -> NEW Quiz-tab-writes, NEW Started wording, NEW tiles stretch; Quiz best % holds.
+- Course units -> iphone/ipad -> text -> "completed · 0 started" holds.
+- Deadlines card -> mac/iphone -> read -> OK (ellipsis only).
+- Resources add/remove -> mac -> fixture (bad ref refused OK, file path accepted, remove confirm focuses Cancel OK) -> NEW file-path link.
+- IT desk (unit table, enter/edit mark, raw/UMS switch, target grade, boundary chart) -> iPad/iPhone/mac -> fixture invalid mark + Enter -> NEW P1 mark wipe; iPad chart holds. Target grade buttons and 'Show units not taken' NOT exercised (time).
+- Spec spine (expansion, current mark, filter, drawer) -> 3 sizes -> filter 'dijkstra' -> 1 leaf OK; drawer focus/position holds; NEW mac truncation.
+- Unknown ref route -> mac -> NEW bad-URL finding.
+- Topic tabs spec/notes/cards/quiz/exam/ink/files (+worked/sim on 4.5.4.4) -> swept 3 sizes -> tab strip holds; sim renders OK at iPad/iPhone; Files/Handwritten empty states OK except touch sizes (folded into the touch P2).
+- Notes paging (Next/Prev/select) -> mac -> paging works; NEW page forgotten on redraw/Back/return.
+- Flashcard engine: Type (Show answer gated until typed: OK), Think (Space flips, 1-4 rate: OK), Write NOT exercised (needs pen), ratings preview labels OK, finish logs ONE session with correct metrics (OK), unfinished batch (holds P1), leech on 8th lapse -> Rework -> Back in the schedule (OK), keys preserved through editor move/delete/reset (OK, invariant 87).
+- Quiz engine: answer all, score, record, Retry -> record/best raw count (holds), inspector stale (holds), ↵ hint (holds).
+- Exam engine: tariff chips, Reveal, ticks, ± marks, Log self-mark once per question per mount (OK), logs exam session (OK). Mark with Kurenai NOT exercised (network/AI).
+- Inspector: status select, confidence, 4 checks -> keep notes page (OK); dashes (NEW), raw ISO date (NEW), stale after work (holds), touch sizes (holds), iPad placement (holds).
+- Quick note: draft, tab switch, same-topic nav, leave -> one dated block in the Spec fork, empty draft writes nothing (OK, invariant 89).
+- Study editor: KOS.edits move/set/reset with schedule keys (OK); editor UI header dates (holds); full editor UI block editing NOT re-exercised.
+- Review/Due today: hero counts, Overdue first ordering (verified most overdue first), topic run (sid:ref) -> NEW subject:null logging, NEW Time never counted; By topic phone truncation NEW; pips holds; empty state holds.
+- Card stats: retention + exam-day targets (persist, no due moves: OK; guidance line OK), Optimise disabled under 1,000 (OK), RAG dot and forecast colour hold, empty state NEW.
+- Personal deck: presentation swept only; adding/reviewing a personal card NOT checked (time).
+- Assignments: filters (subject/status/deadline incl. today/overdue/next 7/no date boundaries) and sorts -> fixture -> OK except NEW 'Overdue · 1 day'; status transitions -> NEW double Reopen; subtasks add/tick/progress -> NEW progress two owners; Complete pays once, re-complete pays nothing (OK); delete with confirm (OK) -> NEW P0 file deletion; deep link -> NEW; new-assignment validation holds; list rule holds; iPad/iPhone detail position holds; Mac detail foot gap holds. Alerts, countdown Pin/Unpin and attachments upload UI NOT exercised beyond presence.
+NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Working pane, Side by side Handwritten view, IT target-grade buttons, Personal deck flows, assignment alerts firing, Dawn/shop theme on every page (spot checks only), iPad landscape (ipadl) except earlier audit.
+
+
+### ST-25 · P0 · data — Deleting an assignment permanently deletes every file linked to it, including files that belong to a topic or another record
+
+- **Devices:** all
+- **Detail / repro:** KOS.assignments.remove -> removeAttachments() lists the files for ref "assignment:<id>" in every subject and calls KOS.attach.remove() on each. KOS.attach.list() returns not only files whose home is the assignment but every file whose links index holds the assignment (anything attached there with "Attach to…", or a topic file linked to the assignment). remove() deletes the whole record and its blob and records a cloud tombstone, so the file also disappears from its topic (and from other devices). Invariant 150: "Remove" from one place removes the link; the file is deleted only when nothing else links it, after a confirm. The Delete confirm only says "its calendar entry, countdown and Home card" go with it; files are not mentioned.
+- **Evidence:** eval fixture (seeded account): KOS.attach.add("compsci","4.2.3.1", file, …, {links:[{kind:"assignment",id:"29"}]}); topic list before: ["topic-notes.txt|[]", "topic-notes.txt|[{kind:assignment,id:29}]"]; KOS.assignments.remove(29); topic list after: ["topic-notes.txt"] (the linked file is gone from the topic). js/core/assignments.js:203-208, :220-231; js/modules/attachments.js:275-292 (list includes the links index), :392-411 (remove deletes and tombstones); js/modules/assignments.js:454-457 (confirm text).
+- **Root cause:** Assignment deletion predates the many-links file index (R1) and still treats every listed file as owned.
+- **Proposed fix:** In removeAttachments, for each file use the Files detach rule: removeLink(fileId, {kind:"assignment", id}) when the file has another link (topic home or other links), and delete only files whose sole link is the assignment; list those in the confirm body.
+- **Flags:** effort S
 
 ### ST-01 · P1 · ui — IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPad portrait (and Split View)
 - **Detail / repro:** At 820px (the user's iPad in portrait) the IT 'So far' card keeps its three-column desktop grid (220px | 1fr | 340px with 32px gaps) inside a 716px card, so the middle column is ~52px: the P M D D* ruler is 90px wide, its four boundary numbers print on top of each other ('120180240270' as one smear) and the caption 'Qualification boundaries · out of 300 across the 5 units' wraps one word per line over eight lines. The IT units table below keeps its six fixed columns (44 + 180 + 120px + gaps), so unit names read 'F200 Funda…', 'F201 Big dat…', status wraps to three lines ('Sitting · date not set') and the header 'AGAINST THE BOUNDARIES' wraps to three lines. Landscape (1180) is fine (middle column 252px).
-- **Evidence:** shots/study-core/s-it-ipad.png (full page), zoom shots/study-core/s-it-agg-ipad-crop.png; eval --size ipad: it.agg 716 wide, it.target at x442 w340; k-it-name ellipsised at 95px. css/views/study.css:996 (.k-it-agg three columns), :1031 (.k-it-tr six columns), the single-column/stacked rules only at study.css:1123-1125 (the <=700 tier); tokens.css:657-661 fixed widths; js/modules/itdesk.js:109 caption.
+- **Evidence:** shots/study-core/s-it-ipad.png (full page), zoom shots/study-core/s-it-agg-ipad-crop.png; eval --size ipad: it.agg 716 wide, it.target at x442 w340; k-it-name ellipsised at 95px. css/views/study.css:996 (.k-it-agg three columns), :1031 (.k-it-tr six columns), the single-column/stacked rules only at study.css:1123-1125 (the <=700 tier); tokens.css:657-661 fixed widths; js/modules/itdesk.js:109 caption. | Recheck 6 Nov (kos-redraw-1, slot 5): Re-measured on kos-redraw-1 --size ipad: it.agg 716 wide, it.target x442 w340, the boundary chart 48x8 with P/M/D/D* labels overlapping; unit names 95px, all five truncated (shots/study-core/t-it-ipad.png).
 - **Root cause:** desktop grid with fixed side columns has no tier between 1080 and 700
 - **Proposed fix:** Add an 860px tier (invariant 47 breakpoints): .k-it-agg two columns (left+ruler stacked, target/need on the right) or one column; .k-it-tr switch to the stacked grid-template-areas layout already written for <=700. Give the ruler numbers a min width or drop them below the bar when narrow.
 - **Flags:** effort S
 
 ### ST-02 · P1 · ui — iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPhone (and iPad Slide Over)
 - **Detail / repro:** At 402px, on every topic tab that shows Working and Edit (Specification, Notes, Flashcards, Quiz, Exam questions), the tab row holds the tab scroller plus those two pill buttons in one flex row (flex: none on the buttons). The scroller shrinks to 181px: only 'Specification' and 'Notes' fit, the Notes count reads '1' instead of '13', and on Quiz the selected tab is not visible at all (strip shows 'Specification, Notes 8 ›'). On Files/Handwritten the strip is 328px, so its width jumps as you change tab. The phone user sees about two of seven tabs.
-- **Evidence:** shots/study-core/q-topic-notes-iphone.png (Notes), shots/study-core/q-quiz-result-iphone.png (Quiz selected but invisible); eval --size iphone on #/ref/compsci/4.1.1.1 Notes: .k-topic-tabs clientWidth 181, scrollWidth 621. css/views/study.css:208-213 (.k-topic-tabrow one flex row; :not(.k-scroller) flex:none); js/modules/hub.js:2746 (scroller, moreSlot, workBtn, editBtn in one row).
+- **Evidence:** shots/study-core/q-topic-notes-iphone.png (Notes), shots/study-core/q-quiz-result-iphone.png (Quiz selected but invisible); eval --size iphone on #/ref/compsci/4.1.1.1 Notes: .k-topic-tabs clientWidth 181, scrollWidth 621. css/views/study.css:208-213 (.k-topic-tabrow one flex row; :not(.k-scroller) flex:none); js/modules/hub.js:2746 (scroller, moreSlot, workBtn, editBtn in one row). | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.1.1.4: tab strip 181x44 at x16; shots/study-core/t-spine-iphone.png shows 'Specification  Notes 1 ›' (count 14 clipped to 1).
 - **Root cause:** tools share the tab row with no narrow-width tier
 - **Proposed fix:** Under 700px wrap the tools onto their own line (.k-topic-tabrow {flex-wrap: wrap} with the scroller at flex-basis 100%, or move Working/Edit into the reader row beside the page picker / the ⋯ fold), so the tab strip always gets the full width.
 - **Flags:** effort S
 
 ### ST-03 · P1 · bug — 'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** The quiz engine stores a topic's best as the number of correct answers (st.best = correct), but the topic inspector and the subject desk's 'Quiz best' tile print it through pctText as a percent. Reproduced on a fresh topic (#/ref/compsci/4.2.2.1): 6/11 (lastPct 55) is stored best 6 and the inspector shows 'Quiz best 6%'. The subject tile then takes the max of counts across topics of different lengths. The seeded account has percentages in best (57), so the quiz header reads 'best 57/10'. Either way one surface is wrong for every learner.
-- **Evidence:** eval: state.study.quiz['compsci:4.2.2.1'] = {attempts:1, best:6, lastPct:55}; inspector text 'Quiz best\n6%'; quiz head 'score 0 · best 6/11'. js/engines/quiz.js:159 (best = correct count), :77 (prints best + '/' + items.length); js/modules/hub.js:3224 and :2200 pctText(best); hub.js:126 max over topics.
+- **Evidence:** eval: state.study.quiz['compsci:4.2.2.1'] = {attempts:1, best:6, lastPct:55}; inspector text 'Quiz best\n6%'; quiz head 'score 0 · best 6/11'. js/engines/quiz.js:159 (best = correct count), :77 (prints best + '/' + items.length); js/modules/hub.js:3224 and :2200 pctText(best); hub.js:126 max over topics. | Recheck 6 Nov (kos-redraw-1, slot 5): Fixture on the empty account: 5 of 11 right -> state.study.quiz {attempts:1,best:5,lastPct:45}; CS desk analytics 'Quiz best | 5% | 1 attempt across 1 topic'. The subject desk tile has the same bug (js/modules/hub.js:119-129 max of raw counts, :2200 pctText + bar pct = count), not only the inspector (hub.js:3224) and js/engines/quiz.js:159.
 - **Root cause:** two readers disagree on the unit of study.quiz[k].best
 - **Proposed fix:** Store best as a percent (bestPct) in the quiz engine, migrate existing records once at the store gate (best/len where the deck length is known, else keep), and print '/n' only from a stored count; or keep the count and make hub.js divide by the topic's quiz length. Add a smoke check that the inspector and the quiz header agree.
 - **Flags:** effort S
 
 ### ST-04 · P1 · bug — Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far · Reviewed 0'
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** The flashcard engine logs its session (and so the Governor's XP/gold/HP, the study streak and every ledger reader) only when the WHOLE batch is finished. Due today opens 'Start review · all 308'; rating 7 cards and leaving (or rating 100 of 308) writes FSRS schedules and review-log rows but adds nothing to the ledger: Review's 'Today so far' still says Reviewed 0, Card stats' Reviews per day and Rating mix stay at zero, the day does not count for the streak (invariant 4) and nothing is paid. With a real backlog the user is punished for doing most of the work.
-- **Evidence:** eval: on #/due rated 5 cards Good, navigated to #/review: 0 new sessions, 'Today so far Reviewed 0 Accuracy —', dueCount 308 -> 303. js/engines/flashcards.js:325-353 (sessions.log only in finish()); js/modules/due.js:222-230 and js/modules/cardstats.js:218-228 read only those session entries. shots/study-core/q-cardstats-mac.png (Total reviews 5,810 beside an empty Reviews per day and an all-zero Rating mix).
+- **Evidence:** eval: on #/due rated 5 cards Good, navigated to #/review: 0 new sessions, 'Today so far Reviewed 0 Accuracy —', dueCount 308 -> 303. js/engines/flashcards.js:325-353 (sessions.log only in finish()); js/modules/due.js:222-230 and js/modules/cardstats.js:218-228 read only those session entries. shots/study-core/q-cardstats-mac.png (Total reviews 5,810 beside an empty Reviews per day and an all-zero Rating mix). | Recheck 6 Nov (kos-redraw-1, slot 5): Empty account fixture: 3 cards rated Good on #/ref/compsci/4.2.2.1 then left: state.srs 3 keys, sessions 0 before and after leaving; only a full 16-card batch logged one flashcards entry (31 XP). Same in a Due today run left after an Again (leech fixture). js/engines/flashcards.js:325-355 logs only in finish().
 - **Root cause:** session logged only in finish(); review surfaces read session metrics rather than the review log
 - **Proposed fix:** Log the batch when the view is left or hidden (the page-hide / KOS.show teardown the engine already notes at :373), paying for the cards rated so far, once (a session id held by the engine and updated, never logged twice); or cap a due batch at a size people finish (e.g. 20-50 with 'Next 50'). Read 'Reviewed today' and Reviews per day from KOS.reviewLog (one row per rating) instead of session metrics.
 - **Flags:** effort M
 
 ### ST-05 · P1 · ux — Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** Mac, iPad landscape
 - **Detail / repro:** On the Mac, opening an assignment shows its facts, Subtasks and Attachments, then nothing: the panel is stretched to the full list height (min-block-size: 100%, 1569px on the seeded account) and its footer has margin-block-start: auto, so '◉ Focus on this', '✓ Complete', '⇪ Submitted', 'Blocked' and 'Reopen' land at y≈1577, about 1,000px under the last block. The panel is position: sticky but taller than the viewport, so it never sticks. The primary actions of the page are invisible unless you scroll to the bottom of the whole list.
-- **Evidence:** shots/study-core/q-asg-open-mac.png (panel ends at ATTACHMENTS, no actions visible); eval: .k-asg-foot y 1577 (margin-top 984px), previous block bottom 577, .k-asg-panel height 1569 sticky. css/views/study.css:864 (min-block-size: 100%), :886 (.k-asg-foot margin-block-start: auto); js/modules/assignments.js:305-321.
+- **Evidence:** shots/study-core/q-asg-open-mac.png (panel ends at ATTACHMENTS, no actions visible); eval: .k-asg-foot y 1577 (margin-top 984px), previous block bottom 577, .k-asg-panel height 1569 sticky. css/views/study.css:864 (min-block-size: 100%), :886 (.k-asg-foot margin-block-start: auto); js/modules/assignments.js:305-321. | Recheck 6 Nov (kos-redraw-1, slot 5): eval mac with 8 fixture assignments: .k-asg-foot margin-top 412px, previous block bottom y550, foot at y977 below a 745px viewport; the gap grows with the list length (the panel stretches to the list column). On iPad portrait (stacked) the margin is 0.
 - **Root cause:** stretched sticky panel + auto margin footer
 - **Proposed fix:** Size the panel to the viewport: max-block-size: calc(100dvh - header) with overflow-y: auto and no min-block-size: 100% (align-self: start), so the sticky panel sticks and the foot sits at its bottom edge; or drop margin-block-start: auto and put the actions right under the stats.
 - **Flags:** effort S
 
 ### ST-06 · P1 · ux — On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPad portrait/landscape, iPhone, Mac windows under 1240
 - **Detail / repro:** At 1240px and below the assignments layout becomes one column and the detail panel is appended after the whole list (position: static). Tapping a row only highlights it; the detail, with Edit, subtasks, attachments, Focus on this and Complete, renders 1,300-2,700px further down and nothing scrolls to it or opens it as a sheet. On the iPad (both orientations) and iPhone the page appears to do nothing.
-- **Evidence:** shots/study-core/q-asg-tap-ipadl.png (row highlighted, no detail); eval after tapping row 2: panel top y=2109 (ipadl, viewport 820), 2629 (ipad, 1180), 2729 (iphone, 874), not in a dialog. css/views/study.css:1057-1059 (@media max-width 1240: one column, panel static); js/modules/assignments.js has no scrollIntoView/openDialog for the detail.
+- **Evidence:** shots/study-core/q-asg-tap-ipadl.png (row highlighted, no detail); eval after tapping row 2: panel top y=2109 (ipadl, viewport 820), 2629 (ipad, 1180), 2729 (iphone, 874), not in a dialog. css/views/study.css:1057-1059 (@media max-width 1240: one column, panel static); js/modules/assignments.js has no scrollIntoView/openDialog for the detail. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad (seeded, 21 items): after tapping row 2 the detail panel top is y=3483 (viewport 1180), scrollY stays 0.
 - **Root cause:** master-detail layout collapses to a stacked list with no navigation to the detail
 - **Proposed fix:** Below 1240 open the detail in a KOS.ui.openDialog sheet (bottom sheet on the phone, side sheet on the iPad) or expand it inline under the tapped row; at minimum scrollIntoView the panel and move focus to its heading.
 - **Flags:** effort S
 
+### ST-26 · P1 · data — IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result
+
+- **Devices:** all
+- **Detail / repro:** Editing a Done unit's mark, an invalid number (above the max, negative) only turns the input red and sets editing.value to "". save() treats an empty value on a Done unit as "emptied the mark" and calls KOS.itUnits.clearResult(): pressing Enter or ✓ Save after a typo wipes the stored raw/UMS and flips the unit to "Sitting · date not set". No message, no confirm, no undo; the aggregate and the predicted qualification grade change with it (and it syncs).
+- **Evidence:** eval #/subject/it: F200 {status:done, raw:45} row "F200 … | Done | ≈45 / 60 | Merit"; edit, type 459 (input data-state bad), Enter -> KOS.itUnits.get("F200") {status:"sitting", raw:null, ums:null}; row "Sitting · date not set | + Enter mark | —"; no toast. js/modules/itdesk.js:221-225 (invalid -> value ""), :277-282 (empty on a done unit -> clearResult).
+- **Proposed fix:** Distinguish an emptied field (inp.value === "") from an invalid one: on invalid, keep editing, focus the field and say "Enter 0–60"; clearing a result should ask (or offer Undo).
+- **Flags:** effort S
+
 ### ST-07 · P2 · a11y — Topic inspector and Assignments controls stay 30-32px tall on iPad touch (below the 44px minimum)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPad portrait and landscape
 - **Detail / repro:** On the iPad (820x1180 and 1180x820, pointer: coarse) the zero-specificity :where() touch rule in base.css loses to view-level class rules. On a topic page: the status select (k-ts-select) is 560x32, the page picker (k-topic-page-select) 304x30, the four 'Ask Kurenai / Make flashcards / Make a quiz / Test me' buttons 350x32, the progress-check rows 33px tall. On #/assignments the four filter selects are 30px tall. The phone layout (<700) is fine; only the iPad, the user's touch device, misses the target. Also on iPhone the four assignment filter selects measure 30px (148x30 etc.), Card stats retention selects 67x30, and the Handwritten tab paper chips 32px with the finger toggle 34x20 on touch.
-- **Evidence:** eval on #/ref/compsci/4.2.1.1 --size ipad: asst.ctx-btn minHeight 32px, ui.status-select 32px, topic.reader-page-select min-height 0 -> 30px, label.k-ts-check 33px; #/assignments ui.status-select 148x30. css/views/study.css:414 '.k-insp-asst button {min-block-size: var(--hit)}' (0,1,1) beats css/views/assistant.css:517 coarse rule (0,1,0); css/views/study.css:231 '.k-topic-page-select {min-block-size: 0}'; study.css:428 '.k-ts-select {min-block-size: var(--rag-pick)}' (32px) override css/base.css:115-119.
+- **Evidence:** eval on #/ref/compsci/4.2.1.1 --size ipad: asst.ctx-btn minHeight 32px, ui.status-select 32px, topic.reader-page-select min-height 0 -> 30px, label.k-ts-check 33px; #/assignments ui.status-select 148x30. css/views/study.css:414 '.k-insp-asst button {min-block-size: var(--hit)}' (0,1,1) beats css/views/assistant.css:517 coarse rule (0,1,0); css/views/study.css:231 '.k-topic-page-select {min-block-size: 0}'; study.css:428 '.k-ts-select {min-block-size: var(--rag-pick)}' (32px) override css/base.css:115-119. | Recheck 6 Nov (kos-redraw-1, slot 5): Sweep --size ipad: ui.status-select 560x32, asst.ctx-btn 350x32, topic.reader-page-select 30px, input.k-box 18x18, Assignments ui.status-select 30px tall, k-asg-subin 35px; also Card stats review.retention 67x30 and review.exam-target 66x30, and the Handwritten tab's ink.paper-chip 32px and 'Draw with a finger' switch 34x20 on iPad and iPhone (sc5-ipad.json, tabs5-ipad.json, tabs5-iphone.json).
 - **Root cause:** base.css touch rule is :where() zero specificity, so any class that sets min-block-size (even 0) wins
 - **Proposed fix:** Add these to the study.css coarse block at :1184 (.k-insp-asst button, .k-ts-select, .k-topic-page-select, .k-ts-check, the assignment filter selects -> min-block-size: var(--hit-coarse)); or make the base touch rule a layered override that view rules can't silently undercut (e.g. a tools/smoke check that every control under pointer:coarse measures >=44).
 - **Flags:** effort S
 
 ### ST-08 · P2 · ui — Study-space heroes are seven different heights on one shared component
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** All seven desks use the same .k-subj-hero (same width, radius, padding, 132px ring, title size), but the height varies with what each space bolts on. Mac 1470: CS/Maths/IT 189px, Code 292, Mind 296, Japanese 339, Creatives 341. iPad portrait: CS 347, Maths/IT 297, Code 459, Mind 482, Japanese 507, Creatives 509. iPhone: CS 255, Maths/IT 205, Creatives 309, Code 379, Mind 402, Japanese 438. Switching subject with the pills makes the whole page below jump by up to 150px. The four path strips are also styled four slightly different ways (Code: 'Stage 1 Foundations' labels over boxed units; Japanese: kanji labels and ellipsised stage names 'Intermedi…', 'Upper int…'; Mind: a single row of unit chips; Creatives: unlabelled-stage section names centred over boxes), and the exam subjects have no path strip at all. The side column then stretches to the hero, so Code's 'Start here' (290px) and Creatives' 'Start here' (340px) cards carry ~120px of content over ~200px of empty card.
-- **Evidence:** shots/study-core/heroes-compare-mac.png (CS, Code, Japanese, Mind, Creatives cropped one above the other), shots/study-core/ipad-cs-vs-maths.png; eval scratchpad/qa/sc-hero.js at mac/ipad/iphone (numbers above). Duplicated per-space rules: css/views/code.css:162-163, css/views/japanese.css:82,172, css/views/mind.css:103-104, css/views/creatives.css:26-27 (identical grid-template-rows/path padding/border written four times); css/views/study.css:54-55 makes the side column follow the hero.
+- **Evidence:** shots/study-core/heroes-compare-mac.png (CS, Code, Japanese, Mind, Creatives cropped one above the other), shots/study-core/ipad-cs-vs-maths.png; eval scratchpad/qa/sc-hero.js at mac/ipad/iphone (numbers above). Duplicated per-space rules: css/views/code.css:162-163, css/views/japanese.css:82,172, css/views/mind.css:103-104, css/views/creatives.css:26-27 (identical grid-template-rows/path padding/border written four times); css/views/study.css:54-55 makes the side column follow the hero. | Recheck 6 Nov (kos-redraw-1, slot 5): Re-measured (hero5.js): mac CS/Maths/IT 189, Code 292, Mind 296, Japanese 339, Creatives 341; iPad CS 347, Maths/IT 297, Code 459, Mind 482, Ja 507, Cr 509; iPhone CS 255, Maths/IT 205, Cr 309, Code 379, Mind 402, Ja 438 — identical to the first audit.
 - **Root cause:** each study space extends the shared hero with its own path/bars markup and duplicated CSS; height is content-driven
 - **Proposed fix:** Promote the path strip to one shared part of the hero (.k-subj-hero-path in study.css with a fixed row height, one label style, shared ellipsis rule) and give the bar column a fixed number of rows (pad to 4 or set a fixed hero min-block-size per breakpoint) so every desk's hero is one height; give CS/Maths/IT a path strip too (their units, as Course units already lists) or a matching fixed height. Let the side 'Start here' cards size to content and fill the rest with the next card (Due/Deadlines) instead of stretching.
 - **Flags:** effort M, needs a design prompt
 
 ### ST-09 · P2 · ui — Subject pills clip 'Study spa…' inside a nested scroller on iPad portrait
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPad portrait (820)
 - **Detail / repro:** At 820px the Study section nav fits, but the CS / Maths / IT / Study spaces pill group (.k-seg, overflow-x:auto) is flex-shrunk from 330 to 288px inside .k-subnav, so 'Study spaces' is cut to 'Study spa' with no arrow or fade; the outer subnav scroller (which has the arrows) never overflows, so nothing tells the user the pill can scroll.
-- **Evidence:** shots/study-core/ipad-cs-vs-maths.png (top nav row); eval --size ipad: .k-seg x88 w288 scrollWidth 330 overflow auto, parent .k-subnav w716 sw716. css/components.css:52 (.k-seg overflow-x:auto, max-inline-size:100%), css/components.css:80 (.k-subnav flex).
+- **Evidence:** shots/study-core/ipad-cs-vs-maths.png (top nav row); eval --size ipad: .k-seg x88 w288 scrollWidth 330 overflow auto, parent .k-subnav w716 sw716. css/components.css:52 (.k-seg overflow-x:auto, max-inline-size:100%), css/components.css:80 (.k-subnav flex). | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad #/subject/maths: .k-seg x88 w223 scrollWidth 330 overflow-x auto (narrower than before: 223 vs 288).
 - **Root cause:** nested shrinkable scroller inside the declared scroller
 - **Proposed fix:** .k-subnav > .k-seg { flex: none; } so the declared outer k-subnav-scroller owns overflow (it already has arrows), as invariant 50 requires.
 - **Flags:** effort S
 
 ### ST-10 · P2 · ui — Assignment list rows draw a rule through the middle: .k-asg-sub is two different things
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** Every row on #/assignments has a hairline between its title and its 'CS · Coursework' line, and that line is 13.5px with 7px padding instead of the intended 12px muted caption. The class k-asg-sub names both the row subtitle and a subtask row in the detail panel; the subtask rule (display:flex, padding-block, border-block-start, font-size 13.5) lands on every list row too.
-- **Evidence:** shots/study-core/s-assign-mac.png, zoom shots/study-core/s-assign-row-crop.png; elementsFromPoint under the title hits .k-asg-sub. css/views/study.css:856 (.k-asg-sub as caption) vs css/views/study.css:879 (.k-asg-sub as subtask row with border-block-start).
+- **Evidence:** shots/study-core/s-assign-mac.png, zoom shots/study-core/s-assign-row-crop.png; elementsFromPoint under the title hits .k-asg-sub. css/views/study.css:856 (.k-asg-sub as caption) vs css/views/study.css:879 (.k-asg-sub as subtask row with border-block-start). | Recheck 6 Nov (kos-redraw-1, slot 5): css/views/study.css:856 and :879 still both define .k-asg-sub (list sub-line and subtask row with border-block-start); js/modules/assignments.js:158 and :239 use the one class for both.
 - **Root cause:** class-name collision between two components in one stylesheet
 - **Proposed fix:** Rename the subtask row (e.g. .k-asg-subtask, and its -t/-x parts) in js/modules/assignments.js and study.css:879-883; add the pair to smoke55's collision guard like the Review/Wishlist ones.
 - **Flags:** effort S
 
 ### ST-11 · P2 · ui — Weakest/Continue card ellipsises a word mid-title on the phone ('4.5.4.8 Norm… of floating point form')
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPhone
 - **Detail / repro:** Under 700px the side cards wrap (white-space: normal) but keep overflow:hidden + text-overflow:ellipsis, so a long first word that does not fit beside the ref is cut to 'Norm…' and the rest wraps below. The title reads 'Norm… of floating point form'. The ref and the title also have no space between them in the text (the reader hears '4.5.4.8Normalisation').
-- **Evidence:** shots/study-core/s-compsci-iphone-next-crop.png (dpr2); .k-subj-next-t measured 110x65 on iphone. css/views/study.css:60 (nowrap/overflow/ellipsis), :1171 (white-space: normal only).
+- **Evidence:** shots/study-core/s-compsci-iphone-next-crop.png (dpr2); .k-subj-next-t measured 110x65 on iphone. css/views/study.css:60 (nowrap/overflow/ellipsis), :1171 (white-space: normal only). | Recheck 6 Nov (kos-redraw-1, slot 5): Sweep --size iphone #/subject/compsci: span.k-subj-next-t 110x65 ellipsis ('4.5.4.8 Normalisation of floati…'); also on mac 208x22 and iPad 270x22.
 - **Root cause:** ellipsis rules kept when wrapping is enabled
 - **Proposed fix:** At <=700 set overflow: visible; text-overflow: clip; overflow-wrap: anywhere (or a -webkit-line-clamp: 3 box) on .k-subj-next-t; put the ref on its own line in the phone layout; add a space or aria-label between ref and title.
 - **Flags:** effort S
 
 ### ST-12 · P2 · ux — A topic's tab strip forgets its scroll on every redraw, leaving the selected tab off-screen on the phone
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPhone, iPad Slide Over
 - **Detail / repro:** On iPhone, scroll the topic tab strip to Handwritten and select it, then any redraw (KOS.rerender: a cloud pull, a rotation crossing a breakpoint, a store change) rebuilds the strip at scrollLeft 0: the selected tab sits at x=498 of a 402px screen and no visible tab is marked as current, while the panel below shows Handwritten (also seen with Files in shots/study-core/q-topic-spec-iphone.png: Files content, strip showing Specification…Quiz). The topic tab strip is created without the scroller's keep/reveal options that the other redrawn strips use since kos-polish-3.
-- **Evidence:** eval --size iphone #/ref/compsci/4.1.1.4: after selecting Handwritten the tab is at x 223-330 (scrollLeft 275); after KOS.rerender() it is at x 498-605, scrollLeft 0. shots/study-core/q-topic-spec-iphone.png. js/modules/hub.js:2746 KOS.ui.scroller(tabBar, {keepRole, prevLabel, nextLabel}) with no keep/reveal.
+- **Evidence:** eval --size iphone #/ref/compsci/4.1.1.4: after selecting Handwritten the tab is at x 223-330 (scrollLeft 275); after KOS.rerender() it is at x 498-605, scrollLeft 0. shots/study-core/q-topic-spec-iphone.png. js/modules/hub.js:2746 KOS.ui.scroller(tabBar, {keepRole, prevLabel, nextLabel}) with no keep/reveal. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.1.1.4: Handwritten selected, after KOS.rerender() the tab is at x 498 w107 (off a 402px screen), strip scrollLeft 0.
 - **Root cause:** scroller created without keep/reveal
 - **Proposed fix:** Pass keep: 'topic-tabs' and reveal: the selected tab (KOS.ui.scroller({keep, reveal})) as the term ribbon and edge-marked tabs do, and reveal the selected tab on a tab change too.
 - **Flags:** effort S
 
 ### ST-13 · P2 · ui — Due today's progress meter draws one pip per card: a 308-card queue is a 108px wall of 308 dashes
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all (worst on Mac and iPhone)
 - **Detail / repro:** The flashcard session meter appends a span per card (flex-wrap), so a real backlog (308 due on the seeded account) renders 13 rows of tiny dashes above the card, 560x108px, pushing the card below the fold on the Mac (card top at y=460 of 832) and carrying no readable information. It is rebuilt (308 nodes) on every card.
-- **Evidence:** shots/study-core/q-due-mac.png; eval on #/due: [data-ui~=fc.pip] count 308, fc.meter 560x108. js/engines/flashcards.js:271-273, css/views/study.css:453-455.
+- **Evidence:** shots/study-core/q-due-mac.png; eval on #/due: [data-ui~=fc.pip] count 308, fc.meter 560x108. js/engines/flashcards.js:271-273, css/views/study.css:453-455. | Recheck 6 Nov (kos-redraw-1, slot 5): eval: Overdue-first run on the seeded account draws 245 fc.pip spans; js/engines/flashcards.js:271-273 unchanged.
 - **Root cause:** meter scales linearly with deck size
 - **Proposed fix:** Above ~30 cards draw one continuous bar (done/total, with the current position) instead of pips, e.g. KOS.ui progress bar with a 'n of N' label; keep pips for small topic decks.
 - **Flags:** effort S
 
 ### ST-14 · P2 · bug — Card stats' RAG column is always empty: the dot is a 0x0 inline span
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** The Per-topic breakdown table has a RAG header but every cell looks blank. Each cell holds <span class=k-spine-dot data-band=a>, whose size rules (inline-size/block-size) do not apply to an inline element outside the spine's flex row, so it measures 0x0. The 'charts →' links sit in an unlabelled last column, which reads as if they belonged to RAG.
-- **Evidence:** shots/study-core/q-cardstats-mac.png (RAG column blank); eval: table td .k-spine-dot getBoundingClientRect 0x0, display inline, data-band 'a'. js/modules/cardstats.js:357, css/views/study.css:162.
+- **Evidence:** shots/study-core/q-cardstats-mac.png (RAG column blank); eval: table td .k-spine-dot getBoundingClientRect 0x0, display inline, data-band 'a'. js/modules/cardstats.js:357, css/views/study.css:162. | Recheck 6 Nov (kos-redraw-1, slot 5): eval #/cardstats: table td .k-spine-dot 0x0, display inline.
 - **Root cause:** component rule assumes a flex parent
 - **Proposed fix:** Give .k-spine-dot display:inline-block (or render KOS.rag's chip with its label, 'Amber'), and label the last column ('Charts') or make the whole row the link.
 - **Flags:** effort S
 
 ### ST-15 · P2 · ux — The spec spine drawer (iPad portrait, iPhone) opens at the top of the subject, not at the topic you are on, and does not take focus
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPad portrait, iPhone
 - **Detail / repro:** On a topic page at 820px or 402px, ☰ 'Show the spec spine' opens the overlay drawer scrolled to 4.1. The current topic (marked aria-current) is ~1,600px further down the drawer (y≈2420 in an 822px drawer on iPhone, 2424 on iPad portrait), so finding the neighbouring topics means scrolling the whole tree every time. Focus stays on <body>, so a keyboard or VoiceOver user is not taken into the drawer (no dialog semantics, no focus move).
-- **Evidence:** shots/study-core/q-spine-iphone.png (drawer at 4.1 while on 4.4.1.3 Kinds of abstraction); eval --size iphone and --size ipad after clicking [data-ui~=study.spine-open]: current entry y 2416/2424, drawer scrollTop 0, activeElement BODY. js/modules/hub.js:368-375 setTreeClosed only toggles drawerOpen/applyTreeCollapsed; no scrollIntoView or focus.
+- **Evidence:** shots/study-core/q-spine-iphone.png (drawer at 4.1 while on 4.4.1.3 Kinds of abstraction); eval --size iphone and --size ipad after clicking [data-ui~=study.spine-open]: current entry y 2416/2424, drawer scrollTop 0, activeElement BODY. js/modules/hub.js:368-375 setTreeClosed only toggles drawerOpen/applyTreeCollapsed; no scrollIntoView or focus. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.4.1.3, open the spine: the active leaf 'Kinds of abstraction' is at y 2416 inside the drawer, focus stays on body.
 - **Root cause:** drawer open path does no reveal/focus management
 - **Proposed fix:** When the drawer opens, scroll the aria-current entry into view (block: 'center') and focus it (or the filter); trap/restore focus as an overlay (or use KOS.ui.openDialog's focus handling) and return focus to ☰ on close.
 - **Flags:** effort S
 
 ### ST-16 · P2 · ui — Card stats' Due forecast draws the coming days' bars in --s3, darker than the card they sit on (near invisible)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** In Graphite the 13 future-day bars of Due forecast are filled var(--s3) = oklch(0.14 …), below the card surface (~0.17-0.19), so they read as black holes rather than bars; only the red overdue bar and the numbers above show. The chart is the main reason to open the card.
-- **Evidence:** shots/study-core/q-cardstats-mac.png and shots/study-core/q-cardstats-dawn-ipadl.png (Due forecast); eval: rect fill oklch(0.14 0.008 265), body oklch(0.165 0.008 265). js/modules/cardstats.js:268 bars(forecast, {color: 'var(--s3)'}).
+- **Evidence:** shots/study-core/q-cardstats-mac.png and shots/study-core/q-cardstats-dawn-ipadl.png (Due forecast); eval: rect fill oklch(0.14 0.008 265), body oklch(0.165 0.008 265). js/modules/cardstats.js:268 bars(forecast, {color: 'var(--s3)'}). | Recheck 6 Nov (kos-redraw-1, slot 5): eval #/cardstats: SVG rect fills include oklch(0.14 0.008 265) on a card of oklch(0.2 0.009 265).
 - **Root cause:** surface token used as a data colour
 - **Proposed fix:** Use the scope hue (HUE[sid] / --teal, as Reviews per day does) or --muted for future days, keeping --alarm for overdue; check the result in Dawn and a shop theme.
 - **Flags:** effort S
 
 ### ST-17 · P2 · ux — On iPad portrait the topic inspector is stacked under the whole tab, ~1,700-2,600px down, behind a right-pointing collapse chevron
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPad portrait
 - **Detail / repro:** At 820px the inspector (topic status, the four checks, RAG, recall record, quick note, Ask Kurenai / Make flashcards / Test me) is laid out after the tab content at full width: the status select sits at y≈1765 on Specification and the Ask Kurenai buttons at y≈2591, below the end of a long notes page, so the state surface invariant 52 makes 'the sole state surface' is out of reach while studying. Its '›' toggle still points right as if the panel were a side column. On iPad landscape and the Mac it is a side column.
-- **Evidence:** shots/study-core/empty-topic-ipad.png (Inspector heading under the notes, '›' at right); measurement --size ipad on #/ref/compsci/4.1.1.1: ui.status-select y 1765, asst.ctx-btn y 2591 (Spec), 1227/2053 (Notes).
+- **Evidence:** shots/study-core/empty-topic-ipad.png (Inspector heading under the notes, '›' at right); measurement --size ipad on #/ref/compsci/4.1.1.1: ui.status-select y 1765, asst.ctx-btn y 2591 (Spec), 1227/2053 (Notes). | Recheck 6 Nov (kos-redraw-1, slot 5): Sweep --size ipad: inspector's ui.status-select at y 839-1785 depending on the tab, Ask Kurenai at y 1613-2071, all below the panel.
 - **Root cause:** no tier for the inspector between the side column and the phone layout
 - **Proposed fix:** Between 700 and 1080 open the inspector as an overlay side sheet from a header button (as the spine drawer does), or as a compact strip of status + checks above the tabs with the rest in a sheet; give the stacked state a down/up chevron.
 - **Flags:** effort M, needs a design prompt
 
-### ST-18 · P3 · content — Unit cards print 'completed · 0 started' (a supporting zero, invariant 77)
+### ST-27 · P2 · bug — Opening a topic's Quiz tab writes a quiz record, and the subject desk then reports "Quiz best 0% · 0 attempts across 1 topic"
 
 - **Devices:** all
+- **Detail / repro:** qstats() in the quiz engine creates state.study.quiz[sid:ref] = {attempts:0,best:0,lastPct:0} as a side effect of READING it, and the quiz renders call it on mount. Merely opening the Quiz tab (no answer given) therefore writes synced state (a render that writes), and subjectQuizStats() counts that record: the CS desk Subject analytics tile changes from "Quiz best — · no quiz attempts yet" to "Quiz best 0% · 0 attempts across 1 topic". Same for the inspector (Quiz best 0%). The bar is also driven by the raw count (pct: quiz.best), see the Quiz best % finding.
+- **Evidence:** eval (empty account): state.study.quiz before {} ; after clicking [data-tab=quiz] on #/ref/compsci/4.2.2.1 {"compsci:4.2.2.1":{attempts:0,best:0,lastPct:0}}; #/subject/compsci analytics tile text "Quiz best | 0% | 0 attempts across 1 topic". js/engines/quiz.js:16-21 (q[k] = q[k] || {...}), :58; js/modules/hub.js:119-129, :2200-2203.
+- **Root cause:** Read helper doubles as initialiser.
+- **Proposed fix:** Make qstats a pure read (return a default without assigning) and create the record only in finish(); subjectQuizStats should skip records with attempts 0.
+- **Flags:** effort S
+
+### ST-28 · P2 · ux — Assignment status buttons: a finished assignment shows two "↺ Reopen" buttons that do different things, and an open one offers "Reopen" to mean "set back to Not started"
+
+- **Devices:** all
+- **Detail / repro:** The detail panel draws one button per other status. For a Complete or Submitted assignment both the notStarted and the inProgress buttons are labelled "↺ Reopen" (one resets to Not started, the other to In progress), side by side. For an In progress or Blocked assignment the Not started button is also labelled "↺ Reopen", though nothing is closed. Pressing the first Reopen on a finished assignment with every subtask ticked leaves it "Not started" at 100% progress.
+- **Evidence:** eval on fixture id 18 (3 subtasks ticked, Complete): buttons ["✎ Edit","Unpin","◉ Focus on this","↺ Reopen","↺ Reopen","Blocked","⇪ Submitted"]; after the first Reopen status "notStarted", progress 100. js/modules/assignments.js:306-313.
+- **Proposed fix:** For a finished assignment show ONE Reopen (to In progress, or Not started when progress is 0); for an open one label the button "Not started".
+- **Flags:** effort S
+
+### ST-29 · P2 · ui — Due today's By topic list cuts every topic name to ~18 characters on the phone while its second line sits half empty
+
+- **Devices:** iphone, ipad portrait
+- **Detail / repro:** On iPhone each By-topic row is two lines: ref + title + ▶ on the first, the overdue/recall chips and "N due" on the second. The title is nowrap+ellipsis in a 158px slot, so "Rounding errors, abso…", "Arithmetic, relational a…", "Object-oriented progr…", "Bits, bytes and units o…" — 20 of the visible rows are truncated — while the chip line below has ~100px free. On iPad portrait the slot is 253px and 16 rows truncate.
+- **Evidence:** shots/study-core/t-review-iphone.png; measurement --size iphone #/review: 20 ELLIP span.k-rv-topic-t 158x21; --size ipad: 16 ELLIP 253x21 (sc5-iphone.json, sc5-ipad.json).
+- **Proposed fix:** Under 700px let the title take the full first line and wrap to two lines (line-clamp 2), with the ▶ moved to the chip line or the whole row the button.
+- **Flags:** effort S
+
+### ST-30 · P2 · data — Due today reviews are logged with no subject or topic, even a one-topic run, so they never count for a subject's streak, the topic's sessions or per-subject time
+
+- **Devices:** all
+- **Detail / repro:** renderDue starts KOS.flashcards.session with {type:"due-review"} and no sid/ref, so every Due-today batch is logged subject:null, ref:null — also a "review this topic" run (run "compsci:4.2.3.1", all 7 cards from Stacks). KOS.sessions.parts() then yields subject null: the CS desk Streak tile ("consecutive days on this subject", KOS.sessions.streak(sid)), the topic inspector's "Sessions here", Reports' subject split and Goals by subject never see the reviews that are the main daily study for this user. The same cards reviewed from the topic's own Flashcards tab are logged with the subject.
+- **Evidence:** eval: KOS.show("review",{tab:"due",run:"compsci:4.2.3.1"}), 7 cards rated -> last entry {type:"due-review", subject:null, ref:null, metrics:{cards:7,…}}, KOS.sessions.parts(e) subject null. js/modules/due.js:258-264; js/engines/flashcards.js:349-354; js/core/sessions.js:166-176.
+- **Proposed fix:** Pass sid/ref for a topic run; for a mixed run log refs (and a subject when single) or metrics.segments per subject so parts() splits it.
+- **Flags:** effort M
+
+### ST-18 · P3 · content — Unit cards print 'completed · 0 started' (a supporting zero, invariant 77)
+
+- **Re-checked on kos-redraw-1:** holds
+- **Devices:** all
 - **Detail / repro:** Every Course units card on CS/Maths/IT desks reads '0 / 17 completed · 0 started' on a fresh account and 'n completed · 0 started' whenever nothing is in progress. The started count is a supporting fact and should be suppressed at zero.
-- **Evidence:** shots/study-core/e-compsci-mac.png (Course units row); js/modules/hub.js:2065 always appends ' completed · ' + started + ' started'.
+- **Evidence:** shots/study-core/e-compsci-mac.png (Course units row); js/modules/hub.js:2065 always appends ' completed · ' + started + ' started'. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad #/subject/maths (seeded): 'P1 | Proof | 0 / 1 completed · 0 started'; empty iPhone CS desk shot shots/study-core/t-empty-cs-iphone.png '0 / 17 completed · 0 started'.
 - **Root cause:** hub.js:2065 unconditional string
 - **Proposed fix:** Append ' · n started' only when started > 0.
 - **Flags:** effort S
 
 ### ST-19 · P3 · ux — Inspector's Quiz best and attempts do not update when a quiz finishes
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** After finishing a quiz on a topic the inspector still shows the old 'Quiz best' (0% on a first attempt) until something redraws the page; the session has been logged and paid. The result card and the inspector disagree on screen.
-- **Evidence:** eval on #/ref/compsci/4.2.2.1: after the last 'See your score', record attempts 1 / best 6, inspector still 'Quiz best 0%'; after KOS.rerender() it reads 6%. js/engines/quiz.js:150-165 finish() saves and logs but does not refresh the inspector.
+- **Evidence:** eval on #/ref/compsci/4.2.2.1: after the last 'See your score', record attempts 1 / best 6, inspector still 'Quiz best 0%'; after KOS.rerender() it reads 6%. js/engines/quiz.js:150-165 finish() saves and logs but does not refresh the inspector. | Recheck 6 Nov (kos-redraw-1, slot 5): Fixture: after the quiz's 'See your score' the record is {attempts:1,best:5} but the inspector still reads 'Quiz best 0%', 'Quiz attempts —'; the inspector also stays stale after a finished flashcard batch ('Card views 3', 'Cards scheduled 3 / 16' while 16 were rated) — kos-redraw-1 holds the background redraw on study pages, so nothing refreshes it until navigation.
 - **Root cause:** engine writes state without notifying the inspector
 - **Proposed fix:** Have finish() trigger the topic page's inspector refresh (the same hook the flashcard engine uses after a rating), or KOS.rerender with keep.
 - **Flags:** effort S
 
 ### ST-20 · P3 · bug — Streak milestone note repeats '36-day streak' once per milestone, and missing milestone records pay every past milestone at once
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** A quiz scored 40% paid 56 gold: 2 for the quiz plus 3+7+14+30 for streak milestones the run had already passed, and the award notes read '36-day streak' four times. The note text uses the current streak (stk) instead of the milestone (ms). The retro-payment happens whenever g.milestones lacks the run's dates (seen on the seeded account; also possible after the ledger's 2,000-entry cap shortens the computed streak, which moves the run's start date and re-pays every milestone).
-- **Evidence:** eval KOS.governor.lastAward(): {gold:56, notes:['36-day streak' x4]}; state.governor.milestones afterwards streak3..30 dated 09-30..10-27. js/core/governor.js:330-339.
+- **Evidence:** eval KOS.governor.lastAward(): {gold:56, notes:['36-day streak' x4]}; state.governor.milestones afterwards streak3..30 dated 09-30..10-27. js/core/governor.js:330-339. | Recheck 6 Nov (kos-redraw-1, slot 5): Completing an assignment on the seeded account: toast '+5 XP · +55 gold · 36-day streak, 36-day streak, 36-day streak, 36-day streak'; js/core/governor.js:329-340 unchanged.
 - **Root cause:** note uses stk; milestone key derived from a recomputed streak length
 - **Proposed fix:** Push ms + '-day streak' (and collapse to one note), pay only the highest newly reached milestone when several are pending, and key the run by its first ledger date that is not subject to the cap (or store the run start once).
 - **Flags:** effort S
 
 ### ST-21 · P3 · ui — Quiz "Next question" shows a keyboard Enter hint (↵) on touch devices
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iPhone, iPad
 - **Detail / repro:** On iPhone the Next question button carries a ↵ key badge; there is no keyboard. The flashcard Keys panel likewise lists Space/1-4 on touch. The flashcard front also says "press to flip" on touch.
-- **Evidence:** shots/study-core/q-quiz-result-iphone.png
+- **Evidence:** shots/study-core/q-quiz-result-iphone.png | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone (touch) on the Quiz tab: Next question button text 'Next question →\n↵' with the ↵ span display flex.
 - **Root cause:** kbd hint rendered regardless of input type
 - **Proposed fix:** Hide key hints under (hover: none) and (pointer: coarse), as other kbd hints should be.
 - **Flags:** effort S
 
 ### ST-22 · P3 · content — Study editor card headers print raw ISO dates and wrap "Card 1" onto two lines on the phone
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all; wrap on iPhone
 - **Detail / repro:** Each row in the flashcard editor reads e.g. "10 reviews · due 2026-10-29" (an ISO date, and a date already past with no "overdue"). On iPhone the three 44px row buttons leave the header so little width that "Card" and "1" break onto separate lines and the due date splits as "due 2026- / 10-29".
-- **Evidence:** shots/study-core/q-editor-mac.png, shots/study-core/q-editor-iphone.png
+- **Evidence:** shots/study-core/q-editor-mac.png, shots/study-core/q-editor-iphone.png | Recheck 6 Nov (kos-redraw-1, slot 5): js/modules/editor.js:423-424 unchanged: 'due ' + m.due prints the raw ISO date.
 - **Root cause:** raw card.due string in js/modules/editor.js row header
 - **Proposed fix:** Format with the app date helper ("due 29 Oct", "4 days overdue"), keep the label nowrap, and put the meta on its own line under the phone tier.
 - **Flags:** effort S
 
 ### ST-23 · P3 · ux — Empty Review, Due today and Assignments are dead ends with zero rows and placeholder panels
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** On a new account: Review's 'Today so far' prints Reviewed 0 / Accuracy — / Time 0 min (supporting zeros, invariant 77) and 'Next 7 days · nothing scheduled' keeps a 100px empty chart with seven grey ticks. Due today is one line ('Queue clear…') under a lone '← Queue' button on an otherwise empty 1210px page, with no way forward (e.g. 'Study a new topic' / Continue from the plan). Assignments shows four filter selects with nothing to filter and a right column whose only content is 'Select an assignment to see its brief…' although there are none.
-- **Evidence:** shots/study-core/q-empty-review-mac.png, q-empty-due-mac.png, q-empty-assignments-mac.png; js/modules/due.js:222-236 (Today so far always drawn).
+- **Evidence:** shots/study-core/q-empty-review-mac.png, q-empty-due-mac.png, q-empty-assignments-mac.png; js/modules/due.js:222-236 (Today so far always drawn). | Recheck 6 Nov (kos-redraw-1, slot 5): shots/study-core/t-empty-review-mac.png (empty account): '0 cards due', 'Nothing due in any topic today', Today so far Reviewed 0 / Accuracy — / Time 0 min, Next 7 days with an empty week.
 - **Root cause:** empty states render the populated layout's scaffolding
 - **Proposed fix:** Hide 'Today so far' until something was reviewed today and collapse the empty forecast to its sub-line; give Due today's empty state the next action from KOS.homeFocusPlan / Continue; hide the assignment filters and the detail column while the list is empty and let the empty state with its 'New assignment' button take the width.
 - **Flags:** effort S
 
 ### ST-24 · P3 · a11y — New assignment: a missing title is reported only in a toast; the field is not marked or focused, and a subject-less assignment can never be focused on
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** Pressing Save with an empty title keeps the dialog open and shows the toast 'An assignment needs a title.', but the Title input gets no aria-invalid, no inline message and no focus (on the iPhone sheet the toast can sit under the keyboard). The form also allows 'No subject' (the default), and the detail panel then omits '◉ Focus on this' (it requires a.subject), so that assignment can never receive Focus time. The sheet's inputs are 39-42px tall on touch.
-- **Evidence:** shots/study-core/q-asg-new-iphone.png; eval --size iphone: after Save, title aria-invalid null, activeElement not the title, #toast text 'An assignment needs a title.'; field heights 39-42. js/modules/assignments.js:316 (Focus button only when a.subject).
+- **Evidence:** shots/study-core/q-asg-new-iphone.png; eval --size iphone: after Save, title aria-invalid null, activeElement not the title, #toast text 'An assignment needs a title.'; field heights 39-42. js/modules/assignments.js:316 (Focus button only when a.subject). | Recheck 6 Nov (kos-redraw-1, slot 5): eval (empty account): Save with no title -> toast 'An assignment needs a title.', title aria-invalid null (focus was already on the title from opening).
 - **Root cause:** validation via toast only; Focus link gated on subject
 - **Proposed fix:** Mark the field (aria-invalid + aria-describedby to an inline error) and focus it; either require a subject or let Focus run on a subject-less assignment (Focus's own subject picker); raise sheet controls to --hit-coarse.
+- **Flags:** effort S
+
+### ST-31 · P3 · content — Subject analytics "Started" says "opened at least once" but counts only topics given a status by hand
+
+- **Devices:** all
+- **Detail / repro:** After opening a CS topic, rating its 16 flashcards (a logged session) and finishing its quiz (a logged session), the CS desk still reads "Started 0 / 131 · 0% opened at least once" while Reviewed is 16 and Streak 1 day. s.touched is total minus topics with no status; a subject topic never gets a status automatically (only Code/Mind/Creatives sync checks), so the sub-line promises something the figure does not measure.
+- **Evidence:** eval #/subject/compsci after the fixture: analytics tiles ["Started | 0 / 131 | 0% opened at least once", "Reviewed | 16 / 2111", "Quiz best | 5% | 1 attempt across 1 topic", "Streak | 1 day"]. js/modules/hub.js:75, :2190-2192.
+- **Proposed fix:** Reword to "given a status" / "marked started or further", or count topics with any evidence (cards rated, quiz attempted, pages read).
+- **Flags:** effort S
+
+### ST-32 · P3 · bug — An unknown topic ref shows the subject desk under the bad #/ref URL instead of replacing the route
+
+- **Devices:** all
+- **Detail / repro:** #/ref/compsci/4.2.2.2 (no such leaf; e.g. an old link or a typo) renders the Computer Science desk while the address bar keeps #/ref/compsci/4.2.2.2, so Back/refresh/sharing keep the wrong URL and nothing says the topic was not found. Invariant 65: invalid routes replace (with Home).
+- **Evidence:** shots/study-core/t-badref-mac.png; eval: location.hash "#/ref/compsci/4.2.2.2", #main h1 "Computer Science".
+- **Proposed fix:** In KOS.views.ref, when the leaf is unknown, history.replaceState to #/subject/<sid> (or Home) and toast "That topic is not in the specification".
+- **Flags:** effort S
+
+### ST-33 · P3 · ui — Subject analytics tiles stretch to the side column: ~40% of each tile is blank and the explanatory sub-lines are screen-reader only
+
+- **Devices:** mac, ipadl
+- **Detail / repro:** On the subject desk the Subject analytics grid is flex:1 with grid-auto-rows:1fr, so its 8 tiles stretch to match the Deadlines card beside it: each tile is 117px tall for a 19px label, a 41px figure and a 3px bar, leaving a blank band under every row (rows 145px apart). Each tile carries a useful sub-line ("progress checks across 131 topics", "1% of the deck is in the schedule") but it is .sr-only, so sighted users get only bare figures plus a "What do these mean?" popover.
+- **Evidence:** shots/study-core/t-badref-mac.png (CS desk, mac); eval: tile height 117, k-sa-k y426 h19, k-sa-v y449 h41, bar y495 h3; part.caption class sr-only. css/views/study.css:77-78; js/modules/hub.js:2185-2210.
+- **Proposed fix:** Show the sub-line visibly (12px muted) in the space that is already there, or let the grid size to content and the side column align differently.
+- **Flags:** effort S
+
+### ST-34 · P3 · bug — An assignment due earlier today reads "Overdue · 1 day"
+
+- **Devices:** all
+- **Detail / repro:** An open assignment due today at 00:01 (or any time already passed today) is overdue, and the row label forces at least one day: Math.max(1, -daysLeft) gives "Overdue · 1 day" when it is minutes or hours late. It should say "Overdue · today 00:01" / "due 00:01" (as Reminders do with the time).
+- **Evidence:** eval fixture KOS.assignments.add({due: today, dueTime: "00:01"}) on #/assignments: row text "ZZ fixture late today / CS · Homework / 0% / Overdue · 1 day / Overdue". js/modules/assignments.js:44.
+- **Proposed fix:** When daysLeft is 0, print "Overdue · since " + dueTime (or "Late today").
+- **Flags:** effort S
+
+### ST-35 · P3 · ux — Assignments have no URL of their own: #/assignments/<id> is ignored and a reload or Back loses the open assignment
+
+- **Devices:** all
+- **Detail / repro:** The router has no ENCODE/DECODE entry for assignments, so KOS.show("assignments", {id}) writes plain #/assignments and a typed or shared #/assignments/18 opens the first assignment instead. Reloading (or Back to the page) shows assignment 1 again, not the one you were working on. Goals' linked-assignment row (goals.js:660) and Home's Upcoming "Tracker →" also open the list without selecting the linked one.
+- **Evidence:** eval: KOS.show("assignments",{id:18}) -> location.hash "#/assignments", panel "ZZ fixture tonight"; after location.reload() panel "NEA — Analysis section…" (id 1); #/assignments/18 -> panel id 1. js/core/router.js:54-147 (no assignments entry); js/modules/assignments.js:67-72; js/modules/goals.js:660.
+- **Proposed fix:** Add assignments to ENCODE/DECODE ({id} <-> /<id>) and pass {id} from Goals and Home.
+- **Flags:** effort S
+
+### ST-36 · P3 · ux — The Notes page you were on is forgotten: Back, returning to the topic or any foreground redraw reopens page 1
+
+- **Devices:** all
+- **Detail / repro:** A topic keeps its open TAB across a redraw (openTabMemo), but the note page is only kept when the editor asks (o.keep). On 4.2.3.1 Stacks (7 pages): on page 4, KOS.rerender() reopens page 1; going to the subject desk and pressing Back reopens page 1; leaving and coming back reopens page 1. A long note read over several sittings always restarts at the Overview.
+- **Evidence:** eval #/ref/compsci/4.2.3.1: page select "1" (page 2) -> after KOS.rerender() "0"; after history.back() from #/subject/compsci "0"; re-entering "0". (Inspector status/confidence/check changes do keep the page.) js/modules/hub.js:2983 (cur = o.keep ? notePage : 0).
+- **Proposed fix:** Remember the page per topic per device (state.ui.notePage["sid:ref"]) and reopen it on redraw, Back and return; keep 0 for a first visit.
+- **Flags:** effort S
+
+### ST-37 · P3 · bug — Today so far's "Time" never counts a review: the flashcard engine logs no duration
+
+- **Devices:** all
+- **Detail / repro:** due.js sums s.dur over today's flashcards/due-review sessions, but KOS.flashcards.session logs no dur at all, so real review time is always 0 ("Time 0 min", a printed supporting zero); on the seeded account the only minutes shown came from an imported seed entry. The same missing duration keeps flashcard work out of every time-based read (Study hours, Reports).
+- **Evidence:** eval: today's ledger ["flashcards:2042:{complete:true}" (seed), "due-review:null:{cards:7,…}" (mine, dur null)]; Today so far "Reviewed 7 · Accuracy 88% · Time 34 min" where all 34 min are the seed entry. js/modules/due.js:222-235; js/engines/flashcards.js:349-354 (no dur).
+- **Proposed fix:** Record the batch's active seconds (first flip to finish, idle gaps capped) as dur; hide Time when it is 0.
+- **Flags:** effort S
+
+### ST-38 · P3 · bug — Subject Resources accept a "file path" the link can never open: /Users/…/week1.pdf becomes a link into the app's own site
+
+- **Devices:** all
+- **Detail / repro:** The Add a resource dialog invites "https://… or file path". A path is stored verbatim and rendered as <a href> relative to the app, so /Users/fj/Documents/week1.pdf opens http://127.0.0.1:9105/Users/fj/Documents/week1.pdf (on production kurenai-os.pages.dev/Users/…), a 404 / the app shell; browsers do not open local files from a web page anyway. Anything typed is accepted as a link (no scheme check), and the app's own Files store — which can hold the PDF — is not offered.
+- **Evidence:** eval #/subject/maths: Add, name "Week 1 sheet", link "/Users/fj/Documents/week1.pdf" -> rendered a.href "http://127.0.0.1:9105/Users/fj/Documents/week1.pdf". js/modules/hub.js:2316-2318 (href: r.url), :2335-2348 (placeholder "https://… or file path", no validation).
+- **Proposed fix:** Accept http(s) URLs only (prefix https:// when missing a scheme), and point "a file" to Files (Add file → linked to the subject/topic).
+- **Flags:** effort S
+
+### ST-39 · P3 · ui — Card stats with no history: one figure in a full-width card, and the page header changes shape between Due today and Card stats
+
+- **Devices:** mac, ipadl
+- **Detail / repro:** On an empty account Card stats shows a 1210px-wide card holding only "Cards in scope 5,436" at its left edge, then a one-line empty state and ~450px of nothing. Switching from Due today to Card stats also changes the page header: Due today has no art band and the Due today | Card stats switch alone; Card stats grows a picture band with the eight scope pills (All … Creatives) laid over the busy artwork next to the same switch, so the switch jumps sideways and the header height changes while the user only changed tab.
+- **Evidence:** shots/study-core/t-empty-cardstats-mac.png vs shots/study-core/t-empty-review-mac.png (mac, empty account).
+- **Proposed fix:** Put the scope pills in the body (a section header), keep one header for both tabs; in the low-data state merge the scope count into the empty-state line.
+- **Flags:** effort S
+
+### ST-40 · P3 · data — Assignment progress has two owners: the editor's Progress % is silently overwritten by the subtasks
+
+- **Devices:** all
+- **Detail / repro:** The New/Edit assignment dialog offers a free Progress % field, but syncProgress() recomputes progress from subtasks whenever one is added or toggled. Fixture: progress 40 -> add one subtask -> 0; set 80 in the editor -> 80 (shown with 0/1 subtasks done) -> tick then untick the subtask -> 0. The typed figure is lost without notice, and the list's Progress sort and Home's "what its estimate has left" read whichever wrote last.
+- **Evidence:** eval KOS.assignments: add({progress:40}) p=40; subAdd -> 0; update({progress:80}) -> 80; subToggle(done) -> 100; subToggle(undone) -> 0. js/core/assignments.js:279-312 (subAdd/subToggle -> syncProgress); js/modules/assignments.js editModal Progress % field.
+- **Proposed fix:** When an assignment has subtasks, show progress as derived (read-only, "from subtasks") in the editor; otherwise keep the manual field.
+- **Flags:** effort S
+
+### ST-41 · P3 · ui — The spec spine truncates most unit names on the Mac: "Algebra and functi…", "Fundamentals of data structure…"
+
+- **Devices:** mac, ipadl
+- **Detail / repro:** At 1470px the spine column gives a unit title 136-145px (CS) and ~140px (Maths) on one nowrap line, so 12 of the 15 CS units and most Maths units are cut ("Fundamentals of programming", "Fundamentals of data represent…", "Coordinate geometr…", "Sequences and seri…", "Exponentials and lo…"); group headers ("4.2.1 · DATA STRUCTURES AND AB…") and leaf leads too. The spine is the Study section list (invariant 51) and the names are what you navigate by; there is vertical room for two lines.
+- **Evidence:** shots/study-core/t-topic-dawn-mac.png (Maths spine, Dawn); measurement mac #/ref/compsci/4.2.3.1: ELLIP span.k-spine-title 138x21 ×12, k-spine-grp-t 188x17, part.lead 197x20 (sc5-mac.json).
+- **Proposed fix:** Allow two lines (line-clamp: 2) for unit titles and leaf leads; or drop the common "Fundamentals of" prefix in the spine label.
+- **Flags:** effort S
+
+### ST-42 · P3 · ui — Topic inspector prints a column of dashes on a topic with no activity (8 "—" rows)
+
+- **Devices:** all
+- **Detail / repro:** On a topic never studied the inspector's Recall record and Next review sections list Card views —, Recall accuracy —, Lapses —, Recall today —, Quiz best —, Quiz attempts —, Exam questions logged —, Review queue —, Sessions here — (and "No performance data yet"), about 400px of placeholders before the Quick note. Invariant 77/50c: zero-only supporting facts are suppressed; one line ("Nothing rated here yet · 18 cards ready") says the same.
+- **Evidence:** shots/study-core/t-topic-dawn-mac.png (#/ref/maths/1.1, empty account, Dawn); js/modules/hub.js:3215-3235 (li(label, value, empty) rows always drawn).
+- **Proposed fix:** Collapse the Recall record/Next review sections to one sentence until the topic has any evidence; print each row only when it has a value.
+- **Flags:** effort S
+
+### ST-43 · P3 · content — Inspector's "Review queue" prints a raw ISO date ("2026-11-08")
+
+- **Devices:** all
+- **Detail / repro:** When nothing is due, the topic inspector's Next review row shows t.next verbatim, e.g. "Review queue 2026-11-08", where every other date in the app is "Sun 8 Nov" / "in 2 days".
+- **Evidence:** eval inspector text on #/ref/compsci/4.2.2.1 after rating its cards: "NEXT REVIEW\nReview queue\n2026-11-08". js/modules/hub.js:3229 (nextTxt = t.next).
+- **Proposed fix:** Format with the shared day label ("Sun 8 Nov · in 2 days").
 - **Flags:** effort S
 
 **QoL ideas from this auditor:**
@@ -1600,11 +1953,18 @@ _Interrupted auditor: coverage notes were not written. Treat everything not list
 - Say 'tap to flip' on touch devices and hide keyboard badges (↵, Space, 1-4) there.
 - Print relative dates in the study editor and assignment rows ('due 29 Oct', '4 days overdue').
 - Give the 'charts →' column in Card stats a header, or make the whole row the link.
+- Resource removal dialog says it 'will be removed from the table' — there is no table (hub.js Remove resource?).
+- Retention / exam-day target selects give no confirmation toast when changed.
+- Subtask ✕ deletes with no undo.
+- 'Session complete · N cards graduated' says graduated for cards that only moved a few days; 'N reviewed' is plainer.
+- Assignment subject filter lists every space (Code, Japanese, Creatives, Mind) in KOS_DATA order rather than KOS.subjects' order.
 
 **Backlog ideas from this auditor:**
 - Read every review count (Today so far, Reviews per day, Rating mix, Reports) from KOS.reviewLog instead of session metrics.
 - An iPad-portrait design for the topic page: the inspector and the spine as overlay sheets, the tools in the header.
 - A shared study-space hero with a path strip of one fixed height for CS/Maths/IT as well as Code, Japanese, Mind and Creatives.
+- Partial flashcard batches: log a session per batch on leave (pagehide/navigation) with the cards actually rated.
+- Give Due today sessions per-subject segments so every subject/topic read counts review time.
 
 
 ---
@@ -3254,12 +3614,13 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ## PR — Focus, Reminders, Routines, Daily Review, Calendar, Pacing (complete)
 
-**Auditor's summary.** Productivity is broadly functional on all three devices, but four P1 problems stand out. (1) KOS.ui.menu panels sit at --z-menu 110, under the modal layer at 120, so any menu inside a dialog is invisible and can't be clicked. This is why the Afternoon review's 'Place in a free block' does nothing, and About to Study's 'Change' is broken the same way. (2) KOS.show assigns state.ui.view only after rendering, so every page header paints the previous page's band after in-app navigation. (3) About to Study ignores the Focus page's 'General study — no link' choice and links the session to the first assignment, even through 'Just start'. Time is then banked on the wrong assignment. (4) The running Focus screen has no width cap on the assignment chip, so long titles run off the viewport. Calendar has no Agenda or Day view on Mac/iPad: Agenda only exists in the phone branch of render(). The rest is polish: dead space (Routines offer card, the Reminders inspector, the Focus page while minimised, the routine Today columns), touch targets under 44px (Pacing ticks and day selects, Reminders circles, routine pick boxes drawn as 22x44 capsules), the review time strip's overlapping labels, and wording (repeated streak notes, raw ISO due dates).
+**Auditor's summary.** Top-up on sw kos-redraw-1 (e6c08b1): all 22 earlier findings re-checked (20 hold, 2 changed, none gone) and 21 new ones from a behaviour inventory with fixtures across Focus, Reminders, Routines, the Daily Review, Calendar and Pacing. The four P1s still hold: the Afternoon review's 'Place in a free block' menu opens under the dialog (z-menu 110 < z-modal 120, the one root cause behind several 'dead' menus inside dialogs), page headers draw the previous page's art (pageHeader reads state.ui.view before KOS.show sets it), About to Study overrides 'General study — no link' with an assignment, and a long assignment title runs off the running Focus stage. The inventory found the engines mostly sound (Focus pay rules per mode, idle watch, switching, snapshots, rest days, streaks, late ticks, carry-over and lesson ticks all behave as their invariants say), but the edges leak: a routine of only optional steps can never be kept, ticking the minimum first locks out the full award, a one-step 'New routine' silently becomes a habit, monthly reminders drift after a short month, a repeating reminder's completion cannot be undone (the review's Undo does nothing for it), auto-tracked Focus habits count aborted sessions on the calendar rather than routine day, and Pacing accepts a mid-week week beginning that takes over 'this week'. Most root causes are a missing rule in a single gate (verdict, updateWeek, the dayReview settings normaliser, nextOccurrence) rather than structural problems; the structural ones are the menu layering and the header-art ordering.
 
-**Coverage.** Seeded and empty accounts. Mac 1470x832, iPad 820x1180 and 1180x820 (touch), iPhone 402x874. A DOM measurement sweep ran over #/focus, #/reminders, #/routines (today, routines, templates, history, settings, edit/habits), #/calendar and #/pacing (week and braid) at mac/ipad/iphone, seeded and empty. Screenshots I looked at: Focus idle, About to Study, running stage, break, mini player (Mac), phone dock, switch dialog, completion review (Mac and iPhone); Reminders All and Today with 'From your plan' and the empty state; Routines Today offer, routine card, list, editor, player (Mac and iPhone), history, settings; Calendar Month (Mac, iPad landscape), Week (Mac, iPad portrait), phone Agenda/Month; Pacing week (Mac, iPhone) and braid; Daily Review afternoon (Mac, iPad) and evening. The 'Place in a free block' bug was reproduced and root-caused by measurement and a programmatic click. Not examined: the idle watch end to end (30-minute timers; code not traced), the Stopwatch, Custom and Study-until modes running, the Morning review's 'pick three' step, the Templates detail and the routine editor's step '⋯' menu, the habit editor with real habits (the seed has none), Reminders' edit inspector, sub-tasks and recurrence editor, the Calendar event modal, the Pacing edit-week and class-days dialogs, the Dawn theme and a shop theme (no time left), and the iPad Home Screen standalone mode.
+**Coverage.** Seeded and empty accounts on slot 13; Mac 1470x832, iPad 820x1180 (and the Calendar at 1180x820 earlier), iPhone 402x874; Graphite, Atelier Dawn (body and root data-theme set — the harness's --theme alone leaves body on Dusk) and the sakura-skyline shop theme. DOM sweeps (prod2/s-*.json seeded mac/ipad/iphone, prod2/e-*.json empty mac/iphone) over #/focus, #/reminders, #/routines (today, routines, templates, history, settings, edit/habits), #/calendar, #/pacing and #/pacing/braid; screenshots looked at are in shots/productivity/inv/. Behaviour fixtures (prod2/*.js): every Focus mode's pay and end paths, the idle watch end to end, a mid-session switch; routine verdicts (all-optional, minimum, snapshot, re-tick, on-demand), schedules (every N days, weekend override), rest days, streak/best/summary, late evening ticks, several-times-a-day habits, auto-tracking with thin and contradictory evidence, the one-step New routine save, the player to the end; reminders' recurrence, completion, undo, lists, tags, reward cap and alert forecast; Daily Review due()/folding with out-of-order times, the morning Three picks, the afternoon Place menu and time strip, triage code; Calendar recurrence, validation, the modal; Pacing carry-over, lesson ticks, week edit/delete. Matrix: productivity.inventory.md. NOT checked: break nudge chime, distraction penalties and wake lock (need real time/visibility/audio), Kurenai's review words (no AI route in the harness), iPad Home Screen standalone and real Safari, Google/Todoist sync, the phone Focus dock and mini-player drag (presentation from the 1–2 Nov run only), the Pacing Class days dialog image, and the Evening review end to end on this build.
 
 ### PR-01 · P1 · bug — Afternoon review: 'Place in a free block' menu opens BEHIND the review dialog, so it does nothing
 
+- **Re-checked on kos-redraw-1:** holds: eval prod2/place.js 6 Nov 18:52 — menu panel z-index 110 under the review dialog's 120, elementFromPoint at the panel = .k-dr-place (not the menu); a programmatic click on its item does add the event (added 1); js/core/ui.js:857-870, css/tokens.css:1031-1032
 - **Devices:** all
 - **Detail / repro:** Daily Review > Afternoon > step 3 Time left. Pressing 'Place in a free block' sets aria-expanded=true and appends the menu panel to <body>, but the panel is z-index var(--z-menu)=110 while the review overlay is var(--z-modal)=120, so the menu is painted under the dialog's scrim and panel: nothing visible appears, and a tap where the item would be lands on the dialog (elementFromPoint at the first item's centre returns another row's 'Place in a free block' button). The item's onSelect itself works: invoking it programmatically creates the study block (15:30, 90 min, type study, assignmentId 1) with an Undo toast. Same root cause affects EVERY KOS.ui.menu used inside a KOS.ui.openDialog (the primitive never raises a menu above an open modal). Also reproduced on About to Study's 'Change ▾' task menu (preflight dialog): panel z=110, elementFromPoint at its first item returns the dialog's k-field, not the menu.
 - **Evidence:** shots/productivity/dr-place-open-mac.png (menu open per aria-expanded, nothing shown); eval: panel z=110, overlay z=120, panel parent BODY, topEl at item centre = 'k-btn k-btn--sm ui.menu-button'; css/tokens.css:1031-1032 (--z-menu:110, --z-modal:120); css/components.css:334 (.k-menu-panel z-index var(--z-menu)); js/core/ui.js:813 (place() appends panel to document.body); js/modules/dayreview.js:609
@@ -3269,6 +3630,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-02 · P1 · bug — Every page header shows the PREVIOUS page's painted band after in-app navigation
 
+- **Re-checked on kos-redraw-1:** holds: eval navigating #/pacing,#/routines,#/focus,#/reminders,#/calendar,#/routines → page-header art page.reminders, page.pacing, page.reminders, none, (no header), page.calendar; js/core/ui.js:642-643 (reads state.ui.view) and 1592-1594 (view rendered, then ui.view assigned)
 - **Devices:** all
 - **Detail / repro:** KOS.ui.pageHeader picks its art from KOS.store.state.ui.view, but KOS.show sets state.ui.view only AFTER the view function has rendered. So navigating Pacing -> Routines draws Pacing's band on Routines, Routines -> Focus draws Reminders' band (Routines maps to 'reminders') on the Focus Timer, Focus -> Reminders draws none (Focus has no PAGE_ART entry), etc. Only a reload (where ui.view was persisted) shows the right picture. Repro via eval navigating #/pacing,#/routines,#/focus,#/reminders,#/calendar,#/routines: header images were reminders, pacing, reminders, none, none, calendar respectively. Affects every page that uses pageHeader, not only Productivity; the art audit just released depends on it.
 - **Evidence:** eval output: '#/pacing [app.hero.page.reminders.webp]', '#/routines [app.hero.page.pacing.webp]', '#/focus [app.hero.page.reminders.webp]', '#/routines [app.hero.page.calendar.webp]'; shots/productivity/focus-mac-seed.png and routines-mac-seed-2.png (sticky-note pinboard band on Focus/Routines); js/core/ui.js:589-592 (art = PAGE_ART[state.ui.view]); js/core/ui.js:1541-1543 (view rendered, then ui.view assigned)
@@ -3278,6 +3640,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-03 · P1 · data — Focus: 'General study — no link' is overridden by About to Study, which silently links the session to the first assignment (even with 'Just start')
 
+- **Re-checked on kos-redraw-1:** holds: eval 6 Nov (empty account + one assignment) — preflight({subject:null, assignmentId:null}) shows 'QA essay · Assignment · due Sun 8 Nov'; 'Just start' → active {subject:'compsci', assignmentId:1}; js/modules/routineplayer.js:279-287
 - **Devices:** all
 - **Detail / repro:** On #/focus with subject 'General study — no link' and 'No assignment', pressing Start focus opens About to Study pre-filled with the overdue NEA assignment. Pressing 'Just start' (or Start Focus) starts a session with subject 'compsci' and assignmentId 1. The completed session then banks its minutes on that assignment (invariant 4a) and counts as CS study, i.e. time is misattributed. The only escape in the dialog, 'Change ▾', is a KOS.ui.menu that opens behind the dialog (same z-index bug), so there is no way to keep 'no link' short of turning off About to Study.
 - **Evidence:** eval: Focus page left on General study/no assignment -> Start focus -> preflight.just-start -> session {subject:'compsci', assignmentId:1}; shots/productivity/focus-running-mac.png (About to Study shows NEA); js/modules/routineplayer.js:279-287 (taskOf falls back to taskChoices()[0] when ctx has no subject/assignment), 257 (go(skip) merges task even when skip); js/modules/focus.js:2253
@@ -3287,6 +3650,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-04 · P1 · ui — Running Focus: a long assignment title runs off the screen (left edge on Mac, right edge on iPhone)
 
+- **Re-checked on kos-redraw-1:** holds: eval 6 Nov — .k-fx-ctx spans x -130.8..485 at 1470 px; shots/productivity/inv/focus-run-mac.png (title cut at the left edge, 'due 2026-11-02' raw); js/modules/focus.js:881-882, 1018, 2175
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** The objective/context column on the running Focus screen holds the assignment chip ('課 <title>') with no max width, wrapping or ellipsis. With the NEA assignment the k-fx-ctx box is 616px wide: on the Mac it starts at x=-131 (text cut at the window's left edge: 'tion: stakeholder interviews…'), on iPhone it ends at x=648 in a 402px viewport. The due date is printed raw ('due 2026-10-29'), as are the Focus page's assignment options ('· due 2026-10-29'). On iPhone the context card is also washed out over the bright window art (chips barely legible).
 - **Evidence:** shots/productivity/focus-running-mac.png (left edge), shots/productivity/focus-running-iphone.png; eval: .k-fx-ctx rect x=-131..485 (mac), 32..648 (iphone, vw 402); js/modules/focus.js:879-883 (chip('課 '+asg.title), chip('due '+asg.due)), 1018, 2175; css/views/productivity.css:113-114
@@ -3296,6 +3660,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-05 · P2 · ui — Afternoon review time strip: end label '22:00 夜' overprints the last hour tick; 30-minute block text wraps to two lines
 
+- **Re-checked on kos-redraw-1:** changed: time-dependent — at 18:52 the strip is clean (ticks 19:00 248-281, 20:00 588-621, 21:00 927-960; end label 1210-1261) and a 99-minute block shows its two lines by design; the overprint still follows from the code whenever the strip starts after ~21:00 (js/modules/dayreview.js:593-605); the related mislabel is filed separately ('Time-left strip's end label…')
 - **Devices:** all, worst on iPad portrait/iPhone
 - **Detail / repro:** In the Time left strip the hour ticks are left-anchored at their position and run up to the last hour before the evening review, while the end label is pinned at inline-end. With from=04:46 and until=22:00 the 21:00 tick starts at ~94% of the width, exactly under '22:00 夜' (the screenshot shows '2̶2̶:̶0̶0̶' overprinted). Short free blocks (30 min = ~31px) wrap '30 min' onto two lines and overflow their outline. Same overlap happens at any width; worse on iPad portrait and phone where the strip is narrower.
 - **Evidence:** shots/productivity/dr-afternoon-timeleft-mac.png (top-right of strip, and the 08:00 block); js/modules/dayreview.js:593-604 (tick loop t<to; tend appended unconditionally); css/views/routines.css:340-341; shots/productivity/dr-afternoon-ipad-empty.png (iPad portrait: ticks 20:00/22:00 and '22:00 夜' overprinted, '30 mi' clipped)
@@ -3305,6 +3670,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-06 · P2 · ux — Calendar has no Agenda (or Day) view on Mac or iPad; Agenda exists only under 700px
 
+- **Re-checked on kos-redraw-1:** holds: js/modules/calendar.js:1545 (desktop/iPad: month|week only), 1606-1618 (Agenda only in the phone composition); iPad portrait month chips are 81 px wide and unreadable (shots/productivity/inv/cal-ipad.png)
 - **Devices:** mac, ipad, ipadl
 - **Detail / repro:** At >700px the Calendar offers only Month and Week (js/modules/calendar.js:1545 mode is 'week'|'month'; buttons at 1589-1591). The Agenda list (renderPhone, the stored 'week' mode) is drawn only when matchMedia('(max-width:700px)') matches (calendar.js:1562-1563, 1613). So the user cannot get the agenda on the MacBook (1470) or iPad (820/1180). There is no Day view at any size. Also the same stored value calMode='week' means 'Week grid' on desktop and 'Agenda' on phone, so an iPad in Split View flipping across 700px silently changes view type.
 - **Evidence:** shots/productivity/cal-week-mac.png, cal-week-ipad.png, cal-month-ipadl.png (segmented control: Month | Week only); shots/productivity/calendar-iphone-seed.png (Agenda | Month); js/modules/calendar.js:1545,1562-1563,1589-1591,1613-1620
@@ -3314,6 +3680,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-07 · P2 · ui — iPad portrait Calendar: '+ New event' wraps to its own row leaving a full-width empty band
 
+- **Re-checked on kos-redraw-1:** holds: shots/productivity/inv/cal-ipad.png (820 px: '+ New event' alone on a row under the title/Today/Show/Month-Week row)
 - **Devices:** ipad
 - **Detail / repro:** At 820px the header row (‹ title › Today Show Month|Week) fills the width and '+ New event' drops alone to a second line at the left, leaving ~600px empty beside it and pushing the grid down ~60px.
 - **Evidence:** shots/productivity/cal-week-ipad.png (y≈235)
@@ -3323,6 +3690,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-08 · P2 · ui — Routine offer checkboxes render as 22x44 tall pills on touch devices
 
+- **Re-checked on kos-redraw-1:** holds: sweep prod2/s-ipad-__routines.json and s-iphone-__routines.json: SMALL button.k-rt-check[routine.offer-pick] 22x44; shots/productivity/inv/rt-today-iphone.png
 - **Devices:** ipad, ipadl, iphone
 - **Detail / repro:** In 'Start with these?' (Routines Today/Routines/Templates tabs) each pick box (.k-rt-check, routine.offer-pick) keeps its 22px width while the coarse-pointer rule raises its height to 44px, so on iPad and iPhone each checkbox is a white 22x44 capsule instead of a square. Invariant 69: a control raised for touch must raise its width too.
 - **Evidence:** measure: 'SMALL button.k-rt-check[routine.offer-pick] 22x44' on ipad and iphone; shots/productivity/routines-iphone-seed.png (tall white capsules)
@@ -3332,6 +3700,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-09 · P2 · ui — Routines 'Start with these?' card leaves ~400px dead on the right on Mac
 
+- **Re-checked on kos-redraw-1:** holds: shots/productivity/inv/rt-offer-mac.png and e-rt-routines-mac.png (offer list ends at x≈1043 in a card to 1446)
 - **Devices:** mac, ipadl
 - **Detail / repro:** The offer card spans the full content width (1210px) but the illustration + a ~560px text/list column use only the left two thirds; the right ~400px is empty. Violates the no-dead-space rule.
 - **Evidence:** shots/productivity/routines-mac-seed-2.png
@@ -3340,6 +3709,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-10 · P2 · ui — Reminders: the right inspector column is a small hint card over a dead column
 
+- **Re-checked on kos-redraw-1:** holds: shots/productivity/inv/rem-mac.png, shop-reminders-mac.png (hint card 1126-1446 over an empty column)
 - **Devices:** mac, ipadl
 - **Detail / repro:** With nothing selected, the 320px right column holds only 'Select a reminder to edit…' (120px tall) and is empty below for the whole list length.
 - **Evidence:** shots/productivity/reminders-mac-seed.png, rem-today-mac.png
@@ -3348,6 +3718,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-11 · P2 · ux — Reminders 'Today' leaves out overdue reminders
 
+- **Re-checked on kos-redraw-1:** holds: seeded Reminders shows Today 2 while Overdue 8; js/core/reminders.js SECTIONS today = due === today (lines ~357-358); eval: an item due yesterday is not in query({section:'today'})
 - **Devices:** all
 - **Detail / repro:** Today shows 2 items while 8 reminders are overdue; they are only under Overdue/All. A user working from Today never sees what slipped. Most reminder apps (Apple Reminders) show overdue at the top of Today. Also 'From your plan' rows each carry a '↻ From your plan' chip under a 'FROM YOUR PLAN' heading (redundant), and the 'Open plan' links and priority chips sit on different right edges (≈1082 vs ≈1056).
 - **Evidence:** shots/productivity/rem-today-mac.png; js/modules/reminders.js:334-349
@@ -3356,6 +3727,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-12 · P2 · ui — Focus page while a session is minimised is one banner over an empty page
 
+- **Re-checked on kos-redraw-1:** holds: eval 6 Nov — after Minimise, #/focus content ends at y=320 in a 745 px viewport ('Session in progress — Computer Science · Return to the stage →')
 - **Devices:** all
 - **Detail / repro:** With a session running and minimised, #/focus shows only 'Session in progress — Computer Science' and 'Return to the stage →'; the rest of the 1210x500 content area is blank (Your record, The deal, today's sessions all disappear). Dead space and a lost chance to show live context (objective, cycle progress, notes, today's total).
 - **Evidence:** shots/productivity/focus-page-minimised-mac.png
@@ -3364,14 +3736,70 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-13 · P2 · a11y — Pacing week: lesson ticks (18x18) and lesson-day selects (62x24) are far below the 44px touch minimum on iPad/iPhone
 
+- **Re-checked on kos-redraw-1:** holds: sweeps s-ipad-__pacing.json / s-iphone-__pacing.json: input.k-pace-tick-in 18x18, select.k-pace-lesson-day 62x24 (also empty account)
 - **Devices:** ipad, ipadl, iphone
 - **Detail / repro:** Every class lesson row's tick input (.k-pace-tick-in) measures 18x18 and its day <select> (pace.lesson-day) 62x24 at 820px and 402px with a coarse pointer; the week strip's scroller arrows are 32x32. On the iPad (the user's study device) these are the main controls of the page.
 - **Evidence:** measure prod/m-ipad-__pacing.json, m-iphone-__pacing.json: 'SMALL input.k-pace-tick-in 18x18', 'SMALL select.k-pace-lesson-day 62x24', 'SMALL button.k-scroller-arrow 32x32'; shots/productivity/pace-week-iphone.png
 - **Proposed fix:** Make the whole lesson row a <label> for its tick (hit area = row height ≥44) and raise the day select to min-block-size 44px under (pointer:coarse) (or use the dense 24px-with-spacing exception explicitly, invariant 69).
 - **Flags:** effort S
 
+### PR-23 · P2 · bug — A routine whose steps are all optional can never be kept: ticking every step leaves it 'partial' for ever (no pay, no streak)
+
+- **Devices:** all
+- **Detail / repro:** verdict() counts only required steps and requires req.length > 0 for done, so a routine saved with every step marked Optional (the editor's per-step Optional switch allows it, and 'Ask the next morning' forces a step optional) is judged of=0: ticking both steps returns state 'partial', no award, and the day shows as partial in History and breaks the streak. The editor's save() only refuses zero steps.
+- **Evidence:** eval prod2/rt1.js: R.add({steps:[{optional},{optional}]}) → tick both → {state:'partial', award:null}, verdict {done:false,n:0,of:0}; js/core/routines.js:316-323 (verdict: done = req.length > 0 && n === req.length); js/modules/routines.js:965-969 (Optional switch, checkMorning forces optional), 1039-1044 (save validates only step count)
+- **Root cause:** verdict() has no rule for a routine with no required steps and the editor does not prevent one.
+- **Proposed fix:** Either refuse to save (toast 'At least one step must be required') or judge an all-optional routine kept when every step (or any step) is ticked; the same rule in verdict() and the editor's total.
+- **Flags:** effort S
+
+### PR-24 · P2 · bug — Ticking a routine's minimum step first pays the small minimum award and locks out the full award when you then finish every step
+
+- **Devices:** all
+- **Detail / repro:** pay() runs on the first tick that makes the day 'min' or 'done' and sets e.paid; routineAward gives a minimum day 5 XP/1 gold/2 HP. If the minimum step is ticked before the others (natural when it is the first or easiest step), the day is paid as a minimum; completing all three required steps afterwards turns the day 'done' but pays nothing more (award null), so the user receives less than if they had ticked the minimum last. The streak/verdict is right; the reward depends on tick order.
+- **Evidence:** eval prod2/rt1.js: routine [full1, small(minimum), full2]: tick small → award {xp:5,gold:1,hp:2}, then tick full1 and full2 → state 'done', award null, sessions added still 1; js/core/routines.js:370-377 (pay when v.done||v.min and !e.paid), js/core/governor.js:124-131 (min → 5/1/2; 3 required → 11/1/3)
+- **Root cause:** Pay-once is keyed to the first kept state rather than the best state reached that day.
+- **Proposed fix:** Pay the difference when a 'min' day becomes 'done' (store e.paidAs = 'min' and top up once to the full award through one extra todo entry or by amending the award before the day closes), or pay a minimum only when the routine day ends without the full set.
+- **Flags:** effort M
+
+### PR-25 · P2 · ux — '+ New routine' with a single step silently becomes a habit and disappears into Daily habits
+
+- **Devices:** all
+- **Detail / repro:** The routine editor's save() turns a NEW custom routine with one step into kind 'habit' (and normalise() names it after the step, ignoring nothing). After Save the app lands on the Routines tab, where the new routine is not listed: it is a row inside the Daily habits card on Today, with the routine's window/days applied as a habit. A user who started a one-step routine (e.g. 'Stretch, 5' with a 07:00–08:00 window) cannot find it where they made it, and its mark is dropped from view.
+- **Evidence:** eval prod2/rtnew.js: #/routines {edit:'new'} → add step 'Stretch, 5' → Save → record {kind:'habit', name:'Stretch'}, location #/routines/routines and the tab text does not contain it; Today's habit card shows 'Daily habits 0 of 1 today … Stretch'; js/modules/routines.js:1045 (if steps.length === 1 && kind === 'custom' && isNew → kind 'habit'), 1047 (KOS.show('routines','routines') either way)
+- **Root cause:** Implicit kind conversion on save with no feedback and a fixed landing tab.
+- **Proposed fix:** Keep what the user made: save a one-step routine as a routine (kind custom) unless it was started from 'Add a habit'; if converting, say so in the toast ('Saved as a habit in Daily habits') and land on Today with the habit highlighted. The redundant ternary at 1047 shows the intended branch was never written.
+- **Flags:** effort S
+
+### PR-26 · P2 · data — Monthly reminders drift: due 31 Jan repeats 28 Feb, then 28 Mar (the day-of-month is lost after a short month)
+
+- **Devices:** all
+- **Detail / repro:** KOS.reminders.nextOccurrence advances from the PREVIOUS occurrence (clamped), so after one short month the repeat stays on the clamped day for ever: 31 Jan → 28 Feb → 28 Mar → 28 Apr. The Calendar's monthly recurrence anchors on the original day (occursOn: min(start day, last day)), so a reminder and a calendar event set up the same way disagree from March onwards. Yearly on 29 Feb has the same drift (to 28 Feb permanently).
+- **Evidence:** eval prod2/rem.js: add({due:'2026-01-31',recur:'monthly'}) → nextOccurrence = '2026-02-28', next of that = '2026-03-28'; js/core/reminders.js:166-187 (addMonths clamps from `cur`), compare js/modules/calendar.js:422-428 (anchored to s.getDate())
+- **Root cause:** Recurrence is stepped from the last clamped date instead of the series' anchor.
+- **Proposed fix:** Store the anchor day (item.recurDay = original day of month, set when recur is chosen) and compute each next occurrence as min(anchor, last day of month), like the Calendar does.
+- **Flags:** effort S
+
+### PR-27 · P2 · ux — Completing a repeating reminder cannot be undone and leaves no record: no Undo, un-tick does not restore the date, nothing in Completed
+
+- **Devices:** all
+- **Detail / repro:** Ticking a repeating reminder rolls its due date forward (skipping every missed occurrence) and clears done/completedAt. The row's tick has no Undo toast (unlike plan rows), the item never appears in Completed, and KOS.reminders.complete(id,false) only clears flags, so the old date is gone. The Daily Review's 'Done' for a repeating reminder shows an Undo that calls complete(id,false) and therefore does not undo anything. A mis-tap on 'Pay rent · monthly' silently moves it a month.
+- **Evidence:** eval prod2/rem.js: weekly due 22 Oct → complete → due '2026-11-12', done false, completedAt null, not in query({section:'completed'}); complete(false) → due still '2026-11-12'; js/core/reminders.js:213-250 (roll forward, no history), js/modules/reminders.js:370-375 and 546/569 (tick → complete → draw, no toast/undo); js/core/dayreview.js:300 (undo = complete(id,false))
+- **Root cause:** Recurrence mutates the record in place with no undo token or completion log.
+- **Proposed fix:** Have complete() return the previous {due, alerted, subs} and offer an Undo toast that restores it; keep a small completion history on the item (completions: [ts…], last 20) so Completed and Reports can show 'done 3 times'.
+- **Flags:** effort S
+
+### PR-28 · P2 · data — Pacing 'Edit week' accepts any date as the week beginning: a mid-week date overlaps the previous week and takes over 'this week'
+
+- **Devices:** all
+- **Detail / repro:** updateWeek() only checks the date's shape and that no other week has the SAME wb. Moving w/c 9 Nov's 'Week beginning' to Wednesday 4 Nov is accepted: the week now overlaps w/c 2 Nov (2–8 Nov), keeps its label 'w/c 9 Nov', moves its 16 rows, and on Friday 6 Nov currentWeek()/weekFor() return the moved week instead of w/c 2 Nov, so the hero, carry-over, Home's plan card and lesson dating all read the wrong week. The date input in the dialog offers every day.
+- **Evidence:** eval: P.updateWeek('2026-11-09',{wb:'2026-11-04'}) → returned the week {wb:'2026-11-04', label:'w/c 9 Nov'}; currentWeek() → '2026-11-04 w/c 9 Nov'; weekFor('2026-11-05') → '2026-11-04'; 16 rows moved (restored afterwards); js/core/pacing.js:445-461; dialog shots/productivity/inv/e-pacing-mac.png
+- **Root cause:** The week gate validates format and uniqueness, not the week grid.
+- **Proposed fix:** Snap the week beginning to its Monday (or refuse a non-Monday with a message), refuse a date inside another week's 7 days, and re-derive the default label ('w/c …') when it still matches the old default.
+- **Flags:** effort S
+
 ### PR-14 · P3 · ui — Daily Review marks sit in the Week view's all-day row and their time is truncated away
 
+- **Re-checked on kos-redraw-1:** holds: js/modules/calendar.js week view appends every derived item (timed reviews and routines included) to the all-day band (d.items.derived.forEach … around line 1876); review marks carry their time (600-606)
 - **Devices:** mac, ipad
 - **Detail / repro:** Review marks carry a time (Morning review · 07:00 etc.) but Week view lists them in the all-day row, where the 115px column truncates them to 'Morning revie…', so the time never shows; they also push every day's all-day row to 5-6 lines, shrinking the timed grid.
 - **Evidence:** shots/productivity/cal-week-mac.png (all-day rows 5-6 chips tall); eval: 21 review chips at y 297-401; js/modules/calendar.js:600-606, 1799-1801
@@ -3380,6 +3808,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-15 · P3 · ux — Routines: page-header 'Templates' button duplicates the Templates tab 60px below
 
+- **Re-checked on kos-redraw-1:** holds: shots/productivity/inv/dawn-routines-mac.png (Templates in the page header and as the third tab)
 - **Devices:** all
 - **Detail / repro:** The page header's actions are 'Templates' and '+ New routine', and the tab strip right under it has a Templates tab going to the same place. Invariant 50b: never offer the same destination twice in-page.
 - **Evidence:** shots/productivity/routines-mac-seed.png; js/modules/routines.js (routine.templates button)
@@ -3388,6 +3817,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-16 · P3 · content — Daily habits card repeats the page sub-line, truncated, and has no add button when empty
 
+- **Re-checked on kos-redraw-1:** changed: an 'Add habits ›' link is now present on the empty card (shots/productivity/inv/e-habitcard-iphone.png; geometric check: sub-line 129-277 px, link 297-364 px, no overlap); the card still repeats the page sub-line truncated ('a habit is a routine with …')
 - **Devices:** all
 - **Detail / repro:** Routines Today: the Daily habits card heading's sub-line 'a habit is a routine with one …' is the page header's sub-line again and is ellipsised; empty it shows a paragraph and only a small 'Add habits ›' text link at top-right (on iPhone the link overlaps the truncated sub-line per measurement). Card height then leaves a dead lower half.
 - **Evidence:** shots/productivity/routines-mac-seed-2.png (Daily habits card); measure iphone: 'OVERLAP span.k-rt-hd-m.k-ellipsis x button.k-link[routine.habits-edit]'; measure mac DEADH routine.habit-card used 95/244
@@ -3396,6 +3826,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-17 · P3 · content — Session review repeats '36-day streak' four times and hides what the bonus gold was for
 
+- **Re-checked on kos-redraw-1:** holds (not re-measured): js/modules/focus.js is unchanged since 56b1a8c; the review dialog still lists the streak lines; this run's Pomodoro award was 35 XP / 59 gold against a 5-gold preview, the extra 54 being the streak bonus the review does not name
 - **Devices:** all
 - **Detail / repro:** Ending a Pomodoro paid +59 gold (5 for the session + 3+7+14+30 streak milestone bonuses that had not been recorded). The review and the toast print the note list '36-day streak · 36-day streak · 36-day streak · 36-day streak' and a single '+59 gold' while The deal had promised +5 gold, so the user cannot tell why. Each milestone pushes the CURRENT streak length as its note instead of the milestone it paid. The toast also sits over the review's 'Save review' button on Mac.
 - **Evidence:** shots/productivity/focus-review-mac.png, focus-review-iphone.png; eval KOS.governor.lastAward() = {gold:59, notes:['36-day streak'×4]}; js/core/governor.js:330-338 (notes.push(stk + '-day streak'))
@@ -3404,6 +3835,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-18 · P3 · a11y — Reminders: complete circles are 32x32 on touch
 
+- **Re-checked on kos-redraw-1:** holds: sweeps s-ipad-__reminders.json / s-iphone-__reminders.json: button.k-rem-check 32x32
 - **Devices:** ipad, iphone
 - **Detail / repro:** The round complete button (rem.check) stays 32x32 with a coarse pointer on iPad and iPhone (invariant 69 asks 44 for coarse pointer, raising width with height for a circle). The sort/priority pill selects are 30px tall on iPad.
 - **Evidence:** measure m-ipad-__reminders.json / m-iphone-__reminders.json: 'SMALL button.k-rem-check 32x32' (×28), 'SMALL select.k-pill-select 161x30'
@@ -3412,6 +3844,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-19 · P3 · ui — Daily Review step tabs: the active tab's focus ring is clipped to two vertical crimson bars
 
+- **Re-checked on kos-redraw-1:** holds by code: css/views/routines.css:268-269 (.k-dr-strip overflow-x:auto, steps block-size:100%), so a focus ring outside the step box is clipped; not re-captured as an image (programmatic focus does not trigger :focus-visible)
 - **Devices:** mac, ipad
 - **Detail / repro:** After a step tab is clicked, its focus outline renders only as two vertical crimson lines at its left and right (top and bottom are clipped by the step strip's overflow), which reads as a rendering glitch rather than a focus ring. Seen on Mac and iPad, in Afternoon and Evening reviews.
 - **Evidence:** shots/productivity/dr-afternoon-timeleft-mac.png (around 'Time left'), dr-afternoon-ipad-empty.png, dr-evening1-mac.png (around 'Tomorrow')
@@ -3420,6 +3853,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-20 · P3 · ux — Evening review: 'Tomorrow's first task' says nothing is due while overdue plan rows exist; lesson rows show bare dashes
 
+- **Re-checked on kos-redraw-1:** holds (not re-run): js/modules/dayreview.js:585 still prints 'Nothing is due soon…' from the candidate list only; lessons still render '—' for the time (seen again in the morning review timeline, shots/productivity/inv/dr-morning-ipad.png)
 - **Devices:** all
 - **Detail / repro:** In the evening review the first-task card reads 'Nothing is due soon, so tomorrow starts wherever you like.' although the afternoon review and Reminders list overdue carried-over plan rows; the candidates leave out Pacing rows. The card is then a tall empty box beside the timetable. Tomorrow's lessons with no class time print '–' in the time column.
 - **Evidence:** shots/productivity/dr-evening1-mac.png; js/modules/dayreview.js:585 (empty-candidates text)
@@ -3428,6 +3862,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-21 · P3 · content — Running Focus in a break: red 'End early' stays in the header beside 'End session'
 
+- **Re-checked on kos-redraw-1:** holds: js/modules/focus.js:1206 — End early is drawn whenever the mode is not open-ended, beside '✓ End session' (1266) once canComplete()
 - **Devices:** all
 - **Detail / repro:** Once a Pomodoro cycle is banked, the stage shows '✓ End session' (pays +35 XP…) but the header still offers a red 'End early', so there are two end controls with conflicting wording and colour.
 - **Evidence:** shots/productivity/focus-stage-break-mac.png
@@ -3436,10 +3871,146 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### PR-22 · P3 · ui — Routines Today: three equal columns stretch the reviews and habits cards to the routine card's height
 
+- **Re-checked on kos-redraw-1:** holds: shots/productivity/inv/dawn-routines-mac.png — three equal-height columns; 'Due now' is one centred line in a 390 px-tall card
 - **Devices:** mac, ipadl
 - **Detail / repro:** With a routine due, Today's reviews (3 rows, ~200px of content) and Daily habits (one paragraph) are stretched to the Morning Routine card's ~460px, leaving large empty lower halves; the routine card's header is cramped ('Leave by 07:45 / 163 min from now' wraps to 4 lines while the side cards are empty).
 - **Evidence:** shots/productivity/rt-today-mac.png
 - **Proposed fix:** Give the routine card 2 of 3 columns (or a full row) and stack reviews + habits in the third column; align-items:start for the side cards.
+- **Flags:** effort S
+
+### PR-29 · P3 · content — Afternoon review 'Tomorrow' on a plan row says 'moved to tomorrow' when nothing moved
+
+- **Devices:** all
+- **Detail / repro:** In Time left, the place rows include up to two plan rows. Their 'Tomorrow' button calls triage(ref,'tomorrow'), which for a plan row writes nothing but returns {ok:true, note:'Plan rows stay in their week.'}; the button ignores the note and toasts '<title> · moved to tomorrow' with an Undo. The Evening review's triage step reads res.note (dayreview.js:532) but this button does not.
+- **Evidence:** js/core/dayreview.js:314-319 (plan: no write, res.note), js/modules/dayreview.js:621 (toast 'moved to tomorrow' on r.ok, note ignored) vs 532 (note shown)
+- **Root cause:** Two callers of triage() handle its result differently.
+- **Proposed fix:** Show r.note when present, or do not offer 'Tomorrow' for plan rows (offer 'Remind me tomorrow', which creates a reminder).
+- **Flags:** effort S
+
+### PR-30 · P3 · ui — Time-left strip's end label always reads the evening review time even when the strip runs past it (after ~21:00 two '22:00' labels, or the tick under the end label)
+
+- **Devices:** all
+- **Detail / repro:** timeStrip() ends the bar at max(evening time, start + 60 min) but always prints the evening time ('22:00 夜') at the right edge. After 21:00 the bar spans e.g. 21:20–22:20: an hour tick '22:00' is drawn at 67% AND '22:00 夜' at 100% (which is really 22:20); between ~21:00 and 21:10 the 22:00 tick lands under the end label (the overprint reported earlier). At 18:52 the strip is clean (ticks 19/20/21 at 248/588/927 px, end label 1210–1261 px).
+- **Evidence:** eval prod2/place.js at 18:52: ticks [19:00 248-281, 20:00 588-621, 21:00 927-960], end 1210-1261; shots/productivity/inv/dr-time-mac.png; js/modules/dayreview.js:593-605 (to = Math.max(mins(until), from + 60); end label text = until)
+- **Root cause:** The bar's span and its end label come from different values.
+- **Proposed fix:** End the strip at the evening time (to = mins(until)) and when less than an hour is left draw it shorter, or label the end with the real end; skip an hour tick within ~40 px of the end label.
+- **Flags:** effort S
+
+### PR-31 · P3 · bug — Review times can be set out of order and a later slot then folds a review that has not happened yet
+
+- **Devices:** all
+- **Detail / repro:** dayReview.normalise accepts any HH:MM per slot with no order check. With Morning at 19:00 and Afternoon at 16:30, due() at 17:00 offers the Afternoon review with folded:['morning'], i.e. a morning review two hours in the future is marked folded (and will not open at 19:00 either, since the afternoon iterates later).
+- **Evidence:** eval: setConfig({slots:{morning:{weekday:'19:00'}}}) → due(17:00 Mon) = {slot:'afternoon', folded:['morning']}; js/core/dayreview.js:90-100 (no ordering), 166-176 (due iterates slots in fixed order)
+- **Root cause:** The settings gate validates each time alone.
+- **Proposed fix:** Clamp in the gate (morning < afternoon < evening, at least 30 min apart) and say so in Settings next to the time inputs; or have due() fold only slots whose time has passed.
+- **Flags:** effort S
+
+### PR-32 · P3 · data — Auto-tracked Focus habits count aborted sessions and split a late-night session at midnight instead of at the routine day start
+
+- **Devices:** all
+- **Detail / repro:** autoMeasure() sums every focus entry's stretches for the day, including incomplete sessions that pay nothing (a 9-minute early stop added 9 min: 19 → 28), so three aborted 9-minute starts tick a '25 min of Focus' habit. It also filters by the ledger's calendar day (e.date === day) while `day` is the ROUTINE day (04:00 start, invariant 148): a session from 23:30 to 00:30 is split between two calendar days, and between 00:00 and 04:00 the minutes count towards the next routine day, not the night they belong to.
+- **Evidence:** eval prod2/auto.js: baseline focus/maths today 19 min → after pushing an incomplete 540 s maths focus entry 28 min; reading (media) sessions correctly ignored; js/core/routines.js:628-645 (e.date !== day; no complete check), 676-678 (day = routineDay(now))
+- **Root cause:** The habit reads the Goals engine's calendar-day convention inside the routine-day model.
+- **Proposed fix:** Decide and document: count only sessions with metrics.complete (or full 10-minute blocks, matching the pay rule), and measure by the routine day (filter on routineDay(e.ts) rather than e.date).
+- **Flags:** effort S
+
+### PR-33 · P3 · ux — Calendar: a repeating event can only be edited or deleted as a whole series; no 'this showing only', and an event cannot run past midnight
+
+- **Devices:** all
+- **Detail / repro:** The event modal edits the one record; Delete on a weekly lesson says 'This removes every showing of it' and there is no 'Skip this one' or 'Only this event' (the model already has a per-date skip list, ext.g.skip, used only for Google). Moving one week's lesson means deleting the series. validate() also refuses an end time at or before the start time, so 22:00–01:00 cannot be entered except as two events.
+- **Evidence:** js/modules/calendar.js:1100-1105 (confirmDelete: whole series), 409-431 (occursOn reads ext.g.skip only), 1359-1361 (end <= start refused)
+- **Root cause:** Recurrence exceptions were built only for the Google two-way sync.
+- **Proposed fix:** Add 'Skip this showing' (a local skip list on the record, read by occursOn) and 'Edit only this showing' (skip + a one-off copy); allow an end time on the next day ('ends next day' when end < start).
+- **Flags:** effort M
+
+### PR-34 · P3 · content — Routine player's finish screen says '炎 1 days'
+
+- **Devices:** all
+- **Detail / repro:** The finished screen prints the streak as '炎 ' + n + ' days' with no singular, so a first kept day reads '1 days'.
+- **Evidence:** eval prod2/player.js: Morning Routine played to the end → finished text 'Morning Routine kept · 7 of 7 · +23 XP · 2 gold · +4 HP · 炎 1 days'; js/modules/routineplayer.js:182
+- **Root cause:** Hand-built string without pluralisation.
+- **Proposed fix:** Use the shared plural helper ('1 day', '2 days'), or the streak chip used elsewhere on Routines.
+- **Flags:** effort S
+
+### PR-35 · P3 · ux — A routine's time window never closes it: a Morning routine played at 19:00 is kept, paid and streaked as on time
+
+- **Devices:** all
+- **Detail / repro:** tick() checks only the routine day (canTick), never the window, so a Morning Routine with a 06:30–08:00 window can be played and fully paid at 19:03 the same day; nothing marks it late. The evening routine has an explicit late rule (until noon, flagged m.late), but a routine done hours after its window is indistinguishable from one done on time in History, the streak and Reports. setRest() by contrast does refuse once the window has closed.
+- **Evidence:** eval prod2/player.js at 19:03: fromTemplate('morning') (window from the template) → player → 7 of 7, award {xp:23,gold:2}, state 'done'; js/core/routines.js:357-379 (tick: no window check), 451-452 (setRest refuses after w.to)
+- **Root cause:** The window is used for reminders and display only, not for judging the day.
+- **Proposed fix:** Decide the rule: either record e.late/e.outside when the day is kept after window.to (shown as 'kept late' in History, still paid), or close the day at window end + grace for streak purposes. At minimum show 'outside its window' in the player.
+- **Flags:** effort S
+
+### PR-36 · P3 · ui — Daily habits editor: Save and Cancel sit inside the 'How habits work' help card, which stretches to the habit list's height
+
+- **Devices:** mac, ipad landscape
+- **Detail / repro:** On #/routines/edit/habits (Mac) the right column's second card holds the explanation paragraph and then the page's Save/Cancel buttons; the card is stretched to the list's height (content ends ~520 px of a 290 px-tall card), leaving a dead lower half, and the primary action reads as part of the help text. With the list longer than the viewport, Save scrolls away with the card top.
+- **Evidence:** shots/productivity/inv/habits-edit-mac.png; measure: DEADH section.k-card 'Daily habits' used 177/319 (earlier sweep), help card 970–1446 x 366–657 with Save at y≈498
+- **Root cause:** Actions appended to the last side card; cards stretch in the grid row.
+- **Proposed fix:** Put Save/Cancel in a sticky footer under the habit list (as the routine editor does) or in the page header's action slot; let the help card size to its content (align-self:start).
+- **Flags:** effort S
+
+### PR-37 · P3 · a11y — Touch sizes on Focus setup and Routines settings: selects 39 px tall, time inputs 42 px, switches 34x20
+
+- **Devices:** ipad, iphone
+- **Detail / repro:** On iPad and iPhone (coarse pointer) the Focus setup's selects (Nudge, Limit, Subject, Assignment) measure 320x39 / 330x39, the objective input 40 px, the penalty switch 34x20; Routines › Settings' review time inputs 100x42 (iPad) / 64x42 (iPhone) and every switch 34x20; Reminders' sort and priority pills 161x30 / 109x30 on iPad. All below the 44 px touch minimum (invariant 69). The previously reported reminders circles (32x32) and Pacing ticks still hold.
+- **Evidence:** prod2/s-ipad-__focus.json, s-iphone-__focus.json, s-ipad-__routines_settings.json, s-iphone-__routines_settings.json, s-ipad-__reminders.json (SMALL lines)
+- **Root cause:** The touch minimum in components.css raises buttons but not inputs, selects or switch tracks.
+- **Proposed fix:** Apply the coarse-pointer min-block-size token to .k-input/.k-select/.k-pill-select, and give .k-switch a 44 px hit area through its label (padding on the label, not the track).
+- **Flags:** effort S
+
+### PR-38 · P3 · content — Morning review summary prints '11 days away..' and lower-cases the exam's name
+
+- **Devices:** all
+- **Detail / repro:** The morning review's template line appends the first warning as title + ': ' + body.toLowerCase() + '.', but the Exams hub's season notice body already ends with a full stop and holds the exam's title, so the summary reads 'Exam season is on: revision block 24 is 11 days away..' — a doubled stop and the assessment's own title lower-cased (an 'AQA 7517 Paper 2' becomes 'aqa 7517 paper 2').
+- **Evidence:** eval: KOS.reviewSheet.open('morning') → '…Exam season is on: revision block 24 is 11 days away.. A good first task: …'; shots/productivity/inv/dr-morning-ipad.png; js/core/dayreview.js:540, js/core/exams.js:1077-1078 (body ends with '.')
+- **Root cause:** String concatenation that assumes the notice body has no punctuation and no proper nouns.
+- **Proposed fix:** Strip a trailing full stop before appending and do not lower-case the body (lower-case only its first letter when it is not part of a title, or reword the line).
+- **Flags:** effort S
+
+### PR-39 · P3 · ui — Calendar event modal: Cancel floats in the middle of the footer on a new event
+
+- **Devices:** mac, ipad
+- **Detail / repro:** The footer is [Delete?] [Cancel .k-spacer] [Add event]. On a new event there is no Delete, so Cancel is the first child and gets both the dialog-foot rule (first child: margin-inline-end:auto) and .k-spacer (margin-inline-start:auto): it sits at x 643–717 in a 275–1195 dialog, neither beside the primary button nor at the start.
+- **Evidence:** shots/productivity/inv/cal-modal-mac.png; js/modules/calendar.js:1442-1447; css/components.css:382 (.k-dialog-foot > :first-child:not(:only-child) { margin-inline-end: auto }), css/layout.css:363 (.k-spacer { margin-inline-start: auto })
+- **Root cause:** Two auto-margin rules apply to the same element when Delete is absent.
+- **Proposed fix:** Drop k-spacer from Cancel and let the danger button carry margin-inline-end:auto (productivity.css:601 already does); or render an empty start slot.
+- **Flags:** effort S
+
+### PR-40 · P3 · ui — Routines Today: 'Today's three' rows clip their titles mid-letter with no ellipsis, and the ○ mark shrinks so rows misalign
+
+- **Devices:** all
+- **Detail / repro:** Each mini row is [mark 22px][title .k-rt-grow.k-ellipsis][muted]. .k-rt-grow is display:flex (column), so the title text becomes an anonymous flex item and text-overflow:ellipsis on the flex container does nothing: long titles are cut mid-glyph ('…interviews, s', 'certificate repla'). The mark has no flex-shrink:0, so long titles squeeze it from 22 to 12 px and their text starts 10 px left of a short row's ('Reminder 2' at 292 px vs 282 px).
+- **Evidence:** shots/productivity/inv/rt-three-crop.png (2x), shots/productivity/inv/dawn-routines-mac.png; eval: rows → mark W12/W12/W22, title L282/L282/L292, title computed display:flex overflow:hidden text-overflow:ellipsis scrollWidth 685 > 310; js/modules/routines.js:566; css/views/routines.css:15 (.k-rt-grow display:flex), 41 (.k-rt-mark no flex-shrink)
+- **Root cause:** An ellipsis utility applied to an element another class turns into a flex container.
+- **Proposed fix:** Use a plain block for single-line text (drop k-rt-grow or add .k-rt-grow.k-ellipsis{display:block}) and give .k-rt-mark flex:none. The same 'k-rt-grow k-ellipsis' pairing appears in other routine/review rows; fix it once in the CSS.
+- **Flags:** effort S
+
+### PR-41 · P3 · content — Reminder alert notifications read 'Reminder · due 10 minutes to go' / 'due 1 day to go'
+
+- **Devices:** all
+- **Detail / repro:** notice() builds the body as 'Reminder · due ' + the alert label with ' before' replaced by ' to go', so every advance alert is ungrammatical: 'due 10 minutes to go', 'due 1 hour to go', 'due 1 day to go', 'due 1 week to go'. The same text is the toast, the bell item and the closed-app push (the outlook reuses notice()). An all-day reminder's 'At the time' alert fires at 09:00 as 'due now'.
+- **Evidence:** eval: KOS.reminders.forecast() for a reminder due tomorrow 09:00 with alerts [10] → body 'Reminder · due 10 minutes to go'; all-day due in 2 days → 'Reminder · due now' at 09:00; js/core/reminders.js:460-464
+- **Root cause:** String substitution on the option labels.
+- **Proposed fix:** Word it as 'Due in 10 minutes · 09:00' / 'Due tomorrow' / 'Due today' from the actual offset and time.
+- **Flags:** effort S
+
+### PR-42 · P3 · ui — Pacing 'Edit week' dialog on Mac: 'My week' sits alone on its own row under 'Week beginning' while 'School week' is in the row above
+
+- **Devices:** mac, ipad
+- **Detail / repro:** The fields are laid out Week beginning · Label · School week on one row and My week alone on the next, leaving two empty columns; the two week numbers that belong together are split, and the Note then spans the full width.
+- **Evidence:** shots/productivity/inv/e-pacing-mac.png (dialog 375–1095 px; My week 403–616 px, nothing to its right)
+- **Root cause:** Grid auto-placement with a hint paragraph that pushes the fourth field to a new row.
+- **Proposed fix:** Two rows: Week beginning · Label, then School week · My week (or put the hint under Week beginning in a full-width row).
+- **Flags:** effort S
+
+### PR-43 · P3 · ui — Achievement progress pings sit exactly over the section strip (Productivity/Study pills) and blend with it while fading
+
+- **Devices:** mac, ipad
+- **Detail / repro:** The ping stack is fixed at topbar + 12 px, rail + 16 px — the position of the section subnav. While a ping fades in or out its text mixes with the pills underneath ('CS In the zMaths IT 1 / Study spaces' on Pacing), and while shown it hides the first pills. Seen on Pacing after Focus sessions were logged (cross-area: the achievements layer, but it covers this area's navigation).
+- **Evidence:** shots/productivity/inv/pace-classdays-mac.png (top-left, 220–560 x 72–135); css/views/achievements.css:270 (.k-ach-pings position), js/modules/achievements.js:693-712
+- **Root cause:** The ping position was chosen without the section strip that occupies it on every section page.
+- **Proposed fix:** Anchor pings to the bottom-left (above the HUD) or the top-right under the header chip, away from in-page navigation.
 - **Flags:** effort S
 
 **QoL ideas from this auditor:**
@@ -3449,6 +4020,9 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 - Routine player (Mac): it has both an ✕ and a 'Close' in the side panel; keep one.
 - Reminders: a 'Place in a free block' / 'Focus on this' action on a reminder, to tie Reminders to Focus and the Calendar.
 - Calendar: stored events with unknown types (e.g. 'other' from imports or the seeder) render with no hue at all; run the stored events through KOS.calendar.normalise once at boot.
+- Reminders: offer 'Remind me again tomorrow' (snooze) on an overdue row and in the reviews, instead of only Tomorrow/Done.
+- Routines: show 'kept late' in History when a day was kept after its window.
+- Calendar: 'Skip this showing' for a repeating event (the model already has a skip list for Google).
 
 **Backlog ideas from this auditor:**
 - Routines inside routines: a step can reference another routine. Model: add step.sub = <routineId> in normaliseStep (js/core/routines.js:142). Display text and minutes are DERIVED from the sub-routine (mins = the sum of its required steps' mins), never copied. Integrity, enforced in normalise(rec, base) and in the editor: (a) no cycles: walk sub links depth-first from the routine being saved, refusing any step whose sub reaches the parent (also cap depth at 2, so a sub-routine cannot itself contain subs); (b) the sub-routine's total cannot exceed the parent step's budget. Either make the step's mins read-only (= sub total), or, if the user sets a budget, refuse a save of the sub that would push it over and say which parent step it breaks; (c) a sub-routine must be on demand or share the parent's days (kind/anchor), otherwise it would also show on its own schedule. Keep 'days: null' (on demand) as the rule for anything used as a sub; (d) deleting a routine used as a sub is refused, or offers to unlink (steps become plain text with the last derived minutes). Logging: ticking a sub step in the player expands the sub's steps inline, and the parent step counts done when the sub's own completion rule is met that routine day. The sub's log entry is written under its own key with a parent tag, so it pays nothing on its own (pay once per invariant 143: only the parent pays). snapOf must store the sub's id and its frozen step list in the parent's snapshot (x[6] = sub snapshot), so editing the sub never rewrites a past day. The cloud merge needs no change (steps merge whole with the routine). Player: a nested progress bar, 'Shower · from Morning hygiene (3 steps)'.

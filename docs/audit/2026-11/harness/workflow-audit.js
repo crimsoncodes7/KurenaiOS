@@ -94,12 +94,18 @@ const AREAS = [
 ]
 
 
-const TOPUP = (id) => `
+const STALE = new Set(['architecture-perf', 'a11y-hci'])
+const CARRY = (id, backup) => `
+(a) RE-CHECK every finding in ${QA}/findings/${id}.json on THIS build: re-measure its numbers, re-run its repro, re-read its file:line. Carry each one into your final result with its TITLE UNCHANGED WORD FOR WORD (finding ids are frozen by title), refreshed evidence/detail, and the field recheck = "holds" | "changed: <what>" | "no longer reproduces: <evidence>". Do not drop any; one that no longer reproduces stays, marked so. (A backup is ${backup}; do not modify it.)`
+const TOPUP = (id) => STALE.has(id) ? `
 
-TOP-UP MODE (this area was audited once before, on the STALE build f4fa493 = sw kos-creatives-1, 23 commits before production: no Achievements/Badge Wall, no Governor's Seat as the Stage, no art/shop release). Its result is ${QA}/findings/${id}.json (a backup is ${id}.f4fa493.json; do not modify the backup). Do three things:
-(a) RE-CHECK every finding in it on THIS build: re-measure its numbers, re-run its repro, re-read its file:line. Carry each one into your final result with its TITLE UNCHANGED WORD FOR WORD (finding ids are frozen by title), refreshed evidence/detail, and the field recheck = "holds" | "changed: <what>" | "no longer reproduces: <evidence>". Do not drop any; one that no longer reproduces stays, marked so. AP-02 was withdrawn (an artefact of the stale tree) — leave it out.
+TOP-UP MODE (this area was audited once before, on the STALE build f4fa493 = sw kos-creatives-1, 23 commits before production: no Achievements/Badge Wall, no Governor's Seat as the Stage, no art/shop release). Do three things:${CARRY(id, id + '.f4fa493.json')} AP-02 was withdrawn (an artefact of the stale tree) — leave it out.
 (b) SWEEP WHAT IT COULD NOT SEE: the Badge Wall (#/achievements and every tab and set page), the Governor's Seat as the Stage (#/governor, #/governor/edit), the Gold Shop and Try on, KOS.art painted slots, and their code (js/core/achievements.js, achcatalogue.js, js/modules/achievements.js, governor-ui.js, artslot.js, css/views/achievements.css, the art in assets/app/img/) — plus anything else added since f4fa493 (git log f4fa493..HEAD --stat).
 (c) Write the feature inventory and coverage matrix as for any area, and add NEW findings for anything not already in the file (append each to ${QA}/findings/${id}.jsonl as you go).
+Your final ${QA}/findings/${id}.json must contain ALL the carried-over findings AND the new ones.` : `
+
+INVENTORY TOP-UP MODE (this area was audited on 1-2 Nov on 56b1a8c, sw kos-artshop-1, BEFORE the inventory rule existed: it is presentation-checked but NOT behaviour-inventoried; the build is now kos-redraw-1, which holds background redraws on task pages). THE MAIN JOB is the FEATURE INVENTORY and the behaviour checks with fixtures (EXHAUSTIVENESS above) over the whole area — spend most of your budget there. Also:${CARRY(id, id + '.pre-inventory.json')}
+(b) Add NEW findings for everything the inventory turns up that is not already in the file (append each to ${QA}/findings/${id}.jsonl as you go).
 Your final ${QA}/findings/${id}.json must contain ALL the carried-over findings AND the new ones.`
 
 const SKIP = new Set(args && args.skip || [])
