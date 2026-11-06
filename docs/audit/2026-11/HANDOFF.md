@@ -247,7 +247,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts (5 Nov, after batch 2 was stopped):** 435 findings (P0 2 · P1 84 · P2 207 · P3 142). After batch 1: 405 findings (+ 29 live-account notes, 23
+**Counts (6 Nov, after batch 2):** 461 open findings (P0 2 · P1 83 · P2 218 · P3 158), plus SH-05 resolved by the stopgap. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
 user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
 before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
@@ -261,7 +261,7 @@ before acting (see §7).
 
 | ID | Area | Status | Findings | Not covered (from the auditor, or unknown) |
 |---|---|---|---|---|
-| SH | Shell, nav, search, toasts, dialogs, Help | **partial** (5 Nov continuation stopped; no inventory yet) | 33 | Interrupted: no coverage notes. Unknown: dialogs broadly, router edge cases, offline, onboarding on an empty account, keyboard shortcuts beyond Backspace |
+| SH | Shell, nav, search, toasts, dialogs, Help | **complete, inventoried** (6 Nov, `kos-redraw-1`; `findings/shell.inventory.md`) | 44 open (+ SH-05 resolved) | Real offline behaviour (dev host always online, harness signed out), the iOS Home Screen status bar, the service-worker update prompt (needs two deploys) |
 | HR | Home + Reports | **partial** | 15 | Interrupted. Likely unchecked: story player fully, share export formats, month/term/year pages at all sizes |
 | AG | Achievements + Governor's Seat | **partial** | 16 | Interrupted. Titles, unlock overlay timing, Session Log likely thin |
 | SC | Gold Shop + cosmetics + themes | **partial** | 19 | Interrupted. **The 26-theme quality review (which to remove) not done**; not every item verified bought→applied |
@@ -280,8 +280,8 @@ before acting (see §7).
 | CL | Collection | **partial** | 15 | Interrupted. Perf numbers on the dense vault, editors, Mangaka, Shrine tie-order, Sync page likely thin |
 | AA | Assistant, notifications, Archive | **partial** | 10 | Interrupted. Backup export→import round trip was started (`aa-*` files in evidence) — result not recorded as a finding; notifications page, Storage, Connections UI |
 | DI | Data integrity | complete | 15 | Google Calendar recurrence mapping in depth, ink per-stroke merge, mind/reports sync bodies, real provider servers, Dawn/shop visual pass |
-| AP | Architecture, perf, docs drift, repo clutter | complete **on the stale build f4fa493** (§2.2) | 12 | iPad/iPhone timing (desktop Chrome only, shared loaded machine — numbers indicative), Edge Functions/supabase code, Achievements and art/shop code (not in that tree); re-check on main |
-| AX | Cross-cutting a11y + HCI sweep | complete **on the stale build f4fa493** (§2.2) | 21 | Badge Wall/Seat/shop pages; 22 shop themes; screen-reader order inside labs, ink and the code editor; every dialog's focus order |
+| AP | Architecture, perf, docs drift, repo clutter | **complete, re-checked on main** (6 Nov, top-up; every carried-over finding has a verdict; `findings/architecture-perf.inventory.md`) | 19 | iPad/iPhone timing (desktop Chrome, shared machine), Edge Function code; stale-build results kept in `architecture-perf.f4fa493.json` |
+| AX | Cross-cutting a11y + HCI sweep | **complete, re-checked on main** (6 Nov, top-up; Badge Wall, Seat, shop swept; `findings/a11y-hci.inventory.md`) | 45 | Screen-reader order inside labs, ink and the code editor; 22 shop themes spot-checked, not all; stale-build results in `a11y-hci.f4fa493.json` |
 | LA | Live account (production, Chrome) | done for integrations | 23 notes | Google Calendar/Tasks two-way edit round trip not done (only Todoist); AniList/VNDB pages viewed on Mac only |
 
 **Known harness limitation:** `kos.mjs shot --theme atelier-dawn` sets
@@ -359,7 +359,7 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 ### 5.4 Recommended order for the remaining work
 1. ~~**goals** (new area: every goal type's measurement) and **JM** Japanese +
    Mind (barely started: 5 findings).~~ **Done 5 Nov (batch 1).**
-1a. **Batch 2 (AP + AX top-up on main, and shell) was STOPPED on 5 Nov at
+1a. ~~Batch 2 stopped~~ **Done 6 Nov: the resumed batch 2 finished** (AP 19, AX 45, SH 44 + SH-05 resolved; ~0.87 M subagent tokens, 53 min). `TOPUP_PARTIAL` is now empty and the AP/AX build notes say "re-checked on main". Earlier note, kept for the record: batch 2 (AP + AX top-up on main, and shell) was STOPPED on 5 Nov at
    ~18:35 before the usage limit**, to end cleanly. Saved and folded in: AP
    3 new findings, AX 13 (Badge Wall, Seat, shop — incl. the Wall's
    'Owned 8' vs 21 earned, Buy with no confirm, Edit seat losing drafts,
@@ -380,10 +380,10 @@ re-running its auditor continues from the `.jsonl` without repeating it.
    proposal, `0e4a781`).
 1b. Then the **inventory pass (§5.2b) over every other area**, including the
    "complete" ones — behaviour, not just pages.
-2. Re-check **AP** and **AX** on main and sweep what they could not see
+2. ~~Re-check **AP** and **AX** on main~~ **Done 6 Nov (batch 2).** ~~and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
-   rerun.
-4. Continue the partial UI areas: SC (theme review!), SH, EX, CL, AA, CO, HR, AG.
+   rerun.~~
+4. Continue the partial UI areas: SC (theme review!), ~~SH~~ (done 6 Nov), EX, CL, AA, CO, HR, AG.
 5. Live: Google Calendar two-way round trip with a marked test event (user
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
 6. Completeness critic ("what's missing?") over the whole of FINDINGS.md.

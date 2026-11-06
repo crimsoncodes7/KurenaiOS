@@ -47,3 +47,11 @@ of architecture-perf.json.
 
 ## G. Audit infrastructure
 - G1 the stale-checkout problem from the earlier run (HEAD vs production)
+
+## Top-up 2 additions (6 Nov 2026, slot 20, same build e30b837 / kos-redraw-1)
+- A7b boot restored onto #/achievements or #/governor: the first KOS.show measures every badge synchronously
+- B6 async render callbacks after navigation (Wall list() -> set dialog; governor-ui list() callbacks)
+- C2b the Wall's Showcase picker draft (unsaved Save) vs the redraw hold list
+- D7b catalogue coupling: 12 domains' raw state read directly, 47 owner APIs; measure exceptions swallowed to null
+- D8 srs.examPass at every boot (linear leaf scans)
+- E3b AGENTS.md / README gate commands skip suites 108 and 113 (and 108-113)

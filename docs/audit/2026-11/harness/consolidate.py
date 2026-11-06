@@ -40,13 +40,18 @@ AREAS = [
 # every area ran on 56b1a8c (= production, sw kos-artshop-1) EXCEPT these,
 # which ran after the audit branch was mistakenly based on a stale local main
 BUILD_NOTE = {
-    "architecture-perf": "f4fa493 (sw kos-creatives-1), 23 commits before production: no Achievements, no art/shop release. Structural findings (boot cost, hub.js, duplication, listeners, docs drift) almost certainly still hold; re-check sizes, counts and dead-CSS lists on main before acting. TOP-UP ON MAIN (5 Nov, kos-redraw-1) INTERRUPTED at the usage limit: its new findings (Badge Wall, Seat, shop) are added, but the re-check verdicts of the findings above were not recorded — re-run the top-up.",
-    "a11y-hci": "f4fa493 (sw kos-creatives-1), 23 commits before production: the Badge Wall, the Seat as Stage and the art/shop pages were not swept. The shared root causes (16px input zoom, touch floor, chip contrast, keyboard) live in shared CSS/JS that the art release barely touched; re-check on main and sweep the missing pages. TOP-UP ON MAIN (5 Nov, kos-redraw-1) INTERRUPTED at the usage limit: its new findings (Badge Wall, Seat, shop) are added, but the re-check verdicts of the findings above were not recorded — re-run the top-up.",
+    "architecture-perf": "First run on f4fa493 (sw kos-creatives-1, 23 commits before production). RE-CHECKED on main 6 Nov 2026 (sw kos-redraw-1): every carried-over finding has a 'Re-checked on kos-redraw-1' verdict; the Badge Wall, Seat, shop and art code were added.",
+    "a11y-hci": "First run on f4fa493 (sw kos-creatives-1, 23 commits before production). RE-CHECKED on main 6 Nov 2026 (sw kos-redraw-1): every carried-over finding has a 'Re-checked on kos-redraw-1' verdict; the Badge Wall, Seat and shop pages were swept.",
 }
 # a top-up (re-check on main) that was stopped before writing its final file:
 # the old final stands, the new incremental saves are added unflagged, and the
 # area reads "partial" until a top-up finishes
-TOPUP_PARTIAL = {"architecture-perf", "a11y-hci"}
+TOPUP_PARTIAL = set()  # AP and AX top-ups finished 6 Nov
+# findings a later re-check showed no longer reproduce: the id stays frozen and
+# the finding stays listed, marked resolved, but leaves the open counts
+RESOLVED = {
+    "SH-05": "no longer reproduces on kos-redraw-1 (6 Nov, shell re-check): the stopgap's KOS.rerender keeps #stage's scroll (scrollTop 500 -> 500 on Home, Calendar and Reminders at mac and iPhone). SY-01 is the same defect from the sync side and should be re-checked with SY.",
+}
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
 
 
@@ -154,6 +159,8 @@ def main():
             f["id"] = fid
             f["area"] = area
             f["areaStatus"] = st
+            if fid in RESOLVED:
+                f["resolved"] = RESOLVED[fid]; f.pop("notInFinal", None)
             rows.append(f)
         status[area] = (pre, label, st, summary, cov, fs, qol, backlog)
 
@@ -164,15 +171,16 @@ def main():
     md.append("\n| ID | Area | Status | P0 | P1 | P2 | P3 | Total |\n|---|---|---|---|---|---|---|---|")
     tot = [0, 0, 0, 0]
     for area, (pre, label, st, summary, cov, fs, qol, backlog) in status.items():
-        c = [cnt(fs, s) for s in ("P0", "P1", "P2", "P3")]
+        live = [r for r in rows if r["area"] == area and not r.get("resolved")]
+        c = [cnt(live, s) for s in ("P0", "P1", "P2", "P3")]
         tot = [a + b for a, b in zip(tot, c)]
-        md.append("| %s | %s | %s | %d | %d | %d | %d | %d |" % (pre, label, st, c[0], c[1], c[2], c[3], len(fs)))
+        md.append("| %s | %s | %s | %d | %d | %d | %d | %d |" % (pre, label, st, c[0], c[1], c[2], c[3], len(live)))
     md.append("| | **All** | | %d | %d | %d | %d | %d |\n" % (tot[0], tot[1], tot[2], tot[3], sum(tot)))
     md.append("Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).\n")
 
     md.append("\n## All P0 and P1 findings at a glance\n")
     for f in rows:
-        if f.get("severity") in ("P0", "P1"):
+        if f.get("severity") in ("P0", "P1") and not f.get("resolved"):
             md.append("- **%s** [%s] %s" % (f["id"], f["severity"], f.get("title", "")))
 
     for area, (pre, label, st, summary, cov, fs, qol, backlog) in status.items():
@@ -191,7 +199,7 @@ def main():
             if f["area"] != area:
                 continue
             md.append("### %s · %s · %s — %s\n" % (f["id"], f.get("severity", "?"), f.get("category", "?"), f.get("title", "")))
-            for k, lab in (("recheck", "Re-checked on kos-redraw-1"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
+            for k, lab in (("resolved", "RESOLVED"), ("recheck", "Re-checked on kos-redraw-1"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
                 if f.get(k):
                     md.append("- **%s:** %s" % (lab, str(f[k]).replace("\n", " ")))
             extra = []
@@ -215,7 +223,7 @@ def main():
     json.dump(rows, open(os.path.join(BASE, "findings.json"), "w"), indent=1)
     with open(os.path.join(BASE, "findings.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        cols = ["id", "area", "areaStatus", "notInFinal", "recheck", "severity", "category", "title", "devices", "effort", "needsDesign", "needsArt", "evidence", "rootCause", "fix", "detail"]
+        cols = ["id", "area", "areaStatus", "notInFinal", "resolved", "recheck", "severity", "category", "title", "devices", "effort", "needsDesign", "needsArt", "evidence", "rootCause", "fix", "detail"]
         w.writerow(cols)
         for f in rows:
             w.writerow([f.get(c, "") for c in cols])

@@ -49,3 +49,32 @@ code-settings, code-track, code-capstone, code-bridge, code-project, code-projec
 14. Messages: toasts, error text, empty states, button wording
 15. Navigation: document title, search reach, back/forward, dead ends
 16. Destructive / spending actions: confirm or undo
+
+## Coverage matrix (top-up, 6 Nov 2026, slot 21, kos-redraw-1)
+Measured by a11y-scan.js + a11y2-geo.js (a11y21-{mac,ipad,iphone}.jsonl seeded, a11y21-empty-{mac,iphone}.jsonl empty)
+and screenshots under shots/a11y-hci/n-*.png.
+
+| Item | Presentation checked | Behaviour checked | Result |
+|---|---|---|---|
+| Home (hero art, season chip, Upcoming) | mac/ipad/iphone, Graphite+Dawn+Washi Morning; empty+seeded | contrast over art sampled from pixels | Dawn XP/HP ~3:1 (new); Washi dots 1.32:1 (new) |
+| Picture drawer (One / Rotate / Shuffle / Your own, conditions, lock) | mac, ipadl | every mode tapped, cfg read back | Rotate thumbs dead (new); Your own while locked rewrites rule (new) |
+| Page header art bands (Money etc.) | mac Graphite/Dawn | actions over art legible | OK, verified |
+| Subject desk art | mac Dawn | visual | OK (layout gaps belong to Study area) |
+| Exams hero cover | mac Graphite/Dawn | visual | no cover on sample exam; OK |
+| Focus scene | iphone Dawn | visual | OK |
+| Badge Wall Sets | mac/ipad/iphone, empty+seeded | keyboard focus visible (48/48), names, set dialog focus | OK; earlier findings hold |
+| Wall Recent/Showcase/Titles/set routes | mac | route → tab | still open Sets (carried) |
+| Badge set dialog | mac Graphite/Dawn | initial focus Close, strip names, persists across navigation | survives navigation (new cross-cutting) |
+| Showcase picker (Edit seat compact) | mac | names | 21 unnamed buttons (new) |
+| Save toasts (Seat/Showcase) | code | announce path | spoken twice (new) |
+| Unlock overlay | code (achievements.js:620-672, css :260) | reduced motion, focus, teardown | OK, verified in code (not triggered live) |
+| Governor's Seat / Avatar & profile / History | mac/ipad/iphone, empty+seeded | focus visible, switches | switches 34x20 (carried) |
+| Edit your seat | mac/iphone empty+seeded | preview scale | iPhone preview 4.5px text (new) |
+| Gold Shop + Try on | mac/ipad/iphone | names, truncation, Dawn Buy contrast | iPhone names truncated (new); Buy 5.79:1 OK |
+| Assistant redesign (Hide/Show/Voice) | ipad/ipadl | focus after toggle, chip size | focus to BODY, 21px chips (new) |
+| Files empty state | mac/iphone | controls enabled while faded | new P3 |
+| Shop theme spot-check | Washi Morning on Home | contrast scan | new P2 |
+| All 21 carried findings | re-measured / re-read | see recheck field | 19 hold, 2 changed, 0 gone |
+| tools/responsive_audit.mjs full matrix | NOT run to completion | — | started at 4 sizes x 2 themes; at ~3 s/shot x 400 cells it needed ~2 h and shares the slot's single tab, so it was stopped and replaced by the targeted scans above |
+| Share-card finishes, notebook papers, pen sets, story covers | NOT checked | — | budget; belong mostly to Reports/ink areas |
+| VoiceOver / real iOS device behaviour | NOT checked | — | headless Chrome only; iOS zoom inferred from computed font sizes |
