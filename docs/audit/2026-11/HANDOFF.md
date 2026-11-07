@@ -218,8 +218,10 @@ of separate apps: everything interlinked, coherent).
   - It adds only `docs/audit/2026-11/` and the root `GEMINI.md`, a pointer
     for Gemini.
   - **No app code changed on it.** Check with
-    `git diff --stat origin/main..audit/quality-2026-11 -- . ':!docs/audit' ':!GEMINI.md'`,
-    which must print nothing.
+    `git diff --stat origin/main..audit/quality-2026-11 -- . ':!docs' ':!GEMINI.md' ':!CLAUDE.md'`,
+    which must print nothing. Docs-only differences are expected: the audit
+    pointer in `CLAUDE.md`'s baseline, `docs/HANDOFF.md`, and the shared
+    memory copy in `docs/memory/`.
   - The latest commit is in `git log -1`; §3 names the batch-6 commit.
 - **Gemini's branch** (when it exists): `audit/gemini-2026-11`, created from
   this one. It writes only `docs/audit/2026-11/gemini/` and is never merged
