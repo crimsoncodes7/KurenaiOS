@@ -16,8 +16,23 @@ reviewed the consolidated findings and the plan, and explicitly approved them.
 ## 0. Start here — the second account, Sunday 8 Nov 2026
 
 **What happened on 7 Nov (first account, last session).**
-- Batch 6 ran **Sync (SY) and Data integrity (DI)** in inventory top-up mode
-  (see §3 for the result).
+- Batch 6 ran **Sync (SY) and Data integrity (DI)** in inventory top-up mode.
+  Both finished, about 0.56 M subagent tokens and 25 min in all.
+  - Both have inventories, and every carried-over finding has a `recheck`
+    verdict.
+  - **New P0: SY-18.** With a redraw held, an open study editor writes its
+    stale copy over material another device added. The pulled card is
+    deleted locally and in the cloud.
+  - New P1s: SY-19 (vault scroll lost on a redraw) and SY-20 (Edit your seat
+    loses its draft).
+  - SY-07, SY-10 and SY-15 no longer reproduce on the stopgap and are marked
+    resolved. SY-01…06, 08 and 09 "changed" or hold only for user-triggered
+    redraws (see each `recheck`).
+  - DI: all 15 old findings hold, and 11 are new (P2/P3). Two need
+    reconciling when the plan is written:
+    - DI-16 (P2) is the same defect as LA-24, which was reproduced live and
+      rated P1.
+    - DI-22 duplicates AA-11.
 - **Money (MG) was stopped at the user's request** before it saved anything.
   It is still to be inventoried. Its findings are unchanged since 2 Nov.
 - **Gemini 4 Argon** (Google Antigravity) has been brought in by the user to
@@ -164,7 +179,7 @@ of separate apps: everything interlinked, coherent).
 | Afternoon review times overlap on the right edge | **Confirmed** | PR-05 |
 | Badge medal set overview: current-badge circle is an oval | **Confirmed** | AG-06 (also AG-15, AG-02) |
 | Mind & Creatives not in Home's Continue | **Confirmed**: fixed subject order, 4 visible, no scroll | HR-01 |
-| iPad: cloud sync resets flashcards to card 1, notes to page 1, etc. | **Confirmed and root-caused (systemic)** | SY-01…SY-08, SH-05 |
+| iPad: cloud sync resets flashcards to card 1, notes to page 1, etc. | **Confirmed and root-caused (systemic)**; the stopgap `kos-redraw-1` stops it for background redraws (re-checked 7 Nov), and its hold created a new P0: SY-18 (a held editor overwrites pulled cards) | SY-01…SY-27, SH-05 |
 | HCI 8 needs | **Swept on the stale build** (§2.2): accessibility, colour, messages, audio (only the Focus chime, silent on iOS, no setting), haptics (none) | AX-01…AX-21; plus SH/ST/PR touch and layout findings |
 | Assistant composer "Shift + Enter" hint misaligned | **Confirmed** | AA-03 |
 | Help & Guide lacks Money/Goals etc. | **Confirmed** | SH-10, SH-11 |
@@ -289,7 +304,7 @@ with evidence. Plus live checks on the user's production account in Chrome
 (read via the app's own `KOS.*` APIs; one Todoist round-trip with a marked
 test item, created and deleted).
 
-**Counts (6 Nov, after batch 5):** 645 open findings (P0 3 · P1 91 · P2 290 · P3 261), plus SH-05 resolved by the stopgap. After batch 4: 590; batch 3: 534; batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
+**Counts (7 Nov, after batch 6):** 663 open findings (P0 4 · P1 92 · P2 302 · P3 265), plus 4 resolved by the stopgap (SH-05, SY-07, SY-10, SY-15); 96 open P0/P1 (Gemini's worklist). **Counts (6 Nov, after batch 5):** 645 open findings (P0 3 · P1 91 · P2 290 · P3 261), plus SH-05 resolved by the stopgap. After batch 4: 590; batch 3: 534; batch 2: 461. After batch 2 was first stopped: 435. After batch 1: 405 findings (+ 29 live-account notes, 23
 user reports): **P0 2 · P1 81 · P2 190 · P3 132** (was 325 / P0 1 · P1 71
 before Goals, Japanese and Mind were re-audited). Severity: P0 data loss/corruption or core flow broken; P1 clear bug or
 badly broken UI on a primary device; P2 noticeable polish/UX; P3 minor.
@@ -301,7 +316,7 @@ before acting (see §7).
 
 ## 4. Coverage by area
 
-(Status per area. "inventoried" = has `findings/<area>.inventory.md`. Still without one on 7 Nov: MG, CR, CM, CC — §5.5.)
+(Status per area. "inventoried" = has `findings/<area>.inventory.md`. Still without one on 7 Nov: MG, CR, CM, CC (SY and DI done in batch 6) — §5.5.)
 
 | ID | Area | Status | Findings | Not covered (from the auditor, or unknown) |
 |---|---|---|---|---|
@@ -310,7 +325,7 @@ before acting (see §7).
 | AG | Achievements + Governor's Seat | **complete, inventoried** (6 Nov; `findings/achievements-governor.inventory.md`) | 31 | See the matrix in FINDINGS.md |
 | SC | Gold Shop + cosmetics + themes | **complete, inventoried** (6 Nov; all 131 items bought and checked where they render; all 29 themes measured; `findings/shop-cosmetics.inventory.md`) | 41 (P1 ×10) | Two-device merge of owned items; a real upload through the cropper (headless); every theme on every page |
 | ST | Study core | **complete, inventoried** (6 Nov inventory top-up; all 24 earlier findings hold; backup `study-core.pre-inventory.json`) | 43 (**new P0 ST-25**: deleting an assignment deletes every file linked to it, topic files included, and tombstones them in the cloud; P1 ST-26 a typo over an IT mark erases it) | See the matrix in FINDINGS.md |
-| SY | Sync/redraw disruption | complete | 17 | Routine auto-tick redraw, a Japanese session with due items, Creatives Writing Desk, Focus stage & exam tally (judged safe from code) |
+| SY | Sync/redraw disruption | **complete, inventoried** (7 Nov, batch 6, on `kos-redraw-1`; 27 redraw triggers × 21 state surfaces in `findings/sync-disruption.inventory.md`; backup `sync-disruption.pre-inventory.json`) | 24 open + 3 resolved (**P0 SY-18**; P1 SY-19, SY-20 new) | Daily Review auto-open (code-read only, no slot due); see the matrix |
 | CM | Maths content | complete | 13 | Every fact's correctness (spot reads only) |
 | CC | CS + IT content | complete | 13 | Flashcard/Quiz UI (ST's), shop themes, every CS fact, IT F200/F202 (completed units) — per-leaf worklist in `data/content-cs-it/worklist.txt` (162 leaves) |
 | CO | Code space | **complete, inventoried** (6 Nov; `findings/code-space.inventory.md`) | 38 (P1 ×4) | See the matrix in FINDINGS.md |
@@ -323,7 +338,7 @@ before acting (see §7).
 | EX | Exams hub, Files, ink | **complete, inventoried** (6 Nov; `findings/exams-files-ink.inventory.md`) | 49 (P1 ×4, new EX-28 timed-paper navigator crushed on touch) | See the auditor's matrix in FINDINGS.md |
 | CL | Collection | **complete, inventoried** (6 Nov; dense account; `findings/collection.inventory.md`) | 44 | No provider was connected in the harness (no AniList/VNDB writes possible, by design); live provider pages are LA-12…17 |
 | AA | Assistant, notifications, Archive | **complete, inventoried** (6 Nov; backup round trip into an empty slot run: 11 saved reports came back as 5, ink merged not replaced; `findings/assistant-archive.inventory.md`) | 29 (P1 ×3; new AA-11 Import backup replaces everything with no confirm) | See the matrix in FINDINGS.md |
-| DI | Data integrity | complete | 15 | Google Calendar recurrence mapping in depth, ink per-stroke merge, mind/reports sync bodies, real provider servers, Dawn/shop visual pass |
+| DI | Data integrity | **complete, inventoried** (7 Nov, batch 6; `findings/data-integrity.inventory.md`; backup `data-integrity.pre-inventory.json`) | 26 (all 15 old hold; 11 new P2/P3) | Real provider servers and real cloud (node experiments only); see the matrix |
 | AP | Architecture, perf, docs drift, repo clutter | **complete, re-checked on main** (6 Nov, top-up; every carried-over finding has a verdict; `findings/architecture-perf.inventory.md`) | 19 | iPad/iPhone timing (desktop Chrome, shared machine), Edge Function code; stale-build results kept in `architecture-perf.f4fa493.json` |
 | AX | Cross-cutting a11y + HCI sweep | **complete, re-checked on main** (6 Nov, top-up; Badge Wall, Seat, shop swept; `findings/a11y-hci.inventory.md`) | 45 | Screen-reader order inside labs, ink and the code editor; 22 shop themes spot-checked, not all; stale-build results in `a11y-hci.f4fa493.json` |
 | LA | Live account (production, Chrome) | done for integrations | 23 notes | Google Calendar/Tasks two-way edit round trip not done (only Todoist); AniList/VNDB pages viewed on Mac only |
@@ -427,11 +442,11 @@ re-running its auditor continues from the `.jsonl` without repeating it.
 2. ~~Re-check **AP** and **AX** on main~~ **Done 6 Nov (batch 2).** ~~and sweep what they could not see
    (Badge Wall, Seat, shop; Achievements/art code) — a short top-up, not a
    rerun.~~
-4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), ~~AA, CO, HR~~ (done 6 Nov, batch 4), ~~AG~~ (batch 5). Then the inventory pass over the areas marked "complete" before 2 Nov: ~~ST, PR~~ (batch 5, inventory top-up mode: `args.topup` with areas outside `STALE` in `workflow-audit.js`; back up `<area>.json` as `<area>.pre-inventory.json` first), SY, CM, CC, CR, MG, DI.
+4. Continue the partial UI areas: ~~SC (theme review!), SH, EX, CL~~ (done 6 Nov, batches 2–3), ~~AA, CO, HR~~ (done 6 Nov, batch 4), ~~AG~~ (batch 5). Then the inventory pass over the areas marked "complete" before 2 Nov: ~~ST, PR~~ (batch 5, inventory top-up mode: `args.topup` with areas outside `STALE` in `workflow-audit.js`; back up `<area>.json` as `<area>.pre-inventory.json` first), ~~SY, DI~~ (batch 6, 7 Nov), then MG, CR, CM, CC (§5.5).
 5. Live: check whether ST-25 has already deleted any of the user's files (deleted assignments whose files were also linked to a topic: compare `kurenai-os-files` tombstones with assignment deletions), then the Google Calendar two-way round trip with a marked test event (user
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
-6. Completeness critic ("what's missing?") over the whole of FINDINGS.md.
-7. Adversarial spot-verify of every P0/P1 (≥ 2 skeptics each), drop or fix.
+6. Completeness critic — now Gemini's workstream A (§10).
+7. Independent P0/P1 re-check — now Gemini's workstream B (§10); Claude reviews it (§10.3).
 
 ### 5.5 The remaining areas: exact scope (for the second account)
 
@@ -559,6 +574,11 @@ These explain many symptoms each. The plan should fix the cause once.
    carry changed keys; views declare what they read; redraw deferred while the
    user is mid-task (session/typing/dialog) and applied at a safe point;
    transient view state in a per-view session store; fix the scroller.
+   **7 Nov:** the stopgap holds background redraws, but holding has its own
+   failure — a held page is stale and its open editor writes the stale copy
+   back over pulled data (SY-18, P0); held pages never show they are out of
+   date (SY-26); delayed plain `KOS.rerender()` calls bypass the hold (SY-25).
+   The policy must merge or warn, not only defer.
 2. **Layering: menus below modals (PR-01, SH-03, AG-01).** `--z-menu` 110 <
    modal 120, and stage `overflow` clips popovers → menus inside dialogs or on
    the Stage are invisible/clipped. One token/portal fix.
@@ -775,7 +795,7 @@ workstreams that Claude would otherwise run:
    - gaps probed with evidence;
    - the 21 root causes in §6 challenged;
    - new findings as proposals.
-2. **B. Independent re-check of every open P0/P1** (94 on 6 Nov; the list is
+2. **B. Independent re-check of every open P0/P1** (96 on 7 Nov after batch 6; the list is
    `gemini/p0p1-ids.txt`):
    - a blind step first (title only), then two independent skeptics (runtime
      and code/spec);

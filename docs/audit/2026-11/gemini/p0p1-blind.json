@@ -1,5 +1,5 @@
 {
- "count": 94,
+ "count": 96,
  "note": "Blind worklist: title only. Read the full record in ../findings.json ONLY after writing your independent assessment.",
  "findings": [
   {
@@ -25,6 +25,14 @@
    "category": "data",
    "devices": "all",
    "title": "Deleting an assignment permanently deletes every file linked to it, including files that belong to a topic or another record"
+  },
+  {
+   "id": "SY-18",
+   "area": "sync-disruption",
+   "severity": "P0",
+   "category": "data",
+   "devices": "iPad + Mac (two devices editing the same topic's material)",
+   "title": "With the redraw held, an open study editor writes its stale copy over material another device added — the pulled card is deleted locally and the three-way merge then deletes it everywhere"
   },
   {
    "id": "AA-01",
@@ -739,20 +747,28 @@
    "title": "Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath — and on the iPad it can auto-open over a lesson when you return to the app"
   },
   {
-   "id": "SY-07",
-   "area": "sync-disruption",
-   "severity": "P1",
-   "category": "bug",
-   "devices": "iPad landscape (Side by side is >1080 only)",
-   "title": "Handwritten tab Side by side: both panes jump to the top on a background redraw (1.5 s after the pen lifts)"
-  },
-  {
    "id": "SY-08",
    "area": "sync-disruption",
    "severity": "P1",
    "category": "ux",
    "devices": "iPad, iPhone (keyboard), Mac",
    "title": "A background redraw steals focus from whatever is being typed in — the iPad/iPhone keyboard closes mid-sentence"
+  },
+  {
+   "id": "SY-19",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "iPad, Mac, iPhone (any vault page)",
+   "title": "A background redraw of a Collection vault throws the reader back to the top: the lazy batches are rebuilt at 60 entries, so the saved scroll position cannot be restored"
+  },
+  {
+   "id": "SY-20",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)"
   }
  ]
 }

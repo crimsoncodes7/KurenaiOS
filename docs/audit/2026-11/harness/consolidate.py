@@ -51,6 +51,9 @@ TOPUP_PARTIAL = set()  # AP and AX top-ups finished 6 Nov
 # the finding stays listed, marked resolved, but leaves the open counts
 RESOLVED = {
     "SH-05": "no longer reproduces on kos-redraw-1 (6 Nov, shell re-check): the stopgap's KOS.rerender keeps #stage's scroll (scrollTop 500 -> 500 on Home, Calendar and Reminders at mac and iPhone). SY-01 is the same defect from the sync side and should be re-checked with SY.",
+    "SY-07": "no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): sd11 rerun with background:'hard' at ipadl keeps both Side by side panes' scroll.",
+    "SY-10": "no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): an open KOS.ui.menu counts as a top dialog, so a background redraw is held while it is open.",
+    "SY-15": "no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): background redraws are held while a dialog is open (sd7 rerun).",
 }
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
 

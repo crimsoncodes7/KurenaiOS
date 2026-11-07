@@ -12,7 +12,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | AG | Achievements / Badge Wall and the Governor's Seat | complete | 0 | 2 | 15 | 14 | 31 |
 | SC | Gold Shop and every cosmetic, themes | complete | 0 | 10 | 23 | 8 | 41 |
 | ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 1 | 7 | 15 | 20 | 43 |
-| SY | Background redraws / cloud sync disrupting work | complete | 0 | 8 | 6 | 3 | 17 |
+| SY | Background redraws / cloud sync disrupting work | complete | 1 | 9 | 11 | 3 | 24 |
 | CM | A-Level Maths content quality | complete | 0 | 2 | 6 | 5 | 13 |
 | CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 4 | 5 | 13 |
 | CO | Code study space | complete | 0 | 4 | 13 | 21 | 38 |
@@ -25,10 +25,10 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | EX | Exams hub, Files, ink/Pencil surfaces | complete | 0 | 4 | 21 | 24 | 49 |
 | CL | Collection vaults, Shrine, Wishlist, Sync | complete | 0 | 1 | 19 | 24 | 44 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | complete | 0 | 3 | 14 | 12 | 29 |
-| DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 7 | 4 | 15 |
+| DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 14 | 8 | 26 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 3 | 91 | 290 | 261 | 645 |
+| | **All** | | 4 | 92 | 302 | 265 | 663 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -70,14 +70,16 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **ST-05** [P1] Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen
 - **ST-06** [P1] On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight
 - **ST-26** [P1] IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result
+- **SY-18** [P0] With the redraw held, an open study editor writes its stale copy over material another device added — the pulled card is deleted locally and the three-way merge then deletes it everywhere
 - **SY-01** [P1] KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top
 - **SY-02** [P1] CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')
 - **SY-03** [P1] A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)
 - **SY-04** [P1] Quiz progress and a typed exam answer are wiped by any background redraw
 - **SY-05** [P1] Every cloud pull/merge redraws the active view unconditionally — even when nothing the view shows changed, and even while the user is mid-task
 - **SY-06** [P1] Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath — and on the iPad it can auto-open over a lesson when you return to the app
-- **SY-07** [P1] Handwritten tab Side by side: both panes jump to the top on a background redraw (1.5 s after the pen lifts)
 - **SY-08** [P1] A background redraw steals focus from whatever is being typed in — the iPad/iPhone keyboard closes mid-sentence
+- **SY-19** [P1] A background redraw of a Collection vault throws the reader back to the top: the lazy batches are rebuilt at 60 entries, so the saved scroll position cannot be restored
+- **SY-20** [P1] Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)
 - **CM-01** [P1] Specification tab shows garbled PDF-extraction text on most Maths leaves (M7.3 included)
 - **CM-02** [P1] Quiz answers are almost always A or B, and options are never shuffled
 - **CC-01** [P1] IT spec text for F206.6.1, F204.6.5, F202.5.1, F201.5.2, F200.5.3 (and F200.2.x/F202.2.x) holds garbled PDF dumps of the assessment criteria
@@ -1971,12 +1973,22 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ## SY — Background redraws / cloud sync disrupting work (complete)
 
-**Auditor's summary.** The iPad resets the user reported are real and systemic. Every applied cloud state (clean pull, three-way merge, and the push that loses its compare-and-set race because another device pushed first) ends in cloudsync.rerenderCurrent() -> KOS.rerender(), which fully remounts #main with no check of what changed or whether the user is mid-task; the only guard is the ink pen (1.5 s). Pulls fire on Realtime notes from any other device, on every return to the app (visibility/focus) and after the iPad's own ratings, so redraws are frequent. A remount loses everything held in render closures: the CS/Maths/IT note page (the study spaces store theirs and survive), the flashcard queue and session counts (the batch is logged only at finish, so pay/streak for ratings before the redraw is lost), quiz and exam progress and typed answers, Japanese session results, Code listing edits and retrieval tries/hints/clock, open menus, focus/keyboard, and scroll: rerender saves #main.scrollTop but #stage is the real scroller, so every redraw jumps to the top on all three devices, and Side by side panes reset too. The same blanket KOS.rerender is used as a change broadcast by the Daily Review close, routine auto-ticks and boot loaders, while Google/Todoist pulls refresh nothing. Fix design: a redraw policy (background changes carry the changed keys; views declare what they read; redraws are deferred while a dialog/menu/editable focus/active study engine/recent interaction exists, with a quiet Refresh chip), per-view transient state kept per device in state.ui as the Code/Japanese/Mind/Creatives lesson pages already do, partial review batches banked on unmount, and rerender preserving the real scroller, pane scrolls and focus.
+**Auditor's summary.** On kos-redraw-1 the stopgap does what it promised for the reported cases: a background redraw (cloud pull, habit auto-tick, Daily Review close, boot loads) is held on task pages, while typing, under a dialog or menu and within 45 s of a touch, so the flashcard position, notes page, quiz, Japanese session, ink panes, menus and dialogs survive (8 of the 17 earlier findings no longer reproduce under background redraws; 7 changed, 2 hold). But holding the repaint without reconciling the data introduced a P0: the study editor on a held topic page keeps its pre-pull rows and its next autosave writes them back wholesale, so material another device added is deleted locally and the three-way merge then deletes it everywhere. Outside the task list the remount still loses state: vault scroll (lazy batches make the restore clamp to 0, iPad and iPhone), the unsaved Edit-your-seat draft, horizontal strips and in-page tabs, and unsent text in a blurred field; plain KOS.rerender() calls from timers and async callbacks (Exams planner, Connections, Mind) bypass the hold and redraw whatever page is current; the achievement unlock overlay is modal over a flashcard set; and task pages now go stale with no indicator. Root cause throughout: one global remount-everything redraw with no notion of what changed, which page asked, or where a view keeps its transient state; the fix is a redraw policy that diffs, scopes and reconciles (see the systemic design in the findings).
 
-**Coverage.** Read the redraw paths in js/core/ui.js (KOS.rerender, KOS.show), cloudsync.js (every rerenderCurrent caller, Realtime, visibility/focus/interval, the CAS conflict path), routines.js, dayreview.js, ext.js, main.js, achievements, focus, mobile-shell, the ink listeners, and the engines (flashcards, quiz, jarun, Code retrieval, the codetopic/jatopic/crtopic/mindtopic page memos). Reproduced with KOS.rerender() (exactly what cloudsync calls) on the seeded account at ipad, ipadl, mac and iphone: notes page, flashcards (topic and Due today), quiz, exam typed answer, Code 1.1 listings, quick-note focus, bell menu, assignment dialog focus, Daily Review close, Side by side ink panes, scroll on topic/Home/Anime; toast geometry on iphone and ipad. Screenshots: shots/sync-disruption/review-close-notes-reset.png, shots/sync-disruption/toast-over-rate-iphone.png. NOT reproduced end to end: a real two-device Supabase pull (no cloud sign-in in the harness; the chain is code-read), a routine auto-tick redraw (a hand-made ledger entry did not tick a habit), a Japanese session with due items (none due in the sample), the Creatives Writing Desk (autosaves at 600 ms), the Focus stage and exam paper tally (overlays outside #main, judged safe from code). The empty account was not exercised separately: with no cloud link it has no pull-triggered redraws and the remount behaviour is identical. Themes are not relevant to this area and were not checked.
+**Coverage.** Build kos-redraw-1 (sw), harness slot 6, seeded account (and an empty-files state for Files). Inventory: findings/sync-disruption.inventory.md — 27 redraw triggers (A1-A27) and 21 state surfaces (B). Matrix: A1-A4 cloud pulls -> behaviour checked on 40 non-task routes (r5, ipad) + task pages (r1, r3, r9; ipad) + iPhone Home/anime -> new vault-scroll, strips, tabs, seat-draft, unsent-input findings; held pages -> stale-data finding; editor -> P0 (r11). A5 habit auto-tick -> code-read, carried #12 changed. A6 Review close -> rerun, carried changed. A7 auto-open -> code-read only (no slot due in the harness) -> carried holds. A8/A9 boot -> code-read, carried changed. A10 -> OK code-read. A11 unlock overlay -> reproduced r10 + screenshot -> new P2. A12-A14 unscoped plain rerenders -> code-read + effect reproduced (r1 np3) -> new P2. A15/A16 -> OK code-read. A17 Files repaint -> r13 -> new P3. A18/A19/A20 -> OK (A20 rerun r8a). A21-A23 no-redraw pulls -> code-read -> carried #17 widened. A24 HUD -> OK. A25 OAuth return navigation -> code-read, not filed (expected after a sign-in return). A26 toasts -> sd10 rerun iphone -> holds. A27 -> intended. Surfaces B: all exercised as listed in the inventory. Devices: iPad portrait for most, iPad landscape for Side by side, iPhone for scroll and toast; Mac not re-run separately (same code path, no layout dependence). NOT checked: real two-device Supabase traffic (simulated with store.replaceState + KOS.rerender({background})); Daily Review auto-open live; Shop Try on under a redraw; Exam Room / paper viewer under a redraw (task view, mechanism verified); Dawn/shop themes (not relevant to redraw behaviour).
+
+### SY-18 · P0 · data — With the redraw held, an open study editor writes its stale copy over material another device added — the pulled card is deleted locally and the three-way merge then deletes it everywhere
+
+- **Devices:** iPad + Mac (two devices editing the same topic's material)
+- **Detail / repro:** The study editor (KOS.editor.mount) keeps the fork's rows in memory (flashcards, quiz, exam, notes, spec) and every autosave writes the WHOLE array through KOS.edits.set. Before kos-redraw-1 a cloud pull remounted the editor from the fresh fork; now the topic page ('ref') is a TASK_VIEW, so the redraw is held until navigation and the editor keeps its pre-pull copy indefinitely (state.ui.editing also keeps the editor open per device across visits). Reproduced: editor open on 4.5.4.3 flashcards (15 rows), a pull brings device B's new card (state 16 rows, hasB true), the held editor still shows 15; one more keystroke and the autosave writes 15 rows back (final 15, hasB false). The next push sends a document whose fork lacks a row that the base has, which the merge reads as a local deletion — and a deletion on either side wins (invariant 33/88) — so the other device's card is removed on every device. The same applies to notes blocks and spec blocks, quiz and exam items.
+- **Evidence:** eval r11.js (ipad): {forkN:15, afterPull:16, hasB:true, editorRows:15, final:15, hasBFinal:false}. js/modules/editor.js:408-414 (cards = KOS.edits.material(...) captured; save() sets the whole array), :470, :567, :650, :656; js/core/edits.js:199-206 (set replaces the kind wholesale); js/core/ui.js:358-359 (ref held); js/core/cloudsync.js:768-775 (pull replaces state, rerender held).
+- **Root cause:** The stopgap holds the repaint without telling long-lived in-page editors that their source changed; the editor's whole-array save model turns a stale copy into deletions.
+- **Proposed fix:** Short term: let a held background redraw notify mounted editors (an event with the changed paths); the study editor re-reads its fork when idle and merges by row id instead of writing the stale array (or saves per-row patches: KOS.edits.patchRow / addRow / removeRow). Never hold a redraw over an editor whose source record changed without that reconciliation. Add a smoke test: editor open, remote fork change, local keystroke, remote row survives.
+- **Flags:** effort M
 
 ### SY-01 · P1 · bug — KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top
 
+- **Re-checked on kos-redraw-1:** changed: KOS.rerender now saves and restores #stage, #main and the document scroller (ui.js:376-378, 399-404); re-measured 40 routes on ipad (r5-ipad.json) and Home on iphone (900 -> 900): kept everywhere EXCEPT lazily batched vaults (anime 3414->0, books 29226->0, vn, game, mangaka; iphone anime 2500->0) — see the new vault finding
 - **Devices:** all (mac, ipad, iphone)
 - **Detail / repro:** KOS.rerender (the cloud-pull/background redraw path) reads and restores document.getElementById('main').scrollTop, but the element that actually scrolls is #stage (#main has overflow visible; on the iPad #main.scrollHeight 2406 vs #stage 2406/1120 scrolling). KOS.show then empties #main, the height collapses and the browser clamps #stage.scrollTop to 0. Repro (seeded account): open compsci 4.5.2.1, set #stage.scrollTop=900, KOS.rerender() -> 0. Same on Home (700 -> 0) and the Anime vault (1500 -> 0) at mac, ipad and iphone sizes. So any pull, merge, auto-ticked habit, Daily Review close etc. throws the reader back to the top of the page.
 - **Evidence:** harness eval sd3.js: ipad {st1:900,st2:0,h1:700,h2:0,a1:1500,a2:0}; mac {st1:530,st2:0,...}; iphone same. Code: js/core/ui.js:353-356 (var main=getElementById('main'); var top=main.scrollTop; ... main.scrollTop=top); KOS.show resets main.scrollTop=0 at js/core/ui.js:1526
@@ -1986,6 +1998,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-02 · P1 · bug — CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')
 
+- **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: eval r1.js (ipad) {np0:'Page 4 of 7', held:true, np1:'Page 4 of 7' (hard), np2:'Page 4 of 7' (soft)}; a plain KOS.rerender() still resets it (np3:'Page 1 of 7'), so any unscoped plain caller (examviews.js:264, connections.js:70) still can
 - **Devices:** all; most visible on iPad
 - **Detail / repro:** In a subject topic the current note page lives in a closure variable (`var notePage = 0` inside the topic view). KOS.rerender re-runs the view, so the variable is recreated at 0. hub.js keeps only the open TAB across a redraw (openTabMemo), not the page. Repro on iPad: open compsci 4.5.2.1, Next page x3 -> 'Page 4 of 7', KOS.rerender() -> 'Page 1 of 7'. Code, Japanese, Mind and Creatives lessons do NOT have this bug because they store the page in state.ui.<space>.page[ref].
 - **Evidence:** harness eval: {before:'Page 4 of 7', after:'Page 1 of 7'} at --size ipad. js/modules/hub.js:2901 (var notePage = 0), :2983 (cur = o.keep ? notePage : 0), :2590 (only the tab survives KOS.ui.redrawing). Contrast js/modules/codetopic.js:342/377, jatopic.js:206/229, crtopic.js:154/171, mindtopic.js:261/282 (ui.page[ref])
@@ -1995,6 +2008,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-03 · P1 · bug — A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)
 
+- **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: eval r9.js (ipad) — after three ratings the set text is identical before and after KOS.rerender({background:'hard'}) ('QUESTION · 12'); ref is a TASK_VIEW (ui.js:358-359). Still reachable through a plain unscoped rerender
 - **Devices:** all; reported on iPad
 - **Detail / repro:** The flashcard engine keeps queue, graduated and counts in its mount closure, and only logs the review session in finish(). A KOS.rerender mid-set remounts it: on a topic's Flashcards tab the queue is rebuilt from ALL the topic's cards, so the learner is put back on card 1 and re-meets cards they just rated (re-rating them applies FSRS's short-term rule again, skewing their schedule); on Due today the counts reset ('This session: 0 again · 0 hard · 3 good' -> ''), and because a session is only logged at finish(), the ratings made before the redraw never produce a session entry — their XP/gold and the study-streak credit are lost (the SRS schedule itself was saved). Repro iPad: compsci 4.5.2.1 Flashcards, rate 3 Good ('15 left of 18'), KOS.rerender() -> '18 left of 18', first card again. Due today: rate 3 ('304 left of 307', life line 3 good) -> after rerender '304 left of 304', life line empty.
 - **Evidence:** harness eval (ipad): topic log ['18 left of 18 What is a number base?', ..., '15 left of 18'] -> afterFront '18 left of 18 What is a number base?'; due {d3life:'This session: 0 again · 0 hard · 3 good · 0 easy', dAfterLife:''}. js/engines/flashcards.js:295-322 (rate keeps counts in closure, store.save only), :325-355 (finish is the only KOS.sessions.log), :356 restart
@@ -2004,6 +2018,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-04 · P1 · bug — Quiz progress and a typed exam answer are wiped by any background redraw
 
+- **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: eval r3.js {quiz0:'Question 3 of 11', quiz1:'Question 3 of 11'}; a plain rerender still resets (quizUser:'Question 1 of 11')
 - **Devices:** all
 - **Detail / repro:** Topic Quiz (MCQ) and Exam tabs keep the question index, chosen answers and typed text in engine closures. Repro iPad: compsci 4.5.2.1 Quiz, answer two -> 'Question 3 of 11'; KOS.rerender() -> 'Question 1 of 11' (tab kept, progress lost). Exam tab: go to 'Question 3 of 14', type into the answer textarea, KOS.rerender() -> 'Question 1 of 14' and the textarea is empty: the typed answer is lost with no recovery.
 - **Evidence:** harness eval sd1.js (ipad): {quizBefore:'Question 3 of 11', quizAfter:'Question 1 of 11', examBefore:'Question 3 of 14', examTA:true, examAfter:'Question 1 of 14', examTAAfter:''}. js/engines/quiz.js:62-121 (MCQ state in closure), :225-232 (exam 'at' index in closure); js/modules/hub.js:3044-3084 remounts them
@@ -2013,6 +2028,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-05 · P1 · arch — Every cloud pull/merge redraws the active view unconditionally — even when nothing the view shows changed, and even while the user is mid-task
 
+- **Re-checked on kos-redraw-1:** changed: rerenderCurrent now calls KOS.rerender({background:'hard'}) (cloudsync.js:731), held on TASK_VIEWS, while typing, under a dialog/menu and within 45 s of a touch (ui.js:349-392). Still no diff of what changed: every other page is remounted after 45 s idle (r5-ipad.json: redrawn:true on all 40 non-task routes), and task pages now go stale instead (new finding)
 - **Devices:** iPad primarily (app switching + Pencil study), all
 - **Detail / repro:** cloudsync.rerenderCurrent() calls KOS.rerender() after every applied remote state: the clean path (applyRemoteState, cloudsync.js:775), the merge path (mergeRemoteIn, :495, also used by a push that lost its compare-and-set race, :533-560) and first link (:1279). There is no check of whether the merged document differs in anything the current view reads, no check that the user is interacting, a dialog/menu is open, an input has focus, or a study engine is running. The only guard in KOS.rerender is the ink pen (ui.js:347). Triggers that reach it: another device's push -> Realtime 'changed' (1.5 s debounce, :1483); returning to the app (visibilitychange/focus, :1548-1552, at most once a minute) — on the iPad every app switch; the 15-min interval; and the iPad's OWN ratings: each store.save -> noteChange -> push after 4 s -> if the Mac/iPhone pushed meanwhile the CAS fails -> conflict() -> mergeRemoteIn -> rerender. An idle open Mac pushes on its own (achievement sweep every 30 min, goals/notify ticks, routine auto-ticks, Daily Review words), so the iPad is redrawn under the user regularly. This is the root of the reported iPad resets.
 - **Evidence:** js/core/cloudsync.js:487-497 (mergeRemoteIn -> rerenderCurrent), :723-733 (rerenderCurrent -> KOS.rerender), :773-777, :533-560 (conflict path), :1447-1459 (noteChange push), :1480-1495 (Realtime), :1541-1553 (interval/visible/focus); js/core/ui.js:344-357 (rerender: only inkUI.busy guard). Harness: KOS.rerender() reproduces every reset in the other findings.
@@ -2022,6 +2038,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-06 · P1 · ux — Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath — and on the iPad it can auto-open over a lesson when you return to the app
 
+- **Re-checked on kos-redraw-1:** changed: close/finish/skip now redraw with {background:'soft'} (dayreview.js:92, 103, 661, 709), held on task pages — notes stay on Page 4 (r12 variant). The auto-open part holds: blocked() (dayreview.js:722-729) still has no task-page check and maybeOpen runs on every visibilitychange (:749) once bootHash is cleared after 1.5 s (code-read; no slot was due in the harness)
 - **Devices:** iPad (visibility), all
 - **Detail / repro:** reviewSheet.close() calls KOS.rerender() whenever it is not silent (dayreview.js:92), as does the final Close button (:661) and Skip (:709). The overlay is outside #main, so the page under it never needed a redraw; the redraw resets notes page, flashcards, quiz, scroll. Repro iPad: compsci 4.5.4.3 notes page 4 ('Page 4 of 7'), KOS.reviewSheet.open(slot), close -> 'Page 1 of 7' (screenshot). Worse, maybeOpen() runs on every visibilitychange to visible (:749); the deep-link guard uses bootHash, which is cleared 1.5 s after boot (:746), so after boot the sheet auto-opens over ANY page (a topic, a Code lesson, Due today) when the iPad app is brought back inside a new review slot; the blocked() check knows only Focus, a dialog and the Exam Room. Dismissing it then wipes the lesson state.
 - **Evidence:** shots/sync-disruption/review-close-notes-reset.png (Page 1 of 7 after close; was Page 4 of 7). eval sd8.js {before:'Page 4 of 7', open:true, after:'Page 1 of 7'}. js/modules/dayreview.js:85-93, :661, :709, :722-729 (blocked), :744-749
@@ -2031,6 +2048,8 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-07 · P1 · bug — Handwritten tab Side by side: both panes jump to the top on a background redraw (1.5 s after the pen lifts)
 
+- **RESOLVED:** no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): sd11 rerun with background:'hard' at ipadl keeps both Side by side panes' scroll.
+- **Re-checked on kos-redraw-1:** no longer reproduces: sd11 rerun with background:'hard' (ipadl) {before:[600,238], after:['ink.side-notes 600','ink.side-page 238']}
 - **Devices:** iPad landscape (Side by side is >1080 only)
 - **Detail / repro:** The ink guard in KOS.rerender only waits while inkUI.busy() (a stroke or text box open, or ink in the last 1.5 s). Once the pen has been lifted for 1.5 s — i.e. while the student reads the notes pane or thinks — a pull redraws the tab and both independent scroll regions reset. Repro iPad landscape (1180x820): compsci 4.5.4.3, Handwritten, Side by side; ink.side-notes scrolled to 600 and ink.side-page to 238; KOS.rerender() -> both 0. The notebook page-in-view and the notes position are lost, exactly the 'jumps back to the start' symptom on the iPad.
 - **Evidence:** eval sd11.js (ipadl): {scrollers:['ink.side-notes 7882/744','ink.side-page 982/744'], before:[600,238], after:['ink.side-notes 0','ink.side-page 0']}. js/core/ui.js:347-351 (busy guard only), js/core/inkui.js:341
@@ -2040,6 +2059,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-08 · P1 · ux — A background redraw steals focus from whatever is being typed in — the iPad/iPhone keyboard closes mid-sentence
 
+- **Re-checked on kos-redraw-1:** no longer reproduces while the field has focus: #/reminders typing held {held:true, ae:'INPUT', val:'half a thou'} (ui.js:362-366); but once the field is blurred the unsent text is wiped by the next retry (new finding)
 - **Devices:** iPad, iPhone (keyboard), Mac
 - **Detail / repro:** KOS.rerender remounts #main; the focused field is destroyed and focus falls to <body>. The quick-note draft itself survives (stored per device), but the caret is gone, so on the iPad the on-screen keyboard dismisses while the user is typing; any keystrokes in flight are lost. The same applies to every inline input on any page (search filters in vaults, Money amount fields, Goals editor in-page fields, Code task editor, Writing Desk). Repro iPad: compsci 4.5.4.3, focus the quick note, type, caret at 4, KOS.rerender() -> document.activeElement BODY; the new textarea has the text but no focus (selection at end).
 - **Evidence:** eval (ipad): {active:'BODY ', val:'half a thou', sel:11}. js/core/ui.js:344-357, :1520-1541 (main.innerHTML = '' then remount); js/core/a11y.js:97 comment says a redraw must leave the reader where they are but there is no focus restore
@@ -2047,8 +2067,27 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 - **Proposed fix:** Policy: never run a background redraw while document.activeElement is an editable element inside #main (defer until blur + idle). As a fallback, record a focus signature (data-ui + index + selection) before the redraw and restore it after (mobile-shell.js:600-640 already has calendarFocusSignature to generalise).
 - **Flags:** effort S
 
+### SY-19 · P1 · bug — A background redraw of a Collection vault throws the reader back to the top: the lazy batches are rebuilt at 60 entries, so the saved scroll position cannot be restored
+
+- **Devices:** iPad, Mac, iPhone (any vault page)
+- **Detail / repro:** Vault pages are not in TASK_VIEWS, so a cloud pull 45 s after the last touch (or any soft redraw: a habit ticking itself, the Daily Review closing, an own picture loading) remounts #/anime, #/books, #/vn, #/game or #/mangaka. KOS.rerender saves #stage.scrollTop and restores it twice (sync and next frame), but the remounted vault holds only its first lazy batch (60 cards), so the page is too short and the restore clamps to 0. Reproduced on the seeded account (ipad): anime 3414 -> 0, books 29226 -> 0, vn 504 -> 0, game 3414 -> 0, mangaka 6056 -> 0. Scrolling through 1,900 titles and losing the place on a pull is exactly the disruption the stopgap set out to stop.
+- **Evidence:** audit-evidence/2026-11/qa/r5.js + r5-ipad.json (diff.top for #/anime, #/books, #/vn, #/game, #/mangaka). js/core/ui.js:399-404 (restore of tops[] only, sync + one rAF); js/core/ui.js:358-359 (TASK_VIEWS has no vault views); invariant 8 (60-entry lazy batches).
+- **Root cause:** Scroll restoration assumes the remounted page is as tall as before; lazily batched lists are not, and the vault views are not held like task views.
+- **Proposed fix:** Either add the vault views (anime, books, vn, game, mangaka, seasonal, wishlist, shrine) to the held set, or make the vault render keep its loaded batch count in a per-visit memo (like scrollMemo) so a redraw renders up to the batch that contained the scroll position before restoring; longer term the redraw policy should diff and skip a redraw when the vault's query result did not change.
+- **Flags:** effort M
+
+### SY-20 · P1 · bug — Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)
+
+- **Devices:** all
+- **Detail / repro:** #/governor/edit keeps its draft (showcase, background, focus, title, seal) in a local variable of editSeat(). governor is not a task view, so a background redraw (a cloud pull 45 s after the last touch while the user browses the Showcase/Title lists, a soft redraw from a habit or the Daily Review) remounts the editor with a fresh draft from the saved state: the Save button stops being lit, the editor tab returns to the first one, and the choices are silently gone. There is also no leave-with-changes prompt (known), so nothing warns.
+- **Evidence:** eval r7.js (ipad): {tab:'Rest rhythm', litBefore:'lit', litAfter:null, tabAfter:'Study'}. js/modules/governor-ui.js:658-662 (var draft = {...} inside editSeat), :196 (editSeat called from the view on every render); js/core/ui.js:358-359 (governor not in TASK_VIEWS).
+- **Root cause:** A draft editor page that keeps its draft only in the render closure, outside the held view list.
+- **Proposed fix:** Treat #/governor/edit as a task page (hold background redraws while dirty), or keep the draft in a per-visit session store keyed by the route so a remount restores it; add the leave-with-changes prompt.
+- **Flags:** effort S
+
 ### SY-09 · P2 · bug — Japanese review/learn session restarts and loses its unlogged results on a background redraw
 
+- **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: japanese is a TASK_VIEW; eval r9.js {jaRedrawn:false} on #/japanese/session/reviews (soft)
 - **Devices:** all
 - **Detail / repro:** KOS.jaRun.run keeps `results` and the index in its closure and pays only at the end (KOS.ja.finishSession(results)). A KOS.rerender on #/japanese/session/... re-runs run(): the list is rebuilt from KOS.ja.due() (facets already graded drop out) and the results so far are discarded, so the +1 XP per passed facet for them is never logged. Mind's Daily 15 does it right: its d.results are saved in state and logged once (mind.js:594/662).
 - **Evidence:** js/modules/jarun.js:361-390 (run, `var results = [], i = 0`), :434 (finishSession only at end); js/modules/japanese.js:305 (view calls run on every render); contrast js/modules/mind.js:594,662
@@ -2058,6 +2097,8 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-10 · P2 · ux — A background redraw closes any open menu or popover — including the header bell, which is outside the page
 
+- **RESOLVED:** no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): an open KOS.ui.menu counts as a top dialog, so a background redraw is held while it is open.
+- **Re-checked on kos-redraw-1:** no longer reproduces: an open KOS.ui.menu counts as topDialog, so the redraw is held — eval r4.js (ipad) {open:true, top:true, redrawn:false, after:true}
 - **Devices:** all
 - **Detail / repro:** KOS.show always calls closeOpenMenu(false) before drawing, also for a redraw (_nav). So a pull arriving while the notifications popover, a Filters menu or a ⋯ menu is open makes it vanish under the finger. Repro: Home, open the bell (menu .k-menu-panel.k-nt-pop present), KOS.rerender() -> menu gone.
 - **Evidence:** eval sd6.js (ipad): {menuOpen:true, menuCls:'k-menu-panel k-nt-pop', menuAfter:false}. js/core/ui.js:1513-1519 (closeOpenMenu before every render)
@@ -2067,6 +2108,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-11 · P2 · bug — Edits in a Code lesson's runnable listings are lost on a background redraw
 
+- **Re-checked on kos-redraw-1:** changed: held for background redraws (code lesson is on 'ref', a TASK_VIEW); still lost when the user switches Learn/Reference (codetopic.js:120-123 plain KOS.rerender) and on any unscoped plain rerender
 - **Devices:** all
 - **Detail / repro:** A Code lesson's notes listings are editable (code.editor-input) so the learner can experiment, but their text is not kept anywhere; task editors save drafts (debounced 400 ms, state.ui.code.drafts) and survive. Repro iPad: code 1.1, type into the three listing editors, wait 900 ms, KOS.rerender() -> all three back to the shipped code (the quick-note textarea survives).
 - **Evidence:** eval sd5.js: {n:4, where:['code.editor-input'x3,'topic.quick-note'], kept:[false,false,false,true]}. js/modules/code.js:629-632 (only tasks call setDraft); js/core/code.js:612-621
@@ -2076,6 +2118,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-12 · P2 · ux — routines.onSession redraws the whole page whenever an auto-tracked habit ticks itself — e.g. right after a flashcard batch or Code task pass
 
+- **Re-checked on kos-redraw-1:** changed: now {background:'soft'} (routines.js:699), held on task pages; on other pages it redraws at once (soft ignores the 45 s rule), and when a dialog is open the redraw is DROPPED rather than deferred, so habit ticks stay stale until navigation
 - **Devices:** all
 - **Detail / repro:** Every logged session (flashcard batch finish, exam item marked, Code task pass, Japanese session) calls routines.onSession, which runs autoSync() and, if any auto-tracked habit ticked, KOS.rerender() (only guarded against an open dialog). So the moment a 'Review 20 cards' or '1 Code task passed' habit completes, the page that caused it is remounted: the flashcards 'Session complete' summary is replaced by a fresh deck, a Code task's passing result panel is redrawn, an exam tab returns to question 1. Only the habit chip/Home needs to change.
 - **Evidence:** js/core/routines.js:697-700 (onSession -> autoSync -> KOS.rerender), :672-690 (autoSync), js/engines/flashcards.js:349 (session logged at finish), js/engines/quiz.js:428 (exam item logs a session). Not reproduced end-to-end in the harness (could not get an auto habit to tick with a hand-made ledger entry); path read from code.
@@ -2085,6 +2128,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-13 · P2 · ui — Toasts are capped at half the viewport width and, on the iPhone, sit on top of the flashcard rating buttons (and catch taps when they carry Undo)
 
+- **Re-checked on kos-redraw-1:** holds: sd10 rerun (iphone) {toast:[101,708,201,98], rate:[16,694,370,60], overlap:true, pe:'auto'}
 - **Devices:** iPhone, iPad
 - **Detail / repro:** #toast is positioned with inset-inline-start:50% + translate(-50%), so its shrink-to-fit width is limited to the space right of the centre line: 201 px on the iPhone (402/2) and 410 px on the iPad (820/2). A one-line message wraps to four lines (98 px tall). On the iPhone it sits 12 px above the tab bar, i.e. exactly over the Hard/Good rating buttons of a flashcard (toast 101,708 201x98 vs rate row 16,694 370x60: overlapping), and an action toast has pointer-events:auto, so a rating tap lands on the toast. Flashcards themselves raise toasts mid-set (leech, 'Type your answer first').
 - **Evidence:** shots/sync-disruption/toast-over-rate-iphone.png; eval sd10.js iphone {toast:[101,708,201,98], rate:[16,694,370,60], overlap:true, pe:'auto'}, ipad {toast:[205,1092,410,64]}. css/components.css:389-408, :669
@@ -2094,6 +2138,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-14 · P2 · data — A redraw mid-retrieval resets the Code retrieval card's tries, hint flag and clock, so the derived grade comes out better than earned
 
+- **Re-checked on kos-redraw-1:** changed: held for background redraws (task view); still reset by the Learn/Reference switch and unscoped plain rerenders (code.js:972 unchanged)
 - **Devices:** all
 - **Detail / repro:** Code retrieval grades are derived from tries, hints and time (invariant 107, never self-reported), but the card keeps `started`, `tries` and `hinted` in its render closure. After a failed try and an opened hint, a background redraw remounts the card with tries=0, hinted=false and a fresh clock; passing then records a clean, fast first-try grade and schedules the card too far out. Task timers (code.js:601) reset the same way.
 - **Evidence:** js/modules/code.js:972 (var started = Date.now(), tries = 0, hinted = false), :984 (clock), :601-611 (task clock). Code-read; the remount path is the same KOS.rerender reproduced in the other findings.
@@ -2101,8 +2146,64 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 - **Proposed fix:** Keep the in-progress attempt (tries, hinted, startedAt) per card in state.ui.code.attempt[key] until it is graded, and defer background redraws while a retrieval is open.
 - **Flags:** effort S
 
+### SY-21 · P2 · ux — Horizontal strips without a scroll memo snap back to the start on every redraw (study desks' unit strip, Home's desks, the Collection's Now row)
+
+- **Devices:** iPad portrait, iPhone (where the strips overflow)
+- **Detail / repro:** KOS.ui.scroller only remembers scrollLeft when given {keep}. The desks' unit strip (CS, Maths, IT, Code, Japanese, Mind, Creatives), Home's .k-desks strip and the Collection Overview's Now row are built without it, so any background redraw of those (non-held) pages scrolls them back to the first item. Measured on ipad: Home .k-desks 365 -> 0; #/subject/compsci units 1105 -> 0; code 1000 -> 0; mind 475 -> 0; creatives 1000 -> 0; ja 55 -> 0. The desks' 'What do these mean?' <details> also closes (1 -> 0).
+- **Evidence:** r5-ipad.json (diff.hs, diff.det), r6.js output: 'study.units.k-units k-scroller-track 2926/716 keep:0', '.k-desks 1446/716', '.k-mx-now-row 3266/716'. js/modules/hub.js:2077 (scroller(units, {label…}) without keep), js/modules/hub.js:1558 (k-desks, no scroller memo), js/modules/matrix.js:139; js/core/ui.js:778-781 (keep is opt-in).
+- **Root cause:** Scroll memory is opt-in per call site and these call sites never opted in.
+- **Proposed fix:** Default keep to a key derived from the view + data-ui when the scroller is inside #main, or pass keep at the three sites; persist <details> open state per visit the same way.
+- **Flags:** effort S
+
+### SY-22 · P2 · ux — In-page tabs that are not routes reset on a background redraw (Collection Overview's Analytics, Notifications' Unread filter, Edit seat's editor tab)
+
+- **Devices:** all
+- **Detail / repro:** Several pages keep the chosen tab in a closure variable rather than the route or state.ui, so a background redraw returns them to the first tab: #/matrix Analytics -> Overview, #/notifications Unread -> All, #/governor/edit editor tab -> the first. The reader is mid-look at the analytics or working through unread items when a pull arrives 45 s after their last touch.
+- **Evidence:** r5-ipad.json: '#/matrix' diff.tabs ['Analytics','Overview']; '#/notifications' diff.tabs ['Unread25','All25']; '#/governor/edit' ['Rest rhythm|Showcase','Study|Showcase'].
+- **Root cause:** Per-visit UI state held in render closures that a remount discards.
+- **Proposed fix:** Move these choices into the route (preferred: #/matrix/analytics) or a per-visit memo that KOS.rerender keeps; the systemic redraw policy should restore per-view session state.
+- **Flags:** effort S
+
+### SY-23 · P2 · ux — The achievement unlock overlay opens mid-task (over a flashcard set, a quiz or a lesson) and takes focus
+
+- **Devices:** all; worst on the iPad with a keyboard
+- **Detail / repro:** achievements quiet() only holds the overlay for Focus, a dialog and the Exam Room. Earning a tier while on a task page (a flashcard rating, a Code task pass, a Japanese or Mind lesson finish all touch the owners) pops a modal dialog over the work and moves focus to its Next/Close button, so the next Space/Enter meant for the card goes to the overlay. Reproduced mid flashcard set on the iPad: the overlay opened on #/ref/compsci/4.5.4.3 with document.activeElement = ach.unlock-next. Invariant 163 says it waits for 'a calm moment', but a page in the middle of a task is not calm. The same overlay also counts as an open dialog, so while it waits unseen behind another page it holds every background redraw on every page.
+- **Evidence:** shots/sync-disruption/ach-overlay-over-flashcards.png; eval r10.js (ipad): {overlay:true, active:'ach.unlock-next', hash:'#/ref/compsci/4.5.4.3'}; js/core/achievements.js:500-506 (quiet), js/modules/achievements.js:609-611 (drain), :600 (openDialog).
+- **Root cause:** The 'calm moment' test does not know about task pages; ui.js's TASK_VIEWS is private to the redraw stopgap.
+- **Proposed fix:** Expose one KOS.ui.busyWithTask() (task view, typing, dialog, Focus, Exam Room) and have both the redraw policy and quiet() use it; on a task page show the non-modal ping (or the bell item) and keep the overlay for the next navigation.
+- **Flags:** effort S
+
+### SY-24 · P2 · ux — Text typed into a field but not yet submitted is wiped once the field loses focus and a background redraw lands (Reminders' quick add and every non-task page)
+
+- **Devices:** iPad, iPhone (tap away to read something, keyboard closes), Mac
+- **Detail / repro:** The stopgap's 'typing' hold looks only at document.activeElement. Once the user taps elsewhere (on the iPad the keyboard closes; on the Mac they click the page) an unsubmitted value is no longer protected: a soft redraw lands at once and a cloud pull lands 45 s after the last touch, remounting the page and emptying the field. Reproduced on #/reminders: typed 'half a thou' in 'Add a reminder…', blurred, ~50 s later the retry redrew and the field was empty. The same applies to Mind's 'Add today's line', inline add/edit rows in Routines, Pacing, Goals and Calendar's in-page inputs.
+- **Evidence:** eval (ipad): held while focused {held:true, ae:'INPUT', val:'half a thou'}; after blur and 50 s {hash:'#/reminders', val:'', ph:'Add a reminder…'}. js/core/ui.js:362-373 (typing() reads activeElement only; 'recent' 45 s for hard), :386-391 (15 s retry).
+- **Root cause:** The hold protects focus, not unsaved input; the page keeps the draft only in the DOM.
+- **Proposed fix:** Treat a dirty input (value !== defaultValue, or a data-draft marker) inside #main as 'typing'; better, keep quick-add drafts per device in state.ui (as the topic quick note does) so a remount restores them.
+- **Flags:** effort S
+
+### SY-25 · P2 · bug — Delayed plain KOS.rerender() calls redraw whatever page is on screen by then — bypassing the background hold (Exams planner's 8 s flash, Connections' Sync now, Mind's journal-ready)
+
+- **Devices:** all
+- **Detail / repro:** Several callbacks that fire seconds after the user acted call KOS.rerender() WITHOUT {background}, and without checking that their page is still on screen, so they remount whatever the user has moved on to — including task pages the stopgap protects: a flashcard set restarts at card 1, notes go back to page 1, a quiz to question 1 (KOS.rerender() with no opts is never held; r1.js shows a plain rerender on a topic resets 'Page 4 of 7' to 'Page 1 of 7'). Sites: the Exams planner's 'Sent · Undo' flash clears with setTimeout(KOS.rerender, 8100) (examviews.js:264); Connections' 'Sync now' re-renders when the provider sync resolves, which can take many seconds (connections.js:66-70); Mind's desk and pages re-render when the Journal store becomes ready, guarded only by main.isConnected — #main is always connected (mind.js:52 checks ui.view === 'subject', true on any desk; mind.js:217).
+- **Evidence:** js/modules/examviews.js:264; js/modules/connections.js:66-70; js/modules/mind.js:52, :217; eval r1.js {np0:'Page 4 of 7', np3:'Page 1 of 7'} for the effect of a plain rerender on a topic.
+- **Root cause:** KOS.rerender has no notion of 'the page that asked'; async callers re-render the global current view.
+- **Proposed fix:** Give KOS.rerender a scope: KOS.rerender({ onlyIf: navKey }) (or a helper KOS.redrawIfStill(viewId, arg)), use it for every async/timer caller, and mark them background.
+- **Flags:** effort S
+
+### SY-26 · P2 · ux — Held task pages never catch up while the user stays on them: another device's progress stays invisible, with no sign that the page is out of date
+
+- **Devices:** iPad + Mac
+- **Detail / repro:** On a TASK_VIEW the stopgap holds a background redraw until navigation and sets no retry (ui.js:383-391: the timer is only armed when why !== 'task'). Leaving the iPad on a topic or a Code/Japanese/Mind lesson for an hour while studying on the Mac, the iPad keeps showing the old inspector (RAG band, status, checks, due counts), the old flashcard queue (cards already rated on the Mac are asked again and rated twice) and the old Code evidence, with nothing on screen saying newer data arrived. Tab switches inside the topic are not navigation, so they do not refresh it either. Combined with in-page editors this is also what makes the editor overwrite in the P0 finding possible.
+- **Evidence:** js/core/ui.js:358-359 (TASK_VIEWS), :380-392 (task holds with no timer, bgPendingFor only cleared by the next redraw); eval r1.js: held:true, page and scroll kept, no later flush.
+- **Root cause:** Stopgap trades staleness for stability with no reconciliation and no indicator.
+- **Proposed fix:** Part of the redraw policy: hold the REMOUNT, not the data — show a small 'Updated on another device · Refresh' chip on held pages, flush at a safe boundary (end of a flashcard/quiz session, page turn, tab change, idle 2 min with no draft), and let session engines re-read the queue between cards.
+- **Flags:** effort M, needs a design prompt
+
 ### SY-15 · P3 · a11y — After a background redraw the open dialog's opener is detached, so closing it drops focus to <body>
 
+- **RESOLVED:** no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): background redraws are held while a dialog is open (sd7 rerun).
+- **Re-checked on kos-redraw-1:** no longer reproduces: background redraws are held while a dialog is open — sd7 rerun with background:'hard' {dlgAfter:true, inpAfter:'Typed title', openerConnected:true, focusAfterClose:'BUTTON'}
 - **Devices:** all
 - **Detail / repro:** Dialogs survive a redraw (they live on body), but KOS.ui.openDialog restores focus to the opener, which the redraw replaced. Repro: Assignments, '＋ New assignment', type a title, KOS.rerender() (dialog and text survive), Cancel -> document.activeElement is BODY; the keyboard/VoiceOver user is thrown to the top of the document. cloudsync does not check for an open dialog (routines.onSession does).
 - **Evidence:** eval sd7.js: {dlgAfter:true, inpAfter:'Typed title', openerConnected:false, focusAfterClose:'BODY'}. js/core/routines.js:699 has the dialog guard; js/core/cloudsync.js:723-733 has none
@@ -2112,6 +2213,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-16 · P3 · ux — Boot-time redraws of whatever page the PWA reopened on (Google read-only copy, own art pictures, sample seed)
 
+- **Re-checked on kos-redraw-1:** changed: ext.js:364 and main.js:303/307 now pass {background:'soft'}, so task pages are held; other pages still remount once at boot when the Google copy or own pictures load
 - **Devices:** iPad (PWA restore), all
 - **Detail / repro:** Three boot paths call KOS.rerender() on the current page after async work: KOS.ext boot when Google Calendar is connected (ext.js:364, after loadRo from IndexedDB), KOS.art.loadOwn (main.js:307) and the sample seed (main.js:299-304). The iPad Home Screen app restores the last route (e.g. a topic), so the page the user has just started reading or tapping is remounted a moment after launch, for data (Google's read-only chips, decorative art) that only Calendar or a painted slot needs.
 - **Evidence:** js/core/ext.js:364; js/main.js:299-307
@@ -2121,12 +2223,22 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-17 · P3 · arch — Inconsistent refresh policy: Google/Todoist pulls change Calendar and Reminders without redrawing them, while a state pull redraws every page
 
+- **Re-checked on kos-redraw-1:** holds and is wider: besides Google/Todoist (ext.js:325-337), the Money (money.js:1227), Mind journal (mindjournal.js:268), review log, reports and media autosync pulls change data without any redraw, while a state pull redraws every non-task page
 - **Devices:** all
 - **Detail / repro:** KOS.ext.syncAll (every cycle and the 1.5 s 'soon' sync) writes pulled events and reminders through the owners, then only notifies KOS.ext.onChange listeners — only the Connections page listens. An open Calendar or Reminders page keeps showing the old data (a task completed in Todoist stays unticked on screen) until the user navigates, whereas a cloud state pull remounts any page however unrelated. There is no single 'state changed → which views care' mechanism.
 - **Evidence:** js/core/ext.js:325-337 (syncAll -> changed()), :294; js/modules/connections.js:173-177 (the only listener); js/core/extgcal.js and exttasks.js contain no redraw
 - **Root cause:** no domain-scoped change notification
 - **Proposed fix:** Introduce one change bus (KOS.changed(domains)) fired by cloudsync (with the keys that differed), ext, routines, inksync, files; views subscribe by domain and refresh in place (or defer while busy).
 - **Flags:** effort M
+
+### SY-27 · P3 · ux — The Files page repaints its whole list on every text-index step and cloud file event, outside the redraw hold
+
+- **Devices:** all
+- **Detail / repro:** files.js listens for kos-files-index and calls paintSubj(), paint() and paintSide(), which empty and rebuild the list. That event fires after every file the background text indexer finishes (one file at a time, files.js:404) and after every cloud files change (cloudsync notifyFiles -> kos-files -> refresh -> emit). 'files' is in TASK_VIEWS, but this path never goes through KOS.rerender, so the hold does not apply: an open per-file menu is left pointing at a detached opener (closing it drops focus), and focus on a card button is lost while a large import is still indexing.
+- **Evidence:** eval r13.js (ipad): {menuOpen:true, menuAfter:true, openerConnected:false}. js/modules/files.js:319-320 (onIndex), :241-249 (paint empties listEl), :280-281; js/core/files.js:45 (emit), :100, :404; js/core/cloudsync.js:1414.
+- **Root cause:** A page-local repaint on a global event with no diff and no hold.
+- **Proposed fix:** Repaint only the changed card (key by fileId) or only the 'Indexing…' counts; skip the list repaint while a menu or dialog is open, as KOS.rerender does.
+- **Flags:** effort S
 
 **QoL ideas from this auditor:**
 - Show a quiet 'Updated from another device' chip with Refresh instead of redrawing a busy page
@@ -2137,6 +2249,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 - Domain-scoped change bus (KOS.changed(domains)) replacing KOS.rerender as a broadcast; views refresh in place
 - Per-view session store for transient study state, so engines resume after any remount, reload or iPad app kill
 - Smoke test: for each study view set transient state, call KOS.rerender(), assert page, card, question, scroll and focus survive
+- A real redraw policy to replace the stopgap: each view declares its transient state (or keeps it in a per-visit session store keyed by route), background changes carry the changed paths, a view redraws only when a path it reads changed and never mid-task, async callers pass the route they belong to, and long-lived editors reconcile by row id instead of writing whole arrays.
 
 
 ---
@@ -5735,143 +5848,346 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 
 ## DI — Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) (complete)
 
-**Auditor's summary.** Local-first persistence is careful in its stated paths (quota failures toast, boot is idempotent across reloads, the three-way merge and the CAS loop are sound), but four real data-loss or duplication paths remain. The first cloud sign-in discards local data in any domain that the hand-kept stateMeaningful() allowlist omits, such as reminders, assignments, exams and routines. Two tabs overwrite each other's whole-state saves. The Todoist sync duplicates reminders in two reproducible ways: another device syncing before the state document arrives, and a later command chunk failing after an earlier one created tasks. The root causes repeat across the codebase. Allowlists are maintained by hand and new domains were never added (stateMeaningful, cloudmerge RECORDS refs, the backup and its 'covers' copy, the Storage page). Remote link state is replicated asynchronously while the provider cursor is per device. Multi-request pushes keep all-or-nothing bookkeeping. Absence or a 404 is read as deletion. Every replicated store uses a strict now()-timestamp cursor. The single 373 KB (seeded) localStorage document has no fallback before the ~5 MB ceiling.
+**Auditor's summary.** Re-checked on HEAD 47e02c7 (sw kos-redraw-1): all 15 earlier findings still reproduce or still read the same; the code they cite changed only in two background-redraw lines. The behaviour inventory added 11 findings. The biggest data-loss risks are still the first cloud link (it replaces a device's reminders, assignments and so on without a merge) and two tabs overwriting each other. On the Todoist side, three paths create duplicates: two devices, a failed chunk, and now a second tab on the same device, because the sync lease is held per device rather than per tab. The new behaviour bugs: moving a task between linked projects in Todoist gets reverted, a reminder moved to a list linked to the other provider is copied there and orphaned in the first, 'Reset everything' leaves every IndexedDB store in place even though its dialog says it clears them, Import backup replaces everything with no confirmation, Creatives' file store is shared with the review namespaces, and the Money, review-log, Journal and Reports replicators drop their errors without a word. The common root causes: there is no single contract for what each store does on restore, reset and data-mode namespacing, the list's provider/project is not a three-way-merged field, and nothing coordinates tabs.
 
-**Coverage.** Code review: js/core/ext.js, exttasks.js (all of Todoist and Google Tasks), extgcal.js (delete queue, 404 path), reminders.js (CRUD, complete, recurrence), store.js (load, save, flush, replaceState, snapshotFull/importFull), cloudsync.js (meaningful test, assessLink/adopt, applyRemoteState, pushState CAS), cloudmerge.js (RECORDS, re-keying, mergeValue), money.js syncCloud, the cursor pattern in every replicated store, and the touch trigger migration. Experiments in jsdom: exp/td.js (smoke112's fake Todoist, made more realistic: duplicates across two devices, chunk failure, full-sync sub-tasks, recurring completion, a mid-cycle replaceState, which did NOT lose the delete queue and was dropped) and exp/cs.js (smoke17's fake Supabase, the first-link discard). In the browser on slot 17: state-size measurement on the seeded and empty accounts, a localStorage quota-fill experiment, a two-tab clobber experiment (iframe), boot idempotency over two reloads, and screenshots of Connections, Storage and Backup & Restore (mac, ipad, iphone). Not examined: Google Calendar's recurrence mapping in depth (smoke112 D covers it), ink per-stroke merge, the mind/reports sync bodies beyond their cursor, real Todoist/Google servers (no live accounts; findings that depend on server behaviour are marked as such), and a full visual pass of the data pages in Dawn or the shop themes (left to the UI areas).
+**Coverage.** # Data integrity — feature inventory (top-up, 7 Nov 2026, sw kos-redraw-1, HEAD 47e02c7)
+
+Legend: P = presentation checked (sizes) · B = behaviour checked (fixture/result) · ids = finding titles (short)
+
+## 1. The state document (js/core/store.js)
+| Item | P | B | Result |
+|---|---|---|---|
+| Load + deepMerge(DEFAULTS) | – | reload drift test slot 19 (seeded, two reloads, diff of whole state minus ui = []) | OK, verified |
+| Unreadable stored JSON → DEFAULTS | – | code (store.js:382-390) | 'An unreadable stored state…' holds |
+| scrubLegacy / renameRefs at load | – | covered by drift test | OK |
+| save() 120 ms debounce, flush() | – | stringify 1.1 ms, setItem 2.6 ms on 372,887-char dense state | OK |
+| Quota exceeded | – | fill-to-quota experiment → 'save failed QuotaExceededError', write lost while full, kept in memory | 'The whole state lives in one localStorage key…' holds |
+| Size: empty 96,139 chars (pacing seed 84,696); seeded 372,887 (srs 110k, pacing 85k, sessions 84k/600) | – | measured | headroom OK (~5 MB quota) |
+| replaceState (restore, cloud pull) | – | round trip | OK; stale captured sub-objects: NOT checked (see backlog) |
+| reset ('Reset everything') | mac | fixture: tx + ink + reminder → reset | NEW 'Reset everything only resets the state document…' |
+| Two tabs (no storage event / BroadcastChannel / locks) | – | grep + earlier iframe repro | 'Two open tabs…' holds |
+| KOS.dataMode namespaces (Mine/Empty/Sample) | – | grep every indexedDB.open name | NEW 'Creatives' file store is shared…' |
+
+## 2. Backup and restore
+| Item | P | B | Result |
+|---|---|---|---|
+| snapshotFull sections: state, mediaEntries, mediaKV, attachments, money, reviews, mind, ink, creatives | mac, ipad, iphone | browser fixture: one row in each store → backup counts 1/1/1/1/1 | OK |
+| Not in backup: reports + snapshots, papers (by design), filetext (derived), credentials (by design) | – | bk has no 'reports' key (11 reports, 1 snapshot on device) | 'The full backup leaves out saved Reports…' holds |
+| exportFull pretty-printed single string | – | 3,078,746 chars without attachments | holds (iPad risk with large files) |
+| importFull replace semantics per store | – | after-backup ink page survived restore; media/money/reviews/mind/creatives cleared | NEW 'Restore is not authoritative for handwriting or files…' |
+| Import confirmation / safety copy | mac | code + button title only | NEW 'Import backup replaces everything…' |
+| Restore report text | – | report = {restoredSections:[7], missingSections:[]} — never mentions reports | folded into the above |
+| 'What a backup covers' list | mac, ipad | screenshot | holds |
+| Archive › Storage rows | mac | screenshot (0 KB rows; 47.4 MB unattributed) | holds |
+
+## 3. Cloud state sync (cloudsync.js, cloudmerge.js)
+| Item | B | Result |
+|---|---|---|
+| First link (assessLink, adopt, upload) | exp/cs.js re-run → local reminder + assignment gone, cloud never got them | P1 holds (+ push-side conflict() path :543-549 and pull guard :744-750 overwrite a 'not meaningful' remote) |
+| Push CAS + 4 retries | smoke17 PASS (23 steps) | OK |
+| Three-way merge, RECORDS, SET_FIELDS, ATOMIC, MONO, FACET | every object array in the seeded state is in RECORDS or id-keyed (walk) | OK; re-key refs gap holds (+ goals.links.eventId) |
+| Re-key references | code | 'An assignment re-keyed…' holds, widened |
+| Empty-remote guard, restore flag, fetchStateHead | smoke17 | OK |
+| Remote apply redraw (background:'hard' under kos-redraw-1) | code | OK; held redraw = stale page longer (backlog) |
+| DEVICE_PATHS | code | NEW 'Japanese mined lines are kept in the synced state…' (latent) |
+
+## 4. IndexedDB stores and their replication
+| Store | Backup | Replication | Test | Result |
+|---|---|---|---|---|
+| kurenai-os-media (+kv) | yes (kv cleared on restore) | cloudsync media rows | smoke17 | OK; cursor finding holds |
+| kurenai-os-files | yes (base64) | metadata + binaries | smoke106 PASS | OK |
+| kurenai-os-filetext | derived | – | – | OK by design |
+| kurenai-os-papers | no (by design) | 'Keep in my cloud' copy | – | NOT checked (Exams area) |
+| kurenai-os-money | yes | kos_money | smoke86 PASS; delete-vs-edit converges (putRaw drops tombstone) | silent errors (NEW) |
+| kurenai-os-reviews | yes | kos_reviews | smoke96 PASS | silent errors (NEW) |
+| kurenai-os-ink | yes (merge on restore) | kos_ink per stroke | smoke100/105 PASS | restore finding (NEW) |
+| kurenai-os-mind | yes | kos_mind | NO TEST | NEW 'Mind's Journal replication has no test…'; silent errors |
+| kurenai-os-reports | NO | kos_reports | smoke72 PASS | backup finding holds |
+| kurenai-os-creatives | yes | none (by design) | – | NEW namespace finding |
+| All replicators' cursor (updated_at > max seen on now()) | – | – | – | holds (also push.js:90) |
+| All replicators' error surfacing | – | callers pass no cb | – | NEW 'Money, the review log, Mind's Journal and saved Reports replicate with no error surfaced' |
+
+## 5. Integrations (ext.js, exttasks.js, extgcal.js)
+| Item | B (fixture, exp/td.js + exp/td2.js, fake Todoist) | Result |
+|---|---|---|
+| Create here → item_add, temp ids, sub-tasks | subs | OK |
+| Two devices (state not yet pulled) | twodev → two local reminders on T3 | P1 holds |
+| Chunk failure (90-command batches) | chunk → 45 duplicates | P1 holds |
+| Full sync and completed sub-tasks | subs → completed sub dropped | P2 holds |
+| Repeating (daily/weekly/monthly/yearly) completion | recur → item_update new due | P2 holds |
+| 'every day at 9:30' | weekdayAt → daily 09:30 | OK |
+| x-rule ('every 2 weeks', 'every mon, fri', 'every evening') kept as ext.rs, sent back unchanged | weekdayAt/xrule → item_close, date edit keeps string | OK |
+| Fixed-timezone due ('…Z') | weekdayAt → 2026-10-29 23:30 local | OK (London TZ) |
+| Remote completion → tick, one todo session priced 0 | remoteDone → done, session award {xp:0,gold:0} | OK |
+| Uncomplete here → item_uncomplete | remoteDone | OK |
+| Both sides edit title → this app's wins; other fields pulled | both | OK |
+| Delete here vs remote edit | both → reminder reappears one cycle | NEW P3 |
+| Remote move between linked projects | moveRemote → reverted by item_move | NEW P2 |
+| Local move to unlinked / other-provider list | moveLocal → still linked; code for gtasks | NEW P2 |
+| Delete queue survives replaceState mid-cycle | replace → OK | OK |
+| Rejected command resent forever | code | P3 holds |
+| 404 on update deletes local | code (extgcal.js:419-421, exttasks.js:~419) | P2 holds |
+| Lease (per device id, 120 s, no renewal) | code + migration | NEW P2 |
+| Google Tasks cycle, cross-list move (DELETE unchecked then create) | code | folded into the cross-provider finding |
+| Google Calendar mapping (one day, five repeats, until/count, EXDATE skip, alerts, read-only copy, KurenaiOS calendar) | smoke112 PASS; code read of fromRemote/parseRule | OK as far as smoke112 D; not re-fuzzed |
+
+## 6. Timers (background cycles)
+main.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 30 min; ext 15 min + 20 s debounce; money/mind/reviews/reports/goals/achievements 30 min; inksync 10 min + online; push publish/beat/pull; dayreview 30 s; aischedule tick. Inventory only; each verified to exist; no overlap problem found beyond the two-tab/lease findings.
+
+## NOT checked (and why)
+- Real Todoist/Google servers (no live accounts): server-dependent behaviour is modelled by the fake.
+- Stale sub-object captures after replaceState under the held-redraw build (needs a per-view audit; backlog).
+- kurenai-os-papers 'Keep in my cloud' copy (Exams/Files area).
+- Visual pass in Dawn and shop themes for Archive pages (UI areas).
+
 
 ### DI-01 · P1 · data — Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all (multi-device)
 - **Detail / repro:** The lease serialises Todoist network work between devices, but the LINK (reminder.ext.id) lives in the synced state document, which reaches the other device later. Device A pushes a new reminder (item_add) and links it locally; device B takes the lease next (A releases it at once) while its state still holds the reminder unlinked and its own per-device sync token predates the add. B's incremental pull returns the new Todoist task, finds no local link (byLink) and reconcile() imports it as a SECOND reminder linked to the same Todoist id; the cloud merge then keeps both (different ids/uids). Reproduced in jsdom with the smoke112 fake: after the B-side cycle, two local reminders 'Made on A' are both linked to T3 while Todoist has one task. With a Mac, iPad and iPhone all open this is the ordinary case, matching the user's 'many problems between Reminders and Todoist'.
-- **Evidence:** exp/td.js twodev → local 'Made on A': [[3,'T3'],[4,'T3']], remote: ['T3']; js/core/exttasks.js:180-187 (import with no matching attempt), js/core/ext.js:306-316 (syncProvider takes the lease without pulling the cloud state first), js/core/exttasks.js:229-237
+- **Evidence:** Re-run 7 Nov: exp/td.js twodev → local 'Made on A': [[3,'T3'],[4,'T3']], remote ['T3']. Also reachable on ONE device through two tabs (see the lease finding). Original: exp/td.js twodev → local 'Made on A': [[3,'T3'],[4,'T3']], remote: ['T3']; js/core/exttasks.js:180-187 (import with no matching attempt), js/core/ext.js:306-316 (syncProvider takes the lease without pulling the cloud state first), js/core/exttasks.js:229-237
 - **Root cause:** Remote link state is replicated asynchronously while the remote cursor (sync token) is per device; import has no identity check beyond byLink.
 - **Proposed fix:** Make the cycle state-consistent: before taking the lease run a cloud pull (KOS.cloudsync cycle) and push the state right after the cycle; and in reconcile's import path, before adding, look for an existing reminder already linked to that remote id (dedupe byLink after any merge) or an unlinked one in the same list whose uuidOf('add|'+uid) is pending (record pending adds {uid→temp} in state.ext so any device can recognise its own item_add). Also add a boot/merge pass that folds two reminders linked to the same ext.id.
 - **Flags:** effort M
 
 ### DI-02 · P1 · data — Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** tdPush sends commands in chunks of 90 and runs every 'ok' callback (which writes the link and base) only after ALL chunks succeed. If chunk 2 fails (HTTP 429/5xx, offline, tab suspended), chunk 1's item_add commands have already created tasks in Todoist but nothing local is linked, and the sync token is not saved either. The next cycle pulls those tasks with the old token, finds no local link and imports each as a new reminder; the originals are then re-sent as item_add. Linking a list with ~45+ reminders that have a sub-task each exceeds 90 commands on the first cycle. Reproduced: 60 reminders with one sub each, chunk 2 answered 503 → cycle 2 leaves 105 local reminders (45 duplicates).
-- **Evidence:** exp/td.js chunk → 'cycle1 false Todoist answered 503 / remote items 45 local linked 0 / cycle2: local total 105 dup local 45'; js/core/exttasks.js:318-335 (ok callbacks only after the reduce over chunks resolves), js/core/exttasks.js:241-243 (token saved only after push)
+- **Evidence:** Re-run 7 Nov: exp/td.js chunk → cycle1 false 'Todoist answered 503.', remote 45 / local linked 0; cycle2 local total 105, dup 45. Original: exp/td.js chunk → 'cycle1 false Todoist answered 503 / remote items 45 local linked 0 / cycle2: local total 105 dup local 45'; js/core/exttasks.js:318-335 (ok callbacks only after the reduce over chunks resolves), js/core/exttasks.js:241-243 (token saved only after push)
 - **Root cause:** Non-atomic multi-request push with all-or-nothing local bookkeeping.
 - **Proposed fix:** Apply each chunk's results as soon as it returns (run the after[] entries whose commands are all in that chunk's sync_status), keep an item's parent and sub-task adds in one chunk, and persist the link/temp-id map before the next request; on the pull side, treat an incoming task whose id appears in a stored temp_id_mapping as already linked.
 - **Flags:** effort M
 
 ### DI-03 · P1 · data — First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** assessLink classifies each side with stateMeaningful(), which only looks at progress, sessions, custom cards, wishlist, tracker entries, goals, non-sample calendar events and Governor xp/gold/owned. A device whose data is reminders, assignments, Exams-hub assessments, routines, Pacing ticks, Money settings, curriculum edits, Code/Japanese/Mind/Creatives evidence or SRS state (without a logged session) counts as EMPTY, so linking it to an account that has data takes the 'remoteOnly' path: adoptRemote → applyRemoteState with no lastPushedHash → dirty = stateMeaningful(local) = false → KOS.store.replaceState(incoming). The local records are replaced without a merge, a toast or a backup. Reproduced in jsdom with smoke17's fake Supabase: a fresh device adds one reminder and one assignment, signs in to an account with history; after syncNow both are gone and the cloud copy never received them. A Home Screen install on the iPad has its own storage separate from Safari, so 'used it a bit before signing in' is a realistic path. The mirror case ('localOnly' when the remote only holds such records) overwrites the remote the same way.
-- **Evidence:** exp/cs.js → {before:{rem:1,asg:1}, after:{rem:[],asg:[]}, cloudHasLocal:false}; js/core/cloudsync.js:234-251 (stateMeaningful), 975-990 (assessLink), 758-773 (not dirty → replaceState)
+- **Evidence:** Re-run 7 Nov: exp/cs.js → {before:{rem:1,asg:1}, after:{rem:[],asg:[],xp:500}, cloudHasLocal:false}. The mirror direction also exists on the push side: cloudsync.js:543-549 (conflict(): remote 'not meaningful' → upload(null) without CAS) and 744-750 (pull refuses and forceNextPush). Original: exp/cs.js → {before:{rem:1,asg:1}, after:{rem:[],asg:[]}, cloudHasLocal:false}; js/core/cloudsync.js:234-251 (stateMeaningful), 975-990 (assessLink), 758-773 (not dirty → replaceState)
 - **Root cause:** A hand-maintained allowlist of 'real data' that was not extended as new domains were added; replaceState used as the adopt path.
 - **Proposed fix:** Define 'meaningful' as 'differs from a freshly booted DEFAULTS document' (hash syncableState against a boot-time pristine snapshot, ignoring known seeders such as SAMPLE events and pacing seed), or enumerate every record array in cloudmerge RECORDS plus the keyed maps; and on first link always take the no-base three-way merge (union) instead of replaceState when the local side has ANY record. Snapshot the local state into the media kv before any replaceState so it can be restored.
 - **Flags:** effort S
 
 ### DI-04 · P1 · data — Two open tabs or windows overwrite each other's saves (last writer wins on the whole state)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** mac (two windows/tabs), iPad Safari with two tabs
 - **Detail / repro:** Each tab keeps its own in-memory KOS.store.state and save() writes the WHOLE document to localStorage 120 ms later; nothing listens for the 'storage' event, and there is no BroadcastChannel or Web Lock. A change made in one tab is erased by the next save in the other. Reproduced on the slot with an iframe of index.html (same origin, same localStorage): tab B added 'TAB-B reminder' and saved; tab A then added its own reminder; the stored document holds A's and not B's, and tab A never learns of B's. Both tabs also mint the same nextId. With cloud sync the shared IndexedDB meta (seq, lastPushedHash, base) can let the stale tab's CAS succeed and upload a document without the other tab's record. On the MacBook a second window or a PWA window beside a tab is ordinary.
-- **Evidence:** kos.mjs eval 17 (iframe experiment) → {afterBsaved:true, finalHasA:true, finalHasB:false, inMemA_hasB:false}; js/core/store.js:395-410 (whole-document save), no 'storage' listener anywhere in js/ (grep)
+- **Evidence:** Re-checked 7 Nov: no 'storage' listener, BroadcastChannel or navigator.locks anywhere in js/ (grep); store.save still writes the whole document (store.js:395-410). Original: kos.mjs eval 17 (iframe experiment) → {afterBsaved:true, finalHasA:true, finalHasB:false, inMemA_hasB:false}; js/core/store.js:395-410 (whole-document save), no 'storage' listener anywhere in js/ (grep)
 - **Root cause:** localStorage used as a single-writer store without cross-tab coordination.
 - **Proposed fix:** Listen for 'storage' on the state key and, when another tab wrote, three-way merge the incoming document into memory with KOS.cloudmerge (base = last document this tab wrote/read) before the next save; or elect one writer tab with navigator.locks / BroadcastChannel and make other tabs read-only with a banner. At minimum detect a foreign write (compare a per-save nonce) and reload instead of overwriting.
 - **Flags:** effort M
 
 ### DI-05 · P2 · data — Todoist: a full sync drops completed sub-tasks from the reminder (and can re-add them to Todoist as duplicates)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** When the linked-project signature changes (linking or unlinking any list) the cycle requests sync_token '*' and resets the mirror. Todoist's full sync returns only active items, so completed sub-tasks are absent from the mirror; the parent's remote subs then differ from base and the pull overwrites the local subs, deleting every ticked sub-task. If the local subs were also edited, local wins, and each local sub whose x is no longer in the mirror is sent again as item_add, duplicating it in Todoist. Reproduced with a fake that, like Todoist, omits checked items from a full sync: 'Plan' (ticked) vanished locally after linking a second list. Depends on Todoist excluding completed sub-items from a full sync (documented behaviour for completed tasks).
-- **Evidence:** exp/td.js subs → 'after remote sub tick: [[Plan,true],[Draft,false]]' then 'after full sync: [[Draft,false]]'; js/core/exttasks.js:217-220 (token '*' on any link change, mirror reset), 108-113 (childrenOf reads only the mirror), 296-307 (missing x → item_add)
+- **Evidence:** Re-run 7 Nov: exp/td.js subs → 'after remote sub tick: [[Plan,true],[Draft,false]]' then 'after full sync: [[Draft,false]]'; remote children afterwards [[Plan,true],[Draft,false],[Proofread,false]]. Original: exp/td.js subs → 'after remote sub tick: [[Plan,true],[Draft,false]]' then 'after full sync: [[Draft,false]]'; js/core/exttasks.js:217-220 (token '*' on any link change, mirror reset), 108-113 (childrenOf reads only the mirror), 296-307 (missing x → item_add)
 - **Root cause:** Absence in a full sync is interpreted as deletion.
 - **Proposed fix:** Do not reset the mirror on a full sync triggered by a link change; only drop entries of projects no longer linked. Treat a sub missing from a full sync as 'unknown', not deleted (keep subs whose remote child is not returned unless is_deleted arrives), and never re-add a sub that has an x.
 - **Flags:** effort S
 
 ### DI-06 · P2 · integration — Todoist: completing a repeating reminder here sends a new due string instead of closing the occurrence
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** KOS.reminders.complete() rolls a repeating reminder forward locally (new due, done=false) so the push sees only a 'when' change and sends item_update with due {date: next, string: 'every week', is_recurring}. Todoist never records the completion (no history/karma, completed view empty), and since Todoist parses due.string, the explicit date may be ignored and re-anchored to today, which the next pull brings back. For a Todoist-only rule (ext.rs, e.g. 'every mon, fri') the reminder instead closes locally (recur is null here) and sends item_close, so it shows as completed until the next pull un-completes it with Todoist's new date: two different behaviours for the same action.
-- **Evidence:** exp/td.js recur → cmds [[{type:item_update,args:{id:T1,due:{date:'2026-11-05',string:'every week',is_recurring:true}}}]]; gym: local done=true, cmds [[item_close]]; js/core/reminders.js:229-236, js/core/exttasks.js:99-107, 282-290
+- **Evidence:** Re-run 7 Nov: exp/td.js recur → cmds [[item_update {id:T1,due:{date:'2026-11-05',string:'every week',is_recurring:true}}]]; x-rule 'Gym' → [[item_close]]. Original: exp/td.js recur → cmds [[{type:item_update,args:{id:T1,due:{date:'2026-11-05',string:'every week',is_recurring:true}}}]]; gym: local done=true, cmds [[item_close]]; js/core/reminders.js:229-236, js/core/exttasks.js:99-107, 282-290
 - **Root cause:** Local recurrence semantics duplicated instead of delegated to the provider that owns the rule.
 - **Proposed fix:** For a linked repeating reminder, push item_close (Todoist rolls the date itself) and let the pull bring the new date back; treat ext.rs rules as repeating in complete() (roll forward with Todoist as the source) so both paths behave alike.
 - **Flags:** effort S
 
 ### DI-07 · P2 · data — An assignment re-keyed by the cloud merge leaves its goals, Exams links, Focus sessions and review picks pointing at another assignment
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** multi-device
-- **Detail / repro:** Ids are per-device counters; when two devices mint the same assignment id between syncs, rekeyCollisions re-keys the local one and rewrites only RECORDS[].refs. For assignments.items that list is calendar.events.assignmentId alone, but assignment ids are also stored in goals (links.assignmentId, js/core/goals.js:130), Exams assessments (links.assignmentId, js/core/exams.js:178, 536, 726), session entries and their segments (metrics.assignmentId, js/core/sessions.js:93-98; Focus banks minutes by it), and Daily Review picks (js/core/dayreview.js:489). After a re-key those references silently follow the OTHER device's assignment: minutes, goal progress and an exam's linked coursework attach to the wrong record. Reminders have the same gap (reminder ids referenced by the review picks).
-- **Evidence:** js/core/cloudmerge.js:57-58 (assignments refs: calendar.events only), 293-346 (rekeyCollisions rewrites only spec.refs); references listed above
+- **Detail / repro:** Ids are per-device counters; when two devices mint the same assignment id between syncs, rekeyCollisions re-keys the local one and rewrites only RECORDS[].refs. For assignments.items that list is calendar.events.assignmentId alone, but assignment ids are also stored in goals (links.assignmentId, js/core/goals.js:130), Exams assessments (links.assignmentId, js/core/exams.js:178, 536, 726), session entries and their segments (metrics.assignmentId, js/core/sessions.js:93-98; Focus banks minutes by it), and Daily Review picks (js/core/dayreview.js:489). After a re-key those references silently follow the OTHER device's assignment: minutes, goal progress and an exam's linked coursework attach to the wrong record. Reminders have the same gap (reminder ids referenced by the review picks). Calendar events have the same gap: a goal linked to an event (links.eventId) follows the other device's event after a re-key.
+- **Evidence:** Re-read 7 Nov: cloudmerge.js:57-58 unchanged. Same gap for calendar events: goals store links.eventId (js/core/goals.js:131) and calendar.events' refs list only calendar.notified (cloudmerge.js:55-56). Original: js/core/cloudmerge.js:57-58 (assignments refs: calendar.events only), 293-346 (rekeyCollisions rewrites only spec.refs); references listed above
 - **Root cause:** Counter ids plus a hand-maintained reference list that new features did not extend.
 - **Proposed fix:** Add every reference to RECORDS[].refs (goals.items links.assignmentId as a nested field, exams.assessments links.assignmentId, sessions metrics.assignmentId and metrics.segments[].assignmentId, dayReview picks), or move assignments/reminders/events to random string ids as Money, Routines and Exams already do (the long-term fix).
 - **Flags:** effort M
 
 ### DI-08 · P2 · data — A 404 on an update deletes the local event or reminder (e.g. after reconnecting a different Google account)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** When a PATCH to Google Calendar or Google Tasks answers 404/410, the cycle deletes the LOCAL record inside inbound(): extgcal.js:421 KOS.calendar.deleteEvent(ev.id), exttasks.js:417 KOS.reminders.remove(it.id). disconnect() (ext.js:241-250) clears only the kv (sync tokens, mirrors) and leaves every record's ext link in place, so connecting a different Google account (or the event being moved to another calendar) turns the next local edit of any linked event or reminder into a silent local deletion, with no undo and no notice. This contradicts the 'never inferred from absence' intent of invariant 158 and is the opposite of Todoist's behaviour (an update to a missing item there is just retried forever, exttasks.js:330-333).
-- **Evidence:** js/core/extgcal.js:419-421, js/core/exttasks.js:416-417, js/core/ext.js:241-250
+- **Evidence:** Re-read 7 Nov: unchanged since 56b1a8c except ext.js:364 (background redraw); Google Tasks path now at exttasks.js:419 (r.status === 404 → KOS.reminders.remove). Original: js/core/extgcal.js:419-421, js/core/exttasks.js:416-417, js/core/ext.js:241-250
 - **Root cause:** A failed write is treated as proof of a remote deletion.
 - **Proposed fix:** On 404 for an update, unlink the record (ext = null, keep it local, count it as 'unlinked' in the status) instead of deleting it; delete locally only from a pull that reports the item cancelled/deleted. Clear (or archive) ext links on disconnect and on connecting a different account (compare the account id).
 - **Flags:** effort S
 
 ### DI-09 · P2 · data — The full backup leaves out saved Reports and snapshots, and builds one giant string that can fail on the iPad
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** ipad, iphone
 - **Detail / repro:** store.snapshotFull collects state, media, attachments (kurenai-os-files, every binary as base64), money, reviews, mind, ink and creatives, but not kurenai-os-reports (saved weeks/months/terms/years, their Kurenai words and the boundary snapshots that status moves need — 'never recomputed', invariant 101/102). Signed out, a restore on a new device loses every saved report and snapshot for good. The backup is serialised with JSON.stringify(result, null, 2) into a single Blob: with a few hundred MB of files (the app asks for persistent storage at 200 MB) the base64 plus indentation is a string of several hundred MB, which risks an out-of-memory reload on iPad Safari, and that failure is silent (no error reaches done()). A failing sub-export (e.g. creatives) aborts the whole backup instead of reporting the missing part.
-- **Evidence:** js/core/store.js:513-583 (no reportStore step; JSON.stringify(result, null, 2) at 588), js/core/reportstore.js (no exportAll), js/modules/attachments.js:454-480 (base64 for every blob)
+- **Evidence:** Re-run 7 Nov in browser (slot 19, seeded): 11 saved reports + 1 snapshot on the device; snapshotFull keys have no 'reports'; size 3,078,746 chars with no attachments; restore report lists 7 sections and never mentions Reports. Original: js/core/store.js:513-583 (no reportStore step; JSON.stringify(result, null, 2) at 588), js/core/reportstore.js (no exportAll), js/modules/attachments.js:454-480 (base64 for every blob)
 - **Root cause:** Backup coverage list maintained by hand; whole-document serialisation.
 - **Proposed fix:** Add KOS.reportStore.exportAll/importAll to the snapshot; stream the backup (build the Blob from parts: a JSON head plus one part per file, no indentation) or offer 'backup without files' when files exceed ~100 MB; report per-section failures like importFull does instead of failing the whole export.
 - **Flags:** effort M
 
 ### DI-10 · P2 · data — The whole state lives in one localStorage key with no fallback: when it outgrows the quota every later change is lost on reload
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all, iPhone/iPad Safari first
 - **Detail / repro:** Measured on the seeded account: the state document is 372,924 characters in one key (kurenai-os-v1); srs is 110 KB for 675 rated cards (164 B a card), sessions 84 KB for 600 (140 B each, capped at 2,000), pacing 85 KB. The curriculum alone has 5,436 flashcards, so a fully reviewed deck is ~0.9 MB before Code, Japanese facets and Mind cards, and every new domain adds to the same document. Chrome refused the write at ~5.2 M characters total; WebKit's limit is of the same order. When setItem throws, save() shows one toast ('Save failed — storage may be full. Export your data.') and keeps running on the in-memory copy; every later change, and the pagehide flush (which only logs, store.js:417-425), is lost on the next reload or when iOS evicts the page. Reproduced by filling localStorage on the slot: the save failed with QuotaExceededError and the change was not stored. There is no size readout in Archive › Storage for the state document, and no migration of the big parts (srs, sessions, facets) to IndexedDB.
-- **Evidence:** kos.mjs eval 17 → state 372,924 chars; srs 110,391; sessions 84,052; pacing 84,696; 5,436 curriculum cards; quota experiment → errs ['Kurenai OS: save failed QuotaExceededError…'], stored:false, toast 'Save failed — storage may be full. Export your data.'; js/core/store.js:395-425
+- **Evidence:** Re-measured 7 Nov: seeded 372,887 chars (srs 110,391; pacing 84,696; sessions 84,052), empty 96,139; tight quota fill → console 'save failed QuotaExceededError … kurenai-os-v1 exceeded the quota', the reminder not stored until space was freed and flush() ran. Original: kos.mjs eval 17 → state 372,924 chars; srs 110,391; sessions 84,052; pacing 84,696; 5,436 curriculum cards; quota experiment → errs ['Kurenai OS: save failed QuotaExceededError…'], stored:false, toast 'Save failed — storage may be full. Export your data.'; js/core/store.js:395-425
 - **Root cause:** Single-key localStorage persistence for an unbounded document.
 - **Proposed fix:** Move the large, append-heavy parts (srs/cards, the session ledger, Japanese facets, Mind cards) into IndexedDB records like the review log, or store the document in IndexedDB with localStorage as a small boot cache; show the state size in Archive › Storage with a warning at 60% of quota; on a failed save keep a persistent banner (not a toast) and retry into IndexedDB.
 - **Flags:** effort L
 
 ### DI-11 · P2 · data — Every replicated store pulls with a strict updated_at > cursor on now() stamps, so a row committed late is skipped forever
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** multi-device
 - **Detail / repro:** Media, files, money, reviews, mind, ink, reports and push all pull 'updated_at > cursor' and then advance the cursor to the largest updated_at seen. The touch trigger stamps updated_at := now(), which in Postgres is the TRANSACTION START time. If device A's upsert (a 500-row media chunk, a money batch) starts at t1 and commits after device B's quicker write stamped t2 > t1, a third device that pulls between the two commits sets its cursor to t2 and never fetches A's rows (t1 < t2). Nothing ever re-reads them: the pulling device silently lacks those transactions/reviews/ink strokes until a restore. With three devices syncing on focus this is a real, if rare, divergence with no symptom.
-- **Evidence:** supabase/migrations/20260716000001_kos_sync_init.sql:26-35 (now()); q.gt('updated_at', …) at js/core/money.js:1126, reviewlog.js:133, mindjournal.js:191, inksync.js:97, reportstore.js:324, cloudsync.js:358/376; cursor = max seen (money.js:1189, 1207)
+- **Evidence:** Re-read 7 Nov: q.gt('updated_at', …) at cloudsync.js:358/376, money.js:1126, reviewlog.js:133, mindjournal.js:191, inksync.js:97, reportstore.js:324 and push.js:90; kos_touch_updated_at still sets now() (migration 20260716000001:26-35). Original: supabase/migrations/20260716000001_kos_sync_init.sql:26-35 (now()); q.gt('updated_at', …) at js/core/money.js:1126, reviewlog.js:133, mindjournal.js:191, inksync.js:97, reportstore.js:324, cloudsync.js:358/376; cursor = max seen (money.js:1189, 1207)
 - **Root cause:** Timestamp cursor over transaction-start timestamps.
 - **Proposed fix:** Stamp with clock_timestamp() in the trigger and pull with an overlap window (gt cursor − 2 minutes) — every store already skips its own echo by stamp or uid, so re-reading a few rows is harmless; or use a monotonic bigserial 'version' column per table as the cursor.
 - **Flags:** effort S
 
-### DI-12 · P3 · integration — Todoist: a command the server rejects is resent on every cycle forever, with no status shown
+### DI-16 · P2 · integration — Todoist: moving a task to another linked project in Todoist is undone by the next sync
 
 - **Devices:** all
+- **Detail / repro:** Two Reminders lists are linked to two Todoist projects (School→P1, Home→P2). Move a synced task from School to Home in Todoist. The next cycle does not move the reminder (its listId stays School; only ext.list becomes P2), and tdPush then sees ext.list (P2) differ from the local list's project (P1) and sends item_move back to P1. The user's move in Todoist is silently reverted and the reminder never changes list here.
+- **Evidence:** audit-evidence/2026-11/qa/exp/td2.js moveRemote → 'after remote move local: [{list:1 (School), ext:{id:T1,list:P1}}] cmds [[item_move:{id:T1,project_id:P1}]] remote project P1'; js/core/exttasks.js:191-196 (reconcile writes ext.list only, never listId), 270 (moved = lk.id !== it.ext.list), 287 (item_move to the local list's project)
+- **Root cause:** The list is not a three-way-merged field: the pull records the remote project in ext.list, and the push reads any difference between ext.list and the local list as a LOCAL move.
+- **Proposed fix:** In reconcile, when remote.list differs from base list and maps to another linked Reminders list, move the reminder there (listId = linked[remote.list]) inside inbound; only treat a local listId change (lk.id !== base list) as a local move. Keep a base list in ext.base so the three-way rule applies to the list as to every other field.
+- **Flags:** effort S
+
+### DI-17 · P2 · integration — A linked reminder moved to a list linked to the other provider is copied there and orphaned in the first
+
+- **Devices:** all
+- **Detail / repro:** Reminders lists can link to Todoist or Google Tasks. Move a Todoist-linked reminder to a list linked to Google Tasks (or the reverse): gtPush sees ext.p !== 'gtasks' and creates a Google task, overwriting ext with the Google link; the Todoist task is neither deleted nor unlinked. The Todoist mirror still holds it, so the next time it changes in Todoist (or on a full sync) byLink('todoist') finds no reminder and imports it again as a NEW reminder: one item becomes two, in two services. Moving a linked reminder to an UNLINKED list keeps it linked and both-way syncing (verified: a title edit is still pushed, a Todoist rename still lands on the reminder in the unlinked list), which contradicts 'a list links to ONE project' (invariant 160).
+- **Evidence:** audit-evidence/2026-11/qa/exp/td2.js moveLocal → 'moved to unlinked: cmds []', 'edit while unlinked: cmds [[item_update:{id:T1,content:Local move edited}]]', 'remote rename reaches unlinked list item: Remote rename list 3'; js/core/exttasks.js:412 (!linkedHere → gtCreate, ext replaced at 437-440), 254-258 (Todoist add only when not linked; nothing queues a delete when the list link changes), 270 (moved only when the new list is a todoist link)
+- **Root cause:** Each provider's push only considers its own links; a reminder's list move is never translated into an unlink of the old provider.
+- **Proposed fix:** Treat a list change as a change of link: when a reminder's list link provider/project differs from ext.p/ext.list, queue a delete (or item_move for same provider) for the old link in state.ext.deletes and clear ext before the other provider creates. For an unlinked target list, either queue the remote delete or unlink (ask once).
+- **Flags:** effort M
+
+### DI-18 · P2 · data — Creatives' file store is shared by the real account and the Empty and Sample review namespaces
+
+- **Devices:** all
+- **Detail / repro:** Every other IndexedDB is suffixed by KOS.dataMode ("-empty"/"-sample") so a review namespace never touches the real data. kurenai-os-creatives is not. In the Empty or Sample namespace, every work, sketch and Writing Desk draft saved goes into the REAL account's store (and so into its next full backup as orphan rows), and a Restore done while in a review namespace runs creatives.files.importAll, which CLEARS the real store (os.clear()) and replaces it with the backup's creatives.
+- **Evidence:** js/core/creatives.js:438 (DB_NAME = "kurenai-os-creatives", no suffix) vs js/core/money.js:39, mediadb.js:97, ink.js:293, reviewlog.js:23, mindjournal.js:20, reportstore.js:28, attachments.js:17, exampapers.js:28, files.js:343 (all + KOS.dataMode.suffix); importAll clear at js/core/creatives.js:465; store.js:708 (restoreCreatives runs in any mode)
+- **Root cause:** The suffix convention is repeated by hand in each store; the newest store missed it and nothing checks it.
+- **Proposed fix:** DB_NAME = "kurenai-os-creatives" + ((KOS.dataMode && KOS.dataMode.suffix) || ""); add a smoke assertion that every indexedDB.open name carries the suffix.
+- **Flags:** effort S
+
+### DI-19 · P2 · integration — The Todoist/Google sync lease does not exclude a second tab on the same device, and is never renewed during a long cycle
+
+- **Devices:** iPad (app + Safari), Mac (two windows)
+- **Detail / repro:** The lease holder is state.ui.extDevice, one id per browser profile, and kos_ext_lease grants the lease to the holder that already has it. Two open tabs or windows (or the Home Screen app plus a Safari tab on the iPad) therefore both 'win' and run their cycles at the same time against the same media-kv mirror and sync token. Each tab holds its own in-memory reminders (the two-tab clobber finding), so tab B's pull meets the task tab A just created and linked as an unknown remote item and imports it as a new reminder, while B's own unlinked copy is item_add'ed with the same uuid and linked to the same Todoist id: two reminders, one task — the same end state as the two-device duplicate, reachable on ONE device. Separately, the lease is 120 s and is never extended; a cycle that runs longer (several 90-command chunks, a slow network, Google Tasks paging) lets another device in mid-cycle.
+- **Evidence:** js/core/ext.js:73-77 (device() = state.ui.extDevice, shared by every tab of the profile), 268-270 (lease once per cycle, LEASE_S 120 at :40), 306-319 (no renewal); supabase/migrations/20261030000001_kos_ext.sql:44 (lease_holder = p_holder re-grants); in-tab guard only: js/core/ext.js:326 (var running); duplicate end state reproduced by audit-evidence/2026-11/qa/exp/td.js twodev → local 'Made on A': [[3,'T3'],[4,'T3']]
+- **Root cause:** Exclusion is designed per device, but the app's real unit of concurrency is the tab.
+- **Proposed fix:** Make the holder per tab (device id + a random per-page suffix kept in memory) or coordinate tabs with a Web Lock (navigator.locks.request('kos-ext-'+p)) / BroadcastChannel; renew the lease between chunks and lists, and abort the cycle when renewal fails. Also de-duplicate on pull: before importing an unknown remote id, look for a local reminder already linked to it.
+- **Flags:** effort S
+
+### DI-20 · P2 · data — Money, the review log, Mind's Journal and saved Reports replicate with no error surfaced anywhere
+
+- **Devices:** all
+- **Detail / repro:** Each side store's syncCloud(cb) is only ever called WITHOUT a callback (debounced after a change, at boot and on a 30-minute interval), so an RLS refusal, a missing table, a network error or a failed chunk is dropped: nothing is logged, nothing is shown, and Archive › Cloud sync's 'Last synced' describes the state document only. A user who adds transactions on the iPhone can see 'Last synced 10:42' on both devices while kos_money has rejected every upsert. Only handwriting has a visible status (Pen and ink). The local put/delete callbacks in the pull ignore their error argument too, and the cursor is still advanced (money.js:1205-1206), so a row that failed to write locally is skipped for good.
+- **Evidence:** callers without cb: js/core/money.js:1220, 1226-1227; js/core/reviewlog.js:212; js/core/mindjournal.js:260, 267-268; js/core/reportstore.js:417, 423; contrast js/modules/inkset.js:92 (ink shows its result); js/core/money.js:1193-1206 (deleteRaw/putRaw callbacks take no err, meta.cursor = maxTs); js/modules/cloudui.js:86, 190 ('Last synced' from cloudsync status only)
+- **Root cause:** Each replicator copied Money's pattern, which treats replication as fire-and-forget; there is no shared status contract for secondary stores.
+- **Proposed fix:** Give every replicator a status record (last ok, last error, pending count) in a shared registry (e.g. KOS.cloudsync.sideStatus(name, …)) and render it in Archive › Cloud sync as one line per store; only advance a cursor after the local write succeeded.
+- **Flags:** effort M
+
+### DI-21 · P2 · data — 'Reset everything' only resets the state document: the media vault, files, money, ink, Mind, reviews, Creatives and reports all stay
+
+- **Devices:** all
+- **Detail / repro:** The confirm dialog promises 'This removes study progress, notes, flashcard schedules, the Governor, the media vault, the planner and every attachment from this device'. The handler calls KOS.store.reset(), which only replaces the localStorage document with DEFAULTS. Every IndexedDB store survives: the 1,880-entry media vault, attachments, Money transactions, handwriting, Mind's Journal, the review log, Creatives' works and saved Reports. After the reset the app shows those leftovers (Money, Files, the vault) against a fresh state, and a signed-in device then replicates the leftovers back up. Reproduced on slot 19: a transaction, an ink page and a reminder added, Reset everything confirmed → reminders 0, but money ['Reset test'] and the ink notebook remain.
+- **Evidence:** kos.mjs eval 19 → {btn:true, rem:0, moneyTx:['Reset test'], ink:true}; js/modules/hub.js:3436-3474 (dialog text, store.reset() at 3471), js/core/store.js:747-751 (reset replaces state only)
+- **Root cause:** Reset predates the IndexedDB stores; each new store was added to backup but not to reset.
+- **Proposed fix:** Add KOS.store.resetFull(): clear every IndexedDB store of the current namespace through each owner's importAll(empty)/clear (media incl. kv except credentials, files, filetext, money, reviews, ink, mind, creatives, reports, papers), then reset state and reload; or reword the dialog to what it does.
+- **Flags:** effort S
+
+### DI-22 · P2 · ux — Import backup replaces everything the moment a file is picked, with no confirmation and no safety copy
+
+- **Devices:** all, worst on iPad/iPhone (no tooltip)
+- **Detail / repro:** Backup & Restore's 'Import backup…' opens the file picker and importFull runs on change: the state is replaced (KOS.store.replaceState) and media, money, reviews, Mind and Creatives stores are cleared and rewritten before anything is shown. That it is 'a complete restore, not a merge' is only in the button's title tooltip, which touch devices (iPad, iPhone) never show. Picking an old file by mistake overwrites today's work with no undo; nothing snapshots the current data first, and on a signed-in device noteRestore then makes the cloud follow the restored data. The success message lists sections restored but never says what was lost (and saved Reports are silently not part of it).
+- **Evidence:** js/modules/hub.js:3356-3376 (onchange → store.importFull directly; title-only warning at 3375), js/core/store.js:620-621 (replaceState before any check of the other sections), 735-737 (noteRestore)
+- **Root cause:** The restore was built as a direct action on file selection.
+- **Proposed fix:** After the file is read and validated, show a danger dialog ('Replace this device's data with the backup from <exportedAt>? N sessions, M media entries… This can't be undone') with Cancel focused; before restoring, take a snapshotFull into a kept 'before restore' copy (or offer to export one).
+- **Flags:** effort S
+
+### DI-12 · P3 · integration — Todoist: a command the server rejects is resent on every cycle forever, with no status shown
+
+- **Re-checked on kos-redraw-1:** holds
+- **Devices:** all
 - **Detail / repro:** tdPush applies a record's bookkeeping only when every command in its group returns 'ok'. A rejected command (item_update or item_delete for a task deleted or moved out of reach in Todoist, an invalid label, a due string Todoist cannot parse) leaves base and the delete queue unchanged, so the same command is sent every cycle (every few minutes and on every focus) and the Connections status still says the cycle succeeded, because sync_status errors are never turned into counts or an error. A partly-applied group (item_update ok, item_close rejected) also re-sends the parts that did apply.
-- **Evidence:** js/core/exttasks.js:329-334 (only the all-ok case is handled; errors in r.sync_status are dropped), js/core/exttasks.js:256 (delete queue entry kept on error)
+- **Evidence:** Re-read 7 Nov: exttasks.js:329-334 unchanged (only all-ok entries call a.ok; non-ok sync_status ignored). Original: js/core/exttasks.js:329-334 (only the all-ok case is handled; errors in r.sync_status are dropped), js/core/exttasks.js:256 (delete queue entry kept on error)
 - **Root cause:** Error results of batched commands are ignored.
 - **Proposed fix:** Read sync_status errors: for 'not found' (error_code 22) drop the queue entry or unlink the record; for other errors record them in counts and setStatus so Connections shows 'n changes refused' with the reason; apply per-command bookkeeping rather than per group.
 - **Flags:** effort S
 
 ### DI-13 · P3 · data — An unreadable stored state is replaced by a fresh one and overwritten on the next save
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** At boot, if JSON.parse or deepMerge of kurenai-os-v1 throws, the app logs a warning and starts from DEFAULTS; the next save() (any render that creates a progress record, the boot seeders) writes the empty state over the unreadable original, so whatever was recoverable from it is gone and the user is not told. With cloud sync the empty-local guard then adopts the cloud copy, but a signed-out user loses everything silently.
-- **Evidence:** js/core/store.js:382-390 (catch → DEFAULTS, console.warn only), 393 and 395-410 (save overwrites KEY)
+- **Evidence:** Re-read 7 Nov: store.js:382-390 unchanged (catch → DEFAULTS with console.warn; next save overwrites). Original: js/core/store.js:382-390 (catch → DEFAULTS, console.warn only), 393 and 395-410 (save overwrites KEY)
 - **Root cause:** No quarantine of the original before the first overwrite.
 - **Proposed fix:** On a parse failure copy the raw string to a side key (kurenai-os-v1.corrupt-<ts>) or into IndexedDB before anything saves, and show a blocking notice offering Restore from backup / cloud.
 - **Flags:** effort S
 
 ### DI-14 · P3 · content — Backup & Restore's 'What a backup covers' list is out of date: half of what the file holds, and everything it leaves out, is unlisted
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** The list names study, productivity, Governor, the media vault, the purchase planner and attachments. The file also carries Money transactions, the review log, handwriting, Mind's Journal and Creatives work, none of which is listed; and it does NOT carry saved Reports and snapshots, the Paper library's own PDFs (unless kept in the cloud), Japanese saved lines, or the Google/Todoist sign-ins (records stay linked but need reconnecting) — the reader is not told. The closing line points only to 'Sync & Import' for reconnecting, not Connections.
-- **Evidence:** audit-evidence/2026-11/qa/shots/data-integrity/data-mac.png; list text read via eval; js/core/store.js:513-583 (what snapshotFull includes)
+- **Evidence:** Re-shot 7 Nov: shots/data-integrity/data-mac.png and data-ipad-1107.png still list six rows (study, productivity, Governor, media, planner, attachments); Money, handwriting, review log, Mind, Creatives, Code/Japanese/Exams are not named and Reports' absence is not stated. Original: /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/data-integrity/data-mac.png; list text read via eval; js/core/store.js:513-583 (what snapshotFull includes)
 - **Root cause:** Hand-written copy that did not follow the backup's growth.
 - **Proposed fix:** Generate the rows from the same table snapshotFull uses (one row per store with its live count), and add a short 'Not in the file' line naming Reports, the Paper library and connections.
 - **Flags:** effort S
 
 ### DI-15 · P3 · ui — Archive › Storage accounts for none of the app's real data and prints rows of 0 KB
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** On the seeded account (1,880 media entries, 373 KB state document, money, reviews) 'On this device' says 48.4 MB used while 'By kind of data' lists only Files, Past papers, Your ink and Text index, each '0 KB' — supporting zeros that invariant 77 says to suppress — and never shows the state document (the one store with a hard ~5 MB ceiling), the media vault, Money, the review log, Mind or Creatives. The numbers cannot explain the total. On the Mac the last card ('Not linked anywhere') sits alone in a row with two empty columns beside it.
-- **Evidence:** audit-evidence/2026-11/qa/shots/data-integrity/storage-mac.png, audit-evidence/2026-11/qa/shots/data-integrity/storage-iphone.png
+- **Evidence:** Re-shot 7 Nov: shots/data-integrity/storage-mac.png → '47.4 MB used', By kind of data rows 0 KB / 0 KB / 1 KB / 0 KB; the media vault, money, reviews, Mind and reports are not listed. Original: /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/data-integrity/storage-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/data-integrity/storage-iphone.png
 - **Root cause:** Storage page written for Files R4 only.
 - **Proposed fix:** List every store (state document with its share of the localStorage quota, media vault, money, reviews, ink, mind, creatives, reports, files, papers, text index) with sizes from navigator.storage.estimate().usageDetails or a count × average, hide zero rows, and let the last card span the row.
+- **Flags:** effort S
+
+### DI-23 · P3 · integration — A reminder deleted here while its task was edited in Todoist comes back for one sync cycle
+
+- **Devices:** all
+- **Detail / repro:** Delete a synced reminder locally; before the next cycle, the task is edited in Todoist. The cycle PULLS first: the edited item is in the incremental result, byLink has no reminder for it, so reconcile imports it as a new reminder; THEN tdPush sends the queued item_delete. The reminder re-appears in Reminders (with a new id) until the following cycle (up to 15 minutes) removes it again. Any alert or tick made on it in between is lost.
+- **Evidence:** audit-evidence/2026-11/qa/exp/td2.js both → 'delete vs remote edit: local [{id:5,ext:{id:T1}}] remote deleted true cmds [[item_delete:T1]]' then 'next cycle local []'; js/core/exttasks.js:212-213 (delete queue read), 225-235 (pull imports before the queue is applied), 180-187 (create path does not consult state.ext.deletes); CYCLE_MS 15 min at js/core/ext.js:40
+- **Root cause:** The pull does not know about pending local deletions.
+- **Proposed fix:** In reconcile's create path skip a remote id that is in the delete queue (q['todoist:task:'+id]); same for Google Tasks.
+- **Flags:** effort S
+
+### DI-24 · P3 · data — Restore is not authoritative for handwriting or files: ink pages and files not in the backup survive it
+
+- **Devices:** all
+- **Detail / repro:** Every other store's importAll clears before writing (media, money, reviews, Mind, Creatives). ink.importAll only puts, so notebooks and pages created after the backup (or from another account) stay, now attached to a restored state that may not reference them; and restoreFiles returns early when the backup has no attachments, leaving every current file in place, while a backup WITH attachments clears them. cloudsync.noteRestore then re-baselines as if the device held exactly the backup. Restore also clears the whole media kv (mediadb.importAll ks.clear()), so the cloud merge base, the Todoist/Google mirrors and sync tokens and the GitHub outbox are reset to the backup's (tokens themselves are excluded by design), which forces full re-syncs; the report shown to the user mentions none of this.
+- **Evidence:** js/core/ink.js:531-540 (no clear), js/modules/attachments.js:488-493 vs js/core/store.js:651-652 (if (!items.length) return next()), js/core/mediadb.js:1373-1374 (es.clear(); ks.clear()), js/core/store.js:735-740 (noteRestore)
+- **Root cause:** Each store's import semantics were written independently; there is no single contract for 'restore replaces'.
+- **Proposed fix:** Clear docs/pages in ink.importAll; call attach.importAll with [] too (or document merge semantics for both); keep per-device sync kv (ext.*, cloudsync.base, code.github.outbox) out of the clear, or list what was reset in the restore report.
+- **Flags:** effort S
+
+### DI-25 · P3 · arch — Japanese mined lines are kept in the synced state document, against 'personal media never leaves the device'
+
+- **Devices:** all
+- **Detail / repro:** KOS.ja.mine() stores each saved line's text, reading, translation and its source object in state.japanese.mined, which is part of the state document: it is uploaded to kos_state by cloud sync (DEVICE_PATHS does not exclude it) and written into every backup. Invariant 115 and docs/japanese-plan.md say personal media lines live in IndexedDB only and never sync. Nothing calls mine() yet (the reader and media pages are not built), so no user data is affected today; it will be the moment the reader ships.
+- **Evidence:** js/core/ja.js:278-289 (st.mined[id] = {text, reading, en, src, at}; store.save()), js/core/cloudsync.js:165-172 (DEVICE_PATHS: no japanese.mined), docs/japanese-plan.md:1070 (115: personal media never leaves the device); grep '.mine(' → no caller
+- **Root cause:** The backend was written before the storage decision for personal media was applied to it.
+- **Proposed fix:** Before the reader lands, move mined lines to an IndexedDB store (namespaced by KOS.dataMode.suffix) keyed by the hash id, keep only the facet key in state.japanese.facets, and add a smoke assertion that syncableState() carries no mined text.
+- **Flags:** effort S
+
+### DI-26 · P3 · arch — Mind's Journal replication has no test and no injectable cloud, unlike every other replicated store
+
+- **Devices:** all
+- **Detail / repro:** Money (smoke86, _setCloudApi), the review log (smoke96), ink (smoke105), reports (smoke72) and files (smoke17/106) each run their push/pull against a fake table. kos_mind's syncCloud (push-then-pull, echo skip, remote deletion without a tombstone) is exercised by no suite and exposes no way to inject a fake API, so a regression in the Journal's replication (a private, local-first store per invariant 139) would ship unnoticed.
+- **Evidence:** grep 'kos_mind|mindJournal.syncCloud' tools/smoke*.test.js → no match; js/core/mindjournal.js:180-197 (cloud() = cloudApi || realCloud(), but KOS.mindJournal at :271-275 exports no _setCloudApi); smoke86/96/105/72/106 pass on this build
+- **Root cause:** Copy of Money's replicator without its test seam.
+- **Proposed fix:** Export _setCloudApi and add a smoke covering push, echo skip, pull, remote delete and a two-device edit, modelled on smoke86.
 - **Flags:** effort S
 
 **QoL ideas from this auditor:**
@@ -5879,12 +6195,16 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 - Connections: show the last cycle's refused commands and duplicate links, with a 'Fold duplicates' action.
 - After a restore or first link, toast what was merged or replaced, naming the counts per domain.
 - Add a 'Download a copy of this device first' button to the first-link dialog.
+- Archive › Cloud sync: one status line per replicated store (Money, reviews, Journal, ink, reports, files) with its last success.
+- Restore report: say which sections the file did not carry (saved Reports) and which per-device sync records were reset.
 
 **Backlog ideas from this auditor:**
 - Move the state document (or its big parts: srs, sessions, facets) from localStorage to IndexedDB with per-record writes and cross-tab coordination (BroadcastChannel or Web Locks).
 - Replace per-device counter ids for assignments, reminders and events with random string ids, as Money, Routines and Exams already use, retiring rekeyCollisions.
 - Make provider sync state-consistent: pull and push the cloud state around each leased cycle, and keep pending provider adds in synced state so any device recognises them.
 - Use a monotonic version column (bigserial) as the replication cursor for every kos_* table.
+- Audit every view for sub-objects of KOS.store.state captured at render and written later (stale after replaceState); with redraws held on task pages a stale page lives longer.
+- A single store registry (name, namespace suffix, backup, restore semantics, reset, replication, status) that store.js, reset, Storage and the backup page all read, with a smoke asserting every indexedDB.open is registered.
 
 
 ---

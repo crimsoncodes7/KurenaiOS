@@ -1,184 +1,346 @@
 {
  "area": "data-integrity",
- "summary": "Local-first persistence is careful in its stated paths (quota failures toast, boot is idempotent across reloads, the three-way merge and the CAS loop are sound), but four real data-loss or duplication paths remain. The first cloud sign-in discards local data in any domain that the hand-kept stateMeaningful() allowlist omits, such as reminders, assignments, exams and routines. Two tabs overwrite each other's whole-state saves. The Todoist sync duplicates reminders in two reproducible ways: another device syncing before the state document arrives, and a later command chunk failing after an earlier one created tasks. The root causes repeat across the codebase. Allowlists are maintained by hand and new domains were never added (stateMeaningful, cloudmerge RECORDS refs, the backup and its 'covers' copy, the Storage page). Remote link state is replicated asynchronously while the provider cursor is per device. Multi-request pushes keep all-or-nothing bookkeeping. Absence or a 404 is read as deletion. Every replicated store uses a strict now()-timestamp cursor. The single 373 KB (seeded) localStorage document has no fallback before the ~5 MB ceiling.",
- "coverage": "Code review: js/core/ext.js, exttasks.js (all of Todoist and Google Tasks), extgcal.js (delete queue, 404 path), reminders.js (CRUD, complete, recurrence), store.js (load, save, flush, replaceState, snapshotFull/importFull), cloudsync.js (meaningful test, assessLink/adopt, applyRemoteState, pushState CAS), cloudmerge.js (RECORDS, re-keying, mergeValue), money.js syncCloud, the cursor pattern in every replicated store, and the touch trigger migration. Experiments in jsdom: exp/td.js (smoke112's fake Todoist, made more realistic: duplicates across two devices, chunk failure, full-sync sub-tasks, recurring completion, a mid-cycle replaceState, which did NOT lose the delete queue and was dropped) and exp/cs.js (smoke17's fake Supabase, the first-link discard). In the browser on slot 17: state-size measurement on the seeded and empty accounts, a localStorage quota-fill experiment, a two-tab clobber experiment (iframe), boot idempotency over two reloads, and screenshots of Connections, Storage and Backup & Restore (mac, ipad, iphone). Not examined: Google Calendar's recurrence mapping in depth (smoke112 D covers it), ink per-stroke merge, the mind/reports sync bodies beyond their cursor, real Todoist/Google servers (no live accounts; findings that depend on server behaviour are marked as such), and a full visual pass of the data pages in Dawn or the shop themes (left to the UI areas).",
+ "summary": "Re-checked on HEAD 47e02c7 (sw kos-redraw-1): all 15 earlier findings still reproduce or still read the same; the code they cite changed only in two background-redraw lines. The behaviour inventory added 11 findings. The biggest data-loss risks are still the first cloud link (it replaces a device's reminders, assignments and so on without a merge) and two tabs overwriting each other. On the Todoist side, three paths create duplicates: two devices, a failed chunk, and now a second tab on the same device, because the sync lease is held per device rather than per tab. The new behaviour bugs: moving a task between linked projects in Todoist gets reverted, a reminder moved to a list linked to the other provider is copied there and orphaned in the first, 'Reset everything' leaves every IndexedDB store in place even though its dialog says it clears them, Import backup replaces everything with no confirmation, Creatives' file store is shared with the review namespaces, and the Money, review-log, Journal and Reports replicators drop their errors without a word. The common root causes: there is no single contract for what each store does on restore, reset and data-mode namespacing, the list's provider/project is not a three-way-merged field, and nothing coordinates tabs.",
+ "coverage": "# Data integrity \u2014 feature inventory (top-up, 7 Nov 2026, sw kos-redraw-1, HEAD 47e02c7)\n\nLegend: P = presentation checked (sizes) \u00b7 B = behaviour checked (fixture/result) \u00b7 ids = finding titles (short)\n\n## 1. The state document (js/core/store.js)\n| Item | P | B | Result |\n|---|---|---|---|\n| Load + deepMerge(DEFAULTS) | \u2013 | reload drift test slot 19 (seeded, two reloads, diff of whole state minus ui = []) | OK, verified |\n| Unreadable stored JSON \u2192 DEFAULTS | \u2013 | code (store.js:382-390) | 'An unreadable stored state\u2026' holds |\n| scrubLegacy / renameRefs at load | \u2013 | covered by drift test | OK |\n| save() 120 ms debounce, flush() | \u2013 | stringify 1.1 ms, setItem 2.6 ms on 372,887-char dense state | OK |\n| Quota exceeded | \u2013 | fill-to-quota experiment \u2192 'save failed QuotaExceededError', write lost while full, kept in memory | 'The whole state lives in one localStorage key\u2026' holds |\n| Size: empty 96,139 chars (pacing seed 84,696); seeded 372,887 (srs 110k, pacing 85k, sessions 84k/600) | \u2013 | measured | headroom OK (~5 MB quota) |\n| replaceState (restore, cloud pull) | \u2013 | round trip | OK; stale captured sub-objects: NOT checked (see backlog) |\n| reset ('Reset everything') | mac | fixture: tx + ink + reminder \u2192 reset | NEW 'Reset everything only resets the state document\u2026' |\n| Two tabs (no storage event / BroadcastChannel / locks) | \u2013 | grep + earlier iframe repro | 'Two open tabs\u2026' holds |\n| KOS.dataMode namespaces (Mine/Empty/Sample) | \u2013 | grep every indexedDB.open name | NEW 'Creatives' file store is shared\u2026' |\n\n## 2. Backup and restore\n| Item | P | B | Result |\n|---|---|---|---|\n| snapshotFull sections: state, mediaEntries, mediaKV, attachments, money, reviews, mind, ink, creatives | mac, ipad, iphone | browser fixture: one row in each store \u2192 backup counts 1/1/1/1/1 | OK |\n| Not in backup: reports + snapshots, papers (by design), filetext (derived), credentials (by design) | \u2013 | bk has no 'reports' key (11 reports, 1 snapshot on device) | 'The full backup leaves out saved Reports\u2026' holds |\n| exportFull pretty-printed single string | \u2013 | 3,078,746 chars without attachments | holds (iPad risk with large files) |\n| importFull replace semantics per store | \u2013 | after-backup ink page survived restore; media/money/reviews/mind/creatives cleared | NEW 'Restore is not authoritative for handwriting or files\u2026' |\n| Import confirmation / safety copy | mac | code + button title only | NEW 'Import backup replaces everything\u2026' |\n| Restore report text | \u2013 | report = {restoredSections:[7], missingSections:[]} \u2014 never mentions reports | folded into the above |\n| 'What a backup covers' list | mac, ipad | screenshot | holds |\n| Archive \u203a Storage rows | mac | screenshot (0 KB rows; 47.4 MB unattributed) | holds |\n\n## 3. Cloud state sync (cloudsync.js, cloudmerge.js)\n| Item | B | Result |\n|---|---|---|\n| First link (assessLink, adopt, upload) | exp/cs.js re-run \u2192 local reminder + assignment gone, cloud never got them | P1 holds (+ push-side conflict() path :543-549 and pull guard :744-750 overwrite a 'not meaningful' remote) |\n| Push CAS + 4 retries | smoke17 PASS (23 steps) | OK |\n| Three-way merge, RECORDS, SET_FIELDS, ATOMIC, MONO, FACET | every object array in the seeded state is in RECORDS or id-keyed (walk) | OK; re-key refs gap holds (+ goals.links.eventId) |\n| Re-key references | code | 'An assignment re-keyed\u2026' holds, widened |\n| Empty-remote guard, restore flag, fetchStateHead | smoke17 | OK |\n| Remote apply redraw (background:'hard' under kos-redraw-1) | code | OK; held redraw = stale page longer (backlog) |\n| DEVICE_PATHS | code | NEW 'Japanese mined lines are kept in the synced state\u2026' (latent) |\n\n## 4. IndexedDB stores and their replication\n| Store | Backup | Replication | Test | Result |\n|---|---|---|---|---|\n| kurenai-os-media (+kv) | yes (kv cleared on restore) | cloudsync media rows | smoke17 | OK; cursor finding holds |\n| kurenai-os-files | yes (base64) | metadata + binaries | smoke106 PASS | OK |\n| kurenai-os-filetext | derived | \u2013 | \u2013 | OK by design |\n| kurenai-os-papers | no (by design) | 'Keep in my cloud' copy | \u2013 | NOT checked (Exams area) |\n| kurenai-os-money | yes | kos_money | smoke86 PASS; delete-vs-edit converges (putRaw drops tombstone) | silent errors (NEW) |\n| kurenai-os-reviews | yes | kos_reviews | smoke96 PASS | silent errors (NEW) |\n| kurenai-os-ink | yes (merge on restore) | kos_ink per stroke | smoke100/105 PASS | restore finding (NEW) |\n| kurenai-os-mind | yes | kos_mind | NO TEST | NEW 'Mind's Journal replication has no test\u2026'; silent errors |\n| kurenai-os-reports | NO | kos_reports | smoke72 PASS | backup finding holds |\n| kurenai-os-creatives | yes | none (by design) | \u2013 | NEW namespace finding |\n| All replicators' cursor (updated_at > max seen on now()) | \u2013 | \u2013 | \u2013 | holds (also push.js:90) |\n| All replicators' error surfacing | \u2013 | callers pass no cb | \u2013 | NEW 'Money, the review log, Mind's Journal and saved Reports replicate with no error surfaced' |\n\n## 5. Integrations (ext.js, exttasks.js, extgcal.js)\n| Item | B (fixture, exp/td.js + exp/td2.js, fake Todoist) | Result |\n|---|---|---|\n| Create here \u2192 item_add, temp ids, sub-tasks | subs | OK |\n| Two devices (state not yet pulled) | twodev \u2192 two local reminders on T3 | P1 holds |\n| Chunk failure (90-command batches) | chunk \u2192 45 duplicates | P1 holds |\n| Full sync and completed sub-tasks | subs \u2192 completed sub dropped | P2 holds |\n| Repeating (daily/weekly/monthly/yearly) completion | recur \u2192 item_update new due | P2 holds |\n| 'every day at 9:30' | weekdayAt \u2192 daily 09:30 | OK |\n| x-rule ('every 2 weeks', 'every mon, fri', 'every evening') kept as ext.rs, sent back unchanged | weekdayAt/xrule \u2192 item_close, date edit keeps string | OK |\n| Fixed-timezone due ('\u2026Z') | weekdayAt \u2192 2026-10-29 23:30 local | OK (London TZ) |\n| Remote completion \u2192 tick, one todo session priced 0 | remoteDone \u2192 done, session award {xp:0,gold:0} | OK |\n| Uncomplete here \u2192 item_uncomplete | remoteDone | OK |\n| Both sides edit title \u2192 this app's wins; other fields pulled | both | OK |\n| Delete here vs remote edit | both \u2192 reminder reappears one cycle | NEW P3 |\n| Remote move between linked projects | moveRemote \u2192 reverted by item_move | NEW P2 |\n| Local move to unlinked / other-provider list | moveLocal \u2192 still linked; code for gtasks | NEW P2 |\n| Delete queue survives replaceState mid-cycle | replace \u2192 OK | OK |\n| Rejected command resent forever | code | P3 holds |\n| 404 on update deletes local | code (extgcal.js:419-421, exttasks.js:~419) | P2 holds |\n| Lease (per device id, 120 s, no renewal) | code + migration | NEW P2 |\n| Google Tasks cycle, cross-list move (DELETE unchecked then create) | code | folded into the cross-provider finding |\n| Google Calendar mapping (one day, five repeats, until/count, EXDATE skip, alerts, read-only copy, KurenaiOS calendar) | smoke112 PASS; code read of fromRemote/parseRule | OK as far as smoke112 D; not re-fuzzed |\n\n## 6. Timers (background cycles)\nmain.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 30 min; ext 15 min + 20 s debounce; money/mind/reviews/reports/goals/achievements 30 min; inksync 10 min + online; push publish/beat/pull; dayreview 30 s; aischedule tick. Inventory only; each verified to exist; no overlap problem found beyond the two-tab/lease findings.\n\n## NOT checked (and why)\n- Real Todoist/Google servers (no live accounts): server-dependent behaviour is modelled by the fake.\n- Stale sub-object captures after replaceState under the held-redraw build (needs a per-view audit; backlog).\n- kurenai-os-papers 'Keep in my cloud' copy (Exams/Files area).\n- Visual pass in Dawn and shop themes for Archive pages (UI areas).\n",
  "findings": [
   {
    "title": "Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives",
    "severity": "P1",
    "category": "data",
    "detail": "The lease serialises Todoist network work between devices, but the LINK (reminder.ext.id) lives in the synced state document, which reaches the other device later. Device A pushes a new reminder (item_add) and links it locally; device B takes the lease next (A releases it at once) while its state still holds the reminder unlinked and its own per-device sync token predates the add. B's incremental pull returns the new Todoist task, finds no local link (byLink) and reconcile() imports it as a SECOND reminder linked to the same Todoist id; the cloud merge then keeps both (different ids/uids). Reproduced in jsdom with the smoke112 fake: after the B-side cycle, two local reminders 'Made on A' are both linked to T3 while Todoist has one task. With a Mac, iPad and iPhone all open this is the ordinary case, matching the user's 'many problems between Reminders and Todoist'.",
-   "evidence": "exp/td.js twodev \u2192 local 'Made on A': [[3,'T3'],[4,'T3']], remote: ['T3']; js/core/exttasks.js:180-187 (import with no matching attempt), js/core/ext.js:306-316 (syncProvider takes the lease without pulling the cloud state first), js/core/exttasks.js:229-237",
+   "evidence": "Re-run 7 Nov: exp/td.js twodev \u2192 local 'Made on A': [[3,'T3'],[4,'T3']], remote ['T3']. Also reachable on ONE device through two tabs (see the lease finding). Original: exp/td.js twodev \u2192 local 'Made on A': [[3,'T3'],[4,'T3']], remote: ['T3']; js/core/exttasks.js:180-187 (import with no matching attempt), js/core/ext.js:306-316 (syncProvider takes the lease without pulling the cloud state first), js/core/exttasks.js:229-237",
    "fix": "Make the cycle state-consistent: before taking the lease run a cloud pull (KOS.cloudsync cycle) and push the state right after the cycle; and in reconcile's import path, before adding, look for an existing reminder already linked to that remote id (dedupe byLink after any merge) or an unlinked one in the same list whose uuidOf('add|'+uid) is pending (record pending adds {uid\u2192temp} in state.ext so any device can recognise its own item_add). Also add a boot/merge pass that folds two reminders linked to the same ext.id.",
    "effort": "M",
    "devices": "all (multi-device)",
-   "rootCause": "Remote link state is replicated asynchronously while the remote cursor (sync token) is per device; import has no identity check beyond byLink."
+   "rootCause": "Remote link state is replicated asynchronously while the remote cursor (sync token) is per device; import has no identity check beyond byLink.",
+   "recheck": "holds"
   },
   {
    "title": "Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates",
    "severity": "P1",
    "category": "data",
    "detail": "tdPush sends commands in chunks of 90 and runs every 'ok' callback (which writes the link and base) only after ALL chunks succeed. If chunk 2 fails (HTTP 429/5xx, offline, tab suspended), chunk 1's item_add commands have already created tasks in Todoist but nothing local is linked, and the sync token is not saved either. The next cycle pulls those tasks with the old token, finds no local link and imports each as a new reminder; the originals are then re-sent as item_add. Linking a list with ~45+ reminders that have a sub-task each exceeds 90 commands on the first cycle. Reproduced: 60 reminders with one sub each, chunk 2 answered 503 \u2192 cycle 2 leaves 105 local reminders (45 duplicates).",
-   "evidence": "exp/td.js chunk \u2192 'cycle1 false Todoist answered 503 / remote items 45 local linked 0 / cycle2: local total 105 dup local 45'; js/core/exttasks.js:318-335 (ok callbacks only after the reduce over chunks resolves), js/core/exttasks.js:241-243 (token saved only after push)",
+   "evidence": "Re-run 7 Nov: exp/td.js chunk \u2192 cycle1 false 'Todoist answered 503.', remote 45 / local linked 0; cycle2 local total 105, dup 45. Original: exp/td.js chunk \u2192 'cycle1 false Todoist answered 503 / remote items 45 local linked 0 / cycle2: local total 105 dup local 45'; js/core/exttasks.js:318-335 (ok callbacks only after the reduce over chunks resolves), js/core/exttasks.js:241-243 (token saved only after push)",
    "fix": "Apply each chunk's results as soon as it returns (run the after[] entries whose commands are all in that chunk's sync_status), keep an item's parent and sub-task adds in one chunk, and persist the link/temp-id map before the next request; on the pull side, treat an incoming task whose id appears in a stored temp_id_mapping as already linked.",
    "effort": "M",
    "devices": "all",
-   "rootCause": "Non-atomic multi-request push with all-or-nothing local bookkeeping."
+   "rootCause": "Non-atomic multi-request push with all-or-nothing local bookkeeping.",
+   "recheck": "holds"
   },
   {
    "title": "First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count",
    "severity": "P1",
    "category": "data",
    "detail": "assessLink classifies each side with stateMeaningful(), which only looks at progress, sessions, custom cards, wishlist, tracker entries, goals, non-sample calendar events and Governor xp/gold/owned. A device whose data is reminders, assignments, Exams-hub assessments, routines, Pacing ticks, Money settings, curriculum edits, Code/Japanese/Mind/Creatives evidence or SRS state (without a logged session) counts as EMPTY, so linking it to an account that has data takes the 'remoteOnly' path: adoptRemote \u2192 applyRemoteState with no lastPushedHash \u2192 dirty = stateMeaningful(local) = false \u2192 KOS.store.replaceState(incoming). The local records are replaced without a merge, a toast or a backup. Reproduced in jsdom with smoke17's fake Supabase: a fresh device adds one reminder and one assignment, signs in to an account with history; after syncNow both are gone and the cloud copy never received them. A Home Screen install on the iPad has its own storage separate from Safari, so 'used it a bit before signing in' is a realistic path. The mirror case ('localOnly' when the remote only holds such records) overwrites the remote the same way.",
-   "evidence": "exp/cs.js \u2192 {before:{rem:1,asg:1}, after:{rem:[],asg:[]}, cloudHasLocal:false}; js/core/cloudsync.js:234-251 (stateMeaningful), 975-990 (assessLink), 758-773 (not dirty \u2192 replaceState)",
+   "evidence": "Re-run 7 Nov: exp/cs.js \u2192 {before:{rem:1,asg:1}, after:{rem:[],asg:[],xp:500}, cloudHasLocal:false}. The mirror direction also exists on the push side: cloudsync.js:543-549 (conflict(): remote 'not meaningful' \u2192 upload(null) without CAS) and 744-750 (pull refuses and forceNextPush). Original: exp/cs.js \u2192 {before:{rem:1,asg:1}, after:{rem:[],asg:[]}, cloudHasLocal:false}; js/core/cloudsync.js:234-251 (stateMeaningful), 975-990 (assessLink), 758-773 (not dirty \u2192 replaceState)",
    "fix": "Define 'meaningful' as 'differs from a freshly booted DEFAULTS document' (hash syncableState against a boot-time pristine snapshot, ignoring known seeders such as SAMPLE events and pacing seed), or enumerate every record array in cloudmerge RECORDS plus the keyed maps; and on first link always take the no-base three-way merge (union) instead of replaceState when the local side has ANY record. Snapshot the local state into the media kv before any replaceState so it can be restored.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "A hand-maintained allowlist of 'real data' that was not extended as new domains were added; replaceState used as the adopt path."
+   "rootCause": "A hand-maintained allowlist of 'real data' that was not extended as new domains were added; replaceState used as the adopt path.",
+   "recheck": "holds"
   },
   {
    "title": "Two open tabs or windows overwrite each other's saves (last writer wins on the whole state)",
    "severity": "P1",
    "category": "data",
    "detail": "Each tab keeps its own in-memory KOS.store.state and save() writes the WHOLE document to localStorage 120 ms later; nothing listens for the 'storage' event, and there is no BroadcastChannel or Web Lock. A change made in one tab is erased by the next save in the other. Reproduced on the slot with an iframe of index.html (same origin, same localStorage): tab B added 'TAB-B reminder' and saved; tab A then added its own reminder; the stored document holds A's and not B's, and tab A never learns of B's. Both tabs also mint the same nextId. With cloud sync the shared IndexedDB meta (seq, lastPushedHash, base) can let the stale tab's CAS succeed and upload a document without the other tab's record. On the MacBook a second window or a PWA window beside a tab is ordinary.",
-   "evidence": "kos.mjs eval 17 (iframe experiment) \u2192 {afterBsaved:true, finalHasA:true, finalHasB:false, inMemA_hasB:false}; js/core/store.js:395-410 (whole-document save), no 'storage' listener anywhere in js/ (grep)",
+   "evidence": "Re-checked 7 Nov: no 'storage' listener, BroadcastChannel or navigator.locks anywhere in js/ (grep); store.save still writes the whole document (store.js:395-410). Original: kos.mjs eval 17 (iframe experiment) \u2192 {afterBsaved:true, finalHasA:true, finalHasB:false, inMemA_hasB:false}; js/core/store.js:395-410 (whole-document save), no 'storage' listener anywhere in js/ (grep)",
    "fix": "Listen for 'storage' on the state key and, when another tab wrote, three-way merge the incoming document into memory with KOS.cloudmerge (base = last document this tab wrote/read) before the next save; or elect one writer tab with navigator.locks / BroadcastChannel and make other tabs read-only with a banner. At minimum detect a foreign write (compare a per-save nonce) and reload instead of overwriting.",
    "effort": "M",
    "devices": "mac (two windows/tabs), iPad Safari with two tabs",
-   "rootCause": "localStorage used as a single-writer store without cross-tab coordination."
+   "rootCause": "localStorage used as a single-writer store without cross-tab coordination.",
+   "recheck": "holds"
   },
   {
    "title": "Todoist: a full sync drops completed sub-tasks from the reminder (and can re-add them to Todoist as duplicates)",
    "severity": "P2",
    "category": "data",
    "detail": "When the linked-project signature changes (linking or unlinking any list) the cycle requests sync_token '*' and resets the mirror. Todoist's full sync returns only active items, so completed sub-tasks are absent from the mirror; the parent's remote subs then differ from base and the pull overwrites the local subs, deleting every ticked sub-task. If the local subs were also edited, local wins, and each local sub whose x is no longer in the mirror is sent again as item_add, duplicating it in Todoist. Reproduced with a fake that, like Todoist, omits checked items from a full sync: 'Plan' (ticked) vanished locally after linking a second list. Depends on Todoist excluding completed sub-items from a full sync (documented behaviour for completed tasks).",
-   "evidence": "exp/td.js subs \u2192 'after remote sub tick: [[Plan,true],[Draft,false]]' then 'after full sync: [[Draft,false]]'; js/core/exttasks.js:217-220 (token '*' on any link change, mirror reset), 108-113 (childrenOf reads only the mirror), 296-307 (missing x \u2192 item_add)",
+   "evidence": "Re-run 7 Nov: exp/td.js subs \u2192 'after remote sub tick: [[Plan,true],[Draft,false]]' then 'after full sync: [[Draft,false]]'; remote children afterwards [[Plan,true],[Draft,false],[Proofread,false]]. Original: exp/td.js subs \u2192 'after remote sub tick: [[Plan,true],[Draft,false]]' then 'after full sync: [[Draft,false]]'; js/core/exttasks.js:217-220 (token '*' on any link change, mirror reset), 108-113 (childrenOf reads only the mirror), 296-307 (missing x \u2192 item_add)",
    "fix": "Do not reset the mirror on a full sync triggered by a link change; only drop entries of projects no longer linked. Treat a sub missing from a full sync as 'unknown', not deleted (keep subs whose remote child is not returned unless is_deleted arrives), and never re-add a sub that has an x.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "Absence in a full sync is interpreted as deletion."
+   "rootCause": "Absence in a full sync is interpreted as deletion.",
+   "recheck": "holds"
   },
   {
    "title": "Todoist: completing a repeating reminder here sends a new due string instead of closing the occurrence",
    "severity": "P2",
    "category": "integration",
    "detail": "KOS.reminders.complete() rolls a repeating reminder forward locally (new due, done=false) so the push sees only a 'when' change and sends item_update with due {date: next, string: 'every week', is_recurring}. Todoist never records the completion (no history/karma, completed view empty), and since Todoist parses due.string, the explicit date may be ignored and re-anchored to today, which the next pull brings back. For a Todoist-only rule (ext.rs, e.g. 'every mon, fri') the reminder instead closes locally (recur is null here) and sends item_close, so it shows as completed until the next pull un-completes it with Todoist's new date: two different behaviours for the same action.",
-   "evidence": "exp/td.js recur \u2192 cmds [[{type:item_update,args:{id:T1,due:{date:'2026-11-05',string:'every week',is_recurring:true}}}]]; gym: local done=true, cmds [[item_close]]; js/core/reminders.js:229-236, js/core/exttasks.js:99-107, 282-290",
+   "evidence": "Re-run 7 Nov: exp/td.js recur \u2192 cmds [[item_update {id:T1,due:{date:'2026-11-05',string:'every week',is_recurring:true}}]]; x-rule 'Gym' \u2192 [[item_close]]. Original: exp/td.js recur \u2192 cmds [[{type:item_update,args:{id:T1,due:{date:'2026-11-05',string:'every week',is_recurring:true}}}]]; gym: local done=true, cmds [[item_close]]; js/core/reminders.js:229-236, js/core/exttasks.js:99-107, 282-290",
    "fix": "For a linked repeating reminder, push item_close (Todoist rolls the date itself) and let the pull bring the new date back; treat ext.rs rules as repeating in complete() (roll forward with Todoist as the source) so both paths behave alike.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "Local recurrence semantics duplicated instead of delegated to the provider that owns the rule."
+   "rootCause": "Local recurrence semantics duplicated instead of delegated to the provider that owns the rule.",
+   "recheck": "holds"
   },
   {
    "title": "An assignment re-keyed by the cloud merge leaves its goals, Exams links, Focus sessions and review picks pointing at another assignment",
    "severity": "P2",
    "category": "data",
-   "detail": "Ids are per-device counters; when two devices mint the same assignment id between syncs, rekeyCollisions re-keys the local one and rewrites only RECORDS[].refs. For assignments.items that list is calendar.events.assignmentId alone, but assignment ids are also stored in goals (links.assignmentId, js/core/goals.js:130), Exams assessments (links.assignmentId, js/core/exams.js:178, 536, 726), session entries and their segments (metrics.assignmentId, js/core/sessions.js:93-98; Focus banks minutes by it), and Daily Review picks (js/core/dayreview.js:489). After a re-key those references silently follow the OTHER device's assignment: minutes, goal progress and an exam's linked coursework attach to the wrong record. Reminders have the same gap (reminder ids referenced by the review picks).",
-   "evidence": "js/core/cloudmerge.js:57-58 (assignments refs: calendar.events only), 293-346 (rekeyCollisions rewrites only spec.refs); references listed above",
+   "detail": "Ids are per-device counters; when two devices mint the same assignment id between syncs, rekeyCollisions re-keys the local one and rewrites only RECORDS[].refs. For assignments.items that list is calendar.events.assignmentId alone, but assignment ids are also stored in goals (links.assignmentId, js/core/goals.js:130), Exams assessments (links.assignmentId, js/core/exams.js:178, 536, 726), session entries and their segments (metrics.assignmentId, js/core/sessions.js:93-98; Focus banks minutes by it), and Daily Review picks (js/core/dayreview.js:489). After a re-key those references silently follow the OTHER device's assignment: minutes, goal progress and an exam's linked coursework attach to the wrong record. Reminders have the same gap (reminder ids referenced by the review picks). Calendar events have the same gap: a goal linked to an event (links.eventId) follows the other device's event after a re-key.",
+   "evidence": "Re-read 7 Nov: cloudmerge.js:57-58 unchanged. Same gap for calendar events: goals store links.eventId (js/core/goals.js:131) and calendar.events' refs list only calendar.notified (cloudmerge.js:55-56). Original: js/core/cloudmerge.js:57-58 (assignments refs: calendar.events only), 293-346 (rekeyCollisions rewrites only spec.refs); references listed above",
    "fix": "Add every reference to RECORDS[].refs (goals.items links.assignmentId as a nested field, exams.assessments links.assignmentId, sessions metrics.assignmentId and metrics.segments[].assignmentId, dayReview picks), or move assignments/reminders/events to random string ids as Money, Routines and Exams already do (the long-term fix).",
    "effort": "M",
    "devices": "multi-device",
-   "rootCause": "Counter ids plus a hand-maintained reference list that new features did not extend."
+   "rootCause": "Counter ids plus a hand-maintained reference list that new features did not extend.",
+   "recheck": "holds"
   },
   {
    "title": "A 404 on an update deletes the local event or reminder (e.g. after reconnecting a different Google account)",
    "severity": "P2",
    "category": "data",
    "detail": "When a PATCH to Google Calendar or Google Tasks answers 404/410, the cycle deletes the LOCAL record inside inbound(): extgcal.js:421 KOS.calendar.deleteEvent(ev.id), exttasks.js:417 KOS.reminders.remove(it.id). disconnect() (ext.js:241-250) clears only the kv (sync tokens, mirrors) and leaves every record's ext link in place, so connecting a different Google account (or the event being moved to another calendar) turns the next local edit of any linked event or reminder into a silent local deletion, with no undo and no notice. This contradicts the 'never inferred from absence' intent of invariant 158 and is the opposite of Todoist's behaviour (an update to a missing item there is just retried forever, exttasks.js:330-333).",
-   "evidence": "js/core/extgcal.js:419-421, js/core/exttasks.js:416-417, js/core/ext.js:241-250",
+   "evidence": "Re-read 7 Nov: unchanged since 56b1a8c except ext.js:364 (background redraw); Google Tasks path now at exttasks.js:419 (r.status === 404 \u2192 KOS.reminders.remove). Original: js/core/extgcal.js:419-421, js/core/exttasks.js:416-417, js/core/ext.js:241-250",
    "fix": "On 404 for an update, unlink the record (ext = null, keep it local, count it as 'unlinked' in the status) instead of deleting it; delete locally only from a pull that reports the item cancelled/deleted. Clear (or archive) ext links on disconnect and on connecting a different account (compare the account id).",
    "effort": "S",
    "devices": "all",
-   "rootCause": "A failed write is treated as proof of a remote deletion."
+   "rootCause": "A failed write is treated as proof of a remote deletion.",
+   "recheck": "holds"
   },
   {
    "title": "The full backup leaves out saved Reports and snapshots, and builds one giant string that can fail on the iPad",
    "severity": "P2",
    "category": "data",
    "detail": "store.snapshotFull collects state, media, attachments (kurenai-os-files, every binary as base64), money, reviews, mind, ink and creatives, but not kurenai-os-reports (saved weeks/months/terms/years, their Kurenai words and the boundary snapshots that status moves need \u2014 'never recomputed', invariant 101/102). Signed out, a restore on a new device loses every saved report and snapshot for good. The backup is serialised with JSON.stringify(result, null, 2) into a single Blob: with a few hundred MB of files (the app asks for persistent storage at 200 MB) the base64 plus indentation is a string of several hundred MB, which risks an out-of-memory reload on iPad Safari, and that failure is silent (no error reaches done()). A failing sub-export (e.g. creatives) aborts the whole backup instead of reporting the missing part.",
-   "evidence": "js/core/store.js:513-583 (no reportStore step; JSON.stringify(result, null, 2) at 588), js/core/reportstore.js (no exportAll), js/modules/attachments.js:454-480 (base64 for every blob)",
+   "evidence": "Re-run 7 Nov in browser (slot 19, seeded): 11 saved reports + 1 snapshot on the device; snapshotFull keys have no 'reports'; size 3,078,746 chars with no attachments; restore report lists 7 sections and never mentions Reports. Original: js/core/store.js:513-583 (no reportStore step; JSON.stringify(result, null, 2) at 588), js/core/reportstore.js (no exportAll), js/modules/attachments.js:454-480 (base64 for every blob)",
    "fix": "Add KOS.reportStore.exportAll/importAll to the snapshot; stream the backup (build the Blob from parts: a JSON head plus one part per file, no indentation) or offer 'backup without files' when files exceed ~100 MB; report per-section failures like importFull does instead of failing the whole export.",
    "effort": "M",
    "devices": "ipad, iphone",
-   "rootCause": "Backup coverage list maintained by hand; whole-document serialisation."
+   "rootCause": "Backup coverage list maintained by hand; whole-document serialisation.",
+   "recheck": "holds"
   },
   {
    "title": "The whole state lives in one localStorage key with no fallback: when it outgrows the quota every later change is lost on reload",
    "severity": "P2",
    "category": "data",
    "detail": "Measured on the seeded account: the state document is 372,924 characters in one key (kurenai-os-v1); srs is 110 KB for 675 rated cards (164 B a card), sessions 84 KB for 600 (140 B each, capped at 2,000), pacing 85 KB. The curriculum alone has 5,436 flashcards, so a fully reviewed deck is ~0.9 MB before Code, Japanese facets and Mind cards, and every new domain adds to the same document. Chrome refused the write at ~5.2 M characters total; WebKit's limit is of the same order. When setItem throws, save() shows one toast ('Save failed \u2014 storage may be full. Export your data.') and keeps running on the in-memory copy; every later change, and the pagehide flush (which only logs, store.js:417-425), is lost on the next reload or when iOS evicts the page. Reproduced by filling localStorage on the slot: the save failed with QuotaExceededError and the change was not stored. There is no size readout in Archive \u203a Storage for the state document, and no migration of the big parts (srs, sessions, facets) to IndexedDB.",
-   "evidence": "kos.mjs eval 17 \u2192 state 372,924 chars; srs 110,391; sessions 84,052; pacing 84,696; 5,436 curriculum cards; quota experiment \u2192 errs ['Kurenai OS: save failed QuotaExceededError\u2026'], stored:false, toast 'Save failed \u2014 storage may be full. Export your data.'; js/core/store.js:395-425",
+   "evidence": "Re-measured 7 Nov: seeded 372,887 chars (srs 110,391; pacing 84,696; sessions 84,052), empty 96,139; tight quota fill \u2192 console 'save failed QuotaExceededError \u2026 kurenai-os-v1 exceeded the quota', the reminder not stored until space was freed and flush() ran. Original: kos.mjs eval 17 \u2192 state 372,924 chars; srs 110,391; sessions 84,052; pacing 84,696; 5,436 curriculum cards; quota experiment \u2192 errs ['Kurenai OS: save failed QuotaExceededError\u2026'], stored:false, toast 'Save failed \u2014 storage may be full. Export your data.'; js/core/store.js:395-425",
    "fix": "Move the large, append-heavy parts (srs/cards, the session ledger, Japanese facets, Mind cards) into IndexedDB records like the review log, or store the document in IndexedDB with localStorage as a small boot cache; show the state size in Archive \u203a Storage with a warning at 60% of quota; on a failed save keep a persistent banner (not a toast) and retry into IndexedDB.",
    "effort": "L",
    "devices": "all, iPhone/iPad Safari first",
-   "rootCause": "Single-key localStorage persistence for an unbounded document."
+   "rootCause": "Single-key localStorage persistence for an unbounded document.",
+   "recheck": "holds"
   },
   {
    "title": "Every replicated store pulls with a strict updated_at > cursor on now() stamps, so a row committed late is skipped forever",
    "severity": "P2",
    "category": "data",
    "detail": "Media, files, money, reviews, mind, ink, reports and push all pull 'updated_at > cursor' and then advance the cursor to the largest updated_at seen. The touch trigger stamps updated_at := now(), which in Postgres is the TRANSACTION START time. If device A's upsert (a 500-row media chunk, a money batch) starts at t1 and commits after device B's quicker write stamped t2 > t1, a third device that pulls between the two commits sets its cursor to t2 and never fetches A's rows (t1 < t2). Nothing ever re-reads them: the pulling device silently lacks those transactions/reviews/ink strokes until a restore. With three devices syncing on focus this is a real, if rare, divergence with no symptom.",
-   "evidence": "supabase/migrations/20260716000001_kos_sync_init.sql:26-35 (now()); q.gt('updated_at', \u2026) at js/core/money.js:1126, reviewlog.js:133, mindjournal.js:191, inksync.js:97, reportstore.js:324, cloudsync.js:358/376; cursor = max seen (money.js:1189, 1207)",
+   "evidence": "Re-read 7 Nov: q.gt('updated_at', \u2026) at cloudsync.js:358/376, money.js:1126, reviewlog.js:133, mindjournal.js:191, inksync.js:97, reportstore.js:324 and push.js:90; kos_touch_updated_at still sets now() (migration 20260716000001:26-35). Original: supabase/migrations/20260716000001_kos_sync_init.sql:26-35 (now()); q.gt('updated_at', \u2026) at js/core/money.js:1126, reviewlog.js:133, mindjournal.js:191, inksync.js:97, reportstore.js:324, cloudsync.js:358/376; cursor = max seen (money.js:1189, 1207)",
    "fix": "Stamp with clock_timestamp() in the trigger and pull with an overlap window (gt cursor \u2212 2 minutes) \u2014 every store already skips its own echo by stamp or uid, so re-reading a few rows is harmless; or use a monotonic bigserial 'version' column per table as the cursor.",
    "effort": "S",
    "devices": "multi-device",
-   "rootCause": "Timestamp cursor over transaction-start timestamps."
+   "rootCause": "Timestamp cursor over transaction-start timestamps.",
+   "recheck": "holds"
+  },
+  {
+   "title": "Todoist: moving a task to another linked project in Todoist is undone by the next sync",
+   "severity": "P2",
+   "category": "integration",
+   "detail": "Two Reminders lists are linked to two Todoist projects (School\u2192P1, Home\u2192P2). Move a synced task from School to Home in Todoist. The next cycle does not move the reminder (its listId stays School; only ext.list becomes P2), and tdPush then sees ext.list (P2) differ from the local list's project (P1) and sends item_move back to P1. The user's move in Todoist is silently reverted and the reminder never changes list here.",
+   "evidence": "audit-evidence/2026-11/qa/exp/td2.js moveRemote \u2192 'after remote move local: [{list:1 (School), ext:{id:T1,list:P1}}] cmds [[item_move:{id:T1,project_id:P1}]] remote project P1'; js/core/exttasks.js:191-196 (reconcile writes ext.list only, never listId), 270 (moved = lk.id !== it.ext.list), 287 (item_move to the local list's project)",
+   "fix": "In reconcile, when remote.list differs from base list and maps to another linked Reminders list, move the reminder there (listId = linked[remote.list]) inside inbound; only treat a local listId change (lk.id !== base list) as a local move. Keep a base list in ext.base so the three-way rule applies to the list as to every other field.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The list is not a three-way-merged field: the pull records the remote project in ext.list, and the push reads any difference between ext.list and the local list as a LOCAL move.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "A linked reminder moved to a list linked to the other provider is copied there and orphaned in the first",
+   "severity": "P2",
+   "category": "integration",
+   "detail": "Reminders lists can link to Todoist or Google Tasks. Move a Todoist-linked reminder to a list linked to Google Tasks (or the reverse): gtPush sees ext.p !== 'gtasks' and creates a Google task, overwriting ext with the Google link; the Todoist task is neither deleted nor unlinked. The Todoist mirror still holds it, so the next time it changes in Todoist (or on a full sync) byLink('todoist') finds no reminder and imports it again as a NEW reminder: one item becomes two, in two services. Moving a linked reminder to an UNLINKED list keeps it linked and both-way syncing (verified: a title edit is still pushed, a Todoist rename still lands on the reminder in the unlinked list), which contradicts 'a list links to ONE project' (invariant 160).",
+   "evidence": "audit-evidence/2026-11/qa/exp/td2.js moveLocal \u2192 'moved to unlinked: cmds []', 'edit while unlinked: cmds [[item_update:{id:T1,content:Local move edited}]]', 'remote rename reaches unlinked list item: Remote rename list 3'; js/core/exttasks.js:412 (!linkedHere \u2192 gtCreate, ext replaced at 437-440), 254-258 (Todoist add only when not linked; nothing queues a delete when the list link changes), 270 (moved only when the new list is a todoist link)",
+   "fix": "Treat a list change as a change of link: when a reminder's list link provider/project differs from ext.p/ext.list, queue a delete (or item_move for same provider) for the old link in state.ext.deletes and clear ext before the other provider creates. For an unlinked target list, either queue the remote delete or unlink (ask once).",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "Each provider's push only considers its own links; a reminder's list move is never translated into an unlink of the old provider.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "Creatives' file store is shared by the real account and the Empty and Sample review namespaces",
+   "severity": "P2",
+   "category": "data",
+   "detail": "Every other IndexedDB is suffixed by KOS.dataMode (\"-empty\"/\"-sample\") so a review namespace never touches the real data. kurenai-os-creatives is not. In the Empty or Sample namespace, every work, sketch and Writing Desk draft saved goes into the REAL account's store (and so into its next full backup as orphan rows), and a Restore done while in a review namespace runs creatives.files.importAll, which CLEARS the real store (os.clear()) and replaces it with the backup's creatives.",
+   "evidence": "js/core/creatives.js:438 (DB_NAME = \"kurenai-os-creatives\", no suffix) vs js/core/money.js:39, mediadb.js:97, ink.js:293, reviewlog.js:23, mindjournal.js:20, reportstore.js:28, attachments.js:17, exampapers.js:28, files.js:343 (all + KOS.dataMode.suffix); importAll clear at js/core/creatives.js:465; store.js:708 (restoreCreatives runs in any mode)",
+   "fix": "DB_NAME = \"kurenai-os-creatives\" + ((KOS.dataMode && KOS.dataMode.suffix) || \"\"); add a smoke assertion that every indexedDB.open name carries the suffix.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The suffix convention is repeated by hand in each store; the newest store missed it and nothing checks it.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "The Todoist/Google sync lease does not exclude a second tab on the same device, and is never renewed during a long cycle",
+   "severity": "P2",
+   "category": "integration",
+   "detail": "The lease holder is state.ui.extDevice, one id per browser profile, and kos_ext_lease grants the lease to the holder that already has it. Two open tabs or windows (or the Home Screen app plus a Safari tab on the iPad) therefore both 'win' and run their cycles at the same time against the same media-kv mirror and sync token. Each tab holds its own in-memory reminders (the two-tab clobber finding), so tab B's pull meets the task tab A just created and linked as an unknown remote item and imports it as a new reminder, while B's own unlinked copy is item_add'ed with the same uuid and linked to the same Todoist id: two reminders, one task \u2014 the same end state as the two-device duplicate, reachable on ONE device. Separately, the lease is 120 s and is never extended; a cycle that runs longer (several 90-command chunks, a slow network, Google Tasks paging) lets another device in mid-cycle.",
+   "evidence": "js/core/ext.js:73-77 (device() = state.ui.extDevice, shared by every tab of the profile), 268-270 (lease once per cycle, LEASE_S 120 at :40), 306-319 (no renewal); supabase/migrations/20261030000001_kos_ext.sql:44 (lease_holder = p_holder re-grants); in-tab guard only: js/core/ext.js:326 (var running); duplicate end state reproduced by audit-evidence/2026-11/qa/exp/td.js twodev \u2192 local 'Made on A': [[3,'T3'],[4,'T3']]",
+   "fix": "Make the holder per tab (device id + a random per-page suffix kept in memory) or coordinate tabs with a Web Lock (navigator.locks.request('kos-ext-'+p)) / BroadcastChannel; renew the lease between chunks and lists, and abort the cycle when renewal fails. Also de-duplicate on pull: before importing an unknown remote id, look for a local reminder already linked to it.",
+   "effort": "S",
+   "devices": "iPad (app + Safari), Mac (two windows)",
+   "rootCause": "Exclusion is designed per device, but the app's real unit of concurrency is the tab.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "Money, the review log, Mind's Journal and saved Reports replicate with no error surfaced anywhere",
+   "severity": "P2",
+   "category": "data",
+   "detail": "Each side store's syncCloud(cb) is only ever called WITHOUT a callback (debounced after a change, at boot and on a 30-minute interval), so an RLS refusal, a missing table, a network error or a failed chunk is dropped: nothing is logged, nothing is shown, and Archive \u203a Cloud sync's 'Last synced' describes the state document only. A user who adds transactions on the iPhone can see 'Last synced 10:42' on both devices while kos_money has rejected every upsert. Only handwriting has a visible status (Pen and ink). The local put/delete callbacks in the pull ignore their error argument too, and the cursor is still advanced (money.js:1205-1206), so a row that failed to write locally is skipped for good.",
+   "evidence": "callers without cb: js/core/money.js:1220, 1226-1227; js/core/reviewlog.js:212; js/core/mindjournal.js:260, 267-268; js/core/reportstore.js:417, 423; contrast js/modules/inkset.js:92 (ink shows its result); js/core/money.js:1193-1206 (deleteRaw/putRaw callbacks take no err, meta.cursor = maxTs); js/modules/cloudui.js:86, 190 ('Last synced' from cloudsync status only)",
+   "fix": "Give every replicator a status record (last ok, last error, pending count) in a shared registry (e.g. KOS.cloudsync.sideStatus(name, \u2026)) and render it in Archive \u203a Cloud sync as one line per store; only advance a cursor after the local write succeeded.",
+   "effort": "M",
+   "devices": "all",
+   "rootCause": "Each replicator copied Money's pattern, which treats replication as fire-and-forget; there is no shared status contract for secondary stores.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "'Reset everything' only resets the state document: the media vault, files, money, ink, Mind, reviews, Creatives and reports all stay",
+   "severity": "P2",
+   "category": "data",
+   "detail": "The confirm dialog promises 'This removes study progress, notes, flashcard schedules, the Governor, the media vault, the planner and every attachment from this device'. The handler calls KOS.store.reset(), which only replaces the localStorage document with DEFAULTS. Every IndexedDB store survives: the 1,880-entry media vault, attachments, Money transactions, handwriting, Mind's Journal, the review log, Creatives' works and saved Reports. After the reset the app shows those leftovers (Money, Files, the vault) against a fresh state, and a signed-in device then replicates the leftovers back up. Reproduced on slot 19: a transaction, an ink page and a reminder added, Reset everything confirmed \u2192 reminders 0, but money ['Reset test'] and the ink notebook remain.",
+   "evidence": "kos.mjs eval 19 \u2192 {btn:true, rem:0, moneyTx:['Reset test'], ink:true}; js/modules/hub.js:3436-3474 (dialog text, store.reset() at 3471), js/core/store.js:747-751 (reset replaces state only)",
+   "fix": "Add KOS.store.resetFull(): clear every IndexedDB store of the current namespace through each owner's importAll(empty)/clear (media incl. kv except credentials, files, filetext, money, reviews, ink, mind, creatives, reports, papers), then reset state and reload; or reword the dialog to what it does.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Reset predates the IndexedDB stores; each new store was added to backup but not to reset.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "Import backup replaces everything the moment a file is picked, with no confirmation and no safety copy",
+   "severity": "P2",
+   "category": "ux",
+   "detail": "Backup & Restore's 'Import backup\u2026' opens the file picker and importFull runs on change: the state is replaced (KOS.store.replaceState) and media, money, reviews, Mind and Creatives stores are cleared and rewritten before anything is shown. That it is 'a complete restore, not a merge' is only in the button's title tooltip, which touch devices (iPad, iPhone) never show. Picking an old file by mistake overwrites today's work with no undo; nothing snapshots the current data first, and on a signed-in device noteRestore then makes the cloud follow the restored data. The success message lists sections restored but never says what was lost (and saved Reports are silently not part of it).",
+   "evidence": "js/modules/hub.js:3356-3376 (onchange \u2192 store.importFull directly; title-only warning at 3375), js/core/store.js:620-621 (replaceState before any check of the other sections), 735-737 (noteRestore)",
+   "fix": "After the file is read and validated, show a danger dialog ('Replace this device's data with the backup from <exportedAt>? N sessions, M media entries\u2026 This can't be undone') with Cancel focused; before restoring, take a snapshotFull into a kept 'before restore' copy (or offer to export one).",
+   "effort": "S",
+   "devices": "all, worst on iPad/iPhone (no tooltip)",
+   "rootCause": "The restore was built as a direct action on file selection.",
+   "needsDesign": false,
+   "needsArt": false
   },
   {
    "title": "Todoist: a command the server rejects is resent on every cycle forever, with no status shown",
    "severity": "P3",
    "category": "integration",
    "detail": "tdPush applies a record's bookkeeping only when every command in its group returns 'ok'. A rejected command (item_update or item_delete for a task deleted or moved out of reach in Todoist, an invalid label, a due string Todoist cannot parse) leaves base and the delete queue unchanged, so the same command is sent every cycle (every few minutes and on every focus) and the Connections status still says the cycle succeeded, because sync_status errors are never turned into counts or an error. A partly-applied group (item_update ok, item_close rejected) also re-sends the parts that did apply.",
-   "evidence": "js/core/exttasks.js:329-334 (only the all-ok case is handled; errors in r.sync_status are dropped), js/core/exttasks.js:256 (delete queue entry kept on error)",
+   "evidence": "Re-read 7 Nov: exttasks.js:329-334 unchanged (only all-ok entries call a.ok; non-ok sync_status ignored). Original: js/core/exttasks.js:329-334 (only the all-ok case is handled; errors in r.sync_status are dropped), js/core/exttasks.js:256 (delete queue entry kept on error)",
    "fix": "Read sync_status errors: for 'not found' (error_code 22) drop the queue entry or unlink the record; for other errors record them in counts and setStatus so Connections shows 'n changes refused' with the reason; apply per-command bookkeeping rather than per group.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "Error results of batched commands are ignored."
+   "rootCause": "Error results of batched commands are ignored.",
+   "recheck": "holds"
   },
   {
    "title": "An unreadable stored state is replaced by a fresh one and overwritten on the next save",
    "severity": "P3",
    "category": "data",
    "detail": "At boot, if JSON.parse or deepMerge of kurenai-os-v1 throws, the app logs a warning and starts from DEFAULTS; the next save() (any render that creates a progress record, the boot seeders) writes the empty state over the unreadable original, so whatever was recoverable from it is gone and the user is not told. With cloud sync the empty-local guard then adopts the cloud copy, but a signed-out user loses everything silently.",
-   "evidence": "js/core/store.js:382-390 (catch \u2192 DEFAULTS, console.warn only), 393 and 395-410 (save overwrites KEY)",
+   "evidence": "Re-read 7 Nov: store.js:382-390 unchanged (catch \u2192 DEFAULTS with console.warn; next save overwrites). Original: js/core/store.js:382-390 (catch \u2192 DEFAULTS, console.warn only), 393 and 395-410 (save overwrites KEY)",
    "fix": "On a parse failure copy the raw string to a side key (kurenai-os-v1.corrupt-<ts>) or into IndexedDB before anything saves, and show a blocking notice offering Restore from backup / cloud.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "No quarantine of the original before the first overwrite."
+   "rootCause": "No quarantine of the original before the first overwrite.",
+   "recheck": "holds"
   },
   {
    "title": "Backup & Restore's 'What a backup covers' list is out of date: half of what the file holds, and everything it leaves out, is unlisted",
    "severity": "P3",
    "category": "content",
    "detail": "The list names study, productivity, Governor, the media vault, the purchase planner and attachments. The file also carries Money transactions, the review log, handwriting, Mind's Journal and Creatives work, none of which is listed; and it does NOT carry saved Reports and snapshots, the Paper library's own PDFs (unless kept in the cloud), Japanese saved lines, or the Google/Todoist sign-ins (records stay linked but need reconnecting) \u2014 the reader is not told. The closing line points only to 'Sync & Import' for reconnecting, not Connections.",
-   "evidence": "audit-evidence/2026-11/qa/shots/data-integrity/data-mac.png; list text read via eval; js/core/store.js:513-583 (what snapshotFull includes)",
+   "evidence": "Re-shot 7 Nov: shots/data-integrity/data-mac.png and data-ipad-1107.png still list six rows (study, productivity, Governor, media, planner, attachments); Money, handwriting, review log, Mind, Creatives, Code/Japanese/Exams are not named and Reports' absence is not stated. Original: /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/data-integrity/data-mac.png; list text read via eval; js/core/store.js:513-583 (what snapshotFull includes)",
    "fix": "Generate the rows from the same table snapshotFull uses (one row per store with its live count), and add a short 'Not in the file' line naming Reports, the Paper library and connections.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "Hand-written copy that did not follow the backup's growth."
+   "rootCause": "Hand-written copy that did not follow the backup's growth.",
+   "recheck": "holds"
   },
   {
    "title": "Archive \u203a Storage accounts for none of the app's real data and prints rows of 0 KB",
    "severity": "P3",
    "category": "ui",
    "detail": "On the seeded account (1,880 media entries, 373 KB state document, money, reviews) 'On this device' says 48.4 MB used while 'By kind of data' lists only Files, Past papers, Your ink and Text index, each '0 KB' \u2014 supporting zeros that invariant 77 says to suppress \u2014 and never shows the state document (the one store with a hard ~5 MB ceiling), the media vault, Money, the review log, Mind or Creatives. The numbers cannot explain the total. On the Mac the last card ('Not linked anywhere') sits alone in a row with two empty columns beside it.",
-   "evidence": "audit-evidence/2026-11/qa/shots/data-integrity/storage-mac.png, audit-evidence/2026-11/qa/shots/data-integrity/storage-iphone.png",
+   "evidence": "Re-shot 7 Nov: shots/data-integrity/storage-mac.png \u2192 '47.4 MB used', By kind of data rows 0 KB / 0 KB / 1 KB / 0 KB; the media vault, money, reviews, Mind and reports are not listed. Original: /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/data-integrity/storage-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/data-integrity/storage-iphone.png",
    "fix": "List every store (state document with its share of the localStorage quota, media vault, money, reviews, ink, mind, creatives, reports, files, papers, text index) with sizes from navigator.storage.estimate().usageDetails or a count \u00d7 average, hide zero rows, and let the last card span the row.",
    "effort": "S",
    "devices": "all",
-   "rootCause": "Storage page written for Files R4 only."
+   "rootCause": "Storage page written for Files R4 only.",
+   "recheck": "holds"
+  },
+  {
+   "title": "A reminder deleted here while its task was edited in Todoist comes back for one sync cycle",
+   "severity": "P3",
+   "category": "integration",
+   "detail": "Delete a synced reminder locally; before the next cycle, the task is edited in Todoist. The cycle PULLS first: the edited item is in the incremental result, byLink has no reminder for it, so reconcile imports it as a new reminder; THEN tdPush sends the queued item_delete. The reminder re-appears in Reminders (with a new id) until the following cycle (up to 15 minutes) removes it again. Any alert or tick made on it in between is lost.",
+   "evidence": "audit-evidence/2026-11/qa/exp/td2.js both \u2192 'delete vs remote edit: local [{id:5,ext:{id:T1}}] remote deleted true cmds [[item_delete:T1]]' then 'next cycle local []'; js/core/exttasks.js:212-213 (delete queue read), 225-235 (pull imports before the queue is applied), 180-187 (create path does not consult state.ext.deletes); CYCLE_MS 15 min at js/core/ext.js:40",
+   "fix": "In reconcile's create path skip a remote id that is in the delete queue (q['todoist:task:'+id]); same for Google Tasks.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The pull does not know about pending local deletions.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "Restore is not authoritative for handwriting or files: ink pages and files not in the backup survive it",
+   "severity": "P3",
+   "category": "data",
+   "detail": "Every other store's importAll clears before writing (media, money, reviews, Mind, Creatives). ink.importAll only puts, so notebooks and pages created after the backup (or from another account) stay, now attached to a restored state that may not reference them; and restoreFiles returns early when the backup has no attachments, leaving every current file in place, while a backup WITH attachments clears them. cloudsync.noteRestore then re-baselines as if the device held exactly the backup. Restore also clears the whole media kv (mediadb.importAll ks.clear()), so the cloud merge base, the Todoist/Google mirrors and sync tokens and the GitHub outbox are reset to the backup's (tokens themselves are excluded by design), which forces full re-syncs; the report shown to the user mentions none of this.",
+   "evidence": "js/core/ink.js:531-540 (no clear), js/modules/attachments.js:488-493 vs js/core/store.js:651-652 (if (!items.length) return next()), js/core/mediadb.js:1373-1374 (es.clear(); ks.clear()), js/core/store.js:735-740 (noteRestore)",
+   "fix": "Clear docs/pages in ink.importAll; call attach.importAll with [] too (or document merge semantics for both); keep per-device sync kv (ext.*, cloudsync.base, code.github.outbox) out of the clear, or list what was reset in the restore report.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Each store's import semantics were written independently; there is no single contract for 'restore replaces'.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "Japanese mined lines are kept in the synced state document, against 'personal media never leaves the device'",
+   "severity": "P3",
+   "category": "arch",
+   "detail": "KOS.ja.mine() stores each saved line's text, reading, translation and its source object in state.japanese.mined, which is part of the state document: it is uploaded to kos_state by cloud sync (DEVICE_PATHS does not exclude it) and written into every backup. Invariant 115 and docs/japanese-plan.md say personal media lines live in IndexedDB only and never sync. Nothing calls mine() yet (the reader and media pages are not built), so no user data is affected today; it will be the moment the reader ships.",
+   "evidence": "js/core/ja.js:278-289 (st.mined[id] = {text, reading, en, src, at}; store.save()), js/core/cloudsync.js:165-172 (DEVICE_PATHS: no japanese.mined), docs/japanese-plan.md:1070 (115: personal media never leaves the device); grep '.mine(' \u2192 no caller",
+   "fix": "Before the reader lands, move mined lines to an IndexedDB store (namespaced by KOS.dataMode.suffix) keyed by the hash id, keep only the facet key in state.japanese.facets, and add a smoke assertion that syncableState() carries no mined text.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "The backend was written before the storage decision for personal media was applied to it.",
+   "needsDesign": false,
+   "needsArt": false
+  },
+  {
+   "title": "Mind's Journal replication has no test and no injectable cloud, unlike every other replicated store",
+   "severity": "P3",
+   "category": "arch",
+   "detail": "Money (smoke86, _setCloudApi), the review log (smoke96), ink (smoke105), reports (smoke72) and files (smoke17/106) each run their push/pull against a fake table. kos_mind's syncCloud (push-then-pull, echo skip, remote deletion without a tombstone) is exercised by no suite and exposes no way to inject a fake API, so a regression in the Journal's replication (a private, local-first store per invariant 139) would ship unnoticed.",
+   "evidence": "grep 'kos_mind|mindJournal.syncCloud' tools/smoke*.test.js \u2192 no match; js/core/mindjournal.js:180-197 (cloud() = cloudApi || realCloud(), but KOS.mindJournal at :271-275 exports no _setCloudApi); smoke86/96/105/72/106 pass on this build",
+   "fix": "Export _setCloudApi and add a smoke covering push, echo skip, pull, remote delete and a two-device edit, modelled on smoke86.",
+   "effort": "S",
+   "devices": "all",
+   "rootCause": "Copy of Money's replicator without its test seam.",
+   "needsDesign": false,
+   "needsArt": false
   }
  ],
  "qol": [
   "Show the state document's size and its share of the ~5 MB localStorage quota in Archive \u203a Storage.",
   "Connections: show the last cycle's refused commands and duplicate links, with a 'Fold duplicates' action.",
   "After a restore or first link, toast what was merged or replaced, naming the counts per domain.",
-  "Add a 'Download a copy of this device first' button to the first-link dialog."
+  "Add a 'Download a copy of this device first' button to the first-link dialog.",
+  "Archive \u203a Cloud sync: one status line per replicated store (Money, reviews, Journal, ink, reports, files) with its last success.",
+  "Restore report: say which sections the file did not carry (saved Reports) and which per-device sync records were reset."
  ],
  "backlog": [
   "Move the state document (or its big parts: srs, sessions, facets) from localStorage to IndexedDB with per-record writes and cross-tab coordination (BroadcastChannel or Web Locks).",
   "Replace per-device counter ids for assignments, reminders and events with random string ids, as Money, Routines and Exams already use, retiring rekeyCollisions.",
   "Make provider sync state-consistent: pull and push the cloud state around each leased cycle, and keep pending provider adds in synced state so any device recognises them.",
-  "Use a monotonic version column (bigserial) as the replication cursor for every kos_* table."
+  "Use a monotonic version column (bigserial) as the replication cursor for every kos_* table.",
+  "Audit every view for sub-objects of KOS.store.state captured at render and written later (stale after replaceState); with redraws held on task pages a stale page lives longer.",
+  "A single store registry (name, namespace suffix, backup, restore semantics, reset, replication, status) that store.js, reset, Storage and the backup page all read, with a smoke asserting every indexedDB.open is registered."
  ]
 }

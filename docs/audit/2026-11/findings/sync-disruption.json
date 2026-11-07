@@ -1,20 +1,32 @@
 {
  "area": "sync-disruption",
- "summary": "The iPad resets the user reported are real and systemic. Every applied cloud state (clean pull, three-way merge, and the push that loses its compare-and-set race because another device pushed first) ends in cloudsync.rerenderCurrent() -> KOS.rerender(), which fully remounts #main with no check of what changed or whether the user is mid-task; the only guard is the ink pen (1.5 s). Pulls fire on Realtime notes from any other device, on every return to the app (visibility/focus) and after the iPad's own ratings, so redraws are frequent. A remount loses everything held in render closures: the CS/Maths/IT note page (the study spaces store theirs and survive), the flashcard queue and session counts (the batch is logged only at finish, so pay/streak for ratings before the redraw is lost), quiz and exam progress and typed answers, Japanese session results, Code listing edits and retrieval tries/hints/clock, open menus, focus/keyboard, and scroll: rerender saves #main.scrollTop but #stage is the real scroller, so every redraw jumps to the top on all three devices, and Side by side panes reset too. The same blanket KOS.rerender is used as a change broadcast by the Daily Review close, routine auto-ticks and boot loaders, while Google/Todoist pulls refresh nothing. Fix design: a redraw policy (background changes carry the changed keys; views declare what they read; redraws are deferred while a dialog/menu/editable focus/active study engine/recent interaction exists, with a quiet Refresh chip), per-view transient state kept per device in state.ui as the Code/Japanese/Mind/Creatives lesson pages already do, partial review batches banked on unmount, and rerender preserving the real scroller, pane scrolls and focus.",
- "coverage": "Read the redraw paths in js/core/ui.js (KOS.rerender, KOS.show), cloudsync.js (every rerenderCurrent caller, Realtime, visibility/focus/interval, the CAS conflict path), routines.js, dayreview.js, ext.js, main.js, achievements, focus, mobile-shell, the ink listeners, and the engines (flashcards, quiz, jarun, Code retrieval, the codetopic/jatopic/crtopic/mindtopic page memos). Reproduced with KOS.rerender() (exactly what cloudsync calls) on the seeded account at ipad, ipadl, mac and iphone: notes page, flashcards (topic and Due today), quiz, exam typed answer, Code 1.1 listings, quick-note focus, bell menu, assignment dialog focus, Daily Review close, Side by side ink panes, scroll on topic/Home/Anime; toast geometry on iphone and ipad. Screenshots: shots/sync-disruption/review-close-notes-reset.png, shots/sync-disruption/toast-over-rate-iphone.png. NOT reproduced end to end: a real two-device Supabase pull (no cloud sign-in in the harness; the chain is code-read), a routine auto-tick redraw (a hand-made ledger entry did not tick a habit), a Japanese session with due items (none due in the sample), the Creatives Writing Desk (autosaves at 600 ms), the Focus stage and exam paper tally (overlays outside #main, judged safe from code). The empty account was not exercised separately: with no cloud link it has no pull-triggered redraws and the remount behaviour is identical. Themes are not relevant to this area and were not checked.",
+ "summary": "On kos-redraw-1 the stopgap does what it promised for the reported cases: a background redraw (cloud pull, habit auto-tick, Daily Review close, boot loads) is held on task pages, while typing, under a dialog or menu and within 45 s of a touch, so the flashcard position, notes page, quiz, Japanese session, ink panes, menus and dialogs survive (8 of the 17 earlier findings no longer reproduce under background redraws; 7 changed, 2 hold). But holding the repaint without reconciling the data introduced a P0: the study editor on a held topic page keeps its pre-pull rows and its next autosave writes them back wholesale, so material another device added is deleted locally and the three-way merge then deletes it everywhere. Outside the task list the remount still loses state: vault scroll (lazy batches make the restore clamp to 0, iPad and iPhone), the unsaved Edit-your-seat draft, horizontal strips and in-page tabs, and unsent text in a blurred field; plain KOS.rerender() calls from timers and async callbacks (Exams planner, Connections, Mind) bypass the hold and redraw whatever page is current; the achievement unlock overlay is modal over a flashcard set; and task pages now go stale with no indicator. Root cause throughout: one global remount-everything redraw with no notion of what changed, which page asked, or where a view keeps its transient state; the fix is a redraw policy that diffs, scopes and reconciles (see the systemic design in the findings).",
+ "coverage": "Build kos-redraw-1 (sw), harness slot 6, seeded account (and an empty-files state for Files). Inventory: findings/sync-disruption.inventory.md \u2014 27 redraw triggers (A1-A27) and 21 state surfaces (B). Matrix: A1-A4 cloud pulls -> behaviour checked on 40 non-task routes (r5, ipad) + task pages (r1, r3, r9; ipad) + iPhone Home/anime -> new vault-scroll, strips, tabs, seat-draft, unsent-input findings; held pages -> stale-data finding; editor -> P0 (r11). A5 habit auto-tick -> code-read, carried #12 changed. A6 Review close -> rerun, carried changed. A7 auto-open -> code-read only (no slot due in the harness) -> carried holds. A8/A9 boot -> code-read, carried changed. A10 -> OK code-read. A11 unlock overlay -> reproduced r10 + screenshot -> new P2. A12-A14 unscoped plain rerenders -> code-read + effect reproduced (r1 np3) -> new P2. A15/A16 -> OK code-read. A17 Files repaint -> r13 -> new P3. A18/A19/A20 -> OK (A20 rerun r8a). A21-A23 no-redraw pulls -> code-read -> carried #17 widened. A24 HUD -> OK. A25 OAuth return navigation -> code-read, not filed (expected after a sign-in return). A26 toasts -> sd10 rerun iphone -> holds. A27 -> intended. Surfaces B: all exercised as listed in the inventory. Devices: iPad portrait for most, iPad landscape for Side by side, iPhone for scroll and toast; Mac not re-run separately (same code path, no layout dependence). NOT checked: real two-device Supabase traffic (simulated with store.replaceState + KOS.rerender({background})); Daily Review auto-open live; Shop Try on under a redraw; Exam Room / paper viewer under a redraw (task view, mechanism verified); Dawn/shop themes (not relevant to redraw behaviour).",
  "findings": [
+  {
+   "title": "With the redraw held, an open study editor writes its stale copy over material another device added \u2014 the pulled card is deleted locally and the three-way merge then deletes it everywhere",
+   "severity": "P0",
+   "category": "data",
+   "devices": "iPad + Mac (two devices editing the same topic's material)",
+   "detail": "The study editor (KOS.editor.mount) keeps the fork's rows in memory (flashcards, quiz, exam, notes, spec) and every autosave writes the WHOLE array through KOS.edits.set. Before kos-redraw-1 a cloud pull remounted the editor from the fresh fork; now the topic page ('ref') is a TASK_VIEW, so the redraw is held until navigation and the editor keeps its pre-pull copy indefinitely (state.ui.editing also keeps the editor open per device across visits). Reproduced: editor open on 4.5.4.3 flashcards (15 rows), a pull brings device B's new card (state 16 rows, hasB true), the held editor still shows 15; one more keystroke and the autosave writes 15 rows back (final 15, hasB false). The next push sends a document whose fork lacks a row that the base has, which the merge reads as a local deletion \u2014 and a deletion on either side wins (invariant 33/88) \u2014 so the other device's card is removed on every device. The same applies to notes blocks and spec blocks, quiz and exam items.",
+   "evidence": "eval r11.js (ipad): {forkN:15, afterPull:16, hasB:true, editorRows:15, final:15, hasBFinal:false}. js/modules/editor.js:408-414 (cards = KOS.edits.material(...) captured; save() sets the whole array), :470, :567, :650, :656; js/core/edits.js:199-206 (set replaces the kind wholesale); js/core/ui.js:358-359 (ref held); js/core/cloudsync.js:768-775 (pull replaces state, rerender held).",
+   "rootCause": "The stopgap holds the repaint without telling long-lived in-page editors that their source changed; the editor's whole-array save model turns a stale copy into deletions.",
+   "fix": "Short term: let a held background redraw notify mounted editors (an event with the changed paths); the study editor re-reads its fork when idle and merges by row id instead of writing the stale array (or saves per-row patches: KOS.edits.patchRow / addRow / removeRow). Never hold a redraw over an editor whose source record changed without that reconciliation. Add a smoke test: editor open, remote fork change, local keystroke, remote row survives.",
+   "effort": "M"
+  },
   {
    "title": "KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top",
    "severity": "P1",
    "category": "bug",
    "detail": "KOS.rerender (the cloud-pull/background redraw path) reads and restores document.getElementById('main').scrollTop, but the element that actually scrolls is #stage (#main has overflow visible; on the iPad #main.scrollHeight 2406 vs #stage 2406/1120 scrolling). KOS.show then empties #main, the height collapses and the browser clamps #stage.scrollTop to 0. Repro (seeded account): open compsci 4.5.2.1, set #stage.scrollTop=900, KOS.rerender() -> 0. Same on Home (700 -> 0) and the Anime vault (1500 -> 0) at mac, ipad and iphone sizes. So any pull, merge, auto-ticked habit, Daily Review close etc. throws the reader back to the top of the page.",
    "evidence": "harness eval sd3.js: ipad {st1:900,st2:0,h1:700,h2:0,a1:1500,a2:0}; mac {st1:530,st2:0,...}; iphone same. Code: js/core/ui.js:353-356 (var main=getElementById('main'); var top=main.scrollTop; ... main.scrollTop=top); KOS.show resets main.scrollTop=0 at js/core/ui.js:1526",
-   "fix": "Save/restore the real scroller (#stage, or a KOS.shell.scroller() helper that returns the element whose overflow scrolls, including the phone shell) and restore AFTER the view has rendered (and once more after async content lands, e.g. on next rAF / after vault lazy batch). Better: part of the redraw policy below — background redraws should not happen while the user is reading.",
+   "fix": "Save/restore the real scroller (#stage, or a KOS.shell.scroller() helper that returns the element whose overflow scrolls, including the phone shell) and restore AFTER the view has rendered (and once more after async content lands, e.g. on next rAF / after vault lazy batch). Better: part of the redraw policy below \u2014 background redraws should not happen while the user is reading.",
    "effort": "S",
    "devices": "all (mac, ipad, iphone)",
    "rootCause": "rerender measured the wrong element after the shell moved scrolling to #stage",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: KOS.rerender now saves and restores #stage, #main and the document scroller (ui.js:376-378, 399-404); re-measured 40 routes on ipad (r5-ipad.json) and Home on iphone (900 -> 900): kept everywhere EXCEPT lazily batched vaults (anime 3414->0, books 29226->0, vn, game, mangaka; iphone anime 2500->0) \u2014 see the new vault finding"
   },
   {
    "title": "CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')",
@@ -27,20 +39,22 @@
    "devices": "all; most visible on iPad",
    "rootCause": "transient reader state held in a view-render closure",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces for background redraws: eval r1.js (ipad) {np0:'Page 4 of 7', held:true, np1:'Page 4 of 7' (hard), np2:'Page 4 of 7' (soft)}; a plain KOS.rerender() still resets it (np3:'Page 1 of 7'), so any unscoped plain caller (examviews.js:264, connections.js:70) still can"
   },
   {
    "title": "A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)",
    "severity": "P1",
    "category": "bug",
-   "detail": "The flashcard engine keeps queue, graduated and counts in its mount closure, and only logs the review session in finish(). A KOS.rerender mid-set remounts it: on a topic's Flashcards tab the queue is rebuilt from ALL the topic's cards, so the learner is put back on card 1 and re-meets cards they just rated (re-rating them applies FSRS's short-term rule again, skewing their schedule); on Due today the counts reset ('This session: 0 again · 0 hard · 3 good' -> ''), and because a session is only logged at finish(), the ratings made before the redraw never produce a session entry — their XP/gold and the study-streak credit are lost (the SRS schedule itself was saved). Repro iPad: compsci 4.5.2.1 Flashcards, rate 3 Good ('15 left of 18'), KOS.rerender() -> '18 left of 18', first card again. Due today: rate 3 ('304 left of 307', life line 3 good) -> after rerender '304 left of 304', life line empty.",
-   "evidence": "harness eval (ipad): topic log ['18 left of 18 What is a number base?', ..., '15 left of 18'] -> afterFront '18 left of 18 What is a number base?'; due {d3life:'This session: 0 again · 0 hard · 3 good · 0 easy', dAfterLife:''}. js/engines/flashcards.js:295-322 (rate keeps counts in closure, store.save only), :325-355 (finish is the only KOS.sessions.log), :356 restart",
+   "detail": "The flashcard engine keeps queue, graduated and counts in its mount closure, and only logs the review session in finish(). A KOS.rerender mid-set remounts it: on a topic's Flashcards tab the queue is rebuilt from ALL the topic's cards, so the learner is put back on card 1 and re-meets cards they just rated (re-rating them applies FSRS's short-term rule again, skewing their schedule); on Due today the counts reset ('This session: 0 again \u00b7 0 hard \u00b7 3 good' -> ''), and because a session is only logged at finish(), the ratings made before the redraw never produce a session entry \u2014 their XP/gold and the study-streak credit are lost (the SRS schedule itself was saved). Repro iPad: compsci 4.5.2.1 Flashcards, rate 3 Good ('15 left of 18'), KOS.rerender() -> '18 left of 18', first card again. Due today: rate 3 ('304 left of 307', life line 3 good) -> after rerender '304 left of 304', life line empty.",
+   "evidence": "harness eval (ipad): topic log ['18 left of 18 What is a number base?', ..., '15 left of 18'] -> afterFront '18 left of 18 What is a number base?'; due {d3life:'This session: 0 again \u00b7 0 hard \u00b7 3 good \u00b7 0 easy', dAfterLife:''}. js/engines/flashcards.js:295-322 (rate keeps counts in closure, store.save only), :325-355 (finish is the only KOS.sessions.log), :356 restart",
    "fix": "(1) Never redraw under an active study session (redraw policy below). (2) Keep an in-progress review session in a per-device session store (state.ui.fcSession[deckKey] = {queue keys, graduated, counts, startedAt}) and resume it on remount. (3) Log/bank the partial batch on unmount/pagehide (like Focus banks its clock, invariant 4c) so pay never depends on the DOM surviving.",
    "effort": "M",
    "devices": "all; reported on iPad",
    "rootCause": "session progress and the pay-at-finish rule live in DOM-bound closures",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces for background redraws: eval r9.js (ipad) \u2014 after three ratings the set text is identical before and after KOS.rerender({background:'hard'}) ('QUESTION \u00b7 12'); ref is a TASK_VIEW (ui.js:358-359). Still reachable through a plain unscoped rerender"
   },
   {
    "title": "Quiz progress and a typed exam answer are wiped by any background redraw",
@@ -53,49 +67,53 @@
    "devices": "all",
    "rootCause": "engine state in closures + unconditional rerender",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces for background redraws: eval r3.js {quiz0:'Question 3 of 11', quiz1:'Question 3 of 11'}; a plain rerender still resets (quizUser:'Question 1 of 11')"
   },
   {
-   "title": "Every cloud pull/merge redraws the active view unconditionally — even when nothing the view shows changed, and even while the user is mid-task",
+   "title": "Every cloud pull/merge redraws the active view unconditionally \u2014 even when nothing the view shows changed, and even while the user is mid-task",
    "severity": "P1",
    "category": "arch",
-   "detail": "cloudsync.rerenderCurrent() calls KOS.rerender() after every applied remote state: the clean path (applyRemoteState, cloudsync.js:775), the merge path (mergeRemoteIn, :495, also used by a push that lost its compare-and-set race, :533-560) and first link (:1279). There is no check of whether the merged document differs in anything the current view reads, no check that the user is interacting, a dialog/menu is open, an input has focus, or a study engine is running. The only guard in KOS.rerender is the ink pen (ui.js:347). Triggers that reach it: another device's push -> Realtime 'changed' (1.5 s debounce, :1483); returning to the app (visibilitychange/focus, :1548-1552, at most once a minute) — on the iPad every app switch; the 15-min interval; and the iPad's OWN ratings: each store.save -> noteChange -> push after 4 s -> if the Mac/iPhone pushed meanwhile the CAS fails -> conflict() -> mergeRemoteIn -> rerender. An idle open Mac pushes on its own (achievement sweep every 30 min, goals/notify ticks, routine auto-ticks, Daily Review words), so the iPad is redrawn under the user regularly. This is the root of the reported iPad resets.",
+   "detail": "cloudsync.rerenderCurrent() calls KOS.rerender() after every applied remote state: the clean path (applyRemoteState, cloudsync.js:775), the merge path (mergeRemoteIn, :495, also used by a push that lost its compare-and-set race, :533-560) and first link (:1279). There is no check of whether the merged document differs in anything the current view reads, no check that the user is interacting, a dialog/menu is open, an input has focus, or a study engine is running. The only guard in KOS.rerender is the ink pen (ui.js:347). Triggers that reach it: another device's push -> Realtime 'changed' (1.5 s debounce, :1483); returning to the app (visibilitychange/focus, :1548-1552, at most once a minute) \u2014 on the iPad every app switch; the 15-min interval; and the iPad's OWN ratings: each store.save -> noteChange -> push after 4 s -> if the Mac/iPhone pushed meanwhile the CAS fails -> conflict() -> mergeRemoteIn -> rerender. An idle open Mac pushes on its own (achievement sweep every 30 min, goals/notify ticks, routine auto-ticks, Daily Review words), so the iPad is redrawn under the user regularly. This is the root of the reported iPad resets.",
    "evidence": "js/core/cloudsync.js:487-497 (mergeRemoteIn -> rerenderCurrent), :723-733 (rerenderCurrent -> KOS.rerender), :773-777, :533-560 (conflict path), :1447-1459 (noteChange push), :1480-1495 (Realtime), :1541-1553 (interval/visible/focus); js/core/ui.js:344-357 (rerender: only inkUI.busy guard). Harness: KOS.rerender() reproduces every reset in the other findings.",
-   "fix": "Systemic redraw policy: (1) cloudsync passes what changed (top-level keys that differ between pre- and post-merge state, cheap JSON compare per key) to KOS.rerender({changed:[...], background:true}); views declare the state keys they read (KOS.views.x.reads = ['srs','edits',...]) and are skipped when untouched. (2) A background redraw is DEFERRED while the page is 'busy': a dialog or menu open, focus in an input/textarea/contenteditable, a study engine mounted and touched in the last N minutes (flashcards/quiz/exam/japanese session/code task), pointer down, or within 30 s of the last interaction — instead show a quiet 'Updated on another device · Refresh' chip, and redraw on the next navigation. (3) For views that must refresh live, give them a refresh(changed) hook that patches in place instead of a full remount.",
+   "fix": "Systemic redraw policy: (1) cloudsync passes what changed (top-level keys that differ between pre- and post-merge state, cheap JSON compare per key) to KOS.rerender({changed:[...], background:true}); views declare the state keys they read (KOS.views.x.reads = ['srs','edits',...]) and are skipped when untouched. (2) A background redraw is DEFERRED while the page is 'busy': a dialog or menu open, focus in an input/textarea/contenteditable, a study engine mounted and touched in the last N minutes (flashcards/quiz/exam/japanese session/code task), pointer down, or within 30 s of the last interaction \u2014 instead show a quiet 'Updated on another device \u00b7 Refresh' chip, and redraw on the next navigation. (3) For views that must refresh live, give them a refresh(changed) hook that patches in place instead of a full remount.",
    "effort": "L",
    "devices": "iPad primarily (app switching + Pencil study), all",
    "rootCause": "full remount used as the generic refresh for background state changes, with no busy/changed gating",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: rerenderCurrent now calls KOS.rerender({background:'hard'}) (cloudsync.js:731), held on TASK_VIEWS, while typing, under a dialog/menu and within 45 s of a touch (ui.js:349-392). Still no diff of what changed: every other page is remounted after 45 s idle (r5-ipad.json: redrawn:true on all 40 non-task routes), and task pages now go stale instead (new finding)"
   },
   {
-   "title": "Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath — and on the iPad it can auto-open over a lesson when you return to the app",
+   "title": "Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath \u2014 and on the iPad it can auto-open over a lesson when you return to the app",
    "severity": "P1",
    "category": "ux",
    "detail": "reviewSheet.close() calls KOS.rerender() whenever it is not silent (dayreview.js:92), as does the final Close button (:661) and Skip (:709). The overlay is outside #main, so the page under it never needed a redraw; the redraw resets notes page, flashcards, quiz, scroll. Repro iPad: compsci 4.5.4.3 notes page 4 ('Page 4 of 7'), KOS.reviewSheet.open(slot), close -> 'Page 1 of 7' (screenshot). Worse, maybeOpen() runs on every visibilitychange to visible (:749); the deep-link guard uses bootHash, which is cleared 1.5 s after boot (:746), so after boot the sheet auto-opens over ANY page (a topic, a Code lesson, Due today) when the iPad app is brought back inside a new review slot; the blocked() check knows only Focus, a dialog and the Exam Room. Dismissing it then wipes the lesson state.",
    "evidence": "shots/sync-disruption/review-close-notes-reset.png (Page 1 of 7 after close; was Page 4 of 7). eval sd8.js {before:'Page 4 of 7', open:true, after:'Page 1 of 7'}. js/modules/dayreview.js:85-93, :661, :709, :722-729 (blocked), :744-749",
-   "fix": "Close should repaint only what the review changed (chip, Home's cards if Home is on screen) — or call the policy's refresh(changed) — never a full remount. Auto-open on visibility should only happen on Home (or when no study page/engine is active); elsewhere it waits in the chip.",
+   "fix": "Close should repaint only what the review changed (chip, Home's cards if Home is on screen) \u2014 or call the policy's refresh(changed) \u2014 never a full remount. Auto-open on visibility should only happen on Home (or when no study page/engine is active); elsewhere it waits in the chip.",
    "effort": "S",
    "devices": "iPad (visibility), all",
    "rootCause": "overlay close uses KOS.rerender as a blanket refresh; auto-open guard only considers boot deep links",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: close/finish/skip now redraw with {background:'soft'} (dayreview.js:92, 103, 661, 709), held on task pages \u2014 notes stay on Page 4 (r12 variant). The auto-open part holds: blocked() (dayreview.js:722-729) still has no task-page check and maybeOpen runs on every visibilitychange (:749) once bootHash is cleared after 1.5 s (code-read; no slot was due in the harness)"
   },
   {
    "title": "Handwritten tab Side by side: both panes jump to the top on a background redraw (1.5 s after the pen lifts)",
    "severity": "P1",
    "category": "bug",
-   "detail": "The ink guard in KOS.rerender only waits while inkUI.busy() (a stroke or text box open, or ink in the last 1.5 s). Once the pen has been lifted for 1.5 s — i.e. while the student reads the notes pane or thinks — a pull redraws the tab and both independent scroll regions reset. Repro iPad landscape (1180x820): compsci 4.5.4.3, Handwritten, Side by side; ink.side-notes scrolled to 600 and ink.side-page to 238; KOS.rerender() -> both 0. The notebook page-in-view and the notes position are lost, exactly the 'jumps back to the start' symptom on the iPad.",
+   "detail": "The ink guard in KOS.rerender only waits while inkUI.busy() (a stroke or text box open, or ink in the last 1.5 s). Once the pen has been lifted for 1.5 s \u2014 i.e. while the student reads the notes pane or thinks \u2014 a pull redraws the tab and both independent scroll regions reset. Repro iPad landscape (1180x820): compsci 4.5.4.3, Handwritten, Side by side; ink.side-notes scrolled to 600 and ink.side-page to 238; KOS.rerender() -> both 0. The notebook page-in-view and the notes position are lost, exactly the 'jumps back to the start' symptom on the iPad.",
    "evidence": "eval sd11.js (ipadl): {scrollers:['ink.side-notes 7882/744','ink.side-page 982/744'], before:[600,238], after:['ink.side-notes 0','ink.side-page 0']}. js/core/ui.js:347-351 (busy guard only), js/core/inkui.js:341",
-   "fix": "Remember scroll of every [data-scroll-keep]/pane scroller (extend noteScrolls, ui.js:686, to vertical scrollTop for declared panes) and restore after render; better, defer background redraws while the Handwritten tab is open at all (ink pages and notes never change from a state pull — inksync updates pages itself).",
+   "fix": "Remember scroll of every [data-scroll-keep]/pane scroller (extend noteScrolls, ui.js:686, to vertical scrollTop for declared panes) and restore after render; better, defer background redraws while the Handwritten tab is open at all (ink pages and notes never change from a state pull \u2014 inksync updates pages itself).",
    "effort": "S",
    "devices": "iPad landscape (Side by side is >1080 only)",
    "rootCause": "rerender only preserves horizontal scroller memos and the (wrong) #main scrollTop",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces: sd11 rerun with background:'hard' (ipadl) {before:[600,238], after:['ink.side-notes 600','ink.side-page 238']}"
   },
   {
-   "title": "A background redraw steals focus from whatever is being typed in — the iPad/iPhone keyboard closes mid-sentence",
+   "title": "A background redraw steals focus from whatever is being typed in \u2014 the iPad/iPhone keyboard closes mid-sentence",
    "severity": "P1",
    "category": "ux",
    "detail": "KOS.rerender remounts #main; the focused field is destroyed and focus falls to <body>. The quick-note draft itself survives (stored per device), but the caret is gone, so on the iPad the on-screen keyboard dismisses while the user is typing; any keystrokes in flight are lost. The same applies to every inline input on any page (search filters in vaults, Money amount fields, Goals editor in-page fields, Code task editor, Writing Desk). Repro iPad: compsci 4.5.4.3, focus the quick note, type, caret at 4, KOS.rerender() -> document.activeElement BODY; the new textarea has the text but no focus (selection at end).",
@@ -105,7 +123,30 @@
    "devices": "iPad, iPhone (keyboard), Mac",
    "rootCause": "remount without focus/selection preservation",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces while the field has focus: #/reminders typing held {held:true, ae:'INPUT', val:'half a thou'} (ui.js:362-366); but once the field is blurred the unsent text is wiped by the next retry (new finding)"
+  },
+  {
+   "title": "A background redraw of a Collection vault throws the reader back to the top: the lazy batches are rebuilt at 60 entries, so the saved scroll position cannot be restored",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "iPad, Mac, iPhone (any vault page)",
+   "detail": "Vault pages are not in TASK_VIEWS, so a cloud pull 45 s after the last touch (or any soft redraw: a habit ticking itself, the Daily Review closing, an own picture loading) remounts #/anime, #/books, #/vn, #/game or #/mangaka. KOS.rerender saves #stage.scrollTop and restores it twice (sync and next frame), but the remounted vault holds only its first lazy batch (60 cards), so the page is too short and the restore clamps to 0. Reproduced on the seeded account (ipad): anime 3414 -> 0, books 29226 -> 0, vn 504 -> 0, game 3414 -> 0, mangaka 6056 -> 0. Scrolling through 1,900 titles and losing the place on a pull is exactly the disruption the stopgap set out to stop.",
+   "evidence": "audit-evidence/2026-11/qa/r5.js + r5-ipad.json (diff.top for #/anime, #/books, #/vn, #/game, #/mangaka). js/core/ui.js:399-404 (restore of tops[] only, sync + one rAF); js/core/ui.js:358-359 (TASK_VIEWS has no vault views); invariant 8 (60-entry lazy batches).",
+   "rootCause": "Scroll restoration assumes the remounted page is as tall as before; lazily batched lists are not, and the vault views are not held like task views.",
+   "fix": "Either add the vault views (anime, books, vn, game, mangaka, seasonal, wishlist, shrine) to the held set, or make the vault render keep its loaded batch count in a per-visit memo (like scrollMemo) so a redraw renders up to the batch that contained the scroll position before restoring; longer term the redraw policy should diff and skip a redraw when the vault's query result did not change.",
+   "effort": "M"
+  },
+  {
+   "title": "Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "detail": "#/governor/edit keeps its draft (showcase, background, focus, title, seal) in a local variable of editSeat(). governor is not a task view, so a background redraw (a cloud pull 45 s after the last touch while the user browses the Showcase/Title lists, a soft redraw from a habit or the Daily Review) remounts the editor with a fresh draft from the saved state: the Save button stops being lit, the editor tab returns to the first one, and the choices are silently gone. There is also no leave-with-changes prompt (known), so nothing warns.",
+   "evidence": "eval r7.js (ipad): {tab:'Rest rhythm', litBefore:'lit', litAfter:null, tabAfter:'Study'}. js/modules/governor-ui.js:658-662 (var draft = {...} inside editSeat), :196 (editSeat called from the view on every render); js/core/ui.js:358-359 (governor not in TASK_VIEWS).",
+   "rootCause": "A draft editor page that keeps its draft only in the render closure, outside the held view list.",
+   "fix": "Treat #/governor/edit as a task page (hold background redraws while dirty), or keep the draft in a per-visit session store keyed by the route so a remount restores it; add the leave-with-changes prompt.",
+   "effort": "S"
   },
   {
    "title": "Japanese review/learn session restarts and loses its unlogged results on a background redraw",
@@ -118,20 +159,22 @@
    "devices": "all",
    "rootCause": "session state in closure + pay at finish",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces for background redraws: japanese is a TASK_VIEW; eval r9.js {jaRedrawn:false} on #/japanese/session/reviews (soft)"
   },
   {
-   "title": "A background redraw closes any open menu or popover — including the header bell, which is outside the page",
+   "title": "A background redraw closes any open menu or popover \u2014 including the header bell, which is outside the page",
    "severity": "P2",
    "category": "ux",
-   "detail": "KOS.show always calls closeOpenMenu(false) before drawing, also for a redraw (_nav). So a pull arriving while the notifications popover, a Filters menu or a ⋯ menu is open makes it vanish under the finger. Repro: Home, open the bell (menu .k-menu-panel.k-nt-pop present), KOS.rerender() -> menu gone.",
+   "detail": "KOS.show always calls closeOpenMenu(false) before drawing, also for a redraw (_nav). So a pull arriving while the notifications popover, a Filters menu or a \u22ef menu is open makes it vanish under the finger. Repro: Home, open the bell (menu .k-menu-panel.k-nt-pop present), KOS.rerender() -> menu gone.",
    "evidence": "eval sd6.js (ipad): {menuOpen:true, menuCls:'k-menu-panel k-nt-pop', menuAfter:false}. js/core/ui.js:1513-1519 (closeOpenMenu before every render)",
    "fix": "On a redraw (KOS.ui.redrawing) keep a menu whose anchor is outside #main, and for menus inside #main defer the background redraw while a menu is open (redraw policy).",
    "effort": "S",
    "devices": "all",
    "rootCause": "navigation clean-up applied to redraws",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces: an open KOS.ui.menu counts as topDialog, so the redraw is held \u2014 eval r4.js (ipad) {open:true, top:true, redrawn:false, after:true}"
   },
   {
    "title": "Edits in a Code lesson's runnable listings are lost on a background redraw",
@@ -144,10 +187,11 @@
    "devices": "all",
    "rootCause": "listing editor state only in the DOM",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: held for background redraws (code lesson is on 'ref', a TASK_VIEW); still lost when the user switches Learn/Reference (codetopic.js:120-123 plain KOS.rerender) and on any unscoped plain rerender"
   },
   {
-   "title": "routines.onSession redraws the whole page whenever an auto-tracked habit ticks itself — e.g. right after a flashcard batch or Code task pass",
+   "title": "routines.onSession redraws the whole page whenever an auto-tracked habit ticks itself \u2014 e.g. right after a flashcard batch or Code task pass",
    "severity": "P2",
    "category": "ux",
    "detail": "Every logged session (flashcard batch finish, exam item marked, Code task pass, Japanese session) calls routines.onSession, which runs autoSync() and, if any auto-tracked habit ticked, KOS.rerender() (only guarded against an open dialog). So the moment a 'Review 20 cards' or '1 Code task passed' habit completes, the page that caused it is remounted: the flashcards 'Session complete' summary is replaced by a fresh deck, a Code task's passing result panel is redrawn, an exam tab returns to question 1. Only the habit chip/Home needs to change.",
@@ -157,7 +201,8 @@
    "devices": "all",
    "rootCause": "blanket rerender as change notification",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: now {background:'soft'} (routines.js:699), held on task pages; on other pages it redraws at once (soft ignores the 45 s rule), and when a dialog is open the redraw is DROPPED rather than deferred, so habit ticks stay stale until navigation"
   },
   {
    "title": "Toasts are capped at half the viewport width and, on the iPhone, sit on top of the flashcard rating buttons (and catch taps when they carry Undo)",
@@ -170,7 +215,8 @@
    "devices": "iPhone, iPad",
    "rootCause": "left:50% shrink-to-fit width; fixed bottom offset ignores page controls",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "holds: sd10 rerun (iphone) {toast:[101,708,201,98], rate:[16,694,370,60], overlap:true, pe:'auto'}"
   },
   {
    "title": "A redraw mid-retrieval resets the Code retrieval card's tries, hint flag and clock, so the derived grade comes out better than earned",
@@ -183,20 +229,89 @@
    "devices": "all",
    "rootCause": "evidence inputs held in closures",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: held for background redraws (task view); still reset by the Learn/Reference switch and unscoped plain rerenders (code.js:972 unchanged)"
+  },
+  {
+   "title": "Horizontal strips without a scroll memo snap back to the start on every redraw (study desks' unit strip, Home's desks, the Collection's Now row)",
+   "severity": "P2",
+   "category": "ux",
+   "devices": "iPad portrait, iPhone (where the strips overflow)",
+   "detail": "KOS.ui.scroller only remembers scrollLeft when given {keep}. The desks' unit strip (CS, Maths, IT, Code, Japanese, Mind, Creatives), Home's .k-desks strip and the Collection Overview's Now row are built without it, so any background redraw of those (non-held) pages scrolls them back to the first item. Measured on ipad: Home .k-desks 365 -> 0; #/subject/compsci units 1105 -> 0; code 1000 -> 0; mind 475 -> 0; creatives 1000 -> 0; ja 55 -> 0. The desks' 'What do these mean?' <details> also closes (1 -> 0).",
+   "evidence": "r5-ipad.json (diff.hs, diff.det), r6.js output: 'study.units.k-units k-scroller-track 2926/716 keep:0', '.k-desks 1446/716', '.k-mx-now-row 3266/716'. js/modules/hub.js:2077 (scroller(units, {label\u2026}) without keep), js/modules/hub.js:1558 (k-desks, no scroller memo), js/modules/matrix.js:139; js/core/ui.js:778-781 (keep is opt-in).",
+   "rootCause": "Scroll memory is opt-in per call site and these call sites never opted in.",
+   "fix": "Default keep to a key derived from the view + data-ui when the scroller is inside #main, or pass keep at the three sites; persist <details> open state per visit the same way.",
+   "effort": "S"
+  },
+  {
+   "title": "In-page tabs that are not routes reset on a background redraw (Collection Overview's Analytics, Notifications' Unread filter, Edit seat's editor tab)",
+   "severity": "P2",
+   "category": "ux",
+   "devices": "all",
+   "detail": "Several pages keep the chosen tab in a closure variable rather than the route or state.ui, so a background redraw returns them to the first tab: #/matrix Analytics -> Overview, #/notifications Unread -> All, #/governor/edit editor tab -> the first. The reader is mid-look at the analytics or working through unread items when a pull arrives 45 s after their last touch.",
+   "evidence": "r5-ipad.json: '#/matrix' diff.tabs ['Analytics','Overview']; '#/notifications' diff.tabs ['Unread25','All25']; '#/governor/edit' ['Rest rhythm|Showcase','Study|Showcase'].",
+   "rootCause": "Per-visit UI state held in render closures that a remount discards.",
+   "fix": "Move these choices into the route (preferred: #/matrix/analytics) or a per-visit memo that KOS.rerender keeps; the systemic redraw policy should restore per-view session state.",
+   "effort": "S"
+  },
+  {
+   "title": "The achievement unlock overlay opens mid-task (over a flashcard set, a quiz or a lesson) and takes focus",
+   "severity": "P2",
+   "category": "ux",
+   "devices": "all; worst on the iPad with a keyboard",
+   "detail": "achievements quiet() only holds the overlay for Focus, a dialog and the Exam Room. Earning a tier while on a task page (a flashcard rating, a Code task pass, a Japanese or Mind lesson finish all touch the owners) pops a modal dialog over the work and moves focus to its Next/Close button, so the next Space/Enter meant for the card goes to the overlay. Reproduced mid flashcard set on the iPad: the overlay opened on #/ref/compsci/4.5.4.3 with document.activeElement = ach.unlock-next. Invariant 163 says it waits for 'a calm moment', but a page in the middle of a task is not calm. The same overlay also counts as an open dialog, so while it waits unseen behind another page it holds every background redraw on every page.",
+   "evidence": "shots/sync-disruption/ach-overlay-over-flashcards.png; eval r10.js (ipad): {overlay:true, active:'ach.unlock-next', hash:'#/ref/compsci/4.5.4.3'}; js/core/achievements.js:500-506 (quiet), js/modules/achievements.js:609-611 (drain), :600 (openDialog).",
+   "rootCause": "The 'calm moment' test does not know about task pages; ui.js's TASK_VIEWS is private to the redraw stopgap.",
+   "fix": "Expose one KOS.ui.busyWithTask() (task view, typing, dialog, Focus, Exam Room) and have both the redraw policy and quiet() use it; on a task page show the non-modal ping (or the bell item) and keep the overlay for the next navigation.",
+   "effort": "S"
+  },
+  {
+   "title": "Text typed into a field but not yet submitted is wiped once the field loses focus and a background redraw lands (Reminders' quick add and every non-task page)",
+   "severity": "P2",
+   "category": "ux",
+   "devices": "iPad, iPhone (tap away to read something, keyboard closes), Mac",
+   "detail": "The stopgap's 'typing' hold looks only at document.activeElement. Once the user taps elsewhere (on the iPad the keyboard closes; on the Mac they click the page) an unsubmitted value is no longer protected: a soft redraw lands at once and a cloud pull lands 45 s after the last touch, remounting the page and emptying the field. Reproduced on #/reminders: typed 'half a thou' in 'Add a reminder\u2026', blurred, ~50 s later the retry redrew and the field was empty. The same applies to Mind's 'Add today's line', inline add/edit rows in Routines, Pacing, Goals and Calendar's in-page inputs.",
+   "evidence": "eval (ipad): held while focused {held:true, ae:'INPUT', val:'half a thou'}; after blur and 50 s {hash:'#/reminders', val:'', ph:'Add a reminder\u2026'}. js/core/ui.js:362-373 (typing() reads activeElement only; 'recent' 45 s for hard), :386-391 (15 s retry).",
+   "rootCause": "The hold protects focus, not unsaved input; the page keeps the draft only in the DOM.",
+   "fix": "Treat a dirty input (value !== defaultValue, or a data-draft marker) inside #main as 'typing'; better, keep quick-add drafts per device in state.ui (as the topic quick note does) so a remount restores them.",
+   "effort": "S"
+  },
+  {
+   "title": "Delayed plain KOS.rerender() calls redraw whatever page is on screen by then \u2014 bypassing the background hold (Exams planner's 8 s flash, Connections' Sync now, Mind's journal-ready)",
+   "severity": "P2",
+   "category": "bug",
+   "devices": "all",
+   "detail": "Several callbacks that fire seconds after the user acted call KOS.rerender() WITHOUT {background}, and without checking that their page is still on screen, so they remount whatever the user has moved on to \u2014 including task pages the stopgap protects: a flashcard set restarts at card 1, notes go back to page 1, a quiz to question 1 (KOS.rerender() with no opts is never held; r1.js shows a plain rerender on a topic resets 'Page 4 of 7' to 'Page 1 of 7'). Sites: the Exams planner's 'Sent \u00b7 Undo' flash clears with setTimeout(KOS.rerender, 8100) (examviews.js:264); Connections' 'Sync now' re-renders when the provider sync resolves, which can take many seconds (connections.js:66-70); Mind's desk and pages re-render when the Journal store becomes ready, guarded only by main.isConnected \u2014 #main is always connected (mind.js:52 checks ui.view === 'subject', true on any desk; mind.js:217).",
+   "evidence": "js/modules/examviews.js:264; js/modules/connections.js:66-70; js/modules/mind.js:52, :217; eval r1.js {np0:'Page 4 of 7', np3:'Page 1 of 7'} for the effect of a plain rerender on a topic.",
+   "rootCause": "KOS.rerender has no notion of 'the page that asked'; async callers re-render the global current view.",
+   "fix": "Give KOS.rerender a scope: KOS.rerender({ onlyIf: navKey }) (or a helper KOS.redrawIfStill(viewId, arg)), use it for every async/timer caller, and mark them background.",
+   "effort": "S"
+  },
+  {
+   "title": "Held task pages never catch up while the user stays on them: another device's progress stays invisible, with no sign that the page is out of date",
+   "severity": "P2",
+   "category": "ux",
+   "devices": "iPad + Mac",
+   "detail": "On a TASK_VIEW the stopgap holds a background redraw until navigation and sets no retry (ui.js:383-391: the timer is only armed when why !== 'task'). Leaving the iPad on a topic or a Code/Japanese/Mind lesson for an hour while studying on the Mac, the iPad keeps showing the old inspector (RAG band, status, checks, due counts), the old flashcard queue (cards already rated on the Mac are asked again and rated twice) and the old Code evidence, with nothing on screen saying newer data arrived. Tab switches inside the topic are not navigation, so they do not refresh it either. Combined with in-page editors this is also what makes the editor overwrite in the P0 finding possible.",
+   "evidence": "js/core/ui.js:358-359 (TASK_VIEWS), :380-392 (task holds with no timer, bgPendingFor only cleared by the next redraw); eval r1.js: held:true, page and scroll kept, no later flush.",
+   "rootCause": "Stopgap trades staleness for stability with no reconciliation and no indicator.",
+   "fix": "Part of the redraw policy: hold the REMOUNT, not the data \u2014 show a small 'Updated on another device \u00b7 Refresh' chip on held pages, flush at a safe boundary (end of a flashcard/quiz session, page turn, tab change, idle 2 min with no draft), and let session engines re-read the queue between cards.",
+   "effort": "M",
+   "needsDesign": true
   },
   {
    "title": "After a background redraw the open dialog's opener is detached, so closing it drops focus to <body>",
    "severity": "P3",
    "category": "a11y",
-   "detail": "Dialogs survive a redraw (they live on body), but KOS.ui.openDialog restores focus to the opener, which the redraw replaced. Repro: Assignments, '＋ New assignment', type a title, KOS.rerender() (dialog and text survive), Cancel -> document.activeElement is BODY; the keyboard/VoiceOver user is thrown to the top of the document. cloudsync does not check for an open dialog (routines.onSession does).",
+   "detail": "Dialogs survive a redraw (they live on body), but KOS.ui.openDialog restores focus to the opener, which the redraw replaced. Repro: Assignments, '\uff0b New assignment', type a title, KOS.rerender() (dialog and text survive), Cancel -> document.activeElement is BODY; the keyboard/VoiceOver user is thrown to the top of the document. cloudsync does not check for an open dialog (routines.onSession does).",
    "evidence": "eval sd7.js: {dlgAfter:true, inpAfter:'Typed title', openerConnected:false, focusAfterClose:'BODY'}. js/core/routines.js:699 has the dialog guard; js/core/cloudsync.js:723-733 has none",
    "fix": "Defer background redraws while KOS.ui.topDialog() (policy), and in openDialog's restore fall back to an element with the same data-ui/text in the new DOM (as mobile-shell's calendarFocusSignature already does, mobile-shell.js:620-640).",
    "effort": "S",
    "devices": "all",
    "rootCause": "redraw under an open dialog",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "no longer reproduces: background redraws are held while a dialog is open \u2014 sd7 rerun with background:'hard' {dlgAfter:true, inpAfter:'Typed title', openerConnected:true, focusAfterClose:'BUTTON'}"
   },
   {
    "title": "Boot-time redraws of whatever page the PWA reopened on (Google read-only copy, own art pictures, sample seed)",
@@ -209,20 +324,33 @@
    "devices": "iPad (PWA restore), all",
    "rootCause": "KOS.rerender used as a broadcast",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "changed: ext.js:364 and main.js:303/307 now pass {background:'soft'}, so task pages are held; other pages still remount once at boot when the Google copy or own pictures load"
   },
   {
    "title": "Inconsistent refresh policy: Google/Todoist pulls change Calendar and Reminders without redrawing them, while a state pull redraws every page",
    "severity": "P3",
    "category": "arch",
-   "detail": "KOS.ext.syncAll (every cycle and the 1.5 s 'soon' sync) writes pulled events and reminders through the owners, then only notifies KOS.ext.onChange listeners — only the Connections page listens. An open Calendar or Reminders page keeps showing the old data (a task completed in Todoist stays unticked on screen) until the user navigates, whereas a cloud state pull remounts any page however unrelated. There is no single 'state changed → which views care' mechanism.",
+   "detail": "KOS.ext.syncAll (every cycle and the 1.5 s 'soon' sync) writes pulled events and reminders through the owners, then only notifies KOS.ext.onChange listeners \u2014 only the Connections page listens. An open Calendar or Reminders page keeps showing the old data (a task completed in Todoist stays unticked on screen) until the user navigates, whereas a cloud state pull remounts any page however unrelated. There is no single 'state changed \u2192 which views care' mechanism.",
    "evidence": "js/core/ext.js:325-337 (syncAll -> changed()), :294; js/modules/connections.js:173-177 (the only listener); js/core/extgcal.js and exttasks.js contain no redraw",
    "fix": "Introduce one change bus (KOS.changed(domains)) fired by cloudsync (with the keys that differed), ext, routines, inksync, files; views subscribe by domain and refresh in place (or defer while busy).",
    "effort": "M",
    "devices": "all",
    "rootCause": "no domain-scoped change notification",
    "needsDesign": false,
-   "needsArt": false
+   "needsArt": false,
+   "recheck": "holds and is wider: besides Google/Todoist (ext.js:325-337), the Money (money.js:1227), Mind journal (mindjournal.js:268), review log, reports and media autosync pulls change data without any redraw, while a state pull redraws every non-task page"
+  },
+  {
+   "title": "The Files page repaints its whole list on every text-index step and cloud file event, outside the redraw hold",
+   "severity": "P3",
+   "category": "ux",
+   "devices": "all",
+   "detail": "files.js listens for kos-files-index and calls paintSubj(), paint() and paintSide(), which empty and rebuild the list. That event fires after every file the background text indexer finishes (one file at a time, files.js:404) and after every cloud files change (cloudsync notifyFiles -> kos-files -> refresh -> emit). 'files' is in TASK_VIEWS, but this path never goes through KOS.rerender, so the hold does not apply: an open per-file menu is left pointing at a detached opener (closing it drops focus), and focus on a card button is lost while a large import is still indexing.",
+   "evidence": "eval r13.js (ipad): {menuOpen:true, menuAfter:true, openerConnected:false}. js/modules/files.js:319-320 (onIndex), :241-249 (paint empties listEl), :280-281; js/core/files.js:45 (emit), :100, :404; js/core/cloudsync.js:1414.",
+   "rootCause": "A page-local repaint on a global event with no diff and no hold.",
+   "fix": "Repaint only the changed card (key by fileId) or only the 'Indexing\u2026' counts; skip the list repaint while a menu or dialog is open, as KOS.rerender does.",
+   "effort": "S"
   }
  ],
  "qol": [
@@ -233,6 +361,7 @@
  "backlog": [
   "Domain-scoped change bus (KOS.changed(domains)) replacing KOS.rerender as a broadcast; views refresh in place",
   "Per-view session store for transient study state, so engines resume after any remount, reload or iPad app kill",
-  "Smoke test: for each study view set transient state, call KOS.rerender(), assert page, card, question, scroll and focus survive"
+  "Smoke test: for each study view set transient state, call KOS.rerender(), assert page, card, question, scroll and focus survive",
+  "A real redraw policy to replace the stopgap: each view declares its transient state (or keeps it in a per-visit session store keyed by route), background changes carry the changed paths, a view redraws only when a path it reads changed and never mid-task, async callers pass the route they belong to, and long-lived editors reconcile by row id instead of writing whole arrays."
  ]
 }
