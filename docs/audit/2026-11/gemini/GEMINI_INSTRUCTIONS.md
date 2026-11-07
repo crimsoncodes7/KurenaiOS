@@ -380,12 +380,22 @@ level. This is not a re-read of the existing findings.
 
 ## 8. Workstream B: independent P0/P1 re-check
 
-**The list:** `gemini/p0p1-ids.txt`, with the blind worklist
-`gemini/p0p1-blind.json` (id, area, severity, devices and title only).
-- Regenerate both with `python3 -I docs/audit/2026-11/harness/gemini_worklists.py`
-  if `findings.json` is newer.
-- The count was 94 on 6 Nov. It may differ after batch 6. Verify every id in
-  the file.
+**The list is FROZEN:** the 96 ids in `gemini/p0p1-ids.txt`, with the blind
+worklist `gemini/p0p1-blind.json` (id, area, severity, devices and title
+only). It was taken at commit `acd5b67` (7 Nov 2026, after batch 6).
+- Verify every id in it against the build on your branch.
+- Do not regenerate it, and do not rebase or merge mid-stream.
+- Claude keeps auditing four more areas (MG, CR, CM, CC) on
+  `audit/quality-2026-11`. Any new or re-rated P0/P1 from that work comes to
+  you at the end as a short **Batch B2**: a file `gemini/p0p1-delta-ids.txt`
+  (and `p0p1-delta-blind.json`) the user hands you or tells you to fetch.
+  - Verify those the same way.
+  - Append them to the same `p0p1-verification.jsonl` with `"batch": "B2"`.
+  - Add a B2 section to `P0_P1_INDEPENDENT_VERIFICATION.md`.
+- Only at that point may you `git fetch` and merge
+  `origin/audit/quality-2026-11` into your branch, to read the new records.
+  This is a merge, never a rebase. Your files under `gemini/` do not
+  conflict with Claude's.
 
 **Protocol, per finding:**
 1. **Blind step.** From the title alone, plus the code and the app, write your

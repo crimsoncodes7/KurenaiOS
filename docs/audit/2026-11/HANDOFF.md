@@ -60,9 +60,16 @@ reviewed the consolidated findings and the plan, and explicitly approved them.
    - Back up each `<area>.json` as `<area>.pre-inventory.json` first, in both
      `audit-evidence/2026-11/qa/findings/` and `findings/`.
    - content-maths keeps its result in `content-maths.audit1.json`; see §5.5.
-   - Fold in each batch (§5.3b), run `consolidate.py`, regenerate Gemini's
-     worklists (`python3 -I docs/audit/2026-11/harness/gemini_worklists.py`),
-     then commit and push.
+   - Fold in each batch (§5.3b), run `consolidate.py`, then commit and push.
+   - **Do NOT regenerate Gemini's frozen list** (`gemini/p0p1-ids.txt`, 96
+     ids at `acd5b67`). Gemini verifies exactly that list on its branch,
+     without rebasing.
+   - After the last top-up, run
+     `python3 -I docs/audit/2026-11/harness/gemini_worklists.py --delta`.
+     It writes `gemini/p0p1-delta-ids.txt` (Batch B2): new or re-rated P0/P1
+     not in the frozen list, plus frozen ids since resolved or downgraded.
+     Commit it and tell the user, who hands it to Gemini as a short last
+     batch.
 3. **Verify the user's remaining reports:** UR-3, UR-5…UR-19, UR-21 and UR-23
    (`findings/user-reports-2026-11-02.md`). Record a verdict and evidence for
    each, and file a finding where one holds.
@@ -797,7 +804,10 @@ workstreams that Claude would otherwise run:
    - gaps probed with evidence;
    - the 21 root causes in §6 challenged;
    - new findings as proposals.
-2. **B. Independent re-check of every open P0/P1** (96 on 7 Nov after batch 6; the list is
+2. **B. Independent re-check of every open P0/P1.** The list is FROZEN at
+   96 ids (`acd5b67`, 7 Nov). New or re-rated P0/P1 from Claude's later
+   top-ups go to Gemini at the end as **Batch B2** (`--delta`, §0 step 2).
+   (96 on 7 Nov after batch 6; the list is
    `gemini/p0p1-ids.txt`):
    - a blind step first (title only), then two independent skeptics (runtime
      and code/spec);
@@ -848,7 +858,7 @@ Fetch the branch: `git fetch && git log origin/audit/gemini-2026-11`. Read
      original.
    - Re-run its commands from `p0p1-verification.jsonl` (`method`). Do the
      outputs and file:line refs exist and say what it claims?
-4. **Coverage of B.** Every id in `p0p1-ids.txt` must have a `final` line
+4. **Coverage of B.** Every id in `p0p1-ids.txt`, and in B2's `p0p1-delta-ids.txt`, must have a `final` line
    (`python3 -c` over the jsonl).
    - Check that skeptics A and B are genuinely different (runtime vs code).
    - Check that the blind step came first: its `at` timestamps precede the
@@ -908,7 +918,7 @@ them):
 **Commands:**
 ```sh
 python3 -I docs/audit/2026-11/harness/consolidate.py        # after any findings change (ids frozen)
-python3 -I docs/audit/2026-11/harness/gemini_worklists.py   # then refresh Gemini's P0/P1 list
+python3 -I docs/audit/2026-11/harness/gemini_worklists.py --delta   # after the last top-up: Gemini's Batch B2 (never --init: the 96-id list is frozen)
 for i in "" {2..113}; do node "tools/smoke${i}.test.js"; done   # the gate (113 suites; smoke75 flaky under load)
 ```
 
