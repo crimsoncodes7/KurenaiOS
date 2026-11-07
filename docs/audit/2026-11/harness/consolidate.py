@@ -83,7 +83,10 @@ def read_jsonl(path):
 
 def load_area(area):
     final = os.path.join(FD, area + ".json")
-    if area == "content-maths":
+    if area == "content-maths" and not os.path.exists(final):
+        # the first Maths audit saved its result under this name; from 7 Nov a
+        # copy is content-maths.json (so the inventory top-up finds it), and the
+        # original stays as the pre-inventory backup
         final = os.path.join(FD, "content-maths.audit1.json")
     part = os.path.join(FD, area + ".jsonl")
     if os.path.exists(final):

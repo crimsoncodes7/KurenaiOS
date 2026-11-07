@@ -1,36 +1,69 @@
-# KurenaiOS quality programme — audit handoff (2 Nov 2026)
+# KurenaiOS quality programme — audit handoff (updated 7 Nov 2026)
 
 **Read this first if you are continuing the audit from another Claude account.**
-It is self-contained: you should not need the user to re-explain anything. The
-original request is reproduced in §1; everything found so far is in
-[`FINDINGS.md`](FINDINGS.md) (generated) and the raw auditor output in
+It is self-contained: you should not need the user to re-explain anything, or
+the conversation that wrote it. The original request is in §1; every finding
+is in [`FINDINGS.md`](FINDINGS.md) (generated) and the raw auditor output in
 [`findings/`](findings/).
 
-**Phase right now: INVESTIGATION (audit), not implementation.** Nothing in the
-app has been changed. The user has NOT approved any plan. Do not start
-remediation until the user has reviewed the consolidated findings + plan and
-explicitly approved it (they plan to start implementation on Sunday 8 Nov 2026
-from their first account, unless the audit and plan are finished sooner).
+**Phase right now: INVESTIGATION (audit), not implementation.** The only app
+change is the user-requested redraw stopgap `kos-redraw-1` (§2.1b). The user
+has NOT approved any remediation. Do not start fixing until the user has
+reviewed the consolidated findings and the plan, and explicitly approved them.
 
 ---
 
-## 0. TL;DR for the next account
+## 0. Start here — the second account, Sunday 8 Nov 2026
 
-1. Read §1 (what the user asked for), §3 (where things stand), §6 (root causes).
-2. **First check the checkout is production code:** `git fetch && git status`
-   — the branch must contain `origin/main` (`grep VERSION sw.js` →
-   `kos-redraw-1` or later). See §2.2: two areas were audited on a stale tree.
-3. Finish the audit EXHAUSTIVELY (§5.2b: a feature inventory + behaviour checks
-   for every area, not just its pages): run the areas in §4 marked **not run** /
-   **partial**, then the inventory pass over the rest, with
-   the harness (§5), in batches of ≤ 3 auditors, each saving findings as it
-   goes (the usage limit killed 3 earlier full runs — see §5.3).
-4. Re-run `python3 -I docs/audit/2026-11/harness/consolidate.py` after adding
-   findings to `findings/` (ids are frozen once issued; new ones get the next
-   number).
-5. Run a completeness critic + adversarial spot-verify of the P0/P1 list.
-6. Write the remediation plan (draft outline in §8) as the user's first
-   deliverable, then STOP and ask for approval.
+**What happened on 7 Nov (first account, last session).**
+- Batch 6 ran **Sync (SY) and Data integrity (DI)** in inventory top-up mode
+  (see §3 for the result).
+- **Money (MG) was stopped at the user's request** before it saved anything.
+  It is still to be inventoried. Its findings are unchanged since 2 Nov.
+- **Gemini 4 Argon** (Google Antigravity) has been brought in by the user to
+  run two workstreams independently: the **completeness critic** and the
+  **independent re-check of all open P0/P1**. Its brief is
+  [`gemini/GEMINI_INSTRUCTIONS.md`](gemini/GEMINI_INSTRUCTIONS.md); see §10.
+  **Do not run those two workstreams yourself.**
+
+**Your jobs, in order:**
+
+1. **Orient** (15 min).
+   - Run `git fetch && git status && git log --oneline -5`. The branch is
+     `audit/quality-2026-11` and must contain `origin/main`
+     (`grep VERSION sw.js` → `kos-redraw-1`).
+   - Read §0–§4, §6 and §10.
+   - Check whether Gemini has pushed `origin/audit/gemini-2026-11` yet
+     (`git branch -r`).
+2. **Finish the inventory pass on the four areas still without one: MG, CM,
+   CC, CR.** Exact scope is in §5.5.
+   - Run batches of **at most 2–3 auditors**:
+     ```js
+     Workflow({scriptPath: "docs/audit/2026-11/harness/workflow-audit.js",
+       args: {order: [...], batch: 2, topup: [...]}})
+     ```
+   - Back up each `<area>.json` as `<area>.pre-inventory.json` first, in both
+     `audit-evidence/2026-11/qa/findings/` and `findings/`.
+   - content-maths keeps its result in `content-maths.audit1.json`; see §5.5.
+   - Fold in each batch (§5.3b), run `consolidate.py`, regenerate Gemini's
+     worklists (`python3 -I docs/audit/2026-11/harness/gemini_worklists.py`),
+     then commit and push.
+3. **Verify the user's remaining reports:** UR-3, UR-5…UR-19, UR-21 and UR-23
+   (`findings/user-reports-2026-11-02.md`). Record a verdict and evidence for
+   each, and file a finding where one holds.
+4. **Live checks on the user's real account** (§5.4 item 5). Ask the user to
+   close their own KurenaiOS tabs first, because two tabs overwrite each
+   other's state (DI-04, UR-4).
+5. **When Gemini delivers, REVIEW its output (§10.3).** Do not redo its
+   investigation. Recommend accept, accept with follow-ups, or reject and
+   redo. The user decides.
+6. **Integrate** what the user accepts (§10.4), then **write the remediation
+   plan** (§8 outline, §6 root causes), ask the §8 questions, and **STOP for
+   approval.**
+
+**Lesson that cost the most:** large parallel agent batches exhaust the usage
+window in minutes (§5.3). Keep batches to 2–3 auditors, save findings
+incrementally, and commit after every batch.
 
 ---
 
@@ -160,13 +193,22 @@ of separate apps: everything interlinked, coherent).
 
 ---
 
-## 2. Repository state (2 Nov 2026)
+## 2. Repository state (reconciled 7 Nov 2026)
 
-- `main` = `origin/main` = `feat/art-shop` = `56b1a8c` (last release sw
-  `kos-artshop-1`, production). Local `main` had been 23 commits behind
-  `origin/main` and was fast-forwarded on 2 Nov.
-- **Audit branch: `audit/quality-2026-11`**, rebased onto `56b1a8c`, pushed. It
-  contains ONLY `docs/audit/2026-11/` (this folder). No app code changed.
+- **`main` = `origin/main` = `0e4a781`.** It is the redraw stopgap `4c3fc33`
+  (sw `kos-redraw-1`, production since 3 Nov) plus the docs-only VN capstone
+  proposal (`docs/vn-capstone-plan.md`, ROADMAP §5.18).
+- **Audit branch: `audit/quality-2026-11`**, linear on top of `origin/main`
+  and pushed.
+  - It adds only `docs/audit/2026-11/` and the root `GEMINI.md`, a pointer
+    for Gemini.
+  - **No app code changed on it.** Check with
+    `git diff --stat origin/main..audit/quality-2026-11 -- . ':!docs/audit' ':!GEMINI.md'`,
+    which must print nothing.
+  - The latest commit is in `git log -1`; §3 names the batch-6 commit.
+- **Gemini's branch** (when it exists): `audit/gemini-2026-11`, created from
+  this one. It writes only `docs/audit/2026-11/gemini/` and is never merged
+  without review (§10).
 - Uncommitted files in the working tree that are **the user's, not ours —
   leave them alone**: `.claude/launch.json`, `.claude/settings.local.json`,
   Live2D art under `art-source/assistant/live2d/source/`, `media_budget_planner.html`,
@@ -258,6 +300,8 @@ planned second-pass adversarial verifier never ran (usage limits). Spot-verify
 before acting (see §7).
 
 ## 4. Coverage by area
+
+(Status per area. "inventoried" = has `findings/<area>.inventory.md`. Still without one on 7 Nov: MG, CR, CM, CC — §5.5.)
 
 | ID | Area | Status | Findings | Not covered (from the auditor, or unknown) |
 |---|---|---|---|---|
@@ -388,6 +432,113 @@ re-running its auditor continues from the `.jsonl` without repeating it.
    allowed careful writes; delete it after); AniList/VNDB pages at iPad/iPhone.
 6. Completeness critic ("what's missing?") over the whole of FINDINGS.md.
 7. Adversarial spot-verify of every P0/P1 (≥ 2 skeptics each), drop or fix.
+
+### 5.5 The remaining areas: exact scope (for the second account)
+
+All four were audited before the inventory rule (§5.2b) existed. They are
+presentation-checked and partly behaviour-checked, but have no
+`<area>.inventory.md`. Run each in INVENTORY TOP-UP mode: put the area in
+`args.topup` as well as `args.order`.
+- The auditor re-checks every old finding (title kept word for word and a
+  `recheck` verdict), writes the inventory, and adds new findings.
+- Back up first (`<area>.json` → `<area>.pre-inventory.json` in both folders).
+- Suggested batches: **MG + CR**, then **CM + CC**. Content auditors read a
+  lot of data, so two at a time is safer.
+
+**MG: Money (`money-goals`, slot 14).** 22 findings: P0 MG-01, P1 MG-02…MG-10.
+- **Investigated:**
+  - the CSV import with six reconstructed Santander exports
+    (`data/money-samples/`: midata comma/semicolon, Online Banking CSV/TXT,
+    QIF, OFX);
+  - the duplicates' root cause (dedupe key includes payee);
+  - the import result, the six views' layout, phone reachability.
+- **Remains:**
+  - **the inventory of Money as a whole** (every view, dialog and setting);
+  - budgets, recurring rules and subscriptions (confirm, skip, leave),
+    pots, the month view and the planner mirror (`wl:` rows);
+  - Hide amounts across every surface;
+  - `kos_money` sync logic (local first, tombstones, echo skip) in node,
+    since there is no cloud in the harness;
+  - the Wishlist "Mark purchased" handoff, the Calendar's derived money
+    chips, money notices, and the Assistant's `money_*` tools (undo, zero
+    Governor traffic);
+  - iPad landscape, and the import dialog on iPhone and iPad.
+- **Not in scope:** Goals, which has its own area (GO), and the Goals pages,
+  already covered by MG.
+- **Files:** `js/core/money.js`, `js/modules/money.js`, `css/views/money.css`,
+  and the `KOS.ui.amount`/`amountField`/`catBar`/`ring` primitives in
+  `js/core/ui.js`.
+- **Risks:** MG-01 duplicates are P0 (data); invariant 5a's "zero Governor
+  traffic" has never been checked by experiment.
+- **The user's own context:** they bank with Santander. Their exports are
+  listed in §1.6.
+
+**CR: Creatives (`creatives`, slot 12).** 24 findings: P1 CR-01, CR-02.
+- **Investigated:** the pages at three sizes; the Practice Log dialog loop;
+  iPhone settings reachability; day-circle centring (CR-07).
+- **Remains:**
+  - the inventory;
+  - pay-once keys (`study:`, `drill:<type>:<day>`, `project:`) under
+    re-save, re-do, promote and critique (invariant 154, cf. root cause 21);
+  - evidence derivation and `syncChecks`;
+  - the Daily Creative under Exam Season;
+  - the Writing Desk (versions, word diff, sprints, interaction with the
+    stopgap);
+  - the six Graphic design drills and the WCAG contrast check;
+  - the reference generator's seeds;
+  - the sketchbook on the ink engine (Momentum disables undo/eraser);
+  - Portfolio/Practice Log privacy (never on Home, Reports, shares or
+    Kurenai's context, invariant 156);
+  - Goals' Creatives types and Reports' `f.creatives` totals.
+- **Not verifiable in the harness:** the critique round trip (no AI route).
+  Check the request payload with `KOS.creatives.critiqueRequest`.
+- **Files:** `js/core/creatives.js`, `js/modules/cr*.js`,
+  `js/labs/cr-refs.js`, `js/data/creatives.js`,
+  `js/data/content/cr-*.js`.
+- **Ignore:** a stale-build attempt (`creatives.OLD-BUILD-f4fa493.jsonl`).
+
+**CM: Maths content (`content-maths`, slot 7).** 13 findings: P1 CM-01
+garbled spec text, CM-02 quiz answers A/B.
+- **Investigated:** metrics over all leaves (`data/content-maths/`); spot
+  reads; thin leaves (8.4, 8.1, 6.1, 7.2, 8.2, 6.3, 8.6); duplicate lists.
+- **Note on files:** the result is in `content-maths.json` (a copy of
+  `content-maths.audit1.json`, which is the backup; `consolidate.py` reads
+  `content-maths.json` when it exists).
+- **Remains:**
+  - an inventory of what each leaf ships (notes pages, worked examples,
+    flashcards, quiz, exam items, sims/gens wired) against the depth
+    contract;
+  - correctness of facts and worked answers, sampled across Pure,
+    Statistics and Mechanics with a stated sample size;
+  - generators' `random()`/`solve()` safety;
+  - the M-ref renames (S6–S9 → M6–M9, invariant 24) in stored state;
+  - flashcard duplicates and keys (invariant 87);
+  - the forks issue (LA-23, root cause 9) seen from the content side.
+- **Files:** `js/data/maths.js` (generated), `js/data/content/maths-*.js`,
+  `bank-*.js`, `tools/gen_data.py`, `js/labs/worked*.js`.
+
+**CC: CS + IT content (`content-cs-it`, slot 8).** 13 findings: P1 CC-01,
+CC-02, CC-03, CC-04.
+- **Investigated:** a dump and metrics (`data/content-cs-it/`); the quiz
+  answer-position bias; the IT duplicate ref; garbled IT spec text.
+- **Per-leaf worklist:** `data/content-cs-it/worklist.txt` (162 leaves, not
+  done).
+- **Remains:**
+  - per-leaf inventory and correctness sampling, including C# code in CS
+    Paper 1 notes (does it compile and do what it says);
+  - the 12 merged CS leaves (`CS_MERGES`, `REF_ALIASES`) and their cards'
+    keys;
+  - `NOT_EXAMINED` honesty;
+  - the Exam Companion (`js/data/exams/aqa-7517-2-*.js`, invariant 130)
+    content checks;
+  - IT F201 and F206 (the units the user still sits).
+- **Skip:** F200, F202 and F204 are done; F203 and F205 are never taken.
+- **Files:** `js/data/compsci.js`, `js/data/it.js` (generated),
+  `js/data/content/cs-*.js`, `it-*.js`, `js/data/intel.js`.
+
+**SY and DI** were run in batch 6 (7 Nov); §3 says whether they finished. If
+either has no `.inventory.md`, re-run it the same way. Its `.jsonl` lets it
+continue without repeating.
 
 ## 6. Cross-cutting root causes (the synthesis so far)
 
@@ -528,9 +679,14 @@ These explain many symptoms each. The plan should fix the cause once.
   live), the M7.3 stale fork (LA-23, live), the state-document size (LA-9,
   live), the AniList/VNDB page issues (LA-12…17, live screenshots), the
   Todoist round trip (LA-19…22), the toast/home/money first-run screenshots.
-- Japanese + Mind (JM) has only 5 findings because its auditor was cut off
-  almost at once — it has **not** passed anything. AP and AX ran on an older
-  build (§2.2).
+- Since 5 Nov: verified with fixtures or experiments by the auditors —
+  UR-20 (GO-02), UR-22 (GO-23), UR-24 (harness, 6 Nov), ST-25 (fixture: a
+  topic file vanished after deleting its assignment). AP and AX were re-run
+  on main (6 Nov) and every carried-over finding has a `recheck` verdict;
+  the same holds for ST, PR and every later inventory top-up.
+- User reports still unverified: UR-3, UR-5…UR-19, UR-21, UR-23.
+- The independent adversarial verification of P0/P1 is now Gemini's
+  workstream B (§10); its verdicts are proposals until reviewed.
 
 ## 8. Draft remediation plan outline (NOT approved; for the next account to complete)
 
@@ -596,3 +752,201 @@ Open questions to ask the user when presenting the plan:
   comma/semicolon, Online Banking CSV and TXT, QIF, OFX — synthetic data),
   `content-maths/` and `content-cs-it/` metrics, duplicate lists and worklists,
   `baseline-gate.txt`.
+- `gemini/` — Gemini 4 Argon's brief and outputs (§10). `GEMINI_INSTRUCTIONS.md`
+  (the brief), `START_PROMPT.md` (the user's first message to it),
+  `p0p1-blind.json` and `p0p1-ids.txt` (its worklist, generated by
+  `harness/gemini_worklists.py`). Its deliverables land here on ITS branch.
+- `/GEMINI.md` (repo root) — a pointer Antigravity loads automatically; it
+  overrides AGENTS.md's "the whole repository is editable" for Gemini.
+
+## 10. Gemini 4 Argon — the independent reviewer (added 7 Nov 2026)
+
+### 10.1 Why and what
+Two Claude accounts' usage cannot finish the programme as quickly as the user
+wants. So the user is bringing in **Gemini 4 Argon**, Google's reasoning model
+(Gemini API since 13 Oct 2026). It runs in **Google Antigravity 2.0**, the
+agent-first IDE/app (subagents, auto-cleaned git worktrees, a `/browser`
+subagent, rules from `AGENTS.md`/`GEMINI.md`). It takes exactly two
+workstreams that Claude would otherwise run:
+
+1. **A. Completeness critic** ("what did we miss?"):
+   - its own map of the app compared with the inventories and coverage
+     matrices;
+   - gaps probed with evidence;
+   - the 21 root causes in §6 challenged;
+   - new findings as proposals.
+2. **B. Independent re-check of every open P0/P1** (94 on 6 Nov; the list is
+   `gemini/p0p1-ids.txt`):
+   - a blind step first (title only), then two independent skeptics (runtime
+     and code/spec);
+   - verdicts: confirmed / partially-confirmed / not-reproducible /
+     incorrectly-described / incorrect-severity / duplicate / inconclusive.
+
+**The brief:** [`gemini/GEMINI_INSTRUCTIONS.md`](gemini/GEMINI_INSTRUCTIONS.md),
+with [`gemini/START_PROMPT.md`](gemini/START_PROMPT.md) as the user's first
+message.
+
+**Its deliverables**, in `docs/audit/2026-11/gemini/` on branch
+`audit/gemini-2026-11`:
+- `ORIENTATION.md`
+- `COMPLETENESS_CRITIC_REPORT.md`
+- `P0_P1_INDEPENDENT_VERIFICATION.md`
+- `p0p1-verification.jsonl` (the structured record, one `final` line per id)
+- `proposed-findings.jsonl` (ids `GEM-nnn`)
+- `proposed-root-causes.md`
+- `evidence/` and `probes/`, with screenshots in
+  `audit-evidence/2026-11/gemini/` (gitignored, this Mac)
+- `UNRESOLVED_QUESTIONS.md`
+- `EXECUTIVE_SUMMARY.md`
+
+**Gemini is barred from:**
+- app changes;
+- writing outside `gemini/`;
+- the user's real account and any external service;
+- Claude's harness slots 0–21 (it uses 30–39).
+
+### 10.2 Gemini's results are NOT canonical
+Nothing Gemini writes changes `findings.json`, `FINDINGS.md` or §6 until it
+has been reviewed (10.3) and the user has accepted it (10.4).
+- `consolidate.py` reads only `findings/`, so Gemini's files can never leak
+  in by accident.
+- **Do not copy its verdicts into `findings/` silently.**
+
+### 10.3 The second account's review (do this first when it delivers; do NOT redo its work)
+Fetch the branch: `git fetch && git log origin/audit/gemini-2026-11`. Read
+`EXECUTIVE_SUMMARY.md`, then judge the deliverables:
+
+1. **Usefulness.** Does the completeness report find real gaps (named
+   features or workflows with evidence), or does it restate the handoff?
+2. **Are the new findings new?** Search `findings.json` by file and keyword
+   for each `GEM-*`. Count the true-new, duplicate and new-symptom items.
+3. **Evidence.**
+   - Spot-check a sample: every `GEM-*` rated P0/P1, plus about 10 random
+     verdicts across verdict types, especially every DISAGREEMENT with the
+     original.
+   - Re-run its commands from `p0p1-verification.jsonl` (`method`). Do the
+     outputs and file:line refs exist and say what it claims?
+4. **Coverage of B.** Every id in `p0p1-ids.txt` must have a `final` line
+   (`python3 -c` over the jsonl).
+   - Check that skeptics A and B are genuinely different (runtime vs code).
+   - Check that the blind step came first: its `at` timestamps precede the
+     others.
+5. **Architecture misunderstandings.** Watch for verdicts that misread an
+   invariant (CLAUDE.md) as a bug, or a bug as intended. Watch for claims
+   based on the emulated harness where real iOS differs.
+6. **Omissions.** Areas or root causes it never touched.
+7. **Method.** Severity definitions, evidence standard, and save discipline
+   (§3–§4 of the brief).
+
+Write the review to `gemini/CLAUDE_REVIEW.md` on the audit branch, with one
+recommendation:
+- **(1) Accept**
+- **(2) Accept with specific follow-ups** (list them)
+- **(3) Reject and require substantial rework** (say what)
+
+Then add a section **"Gemini's role in the rest of the programme"** with a
+proposal. Candidates:
+- the inventory of a remaining content area;
+- regression verification after implementation;
+- drafting checklist items;
+- a second reviewer on Claude's fixes;
+- or none.
+
+Give reasons from its actual quality. **The user makes the final decision.**
+Do not start remediation, and do not merge Gemini's branch, before they
+decide.
+
+### 10.4 Integrating what the user accepts
+- **An accepted verdict** goes on the original finding as a field in its area
+  file (`gverdict: {verdict, proposedSeverity, evidence}`).
+  - Re-rate only where the user agrees.
+  - Teach `consolidate.py` to render the field, as it does `recheck`.
+  - A finding found false is marked `resolved: "not reproducible — Gemini B,
+    reviewed by Claude"` in the `RESOLVED` dict, never deleted.
+- **An accepted `GEM-*` finding** is appended to the right area's `.jsonl`
+  with its evidence. It then gets that area's next id; record the GEM id in
+  its detail.
+- **Accepted root-cause changes** are edited into §6 with a note.
+
+## 11. Operational continuity (7 Nov 2026)
+
+**Branch and commit.**
+- Work on `audit/quality-2026-11` (pushed; `git log -1` for the head).
+- `main` is `0e4a781`, deployed as sw `kos-redraw-1`.
+- Pushes are ordinary. A force-push needs the user's explicit OK, and the
+  permission classifier blocks it otherwise.
+
+**Working tree.** Only these are the user's (leave them alone, never stage
+them):
+- `.claude/launch.json`, `.claude/settings.local.json`;
+- the Live2D art under `art-source/assistant/live2d/source/` (modified,
+  deleted autosave, a `~` file);
+- `media_budget_planner.html`, `prompt.md`, `prototypes/code-space/`.
+
+**Commands:**
+```sh
+python3 -I docs/audit/2026-11/harness/consolidate.py        # after any findings change (ids frozen)
+python3 -I docs/audit/2026-11/harness/gemini_worklists.py   # then refresh Gemini's P0/P1 list
+for i in "" {2..113}; do node "tools/smoke${i}.test.js"; done   # the gate (113 suites; smoke75 flaky under load)
+```
+
+**Harness:**
+- §5.1. `kos.mjs` takes `KOS_ROOT=<checkout>` to serve a worktree (default
+  `/Users/fj/Developer/KurenaiOS - Web`).
+- Slots: Claude's auditors use 1–21 (area index + 1, §5.5). Gemini uses
+  30–39. Stop your slots after a batch: `node docs/audit/2026-11/harness/kos.mjs stop <n>`.
+- The test environment is headless Chrome with emulated touch, signed out,
+  with no AI route and no cloud. Two-device behaviour is tested in node/jsdom
+  (see `tools/smoke*.test.js`).
+
+**Orchestration:**
+- Use the Workflow tool with `harness/workflow-audit.js`,
+  `args {order, batch, topup}`. Each auditor saves its findings to
+  `audit-evidence/2026-11/qa/findings/<area>.jsonl` as it goes, and writes
+  `<area>.json` and `<area>.inventory.md` when it finishes.
+- A Workflow can only be stopped whole, not one auditor at a time (learned
+  7 Nov). To drop an area, stop the workflow and relaunch without it; the
+  others continue from their `.jsonl`.
+- **Cost:** about 0.9–1 M subagent tokens and 30–55 min per batch of 3.
+
+**Evidence:**
+- Tracked: `docs/audit/2026-11/{findings,data,harness}/`.
+- Untracked, on this Mac only: `audit-evidence/2026-11/qa/` (screenshots
+  `shots/<area>/`, probes, samples).
+
+**Failed approaches, so you don't repeat them:**
+- 19 auditors at once, or batches of 4, exhausted the usage window (§5.3).
+- An audit from a stale local `main` (§2.2).
+- A plain rebase across the superseding merge `d5ae5c0` (cherry-pick the
+  first-parent commits instead).
+- An auditor rewriting its `.jsonl` (append only, restore from git if it
+  happens).
+- Auditors numbering their own titles (handled by `consolidate.py`'s
+  `SELF_ID`).
+- `kos.mjs shot --theme` (the app re-applies its theme; set it via `eval`).
+
+**Outstanding real-account checks** (Claude in Chrome, with the user's
+KurenaiOS tabs closed; read freely; writes only as marked test items, deleted
+afterwards; never write to AniList or VNDB, because that posts public
+activity):
+1. Has ST-25 already deleted any of the user's files? Compare
+   `kurenai-os-files` records and tombstones with deleted assignments.
+2. A Google Calendar two-way round trip with a marked test event.
+3. AniList and VNDB pages at iPad and iPhone sizes, read-only.
+4. UR-21: the Death Note / "updated 713" re-reward hypothesis (read-only).
+
+**Exact next actions:** §0, "Your jobs, in order".
+
+**The whole programme** (the user's, unchanged):
+1. Baseline. Done.
+2. Exhaustive audit. In progress: 4 areas left, then UR, live checks and
+   Gemini's A and B.
+3. Consolidated findings.
+4. **Remediation plan presented for approval.** Not yet written; §8 is an
+   outline.
+5. Implementation, only after explicit approval. **NOT approved.**
+6. Regression verification.
+7. The interactive HTML review checklist (§1.2 step 5, modelled on
+   `reference/graphite-review.html`).
+8. The final technical report.
+9. The CLAUDE.md/AGENTS.md maintainability rules (§1.2).
