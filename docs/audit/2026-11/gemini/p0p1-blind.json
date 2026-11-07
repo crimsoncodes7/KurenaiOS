@@ -1,0 +1,758 @@
+{
+ "count": 94,
+ "note": "Blind worklist: title only. Read the full record in ../findings.json ONLY after writing your independent assessment.",
+ "findings": [
+  {
+   "id": "JM-06",
+   "area": "ja-mind",
+   "severity": "P0",
+   "category": "bug",
+   "devices": "all",
+   "title": "Choosing 'Media' in the Japanese spine locks the device out of every Japanese lesson: each lesson page throws 'codeSpine.stageHead is not a function' and bounces to Home, and the switch back is on the page that no longer opens"
+  },
+  {
+   "id": "MG-01",
+   "area": "money-goals",
+   "severity": "P0",
+   "category": "data",
+   "devices": "all",
+   "title": "Duplicate transactions after re-importing: de-dupe key includes payee, so a second import mapped differently is all 'new'"
+  },
+  {
+   "id": "ST-25",
+   "area": "study-core",
+   "severity": "P0",
+   "category": "data",
+   "devices": "all",
+   "title": "Deleting an assignment permanently deletes every file linked to it, including files that belong to a topic or another record"
+  },
+  {
+   "id": "AA-01",
+   "area": "assistant-archive",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered"
+  },
+  {
+   "id": "AA-02",
+   "area": "assistant-archive",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "Mac, iPad, iPhone",
+   "title": "Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen"
+  },
+  {
+   "id": "AA-11",
+   "area": "assistant-archive",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "all",
+   "title": "Import backup replaces everything on this device the moment a file is picked: no confirmation, no summary, no undo"
+  },
+  {
+   "id": "AG-01",
+   "area": "achievements-governor",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "mac, ipad (landscape and portrait)",
+   "title": "The Seat's ⋯ menu is cut off by the stage: its Data row (Mine / Empty / Sample) is hidden and unclickable"
+  },
+  {
+   "id": "AG-02",
+   "area": "achievements-governor",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iphone (402), anything under 700",
+   "title": "iPhone Seat: showcase medals draw at 80px over each other and the XP bar, and the empty slots are 17 x 44 ovals"
+  },
+  {
+   "id": "AP-01",
+   "area": "architecture-perf",
+   "severity": "P1",
+   "category": "perf",
+   "devices": "all; worst on iPhone 17 and iPad (cold launch of the Home Screen app)",
+   "title": "Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs"
+  },
+  {
+   "id": "AX-01",
+   "area": "a11y-hci",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "iPhone",
+   "title": "iPhone: most text fields and selects are under 16px, so iOS Safari zooms the page on every focus"
+  },
+  {
+   "id": "CC-01",
+   "area": "content-cs-it",
+   "severity": "P1",
+   "category": "content",
+   "devices": null,
+   "title": "IT spec text for F206.6.1, F204.6.5, F202.5.1, F201.5.2, F200.5.3 (and F200.2.x/F202.2.x) holds garbled PDF dumps of the assessment criteria"
+  },
+  {
+   "id": "CC-02",
+   "area": "content-cs-it",
+   "severity": "P1",
+   "category": "data",
+   "devices": null,
+   "title": "IT spec has a duplicate leaf: F206.6.1 'Ways to reflect' and 'Overview of the assessment' share a ref, so 'Ways to reflect' cannot be opened"
+  },
+  {
+   "id": "CC-03",
+   "area": "content-cs-it",
+   "severity": "P1",
+   "category": "content",
+   "devices": null,
+   "title": "Quiz answers are guessable: the correct option is A or B in 94% of CS questions (D only 12 of 1,347) and options are never shuffled"
+  },
+  {
+   "id": "CC-04",
+   "area": "content-cs-it",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iphone, ipad, ipadl (some), mac (1)",
+   "title": "'Write it out' pill on worked examples overlaps the example's title on iPhone and iPad"
+  },
+  {
+   "id": "CL-01",
+   "area": "collection",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPad portrait 820x1180 (any 701-860 width)",
+   "title": "Collection section strip hides the Games vault on iPad portrait (inner pill group scrolls invisibly)"
+  },
+  {
+   "id": "CM-01",
+   "area": "content-maths",
+   "severity": "P1",
+   "category": "content",
+   "devices": "all",
+   "title": "Specification tab shows garbled PDF-extraction text on most Maths leaves (M7.3 included)"
+  },
+  {
+   "id": "CM-02",
+   "area": "content-maths",
+   "severity": "P1",
+   "category": "content",
+   "devices": "all",
+   "title": "Quiz answers are almost always A or B, and options are never shuffled"
+  },
+  {
+   "id": "CO-01",
+   "area": "code-space",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPad portrait/landscape, iPhone",
+   "title": "Stage path on touch devices: unit squares become 28x44 bars and capstone diamonds render as skewed slashes"
+  },
+  {
+   "id": "CO-02",
+   "area": "code-space",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPhone",
+   "title": "iPhone desk: Daily 20 and Continue squeezed side by side; the Open-lesson button's label spills out of its pill"
+  },
+  {
+   "id": "CO-03",
+   "area": "code-space",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "MacBook, iPad landscape",
+   "title": "Desk side column: a real Daily 20 task crushes the Continue card to 41px and clips its 'CONTINUE' label (Mac, iPad landscape)"
+  },
+  {
+   "id": "CO-04",
+   "area": "code-space",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException"
+  },
+  {
+   "id": "CR-01",
+   "area": "creatives",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)"
+  },
+  {
+   "id": "CR-02",
+   "area": "creatives",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "iphone",
+   "title": "On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides"
+  },
+  {
+   "id": "DI-01",
+   "area": "data-integrity",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all (multi-device)",
+   "title": "Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives"
+  },
+  {
+   "id": "DI-02",
+   "area": "data-integrity",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates"
+  },
+  {
+   "id": "DI-03",
+   "area": "data-integrity",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count"
+  },
+  {
+   "id": "DI-04",
+   "area": "data-integrity",
+   "severity": "P1",
+   "category": "data",
+   "devices": "mac (two windows/tabs), iPad Safari with two tabs",
+   "title": "Two open tabs or windows overwrite each other's saves (last writer wins on the whole state)"
+  },
+  {
+   "id": "EX-01",
+   "area": "exams-files-ink",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Marks by question: a question added with '＋ Question' can't be given its Max or its topic"
+  },
+  {
+   "id": "EX-02",
+   "area": "exams-files-ink",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPhone (also any short landscape window)",
+   "title": "Exam Room on iPhone: the 'Before you go in' checklist is drawn on top of the rapid-recall list"
+  },
+  {
+   "id": "EX-03",
+   "area": "exams-files-ink",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPhone",
+   "title": "On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen"
+  },
+  {
+   "id": "EX-28",
+   "area": "exams-files-ink",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "ipad, ipadl, iphone, mac",
+   "title": "Timed paper: the question navigator's squares are crushed to 7px slivers on iPad and iPhone (17px on Mac)"
+  },
+  {
+   "id": "GO-02",
+   "area": "goals",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge"
+  },
+  {
+   "id": "GO-06",
+   "area": "goals",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field"
+  },
+  {
+   "id": "GO-07",
+   "area": "goals",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked"
+  },
+  {
+   "id": "GO-23",
+   "area": "goals",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once"
+  },
+  {
+   "id": "GO-25",
+   "area": "goals",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked"
+  },
+  {
+   "id": "HR-01",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "mac, ipad landscape (4 across), ipad portrait (2 across)",
+   "title": "Mind and Creatives are pushed off-screen in Home's Continue row (fixed subject order, 4 visible, no scroll affordance)"
+  },
+  {
+   "id": "HR-02",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "Weekly/monthly reports saved before the history arrives are frozen as 'A quiet week for study' forever"
+  },
+  {
+   "id": "HR-03",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "ipad portrait, iPad Split View, any 701-1080 window",
+   "title": "iPad portrait Home has no Daily goal, no Today's three, no Recovery list and no Start focus in the hero"
+  },
+  {
+   "id": "HR-04",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "integration",
+   "devices": "all",
+   "title": "Home does not answer 'what next' for Code, Japanese, Mind, Creatives or Money"
+  },
+  {
+   "id": "HR-05",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "Home 'Study hours' and Reports 'Studied' measure different things (12h14m vs 2h32m for the same week)"
+  },
+  {
+   "id": "HR-16",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Streak milestone bonuses are paid again every day: before the first study session the streak 'ends yesterday', which moves each milestone's key date by one day"
+  },
+  {
+   "id": "HR-17",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Report words print 'undefined took the largest share' when Code, Japanese, Mind or Creatives got the most Focus time, and that text is saved for good"
+  },
+  {
+   "id": "HR-18",
+   "area": "home-reports",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Hero 'Daily goal' directives pay XP and gold on a self-tick with no evidence, and untick/re-tick pays again without limit"
+  },
+  {
+   "id": "JM-07",
+   "area": "ja-mind",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "'Held in reviews' (4th lesson check) is never written to the progress record by reviews, so the inspector shows 3/4 · 75% while the stored status, spine and unit counts stay behind"
+  },
+  {
+   "id": "JM-08",
+   "area": "ja-mind",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all (most likely on iPad/iPhone via the back swipe and tab bar)",
+   "title": "Leaving a Japanese session by navigation (rail, tab bar, Back, iPad edge swipe, reload) logs nothing: answers are rescheduled but the session's XP and the day's study activity are lost"
+  },
+  {
+   "id": "JM-09",
+   "area": "ja-mind",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iphone",
+   "title": "iPhone: on a Japanese lesson the topic tab strip collapses to 5 px — Notes, Practice, Reviews and Files are invisible and the Practice session cannot be reached from the lesson"
+  },
+  {
+   "id": "MG-02",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "integration",
+   "devices": "all",
+   "title": "Santander midata CSV is refused: 'Merchant/Description' and 'Debit/Credit' headers are not recognised"
+  },
+  {
+   "id": "MG-03",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "integration",
+   "devices": "all",
+   "title": "Import only reads the first line as the header: midata with a leading blank line or a semicolon delimiter, and Online Banking CSV with an account preamble, all fail"
+  },
+  {
+   "id": "MG-04",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "integration",
+   "devices": "all",
+   "title": "Santander's other exports (.txt, QIF, OFX) are not supported at all; the picker accepts .txt but cannot read it"
+  },
+  {
+   "id": "MG-05",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "all",
+   "title": "No way to see, undo or replace an import after the result dialog closes"
+  },
+  {
+   "id": "MG-06",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "Unquoted thousands separators shift columns: '£1,234.56' imports silently as £1.00"
+  },
+  {
+   "id": "MG-07",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "A recurring rule's 'Confirm' and an imported bank row for the same payment double-count"
+  },
+  {
+   "id": "MG-08",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "all",
+   "title": "Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded"
+  },
+  {
+   "id": "MG-09",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "iphone",
+   "title": "iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable"
+  },
+  {
+   "id": "MG-10",
+   "area": "money-goals",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "mac, ipad",
+   "title": "Import preview hides the payee and amount, and the Import button is below the fold"
+  },
+  {
+   "id": "MI-01",
+   "area": "mind",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "The F1 checkpoint lesson (F1.8) can never reach Completed: its fourth check reads retrieval over the lesson's concepts, and a checkpoint lesson has none"
+  },
+  {
+   "id": "MI-02",
+   "area": "mind",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iphone, ipad portrait (all states); mac in Exam Season",
+   "title": "Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px — the Start button, the plan and the lesson title are cut off"
+  },
+  {
+   "id": "PR-01",
+   "area": "productivity",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Afternoon review: 'Place in a free block' menu opens BEHIND the review dialog, so it does nothing"
+  },
+  {
+   "id": "PR-02",
+   "area": "productivity",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Every page header shows the PREVIOUS page's painted band after in-app navigation"
+  },
+  {
+   "id": "PR-03",
+   "area": "productivity",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "Focus: 'General study — no link' is overridden by About to Study, which silently links the session to the first assignment (even with 'Just start')"
+  },
+  {
+   "id": "PR-04",
+   "area": "productivity",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "mac, ipad, iphone",
+   "title": "Running Focus: a long assignment title runs off the screen (left edge on Mac, right edge on iPhone)"
+  },
+  {
+   "id": "SC-01",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "mac, ipad, iphone",
+   "title": "Shop avatar previews: the painted avatar escapes its disc (drawn top-left, overflowing the card) and the disc sits empty, offset"
+  },
+  {
+   "id": "SC-02",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "mac, ipad, iphone",
+   "title": "Try on panel's 'Buy · ◈ 4,500' button is illegible (dark ink on dark glass)"
+  },
+  {
+   "id": "SC-03",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "mac, ipad (same stage)",
+   "title": "A painted frame on the Seat spills over 'Level 53', the title chip and past the stage edge"
+  },
+  {
+   "id": "SC-04",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Seals are sold as 'the topbar mark' but the topbar has no mark any more; the painted stamp art is never shown in use"
+  },
+  {
+   "id": "SC-05",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "All 10 painted shelf skins and Shrine card styles never show: their picture URL resolves to /css/views/assets/... (404)"
+  },
+  {
+   "id": "SC-06",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "all",
+   "title": "Shop frame previews: the avatar is a small disc lost inside a big painted ring (55px avatar in a 179px frame)"
+  },
+  {
+   "id": "SC-07",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "With a painted frame worn, every CSS frame card in the shop previews the WORN frame instead of its own"
+  },
+  {
+   "id": "SC-08",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "mac, iphone, ipad",
+   "title": "A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge"
+  },
+  {
+   "id": "SC-20",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "all",
+   "title": "Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)"
+  },
+  {
+   "id": "SC-21",
+   "area": "shop-cosmetics",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "all",
+   "title": "Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)"
+  },
+  {
+   "id": "SH-01",
+   "area": "shell",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPhone (all phones); also iPad/Mac for long toasts (wraps at 410/735px)",
+   "title": "Toast wraps at half the viewport width on phones: tall broken pill over content"
+  },
+  {
+   "id": "SH-02",
+   "area": "shell",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "MacBook; iPad with a keyboard",
+   "title": "Global Backspace = Back fires even when a page handled the key: Backspace on a Money row opens 'Delete this entry?' AND navigates to the previous page underneath"
+  },
+  {
+   "id": "SH-03",
+   "area": "shell",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "MacBook, iPad portrait and landscape",
+   "title": "Governor ⋯ menu is cut off behind the Stage (only half of its first row shows)"
+  },
+  {
+   "id": "SH-04",
+   "area": "shell",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPhone (all <700px, incl. iPad Slide Over)",
+   "title": "iPhone bottom tab bar lost its labels: five bare kanji (灯 学 整 蒐 余) with no Home/Study/Productivity/Collection/More text"
+  },
+  {
+   "id": "SH-20",
+   "area": "shell",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "MacBook, iPad with keyboard",
+   "title": "Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)"
+  },
+  {
+   "id": "SH-21",
+   "area": "shell",
+   "severity": "P1",
+   "category": "a11y",
+   "devices": "MacBook, iPad with keyboard",
+   "title": "'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route"
+  },
+  {
+   "id": "SH-22",
+   "area": "shell",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "iPhone (and any width ≤700, incl. iPad Slide Over)",
+   "title": "On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its ▾ sheet lists the section's pages instead"
+  },
+  {
+   "id": "ST-01",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPad portrait (and Split View)",
+   "title": "IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name"
+  },
+  {
+   "id": "ST-02",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "ui",
+   "devices": "iPhone (and iPad Slide Over)",
+   "title": "iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab"
+  },
+  {
+   "id": "ST-03",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'"
+  },
+  {
+   "id": "ST-04",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far · Reviewed 0'"
+  },
+  {
+   "id": "ST-05",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "Mac, iPad landscape",
+   "title": "Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen"
+  },
+  {
+   "id": "ST-06",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "iPad portrait/landscape, iPhone, Mac windows under 1240",
+   "title": "On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight"
+  },
+  {
+   "id": "ST-26",
+   "area": "study-core",
+   "severity": "P1",
+   "category": "data",
+   "devices": "all",
+   "title": "IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result"
+  },
+  {
+   "id": "SY-01",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all (mac, ipad, iphone)",
+   "title": "KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top"
+  },
+  {
+   "id": "SY-02",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all; most visible on iPad",
+   "title": "CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')"
+  },
+  {
+   "id": "SY-03",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all; reported on iPad",
+   "title": "A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)"
+  },
+  {
+   "id": "SY-04",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "title": "Quiz progress and a typed exam answer are wiped by any background redraw"
+  },
+  {
+   "id": "SY-05",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "arch",
+   "devices": "iPad primarily (app switching + Pencil study), all",
+   "title": "Every cloud pull/merge redraws the active view unconditionally — even when nothing the view shows changed, and even while the user is mid-task"
+  },
+  {
+   "id": "SY-06",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "iPad (visibility), all",
+   "title": "Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath — and on the iPad it can auto-open over a lesson when you return to the app"
+  },
+  {
+   "id": "SY-07",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "iPad landscape (Side by side is >1080 only)",
+   "title": "Handwritten tab Side by side: both panes jump to the top on a background redraw (1.5 s after the pen lifts)"
+  },
+  {
+   "id": "SY-08",
+   "area": "sync-disruption",
+   "severity": "P1",
+   "category": "ux",
+   "devices": "iPad, iPhone (keyboard), Mac",
+   "title": "A background redraw steals focus from whatever is being typed in — the iPad/iPhone keyboard closes mid-sentence"
+  }
+ ]
+}

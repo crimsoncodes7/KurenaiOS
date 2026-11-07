@@ -19,7 +19,7 @@ import { spawn, execSync } from "node:child_process";
 import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-const ROOT = "/Users/fj/Developer/KurenaiOS - Web";
+const ROOT = process.env.KOS_ROOT || "/Users/fj/Developer/KurenaiOS - Web"; // KOS_ROOT: serve another checkout (a worktree)
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const [cmd, nStr, ...rest] = process.argv.slice(2);
 const n = Number(nStr || 0);
