@@ -21,8 +21,21 @@ follow-ups applied. Its workstream A proposals (GEM-001…006) are REJECTED; GEM
 becomes a P3 question (§8 Q7). The review is `gemini/CLAUDE_REVIEW.md`. The
 user will not use Gemini again: Argon's Pro quota ran out early and the rest
 was done by Gemini 3.8 Flash, which explains the weak output. So **Batch B2
-is not sent to Gemini**: Claude re-checks the delta itself (§10.5). Jobs
-1 and 5 below are done; continue from job 2.
+is not sent to Gemini**: Claude re-checks the delta itself (§10.5). Jobs 1 and 5 below are done.
+
+**Also done 8 Nov:**
+- Job 2: MG, CR, CM and CC inventoried in batches 7–8, so all 21 areas now
+  have an inventory. Totals: 734 findings, P0 4, P1 95, P2 327, P3 302.
+- B2: Claude re-checked the 5 new P1s and confirmed all of them
+  (`findings/b2-claude-verification.json`).
+- Job 3: the user reports are verified. Verdicts are appended to
+  `findings/user-reports-2026-11-02.md`; the raw records are
+  `findings/ur-verification-2026-11-08.json`.
+  - New P1: UR-7, Clip to page duplicates the KaTeX MathML layer and cuts
+    the picture off.
+  - Real P2s: UR-3, UR-5, UR-8, UR-15, UR-16 and UR-17.
+
+**Left:** job 4 (the live checks, §11) and job 6 (the plan).
 
 **What happened on 7 Nov (first account, last session).**
 - Batch 6 ran **Sync (SY) and Data integrity (DI)** in inventory top-up mode.
