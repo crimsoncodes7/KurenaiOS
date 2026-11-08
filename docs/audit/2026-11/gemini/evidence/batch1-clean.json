@@ -1,0 +1,114 @@
+{
+  "logic": {
+    "MG01": {
+      "guessMappingOnCsv": {
+        "date": 0,
+        "amount": 1
+      },
+      "importedCount": 2,
+      "reimportWithSameEmptyPayeeDuplicates": 2,
+      "reimportWithMappedPayeeDuplicates": 0,
+      "reimportWithMappedPayeeNewRows": 2
+    },
+    "AA02": {
+      "err": "TypeError: Cannot read properties of undefined (reading 'createConversation')"
+    },
+    "SY18": {
+      "beforeCards": 15,
+      "afterPullHasRemote": true,
+      "afterLocalKeystrokeHasRemote": true
+    }
+  },
+  "AG02_equipped": {
+    "prevShowcase": [],
+    "xpRect": {
+      "x": 32,
+      "y": 569.4375,
+      "width": 338,
+      "height": 18,
+      "top": 569.4375,
+      "right": 370,
+      "bottom": 587.4375,
+      "left": 32
+    },
+    "slots": [
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "x": 32,
+        "y": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "x": 90.8,
+        "y": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "x": 149.6,
+        "y": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "x": 208.4,
+        "y": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "x": 267.2,
+        "y": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "x": 326,
+        "y": 601.4
+      }
+    ],
+    "medals": []
+  },
+  "CO02_active": {
+    "sideGrid": "180px 180px",
+    "d20Rect": {
+      "x": 16,
+      "y": 555.25,
+      "width": 180,
+      "height": 231.5,
+      "top": 555.25,
+      "right": 196,
+      "bottom": 786.75,
+      "left": 16
+    },
+    "contRect": null,
+    "btnRect": {
+      "x": 34,
+      "y": 726.75,
+      "width": 144,
+      "height": 44,
+      "top": 726.75,
+      "right": 178,
+      "bottom": 770.75,
+      "left": 34
+    },
+    "btnScrollW": 153,
+    "btnClientW": 144,
+    "btnText": "Open 1.1 Your first program"
+  },
+  "CC04_active": {
+    "found": false,
+    "titleText": null,
+    "titleRect": null,
+    "srcRect": null,
+    "writeoutRect": null
+  }
+}

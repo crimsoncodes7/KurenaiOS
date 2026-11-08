@@ -1,0 +1,65 @@
+{
+  "ST-01": {
+    "aggWidth": 716,
+    "rulerWidth": null,
+    "rulerHeight": null,
+    "unitCount": 5,
+    "unitsSample": [
+      {
+        "text": "F200 Fundamentals of data analytics",
+        "width": 95.328125,
+        "scrollWidth": 234
+      },
+      {
+        "text": "F201 Big data and machine learning",
+        "width": 95.328125,
+        "scrollWidth": 226
+      },
+      {
+        "text": "F202 Spreadsheet data modelling",
+        "width": 95.328125,
+        "scrollWidth": 213
+      }
+    ]
+  },
+  "ST-02": {
+    "rowWidth": 370,
+    "scrollerWidth": 181.171875,
+    "scrollerScrollWidth": 181,
+    "tabs": [
+      "Specification",
+      "Notes\n9",
+      "Flashcards\n17",
+      "Quiz\n11",
+      "Exam questions\n7",
+      "Handwritten",
+      "Files"
+    ]
+  },
+  "ST-03": {
+    "hasQuizStore": true,
+    "sampleKey": "compsci:4.1.1.1",
+    "sampleVal": {
+      "attempts": 3,
+      "best": 40,
+      "lastPct": 30
+    }
+  },
+  "ST-26": {
+    "hasItDesk": true
+  },
+  "SY-01": {
+    "mainOverflow": "visible",
+    "stageOverflow": "hidden",
+    "bodyOverflow": "visible",
+    "scrollerIdentity": "stage"
+  },
+  "SY-05": {
+    "hasCloudSync": true
+  },
+  "SY-08": {
+    "activeBefore": true,
+    "activeAfter": true,
+    "currentActive": "INPUT"
+  }
+}

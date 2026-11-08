@@ -13,7 +13,8 @@
   "needsArt": false,
   "id": "SH-01",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Global Backspace = Back fires even when a page handled the key: Backspace on a Money row opens 'Delete this entry?' AND navigates to the previous page underneath",
@@ -29,7 +30,8 @@
   "needsArt": false,
   "id": "SH-02",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Governor \u22ef menu is cut off behind the Stage (only half of its first row shows)",
@@ -45,7 +47,8 @@
   "needsArt": false,
   "id": "SH-03",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPhone bottom tab bar lost its labels: five bare kanji (\u706f \u5b66 \u6574 \u8490 \u4f59) with no Home/Study/Productivity/Collection/More text",
@@ -61,7 +64,8 @@
   "needsArt": false,
   "id": "SH-04",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)",
@@ -77,7 +81,8 @@
   "needsArt": false,
   "id": "SH-20",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route",
@@ -93,7 +98,8 @@
   "needsArt": false,
   "id": "SH-21",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its \u25be sheet lists the section's pages instead",
@@ -109,7 +115,9 @@
   "needsArt": false,
   "id": "SH-22",
   "area": "shell",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "resolved": "duplicate of MG-09 (Gemini B, reviewed by Claude 8 Nov). SH-22's own text is partly wrong: Money's phone FAB 'Add entry' exists (js/modules/money.js:158-161) and Overview links Budgets, Recurring and Pots (421, 446, 471); MG-09's wording is the accurate one.",
+  "gverdict": "duplicate (of MG-09); corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "KOS.rerender() throws the page back to the top on every device: it saves/restores #main.scrollTop but #stage is the scroller",
@@ -734,7 +742,8 @@
   "needsArt": false,
   "id": "HR-01",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Weekly/monthly reports saved before the history arrives are frozen as 'A quiet week for study' forever",
@@ -750,7 +759,8 @@
   "needsArt": false,
   "id": "HR-02",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPad portrait Home has no Daily goal, no Today's three, no Recovery list and no Start focus in the hero",
@@ -766,7 +776,8 @@
   "needsArt": false,
   "id": "HR-03",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Home does not answer 'what next' for Code, Japanese, Mind, Creatives or Money",
@@ -782,7 +793,8 @@
   "needsArt": false,
   "id": "HR-04",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Home 'Study hours' and Reports 'Studied' measure different things (12h14m vs 2h32m for the same week)",
@@ -798,7 +810,8 @@
   "needsArt": false,
   "id": "HR-05",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Streak milestone bonuses are paid again every day: before the first study session the streak 'ends yesterday', which moves each milestone's key date by one day",
@@ -814,7 +827,9 @@
   "needsArt": false,
   "id": "HR-16",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "The repeated milestone bonus pays GOLD only (js/core/governor.js:337 gold += ms), no XP."
  },
  {
   "title": "Report words print 'undefined took the largest share' when Code, Japanese, Mind or Creatives got the most Focus time, and that text is saved for good",
@@ -830,7 +845,8 @@
   "needsArt": false,
   "id": "HR-17",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Hero 'Daily goal' directives pay XP and gold on a self-tick with no evidence, and untick/re-tick pays again without limit",
@@ -846,7 +862,8 @@
   "needsArt": false,
   "id": "HR-18",
   "area": "home-reports",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Hero 'Daily goal' counts 5 items but shows only 3, with no way to reach the other 2",
@@ -1212,7 +1229,8 @@
   "rootCause": "The header's isolation:isolate creates a stacking context with z-index auto, so the popover's z-index only competes inside the header; the later, isolated stage paints on top",
   "id": "AG-01",
   "area": "achievements-governor",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPhone Seat: showcase medals draw at 80px over each other and the XP bar, and the empty slots are 17 x 44 ovals",
@@ -1226,7 +1244,8 @@
   "rootCause": "Inline custom property beats the phone stylesheet; empty flex-basis:100% note squeezes the shrinkable slots",
   "id": "AG-02",
   "area": "achievements-governor",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Wall tabs and set deep links are not in the URL: #/achievements/<tab> and #/achievements/set/<id> open Sets",
@@ -1649,7 +1668,8 @@
   "needsArt": false,
   "id": "SC-01",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Try on panel's 'Buy \u00b7 \u25c8 4,500' button is illegible (dark ink on dark glass)",
@@ -1665,7 +1685,8 @@
   "needsArt": false,
   "id": "SC-02",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "A painted frame on the Seat spills over 'Level 53', the title chip and past the stage edge",
@@ -1681,7 +1702,8 @@
   "needsArt": false,
   "id": "SC-03",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Seals are sold as 'the topbar mark' but the topbar has no mark any more; the painted stamp art is never shown in use",
@@ -1697,7 +1719,8 @@
   "needsArt": false,
   "id": "SC-04",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "All 10 painted shelf skins and Shrine card styles never show: their picture URL resolves to /css/views/assets/... (404)",
@@ -1713,7 +1736,8 @@
   "needsArt": false,
   "id": "SC-05",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Shop frame previews: the avatar is a small disc lost inside a big painted ring (55px avatar in a 179px frame)",
@@ -1729,7 +1753,8 @@
   "needsArt": false,
   "id": "SC-06",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "With a painted frame worn, every CSS frame card in the shop previews the WORN frame instead of its own",
@@ -1745,7 +1770,8 @@
   "needsArt": false,
   "id": "SC-07",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge",
@@ -1761,7 +1787,8 @@
   "needsArt": false,
   "id": "SC-08",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)",
@@ -1776,7 +1803,8 @@
   "devices": "all",
   "id": "SC-20",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)",
@@ -1790,7 +1818,8 @@
   "devices": "all",
   "id": "SC-21",
   "area": "shop-cosmetics",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Pen set 'Study set' (\u25c8500) changes nothing: it maps the pen to exactly the default roles",
@@ -2245,7 +2274,8 @@
   "devices": "all",
   "id": "ST-25",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name",
@@ -2260,7 +2290,8 @@
   "recheck": "holds",
   "id": "ST-01",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab",
@@ -2275,7 +2306,8 @@
   "recheck": "holds",
   "id": "ST-02",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'",
@@ -2290,7 +2322,8 @@
   "recheck": "holds",
   "id": "ST-03",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far \u00b7 Reviewed 0'",
@@ -2305,7 +2338,8 @@
   "recheck": "holds",
   "id": "ST-04",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen",
@@ -2320,7 +2354,8 @@
   "recheck": "holds",
   "id": "ST-05",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight",
@@ -2335,7 +2370,8 @@
   "recheck": "holds",
   "id": "ST-06",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result",
@@ -2348,7 +2384,8 @@
   "devices": "all",
   "id": "ST-26",
   "area": "study-core",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Topic inspector and Assignments controls stay 30-32px tall on iPad touch (below the 44px minimum)",
@@ -2856,7 +2893,9 @@
   "effort": "M",
   "id": "SY-18",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "The hold for an open editor while typing predates kos-redraw-1; the stopgap made it indefinite on ref views, widening (not creating) the defect."
  },
  {
   "title": "KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top",
@@ -2873,7 +2912,9 @@
   "recheck": "changed: KOS.rerender now saves and restores #stage, #main and the document scroller (ui.js:376-378, 399-404); re-measured 40 routes on ipad (r5-ipad.json) and Home on iphone (900 -> 900): kept everywhere EXCEPT lazily batched vaults (anime 3414->0, books 29226->0, vn, game, mangaka; iphone anime 2500->0) \u2014 see the new vault finding",
   "id": "SY-01",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "resolved": "resolved by the stopgap kos-redraw-1 (Gemini B partially-confirmed it; Claude's review 8 Nov, gemini/CLAUDE_REVIEW.md \u00a73): scrollers() keeps #stage's scroll everywhere measured except the lazily batched Collection vaults, which are SY-19.",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')",
@@ -2890,7 +2931,9 @@
   "recheck": "no longer reproduces for background redraws: eval r1.js (ipad) {np0:'Page 4 of 7', held:true, np1:'Page 4 of 7' (hard), np2:'Page 4 of 7' (soft)}; a plain KOS.rerender() still resets it (np3:'Page 1 of 7'), so any unscoped plain caller (examviews.js:264, connections.js:70) still can",
   "id": "SY-02",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Since the stopgap only plain KOS.rerender() stragglers (e.g. connections.js:70, examviews.js:265 timers firing after leaving) can reset the notes page; propose P2 in the plan."
  },
  {
   "title": "A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)",
@@ -2907,7 +2950,9 @@
   "recheck": "no longer reproduces for background redraws: eval r9.js (ipad) \u2014 after three ratings the set text is identical before and after KOS.rerender({background:'hard'}) ('QUESTION \u00b7 12'); ref is a TASK_VIEW (ui.js:358-359). Still reachable through a plain unscoped rerender",
   "id": "SY-03",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Since the stopgap background redraws are held on the review views; what remains is plain rerenders and finish()-only logging (root cause 18); propose P2 in the plan."
  },
  {
   "title": "Quiz progress and a typed exam answer are wiped by any background redraw",
@@ -2924,7 +2969,9 @@
   "recheck": "no longer reproduces for background redraws: eval r3.js {quiz0:'Question 3 of 11', quiz1:'Question 3 of 11'}; a plain rerender still resets (quizUser:'Question 1 of 11')",
   "id": "SY-04",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Since the stopgap ref/exams are held as TASK_VIEWS and typing() holds too; only plain rerenders reset the quiz/exam; propose P2 in the plan."
  },
  {
   "title": "Every cloud pull/merge redraws the active view unconditionally \u2014 even when nothing the view shows changed, and even while the user is mid-task",
@@ -2941,7 +2988,8 @@
   "recheck": "changed: rerenderCurrent now calls KOS.rerender({background:'hard'}) (cloudsync.js:731), held on TASK_VIEWS, while typing, under a dialog/menu and within 45 s of a touch (ui.js:349-392). Still no diff of what changed: every other page is remounted after 45 s idle (r5-ipad.json: redrawn:true on all 40 non-task routes), and task pages now go stale instead (new finding)",
   "id": "SY-05",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath \u2014 and on the iPad it can auto-open over a lesson when you return to the app",
@@ -2958,7 +3006,8 @@
   "recheck": "changed: close/finish/skip now redraw with {background:'soft'} (dayreview.js:92, 103, 661, 709), held on task pages \u2014 notes stay on Page 4 (r12 variant). The auto-open part holds: blocked() (dayreview.js:722-729) still has no task-page check and maybeOpen runs on every visibilitychange (:749) once bootHash is cleared after 1.5 s (code-read; no slot was due in the harness)",
   "id": "SY-06",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Handwritten tab Side by side: both panes jump to the top on a background redraw (1.5 s after the pen lifts)",
@@ -2993,7 +3042,8 @@
   "recheck": "no longer reproduces while the field has focus: #/reminders typing held {held:true, ae:'INPUT', val:'half a thou'} (ui.js:362-366); but once the field is blurred the unsent text is wiped by the next retry (new finding)",
   "id": "SY-08",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "A background redraw of a Collection vault throws the reader back to the top: the lazy batches are rebuilt at 60 entries, so the saved scroll position cannot be restored",
@@ -3007,7 +3057,8 @@
   "effort": "M",
   "id": "SY-19",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)",
@@ -3021,7 +3072,8 @@
   "effort": "S",
   "id": "SY-20",
   "area": "sync-disruption",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Japanese review/learn session restarts and loses its unlogged results on a background redraw",
@@ -3291,7 +3343,8 @@
   "needsArt": false,
   "id": "CM-01",
   "area": "content-maths",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Quiz answers are almost always A or B, and options are never shuffled",
@@ -3307,7 +3360,8 @@
   "needsArt": false,
   "id": "CM-02",
   "area": "content-maths",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "\"Write it out\" chip overlaps worked-example titles on every device and is only 23px tall",
@@ -3496,7 +3550,9 @@
   "rootCause": "PDF parser in tools/gen_data.py appends trailing unit-level sections (criteria tables, guidance, synoptic tables) to the last topic leaf and mis-splits two-column 'To include' boxes.",
   "id": "CC-01",
   "area": "content-cs-it",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "partially-confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Partly wrong for F201: the hand-made KOS_SPEC_FIX covers 5.2, 2.3, 2.4, 2.6 and Factor analysis on the Spec tab. The faulty parser is tools/parse_it.py, not tools/gen_data.py."
  },
  {
   "title": "IT spec has a duplicate leaf: F206.6.1 'Ways to reflect' and 'Overview of the assessment' share a ref, so 'Ways to reflect' cannot be opened",
@@ -3509,7 +3565,8 @@
   "rootCause": "Generator does not filter non-topic headings and has no uniqueness check on refs.",
   "id": "CC-02",
   "area": "content-cs-it",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Quiz answers are guessable: the correct option is A or B in 94% of CS questions (D only 12 of 1,347) and options are never shuffled",
@@ -3522,7 +3579,8 @@
   "rootCause": "Authoring habit (answer written first) plus an engine that never permutes options.",
   "id": "CC-03",
   "area": "content-cs-it",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "'Write it out' pill on worked examples overlaps the example's title on iPhone and iPad",
@@ -3536,7 +3594,8 @@
   "rootCause": "Absolute positioning with a fixed inset instead of taking part in the header's layout.",
   "id": "CC-04",
   "area": "content-cs-it",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Same past-paper question appears twice in a CS leaf's Exam questions (worked card + bank item): 202 duplicate groups across 88 of 131 leaves",
@@ -3669,7 +3728,8 @@
   "needsArt": false,
   "id": "CO-01",
   "area": "code-space",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPhone desk: Daily 20 and Continue squeezed side by side; the Open-lesson button's label spills out of its pill",
@@ -3685,7 +3745,9 @@
   "needsArt": false,
   "id": "CO-02",
   "area": "code-space",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Root cause and fix corrected: at 402px the desk is the grid at css/views/study.css:1169 (repeat(2, minmax(0,1fr))), not a flex row \u2014 the fix is a grid-template-columns single-column override for .k-cx-hero + .k-subj-side at <=700px, as japanese.css:449 and creatives.css:366 do (and Mind's desk), plus .k-fit-btn on the Open-lesson button."
  },
  {
   "title": "Desk side column: a real Daily 20 task crushes the Continue card to 41px and clips its 'CONTINUE' label (Mac, iPad landscape)",
@@ -3701,7 +3763,8 @@
   "needsArt": false,
   "id": "CO-03",
   "area": "code-space",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException",
@@ -3717,7 +3780,8 @@
   "needsArt": false,
   "id": "CO-04",
   "area": "code-space",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Subject analytics card stretches its eight tiles over the Retrieval-due list's height, leaving ~120px gaps between rows",
@@ -4232,7 +4296,9 @@
   "needsDesign": false,
   "id": "JM-06",
   "area": "ja-mind",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Above 860px on a direct KOS.show the Core/Media switch is mounted into #tree before the throw, so a desktop recovery path exists; through a hash, reload, Back, or at drawer widths it does not. P0 holds."
  },
  {
   "title": "'Held in reviews' (4th lesson check) is never written to the progress record by reviews, so the inspector shows 3/4 \u00b7 75% while the stored status, spine and unit counts stay behind",
@@ -4247,7 +4313,8 @@
   "needsDesign": false,
   "id": "JM-07",
   "area": "ja-mind",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Leaving a Japanese session by navigation (rail, tab bar, Back, iPad edge swipe, reload) logs nothing: answers are rescheduled but the session's XP and the day's study activity are lost",
@@ -4262,7 +4329,8 @@
   "needsDesign": false,
   "id": "JM-08",
   "area": "ja-mind",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPhone: on a Japanese lesson the topic tab strip collapses to 5 px \u2014 Notes, Practice, Reviews and Files are invisible and the Practice session cannot be reached from the lesson",
@@ -4277,7 +4345,8 @@
   "needsDesign": false,
   "id": "JM-09",
   "area": "ja-mind",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Japanese stage path labels truncate ('Intermedi...', 'Upper int...', 'Advanced' on iPad) on the desk hero and the Checkpoints page",
@@ -4800,7 +4869,8 @@
   "needsDesign": false,
   "id": "MI-01",
   "area": "mind",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px \u2014 the Start button, the plan and the lesson title are cut off",
@@ -4815,7 +4885,8 @@
   "needsDesign": false,
   "id": "MI-02",
   "area": "mind",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Mind ladder: most F1 concepts can never climb past Recall/Apply \u2014 5 of 16 concepts have no route to any rung above Recall, only 3 can reach Evaluate",
@@ -5071,7 +5142,8 @@
   "needsArt": false,
   "id": "CR-01",
   "area": "creatives",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides",
@@ -5087,7 +5159,8 @@
   "needsArt": false,
   "id": "CR-02",
   "area": "creatives",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "A work dialog stays open over other pages after navigation (Back, hash change), stacking duplicates",
@@ -5440,7 +5513,8 @@
   "recheck": "holds: eval prod2/place.js 6 Nov 18:52 \u2014 menu panel z-index 110 under the review dialog's 120, elementFromPoint at the panel = .k-dr-place (not the menu); a programmatic click on its item does add the event (added 1); js/core/ui.js:857-870, css/tokens.css:1031-1032",
   "id": "PR-01",
   "area": "productivity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Every page header shows the PREVIOUS page's painted band after in-app navigation",
@@ -5455,7 +5529,8 @@
   "recheck": "holds: eval navigating #/pacing,#/routines,#/focus,#/reminders,#/calendar,#/routines \u2192 page-header art page.reminders, page.pacing, page.reminders, none, (no header), page.calendar; js/core/ui.js:642-643 (reads state.ui.view) and 1592-1594 (view rendered, then ui.view assigned)",
   "id": "PR-02",
   "area": "productivity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Focus: 'General study \u2014 no link' is overridden by About to Study, which silently links the session to the first assignment (even with 'Just start')",
@@ -5470,7 +5545,8 @@
   "recheck": "holds: eval 6 Nov (empty account + one assignment) \u2014 preflight({subject:null, assignmentId:null}) shows 'QA essay \u00b7 Assignment \u00b7 due Sun 8 Nov'; 'Just start' \u2192 active {subject:'compsci', assignmentId:1}; js/modules/routineplayer.js:279-287",
   "id": "PR-03",
   "area": "productivity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Running Focus: a long assignment title runs off the screen (left edge on Mac, right edge on iPhone)",
@@ -5485,7 +5561,8 @@
   "recheck": "holds: eval 6 Nov \u2014 .k-fx-ctx spans x -130.8..485 at 1470 px; shots/productivity/inv/focus-run-mac.png (title cut at the left edge, 'due 2026-11-02' raw); js/modules/focus.js:881-882, 1018, 2175",
   "id": "PR-04",
   "area": "productivity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Afternoon review time strip: end label '22:00 \u591c' overprints the last hour tick; 30-minute block text wraps to two lines",
@@ -6052,7 +6129,8 @@
   "devices": "all",
   "id": "MG-01",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Santander midata CSV is refused: 'Merchant/Description' and 'Debit/Credit' headers are not recognised",
@@ -6066,7 +6144,8 @@
   "devices": "all",
   "id": "MG-02",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Import only reads the first line as the header: midata with a leading blank line or a semicolon delimiter, and Online Banking CSV with an account preamble, all fail",
@@ -6080,7 +6159,8 @@
   "devices": "all",
   "id": "MG-03",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Santander's other exports (.txt, QIF, OFX) are not supported at all; the picker accepts .txt but cannot read it",
@@ -6094,7 +6174,8 @@
   "devices": "all",
   "id": "MG-04",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "No way to see, undo or replace an import after the result dialog closes",
@@ -6108,7 +6189,8 @@
   "devices": "all",
   "id": "MG-05",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Unquoted thousands separators shift columns: '\u00a31,234.56' imports silently as \u00a31.00",
@@ -6122,7 +6204,8 @@
   "devices": "all",
   "id": "MG-06",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "A recurring rule's 'Confirm' and an imported bank row for the same payment double-count",
@@ -6136,7 +6219,8 @@
   "devices": "all",
   "id": "MG-07",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded",
@@ -6151,7 +6235,8 @@
   "needsDesign": true,
   "id": "MG-08",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable",
@@ -6165,7 +6250,8 @@
   "devices": "iphone",
   "id": "MG-09",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Import preview hides the payee and amount, and the Import button is below the fold",
@@ -6179,7 +6265,8 @@
   "devices": "mac, ipad",
   "id": "MG-10",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Month and year: 'In' shows expected income as if received",
@@ -6363,7 +6450,8 @@
   "needsDesign": false,
   "id": "GO-02",
   "area": "goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field",
@@ -6377,7 +6465,8 @@
   "rootCause": "types registered by routines.js after the editor was built; the editor only knows fields it hard-codes",
   "id": "GO-06",
   "area": "goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked",
@@ -6391,7 +6480,8 @@
   "rootCause": "editor reads the legacy habit list; measure reads Routines",
   "id": "GO-07",
   "area": "goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once",
@@ -6405,7 +6495,8 @@
   "rootCause": "rag.js auto() subtracts capped penalties from 100 with no evidence floor",
   "id": "GO-23",
   "area": "goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked",
@@ -6419,7 +6510,8 @@
   "rootCause": "select filled from a filtered, capped query without the current value",
   "id": "GO-25",
   "area": "goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Repeating goals count activity from before the goal started in their first period (week and month)",
@@ -6730,7 +6822,8 @@
   "devices": "all",
   "id": "EX-01",
   "area": "exams-files-ink",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Exam Room on iPhone: the 'Before you go in' checklist is drawn on top of the rapid-recall list",
@@ -6744,7 +6837,8 @@
   "devices": "iPhone (also any short landscape window)",
   "id": "EX-02",
   "area": "exams-files-ink",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen",
@@ -6758,7 +6852,8 @@
   "devices": "iPhone",
   "id": "EX-03",
   "area": "exams-files-ink",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Timed paper: the question navigator's squares are crushed to 7px slivers on iPad and iPhone (17px on Mac)",
@@ -6772,7 +6867,8 @@
   "rootCause": "flex items without flex-shrink:0 inside a scroller",
   "id": "EX-28",
   "area": "exams-files-ink",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "A transparent PNG pasted or dropped onto an ink page gets a black background",
@@ -7379,7 +7475,8 @@
   "needsArt": false,
   "id": "CL-01",
   "area": "collection",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Collection Overview prints zero-only facts and truncates them on the module cards",
@@ -8077,7 +8174,8 @@
   "needsArt": false,
   "id": "AA-01",
   "area": "assistant-archive",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen",
@@ -8093,7 +8191,8 @@
   "needsArt": false,
   "id": "AA-02",
   "area": "assistant-archive",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Import backup replaces everything on this device the moment a file is picked: no confirmation, no summary, no undo",
@@ -8107,7 +8206,8 @@
   "devices": "all",
   "id": "AA-11",
   "area": "assistant-archive",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Composer hint 'Shift + Enter for a new line' floats mid-height while the send button sits at the bottom",
@@ -8502,7 +8602,8 @@
   "recheck": "holds",
   "id": "DI-01",
   "area": "data-integrity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates",
@@ -8517,7 +8618,8 @@
   "recheck": "holds",
   "id": "DI-02",
   "area": "data-integrity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count",
@@ -8532,7 +8634,8 @@
   "recheck": "holds",
   "id": "DI-03",
   "area": "data-integrity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Two open tabs or windows overwrite each other's saves (last writer wins on the whole state)",
@@ -8547,7 +8650,9 @@
   "recheck": "holds",
   "id": "DI-04",
   "area": "data-integrity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov",
+  "reviewNote": "Also triggered by an app update with two tabs open: js/core/pwa.js:90-91 reloads only the tab that confirmed the update, so the other tab keeps old code and its in-memory state and can save over the confirming tab's newer edits (Gemini's GEM-006, folded in here)."
  },
  {
   "title": "Todoist: a full sync drops completed sub-tasks from the reminder (and can re-add them to Todoist as duplicates)",
@@ -8905,7 +9010,8 @@
   "recheck": "changed: now 346 scripts (4 defer/async), 16.9 MB JS of which js/data 9.95 MB, 26 stylesheets 1.31 MB (was 340 / 16.6 MB / 1.2 MB). Dense boot on slot 20 at machine load 6-10: domInteractive 53-127 s, 78-106 long tasks totalling 52-125 s; evaluating scripts before main.js took ~18 s, and the first KOS.show after main.js 13.7 s when the restored route was the Wall. Absolute times are inflated by the shared machine, the shape holds.",
   "id": "AP-01",
   "area": "architecture-perf",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Cold-path cost after boot: the first render of each heavy view takes 0.5-2.8 s on the dense account (Exams, Code map, Due, Pacing, Calendar), then 20-200 ms",
@@ -9215,7 +9321,8 @@
   "recheck": "holds",
   "id": "AX-01",
   "area": "a11y-hci",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed; corroboration only, reviewed by Claude 8 Nov"
  },
  {
   "title": "Undo in toasts cannot be reached by keyboard or screen reader",

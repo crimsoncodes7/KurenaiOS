@@ -1,0 +1,174 @@
+{
+  "CO-03": {
+    "d20HasTask": true,
+    "d20TaskId": "1.1-box",
+    "heroH": null,
+    "sideRect": null,
+    "firstRect": null,
+    "nextRect": null,
+    "txtRect": null,
+    "kickerRect": null
+  },
+  "CR-01": {
+    "wid": "wmw65kjpi651iv7",
+    "open1": 1,
+    "takeOutBtnFound": true,
+    "openAfterTakeOut": 1,
+    "dialogTitleAfterTakeOut": "Test Sketch Study",
+    "stackedOverlaysAfterRerender": 2
+  },
+  "EX-03": {
+    "vw": 402,
+    "inkTabFound": true,
+    "palFound": true,
+    "palState": "row icons",
+    "palRect": {
+      "left": 20,
+      "right": 520,
+      "w": 500,
+      "h": 62
+    },
+    "overflowRightPx": 118,
+    "offscreenButtons": [
+      {
+        "text": "Ink · Medium▾",
+        "left": 341,
+        "right": 417,
+        "w": 76
+      },
+      {
+        "text": "Undo",
+        "left": 424,
+        "right": 468,
+        "w": 44
+      },
+      {
+        "text": "Redo",
+        "left": 470,
+        "right": 514,
+        "w": 44
+      }
+    ],
+    "allButtons": [
+      {
+        "text": "Move the palette, or more tools",
+        "left": 26,
+        "right": 58,
+        "w": 32
+      },
+      {
+        "text": "Pen",
+        "left": 60,
+        "right": 104,
+        "w": 44
+      },
+      {
+        "text": "Highlight",
+        "left": 106,
+        "right": 150,
+        "w": 44
+      },
+      {
+        "text": "Eraser",
+        "left": 152,
+        "right": 196,
+        "w": 44
+      },
+      {
+        "text": "Lasso",
+        "left": 198,
+        "right": 242,
+        "w": 44
+      },
+      {
+        "text": "Shape",
+        "left": 244,
+        "right": 288,
+        "w": 44
+      },
+      {
+        "text": "Ruler",
+        "left": 290,
+        "right": 334,
+        "w": 44
+      },
+      {
+        "text": "Ink · Medium▾",
+        "left": 341,
+        "right": 417,
+        "w": 76
+      },
+      {
+        "text": "Undo",
+        "left": 424,
+        "right": 468,
+        "w": 44
+      },
+      {
+        "text": "Redo",
+        "left": 470,
+        "right": 514,
+        "w": 44
+      }
+    ]
+  },
+  "EX-28": {
+    "pid": "pack-4.1.1",
+    "qCount": 0,
+    "tbarW": null,
+    "scrollerW": null,
+    "navW": null,
+    "btnWidths": []
+  },
+  "HR-01": {
+    "desksClientW": 1210,
+    "desksScrollW": 1822,
+    "hasScrollerShell": false,
+    "hasScrollArrows": false,
+    "cardCount": 6,
+    "cards": [
+      {
+        "title": "Computer ScienceAQA 7517炎 2",
+        "left": 236,
+        "right": 528,
+        "w": 292,
+        "visibleInContainer": true
+      },
+      {
+        "title": "MathematicsEdexcel 9MA0炎 1",
+        "left": 542,
+        "right": 834,
+        "w": 292,
+        "visibleInContainer": true
+      },
+      {
+        "title": "IT: Data AnalyticsOCR AAQ H019/H119炎 6",
+        "left": 848,
+        "right": 1140,
+        "w": 292,
+        "visibleInContainer": true
+      },
+      {
+        "title": "CodeC# and .NET",
+        "left": 1154,
+        "right": 1446,
+        "w": 292,
+        "visibleInContainer": true
+      },
+      {
+        "title": "CreativesArt, design, editing and writing",
+        "left": 1460,
+        "right": 1752,
+        "w": 292,
+        "visibleInContainer": false
+      },
+      {
+        "title": "蒐CollectionAnime · books · visual novels · games休 1",
+        "left": 1766,
+        "right": 2058,
+        "w": 292,
+        "visibleInContainer": false
+      }
+    ]
+  }
+}

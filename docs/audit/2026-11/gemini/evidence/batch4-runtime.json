@@ -1,0 +1,38 @@
+{
+  "PR-02": {
+    "readsStateView": true,
+    "snippet": "function pageHeader(opts) {\n    opts = opts || {};\n    var view = KOS.store && KOS.store.state && KOS.store.state.ui && KOS.store.state.ui.view;\n    var art = opts.art === false ? null : (opts.art || PAGE_ART[view]);\n    var head = el(\"div\", { class: \"k-pagehead\" + (opts.className ? \" \" + opts.className : \"\"), \"data-ui\": \"ui.page-head ui.page-header\" }, [\n      el(\"div\", { class: \"k-pagehead-txt\" "
+  },
+  "PR-03": {
+    "hasPreflight": false,
+    "preflightSnippet": null
+  },
+  "SC-01": {
+    "discCount": 2
+  },
+  "SC-05": {
+    "checkedCount": 0,
+    "missingUrls": []
+  },
+  "SH-01": {
+    "error": "Command failed: /usr/local/n/versions/node/24.18.0/bin/node docs/audit/2026-11/harness/kos.mjs eval 31 (() => {\n    KOS.toast(\"A reasonably long notification message to test wrapping behaviour on phone\");\n    const toast = document.querySelector(\".k-toast, [data-ui*='toast']\");\n    if (!toast) return { found: false };\n    const rect = toast.getBoundingClientRect();\n    const style = window.getComputedStyle(toast);\n    return {\n      found: true,\n      width: rect.width,\n      maxWidth: style.maxWidth,\n      maxInlineSize: style.maxInlineSize,\n      windowWidth: window.innerWidth,\n      ratio: rect.width / window.innerWidth\n    };\n  })() --size iphone\nERR TypeError: KOS.toast is not a function\n    at <anonymous>:2:9\n    at <anonymous>:15:5\n"
+  },
+  "SH-04": {
+    "navFound": false,
+    "links": []
+  },
+  "SH-20": {
+    "error": "Command failed: /usr/local/n/versions/node/24.18.0/bin/node docs/audit/2026-11/harness/kos.mjs eval 31 (async () => {\n    let resolvedWith = null;\n    KOS.ui.confirm({ title: \"Test Confirm\", message: \"Testing enter key\", danger: false })\n      .then(res => { resolvedWith = res; });\n    \n    await new Promise(r => setTimeout(r, 60));\n    const cancelBtn = document.querySelector(\".k-dialog-foot .k-btn-ghost, [data-ui='dialog.cancel']\");\n    if (cancelBtn) {\n      cancelBtn.focus();\n      const event = new KeyboardEvent(\"keydown\", { key: \"Enter\", code: \"Enter\", bubbles: true, cancelable: true });\n      cancelBtn.dispatchEvent(event);\n    }\n    await new Promise(r => setTimeout(r, 100));\n    return {\n      cancelBtnFound: Boolean(cancelBtn),\n      resolvedWith\n    };\n  })() --size mac\nERR TypeError: Cannot read properties of undefined (reading 'then')\n    at <anonymous>:4:7\n    at <anonymous>:18:5\n"
+  },
+  "SH-21": {
+    "skipLinkFound": true,
+    "startHash": "#/settings",
+    "endHash": "#/home",
+    "currentView": "home"
+  },
+  "SH-22": {
+    "phoneTabsFound": true,
+    "phoneTabsDisplay": "flex",
+    "subTabs": []
+  }
+}

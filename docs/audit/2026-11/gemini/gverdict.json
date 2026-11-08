@@ -1,0 +1,482 @@
+{
+ "AA-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "AA-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "AA-11": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "AG-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "AG-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "AP-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "AX-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CC-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "CC-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CC-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CC-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CL-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CM-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CM-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CO-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CO-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CO-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CO-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CR-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "CR-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "DI-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "DI-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "DI-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "DI-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "EX-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "EX-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "EX-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "EX-28": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "GO-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "GO-06": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "GO-07": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "GO-23": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "GO-25": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-05": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-16": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-17": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "HR-18": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "JM-06": {
+  "duplicateOf": null,
+  "proposedSeverity": "P0",
+  "verdict": "confirmed"
+ },
+ "JM-07": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "JM-08": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "JM-09": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P0",
+  "verdict": "confirmed"
+ },
+ "MG-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-05": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-06": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-07": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-08": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-09": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MG-10": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MI-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "MI-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "PR-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "PR-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "PR-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "PR-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-05": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-06": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-07": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-08": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-20": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SC-21": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-20": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-21": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SH-22": {
+  "duplicateOf": "MG-09",
+  "proposedSeverity": "P1",
+  "verdict": "duplicate"
+ },
+ "ST-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "ST-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "ST-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "ST-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "ST-05": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "ST-06": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "ST-25": {
+  "duplicateOf": null,
+  "proposedSeverity": "P0",
+  "verdict": "confirmed"
+ },
+ "ST-26": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SY-01": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "SY-02": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "SY-03": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "SY-04": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "SY-05": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "SY-06": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SY-08": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "partially-confirmed"
+ },
+ "SY-18": {
+  "duplicateOf": null,
+  "proposedSeverity": "P0",
+  "verdict": "confirmed"
+ },
+ "SY-19": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ },
+ "SY-20": {
+  "duplicateOf": null,
+  "proposedSeverity": "P1",
+  "verdict": "confirmed"
+ }
+}

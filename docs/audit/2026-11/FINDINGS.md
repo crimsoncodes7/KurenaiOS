@@ -7,12 +7,12 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 
 | ID | Area | Status | P0 | P1 | P2 | P3 | Total |
 |---|---|---|---|---|---|---|---|
-| SH | App shell, navigation, search, toasts, dialogs, Help & Guide | complete | 0 | 7 | 19 | 18 | 44 |
+| SH | App shell, navigation, search, toasts, dialogs, Help & Guide | complete | 0 | 6 | 19 | 18 | 43 |
 | HR | Home and Reports | complete | 0 | 8 | 13 | 9 | 30 |
 | AG | Achievements / Badge Wall and the Governor's Seat | complete | 0 | 2 | 15 | 14 | 31 |
 | SC | Gold Shop and every cosmetic, themes | complete | 0 | 10 | 23 | 8 | 41 |
 | ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 1 | 7 | 15 | 20 | 43 |
-| SY | Background redraws / cloud sync disrupting work | complete | 1 | 9 | 11 | 3 | 24 |
+| SY | Background redraws / cloud sync disrupting work | complete | 1 | 8 | 11 | 3 | 23 |
 | CM | A-Level Maths content quality | complete | 0 | 2 | 6 | 5 | 13 |
 | CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 4 | 5 | 13 |
 | CO | Code study space | complete | 0 | 4 | 13 | 21 | 38 |
@@ -28,7 +28,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 14 | 8 | 26 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 4 | 92 | 302 | 265 | 663 |
+| | **All** | | 4 | 90 | 302 | 265 | 661 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -41,7 +41,6 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **SH-04** [P1] iPhone bottom tab bar lost its labels: five bare kanji (灯 学 整 蒐 余) with no Home/Study/Productivity/Collection/More text
 - **SH-20** [P1] Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)
 - **SH-21** [P1] 'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route
-- **SH-22** [P1] On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its ▾ sheet lists the section's pages instead
 - **HR-01** [P1] Mind and Creatives are pushed off-screen in Home's Continue row (fixed subject order, 4 visible, no scroll affordance)
 - **HR-02** [P1] Weekly/monthly reports saved before the history arrives are frozen as 'A quiet week for study' forever
 - **HR-03** [P1] iPad portrait Home has no Daily goal, no Today's three, no Recovery list and no Start focus in the hero
@@ -71,7 +70,6 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **ST-06** [P1] On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight
 - **ST-26** [P1] IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result
 - **SY-18** [P0] With the redraw held, an open study editor writes its stale copy over material another device added — the pulled card is deleted locally and the three-way merge then deletes it everywhere
-- **SY-01** [P1] KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top
 - **SY-02** [P1] CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')
 - **SY-03** [P1] A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)
 - **SY-04** [P1] Quiz progress and a typed exam answer are wiped by any background redraw
@@ -142,6 +140,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-01 · P1 · ui — Toast wraps at half the viewport width on phones: tall broken pill over content
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone (all phones); also iPad/Mac for long toasts (wraps at 410/735px)
 - **Detail / repro:** Any toast longer than ~25 characters on iPhone wraps into a 201px-wide, 3-line 'pill' (radius pill on a tall box) sitting over the page content above the tab bar. Reproduced with KOS.ui.toast('You already had 44 badge tiers — they are on the Badge Wall.') at 402x874: rect x=100.5 w=201 h=78.5. Same on every width: the toast can never be wider than half the viewport.
 - **Evidence:** shots/shell/toast-iphone.png; eval rect [100.5,735.5,201,78.5]; css/components.css:389-405 (#toast: position fixed; inset-inline-start:50%; translate(-50%) with shrink-to-fit width)
@@ -151,6 +150,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-02 · P1 · bug — Global Backspace = Back fires even when a page handled the key: Backspace on a Money row opens 'Delete this entry?' AND navigates to the previous page underneath
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** MacBook; iPad with a keyboard
 - **Detail / repro:** js/main.js binds Backspace (outside text fields) to KOS.back() on document and never checks e.defaultPrevented. Money's transaction list uses Delete/Backspace on a focused row to delete it (money.js:610) and calls preventDefault, but the document listener still runs: reproduced on #/money/transactions → focus a row → Backspace: the confirm dialog opens while the route has already changed to #/home behind it; cancelling leaves the user on Home, having lost their place. Any future in-page Backspace handler (ink lasso selection, lists, the editor's rows, Mind's list at mindui.js:154 which is inside a textarea so is safe) collides the same way. Backspace-as-Back is also surprising on its own: a stray Backspace with focus on any button (after clicking a card, closing a menu) leaves the page; browsers removed this shortcut for that reason.
 - **Evidence:** shots/shell/backspace-money-dialog-over-home.png; eval result {hash:'#/home', dialog:'Delete this entry? QA coffee, −£4.50…'}; js/main.js:20-28; js/modules/money.js:610
@@ -160,6 +160,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-03 · P1 · ui — Governor ⋯ menu is cut off behind the Stage (only half of its first row shows)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** MacBook, iPad portrait and landscape
 - **Detail / repro:** On #/governor, ⋯ in the page header opens a 280x100 (mac) / 280x136 (iPad) popover whose 'HP preview' row is cut in half and whose 'Data: Mine/Empty/Sample' row is completely hidden behind the Stage card below. Same at 1470x832, 1180x820 and 820x1180. Re-checked on kos-redraw-1: reproduces on a cold load of #/governor when the page header carries its painted band (data-state=has-art): hit-test inside the popover at +15/+50/+85px -> [true,false,false]; when the band is missing (after some in-app navigations) the popover draws whole.
 - **Evidence:** shots/shell/gov-menu-mac.png, shots/shell/gov-menu-ipad.png, shots/shell/gov-menu-ipadl.png; popover rect mac {x:1165,y:164,w:280,h:100}; css/components.css:35 (.k-pagehead[data-state~=has-art] {position:relative; isolation:isolate}); css/views/governor.css:31 (.k-gv-stage {position:relative; isolation:isolate}) and :65 (.k-gv-tools-pop z-index var(--z-menu)); js/modules/governor-ui.js:420-439 (an inline <details> popover); shots/shell/gov-menu-mac-recheck2.png (re-check)
@@ -169,6 +170,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-04 · P1 · ui — iPhone bottom tab bar lost its labels: five bare kanji (灯 学 整 蒐 余) with no Home/Study/Productivity/Collection/More text
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone (all <700px, incl. iPad Slide Over)
 - **Detail / repro:** On iPhone the tab bar shows only the 28px kanji tiles; the English labels are clipped to a 1x1 rect. Design 15a and layout.css's own phone block intend visible labels ('the tree states' compact-rail rules must not clip the tab labels on a phone'). A user who does not read kanji cannot tell 整 from 蒐; the profile/More sheet is the only place the names appear. Screen readers still get the names (sr-only clip), so this is visual only.
 - **Evidence:** shots/shell/seed-home-iphone.png, shots/shell/more-iphone.png (bar at y=818-874); eval: label rect {w:1,h:1}, clip rect(0px,0px,0px,0px), #cols has no data-rail and data-tree=none on a phone; css/layout.css:377 (inside @media max-width:1080px: #cols:not([data-rail="full"]) .k-rail-label {position:absolute; clip:rect(0 0 0 0)} — specificity 1,2,0) beats css/layout.css:433 (.k-rail-label {position:static…} — 0,1,0) and :431 only covers data-rail=compact / tree open|closed
@@ -178,6 +180,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-20 · P1 · bug — Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Open existing...)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** MacBook, iPad with keyboard
 - **Detail / repro:** KOS.ui.confirm adds a document keydown listener that calls close(true) on any Enter when !opts.danger, without looking at the event target. Keydown fires before the focused button's click, so Tab to Cancel (or 'Stay', 'Add a copy') and pressing Enter runs the affirmative action. Reproduced: confirm({title:'Replace?'}) -> focus Cancel -> Enter -> onYes ran. Affected non-danger confirms include Focus 'End early?' (ends and pays the session), 'Turn off closed-app notifications?', 'Disconnect the GitHub App?', 'Reset every permission?', 'Free up space', 'Keep in my cloud', 'Back to the defaults?' (FSRS), the sample/empty account switch, Japanese 'Leave the session?', the vault 'Already in the vault' (Enter on 'Add a copy' opens the existing entry instead) and the service-worker 'Update ready'. Keyboard and switch users on the Mac and iPad keyboard are affected.
 - **Evidence:** eval: {enterOnCancel:'YES'}; js/core/ui.js:291-292 (function onKey(e){ if (e.key==='Enter' && !opts.danger) close(true); } on document); 51 ui.confirm call sites, the non-danger ones listed by grep in js/modules/focus.js, notifications.js, code.js, cardstats.js, governor-ui.js:450, jarun.js, medview.js, pwa.js:53
@@ -187,6 +190,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-21 · P1 · a11y — 'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** MacBook, iPad with keyboard
 - **Detail / repro:** The skip link (the first Tab stop on every page) is <a href="#main">. Activating it changes location.hash to '#main'; router.js's hashchange listener parses it, finds no such route and calls home(), so from #/calendar the keyboard user lands on #/home with a new history entry replaced. The one bypass mechanism for keyboard and switch users (WCAG 2.4.1) throws them off the page they were on.
 - **Evidence:** eval mac: {before:'#/calendar', after:'#/home', active:'main'}; index.html:61; js/core/router.js:302-306 (hashchange -> onPop -> parse fails -> home())
@@ -196,6 +200,8 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SH-22 · P1 · bug — On iPhone, Money's six views and Goals' This week/This month/All/Done tabs are unreachable: the phone hides the page tabs and its ▾ sheet lists the section's pages instead
 
+- **RESOLVED:** duplicate of MG-09 (Gemini B, reviewed by Claude 8 Nov). SH-22's own text is partly wrong: Money's phone FAB 'Add entry' exists (js/modules/money.js:158-161) and Overview links Budgets, Recurring and Pots (421, 446, 471); MG-09's wording is the accurate one.
+- **Gemini B:** duplicate (of MG-09); corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone (and any width ≤700, incl. iPad Slide Over)
 - **Detail / repro:** Money (Overview, Transactions, Budgets, Recurring, Pots, Month and year) and Goals (This week, This month, All, Done) mark their workspace tabs data-phone-tabs. At ≤700px components.css hides every [data-phone-tabs] because the phone title bar's ▾ is meant to offer them, but mobile-shell's destinations() only falls back to the page's tabs when the section has NO subnav. Productivity has a subnav (Focus, Reminders, Routines, Calendar, Money, Goals), so the ▾ sheet on Money lists Productivity's pages and the Money tabs are offered nowhere. Measured at 402px: all six Money tabs and all four Goals tabs have width 0, the sheet shows Focus Timer…Goals, and Money's Overview has no link to Transactions/Recurring/Pots/Month. Money's 'Add entry', Transactions list, recurring bills and pots can only be reached by typing a URL. Achievements and the Governor (no subnav) work because the fallback applies there.
 - **Evidence:** shots/shell/money-iphonesafari.png, shots/shell/money-sheet-iphonesafari.png, shots/shell/money-overview-iphone.png; eval: #/money tabs visible 0 of 6, subnavItems 6; #/goals visible 0 of 4; css/components.css:654 (#main[data-phone-title] [data-phone-tabs] {display:none}); js/modules/mobile-shell.js:457-468 (destinations: subnav first, page tabs only when no subnav); js/modules/money.js:128, js/modules/goals.js:303
@@ -571,6 +577,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-01 · P1 · ux — Mind and Creatives are pushed off-screen in Home's Continue row (fixed subject order, 4 visible, no scroll affordance)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad landscape (4 across), ipad portrait (2 across)
 - **Detail / repro:** Continue renders one desk per started subject in the fixed KOS.subjects order (compsci, maths, it, code, ja, mind, creatives) and then Collection, in a grid with grid-auto-columns = a quarter of the width and overflow-x:auto. With Code and Japanese started (the user's case), Mind is the 6th and Creatives the 7th column: at 1470x832 they sit at x=1766 and x=2072 inside a 1210px-wide row (scrollWidth 2434) and Collection at 2378. macOS hides the thin scrollbar, there are no arrows, no fade, no count, so the desks never appear. A second, smaller cause: KOS.mind.started()/KOS.creatives.started() only become true once a lesson page has recorded a read (state.mind.lessons / state.creatives.lessons|works); a Daily 15, Journal entries or Positions alone never put Mind on Home. Reproduced: fresh seeded account, opened Mind F1.1, Creatives A1.1, Code 1.1, Japanese H1 -> desks order compsci:236, maths:542, it:848, code:1154, ja:1460, mind:1766, creatives:2072, coll:2378.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-continue.png; eval of .k-desks: clientWidth 1210, scrollWidth 2434; js/modules/hub.js:1558-1563 (filter + fixed SUBJECTS order); css/views/home.css:183 (grid-auto-columns quarter width, overflow-x:auto); js/core/mind.js:430, js/core/creatives.js:255 (started())
@@ -580,6 +587,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-02 · P1 · data — Weekly/monthly reports saved before the history arrives are frozen as 'A quiet week for study' forever
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** ensureReports() runs at boot and saves every backfilled week since 1 September. The skip rule for an empty rebuilt week is hasContent(), which counts f.plan and f.tasks; the shipped Pacing seed gives every fresh install plan facts, and the LATEST week is saved whatever it holds. So the first boot on an empty device (a new iPad/iPhone before sign-in finishes its first pull, or before a backup is restored with importFull, which does not touch kurenai-os-reports) saves weeks with mins:0 and the month 'October 2026 · a quiet month for study'. Reports are never recomputed (getReport hit -> skip), so after the history arrives Home's Reports card still says 'A quiet week for study · 0m studied' while Study hours on the same screen shows 9.2 h and the ledger has focus sessions on 20, 21, 22, 23 and 25 Oct. Reproduced: reset -> first boot -> seed: week:2026-10-19 and week:2026-10-12 both have facts.study.mins 0, createdAt = the reset boot, while weeks saved during the seed have real minutes.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-all-desks.png (Week in review card 0m beside Study hours 9.2); eval KOS.reportStore.cached(): week:2026-10-19 {mins:0,sessions:0} created 1793576817945; ledger has type focus on 2026-10-20..25; js/core/reportstore.js:228-231 (hasContent counts plan/tasks), :275-279 (latest week always saved, a saved report is never rebuilt)
@@ -589,6 +597,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-03 · P1 · ui — iPad portrait Home has no Daily goal, no Today's three, no Recovery list and no Start focus in the hero
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** ipad portrait, iPad Split View, any 701-1080 window
 - **Detail / repro:** css/views/home.css hides .k-home-goal entirely in the 1080px tier and only shows it again under 700px. Between 701 and 1080 (the iPad Air 11" in portrait, 820x1180, and Split View) the hero loses its whole right column: the directive list, the Morning Review's Today's three (roadmap 5.10, frame 33t) with its ▶ Start, and in Critical HP the Recovery checklist and 'Open Recovery →' (invariant 2's recovery route). Measured: .k-home-goal display:none, rect 0x0 at 820 wide; the hero shows only ring, greeting and level line.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-ipad.png (hero without Daily goal); eval at --size ipad: goal display none; css/views/home.css:221-223 (@media (max-width:1080px){.k-home-goal{display:none}}), :244 (re-shown only under 700)
@@ -598,6 +607,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-04 · P1 · integration — Home does not answer 'what next' for Code, Japanese, Mind, Creatives or Money
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Home's render reads KOS.srs.dueCards (flashcards only), calendar, assignments, reminders, pacing, goals, routines and the media stats, but never KOS.code.planDay (the Daily 20), KOS.ja.due/planDay, KOS.mind.planDay (the Daily 15), KOS.creatives.planDay (the Daily Creative) or KOS.money notices (bill in two days, trial ending, budget). KOS.today.build, which invariant 149 makes the one source for the reviews and Home's three, does not read them either. So with Code started, the Daily 20 is 'Your first program' and Home says nothing; Japanese facets, Code retrieval cards and Mind cards due are not in 'Review N due cards'; a bill due tomorrow appears only in the bell. Money appears nowhere on Home (innerText has no money/bill/budget). The study-space desks in Continue are the only trace, and they are scrolled off-screen (see the Continue finding).
 - **Evidence:** eval: KOS.code.planDay() -> lesson 1.1 'Your first program'; KOS.mind.planDay() and KOS.creatives.planDay() return day plans; Home innerText matches no money/bill/budget; js/modules/hub.js:1041-1730 (reads list); js/core/today.js (no ja/code/mind/creatives/money reads)
@@ -607,6 +617,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-05 · P1 · data — Home 'Study hours' and Reports 'Studied' measure different things (12h14m vs 2h32m for the same week)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Home's Study hours card (hoursOn / hoursThisWeek / sessionsThisWeek) sums dur of EVERY non-media ledger entry - notes, reading, quiz, exam, tracker, flashcards, and todo ticks (invariant 4: activity, never study) - while KOS.report's study() counts only type 'focus' minutes as 'Studied' (its days count uses isStudy, so 'Studied 2h 32m · 5 sessions · 7 days'). For week 28 Sep-4 Oct the ledger gives 734 min by Home's rule and 152 min by the report's. Home's card links 'Weekly reports ›' straight under its figure, so the two numbers contradict each other one click apart; the Study overview's '5 sessions · 7 days' is self-contradictory too. Invariant 26d says study statistics are derived once.
 - **Evidence:** eval over state.sessions 2026-09-28..10-04: non-media dur 734 min, focus dur 152 min; js/modules/hub.js:917-921 (hoursOn), :636-649; js/core/report.js:185-200, :254; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-report-0928-study.png
@@ -616,6 +627,8 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-16 · P1 · bug — Streak milestone bonuses are paid again every day: before the first study session the streak 'ends yesterday', which moves each milestone's key date by one day
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** The repeated milestone bonus pays GOLD only (js/core/governor.js:337 gold += ms), no XP.
 - **Devices:** all
 - **Detail / repro:** governor.js keys each milestone to the date the run reached it, computed as today - (stk - ms). KOS.sessions.streak() counts the run ending TODAY if there is study today, otherwise ending YESTERDAY. So on any morning, the first non-study session (a reminder or habit tick on Home, a routine, a todo) sees stk one lower with today's date, works out a key date one day later than the stored one, and pays 3+7+14+30 (+60/+100) gold again with four '35-day streak' notes. Once the first study session of the day logs, the run ends today again, the key dates move back, and they pay once more. Reproduced on the seeded account: today's 6 study entries removed, then one todo session logged; gold went 12531 -> 12586 (+55 = 1 for the tick + 54 in milestones); milestones moved from streak30:'2026-10-31' to '2026-11-01'; toast '+5 XP · +55 gold · 35-day streak, 35-day streak, 35-day streak, 35-day streak'. Ticking a reminder on Home with study already done today also paid +55 the first time (see study-core's milestone-note finding for the retro-pay and the note text). This is a daily gold leak of up to 2 x 54 (2 x 214 past 100 days), against invariant 1.
 - **Evidence:** eval reproduction (slot 2, seeded): gold [12531,12586,12587], m0 vs m1 above; js/core/governor.js:330-339; js/core/sessions.js:166-175 (streak ends today or yesterday); Home tick: js/modules/hub.js:1199 (KOS.reminders.complete then rerender), toast '+5 XP · +55 gold · 36-day streak x4'
@@ -625,6 +638,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-17 · P1 · bug — Report words print 'undefined took the largest share' when Code, Japanese, Mind or Creatives got the most Focus time, and that text is saved for good
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** report.js study() adds every stretch's subject to bySubject, including code, ja, mind and creatives. reportwords.js largestShare() picks the biggest key, but SUBJECT only maps compsci/maths/it, so the template writes SUBJECT['code'] = undefined. Reproduced: a 5h Code Focus session and 1h Japanese this week, then KOS.report.build(this week) + KOS.reportWords.template -> narrative 'undefined took the largest share, 6h of 8h 06m, across 6 sessions on 5 of 7 days.' A week's words are written once when it is saved (invariant 102), so the broken sentence stays on the Reports page, the Home card, the share card and the notification. The same keys feed the month/term/year narrative at reportwords.js:93 ('…: undefined 6h, Maths 49m').
 - **Evidence:** eval (slot 2, seeded + qa Code/ja focus sessions): bySubject {maths:49, it:17, code:360, ja:60}, narrative 'undefined took the largest share…'; js/core/reportwords.js:17 (SUBJECT has 3 keys), :45-50, :93, :138-141; js/core/report.js:30 (SUBJECTS = compsci, maths, it), :196-199 (inc(bySubject, pt.subject) for any subject)
@@ -634,6 +648,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### HR-18 · P1 · bug — Hero 'Daily goal' directives pay XP and gold on a self-tick with no evidence, and untick/re-tick pays again without limit
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Each directive in the hero (e.g. 'Clear 308 due flashcards (245 overdue)') is a button that calls KOS.todo.setChecked(key, !on). Ticking logs a 'todo' session (+5 XP, +1 gold, counts as the day's activity for HP). Unticking only deletes the check and refunds nothing. Ticking again logs another session and pays again. Reproduced: four taps in a row gave XP 71807 -> 71812 -> 71812 -> 71817, gold 12531 -> 12532 -> 12532 -> 12533, sessions 601 -> 603. The 308 cards were still due. So the hero rewards claiming the goal rather than doing it (KurenaiOS's rule elsewhere is status from evidence), and the economy can be farmed by tapping. The first tick of a day also triggers the streak milestone re-pay (see the milestone finding). The ✓ is the only feedback; the count goes '1 / 5'.
 - **Evidence:** eval (slot 2 seeded): [[71807,12531,601],[..,'false'],[71812,12532,602,'true'],[71812,12532,602,'false'],[71817,12533,603,'true']]; js/modules/hub.js:1162-1169; js/modules/todo.js:56-69 (log on tick, no reversal on untick)
@@ -859,6 +874,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### AG-01 · P1 · bug — The Seat's ⋯ menu is cut off by the stage: its Data row (Mine / Empty / Sample) is hidden and unclickable
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad (landscape and portrait)
 - **Detail / repro:** Opening ⋯ on #/governor (Status) shows a 280 x 100 popover at y=164-264; the stage starts at y=202 and paints over everything below it. Only the top of the 'HP preview' row shows; the 'Data' row (Mine / Empty / Sample) is entirely behind the hero. elementFromPoint across the popover: rows y>=204 hit .k-gv-stage (7/7 samples), rows y<=192 hit the popover. The controls cannot be reached by pointer.
 - **Evidence:** shots/achievements-governor/gov_menu_crop.png (2x: HP preview row sliced by the stage edge, Data row missing), gov_menu_dpr2.png; eval occlusion rows 204-252 '7/7 outside'; css/components.css:35 (.k-pagehead[data-state~=has-art] {position:relative; isolation:isolate}), css/views/governor.css:31 (.k-gv-stage isolation:isolate), :65 (.k-gv-tools-pop z-index var(--z-menu) trapped inside the header's stacking context)
@@ -868,6 +884,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### AG-02 · P1 · ui — iPhone Seat: showcase medals draw at 80px over each other and the XP bar, and the empty slots are 17 x 44 ovals
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone (402), anything under 700
 - **Detail / repro:** At 402px the arc becomes a flex row of 44px slots. (1) Filled slots carry the medal with an inline --m:80px (governor-ui.js passes px:80), which beats the phone rule `.k-gv-arc-slot .k-ach-medal { --m: var(--ach-medal-sm) }`, so three picked medals render 80 x 80 at x=32/80/128, overlapping one another and rising over the XP bar. (2) The empty .k-gv-arc-note keeps flex-basis:100% while the row does not wrap (the wrap rule only applies when the note has content), so it takes 131px and the empty slots shrink to 17 x 44 (ovals); before the list() call returns, all six are ovals.
 - **Evidence:** shots/achievements-governor/iphone_gov.png (six ovals), iphone_gov_ovals_crop.png (2x: 80px medals overlapping each other and the XP bar, two oval empties); eval: medals [32,580,80,80,'80px'], [80,580,80,80], [128,580,80,80]; slots [44,44]x3 + [17,44]x3; note width 131 while empty; js/modules/governor-ui.js:363-366, css/views/governor.css:518-523
@@ -1158,6 +1175,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-01 · P1 · ui — Shop avatar previews: the painted avatar escapes its disc (drawn top-left, overflowing the card) and the disc sits empty, offset
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** Every one of the 12 avatar cards in the Gold Shop (and the preview sheet) draws the picture at the preview's top-left corner, overflowing the card's top edge (the fox's ears are clipped), while the dark backing disc sits centred and empty behind/below it, so the avatar reads off-centre and the disc looks like a stray shadow. Measured at mac 1470x832: preview box 235x235 at (458,3078); disc 179x179 at (486,3107); img 193x193 at (458,3078) - the image's top-left equals the preview's, not the disc's.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-1.png and /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-2.png (Avatars rows); eval getBoundingClientRect on .k-gv-ware[data-kind=avatar]; js/modules/governor-ui.js:1227-1228 (img(it.art) uses the default class k-gv-apv-img); css/views/governor.css:589 (.k-gv-apv-img position:absolute; inset:0) vs :602-603 (.k-gv-apv-disc has no position:relative)
@@ -1167,6 +1185,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-02 · P1 · ui — Try on panel's 'Buy · ◈ 4,500' button is illegible (dark ink on dark glass)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** Trying any item on shows the Trying on panel on the Stage with its primary action 'Buy · ◈ n' - the purchase call to action of the whole try-on flow. It renders with color oklch(0.2 0.03 70) (gold-ink, meant for a gold fill) on background oklch(0.14 0.01 265 / .72) (the stage's glass), i.e. near-black on near-black; the button looks disabled although it is enabled.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-tryon-outfit.png (button left of 'Stop'); eval: getComputedStyle([data-ui~=shop.buy-tried]) color oklch(0.2 0.03 70), bg oklch(0.14 0.01 265/0.72); css/views/governor.css:57 '.k-gv-stage .k-btn { background: var(--gv-glass) }' (specificity 0,2,0) overrides css/views/governor.css:567 '.k-gv-buy { background: var(--gold) }' (0,1,0)
@@ -1176,6 +1195,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-03 · P1 · ui — A painted frame on the Seat spills over 'Level 53', the title chip and past the stage edge
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad (same stage)
 - **Detail / repro:** With a painted frame worn (Koi ring, bought in the shop), the Governor's Seat Status stage draws the frame picture 296x296 round a 180px avatar, outside the avatar's box with no space reserved: it overlaps the 'Level 53' heading by 24px (the L is under a koi's tail), hides the start of 'Pick a title' (reads 'k a title'), and is cut off by the stage's overflow:hidden on the left (frame x=228, stage x=236).
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-status-mac.png; eval: frame art [228,190,296,296], .k-gv-name [500,274,329,58], 'Pick a title' [500,340], stage [236,202] overflow hidden; css/layout.css:254 (.k-avatar-frame-art 152% + 2*--fo, absolutely positioned); js/core/governor.js avatarNode (frame drawn 'outside the box ... never changes layout')
@@ -1185,6 +1205,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-04 · P1 · bug — Seals are sold as 'the topbar mark' but the topbar has no mark any more; the painted stamp art is never shown in use
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Every seal says 'variant of the OS mark' and the Wardrobe row is labelled 'Seal · The topbar mark'. applyCosmetics() writes the glyph into '#topbar [data-ui~=shell.brand] [data-ui~=shell.brand-mark]', but the topbar brand is now <img class=k-brand-logo src=kurenai-bloom.png> + 'Kurenai' with no brand-mark element, so querySelector returns null and nothing changes. The only place a worn seal appears is the small glyph disc on the Seat's/profile ring (k-gv-ring-seal, text only). The six 400-gold seals' stamp pictures (app.seal.yuki...hikari) are drawn only in the shop card and the Wardrobe chip, never where the seal is worn.
 - **Evidence:** eval: document.querySelector('[data-ui~=shell.brand-mark']) -> null; brand outerHTML = img + 'Kurenai'; js/core/governor.js:782-783; js/modules/governor-ui.js:235-244 (ring seal glyph only); wardrobe label in governor-ui.js WARD ['seal','Seal','The topbar mark']; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-assistant-gala.png (topbar shows the bloom logo with seal-hikari worn)
@@ -1194,6 +1215,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-05 · P1 · bug — All 10 painted shelf skins and Shrine card styles never show: their picture URL resolves to /css/views/assets/... (404)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The five new shelf skins (Paulownia, Steel and glass, Library oak, Bamboo, Sakura wood, ◈800 each) and five Shrine card styles (Moon, Moth, Camellia, Lacquer, Frost, ◈900 each), 8,500 gold in all, can be bought and worn but draw nothing. books.js and shrine.js set an inline custom property --skin-art: url(assets/app/img/<id>.webp); collection.css consumes it with background: var(--skin-art). A relative url() inside a custom property is resolved against the stylesheet that uses it, so the browser requests /css/views/assets/app/img/app.shelf.sakura.webp (404), and the same for app.shrinecard.*. Worse, the painted-skin rule also strips the default shelf's board, border and shadow (border:0; box-shadow:none), so a bought painted skin makes the Books shelf look emptier than the free default (covers floating on the page background), while the cheap CSS skins (Walnut) work.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/shelf-compare.png (top: default, middle: Walnut CSS skin, bottom: Sakura wood painted skin = nothing); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-books-shelf-sakura.png; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shrine-gold-frost.png; eval: getComputedStyle(.k-bk-shelf).backgroundImage = url(http://127.0.0.1:9104/css/views/assets/app/img/app.shelf.sakura.webp); Shrine hero cover ::after = .../css/views/assets/app/img/app.shrinecard.frost.webp; curl 404 vs /assets/app/img/... 200; js/modules/books.js:1285; js/modules/shrine.js:954; css/views/collection.css:532-534
@@ -1203,6 +1225,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-06 · P1 · ui — Shop frame previews: the avatar is a small disc lost inside a big painted ring (55px avatar in a 179px frame)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Every painted frame card (Sakura, Ice, Ember, Lacquer, Wisteria, Koi; ◈800 each) previews the frame at 179x179 with the avatar at 55x55 in its middle, i.e. the avatar fills ~42% of the ring's inner hole (the art's measured inner-hole radius is 0.67-0.74 of the frame), leaving a wide empty dark gap between avatar and ring. Worn, the same art is sized at 152% of the avatar, so the shop shows a different (and much worse) fit than the real thing. The preview sheet does the same at 120px.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shop-frames.png; eval: Sakura ring frame-art [486,4375,179,179], avatar [548,4433,55,55]; image analysis: inner hole radius/half-width app.frame.sakura 0.73, ice 0.74, koi 0.67; js/modules/governor-ui.js:1229-1230 (avatarNode(big ? 120 : 64) inside .k-gv-apv-frame 76%); css/views/governor.css:604-607 (avatar * 0.86)
@@ -1212,6 +1235,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-07 · P1 · bug — With a painted frame worn, every CSS frame card in the shop previews the WORN frame instead of its own
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Wearing Koi ring, the Gilt ring, Kurenai bloom, Jade band and Amethyst orbit cards all show the Koi ring. shopPreview() builds the CSS-frame preview from KOS.governor.avatarNode(64), which already contains the worn painted frame's <img class=k-avatar-frame-art>, then only swaps data-frame to the previewed id; the rule '.k-avatar-host:has(> .k-avatar-frame-art)::before,::after {display:none}' then hides the CSS frame being sold, leaving the worn picture. The Avatar tab's frameChip removes that img (oldArt) but the shop does not.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shop-frames.png (top row: four different CSS frames all drawn as the Koi ring); js/modules/governor-ui.js:1258-1265 (case 'frame' in shopPreview); css/layout.css:255
@@ -1221,6 +1245,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-08 · P1 · ui — A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, iphone, ipad
 - **Detail / repro:** Same root cause as the Seat: the worn Koi ring is drawn at 152% of the avatar outside its box. On Home (mac) the frame [235,102,163,163] runs 6px under the headline 'Working late…' (h1 x=392) and the date kicker, and is clipped 1px by the hero (x=236, overflow hidden). On iPhone (402x874) the frame on Home is cropped by the hero's top-left rounded corner and sits on 'MONDAY 2 NOVEMBER'; on the phone Seat (#/governor) the frame's top is cut off by the stage's top edge and the koi cover the 'BEHAVIOURAL GOVERNOR' kicker.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-home-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-home-iphone.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-status-iphone.png; eval Home: frame [235,102,163,163], avatar [269,137,94,94], hero [236,80,1210,207] overflow hidden, h1 [392,161]; css/layout.css:254
@@ -1230,6 +1255,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-20 · P1 · ui — Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** All 12 painted avatars drawn by the real KOS.governor.avatarNode(120) (the component used in the sidebar pill, Home ring, Seat and Avatar stage): Fox's ears and tassels are cut by the circle; Crane's wing tips cut left and right; Desk lamp's shade cut at top-left and the book at bottom-left; Dragon's tail and Owl's books cut at the sides; meanwhile Cat sits low with an empty top third, Lantern leaves dark bands left and right, and Koi / Moon rabbit are painted discs of their own that don't match the CSS disc (a dark crescent rim shows round Koi). The set looks like twelve different sizes. The art files are transparent cut-outs of varying aspect (lantern 417x640, cat 640x510, fox 546x640, bloom 532x640, others ~640x640, bbox touching every edge) and the CSS fits each one's full box to the square with object-fit: contain inside a border-radius:50% overflow:hidden disc, so anything in the art's corners falls outside the inscribed circle and narrow art leaves bands.
 - **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-montage.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-row1-2x.png; image sizes via PIL (assets/app/img/app.avatar.*.webp); css/layout.css:250-251 (.k-avatar overflow hidden, .k-avatar-art object-fit: contain); js/core/governor.js:697-699
@@ -1239,6 +1265,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 
 ### SC-21 · P1 · ui — Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** On the real component (not just the shop preview reported earlier) every painted frame — Ice, Ember, Lacquer most visibly, Sakura, Wisteria and Koi too — shows a ring of bare background between the avatar and the painted band: at avatar 90px the art is drawn at 137px (152% + 2*--fo), but the art's transparent inner hole measures ~0.73-0.78 of the image (ice 239/320, ember 245/320, lacquer 239/320, gilt 248/319, amethyst 246/320) = ~103px, leaving ~6-7px of gap each side at 90px and ~13px at the Seat's 180px. Where an HP ring is present --fo adds the ring's frame-out, so the frame grows further and the gap widens. Wisteria and Koi holes are non-circular (wisteria L173/R193/T219/B237), so the avatar is visibly off-centre in them. This is exactly the user's 'avatar circle small inside a big ring'.
 - **Evidence:** audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/frames-2x.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-montage.png (bottom rows); hole radii measured with PIL on assets/app/img/app.frame.*.webp; css/layout.css:254 (152% fixed), :260-262 (--fo)
@@ -1558,6 +1585,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### ST-25 · P0 · data — Deleting an assignment permanently deletes every file linked to it, including files that belong to a topic or another record
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** KOS.assignments.remove -> removeAttachments() lists the files for ref "assignment:<id>" in every subject and calls KOS.attach.remove() on each. KOS.attach.list() returns not only files whose home is the assignment but every file whose links index holds the assignment (anything attached there with "Attach to…", or a topic file linked to the assignment). remove() deletes the whole record and its blob and records a cloud tombstone, so the file also disappears from its topic (and from other devices). Invariant 150: "Remove" from one place removes the link; the file is deleted only when nothing else links it, after a confirm. The Delete confirm only says "its calendar entry, countdown and Home card" go with it; files are not mentioned.
 - **Evidence:** eval fixture (seeded account): KOS.attach.add("compsci","4.2.3.1", file, …, {links:[{kind:"assignment",id:"29"}]}); topic list before: ["topic-notes.txt|[]", "topic-notes.txt|[{kind:assignment,id:29}]"]; KOS.assignments.remove(29); topic list after: ["topic-notes.txt"] (the linked file is gone from the topic). js/core/assignments.js:203-208, :220-231; js/modules/attachments.js:275-292 (list includes the links index), :392-411 (remove deletes and tombstones); js/modules/assignments.js:454-457 (confirm text).
@@ -1568,6 +1596,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### ST-01 · P1 · ui — IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad portrait (and Split View)
 - **Detail / repro:** At 820px (the user's iPad in portrait) the IT 'So far' card keeps its three-column desktop grid (220px | 1fr | 340px with 32px gaps) inside a 716px card, so the middle column is ~52px: the P M D D* ruler is 90px wide, its four boundary numbers print on top of each other ('120180240270' as one smear) and the caption 'Qualification boundaries · out of 300 across the 5 units' wraps one word per line over eight lines. The IT units table below keeps its six fixed columns (44 + 180 + 120px + gaps), so unit names read 'F200 Funda…', 'F201 Big dat…', status wraps to three lines ('Sitting · date not set') and the header 'AGAINST THE BOUNDARIES' wraps to three lines. Landscape (1180) is fine (middle column 252px).
 - **Evidence:** shots/study-core/s-it-ipad.png (full page), zoom shots/study-core/s-it-agg-ipad-crop.png; eval --size ipad: it.agg 716 wide, it.target at x442 w340; k-it-name ellipsised at 95px. css/views/study.css:996 (.k-it-agg three columns), :1031 (.k-it-tr six columns), the single-column/stacked rules only at study.css:1123-1125 (the <=700 tier); tokens.css:657-661 fixed widths; js/modules/itdesk.js:109 caption. | Recheck 6 Nov (kos-redraw-1, slot 5): Re-measured on kos-redraw-1 --size ipad: it.agg 716 wide, it.target x442 w340, the boundary chart 48x8 with P/M/D/D* labels overlapping; unit names 95px, all five truncated (shots/study-core/t-it-ipad.png).
@@ -1578,6 +1607,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### ST-02 · P1 · ui — iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone (and iPad Slide Over)
 - **Detail / repro:** At 402px, on every topic tab that shows Working and Edit (Specification, Notes, Flashcards, Quiz, Exam questions), the tab row holds the tab scroller plus those two pill buttons in one flex row (flex: none on the buttons). The scroller shrinks to 181px: only 'Specification' and 'Notes' fit, the Notes count reads '1' instead of '13', and on Quiz the selected tab is not visible at all (strip shows 'Specification, Notes 8 ›'). On Files/Handwritten the strip is 328px, so its width jumps as you change tab. The phone user sees about two of seven tabs.
 - **Evidence:** shots/study-core/q-topic-notes-iphone.png (Notes), shots/study-core/q-quiz-result-iphone.png (Quiz selected but invisible); eval --size iphone on #/ref/compsci/4.1.1.1 Notes: .k-topic-tabs clientWidth 181, scrollWidth 621. css/views/study.css:208-213 (.k-topic-tabrow one flex row; :not(.k-scroller) flex:none); js/modules/hub.js:2746 (scroller, moreSlot, workBtn, editBtn in one row). | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.1.1.4: tab strip 181x44 at x16; shots/study-core/t-spine-iphone.png shows 'Specification  Notes 1 ›' (count 14 clipped to 1).
@@ -1588,6 +1618,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### ST-03 · P1 · bug — 'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The quiz engine stores a topic's best as the number of correct answers (st.best = correct), but the topic inspector and the subject desk's 'Quiz best' tile print it through pctText as a percent. Reproduced on a fresh topic (#/ref/compsci/4.2.2.1): 6/11 (lastPct 55) is stored best 6 and the inspector shows 'Quiz best 6%'. The subject tile then takes the max of counts across topics of different lengths. The seeded account has percentages in best (57), so the quiz header reads 'best 57/10'. Either way one surface is wrong for every learner.
 - **Evidence:** eval: state.study.quiz['compsci:4.2.2.1'] = {attempts:1, best:6, lastPct:55}; inspector text 'Quiz best\n6%'; quiz head 'score 0 · best 6/11'. js/engines/quiz.js:159 (best = correct count), :77 (prints best + '/' + items.length); js/modules/hub.js:3224 and :2200 pctText(best); hub.js:126 max over topics. | Recheck 6 Nov (kos-redraw-1, slot 5): Fixture on the empty account: 5 of 11 right -> state.study.quiz {attempts:1,best:5,lastPct:45}; CS desk analytics 'Quiz best | 5% | 1 attempt across 1 topic'. The subject desk tile has the same bug (js/modules/hub.js:119-129 max of raw counts, :2200 pctText + bar pct = count), not only the inspector (hub.js:3224) and js/engines/quiz.js:159.
@@ -1598,6 +1629,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### ST-04 · P1 · bug — Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far · Reviewed 0'
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The flashcard engine logs its session (and so the Governor's XP/gold/HP, the study streak and every ledger reader) only when the WHOLE batch is finished. Due today opens 'Start review · all 308'; rating 7 cards and leaving (or rating 100 of 308) writes FSRS schedules and review-log rows but adds nothing to the ledger: Review's 'Today so far' still says Reviewed 0, Card stats' Reviews per day and Rating mix stay at zero, the day does not count for the streak (invariant 4) and nothing is paid. With a real backlog the user is punished for doing most of the work.
 - **Evidence:** eval: on #/due rated 5 cards Good, navigated to #/review: 0 new sessions, 'Today so far Reviewed 0 Accuracy —', dueCount 308 -> 303. js/engines/flashcards.js:325-353 (sessions.log only in finish()); js/modules/due.js:222-230 and js/modules/cardstats.js:218-228 read only those session entries. shots/study-core/q-cardstats-mac.png (Total reviews 5,810 beside an empty Reviews per day and an all-zero Rating mix). | Recheck 6 Nov (kos-redraw-1, slot 5): Empty account fixture: 3 cards rated Good on #/ref/compsci/4.2.2.1 then left: state.srs 3 keys, sessions 0 before and after leaving; only a full 16-card batch logged one flashcards entry (31 XP). Same in a Due today run left after an Again (leech fixture). js/engines/flashcards.js:325-355 logs only in finish().
@@ -1608,6 +1640,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### ST-05 · P1 · ux — Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** Mac, iPad landscape
 - **Detail / repro:** On the Mac, opening an assignment shows its facts, Subtasks and Attachments, then nothing: the panel is stretched to the full list height (min-block-size: 100%, 1569px on the seeded account) and its footer has margin-block-start: auto, so '◉ Focus on this', '✓ Complete', '⇪ Submitted', 'Blocked' and 'Reopen' land at y≈1577, about 1,000px under the last block. The panel is position: sticky but taller than the viewport, so it never sticks. The primary actions of the page are invisible unless you scroll to the bottom of the whole list.
 - **Evidence:** shots/study-core/q-asg-open-mac.png (panel ends at ATTACHMENTS, no actions visible); eval: .k-asg-foot y 1577 (margin-top 984px), previous block bottom 577, .k-asg-panel height 1569 sticky. css/views/study.css:864 (min-block-size: 100%), :886 (.k-asg-foot margin-block-start: auto); js/modules/assignments.js:305-321. | Recheck 6 Nov (kos-redraw-1, slot 5): eval mac with 8 fixture assignments: .k-asg-foot margin-top 412px, previous block bottom y550, foot at y977 below a 745px viewport; the gap grows with the list length (the panel stretches to the list column). On iPad portrait (stacked) the margin is 0.
@@ -1618,6 +1651,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### ST-06 · P1 · ux — On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad portrait/landscape, iPhone, Mac windows under 1240
 - **Detail / repro:** At 1240px and below the assignments layout becomes one column and the detail panel is appended after the whole list (position: static). Tapping a row only highlights it; the detail, with Edit, subtasks, attachments, Focus on this and Complete, renders 1,300-2,700px further down and nothing scrolls to it or opens it as a sheet. On the iPad (both orientations) and iPhone the page appears to do nothing.
 - **Evidence:** shots/study-core/q-asg-tap-ipadl.png (row highlighted, no detail); eval after tapping row 2: panel top y=2109 (ipadl, viewport 820), 2629 (ipad, 1180), 2729 (iphone, 874), not in a dialog. css/views/study.css:1057-1059 (@media max-width 1240: one column, panel static); js/modules/assignments.js has no scrollIntoView/openDialog for the detail. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad (seeded, 21 items): after tapping row 2 the detail panel top is y=3483 (viewport 1180), scrollY stays 0.
@@ -1627,6 +1661,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### ST-26 · P1 · data — IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Editing a Done unit's mark, an invalid number (above the max, negative) only turns the input red and sets editing.value to "". save() treats an empty value on a Done unit as "emptied the mark" and calls KOS.itUnits.clearResult(): pressing Enter or ✓ Save after a typo wipes the stored raw/UMS and flips the unit to "Sitting · date not set". No message, no confirm, no undo; the aggregate and the predicted qualification grade change with it (and it syncs).
 - **Evidence:** eval #/subject/it: F200 {status:done, raw:45} row "F200 … | Done | ≈45 / 60 | Merit"; edit, type 459 (input data-state bad), Enter -> KOS.itUnits.get("F200") {status:"sitting", raw:null, ums:null}; row "Sitting · date not set | + Enter mark | —"; no toast. js/modules/itdesk.js:221-225 (invalid -> value ""), :277-282 (empty on a done unit -> clearResult).
@@ -1979,6 +2014,8 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-18 · P0 · data — With the redraw held, an open study editor writes its stale copy over material another device added — the pulled card is deleted locally and the three-way merge then deletes it everywhere
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** The hold for an open editor while typing predates kos-redraw-1; the stopgap made it indefinite on ref views, widening (not creating) the defect.
 - **Devices:** iPad + Mac (two devices editing the same topic's material)
 - **Detail / repro:** The study editor (KOS.editor.mount) keeps the fork's rows in memory (flashcards, quiz, exam, notes, spec) and every autosave writes the WHOLE array through KOS.edits.set. Before kos-redraw-1 a cloud pull remounted the editor from the fresh fork; now the topic page ('ref') is a TASK_VIEW, so the redraw is held until navigation and the editor keeps its pre-pull copy indefinitely (state.ui.editing also keeps the editor open per device across visits). Reproduced: editor open on 4.5.4.3 flashcards (15 rows), a pull brings device B's new card (state 16 rows, hasB true), the held editor still shows 15; one more keystroke and the autosave writes 15 rows back (final 15, hasB false). The next push sends a document whose fork lacks a row that the base has, which the merge reads as a local deletion — and a deletion on either side wins (invariant 33/88) — so the other device's card is removed on every device. The same applies to notes blocks and spec blocks, quiz and exam items.
 - **Evidence:** eval r11.js (ipad): {forkN:15, afterPull:16, hasB:true, editorRows:15, final:15, hasBFinal:false}. js/modules/editor.js:408-414 (cards = KOS.edits.material(...) captured; save() sets the whole array), :470, :567, :650, :656; js/core/edits.js:199-206 (set replaces the kind wholesale); js/core/ui.js:358-359 (ref held); js/core/cloudsync.js:768-775 (pull replaces state, rerender held).
@@ -1988,7 +2025,9 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-01 · P1 · bug — KOS.rerender() never keeps the scroll position: it saves #main.scrollTop but #stage is the scroller, so every cloud pull jumps the page to the top
 
+- **RESOLVED:** resolved by the stopgap kos-redraw-1 (Gemini B partially-confirmed it; Claude's review 8 Nov, gemini/CLAUDE_REVIEW.md §3): scrollers() keeps #stage's scroll everywhere measured except the lazily batched Collection vaults, which are SY-19.
 - **Re-checked on kos-redraw-1:** changed: KOS.rerender now saves and restores #stage, #main and the document scroller (ui.js:376-378, 399-404); re-measured 40 routes on ipad (r5-ipad.json) and Home on iphone (900 -> 900): kept everywhere EXCEPT lazily batched vaults (anime 3414->0, books 29226->0, vn, game, mangaka; iphone anime 2500->0) — see the new vault finding
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all (mac, ipad, iphone)
 - **Detail / repro:** KOS.rerender (the cloud-pull/background redraw path) reads and restores document.getElementById('main').scrollTop, but the element that actually scrolls is #stage (#main has overflow visible; on the iPad #main.scrollHeight 2406 vs #stage 2406/1120 scrolling). KOS.show then empties #main, the height collapses and the browser clamps #stage.scrollTop to 0. Repro (seeded account): open compsci 4.5.2.1, set #stage.scrollTop=900, KOS.rerender() -> 0. Same on Home (700 -> 0) and the Anime vault (1500 -> 0) at mac, ipad and iphone sizes. So any pull, merge, auto-ticked habit, Daily Review close etc. throws the reader back to the top of the page.
 - **Evidence:** harness eval sd3.js: ipad {st1:900,st2:0,h1:700,h2:0,a1:1500,a2:0}; mac {st1:530,st2:0,...}; iphone same. Code: js/core/ui.js:353-356 (var main=getElementById('main'); var top=main.scrollTop; ... main.scrollTop=top); KOS.show resets main.scrollTop=0 at js/core/ui.js:1526
@@ -1999,6 +2038,8 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### SY-02 · P1 · bug — CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1')
 
 - **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: eval r1.js (ipad) {np0:'Page 4 of 7', held:true, np1:'Page 4 of 7' (hard), np2:'Page 4 of 7' (soft)}; a plain KOS.rerender() still resets it (np3:'Page 1 of 7'), so any unscoped plain caller (examviews.js:264, connections.js:70) still can
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Since the stopgap only plain KOS.rerender() stragglers (e.g. connections.js:70, examviews.js:265 timers firing after leaving) can reset the notes page; propose P2 in the plan.
 - **Devices:** all; most visible on iPad
 - **Detail / repro:** In a subject topic the current note page lives in a closure variable (`var notePage = 0` inside the topic view). KOS.rerender re-runs the view, so the variable is recreated at 0. hub.js keeps only the open TAB across a redraw (openTabMemo), not the page. Repro on iPad: open compsci 4.5.2.1, Next page x3 -> 'Page 4 of 7', KOS.rerender() -> 'Page 1 of 7'. Code, Japanese, Mind and Creatives lessons do NOT have this bug because they store the page in state.ui.<space>.page[ref].
 - **Evidence:** harness eval: {before:'Page 4 of 7', after:'Page 1 of 7'} at --size ipad. js/modules/hub.js:2901 (var notePage = 0), :2983 (cur = o.keep ? notePage : 0), :2590 (only the tab survives KOS.ui.redrawing). Contrast js/modules/codetopic.js:342/377, jatopic.js:206/229, crtopic.js:154/171, mindtopic.js:261/282 (ui.page[ref])
@@ -2009,6 +2050,8 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### SY-03 · P1 · bug — A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no streak credit)
 
 - **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: eval r9.js (ipad) — after three ratings the set text is identical before and after KOS.rerender({background:'hard'}) ('QUESTION · 12'); ref is a TASK_VIEW (ui.js:358-359). Still reachable through a plain unscoped rerender
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Since the stopgap background redraws are held on the review views; what remains is plain rerenders and finish()-only logging (root cause 18); propose P2 in the plan.
 - **Devices:** all; reported on iPad
 - **Detail / repro:** The flashcard engine keeps queue, graduated and counts in its mount closure, and only logs the review session in finish(). A KOS.rerender mid-set remounts it: on a topic's Flashcards tab the queue is rebuilt from ALL the topic's cards, so the learner is put back on card 1 and re-meets cards they just rated (re-rating them applies FSRS's short-term rule again, skewing their schedule); on Due today the counts reset ('This session: 0 again · 0 hard · 3 good' -> ''), and because a session is only logged at finish(), the ratings made before the redraw never produce a session entry — their XP/gold and the study-streak credit are lost (the SRS schedule itself was saved). Repro iPad: compsci 4.5.2.1 Flashcards, rate 3 Good ('15 left of 18'), KOS.rerender() -> '18 left of 18', first card again. Due today: rate 3 ('304 left of 307', life line 3 good) -> after rerender '304 left of 304', life line empty.
 - **Evidence:** harness eval (ipad): topic log ['18 left of 18 What is a number base?', ..., '15 left of 18'] -> afterFront '18 left of 18 What is a number base?'; due {d3life:'This session: 0 again · 0 hard · 3 good · 0 easy', dAfterLife:''}. js/engines/flashcards.js:295-322 (rate keeps counts in closure, store.save only), :325-355 (finish is the only KOS.sessions.log), :356 restart
@@ -2019,6 +2062,8 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### SY-04 · P1 · bug — Quiz progress and a typed exam answer are wiped by any background redraw
 
 - **Re-checked on kos-redraw-1:** no longer reproduces for background redraws: eval r3.js {quiz0:'Question 3 of 11', quiz1:'Question 3 of 11'}; a plain rerender still resets (quizUser:'Question 1 of 11')
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Since the stopgap ref/exams are held as TASK_VIEWS and typing() holds too; only plain rerenders reset the quiz/exam; propose P2 in the plan.
 - **Devices:** all
 - **Detail / repro:** Topic Quiz (MCQ) and Exam tabs keep the question index, chosen answers and typed text in engine closures. Repro iPad: compsci 4.5.2.1 Quiz, answer two -> 'Question 3 of 11'; KOS.rerender() -> 'Question 1 of 11' (tab kept, progress lost). Exam tab: go to 'Question 3 of 14', type into the answer textarea, KOS.rerender() -> 'Question 1 of 14' and the textarea is empty: the typed answer is lost with no recovery.
 - **Evidence:** harness eval sd1.js (ipad): {quizBefore:'Question 3 of 11', quizAfter:'Question 1 of 11', examBefore:'Question 3 of 14', examTA:true, examAfter:'Question 1 of 14', examTAAfter:''}. js/engines/quiz.js:62-121 (MCQ state in closure), :225-232 (exam 'at' index in closure); js/modules/hub.js:3044-3084 remounts them
@@ -2029,6 +2074,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### SY-05 · P1 · arch — Every cloud pull/merge redraws the active view unconditionally — even when nothing the view shows changed, and even while the user is mid-task
 
 - **Re-checked on kos-redraw-1:** changed: rerenderCurrent now calls KOS.rerender({background:'hard'}) (cloudsync.js:731), held on TASK_VIEWS, while typing, under a dialog/menu and within 45 s of a touch (ui.js:349-392). Still no diff of what changed: every other page is remounted after 45 s idle (r5-ipad.json: redrawn:true on all 40 non-task routes), and task pages now go stale instead (new finding)
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad primarily (app switching + Pencil study), all
 - **Detail / repro:** cloudsync.rerenderCurrent() calls KOS.rerender() after every applied remote state: the clean path (applyRemoteState, cloudsync.js:775), the merge path (mergeRemoteIn, :495, also used by a push that lost its compare-and-set race, :533-560) and first link (:1279). There is no check of whether the merged document differs in anything the current view reads, no check that the user is interacting, a dialog/menu is open, an input has focus, or a study engine is running. The only guard in KOS.rerender is the ink pen (ui.js:347). Triggers that reach it: another device's push -> Realtime 'changed' (1.5 s debounce, :1483); returning to the app (visibilitychange/focus, :1548-1552, at most once a minute) — on the iPad every app switch; the 15-min interval; and the iPad's OWN ratings: each store.save -> noteChange -> push after 4 s -> if the Mac/iPhone pushed meanwhile the CAS fails -> conflict() -> mergeRemoteIn -> rerender. An idle open Mac pushes on its own (achievement sweep every 30 min, goals/notify ticks, routine auto-ticks, Daily Review words), so the iPad is redrawn under the user regularly. This is the root of the reported iPad resets.
 - **Evidence:** js/core/cloudsync.js:487-497 (mergeRemoteIn -> rerenderCurrent), :723-733 (rerenderCurrent -> KOS.rerender), :773-777, :533-560 (conflict path), :1447-1459 (noteChange push), :1480-1495 (Realtime), :1541-1553 (interval/visible/focus); js/core/ui.js:344-357 (rerender: only inkUI.busy guard). Harness: KOS.rerender() reproduces every reset in the other findings.
@@ -2039,6 +2085,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### SY-06 · P1 · ux — Closing the Daily Review sheet (Later, Esc, Close) redraws the page underneath — and on the iPad it can auto-open over a lesson when you return to the app
 
 - **Re-checked on kos-redraw-1:** changed: close/finish/skip now redraw with {background:'soft'} (dayreview.js:92, 103, 661, 709), held on task pages — notes stay on Page 4 (r12 variant). The auto-open part holds: blocked() (dayreview.js:722-729) still has no task-page check and maybeOpen runs on every visibilitychange (:749) once bootHash is cleared after 1.5 s (code-read; no slot was due in the harness)
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad (visibility), all
 - **Detail / repro:** reviewSheet.close() calls KOS.rerender() whenever it is not silent (dayreview.js:92), as does the final Close button (:661) and Skip (:709). The overlay is outside #main, so the page under it never needed a redraw; the redraw resets notes page, flashcards, quiz, scroll. Repro iPad: compsci 4.5.4.3 notes page 4 ('Page 4 of 7'), KOS.reviewSheet.open(slot), close -> 'Page 1 of 7' (screenshot). Worse, maybeOpen() runs on every visibilitychange to visible (:749); the deep-link guard uses bootHash, which is cleared 1.5 s after boot (:746), so after boot the sheet auto-opens over ANY page (a topic, a Code lesson, Due today) when the iPad app is brought back inside a new review slot; the blocked() check knows only Focus, a dialog and the Exam Room. Dismissing it then wipes the lesson state.
 - **Evidence:** shots/sync-disruption/review-close-notes-reset.png (Page 1 of 7 after close; was Page 4 of 7). eval sd8.js {before:'Page 4 of 7', open:true, after:'Page 1 of 7'}. js/modules/dayreview.js:85-93, :661, :709, :722-729 (blocked), :744-749
@@ -2060,6 +2107,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 ### SY-08 · P1 · ux — A background redraw steals focus from whatever is being typed in — the iPad/iPhone keyboard closes mid-sentence
 
 - **Re-checked on kos-redraw-1:** no longer reproduces while the field has focus: #/reminders typing held {held:true, ae:'INPUT', val:'half a thou'} (ui.js:362-366); but once the field is blurred the unsent text is wiped by the next retry (new finding)
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad, iPhone (keyboard), Mac
 - **Detail / repro:** KOS.rerender remounts #main; the focused field is destroyed and focus falls to <body>. The quick-note draft itself survives (stored per device), but the caret is gone, so on the iPad the on-screen keyboard dismisses while the user is typing; any keystrokes in flight are lost. The same applies to every inline input on any page (search filters in vaults, Money amount fields, Goals editor in-page fields, Code task editor, Writing Desk). Repro iPad: compsci 4.5.4.3, focus the quick note, type, caret at 4, KOS.rerender() -> document.activeElement BODY; the new textarea has the text but no focus (selection at end).
 - **Evidence:** eval (ipad): {active:'BODY ', val:'half a thou', sel:11}. js/core/ui.js:344-357, :1520-1541 (main.innerHTML = '' then remount); js/core/a11y.js:97 comment says a redraw must leave the reader where they are but there is no focus restore
@@ -2069,6 +2117,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-19 · P1 · bug — A background redraw of a Collection vault throws the reader back to the top: the lazy batches are rebuilt at 60 entries, so the saved scroll position cannot be restored
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad, Mac, iPhone (any vault page)
 - **Detail / repro:** Vault pages are not in TASK_VIEWS, so a cloud pull 45 s after the last touch (or any soft redraw: a habit ticking itself, the Daily Review closing, an own picture loading) remounts #/anime, #/books, #/vn, #/game or #/mangaka. KOS.rerender saves #stage.scrollTop and restores it twice (sync and next frame), but the remounted vault holds only its first lazy batch (60 cards), so the page is too short and the restore clamps to 0. Reproduced on the seeded account (ipad): anime 3414 -> 0, books 29226 -> 0, vn 504 -> 0, game 3414 -> 0, mangaka 6056 -> 0. Scrolling through 1,900 titles and losing the place on a pull is exactly the disruption the stopgap set out to stop.
 - **Evidence:** audit-evidence/2026-11/qa/r5.js + r5-ipad.json (diff.top for #/anime, #/books, #/vn, #/game, #/mangaka). js/core/ui.js:399-404 (restore of tops[] only, sync + one rAF); js/core/ui.js:358-359 (TASK_VIEWS has no vault views); invariant 8 (60-entry lazy batches).
@@ -2078,6 +2127,7 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ### SY-20 · P1 · bug — Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** #/governor/edit keeps its draft (showcase, background, focus, title, seal) in a local variable of editSeat(). governor is not a task view, so a background redraw (a cloud pull 45 s after the last touch while the user browses the Showcase/Title lists, a soft redraw from a habit or the Daily Review) remounts the editor with a fresh draft from the saved state: the Save button stops being lit, the editor tab returns to the first one, and the choices are silently gone. There is also no leave-with-changes prompt (known), so nothing warns.
 - **Evidence:** eval r7.js (ipad): {tab:'Rest rhythm', litBefore:'lit', litAfter:null, tabAfter:'Study'}. js/modules/governor-ui.js:658-662 (var draft = {...} inside editSeat), :196 (editSeat called from the view on every render); js/core/ui.js:358-359 (governor not in TASK_VIEWS).
@@ -2272,6 +2322,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CM-01 · P1 · content — Specification tab shows garbled PDF-extraction text on most Maths leaves (M7.3 included)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The Spec tab is drawn from js/data/maths.js content/info lines, which are raw, broken PDF extraction. Examples: M7.3 guidance reads "v = u + at r = ut +1at2 / e.g. , with vectors / 2 given in i - j or column vector form". 5.6 reads "Understand and use double a n g le f / rm u l a e ; u s e / f s in ( A ± B ), fo r m u l a e fo r / ± ± cos (A B)". 2.1 reads "× = , ÷ = - , = m n n am / The equivalence ofa and should be known." 2.10 starts mid-sentence: "into partial fractions". 25 leaves still contain the extraction artefact "need to learn:" or "students need to learn:". A heuristic found fragment lines in 36 of the 89 leaves: 1.1 2.1 2.2 2.3 2.4 2.5 2.7 2.9 3.3 4.1 4.2 4.3 5.1 5.2 5.3 5.5 5.6 5.7 6.2 6.3 6.4 7.1 7.2 7.4 8.2 8.3 8.5 8.6 9.4 10.4 S2.3 S4.1 S5.3 M7.4 M8.3 M8.6, and reading the dump shows more. Exponents, fractions, sums and integrals are lost throughout. This is very likely part of why M7.3 looks bare.
 - **Evidence:** shots/content-maths/m73-spec-mac.png; shots/content-maths/p5-6-spec-mac.png; cm/spine.txt (every leaf's spec text); tools/gen_data.py:240-255 (maths_group copies clean(x) of the extracted lines)
@@ -2281,6 +2332,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CM-02 · P1 · content — Quiz answers are almost always A or B, and options are never shuffled
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Of 1,058 Maths quiz items, the correct option is A in 531 and B in 481. Only 44 are C and 2 are D. Base files: 380 A, 100 B, 17 C, 1 D. Bank files: 151 A, 381 B, 27 C, 1 D. KOS.quiz.mountMCQ renders opts in authored order, and its Shuffle button only reorders the questions. A learner soon learns to pick A on a base item or B on a bank item, so the quiz score stops measuring understanding. Separately, the correct option is uniquely the longest in 317 items (30%).
 - **Evidence:** cm/metrics.json ansDist per leaf; js/engines/quiz.js:66 (Shuffle shuffles order only), :88-96 (item.opts rendered in order, answer compared to item.ans at :113); e.g. js/data/content/maths-mech-m7.js:305-306 (every item ans: 0); shots/content-maths/m73-quiz-ipad.png (Q1 answer A)
@@ -2409,6 +2461,8 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-01 · P1 · content — IT spec text for F206.6.1, F204.6.5, F202.5.1, F201.5.2, F200.5.3 (and F200.2.x/F202.2.x) holds garbled PDF dumps of the assessment criteria
 
+- **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Partly wrong for F201: the hand-made KOS_SPEC_FIX covers 5.2, 2.3, 2.4, 2.6 and Factor analysis on the Spec tab. The faulty parser is tools/parse_it.py, not tools/gen_data.py.
 - **Detail / repro:** The generated IT spec (js/data/it.js) contains multi-thousand-character strings of shuffled PDF text in the Spec tab content/info lists for the last leaf of each unit: e.g. F206.6.1 'Ways to reflect' ends with a 2,271-char 'Lessons learnt Assessment criteria The table below gives...' string and a 2,884-char info item; F204.6.5 has 2,164/1,007/2,510-char strings; F202.5.1 2,330/538/2,502; F201.5.2 (the unit the user is sitting) has 'Urban and community planning Assessment guidance This unit is assessed by an exam...' and an 831-char run; F200.5.3 876 chars. Shorter merged rows also start with a dangling 'include:' (F200.2.2, F200.2.3, F200.2.6, F201.2.4, F202.2.2, F202.2.4, F202.2.5, F202.3.3). Column-interleaved words ('The tasks. means that the unit grade awarded') are unreadable on the Spec tab and pollute search and the Assistant's spec reads. F206 is the NEA the user is doing now. Beyond the long dumps, 189 short spec rows in 39 IT leaves are fragments ('□ Does', '□ Techniques To', '• Diagnostic Prescriptive □', a bare '□'), e.g. F201.2.3 Data mining techniques reads ['□ Data mining','□ Data mining techniques','• Descriptive','• Diagnostic Prescriptive □','□','□ Does','□'] and F201.2.6 omits 'Factor analysis' which the notes teach.
 - **Evidence:** js/data/it.js:2246-2283 (F206.6.1 content/info); node scan of dump.json: strings >260 chars listed per leaf (F206.6.1 2271/894/2884, F204.6.5 2164/1007/2510, F202.5.1 2330/538/2502, F201.5.2 324/328/308/831, F200.5.3 331/308/876)
 - **Root cause:** PDF parser in tools/gen_data.py appends trailing unit-level sections (criteria tables, guidance, synoptic tables) to the last topic leaf and mis-splits two-column 'To include' boxes.
@@ -2417,6 +2471,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-02 · P1 · data — IT spec has a duplicate leaf: F206.6.1 'Ways to reflect' and 'Overview of the assessment' share a ref, so 'Ways to reflect' cannot be opened
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Detail / repro:** F206 Topic Area 6 has two children with the SAME ref F206.6.1: 'Ways to reflect' and 'Overview of the assessment' (qualification-structure text: entry codes H019/H119, GLH). The spine lists both rows, but both resolve to one topic: opening F206.6.1 (either row) shows the title 'Overview of the assessment' and its Spec (entry codes, GLH), with the 'Ways to reflect' notes, flashcards and quiz underneath. The real 'Ways to reflect' spec (Boud, Keogh and Walker; effectiveness of processes and tools; lessons learnt) is unreachable, and progress, RAG, attachments and FSRS keys are shared by the two rows. F206 is the NEA the user is doing now. Also F201.5.3 'NEA Units' is an empty phantom leaf in it.js (hidden by the spine, which counts F201 as 15, but present for any reader of KOS_DATA).
 - **Evidence:** js/data/it.js:2246 and :2285 both 'ref': 'F206.6.1'; js/data/it.js:946-950; audit-evidence/2026-11/qa/shots/content-cs-it/it-f2061-spec-ipad.png (title 'Overview of the assessment', Notes 4 / Flashcards 14 are Ways to reflect's); eval on #cols: rows 'Ways to reflect F206.6.1' and 'Overview of the assessment F206.6.1', h1 after KOS.show('ref',{subject:'it',ref:'F206.6.1'}) = 'Overview of the assessment'
 - **Root cause:** Generator does not filter non-topic headings and has no uniqueness check on refs.
@@ -2425,6 +2480,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-03 · P1 · content — Quiz answers are guessable: the correct option is A or B in 94% of CS questions (D only 12 of 1,347) and options are never shuffled
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Detail / repro:** Across all 1,347 CS quiz questions the correct index is A 677, B 590, C 68, D 12; IT's 288 are A 17, B 211, C 57, D 3. The correct option is also the uniquely longest one in 688/1,347 CS (51%) and 201/288 IT (70%) questions, against ~25% by chance. KOS.quiz.mountMCQ renders item.opts in authored order (only the question order has a Shuffle), so a learner quickly learns 'pick A/B, pick the longest', and 'Quiz best' on the topic inspector and RAG overstate recall. 46 leaves have 60%+ of answers in one position (e.g. 4.4.1.3: 11 of 12 are A; 4.5.2.1 9/11 A).
 - **Evidence:** node content-cs-it/quiz.js over dump.json: compsci [677,590,68,12], it [17,211,57,3]; longest-correct compsci 688/1347, it 201/288; js/engines/quiz.js:88 item.opts.forEach renders in authored order (shuffle at :25 is only applied to question order, :66)
 - **Root cause:** Authoring habit (answer written first) plus an engine that never permutes options.
@@ -2433,6 +2489,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-04 · P1 · ui — 'Write it out' pill on worked examples overlaps the example's title on iPhone and iPad
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone, ipad, ipadl (some), mac (1)
 - **Detail / repro:** The worked-example card's 'Write it out' button is absolutely positioned at a fixed inset from the top-right, so whenever the title runs that far it sits on top of the words. On iPhone 5 of 8 worked cards on 4.6.4.1 page 4 are covered ('The bottle-filling conveyor', 'Process X: circuit and expression', 'XOR without an XOR gate', 'Draw without simplifying', 'Only AND, OR and NOT'); on iPad portrait (820) 14 of 72 buttons across 4.6.4.1, 4.5.4.4, 4.10.4 and 4.7.3.5 overlap text, on the Mac 1 of 72. The pill is also 81×23 px, under the 44 px touch minimum (invariant 69).
 - **Evidence:** audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png; eval at iphone: button rect x233 y824 w81 h23 position:absolute over title text; ipad hit 14/72, mac 1/72; css/views/ink.css:300 .k-n-writeout { position: absolute; inset-block-start: var(--sp-8); inset-inline-end: calc(var(--sp-8) * 9) }; js/core/content.js:373
@@ -2534,6 +2591,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CO-01 · P1 · ui — Stage path on touch devices: unit squares become 28x44 bars and capstone diamonds render as skewed slashes
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad portrait/landscape, iPhone
 - **Detail / repro:** On iPad and iPhone (pointer: coarse) the desk hero's stage path (and every KOS.codeUI stage path) draws each unit square U1..U12 as a 28x44 tall rectangle and each capstone diamond as a 16x44 box rotated 45deg, which reads as a broken diagonal stroke rather than a diamond. Mac (fine pointer) is correct. Reproduce: #/subject/code at ipad/iphone.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone.png; eval at iphone: .k-cx-dia offsetWidth 16 x offsetHeight 44 with transform rotate(45deg); .k-cx-sq 28x44. css/base.css:115-119 (coarse min-block-size: var(--hit-coarse) on every button) vs css/views/code.css:132,137 (fixed inline-size/block-size), buttons made at js/core/codeui.js:556,567
@@ -2543,6 +2601,8 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CO-02 · P1 · ui — iPhone desk: Daily 20 and Continue squeezed side by side; the Open-lesson button's label spills out of its pill
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Root cause and fix corrected: at 402px the desk is the grid at css/views/study.css:1169 (repeat(2, minmax(0,1fr))), not a flex row — the fix is a grid-template-columns single-column override for .k-cx-hero + .k-subj-side at <=700px, as japanese.css:449 and creatives.css:366 do (and Mind's desk), plus .k-fit-btn on the Open-lesson button.
 - **Devices:** iPhone
 - **Detail / repro:** At 402px the desk's side column (.k-subj-side) switches to a row, so Daily 20 and Continue are each ~180px wide. The Daily 20 body wraps to five lines, and the 'Open 1.1 Your first program' button is nowrap: its text (153px) overflows the 144px pill on both sides, so the label crosses the button border. Continue is a tall card with its content floating in the middle of ~200px of empty space, and its title wraps.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone-d20.png (dpr 2), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone.png; eval iphone: [data-ui=code.daily20-lesson] 144x44, scrollWidth 153, white-space nowrap; .k-cx-d20 width 180. css/views/study.css:1074-1076 (side becomes a row of flex:1 1 0 cards), button at js/modules/code.js:221-223
@@ -2552,6 +2612,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CO-03 · P1 · ui — Desk side column: a real Daily 20 task crushes the Continue card to 41px and clips its 'CONTINUE' label (Mac, iPad landscape)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** MacBook, iPad landscape
 - **Detail / repro:** With a task in the Daily 20 (tier pill, title, three concept chips wrapping to two rows, the why line, Start), the Daily 20 card grows to 239px of the side column's fixed 292px (the hero's height). The Continue card gets 41px while its content needs 62px; overflow: hidden cuts the CONTINUE kicker in half under the Daily 20 card's border. Same at iPad landscape (d20 327 of 459, Continue 121, fits) and worse whenever the why line wraps to three lines. The concept chips (k-cx-cchips) wrap one per row on narrow cards, adding rows.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-prog-mac.png (CONTINUE at y~396 cut); eval mac: .k-cx-d20 239px tall, [data-ui=study.continue] clientHeight 41 vs scrollHeight 62; side 292 = hero 292. css/views/study.css:50 (.k-subj-side > :first-child flex: 1 1 auto), :54 (contain: size), :55 (> * { min-block-size: 0; overflow: hidden }); js/modules/code.js:124, 228-234, 51-55
@@ -2561,6 +2622,7 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CO-04 · P1 · bug — Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The task page's STDIN box is a single-line <input type=text>, prefilled with only the first line of the first example (split('\n')[0]). 158 of 258 tasks have multi-line example input. Pressing Run with the reference answer to 2.9 Guessing game (example input 42/50/30/42) gives 'Runtime exception ArgumentNullException line 5 Value cannot be null', because the second Console.ReadLine() returns null. A learner can never try their program on the example before Check, and the error points at correct code, which teaches the wrong lesson.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/task-run-multiline-mac.png; eval: set editor to KOS.code.task('2.9-guess').answer, click Run -> output 'ArgumentNullException line 5'; Object.values(KOS_CODE.TASKS) with multi-line examples[0].stdin = 158. js/modules/code.js:633-635 (input type text, split first line), :694 (stdin: stdin.value)
@@ -2975,6 +3037,8 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### JM-06 · P0 · bug — Choosing 'Media' in the Japanese spine locks the device out of every Japanese lesson: each lesson page throws 'codeSpine.stageHead is not a function' and bounces to Home, and the switch back is on the page that no longer opens
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Above 860px on a direct KOS.show the Core/Media switch is mounted into #tree before the throw, so a desktop recovery path exists; through a hash, reload, Back, or at drawer widths it does not. P0 holds.
 - **Devices:** all
 - **Detail / repro:** The Japanese spine has a Core | Media segment (state.ui.japanese.spine, per device, saved). In Media mode KOS.jaTopic.spine() returns { tracks: true } with no stageHead. hub.js renderTree then calls codeSpine.stageHead(sec.stage) for the first section (it only checks that codeSpine is truthy), which throws; KOS.views.ref aborts, the router shows the toast 'A page could not be opened.' and replaces the route with #/home. Because the choice is saved, every later attempt to open ANY Japanese lesson — the desk's Continue, the path squares, the Practice links, search, Back — fails the same way, and the only control that resets the mode is the Core button inside that spine. The learner is locked out of Japanese lessons on that device until storage is edited.
 - **Evidence:** Repro (slot 10): open #/ref/ja/1.1, press 'Media' in the spine → console 'EXC TypeError: codeSpine.stageHead is not a function at hub.js:495'; then #/ref/ja/1.2, #/ref/ja/H1, #/ref/ja/2.1 all end on #/home with the toast; KOS.store.state.ui.japanese.spine === 'media'. Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-spine-media2-mac.png (Home with 'A page could not be opened.'). Code: js/modules/jatopic.js:36-40 (media branch returns {tracks:true} only); js/modules/hub.js:491-495 (stageHead called whenever codeSpine is truthy).
@@ -2984,6 +3048,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### JM-07 · P1 · data — 'Held in reviews' (4th lesson check) is never written to the progress record by reviews, so the inspector shows 3/4 · 75% while the stored status, spine and unit counts stay behind
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** KOS.ja.syncChecks is called only from markPage, markHeard and finishLesson (js/core/ja.js:106,112,241) — never from record()/finishSession() or at boot. The 4th check (every item's R/L facet reps ≥ 2 and s ≥ 7) can only become true later, through review sessions, so it is never synced unless the learner happens to open an unread page or play an unheard line of that lesson afterwards. The inspector computes evidence live and shows the check ticked and '3 of 4 checks 75%', while the shared progress record (which drives the status select 'Started', the spine's 'F1 0 / 6', 'Kana to native media 0 / 28 completed', the subject's mastery in Home/Reports/Goals and the auto Completed status) keeps check[3] = false. A lesson can therefore never reach Completed through reviews.
 - **Evidence:** eval: after reading all 8 pages of 1.1, finishLesson, and holding every item's R facet (reps 3, s 30): KOS.ja.evidence('1.1').checks = [true,false,true,true] but KOS.store.peekProgress('ja','1.1').check = [true,false,true,false] (also after rendering the topic page). Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-1.1-heldmismatch-mac.png: inspector ticks 'Held in reviews 14 of 14 items held' and '3 of 4 checks 75%' beside status 'Started', spine 'F1 First conversations 0 / 6'.
@@ -2993,6 +3058,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### JM-08 · P1 · bug — Leaving a Japanese session by navigation (rail, tab bar, Back, iPad edge swipe, reload) logs nothing: answers are rescheduled but the session's XP and the day's study activity are lost
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all (most likely on iPad/iPhone via the back swipe and tab bar)
 - **Detail / repro:** Each answer is written to the facet at once (KOS.ja.record), but the ONE ledger entry (finishSession → KOS.sessions.log) is written only by end(): reaching the last card or confirming the ✕ dialog. Any other exit — the rail, the phone tab bar, browser Back, the iPad's back swipe, closing the Home Screen app — discards results[]. The facets move (the work is 'done' and will not be asked again today) but no XP is paid, the session never counts toward the study streak or the day's activity, and Reports/Goals/Badges that read the ledger never see it. The ✕ dialog's promise ('What you have answered is kept and scheduled') is only half kept elsewhere.
 - **Evidence:** eval slot 10: two kana R facets due; open #/japanese/session/reviews, answer さ correctly (facet reps 0 → 1), KOS.show('home') → new ledger entries 0, governor XP +0. js/modules/jarun.js:400-406 (leave only on ✕), :431-447 end(); no hashchange/pagehide/KOS.show hook in run().
@@ -3002,6 +3068,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### JM-09 · P1 · ui — iPhone: on a Japanese lesson the topic tab strip collapses to 5 px — Notes, Practice, Reviews and Files are invisible and the Practice session cannot be reached from the lesson
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone
 - **Detail / repro:** At 402 px a Japanese (also Code and Mind) lesson's tab row holds the tabs scroller, Working, Edit AND the Learn/Reference segment in one flex line. The non-scroller children are flex:none, so the scroller (flex 1 1 auto, min-inline-size 0) is left 5.5 px: the four tabs are laid out at x 16–293 but clipped to nothing, the 'Earlier material' and 'More material' arrows overlap at x 16 and x −10.5 (half off-screen, the '›' circle visible at the left edge). The lesson's Practice tab — the only place with '▶ Start the practice' besides the desk — is not reachable. The shared-topic version of this (tabs squeezed to ~181 px by Working/Edit) is reported in study-core; on the study spaces with a Learn/Reference segment it degenerates to zero.
 - **Evidence:** Screenshot /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/ja-mind/q-1.2-scene-iphone.png (no tab row; arrow at the left edge under the header). eval (iphone): #/ref/ja/1.2, #/ref/code/1.1, #/ref/mind/F1.1 → tabs scroller width 5 px inside .k-topic-tabrow 370 px; arrows {Earlier material x 16 w 32}, {More material x −10.5 w 32}. css/views/study.css:208-218; js/modules/jatopic.js:85-90 (Learn/Reference segment added to the row).
@@ -3331,6 +3398,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MI-01 · P1 · bug — The F1 checkpoint lesson (F1.8) can never reach Completed: its fourth check reads retrieval over the lesson's concepts, and a checkpoint lesson has none
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** A lesson without a written prompt has three checks and its fourth slot is 'all three hold' (js/core/mind.js:347-355). For a checkpoint lesson the third evidence check is `retrieval`, computed over `l.concepts` (js/core/mind.js:338-340) — but F1.8 is registered with `concepts: []` (its concepts live on KOS_MIND.CHECKPOINTS.F1.concepts). So retrieval is always false and the shared progress record never gets checks 3–4: after the page is read, the checkpoint is passed and every one of the checkpoint's concepts' cards is rated Good, F1.8 stays 'started' with check [true,true,false,false]. Consequences: the unit can never show 8/8 completed, Mind mastery can never reach 100% (F1.8 caps at 2/3), the desk's 'Lessons' tile tops out at 7/8, and anything reading `completed` (unitState.completed, achievements, Reports) under-counts.
 - **Evidence:** eval (slot 11): after recordCheckpoint('F1'), markPage('F1.8',0) and rateCard(...,3) on argument and induction cards → evidence('F1.8').checks [true,true,null,false], peekProgress('mind','F1.8') {status:'started', check:[true,true,false,false]}, completed('F1.8') false, KOS_MIND.LESSONS['F1.8'].concepts []
@@ -3340,6 +3408,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MI-02 · P1 · ui — Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px — the Start button, the plan and the lesson title are cut off
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone, ipad portrait (all states); mac in Exam Season
 - **Detail / repro:** Below 1080px the shared desk rule gives every side card `flex: 1 1 0` (css/views/study.css:1076) and the study-space rule gives them `min-block-size: 0; overflow: hidden` (study.css:55). Japanese and Creatives turn their side column into a grid (japanese.css:449, creatives.css:366), but Mind's side is `display:flex; flex-direction:column` (css/views/mind.css:112), so in an auto-height column each card's basis is 0 and it collapses to its padding: the Daily 15 card is 40px tall with 189px of content, its '▶ Start' button sits 129px below the card's clipped bottom, and Continue shows only its kicker and half the → circle. The desk's main call to action is invisible on two of the user's three devices. On the Mac the same clipping cuts the Daily card's button in Exam Season (card 191px, content 254px: the '▶ Reviews · 5 min' button at y=340 is below the card's bottom at 333), because the side column is held to the hero's height.
 - **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-desk-iphone-daily.png; eval (seeded, Exam Season stubbed off): ipad cardH 40 scrollH 189, Start bottom 873 vs card bottom 744; iphone cardH 40 scrollH 189, Start bottom 747 vs card bottom 618; mac (Exam Season on) card 191.6px, scrollHeight 254, overflow hidden, button top 340
@@ -3508,6 +3577,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### CR-01 · P1 · bug — Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Saving from the Writing Desk, a drill or Add your work lands on #/creatives/log/<id>, whose render schedules openWork(id). Any KOS.rerender() while that route is current (the dialog's own 'Take out of Portfolio', the Promote dialog's 'Promote', or any background redraw) draws the page again and opens the work dialog AGAIN. Repro: go to #/creatives, then #/creatives/log/<id>; click 'Take out of Portfolio' -> the dialog closes and immediately re-opens (now showing 'Promote…'). KOS.rerender() with it open -> two identical stacked dialogs (10 buttons). The route never drops the id, so the user cannot act on the work without it bouncing back.
 - **Evidence:** eval: after cr.promote click count of [data-ui="cr.dialog"] stays 1 with button now 'Promote…'; after KOS.rerender() count 1 -> 2; js/modules/creatives.js:567 'if (wid && CR().work(wid)) setTimeout(function () { openWork(wid); }, 0);' inside logPage; :542 and :559 call d.close(); KOS.rerender(); landing routes js/modules/crwrite.js:147, crdrills.js:85, creatives.js:620
@@ -3517,6 +3587,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### CR-02 · P1 · ux — On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone
 - **Detail / repro:** The ⚙ 'Creatives settings' button and 'Start focus' are put in #page-actions by spaceHead/KOS.shell.actions. Under 700 px the stage head is display:none and only nodes marked data-phone-action are moved into the phone title bar; neither button is marked, and the section switch menu lists only Code, Japanese, Mind, Creatives, A-levels, Tracks, Writing, Drills, References, Portfolio. So on the iPhone there is no way to change Your days, Minutes or the Exam Season pause (which hides the Daily Creative for weeks) except by typing #/creatives/settings.
 - **Evidence:** eval --size iphone on #/subject/creatives: [data-ui="cr.settings-open"] height 0, hidden by DIV.k-stage-head; [data-ui="cr.focus"] height 0; section menu items as listed (no Settings); css/layout.css:445 ':root[data-shell="ready"] .k-stage-head { display: none; }'; js/modules/mobile-shell.js:559-562 (moves only [data-phone-action]); js/modules/creatives.js:69-70 settingsBtn and :295-296 spaceHead (no data-phone-action)
@@ -3734,6 +3805,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 ### PR-01 · P1 · bug — Afternoon review: 'Place in a free block' menu opens BEHIND the review dialog, so it does nothing
 
 - **Re-checked on kos-redraw-1:** holds: eval prod2/place.js 6 Nov 18:52 — menu panel z-index 110 under the review dialog's 120, elementFromPoint at the panel = .k-dr-place (not the menu); a programmatic click on its item does add the event (added 1); js/core/ui.js:857-870, css/tokens.css:1031-1032
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Daily Review > Afternoon > step 3 Time left. Pressing 'Place in a free block' sets aria-expanded=true and appends the menu panel to <body>, but the panel is z-index var(--z-menu)=110 while the review overlay is var(--z-modal)=120, so the menu is painted under the dialog's scrim and panel: nothing visible appears, and a tap where the item would be lands on the dialog (elementFromPoint at the first item's centre returns another row's 'Place in a free block' button). The item's onSelect itself works: invoking it programmatically creates the study block (15:30, 90 min, type study, assignmentId 1) with an Undo toast. Same root cause affects EVERY KOS.ui.menu used inside a KOS.ui.openDialog (the primitive never raises a menu above an open modal). Also reproduced on About to Study's 'Change ▾' task menu (preflight dialog): panel z=110, elementFromPoint at its first item returns the dialog's k-field, not the menu.
 - **Evidence:** shots/productivity/dr-place-open-mac.png (menu open per aria-expanded, nothing shown); eval: panel z=110, overlay z=120, panel parent BODY, topEl at item centre = 'k-btn k-btn--sm ui.menu-button'; css/tokens.css:1031-1032 (--z-menu:110, --z-modal:120); css/components.css:334 (.k-menu-panel z-index var(--z-menu)); js/core/ui.js:813 (place() appends panel to document.body); js/modules/dayreview.js:609
@@ -3744,6 +3816,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 ### PR-02 · P1 · bug — Every page header shows the PREVIOUS page's painted band after in-app navigation
 
 - **Re-checked on kos-redraw-1:** holds: eval navigating #/pacing,#/routines,#/focus,#/reminders,#/calendar,#/routines → page-header art page.reminders, page.pacing, page.reminders, none, (no header), page.calendar; js/core/ui.js:642-643 (reads state.ui.view) and 1592-1594 (view rendered, then ui.view assigned)
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** KOS.ui.pageHeader picks its art from KOS.store.state.ui.view, but KOS.show sets state.ui.view only AFTER the view function has rendered. So navigating Pacing -> Routines draws Pacing's band on Routines, Routines -> Focus draws Reminders' band (Routines maps to 'reminders') on the Focus Timer, Focus -> Reminders draws none (Focus has no PAGE_ART entry), etc. Only a reload (where ui.view was persisted) shows the right picture. Repro via eval navigating #/pacing,#/routines,#/focus,#/reminders,#/calendar,#/routines: header images were reminders, pacing, reminders, none, none, calendar respectively. Affects every page that uses pageHeader, not only Productivity; the art audit just released depends on it.
 - **Evidence:** eval output: '#/pacing [app.hero.page.reminders.webp]', '#/routines [app.hero.page.pacing.webp]', '#/focus [app.hero.page.reminders.webp]', '#/routines [app.hero.page.calendar.webp]'; shots/productivity/focus-mac-seed.png and routines-mac-seed-2.png (sticky-note pinboard band on Focus/Routines); js/core/ui.js:589-592 (art = PAGE_ART[state.ui.view]); js/core/ui.js:1541-1543 (view rendered, then ui.view assigned)
@@ -3754,6 +3827,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 ### PR-03 · P1 · data — Focus: 'General study — no link' is overridden by About to Study, which silently links the session to the first assignment (even with 'Just start')
 
 - **Re-checked on kos-redraw-1:** holds: eval 6 Nov (empty account + one assignment) — preflight({subject:null, assignmentId:null}) shows 'QA essay · Assignment · due Sun 8 Nov'; 'Just start' → active {subject:'compsci', assignmentId:1}; js/modules/routineplayer.js:279-287
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** On #/focus with subject 'General study — no link' and 'No assignment', pressing Start focus opens About to Study pre-filled with the overdue NEA assignment. Pressing 'Just start' (or Start Focus) starts a session with subject 'compsci' and assignmentId 1. The completed session then banks its minutes on that assignment (invariant 4a) and counts as CS study, i.e. time is misattributed. The only escape in the dialog, 'Change ▾', is a KOS.ui.menu that opens behind the dialog (same z-index bug), so there is no way to keep 'no link' short of turning off About to Study.
 - **Evidence:** eval: Focus page left on General study/no assignment -> Start focus -> preflight.just-start -> session {subject:'compsci', assignmentId:1}; shots/productivity/focus-running-mac.png (About to Study shows NEA); js/modules/routineplayer.js:279-287 (taskOf falls back to taskChoices()[0] when ctx has no subject/assignment), 257 (go(skip) merges task even when skip); js/modules/focus.js:2253
@@ -3764,6 +3838,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 ### PR-04 · P1 · ui — Running Focus: a long assignment title runs off the screen (left edge on Mac, right edge on iPhone)
 
 - **Re-checked on kos-redraw-1:** holds: eval 6 Nov — .k-fx-ctx spans x -130.8..485 at 1470 px; shots/productivity/inv/focus-run-mac.png (title cut at the left edge, 'due 2026-11-02' raw); js/modules/focus.js:881-882, 1018, 2175
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** The objective/context column on the running Focus screen holds the assignment chip ('課 <title>') with no max width, wrapping or ellipsis. With the NEA assignment the k-fx-ctx box is 616px wide: on the Mac it starts at x=-131 (text cut at the window's left edge: 'tion: stakeholder interviews…'), on iPhone it ends at x=648 in a 402px viewport. The due date is printed raw ('due 2026-10-29'), as are the Focus page's assignment options ('· due 2026-10-29'). On iPhone the context card is also washed out over the bright window art (chips barely legible).
 - **Evidence:** shots/productivity/focus-running-mac.png (left edge), shots/productivity/focus-running-iphone.png; eval: .k-fx-ctx rect x=-131..485 (mac), 32..648 (iphone, vw 402); js/modules/focus.js:879-883 (chip('課 '+asg.title), chip('due '+asg.due)), 1018, 2175; css/views/productivity.css:113-114
@@ -4154,6 +4229,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-01 · P0 · data — Duplicate transactions after re-importing: de-dupe key includes payee, so a second import mapped differently is all 'new'
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Exactly the user's screenshot: the same Heron Foods row twice, once titled with the payee and once titled 'Other' with the bank text as the subtitle. Reproduced: import a statement with Description->Payee, then the same file with Description->Note (or payee unmapped); preview reports 0 duplicates and every row imports again. The key is date|minor|payee.lower(), and an empty payee never equals the first import's payee. The second row reads 'Other' because txRow falls back to the category name when payee is empty and shows the note as the sub-line.
 - **Evidence:** js/core/money.js:1025-1031 (key), js/modules/money.js:587,591 (title/subtitle fallback); shots/money-goals/tx-dups-all-mac.png; eval repro: second preview {dups:0}
@@ -4163,6 +4239,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-02 · P1 · integration — Santander midata CSV is refused: 'Merchant/Description' and 'Debit/Credit' headers are not recognised
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The midata export's header 'Date,Type,Merchant/Description,Debit/Credit,Balance' maps only Date; GUESS has no pattern for 'Merchant/Description' (payee) or 'Debit/Credit' (signed amount), so read() fails with 'It has no header row with a date and an amount.' before the user ever reaches the column mapper, even though the mapper could have fixed it by hand. Reproduced through KOS.money.csv.parse/guess on money-samples/midata-comma.csv: mapping {date:0}, dialogAccepts false.
 - **Evidence:** js/core/money.js:970-977 (GUESS), js/modules/money.js:937-940 (hard refusal before the mapper); repro: scratchpad/qa/money-samples/midata-comma.csv, scratchpad/qa/mg-import.js
@@ -4172,6 +4249,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-03 · P1 · integration — Import only reads the first line as the header: midata with a leading blank line or a semicolon delimiter, and Online Banking CSV with an account preamble, all fail
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** parseCSV picks the delimiter from line 1 only (a leading blank line forces ','), and takes rows[0] as the header. Santander midata variants (';' delimited, trailing ';', blank first line) parse into one column; the Online Banking CSV/Excel export starts with 'Account:'/'From:' preamble lines so the header is 'Account:,Santander…'. All refused with the same generic message.
 - **Evidence:** js/core/money.js:947-969; browser repro of 6 sample files (midata-semicolon.csv delimiter ',' header one cell; santander-online-excel.csv header ['Account:',…]); all dialogAccepts=false
@@ -4181,6 +4259,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-04 · P1 · integration — Santander's other exports (.txt, QIF, OFX) are not supported at all; the picker accepts .txt but cannot read it
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Online Banking 'Download transactions' offers text (Date:/Description:/Amount:/Balance: blocks with non-breaking spaces), Excel CSV, Quicken QIF and Microsoft Money OFX. The importer is CSV-only, yet the file input accepts text/plain, so the user's .txt is taken and fails with 'It has no header row with a date and an amount.' OFX would also give a stable FITID for exact de-duplication.
 - **Evidence:** js/modules/money.js:889 (accept .csv,text/csv,text/plain), js/core/money.js:947; repro: money-samples/santander-online.txt, santander.qif, santander.ofx all refused
@@ -4190,6 +4269,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-05 · P1 · ux — No way to see, undo or replace an import after the result dialog closes
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Each import has a batch id, but 'Undo this import' exists only on the Done step of the dialog (money.js:915). Once closed there is no import history, no filter by source/batch in Transactions (list() filters kind/cat/tag/search only), and bulk select has no 'select all' over a range, so removing a bad 200-row import means ticking rows one by one.
 - **Evidence:** js/modules/money.js:915-917; js/core/money.js:1050-1056 (undoBatch only caller), list() keep() js/core/money.js:~700-712
@@ -4199,6 +4279,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-06 · P1 · data — Unquoted thousands separators shift columns: '£1,234.56' imports silently as £1.00
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** A comma-delimited bank file that writes amounts like £1,234.56 without quotes (common in hand-rolled UK exports, and what users get after re-saving midata in a text editor) splits the amount into two cells. The parser never checks a row's cell count against the header, so the Student Finance row imported as +£1.00 and the balance column swallowed '234.56'. No warning in the preview.
 - **Evidence:** js/core/money.js:947-969 (no per-row width check), 1005-1013; eval repro: row ['2026-10-27','in',100,'STUDENT FINANCE ENGLAND SLC']; shots/money-goals/tx-dups-all-mac.png shows +£1.00
@@ -4208,6 +4289,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-07 · P1 · data — A recurring rule's 'Confirm' and an imported bank row for the same payment double-count
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Confirming an occurrence (Google One £1.59, Phone £10) writes its own transaction r:<rule>:<date> with payee = rule name; importing the bank statement then adds 'GOOGLE *Google One, ON 27-10-2026' £1.59 as a separate row. Neither side looks at the other: preview's dedupe compares payee text ('google one' vs the bank string) and confirm() never searches existing transactions. Spend, budgets, Safe to spend and Reports count the payment twice. This is a second path to the duplicates the user saw.
 - **Evidence:** js/core/money.js:414-433 (confirm creates tx unconditionally), 1025-1031 (dedupe by exact payee); recurring page shows Google One 'Due' for Sep/Oct even though the user has bank rows for them (shots/money-goals/recurring-mac.png)
@@ -4217,6 +4299,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-08 · P1 · ux — Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Every imported row lands in Other/Other income (preview opts.outCat), payee is the raw bank text ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026', 'CARD PAYMENT TO …,3.45 GBP, RATE 1.00/GBP ON …'), so Overview's 'This month by category' is one 'Other' bar, the Selected card shows a 4-line shouting title, spend-by-merchant is impossible and nothing learns from the user's re-categorising. The bank's Type (DEB/DD/FPI/FPO/SO) and Balance columns are dropped, so direct debits are not detected and the import cannot be reconciled. There is no merchant normalisation, no payee->category memory and no recurring detection anywhere in money.js.
 - **Evidence:** js/core/money.js:1019-1021 (cat = other), 1041; grep of money.js/modules/money.js finds no merchant/auto-category code; shots/money-goals/tx-dups-all-mac.png
@@ -4226,6 +4309,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-09 · P1 · bug — iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone
 - **Detail / repro:** Under 700px the page's section tabs ([data-phone-tabs]) are hidden on the promise that the title bar's switch offers them, but mobile-shell's destinations() only falls back to page tabs when the section has no subnav. Productivity has a subnav, so the 'Switch within Productivity' sheet lists Focus Timer…Money, Goals, and Money's six views and Goals' four views vanish. On the Money overview the only visible links are Budgets →, Recurring →, Pots →; there is no way to open Transactions (where Import CSV lives) or Month and year. Goals: This week/This month/Done tabs measure 0x0.
 - **Evidence:** css/components.css:652-654; js/modules/mobile-shell.js:457-463 (subnav wins); js/modules/money.js:128, js/modules/goals.js:303; eval at iphone size: visible controls on #/money list no Transactions/Import; goals tabs 0x0; shots/money-goals/overview-iphone.png, goals-iphone.png
@@ -4235,6 +4319,7 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ### MG-10 · P1 · ui — Import preview hides the payee and amount, and the Import button is below the fold
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad
 - **Detail / repro:** On the Mac (1470x832) the import dialog is 760px wide (it borrows Goals' --gl-dialog-w), the Columns card takes --mn-map-w, and the Preview card gets 264px. Its 4-column row grid (150px chip, 74px date, 1fr payee, 90px amount) leaves the payee 0px wide and pushes the amount to x=1148, outside the card (right edge 1087) — the preview shows only '+ New' and a date, so the user cannot check what will be imported. The 'Cannot read' row's reason is hidden the same way. The dialog body scrolls (907 > 713) and the footer with 'Import 4 entries' sits at y=860, off screen.
 - **Evidence:** shots/money-goals/import-preview-mac.png; eval: pvcard w=264, pv grid '150px 74px 0px 90px', amount x=1148, foot y=860; css/views/money.css:135,169,176
@@ -4397,6 +4482,7 @@ NOT checked: Atelier Dawn and a shop theme (the harness --theme and setting gove
 
 ### GO-02 · P1 · bug — UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Fixture on the seeded account (today Thu 5 Nov): goals with startDate 2026-11-05 and deadline 2026-12-15 measured titles-completed 222/10 (completed), library-size 1880/100, episodes-watched 13326/100, chapters-read 21735/100, game-hours 3115/100 (all 'completed' on the day they were made); favourites 82, purchases 7 and routes-cleared 16 are all-time counts too. Six seeded goals were completed on first compute, wrote six completionLedger receipts and earned achievement goal-getter tier 1 at once (state.achievements.earned['goal-getter']). Because remove() leaves the ledger entry and the badge counts ledger rows, creating and deleting such goals farms Goal getter's 10 and 50 tiers, which invariant 162 never takes back. The editor still offers Starts and Deadline and draws a pace line for these types, promising a range. Of the 13 Collection types only spend-below reads the range (specific-title/finish-series read one title by design).
 - **Evidence:** eval fx1/seed compute: rows 'titles-completed | 222 | 10 | completed', 'library-size | 1880 | 100 | completed', 'episodes-watched | 13326 | 100 | completed'; completionLedger ids 1,2,4,5,6,9; achievements.earned goal-getter tier 1; js/core/goals-collection.js:49-53,54-57,87-94 (mods() reads mediadb.stats aggregate); js/core/goals.js:438-441 (receipt + achievements.touch); js/modules/goals.js:892 (Starts/Deadline offered for every non-repeat type); js/core/achcatalogue.js:461-462; after deleting and recreating fixture goals the ledger held 13 receipts for 2 live goals and Goal getter II (10 goals) unlocked (screenshot shots/goals/routine-days-saved-mac.png)
@@ -4406,6 +4492,7 @@ NOT checked: Atelier Dawn and a shop theme (the harness --theme and setting gove
 
 ### GO-06 · P1 · bug — 'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Both routine goal types are offered under Productivity in New goal, but goalDialog draws no routine picker (nothing in js/modules/goals.js reads or writes params.routine), so Save stores params {} and the goal measures 'No routine linked' forever (current null, status active). Reproduced: with two routines (Stretch habit, Evening wind-down) the routine-days editor shows Title, Target, Repeats, Starts, Deadline and Milestones only; the saved goal computes [null, 'No routine linked', 'active']. No other surface (Routines pages) creates these goals either (grep routine-days/routine-streak: only js/core/routines.js:752-764).
 - **Evidence:** eval: editor text 'Keep a routine on N days ... Title Target Repeats ... Starts Deadline · optional Milestones' and saved params '{}'; compute -> ['Keep a routine on N days', null, 'No routine linked', 'active']; js/core/routines.js:750-764; js/modules/goals.js:828-902 (no routine field)
@@ -4415,6 +4502,7 @@ NOT checked: Atelier Dawn and a shop theme (the harness --theme and setting gove
 
 ### GO-07 · P1 · bug — 'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The Habit select is filled from store.state.todo.habits (js/modules/goals.js:878-881), which invariant 142 freezes once Habits move into Routines. With a habit added through KOS.routines.addHabit('Stretch'), the select had zero options; saving stores params.habit undefined and the goal reads 'No habit linked'. For the user (migrated 26 Oct) the list shows only the habits frozen at migration, including ones since removed, while the measure resolves through KOS.routines (goals.js:641-646). habit-streak also duplicates routine-streak.
 - **Evidence:** eval: routines ['r_hf2bclf7m:habit:Stretch','r_zzd3e2f7u:evening:Evening wind-down'], todo.habits [], editor select 'Habit' options []; shots/goals/editor-habit-streak-mac.png; js/modules/goals.js:878-881; js/core/goals.js:638-655
@@ -4424,6 +4512,7 @@ NOT checked: Atelier Dawn and a shop theme (the harness --theme and setting gove
 
 ### GO-23 · P1 · bug — UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Empty account: a 'Move topics to Green' goal on five Maths leaves (baseline 0). Logging one quiz attempt at 0% on each leaf makes KOS.rag.effective return band 'g' for all five (auto() starts at 100 and the quiz penalty is capped at 25, so 0% -> 75 = Green), and the goal computes 5/5 'completed' with an activity-only receipt and an achievements touch. Exam goals 'Topics green or covered' (scopeCount) and Exams readiness coverage read the same band, so they are met by failing quizzes too.
 - **Evidence:** eval fx8: bands ['g','g','g','g','g'] after study.quiz[k]={attempts:1,lastPct:0}; goal '5|5|completed'; completionLedger receipt {type:'topics-green',payout:'activity-only'}; js/modules/rag.js:29-90 (score from 100, quiz cap 25, Green >= 70); js/core/goals.js:534-546, 574-581; js/core/goals-exams.js:58-66
@@ -4433,6 +4522,7 @@ NOT checked: Atelier Dawn and a shop theme (the harness --theme and setting gove
 
 ### GO-25 · P1 · bug — Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The Linked title select of 'Complete a specific title' / 'Finish a series' lists only titles with status inProgress, alphabetically, capped at 60. Editing a goal whose title is now completed (or planned, on hold, or past the 60th) leaves its own title out of the list, so the browser selects the first option and Save rewrites linkedEntryId. Reproduced: goal 'Finish Zzz' linked to entry 2 (completed); Edit then Save without touching anything -> linkedEntryId 1 ('Aaa Watching'). It also means a planned title can't be a goal ('finish X before December') and a user with more than 60 titles in progress can't pick most of them.
 - **Evidence:** eval: options ['1:Aaa Watching'], selected '1', goal.linkedEntryId 2 -> 1 after Save; js/modules/goals.js:864-871, 955
@@ -4719,6 +4809,7 @@ Legend: P = presentation checked (sizes), B = behaviour checked (fixture/result)
 
 ### EX-01 · P1 · bug — Marks by question: a question added with '＋ Question' can't be given its Max or its topic
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** On #/exams/attempt/<uid>/marks the ＋ Question button adds a row whose only controls are Got and Redo: Max prints '—' and Topic is an empty read-only span. Only questions filled from the past-paper index carry max/refs. For a school mock, class paper or any paper not in the index (the common case) there is no way to record the out-of, so 'full marks', 'untagged · n', the total check and the post-mortem can't work, and a Redo on such a question has no leaf to be scheduled on (invariant 124 says a redo item is due on its question's leaf). Reproduced: clicking ＋ Question gave a row with inputs ['Got, question Q5', 'Redo question Q5'] and text 'Q5 | / | — | Redo'. The Topic column is therefore empty for every hand-logged attempt (dead column).
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-addq-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png; js/modules/examprac.js:410 addRow pushes {max:null, refs:[]}; :436-438 the row renders node title (read-only) and q.max as text; js/modules/tracker.js:192 questions only come from an index fill
@@ -4728,6 +4819,7 @@ Legend: P = presentation checked (sizes), B = behaviour checked (fixture/result)
 
 ### EX-02 · P1 · ui — Exam Room on iPhone: the 'Before you go in' checklist is drawn on top of the rapid-recall list
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone (also any short landscape window)
 - **Detail / repro:** At 402px the room's body (ring, plan, five recall facts, blacklist) is taller than the screen, but .k-exr-body is a shrinkable flex item with min-block-size 0 inside the fixed, scrolling .k-exr column. It is squeezed to the leftover height and its content overflows visibly, so the checklist chips ('Black pens', 'Candidate number', 'Phone off and away') sit over facts 3–5 and both are unreadable; the blacklist is pushed off below. This is the screen meant to be used minutes before an exam on the phone.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-iphone.png; css/views/exams.css:505 (.k-exr flex column, overflow-y auto) and :513 (.k-exr-body flex: 1 1 auto; min-block-size: 0); phone rules :933-937 don't change it
@@ -4737,6 +4829,7 @@ Legend: P = presentation checked (sizes), B = behaviour checked (fixture/result)
 
 ### EX-03 · P1 · ui — On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone
 - **Detail / repro:** Under 700px the palette always floats in one row (the docked bar isn't offered). At 402px it measures 500px (x 20→520): grip 32, six tools at 44, the colour button still showing its text 'Ink · Mediu…' at 76, Undo and Redo at 44, plus gaps. The colour menu is cut and Undo/Redo are unreachable; dragging can't help because place() clamps x to max(20, W−w−20) = 20. Every pad, Handwritten tab, sketchbook and drill on the phone is affected.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-iphone.png; eval at iphone: ink.palette rect [20,716,500,62], scrollWidth 500, buttons '32x32 44x48 ×6 76x50 44x48 44x48'; js/core/inkui.js:1146-1171 (six tools + colour + history), css/views/ink.css:201-203 ('icons' state hides tool labels only)
@@ -4746,6 +4839,7 @@ Legend: P = presentation checked (sizes), B = behaviour checked (fixture/result)
 
 ### EX-28 · P1 · ui — Timed paper: the question navigator's squares are crushed to 7px slivers on iPad and iPhone (17px on Mac)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** ipad, ipadl, iphone, mac
 - **Detail / repro:** Start timed on any predicted/practice paper (#/exams/<id>/paper/1 > Start timed). The navigator holds one 30px square per question (51 here) in a flex row inside a scroller, but the squares are allowed to shrink, so instead of scrolling they are squeezed: 1-9 measure 7x44 on touch (the touch min-height makes them tall slivers with the digits overflowing into each other), 10+ 14x44; on Mac 17x30. The numbers are unreadable and the targets far below 44px wide, on the primary iPad flow for timed practice.
 - **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-reload-ipadl.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-iphone.png; measured .k-ex-tnav-b: ipadl '1:7x44 … 10:14x44', iphone same, mac '17x30' (n=51); css/views/exams.css:741-742 (.k-ex-tnav display:flex; .k-ex-tnav-b inline-size var(--ex-tnav-b) with no flex-shrink:0); css/tokens.css:1229 (--ex-tnav-b 30px)
@@ -5163,6 +5257,7 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 
 ### CL-01 · P1 · ui — Collection section strip hides the Games vault on iPad portrait (inner pill group scrolls invisibly)
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPad portrait 820x1180 (any 701-860 width)
 - **Detail / repro:** On every Collection page at 820px the vault pill group (Overview, Anime, Books, Visual Novels, Games) is squeezed to 408px of its 484px and scrolls inside itself with its scrollbar hidden. Games is cut off at the right edge with no arrow or fade; the outer section scroller sees no overflow (sw 716 = cw 716) so its arrows never appear. A user on the iPad has no visible way to reach Games from the strip.
 - **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/collection/empty-mediasync-ipad.png (strip shows Overview..Visual Novels, no Games); eval: .k-seg sw=484 cw=408 x=88, Games item x=483 w=85; shell.subnav-scroller sw=716 cw=716
@@ -5573,6 +5668,7 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 
 ### AA-01 · P1 · bug — 'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Permissions labels every reversible tool 'Undoable action' / 'Default · runs, undoable', and the Assistant runs them without asking on that promise. Each such tool hands back an undo ({label, run}); the orchestrator pushes it into req.undos and lastUndos, but no UI ever reads KOS.ai.orchestrator.lastUndos(): the 'Verified action complete' card has only text (no Undo), no toast offers one, and Activity is read-only. Reproduced with a stubbed Ollama returning todo_add_task: the reminder 'Revise BFS and DFS' was created, the card shows 'Add task / done / Target · #1 / todo_add_task' and the thread's only button is Copy. The only way back is to find and delete the record by hand.
 - **Evidence:** shots/assistant-archive/chat-tool-add-mac.png; eval: buttons in .k-asst-thread = ['Copy'], state.reminders.items[0].title 'Revise BFS and DFS'. js/core/aitools.js:1919-1920 (undo returned); js/core/aiorchestrator.js:754 (req.undos.push), :451, :1046 (lastUndos exposed); grep finds no caller of lastUndos/undos outside aiorchestrator.js; js/modules/assistant.js:2518 ('runs, undoable')
@@ -5582,6 +5678,7 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 
 ### AA-02 · P1 · bug — Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** Mac, iPad, iPhone
 - **Detail / repro:** The thread only follows the tail when it was already within 60px of the bottom. On first render the scroller is still detached, so render() sets scrollTop on a 0-height box and, once mounted, the thread shows the TOP of the conversation. Every later render measures 'not at bottom' and keeps scrollTop 0: the user's own sent message, Kurenai's reply and the 'Confirm & run / Decline' approval card all appear below the fold while the side panel says 'Waiting for your approval'. Reproduced: leave the Assistant and return (thread scrollTop 0 of 1110, client 617), send a message → scrollTop still 0, scrollHeight 1268; the approval card for todo_delete_task was in the DOM but not visible.
 - **Evidence:** shots/assistant-archive/chat-approval-mac.png (approval pending, card not visible, thread at top); eval {reopen:{st:0,sh:1110,ch:617}, after send:{st:0,sh:1268}}. js/modules/assistant.js:1615-1623 (atBottom measured before the scroller is in the document; no scroll on own send or on a pending card)
@@ -5591,6 +5688,7 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 
 ### AA-11 · P1 · ux — Import backup replaces everything on this device the moment a file is picked: no confirmation, no summary, no undo
 
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** On Archive > Data, 'Import backup…' opens the file picker and the change handler calls store.importFull immediately. The only warning ('A complete restore, not a merge: the file replaces what's here') is a title tooltip, invisible on iPad/iPhone. Picking an older backup by mistake silently replaces state, media, money, reviews, Mind, creatives and files; when signed in, importFull then calls KOS.cloudsync.noteRestore(), which re-baselines the cloud (push everything, tombstone remote rows the backup lacks), so the mistake propagates to every device. Reproduced: seeded slot with an extra money transaction tZ; importing an older backup through the real file input removed tZ with no dialog (dialog:false).
 - **Evidence:** audit-evidence/2026-11/qa/rt18/ink2.js result {money:['tA','tB'] (tZ gone), dialog:false}; js/modules/hub.js:3356-3378 (onchange -> importFull directly), 3376 title-only warning; js/core/store.js:623 replaceState before any check of what is lost, :727 noteRestore
@@ -5944,6 +6042,7 @@ main.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 
 ### DI-01 · P1 · data — Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all (multi-device)
 - **Detail / repro:** The lease serialises Todoist network work between devices, but the LINK (reminder.ext.id) lives in the synced state document, which reaches the other device later. Device A pushes a new reminder (item_add) and links it locally; device B takes the lease next (A releases it at once) while its state still holds the reminder unlinked and its own per-device sync token predates the add. B's incremental pull returns the new Todoist task, finds no local link (byLink) and reconcile() imports it as a SECOND reminder linked to the same Todoist id; the cloud merge then keeps both (different ids/uids). Reproduced in jsdom with the smoke112 fake: after the B-side cycle, two local reminders 'Made on A' are both linked to T3 while Todoist has one task. With a Mac, iPad and iPhone all open this is the ordinary case, matching the user's 'many problems between Reminders and Todoist'.
 - **Evidence:** Re-run 7 Nov: exp/td.js twodev → local 'Made on A': [[3,'T3'],[4,'T3']], remote ['T3']. Also reachable on ONE device through two tabs (see the lease finding). Original: exp/td.js twodev → local 'Made on A': [[3,'T3'],[4,'T3']], remote: ['T3']; js/core/exttasks.js:180-187 (import with no matching attempt), js/core/ext.js:306-316 (syncProvider takes the lease without pulling the cloud state first), js/core/exttasks.js:229-237
@@ -5954,6 +6053,7 @@ main.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 
 ### DI-02 · P1 · data — Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** tdPush sends commands in chunks of 90 and runs every 'ok' callback (which writes the link and base) only after ALL chunks succeed. If chunk 2 fails (HTTP 429/5xx, offline, tab suspended), chunk 1's item_add commands have already created tasks in Todoist but nothing local is linked, and the sync token is not saved either. The next cycle pulls those tasks with the old token, finds no local link and imports each as a new reminder; the originals are then re-sent as item_add. Linking a list with ~45+ reminders that have a sub-task each exceeds 90 commands on the first cycle. Reproduced: 60 reminders with one sub each, chunk 2 answered 503 → cycle 2 leaves 105 local reminders (45 duplicates).
 - **Evidence:** Re-run 7 Nov: exp/td.js chunk → cycle1 false 'Todoist answered 503.', remote 45 / local linked 0; cycle2 local total 105, dup 45. Original: exp/td.js chunk → 'cycle1 false Todoist answered 503 / remote items 45 local linked 0 / cycle2: local total 105 dup local 45'; js/core/exttasks.js:318-335 (ok callbacks only after the reduce over chunks resolves), js/core/exttasks.js:241-243 (token saved only after push)
@@ -5964,6 +6064,7 @@ main.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 
 ### DI-03 · P1 · data — First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** assessLink classifies each side with stateMeaningful(), which only looks at progress, sessions, custom cards, wishlist, tracker entries, goals, non-sample calendar events and Governor xp/gold/owned. A device whose data is reminders, assignments, Exams-hub assessments, routines, Pacing ticks, Money settings, curriculum edits, Code/Japanese/Mind/Creatives evidence or SRS state (without a logged session) counts as EMPTY, so linking it to an account that has data takes the 'remoteOnly' path: adoptRemote → applyRemoteState with no lastPushedHash → dirty = stateMeaningful(local) = false → KOS.store.replaceState(incoming). The local records are replaced without a merge, a toast or a backup. Reproduced in jsdom with smoke17's fake Supabase: a fresh device adds one reminder and one assignment, signs in to an account with history; after syncNow both are gone and the cloud copy never received them. A Home Screen install on the iPad has its own storage separate from Safari, so 'used it a bit before signing in' is a realistic path. The mirror case ('localOnly' when the remote only holds such records) overwrites the remote the same way.
 - **Evidence:** Re-run 7 Nov: exp/cs.js → {before:{rem:1,asg:1}, after:{rem:[],asg:[],xp:500}, cloudHasLocal:false}. The mirror direction also exists on the push side: cloudsync.js:543-549 (conflict(): remote 'not meaningful' → upload(null) without CAS) and 744-750 (pull refuses and forceNextPush). Original: exp/cs.js → {before:{rem:1,asg:1}, after:{rem:[],asg:[]}, cloudHasLocal:false}; js/core/cloudsync.js:234-251 (stateMeaningful), 975-990 (assessLink), 758-773 (not dirty → replaceState)
@@ -5974,6 +6075,8 @@ main.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 
 ### DI-04 · P1 · data — Two open tabs or windows overwrite each other's saves (last writer wins on the whole state)
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
+- **Review note (8 Nov):** Also triggered by an app update with two tabs open: js/core/pwa.js:90-91 reloads only the tab that confirmed the update, so the other tab keeps old code and its in-memory state and can save over the confirming tab's newer edits (Gemini's GEM-006, folded in here).
 - **Devices:** mac (two windows/tabs), iPad Safari with two tabs
 - **Detail / repro:** Each tab keeps its own in-memory KOS.store.state and save() writes the WHOLE document to localStorage 120 ms later; nothing listens for the 'storage' event, and there is no BroadcastChannel or Web Lock. A change made in one tab is erased by the next save in the other. Reproduced on the slot with an iframe of index.html (same origin, same localStorage): tab B added 'TAB-B reminder' and saved; tab A then added its own reminder; the stored document holds A's and not B's, and tab A never learns of B's. Both tabs also mint the same nextId. With cloud sync the shared IndexedDB meta (seq, lastPushedHash, base) can let the stale tab's CAS succeed and upload a document without the other tab's record. On the MacBook a second window or a PWA window beside a tab is ordinary.
 - **Evidence:** Re-checked 7 Nov: no 'storage' listener, BroadcastChannel or navigator.locks anywhere in js/ (grep); store.save still writes the whole document (store.js:395-410). Original: kos.mjs eval 17 (iframe experiment) → {afterBsaved:true, finalHasA:true, finalHasB:false, inMemA_hasB:false}; js/core/store.js:395-410 (whole-document save), no 'storage' listener anywhere in js/ (grep)
@@ -6255,6 +6358,7 @@ NOT checked: Safari/WebKit and real iPad/iPhone timing (headless Chrome only); D
 ### AP-01 · P1 · perf — Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs
 
 - **Re-checked on kos-redraw-1:** changed: now 346 scripts (4 defer/async), 16.9 MB JS of which js/data 9.95 MB, 26 stylesheets 1.31 MB (was 340 / 16.6 MB / 1.2 MB). Dense boot on slot 20 at machine load 6-10: domInteractive 53-127 s, 78-106 long tasks totalling 52-125 s; evaluating scripts before main.js took ~18 s, and the first KOS.show after main.js 13.7 s when the restored route was the Wall. Absolute times are inflated by the shared machine, the shape holds.
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all; worst on iPhone 17 and iPad (cold launch of the Home Screen app)
 - **Detail / repro:** index.html lists 340 <script src> tags; only KaTeX, supabase.js and env.local.js are deferred. Summed on disk: 16.64 MB JS (js/data/content 8.28 MB in 126 files, js/modules 3.33 MB, js/core 2.50 MB, js/data 1.67 MB, js/labs 0.60 MB) plus 1.21 MB CSS in 24 sheets. Every topic's notes for every subject (CS, Maths, IT, Code units 1-12, tracks, Japanese, Mind, Creatives), the 567 KB past-paper index, and the 383 KB Rider project scaffolds (code-projects-files.js, needed only when exporting a Rider zip) are parsed and executed before Home renders. In the harness a cold reload of the EMPTY account took 15.0 s to domInteractive with 61 long tasks totalling 15.4 s (max 2.75 s); the CPU profile shows 11 s of (program) (parse/compile) and the top self-time scripts are content files executing their builders (cs-p2-46b.js 746 ms, code.js lesson() 316 ms, cs-p2-411.js 545 ms, cs-p2-410a.js 497 ms, maths-stats-s4 325 ms...). The machine was shared with other audit slots so absolute times are inflated, but the shape is unambiguous: the content payload dominates boot, and on an iPad/iPhone (slower JS, tighter memory, Safari evicting a backgrounded Home Screen app) every cold launch pays it. Heap after boot on the empty account: 68 MB.
 - **Evidence:** arch20/boot.mjs runs on slot 20 (6 Nov): {jsN:346, jsMB:16.9, domInteractive:53357, longTasks:78, longMs:51726} and {domInteractive:70719, longTasks:87} on Home; python count of index.html <script src> = 346; arch20/trace-boot-dense.txt (script evaluation, achcatalogue.js 943 ms) | earlier: audit-evidence/2026-11/qa/arch/prof-boot-empty.txt; index.html lines 48-55 (only defer tags) and the 340-script list; sizes via stat: exam-index.js 566,954 B, code-projects-files.js 382,808 B, it-f204.js 299,469 B, hub.js 232,148 B, aitools.js 208,176 B; Performance API: domInteractive 14,993 ms, longtasks 61 / 15,441 ms; dense account warm reload (SW controlling, V8 code cache): data-shell=ready at 21,064 ms, 35 long tasks totalling 19,166 ms, heap 58 MB (machine shared with other audit slots, load avg ~5)
@@ -6466,6 +6570,7 @@ NOT checked: Safari/WebKit and real iPad/iPhone timing (headless Chrome only); D
 ### AX-01 · P1 · bug — iPhone: most text fields and selects are under 16px, so iOS Safari zooms the page on every focus
 
 - **Re-checked on kos-redraw-1:** holds
+- **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iPhone
 - **Detail / repro:** Invariant 40 promises 16px inputs on the phone, and base.css sets input, select, textarea { font-size: max(16px, 1em) } under max-width 700px. That rule lives in @layer base, which the declared order (tokens, base, layout, components, views, themes) puts BELOW every component and view rule, so any class that sets a font size wins. Measured at 402x874: Assistant composer 14.5px, Reminders quick-add 14px, Focus topic/objective inputs 13.5px, Help search 13px, Files search 13.5px, Backup & Restore e-mail/password 13.5px, Routines settings times 13.5px, Media Sync inputs 13.5px, Assignments subtask input 13px, every .k-pill-select sort/filter (Assignments, Exams & Papers, Shrine, Wishlist, topic page reader select, Card stats retention) 12.5px, Pacing lesson-day selects 12px, vault score corners 14px. On the user's iPhone each of these zooms the viewport when tapped and leaves it zoomed (the layout then scrolls sideways until pinched back). Only the phone search sheet was special-cased (layout.css:457).
 - **Evidence:** css/base.css:156-160 (rule inside @layer base); css/tokens.css:35 (@layer tokens, base, layout, components, views, themes); overriding rules e.g. css/components.css:406 .k-input, :417 .k-pill-select font-size var(--fs-12-5), css/views/assistant.css:216 .k-asst-input font-size var(--fs-14-5); measurement audit-evidence/2026-11/qa/a11y-iphone.jsonl (font16 lists per view, script a11y-scan.js) | Re-check 6 Nov 2026 (kos-redraw-1): Re-measured at 402x874 on kos-redraw-1 (a11y21-iphone.jsonl): Assistant composer 14.5px, Focus topic/objective inputs 13.5px, Files search 13.5px, Shrine/Wishlist status selects 12.5px, Seasonal year select 12.5px; the new picture drawer's condition selects are .k-input--sm too (js/modules/artslot.js:69). css/base.css:156-160 still sits in @layer base.

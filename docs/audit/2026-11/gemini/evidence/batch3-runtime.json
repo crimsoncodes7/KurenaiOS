@@ -1,0 +1,178 @@
+{
+  "HR-04": {
+    "hasHomeFocusPlan": false,
+    "planSample": null,
+    "fnSnippet": null
+  },
+  "HR-05": {
+    "homeHoursText": null,
+    "reportCachedKeys": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "sessionCount": 600
+  },
+  "HR-16": {
+    "milestonesFn": null,
+    "streakFn": null,
+    "awardedMilestones": []
+  },
+  "HR-17": {
+    "hasReportWords": true,
+    "headlineCode": null,
+    "narrativeCode": null
+  },
+  "HR-18": {
+    "xpBefore": 71802,
+    "goldBefore": 12476,
+    "foundItem": false,
+    "tickBtnTag": null,
+    "tickBtnClass": null
+  },
+  "JM-07": {
+    "progressRecord": null,
+    "evidence": {
+      "checks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "read": 0,
+      "pages": 8,
+      "heard": 0,
+      "lines": 13,
+      "practised": false,
+      "held": 0,
+      "items": 14
+    },
+    "check3Stored": null,
+    "check3Evidence": false
+  },
+  "JM-08": {
+    "hasJaRun": true,
+    "hasFinish": false,
+    "finishSnippet": null
+  },
+  "JM-09": {
+    "vw": 402,
+    "navRect": null,
+    "scrollerRect": null,
+    "tabsRect": null,
+    "tabBtns": []
+  },
+  "MG-02": {
+    "headers": [
+      "Date",
+      "Merchant/Description",
+      "Debit/Credit",
+      "Balance"
+    ],
+    "guessedMapping": {
+      "date": 0
+    }
+  },
+  "MG-03": {
+    "blankLineHeader": [
+      "Date",
+      "Amount",
+      "Payee"
+    ],
+    "preambleHeader": [
+      "Account: 12345678"
+    ],
+    "p1RowsCount": 1,
+    "p2RowsCount": 3
+  },
+  "MG-04": {
+    "parsedTxtHeader": [
+      "2026-10-01",
+      "-12.50",
+      "Tesco"
+    ],
+    "parsedTxtDelimiter": "\t"
+  },
+  "MG-05": {
+    "hasUndoBatch": true,
+    "hasImportHistory": false
+  },
+  "MG-06": {
+    "raw": "Date,Amount,Payee\n2026-10-01,£1,234.56,Rent\n",
+    "parsedRow": [
+      "2026-10-01",
+      "£1",
+      "234.56",
+      "Rent"
+    ]
+  },
+  "MG-07": {
+    "ruleCount": 0,
+    "txCount": 0
+  },
+  "MG-08": {
+    "normaliseSnippet": "function normaliseTx(raw) {\n    raw = raw || {};\n    var minor = raw.minor != null ? minorOf(raw.minor) : toMinor(raw.amount);\n    if (!isISO(raw.date) || minor == null || minor <= 0) return null;\n    var kind = KINDS.indexOf(raw.kind) !== -1 ? raw.kind : \"out\";\n    var t = {\n      syncId: str(raw.syncId, 80) || rid(\"t\"),\n      date: raw.date,\n      minor: minor,\n      kind: kind,\n      cat: kind "
+  },
+  "MG-09": {
+    "vw": 402,
+    "moneyButtonsCount": 8,
+    "goalsButtonsCount": 8
+  },
+  "MG-10": {
+    "dlgFound": true,
+    "dialogRect": {
+      "h": 832
+    },
+    "btnRect": null
+  },
+  "MI-01": {
+    "lesson": {
+      "id": "F1.8",
+      "n": 8,
+      "unit": "F1",
+      "title": "Checkpoint: map and judge a real argument",
+      "kind": "checkpoint",
+      "can": "Map a real argument, then judge it with everything in F1.",
+      "concepts": [],
+      "main": null,
+      "pages": [
+        {
+          "t": "The argument",
+          "blocks": [
+            {
+              "h": "Something you can disagree with"
+            },
+            {
+              "story": "\"The app should not add a Mind streak. Streaks do raise how often people show up at first. But a broken streak makes many people quit altogether, because losing a streak feels worse than gaining a day feels good. And Mind is for curiosity: quitting it costs more than skipping a day.\""
+            },
+            {
+              "p": "Map it: the conclusion, its reasons, and the objection it answers."
+            }
+          ]
+        }
+      ]
+    },
+    "conceptsCount": 0,
+    "evidenceChecks": [
+      false,
+      false,
+      null,
+      false
+    ]
+  },
+  "MI-02": {
+    "vw": 402,
+    "sideRect": {
+      "h": 40
+    },
+    "d15Rect": null,
+    "nextRect": null
+  },
+  "PR-01": null
+}

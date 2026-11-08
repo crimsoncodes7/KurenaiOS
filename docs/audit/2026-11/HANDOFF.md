@@ -15,6 +15,15 @@ reviewed the consolidated findings and the plan, and explicitly approved them.
 
 ## 0. Start here — the second account, Sunday 8 Nov 2026
 
+**8 Nov update (second account): Gemini is finished and dropped.** Its
+workstream B (re-check of the 96 P0/P1) is ACCEPTED as corroboration, with
+follow-ups applied. Its workstream A proposals (GEM-001…006) are REJECTED; GEM-001
+becomes a P3 question (§8 Q7). The review is `gemini/CLAUDE_REVIEW.md`. The
+user will not use Gemini again: Argon's Pro quota ran out early and the rest
+was done by Gemini 3.8 Flash, which explains the weak output. So **Batch B2
+is not sent to Gemini**: Claude re-checks the delta itself (§10.5). Jobs
+1 and 5 below are done; continue from job 2.
+
 **What happened on 7 Nov (first account, last session).**
 - Batch 6 ran **Sync (SY) and Data integrity (DI)** in inventory top-up mode.
   Both finished, about 0.56 M subagent tokens and 25 min in all.
@@ -588,7 +597,11 @@ These explain many symptoms each. The plan should fix the cause once.
    back over pulled data (SY-18, P0); held pages never show they are out of
    date (SY-26); delayed plain `KOS.rerender()` calls bypass the hold (SY-25).
    The policy must merge or warn, not only defer.
-2. **Layering: menus below modals (PR-01, SH-03, AG-01).** `--z-menu` 110 <
+2. **Layering: menus below modals (PR-01, SH-03, AG-01).** (8 Nov, from
+   Gemini's review: the painted page header sets `isolation: isolate` on
+   `.k-pagehead[data-state~="has-art"]`, `css/components.css:35`, which makes
+   a stacking context that clips the Governor menu regardless of z-index.)
+   `--z-menu` 110 <
    modal 120, and stage `overflow` clips popovers → menus inside dialogs or on
    the Stage are invisible/clipped. One token/portal fix.
 3. **No layout tier between 1240 and 700 px for master-detail/side columns
@@ -763,6 +776,15 @@ Open questions to ask the user when presenting the plan:
    merge, or reset to the shipped versions?
 6. What exactly went wrong with Todoist from their side (duplicates?
    recurring items? sub-tasks? sections?) — to confirm DI/LA findings match.
+7. (From GEM-001, P3.) Is a shared browser, or signing in to a different
+   cloud account on one device, ever a real case? Today sign-out keeps the
+   device's data and the next account's first link merges it in (invariant
+   34). If not a case: leave it; if it is: warn or offer "start empty".
+8. The unfinished-session policy (root cause 18): log what was done
+   pro-rata when the page is left, or keep it resumable?
+
+Not covered by any area yet (noted 8 Nov): date edge cases — DST changes
+and time zones — across routines, reviews, streaks and Reports.
 
 ## 9. Files in this folder
 - `HANDOFF.md` — this file.
@@ -982,3 +1004,17 @@ activity):
    `reference/graphite-review.html`).
 8. The final technical report.
 9. The CLAUDE.md/AGENTS.md maintainability rules (§1.2).
+
+### 10.5 Outcome (8 Nov 2026)
+- Claude's review: `gemini/CLAUDE_REVIEW.md`. The user accepted its
+  recommendation.
+- Gemini's deliverables were brought onto this branch (`gemini/`). Its verdicts
+  are in `gemini/gverdict.json` and render on each finding as "Gemini B"
+  (corroboration only). The review's corrections render as "Review note (8 Nov)"
+  (`REVIEW_NOTE` in `consolidate.py`). SY-01 and SH-22 are now `RESOLVED`.
+- GEM-001…006 are not filed. GEM-006's update-with-two-tabs angle is a note on
+  DI-04.
+- **Gemini is not used again in this programme** (the user's decision). After
+  the last top-up, `gemini_worklists.py --delta` still lists the new or re-rated
+  P0/P1, but Claude re-checks them itself, at most 3 agents at a time.
+

@@ -1,0 +1,274 @@
+{
+  "inPage": {
+    "value": {
+      "JM06": {
+        "err": "TypeError: codeSpine.stageHead is not a function"
+      },
+      "MG01": {
+        "err": "TypeError: Cannot read properties of undefined (reading 'forEach')\n    at Object.previewCSV [as preview] (http://127.0.0.1:9131/js/core/money.js:1004:17)\n    at p1 (<anonymous>:29:55)\n    at new Promise (<anonymous>)\n    at <anonymous>:29:22\n    at <anonymous>:103:3"
+      },
+      "ST25": {
+        "fileId": "5485ae34-7a65-4fb5-bb0d-d2c9dce67582",
+        "linksBefore": [
+          {
+            "kind": "topic",
+            "id": "compsci:4.1.1"
+          },
+          {
+            "kind": "assignment",
+            "id": "19"
+          }
+        ],
+        "listedForAsgCount": 1,
+        "existsAfterAssignmentRemove": false
+      },
+      "AA01": {
+        "toolRes": {
+          "err": null,
+          "r": {
+            "id": 35,
+            "title": "Temp AA-01 task",
+            "due": null,
+            "list": null,
+            "tags": []
+          },
+          "hasUndo": true,
+          "undoLabel": "remove the reminder"
+        },
+        "assistantUndoButtonsInDom": 0
+      },
+      "quizDist": {
+        "compsci": {
+          "total": 1347,
+          "counts": [
+            677,
+            590,
+            68,
+            12
+          ],
+          "pctAB": 94.1
+        },
+        "maths": {
+          "total": 1058,
+          "counts": [
+            531,
+            481,
+            44,
+            2
+          ],
+          "pctAB": 95.7
+        },
+        "it": {
+          "total": 288,
+          "counts": [
+            17,
+            211,
+            57,
+            3
+          ],
+          "pctAB": 79.2
+        }
+      }
+    },
+    "console": ""
+  },
+  "AG01_mac": {
+    "value": {
+      "menuFound": false,
+      "menuTag": null,
+      "menuClass": null,
+      "stageOverflow": null,
+      "stageRect": null,
+      "popRect": null,
+      "dataRowRect": null
+    },
+    "console": ""
+  },
+  "CL01_ipad": {
+    "value": {
+      "navRect": null,
+      "navScrollW": null,
+      "navClientW": null,
+      "segRect": null,
+      "segScrollW": null,
+      "segClientW": null,
+      "segOverflowX": null,
+      "gamesRect": null
+    },
+    "console": ""
+  },
+  "CO01_ipad": {
+    "value": {
+      "allBtns": []
+    },
+    "console": ""
+  },
+  "AG02_iphone": {
+    "value": {
+      "stageRect": null,
+      "xpBarRect": null,
+      "medals": []
+    },
+    "console": ""
+  },
+  "CO02_iphone": {
+    "value": {
+      "sideGrid": null,
+      "d20Rect": null,
+      "contRect": null,
+      "btnRect": null,
+      "btnScrollW": null,
+      "btnClientW": null,
+      "btnText": null
+    },
+    "console": ""
+  },
+  "CC04_iphone": {
+    "value": null,
+    "console": ""
+  },
+  "AX01_iphone": {
+    "value": {
+      "totalSampled": 137,
+      "under16Count": 135,
+      "examples": [
+        {
+          "view": "home",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-search-input",
+          "dataUi": "",
+          "fontSizePx": 14,
+          "under16": true
+        },
+        {
+          "view": "home",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-spine-filter",
+          "dataUi": "study.spine-filter",
+          "fontSizePx": 13,
+          "under16": true
+        },
+        {
+          "view": "reminders",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-search-input",
+          "dataUi": "",
+          "fontSizePx": 14,
+          "under16": true
+        },
+        {
+          "view": "reminders",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-spine-filter",
+          "dataUi": "study.spine-filter",
+          "fontSizePx": 13,
+          "under16": true
+        },
+        {
+          "view": "reminders",
+          "tag": "INPUT",
+          "type": "text",
+          "className": "k-rem-quick-in",
+          "dataUi": "",
+          "fontSizePx": 14,
+          "under16": true
+        },
+        {
+          "view": "reminders",
+          "tag": "SELECT",
+          "type": "select-one",
+          "className": "k-rem-quick-list k-mono",
+          "dataUi": "",
+          "fontSizePx": 11,
+          "under16": true
+        },
+        {
+          "view": "reminders",
+          "tag": "SELECT",
+          "type": "select-one",
+          "className": "k-pill-select",
+          "dataUi": "ui.status-select",
+          "fontSizePx": 12.5,
+          "under16": true
+        },
+        {
+          "view": "reminders",
+          "tag": "SELECT",
+          "type": "select-one",
+          "className": "k-pill-select",
+          "dataUi": "ui.status-select",
+          "fontSizePx": 12.5,
+          "under16": true
+        },
+        {
+          "view": "money",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-search-input",
+          "dataUi": "",
+          "fontSizePx": 14,
+          "under16": true
+        },
+        {
+          "view": "money",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-spine-filter",
+          "dataUi": "study.spine-filter",
+          "fontSizePx": 13,
+          "under16": true
+        },
+        {
+          "view": "money",
+          "tag": "SELECT",
+          "type": "select-one",
+          "className": "k-input k-pill-select",
+          "dataUi": "money.first-currency",
+          "fontSizePx": 16,
+          "under16": false
+        },
+        {
+          "view": "anime",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-search-input",
+          "dataUi": "",
+          "fontSizePx": 14,
+          "under16": true
+        },
+        {
+          "view": "anime",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-spine-filter",
+          "dataUi": "study.spine-filter",
+          "fontSizePx": 13,
+          "under16": true
+        },
+        {
+          "view": "anime",
+          "tag": "INPUT",
+          "type": "search",
+          "className": "k-msearch",
+          "dataUi": "ui.quick-add vault.search",
+          "fontSizePx": 16,
+          "under16": false
+        },
+        {
+          "view": "anime",
+          "tag": "SELECT",
+          "type": "select-one",
+          "className": "k-pill-select",
+          "dataUi": "ui.status-select vault.sort",
+          "fontSizePx": 12.5,
+          "under16": true
+        }
+      ]
+    },
+    "console": ""
+  }
+}

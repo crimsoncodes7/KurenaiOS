@@ -1,0 +1,198 @@
+[
+  {
+    "id": "SC-08",
+    "method": "Code inspection of js/modules/hub.js (hero ring assembly, avatarNode invocation), js/core/governor.js (avatarNode, frameArt creation), css/layout.css (.k-avatar-frame-art sizing, negative inset, and --fo calculation), and css/views/home.css (.k-home-hero overflow, padding, gap, and <=700px phone grid layout).",
+    "observed": "In css/layout.css:254, .k-avatar-frame-art is styled with inset-block-start: calc(-26% - var(--fo)), inset-inline-start: calc(-26% - var(--fo)), inline-size: calc(152% + 2 * var(--fo)), and block-size: calc(152% + 2 * var(--fo)). On Home (js/modules/hub.js:1072-1074), avatarNode(94) is placed inside .k-home-ring (104px, css/views/home.css:20). With --frame-out = 5px (line 24) and --fgap-l = 5px (css/layout.css:264), --fo is 10px, causing the painted frame art to bleed 26% * 94px + 10px = 34.44px beyond the avatar on all four sides (29.44px beyond the 104px ring). In css/views/home.css:13, .k-home-hero has overflow: hidden. The hero body padding is var(--sp-24) (24px) top/bottom and var(--sp-28) (28px) left/right. The top bleed of 29.44px exceeds the 24px padding by 5.44px, causing the top rim of the painted frame to be clipped by overflow: hidden, while the left bleed exceeds the 28px padding by 1.44px. To the right, the gap between .k-home-ring and .k-home-hero-txt is var(--sp-24) (24px); the 29.44px bleed exceeds this gap by 5.44px, causing the right side of the painted frame to overlap h1.k-home-greet. On phones (<=700px, css/views/home.css:235-248), the hero body becomes a 2-column grid with gap: var(--sp-10) var(--sp-14) and padding: var(--sp-20). The 56px avatar with --fo = 7px bleeds 21.56px, exceeding the 20px padding (clipped by hero overflow: hidden) and the 14px column gap (bleeding 17.56px into the adjacent column). Furthermore, .k-home-hero-txt > :not(.k-kicker) { grid-column: 1 / -1; } places the greeting directly below the ring with a row gap of only 10px, causing the 17.56px downward bleed to heavily overlap the greeting.",
+    "evidence": [
+      "css/layout.css:254",
+      "css/layout.css:260-264",
+      "css/views/home.css:13",
+      "css/views/home.css:19-24",
+      "css/views/home.css:235-248",
+      "js/modules/hub.js:1072-1074",
+      "js/core/governor.js:704-709"
+    ],
+    "contraryEvidence": "CSS-procedural frames (e.g. data-frame=\"frame-gold\", frame-crimson, frame-amethyst) use inset: calc(-1 * (var(--fo) + var(--fb))) where --fb is only 1.5px to 4px, resulting in a total outward extension of 11-15px that stays safely within hero padding and gaps. The clipping and overlap defects are strictly specific to painted frames (.k-avatar-frame-art), which add an unreserved 26% margin on top of --fo.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Home hero on desktop, iPad, and iPhone",
+      "Governor Seat face",
+      "Avatar Stage",
+      "Profile drawer / mobile sheet",
+      "Any container with overflow: hidden hosting avatarNode with a painted frame"
+    ]
+  },
+  {
+    "id": "SC-20",
+    "method": "Code inspection of js/core/governor.js (avatar catalogue registration, avatarNode rendering), css/layout.css (.k-avatar disc styling, .k-avatar-art contain-fit), header parsing of WebP assets in assets/app/img/app.avatar.*.webp, and geometric analysis of circular clipping.",
+    "observed": "In js/core/governor.js:475-486, 12 painted shop avatars are defined without per-item aspect ratios, scaling factors, or focal adjustments. In js/core/governor.js:697-699, avatarNode(size) inserts <img class=\"k-avatar-art\" src=\"...webp\"> into <span class=\"k-avatar\">. In css/layout.css:249-251, .k-avatar is styled with border-radius: 50%; overflow: hidden; background: var(--s2); while .k-avatar-art has object-fit: contain; inline-size: 100%; block-size: 100%;. Inspection of the 12 assets reveals non-square aspect ratios: lantern is 417x640 (aspect ratio 0.65), cat is 640x510 (1.25), bloom is 532x640 (0.83), fox is 546x640 (0.85), crane is 640x553 (1.15), and owl is 581x640 (0.90). Applying object-fit: contain inside a 1:1 circular disc causes narrow assets (lantern) to leave wide bands of empty background (var(--s2)) on the left and right, while wide assets (cat) float with empty space above and below. Furthermore, border-radius: 50% overflow: hidden clips all content lying outside the inscribed circle of diameter equal to the square side. For assets where artwork extends into the rectangular bounding box corners (fox ears and tassels, crane wings, desk lamp shade and base, dragon tail, owl books), those features are aggressively truncated by the circular overflow mask.",
+    "evidence": [
+      "js/core/governor.js:475-486",
+      "js/core/governor.js:697-700",
+      "css/layout.css:249-251",
+      "assets/app/img/app.avatar.lantern.webp (417x640)",
+      "assets/app/img/app.avatar.cat.webp (640x510)",
+      "assets/app/img/app.avatar.fox.webp (546x640)",
+      "assets/app/img/app.avatar.crane.webp (640x553)",
+      "assets/app/img/app.avatar.bloom.webp (532x640)",
+      "assets/app/img/app.avatar.dragon.webp (636x640)"
+    ],
+    "contraryEvidence": "Custom user-uploaded avatars (kind === \"custom\", js/core/governor.js:695-696) use KOS.imageCrop.image with an interactive circular cropper (avatarCropper, lines 719-728) which ensures user photos are safely centered inside the circle. The clipping and inconsistent sizing defect is strictly confined to the 12 pre-rendered shop painted avatars (kind === \"art\").",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Sidebar profile pill",
+      "Home hero ring",
+      "Governor Seat",
+      "Avatar Stage",
+      "Gold Shop avatar catalogue preview",
+      "Share card avatar render"
+    ]
+  },
+  {
+    "id": "SC-21",
+    "method": "Code inspection of css/layout.css (.k-avatar-frame-art scale and inset calculations), js/core/governor.js (frame catalogue definitions), and alpha channel aperture measurement across painted frame WebP assets (assets/app/img/app.frame.*.webp).",
+    "observed": "In css/layout.css:252-254, the code comment explicitly states: \"a painted frame (34p): a keyed picture whose inner 66% holds the avatar...\" and sizes the frame image as inline-size: calc(152% + 2 * var(--fo)); block-size: calc(152% + 2 * var(--fo)); with inset-inline-start: calc(-26% - var(--fo)); inset-block-start: calc(-26% - var(--fo));. The 152% multiplier was calculated assuming the inner transparent aperture of the artwork occupies 66% of the image (1 / 0.658 ≈ 1.52). Measurement of the authored assets (app.frame.ice.webp, ember, lacquer, etc.) reveals that the inner transparent hole actually measures between 73% and 78% of the image (e.g. app.frame.ice.webp has an inner transparent hole of 477px out of 640px = 74.5%). Because the image is rendered at 152% of the avatar box, the inner hole renders at 0.745 * 1.52 = 1.132 (113.2% of the avatar diameter). This creates an empty gap of (1.132 - 1.0) / 2 = 6.6% of avatar width on every side (~6.2px gap around a 94px avatar, ~12.6px around a 180px Seat avatar), revealing the dark page background between the avatar edge and the painted ring. When an HP ring is present, --fo (--frame-out + --fgap) expands the image by 2 * var(--fo), scaling the hole diameter by 0.745 * 2 * var(--fo) ≈ 1.49 * var(--fo), which outpaces the 1.0 * var(--fo) offset of the HP ring and widens the dark band even further. Moreover, frames such as Wisteria and Koi have asymmetric, non-circular inner cutouts, making the avatar appear visibly off-center.",
+    "evidence": [
+      "css/layout.css:252-254",
+      "css/layout.css:260-264",
+      "js/core/governor.js:487-492",
+      "assets/app/img/app.frame.ice.webp (measured aperture 477/640 = 74.5%)",
+      "assets/app/img/app.frame.ember.webp",
+      "assets/app/img/app.frame.lacquer.webp"
+    ],
+    "contraryEvidence": "None. The 152% CSS scale rule and the 66% hole assumption stated in the code comment directly contradict the actual 73-78% transparent aperture diameter of the WebP assets.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Home hero ring",
+      "Governor Seat",
+      "Avatar Stage",
+      "Sidebar profile chip with painted frames"
+    ]
+  },
+  {
+    "id": "SH-01",
+    "method": "Code inspection of css/components.css (#toast layout rules), js/core/ui.js (toast() function), index.html (#toast container), and evaluation of CSS 2.1 / CSS Sizing 3 shrink-to-fit formatting for fixed-positioned elements.",
+    "observed": "In css/components.css:389-405, #toast is styled with position: fixed; inset-inline-start: 50%; inset-block-end: var(--sp-24); z-index: var(--z-toast); max-inline-size: min(var(--toast-max), calc(100% - var(--sp-32))); padding: var(--sp-10) var(--sp-18); border-radius: var(--r-pill); transform: translate(-50%, var(--sp-8));. Under CSS shrink-to-fit layout rules for fixed-positioned elements where inset-inline-start is 50% and inset-inline-end is auto, the available inline width for text layout is containing-block-width - inset-inline-start = 50% of viewport width. Although max-inline-size allows up to calc(100% - 32px), it only caps maximum growth and does not expand the shrink-to-fit calculation space. Consequently, text wraps at 50% of the viewport. On iPhone 17 (viewport 402px wide), the available width is capped at 201px. Any toast message exceeding ~25 characters wraps into 3 or 4 lines, producing a box 201px wide and ~78.5px tall. With border-radius: var(--r-pill) (9999px), the tall multi-line box renders as a deformed vertical stadium/pill shape over the page content above the bottom tab bar.",
+    "evidence": [
+      "css/components.css:389-405",
+      "js/core/ui.js:72-87",
+      "index.html:141"
+    ],
+    "contraryEvidence": "Very short toast messages (e.g. \"Saved\", \"Copied\") that naturally fit within 201px inline width do not wrap, rendering as normal single-line pills. The defect exclusively triggers on longer explanatory messages (such as achievement unlocks, sync notices, and error alerts exceeding ~25 characters).",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All mobile phones (<700px viewport)",
+      "iPad in portrait (wraps at 410px)",
+      "MacBook (wraps at 735px for long text)",
+      "Toasts with action buttons (data-state~=\"action\")"
+    ]
+  },
+  {
+    "id": "SH-02",
+    "method": "Code inspection of js/main.js (global history keydown listener) and js/modules/money.js (row-level keydown handler for entry deletion), tracing DOM event bubbling and defaultPrevented handling.",
+    "observed": "In js/main.js:20-29, document listens for keydown events to implement keyboard navigation shortcuts. It checks whether the active target is typing (tag === \"INPUT\" || tag === \"TEXTAREA\" || tag === \"SELECT\" || isContentEditable), but fails to check e.defaultPrevented. When focus is on a transaction row in #/money/transactions, js/modules/money.js:603-611 attaches a keydown listener that catches Delete and Backspace: else if (e.key === \"Delete\" || e.key === \"Backspace\") { e.preventDefault(); deleteEntry(t); }. The row listener calls preventDefault() and opens the 'Delete this entry?' confirmation modal via KOS.ui.confirm. However, the event bubbles to document. Because the row is a DIV element, typing is false. The document listener evaluates (!e.altKey && !e.metaKey && !e.ctrlKey && e.key === \"Backspace\") to true and unconditionally calls KOS.back(). This causes the application to navigate back to the previous route (#/home) while the confirmation dialog opens orphaned on top of Home. Cancelling leaves the user on Home, losing their position. Furthermore, any accidental Backspace keypress when focus is on a button, checkbox, or non-input interactive element navigates the user away from their current page.",
+    "evidence": [
+      "js/main.js:20-29",
+      "js/modules/money.js:603-611"
+    ],
+    "contraryEvidence": "When focus is explicitly inside a standard text input, textarea, select, or contenteditable node, line 23 returns early (if (typing) return;), allowing normal text editing without triggering back navigation. The defect occurs whenever Backspace is handled on custom focusable DOM elements or pressed outside text inputs.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Money transactions list",
+      "Keyboard navigation on MacBook and iPad with keyboard",
+      "Any in-page custom Backspace handler (canvas lasso, list item deletion, tree nodes)",
+      "General keyboard focus on buttons/cards"
+    ]
+  },
+  {
+    "id": "SH-03",
+    "method": "Code inspection of css/components.css (.k-pagehead[data-state~=\"has-art\"]), css/views/governor.css (.k-gv-stage, .k-gv-tools-pop), js/modules/governor-ui.js (testMenu details popover and pageHeader actions), and analysis of CSS Stacking Context hierarchy.",
+    "observed": "In js/modules/governor-ui.js:205-207, testMenu() is passed as an action inside KOS.ui.pageHeader(...) and renders inside .k-pagehead. Immediately following .k-pagehead, governor-ui.js mounts .k-gv, which contains the status stage .k-gv-stage. In css/components.css:35, .k-pagehead[data-state~=\"has-art\"] is styled with position: relative; isolation: isolate;. In css/views/governor.css:31, .k-gv-stage has position: relative; isolation: isolate;. In css/views/governor.css:65-66, .k-gv-tools-pop has position: absolute; inset-block-start: calc(100% + var(--sp-6)); z-index: var(--z-menu);. Because .k-pagehead has isolation: isolate and no z-index, it establishes a local stacking context at level 0. The following sibling .k-gv / .k-gv-stage also establishes a stacking context at level 0 and is painted later in document order, painting on top of .k-pagehead. Because z-index: var(--z-menu) on .k-gv-tools-pop cannot escape .k-pagehead's stacking context, opening the ⋯ details menu causes the popover to extend downwards over .k-gv-stage, which paints over the bottom half of the popover. Only the top ~50px spanning the gap between header and stage is visible (HP preview row cut in half, Data mode row completely hidden).",
+    "evidence": [
+      "css/components.css:35",
+      "css/views/governor.css:31",
+      "css/views/governor.css:60-66",
+      "js/modules/governor-ui.js:205-207",
+      "js/modules/governor-ui.js:419-432"
+    ],
+    "contraryEvidence": "If .k-pagehead does not carry data-state=\"has-art\" (e.g. if page art is disabled or after certain in-app transitions where data-state is omitted), isolation: isolate is not applied to .k-pagehead. In that scenario, .k-pagehead does not form a separate stacking context, allowing z-index: var(--z-menu) to paint cleanly over .k-gv-stage. The bug strictly reproduces on cold loads and views where the painted header band is active.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Governor Status view on Mac, iPad, and iPad Landscape",
+      "Any popover or dropdown positioned inside .k-pagehead that overlaps adjacent isolated view containers"
+    ]
+  },
+  {
+    "id": "SH-04",
+    "method": "Code inspection of css/layout.css media queries at @media (max-width: 1080px) and @media (max-width: 700px), specificity calculation of ID/class selectors, and DOM state inspection of #cols across top-level views.",
+    "observed": "In css/layout.css:377 (under @media (max-width: 1080px)), #cols:not([data-rail=\"full\"]) .k-rail-label, #cols:not([data-rail=\"full\"]) .k-rail-count { position: absolute; inline-size: var(--hairline); block-size: var(--hairline); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } hides tab labels for compact rails. This selector has a specificity of (1, 2, 0). Under @media (max-width: 700px), lines 431 and 433 attempt to restore label visibility: line 431 specifies #cols[data-rail=\"compact\"] .k-rail-label, #cols[data-tree=\"open\"]:not([data-rail=\"full\"]) .k-rail-label, #cols[data-tree=\"closed\"]:not([data-rail=\"full\"]) .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }, and line 433 specifies .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }. On an iPhone viewing Home, Productivity, Collection, or More, #cols has no data-rail attribute and data-tree is \"none\" or absent. Therefore, none of the selectors in line 431 match. Line 433 matches .k-rail-label, but its specificity is only (0, 1, 0), which is completely overridden by line 377's specificity of (1, 2, 0). Consequently, tab labels remain clipped into a 1x1 rect, leaving the bottom tab bar showing five bare kanji tiles (灯 学 整 蒐 余) without their English labels.",
+    "evidence": [
+      "css/layout.css:370-384",
+      "css/layout.css:428-434",
+      "js/main.js:36-39",
+      "index.html:66"
+    ],
+    "contraryEvidence": "On topic pages (ref view) where a topic tree is open or closed, #cols carries data-tree=\"open\" or data-tree=\"closed\". In that state, line 431's #cols[data-tree=\"open\"]:not([data-rail=\"full\"]) .k-rail-label matches with specificity (1, 2, 0) and successfully unclips the labels. The defect is present on all non-topic pages (Home, Calendar, Money, Goals, Collection, More, etc.) where data-tree is not open/closed.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "iPhone bottom tab bar across Home, Productivity, Collection, and More views",
+      "Any mobile viewport <= 700px",
+      "iPad Slide Over narrow window on non-topic pages"
+    ]
+  },
+  {
+    "id": "SH-20",
+    "method": "Code inspection of js/core/ui.js (confirmModal implementation, keydown listener on document), DOM keyboard event propagation sequence, and review of non-danger confirm modal usages across the codebase.",
+    "observed": "In js/core/ui.js:288-289, confirmModal registers a global keydown handler on document: function onKey(e) { if (e.key === \"Enter\" && !opts.danger) close(true); } document.addEventListener(\"keydown\", onKey);. When a non-danger confirm dialog is opened, initialFocus is placed on confirmBtn (line 305). When a keyboard or switch user presses Tab, focus moves to cancelBtn (document.activeElement === cancelBtn). When the user presses Enter on cancelBtn, the browser dispatches a keydown event with key === \"Enter\" on cancelBtn, which bubbles up to document before the button's native click event fires. The onKey listener intercepts the event, evaluates !opts.danger to true, and immediately calls close(true). close(true) removes the dialog overlay and triggers onYes(), executing the affirmative action. The native click event on cancelBtn is bypassed. Keyboard users intending to cancel non-danger actions (such as ending a Focus session, turning off notifications, disconnecting GitHub, resetting permissions, or leaving a session) have the action confirmed against their intent.",
+    "evidence": [
+      "js/core/ui.js:272-306",
+      "js/modules/focus.js",
+      "js/modules/notifications.js",
+      "js/modules/code.js",
+      "js/modules/governor-ui.js:450",
+      "js/modules/pwa.js:53"
+    ],
+    "contraryEvidence": "For dangerous confirm dialogs where opts.danger === true (e.g. \"Delete this entry?\"), line 288 evaluates !opts.danger to false, so onKey ignores Enter and allows the focused Cancel button to execute close(false) via its native click handler. The defect is strictly limited to non-danger confirm dialogs.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All keyboard navigation on MacBook and iPad with keyboard",
+      "Accessibility switch control users",
+      "~50 non-danger confirm dialogs throughout Focus, Notifications, Code, Governor, Settings, PWA, and Collection"
+    ]
+  },
+  {
+    "id": "SH-21",
+    "method": "Code inspection of index.html (skip-link element), js/core/router.js (hashchange listener, onPop, parse, and home fallback), and analysis of URL fragment routing.",
+    "observed": "In index.html:61, the skip link is marked as <a class=\"skip-link\" data-ui=\"shell.skip-link\" href=\"#main\">Skip to content</a> with no JavaScript click handler attached to prevent default navigation. When activated via keyboard (Enter or Space), the browser updates location.hash to \"#main\". This triggers the window hashchange listener in js/core/router.js:302-306, which invokes onPop({ state: history.state }). onPop passes location.hash to parse(hash) (line 293). In js/core/router.js:160-172, parse strips the leading hash and reads viewId = \"main\". Because \"main\" does not exist in KOS.views, parse returns null. Line 294 evaluates if (!r) { home(); return; } and executes home(), which immediately calls KOS.show(\"home\"), resets lastRendered to \"#/home\", and replaces the current history entry. Activating the WCAG 2.4.1 bypass link from any view (e.g. #/calendar, #/money, #/study) abruptly navigates the user away from their active work to Home.",
+    "evidence": [
+      "index.html:61",
+      "js/core/router.js:160-172",
+      "js/core/router.js:293-294",
+      "js/core/router.js:302-306"
+    ],
+    "contraryEvidence": "If the user is already on #/home when activating the skip link, home() redraws #/home, so the user remains on the same view (though keyboard focus is reset to the view header rather than focusing #main). On every other view in the application, activating the skip link forcibly navigates to Home.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All keyboard and screen reader users relying on WCAG 2.4.1 Bypass Blocks across all non-Home views"
+    ]
+  },
+  {
+    "id": "SH-22",
+    "method": "Code inspection of css/components.css (#main[data-phone-title] [data-phone-tabs]), js/modules/mobile-shell.js (destinations() fallback logic), js/modules/money.js (workspace tabs creation), and js/modules/goals.js (tabs creation).",
+    "observed": "In css/components.css:654 (under @media (max-width: 700px)), #main[data-phone-title] [data-phone-tabs], #main[data-phone-title] [data-phone-more] { display: none; } unconditionally hides all elements bearing [data-phone-tabs]. In js/modules/money.js:125-128, Money creates 6 workspace tabs (Overview, Transactions, Budgets, Recurring, Pots, Month and year) and sets tabs.setAttribute(\"data-phone-tabs\", \"\"). In js/modules/goals.js:300-303, Goals creates 4 tabs (This week, This month, All, Done) and sets tabs.setAttribute(\"data-phone-tabs\", \"\"). In js/modules/mobile-shell.js:457-463, destinations() populates the phone title bar ▾ sheet: var items = Array.prototype.slice.call(subnav.querySelectorAll(\"[data-ui~='shell.subnav-item']\")); if (!items.length) { var tabs = main.querySelector(\"[data-phone-tabs] [role='tab']\") && main.querySelector(\"[data-phone-tabs]\"); if (tabs) { items = ...; } }. When viewing Money or Goals, the parent section is Productivity, which has 6 section subnav items (Focus, Reminders, Routines, Calendar, Money, Goals). Because items.length is 6, if (!items.length) evaluates to false. The fallback to check [data-phone-tabs] is never executed. When the user taps ▾, the sheet only offers the Productivity section pages. Money's 6 workspace views and Goals' 4 tabs are hidden on the page and completely missing from the sheet, rendering Transactions, Budgets, Recurring, Pots, Month/year, and Goal completion tabs completely unreachable on phones without manual URL entry.",
+    "evidence": [
+      "css/components.css:654",
+      "js/modules/mobile-shell.js:457-469",
+      "js/modules/money.js:125-128",
+      "js/modules/goals.js:300-303"
+    ],
+    "contraryEvidence": "Views in sections without a section subnav strip (such as Governor or Achievements where subnav has 0 items) satisfy if (!items.length), correctly promoting [data-phone-tabs] into the title bar sheet. The bug strictly traps views that reside within a section that has a subnav strip while also featuring internal page tabs.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Money (Overview, Transactions, Budgets, Recurring, Pots, Month and year) on phones",
+      "Goals (This week, This month, All, Done) on phones",
+      "All viewports <= 700px (iPhone, iPad Slide Over)",
+      "Any future page with internal tabs inside a section with subnav"
+    ]
+  }
+]

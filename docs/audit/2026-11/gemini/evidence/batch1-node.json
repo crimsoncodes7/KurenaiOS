@@ -1,0 +1,384 @@
+{
+  "AP_01": {
+    "syncScriptTags": 342,
+    "deferScriptTags": 4,
+    "totalMB": "16.11",
+    "totalBytes": 16895624,
+    "dataScriptCount": 154,
+    "dataMB": "9.49"
+  },
+  "CC_01": {
+    "F200.2.1 (Data lifecycle management (DLM) and the)": {
+      "content": [
+        "2.1.1 Data lifecycle management (DLM)",
+        "□ Phases",
+        "• Creation"
+      ],
+      "info": [
+        "data analytics pipeline",
+        "To include:",
+        "□ Know the five phases of the data lifecycle"
+      ]
+    },
+    "F200.2.2 (Creation and capture)": {
+      "content": [
+        "2.2.1 Data assurance considerations To",
+        "□",
+        "□ Accuracy"
+      ],
+      "info": [
+        "include: The purpose and importance of the data assurance considerations How each data assurance increases confidence in data How each consideration can affect the collection and use of data include: What data gathering is The process of data gathering How to ensure that gathered data meets its purpose How to ensure that gathered data is of good quality The consequences of gathering poor quality data The benefits and limitations of each data gathering method"
+      ]
+    },
+    "F200.2.3 (Storage)": {
+      "content": [
+        "To 2.3.1 Data states",
+        "□",
+        "□ Data in transit (motion)"
+      ],
+      "info": [
+        "include: The characteristics of each data state When each state is used include: Know what data stores are The purpose of data stores How data stores interact include: The characteristics of each data storage type The benefits and limitations of each data storage type The factors to consider when selecting a data storage type include: The characteristics of each storage type The benefits and limitations of each storage type The factors to consider when selecting a storage type include: The characteristics of each storage type The benefits and limitations of each storage type The factors to consider when selecting a storage type The uses of cloud-based database services"
+      ]
+    },
+    "F200.2.4 (Data transformation)": {
+      "content": [
+        "To 2.4.1 Data Wrangling",
+        "□",
+        "□ Purpose"
+      ],
+      "info": [
+        "include: The purpose and importance of data wrangling not include: Specific data wrangling activities include: The purpose and importance of data maintenance not include: Specific data maintenance activities"
+      ]
+    },
+    "F200.2.5 (Usage and analysis)": {
+      "content": [
+        "To 2.5.1 Data analytics",
+        "□",
+        "□ Data analytics"
+      ],
+      "info": [
+        "include: Know what data analytics is Know the purpose of data analytics include: The characteristics of each type of data analytics When each type could be used The benefits and limitations of each type"
+      ]
+    },
+    "F200.2.6 (Usage and visualisation)": {
+      "content": [
+        "To 2.6.1 Presenting data",
+        "□",
+        "□ Data presentation methods"
+      ],
+      "info": [
+        "include: The benefits and limitations of each presentation method The criteria used for selecting a presentation method include: Using data visualisation for communicating information The benefits and limitations of each visualisation method The criteria used for selecting a visualisation method"
+      ]
+    },
+    "F200.2.7 (Archival)": {
+      "content": [
+        "□ Data archiving methods",
+        "• Cloud Storage",
+        "• Network Storage"
+      ],
+      "info": [
+        "To include:",
+        "□ The importance of archiving data",
+        "□ How data can be archived"
+      ]
+    },
+    "F200.2.8 (Destruction)": {
+      "content": [
+        "□ Data destruction methods",
+        "• Degaussing",
+        "• Drive destruction"
+      ],
+      "info": [
+        "To include:",
+        "□ The importance of data destruction",
+        "□ The benefits and limitations of each data destruction method"
+      ]
+    },
+    "F200.5.3 (Communication Skills)": {
+      "content": [
+        "□ Appropriate language to meet the needs of To the audience",
+        "□",
+        "□ Non-verbal"
+      ],
+      "info": [
+        "include: Appropriate use of each communication skill within a job role and its specific stage in the data pipeline or data lifecycle management and 15 minutes and has 60 marks in total. will require students to recall generic will require students to apply knowledge will require students to analyse and understanding and performance in relation the question. response questions. response questions. response questions with points-based response questions with levels of response constructed response questions with a scheme. from all topic areas, with at least one relating to each topic area. For more details refer to the Administration more information about the layout and Objectives: and performance. and understanding relevant to the strengthen this learning with students applying unit. The synoptic grids at the end of these qualifications can be found in Section 6.2"
+      ]
+    },
+    "F201.5.2 (Society)": {
+      "content": [
+        "□ Big data and the development of smart cities",
+        "□ Emerging social developments driven by big data",
+        "• Personalised healthcare"
+      ],
+      "info": [
+        "To include:",
+        "□ Know the purpose of a smart city",
+        "□ How data from a variety of sources can be exchanged to optimise city operations"
+      ]
+    },
+    "F202.2.1 (Design tools)": {
+      "content": [
+        "□ Flow charts",
+        "□ Mind maps",
+        "□ Story boards"
+      ],
+      "info": [
+        "To include:",
+        "□ Key components of each design tool",
+        "□ The benefits and limitations of each design tool"
+      ]
+    },
+    "F202.2.2 (Planning the design of a data model)": {
+      "content": [
+        "□ Design parameters To",
+        "• Purpose □",
+        "• User requirements"
+      ],
+      "info": [
+        "include: How each parameter can influence the design of a spreadsheet data model Defining the purpose of a spreadsheet model for a specific context How to identify risks and mitigate against them Identifying the tasks end users will need to complete when using a model How to select success criteria for a data model How each design requirement can influence the design of a spreadsheet data model The importance of including all design requirements in plans"
+      ]
+    },
+    "F202.2.3 (Structure)": {
+      "content": [
+        "□ Structure To",
+        "• Spreadsheet model title □",
+        "• Worksheets"
+      ],
+      "info": [
+        "include: Using spreadsheet titles to convey the purpose Using column and row headings to convey the meaning of cell content"
+      ]
+    },
+    "F202.2.4 (Inputs)": {
+      "content": [
+        "To",
+        "□ Data requirements",
+        "□"
+      ],
+      "info": [
+        "include: Selecting appropriate inputs for use in different contexts How to select input data that is appropriate for a data model When processed data is appropriate for entry into a data dictionary Possible validation rules and when to use them How to use comments and notes to support users"
+      ]
+    },
+    "F202.2.5 (Calculations)": {
+      "content": [
+        "□ Manipulation of data using formulae and To functions □",
+        "□ Built in functions",
+        "• Relative and absolute cell references □"
+      ],
+      "info": [
+        "include: Selecting appropriate calculations for use in different contexts How to select and use built-in functions for spreadsheet data modelling How flowcharts can be used to aid the design of calculations How to use meaningful error messages to support end users when errors occur How to import data from different applications including .csv, databases, other spreadsheets of mathematical operators may + - * ≤ ≥ = / of may include: simple functions SUM AVERAGE COUNT MIN MAX of logical functions may include: IF Nested IF AND OR NOT SUMIF of financial functions may include: ISPMT PMT PV of may include: text functions UPPER LOWER CONCATENATE of date and time functions may TODAY DAY HOUR of lookup and reference functions include: LOOKUP VLOOKUP HLOOKUP INDEX of maths and trig functions may ROUND CEILING RAND not include: Identifying cell references when planning calculations"
+      ]
+    },
+    "F202.2.6 (Planning testing)": {
+      "content": [
+        "□ Test plan documentation",
+        "□ Types of tests",
+        "• Iterative testing Technical o Useability o"
+      ],
+      "info": [
+        "To include:",
+        "□ Conventions and layout of a test plan",
+        "□ How to develop a test plan"
+      ]
+    },
+    "F202.2.7 (Outputs)": {
+      "content": [
+        "□ Charts",
+        "□ Graphs",
+        "□ Tables"
+      ],
+      "info": [
+        "To include:",
+        "□ Selecting the required outputs for use in different contexts",
+        "□ Selecting outputs that are fit for purpose based on results analysis"
+      ]
+    },
+    "F202.2.8 (Human computer interface (HCI) in data modelling)": {
+      "content": [
+        "□ Human Computer Interface (HCI) features",
+        "• Purpose",
+        "• Navigation"
+      ],
+      "info": [
+        "To include:",
+        "□ Select methods that simplify the ways in which end users work with a spreadsheet data model",
+        "□ How the HCI features contribute to the creation of dashboards for use in different contexts"
+      ]
+    },
+    "F202.5.1 (Evaluation)": {
+      "content": [
+        "□ Meets user and/or client requirements",
+        "□ Effective use of HCI",
+        "□ Effectiveness of the spreadsheet data model"
+      ],
+      "info": [
+        "To include:",
+        "□ Determining how effectively a spreadsheet data model meets agreed requirements",
+        "□ How well the HCI features support the effectiveness of the spreadsheet data model"
+      ]
+    },
+    "F204.6.5 (Technical documentation)": {
+      "content": [
+        "□ Program flowcharts",
+        "□ Data flow diagrams",
+        "□ Wireframes Assessment criteria The table below gives the assessment criteria for the assessment criteria indicate what is required in these This qualification has a compensatory approach. This on the total number of achieved criteria for the unit (see achieve all criteria for a specific grade to achieve that achieve a pass grade). Section 7.4 provides full information on how to assess criteria. Students’ work must show that all aspects of for it to be (see Section 7.4.1). successfully achieved criterion, you must not award that criterion. The command words used in the assessment criteria Pass Merit P1: Summarise the user M1: Describe the requirements. stakeholder considerations for the solution. P2: Explain the entities for M2: Explain how the the four pillars for the entities will interact. solution. M3: Explain the mitigations P3: Identify security issues that will be put in place for the devices in the deal with the security solution. identified. P4: Describe the legal and M4: Explain how the ethical issues that need to be and ethical issues will considered in the solution. addressed. P5: Describe how data will M5: Explain how and be collected. where data will be processed using appropriate technical documentation. the devices P6: Describe and locations where data will be stored. how the data benefits P7: Describe M6: Explain collection devices used will limitations to the way be powered. data collection devices be powered in the solution. P8: Describe how you will include HCI principles to meet user needs for the solution. P9: Produce annotated wireframes for your HCIs. the P10: Describe connectivity methods that will be used to transmit the data. Pass Merit P11: Present your solution to M7: Gather feedback the client. additional idea for the solution. P12: Identify improvements that can be made to your solution in the future. Assessment guidance This assessment guidance gives you information relating not be additional assessment guidance for each assessment needed. Assessment Criteria Assessment guidance P1 • Students must select not just repeat the whole M1 • There is no assessment P2 • Students list the must solution."
+      ],
+      "info": [
+        "To include:",
+        "□ How to create diagrams showing data flow",
+        "□ How to create diagrams showing system processing"
+      ]
+    },
+    "F206.6.1 (Ways to reflect)": {
+      "content": [
+        "□ Boud, Keogh and Walker’s model",
+        "• Experience",
+        "• Reflective process"
+      ],
+      "info": [
+        "To include:",
+        "□ How to evaluate the working processes followed, and the tools and techniques used",
+        "□ How to identify actions that would be performed differently in future tasks in the set assignment for this unit. The tasks. means that the unit grade awarded is based Section 6.4). Students do not have to unit grade (e.g. achieve all pass criteria to the NEA units and apply the assessment a criterion have been met in sufficient detail If a student’s work does not fully meet a are defined in Appendix A. Distinction of D1: Explain and justify which digital marketing tools will be used in the digital marketing campaign based on the analysis. D2: Identify and justify times metrics and/or key performance indicators to measure the success of a digital marketing campaign. digital meet how content D3: Explain style is used to meet the client requirements, aims and purpose of the digital marketing campaign to client Distinction on a D4: Adapt proposal for digital marketing campaign based on feedback received. be D5: Evaluate how far the processes used allowed the development of a digital marketing campaign to meet client requirements. to the assessment criteria. There might criterion. It is included only where it is guidance for this criterion. are identified in Unit F202. the data in any way that is relevant to the removing some parts of the data ahead are identified in Unit F200. method that is relevant to the scenario and P3. and M1. guidance for this criterion. guidance for this criterion. guidance for this criterion. all the elements of the marketing mix that digital marketing campaign. all the elements of the digital marketing to the proposed digital marketing campaign. guidance for this criterion. guidance for this criterion. guidance for this criterion. have to be based on research. guidance for this criterion. guidance for this criterion. guidance for this criterion. can be presented as a document in its own pitch. this are: written report, written or verbal can be the report, the written recording. feedback can be notes or a report. the feedback. Feedback should focus on to the marketing campaign. The feedback (M6) and adaptations to be explored (D4). guidance for this criterion. guidance for this criterion. guidance for this criterion. guidance for this criterion. guidance for this criterion. to complete this unit will draw on the Unit F201: Big data and machine learning. Fundamentals of data analytics Area Understanding data Understanding data Managing data Job roles, skills and attributes in data analytics Understanding data Job roles, skills and attributes in data analytics Job roles, skills and attributes in data analytics Job roles, skills and attributes in data analytics Big Data and Machine Learning Area The scope of managing big data The scope of managing big data The infrastructure challenges of big data Legal and ethical issues in data management The scope of managing big data qualifications can be found in Section 6.2"
+      ]
+    },
+    "F206.6.1 (Overview of the assessment)": {
+      "content": [
+        "Entry code H019 Qualification title Cambridge Advanced National GLH 150* Reference 610/3996/2 Has two units: Total units",
+        "• Mandatory units F200, F202 Entry code H119 Qualification title Cambridge Advanced National Certificate) GLH 360* Reference 610/3997/4 Has five units: Total Units",
+        "• Mandatory units F200, F201,"
+      ],
+      "info": [
+        "in IT: Data Analytics (Certificate) in IT: Data Analytics (Extended F202, F204, F205, F206"
+      ]
+    }
+  },
+  "CC_02": {
+    "totalItLeaves": 87,
+    "duplicateRefs": [
+      [
+        "F206.6.1",
+        [
+          "Ways to reflect",
+          "Overview of the assessment"
+        ]
+      ]
+    ]
+  },
+  "CC_03": {
+    "total": 654,
+    "dist": [
+      615,
+      34,
+      4,
+      1
+    ],
+    "abPct": "99.2%"
+  },
+  "CM_01": {
+    "totalMathsLeaves": 89,
+    "longOrMergedGuidanceLeaves": 7,
+    "samples": {
+      "2.1 (Laws of indices)": {
+        "content": [
+          "Understand and use the laws of indices for all rational exponents."
+        ],
+        "info": [
+          "× = , ÷ = - , = m n n am",
+          "The equivalence ofa and should be known."
+        ]
+      },
+      "2.5 (Linear & quadratic inequalities)": {
+        "content": [
+          "Solve linear and quadratic inequalities in a single variable and interpret such inequalities graphically, including inequalities with brackets and fractions.",
+          "Express solutions through correct use of ‘and’ and ‘or’, or through set notation.",
+          "Represent linear and quadratic inequalities such as y > x + 1 and y > ax2 + bx + c graphically."
+        ],
+        "info": [
+          "e.g. solving ax + b > cx + d, px2 + qx + r ≥ 0, px2 + qx + r < ax + b and interpreting the third inequality as the range of x for which the curve y = px2 + qx + r is below the line with equation y = ax + b",
+          "These would be reducible to linear or quadratic inequalities a e.g. < b becomes ax < bx2 x x a x b",
+          "So, e.g. < or > is equivalent to ∪",
+          "{ x : x < a } { x : x > b } and { x : c < x } ∩ { x : x < d } is x c x d equivalent to > and <",
+          "Shading and use of dotted and solid line convention is required."
+        ]
+      },
+      "2.7 (Graphs of functions & proportion)": {
+        "content": [
+          "Understand and use graphs of functions; sketch curves defined by simple equations including polynomials",
+          "The modulus of a linear function. a a y = and y = x2 x",
+          "(including their vertical and horizontal asymptotes)",
+          "Interpret algebraic solution of equations graphically; use intersection points of graphs to solve equations.",
+          "Understand and use proportional relationships and their graphs. need to learn:"
+        ],
+        "info": [
+          "Graph to include simple cubic and quartic functions, e.g. sketch the graph with equation y = x2(2x – 1)2",
+          "Students should be able to sketch the graph of y =ax + b",
+          "They should be able to use their graph.",
+          "For example, sketch the graph with equation y = 2x – 1 and use the graph to 2x – 1 = x solve the equation or the 2x 1 inequality – > x",
+          "The asymptotes will be parallel to the axes e.g. the asymptotes of the curve",
+          "2 with equation y = + b are the x+a y = b x = - a lines with equations and Express relationship between two variables using proportion “ ∝ ” symbol or using equation involving constant",
+          "e.g. the circumference of a semicircle is directly proportional to its diameter",
+          "∝ so C d or C = kd and the graph of C against d is a straight line through the k. origin with gradient"
+        ]
+      },
+      "2.11 (Functions in modelling)": {
+        "content": [
+          "Use of functions in modelling, including consideration of limitations and refinements of the models."
+        ],
+        "info": [
+          "For example, use of trigonometric functions for modelling tides, hours of sunlight, etc. Use of exponential functions for growth and decay (see Paper 1, Section 6.7). Use of reciprocal function for inverse proportion (e.g. pressure and volume)."
+        ]
+      },
+      "3.4 (Parametric modelling)": {
+        "content": [
+          "modelling in a variety of contexts."
+        ],
+        "info": [
+          "parametric equations or students may be asked to find parametric equations for a motion. For example, an object moves with constant velocity from (1, 8) at t 0 (6, 20) t 5.",
+          "= to at = This may also be tested in Paper 3, section 7 (kinematics)."
+        ]
+      },
+      "4.1 (Binomial expansion)": {
+        "content": [
+          "Understand and use the binomial expansion of bx)n",
+          "(a + for positive integer n; the notations n! nC and r link to binomial probabilities.",
+          "Extend to any rational n, including its use for approximation; be aware that the expansion is valid for bx",
+          "< 1",
+          "(proof not required) a need to learn:"
+        ],
+        "info": [
+          "Use of Pascal’s triangle.",
+          "Relation between binomial coefficients.",
+          "Also be aware of alternative notations",
+          "n nC such as   and r",
+          "r",
+          "Considered further in Paper 3",
+          "Section 4.1.",
+          "May be used with the expansion of rational functions by decomposition into partial fractions",
+          "May be asked to comment on the range of validity."
+        ]
+      },
+      "M7.3 (Understand, use and derive the formulae for constant acceleration for motion in …)": {
+        "content": [
+          "Understand, use and derive the formulae for constant acceleration for motion in a straight line.",
+          "Extend to 2 dimensions using vectors."
+        ],
+        "info": [
+          "Derivation may use knowledge of sections 7.2 and/or 7.4",
+          "Understand and use suvat formulae for constant acceleration in 2-D, v = u + at r = ut +1at2",
+          "e.g. , with vectors",
+          "2 given in i - j or column vector form.",
+          "Use vectors to solve problems."
+        ]
+      }
+    }
+  },
+  "CM_02": {
+    "total": 498,
+    "dist": [
+      380,
+      100,
+      17,
+      1
+    ],
+    "abPct": "96.4%"
+  }
+}

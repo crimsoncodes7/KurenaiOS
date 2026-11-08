@@ -54,6 +54,25 @@ RESOLVED = {
     "SY-07": "no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): sd11 rerun with background:'hard' at ipadl keeps both Side by side panes' scroll.",
     "SY-10": "no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): an open KOS.ui.menu counts as a top dialog, so a background redraw is held while it is open.",
     "SY-15": "no longer reproduces on kos-redraw-1 (7 Nov, SY re-check): background redraws are held while a dialog is open (sd7 rerun).",
+    "SY-01": "resolved by the stopgap kos-redraw-1 (Gemini B partially-confirmed it; Claude's review 8 Nov, gemini/CLAUDE_REVIEW.md §3): scrollers() keeps #stage's scroll everywhere measured except the lazily batched Collection vaults, which are SY-19.",
+    "SH-22": "duplicate of MG-09 (Gemini B, reviewed by Claude 8 Nov). SH-22's own text is partly wrong: Money's phone FAB 'Add entry' exists (js/modules/money.js:158-161) and Overview links Budgets, Recurring and Pots (421, 446, 471); MG-09's wording is the accurate one.",
+}
+# Gemini 4 Argon's workstream B verdicts on the frozen 96 P0/P1 (accepted by
+# the user 8 Nov 2026 as CORROBORATION, not independent verification — see
+# gemini/CLAUDE_REVIEW.md); rendered on each finding as "Gemini B"
+GV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "gemini", "gverdict.json")
+GVERDICT = json.load(open(GV_PATH)) if os.path.exists(GV_PATH) else {}
+# corrections from Claude's review of Gemini B (8 Nov 2026), accepted by the user
+REVIEW_NOTE = {
+    "CO-02": "Root cause and fix corrected: at 402px the desk is the grid at css/views/study.css:1169 (repeat(2, minmax(0,1fr))), not a flex row — the fix is a grid-template-columns single-column override for .k-cx-hero + .k-subj-side at <=700px, as japanese.css:449 and creatives.css:366 do (and Mind's desk), plus .k-fit-btn on the Open-lesson button.",
+    "CC-01": "Partly wrong for F201: the hand-made KOS_SPEC_FIX covers 5.2, 2.3, 2.4, 2.6 and Factor analysis on the Spec tab. The faulty parser is tools/parse_it.py, not tools/gen_data.py.",
+    "HR-16": "The repeated milestone bonus pays GOLD only (js/core/governor.js:337 gold += ms), no XP.",
+    "DI-04": "Also triggered by an app update with two tabs open: js/core/pwa.js:90-91 reloads only the tab that confirmed the update, so the other tab keeps old code and its in-memory state and can save over the confirming tab's newer edits (Gemini's GEM-006, folded in here).",
+    "SY-02": "Since the stopgap only plain KOS.rerender() stragglers (e.g. connections.js:70, examviews.js:265 timers firing after leaving) can reset the notes page; propose P2 in the plan.",
+    "SY-03": "Since the stopgap background redraws are held on the review views; what remains is plain rerenders and finish()-only logging (root cause 18); propose P2 in the plan.",
+    "SY-04": "Since the stopgap ref/exams are held as TASK_VIEWS and typing() holds too; only plain rerenders reset the quiz/exam; propose P2 in the plan.",
+    "SY-18": "The hold for an open editor while typing predates kos-redraw-1; the stopgap made it indefinite on ref views, widening (not creating) the defect.",
+    "JM-06": "Above 860px on a direct KOS.show the Core/Media switch is mounted into #tree before the throw, so a desktop recovery path exists; through a hash, reload, Back, or at drawer widths it does not. P0 holds.",
 }
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
 
@@ -167,6 +186,11 @@ def main():
             f["areaStatus"] = st
             if fid in RESOLVED:
                 f["resolved"] = RESOLVED[fid]; f.pop("notInFinal", None)
+            g = GVERDICT.get(fid)
+            if g:
+                f["gverdict"] = g["verdict"] + (" (of %s)" % g["duplicateOf"] if g.get("duplicateOf") else "") + "; corroboration only, reviewed by Claude 8 Nov"
+            if fid in REVIEW_NOTE:
+                f["reviewNote"] = REVIEW_NOTE[fid]
             rows.append(f)
         status[area] = (pre, label, st, summary, cov, fs, qol, backlog)
 
@@ -205,7 +229,7 @@ def main():
             if f["area"] != area:
                 continue
             md.append("### %s · %s · %s — %s\n" % (f["id"], f.get("severity", "?"), f.get("category", "?"), f.get("title", "")))
-            for k, lab in (("resolved", "RESOLVED"), ("recheck", "Re-checked on kos-redraw-1"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
+            for k, lab in (("resolved", "RESOLVED"), ("recheck", "Re-checked on kos-redraw-1"), ("gverdict", "Gemini B"), ("reviewNote", "Review note (8 Nov)"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
                 if f.get(k):
                     md.append("- **%s:** %s" % (lab, str(f[k]).replace("\n", " ")))
             extra = []
@@ -229,7 +253,7 @@ def main():
     json.dump(rows, open(os.path.join(BASE, "findings.json"), "w"), indent=1)
     with open(os.path.join(BASE, "findings.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        cols = ["id", "area", "areaStatus", "notInFinal", "resolved", "recheck", "severity", "category", "title", "devices", "effort", "needsDesign", "needsArt", "evidence", "rootCause", "fix", "detail"]
+        cols = ["id", "area", "areaStatus", "notInFinal", "resolved", "recheck", "gverdict", "reviewNote", "severity", "category", "title", "devices", "effort", "needsDesign", "needsArt", "evidence", "rootCause", "fix", "detail"]
         w.writerow(cols)
         for f in rows:
             w.writerow([f.get(c, "") for c in cols])

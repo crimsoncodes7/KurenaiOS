@@ -1,0 +1,245 @@
+{
+  "logicProbes": {
+    "MG01": {
+      "guessMappingOnCsv": {
+        "date": 0,
+        "amount": 1
+      },
+      "importedCount": 0,
+      "reimportWithSameEmptyPayeeDuplicates": 2,
+      "reimportWithMappedPayeeDuplicates": 0,
+      "reimportWithMappedPayeeNewRows": 2
+    },
+    "AA02": {
+      "err": "TypeError: Cannot read properties of undefined (reading 'listConversations')"
+    }
+  },
+  "AG01_mac": {
+    "headState": "has-art",
+    "headIsolation": "isolate",
+    "stageIsolation": "isolate",
+    "popZIndex": "110",
+    "popRect": {
+      "x": 1165.625,
+      "y": 164.1875,
+      "width": 280.375,
+      "height": 100,
+      "top": 164.1875,
+      "right": 1446,
+      "bottom": 264.1875,
+      "left": 1165.625
+    },
+    "stageRect": {
+      "x": 236,
+      "y": 201.9375,
+      "width": 1210,
+      "height": 774.625,
+      "top": 201.9375,
+      "right": 1446,
+      "bottom": 976.5625,
+      "left": 236
+    },
+    "sampleBtnRect": null,
+    "elementFromPointAtSampleBtn": null
+  },
+  "CL01_ipad": {
+    "scrollerState": "at-start at-end no-scroll",
+    "navClientW": 716,
+    "navScrollW": 716,
+    "segClientW": 408,
+    "segScrollW": 485,
+    "segRect": {
+      "x": 88,
+      "y": 76,
+      "width": 407.953125,
+      "height": 52,
+      "top": 76,
+      "right": 495.953125,
+      "bottom": 128,
+      "left": 88
+    },
+    "gamesRect": null
+  },
+  "CO01_ipad": {
+    "unitButtons": [
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-sq",
+        "w": 28,
+        "h": 44,
+        "minBlockSize": "44px"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-sq",
+        "w": 28,
+        "h": 44,
+        "minBlockSize": "44px"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-sq",
+        "w": 28,
+        "h": 44,
+        "minBlockSize": "44px"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-sq",
+        "w": 28,
+        "h": 44,
+        "minBlockSize": "44px"
+      }
+    ],
+    "capstoneStops": [
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-dia",
+        "w": 16,
+        "h": 44,
+        "bbox": {
+          "x": 230.66180419921875,
+          "y": 587.7868041992188,
+          "width": 42.4263916015625,
+          "height": 42.4263916015625,
+          "top": 587.7868041992188,
+          "right": 273.08819580078125,
+          "bottom": 630.2131958007812,
+          "left": 230.66180419921875
+        },
+        "transform": "matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-dia",
+        "w": 16,
+        "h": 44,
+        "bbox": {
+          "x": 385.94305419921875,
+          "y": 587.7868041992188,
+          "width": 42.4263916015625,
+          "height": 42.4263916015625,
+          "top": 587.7868041992188,
+          "right": 428.36944580078125,
+          "bottom": 630.2131958007812,
+          "left": 385.94305419921875
+        },
+        "transform": "matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-dia",
+        "w": 16,
+        "h": 44,
+        "bbox": {
+          "x": 580.0680541992188,
+          "y": 587.7868041992188,
+          "width": 42.4263916015625,
+          "height": 42.4263916015625,
+          "top": 587.7868041992188,
+          "right": 622.4944458007812,
+          "bottom": 630.2131958007812,
+          "left": 580.0680541992188
+        },
+        "transform": "matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "k-cx-dia",
+        "w": 16,
+        "h": 44,
+        "bbox": {
+          "x": 735.3649291992188,
+          "y": 587.7868041992188,
+          "width": 42.4263916015625,
+          "height": 42.4263916015625,
+          "top": 587.7868041992188,
+          "right": 777.7913208007812,
+          "bottom": 630.2131958007812,
+          "left": 735.3649291992188
+        },
+        "transform": "matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)"
+      }
+    ]
+  },
+  "AG02_iphone": {
+    "xpRect": {
+      "x": 32,
+      "y": 569.4375,
+      "width": 338,
+      "height": 18,
+      "top": 569.4375,
+      "right": 370,
+      "bottom": 587.4375,
+      "left": 32
+    },
+    "arcRect": {
+      "x": 32,
+      "y": 601.4375,
+      "width": 338,
+      "height": 92,
+      "top": 601.4375,
+      "right": 370,
+      "bottom": 693.4375,
+      "left": 32
+    },
+    "arcFlexWrap": "wrap",
+    "slots": [
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "top": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "top": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "top": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "top": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "top": 601.4
+      },
+      {
+        "empty": true,
+        "w": 44,
+        "h": 44,
+        "top": 601.4
+      }
+    ],
+    "medals": []
+  },
+  "CO02_iphone": {
+    "sideGrid": "180px 180px",
+    "d20Rect": null,
+    "contRect": null,
+    "btnRect": null,
+    "btnScrollW": null,
+    "btnClientW": null,
+    "btnText": null
+  },
+  "CC04_iphone": {
+    "workedFound": false,
+    "headRect": null,
+    "titleRect": null,
+    "srcRect": null,
+    "writeoutRect": null,
+    "titleText": null,
+    "srcText": null
+  }
+}

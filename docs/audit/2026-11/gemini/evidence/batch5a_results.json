@@ -1,0 +1,144 @@
+[
+  {
+    "id": "ST-01",
+    "method": "CSS media query breakpoint and layout dimension trace across js/modules/itdesk.js, css/views/study.css, and css/tokens.css for the IT desk qualification overview (.k-it-agg) and units table (.k-it-table).",
+    "observed": "In css/views/study.css:996-1031, .k-it-agg is a 3-column grid (display: grid; grid-template-columns: minmax(0, var(--it-agg-l)) minmax(0, 1fr) minmax(0, var(--it-agg-r)); gap: var(--sp-32);). By tokens.css:657-658, --it-agg-l is 220px and --it-agg-r is 340px with two 32px gaps, totaling 624px of fixed horizontal spacing. Similarly, .k-it-tr (study.css:1031) is a 6-column grid with fixed columns --it-year-w: 44px, --it-mark-w: 180px, --it-grade-w: 120px, and 5 x 14px gaps (414px total), leaving 5.4fr across name (2.2fr), status (1.6fr), and bar (1.6fr). The responsive collapse rule for both .k-it-agg and .k-it-tr is placed ONLY at @media (max-width: 700px) (study.css:1114-1131). On iPad portrait (viewport widths 768px to 834px) and iPad Split View (e.g. 1/2 or 2/3 splits around 701px-860px), max-width: 700px does NOT trigger. Accounting for the 72px compact rail (#cols:not([data-rail=\"full\"]) #rail) and stage padding (16px left + 16px right), available width inside the 768px viewport is only ~664px (or ~616px inside the card). In .k-it-agg, the middle column (.k-it-agg-m) containing the qualification boundary bar is crushed to ~52px (664px - 624px minus card padding). Within this 52px bar, boundary tick marks and labels for Pass, Merit, Distinction, and Distinction* (.k-it-tick-l, study.css:1020) are rendered on top of each other, rendering numbers completely illegible. In the units table, the unit name column gets only ~82px; because .k-it-name (study.css:1036) specifies overflow: hidden; text-overflow: ellipsis; white-space: nowrap;, full unit names like \"Unit 1 Information Technology Systems\" are truncated after just a few characters across every single unit row.",
+    "evidence": [
+      "css/tokens.css:657-665 (--it-agg-l, --it-agg-r, --it-year-w, --it-mark-w, --it-grade-w, --it-bar-min)",
+      "css/views/study.css:996-1003 (.k-it-agg 3-column layout definition)",
+      "css/views/study.css:1015-1021 (.k-it-bar and .k-it-tick-l boundary bar styling)",
+      "css/views/study.css:1031-1036 (.k-it-tr 6-column grid and .k-it-name nowrap ellipsis)",
+      "css/views/study.css:1114-1131 (@media (max-width: 700px) delayed collapse rules)",
+      "js/modules/itdesk.js:40-62 (boundaryBar rendering ticks and labels)",
+      "js/modules/itdesk.js:188-203, 211-264 (table and unit row generation)"
+    ],
+    "contraryEvidence": "None. Viewports between 701px and 860px (including all standard iPad portrait models at 768px, 810px, 820px, 834px) miss the 700px breakpoint entirely and render the uncollapsed multi-column grids.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "iPad portrait (9.7-inch, 10.2-inch, 10.9-inch, 11-inch, 12.9-inch in portrait)",
+      "iPad Split View (1/2 and 2/3 viewports)",
+      "Mac windows resized to 701px\u2013860px width",
+      "Grade forecasting readability and touch targets"
+    ]
+  },
+  {
+    "id": "ST-02",
+    "method": "CSS flex layout, button sizing, and tab strip wrapping inspection across js/modules/hub.js and css/views/study.css.",
+    "observed": "In js/modules/hub.js:2745-2750, the topic navigation row is constructed as el(\"div\", { class: \"k-topic-tabrow\" }, [KOS.ui.scroller(tabBar, ...), moreSlot, workBtn, editBtn, cx ? cx.modeSwitch() : null]). In css/views/study.css:208-212, .k-topic-tabrow is defined as display: flex; align-items: flex-end; gap: var(--sp-10); min-inline-size: 0; (with NO flex-wrap: wrap). Its children .k-topic-tabrow > :not(.k-scroller):not(.k-topic-more) have flex: none;. The \"\u270e Working\" button (workBtn, hub.js:2681) and \"\u270e Edit\" button (editBtn, hub.js:2670) are rendered on every topic page where inkPad is available and user is not editing. In mobile viewports (<=700px), .k-topic-col has 16px horizontal padding (css/views/study.css:1141). On a standard iPhone viewport (375px to 393px width), available width is 343px\u2013361px. With workBtn (~90px), editBtn (~70px), gaps (2 x 10px = 20px), and potential mode switches or moreSlot, fixed action buttons occupy ~180px\u2013200px. Consequently, .k-scroller holding tabBar is compressed down to ~160px\u2013181px. Furthermore, in hub.js:2623-2625, mobile viewports (window.matchMedia(\"(max-width: 700px)\").matches) explicitly disable tab folding into \"+N\" (phoneTier bypasses fold loop: \"on a phone all eight tabs ride one scroller instead\"). Because 8 tabs are crammed into a 181px scroller with no automatic scroll positioning on load or tab selection (hub.js:2593-2598), any tab beyond the first tab or two (e.g. Cards, Quiz, Exam, Files) renders completely off-screen and invisible to the user.",
+    "evidence": [
+      "js/modules/hub.js:2623-2634 (paintTabs disables folding on <=700px phoneTier)",
+      "js/modules/hub.js:2670-2672 (editBtn definition)",
+      "js/modules/hub.js:2681-2682 (workBtn definition)",
+      "js/modules/hub.js:2745-2750 (studyNav appends scroller, workBtn, editBtn to single tabrow)",
+      "css/views/study.css:208-212 (.k-topic-tabrow flex layout without wrapping; flex: none on buttons)",
+      "css/views/study.css:1141 (.k-topic-col padding on <=700px)"
+    ],
+    "contraryEvidence": "When editing is active (store.state.ui.editing), paintWorkBtn (hub.js:2726) hides the Working button, freeing ~90px. Also, on tabs \"ink\" and \"files\", workBtn is hidden. However, for normal study browsing across Notes, Spec, Cards, Quiz, and Exam tabs, both buttons are simultaneously visible on screen.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "iPhone across all models (SE 375px, 13/14/15/16 390-393px, Pro Max 428-430px)",
+      "iPad Slide Over (~320px viewport)",
+      "Topic page primary navigation and discoverability"
+    ]
+  },
+  {
+    "id": "ST-03",
+    "method": "Data model and rendering trace of quiz score storage in js/engines/quiz.js, subject analytics in js/modules/hub.js, and topic inspector in js/modules/hub.js and js/modules/codetopic.js.",
+    "observed": "In js/engines/quiz.js:157-160, upon quiz completion, st.lastPct is calculated as Math.round(100 * correct / items.length), whereas st.best is updated as if (correct > st.best) st.best = correct;. Therefore, st.best stores the raw integer count of correct answers (e.g., 6 out of 11), not a percentage. However, in three separate presentation surfaces, this raw count is formatted as a percentage: 1) In js/modules/hub.js:2200, the Subject Analytics card renders statTile({ k: \"Quiz best\", v: quiz.best == null ? \"\" : pctText(quiz.best), pct: quiz.best, ... }). pctText(n) (hub.js:92) is defined as function pctText(n) { return Math.round(n) + \"%\"; }. Passing raw count 6 formats as \"6%\". 2) In js/modules/hub.js:3224, the topic inspector Recall record renders li(\"Quiz best\", qz && qz.best != null ? pctText(qz.best) : \"\", !(qz && qz.best != null)), which likewise displays \"6%\". 3) In js/modules/codetopic.js:262, Code topic inspector renders li(\"Quiz best\", qz && qz.best != null ? Math.round(qz.best) + \"%\" : \"\", !(qz && qz.best != null)). Furthermore, in hub.js:126, subjectQuizStats aggregates out.best = Math.max(out.best == null ? 0 : out.best, q[k].best); across disparate topics with different question counts, treating raw numbers as comparable values.",
+    "evidence": [
+      "js/engines/quiz.js:20 (st initialized with best: 0)",
+      "js/engines/quiz.js:157-160 (st.best assigned raw integer count: correct > st.best -> st.best = correct)",
+      "js/modules/hub.js:92 (pctText appends \"%\")",
+      "js/modules/hub.js:116-129 (subjectQuizStats reads and aggregates q[k].best as raw count)",
+      "js/modules/hub.js:2200 (statTile formats quiz.best with pctText)",
+      "js/modules/hub.js:3224 (topic inspector formats qz.best with pctText)",
+      "js/modules/codetopic.js:262 (codetopic formats qz.best with Math.round(qz.best) + \"%\")"
+    ],
+    "contraryEvidence": "None. Any quiz score where items.length != 100 will display the raw count followed by a \"%\" symbol (e.g. 6 of 11 displays as 6%; 10 of 10 displays as 10%; 3 of 3 displays as 3%).",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Subject desk analytics dashboard (all subjects)",
+      "Topic inspector Recall record across all standard topics",
+      "Code space topic inspector",
+      "All devices and platforms"
+    ]
+  },
+  {
+    "id": "ST-04",
+    "method": "Execution flow and session lifecycle audit of flashcard review session handling in js/engines/flashcards.js and js/modules/due.js.",
+    "observed": "In js/engines/flashcards.js:297-324, during a flashcard review run, each card rating immediately executes KOS.srs.rate(c.key, r) (line 303), records in-memory counts (line 310), and persists FSRS scheduling state via store.save() (line 321). However, KOS.sessions.log(...) is NOT invoked during card rating. Instead, KOS.sessions.log is called exclusively inside finish() (lines 348-354): if (total - redoN > 0) KOS.sessions.log({ type: opts.type || \"flashcards\", subject: opts.sid || null, ref: opts.ref || null, metrics: { cards: total - redoN, ... } });. finish() is only reached when queue.length === 0 (line 323). If a user completes 15 out of 20 cards in a queue and navigates away, closes the tab, or switches views before finishing the final card, finish() never executes. Consequently: 1) No session log entry is created. 2) Because invariant 4a and AGENTS.md mandate that \"Sessions are the sole source of streaks, XP, HP and gold\", the user receives 0 XP, 0 HP, 0 gold, and no daily streak credit for their study effort. 3) In js/modules/due.js:224-236, the \"Today so far\" dashboard computes reviewed cards strictly by summing s.metrics.cards from KOS.sessions.today(). Because no session was logged, \"Today so far \u00b7 Reviewed\" reads 0, directly contradicting the FSRS state that updated the 15 cards.",
+    "evidence": [
+      "js/engines/flashcards.js:297-324 (rate() updates FSRS and store.save(), but does not log session)",
+      "js/engines/flashcards.js:322-324 (finish() only called when queue.length is 0)",
+      "js/engines/flashcards.js:348-354 (KOS.sessions.log deferred entirely to finish())",
+      "js/modules/due.js:224-236 (Today so far aggregates reviewed count solely from KOS.sessions.today())",
+      "AGENTS.md: Non-negotiable architecture (\"Sessions are the sole source of streaks, XP, HP and gold\")"
+    ],
+    "contraryEvidence": "If a user finishes every single card in the queue (including re-tested cards rated \"Again\"), finish() executes and logs the entire batch in one entry. The defect occurs only when a session is exited or interrupted mid-batch.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Study streak tracking (invariant 4a)",
+      "Governor gamification rewards (XP, HP, gold)",
+      "Daily review statistics in Due queue (js/modules/due.js)",
+      "Subject analytics reviewed counts",
+      "All devices and platforms"
+    ]
+  },
+  {
+    "id": "ST-05",
+    "method": "CSS layout and flexbox auto-margin behavior trace in css/views/study.css:838-888 and js/modules/assignments.js:95-99, 306-321.",
+    "observed": "On desktop and iPad landscape (>1240px viewport), .k-asg is configured as a two-column grid (display: grid; grid-template-columns: minmax(0, 1fr) var(--asg-panel-w); gap: var(--sp-20); align-items: start;, css/views/study.css:838). In the left column (.k-asg-col), the full list of assignments across all groups (Overdue, Due this week, Later, No deadline, Completed) is rendered. For an active student with 15\u201330 assignments, .k-asg-col height regularly spans 1,200px to 2,000px. In the right column, .k-asg-panel (study.css:864) specifies position: sticky; inset-block-start: 0; display: flex; flex-direction: column; gap: var(--sp-16); padding: var(--sp-20) var(--sp-22); border-inline-start: var(--hairline) solid var(--line); min-block-size: 100%;. Crucially, min-block-size: 100% causes the panel height to match the full height of the grid row (~1,500px). At the bottom of the panel, .k-asg-foot (containing \"\u25c9 Focus on this\" and status action buttons Complete / Submitted / Blocked / Reopen, assignments.js:315-321) is styled with margin-block-start: auto; (study.css:886). In flexbox, margin-block-start: auto pushes the footer to the very bottom of the flex container cross axis. Because typical assignment detail content (title, chips, stats, notes) occupies only ~350px, the footer is forced ~1,000px down to the bottom of the 1,500px container. In viewports with typical heights of 800px\u20131000px, \"Focus on this\" and the status buttons are pushed completely off the visible screen, requiring the user to scroll through a vast empty grey column to find the primary interaction buttons.",
+    "evidence": [
+      "js/modules/assignments.js:95-99 (.k-asg grid assembly with .k-asg-col and panel)",
+      "js/modules/assignments.js:306-321 (.k-asg-foot containing Focus on this and status actions)",
+      "css/views/study.css:838 (.k-asg grid layout)",
+      "css/views/study.css:864 (.k-asg-panel min-block-size: 100%)",
+      "css/views/study.css:886 (.k-asg-foot margin-block-start: auto)"
+    ],
+    "contraryEvidence": "If the assignments list has only 1 or 2 total items, .k-asg-col is short (~300px), and .k-asg-foot sits close to the content. However, in any realistic usage state with an assignment queue spanning multiple weeks, the 1,000px+ vertical gap reliably manifests.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Mac desktop (all screen sizes > 1240px)",
+      "iPad landscape (Pro 12.9-inch at 1366px)",
+      "Assignment status transitions and Focus mode launching"
+    ]
+  },
+  {
+    "id": "ST-06",
+    "method": "CSS responsive layout collapse and interaction trace in css/views/study.css:1057-1059 and js/modules/assignments.js:67-99, 169-179.",
+    "observed": "In css/views/study.css:1057-1059, at viewports <=1240px, the assignment layout collapses to a single column: @media (max-width: 1240px) { .k-asg { grid-template-columns: minmax(0, 1fr); } .k-asg-panel { position: static; border-inline-start: 0; border-radius: var(--r-24); background: var(--s1); } }. Under single-column layout, the DOM order in assignments.js:96-99 places .k-asg-col (containing pageHeader, filter tools, and the entire list of assignments) FIRST, and panel (.k-asg-panel) SECOND, directly below the list. When a user taps an assignment row on iPad or iPhone, select(a.id) executes (assignments.js:169), updating selectedId = id and running refresh(), which re-renders .k-asg-list and calls paintPanel(). However, select() performs NO scrolling (scrollIntoView or window.scrollTo is absent), does NOT open a modal dialog or bottom sheet, and provides no indication that the panel has updated. Because the assignment list occupies several viewports of vertical height on touch screens, tapping an assignment gives the user no visible feedback whatsoever; the detail panel has mounted hundreds or thousands of pixels down at the very bottom of the page, completely out of sight. This directly violates mobile navigation patterns and invariant 72 (canonical controls / details on mobile).",
+    "evidence": [
+      "js/modules/assignments.js:96-99 (DOM ordering: .k-asg-col followed by panel)",
+      "js/modules/assignments.js:154-155, 164-165 (row click calls select(a.id))",
+      "js/modules/assignments.js:169 (select() only updates selectedId and calls refresh() without scrolling)",
+      "css/views/study.css:1057-1059 (@media (max-width: 1240px) stacks panel beneath list)"
+    ],
+    "contraryEvidence": "None. In all viewports <= 1240px (including iPad portrait, iPad landscape on 10.2\"/11\" models, iPhone, and narrow desktop windows), the panel is permanently placed below the entire list, and selecting an item never brings the detail into view.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "iPad portrait and iPad landscape (<1240px)",
+      "iPhone across all models",
+      "Mac browser windows resized below 1240px",
+      "Assignment completion, editing, and file attachment workflows on touch devices"
+    ]
+  },
+  {
+    "id": "ST-26",
+    "method": "Data flow and validation event handler trace in js/modules/itdesk.js:216-236, 277-289.",
+    "observed": "In js/modules/itdesk.js:216-236, the inline mark input handler for IT units validates user input on the input event: var v = inp.value === \"\" ? \"\" : Math.round(Number(inp.value)); editing.value = v === \"\" || !isFinite(v) || v < 0 || v > max ? \"\" : v; (line 223). If the user types an out-of-range mark (such as typing \"459\" over \"45\" on a 60 UMS unit), v > max evaluates to true, so editing.value is reset to empty string \"\", while inp.value remains \"459\" with bad state styling. In inp keydown listener (lines 233-236), pressing Enter executes save(r). In save(r) (lines 277-282): if (!editing || editing.value === \"\" || editing.value == null) { if (editing && KOS.itUnits.get(r.code).status === \"done\") KOS.itUnits.clearResult(r.code); editing = null; paintAll(); return; }. Because editing.value === \"\", the guard treats the out-of-range value as a user request to clear the mark! It executes KOS.itUnits.clearResult(r.code) without confirmation, error notice, or toast warning, silently erasing the previously saved grade and marks for that unit from state. Furthermore, clicking the \"\u2713 Save\" button (line 261) calls the exact same save(r) function and triggers the identical silent data destruction.",
+    "evidence": [
+      "js/modules/itdesk.js:221-224 (input event handler resets editing.value to \"\" on out-of-range number)",
+      "js/modules/itdesk.js:233-236 (keydown Enter invokes save(r))",
+      "js/modules/itdesk.js:261 (Save button invokes save(r))",
+      "js/modules/itdesk.js:277-282 (save(r) clears stored result when editing.value === \"\")",
+      "js/core/itunits.js (KOS.itUnits.clearResult removes ums and raw marks)"
+    ],
+    "contraryEvidence": "If the user presses Escape (which triggers cancel(), lines 235, 276), the previous value is restored and no data is lost. However, a user who types a mark and presses Enter naturally expects validation to block saving or alert them, not permanently delete their stored qualification mark.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "IT subject desk (all platforms: Mac, iPad, iPhone)",
+      "Qualification boundary calculation and predicted grade integrity",
+      "Student academic record persistence"
+    ]
+  }
+]

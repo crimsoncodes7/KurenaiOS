@@ -1,0 +1,186 @@
+[
+  {
+    "id": "PR-02",
+    "method": "Code trace of KOS.show view mounting lifecycle, view rendering order, and KOS.ui.pageHeader art resolution in js/core/ui.js.",
+    "observed": "In js/core/ui.js, KOS.show synchronously executes the target view function via line 1592: try { if (KOS.views[viewId]) KOS.views[viewId](main, arg); }. Only AFTER the view has completely mounted and returned is KOS.store.state.ui.view updated on line 1594: KOS.store.state.ui.view = viewId;. Inside KOS.ui.pageHeader (lines 642-643), the header art defaults to opts.art || PAGE_ART[view], where view is read from KOS.store.state.ui.view. Because state.ui.view has not been updated yet during render, view evaluates to the PREVIOUS page's viewId. When navigating between views (e.g., from pacing to routines, or routines to focus), the new page renders the previous page's art band (e.g., routines displays pacing's band; focus displays reminders' band). The correct art only appears on hard reload when state.ui.view was already persisted in localStorage.",
+    "evidence": [
+      "js/core/ui.js:637-639 (PAGE_ART lookup dictionary)",
+      "js/core/ui.js:642-643 (pageHeader reads stale KOS.store.state.ui.view)",
+      "js/core/ui.js:1592-1594 (KOS.show renders view before updating state.ui.view)"
+    ],
+    "contraryEvidence": "If a view passes opts.art explicitly (or passes opts.art = false to suppress it), pageHeader uses the explicit art rather than falling back to PAGE_ART[view]. However, virtually all views (including Pacing, Routines, Reminders, Focus, Goals, Calendar, Review, Storage) call pageHeader without opts.art.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All views using KOS.ui.pageHeader without explicit opts.art",
+      "Desktop, iPad, iPhone across all in-app navigation routes",
+      "Visual presentation and theme consistency"
+    ]
+  },
+  {
+    "id": "PR-03",
+    "method": "Code and CSS trace of Focus preflight dialog launch (js/modules/focus.js:2244-2256), task resolution ladder (js/modules/routineplayer.js:279-287), session start dispatch (js/modules/routineplayer.js:248-258, 326-336), and dialog/menu z-index stacking (css/tokens.css:1031-1032, css/components.css:334, 358).",
+    "observed": "On the Focus Timer page (#/focus), when a user selects 'General study \u2014 no link' (subject value '') and 'No assignment' (asg value ''), and clicks 'Start focus', focus.js lines 2244-2247 sets cfg.subject = null and cfg.assignmentId = null. Because focusPreflight is enabled by default and objective is empty, it invokes KOS.routinePlayer.preflight(ctx) (line 2253). In routineplayer.js line 220, taskOf(ctx) is called. In taskOf (lines 279-287), because ctx.assignmentId is null and both ctx.title and ctx.subject are null/empty, it fails both explicit guards and falls through to line 285: var three = taskChoices()[0];. taskChoices() picks the highest priority item from Today's three or the earliest due open assignment (e.g., NEA assignment with subject 'compsci' and assignmentId 1). When the user clicks 'Just start' (data-ui='preflight.just-start') to bypass the preflight checklist, go(true) executes line 257: startFocus(Object.assign({}, ctx, task, { cfg: cfg }), skip ? (ctx.objective || '') : action.value || ''). Object.assign overwrites ctx.subject and ctx.assignmentId with the auto-suggested task's subject and assignmentId. startFocus passes this mutated configuration to onStart, which starts the timer linked to that assignment. When completed, the session misattributes study time to that assignment. Furthermore, the 'Change \u25be' menu button in the preflight dialog uses KOS.ui.menu, which appends a .k-menu-panel to document.body with z-index: var(--z-menu) (110) (css/components.css:334). The dialog overlay .k-dialog-overlay is rendered with z-index: var(--z-modal) (120) (css/components.css:358). Because 110 < 120, the menu opens behind the dialog overlay, rendering it inaccessible and preventing the user from unlinking or changing the task.",
+    "evidence": [
+      "js/modules/focus.js:2244-2256 (preflight invocation with null subject/assignmentId)",
+      "js/modules/routineplayer.js:279-287 (taskOf falls back to taskChoices()[0] when subject is null)",
+      "js/modules/routineplayer.js:248-258 (go(skip) merges task into ctx even when skipping)",
+      "js/modules/routineplayer.js:326-336 (startFocus merges task assignmentId and subject)",
+      "css/tokens.css:1031-1032 (--z-menu: 110, --z-modal: 120)",
+      "css/components.css:334 (.k-menu-panel z-index: var(--z-menu))",
+      "css/components.css:358 (.k-dialog-overlay z-index: var(--z-modal))"
+    ],
+    "contraryEvidence": "If the user pre-enters a non-empty string in the objective input on the Focus page, focus.js:2252 bypasses KOS.routinePlayer.preflight and calls start(cfg) directly. If the user has disabled About to Study in settings (focusPreflight === false), preflight is also bypassed. However, for any user with default settings who leaves objective empty (the typical flow), the silent reassignment occurs 100% of the time.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Study time tracking and analytics integrity (invariant 4a)",
+      "Assignment completion logs and pacing",
+      "All devices (Mac, iPad, iPhone)"
+    ]
+  },
+  {
+    "id": "PR-04",
+    "method": "CSS and layout trace of Focus stage context column (.k-fx-ctx), assignment chip rendering (.k-chip), and responsive breakpoints in js/modules/focus.js:879-883 and css/views/productivity.css:105-114, 197, 903-911.",
+    "observed": "On the running Focus stage, linkedAssignment() renders an assignment chip via box.appendChild(el('div', { class: 'k-cluster', 'data-ui': 'focus.context' }, [chip('\u8ab2 ' + asg.title, 'var(--amber)'), asg.due ? chip('due ' + asg.due) : null])) (js/modules/focus.js:880-883). In css/components.css:197, .k-chip specifies white-space: nowrap without any max-inline-size, overflow: hidden, or text-overflow: ellipsis. In css/views/productivity.css:107, 113-114, on desktop viewports (>860px), the left column (.k-fx-left) is right-aligned via align-items: flex-end; text-align: end;, and .k-fx-ctx > .k-cluster specifies justify-content: flex-end;. Because .k-fx-ctx has no width constraint or max-inline-size: 100%, a long assignment title (e.g., AQA NEA with a 50+ character title) causes the flex cluster to expand towards the left, pushing its left boundary past the viewport's left edge (measured at x = -131px). Conversely, on mobile viewports (<=560px, lines 903-911), .k-fx-what switches to flex-direction: column; align-items: flex-start; text-align: start;. Due to white-space: nowrap, the chip overflows past the right edge of the screen (measured at x = 648px in a 402px viewport). Additionally, asg.due is interpolated raw ('due 2026-10-29') instead of formatted with KOS.ui/hub dayLabel.",
+    "evidence": [
+      "js/modules/focus.js:843-847 (chip definition)",
+      "js/modules/focus.js:878-884 (assignment chip rendering without truncation)",
+      "css/components.css:197 (.k-chip white-space: nowrap without ellipsis)",
+      "css/views/productivity.css:105-114 (.k-fx-left end-aligned flex layout without max-inline-size)",
+      "css/views/productivity.css:903-911 (mobile layout start-aligned overflow)"
+    ],
+    "contraryEvidence": "Short assignment titles (under ~20 characters) fit within the available column width and do not visibly overflow the viewport boundaries.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Focus running stage on Mac, iPad, and iPhone",
+      "Readability of assignment context and due dates"
+    ]
+  },
+  {
+    "id": "SC-01",
+    "method": "CSS layout and DOM tree analysis of Gold Shop avatar card preview rendering in js/modules/governor-ui.js:1212, 1227-1228 and css/views/governor.css:307, 589, 602-603.",
+    "observed": "In js/modules/governor-ui.js:1227-1228, avatar preview cards are constructed as pv.appendChild(el('span', { class: 'k-gv-apv-disc' }, [img(it.art)])). The helper img(id, cls) defaults to class 'k-gv-apv-img' if cls is not provided (line 1212). In css/views/governor.css:307, .k-gv-pv is styled as position: relative; display: grid; place-items: center; overflow: hidden;. In line 589, .k-gv-apv-img is styled as position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover;. However, .k-gv-apv-disc (line 602) has inline-size: 76%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: radial-gradient(...); BUT LACKS position: relative;. Consequently, the containing block for the absolutely positioned <img class='k-gv-apv-img'> is the grandparent .k-gv-pv (the entire preview card box) rather than the parent .k-gv-apv-disc. The image pins to inset: 0 of .k-gv-pv at (0, 0) top-left, while the disc is centered in .k-gv-pv by the grid. This causes the painted avatar art to detach from the disc, overflowing the top-left of the card while the dark circular disc sits empty and offset.",
+    "evidence": [
+      "js/modules/governor-ui.js:1212 (img helper defaults to k-gv-apv-img)",
+      "js/modules/governor-ui.js:1227-1228 (avatar case appends img inside .k-gv-apv-disc)",
+      "css/views/governor.css:307 (.k-gv-pv establishes relative positioning context)",
+      "css/views/governor.css:589 (.k-gv-apv-img position: absolute; inset: 0;)",
+      "css/views/governor.css:602-603 (.k-gv-apv-disc lacks position: relative)"
+    ],
+    "contraryEvidence": "None. The missing position: relative on .k-gv-apv-disc breaks containing block scoping according to CSS Positioned Layout Module Level 3 in all modern browsers.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All 12 avatar preview cards in the Gold Shop",
+      "Avatar preview sheet dialog",
+      "All browsers and devices (Mac, iPad, iPhone)"
+    ]
+  },
+  {
+    "id": "SC-02",
+    "method": "CSS cascade and specificity analysis of Governor Seat stage action buttons and shop buy buttons in css/views/governor.css:57, 567 and js/modules/governor-ui.js:998-1005.",
+    "observed": "When a user tries on an item in the Gold Shop, a 'Trying on' panel is mounted on the Governor's Seat stage (.k-gv-stage) with primary action button <button class='k-btn k-btn--sm k-gv-buy' data-ui='shop.buy-tried'> (js/modules/governor-ui.js:1005). In css/views/governor.css:567, .k-gv-buy defines background: var(--gold); color: var(--gold-ink); (specificity: (0, 1, 0)). In css/views/governor.css:57, .k-gv-stage .k-btn defines background: var(--gv-glass); (specificity: (0, 2, 0)). Because (0, 2, 0) > (0, 1, 0), the stage glass rule overrides .k-gv-buy's background. As a result, the button renders with background: var(--gv-glass) (oklch(0.14 0.01 265 / 0.72), near-black translucent glass) while retaining color: var(--gold-ink) (oklch(0.20 0.03 70), near-black dark ink). Similarly, on hover, .k-gv-stage .k-btn:hover (0, 2, 0) overrides .k-gv-buy:hover (0, 1, 0) with background: var(--s2). The resulting button has virtually zero contrast (~1.1:1), appearing disabled or blacked-out.",
+    "evidence": [
+      "js/modules/governor-ui.js:998-1005 (tryPanel with k-btn k-gv-buy rendered inside .k-gv-stage)",
+      "css/views/governor.css:57 (.k-gv-stage .k-btn specificity 0,2,0 background: var(--gv-glass))",
+      "css/views/governor.css:567 (.k-gv-buy specificity 0,1,0 background: var(--gold); color: var(--gold-ink))",
+      "css/tokens.css:32 (--gold-ink dark tone)",
+      "css/tokens.css:764 (--gv-glass dark tone)"
+    ],
+    "contraryEvidence": "On non-stage buy buttons (such as standard shop cards in the grid that do not descend from .k-gv-stage), .k-gv-buy correctly renders with the gold background because the (0, 2, 0) stage selector does not apply.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Try on flow in the Gold Shop across all platforms",
+      "Governor Seat Stage action buttons",
+      "WCAG AA contrast compliance (< 1.2:1 contrast ratio)"
+    ]
+  },
+  {
+    "id": "SC-03",
+    "method": "Layout geometry and CSS overflow analysis of Governor Seat status header and painted frame styling in js/modules/governor-ui.js:335-341, js/core/governor.js:691-708, and css/layout.css:254, 260-264, and css/views/governor.css:31, 39, 47.",
+    "observed": "On the Governor's Seat Status stage, the user's avatar is mounted at size = 180px via ring(180, ...) (js/modules/governor-ui.js:336-337). In js/core/governor.js:705-708, avatarNode(180) returns a .k-avatar-host element with data-fsize='l' containing a 180px .k-avatar and <img class='k-avatar-frame-art' src='assets/app/img/<art>.webp'>. In css/layout.css:254, .k-avatar-frame-art is styled with position: absolute; inset-block-start: calc(-26% - var(--fo)); inset-inline-start: calc(-26% - var(--fo)); inline-size: calc(152% + 2 * var(--fo)); block-size: calc(152% + 2 * var(--fo));. For a 180px avatar with --fsize='l', the frame expands to ~296px x 296px, extending ~58px outward beyond the avatar's boundary on all four sides. However, in css/views/governor.css:39, .k-gv-stage-id aligns the ring and the text block (.k-gv-stage-txt) with gap: var(--sp-28) (28px). Because the 58px bleed exceeds the 28px gap by 30px, the frame spills directly over the adjacent text, overlapping the 'Level 53' heading and covering the start of the 'Pick a title' button. Furthermore, on the left edge, the frame extends 58px to the left of the avatar, colliding with the outer edge of .k-gv-stage (which has overflow: hidden in css/views/governor.css:31), causing the left edge of the painted frame to be abruptly clipped.",
+    "evidence": [
+      "js/modules/governor-ui.js:336-337 (ring(180, ...) mounts 180px avatar on Seat stage)",
+      "js/core/governor.js:705-708 (avatarNode mounts .k-avatar-frame-art)",
+      "css/layout.css:254 (.k-avatar-frame-art sized at 152% + 2*--fo with -26% inset)",
+      "css/views/governor.css:31 (.k-gv-stage overflow: hidden clips left bleed)",
+      "css/views/governor.css:39 (.k-gv-stage-id gap: var(--sp-28) insufficient for 58px frame bleed)"
+    ],
+    "contraryEvidence": "When no frame or only a subtle CSS frame (e.g. Gilt ring with narrow border) is worn, the bleed is small enough that it fits within the 28px gap without noticeable text overlap. The bug specifically manifests with painted frames (Sakura, Ice, Ember, Lacquer, Wisteria, Koi).",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Governor Seat Status view on desktop and iPad",
+      "Edit Seat preview dialog (js/modules/governor-ui.js:316)"
+    ]
+  },
+  {
+    "id": "SC-04",
+    "method": "Code, markup, and asset usage trace of seal cosmetics in index.html:64-66, js/core/governor.js:413-419, 503-508, 782-783, and js/modules/governor-ui.js:235-245, 1235-1236, 1359.",
+    "observed": "Seals in the Gold Shop and Wardrobe are advertised as 'the topbar mark' and 'variant of the OS mark' (js/core/governor.js:413-419, 503-508, js/modules/governor-ui.js:1359). When a seal is equipped, applyCosmetics() executes lines 782-783: var mark = document.querySelector(\"#topbar [data-ui~='shell.brand'] [data-ui~='shell.brand-mark']\"); if (mark) mark.textContent = SEAL_GLYPHS[g.seal] || '\u7d05';. However, in index.html:64-66, the topbar brand was redesigned to use a static image asset: <button class='k-brand' data-ui='shell.brand' id='brand-home'> <img class='k-brand-logo' src='assets/brand/kurenai-bloom.png' alt='' width='34' height='34'> <span class='k-brand-name'>Kurenai</span> </button>. There is no element with data-ui~='shell.brand-mark' in the DOM; document.querySelector returns null and applyCosmetics() does nothing. Furthermore, the six premium 400-gold seals (Yuki, Hana, Yume, Katana, Tsuru, Hikari) include authored stamp illustration assets (art: 'app.seal.*'). These stamp pictures are rendered only inside the shop ware card and the wardrobe picker chip (governor-ui.js:1235-1236); when worn, the only place any seal appears is a small red circle with a raw Unicode kanji character on the Governor Seat HP ring (governor-ui.js:244). The painted stamp art is never displayed in active use anywhere in the application.",
+    "evidence": [
+      "index.html:64-66 (topbar brand markup uses static kurenai-bloom.png without brand-mark hook)",
+      "js/core/governor.js:782-783 (applyCosmetics targets non-existent [data-ui~='shell.brand-mark'])",
+      "js/core/governor.js:413-419, 503-508 (catalog descriptions claim topbar OS mark)",
+      "js/modules/governor-ui.js:1359 (Wardrobe row description: 'Seal \u00b7 The topbar mark')",
+      "js/modules/governor-ui.js:235-245 (worn seal only displays text glyph in .k-gv-ring-seal)"
+    ],
+    "contraryEvidence": "None. The DOM element targeted by querySelector does not exist in the codebase.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Gold shop seal purchases and user expectations",
+      "Top navigation bar visual customization across all views and devices"
+    ]
+  },
+  {
+    "id": "SC-05",
+    "method": "CSS specification and code trace of relative url() handling in CSS custom properties across js/modules/books.js:1285, js/modules/shrine.js:954, css/views/collection.css:532-534, and comparison with js/modules/dayreview.js:141-142.",
+    "observed": "When wearing any of the 5 painted shelf skins (Paulownia, Steel & glass, Library oak, Bamboo, Sakura wood) or 5 painted Shrine card styles (Moon, Moth, Camellia, Lacquer, Frost), books.js:1285 and shrine.js:954 set inline styles with relative URLs: area.holder.style.setProperty('--skin-art', 'url(assets/app/img/' + skinIt.art + '.webp)') and hall.style.setProperty('--skin-art', 'url(assets/app/img/' + styleIt.art + '.webp)'). In css/views/collection.css:532, 534, the stylesheet consumes these variables via background: var(--skin-art) center / cover;. Under W3C CSS Values and Units Level 3 and CSS Custom Properties Level 1 specifications, relative URLs inside custom property declarations resolve relative to the base URL of the stylesheet where var() is substituted, NOT the document root. Because the consuming stylesheet is located at /css/views/collection.css, browsers resolve the image request as /css/views/assets/app/img/<art>.webp, resulting in HTTP 404 Not Found errors. Furthermore, in collection.css:532, .k-mgrid[data-painted] .k-bk-shelf explicitly removes the default shelf styling (border-radius: var(--r-12); box-shadow: none; border: 0;). When the 404 occurs, the shelf displays no background, border, or shadow at all, leaving book covers floating in an empty void. In contrast, js/modules/dayreview.js:141-142 explicitly documents this exact browser behavior ('absolute: a relative url() in a custom property resolves against the stylesheet') and resolves URLs using new URL(..., location.href).href, which books.js and shrine.js failed to do.",
+    "evidence": [
+      "js/modules/books.js:1285 (--skin-art set with relative url())",
+      "js/modules/shrine.js:954 (--skin-art set with relative url())",
+      "css/views/collection.css:532-534 (consumption of var(--skin-art) in external stylesheet located at /css/views/)",
+      "js/modules/dayreview.js:141-142 (reference implementation correctly avoiding relative url() in custom properties)"
+    ],
+    "contraryEvidence": "CSS shelf skins that use color and borders rather than background images (such as Walnut: data-skin='shelf-walnut') do not set --skin-art and function correctly. The bug strictly affects all 10 painted/art-based shelf and Shrine items.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Physical Books shelf view (#/books)",
+      "Shrine Hall of Fame view (#/shrine)",
+      "Gold economy value perception (8,500 gold worth of items rendered blank)"
+    ]
+  },
+  {
+    "id": "SC-06",
+    "method": "CSS and layout geometry trace of shop frame preview component in js/modules/governor-ui.js:1229-1230 and css/views/governor.css:587, 604-607.",
+    "observed": "In js/modules/governor-ui.js:1229-1230, shopPreview() for painted frames builds the preview via pv.appendChild(el('span', { class: 'k-gv-apv-frame' }, [img(it.art, 'k-gv-apv-frame-art'), el('span', { class: 'k-gv-apv-frame-in' }, [KOS.governor.avatarNode(big ? 120 : 64)])])). In css/views/governor.css:587, .k-gv-apv[data-kind='frame'] has aspect-ratio: 1. In a standard card preview (approx 235px wide), .k-gv-apv-frame has inline-size: 76% (line 604), rendering the frame container at ~179px x 179px. The frame image .k-gv-apv-frame-art fills 100% of this container (179px x 179px) with object-fit: contain (line 605). The inner opening hole of the painted frame art measures between 67% and 74% of its diameter (~120px to 132px). However, in .k-gv-apv-frame-in, avatarNode is called with fixed size 64px, and css/views/governor.css:607 reduces it further: .k-gv-apv-frame-in .k-avatar { inline-size: calc(var(--avatar) * 0.86); block-size: calc(var(--avatar) * 0.86); }, setting the avatar to 64 * 0.86 = 55.04px. Inside a 132px inner hole, a 55px avatar occupies only ~42% of the opening, leaving a wide empty dark chasm between the avatar and the frame. When actually worn (css/layout.css:254), the frame is scaled to 152% of the avatar so the inner opening hugs the avatar snugly. In the preview sheet dialog where big = true (120px), avatarNode(120) produces 103px inside a larger modal frame box, reproducing the identical proportional mismatch.",
+    "evidence": [
+      "js/modules/governor-ui.js:1229-1230 (fixed 64px avatarNode inside .k-gv-apv-frame)",
+      "css/views/governor.css:604 (.k-gv-apv-frame inline-size: 76%)",
+      "css/views/governor.css:605 (.k-gv-apv-frame-art 100% container fill)",
+      "css/views/governor.css:607 (.k-avatar scaled to 0.86 * 64px = 55px)",
+      "css/layout.css:254 (worn frame scales to 152% of avatar)"
+    ],
+    "contraryEvidence": "None. The preview avatar diameter is hard-coded in pixels rather than sized relative to the frame container's inner aperture.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All 6 painted frame cards in the Gold Shop (Sakura, Ice, Ember, Lacquer, Wisteria, Koi)",
+      "Item details preview modal",
+      "All screen sizes"
+    ]
+  },
+  {
+    "id": "SC-07",
+    "method": "Code and CSS DOM trace of CSS frame shop preview generation in js/modules/governor-ui.js:1261-1268, js/core/governor.js:705-708, and css/layout.css:255, and comparison with wardrobe implementation in js/modules/governor-ui.js:1480-1482.",
+    "observed": "When a user has a painted frame equipped (e.g., Koi ring), shopPreview() in js/modules/governor-ui.js:1261-1268 renders preview cards for CSS frames (Gilt ring, Kurenai bloom, Jade band, Amethyst orbit) by calling var framed = KOS.governor.avatarNode(64); and then setting framed.setAttribute('data-frame', it.id);. In js/core/governor.js:705-708, avatarNode() embeds the user's currently worn painted frame image as <img class='k-avatar-frame-art' src='assets/app/img/<worn-painted-frame>.webp'> inside .k-avatar-host. In css/layout.css:255, the rule .k-avatar-host:has(> .k-avatar-frame-art)::before, .k-avatar-host:has(> .k-avatar-frame-art)::after { display: none; } suppresses the CSS frame pseudo-elements whenever .k-avatar-frame-art is present. Because shopPreview() failed to remove the existing .k-avatar-frame-art element from framed, the CSS frame's styling is suppressed and the worn painted frame image continues to render. As a result, every CSS frame card in the shop displays the user's currently worn painted frame rather than the frame being offered for sale. In contrast, in the Wardrobe tab (js/modules/governor-ui.js:1480-1481), the author specifically guarded against this with var oldArt = disc.querySelector('.k-avatar-frame-art'); if (oldArt) oldArt.remove();, but omitted this cleanup in shopPreview().",
+    "evidence": [
+      "js/modules/governor-ui.js:1261-1268 (shopPreview reuses live avatarNode(64) without stripping .k-avatar-frame-art)",
+      "js/core/governor.js:705-708 (avatarNode appends worn painted frame art to host)",
+      "css/layout.css:255 (:has(> .k-avatar-frame-art) suppresses CSS frame pseudo-elements)",
+      "js/modules/governor-ui.js:1480-1482 (frameChip in Wardrobe explicitly cleans up oldArt)"
+    ],
+    "contraryEvidence": "If the user is not wearing a painted frame (wearing no frame, or wearing a CSS frame), avatarNode(64) contains no .k-avatar-frame-art element, so framed.setAttribute('data-frame', it.id) successfully previews the CSS frame. The bug is triggered specifically when any painted frame is currently worn.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Gold Shop frame previews for all CSS frames whenever a painted frame is worn",
+      "All devices and viewports"
+    ]
+  }
+]

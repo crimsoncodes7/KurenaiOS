@@ -1,0 +1,217 @@
+{
+  "CO03_CO04_mac": {
+    "co03": {
+      "planHasTask": false,
+      "d20Rect": {
+        "x": 1156,
+        "y": 142.25,
+        "width": 290,
+        "height": 216.75,
+        "top": 142.25,
+        "right": 1446,
+        "bottom": 359,
+        "left": 1156
+      },
+      "contRect": null,
+      "contClientH": null,
+      "contScrollH": null,
+      "contOverflow": null,
+      "kickerRect": null
+    },
+    "co04": {
+      "stdinTag": null,
+      "stdinType": null,
+      "singleLineRunOnTwoReadLines": {
+        "ok": false,
+        "stdout": "",
+        "error": {
+          "code": "INTERNAL",
+          "kind": "internal",
+          "msg": "Cannot read properties of undefined (reading 'map')",
+          "line": 0
+        },
+        "steps": 0,
+        "ms": 0,
+        "fs": null
+      }
+    }
+  },
+  "CR01_mac": {
+    "dialogsAfterOpen": 0,
+    "dialogsAfterRerender1": 0,
+    "dialogsAfterRerender2": 0
+  },
+  "CR02_iphone": {
+    "actionsDisplay": null,
+    "gearFound": true,
+    "gearPhoneMoreAttr": null,
+    "gearRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "focusPhoneMoreAttr": null,
+    "focusRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "phoneMoreHidden": null
+  },
+  "dataAndGoals": {
+    "go02": {
+      "goalId": 10,
+      "evaluated": {
+        "target": 3,
+        "status": "active"
+      }
+    },
+    "go23": {
+      "err": "TypeError: KOS.store.getProg is not a function"
+    }
+  },
+  "EX02_iphone": {
+    "examId": "akbhf56c",
+    "leftRect": {
+      "x": 20,
+      "y": 424,
+      "width": 362,
+      "height": 567.53125,
+      "top": 424,
+      "right": 382,
+      "bottom": 991.53125,
+      "left": 20
+    },
+    "bottomRect": {
+      "x": 20,
+      "y": 614.75,
+      "width": 362,
+      "height": 227.25,
+      "top": 614.75,
+      "right": 382,
+      "bottom": 842,
+      "left": 20
+    },
+    "firstThingRect": {
+      "x": 20,
+      "y": 450.5,
+      "width": 360,
+      "height": 100.53125,
+      "top": 450.5,
+      "right": 380,
+      "bottom": 551.03125,
+      "left": 20
+    },
+    "firstTickRect": {
+      "x": 20,
+      "y": 641.25,
+      "width": 176,
+      "height": 45.75,
+      "top": 641.25,
+      "right": 196,
+      "bottom": 687,
+      "left": 20
+    },
+    "bottomPos": "static"
+  },
+  "EX03_iphone": {
+    "barFound": true,
+    "barClass": "k-ink-bar k-scroller-track",
+    "barRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "undoRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "redoRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    }
+  },
+  "EX28_ipad": {
+    "btnCount": 10,
+    "sampleWidths": [
+      {
+        "text": "1",
+        "w": 30,
+        "h": 44
+      },
+      {
+        "text": "2",
+        "w": 30,
+        "h": 44
+      },
+      {
+        "text": "3",
+        "w": 30,
+        "h": 44
+      },
+      {
+        "text": "4",
+        "w": 30,
+        "h": 44
+      },
+      {
+        "text": "5",
+        "w": 30,
+        "h": 44
+      },
+      {
+        "text": "6",
+        "w": 30,
+        "h": 44
+      }
+    ]
+  },
+  "HR01_mac": {
+    "stripFound": false,
+    "stripClientW": null,
+    "stripScrollW": null,
+    "parentClass": null,
+    "cards": []
+  },
+  "HR03_ipad": {
+    "goalFound": true,
+    "goalDisplay": "none",
+    "goalRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    }
+  }
+}

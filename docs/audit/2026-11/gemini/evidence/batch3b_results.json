@@ -1,0 +1,134 @@
+[
+  {
+    "id": "MG-04",
+    "method": "Code inspection of js/modules/money.js (file picker, file read handler) and js/core/money.js (CSV parser, guessMapping), plus evaluation of Santander export sample formats in audit-evidence/2026-11/qa/money-samples/.",
+    "observed": "The file input in the import dialog accepts \".csv,text/csv,text/plain\". When a user selects a Santander .txt export, read() passes the text to M.csv.parse(), which treats it as CSV. Because the text export uses a block layout (\"Date:\", \"Description:\", \"Amount:\", \"Balance:\") without a CSV header row, guessMapping() fails to find date and amount columns, triggering the error \"This file could not be read. It has no header row with a date and an amount. Nothing was imported.\" Santander's QIF and OFX formats are completely unsupported, with no parsers in the codebase, and their file extensions are not accepted by the input.",
+    "evidence": "js/modules/money.js:889 (input accept: \".csv,text/csv,text/plain\"); js/modules/money.js:935-940 (read() parser invocation and fail conditions); js/core/money.js:947-969 (parseCSV assumes delimiter-separated rows); js/core/money.js:970-984 (guessMapping assumes tabular header names); sample files audit-evidence/2026-11/qa/money-samples/santander-online.txt, santander.qif, santander.ofx.",
+    "contraryEvidence": "The feature is labeled \"Import a CSV\" in the dialog header (js/modules/money.js:877) and the helper text states \"Most banking apps can export a statement as CSV\" (js/modules/money.js:899). However, the file picker explicitly accepts MIME type \"text/plain\", which lures users with .txt statements into selecting them, only for immediate failure. There is zero format sniffing or parsing for non-CSV formats.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Import dialog error handling",
+      "Users exporting statements from UK banks offering text/QIF/OFX exports"
+    ]
+  },
+  {
+    "id": "MG-05",
+    "method": "Code inspection of js/modules/money.js (importDialog result view, Transactions view) and js/core/money.js (allTx, undoBatch, list, deleteRaw).",
+    "observed": "Batch metadata (batch) is generated per import and stamped on imported transactions, but it is never stored in state.money as an import record or history. The only place M.undoBatch is exposed is on step 3 (\"Done\") of the transient import dialog via the \"Undo this import\" button. Once closed, the batch ID is unreachable. In the Transactions view, list() / keep() does not support filtering by batch or src. Furthermore, the bulk action toolbar has no \"Select all\" functionality; undoing or deleting an erroneous 200-row import requires manually checking 200 checkboxes one by one.",
+    "evidence": "js/modules/money.js:915-917 (only invocation of M.undoBatch); js/core/money.js:1039 (batch ID generated with rid(\"b\")); js/core/money.js:1050-1056 (undoBatch definition); js/core/money.js:694-700 (keep() filters only kind, cat, tag, search); js/modules/money.js:614-640 (drawBulk lacks select-all); js/modules/money.js:600-612 (transactions must be checked individually).",
+    "contraryEvidence": "Users can individually select transactions in the Transactions list and use \"Delete X\u2026\" from bulk actions (js/modules/money.js:630), or search if the imported rows happen to share a unique substring. However, there is no import ledger, no import history, no batch filter, and no way to undo an import once the dialog closes.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Transactions view",
+      "Bulk actions toolbar",
+      "State persistence (state.money lacks imports ledger)"
+    ]
+  },
+  {
+    "id": "MG-06",
+    "method": "Code inspection of js/core/money.js (parseCSV, toMinor, previewCSV) and column parsing logic.",
+    "observed": "The CSV parser splits lines by the detected delimiter (comma) character by character outside quotation marks. When a CSV file contains unquoted numbers with thousands separators (e.g. \u00a31,234.56), the comma inside the amount is treated as a column delimiter. The cell becomes \"\u00a31\" and the remainder \"234.56\" shifts into the adjacent column. toMinor(\"\u00a31\") parses this cleanly as 100 minor units (\u00a31.00). The parser never validates row width (row.length) against header.length, and previewCSV silently imports the corrupted \u00a31.00 amount without any warning or error.",
+    "evidence": "js/core/money.js:951-968 (parseCSV splits without quotes on comma and does not validate column count); js/core/money.js:63-70 (toMinor strips non-digits and parses \"1\" to 100); js/core/money.js:1004-1022 (previewCSV indexes columns by mapping without row width check).",
+    "contraryEvidence": "RFC 4180 standard CSV requires fields containing commas to be enclosed in double quotes. Properly formatted CSVs with quoted fields are parsed correctly by parseCSV (js/core/money.js:954-957). However, hand-rolled UK bank exports and user text-editor exports often omit quotes around thousands separators, and KurenaiOS provides no row width validation or mismatch detection.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "CSV import preview",
+      "Balance calculation",
+      "Transaction accuracy"
+    ]
+  },
+  {
+    "id": "MG-07",
+    "method": "Code analysis of recurring transaction lifecycle in js/core/money.js (confirm, occurrenceStatus) and CSV deduplication in js/core/money.js (previewCSV).",
+    "observed": "Confirming a recurring rule occurrence generates a transaction with ID r:<ruleId>:<date> and payee: r.payee || r.name without checking existing transactions in IndexedDB. Conversely, CSV import deduplication checks for existing transactions using an exact composite key: date + \"|\" + minor + \"|\" + payee.toLowerCase(). Because bank exports use verbose descriptions (e.g., \"GOOGLE *Google One, ON 27-10-2026\" vs \"Google One\"), the key does not match. Additionally, occurrenceStatus() derives due status purely from r.marks[date], unaware of bank transactions. Consequently, confirming a rule and importing the statement creates two distinct transactions for the same real-world expense, double-counting in budgets, spend, and reports.",
+    "evidence": "js/core/money.js:413-433 (confirm creates rule transaction unconditionally); js/core/money.js:407-412 (occurrenceStatus checks only r.marks); js/core/money.js:1025-1032 (previewCSV deduplicates by exact key date|minor|payee); js/core/money.js:1040-1044 (importRows inserts without checking rule transactions).",
+    "contraryEvidence": "If the user sets the rule name or payee to exactly match the bank statement string and the dates match, previewCSV's dedupe key would technically match. However, bank statements routinely contain transaction-specific timestamps, card numbers, or exchange rate metadata, making an exact string match virtually impossible in practice.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Recurring rules view",
+      "Spend and budget calculations",
+      "Safe to spend",
+      "Financial reports"
+    ]
+  },
+  {
+    "id": "MG-08",
+    "method": "Code inspection of js/core/money.js (previewCSV, importRows, GUESS) and js/modules/money.js (importDialog column mapping and preview).",
+    "observed": "CSV import is implemented as a direct field copier without intelligence: GUESS and previewCSV recognize only date, amount, in, out, payee, and note. Bank transaction type (e.g. DEB, DD, SO, FPI) and balance columns are completely ignored and discarded. Category assignment is hardcoded to opts.outCat || \"other\" and opts.inCat || \"other-in\". Payee is stored as the raw, uncleaned statement text. There is no merchant normalisation, no category memory/rules based on past categorisation, and no recurring rule detection.",
+    "evidence": "js/core/money.js:946 (\"CSV import (the engine; the pages are phase 2)\"); js/core/money.js:970-977 (GUESS regexes ignore Type and Balance); js/core/money.js:1019-1021 (cat hardcoded to other/other-in); js/modules/money.js:985 (dialog UI note: \"Imported entries go to Other (or Other income); change them afterwards with Set category.\").",
+    "contraryEvidence": "The UI explicitly acknowledges this limitation at js/modules/money.js:985: \"Imported entries go to Other (or Other income); change them afterwards with Set category.\", and code comments at line 946 note that \"the pages are phase 2\". However, this design forces every imported row to require manual editing and makes the Overview breakdown by category useless upon import.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Category breakdown charts",
+      "Merchant spending analysis",
+      "Transaction list readability"
+    ]
+  },
+  {
+    "id": "MG-09",
+    "method": "Code inspection of css/components.css (phone title styles), js/modules/mobile-shell.js (destinations function), js/modules/money.js (header tabs), and js/modules/goals.js (tabs).",
+    "observed": "Under 700px on mobile (#main[data-phone-title]), css/components.css:654 applies display: none to elements with [data-phone-tabs]. In js/modules/mobile-shell.js:457-463, destinations() queries #subnav [data-ui~=\"shell.subnav-item\"] first; if items exist, it does NOT fall back to page tabs ([data-phone-tabs]). Because Productivity section has subnav items (Focus Timer, Reminders, Routines, Calendar, Money, Goals), the mobile title sheet only lists those section items. Consequently, Money's view tabs (Transactions, Month and year, Budgets, Recurring, Pots) and Goals' view tabs (This week, This month, All, Done) are hidden from the DOM and omitted from the title sheet, rendering Transactions (and Import/Export CSV) and Goals tabs completely unreachable on iPhone.",
+    "evidence": "css/components.css:651-654 (#main[data-phone-title] [data-phone-tabs] { display: none; }); js/modules/mobile-shell.js:457-463 (if (!items.length) check prevents reading [data-phone-tabs]); js/core/ui.js:461-469 (SUBNAV.productivity contains 6 section items); js/modules/money.js:125-128 (Money tabs marked with data-phone-tabs); js/modules/goals.js:300-303 (Goals tabs marked with data-phone-tabs).",
+    "contraryEvidence": "On Money Overview, some destination links exist for Budgets, Recurring, and Pots (js/modules/money.js:200-250). However, there are no links whatsoever to Transactions or Month and year on the overview page, making them strictly unreachable on phone.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Mobile navigation shell",
+      "Money module (Transactions, Month and year, Import CSV, Export CSV)",
+      "Goals module (This week, This month, Done tabs)"
+    ]
+  },
+  {
+    "id": "MG-10",
+    "method": "CSS layout calculation and code inspection of css/views/money.css, css/tokens.css, and css/components.css.",
+    "observed": "The import dialog uses .k-dialog.k-mn-import-dialog { inline-size: min(var(--gl-dialog-w), 100%); }, where --gl-dialog-w is 760px. Within the dialog grid, .k-mn-import-grid reserves --mn-map-w: 420px for the Columns card plus a 20px gap, leaving only ~264px for the Preview card. Inside the Preview card, .k-mn-pv defines a 4-column grid: --mn-pv-state: 150px, --mn-pv-date: 74px, minmax(0, 1fr) (payee), and --mn-pv-amt: 90px, plus 36px in gaps (total fixed width 350px). Because 350px exceeds 264px, the 1fr payee column collapses to 0px, and the amount column is pushed outside the card boundary. Furthermore, on desktop/iPad viewports, .k-dialog has max-block-size: calc(100dvh - var(--sp-32)); overflow-y: auto; while .k-dialog-foot is not sticky, placing the \"Import entries\" button below the fold.",
+    "evidence": "css/tokens.css:1165-1168 (--mn-map-w: 420px, --mn-pv-state: 150px, --mn-pv-date: 74px, --mn-pv-amt: 90px); css/tokens.css:1181 (--gl-dialog-w: 760px); css/views/money.css:135, 169, 176; css/components.css:364-376 (.k-dialog max-block-size and overflow); css/components.css:381 (.k-dialog-foot non-sticky).",
+    "contraryEvidence": "On screens wider than 1080px with full-height windows, the dialog may display without vertical clipping if screen height is sufficiently large, but the horizontal grid column squashing of the Preview card occurs regardless of screen resolution because --gl-dialog-w caps the dialog at 760px.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "CSV import dialog preview card",
+      "Error row display in import preview",
+      "Import action accessibility across Mac and iPad"
+    ]
+  },
+  {
+    "id": "MI-01",
+    "method": "Code inspection of js/core/mind.js (evidence, syncChecks, syncConcept, completed) and js/data/content/mind-f1.js (F1.8 lesson and F1 checkpoint registration).",
+    "observed": "Lesson F1.8 is registered in js/data/content/mind-f1.js:546-548 with kind: \"checkpoint\" and concepts: [] (the checkpoint concepts are registered under M.checkpoint({ unit: \"F1\", concepts: [...] })). In js/core/mind.js:338-340, evidence(id) computes retrieval by checking (l.concepts || []).some(...). Since l.concepts is empty, retrieval is always false. In syncChecks(id), because F1.8 has no prompt, three is true and check slots 2 and 3 require ev.checks[3] (retrieval). As retrieval is permanently false, check slots 2 and 3 can never be true. Thus peekProgress(\"mind\", \"F1.8\").status never reaches \"done\", completed(\"F1.8\") is always false, F1 unit completion cannot reach 8/8, and Mind mastery cannot reach 100%.",
+    "evidence": "js/data/content/mind-f1.js:546-548 (F1.8 concepts: []); js/data/content/mind-f1.js:558-560 (M.checkpoint concepts registered separately); js/core/mind.js:338-340 (evidence calculates retrieval from l.concepts); js/core/mind.js:347-355 (syncChecks requires retrieval for slots 2 and 3); js/core/mind.js:356 (syncConcept iterates l.concepts and never hits F1.8); js/core/mind.js:362 (completed requires status === \"done\").",
+    "contraryEvidence": "Checkpoints in Mind are distinct from regular lessons, and F1.8 has checkpointPassed state tracked via peek().checkpoints.F1. However, syncChecks uses the generic 4-check store contract (invariant 107) for all lessons including F1.8, causing F1.8 to fail the completion check.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Mind progress tracking",
+      "Unit completion counters (stuck at 7/8)",
+      "Mind mastery percentage (cannot reach 100%)",
+      "Reports module",
+      "Achievements"
+    ]
+  },
+  {
+    "id": "MI-02",
+    "method": "CSS inspection of css/views/study.css, css/views/mind.css, and visual verification against captured audit screenshots.",
+    "observed": "In css/views/study.css:1076, the shared media query @media (max-width: 1080px) sets .k-subj-side > * { flex: 1 1 0; min-inline-size: 0; }. Furthermore, study.css:55 sets .k-subj-hero:is(...) + .k-subj-side > * { min-block-size: 0; overflow: hidden; }. Unlike Japanese and Creatives which change the side container to a CSS grid below 1080px, css/views/mind.css:112 defines .k-mind-deskside { display: flex; flex-direction: column; gap: var(--sp-12); } unconditionally. In an unconstrained flex column, items with flex: 1 1 0 have a 0px flex basis in height, collapsing the Daily 15 and Continue cards to their padding (40px) while hiding their 189px content behind overflow: hidden. On Mac during Exam Season, contain: size locks the side height to the hero, similarly clipping the expanded Daily card.",
+    "evidence": "css/views/study.css:54-55 (min-block-size: 0; overflow: hidden; contain: size); css/views/study.css:1074-1076 (flex: 1 1 0 on side items below 1080px); css/views/mind.css:112 (.k-mind-deskside unconditional flex column); audit-evidence/2026-11/qa/shots/mind/s-desk-iphone-daily.png, s-desk-ipad-daily.png.",
+    "contraryEvidence": "On Mac desktop outside of Exam Season, the hero height provides sufficient block size for the flex children to expand without severe clipping. However, on iPhone, iPad portrait, and Mac in Exam Season, the flex: 1 1 0 and overflow: hidden rules cause severe truncation.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Mind desk view on mobile and tablet",
+      "Continue card",
+      "Daily 15 card call-to-action button"
+    ]
+  },
+  {
+    "id": "PR-01",
+    "method": "Code inspection of js/core/ui.js (menu placement and DOM mounting), js/modules/dayreview.js (placeRow menu), and CSS z-index token hierarchy in css/tokens.css and css/components.css.",
+    "observed": "When KOS.ui.menu is triggered, place(panel) in js/core/ui.js:864 appends the floating .k-menu-panel directly to document.body. In css/components.css:334, .k-menu-panel has z-index: var(--z-menu); which is defined as 110 in css/tokens.css:1031. Meanwhile, dialog overlays opened by KOS.ui.openDialog (such as the Afternoon Review dialog in js/modules/dayreview.js) have z-index: var(--z-modal); which is 120 (css/tokens.css:1032). Because both elements are direct children of document.body within the root stacking context, the dialog overlay (z=120) paints directly in front of the menu panel (z=110), making the menu completely invisible and blocking pointer events from reaching it.",
+    "evidence": "css/tokens.css:1031-1032 (--z-menu: 110, --z-modal: 120); css/components.css:330-334 (.k-menu-panel { position: fixed; z-index: var(--z-menu); }); css/components.css:355-358 (.k-dialog-overlay { position: fixed; z-index: var(--z-modal); }); js/core/ui.js:864 (document.body.appendChild(panel)); js/modules/dayreview.js:609 (KOS.ui.menu({ label: \"Place in a free block\", ... })).",
+    "contraryEvidence": "The menu mechanism functions properly when invoked on normal page surfaces outside of open modals (such as in Vaults or Transactions). The failure occurs specifically and universally whenever KOS.ui.menu is used inside any KOS.ui.openDialog, because menus are portalled to document.body rather than inside the modal or given an elevated z-index.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Afternoon review dialog (\"Place in a free block\")",
+      "About to Study preflight dialog (\"Change \u25be\" task menu)",
+      "Any KOS.ui.menu used inside any KOS.ui.openDialog modal"
+    ]
+  }
+]

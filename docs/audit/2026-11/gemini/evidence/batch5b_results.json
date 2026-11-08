@@ -1,0 +1,193 @@
+[
+  {
+    "id": "SY-01",
+    "method": "Code and architectural analysis of js/core/ui.js (scrollers(), KOS.rerender(), KOS.show()), DOM structure inspection of shell layout elements (#stage, #main, document.scrollingElement), and review of scroll restoration across synchronous views versus asynchronously/lazily populated views.",
+    "observed": "Prior to commit 894a407, KOS.rerender() exclusively read and restored document.getElementById(\"main\").scrollTop. In the desktop and iPad shell, #main has overflow: visible while its parent #stage has overflow-y: auto and acts as the true viewport scroller (on mobile shells, document.scrollingElement acts as the scroller). Consequently, #main.scrollTop was consistently 0. When KOS.show() executed, it emptied #main (main.innerHTML = \"\"), collapsing the content height and causing the browser to clamp #stage.scrollTop to 0. Restoring main.scrollTop = 0 left the user jumped to the top of the page. In commit 894a407 (kos-redraw-1 stopgap, js/core/ui.js:375-408), scrollers() was introduced to gather [document.getElementById(\"stage\"), document.getElementById(\"main\"), document.scrollingElement].filter(Boolean) and restore their scrollTop values both synchronously after KOS.show() and again in requestAnimationFrame(restore). On static, synchronously populated pages (Home, Calendar, Reminders), #stage.scrollTop is now preserved across redraws (e.g. 500px -> 500px). However, the stopgap only partially resolves the issue: on lazily batched views (e.g. Collection vaults in js/modules/medview.js:435-520, which only mount batch 1 of 60 items) or views that load data asynchronously via IndexedDB, the DOM height at the moment of both synchronous restore() and the next requestAnimationFrame is capped at the initial batch, clamping #stage.scrollTop to 0 and dropping the user back to the top (spawned as SY-19). Furthermore, horizontal scrollers and nested split-panes (e.g. Handwritten Side-by-side or Code split views) are not tracked by scrollers().",
+    "evidence": [
+      "js/core/ui.js:375-377",
+      "js/core/ui.js:402-408",
+      "js/core/ui.js:1572-1574",
+      "js/modules/medview.js:23",
+      "js/modules/medview.js:473-481",
+      "docs/audit/2026-11/FINDINGS.md:1989-1998"
+    ],
+    "contraryEvidence": "For synchronously rendered full-height pages without lazy batching or asynchronous queries (such as Home, Calendar, Reminders, and basic study ref topics), scrollers() now captures #stage.scrollTop before teardown and restores it, preventing the top-of-page jump on those routes.",
+    "preliminaryVerdict": "partially-confirmed",
+    "alsoAffects": [
+      "Collection vaults (anime, books, vn, game, mangaka) — see SY-19",
+      "Nested scroll panes and split views (ink side-by-side, code panes)",
+      "Asynchronous IndexedDB views",
+      "All platforms (Mac, iPad, iPhone)"
+    ]
+  },
+  {
+    "id": "SY-02",
+    "method": "Code and architectural analysis of js/modules/hub.js (topic view closure, openTab, notePage initialization and consumption), js/core/ui.js (TASK_VIEWS, holdBackground, KOS.rerender), and comparative analysis with study spaces (js/modules/codetopic.js, jatopic.js, crtopic.js, mindtopic.js).",
+    "observed": "In a curriculum subject topic (compsci, maths, it), the active notes page index is stored in a private closure variable (var notePage = 0; js/modules/hub.js:2901) inside the topic rendering pipeline. When rendering curTab === \"notes\" (line 2983), var cur = Math.max(0, Math.min(pages.length - 1, o.keep ? notePage : 0)); reads notePage. Unlike the specialized study spaces which store reader position per topic in persistent state (e.g. state.ui.code.page[ref] in codetopic.js:342, jatopic.js:206, crtopic.js:154, mindtopic.js:261), hub.js only retains the active tab ID across a redraw via openTabMemo (hub.js:2590); notePage is completely unpersisted. In commit 894a407, ref was added to TASK_VIEWS (js/core/ui.js:356-357). In holdBackground(kind) (ui.js:367), if (TASK_VIEWS[navCur.viewId]) return \"task\"; suppresses background redraws ({ background: \"hard\" | \"soft\" }) while on a topic. However, this is strictly a deferral stopgap: (1) notePage remains an unpersisted local closure variable; (2) any unscoped, plain KOS.rerender() call without opts.background (such as from connections.js:70 or examviews.js) completely bypasses holdBackground and remounts the topic, resetting notePage to 0; and (3) navigating away to another view and returning also reinitializes notePage to 0, dropping the reader back to Page 1.",
+    "evidence": [
+      "js/modules/hub.js:2901",
+      "js/modules/hub.js:2983",
+      "js/modules/hub.js:2590",
+      "js/core/ui.js:356-357",
+      "js/core/ui.js:367",
+      "docs/audit/2026-11/FINDINGS.md:1999-2007"
+    ],
+    "contraryEvidence": "In the current build (commit 894a407), background redraws triggered with { background: \"hard\" } (e.g. cloud sync) or { background: \"soft\" } (e.g. habit auto-tick or Daily Review close) do not reset the notes page while the user remains on the topic, because ref is listed in TASK_VIEWS and holdBackground() defers the repaint.",
+    "preliminaryVerdict": "partially-confirmed",
+    "alsoAffects": [
+      "All curriculum subject notes (Computer Science, Mathematics, Information Technology)",
+      "Tablet study reading workflow (iPad)",
+      "Topic tab navigation and route re-entry"
+    ]
+  },
+  {
+    "id": "SY-03",
+    "method": "Code and architectural trace of js/engines/flashcards.js (queue initialization, rate(), finish(), session logging), js/modules/due.js (runSession, topic review), and js/core/ui.js (TASK_VIEWS, holdBackground).",
+    "observed": "In js/engines/flashcards.js, all active review run state — queue, graduated, counts ({again: 0, hard: 0, good: 0, easy: 0}), and total — is held exclusively inside the mount closure of KOS.flashcards.mount / session (lines 280-360). On every card rating (rate(r), lines 297-324), KOS.srs.rate(c.key, r) updates FSRS scheduling parameters and calls store.save(). However, KOS.sessions.log() (the sole mechanism that awards XP, gold, and advances daily study streaks) is called exclusively in finish() upon queue exhaustion (lines 349-354). If a rerender occurs mid-session before finish(): (1) the flashcard view remounts and rebuilds its queue from scratch, restarting the learner at card 1; (2) all ratings completed before the rerender are permanently omitted from KOS.sessions.log, earning zero XP, zero gold, and zero streak credit; (3) because KOS.srs.rate() already committed FSRS schedule updates for the rated cards, presenting them again causes the user to rate them a second time within seconds, triggering FSRS short-term recalculations and corrupting scheduling stability. In commit 894a407, views \"due\", \"ref\", \"review\", and \"personaldeck\" were added to TASK_VIEWS (js/core/ui.js:356-357), causing holdBackground() to hold { background: \"hard\" | \"soft\" } redraws while on these views. However, this only suppresses background redraws; no session state persistence (state.ui.fcSession) exists, no partial batch banking (invariant 4c) is implemented, and any plain unscoped KOS.rerender() or page refresh completely wipes in-flight session credit and restarts at card 1.",
+    "evidence": [
+      "js/engines/flashcards.js:297-324",
+      "js/engines/flashcards.js:325-356",
+      "js/core/ui.js:356-357",
+      "js/core/ui.js:367",
+      "js/modules/due.js:241-265",
+      "docs/audit/2026-11/FINDINGS.md:2009-2018"
+    ],
+    "contraryEvidence": "Background redraws passing { background: \"hard\" } or { background: \"soft\" } do not interrupt flashcard sets while the user remains on \"ref\", \"due\", \"review\", or \"personaldeck\", because all four routes are guarded by TASK_VIEWS in holdBackground().",
+    "preliminaryVerdict": "partially-confirmed",
+    "alsoAffects": [
+      "Due Today global queue",
+      "Curriculum topic Flashcards tab",
+      "Personal Deck (VN quotes and custom cards)",
+      "FSRS memory stability and scheduling intervals",
+      "Governor session logging, streaks, XP, and gold rewards"
+    ]
+  },
+  {
+    "id": "SY-04",
+    "method": "Code inspection of js/engines/quiz.js (mountMCQ, mountExam, closure state, answer textarea handling), js/modules/hub.js (topic Quiz/Exam tab mount), and js/core/ui.js (TASK_VIEWS, typing(), holdBackground).",
+    "observed": "In js/engines/quiz.js, MCQ state (var at = 0, correct = 0, answered = {}, missed = []; lines 60-61) and Exam state (var at = 0; var logged = {}; var marksBy = {}; lines 220, 234-235) reside entirely in memory closures. In mountExam (lines 278-283), the student's typed response is placed into an unmanaged <textarea> (ta = el(\"textarea\", ...)) with zero auto-save binding to state.ui or sessionStorage. When KOS.show() executes, main.innerHTML = \"\" obliterates the DOM. Remounting re-executes mountMCQ or mountExam with fresh variables, resetting the question counter to \"Question 1\", wiping all answered selections, and completely erasing typed essay answers with zero recovery mechanism. In commit 894a407, \"ref\" and \"exams\" were included in TASK_VIEWS (js/core/ui.js:356-357), and holdBackground() checks if (typing()) return \"typing\" (lines 362-368). This stops { background: \"hard\" | \"soft\" } redraws while on topic/exam pages or while an input is actively focused. However, the architectural vulnerability remains completely unaddressed: there is no draft persistence (state.ui.quizRun does not exist), any unscoped KOS.rerender() wipes progress immediately, and if the user blurs the textarea to check reference notes, the 15-second deferred retry on non-task pages remounts and destroys the uncommitted text.",
+    "evidence": [
+      "js/engines/quiz.js:60-61",
+      "js/engines/quiz.js:80-130",
+      "js/engines/quiz.js:220",
+      "js/engines/quiz.js:278-283",
+      "js/modules/hub.js:3044-3084",
+      "js/core/ui.js:356-372",
+      "docs/audit/2026-11/FINDINGS.md:2019-2027"
+    ],
+    "contraryEvidence": "Background redraws ({ background: \"hard\" | \"soft\" }) do not remount active quizzes or exam tabs while the user is on \"ref\" or \"exams\" (protected by TASK_VIEWS), nor while an input/textarea element has active keyboard focus (protected by typing()).",
+    "preliminaryVerdict": "partially-confirmed",
+    "alsoAffects": [
+      "Topic Quizzes (MCQ)",
+      "Topic Exam question tabs",
+      "Exam Room assessments",
+      "Pencil / handwritten answer pads in exam mode",
+      "All three curriculum subjects"
+    ]
+  },
+  {
+    "id": "SY-05",
+    "method": "Code and architectural audit of js/core/cloudsync.js (applyRemoteState, mergeRemoteIn, rerenderCurrent, sync event triggers) and js/core/ui.js (holdBackground, TASK_VIEWS, touch tracking).",
+    "observed": "In js/core/cloudsync.js, rerenderCurrent() (lines 723-733) is invoked after every applied remote state document (applyRemoteState:775, mergeRemoteIn:495, initial link:1279). It does not compute a diff of top-level keys between the previous and incoming documents, nor do views publish subscriptions/read-sets declaring the state slices they depend on. Instead, rerenderCurrent() unconditionally calls KOS.rerender({ background: \"hard\" }). In commit 894a407, holdBackground(\"hard\") (js/core/ui.js:366-372) was introduced to hold the redraw if navCur.viewId is in TASK_VIEWS, if typing() is true, if topDialog() is open, or if Date.now() - lastTouch < 45000 (retrying every 15s via bgTimer). While this prevents immediate clobbering while actively interacting, the systemic architectural defect remains: (1) cloud sync has no granular key diffing or selective view update; (2) on any view outside TASK_VIEWS (Home, Calendar, Tasks, Routines, Money, Goals, Vaults, Governor), as soon as 45 seconds elapse without a touch/pointer event, KOS.rerender() remounts the active view unconditionally, even if the synced change was completely irrelevant to that view (e.g. an achievement sweep or habit tick); and (3) on TASK_VIEWS, indefinitely holding the redraw leaves the DOM rendering stale data, creating severe write-skew risks (demonstrated by SY-18 where a held editor silently overwrites remote modifications).",
+    "evidence": [
+      "js/core/cloudsync.js:488-497",
+      "js/core/cloudsync.js:723-733",
+      "js/core/cloudsync.js:773-777",
+      "js/core/ui.js:356-372",
+      "js/core/ui.js:378-393",
+      "docs/audit/2026-11/FINDINGS.md:2029-2038"
+    ],
+    "contraryEvidence": "Commit 894a407 stops unconditional immediate redraws during active user interaction by passing { background: \"hard\" } from rerenderCurrent() and enforcing a 45-second touch silence window alongside TASK_VIEWS gating.",
+    "preliminaryVerdict": "partially-confirmed",
+    "alsoAffects": [
+      "Multi-device synchronization",
+      "Supabase Realtime \"changed\" event processing",
+      "All non-TASK_VIEWS (Home, Calendar, Routines, Money, Goals, Vaults, Governor)",
+      "Data staleness and silent overwrite hazard on held task views (SY-18)"
+    ]
+  },
+  {
+    "id": "SY-06",
+    "method": "Code and architectural audit of js/modules/dayreview.js (close, finish, emptyBody, maybeOpen, blocked, start) and js/core/ui.js (holdBackground, TASK_VIEWS).",
+    "observed": "In js/modules/dayreview.js, the Daily Review sheet is rendered into an overlay appended to document.body outside #main. When dismissed or completed, close() (line 92), finish() (line 103), goodnight Close (line 661), and Skip review (line 709) all invoke KOS.rerender({ background: \"soft\" }). The underlying view in #main never changed its state and never required a remount. Under commit 894a407, holdBackground(\"soft\") (ui.js:370) only holds for TASK_VIEWS, typing(), and topDialog(); because kind === \"soft\" excludes the 45s touch guard (which applies only to kind === \"hard\"), closing Daily Review while on ANY non-task view (Home, Calendar, Tasks, Routines, Money, Goals, Vaults, Governor) unconditionally and immediately remounts #main! Furthermore, the auto-open mechanism in dayreview.js:719-750 is fundamentally broken on iPad: blocked() (lines 722-729) only blocks if Focus is running, a dialog is open, in the Exam Room (#/exams/.../room), or if bootHash is non-home. But bootHash is cleared to null 1.5 seconds after launch (line 747: setTimeout(function () { maybeOpen(); bootHash = null; }, 1500)). Consequently, on iPad, whenever the user switches away and returns to the app, the visibilitychange listener (line 749: document.addEventListener(\"visibilitychange\", ...)) triggers maybeOpen(), and blocked() returns false even if the student is actively reading a lesson or study topic! The review sheet auto-opens over the lesson, breaking Invariant 145.",
+    "evidence": [
+      "js/modules/dayreview.js:85-104",
+      "js/modules/dayreview.js:661",
+      "js/modules/dayreview.js:709",
+      "js/modules/dayreview.js:722-729",
+      "js/modules/dayreview.js:745-750",
+      "js/core/ui.js:356-372",
+      "docs/audit/2026-11/FINDINGS.md:2039-2048"
+    ],
+    "contraryEvidence": "When closing the Daily Review sheet while currently navigated to a route in TASK_VIEWS (such as ref), holdBackground(\"soft\") holds the redraw, preventing the underlying lesson from remounting upon close.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Daily Review workflow and chip notifications",
+      "iPad multitasking and app switching (visibilitychange triggers)",
+      "All non-TASK_VIEWS (Home, Calendar, Tasks, Routines, Money, Goals, Governor)",
+      "Invariant 145 (Daily Review modal containment and auto-open boundaries)"
+    ]
+  },
+  {
+    "id": "SY-08",
+    "method": "Code and DOM teardown analysis of js/core/ui.js (KOS.rerender, KOS.show, holdBackground, typing(), scrollers()), js/core/a11y.js, and virtual keyboard behavior on mobile/iPadOS.",
+    "observed": "In js/core/ui.js, KOS.rerender() delegates to KOS.show(navCur.viewId, navCur.arg, { _nav: true }). In KOS.show (lines 1572-1574), main.innerHTML = \"\" clears the entire DOM tree inside #main. Neither KOS.rerender nor KOS.show records an activeElement focus signature, caret position (selectionStart/selectionEnd), or active input metadata prior to teardown. Consequently, document.activeElement collapses to document.body. On iOS and iPadOS, destroying the focused input node immediately dismisses the on-screen virtual keyboard, cancels active IME composition (e.g. Japanese kanji conversion), and aborts typing mid-sentence. In commit 894a407, holdBackground(kind) (ui.js:362-368) introduced typing() checking document.activeElement tag and isContentEditable, deferring { background: \"hard\" | \"soft\" } redraws while typing is true. While this holds redraws while a field is actively focused, the architectural defect remains: (1) any plain, unscoped KOS.rerender() call without opts.background completely bypasses holdBackground and destroys active focus immediately; (2) no focus restoration mechanism exists post-render; and (3) if the user temporarily blurs the field (e.g. tapping a formatting toolbar, toggling a drawer, or pausing), typing() becomes false and the pending 15-second timer fires, remounting the view and wiping any uncommitted input text.",
+    "evidence": [
+      "js/core/ui.js:358-372",
+      "js/core/ui.js:378-409",
+      "js/core/ui.js:1572-1574",
+      "js/core/a11y.js:97",
+      "docs/audit/2026-11/FINDINGS.md:2060-2069"
+    ],
+    "contraryEvidence": "For background redraws carrying { background: \"hard\" } or { background: \"soft\" }, typing() actively detects focus in <input>, <textarea>, <select>, and contenteditable elements and returns \"typing\", deferring the redraw for 15 seconds.",
+    "preliminaryVerdict": "partially-confirmed",
+    "alsoAffects": [
+      "On-screen virtual keyboard on iPad and iPhone",
+      "Quick notes, search inputs, Money transaction amounts, Goal edit fields",
+      "Japanese IME composition and text conversion",
+      "Unsaved inline form drafts across all views"
+    ]
+  },
+  {
+    "id": "SY-19",
+    "method": "Code inspection of js/modules/medview.js (resultsArea, BATCH = 60, IntersectionObserver sentinel), js/core/ui.js (TASK_VIEWS, scrollers(), restore()), and review of QA evaluation data (audit-evidence/2026-11/qa/r5-ipad.json).",
+    "observed": "In js/modules/medview.js:23, BATCH = 60 defines the lazy rendering chunk size. In resultsArea (lines 435-520), initial results mount only batch 1 (60 cards/rows); subsequent batches are appended dynamically via an IntersectionObserver sentinel as the user scrolls down. In js/core/ui.js:356-357, Collection vault views (anime, books, vn, game, mangaka, seasonal, wishlist, shrine) are completely absent from TASK_VIEWS. When a background redraw occurs (e.g. a soft redraw from habit ticks or art loading, or a hard cloud pull after 45s of touch silence), holdBackground() permits KOS.rerender() to execute. In ui.js:402-407, scrollers() measures tops = sc.map(e => e.scrollTop) before calling KOS.show(), and runs restore() synchronously and on requestAnimationFrame(restore). However, upon remount, the vault view only renders batch 1 (60 entries). For a user who had scrolled down hundreds of entries (e.g. scrollTop 3414px in Anime, 29226px in Books), the rendered DOM height is only ~800-1200px. When restore() attempts e.scrollTop = tops[i], the browser clamps scrollTop to the maximum scrollable height (0 or near-zero). Because the scroll position is clamped to the top, the IntersectionObserver sentinel is never intersected, no further batches load, and the reader is permanently thrown back to the top of the collection.",
+    "evidence": [
+      "js/modules/medview.js:23",
+      "js/modules/medview.js:435-520",
+      "js/core/ui.js:356-357",
+      "js/core/ui.js:375-377",
+      "js/core/ui.js:402-408",
+      "audit-evidence/2026-11/qa/r5-ipad.json",
+      "docs/audit/2026-11/FINDINGS.md:2070-2078"
+    ],
+    "contraryEvidence": "None. Vault views are omitted from TASK_VIEWS, and the scrollers() restore mechanism lacks any capability to restore or re-hydrate lazy batches beyond the initial 60 entries.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "All Collection vault views (anime, books, vn, game, mangaka, wishlist, shrine)",
+      "Media browsing and filtering on Mac, iPad, and iPhone",
+      "Large media libraries (e.g. 1,880 anime titles, 2,000 books)"
+    ]
+  },
+  {
+    "id": "SY-20",
+    "method": "Code and state tracing of js/modules/governor-ui.js (KOS.views.governor, editSeat(), draft lifecycle), js/core/ui.js (TASK_VIEWS, holdBackground), and QA test scripts (r7.js).",
+    "observed": "In js/modules/governor-ui.js:196, opening openTab === \"edit\" invokes editSeat(main). Inside editSeat (lines 658-687), the active configuration draft is stored strictly as a local variable: var draft = { showcase: A ? A.showcase().slice() : [], seatBg: g.seatBg || null, seatFocus: g.seatFocus || \"centre\", titleId: A && A.title() ? A.title().id : null, seal: g.seal || \"kurenai\" };. Nothing is written to state.governor or state.ui until the user explicitly clicks the Save button (line 663). In js/core/ui.js:356-357, \"governor\" is NOT included in TASK_VIEWS. Furthermore, selecting showcase medals, choosing titles, and clicking background tiles do not focus text inputs, so typing() evaluates to false. Consequently: (1) any soft background redraw ({ background: \"soft\" }) executes immediately without delay; and (2) any cloud pull ({ background: \"hard\" }) executes after 45 seconds of browsing without a touch event. When KOS.rerender() executes, KOS.show(\"governor\", \"edit\") remounts the view, re-running editSeat(main) from scratch. draft is re-instantiated from saved state, the Save button ceases to be lit, the active tab resets from whichever tab the user was editing back to \"Showcase\", and all unsaved draft customizations are silently and permanently wiped without a confirmation prompt.",
+    "evidence": [
+      "js/modules/governor-ui.js:196",
+      "js/modules/governor-ui.js:658-687",
+      "js/core/ui.js:356-357",
+      "js/core/ui.js:366-372",
+      "docs/audit/2026-11/FINDINGS.md:2079-2087"
+    ],
+    "contraryEvidence": "None. There is no dirty-draft leave confirmation, no persistence of draft state to state.ui or sessionStorage, and governor is absent from TASK_VIEWS.",
+    "preliminaryVerdict": "confirmed",
+    "alsoAffects": [
+      "Governor Seat customization (#/governor/edit)",
+      "Showcase medal arrangement",
+      "User title and ring seal selection",
+      "Seat background and focus positioning",
+      "All platforms (Mac, iPad, iPhone)"
+    ]
+  }
+]
