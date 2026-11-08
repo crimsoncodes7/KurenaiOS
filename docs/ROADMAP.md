@@ -7,7 +7,7 @@ shipped (`8ea878d`).
 Sources:
 - the Graphite review checklist (Tier C and the items set aside);
 - `docs/ui-rebuild/PLAN.md` (M13, M14);
-- `PROGRESS.md`, `CATEGORY6_PLAN.md` §10;
+- `PROGRESS.md`, `docs/archive/CATEGORY6_PLAN.md` §10;
 - the assistant-assets README;
 - earlier sessions' notes.
 

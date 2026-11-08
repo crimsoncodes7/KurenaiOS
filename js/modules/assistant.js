@@ -1696,7 +1696,7 @@
   /* ================= contextual actions =================
      Small, high-value, and always through the ONE submission path with
      live context in the prompt. Views receiving actions (documented in
-     CATEGORY6_PLAN.md): the topic (ref) page and the vault entry editor. */
+     docs/archive/CATEGORY6_PLAN.md): the topic (ref) page and the vault entry editor. */
   function ask(prompt, category) {
     openDrawer();
     submit(prompt, { category: category || "complex" });

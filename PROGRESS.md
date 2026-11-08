@@ -985,5 +985,5 @@ code change resolves:
 | Oct 2026 | Reports, Code (core path and Tracks T1–T2), Money and Goals, FSRS, the Exams hub, the closed-app runner, the iPad layout, Japanese (platform, Stage 0, units F1–F2). |
 
 Historical implementation detail remains recoverable from Git history and the
-Category 7 audit (`KURENAIOS_FULL_UI_UX_AUDIT.md`); it is intentionally not
+Category 7 audit (`docs/archive/KURENAIOS_FULL_UI_UX_AUDIT.md`); it is intentionally not
 duplicated here.

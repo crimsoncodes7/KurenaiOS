@@ -53,3 +53,8 @@ docs/memory/*.bak
 
 # downloaded source data (KanjiVG SVGs for tools/gen_ja_strokes.mjs)
 tools/.cache/
+
+# Local, personal or one-off files (audit AP-07 / plan B12, 8 Nov 2026); history keeps the earlier copies
+.claude/
+Phase 3 Context/
+/fix_*.py

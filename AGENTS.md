@@ -195,7 +195,7 @@ first) and how to hand work over. In short:
   people. Update it when a feature ships or changes what a user sees.
 - `docs/ui-rebuild/`: the Graphite rebuild — plan and delivery record
   (`PLAN.md`), view contracts, the review script (`REVIEW-PLAN.md`).
-- `KURENAIOS_FULL_UI_UX_AUDIT.md`, `CATEGORY6_*.md`, `CATEGORY7_PHASE_G_FINDINGS.md`:
+- `docs/archive/KURENAIOS_FULL_UI_UX_AUDIT.md`, `docs/archive/CATEGORY6_*.md`, `docs/archive/CATEGORY7_PHASE_G_FINDINGS.md`:
   historical evidence for earlier releases; not current guidance.
 
 Update facts in the document that owns them. Do not append another chronological
