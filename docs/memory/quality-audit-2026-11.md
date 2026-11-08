@@ -12,5 +12,7 @@ On 1 Nov 2026 the user started a comprehensive quality/reliability/maintainabili
 
 As of 7 Nov (batch 6): 663 open findings (P0 4, P1 92), 17 of 21 areas inventoried; left for Claude: MG, CR, CM, CC inventories, UR-3/5–19/21/23, live checks, then the plan. Gemini's work was reviewed 8 Nov (gemini/CLAUDE_REVIEW.md): B accepted as corroboration, GEM-001..006 rejected. The user will NEVER use Gemini again for this (Argon quota ran out, 3.8 Flash too weak) — Claude re-checks the B2 delta itself. A Workflow can only be stopped whole.
 
+8 Nov: all 21 areas inventoried, UR verified, live checks done, DI-27 hotfixed (kos-malfix-1); docs/audit/2026-11/PLAN.md written (PROPOSED, W0–W10, 14 decisions) — awaiting the user's approval.
+
 **Why:** the user wants KurenaiOS to be a production-quality personal OS and asked for investigation first.
 **How to apply:** never start remediation before explicit approval; run auditors in batches of ≤3 that save findings as they go (19 at once burned the usage window). Device sizes: Mac 1470×832, iPad 820×1180/1180×820, iPhone 402×874. Related: [[no-dead-space-layout]], [[act-without-asking]], [[two-account-workflow]], [[money-goals]].
