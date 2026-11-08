@@ -13,8 +13,8 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | SC | Gold Shop and every cosmetic, themes | complete | 0 | 10 | 23 | 8 | 41 |
 | ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 1 | 7 | 15 | 20 | 43 |
 | SY | Background redraws / cloud sync disrupting work | complete | 1 | 8 | 11 | 3 | 23 |
-| CM | A-Level Maths content quality | complete | 0 | 2 | 6 | 5 | 13 |
-| CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 4 | 5 | 13 |
+| CM | A-Level Maths content quality | complete | 0 | 3 | 12 | 13 | 28 |
+| CC | A-Level CS and OCR IT content quality | complete | 0 | 4 | 12 | 12 | 28 |
 | CO | Code study space | complete | 0 | 4 | 13 | 21 | 38 |
 | JM | Japanese study space (JM-01…05 predate the split and include two Mind findings) | complete | 1 | 3 | 21 | 14 | 39 |
 | MI | Mind study space | complete | 0 | 2 | 9 | 8 | 19 |
@@ -28,7 +28,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 14 | 8 | 26 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 4 | 94 | 313 | 287 | 698 |
+| | **All** | | 4 | 95 | 327 | 302 | 728 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -80,6 +80,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **SY-20** [P1] Edit your seat loses every unsaved change on a background redraw (the draft lives in the render closure)
 - **CM-01** [P1] Specification tab shows garbled PDF-extraction text on most Maths leaves (M7.3 included)
 - **CM-02** [P1] Quiz answers are almost always A or B, and options are never shuffled
+- **CM-14** [P1] Exam questions self-mark ignores the M1/A1 codes on Maths worked-derived items, and the Answer line counts as a mark
 - **CC-01** [P1] IT spec text for F206.6.1, F204.6.5, F202.5.1, F201.5.2, F200.5.3 (and F200.2.x/F202.2.x) holds garbled PDF dumps of the assessment criteria
 - **CC-02** [P1] IT spec has a duplicate leaf: F206.6.1 'Ways to reflect' and 'Overview of the assessment' share a ref, so 'Ways to reflect' cannot be opened
 - **CC-03** [P1] Quiz answers are guessable: the correct option is A or B in 94% of CS questions (D only 12 of 1,347) and options are never shuffled
@@ -2310,161 +2311,327 @@ NOT checked: Write (pen) answer mode, Mark with Kurenai, Ask Kurenai buttons, Wo
 
 ## CM — A-Level Maths content quality (complete)
 
-**Auditor's summary.** All 89 Maths leaves (P1.1–P10.5, S1.1–S5.3, M6.1–M9.1) have notes, flashcards, a quiz and exam items. No leaf is missing. All 38,310 $…$ maths segments render in KaTeX 0.16.11 without an error. The shipped M7.3 is not bare: it has 8 note pages, about 1,770 words, 15 worked examples, 4 figures, 21 flashcards, 13 quiz items and 15 exam items, and all of it renders on the Mac and the iPhone. Two things can still make it look bare. First, its Specification tab is mangled PDF-extraction text. Second, if the user forked M7.3 before the Mechanics rewrite (4d791ca), that fork still hides the new notes, and no notice says so (edits.js does not check whether a fork is out of date). The most important root causes:
-(1) The generated spec spine js/data/maths.js holds garbled text from PDF extraction. At least 36 of the 89 leaves have broken fragments, and 25 still contain "need to learn:".
-(2) The quiz never shuffles its options, and the authored answers sit at A or B 95% of the time. Of 498 base items, 380 have the answer at A; of 560 bank items, 381 have it at B.
-(3) The bank-*.js files were added on top of the base files without a duplicate check. That gives 17 exact repeats and about 45 groups of cards with the same answer inside one leaf.
-(4) The gen_data.py SHORT_S table never reached the stats/mech titles, so every S and M leaf is titled with an 80-character spec sentence cut off with "…".
-(5) Depth is very uneven. The thinnest base notes are 8.4 (~200 words), 8.1 (~260) and 6.1 (~330), against 8,667 words for 4.1. The core skills leaves 7.2, 8.2, 6.3 and 8.6 are each a few hundred words.
-(6) The worked card's "Write it out" chip is absolutely positioned and overlaps the card title on every device, and it is only 23px tall.
+**Auditor's summary.** All 89 Maths leaves have notes, flashcards, a quiz and exam items, and M7.3 is not bare (7 pages, 1,771 words, 15 worked examples, 21 cards); nothing in the Maths content, engines or renderer has changed since the first audit, so all 13 earlier findings hold (the Write-it-out chip now collides with the source line rather than the title). The behaviour inventory adds the engines' judgements: the quiz's authored answer position lets 'A every time' score 69% on M7.3, the 'Retry the N missed' pass overwrites the topic's quiz score with 100% and logs a phantom 4/4 session, and the RAG starts at 100 and subtracts, so one mediocre quiz shows 'Data says Green'. Derived exam items make the Answer line a tickable mark and ignore M1/A1 codes (P1), and 24 worked examples' codes do not add up to their marks. Presentation gaps found by sweeping all 433 note pages: long \displaystyle step lines push the topic page sideways on iPhone, plot labs draw axis numbers at 5.7px on iPhone, four titles show raw carets, and a third of quiz explanations are bare labels. Root causes: generated spec text and titles never cleaned (gen_data.py), bank files added without duplicate/quality checks, worked examples reused as exam items without a mark-code model, and stats/RAG code that assumes one whole-quiz attempt.
 
-**Coverage.** Content: I loaded every Maths content file and both banks in Node, in index.html's load order (script audit-evidence/2026-11/qa/cm/load.js). I measured every leaf: pages, blocks, words, worked and exam-tagged worked examples, figures, callouts, long paragraphs, flashcards, quiz items, exam items (base, bank and derived), and the position of the quiz answer (cm/metrics.js → cm/metrics.json).
-Near-duplicate detection used two methods: token Jaccard (cm/dups.js) and canonical-LaTeX character 3-grams plus same-answer groups (cm/dups2.js → cm/dups2.json). I checked quiz structure and formatting (odd $ or **, LaTeX outside $, long answers). All maths segments were validated in KaTeX in the browser. I dumped and read every leaf's spec spine (cm/spine.txt).
-Correctness: I hand-checked about 150 flashcards and quiz items in M7.3, 6.1, 8.1, M8.3, 5.2, S4.3, 9.3, S2.3, M8.6, 4.3 and 10.4, recomputing the numbers. I found one wrong answer.
-Visual: M7.3 Notes, Spec and the past-paper page on Mac (Graphite); M7.3 Notes pages 1 and 6 on iPhone; the M7.3 quiz on iPad portrait (Dawn); 8.4 Notes full page on Mac; 5.6 Spec on Mac; M7.2 Notes figure on Mac in Dawn. I measured the Write-it-out geometry at mac, ipad, ipadl and iphone.
-Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items and 1,500+ flashcards; there was no automated maths checker. I did not read exam-item mark schemes beyond the derivation code. I did not test a shop theme or the seeded account; Maths content does not depend on account data apart from forks. I could not see the user's own state.edits, so the fork theory for "M7.3 is bare" is inferred from code and git history, not observed.
+**Coverage.** Build kos-redraw-1 (HEAD f84962c); no commit to any Maths content, spine, engine, renderer, figures, rag, edits or CSS file since the first audit (56b1a8c), so content numbers were re-measured with the node scripts in audit-evidence/2026-11/qa/cm/ and behaviour re-run in the browser (slot 7, empty account, then seeded). Inventory: findings/content-maths.inventory.md.
+MATRIX (item → presentation → behaviour → result):
+- 89 leaves, notes/flashcards/quiz/exam present → metrics.js per leaf → OK (none missing); depth → thin-notes finding; M7.3 not bare (7 pages, 1,771 words, 15 worked, 4 figs, 21 cards, 13 quiz, 15 exam).
+- Spine titles (89) → mac/ipadl screenshots → titles finding (21 '…') + caret-titles finding (4).
+- Specification tab (content, guidance, intel 89/89, pitfalls) → mac shot M7.3 → garbled spec text finding (holds).
+- Note block types (paragraph, h, page, table, ul, ol, kv, p, steps) → 433 pages swept at 402 and 820 → OK except worked-step overflow on iPhone (new finding); past-paper walls (holds).
+- Callouts (8 kinds + 'key') → beh1.js → 'key' finding (carried from earlier top-up run).
+- Figures 184 (graph + free) → all rendered offline with figures.js, every fn/param/shade expression compiled and evaluated → OK, verified (0 errors); visual spot-check in a shop theme (azure-butterfly, iPad landscape) → OK.
+- Worked cards (674; tags exam/variation/example/check) → mark codes vs stated marks (mk2.js) → 24 mismatches + combined-src finding (earlier top-up run); Write it out chip → measured mac/ipad/iphone → overlap finding (changed).
+- examFromWorked derived exam items (592 parts) → self-mark tally (quiz.js partBlock) → P1 self-mark finding (earlier top-up run, re-read quiz.js:284-296).
+- Exam questions tab: Reveal, tick, Awarded, Log self-mark → iPhone fixture on M7.3 → logs one 'exam' session {1/3} → OK; checkbox 18px inside a 43px label (row is the target) → OK.
+- Bank exam items with parts/ctx (234) → parts marks and ms present → OK, verified (0 issues).
+- Quiz items 1,058 → options duplicated/ans out of range → OK (0); 2-option items (holds); answer position (holds, all-A = 69% on M7.3); 'why' quality → new P3; stem depending on previous item (earlier run).
+- Quiz engine: options 1-4, keys, Next, Shuffle, Retry, See score → M7.3 run (13 answers) → OK; 'Retry the N missed' → new finding (lastPct overwritten, 'best 9/4'); Quiz best % → study-core's existing finding (not duplicated).
+- RAG from a quiz → fixture (one 69% quiz, nothing else) → 'Data says Green' → new finding.
+- Flashcards 1,542 → schedule keys unique, count matches content in every leaf (0 dup, 0 mismatch); flip + Good on M7.3 → card 0 scheduled 2026-11-10, s 2.31 → OK, verified; duplicates and wrong answer (hold).
+- Curriculum fork (KOS.edits) → fixture fork of M7.3 notes → no staleness notice (holds).
+- Worked generators (36, 43 leaves) → 400-run sweeps (earlier top-up run) → Newton–Raphson, normal, hypothesis/projectile findings; UI buttons not re-measured on iPhone this run.
+- Simulations (19 leaves) → label sizes measured at 402/820/1470 → new iPhone 5.7px finding; sliders 150x16 (touch) left to a11y-hci's shared-primitives finding.
+- Themes: Graphite throughout, Dawn from the first audit (m72), azure-butterfly spot-check (OK).
+- Seeded account: seeded (600 sessions, 61 quiz records, none on Maths beyond the fixture); the seeded Maths subject page did not finish booting within the harness timeout (dev server with no-store loads ~460 scripts slowly after seeding), so dense-state visuals rely on the first audit's m73-seed-ipad.png and p84-seed-iphone.png.
+NOT checked this run (why): KaTeX re-render of all 38,310 segments (no content or KaTeX change since the first audit's clean pass); iPad landscape notes overflow sweep (portrait and phone done); handwriting/Working/Files tabs (exams-files-ink area); the editor (study-core); every quiz/flashcard read by a human for topic fit beyond the duplicate and stem-dependency sweeps (sample reading only).
+
 
 ### CM-01 · P1 · content — Specification tab shows garbled PDF-extraction text on most Maths leaves (M7.3 included)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** The Spec tab is drawn from js/data/maths.js content/info lines, which are raw, broken PDF extraction. Examples: M7.3 guidance reads "v = u + at r = ut +1at2 / e.g. , with vectors / 2 given in i - j or column vector form". 5.6 reads "Understand and use double a n g le f / rm u l a e ; u s e / f s in ( A ± B ), fo r m u l a e fo r / ± ± cos (A B)". 2.1 reads "× = , ÷ = - , = m n n am / The equivalence ofa and should be known." 2.10 starts mid-sentence: "into partial fractions". 25 leaves still contain the extraction artefact "need to learn:" or "students need to learn:". A heuristic found fragment lines in 36 of the 89 leaves: 1.1 2.1 2.2 2.3 2.4 2.5 2.7 2.9 3.3 4.1 4.2 4.3 5.1 5.2 5.3 5.5 5.6 5.7 6.2 6.3 6.4 7.1 7.2 7.4 8.2 8.3 8.5 8.6 9.4 10.4 S2.3 S4.1 S5.3 M7.4 M8.3 M8.6, and reading the dump shows more. Exponents, fractions, sums and integrals are lost throughout. This is very likely part of why M7.3 looks bare.
-- **Evidence:** shots/content-maths/m73-spec-mac.png; shots/content-maths/p5-6-spec-mac.png; cm/spine.txt (every leaf's spec text); tools/gen_data.py:240-255 (maths_group copies clean(x) of the extracted lines)
+- **Evidence:** shots/content-maths/m73-spec-mac.png; shots/content-maths/p5-6-spec-mac.png; cm/spine.txt (every leaf's spec text); tools/gen_data.py:240-255 (maths_group copies clean(x) of the extracted lines) | RECHECK 8 Nov (kos-redraw-1): Re-shot on kos-redraw-1: shots/content-maths/top-m73-spec-mac.png (Guidance: 'r = ut +1at2', 'e.g. , with vectors', '2 given in i - j'); js/data/maths.js still has 25 'need to learn:'; no commit to tools/gen_data.py or js/data/maths.js since 56b1a8c.
 - **Root cause:** The spec spine is generated from a PDF text extraction (/home/claude/extract) that splits equations and kerned headings, and no override or cleanup pass exists for Maths.
 - **Proposed fix:** Hand-author the 89 Maths spec entries from the Edexcel 9MA0 PDF as typeset blocks (LaTeX in $…$). Either fix the extractor or add a checked-in override table that gen_data.py applies (as SHORT does), and regenerate. Drop the "need to learn:" headers. Add a smoke test that refuses fragment lines (≤4 characters, runs of single letters, "need to learn").
 - **Flags:** effort L
 
 ### CM-02 · P1 · content — Quiz answers are almost always A or B, and options are never shuffled
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Of 1,058 Maths quiz items, the correct option is A in 531 and B in 481. Only 44 are C and 2 are D. Base files: 380 A, 100 B, 17 C, 1 D. Bank files: 151 A, 381 B, 27 C, 1 D. KOS.quiz.mountMCQ renders opts in authored order, and its Shuffle button only reorders the questions. A learner soon learns to pick A on a base item or B on a bank item, so the quiz score stops measuring understanding. Separately, the correct option is uniquely the longest in 317 items (30%).
-- **Evidence:** cm/metrics.json ansDist per leaf; js/engines/quiz.js:66 (Shuffle shuffles order only), :88-96 (item.opts rendered in order, answer compared to item.ans at :113); e.g. js/data/content/maths-mech-m7.js:305-306 (every item ans: 0); shots/content-maths/m73-quiz-ipad.png (Q1 answer A)
+- **Evidence:** cm/metrics.json ansDist per leaf; js/engines/quiz.js:66 (Shuffle shuffles order only), :88-96 (item.opts rendered in order, answer compared to item.ans at :113); e.g. js/data/content/maths-mech-m7.js:305-306 (every item ans: 0); shots/content-maths/m73-quiz-ipad.png (Q1 answer A) | RECHECK 8 Nov (kos-redraw-1): Re-measured: base answers A 380/498, bank answers B 381/560 (D appears 1+1 times); js/engines/quiz.js:66 Shuffle reorders questions only, :88-96 options in authored order. New repro: answering A to every question of M7.3 scores 9/13 = 69% (cm/qz-retry.js), which the RAG then reads as Green.
 - **Root cause:** Authors put the right answer first (bank authors second), and the engine trusts the authored order.
 - **Proposed fix:** In mountMCQ, shuffle a per-question option permutation at mount and on Retry, seeded per attempt, and map clicks back to the original index so the stats and the why text stay valid. Optionally also rebalance the authored ans positions so a fixed order is fair too.
 - **Flags:** effort S
 
+### CM-14 · P1 · bug — Exam questions self-mark ignores the M1/A1 codes on Maths worked-derived items, and the Answer line counts as a mark
+
+- **Devices:** all
+- **Detail / repro:** 592 of the 1,244 Maths exam parts (48%) are derived from exam-style worked examples by KOS.content.examFromWorked. Each mark-scheme point is one STEP, ending in its codes, for example '[M1 A1]', and the worked answer is added as an extra point, '**Answer:** …'. The self-mark tally in js/engines/quiz.js knows nothing about those codes. When the number of points equals the marks (106 parts), each tick counts as 1 mark. When there are more points (112 parts), it caps at the total. When there are fewer (374 parts), it scales the marks in proportion. Repro on maths 1.1 Q1 (3 marks; points '[M1 A1]', '[A1]', 'Answer'): ticking only the Answer line awards 1/3, and ticking only the [M1 A1] step also awards 1/3, when it is worth 2. Each row prints '1' beside it. The needsM rule (an A needs its M) never applies, because the lines start with the working, not with 'A1'. So the logged exam session (KOS.sessions.log type exam, marks/max) records partial marks that do not match the mark scheme it shows. The 652 bank parts are written one point per mark and are correct.
+- **Evidence:** shots/content-maths/selfmark-answerline-mac.png (Answer ticked → Awarded 1/3; step 1 shows [M1 A1] but '1'); eval on #/ref/maths/1.1 Exam questions: onlyAnswerTicked '1', onlyStep1Ticked '1'; counts via eval over KOS_CONTENT: derived parts 592 (perMark 106, more 112, fewer 374), bank 652 all perMark; js/core/content.js:547-555 (ms = one line per step + '[mk]', Answer pushed as a point); js/engines/quiz.js:264-268 (needsM tests /^\s*A\d/), :286-296 (perMark / proportional fromTicks)
+- **Root cause:** examFromWorked emits one scheme point per step (several marks) plus the answer, but the tally assumes one point = one mark or scales proportionally
+- **Proposed fix:** In examFromWorked, expand each step into one point per mark code (e.g. '[M1] …', '[A1] …' with the step text on the first), so the scheme is one point per mark like the banks; do not push the Answer as a point (show it as a separate 'Answer' line under the scheme). Alternatively give points a weight parsed from their [codes] and make fromTicks sum weights and needsM read the code tokens. Add a smoke check: Σ point weights = marks for every exam part.
+- **Flags:** effort M
+
 ### CM-03 · P2 · ui — "Write it out" chip overlaps worked-example titles on every device and is only 23px tall
 
+- **Re-checked on kos-redraw-1:** changed: the chip now collides with the source/marks line (k-n-worked-src) rather than the title; 41 of 75 Write-it-out chips in 2.3, 4.1, M7.3, S4.2, 8.3 overlap it on the Mac (cm/wo2.js); still 81x23px on every device
 - **Devices:** mac, ipad, ipadl, iphone
 - **Detail / repro:** On worked cards with more than one step, the "Write it out" pill is position:absolute at the top-right, and the .k-n-worked-head row reserves no room for it. On M7.3's notes it lies over the title or src text on 4 of 15 cards on the Mac (1470), 2 of 15 on iPad portrait, 3 of 15 on iPad landscape and 9 of 15 on iPhone (402). Example on the Mac: "Write it out" is printed over "AS Specimen · P2 Q1(a)(b) · 5 marks". On iPhone it covers "Find the initial velocity". The pill measures 81×23 px with min-block-size:0, below the 44px touch minimum (invariant 69). The same overlap affects every subject's worked cards, because content.js is shared.
-- **Evidence:** shots/content-maths/writeout-overlap-mac.png; shots/content-maths/m73-notes-p6-iphone.png; measured: btn rect [233,618,81,23] while .k-n-worked-head starts at y=626, width 334 (iphone); css/views/ink.css:300; js/core/content.js:373; css/views/study.css:346
+- **Evidence:** shots/content-maths/writeout-overlap-mac.png; shots/content-maths/m73-notes-p6-iphone.png; measured: btn rect [233,618,81,23] while .k-n-worked-head starts at y=626, width 334 (iphone); css/views/ink.css:300; js/core/content.js:373; css/views/study.css:346 | RECHECK 8 Nov (kos-redraw-1): shots/content-maths/top-writeout-8-3-mac.png ('Write it out' over 'P1 Q5 · 5 marks'); cm/wo2.js output; css/views/ink.css:300 (position:absolute; inset-inline-end calc(var(--sp-8)*9); min-block-size:0).
 - **Root cause:** An absolutely positioned control added onto a flex header that wraps freely.
 - **Proposed fix:** Put the chip in the head's flex flow (margin-inline-start:auto, before Copy) instead of absolute positioning, or give the head padding-inline-end equal to the chip's and Copy's widths. Raise the hit area to 44px for coarse pointers.
 - **Flags:** effort S
 
 ### CM-04 · P2 · arch — A curriculum fork silently hides later curriculum upgrades (plausible cause of "M7.3 is basically bare")
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** KOS.content.get and srs read state.edits first (invariant 86). A fork copies the shipped material at the moment of the first edit and is never compared with the curriculum again. M7.3 was an outline entry until commit 4d791ca ("load M6–M7 at depth, drop their outline entries"), and a9f64b5 rewrote M7.2 and M7.3. A Notes fork made before then (or one carried over from S7.3 by the ref rename, router.js:117 renamedRef) keeps showing the old, thin outline notes. Nothing tells the user that a newer, much deeper version exists. The only sign is the Edit button's data-state forked (hub.js:2828). The shipped M7.3 renders in full (8 pages), so a bare M7.3 on the user's device most likely comes from such a fork.
-- **Evidence:** js/core/edits.js:1-60 (no base hash or staleness check: grep for stale/baseHash finds nothing); git log -- js/data/content/maths-mech-m7.js (a9f64b5, 4d791ca); shots/content-maths/m73-mac.png (shipped content present)
+- **Evidence:** js/core/edits.js:1-60 (no base hash or staleness check: grep for stale/baseHash finds nothing); git log -- js/data/content/maths-mech-m7.js (a9f64b5, 4d791ca); shots/content-maths/m73-mac.png (shipped content present) | RECHECK 8 Nov (kos-redraw-1): js/core/edits.js:199-207 set() stores only the kind and updatedAt — no shipped hash or version; fixture: KOS.edits.set('maths','M7.3','notes', first 3 blocks) then reopen: no notice on the Notes tab or inspector (eval, then reset); shots/content-maths/top-m73-forked-mac.png taken after the reset shows the shipped 8 pages.
 - **Root cause:** The fork model has no notion of the base version it was taken from.
 - **Proposed fix:** Record a hash of the shipped kind on each fork (fork.base). When the shipped hash differs, show a banner on the tab: "The curriculum for this topic was updated after you edited it: View new · Keep mine · Merge (append your rows)". Check the user's real state for state.edits.topics['maths:M7.3'] (or 'maths:S7.3').
 - **Flags:** effort M, needs a design prompt
 
 ### CM-05 · P2 · content — Bank files duplicate base flashcards and quiz items in the same leaf (17 exact repeats, about 45 same-answer groups)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** bank-maths-*.js were added without a duplicate check against the base items. Exact repeats in the same quiz include: 2.1 "$8^{2/3}$ =" (qz0 and qz8); 4.1 "$\binom92$" (qz0 and qz18), "Coefficient of $x$ in $(2+x)^5$" (qz8 and qz22), "Coefficient of $x^2$ in $(1+x)(1+4x+6x^2)$" (qz10 and qz24), "$(1+3x)^{-1}$ valid for" (qz4 and qz20); 5.2 "$\sin3\theta\approx$" and "$1-\cos2\theta\approx$" both twice; 5.3 "$\tan\frac{3\pi}4$" twice; 5.6 "$\cos(A-B)$" twice; 6.3 "$\log_{10}0.001$" twice; 2.6 "$(x-2)$ is a factor means" twice; 2.8 "inverse only if one-to-one" twice; 7.2 "$d/dx\sqrt x$" twice. Flashcard and quiz pairs on the same fact: M7.3 "Which equation has no t?" (fc1 and qz10, and qz1 again); M7.5 time of flight and greatest height; 8.5 "∫ln x"; 7.5 "d/dx(3y²)"; 3.3 parametric dy/dx; 10.3 midpoint; 8.1 states the FTC twice (fc0 and fc5b) and uses the same f′ setup twice (fc4 and fc6b); 6.1 has "$e^{2x}=5$" as fc10b and qz3, "features of $a^x$" as fc0 and fc7b, and the asymptotes of $e^x+3$ and $e^x+2$ as qz0 and qz6b; 10.4 has "|AC| = 4 with one unknown" three times. Cross-leaf: S4.2 and S4.3 repeat continuity-correction cards, and S4.1 and S5.2 repeat "$P(X\ge k)$ in cumulative form". Full list: cm/dups2.json (66 within-leaf pairs, 14 cross-leaf pairs, 45 same-answer groups).
-- **Evidence:** audit-evidence/2026-11/qa/cm/dups2.json; e.g. js/data/content/maths-pure-p8.js:505 vs bank-maths-pure-c.js:457 ("Before integrating x²/(x−1) you should")
+- **Evidence:** /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/cm/dups2.json; e.g. js/data/content/maths-pure-p8.js:505 vs bank-maths-pure-c.js:457 ("Before integrating x²/(x−1) you should") | RECHECK 8 Nov (kos-redraw-1): Re-run cm/dups2.js: 66 near-duplicate pairs inside a leaf, 17 exact repeats (e.g. 2.1 '$8^{2/3}$ =' qz0 and qz8b; 4.1 four exact repeats; M7.3 fc1 = qz10b), 27 same-answer pairs, 14 near-duplicates across leaves; no content commit since 56b1a8c.
 - **Root cause:** KOS.content.extend concatenates bank arrays blindly, and no test checks for duplicates.
 - **Proposed fix:** Delete or replace the bank items flagged in dups2.json with new item shapes. Add a smoke test that canonicalises q and the answer (\dfrac→\frac, strip spaces) and fails on an exact or same-answer duplicate inside one leaf. Removing flashcards must follow invariant 87 (carry the original index as a third element).
 - **Flags:** effort M
 
 ### CM-06 · P2 · content — Thin notes on core Pure and Applied leaves (depth very uneven: 200 to 8,700 words)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** Base notes (before the bank's past-paper page), as approximate words / pages / worked examples: 8.4 Integration as a limit of a sum 204/1/2; 8.1 Fundamental Theorem 258/1/2; 6.1 Exponential functions 331/2/2; 6.2 Gradient of e^kx 350/1/2 (no page breaks at all); 6.5 Solving a^x=b 401/2/4; 8.6 Integration with partial fractions 414/2/3; 4.3 Sigma 452/2/3; 4.6 Series in modelling 479/2/3 (no exam-tagged worked examples, so only 2 exam items); 7.2 Differentiating x^n, e^kx, trig, ln x 486/2/4; 6.3 Logarithms 489/2/4; M8.3 Weight 558/3/4 (3 exam items); 5.4 Reciprocal and inverse trig 563; S4.3 Selecting a distribution 587 (4 exam items); 8.8 617; 6.4 627; 3.4 632; 10.4 636/1/3; 8.2 Integrating standard functions 637; 9.5 773/1. The median leaf is about 1,040 words, and 4.1 has 8,667 words and 31 worked examples. 7.2 and 8.2 carry most of Paper 1 and 2 calculus but have the depth of a summary. Leaves with 5 or fewer exam items: 2.11 3.4 4.6 5.3 5.4 6.1 6.2 8.1 8.4 8.6 8.8 9.5 S4.3 M8.1 M8.3 M8.5.
-- **Evidence:** cm/metrics.json; table printed by cm/metrics.js; shots/content-maths/p8-4-notes-mac.png (8.4 is one short page)
+- **Evidence:** cm/metrics.json; table printed by cm/metrics.js; shots/content-maths/p8-4-notes-mac.png (8.4 is one short page) | RECHECK 8 Nov (kos-redraw-1): Re-run cm/metrics.js: 8.4 185 words (one page), 8.1 235, 6.1 302, 6.2 331, 4.3 413, 7.2 439 vs 4.1 8,667; 6.2, 8.1 and 8.4 have no page markers at all.
 - **Root cause:** The depth rewrite stopped short on P6 to P8 and several small leaves. The files for P1, P9, P10 and M7 to M9 are dated 8 October and P2 to P8 27 October, and the light leaves were never brought up to the contract.
 - **Proposed fix:** Run the per-section depth pipeline used for 4.1, 2.x and M7 on P6 (6.1–6.5), P7.2, P8.1, 8.2, 8.4, 8.6, 8.8, 4.3, 4.6, 5.4, 10.4, 9.5, S4.3 and M8.3. Target at least 3 pages, at least 5 exam-tagged worked examples with Edexcel marks, a figure where a picture helps, and an exam toolkit page.
 - **Flags:** effort XL
 
 ### CM-07 · P2 · content — Statistics and Mechanics leaf titles are cut-off 80-character spec sentences, unlike the short Pure titles
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** Pure leaves have names like "Straight lines" and "Trapezium rule". Every S and M leaf is titled with the first 80 characters of its spec sentence plus "…", e.g. M7.3 "Understand, use and derive the formulae for constant acceleration for motion in …" and S4.1 "simple, discrete probability distributions" (lowercase fragment). The page title is then cut again to three lines with an ellipsis, the spine rows read "Understand and use the lang…" five times in a row under M7, and the search results and breadcrumbs show the same. gen_data.py already defines SHORT_S ("suvat (constant acceleration)", "Projectiles", …), but it is never applied to the checked-in maths.js. Its keys are bare ("7.3") while the payload's refs are "S1.1" and "M7.3", and the generator cannot run locally (it reads /home/claude/extract).
-- **Evidence:** shots/content-maths/m73-mac.png (title and spine); shots/content-maths/m73-notes-iphone.png; tools/gen_data.py:249 (80-char truncation), :287-301 (SHORT_S and its lookup by c["ref"]); js/data/maths.js:989 ("S1.1"), :1287 ("M7.3")
+- **Evidence:** shots/content-maths/m73-mac.png (title and spine); shots/content-maths/m73-notes-iphone.png; tools/gen_data.py:249 (80-char truncation), :287-301 (SHORT_S and its lookup by c["ref"]); js/data/maths.js:989 ("S1.1"), :1287 ("M7.3") | RECHECK 8 Nov (kos-redraw-1): 21 of 89 leaf titles still end in '…' (every S and M leaf longer than 80 characters); spine in shots/content-maths/top-m73-spec-mac.png ('simple, discrete probability di…' starts lower-case); tools/gen_data.py:249 and the SHORT_S lookup by c['ref'] ('S1.1') against keys like '1.1'.
 - **Root cause:** The short-title table is keyed by refs that never match the stats and mech children, and the generator's source is not available to re-run.
 - **Proposed fix:** Key SHORT_S by the final refs (S1.1…S5.3, M6.1…M9.1) and add a payload-only pass, like --mech-refs, that applies titles to the checked-in maths.js. Then regenerate.
 - **Flags:** effort S
 
 ### CM-08 · P2 · content — Wrong flashcard answer: 9.3 Newton–Raphson from x0 = 0 gives x1 = −2.5, not 2.5
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** 9.3 FC5 (bank) asks "Why does $x_0 = 0$ fail for $f(x)=x^3-2x-5$?" and answers "it does not fail here; $x_1 = 2.5$". In fact f(0) = −5 and f′(0) = −2, so x1 = 0 − (−5)/(−2) = −2.5, which the card's own formula (2x³+5)/(3x²−2) also gives. The question also states something false: it says the method fails and the answer says it does not.
-- **Evidence:** js/data/content/bank-maths-pure-c.js:646
+- **Evidence:** js/data/content/bank-maths-pure-c.js:646 | RECHECK 8 Nov (kos-redraw-1): js/data/content/bank-maths-pure-c.js:646 unchanged: answer says '$x_1 = 2.5$'; x1 = 0 − f(0)/f'(0) = 0 − (−5)/(−2) = −2.5.
 - **Root cause:** An arithmetic sign slip in the bank author's answer, with no automated check on numeric answers.
 - **Proposed fix:** Rewrite the card, e.g. "Where would NR fail for $f(x)=x^3-2x-5$?" → "Where $f'(x_0)=0$: $x_0=\pm\sqrt{2/3}$". Or keep the x0 = 0 example with "$x_1=-2.5$ (far from the root 2.09)". Keep its schedule key (invariant 87).
 - **Flags:** effort S
 
-### CM-09 · P3 · content — Cards filed under the wrong leaf
+### CM-15 · P2 · content — 24 exam-style worked examples carry mark codes that do not add up to their stated marks
 
 - **Devices:** all
+- **Detail / repro:** An exam-style worked example states its total in src (e.g. '· 11 marks'), and each step carries its Edexcel codes (mk). In 24 of the 604 Maths exam-tagged examples, the codes add up to a different total. Examples: 5.9 'Tide model' is stated as 11 marks, but its codes (B1 M1 A1 · B1 · B1 · M1 A1 A1) add up to 8. 3.4 'The dam' is stated as 11, with codes adding up to 8. 8.3 'Equal areas either side of the axis' is stated as 10, with codes adding up to 8. 5.1 'Badge' is stated as 4, with codes adding up to 5. 2.3 'Complete the square, sketch…' is stated as 10, with codes adding up to 11. A learner reading the model answer cannot tell where the missing marks come from, or why there are extra ones, and the derived exam item (marks = src) inherits the inconsistency. Full list: 2.3×2, 2.6, 2.7×2, 2.8, 3.2, 3.4×2, 4.1×2, 5.1, 5.7, 5.9×2, 6.6×2, 7.6, 8.3×2, 8.5, 8.7, S2.4, S4.2.
+- **Evidence:** audit-evidence/2026-11/qa/cm/mk2.js output (24 rows: leaf | title | stated | sum of step codes); e.g. node cm/mk.js 'Tide model' → mks ["B1 M1 A1","B1","B1","M1 A1 A1"] vs src 'A-level Specimen · P1 Q13 · 11 marks'
+- **Root cause:** Hand-authored mk codes, with no check that their sum equals the src mark count (smoke65/66 hold CS to a depth contract; Maths has no equivalent mark-sum lint)
+- **Proposed fix:** Correct each of the 24 from the published mark scheme: add the missing codes or fix the total. Add a lint (in the Maths smoke) that the sum of the codes equals the src marks for every exam-tagged worked example.
+- **Flags:** effort M
+
+### CM-16 · P2 · bug — Newton–Raphson generator prints a 'Root estimate' that is not a root in about a third of its random examples
+
+- **Devices:** all
+- **Detail / repro:** The worked-example generator 'newraph', wired to 9.3, always does exactly three iterations from a random x0 and then prints 'Root estimate: x ≈ …', whatever f is at that point. In 138 of 400 random examples, |f(x3)| > 0.01. Two cases: x^3 − 2x − 5 from x0 = 1 gives 'x ≈ 3.34870 (f ≈ 25.85)' (the true root is 2.0946), and x^3 + x − 1 from x0 = 3 gives 'x ≈ 0.88069 (f ≈ 0.564)' (the true root is 0.6823). A learner using the generator to check their own working is taught that a non-converged value is the answer.
+- **Evidence:** eval on slot 7: 400 runs of KOS.worked.byIds(['newraph'])[0] → bad 138; examples quoted above; js/labs/worked.js:704 (Root estimate step printed unconditionally after three iterations)
+- **Proposed fix:** Iterate until |x_{n+1} − x_n| < 1e-6 (cap about 20) and show the first three steps plus 'converges to …'. Or pick x0 near a root (from a sign change). If it does not converge, say so ('not converged yet: f(x3) = …').
+- **Flags:** effort S
+
+### CM-17 · P2 · bug — 'Retry the N missed' overwrites the topic's quiz score with the retry's: 9/13 then 4/4 records lastPct 100 and the head reads 'best 9/4'
+
+- **Devices:** all
+- **Detail / repro:** After a quiz, 'Retry the N missed' (js/engines/quiz.js:178-181) mounts the SAME engine on the missed subset with the topic's own stats record. finish() (quiz.js:156-160) then sets lastPct = correct / subset size, logs a second 'quiz' session with total = the subset, and the head line compares the stored best (a count out of the full quiz) with the subset length. Repro on #/ref/maths/M7.3 (empty account): answer every question with A → 9/13, record {attempts 1, best 9, lastPct 69}; press 'Retry the 4 missed', answer them right → record {attempts 2, best 9, lastPct 100}, sessions [{9/13 69%}, {4/4 100%}], head 'score 4 · best 9/4'. RAG reads lastPct (js/modules/rag.js:63-71), so a learner who got 69% now shows no quiz weakness at all, and the ledger/Reports count a 100% quiz that never happened.
+- **Evidence:** audit-evidence/2026-11/qa/cm/qz-retry.js (eval on slot 7, output quoted); shots/content-maths/top-quizbest-inspector-mac.png ('best 9/13', inspector 'Quiz attempts 2', 'Data says Green'); js/engines/quiz.js:156-165, :178-181; js/modules/rag.js:63-71
+- **Root cause:** The missed-retry reuses mountMCQ's normal finish path, which assumes items is the topic's whole quiz.
+- **Proposed fix:** Pass a 'practice' flag for the missed retry: do not touch st.lastPct/best (or record it under a separate missedRetry field), log it as a practice session (or not at all), and print the head as 'retrying 4 missed' instead of best/total.
+- **Flags:** effort S
+
+### CM-18 · P2 · ux — One mediocre quiz makes a Maths topic 'Data says Green': the RAG starts at 100 and a 69% quiz only takes 8 points off
+
+- **Devices:** all
+- **Detail / repro:** rag.auto (js/modules/rag.js:30-110) starts every topic at score 100 and SUBTRACTS for weak signals; band() (rag.js:17) is Green from 70. With only a quiz as evidence, the most a quiz can remove is 25 (lastPct 0 %), so ANY single quiz attempt — even 0 % — leaves the topic Amber or Green, and a 69 % quiz removes 8 → Green. Thin evidence (one quiz, no cards rated, no exam questions, 0/4 checks, status Not started) is judged as mastery. Repro: empty account, M7.3, quiz answered all-A (9/13 = 69 %): inspector shows 'Data says Green' beside 'Not started' and '0/4 checks'. The answer-position bias (all-A scores 69 %) makes this reachable without reading a single question.
+- **Evidence:** shots/content-maths/top-quizbest-inspector-mac.png; js/modules/rag.js:17 (band), :63-71 (quiz penalty capped at 25), :103 (no minimum evidence); eval qz-retry.js before the retry: lastPct 69 → band g
+- **Root cause:** Subtractive scoring from 100 with capped penalties and no evidence threshold.
+- **Proposed fix:** Make the auto band evidence-weighted: start from 'no claim' and require a minimum amount of evidence (e.g. ≥ N cards rated or a quiz ≥ 80 % plus another signal) before Green; map a lone quiz to a score proportional to its percentage rather than a capped deduction.
+- **Flags:** effort M
+
+### CM-19 · P2 · ui — Long worked-step lines push the topic page sideways on iPhone: 14 lines in 9 Maths leaves run up to 114px past the screen
+
+- **Devices:** iPhone (402px); not on iPad 820 or Mac
+- **Detail / repro:** Worked-example steps are written as inline $\displaystyle …$ maths, so KaTeX renders them as a .katex span, not a .katex-display (whose overflow-x: auto in css/base.css:153 would make it scroll). The step body .k-n-wm (css/views/study.css:356 .k-n-wbody, no overflow rule) lets the line run on, and on iPhone the step column is only 177px wide (the 'Step' label column takes the rest). The over-wide line widens <main> (scrollWidth 516 vs 402 on S2.1), so the whole topic page can be panned sideways; panned, the step labels leave the screen and the maths bleeds past the card edge. Sweep of all 433 Maths note pages at 402px: 14 lines in 4.1 (4), 7.1, 7.2, 7.3, 7.4 (2), 8.3, 8.7, 9.2, S2.1 (2), overflowing by 7-114px. iPad portrait: none.
+- **Evidence:** audit-evidence/2026-11/qa/cm/ovf.js → cm/ovf-iphone.json (433 pages, 14 katex lines offscreen), cm/ovf-ipad.json (0); shots/content-maths/top-s21-clip-iphone.png (S2.1 page 4 after the page was panned to the σ line: labels gone, line runs past the card); eval: main.scrollWidth 516 / clientWidth 402 on #/ref/maths/S2.1; js/core/content.js:382 (.k-n-wm wraps para(st.m)); css/views/study.css:351-356
+- **Root cause:** Inline \displaystyle maths in a grid cell with no horizontal scroller.
+- **Proposed fix:** Give .k-n-wm (and other step/answer bodies) overflow-x: auto with the same tab-stop-when-scrolls rule as tables, or render a step whose maths is wider than its column as a display block; on phones stack the Step label above the body to give the maths the full width.
+- **Flags:** effort S
+
+### CM-20 · P2 · a11y — On iPhone the Maths plot labs draw their axis numbers at 5.7px (half the 11px label floor)
+
+- **Devices:** iPhone 402px (iPad 11.5px and Mac 12.8px are fine)
+- **Detail / repro:** Every plot lab (lab.plot) writes tick and curve labels at size 14 in the 800-unit viewBox (js/labs/lab.js:252 Math.max(14,…), :317, :321, :325, :382). On iPhone the stage is 326px wide, so the drawing is scaled ×0.41 and every label renders at 5.7 CSS px; the phone crop (lab.js:455-476) does not help a plot because the plot frame fills the viewBox. Measured with getScreenCTM on the Simulations tab: 9.3 Newton–Raphson 16 labels at 5.7px, 9.4 Trapezium rule 21, M7.5 projectiles 18, S4.2 Normal 15, 7.1 21, M9.1 8 at 6.6–7.1px, 10.3 24 at 10.4px. CLAUDE.md invariant 63 sets an 11px label floor for charts. The axis numbers in the screenshot cannot be read without zooming.
+- **Evidence:** audit-evidence/2026-11/qa/cm/simtxt.js (iphone/ipad/mac output quoted above); shots/content-maths/top-sim-9-4-iphone.png (dpr 2); shots/content-maths/sim-9-3-iphone.png; js/labs/lab.js:252, :317-326, :481 (lab.narrow)
+- **Root cause:** Label sizes are fixed in viewBox units, so they shrink with the stage.
+- **Proposed fix:** Scale label size by the stage's px-per-unit (size = 11px / scale, capped) or switch plots to a narrower viewBox when lab.narrow() is true (as the floating-point and subnetting labs do), and thin the ticks (every other tick) so the bigger labels do not collide.
+- **Flags:** effort M
+
+### CM-09 · P3 · content — Cards filed under the wrong leaf
+
+- **Re-checked on kos-redraw-1:** holds
+- **Devices:** all
 - **Detail / repro:** 6.1 (Exponential functions) holds solve-a^x=b items that belong to 6.5: fc3 "Solve $4^x=100$", fc10b "$e^{2x}=5$", fc13b "$2^x=20$", qz3. M8.3 (Weight and gravity) holds suvat projectile items that belong to M7.3: fc13b impact speed and fc14b rebound height. S4.3 (Selecting a distribution) holds normal-approximation and continuity-correction drill that belongs to S4.2: fc10b–fc14b, qz4b, qz5b, qz7b. 2.10 (Partial fractions) qz3 is an integral, ∫2/(x+1), which is 8.6's topic. 10.4 fc8b is an average-speed question. 8.1 fc9b ends without an answer ("a third condition is needed").
-- **Evidence:** cm/load.js dumps; read with the node print script (outputs quoted in this audit); bank-maths-pure-*.js, bank-maths-mech.js, bank-maths-stats.js
+- **Evidence:** cm/load.js dumps; read with the node print script (outputs quoted in this audit); bank-maths-pure-*.js, bank-maths-mech.js, bank-maths-stats.js | RECHECK 8 Nov (kos-redraw-1): No commit to bank-maths-*.js since 56b1a8c; the cards quoted in the first audit are still in place (re-read via cm/load.js).
 - **Root cause:** Bank items were grouped by past-paper question rather than by spec point.
 - **Proposed fix:** Move these items to their own leaves, keeping each card's original key as a whole-key third element (invariant 87), or replace them with items on the leaf's own skill.
 - **Flags:** effort S
 
 ### CM-10 · P3 · content — "Past-paper patterns" pages are one wall-of-text paragraph
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** 55 of the 57 note paragraphs over 60 words sit on the bank's "Past-paper patterns" page. That is one per leaf, up to 135 words of run-on text with bold phrases and inline series lists. This goes against the user's rule of short lines and bullets, not paragraphs. On M7.3 page 8, one 6-line paragraph lists every question shape, and the lower half of the page is empty. It also repeats the M7.3 overview table of question shapes on page 1.
-- **Evidence:** shots/content-maths/m73-pastpaper-mac.png; js/data/content/bank-maths-*.js (each X(…) notes: [{page:"Past-paper patterns"}, "<long string>"]); counted by a script: 57 paragraphs over 60 words, 55 after the bank page
+- **Evidence:** shots/content-maths/m73-pastpaper-mac.png; js/data/content/bank-maths-*.js (each X(…) notes: [{page:"Past-paper patterns"}, "<long string>"]); counted by a script: 57 paragraphs over 60 words, 55 after the bank page | RECHECK 8 Nov (kos-redraw-1): Re-counted: 64 paragraphs on 'Past-paper patterns' pages, 59 of them over 60 words, the longest 157 words (count method differs slightly from the first audit's 57).
 - **Root cause:** The bank files were written as prose summaries before the short-lines rule.
 - **Proposed fix:** Convert each to a {table:{head:[Question shape, Marks, Seen in]}} or a {ul} of one shape per line, or fold it into the leaf's existing overview table and drop the page.
 - **Flags:** effort M
 
 ### CM-11 · P3 · content — 29 leaves have no figure where a picture would teach
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** Leaves with figs=0: 2.1 2.2 2.10 2.11 3.4 4.1 4.2 4.3 4.4 4.5 4.6 5.5 5.6 5.8 5.9 6.4 6.5 7.2 7.4 7.5 7.6 8.1 8.2 8.5 8.6 8.7 8.8 9.5 S3.3. Clear candidates: 5.9 Trig in context (Ferris wheel or tide curve), 5.6 R-form (the R·sin(θ+α) graph with max and min), 8.7 Separable DEs (family of solution curves, which the spec requires students to sketch), 3.4 Parametric modelling (motion path), 7.5 Implicit differentiation (circle with tangent), 4.2 Sequences (increasing, decreasing and periodic plots), 8.2 and 8.1 (antiderivative family), 2.11 modelling curves. Per the user's notes rule, annotated {fig} diagrams are expected wherever a picture helps.
-- **Evidence:** cm/metrics.json figs column
+- **Evidence:** cm/metrics.json figs column | RECHECK 8 Nov (kos-redraw-1): cm/metrics.json: 29 leaves with no figure (2.1, 2.2, 2.10, 2.11, 3.4, 4.1–4.6, 5.5, 5.6, 5.8, 5.9, 6.4, 6.5, 7.2, 7.4–7.6, 8.1, 8.2, 8.5–8.8, 9.5, S3.3). All 184 existing figures render without an error (cm/figs.js).
 - **Root cause:** Figures were added only as each section was rewritten at depth.
 - **Proposed fix:** Add declarative {fig} diagrams (core/figures.js) to these leaves during the depth pass. They are SVG-declarative, so no raster art is needed.
 - **Flags:** effort L
 
 ### CM-12 · P3 · content — Units such as "m s$^{-1}$" break across lines
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** mac, ipad, iphone
 - **Detail / repro:** Units are authored as "m s$^{-1}$" with a normal space. At wrap points the line breaks inside the unit, leaving "…5 m s" at a line end and "−1" on the next line. Seen in M7.2's worked question in Dawn on the Mac ("travels at a constant 5 m s / −1 for the next 15 seconds").
-- **Evidence:** shots/content-maths/m72-notes-dawn-mac.png
+- **Evidence:** shots/content-maths/m72-notes-dawn-mac.png | RECHECK 8 Nov (kos-redraw-1): No change to the content files or css since 56b1a8c (git log empty); not re-shot on this build — shots/content-maths/m72-notes-dawn-mac.png from the first audit.
 - **Root cause:** A breakable space plus a separate math segment for the exponent.
 - **Proposed fix:** Author units as a single KaTeX segment, e.g. $\text{m s}^{-1}$ or $5\ \text{m}\,\text{s}^{-1}$, or have inline() replace the space before a unit with U+00A0 and wrap the unit in a white-space:nowrap span.
 - **Flags:** effort S
 
 ### CM-13 · P3 · content — Two-option quiz items in a 4-option quiz
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
 - **Detail / repro:** 8.1 qz9 ("$\int_2^5 f = -\int_5^2 f$ is: true / false") and 4.5 qz12 have only two options, so a guess is right 50% of the time, and they look different from the other items.
-- **Evidence:** cm/dups.json quizBad entries maths:8.1 #9 and maths:4.5 #12 (bank-maths-pure-c.js, bank-maths-pure-b.js)
+- **Evidence:** cm/dups.json quizBad entries maths:8.1 #9 and maths:4.5 #12 (bank-maths-pure-c.js, bank-maths-pure-b.js) | RECHECK 8 Nov (kos-redraw-1): cm/beh1.js re-run: quizBad still maths:4.5 Q13 and maths:8.1 Q10 (bank items with 2 options).
 - **Root cause:** Bank authoring.
 - **Proposed fix:** Rewrite them as 4-option items, or as flashcards.
 - **Flags:** effort S
 
+### CM-21 · P3 · bug — A worked example citing two questions becomes a 4-mark exam item whose scheme covers 7 marks
+
+- **Devices:** all
+- **Detail / repro:** 7.1 'Prove d/dx(x^3) = 3x^2; and y = 2x^2' has src 'AS June 2018 · P1 Q10 · 4 marks; A-level June 2022 · P2 Q4 · 3 marks'. examFromWorked takes only the FIRST 'N marks' (/(\d+)\s*marks?/.exec). The resulting exam item is marked 4 marks and labelled AS, but its question has parts (i) and (ii) worth 7. Its src string also keeps '· 4 marks; A-level June 2022 · P2 Q4', because only a trailing '· N marks' is stripped.
+- **Evidence:** eval: KOS_CONTENT['maths:7.1'].exam item → {marks:4, src:'Edexcel June 2018 · P1 Q10 · 4 marks; A-level June 2022 · P2 Q4', level:'AS'}; js/core/content.js:542-546
+- **Proposed fix:** Either split the worked example into two cards (one per question), or have examFromWorked sum every 'N marks' in src and strip each. The first is cleaner.
+- **Flags:** effort S
+
+### CM-22 · P3 · bug — Normal-distribution generator writes the symmetric interval backwards, e.g. P(61 < X < 51)
+
+- **Devices:** all
+- **Detail / repro:** When the random x is below μ (89 of 200 runs), the 'Complements you might need' step prints P(2μ − x < X < x). Example: X ~ N(56, 2²), x = 51 gives 'P(61 < X < 51) = 0.9876'. That is an empty interval written as if it were the answer.
+- **Evidence:** eval on slot 7: normal solve with {mu:56,sg:2,x:51} → 'P(61 < X < 51) = 0.9876 (symmetric interval about μ)'; js/labs/worked.js:549
+- **Proposed fix:** Print P(min(x, 2μ−x) < X < max(x, 2μ−x)).
+- **Flags:** effort S
+
+### CM-23 · P3 · content — Hypothesis-test generators draw contradictory set-ups (testing p < p0 with x far above the mean)
+
+- **Devices:** all
+- **Detail / repro:** The 'hyptest' generator (S5.2) draws the tail and x independently. In 187 of 400 random examples, x lies on the wrong side of the mean for the alternative being tested. Example: H1: p < 0.4 with n = 17 and x = 15 gives P(X ≤ 15) = 1.00000. The example is formally right but teaches nothing, and no exam question is set up that way. The projectile generator also prints '−0 = 20T − 4.9T²' and '4.9T² − 20T − 0 = 0' whenever h = 0 (174 of 400 runs). The partial-fractions and normal-parameters generators print unbracketed double signs: '(5·-1 + -1) / (-1 − 1)' and 'μ = 25 − -0.9945 × 8.0963'.
+- **Evidence:** eval on slot 7 (400-run sweeps of every one of the 36 Maths generators: no exceptions or NaN; hyptestSilly 187/400; projectile '−0' 174/400); js/labs/worked.js:752 (hyptest random); js/labs/worked-extra.js:356-373 (projectile)
+- **Proposed fix:** hyptest: draw x from the alternative's side (below n·p0 for 'lower'), and draw h in the projectile generator only when h > 0 or drop the term. Use a shared signed formatter that brackets negatives inside a product or after a minus sign.
+- **Flags:** effort S
+
+### CM-24 · P3 · content — Seven Maths callouts use an undefined kind 'key' and render as an unlabelled teal Tip
+
+- **Devices:** all
+- **Detail / repro:** The callout schema (js/core/content.js:31, CALLOUT_META :49-58) knows info, def, tip, warn, miscon, mnemonic, memorise and formula. Seven Maths callouts in 1.1, 9.2, 9.3 and 10.x use t:'key'. The renderer falls back to the Tip icon (◆), and the stylesheet has no [data-kind=key] rule, so they get the base teal, the same as info and formula. The author meant a 'key idea' box, but on the page it cannot be told apart from an ordinary formula or info box.
+- **Evidence:** audit-evidence/2026-11/qa/cm/beh1.js output 'bad callout types: key 7'; grep -rn 't: "key"' js/data/content → maths-pure-p1.js:152, maths-pure-p10.js:27, :437 and maths-pure-p9.js; js/core/content.js:346 (CALLOUT_META[t] || tip); css/views/study.css:321-334 (no key rule)
+- **Proposed fix:** Either add a 'key' kind to CALLOUT_META and the stylesheet (e.g. 'Key idea', crimson), or change the seven to an existing kind. Then make validate_content.js reject unknown callout kinds.
+- **Flags:** effort S
+
+### CM-25 · P3 · content — Two bank items depend on the item before them and break when the quiz is shuffled (M8.4 'Tension then:')
+
+- **Devices:** all
+- **Detail / repro:** The M8.4 bank item Q6 reads only 'Tension then:' (options 0 / 39.2 N / 78.4 N / 19.6 N). It relies on Q5 ('Two 4 kg masses hang over a smooth pulley'). The quiz has a Shuffle control that reorders the questions (js/engines/quiz.js:66), so after a shuffle, or when Q6 appears alone in a review of missed items, the question has no data. A sweep of all 1,058 Maths quiz stems found no other stem that leans on the previous item: the 'then' in 4.1, M7.1 and M9.1 completes the sentence.
+- **Evidence:** js/data/content/bank-maths-mech.js (M8.4 quiz, items 5–6); node print of maths:M8.4 quiz: 'Q5b Two 4 kg masses hang over a smooth pulley. Acceleration: … Q6b Tension then:'; stem-dependency regex sweep over KOS_CONTENT maths quiz
+- **Proposed fix:** Make Q6 self-contained: 'Two 4 kg masses hang over a smooth pulley. The tension is:'.
+- **Flags:** effort S
+
+### CM-26 · P3 · content — 6.4 flashcard question mixes base 2 and base 10 in one garbled stem
+
+- **Devices:** all
+- **Detail / repro:** The 6.4 bank card reads 'Solve log_2(x+3) + log_2(x+10) = 2 + 2log_2 x… with base 10 and 2 = log 100.' The answer works in base 10 ((x+3)(x+10) = 100x², x = 0.620), so the stem is a half-edited sentence. Read as written (base 2), the answer would be (x+3)(x+10) = 4x², giving x = 6, which is a different answer.
+- **Evidence:** js/data/content/bank-maths-pure-b.js:739
+- **Proposed fix:** Rewrite the stem as 'Solve log(x+3) + log(x+10) = 2 + 2 log x (base 10).'
+- **Flags:** effort S
+
+### CM-27 · P3 · content — A third of Maths quiz explanations are a bare label: 352 of 1,058 'why' lines are three words or fewer with no working ('Definition.' ×9, 'Chain rule.' ×9, 'Add.', 'Tables.')
+
+- **Devices:** all
+- **Detail / repro:** After a wrong answer the quiz shows the item's 'why' as the explanation. In 352 of 1,058 Maths quiz items (99 base, 253 bank) it is three words or fewer with no maths: 'Definition.' ×9, 'Chain rule.' ×9, 'Power law.' ×5, 'Product rule.', 'Multiply.', 'Add.', 'Tables.', 'Vertex.', 'Union.', 'Conjugate.'. A learner who picked the wrong option is told the name of a rule, not why their option was wrong or what the right working is. The bank files are the main source (253 of 560 bank items vs 99 of 498 base).
+- **Evidence:** node one-liner over cm/load.js (KOS_CONTENT maths quiz): 352/1058 label-only, by source {base 99, bank 253}; examples: maths:2.2 Q11 'Conjugate.', maths:2.3 Q14 'Vertex.', maths:2.5 Q10 'Union.'; js/data/content/bank-maths-*.js
+- **Root cause:** Bank items were authored with terse whys and no length/quality check in validate_content.
+- **Proposed fix:** Rewrite the label-only whys as one line of working that names the misconception behind the most tempting wrong option (e.g. 'Multiply by the conjugate $3-\sqrt7$, so the denominator becomes $9-7=2$').
+- **Flags:** effort M
+
+### CM-28 · P3 · content — Four Pure leaf titles show raw caret notation ('e^x', 'Gradient of e^kx', 'Solving a^x = b', 'Differentiating x^n, e^kx…') in the spine, heading and search
+
+- **Devices:** all
+- **Detail / repro:** The SHORT title table in tools/gen_data.py writes four titles in ASCII maths: 6.1 'Exponential functions & e^x', 6.2 'Gradient of e^kx', 6.5 'Solving a^x = b', 7.2 'Differentiating x^n, e^kx, trig, ln x'. Titles are plain text (the spine, the page h1, breadcrumbs, search results, Reports and the Assistant all print them as-is), so the learner sees literal carets in an otherwise typeset subject.
+- **Evidence:** shots/content-maths/top-51-fig-azure-ipadl.png (spine: 'Exponential functions & e^x', 'Gradient of e^kx', 'Solving a^x = b'); tools/gen_data.py SHORT entries 6.1, 6.2, 6.5, 7.2; js/data/maths.js:521
+- **Root cause:** Generated titles are plain strings written with ASCII exponents.
+- **Proposed fix:** Use Unicode superscripts in the titles (eˣ, eᵏˣ, aˣ, xⁿ) in the SHORT table and regenerate js/data/maths.js with --format-existing.
+- **Flags:** effort S
+
 **QoL ideas from this auditor:**
-- Per-leaf summary of what needs work (T = thin notes, D = duplicates, M = misfiled cards, F = no figure, E = 5 or fewer exam items, W = wrong answer, S = garbled spec):
-1.1 S; 2.1 D,F,S; 2.2 D,F,S; 2.3 S; 2.4 S; 2.5 S; 2.6 D; 2.7 S; 2.8 D; 2.9 D,S; 2.10 D,M,F; 2.11 F,E; 3.3 D,S; 3.4 T,F,E; 4.1 D,F,S; 4.2 F,S; 4.3 T,F,S; 4.4 F; 4.5 D,F; 4.6 T,F,E; 5.2 D,S; 5.3 D,E,S; 5.4 T,D,E; 5.5 D,F,S; 5.6 D,F,S; 5.8 D,F; 5.9 F; 6.1 T,D,M,E; 6.2 T,E,S; 6.3 T,D,S; 6.4 T,F,S; 6.5 T,F; 7.2 T,D,F,S; 7.4 F,S; 7.5 D,F; 7.6 D,F; 8.1 T,D,F,E; 8.2 T,F,S; 8.4 T,E; 8.5 D,F,S; 8.6 T,F,E,S; 8.7 F; 8.8 T,F,E; 9.3 W; 9.4 S; 9.5 T,F,E; 10.3 D; 10.4 T,D,S; S2.3 S; S3.3 F; S4.1 D,S; S4.2 D; S4.3 T,D,M,E; S5.3 D,S; M7.3 D,S(spec, plus a possible user fork); M7.4 S; M7.5 D; M8.1 E; M8.3 T,D,M,E,S; M8.5 E; M8.6 S. Leaves with no issue found: 1.1 notes, 3.1, 3.2, 5.1, 5.7, 6.6, 6.7, 7.1, 7.3, 8.3, 9.1, 9.2, S1.1, S2.1, S2.2, S2.4, S3.1, S3.2, S5.1, S5.2, M6.1, M7.1, M7.2, M8.2, M8.4, M9.1.
-- Add a smoke test for Maths content: duplicate detection inside a leaf (canonical q plus answer), quiz answer-position balance, at least 3 options, KaTeX parse of every segment (passes today), and fragment detection on the spec spine.
-- A mnemonic callout heading that contains math renders with odd spacing (8.4: '"Sum of strips → integral; δx → dx ; the x -range → the limits"'). Keep math out of callout h, or typeset it the same way as the body.
+- Shuffle the options (not just the questions) in the MCQ engine, keeping the authored answer mapped
+- Show the mark total beside each worked example's codes so authors and learners see a mismatch
+- A 'Retry missed' banner that says it is practice and does not change the score
+- Phone layout for worked steps: label above the working so maths gets the full width
 
 **Backlog ideas from this auditor:**
-- Fork staleness UX: show which curriculum kinds of a topic are forked, and offer a diff and merge when the shipped version changes.
-- Finish the Pure depth pipeline for P6–P8 and the remaining small leaves so every Maths leaf meets the contract smoke65/66 enforce for CS (pages, at least 3 worked examples with marks, a mnemonic, a misconception callout, an exam toolkit).
-- Rebuild the Maths spec spine from a clean source (hand-typed LaTeX) with a regenerable override table.
+- Deepen the thin core leaves (8.4, 8.1, 6.1, 6.2, 4.3, 7.2, 8.6) to the 4.1/M7.x depth with figures
+- Regenerate the Maths spec text from a clean source (spec PDF re-extraction with fraction/superscript handling) and short S/M titles
+- A content lint in validate_content for Maths: duplicate cards across base/bank, worked mark sums, label-only whys, callout kinds, two-option items, stem dependencies
+- Fork staleness: store the shipped hash in a fork and offer 'the shipped notes changed — compare/reset'
 
 
 ---
 
 ## CC — A-Level CS and OCR IT content quality (complete)
 
-**Auditor's summary.** CS content is deep and renders cleanly (all 181 CS/IT leaves' note pages swept at iPhone with no overflow, no KaTeX errors), but its practice layers have systematic quality faults: multiple-choice answers sit at A/B 94% of the time with no option shuffle, the bank files duplicate past-paper questions already authored as worked cards (202 duplicates over 88 leaves), and the depth rewrite left ~30 decks asking the same definition twice. IT is the weak side: its generated spec (tools/gen_data.py) dumps garbled assessment-criteria PDF text into the last leaf of each unit, leaves 189 fragment rows, and creates a duplicate ref F206.6.1 that makes 'Ways to reflect' (current NEA) unreachable; F201 (still to sit) has no worked answers and only 3 exam items per leaf. Shared renderer issues: the worked card's absolutely positioned 'Write it out' pill covers titles on iPhone and iPad, steps blocks misused in six 4.5.x leaves show literal **bold** in monospace, and bold-with-italic shows literal asterisks. Root causes are authoring without automated checks (no near-duplicate, answer-position, duplicate-src or validate_content gate) and the IT parser's missing section boundaries and ref-uniqueness assertion.
+**Auditor's summary.** CS content is deep and renders cleanly at every device size, but its practice layers have systematic faults: multiple-choice answers sit at A/B 94% of the time, bank files duplicate past-paper questions already authored as worked cards, and ~30 decks ask one fact twice. The inventory pass found that the self-mark tally, not just the content, misjudges marks: examFromWorked turns the one-line Answer summary into a tickable mark and ignores each step's own weight, so 60 CS items cannot reach full marks from their real points, and IT schemes give one checkbox per two marks. IT is the weak side: the generated spec dumps garbled assessment-criteria text into the last leaf of each unit and duplicates F206.6.1, F201 has no worked answers and almost no examiner intel, the IT desk's 'Start here' points at the finished F200, and its boundary card collapses on iPad portrait. Shared presentation gaps: the worked card's 'Write it out' pill covers titles on iPhone, the reading place is lost on any detour (a notes diagram, then Back, reopens page 1), and syntax colours are nearly invisible in the light shop theme Washi Morning. Root causes: authoring without automated checks (no near-duplicate, answer-position, mark-sum or validate_content gate), mark weights kept as display text, the IT parser's missing section boundaries, and view-local or dark-tuned state that was never generalised.
 
-**Coverage.** Measured every CS (131) and IT (50 with content; F200/F202 have spec only) leaf from a jsdom dump: notes words/pages/worked/figures/tables, flashcards, quiz, exam, bare paragraphs; within- and cross-leaf flashcard near-duplicates; cards scored against other leaves; quiz answer positions and longest-option bias; exam duplicate sources; formatting (literal markdown, $, repeated words); validate_content on cs-* and it-*; code block languages. Browser: every note page of all 181 leaves swept at mac (text artefacts) and iPhone (overflow); screenshots of 4.5.2.1 and 4.10.3 (mac), 4.6.4.1 worked cards (iPhone), 4.10.4 in Dawn (mac), F201.2.3 (iPad landscape, Dawn), F206.6.1 Spec (iPad); Write-it-out overlap measured at iphone/ipad/mac. Not examined: the Flashcards/Quiz/Exam tab UI itself and the exam tally (study-core's area), shop themes, correctness of every CS fact (only spot reads), IT F200/F202 (completed units without notes). Per-leaf worklist: audit-evidence/2026-11/qa/content-cs-it/worklist.txt (162 leaves).
+**Coverage.** Build kos-redraw-1 (HEAD f84962c), slot 8, EMPTY account then SEEDED account (600 sessions). Inventory: /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/findings/content-cs-it.inventory.md. Per-leaf worklist (165 leaves, carried + new items): /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/worklist2.txt (the 1 Nov list is worklist.txt). Scripts: audit-evidence/2026-11/qa/content-cs-it/*.js.
+MATRIX (item -> presentation -> behaviour -> result):
+1 Spec trees: CS 131 leaves unique refs; IT tree -> Spec tab ipad/iphone -> dupLeafRefs + search -> IT garbled spec (P1), F206.6.1 duplicate (P1); CS OK, verified.
+  KOS_SPEC_FIX F201 overrides -> F201.2.3 ipadl -> fragments still in non-F201 leaves -> covered by the garbled-spec finding.
+  Leaf with no content lines skipped (F201.5.3) -> OK, verified (inv.js).
+2 Content coverage: every CS leaf has content (badKeys 0, orphans 0) OK; IT F200/F202 spec only (by design, done units) -> empty Notes state iphone OK (it-f2001-empty-iphone.png); NOT_EXAMINED 4.4.4.1 says 'has not been examined' on the page -> OK, verified (tariff.js).
+3 Note blocks: page/p/md/h/ul/ol/kv/table/callout(8 kinds)/fig/svg -> all 181 leaves' pages swept iphone (1 Nov) and ipad landscape (today, 0 overflow) -> OK; code -> Haskell/asm label (P3), syntax contrast in Washi Morning (P2, new); steps -> literal ** (P2); worked -> Write-it-out overlap (P1), label column on iPhone (P2), copy text (P3); diagram (34) -> every sim id exists; 8 open gold-locked labs (P3, new); Back loses the reader page (P2, new); inline bold+italic (P3).
+4 Practice layers: flashcards -> keys unique (0 dup, 0 collisions), 2111 CS + 588 IT in KOS.srs.allCards, none empty -> OK; near-duplicates (P2), wrong leaf (P3). Quiz -> answer position (P1), identical stems (P3), empty 'why' (P3); 2-option items are true/false (OK); 4.1.1.7 'duplicate options' was case-distinct (OK). Exam -> examFromWorked Answer line tickable (P2), step weights ignored (P2, new), IT 2-mark bullets (P3, new), duplicates with bank (P2); tariff filter 4.6.2.1: All 17 / 1-2 10 / 3-5 5 / 6+ 2 matches the data, 3-5 shows 'Question 1 of 5' -> OK, verified; AS label (433 CS items) shows 'AS level · modelled on …' -> OK; exam footer on iPhone (P3, new). Quiz/Exam/Flashcards tabs measured at iphone/ipad/mac for 6 leaves (tabsweep.js): no overflow or clipping in the content.
+5 Links out: sims WIRE/auto-wire -> all ids resolve; gens bigo/float/bin -> resolve (inv.js 'unknown' was a false positive; KOS.worked.forRef 4.5.4.4 gives float, bin via 4.5.4.1 GENWIRE) -> OK; intel 226 entries, 0 orphans, CS 130/131 (NEA.0 none) -> OK, IT thin (folded into F201 finding); merges REF_ALIASES -> backup-restore loses progress (P2, earlier top-up); search -> notes text not indexed (P3, new).
+6 IT grade data: it-grades.js matches invariant 26f (unit 48/36/24, H019 108/96/72/48, H119 270/240/180/120) -> read; itUms/itAggregate code read (hub.js:200-265), seeded desk shows ≈163/180 Distinction* for F200+F202+F204 -> OK; desk layout at iPad portrait (P2, new); 'Start here' ignores unit status (P2, new).
+7 Presentation: mac/ipad/ipadl/iphone shots; Dawn (cs-4104-p3-dawn-ipadl.png OK); shop theme Washi Morning (P2) and contrast measured on 4 more shop themes (OK).
+NOT checked: every CS/IT fact (22 random quiz items read, all correct; a binary/hex auto-check found only 3 checkable items); exam logging's ledger/session writes and FSRS of content cards (study-core's area); the SQL Sandbox lab's readout overflow (labs area); Maths content (content-maths). Achievement overlays appeared over the seeded pages (achievements area).
 
 ### CC-01 · P1 · content — IT spec text for F206.6.1, F204.6.5, F202.5.1, F201.5.2, F200.5.3 (and F200.2.x/F202.2.x) holds garbled PDF dumps of the assessment criteria
 
+- **Re-checked on kos-redraw-1:** holds: js/data/it.js:2246-2283 unchanged on f84962c; content-cs-it/dump.json re-generated and metrics byte-identical; search for 'Lessons learnt Assessment criteria' still matches F206.6.1 (the dump is indexed).
 - **Gemini B:** partially-confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Review note (8 Nov):** Partly wrong for F201: the hand-made KOS_SPEC_FIX covers 5.2, 2.3, 2.4, 2.6 and Factor analysis on the Spec tab. The faulty parser is tools/parse_it.py, not tools/gen_data.py.
 - **Detail / repro:** The generated IT spec (js/data/it.js) contains multi-thousand-character strings of shuffled PDF text in the Spec tab content/info lists for the last leaf of each unit: e.g. F206.6.1 'Ways to reflect' ends with a 2,271-char 'Lessons learnt Assessment criteria The table below gives...' string and a 2,884-char info item; F204.6.5 has 2,164/1,007/2,510-char strings; F202.5.1 2,330/538/2,502; F201.5.2 (the unit the user is sitting) has 'Urban and community planning Assessment guidance This unit is assessed by an exam...' and an 831-char run; F200.5.3 876 chars. Shorter merged rows also start with a dangling 'include:' (F200.2.2, F200.2.3, F200.2.6, F201.2.4, F202.2.2, F202.2.4, F202.2.5, F202.3.3). Column-interleaved words ('The tasks. means that the unit grade awarded') are unreadable on the Spec tab and pollute search and the Assistant's spec reads. F206 is the NEA the user is doing now. Beyond the long dumps, 189 short spec rows in 39 IT leaves are fragments ('□ Does', '□ Techniques To', '• Diagnostic Prescriptive □', a bare '□'), e.g. F201.2.3 Data mining techniques reads ['□ Data mining','□ Data mining techniques','• Descriptive','• Diagnostic Prescriptive □','□','□ Does','□'] and F201.2.6 omits 'Factor analysis' which the notes teach.
@@ -2475,15 +2642,17 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-02 · P1 · data — IT spec has a duplicate leaf: F206.6.1 'Ways to reflect' and 'Overview of the assessment' share a ref, so 'Ways to reflect' cannot be opened
 
+- **Re-checked on kos-redraw-1:** holds: js/data/it.js:2246 and :2285 both 'F206.6.1' (inv.json dupLeafRefs it: ['F206.6.1']); /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/recheck-it-f2061-spec-ipad.png; the two leaves share one content entry (flashcards counted 14 under each; KOS.srs.allCards has 588 IT cards vs 602 per-leaf).
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Detail / repro:** F206 Topic Area 6 has two children with the SAME ref F206.6.1: 'Ways to reflect' and 'Overview of the assessment' (qualification-structure text: entry codes H019/H119, GLH). The spine lists both rows, but both resolve to one topic: opening F206.6.1 (either row) shows the title 'Overview of the assessment' and its Spec (entry codes, GLH), with the 'Ways to reflect' notes, flashcards and quiz underneath. The real 'Ways to reflect' spec (Boud, Keogh and Walker; effectiveness of processes and tools; lessons learnt) is unreachable, and progress, RAG, attachments and FSRS keys are shared by the two rows. F206 is the NEA the user is doing now. Also F201.5.3 'NEA Units' is an empty phantom leaf in it.js (hidden by the spine, which counts F201 as 15, but present for any reader of KOS_DATA).
-- **Evidence:** js/data/it.js:2246 and :2285 both 'ref': 'F206.6.1'; js/data/it.js:946-950; audit-evidence/2026-11/qa/shots/content-cs-it/it-f2061-spec-ipad.png (title 'Overview of the assessment', Notes 4 / Flashcards 14 are Ways to reflect's); eval on #cols: rows 'Ways to reflect F206.6.1' and 'Overview of the assessment F206.6.1', h1 after KOS.show('ref',{subject:'it',ref:'F206.6.1'}) = 'Overview of the assessment'
+- **Evidence:** js/data/it.js:2246 and :2285 both 'ref': 'F206.6.1'; js/data/it.js:946-950; /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2061-spec-ipad.png (title 'Overview of the assessment', Notes 4 / Flashcards 14 are Ways to reflect's); eval on #cols: rows 'Ways to reflect F206.6.1' and 'Overview of the assessment F206.6.1', h1 after KOS.show('ref',{subject:'it',ref:'F206.6.1'}) = 'Overview of the assessment'
 - **Root cause:** Generator does not filter non-topic headings and has no uniqueness check on refs.
 - **Proposed fix:** In gen_data.py drop qualification-overview nodes ('Overview of the assessment', 'NEA Units') and assert ref uniqueness at generation; regenerate it.js; rename/prune any stored state keyed to F201.5.3 at the store gate like IT_NOT_TAKEN.
 - **Flags:** effort S
 
 ### CC-03 · P1 · content — Quiz answers are guessable: the correct option is A or B in 94% of CS questions (D only 12 of 1,347) and options are never shuffled
 
+- **Re-checked on kos-redraw-1:** holds: content-cs-it/quiz.js re-run → compsci [677,590,68,12], it [17,211,57,3]; the Quiz tab's Shuffle (js/engines/quiz.js:66) reorders questions only, options still render in authored order (:88).
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Detail / repro:** Across all 1,347 CS quiz questions the correct index is A 677, B 590, C 68, D 12; IT's 288 are A 17, B 211, C 57, D 3. The correct option is also the uniquely longest one in 688/1,347 CS (51%) and 201/288 IT (70%) questions, against ~25% by chance. KOS.quiz.mountMCQ renders item.opts in authored order (only the question order has a Shuffle), so a learner quickly learns 'pick A/B, pick the longest', and 'Quiz best' on the topic inspector and RAG overstate recall. 46 leaves have 60%+ of answers in one position (e.g. 4.4.1.3: 11 of 12 are A; 4.5.2.1 9/11 A).
 - **Evidence:** node content-cs-it/quiz.js over dump.json: compsci [677,590,68,12], it [17,211,57,3]; longest-correct compsci 688/1347, it 201/288; js/engines/quiz.js:88 item.opts.forEach renders in authored order (shuffle at :25 is only applied to question order, :66)
@@ -2493,16 +2662,18 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-04 · P1 · ui — 'Write it out' pill on worked examples overlaps the example's title on iPhone and iPad
 
+- **Re-checked on kos-redraw-1:** holds: wo.js re-run on kos-redraw-1 — iphone 42 overlaps (4.6.4.1 titles 25–81×15px), ipad 5 (worked src line), ipad landscape 1, mac 0; /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/recheck-writeout-4641-iphone.png.
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone, ipad, ipadl (some), mac (1)
 - **Detail / repro:** The worked-example card's 'Write it out' button is absolutely positioned at a fixed inset from the top-right, so whenever the title runs that far it sits on top of the words. On iPhone 5 of 8 worked cards on 4.6.4.1 page 4 are covered ('The bottle-filling conveyor', 'Process X: circuit and expression', 'XOR without an XOR gate', 'Draw without simplifying', 'Only AND, OR and NOT'); on iPad portrait (820) 14 of 72 buttons across 4.6.4.1, 4.5.4.4, 4.10.4 and 4.7.3.5 overlap text, on the Mac 1 of 72. The pill is also 81×23 px, under the 44 px touch minimum (invariant 69).
-- **Evidence:** audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png; eval at iphone: button rect x233 y824 w81 h23 position:absolute over title text; ipad hit 14/72, mac 1/72; css/views/ink.css:300 .k-n-writeout { position: absolute; inset-block-start: var(--sp-8); inset-inline-end: calc(var(--sp-8) * 9) }; js/core/content.js:373
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png; eval at iphone: button rect x233 y824 w81 h23 position:absolute over title text; ipad hit 14/72, mac 1/72; css/views/ink.css:300 .k-n-writeout { position: absolute; inset-block-start: var(--sp-8); inset-inline-end: calc(var(--sp-8) * 9) }; js/core/content.js:373
 - **Root cause:** Absolute positioning with a fixed inset instead of taking part in the header's layout.
 - **Proposed fix:** Put the button in the worked card's head row as a flex item (title flex:1, min-width:0; actions group with Copy), wrapping under the title below 560px; give it the touch minimum height on coarse pointers.
 - **Flags:** effort S
 
 ### CC-05 · P2 · content — Same past-paper question appears twice in a CS leaf's Exam questions (worked card + bank item): 202 duplicate groups across 88 of 131 leaves
 
+- **Re-checked on kos-redraw-1:** holds: dump outputs byte-identical to the 1 Nov run (new-*.txt vs *.txt); js/core/content.js:515 extend still concatenates exam without de-duplication.
 - **Detail / repro:** Each CS leaf's exam list = examFromWorked(notes) + bank-cs-*.js items concatenated by KOS.content.extend. The bank re-writes questions already authored as worked exam cards, so the learner meets the same AQA question twice in a row of practice, with different wording and differently formatted source labels ('AQA June 2025 · P1 Q01.1' vs 'AQA 2025 P1 Q1.1'). Example 4.2.6.1 Hash tables: items 1/6 (2025 P1 Q1.1), 2/5 (Q1.2), 3/7 (Q1.3); 4.6.1.4 has 'Describe two functions of an operating system.' twice verbatim (2022 P2 Q4.3). Worst leaves: 4.7.3.5 (7 groups), 4.2.2.1, 4.6.2.1 (5), 4.2.4.1, 4.2.6.1, 4.5.5.3, 4.5.6.7, 4.6.4.1, 4.7.3.2, 4.7.3.7, 4.8.1, 4.10.3 (4). Exam-question counts and 'Done exam questions' progress are inflated accordingly.
 - **Evidence:** node script over dump.json keyed on year-paper-question: 202 groups, 88 leaves, 1194 items; js/core/content.js:515 extend() concatenates exam without de-duplication; js/core/content.js:546 builds 'AQA June …' src vs bank files' 'AQA 2025 P1 Q1.1'
 - **Root cause:** Bank files were authored independently of the worked cards; extend() concatenates blindly.
@@ -2511,30 +2682,106 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-06 · P2 · content — Steps blocks in 4.5.x notes render prose as monospace code with literal **bold** and a redundant '1.' heading
 
+- **Re-checked on kos-redraw-1:** holds: js/data/content/cs-p2-45a.js:104 still { h: "1.", m: "… **remainder** …" } in a steps block.
 - **Detail / repro:** In 4.5.2.1 (Decimal → binary), 4.5.4.1, 4.5.4.3, 4.5.4.5, 4.5.6.4 and 4.5.6.7 the authored {steps} use h:'1.', h:'2.' (duplicating the numbered circle) and put prose with markdown in m. The renderer escapes m into a preformatted maths/code line, so the page shows '1.' next to circle 1 and a monospace box reading 'record the **remainder** (MOD)'. 21 numbered headings and 10 markdown-in-m steps.
-- **Evidence:** audit-evidence/2026-11/qa/shots/content-cs-it/cs-4521-steps-literal-bold-mac.png; js/data/content/cs-p2-45a.js:104 { h: '1.', m: 'Divide by the base; record the **remainder**…' }; js/core/content.js:404 esc(st.m)
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4521-steps-literal-bold-mac.png; js/data/content/cs-p2-45a.js:104 { h: '1.', m: 'Divide by the base; record the **remainder**…' }; js/core/content.js:404 esc(st.m)
 - **Root cause:** Authoring misuse of the steps schema (m is the monospace working line, n the inline note).
 - **Proposed fix:** Move the prose to n (rendered through inline()) and drop the numeric h in those six leaves; optionally have validate_content.js flag markdown inside steps[].m and h matching /^\d+\.$/.
 - **Flags:** effort S
 
 ### CC-07 · P2 · content — ~30 CS flashcard decks ask the same fact twice ('Bandwidth?' + 'Define bandwidth.'), plus 11 cards duplicated across neighbouring leaves
 
+- **Re-checked on kos-redraw-1:** holds: strict.js re-run → 43 within-leaf pairs over 31 leaves (new-strict.txt); cross.txt unchanged.
 - **Detail / repro:** The depth rewrite added 'Define X.' / 'What does the MAR hold?' cards beside the original terse 'X?' / 'MAR holds…' cards without removing them, so the same definition is scheduled twice under FSRS. Confirmed by reading: 4.1.1.10 subroutine; 4.1.2.1 paradigm; 4.1.2.3 inheritance; 4.2.4.1 weighted graph and directed graph; 4.2.5.1 BST rule; 4.3.5.2 merge sort; 4.4.2.1 Mealy machine; 4.6.1.1 'Define software.' twice verbatim; 4.6.1.2 four types of system software; 4.6.5.1 'X + X̄·Y' and 'Simplify A + ¬A.B' (same identity, two notations); 4.7.3.1 MAR and MBR; 4.7.3.6 interrupt sources; 4.7.4.1 barcode reader; 4.7.4.2 optical disk; 4.9.1.1 'What is crosstalk?' twice verbatim; 4.9.1.2 bandwidth and latency; 4.9.2.1 physical and logical topology; 4.9.4.6 private ranges; 4.9.4.7 DHCP; 4.9.4.11 thin client (x2); 4.10.1 attribute; 4.10.2 primary key; 4.10.5 record locking and timestamp ordering. Across leaves: interface of a subroutine (4.1.1.10#15 / 4.1.1.11#2), data abstraction (4.2.1.1#7 / 4.4.1.3#20), floating vs fixed point advantages (4.5.4.4#17-18 / 4.5.4.7#0-1), four types of system software (4.6.1.2#0 / 4.6.1.3#7), three sources of interrupts (4.7.3.2#14 / 4.7.3.6#9), IPv6 and NAT (4.9.4.5#7 / 4.9.4.8#2), pitch opening (F204.6.1#6 / F206.5.1#5). The same Boolean deck also mixes overbar (X̄) and ¬ notation.
-- **Evidence:** audit-evidence/2026-11/qa/content-cs-it/strict.txt (43 within-leaf pairs, confirmed by reading), audit-evidence/2026-11/qa/content-cs-it/cross.txt (11 cross-leaf pairs), audit-evidence/2026-11/qa/content-cs-it/dupes.txt (looser 800-line list); js/data/content/cs-p2-*.js flashcards arrays
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/strict.txt (43 within-leaf pairs, confirmed by reading), /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/cross.txt (11 cross-leaf pairs), /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/dupes.txt (looser 800-line list); js/data/content/cs-p2-*.js flashcards arrays
 - **Root cause:** Cards appended during the depth rewrite without de-duplicating against the original deck; no automated near-duplicate check.
 - **Proposed fix:** Keep the fuller 'Define X.' card and delete the terse twin in each pair; when deleting, add the original position as the third element to every later card (invariant 87) so schedules do not shift. Pick one Boolean notation per deck. Add a smoke66 near-duplicate check (token Jaccard on the question ≥ 0.9 within a leaf).
 - **Flags:** effort M
 
 ### CC-08 · P2 · content — IT F201 (the unit still to sit) is much thinner than CS: no worked answers, 3 exam items and 5–6 quiz questions per leaf
 
-- **Detail / repro:** Every F201 leaf has 0 worked examples, 0 figures, exactly 3 exam questions (no source), 5–6 quiz questions and 8–11 flashcards; notes run 493–1,281 words over 3–7 pages (F201.2.2 Data preparation 493 words and no table; F201.2.3 509; F201.5.1 517). CS leaves average ~1,900 words, 6–8 worked exam answers and 9–12 exam items. F201 is a 60-mark, 1 h 30 exam with six-mark and levels-of-response questions, yet there is no worked levels-of-response answer showing what a top-band 'Discuss' looks like, and 15 IT exam questions put '[6]' in the question text on top of the marks badge. The spec notes F201.2.6 lists 'Factor analysis' which the generated spec text does not (the spec row reads '□ Techniques To').
-- **Evidence:** content-cs-it/metrics.txt (it F201.* rows: w0 fg0 ex3 q5-6); node scan: 15/150 IT exam q end with '[n]'; dump.json F201.2.3 spec ['□ Data mining','• Diagnostic Prescriptive □','□','□ Does','□']; audit-evidence/2026-11/qa/shots/content-cs-it/it-f2013-p1-ipadl.png (a 60-word note page, half the iPad landscape screen empty)
+- **Re-checked on kos-redraw-1:** holds: metrics unchanged (F201.* w0 ex3 q5-6). Also: examiner intel (KOS_DATA.intel) covers only F201.1.1 and F201.3.1 of F201's 15 leaves, and no F204/F206 leaf.
+- **Detail / repro:** Every F201 leaf has 0 worked examples, 0 figures, exactly 3 exam questions (no source), 5–6 quiz questions and 8–11 flashcards; notes run 493–1,281 words over 3–7 pages (F201.2.2 Data preparation 493 words and no table; F201.2.3 509; F201.5.1 517). CS leaves average ~1,900 words, 6–8 worked exam answers and 9–12 exam items. F201 is a 60-mark, 1 h 30 exam with six-mark and levels-of-response questions, yet there is no worked levels-of-response answer showing what a top-band 'Discuss' looks like, and 15 IT exam questions put '[6]' in the question text on top of the marks badge. The spec notes F201.2.6 lists 'Factor analysis' which the generated spec text does not (the spec row reads '□ Techniques To'). Examiner intel exists for only 2 of F201's 15 leaves (F201.1.1, F201.3.1) and none of F204/F206.
+- **Evidence:** content-cs-it/metrics.txt (it F201.* rows: w0 fg0 ex3 q5-6); node scan: 15/150 IT exam q end with '[n]'; dump.json F201.2.3 spec ['□ Data mining','• Diagnostic Prescriptive □','□','□ Does','□']; /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2013-p1-ipadl.png (a 60-word note page, half the iPad landscape screen empty)
 - **Root cause:** IT content was written to a lighter contract than smoke65/66 hold CS to; no IT depth smoke.
 - **Proposed fix:** Add per F201 leaf: two worked exam answers (one 6-mark levels-of-response 'Discuss' with a band commentary), 6+ exam items across Describe/Explain/Discuss, 10 quiz questions, a scenario-based case per page; strip the '[n]' suffix from IT exam q text (marks already carry it).
 - **Flags:** effort L
 
+### CC-14 · P2 · bug — Derived exam items make the worked card's one-line 'Answer:' summary a tickable mark point, so full marks can be self-awarded with a real point missing
+
+- **Devices:** all
+- **Detail / repro:** KOS.content.examFromWorked pushes '**Answer:** <result>' as the last ms bullet of every exam item it derives from a worked card (801 of the 1,194 CS exam items). The exam engine treats every ms bullet as a tickable mark point: when points > marks (729 items) the award is min(total, ticks), so ticking the Answer summary replaces a real mark point; when points == marks (29 items) the Answer line IS one of the marks. Repro: 4.6.2.1 Exam questions, Q6 'AQA June 2017 · P2 Q04.2' (3 marks): leave 'There may not be a compiler…' unticked, tick the other three points and 'Answer: No translator; constrained hardware' → AWARDED 3 / 3. Example of the == case: 4.7.3.5 'June 2017 · P2 Q07.1' (4 marks) has three 1-mark steps + Answer = 4 'points', so the summary is the fourth mark.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/exam-4621-q042-selfmark-mac.png; kos eval (exam2.js): allStepsNoAnswer 3, oneStepMissingButAnswer 3; js/core/content.js:568 (ms.push('**Answer:** '…)); js/engines/quiz.js:288 perMark, :294 fromTicks min(total,n); node count over dump.json: derivedWithAnswer 801, pointsGtMarks 729, pointsEqMarks 29
+- **Root cause:** examFromWorked mixes the model answer into the mark-scheme array that the tally counts.
+- **Proposed fix:** Render the Answer line as a non-tickable 'Model answer' row (e.g. ms item {answer:true} or a separate `answer` field on the item) and exclude it from points.length; re-check 4.7.3.5 Q07.1 which then has 3 points for 4 marks (see the mark-sum finding).
+- **Flags:** effort S
+
+### CC-15 · P2 · data — Restoring an older backup folds a merged CS leaf's progress by dropping it: a completed member leaf loses to a weaker record on the kept leaf
+
+- **Devices:** all
+- **Detail / repro:** The twelve CS merges fold old leaves into one kept leaf (store.js REF_ALIASES, e.g. 4.5.1.2–4.5.1.7 → 4.5.1.1). renameRefs() renames a stored key only when the kept key is absent; otherwise it DELETES the member's record. Fixture via KOS.store.replaceState (the same scrubLegacy gate as import and every cloud pull): progress {4.5.1.1: conf 1, covered}, {4.5.1.3: conf 3, status done, all four checks}, {4.5.1.5: conf 3, studied} → after the gate only {4.5.1.1: conf 1, covered} remains — the completed 4.5.1.3 and the studied 4.5.1.5 are gone, and the topic reads Red/barely started. Any backup or cloud document from before the merges (2 Oct 2026), or from a device that had not yet booted the new build, loses the member leaves' progress, notes and confidence on restore.
+- **Evidence:** node audit-evidence/2026-11/qa/content-cs-it/alias2.js → replaceState-> {"compsci:4.5.1.1":{"conf":1,"checks":{"covered":true}}}, lastRef 4.4.1.5→4.4.1.3; js/core/store.js:371-374 (if (!hasOwnProperty(o, nk)) o[nk] = o[k]; delete o[k]); store.js:318-323 comment 'the kept leaf's wins'
+- **Root cause:** A generic key rename with 'kept wins' semantics is applied to records that should be combined.
+- **Proposed fix:** For the progress/notes/quiz maps, merge the member record into the kept one (max checks, max conf, best status, concatenated notes) instead of discarding it; keep 'kept wins' only for scalar fields that conflict. Add a smoke case with three members and a weak kept record.
+- **Flags:** effort S
+
+### CC-16 · P2 · ui — On iPhone a worked example keeps its 84px 'GIVEN / STEP n' label column, squeezing the working into 61% of the card
+
+- **Devices:** iPhone (and Split View widths)
+- **Detail / repro:** Every worked-example row is a three-column grid (label · body · mark chip) with a fixed 84px label column at every width. At iPhone (402) the card is 370px wide: label 84px + 12px gap, the body starts at x130 and is 226px wide, and a mark chip takes the right edge, so algebra, truth-table rows and mark-scheme notes wrap every 3–4 words while the column under 'STEP 1' stays empty for the whole step. CS notes hold 941 worked cards, so this is most of the reading on the phone. The label is a one-word kicker that could sit above the body.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/recheck-writeout-4641-iphone.png (4.6.4.1, 'Trace Figure 5 and write G'); kos eval at iphone: card 370, label [34, 84], body [130, 226], gap 12; css/tokens.css:562 --wk-label-w: 84px; css/views/study.css:351 .k-n-wrow grid-template-columns: var(--wk-label-w) minmax(0,1fr) auto (no narrower tier)
+- **Root cause:** The worked-row grid has no phone tier.
+- **Proposed fix:** Below 560px stack the row: the label as a small kicker on its own line (with the mark chip beside it), the body full width (a 560 tier in study.css, widest-first per invariant 48).
+- **Flags:** effort S
+
+### CC-17 · P2 · bug — Self-mark tally ignores a worked step's own mark weight ('[3 marks]'), so 60 derived CS exam items cannot reach full marks from their real mark points
+
+- **Devices:** all
+- **Detail / repro:** examFromWorked turns each worked step into one tickable mark point and only appends its weight as text (' [3 marks]'). The tally counts ticks equally: when points != marks it scales round(total*n/points). Examples: 4.7.3.5 'AS June 2019 · P2 Q10.1' (7 marks) has steps worth 3/1/1 plus the Answer line = 4 points: ticking every real step gives round(7*3/4)=5 of 7, and only ticking the Answer summary reaches 7; ticking just the 3-mark step gives 2. 'AS June 2017 · P2 Q07.1' (4 marks) has three 1-mark steps, so full marks require ticking the Answer summary. Over the dump, 60 derived CS items have fewer real mark points than marks and 34 carry a step weighted >1. The −/+ stepper lets the user override, but the default award is wrong.
+- **Evidence:** js/core/content.js:547-552 (ms line + ' [' + st.mk + ']'), js/engines/quiz.js:288-295 (perMark, fromTicks scaling); js/data/content/cs-p2-47b.js:355-375; node over content-cs-it/dump.json: derived items 801, realPoints<marks 60, weighted steps 34 (4.5.3.1, 4.5.4.5, 4.5.4.7, 4.5.5.3, 4.5.6.1 …)
+- **Root cause:** Mark weights are stored as free text in st.mk and flattened into display text; the tally has no notion of a point's weight.
+- **Proposed fix:** Carry the step weight as data (ms item {t, w}) and let fromTicks sum weights; author the missing final mark point where a worked card's steps add up to fewer marks than its src (e.g. 4.7.3.5 Q07.1 needs a 'whole loop correct' point); add a smoke check that step weights sum to the src marks.
+- **Flags:** effort M
+
+### CC-18 · P2 · ux — Back from a notes diagram (or any detour) reopens the topic's notes on page 1, losing the reading place
+
+- **Devices:** all
+- **Detail / repro:** The 34 'Interactive diagram · Open simulation →' buttons in CS notes navigate to #/sims/<id>. Coming back (browser Back, or the lab's 'Open topic page') reopens the Notes tab on page 1, not the page the diagram sat on. Repro: 4.2.1.1 Notes, page 3 of 7 holds the Linked list diagram; click it (hash #/sims/tl-list), history.back() → #/ref/compsci/4.2.1.1, Notes tab, page select '0'. Long CS leaves have 6–10 pages, so every detour (diagram, a sim, a search hit, a bell click) sends the reader back to the start.
+- **Evidence:** kos eval content-cs-it/diagback.js at mac: {pg:2, h1:'#/sims/tl-list', back:'#/ref/compsci/4.2.1.1', tab:'Notes7', page:'0'}; js/modules/hub.js:2983 (cur = o.keep ? notePage : 0 — notePage is a closure variable that does not survive re-entering the view); js/core/content.js:450-453 (diagram click → KOS.sims.open)
+- **Root cause:** The reader page is view-local state, reset on every KOS.show of the topic.
+- **Proposed fix:** Remember the note page per topic per device (state.ui.notePage['sid:ref'], like state.ui.lastProd) and reopen on it; or open the diagram's lab in a dialog/side pane over the notes (KOS.sims.embed already exists).
+- **Flags:** effort S
+
+### CC-19 · P2 · a11y — In the light shop theme Washi Morning, code in notes is nearly invisible: keywords 1.7:1, strings and numbers 1.3:1
+
+- **Devices:** all (Washi Morning theme)
+- **Detail / repro:** Every CS code listing (152 code blocks: C#, SQL, pseudocode, assembly) colours its tokens with --syn-kw/--syn-num/--syn-str. tokens.css tunes them for a dark ground and only Atelier Dawn restates them for a light one; Washi Morning, the one light shop theme (--bg l 0.948), inherits the dark-ground values. On 4.10.4's SQL page, INSERT/UPDATE/VALUES/SET read pale lilac and every literal pale orange/green on beige. Graphite, Dawn and the dark shop themes measure 4.4–11:1. The same tokens colour the Assistant's code, the C#/OOP labs and Code's editor.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4104-p3-washi-mac.png; kos eval content-cs-it/codecontrast.js (contrast vs the code block ground): washi-morning kw 1.68, num 1.33, str 1.33, com 6.01; atelier-dawn kw 5.01 num 4.4 str 4.79; atelier-dusk kw 8.8; css/tokens.css:555 (--syn-kw l 0.76), css/themes.css:156-161 (Dawn only), css/themes.css:850 (washi-morning has no --syn-*), css/views/study.css:314
+- **Root cause:** Syntax colours are absolute values tuned per ground and restated only for Dawn, not derived from a role.
+- **Proposed fix:** Derive --syn-* from a lightness role (as invariant 26a asks of derived tokens) or give washi-morning the Dawn syntax block; add a theme-contrast check over --syn-* to tools/smoke (themecontrast.js already measures text roles).
+- **Flags:** effort S
+
+### CC-20 · P2 · ui — IT desk on iPad portrait: the qualification boundary bar collapses to 48px, its 120/180/240/270 labels print on top of each other
+
+- **Devices:** iPad portrait
+- **Detail / repro:** The IT subject desk's 'So far' card is a three-column grid (220px | 1fr | 340px, 32px gaps) that only stacks under 700px. At the iPad's 820px portrait width the middle column (the boundary bar and its caption) gets 48px: the four boundary figures overlap into '12018024070' and the caption 'Qualification boundaries · out of 300 across the 5 units' breaks into seven lines one word wide (131px tall). iPad landscape gives it 252px (labels just clear), mac 542px.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2015-3-nea-units-ipad.png; kos eval at ipad: .k-it-cap w 48 h 131, ticks 120@371-391, 180@381-401, 240@390-410, 270@395-415 (overlapping); ipadl w 252; mac w 542; css/views/study.css:996 (grid), :1114-1123 (stacks only under 700px), css/tokens.css:657-658
+- **Root cause:** Two fixed side columns plus gaps consume the width between 700 and ~900px; no intermediate tier.
+- **Proposed fix:** At max-width 1080px put the middle column on its own row (grid-template-areas: 'l r' 'm m'), or give .k-it-agg-m a min-inline-size of ~240px and let the grid wrap; check 820 and 701px.
+- **Flags:** effort S
+
+### CC-21 · P2 · ux — IT desk's 'Start here' sends you to F200.1.1, a unit already sat and with no notes, instead of F201/F206
+
+- **Devices:** all
+- **Detail / repro:** With no last-opened IT topic, the desk's next card picks the first leaf whose progress is not 'done'. It ignores the IT unit record, so it points at F200.1.1 'Data, information and knowledge' although F200 is marked Done in the IT units table on the same page (and F200/F202 have spec only, no notes, flashcards or quiz). The units still to sit are F201 (exam) and F206 (NEA), which is where the user's time should go (memory: still to do F201 and F206).
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2015-3-nea-units-ipad.png ('START HERE F200.1.1' above 'F200 … Done · ≈51/60 Distinction'); js/modules/hub.js:2215-2224 continueCard (filters only by peekProgress status); content-cs-it/inv.json leavesNoContent lists every F200.* and F202.* leaf
+- **Root cause:** continueCard is subject-generic and does not consult the IT unit statuses (invariant 26f).
+- **Proposed fix:** For sid 'it', skip leaves whose unit KOS.itUnits marks done or not-taken (and leaves with no content) before choosing; fall back to the first leaf of a 'sitting' unit.
+- **Flags:** effort S
+
 ### CC-09 · P3 · content — Bold containing an *italic* word renders literal ** in three IT F204 callouts
 
+- **Re-checked on kos-redraw-1:** holds: kos eval KOS.content.inline('a **b *c* d** e') → 'a **b <em>c</em> d** e'; js/core/content.js:109.
 - **Detail / repro:** KOS.content.inline's bold rule /\*\*([^*]+)\*\*/ cannot contain an asterisk, so '**health *and* home**' shows as '**health and home**' with the italic applied and literal asterisks. Seen in F204.1.1 'Sectors overlap' callout, F204.2.2 'How to write M6', F204.5.3 'A structure that scores' (this one also has a stray quote: '**(3) exactly what the solution does"**').
 - **Evidence:** kos eval: KOS.content.inline('a **b *c* d** e') -> 'a **b <em>c</em> d** e'; js/core/content.js:109; js/data/content/it-f204.js:72, :544, :2189; render sweep content-cs-it/sweep-121.json
 - **Root cause:** Inline markdown regex excludes * inside **…**.
@@ -2543,14 +2790,16 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-10 · P3 · content — Flashcards filed under the wrong leaf
 
+- **Re-checked on kos-redraw-1:** holds: fit.js re-run, fit.txt unchanged.
 - **Detail / repro:** Cards that test a different topic than the leaf they sit in (confirmed by reading): 4.3.4.3 Binary tree search #13 asks which TRAVERSAL finds a range (4.3.2.1); 4.12.1.3 Function application #7 'head (tail (tail [4,7,1,9]))' is list processing (4.12.3.1); 4.5.6.1 Bit patterns #8 'How are instructions represented?' is the instruction set (4.7.3.3); 4.7.3.2 Fetch-Execute #14/#16 are interrupt cards (4.7.3.6); 4.9.4.3 IP address structure #9/#13 are IPv6/IPv4-exhaustion cards (4.9.4.5); 4.4.1.3 Kinds of abstraction #17 'Link to functional programming?' and #22 'Fraction built from…?' are synoptic asides as recall cards.
-- **Evidence:** audit-evidence/2026-11/qa/content-cs-it/fit.txt (cards scored against other leaves' notes vocabulary, top hits confirmed by reading)
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/fit.txt (cards scored against other leaves' notes vocabulary, top hits confirmed by reading)
 - **Root cause:** Cards authored as synoptic links ended up as plain recall cards in the wrong deck.
 - **Proposed fix:** Move each card to its home leaf (with a whole-key third element so its schedule follows, invariant 87) or delete it where the home leaf already has the fact.
 - **Flags:** effort S
 
 ### CC-11 · P3 · content — validate_content reports 9 errors in the CS merged leaves (cs-m-*) and 92 in IT: bare top-level paragraphs
 
+- **Re-checked on kos-redraw-1:** holds: node tools/validate_content.js cs-* → 9 errors, 190 warnings; it-* → 92 errors, 120 warnings (same).
 - **Detail / repro:** CLAUDE.md states `node tools/validate_content.js js/data/content/cs-*.js` reports no errors, but it reports 9 ERRORs, all bare string paragraphs in the merged-leaf files (4.4.1.9, 4.4.4.6, 4.5.1.1, 4.5.3.1, 4.5.4.1, 4.5.4.5, 4.5.6.1, 4.5.6.4 ×2: 'Steps an ADC performs (3 marks)…', 'Minimum file size = width × height × colour depth…'). These exam-technique paragraphs are exactly the content that should be a tip/formula callout. IT content has 92 bare-paragraph errors (F201.2.4 7, F201.2.3/2.5 5, F204.3.3 5 …), mostly the 'Characteristics: … When used: …' rows in F201 that render as loose prose between callouts.
 - **Evidence:** node tools/validate_content.js js/data/content/cs-*.js → '45 file(s) checked — 9 error(s), 190 warning(s)'; it-*.js → '92 error(s), 120 warning(s)'; js/data/content/cs-m-errors.js, cs-m-bit-patterns.js
 - **Root cause:** The merged-leaf files were written after the validator pass, and the validator is not part of the smoke gate.
@@ -2559,30 +2808,100 @@ Not examined: I did not hand-verify every numeric answer in all 1,058 quiz items
 
 ### CC-12 · P3 · content — AQA mark-scheme shorthand (I., A., R., MAX, DPT) is used ~228 times with no explanation anywhere
 
+- **Re-checked on kos-redraw-1:** holds: grep '"[IAR]\. ' over cs-*.js and bank-cs-*.js → 228.
 - **Detail / repro:** Worked steps' notes read 'I. an incorrect gate for B·C.', 'I. missing spaces; A. each digit on a new line', 'R. a column with more than one value', 'MAX 2 if not fully correct'. These are AQA examiner abbreviations (Ignore / Accept / Reject); a student meeting them on a phone reads 'I.' as a roman numeral or a first-person note. No legend exists in content.js, the worked card or Help.
-- **Evidence:** audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png (step 3 note 'I. an incorrect gate for B·C.'); grep '"[IAR]\. ' js/data/content/cs-*.js bank-cs-*.js → 228; js/data/content/cs-p1-411a.js, cs-p1-42c.js, cs-p1-43b.js
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png (step 3 note 'I. an incorrect gate for B·C.'); grep '"[IAR]\. ' js/data/content/cs-*.js bank-cs-*.js → 228; js/data/content/cs-p1-411a.js, cs-p1-42c.js, cs-p1-43b.js
 - **Root cause:** Mark points copied in AQA's house style without a reader-facing gloss.
 - **Proposed fix:** Expand them at render in worked-step notes and mark-scheme bullets (I. → 'Ignore:', A. → 'Accept:', R. → 'Reject:') with a title on MAX/DPT, or add a one-line legend to the Exam questions tab and the worked card's footer.
 - **Flags:** effort S
 
 ### CC-13 · P3 · content — Functional-programming code is tagged 'text' (no Haskell label or highlighting) and assembly shows the raw label 'asm'
 
+- **Re-checked on kos-redraw-1:** holds: kos eval renderBlocks([{code:{lang:'asm'}}]) prints the label 'asm'; js/core/content.js:70 LANG_NAME has no haskell/asm.
 - **Detail / repro:** Every Haskell listing in 4.12.x (map/filter/fold definitions, partial application, composition, list processing — 11 blocks) is a {code} with lang 'text', so its head says 'text' and nothing is highlighted, while the C# twin beside it is coloured; the 4.7.3.5 assembly blocks print 'asm' because LANG_NAME has no entry for it.
 - **Evidence:** dump scan of notes code blocks: 4.12.1.2/1.3/1.4/1.5/2.1/3.1 lang 'text', 4.7.3.5 lang 'asm'; js/core/content.js:70 LANG_NAME (no haskell/asm), :74 esc(LANG_NAME[lang] || lang)
 - **Root cause:** No highlighter/label for the two non-C# languages the AQA spec uses.
 - **Proposed fix:** Tag those blocks lang 'haskell' and add 'haskell: "Haskell"', 'asm: "AQA assembly"' to LANG_NAME with a small keyword set in highlightCode (comments --, ::, ->).
 - **Flags:** effort S
 
+### CC-22 · P3 · content — Six CS quizzes ask the identical question twice (same stem, same answer), e.g. 4.9.4.6 '172.32.0.5 is' as Q1 and Q2
+
+- **Devices:** all
+- **Detail / repro:** Exact duplicate quiz items in one leaf: 4.9.4.5 Q1/Q2 'IPv6 addresses are written in', 4.9.4.6 Q1/Q2 '172.32.0.5 is' (byte-identical object), 4.9.4.7 Q1/Q2 'Why avoid DHCP for a server reached by port forwarding?', 4.9.4.8 Q1/Q2 'NAT is performed by', 4.9.4.9 Q1/Q2 'Port forwarding is configured on', 4.13.1.4 Q1/Q5 'For a valid range 1–10, which is boundary data?' (options reordered). The learner answers the same question back to back and the score counts it twice; the 4.9.4.x quizzes are already only 5 questions, so 20% of each is a repeat. Not covered by the flashcard redundancy finding (that measured flashcards and exam items only).
+- **Evidence:** node over dump.json (exact lower-cased stem match): 7 pairs in 7 leaves, 6 with the same answer; js/data/content/cs-p2-49c.js:358-359 (two identical lines)
+- **Root cause:** Copy-paste during authoring; no duplicate check in smoke65/66.
+- **Proposed fix:** Replace the second item in each pair with a new question on another point of the leaf (4.9.4.6: a 10.x or 192.168.x address; 4.9.4.9: what a forwarded port maps to). Add an exact-duplicate check to the content lint.
+- **Flags:** effort S
+
+### CC-23 · P3 · content — A third of quiz explanations say nothing: 502 of 1,635 'why' lines are under 16 characters ('Definition.' ×44, 'See the notes.' ×10, 'Spec.' ×6)
+
+- **Devices:** all
+- **Detail / repro:** The quiz shows `why` after every answer ('✕ Not quite · <why>'), the moment a learner who got it wrong needs the reason. 502 of 1,635 CS+IT explanations are under 16 characters: 'Definition.' (44), 'See the notes.' (10), 'Spec.' (6), 'NE per mark scheme.' (4), 'Spec wording.', 'Notation.', 'Absorption.'. Worst leaves: 4.6.4.1 (11), 4.9.4.6 (9), 4.5.4.5, 4.9.4.9 and 4.12.2.1 (8 each), 4.4.2.2, 4.7.1.1, 4.7.3.3, 4.9.1.2, 4.9.2.3, 4.9.4.1, 4.9.4.5, 4.9.4.7, 4.13.1.3, 4.13.1.4 (7 each). 'NE per mark scheme' is mark-scheme shorthand (not enough) that the learner is not told about.
+- **Evidence:** node over dump.json: total 1635, why.length<16: 502; js/engines/quiz.js:123-125 (why rendered after '✕ Not quite · '); js/data/content/cs-p2-49c.js:358
+- **Root cause:** Terse authoring of the older quiz layer; no minimum in the contract.
+- **Proposed fix:** Rewrite short explanations as one sentence that says why the right option is right AND why the tempting wrong one is wrong; lint why.length >= 25 in the content gate.
+- **Flags:** effort M
+
+### CC-24 · P3 · bug — Copy on a worked example pastes 'Write it out' as its first line and every formula one symbol per line
+
+- **Devices:** all
+- **Detail / repro:** The Copy button on a worked card copies box.innerText after hiding only Copy buttons and aria-hidden nodes. The 'Write it out' button is neither, so the clipboard starts 'Write it out\nExam-style\n…'. KaTeX's visible layer is aria-hidden, so it is removed and the MathML layer remains, whose innerText puts each symbol on its own line: 'G = B·C + A·(B ⊕ C)' pastes as '𝐺\n=\n𝐵\n⋅\n𝐶\n+…'. Reproduced on 4.6.4.1 'Trace Figure 5 and write G' with navigator.clipboard.writeText captured. Affects every copyable box (callout, steps, table, kv, worked) that contains maths.
+- **Evidence:** kos eval at mac on #/ref/compsci/4.6.4.1 notes page 3, clipboard captured: "Write it out\nExam-style\nTrace Figure 5 and write G … STEP 4\n(b)\n𝐺\n=\n𝐵\n⋅\n𝐶\n+\n𝐴…"; js/core/content.js:474-480 (hide list = content.copy + [aria-hidden='true']); content.js:383 (writeout button inside the figure)
+- **Root cause:** The copy routine reads layout text and only knows about two kinds of decoration.
+- **Proposed fix:** Also hide [data-ui~='content.writeout'] during the read, and before reading replace each .katex with its TeX source (the <annotation encoding='application/x-tex'> text wrapped in $…$) or with the MathML's textContent on one line.
+- **Flags:** effort S
+
+### CC-25 · P3 · content — IT exam mark schemes give one bullet per two marks, so the tally awards IT answers in steps of 2 (97 of 150 items)
+
+- **Devices:** all
+- **Detail / repro:** IT exam items write '(1) … (1)' inside one bullet (e.g. F201.2.2 'Describe two ways this could be handled [4]': two bullets 'Deletion (1): remove the rows … (1).'). The tally has one checkbox per bullet and scales, so ticking one bullet awards 2 and there is no way to tick the one mark earned for naming a method without describing it. 97 of the 150 IT exam items have fewer bullets than marks; the 9-mark NEA-practice items use '(1–2)' bullets the same way. The question text also repeats the tariff ('… handled. [4]') next to the '4 marks' header chip.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2022-exam-selfmark-mac.png (one tick → AWARDED 2 / 4); kos eval content-cs-it/itex.js: points 2, afterOneTick '2'; js/data/content/it-f201.js exam arrays; js/engines/quiz.js:294
+- **Root cause:** IT content authored mark schemes as prose bullets per idea rather than per mark.
+- **Proposed fix:** Split IT mark-scheme bullets into one point per mark (the '(1)' markers give the split), and strip trailing '[n]' from IT question text.
+- **Flags:** effort S
+
+### CC-26 · P3 · ux — Notes diagram buttons promise 'Open simulation →' but 8 of them open a gold-locked lab with no hint on the button
+
+- **Devices:** all
+- **Detail / repro:** With 0 gold, tl-list, tl-queue, tl-stack, tl-tree (180 gold each), sort-viz and fsm-lab (100) are locked (invariant 2: labs are a gold unlock). The notes buttons for them (4.2.1.1, 4.2.1.4, 4.2.2.1, 4.2.3.1, 4.2.5.1, 4.3.2.1, 4.3.4.3, 4.3.5.1, 4.3.5.2, 4.4.2.1) read exactly like the free ones and lead to a page that is only a lock card and 'Open the Gold Shop'. The lab index marks the same labs locked (aria-label '… — locked, 180 gold'); the notes button does not, so a reader leaves the notes for a dead end.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/diagram-tl-list-locked-mac.png; kos eval: ids.filter(i=>!KOS.governor.simAccess(i).ok) → tl-list:180, tl-queue:180, tl-stack:180, tl-tree:180, sort-viz:100, fsm-lab:100; js/core/content.js:353-360 (button built with no access check); js/labs/sims.js:223-228 (index card does show the lock)
+- **Root cause:** The content renderer builds the diagram button without consulting the Governor's lab access.
+- **Proposed fix:** In renderBlocks' diagram branch read KOS.governor.simAccess(id) and, when locked, show '◆ 180 · Locked' instead of 'Open simulation →' (aria-label too), or render the free sibling sim where one exists.
+- **Flags:** effort S
+
+### CC-27 · P3 · ui — On iPhone the exam card's '0 / 2 marks' total wraps onto two lines beside the two footer buttons
+
+- **Devices:** iPhone
+- **Detail / repro:** After 'Reveal mark scheme' on any CS/IT exam item at 402px, the footer holds the running total, 'Hide mark scheme' and 'Log self-mark' in one row; the total is squeezed to 57px and breaks as '0 / 2' / 'marks' (39px tall at a 19.5px line height), its second line sitting lower than the buttons' text.
+- **Evidence:** /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/exam-4113-iphone.png; kos eval at iphone: .k-qz-sum h 39 w 57 (line-height 19.5), parent .k-qz-foot.k-qz-exam-foot w 322; js/engines/quiz.js:437
+- **Root cause:** The exam footer row has no small-screen composition; the total is the only shrinkable item.
+- **Proposed fix:** white-space: nowrap on .k-qz-sum and let the footer wrap the buttons to their own row under 560px (or drop the duplicate total, which the AWARDED row already shows).
+- **Flags:** effort S
+
+### CC-28 · P3 · ux — Search finds a CS/IT topic only by its spec wording or flashcards: words taught in the notes, quiz and exam questions return nothing
+
+- **Devices:** all
+- **Detail / repro:** KOS.hub.search (the topbar's Specification domain and the Assistant's search tool) indexes each leaf's spec text plus its flashcards only. A term the notes teach but the spec and cards do not name is unsearchable: 'imputation' (F201.2.2's notes, quiz Q and exam mark scheme, the unit the user is sitting) returns no result at all. Meanwhile the garbled assessment-criteria dumps in the IT spec text ARE indexed: 'Lessons learnt Assessment criteria' matches F206.6.1.
+- **Evidence:** kos eval KOS.search.run: 'imputation' → [], 'Lessons learnt Assessment criteria' → ['F206.6.1 · Ways to reflect']; js/modules/hub.js:47-56 (SEARCH_INDEX: text + fctext only), :3539-3563 searchSpec; js/data/content/it-f201.js:736-786
+- **Root cause:** The spec search index predates the deep notes and was never widened to them.
+- **Proposed fix:** Add a third, lower-ranked tier to SEARCH_INDEX built once from each leaf's notes headings/defs/callout titles (and quiz/exam stems), with a 'Notes match' meta like 'Flashcard match'.
+- **Flags:** effort S
+
 **QoL ideas from this auditor:**
-- Show the per-leaf worklist audit-evidence/2026-11/qa/content-cs-it/worklist.txt to the author before the next content pass
+- Show the per-leaf worklist /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/worklist2.txt to the author before the next content pass
 - Typos: 4.6.4.1 worked title 'The 7-segment segment'
 - Normalise exam source labels to one format ('AQA June 2025 · P1 Q01.1')
 - Thin CS leaves to top up: 4.9.4.6 (584 words), 4.9.4.9 (634), 4.9.4.3 (765), 4.2.7.1 (776, 3 exam), 4.3.4.3 (779), 4.13.1.5 (798, 2 exam), 4.4.4.1 (956, 2 exam)
 - Merged leaves 4.5.3.1, 4.5.4.1, 4.5.5.1 have only 8 quiz questions, 4.4.4.6 has 7
+- Tariff chips could show their counts ('3–5 marks · 5') like 'All · 17'.
+- Exam card header 'Q5' while the filtered list reads 'Question 1 of 5': say 'Q5 of 17' or renumber within the filter.
+- Inspector prints 'Quiz best 0%' and the quiz header 'score 0' on an untouched topic (invariant 77) — study-core's to fix.
 
 **Backlog ideas from this auditor:**
 - An IT depth contract and smoke (like smoke65/66) for F201 and F206: worked levels-of-response answers, 6+ exam items, 10 quiz questions per leaf
 - A content lint in the smoke gate: validate_content, near-duplicate flashcards, quiz answer-position balance, duplicate exam src per leaf, markdown inside steps[].m
+- A content gate in the smoke suite: answer-position balance, near-duplicate flashcards, worked step marks summing to src marks, one exam item per past-paper question, validate_content clean.
+- Open a notes diagram's lab in place (dialog or side pane) instead of navigating away.
 
 
 ---
