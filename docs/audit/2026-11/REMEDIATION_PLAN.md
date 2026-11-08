@@ -280,6 +280,31 @@ Nothing risky lands before these exist.
   under `docs/archive/` or `.gitignore` them. History keeps them, and local
   copies stay.
 
+**W0 as built (8 Nov 2026, branch `feat/w0-safety-net` at `969371e`; gate 123/123, `qa/w0/gate-2026-11-08.txt`).**
+- Backup: `js/core/backup.js` (`KOS.backup`: checkpoint, withCheckpoint,
+  list, verify, download, restore), IndexedDB `kurenai-os-backups` scoped by
+  the data namespace, the last 5 kept. "Verified" = read back, parsed, every
+  part's count and SHA-256 matching, and a second live snapshot matching.
+  The test RESTORE runs on test data (smoke123 C); on the real account the
+  restore is not exercised (it would overwrite it), so before the DI-27
+  clean-up the downloaded checkpoint is also restored into an isolated
+  jsdom copy and compared (W1, B1).
+- Gates: smoke116 content, 117 cosmetics, 118 menus in dialogs, 119 CSS
+  collisions, each ratcheted against `tools/baselines/smoke11x-*.json`
+  (CC-11 is held, not fixed: its 288 validate_content errors are in the
+  smoke116 baseline and are fixed in W6).
+- Harness: `npm test` = `tools/run_smoke.mjs` (parallel, timeouts, skips
+  named, `--repeat`); AP-16's fixed sleeps replaced in smoke, 2, 4, 16, 17,
+  45, 47, 54, 75, 76; smoke115 Mind Journal replication (DI-26);
+  `.github/workflows/smoke.yml` (skips 75 and 76, which need the built C#
+  runtime); `responsive_audit --devices`.
+- §A7 tests: smoke120 DST and 04:00, smoke121 the SW update across two
+  versions, smoke122 offline.
+- Edge Functions audit: `qa/w0/edge-functions-audit.md` — no P0 or P1;
+  EF-01…EF-08 (3 P2, 5 P3) recorded in §4's backlog, not scheduled.
+- Repository (B12): commit `ae4dd7e`; backup of the untracked files in
+  `audit-evidence/2026-11/qa/w0/repo-untracked-backup.tgz` (local).
+
 ### W1 — Data integrity and the economy (about 2–3 sessions)
 **The P0s:**
 
@@ -750,6 +775,13 @@ The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
 rich formatting in ink (UR-12), Code editor intelligence (UR-23: Roslyn
 diagnostics and completion in the existing worker; feasible in stages), and
 the auditors' 127 backlog ideas.
+
+**Edge Functions (W0 audit, `qa/w0/edge-functions-audit.md`; recorded, not
+scheduled — ask before adding to a workstream):** EF-01 P2 an uncaught
+exception answers without CORS headers ("network?" instead of the reason);
+EF-02 P2 the gateway's own 401 has no `error` field; EF-05 P2 one user's
+failure aborts the runner's whole tick; EF-03, EF-04, EF-06, EF-07, EF-08
+P3 hygiene.
 
 ---
 
