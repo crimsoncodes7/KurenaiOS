@@ -63,3 +63,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-30: main merged into feat/creatives (Connections, kos-connect-2), then main fast-forwarded to feat/creatives at f4fa493; release sw kos-creatives-1, https://1e058d00.kurenai-os.pages.dev (Creatives Platform 1 + Art 1–3; gate is now 112 suites).
 2026-10-31: main fast-forwarded to feat/art-review; release sw kos-achievements-1, https://65c61e27.kurenai-os.pages.dev (Achievements, the Badge Wall; gate 113 suites).
 2026-10-31: sw kos-artshop-1 (2026-11-01, 87dad81e, main = feat/art-shop at 7371325)
+
+8 Nov 2026: hotfix sw kos-malfix-1 (DI-27: bulkUpsert provider ids matched per module), main fast-forwarded to 9fecf63, deployed https://d088dc59.kurenai-os.pages.dev; the audit branch merged main. Gate is now 114 suites (smoke114).
