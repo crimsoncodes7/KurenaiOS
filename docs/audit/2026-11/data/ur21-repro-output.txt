@@ -1,0 +1,9 @@
+cycle 1: anime pull added=1 updated=1; row after anime pull = anime/ONE PIECE/planned ani=21 reward={"progress":0,"volumes":null,"status":"planned"}
+         books pull rewards=[["Death Note",0,true]] session award={"xp":7,"gold":2}
+         after: rows=3 [books:Bleach, anime:Clannad, books:Death Note] DN journal=[["volumes",null,8]]
+cycle 2: anime pull added=0 updated=2; row after anime pull = anime/ONE PIECE/planned ani=21 reward={"progress":0,"volumes":null,"status":"planned"}
+         books pull rewards=[["Death Note",0,true]] session award={"xp":7,"gold":2}
+         after: rows=3 [books:Bleach, anime:Clannad, books:Death Note] DN journal=[["volumes",null,8]]
+cycle 3: anime pull added=0 updated=2; row after anime pull = anime/ONE PIECE/planned ani=21 reward={"progress":0,"volumes":null,"status":"planned"}
+         books pull rewards=[["Death Note",0,true]] session award={"xp":7,"gold":2}
+         after: rows=3 [books:Bleach, anime:Clannad, books:Death Note] DN journal=[["volumes",null,8]]

@@ -25,10 +25,10 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | EX | Exams hub, Files, ink/Pencil surfaces | complete | 0 | 4 | 21 | 24 | 49 |
 | CL | Collection vaults, Shrine, Wishlist, Sync | complete | 0 | 1 | 19 | 24 | 44 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | complete | 0 | 3 | 14 | 12 | 29 |
-| DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 14 | 8 | 26 |
+| DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 1 | 4 | 14 | 8 | 27 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 4 | 95 | 327 | 302 | 728 |
+| | **All** | | 5 | 95 | 327 | 302 | 729 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -128,6 +128,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **AA-01** [P1] 'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered
 - **AA-02** [P1] Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen
 - **AA-11** [P1] Import backup replaces everything on this device the moment a file is picked: no confirmation, no summary, no undo
+- **DI-27** [P0] Sync rewards never stop: bulkUpsert matches by MAL id across modules, so an anime sharing a manga's MAL id flips the manga row to anime and back every autosync cycle, paying a reward each time and flooding the 2,000-entry session ledger (UR-21, live: 1,741 entries)
 - **DI-01** [P1] Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives
 - **DI-02** [P1] Todoist: a failed second command batch leaves the first batch's tasks unlinked, so the next sync imports them as duplicates
 - **DI-03** [P1] First cloud sign-in silently discards a device's reminders, assignments, exams, routines and other data that 'stateMeaningful' does not count
@@ -6746,6 +6747,15 @@ main.js 20 s / 5 s / 30 min; cloudsync INTERVAL (15 min) + noteChange; autosync 
 - kurenai-os-papers 'Keep in my cloud' copy (Exams/Files area).
 - Visual pass in Dawn and shop themes for Archive pages (UI areas).
 
+
+### DI-27 · P0 · data-integrity — Sync rewards never stop: bulkUpsert matches by MAL id across modules, so an anime sharing a manga's MAL id flips the manga row to anime and back every autosync cycle, paying a reward each time and flooding the 2,000-entry session ledger (UR-21, live: 1,741 entries)
+
+- **Devices:** all (every device that runs autosync pays and evicts on its own)
+- **Detail / repro:** LIVE (8 Nov, the user's account, read-only, LA-31): 1,741 of the 2,000 ledger entries are sync-reward sessions naming Death Note and Aku no Kyouten (Books), about 40 a day since 27 Sep, each {xp 46, gold 12}: about 80,500 XP and 21,000 spendable gold of phantom pay. Real sessions are evicted by the cap (sessions.js:31 CAP=2000), so the ledger now reaches back only to about 27 Sep, which cuts streaks, a topic's minutes, goals over past ranges and Reports' longer totals. The cloud state has lost them too. MECHANISM: MAL numbers anime and manga separately, so MAL 21 is both the Death Note manga and One Piece (TV). AniList ids never collide. bulkUpsert's identity cascade (mediadb.js:1183-1213) looks up the GLOBAL 'anilist' and 'mal' indexes (:119, :126) with no module check (unlike cloudsync findByProviderId :886 and media.js dedupeVault :316). The anime pull (autosync.js:117-125) misses anilist 21, finds the manga row by mal 21, and merges One Piece (planned, 0, volumes null) into it. The reward watermark absorbs down (mediadb.js:1168). 2.5 s later the books pull misses anilist 30021 (the row now carries 21), finds the row by mal 21 again, and merges Death Note back. rewardDelta (:398-410, :1155) sees statusAdvanced (+36 units for Aku no Kyouten), and governor.js:284-295 pays 46 XP and 12 gold through logSyncRewardBatch (media.js:198). Journals gain volumes null→N every cycle (journalFacts :462-466, journalDiff :489-497); status pairs cancel within a day (:500-516). Collateral: those anime never get a row (the mirror is broken, invariant 90); kos_media is pushed twice a cycle and may upload the anime-shaped copy under the manga's syncId; gold/level badge tiers earned from the phantom pay are permanent (invariant 162); Reports' earned figures are inflated about 3,200 XP and 840 gold a week. Only rows whose MAL id equals a PLANNING anime's MAL id, where the anime had no row of its own, are hit.
+- **Evidence:** docs/audit/2026-11/findings/live-account.md LA-31 (live counts); docs/audit/2026-11/harness/ur21-repro.js (jsdom + fake-indexeddb, real bulkUpsert/mirrorOpts/logSyncRewardBatch) and docs/audit/2026-11/data/ur21-repro-output.txt: each books pull pays [Death Note, statusAdvanced] in all 3 cycles; the One Piece row is never created (3 rows, not 4).
+- **Root cause:** Provider identity is not scoped by module in bulkUpsert (MAL ids are per type); the reward watermark (invariant 17) assumes one row is one media item and is absorbed even by a cross-module merge. Cf. HANDOFF §6.21 (rewards without idempotent receipts).
+- **Proposed fix:** (1) In tryAnilist/tryMal use index.getAll(value) and keep only rows whose module matches (no schema change; compound [module,id] indexes would need DB v9, invariant 6); merge() refuses old.module !== inc.module. (2) rewardDelta pays nothing when a merge changed module or provider identity; consider once per entry per day. (3) Regression smoke: two cycles with a colliding MAL id pay once, make 4 rows, leave the manga untouched. (4) One-time repair at boot: prune the bogus journal events; the anime insert on the next pull. (5) USER DECISION: delete the 1,741 bogus ledger entries (frees room, cannot restore evicted ones), claw back XP/gold or not (no clawback by default), and the badge tiers (invariant 162). Stopgap with no code: turn off Collection autosync until the fix ships.
+- **Flags:** effort S (fix) + M (repair and decisions)
 
 ### DI-01 · P1 · data — Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives
 
