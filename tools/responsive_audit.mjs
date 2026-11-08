@@ -38,7 +38,16 @@
                                     # iPad Air 11": 820×1180 and 1180×820
                                     # (the installed app), touch, no hover
      node tools/responsive_audit.mjs --sizes 590x800,375x800 --touch
-                                    # Split View and Slide Over widths  */
+                                    # Split View and Slide Over widths
+     node tools/responsive_audit.mjs --devices --shots /tmp/kos-devices
+                                    # the user's own devices in one run
+                                    # (plan §1.3): mac 1470×832, ipad 820×1180
+                                    # and ipadl 1180×820 (touch), iphone
+                                    # 402×874 and iphonesafari 402×760 (touch);
+                                    # --devices ipad,iphone picks some. Each
+                                    # sets its own touch, and results are keyed
+                                    # theme|device|view (screenshots
+                                    # <device>-<theme>-<view>.jpg)  */
 
 import { writeFile, readFile, mkdir } from "node:fs/promises";
 
@@ -58,9 +67,27 @@ const IPAD = argv.includes("--ipad");
    Home Screen app keeps all but the 24pt status bar. */
 const SIZES = String(flag("sizes", IPAD ? "820x1156,1180x796" : flag("widths", "1920,1440,820,390"))).split(",")
   .map(s => { const [w, h] = s.split("x").map(Number); return { width: w, height: h || (w <= 700 ? 844 : 1000) }; });
-const WIDTHS = SIZES.map(s => s.width);
 /* touch input as an iPad has it: coarse pointer, no hover */
 const TOUCH = IPAD || argv.includes("--touch");
+SIZES.forEach(s => { s.touch = TOUCH; s.name = null; });
+/* --devices [names]: the user's exact devices (remediation plan §1.3),
+   each with its own touch; replaces --sizes/--widths/--ipad when given */
+const DEVICES = {
+  mac: { width: 1470, height: 832, touch: false },
+  ipad: { width: 820, height: 1180, touch: true },
+  ipadl: { width: 1180, height: 820, touch: true },
+  iphone: { width: 402, height: 874, touch: true },
+  iphonesafari: { width: 402, height: 760, touch: true }
+};
+const DEV_FLAG = flag("devices", null);
+if (DEV_FLAG) {
+  const names = DEV_FLAG === true ? Object.keys(DEVICES) : String(DEV_FLAG).split(",").map(n => n.trim()).filter(Boolean);
+  const bad = names.filter(n => !DEVICES[n]);
+  if (bad.length) { console.error("unknown device(s): " + bad.join(", ") + " — known: " + Object.keys(DEVICES).join(", ")); process.exit(2); }
+  SIZES.length = 0;
+  names.forEach(n => SIZES.push(Object.assign({ name: n }, DEVICES[n])));
+}
+const WIDTHS = SIZES.map(s => s.width);
 const THEMES = String(flag("themes", "atelier-dawn,atelier-dusk")).split(",");
 const VIEWS = String(flag("views",
   "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,routines,routines-routines,routines-templates,routines-history,routines-settings,pacing,pacing-braid," +
@@ -493,10 +520,15 @@ for (const theme of THEMES) {
   await evaluate(`(() => { KOS.store.state.governor.theme = ${JSON.stringify(theme)};
     if (KOS.governor.applyCosmetics) KOS.governor.applyCosmetics();
     document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)}); return true; })()`);
-  for (const { width, height } of SIZES) {
+  for (const { width, height, touch, name } of SIZES) {
     await send("Emulation.setDeviceMetricsOverride",
-      { width, height, deviceScaleFactor: 1, mobile: width <= 700 || TOUCH });
-    if (TOUCH) {
+      { width, height, deviceScaleFactor: 1, mobile: width <= 700 || touch });
+    if (!touch && DEV_FLAG) {
+      /* a device sweep mixes touch and pointer devices: switch touch back off */
+      await send("Emulation.setTouchEmulationEnabled", { enabled: false }).catch(() => {});
+      await send("Emulation.setEmulatedMedia", { features: [] }).catch(() => {});
+    }
+    if (touch) {
       await send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
       await send("Emulation.setEmulatedMedia", { features: [{ name: "pointer", value: "coarse" }, { name: "hover", value: "none" },
         { name: "any-pointer", value: "coarse" }, { name: "any-hover", value: "none" }] }).catch(() => {});
@@ -520,11 +552,11 @@ for (const theme of THEMES) {
       await sleep(view === "mangaka" || view === "matrix" ? 900 : 420);
       let r;
       try { r = await evaluate(PROBE); } catch (e) { continue; }
-      const key = `${theme}|${width}|${view}`;
+      const key = name ? `${theme}|${name}|${view}` : `${theme}|${width}|${view}`;
       results[key] = r;
       totalOver += r.count; totalCut += r.cutCount;
       if (r.count || r.cutCount || r.overlap) {
-        console.log(`${theme.padEnd(14)} ${String(width).padStart(4)}  ${view.padEnd(12)}`
+        console.log(`${theme.padEnd(14)} ${(name || String(width)).padStart(4)}  ${view.padEnd(12)}`
           + ` spill ${String(r.count).padStart(3)}  cut ${String(r.cutCount).padStart(3)}`
           + (r.overlap ? `  tab-bar overlap ${r.overlap}px` : ""));
         r.worst.forEach(w => console.log(`      +${w.over}px  ${w.sel}  (w ${w.w})`));
@@ -532,7 +564,7 @@ for (const theme of THEMES) {
       }
       if (SHOTS) {
         const shot = await send("Page.captureScreenshot", { format: "jpeg", quality: 72 });
-        await writeFile(`${SHOTS}/${width}x${height}-${theme}-${view}.jpg`, Buffer.from(shot.data, "base64"));
+        await writeFile(`${SHOTS}/${name || width + "x" + height}-${theme}-${view}.jpg`, Buffer.from(shot.data, "base64"));
       }
     }
   }

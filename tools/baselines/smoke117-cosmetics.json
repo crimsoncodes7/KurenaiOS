@@ -1,0 +1,8 @@
+{
+  "_about": "smoke117: today's cosmetics violations (item or code path · problem). The suite fails only on one NOT listed here. Shrink this list as W5 fixes them (SC-05 and friends); re-record with --write-baseline.",
+  "violations": [
+    "js/modules/books.js · --skin-art · relative url() resolved by css/views/collection.css",
+    "js/modules/shrine.js · --skin-art · relative url() resolved by css/views/collection.css",
+    "penset-study · declares no surface: no [data-penset=\"study\"] rule"
+  ]
+}

@@ -35,6 +35,11 @@ const { loadWasm } = require("./lib/cs-wasm-node.js");
 const { K, content, data, CSI } = loadCode();
 /* units 7+ run on the full runtime (nullable on), as in the app */
 let WASM = null;
+/* both runners stop a program at a step budget (deterministic) AND at a wall
+   clock (2.5 s / 3 s, as in the app). On a loaded machine the clock tripped
+   on correct answers (audit AP-16), so the gate gives the clock a minute and
+   leaves the step budget — which is what stops a runaway loop — as it is. */
+const WALL_MS = 60000;
 
 const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
@@ -46,8 +51,8 @@ let SQL = null;
 const run = async (src, stdin, fs, lesson, db) => isSql(lesson)
   ? SQL.run({ src, seed: seedOf(K, data, { lesson, db }) })
   : full(lesson)
-  ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs, nullable: true })
-  : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs });
+  ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs, nullable: true, ms: WALL_MS })
+  : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs, ms: WALL_MS });
 async function passes(spec, src, lesson) {
   for (const c of spec.cases) {
     const r = await run(src, c.stdin, c.fs || spec.fs, lesson, c.db || spec.db);

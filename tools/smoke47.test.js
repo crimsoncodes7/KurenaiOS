@@ -233,4 +233,8 @@ step("the release cache version is deliberate and matches the recorded baseline"
     console.log(`\nSMOKE47 PASS — Category 7 Phase G visual consistency verified (${passed} steps).`);
   }
   dom.window.close();
-})().catch(e => { console.error(e); process.exitCode = 1; });
+  /* exit now: the app's boot timers (the achievement sweep, replication) may
+     still be queued, and on a loaded machine one ran into the closed window and
+     crashed the process after the verdict was printed (audit AP-16) */
+  process.exit(process.exitCode || 0);
+})().catch(e => { console.error(e); process.exit(1); });

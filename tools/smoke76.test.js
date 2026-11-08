@@ -47,9 +47,14 @@ function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 const norm = (s) => String(s == null ? "" : s).replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
 let WASM = null;
+/* both runners stop a program at a step budget (deterministic) AND at a wall
+   clock (2.5 s / 3 s, as in the app). On a loaded machine the clock tripped
+   on correct answers (audit AP-16), so the gate gives the clock a minute and
+   leaves the step budget — which is what stops a runaway loop — as it is. */
+const WALL_MS = 60000;
 const run = async (src, stdin, fs, where) => where === "sandbox"
-  ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs, nullable: true })
-  : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs });
+  ? WASM.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs, nullable: true, ms: WALL_MS })
+  : CSI.run({ files: [{ name: "Program.cs", src }], stdin: stdin || "", fs: fs, ms: WALL_MS });
 const written = Object.keys(K.CAPSTONES).filter((id) => K.CAPSTONES[id].milestones);
 const riderCaps = Object.keys(K.CAPSTONES).filter((id) => K.CAPSTONES[id].project);
 

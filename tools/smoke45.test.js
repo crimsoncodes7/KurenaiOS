@@ -77,6 +77,13 @@ const click = n => n.dispatchEvent(new window.MouseEvent("click", { bubbles: tru
 const key = (k, t) => (t || document).dispatchEvent(new window.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
 const p = fn => new Promise((res, rej) => fn((err, out) => err ? rej(err instanceof Error ? err : new Error(err.message || String(err))) : res(out)));
 const tick = ms => new Promise(r => setTimeout(r, ms || 0));
+/* wait for a condition, not a fixed time: a loaded machine overran the
+   fixed waits these steps used (audit AP-16). Returns the final check. */
+async function waitFor(cond, ms) {
+  const deadline = Date.now() + (ms || 20000);
+  while (Date.now() < deadline) { if (cond()) return true; await tick(10); }
+  return cond();
+}
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
 const steps = [];
 const step = (n, f) => steps.push([n, f]);
@@ -214,12 +221,12 @@ step("browser Back and Forward navigate inside KurenaiOS", async () => {
   KOS.show("governor", "shop"); await tick();
   assert(window.location.hash === "#/governor/shop", "setup wrong");
 
-  window.history.back(); await tick(80);
+  window.history.back(); await waitFor(() => window.location.hash === "#/calendar" && KOS.store.state.ui.view === "calendar");
   assert(window.location.hash === "#/calendar", "Back did not reach the previous view: " + window.location.hash);
   assert(KOS.store.state.ui.view === "calendar", "Back changed the URL but not the page");
   assert(KOS.canForward(), "Forward should now be available");
 
-  window.history.forward(); await tick(80);
+  window.history.forward(); await waitFor(() => window.location.hash === "#/governor/shop" && KOS.store.state.ui.view === "governor");
   assert(window.location.hash === "#/governor/shop", "Forward did not return: " + window.location.hash);
   assert(KOS.store.state.ui.view === "governor", "Forward changed the URL but not the page");
 });
@@ -228,7 +235,7 @@ step("the in-app Back/Forward (Alt+←/→) drive the same one stack", async () 
   KOS.show("home"); await tick();
   KOS.show("help"); await tick();
   assert(KOS.canBack(), "Back should be live after two navigations");
-  KOS.back(); await tick(80);
+  KOS.back(); await waitFor(() => window.location.hash === "#/home");
   assert(window.location.hash === "#/home", "the in-app Back did not move browser history");
   /* the topbar arrows are gone (the browser has its own); the stack they
      drove is still the browser's one stack */
@@ -257,7 +264,7 @@ step("an unknown or malformed route fails safe to Home", async () => {
   assert(KOS.router.parse("#/subject/notasubject") === null, "a bogus subject parsed");
   assert(KOS.router.parse("#/ref/compsci") === null, "a ref with no identity parsed");
   assert(KOS.router.parse("") === null && KOS.router.parse("#") === null, "an empty hash parsed");
-  window.location.hash = "#/notaview/xyz"; await tick(90);
+  window.location.hash = "#/notaview/xyz"; await waitFor(() => window.location.hash === "#/home");
   assert(KOS.store.state.ui.view === "home", "a bad route did not fall back to Home");
   assert(window.location.hash === "#/home", "the bad route was left in the address bar");
 });
@@ -296,24 +303,33 @@ step("a toast announces, and the same sentence twice announces twice", async () 
      lands inside this step and its toasts overwrite the region under test.
      Run the pass now so its keys are already marked notified. */
   KOS.calendar.checkReminders(); await tick(120);
-  KOS.ui.toast("Saved to the vault.");
-  await tick(80);
-  assert(pol.textContent === "Saved to the vault.", "nothing was announced: " + JSON.stringify(pol.textContent));
+  const SAID = "Saved to the vault.";
+  KOS.ui.toast(SAID);
+  await waitFor(() => pol.textContent === SAID);
+  assert(pol.textContent === SAID, "nothing was announced: " + JSON.stringify(pol.textContent));
   /* the region is cleared before it is refilled; without that, setting the
-     same string is a no-op and the second event is silent */
-  await tick(500);
-  KOS.ui.toast("Saved to the vault.");
-  await tick(20);
-  assert(pol.textContent === "", "the region was not cleared before the repeat");
-  await tick(80);
-  assert(pol.textContent === "Saved to the vault.", "the repeat did not announce");
+     same string is a no-op and the second event is silent. Every value the
+     region takes is recorded, so the clear is seen however late the refill
+     runs on a loaded machine (audit AP-16). */
+  await tick(500);                       /* past the 400 ms same-sentence window */
+  const seen = [];
+  const mo = new window.MutationObserver(() => seen.push(pol.textContent));
+  mo.observe(pol, { childList: true, characterData: true, subtree: true });
+  KOS.ui.toast(SAID);
+  const cleared = () => seen.indexOf("");
+  await waitFor(() => cleared() !== -1 && seen.indexOf(SAID, cleared()) !== -1);
+  await tick(0);
+  mo.disconnect();
+  assert(cleared() !== -1, "the region was not cleared before the repeat");
+  assert(seen.indexOf(SAID, cleared()) !== -1 && pol.textContent === SAID, "the repeat did not announce");
 });
 
 step("a failure interrupts; a confirmation waits its turn", async () => {
   const pol = document.getElementById("kos-live-polite");
   const ass = document.getElementById("kos-live-assertive");
   KOS.ui.toast("Delete failed: the record is gone.", true);
-  await tick(80);
+  await waitFor(() => ass.textContent.indexOf("Delete failed") === 0);
+  await tick(80);                        /* and a polite refill would have landed too */
   assert(ass.textContent.indexOf("Delete failed") === 0, "an error did not reach the assertive region");
   assert(pol.textContent.indexOf("Delete failed") !== 0, "an error also went to the polite region");
 });
@@ -348,7 +364,8 @@ step("the chip announces attention and recovery, and nothing in between", () => 
 step("a navigation announces the page and puts focus in it", async () => {
   const pol = document.getElementById("kos-live-polite");
   await tick(400);
-  KOS.show("help"); await tick(90);
+  KOS.show("help");
+  await waitFor(() => (document.activeElement === main() || main().contains(document.activeElement)) && pol.textContent && pol.textContent.length > 1);
   assert(document.activeElement === main() || main().contains(document.activeElement),
     "focus was left outside the new page — the next Tab restarts at the brand mark");
   assert(pol.textContent && pol.textContent.length > 1, "the new page was not named");

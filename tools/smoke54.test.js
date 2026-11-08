@@ -83,8 +83,18 @@ const fakeClient = {
   },
   channel: () => ({ on() { return this; }, subscribe() { return this; }, unsubscribe: noop }),
   removeChannel: noop,
-  from: () => ({ select: () => Promise.resolve({ data: [], error: null }) })
+  /* every table read or write answers empty, however it is chained: a
+     replication timer the app starts at boot (Money, the review log, the
+     Journal — 9–11 s) fires inside a run that a loaded machine slowed down,
+     and a builder without .order()/.gt()/.range() threw out of an IndexedDB
+     callback and crashed the suite (audit AP-16) */
+  from: () => query()
 };
+function query() {
+  const done = Promise.resolve({ data: [], error: null });
+  const q = new Proxy({}, { get: (t, k) => k === "then" ? done.then.bind(done) : k === "catch" ? done.catch.bind(done) : k === "finally" ? done.finally.bind(done) : () => q });
+  return q;
+}
 window.KOS_ENV = { SUPABASE_URL: "https://test.supabase.co", SUPABASE_ANON_KEY: "anon" };
 window.supabase = { createClient: () => fakeClient };
 

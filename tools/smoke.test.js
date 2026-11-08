@@ -236,7 +236,19 @@ step("an inheritance cycle cannot be picked", () => {
 console.log("== persistence ==");
 step("force a save flush", () => { window.eval("KOS.store.save()"); });
 
-setTimeout(() => {
+/* the store's save is debounced (120 ms, and every later save() restarts it):
+   wait for the write itself rather than a fixed time, which a loaded machine
+   overran (audit AP-16) */
+function whenSaved(ok, done, ms) {
+  const deadline = Date.now() + (ms || 30000);
+  (function poll() {
+    let st = null;
+    try { st = JSON.parse(window.localStorage.getItem("kurenai-os-v1")); } catch (e) {}
+    if ((st && ok(st)) || Date.now() > deadline) { done(); return; }
+    setTimeout(poll, 25);
+  })();
+}
+whenSaved(st => st.progress && st.progress["compsci:4.2.3.1"] && st.progress["compsci:4.2.3.1"].note === "LIFO!" && st.oop && st.oop.classes.length, () => {
   const raw = window.localStorage.getItem("kurenai-os-v1");
   try {
     const st = JSON.parse(raw);
@@ -256,4 +268,4 @@ setTimeout(() => {
     // so the event loop never drains on its own any more
     process.exit(0);
   }
-}, 400);
+});

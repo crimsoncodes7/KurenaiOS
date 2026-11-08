@@ -63,8 +63,10 @@ function p(fn) {
   }));
 }
 const tick = ms => new Promise(resolve => setTimeout(resolve, ms || 0));
+/* polls; the floor of 20 s is for a loaded machine (audit AP-16) — a
+   passing condition returns at once, so it costs nothing when all is well */
 async function waitFor(cond, ms) {
-  const until = Date.now() + (ms || 2000);
+  const until = Date.now() + Math.max(ms || 0, 20000);
   while (Date.now() < until) {
     if (cond()) return true;
     await tick(20);
@@ -495,8 +497,12 @@ step("Collection hero repositions the remote banner without copying or replacing
   range(overlay, "Vertical position", 29);
   range(overlay, "Zoom", 1.9);
   button(overlay, "Save image").click();
-  await tick(80);
-  const pref = await getKV("hero.anime");
+  /* wait for the saved crop, not a fixed time (audit AP-16) */
+  let pref = null;
+  for (const until = Date.now() + 20000; Date.now() < until; await tick(20)) {
+    pref = await getKV("hero.anime");
+    if (pref && pref.crop && pref.crop.x === 47) break;
+  }
   if (pref.banner !== null) throw new Error("positioning a remote banner copied it into the custom-source field");
   cropEq(pref.crop, { x: 47, y: 29, zoom: 1.9 }, "edited hero");
   const entry = await p(cb => KOS.mediadb.get(animeId, cb));
@@ -539,12 +545,14 @@ step("wishlist cover metadata uses localStorage state and the shared hero render
   wishlistId = item.id;
   cropEq(item.coverCrop, { x: 88.89, y: 12.22, zoom: 1.556 }, "wishlist cover");
   KOS.show("wishlist");
-  await tick(40);
+  await waitFor(() => document.querySelector("[data-ui~='plan.hero'][data-state~='has-banner'] > [data-ui~='crop.bg'] img"));
   const hero = document.querySelector("[data-ui~='plan.hero'][data-state~='has-banner']");
   const img = hero && hero.querySelector(":scope > [data-ui~='crop.bg'] img");
   if (!img || img.style.getPropertyValue("--crop-x") !== "88.89%") throw new Error("wishlist hero ignored its saved cover crop");
 
-  await tick(160);
+  /* the store's save is debounced: wait for the write (audit AP-16) */
+  const saved = () => { try { const d = JSON.parse(window.localStorage.getItem("kurenai-os-v1")); return d && d.wishlist && d.wishlist.items.some(it => it.id === wishlistId) ? d : null; } catch (e) { return null; } };
+  await waitFor(saved);
   const persisted = JSON.parse(window.localStorage.getItem("kurenai-os-v1"));
   const persistedItem = persisted.wishlist.items.find(it => it.id === wishlistId);
   cropEq(persistedItem.coverCrop, item.coverCrop, "localStorage wishlist");

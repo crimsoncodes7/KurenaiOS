@@ -162,7 +162,15 @@ async function clearVault() {
   for (const e of all) await p(cb => KOS.mediadb.remove(e.id, cb, { skipTombstone: true }));
   await p(cb => KOS.mediadb.setKV("cloudsync.pendingDeletes", [], cb));
 }
-const sync = () => p(cb => KOS.cloudsync.syncNow(cb));
+/* a cycle asked for while another runs (the debounced one a local change
+   schedules) is only queued and answers at once with nothing done; on a
+   loaded machine that change cycle was still running when a step asked, so
+   the step's own pull never happened (audit AP-16). Wait for it first. */
+async function sync() {
+  const deadline = Date.now() + 30000;
+  while (KOS.cloudsync.getStatus().state === "syncing" && Date.now() < deadline) await tick(10);
+  return p(cb => KOS.cloudsync.syncNow(cb));
+}
 
 /* ============ 1 · schema: syncId ============ */
 console.log("== v8 schema: syncId ==");
@@ -417,7 +425,11 @@ step("noteRestore tombstones remote rows absent locally and re-pushes the vault"
   sv4.media.set("ghost-1", { entry_id: "ghost-1", module: "anime", deleted: false, updated_at: sv4.stamp(),
     data_json: { module: "anime", title: "Ghost Row", syncId: "ghost-1" } });
   KOS.cloudsync.noteRestore();
-  await tick(30);
+  /* wait for the restore flag itself, not a fixed time (audit AP-16) */
+  for (const deadline = Date.now() + 30000; Date.now() < deadline;) {
+    if (await p(cb => KOS.mediadb.getKV("cloudsync.restorePending", cb)) === true) break;
+    await tick(10);
+  }
   await sync();
   assert(sv4.media.get("ghost-1").deleted === true, "remote-only row not tombstoned after restore");
   const locals = await p(cb => KOS.mediadb.query({}, cb));

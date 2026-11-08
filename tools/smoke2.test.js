@@ -265,7 +265,19 @@ step("subject dash keeps deep-content coverage in the analytics panel", () => {
 
 console.log("== persistence ==");
 window.eval("KOS.store.save()");
-setTimeout(() => {
+/* the store's save is debounced (120 ms, and every later save() restarts it):
+   wait for the write itself rather than a fixed 600 ms, which a loaded
+   machine overran (audit AP-16) */
+function whenSaved(ok, done, ms) {
+  const deadline = Date.now() + (ms || 30000);
+  (function poll() {
+    let st = null;
+    try { st = JSON.parse(window.localStorage.getItem("kurenai-os-v1")); } catch (e) {}
+    if ((st && ok(st)) || Date.now() > deadline) { done(); return; }
+    setTimeout(poll, 25);
+  })();
+}
+whenSaved(st => st.study && st.study.fc && st.study.fc["maths:S5.2"] && st.study.quiz && st.study.quiz["compsci:4.2.2.1"], () => {
   try {
     const st = JSON.parse(window.localStorage.getItem("kurenai-os-v1"));
     if (!st.study || !st.study.fc["maths:S5.2"]) errors.push("flashcard stats not persisted");
@@ -277,4 +289,4 @@ setTimeout(() => {
   // explicit exit: the app keeps a 30-min reminder interval alive (Build 2a),
   // so the event loop never drains on its own any more
   else { console.log("ALL SMOKE TESTS PASSED"); process.exit(0); }
-}, 600);
+});

@@ -194,7 +194,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-malfix-1`
-- Required smoke gate: 114 / 114 suites (`""` and 2–114; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 123 / 123 suites (`""` and 2–123, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -288,7 +288,8 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..114}; do node "tools/smoke${i}.test.js"; done
+npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
+for i in "" {2..123}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry

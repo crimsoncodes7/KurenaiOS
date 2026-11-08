@@ -49,7 +49,9 @@ const tick = ms => new Promise(r => setTimeout(r, ms || 0));
 /* fake-indexeddb walks cursors ~one event-loop tick per record, so async
    view fills take ~200 ms at the 650-entry scale — poll, don't guess */
 async function waitFor(cond, ms) {
-  const deadline = Date.now() + (ms || 3000);
+  /* a floor of 20 s for a loaded machine (audit AP-16): a passing
+     condition returns at once, so it costs nothing when all is well */
+  const deadline = Date.now() + Math.max(ms || 0, 20000);
   while (Date.now() < deadline) {
     if (cond()) return true;
     await tick(40);
@@ -402,14 +404,16 @@ step("shrine renders favourites ranked, module-agnostic", async () => {
    "Zero-setup fallback" card, so the page has seven cards, not eight */
 step("mediasync renders all seven cards (AniList, VNDB, Games, autosync, fallback, enrichment, recent activity)", async () => {
   KOS.show("mediasync");
-  await tick(60);
   const main = document.getElementById("main");
+  await waitFor(() => main.querySelectorAll("[data-ui~='sync.panel']").length === 7 && /last-write-wins/.test(main.textContent));
   if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 7) throw new Error("panel count");
   if (!/anilist\.co\/settings\/developer/.test(main.textContent)) throw new Error("setup steps missing");
   if (!/last-write-wins/.test(main.textContent)) throw new Error("write-back limitation not stated");
 });
 step("integration overview covers disconnected, connected, loading, success and failure states", async () => {
   let main = document.getElementById("main");
+  /* the providers' state is read from the media kv after the page draws */
+  await waitFor(() => main.querySelectorAll("[data-ui~='sync.provider']").length === 2 && /Not connected/.test(main.textContent));
   if (main.querySelectorAll("[data-ui~='sync.provider']").length !== 2) throw new Error("provider overview missing");
   if (!/Not connected/.test(main.textContent)) throw new Error("disconnected state missing");
   await p(cb => KOS.mediadb.setKV("anilist.clientId", "42", cb));
@@ -434,7 +438,7 @@ step("integration overview covers disconnected, connected, loading, success and 
 });
 step("OS home shows the live Collection Matrix card (not Coming soon)", async () => {
   KOS.show("home");
-  await tick(30);
+  await waitFor(() => document.querySelector("[data-ui~='home.collection-desk']"));
   const card = document.querySelector("[data-ui~='home.collection-desk']");
   if (!card) throw new Error("no collection card on home");
   if (!/Collection/.test(card.textContent)) throw new Error("collection card unlabelled");
@@ -468,6 +472,10 @@ function withImageStubs(plan, run) {
     get src() { return this._src; }
   };
   window.fetch = (url, opts) => {
+    /* a provider API call (AniList's GraphQL is a POST) is the app's own
+       background work landing inside the step on a loaded machine (audit
+       AP-16), not the cover resolver: a cover is fetched with GET */
+    if (String((opts || {}).method || "GET").toUpperCase() !== "GET") return realFetch(url, opts);
     attempts.push({ kind: "fetch", url, cache: (opts || {}).cache, mode: (opts || {}).mode });
     return plan.fetch(url)
       ? Promise.resolve({ ok: true, blob: () => Promise.resolve({ type: "image/png", size: 10 }) })
@@ -487,7 +495,7 @@ step("a stored local cover is used first — no network at all", async () => {
   await withImageStubs({ img: () => true, fetch: () => true }, async attempts => {
     const out = await resolve({ module: "anime", coverUrl: "data:image/png;base64,AAAA" });
     if (!out.img || out.info.source !== "local") throw new Error("local cover not used: " + JSON.stringify(out.info));
-    if (attempts.some(a => a.kind === "fetch")) throw new Error("a local cover must never hit the network");
+    if (attempts.some(a => a.kind === "fetch")) throw new Error("a local cover must never hit the network: " + attempts.filter(a => a.kind === "fetch").map(a => String(a.url).slice(0, 80)).join(", "));
     if (attempts[0].crossOrigin) throw new Error("a data: url must not be requested crossOrigin");
   });
 });

@@ -1,0 +1,43 @@
+# The smoke gate (audit AP-12): every tools/smoke*.test.js, in parallel,
+# through `npm test` (tools/run_smoke.mjs). No secrets: the suites run the
+# app in jsdom with fake IndexedDB and a stubbed network.
+#
+# Skipped here, by name (the runner prints them in its summary):
+#   smoke75, smoke76 — they need Code's full C# runtime
+#     (assets/code/runtime/<id>/, gitignored), built by tools/build_cs_wasm.sh
+#     with the .NET 10 SDK from a pinned macOS ref-pack path. Run them
+#     locally after building it; they are part of the release gate.
+# Skipping itself: smoke90 H (python3 + openpyxl and the user's A-level
+# folder). Not smoke suites, never run here: the differentials that need
+# .NET, native SQLite or Python (cs_diff, sql_diff, fsrs_check,
+# cs_wasm_check, validator_check).
+name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TZ: Europe/London
+      SMOKE_SKIP: "75,76"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm test

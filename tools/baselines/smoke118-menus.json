@@ -1,0 +1,29 @@
+{
+  "_about": "smoke118: KOS.ui.menu inside KOS.ui.openDialog. `primitiveBehind` records that today the panel is painted BEHIND the dialog (PR-01/UR-24, fixed in W3 RC2); `sites` are the menu call sites (file · label) a static scan finds that can open inside a dialog. While the primitive is behind, a call site not listed here fails. Re-record with --write-baseline.",
+  "primitiveBehind": true,
+  "sites": [
+    "js/core/inkpad.js · (label || \"Earlier answers\") + \" · \" + list.length",
+    "js/core/inkui.js · (I.PAPERS.filter(function (p) { return p[0] === cur;",
+    "js/core/inkui.js · More tools",
+    "js/core/inkui.js · Recolour",
+    "js/core/inkui.js · optionLabel(dk)",
+    "js/core/pdfview.js · Jump to a question",
+    "js/core/pdfview.js · label",
+    "js/core/pdfview.js · ⋯",
+    "js/modules/calendar.js · Show",
+    "js/modules/dayreview.js · Place in a free block",
+    "js/modules/dayreview.js · V().LABEL[c.slot] + \" \" + c.sub",
+    "js/modules/due.js · sort === \"size\" ? \"Sort: most due\" : \"Sort: most overdue\"",
+    "js/modules/exams.js · ＋ App-checked",
+    "js/modules/files.js · ⋯",
+    "js/modules/hub.js · +",
+    "js/modules/inktab.js · Drills",
+    "js/modules/inktab.js · Working and answers · ",
+    "js/modules/inktab.js · ⋯",
+    "js/modules/medview.js · Filters",
+    "js/modules/medview.js · Spotlight",
+    "js/modules/medview.js · opts.actionsLabel || \"Actions\"",
+    "js/modules/routineplayer.js · Change",
+    "js/modules/routines.js · ⋯"
+  ]
+}
