@@ -7299,6 +7299,16 @@
    "design": false,
    "art": false,
    "decision": ""
+  },
+  {
+   "id": "CL-45",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
   }
  ],
  "clusters": [
@@ -8292,6 +8302,16 @@
     "DI-26"
    ],
    "change": "tools/run_smoke.mjs in parallel with npm test; replace fixed sleeps with condition waits in the five flaky suites; a Mind Journal replication smoke with an injectable cloud."
+  },
+  {
+   "ws": "W7",
+   "name": "Activity, not last write",
+   "ids": [
+    "HR-31",
+    "CL-45",
+    "GO-02"
+   ],
+   "change": "An activityAt stamp (AniList list-entry updatedAt, VNDB lastmod, local list-state edits) and one activity derivation read by the vault sort, Reports, Home and Goals."
   }
  ],
  "notes": [

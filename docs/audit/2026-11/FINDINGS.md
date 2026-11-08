@@ -23,12 +23,12 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | MG | Money (Santander import); Goals pages only | complete | 1 | 12 | 17 | 14 | 44 |
 | GO | Goals: every goal type's measurement, editor, notices, joins | complete | 0 | 5 | 11 | 11 | 27 |
 | EX | Exams hub, Files, ink/Pencil surfaces | complete | 0 | 4 | 21 | 24 | 49 |
-| CL | Collection vaults, Shrine, Wishlist, Sync | complete | 0 | 1 | 19 | 24 | 44 |
+| CL | Collection vaults, Shrine, Wishlist, Sync | complete | 0 | 2 | 19 | 24 | 45 |
 | AA | Assistant, notifications, Archive (data, backups, storage, connections) | complete | 0 | 3 | 14 | 12 | 29 |
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 1 | 4 | 14 | 8 | 27 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 5 | 96 | 327 | 302 | 730 |
+| | **All** | | 5 | 97 | 327 | 302 | 731 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -126,6 +126,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **EX-03** [P1] On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen
 - **EX-28** [P1] Timed paper: the question navigator's squares are crushed to 7px slivers on iPad and iPhone (17px on Mac)
 - **CL-01** [P1] Collection section strip hides the Games vault on iPad portrait (inner pill group scrolls invisibly)
+- **CL-45** [P1] 'Recently updated' sorts by the row's last write, not by your list activity: provider metadata changes (AniList tag ranks, covers, totals) and sync re-inserts restamp untouched titles, while titles you actually watched or read this week sink
 - **AA-01** [P1] 'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered
 - **AA-02** [P1] Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen
 - **AA-11** [P1] Import backup replaces everything on this device the moment a file is picked: no confirmation, no summary, no undo
@@ -5983,6 +5984,15 @@ NOT checked (why): real AniList/VNDB/Steam sign-in (credentials), Steam import r
 - **Root cause:** css/components.css:52 `.k-seg { max-inline-size:100%; overflow-x:auto; scrollbar-width:none }` makes the group's min-content 0, so as a flex child of `.k-subnav` (components.css:80) it shrinks and scrolls itself instead of overflowing the scroller mobile-shell.js:103-125 wraps around the subnav.
 - **Proposed fix:** Give the section's pill group `flex: none` inside `.k-subnav` (css/components.css:80-82) so the overflow moves to the outer `k-subnav-scroller`, which already has arrows; or drop overflow-x:auto from `.k-seg` when it is a child of `.k-subnav`.
 - **Flags:** effort S
+
+### CL-45 · P1 · bug — 'Recently updated' sorts by the row's last write, not by your list activity: provider metadata changes (AniList tag ranks, covers, totals) and sync re-inserts restamp untouched titles, while titles you actually watched or read this week sink
+
+- **Devices:** all
+- **Detail / repro:** User report 8 Nov, with screenshots of Anime and Manga. 10 of the top 15 anime under the default 'recently updated' sort had not been touched recently: Boku no Suki na Hito, Liar Game, Why Does Nobody Remember Me, Goodbye Lara, Spirit Circle, SPY x FAMILY S2/S3/Cour 2, Re:ZERO and Mushoku Tensei. Meanwhile the real recent activity on AniList (The Vermilion Mask ep 4, Summer Pockets, The Beginning After the End S2, Sasaki and Peeps; manga Hitozuma to JK ch 39-40, Hontou wa Watashi ga Iindesho?, Onna Tomodachi ch 28 and others) was not at the top. MECHANISM, from code: the sort is mediadb.js:785 `updated: b.updatedAt - a.updatedAt`. updatedAt is restamped on ANY material change of the row (sameMaterial, mediadb.js:429-441, compares every field except updatedAt, lastSyncedAt and reward), and that includes provider METADATA the pull refreshes on every cycle. One example is extra.aniTags (anilist.js topTags: AniList tags with rank >= 60, sorted by rank, top 8). Rank shifts as people vote, so the order or the set changes on popular titles. Cover/banner URLs, episode/chapter/volume totals, season, studio and duration do the same. So a popular or currently airing title rises to the top with no action from the user. AniList's own list-entry `updatedAt` (the user's last change to that entry) is not fetched (listQuery, anilist.js:226-238), so the app has no record of when the user last acted. One Piece and Mieruko-chan at the top are a one-off: the DI-27 hotfix gave them their own anime rows (inserted now). Mieruko-chan is presumably Aku no Kyouten's MAL-id twin.
+- **Evidence:** User screenshots 8 Nov (Anime vault top 15; AniList activity feed; Manga vault). js/core/mediadb.js:785 (sort), :429-441 (VOLATILE / materialJSON), :1169 (restamp unless sameMaterial); js/core/anilist.js:171-210 (mapListEntry: extra.aniTags, coverUrl, totals), :226-238 (listQuery without the entry's updatedAt). Not yet confirmed live which fields changed on these rows (needs a read-only look at their stored copies, or two pulls diffed).
+- **Root cause:** One timestamp does two jobs: 'this row changed, push it to the cloud' (any field) and 'you did something with this title' (list state only). Provider metadata churn moves the first, and the sort reads it as the second.
+- **Proposed fix:** Add an activity stamp distinct from updatedAt. Set it from AniList's list-entry `updatedAt` (add it to listQuery, mapped as e.g. `activityAt`), from VNDB's ulist `lastmod`, and from local list-state or personal edits (progress, status, score, notes; a user save). Sort 'recently updated' by it (fall back to updatedAt only when a row has none). Keep updatedAt for cloud dirtiness. Optionally stop restamping on metadata-only changes, or normalise aniTags order, to cut cloud churn too. Use the same activity definition as HR-31, so the vault, Reports and Home agree. Smoke: a pull that only reorders tags or changes a cover leaves the sort order unchanged; a progress step moves the title to the top.
+- **Flags:** effort S-M
 
 ### CL-02 · P2 · content — Collection Overview prints zero-only facts and truncates them on the module cards
 
