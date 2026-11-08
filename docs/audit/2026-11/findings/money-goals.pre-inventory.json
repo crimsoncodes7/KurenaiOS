@@ -1,0 +1,267 @@
+{
+ "area": "money-goals",
+ "summary": "Money's import is the weak point and explains everything the user reported. The importer only reads a CSV whose FIRST line is a header with exact-match names. Santander midata ('Merchant/Description', 'Debit/Credit', a semicolon delimiter or a blank first line) and Online Banking's CSV with its 'Account:/From:' preamble are refused before the column mapper is shown, and .txt, QIF and OFX are not supported at all. All six reconstructed Santander samples failed through the real engine. The duplicates come from the de-dupe key date|amount|payee: importing the same statement again with the description mapped to Note (or Payee left unmapped) gives an empty payee, so nothing matches and every row is added again. That row then shows the category name 'Other' as its title and the bank text as its subtitle, exactly as in the user's screenshot. A second path to double counting: confirming a recurring rule makes its own transaction, which never matches the bank row. Imports can be undone only on the dialog's last step: no import history, no source filter, no select-all. Imported data is not useful because everything goes to Other, payees are raw bank strings, and the Type and Balance columns are thrown away. The import dialog's preview hides the payee and amount on the Mac. On iPhone, Money's sub-pages (including Transactions and Import) and Goals' period tabs cannot be reached, because the phone title bar lists the Productivity subnav instead of the page tabs. One cross-app bug was also found: page header art shows the previous page's picture. Proposed revamp: (1) Format sniffing (CSV with header search and delimiter voting, Santander .txt, QIF, OFX with FITID), plus a row-width check. (2) Store the raw bank text on every row. De-dupe on date+amount+normalised raw text, and on FITID or the balance chain when present. (3) Keep an import history (state.money.imports: file, range, count) with Undo, Delete and Replace this period. (4) Normalise merchant names ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026' -> 'Heron Foods'). Learn payee rules when the user sets a category, and ship a UK merchant table. (5) Match imported rows to due recurring occurrences instead of adding new ones; suggest rules from DD/SO types and repeating merchants. (6) Reconcile with the bank's Balance column. (7) Add spend by merchant and by week, a top-merchants card in Month and year (in place of the 'Never printed' designer note), and student-specific views (Student Finance instalment runway: weeks left per \u00a3 until the next payment). Goals pages are mostly sound. They have the stale header art, a sparse detail page that does not link to what it counts, a low-contrast status chip on the band, and small zero-count issues.",
+ "coverage": "Money: Overview, Transactions, Budgets, Recurring, Pots and Month and year, each on the seeded account (117 typed transactions over 95 days, 4 rules, 2 pots, 3 budgets, plus my CSV imports) and the empty account (first-run). Import dialog: the failure step and the Columns/Preview step at Mac size. Import engine: KOS.money.csv.parse/guess/preview/import run in the browser on six reconstructed Santander files in scratchpad/qa/money-samples (midata comma and semicolon, Online Banking Excel CSV, .txt, QIF, OFX), plus a renamed-header workaround and a re-import with a different mapping. DOM measurements: all six Money views and #/goals, /week, /month, /done at mac, ipad and iphone. Screenshots read: Mac for every Money view, Goals list and a goal page; iPhone for Money Overview, Recurring, Goals and the New goal sheet; iPad for Transactions and Goals This week. Not covered: the Atelier Dawn theme (the harness --theme flag set data-theme but the page still drew dark, so Dawn could not be judged; this may be a harness problem, not reported as an app bug); shop themes; iPad landscape; the import dialog on iPhone and iPad; the Goal editor's type forms and the exam goal types; the Wishlist purchase handoff; cloud sync of kos_money; PDF statements (no PDF import path exists in money.js, so there is nothing to test).",
+ "findings": [
+  {
+   "title": "Duplicate transactions after re-importing: de-dupe key includes payee, so a second import mapped differently is all 'new'",
+   "severity": "P0",
+   "category": "data",
+   "detail": "Exactly the user's screenshot: the same Heron Foods row twice, once titled with the payee and once titled 'Other' with the bank text as the subtitle. Reproduced: import a statement with Description->Payee, then the same file with Description->Note (or payee unmapped); preview reports 0 duplicates and every row imports again. The key is date|minor|payee.lower(), and an empty payee never equals the first import's payee. The second row reads 'Other' because txRow falls back to the category name when payee is empty and shows the note as the sub-line.",
+   "evidence": "js/core/money.js:1025-1031 (key), js/modules/money.js:587,591 (title/subtitle fallback); shots/money-goals/tx-dups-all-mac.png; eval repro: second preview {dups:0}",
+   "fix": "Key duplicates on date+amount+kind+normalised bank text (payee OR note OR raw description, stored as tx.raw), with the bank's own id (OFX FITID / balance-chain) when present; keep the raw description on every imported row; offer 'Replace the previous import of this period' in the preview when a batch overlaps.",
+   "effort": "M",
+   "rootCause": "Dedupe depends on user-chosen mapping; raw source text not kept.",
+   "devices": "all"
+  },
+  {
+   "title": "Santander midata CSV is refused: 'Merchant/Description' and 'Debit/Credit' headers are not recognised",
+   "severity": "P1",
+   "category": "integration",
+   "detail": "The midata export's header 'Date,Type,Merchant/Description,Debit/Credit,Balance' maps only Date; GUESS has no pattern for 'Merchant/Description' (payee) or 'Debit/Credit' (signed amount), so read() fails with 'It has no header row with a date and an amount.' before the user ever reaches the column mapper, even though the mapper could have fixed it by hand. Reproduced through KOS.money.csv.parse/guess on money-samples/midata-comma.csv: mapping {date:0}, dialogAccepts false.",
+   "evidence": "js/core/money.js:970-977 (GUESS), js/modules/money.js:937-940 (hard refusal before the mapper); repro: scratchpad/qa/money-samples/midata-comma.csv, scratchpad/qa/mg-import.js",
+   "fix": "Add patterns (merchant/description, debit/credit, 'amount (\u00a3)', 'money in/out (\u00a3)'); and never hard-fail on unguessed headers: open the Columns step with the unmatched columns and let the user map them.",
+   "effort": "S",
+   "rootCause": "Exact-match header regexes plus a hard gate before the manual mapper.",
+   "devices": "all"
+  },
+  {
+   "title": "Import only reads the first line as the header: midata with a leading blank line or a semicolon delimiter, and Online Banking CSV with an account preamble, all fail",
+   "severity": "P1",
+   "category": "integration",
+   "detail": "parseCSV picks the delimiter from line 1 only (a leading blank line forces ','), and takes rows[0] as the header. Santander midata variants (';' delimited, trailing ';', blank first line) parse into one column; the Online Banking CSV/Excel export starts with 'Account:'/'From:' preamble lines so the header is 'Account:,Santander\u2026'. All refused with the same generic message.",
+   "evidence": "js/core/money.js:947-969; browser repro of 6 sample files (midata-semicolon.csv delimiter ',' header one cell; santander-online-excel.csv header ['Account:',\u2026]); all dialogAccepts=false",
+   "fix": "Detect the delimiter over the first ~10 non-empty lines; scan the first 20 rows for the first row that matches date+amount header patterns and treat everything above as preamble (show it as 'Skipped: 3 header lines'); drop trailing empty columns.",
+   "effort": "S",
+   "rootCause": "Header = rows[0], delimiter sniffed from text.split(/\\r?\\n/)[0].",
+   "devices": "all"
+  },
+  {
+   "title": "Santander's other exports (.txt, QIF, OFX) are not supported at all; the picker accepts .txt but cannot read it",
+   "severity": "P1",
+   "category": "integration",
+   "detail": "Online Banking 'Download transactions' offers text (Date:/Description:/Amount:/Balance: blocks with non-breaking spaces), Excel CSV, Quicken QIF and Microsoft Money OFX. The importer is CSV-only, yet the file input accepts text/plain, so the user's .txt is taken and fails with 'It has no header row with a date and an amount.' OFX would also give a stable FITID for exact de-duplication.",
+   "evidence": "js/modules/money.js:889 (accept .csv,text/csv,text/plain), js/core/money.js:947; repro: money-samples/santander-online.txt, santander.qif, santander.ofx all refused",
+   "fix": "Add format sniffing: OFX/QFX (parse STMTTRN, use FITID as the dedupe key, LEDGERBAL to reconcile), QIF (D/T/P/M/^ records), the Santander .txt block format; name the format detected in the Columns step. Keep CSV for everything else.",
+   "effort": "M",
+   "rootCause": "Single CSV parser path.",
+   "devices": "all"
+  },
+  {
+   "title": "No way to see, undo or replace an import after the result dialog closes",
+   "severity": "P1",
+   "category": "ux",
+   "detail": "Each import has a batch id, but 'Undo this import' exists only on the Done step of the dialog (money.js:915). Once closed there is no import history, no filter by source/batch in Transactions (list() filters kind/cat/tag/search only), and bulk select has no 'select all' over a range, so removing a bad 200-row import means ticking rows one by one.",
+   "evidence": "js/modules/money.js:915-917; js/core/money.js:1050-1056 (undoBatch only caller), list() keep() js/core/money.js:~700-712",
+   "fix": "An 'Imports' list (Transactions \u203a Imports or Settings): file name, date range, rows, when imported, with Undo/Delete and 'Replace with a new file'. Store {batch, fileName, from, to, n, at} in state.money.imports. Add a Source filter and Select all in view.",
+   "effort": "M",
+   "rootCause": "Batch metadata is not stored anywhere but on rows; UI only exposes it in a transient dialog.",
+   "devices": "all"
+  },
+  {
+   "title": "Unquoted thousands separators shift columns: '\u00a31,234.56' imports silently as \u00a31.00",
+   "severity": "P1",
+   "category": "data",
+   "detail": "A comma-delimited bank file that writes amounts like \u00a31,234.56 without quotes (common in hand-rolled UK exports, and what users get after re-saving midata in a text editor) splits the amount into two cells. The parser never checks a row's cell count against the header, so the Student Finance row imported as +\u00a31.00 and the balance column swallowed '234.56'. No warning in the preview.",
+   "evidence": "js/core/money.js:947-969 (no per-row width check), 1005-1013; eval repro: row ['2026-10-27','in',100,'STUDENT FINANCE ENGLAND SLC']; shots/money-goals/tx-dups-all-mac.png shows +\u00a31.00",
+   "fix": "Flag rows whose cell count differs from the header ('Row 3 has 6 cells, the header has 5'), and for the known Santander layout re-join a split \u00a3n,nnn.nn amount; show the running Balance column so a mismatch is visible.",
+   "effort": "S",
+   "rootCause": "Parser trusts column positions without validating row width.",
+   "devices": "all"
+  },
+  {
+   "title": "A recurring rule's 'Confirm' and an imported bank row for the same payment double-count",
+   "severity": "P1",
+   "category": "data",
+   "detail": "Confirming an occurrence (Google One \u00a31.59, Phone \u00a310) writes its own transaction r:<rule>:<date> with payee = rule name; importing the bank statement then adds 'GOOGLE *Google One, ON 27-10-2026' \u00a31.59 as a separate row. Neither side looks at the other: preview's dedupe compares payee text ('google one' vs the bank string) and confirm() never searches existing transactions. Spend, budgets, Safe to spend and Reports count the payment twice. This is a second path to the duplicates the user saw.",
+   "evidence": "js/core/money.js:414-433 (confirm creates tx unconditionally), 1025-1031 (dedupe by exact payee); recurring page shows Google One 'Due' for Sep/Oct even though the user has bank rows for them (shots/money-goals/recurring-mac.png)",
+   "fix": "On import, match rows to due occurrences (same amount \u00b10, date within \u00b13 days, payee alias set on the rule) and MARK the occurrence done pointing at the imported tx instead of creating a new one; on Confirm, offer 'Use the bank entry from 27 Oct' when one matches.",
+   "effort": "M",
+   "rootCause": "Rules and imports are two independent writers of the same real-world payment.",
+   "devices": "all"
+  },
+  {
+   "title": "Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded",
+   "severity": "P1",
+   "category": "ux",
+   "detail": "Every imported row lands in Other/Other income (preview opts.outCat), payee is the raw bank text ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026', 'CARD PAYMENT TO \u2026,3.45 GBP, RATE 1.00/GBP ON \u2026'), so Overview's 'This month by category' is one 'Other' bar, the Selected card shows a 4-line shouting title, spend-by-merchant is impossible and nothing learns from the user's re-categorising. The bank's Type (DEB/DD/FPI/FPO/SO) and Balance columns are dropped, so direct debits are not detected and the import cannot be reconciled. There is no merchant normalisation, no payee->category memory and no recurring detection anywhere in money.js.",
+   "evidence": "js/core/money.js:1019-1021 (cat = other), 1041; grep of money.js/modules/money.js finds no merchant/auto-category code; shots/money-goals/tx-dups-all-mac.png",
+   "fix": "Revamp (see summary): store raw text, derive a clean merchant (strip 'CARD PAYMENT TO', '(VIA APPLE PAY)', ', ON dd-mm-yyyy', ',n.nn GBP, RATE \u2026', store numbers, title-case); payee rules {match -> merchant, category} learned when the user sets a category ('Always put Heron Foods in Food?'); a built-in UK merchant table (Tesco, Heron Foods, Greggs, Stagecoach, Google, Spotify, SLC\u2026); Type DD/SO -> suggest a recurring rule; Balance -> reconcile and show 'Matches the bank: \u00a3120.10'.",
+   "effort": "L",
+   "rootCause": "Import engine was built as a column copier ('the pages are phase 2' comment at money.js:946).",
+   "devices": "all",
+   "needsDesign": true
+  },
+  {
+   "title": "iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable",
+   "severity": "P1",
+   "category": "bug",
+   "detail": "Under 700px the page's section tabs ([data-phone-tabs]) are hidden on the promise that the title bar's switch offers them, but mobile-shell's destinations() only falls back to page tabs when the section has no subnav. Productivity has a subnav, so the 'Switch within Productivity' sheet lists Focus Timer\u2026Money, Goals, and Money's six views and Goals' four views vanish. On the Money overview the only visible links are Budgets \u2192, Recurring \u2192, Pots \u2192; there is no way to open Transactions (where Import CSV lives) or Month and year. Goals: This week/This month/Done tabs measure 0x0.",
+   "evidence": "css/components.css:652-654; js/modules/mobile-shell.js:457-463 (subnav wins); js/modules/money.js:128, js/modules/goals.js:303; eval at iphone size: visible controls on #/money list no Transactions/Import; goals tabs 0x0; shots/money-goals/overview-iphone.png, goals-iphone.png",
+   "fix": "In destinations(), when the page carries [data-phone-tabs] list those tabs in the sheet (as a second group under the section list), or keep the page tabs visible as a k-scroller strip under the title bar for Money and Goals.",
+   "effort": "S",
+   "rootCause": "Phone title bar prefers the section subnav and the CSS hides page tabs unconditionally.",
+   "devices": "iphone"
+  },
+  {
+   "title": "Import preview hides the payee and amount, and the Import button is below the fold",
+   "severity": "P1",
+   "category": "ui",
+   "detail": "On the Mac (1470x832) the import dialog is 760px wide (it borrows Goals' --gl-dialog-w), the Columns card takes --mn-map-w, and the Preview card gets 264px. Its 4-column row grid (150px chip, 74px date, 1fr payee, 90px amount) leaves the payee 0px wide and pushes the amount to x=1148, outside the card (right edge 1087) \u2014 the preview shows only '+ New' and a date, so the user cannot check what will be imported. The 'Cannot read' row's reason is hidden the same way. The dialog body scrolls (907 > 713) and the footer with 'Import 4 entries' sits at y=860, off screen.",
+   "evidence": "shots/money-goals/import-preview-mac.png; eval: pvcard w=264, pv grid '150px 74px 0px 90px', amount x=1148, foot y=860; css/views/money.css:135,169,176",
+   "fix": "Give the import dialog its own wide token (~1080px, full sheet on iPad), stack Columns above Preview below ~900px, shrink the state chip to its content, pin the footer (sticky) so Import is always visible.",
+   "effort": "S",
+   "rootCause": "Dialog width token from Goals + fixed grid columns.",
+   "devices": "mac, ipad"
+  },
+  {
+   "title": "Month and year: 'In' shows expected income as if received",
+   "severity": "P2",
+   "category": "data",
+   "detail": "For the current month the side card's In figure is ins.planned (received + still expected), e.g. 'IN \u00a3450.00 \u00b7 \u00a3450.00 still expected' when nothing has come in yet. The headline figure should be what came in, with expected as the sub-line.",
+   "evidence": "js/modules/money.js:1695-1697; shots/money-goals/month-mac.png",
+   "fix": "fig('In', cur.income, expected ? '+' + said(expected) + ' still expected' : null).",
+   "effort": "S",
+   "rootCause": "inFig uses ins.planned",
+   "devices": "all"
+  },
+  {
+   "title": "'Never printed' card shows designer rules to the user",
+   "severity": "P2",
+   "category": "content",
+   "detail": "Month and year's side column contains a card titled 'Never printed' explaining 'Never a bare 0 or +\u221e%' \u2014 an implementation rule from the design notes, meaningless to the user and violating invariant 50a (rules belong in Help & Guide).",
+   "evidence": "js/modules/money.js:1698; shots/money-goals/month-mac.png",
+   "fix": "Remove the card; use the column for something useful (top merchants this month, biggest change, the month's subscriptions).",
+   "effort": "S",
+   "rootCause": "Design annotation shipped as UI copy.",
+   "devices": "all"
+  },
+  {
+   "title": "Money's section tabs jump between pages (Add entry button appears on some pages only)",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "On Overview/Transactions/Recurring the tab strip spans x\u2248617\u20131180 with '+ Add entry' after it; on Budgets/Pots/Month and year there is no Add entry and the strip sits at x\u2248742\u20131305 and vertically centred differently (y 183 vs 204). Switching tabs makes the control you just clicked move under the pointer. The strip and Hide amounts pill also sit over the painted header band, Hide amounts touching its right edge on Budgets/Pots.",
+   "evidence": "shots/money-goals/overview-mac.png vs budgets-mac.png, pots-mac.png, month-mac.png",
+   "fix": "Keep Add entry (or a placeholder of equal width) on every Money page, or put the section tabs on their own row left-aligned under the title as other Productivity pages do.",
+   "effort": "S",
+   "rootCause": "header() actions differ per view in js/modules/money.js",
+   "devices": "mac, ipad landscape"
+  },
+  {
+   "title": "Pots: empty right column beside the pot cards, and Move money's tabs/select clipped",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "With two pots the grid shows Emergency and the 'Saving for something?' tile, leaving a ~410px empty column on the right (x 1036\u20131446). The Move money card clips 'Between pots' at its right edge and the To select shows 'New laptop fc'.",
+   "evidence": "shots/money-goals/pots-mac.png",
+   "fix": "Use auto-fill grid with minmax so cards stretch (or put Move money in the empty column); let the Move money segments wrap and put From/To on separate rows under ~360px.",
+   "effort": "S",
+   "rootCause": "Fixed-column pot grid; segmented control without wrap.",
+   "devices": "mac"
+  },
+  {
+   "title": "iPhone Recurring: the third occurrence tile is cut off at the card edge",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "At 402px each due rule shows three occurrence tiles in a row; the third (Sat 28 Nov \u00b7 Upcoming) runs to x=410, past the card and viewport, reading \"Upcomi\" / \"Sat 28 No\". It is not a declared scroller (invariant 50). The New rule form is also always expanded at the bottom of the phone page and the + FAB covers its Next-dates line.",
+   "evidence": "DOM measure iphone #/money/recurring: k-mn-occ-i right=410; shots/money-goals/recurring-iphone.png",
+   "fix": "Under 560px show two tiles (last + next) or wrap them; make the tile row a KOS.ui.scroller if three are needed; collapse New rule behind the + New rule button on phone.",
+   "effort": "S",
+   "rootCause": "Fixed 3-column occurrence grid without a phone tier",
+   "devices": "iphone"
+  },
+  {
+   "title": "Goal page: status chip unreadable on the painted band, and a mostly empty page",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "On #/goals/<id> the 'Too early to call' chip sits on the header painting at very low contrast (grey text on mid-tone art). The page body is one stats card and two small side cards; for a Collection titles goal it never lists which titles count or what to read next, and it does not link to them, leaving ~400px of empty page at 1470x832. Fractional 'The line says 0.3 titles' for a count of titles reads oddly.",
+   "evidence": "shots/money-goals/goal-detail-mac.png",
+   "fix": "Give band chips a solid scrim background (as the Hide amounts pill has); for count goals list the counted/remaining items with links into the vault (connected OS); round the line for integer units ('on pace: 0 of 12 by today').",
+   "effort": "M",
+   "rootCause": "Detail page draws only aggregate facts.",
+   "devices": "mac, ipad",
+   "needsDesign": false
+  },
+  {
+   "title": "Painted page header shows the PREVIOUS page's picture (Goals shows Money's jar, Money shows Goals' mountain)",
+   "severity": "P2",
+   "category": "bug",
+   "detail": "KOS.ui.pageHeader picks its art from KOS.store.state.ui.view, but KOS.show only sets ui.view AFTER the view function has rendered. So the first render of any page that relies on PAGE_ART draws the art of the page you came from; a redraw on the same page then corrects it. Reproduced: money -> goals gives app.hero.page.money.webp on Goals; goals -> money/budgets gives app.hero.page.goals.webp on Money. Affects every page in PAGE_ART (Review, Assignments, Exams, Pacing, Calendar, Reminders, Routines, Goals, Money, Wishlist, Governor, Reports, Archive...).",
+   "evidence": "js/core/ui.js:589-592 (reads ui.view), js/core/ui.js:1540-1543 (view set after render); eval sequence output: '#/goals => app.hero.page.money.webp', '#/money/budgets => app.hero.page.goals.webp'; shots/money-goals/goals-mac.png (jar on Goals)",
+   "fix": "Set KOS.store.state.ui.view (or a transient KOS.ui.rendering = viewId) before calling KOS.views[viewId], or have pageHeader take the view id from the router's current call.",
+   "effort": "S",
+   "rootCause": "Ordering in KOS.show: state.ui.view assigned after render.",
+   "devices": "all"
+  },
+  {
+   "title": "CSS class collision: first-run steps and the import stepper share .k-mn-steps/.k-mn-step, breaking both",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "css/views/money.css defines .k-mn-steps/.k-mn-step/.k-mn-step-n twice: once for the import dialog's horizontal stepper (158-163) and again for the first-run checklist (319-321). The later column layout makes the import stepper a vertical centred list that eats ~170px of the dialog; the earlier align-items:center leaks into the first-run list, so its numbered circles sit at different x (906/934/910) because each step is centred by its own width.",
+   "evidence": "css/views/money.css:158-163 vs 319-321; shots/money-goals/import-midata-fail-mac.png (vertical stepper), money-empty-mac.png (misaligned 1/2/3)",
+   "fix": "Rename one set (e.g. .k-mn-istep for the import stepper) and set align-items: stretch on the first-run list.",
+   "effort": "S",
+   "rootCause": "Duplicate selectors in one view stylesheet.",
+   "devices": "all"
+  },
+  {
+   "title": "Transactions 'This view' totals cover only the rows loaded so far",
+   "severity": "P2",
+   "category": "data",
+   "detail": "With range 'Everything' the side card reads '60 entries so far \u00b7 In +\u00a31,337.80 \u00b7 Out \u2212\u00a3509.51' \u2014 totals of the first lazy batch, not of the period. A user checking a month's spend gets a partial figure that changes as they scroll.",
+   "evidence": "js/modules/money.js drawSide (sums `shown`); shots/money-goals/tx-dawn-mac.png",
+   "fix": "Compute the range totals with KOS.money.rangeSummary(from,to) (index read, no rendering) and keep the lazy list for rows only.",
+   "effort": "S",
+   "rootCause": "Totals derived from the rendered batch.",
+   "devices": "all"
+  },
+  {
+   "title": "iPad: Money header wraps Add entry to its own row and clips Hide amounts; filter selects are 30px on touch",
+   "severity": "P2",
+   "category": "ui",
+   "detail": "At 820x1180 the section tabs + Hide amounts fill the band row, Hide amounts' right border is cut at the band edge (x 804), and '+ Add entry' drops to a second row, making the band 220px tall with a gap. On Transactions the Category and Dates selects are 30px tall and rows 41px, under the 44px touch minimum (invariant 69); Pots' \u22ef menu button is 44x32 and Budgets' month-start select 70x30.",
+   "evidence": "shots/money-goals/tx-ipad.png; DOM measure ipad: money.tx-cat 165x30, money.tx-range 144x30, money.tx-row 696x41, ui.menu-button 44x32",
+   "fix": "Move section tabs to their own row below the title at <=1080px; apply the coarse-pointer 44px rule to .k-pill-select and menu buttons.",
+   "effort": "S",
+   "rootCause": "Header actions row not tiered for 701-1080; pill-select lacks coarse-pointer sizing.",
+   "devices": "ipad"
+  },
+  {
+   "title": "Phone section sheet stays open across navigation and shows the wrong page ticked",
+   "severity": "P3",
+   "category": "ux",
+   "detail": "Opening 'Switch within Productivity' on Goals and then navigating (back gesture / hash change) leaves the sheet over the new page with 'Goals \u2713' while Money is shown; it even survived a viewport change to iPad width.",
+   "evidence": "shots/money-goals/overview-dawn-mac.png and first tx-ipad attempt showed the stale sheet after two navigations",
+   "fix": "Close activeSectionOverlay on every KOS.show / hashchange in mobile-shell.js.",
+   "effort": "S",
+   "rootCause": "mobile-shell openSection overlay not tied to navigation.",
+   "devices": "iphone"
+  },
+  {
+   "title": "Goals: zero counts printed and empty-state card leaves a dead half",
+   "severity": "P3",
+   "category": "ui",
+   "detail": "This week with no goals shows the filter pill 'All 0' (invariant 77) and an empty-state card whose picture and one line sit in the left 60% with no action, next to the 'Aim at something new' card. 'Your run' paints '0 behind this week' in the alarm colour even when nothing is behind.",
+   "evidence": "shots/money-goals/goals-week-ipad.png, goals-mac.png",
+   "fix": "Hide the count at 0 (or the whole domain pill row when empty); put New goal / templates in the empty card; use muted tone for a zero 'behind'.",
+   "effort": "S",
+   "rootCause": "Pill count and stat tone not zero-aware.",
+   "devices": "all"
+  }
+ ],
+ "backlog": [
+  "Import revamp: format sniffing (Santander midata, Online Banking .txt/CSV, QIF, OFX), header search and delimiter voting, a row-width check, the raw text kept on every row",
+  "Import history (state.money.imports) with Undo, Delete and Replace this period, a Source filter and Select all in view",
+  "Merchant normalisation, a UK merchant table and learned payee->category rules ('Always put Heron Foods in Food?')",
+  "Recurring detection from DD/SO types and repeating merchants; imported rows mark due occurrences done instead of adding a second entry",
+  "Reconciliation against the bank's Balance column ('Matches your bank: \u00a3120.10')",
+  "Spend by merchant and by week; a top-merchants card; a Student Finance runway (money left per week until the next instalment)",
+  "Goal page: list the items a count goal is measuring, with links into the Collection, Study and Money"
+ ],
+ "qol": [
+  "Show 'N entries in other months' with a link when the Transactions month view is empty right after an import",
+  "Round 'The line says 0.3 titles' for whole-number goal units",
+  "Collapse the New rule form on phone behind + New rule",
+  "Give the Hide amounts pill and band chips a solid scrim on painted header bands",
+  "Fill the empty space in Overview's Safe to spend today card before a week of data, e.g. with the last 7 days' spend"
+ ]
+}

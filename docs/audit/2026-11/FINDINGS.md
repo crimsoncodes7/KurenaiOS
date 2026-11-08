@@ -18,9 +18,9 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | CO | Code study space | complete | 0 | 4 | 13 | 21 | 38 |
 | JM | Japanese study space (JM-01…05 predate the split and include two Mind findings) | complete | 1 | 3 | 21 | 14 | 39 |
 | MI | Mind study space | complete | 0 | 2 | 9 | 8 | 19 |
-| CR | Creatives study space | complete | 0 | 2 | 18 | 4 | 24 |
+| CR | Creatives study space | complete | 0 | 3 | 22 | 14 | 39 |
 | PR | Focus, Reminders, Routines, Daily Review, Calendar, Pacing | complete | 0 | 4 | 15 | 24 | 43 |
-| MG | Money (Santander import); Goals pages only | complete | 1 | 9 | 10 | 2 | 22 |
+| MG | Money (Santander import); Goals pages only | complete | 1 | 12 | 17 | 14 | 44 |
 | GO | Goals: every goal type's measurement, editor, notices, joins | complete | 0 | 5 | 11 | 11 | 27 |
 | EX | Exams hub, Files, ink/Pencil surfaces | complete | 0 | 4 | 21 | 24 | 49 |
 | CL | Collection vaults, Shrine, Wishlist, Sync | complete | 0 | 1 | 19 | 24 | 44 |
@@ -28,7 +28,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 0 | 4 | 14 | 8 | 26 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 4 | 90 | 302 | 265 | 661 |
+| | **All** | | 4 | 94 | 313 | 287 | 698 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -96,6 +96,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **MI-02** [P1] Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px — the Start button, the plan and the lesson title are cut off
 - **CR-01** [P1] Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)
 - **CR-02** [P1] On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides
+- **CR-25** [P1] Rating a Creatives theory card never ticks the lesson's fourth check: syncAll() exists but nothing calls it, so mastery stays at 75% and the lesson never completes
 - **PR-01** [P1] Afternoon review: 'Place in a free block' menu opens BEHIND the review dialog, so it does nothing
 - **PR-02** [P1] Every page header shows the PREVIOUS page's painted band after in-app navigation
 - **PR-03** [P1] Focus: 'General study — no link' is overridden by About to Study, which silently links the session to the first assignment (even with 'Just start')
@@ -110,6 +111,9 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **MG-08** [P1] Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded
 - **MG-09** [P1] iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable
 - **MG-10** [P1] Import preview hides the payee and amount, and the Import button is below the fold
+- **MG-23** [P1] Two genuine identical payments on the same day in one statement: the second is marked 'Already have' and skipped by default
+- **MG-24** [P1] Re-importing the app's own CSV export turns every outgoing into income and files the category as a note
+- **MG-25** [P1] iPhone and iPad portrait: tapping a transaction shows nothing; its Edit and Delete sit below the whole list
 - **GO-02** [P1] UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge
 - **GO-06** [P1] 'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field
 - **GO-07** [P1] 'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked
@@ -3571,212 +3575,371 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ## CR — Creatives study space (complete)
 
-**Auditor's summary.** Creatives is broadly complete and renders without console errors at every size, but its flows have several rough joins. The most important root causes are: render-time side effects (the Practice Log opens a work dialog from the route on every redraw, so the dialog bounces back after Promote/Take out, and app dialogs are never closed on navigation); the phone shell only carries page actions marked data-phone-action, so on iPhone Creatives settings are unreachable and every sub-page is titled 'Creatives'; hand-rolled controls that skip shared primitives (the 'Your days' circles are off-centre ovals, the inspector checklist collides with the check page's .k-cr-check grid, the subject pill strips use an undeclared .k-seg overflow that hides the active pill on iPad); and evidence rules that are looser than invariant 154 (a project pays 150 XP for three bare 'Mark done' taps, a Writing study saves with only its given setup, the Writing Desk saves twice on a double tap and makes a new draft on every Start). Layout polish issues remain on the desk (taller hero and stretched analytics vs other spaces, an empty paused Daily card), the check page (no beginner picture, blank re-check), the Add page and the iPad-portrait sketchbook.
+**Auditor's summary.** Creatives' code is unchanged since the first audit (no cr* file differs between 56b1a8c and this kos-redraw-1 checkout), and all 24 earlier findings still reproduce on this build; the background-redraw stopgap does not help the Practice Log dialog because its stacking is caused by explicit KOS.rerender() calls. The inventory pass found the most important new defect in the evidence model: a theory card rated in the lesson's own Theory cards tab never reaches the shared progress record, because KOS.creatives.syncAll() is defined but never called, so lessons stall at 75% and the inspector, desk and spine disagree (P1). Several settings and rewards promise more than they do: the Minutes setting is never read, drills pay with no interaction, projects pay for three taps and re-promise pay after Undo, and Writing saves count the given setup text and double taps. Touch sizing is the recurring presentation root cause (check choices, pairing and Bold chips, lab zoom at 24-32 px), together with iPhone page-title and card-title handling. Integration gaps: Creatives work is not searchable, free pieces added from 'Add your work' belong to no track and so never reach goals or Reports.
 
-**Coverage.** Empty account and a seeded dense account with 28 planted works (art pictures, writing texts, design), promoted pieces, milestones and a drill batch. DOM measurement script (overflow, clipping, overlap, off-centre glyphs, ovals, small targets) over #/subject/creatives (desk), #/creatives (tracks), write, write/<draft>, drills and all six drill types, refs, portfolio, log, log/<id>, check/<id>, project/A1,W1,A2, settings, add/<study>, sketch/<study>, and lessons A1.1, W1.1, D1.1, A3.3, at mac 1470x832, ipad 820x1180 and iphone 402x874; ipadl 1180x820 spot-checked on the sketchbook and a lesson. Screenshots read: desk (mac/ipad/iphone, empty and dense, Dawn), analytics help, portfolio, log (mac, iphone, empty), work dialog, Writing Desk list and draft, lesson notes and Micro-studies tabs (mac), iPhone lesson, check page, project, drills index, Hierarchy (iphone), Palette (Dawn), References, sketchbook (ipad), Add page, Tracks (iphone), settings (ipad, shop theme azure-butterfly). Interactions exercised by eval: deep-link dialog and redraw, Take out of Portfolio, Writing Desk double save, study Start twice, project Mark done x3, invalid routes, phone section menu. Not examined: the Kurenai critique request/reply (needs a live AI route), sprint in Focus end to end, Momentum mode drawing with a real pen, the generated reference kinds other than Forms, iPhone Safari's 760 px viewport separately, and VoiceOver/keyboard traversal beyond names and target sizes.
+**Coverage.** Build kos-redraw-1 (2e40f2b), harness slot 12, empty account (reset) and dense account (seed + 26-38 planted works via cr2/plant.js), sizes mac 1470x832, iPad 820x1180, iPad landscape 1180x820, iPhone 402x874; themes Graphite, Atelier Dawn (settings contrast 4.99:1, log page), azure-butterfly shop theme (check page). DOM measurement sweeps over 23 routes x 3 sizes empty and 12 routes x 3 sizes dense (+8 at iPad landscape): cr2/empty-*.json, cr2/dense-*.json, cr2/l-ipadl-*.json. Inventory matrix with per-item result: findings/creatives.inventory.md. Behaviour fixtures run: evidence/pay (cr2/b1.js: read, save, pass/fail/pass-again, card via srs.rate, delete, re-add, drills), card via the Theory cards tab UI, notes dwell (2.5 s / Next 1.5 s), settings planDay (days, minutes, rest, all-off), all six drills end to end plus a drill from a study, Add your work (8 input cases through the real form with DataTransfer files), Practice Log delete via UI (confirm focuses Cancel) and promote/take-out, project taps/undo/redo, Writing Desk duplicate draft / double save / unchanged save, critique dialog (opens, Cancel focused, five sections) and stray() on 8 replies, Momentum toggle (toolbar becomes Pen only, persists), global search. NOT checked: the critique Send/Keep/Pin path (needs a live provider; no network request was made), the sketchbook's Save after drawing and leaving with unsaved ink (synthetic pointer events did not draw on the ink surface), Reports' creativeFacts and the month Portfolio strip at runtime (KOS.report.gather signature not resolved; logic read in report.js:644-665 and reports.js:984), cloud merge of state.creatives and the kurenai-os-creatives backup round trip (code read only: store.js:577-580, :703), the Daily Creative 'clear', 'project' and cards-only states (code read only, js/modules/creatives.js:175-190), Editing track (no released units). Old findings: all 24 carried with recheck; titles unchanged.
 
 ### CR-01 · P1 · bug — Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)
 
+- **Re-checked on kos-redraw-1:** holds — eval cr2/rc1.js on kos-redraw-1: Promote -> dialog count 1 with 'Take out of Portfolio'; explicit KOS.rerender() -> 2 dialogs; navigation to #/creatives/portfolio and #/home -> still 2 (the redraw stopgap only holds BACKGROUND redraws; an explicit rerender still stacks)
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
 - **Detail / repro:** Saving from the Writing Desk, a drill or Add your work lands on #/creatives/log/<id>, whose render schedules openWork(id). Any KOS.rerender() while that route is current (the dialog's own 'Take out of Portfolio', the Promote dialog's 'Promote', or any background redraw) draws the page again and opens the work dialog AGAIN. Repro: go to #/creatives, then #/creatives/log/<id>; click 'Take out of Portfolio' -> the dialog closes and immediately re-opens (now showing 'Promote…'). KOS.rerender() with it open -> two identical stacked dialogs (10 buttons). The route never drops the id, so the user cannot act on the work without it bouncing back.
-- **Evidence:** eval: after cr.promote click count of [data-ui="cr.dialog"] stays 1 with button now 'Promote…'; after KOS.rerender() count 1 -> 2; js/modules/creatives.js:567 'if (wid && CR().work(wid)) setTimeout(function () { openWork(wid); }, 0);' inside logPage; :542 and :559 call d.close(); KOS.rerender(); landing routes js/modules/crwrite.js:147, crdrills.js:85, creatives.js:620
+- **Evidence:** eval: after cr.promote click count of [data-ui="cr.dialog"] stays 1 with button now 'Promote…'; after KOS.rerender() count 1 -> 2; js/modules/creatives.js:567 'if (wid && CR().work(wid)) setTimeout(function () { openWork(wid); }, 0);' inside logPage; :542 and :559 call d.close(); KOS.rerender(); landing routes js/modules/crwrite.js:147, crdrills.js:85, creatives.js:620 | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc1.js on kos-redraw-1: Promote -> dialog count 1 with 'Take out of Portfolio'; explicit KOS.rerender() -> 2 dialogs; navigation to #/creatives/portfolio and #/home -> still 2 (the redraw stopgap only holds BACKGROUND redraws; an explicit rerender still stacks)
 - **Root cause:** Render-time side effect: logPage opens a dialog from the route arg on every render, and the route keeps the id.
 - **Proposed fix:** Open the deep-linked dialog only on navigation, not on redraw (check KOS.ui.redrawing / a one-shot flag), and after opening replace the route with #/creatives/log (KOS.show with replace) or clear the id when the dialog closes; the row's open state can stay as a highlight.
 - **Flags:** effort S
 
 ### CR-02 · P1 · ux — On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides
 
+- **Re-checked on kos-redraw-1:** holds — eval --size iphone on #/subject/creatives: [cr.settings-open] 0x0, [cr.focus] 0x0
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone
 - **Detail / repro:** The ⚙ 'Creatives settings' button and 'Start focus' are put in #page-actions by spaceHead/KOS.shell.actions. Under 700 px the stage head is display:none and only nodes marked data-phone-action are moved into the phone title bar; neither button is marked, and the section switch menu lists only Code, Japanese, Mind, Creatives, A-levels, Tracks, Writing, Drills, References, Portfolio. So on the iPhone there is no way to change Your days, Minutes or the Exam Season pause (which hides the Daily Creative for weeks) except by typing #/creatives/settings.
-- **Evidence:** eval --size iphone on #/subject/creatives: [data-ui="cr.settings-open"] height 0, hidden by DIV.k-stage-head; [data-ui="cr.focus"] height 0; section menu items as listed (no Settings); css/layout.css:445 ':root[data-shell="ready"] .k-stage-head { display: none; }'; js/modules/mobile-shell.js:559-562 (moves only [data-phone-action]); js/modules/creatives.js:69-70 settingsBtn and :295-296 spaceHead (no data-phone-action)
+- **Evidence:** eval --size iphone on #/subject/creatives: [data-ui="cr.settings-open"] height 0, hidden by DIV.k-stage-head; [data-ui="cr.focus"] height 0; section menu items as listed (no Settings); css/layout.css:445 ':root[data-shell="ready"] .k-stage-head { display: none; }'; js/modules/mobile-shell.js:559-562 (moves only [data-phone-action]); js/modules/creatives.js:69-70 settingsBtn and :295-296 spaceHead (no data-phone-action) | RECHECK 8 Nov (kos-redraw-1): eval --size iphone on #/subject/creatives: [cr.settings-open] 0x0, [cr.focus] 0x0
 - **Root cause:** Space page actions are not marked for the phone title bar.
 - **Proposed fix:** Mark the gear (and Start focus, or rely on the Focus tab) with data-phone-action so the phone title bar carries it, or add 'Settings' to KOS.crPages' phone menu.
 - **Flags:** effort S
 
-### CR-03 · P2 · ux — A work dialog stays open over other pages after navigation (Back, hash change), stacking duplicates
+### CR-25 · P1 · bug — Rating a Creatives theory card never ticks the lesson's fourth check: syncAll() exists but nothing calls it, so mastery stays at 75% and the lesson never completes
 
 - **Devices:** all
+- **Detail / repro:** A lesson's fourth check ('A theory card held') is derived from the card's schedule, but it reaches the shared progress record only when KOS.creatives.syncChecks(lesson) runs, and that is called only from markPage, addWork, setCheck and removeWork. The function meant to catch a card rated in the flashcards engine, KOS.creatives.syncAll() (comment: 'a theory card rated elsewhere ticks its lesson's fourth check'), is exported but never called anywhere in js/. So a learner who reads, saves and passes every study and then reviews the theory cards in Review/Due sees the lesson stuck at 75%, never 'Completed', the unit never done, and the desk's Lessons tile not moving, until they happen to save or check another piece in that lesson. Repro (empty account): read W1.1's pages, save and pass both studies -> progress check '1110'; KOS.srs.rate('creatives:W1.1:0',3) -> KOS.creatives.evidence('W1.1').checks = [T,T,T,T] but progress still '1110', KOS.hub.leafPercent = 75; only a later addWork on W1.1 flips it to '1111' / done. Through the real UI: on #/ref/creatives/W1.3 with pages read and both studies passed (progress '1110'), opening the Theory cards tab and pressing Good on a card -> evidence '1111' but progress '1110', KOS.hub.leafPercent 75, and the inspector still reads '3 of 4 checks' (the flashcards engine dispatches no kos:cr-evidence, so the status panel never redraws). The inspector computes from live evidence while the desk ring, spine, unit cards and Lessons tile read the progress record, so the surfaces disagree (invariant 26d). Cards are usually the LAST thing done in a lesson, so in practice there is no later action to heal it.
+- **Evidence:** eval fixture audit-evidence/2026-11/qa/cr2/b1.js: afterPass '1110:started', cardHeld true, evidence [true,true,true,true], afterCard '1110:started', leafPct 75; grep -rn 'syncAll' js -> only js/core/creatives.js:247 (definition) and :481 (export); js/core/creatives.js:240-247; UI repro eval on #/ref/creatives/W1.3: before '1110', Theory cards tab -> Good -> after '1110', evAfter '1111', inspector '3 of 4 checks', leaf 75
+- **Root cause:** The fourth check depends on another domain's record (the card schedule) but has no change hook; the repair function was written but never wired.
+- **Proposed fix:** Call KOS.creatives.syncChecks for the card's lesson whenever a key starting 'creatives:' is rated (a hook in KOS.srs.rate like Code/Mind's syncConcept, or a 'kos-srs-rated' event), and run syncAll() once at boot to repair stuck lessons.
+- **Flags:** effort S
+
+### CR-03 · P2 · ux — A work dialog stays open over other pages after navigation (Back, hash change), stacking duplicates
+
+- **Re-checked on kos-redraw-1:** holds — eval cr2/rc1.js: dialogs 2 after location.hash='#/creatives/portfolio', 2 on #/home
+- **Devices:** all
 - **Detail / repro:** With the work dialog open on #/creatives/log/<id>, navigating to #/creatives/portfolio or #/home leaves the dialog (and its scrim) covering the new page; returning to the deep link opens a second copy. During the measurement run three copies of a deleted work's dialog were stacked over Portfolio. Browser Back / iPad edge-swipe therefore does not dismiss the dialog the way a user expects (invariant 64: browser chrome and OS gestures are one stack).
-- **Evidence:** eval: [cr.dialog] count 1 after location.hash='#/creatives/portfolio', 2 after returning to log/<id>, still 2 on #/home; shots/creatives/n/dense-mac-portfolio.png (first capture: dialog of a removed work over Portfolio); js/core/ui.js:155 openDialog has no navigation hook; js/core/router.js:302 hashchange handler does not close open dialogs
+- **Evidence:** eval: [cr.dialog] count 1 after location.hash='#/creatives/portfolio', 2 after returning to log/<id>, still 2 on #/home; shots/creatives/n/dense-mac-portfolio.png (first capture: dialog of a removed work over Portfolio); js/core/ui.js:155 openDialog has no navigation hook; js/core/router.js:302 hashchange handler does not close open dialogs | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc1.js: dialogs 2 after location.hash='#/creatives/portfolio', 2 on #/home
 - **Root cause:** KOS.ui.openDialog dialogs are not tied to the route; the router never closes them.
 - **Proposed fix:** In router.js, before rendering a navigation (not a redraw), close every open KOS.ui dialog (or have openDialog register a close on the next route change); keep it out of KOS.rerender.
 - **Flags:** effort S
 
 ### CR-04 · P2 · ui — Creatives desk hero is taller than the other study spaces' heroes (341 vs 292-339 px) and its analytics card is stretched with empty bands
 
+- **Re-checked on kos-redraw-1:** holds — eval at mac: desk-top heights code 292 / ja 339 / mind 296 / creatives 341; analytics card 253 vs 378 (creatives); iPad landscape desk-top 509
 - **Devices:** mac, ipadl
 - **Detail / repro:** At 1470x832 the desk-top row is 341 px for Creatives vs Code 292, Mind 296, Japanese 339: four track bars in the hero push it taller than Code/Mind, so the study-space heroes are not one size. The second row is worse: the 'Subject analytics' card is 378 px tall (253 px on Code, Japanese and Mind) because it stretches to the Portfolio side card; its two tile rows are 163 px apart instead of 100, leaving a ~60 px empty band under each value.
-- **Evidence:** eval on #/subject/<code|ja|mind|creatives> at mac: study.desk-top heights 292/339/296/341; section.k-sa height 253/253/253/378; tile label tops 591 and 754 (Creatives) vs 511 and 611 (Code); shots/creatives/n/dense-mac-desk.png
+- **Evidence:** eval on #/subject/<code|ja|mind|creatives> at mac: study.desk-top heights 292/339/296/341; section.k-sa height 253/253/253/378; tile label tops 591 and 754 (Creatives) vs 511 and 611 (Code); shots/creatives/n/dense-mac-desk.png | RECHECK 8 Nov (kos-redraw-1): eval at mac: desk-top heights code 292 / ja 339 / mind 296 / creatives 341; analytics card 253 vs 378 (creatives); iPad landscape desk-top 509
 - **Root cause:** The desk skeleton lets each space's hero content set its height; the analytics row stretches to its side card.
 - **Proposed fix:** Give the four study-space heroes one fixed min/max height token (or cap the track-bar block to the ring's height with a compact bar layout), and align the analytics row with align-items:start plus a capped Portfolio list (3 items) so the stat grid keeps its natural 253 px height.
 - **Flags:** effort S
 
 ### CR-05 · P2 · ux — Daily Creative card in Exam Season is a tall empty card with no way to do today's study anyway
 
+- **Re-checked on kos-redraw-1:** holds — shots/creatives/t/dense-mac-desk.png ('Paused for Exam Season · Back after Fri 11 Dec', no action, ~200 px card)
 - **Devices:** all
 - **Detail / repro:** During Exam Season (on by default) the Daily Creative reads only 'Paused for Exam Season / Back after Sat 5 Dec.' in a 207 px card (mac) beside the hero: half of it empty, and no action ('Do one anyway', 'Change in settings'). The pause is a setting but the card offers no route to it, so the space's main daily entry point is a dead end for weeks.
-- **Evidence:** shots/creatives/n/dense-mac-desk.png, dense-ipad-desk.png, dense-iphone-desk.png; js/modules/creatives.js:160-200 (dailyCard)
+- **Evidence:** shots/creatives/n/dense-mac-desk.png, dense-ipad-desk.png, dense-iphone-desk.png; js/modules/creatives.js:160-200 (dailyCard) | RECHECK 8 Nov (kos-redraw-1): shots/creatives/t/dense-mac-desk.png ('Paused for Exam Season · Back after Fri 11 Dec', no action, ~200 px card)
 - **Proposed fix:** Add a quiet 'Do one anyway' (planDay ignoring the pause) and a 'Settings' link inside the paused state; shrink the card to content or let Continue take the freed height.
 - **Flags:** effort S
 
 ### CR-06 · P2 · ui — Subject pill strip hides the active 'Creatives' pill off the right edge on iPad portrait
 
+- **Re-checked on kos-redraw-1:** holds — eval --size ipad: active 'Creatives' pill 355-457, scroller 88-369, scrollLeft 0, scrollWidth 456 / clientWidth 281
 - **Devices:** ipad
 - **Detail / repro:** At 820x1180 the subject group (Code · Japanese · Mind · Creatives · A-levels) is a .k-seg with overflow-x:auto and hidden scrollbars, 281 px wide for 456 px of pills, scrolled to 0. The current subject, Creatives, sits at x 355-457 while the strip ends at 369, so only a 14 px white sliver of the active pill shows and A-levels is unreachable without discovering a hidden horizontal scroll.
-- **Evidence:** eval --size ipad: active .k-seg-item 'Creatives' left 355 right 457, scroller .k-seg left 88 right 369 scrollLeft 0 scrollWidth 456 clientWidth 281; shots/creatives/n/dense-ipad-desk.png (white half-pill beside 'Mind'); css/components.css:52 .k-seg overflow-x:auto; scrollbar-width:none; strip built in js/core/ui.js:1445-1480
+- **Evidence:** eval --size ipad: active .k-seg-item 'Creatives' left 355 right 457, scroller .k-seg left 88 right 369 scrollLeft 0 scrollWidth 456 clientWidth 281; shots/creatives/n/dense-ipad-desk.png (white half-pill beside 'Mind'); css/components.css:52 .k-seg overflow-x:auto; scrollbar-width:none; strip built in js/core/ui.js:1445-1480 | RECHECK 8 Nov (kos-redraw-1): eval --size ipad: active 'Creatives' pill 355-457, scroller 88-369, scrollLeft 0, scrollWidth 456 / clientWidth 281
 - **Root cause:** Undeclared overflow on the shared .k-seg; no reveal of the active item.
 - **Proposed fix:** Build the subject group through KOS.ui.scroller({reveal}) so the active pill is scrolled into view and the overflow is declared with arrows/fade (invariant 50), or collapse the group to the active subject plus a menu below 1080 px.
 - **Flags:** effort S
 
 ### CR-07 · P2 · ui — Settings 'Your days': the S M T W T F S letters sit at the left edge of their circles, and on touch the circles are 40x44 ovals
 
+- **Re-checked on kos-redraw-1:** holds — sweep: dx -14.6/-13.0/-15.0/-12.3 px at mac, ipad, iphone; 40x44 ovals on ipad/iphone; shots/creatives/t/settings-dawn-ipad.png
 - **Devices:** all; oval on ipad and iphone
 - **Detail / repro:** Every day button's letter is 12-15 px left of centre at all three sizes (text-align inherits 'start'). On iPad and iPhone (pointer: coarse) the shared touch rule raises only the height to 44 px, so each 40 px circle becomes a 40x44 oval, which invariant 69 forbids ('a round control must raise its width too').
-- **Evidence:** measure: button[cr.day] dx=-14.6/-13.0/-15.0/-12.3 px at mac, ipad and iphone; size 40.0x44.0 at ipad/iphone; computed text-align:start, min-height 44px; shots/creatives/n/dense-ipad-settings.png; css/views/creatives.css:179 (.k-cr-day: inline-size/block-size var(--cr-day)=40px, no text-align, no display:grid); css/base.css:24 ':where(button){text-align: inherit}'; css/base.css:115-120 coarse min-block-size; css/tokens.css:420 --cr-day: 40px
+- **Evidence:** measure: button[cr.day] dx=-14.6/-13.0/-15.0/-12.3 px at mac, ipad and iphone; size 40.0x44.0 at ipad/iphone; computed text-align:start, min-height 44px; shots/creatives/n/dense-ipad-settings.png; css/views/creatives.css:179 (.k-cr-day: inline-size/block-size var(--cr-day)=40px, no text-align, no display:grid); css/base.css:24 ':where(button){text-align: inherit}'; css/base.css:115-120 coarse min-block-size; css/tokens.css:420 --cr-day: 40px | RECHECK 8 Nov (kos-redraw-1): sweep: dx -14.6/-13.0/-15.0/-12.3 px at mac, ipad, iphone; 40x44 ovals on ipad/iphone; shots/creatives/t/settings-dawn-ipad.png
 - **Root cause:** A hand-rolled round button that does not centre its label nor follow the coarse-pointer circle rule.
 - **Proposed fix:** .k-cr-day { display:grid; place-items:center; } and under (pointer: coarse) set inline-size and block-size to var(--hit-coarse) (44px) together (or use the shared round icon-button primitive).
 - **Flags:** effort S
 
 ### CR-08 · P2 · ux — A Writing study's '▶ Start' (and a project's 'Write it') makes a NEW draft every time instead of reopening the unfinished one
 
+- **Re-checked on kos-redraw-1:** holds — eval: openStudy('W2.2','a') twice -> #/creatives/write/mw7l5pwfdtd7 and /mw7l5qmybfra, drafts 2 -> 4
 - **Devices:** all
 - **Detail / repro:** Start a Writing study, type, leave without 'Save to Practice Log', come back to the lesson: the study card still says '▶ Start' and pressing it creates a second draft from the setup text, so the user lands on a fresh page and their writing seems gone (it is only in the drafts list). Same for 'Write it' on a Writing project milestone. Pressing Start twice produced two identical 'W1.1·a Ten things, ten sentences' drafts.
-- **Evidence:** eval: KOS.crWrite.openStudy('W1.1','a') twice -> #/creatives/write/mvzi1k0viya1 and #/creatives/write/mvzi1lmk5f7t; drafts list shows two identical rows; js/modules/crwrite.js:34-43 (openStudy/openMilestone always create()); js/modules/crtopic.js:40 and :71-72 (study card offers only '▶ Start'/'Another rep'); js/modules/creatives.js:601
+- **Evidence:** eval: KOS.crWrite.openStudy('W1.1','a') twice -> #/creatives/write/mvzi1k0viya1 and #/creatives/write/mvzi1lmk5f7t; drafts list shows two identical rows; js/modules/crwrite.js:34-43 (openStudy/openMilestone always create()); js/modules/crtopic.js:40 and :71-72 (study card offers only '▶ Start'/'Another rep'); js/modules/creatives.js:601 | RECHECK 8 Nov (kos-redraw-1): eval: openStudy('W2.2','a') twice -> #/creatives/write/mw7l5pwfdtd7 and /mw7l5qmybfra, drafts 2 -> 4
 - **Root cause:** Draft creation is not keyed to its study; the study card does not read drafts.
 - **Proposed fix:** In openStudy/openMilestone look up the newest unsaved draft with the same lesson+study (or unit+ms) and open it; on the study card show 'Continue draft' when one exists, keeping 'Another rep' for a deliberate new one.
 - **Flags:** effort S
 
 ### CR-09 · P2 · bug — Writing Desk 'Save to Practice Log' (and Add your work's Save) saves twice on a double tap
 
+- **Re-checked on kos-redraw-1:** holds — eval cr2/rc4.js: two clicks -> two works 'W1.2·a Unflatten a paragraph 84' (also doubles the 'Write words' goal, goals.js:762-768)
 - **Devices:** all
 - **Detail / repro:** The Writing Desk save button is never disabled while the IndexedDB write runs, so a double click/tap creates two identical works in the Practice Log (and two check records to manage). The sketchbook and drills already guard their save (disabled + 'Saving…'); the Writing Desk and the Add page do not.
-- **Evidence:** eval on #/creatives/write/<draft>: b.click(); b.click() -> works +2, two 'W1.1·a Ten things, ten sentences 49' records; js/modules/crwrite.js:136-148 (no disabled); js/modules/creatives.js:617-631 (addPage go.onclick, no guard) vs js/modules/crsketch.js:67 and crdrills.js:83 which disable
+- **Evidence:** eval on #/creatives/write/<draft>: b.click(); b.click() -> works +2, two 'W1.1·a Ten things, ten sentences 49' records; js/modules/crwrite.js:136-148 (no disabled); js/modules/creatives.js:617-631 (addPage go.onclick, no guard) vs js/modules/crsketch.js:67 and crdrills.js:83 which disable | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc4.js: two clicks -> two works 'W1.2·a Unflatten a paragraph 84' (also doubles the 'Write words' goal, goals.js:762-768)
 - **Proposed fix:** Disable the button and show 'Saving…' on first press (as crsketch.js:67), re-enable on failure.
 - **Flags:** effort S
 
 ### CR-10 · P2 · data — A Writing study can be 'saved' with only the given setup text: the untouched 80% counts as made work
 
+- **Re-checked on kos-redraw-1:** holds — eval: W2.2·a saved unchanged -> work 31 words; shots/creatives/t/write-mac.png shows the study's own instruction ('Every sentence below is about the same length…') inside the draft, so it is saved, counted and sent to a critique; the 'Write words' goal (goals.js:762-768) counts it
 - **Devices:** all
 - **Detail / repro:** openStudy pre-fills the draft with the study's setup. Save only checks that the textarea is non-empty, so pressing ▶ Start then 'Save to Practice Log' without writing a word records a 49-word work, ticks 'studies saved' for the lesson and leads straight to the self-marked check that pays 8 XP/1 gold. That contradicts invariant 154 ('creative evidence is made, not claimed').
-- **Evidence:** eval: draft opened by KOS.crWrite.openStudy('W1.1','a') saved unchanged -> work 'W1.1·a Ten things, ten sentences' words 49; js/modules/crwrite.js:36-39 (text: s.setup) and :139 (only area.value.trim() checked)
+- **Evidence:** eval: draft opened by KOS.crWrite.openStudy('W1.1','a') saved unchanged -> work 'W1.1·a Ten things, ten sentences' words 49; js/modules/crwrite.js:36-39 (text: s.setup) and :139 (only area.value.trim() checked) | RECHECK 8 Nov (kos-redraw-1): eval: W2.2·a saved unchanged -> work 31 words; shots/creatives/t/write-mac.png shows the study's own instruction ('Every sentence below is about the same length…') inside the draft, so it is saved, counted and sent to a critique; the 'Write words' goal (goals.js:762-768) counts it
 - **Proposed fix:** Refuse to save (toast 'Write your part first') while the text still equals the setup, or count only words beyond the setup (store setup length on the doc and use it for words/the guard).
 - **Flags:** effort S
 
 ### CR-11 · P2 · ux — Writing Desk drafts cannot be deleted or tidied: every 'New draft' and every study Start adds a permanent row
 
+- **Re-checked on kos-redraw-1:** holds — js/modules/crwrite.js:71-91 has no delete; drafts list grew 2 -> 4 in this run
 - **Devices:** all
 - **Detail / repro:** The drafts list (#/creatives/write) has rows that only open a draft; there is no Delete, archive or 'saved to log' status anywhere in crwrite.js. 'New draft' writes an empty 'Untitled' record immediately, and studies create a new draft on each Start, so abandoned and already-saved drafts pile up forever on the device with no way to remove them.
-- **Evidence:** grep -i 'delet|remove|.del(' js/modules/crwrite.js -> no match; js/modules/crwrite.js:75 (New draft creates immediately), :83-88 (row = open only); shots/creatives/n/dense-mac-write.png
+- **Evidence:** grep -i 'delet|remove|.del(' js/modules/crwrite.js -> no match; js/modules/crwrite.js:75 (New draft creates immediately), :83-88 (row = open only); shots/creatives/n/dense-mac-write.png | RECHECK 8 Nov (kos-redraw-1): js/modules/crwrite.js:71-91 has no delete; drafts list grew 2 -> 4 in this run
 - **Proposed fix:** Add a row menu (Delete with confirm, through KOS.ui.confirm danger), mark drafts already saved to the Practice Log ('Saved · 2 Nov'), and create a 'New draft' record only on first input.
 - **Flags:** effort M
 
 ### CR-12 · P2 · ui — Lesson inspector checklist: each label sits half a column away from its checkbox (.k-cr-check class collision)
 
-- **Devices:** all
+- **Re-checked on kos-redraw-1:** changed: at mac still 'grid-template-columns 111.5px 111.5px', checkbox x 1207 vs label x 1339 (holds); at iPad portrait the label drops to its own row below the box (cb top 933, text top 971, single 708 px column)
+- **Devices:** all; iPad portrait: label on its own row under the box
 - **Detail / repro:** On every Creatives lesson the inspector's four evidence checks (Read the notes, Saved the studies, Passed the check, A theory card held) render the checkbox at the left and the label 132 px to the right in a second grid column, leaving an empty gap between them. The class .k-cr-check is used both for these labels and for the check page's two-column layout; the later rule (display:grid; repeat(2,1fr); gap 20px) wins.
-- **Evidence:** shots/creatives/n/dense-mac-lessonA11.png; eval on #/ref/creatives/A1.1 at mac: label.k-cr-check display grid, grid-template-columns 111.5px 111.5px, input left 1207, label span left 1339; css/views/creatives.css:107 (.k-cr-check flex, intended) overridden by :117 (.k-cr-check grid for 'Good for this unit') and :358; js/modules/crtopic.js:240 (label class 'k-ts-check k-cr-check') and js/modules/creatives.js:391 (check page 'k-cr-check')
+- **Evidence:** shots/creatives/n/dense-mac-lessonA11.png; eval on #/ref/creatives/A1.1 at mac: label.k-cr-check display grid, grid-template-columns 111.5px 111.5px, input left 1207, label span left 1339; css/views/creatives.css:107 (.k-cr-check flex, intended) overridden by :117 (.k-cr-check grid for 'Good for this unit') and :358; js/modules/crtopic.js:240 (label class 'k-ts-check k-cr-check') and js/modules/creatives.js:391 (check page 'k-cr-check') | RECHECK 8 Nov (kos-redraw-1): changed: at mac still 'grid-template-columns 111.5px 111.5px', checkbox x 1207 vs label x 1339 (holds); at iPad portrait the label drops to its own row below the box (cb top 933, text top 971, single 708 px column)
 - **Root cause:** Two unrelated components share one class name in css/views/creatives.css.
 - **Proposed fix:** Rename one of the two (e.g. the check page's container to .k-cr-checkpage) and keep .k-cr-check flex for the inspector rows; smoke55 could flag duplicate class definitions in one view file.
 - **Flags:** effort S
 
 ### CR-13 · P2 · ui — iPhone lesson page: the tab strip gets 181 px, so only 'Notes' and half of 'Micro-studies' show; Theory cards and Project are hidden behind an arrow
 
+- **Re-checked on kos-redraw-1:** holds — eval --size iphone #/ref/creatives/W1.1: strip width 181, scrollWidth 345; sweep also flags 'Project' tab overlapping the Edit control
 - **Devices:** iphone
 - **Detail / repro:** At 402 px the topic tab row shares one line with the 'Working' and 'Edit' buttons (about 95 + 66 px). The tabs scroller is left 181 px for four tabs (Notes 16-67, Micro-studies 85-185, Theory cards 203-298, Project 316-361), so a Creatives lesson's own studies, cards and project are effectively off-screen; the user has to discover the › arrow. The Studies tab is where the lesson's work is started, so this hides the main action on the phone.
-- **Evidence:** shots/creatives/n/dense-iphone-lessonW11.png; eval --size iphone on #/ref/creatives/W1.1: tab strip left 16 width 181, tabs as listed, Edit at x 320 w 66; css/views/study.css:208-213 (.k-topic-tabrow one flex row; no rule under the 700 px tier at :1114 to wrap the actions); js/modules/hub.js:2670 (edit bar button in the row)
+- **Evidence:** shots/creatives/n/dense-iphone-lessonW11.png; eval --size iphone on #/ref/creatives/W1.1: tab strip left 16 width 181, tabs as listed, Edit at x 320 w 66; css/views/study.css:208-213 (.k-topic-tabrow one flex row; no rule under the 700 px tier at :1114 to wrap the actions); js/modules/hub.js:2670 (edit bar button in the row) | RECHECK 8 Nov (kos-redraw-1): eval --size iphone #/ref/creatives/W1.1: strip width 181, scrollWidth 345; sweep also flags 'Project' tab overlapping the Edit control
 - **Root cause:** Shared topic tab row has no phone composition for its action buttons.
 - **Proposed fix:** Under 700 px put Working/Edit on their own row (or fold them into a ⋯ menu / icon-only 44px buttons) so the tab scroller gets the full width, and reveal the active tab.
 - **Flags:** effort S
 
 ### CR-14 · P2 · bug — The check page shows an Art study's 'Expected beginner output' as text only: the beginner picture is dropped
 
+- **Re-checked on kos-redraw-1:** holds — js/modules/creatives.js:352-353, :396-398 unchanged (beginner.text only)
 - **Devices:** all
 - **Detail / repro:** The check (31e) exists to put your work beside the expected beginner output. For Art lessons the content's beginner block carries art: 'A2.1' and the imported picture cr.beginner.A2.1.webp exists (the lesson page draws it), but checkPage builds the card from beginner.text and beginner.note only, so an art student compares their drawing with two sentences. The card also sits under the work in the left column instead of beside it, leaving the right column empty below the form.
-- **Evidence:** shots/creatives/n/dense-mac-check.png, dense-mac-check2.png (#/creatives/check/<A2.1 work>); js/modules/creatives.js:352-353 and :396-398 (no beginner.art); js/modules/crtopic.js:140 draws KOS.crArt('cr.beginner.'+b.beginner.art) on the lesson; js/data/content/cr-a2.js:24 art:'A2.1'; assets/creatives/img/cr.beginner.A2.1.webp present
+- **Evidence:** shots/creatives/n/dense-mac-check.png, dense-mac-check2.png (#/creatives/check/<A2.1 work>); js/modules/creatives.js:352-353 and :396-398 (no beginner.art); js/modules/crtopic.js:140 draws KOS.crArt('cr.beginner.'+b.beginner.art) on the lesson; js/data/content/cr-a2.js:24 art:'A2.1'; assets/creatives/img/cr.beginner.A2.1.webp present | RECHECK 8 Nov (kos-redraw-1): js/modules/creatives.js:352-353, :396-398 unchanged (beginner.text only)
 - **Proposed fix:** Reuse the lesson's beginner figure (factor crtopic.js:138-142 into KOS.crBeginner(b) and call it from checkPage), and place it in the right column above the form or side by side with the work at >=1080 px.
 - **Flags:** effort S
 
 ### CR-15 · P2 · ux — Reopening a study's check shows a blank form and silently overwrites the earlier result (a pass can become 'Not yet')
 
+- **Re-checked on kos-redraw-1:** holds — js/modules/creatives.js:354 (answers start null) and js/core/creatives.js:163-167 (setCheck overwrites) unchanged
 - **Devices:** all
 - **Detail / repro:** 'Do the check' / 'Check' on a work that already has a check draws both questions unanswered with no sign of the earlier answer, note or date. Saving again replaces w.check entirely, so re-answering 'Not yet' on a passed work un-passes it and can untick the lesson's 'Passed the check' evidence, with no confirmation. The page also has no way back except the header nav until after Save.
-- **Evidence:** shots/creatives/n/dense-mac-check.png (work A2.1.a #0 whose check is pass, form blank); js/modules/creatives.js:354 'answers = L.check.rows.map(function () { return null; })' (never reads w.check), :364 setCheck overwrite; js/core/creatives.js:163-170 (w.check replaced)
+- **Evidence:** shots/creatives/n/dense-mac-check.png (work A2.1.a #0 whose check is pass, form blank); js/modules/creatives.js:354 'answers = L.check.rows.map(function () { return null; })' (never reads w.check), :364 setCheck overwrite; js/core/creatives.js:163-170 (w.check replaced) | RECHECK 8 Nov (kos-redraw-1): js/modules/creatives.js:354 (answers start null) and js/core/creatives.js:163-167 (setCheck overwrites) unchanged
 - **Proposed fix:** Prefill answers and note from w.check and show 'Checked 2 Nov · passed'; when a pass would turn into Not yet, say so on the button ('Change to Not yet') or keep the earlier pass on the record; add a 'Back to the lesson' link in the page header.
 - **Flags:** effort S
 
 ### CR-16 · P2 · a11y — Hierarchy drill: five identical 'Bold' toggles with no line in their name, 32 px tall on touch; − M + read as plain text
 
+- **Re-checked on kos-redraw-1:** holds — eval mac and iphone: five Bold buttons 57x32, aria-label null
 - **Devices:** all; target size on ipad/iphone
 - **Detail / repro:** Each line of the Hierarchy drill has −, a size letter, + and a 'Bold' toggle. The five Bold buttons are all named just 'Bold' (the −/+ buttons do name their line), so a screen reader hears 'Bold, toggle' five times. On iPad/iPhone each Bold is 57x32 px, under the 44 px touch minimum (invariant 69). The −/+ icon buttons have the card's own background and no border, so on the phone they look like loose glyphs beside an 'M' rather than controls, and the size letter (S/M/L/XL…) is unexplained. On mac the long fifth line truncates ('Very friendly, small whi…', 428>410 px; 428>133 on iPhone).
-- **Evidence:** shots/creatives/n/iphone-hierarchy.png; eval --size iphone: Bold 57x32, aria-label null x5; −/+ 44x44 bg oklch(0.2 0.009 265) border 0; measure clip span.k-crd-ctrl-t 428>410 (mac), 428>133 (iphone); js/modules/crdrills.js:220 (bold button, no aria-label), :223; css/views/creatives.css:259-262
+- **Evidence:** shots/creatives/n/iphone-hierarchy.png; eval --size iphone: Bold 57x32, aria-label null x5; −/+ 44x44 bg oklch(0.2 0.009 265) border 0; measure clip span.k-crd-ctrl-t 428>410 (mac), 428>133 (iphone); js/modules/crdrills.js:220 (bold button, no aria-label), :223; css/views/creatives.css:259-262 | RECHECK 8 Nov (kos-redraw-1): eval mac and iphone: five Bold buttons 57x32, aria-label null
 - **Proposed fix:** aria-label 'Bold: <line>' (keep aria-pressed); give .k-crd-opt the coarse 44 px height; draw −/+ with the bordered icon-button style and label the size readout ('Size M'); let the line name wrap to two lines instead of ellipsis.
 - **Flags:** effort S
 
 ### CR-17 · P2 · ux — On iPhone, Creatives sub-pages lose their title: Practice Log, Settings, The check and Project all read 'Creatives'
 
+- **Re-checked on kos-redraw-1:** holds — eval --size iphone: visible h1 'Creatives' on log, settings, check/x, project/A1, add, sketch; Writing Desk reads 'Writing' (shots/creatives/t/write-iphone.png)
 - **Devices:** iphone
 - **Detail / repro:** The phone title bar takes its title from the lit strip item, not the page's h1. Pages that are not in KOS.crPages (log, settings, check, project, add, sketch) light the 'Creatives' subject pill, so the bar says 'Study / Creatives' and the real page header ('Practice Log · Only you see this', 'Creatives settings', 'The check', 'Project') is hidden with the stage head. A drill page shows 'Drills' instead of the drill's name. The user cannot tell where they are, and the Practice Log's privacy line disappears.
-- **Evidence:** eval --size iphone: visible h1 = 'Creatives' on #/creatives/log, /settings, /check/x, /project/A1; 'Drills' on /drills/grid; shots/creatives/n/iphone-log.png; js/modules/mobile-shell.js:551 (title = data-phone-title-text || cur.label || h1); js/core/ui.js:1466 (creatives pages outside KOS.crPages light the subject pill); js/modules/creatives.js:295-296 pageHeader without data-phone-title-text
+- **Evidence:** eval --size iphone: visible h1 = 'Creatives' on #/creatives/log, /settings, /check/x, /project/A1; 'Drills' on /drills/grid; shots/creatives/n/iphone-log.png; js/modules/mobile-shell.js:551 (title = data-phone-title-text || cur.label || h1); js/core/ui.js:1466 (creatives pages outside KOS.crPages light the subject pill); js/modules/creatives.js:295-296 pageHeader without data-phone-title-text | RECHECK 8 Nov (kos-redraw-1): eval --size iphone: visible h1 'Creatives' on log, settings, check/x, project/A1, add, sketch; Writing Desk reads 'Writing' (shots/creatives/t/write-iphone.png)
 - **Proposed fix:** Have spaceHead mark its page title with data-phone-title-text (as other views can), so the bar reads 'Practice Log' etc.; keep the sub-line under it on the phone.
 - **Flags:** effort S
 
 ### CR-18 · P2 · ux — Sketchbook on iPad portrait: the brief, timer, reference and 'Save to Practice Log' are below a 1,078 px canvas, off screen
 
+- **Re-checked on kos-redraw-1:** holds — eval --size ipad: .k-crs-stage top 284 h 1078, side top 1382, save top 1620, innerHeight 1180
 - **Devices:** ipad portrait
 - **Detail / repro:** At 820x1180 the sketchbook collapses to one column: the page (k-crs-stage) runs 284-1362 px and the side column with the study brief, 'Start the timer' (y 1516) and 'Save to Practice Log' (y 1570) starts at y 1382, past the 1180 px viewport. On the device made for drawing, the timer you should start first and the save button are only found by finger-scrolling past a blank page; the Momentum choice, which must be made before the first stroke, is also below. Landscape (1180x820) and mac keep the side column beside the page.
-- **Evidence:** shots/creatives/n/ipad-sketch.png; eval --size ipad: .k-crs-stage top 284 h 1078, .k-crs-side top 1382, timer top 1516, save top 1570, innerHeight 1180; css/views/creatives.css:333-335 and the one-column rule at :359-360 (inside the 860 px tier)
+- **Evidence:** shots/creatives/n/ipad-sketch.png; eval --size ipad: .k-crs-stage top 284 h 1078, .k-crs-side top 1382, timer top 1516, save top 1570, innerHeight 1180; css/views/creatives.css:333-335 and the one-column rule at :359-360 (inside the 860 px tier) | RECHECK 8 Nov (kos-redraw-1): eval --size ipad: .k-crs-stage top 284 h 1078, side top 1382, save top 1620, innerHeight 1180
 - **Proposed fix:** Below 1080 px put a compact bar above the page (timer, Momentum, Save, Reference toggle) and move the brief/steps into a collapsible drawer, or keep the two-column layout down to 700 px with a narrower side column.
 - **Flags:** effort M
 
 ### CR-19 · P2 · ui — 'Add your work' is a bare 720 px form with a raw browser file button, a 490 px dead column beside it, no preview and no drop target
 
+- **Re-checked on kos-redraw-1:** holds — eval mac: [cr.add] 236-956 wide 720 in #main 1210
 - **Devices:** mac, ipadl
 - **Detail / repro:** The page that brings work in from another app is capped at --cr-paper-measure (236-956 of a 1446 px content area) with nothing beside it, so half the width is empty on mac. The file field is an unstyled native <input type=file> ('Choose file  No file chosen', system grey), there is no preview of the chosen picture, no drop/paste target (the app's Files flow supports drop, paste and Scan), no Cancel/back to the lesson, and the study line is plain text above the Title. It looks unfinished next to the rest of the space.
-- **Evidence:** shots/creatives/n/mac-add.png; eval: [cr.add] left 236 right 956, #main right 1446; js/modules/creatives.js:610-640 (addPage); css/views/creatives.css:181 (.k-cr-addform max-inline-size)
+- **Evidence:** shots/creatives/n/mac-add.png; eval: [cr.add] left 236 right 956, #main right 1446; js/modules/creatives.js:610-640 (addPage); css/views/creatives.css:181 (.k-cr-addform max-inline-size) | RECHECK 8 Nov (kos-redraw-1): eval mac: [cr.add] 236-956 wide 720 in #main 1210
 - **Proposed fix:** Lay it out as two columns at >=1080 px: a drop zone + preview (reuse KOS.files' drop target styling, hide the native input behind a .k-btn 'Choose a picture or text') and the form with the study's brief and 'Good for this unit' beside it; add 'Back to the lesson'.
 - **Flags:** effort M
 
 ### CR-20 · P2 · data — A unit project pays 150 XP, 40 gold and +10 HP for three 'Mark done' taps with no work saved
 
+- **Re-checked on kos-redraw-1:** holds — eval on #/creatives/project/A3: 3x Mark done, works 0 -> xp/gold 172/20 -> 322/60
 - **Devices:** all
 - **Detail / repro:** On a fresh account, #/creatives/project/A2 offers 'Mark done' on every milestone even though no study or milestone work exists ('Best after A2.3's studies'). Three taps reached every milestone and paid the project (XP 0 -> 150, gold 0 -> 40, paid['project:A2'] set) with zero works in the Practice Log. Invariant 154 says creative evidence is made, not claimed, and every other Creatives reward needs a saved piece; projects are the largest reward in the space and need none. 'Undo' after the payout keeps the pay.
-- **Evidence:** eval on empty account: 3 x click 'Mark done' on #/creatives/project/A2 -> governor xp/gold [0,0] -> [150,40], creatives.paid {project:A2}, works 0; js/core/creatives.js:200-218 (markMilestone 'or by hand', pays when all reached); js/modules/creatives.js:~600 (Mark done button per milestone)
+- **Evidence:** eval on empty account: 3 x click 'Mark done' on #/creatives/project/A2 -> governor xp/gold [0,0] -> [150,40], creatives.paid {project:A2}, works 0; js/core/creatives.js:200-218 (markMilestone 'or by hand', pays when all reached); js/modules/creatives.js:~600 (Mark done button per milestone) | RECHECK 8 Nov (kos-redraw-1): eval on #/creatives/project/A3: 3x Mark done, works 0 -> xp/gold 172/20 -> 322/60
 - **Root cause:** markMilestone accepts a bare tick as evidence and pays on it.
 - **Proposed fix:** Let a hand-marked milestone count only when a work is attached (offer 'Attach a piece from the Practice Log' / 'Add your work' instead of a bare tick), or keep hand ticks for progress but pay the project only when each milestone has a saved work.
 - **Flags:** effort S
 
-### CR-21 · P3 · ui — Work dialog: the picture sits left with a 252 px empty strip beside it, the note is jammed under it, and nothing says when/where the piece was made
+### CR-26 · P2 · bug — Creatives settings 'Minutes' (10/20/30 min, 'How long a day's study runs') changes nothing: the Daily Creative ignores it
 
 - **Devices:** all
+- **Detail / repro:** The setting is stored (state.ui.creatives.settings.minutes) and copied into planDay()'s output as 'minutes', but nothing reads it: the Daily Creative's study, its 'about N min' and the card minutes are all computed from the study's own length (study.min) and the due cards. Repro (empty account, season off): setPrefs({minutes:10|20|30}) -> planDay() = ['today', 10|20|30, total 12, study.min 12] for all three. The control promises something it does not do (the module header says the Daily Creative is 'sized to the minutes').
+- **Evidence:** eval: m10 ['today',10,12,12], m20 ['today',20,12,12], m30 ['today',30,12,12]; js/core/creatives.js:302-321 (planDay never uses p.minutes except to echo it at :306); js/modules/creatives.js:650-652, :661 (the setting and its help text); grep -rn 'minutes' shows no other reader
+- **Root cause:** Setting wired to storage but never consumed by planDay().
+- **Proposed fix:** Either size the day by it (pick the study/cards that fit, or say 'about 20 min · this study runs 12') or remove the control.
+- **Flags:** effort S
+
+### CR-27 · P2 · a11y — The check's 'Yes, mostly' / 'Not yet' buttons are 32 px tall on iPad and iPhone
+
+- **Devices:** iPad, iPhone
+- **Detail / repro:** The self-marked check is the core action of every study, and its four choice buttons measure 105x32 and 82x32 on touch sizes (below the 44 px minimum, invariant 69), with ~8 px between them.
+- **Evidence:** measure sweep cr2/dense-ipad-*.json and dense-iphone-*.json on #/creatives/check/<id>: button[cr.choice] 'Yes, mostly' 105x32, 'Not yet' 82x32
+- **Root cause:** .k-cr-choice is a custom button outside the shared touch-size rule.
+- **Proposed fix:** Give .k-cr-choice the shared min-height token for coarse pointers (44 px), or make them k-btn.
+- **Flags:** effort S
+
+### CR-28 · P2 · a11y — Font pairing drill: the face options are 32 px tall on touch
+
+- **Devices:** iPad, iPhone
+- **Detail / repro:** Each round shows two radio groups of font chips (.k-crd-opt); on iPad and iPhone they are 32 px tall (e.g. 'Onest (sans)' 108x32), below 44 px. The same class gives the Hierarchy drill's Bold toggles their 32 px (existing finding).
+- **Evidence:** measure sweep cr2/empty-iphone.json #/creatives/drills/pairing: 9 small targets, button.k-crd-opt 'Shippori Mincho (display' 228x32, 'Onest (sans)' 108x32
+- **Root cause:** .k-crd-opt lacks the coarse-pointer size.
+- **Proposed fix:** Coarse-pointer min-height 44 px on .k-crd-opt.
+- **Flags:** effort S
+
+### CR-29 · P2 · ui — On iPhone the check page cuts the work's title off at the card edge and puts the check itself two screens below the whole piece
+
+- **Devices:** iPhone; iPad landscape (title runs into the next column)
+- **Detail / repro:** (1) .k-card-title is flex: 0 0 auto, so a long title does not wrap or ellipsize: 'Rain at the window — a very long title…' is 583 px wide in a 370 px card and is cut mid-word ('keeps g'). (2) The order is: the full piece, the beginner output, the bar, then the form, so on a phone with a text piece the 'Yes, mostly / Not yet' form starts at y=1711 in an 874 px viewport: the user must scroll past their whole text to do the thing the page is for. On iPad landscape (1180x820) the same unshrinkable title runs out of its card and overlaps the right column's 'Good for Writing 1' kicker.
+- **Evidence:** shots/creatives/t/checkW-iphone.png; eval --size iphone on #/creatives/check/<W1.1 work>: title right 621, scrollWidth 583, card right 386, white-space normal; check-form top 1711, innerHeight 874; css/components.css:97 (.k-card-title flex: 0 0 auto); js/modules/creatives.js:391-408; measure sweep cr2/l-ipadl-6.json on #/creatives/check/<id>: overlap span.k-card-title 'Rain at the window — a v' X span.k-kicker 'Good for Writing 1'
+- **Root cause:** Shared card-title flex rule; desktop column order reused on the phone.
+- **Proposed fix:** Let card titles shrink and wrap (flex: 1 1 auto; min-width 0; overflow-wrap) and, under 700 px, put the bar and the form before the piece or clamp the piece with 'Show all'.
+- **Flags:** effort S
+
+### CR-21 · P3 · ui — Work dialog: the picture sits left with a 252 px empty strip beside it, the note is jammed under it, and nothing says when/where the piece was made
+
+- **Re-checked on kos-redraw-1:** holds — eval cr2/rc1.js: dialog 315-1155, img 343-903, img bottom 595
+- **Devices:** all
 - **Detail / repro:** Opening an Art work from the Practice Log shows the 560x420 picture flush left in an 840 px dialog (x 343-903 of 315-1155), 'Your note' starts on the image's bottom edge (top 595 = image bottom 595, no gap), and the dialog shows only the title: no track, lesson·study, date, words or check state, which the log row had. The header mark is the generic 創 rather than the track's mark used on the row.
-- **Evidence:** shots/creatives/n/dense-mac-workdlg.png; eval: img left 343 right 903 in dialog 315-1155; note top 595, img bottom 595; js/modules/creatives.js:527-537 (openWork body); css/views/creatives.css:120 (.k-cr-mine-img display:block, no margin-inline:auto), :144
+- **Evidence:** shots/creatives/n/dense-mac-workdlg.png; eval: img left 343 right 903 in dialog 315-1155; note top 595, img bottom 595; js/modules/creatives.js:527-537 (openWork body); css/views/creatives.css:120 (.k-cr-mine-img display:block, no margin-inline:auto), :144 | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc1.js: dialog 315-1155, img 343-903, img bottom 595
 - **Proposed fix:** Centre the media (margin-inline:auto) with a gap token before the note, and add the row's meta line (track · lesson·study · date · words · check) under the title using kindMark(w) as the dialog mark.
 - **Flags:** effort S
 
 ### CR-22 · P3 · ui — Lesson spine's subject switch clips the active 'Creatives' pill on iPad landscape
 
+- **Re-checked on kos-redraw-1:** holds — eval --size ipadl: spine-subjects 84-293, scrollWidth 220 / clientWidth 209, scrollLeft 0
 - **Devices:** ipadl
 - **Detail / repro:** At 1180x820 the spine header's subject group (Code · Japanese · Mind · Creatives) is 209 px wide for 220 px of pills and is not scrolled to the active one, so the lit 'Creatives' pill (238-302) is cut at 293 by the strip edge and the spine's collapse button sits on its end. Same undeclared .k-seg overflow as the stage strip.
-- **Evidence:** shots/creatives/n/ipadl-lessonD11.png; eval --size ipadl: [study.spine-subjects] left 84 right 293 scrollWidth 220 clientWidth 209 scrollLeft 0; active 'Creatives' 238-302; js/modules/hub.js:439 (k-seg k-seg--fill k-spine-subjects); css/components.css:52
+- **Evidence:** shots/creatives/n/ipadl-lessonD11.png; eval --size ipadl: [study.spine-subjects] left 84 right 293 scrollWidth 220 clientWidth 209 scrollLeft 0; active 'Creatives' 238-302; js/modules/hub.js:439 (k-seg k-seg--fill k-spine-subjects); css/components.css:52 | RECHECK 8 Nov (kos-redraw-1): eval --size ipadl: spine-subjects 84-293, scrollWidth 220 / clientWidth 209, scrollLeft 0
 - **Proposed fix:** Use the subject's short label in the spine (or a menu) when space is short, or build it as a KOS.ui.scroller with reveal of the active pill.
 - **Flags:** effort S
 
 ### CR-23 · P3 · ui — Tracks page: a track's bar says 33% while every unit row beside it says 0 / 3; an unreleased track draws a full-width empty bar
 
+- **Re-checked on kos-redraw-1:** holds — eval mac #/creatives: Art '33%' with rows 'A1 … 0 / 3', 'A2 … 0 / 3', 'A3 … 0 / 3'
 - **Devices:** all
 - **Detail / repro:** With every A1-A3 lesson at 3 of 4 checks, the Art card's bar reads 33% (mean of lesson check percentages) while its unit rows read 0 / 3 (lessons fully done), two different measures side by side with no label. Editing (no released units) still draws a 1,166 px empty bar and 'later' in mono, which reads as 0% progress rather than 'not yet released'.
-- **Evidence:** shots/creatives/n/dense-mac-desk.png (first capture, #/creatives Tracks page: Art 33% vs A1 0 / 3; Editing empty bar); js/modules/creatives.js:74-78 (trackPct = mean leafPercent) vs :327-329 (us.done + ' / ' + us.total); :323 bar drawn when pct == null
+- **Evidence:** shots/creatives/n/dense-mac-desk.png (first capture, #/creatives Tracks page: Art 33% vs A1 0 / 3; Editing empty bar); js/modules/creatives.js:74-78 (trackPct = mean leafPercent) vs :327-329 (us.done + ' / ' + us.total); :323 bar drawn when pct == null | RECHECK 8 Nov (kos-redraw-1): eval mac #/creatives: Art '33%' with rows 'A1 … 0 / 3', 'A2 … 0 / 3', 'A3 … 0 / 3'
 - **Proposed fix:** Label the bar ('33% of checks') or show lessons done/total in the head to match the rows; omit the bar for a track with no released unit and show a 'Coming later' chip instead.
 - **Flags:** effort S
 
 ### CR-24 · P3 · ux — Palette drill: the Hue sliders are plain accent bars with no spectrum and no value, so you pick a hue blind
 
+- **Re-checked on kos-redraw-1:** holds — js/modules/crdrills.js:272-280 unchanged; also the range inputs are 16 px tall on iPad/iPhone (sweep: input.k-crd-range 185x16 / 135x16)
 - **Devices:** all
 - **Detail / repro:** Each colour in 'Palette and contrast' has Lightness and Hue range inputs styled identically (accent fill on a grey track). The hue track shows no colour wheel/spectrum and neither slider prints its value, so moving Hue gives feedback only in the swatch; on a drill about colour this is the main control.
-- **Evidence:** shots/creatives/n/dawn-mac-palette.png; js/modules/crdrills.js:273-280 (k-crd-range, aria-label '… · Hue', 0-359)
+- **Evidence:** shots/creatives/n/dawn-mac-palette.png; js/modules/crdrills.js:273-280 (k-crd-range, aria-label '… · Hue', 0-359) | RECHECK 8 Nov (kos-redraw-1): js/modules/crdrills.js:272-280 unchanged; also the range inputs are 16 px tall on iPad/iPhone (sweep: input.k-crd-range 185x16 / 135x16)
 - **Proposed fix:** Paint the hue input's track with a linear-gradient over oklch hues at the colour's lightness/chroma and the lightness track from dark to light; show the numeric value beside each label.
+- **Flags:** effort S
+
+### CR-30 · P3 · ux — Creatives settings 'Your days': tapping the last remaining day does nothing, with no message
+
+- **Devices:** all
+- **Detail / repro:** The onclick returns early when the change would leave no day on (`if (!next.some(Boolean)) return;`), so the button just ignores the tap: no toast, no announce, the pressed state stays. (Through the API an all-off array is silently turned into all-on by settings().) The user cannot tell whether the tap failed or why.
+- **Evidence:** js/modules/creatives.js:648; js/core/creatives.js:75 (setPrefs({days:[all false]}) -> prefs().days all true, eval)
+- **Root cause:** Silent guard in the click handler.
+- **Proposed fix:** Disable the last pressed day with a title, or toast 'Keep at least one day' and announce it.
+- **Flags:** effort S
+
+### CR-31 · P3 · content — After undoing a paid project milestone the project page promises '150 XP, 40 gold and +10 HP' again, but re-completing pays nothing
+
+- **Devices:** all
+- **Detail / repro:** projectView's footer says 'Pays 150 XP, 40 gold and +10 HP when every milestone is reached.' whenever ps.done is false. Once paid (paid['project:<unit>']), Undo on a milestone flips done to false and the promise reappears; marking it again pays nothing (correct by invariant 154, but the page said otherwise). Also projectState().done is false while projects[unit].doneAt stays set, so the desk's Projects tile drops back (stats.projectsDone 0).
+- **Evidence:** eval on #/creatives/project/A3: 3x Mark done -> xp/gold 172/20 -> 322/60; Undo -> done false, doneAt true, stats.projectsDone 0, footer 'Pays 150 XP, 40 gold and +10 HP when every milestone is reached.'; Mark done again -> 322/60 (no pay); js/modules/creatives.js:605, js/core/creatives.js:211-216
+- **Root cause:** Footer reads milestone state, not the pay ledger.
+- **Proposed fix:** Read paid['project:'+uid]: when paid say 'Paid on <date> · no further reward'.
+- **Flags:** effort S
+
+### CR-32 · P3 · ux — A drill batch pays 6 XP even when nothing was touched: pressing Check and Next through every round earns the day's reward
+
+- **Devices:** all
+- **Detail / repro:** finish() calls logDrill() unconditionally, and logDrill pays the first batch of the day per type. A batch where no control was moved (0 of N within range) pays the same as a real one. Repro: for each of the six drills, click Check/Next only -> pairing, hierarchy, palette and measure each '0 of N within range +6 XP' (kerning/grid had already paid today). Compare Code (a first PROVEN pass pays) and the user's 'leniency' rule.
+- **Evidence:** eval cr2/dr.js: hierarchy '0 of 2 within range+6 XP' dxp 6; palette '0 of 2 within range+6 XP'; measure '0 of 1 within range+6 XP'; js/modules/crdrills.js:76-78, js/core/creatives.js:182-189
+- **Root cause:** No evidence of effort required before logDrill pays.
+- **Proposed fix:** Pay only a batch where each round's controls changed from their start values (or at least one round 'within range').
+- **Flags:** effort S
+
+### CR-33 · P3 · ux — Desk 'Continue' points at the next study (A2.2) while the hero path and unit cards mark a different unit (A1) as current
+
+- **Devices:** all
+- **Detail / repro:** Continue uses nextStudy() (the first study not passed), the hero path and unit cards use trackPlace() (the first lesson not done, which needs a theory card held too). With A1's studies passed but no card rated, Continue says 'A2.2 Boxes that turn' and A1 is ringed as 'now' on the path and in the Art path cards: two 'where am I' answers on one screen.
+- **Evidence:** shots/creatives/t/dense-mac-desk.png (Continue A2.2; path A1 ringed); js/modules/creatives.js:221-233 vs :143-162 and js/core/creatives.js:266-285
+- **Root cause:** Two different definitions of the current position.
+- **Proposed fix:** Derive both from one 'place' (e.g. Continue names the lesson whose next missing check is cards: 'A1.1 · rate a theory card').
+- **Flags:** effort S
+
+### CR-34 · P3 · ux — Writing sprint: the word target is never measured; it only becomes text in the Focus objective
+
+- **Devices:** all
+- **Detail / repro:** The Sprint card asks for 'Words 150' and minutes, but Start passes the target only as objective text ('Sprint: 150 words · <title>'). Nothing counts the words written during the sprint, shows progress against 150 or says at the end whether it was reached. Starting also calls KOS.rerender(), which rebuilds the desk, so the following area.focus() targets the detached old textarea and the caret is lost.
+- **Evidence:** js/modules/crwrite.js:160-176 (tgt only used in objective, area.focus() after KOS.rerender())
+- **Root cause:** Sprint is a thin wrapper over Focus with no word tracking.
+- **Proposed fix:** Record the word count at start, show 'n / 150 this sprint' in the foot while Focus runs, and focus the new textarea after the redraw.
+- **Flags:** effort M
+
+### CR-35 · P3 · ux — On a rest day the Daily Creative card says only 'Next on Monday': no way to do today's study anyway, and due theory cards are hidden
+
+- **Devices:** all
+- **Detail / repro:** planDay() returns 'rest' before it looks at the study, and dailyCard() draws for 'rest' only the picture and 'Next on <day>' (no button). planDay still counts due cards (out.cards), but the rest branch never shows them, so on a day the learner chose not to study Creatives the desk hides cards that are due today and offers no 'Do one anyway'. The card is 238 px tall for three lines (kicker, picture, title).
+- **Evidence:** shots/creatives/t/rest-mac.png; eval after setPrefs (today off): planDay().state 'rest', card children DIV 17 / IMG 80 / H2 23 px in a 238 px card; js/core/creatives.js:308-312, js/modules/creatives.js:173-174, :202
+- **Root cause:** Rest state short-circuits the plan and the card has no actions for it.
+- **Proposed fix:** On rest: keep 'Cards · n min' when cards are due and a quiet 'Do today's study anyway' link to the next study.
+- **Flags:** effort S
+
+### CR-36 · P3 · ux — 'Add your work' accepts confusing input: every piece is 'Untitled' and has no track, a link without https:// is refused as 'Choose a file or paste a link', a file and a link together silently drop the link, any other file is stored as text
+
+- **Devices:** all
+- **Detail / repro:** Exercised through the real form (DataTransfer files): (1) the title defaults to 'Untitled' instead of the file's name, so the Practice Log fills with rows called 'Untitled' (shots/creatives/t/log-dawn-mac.png); (2) a piece added from #/creatives/add (no study) gets track null: no track mark, its words never count toward the 'Write words' goal or Reports, and there is no track picker; (3) 'example.com/v' in the link field gives the toast 'Choose a file or paste a link.' although a link was pasted; (4) with both a file and a link the link is ignored without a word; (5) a non-image file (a .pdf the picker let through) is read with readAsText and saved as a 'text' work of 3 'words' of binary.
+- **Evidence:** eval cr2/add.js: md -> ['text','Untitled',7,null,null]; badlink -> added 0, toast 'Choose a file or paste a link.'; both -> text work, link dropped; pdf -> ['text','Untitled',3]; js/modules/creatives.js:611-640 (title value '', rec.track absent, link regex /^https?:\/\//, else-branch readAsText)
+- **Root cause:** Minimal form with no validation or defaults.
+- **Proposed fix:** Default the title to the file name (sans extension); add a track choice for free pieces; accept a bare domain by prefixing https:// or say 'Links start with https://'; refuse unsupported types by name.
+- **Flags:** effort S
+
+### CR-37 · P3 · integration — Global search does not find Creatives work: Portfolio pieces and Writing Desk drafts never appear (lessons do, via the spec)
+
+- **Devices:** all
+- **Detail / repro:** KOS.search covers lessons through the specification tree ('Ghosted lines' -> 'A1.1 · Ghosted lines') but has no Creatives domain: a Portfolio piece's title ('Rain at the window…') or a draft returns nothing, so the one connected search cannot reach what the learner made. (The Practice Log is private by invariant 156, but the Portfolio is chosen to be shown and drafts are the learner's own.)
+- **Evidence:** eval KOS.search.run: 'Ghosted lines' -> 'Specification:A1.1 · Ghosted lines'; 'Rain at the window' (a promoted work title) -> no groups; grep -n 'creatives' js/core/search.js -> no match
+- **Root cause:** No search domain registered for Creatives.
+- **Proposed fix:** Add a Creatives search domain over the Portfolio (titles, 'made from') and drafts, opening the work dialog / desk; keep the Practice Log out.
+- **Flags:** effort M
+
+### CR-38 · P3 · a11y — References page: the lab's zoom − + Fit buttons are 24 px on iPad
+
+- **Devices:** iPad (both orientations)
+- **Detail / repro:** On #/creatives/refs at iPad sizes the stage's zoom controls (shared KOS.lab chrome) measure 24x24 (− +) and 30x24 (Fit) with no hover on a touch device; these are the only way to zoom a reference without pinching. (Shared lab component: the same applies to every lab, so fix it once in lab.js/css.)
+- **Evidence:** measure sweep cr2/l-ipadl-4.json and cr2/empty-ipad-*.json #/creatives/refs: button.k-lab-zoom-b '−' 24x24, '+' 24x24, [lab.zoom-fit] 'Fit' 30x24
+- **Root cause:** Lab zoom buttons use a dense size with no coarse-pointer override.
+- **Proposed fix:** Coarse-pointer sizing for .k-lab-zoom-b (44 px hit area via the shared token).
+- **Flags:** effort S
+
+### CR-39 · P3 · ux — A check link to a work that is not on this account ('Nothing to check here') is a dead end with no way onward
+
+- **Devices:** all
+- **Detail / repro:** #/creatives/check/<id> for a deleted or unknown work shows an empty state with no action (no 'Open the Practice Log', no 'Back to Creatives'). Reached from an old bookmark, a Back after deleting the piece, or a notification/link from another device whose work was pruned.
+- **Evidence:** shots/creatives/t/shop-azure-check-mac.png (azure-butterfly theme, #/creatives/check/<deleted id>); js/modules/creatives.js:341
+- **Root cause:** emptyState called without action.
+- **Proposed fix:** Give the empty state an action to the Practice Log (and the lesson when known).
 - **Flags:** effort S
 
 **QoL ideas from this auditor:**
@@ -3787,6 +3950,12 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 - The desk's 'Start here' card (empty account) is 340 px tall for a sentence and a button.
 - Writing Desk drafts autosave on a 600 ms debounce only; flush on pagehide so a draft typed just before closing the iPad app is kept.
 - The subject strip lights 'Creatives' on every page outside KOS.crPages (log, settings, check, project); a lit 'Practice Log'/'Settings' state would orient the user.
+- Practice Log: filter by track / study / 'check to do', and show 'check to do' on saved-but-unchecked rows (the study card says it, the log does not).
+- Taking a piece out of the Portfolio has no toast or Undo.
+- Writing Desk versions: add 'Restore this version' beside 'Compare with now'.
+- References: a Back / 'Previous seed' and a way to type a seed, since 'the same seed is the same drawing' but the page only offers Next.
+- Sketchbook brief: the Given / Your one variable list wraps into a narrow 4-line column beside a wide label column (shots/creatives/t/sketch-mac.png); stack label over value in the side card.
+- Critique stray filter is keyword-only: 'converge to a vanishing point' passes for A2.1 although perspective is on its ignore list.
 
 **Backlog ideas from this auditor:**
 - A Portfolio view per track with a lightbox and export/share of a chosen piece.
@@ -4223,233 +4392,445 @@ Earlier auditor (interrupted) covered a DOM sweep of every route at mac/ipad(l)/
 
 ## MG — Money (Santander import); Goals pages only (complete)
 
-**Auditor's summary.** Money's import is the weak point and explains everything the user reported. The importer only reads a CSV whose FIRST line is a header with exact-match names. Santander midata ('Merchant/Description', 'Debit/Credit', a semicolon delimiter or a blank first line) and Online Banking's CSV with its 'Account:/From:' preamble are refused before the column mapper is shown, and .txt, QIF and OFX are not supported at all. All six reconstructed Santander samples failed through the real engine. The duplicates come from the de-dupe key date|amount|payee: importing the same statement again with the description mapped to Note (or Payee left unmapped) gives an empty payee, so nothing matches and every row is added again. That row then shows the category name 'Other' as its title and the bank text as its subtitle, exactly as in the user's screenshot. A second path to double counting: confirming a recurring rule makes its own transaction, which never matches the bank row. Imports can be undone only on the dialog's last step: no import history, no source filter, no select-all. Imported data is not useful because everything goes to Other, payees are raw bank strings, and the Type and Balance columns are thrown away. The import dialog's preview hides the payee and amount on the Mac. On iPhone, Money's sub-pages (including Transactions and Import) and Goals' period tabs cannot be reached, because the phone title bar lists the Productivity subnav instead of the page tabs. One cross-app bug was also found: page header art shows the previous page's picture. Proposed revamp: (1) Format sniffing (CSV with header search and delimiter voting, Santander .txt, QIF, OFX with FITID), plus a row-width check. (2) Store the raw bank text on every row. De-dupe on date+amount+normalised raw text, and on FITID or the balance chain when present. (3) Keep an import history (state.money.imports: file, range, count) with Undo, Delete and Replace this period. (4) Normalise merchant names ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026' -> 'Heron Foods'). Learn payee rules when the user sets a category, and ship a UK merchant table. (5) Match imported rows to due recurring occurrences instead of adding new ones; suggest rules from DD/SO types and repeating merchants. (6) Reconcile with the bank's Balance column. (7) Add spend by merchant and by week, a top-merchants card in Month and year (in place of the 'Never printed' designer note), and student-specific views (Student Finance instalment runway: weeks left per £ until the next payment). Goals pages are mostly sound. They have the stale header art, a sparse detail page that does not link to what it counts, a low-contrast status chip on the band, and small zero-count issues.
+**Auditor's summary.** Money's weakest part is still bank import, and every problem the user reported is reproduced on kos-redraw-1. All seven reconstructed Santander exports (midata comma, Windows-1252, semicolon/blank-first-line, Online Banking CSV with its preamble, .txt, QIF, OFX) are refused at step 1, because the importer reads line 1 as an exact-match header and knows only CSV. The duplicates come from a de-dupe key of date|amount|payee TEXT: re-importing with a different mapping, confirming a recurring rule, or typing the same payment all create twins; the same key also throws away genuine identical same-day payments inside one statement, and the app's own export re-imports every expense as income. After import nothing helps the student: raw bank strings, everything in Other, Type and Balance discarded, no batch history or undo after the dialog, and on iPhone and iPad portrait an entry cannot even be opened for editing (its Edit/Delete render below the whole list). The inventory also found thin-evidence leniency in Money goals ('5 no-spend days ✓ Met' on an account with no entries), a 14-day window that silently drops unconfirmed recurring payments, editor state bugs (Out→In saves income under Food; editing a transfer into a pot-to-pot move duplicates it), and a dead Payday picker. Root causes: no import pipeline (format detection → normalise → identity → categorise → reconcile), identity by display text instead of by source (FITID/balance/row hash), and master-detail layouts stacked on touch without changing the interaction.
 
-**Coverage.** Money: Overview, Transactions, Budgets, Recurring, Pots and Month and year, each on the seeded account (117 typed transactions over 95 days, 4 rules, 2 pots, 3 budgets, plus my CSV imports) and the empty account (first-run). Import dialog: the failure step and the Columns/Preview step at Mac size. Import engine: KOS.money.csv.parse/guess/preview/import run in the browser on six reconstructed Santander files in scratchpad/qa/money-samples (midata comma and semicolon, Online Banking Excel CSV, .txt, QIF, OFX), plus a renamed-header workaround and a re-import with a different mapping. DOM measurements: all six Money views and #/goals, /week, /month, /done at mac, ipad and iphone. Screenshots read: Mac for every Money view, Goals list and a goal page; iPhone for Money Overview, Recurring, Goals and the New goal sheet; iPad for Transactions and Goals This week. Not covered: the Atelier Dawn theme (the harness --theme flag set data-theme but the page still drew dark, so Dawn could not be judged; this may be a harness problem, not reported as an app bug); shop themes; iPad landscape; the import dialog on iPhone and iPad; the Goal editor's type forms and the exam goal types; the Wishlist purchase handoff; cloud sync of kos_money; PDF statements (no PDF import path exists in money.js, so there is nothing to test).
+**Coverage.** INVENTORY MATRIX (full table in audit-evidence/2026-11/qa/findings/money-goals.inventory.md). Sizes: mac 1470x832, ipad 820x1180, ipadl 1180x820 (touch threshold applied at every width this time), iphone 402x874; themes Graphite, Atelier Dawn (now renders: --theme works) and shop theme azure-butterfly. Accounts: seeded (+117 Money entries, 4 rules, 2 pots, 3 budgets) and empty (reset).
+Views: Overview P mac/ipad/ipadl/iphone/Dawn, B low-data + chips → C12,C16, no-spend chip folded into the goals-leniency finding | Transactions P all sizes + azure, B filters/search/range/select/bulk/edit → C18,C19, new phone-selection, search, bulk Set category, Out→In editor, transfer edit | Budgets P mac/ipad/iphone, B inline edit, Edit budgets, rollover (verified OK: −20 rollover, effective 80), archive/restore, payday → new payday-picker, income-categories | Recurring P all, B due cards, confirm/skip/unmark, rule editor every unit/ends → C14, new 14-day window, row a11y, setPrice | Pots P mac/ipad/iphone, B move form (balance check OK), hero choice, close → C13, new closed-pot | Month P mac, B same-length compare, row links, export → C10,C11, new month links/export | Year P mac, B figures → new set-aside/income-line | Phone section switch → C8,C20 | Import dialog P mac/ipad/iphone, B 9 sample files through the real dialog (File on the input), Done-step undo (OK 3→0) → C0–C7,C9,C17, new identical-rows, own-export, odd amounts, lower-case i, 80-row cap | Export → new own-export round trip, CSV formula cells.
+Engine fixtures verified OK: monthly dom 31 → last day, 29 Feb yearly, count/end dates, price history math, skip of a confirmed occurrence removes its entry, payday periods, rollover, splits must add up, refunds, Wishlist mirror (appears, cannot be deleted, Collection budget = Wishlist limit), notices (trial tomorrow, bill in 2 days, income late; figures dropped when hidden), set-aside per month (£111.43), subscriptions totals.
+Goals (Money types only): money-no-spend and money-spend-under fixture on the empty account → new leniency finding; money-subs-under OK; money-income and money-save read only; goal page hidden amounts → new P3. Carried Goals findings C15, C21 rechecked.
+NOT checked: kos_money cloud replication (needs a signed-in Supabase account; code read only); full-backup exportAll/importAll restore (data-integrity area); the ten Assistant money tools (assistant-archive area); PDF statements (no import path exists — covered by the formats finding); pot picture upload with a real file; VoiceOver/keyboard walk beyond the day chart's key handler (code read).
 
 ### MG-01 · P0 · data — Duplicate transactions after re-importing: de-dupe key includes payee, so a second import mapped differently is all 'new'
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** Exactly the user's screenshot: the same Heron Foods row twice, once titled with the payee and once titled 'Other' with the bank text as the subtitle. Reproduced: import a statement with Description->Payee, then the same file with Description->Note (or payee unmapped); preview reports 0 duplicates and every row imports again. The key is date|minor|payee.lower(), and an empty payee never equals the first import's payee. The second row reads 'Other' because txRow falls back to the category name when payee is empty and shows the note as the sub-line.
-- **Evidence:** js/core/money.js:1025-1031 (key), js/modules/money.js:587,591 (title/subtitle fallback); shots/money-goals/tx-dups-all-mac.png; eval repro: second preview {dups:0}
+- **Detail / repro:** Re-run on kos-redraw-1: importing the same two rows with Description→Payee then Description→Note gives preview {dups:0, rows:2} and both import again (stored: one row with payee=bank text, one with payee '' and the text in note — exactly the 'Other' twin in the user's screenshot). Same mapping re-imported: dups 2 (correctly caught). Key unchanged. — Exactly the user's screenshot: the same Heron Foods row twice, once titled with the payee and once titled 'Other' with the bank text as the subtitle. Reproduced: import a statement with Description->Payee, then the same file with Description->Note (or payee unmapped); preview reports 0 duplicates and every row imports again. The key is date|minor|payee.lower(), and an empty payee never equals the first import's payee. The second row reads 'Other' because txRow falls back to the category name when payee is empty and shows the note as the sub-line.
+- **Evidence:** js/core/money.js:1025-1031 (key date|minor|payee), js/modules/money.js:587,591; eval scratchpad t2.js: reimportNoteMapped {dups:0, rows:2}, reimportSame {dups:2}; shots/money-goals/tx-dups-all-mac.png
 - **Root cause:** Dedupe depends on user-chosen mapping; raw source text not kept.
 - **Proposed fix:** Key duplicates on date+amount+kind+normalised bank text (payee OR note OR raw description, stored as tx.raw), with the bank's own id (OFX FITID / balance-chain) when present; keep the raw description on every imported row; offer 'Replace the previous import of this period' in the preview when a batch overlaps.
 - **Flags:** effort M
 
 ### MG-02 · P1 · integration — Santander midata CSV is refused: 'Merchant/Description' and 'Debit/Credit' headers are not recognised
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** The midata export's header 'Date,Type,Merchant/Description,Debit/Credit,Balance' maps only Date; GUESS has no pattern for 'Merchant/Description' (payee) or 'Debit/Credit' (signed amount), so read() fails with 'It has no header row with a date and an amount.' before the user ever reaches the column mapper, even though the mapper could have fixed it by hand. Reproduced through KOS.money.csv.parse/guess on money-samples/midata-comma.csv: mapping {date:0}, dialogAccepts false.
-- **Evidence:** js/core/money.js:970-977 (GUESS), js/modules/money.js:937-940 (hard refusal before the mapper); repro: scratchpad/qa/money-samples/midata-comma.csv, scratchpad/qa/mg-import.js
+- **Detail / repro:** Through the REAL dialog (File set on the input): midata-comma.csv and midata-cp1252.csv both fail at step 1 with 'It has no header row with a date and an amount. Nothing was imported.' — the mapper that could fix it is never shown. — The midata export's header 'Date,Type,Merchant/Description,Debit/Credit,Balance' maps only Date; GUESS has no pattern for 'Merchant/Description' (payee) or 'Debit/Credit' (signed amount), so read() fails with 'It has no header row with a date and an amount.' before the user ever reaches the column mapper, even though the mapper could have fixed it by hand. Reproduced through KOS.money.csv.parse/guess on money-samples/midata-comma.csv: mapping {date:0}, dialogAccepts false.
+- **Evidence:** js/core/money.js:970-977 (GUESS), js/modules/money.js:937-940; dialog run over money-samples/midata-comma.csv, midata-cp1252.csv
 - **Root cause:** Exact-match header regexes plus a hard gate before the manual mapper.
 - **Proposed fix:** Add patterns (merchant/description, debit/credit, 'amount (£)', 'money in/out (£)'); and never hard-fail on unguessed headers: open the Columns step with the unmatched columns and let the user map them.
 - **Flags:** effort S
 
 ### MG-03 · P1 · integration — Import only reads the first line as the header: midata with a leading blank line or a semicolon delimiter, and Online Banking CSV with an account preamble, all fail
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** parseCSV picks the delimiter from line 1 only (a leading blank line forces ','), and takes rows[0] as the header. Santander midata variants (';' delimited, trailing ';', blank first line) parse into one column; the Online Banking CSV/Excel export starts with 'Account:'/'From:' preamble lines so the header is 'Account:,Santander…'. All refused with the same generic message.
-- **Evidence:** js/core/money.js:947-969; browser repro of 6 sample files (midata-semicolon.csv delimiter ',' header one cell; santander-online-excel.csv header ['Account:',…]); all dialogAccepts=false
+- **Detail / repro:** Dialog run: midata-semicolon.csv (blank first line, ';') and santander-online-excel.csv (Account:/From: preamble) refused with the same generic message. — parseCSV picks the delimiter from line 1 only (a leading blank line forces ','), and takes rows[0] as the header. Santander midata variants (';' delimited, trailing ';', blank first line) parse into one column; the Online Banking CSV/Excel export starts with 'Account:'/'From:' preamble lines so the header is 'Account:,Santander…'. All refused with the same generic message.
+- **Evidence:** js/core/money.js:947-969 (delimiter and header from line 1); dialog run over money-samples/midata-semicolon.csv, santander-online-excel.csv
 - **Root cause:** Header = rows[0], delimiter sniffed from text.split(/\r?\n/)[0].
 - **Proposed fix:** Detect the delimiter over the first ~10 non-empty lines; scan the first 20 rows for the first row that matches date+amount header patterns and treat everything above as preamble (show it as 'Skipped: 3 header lines'); drop trailing empty columns.
 - **Flags:** effort S
 
 ### MG-04 · P1 · integration — Santander's other exports (.txt, QIF, OFX) are not supported at all; the picker accepts .txt but cannot read it
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** Online Banking 'Download transactions' offers text (Date:/Description:/Amount:/Balance: blocks with non-breaking spaces), Excel CSV, Quicken QIF and Microsoft Money OFX. The importer is CSV-only, yet the file input accepts text/plain, so the user's .txt is taken and fails with 'It has no header row with a date and an amount.' OFX would also give a stable FITID for exact de-duplication.
-- **Evidence:** js/modules/money.js:889 (accept .csv,text/csv,text/plain), js/core/money.js:947; repro: money-samples/santander-online.txt, santander.qif, santander.ofx all refused
+- **Detail / repro:** Dialog run: santander-online.txt, santander.qif and santander.ofx all refused at step 1; the picker still accepts text/plain. — Online Banking 'Download transactions' offers text (Date:/Description:/Amount:/Balance: blocks with non-breaking spaces), Excel CSV, Quicken QIF and Microsoft Money OFX. The importer is CSV-only, yet the file input accepts text/plain, so the user's .txt is taken and fails with 'It has no header row with a date and an amount.' OFX would also give a stable FITID for exact de-duplication.
+- **Evidence:** js/modules/money.js:889 (accept), js/core/money.js:947; dialog run over the three samples
 - **Root cause:** Single CSV parser path.
 - **Proposed fix:** Add format sniffing: OFX/QFX (parse STMTTRN, use FITID as the dedupe key, LEDGERBAL to reconcile), QIF (D/T/P/M/^ records), the Santander .txt block format; name the format detected in the Columns step. Keep CSV for everything else.
 - **Flags:** effort M
 
 ### MG-05 · P1 · ux — No way to see, undo or replace an import after the result dialog closes
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** Each import has a batch id, but 'Undo this import' exists only on the Done step of the dialog (money.js:915). Once closed there is no import history, no filter by source/batch in Transactions (list() filters kind/cat/tag/search only), and bulk select has no 'select all' over a range, so removing a bad 200-row import means ticking rows one by one.
-- **Evidence:** js/modules/money.js:915-917; js/core/money.js:1050-1056 (undoBatch only caller), list() keep() js/core/money.js:~700-712
+- **Detail / repro:** Undo works only on the Done step (verified: 3 imported → Undo → 0). No other caller of undoBatch, no batch/source filter in list(), no select-all in the bulk bar. — Each import has a batch id, but 'Undo this import' exists only on the Done step of the dialog (money.js:915). Once closed there is no import history, no filter by source/batch in Transactions (list() filters kind/cat/tag/search only), and bulk select has no 'select all' over a range, so removing a bad 200-row import means ticking rows one by one.
+- **Evidence:** js/modules/money.js:915-917 (only undo), js/core/money.js:1050-1056 (only definition), 690-712 (list keep(): kind/cat/tag/search); grep undoBatch: 2 hits
 - **Root cause:** Batch metadata is not stored anywhere but on rows; UI only exposes it in a transient dialog.
 - **Proposed fix:** An 'Imports' list (Transactions › Imports or Settings): file name, date range, rows, when imported, with Undo/Delete and 'Replace with a new file'. Store {batch, fileName, from, to, n, at} in state.money.imports. Add a Source filter and Select all in view.
 - **Flags:** effort M
 
 ### MG-06 · P1 · data — Unquoted thousands separators shift columns: '£1,234.56' imports silently as £1.00
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** A comma-delimited bank file that writes amounts like £1,234.56 without quotes (common in hand-rolled UK exports, and what users get after re-saving midata in a text editor) splits the amount into two cells. The parser never checks a row's cell count against the header, so the Student Finance row imported as +£1.00 and the balance column swallowed '234.56'. No warning in the preview.
-- **Evidence:** js/core/money.js:947-969 (no per-row width check), 1005-1013; eval repro: row ['2026-10-27','in',100,'STUDENT FINANCE ENGLAND SLC']; shots/money-goals/tx-dups-all-mac.png shows +£1.00
+- **Detail / repro:** parse of 'Date,Description,Amount,Balance' + '27/10/2026,STUDENT FINANCE,£1,234.56,£1,500.00' gives 6 cells for a 4-column header and previews as ['in', 100] (£1.00). — A comma-delimited bank file that writes amounts like £1,234.56 without quotes (common in hand-rolled UK exports, and what users get after re-saving midata in a text editor) splits the amount into two cells. The parser never checks a row's cell count against the header, so the Student Finance row imported as +£1.00 and the balance column swallowed '234.56'. No warning in the preview.
+- **Evidence:** js/core/money.js:947-969, 1005-1013; eval t2.js thousands: row ['27/10/2026','STUDENT FINANCE','£1','234.56','£1','500.00'] → pv [['in',100]]
 - **Root cause:** Parser trusts column positions without validating row width.
 - **Proposed fix:** Flag rows whose cell count differs from the header ('Row 3 has 6 cells, the header has 5'), and for the known Santander layout re-join a split £n,nnn.nn amount; show the running Balance column so a mismatch is visible.
 - **Flags:** effort S
 
 ### MG-07 · P1 · data — A recurring rule's 'Confirm' and an imported bank row for the same payment double-count
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** Confirming an occurrence (Google One £1.59, Phone £10) writes its own transaction r:<rule>:<date> with payee = rule name; importing the bank statement then adds 'GOOGLE *Google One, ON 27-10-2026' £1.59 as a separate row. Neither side looks at the other: preview's dedupe compares payee text ('google one' vs the bank string) and confirm() never searches existing transactions. Spend, budgets, Safe to spend and Reports count the payment twice. This is a second path to the duplicates the user saw.
-- **Evidence:** js/core/money.js:414-433 (confirm creates tx unconditionally), 1025-1031 (dedupe by exact payee); recurring page shows Google One 'Due' for Sep/Oct even though the user has bank rows for them (shots/money-goals/recurring-mac.png)
+- **Detail / repro:** Fixture: rule 'Google One' £1.59 confirmed for 20 Jan, then a bank row '20/01/2027, GOOGLE *Google One, ON 19-01-2027, -1.59' previews duplicate:false and would import as a second £1.59. Seeded data shows the same for Student Finance (typed £450 on 27 Oct and the rule's 27 Oct occurrence still 'Due · 12 days ago' with a 'Received £450.00' button). — Confirming an occurrence (Google One £1.59, Phone £10) writes its own transaction r:<rule>:<date> with payee = rule name; importing the bank statement then adds 'GOOGLE *Google One, ON 27-10-2026' £1.59 as a separate row. Neither side looks at the other: preview's dedupe compares payee text ('google one' vs the bank string) and confirm() never searches existing transactions. Spend, budgets, Safe to spend and Reports count the payment twice. This is a second path to the duplicates the user saw.
+- **Evidence:** js/core/money.js:414-433, 1025-1031; eval t3.js confirmVsImport {dup:false}; #/money/recurring due card 'Student Finance · £450.00 | Due · 12 days ago'
 - **Root cause:** Rules and imports are two independent writers of the same real-world payment.
 - **Proposed fix:** On import, match rows to due occurrences (same amount ±0, date within ±3 days, payee alias set on the rule) and MARK the occurrence done pointing at the imported tx instead of creating a new one; on Confirm, offer 'Use the bank entry from 27 Oct' when one matches.
 - **Flags:** effort M
 
 ### MG-08 · P1 · ux — Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** all
-- **Detail / repro:** Every imported row lands in Other/Other income (preview opts.outCat), payee is the raw bank text ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026', 'CARD PAYMENT TO …,3.45 GBP, RATE 1.00/GBP ON …'), so Overview's 'This month by category' is one 'Other' bar, the Selected card shows a 4-line shouting title, spend-by-merchant is impossible and nothing learns from the user's re-categorising. The bank's Type (DEB/DD/FPI/FPO/SO) and Balance columns are dropped, so direct debits are not detected and the import cannot be reconciled. There is no merchant normalisation, no payee->category memory and no recurring detection anywhere in money.js.
-- **Evidence:** js/core/money.js:1019-1021 (cat = other), 1041; grep of money.js/modules/money.js finds no merchant/auto-category code; shots/money-goals/tx-dups-all-mac.png
+- **Detail / repro:** Workaround import (renamed headers) stores payee 'HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026', cat 'other'; Type and Balance mapped to 'Leave out' with no option to use them. — Every imported row lands in Other/Other income (preview opts.outCat), payee is the raw bank text ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026', 'CARD PAYMENT TO …,3.45 GBP, RATE 1.00/GBP ON …'), so Overview's 'This month by category' is one 'Other' bar, the Selected card shows a 4-line shouting title, spend-by-merchant is impossible and nothing learns from the user's re-categorising. The bank's Type (DEB/DD/FPI/FPO/SO) and Balance columns are dropped, so direct debits are not detected and the import cannot be reconciled. There is no merchant normalisation, no payee->category memory and no recurring detection anywhere in money.js.
+- **Evidence:** js/core/money.js:1019-1021, 1041; js/modules/money.js:962 (map options: date/payee/amount/out/in/note only); dialog map ['Type=>','Balance=>']
 - **Root cause:** Import engine was built as a column copier ('the pages are phase 2' comment at money.js:946).
 - **Proposed fix:** Revamp (see summary): store raw text, derive a clean merchant (strip 'CARD PAYMENT TO', '(VIA APPLE PAY)', ', ON dd-mm-yyyy', ',n.nn GBP, RATE …', store numbers, title-case); payee rules {match -> merchant, category} learned when the user sets a category ('Always put Heron Foods in Food?'); a built-in UK merchant table (Tesco, Heron Foods, Greggs, Stagecoach, Google, Spotify, SLC…); Type DD/SO -> suggest a recurring rule; Balance -> reconcile and show 'Matches the bank: £120.10'.
 - **Flags:** effort L, needs a design prompt
 
 ### MG-09 · P1 · bug — iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable
 
+- **Re-checked on kos-redraw-1:** holds
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** iphone
-- **Detail / repro:** Under 700px the page's section tabs ([data-phone-tabs]) are hidden on the promise that the title bar's switch offers them, but mobile-shell's destinations() only falls back to page tabs when the section has no subnav. Productivity has a subnav, so the 'Switch within Productivity' sheet lists Focus Timer…Money, Goals, and Money's six views and Goals' four views vanish. On the Money overview the only visible links are Budgets →, Recurring →, Pots →; there is no way to open Transactions (where Import CSV lives) or Month and year. Goals: This week/This month/Done tabs measure 0x0.
-- **Evidence:** css/components.css:652-654; js/modules/mobile-shell.js:457-463 (subnav wins); js/modules/money.js:128, js/modules/goals.js:303; eval at iphone size: visible controls on #/money list no Transactions/Import; goals tabs 0x0; shots/money-goals/overview-iphone.png, goals-iphone.png
+- **Detail / repro:** At iPhone size the only Money links on the Overview are Budgets →, Recurring →, Pots →; the 'Switch within Productivity' sheet lists Focus Timer…Money ✓, Goals only. — Under 700px the page's section tabs ([data-phone-tabs]) are hidden on the promise that the title bar's switch offers them, but mobile-shell's destinations() only falls back to page tabs when the section has no subnav. Productivity has a subnav, so the 'Switch within Productivity' sheet lists Focus Timer…Money, Goals, and Money's six views and Goals' four views vanish. On the Money overview the only visible links are Budgets →, Recurring →, Pots →; there is no way to open Transactions (where Import CSV lives) or Month and year. Goals: This week/This month/Done tabs measure 0x0.
+- **Evidence:** js/modules/mobile-shell.js:457-463, css/components.css:652-654; eval iphone: ctl list, sheet ['Focus Timer','Reminders10','Routines','Calendar','Money✓','Goals']; shots/money-goals/overview-iphone.png
 - **Root cause:** Phone title bar prefers the section subnav and the CSS hides page tabs unconditionally.
 - **Proposed fix:** In destinations(), when the page carries [data-phone-tabs] list those tabs in the sheet (as a second group under the section list), or keep the page tabs visible as a k-scroller strip under the title bar for Money and Goals.
 - **Flags:** effort S
 
 ### MG-10 · P1 · ui — Import preview hides the payee and amount, and the Import button is below the fold
 
+- **Re-checked on kos-redraw-1:** changed: also measured on iPad and iPhone
 - **Gemini B:** confirmed; corroboration only, reviewed by Claude 8 Nov
 - **Devices:** mac, ipad
-- **Detail / repro:** On the Mac (1470x832) the import dialog is 760px wide (it borrows Goals' --gl-dialog-w), the Columns card takes --mn-map-w, and the Preview card gets 264px. Its 4-column row grid (150px chip, 74px date, 1fr payee, 90px amount) leaves the payee 0px wide and pushes the amount to x=1148, outside the card (right edge 1087) — the preview shows only '+ New' and a date, so the user cannot check what will be imported. The 'Cannot read' row's reason is hidden the same way. The dialog body scrolls (907 > 713) and the footer with 'Import 4 entries' sits at y=860, off screen.
-- **Evidence:** shots/money-goals/import-preview-mac.png; eval: pvcard w=264, pv grid '150px 74px 0px 90px', amount x=1148, foot y=860; css/views/money.css:135,169,176
+- **Detail / repro:** Mac 1470x832: dialog 760 wide, Preview card 264 wide, grid '150px 74px 0px 90px', payee 0px, amount x=1148 (card right 1087), Import button y=860 (> 832). iPhone: payee 0px and the amount (x 345–392) overflows the 362px card; iPad portrait: payee visible (310px) but the Import button sits at y=1182, below the 1180 viewport; the steps list still takes 160px at every size. — On the Mac (1470x832) the import dialog is 760px wide (it borrows Goals' --gl-dialog-w), the Columns card takes --mn-map-w, and the Preview card gets 264px. Its 4-column row grid (150px chip, 74px date, 1fr payee, 90px amount) leaves the payee 0px wide and pushes the amount to x=1148, outside the card (right edge 1087) — the preview shows only '+ New' and a date, so the user cannot check what will be imported. The 'Cannot read' row's reason is hidden the same way. The dialog body scrolls (907 > 713) and the footer with 'Import 4 entries' sits at y=860, off screen.
+- **Evidence:** eval scratchpad open.js mac {pvcard:[823,260,264,381], pvgrid:'150px 74px 0px 90px', amt:[1148,…], go y 860}; ipad {go:[624,1182,…]}; iphone {payee w 0, amt x 345 w 47, pvcard w 362}; css/views/money.css:135,169,176; shots/money-goals/import-preview-mac.png
 - **Root cause:** Dialog width token from Goals + fixed grid columns.
 - **Proposed fix:** Give the import dialog its own wide token (~1080px, full sheet on iPad), stack Columns above Preview below ~900px, shrink the state chip to its content, pin the footer (sticky) so Import is always visible.
 - **Flags:** effort S
 
-### MG-11 · P2 · data — Month and year: 'In' shows expected income as if received
+### MG-23 · P1 · data — Two genuine identical payments on the same day in one statement: the second is marked 'Already have' and skipped by default
 
 - **Devices:** all
-- **Detail / repro:** For the current month the side card's In figure is ins.planned (received + still expected), e.g. 'IN £450.00 · £450.00 still expected' when nothing has come in yet. The headline figure should be what came in, with expected as the sub-line.
-- **Evidence:** js/modules/money.js:1695-1697; shots/money-goals/month-mac.png
+- **Detail / repro:** previewCSV adds every row's key (date|amount|payee) to the seen set as it goes ('a repeat inside the same file is a duplicate too'), so two real card payments of the same amount at the same shop on the same day (two meal deals, two bus fares) are treated as one: the preview shows the second as '≈ Already have · matches an entry on 29 Oct' with Skip pre-selected, and Import imports one. Reproduced through the real dialog with midata-workaround.csv (two HERON FOODS -£3.45 rows on 29/10/2026 whose Balance column proves they are different: 120.10 vs 123.55): 'Preview 4 rows · 3 new · 1 look like ones you have', 'Import 3 entries'. Silent loss of real spending, and the totals under-report.
+- **Evidence:** js/core/money.js:1027-1031 (keys[k] = true inside the file loop); eval of the import dialog with money-samples/midata-workaround.csv: pv row 2 '≈ Already have … matches an entry on 29 Oct Skip'
+- **Root cause:** Within-file repeats are deliberately folded into the duplicate set.
+- **Proposed fix:** Compare file rows only against what is STORED, not against earlier rows of the same file; for stored matches count multiplicity (n identical rows in the file vs m stored) and only flag the surplus. With a balance column (or OFX FITID) use it as part of the identity.
+- **Flags:** effort S
+
+### MG-24 · P1 · data — Re-importing the app's own CSV export turns every outgoing into income and files the category as a note
+
+- **Devices:** all
+- **Detail / repro:** Export CSV writes 'Date,Type,Amount,Category,Payee,Note,Tags,Pot' with unsigned amounts and the kind in Type. guessMapping maps Amount as a signed column (no minus = money IN), ignores Type, and maps 'Category' to Note (the note pattern includes 'category' and Category comes first). Round trip of October's export: all 40 rows previewed as kind 'in' (e.g. Steam £14.38 'in', note 'Other'); only the duplicate check (same device, same data) stops them importing. On another device, after a reset or after 'Delete all', importing your own export (the only Money backup a user sees) books every expense as income; transfers lose their pot and splits come back as separate entries.
+- **Evidence:** js/core/money.js:973-977 (note: /category/), 1005-1013 (sign from the minus), 1058-1076 (export unsigned + Type); eval: roundtrip kinds {in: 40}, pv[0] ['2026-10-01','in',1438,'Steam','Other']
+- **Root cause:** Export and import were written independently; the importer has no notion of a direction column.
+- **Proposed fix:** Recognise the app's own header exactly and import it losslessly (Type → kind, Category → cat by name, Pot → pot, Tags). Generally, offer a 'Type/Direction' column mapping (DEB/DD/SO/FPO = out, FPI/BGC/CR = in).
+- **Flags:** effort M
+
+### MG-25 · P1 · ux — iPhone and iPad portrait: tapping a transaction shows nothing; its Edit and Delete sit below the whole list
+
+- **Devices:** iPhone, iPad portrait
+- **Detail / repro:** Under 860px .k-mn-cols becomes one column and the side column (the Selected card with Edit · Duplicate · Delete…, and This view) is placed after the list. Tapping a row only marks it selected; nothing on screen changes. With 'The last 3 months' the Edit button is at y=4644 on iPhone (viewport 874) and y=4288 on iPad portrait (viewport 1180), after 60 rows, and the IntersectionObserver keeps loading more rows as you approach it, so it moves away. On the user's two touch devices there is effectively no way to correct or delete an imported duplicate one by one (bulk tick-and-delete is the only route).
+- **Evidence:** css/views/money.css:343-345 (side under the list ≤860px); js/modules/money.js:601-602 (row click only re-draws the side); eval iphone: editY 4644 vs innerHeight 874; eval ipad: rowY 684, editY 4288; shots/money-goals/r2-tx-iphone.png
+- **Root cause:** The desktop master-detail layout is stacked without changing the interaction.
+- **Proposed fix:** Under 860px open the entry in a sheet (the entry editor or the Selected card as a k-msheet) on tap; keep 'This view' above the list as a summary line.
+- **Flags:** effort S
+
+### MG-11 · P2 · data — Month and year: 'In' shows expected income as if received
+
+- **Re-checked on kos-redraw-1:** holds
+- **Devices:** all
+- **Detail / repro:** Month and year, November so far: 'IN £450.00 · £450.00 still expected' while nothing has arrived. — For the current month the side card's In figure is ins.planned (received + still expected), e.g. 'IN £450.00 · £450.00 still expected' when nothing has come in yet. The headline figure should be what came in, with expected as the sub-line.
+- **Evidence:** js/modules/money.js:1695-1697 (inFig = ins.planned); shots/money-goals/r2-month-mac.png
 - **Root cause:** inFig uses ins.planned
 - **Proposed fix:** fig('In', cur.income, expected ? '+' + said(expected) + ' still expected' : null).
 - **Flags:** effort S
 
 ### MG-12 · P2 · content — 'Never printed' card shows designer rules to the user
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
-- **Detail / repro:** Month and year's side column contains a card titled 'Never printed' explaining 'Never a bare 0 or +∞%' — an implementation rule from the design notes, meaningless to the user and violating invariant 50a (rules belong in Help & Guide).
-- **Evidence:** js/modules/money.js:1698; shots/money-goals/month-mac.png
+- **Detail / repro:** The 'Never printed' card is still in Month and year's side column. — Month and year's side column contains a card titled 'Never printed' explaining 'Never a bare 0 or +∞%' — an implementation rule from the design notes, meaningless to the user and violating invariant 50a (rules belong in Help & Guide).
+- **Evidence:** js/modules/money.js:1698; shots/money-goals/r2-month-mac.png
 - **Root cause:** Design annotation shipped as UI copy.
 - **Proposed fix:** Remove the card; use the column for something useful (top merchants this month, biggest change, the month's subscriptions).
 - **Flags:** effort S
 
 ### MG-13 · P2 · ui — Money's section tabs jump between pages (Add entry button appears on some pages only)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** mac, ipad landscape
-- **Detail / repro:** On Overview/Transactions/Recurring the tab strip spans x≈617–1180 with '+ Add entry' after it; on Budgets/Pots/Month and year there is no Add entry and the strip sits at x≈742–1305 and vertically centred differently (y 183 vs 204). Switching tabs makes the control you just clicked move under the pointer. The strip and Hide amounts pill also sit over the painted header band, Hide amounts touching its right edge on Budgets/Pots.
-- **Evidence:** shots/money-goals/overview-mac.png vs budgets-mac.png, pots-mac.png, month-mac.png
+- **Detail / repro:** Mac: tab strip x=615,y=185 on Overview/Transactions/Recurring; x=741,y=164 on Budgets/Pots; x=740,y=185 on Month and year (Add entry absent on the last three). Hide amounts ends at x=1446, the band's edge. — On Overview/Transactions/Recurring the tab strip spans x≈617–1180 with '+ Add entry' after it; on Budgets/Pots/Month and year there is no Add entry and the strip sits at x≈742–1305 and vertically centred differently (y 183 vs 204). Switching tabs makes the control you just clicked move under the pointer. The strip and Hide amounts pill also sit over the painted header band, Hide amounts touching its right edge on Budgets/Pots.
+- **Evidence:** eval hdr.js mac: tabs rects per route; js/modules/money.js:134-135
 - **Root cause:** header() actions differ per view in js/modules/money.js
 - **Proposed fix:** Keep Add entry (or a placeholder of equal width) on every Money page, or put the section tabs on their own row left-aligned under the title as other Productivity pages do.
 - **Flags:** effort S
 
 ### MG-14 · P2 · ui — Pots: empty right column beside the pot cards, and Move money's tabs/select clipped
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** mac
-- **Detail / repro:** With two pots the grid shows Emergency and the 'Saving for something?' tile, leaving a ~410px empty column on the right (x 1036–1446). The Move money card clips 'Between pots' at its right edge and the To select shows 'New laptop fc'.
-- **Evidence:** shots/money-goals/pots-mac.png
+- **Detail / repro:** Pots at 1470: Emergency card + 'Saving for something?' tile end at x≈1036, leaving ~410px empty to the right; Move money shows 'Between pots' cut at the card edge and the To select 'New laptop fc'. — With two pots the grid shows Emergency and the 'Saving for something?' tile, leaving a ~410px empty column on the right (x 1036–1446). The Move money card clips 'Between pots' at its right edge and the To select shows 'New laptop fc'.
+- **Evidence:** shots/money-goals/r2-pots-mac.png
 - **Root cause:** Fixed-column pot grid; segmented control without wrap.
 - **Proposed fix:** Use auto-fill grid with minmax so cards stretch (or put Move money in the empty column); let the Move money segments wrap and put From/To on separate rows under ~360px.
 - **Flags:** effort S
 
 ### MG-15 · P2 · ui — iPhone Recurring: the third occurrence tile is cut off at the card edge
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** iphone
-- **Detail / repro:** At 402px each due rule shows three occurrence tiles in a row; the third (Sat 28 Nov · Upcoming) runs to x=410, past the card and viewport, reading "Upcomi" / "Sat 28 No". It is not a declared scroller (invariant 50). The New rule form is also always expanded at the bottom of the phone page and the + FAB covers its Next-dates line.
-- **Evidence:** DOM measure iphone #/money/recurring: k-mn-occ-i right=410; shots/money-goals/recurring-iphone.png
+- **Detail / repro:** iPhone #/money/recurring: k-mn-occ-i right edges 410 (Sat 28 Nov, Fri 27 Nov, Wed 25 Nov) past the 402 viewport. — At 402px each due rule shows three occurrence tiles in a row; the third (Sat 28 Nov · Upcoming) runs to x=410, past the card and viewport, reading "Upcomi" / "Sat 28 No". It is not a declared scroller (invariant 50). The New rule form is also always expanded at the bottom of the phone page and the + FAB covers its Next-dates line.
+- **Evidence:** DOM measure iphone (mg-m2.js): overflow ['k-mn-occ-i:Sat 28 Nov○ Upcoming£1.59 r=410', …]
 - **Root cause:** Fixed 3-column occurrence grid without a phone tier
 - **Proposed fix:** Under 560px show two tiles (last + next) or wrap them; make the tile row a KOS.ui.scroller if three are needed; collapse New rule behind the + New rule button on phone.
 - **Flags:** effort S
 
 ### MG-16 · P2 · ui — Goal page: status chip unreadable on the painted band, and a mostly empty page
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** mac, ipad
-- **Detail / repro:** On #/goals/<id> the 'Too early to call' chip sits on the header painting at very low contrast (grey text on mid-tone art). The page body is one stats card and two small side cards; for a Collection titles goal it never lists which titles count or what to read next, and it does not link to them, leaving ~400px of empty page at 1470x832. Fractional 'The line says 0.3 titles' for a count of titles reads oddly.
-- **Evidence:** shots/money-goals/goal-detail-mac.png
+- **Detail / repro:** #/goals/1 on Mac: 'Met' chip on the painted band at low contrast, one stats card and ~400px of empty page below; 'THE LINE SAYS 0.2 titles' (fractional titles). — On #/goals/<id> the 'Too early to call' chip sits on the header painting at very low contrast (grey text on mid-tone art). The page body is one stats card and two small side cards; for a Collection titles goal it never lists which titles count or what to read next, and it does not link to them, leaving ~400px of empty page at 1470x832. Fractional 'The line says 0.3 titles' for a count of titles reads oddly.
+- **Evidence:** shots/money-goals/r2-goal-detail-mac.png
 - **Root cause:** Detail page draws only aggregate facts.
 - **Proposed fix:** Give band chips a solid scrim background (as the Hide amounts pill has); for count goals list the counted/remaining items with links into the vault (connected OS); round the line for integer units ('on pace: 0 of 12 by today').
 - **Flags:** effort M
 
 ### MG-17 · P2 · bug — Painted page header shows the PREVIOUS page's picture (Goals shows Money's jar, Money shows Goals' mountain)
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
-- **Detail / repro:** KOS.ui.pageHeader picks its art from KOS.store.state.ui.view, but KOS.show only sets ui.view AFTER the view function has rendered. So the first render of any page that relies on PAGE_ART draws the art of the page you came from; a redraw on the same page then corrects it. Reproduced: money -> goals gives app.hero.page.money.webp on Goals; goals -> money/budgets gives app.hero.page.goals.webp on Money. Affects every page in PAGE_ART (Review, Assignments, Exams, Pacing, Calendar, Reminders, Routines, Goals, Money, Wishlist, Governor, Reports, Archive...).
-- **Evidence:** js/core/ui.js:589-592 (reads ui.view), js/core/ui.js:1540-1543 (view set after render); eval sequence output: '#/goals => app.hero.page.money.webp', '#/money/budgets => app.hero.page.goals.webp'; shots/money-goals/goals-mac.png (jar on Goals)
+- **Detail / repro:** Sequence goals → money → … → goals → money/budgets: #/goals shows app.hero.page.money.webp, #/money shows app.hero.page.goals.webp, #/money/budgets after #/goals shows goals' picture; the same pages loaded from themselves show their own. — KOS.ui.pageHeader picks its art from KOS.store.state.ui.view, but KOS.show only sets ui.view AFTER the view function has rendered. So the first render of any page that relies on PAGE_ART draws the art of the page you came from; a redraw on the same page then corrects it. Reproduced: money -> goals gives app.hero.page.money.webp on Goals; goals -> money/budgets gives app.hero.page.goals.webp on Money. Affects every page in PAGE_ART (Review, Assignments, Exams, Pacing, Calendar, Reminders, Routines, Goals, Money, Wishlist, Governor, Reports, Archive...).
+- **Evidence:** eval hdr.js imgs per route (mac and ipad); js/core/ui.js:589-592, 1540-1543; shots/money-goals/r2-goals-week-empty-mac.png (Money's jar on Goals)
 - **Root cause:** Ordering in KOS.show: state.ui.view assigned after render.
 - **Proposed fix:** Set KOS.store.state.ui.view (or a transient KOS.ui.rendering = viewId) before calling KOS.views[viewId], or have pageHeader take the view id from the router's current call.
 - **Flags:** effort S
 
 ### MG-18 · P2 · ui — CSS class collision: first-run steps and the import stepper share .k-mn-steps/.k-mn-step, breaking both
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
-- **Detail / repro:** css/views/money.css defines .k-mn-steps/.k-mn-step/.k-mn-step-n twice: once for the import dialog's horizontal stepper (158-163) and again for the first-run checklist (319-321). The later column layout makes the import stepper a vertical centred list that eats ~170px of the dialog; the earlier align-items:center leaks into the first-run list, so its numbered circles sit at different x (906/934/910) because each step is centred by its own width.
-- **Evidence:** css/views/money.css:158-163 vs 319-321; shots/money-goals/import-midata-fail-mac.png (vertical stepper), money-empty-mac.png (misaligned 1/2/3)
+- **Detail / repro:** First-run steps' number circles at x=893/921/897 (centred per row, flex-direction column, align-items center); the import stepper is 160px tall at every size. — css/views/money.css defines .k-mn-steps/.k-mn-step/.k-mn-step-n twice: once for the import dialog's horizontal stepper (158-163) and again for the first-run checklist (319-321). The later column layout makes the import stepper a vertical centred list that eats ~170px of the dialog; the earlier align-items:center leaks into the first-run list, so its numbered circles sit at different x (906/934/910) because each step is centred by its own width.
+- **Evidence:** eval empty account: k-mn-step-n x [893,921,897]; css/views/money.css:158-163 vs 319-321; shots/money-goals/r2-money-empty-mac.png
 - **Root cause:** Duplicate selectors in one view stylesheet.
 - **Proposed fix:** Rename one set (e.g. .k-mn-istep for the import stepper) and set align-items: stretch on the first-run list.
 - **Flags:** effort S
 
 ### MG-19 · P2 · data — Transactions 'This view' totals cover only the rows loaded so far
 
+- **Re-checked on kos-redraw-1:** holds
 - **Devices:** all
-- **Detail / repro:** With range 'Everything' the side card reads '60 entries so far · In +£1,337.80 · Out −£509.51' — totals of the first lazy batch, not of the period. A user checking a month's spend gets a partial figure that changes as they scroll.
-- **Evidence:** js/modules/money.js drawSide (sums `shown`); shots/money-goals/tx-dawn-mac.png
+- **Detail / repro:** Range Everything: side card 'This view 60 entries so far · Everything In +£1,336.80 Out −£548.55' while 118 entries exist. — With range 'Everything' the side card reads '60 entries so far · In +£1,337.80 · Out −£509.51' — totals of the first lazy batch, not of the period. A user checking a month's spend gets a partial figure that changes as they scroll.
+- **Evidence:** eval #/money/transactions range=all; js/modules/money.js:652-670 (sums shown)
 - **Root cause:** Totals derived from the rendered batch.
 - **Proposed fix:** Compute the range totals with KOS.money.rangeSummary(from,to) (index read, no rendering) and keep the lazy list for rows only.
 - **Flags:** effort S
 
 ### MG-20 · P2 · ui — iPad: Money header wraps Add entry to its own row and clips Hide amounts; filter selects are 30px on touch
 
+- **Re-checked on kos-redraw-1:** changed: wider than iPad portrait
 - **Devices:** ipad
-- **Detail / repro:** At 820x1180 the section tabs + Hide amounts fill the band row, Hide amounts' right border is cut at the band edge (x 804), and '+ Add entry' drops to a second row, making the band 220px tall with a gap. On Transactions the Category and Dates selects are 30px tall and rows 41px, under the 44px touch minimum (invariant 69); Pots' ⋯ menu button is 44x32 and Budgets' month-start select 70x30.
-- **Evidence:** shots/money-goals/tx-ipad.png; DOM measure ipad: money.tx-cat 165x30, money.tx-range 144x30, money.tx-row 696x41, ui.menu-button 44x32
+- **Detail / repro:** iPad portrait: Hide amounts ends exactly at the band edge (672+132=804) and Add entry wraps to y=306 (band 202px tall). The 30px selects (Category, Dates, Budgets' payday) and 41px rows are also 30–35px on iPhone (tx-cat 199x35, tx-range 173x35, payday 78x35) and on iPad LANDSCAPE (tx-cat 165x30, tx-row 560x41, Pots ⋯ 44x32, Recurring number inputs 43–50x40), where the earlier check did not look. — At 820x1180 the section tabs + Hide amounts fill the band row, Hide amounts' right border is cut at the band edge (x 804), and '+ Add entry' drops to a second row, making the band 220px tall with a gap. On Transactions the Category and Dates selects are 30px tall and rows 41px, under the 44px touch minimum (invariant 69); Pots' ⋯ menu button is 44x32 and Budgets' month-start select 70x30.
+- **Evidence:** eval hdr.js ipad; DOM measure ipad/iphone/ipadl (m4.js, touch threshold at every width); shots/money-goals/tx-ipad.png
 - **Root cause:** Header actions row not tiered for 701-1080; pill-select lacks coarse-pointer sizing.
 - **Proposed fix:** Move section tabs to their own row below the title at <=1080px; apply the coarse-pointer 44px rule to .k-pill-select and menu buttons.
 - **Flags:** effort S
 
+### MG-26 · P2 · data — Amounts written as (3.45) or 3.45 DR import as money in
+
+- **Devices:** all
+- **Detail / repro:** toMinor strips everything but digits, '.', ',' and '-', so accountant notation '(3.45)' and suffixed '3.45 DR' become +3.45 and the row is previewed as '+£3.45' income; '3.45-' (trailing minus) is rejected as 'no amount'. Statements and spreadsheet re-saves use these notations. Dates written with a month name ('06 Oct 2026', as Nationwide and many PDFs-to-CSV tools write them) are rejected as 'No date I can read'.
+- **Evidence:** js/core/money.js:63-70; dialog preview of money-samples/odd-amounts.csv: 'PAREN NEG +£3.45', 'DR SUFFIX +£3.45', row 5 'no amount'
+- **Root cause:** toMinor only knows a leading minus.
+- **Proposed fix:** In toMinor treat (x), trailing '-', 'DR'/'CR' and 'D'/'C' suffixes as signs; flag any row whose sign was inferred.
+- **Flags:** effort S
+
+### MG-27 · P2 · bug — Editing a transfer into a move between two pots keeps the original and adds two new entries
+
+- **Devices:** all
+- **Detail / repro:** In the entry editor, save() handles 'pot → pot' by calling addTx twice and returns before the existing/updateTx branch, so editing an existing transfer (e.g. the £120 Main → New laptop top-up) to 'New laptop → Emergency' leaves the original untouched and adds an out and an in. Reproduced through Transactions → select → Edit → From/To → Save: transfers went from 1 to 3 entries.
+- **Evidence:** js/modules/money.js:814-821 (early return before line 832 updateTx); eval: before [[2026-10-28,laptop,in,12000]] after adds [laptop,out,12000],[emergency,in,12000]
+- **Root cause:** The between-pots path was written for new entries only.
+- **Proposed fix:** When editing, turn the existing entry into one half (updateTx) and add only the other; or delete the original in the same step with an undo.
+- **Flags:** effort S
+
+### MG-28 · P2 · data — Bulk 'Set category' puts income entries into spending categories
+
+- **Devices:** all
+- **Detail / repro:** The bulk bar's Set category menu lists only Out categories and applies to every ticked entry except transfers and planner rows, including income. An income entry moved to Food keeps kind 'in' and appears in Food's row as income (summary byCat.food.income 4000) while the Budgets bar only reads net spend, so the money disappears from Other income and from the income figures by category. Reproduced via updateTx with the same patch bulkSet sends.
+- **Evidence:** js/modules/money.js:622-624, 641-649; eval: income £40 → {kind:'in', cat:'food'}, summary food {income:4000, out:1000}
+- **Proposed fix:** Split the menu (Out categories for out/refund rows, In categories for income) or skip and report rows whose kind does not match the chosen category.
+- **Flags:** effort S
+
+### MG-29 · P2 · data — Recurring: an occurrence left unconfirmed for more than 14 days disappears; older months are never offered
+
+- **Devices:** all
+- **Detail / repro:** The due cards read M.upcoming(today−14, today) and show only the newest due occurrence per rule, three rules at most. With Spotify (monthly on the 12th since 12 Aug) never confirmed, its 12 Aug, 12 Sep and 12 Oct occurrences are all state 'due', yet Recurring shows no card for it and its rule row only says 'Next Thu 12 Nov'; Phone's 25 Oct card ('Due · 14 days ago') vanishes tomorrow. The payments silently never enter spend, budgets or Reports, and nothing tells the user. 'Leave it upcoming' (for a payment already past) is kept in per-visit memory (visit.left) so the card returns on the next visit.
+- **Evidence:** js/modules/money.js:1213-1216 (14-day window, one per rule, slice 3), 1251 (visit.left); eval on #/money/recurring: due cards [Google One 11 days ago, Student Finance 12, Phone 14]; Spotify occurrences 2026-08-12/09-12/10-12 all 'due'
+- **Root cause:** The due list is a recent window, not 'everything not yet decided'.
+- **Proposed fix:** List every unconfirmed past occurrence (grouped per rule, 'Spotify · 3 not confirmed'), with Confirm all / Skip all; mark the rule row with a due count; once bank import exists, match them to imported rows instead.
+- **Flags:** effort M
+
+### MG-30 · P2 · data — Money goals are met with no evidence: 'No-spend days' counts days with no entries at all, and 'Spend under' is met by an empty month
+
+- **Devices:** all
+- **Detail / repro:** money-no-spend counts every day of the period up to today on which no 'out' entry exists, so on an account with zero Money entries a weekly '5 no-spend days' goal created today reads '✓ Met · 7 of 5 days · Met. Nothing more to do here.' (it also counts days before the goal existed). money-spend-under reads 0 spent for a month with no entries and will be judged met at the end of the period. A user who simply did not log spending is told they kept their goal, and the outcome is stored in the goal's history. The Overview makes the same claim: its chip read '7 no-spend days' on a month with entries on one day, while Safe to spend in the same hero says it needs 7 days WITH entries — the two disagree about what an empty day means.
+- **Evidence:** js/core/goals.js:680-711; empty account (reset), goals added via KOS.goals.add: #/goals text '✓ Met | 5 no-spend days | 7 | of 5 days | Met. Nothing more to do here.' and 'Your run … 2 met this week'; shots/money-goals/r2-goals-thin-mac.png; shots/money-goals/r2-overview-dawn-mac.png (chip '7 no-spend days', '1 day so far')
+- **Root cause:** Absence of data is read as absence of spending.
+- **Proposed fix:** Require evidence that Money is in use for the period (entries on at least N days, or an import covering the range) before judging; otherwise read 'Not enough entries to judge'. Start counting from the goal's creation day.
+- **Flags:** effort S
+
+### MG-31 · P2 · ux — Budgets: the Payday day picker does nothing while the month starts on the 1st, then Payday ignores the day you picked
+
+- **Devices:** all
+- **Detail / repro:** On Budgets the side card shows the segment The 1st | Payday · the 28th and a separate Payday is the [28th] select. Its change handler only saves when monthStart is already not 1, so a user on The 1st who picks 15th sees the select change but nothing is saved, and pressing Payday then sets the 28th. The first-run card offers Payday with no day at all (silently the 28th), and paydays after the 28th (last working day, the 30th/31st) cannot be chosen.
+- **Evidence:** js/modules/money.js:1093-1097, 198-202; eval on #/money/budgets: pick 15 → monthStart 1; click Payday → monthStart 28
+- **Root cause:** The select is gated on the current mode instead of setting it.
+- **Proposed fix:** Picking a day should switch to Payday on that day; show the day picker in first-run; allow Last day of the month (periodRange already clamps).
+- **Flags:** effort S
+
+### MG-32 · P2 · data — New entry: switching Out to In keeps the Out category, so income is saved under Food while the picker shows Job
+
+- **Devices:** all
+- **Detail / repro:** The editor's category lines start as Food for an Out entry. Switching the type to In redraws the select with income categories only; the browser shows the first option (Job) but the line's cat stays 'food' because no change event fires, and Save stores {kind:'in', cat:'food'}. The income then appears under Food (byCat.food.income) and not under any income category. The reverse switch stores an Out entry under 'Other income'. The Payee placeholder also stays 'Who you paid' after switching to In.
+- **Evidence:** js/modules/money.js:736-737 (lines start with food), 765-767 (select drawn from the new kind, ln.cat untouched), 731 (placeholder fixed at creation); UI repro: New entry → In → 12.34 → Save: stored ['in','food',1234], summary food {income:1234}
+- **Root cause:** Select value and model diverge when the option set changes.
+- **Proposed fix:** On a kind switch reset each line's cat to the new kind's default when it is not one of that kind's categories (and update the placeholder).
+- **Flags:** effort S
+
 ### MG-21 · P3 · ux — Phone section sheet stays open across navigation and shows the wrong page ticked
 
+- **Re-checked on kos-redraw-1:** changed: worse
 - **Devices:** iphone
-- **Detail / repro:** Opening 'Switch within Productivity' on Goals and then navigating (back gesture / hash change) leaves the sheet over the new page with 'Goals ✓' while Money is shown; it even survived a viewport change to iPad width.
-- **Evidence:** shots/money-goals/overview-dawn-mac.png and first tx-ipad attempt showed the stale sheet after two navigations
+- **Detail / repro:** Opening the sheet at iPhone size and navigating to #/goals leaves it open with 'Money ✓'; it then survived a resize to Mac and was still covering Month and year and Pots at 1470x832 two navigations later. — Opening 'Switch within Productivity' on Goals and then navigating (back gesture / hash change) leaves the sheet over the new page with 'Goals ✓' while Money is shown; it even survived a viewport change to iPad width.
+- **Evidence:** shots/money-goals/r2-stale-sheet-iphone.png, shots/money-goals/r2-month-mac.png and first r2-pots-mac attempt (sheet over the Mac page); DOM: section.k-msheet[data-ui~='shell.section-sheet']
 - **Root cause:** mobile-shell openSection overlay not tied to navigation.
 - **Proposed fix:** Close activeSectionOverlay on every KOS.show / hashchange in mobile-shell.js.
 - **Flags:** effort S
 
 ### MG-22 · P3 · ui — Goals: zero counts printed and empty-state card leaves a dead half
 
+- **Re-checked on kos-redraw-1:** changed: the never-had-goals state is new
 - **Devices:** all
-- **Detail / repro:** This week with no goals shows the filter pill 'All 0' (invariant 77) and an empty-state card whose picture and one line sit in the left 60% with no action, next to the 'Aim at something new' card. 'Your run' paints '0 behind this week' in the alarm colour even when nothing is behind.
-- **Evidence:** shots/money-goals/goals-week-ipad.png, goals-mac.png
+- **Detail / repro:** With no goals at all, This week now shows a 'Pick a first goal' template card (no 'All 0', no half-empty card); five 186px templates leave ~200px empty on the right at 1470. With goals present, 'Your run' still prints '0 behind this week'. — This week with no goals shows the filter pill 'All 0' (invariant 77) and an empty-state card whose picture and one line sit in the left 60% with no action, next to the 'Aim at something new' card. 'Your run' paints '0 behind this week' in the alarm colour even when nothing is behind.
+- **Evidence:** shots/money-goals/r2-goals-week-empty-mac.png; #/goals text with three Money goals: '0 | behind this week | 1 | on track this week | 2 | met this week'
 - **Root cause:** Pill count and stat tone not zero-aware.
 - **Proposed fix:** Hide the count at 0 (or the whole domain pill row when empty); put New goal / templates in the empty card; use muted tone for a zero 'behind'.
 - **Flags:** effort S
 
+### MG-33 · P3 · content — Import error rows read 'no date i can read' (lower-case I)
+
+- **Devices:** all
+- **Detail / repro:** previewCard lower-cases the whole reason ('No date I can read' → 'Row 7: no date i can read. It will be left out.').
+- **Evidence:** js/modules/money.js:998 (e.reason.toLowerCase()); dialog preview of odd-amounts.csv
+- **Proposed fix:** Lower-case only the first character, or write the reasons in sentence form already.
+- **Flags:** effort S
+
+### MG-34 · P3 · data — Editing a confirmed recurring entry's amount leaves Recurring showing the old amount
+
+- **Devices:** all
+- **Detail / repro:** A confirmed occurrence keeps its amount in the rule's mark (marks[date].minor), and upcoming() prints that. Editing the transaction in Transactions (updateTx) does not touch the mark, so Recurring says £10.00 while the entry and every total say £20.00.
+- **Evidence:** js/core/money.js:454-458 (upcoming reads m.minor), 666-675 (updateTx ignores rule); eval editConfirmed {recurringShows:1000, txIs:2000}
+- **Proposed fix:** Read the amount from the linked transaction, or update the mark (and its changed flag) in updateTx when cur.rule is set.
+- **Flags:** effort S
+
+### MG-35 · P3 · ux — Transactions search ignores category names and amounts
+
+- **Devices:** all
+- **Detail / repro:** list() matches the search box against payee, note and tags only. Typing 'Food', a custom category name or '120' finds nothing even though those are what a user scans the list by.
+- **Evidence:** js/core/money.js:698 (keep: payee+note+tags); eval search {byCat:0, byAmount:0} with matching entries present
+- **Proposed fix:** Include the category name and the formatted amount in the haystack (or parse a number query as an amount match).
+- **Flags:** effort S
+
+### MG-36 · P3 · ux — A closed pot cannot be reopened, and the money still in it drops out of every view
+
+- **Devices:** all
+- **Detail / repro:** Close pot archives it (updatePot archived:true). Pots, Overview's Pots card and the Move money pickers list only pots() (unarchived) and there is no Archived pots section or Reopen anywhere (grep: no restore for pots, unlike categories' Restore). The confirm warns the money stays inside, but once closed the user cannot move it back out or see the balance.
+- **Evidence:** js/modules/money.js:1556-1560 (closePot), 459-475 and 753 (pots() only); grep 'Reopen|reopen' finds nothing
+- **Proposed fix:** Add a 'Closed pots' list with Reopen (like Budgets' Archived categories), or move the remaining balance back to Main as part of closing.
+- **Flags:** effort S
+
+### MG-37 · P3 · ui — With Hide amounts on, a money goal's figure reads '– / of · 8 of 30 days gone'
+
+- **Devices:** all
+- **Detail / repro:** On a Money goal's page the current and target figures are dropped when amounts are hidden but the joining words stay, leaving a dash and a dangling 'of ·'. Every other surface masks the figure in place (KOS.ui.amount keeps the width).
+- **Evidence:** shots/money-goals/r2-goal-money-hidden-mac.png (#/goals/10, 'Spend under 200', Hide amounts on)
+- **Proposed fix:** Use KOS.ui.amount's mask for goal figures too, or drop the whole 'of …' phrase when hidden.
+- **Flags:** effort S
+
+### MG-38 · P3 · a11y — Recurring rule rows are role=button cards that contain buttons
+
+- **Devices:** all
+- **Detail / repro:** Each rule row is a div role=button tabindex=0 'Edit <name>' and, for a trial, holds 'Remind me' / '✓ Reminder set' buttons inside it (invariant 67: a card with interactive descendants is not an ARIA button). Screen readers flatten the nested button; Space does not activate the row (only Enter is handled).
+- **Evidence:** js/modules/money.js:1285-1288
+- **Proposed fix:** Make the name a real button (or link) and keep the row a plain listitem.
+- **Flags:** effort S
+
+### MG-39 · P3 · ux — Income categories can be added but never renamed, recoloured or archived
+
+- **Devices:** all
+- **Detail / repro:** Budgets' '+ Add category' offers Kind: Spending | Income, but Budgets lists only Out categories (M.categories({kind:'out'})) and every Rename/Colour/Archive action lives in a budget row's ⋯ menu. An income category made by mistake (or the defaults Job, Allowance, Grants…) has no surface to manage it. The Add dialog also keeps the 'Monthly budget' field when Income is picked, though normalise drops an income budget.
+- **Evidence:** js/modules/money.js:1067 (out only), 1119-1131 (actions per out row), 1188-1190 (budget field regardless of kind); js/core/money.js:113 (in → budget null)
+- **Proposed fix:** Add an 'Income categories' card on Budgets' side (rename, colour, archive), and hide the budget field when Income is picked.
+- **Flags:** effort S
+
+### MG-40 · P3 · ux — Month and year: a past month's category row opens Transactions on 'Everything', and Export CSV ignores the month on screen
+
+- **Devices:** all
+- **Detail / repro:** Clicking a category row in a past month sets the Transactions range to 'all' (only the current month maps to a range), so October's 'Food' opens every Food entry ever, with the partial 'This view' totals. The page's Export CSV opens the shared dialog whose 'This view' is Transactions' range (txRange), not the month or year being looked at, and 'This month' is today's month.
+- **Evidence:** js/modules/money.js:1681 (range 'all' unless current), 1655 + 1022-1036 (exportDialog uses txRange())
+- **Proposed fix:** Add a custom from/to range to Transactions and pass the month's range; give the export dialog the caller's range.
+- **Flags:** effort S
+
+### MG-41 · P3 · content — Year view: 'Set aside · 2 pots' counts every open pot, and the dashed income line carries no amount
+
+- **Devices:** all
+- **Detail / repro:** The Set aside figure's sub-line is M.pots().length (all open pots), so £120 moved into one pot reads '£120.00 · 2 pots'. The chart's subtitle promises 'income where it was recorded, as the dashed line', but .k-mn-yin is only a marker at the baseline under months with any income: its amount is not drawn, so income cannot be compared with spending (Aug in ≈ £700 vs out £264).
+- **Evidence:** js/modules/money.js:1742 (M.pots().length), 1722 (k-mn-yin with no height variable); shots/money-goals/r2-year-mac.png
+- **Proposed fix:** Count the pots that received money in the range; draw income at its height (or print it under the bar).
+- **Flags:** effort S
+
+### MG-42 · P3 · bug — A subscription's price rise can never be recorded: setPrice has no caller, and editing the amount re-prices past occurrences
+
+- **Devices:** all
+- **Detail / repro:** KOS.money keeps a price history (prices, setPrice, priceChange) and the Overview and Recurring draw '▲ Up from … more a year' from it, but nothing in the app or the Assistant calls setPrice. Changing the amount in the rule editor overwrites minor, so every unconfirmed past occurrence now shows the new price and the price-rise notice never appears.
+- **Evidence:** grep setPrice: only js/core/money.js:390 and the export; js/modules/money.js:436, 452, 1275 read priceChange; ruleEditor save → updateRule(minor)
+- **Proposed fix:** When the amount of a rule with confirmed history changes, ask 'From when?' and call setPrice(id, amount, from).
+- **Flags:** effort S
+
+### MG-43 · P3 · ux — Import preview shows only the first 80 rows without saying so
+
+- **Devices:** all
+- **Detail / repro:** previewCard draws pv.rows.slice(0, 80) while its header says e.g. '400 rows · 390 new'. A year's statement can only be checked for its first 80 rows; duplicates and unreadable rows further down cannot be seen or toggled (their 'Import anyway' choice is unreachable). Cannot-read rows are appended after the 80, so they are listed but the duplicates past 80 are not.
+- **Evidence:** js/modules/money.js:989 (slice(0, 80)), 1001 (header counts all rows)
+- **Proposed fix:** Virtualise or page the preview, and put duplicates and errors first with counts.
+- **Flags:** effort S
+
+### MG-44 · P3 · bug — CSV export does not neutralise cells that start with = + - @ (bank descriptions can carry formulas into Excel)
+
+- **Devices:** all
+- **Detail / repro:** csvCell only quotes cells containing quote, comma, newline or ';'. Payees come straight from imported bank text (merchant-controlled), so a description such as '=HYPERLINK(…)' is written as a live formula when the export is opened in Excel/Numbers.
+- **Evidence:** js/core/money.js:1057 (csvCell), js/modules/money.js:1039-1046 (selection export, same rule)
+- **Proposed fix:** Prefix a single quote (or a tab) to cells beginning with = + - @, as OWASP recommends for CSV export.
+- **Flags:** effort S
+
 **QoL ideas from this auditor:**
-- Show 'N entries in other months' with a link when the Transactions month view is empty right after an import
-- Round 'The line says 0.3 titles' for whole-number goal units
-- Collapse the New rule form on phone behind + New rule
-- Give the Hide amounts pill and band chips a solid scrim on painted header bands
-- Fill the empty space in Overview's Safe to spend today card before a week of data, e.g. with the last 7 days' spend
+- Year view: draw income at its height so in vs out reads at a glance.
+- Day chart: tapping a day opens Transactions filtered to that day.
+- Pots 'Recent moves → Transactions' should open Transactions filtered to pot moves (there is no transfer filter today).
+- Overview's Safe to spend side card has a ~77px empty spacer above the In/Out rows in the low-data state (seen at mac and iPad landscape).
+- The page kicker reads '円 · The month' on Pots, Recurring and Transactions too.
+- The phone FAB covers the amount column of the row under it while scrolling Transactions (r2-tx-iphone.png).
+- The Bookkeeper badge counts imported duplicates; once identity exists, count distinct entries.
 
 **Backlog ideas from this auditor:**
-- Import revamp: format sniffing (Santander midata, Online Banking .txt/CSV, QIF, OFX), header search and delimiter voting, a row-width check, the raw text kept on every row
-- Import history (state.money.imports) with Undo, Delete and Replace this period, a Source filter and Select all in view
-- Merchant normalisation, a UK merchant table and learned payee->category rules ('Always put Heron Foods in Food?')
-- Recurring detection from DD/SO types and repeating merchants; imported rows mark due occurrences done instead of adding a second entry
-- Reconciliation against the bank's Balance column ('Matches your bank: £120.10')
-- Spend by merchant and by week; a top-merchants card; a Student Finance runway (money left per week until the next instalment)
-- Goal page: list the items a count goal is measuring, with links into the Collection, Study and Money
+- Import revamp, step 1 — a real pipeline: detect format by content not header line (skip preamble lines until a row with a date-like and money-like column; sniff ';' ',' tab over the first 20 lines; decode Windows-1252 when UTF-8 yields U+FFFD), and add readers for Santander .txt blocks, QIF and OFX/QFX (FITID) alongside CSV; offer the column mapper whenever detection is unsure instead of refusing.
+- Import revamp, step 2 — identity and reconciliation: store per row its source (bank, account, FITID or a hash of date+amount+description+balance+occurrence index) so the same statement re-imported is recognised whatever the mapping; use the Balance column to verify ordering and catch missing or duplicated rows ('Balance after 29 Oct should be £120.10, Money says £116.65'); match imported rows to confirmed recurring occurrences and typed entries (date ±3 days, same amount) and offer 'This is the same as …' instead of adding twins.
+- Import revamp, step 3 — information a Santander student needs: merchant normalisation ('HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026' / 'CARD PAYMENT TO … RATE 1.00/GBP ON …' → 'Heron Foods', keeping the raw text as the note), Santander Type codes (DEB, DD, SO, FPI, FPO, BGC, CR, ATM) mapped to direction and kind, payee→category rules learned from the user's re-categorising ('Always put Heron Foods in Food'), recurring detection (same merchant, same amount, ~monthly → 'Make Google One a rule?'), spend by merchant and by week, and the account balance over time from the Balance column.
+- Import history page (Archive or Money › Imports): every batch with file name, date range, counts (added, duplicates, unreadable), and Undo / Delete / Replace with a newer statement; a 'Imported' source filter and select-all in Transactions.
+- Touch layout for Transactions: tap opens the entry in a sheet; 'This view' totals computed for the whole range (a count query), shown above the list.
+- A 'Not yet confirmed' queue for Recurring covering every past occurrence, with Confirm all / Skip all and automatic matching to imported rows.
 
 
 ---
