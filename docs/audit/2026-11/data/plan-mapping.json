@@ -2,7 +2,7 @@
  "map": [
   {
    "id": "EX-01",
-   "ws": "W9",
+   "ws": "W6",
    "rc": "",
    "fixedBy": "",
    "dependsOn": "",
@@ -4262,7 +4262,7 @@
   },
   {
    "id": "SH-20",
-   "ws": "W9",
+   "ws": "W2",
    "rc": "17",
    "fixedBy": "",
    "dependsOn": "",
@@ -4272,7 +4272,7 @@
   },
   {
    "id": "SH-21",
-   "ws": "W9",
+   "ws": "W2",
    "rc": "17",
    "fixedBy": "",
    "dependsOn": "",
@@ -6552,7 +6552,7 @@
   },
   {
    "id": "AA-01",
-   "ws": "W9",
+   "ws": "W2",
    "rc": "",
    "fixedBy": "",
    "dependsOn": "",
@@ -7112,7 +7112,7 @@
   },
   {
    "id": "AP-01",
-   "ws": "W8",
+   "ws": "W2",
    "rc": "14",
    "fixedBy": "",
    "dependsOn": "",

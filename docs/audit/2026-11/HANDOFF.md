@@ -39,7 +39,7 @@ is not sent to Gemini**: Claude re-checks the delta itself (§10.5). Jobs 1 and 
 - Job 4: the live checks (LA-30…32).
 - DI-27, found from UR-21: hotfixed as `kos-malfix-1`.
 - HR-31: filed.
-- Job 6: the plan is written in [`PLAN.md`](PLAN.md) (PROPOSED). Its
+- Job 6: the plan is written in [`REMEDIATION_PLAN.md`](REMEDIATION_PLAN.md) (APPROVED 8 Nov for W0 and W1, with revisions). Its
   §3 asks the user for 14 decisions.
 
 **Waiting:** the user's approval of the plan (whole, or by workstream) and

@@ -1,71 +1,247 @@
-# KurenaiOS quality programme — remediation plan (for approval)
+# KurenaiOS quality programme — remediation plan
 
-**Status: PROPOSED, 8 Nov 2026. Nothing below is approved.** Two hotfixes
-have shipped at your request:
-- `kos-redraw-1` (3 Nov), the redraw stopgap;
-- `kos-malfix-1` (8 Nov), DI-27.
+**Status (8 Nov 2026): APPROVED for implementation of W0 and W1**, with the
+10 revisions in §A and the 14 decisions in §B. W2–W10 are approved in outline
+and follow in order. Each later workstream starts once the previous one has
+been reported.
 
-Nothing else changes until you approve this plan, or parts of it.
+**Shipped before approval, at your request:**
+- `kos-redraw-1` (3 Nov): the redraw stopgap.
+- `kos-malfix-1` (8 Nov): the DI-27 hotfix.
 
-**What it rests on:**
-- **The audit.** 21 areas, each with an inventory and a coverage matrix:
-  736 findings, 731 open (P0 5 · P1 97 · P2 327 · P3 302). The list is in
-  [`FINDINGS.md`](FINDINGS.md).
-- **Your reports** (UR-1…24) and the live checks on your account (LA-1…32).
-- **Gemini's re-check of the P0/P1s**, accepted as corroboration.
-- **Claude's own re-check of the new P1s.**
+**The basis:**
+- 21 areas, each with an inventory and a coverage matrix.
+- 737 findings, 731 of them open: P0 5 · P1 97 · P2 327 · P3 302
+  ([`FINDINGS.md`](FINDINGS.md)).
+- Your reports, UR-1…24.
+- The live checks, LA-1…32.
+- Gemini's re-check of the P0/P1s, accepted as corroboration.
+- Claude's re-check of the new P1s.
 
-**How the workstreams were made.** Every open finding is assigned to exactly
-one workstream, by its root cause rather than by its area. Where one change
-fixes several findings, they form a cluster. The assignment is generated in
-[`data/plan-mapping.json`](data/plan-mapping.json), and the full id lists are
-in the appendix.
+Every open finding is assigned to exactly one workstream, by its root cause,
+in [`data/plan-mapping.json`](data/plan-mapping.json). §1's counts are
+generated from that file. The appendix lists every finding.
+
+**Execution discipline (yours, binding):**
+- **Destructive work.** Every migration, clean-up, economy correction and
+  repository deletion is treated as potentially destructive. First comes a
+  backup that has been verified by a test restore. Migrations are idempotent,
+  and rollback paths are kept.
+- **Your real account.** Anything touching it is tested first on isolated
+  sample data. The expected changes and the reconciliation are shown to you
+  before running, and I stop if the actual changes differ.
+- **Tests.** The relevant tests run after every workstream, and results are
+  reported as they are: failures and skips included.
+- **Documents.** The plan, this mapping, the findings, implementation notes
+  and test evidence stay in sync.
+- **Scope.** No expansion without asking you. New issues go to the backlog.
+- **Conflicts.** Where a specified design conflicts with an invariant, risks
+  data loss or can't be done safely as written, I stop and explain. I don't
+  substitute a different design.
 
 ---
 
-## 1. The shape of it
+## 1. The shape of it (generated from `data/plan-mapping.json`)
 
-| WS | Workstream | Open | P0 | P1 | Root causes (HANDOFF §6) |
-|---|---|---|---|---|---|
-| W0 | Safety net (tests and gates first) | 4 | | | 8, 10, plus test infrastructure |
-| W1 | Data integrity and the economy | 59 | 5 | 11 | 4, 5, 6, 21, DI-27 |
-| W2 | Redraw policy and view lifecycle | 59 | | 13 | 1, 15, 18 |
-| W3 | Layering, layout tiers and touch | 160 | | 26 | 2, 3, 17 |
-| W4 | Money revamp | 25 | | 9 | 11 |
-| W5 | Cosmetics, shop and art | 45 | | 11 | 10 |
-| W6 | Content quality | 49 | | 7 | 7, 8, 9 |
-| W7 | Connected OS and honest numbers | 98 | | 14 | 12, 19, 20 |
-| W8 | Maintainability, performance and docs | 24 | | 1 | 13, 14, 16 |
-| W9 | Polish and HCI (audio, haptics, keyboard) | 204 | | 4 | — |
-| — | QoL (3 findings), plus 181 QoL and 127 backlog ideas from the auditors | | | | |
+| WS | Workstream | Open | P0 | P1 | P2 | P3 | Root causes (HANDOFF §6) |
+|---|---|---|---|---|---|---|---|
+| W0 | Safety net (tests and gates first) | 4 | | | | 4 | test infrastructure, 8, 10 |
+| W1 | Data integrity and the economy | 59 | 5 | 11 | 31 | 12 | 4, 5, 6, 21, DI-27 |
+| W2 | Redraw policy, view lifecycle and boot | 63 | | 17 | 33 | 13 | 1, 14 (boot), 15, 18 |
+| W3 | Layering, layout tiers and touch | 160 | | 26 | 80 | 54 | 2, 3, 17 |
+| W4 | Money revamp | 25 | | 9 | 6 | 10 | 11 |
+| W5 | Cosmetics, shop and art | 45 | | 11 | 27 | 7 | 10 |
+| W6 | Content quality and exam marking | 50 | | 8 | 20 | 22 | 7, 8, 9 |
+| W7 | Connected OS and honest numbers | 99 | | 15 | 46 | 38 | 12, 19, 20 |
+| W8 | Maintainability, performance and docs | 23 | | | 14 | 9 | 13, 14, 16 |
+| W9 | Polish and HCI (frozen, §A9) | 200 | | | 70 | 130 | — |
+| QoL | Findings that are QoL | 3 | | | | 3 | |
+| | **Total** | **731** | **5** | **97** | **327** | **302** | |
 
-**Order:**
-1. **W0** first.
-2. **W1**, starting with the P0s.
-3. **W2 and W3**, the foundations every page sits on.
-4. **W7**, with W4, W5 and W6 alongside it. These three are independent
-   areas, so they can run in parallel sessions without touching the same
-   files.
-5. **W8 and W9**.
-6. **W10**, the deliverables.
+**No P0 or P1 is left in W8 or W9.** These moved:
+- SH-20, SH-21, AA-01 and AP-01 → W2;
+- EX-01 → W6.
 
-**How each step is shipped.**
-- **Branches and gates.** Each workstream gets its own branch and releases,
-  with the full gate passing (plus new smokes) before anything ships.
-- **Device checks.** Before a step is called done, it gets a check at Mac,
-  iPad portrait and landscape, and iPhone. That's your rule.
-- **What the next release carries.** A deploy needs your go-ahead, as now.
-  Each release says which findings it closes.
-- **A record per release.** Each one ends with a short note naming the
-  findings it closed, with evidence.
+**Order of work:**
+1. W0.
+2. W1. At the end of W1 the three design prompts go to you (§A8).
+3. W2 and W3.
+4. W7, with W4, W5 and W6 alongside it.
+5. W8 and W9.
+6. W10.
 
-**Rough size.** About 12–16 working sessions of focused implementation. W3
-and W9 are the long tails; W1, W2 and W7 hold most of the risk. Each
-workstream's size is noted below.
+**How each workstream ships.** Each one gets its own branch from `main` and
+its own release or releases. The full gate passes before anything ships, and
+a device check runs on Mac, iPad (portrait and landscape) and iPhone. Each
+deploy waits for your go-ahead.
+
+---
+
+## A. The ten revisions (8 Nov), as applied
+
+**A1. The counts are reconciled.** §1 is generated from the mapping and
+sums to 731. `harness/plan_appendix.py` refuses to run if any open finding is
+unmapped.
+
+**A2. P1s are promoted out of the polish and docs workstreams.**
+- SH-20, SH-21 and AA-01 move to W2. AP-01 (boot weight) also moves to W2,
+  so the iPad and iPhone device checks in W3–W7 aren't held up by slow cold
+  starts.
+- EX-01 moves to W6, alongside exam self-marking.
+- Every P0 and P1 now has an explicit fix and acceptance check, in §2's
+  tables.
+
+**A3. Money de-duplication (MG-01 + MG-23).**
+- **What makes a transaction's identity:**
+  - **FITID** when the bank provides one (OFX, and QIF where present);
+  - otherwise the tuple `date | minor | kind | normalised raw text` plus a
+    **within-statement occurrence ordinal** (`occ` 1, 2… for identical
+    tuples in one file);
+  - plus the **running balance delta** when the file has a Balance column.
+- **Each import records:**
+  - a **statement fingerprint** (account, date range, row count, hash);
+  - the original row, which stays on the transaction (`src`) for
+    reconciliation.
+- **How a match works:**
+  - **Re-importing a statement** skips `(tuple, occ 1)` and `(tuple, occ 2)`,
+    because both already exist.
+  - **Two genuine identical coffees** in one statement are `occ 1` and
+    `occ 2`, and both import.
+  - **Overlapping or reordered exports** match by FITID, or by balance chain
+    and tuple-with-occurrence. Ordinals are assigned in each file's own date
+    order, so reordering doesn't change identity. When rows are ambiguous,
+    they import as "possible duplicate", unticked, and are never dropped
+    silently.
+- **Tests:** a statement imported twice; two identical same-day purchases;
+  overlapping date ranges; a reordered export; a file with FITID; a file with
+  a balance column.
+
+**A4. Concurrency across tabs, devices and provider syncs (DI-04, DI-19,
+SY-18).**
+- **Saving.**
+  - `localStorage` holds a monotonic **`rev`**, and each tab keeps its
+    `baseRev` and `baseState`.
+  - `save()` takes `navigator.locks.request('kos-state-write')`.
+  - If the stored rev is newer, it **three-way merges** stored state and the
+    tab's memory against `baseState` with `KOS.cloudmerge` *before* writing.
+  - It then writes and bumps rev.
+  - Finally it broadcasts `{rev, keys}` on **`BroadcastChannel('kos-state')`**,
+    and other tabs patch their memory straight away.
+- **Merge semantics per top-level domain.** These are written out as a table
+  in W1 and taken from cloudmerge's existing rules:
+  - records by id;
+  - additive gold, XP and HP;
+  - keyed maps per key;
+  - monotonic badges.
+  - Domains that are per-device (`ui`, `focus.active`) never merge across
+    tabs of one device unless they are written by that tab.
+  - **No domain whose concurrent changes can lose data uses
+    last-write-wins.**
+- **The Todoist and Google lease.** It gets a per-tab instance id under a Web
+  Lock, and its heartbeat is renewed during multi-chunk pushes.
+- **Tests:**
+  - simultaneous edits in two jsdom "tabs" sharing storage;
+  - a stale tab;
+  - an interrupted write;
+  - lock contention;
+  - a provider sync running alongside a local edit.
+
+**A5. Storage ceiling and privacy (DI-10, DI-18, DI-25).**
+- **DI-10:**
+  - Avatar and banner data-URLs move to `kurenai-os-files`.
+  - A live state-size meter is added to Archive › Storage.
+  - An IndexedDB mirror of `kurenai-os-v1` is written after each successful
+    save.
+  - Session entries past the 2,000 cap are archived to IndexedDB instead of
+    being dropped.
+  - **Write order:** localStorage first, then the mirror.
+  - **Recovery precedence:** at boot, the newer `rev` of the two wins.
+  - **On `QuotaExceededError`:** the mirror becomes the primary, and a
+    visible warning is shown. A save that failed both stores is reported as
+    failed, never as a success.
+- **DI-18.** Creatives' IndexedDB operations are scoped by `KOS.dataMode`
+  (mine, empty or sample) through the store registry.
+- **DI-25.** `state.japanese.mined` moves out of the synced document into a
+  local IndexedDB store. It is in full backups and never in the cloud push
+  (invariant **115**, "personal media never leaves the device"; the request
+  cited 13, but 115 is the governing one).
+
+**A6. Per-action durable sessions (ST-04, JM-08, JM-22, SY-03, SY-09).**
+- Each review or learn batch gets a stable **`sessionId`**, kept in
+  `state.ui` together with its remaining queue.
+- After each rating (debounced about 2 s, and immediately on
+  `visibilitychange` to hidden), the app **upserts that one ledger entry**
+  (cards, passed, dur) and pays only the **delta** against the session's
+  stored receipt.
+- Replaying, retrying or restoring never pays twice: the receipt is the
+  amount already paid for that sessionId.
+- Coming back offers **Resume** or **Start fresh**.
+- This keeps invariant 5 (one action, one session) and 116 (one ledger entry
+  per Japanese session).
+
+**A7. W0 also covers:**
+- automated tests for DST and the 04:00 routine-day boundary;
+- the service-worker update prompt across two versions;
+- the offline fallbacks;
+- a read-only audit of `supabase/functions/` (CORS, auth-header checks and
+  error shapes against the client's assumptions).
+
+**A8. Design prompts are drafted early.** D-Held page, D-Topic tier and
+D-Agenda go to you **at the end of W1**, so they're approved before W2/W3.
+
+**A9. W9 is frozen.** W9 is exactly the **200** findings mapped to it, plus
+your **6** QoL items in §5. The auditors' other 181 QoL ideas stay in the
+post-programme backlog.
+
+**A10. Breakpoints and checklist evidence.**
+- **W3 testing.** W3 is tested and enforced at **1470, 1180, 1080, 820, 700
+  and 402 (and 402×760)** wide, in portrait and landscape and in Split View
+  and Slide Over, with no dead zones.
+  - Those are **test widths**. The CSS stays on invariant 47's five
+    breakpoints (1240, 1080, 860, 700, 560), and other needs reflow
+    intrinsically, because adding breakpoints would break that invariant.
+- **W10 checklist.** Every item links the finding ids it verifies **and**
+  cites the smoke suite and device check that closed them.
+
+---
+
+## B. Your decisions (8 Nov), recorded
+
+| # | Decision | Notes on doing it safely |
+|---|---|---|
+| B1 | **DI-27 clean-up: yes.** Remove the phantom sync-reward entries and scrub the polluted journal events, after a verified W0 backup. **Deduct the phantom XP and gold**, clamped at 0. **Keep badge tiers** (invariant 162). **Rebuild** saved reports that were frozen empty (HR-02) or polluted (HR-31), once. | The classifier finds the exact entries. The adjustment is computed from them, not the estimates. A before-and-after reconciliation is shown to you **before** anything runs on your account, and an audit record is kept. The deduction is logged as one correction entry through `KOS.sessions.log` with a negative award, so invariant 1 still holds. The report rebuild is a one-off, recorded exception to invariant 102. |
+| B2 | **Other clawbacks: going forward only.** HR-18's ticks come strictly from evidence, with no self-tick pay. MI-05 pays only on a pass. CR-20 needs an attached work. | RC21 receipts make every award idempotent. |
+| B3 | **Unfinished sessions: both** durable per action and resumable. | §A6. |
+| B4 | **Redraw policy: approved.** Hold on task pages, while typing or in a dialog; a quiet "Updated on another device · Refresh" pill; apply on leaving or finishing. | W2. |
+| B5 | **Money:** spend by merchant, by category and by week; subscriptions and recurring; budget pace; balance reconciliation; the Student Finance runway if it comes out clean. A built-in UK merchant table plus learned payee→category rules. **PDF import dropped.** | W4. D-Money is drafted after W1. |
+| B6 | **Shop:** **retire and refund** the 10 near-Graphite themes; **keep and fix** the light themes (Washi Morning, and Atelier Dawn's tokens). **Build the seals' surface:** the Seat ring, the share card, and beside the brand mark. Study set gets distinct role colours. The 16 legacy cosmetics point at their repainted art, and the CSS gradient frames are retired. **Pen sets apply to new strokes only.** Try on covers every kind. | See the conflict note below on how pen sets store their colour. |
+| B7 | **Forks:** M7.3 is **reset** to the shipped notes, with the old fork text saved to a backup key first. CS 4.1.1.6 and 4.1.1.8 are **merged**: the shipped deck, plus your added cards appended. The stale-fork hash banner is built. | Each card keeps its schedule (invariant 87). |
+| B8 | **First run:** drop the seeded sample events. Add the one-screen welcome. Hold Pacing carry-over notices until it's answered. | W7/W9. A D-First run prompt only if needed. |
+| B9 | **Build:** CR-26 (Minutes), AA-19 (pause read tools on Ask first), MI-08 (flush the offline queue on reconnect). **Remove:** CO-18 (Practice focus) and AA-18 (the crud route and its status). | |
+| B10 | **Rules:** PR-23 refuses an all-optional routine ("At least one step must be required"). PR-35 records "kept late", which still pays and holds the streak. PR-32 counts completed sessions or banked 10-minute blocks by the 04:00 routine day. AG-07 shows "Earned 21 / 254 · 8 complete". AG-24 drops "the". SH-02: no bare Backspace; Alt+←/→ and ⌘[ / ⌘] only. | |
+| B11 | **Shared browser: not a case.** GEM-001 is closed as not needed. Clearing `ext` links on account switch (DI-08) stays as hygiene. | |
+| B12 | **Repository:** `git rm --cached` the personal export, `.claude/` and the root clutter, and add them to `.gitignore`. **No history rewrite** until every branch is merged. | Done in W0. History keeps every file, the local copies stay on disk, and `.claude/` holds only `launch.json` and `settings.local.json` (local preview and permission config), both kept locally. |
+| B13 | **Todoist:** the captured findings cover everything you experienced. | |
+| B14 | **The three deleted files (LA-30): ignore.** | |
+
+**Conflict to note (B6, pen sets).** "Store the resolved colour on the
+stroke" would break invariant 133: a stroke's colour is a ROLE read live from
+the theme, never a hex, so ink stays legible in every theme and in the
+Dawn-on-white export. What I'll implement is the other form you allowed:
+**store the pen-set id on each new stroke**, next to its role. Switching sets
+never recolours past notes, and the colour is still resolved from the theme.
+No other decision conflicts with an invariant as written. Two are recorded as
+exceptions:
+- B1's report rebuild (invariant 102);
+- B1's deduction, which goes through the ledger, so invariant 1 holds.
 
 ---
 
 ## 2. The workstreams
+
+The fix and acceptance check for every P0 and P1 are in each workstream's
+table below (drafted from the findings, checked against the code). Every
+other finding is in the appendix.
 
 ### W0 — Safety net (first; about 1 session)
 Nothing risky lands before these exist.
@@ -86,6 +262,23 @@ Nothing risky lands before these exist.
   - Add a Mind Journal replication smoke with an injectable cloud.
 - **Device checks.** `responsive_audit` covers the three exact device sizes
   (§1.3) in one command.
+- **New tests (§A7):**
+  - DST and the 04:00 routine-day boundary, for routines, reviews, streaks
+    and Reports' weeks;
+  - the service-worker update prompt across two versions, with
+    `skipWaiting` only after confirming;
+  - offline fallbacks: a navigation served from cache, and sync failing
+    soft.
+- **Ratchet the new gates.** Content, cosmetics, menus and CSS gates fail
+  only on **new** violations. Today's violations are recorded in a baseline
+  file that shrinks as W3, W5, W6 and W9 fix them.
+- **Read-only audit of `supabase/functions/`:** CORS, auth-header checks and
+  error shapes against what the client assumes. Findings are recorded, not
+  fixed.
+- **The repository (B12).** Untrack the personal export, `.claude/`,
+  `Context/`, the `fix_*.py` scripts and the old plan docs. Archive them
+  under `docs/archive/` or `.gitignore` them. History keeps them, and local
+  copies stay.
 
 ### W1 — Data integrity and the economy (about 2–3 sessions)
 **The P0s:**
@@ -93,10 +286,10 @@ Nothing risky lands before these exist.
 | Id | What happens | Fix |
 |---|---|---|
 | **ST-25** | Deleting an assignment deletes every file linked to it, topic files included, and tombstones them in the cloud. | Use `KOS.files`' detach rule: remove the link, and delete only a file that nothing else links. |
-| **SY-18** | An open study editor, held by the stopgap, writes its stale copy over cards pulled from your other device. | Merge each row before saving. W2's change bus later replaces this properly. |
+| **SY-18** | An open study editor, held by the stopgap, writes its stale copy over cards pulled from your other device. | The editor merges each row against what is stored before saving (§A4). W2's change bus later replaces this properly. |
 | **JM-06** | Switching Japanese's spine to Media locks you out of every Japanese lesson. | One guard in `jatopic.js`, plus a smoke. |
-| **MG-01** | Money duplicates transactions on re-import. | Key on date, amount, kind and the raw bank text, compared only against stored rows. |
-| **DI-27** | The phantom sync rewards. **Hotfixed.** | The clean-up waits for your decision (§3). |
+| **MG-01** | Money duplicates transactions on re-import. | Identity by FITID, or the tuple plus a within-statement occurrence ordinal, with a statement fingerprint and the source row kept (§A3). |
+| **DI-27** | The phantom sync rewards. **Hotfixed.** | The clean-up as decided in §B1, with the reconciliation shown to you before it runs on your account. |
 
 **Rewards with receipts (RC21).**
 - Every award gets a stored receipt key, checked before it pays.
@@ -109,7 +302,7 @@ Nothing risky lands before these exist.
   - Japanese sessions paying on failed evidence.
 - **One smoke ticks, unticks and re-ticks every rewarding control.**
 
-**Two tabs and storage (RC5).**
+**Two tabs and storage (RC5).** The design is §A4 (rev, lock, three-way merge, BroadcastChannel) and §A5 (storage ceiling, mirror, privacy). The points below are what it fixes.
 - Another tab's write is merged instead of overwritten. This uses a
   `storage` event plus a Web Lock around save. It fixes DI-04/UR-4, the
   session you lost on 1 Nov.
@@ -141,7 +334,28 @@ Nothing risky lands before these exist.
 2-minute overlap window on every pull. Their last success and last error
 show on Account & Cloud Sync (DI-20).
 
-### W2 — Redraw policy and view lifecycle (about 2 sessions; replaces the stopgap)
+**Every P0/P1 in W1: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| DI-27 | P0 | Hotfixed (js/core/mediadb.js tryMal/tryAnilist module-scoped, merge refuses cross-module, smoke114); remaining: boot repair pruning bogus journal events and the user-decided ledger/badge clean-up. | smoke114: two cycles with a colliding MAL id pay once and leave the manga untouched; after the clean-up no phantom sync entries remain in the ledger. |
+| JM-06 | P0 | js/modules/jatopic.js spine media branch returns a stageHead (and hub.js guards codeSpine.stageHead before calling). | Smoke: with ui.japanese.spine='media', opening a ja lesson renders without throwing and stays on the lesson. |
+| MG-01 | P0 | js/core/money.js previewCSV/importRows: identity = date/minor/kind/normalised raw + within-statement occurrence ordinal (occ) per identical tuple, FITID or balance delta when present, plus a statement fingerprint; keep tx.raw source data on every row. | Smoke: import a CSV, re-import it with a different payee mapping → 0 new rows; importing the same statement as OFX matches by FITID. |
+| ST-25 | P0 | js/core/assignments.js:220 removeAttachments: per file use the Files detach rule — removeLink({kind:'assignment',id}) when other links exist, delete only sole-link files, and list those in the confirm. | Smoke: a file linked to a topic and an assignment survives deleting the assignment with its topic link intact; a sole-link file is deleted. |
+| SY-18 | P0 | Held background redraws emit an event with changed paths; js/modules/editor.js re-reads its fork when idle and saves per-row patches (KOS.edits.patchRow/addRow/removeRow) by row id instead of the whole array. | Smoke: editor open, remote fork adds a card, local keystroke saves → the remote row survives locally and after merge. |
+| AA-11 | P1 | Backup import (store importFull caller): parse first, show a danger openDialog (Cancel focused) with the backup's date and counts vs this device, an 'Export this device first' option and the cloud overwrite note. | Smoke: picking a backup file opens the danger dialog and state is unchanged until confirmed; Cancel leaves it untouched. |
+| DI-01 | P1 | js/core/exttasks.js: pull cloud before taking the lease and push right after; record pending adds {uid→temp} in state.ext, dedupe imports by link/pending uid, and a boot/merge pass folding reminders linked to the same ext.id. | Smoke: two simulated devices, device B syncs before A's state arrives → one reminder linked to the Todoist task. |
+| DI-02 | P1 | js/core/exttasks.js Todoist push: apply each chunk's sync_status results as it returns, keep parent+subtask adds in one chunk, persist the temp-id map before the next request; treat mapped ids as linked on pull. | Smoke: second batch fails → first batch's tasks are linked and the next sync imports no duplicates. |
+| DI-03 | P1 | js/core/cloudsync.js stateMeaningful: compare against a pristine DEFAULTS snapshot (ignoring seeders) or every RECORDS array/keyed map; first link always no-base three-way merge; snapshot local state to the media kv before any replaceState. | Smoke: a device with only reminders/assignments/routines signs in to a non-empty account → all its records survive the first link. |
+| DI-04 | P1 | js/core/store.js save(): monotonic rev in localStorage, write inside navigator.locks('kos-state-write'), three-way merge (cloudmerge, base = last read/written) before writing when rev moved, BroadcastChannel('kos-state') patching other tabs; pwa.js reloads all tabs on update. | Smoke (two jsdom windows sharing storage): tab A adds a reminder, tab B adds an event and saves → stored state holds both and rev increased monotonically. |
+| GO-25 | P1 | js/modules/goals.js title picker: always include the current linked title selected, and replace the 60-row capped select with a search picker over the whole vault. | Smoke: editing a goal linked to title #200 keeps that link on Save and any title can be found by search. |
+| HR-16 | P1 | js/core/governor.js:329-337 milestones: key each milestone on the run's start date (lastActiveDay − (stk−1)) stored once, or pay only on the session that makes a run ending today reach exactly ms days. | Smoke: a 7-day streak, then boot on the next two days before studying and after → the 7-day milestone gold is paid exactly once. |
+| HR-18 | P1 | js/modules/hub.js:1166 + js/modules/todo.js setChecked: directive ticks are derived strictly from evidence (cards due cleared, exam revision minutes, assignment progress); remove the hand tick and any pay for it. | Smoke: clicking/toggling a directive logs no session and pays no XP/gold; clearing the due cards marks it sealed on next render. |
+| MG-23 | P1 | js/core/money.js:1030-1031: remove within-file folding; compare against STORED rows only using the occ ordinal per date/minor/kind/raw tuple (plus FITID/balance delta), flagging only the surplus. | Smoke: a statement with two identical same-day payments imports both; re-importing it flags both as duplicates. |
+| PR-03 | P1 | js/modules/routineplayer.js:279 taskOf: honour ctx.explicit from focus.js (return General study, no fallback), offer the suggestion as 'Use: <task>'; 'Just start' starts the Focus page's config exactly; fix the menu z-index. | Smoke: Focus with 'General study — no link' → Just start → session has no assignmentId. |
+| ST-26 | P1 | js/modules/itdesk.js mark input: distinguish empty (clear, ask/Undo) from invalid (keep editing, focus, say 'Enter 0–60'); never write on invalid. | Smoke: type 459 over a saved 45 + Enter → stored raw stays 45 and an error message shows. |
+
+### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
   - A background change carries the keys it changed, and a view declares
     what it reads. A view is redrawn only when what it reads changed, and
@@ -157,7 +371,15 @@ show on Account & Cloud Sync (DI-20).
     started for a page you've left stops (RC15).
   - Navigating closes open dialogs, with an unsaved-changes guard.
   - Focus is restored on a redraw (invariant 65).
-- **Sessions in progress.** A flashcard batch, a Japanese session or a kana
+- **Moved in (§A2).**
+  - **SH-20:** Enter on a focused Cancel never confirms.
+  - **SH-21:** "Skip to content" focuses `#main` without routing.
+  - **AA-01:** the Assistant's undoable actions offer Undo.
+  - **AP-01, boot weight:** curriculum content loads lazily per subject,
+    and scripts load deferred where safe. It lands early in W2, so device
+    testing from W3 on runs on a fast cold start.
+- **Sessions in progress (§A6, per action).** Replaces the leave/pagehide
+  design below. A flashcard batch, a Japanese session or a kana
   set is logged when the page is left or the app is put away, not only at
   its end (ST-04, JM-08). Pro-rata or resumable is your decision, Q8.
 - **iPhone Focus with the screen off (UR-5).**
@@ -170,6 +392,28 @@ show on Account & Cloud Sync (DI-20).
   - A review finished elsewhere closes the open sheet.
   - A finished review is never downgraded to skipped.
 
+**Every P0/P1 in W2: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| AA-01 | P1 | js/modules/assistant.js: render Undo on each verified-action card (and a toast) wired to undo.run, marking the card and audit row 'Undone'. | Smoke: an undoable tool call shows Undo; clicking it reverts the record and labels the card Undone. |
+| AA-02 | P1 | js/modules/assistant.js: scroll to end after first mount (rAF) and on send/approval cards; 'only if at bottom' for streamed additions with a 'New message ↓' pill. | Smoke: reopening a long chat leaves scrollTop at the bottom and a new approval card is in view. |
+| AP-01 | P1 | index.html + js/core/content.js: content manifest key→file with lazy script injection on first topic/desk/search open; exam-index.js, code-projects-files.js and ja/mind/creatives content loaded on demand; performance marks in js/main.js. | Smoke: boot script payload < ~4 MB and kos-interactive mark recorded; opening a lesson lazy-loads its content and renders it. |
+| CR-01 | P1 | js/modules/creatives.js:561 logPage: open the deep-linked dialog only on navigation (not KOS.ui.redrawing) and replace the route with #/creatives/log on close. | Smoke: open #/creatives/log/<id>, act in the dialog, KOS.rerender() → exactly one dialog and the hash is #/creatives/log after close. |
+| JM-08 | P1 | js/modules/jarun.js: upsert one ledger entry per sessionId on each rating with delta pay against the receipt; queue resumable from state.ui, so navigation/pagehide loses nothing. | Smoke: answer 4 items then KOS.show('home') → one ja session entry with 4 passes paid; re-entering resumes the queue. |
+| SH-02 | P1 | js/main.js:24 history shortcut: drop bare Backspace entirely; keep Alt+←/→ and ⌘[ / ⌘], and return early when e.defaultPrevented or a dialog is open. | Smoke: dispatch Backspace on a focused Money row → 'Delete this entry?' opens and location.hash is unchanged; Alt+← still goes back. |
+| SH-20 | P1 | js/core/ui.js:288 confirm onKey: only treat Enter as yes when e.target is not inside button,a,[role=button] (or drop the document listener and rely on the focused confirm button). | Smoke: open a non-danger KOS.ui.confirm, focus Cancel, dispatch Enter → resolves false; Enter on the confirm button → true. |
+| SH-21 | P1 | index.html skip link + js/core/router.js: give the skip link a click handler that preventDefault()s and focuses #main, and make router.parse ignore hashes not starting with '#/'. | Smoke: on #/money click 'Skip to content' → hash stays #/money and document.activeElement is #main. |
+| ST-04 | P1 | js/engines/flashcards.js: upsert ONE ledger entry per sessionId on each rating with delta pay against a stored receipt, queue resumable from state.ui; 'Reviewed today' reads KOS.reviewLog. | Smoke: rate 5 cards then navigate away → one session entry with 5 reviews and pay for 5; resume and rate 3 more → same entry, delta pay only, streak credited. |
+| SY-02 | P1 | js/modules/hub.js notes reader: keep the page in a module memo keyed by sid:ref (or state.ui.notePage) and read it on remount/redraw. | Smoke: on notes page 4, KOS.rerender() → still page 4. |
+| SY-03 | P1 | Redraw policy holds the review view; flashcards.js keeps the session in state.ui.fcSession[deckKey] and resumes on remount, and upserts one ledger entry per sessionId per rating with delta pay against the receipt. | Smoke: rate 3 cards, KOS.rerender() → resumes at card 4 and the ledger entry already holds 3 reviews paid once. |
+| SY-04 | P1 | js/engines/quiz.js/exam engine: persist position, picks and drafts in state.ui.quizRun[sid:ref] and restore on remount; held by the redraw policy while mounted and touched. | Smoke: answer 2 quiz items and type an exam draft, KOS.rerender() → position and draft restored. |
+| SY-05 | P1 | Systemic redraw policy in js/core/ui.js + cloudsync.js: pass changed keys to KOS.rerender({background,changed}), views declare reads, hold background redraws on task pages/when busy and show 'Updated on another device · Refresh', applying on leave/finish. | Smoke: a pull changing only state.money while on a topic page does not remount; a change to a read key on a task page shows the Refresh chip and applies on navigation. |
+| SY-06 | P1 | js/modules/dayreview.js close: repaint only the chip (and Home cards when Home is on screen) via the policy's refresh, never a full remount; auto-open on visibility only on Home/no active engine. | Smoke: open a lesson, close the review sheet → #main not remounted; visibility change on a lesson does not auto-open the review. |
+| SY-08 | P1 | Redraw policy defers background redraws while activeElement is editable in #main; fallback generalises mobile-shell.js calendarFocusSignature to restore focus/selection after a redraw. | Smoke: focus a textarea with caret mid-text, trigger a background redraw → focus and selection unchanged; device check iPad 820x1180 keyboard stays open. |
+| SY-19 | P1 | Add vault views (anime, books, vn, game, mangaka, seasonal, wishlist, shrine) to the held set and keep the loaded batch count in a per-visit memo so a redraw renders up to it before restoring scroll. | Smoke: scroll a vault past batch 3, background redraw → scrollTop restored within 10px and ≥180 cards rendered. |
+| SY-20 | P1 | js/modules/governor-ui.js Edit your seat: hold background redraws while dirty (task page) and keep the draft in a per-visit store keyed by route; add the leave-with-changes prompt. | Smoke: change the seat background without saving, background redraw → draft kept; navigating away prompts. |
+
 ### W3 — Layering, layout tiers and touch (about 3 sessions; the biggest by count)
 - **Menus above dialogs (RC2).**
   - A menu opened inside a dialog mounts in that dialog's top layer.
@@ -179,6 +423,9 @@ show on Account & Cloud Sync (DI-20).
     - About to Study's Change;
     - the pen toolbar's colours in Files (UR-24);
     - the Governor ⋯ menu (SH-03, AG-01).
+- **Test widths (§A10).** Every change is tested at 1470, 1180, 1080, 820,
+  700 and 402 (and 402×760), including Split View and Slide Over. The CSS
+  stays on invariant 47's five breakpoints.
 - **The 1240–700 tier (RC3).** Every master-detail and side column is
   checked at 1080, 860, 700 and 560 on your three devices.
   - A detail panel becomes a sheet under 1240 or 860.
@@ -206,6 +453,37 @@ show on Account & Cloud Sync (DI-20).
 - **Agenda on Mac and iPad (PR-06).** Your request. It goes through a design
   prompt, below.
 
+**Every P0/P1 in W3: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| AG-01 | P1 | js/modules/governor-ui.js Seat ⋯: build with KOS.ui.menu (portalled) instead of an in-header popover; raise the ⋯ button to 44px on coarse pointers. | Smoke: open the Seat ⋯ menu and elementFromPoint hits the Data row's Mine/Empty/Sample; device check iPad 1180x820 and Mac 1470x832. |
+| AG-02 | P1 | css/views/achievements.css/governor: set the medal size via data-size/--m with var() fallback (not an inline property) so ≤700 can override; slots flex:0 0 auto; .k-gv-arc-note:empty {display:none}. | Responsive audit at 402px: showcase medals don't intersect each other or the XP bar and empty slots are square ≥44px; device check iPhone 402x874. |
+| AX-01 | P1 | css/components.css end (unlayered) or themes layer: @media (max-width:700px) inputs/select/textarea/[contenteditable] font-size:max(16px,1em) !important. | Smoke/responsive audit at 402px: no visible field computes font-size < 16px; device check iPhone 402x874 no zoom on focus. |
+| CC-04 | P1 | Worked card (content.js render + css): put 'Write it out' in the head row as a flex item beside Copy (title flex:1, min-width:0), wrapping under 560px, 44px on coarse pointers. | Visual audit: the button rect doesn't intersect the title at 402 and 820; device check iPhone 402x874, iPad 820x1180. |
+| CL-01 | P1 | css/components.css:80: give the pill group flex:none inside .k-subnav (or drop overflow-x:auto on .k-seg there) so the outer k-subnav-scroller with arrows scrolls. | Responsive audit at 820x1180: Games pill reachable via the subnav scroller arrows; device check iPad 820x1180. |
+| CO-01 | P1 | css/views/code.css: .k-cx-sq/.k-cx-dia min-block-size:0 with the 44px hit area on a transparent ::before (or raise width with height). | Responsive audit with --touch: unit squares width=height and the diamond is a square rotated 45°; device check iPad 820x1180. |
+| CO-02 | P1 | css/views/study.css:1169: at ≤700 set .k-cx-hero + .k-subj-side to a single column (as japanese.css:449); .k-fit-btn on the Open-lesson button. | Responsive audit at 402px: Daily 20 and Continue stacked full width and the button label stays inside its pill; device check iPhone 402x874. |
+| CO-03 | P1 | css/views/code.css desk side: Continue card flex:0 0 auto, Daily 20 card clips/scrolls instead; concept chips one line or two + '+N'. | Responsive audit at 1470x832 and 1180x820 with a real Daily 20 task: Continue card height ≥ its content and 'CONTINUE' not clipped. |
+| CR-02 | P1 | js/modules/creatives.js: mark the gear (and Start focus) with data-phone-action, or add Settings to the phone menu. | Smoke at 402px: the phone title bar exposes Settings that navigates to #/creatives/settings; device check iPhone 402x874. |
+| EX-02 | P1 | css (exam room): .k-exr-body flex-shrink:0 so the room scrolls; on phone put the checklist under the ring. | Responsive audit at 402px: checklist rect does not intersect the rapid-recall list; device check iPhone 402x874. |
+| EX-03 | P1 | js/core/inkui.js palette: in icons state hide the colour text, move Shape/Ruler into More when wider than innerWidth−40, and clamp place() to centre a wide palette. | Responsive audit at 402px: palette width ≤ viewport and Undo/Redo are on screen; device check iPhone 402x874. |
+| EX-28 | P1 | css (exam paper view): .k-ex-tnav-b flex:none, 44×44 square on touch; scroller({reveal}) for the current square. | Responsive audit at 820 and 402: each navigator square width=height ≥ 32px (44 on touch); device check iPad 820x1180. |
+| HR-03 | P1 | css/views/home.css (hub) 701–1080 tier: replace the display:none on the hero goal block with a full-width grid-column 1/-1 row under the greeting (as the phone tier does). | Responsive audit at 820x1180: the hero shows Daily goal, Today's three/Recovery and Start focus (non-zero boxes); device check iPad 820x1180. |
+| JM-09 | P1 | css/views/study.css ≤700: .k-topic-tabrow wraps, tab scroller full width (min 50%), Working/Edit/Learn·Reference on a second line or in ⋯. | Responsive audit at 402px on a ja lesson: Notes/Practice/Reviews/Files tabs visible; device check iPhone 402x874. |
+| MG-09 | P1 | js/modules/mobile-shell.js destinations(): when the page carries [data-phone-tabs] list those tabs as a second group in the sheet (Money and Goals). | Smoke at 402px: the phone sheet lists Transactions, Month, Import/Export and Goals' This week/This month/Done; device check iPhone 402x874. |
+| MG-25 | P1 | js/modules/money.js Transactions: under 860px open the tapped entry in a k-msheet/openDialog with Edit and Delete. | Smoke at 402px: tapping a row opens a dialog containing Edit/Delete; device check iPhone 402x874, iPad 820x1180. |
+| MI-02 | P1 | css/views/mind.css .k-mind-deskside: same grid/flex-basis auto treatment as Japanese/Creatives under 1080; on Mac min-block-size:min-content for the Daily card. | Responsive audit at 402, 820 and 1470: Daily 15 and Continue cards ≥ content height, Start button visible. |
+| PR-01 | P1 | js/core/ui.js KOS.ui.menu place(): when the button is inside an open dialog, append the panel inside that overlay (or a --z-menu-modal token above --z-modal). | Smoke: open a menu inside openDialog and elementFromPoint at an item hits it; device check Mac 1470x832 'Place in a free block'. |
+| PR-04 | P1 | css/views/productivity.css: .k-fx-ctx max-inline-size:100% (column min-inline-size:0), chip ellipsis with title attr; due via dayLabel; stronger scrim on phone. | Responsive audit at 1470 and 402 with a 120-char title: chip rect inside the viewport; device check iPhone 402x874. |
+| SH-01 | P1 | css/components.css toast rule: replace left:50%+translateX with inset-inline:0; margin-inline:auto; inline-size:fit-content; max-inline-size:min(var(--toast-max), calc(100% - var(--sp-32))); translate on Y only; radius r-16 when wrapped. | Smoke: a 60-word toast at 402px computes width > 0.8×viewport and height < 3 lines; device check iPhone 402x874 and iPad 820x1180 toast is one centred rounded block. |
+| SH-03 | P1 | js/modules/governor-ui.js: replace the hand-made <details> ⋯ menu with KOS.ui.menu (portalled to body, js/core/ui.js ~813); audit other inline popovers inside painted (34e) page headers. | Smoke: open the Governor ⋯ menu and elementFromPoint at every item's centre returns that item; device check Mac 1470x832 and iPad 1180x820 all rows visible. |
+| SH-04 | P1 | css/layout.css ≤700 block: reset '#cols:not([data-rail="full"]) .k-rail-label/.k-rail-count' (position static, auto size, clip auto) or scope the 1080-tier hide rule to min-width:701px. | Smoke/responsive audit at 402px: every bottom-tab label is visible with width > 20px; device check iPhone 402x874 shows Home/Study/Productivity/Collection/More. |
+| ST-01 | P1 | css/views (IT desk): add an 860 tier — .k-it-agg one/two columns stacked, .k-it-tr uses the ≤700 grid-template-areas layout, ruler numbers min width or below the bar. | Responsive audit at 820x1180: the boundary chart is ≥200px wide with no overlapping labels and unit names are not truncated; device check iPad 820x1180. |
+| ST-02 | P1 | css/views/study.css ≤700: .k-topic-tabrow flex-wrap:wrap with the tab scroller at flex-basis 100% (Working/Edit on the next line or in ⋯). | Responsive audit at 402px: the topic tab scroller width ≥ 90% of the row and the selected tab is visible; device check iPhone 402x874. |
+| ST-05 | P1 | css/views (assignments) detail panel: align-self:start, max-block-size:calc(100dvh - header) with overflow-y:auto, no min-block-size:100% so the footer sits at the panel's bottom. | Responsive audit at 1470x832: 'Focus on this' and Complete/Submitted/Blocked are inside the viewport when an assignment is selected. |
+| ST-06 | P1 | js/modules/assignments.js: below 1240 open the detail in a KOS.ui.openDialog sheet (bottom sheet ≤700, side sheet on iPad), focus its heading. | Smoke: at 820px clicking an assignment opens a dialog containing its detail; device check iPad 820x1180/1180x820 and iPhone 402x874. |
+
 ### W4 — Money revamp (about 1–2 sessions; one design prompt)
 - **Import.**
   - Santander's real exports (§1.6): midata CSV with preamble and delimiter
@@ -223,6 +501,20 @@ show on Account & Cloud Sync (DI-20).
   - What the views show is your decision, Q1: design prompt **D-Money**.
 - **Layout.** Selecting a transaction on iPhone or iPad portrait opens it
   (MG-25). Phone reachability is in W3.
+
+**Every P0/P1 in W4: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| MG-02 | P1 | js/core/money.js:978 guessMapping: add Merchant/Description, Debit/Credit, 'Amount (£)', 'Money in/out (£)' patterns; never hard-fail — open the Columns step with unmatched columns. | Smoke: a Santander midata fixture maps date/amount/payee automatically; an unknown header opens the mapper instead of an error. |
+| MG-03 | P1 | js/core/money.js:947 parseCSV: sniff the delimiter over ~10 non-empty lines, find the header row in the first 20 rows by date+amount patterns, report 'Skipped: n header lines', drop trailing empty columns. | Smoke: fixtures with a leading blank line, ';' delimiter, and an account preamble all parse with the right header. |
+| MG-04 | P1 | js/core/money.js: format sniffing with OFX/QFX (STMTTRN, FITID, LEDGERBAL), QIF and Santander .txt parsers feeding the same preview; Columns step names the format. | Smoke: OFX, QIF and Santander .txt fixtures each produce the expected rows and amounts. |
+| MG-05 | P1 | Store {batch,fileName,from,to,n,at} in state.money.imports (normalise gate); Transactions › Imports list in js/modules/money.js with Undo/Delete/Replace and a Source filter. | Smoke: after an import the Imports list shows it; Undo removes exactly its rows and the record. |
+| MG-06 | P1 | js/core/money.js preview: flag rows whose cell count differs from the header and re-join a split £n,nnn.nn amount for the Santander layout; show the Balance column. | Smoke: a row with unquoted '£1,234.56' imports as 123456 minor, and a malformed row is reported with its cell count. |
+| MG-07 | P1 | js/core/money.js import: match rows to due rule occurrences (same amount, ±3 days, payee alias) and mark the occurrence confirmed pointing at the imported tx; Confirm offers a matching bank entry. | Smoke: a rule due 27 Oct + importing the bank row → one transaction total and the occurrence marked done. |
+| MG-08 | P1 | js/core/money.js: keep raw text, derive a clean merchant (strip card/apple pay/date/FX noise), learned payee rules {match→merchant,category}, UK merchant table, Type DD/SO → suggest a rule, Balance → reconcile line. | Smoke: 'CARD PAYMENT TO HERON FOODS,3.50 GBP, ON 27-10-2026' → merchant 'Heron Foods' and a learned rule categorises the next one. |
+| MG-10 | P1 | Import dialog: own wide token (~1080px, full sheet on iPad), Columns above Preview below ~900px, sticky footer with Import. | Responsive audit at 1470x832 and 820x1180: payee and amount columns visible and Import button inside the viewport. |
+| MG-24 | P1 | js/core/money.js guessMapping/import: recognise the app's own export header exactly and import losslessly (Type→kind, Category→cat by name, Pot, Tags); offer a Type/Direction mapping (DEB/DD/SO/FPO out, FPI/BGC/CR in). | Smoke: export then re-import into an empty store round-trips kind, category, pot and tags identically. |
 
 ### W5 — Cosmetics, shop and art (about 1–2 sessions; decisions first)
 - **Asset URLs.** Shelf skins and Shrine cards currently 404 because their
@@ -243,7 +535,25 @@ show on Account & Cloud Sync (DI-20).
 - **Buying.** Cancel-first confirm or a timed Undo (SC-20, which also needs a
   Gemini asset).
 
-### W6 — Content quality (about 2 sessions)
+**Every P0/P1 in W5: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| PR-02 | P1 | js/core/ui.js KOS.show: set KOS.ui.currentView = viewId BEFORE calling the view and have pageHeader read it. | Smoke: navigate A→B and B's page header band id is B's. |
+| SC-01 | P1 | js/modules/governor-ui.js shop avatar preview: give the img its own class (k-gv-apv-disc-img) inset in a position:relative disc with object-fit:contain; check baked-disc art (koi, lamp). | Visual audit: each shop avatar card's img rect is inside its disc rect; device check Mac 1470x832 and iPhone 402x874. |
+| SC-02 | P1 | css (governor/shop): raise the buy rule's specificity (.k-gv-stage .k-gv-buy) or wrap the stage glass-button rule in :where() so gold buy keeps its gold fill. | Smoke: on Try on, the Buy button's computed text/background contrast ≥ 4.5:1. |
+| SC-03 | P1 | Store each painted frame's hole ratio in the catalogue and reserve --frame-bleed padding on the Seat face column; scale the frame so its hole meets the HP ring instead of a fixed 152%. | Visual audit: worn painted frame rect does not overlap the Level/title chip rects and stays inside the stage; device check Mac 1470x832, iPad 820x1180. |
+| SC-04 | P1 | Decide the seal's place: draw the worn seal's stamp art in the topbar brand slot (bloom kept for 紅), on the Seat ring and Share card; update applyCosmetics in governor.js and the Wardrobe caption. | Smoke: wearing a seal sets the topbar mark's img src to that seal's stamp art; the Wardrobe caption names where it shows. |
+| SC-05 | P1 | Where --skin-art is set (shelf skins / Shrine card styles), build an absolute URL via new URL('assets/app/img/'+art+'.webp', location.href) as dayreview.js:142 does. | Smoke: every shelf skin/card style's --skin-art resolves to an existing file under assets/app/img (no /css/views/ path). |
+| SC-06 | P1 | Shop frame preview: size the preview avatar as a fraction of the frame box using the catalogue's measured hole ratio (same rule as worn) instead of fixed 64/120px. | Visual audit: preview avatar diameter / frame box ≈ the frame's hole ratio ±5%; device check Mac 1470x832. |
+| SC-07 | P1 | avatarNode in governor-ui.js: add an option {frame:id/null} (or strip .k-avatar-frame-art like frameChip) so shop and banner previews never inherit the worn frame. | Smoke: with a painted frame worn, every CSS frame card preview has data-frame = its own id and no .k-avatar-frame-art child. |
+| SC-08 | P1 | Reserve frame bleed (or hole-ratio sizing) in every large framed-avatar host: Home hero ring (hub.js/css), Avatar stage and phone stage. | Visual audit: Home hero's framed avatar rect doesn't overlap the greeting and is within the hero; device check Mac 1470x832, iPhone 402x874. |
+| SC-20 | P1 | Re-key avatar art to an inscribed ~88% circle on one ground (ask the user for art via the manifest); meanwhile pad the img to ~78% and add per-item focal/scale in the catalogue for cat/lantern. | Visual audit: each worn avatar's opaque content bbox lies within the clip circle; device check Mac 1470x832 Seat and Home. |
+| SC-21 | P1 | Catalogue stores each frame's hole ratio and centre offset; worn art sized avatarOuter/hole (~133%) positioned by hole centre, covering the HP ring. | Visual audit: gap between avatar edge and frame hole ≤ 2px for every frame; device check Mac 1470x832. |
+
+### W6 — Content quality and exam marking (about 2 sessions)
+- **EX-01 (moved in).** `+ Question` in Marks by question can set its Max
+  and Topic.
 - **Specification text.** Fix the parsers (`gen_data.py` and `parse_it.py`)
   and regenerate:
   - garbled PDF text on the Maths and IT Spec tabs (CM-01, CC-01);
@@ -267,6 +577,19 @@ show on Account & Cloud Sync (DI-20).
 - **Thin content and its tests.** Fill the thin Maths leaves, add the
   Write-it-out pill layout (CC-04), and check that the C# in CS notes
   compiles in the content tests.
+
+**Every P0/P1 in W6: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| CC-01 | P1 | tools/parse_it.py: stop each leaf at 'Assessment criteria/guidance/Synoptic assessment' and column breaks, join 'To include:' continuation lines; regenerate js/data/it.js. | Smoke: no IT spec string > ~300 chars or starting 'include:'; F206.6.1 etc. read clean. |
+| CC-02 | P1 | tools/parse_it.py/gen_data.py: drop overview nodes ('Overview of the assessment', 'NEA Units'), assert ref uniqueness, regenerate; prune state keyed to the bogus ref at the store gate. | Smoke: all IT refs unique and 'Ways to reflect' opens its own leaf. |
+| CC-03 | P1 | Shared with CM-02: deterministic per-question shuffle in js/engines/quiz.js (keyboard 1–4 on displayed order); rebalance longest-option bias in CS banks. | Smoke: with shuffling on, no leaf has >50% answers at one displayed index; correct-option length is not the max in >50% of items per bank. |
+| CM-01 | P1 | Add a checked-in Maths spec override table applied by tools/gen_data.py (hand-authored from Edexcel 9MA0, LaTeX in $…$, no 'need to learn:'), regenerate js/data/maths.js. | Smoke: no Maths spec line ≤4 chars, no single-letter runs and no 'need to learn'; M7.3 spec tab reads clean. |
+| CM-02 | P1 | js/engines/quiz.js mountMCQ: seeded per-attempt option permutation (reshuffled on Retry), clicks mapped back to the original index so stats and why text stay valid. | Smoke: across 200 mounts the displayed correct position is roughly uniform (each index 15–35%) and recorded answers map to the authored ans. |
+| CM-14 | P1 | js/core/content.js:537 examFromWorked: emit one scheme point per mark code ([M1],[A1]…), Answer as a separate non-tickable line; fromTicks needsM reads the code tokens. | Smoke: for every derived exam part Σ point weights = marks and an A point can't be ticked without its M. |
+| CO-04 | P1 | js/core/codeui.js task Run: replace the one-line input with an auto-growing textarea prefilled with the whole first example stdin; keep Ctrl+Enter. | Smoke: running a multi-line task's reference answer with the prefilled input passes with no ArgumentNullException. |
+| EX-01 | P1 | js/modules/examprac.js Marks by question: Max as a number input on rows without an index max; Topic cell a KOS.topicPicker scoped to the assessment's leaves. | Smoke: '＋ Question', set max 6 and a topic → saved question has max 6 and refs. |
 
 ### W7 — Connected OS and honest numbers (about 2 sessions)
 - **Automatic judgements need minimum evidence (RC20).** Each one names its
@@ -301,6 +624,26 @@ show on Account & Cloud Sync (DI-20).
   - Search finds pages and achievements (SH-07).
   - One amount formatter, so Hide amounts masks everything.
 
+**Every P0/P1 in W7: the fix, and how it's accepted**
+
+| Id | Sev | Fix | Acceptance |
+|---|---|---|---|
+| CL-45 | P1 | Add an activity stamp (activityAt) in mediadb from AniList list updatedAt, VNDB lastmod and local list-state/personal edits; sort 'Recently updated' by it, keep updatedAt for cloud dirtiness; share HR-31's activity definition. | Smoke: a pull that only reorders tags or changes a cover leaves the sort order unchanged; a progress step moves the title to the top. |
+| CR-25 | P1 | Hook KOS.srs.rate: when a key starts 'creatives:' call KOS.creatives.syncChecks(lesson); run KOS.creatives.syncAll() once at boot. | Smoke: rate a Creatives theory card Good → the lesson's fourth check is set and mastery reaches 100% when other checks are done. |
+| GO-02 | P1 | js/core/goals-collection.js: measure the period from the media journal (completions, deltas, favourites in [start,deadline]), purchases by purchasedAt, library-size by createdAt; baseline at creation meanwhile. | Smoke: a Collection goal created today with a full vault reads 0 progress and is not Met; a completion today counts 1. |
+| GO-06 | P1 | js/modules/goals.js goalDialog: fields.routine on both routine types with a Routine select from KOS.routines.all() writing params.routine; refuse Save without one. | Smoke: create 'Keep a routine on N days' → params.routine set and Save refused when blank. |
+| GO-07 | P1 | js/modules/goals.js: fill the habit select from KOS.routines.habitsView() storing params.routine (or retire habit-streak for routine-streak, old records readable). | Smoke: a habit created in Routines appears in the habit-streak picker and its streak is measured. |
+| GO-23 | P1 | js/core/rag.js auto(): evidence-weighted score with minimum evidence before any band; goals-exams topics-green counts a leaf only with enough evidence and judges on the deadline. | Smoke: five topics with one 0% quiz each are not Green and 'Move topics to Green' is not met. |
+| HR-01 | P1 | js/modules/hub.js Continue row: order desks by last-studied time from the ledger/ui.lastRef, wrap to auto-fill minmax columns on desktop/iPad (or prev/next + 'N more'), and let started() count Mind journal/positions/cards and Creatives works. | Smoke: with a recent Creatives session the Creatives desk is in the first four Continue cards; device check Mac 1470x832, iPad 820x1180 every started desk visible without hidden scroll. |
+| HR-02 | P1 | js/core/reportstore.js ensureReports: wait for the first cloud pull (or signed-out), stop seeded Pacing rows alone counting as content, and after importFull/first link rebuild rebuilt reports whose facts are empty or older than the newest ledger entry in their period. | Smoke: ensureReports before a pull saves nothing; after a pull adding sessions in that week the rebuilt report shows the minutes, not 'A quiet week for study'. |
+| HR-04 | P1 | js/core/today.js build: add a spaces read (Code planDay, KOS.ja planDay, KOS.mind planDay, KOS.creatives planDay) and a money read (KOS.money.notices(today,{hide}), safe-to-spend); hub.js uses them for the Due card split, Up next rungs/Today rows and a Money line. | Smoke: with due Japanese facets and a Code Daily 20 pending, KOS.today.build lists both and Home's Due count includes them; a bill tomorrow shows the Money line. |
+| HR-05 | P1 | Add KOS.sessions.studyMins(range) in js/core/sessions.js (isStudy + parts, excluding todo/external/media) and call it from hub.js Study hours, report.js Studied, goals study-hours and the Daily goal. | Smoke: a seeded week with Focus, todo and media sessions gives identical minutes on Home's Study hours and the week report's Studied. |
+| HR-17 | P1 | Name subjects via KOS.subjects.name(sid)/hue in report.js, reportwords.js, reports.js, reportstory.js, reportshare.js; regenerate template words for saved reports containing 'undefined'. | Smoke: a Code-heavy week's template narrative names 'Code' and no report text contains 'undefined'. |
+| HR-31 | P1 | Define media activity once (e.g. KOS.media.activeIn(row, range): forward progress/volumes/chapter/route/hours, a start/finish date in range, or a media session naming the row) and use it in report.js collection(), Home/Collection 'this week' and goals. | Smoke: a week whose only journal event is a score change shows no title in the report's Collection; a progress step does. |
+| JM-07 | P1 | js/core/ja.js: after record()/finishSession() call syncChecks for each lesson whose items were reviewed, and run a boot pass over started lessons. | Smoke: pass reviews for a lesson's items → stored progress checks equal evidence() (4/4) and status follows. |
+| MI-01 | P1 | js/core/mind.js evidence(): for a checkpoint lesson read concepts from KOS_MIND.CHECKPOINTS[unit].concepts for the retrieval check. | smoke110: a fully done F1.8 checkpoint lesson reaches status done with 4/4 checks. |
+| ST-03 | P1 | js/engines/quiz.js: store best as a percent (bestPct) and migrate existing records at the store gate (best/len when deck length known); hub.js inspector prints the percent. | Smoke: 6/11 correct → inspector reads 'Quiz best 55%' and the quiz header agrees. |
+
 ### W8 — Maintainability, performance and docs (about 1–2 sessions)
 - **Help & Guide.** Rewrite it for every shipped area: Money, Goals,
   Routines, Files, the study spaces and Achievements (SH-10, SH-11). A smoke
@@ -323,7 +666,9 @@ show on Account & Cloud Sync (DI-20).
 - **Repository.** Untrack the personal exports; whether to purge them from
   history is your decision (AP-07).
 
-### W9 — Polish and HCI (about 2 sessions; mostly P3)
+### W9 — Polish and HCI (about 2 sessions; FROZEN, §A9)
+- **Scope:** exactly the 200 mapped findings, plus your 6 QoL items (§5).
+  Nothing else.
 - **The long tail.** All remaining P2/P3 polish, grouped by page.
 - **Keyboard and dialogs.**
   - Arrow keys on tab strips.
@@ -343,81 +688,23 @@ show on Account & Cloud Sync (DI-20).
     sections with a kanji mark, title plus what to check, a tick per device
     (Mac, iPad and iPhone) and per account, Issue with a note, the summary
     bar, filters, and "Copy issues and notes".
-  - Every item links the finding ids it verifies.
+  - Every item links the finding ids it verifies **and cites the smoke
+    suite and device check that closed them** (§A10).
   - Published as an artifact with a `db`.
 - **The final technical report.** What was found, what changed, what was
   verified, what is still outstanding, and the overall state.
 
 ---
 
-## 3. Decisions for you (grouped; every finding that needs one is listed in the appendix)
-
-1. **The DI-27 clean-up.** Remove the 1,741 phantom "sync-reward" ledger
-   entries? The real sessions they pushed out can't be restored.
-   - Take back the about 80,500 XP and 21,000 gold, or leave balances as they
-     are?
-   - Keep or remove badge tiers earned from that pay? Removing them is an
-     explicit exception to invariant 162.
-   - Rebuild the saved weekly reports that counted the phantom activity? That
-     is an exception to invariant 102, and the same question as HR-31's old
-     weeks.
-2. **Other clawbacks:** repeated streak-milestone gold (HR-16), Daily goal
-   re-tick pay (HR-18), Mind checkpoints paid with nothing right (MI-05),
-   Creatives projects paid on bare ticks (CR-20). Take them back, or fix
-   going forward only?
-3. **Unfinished sessions (Q8).** When you leave a flashcard batch, a Japanese
-   session or a quiz midway: log what was done straight away, pro-rata
-   (recommended), or keep it resumable?
-4. **Redraw policy (Q4).** Apply changes from another device when you leave
-   the page or finish the set, with an "Updated · Refresh" chip meanwhile?
-   (Recommended.)
-5. **Money (Q1).** Which views matter most: spend by merchant, category or
-   week; subscriptions; budget pace; balance? A built-in UK merchant list,
-   plus rules it learns from your corrections? Is it OK to drop PDF import if
-   reading the text proves unreliable?
-6. **Shop:**
-   - **Theme cull (Q3, SC-22).** Ten paid themes are near-copies of Graphite.
-     Remove them, or redesign each? Refund either way? The light shop themes
-     need the same answer.
-   - **Seals (Q2).** Build a place where they show, or withdraw and refund?
-   - **The four CSS frames.** Retire them, or redraw the bloom?
-   - **Pen sets.** Apply a set to new strokes only, or keep remapping every
-     stroke?
-   - **Try on.** Extend it to every kind?
-7. **Your three personal forks (Q5):** the Maths M7.3 notes and the CS
-   4.1.1.6 and 4.1.1.8 cards. Keep, merge, or reset to the shipped versions?
-8. **First run.** Drop the seeded sample events (SH-27)? Add a one-screen
-   welcome (SH-35)?
-9. **Settings that promise more than they do.** Build each one, or remove it?
-   - Code's Practice focus (CO-18);
-   - Creatives' Minutes (CR-26);
-   - the Assistant's Simple data requests route (AA-18);
-   - Ask first on read tools (AA-19);
-   - Mind's offline queue (MI-08).
-10. **Small rules:**
-    - an all-optional routine (PR-23);
-    - a routine kept late (PR-35);
-    - what auto-tracked Focus habits count (PR-32);
-    - one meaning for "Owned" on the Wall (AG-07);
-    - the leading "the" in four titles (AG-24);
-    - Backspace as Back (SH-02).
-11. **Shared browser (GEM-001, P3).** Is signing in to a different cloud
-    account on one device ever a real case for you?
-12. **The repository.** Also purge your personal AniList/MAL export from the
-    public Git history (AP-07)? That rewrites history.
-13. **Todoist (Q6).** Anything else that went wrong from your side, so the
-    DI/LA findings can be checked against it?
-14. **Three deleted files (LA-30).** Did you delete these yourself?
-    `download (1).png`, `iShot_2026-10-12_22.05.52.png` and
-    `0s2-9MA0-01-Pure-1-Mock-Set-2-pdf-1.pdf`.
 
 ---
 
-## 4. Design prompts and art
+## 3. Design prompts and art
 
 **Claude Design prompts.** These are written only where a real redesign is
-needed. They will be added to `docs/design-prompts.md`, one per release
-before its build:
+needed. They will be added to `docs/design-prompts.md`. **D-Held page,
+D-Topic tier and D-Agenda go to you at the end of W1 (§A8).** The rest come
+one per release, before its build:
 - **D-Money:** what a student with a Santander account wants to see (W4;
   MG-08).
 - **D-Agenda:** the Agenda view on Mac and iPad (PR-06, PR-12).
@@ -438,7 +725,7 @@ before its build:
 
 ---
 
-## 5. QoL (after the fixes) and backlog
+## 4. QoL (after the fixes) and backlog
 
 **Your QoL requests, kept in the plan once the workstreams above land:**
 - **Agenda everywhere** (PR-06; W3/D-Agenda).
@@ -455,8 +742,8 @@ before its build:
   device, as an option (UR-6). It needs care, because invariant 33b makes a
   timer per device.
 
-The auditors' 181 QoL ideas are in each area's file (`qol`). The best of them
-will be pulled into W9, and the rest kept on a list.
+The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
+**post-programme backlog**. None is pulled into W9 (§A9).
 
 **Backlog** (not this programme): routines inside routines (sketched in
 `findings/productivity.json`), folders for loose notes (UR-14), tables and
@@ -466,7 +753,7 @@ the auditors' 127 backlog ideas.
 
 ---
 
-## 6. What is not covered (be honest)
+## 5. What is not covered (be honest)
 
 **Not covered by the audit:**
 - DST and time-zone edge cases;
@@ -485,6 +772,8 @@ sizes. Chrome would not resize.
 **Where these gaps go:** W0 adds tests for DST and the update prompt. Device
 checks run on your real iPad and iPhone before each W2/W3 release is called
 done.
+
+---
 
 ---
 
@@ -565,14 +854,18 @@ Generated by `harness/plan_appendix.py` from [`data/plan-mapping.json`](data/pla
 | DI-25 | P3 | Japanese mined lines are kept in the synced state document, against 'personal media never leaves the device' |  |  |  |
 | ST-20 | P3 | Streak milestone note repeats '36-day streak' once per milestone, and missing milestone records pay every past milestone at once | 21 |  |  |
 
-### W2 — Redraw policy and view lifecycle (59)
+### W2 — Redraw policy and view lifecycle (63)
 
 | Id | Sev | Title | RC | Fixed by / depends on | Decision |
 |---|---|---|---|---|---|
+| AA-01 | P1 | 'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered |  |  |  |
 | AA-02 | P1 | Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen | 1 |  |  |
+| AP-01 | P1 | Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs | 14 |  |  |
 | CR-01 | P1 | Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>) | 1,15 |  |  |
 | JM-08 | P1 | Leaving a Japanese session by navigation (rail, tab bar, Back, iPad edge swipe, reload) logs nothing: answers are rescheduled but the sessio | 18 |  | yes |
 | SH-02 | P1 | Global Backspace = Back fires even when a page handled the key: Backspace on a Money row opens 'Delete this entry?' AND navigates to the pre | 15 |  | yes |
+| SH-20 | P1 | Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Op | 17 |  |  |
+| SH-21 | P1 | 'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route | 17 |  |  |
 | ST-04 | P1 | Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far · Reviewed 0' | 18 |  | yes |
 | SY-02 | P1 | CS/Maths/IT notes reset to page 1 on every background redraw (the reported 'notes page 4 jumps back to page 1') | 1 |  |  |
 | SY-03 | P1 | A background redraw mid-flashcards restarts the set at card 1 and silently drops the cards already rated from the session ledger (no XP, no  | 1,18 | after SY-05 | yes |
@@ -874,7 +1167,7 @@ Generated by `harness/plan_appendix.py` from [`data/plan-mapping.json`](data/pla
 | SC-41 | P3 | The free default theme (Atelier Dusk) shows 'In use' with a 'Take off' button that does nothing; taking off any theme stores the legacy id ' | 10 |  |  |
 | SH-19 | P3 | Header controls on Graphite: the Assistant emblem is near-invisible and the four header controls are four different heights ✦art | 10 |  |  |
 
-### W6 — Content quality (49)
+### W6 — Content quality (50)
 
 | Id | Sev | Title | RC | Fixed by / depends on | Decision |
 |---|---|---|---|---|---|
@@ -885,6 +1178,7 @@ Generated by `harness/plan_appendix.py` from [`data/plan-mapping.json`](data/pla
 | CM-02 | P1 | Quiz answers are almost always A or B, and options are never shuffled | 8 | after CM-25 |  |
 | CM-14 | P1 | Exam questions self-mark ignores the M1/A1 codes on Maths worked-derived items, and the Answer line counts as a mark |  |  |  |
 | CO-04 | P1 | Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException |  |  |  |
+| EX-01 | P1 | Marks by question: a question added with '＋ Question' can't be given its Max or its topic |  |  |  |
 | CC-05 | P2 | Same past-paper question appears twice in a CS leaf's Exam questions (worked card + bank item): 202 duplicate groups across 88 of 131 leaves | 8 |  |  |
 | CC-06 | P2 | Steps blocks in 4.5.x notes render prose as monospace code with literal **bold** and a redundant '1.' heading |  |  |  |
 | CC-07 | P2 | ~30 CS flashcard decks ask the same fact twice ('Bandwidth?' + 'Define bandwidth.'), plus 11 cards duplicated across neighbouring leaves | 8 |  |  |
@@ -1032,11 +1326,10 @@ Generated by `harness/plan_appendix.py` from [`data/plan-mapping.json`](data/pla
 | ST-37 | P3 | Today so far's "Time" never counts a review: the flashcard engine logs no duration | 12 |  |  |
 | ST-40 | P3 | Assignment progress has two owners: the editor's Progress % is silently overwritten by the subtasks | 12 |  |  |
 
-### W8 — Maintainability, performance and docs (24)
+### W8 — Maintainability, performance and docs (23)
 
 | Id | Sev | Title | RC | Fixed by / depends on | Decision |
 |---|---|---|---|---|---|
-| AP-01 | P1 | Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs | 14 |  |  |
 | AA-16 | P2 | Help & Guide is badly out of date: no entry for the Assistant, Money, Goals, Reports, Exams hub, Code, Japanese, Mind, Creatives, Achievemen | 13 |  |  |
 | AG-08 | P2 | Every Wall tab (and the Seat's showcase arc) waits 1.6-6 s on 'Reading your records…' because list() re-walks the whole vault each time | 14 | fixed by AX-25 |  |
 | AP-03 | P2 | Cold-path cost after boot: the first render of each heavy view takes 0.5-2.8 s on the dense account (Exams, Code map, Due, Pacing, Calendar) | 14 |  |  |
@@ -1061,14 +1354,10 @@ Generated by `harness/plan_appendix.py` from [`data/plan-mapping.json`](data/pla
 | SH-32 | P3 | docs/GUIDE.md (the plain-words guide) stops at 26 Oct: Creatives and Mind are listed as 'still on the way', and Achievements, Connections, t | 13 |  |  |
 | SH-42 | P3 | <body> also carries data-theme ("legacy hook, harmless"), so every derived token is re-derived on body: anything that sets the theme on <htm | 16 |  |  |
 
-### W9 — Polish and HCI (204)
+### W9 — Polish and HCI (200)
 
 | Id | Sev | Title | RC | Fixed by / depends on | Decision |
 |---|---|---|---|---|---|
-| AA-01 | P1 | 'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered |  |  |  |
-| EX-01 | P1 | Marks by question: a question added with '＋ Question' can't be given its Max or its topic |  |  |  |
-| SH-20 | P1 | Enter on a focused Cancel button CONFIRMS a non-danger confirm dialog (End session, Turn off notifications, Disconnect GitHub, Add a copy/Op | 17 |  |  |
-| SH-21 | P1 | 'Skip to content' navigates to Home instead of skipping: href='#main' is read by the hash router as an unknown route | 17 |  |  |
 | AA-03 | P2 | Composer hint 'Shift + Enter for a new line' floats mid-height while the send button sits at the bottom |  |  |  |
 | AA-04 | P2 | Opening a Morning/Evening review notification lands on Routines Today and never opens the review |  |  |  |
 | AA-05 | P2 | History's 'Open Account & Cloud Sync' button opens the Collection's Sync & Import page, which has no sign-in |  |  |  |

@@ -1,0 +1,512 @@
+[
+ {
+  "id": "SH-01",
+  "fix": "css/components.css toast rule: replace left:50%+translateX with inset-inline:0; margin-inline:auto; inline-size:fit-content; max-inline-size:min(var(--toast-max), calc(100% - var(--sp-32))); translate on Y only; radius r-16 when wrapped.",
+  "accept": "Smoke: a 60-word toast at 402px computes width > 0.8\u00d7viewport and height < 3 lines; device check iPhone 402x874 and iPad 820x1180 toast is one centred rounded block."
+ },
+ {
+  "id": "SH-02",
+  "fix": "js/main.js:24 history shortcut: drop bare Backspace entirely; keep Alt+\u2190/\u2192 and \u2318[ / \u2318], and return early when e.defaultPrevented or a dialog is open.",
+  "accept": "Smoke: dispatch Backspace on a focused Money row \u2192 'Delete this entry?' opens and location.hash is unchanged; Alt+\u2190 still goes back."
+ },
+ {
+  "id": "SH-03",
+  "fix": "js/modules/governor-ui.js: replace the hand-made <details> \u22ef menu with KOS.ui.menu (portalled to body, js/core/ui.js ~813); audit other inline popovers inside painted (34e) page headers.",
+  "accept": "Smoke: open the Governor \u22ef menu and elementFromPoint at every item's centre returns that item; device check Mac 1470x832 and iPad 1180x820 all rows visible."
+ },
+ {
+  "id": "SH-04",
+  "fix": "css/layout.css \u2264700 block: reset '#cols:not([data-rail=\"full\"]) .k-rail-label/.k-rail-count' (position static, auto size, clip auto) or scope the 1080-tier hide rule to min-width:701px.",
+  "accept": "Smoke/responsive audit at 402px: every bottom-tab label is visible with width > 20px; device check iPhone 402x874 shows Home/Study/Productivity/Collection/More."
+ },
+ {
+  "id": "SH-20",
+  "fix": "js/core/ui.js:288 confirm onKey: only treat Enter as yes when e.target is not inside button,a,[role=button] (or drop the document listener and rely on the focused confirm button).",
+  "accept": "Smoke: open a non-danger KOS.ui.confirm, focus Cancel, dispatch Enter \u2192 resolves false; Enter on the confirm button \u2192 true."
+ },
+ {
+  "id": "SH-21",
+  "fix": "index.html skip link + js/core/router.js: give the skip link a click handler that preventDefault()s and focuses #main, and make router.parse ignore hashes not starting with '#/'.",
+  "accept": "Smoke: on #/money click 'Skip to content' \u2192 hash stays #/money and document.activeElement is #main."
+ },
+ {
+  "id": "HR-01",
+  "fix": "js/modules/hub.js Continue row: order desks by last-studied time from the ledger/ui.lastRef, wrap to auto-fill minmax columns on desktop/iPad (or prev/next + 'N more'), and let started() count Mind journal/positions/cards and Creatives works.",
+  "accept": "Smoke: with a recent Creatives session the Creatives desk is in the first four Continue cards; device check Mac 1470x832, iPad 820x1180 every started desk visible without hidden scroll."
+ },
+ {
+  "id": "HR-02",
+  "fix": "js/core/reportstore.js ensureReports: wait for the first cloud pull (or signed-out), stop seeded Pacing rows alone counting as content, and after importFull/first link rebuild rebuilt reports whose facts are empty or older than the newest ledger entry in their period.",
+  "accept": "Smoke: ensureReports before a pull saves nothing; after a pull adding sessions in that week the rebuilt report shows the minutes, not 'A quiet week for study'."
+ },
+ {
+  "id": "HR-03",
+  "fix": "css/views/home.css (hub) 701\u20131080 tier: replace the display:none on the hero goal block with a full-width grid-column 1/-1 row under the greeting (as the phone tier does).",
+  "accept": "Responsive audit at 820x1180: the hero shows Daily goal, Today's three/Recovery and Start focus (non-zero boxes); device check iPad 820x1180."
+ },
+ {
+  "id": "HR-04",
+  "fix": "js/core/today.js build: add a spaces read (Code planDay, KOS.ja planDay, KOS.mind planDay, KOS.creatives planDay) and a money read (KOS.money.notices(today,{hide}), safe-to-spend); hub.js uses them for the Due card split, Up next rungs/Today rows and a Money line.",
+  "accept": "Smoke: with due Japanese facets and a Code Daily 20 pending, KOS.today.build lists both and Home's Due count includes them; a bill tomorrow shows the Money line."
+ },
+ {
+  "id": "HR-05",
+  "fix": "Add KOS.sessions.studyMins(range) in js/core/sessions.js (isStudy + parts, excluding todo/external/media) and call it from hub.js Study hours, report.js Studied, goals study-hours and the Daily goal.",
+  "accept": "Smoke: a seeded week with Focus, todo and media sessions gives identical minutes on Home's Study hours and the week report's Studied."
+ },
+ {
+  "id": "HR-16",
+  "fix": "js/core/governor.js:329-337 milestones: key each milestone on the run's start date (lastActiveDay \u2212 (stk\u22121)) stored once, or pay only on the session that makes a run ending today reach exactly ms days.",
+  "accept": "Smoke: a 7-day streak, then boot on the next two days before studying and after \u2192 the 7-day milestone gold is paid exactly once."
+ },
+ {
+  "id": "HR-17",
+  "fix": "Name subjects via KOS.subjects.name(sid)/hue in report.js, reportwords.js, reports.js, reportstory.js, reportshare.js; regenerate template words for saved reports containing 'undefined'.",
+  "accept": "Smoke: a Code-heavy week's template narrative names 'Code' and no report text contains 'undefined'."
+ },
+ {
+  "id": "HR-18",
+  "fix": "js/modules/hub.js:1166 + js/modules/todo.js setChecked: directive ticks are derived strictly from evidence (cards due cleared, exam revision minutes, assignment progress); remove the hand tick and any pay for it.",
+  "accept": "Smoke: clicking/toggling a directive logs no session and pays no XP/gold; clearing the due cards marks it sealed on next render."
+ },
+ {
+  "id": "HR-31",
+  "fix": "Define media activity once (e.g. KOS.media.activeIn(row, range): forward progress/volumes/chapter/route/hours, a start/finish date in range, or a media session naming the row) and use it in report.js collection(), Home/Collection 'this week' and goals.",
+  "accept": "Smoke: a week whose only journal event is a score change shows no title in the report's Collection; a progress step does."
+ },
+ {
+  "id": "AG-01",
+  "fix": "js/modules/governor-ui.js Seat \u22ef: build with KOS.ui.menu (portalled) instead of an in-header popover; raise the \u22ef button to 44px on coarse pointers.",
+  "accept": "Smoke: open the Seat \u22ef menu and elementFromPoint hits the Data row's Mine/Empty/Sample; device check iPad 1180x820 and Mac 1470x832."
+ },
+ {
+  "id": "AG-02",
+  "fix": "css/views/achievements.css/governor: set the medal size via data-size/--m with var() fallback (not an inline property) so \u2264700 can override; slots flex:0 0 auto; .k-gv-arc-note:empty {display:none}.",
+  "accept": "Responsive audit at 402px: showcase medals don't intersect each other or the XP bar and empty slots are square \u226544px; device check iPhone 402x874."
+ },
+ {
+  "id": "SC-01",
+  "fix": "js/modules/governor-ui.js shop avatar preview: give the img its own class (k-gv-apv-disc-img) inset in a position:relative disc with object-fit:contain; check baked-disc art (koi, lamp).",
+  "accept": "Visual audit: each shop avatar card's img rect is inside its disc rect; device check Mac 1470x832 and iPhone 402x874."
+ },
+ {
+  "id": "SC-02",
+  "fix": "css (governor/shop): raise the buy rule's specificity (.k-gv-stage .k-gv-buy) or wrap the stage glass-button rule in :where() so gold buy keeps its gold fill.",
+  "accept": "Smoke: on Try on, the Buy button's computed text/background contrast \u2265 4.5:1."
+ },
+ {
+  "id": "SC-03",
+  "fix": "Store each painted frame's hole ratio in the catalogue and reserve --frame-bleed padding on the Seat face column; scale the frame so its hole meets the HP ring instead of a fixed 152%.",
+  "accept": "Visual audit: worn painted frame rect does not overlap the Level/title chip rects and stays inside the stage; device check Mac 1470x832, iPad 820x1180."
+ },
+ {
+  "id": "SC-04",
+  "fix": "Decide the seal's place: draw the worn seal's stamp art in the topbar brand slot (bloom kept for \u7d05), on the Seat ring and Share card; update applyCosmetics in governor.js and the Wardrobe caption.",
+  "accept": "Smoke: wearing a seal sets the topbar mark's img src to that seal's stamp art; the Wardrobe caption names where it shows."
+ },
+ {
+  "id": "SC-05",
+  "fix": "Where --skin-art is set (shelf skins / Shrine card styles), build an absolute URL via new URL('assets/app/img/'+art+'.webp', location.href) as dayreview.js:142 does.",
+  "accept": "Smoke: every shelf skin/card style's --skin-art resolves to an existing file under assets/app/img (no /css/views/ path)."
+ },
+ {
+  "id": "SC-06",
+  "fix": "Shop frame preview: size the preview avatar as a fraction of the frame box using the catalogue's measured hole ratio (same rule as worn) instead of fixed 64/120px.",
+  "accept": "Visual audit: preview avatar diameter / frame box \u2248 the frame's hole ratio \u00b15%; device check Mac 1470x832."
+ },
+ {
+  "id": "SC-07",
+  "fix": "avatarNode in governor-ui.js: add an option {frame:id|null} (or strip .k-avatar-frame-art like frameChip) so shop and banner previews never inherit the worn frame.",
+  "accept": "Smoke: with a painted frame worn, every CSS frame card preview has data-frame = its own id and no .k-avatar-frame-art child."
+ },
+ {
+  "id": "SC-08",
+  "fix": "Reserve frame bleed (or hole-ratio sizing) in every large framed-avatar host: Home hero ring (hub.js/css), Avatar stage and phone stage.",
+  "accept": "Visual audit: Home hero's framed avatar rect doesn't overlap the greeting and is within the hero; device check Mac 1470x832, iPhone 402x874."
+ },
+ {
+  "id": "SC-20",
+  "fix": "Re-key avatar art to an inscribed ~88% circle on one ground (ask the user for art via the manifest); meanwhile pad the img to ~78% and add per-item focal/scale in the catalogue for cat/lantern.",
+  "accept": "Visual audit: each worn avatar's opaque content bbox lies within the clip circle; device check Mac 1470x832 Seat and Home."
+ },
+ {
+  "id": "SC-21",
+  "fix": "Catalogue stores each frame's hole ratio and centre offset; worn art sized avatarOuter/hole (~133%) positioned by hole centre, covering the HP ring.",
+  "accept": "Visual audit: gap between avatar edge and frame hole \u2264 2px for every frame; device check Mac 1470x832."
+ },
+ {
+  "id": "ST-25",
+  "fix": "js/core/assignments.js:220 removeAttachments: per file use the Files detach rule \u2014 removeLink({kind:'assignment',id}) when other links exist, delete only sole-link files, and list those in the confirm.",
+  "accept": "Smoke: a file linked to a topic and an assignment survives deleting the assignment with its topic link intact; a sole-link file is deleted."
+ },
+ {
+  "id": "ST-01",
+  "fix": "css/views (IT desk): add an 860 tier \u2014 .k-it-agg one/two columns stacked, .k-it-tr uses the \u2264700 grid-template-areas layout, ruler numbers min width or below the bar.",
+  "accept": "Responsive audit at 820x1180: the boundary chart is \u2265200px wide with no overlapping labels and unit names are not truncated; device check iPad 820x1180."
+ },
+ {
+  "id": "ST-02",
+  "fix": "css/views/study.css \u2264700: .k-topic-tabrow flex-wrap:wrap with the tab scroller at flex-basis 100% (Working/Edit on the next line or in \u22ef).",
+  "accept": "Responsive audit at 402px: the topic tab scroller width \u2265 90% of the row and the selected tab is visible; device check iPhone 402x874."
+ },
+ {
+  "id": "ST-03",
+  "fix": "js/engines/quiz.js: store best as a percent (bestPct) and migrate existing records at the store gate (best/len when deck length known); hub.js inspector prints the percent.",
+  "accept": "Smoke: 6/11 correct \u2192 inspector reads 'Quiz best 55%' and the quiz header agrees."
+ },
+ {
+  "id": "ST-04",
+  "fix": "js/engines/flashcards.js: upsert ONE ledger entry per sessionId on each rating with delta pay against a stored receipt, queue resumable from state.ui; 'Reviewed today' reads KOS.reviewLog.",
+  "accept": "Smoke: rate 5 cards then navigate away \u2192 one session entry with 5 reviews and pay for 5; resume and rate 3 more \u2192 same entry, delta pay only, streak credited."
+ },
+ {
+  "id": "ST-05",
+  "fix": "css/views (assignments) detail panel: align-self:start, max-block-size:calc(100dvh - header) with overflow-y:auto, no min-block-size:100% so the footer sits at the panel's bottom.",
+  "accept": "Responsive audit at 1470x832: 'Focus on this' and Complete/Submitted/Blocked are inside the viewport when an assignment is selected."
+ },
+ {
+  "id": "ST-06",
+  "fix": "js/modules/assignments.js: below 1240 open the detail in a KOS.ui.openDialog sheet (bottom sheet \u2264700, side sheet on iPad), focus its heading.",
+  "accept": "Smoke: at 820px clicking an assignment opens a dialog containing its detail; device check iPad 820x1180/1180x820 and iPhone 402x874."
+ },
+ {
+  "id": "ST-26",
+  "fix": "js/modules/itdesk.js mark input: distinguish empty (clear, ask/Undo) from invalid (keep editing, focus, say 'Enter 0\u201360'); never write on invalid.",
+  "accept": "Smoke: type 459 over a saved 45 + Enter \u2192 stored raw stays 45 and an error message shows."
+ },
+ {
+  "id": "SY-18",
+  "fix": "Held background redraws emit an event with changed paths; js/modules/editor.js re-reads its fork when idle and saves per-row patches (KOS.edits.patchRow/addRow/removeRow) by row id instead of the whole array.",
+  "accept": "Smoke: editor open, remote fork adds a card, local keystroke saves \u2192 the remote row survives locally and after merge."
+ },
+ {
+  "id": "SY-02",
+  "fix": "js/modules/hub.js notes reader: keep the page in a module memo keyed by sid:ref (or state.ui.notePage) and read it on remount/redraw.",
+  "accept": "Smoke: on notes page 4, KOS.rerender() \u2192 still page 4."
+ },
+ {
+  "id": "SY-03",
+  "fix": "Redraw policy holds the review view; flashcards.js keeps the session in state.ui.fcSession[deckKey] and resumes on remount, and upserts one ledger entry per sessionId per rating with delta pay against the receipt.",
+  "accept": "Smoke: rate 3 cards, KOS.rerender() \u2192 resumes at card 4 and the ledger entry already holds 3 reviews paid once."
+ },
+ {
+  "id": "SY-04",
+  "fix": "js/engines/quiz.js/exam engine: persist position, picks and drafts in state.ui.quizRun[sid:ref] and restore on remount; held by the redraw policy while mounted and touched.",
+  "accept": "Smoke: answer 2 quiz items and type an exam draft, KOS.rerender() \u2192 position and draft restored."
+ },
+ {
+  "id": "SY-05",
+  "fix": "Systemic redraw policy in js/core/ui.js + cloudsync.js: pass changed keys to KOS.rerender({background,changed}), views declare reads, hold background redraws on task pages/when busy and show 'Updated on another device \u00b7 Refresh', applying on leave/finish.",
+  "accept": "Smoke: a pull changing only state.money while on a topic page does not remount; a change to a read key on a task page shows the Refresh chip and applies on navigation."
+ },
+ {
+  "id": "SY-06",
+  "fix": "js/modules/dayreview.js close: repaint only the chip (and Home cards when Home is on screen) via the policy's refresh, never a full remount; auto-open on visibility only on Home/no active engine.",
+  "accept": "Smoke: open a lesson, close the review sheet \u2192 #main not remounted; visibility change on a lesson does not auto-open the review."
+ },
+ {
+  "id": "SY-08",
+  "fix": "Redraw policy defers background redraws while activeElement is editable in #main; fallback generalises mobile-shell.js calendarFocusSignature to restore focus/selection after a redraw.",
+  "accept": "Smoke: focus a textarea with caret mid-text, trigger a background redraw \u2192 focus and selection unchanged; device check iPad 820x1180 keyboard stays open."
+ },
+ {
+  "id": "SY-19",
+  "fix": "Add vault views (anime, books, vn, game, mangaka, seasonal, wishlist, shrine) to the held set and keep the loaded batch count in a per-visit memo so a redraw renders up to it before restoring scroll.",
+  "accept": "Smoke: scroll a vault past batch 3, background redraw \u2192 scrollTop restored within 10px and \u2265180 cards rendered."
+ },
+ {
+  "id": "SY-20",
+  "fix": "js/modules/governor-ui.js Edit your seat: hold background redraws while dirty (task page) and keep the draft in a per-visit store keyed by route; add the leave-with-changes prompt.",
+  "accept": "Smoke: change the seat background without saving, background redraw \u2192 draft kept; navigating away prompts."
+ },
+ {
+  "id": "CM-01",
+  "fix": "Add a checked-in Maths spec override table applied by tools/gen_data.py (hand-authored from Edexcel 9MA0, LaTeX in $\u2026$, no 'need to learn:'), regenerate js/data/maths.js.",
+  "accept": "Smoke: no Maths spec line \u22644 chars, no single-letter runs and no 'need to learn'; M7.3 spec tab reads clean."
+ },
+ {
+  "id": "CM-02",
+  "fix": "js/engines/quiz.js mountMCQ: seeded per-attempt option permutation (reshuffled on Retry), clicks mapped back to the original index so stats and why text stay valid.",
+  "accept": "Smoke: across 200 mounts the displayed correct position is roughly uniform (each index 15\u201335%) and recorded answers map to the authored ans."
+ },
+ {
+  "id": "CM-14",
+  "fix": "js/core/content.js:537 examFromWorked: emit one scheme point per mark code ([M1],[A1]\u2026), Answer as a separate non-tickable line; fromTicks needsM reads the code tokens.",
+  "accept": "Smoke: for every derived exam part \u03a3 point weights = marks and an A point can't be ticked without its M."
+ },
+ {
+  "id": "CC-01",
+  "fix": "tools/parse_it.py: stop each leaf at 'Assessment criteria/guidance/Synoptic assessment' and column breaks, join 'To include:' continuation lines; regenerate js/data/it.js.",
+  "accept": "Smoke: no IT spec string > ~300 chars or starting 'include:'; F206.6.1 etc. read clean."
+ },
+ {
+  "id": "CC-02",
+  "fix": "tools/parse_it.py/gen_data.py: drop overview nodes ('Overview of the assessment', 'NEA Units'), assert ref uniqueness, regenerate; prune state keyed to the bogus ref at the store gate.",
+  "accept": "Smoke: all IT refs unique and 'Ways to reflect' opens its own leaf."
+ },
+ {
+  "id": "CC-03",
+  "fix": "Shared with CM-02: deterministic per-question shuffle in js/engines/quiz.js (keyboard 1\u20134 on displayed order); rebalance longest-option bias in CS banks.",
+  "accept": "Smoke: with shuffling on, no leaf has >50% answers at one displayed index; correct-option length is not the max in >50% of items per bank."
+ },
+ {
+  "id": "CC-04",
+  "fix": "Worked card (content.js render + css): put 'Write it out' in the head row as a flex item beside Copy (title flex:1, min-width:0), wrapping under 560px, 44px on coarse pointers.",
+  "accept": "Visual audit: the button rect doesn't intersect the title at 402 and 820; device check iPhone 402x874, iPad 820x1180."
+ },
+ {
+  "id": "CO-01",
+  "fix": "css/views/code.css: .k-cx-sq/.k-cx-dia min-block-size:0 with the 44px hit area on a transparent ::before (or raise width with height).",
+  "accept": "Responsive audit with --touch: unit squares width=height and the diamond is a square rotated 45\u00b0; device check iPad 820x1180."
+ },
+ {
+  "id": "CO-02",
+  "fix": "css/views/study.css:1169: at \u2264700 set .k-cx-hero + .k-subj-side to a single column (as japanese.css:449); .k-fit-btn on the Open-lesson button.",
+  "accept": "Responsive audit at 402px: Daily 20 and Continue stacked full width and the button label stays inside its pill; device check iPhone 402x874."
+ },
+ {
+  "id": "CO-03",
+  "fix": "css/views/code.css desk side: Continue card flex:0 0 auto, Daily 20 card clips/scrolls instead; concept chips one line or two + '+N'.",
+  "accept": "Responsive audit at 1470x832 and 1180x820 with a real Daily 20 task: Continue card height \u2265 its content and 'CONTINUE' not clipped."
+ },
+ {
+  "id": "CO-04",
+  "fix": "js/core/codeui.js task Run: replace the one-line input with an auto-growing textarea prefilled with the whole first example stdin; keep Ctrl+Enter.",
+  "accept": "Smoke: running a multi-line task's reference answer with the prefilled input passes with no ArgumentNullException."
+ },
+ {
+  "id": "JM-06",
+  "fix": "js/modules/jatopic.js spine media branch returns a stageHead (and hub.js guards codeSpine.stageHead before calling).",
+  "accept": "Smoke: with ui.japanese.spine='media', opening a ja lesson renders without throwing and stays on the lesson."
+ },
+ {
+  "id": "JM-07",
+  "fix": "js/core/ja.js: after record()/finishSession() call syncChecks for each lesson whose items were reviewed, and run a boot pass over started lessons.",
+  "accept": "Smoke: pass reviews for a lesson's items \u2192 stored progress checks equal evidence() (4/4) and status follows."
+ },
+ {
+  "id": "JM-08",
+  "fix": "js/modules/jarun.js: upsert one ledger entry per sessionId on each rating with delta pay against the receipt; queue resumable from state.ui, so navigation/pagehide loses nothing.",
+  "accept": "Smoke: answer 4 items then KOS.show('home') \u2192 one ja session entry with 4 passes paid; re-entering resumes the queue."
+ },
+ {
+  "id": "JM-09",
+  "fix": "css/views/study.css \u2264700: .k-topic-tabrow wraps, tab scroller full width (min 50%), Working/Edit/Learn\u00b7Reference on a second line or in \u22ef.",
+  "accept": "Responsive audit at 402px on a ja lesson: Notes/Practice/Reviews/Files tabs visible; device check iPhone 402x874."
+ },
+ {
+  "id": "MI-01",
+  "fix": "js/core/mind.js evidence(): for a checkpoint lesson read concepts from KOS_MIND.CHECKPOINTS[unit].concepts for the retrieval check.",
+  "accept": "smoke110: a fully done F1.8 checkpoint lesson reaches status done with 4/4 checks."
+ },
+ {
+  "id": "MI-02",
+  "fix": "css/views/mind.css .k-mind-deskside: same grid/flex-basis auto treatment as Japanese/Creatives under 1080; on Mac min-block-size:min-content for the Daily card.",
+  "accept": "Responsive audit at 402, 820 and 1470: Daily 15 and Continue cards \u2265 content height, Start button visible."
+ },
+ {
+  "id": "CR-01",
+  "fix": "js/modules/creatives.js:561 logPage: open the deep-linked dialog only on navigation (not KOS.ui.redrawing) and replace the route with #/creatives/log on close.",
+  "accept": "Smoke: open #/creatives/log/<id>, act in the dialog, KOS.rerender() \u2192 exactly one dialog and the hash is #/creatives/log after close."
+ },
+ {
+  "id": "CR-02",
+  "fix": "js/modules/creatives.js: mark the gear (and Start focus) with data-phone-action, or add Settings to the phone menu.",
+  "accept": "Smoke at 402px: the phone title bar exposes Settings that navigates to #/creatives/settings; device check iPhone 402x874."
+ },
+ {
+  "id": "CR-25",
+  "fix": "Hook KOS.srs.rate: when a key starts 'creatives:' call KOS.creatives.syncChecks(lesson); run KOS.creatives.syncAll() once at boot.",
+  "accept": "Smoke: rate a Creatives theory card Good \u2192 the lesson's fourth check is set and mastery reaches 100% when other checks are done."
+ },
+ {
+  "id": "PR-01",
+  "fix": "js/core/ui.js KOS.ui.menu place(): when the button is inside an open dialog, append the panel inside that overlay (or a --z-menu-modal token above --z-modal).",
+  "accept": "Smoke: open a menu inside openDialog and elementFromPoint at an item hits it; device check Mac 1470x832 'Place in a free block'."
+ },
+ {
+  "id": "PR-02",
+  "fix": "js/core/ui.js KOS.show: set KOS.ui.currentView = viewId BEFORE calling the view and have pageHeader read it.",
+  "accept": "Smoke: navigate A\u2192B and B's page header band id is B's."
+ },
+ {
+  "id": "PR-03",
+  "fix": "js/modules/routineplayer.js:279 taskOf: honour ctx.explicit from focus.js (return General study, no fallback), offer the suggestion as 'Use: <task>'; 'Just start' starts the Focus page's config exactly; fix the menu z-index.",
+  "accept": "Smoke: Focus with 'General study \u2014 no link' \u2192 Just start \u2192 session has no assignmentId."
+ },
+ {
+  "id": "PR-04",
+  "fix": "css/views/productivity.css: .k-fx-ctx max-inline-size:100% (column min-inline-size:0), chip ellipsis with title attr; due via dayLabel; stronger scrim on phone.",
+  "accept": "Responsive audit at 1470 and 402 with a 120-char title: chip rect inside the viewport; device check iPhone 402x874."
+ },
+ {
+  "id": "MG-01",
+  "fix": "js/core/money.js previewCSV/importRows: identity = date|minor|kind|normalised raw + within-statement occurrence ordinal (occ) per identical tuple, FITID or balance delta when present, plus a statement fingerprint; keep tx.raw source data on every row.",
+  "accept": "Smoke: import a CSV, re-import it with a different payee mapping \u2192 0 new rows; importing the same statement as OFX matches by FITID."
+ },
+ {
+  "id": "MG-02",
+  "fix": "js/core/money.js:978 guessMapping: add Merchant/Description, Debit/Credit, 'Amount (\u00a3)', 'Money in/out (\u00a3)' patterns; never hard-fail \u2014 open the Columns step with unmatched columns.",
+  "accept": "Smoke: a Santander midata fixture maps date/amount/payee automatically; an unknown header opens the mapper instead of an error."
+ },
+ {
+  "id": "MG-03",
+  "fix": "js/core/money.js:947 parseCSV: sniff the delimiter over ~10 non-empty lines, find the header row in the first 20 rows by date+amount patterns, report 'Skipped: n header lines', drop trailing empty columns.",
+  "accept": "Smoke: fixtures with a leading blank line, ';' delimiter, and an account preamble all parse with the right header."
+ },
+ {
+  "id": "MG-04",
+  "fix": "js/core/money.js: format sniffing with OFX/QFX (STMTTRN, FITID, LEDGERBAL), QIF and Santander .txt parsers feeding the same preview; Columns step names the format.",
+  "accept": "Smoke: OFX, QIF and Santander .txt fixtures each produce the expected rows and amounts."
+ },
+ {
+  "id": "MG-05",
+  "fix": "Store {batch,fileName,from,to,n,at} in state.money.imports (normalise gate); Transactions \u203a Imports list in js/modules/money.js with Undo/Delete/Replace and a Source filter.",
+  "accept": "Smoke: after an import the Imports list shows it; Undo removes exactly its rows and the record."
+ },
+ {
+  "id": "MG-06",
+  "fix": "js/core/money.js preview: flag rows whose cell count differs from the header and re-join a split \u00a3n,nnn.nn amount for the Santander layout; show the Balance column.",
+  "accept": "Smoke: a row with unquoted '\u00a31,234.56' imports as 123456 minor, and a malformed row is reported with its cell count."
+ },
+ {
+  "id": "MG-07",
+  "fix": "js/core/money.js import: match rows to due rule occurrences (same amount, \u00b13 days, payee alias) and mark the occurrence confirmed pointing at the imported tx; Confirm offers a matching bank entry.",
+  "accept": "Smoke: a rule due 27 Oct + importing the bank row \u2192 one transaction total and the occurrence marked done."
+ },
+ {
+  "id": "MG-08",
+  "fix": "js/core/money.js: keep raw text, derive a clean merchant (strip card/apple pay/date/FX noise), learned payee rules {match\u2192merchant,category}, UK merchant table, Type DD/SO \u2192 suggest a rule, Balance \u2192 reconcile line.",
+  "accept": "Smoke: 'CARD PAYMENT TO HERON FOODS,3.50 GBP, ON 27-10-2026' \u2192 merchant 'Heron Foods' and a learned rule categorises the next one."
+ },
+ {
+  "id": "MG-09",
+  "fix": "js/modules/mobile-shell.js destinations(): when the page carries [data-phone-tabs] list those tabs as a second group in the sheet (Money and Goals).",
+  "accept": "Smoke at 402px: the phone sheet lists Transactions, Month, Import/Export and Goals' This week/This month/Done; device check iPhone 402x874."
+ },
+ {
+  "id": "MG-10",
+  "fix": "Import dialog: own wide token (~1080px, full sheet on iPad), Columns above Preview below ~900px, sticky footer with Import.",
+  "accept": "Responsive audit at 1470x832 and 820x1180: payee and amount columns visible and Import button inside the viewport."
+ },
+ {
+  "id": "MG-23",
+  "fix": "js/core/money.js:1030-1031: remove within-file folding; compare against STORED rows only using the occ ordinal per date|minor|kind|raw tuple (plus FITID/balance delta), flagging only the surplus.",
+  "accept": "Smoke: a statement with two identical same-day payments imports both; re-importing it flags both as duplicates."
+ },
+ {
+  "id": "MG-24",
+  "fix": "js/core/money.js guessMapping/import: recognise the app's own export header exactly and import losslessly (Type\u2192kind, Category\u2192cat by name, Pot, Tags); offer a Type/Direction mapping (DEB/DD/SO/FPO out, FPI/BGC/CR in).",
+  "accept": "Smoke: export then re-import into an empty store round-trips kind, category, pot and tags identically."
+ },
+ {
+  "id": "MG-25",
+  "fix": "js/modules/money.js Transactions: under 860px open the tapped entry in a k-msheet/openDialog with Edit and Delete.",
+  "accept": "Smoke at 402px: tapping a row opens a dialog containing Edit/Delete; device check iPhone 402x874, iPad 820x1180."
+ },
+ {
+  "id": "GO-02",
+  "fix": "js/core/goals-collection.js: measure the period from the media journal (completions, deltas, favourites in [start,deadline]), purchases by purchasedAt, library-size by createdAt; baseline at creation meanwhile.",
+  "accept": "Smoke: a Collection goal created today with a full vault reads 0 progress and is not Met; a completion today counts 1."
+ },
+ {
+  "id": "GO-06",
+  "fix": "js/modules/goals.js goalDialog: fields.routine on both routine types with a Routine select from KOS.routines.all() writing params.routine; refuse Save without one.",
+  "accept": "Smoke: create 'Keep a routine on N days' \u2192 params.routine set and Save refused when blank."
+ },
+ {
+  "id": "GO-07",
+  "fix": "js/modules/goals.js: fill the habit select from KOS.routines.habitsView() storing params.routine (or retire habit-streak for routine-streak, old records readable).",
+  "accept": "Smoke: a habit created in Routines appears in the habit-streak picker and its streak is measured."
+ },
+ {
+  "id": "GO-23",
+  "fix": "js/core/rag.js auto(): evidence-weighted score with minimum evidence before any band; goals-exams topics-green counts a leaf only with enough evidence and judges on the deadline.",
+  "accept": "Smoke: five topics with one 0% quiz each are not Green and 'Move topics to Green' is not met."
+ },
+ {
+  "id": "GO-25",
+  "fix": "js/modules/goals.js title picker: always include the current linked title selected, and replace the 60-row capped select with a search picker over the whole vault.",
+  "accept": "Smoke: editing a goal linked to title #200 keeps that link on Save and any title can be found by search."
+ },
+ {
+  "id": "EX-01",
+  "fix": "js/modules/examprac.js Marks by question: Max as a number input on rows without an index max; Topic cell a KOS.topicPicker scoped to the assessment's leaves.",
+  "accept": "Smoke: '\uff0b Question', set max 6 and a topic \u2192 saved question has max 6 and refs."
+ },
+ {
+  "id": "EX-02",
+  "fix": "css (exam room): .k-exr-body flex-shrink:0 so the room scrolls; on phone put the checklist under the ring.",
+  "accept": "Responsive audit at 402px: checklist rect does not intersect the rapid-recall list; device check iPhone 402x874."
+ },
+ {
+  "id": "EX-03",
+  "fix": "js/core/inkui.js palette: in icons state hide the colour text, move Shape/Ruler into More when wider than innerWidth\u221240, and clamp place() to centre a wide palette.",
+  "accept": "Responsive audit at 402px: palette width \u2264 viewport and Undo/Redo are on screen; device check iPhone 402x874."
+ },
+ {
+  "id": "EX-28",
+  "fix": "css (exam paper view): .k-ex-tnav-b flex:none, 44\u00d744 square on touch; scroller({reveal}) for the current square.",
+  "accept": "Responsive audit at 820 and 402: each navigator square width=height \u2265 32px (44 on touch); device check iPad 820x1180."
+ },
+ {
+  "id": "CL-01",
+  "fix": "css/components.css:80: give the pill group flex:none inside .k-subnav (or drop overflow-x:auto on .k-seg there) so the outer k-subnav-scroller with arrows scrolls.",
+  "accept": "Responsive audit at 820x1180: Games pill reachable via the subnav scroller arrows; device check iPad 820x1180."
+ },
+ {
+  "id": "CL-45",
+  "fix": "Add an activity stamp (activityAt) in mediadb from AniList list updatedAt, VNDB lastmod and local list-state/personal edits; sort 'Recently updated' by it, keep updatedAt for cloud dirtiness; share HR-31's activity definition.",
+  "accept": "Smoke: a pull that only reorders tags or changes a cover leaves the sort order unchanged; a progress step moves the title to the top."
+ },
+ {
+  "id": "AA-01",
+  "fix": "js/modules/assistant.js: render Undo on each verified-action card (and a toast) wired to undo.run, marking the card and audit row 'Undone'.",
+  "accept": "Smoke: an undoable tool call shows Undo; clicking it reverts the record and labels the card Undone."
+ },
+ {
+  "id": "AA-02",
+  "fix": "js/modules/assistant.js: scroll to end after first mount (rAF) and on send/approval cards; 'only if at bottom' for streamed additions with a 'New message \u2193' pill.",
+  "accept": "Smoke: reopening a long chat leaves scrollTop at the bottom and a new approval card is in view."
+ },
+ {
+  "id": "AA-11",
+  "fix": "Backup import (store importFull caller): parse first, show a danger openDialog (Cancel focused) with the backup's date and counts vs this device, an 'Export this device first' option and the cloud overwrite note.",
+  "accept": "Smoke: picking a backup file opens the danger dialog and state is unchanged until confirmed; Cancel leaves it untouched."
+ },
+ {
+  "id": "DI-27",
+  "fix": "Hotfixed (js/core/mediadb.js tryMal/tryAnilist module-scoped, merge refuses cross-module, smoke114); remaining: boot repair pruning bogus journal events and the user-decided ledger/badge clean-up.",
+  "accept": "smoke114: two cycles with a colliding MAL id pay once and leave the manga untouched; after the clean-up no phantom sync entries remain in the ledger."
+ },
+ {
+  "id": "DI-01",
+  "fix": "js/core/exttasks.js: pull cloud before taking the lease and push right after; record pending adds {uid\u2192temp} in state.ext, dedupe imports by link/pending uid, and a boot/merge pass folding reminders linked to the same ext.id.",
+  "accept": "Smoke: two simulated devices, device B syncs before A's state arrives \u2192 one reminder linked to the Todoist task."
+ },
+ {
+  "id": "DI-02",
+  "fix": "js/core/exttasks.js Todoist push: apply each chunk's sync_status results as it returns, keep parent+subtask adds in one chunk, persist the temp-id map before the next request; treat mapped ids as linked on pull.",
+  "accept": "Smoke: second batch fails \u2192 first batch's tasks are linked and the next sync imports no duplicates."
+ },
+ {
+  "id": "DI-03",
+  "fix": "js/core/cloudsync.js stateMeaningful: compare against a pristine DEFAULTS snapshot (ignoring seeders) or every RECORDS array/keyed map; first link always no-base three-way merge; snapshot local state to the media kv before any replaceState.",
+  "accept": "Smoke: a device with only reminders/assignments/routines signs in to a non-empty account \u2192 all its records survive the first link."
+ },
+ {
+  "id": "DI-04",
+  "fix": "js/core/store.js save(): monotonic rev in localStorage, write inside navigator.locks('kos-state-write'), three-way merge (cloudmerge, base = last read/written) before writing when rev moved, BroadcastChannel('kos-state') patching other tabs; pwa.js reloads all tabs on update.",
+  "accept": "Smoke (two jsdom windows sharing storage): tab A adds a reminder, tab B adds an event and saves \u2192 stored state holds both and rev increased monotonically."
+ },
+ {
+  "id": "AP-01",
+  "fix": "index.html + js/core/content.js: content manifest key\u2192file with lazy script injection on first topic/desk/search open; exam-index.js, code-projects-files.js and ja/mind/creatives content loaded on demand; performance marks in js/main.js.",
+  "accept": "Smoke: boot script payload < ~4 MB and kos-interactive mark recorded; opening a lesson lazy-loads its content and renders it."
+ },
+ {
+  "id": "AX-01",
+  "fix": "css/components.css end (unlayered) or themes layer: @media (max-width:700px) inputs/select/textarea/[contenteditable] font-size:max(16px,1em) !important.",
+  "accept": "Smoke/responsive audit at 402px: no visible field computes font-size < 16px; device check iPhone 402x874 no zoom on focus."
+ }
+]
