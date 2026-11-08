@@ -36,3 +36,27 @@ State: Google (Calendar + Tasks) and Todoist connected; Reminders lists NEA, Sch
 27. **P3 — Google Tasks is switched on but no Reminders list is linked to a Google Tasks list**, so Tasks never syncs anything (counts 0 every cycle). Not tested further (linking would change the user's setup). Connections should say "On, but no list linked".
 28. **AniList / VNDB — read-only checks OK**: anime 711 rows (AniList's own "426" excludes the 286 Planning entries: 711 − 286 = 425 ≈ 426), books 1,149, no AniList-id duplicates (`maint.dedupeAnilist` done), VN 10 VNDB + 1 manual (VNDB says 11 tracked). Last autosync (at this tab's boot) had no errors. **Suspect, unverified:** it reported anime "updated 713" against 711 rows, and paid two Books rewards ("Aku no Kyouten" → completed, 36 units; "Death Note" → on hold, 0 units) — check whether these are genuine new changes or re-rewards on every boot (invariant 17: a push followed by its echo earns nothing). Writes to AniList/VNDB were NOT tested: any progress change posts public activity on the user's profiles.
 29. **UR-4 explained** — the lost Focus session on 1 Nov was this audit's second tab (stale state, minimised paused session) overwriting the user's tab's newer state: DI-04 (two tabs, whole-document last-writer-wins) with real loss of a completed, paid session. Before opening the app in a second tab on the user's machine, ask them to close theirs (asked and confirmed on 2 Nov).
+
+## Live checks, 8 Nov 2026 (second account, Claude in Chrome)
+
+The user confirmed their own tabs were closed. All reads went through the app's own APIs and IndexedDB on production `kos-redraw-1`. The one write was a marked test event, now deleted on both sides.
+
+- **LA-30: ST-25 has not lost any of the user's files so far.** There are 18 live files locally and 18 in `kos_files`. Two are linked to assignments (17 and 23), and both assignments still exist. No file points at a deleted assignment. Assignment ids 5–7, 9, 10, 12, 13, 19–22 and 24–26 were deleted at some point (nextId is 27).
+  - `kos_files` holds 4 tombstones: `download (1).png` (16 Oct), `iShot_2026-10-12_22.05.52.png` (26 Oct), `0s2-9MA0-01-Pure-1-Mock-Set-2-pdf-1.pdf` (26 Oct) and `module-1-l2-vectors-…669 2.pdf` (5 Nov). The last is a duplicate copy of a live file.
+  - The tombstones do not record what deleted them, so ST-25 cannot be ruled in or out for the first three. **Ask the user** whether they deleted those three themselves.
+- **LA-31 (P0 candidate; UR-21 confirmed and much bigger than reported): a sync reward that never stops.**
+  - **The ledger.** `state.sessions` holds 2,000 entries, the cap. 1,750 of them are `{type: "media", metrics.action: "sync-reward"}`, and **1,741 name "Aku no Kyouten" and "Death Note"** (Books), at about 40 a day every day from 27 Sep to 8 Nov. Each pays `award {xp: 46, gold: 12}`, so roughly 80,000 XP and 20,900 gold of phantom pay. Because the ledger keeps only the newest 2,000 entries, these push real study history out of it. Everything that reads the ledger is affected: streaks, Reports, goals, and the achievements rollup (invariant 161).
+  - **The two rows.** Only these 2 of about 250 Books rows behave this way. Both are AniList-mirrored manga with `ownership: unset`, `physical: null` and `push: null`:
+    - Death Note: anilistId 30021, malId 21, onHold, 0/108, 8 volumes. Its reward watermark is `{progress 0, onHold, volumes 8}`.
+    - Aku no Kyouten: completed, 36/36, 9 volumes.
+  - **Their journals.** Each journal gains a `volumes null → 8/9` event on about 68 syncs a week. Status flips `→ planned` on 1, 1, 3, 4 and 6 Nov, then flips back on 7 Nov.
+  - **What it is not.** There is no duplicate anilistId or malId within a module. The cloud `kos_media` copies match the local rows.
+  - **This supersedes the UR-21 hypothesis** that two list entries fold onto one row; that is not the case locally. The root cause is not yet traced in code: the agent was cut off by the usage limit. It is the first job of the next session.
+  - The 2 Nov finding (LA-28, "updated 713" and a status reward for Death Note) was the same defect.
+- **LA-32: Google Calendar two-way round trip passes.**
+  - App → Google: a marked event `[KOS AUDIT TEST — delete me]` for 10 Nov 07:00 synced and was created on the primary calendar, confirmed at 07:00Z.
+  - Google → app: a title edit made through the Google API came back on the next sync (`pulled: 1`).
+  - Delete: deleting it in the app sent the delete (`deleted: 1`), and Google shows it `cancelled`. Nothing is left on either side.
+  - Not tried: a single-occurrence edit of a repeating event. UR-1 and LA-26 already cover that case: it arrives, but the page is not redrawn.
+- **Not done:** AniList/VNDB pages at iPad and iPhone sizes. `resize_window` did not change the viewport (it stayed at 1400×840, probably because the window is maximised).
+- **Unexplained, for the user:** while the checks ran, Claude's tab moved to `#/governor/history`, and later an **About to Study** sheet was open in it. Claude opened neither. Either the user touched the tab, or something in the app opened them. The sheet writes nothing until Start. The tab was closed without pressing anything.
