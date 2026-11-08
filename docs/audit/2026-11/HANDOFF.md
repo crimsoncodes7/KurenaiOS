@@ -35,7 +35,15 @@ is not sent to Gemini**: Claude re-checks the delta itself (§10.5). Jobs 1 and 
     the picture off.
   - Real P2s: UR-3, UR-5, UR-8, UR-15, UR-16 and UR-17.
 
-**Left:** job 4 (the live checks, §11) and job 6 (the plan).
+**Also done 8 Nov:**
+- Job 4: the live checks (LA-30…32).
+- DI-27, found from UR-21: hotfixed as `kos-malfix-1`.
+- HR-31: filed.
+- Job 6: the plan is written in [`PLAN.md`](PLAN.md) (PROPOSED). Its
+  §3 asks the user for 14 decisions.
+
+**Waiting:** the user's approval of the plan (whole, or by workstream) and
+their answers to the §3 decisions. NO remediation before that.
 
 **What happened on 7 Nov (first account, last session).**
 - Batch 6 ran **Sync (SY) and Data integrity (DI)** in inventory top-up mode.
