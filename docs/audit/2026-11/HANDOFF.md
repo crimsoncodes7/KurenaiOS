@@ -293,6 +293,19 @@ of separate apps: everything interlinked, coherent).
   `origin/main`; the resulting tree equals the old branch plus the stopgap's
   8 files exactly. Every run from batch 1 (5 Nov) on is on `kos-redraw-1`.
 
+- **8 Nov 2026 — sw `kos-malfix-1`** (`9fecf63`, branch `fix/mal-cross-module`;
+  `main` fast-forwarded; deployed to https://d088dc59.kurenai-os.pages.dev
+  and production). This is the second app change, a HOTFIX for DI-27 (UR-21)
+  requested by the user. `bulkUpsert` now matches vndb, anilist and mal ids
+  only within the incoming row's module, and no merge across modules pays a
+  reward. It adds smoke114 and passes the gate at 114/114.
+  - **It stops the cause only.** Each device needs its update accepted.
+  - **Still to do, with the user's decision in the plan:**
+    - the 1,741 phantom ledger entries;
+    - the phantom XP and gold;
+    - badge tiers earned from that pay;
+    - the two rows' bogus journal events.
+
 ### 2.2 Which build each area was audited on (important)
 - Every area **except AP and AX**, and the live-account checks, ran on
   `56b1a8c` = production (`kos-artshop-1`): the working tree was

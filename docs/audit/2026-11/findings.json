@@ -9685,7 +9685,8 @@
   "effort": "S (fix) + M (repair and decisions)",
   "id": "DI-27",
   "area": "data-integrity",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "reviewNote": "HOTFIXED 8 Nov (sw kos-malfix-1, 9fecf63, smoke114): the cause is stopped. Clean-up of the 1,741 phantom ledger entries, the phantom XP/gold, the badge tiers and the two journals waits for the user's decision in the plan."
  },
  {
   "title": "Todoist: a reminder made on one device is duplicated when another device syncs before the state document arrives",

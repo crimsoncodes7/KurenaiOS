@@ -76,6 +76,7 @@ REVIEW_NOTE = {
     "SY-03": "Since the stopgap background redraws are held on the review views; what remains is plain rerenders and finish()-only logging (root cause 18); propose P2 in the plan.",
     "SY-04": "Since the stopgap ref/exams are held as TASK_VIEWS and typing() holds too; only plain rerenders reset the quiz/exam; propose P2 in the plan.",
     "SY-18": "The hold for an open editor while typing predates kos-redraw-1; the stopgap made it indefinite on ref views, widening (not creating) the defect.",
+    "DI-27": "HOTFIXED 8 Nov (sw kos-malfix-1, 9fecf63, smoke114): the cause is stopped. Clean-up of the 1,741 phantom ledger entries, the phantom XP/gold, the badge tiers and the two journals waits for the user's decision in the plan.",
     "MG-23": "Mitigation: each flagged row has an 'Import anyway' toggle, but Skip is pre-selected and the row claims to match an entry that is not in the store.",
     "MG-25": "Editing is still possible by scrolling past the whole list, so badly degraded rather than impossible; P2 is arguable.",
     "CM-14": "Also breaks invariant 135 (an A mark ticked without its M is accepted). Shares its root cause with CC-14/CC-17 (the Answer line is a tickable mark); 28 derived parts' [M/A/B] weights do not sum to their marks (cf. CM-21).",
