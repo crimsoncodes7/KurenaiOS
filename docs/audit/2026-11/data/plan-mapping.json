@@ -1,0 +1,8302 @@
+{
+ "map": [
+  {
+   "id": "EX-01",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-02",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-03",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-28",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-04",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-05",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-06",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-07",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-08",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-10",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-11",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-12",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-29",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-30",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-31",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-32",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-33",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-34",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-36",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-37",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-38",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-39",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-40",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-14",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-15",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-16",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-17",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-19",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-20",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-21",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-22",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-23",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-24",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-25",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-26",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-27",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "ST-12",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-41",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-42",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-43",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-44",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-45",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-46",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-47",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-48",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "EX-49",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-25",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-01",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-02",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-03",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-04",
+   "ws": "W2",
+   "rc": "18",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Unfinished-session policy (HANDOFF \u00a78 Q8): log what was done when the page is left, or keep it resumable"
+  },
+  {
+   "id": "ST-05",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-06",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-26",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-07",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-08",
+   "ws": "W3",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-09",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-10",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-11",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-12",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-15",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-17",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-27",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-28",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-29",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-30",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-19",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-20",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-21",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-22",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-23",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-31",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-32",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-33",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-34",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-36",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-37",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-38",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-39",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-40",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-41",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-42",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "ST-43",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-06",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-07",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-08",
+   "ws": "W2",
+   "rc": "18",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Unfinished-session policy (HANDOFF \u00a78 Q8): log what was done when the page is left, or keep it resumable"
+  },
+  {
+   "id": "JM-09",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "ST-02",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-01",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-03",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-10",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-11",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-12",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-13",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-15",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-16",
+   "ws": "W6",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-17",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-19",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-20",
+   "ws": "W6",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-21",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-22",
+   "ws": "W2",
+   "rc": "18",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Unfinished-session policy (HANDOFF \u00a78 Q8): log what was done when the page is left, or keep it resumable"
+  },
+  {
+   "id": "JM-23",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-24",
+   "ws": "W3",
+   "rc": "16",
+   "fixedBy": "ST-08",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-25",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-26",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-27",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-02",
+   "ws": "W7",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-05",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-28",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-29",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-30",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-31",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-32",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-33",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-34",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-35",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-36",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-37",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-38",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-39",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "JM-04",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-01",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-02",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-03",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-04",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-05",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-06",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-07",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-08",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-10",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-11",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-17",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Code settings 'Practice focus': build the Core/Tracks mix, or remove the card"
+  },
+  {
+   "id": "CO-19",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-20",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-21",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-22",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-12",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-15",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-23",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-25",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-26",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-27",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-28",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-29",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-30",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-31",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-32",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-33",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-34",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-36",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-37",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CO-38",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-01",
+   "ws": "W6",
+   "rc": "7",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-02",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "CM-25",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-14",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-03",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-04",
+   "ws": "W6",
+   "rc": "9",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "The user's 3 personal forks (Maths M7.3 notes, CS 4.1.1.6 / 4.1.1.8 cards): keep, merge or reset to the shipped versions"
+  },
+  {
+   "id": "CM-05",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-06",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-07",
+   "ws": "W6",
+   "rc": "7",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-08",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-15",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-16",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-17",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-18",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "GO-23",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-19",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-20",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-09",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-10",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-11",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-12",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-13",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-21",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "CM-14",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-22",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-23",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-24",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-25",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-26",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-27",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CM-28",
+   "ws": "W6",
+   "rc": "7",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-02",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-06",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-07",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-23",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-25",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-03",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-04",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-05",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-08",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-11",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-12",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-13",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-22",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-24",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-27",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-01",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-09",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-10",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-14",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-15",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-17",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-18",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-19",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-20",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-21",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "GO-26",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-01",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-02",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-03",
+   "ws": "W6",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-04",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-05",
+   "ws": "W1",
+   "rc": "20,21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Mind checkpoint pass rule: pay only on a pass, and whether to claw back rewards already paid for a checkpoint passed with nothing right"
+  },
+  {
+   "id": "MI-06",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-07",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-08",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Ask Kurenai offline: build the queue it promises, or say plainly 'you're offline' and drop the queue"
+  },
+  {
+   "id": "MI-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-10",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-11",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-12",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-15",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-16",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "EX-49",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-17",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MI-19",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-11",
+   "ws": "W0",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-18",
+   "ws": "W1",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-16",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Clawback: take back the streak-milestone gold already paid more than once, or leave balances as they are?"
+  },
+  {
+   "id": "HR-18",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Daily goal directives: derive the tick from evidence, pay once a day, or pay nothing (activity only)? Claw back past repeat pay?"
+  },
+  {
+   "id": "HR-21",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-27",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "HR-21",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-24",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-23",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "An all-optional routine: refuse to save it, or count it kept when every (or any) step is ticked?"
+  },
+  {
+   "id": "PR-03",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-26",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-28",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-15",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-27",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "First-run sample events: drop the seed entirely (Sample data mode covers demos) or keep it marked sample:true?"
+  },
+  {
+   "id": "SY-05",
+   "ws": "W2",
+   "rc": "1,15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Redraw policy (HANDOFF Q4): apply remote changes at a safe point (leaving the page / finishing the set) with an 'Updated on another device \u00b7 Refresh' chip?"
+  },
+  {
+   "id": "SY-26",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "SY-05",
+   "design": true,
+   "art": false,
+   "decision": "Same as SY-05: the held-page Refresh chip and when it flushes."
+  },
+  {
+   "id": "SY-02",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-18",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "SY-02",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-03",
+   "ws": "W2",
+   "rc": "1,18",
+   "fixedBy": "",
+   "dependsOn": "SY-05",
+   "design": false,
+   "art": false,
+   "decision": "Unfinished-session policy (HANDOFF Q8): log what was done pro-rata on leave, or keep it resumable?"
+  },
+  {
+   "id": "SY-09",
+   "ws": "W2",
+   "rc": "1,18",
+   "fixedBy": "",
+   "dependsOn": "SY-03",
+   "design": false,
+   "art": false,
+   "decision": "Same as SY-03 (unfinished-session policy)."
+  },
+  {
+   "id": "SY-04",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-06",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-08",
+   "ws": "W2",
+   "rc": "1,15",
+   "fixedBy": "",
+   "dependsOn": "SY-05",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-19",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-20",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "AX-22",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-11",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-12",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "SY-17",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-14",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-21",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-22",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-23",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-24",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-25",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-16",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "SY-17",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-17",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "SY-05",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-27",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-30",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-13",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "SY-05",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-38",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-25",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "AX-38",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-09",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "AX-38",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-27",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-22",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-25",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "AX-22",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-37",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-24",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "SH-37",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-03",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "SH-37",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-02",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Keep a bare Backspace = Back shortcut (guarded) or drop it for Alt+\u2190/\u2192 only?"
+  },
+  {
+   "id": "AX-07",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "SH-02",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-23",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-41",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-01",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-05",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-37",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "AX-05",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-29",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "AX-05",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-08",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-13",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-18",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-20",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-14",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-38",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-18",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-04",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-11",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-28",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-37",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-21",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-43",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-12",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-19",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-03",
+   "ws": "W3",
+   "rc": "2",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-01",
+   "ws": "W3",
+   "rc": "2",
+   "fixedBy": "SH-03",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-01",
+   "ws": "W3",
+   "rc": "2",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-01",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SY-13",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "SH-01",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-04",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-06",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-17",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "AX-06",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-33",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-44",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-08",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-14",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-15",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-03",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-07",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-20",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-21",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-18",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-02",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-26",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "AG-02",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-45",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-11",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-19",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-04",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-16",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-27",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-04",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-06",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-15",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "AG-06",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-42",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-09",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-10",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-12",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-10",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-25",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-22",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-36",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-30",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-42",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-13",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-39",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "AX-13",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-07",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-15",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-40",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-02",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-39",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Theme cull (HANDOFF Q3/SC-22): remove the light shop themes, or re-tint each with a real light ground?"
+  },
+  {
+   "id": "CC-19",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Theme cull (HANDOFF Q3/SC-22): remove the light shop themes (Washi Morning), or give them a real light ground and syntax block?"
+  },
+  {
+   "id": "AX-23",
+   "ws": "W5",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-17",
+   "ws": "W5",
+   "rc": "21",
+   "fixedBy": "AX-23",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-10",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-36",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-31",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-19",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": true,
+   "decision": ""
+  },
+  {
+   "id": "CC-01",
+   "ws": "W6",
+   "rc": "7",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-02",
+   "ws": "W6",
+   "rc": "7",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-03",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-05",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-07",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-22",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-23",
+   "ws": "W6",
+   "rc": "8",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-14",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-17",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "CC-14",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-25",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "CC-17",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-06",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-08",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-09",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-10",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-12",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-13",
+   "ws": "W6",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-31",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Saved reports keep facts counted the old way (invariant 102: saved once, never recomputed). Rebuild the saved weeks and months with the new activity rule, or apply it to new reports only?"
+  },
+  {
+   "id": "HR-02",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Allow rebuilding saved reports that were frozen empty before the history arrived (an exception to invariant 102)?"
+  },
+  {
+   "id": "HR-22",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-05",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-17",
+   "ws": "W7",
+   "rc": "12,19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-23",
+   "ws": "W7",
+   "rc": "12,19",
+   "fixedBy": "",
+   "dependsOn": "HR-17",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-08",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-13",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "HR-08",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-26",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-07",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "One word for 'Owned' on the Wall and Seat: badges with any tier earned, or fully complete (or print both)?"
+  },
+  {
+   "id": "AX-29",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "AG-07",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-14",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-33",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "AG-14",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-19",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-20",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-01",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-04",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-24",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-29",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-06",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-11",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-20",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-32",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Auto-tracked Focus habits: count only completed sessions (or full 10-minute blocks), measured by the routine day?"
+  },
+  {
+   "id": "PR-35",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "A routine kept outside its time window: record it as 'kept late' (still paid) or close the day at the window's end?"
+  },
+  {
+   "id": "CC-21",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-30",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-34",
+   "ws": "W7",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-07",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-32",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "SH-07",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-06",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-29",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-18",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-28",
+   "ws": "W7",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-25",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-08",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "AX-25",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-10",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-34",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "SH-10",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-11",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-20",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "SH-11",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-32",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-31",
+   "ws": "W8",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-42",
+   "ws": "W8",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-02",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-28",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "AX-02",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-36",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "AX-02",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-20",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-21",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-17",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-22",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-26",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-08",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-15",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "AX-08",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-03",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-09",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-10",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-14",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-19",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-30",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "AX-35",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-40",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-41",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-44",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-23",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-12",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AX-31",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "AG-12",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-04",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-05",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "SY-23",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Title naming: drop the leading 'the' from the four titles (Early Riser, Unbroken, Clear-Eyed, Steadfast)?"
+  },
+  {
+   "id": "AG-26",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-27",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AG-28",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-12",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "SH-27",
+   "design": true,
+   "art": false,
+   "decision": "First run: a one-screen welcome (Sign in to bring your data / Start fresh / theme), with plan backlog and notices held until it is answered?"
+  },
+  {
+   "id": "SH-39",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-40",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-43",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SH-45",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-06",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-11",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-28",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-12",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "HR-27",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "HR-17",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-05",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-30",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "PR-05",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-15",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-17",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-21",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-25",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-29",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-31",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-34",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-38",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-41",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-43",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CC-26",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "PR-33",
+   "ws": "QOL",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-01",
+   "ws": "W1",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-02",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-03",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-04",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "MG-01",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-05",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "MG-01",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-06",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-07",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "MG-01",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-08",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "MG-01",
+   "design": true,
+   "art": false,
+   "decision": "Which Money views matter most (spend by merchant/category/week, subscriptions, budget pace, balance tracking) and whether a built-in UK merchant table and learned payee rules are wanted"
+  },
+  {
+   "id": "MG-09",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-10",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-23",
+   "ws": "W1",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-24",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-25",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-11",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-12",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-14",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-15",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-16",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-17",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-19",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-20",
+   "ws": "W3",
+   "rc": "3,17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-26",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-27",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-28",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-29",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-30",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-31",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-32",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-21",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-22",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-33",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-34",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-35",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-36",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-37",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-38",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-39",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-40",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-41",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-42",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-43",
+   "ws": "W4",
+   "rc": "11",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "MG-44",
+   "ws": "W4",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-01",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-02",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-03",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-04",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-05",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-06",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-07",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-08",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-09",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-10",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-16",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-17",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-19",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-20",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-23",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-24",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-25",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-26",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-27",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-11",
+   "ws": "QOL",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-12",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-13",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-15",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-21",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-22",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-28",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-29",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-30",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-31",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-32",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-33",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-34",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-36",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-37",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-38",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-39",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-40",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-41",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-42",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-43",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CL-44",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-01",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-02",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-03",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-21",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-04",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": "Seals: build a surface where a worn seal's stamp shows (e.g. the topbar mark, Seat ring, share card), or withdraw seals and refund the gold"
+  },
+  {
+   "id": "SC-05",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-06",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-07",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-08",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-21",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-20",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": true,
+   "decision": ""
+  },
+  {
+   "id": "SC-21",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-09",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Pen set 'Study set': give it its own colours, or withdraw it and refund the 500 gold"
+  },
+  {
+   "id": "SC-10",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-05",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-11",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-12",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-13",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-21",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-14",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-15",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-16",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-17",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-33",
+   "design": true,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-18",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-19",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-22",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": true,
+   "art": false,
+   "decision": "Theme cull: retire the ten near-Graphite paid themes (owned copies keep working; refund or not) or redesign each with a distinct ground and accent"
+  },
+  {
+   "id": "SC-23",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-22",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-24",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-25",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-26",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-27",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-29",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-30",
+   "ws": "W5",
+   "rc": "10,17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-31",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "SC-19",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-32",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-33",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Try on: extend the transient try-on to every kind (profile kinds on the Stage identity block, shelf/Shrine samples, papers/pens on a sample page), or reword the promise to the kinds that can be tried"
+  },
+  {
+   "id": "SC-34",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Pen sets: apply a set to NEW strokes only (stores a colour per stroke, widening invariant 133's roles) or keep remapping every stroke's role live"
+  },
+  {
+   "id": "SC-28",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Retire the four CSS frames now that painted frames exist (owned copies kept or refunded?) or redraw the bloom as an SVG petal mask"
+  },
+  {
+   "id": "SC-35",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-36",
+   "ws": "W9",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-37",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-38",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-39",
+   "ws": "W9",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-40",
+   "ws": "W9",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "SC-41",
+   "ws": "W5",
+   "rc": "10",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-01",
+   "ws": "W2",
+   "rc": "1,15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-02",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-25",
+   "ws": "W7",
+   "rc": "19",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-03",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "CL-08",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-04",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-05",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-06",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-07",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-08",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-10",
+   "ws": "W7",
+   "rc": "20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-11",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-12",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-13",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-14",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-15",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-16",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-17",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-18",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-19",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-20",
+   "ws": "W1",
+   "rc": "21,20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "A Creatives project milestone: count a hand tick only when a work is attached (changes invariant 154), and whether to claw back projects already paid on bare ticks"
+  },
+  {
+   "id": "CR-26",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Creatives 'Minutes' setting: make the Daily Creative size itself by it, or remove the control"
+  },
+  {
+   "id": "CR-27",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-28",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "CR-16",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-29",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-21",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-22",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-23",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-30",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-31",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "CR-20",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-32",
+   "ws": "W1",
+   "rc": "21,20",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-33",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-34",
+   "ws": "QOL",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-35",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-36",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-37",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-38",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "CR-39",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-01",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-02",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-11",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "DI-22",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-03",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-04",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-05",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-06",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-07",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-12",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "DI-24",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-13",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-14",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-15",
+   "ws": "W2",
+   "rc": "1,15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-16",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-17",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-18",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Assistant 'Simple data requests' route: build a real short-request classifier, or remove the row (and its Ollama status)"
+  },
+  {
+   "id": "AA-19",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Read tools set to 'Ask first': pause them too, or stop offering Ask first on read tools"
+  },
+  {
+   "id": "AA-20",
+   "ws": "W3",
+   "rc": "17",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-08",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-09",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-10",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-21",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-22",
+   "ws": "W3",
+   "rc": "3",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-23",
+   "ws": "W3",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-24",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-25",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-26",
+   "ws": "W1",
+   "rc": "4,13",
+   "fixedBy": "DI-14",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-27",
+   "ws": "W7",
+   "rc": "12",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-28",
+   "ws": "W9",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AA-29",
+   "ws": "W7",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-27",
+   "ws": "W1",
+   "rc": "21",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "The DI-27 clean-up: remove the ~1,741 phantom sync entries from the session ledger and claw back their XP/gold and badge tiers (invariant 162 says earned only goes up), or keep the balances and only scrub the ledger and the media journals"
+  },
+  {
+   "id": "DI-01",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-02",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-03",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-04",
+   "ws": "W1",
+   "rc": "5",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-05",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-06",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-07",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-08",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-09",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-10",
+   "ws": "W1",
+   "rc": "5",
+   "fixedBy": "",
+   "dependsOn": "DI-04",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-11",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-16",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-17",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-18",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-19",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-20",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-21",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-22",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-12",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-13",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-14",
+   "ws": "W1",
+   "rc": "4,13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-15",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-23",
+   "ws": "W1",
+   "rc": "6",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-24",
+   "ws": "W1",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-25",
+   "ws": "W1",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "DI-26",
+   "ws": "W0",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-01",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-03",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-04",
+   "ws": "W8",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-05",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-06",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "AA-16",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-07",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": "Repository clean-up: only untrack the personal AniList/MAL export and local settings, or also purge them from the public Git history (rewrites history)"
+  },
+  {
+   "id": "AP-08",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-09",
+   "ws": "W8",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-10",
+   "ws": "W2",
+   "rc": "1,15",
+   "fixedBy": "",
+   "dependsOn": "AP-08",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-14",
+   "ws": "W2",
+   "rc": "1",
+   "fixedBy": "",
+   "dependsOn": "AP-08",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-15",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-17",
+   "ws": "W2",
+   "rc": "15",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-18",
+   "ws": "W8",
+   "rc": "14",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-11",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-12",
+   "ws": "W0",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-13",
+   "ws": "W8",
+   "rc": "16",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-16",
+   "ws": "W0",
+   "rc": "",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-19",
+   "ws": "W7",
+   "rc": "4",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  },
+  {
+   "id": "AP-20",
+   "ws": "W8",
+   "rc": "13",
+   "fixedBy": "",
+   "dependsOn": "",
+   "design": false,
+   "art": false,
+   "decision": ""
+  }
+ ],
+ "clusters": [
+  {
+   "ws": "W1",
+   "name": "Assignment delete respects file links",
+   "ids": [
+    "ST-25"
+   ],
+   "change": "js/modules/assignments.js removeAttachments: use KOS.files' detach rule (removeLink when another link exists, delete only an orphan); fixture test of a topic-linked file surviving."
+  },
+  {
+   "ws": "W1",
+   "name": "Japanese Media spine lock-out",
+   "ids": [
+    "JM-06"
+   ],
+   "change": "js/modules/jatopic.js spine media branch returns stageHead (and hub.js guards a missing one); smoke80 case."
+  },
+  {
+   "ws": "W1",
+   "name": "Idempotent receipts for streak milestones and Mind checkpoint",
+   "ids": [
+    "ST-20",
+    "MI-05"
+   ],
+   "change": "Stored receipt keys before paying (sessions.js/governor.js milestone key by run start; js/core/mind.js recordCheckpoint pass rule + paid-once key + keep best attempt); shares the RC21 receipt helper and smoke."
+  },
+  {
+   "ws": "W2",
+   "name": "Log in-progress sessions on teardown and pagehide",
+   "ids": [
+    "ST-04",
+    "JM-08",
+    "JM-22"
+   ],
+   "change": "One 'session in progress' helper (log/update one ledger entry by session id) called from view.dispose / KOS.show leave and pagehide: js/engines/flashcards.js, js/modules/jarun.js, kana page in js/modules/japanese.js."
+  },
+  {
+   "ws": "W2",
+   "name": "Tab strip keep/reveal on redraw",
+   "ids": [
+    "ST-12",
+    "EX-27"
+   ],
+   "change": "hub.js topic tab strip: KOS.ui.scroller({keep:'topic-tabs', reveal: selected}) and reveal on tab change."
+  },
+  {
+   "ws": "W2",
+   "name": "Close dialogs and sheets on navigation",
+   "ids": [
+    "EX-49",
+    "MI-16"
+   ],
+   "change": "router/KOS.show leave closes open KOS.ui.openDialog instances (with an unsaved-changes guard); route Mind's custom sheet() through the same close path."
+  },
+  {
+   "ws": "W2",
+   "name": "Per-view transient state survives redraws",
+   "ids": [
+    "ST-36",
+    "ST-19"
+   ],
+   "change": "Notes page per topic in state.ui.notePage; quiz finish() refreshes the inspector via the same hook flashcards use (part of the \u00a76.1 per-view session store)."
+  },
+  {
+   "ws": "W3",
+   "name": "Topic tab row at phone width",
+   "ids": [
+    "ST-02",
+    "JM-09"
+   ],
+   "change": "css/views/study.css .k-topic-tabrow wraps under 700 with the tabs scroller at flex-basis 100% and tools on a second line or in the \u22ef fold."
+  },
+  {
+   "ws": "W3",
+   "name": "Round controls and coarse-pointer hit floor",
+   "ids": [
+    "JM-25",
+    "CO-01",
+    "CO-08",
+    "CO-10",
+    "CO-30",
+    "ST-07",
+    "EX-08",
+    "EX-12",
+    "EX-15",
+    "EX-21",
+    "EX-36",
+    "EX-28",
+    "JM-03",
+    "CM-03"
+   ],
+   "change": "Fix the base.css :where() touch floor (RC17) so page classes cannot undo it; round/square marks draw an inner fixed-size glyph inside a 44x44 box (stage paths, capstone steps, scan handles, nav squares)."
+  },
+  {
+   "ws": "W3",
+   "name": "Study-space desk side column",
+   "ids": [
+    "CO-02",
+    "CO-03",
+    "MI-02"
+   ],
+   "change": "One shared side-column rule for Code/Mind/Japanese/Creatives desks: stack under 560, never shrink a card below its content (no overflow:hidden + flex 1 1 0)."
+  },
+  {
+   "ws": "W3",
+   "name": "One study-space hero height",
+   "ids": [
+    "ST-08",
+    "JM-24"
+   ],
+   "change": "Shared hero path strip and fixed row count per breakpoint in css/views/study.css; remove per-space hero CSS."
+  },
+  {
+   "ws": "W3",
+   "name": "Master-detail and inspector tier 1240\u2013700",
+   "ids": [
+    "ST-01",
+    "ST-05",
+    "ST-06",
+    "ST-17",
+    "ST-15"
+   ],
+   "change": "Assignments detail as a sheet below 1240 with a viewport-sized sticky panel; topic inspector as an overlay sheet 700\u20131080; IT desk 860 tier; spine drawer reveals and focuses current entry."
+  },
+  {
+   "ws": "W3",
+   "name": "Phone flex rows that shrink text",
+   "ids": [
+    "EX-02",
+    "EX-05",
+    "EX-06",
+    "EX-10",
+    "EX-14",
+    "ST-11",
+    "ST-29",
+    "EX-31"
+   ],
+   "change": "Exams and Study row components get phone grid-template-areas / real flex-basis so titles wrap rather than shrink to a sliver."
+  },
+  {
+   "ws": "W3",
+   "name": "Ink palette width on narrow panes",
+   "ids": [
+    "EX-03",
+    "EX-38"
+   ],
+   "change": "js/core/inkui.js: budget palette width, move Shape/Ruler/Paper/Float to the \u283f menu when it overflows, Undo/Redo pinned first."
+  },
+  {
+   "ws": "W6",
+   "name": "Spec regeneration",
+   "ids": [
+    "CM-01",
+    "CM-07",
+    "CM-28"
+   ],
+   "change": "tools/gen_data.py parser fixes or a checked-in Maths spec override; SHORT_S keyed by final refs; Unicode titles; regenerate js/data/maths.js."
+  },
+  {
+   "ws": "W6",
+   "name": "Quiz option shuffle and practice-layer gates",
+   "ids": [
+    "CM-02",
+    "CM-25",
+    "CM-13",
+    "CM-05",
+    "CM-15",
+    "CM-24",
+    "CM-09",
+    "CO-17"
+   ],
+   "change": "Make dependent items self-contained first, then shuffle options at render with a stable seed in the quiz engine; add duplicate / answer-position / mark-sum / unknown-callout / duplicate-concept-id gates to the content smokes and validate_content.js; then clean the flagged items."
+  },
+  {
+   "ws": "W6",
+   "name": "Exam items from worked examples",
+   "ids": [
+    "CM-14",
+    "CM-21"
+   ],
+   "change": "KOS.content.examFromWorked expands one scheme point per mark code and splits two-question worked cards."
+  },
+  {
+   "ws": "W7",
+   "name": "Evidence-weighted RAG",
+   "ids": [
+    "GO-23",
+    "CM-18"
+   ],
+   "change": "js/core/rag.js auto(): start from no claim, minimum evidence before any band, Green only when recall and practice clear their bars; Goals counts only bands resting on evidence; thin/contrary fixtures."
+  },
+  {
+   "ws": "W7",
+   "name": "Goals measure only in-period evidence",
+   "ids": [
+    "GO-02",
+    "GO-03",
+    "GO-05",
+    "GO-24",
+    "GO-08",
+    "GO-18",
+    "GO-27"
+   ],
+   "change": "js/core/goals.js + goals-collection.js: Collection types measure the media journal in range; clamp periods to startDate; re-judge/re-baseline on edits; breach recording for stay-under types; no-evidence periods unjudged."
+  },
+  {
+   "ws": "W7",
+   "name": "Goals editor routine/habit pickers",
+   "ids": [
+    "GO-06",
+    "GO-07"
+   ],
+   "change": "js/modules/goals.js: a Routine select from KOS.routines for routine-days/routine-streak/habit-streak, writing params.routine."
+  },
+  {
+   "ws": "W7",
+   "name": "Japanese and Mind joins and check sync",
+   "ids": [
+    "JM-07",
+    "JM-21",
+    "JM-26",
+    "JM-32",
+    "MI-01",
+    "MI-10",
+    "GO-11"
+   ],
+   "change": "syncChecks after every scheduler write and at boot (KOS.ja, KOS.mind; checkpoint lesson reads its checkpoint's concepts); register ja/mind goal types, Reports facts, KOS.today entries, Assistant read tools and achievements.touch; review goals count every src."
+  },
+  {
+   "ws": "W7",
+   "name": "Japanese grading minimum evidence",
+   "ids": [
+    "JM-12",
+    "JM-13",
+    "JM-17",
+    "JM-30",
+    "JM-19"
+   ],
+   "change": "js/core/jasrs.js / jarun.js: 'holds a week' by elapsed time, Easy only on first try, keep 'accepted', learn session needs a pass to finish/pay, Type instead self-marked, timeline calibrating until a real rate."
+  },
+  {
+   "ws": "W7",
+   "name": "Mind ladder minimum evidence",
+   "ids": [
+    "MI-04",
+    "MI-06",
+    "MI-15"
+   ],
+   "change": "js/core/mind.js ladder: Evaluate from any version, Apply only on a first-attempt right answer, Explain needs real text, mapper milestone needs one conclusion."
+  },
+  {
+   "ws": "W7",
+   "name": "Quiz record one definition",
+   "ids": [
+    "ST-03",
+    "ST-27",
+    "CM-17"
+   ],
+   "change": "js/engines/quiz.js stores bestPct, qstats is a pure read, missed-retry recorded as practice; hub.js reads one derivation; migrate at the store gate."
+  },
+  {
+   "ws": "W9",
+   "name": "Router replaces unknown ids",
+   "ids": [
+    "ST-32",
+    "CO-33"
+   ],
+   "change": "Resolve ids in the router decoders and replaceState to the parent route for unknown topic refs and Code ids."
+  },
+  {
+   "ws": "W9",
+   "name": "Shared date label in study surfaces",
+   "ids": [
+    "ST-22",
+    "ST-43"
+   ],
+   "change": "Use the app's day-label helper for card due dates in editor.js and the inspector's Review queue."
+  },
+  {
+   "ws": "W9",
+   "name": "Chart labels at phone width",
+   "ids": [
+    "CM-20",
+    "GO-16"
+   ],
+   "change": "Lab plots and the goal pace chart scale label size by px-per-unit (or a phone viewBox) to keep the 11px floor."
+  },
+  {
+   "ws": "W1",
+   "name": "Idempotent reward receipts",
+   "ids": [
+    "HR-16",
+    "HR-18",
+    "HR-21",
+    "PR-24",
+    "PR-23",
+    "PR-27"
+   ],
+   "change": "Give every award a stored receipt key checked before paying (milestone keyed to run start; directive tick derived from evidence or paid once per day; routine min\u2192done tops up the difference; reminder/habit ticks get an Undo that reverses the session) in js/core/governor.js, js/core/sessions.js, js/modules/hub.js (directives, digest ticks), js/core/routines.js, js/core/reminders.js; plus a smoke that ticks/unticks/re-ticks every rewarding control."
+  },
+  {
+   "ws": "W1",
+   "name": "Record dates and links written wrong",
+   "ids": [
+    "PR-03",
+    "PR-26",
+    "PR-28"
+   ],
+   "change": "Respect an explicit 'no link' in Focus taskOf (js/modules/routineplayer.js / focus.js); store the monthly anchor day for repeating reminders (js/core/reminders.js); snap and validate Pacing week beginnings (js/core/pacing.js)."
+  },
+  {
+   "ws": "W1",
+   "name": "Seeds and renames that touch real records",
+   "ids": [
+    "SH-27",
+    "CC-15"
+   ],
+   "change": "Drop or mark the first-run sample events so the Exams migration, alerts and ext sync skip them (js/main.js seedSamples, js/core/exams.js); merge (not discard) a folded CS member leaf's progress in store.js REF_ALIASES renaming."
+  },
+  {
+   "ws": "W2",
+   "name": "Redraw policy and change bus",
+   "ids": [
+    "SY-05",
+    "SY-26",
+    "SY-17",
+    "SY-12",
+    "SY-16",
+    "SY-25",
+    "SY-27",
+    "SY-06",
+    "SH-13",
+    "SY-08",
+    "SY-23",
+    "SY-24",
+    "SY-18"
+   ],
+   "change": "Replace the stopgap with the real policy in js/core/ui.js + js/core/cloudsync.js: KOS.changed(domains) carrying changed keys, views declaring reads, one KOS.ui.busyWithTask(), deferral while busy (typing, dirty inputs, dialogs, task pages), scoped rerender for async callers, a held-page 'Updated \u00b7 Refresh' chip, and editors notified to re-read/merge (SY-18's per-row patches in js/core/edits.js / js/modules/editor.js)."
+  },
+  {
+   "ws": "W2",
+   "name": "Per-view transient state store",
+   "ids": [
+    "SY-02",
+    "CC-18",
+    "SY-03",
+    "SY-09",
+    "SY-04",
+    "SY-11",
+    "SY-14",
+    "SY-19",
+    "SY-20",
+    "SY-21",
+    "SY-22",
+    "HR-30"
+   ],
+   "change": "A per-device/per-visit view session store restored on remount: note page (state.ui.notePage), flashcard/quiz/exam/Japanese runs, Code listing drafts and retrieval attempts, vault batch count + scroll on #stage, scroller keep by default, in-page tabs into the route; log in-progress sessions on teardown/pagehide (RC18)."
+  },
+  {
+   "ws": "W2",
+   "name": "Router owns dialogs, guards and codecs",
+   "ids": [
+    "AX-38",
+    "SH-25",
+    "HR-09",
+    "AX-27",
+    "AX-22",
+    "AG-25",
+    "SH-37",
+    "AX-24",
+    "AG-03",
+    "SH-02",
+    "AX-07",
+    "SH-23",
+    "SH-41"
+   ],
+   "change": "In js/core/router.js + js/core/ui.js: close the dialog stack on navigation (Back closes the top dialog), a view.dispose/render-token so async callbacks bail, KOS.router.guard for dirty editors, route codecs for achievements/assignments/reminders/review, replaceEntry on same route, unknown view \u2192 Home; guard or drop bare Backspace in js/main.js."
+  },
+  {
+   "ws": "W3",
+   "name": "Shared touch floor and iOS input zoom",
+   "ids": [
+    "AX-01",
+    "AX-05",
+    "PR-37",
+    "AG-29",
+    "PR-08",
+    "PR-13",
+    "PR-18",
+    "HR-20",
+    "HR-14",
+    "SH-38",
+    "AX-18"
+   ],
+   "change": "Move the 16px phone input rule and the coarse-pointer 44px floor to the last layer in css/components.css, covering .k-input/.k-select/.k-pill-select/.k-switch/checkboxes/text-link buttons and square controls (aspect-ratio), plus the hover-reveal + on touch."
+  },
+  {
+   "ws": "W3",
+   "name": "Contrast and focus rings in shared tokens",
+   "ids": [
+    "AX-04",
+    "AX-11",
+    "AX-28",
+    "AX-37",
+    "AX-21",
+    "AX-43",
+    "AX-12",
+    "PR-19"
+   ],
+   "change": "Chip ink variants per role and Dawn button/plaque/scrim inks in css/tokens.css + css/themes.css; dim calendar cells not events; drop opacity on live controls; shared :focus-within and inset focus rings."
+  },
+  {
+   "ws": "W3",
+   "name": "Menus above modals and stacking contexts",
+   "ids": [
+    "SH-03",
+    "AG-01",
+    "PR-01"
+   ],
+   "change": "KOS.ui.menu mounts inside an open dialog overlay (or --z-menu above modal) and the Governor \u22ef uses KOS.ui.menu; give the has-art page header a z-index (css/components.css:35)."
+  },
+  {
+   "ws": "W3",
+   "name": "Toast geometry",
+   "ids": [
+    "SH-01",
+    "SY-13"
+   ],
+   "change": "Centre #toast with inset-inline:0; margin-inline:auto; inline-size:fit-content and lift it above active control rows on study pages (css/components.css)."
+  },
+  {
+   "ws": "W3",
+   "name": "The 1240\u2013700 tier and phone shell",
+   "ids": [
+    "SH-04",
+    "AX-06",
+    "SH-17",
+    "SH-33",
+    "SH-44",
+    "SH-08",
+    "SH-14",
+    "AX-15",
+    "HR-03",
+    "PR-07",
+    "CC-20",
+    "AG-21",
+    "AG-18",
+    "AG-11",
+    "HR-19",
+    "CC-04",
+    "CC-16",
+    "CC-27",
+    "AX-42",
+    "AX-45"
+   ],
+   "change": "A pass over every master-detail/side-column and the shell at 1080/860/700/560 on the three devices: rail labels/tooltips/counts and overlay-rail drawer behaviour, landscape safe areas, sheets closed past 700, Home goal block, calendar head, IT desk bar, Titles detail as a sheet, phone sheet width, heatmap week count, hero XP row, worked card head/rows, exam footer, shop name wrap, phone Edit-seat preview."
+  },
+  {
+   "ws": "W3",
+   "name": "Medal buttons and ovals",
+   "ids": [
+    "AG-02",
+    "AX-26",
+    "AG-06",
+    "AG-15"
+   ],
+   "change": "One shared medal-button rule in css/views/achievements.css (inline-grid, place-items:center, aspect-ratio:1, line-height:0, flex:none) and medal size via var() with phone fallback."
+  },
+  {
+   "ws": "W3",
+   "name": "Dead space and alignment",
+   "ids": [
+    "PR-09",
+    "PR-10",
+    "PR-12",
+    "HR-10",
+    "HR-25",
+    "PR-22",
+    "PR-36",
+    "AG-30",
+    "PR-42",
+    "AX-13",
+    "PR-39",
+    "HR-07",
+    "HR-15",
+    "PR-04",
+    "PR-40"
+   ],
+   "change": "align-items:start + pack/masonry for stretched cards, collapse empty inspectors, dialog footer spacer rule fix, routines/habits editor footer, Focus minimised page, Wardrobe compaction, chip/ellipsis fixes (css/views/*.css)."
+  },
+  {
+   "ws": "W5",
+   "name": "Art slots and the upload unlock",
+   "ids": [
+    "PR-02",
+    "AG-10",
+    "AX-36"
+   ],
+   "change": "Set the current view before render so pageHeader reads the right band (js/core/ui.js KOS.show); enforce KOS.art.canUpload in the seat editor and only save mode 'own' once unlocked (js/modules/governor-ui.js, js/modules/artslot.js)."
+  },
+  {
+   "ws": "W5",
+   "name": "Light shop themes",
+   "ids": [
+    "AX-39",
+    "CC-19"
+   ],
+   "change": "After the theme-cull decision: remove the light shop themes, or give each a real light ground with alarm-ink status text and the Dawn syntax block (css/themes.css)."
+  },
+  {
+   "ws": "W5",
+   "name": "Shop purchase safety",
+   "ids": [
+    "AX-23",
+    "AG-17"
+   ],
+   "change": "Confirm (Cancel-first) or a timed Undo on Buy in buyWare, decoupled from equip (js/modules/governor-ui.js)."
+  },
+  {
+   "ws": "W6",
+   "name": "Spec generator fixes",
+   "ids": [
+    "CC-01",
+    "CC-02"
+   ],
+   "change": "tools/gen_data.py: stop IT leaves at assessment headings and page breaks, drop overview nodes, assert ref uniqueness; regenerate js/data/it.js."
+  },
+  {
+   "ws": "W6",
+   "name": "Practice-layer gates and clean-up",
+   "ids": [
+    "CC-03",
+    "CC-05",
+    "CC-07",
+    "CC-22",
+    "CC-23",
+    "CC-10"
+   ],
+   "change": "Seeded option shuffle at render (js/engines/quiz.js); near-duplicate/answer-position/duplicate-src/why-length gates in smoke65/66; then de-duplicate banks and decks with invariant-87 third elements."
+  },
+  {
+   "ws": "W6",
+   "name": "Exam self-marking by weighted points",
+   "ids": [
+    "CC-14",
+    "CC-17",
+    "CC-25"
+   ],
+   "change": "Make the model answer a non-tickable row and carry step weights as data in KOS.content.examFromWorked and the tally; split IT mark-scheme bullets per mark."
+  },
+  {
+   "ws": "W7",
+   "name": "One definition of activity and study minutes for Reports and Home",
+   "ids": [
+    "HR-31",
+    "HR-05",
+    "HR-17",
+    "HR-23",
+    "HR-26",
+    "HR-08",
+    "HR-13"
+   ],
+   "change": "KOS.sessions.studyMins(range) used by Home, Reports, Goals and the Daily goal; a single media 'activity' derivation (progress/volume/chapter/route/hours moving forward, start/finish dated in range, a media session) in js/core/report.js collection(); subjects through KOS.subjects everywhere in report*.js and hub.js; heat-map hours span the data."
+  },
+  {
+   "ws": "W7",
+   "name": "Report backfill evidence",
+   "ids": [
+    "HR-02",
+    "HR-22"
+   ],
+   "change": "ensureReports waits for the first cloud pull, never backfills before state.created/first ledger entry, and the plan counts only ticked/carried rows (js/core/reportstore.js, js/modules/reports.js)."
+  },
+  {
+   "ws": "W7",
+   "name": "Achievements and Seat figures",
+   "ids": [
+    "AG-07",
+    "AX-29",
+    "AG-14",
+    "AX-33",
+    "AG-19",
+    "AG-20"
+   ],
+   "change": "counts() returning earned and complete with one word each; First day = earliest of created/ledger/rollup; Session Log reads s.award for every type; Recovery checklist lists only HP-paying actions (js/core/achievements.js, js/modules/governor-ui.js)."
+  },
+  {
+   "ws": "W7",
+   "name": "Search finds pages and ranks",
+   "ids": [
+    "SH-07",
+    "AX-32",
+    "SH-06",
+    "SH-29",
+    "SH-18",
+    "CC-28"
+   ],
+   "change": "A Pages domain from the route/rail table, an Achievements domain, sections derived from the rail table, scored spec hits ranked before slicing, owners' formatters for sub-lines, a notes-tier index (js/core/search.js)."
+  },
+  {
+   "ws": "W7",
+   "name": "Home and Today cover every space",
+   "ids": [
+    "HR-01",
+    "HR-04",
+    "CC-21"
+   ],
+   "change": "KOS.today.build gains a 'spaces' read of each space's planDay; Continue ordered by recency; IT Start-here skips done/not-taken units (js/core/today.js, js/modules/hub.js)."
+  },
+  {
+   "ws": "W8",
+   "name": "Memoise achievement measurement",
+   "ids": [
+    "AX-25",
+    "AG-08"
+   ],
+   "change": "Cache the last sweep's views in js/core/achievements.js, invalidated by touch(domains); list() returns the cache and refreshes in the background."
+  },
+  {
+   "ws": "W8",
+   "name": "Help & Guide and docs re-baseline",
+   "ids": [
+    "SH-10",
+    "AX-34",
+    "SH-11",
+    "AX-20",
+    "SH-32"
+   ],
+   "change": "Rewrite Help sections for every shipped area (js/modules/help.js) and docs/GUIDE.md, with a smoke tying Help sections to registered views."
+  },
+  {
+   "ws": "W9",
+   "name": "Toast access and queue",
+   "ids": [
+    "AX-02",
+    "SH-28",
+    "SH-36"
+   ],
+   "change": "Action toasts in a non-hidden region with a focusable Undo, \u2318Z binding, and a 3-deep queue with length-scaled duration (js/core/ui.js toast)."
+  },
+  {
+   "ws": "W9",
+   "name": "Keyboard and dialog primitives",
+   "ids": [
+    "SH-20",
+    "SH-21",
+    "AX-17",
+    "AG-22",
+    "SH-26"
+   ],
+   "change": "Enter confirms only from non-button targets; Skip link focuses #main without routing; KOS.ui.tabs roving arrows (or drop tab roles); radio groups update in place with roving tabindex; bell focuses the first row."
+  },
+  {
+   "ws": "W9",
+   "name": "Document title",
+   "ids": [
+    "AX-08",
+    "SH-15"
+   ],
+   "change": "router.js sets document.title from the page h1/section after each show."
+  },
+  {
+   "ws": "W9",
+   "name": "Badge dialog tiers and showcase picker names",
+   "ids": [
+    "AG-12",
+    "AX-31",
+    "AX-35",
+    "AG-09"
+   ],
+   "change": "Tier grid driven by data-n; aria-label on every .k-ach-pick (js/modules/achievements.js, css/views/achievements.css)."
+  },
+  {
+   "ws": "W9",
+   "name": "Afternoon review time strip",
+   "ids": [
+    "PR-05",
+    "PR-30"
+   ],
+   "change": "One span/end-label source and tick collision skipping in js/modules/dayreview.js."
+  },
+  {
+   "ws": "W1",
+   "name": "Money de-dupe key",
+   "ids": [
+    "MG-01",
+    "MG-23"
+   ],
+   "change": "js/core/money.js import: key duplicates on date+amount+kind+normalised raw bank text (tx.raw kept on every imported row, bank id/FITID when present); compare file rows only against STORED rows with multiplicity, never earlier rows of the same file. Tests before the W4 revamp builds on it."
+  },
+  {
+   "ws": "W1",
+   "name": "DI-27 clean-up",
+   "ids": [
+    "DI-27"
+   ],
+   "change": "After the user decides: a one-off maintenance pass (backup first, W0) that removes the phantom autosync ledger entries, scrubs the flip events from the two media rows' journals (and the saved Reports that counted them, if the user wants), and adjusts XP/gold/badges per the decision; the hotfix's smoke114 stays."
+  },
+  {
+   "ws": "W1",
+   "name": "Backup, restore and reset from one store registry",
+   "ids": [
+    "DI-22",
+    "AA-11",
+    "DI-09",
+    "AA-13",
+    "DI-14",
+    "AA-26",
+    "DI-15",
+    "DI-21",
+    "DI-24",
+    "AA-12",
+    "DI-18"
+   ],
+   "change": "A registry in js/core/store.js where each IndexedDB owner registers {name, exportAll, importAll, clear, count, namespaced}; snapshotFull/importFull/resetFull, the Backup page's 'What a backup covers' and Archive > Storage are generated from it (reports, snapshots, pot pictures included; every importAll clears first); restore gets a danger confirm with counts and a 'before restore' copy; a smoke asserts every indexedDB.open name is registered and carries the namespace suffix."
+  },
+  {
+   "ws": "W1",
+   "name": "Todoist/Google sync bookkeeping",
+   "ids": [
+    "DI-01",
+    "DI-02",
+    "DI-05",
+    "DI-06",
+    "DI-08",
+    "DI-12",
+    "DI-16",
+    "DI-17",
+    "DI-19",
+    "DI-23"
+   ],
+   "change": "js/core/ext.js, exttasks.js, extgcal.js: pull state before taking the lease and push after; per-tab lease (Web Lock) renewed during a cycle; apply each command chunk's results as it returns; read sync_status errors; 404 on update unlinks instead of deleting; absence on a full sync is not deletion; a list move is a link change (move or unlink+delete); skip remote ids in the delete queue; close (item_close) a repeating Todoist task instead of sending a new due string."
+  },
+  {
+   "ws": "W1",
+   "name": "First sign-in, multi-tab and storage size",
+   "ids": [
+    "DI-03",
+    "DI-04",
+    "DI-10",
+    "DI-13"
+   ],
+   "change": "stateMeaningful = differs from a pristine DEFAULTS snapshot; a storage-event listener three-way merges another tab's write through cloudmerge (or a Web Lock around save); quarantine an unreadable state before any overwrite; then move the append-heavy parts (cards, ledger, facets) to IndexedDB."
+  },
+  {
+   "ws": "W1",
+   "name": "Merge re-key references",
+   "ids": [
+    "DI-07"
+   ],
+   "change": "Add every assignment reference (goal links, exam links, session metrics, review picks) to cloudmerge RECORDS[].refs, ideally declared by each owner in the same registry."
+  },
+  {
+   "ws": "W1",
+   "name": "Side replicators: cursor and status",
+   "ids": [
+    "DI-11",
+    "DI-20"
+   ],
+   "change": "clock_timestamp() stamps plus a 2-minute overlap window on every pull (money, reviews, mind, reports, ink), and a shared side-status record (last ok, last error, pending) shown on Account & Cloud Sync."
+  },
+  {
+   "ws": "W1",
+   "name": "Creatives pays only for evidence",
+   "ids": [
+    "CR-20",
+    "CR-31",
+    "CR-32"
+   ],
+   "change": "js/core/creatives.js: a hand-marked project milestone needs an attached work; a drill batch pays only when its rounds were touched; the project footer reads paid['project:'+unit]. Part of the RC21 receipts pass."
+  },
+  {
+   "ws": "W2",
+   "name": "Overlays and async renders tied to navigation",
+   "ids": [
+    "CL-08",
+    "CR-03",
+    "CR-01",
+    "MG-21",
+    "AP-17"
+   ],
+   "change": "router.js/KOS.show: close every KOS.ui.openDialog overlay and the mobile-shell section sheet on a routed navigation (not a redraw); open a deep-linked dialog only on navigation and replace the route after; async render callbacks check a render token / isConnected."
+  },
+  {
+   "ws": "W2",
+   "name": "View lifecycle and focus on redraw",
+   "ids": [
+    "AP-08",
+    "AP-10",
+    "AA-15",
+    "AA-17",
+    "AP-14",
+    "MG-17"
+   ],
+   "change": "A view.dispose / KOS.ui.onLeave contract with an AbortController per render; KOS.rerender restores focus by data-ui identity; a 'state replaced' hook refreshes HUD, files index, theme and rail counters; views declare themselves held (replacing the hand-kept hold list); state.ui.view set before the view renders so the painted header picks the right picture."
+  },
+  {
+   "ws": "W3",
+   "name": "Pill strips and segmented overflow",
+   "ids": [
+    "CL-01",
+    "CR-06",
+    "CR-22",
+    "CL-40"
+   ],
+   "change": "css/components.css .k-seg inside .k-subnav gets flex:none so the outer scroller owns overflow; subject pills, the spine switch and the vault editor tabs build through KOS.ui.scroller({reveal}) so the active item is visible."
+  },
+  {
+   "ws": "W3",
+   "name": "Phone reachability of page tabs, actions and titles",
+   "ids": [
+    "MG-09",
+    "CR-02",
+    "CR-17",
+    "CR-13"
+   ],
+   "change": "mobile-shell.js destinations() lists [data-phone-tabs] tabs; space page actions marked data-phone-action; spaceHead marks data-phone-title-text; the topic tab row's Working/Edit fold to a menu under 700."
+  },
+  {
+   "ws": "W3",
+   "name": "Coarse-pointer touch sizes",
+   "ids": [
+    "CL-06",
+    "CR-07",
+    "CR-16",
+    "CR-28",
+    "CR-27",
+    "CR-38",
+    "AA-14",
+    "AA-20",
+    "MG-20"
+   ],
+   "change": "One coarse-pointer rule in components.css covering .k-select/.k-pill-select, custom option buttons (.k-crd-opt, .k-cr-choice), lab zoom buttons, header chips, and round day buttons (inline AND block size, invariant 69)."
+  },
+  {
+   "ws": "W3",
+   "name": "Master-detail below 860",
+   "ids": [
+    "MG-25",
+    "CR-18",
+    "CR-29",
+    "MG-15",
+    "SC-29"
+   ],
+   "change": "Under 860 open the selected record in a k-msheet; sketchbook gets a compact top bar; occurrence tiles wrap; the Assistant portrait row extends to the 701-1080 band."
+  },
+  {
+   "ws": "W5",
+   "name": "Cosmetic asset URLs and repainted art",
+   "ids": [
+    "SC-05",
+    "SC-10"
+   ],
+   "change": "Set shelf/Shrine art variables to absolute URLs (new URL(..., location.href)) and point the 16 legacy rows at their repainted art."
+  },
+  {
+   "ws": "W5",
+   "name": "Avatar and frame geometry",
+   "ids": [
+    "SC-01",
+    "SC-06",
+    "SC-07",
+    "SC-21",
+    "SC-03",
+    "SC-08",
+    "SC-13"
+   ],
+   "change": "Store each painted frame's measured hole and centre in the catalogue, size the avatar by it, give preview avatars their own class and strip the worn frame layer, and reserve the frame bleed in every host (Seat, Home hero, Avatar stage, phone)."
+  },
+  {
+   "ws": "W5",
+   "name": "Try on and one worn-item record",
+   "ids": [
+    "SC-17",
+    "SC-33",
+    "SC-19",
+    "SC-31",
+    "SC-18",
+    "SC-02"
+   ],
+   "change": "The Stage as the fitting room for scenes/halls/finishes; 'Use' writes the picture drawer's rule so there is one record; season/time tags on scene items; owned-state actions on the preview sheet; buy button specificity."
+  },
+  {
+   "ws": "W5",
+   "name": "Themes",
+   "ids": [
+    "SC-22",
+    "SC-23",
+    "SC-30",
+    "SC-41"
+   ],
+   "change": "After the cull decision: retire or redesign the ten themes, derive swatches from the theme block, give light shop themes Dawn's --red restatement (with a contrast smoke), default theme without Take off."
+  },
+  {
+   "ws": "W5",
+   "name": "Papers and pen sets",
+   "ids": [
+    "SC-09",
+    "SC-34",
+    "SC-16",
+    "SC-12",
+    "SC-24"
+   ],
+   "change": "ink.css/inkui: distinct pen-set colours and names, Paper label from I.papers(), Wardrobe chips draw paper/pen swatches and wrap names."
+  },
+  {
+   "ws": "W7",
+   "name": "One amount and size formatter",
+   "ids": [
+    "CL-10",
+    "MG-37",
+    "AA-27"
+   ],
+   "change": "Route every Collection and goal amount through KOS.ui.amount (Hide amounts masks all), and one byte formatter in ui.js printing '< 1 KB'."
+  },
+  {
+   "ws": "W7",
+   "name": "Collection counts that match what is shown",
+   "ids": [
+    "CL-09",
+    "CL-28",
+    "CL-32"
+   ],
+   "change": "Status rail counts the active lens; Books progress formatting moves into KOS.media.progressText; import/sync reports count 'unchanged' separately from 'updated'."
+  },
+  {
+   "ws": "W9",
+   "name": "CSS class collisions",
+   "ids": [
+    "MG-18",
+    "CR-12"
+   ],
+   "change": "Rename the colliding classes (.k-mn-istep, .k-cr-checkpage) and add a duplicate-component-class check to smoke55 (W0)."
+  },
+  {
+   "ws": "W9",
+   "name": "Sign-in links",
+   "ids": [
+    "AA-05",
+    "AA-06"
+   ],
+   "change": "One KOS.cloudUI.openSignIn() helper used by every 'sign in first' message, with the page named as the UI names it."
+  },
+  {
+   "ws": "W9",
+   "name": "Assistant action cards",
+   "ids": [
+    "AA-01",
+    "AA-09"
+   ],
+   "change": "Render the human result, an Open link and an Undo button (wired to the tool's undo.run) on each verified-action card."
+  },
+  {
+   "ws": "W8",
+   "name": "Help & Guide coverage",
+   "ids": [
+    "AA-16",
+    "AP-06"
+   ],
+   "change": "Write the missing Help & Guide sections and add a test tying Help entries to registered views."
+  },
+  {
+   "ws": "W8",
+   "name": "Derived-read memoisation",
+   "ids": [
+    "AP-03",
+    "AP-15",
+    "AP-18",
+    "CL-05"
+   ],
+   "change": "A store revision counter bumped by save(); memoise exams readiness/leaves, examFor (leaf to exam map), badge measures and Mangaka author aggregates on it."
+  },
+  {
+   "ws": "W8",
+   "name": "Shared study-space machinery and hub.js split",
+   "ids": [
+    "AP-04",
+    "AP-09",
+    "AP-13"
+   ],
+   "change": "Extract KOS.lessonReader and KOS.date into js/core; move Home, Backup & Restore and the topic page out of hub.js."
+  },
+  {
+   "ws": "W0",
+   "name": "Smoke harness and flakiness",
+   "ids": [
+    "AP-12",
+    "AP-16",
+    "DI-26"
+   ],
+   "change": "tools/run_smoke.mjs in parallel with npm test; replace fixed sleeps with condition waits in the five flaky suites; a Mind Journal replication smoke with an injectable cloud."
+  }
+ ],
+ "notes": [
+  "Slice: 243 ids, all mapped (W9 81, W3 63, W7 49, W6 33, W2 9, W1 7, W8 1). P0s in this slice: ST-25 (assignment delete wipes shared files), JM-06 (Japanese Media lock-out); both W1, fix first. Ordering: (1) the RC17 touch-floor fix in base.css must land before the per-component hit-target items or they get patched one by one. (2) CM-25 (self-contained items) and the W0 content gates must precede CM-02's shuffle. (3) GO-23's RAG rewrite fixes CM-18 and changes Goals' 'Move topics to Green', RAG on topic pages, Home and Reports; it needs a 'no claim yet' band that touches several readers (Study, Exams readiness EX-47 coverage, Goals), so schedule it with the W7 'automatic judgements' shared rule and fixtures. (4) W2 session-on-teardown (ST-04/JM-08/JM-22) depends on the view.dispose contract (RC15), which EX-49/MI-16 also use; build dispose first. User decision Q8 (pro-rata log vs resumable) blocks that cluster. (5) JM-13 and MI-05 pay rewards on failing evidence; RC21 receipts + a clawback decision (MI-05 noted; JM-13 the same question). (6) GO-02 must measure from the media activity journal (invariant 99); this is the user's question about untouched anime/manga appearing as 'done': DI-27 (hotfixed) stopped the cross-module MAL-id flip that kept writing journal events, but already-written spurious journal entries and score-only events still count. The user's new rule (a score change is not progress) belongs with GO-02 and the Reports/Recently-updated readers (other group's HR findings): only progress/volumes/route/chapter/hours/status-to-completed should count as 'done this period'; score and other status moves should not. Plan writer should add a DI-27 journal clean-up (drop events from the flip) and a shared 'counts as activity' predicate over the journal used by Goals, Reports and Home. (7) ST-08/JM-24 hero unification overlaps RC16 (shared lesson reader, W8); do the CSS now, the module extraction later. JM-02 (Mind inspector missing status block) is best done as the shared inspector helper from RC16. (8) ST-06/ST-17 marked design: the master-detail sheet and inspector sheet at 700\u20131080 are a real recomposition; likely a Claude Design prompt alongside the HANDOFF \u00a78 W3 pass. (9) CM-04 (fork base hash) needs the user's decision on their 3 forks before any reset. (10) No art needed in this slice; EX-09 (contrast over Exam Room painting) is a scrim change, not new art.",
+  "Count check: 244 ids in group2.json, 244 mapped, none skipped, none extra (verified by script). Split: W1 12, W2 37, W3 63, W5 9, W6 16, W7 33, W8 9, W9 63, W0 1, QOL 1.\n\nThe user's question, answered from the findings. The DI-27 hotfix (9fecf63, kos-malfix-1) only stops NEW flips: the manga row no longer turns into anime and back on each sync, so it stops writing fresh journal events and re-stamping updatedAt. It does NOT fix the general problem:\n(a) Journal events, ledger entries and Reports already saved from the flip period are still there. Saved reports are never recomputed (invariant 102), and the DI-27 clean-up is a W1 item outside this slice.\n(b) HR-31 (P1, W7) is a separate root cause. report.js collection() counts a title as active for ANY journal event, so a score change, a status tidy-up or a sync echo puts a title in the week. The fix is one activity derivation (progress, volume, chapter, route or hours moving forward; a start or finish date in the period; a media session). Whether to rebuild weeks already saved under the old rule is a user decision, and it goes against invariant 102.\n(c) The 'Recently updated' vault sort reads updatedAt. A real score edit counts there by design, but a no-op pull must not restamp it (invariant 36a). After the hotfix that should hold again; verify it on the two affected rows.\n\nOrdering risks:\n- SY-18 (P0) is filed under W1, but its proper fix needs the W2 change bus (SY-05). Ship SY-18's short-term per-row edit merge first, then SY-05.\n- Most of W2 depends on SY-05 plus the per-view session store, and on view.dispose (RC15) from the router cluster. Do the router cluster (AX-38/SH-37/AX-22) early: SY-20 and AG-25 need AX-22's guard.\n- SY-03 and SY-09 need the HANDOFF Q8 decision (log pro-rata vs resumable) before building.\n- HR-17 (subject names via KOS.subjects) must land before HR-23 and HR-27. HR-31, HR-02 and HR-22 all touch ensureReports and the invariant-102 rule, so one decision covers whether saved reports may be rebuilt.\n- W5's AX-39 and CC-19 wait on the theme-cull decision (Q3). If the light shop themes are removed, both are closed with no fix.\n- The economy fixes (HR-16, HR-18) carry clawback decisions. Their receipt-key smoke belongs in W0 alongside CC-11, the validator added to the gate.\n- The W3 touch-floor cluster moves rules to a later cascade layer, which can shift many views. Run responsive_audit --ipad and the phone sizes before and after.\n- Several fixedBy pairs are true duplicates from different auditors: SH-03/AG-01, AX-07/SH-02, AX-08/SH-15, AX-02/SH-28, AX-24/AG-03/SH-37, AX-38/SH-25/HR-09, AX-23/AG-17, AX-25/AG-08, AX-29/AG-07, AX-33/AG-14, AX-35/AG-09, AX-31/AG-12, AX-26/AG-02, AX-13/PR-39, AX-06/SH-17, AX-34/SH-10, AX-20/SH-11. Close them together.\n- PR-33 (edit one showing of a repeating event) is marked QOL. It is a feature, and the Google two-way skip list (invariant 159) must be kept consistent with it.",
+  "Count: 243 of 243 mapped (W1 40, W2 13, W3 34, W4 25, W5 36, W7 16, W8 14, W9 60, W0 3, QOL 2).\n\nOn the user's question (DI-27 and Collection items in 'recently updated' and Reports): the hotfix (9fecf63, kos-malfix-1) stops new cross-module flips, so new phantom 'updated' rows from that cause should stop. It does NOT repair what the flips already wrote. Each flip restamped updatedAt, which drives the vault's default 'recently updated' sort (see CL-24), and appended status/progress events to the rows' media journals (invariant 99). Weeks already saved in Reports are never recomputed (invariant 102). So the DI-27 clean-up must scrub the journals and decide whether to rebuild the affected saved reports. Separately, a pull that changes nothing must not restamp (invariant 36a; CL-32 shows the counters already treat no-ops as 'updated'), and that still needs checking for other causes. The user's rule that a score or status change is not 'something done this week' is not in this slice. It is a Reports/journal definition change for W7: journal kinds score/status should not count as activity in f.collection, and the plan should record it as an approved decision, not a defect. Whoever owns the W7 Reports findings should add it.\n\nOrdering risks:\n- W0 backup-before-change must land before the DI-27 clean-up and before any W1 migration (DI-10 moving state to IndexedDB, DI-25 moving mined lines).\n- The store-registry cluster (DI-22 and others) is the same mechanism RC4 wants for stateMeaningful (DI-03), cloudmerge RECORDS refs (DI-07) and badge owner touches (AP-19, W7). Design the registry once in W1 and let W7 use it.\n- W2's view.dispose (AP-08) is the hook both the redraw policy and RC18 (log a session on teardown) need. AP-10 and AP-14 depend on it. The overlay-on-navigation fix (CL-08) is the safest early W2 item because CL-08 can save edits onto the wrong title.\n- W4 depends on MG-01 (W1): batches (MG-05), OFX FITID (MG-04), recurring match (MG-07) and the information revamp (MG-08, design prompt) all build on the new tx.raw and dedupe key. MG-10 (the import dialog layout) should be done inside the revamp, not as W3.\n- W5 decisions (seals SC-04, pen Study set SC-09, CSS frames SC-28, theme cull SC-22, try-on scope SC-33) involve refunds. The refund policy should be one decision covering all of them. SC-20 needs the user to make new Gemini art (recomposed avatars); add it to the art manifest.\n- SC-32 (Edit seat upload bypasses the 3,000-gold unlock) is placed in W1 as an economy/invariant 2 breach, not cosmetics polish.\n- The CR-20 clawback question and DI-27's clawback question should be asked together, with one policy for paid-on-thin-evidence rewards (RC21).\n- AP-07: the public repo tracks a personal AniList/MAL export. Untracking it is quick, but purging history is the user's call. Treat it as urgent despite being P2.\n- Several fixedBy pairs are exact duplicates found by two auditors (AA-11/DI-22, AA-12/DI-24, AA-26/DI-14, AP-06/AA-16, CR-03/CL-08). AA-13 and DI-09 overlap but AA-13 adds pot pictures, so both stay in the cluster."
+ ]
+}
