@@ -3377,7 +3377,9 @@
   "devices": "all",
   "id": "CM-14",
   "area": "content-maths",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed by Claude's independent re-check (B2, runtime + code)",
+  "reviewNote": "Also breaks invariant 135 (an A mark ticked without its M is accepted). Shares its root cause with CC-14/CC-17 (the Answer line is a tickable mark); 28 derived parts' [M/A/B] weights do not sum to their marks (cf. CM-21)."
  },
  {
   "title": "\"Write it out\" chip overlaps worked-example titles on every device and is only 23px tall",
@@ -5629,7 +5631,8 @@
   "needsArt": false,
   "id": "CR-25",
   "area": "creatives",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed by Claude's independent re-check (B2, runtime + code)"
  },
  {
   "title": "A work dialog stays open over other pages after navigation (Back, hash change), stacking duplicates",
@@ -7007,7 +7010,9 @@
   "needsArt": false,
   "id": "MG-23",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed by Claude's independent re-check (B2, runtime + code)",
+  "reviewNote": "Mitigation: each flagged row has an 'Import anyway' toggle, but Skip is pre-selected and the row claims to match an entry that is not in the store."
  },
  {
   "title": "Re-importing the app's own CSV export turns every outgoing into income and files the category as a note",
@@ -7023,7 +7028,8 @@
   "needsArt": false,
   "id": "MG-24",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed by Claude's independent re-check (B2, runtime + code)"
  },
  {
   "title": "iPhone and iPad portrait: tapping a transaction shows nothing; its Edit and Delete sit below the whole list",
@@ -7039,7 +7045,9 @@
   "needsArt": false,
   "id": "MG-25",
   "area": "money-goals",
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "gverdict": "confirmed by Claude's independent re-check (B2, runtime + code)",
+  "reviewNote": "Editing is still possible by scrolling past the whole list, so badly degraded rather than impossible; P2 is arguable."
  },
  {
   "title": "Month and year: 'In' shows expected income as if received",

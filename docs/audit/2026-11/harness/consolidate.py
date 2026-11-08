@@ -62,6 +62,10 @@ RESOLVED = {
 # gemini/CLAUDE_REVIEW.md); rendered on each finding as "Gemini B"
 GV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "gemini", "gverdict.json")
 GVERDICT = json.load(open(GV_PATH)) if os.path.exists(GV_PATH) else {}
+# Batch B2 (new P0/P1 since the frozen list), re-checked by Claude 8 Nov instead of Gemini
+B2_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "findings", "b2-claude-verification.json")
+for _id, _v in (json.load(open(B2_PATH)) if os.path.exists(B2_PATH) else {}).items():
+    GVERDICT[_id] = {"verdict": _v["verdict"] + " by Claude's independent re-check (B2, runtime + code)", "duplicateOf": None}
 # corrections from Claude's review of Gemini B (8 Nov 2026), accepted by the user
 REVIEW_NOTE = {
     "CO-02": "Root cause and fix corrected: at 402px the desk is the grid at css/views/study.css:1169 (repeat(2, minmax(0,1fr))), not a flex row — the fix is a grid-template-columns single-column override for .k-cx-hero + .k-subj-side at <=700px, as japanese.css:449 and creatives.css:366 do (and Mind's desk), plus .k-fit-btn on the Open-lesson button.",
@@ -72,6 +76,9 @@ REVIEW_NOTE = {
     "SY-03": "Since the stopgap background redraws are held on the review views; what remains is plain rerenders and finish()-only logging (root cause 18); propose P2 in the plan.",
     "SY-04": "Since the stopgap ref/exams are held as TASK_VIEWS and typing() holds too; only plain rerenders reset the quiz/exam; propose P2 in the plan.",
     "SY-18": "The hold for an open editor while typing predates kos-redraw-1; the stopgap made it indefinite on ref views, widening (not creating) the defect.",
+    "MG-23": "Mitigation: each flagged row has an 'Import anyway' toggle, but Skip is pre-selected and the row claims to match an entry that is not in the store.",
+    "MG-25": "Editing is still possible by scrolling past the whole list, so badly degraded rather than impossible; P2 is arguable.",
+    "CM-14": "Also breaks invariant 135 (an A mark ticked without its M is accepted). Shares its root cause with CC-14/CC-17 (the Answer line is a tickable mark); 28 derived parts' [M/A/B] weights do not sum to their marks (cf. CM-21).",
     "JM-06": "Above 860px on a direct KOS.show the Core/Media switch is mounted into #tree before the throw, so a desktop recovery path exists; through a hash, reload, Back, or at drawer widths it does not. P0 holds.",
 }
 SEV = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -188,7 +195,7 @@ def main():
                 f["resolved"] = RESOLVED[fid]; f.pop("notInFinal", None)
             g = GVERDICT.get(fid)
             if g:
-                f["gverdict"] = g["verdict"] + (" (of %s)" % g["duplicateOf"] if g.get("duplicateOf") else "") + "; corroboration only, reviewed by Claude 8 Nov"
+                f["gverdict"] = g["verdict"] + (" (of %s)" % g["duplicateOf"] if g.get("duplicateOf") else "") + ("" if "B2" in g["verdict"] else "; corroboration only, reviewed by Claude 8 Nov")
             if fid in REVIEW_NOTE:
                 f["reviewNote"] = REVIEW_NOTE[fid]
             rows.append(f)
@@ -229,7 +236,7 @@ def main():
             if f["area"] != area:
                 continue
             md.append("### %s · %s · %s — %s\n" % (f["id"], f.get("severity", "?"), f.get("category", "?"), f.get("title", "")))
-            for k, lab in (("resolved", "RESOLVED"), ("recheck", "Re-checked on kos-redraw-1"), ("gverdict", "Gemini B"), ("reviewNote", "Review note (8 Nov)"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
+            for k, lab in (("resolved", "RESOLVED"), ("recheck", "Re-checked on kos-redraw-1"), ("gverdict", "Independent check"), ("reviewNote", "Review note (8 Nov)"), ("devices", "Devices"), ("detail", "Detail / repro"), ("evidence", "Evidence"), ("rootCause", "Root cause"), ("fix", "Proposed fix")):
                 if f.get(k):
                     md.append("- **%s:** %s" % (lab, str(f[k]).replace("\n", " ")))
             extra = []
