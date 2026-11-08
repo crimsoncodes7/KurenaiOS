@@ -8,7 +8,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | ID | Area | Status | P0 | P1 | P2 | P3 | Total |
 |---|---|---|---|---|---|---|---|
 | SH | App shell, navigation, search, toasts, dialogs, Help & Guide | complete | 0 | 6 | 19 | 18 | 43 |
-| HR | Home and Reports | complete | 0 | 8 | 13 | 9 | 30 |
+| HR | Home and Reports | complete | 0 | 9 | 13 | 9 | 31 |
 | AG | Achievements / Badge Wall and the Governor's Seat | complete | 0 | 2 | 15 | 14 | 31 |
 | SC | Gold Shop and every cosmetic, themes | complete | 0 | 10 | 23 | 8 | 41 |
 | ST | Study desks (CS/Maths/IT), topic page, Review, Assignments | complete | 1 | 7 | 15 | 20 | 43 |
@@ -28,7 +28,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1 findings; *
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations logic) | complete | 1 | 4 | 14 | 8 | 27 |
 | AP | Architecture, maintainability, performance, docs drift | complete | 0 | 1 | 12 | 6 | 19 |
 | AX | Cross-cutting accessibility and HCI sweep | complete | 0 | 1 | 19 | 25 | 45 |
-| | **All** | | 5 | 95 | 327 | 302 | 729 |
+| | **All** | | 5 | 96 | 327 | 302 | 730 |
 
 Plus the live-account checks in `findings/live-account.md` (production, read via the app's own APIs; ids LA-n) and the user's own reports in `findings/user-reports-2026-11-02.md` (UR-n).
 
@@ -49,6 +49,7 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **HR-16** [P1] Streak milestone bonuses are paid again every day: before the first study session the streak 'ends yesterday', which moves each milestone's key date by one day
 - **HR-17** [P1] Report words print 'undefined took the largest share' when Code, Japanese, Mind or Creatives got the most Focus time, and that text is saved for good
 - **HR-18** [P1] Hero 'Daily goal' directives pay XP and gold on a self-tick with no evidence, and untick/re-tick pays again without limit
+- **HR-31** [P1] Reports count a title as active in the period for ANY journal event — a score change, a status tidy-up or a sync echo — so titles with no real progress appear in a week's Collection (and its story, genres, flows)
 - **AG-01** [P1] The Seat's ⋯ menu is cut off by the stage: its Data row (Mine / Empty / Sample) is hidden and unclickable
 - **AG-02** [P1] iPhone Seat: showcase medals draw at 80px over each other and the XP bar, and the empty slots are 17 x 44 ovals
 - **SC-01** [P1] Shop avatar previews: the painted avatar escapes its disc (drawn top-left, overflowing the card) and the disc sits empty, offset
@@ -660,6 +661,15 @@ Plus the live-account checks in `findings/live-account.md` (production, read via
 - **Evidence:** eval (slot 2 seeded): [[71807,12531,601],[..,'false'],[71812,12532,602,'true'],[71812,12532,602,'false'],[71817,12533,603,'true']]; js/modules/hub.js:1162-1169; js/modules/todo.js:56-69 (log on tick, no reversal on untick)
 - **Root cause:** Legacy generated to-do list's manual tick logs a paid session each time it becomes true
 - **Proposed fix:** Derive the directive's tick from its evidence (cards due cleared, the exam's revision minutes met, the assignment's progress), as KOS.todo's auto items should. If a manual tick stays, pay once per key per day (store the paid key) and never on re-tick, or pay nothing (activity only, like external ticks, invariant 160).
+- **Flags:** effort S
+
+### HR-31 · P1 · bug — Reports count a title as active in the period for ANY journal event — a score change, a status tidy-up or a sync echo — so titles with no real progress appear in a week's Collection (and its story, genres, flows)
+
+- **Devices:** all
+- **Detail / repro:** js/core/report.js collection() (about :446-456) touches a row for every journal event inside [start, end): (r.journal||[]).forEach(ev => if (ev[0] >= a && ev[0] < b) touch(r)). The media journal (mediadb.js, invariant 99) records progress, volumes, status, score, route, chapter and hours. So changing a score, or moving an old title to Completed or On hold as a tidy-up, counts as having watched or read it this week. The DI-27 echo (volumes null→N on every sync) made Death Note and Aku no Kyouten appear every week too. The touched set feeds the week's titles, byModule counts, genre and studio/author tallies, the genre-flow, and the stories. The user reported it 8 Nov: 'titles who haven't had actual progress made in the time frame should not appear, e.g. changing a score should not count as something having been done this week.' The 'Recently updated' vault sort is a separate reader (updatedAt); a score edit is a real edit there, but a no-op pull must never restamp it (invariant 36a; DI-27 broke this for the two rows).
+- **Evidence:** js/core/report.js:452-456 (every journal kind); js/core/mediadb.js journalFacts/journalDiff (score is a journalled kind); user report 8 Nov in chat.
+- **Root cause:** 'Activity' is not defined. Reports treat the journal as a list of things done, but it is a list of fields changed.
+- **Proposed fix:** Define activity once (one derivation, invariant 26d): progress, volumes, chapter, route or hours moving FORWARD, a start or finish date in the period, or a media session that names the row. Score, notes, tags and status moves without progress (onHold, dropped, planned, a 'completed' with no progress in range) are list edits and do not make a title active. Keep them for a separate 'list changes' line if wanted. Apply it in collection() and anything else that reads the journal for activity (Home and Collection 'this week', goals). Add a smoke: a score-only week shows no title.
 - **Flags:** effort S
 
 ### HR-06 · P2 · ux — Hero 'Daily goal' counts 5 items but shows only 3, with no way to reach the other 2

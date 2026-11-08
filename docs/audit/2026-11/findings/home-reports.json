@@ -392,6 +392,17 @@
    "rootCause": "Async fill after a synchronous redraw with no reserved height",
    "needsDesign": false,
    "needsArt": false
+  },
+  {
+   "title": "Reports count a title as active in the period for ANY journal event \u2014 a score change, a status tidy-up or a sync echo \u2014 so titles with no real progress appear in a week's Collection (and its story, genres, flows)",
+   "severity": "P1",
+   "category": "bug",
+   "devices": "all",
+   "detail": "js/core/report.js collection() (about :446-456) touches a row for every journal event inside [start, end): (r.journal||[]).forEach(ev => if (ev[0] >= a && ev[0] < b) touch(r)). The media journal (mediadb.js, invariant 99) records progress, volumes, status, score, route, chapter and hours. So changing a score, or moving an old title to Completed or On hold as a tidy-up, counts as having watched or read it this week. The DI-27 echo (volumes null\u2192N on every sync) made Death Note and Aku no Kyouten appear every week too. The touched set feeds the week's titles, byModule counts, genre and studio/author tallies, the genre-flow, and the stories. The user reported it 8 Nov: 'titles who haven't had actual progress made in the time frame should not appear, e.g. changing a score should not count as something having been done this week.' The 'Recently updated' vault sort is a separate reader (updatedAt); a score edit is a real edit there, but a no-op pull must never restamp it (invariant 36a; DI-27 broke this for the two rows).",
+   "evidence": "js/core/report.js:452-456 (every journal kind); js/core/mediadb.js journalFacts/journalDiff (score is a journalled kind); user report 8 Nov in chat.",
+   "rootCause": "'Activity' is not defined. Reports treat the journal as a list of things done, but it is a list of fields changed.",
+   "fix": "Define activity once (one derivation, invariant 26d): progress, volumes, chapter, route or hours moving FORWARD, a start or finish date in the period, or a media session that names the row. Score, notes, tags and status moves without progress (onHold, dropped, planned, a 'completed' with no progress in range) are list edits and do not make a title active. Keep them for a separate 'list changes' line if wanted. Apply it in collection() and anything else that reads the journal for activity (Home and Collection 'this week', goals). Add a smoke: a score-only week shows no title.",
+   "effort": "S"
   }
  ],
  "qol": [
