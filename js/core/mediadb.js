@@ -1152,7 +1152,9 @@
            against the stored watermark, THEN absorb. enrichOnly can't move
            list state, so it can't reward either. */
         if (!opts.enrichOnly) {
-          var d = rewardDelta(old.reward, inc);
+          /* never pay across a change of module (DI-27): a defence in
+             depth behind sameModule() */
+          var d = old.module === inc.module ? rewardDelta(old.reward, inc) : null;
           if (d) rewards.push({ entryId: inc.id, title: inc.title, module: inc.module,
                                 units: d.units, statusAdvanced: d.statusAdvanced, status: inc.status });
         }
@@ -1185,32 +1187,48 @@
         if (alid == null && mal == null && vndb == null) { insert(inc, step); return; }
         function tryMal() {
           if (mal == null) { insertOrClaim(inc, step); return; }
-          var rqM = os.index("mal").get(window.IDBKeyRange.only(mal));
+          var rqM = os.index("mal").getAll(window.IDBKeyRange.only(mal));
           rqM.onsuccess = function () {
-            if (rqM.result) merge(inc, rqM.result, step);
+            var hit = sameModule(rqM.result, inc);
+            if (hit) merge(inc, hit, step);
             else insertOrClaim(inc, step);
           };
           rqM.onerror = function () { cb && cb(rqM.error); };
         }
         function tryAnilist() {
           if (alid == null) { tryMal(); return; }
-          var rqA = os.index("anilist").get(window.IDBKeyRange.only(alid));
+          var rqA = os.index("anilist").getAll(window.IDBKeyRange.only(alid));
           rqA.onsuccess = function () {
-            if (rqA.result) merge(inc, rqA.result, step);
+            var hit = sameModule(rqA.result, inc);
+            if (hit) merge(inc, hit, step);
             else tryMal();
           };
           rqA.onerror = function () { cb && cb(rqA.error); };
         }
         function tryVndb() {
           if (vndb == null) { tryAnilist(); return; }
-          var rqV = os.index("vndb").get(window.IDBKeyRange.only(vndb));
+          var rqV = os.index("vndb").getAll(window.IDBKeyRange.only(vndb));
           rqV.onsuccess = function () {
-            if (rqV.result) merge(inc, rqV.result, step);
+            var hit = sameModule(rqV.result, inc);
+            if (hit) merge(inc, hit, step);
             else tryAnilist();
           };
           rqV.onerror = function () { cb && cb(rqV.error); };
         }
         tryVndb();
+      }
+
+      /* Provider identity is per MODULE (invariant 11): MyAnimeList numbers
+         anime and manga separately, so MAL 21 is both One Piece (TV) and the
+         Death Note manga. A match in another module is not this title —
+         merging it flipped a manga row to the anime and back on every
+         autosync and paid a reward each cycle (audit DI-27, UR-21). */
+      function sameModule(rows, inc) {
+        rows = rows || [];
+        for (var k = 0; k < rows.length; k++) {
+          if (rows[k] && rows[k].module === inc.module) return rows[k];
+        }
+        return null;
       }
 
       /* replace-from-source pass (before any upsert): sweep the module's
