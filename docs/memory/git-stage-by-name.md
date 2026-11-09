@@ -10,3 +10,6 @@ The working tree normally carries changes that must never be committed: Live2D a
 **Why:** Live2D material is licence-gated (CLAUDE.md "Live2D development gate"), and the others are the user's local work.
 
 **How to apply:** `git add <exact paths>`, then check `git diff --cached --stat` before committing. Commit messages are scoped (`feat(code): …`, `docs: …`). After a release a separate `docs: baseline at <hash> (kos-code-N)` commit updates CLAUDE.md/PROGRESS.md/README. Related: [[maths-notes-depth-rewrite]].
+
+
+Lesson (8 Nov 2026): `git commit -- <paths>` commits the WORKING-TREE copies of those paths and ignores staged removals (`git rm --cached`), so it re-committed local files instead of untracking them. Stage by name with `git add`/`git rm --cached`, then `git commit` with NO pathspec, and check `git show --stat`.
