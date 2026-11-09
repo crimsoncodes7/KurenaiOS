@@ -427,6 +427,23 @@ show on Account & Cloud Sync (DI-20).
   Left as saved, by design: terms and years,
   and words Kurenai wrote. Every other device must run the new version
   before it runs.
+- **Rewards with receipts (RC21), built 9 Nov (`f6a0ef3`, gate 132/132, not
+  deployed):** ST-20, HR-18 (the Daily goal seals from evidence and pays
+  nothing; no hand tick), HR-21 and PR-27 (Undo on Home's reminder and habit
+  ticks and on repeating reminders, through one correction that also takes
+  back the HP), PR-24 (a min day topped up once), PR-23 (an all-optional
+  routine refused), MI-05 (the checkpoint pays on its first pass and keeps
+  the best attempt), CR-20 and CR-31 (a project pays only with work
+  attached, one set of pieces pays one project), JM-13 (a lesson pays only
+  on a pass, its misses kept across sittings), and the review-session pay
+  (only correct or accepted). Three agents built it in separate worktrees;
+  a 3-agent review found 2 P1s (Creatives pieces reused across projects; a
+  Japanese lesson passing around earlier misses), 3 P2s and 8 P3s — all
+  fixed with failing-first tests (smoke130–132). Past pay is not clawed
+  back (decision B2: going forward only).
+- **New backlog item (found 9 Nov, not scheduled):** a Collection status
+  changed back and forth (quick-edit, the editor) logs a paid media session
+  each time (4 XP, 1 gold), with no receipt. No audit finding covers it.
 - Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store
   registry, Todoist/Google bookkeeping, side replicators, the remaining
   P1s; the Reports rebuild waits for HR-31's fix.
