@@ -134,14 +134,18 @@ step("D · redoing a passed lesson pays nothing", async () => {
   eq(app.errors, [], "no page errors");
 });
 
-step("E · finishLesson without a pass writes nothing", async () => {
+step("E · finishLesson without a pass pays and finishes nothing; it keeps the miss", async () => {
   K.ja.startLesson("H3");
   const before = JSON.stringify(K.store.state.japanese.lessons.H3), n0 = jaEntries().length;
   const a = K.ja.finishLesson("H3");
   eq([a.paid, a.passed], [false, false], "no answers: not passed");
   const b = K.ja.finishLesson("H3", [{ key: "k:さ|R", verdict: "correct" }, { key: "k:し|R", verdict: "near" }]);
   eq([b.paid, b.passed, b.misses], [false, false, ["k:し|R"]], "a near left: not passed");
-  eq(JSON.stringify(K.store.state.japanese.lessons.H3), before, "the lesson record is untouched");
+  const after = JSON.parse(JSON.stringify(K.store.state.japanese.lessons.H3));
+  eq(after.miss && Object.keys(after.miss), ["k:し|R"], "only the miss is recorded (so a later sitting cannot pass around it)");
+  delete after.miss;
+  eq(JSON.stringify(after), before, "nothing else: no doneAt, no paidAt");
+  delete K.store.state.japanese.lessons.H3.miss;    /* step F starts H3 afresh */
   eq(jaEntries().length, n0, "no entry");
   eq(K.ja.lessonPass([{ key: "x", verdict: "wrong" }, { key: "x", verdict: "correct" }]).pass, true, "right once, after a miss, passes");
 });
@@ -188,6 +192,26 @@ step("G · a re-ask finished right pays the lesson; the session is ONE entry and
   const pay = q('[data-ui~="ja.pay"]');
   assert(pay && (!paid || pay.textContent.indexOf("+" + paid + " XP") >= 0) && /\+15 XP/.test(pay.textContent), "the end screen shows the pay: " + (pay && pay.textContent));
   eq(app.errors, [], "no page errors");
+});
+
+step("H · misses carry across sittings: a later sitting cannot pass around them (RC21 review)", async () => {
+  const id = "H6";
+  const L = K.ja.lesson(id);
+  assert(L, "lesson " + id);
+  const R = L.items.map((k) => k + "|R"), W = L.items.map((k) => k + "|W");
+  const xp = K.store.state.governor.xp;
+  /* sitting 1: every Reading facet wrong */
+  const a = K.ja.finishLesson(id, R.map((k) => ({ key: k, verdict: "wrong" })));
+  assert(!a.passed && !a.paid, "sitting 1 does not pass");
+  eq(K.ja.lessonMisses(id).sort(), R.slice().sort(), "its misses are kept on the lesson");
+  /* sitting 2, the same day: only the Writing facets come up, all right */
+  const b = K.ja.finishLesson(id, W.map((k) => ({ key: k, verdict: "correct" })));
+  assert(!b.passed && !b.paid, "a sitting that never answered the earlier misses does not pass: " + JSON.stringify(b));
+  eq(K.store.state.governor.xp, xp, "nothing paid");
+  /* sitting 3: the earlier misses answered right */
+  const c = K.ja.finishLesson(id, R.map((k) => ({ key: k, verdict: "correct" })));
+  assert(c.passed && c.paid, "passes once every miss is answered right: " + JSON.stringify(c));
+  eq(K.ja.lessonMisses(id), [], "no misses left");
 });
 
 (async () => {

@@ -259,11 +259,25 @@
   }
   /* finishLesson(id, answers): the lesson's learn session is done. Only a PASS (lessonPass)
      finishes it (doneAt, the check) and pays, once; anything else writes nothing */
+  /* a lesson's misses ACROSS sittings (RC21 review): a facet missed in one sitting is due
+     tomorrow and is not asked again today, so a later sitting could pass without it. The
+     lesson keeps them, keyed (it merges per key): a miss is added, a right answer clears it,
+     and the lesson passes only when none is left. */
+  function lessonMisses(id) { var rec = peek().lessons[id]; return Object.keys((rec && rec.miss) || {}); }
   function finishLesson(id, answers) {
     var l = lesson(id); if (!l) return null;
     var p = lessonPass(answers);
-    if (!p.pass) return { paid: false, passed: false, why: "not passed", misses: p.misses, asked: p.asked, right: p.right };
-    var rec = S().lessons[id] = obj(S().lessons[id]);
+    var rec0 = S().lessons[id] = obj(S().lessons[id]);
+    var miss = rec0.miss = obj(rec0.miss), now = Date.now();
+    (answers || []).forEach(function (a) { if (a && a.key && !a.selfMarked && passedVerdict(a.verdict)) delete miss[a.key]; });
+    p.misses.forEach(function (k) { miss[k] = now; });
+    var left = Object.keys(miss);
+    if (!left.length) delete rec0.miss;
+    if (!p.pass || left.length) {
+      store.save();
+      return { paid: false, passed: false, why: "not passed", misses: left, asked: p.asked + left.filter(function (k) { return p.misses.indexOf(k) < 0; }).length, right: p.right };
+    }
+    var rec = rec0;
     if (!rec.doneAt) rec.doneAt = Date.now();
     if (rec.paidAt) { store.save(); return { paid: false, passed: true, why: "already finished", at: rec.paidAt }; }
     rec.paidAt = Date.now();
@@ -430,7 +444,7 @@
   KOS.ja = {
     SID: SID, knows: knows, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces,
     startLesson: startLesson, markPage: markPage, markHeard: markHeard, evidence: evidence, syncChecks: syncChecks,
-    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson, lessonPass: lessonPass,
+    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson, lessonPass: lessonPass, lessonMisses: lessonMisses,
     recordCheckpoint: recordCheckpoint, award: award, paidToday: paidToday,
     mine: mine, addInput: addInput, setSettings: setSettings,
     noteSpeed: noteSpeed, fluency: fluency, rework: rework,

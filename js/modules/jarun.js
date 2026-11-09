@@ -379,6 +379,17 @@
       });
     }
     var list = keys.map(exercise).filter(Boolean);
+    /* the lesson's misses from an earlier sitting are not due again today: they are asked as
+       practice (their schedule is already set) so the lesson can still be passed today */
+    if (lessonId) {
+      var inList = {};
+      list.forEach(function (ex) { inList[ex.key] = 1; });
+      KOS.ja.lessonMisses(lessonId).forEach(function (k) {
+        if (inList[k]) return;
+        var ex = exercise(k); if (!ex) return;
+        ex.reask = true; ex.family = "Again · " + ex.family; list.push(ex);
+      });
+    }
     /* a new word, kanji or pattern is MET before it is checked: its form, reading, meaning and
        voice on one card, then the questions (kana meet theirs through the stroke animation) */
     if (lessonId) {
@@ -463,6 +474,8 @@
       var paidLesson = null, pass = lessonId ? KOS.ja.lessonPass(answers) : null;
       if (lessonId && !early && results.length) paidLesson = KOS.ja.finishLesson(lessonId, answers);
       stage.innerHTML = ""; foot.innerHTML = "";
+      /* not passed: this sitting's misses, or an earlier sitting's still not answered right */
+      if (paidLesson && !paidLesson.passed) pass = { pass: false, asked: Math.max(pass.asked, paidLesson.asked || 0), right: pass.right, misses: paidLesson.misses };
       if (lessonId && !early && pass.asked && !pass.pass) {
         stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done", "data-state": "not-passed" }, [
           el("h2", { text: "Not passed yet" }),

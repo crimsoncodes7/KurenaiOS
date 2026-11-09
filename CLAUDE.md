@@ -213,7 +213,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-integrity-4`
-- Required smoke gate: 129 / 129 suites (`""` and 2–129, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 132 / 132 suites (`""` and 2–132, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -308,7 +308,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..129}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..132}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -497,7 +497,14 @@ source comments and audit notes refer to it.
    directly. Pay given in error is taken back the same way: ONE `correction`
    entry with a negative award, clamped at 0 (`governor.onSession`), which is
    not activity, study or rest, earns no milestone and is left out of
-   Reports' "earned" and the badge rollup (the DI-27 clean-up).
+   Reports' "earned" and the badge rollup (the DI-27 clean-up). It may carry
+   a negative HP too. UNDO (RC21): `KOS.sessions.undo(entryId, title)` is the
+   one route that reverses what an entry paid — ONE correction (XP, gold less
+   the streak bonus `award.ms`, and the HP the entry actually restored,
+   `award.hp`), marking the entry `metrics.undone`; it runs once, the entry
+   stays in the ledger, and an undone entry is neither the day's activity
+   nor counted against a daily cap. Streak milestones: when several are new
+   at once only the highest pays (the rest are recorded unpaid), named once.
 1a. ONE-OFF REPAIRS AND MIGRATIONS go through `KOS.repairs`
    (`js/core/repairs.js`): a `plan()` that is a dry run (computed from the
    data, so it is idempotent), a preview with a hash, a consent repair run
@@ -1580,7 +1587,13 @@ source comments and audit notes refer to it.
 115. Personal media never leaves the device (saved lines in IndexedDB only; never synced or in a
     backup as binaries).
 116. PAY ONCE (`KOS.ja.award`, type `ja`): a review session is ONE ledger entry paying +1 XP a
-    passed facet, at most 30 a day; a lesson's first finish 15 XP, 2 gold, +3 HP; a checkpoint
+    facet answered correct or accepted (a hint still counts; a near or a wrong pays nothing),
+    at most 30 a day, logged once however many times the session ends (a learn session is
+    logged at the end of its first round, before the re-ask); a lesson's first PASS 15 XP, 2
+    gold, +3 HP — a pass is every facet the lesson asked answered correct or accepted at
+    least once (`KOS.ja.lessonPass`), and none of its misses from an earlier sitting left
+    (`lessons[id].miss`, keyed, cleared by a right answer, asked again as practice);
+    otherwise "Not passed yet", nothing paid, dated or ticked; a checkpoint
     (80% in every skill it tests) 60/15/+5; a stage gate 150/40/+10. Self-marked work, input
     tallies and mining pay nothing; immersion pays only through Focus. Reads (`due`, `planDay`,
     `skills`, `timeline`, `peek`) write nothing.
@@ -1773,7 +1786,10 @@ source comments and audit notes refer to it.
     (`KOS.creatives.award`, type `creatives`): a study's first pass 8 XP
     and 1 gold (`study:<lesson>.<s>`), a drill batch 6 XP once a day per
     type (`drill:<type>:<day>`), a unit's project 150 XP, 40 gold, +10 HP
-    when every milestone is reached (`project:<unit>`). Volume (words,
+    when every milestone is reached AND has a saved work attached (`project:<unit>`; a hand
+    "Mark done" is progress only; a piece attaches only when it is on no milestone, of the
+    project's track, and named in no other project's receipt `projects[<unit>].paidWith`;
+    once paid the page says "Paid on <date> · no further reward"). Volume (words,
     reps, strokes), re-saving, redoing, promoting and critiques pay
     nothing; Creatives Focus time pays by the Focus rules (it is study,
     never leisure); theory cards are ordinary flashcards keyed
@@ -1853,7 +1869,9 @@ source comments and audit notes refer to it.
     streak of its own: it feeds the study streak only. PAY ONCE
     (`KOS.mind.award`, type `mind`): a review block is ONE entry paying +1
     XP a passed card, at most 15 a day; a lesson's first finish 12 XP, 2
-    gold, +2 HP; a unit checkpoint 50/12/+4; a path 120/30/+8. Writing —
+    gold, +2 HP; a unit checkpoint 50/12/+4 on its FIRST PASS only (at least two thirds of
+    the scenarios right and half the rubric in one attempt, `KOS.mind.cpRule`, stated on the
+    page; the record keeps the best of every attempt, so a retake never lowers a rung); a path 120/30/+8. Writing —
     explain-backs, positions, the Journal, dialogues, Ask Kurenai — pays
     nothing. The Daily 15 is computed from the date and the evidence
     (`planDay`: reviews · one sitting · one question; 5 minutes of reviews
@@ -1907,7 +1925,13 @@ source comments and audit notes refer to it.
     its repeats, time and reminder, and auto-tracking in place; it can't
     be renamed or removed). Today only ticks; History only READS (its week
     grid has no tick and no add).
-143. ROUTINES PAY ONCE. A routine's completion (every required step, or
+143. ROUTINES PAY ONCE. A day records how it was paid (`log.paidAs`: min,
+    done or capped); a minimum day later kept in full is topped up ONCE by the
+    difference (a `todo` entry with `metrics.topUp`, outside the daily cap,
+    skipped when the ledger already holds a full pay for that day); a routine
+    whose every step is optional is refused ("At least one step must be
+    required", `KOS.routines.check`); a tick's Undo puts back only what the
+    tick wrote and reverses its pay through `KOS.sessions.undo`. A routine's completion (every required step, or
     its minimum) pays `KOS.governor.routineAward` once per routine day,
     logged as a `todo` session carrying `metrics.routine`; steps, rest
     days, on-demand routines (About to Study) and unticking pay nothing; at
