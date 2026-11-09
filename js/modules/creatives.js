@@ -597,27 +597,50 @@
         return el("li", { "data-state": ps.ms[i] ? "done" : null }, [
           el("span", { class: "k-cr-tick", "aria-hidden": "true", text: ps.ms[i] ? "✓" : String(i + 1) }),
           el("span", { class: "k-cr-ms-t", text: m }),
-          ps.ms[i] ? el("small", { class: "k-cr-done", "data-tone": "done", text: "✓ done" }) :
+          ps.ms[i] ? el("small", { class: "k-cr-done", "data-tone": "done", text: ps.attached[i] ? "✓ work saved" : "✓ done" }) :
             u.track === "write" && KOS.crWrite ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-write", text: "Write it", onclick: function () { KOS.crWrite.openMilestone(uid, i); } }) : null,
+          ps.attached[i] ? null : el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-attach", text: "Add your work", onclick: function () { attachDialog(uid, i); } }),
           el("button", { type: "button", class: "k-link", "data-ui": "cr.ms-mark", text: ps.ms[i] ? "Undo" : "Mark done", onclick: function () { CR().markMilestone(uid, i, ps.ms[i]); KOS.rerender(); } })
         ].filter(Boolean));
       })),
-      el("p", { class: "k-muted", text: ps.done ? "✓ Every milestone reached" : "Pays 150 XP, 40 gold and +10 HP when every milestone is reached." })
+      el("p", { class: "k-muted", "data-ui": "cr.project-pay", text: ps.paidAt ? "Paid on " + dateShort(ps.paidAt) + " · no further reward" :
+        ps.ready ? "✓ Every milestone reached" :
+        ps.done ? "Every milestone ticked. Add your work to each one to earn 150 XP, 40 gold and +10 HP." :
+        "Pays 150 XP, 40 gold and +10 HP once every milestone has your work saved." })
     ].filter(Boolean));
+  }
+  /* a milestone's work: a piece already in the Practice Log, or a new one (CR-20) */
+  function attachDialog(uid, i) {
+    var p = CR().project(uid); if (!p) return;
+    var pick = CR().works(function (w) { return !(w.unit === uid && w.ms === i); }).slice(0, 30);
+    var list = pick.length ? el("ul", { class: "k-cr-attach", "data-ui": "cr.attach-list" }, pick.map(function (w) {
+      return el("li", {}, [el("button", { type: "button", class: "k-link", "data-ui": "cr.attach-pick", text: w.title + " · " + dateShort(w.at), onclick: function () {
+        d.close(); CR().attachWork(w.id, uid, i); announce("Attached."); KOS.rerender(); } })]);
+    })) : el("p", { class: "k-muted", text: "Nothing in the Practice Log yet." });
+    var d = dialog({ title: "Add your work", body: el("div", { class: "k-cr-form" }, [
+      el("p", { text: p.milestones[i] }),
+      el("span", { class: "k-kicker", text: "Attach a piece from the Practice Log" }), list]),
+      foot: [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.attach-new", text: "Save new work", onclick: function () {
+          d.close(); KOS.show("creatives", { page: "add", id: "project." + uid + "." + i }); } })] });
   }
   KOS.crProject = projectView;
 
   /* ---------------- add work from a free app ---------------- */
   function addPage(main, key) {
     var bits = String(key || "").split("."), lid = bits.slice(0, 2).join("."), sid = bits[2] || null;
+    /* "project.<unit>.<milestone>": the work for a project's milestone (CR-20) */
+    var pj = bits[0] === "project" && CR().project(bits[1]) ? { unit: bits[1], ms: +bits[2] || 0 } : null;
+    if (pj && !(pj.ms < CR().project(pj.unit).milestones.length)) pj = null;
+    if (pj) { lid = null; sid = null; }
     var s = lid && sid ? CR().study(lid, sid) : null;
-    var title = el("input", { class: "k-input", "aria-label": "Title", value: s ? lid + "·" + sid + " " + s.t : "" });
+    var title = el("input", { class: "k-input", "aria-label": "Title", value: s ? lid + "·" + sid + " " + s.t : pj ? CR().project(pj.unit).t + " · " + CR().project(pj.unit).milestones[pj.ms] : "" });
     var file = el("input", { type: "file", accept: "image/*,.txt,.md", class: "k-input", "aria-label": "A picture or a text file" });
     var link = el("input", { class: "k-input", type: "url", "aria-label": "Or a link (a video you exported)", placeholder: "https://…" });
     var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.add-save", text: "Save to Practice Log" });
     go.onclick = function () {
       var f = file.files && file.files[0], rec = { title: title.value.trim() || "Untitled", lesson: s ? lid : null, study: s ? sid : null };
-      function done(wid) { if (s) KOS.show("creatives", { page: "check", id: wid }); else KOS.show("creatives", { page: "log", id: wid }); }
+      if (pj) { rec.unit = pj.unit; rec.ms = pj.ms; rec.track = (CR().unit(pj.unit) || {}).track || null; }
+      function done(wid) { if (s) KOS.show("creatives", { page: "check", id: wid }); else if (pj) KOS.show("creatives", { page: "project", id: pj.unit }); else KOS.show("creatives", { page: "log", id: wid }); }
       if (f && f.size > 15 * 1024 * 1024) { KOS.ui.toast("That file is over 15 MB. Export a smaller copy.", true); return; }
       if (f) {
         var rd = new FileReader();

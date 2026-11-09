@@ -165,9 +165,10 @@ step("D · the check page: Not yet, then a pass", async (app) => {
 step("E · projects and drills pay once; promoting pays nothing", async (app) => {
   const K = app.KOS, CR = K.creatives, g = K.store.state.governor;
   const xp0 = g.xp, gold0 = g.gold;
-  CR.markMilestone("W1", 0); CR.markMilestone("W1", 1);
+  /* a milestone's work saved with it (CR-20: bare ticks pay nothing, smoke131) */
+  CR.addWork({ title: "ms 0", kind: "text", unit: "W1", ms: 0 }); CR.addWork({ title: "ms 1", kind: "text", unit: "W1", ms: 1 });
   assert(g.xp === xp0 && !CR.projectState("W1").done, "two of three milestones pay nothing");
-  CR.markMilestone("W1", 2);
+  CR.addWork({ title: "ms 2", kind: "text", unit: "W1", ms: 2 });
   assert(CR.projectState("W1").done && g.gold === gold0 + 40 && g.xp >= xp0 + 150, "every milestone pays the project once");
   CR.markMilestone("W1", 2, true); CR.markMilestone("W1", 2);
   assert(g.gold === gold0 + 40, "undoing and redoing a milestone does not pay twice");

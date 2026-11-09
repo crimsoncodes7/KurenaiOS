@@ -487,8 +487,10 @@
       box.innerHTML = "";
       box.appendChild(stepStrip());
       if (run.step === "intro") {
-        box.appendChild(el("p", { text: rec && rec.doneAt ? "Done: " + when(rec.doneAt) + " · " + Object.keys(rec.synth.ticks || {}).length + " of " + cp.synthesis.rubric.length + " rubric points." : "Cards, three scenarios, the map, then a short judgement." }));
-        box.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.cp-start", text: rec && rec.doneAt ? "Retake" : "Start the checkpoint",
+        box.appendChild(el("p", { text: rec && rec.doneAt ? "Passed: " + when(rec.doneAt) + " · " + Object.keys((rec.synth && rec.synth.ticks) || {}).length + " of " + cp.synthesis.rubric.length + " rubric points." :
+          rec && rec.lastAt ? "Not passed yet · last try " + when(rec.lastAt) + "." : "Cards, three scenarios, the map, then a short judgement." }));
+        box.appendChild(el("p", { class: "k-muted", "data-ui": "mind.cp-rule", text: M().cpRule(l.unit) }));
+        box.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.cp-start", text: rec && (rec.doneAt || rec.lastAt) ? "Retake" : "Start the checkpoint",
           onclick: function () { run = ui.cp[l.unit] = { step: "cards", i: 0, cards: 0, apply: {}, map: null, synth: [], ticks: {} }; save(); draw(); } }));
         return;
       }
@@ -564,20 +566,27 @@
           var v = bb.value(); if (!v.length) { msg.hidden = false; msg.textContent = "Add one bullet first."; return; }
           var out = M().recordCheckpoint(l.unit, { cards: run.cards, apply: run.apply, synth: { bullets: v, ticks: run.ticks }, map: run.map });
           run.step = "done"; run.result = out; save();
-          announce("Checkpoint done. " + out.rubric + " of " + out.of + " rubric points.");
+          announce((out.pass ? "Checkpoint passed. " : "Not passed yet. ") + out.rubric + " of " + out.of + " rubric points.");
           document.dispatchEvent(new window.CustomEvent("kos:mind-evidence", { detail: { ref: l.id } }));
           draw();
         } })
       ]));
       setTimeout(bb.focus, 30);
     }
+    function missingText(m) {
+      var bits = [];
+      if (m.apply) bits.push(m.apply + " more scenario" + (m.apply > 1 ? "s" : "") + " right");
+      if (m.rubric) bits.push(m.rubric + " more rubric point" + (m.rubric > 1 ? "s" : ""));
+      return bits.length ? "To pass you need " + bits.join(" and ") + "." : "";
+    }
     function doneStep() {
       var r = run.result || {}, pay = KOS.mind.CHECK_PAY;
       box.appendChild(el("div", { class: "k-mind-done", "data-ui": "mind.cp-done" }, [el("span", { class: "k-mind-emblem", lang: "ja", "aria-hidden": "true", text: "心" }), el("div", {}, [
-        el("b", { text: "Checkpoint done" }),
+        el("b", { text: r.pass === false ? "Not passed yet" : "Checkpoint passed" }),
         el("ul", { class: "k-mind-list" }, [el("li", { text: "Cards · " + run.cards + " of " + cp.cards.length }), el("li", { text: "Apply scenarios · " + Object.keys(run.apply || {}).length + " of " + cp.apply.length }),
           el("li", { text: "Synthesis · " + (r.rubric || 0) + " of " + (r.of || cp.synthesis.rubric.length) + " rubric points" })]),
-        el("p", { class: "k-muted", text: r.paid ? "◆ +" + pay.xp + " XP · +" + pay.gold + " gold · +" + pay.hp + " HP, paid once." : "Retaken: it never pays twice." })])]));
+        el("p", { class: "k-muted", "data-ui": "mind.cp-pay", text: r.pass === false ? missingText(r.missing || {}) + " Nothing paid. Your best answers are kept." :
+          r.paid ? "◆ +" + pay.xp + " XP · +" + pay.gold + " gold · +" + pay.hp + " HP, paid once." : "Passed before: no further reward." })])]));
       box.appendChild(el("button", { type: "button", class: "k-btn", text: "Back to Mind", onclick: function () { ui.cp[l.unit] = { step: "intro" }; save(); KOS.show("subject", SID); } }));
     }
     draw();
