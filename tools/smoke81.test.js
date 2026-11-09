@@ -132,7 +132,10 @@ step("F · the gate", () => {
   eq(K.ja.setSettings({ furigana: "loud", dailyMin: 500 }), { furigana: "unknown", dailyMin: 120, speech: false }, "clamped");
   eq(K.ja.setSettings({ furigana: "none", dailyMin: 5, speech: 1 }), { furigana: "none", dailyMin: 15, speech: true }, "clamped low");
   const n = K.ja.normalise({ facets: [], lessons: "x", v: 7 });
-  eq(Object.keys(n), ["v", "facets", "lessons", "checkpoints", "mined", "input", "settings", "fluency"], "every part");
+  /* mined lines live on the device (KOS.jaMined, RC5 DI-25): an empty map is not kept,
+     lines still in the state are, for the repair that moves them */
+  eq(Object.keys(n), ["v", "facets", "lessons", "checkpoints", "input", "settings", "fluency"], "every part");
+  eq(Object.keys(K.ja.normalise({ mined: { m1: { text: "x" } } })).indexOf("mined") >= 0, true, "lines not yet moved are kept");
   assert(!Array.isArray(n.facets) && typeof n.lessons === "object", "keyed maps, never arrays");
   K.store.state.japanese = { v: 1, facets: null };
   assert(K.ja.startLesson("H4").length > 0 && K.store.state.japanese.facets["k:ま|R"], "a broken state is rebuilt on write");
