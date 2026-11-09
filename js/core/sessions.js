@@ -225,6 +225,7 @@
     all: function () { return store.state.sessions; },
     forDate: forDate,
     hasActivity: hasActivity,
+    hasStreakActivity: hasStreakActivity,
     streak: streak,
     streaks: streaks,
     restStreak: restStreak,

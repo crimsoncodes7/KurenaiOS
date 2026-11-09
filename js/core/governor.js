@@ -343,16 +343,24 @@
       if (m.distractions) notes.push(m.distractions + " distraction" + (m.distractions > 1 ? "s" : ""));
     }
 
-    /* streak milestone bonuses (once per milestone per streak-run) */
+    /* streak milestone bonuses (once per milestone per streak-run). The
+       receipt is the day the run REACHED the milestone, counted from the
+       run's real last day: a run that ends yesterday (nothing studied yet
+       today — a habit tick or an episode logs first) used to be counted
+       from today, its key slid a day, and the bonus paid again (HR-16).
+       A key one day off is the old reckoning of the same run: a new run
+       cannot reach the milestone again within a day. */
     var stk = KOS.sessions.streak(null);
+    var today = KOS.srs.todayISO();
+    var runEnd = KOS.sessions.hasStreakActivity(today) ? today : KOS.srs.addDays(today, -1);
     [3, 7, 14, 30, 60, 100].forEach(function (ms) {
       var key = "streak" + ms;
       g.milestones = g.milestones || {};
-      if (stk >= ms && g.milestones[key] !== KOS.srs.addDays(KOS.srs.todayISO(), -(stk - ms))) {
-        /* keyed to the run's start date so a fresh run re-earns the bonus */
-        g.milestones[key] = KOS.srs.addDays(KOS.srs.todayISO(), -(stk - ms));
-        gold += ms; notes.push(stk + "-day streak");
-      }
+      if (stk < ms) return;
+      var reached = KOS.srs.addDays(runEnd, -(stk - ms)), have = g.milestones[key];
+      if (have && (have === reached || have === KOS.srs.addDays(reached, -1) || have === KOS.srs.addDays(reached, 1))) return;
+      g.milestones[key] = reached;
+      gold += ms; notes.push(stk + "-day streak");
     });
 
     g.xp += xp;
