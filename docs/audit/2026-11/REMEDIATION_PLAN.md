@@ -380,6 +380,32 @@ show on Account & Cloud Sync (DI-20).
 | PR-03 | P1 | js/modules/routineplayer.js:279 taskOf: honour ctx.explicit from focus.js (return General study, no fallback), offer the suggestion as 'Use: <task>'; 'Just start' starts the Focus page's config exactly; fix the menu z-index. | Smoke: Focus with 'General study — no link' → Just start → session has no assignmentId. |
 | ST-26 | P1 | js/modules/itdesk.js mark input: distinguish empty (clear, ask/Undo) from invalid (keep editing, focus, say 'Enter 0–60'); never write on invalid. | Smoke: type 459 over a saved 45 + Enter → stored raw stays 45 and an error message shows. |
 
+**W1 progress (9 Nov 2026, branch `feat/w1-integrity`).**
+- The automatic backup: `KOS.repairs` (`js/core/repairs.js`) runs every
+  one-off repair as dry run → preview with a hash → (consent repairs) the
+  approved hash only → a VERIFIED checkpoint → apply → re-plan to settled →
+  a synced receipt and a local audit record. Import backup now reads the
+  file, asks (danger dialog, Cancel focused, its date and counts) and takes
+  a verified checkpoint before replacing anything (AA-11, DI-22). smoke124.
+- P0s fixed with tests that fail on the old code (smoke125): JM-06, ST-25,
+  MG-01 with MG-23 (the §A3 identity; no OFX importer exists, so FITID is
+  read from a CSV id column), SY-18 (editor saves merge by row id against
+  what the editor loaded).
+- DI-27: the ledger clean-up is built as the consent repair
+  `di27-phantom-sync` (smoke126 on test data). It has NOT run on the real
+  account: the reconciliation is shown first.
+- **Conflict, held for a decision (B1's journal scrub).** A media row's
+  journal UNIONS on every cloud pull (invariant 99), so scrubbing the
+  polluted events on one device is undone by the next pull from a device
+  that still holds them. Options: (a) a per-device scrub run at boot before
+  the first pull, with a per-device receipt; (b) a deterministic filter in
+  the journal normaliser for the collided rows; (c) leave the journals and
+  fix what reads them (HR-31's "activity, not any event" and CL-45's
+  `activityAt`). Recommended: (c) plus (a).
+- Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store
+  registry, Todoist/Google bookkeeping, side replicators, the remaining
+  P1s; the Reports rebuild waits for HR-31's fix.
+
 ### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
   - A background change carries the keys it changed, and a view declares
