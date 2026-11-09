@@ -68,3 +68,6 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-31: sw kos-artshop-1 (2026-11-01, 87dad81e, main = feat/art-shop at 7371325)
 
 8 Nov 2026: hotfix sw kos-malfix-1 (DI-27: bulkUpsert provider ids matched per module), main fast-forwarded to 9fecf63, deployed https://d088dc59.kurenai-os.pages.dev; the audit branch merged main. Gate is now 114 suites (smoke114).
+
+
+**9 Nov 2026 (late): RC5 built and merged on feat/w1-integrity at 0471e06, NOT pushed or deployed; 26 review findings (1 P0, 7 P1) unfixed. Start from docs/HANDOFF-W1-RC5.md.**
