@@ -264,11 +264,61 @@
   }
   function serverStatus() { return signedIn() ? edge({ action: "status" }).catch(function () { return null; }) : Promise.resolve(null); }
 
-  /* ---------------- the lease ---------------- */
+  /* ---------------- the lease (DI-19) ----------------
+     Two locks, two scopes. ACROSS DEVICES the server lease (kos_ext_lease,
+     the database's clock, LEASE_S) lets one holder sync a provider at a
+     time. ON THIS DEVICE every tab shares `device()`, so the holder is
+     this TAB: the device id and a per-page-load instance id — and a Web
+     Lock (`kos-ext-<provider><data namespace>`, ifAvailable) makes a second
+     tab SKIP the cycle while the first runs it, instead of running it
+     beside it. Where the browser has no Web Locks the per-tab holder alone
+     keeps the two tabs apart through the server.
+     The lease is RENEWED (`heartbeat`) between the chunks and lists of a
+     long cycle once RENEW_MS has passed since it was last taken; a renewal
+     the server refuses (another holder has it) or cannot answer throws a
+     LeaseLost error, and the cycle stops there: no further adapter runs,
+     nothing is released that is not ours. */
+  var TAB = rhex(8);
+  var RENEW_MS = 40 * 1000;
+  var held = {};       // provider -> ms the lease was last taken or renewed by this tab
+  var locks = null;    // test seam: a navigator.locks stand-in
+  function holder() { return device() + "-" + TAB; }
   function lease(p) {
-    return edge({ action: "lease", provider: p, holder: device(), secs: LEASE_S }).then(function (r) { return !!(r && r.ok); }, function () { return false; });
+    return edge({ action: "lease", provider: p, holder: holder(), secs: LEASE_S }).then(function (r) {
+      var ok = !!(r && r.ok);
+      if (ok) held[p] = Date.now(); else delete held[p];
+      return ok;
+    }, function () { delete held[p]; return false; });
   }
-  function release(p) { return edge({ action: "release", provider: p, holder: device() }).catch(function () {}); }
+  function release(p) { delete held[p]; return edge({ action: "release", provider: p, holder: holder() }).catch(function () {}); }
+  function LeaseLost(p) {
+    var e = new Error("Another device took over syncing " + NAME[p] + ", so this one stopped. It will try again.");
+    e.leaseLost = true;
+    e.provider = p;
+    return e;
+  }
+  /* between chunks and lists: renew once RENEW_MS has passed; a lease this
+     tab does not hold, or one the server will not renew, aborts */
+  function heartbeat(p) {
+    if (!held[p]) return Promise.reject(LeaseLost(p));
+    if (Date.now() - held[p] < RENEW_MS) return Promise.resolve(true);
+    return lease(p).then(function (ok) { if (!ok) throw LeaseLost(p); return true; });
+  }
+  function lockName(p) { return "kos-ext-" + p + ((KOS.dataMode && KOS.dataMode.suffix) || ""); }
+  function webLocks() {
+    if (locks) return locks;
+    try { return (typeof navigator !== "undefined" && navigator.locks && navigator.locks.request) ? navigator.locks : null; } catch (e) { return null; }
+  }
+  /* fn() under this provider's Web Lock; {ok:true, busy:true} without
+     running fn when another tab holds it */
+  function underLock(p, fn) {
+    var L = webLocks();
+    if (!L) return fn();
+    return Promise.resolve(L.request(lockName(p), { ifAvailable: true }, function (lock) {
+      if (!lock) return { ok: true, busy: true };
+      return fn();
+    }));
+  }
 
   /* ---------------- HTTP ---------------- */
   function call(tok, method, url, body, headers) {
@@ -301,25 +351,36 @@
   function syncProvider(p, why) {
     var mine = adapters.filter(function (a) { return a.provider === p && a.on(); });
     if (!mine.length || !S()[p].on) return Promise.resolve({ ok: true, skipped: true });
+    return underLock(p, function () { return runProvider(p, mine, why); }).then(function (r) {
+      if (!r.skipped && !r.waiting && !r.busy) setStatus(p, { ok: r.ok, why: r.why || null, counts: r.counts || {} });
+      return r;
+    });
+  }
+  function runProvider(p, mine, why) {
     return token(p).then(function (tok) {
       if (!tok) return { ok: false, why: "No sign-in for " + NAME[p] + " on this device." };
       return lease(p).then(function (got) {
         if (!got) return { ok: true, waiting: true };
-        var counts = {};
+        var counts = {}, lost = null;
         return mine.reduce(function (chain, a) {
           return chain.then(function () {
-            return Promise.resolve(a.cycle(tok)).then(function (c) { counts[a.name] = c || {}; }, function (e) { counts[a.name] = { error: (e && e.message) || String(e) }; });
+            if (lost) return null;
+            return Promise.resolve(a.cycle(tok)).then(function (c) { counts[a.name] = c || {}; }, function (e) {
+              if (e && e.leaseLost) lost = e;
+              counts[a.name] = { error: (e && e.message) || String(e) };
+            });
           });
         }, Promise.resolve()).then(function () {
-          return release(p).then(function () {
+          /* a lost lease is not ours to release */
+          if (lost) delete held[p];
+          return (lost ? Promise.resolve() : release(p)).then(function () {
             var errs = Object.keys(counts).filter(function (k) { return counts[k].error; }).map(function (k) { return counts[k].error; });
-            return { ok: !errs.length, why: errs[0] || null, counts: counts, reason: why };
+            var out = { ok: !errs.length, why: lost ? lost.message : errs[0] || null, counts: counts, reason: why };
+            if (lost) out.aborted = true;
+            return out;
           });
         });
       });
-    }).then(function (r) {
-      if (!r.skipped && !r.waiting) setStatus(p, { ok: r.ok, why: r.why || null, counts: r.counts || {} });
-      return r;
     });
   }
   function syncAll(why) {
@@ -382,10 +443,11 @@
     same: same, merge3: merge3,
     inbound: inbound, isInbound: isInbound, noteLocal: noteLocal, queueDelete: queueDelete,
     connect: connect, complete: complete, redirectUri: redirectUri, disconnect: disconnect, token: token, blocked: blocked, serverStatus: serverStatus, isReturn: isReturn,
-    lease: lease, release: release, device: device,
+    lease: lease, release: release, device: device, holder: holder, heartbeat: heartbeat, lockName: lockName,
     call: call, kv: kv, setKv: setKv, key: key,
     register: register, onChange: onChange, changed: changed, status: status, setStatus: setStatus,
     syncAll: syncAll, syncProvider: syncProvider, logActivity: logActivity, boot: boot,
-    _setEdge: function (f) { edgeApi = f; }, _setNav: function (f) { nav = f; }, _clearTokens: function () { tokens = {}; }
+    _setEdge: function (f) { edgeApi = f; }, _setNav: function (f) { nav = f; }, _clearTokens: function () { tokens = {}; },
+    _setLocks: function (l) { locks = l; }, _config: function (o) { if (o && o.renewMs != null) RENEW_MS = o.renewMs; }
   };
 })();

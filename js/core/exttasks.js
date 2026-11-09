@@ -321,6 +321,9 @@
     var status = {}, map = {};
     return chunks.reduce(function (chain, ch) {
       return chain.then(function () {
+        /* the lease is renewed between chunks; a lost one stops here (DI-19) */
+        return X().heartbeat("todoist");
+      }).then(function () {
         return tdSync(tok, { commands: ch }).then(function (r) {
           Object.assign(status, r.sync_status || {});
           Object.assign(map, r.temp_id_mapping || {});
@@ -345,7 +348,7 @@
       var mir = (saved && saved.lists) || {};
       Object.keys(mir).forEach(function (l) { if (!linked.hasOwnProperty(l)) delete mir[l]; });
       return Object.keys(linked).reduce(function (chain, l) {
-        return chain.then(function () {
+        return chain.then(function () { return X().heartbeat("google"); }).then(function () {
           var m = mir[l] = mir[l] || { tasks: {}, since: null };
           var changed = {};
           function page(pt) {
@@ -400,7 +403,7 @@
       });
     }, Promise.resolve()).then(function () {
       return items().reduce(function (chain, it) {
-        return chain.then(function () {
+        return chain.then(function () { return X().heartbeat("google"); }).then(function () {
           var lk = linkOfList(it.listId), L = fromLocal("gtasks", it);
           var linkedHere = it.ext && it.ext.p === "gtasks" && it.ext.id;
           /* moved to another list: Google Tasks has no move across lists here — delete, then add */
