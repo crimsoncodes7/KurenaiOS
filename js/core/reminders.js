@@ -235,7 +235,8 @@
     var e = r.entryId != null ? (store.state.sessions || []).filter(function (x) { return x.id === r.entryId; })[0] : null;
     var xp = e && e.award ? Math.max(0, e.award.xp || 0) : 0;
     var gold = e && e.award ? Math.max(0, (e.award.gold || 0) - (e.award.ms || 0)) : 0;
-    if (xp || gold) KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, title: item.title + " · undone", note: "Undo" } });
+    var hp = e && e.award ? Math.max(0, e.award.hp || 0) : 0;
+    if (xp || gold || hp) KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, hp: -hp, title: item.title + " · undone", note: "Undo" } });
     else store.save();
     noteExt();
     return item;

@@ -380,4 +380,8 @@
 @media (max-width: 560px) {
 .k-cr-steps[data-art] { grid-template-columns: minmax(0, 1fr); }
 }
+
+  /* attach a piece from the Practice Log to a project milestone (CR-20) */
+  .k-cr-attach { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-8); }
+  .k-cr-attach > li { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-8) var(--sp-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--s1); }
 }

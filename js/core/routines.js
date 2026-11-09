@@ -412,9 +412,9 @@
   function reverse(entryId, title) {
     var e = (store.state.sessions || []).filter(function (x) { return x.id === entryId; })[0];
     if (!e || !e.award) return null;
-    var xp = Math.max(0, e.award.xp || 0), gold = Math.max(0, (e.award.gold || 0) - (e.award.ms || 0));
-    if (!xp && !gold) return null;
-    return KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, title: title, note: "Undo" } });
+    var xp = Math.max(0, e.award.xp || 0), gold = Math.max(0, (e.award.gold || 0) - (e.award.ms || 0)), hp = Math.max(0, e.award.hp || 0);
+    if (!xp && !gold && !hp) return null;
+    return KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, hp: -hp, title: title, note: "Undo" } });
   }
   /* a step checked in the morning, answered No: recorded, never ticked */
   function answerNo(id, stepId, opts) {

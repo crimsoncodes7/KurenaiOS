@@ -99,9 +99,11 @@ step("C · HR-21: Home's reminder tick has Undo, reversed by one correction", as
   K.show("home"); await app.settle();
   const tick = $$("[data-ui~='home.reminder-tick']").find((b) => /Post the form/.test(b.getAttribute("aria-label")));
   assert(tick, "the reminder is on Home");
-  const xp = G().xp, gold = G().gold;
+  G().hp = 50;                          /* below the cap, so the tick restores HP */
+  const xp = G().xp, gold = G().gold, hp = G().hp;
   click(tick); await app.settle();
   eq(K.reminders.get(r.id).done, true, "completed");
+  assert(G().hp > hp, "the tick restored HP");
   eq([G().xp - xp, G().gold - gold], [5, 1], "paid the trickle");
   const paid = last();
   eq(paid.type, "todo", "one todo session");
@@ -110,7 +112,7 @@ step("C · HR-21: Home's reminder tick has Undo, reversed by one correction", as
   click(u); await app.settle();
   eq(K.reminders.get(r.id).done, false, "back as it was");
   eq(K.reminders.get(r.id).completedAt, null, "no completion time");
-  eq([G().xp, G().gold], [xp, gold], "the pay is reversed");
+  eq([G().xp, G().gold, G().hp], [xp, gold, hp], "the pay is reversed, HP included (no farming HP by tick and Undo)");
   const c = last();
   eq([c.type, c.metrics.xp, c.metrics.gold], ["correction", -5, -1], "through one correction entry");
   assert(K.store.state.sessions.some((e) => e.id === paid.id), "the session is never deleted");
@@ -226,6 +228,12 @@ step("H · RC21: tick → untick → re-tick pays once", async () => {
   K.todo.toggleManual(901, true, "Old task"); K.todo.toggleManual(901, false, "Old task"); K.todo.toggleManual(901, true, "Old task");
   eq(G().xp - xp, 5, "a task");
   K.store.state.todo.manual = [];
+  /* an assignment marked complete, reopened, completed again */
+  const as = K.assignments.add({ title: "Lab write-up", subject: "compsci", due: today });
+  xp = G().xp;
+  K.assignments.setStatus(as.id, "complete"); K.assignments.setStatus(as.id, "inProgress"); K.assignments.setStatus(as.id, "complete");
+  eq(G().xp - xp, 5, "an assignment");
+  eq(K.assignments.get(as.id).status, "complete", "(it really went back and forth)");
   eq(app.errors, [], "no page errors");
 });
 

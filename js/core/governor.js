@@ -200,9 +200,11 @@
        is left out of Reports' "earned". */
     if (e.type === "correction") {
       var dx = Math.min(0, Math.round(+m.xp || 0)), dg = Math.min(0, Math.round(+m.gold || 0));
-      dx = Math.max(dx, -g.xp); dg = Math.max(dg, -g.gold);
-      g.xp += dx; g.gold += dg;
+      var dh = Math.min(0, Math.round(+m.hp || 0));
+      dx = Math.max(dx, -g.xp); dg = Math.max(dg, -g.gold); dh = Math.max(dh, -g.hp);
+      g.xp += dx; g.gold += dg; g.hp += dh;
       e.award = { xp: dx, gold: dg };
+      if (dh) e.award.hp = dh;   /* an Undo takes back the HP its tick restored */
       lastAward = { xp: dx, gold: dg, hp: 0, notes: ["correction"], levelUp: false, level: levelInfo(g.xp).level };
       store.save();
       if (KOS.refreshHUD) KOS.refreshHUD();
@@ -379,12 +381,16 @@
 
     g.xp += xp;
     g.gold += gold;
+    var hpBefore = g.hp;
     restoreHp(hp);
     /* the award rides on its own ledger entry (Reports 5.1: "earned this
        week" is a sum over the period, never a difference of running
        totals that purchases and cloud merges also move) */
     e.award = { xp: xp, gold: gold };
     if (msNew) e.award.ms = msNew;
+    /* the HP this entry actually restored (after the Critical halving and
+       the cap), so an Undo can take back exactly that */
+    if (g.hp - hpBefore > 0) e.award.hp = g.hp - hpBefore;
     store.save();
 
     var after = levelInfo(g.xp).level;

@@ -98,7 +98,10 @@
      re-keying a record never rewrites them. An assessment's scope picks
      (`include`, `exclude`, roadmap 5.8) are the same kind of link. */
   /* an assignment's work-on days (roadmap 5.10) are a set the same way */
-  var SET_FIELDS = { refs: true, include: true, exclude: true, workOn: true };
+  var SET_FIELDS = { refs: true, include: true, exclude: true, workOn: true,
+    /* a reminder's completion history (epoch ms): two devices completing
+       it both keep their entry (RC21, PR-27) */
+    completions: true };
   /* ORDERED lists merge whole: a changed list on both sides is one leaf
      (the enclosing record's rule decides, else local), never element-wise —
      merging an ordering position by position can double one item and lose
