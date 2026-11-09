@@ -230,6 +230,8 @@
       coverUrl: rec.coverUrl,
       developer: rec.developer,
       notes: r.notes || "",
+      /* when the list entry was last changed on VNDB (CL-45) */
+      activityAt: r.lastmod ? r.lastmod * 1000 : null,
       syncSource: "vndb",
       lastSyncedAt: Date.now(),
       extra: rec.extra
@@ -349,7 +351,7 @@
     function pull(attempt) {
       api("/ulist", {
         user: null,   // null = the authenticated user
-        fields: "id, vote, notes, started, finished, labels.id, labels.label, " +
+        fields: "id, vote, notes, started, finished, lastmod, labels.id, labels.label, " +
           VN_FIELDS.split(", ").map(function (f) { return "vn." + f; }).join(", "),
         sort: "id", results: PAGE_SIZE, page: page
       }, token, function (err, data) {

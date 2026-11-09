@@ -289,6 +289,7 @@
       if (r.dnf && r.dnf.isDnf && !(out.dnf && out.dnf.isDnf)) out.dnf = r.dnf;
       /* one title, one history: both copies' journals (Reports 5.1) */
       out.journal = KOS.mediadb.unionJournal(out.journal, r.journal);
+      out.activityAt = Math.max(out.activityAt || 0, r.activityAt || 0) || null;
       ["developer", "author", "publisher"].forEach(function (k) { if (!out[k] && r[k]) out[k] = r[k]; });
       if (!out.coverUrl && r.coverUrl) {
         out.coverUrl = r.coverUrl;

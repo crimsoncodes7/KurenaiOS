@@ -981,7 +981,7 @@
     in: /^(paid in|money in|credit|deposits?|in)$/i,
     payee: /^(description|payee|merchant|name|counter party|details|reference)$/i,
     note: /^(notes?|memo|category)$/i,
-    fitid: /^(fitid|transaction id|transaction reference|id)$/i,
+    fitid: /^(fitid|transaction id|transaction reference)$/i,
     balance: /^(balance|running balance|balance \(gbp\))$/i
   };
   function guessMapping(header) {
@@ -1016,11 +1016,17 @@
      on its own. Rows imported before this rule carry no `imp` and are
      matched by date, amount and payee, each stored row used up once. */
   function normCell(v) { return String(v == null ? "" : v).toLowerCase().replace(/\s+/g, " ").trim(); }
-  function fnv(text) {
-    var h = 0x811c9dc5;
+  function fnv(text, seed) {
+    var h = seed || 0x811c9dc5;
     for (var i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
     return ("0000000" + h.toString(16)).slice(-8);
   }
+  /* the stored identity is a fixed-length hash of the key (a long row is
+     never cut short, so it always matches itself) */
+  function idHash(key) { return "h:" + fnv(key) + fnv(key, 0x01000193); }
+  /* what the source row keeps: never an account number, a sort code, a card
+     number or the running balance (invariant 5a: logistics, not banking) */
+  var PRIVATE_COL = /account|sort ?code|iban|card ?(no|number)|balance/i;
   function rowKey(r, mapping, date, minor, kind) {
     var skip = {};
     ["date", "amount", "out", "in", "fitid"].forEach(function (k) { if (mapping[k] != null) skip[mapping[k]] = true; });
@@ -1051,12 +1057,15 @@
       }
       if (!date || !minor) { out.errors.push({ line: i + 2, reason: !date ? "No date I can read" : "No amount" }); return; }
       var fitid = mapping.fitid != null ? str(r[mapping.fitid], 80) : "";
-      var k = fitid ? "fitid:" + fitid : rowKey(r, mapping, date, minor, kind);
+      /* a bank id is trusted only WITH its date and amount: some exports
+         number their rows, or restart ids each day */
+      var k = idHash(fitid ? date + "|" + minor + "|" + kind + "|fitid:" + fitid : rowKey(r, mapping, date, minor, kind));
       occ[k] = (occ[k] || 0) + 1;
       out.rows.push({ line: i + 2, date: date, minor: minor, kind: kind,
         cat: kind === "in" ? (opts.inCat || "other-in") : (opts.outCat || "other"),
         payee: str(r[mapping.payee], 80), note: mapping.note != null ? str(r[mapping.note], 500) : "", duplicate: false,
-        imp: { k: k, occ: occ[k], fitid: fitid || null }, raw: r.slice(0, 16) });
+        imp: { k: k, occ: occ[k], fitid: fitid || null },
+        raw: r.slice(0, 16).map(function (c, ci) { return PRIVATE_COL.test(String(parsed.header[ci] || "")) ? "" : c; }) });
     });
     if (!out.rows.length) { cb(null, out); return; }
     /* the statement's fingerprint: its rows' identities, order-free */

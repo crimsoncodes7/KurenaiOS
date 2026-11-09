@@ -443,6 +443,9 @@
     var m = round(h * 60), hh = Math.floor(m / 60), mm = m % 60;
     return hh ? (mm ? hh + "h " + mm + "m" : hh + "h") : mm + "m";
   }
+  /* the one definition of doing something with a title (HR-31) lives
+     with the journal it reads, in mediadb.js */
+  function activeEvent(ev) { return !!(window.KOS && KOS.mediadb && KOS.mediadb.activeEvent && KOS.mediadb.activeEvent(ev)); }
   function collection(input, p) {
     var a = ms(p.start), b = ms(addDays(p.end, 1)), n = days(p.start, p.end) + 1;
     var wk = p.period === "week";
@@ -450,9 +453,15 @@
     (input.rows || []).forEach(function (r) { if (r.id != null) byId[r.id] = r; });
     function touch(r) { return touched[r.syncId || r.id] = touched[r.syncId || r.id] || { row: r, ev: [], days: {} }; }
     (input.rows || []).forEach(function (r) {
-      (r.journal || []).forEach(function (ev) {
-        if (ev[0] >= a && ev[0] < b) { var t = touch(r); t.ev.push(ev); t.days[iso(new Date(ev[0]))] = true; }
-      });
+      /* a title is in the period only when you DID something with it — a
+         step forward, a start or a finish (HR-31); a score, a pause or a
+         sync's echo alone leaves it out. Its other events that period still
+         describe it (paused, dropped) once it is in. */
+      var inRange = (r.journal || []).filter(function (ev) { return ev[0] >= a && ev[0] < b; });
+      if (inRange.some(activeEvent)) {
+        var t0 = touch(r);
+        inRange.forEach(function (ev) { t0.ev.push(ev); if (activeEvent(ev)) t0.days[iso(new Date(ev[0]))] = true; });
+      }
       var ds = r.dates || {};
       if (ds.started && ds.started >= p.start && ds.started <= p.end) { touch(r).startedOn = ds.started; touch(r).days[ds.started] = true; }
       if (ds.finished && ds.finished >= p.start && ds.finished <= p.end) { touch(r).finishedOn = ds.finished; touch(r).days[ds.finished] = true; }
@@ -468,7 +477,7 @@
     /* genre flow: after an event on one title, the next event on a
        DIFFERENT title — its leading genre against the first one's */
     var evs = [];
-    keys.forEach(function (k) { touched[k].ev.forEach(function (ev) { evs.push({ ts: ev[0], k: k, g: (touched[k].row.genres || [])[0] || null }); }); });
+    keys.forEach(function (k) { touched[k].ev.forEach(function (ev) { if (activeEvent(ev)) evs.push({ ts: ev[0], k: k, g: (touched[k].row.genres || [])[0] || null }); }); });
     evs.sort(function (x, y) { return x.ts - y.ts; });
     var flows = {};
     for (var fi = 1; fi < evs.length; fi++) {
@@ -493,14 +502,15 @@
           return;
         }
         if (kind === "score") return;
-        var from = typeof ev[2] === "number" ? ev[2] : 0, to = typeof ev[3] === "number" ? ev[3] : 0;
+        /* only a real step forward counts its amount (a step from nothing
+           is an import or another title's echo, DI-27) */
+        if (!activeEvent(ev)) return;
+        var from = ev[2], to = ev[3];
         var pr = prog[kind] = prog[kind] || { from: from, to: to };
         pr.to = to;
-        if (to > from) {
-          var em = estMins(r, kind, to - from), edi = days(p.start, iso(new Date(ev[0])));
-          mins += em;
-          if (edi >= 0 && edi < n) dayMinsC[edi] += em;
-        }
+        var em = estMins(r, kind, to - from), edi = days(p.start, iso(new Date(ev[0])));
+        mins += em;
+        if (edi >= 0 && edi < n) dayMinsC[edi] += em;
       });
       if (!st && t.finishedOn) st = "finished";
       if (!st && t.startedOn) st = "started";
@@ -544,7 +554,7 @@
       if (r.score > 0) scored.push({ title: r.title, module: r.module, score: r.score, status: st, syncId: r.syncId || null });
       titles.push({ syncId: r.syncId || null, id: r.id, module: r.module, title: r.title, cover: r.coverUrl || null,
         status: st, score: r.score || 0, range: range, mins: round(mins) || undefined,
-        genres: (r.genres || []).slice(0, 4), lastTs: Math.max.apply(null, t.ev.map(function (ev) { return ev[0]; }).concat([0])) });
+        genres: (r.genres || []).slice(0, 4), lastTs: Math.max.apply(null, t.ev.filter(activeEvent).map(function (ev) { return ev[0]; }).concat([0])) });
     });
     Object.keys(status).forEach(function (k) { if (!status[k]) delete status[k]; });
     var gTotal = sum(Object.keys(genres).map(function (g) { return genres[g]; }));
@@ -1089,7 +1099,7 @@
     var a = ms(p.start), b = ms(addDays(p.end, 1)), out = {};
     (input.rows || []).forEach(function (r) {
       var months = {};
-      (r.journal || []).forEach(function (ev) { if (ev[0] >= a && ev[0] < b) months[iso(new Date(ev[0])).slice(0, 7)] = true; });
+      (r.journal || []).forEach(function (ev) { if (ev[0] >= a && ev[0] < b && activeEvent(ev)) months[iso(new Date(ev[0])).slice(0, 7)] = true; });
       var ds = r.dates || {};
       [ds.started, ds.finished].forEach(function (d) { if (d && d >= p.start && d <= p.end) months[d.slice(0, 7)] = true; });
       Object.keys(months).forEach(function (m) { var row = out[m] = out[m] || {}; row[r.module] = (row[r.module] || 0) + 1; });

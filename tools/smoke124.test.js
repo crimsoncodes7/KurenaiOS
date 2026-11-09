@@ -160,6 +160,13 @@ step("F · import asks first, Cancel changes nothing, confirm saves a copy then 
   eq(await backups(), nb + 1, "a verified copy of this device was saved first");
   const list = await wait(B.list());
   eq(list[0].label, "before-import", "labelled before-import");
+  /* an old v1 backup (the state itself, no wrapper) is still accepted */
+  const v1 = new window.File([JSON.stringify(snap.state)], "old.json", { type: "application/json" });
+  Object.defineProperty(input, "files", { value: [v1], configurable: true });
+  input.dispatchEvent(new window.Event("change"));
+  for (let i = 0; i < 50 && !document.querySelector('[data-ui~="ui.confirm"]'); i++) await app.settle();
+  assert(document.querySelector('[data-ui~="ui.confirm"]'), "a v1 backup opens the same dialog");
+  document.querySelector('[data-ui="ui.confirm-no"]').click(); await app.settle();
   assert(!K.store.state.custom.cards.some((x) => x.id === 9100), "the restore replaced the state");
 });
 

@@ -52,21 +52,30 @@ step("boot, seed, and plant the bug's traces", async () => {
     { module: "books", title: "Bleach", status: "completed", format: "MANGA", syncSource: "anilist", externalIds: { anilistId: 30012, malId: 12 }, progress: { current: 686, total: 686, volumes: 74 } },
     { module: "anime", title: "ONE PIECE", status: "planned", format: "TV", syncSource: "anilist", externalIds: { anilistId: 21, malId: 21 }, progress: { current: 0 } },
     { module: "anime", title: "Some Anime 9000", status: "completed", format: "TV", syncSource: "anilist", externalIds: { anilistId: 9000, malId: 9000 }, progress: { current: 12, total: 12 } },
-    { module: "anime", title: "Clannad", status: "completed", format: "TV", syncSource: "anilist", externalIds: { anilistId: 2167, malId: 2167 }, progress: { current: 23, total: 23 } }
+    { module: "anime", title: "Clannad", status: "completed", format: "TV", syncSource: "anilist", externalIds: { anilistId: 2167, malId: 2167 }, progress: { current: 23, total: 23 } },
+    /* the Death Note ANIME, a different title with the manga's name */
+    { module: "anime", title: "Death Note", status: "inProgress", format: "TV", syncSource: "anilist", externalIds: { anilistId: 1535, malId: 1535 }, progress: { current: 10, total: 37 } }
   ];
   await cb((c) => K.mediadb.bulkUpsert(rows, {}, c));
+  /* the Death Note anime really moved on 10 Sep (and only then) */
+  const dnA = (await cb((c) => K.mediadb.query({ module: "anime" }, c))).find((r) => r.title === "Death Note");
+  await cb((c) => K.mediadb.replaceJournal(dnA.syncId, [[Date.parse("2026-09-10T20:00:00"), "progress", 9, 10]], c));
   const st = K.store.state;
   let id = 50000;
   const planted = [];
   for (let d = 1; d <= 20; d++) {
     const date = "2026-09-" + String(d).padStart(2, "0");
     planted.push(entry(id++, date, { module: "books", action: "sync-reward", entries: 1, units: 8, advances: 1, titles: ["Death Note"] }, { xp: 46, gold: 12 }));
-    planted.push(entry(id++, date, { module: "integrations", action: "sync-reward", entries: 2, units: 9, advances: 1, titles: ["Aku no Kyouten", "Death Note"] }, { xp: 46, gold: 12 }));
+    planted.push(entry(id++, date, { module: "integrations", modules: ["anime", "books"], action: "sync-reward", entries: 2, units: 9, advances: 1, titles: ["Aku no Kyouten", "Death Note"] }, { xp: 46, gold: 12 }));
   }
   planted.push(entry(id++, "2026-09-05", { module: "books", action: "sync-reward", entries: 1, units: 3, advances: 0, titles: ["Death Note"] }));   /* no award: priced */
-  planted.push(entry(id++, "2026-09-06", { module: "integrations", action: "sync-reward", entries: 2, units: 4, advances: 0, titles: ["Death Note", "Clannad"] }, { xp: 8, gold: 2 }));   /* mixed */
+  planted.push(entry(id++, "2026-09-06", { module: "integrations", modules: ["anime", "books"], action: "sync-reward", entries: 2, units: 4, advances: 0, titles: ["Death Note", "Clannad"] }, { xp: 8, gold: 2 }));   /* mixed */
   planted.push(entry(id++, "2026-09-07", { module: "anime", action: "sync-reward", entries: 1, units: 2, advances: 0, titles: ["Clannad"] }, { xp: 6, gold: 1 }));   /* genuine */
   planted.push(entry(id++, "2026-09-08", { module: "books", action: "sync-reward", entries: 6, units: 20, advances: 0, titles: ["Death Note", "Death Note", "Death Note", "Death Note", "Death Note"] }, { xp: 24, gold: 6 }));   /* 6 entries, 5 named: unknown sixth, kept */
+  /* review findings (9 Nov): never a genuine reward */
+  planted.push(entry(id++, "2026-09-09", { module: "anime", action: "sync-reward", entries: 1, units: 1, advances: 0, titles: ["Death Note"] }, { xp: 5, gold: 1 }));   /* the anime's own: kept */
+  planted.push(entry(id++, "2026-09-10", { module: "integrations", modules: ["anime", "books"], action: "sync-reward", entries: 1, units: 1, advances: 0, titles: ["Death Note"] }, { xp: 5, gold: 1 }));   /* ambiguous: kept */
+  planted.push(entry(id++, "2026-11-09", { module: "books", action: "sync-reward", entries: 1, units: 2, advances: 0, titles: ["Death Note"] }, { xp: 6, gold: 1 }));   /* after the fix: a real advance, kept */
   st.sessions = st.sessions.concat(planted);
   st.governor.xp = 10000; st.governor.gold = 300;
   K.store.save(); await app.settle();
@@ -79,13 +88,14 @@ step("A · the classifier finds exactly the phantom entries", async () => {
   preview = await wait(K.repairs.preview(ID));
   const s = preview.summary;
   eq(s.rows.map((r) => r.title).sort(), ["Aku no Kyouten", "Death Note"], "the collided Books rows (Bleach's MAL id has no anime)");
-  eq(s.entries, 41, "40 planted + the unpriced one");
-  eq(s.mixedKept, 2, "the mixed entry and the batch with an unnamed sixth title are kept");
+  eq(s.entries, 40, "39 planted + the unpriced one: the 10 Sep batch is ambiguous (the anime moved that day)");
+  eq(s.mixedKept, 4, "kept: the mixed entry, the batch with an unnamed sixth title, the anime's own reward, the one after the fix");
+  eq(s.ambiguousKept, 2, "kept: the autosync batches naming Death Note on the day the anime moved");
   eq(s.pricedWithoutAward, 1, "one priced by the Governor's rule");
-  eq(s.phantomXp, 40 * 46 + (4 + 3), "XP from the recorded awards (+ the priced one: 4 + 3 units)");
-  eq(s.phantomGold, 40 * 12 + 1, "gold likewise");
+  eq(s.phantomXp, 39 * 46 + (4 + 3), "XP from the recorded awards (+ the priced one: 4 + 3 units)");
+  eq(s.phantomGold, 39 * 12 + 1, "gold likewise");
   eq([s.from, s.to], ["2026-09-01", "2026-09-20"], "the date range");
-  eq(preview.items.length, 41, "every entry listed for the audit");
+  eq(preview.items.length, 40, "every entry listed for the audit");
 });
 
 step("B · the preview writes nothing; gold is clamped at the balance", async () => {
@@ -96,7 +106,7 @@ step("B · the preview writes nothing; gold is clamped at the balance", async ()
   eq(s.after.gold, 0, "gold after");
   eq(s.after.xp, 10000 - s.phantomXp, "XP after");
   eq(K.store.state.governor.gold, 300, "nothing moved yet");
-  eq(K.store.state.sessions.filter((e) => e.id >= 50000).length, 44, "the ledger untouched (44 planted)");
+  eq(K.store.state.sessions.filter((e) => e.id >= 50000).length, 47, "the ledger untouched (47 planted)");
 });
 
 step("C · the approved run removes them and logs one correction", async () => {
@@ -104,7 +114,7 @@ step("C · the approved run removes them and logs one correction", async () => {
   assert(r.ok, "ran: " + JSON.stringify(r));
   const st = K.store.state;
   const left = st.sessions.filter((e) => e.id >= 50000 && e.type === "media").map((e) => e.id).sort();
-  eq(left, [50041, 50042, 50043], "the mixed, genuine and part-named entries are kept");
+  eq(left, [50019, 50041, 50042, 50043, 50044, 50045, 50046], "the mixed, genuine, part-named, anime, ambiguous and post-fix entries are kept");
   const corr = st.sessions.filter((e) => e.type === "correction");
   eq(corr.length, 1, "one correction entry");
   eq(corr[0].award, { xp: -preview.summary.deductXp, gold: -300 }, "its award is the clamped deduction");
@@ -122,6 +132,21 @@ step("D · the correction is not activity, study or earning; badges kept", async
   if (onlyCorrection) assert(!K.sessions.hasActivity(corr.date), "a correction alone is no activity for the day");
   const was = JSON.parse(earnedBefore), now = st.achievements.earned;
   Object.keys(was).forEach((id) => assert(now[id] && now[id].tier >= was[id].tier, "badge " + id + " keeps its tier"));
+});
+
+step("E2 · a device that pulled the clean-up first deducts nothing", async () => {
+  /* plan on a ledger that still has a phantom, then the other device's
+     clean-up arrives (the entry goes) before apply: nothing is deducted */
+  const st = K.store.state;
+  st.sessions.push(entry(60001, "2026-09-12", { module: "books", action: "sync-reward", entries: 1, units: 8, advances: 1, titles: ["Death Note"] }, { xp: 46, gold: 12 }));
+  const p = await wait(K.repairDi27.plan());
+  assert(p.needed, "the plan sees it");
+  st.sessions = st.sessions.filter((e) => e.id !== 60001);
+  const xp = st.governor.xp, n = st.sessions.filter((e) => e.type === "correction").length;
+  const r = p.apply();
+  eq(r.removed, 0, "nothing left to remove");
+  eq(st.governor.xp, xp, "no XP taken twice");
+  eq(st.sessions.filter((e) => e.type === "correction").length, n, "no second correction");
 });
 
 step("E · idempotent", async () => {

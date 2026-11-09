@@ -644,7 +644,7 @@
   function sessionsThisWeek() {
     var cut = Date.now() - 7 * 864e5;
     return KOS.sessions.all().filter(function (s) {
-      return s.type !== "media" && s.ts >= cut;
+      return s.type !== "media" && s.type !== "correction" && s.ts >= cut;
     }).length;
   }
 
@@ -1469,7 +1469,7 @@
        never said what it was compared with. */
     var lastWeekH = 0, daysIn = weekIsos.filter(function (iso) { return iso <= today; }).length;
     for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += hoursOn(isoOf(ld)); }
-    var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && weekIsos.indexOf(s.date) !== -1; }).length;
+    var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && s.type !== "correction" && weekIsos.indexOf(s.date) !== -1; }).length;
     var goalH = dailyGoalMins() / 60, goalT = fmtH(goalH) + "h";
     var peak = Math.max(goalH, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
     /* every bar and the goal line are measured in ONE track per column
@@ -3365,12 +3365,14 @@
         rd.onload = function () {
           var data = null;
           try { data = JSON.parse(rd.result); } catch (e) {}
-          if (!data || typeof data !== "object" || !data.state) { file.value = ""; KOS.ui.toast("That file is not a KurenaiOS backup.", true); return; }
+          /* a full backup carries `state`; an old v1 file IS the state */
+          var stOf = data && typeof data === "object" ? (data.state || ("progress" in data ? data : null)) : null;
+          if (!stOf) { file.value = ""; KOS.ui.toast("That file is not a KurenaiOS backup.", true); return; }
           var when = data.exportedAt ? new Date(data.exportedAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "an unknown date";
           var n = function (st) { return st && Array.isArray(st.sessions) ? st.sessions.length : 0; };
           var titles = function (x) { return Array.isArray(x) ? x.length : 0; };
           KOS.ui.confirm({ danger: true, title: "Replace everything on this device?", confirm: "Replace with this backup", mark: "替",
-            body: "The backup is from " + when + ": " + n(data.state) + " sessions and " + titles(data.mediaEntries) + " Collection titles. " +
+            body: "The backup is from " + when + ": " + n(stOf) + " sessions and " + titles(data.mediaEntries) + " Collection titles. " +
               "This device has " + n(store.state) + " sessions now. A copy of this device is saved and checked first, " +
               "and if cloud sync is on, the restored data replaces the cloud's on the next sync." },
             function () { restoreNow(picked); },

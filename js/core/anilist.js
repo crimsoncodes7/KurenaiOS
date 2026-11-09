@@ -196,6 +196,8 @@
       coverUrl: (m.coverImage && (m.coverImage.extraLarge || m.coverImage.large)) || null,
       syncSource: "anilist",
       lastSyncedAt: Date.now(),
+      /* when the list entry was last edited on AniList (CL-45) */
+      activityAt: en.updatedAt ? en.updatedAt * 1000 : null,
       extra: {
         bannerImage: m.bannerImage || null,
         format: m.format || null, season: m.season || null,
@@ -228,7 +230,7 @@
     return "query ($userId: Int, $type: MediaType) {" +
       " MediaListCollection(userId: $userId, type: $type) {" +
       "  lists { name status isCustomList entries {" +
-      "   id status score(format: POINT_10_DECIMAL) progress" +
+      "   id status score(format: POINT_10_DECIMAL) progress updatedAt" +
       (isAnime ? "" : " progressVolumes") +
       "   startedAt { year month day } completedAt { year month day }" +
       "   media { id idMal title { romaji english } coverImage { extraLarge large } bannerImage" +

@@ -194,7 +194,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-malfix-1`
-- Required smoke gate: 126 / 126 suites (`""` and 2–126, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 127 / 127 suites (`""` and 2–127, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -289,7 +289,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..126}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..127}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -2097,7 +2097,20 @@ source comments and audit notes refer to it.
     it. A row arriving with events the store has never seen (a cloud pull)
     UNIONS its history rather than appending a second account, and a fold
     (`foldLocal`, `mergeRows`) unions both. Capped at 200 events and 400
-    days; it is not an index, so no DB version.
+    days; it is not an index, so no DB version. WHAT COUNTS AS DOING
+    SOMETHING is ONE definition, `KOS.mediadb.activeEvent` (HR-31): a step
+    forward from a real number in progress, volumes, chapters, routes or
+    hours, a finish, or a start from planned — never a score, a pause, a
+    move back to planned, a step back or a step FROM NOTHING (an import, or
+    DI-27's echo). Reports' Collection and month strip read it. A row's
+    `activityAt` (CL-45) is when you last did something with it: AniList's
+    list-entry `updatedAt`, VNDB's `lastmod`, or a local list-state or
+    notes edit; never earlier than it was, and VOLATILE (alone it is no
+    edit). "Recently updated" sorts by it, falling back to `updatedAt` only
+    for a row with none. The DI-27 traces in a collided Books row's journal
+    are tidied ONCE PER DEVICE (`di27-journal-scrub`, a device-scoped
+    repair whose receipt is in the media kv) at start-up, before cloud sync
+    starts, and only once the clean-up itself was approved.
 100. A session entry records what the Governor paid it (`award: {xp,
     gold}`, written in `onSession`, zero when forfeited): "earned this
     week" is a sum of awards, never a difference of balances that

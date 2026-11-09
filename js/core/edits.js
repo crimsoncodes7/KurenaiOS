@@ -202,8 +202,10 @@
      erase it. With `opts.base` (the rows as the editor last loaded or
      saved them) set() merges by row id instead (invariant 88):
        - a row the editor did not touch takes the stored copy (a remote edit
-         survives) and, deleted remotely, stays deleted;
-       - a row the editor changed, added or deleted is the editor's;
+         survives);
+       - a row deleted on the other device stays deleted, even if edited
+         here (a deletion wins, invariant 33);
+       - a row the editor changed, added or deleted otherwise is the editor's;
        - a row added remotely is kept, after its stored neighbour.
      Order is the editor's. Ids are stamped onto the editor's own rows first,
      so the next save names them the same way. */
@@ -218,7 +220,10 @@
     var B = idx(base), L = idx(local), S = idx(stored), out = [];
     (local || []).forEach(function (x) {
       var id = String(x.id), b = B[id];
-      if (b && sameRow(x, b)) { if (S[id]) out.push(clone(S[id])); return; }
+      /* deleted on the other device: the deletion wins, even over an edit
+         here (invariant 33, as the cloud merge does) */
+      if (b && !S[id]) return;
+      if (b && sameRow(x, b)) { out.push(clone(S[id])); return; }
       out.push(x);
     });
     (stored || []).forEach(function (x, i) {
@@ -244,7 +249,10 @@
         value = value || {};
         ["content", "info"].forEach(function (l) { (value[l] || []).forEach(stamp); });
         value = { content: mergeRows(opts.base.content, value.content || [], storedNow && storedNow.content),
-          info: mergeRows(opts.base.info, value.info || [], storedNow && storedNow.info), colBreak: value.colBreak };
+          info: mergeRows(opts.base.info, value.info || [], storedNow && storedNow.info),
+          /* the column break merges three ways too: unchanged here → the
+             stored one (another device's move survives) */
+          colBreak: value.colBreak === opts.base.colBreak ? (storedNow && storedNow.colBreak) : value.colBreak };
       } else if (Array.isArray(value)) {
         value.forEach(function (v) { if (v && typeof v === "object") stamp(v); });
         value = mergeRows(opts.base, value, storedNow);

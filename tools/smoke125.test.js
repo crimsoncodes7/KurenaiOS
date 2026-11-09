@@ -140,6 +140,29 @@ step("D · MG-23: identical rows in one statement are separate payments", async 
   eq(c.res.added, 1, "one added");
 });
 
+step("D2 · review fixes: a long row, bank row numbers, no account numbers kept", async () => {
+  /* a row whose key is longer than any cap: it still matches itself */
+  const long = "Date,Description,Extended Details,Appears As,Address,Amount\n" +
+    "11/09/2026,AMAZON MKTPLACE," + "X".repeat(300) + ",AMZN MKTP UK," + "Y".repeat(200) + ",-19.99\n";
+  const l1 = await importCSV(long);
+  eq(l1.res.added, 1, "added once");
+  const l2 = await importCSV(long);
+  eq([l2.prev.duplicates, l2.res.added], [1, 0], "a 500-character row matches itself on re-import");
+  /* an export whose "Transaction ID" restarts at 1: the id alone is not trusted */
+  const e1 = "Date,Transaction ID,Description,Amount\n02/07/2026,1,RENT,-400.00\n03/07/2026,2,COFFEE,-2.50\n";
+  await importCSV(e1);
+  const e2 = "Date,Transaction ID,Description,Amount\n03/07/2026,1,COFFEE,-2.50\n04/07/2026,2,BOOKS,-12.00\n";
+  const p2 = await cb((c) => M().csv.preview(M().csv.parse(e2), M().csv.guess(M().csv.parse(e2).header), {}, c));
+  eq(p2.rows.map((r) => r.duplicate), [false, false], "a reused id on another day and amount is a new row");
+  eq(M().csv.guess(["ID", "Date", "Description", "Amount"]).fitid, undefined, "a bare ID column is not guessed as the bank's id");
+  /* account numbers, sort codes and balances are not kept */
+  const acct = "Date,Description,Amount,Balance,Sort Code,Account Number\n12/09/2026,LIDL,-8.40,120.00,12-34-56,12345678\n";
+  await importCSV(acct);
+  const all = await cb((c) => M().exportAll(c));
+  const lidl = all.tx.find((t) => t.payee === "LIDL");
+  eq(lidl.raw, ["12/09/2026", "LIDL", "-8.40", "", "", ""], "the balance, sort code and account number are blanked");
+});
+
 step("E · SY-18: an editor's save keeps another device's rows", async () => {
   const E = K.edits, sid = "compsci", ref = "4.1.1.2";
   const base = E.material(sid, ref, "flashcards");
@@ -173,6 +196,19 @@ step("E · SY-18: an editor's save keeps another device's rows", async () => {
   E.set(sid, ref, "spec", sm, { base: sb });
   const sp = E.material(sid, ref, "spec");
   assert(sp.info.some((b) => b.id === "e-remote-spec") && sp.content.some((b) => b.id === "e-local-spec"), "both devices' Spec blocks survive");
+  /* the column break another device set survives an unrelated save here */
+  const b2 = E.material(sid, ref, "spec"), mine2 = JSON.parse(JSON.stringify(b2));
+  E.setSpecBreak(sid, ref, b2.content[0].id);
+  mine2.content[0].md = (mine2.content[0].md || "") + " (edited)";
+  E.set(sid, ref, "spec", mine2, { base: b2 });
+  eq(E.material(sid, ref, "spec").colBreak, String(b2.content[0].id), "the other device's column break survives");
+  /* a card deleted on the other device stays deleted, even if edited here */
+  const fb = E.material(sid, ref, "flashcards"), gone = fb[1].id;
+  E.set(sid, ref, "flashcards", fb.filter((c) => c.id !== gone));
+  const mine3 = JSON.parse(JSON.stringify(fb));
+  mine3[1].q = "edited after the other device deleted it";
+  E.set(sid, ref, "flashcards", mine3, { base: fb });
+  assert(!E.material(sid, ref, "flashcards").some((c) => c.id === gone), "a deletion on either side wins (invariant 33)");
 });
 
 step("F · no errors", async () => {

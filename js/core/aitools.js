@@ -531,7 +531,7 @@
         out.quiz = (st.quiz || {})[k] || null;
       } else {
         var sessions = KOS.store.state.sessions.filter(function (e) {
-          return !args.subject || e.subject === args.subject;
+          return e.type !== "correction" && (!args.subject || e.subject === args.subject);
         });
         out.sessionCount = sessions.length;
         out.last7days = sessions.filter(function (e) {

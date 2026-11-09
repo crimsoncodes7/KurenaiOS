@@ -302,7 +302,7 @@
       var hpCls = hpPreview === "full" ? "healthy" : hpPreview === "critical" ? "critical" : KOS.governor.hpState();
       var stks = KOS.sessions.streaks();
       var allSessions = KOS.sessions.all();
-      var realSessions = allSessions.filter(function (s) { return !isRoutine(s); });
+      var realSessions = allSessions.filter(function (s) { return !isRoutine(s) && s.type !== "correction"; });
       var meaningfulSessions = realSessions.filter(isMeaningful);
 
       var seat = el("div", { class: "k-gv-seat", "data-ui": "gov.bento gov.status", "data-hp": hpCls });

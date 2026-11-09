@@ -7,6 +7,11 @@
      KOS.repairs.register(id, {
        title,                       // what it fixes, in a few words
        consent: true|false,         // true: runs only with an approved preview
+       repeat: true,                // (device) no receipt: runs whenever its data needs it
+       scope: "account"|"device",   // where the receipt lives (default account:
+                                    // state.repairs, synced; device: media kv
+                                    // `repair.done.<id>`, for a fix to a
+                                    // per-device store that every device makes)
        plan: () => Promise<{        // a DRY RUN: reads, writes nothing
          needed: bool,              // false once the data is already right
          summary: {...},            // the reconciliation (before, after, totals)
@@ -39,7 +44,7 @@
 (function () {
   "use strict";
   var KOS = window.KOS = window.KOS || {};
-  var defs = {}, order = [];
+  var defs = {}, order = [], applying = 0;
 
   function register(id, def) {
     if (!id || !def || typeof def.plan !== "function") throw new Error("A repair needs an id and a plan.");
@@ -51,6 +56,20 @@
     if (!st) return {};
     if (!st.repairs || typeof st.repairs !== "object" || Array.isArray(st.repairs)) st.repairs = {};
     return st.repairs;
+  }
+  /* the receipt: synced for an account repair, this device's for a device one */
+  function getReceipt(id) {
+    var d = defs[id];
+    if (d && d.scope === "device") return kv("repair.done." + id);
+    return Promise.resolve(receipts()[id] || null);
+  }
+  function setReceipt(id, rec) {
+    var d = defs[id];
+    if (d && d.repeat) return Promise.resolve(rec);   /* runs whenever its data needs it */
+    if (d && d.scope === "device") return kv("repair.done." + id, rec);
+    receipts()[id] = rec;
+    if (KOS.store.save) KOS.store.save();
+    return Promise.resolve(rec);
   }
   function kv(key, value) {
     return new Promise(function (res) {
@@ -81,38 +100,41 @@
     opts = opts || {};
     var d = defs[id];
     if (!d) return Promise.reject(new Error("No repair " + id));
-    if (receipts()[id]) return Promise.resolve({ ok: true, already: true, receipt: receipts()[id] });
-    var planned, hash;
-    return Promise.resolve(d.plan()).then(function (plan) {
-      planned = plan;
-      return hashOf(plan);
-    }).then(function (h) {
-      hash = h;
-      if (!planned.needed) {
-        receipts()[id] = { at: Date.now(), hash: h, noop: true };
-        if (KOS.store.save) KOS.store.save();
-        return { ok: true, noop: true };
-      }
-      if (d.consent && opts.approved !== h) {
-        return { ok: false, reason: opts.approved
-          ? "The data changed since the preview you approved, so nothing was changed. Preview it again."
-          : "This repair needs your approval of its preview first." };
-      }
-      if (!KOS.backup || !KOS.backup.withCheckpoint) return { ok: false, reason: "The backup is not available, so nothing was changed." };
-      return KOS.backup.withCheckpoint("repair:" + id, function () {
-        return Promise.resolve(planned.apply());
-      }).then(function (r) {
-        var audit = { id: id, title: d.title || id, at: Date.now(), hash: hash, summary: planned.summary || null,
-          items: planned.items || [], checkpoint: r.checkpoint || null, ok: !!r.ok, reason: r.reason || null,
-          value: r.ok ? (r.value === undefined ? null : r.value) : null };
-        if (!r.ok) return kv("repair.audit." + id, audit).then(function () { return { ok: false, reason: r.reason, checkpoint: r.checkpoint }; });
-        return Promise.resolve(d.plan()).then(function (after) {
-          audit.settled = !after.needed;
-          audit.after = after.summary || null;
-          return kv("repair.audit." + id, audit).then(function () {
-            if (after.needed) return { ok: false, reason: "The repair ran but the data still needs it; it was left unrecorded.", checkpoint: r.checkpoint, summary: planned.summary };
-            receipts()[id] = { at: audit.at, hash: hash, checkpoint: r.checkpoint && r.checkpoint.id, summary: planned.summary || null };
-            if (KOS.store.save) KOS.store.save();
+    return getReceipt(id).then(function (have) {
+      if (have) return { ok: true, already: true, receipt: have };
+      return Promise.resolve(d.plan()).then(function (planned) {
+        return hashOf(planned).then(function (hash) { return execute(d, id, opts, planned, hash); });
+      });
+    });
+  }
+  function execute(d, id, opts, planned, hash) {
+    if (!planned.needed) {
+      /* nothing to do: an internal account repair records it; a device
+         repair, or a CONSENT repair (a no-op is not an approval), records
+         nothing */
+      if (d.scope === "device" || d.consent) return { ok: true, noop: true };
+      return setReceipt(id, { at: Date.now(), hash: hash, noop: true }).then(function () { return { ok: true, noop: true }; });
+    }
+    if (d.consent && opts.approved !== hash) {
+      return { ok: false, reason: opts.approved
+        ? "The data changed since the preview you approved, so nothing was changed. Preview it again."
+        : "This repair needs your approval of its preview first." };
+    }
+    if (!KOS.backup || !KOS.backup.withCheckpoint) return { ok: false, reason: "The backup is not available, so nothing was changed." };
+    applying++;
+    return KOS.backup.withCheckpoint("repair:" + id, function () {
+      return Promise.resolve(planned.apply());
+    }).then(function (r) { applying--; return r; }, function (e) { applying--; throw e; }).then(function (r) {
+      var audit = { id: id, title: d.title || id, at: Date.now(), hash: hash, summary: planned.summary || null,
+        items: planned.items || [], checkpoint: r.checkpoint || null, ok: !!r.ok, reason: r.reason || null,
+        value: r.ok ? (r.value === undefined ? null : r.value) : null };
+      if (!r.ok) return kv("repair.audit." + id, audit).then(function () { return { ok: false, reason: r.reason, checkpoint: r.checkpoint }; });
+      return Promise.resolve(d.plan()).then(function (after) {
+        audit.settled = !after.needed;
+        audit.after = after.summary || null;
+        return kv("repair.audit." + id, audit).then(function () {
+          if (after.needed) return { ok: false, reason: "The repair ran but the data still needs it; it was left unrecorded.", checkpoint: r.checkpoint, summary: planned.summary };
+          return setReceipt(id, { at: audit.at, hash: hash, checkpoint: r.checkpoint && r.checkpoint.id, summary: planned.summary || null }).then(function () {
             return { ok: true, checkpoint: r.checkpoint, summary: planned.summary, after: after.summary || null, value: audit.value };
           });
         });
@@ -125,7 +147,7 @@
   var autoRun = null;
   function runAuto() {
     if (autoRun) return autoRun;
-    autoRun = order.filter(function (id) { return !defs[id].consent && !receipts()[id]; }).reduce(function (p, id) {
+    autoRun = order.filter(function (id) { return !defs[id].consent; }).reduce(function (p, id) {
       return p.then(function (out) {
         return run(id).catch(function (e) { return { ok: false, reason: (e && e.message) || String(e) }; })
           .then(function (r) { out[id] = r; return out; });
@@ -136,8 +158,10 @@
 
   KOS.repairs = {
     register: register, preview: preview, run: run, runAuto: runAuto,
-    list: function () { return order.map(function (id) { return { id: id, title: defs[id].title || id, consent: !!defs[id].consent, done: !!receipts()[id] }; }); },
-    receipt: function (id) { return receipts()[id] || null; },
+    applying: function () { return applying > 0; },
+    list: function () { return order.map(function (id) { return { id: id, title: defs[id].title || id, consent: !!defs[id].consent, scope: defs[id].scope || "account" }; }); },
+    receipt: function (id) { return defs[id] && defs[id].scope === "device" ? null : receipts()[id] || null; },
+    receiptOf: getReceipt,
     audit: function (id) { return kv("repair.audit." + id); }
   };
 })();

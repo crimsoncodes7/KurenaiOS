@@ -426,7 +426,9 @@
      row while the stored copy carries it from IndexedDB — same content,
      different insertion order. Arrays keep their order: route and volume
      sequence is meaningful. */
-  var VOLATILE = { updatedAt: true, lastSyncedAt: true, reward: true };
+  /* activityAt (CL-45) moves with the provider's own list stamp; on its own
+     it is not an edit worth a cloud push */
+  var VOLATILE = { updatedAt: true, lastSyncedAt: true, reward: true, activityAt: true };
   function materialJSON(e) {
     return JSON.stringify(e, function (k, v) {
       if (VOLATILE[k]) return undefined;
@@ -514,6 +516,19 @@
     });
     return normJournal(out);
   }
+  /* WHAT COUNTS AS DOING SOMETHING (HR-31, the ONE definition: Reports,
+     the vault's "Recently updated" and the clean-up read it). A step
+     FORWARD in progress, volumes, chapters, routes or hours, from a real
+     number (a step from nothing is a first import or a row that briefly
+     was another title, DI-27), a finish, or a start from planned. A score,
+     a pause, a drop, a move back to planned or a step back is not. */
+  var ACTIVE_KINDS = { progress: true, volumes: true, route: true, chapter: true, hours: true };
+  function activeEvent(ev) {
+    if (!Array.isArray(ev)) return false;
+    if (ACTIVE_KINDS[ev[1]]) return typeof ev[2] === "number" && typeof ev[3] === "number" && ev[3] > ev[2];
+    if (ev[1] === "status") return ev[3] === "completed" || (ev[3] === "inProgress" && (ev[2] == null || ev[2] === "planned"));
+    return false;
+  }
   function journalKey(ev) { return ev[0] + "|" + ev[1] + "|" + ev[3]; }
   /* two copies of one title's history (a cloud row, a folded duplicate) */
   function unionJournal(a, b) {
@@ -587,6 +602,11 @@
       lastSyncedAt: e.lastSyncedAt != null ? e.lastSyncedAt : null,
       createdAt: e.createdAt || now,
       updatedAt: now,
+      /* WHEN YOU LAST DID SOMETHING WITH IT (CL-45): the provider's own list
+         stamp (AniList's entry updatedAt, VNDB's lastmod) or a local
+         list-state edit — never a metadata refresh, so "Recently updated"
+         is about you. null until one is known. */
+      activityAt: typeof e.activityAt === "number" && e.activityAt > 0 ? e.activityAt : null,
       extra: e.extra || {},
       /* Build 3b — Books dual-tracking axes (benign defaults elsewhere) */
       author: String(e.author || ""),
@@ -693,7 +713,21 @@
          derived from what this save changes (journalFor) */
       var gq = os.get(rec.id);
       gq.onsuccess = function () {
-        rec.journal = journalFor(gq.result || null, rec);
+        var stored = gq.result || null;
+        rec.journal = journalFor(stored, rec);
+        /* a local save that moved list state or your notes is activity
+           now (CL-45); a row from another device keeps the later stamp */
+        if (stored) {
+          /* a row arriving from another device (its journal brings events
+             this store has never seen) keeps the stamps both copies carry,
+             never the time it arrived here */
+          var haveEv = {};
+          normJournal(stored.journal).forEach(function (ev) { haveEv[journalKey(ev)] = true; });
+          var foreign = (rec.journal || []).some(function (ev) { return !haveEv[journalKey(ev)]; });
+          var was = normalise(stored);
+          var moved = !foreign && (journalDiff(was, rec, 0).length > 0 || (was.notes || "") !== (rec.notes || ""));
+          rec.activityAt = Math.max(stored.activityAt || 0, rec.activityAt || 0, moved ? Date.now() : 0) || null;
+        }
         var rq = os.put(rec);
         rq.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
         rq.onerror = function () { cb && cb(rq.error); };
@@ -780,9 +814,20 @@
       (x.titleEnglish && String(x.titleEnglish).toLowerCase().indexOf(needle) !== -1) ||
       (v.author && String(v.author).toLowerCase().indexOf(needle) !== -1));
   }
+  /* the "Recently updated" key (CL-45): the activity stamp, else the
+     newest real activity in the journal, else when the row was made —
+     never the last WRITE, which metadata and list renames also move; and
+     never in the future (a device clock running fast) */
+  function activityKey(e) {
+    var t = e.activityAt || 0;
+    if (!t) (e.journal || []).forEach(function (ev) { if (ev[0] > t && activeEvent(ev)) t = ev[0]; });
+    return Math.min(t || e.createdAt || 0, Date.now());
+  }
   var SORTS = {
     title: function (a, b) { return a.titleLower < b.titleLower ? -1 : a.titleLower > b.titleLower ? 1 : 0; },
-    updated: function (a, b) { return b.updatedAt - a.updatedAt; },
+    /* by what YOU did (activityAt), never a metadata refresh; a row with no
+       activity known falls back to its write time (CL-45) */
+    updated: function (a, b) { return activityKey(b) - activityKey(a); },
     score: function (a, b) { return b.score - a.score || SORTS.title(a, b); },
     progress: function (a, b) { return (b.progress.current || 0) - (a.progress.current || 0); }
   };
@@ -838,6 +883,25 @@
   }
   /* one entry by its cloud identity (Build 4a pull merge) */
   function getBySyncId(syncId, cb) { getByExternal("syncId", syncId, cb); }
+  /* a one-off repair's journal rewrite (the DI-27 scrub): the journal as
+     given, nothing re-derived or appended; the row is restamped so cloud
+     sync sends the cleaned copy (KOS.repairs runs it after a checkpoint) */
+  function replaceJournal(syncId, journal, cb) {   /* journal: an array, or fn(storedRow) → array */
+    tx(ENTRIES, "readwrite", function (err, os) {
+      if (err) { cb && cb(err); return; }
+      var q = os.index("syncId").get(syncId);
+      q.onsuccess = function () {
+        var rec = q.result;
+        if (!rec) { cb && cb(new Error("no row " + syncId)); return; }
+        rec.journal = normJournal(typeof journal === "function" ? journal(rec) : journal);
+        rec.updatedAt = Date.now();
+        var p = os.put(rec);
+        p.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
+        p.onerror = function () { cb && cb(p.error); };
+      };
+      q.onerror = function () { cb && cb(q.error); };
+    });
+  }
   function count(module, cb) {
     tx(ENTRIES, "readonly", function (err, os) {
       if (err) { cb(err, 0); return; }
@@ -966,6 +1030,7 @@
     });
     into.createdAt = Math.min(into.createdAt || Date.now(), from.createdAt || Date.now());
     into.journal = unionJournal(into.journal, from.journal);
+    into.activityAt = Math.max(into.activityAt || 0, from.activityAt || 0) || null;
   }
 
   /* ---------------- bulk upsert (sync/import) ----------------
@@ -1159,14 +1224,20 @@
                                 units: d.units, statusAdvanced: d.statusAdvanced, status: inc.status });
         }
         /* the journal (5.1): the stored history plus what this pull moved */
-        inc.journal = opts.enrichOnly ? normJournal(old.journal)
-          : appendJournal(old.journal, journalDiff(normalise(old), inc, Date.now()));
+        var moved = opts.enrichOnly ? [] : journalDiff(normalise(old), inc, Date.now());
+        inc.journal = opts.enrichOnly ? normJournal(old.journal) : appendJournal(old.journal, moved);
+        /* activity (CL-45): the provider's own stamp when it sends one,
+           else now if this pull moved something you did; never earlier
+           than what the row already knew */
+        inc.activityAt = Math.max(old.activityAt || 0, inc.activityAt || (moved.some(activeEvent) ? Date.now() : 0)) || null;
         /* a merge that changed nothing keeps the stored timestamp, so the
            row stays clean for cloud sync (and stops a no-op pull
            reshuffling the "recently updated" sort) — see sameMaterial */
         /* against the stored row as TODAY's schema reads it: a field the
            schema gained since it was written is not an edit */
-        if (sameMaterial(normalise(old), inc)) inc.updatedAt = old.updatedAt;
+        /* …unless the provider's activity stamp moved on: then the row is
+           sent, so a device without the provider's sign-in sorts the same */
+        if (sameMaterial(normalise(old), inc) && !((inc.activityAt || 0) > (old.activityAt || 0))) inc.updatedAt = old.updatedAt;
         inc.reward = rewardSnapshot(inc);
         var rq = os.put(inc);
         rq.onsuccess = function () { updated++; next(); };
@@ -1447,6 +1518,8 @@
     JOURNAL_CAP: JOURNAL_CAP,
     normJournal: normJournal,
     journalDiff: journalDiff,
+    activeEvent: activeEvent,
+    replaceJournal: replaceJournal,
     appendJournal: appendJournal,
     unionJournal: unionJournal,
     normalise: normalise,
