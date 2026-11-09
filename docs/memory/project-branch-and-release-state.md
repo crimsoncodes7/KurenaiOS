@@ -8,7 +8,7 @@ metadata:
   modified: 2026-10-20T16:16:29.892Z
 ---
 
-**Latest (2026-11-09):** production is sw `kos-integrity-4`, commit `1112f54` (W0 + W1 so far, incl. the saved-reports rebuild, which RAN on 9 Nov), immutable https://d1e9d315.kurenai-os.pages.dev; `origin/main` fast-forwarded to it (branches `feat/w0-safety-net` → `feat/w1-integrity`). The DI-27 clean-up RAN on the live account on 9 Nov (record: docs/audit/2026-11/qa/w1/di27-reconciliation-2026-11-09.md on the audit branch). Before it: `kos-malfix-1` (9fecf63).
+**Latest (2026-11-09):** production is sw `kos-integrity-5`, commit `6c04c6e` (W0 + W1 so far: the rebuild RAN 9 Nov; RC21 rewards with receipts), immutable https://9fb3fc8b.kurenai-os.pages.dev; `origin/main` fast-forwarded to it (branches `feat/w0-safety-net` → `feat/w1-integrity`). The DI-27 clean-up RAN on the live account on 9 Nov (record: docs/audit/2026-11/qa/w1/di27-reconciliation-2026-11-09.md on the audit branch). Before it: `kos-malfix-1` (9fecf63).
 
 
 On 2026-10-20, `main` was fast-forwarded to `feat/money-goals` and pushed for the Money and Goals release, so `main` is now the line. `claude/roadmap-code-study-space` is still at `771e967`: it is behind `main` and has nothing of its own.
