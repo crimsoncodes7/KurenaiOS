@@ -437,8 +437,14 @@
       stage.appendChild(el("div", { class: "k-ja-run-skill" }, [ex.meet ? el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", text: "New" }) : U().skill(ex.skill), el("span", { class: "k-muted", text: ex.meet ? "meet it, then it's checked" : ex.family })]));
       var host = el("div", { class: "k-ja-run-host" });
       stage.appendChild(host);
+      var answered = false;
       mount(host, ex, function (res) {
         if (ex.meet) { i++; show(); return; }
+        /* ONE answer per question: a second Check (a double tap, Enter twice) must not
+           record, schedule or pay it again — 40 presses made 40 reviews (found 9 Nov) */
+        if (answered) return;
+        answered = true;
+        host.querySelectorAll("[data-ui~='ja.check']").forEach(function (b) { b.disabled = true; });
         answers.push({ key: ex.key, verdict: res.verdict, selfMarked: !!res.selfMarked });
         var rec = ex.reask ? { grade: null } : KOS.ja.record(ex.key, res);
         if (!ex.reask) results.push({ key: ex.key, grade: rec.grade, verdict: res.selfMarked ? null : res.verdict });

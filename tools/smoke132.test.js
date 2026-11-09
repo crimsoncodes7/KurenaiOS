@@ -214,6 +214,19 @@ step("H · misses carry across sittings: a later sitting cannot pass around them
   eq(K.ja.lessonMisses(id), [], "no misses left");
 });
 
+step("I · a second Check on the same question records nothing (found on staging, 9 Nov)", async () => {
+  K.show("japanese", { page: "session", id: "learn-H5" }); await app.settle();
+  const inp = q('[data-ui~="ja.answer"]');
+  assert(inp, "a typed question");
+  const ch = inp.getAttribute("aria-label").replace("Type the reading of ", "");
+  const key = "k:" + ch + "|R";
+  inp.value = "zzz";
+  for (let n = 0; n < 5; n++) { const c = q('[data-ui~="ja.check"]'); if (c && !c.disabled) c.click(); else if (c) c.dispatchEvent(new app.window.MouseEvent("click", { bubbles: true })); await app.settle(); }
+  const f = K.ja.peek().facets[key];
+  eq(f && f.reps, 1, "one answer recorded, however many times Check is pressed");
+  eq(D.querySelectorAll('[data-ui~="ja.next"]').length, 1, "one Next button");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
