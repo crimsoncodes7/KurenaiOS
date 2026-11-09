@@ -155,8 +155,8 @@ step("E · a revisit kept moves to the next stage; a retired position stops comi
 /* ---------------- F ---------------- */
 step("F · a checkpoint pays once and can be retaken", () => {
   const x0 = gov().xp, g0 = gov().gold, n0 = mindEntries().length;
-  const out = M.recordCheckpoint("F1", { cards: 8, apply: { 0: true, 1: true }, synth: { bullets: ["no streak"], ticks: { 0: true } } });
-  assert(out && out.paid, "the first submission pays");
+  const out = M.recordCheckpoint("F1", { cards: 8, apply: { 0: true, 1: true }, synth: { bullets: ["no streak"], ticks: { 0: true, 1: true } } });
+  assert(out && out.pass && out.paid, "the first pass pays (2 of 3 scenarios, 2 of 4 rubric points; MI-05, smoke131)");
   eq([gov().xp - x0, gov().gold - g0, mindEntries().length - n0], [50, 12, 1], "50 XP, 12 gold, one entry");
   const again = M.recordCheckpoint("F1", { cards: 8, apply: {}, synth: { bullets: ["again"], ticks: {} } });
   assert(again && !again.paid, "a retake pays nothing");

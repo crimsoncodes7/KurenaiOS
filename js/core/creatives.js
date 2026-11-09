@@ -23,7 +23,8 @@
    WHAT PAYS (award(), the one definition the Governor calls, type "creatives", invariant 154):
      a micro-study's first passed check   8 XP, 1 gold
      a drill batch                        6 XP, once a day per drill type
-     a unit's project, every milestone    150 XP, 40 gold, +10 HP (like a stage-1 capstone)
+     a unit's project, every milestone    150 XP, 40 gold, +10 HP (like a stage-1 capstone), once
+                                          every milestone has a saved work attached (CR-20)
    Volume, redoing, re-saving, promoting, starring and critiques pay nothing beyond Focus. Theory
    cards are ordinary flashcards (invariant 111), keyed "creatives:<lesson>:<i>", and pay as they do.
    HP gates nothing (invariant 2). There is no Creatives streak (plan §6).                         */
@@ -195,10 +196,33 @@
     if (!p) return null;
     var ms = p.milestones.map(function (_, i) { return !!(rec.ms && rec.ms[i]); });
     var studiesDone = (unit(uid).lessons || []).every(function (lid) { return studiesSaved(lid); });
-    return { project: p, ms: ms, done: ms.every(Boolean), n: ms.filter(Boolean).length, offered: studiesDone, startAt: rec.startAt || null, doneAt: rec.doneAt || null };
+    var works = msWorks(uid), attached = works.map(function (ids) { return ids.length > 0; });
+    return { project: p, ms: ms, done: ms.every(Boolean), n: ms.filter(Boolean).length, offered: studiesDone, startAt: rec.startAt || null, doneAt: rec.doneAt || null,
+      works: works, attached: attached, ready: ms.every(Boolean) && attached.every(Boolean), paidAt: peek().paid["project:" + uid] || null };
   }
-  /* a milestone is reached by saving its work (addWork with unit + ms) or by hand; the project pays
-     once, when every milestone is reached */
+  /* msWorks(uid) → for each milestone, the ids of the saved works attached to it (a work in the
+     Practice Log carrying this unit and milestone) */
+  function msWorks(uid) {
+    var p = project(uid); if (!p) return [];
+    var out = p.milestones.map(function () { return []; }), c = peek();
+    Object.keys(c.works).forEach(function (id) {
+      var w = c.works[id];
+      if (w && w.unit === uid && w.ms != null && w.ms >= 0 && w.ms < out.length) out[w.ms].push(id);
+    });
+    return out;
+  }
+  /* attachWork(wid, uid, i) — a piece already in the Practice Log becomes a milestone's work */
+  function attachWork(wid, uid, i) {
+    var p = project(uid), st = S(), w = st.works[wid];
+    if (!p || !w || i < 0 || i >= p.milestones.length) return null;
+    w.unit = uid; w.ms = +i;
+    store.save();
+    return markMilestone(uid, i);
+  }
+  /* a milestone is reached by saving its work (addWork with unit + ms) or by hand; a hand tick is
+     progress only. The project pays once (paid["project:<unit>"]) when every milestone is reached
+     AND has a saved work attached (CR-20): bare ticks pay nothing, and an undo and redo of a paid
+     milestone pays nothing again. */
   function markMilestone(uid, i, off) {
     if (KOS.achievements) KOS.achievements.touch("creatives");   // the Badge Wall (roadmap 5.16)
     var p = project(uid); if (!p || i < 0 || i >= p.milestones.length) return null;
@@ -209,7 +233,7 @@
     store.save();
     var ps = projectState(uid), key = "project:" + uid;
     if (ps.done && !rec.doneAt) { rec.doneAt = Date.now(); first("project"); store.save(); }
-    if (ps.done && !st.paid[key]) {
+    if (ps.ready && !st.paid[key]) {
       st.paid[key] = Date.now();
       store.save();
       KOS.sessions.log({ type: SID, subject: SID, ref: p.after || null, metrics: { kind: "project", unit: uid, key: key, first: true } });
@@ -477,7 +501,7 @@
     lesson: lesson, unit: unit, track: track, tracks: tracks, lessons: lessons, trackOf: trackOf, study: study, content: content, pagesOf: pagesOf,
     markPage: markPage, works: worksOf, work: work, addWork: addWork, editWork: editWork, removeWork: removeWork,
     promote: promote, portfolio: portfolio, setCheck: setCheck, logDrill: logDrill, studyWorks: studyWorks, studyPassed: studyPassed,
-    project: project, projectState: projectState, markMilestone: markMilestone,
+    project: project, projectState: projectState, markMilestone: markMilestone, msWorks: msWorks, attachWork: attachWork,
     evidence: evidence, done: done, syncChecks: syncChecks, syncAll: syncAll, cardKeys: cardKeys, cardHeld: cardHeld,
     firsts: firsts, started: started, unitState: unitState, trackPlace: trackPlace, nextStudy: nextStudy, currentTrack: currentTrack,
     cardsDue: cardsDue, planDay: planDay, stats: stats, award: award, files: files,

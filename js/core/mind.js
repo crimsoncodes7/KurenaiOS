@@ -9,7 +9,8 @@
      positions[lesson]     { versions: {vid: {at, answer, conf, reason, objection, reply, changed}},
                              retiredAt, revisit: {stage, due}, kept: {at: 1} }   never overwritten (138)
      parked[lesson]        ts — the one prompt parked with "Later" (never counted as missed)
-     checkpoints[unit]     { cards, apply: {qi: ok}, synth: {bullets, ticks}, map, doneAt, paidAt }
+     checkpoints[unit]     { cards, apply: {qi: ok}, synth: {bullets, ticks}, map, doneAt (passed), paidAt,
+                             lastAt, tries }   the best of every attempt, merged by OR
      tensions[id]          { at, state: "done" | "later" }
      bq[week]              { q, lines: {day: text}, synth, closedAt }   the Big Question's thread
      paths[path]           { paidAt }
@@ -23,7 +24,7 @@
    WHAT PAYS (award(), the one definition the Governor calls, type "mind"):
      a review session          +1 XP for each card passed (Hard or better), at most 15 a day
      a lesson's first finish   12 XP, 2 gold, +2 HP — once (every page read and the check passed)
-     a unit checkpoint         50 XP, 12 gold, +4 HP — once
+     a unit checkpoint         50 XP, 12 gold, +4 HP — once, on its first PASS (cpRule)
      a path complete           120 XP, 30 gold, +8 HP — once
    The Daily 15 itself is a Focus session and pays under the Focus rule (invariant 4a). Writing —
    explain-backs, positions, the Journal, dialogues, Ask Kurenai — pays nothing. HP gates nothing.  */
@@ -378,29 +379,55 @@
     maybePath(l.unit);
     return true;
   }
-  /* recordCheckpoint(unit, { cards, apply: {qi: ok}, synth: {bullets, ticks}, map }) → { paid } */
+  /* THE PASS RULE (MI-05), from the checkpoint's own shape: at least two thirds of the scenarios
+     right (2 of 3) and at least half the rubric ticked (2 of 4), in ONE attempt. The cards are
+     self-marked and move nothing, so they are not part of it. */
+  function cpNeed(cp) {
+    var a = (cp.apply || []).length, rb = ((cp.synthesis && cp.synthesis.rubric) || []).length;
+    return { apply: Math.ceil(a * 2 / 3), applyOf: a, rubric: Math.ceil(rb / 2), rubricOf: rb };
+  }
+  function cpRule(u) {
+    var cp = M().CHECKPOINTS[u]; if (!cp) return "";
+    var n = cpNeed(cp);
+    return "To pass: " + n.apply + " of " + n.applyOf + " scenarios right and " + n.rubric + " of " + n.rubricOf + " rubric points.";
+  }
+  /* recordCheckpoint(unit, { cards, apply: {qi: ok}, synth: {bullets, ticks}, map })
+       → { pass, paid, right, rubric, of, need, missing: {apply, rubric} }
+     Only a PASS finishes the checkpoint, and only the FIRST pass pays (paidAt). The record keeps
+     the BEST of every attempt: a scenario right or a rubric point ticked once stays (merged by OR),
+     so a retake never lowers a rung (invariant 137); the newest bullets and map are kept. */
   function recordCheckpoint(u, o) {
     if (KOS.achievements) KOS.achievements.touch("mind");   // the Badge Wall (roadmap 5.16)
     var cp = M().CHECKPOINTS[u]; if (!cp) return null;
     o = obj(o);
-    var st = S(), r = st.checkpoints[u] = obj(st.checkpoints[u]);
-    r.cards = Math.max(0, +o.cards || 0);
-    r.apply = {}; Object.keys(obj(o.apply)).forEach(function (k) { if (o.apply[k]) r.apply[k] = true; });
+    var need = cpNeed(cp);
+    var right = Object.keys(obj(o.apply)).filter(function (k) { return o.apply[k] && +k >= 0 && +k < need.applyOf; }).length;
     var sy = obj(o.synth);
-    r.synth = { bullets: (sy.bullets || []).map(function (b) { return String(b || "").trim().slice(0, 400); }).filter(Boolean).slice(0, 12), ticks: {} };
+    var ticked = Object.keys(obj(sy.ticks)).filter(function (k) { return sy.ticks[k] && +k >= 0 && +k < need.rubricOf; }).length;
+    var pass = right >= need.apply && ticked >= need.rubric;
+    var st = S(), r = st.checkpoints[u] = obj(st.checkpoints[u]);
+    r.cards = Math.max(+r.cards || 0, Math.max(0, +o.cards || 0));
+    r.apply = obj(r.apply); Object.keys(obj(o.apply)).forEach(function (k) { if (o.apply[k]) r.apply[k] = true; });
+    var bullets = (sy.bullets || []).map(function (b) { return String(b || "").trim().slice(0, 400); }).filter(Boolean).slice(0, 12);
+    r.synth = { bullets: bullets.length ? bullets : (obj(r.synth).bullets || []), ticks: obj(obj(r.synth).ticks) };
     Object.keys(obj(sy.ticks)).forEach(function (k) { if (sy.ticks[k]) r.synth.ticks[k] = true; });
     if (o.map) r.map = o.map;
-    r.doneAt = Date.now();
-    var first = !r.paidAt;
-    if (first) r.paidAt = Date.now();
-    var l = lessons().filter(function (x) { return x.kind === "checkpoint" && x.unit === u; })[0];
-    if (l) { var lr = rec(l.id); if (!lr.doneAt) lr.doneAt = Date.now(); }
-    (cp.concepts || []).forEach(function (cid) { introduce(cid); });
+    r.lastAt = Date.now();
+    r.tries = (+r.tries || 0) + 1;
+    var first = false, l = lessons().filter(function (x) { return x.kind === "checkpoint" && x.unit === u; })[0];
+    if (pass) {
+      if (!r.doneAt) r.doneAt = Date.now();
+      first = !r.paidAt;
+      if (first) r.paidAt = Date.now();
+      if (l) { var lr = rec(l.id); if (!lr.doneAt) lr.doneAt = Date.now(); }
+      (cp.concepts || []).forEach(function (cid) { introduce(cid); });
+    }
     store.save();
     if (first) KOS.sessions.log({ type: "mind", subject: SID, ref: l ? l.id : u, metrics: { kind: "checkpoint", id: u, first: true } });
     if (l) syncChecks(l.id);
-    maybePath(u);
-    return { paid: first, rubric: Object.keys(r.synth.ticks).length, of: ((cp.synthesis && cp.synthesis.rubric) || []).length };
+    if (pass) maybePath(u);
+    return { pass: pass, paid: first, passedAt: r.doneAt || null, right: right, rubric: ticked, of: need.rubricOf, need: need,
+      missing: { apply: Math.max(0, need.apply - right), rubric: Math.max(0, need.rubric - ticked) } };
   }
   /* a path completes when every PLANNED lesson of every unit is done — never on released ones only */
   function maybePath(unitId) {
@@ -626,7 +653,7 @@
     keepPosition: keepPosition, retirePosition: retirePosition, revisitsDue: revisitsDue, park: park, promptDone: promptDone, parkedList: parkedList,
     introduce: introduce, preview: preview, rateCard: rateCard, due: due, finishReviews: finishReviews, paidToday: paidToday,
     ladder: ladder, rung: rung, metConcepts: metConcepts, rungCounts: rungCounts, furthest: furthest,
-    evidence: evidence, syncChecks: syncChecks, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, award: award,
+    evidence: evidence, syncChecks: syncChecks, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, cpRule: cpRule, award: award,
     started: started, unitState: unitState, nextLesson: nextLesson, currentUnit: currentUnit, suggestedNext: suggestedNext, stats: stats,
     milestones: milestones, tensionsDue: tensionsDue, setTension: setTension, answerOf: answerOf,
     weekOf: weekOf, bq: bq, setBq: setBq, addBqLine: addBqLine, closeBq: closeBq,
