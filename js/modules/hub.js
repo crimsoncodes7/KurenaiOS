@@ -1061,7 +1061,7 @@
        the artwork (audit HOME-2) */
     /* the user's own banner keeps showing (roadmap 5.14); otherwise the
        season's painting (34k). Critical HP owns the slot: no picture. */
-    if (g.banner === "custom" && g.bannerImg) KOS.governor.applyBanner(band, { scrim: "hero" });
+    if (KOS.governor.customBannerSrc && KOS.governor.customBannerSrc()) KOS.governor.applyBanner(band, { scrim: "hero" });
     else if (hpS !== "critical" && KOS.art) {
       KOS.art.layer(band, "home", { eager: true });
       /* the slot's chip (34k): on hover and keyboard focus, last in the focus order */

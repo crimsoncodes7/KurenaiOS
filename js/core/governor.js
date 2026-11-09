@@ -738,14 +738,24 @@
     var el = KOS.ui.el, g = G();
     var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", style: "--avatar: " + size + "px" });
     var pic = g.avatar.kind === "art" && owns(g.avatar.art) ? item(g.avatar.art) : null;
-    if (g.avatar.kind === "custom" && g.avatar.img) {
-      node.appendChild(KOS.imageCrop.image(g.avatar.img, { alt: "Your avatar" }, g.avatar.crop));
+    /* your own picture lives in the file store (KOS.profilePics): until it
+       has been read on this device the seal stands in, then takes its place */
+    var own = g.avatar.kind === "custom" ? PP().src("avatar") : null;
+    if (own) {
+      node.appendChild(KOS.imageCrop.image(own, { alt: "Your avatar" }, g.avatar.crop));
     } else if (pic) {
       /* a painted avatar from the shop (34g, batch 16) */
       node.appendChild(el("img", { class: "k-avatar-art", src: "assets/app/img/" + pic.art + ".webp", alt: "Your avatar: " + pic.name, decoding: "async" }));
     } else {
       var s = sealById(g.avatar.id) || SEALS[0];
       node.innerHTML += sealSvg(s);
+      if (g.avatar.kind === "custom" && PP().has("avatar")) {
+        PP().load("avatar").then(function (url) {
+          if (!url || G().avatar.kind !== "custom") return;
+          node.innerHTML = "";
+          node.appendChild(KOS.imageCrop.image(url, { alt: "Your avatar" }, G().avatar.crop));
+        });
+      }
     }
     /* a painted frame (34p) is a picture round the disc: the avatar sits in its inner 66% */
     var fr = g.avatar.frame && item(g.avatar.frame);
@@ -754,12 +764,29 @@
       "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt].filter(Boolean));
   }
 
-  function saveCustomAvatar(source, crop) {
+  /* the profile pictures' one reader and writer (js/core/profilepics.js) */
+  function PP() {
+    return KOS.profilePics || { src: function () { return null; }, has: function () { return false; },
+      load: function () { return Promise.resolve(null); }, write: null, release: function () { return Promise.resolve(false); } };
+  }
+  /* cb runs once the picture is stored: a new upload goes into the file
+     store; a reposition of the picture already set changes the crop only */
+  function saveCustomAvatar(source, crop, cb) {
     var g = G();
     g.avatar.kind = "custom";
-    g.avatar.img = source;
     g.avatar.crop = KOS.imageCrop.normalise(crop);
+    function fin() { store.save(); if (KOS.refreshHUD) KOS.refreshHUD(); if (cb) cb(); }
+    if (!source || source === PP().src("avatar")) { fin(); return; }
+    if (!PP().write) { g.avatar.img = source; fin(); return; }
     store.save();
+    PP().write("avatar", source).then(fin, fin);
+  }
+  /* "Remove profile picture": back to the seal; the picture's file goes */
+  function clearAvatar() {
+    var g = G(), fid = g.avatar.file;
+    g.avatar.kind = "seal"; g.avatar.img = null; g.avatar.crop = null; g.avatar.file = null;
+    store.save();
+    if (fid) PP().release(fid);
     if (KOS.refreshHUD) KOS.refreshHUD();
   }
   function avatarCropper(source, crop, done) {
@@ -768,7 +795,7 @@
       description: "This circle is the final avatar shape. The stored source stays intact so you can reposition it later.",
       source: source || "", crop: crop, aspect: 1, shape: "circle", allowUpload: true,
       fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 240 * 1024, quality: 0.84 },
-      onSave: function (result) { saveCustomAvatar(result.source, result.crop); done && done(null, result); },
+      onSave: function (result) { saveCustomAvatar(result.source, result.crop, function () { if (done) done(null, result); }); },
       onCancel: function () { done && done(null, { cancelled: true }); }
     });
   }
@@ -782,7 +809,10 @@
   }
   function editAvatar(done) {
     var a = G().avatar || {};
-    return avatarCropper(a.img || "", a.crop || null, done);
+    var now = PP().src("avatar");
+    if (now || !PP().has("avatar")) return avatarCropper(now || "", a.crop || null, done);
+    /* the picture is still being read from the file store */
+    PP().load("avatar").then(function (url) { avatarCropper(url || "", G().avatar.crop || null, done); });
   }
 
   /* ================= cosmetics application ================= */
@@ -896,18 +926,33 @@
   function shrineStyle() { return G().shrineStyle || null; }
 
   /* ---- profile banner (identity card backdrop) ----
-     g.banner = null | "<preset id>" | "custom"; a custom upload's compressed
-     dataURL lives in g.bannerImg. Presets are painted CSS, no images. */
-  function setBanner(v, dataUrl, crop) {
+     g.banner = null | "<preset id>" | "custom"; a custom upload lives in the
+     file store and g.bannerFile names it (KOS.profilePics; g.bannerImg is an
+     older device's inline upload, moved at the next start). Presets are
+     painted CSS, no images. cb runs once a new upload is stored. */
+  function setBanner(v, dataUrl, crop, cb) {
     var g = G();
     g.banner = v || null;
     /* A painted preset only changes what is hung now; keep a previously
        uploaded source so switching cosmetics never destroys user data. */
     if (v === "custom") {
-      g.bannerImg = dataUrl || g.bannerImg || null;
       g.bannerCrop = KOS.imageCrop.normalise(crop || g.bannerCrop);
+      if (dataUrl && dataUrl !== PP().src("banner")) {
+        if (PP().write) {
+          store.save();
+          PP().write("banner", dataUrl).then(function () { if (cb) cb(); }, function () { if (cb) cb(); });
+          return;
+        }
+        g.bannerImg = dataUrl;
+      }
     }
     store.save();
+    if (cb) cb();
+  }
+  /* your own banner's picture, when it can be drawn now (else null) */
+  function customBannerSrc() {
+    var g = G();
+    return g.banner === "custom" ? PP().src("banner") : null;
   }
   /* the painted CSS for a PRESET id, independent of what is currently hung —
      the shop needs to preview a banner it doesn't own yet */
@@ -915,23 +960,28 @@
   function bannerCss() {
     var g = G();
     if (!g.banner) return null;
-    if (g.banner === "custom" && g.bannerImg) {
+    var own = customBannerSrc();
+    if (own) {
       var c = KOS.imageCrop.value(g.bannerCrop);
-      return "background-image:linear-gradient(100deg, color-mix(in srgb, var(--s1) 88%, transparent) 30%, color-mix(in srgb, var(--s1) 45%, transparent) 70%, transparent), url(" + JSON.stringify(g.bannerImg) + ");background-size:cover;background-position:" + c.x + "% " + c.y + "%;";
+      return "background-image:linear-gradient(100deg, color-mix(in srgb, var(--s1) 88%, transparent) 30%, color-mix(in srgb, var(--s1) 45%, transparent) 70%, transparent), url(" + JSON.stringify(own) + ");background-size:cover;background-position:" + c.x + "% " + c.y + "%;";
     }
     return BANNER_CSS[g.banner] || null;
   }
   function bannerIsDark() {
     var g = G();
-    if (g.banner === "custom") return true;   // scrimmed — treat text as over-image
+    if (g.banner === "custom") return !!customBannerSrc();   // scrimmed — treat text as over-image
     return !!BANNER_DARK[g.banner];
   }
   function applyBanner(node, opts) {
     var g = G();
     opts = opts || {};
     if (!g.banner) return false;
-    if (g.banner === "custom" && g.bannerImg) {
-      KOS.imageCrop.background(node, g.bannerImg, g.bannerCrop, {
+    var own = customBannerSrc();
+    /* your own banner not read on this device yet: nothing is hung (the
+       host keeps its painted default) until it lands and the page redraws */
+    if (g.banner === "custom" && !own) return false;
+    if (own) {
+      KOS.imageCrop.background(node, own, g.bannerCrop, {
         /* Three scrims, because the three hosts have genuinely different
            jobs. Governor Status declares banner-dark and needs a dark ink
            scrim; the default lets the artwork run free on the right, which
@@ -967,7 +1017,7 @@
       /* roadmap 5.14: a new upload is the unlock's; the picture set before stays */
       source: source || "", crop: crop, aspect: 3.2, allowUpload: !KOS.art || KOS.art.canUpload("banner"),
       fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 420 * 1024, quality: 0.82 },
-      onSave: function (result) { setBanner("custom", result.source, result.crop); done && done(null, result); },
+      onSave: function (result) { setBanner("custom", result.source, result.crop, function () { if (done) done(null, result); }); },
       onCancel: function () { done && done(null, { cancelled: true }); }
     });
   }
@@ -980,8 +1030,9 @@
     });
   }
   function editBanner(done) {
-    var g = G();
-    return bannerCropper(g.bannerImg || "", g.bannerCrop || null, done);
+    var g = G(), now = PP().src("banner");
+    if (now || !PP().has("banner")) return bannerCropper(now || "", g.bannerCrop || null, done);
+    PP().load("banner").then(function (url) { bannerCropper(url || "", G().bannerCrop || null, done); });
   }
 
   /* ================= recovery mode ================= */
@@ -1291,7 +1342,7 @@
     pinned: pinned,
     setPinned: setPinned,
     shrineStyle: shrineStyle,
-    setBanner: setBanner,
+    setBanner: setBanner, customBannerSrc: customBannerSrc, clearAvatar: clearAvatar,
     setCustomBanner: setCustomBanner,
     editBanner: editBanner,
     applyBanner: applyBanner,

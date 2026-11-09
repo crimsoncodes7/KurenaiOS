@@ -358,7 +358,7 @@
       return Math.floor(m / 6) / 10;
     }, { unit: "hours", glyph: "浸" });
   reg("ja", "sentence-miner", "Sentence miner", "Lines saved from your own media", ["ja"], [10, 50, 200],
-    function () { return keys(st().japanese && st().japanese.mined).length; }, { unit: "lines", glyph: "掘" });
+    function () { return KOS.jaMined ? KOS.jaMined.count() : 0; }, { unit: "lines", glyph: "掘" });
 
   /* ================= Set 8 · Mind ================= */
   reg("mind", "evaluated", "Evaluated", "Concepts at the ladder's last rung, Evaluate", ["mind"], [5, 25, 75],

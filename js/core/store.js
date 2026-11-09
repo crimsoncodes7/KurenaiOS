@@ -50,8 +50,9 @@
        folds two devices per key */
     code: { v: 1, tasks: {}, lessons: {}, proven: {}, cards: {}, practice: {}, later: {} },
     /* Japanese (roadmap 5.5, core/ja.js): facets (item × skill, on KOS.fsrs), lesson and
-       checkpoint evidence, mined lines, input tallies and settings — keyed maps throughout */
-    japanese: { v: 1, facets: {}, lessons: {}, checkpoints: {}, mined: {}, input: {},
+       checkpoint evidence, input tallies and settings — keyed maps throughout (mined lines
+       stay on the device, KOS.jaMined) */
+    japanese: { v: 1, facets: {}, lessons: {}, checkpoints: {}, input: {},
       settings: { furigana: "unknown", dailyMin: 40, speech: false }, fluency: {} },
     /* Creatives (core/creatives.js): reading evidence, works (records only; their files are in
        kurenai-os-creatives), projects, pay-once keys and Firsts — keyed maps throughout */
@@ -584,6 +585,22 @@
           stepDone(err);
         });
       }
+      /* the session ledger's archive, entries past the 2,000 cap (DI-10) */
+      if (window.KOS && KOS.ledgerArchive && KOS.ledgerArchive.available()) {
+        steps++;
+        KOS.ledgerArchive.exportAll(function (err, rows) {
+          if (!err && rows && rows.length) result.ledger = rows;
+          stepDone(err);
+        });
+      }
+      /* Japanese mined lines, this device's only (DI-25, invariant 115) */
+      if (window.KOS && KOS.jaMined && KOS.jaMined.available()) {
+        steps++;
+        KOS.jaMined.exportAll(function (err, rows) {
+          if (!err && rows && rows.length) result.jaMined = rows;
+          stepDone(err);
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -728,14 +745,40 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () { restoreMind(function () {
+        function restoreLedger(next) {
+          if (!backup.ledger) return next();
+          if (!window.KOS || !KOS.ledgerArchive || !KOS.ledgerArchive.available()) {
+            report.missingSections.push("older sessions (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.ledgerArchive.importAll(backup.ledger, function (err, out) {
+            if (err) report.missingSections.push("older sessions (error: " + err.message + ")");
+            else report.restoredSections.push("older sessions (" + out.entries + ")");
+            next();
+          });
+        }
+
+        function restoreJaMined(next) {
+          if (!backup.jaMined) return next();
+          if (!window.KOS || !KOS.jaMined || !KOS.jaMined.available()) {
+            report.missingSections.push("mined Japanese lines (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.jaMined.importAll(backup.jaMined, function (err, out) {
+            if (err) report.missingSections.push("mined Japanese lines (error: " + err.message + ")");
+            else report.restoredSections.push("mined Japanese lines (" + out.lines + ")");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () { restoreMind(function () { restoreLedger(function () { restoreJaMined(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

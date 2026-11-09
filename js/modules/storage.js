@@ -5,6 +5,9 @@
      · On this device: the browser's own estimate, and whether it has
        agreed to keep the data (persistent storage, invariant 39: asked
        once a library passes 200 MB, or by your press; never promised);
+     · the app's own record: the state document's size against
+       localStorage's room, a warning at 60%, its biggest parts and the
+       store's last save (KOS.store.health, when present) — RC5;
      · by store: files, past papers, ink, the text index;
      · the biggest files, duplicates (one content, several copies), files
        linked nowhere;
@@ -21,6 +24,30 @@
   function el() { return KOS.ui.el.apply(null, arguments); }
   function size(b) { return b >= 1073741824 ? (b / 1073741824).toFixed(2) + " GB" : b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(0, Math.round((b || 0) / 1024)) + " KB"; }
   function F() { return KOS.files; }
+
+  /* the state document's measure (pure): its size as saved (the JSON text's
+     length, the figure the audit quotes; browsers count the ~5 MB room in
+     characters or UTF-16 units, so this is the honest middle estimate) and
+     its top-level parts, biggest first */
+  var NAMES = { sessions: "Session ledger", srs: "Flashcard schedules", pacing: "Weekly plan", progress: "Topic progress",
+    governor: "Governor and profile", edits: "Your edits to the curriculum", code: "Code", japanese: "Japanese",
+    calendar: "Calendar", notify: "Notifications", ui: "This device's choices", media: "Collection settings",
+    exams: "Exams", tracker: "Exams & Papers", goals: "Goals", money: "Money", routines: "Routines",
+    achievements: "Badge Wall", assistant: "Assistant", creatives: "Creatives", mind: "Mind", todo: "Reminders" };
+  KOS.storageMeter = {
+    QUOTA: 5 * 1024 * 1024, WARN: 60,
+    measure: function (st) {
+      var text = "";
+      try { text = JSON.stringify(st || {}); } catch (e) { text = ""; }
+      var parts = Object.keys(st || {}).map(function (k) {
+        var n = 0;
+        try { n = (JSON.stringify(st[k]) || "").length; } catch (e) { n = 0; }
+        return { key: k, bytes: n };
+      }).sort(function (a, b) { return b.bytes - a.bytes; });
+      return { bytes: text.length, quota: KOS.storageMeter.QUOTA, parts: parts };
+    },
+    label: function (k) { return NAMES[k] || k; }
+  };
 
   KOS.views.storage = function (main) {
     main.appendChild(KOS.ui.pageHeader({ kicker: "Settings · 庫", title: "Storage", sub: "What this device keeps, what's safe in your cloud, and room to free." }));
@@ -73,6 +100,9 @@
             navigator.storage.persist().then(function (ok) { KOS.store.state.ui.persistAsked = Date.now(); KOS.store.save(); KOS.ui.toast(ok ? "The browser will keep this data." : "The browser said no for now; it decides by how you use the app.", !ok); paint(); });
           } })]));
       });
+
+      /* the app's own record: the state document in localStorage (RC5) */
+      grid.appendChild(stateCard());
 
       /* by store */
       var by = card("By kind of data", "stores", [
@@ -137,6 +167,30 @@
       grid.appendChild(card("Not linked anywhere", "unlinked", loose.length ? [el("p", { class: "k-st-note", text: "In Files only. Attach them to a topic, an assignment or an assessment, or delete what you don't need." }),
         el("ul", { class: "k-st-files" }, loose.slice(0, 10).map(function (r) { return fileRow(r, [el("button", { type: "button", class: "k-btn k-btn--sm", text: "Attach to…", onclick: function () { KOS.filesUI.attachTo(r.fileId, refresh); } })]); }))]
         : [el("p", { class: "k-st-note", text: "Every file is linked somewhere." })]));
+    }
+    /* the state document's size against localStorage's room (about 5 MB on
+       every browser this app runs in), its biggest parts, and how the last
+       save went when the store reports it (KOS.store.health). A read only. */
+    function stateCard() {
+      var M = KOS.storageMeter.measure(KOS.store.state);
+      var pct = Math.min(100, Math.round(100 * M.bytes / M.quota));
+      var warn = pct >= KOS.storageMeter.WARN;
+      var bar = el("div", { class: "k-st-meter", "data-ui": "storage.state-meter", role: "img", "aria-label": size(M.bytes) + " of about " + size(M.quota) + " (" + pct + "%)" }, [el("span", { class: "k-st-meter-fill" })]);
+      bar.firstChild.style.setProperty("--st-pct", pct + "%");
+      KOS.ui.state(bar, "full", warn);
+      var kids = [
+        el("p", { class: "k-st-big" }, [el("b", { class: "k-mono", "data-ui": "storage.state-size", text: size(M.bytes) }), el("span", { class: "k-muted", text: " of about " + size(M.quota) + " the browser keeps for it · " + pct + "%" })]),
+        bar
+      ];
+      if (warn) kids.push(el("p", { class: "k-st-note", "data-ui": "storage.state-warn", "data-tone": "danger", text: "Over " + KOS.storageMeter.WARN + "%: the browser refuses a save once this is full. Your files, ink and Collection are elsewhere and don't count here." }));
+      M.parts.slice(0, 5).forEach(function (p) { kids.push(row(KOS.storageMeter.label(p.key), size(p.bytes))); });
+      var H = KOS.store.health;
+      var h = typeof H === "function" ? H() : H && typeof H === "object" ? H : null;
+      if (h) {
+        kids.push(row("Saved to", String(h.primary || "—")));
+        if (h.lastSaveOk === false || h.lastError) kids.push(el("p", { class: "k-st-note", "data-ui": "storage.state-error", "data-tone": "danger", text: "The last save failed: " + String(h.lastError || "unknown error") }));
+      }
+      return card("The app's own record", "state", kids);
     }
     function refresh() { F().refresh(paint); }
     if (KOS.cloudsync && KOS.cloudsync.uploadedFiles) KOS.cloudsync.uploadedFiles(function (err, u) { uploaded = u || {}; F().ready(paint); });

@@ -168,7 +168,11 @@
     ["media", "layout"], ["media", "sort"],
     ["media", "books"], ["media", "vn"], ["media", "game"],
     ["media", "wishlist"],
-    ["media", "shrine", "module"], ["media", "shrine", "sort"]
+    ["media", "shrine", "module"], ["media", "shrine", "sort"],
+    /* Japanese mined lines are personal media and never leave the device
+       (invariant 115, DI-25; KOS.jaMined): an older copy that still keeps
+       them in the state cannot push them, and a pull never brings them */
+    ["japanese", "mined"]
   ];
   function pathGet(obj, path) {
     var cur = obj;
@@ -489,6 +493,11 @@
     var mine = deviceSnapshot(KOS.store.state);
     var localSync = syncableState(KOS.store.state);
     var res = KOS.cloudmerge.merge(base, localSync, incoming);
+    /* the merge's cap (2,000 sessions) archives what it drops (DI-10) */
+    if (KOS.ledgerArchive) {
+      var gone = KOS.ledgerArchive.capped((localSync.sessions || []).concat((incoming && incoming.sessions) || []), res.doc.sessions);
+      if (gone.length) KOS.ledgerArchive.archive(gone).catch(function () { /* history only */ });
+    }
     KOS.store.replaceState(res.doc);
     restoreDevice(KOS.store.state, mine);
     KOS.store.save();
@@ -1378,14 +1387,22 @@
   function autoUpload() {
     if (autoBusy || running || !uid() || !online() || !KOS.attach || !KOS.attach.available()) return;
     var ui = KOS.store.state.ui || {};
-    if (ui.filesAutoUpload === false) return;
+    /* off on this device: only your profile picture and banner still go up
+       (KOS.profilePics) — the state carried them to every device before
+       they moved into the file store, so turning automatic upload off must
+       not keep them from your other devices */
+    var profileOnly = ui.filesAutoUpload === false;
     autoBusy = true;
     loadMeta(function (e0, meta) {
       if (e0) { autoBusy = false; return; }
       KOS.attach.listMeta(function (err, items) {
         var todo = (items || []).filter(function (m) {
           var f = meta.files[m.fileId];
+          if (profileOnly && !(typeof m.origin === "string" && /^profile:/.test(m.origin))) return false;
           return m.fileId && m.hasBlob && !m.local && (m.size || 0) <= 25 * 1024 * 1024 && f && f.remoteTs && !f.uploaded && !f.deleted;
+        }).sort(function (a, b) {
+          /* the profile pictures first: they are on every page */
+          return (/^profile:/.test(b.origin || "") ? 1 : 0) - (/^profile:/.test(a.origin || "") ? 1 : 0);
         }).slice(0, AUTO_PER_CYCLE);
         if (err || !todo.length) { autoBusy = false; return; }
         var i = 0;
@@ -1584,6 +1601,8 @@
     lastSync: function () { return lastSyncAt; },
     isRunning: function () { return running; },
     /* test seams — smoke17 injects a fake api + session and shrinks waits */
+    /* the document a push sends (tests: what never leaves the device) */
+    _syncableState: syncableState,
     _config: function (opts) {
       opts = opts || {};
       if ("api" in opts) _api = opts.api;

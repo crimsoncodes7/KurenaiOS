@@ -2573,7 +2573,9 @@
       } else {
         KOS.attach.listMeta(function (err, rows) {
           if (err) { cb(err); return; }
-          cb(null, { attachments: shape((rows || []).slice(0, 200)) });
+          /* your profile picture and banner are not attachments (KOS.profilePics) */
+          rows = (rows || []).filter(function (r) { return !(typeof r.origin === "string" && /^profile:/.test(r.origin)); });
+          cb(null, { attachments: shape(rows.slice(0, 200)) });
         });
       }
     }
@@ -2588,7 +2590,7 @@
     },
     run: function (args, cb) {
       KOS.attach.listMeta(function (e0, rows) {
-        var prev = (rows || []).find(function (r) { return r.id === args.id; });
+        var prev = (rows || []).find(function (r) { return r.id === args.id && !(typeof r.origin === "string" && /^profile:/.test(r.origin)); });
         if (!prev) { cb(fail("No attachment with id " + args.id + ".")); return; }
         var prevNote = prev.note || "";
         KOS.attach.setNote(args.id, args.note, function (err) {
@@ -2608,7 +2610,7 @@
     params: { id: { type: "integer", required: true, min: 1 } },
     run: function (args, cb) {
       KOS.attach.listMeta(function (e0, rows) {
-        var prev = (rows || []).find(function (r) { return r.id === args.id; });
+        var prev = (rows || []).find(function (r) { return r.id === args.id && !(typeof r.origin === "string" && /^profile:/.test(r.origin)); });
         if (!prev) { cb(fail("No attachment with id " + args.id + ".")); return; }
         KOS.attach.remove(args.id, function (err) {
           if (err) { cb(err); return; }

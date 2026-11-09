@@ -275,7 +275,14 @@
     function seatBgSrc(gg) {
       gg = gg || g;
       var v = gg.seatBg;
-      if (v === "custom" || (!v && gg.banner === "custom" && gg.bannerImg)) return gg.bannerImg ? { src: gg.bannerImg, crop: gg.bannerCrop, custom: true } : null;
+      /* your own banner, from the file store (KOS.profilePics); one not read
+         on this device yet leaves the painted ground below standing */
+      var PP = KOS.profilePics;
+      if (v === "custom" || (!v && gg.banner === "custom" && PP && PP.has("banner", gg))) {
+        var own = PP ? PP.src("banner", gg) : null;
+        if (own) return { src: own, crop: gg.bannerCrop, custom: true };
+        if (!PP || !PP.has("banner", gg)) return null;
+      }
       /* a painted banner hung from the shop (34g) is the stage when no seat ground is picked */
       /* the banner slot's rule (34n): rotating painted banners, or your own upload */
       var rot = !v && KOS.art && KOS.art.cfg("banner") ? KOS.art.rotated("banner", new Date()) : undefined;
@@ -761,16 +768,17 @@
         var tiles = el("div", { class: "k-gv-bg-own" }, [
           el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-upload", onclick: function () { fileIn.click(); } }, [el("span", { text: "＋ Upload an image" }), el("small", { class: "k-mono", text: "JPG or PNG · 2400 × 1350 or larger" })])
         ]);
-        if (g.bannerImg) {
+        var ownBanner = KOS.profilePics ? KOS.profilePics.src("banner", g) : null;
+        if (ownBanner) {
           var mine = el("button", { type: "button", class: "k-gv-bg-thumb", "aria-pressed": String(draft.seatBg === "custom"), "aria-label": "Your banner", onclick: function () { pick("custom", "your banner"); } }, [
-            el("img", { src: g.bannerImg, alt: "" }), el("span", { text: "Your banner" })]);
+            el("img", { src: ownBanner, alt: "" }), el("span", { text: "Your banner" })]);
           tiles.appendChild(mine);
         }
         body.appendChild(tiles);
         body.appendChild(el("div", { class: "k-gv-edit-h" }, [el("b", { text: "Set panoramas" }), el("span", { class: "k-muted", text: "from the Wall" })]));
         var grid = el("div", { class: "k-gv-bg-grid", role: "group", "aria-label": "Set panoramas" });
         (A ? A.sets() : []).forEach(function (st) {
-          var val = "pano:" + st.id, on = draft.seatBg === val || (!draft.seatBg && !g.bannerImg && st.id === "kurenai");
+          var val = "pano:" + st.id, on = draft.seatBg === val || (!draft.seatBg && !(KOS.profilePics && KOS.profilePics.has("banner", g)) && st.id === "kurenai");
           var img = el("img", { src: "assets/app/img/app.ach.pano." + st.id + ".webp", alt: "", loading: "lazy" });
           var b = el("button", { type: "button", class: "k-gv-bg-thumb", "aria-pressed": String(on), "aria-label": st.name, onclick: function () { pick(val, st.name); } }, [img, el("span", { text: st.name })]);
           b.style.setProperty("--set-hue", "var(" + st.hue + ")");
@@ -1326,7 +1334,7 @@
       var ctl = el("div", { class: "k-gv-glass k-gv-controls", "data-ui": "gov.avatar-controls" });
       grid.appendChild(ctl);
 
-      var hasPic = g.avatar.kind === "custom" && !!g.avatar.img, hasBanner = !!g.banner;
+      var hasPic = g.avatar.kind === "custom" && !!(KOS.profilePics && KOS.profilePics.has("avatar", g)), hasBanner = !!g.banner;
       var artPic = g.avatar.kind === "art" && KOS.governor.item(g.avatar.art);
       ctl.appendChild(el("div", { class: "k-gv-media", "data-ui": "gov.avatar-section", "aria-label": "Profile" }, [
         media({ label: "Profile picture", value: hasPic ? "Custom image" : artPic ? artPic.name : "Default", hook: "gov.avatar-mc",
@@ -1338,8 +1346,7 @@
             });
           },
           clear: hasPic || artPic ? function () {
-            g.avatar.kind = "seal"; g.avatar.img = null; g.avatar.crop = null;
-            store.save(); KOS.refreshHUD(); render();
+            KOS.governor.clearAvatar(); render();
           } : null, clearLabel: "Remove profile picture" }),
         media({ label: "Profile banner", value: g.banner ? (g.banner === "custom" ? "Custom banner" : bannerName(g.banner)) : "None", hook: "gov.avatar-mc",
           action: g.banner === "custom" ? "Reposition →" : hasBanner ? "Upload your own →" : "Add banner →", go: editBanner,
